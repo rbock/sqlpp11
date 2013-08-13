@@ -1,0 +1,282 @@
+/*
+ * Copyright (c) 2013, Roland Bock
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, 
+ * are permitted provided that the following conditions are met:
+ * 
+ *  * Redistributions of source code must retain the above copyright notice, 
+ *    this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright notice, 
+ *    this list of conditions and the following disclaimer in the documentation 
+ *    and/or other materials provided with the distribution.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#include <sqlpp11/examples/TabSample.h>
+#include <sqlpp11/select.h>
+
+#include <iostream>
+class DbMock
+{
+public:
+	const std::string& escape(const std::string& text) { return text; }
+};
+
+DbMock db;
+
+int main()
+{
+	TabSample t;
+
+	// Test a table
+	{
+		using T = decltype(t);
+		static_assert(not sqlpp::is_numeric_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_named_expression_t<T>::value, "type requirement");
+		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
+		static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
+		static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_table_t<T>::value, "type requirement");
+	}
+
+	// Test an alias of table
+	{
+		using T = decltype(t.as(sqlpp::alias::a));
+		static_assert(not sqlpp::is_numeric_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_named_expression_t<T>::value, "type requirement");
+		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
+		static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
+		static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_alias_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_table_t<T>::value, "type requirement");
+	}
+
+	// Test a colum of an alias of table
+	{
+		using T = decltype(t.as(sqlpp::alias::a).alpha);
+		static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_named_expression_t<T>::value, "type requirement");
+		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
+		static_assert(sqlpp::must_not_insert_t<T>::value, "type requirement");
+		static_assert(sqlpp::must_not_update_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
+	}
+
+
+	// Test a numeric table column
+	{
+		using T = decltype(t.alpha);
+		static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_named_expression_t<T>::value, "type requirement");
+		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
+		static_assert(sqlpp::must_not_insert_t<T>::value, "type requirement");
+		static_assert(sqlpp::must_not_update_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
+	}
+	// Test a an alias of a numeric table column
+	{
+		using T = decltype(t.alpha.as(sqlpp::alias::a));
+		static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_named_expression_t<T>::value, "type requirement");
+		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
+		static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
+		static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_alias_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
+	}
+
+	// Test a select of a single column without a from
+	{
+		using T = decltype(select(t.alpha)); // Hint: The current rule is pretty crude (a from is required), but certainly better than nothing
+		static_assert(not sqlpp::is_numeric_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_named_expression_t<T>::value, "type requirement");
+		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
+		static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
+		static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
+	}
+
+	// Test a select of a single numeric table column
+	{
+		using T = decltype(select(t.alpha).from(t));
+		static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_named_expression_t<T>::value, "type requirement");
+		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
+		static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
+		static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
+	}
+
+	// Test a select of an alias of a single numeric table column
+	{
+		using T = decltype(select(t.alpha.as(sqlpp::alias::a)).from(t));
+		static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_named_expression_t<T>::value, "type requirement");
+		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
+		static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
+		static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
+	}
+
+	// Test an alias of a select of a single numeric table column
+	{
+		using T = decltype(select(t.alpha).from(t).as(sqlpp::alias::b));
+		static_assert(not sqlpp::is_numeric_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_named_expression_t<T>::value, "type requirement");
+		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
+		static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
+		static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_boolean_t<T>::value, "red to not be boolean");
+		static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_alias_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_table_t<T>::value, "type requirement");
+	}
+
+	// Test the column of an alias of a select of an alias of a single numeric table column
+	{
+		using T = decltype(select(t.alpha.as(sqlpp::alias::a)).from(t).as(sqlpp::alias::b));
+		static_assert(not sqlpp::is_numeric_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_named_expression_t<T>::value, "type requirement");
+		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
+		static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
+		static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_alias_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_table_t<T>::value, "type requirement");
+	}
+
+	// Test the column of an alias of a select of a single numeric table column
+	{
+		using T = decltype(select(t.alpha).from(t).as(sqlpp::alias::b).alpha);
+		static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_named_expression_t<T>::value, "type requirement");
+		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
+		static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
+		static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
+	}
+
+	// Test an alias of a select of an alias of a single numeric table column
+	{
+		using T = decltype(select(t.alpha.as(sqlpp::alias::a)).from(t).as(sqlpp::alias::b).a);
+		static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_named_expression_t<T>::value, "type requirement");
+		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
+		static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
+		static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
+	}
+
+	// Test that select(all_of(tab)) is expanded in select
+	{
+		auto a = select(all_of(t));
+		auto b = select(t.alpha, t.beta, t.gamma);
+		auto c = select(t);
+		static_assert(std::is_same<decltype(a), decltype(b)>::value, "all_of(t) has to be expanded by select()");
+		static_assert(std::is_same<decltype(b), decltype(c)>::value, "t has to be expanded by select()");
+	}
+
+	// Test that select(all_of(tab)) is expanded in multi_column
+	{
+		auto a = multi_column(sqlpp::alias::a, all_of(t));
+		auto b = multi_column(sqlpp::alias::a, t.alpha, t.beta, t.gamma);
+		static_assert(std::is_same<decltype(a), decltype(b)>::value, "all_of(t) has to be expanded by multi_column");
+	}
+
+	// Test that a multicolumn is not a value
+	{
+		auto m = multi_column(sqlpp::alias::a, t.alpha, t.beta);
+		auto a = select(m).from(t).as(sqlpp::alias::b).a;
+		static_assert(not sqlpp::is_value_t<decltype(a)>::value, "a multi_column is not a value");
+	}
+
+
+	static_assert(sqlpp::is_select_flag_t<decltype(sqlpp::all)>::value, "sqlpp::all has to be a select_flag");
+  using T = sqlpp::detail::wrap_operand<int>::type;
+	static_assert(T::_is_expression, "T has to be an expression");
+	static_assert(std::is_same<typename T::_value_type::_is_numeric, sqlpp::detail::tag>::value, "T has to be a numeric");
+	static_assert(sqlpp::is_numeric_t<T>::value, "T has to be a numeric");
+	static_assert(sqlpp::is_numeric_t<decltype(t.alpha)>::value, "TabSample.alpha has to be a numeric");
+	((t.alpha + 7) + 4).asc();
+	static_assert(sqlpp::is_boolean_t<decltype(t.gamma == t.gamma)>::value, "Comparison expression have to be boolean");
+	auto x = (t.gamma == true) and (t.alpha == 7);
+	auto y = t.gamma and true and t.gamma;
+	!t.gamma;
+	t.beta < "kaesekuchen";
+	(t.beta + "hallenhalma").serialize(std::cerr, db);
+	static_assert(sqlpp::must_not_insert_t<decltype(t.alpha)>::value, "alpha must not be inserted");
+	t.alpha.serialize(std::cerr, db);
+	std::cerr << "\n" << sizeof(TabSample) << std::endl;
+	static_assert(std::is_same<typename decltype(t.alpha)::_value_type::_is_named_expression, sqlpp::detail::tag>::value, "alpha should be a named expression");
+	static_assert(sqlpp::is_named_expression_t<decltype(t.alpha)>::value, "alpha should be a named expression");
+	static_assert(sqlpp::is_named_expression_t<decltype(t.alpha.as(sqlpp::alias::a))>::value, "an alias of alpha should be a named expression");
+	static_assert(sqlpp::is_alias_t<decltype(t.alpha.as(sqlpp::alias::a))>::value, "an alias of alpha should be an alias");
+	auto z = select(t.alpha) == 7;
+	auto l = t.as(sqlpp::alias::left);
+	auto r = select(t.gamma.as(sqlpp::alias::a)).from(t).where(t.gamma == true).as(sqlpp::alias::right);
+	static_assert(sqlpp::is_boolean_t<decltype(select(t.gamma).from(t))>::value, "select(bool) has to be a bool");
+	select(sqlpp::distinct, sqlpp::straight_join, l.alpha, l.beta, select(r.a).from(r))
+		.from(l, r)
+		.where(t.beta == "hello world" and select(t.gamma).from(t))// .as(sqlpp::alias::right))
+		.group_by(l.gamma, r.a)
+		.having(r.a != true)
+		.order_by(l.beta.asc())
+		.limit(17)
+		.offset(3)
+		.as(sqlpp::alias::a)
+		.serialize(std::cerr, db);
+
+	return 0;
+}
