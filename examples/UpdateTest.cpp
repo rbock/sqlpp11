@@ -26,7 +26,7 @@
 #include <iostream>
 #include <sqlpp11/update.h>
 #include <sqlpp11/select.h>
-#include <sqlpp11/examples/TabSample.h>
+#include "TabSample.h"
 
 #include <iostream>
 class DbMock

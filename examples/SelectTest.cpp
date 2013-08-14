@@ -23,7 +23,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/examples/TabSample.h>
+#include "TabSample.h"
 #include <sqlpp11/select.h>
 
 #include <iostream>
