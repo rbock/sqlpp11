@@ -72,13 +72,20 @@ namespace sqlpp
 
 				bool _is_trivial() const { return value() == 0; }
 
-				bool is_null() const { return _is_null; }
+				bool is_null() const
+			 	{ 
+					if (not _is_valid)
+						throw exception("accessing is_null in non-existing row");
+					return _is_null; 
+				}
+
 				int64_t value() const
 				{
 					if (not _is_valid)
 						throw exception("accessing value in non-existing row");
 					return _value;
 				}
+
 				operator int64_t() const { return value(); }
 
 			private:

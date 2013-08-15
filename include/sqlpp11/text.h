@@ -86,13 +86,20 @@ namespace sqlpp
 				bool operator==(const std::string& rhs) const { return value() == rhs; }
 				bool operator!=(const std::string& rhs) const { return not operator==(rhs); }
 
-				bool is_null() const { return _is_null; }
+				bool is_null() const
+			 	{ 
+					if (not _is_valid)
+						throw exception("accessing is_null in non-existing row");
+					return _is_null; 
+				}
+
 				std::string value() const
 				{
 					if (not _is_valid)
 						throw exception("accessing value in non-existing row");
 					return _value;
 				}
+
 				operator std::string() const { return value(); }
 
 			private:
