@@ -1,24 +1,28 @@
 sqlpp11
 =======
 
-A type safe SQL template library for C++
+A type safe template library for SQL queries and results in C++
 
 
 Motivation:
 -----------
-SQL and C++ are both strongly typed languages. They should play well together. Still, most C/C++ interface are based on constructing strings for querys and on interpreting arrays or maps of strings as results. Typicaly there are a bunch of helper functions and classes that help to construct queries, to interpret results or to avoid code injection.
+SQL and C++ are both strongly typed languages. Still, most C/C++ interfaces to SQL are based on constructing queries as strings and on interpreting arrays or maps of strings as results.
 
 sqlpp11 is a templated library representing an embedded domain specific language (EDSL) that allows you to
 
-  * define types representing tables and columns
-  * construct typesafe queries checked at compile time for syntax errors, type errors, name errors and even some semantic errors
-  * interpret results by iterating over query-specific structs with appropriately named and typed members
+  * define types representing tables and columns,
+  * construct type safe queries checked at compile time for syntax errors, type errors, name errors and even some semantic errors,
+  * interpret results by iterating over query-specific structs with appropriately named and typed members.
 
-Under the hood, it still communicates with the database via strings, but the library user operates on structs and functions. And the compiler will report many kinds of errors long before the code enters unit testing or production.
+This results in several benefits, e.g.
+
+  * the library user operates comfortably on structs and functions,
+	* the compiler reports many kinds of errors long before the code enters unit testing or production,
+	* the library hides the gory details of string construction for queries and interpreting string based results returned by select calls.
 
 Examples:
 ---------
-For the examples, lets assume you had a table class representing something like 
+For the examples, lets assume you have a table class representing something like 
 
 ```SQL
 CREATE TABLE foo (
@@ -66,7 +70,7 @@ These will be documented soon.
 db.run(insert_into(foo).set(foo.id = 17, foo.name = "bar", foo.hasFun = true));
 
 // A sample update
-db.run(update(foo).set(foo.hasFun = not foo.hasFun).where(foo.name != "nobody");
+db.run(update(foo).set(foo.hasFun = not foo.hasFun).where(foo.name != "nobody"));
 
 // A sample delete
 db.run(remove_from(tab).where(not tab.hasFun));
