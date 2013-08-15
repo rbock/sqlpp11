@@ -78,11 +78,14 @@ db.run(remove_from(foo).where(not foo.hasFun));
 
 Requirements:
 -------------
-sqlpp11 makes heavy use of C++11. It has been developed using 
+__Compiler:__
+sqlpp11 makes heavy use of C++11 and requires a recent compiler and STL. The following compilers are known to compile the test programs:
 
-clang-3.2 on Ubuntu-10.4 with matching libc++
+    * clang-3.2 on Ubuntu-12.4
+    * g++-4.8 on Ubuntu-12.4
 
-It also requires a database library with a matching interface, see database/api.h
+__Database Connector:__
+sqlpp11 requires a certain api in order to connect with the database, see database/api.h.
 
 Links to sample implementations will follow soon.
 

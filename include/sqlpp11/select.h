@@ -102,7 +102,7 @@ namespace sqlpp
 			using add_limit_t = select_t<Flags, ExpressionList, From, Where, GroupBy, Having, OrderBy, limit_t, Offset>;
 			using add_offset_t = select_t<Flags, ExpressionList, From, Where, GroupBy, Having, OrderBy, Limit, offset_t>;
 
-			using result_row_t = result_row_t<NamedExpr...>;
+			using _result_row_t = result_row_t<NamedExpr...>;
 
 			// Indicators
 			using _value_type = typename std::conditional<
@@ -218,7 +218,7 @@ namespace sqlpp
 					return {
 							_flags, 
 							_expression_list, 
-							{{std::forward<Table>(table)...}}, 
+							{std::tuple<typename std::decay<Table>::type...>{std::forward<Table>(table)...}}, 
 							_where, 
 							_group_by, 
 							_having, 
@@ -256,7 +256,7 @@ namespace sqlpp
 							_expression_list,
 							_from,
 							_where,
-							{{std::forward<Col>(column)...}},
+							{std::tuple<typename std::decay<Col>::type...>{std::forward<Col>(column)...}},
 							_having,
 							_order_by,
 							_limit,
@@ -294,7 +294,7 @@ namespace sqlpp
 							_where,
 							_group_by,
 							_having,
-							{{std::forward<OrderExpr>(expr)...}},
+							{std::tuple<typename std::decay<OrderExpr>::type...>{std::forward<OrderExpr>(expr)...}},
 							_limit,
 							_offset
 							};
@@ -383,7 +383,7 @@ namespace sqlpp
 
 			// Execute
 			template<typename Db>
-				result_t<Db, result_row_t> run(Db& db) const
+				result_t<Db, _result_row_t> run(Db& db) const
 				{
 					static_assert(not is_noop<ExpressionList>::value, "cannot run select without having selected anything");
 					static_assert(is_from_t<From>::value, "cannot run select without a from()");

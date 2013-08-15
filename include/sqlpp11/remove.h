@@ -65,7 +65,7 @@ namespace sqlpp
 					static_assert(std::is_same<Where, noop>::value, "cannot call using() after where()");
 					return {
 							_table,
-							{{std::forward<Tab>(tab)...}},
+							{std::tuple<typename std::decay<Tab>::type...>{std::forward<Tab>(tab)...}},
 							_where
 					};
 				}

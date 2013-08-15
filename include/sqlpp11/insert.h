@@ -65,7 +65,7 @@ namespace sqlpp
 					static_assert(std::is_same<Assignments, noop>::value, "cannot call set() twice");
 					return {
 							_table,
-							{std::forward<Assignment>(assignment)...},
+							{std::tuple<typename std::decay<Assignment>::type...>{std::forward<Assignment>(assignment)...}},
 					};
 				}
 

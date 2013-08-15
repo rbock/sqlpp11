@@ -73,7 +73,7 @@ namespace sqlpp
 	template<typename AliasProvider, typename... NamedExpr>
 		detail::make_multi_column_t<AliasProvider, NamedExpr...> multi_column(AliasProvider&& aliasProvider, NamedExpr&&... namedExpr) 
 		{
-			return { {std::forward<NamedExpr>(namedExpr)...}};
+			return { decltype(make_expression_tuple(std::declval<NamedExpr>()...)){std::forward<NamedExpr>(namedExpr)...}};
 		}
 
 }
