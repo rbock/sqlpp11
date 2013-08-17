@@ -34,28 +34,36 @@
 namespace sqlpp
 {
 	template<typename Db, typename ResultRow>
-		struct result_t
+		class result_t
 	{
-		using db_result_t = typename Db::result;
+		using db_result_t = typename Db::_result;
 		
+		db_result_t _result;
+		raw_result_row_t _raw_result_row;
+		raw_result_row_t _end;
+
+	public:
+		result_t(db_result_t&& result):
+			_result(std::forward<db_result_t>(result)),
+			_raw_result_row(_result.next()),
+			_end({})
+			{}
+
+		result_t(const result_t&) = delete;
+		result_t(result_t&&) = default;
+		result_t& operator=(const result_t&) = delete;
+		result_t& operator=(result_t&&) = default;
+
 		// Iterator
 		class iterator
 		{
 		public:
-			iterator(db_result_t& result):
-				_result(result),
-				_raw_result_row({}),
-				_result_row(_raw_result_row)
-			{
-				std::cerr << "result::iterator::end-constructor" << std::endl;
-			}
-
-			iterator(db_result_t& result, const raw_result_row_t& raw_result_row):
+			iterator(db_result_t& result, raw_result_row_t& raw_result_row):
 				_result(result),
 				_raw_result_row(raw_result_row),
 				_result_row(_raw_result_row)
 			{
-				std::cerr << "result::iterator::begin-constructor" << std::endl;
+				std::cerr << "result::iterator::constructor" << std::endl;
 			}
 
 			const ResultRow& operator*() const
@@ -85,23 +93,28 @@ namespace sqlpp
 			}
 
 			db_result_t& _result;
-			raw_result_row_t _raw_result_row;
+			raw_result_row_t& _raw_result_row;
 			ResultRow _result_row;
 		};
 
+		size_t size() const
+		{
+			return _result.num_rows();
+		}
+
 		iterator begin()
 		{
-			return iterator(_result, _result.next());
+			return iterator(_result, _raw_result_row);
 		}
 
 		iterator end()
 		{
-			return _result;
+			return iterator(_result, _end);
 		}
 
 		const ResultRow operator*()
 		{
-			return {_result.next()};
+			return {_raw_result_row};
 		}
 
 		iterator operator->()
@@ -109,7 +122,6 @@ namespace sqlpp
 			return begin();
 		}
 
-		db_result_t _result;
 	};
 }
 
