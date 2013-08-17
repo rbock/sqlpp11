@@ -235,6 +235,13 @@ int main()
 		static_assert(std::is_same<decltype(a), decltype(b)>::value, "all_of(t) has to be expanded by multi_column");
 	}
 
+	// Test that select(tab) is expanded in multi_column
+	{
+		auto a = multi_column(sqlpp::alias::a, t);
+		auto b = multi_column(sqlpp::alias::a, t.alpha, t.beta, t.gamma);
+		static_assert(std::is_same<decltype(a), decltype(b)>::value, "t has to be expanded by multi_column");
+	}
+
 	// Test that a multicolumn is not a value
 	{
 		auto m = multi_column(sqlpp::alias::a, t.alpha, t.beta);

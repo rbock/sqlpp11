@@ -10,15 +10,15 @@ SQL and C++ are both strongly typed languages. Still, most C/C++ interfaces to S
 
 sqlpp11 is a templated library representing an embedded domain specific language (EDSL) that allows you to
 
-    * define types representing tables and columns,
-    * construct type safe queries checked at compile time for syntax errors, type errors, name errors and even some semantic errors,
-    * interpret results by iterating over query-specific structs with appropriately named and typed members.
+  * define types representing tables and columns,
+  * construct type safe queries checked at compile time for syntax errors, type errors, name errors and even some semantic errors,
+  * interpret results by iterating over query-specific structs with appropriately named and typed members.
 
 This results in several benefits, e.g.
 
-    * the library user operates comfortably on structs and functions,
-    * the compiler reports many kinds of errors long before the code enters unit testing or production,
-    * the library hides the gory details of string construction for queries and interpreting string based results returned by select calls.
+  * the library user operates comfortably on structs and functions,
+  * the compiler reports many kinds of errors long before the code enters unit testing or production,
+  * the library hides the gory details of string construction for queries and interpreting string based results returned by select calls.
 
 Examples:
 ---------
