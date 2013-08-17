@@ -149,25 +149,25 @@ namespace sqlpp
 					}
 
 				template<typename T>
-					auto operator +=(T&& t) const -> decltype(std::declval<Base>() = operator +(std::forward<T>(t)))
+					auto operator +=(T&& t) const -> decltype(std::declval<Base>() = std::declval<Base>() + std::forward<T>(t))
 					{
 						return *static_cast<const Base*>(this) = operator +(std::forward<T>(t));
 					}
 
 				template<typename T>
-					auto operator -=(T&& t) const -> decltype(std::declval<Base>() = operator -(std::forward<T>(t)))
+					auto operator -=(T&& t) const -> decltype(std::declval<Base>() = std::declval<Base>() - std::forward<T>(t))
 					{
 						return *static_cast<const Base*>(this) = operator -(std::forward<T>(t));
 					}
 
 				template<typename T>
-					auto operator /=(T&& t) const -> decltype(std::declval<Base>() = operator /(std::forward<T>(t)))
+					auto operator /=(T&& t) const -> decltype(std::declval<Base>() = std::declval<Base>() / std::forward<T>(t))
 					{
 						return *static_cast<const Base*>(this) = operator /(std::forward<T>(t));
 					}
 
 				template<typename T>
-					auto operator *=(T&& t) const -> decltype(std::declval<Base>() = operator *(std::forward<T>(t)))
+					auto operator *=(T&& t) const -> decltype(std::declval<Base>() = std::declval<Base>() * std::forward<T>(t))
 					{
 						return *static_cast<const Base*>(this) = operator *(std::forward<T>(t));
 					}
