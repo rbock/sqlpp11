@@ -34,7 +34,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 endif ()
 
 include_directories("${PROJECT_SOURCE_DIR}/include")
-add_subdirectory(examples)
+add_subdirectory(tests)
 
 install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/sqlpp11" DESTINATION include)
 
