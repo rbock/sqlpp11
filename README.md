@@ -81,8 +81,8 @@ Requirements:
 __Compiler:__
 sqlpp11 makes heavy use of C++11 and requires a recent compiler and STL. The following compilers are known to compile the test programs:
 
-    * clang-3.2 on Ubuntu-12.4
-    * g++-4.8 on Ubuntu-12.4
+  * clang-3.2 on Ubuntu-12.4
+  * g++-4.8 on Ubuntu-12.4
 
 __Database Connector:__
 sqlpp11 requires a certain api in order to connect with the database, see database/api.h.
