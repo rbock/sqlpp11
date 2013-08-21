@@ -127,12 +127,12 @@ namespace sqlpp
 					return { *static_cast<const Base*>(this), std::forward<T>(t) };
 				}
 
-			nary_expression_t<Base, is_null_> is_null() const
+			null_expression_t<Base, is_null_> is_null() const
 			{
 				return { *static_cast<const Base*>(this) };
 			}
 
-			nary_expression_t<Base, is_not_null_> is_not_null() const
+			null_expression_t<Base, is_not_null_> is_not_null() const
 			{
 				return { *static_cast<const Base*>(this) };
 			}
@@ -147,7 +147,7 @@ namespace sqlpp
 				return { *static_cast<const Base*>(this) };
 			}
 
-			// Hint: use wrappers for containers...
+			// Hint: use value_list wrapper for containers...
 			template<typename... T>
 				nary_expression_t<Base, in_, typename Constraint<T>::type...> in(T&&... t) const
 				{
