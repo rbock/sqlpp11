@@ -128,7 +128,7 @@ namespace sqlpp
 					}
 
 				template<typename T>
-					nary_expression_t<Base, like_, typename _constraint<T>::type> like(T&& t) const
+					nary_member_function_t<Base, like_, typename _constraint<T>::type> like(T&& t) const
 					{
 						return { *static_cast<const Base*>(this), std::forward<T>(t) };
 					}

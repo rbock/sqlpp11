@@ -104,25 +104,25 @@ namespace sqlpp
 					return { *static_cast<const Base*>(this), std::forward<T>(t) };
 				}
 			template<typename T>
-				nary_expression_t<Base, lt_, typename Constraint<T>::type> operator<(T&& t) const
+				binary_expression_t<Base, lt_, typename Constraint<T>::type> operator<(T&& t) const
 				{
 					return { *static_cast<const Base*>(this), std::forward<T>(t) };
 				}
 
 			template<typename T>
-				nary_expression_t<Base, le_, typename Constraint<T>::type> operator<=(T&& t) const
+				binary_expression_t<Base, le_, typename Constraint<T>::type> operator<=(T&& t) const
 				{
 					return { *static_cast<const Base*>(this), std::forward<T>(t) };
 				}
 
 			template<typename T>
-				nary_expression_t<Base, ge_, typename Constraint<T>::type> operator>=(T&& t) const
+				binary_expression_t<Base, ge_, typename Constraint<T>::type> operator>=(T&& t) const
 				{
 					return { *static_cast<const Base*>(this), std::forward<T>(t) };
 				}
 
 			template<typename T>
-				nary_expression_t<Base, gt_, typename Constraint<T>::type> operator>(T&& t) const
+				binary_expression_t<Base, gt_, typename Constraint<T>::type> operator>(T&& t) const
 				{
 					return { *static_cast<const Base*>(this), std::forward<T>(t) };
 				}
@@ -149,14 +149,14 @@ namespace sqlpp
 
 			// Hint: use value_list wrapper for containers...
 			template<typename... T>
-				nary_expression_t<Base, in_, typename Constraint<T>::type...> in(T&&... t) const
+				nary_member_function_t<Base, in_, typename Constraint<T>::type...> in(T&&... t) const
 				{
 					static_assert(sizeof...(T) > 0, "in() requires at least one argument");
 					return { *static_cast<const Base*>(this), std::forward<T>(t)... };
 				}
 
 			template<typename... T>
-				nary_expression_t<Base, not_in_, typename Constraint<T>::type...> not_in(T&&... t) const
+				nary_member_function_t<Base, not_in_, typename Constraint<T>::type...> not_in(T&&... t) const
 				{
 					static_assert(sizeof...(T) > 0, "not_in() requires at least one argument");
 					return { *static_cast<const Base*>(this), std::forward<T>(t)... };

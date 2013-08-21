@@ -125,25 +125,25 @@ namespace sqlpp
 				struct operators: public basic_operators<Base, _constraint>
 			{
 				template<typename T>
-					nary_expression_t<Base, plus_, typename _constraint<T>::type> operator +(T&& t) const
+					binary_expression_t<Base, plus_, typename _constraint<T>::type> operator +(T&& t) const
 					{
 						return { *static_cast<const Base*>(this), std::forward<T>(t) };
 					}
 
 				template<typename T>
-					nary_expression_t<Base, minus_, typename _constraint<T>::type> operator -(T&& t) const
+					binary_expression_t<Base, minus_, typename _constraint<T>::type> operator -(T&& t) const
 					{
 						return { *static_cast<const Base*>(this), std::forward<T>(t) };
 					}
 
 				template<typename T>
-					nary_expression_t<Base, multiplies_, typename _constraint<T>::type> operator *(T&& t) const
+					binary_expression_t<Base, multiplies_, typename _constraint<T>::type> operator *(T&& t) const
 					{
 						return { *static_cast<const Base*>(this), std::forward<T>(t) };
 					}
 
 				template<typename T>
-					nary_expression_t<Base, divides_, typename _constraint<T>::type> operator /(T&& t) const
+					binary_expression_t<Base, divides_, typename _constraint<T>::type> operator /(T&& t) const
 					{
 						return { *static_cast<const Base*>(this), std::forward<T>(t) };
 					}

@@ -50,9 +50,8 @@ namespace sqlpp
 					}
 					else
 					{
-						os << "=(";
+						os << "=";
 						_rhs.serialize(os, db);
-						os << ")";
 					}
 				}
 
@@ -80,6 +79,7 @@ namespace sqlpp
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
+					os << "(";
 					_lhs.serialize(os, db);
 					if (trivial_value_is_null_t<Lhs>::value and _rhs._is_trivial())
 					{
@@ -87,10 +87,10 @@ namespace sqlpp
 					}
 					else
 					{
-						os << "=(";
+						os << "=";
 						_rhs.serialize(os, db);
-						os << ")";
 					}
+					os << ")";
 				}
 
 		private:
@@ -118,6 +118,7 @@ namespace sqlpp
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
+					os << "(";
 					_lhs.serialize(os, db);
 					if (trivial_value_is_null_t<Lhs>::value and _rhs._is_trivial())
 					{
@@ -125,10 +126,10 @@ namespace sqlpp
 					}
 					else
 					{
-						os << "!=(";
+						os << "!=";
 						_rhs.serialize(os, db);
-						os << ")";
 					}
+					os << ")";
 				}
 
 		private:
@@ -155,6 +156,7 @@ namespace sqlpp
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
+					os << "(";
 					if (trivial_value_is_null_t<Lhs>::value and _lhs._is_trivial())
 					{
 						_lhs.serialize(os, db);
@@ -162,10 +164,10 @@ namespace sqlpp
 					}
 					else
 					{
-						os << "NOT(";
+						os << "NOT";
 						_lhs.serialize(os, db);
-						os << ")";
 					}
+					os << ")";
 				}
 
 		private:
@@ -196,44 +198,82 @@ namespace sqlpp
 				{
 					os << "(";
 					_lhs.serialize(os, db);
-					os << ")";
+					os << " ";
 					os << O::_name;
+					os << ")";
 				}
 
 		private:
 			Lhs _lhs;
 		};
 
-	template<typename Lhs, typename O, typename... Rhs>
-		struct nary_expression_t: public O::_value_type::template operators<nary_expression_t<Lhs, O, Rhs...>>
+	template<typename Lhs, typename O, typename Rhs>
+		struct binary_expression_t: public O::_value_type::template operators<binary_expression_t<Lhs, O, Rhs>>
 		{
 			using _value_type = typename O::_value_type;
 
-			nary_expression_t(Lhs&& l, Rhs&&... r):
+			binary_expression_t(Lhs&& l, Rhs&& r):
 				_lhs(std::move(l)), 
-				_rhs(std::move(r)...)
+				_rhs(std::move(r))
 			{}
 
-			nary_expression_t(const Lhs& l, const Rhs&... r):
+			binary_expression_t(const Lhs& l, const Rhs& r):
 				_lhs(l), 
-				_rhs(r...)
+				_rhs(r)
 			{}
 
-			nary_expression_t(const nary_expression_t&) = default;
-			nary_expression_t(nary_expression_t&&) = default;
-			nary_expression_t& operator=(const nary_expression_t&) = default;
-			nary_expression_t& operator=(nary_expression_t&&) = default;
-			~nary_expression_t() = default;
+			binary_expression_t(const binary_expression_t&) = default;
+			binary_expression_t(binary_expression_t&&) = default;
+			binary_expression_t& operator=(const binary_expression_t&) = default;
+			binary_expression_t& operator=(binary_expression_t&&) = default;
+			~binary_expression_t() = default;
 
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
 					os << "(";
 					_lhs.serialize(os, db);
+					os << O::_name;
+					_rhs.serialize(os, db);
 					os << ")";
+				}
+
+		private:
+			Lhs _lhs;
+			Rhs _rhs;
+		};
+
+	template<typename Lhs, typename O, typename... Rhs>
+		struct nary_member_function_t: public O::_value_type::template operators<nary_member_function_t<Lhs, O, Rhs...>>
+		{
+			using _value_type = typename O::_value_type;
+
+			nary_member_function_t(Lhs&& l, Rhs&&... r):
+				_lhs(std::move(l)), 
+				_rhs(std::move(r)...)
+			{}
+
+			nary_member_function_t(const Lhs& l, const Rhs&... r):
+				_lhs(l), 
+				_rhs(r...)
+			{}
+
+			nary_member_function_t(const nary_member_function_t&) = default;
+			nary_member_function_t(nary_member_function_t&&) = default;
+			nary_member_function_t& operator=(const nary_member_function_t&) = default;
+			nary_member_function_t& operator=(nary_member_function_t&&) = default;
+			~nary_member_function_t() = default;
+
+			template<typename Db>
+				void serialize(std::ostream& os, Db& db) const
+				{
+					os << "(";
+					_lhs.serialize(os, db);
+					os << " ";
 					os << O::_name;
 					os << "(";
 					detail::serialize_tuple(os, db, _rhs, ',');
+					os << ")";
 					os << ")";
 				}
 
