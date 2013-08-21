@@ -39,6 +39,8 @@ namespace sqlpp
 		template<typename T>\
 			struct NAME##_t\
 			{\
+				static_assert(CONSTRAINT<typename std::decay<T>::type>::value, #NAME "() argument has constraint: " #CONSTRAINT);\
+				static_assert(is_expression_t<typename std::decay<T>::type>::value, #NAME "() argument has contraint: is_expression_t");\
 				using _operand = typename operand_t<T, CONSTRAINT>::type;\
 				\
 				struct _op\
