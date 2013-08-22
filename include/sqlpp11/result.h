@@ -97,11 +97,6 @@ namespace sqlpp
 			ResultRow _result_row;
 		};
 
-		size_t size() const
-		{
-			return _result.num_rows();
-		}
-
 		iterator begin()
 		{
 			return iterator(_result, _raw_result_row);

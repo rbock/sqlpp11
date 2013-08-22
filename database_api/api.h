@@ -45,10 +45,9 @@ namespace sqlpp
 
 			bool operator==(const result& rhs) const;
 
-			//! return the next row from the result or nullptr, if there is no next row
+			//! return the next row from the result or a "false" row, if there is no next row
 			sqlpp::raw_result_row_t next();
 			size_t num_cols() const;
-			size_t num_rows() const;
 		};
 
 		class connection: public sqlpp::connection
