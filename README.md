@@ -87,7 +87,8 @@ sqlpp11 makes heavy use of C++11 and requires a recent compiler and STL. The fol
 __Database Connector:__
 sqlpp11 requires a certain api in order to connect with the database, see database/api.h.
 
-Links to sample implementations will follow soon.
+  * MySQL: https://github.com/rbock/sqlpp11-connector-mysql
+  * More to follow
 
 
 
