@@ -84,7 +84,7 @@ namespace sqlpp
 	template<typename T>
 		auto value(T&& t) -> typename operand_t<T, is_value_t>::type
 		{
-			static_assert(not is_value_t<typename std::decay<T>::type>::value, "value() is to be called with non-sqlpp-type like int, or string");
+			static_assert(not is_value_t<typename std::decay<T>::type>::value, "value() is to be called with non-sql-type like int, or string");
 			return { std::forward<T>(t) };
 		}
 
@@ -152,7 +152,7 @@ namespace sqlpp
 	template<typename Container>
 	auto value_list(Container&& c) -> value_list_t<typename std::decay<Container>::type>
 	{
-		static_assert(not is_value_t<typename std::decay<Container>::type::value_type>::value, "value_list() is to be called with a container of non-sqlpp-type like std::vector<int>, or std::list(string)");
+		static_assert(not is_value_t<typename std::decay<Container>::type::value_type>::value, "value_list() is to be called with a container of non-sql-type like std::vector<int>, or std::list(string)");
 		return { std::forward<Container>(c) };
 	}
 

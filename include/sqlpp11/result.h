@@ -36,7 +36,7 @@ namespace sqlpp
 	template<typename Db, typename ResultRow>
 		class result_t
 	{
-		using db_result_t = typename Db::_result;
+		using db_result_t = typename Db::_result_t;
 		
 		db_result_t _result;
 		raw_result_row_t _raw_result_row;
