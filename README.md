@@ -39,7 +39,7 @@ TabFoo foo;
 Db db(/* some arguments*/);
 
 // selecting zero or more results, iterating over the results
-for (const auto& row: db.run(select(foo.name, foo.hasFun).from(foo).where(foo.id > 17 and foo.name.like("%bar%"))))
+for (const auto& row : db.run(select(foo.name, foo.hasFun).from(foo).where(foo.id > 17 and foo.name.like("%bar%"))))
 {
     if (row.name.is_null())
         std::cerr << "name is null, will convert to empty string" << std::endl;
@@ -48,7 +48,7 @@ for (const auto& row: db.run(select(foo.name, foo.hasFun).from(foo).where(foo.id
 }
 
 // selecting ALL columns of a table
-for (const auto& row: db.run(select(all_of(foo)).from(foo).where(foo.hasFun or foo.name == "joker")))
+for (const auto& row : db.run(select(all_of(foo)).from(foo).where(foo.hasFun or foo.name == "joker")))
 {
     int64_t id = row.id; // numeric fields are implicitly convertible to numeric c++ types
 }
