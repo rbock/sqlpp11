@@ -1,0 +1,14 @@
+Credits:
+========
+This library evolved through several stages and would probably not exist without input from other people:
+
+  * Michael Gmelin: Interface and requirements discussions
+	* Paul Körbitz:   Feedback and extensions
+	* Peter Knoblach: Initial ideas
+	* Ulrich Küttler: Feedback and extensions
+
+	* Metafeed GmbH: Production code using a forerunner version
+	* PPRO Financial Ltd: Production code using sqlpp11 and a forerunner version
+
+
+If you miss your name of this list, please let me know.
