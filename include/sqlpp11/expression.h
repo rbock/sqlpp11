@@ -39,11 +39,12 @@ namespace sqlpp
 		{
 			using _is_assignment = tag_yes;
 			using column_type = Lhs;
+			using value_type = Rhs;
 
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
-					_lhs.serialize(os, db);
+					_lhs.serialize_name(os, db);
 					if (trivial_value_is_null_t<Lhs>::value and _rhs._is_trivial())
 					{
 						os << "=NULL";

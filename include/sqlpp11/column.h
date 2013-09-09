@@ -59,6 +59,12 @@ namespace sqlpp
 				os << Table::_name_t::_get_name() << '.' << _name_t::_get_name();
 			}
 
+		template<typename Db>
+			void serialize_name(std::ostream& os, Db& db) const
+			{
+				os << _name_t::_get_name();
+			}
+
 		template<typename alias_provider>
 			expression_alias_t<column_t, typename std::decay<alias_provider>::type> as(alias_provider&&) const
 			{

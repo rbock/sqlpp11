@@ -64,6 +64,17 @@ namespace sqlpp
 	template<typename T>\
 		struct name##_t: detail::name##_impl<T> {};
 
+#define SQLPP_CONNECTOR_TRAIT_GENERATOR(name) \
+	namespace detail\
+	{\
+		template<typename T, typename Enable = void>\
+			struct connector_##name##_impl: std::false_type {};\
+		template<typename T>\
+			struct connector_##name##_impl<T, typename std::enable_if<std::is_same<typename T::_tags::_##name, tag>::value>::type>: std::true_type {};\
+	}\
+	template<typename T>\
+		struct connector_##name##_t: detail::connector_##name##_impl<T> {};
+
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(boolean);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(numeric);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(text);
@@ -96,8 +107,11 @@ namespace sqlpp
 	SQLPP_TYPE_TRAIT_GENERATOR(is_value_list);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_assignment);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_assignment_list);
+	SQLPP_TYPE_TRAIT_GENERATOR(is_insert_list);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_sort_order);
 	SQLPP_TYPE_TRAIT_GENERATOR(requires_braces);
+
+	SQLPP_CONNECTOR_TRAIT_GENERATOR(has_empty_list_insert);
 
 	template<typename T, template<typename> class IsTag>
 		using copy_type_trait = typename std::conditional<IsTag<T>::value, detail::tag, void>::type;

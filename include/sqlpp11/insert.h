@@ -30,7 +30,7 @@
 #include <sstream>
 #include <sqlpp11/noop.h>
 #include <sqlpp11/select_fwd.h>
-#include <sqlpp11/assignment_list.h>
+#include <sqlpp11/insert_list.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/detail/serialize_tuple.h>
 
@@ -43,29 +43,29 @@ namespace sqlpp
 	//       insert.
 	template<
 		typename Table = noop,
-		typename Assignments = noop
+		typename InsertList = noop
 		>
 	struct insert_t;
 
 	template<
 		typename Table,
-		typename Assignments
+		typename InsertList
 		>
 		struct insert_t
 		{
 			static_assert(is_noop<Table>::value or is_table_t<Table>::value, "invalid 'Table' argument");
-			static_assert(is_noop<Assignments>::value or is_assignment_list_t<Assignments>::value, "invalid 'Assignments' arguments");
+			static_assert(is_noop<InsertList>::value or is_insert_list_t<InsertList>::value, "invalid 'InsertList' argument");
 
 			template<typename... Assignment> 
-				using add_assignments_t = insert_t<Table, assignment_list_t<must_not_insert_t, typename std::decay<Assignment>::type...>>;
+				using add_insert_list_t = insert_t<Table, insert_list_t<must_not_insert_t, typename std::decay<Assignment>::type...>>;
 
 			template<typename... Assignment>
-				add_assignments_t<Assignment...> set(Assignment&&... assignment)
+				add_insert_list_t<Assignment...> set(Assignment&&... assignment)
 				{
-					static_assert(std::is_same<Assignments, noop>::value, "cannot call set() twice");
+					static_assert(std::is_same<InsertList, noop>::value, "cannot call set() twice");
 					return {
 							_table,
-							{std::tuple<typename std::decay<Assignment>::type...>{std::forward<Assignment>(assignment)...}},
+							insert_list_t<must_not_insert_t, Assignment...>{std::forward<Assignment>(assignment)...},
 					};
 				}
 
@@ -74,10 +74,15 @@ namespace sqlpp
 				{
 					os << "INSERT INTO ";
 					_table.serialize(os, db);
-					if (is_noop<Assignments>::value)
-						os << "() VALUES()";
+					if (is_noop<InsertList>::value)
+					{
+						if (connector_has_empty_list_insert_t<typename std::decay<Db>::type>::value)
+							os << " () VALUES()";
+						else
+							os << " DEFAULT VALUES";
+					}
 					else
-						_assignments.serialize(os, db);
+						_insert_list.serialize(os, db);
 					return *this;
 				}
 
@@ -91,7 +96,7 @@ namespace sqlpp
 			template<typename Db>
 				std::size_t run(Db& db) const
 				{
-					constexpr bool calledSet = not is_noop<Assignments>::value;
+					constexpr bool calledSet = not is_noop<InsertList>::value;
 					constexpr bool requireSet = Table::_required_insert_columns::size::value > 0;
 					static_assert(calledSet or not requireSet, "calling set() required for given table");
 					std::ostringstream oss;
@@ -100,7 +105,7 @@ namespace sqlpp
 				}
 
 			Table _table;
-			Assignments _assignments;
+			InsertList _insert_list;
 		};
 
 	template<typename Table>
