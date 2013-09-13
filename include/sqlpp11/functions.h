@@ -52,11 +52,11 @@ namespace sqlpp
 					struct _name_t\
 					{\
 						static constexpr const char* _get_name() { return #SQL; }\
-					};\
-					template<typename M>\
-					struct _member_t\
-					{\
-						M NAME;\
+						template<typename M>\
+						struct _member_t\
+						{\
+							M NAME;\
+						};\
 					};\
 				};\
 				\

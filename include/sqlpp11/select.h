@@ -112,8 +112,6 @@ namespace sqlpp
 				typename ExpressionList::_value_type>::type;
 
 			using _name_t = typename ExpressionList::_name_t;
-			template<typename T>
-				using _member_t = typename ExpressionList::template _member_t<T>;
 
 			// The standard constructors, assigment operators and destructor
 			select_t(Flags&& flags, ExpressionList&& expression_list):

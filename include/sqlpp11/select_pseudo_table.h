@@ -36,8 +36,6 @@ namespace sqlpp
 		struct select_column_spec_t
 		{
 			using _name_t = typename Expr::_name_t;
-			template<typename T>
-				using _member_t = typename Expr::template _member_t<T>;
 			using _value_type = typename Expr::_value_type;
 			struct _column_type {};
 		};

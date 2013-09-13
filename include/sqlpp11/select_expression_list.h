@@ -78,7 +78,7 @@ namespace sqlpp
 			static_assert(_valid_expressions::size::value == sizeof...(NamedExpr), "at least one argument is not a named expression");
 
 			// check for duplicate select expression names
-			static_assert(not detail::has_duplicates<typename NamedExpr::template _member_t<int>...>::value, "at least one duplicate name detected");
+			static_assert(not detail::has_duplicates<typename NamedExpr::_name_t::template _member_t<int>...>::value, "at least one duplicate name detected");
 			
 			// declare this to be a select expression
 			using _is_select_expression_list = tag_yes;
@@ -93,11 +93,6 @@ namespace sqlpp
 			};
 			struct _no_name_t {};
 			using _name_t = typename std::conditional<sizeof...(NamedExpr) == 1, typename detail::get_first_argument<NamedExpr...>::type::_name_t, _no_name_t>::type;
-
-			template<typename T>
-				struct _no_member_t {};
-			template<typename T>
-				using _member_t = typename std::conditional<sizeof...(NamedExpr) == 1, typename detail::get_first_argument<NamedExpr...>::type::template _member_t<T>, _no_member_t<T>>::type;
 
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const

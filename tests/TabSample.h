@@ -38,7 +38,6 @@ namespace TabFoo_
 		struct _name_t
 		{
 			static constexpr const char* _get_name() { return "omega"; }
-		};
 		template<typename T>
 		struct _member_t
 		{
@@ -51,6 +50,7 @@ namespace TabFoo_
 				*/
 
 			T omega;
+		};
 		};
 		using _value_type = sqlpp::bigint;
 		struct _column_type
@@ -88,19 +88,19 @@ namespace TabSample_
 		struct _name_t
 		{
 			static constexpr const char* _get_name() { return "alpha"; }
-		};
-		template<typename T>
-		struct _member_t
-		{
-			/*
-			template<typename... TT>
-				_name_t(TT&&... t): alpha(std::forward<TT>(t)...) {}
+			template<typename T>
+				struct _member_t
+				{
+					/*
+						 template<typename... TT>
+						 _name_t(TT&&... t): alpha(std::forward<TT>(t)...) {}
 
-			template<typename TT>
-				_name_t& operator=(TT&& t) { alpha = std::forward<TT>(t); return *this; }
-				*/
+						 template<typename TT>
+						 _name_t& operator=(TT&& t) { alpha = std::forward<TT>(t); return *this; }
+						 */
 
-			T alpha;
+					T alpha;
+				};
 		};
 		using _value_type = sqlpp::bigint;
 		struct _column_type
@@ -118,11 +118,11 @@ namespace TabSample_
 		struct _name_t
 		{
 			static constexpr const char* _get_name() { return "beta"; }
-		};
-		template<typename T>
-		struct _member_t
-		{
-			T beta;
+			template<typename T>
+				struct _member_t
+				{
+					T beta;
+				};
 		};
 		using _value_type = sqlpp::varchar;
 		struct _column_type
@@ -138,11 +138,11 @@ namespace TabSample_
 		struct _name_t
 		{
 			static constexpr const char* _get_name() { return "gamma"; }
-		};
-		template<typename T>
-		struct _member_t
-		{
-			T gamma;
+			template<typename T>
+				struct _member_t
+				{
+					T gamma;
+				};
 		};
 		using _value_type = sqlpp::boolean;
 		struct _column_type
@@ -163,12 +163,12 @@ struct TabSample: sqlpp::table_base_t<
 	struct _name_t
 	{
 		static constexpr const char* _get_name() { return "tab_sample"; }
+		template<typename T>
+			struct _member_t
+			{
+				T tabSample;
+			};
 	};
-	template<typename T>
-		struct _member_t
-		{
-			T tabSample;
-		};
 	template<typename Db>
 		void serialize(std::ostream& os, Db& db) const
 		{

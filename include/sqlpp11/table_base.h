@@ -38,7 +38,7 @@
 namespace sqlpp
 {
 	template<typename Table, typename... ColumnSpec>
-	struct table_base_t: public ColumnSpec::template _member_t<column_t<Table, ColumnSpec>>...
+	struct table_base_t: public ColumnSpec::_name_t::template _member_t<column_t<Table, ColumnSpec>>...
 	{
 		using _table_set = detail::set<Table>; // Hint need a set here to be similar to a join (which always represents more than one table)
 		using _all_columns = typename detail::make_set<column_t<Table, ColumnSpec>...>::type;
@@ -55,7 +55,7 @@ namespace sqlpp
 			}
 
 		template<typename AliasProvider>
-			struct alias_t: public ColumnSpec::template _member_t<column_t<AliasProvider, ColumnSpec>>...
+			struct alias_t: public ColumnSpec::_name_t::template _member_t<column_t<AliasProvider, ColumnSpec>>...
 		{
 			using _is_table = tag_yes;
 			using _table_set = detail::set<alias_t>;

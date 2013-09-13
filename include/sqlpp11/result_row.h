@@ -39,10 +39,10 @@ namespace sqlpp
 
 		template<size_t level, size_t index, typename NamedExpr, typename... Rest>
 			struct result_row_impl<level, index, NamedExpr, Rest...>: 
-			public NamedExpr::template _member_t<typename NamedExpr::_value_type::template _result_entry_t<index>>,
+			public NamedExpr::_name_t::template _member_t<typename NamedExpr::_value_type::template _result_entry_t<index>>,
 			public result_row_impl<level, index + 1, Rest...>
 			{
-				using _field = typename NamedExpr::template _member_t<typename NamedExpr::_value_type::template _result_entry_t<index>>;
+				using _field = typename NamedExpr::_name_t::template _member_t<typename NamedExpr::_value_type::template _result_entry_t<index>>;
 				using _rest = result_row_impl<level, index + 1, Rest...>;
 
 				result_row_impl(const raw_result_row_t& raw_result_row):
@@ -60,10 +60,10 @@ namespace sqlpp
 
 		template<size_t level, size_t index, typename AliasProvider, typename... Col, typename... Rest>
 			struct result_row_impl<level, index, multi_field_t<AliasProvider, std::tuple<Col...>>, Rest...>: 
-			public AliasProvider::template _member_t<result_row_impl<level + 1, index, Col...>>, // level prevents identical closures to be present twice in the inheritance tree
+			public AliasProvider::_name_t::template _member_t<result_row_impl<level + 1, index, Col...>>, // level prevents identical closures to be present twice in the inheritance tree
 			public result_row_impl<level, index + sizeof...(Col), Rest...>
 			{
-				using _multi_field = typename AliasProvider::template _member_t<result_row_impl<level + 1, index, Col...>>;
+				using _multi_field = typename AliasProvider::_name_t::template _member_t<result_row_impl<level + 1, index, Col...>>;
 				using _rest = result_row_impl<level, index + sizeof...(Col), Rest...>;
 
 				result_row_impl(const raw_result_row_t& raw_result_row):

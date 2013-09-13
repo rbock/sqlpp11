@@ -38,17 +38,17 @@ namespace sqlpp
 			struct _name_t\
 			{\
 				static constexpr const char* _get_name() { return #name; }\
-			};\
-			template<typename T>\
-			struct _member_t\
-			{\
-				template<typename... TT>\
-				_member_t(TT&&... t): name(std::forward<TT>(t)...) {}\
-				\
-				template<typename TT>\
+				template<typename T>\
+				struct _member_t\
+				{\
+					template<typename... TT>\
+					_member_t(TT&&... t): name(std::forward<TT>(t)...) {}\
+					\
+					template<typename TT>\
 					_member_t& operator=(TT&& t) { name = std::forward<TT>(t); return *this; }\
-				\
-				T name;\
+					\
+					T name;\
+				};\
 			};\
 		};\
 		constexpr name##_t name = {};
@@ -93,8 +93,6 @@ namespace sqlpp
 		};
 
 		using _name_t = typename AliasProvider::_name_t;
-		template<typename T>
-			using _member_t = typename AliasProvider::template _member_t<T>;
 
 		template<typename Db>
 			void serialize(std::ostream& os, Db& db) const

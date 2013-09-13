@@ -320,8 +320,6 @@ namespace sqlpp
 		{
 			using _value_type = typename F::_value_type;
 			using _name_t = typename F::_name_t;
-			template<typename T>
-			using _member_t = typename F::template _member_t<T>;
 
 			named_nary_function_t(Rhs&&... r):
 				_rhs(std::move(r)...)

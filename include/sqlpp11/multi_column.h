@@ -45,8 +45,6 @@ namespace sqlpp
 			static_assert(_named_expr_set::size::value == sizeof...(NamedExpr), "multi_column parameters need to be named expressions");
 
 			using _name_t = typename AliasProvider::_name_t;
-			template<typename T>
-				using _member_t = typename AliasProvider::template _member_t<T>;
 
 			struct _value_type: public no_value_t
 			{

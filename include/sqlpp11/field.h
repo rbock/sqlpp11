@@ -24,57 +24,43 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_COLUMN_H
-#define SQLPP_COLUMN_H
+#ifndef SQLPP_FIELD_H
+#define SQLPP_FIELD_H
 
 #include <ostream>
-#include <sqlpp11/expression.h>
-#include <sqlpp11/alias.h>
-#include <sqlpp11/column_fwd.h>
-#include <sqlpp11/detail/wrong.h>
-#include <sqlpp11/type_traits.h>
-#include <sqlpp11/sort_order.h>
+#include <sqlpp11/multi_column.h>
 
 namespace sqlpp
 {
-	template<typename Table, typename ColumnSpec>
-	struct column_t: public ColumnSpec::_value_type::template operators<column_t<Table, ColumnSpec>>
+	template<typename NameType, typename ValueType>
+	struct field_t
 	{ 
-		using _table = Table;
-		using _column_type = typename ColumnSpec::_column_type;
-		struct _value_type: ColumnSpec::_value_type
+		using _name_t = NameType;
+		using _value_type = ValueType;
+	};
+
+	template<typename AliasProvider, typename FieldTuple>
+		struct multi_field_t
 		{
-			using _is_expression = tag_yes;
-			using _is_named_expression = tag_yes;
-			using _is_alias = tag_no;
 		};
 
-		using _name_t = typename ColumnSpec::_name_t;
-
-		template<typename Db>
-			void serialize(std::ostream& os, Db& db) const
+	namespace detail
+	{
+		template<typename NamedExpr>
+			struct make_field_t_impl
 			{
-				os << Table::_name_t::_get_name() << '.' << _name_t::_get_name();
-			}
+				using type = field_t<typename NamedExpr::_name_t, typename NamedExpr::_value_type::_base_value_type>;
+			};
 
-		template<typename Db>
-			void serialize_name(std::ostream& os, Db& db) const
+		template<typename AliasProvider, typename... NamedExpr>
+			struct make_field_t_impl<multi_column_t<AliasProvider, std::tuple<NamedExpr...>>>
 			{
-				os << _name_t::_get_name();
-			}
+				using type = multi_field_t<AliasProvider, std::tuple<typename make_field_t_impl<NamedExpr>::type...>>;
+			};
+	}
 
-		template<typename alias_provider>
-			expression_alias_t<column_t, typename std::decay<alias_provider>::type> as(alias_provider&&) const
-			{
-				return { *this };
-			}
-
-		template<typename T>
-			assignment_t<column_t, typename _value_type::template _constraint<T>::type> operator =(T&& t) const
-			{
-				return { *this, std::forward<T>(t) };
-			}
-	};
+	template<typename NamedExpr>
+	using make_field_t = typename detail::make_field_t_impl<NamedExpr>::type;
 
 }
 
