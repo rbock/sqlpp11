@@ -88,7 +88,7 @@ __Database Connector:__
 sqlpp11 requires a certain api in order to connect with the database, see database/api.h.
 
   * MySQL: https://github.com/rbock/sqlpp11-connector-mysql
-  * More to follow
+  * Sqlite3: https://github.com/rbock/sqlpp11-connector-sqlite3
 
 
 
