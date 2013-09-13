@@ -38,6 +38,7 @@ DbMock db;
 int main()
 {
 	TabSample t;
+	TabFoo f; 
 
 	// Test a table
 	{
@@ -247,6 +248,17 @@ int main()
 		auto m = multi_column(sqlpp::alias::a, t.alpha, t.beta);
 		auto a = select(m).from(t).as(sqlpp::alias::b).a;
 		static_assert(not sqlpp::is_value_t<decltype(a)>::value, "a multi_column is not a value");
+	}
+
+	// Test that result sets with identical name/value combinations have identical types
+	{
+		auto a = select(t.alpha);
+		auto b = select(f.omega.as(t.alpha));
+		using A = typename decltype(a)::_result_row_t;
+		using B = typename decltype(b)::_result_row_t;
+		static_assert(std::is_same<decltype(t.alpha)::_value_type::_base_value_type, decltype(f.omega)::_value_type::_base_value_type>::value, "Two bigint columns must have identical base_value_type");
+		//A x = std::declval<B>();
+		static_assert(std::is_same<A, B>::value, "select with identical columns(name/value_type) need to have identical result_types");
 	}
 
 

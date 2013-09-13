@@ -41,6 +41,7 @@
 #include <sqlpp11/order_by.h>
 #include <sqlpp11/limit.h>
 #include <sqlpp11/expression.h>
+#include <sqlpp11/field.h>
 
 #include <sqlpp11/detail/wrong.h>
 #include <sqlpp11/detail/make_flag_tuple.h>
@@ -102,7 +103,7 @@ namespace sqlpp
 			using add_limit_t = select_t<Flags, ExpressionList, From, Where, GroupBy, Having, OrderBy, limit_t, Offset>;
 			using add_offset_t = select_t<Flags, ExpressionList, From, Where, GroupBy, Having, OrderBy, Limit, offset_t>;
 
-			using _result_row_t = result_row_t<NamedExpr...>;
+			using _result_row_t = result_row_t<make_field_t<NamedExpr>...>;
 
 			// Indicators
 			using _value_type = typename std::conditional<
