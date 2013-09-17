@@ -78,7 +78,7 @@ namespace sqlpp
 			static_assert(_valid_expressions::size::value == sizeof...(NamedExpr), "at least one argument is not a named expression");
 
 			// check for duplicate select expression names
-			static_assert(not detail::has_duplicates<typename NamedExpr::_name_t::template _member_t<int>...>::value, "at least one duplicate name detected");
+			static_assert(not detail::has_duplicates<typename NamedExpr::_name_t...>::value, "at least one duplicate name detected");
 			
 			// declare this to be a select expression
 			using _is_select_expression_list = tag_yes;
