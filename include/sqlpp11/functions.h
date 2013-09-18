@@ -60,7 +60,7 @@ namespace sqlpp
 					};\
 				};\
 				\
-				using type = named_nary_function_t<_op, _operand>;\
+				using type = named_unary_function_t<_op, _operand>;\
 			};\
 	}\
 	template<typename T>\
