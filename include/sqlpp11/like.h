@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_CONCAT_H
-#define SQLPP_CONCAT_H
+#ifndef SQLPP_LIKE_H
+#define SQLPP_LIKE_H
 
 #include <sstream>
 #include <sqlpp11/type_traits.h>
@@ -35,57 +35,61 @@ namespace sqlpp
 {
 	namespace detail
 	{
-		template<typename First, typename... Args>
-		struct concat_t: public First::_value_type::template operators<concat_t<First, Args...>>
-		{
-			static_assert(sizeof...(Args) > 0, "concat requires two arguments at least");
-			using _valid_args = typename detail::make_set_if_not<is_text_t, First, Args...>::type;
-			static_assert(_valid_args::size::value == 0, "at least one non-text argument detected in concat()");
+		struct text;
 
-			using _value_type = typename First::_value_type::_base_value_type;
+		template<typename Operand, typename Pattern>
+		struct like_t: public Operand::_value_type::template operators<like_t<Operand, Pattern>>
+		{
+			static_assert(is_text_t<Operand>::value, "Operand for like() has to be a text");
+			static_assert(is_text_t<Pattern>::value, "Pattern for like() has to be a text");
+
+			using _value_type = typename Operand::_value_type::_base_value_type;
 			struct _name_t
 			{
-				static constexpr const char* _get_name() { return "CONCAT"; }
+				static constexpr const char* _get_name() { return "LIKE"; }
 				template<typename T>
 					struct _member_t
 					{
-						T concat;
+						T like;
 					};
 			};
 
-			concat_t(First&& first, Args&&... args):
-				_args(std::move(first), std::move(args)...)
+			like_t(Operand&& operand, Pattern&& pattern):
+				_operand(std::move(operand)),
+				_pattern(std::move(pattern))
 			{}
 
-			concat_t(const First& first, const Args&... args):
-				_args(first, args...)
+			like_t(const Operand& operand, const Pattern& pattern):
+				_operand(operand),
+				_pattern(pattern)
 			{}
 
-			concat_t(const concat_t&) = default;
-			concat_t(concat_t&&) = default;
-			concat_t& operator=(const concat_t&) = default;
-			concat_t& operator=(concat_t&&) = default;
-			~concat_t() = default;
+			like_t(const like_t&) = default;
+			like_t(like_t&&) = default;
+			like_t& operator=(const like_t&) = default;
+			like_t& operator=(like_t&&) = default;
+			~like_t() = default;
 
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
-					os << "CONCAT(";
-					detail::serialize_tuple(os, db, _args, ',');
+					_operand.serialize(os, db);
+					os << " LIKE(";
+					_pattern.serialize(os, db);
 					os << ")";
 				}
 
 		private:
-			std::tuple<First, Args...> _args;
+			Operand _operand;
+			Pattern _pattern;
 		};
 	}
 
 	template<typename... T>
-	auto concat(T&&... t) -> typename detail::concat_t<typename operand_t<T, is_text_t>::type...>
+	auto like(T&&... t) -> typename detail::like_t<typename operand_t<T, is_text_t>::type...>
 	{
 		return { std::forward<T>(t)... };
 	}
-
 }
 
 #endif

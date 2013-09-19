@@ -276,6 +276,7 @@ int main()
 	!t.gamma;
 	t.beta < "kaesekuchen";
 	(t.beta + "hallenhalma").serialize(std::cerr, db);
+	concat(t.beta, "hallenhalma").serialize(std::cerr, db);
 	static_assert(sqlpp::must_not_insert_t<decltype(t.alpha)>::value, "alpha must not be inserted");
 	t.alpha.serialize(std::cerr, db);
 	std::cerr << "\n" << sizeof(TabSample) << std::endl;

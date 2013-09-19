@@ -33,19 +33,12 @@
 #include <sqlpp11/raw_result_row.h>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/concat.h>
+#include <sqlpp11/like.h>
 
 namespace sqlpp
 {
 	namespace detail
 	{
-		struct text;
-
-		struct like_
-		{
-			using _value_type = boolean;
-			static constexpr const char* _name = "LIKE";
-		};
-
 		// text value type
 		struct text
 		{
@@ -111,13 +104,13 @@ namespace sqlpp
 				struct operators: public basic_operators<Base, _constraint>
 			{
 				template<typename T>
-					detail::concat_t<text, Base, typename _constraint<T>::type> operator+(T&& t) const
+					detail::concat_t<Base, typename _constraint<T>::type> operator+(T&& t) const
 					{
 						return { *static_cast<const Base*>(this), std::forward<T>(t) };
 					}
 
 				template<typename T>
-					nary_member_function_t<Base, like_, typename _constraint<T>::type> like(T&& t) const
+					detail::like_t<Base, typename _constraint<T>::type> like(T&& t) const
 					{
 						return { *static_cast<const Base*>(this), std::forward<T>(t) };
 					}
