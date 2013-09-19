@@ -27,60 +27,20 @@
 #ifndef SQLPP_FUNCTIONS_H
 #define SQLPP_FUNCTIONS_H
 
+#include <sstream>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/column_types.h>
-#include <sstream>
+#include <sqlpp11/exists.h>
+#include <sqlpp11/any.h>
+#include <sqlpp11/some.h>
+#include <sqlpp11/count.h>
+#include <sqlpp11/min.h>
+#include <sqlpp11/max.h>
+#include <sqlpp11/avg.h>
+#include <sqlpp11/sum.h>
 
 namespace sqlpp
 {
-#define SQLPP_MAKE_UNARY_TYPED_FUNCTION(NAME, SQL, CONSTRAINT, VALUE_TYPE) \
-	namespace detail\
-	{\
-		template<typename T>\
-			struct NAME##_t\
-			{\
-				static_assert(CONSTRAINT<typename std::decay<T>::type>::value, #NAME "() argument has constraint: " #CONSTRAINT);\
-				static_assert(is_expression_t<typename std::decay<T>::type>::value, #NAME "() argument has contraint: is_expression_t");\
-				using _operand = typename operand_t<T, CONSTRAINT>::type;\
-				\
-				struct _op\
-				{\
-					struct _value_type: public VALUE_TYPE\
-					{\
-						using _is_named_expression = tag_yes;\
-					};\
-					struct _name_t\
-					{\
-						static constexpr const char* _get_name() { return #SQL; }\
-						template<typename M>\
-						struct _member_t\
-						{\
-							M NAME;\
-						};\
-					};\
-				};\
-				\
-				using type = named_unary_function_t<_op, _operand>;\
-			};\
-	}\
-	template<typename T>\
-	auto NAME(T&& t) -> typename detail::NAME##_t<T>::type\
-	{\
-		return { std::forward<T>(t) };\
-	}
-
-#define SQLPP_MAKE_UNARY_FUNCTION(NAME, SQL, CONSTRAINT) SQLPP_MAKE_UNARY_TYPED_FUNCTION(NAME, SQL, CONSTRAINT, _operand::_value_type)
-
-	SQLPP_MAKE_UNARY_FUNCTION(avg, AVG, is_value_t);
-	SQLPP_MAKE_UNARY_FUNCTION(min, MIN, is_value_t);
-	SQLPP_MAKE_UNARY_FUNCTION(max, MAX, is_value_t);
-	SQLPP_MAKE_UNARY_FUNCTION(sum, SUM, is_value_t);
-	SQLPP_MAKE_UNARY_FUNCTION(any, ANY, is_select_t);
-	SQLPP_MAKE_UNARY_FUNCTION(some, SOME, is_select_t);
-	SQLPP_MAKE_UNARY_TYPED_FUNCTION(count, COUNT, is_expression_t, bigint);
-	SQLPP_MAKE_UNARY_TYPED_FUNCTION(exists, EXISTS, is_select_t, boolean);
-	SQLPP_MAKE_UNARY_TYPED_FUNCTION(not_exists, NOT EXISTS, is_select_t, boolean);
-
 	template<typename T>
 		auto value(T&& t) -> typename operand_t<T, is_value_t>::type
 		{

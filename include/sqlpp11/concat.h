@@ -42,7 +42,11 @@ namespace sqlpp
 			using _valid_args = typename detail::make_set_if_not<is_text_t, First, Args...>::type;
 			static_assert(_valid_args::size::value == 0, "at least one non-text argument detected in concat()");
 
-			using _value_type = typename First::_value_type::_base_value_type;
+			struct _value_type: public First::_value_type::_base_value_type
+			{
+				using _is_named_expression = tag_yes;
+			};
+
 			struct _name_t
 			{
 				static constexpr const char* _get_name() { return "CONCAT"; }

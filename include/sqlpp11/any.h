@@ -24,76 +24,70 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_LIKE_H
-#define SQLPP_LIKE_H
+#ifndef SQLPP_ANY_H
+#define SQLPP_ANY_H
 
 #include <sstream>
-#include <sqlpp11/type_traits.h>
-#include <sqlpp11/detail/set.h>
+#include <sqlpp11/boolean.h>
 
 namespace sqlpp
 {
 	namespace detail
 	{
-		struct text;
-
-		template<typename Operand, typename Pattern>
-		struct like_t: public Operand::_value_type::template operators<like_t<Operand, Pattern>>
+		template<typename Select>
+		struct any_t: public boolean::template operators<any_t<Select>>
 		{
-			static_assert(is_text_t<Operand>::value, "Operand for like() has to be a text");
-			static_assert(is_text_t<Pattern>::value, "Pattern for like() has to be a text");
+			static_assert(is_select_t<Select>::value, "any() requires a single column select expression as argument");
+			static_assert(is_value_t<Select>::value, "any() requires a single column select expression as argument");
 
-			struct _value_type: public Operand::_value_type::_base_value_type
+			struct _value_type: public Select::_value_type::_base_value_type
 			{
 				using _is_named_expression = tag_yes;
 			};
 
 			struct _name_t
 			{
-				static constexpr const char* _get_name() { return "LIKE"; }
+				static constexpr const char* _get_name() { return "ANY"; }
 				template<typename T>
 					struct _member_t
 					{
-						T like;
+						T any;
 					};
 			};
 
-			like_t(Operand&& operand, Pattern&& pattern):
-				_operand(std::move(operand)),
-				_pattern(std::move(pattern))
+			any_t(Select&& select):
+				_select(std::move(select))
 			{}
 
-			like_t(const Operand& operand, const Pattern& pattern):
-				_operand(operand),
-				_pattern(pattern)
+			any_t(const Select& select):
+				_select(select)
 			{}
 
-			like_t(const like_t&) = default;
-			like_t(like_t&&) = default;
-			like_t& operator=(const like_t&) = default;
-			like_t& operator=(like_t&&) = default;
-			~like_t() = default;
+			any_t(const any_t&) = default;
+			any_t(any_t&&) = default;
+			any_t& operator=(const any_t&) = default;
+			any_t& operator=(any_t&&) = default;
+			~any_t() = default;
 
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
-					_operand.serialize(os, db);
-					os << " LIKE(";
-					_pattern.serialize(os, db);
+					os << "ANY(";
+					_select.serialize(os, db);
 					os << ")";
 				}
 
 		private:
-			Operand _operand;
-			Pattern _pattern;
+			Select _select;
 		};
 	}
 
-	template<typename... T>
-	auto like(T&&... t) -> typename detail::like_t<typename operand_t<T, is_text_t>::type...>
+	template<typename T>
+	auto any(T&& t) -> typename detail::any_t<typename operand_t<T, is_select_t>::type>
 	{
-		return { std::forward<T>(t)... };
+		return { std::forward<T>(t) };
 	}
+
 }
 
 #endif

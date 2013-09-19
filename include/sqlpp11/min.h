@@ -24,76 +24,69 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_LIKE_H
-#define SQLPP_LIKE_H
+#ifndef SQLPP_MIN_H
+#define SQLPP_MIN_H
 
 #include <sstream>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/detail/set.h>
 
 namespace sqlpp
 {
 	namespace detail
 	{
-		struct text;
-
-		template<typename Operand, typename Pattern>
-		struct like_t: public Operand::_value_type::template operators<like_t<Operand, Pattern>>
+		template<typename Expr>
+		struct min_t: public boolean::template operators<min_t<Expr>>
 		{
-			static_assert(is_text_t<Operand>::value, "Operand for like() has to be a text");
-			static_assert(is_text_t<Pattern>::value, "Pattern for like() has to be a text");
+			static_assert(is_value_t<Expr>::value, "min() requires a value expression as argument");
 
-			struct _value_type: public Operand::_value_type::_base_value_type
+			struct _value_type: public Expr::_value_type::_base_value_type
 			{
 				using _is_named_expression = tag_yes;
 			};
 
 			struct _name_t
 			{
-				static constexpr const char* _get_name() { return "LIKE"; }
+				static constexpr const char* _get_name() { return "MIN"; }
 				template<typename T>
 					struct _member_t
 					{
-						T like;
+						T min;
 					};
 			};
 
-			like_t(Operand&& operand, Pattern&& pattern):
-				_operand(std::move(operand)),
-				_pattern(std::move(pattern))
+			min_t(Expr&& expr):
+				_expr(std::move(expr))
 			{}
 
-			like_t(const Operand& operand, const Pattern& pattern):
-				_operand(operand),
-				_pattern(pattern)
+			min_t(const Expr& expr):
+				_expr(expr)
 			{}
 
-			like_t(const like_t&) = default;
-			like_t(like_t&&) = default;
-			like_t& operator=(const like_t&) = default;
-			like_t& operator=(like_t&&) = default;
-			~like_t() = default;
+			min_t(const min_t&) = default;
+			min_t(min_t&&) = default;
+			min_t& operator=(const min_t&) = default;
+			min_t& operator=(min_t&&) = default;
+			~min_t() = default;
 
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
-					_operand.serialize(os, db);
-					os << " LIKE(";
-					_pattern.serialize(os, db);
+					os << "MIN(";
+					_expr.serialize(os, db);
 					os << ")";
 				}
 
 		private:
-			Operand _operand;
-			Pattern _pattern;
+			Expr _expr;
 		};
 	}
 
-	template<typename... T>
-	auto like(T&&... t) -> typename detail::like_t<typename operand_t<T, is_text_t>::type...>
+	template<typename T>
+	auto min(T&& t) -> typename detail::min_t<typename operand_t<T, is_value_t>::type>
 	{
-		return { std::forward<T>(t)... };
+		return { std::forward<T>(t) };
 	}
+
 }
 
 #endif
