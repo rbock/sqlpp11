@@ -185,7 +185,7 @@ namespace sqlpp
 			template<typename A>
 				struct InversePredicate
 				{
-					static constexpr bool value = Predicate<A>::value;
+					static constexpr bool value = not Predicate<A>::value;
 				};
 			using type = typename make_set_if<InversePredicate, T...>::type;
 		};
