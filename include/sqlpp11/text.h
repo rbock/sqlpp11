@@ -107,18 +107,11 @@ namespace sqlpp
 			template<typename T>
 				using _constraint = operand_t<T, is_text_t>;
 
-			struct plus_
-			{
-				using _value_type = boolean;
-				static constexpr const char* _name = "+";
-			};
-
 			template<typename Base>
 				struct operators: public basic_operators<Base, _constraint>
 			{
-
 				template<typename T>
-					detail::concat_t<Base, Base, typename _constraint<T>::type> operator+(T&& t) const
+					detail::concat_t<text, Base, typename _constraint<T>::type> operator+(T&& t) const
 					{
 						return { *static_cast<const Base*>(this), std::forward<T>(t) };
 					}

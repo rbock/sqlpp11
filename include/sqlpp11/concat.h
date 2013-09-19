@@ -29,6 +29,7 @@
 
 #include <sstream>
 #include <sqlpp11/text.h>
+#include <sqlpp11/detail/set.h>
 
 namespace sqlpp
 {
@@ -37,10 +38,10 @@ namespace sqlpp
 		struct text;
 
 		template<typename Text, typename... Args>
-		struct concat_t: public Text::template operators<concat_t<Args...>>
+		struct concat_t: public Text::template operators<concat_t<Text, Args...>>
 		{
-			using _valid_args = typename detail::make_set_if<is_text_t, Args...>::type;
-			static_assert(_valid_args::size::value == sizeof...(Args), "at least one non-text argument detected in concat()");
+			using _valid_args = typename detail::make_set_if_not<is_text_t, Args...>::type;
+			static_assert(_valid_args::size::value == 0, "at least one non-text argument detected in concat()");
 
 			using _value_type = Text;
 			struct _name_t
