@@ -35,89 +35,94 @@ namespace sqlpp
 {
 	template<typename Db, typename ResultRow>
 		class result_t
-	{
-		using db_result_t = typename Db::_result_t;
-		
-		db_result_t _result;
-		raw_result_row_t _raw_result_row;
-		raw_result_row_t _end;
-
-	public:
-		result_t(db_result_t&& result):
-			_result(std::forward<db_result_t>(result)),
-			_raw_result_row(_result.next()),
-			_end({})
-			{}
-
-		result_t(const result_t&) = delete;
-		result_t(result_t&&) = default;
-		result_t& operator=(const result_t&) = delete;
-		result_t& operator=(result_t&&) = default;
-
-		// Iterator
-		class iterator
 		{
+			using db_result_t = typename Db::_result_t;
+
+			db_result_t _result;
+			raw_result_row_t _raw_result_row;
+			raw_result_row_t _end;
+			ResultRow _result_row;
+
 		public:
-			iterator(db_result_t& result, raw_result_row_t& raw_result_row):
-				_result(result),
-				_raw_result_row(raw_result_row),
+			result_t(db_result_t&& result):
+				_result(std::forward<db_result_t>(result)),
+				_raw_result_row(_result.next()),
+				_end({}),
 				_result_row(_raw_result_row)
+				{}
+
+			result_t(const result_t&) = delete;
+			result_t(result_t&&) = default;
+			result_t& operator=(const result_t&) = delete;
+			result_t& operator=(result_t&&) = default;
+
+			// Iterator
+			class iterator
 			{
-				std::cerr << "result::iterator::constructor" << std::endl;
+			public:
+				iterator(result_t& result, raw_result_row_t& raw_result_row):
+					_result(result),
+					_raw_result_row(raw_result_row)
+				{
+					//std::cerr << "result::iterator::constructor" << std::endl;
+				}
+
+				const ResultRow& operator*() const
+				{
+					return _result.front();
+				}
+
+				const ResultRow* operator->() const
+				{
+					return &_result.front();
+				}
+
+				bool operator==(const iterator& rhs) const
+				{
+					return _raw_result_row == rhs._raw_result_row;
+				}
+
+				bool operator!=(const iterator& rhs) const
+				{
+					return not (operator==(rhs));
+				}
+
+				void operator++()
+				{
+					_result.pop_front();
+				}
+
+				result_t& _result;
+				raw_result_row_t& _raw_result_row;
+			};
+
+			iterator begin()
+			{
+				return iterator(*this, _raw_result_row);
 			}
 
-			const ResultRow& operator*() const
+			iterator end()
+			{
+				return iterator(*this, _end);
+			}
+
+			const ResultRow& front() const
 			{
 				return _result_row;
 			}
 
-			const ResultRow* operator->() const
+			bool empty() const
 			{
-				return &_result_row;
+				return _raw_result_row == _end;
 			}
 
-			bool operator==(const iterator& rhs) const
-			{
-				return _result == rhs._result and _raw_result_row == rhs._raw_result_row;
-			}
-
-			bool operator!=(const iterator& rhs) const
-			{
-				return not (operator==(rhs));
-			}
-
-			void operator++()
+			void pop_front()
 			{
 				_raw_result_row = _result.next();
 				_result_row = _raw_result_row;
 			}
 
-			db_result_t& _result;
-			raw_result_row_t& _raw_result_row;
-			ResultRow _result_row;
 		};
-
-		iterator begin()
-		{
-			return iterator(_result, _raw_result_row);
-		}
-
-		iterator end()
-		{
-			return iterator(_result, _end);
-		}
-
-		const ResultRow operator*()
-		{
-			return {_raw_result_row};
-		}
-
-		iterator operator->()
-		{
-			return begin();
-		}
-
-	};
 }
 
 #endif
