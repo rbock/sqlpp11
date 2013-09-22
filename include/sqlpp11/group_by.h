@@ -27,13 +27,15 @@
 #ifndef SQLPP_GROUP_BY_H
 #define SQLPP_GROUP_BY_H
 
+#include <ostream>
+#include <vector>
 #include <tuple>
 #include <sqlpp11/select_fwd.h>
 #include <sqlpp11/expression.h>
-
-#include <sqlpp11/detail/serialize_tuple.h>
-#include <sqlpp11/detail/set.h>
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/detail/set.h>
+#include <sqlpp11/detail/serialize_tuple.h>
+#include <sqlpp11/detail/serializable.h>
 
 namespace sqlpp
 {
@@ -61,6 +63,37 @@ namespace sqlpp
 
 			std::tuple<Expr...> _expressions;
 
+		};
+
+	template<typename Db>
+		struct dynamic_group_by_t
+		{
+			using _is_group_by = tag_yes;
+			using _is_dynamic = tag_yes;
+
+			template<typename Expr>
+				void add(Expr&& expr)
+				{
+					static_assert(is_expression_t<typename std::decay<Expr>::type>::value, "group_by arguments require to be expressions");
+					_expressions.push_back(std::forward<Expr>(expr));
+				}
+
+			void serialize(std::ostream& os, Db& db) const
+			{
+				if (_expressions.empty())
+					return;
+				os << " GROUP BY ";
+				bool first = true;
+				for (const auto& expr : _expressions)
+				{
+					if (not first)
+						os << ',';
+					expr.serialize(os, db);
+					first = false;
+				}
+			}
+
+			std::vector<detail::serializable_t<Db>> _expressions;
 		};
 
 }

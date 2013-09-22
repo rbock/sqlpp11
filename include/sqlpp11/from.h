@@ -41,11 +41,18 @@ namespace sqlpp
 		{
 			using _is_from = tag_yes;
 
+			// ensure one argument at least
 			static_assert(sizeof...(TableOrJoin), "at least one table or join argument required in from");
 
-			//understand joins
-			//analyze tables and joins for duplicates
-			//produce a set of tables in this from 
+			// check for duplicate arguments
+			static_assert(not detail::has_duplicates<TableOrJoin...>::value, "at least one duplicate argument detected in from()");
+
+			// check for invalid arguments
+			using _valid_expressions = typename detail::make_set_if<is_table_t, TableOrJoin...>::type;
+			static_assert(_valid_expressions::size::value == sizeof...(TableOrJoin), "at least one argument is not an table or join in from()");
+
+			// FIXME: Joins contain two tables. This is not being dealt with at the moment
+
 
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
@@ -66,6 +73,7 @@ namespace sqlpp
 		template<typename Table>
 		void add(Table&& table)
 		{
+			static_assert(is_table_t<typename std::decay<Table>::type>::value, "from arguments require to be tables or joins");
 			_dynamic_tables.push_back(std::forward<Table>(table));
 		}
 

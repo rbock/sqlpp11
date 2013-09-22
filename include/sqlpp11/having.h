@@ -27,9 +27,12 @@
 #ifndef SQLPP_HAVING_H
 #define SQLPP_HAVING_H
 
+#include <ostream>
+#include <vector>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/expression.h>
 #include <sqlpp11/detail/set.h>
+#include <sqlpp11/detail/serializable.h>
 
 namespace sqlpp
 {
@@ -49,6 +52,40 @@ namespace sqlpp
 
 			Expr _expr;
 		};
+
+	template<typename Db>
+	struct dynamic_having_t
+	{
+
+		using _is_having = tag_yes;
+		using _is_dynamic = tag_yes;
+
+		template<typename Expr>
+			void add(Expr&& expr)
+			{
+				static_assert(is_expression_t<typename std::decay<Expr>::type>::value, "invalid expression argument in having()");
+				_conditions.push_back(std::forward<Expr>(expr));
+			}
+
+		void serialize(std::ostream& os, Db& db) const
+		{
+			if (_conditions.empty())
+				return;
+
+			os << " HAVING ";
+			bool first = true;
+			for (const auto& condition : _conditions)
+			{
+				if (not first)
+					os << " AND ";
+				condition.serialize(os, db);
+				first = false;
+			}
+		}
+
+		std::vector<detail::serializable_t<Db>> _conditions;
+	};
+
 }
 
 #endif

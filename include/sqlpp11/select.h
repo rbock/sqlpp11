@@ -97,12 +97,12 @@ namespace sqlpp
 				using set_from_t = select_t<Database, Flags, ExpressionList, FromT, Where, GroupBy, Having, OrderBy, Limit, Offset>;
 			template<typename WhereT>
 				using set_where_t = select_t<Database, Flags, ExpressionList, From, WhereT, GroupBy, Having, OrderBy, Limit, Offset>;
-			template<typename... Col>
-				using set_group_by_t = select_t<Database, Flags, ExpressionList, From, Where, group_by_t<typename std::decay<Col>::type...>, Having, OrderBy, Limit, Offset>;
-			template<typename Expr>
-				using set_having_t = select_t<Database, Flags, ExpressionList, From, Where, GroupBy, having_t<typename std::decay<Expr>::type>, OrderBy, Limit, Offset>;
-			template<typename... Col>
-				using set_order_by_t = select_t<Database, Flags, ExpressionList, From, Where, GroupBy, Having, order_by_t<typename std::decay<Col>::type...>, Limit, Offset>;
+			template<typename GroupByT>
+				using set_group_by_t = select_t<Database, Flags, ExpressionList, From, Where, GroupByT, Having, OrderBy, Limit, Offset>;
+			template<typename HavingT>
+				using set_having_t = select_t<Database, Flags, ExpressionList, From, Where, GroupBy, HavingT, OrderBy, Limit, Offset>;
+			template<typename OrderByT>
+				using set_order_by_t = select_t<Database, Flags, ExpressionList, From, Where, GroupBy, Having, OrderByT, Limit, Offset>;
 			using set_limit_t = select_t<Database, Flags, ExpressionList, From, Where, GroupBy, Having, OrderBy, limit_t, Offset>;
 			using set_offset_t = select_t<Database, Flags, ExpressionList, From, Where, GroupBy, Having, OrderBy, Limit, offset_t>;
 
@@ -251,14 +251,14 @@ namespace sqlpp
 			template<typename Expr>
 				void add_where(Expr&& expr)
 				{
-					static_assert(not is_noop<From>::value, "cannot call add_from() without having selected anything");
 					static_assert(is_dynamic_t<Where>::value, "cannot call add_where() in a non-dynamic where");
 
 					_where.add(std::forward<Expr>(expr));
 				}
 
 			template<typename... Col>
-				set_group_by_t<Col...> group_by(Col&&... column)
+				auto group_by(Col&&... column)
+				-> set_group_by_t<group_by_t<typename std::decay<Col>::type...>>
 				{
 					static_assert(not is_noop<From>::value, "cannot call group_by() without a from()");
 					static_assert(is_noop<GroupBy>::value, "cannot call group_by() twice for a single select");
@@ -275,8 +275,35 @@ namespace sqlpp
 							};
 				}
 
+				auto group_by()
+				-> set_group_by_t<group_by_t<Database>>
+				{
+					static_assert(not is_noop<From>::value, "cannot call group_by() without a from()");
+					static_assert(is_noop<GroupBy>::value, "cannot call group_by() twice for a single select");
+					return {
+							_flags, 
+							_expression_list,
+							_from,
+							_where,
+							{{}},
+							_having,
+							_order_by,
+							_limit,
+							_offset,
+							};
+				}
+
 			template<typename Expr>
-				set_having_t<Expr> having(Expr&& expr)
+				void add_group_by(Expr&& expr)
+				{
+					static_assert(is_dynamic_t<GroupBy>::value, "cannot call add_group_by() in a non-dynamic group_by");
+
+					_group_by.add(std::forward<Expr>(expr));
+				}
+
+			template<typename Expr>
+				auto having(Expr&& expr)
+				-> set_having_t<having_t<typename std::decay<Expr>::type>> 
 				{
 					static_assert(not is_noop<GroupBy>::value, "cannot call having() without a group_by");
 					static_assert(is_noop<Having>::value, "cannot call having() twice for a single select");
@@ -293,8 +320,35 @@ namespace sqlpp
 							};
 				}
 
+			auto dynamic_having()
+				-> set_having_t<dynamic_having_t<Database>>
+				{
+					static_assert(not is_noop<GroupBy>::value, "cannot call having() without a group_by");
+					static_assert(is_noop<Having>::value, "cannot call having() twice for a single select");
+					return {
+						_flags, 
+							_expression_list,
+							_from,
+							_where,
+							_group_by,
+							{{}},
+							_order_by,
+							_limit,
+							_offset,
+					};
+				}
+
+			template<typename Expr>
+				void add_having(Expr&& expr)
+				{
+					static_assert(is_dynamic_t<Having>::value, "cannot call add_having() in a non-dynamic having");
+
+					_having.add(std::forward<Expr>(expr));
+				}
+
 			template<typename... OrderExpr>
-				set_order_by_t<OrderExpr...> order_by(OrderExpr&&... expr)
+				auto order_by(OrderExpr&&... expr)
+				-> set_order_by_t<order_by_t<typename std::decay<OrderExpr>::type...>>
 				{
 					static_assert(not is_noop<From>::value, "cannot call order_by() without a from()");
 					static_assert(is_noop<OrderBy>::value, "cannot call order_by() twice for a single select");
@@ -309,6 +363,32 @@ namespace sqlpp
 							_limit,
 							_offset,
 							};
+				}
+
+			auto dynamic_order_by()
+				-> set_order_by_t<dynamic_order_by_t<Database>>
+				{
+					static_assert(not is_noop<From>::value, "cannot call order_by() without a from()");
+					static_assert(is_noop<OrderBy>::value, "cannot call order_by() twice for a single select");
+					return {
+							_flags, 
+							_expression_list,
+							_from,
+							_where,
+							_group_by,
+							_having,
+							{{}},
+							_limit,
+							_offset,
+							};
+				}
+
+			template<typename Expr>
+				void add_order_by(Expr&& expr)
+				{
+					static_assert(is_dynamic_t<OrderBy>::value, "cannot call add_order_by() in a non-dynamic order_by");
+
+					_order_by.add(std::forward<Expr>(expr));
 				}
 
 			set_limit_t limit(std::size_t limit)

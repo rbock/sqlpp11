@@ -30,8 +30,9 @@
 #include <tuple>
 #include <ostream>
 #include <sqlpp11/select_fwd.h>
-#include <sqlpp11/detail/serialize_tuple.h>
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/detail/serialize_tuple.h>
+#include <sqlpp11/detail/serializable.h>
 
 namespace sqlpp
 {
@@ -39,7 +40,7 @@ namespace sqlpp
 		struct order_by_t
 		{
 			// check for at least one order expression
-			static_assert(sizeof...(OrderExpr), "at least one select expression required in order_by()");
+			static_assert(sizeof...(OrderExpr), "at least one sort-order expression required in order_by()");
 
 			// check for duplicate order expressions
 			static_assert(not detail::has_duplicates<OrderExpr...>::value, "at least one duplicate argument detected in order_by()");
@@ -59,6 +60,38 @@ namespace sqlpp
 
 			std::tuple<OrderExpr...> _orderExpressions;
 		};
+
+	template<typename Db>
+		struct dynamic_order_by_t
+		{
+			using _is_order_by = tag_yes;
+			using _is_dynamic = tag_yes;
+
+			template<typename Expr>
+				void add(Expr&& expr)
+				{
+					static_assert(is_sort_order_t<typename std::decay<Expr>::type>::value, "order_by arguments require to be sort-order expressions");
+					_expressions.push_back(std::forward<Expr>(expr));
+				}
+
+			void serialize(std::ostream& os, Db& db) const
+			{
+				if (_expressions.empty())
+					return;
+				os << " ORDER BY ";
+				bool first = true;
+				for (const auto& expr : _expressions)
+				{
+					if (not first)
+						os << ',';
+					expr.serialize(os, db);
+					first = false;
+				}
+			}
+
+			std::vector<detail::serializable_t<Db>> _expressions;
+		};
+
 }
 
 #endif

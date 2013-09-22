@@ -64,7 +64,7 @@ namespace sqlpp
 		template<typename Expr>
 			void add(Expr&& expr)
 			{
-				static_assert(is_expression_t<Expr>::value, "invalid expression argument in where()");
+				static_assert(is_expression_t<typename std::decay<Expr>::type>::value, "invalid expression argument in where()");
 				_conditions.push_back(std::forward<Expr>(expr));
 			}
 
