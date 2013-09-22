@@ -95,6 +95,7 @@ namespace sqlpp
 	SQLPP_TYPE_TRAIT_GENERATOR(is_select_flag_list);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_select_expression_list);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_from);
+	SQLPP_TYPE_TRAIT_GENERATOR(is_dynamic);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_where);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_group_by);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_having);

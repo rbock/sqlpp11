@@ -57,11 +57,11 @@ namespace sqlpp
 			std::tuple<TableOrJoin...> _tables;
 		};
 
-	template<typename Db, typename... TableOrJoin>
+	template<typename Db>
 	struct dynamic_from_t
 	{
 		using _is_from = tag_yes;
-		using _is_dynamic_from = tag_yes;
+		using _is_dynamic = tag_yes;
 
 		template<typename Table>
 		void add(Table&& table)
@@ -69,13 +69,12 @@ namespace sqlpp
 			_dynamic_tables.push_back(std::forward<Table>(table));
 		}
 
-		void serialize(std::ostream& os, Db& db, bool has_static_from) const
+		void serialize(std::ostream& os, Db& db) const
 		{
-			if (sizeof...(TableOrJoin) == 0 and _dynamic_tables.empty())
+			if (_dynamic_tables.empty())
 				return;
 			os << " FROM ";
-			detail::serialize_tuple(os, db, _tables, ',');
-			bool first = sizeof...(TableOrJoin) == 0;
+			bool first = true;
 			for (const auto& table : _dynamic_tables)
 			{
 				if (not first)
@@ -85,7 +84,6 @@ namespace sqlpp
 			}
 		}
 
-		std::tuple<TableOrJoin...> _tables;
 		std::vector<detail::serializable_t<Db>> _dynamic_tables;
 	};
 }

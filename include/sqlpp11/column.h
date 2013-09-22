@@ -51,6 +51,13 @@ namespace sqlpp
 
 		using _name_t = typename ColumnSpec::_name_t;
 
+		column_t() = default;
+		column_t(const column_t&) = default;
+		column_t(column_t&&) = default;
+		column_t& operator=(const column_t&) = default;
+		column_t& operator=(column_t&&) = default;
+		~column_t() = default;
+
 		template<typename Db>
 			void serialize(std::ostream& os, Db& db) const
 			{
