@@ -41,79 +41,38 @@ namespace sqlpp
 		};
 
 	template<
-						 typename Flags,
-						 typename ExpressionList,
-						 typename From,
-						 typename Where,
-						 typename GroupBy,
-						 typename Having,
-						 typename OrderBy,
-						 typename Limit,
-						 typename Offset,
+						 typename Select,
 						 typename... NamedExpr
 							 >
 							 struct select_pseudo_table_t: public sqlpp::table_base_t<select_pseudo_table_t<
-																						 Flags, 
-																						 ExpressionList, 
-																						 From, 
-																						 Where, 
-																						 GroupBy, 
-																						 Having, 
-																						 OrderBy, 
-																						 Limit, 
-																						 Offset,
+																						 Select,
 																						 NamedExpr...>, select_column_spec_t<NamedExpr>...>
 	{
 		using _value_type = no_value_t;
 
-		select_pseudo_table_t(const Flags& flags, const ExpressionList& expression_list, const From& from,
-				const Where& where, const GroupBy& group_by, const Having& having,
-				const OrderBy& order_by, const Limit& limit, const Offset& offset):
-			_flags(flags),
-			_expression_list(expression_list),
-			_from(from),
-			_where(where),
-			_group_by(group_by),
-			_having(having),
-			_order_by(order_by),
-			_limit(limit),
-			_offset(offset)
+		select_pseudo_table_t(const Select& select):
+			_select(select)
 		{
-			std::cerr << "Copying arguments into pseudo_table" << std::endl;
-			//std::cerr << _limit._limit << std::endl;
 		}
 
-		select_pseudo_table_t(const select_pseudo_table_t& rhs):
-			_flags(rhs._flags),
-			_expression_list(rhs._expression_list),
-			_from(rhs._from),
-			_where(rhs._where),
-			_group_by(rhs._group_by),
-			_having(rhs._having),
-			_order_by(rhs._order_by),
-			_limit(rhs._limit),
-			_offset(rhs._offset)
+		select_pseudo_table_t(Select&& select):
+			_select(std::move(select))
 		{
-			std::cerr << "Copying pseudo_table" << std::endl;
-			//std::cerr << _limit._limit << std::endl;
 		}
+
+		select_pseudo_table_t(const select_pseudo_table_t& rhs) = default;
+		select_pseudo_table_t(select_pseudo_table_t&& rhs) = default;
+		select_pseudo_table_t& operator=(const select_pseudo_table_t& rhs) = default;
+		select_pseudo_table_t& operator=(select_pseudo_table_t&& rhs) = default;
+		~select_pseudo_table_t() = default;
 
 		template<typename Db>
 			void serialize(std::ostream& os, Db& db) const
 			{
-				//std::cerr << "pseudo_table::serialize: " << _limit._limit << std::endl;
-				detail::serialize_select(os, db, *this);
+				_select.serialize(os, db);
 			}
 
-		Flags _flags;
-		ExpressionList _expression_list;
-		From _from;
-		Where _where;
-		GroupBy _group_by;
-		Having _having;
-		OrderBy _order_by;
-		Limit _limit;
-		Offset _offset;
+		Select _select;
 	};
 
 }

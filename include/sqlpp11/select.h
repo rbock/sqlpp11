@@ -51,8 +51,8 @@
 
 namespace sqlpp
 {
-	// select template, to be used as an r_value
 	template<
+		typename Database,
 		typename Flags,
 		typename... NamedExpr,
 		typename From,
@@ -63,8 +63,9 @@ namespace sqlpp
 		typename Limit,
 		typename Offset
 		>
-		struct select_t<Flags, select_expression_list_t<std::tuple<NamedExpr...>>, From, Where, GroupBy, Having, OrderBy, Limit, Offset>
+		struct select_t<Database, Flags, select_expression_list_t<std::tuple<NamedExpr...>>, From, Where, GroupBy, Having, OrderBy, Limit, Offset>
 		: public select_expression_list_t<std::tuple<NamedExpr...>>::_value_type::template operators<select_t<
+		                 Database,
 										 Flags, 
 										 select_expression_list_t<std::tuple<NamedExpr...>>, 
 										 From, 
@@ -75,6 +76,8 @@ namespace sqlpp
 										 Limit, 
 										 Offset>>
 		{
+			using _Database = Database;
+			using _From = From;
 			using ExpressionList = select_expression_list_t<std::tuple<NamedExpr...>>;
 
 			static_assert(is_noop<Flags>::value or is_select_flag_list_t<Flags>::value, "invalid list of select flags");
@@ -91,17 +94,17 @@ namespace sqlpp
 			using _requires_braces = tag_yes;
 
 			template<typename... Table> 
-				using add_from_t = select_t<Flags, ExpressionList, from_t<typename std::decay<Table>::type...>, Where, GroupBy, Having, OrderBy, Limit, Offset>;
+				using set_from_t = select_t<Database, Flags, ExpressionList, from_t<typename std::decay<Table>::type...>, Where, GroupBy, Having, OrderBy, Limit, Offset>;
 			template<typename Expr>
-				using add_where_t = select_t<Flags, ExpressionList, From, where_t<typename std::decay<Expr>::type>, GroupBy, Having, OrderBy, Limit, Offset>;
+				using set_where_t = select_t<Database, Flags, ExpressionList, From, where_t<typename std::decay<Expr>::type>, GroupBy, Having, OrderBy, Limit, Offset>;
 			template<typename... Col>
-				using add_group_by_t = select_t<Flags, ExpressionList, From, Where, group_by_t<typename std::decay<Col>::type...>, Having, OrderBy, Limit, Offset>;
+				using set_group_by_t = select_t<Database, Flags, ExpressionList, From, Where, group_by_t<typename std::decay<Col>::type...>, Having, OrderBy, Limit, Offset>;
 			template<typename Expr>
-				using add_having_t = select_t<Flags, ExpressionList, From, Where, GroupBy, having_t<typename std::decay<Expr>::type>, OrderBy, Limit, Offset>;
+				using set_having_t = select_t<Database, Flags, ExpressionList, From, Where, GroupBy, having_t<typename std::decay<Expr>::type>, OrderBy, Limit, Offset>;
 			template<typename... Col>
-				using add_order_by_t = select_t<Flags, ExpressionList, From, Where, GroupBy, Having, order_by_t<typename std::decay<Col>::type...>, Limit, Offset>;
-			using add_limit_t = select_t<Flags, ExpressionList, From, Where, GroupBy, Having, OrderBy, limit_t, Offset>;
-			using add_offset_t = select_t<Flags, ExpressionList, From, Where, GroupBy, Having, OrderBy, Limit, offset_t>;
+				using set_order_by_t = select_t<Database, Flags, ExpressionList, From, Where, GroupBy, Having, order_by_t<typename std::decay<Col>::type...>, Limit, Offset>;
+			using set_limit_t = select_t<Database, Flags, ExpressionList, From, Where, GroupBy, Having, OrderBy, limit_t, Offset>;
+			using set_offset_t = select_t<Database, Flags, ExpressionList, From, Where, GroupBy, Having, OrderBy, Limit, offset_t>;
 
 			using _result_row_t = result_row_t<make_field_t<NamedExpr>...>;
 
@@ -118,62 +121,14 @@ namespace sqlpp
 				_flags(std::move(flags)),
 				_expression_list(std::move(expression_list))
 			{
-				static_assert(std::is_same<select_t, sqlpp::select_t<Flags, ExpressionList>>::value,
+				static_assert(std::is_same<select_t, sqlpp::select_t<Database, Flags, ExpressionList>>::value,
 						"basic constructor only available for select_t<Flags, ExpressionList> (default template parameters)");
 			}
 
-			constexpr select_t(const select_t& rhs):
-				_flags(rhs._flags),
-				_expression_list(rhs._expression_list),
-				_from(rhs._from),
-				_where(rhs._where),
-				_group_by(rhs._group_by),
-				_having(rhs._having),
-				_order_by(rhs._order_by),
-				_limit(rhs._limit),
-				_offset(rhs._offset)
-			{
-			}
-
-			constexpr select_t(select_t&& rhs):
-				_flags(std::move(rhs._flags)),
-				_expression_list(std::move(rhs._expression_list)),
-				_from(std::move(rhs._from)),
-				_where(std::move(rhs._where)),
-				_group_by(std::move(rhs._group_by)),
-				_having(std::move(rhs._having)),
-				_order_by(std::move(rhs._order_by)),
-				_limit(std::move(rhs._limit)),
-				_offset(std::move(rhs._offset))
-			{
-			}
-
-			select_t& operator=(const select_t& rhs)
-			{
-				_flags = rhs._flags;
-				_expression_list = rhs._expression_list;
-				_from = rhs._from;
-				_where = rhs._where;
-				_group_by = rhs._group_by;
-				_having = rhs._having;
-				_order_by = rhs._order_by;
-				_offset = rhs._offset;
-				_limit = rhs._limit;
-			}
-
-			select_t& operator=(select_t&& rhs)
-			{
-				_flags = std::move(rhs._flags);
-				_expression_list = std::move(rhs._expression_list);
-				_from = std::move(rhs._from);
-				_where = std::move(rhs._where);
-				_group_by = std::move(rhs._group_by);
-				_having = std::move(rhs._having);
-				_order_by = std::move(rhs._order_by);
-				_limit = std::move(rhs._limit);
-				_offset = std::move(rhs._offset);
-			}
-
+			select_t(const select_t& rhs) = default;
+			select_t(select_t&& rhs) = default;
+			select_t& operator=(const select_t& rhs) = default;
+			select_t& operator=(select_t&& rhs) = default;
 			~select_t() = default;
 
 			// Other constructors
@@ -210,7 +165,7 @@ namespace sqlpp
 
 			// sqlpp functions
 			template<typename... Table>
-				add_from_t<Table...> from(Table&&... table)
+				set_from_t<Table...> from(Table&&... table)
 				{
 					static_assert(not is_noop<ExpressionList>::value, "cannot call from() without having selected anything");
 					static_assert(is_noop<From>::value, "cannot call from() twice for a single select");
@@ -227,8 +182,21 @@ namespace sqlpp
 							};
 				}
 
+			/*
+			template<typename Table>
+			select_t& add_from(Table&& table)
+			{
+				static_assert(not is_noop<ExpressionList>::value, "cannot call add_from() without having selected anything");
+				static_assert(not std::is_same<Database, void>::value, "cannot call add_from() in a non-dynamic select");
+
+				_dynamic._from.add(std::forward<Table>(table));
+
+				return *this;
+			}
+			*/
+
 			template<typename Expr>
-				add_where_t<Expr> where(Expr&& expr)
+				set_where_t<Expr> where(Expr&& expr)
 				{
 					static_assert(not is_noop<From>::value, "cannot call where() without a from()");
 					static_assert(is_noop<Where>::value, "cannot call where() twice for a single select");
@@ -241,12 +209,12 @@ namespace sqlpp
 							_having,
 							_order_by,
 							_limit,
-							_offset
+							_offset,
 							};
 				}
 
 			template<typename... Col>
-				add_group_by_t<Col...> group_by(Col&&... column)
+				set_group_by_t<Col...> group_by(Col&&... column)
 				{
 					static_assert(not is_noop<From>::value, "cannot call group_by() without a from()");
 					static_assert(is_noop<GroupBy>::value, "cannot call group_by() twice for a single select");
@@ -259,12 +227,12 @@ namespace sqlpp
 							_having,
 							_order_by,
 							_limit,
-							_offset
+							_offset,
 							};
 				}
 
 			template<typename Expr>
-				add_having_t<Expr> having(Expr&& expr)
+				set_having_t<Expr> having(Expr&& expr)
 				{
 					static_assert(not is_noop<GroupBy>::value, "cannot call having() without a group_by");
 					static_assert(is_noop<Having>::value, "cannot call having() twice for a single select");
@@ -277,12 +245,12 @@ namespace sqlpp
 							{std::forward<Expr>(expr)},
 							_order_by,
 							_limit,
-							_offset
+							_offset,
 							};
 				}
 
 			template<typename... OrderExpr>
-				add_order_by_t<OrderExpr...> order_by(OrderExpr&&... expr)
+				set_order_by_t<OrderExpr...> order_by(OrderExpr&&... expr)
 				{
 					static_assert(not is_noop<From>::value, "cannot call order_by() without a from()");
 					static_assert(is_noop<OrderBy>::value, "cannot call order_by() twice for a single select");
@@ -295,11 +263,11 @@ namespace sqlpp
 							_having,
 							{std::tuple<typename std::decay<OrderExpr>::type...>{std::forward<OrderExpr>(expr)...}},
 							_limit,
-							_offset
+							_offset,
 							};
 				}
 
-			add_limit_t limit(std::size_t limit)
+			set_limit_t limit(std::size_t limit)
 			{
 				static_assert(not is_noop<From>::value, "cannot call limit() without a from()");
 				static_assert(is_noop<Limit>::value, "cannot call limit() twice for a single select");
@@ -312,11 +280,11 @@ namespace sqlpp
 						_having,
 						_order_by,
 						{limit},
-						_offset
+						_offset,
 				};
 			}
 
-			add_offset_t offset(std::size_t offset)
+			set_offset_t offset(std::size_t offset)
 			{
 				static_assert(not is_noop<Limit>::value, "cannot call offset() without a limit");
 				static_assert(is_noop<Offset>::value, "cannot call offset() twice for a single select");
@@ -329,53 +297,47 @@ namespace sqlpp
 						_having,
 						_order_by,
 						_limit,
-						{offset}
+						{offset},
 				};
 			}
 
-			// Turn into pseudo table or named expression
-			using pseudo_table_t = select_pseudo_table_t<
-				Flags, 
-				ExpressionList, 
-				From, 
-				Where, 
-				GroupBy, 
-				Having, 
-				OrderBy, 
-				Limit, 
-				Offset,
-				NamedExpr...>;
-
 			template<typename AliasProvider>
-				using alias_t = typename pseudo_table_t::template alias_t<AliasProvider>;
-
-			template<typename AliasProvider>
-				typename std::enable_if<is_from_t<From>::value, alias_t<AliasProvider>>::type as(const AliasProvider& aliasProvider) const
+				struct _pseudo_table_t
 				{
-					return pseudo_table_t(
-							_flags, 
-							_expression_list,
-							_from,
-							_where,
-							_group_by,
-							_having,
-							_order_by,
-							_limit,
-							_offset).as(aliasProvider);
+					using table = select_pseudo_table_t<select_t, NamedExpr...>;
+					using alias = typename table::template alias_t<AliasProvider>;
+				};
+
+			template<typename AliasProvider>
+				typename _pseudo_table_t<AliasProvider>::alias as(const AliasProvider& aliasProvider) const
+				{
+					return typename _pseudo_table_t<AliasProvider>::table(
+							*this).as(aliasProvider);
 				}
 
 			// Serialize
 			template<typename Db>
-				select_t& serialize(std::ostream& os, Db& db)
+				const select_t& serialize(std::ostream& os, Db& db) const
 				{
-					detail::serialize_select(os, db, *this);
+					os << "SELECT ";
+
+					_flags.serialize(os, db);
+					_expression_list.serialize(os, db);
+					_from.serialize(os, db);
+					_where.serialize(os, db);
+					_group_by.serialize(os, db);
+					_having.serialize(os, db);
+					_order_by.serialize(os, db);
+					_limit.serialize(os, db);
+					_offset.serialize(os, db);
+
 					return *this;
 				}
 
 			template<typename Db>
-				const select_t& serialize(std::ostream& os, Db& db) const
+				select_t& serialize(std::ostream& os, Db& db)
 				{
-					detail::serialize_select(os, db, *this);
+					const_cast<const select_t*>(this)->serialize(os, db);
 					return *this;
 				}
 
@@ -387,14 +349,11 @@ namespace sqlpp
 					static_assert(not is_noop<ExpressionList>::value, "cannot run select without having selected anything");
 					static_assert(is_from_t<From>::value, "cannot run select without a from()");
 					// FIXME: Check for missing aliases (if references are used)
-					// FIXME: Check for missing tables
+					// FIXME: Check for missing tables, well, actually, check for missing tables at the where(), order_by(), etc.
 
 					std::ostringstream oss;
 					serialize(oss, db);
 					return {db.select(oss.str())};
-
-					//serialize using db
-					//run using db and return result_set
 				}
 
 			Flags _flags;
@@ -425,12 +384,22 @@ namespace sqlpp
 	}
 
 	template<typename... NamedExpr>
-		select_t<detail::make_select_flag_list_t<NamedExpr...>, detail::make_select_expression_list_t<NamedExpr...>> select(NamedExpr&&... namedExpr)
+		select_t<void, detail::make_select_flag_list_t<NamedExpr...>, detail::make_select_expression_list_t<NamedExpr...>> select(NamedExpr&&... namedExpr)
 		{
 			return { 
 				{ detail::make_flag_tuple(std::forward<NamedExpr>(namedExpr)...) }, 
 				{ detail::make_expression_tuple(std::forward<NamedExpr>(namedExpr)...) }
 			};
 		}
+	/*
+	template<typename Db, typename... NamedExpr>
+		select_t<typename std::decay<Db>::type, detail::make_select_flag_list_t<NamedExpr...>, detail::make_select_expression_list_t<NamedExpr...>> dynamic_select(const Db& db, NamedExpr&&... namedExpr)
+		{
+			return { 
+				{ detail::make_flag_tuple(std::forward<NamedExpr>(namedExpr)...) }, 
+				{ detail::make_expression_tuple(std::forward<NamedExpr>(namedExpr)...) }
+			};
+		}
+		*/
 }
 #endif

@@ -55,6 +55,7 @@ namespace sqlpp
 	struct offset_t;
 
 	template<
+		typename Db,
 		typename Flags = noop,
 		typename ExpressionList = noop,
 		typename From = noop,

@@ -40,22 +40,6 @@ namespace sqlpp
 {
 	namespace detail
 	{
-		template<typename Db, typename Select>
-		void serialize_select(std::ostream& os, Db& db, const Select& select)
-		{
-			os << "SELECT ";
-
-			select._flags.serialize(os, db);
-			select._expression_list.serialize(os, db);
-			select._from.serialize(os, db);
-			select._where.serialize(os, db);
-			select._group_by.serialize(os, db);
-			select._having.serialize(os, db);
-			select._order_by.serialize(os, db);
-			select._limit.serialize(os, db);
-			select._offset.serialize(os, db);
-		};
-		
 		template<typename T, typename... Rest>
 			struct get_first_argument
 			{

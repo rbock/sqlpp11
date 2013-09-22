@@ -262,6 +262,17 @@ int main()
 		static_assert(std::is_same<A, B>::value, "select with identical columns(name/value_type) need to have identical result_types");
 	}
 
+#if 0
+	{
+		auto s = dynamic_select(db, t);
+		s = s.add_from(t);
+		s = s.add_from(t); // This will not be accepted by the SQL server, but it is dynamic and this kind of test is not possible at compile time, I guess
+		std::cerr << "------------------------\n";
+		s.serialize(std::cerr, db);
+		std::cerr << "------------------------\n";
+	}
+#endif
+
 
 	static_assert(sqlpp::is_select_flag_t<decltype(sqlpp::all)>::value, "sqlpp::all has to be a select_flag");
   using T = sqlpp::detail::wrap_operand<int>::type;

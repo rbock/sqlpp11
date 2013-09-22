@@ -24,70 +24,62 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_FROM_H
-#define SQLPP_FROM_H
+#ifndef SQLPP_SERIALIZABLE_H
+#define SQLPP_SERIALIZABLE_H
 
 #include <ostream>
 #include <vector>
-#include <sqlpp11/select_fwd.h>
-#include <sqlpp11/type_traits.h>
-#include <sqlpp11/detail/serializable.h>
-#include <sqlpp11/detail/serialize_tuple.h>
 
 namespace sqlpp
 {
-	template<typename... TableOrJoin>
-		struct from_t
-		{
-			using _is_from = tag_yes;
+	namespace detail
+	{
+		template<typename Db>
+			struct serializable_t
+			{
+				template<typename T>
+					serializable_t(T&& t):
+						_impl(std::make_shared<_impl_t<typename std::decay<T>::type>>(std::forward<T>(t)))
+				{}
 
-			static_assert(sizeof...(TableOrJoin), "at least one table or join argument required in from");
+				serializable_t(const serializable_t&) = default;
+				serializable_t(serializable_t&&) = default;
+				serializable_t& operator=(const serializable_t&) = default;
+				serializable_t& operator=(serializable_t&&) = default;
+				~serializable_t() = default;
 
-			//understand joins
-			//analyze tables and joins for duplicates
-			//produce a set of tables in this from 
-
-			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
-					os << " FROM ";
-					detail::serialize_tuple(os, db, _tables, ',');
+					_impl->serialize(os, db);
 				}
 
-			std::tuple<TableOrJoin...> _tables;
-		};
+			private:
+				struct _impl_base
+				{
+					virtual void serialize(std::ostream& os, Db& db) const = 0;
+				};
 
-	template<typename Db, typename... TableOrJoin>
-	struct dynamic_from_t
-	{
-		using _is_from = tag_yes;
-		using _is_dynamic_from = tag_yes;
+				template<typename T>
+					struct _impl_t: public _impl_base
+				{
+					_impl_t(const T& t):
+						_t(t)
+					{}
 
-		template<typename Table>
-		void add(Table&& table)
-		{
-			_dynamic_tables.push_back(std::forward<Table>(table));
-		}
+					_impl_t(T&& t):
+						_t(std::move(t))
+					{}
 
-		void serialize(std::ostream& os, Db& db, bool has_static_from) const
-		{
-			if (sizeof...(TableOrJoin) == 0 and _dynamic_tables.empty())
-				return;
-			os << " FROM ";
-			detail::serialize_tuple(os, db, _tables, ',');
-			bool first = sizeof...(TableOrJoin) == 0;
-			for (const auto& table : _dynamic_tables)
-			{
-				if (not first)
-					os << ',';
-				table.serialize(os, db);
-				first = false;
-			}
-		}
+					void serialize(std::ostream& os, Db& db) const
+					{
+						_t.serialize(os, db);
+					}
+					T _t;
+				};
 
-		std::tuple<TableOrJoin...> _tables;
-		std::vector<detail::serializable_t<Db>> _dynamic_tables;
-	};
+				std::shared_ptr<const _impl_base> _impl;
+			};
+	}
 }
 
 #endif
