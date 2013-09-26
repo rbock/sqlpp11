@@ -40,6 +40,7 @@
 #include <sqlpp11/having.h>
 #include <sqlpp11/order_by.h>
 #include <sqlpp11/limit.h>
+#include <sqlpp11/offset.h>
 #include <sqlpp11/expression.h>
 #include <sqlpp11/field.h>
 
@@ -103,8 +104,10 @@ namespace sqlpp
 				using set_having_t = select_t<Database, Flags, ExpressionList, From, Where, GroupBy, HavingT, OrderBy, Limit, Offset>;
 			template<typename OrderByT>
 				using set_order_by_t = select_t<Database, Flags, ExpressionList, From, Where, GroupBy, Having, OrderByT, Limit, Offset>;
-			using set_limit_t = select_t<Database, Flags, ExpressionList, From, Where, GroupBy, Having, OrderBy, limit_t, Offset>;
-			using set_offset_t = select_t<Database, Flags, ExpressionList, From, Where, GroupBy, Having, OrderBy, Limit, offset_t>;
+			template<typename LimitT>
+				using set_limit_t = select_t<Database, Flags, ExpressionList, From, Where, GroupBy, Having, OrderBy, LimitT, Offset>;
+			template<typename OffsetT>
+			using set_offset_t = select_t<Database, Flags, ExpressionList, From, Where, GroupBy, Having, OrderBy, Limit, OffsetT>;
 
 			using _result_row_t = result_row_t<make_field_t<NamedExpr>...>;
 
@@ -391,7 +394,8 @@ namespace sqlpp
 					_order_by.add(std::forward<Expr>(expr));
 				}
 
-			set_limit_t limit(std::size_t limit)
+			auto limit(std::size_t limit)
+				-> set_limit_t<limit_t>
 			{
 				static_assert(not is_noop<From>::value, "cannot call limit() without a from()");
 				static_assert(is_noop<Limit>::value, "cannot call limit() twice for a single select");
@@ -408,7 +412,33 @@ namespace sqlpp
 				};
 			}
 
-			set_offset_t offset(std::size_t offset)
+			auto dynamic_limit()
+				->set_limit_t<dynamic_limit_t>
+			{
+				static_assert(not is_noop<From>::value, "cannot call limit() without a from()");
+				static_assert(is_noop<Limit>::value, "cannot call limit() twice for a single select");
+				return {
+						_flags, 
+						_expression_list,
+						_from,
+						_where,
+						_group_by,
+						_having,
+						_order_by,
+						{},
+						_offset,
+				};
+			}
+
+			void set_limit(std::size_t limit)
+			{
+				static_assert(is_dynamic_t<Limit>::value, "cannot call set_limit() in a non-dynamic limit");
+
+				_limit.set(limit);
+			}
+
+			auto offset(std::size_t offset)
+				-> set_offset_t<offset_t>
 			{
 				static_assert(not is_noop<Limit>::value, "cannot call offset() without a limit");
 				static_assert(is_noop<Offset>::value, "cannot call offset() twice for a single select");
@@ -423,6 +453,31 @@ namespace sqlpp
 						_limit,
 						{offset},
 				};
+			}
+
+			auto dynamic_offset()
+				-> set_offset_t<dynamic_offset_t>
+			{
+				static_assert(not is_noop<Limit>::value, "cannot call offset() without a limit");
+				static_assert(is_noop<Offset>::value, "cannot call offset() twice for a single select");
+				return {
+						_flags, 
+						_expression_list,
+						_from,
+						_where,
+						_group_by,
+						_having,
+						_order_by,
+						_limit,
+						{},
+				};
+			}
+
+			void set_offset(std::size_t offset)
+			{
+				static_assert(is_dynamic_t<Offset>::value, "cannot call set_offset() in a non-dynamic limit");
+
+				_offset.set(offset);
 			}
 
 			template<typename AliasProvider>

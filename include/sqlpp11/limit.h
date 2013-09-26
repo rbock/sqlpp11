@@ -46,19 +46,35 @@ namespace sqlpp
 		std::size_t _limit;
 	};
 
-	struct offset_t
+	struct dynamic_limit_t
 	{
-		using _is_offset = tag_yes;
+		using _is_limit = tag_yes;
+		using _is_dynamic = tag_yes;
+
+		dynamic_limit_t():
+			_limit(0)
+		{}
+
+		dynamic_limit_t(const dynamic_limit_t&) = default;
+		dynamic_limit_t(dynamic_limit_t&&) = default;
+		dynamic_limit_t& operator=(const dynamic_limit_t&) = default;
+		dynamic_limit_t& operator=(dynamic_limit_t&&) = default;
+		~dynamic_limit_t() = default;
+
+		void set(std::size_t limit)
+		{
+			_limit = limit;
+		}
 
 		template<typename Db>
 			void serialize(std::ostream& os, Db& db) const
 			{
-				os << " OFFSET " << _offset;
+				if (_limit > 0)
+					os << " LIMIT " << _limit;
 			}
 
-		const std::size_t _offset;
+		std::size_t _limit = 0;
 	};
-
 }
 
 #endif
