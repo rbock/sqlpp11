@@ -20,6 +20,14 @@ This results in several benefits, e.g.
   * the compiler reports many kinds of errors long before the code enters unit testing or production,
   * the library hides the gory details of string construction for queries and interpreting string based results returned by select calls.
 
+The library supports both static and dynamic queries. The former offers greater benefit in terms of type and consistency checking. The latter makes it easier to construct queries on the flight.
+
+
+Your help is needed:
+--------------------
+The library is already used in production but it is certainly not complete yet. Feature requests, bug reports, contributions to code or documentation are most welcome.
+
+
 Examples:
 ---------
 For the examples, lets assume you have a table class representing something like 
