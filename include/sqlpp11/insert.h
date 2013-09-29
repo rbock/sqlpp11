@@ -36,11 +36,6 @@
 
 namespace sqlpp
 {
-	// Hint: Columns/Values could be supported by .columns().values().values()...
-	//       values could take values or assignments. The latter would be stripped
-	//       The insert would store a vector of tuples of values.
-	// Hint: Select could be supported by perfect forwarding to the methods of _select member (always changing the whole type of the 
-	//       insert.
 	template<
 		typename Table = noop,
 		typename InsertList = noop
@@ -57,10 +52,10 @@ namespace sqlpp
 			static_assert(is_noop<InsertList>::value or is_insert_list_t<InsertList>::value, "invalid 'InsertList' argument");
 
 			template<typename... Assignment> 
-				using add_insert_list_t = insert_t<Table, insert_list_t<must_not_insert_t, typename std::decay<Assignment>::type...>>;
+				using set_insert_list_t = insert_t<Table, insert_list_t<must_not_insert_t, typename std::decay<Assignment>::type...>>;
 
 			template<typename... Assignment>
-				add_insert_list_t<Assignment...> set(Assignment&&... assignment)
+				set_insert_list_t<Assignment...> set(Assignment&&... assignment)
 				{
 					static_assert(std::is_same<InsertList, noop>::value, "cannot call set() twice");
 					return {

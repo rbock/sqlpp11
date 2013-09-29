@@ -54,12 +54,12 @@ namespace sqlpp
 			static_assert(is_noop<Where>::value or is_where_t<Where>::value, "invalid 'Where' argument");
 
 			template<typename... Assignment> 
-				using add_assignments_t = update_t<Table, assignment_list_t<must_not_update_t, typename std::decay<Assignment>::type...>, Where>;
+				using set_assignments_t = update_t<Table, assignment_list_t<must_not_update_t, typename std::decay<Assignment>::type...>, Where>;
 			template<typename Expr> 
-				using add_where_t = update_t<Table, Assignments, where_t<typename std::decay<Expr>::type>>;
+				using set_where_t = update_t<Table, Assignments, where_t<typename std::decay<Expr>::type>>;
 
 			template<typename... Assignment>
-				add_assignments_t<Assignment...> set(Assignment&&... assignment)
+				set_assignments_t<Assignment...> set(Assignment&&... assignment)
 				{
 					static_assert(std::is_same<Assignments, noop>::value, "cannot call set() twice");
 					return {
@@ -70,7 +70,7 @@ namespace sqlpp
 				}
 
 			template<typename Expr>
-				add_where_t<Expr> where(Expr&& where)
+				set_where_t<Expr> where(Expr&& where)
 				{
 					static_assert(not std::is_same<Assignments, noop>::value, "cannot call where() if set() hasn't been called yet");
 					static_assert(std::is_same<Where, noop>::value, "cannot call where() twice");
