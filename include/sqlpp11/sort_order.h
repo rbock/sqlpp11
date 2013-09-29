@@ -38,7 +38,7 @@ namespace sqlpp
 	template<typename Expression, sort_type SortType>
 		struct sort_order_t
 		{
-			using _is_sort_order = tag_yes;
+			using _is_sort_order = std::true_type;
 
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const

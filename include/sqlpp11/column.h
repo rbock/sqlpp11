@@ -44,9 +44,9 @@ namespace sqlpp
 		using _column_type = typename ColumnSpec::_column_type;
 		struct _value_type: ColumnSpec::_value_type
 		{
-			using _is_expression = tag_yes;
-			using _is_named_expression = tag_yes;
-			using _is_alias = tag_no;
+			using _is_expression = std::true_type;
+			using _is_named_expression = std::true_type;
+			using _is_alias = std::false_type;
 		};
 
 		using _name_t = typename ColumnSpec::_name_t;

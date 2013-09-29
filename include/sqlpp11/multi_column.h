@@ -48,9 +48,9 @@ namespace sqlpp
 
 			struct _value_type: public no_value_t
 			{
-				using _is_named_expression = tag_yes;
+				using _is_named_expression = std::true_type;
 			};
-			using _is_multi_column = tag_yes;
+			using _is_multi_column = std::true_type;
 
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const

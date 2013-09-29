@@ -35,7 +35,7 @@ namespace sqlpp
 {
 	struct offset_t
 	{
-		using _is_offset = tag_yes;
+		using _is_offset = std::true_type;
 
 		template<typename Db>
 			void serialize(std::ostream& os, Db& db) const
@@ -48,8 +48,8 @@ namespace sqlpp
 
 	struct dynamic_offset_t
 	{
-		using _is_offset = tag_yes;
-		using _is_dynamic = tag_yes;
+		using _is_offset = std::true_type;
+		using _is_dynamic = std::true_type;
 
 		dynamic_offset_t():
 			_offset(0)

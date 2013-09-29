@@ -87,9 +87,9 @@ namespace sqlpp
 	{
 		struct _value_type: Expression::_value_type
 		{
-			using _is_expression = tag_no;
-			using _is_named_expression = tag_yes;
-			using _is_alias = tag_yes;
+			using _is_expression = std::false_type;
+			using _is_named_expression = std::true_type;
+			using _is_alias = std::true_type;
 		};
 
 		using _name_t = typename AliasProvider::_name_t;

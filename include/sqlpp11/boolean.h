@@ -60,9 +60,9 @@ namespace sqlpp
 		struct boolean
 		{
 			using _base_value_type = boolean;
-			using _is_boolean = tag_yes;
-			using _is_value = tag_yes;
-			using _is_expression = tag_yes;
+			using _is_boolean = std::true_type;
+			using _is_value = std::true_type;
+			using _is_expression = std::true_type;
 
 			struct plus_
 			{

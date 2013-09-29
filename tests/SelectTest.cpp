@@ -277,7 +277,7 @@ int main()
 	static_assert(sqlpp::is_select_flag_t<decltype(sqlpp::all)>::value, "sqlpp::all has to be a select_flag");
   using T = sqlpp::detail::wrap_operand<int>::type;
 	static_assert(T::_is_expression, "T has to be an expression");
-	static_assert(std::is_same<typename T::_value_type::_is_numeric, sqlpp::detail::tag>::value, "T has to be a numeric");
+	static_assert(std::is_same<typename T::_value_type::_is_numeric, std::true_type>::value, "T has to be a numeric");
 	static_assert(sqlpp::is_numeric_t<T>::value, "T has to be a numeric");
 	static_assert(sqlpp::is_numeric_t<decltype(t.alpha)>::value, "TabSample.alpha has to be a numeric");
 	((t.alpha + 7) + 4).asc();
@@ -291,7 +291,7 @@ int main()
 	static_assert(sqlpp::must_not_insert_t<decltype(t.alpha)>::value, "alpha must not be inserted");
 	t.alpha.serialize(std::cerr, db);
 	std::cerr << "\n" << sizeof(TabSample) << std::endl;
-	static_assert(std::is_same<typename decltype(t.alpha)::_value_type::_is_named_expression, sqlpp::detail::tag>::value, "alpha should be a named expression");
+	static_assert(std::is_same<typename decltype(t.alpha)::_value_type::_is_named_expression, std::true_type>::value, "alpha should be a named expression");
 	static_assert(sqlpp::is_named_expression_t<decltype(t.alpha)>::value, "alpha should be a named expression");
 	static_assert(sqlpp::is_named_expression_t<decltype(t.alpha.as(sqlpp::alias::a))>::value, "an alias of alpha should be a named expression");
 	static_assert(sqlpp::is_alias_t<decltype(t.alpha.as(sqlpp::alias::a))>::value, "an alias of alpha should be an alias");

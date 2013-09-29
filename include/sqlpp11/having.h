@@ -41,7 +41,7 @@ namespace sqlpp
 		{
 			static_assert(is_expression_t<Expr>::value, "invalid expression argument in having()");
 
-			using _is_having = tag_yes;
+			using _is_having = std::true_type;
 
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
@@ -57,8 +57,8 @@ namespace sqlpp
 	struct dynamic_having_t
 	{
 
-		using _is_having = tag_yes;
-		using _is_dynamic = tag_yes;
+		using _is_having = std::true_type;
+		using _is_dynamic = std::true_type;
 
 		template<typename Expr>
 			void add(Expr&& expr)

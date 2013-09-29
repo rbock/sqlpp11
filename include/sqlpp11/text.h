@@ -43,9 +43,9 @@ namespace sqlpp
 		struct text
 		{
 			using _base_value_type = text;
-			using _is_text = tag_yes;
-			using _is_value = tag_yes;
-			using _is_expression = tag_yes;
+			using _is_text = std::true_type;
+			using _is_value = std::true_type;
+			using _is_expression = std::true_type;
 
 			template<size_t index>
 			struct _result_entry_t

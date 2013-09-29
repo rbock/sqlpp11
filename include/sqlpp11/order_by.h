@@ -49,7 +49,7 @@ namespace sqlpp
 			using _valid_expressions = typename detail::make_set_if<is_sort_order_t, OrderExpr...>::type;
 			static_assert(_valid_expressions::size::value == sizeof...(OrderExpr), "at least one argument is not a sort order expression in order_by()");
 
-			using _is_order_by = tag_yes;
+			using _is_order_by = std::true_type;
 
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
@@ -64,8 +64,8 @@ namespace sqlpp
 	template<typename Db>
 		struct dynamic_order_by_t
 		{
-			using _is_order_by = tag_yes;
-			using _is_dynamic = tag_yes;
+			using _is_order_by = std::true_type;
+			using _is_dynamic = std::true_type;
 
 			template<typename Expr>
 				void add(Expr&& expr)

@@ -27,8 +27,9 @@
 #ifndef SQLPP_TYPE_TRAITS_H
 #define SQLPP_TYPE_TRAITS_H
 
+#include <type_traits>
 #include <sqlpp11/detail/wrap_operand.h>
-#include <sqlpp11/detail/tag.h>
+
 namespace sqlpp
 {
 #define SQLPP_IS_VALUE_TRAIT_GENERATOR(name) \
@@ -37,7 +38,7 @@ namespace sqlpp
 		template<typename T, typename Enable = void>\
 			struct is_##name##_impl: std::false_type {};\
 		template<typename T>\
-			struct is_##name##_impl<T, typename std::enable_if<std::is_same<typename T::_value_type::_is_##name, tag>::value>::type>: std::true_type {};\
+			struct is_##name##_impl<T, typename std::enable_if<std::is_same<typename T::_value_type::_is_##name, std::true_type>::value>::type>: std::true_type {};\
 	}\
 	template<typename T>\
 		struct is_##name##_t: detail::is_##name##_impl<T> {};
@@ -48,7 +49,7 @@ namespace sqlpp
 		template<typename T, typename Enable = void>\
 			struct name##_impl: std::false_type {};\
 		template<typename T>\
-			struct name##_impl<T, typename std::enable_if<std::is_same<typename T::_column_type::_##name, tag>::value>::type>: std::true_type {};\
+			struct name##_impl<T, typename std::enable_if<std::is_same<typename T::_column_type::_##name, std::true_type>::value>::type>: std::true_type {};\
 	}\
 	template<typename T>\
 		struct name##_t: detail::name##_impl<T> {};
@@ -59,7 +60,7 @@ namespace sqlpp
 		template<typename T, typename Enable = void>\
 			struct name##_impl: std::false_type {};\
 		template<typename T>\
-			struct name##_impl<T, typename std::enable_if<std::is_same<typename T::_##name, tag>::value>::type>: std::true_type {};\
+			struct name##_impl<T, typename std::enable_if<std::is_same<typename T::_##name, std::true_type>::value>::type>: std::true_type {};\
 	}\
 	template<typename T>\
 		struct name##_t: detail::name##_impl<T> {};
@@ -70,7 +71,7 @@ namespace sqlpp
 		template<typename T, typename Enable = void>\
 			struct connector_##name##_impl: std::false_type {};\
 		template<typename T>\
-			struct connector_##name##_impl<T, typename std::enable_if<std::is_same<typename T::_tags::_##name, tag>::value>::type>: std::true_type {};\
+			struct connector_##name##_impl<T, typename std::enable_if<std::is_same<typename T::_tags::_##name, std::true_type>::value>::type>: std::true_type {};\
 	}\
 	template<typename T>\
 		struct connector_##name##_t: detail::connector_##name##_impl<T> {};
@@ -115,7 +116,7 @@ namespace sqlpp
 	SQLPP_CONNECTOR_TRAIT_GENERATOR(has_empty_list_insert);
 
 	template<typename T, template<typename> class IsTag>
-		using copy_type_trait = typename std::conditional<IsTag<T>::value, detail::tag, void>::type;
+		using copy_type_trait = typename std::conditional<IsTag<T>::value, std::true_type, std::false_type>::type;
 
 	template<typename T, template<typename> class IsCorrectType>
 		struct operand_t

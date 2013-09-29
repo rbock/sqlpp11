@@ -41,7 +41,7 @@ namespace sqlpp
 	{
 		struct _value_type 
 		{ 
-			using _is_select_flag = tag_yes; 
+			using _is_select_flag = std::true_type; 
 		};
 
 		template<typename Db>
@@ -56,7 +56,7 @@ namespace sqlpp
 	{
 		struct _value_type 
 		{ 
-			using _is_select_flag = tag_yes; 
+			using _is_select_flag = std::true_type; 
 		};
 
 		template<typename Db>
@@ -71,7 +71,7 @@ namespace sqlpp
 	{
 		struct _value_type 
 		{ 
-			using _is_select_flag = tag_yes; 
+			using _is_select_flag = std::true_type; 
 		};
 
 		template<typename Db>
@@ -93,7 +93,7 @@ namespace sqlpp
 			using _valid_flags = typename detail::make_set_if<is_select_flag_t, Flag...>::type;
 			static_assert(_valid_flags::size::value == sizeof...(Flag), "at least one argument is not a select flag in select flag list");
 
-			using _is_select_flag_list = tag_yes; 
+			using _is_select_flag_list = std::true_type; 
 
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const

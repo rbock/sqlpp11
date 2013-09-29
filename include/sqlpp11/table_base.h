@@ -46,7 +46,7 @@ namespace sqlpp
 		using _required_insert_columns = typename detail::make_set_if<require_insert_t, column_t<Table, ColumnSpec>...>::type;
 		using _all_of_t = std::tuple<column_t<Table, ColumnSpec>...>;
 
-		using _is_table = tag_yes;
+		using _is_table = std::true_type;
 
 		template<typename T>
 			join_t<inner_join_t, Table, typename std::decay<T>::type> join(T&& t)
@@ -57,14 +57,14 @@ namespace sqlpp
 		template<typename AliasProvider>
 			struct alias_t: public ColumnSpec::_name_t::template _member_t<column_t<AliasProvider, ColumnSpec>>...
 		{
-			using _is_table = tag_yes;
+			using _is_table = std::true_type;
 			using _table_set = detail::set<alias_t>;
 
 			struct _value_type: Table::_value_type
 			{
-				using _is_expression = tag_no;
+				using _is_expression = std::false_type;
 				using _is_named_expression = copy_type_trait<Table, is_value_t>;
-				using _is_alias = tag_yes;
+				using _is_alias = std::true_type;
 			};
 
 			using _name_t = typename AliasProvider::_name_t;

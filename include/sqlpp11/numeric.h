@@ -42,9 +42,9 @@ namespace sqlpp
 		struct numeric
 		{
 			using _base_value_type = numeric;
-			using _is_numeric = tag_yes;
-			using _is_value = tag_yes;
-			using _is_expression = tag_yes;
+			using _is_numeric = std::true_type;
+			using _is_value = std::true_type;
+			using _is_expression = std::true_type;
 			
 			template<size_t index>
 			struct _result_entry_t

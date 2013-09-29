@@ -50,7 +50,7 @@ namespace sqlpp
 			using _prohibited_assignment_set = typename detail::make_set_if<ProhibitPredicate, typename Assignment::column_type...>::type;
 			static_assert(_prohibited_assignment_set::size::value == 0, "at least one assignment is prohibited by its column definition in set()");
 
-			using _is_assignment_list = tag_yes;
+			using _is_assignment_list = std::true_type;
 
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const

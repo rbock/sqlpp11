@@ -91,8 +91,8 @@ namespace sqlpp
 			static_assert(is_noop<Limit>::value or is_limit_t<Limit>::value, "invalid 'limit' arguments");
 			static_assert(is_noop<Offset>::value or is_offset_t<Offset>::value, "invalid 'offset' arguments");
 
-			using _is_select = tag_yes;
-			using _requires_braces = tag_yes;
+			using _is_select = std::true_type;
+			using _requires_braces = std::true_type;
 
 			template<typename FromT> 
 				using set_from_t = select_t<Database, Flags, ExpressionList, FromT, Where, GroupBy, Having, OrderBy, Limit, Offset>;

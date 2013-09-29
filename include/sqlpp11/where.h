@@ -42,7 +42,7 @@ namespace sqlpp
 		{
 			static_assert(is_expression_t<Expr>::value, "invalid expression argument in where()");
 
-			using _is_where = tag_yes;
+			using _is_where = std::true_type;
 
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
@@ -58,8 +58,8 @@ namespace sqlpp
 	struct dynamic_where_t
 	{
 
-		using _is_where = tag_yes;
-		using _is_dynamic = tag_yes;
+		using _is_where = std::true_type;
+		using _is_dynamic = std::true_type;
 
 		template<typename Expr>
 			void add(Expr&& expr)

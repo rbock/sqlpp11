@@ -37,7 +37,7 @@ namespace sqlpp
 	template<typename Lhs, typename Rhs>
 		struct assignment_t
 		{
-			using _is_assignment = tag_yes;
+			using _is_assignment = std::true_type;
 			using column_type = Lhs;
 			using value_type = Rhs;
 

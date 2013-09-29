@@ -65,15 +65,15 @@ namespace sqlpp
 			static_assert(not detail::has_duplicates<typename NamedExpr::_name_t...>::value, "at least one duplicate name detected");
 			
 			// declare this to be a select expression
-			using _is_select_expression_list = tag_yes;
+			using _is_select_expression_list = std::true_type;
 
 			// provide type information for sub-selects that are used as expressions
 			struct _column_type {};
 			struct _value_type: std::conditional<sizeof...(NamedExpr) == 1, typename detail::get_first_argument<NamedExpr...>::type::_value_type, no_value_t>::type
 			{
-				using _is_expression = typename std::conditional<sizeof...(NamedExpr) == 1, tag_yes, tag_no>::type;
-				using _is_named_expression = typename std::conditional<sizeof...(NamedExpr) == 1, tag_yes, tag_no>::type;
-				using _is_alias = tag_no;
+				using _is_expression = typename std::conditional<sizeof...(NamedExpr) == 1, std::true_type, std::false_type>::type;
+				using _is_named_expression = typename std::conditional<sizeof...(NamedExpr) == 1, std::true_type, std::false_type>::type;
+				using _is_alias = std::false_type;
 			};
 			struct _no_name_t {};
 			using _name_t = typename std::conditional<sizeof...(NamedExpr) == 1, typename detail::get_first_argument<NamedExpr...>::type::_name_t, _no_name_t>::type;

@@ -36,7 +36,7 @@ namespace sqlpp
 	template<typename... Table>
 		struct using_t
 		{
-			using _is_using = tag_yes;
+			using _is_using = std::true_type;
 
 			static_assert(sizeof...(Table), "at least one table argument required in using");
 

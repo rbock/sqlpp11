@@ -35,7 +35,7 @@ namespace sqlpp
 {
 	struct limit_t
 	{
-		using _is_limit = tag_yes;
+		using _is_limit = std::true_type;
 
 		template<typename Db>
 			void serialize(std::ostream& os, Db& db) const
@@ -48,8 +48,8 @@ namespace sqlpp
 
 	struct dynamic_limit_t
 	{
-		using _is_limit = tag_yes;
-		using _is_dynamic = tag_yes;
+		using _is_limit = std::true_type;
+		using _is_dynamic = std::true_type;
 
 		dynamic_limit_t():
 			_limit(0)

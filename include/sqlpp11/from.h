@@ -39,7 +39,7 @@ namespace sqlpp
 	template<typename... TableOrJoin>
 		struct from_t
 		{
-			using _is_from = tag_yes;
+			using _is_from = std::true_type;
 
 			// ensure one argument at least
 			static_assert(sizeof...(TableOrJoin), "at least one table or join argument required in from");
@@ -67,8 +67,8 @@ namespace sqlpp
 	template<typename Db>
 	struct dynamic_from_t
 	{
-		using _is_from = tag_yes;
-		using _is_dynamic = tag_yes;
+		using _is_from = std::true_type;
+		using _is_dynamic = std::true_type;
 
 		template<typename Table>
 		void add(Table&& table)

@@ -64,7 +64,7 @@ namespace sqlpp
 			using _prohibited_assignment_set = typename detail::make_set_if<ProhibitPredicate, typename Assignment::column_type...>::type;
 			static_assert(_prohibited_assignment_set::size::value == 0, "at least one assignment is prohibited by its column definition in set()");
 
-			using _is_insert_list = tag_yes;
+			using _is_insert_list = std::true_type;
 
 			insert_list_t(Assignment... assignment):
 				_columns({assignment._lhs}...),

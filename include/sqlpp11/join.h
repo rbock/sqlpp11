@@ -58,8 +58,8 @@ namespace sqlpp
 		static_assert(Lhs::_table_set::template is_disjunct_from<typename Rhs::_table_set>::value, "joined tables must not be identical");
 
 		using _is_table = typename std::conditional<is_noop<On>::value, 
-					tag_no, 
-					tag_yes>::type;
+					std::false_type, 
+					std::true_type>::type;
 		using _table_set = typename std::conditional<is_noop<On>::value, 
 					void, 
 					typename Lhs::_table_set::template join<typename Rhs::_table_set>::type>::type;
