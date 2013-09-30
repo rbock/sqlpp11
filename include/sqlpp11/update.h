@@ -36,6 +36,7 @@
 namespace sqlpp
 {
 	template<
+		typename Database = void,
 		typename Table = noop,
 		typename Assignments = noop,
 		typename Where = noop
@@ -43,6 +44,7 @@ namespace sqlpp
 	struct update_t;
 
 	template<
+		typename Database,
 		typename Table,
 		typename Assignments,
 		typename Where
@@ -53,13 +55,14 @@ namespace sqlpp
 			static_assert(is_noop<Assignments>::value or is_assignment_list_t<Assignments>::value, "invalid 'Assignments' arguments");
 			static_assert(is_noop<Where>::value or is_where_t<Where>::value, "invalid 'Where' argument");
 
-			template<typename... Assignment> 
-				using set_assignments_t = update_t<Table, assignment_list_t<must_not_update_t, typename std::decay<Assignment>::type...>, Where>;
-			template<typename Expr> 
-				using set_where_t = update_t<Table, Assignments, where_t<typename std::decay<Expr>::type>>;
+			template<typename AssignmentsT> 
+				using set_assignments_t = update_t<Database, Table, AssignmentsT, Where>;
+			template<typename WhereT> 
+				using set_where_t = update_t<Database, Table, Assignments, WhereT>;
 
 			template<typename... Assignment>
-				set_assignments_t<Assignment...> set(Assignment&&... assignment)
+				auto set(Assignment&&... assignment)
+				-> set_assignments_t<assignment_list_t<void, must_not_update_t, typename std::decay<Assignment>::type...>>
 				{
 					static_assert(std::is_same<Assignments, noop>::value, "cannot call set() twice");
 					return {
@@ -69,8 +72,29 @@ namespace sqlpp
 					};
 				}
 
+			template<typename... Assignment>
+				auto dynamic_set(Assignment&&... assignment)
+				-> set_assignments_t<assignment_list_t<Database, must_not_update_t, typename std::decay<Assignment>::type...>>
+				{
+					static_assert(std::is_same<Assignments, noop>::value, "cannot call set() twice");
+					return {
+							_table,
+								{std::tuple<typename std::decay<Assignment>::type...>{std::forward<Assignment>(assignment)...}},
+							_where,
+					};
+				}
+
+			template<typename Assignment>
+				void add_set(Assignment&& assignment)
+				{
+					static_assert(is_dynamic_t<Assignments>::value, "cannot call add_set() in a non-dynamic set");
+
+					_assignments.add(std::forward<Assignment>(assignment));
+				}
+
 			template<typename Expr>
-				set_where_t<Expr> where(Expr&& where)
+				auto where(Expr&& where)
+				-> set_where_t<where_t<typename std::decay<Expr>::type>>
 				{
 					static_assert(not std::is_same<Assignments, noop>::value, "cannot call where() if set() hasn't been called yet");
 					static_assert(std::is_same<Where, noop>::value, "cannot call where() twice");
@@ -79,6 +103,26 @@ namespace sqlpp
 							_assignments,
 							{std::forward<Expr>(where)},
 					};
+				}
+
+			auto dynamic_where()
+				-> set_where_t<dynamic_where_t<Database>>
+				{
+					static_assert(not std::is_same<Assignments, noop>::value, "cannot call where() if set() hasn't been called yet");
+					static_assert(std::is_same<Where, noop>::value, "cannot call where() twice");
+					return {
+						_table, 
+							_assignments, 
+							{{}}, 
+					};
+				}
+
+			template<typename Expr>
+				void add_where(Expr&& expr)
+				{
+					static_assert(is_dynamic_t<Where>::value, "cannot call add_where() in a non-dynamic where");
+
+					_where.add(std::forward<Expr>(expr));
 				}
 
 			template<typename Db>
@@ -112,7 +156,13 @@ namespace sqlpp
 		};
 
 	template<typename Table>
-		constexpr update_t<typename std::decay<Table>::type> update(Table&& table)
+		constexpr update_t<void, typename std::decay<Table>::type> update(Table&& table)
+		{
+			return {std::forward<Table>(table)};
+		}
+
+	template<typename Db, typename Table>
+		constexpr update_t<typename std::decay<Db>::type, typename std::decay<Table>::type> dynamic_update(Db&& db, Table&& table)
 		{
 			return {std::forward<Table>(table)};
 		}

@@ -37,12 +37,14 @@
 namespace sqlpp
 {
 	template<
+		typename Database = void,
 		typename Table = noop,
 		typename InsertList = noop
 		>
 	struct insert_t;
 
 	template<
+		typename Database,
 		typename Table,
 		typename InsertList
 		>
@@ -51,17 +53,38 @@ namespace sqlpp
 			static_assert(is_noop<Table>::value or is_table_t<Table>::value, "invalid 'Table' argument");
 			static_assert(is_noop<InsertList>::value or is_insert_list_t<InsertList>::value, "invalid 'InsertList' argument");
 
-			template<typename... Assignment> 
-				using set_insert_list_t = insert_t<Table, insert_list_t<must_not_insert_t, typename std::decay<Assignment>::type...>>;
+			template<typename AssignmentT> 
+				using set_insert_list_t = insert_t<Database, Table, AssignmentT>;
 
 			template<typename... Assignment>
-				set_insert_list_t<Assignment...> set(Assignment&&... assignment)
+				auto set(Assignment&&... assignment)
+				-> set_insert_list_t<insert_list_t<void, must_not_insert_t, typename std::decay<Assignment>::type...>>
+				{
+					static_assert(std::is_same<InsertList, noop>::value, "cannot call set() twice");
+					// FIXME:  Need to check if all required columns are set
+					return {
+							_table,
+							insert_list_t<void, must_not_insert_t, typename std::decay<Assignment>::type...>{std::forward<Assignment>(assignment)...},
+					};
+				}
+
+			template<typename... Assignment>
+				auto dynamic_set(Assignment&&... assignment)
+				-> set_insert_list_t<insert_list_t<Database, must_not_insert_t, typename std::decay<Assignment>::type...>>
 				{
 					static_assert(std::is_same<InsertList, noop>::value, "cannot call set() twice");
 					return {
 							_table,
-							insert_list_t<must_not_insert_t, Assignment...>{std::forward<Assignment>(assignment)...},
+							insert_list_t<Database, must_not_insert_t, typename std::decay<Assignment>::type...>{std::forward<Assignment>(assignment)...},
 					};
+				}
+
+			template<typename Assignment>
+				void add_set(Assignment&& assignment)
+				{
+					static_assert(is_dynamic_t<InsertList>::value, "cannot call add_set() in a non-dynamic set");
+
+					_insert_list.add(std::forward<Assignment>(assignment));
 				}
 
 			template<typename Db>
@@ -71,10 +94,7 @@ namespace sqlpp
 					_table.serialize(os, db);
 					if (is_noop<InsertList>::value)
 					{
-						if (connector_has_empty_list_insert_t<typename std::decay<Db>::type>::value)
-							os << " () VALUES()";
-						else
-							os << " DEFAULT VALUES";
+						detail::serialize_empty_insert_list(os, db);
 					}
 					else
 						_insert_list.serialize(os, db);
@@ -104,7 +124,13 @@ namespace sqlpp
 		};
 
 	template<typename Table>
-		constexpr insert_t<typename std::decay<Table>::type> insert_into(Table&& table)
+		insert_t<void, typename std::decay<Table>::type> insert_into(Table&& table)
+		{
+			return {std::forward<Table>(table)};
+		}
+
+	template<typename Database, typename Table>
+		insert_t<typename std::decay<Database>::type, typename std::decay<Table>::type> dynamic_insert_into(Database&& db, Table&& table)
 		{
 			return {std::forward<Table>(table)};
 		}

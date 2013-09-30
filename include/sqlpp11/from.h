@@ -42,7 +42,7 @@ namespace sqlpp
 			using _is_from = std::true_type;
 
 			// ensure one argument at least
-			static_assert(sizeof...(TableOrJoin), "at least one table or join argument required in from");
+			static_assert(sizeof...(TableOrJoin), "at least one table or join argument required in from()");
 
 			// check for duplicate arguments
 			static_assert(not detail::has_duplicates<TableOrJoin...>::value, "at least one duplicate argument detected in from()");

@@ -47,6 +47,9 @@ int main()
 
 	insert_into(t).serialize(std::cerr, db); std::cerr << "\n";
 	insert_into(t).set(t.beta = "kirschauflauf").serialize(std::cerr, db); std::cerr << "\n";
+	auto i = dynamic_insert_into(db, t).dynamic_set();
+	i.add_set(t.beta = "kirschauflauf");
+	i.serialize(std::cerr, db); std::cerr << "\n";
 	//insert_into(t).values(7, "wurstwaren", true).serialize(std::cerr, db); std::cerr << "\n";
 	//insert_into(t).columns(t.alpha, t.beta).values(25, "drei").serialize(std::cerr, db); std::cerr << "\n";
 	//insert_into(t).columns(t.alpha, t.beta).select(select(t.alpha, t.beta).from(t)).serialize(std::cerr, db);

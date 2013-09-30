@@ -48,6 +48,10 @@ int main()
 	update(t).serialize(std::cerr, db); std::cerr << "\n";
 	update(t).set(t.gamma = false).serialize(std::cerr, db); std::cerr << "\n";
 	update(t).set(t.gamma = false).where(t.beta != "transparent").serialize(std::cerr, db); std::cerr << "\n";
+	auto u = dynamic_update(db, t).dynamic_set(t.gamma = false).dynamic_where();
+	u.add_set(t.gamma = false);
+	u.serialize(std::cerr, db); std::cerr << "\n";
+
 	//insert_into(t).values(7, "wurstwaren", true).serialize(std::cerr, db); std::cerr << "\n";
 	//insert_into(t).columns(t.alpha, t.beta).values(25, "drei").serialize(std::cerr, db); std::cerr << "\n";
 	//insert_into(t).columns(t.alpha, t.beta).select(select(t.alpha, t.beta).from(t)).serialize(std::cerr, db);

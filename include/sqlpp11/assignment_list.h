@@ -27,39 +27,74 @@
 #ifndef SQLPP_ASSIGNMENT_LIST_H
 #define SQLPP_ASSIGNMENT_LIST_H
 
+#include <vector>
+#include <sqlpp11/type_traits.h>
 #include <sqlpp11/detail/set.h>
 #include <sqlpp11/detail/serialize_tuple.h>
-#include <sqlpp11/type_traits.h>
+#include <sqlpp11/detail/serializable.h>
 
 namespace sqlpp
 {
-	template<template<typename> class ProhibitPredicate, typename... Assignment>
+	namespace detail
+	{
+		template<typename Db>
+			struct dynamic_assignment_list
+			{
+				using type = std::vector<detail::serializable_t<Db>>;
+			};
+
+		template<>
+			struct dynamic_assignment_list<void>
+			{
+				using type = std::vector<noop>;
+			};
+	};
+
+	template<typename Database, template<typename> class ProhibitPredicate, typename... Assignments>
 		struct assignment_list_t
 		{
+			using _is_assignment_list = std::true_type;
+			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
+
 			// check for at least one order expression
-			static_assert(sizeof...(Assignment), "at least one select expression required in set()");
+			static_assert(_is_dynamic::value or sizeof...(Assignments), "at least one assignment expression required in set()");
 
 			// check for duplicate assignments
-			static_assert(not detail::has_duplicates<Assignment...>::value, "at least one duplicate argument detected in set()");
+			static_assert(not detail::has_duplicates<Assignments...>::value, "at least one duplicate argument detected in set()");
 
 			// check for invalid assignments
-			using _assignment_set = typename detail::make_set_if<is_assignment_t, Assignment...>::type;
-			static_assert(_assignment_set::size::value == sizeof...(Assignment), "at least one argument is not an assignment in set()");
+			using _assignment_set = typename detail::make_set_if<is_assignment_t, Assignments...>::type;
+			static_assert(_assignment_set::size::value == sizeof...(Assignments), "at least one argument is not an assignment in set()");
 
 			// check for prohibited assignments
-			using _prohibited_assignment_set = typename detail::make_set_if<ProhibitPredicate, typename Assignment::column_type...>::type;
+			using _prohibited_assignment_set = typename detail::make_set_if<ProhibitPredicate, typename Assignments::column_type...>::type;
 			static_assert(_prohibited_assignment_set::size::value == 0, "at least one assignment is prohibited by its column definition in set()");
 
-			using _is_assignment_list = std::true_type;
+			template<typename Assignment>
+				void add(Assignment&& assignment)
+				{
+					static_assert(is_assignment_t<typename std::decay<Assignment>::type>::value, "set() arguments require to be assigments");
+					static_assert(not ProhibitPredicate<typename std::decay<Assignment>::type::column_type>::value, "set() argument must not be updated");
+					_dynamic_assignments.push_back(std::forward<Assignment>(assignment));
+				}
 
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
 					os << " SET ";
 					detail::serialize_tuple(os, db, _assignments, ',');
+					bool first = sizeof...(Assignments) == 0;
+					for (const auto& assignment : _dynamic_assignments)
+					{
+						if (not first)
+							os << ',';
+						assignment.serialize(os, db);
+						first = false;
+					}
 				}
 
-			std::tuple<Assignment...> _assignments;
+			std::tuple<Assignments...> _assignments;
+			typename detail::dynamic_assignment_list<Database>::type _dynamic_assignments;
 		};
 
 }

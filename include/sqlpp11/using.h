@@ -27,9 +27,11 @@
 #ifndef SQLPP_USING_H
 #define SQLPP_USING_H
 
-#include <sqlpp11/type_traits.h>
-#include <sqlpp11/detail/serialize_tuple.h>
 #include <ostream>
+#include <sqlpp11/type_traits.h>
+#include <sqlpp11/detail/set.h>
+#include <sqlpp11/detail/serialize_tuple.h>
+#include <sqlpp11/detail/serializable.h>
 
 namespace sqlpp
 {
@@ -38,7 +40,15 @@ namespace sqlpp
 		{
 			using _is_using = std::true_type;
 
-			static_assert(sizeof...(Table), "at least one table argument required in using");
+			static_assert(sizeof...(Table), "at least one table argument required in using()");
+
+			// check for duplicate arguments
+			static_assert(not detail::has_duplicates<Table...>::value, "at least one duplicate argument detected in using()");
+
+			// check for invalid arguments
+			using _valid_expressions = typename detail::make_set_if<is_table_t, Table...>::type;
+			static_assert(_valid_expressions::size::value == sizeof...(Table), "at least one argument is not an table in using()");
+
 
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
@@ -49,6 +59,37 @@ namespace sqlpp
 
 			std::tuple<Table...> _tables;
 		};
+
+	template<typename Db>
+	struct dynamic_using_t
+	{
+		using _is_using = std::true_type;
+		using _is_dynamic = std::true_type;
+
+		template<typename Table>
+		void add(Table&& table)
+		{
+			static_assert(is_table_t<typename std::decay<Table>::type>::value, "using arguments require to be tables");
+			_dynamic_tables.push_back(std::forward<Table>(table));
+		}
+
+		void serialize(std::ostream& os, Db& db) const
+		{
+			if (_dynamic_tables.empty())
+				return;
+			os << " USING ";
+			bool first = true;
+			for (const auto& table : _dynamic_tables)
+			{
+				if (not first)
+					os << ',';
+				table.serialize(os, db);
+				first = false;
+			}
+		}
+
+		std::vector<detail::serializable_t<Db>> _dynamic_tables;
+	};
 }
 
 #endif

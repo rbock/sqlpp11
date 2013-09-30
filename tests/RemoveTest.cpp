@@ -48,6 +48,10 @@ int main()
 	remove_from(t).serialize(std::cerr, db); std::cerr << "\n";
 	remove_from(t).where(t.beta != "transparent").serialize(std::cerr, db); std::cerr << "\n";
 	remove_from(t).using_(t).serialize(std::cerr, db); std::cerr << "\n";
+	auto r = dynamic_remove_from(db, t).dynamic_using_().dynamic_where();
+	r.add_using_(t);
+	r.add_where(t.beta != "transparent");
+	r.serialize(std::cerr, db); std::cerr << "\n";
 	//insert_into(t).values(7, "wurstwaren", true).serialize(std::cerr, db); std::cerr << "\n";
 	//insert_into(t).columns(t.alpha, t.beta).values(25, "drei").serialize(std::cerr, db); std::cerr << "\n";
 	//insert_into(t).columns(t.alpha, t.beta).select(select(t.alpha, t.beta).from(t)).serialize(std::cerr, db);
