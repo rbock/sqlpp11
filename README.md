@@ -68,8 +68,8 @@ if (const auto& row = db.run(select(foo.name.as(cheese)).from(foo).where(foo.id 
     std::cerr << "found: " << row.cheese << std::endl;
 }
 
-// selecting exactly one row:
-return db.run(select(count(foo.id)).from(foo))->count;
+// selecting a single row with a single result:
+return db.run(select(count(foo.id)).from(foo)).front().count;
 
 Of course there are joins and subqueries, more functions, order_by, group_by etc.
 These will be documented soon.
