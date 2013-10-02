@@ -244,45 +244,6 @@ namespace sqlpp
 			Rhs _rhs;
 		};
 
-	template<typename Lhs, typename O, typename... Rhs>
-		struct nary_member_function_t: public O::_value_type::template operators<nary_member_function_t<Lhs, O, Rhs...>>
-		{
-			using _value_type = typename O::_value_type;
-
-			nary_member_function_t(Lhs&& l, Rhs&&... r):
-				_lhs(std::move(l)), 
-				_rhs(std::move(r)...)
-			{}
-
-			nary_member_function_t(const Lhs& l, const Rhs&... r):
-				_lhs(l), 
-				_rhs(r...)
-			{}
-
-			nary_member_function_t(const nary_member_function_t&) = default;
-			nary_member_function_t(nary_member_function_t&&) = default;
-			nary_member_function_t& operator=(const nary_member_function_t&) = default;
-			nary_member_function_t& operator=(nary_member_function_t&&) = default;
-			~nary_member_function_t() = default;
-
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					os << "(";
-					_lhs.serialize(os, db);
-					os << " ";
-					os << O::_name;
-					os << "(";
-					detail::serialize_tuple(os, db, _rhs, ',');
-					os << ")";
-					os << ")";
-				}
-
-		private:
-			Lhs _lhs;
-			std::tuple<Rhs...> _rhs;
-		};
-
 }
 
 #endif

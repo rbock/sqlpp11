@@ -30,6 +30,7 @@
 #include <sqlpp11/expression_fwd.h>
 #include <sqlpp11/alias.h>
 #include <sqlpp11/sort_order.h>
+#include <sqlpp11/in.h>
 
 namespace sqlpp
 {
@@ -73,12 +74,6 @@ namespace sqlpp
 		{
 			using _value_type = boolean;
 			static constexpr const char* _name = "IS NOT NULL";
-		};
-
-		struct in_
-		{
-			using _value_type = boolean;
-			static constexpr const char* _name = "IN";
 		};
 
 		struct not_in_
@@ -149,16 +144,14 @@ namespace sqlpp
 
 			// Hint: use value_list wrapper for containers...
 			template<typename... T>
-				nary_member_function_t<Base, in_, typename Constraint<T>::type...> in(T&&... t) const
+				in_t<true, Base, typename Constraint<T>::type...> in(T&&... t) const
 				{
-					static_assert(sizeof...(T) > 0, "in() requires at least one argument");
 					return { *static_cast<const Base*>(this), std::forward<T>(t)... };
 				}
 
 			template<typename... T>
-				nary_member_function_t<Base, not_in_, typename Constraint<T>::type...> not_in(T&&... t) const
+				in_t<false, Base, typename Constraint<T>::type...> not_in(T&&... t) const
 				{
-					static_assert(sizeof...(T) > 0, "not_in() requires at least one argument");
 					return { *static_cast<const Base*>(this), std::forward<T>(t)... };
 				}
 
