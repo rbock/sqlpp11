@@ -44,6 +44,9 @@ int main()
 	auto x = t.alpha = 7;
 	auto y = t.beta = "kaesekuchen";
 	auto z = t.gamma = true;
+	auto a = t.alpha;
+	a = t.alpha;
+
 
 	insert_into(t).serialize(std::cerr, db); std::cerr << "\n";
 	insert_into(t).set(t.beta = "kirschauflauf").serialize(std::cerr, db); std::cerr << "\n";
