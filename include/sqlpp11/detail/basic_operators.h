@@ -76,12 +76,6 @@ namespace sqlpp
 			static constexpr const char* _name = "IS NOT NULL";
 		};
 
-		struct not_in_
-		{
-			using _value_type = boolean;
-			static constexpr const char* _name = "NOT IN";
-		};
-
 
 		// basic operators
 		template<typename Base, template<typename> class Constraint>
