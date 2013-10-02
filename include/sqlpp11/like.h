@@ -35,8 +35,6 @@ namespace sqlpp
 {
 	namespace detail
 	{
-		struct text;
-
 		template<typename Operand, typename Pattern>
 		struct like_t: public Operand::_value_type::template operators<like_t<Operand, Pattern>>
 		{
