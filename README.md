@@ -52,7 +52,7 @@ for (const auto& row : db.run(select(foo.name, foo.hasFun).from(foo).where(foo.i
     if (row.name.is_null())
         std::cerr << "name is null, will convert to empty string" << std::endl;
     std::string name = row.name;   // string-like fields are implicitly convertible to string
-    bool hasFun = hasFun;          // bool fields are implicitly convertible to bool
+    bool hasFun = row.hasFun;          // bool fields are implicitly convertible to bool
 }
 
 // selecting ALL columns of a table
