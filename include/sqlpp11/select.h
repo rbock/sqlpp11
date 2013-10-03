@@ -206,12 +206,14 @@ namespace sqlpp
 				}
 
 			template<typename Table>
-				void add_from(Table&& table)
+				select_t& add_from(Table&& table)
 				{
 					static_assert(not is_noop<ExpressionList>::value, "cannot call add_from() without having selected anything");
 					static_assert(is_dynamic_t<From>::value, "cannot call add_from() in a non-dynamic from");
 
 					_from.add(std::forward<Table>(table));
+
+					return *this;
 				}
 
 			template<typename Expr>
@@ -252,11 +254,13 @@ namespace sqlpp
 				}
 
 			template<typename Expr>
-				void add_where(Expr&& expr)
+				select_t& add_where(Expr&& expr)
 				{
 					static_assert(is_dynamic_t<Where>::value, "cannot call add_where() in a non-dynamic where");
 
 					_where.add(std::forward<Expr>(expr));
+
+					return *this;
 				}
 
 			template<typename... Col>
@@ -297,11 +301,13 @@ namespace sqlpp
 				}
 
 			template<typename Expr>
-				void add_group_by(Expr&& expr)
+				select_t& add_group_by(Expr&& expr)
 				{
 					static_assert(is_dynamic_t<GroupBy>::value, "cannot call add_group_by() in a non-dynamic group_by");
 
 					_group_by.add(std::forward<Expr>(expr));
+
+					return *this;
 				}
 
 			template<typename Expr>
@@ -342,11 +348,13 @@ namespace sqlpp
 				}
 
 			template<typename Expr>
-				void add_having(Expr&& expr)
+				select_t& add_having(Expr&& expr)
 				{
 					static_assert(is_dynamic_t<Having>::value, "cannot call add_having() in a non-dynamic having");
 
 					_having.add(std::forward<Expr>(expr));
+
+					return *this;
 				}
 
 			template<typename... OrderExpr>
@@ -387,11 +395,13 @@ namespace sqlpp
 				}
 
 			template<typename Expr>
-				void add_order_by(Expr&& expr)
+				select_t& add_order_by(Expr&& expr)
 				{
 					static_assert(is_dynamic_t<OrderBy>::value, "cannot call add_order_by() in a non-dynamic order_by");
 
 					_order_by.add(std::forward<Expr>(expr));
+
+					return *this;
 				}
 
 			auto limit(std::size_t limit)
@@ -430,11 +440,13 @@ namespace sqlpp
 				};
 			}
 
-			void set_limit(std::size_t limit)
+			select_t& set_limit(std::size_t limit)
 			{
 				static_assert(is_dynamic_t<Limit>::value, "cannot call set_limit() in a non-dynamic limit");
 
 				_limit.set(limit);
+
+				return *this;
 			}
 
 			auto offset(std::size_t offset)
@@ -473,11 +485,13 @@ namespace sqlpp
 				};
 			}
 
-			void set_offset(std::size_t offset)
+			select_t& set_offset(std::size_t offset)
 			{
 				static_assert(is_dynamic_t<Offset>::value, "cannot call set_offset() in a non-dynamic limit");
 
 				_offset.set(offset);
+
+				return *this;
 			}
 
 			template<typename AliasProvider>

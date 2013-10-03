@@ -44,6 +44,11 @@ namespace sqlpp
 			using _value_type = boolean;
 
 			bool_operand(bool t): _t(t) {}
+			bool_operand(const bool_operand&) = default;
+			bool_operand(bool_operand&&) = default;
+			bool_operand& operator=(const bool_operand&) = default;
+			bool_operand& operator=(bool_operand&&) = default;
+			~bool_operand() = default;
 
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
@@ -53,7 +58,7 @@ namespace sqlpp
 
 			bool _is_trivial() const { return _t == false; }
 
-			const bool _t;
+			bool _t;
 		};
 
 		template<typename T>
@@ -63,6 +68,11 @@ namespace sqlpp
 				using _value_type = numeric;
 
 				numeric_operand(T t): _t(t) {}
+				numeric_operand(const numeric_operand&) = default;
+				numeric_operand(numeric_operand&&) = default;
+				numeric_operand& operator=(const numeric_operand&) = default;
+				numeric_operand& operator=(numeric_operand&&) = default;
+				~numeric_operand() = default;
 
 				template<typename Db>
 					void serialize(std::ostream& os, Db& db) const
@@ -72,7 +82,7 @@ namespace sqlpp
 
 				bool _is_trivial() const { return _t == 0; }
 
-				const T _t;
+				T _t;
 			};
 
 		template<typename T>
@@ -82,6 +92,11 @@ namespace sqlpp
 				using _value_type = text;
 
 				text_operand(const T& t): _t(t) {}
+				text_operand(const text_operand&) = default;
+				text_operand(text_operand&&) = default;
+				text_operand& operator=(const text_operand&) = default;
+				text_operand& operator=(text_operand&&) = default;
+				~text_operand() = default;
 
 				template<typename Db>
 					void serialize(std::ostream& os, Db& db) const
@@ -91,7 +106,7 @@ namespace sqlpp
 
 				bool _is_trivial() const { return _t.empty(); }
 
-				const std::string _t;
+				std::string _t;
 			};
 
 		template<typename T, typename Enable = void>

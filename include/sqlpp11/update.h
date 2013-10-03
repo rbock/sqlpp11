@@ -85,11 +85,13 @@ namespace sqlpp
 				}
 
 			template<typename Assignment>
-				void add_set(Assignment&& assignment)
+				update_t& add_set(Assignment&& assignment)
 				{
 					static_assert(is_dynamic_t<Assignments>::value, "cannot call add_set() in a non-dynamic set");
 
 					_assignments.add(std::forward<Assignment>(assignment));
+
+					return *this;
 				}
 
 			template<typename Expr>
@@ -118,11 +120,13 @@ namespace sqlpp
 				}
 
 			template<typename Expr>
-				void add_where(Expr&& expr)
+				update_t& add_where(Expr&& expr)
 				{
 					static_assert(is_dynamic_t<Where>::value, "cannot call add_where() in a non-dynamic where");
 
 					_where.add(std::forward<Expr>(expr));
+
+					return *this;
 				}
 
 			template<typename Db>

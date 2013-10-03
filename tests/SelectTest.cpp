@@ -264,10 +264,10 @@ int main()
 
 	{
 		auto s = dynamic_select(db, t).dynamic_from().dynamic_where().dynamic_limit().dynamic_offset();
-		s.add_from(t);
-		s.add_where(t.alpha > 7);
-		s.set_limit(30);
-		s.set_limit(3);
+		s = s.add_from(t);
+		s = s.add_where(t.alpha > 7);
+		s = s.set_limit(30);
+		s = s.set_limit(3);
 		std::cerr << "------------------------\n";
 		s.serialize(std::cerr, db);
 		std::cerr << "------------------------\n";

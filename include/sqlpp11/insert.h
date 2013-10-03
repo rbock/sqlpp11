@@ -80,11 +80,13 @@ namespace sqlpp
 				}
 
 			template<typename Assignment>
-				void add_set(Assignment&& assignment)
+				insert_t add_set(Assignment&& assignment)
 				{
 					static_assert(is_dynamic_t<InsertList>::value, "cannot call add_set() in a non-dynamic set");
 
 					_insert_list.add(std::forward<Assignment>(assignment));
+
+					return *this;
 				}
 
 			template<typename Db>

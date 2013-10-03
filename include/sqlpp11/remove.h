@@ -73,23 +73,25 @@ namespace sqlpp
 					};
 				}
 
-				auto dynamic_using_()
+			auto dynamic_using_()
 				-> set_using_t<dynamic_using_t<Database>>
 				{
 					static_assert(std::is_same<Using, noop>::value, "cannot call using() twice");
 					static_assert(std::is_same<Where, noop>::value, "cannot call using() after where()");
 					return {
-							_table,
+						_table,
 							{{}},
 							_where
 					};
 				}
 
-				template<typename Tab>
-				void add_using_(Tab&& table)
+			template<typename Tab>
+				remove_t& add_using_(Tab&& table)
 				{
 					static_assert(is_dynamic_t<Using>::value, "cannot call add_using() in a non-dynamic using");
 					_using.add(std::forward<Tab>(table));
+
+					return *this;
 				}
 
 			template<typename Expr>
@@ -116,11 +118,13 @@ namespace sqlpp
 				}
 
 			template<typename Expr>
-				void add_where(Expr&& expr)
+				remove_t& add_where(Expr&& expr)
 				{
 					static_assert(is_dynamic_t<Where>::value, "cannot call add_where() in a non-dynamic where");
 
 					_where.add(std::forward<Expr>(expr));
+
+					return *this;
 				}
 
 
