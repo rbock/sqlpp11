@@ -224,9 +224,9 @@ int main()
 	{
 		auto a = select(all_of(t));
 		auto b = select(t.alpha, t.beta, t.gamma);
-		auto c = select(t);
+		//auto c = select(t);
 		static_assert(std::is_same<decltype(a), decltype(b)>::value, "all_of(t) has to be expanded by select()");
-		static_assert(std::is_same<decltype(b), decltype(c)>::value, "t has to be expanded by select()");
+		//static_assert(std::is_same<decltype(b), decltype(c)>::value, "t has to be expanded by select()");
 	}
 
 	// Test that select(all_of(tab)) is expanded in multi_column
@@ -238,7 +238,7 @@ int main()
 
 	// Test that select(tab) is expanded in multi_column
 	{
-		auto a = multi_column(sqlpp::alias::a, t);
+		auto a = multi_column(sqlpp::alias::a, all_of(t));
 		auto b = multi_column(sqlpp::alias::a, t.alpha, t.beta, t.gamma);
 		static_assert(std::is_same<decltype(a), decltype(b)>::value, "t has to be expanded by multi_column");
 	}
@@ -263,7 +263,7 @@ int main()
 	}
 
 	{
-		auto s = dynamic_select(db, t).dynamic_from().dynamic_where().dynamic_limit().dynamic_offset();
+		auto s = dynamic_select(db, all_of(t)).dynamic_from().dynamic_where().dynamic_limit().dynamic_offset();
 		s = s.add_from(t);
 		s = s.add_where(t.alpha > 7);
 		s = s.set_limit(30);

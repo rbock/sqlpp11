@@ -32,31 +32,38 @@ namespace sqlpp
 	namespace detail
 	{
 		template<typename Expr>
-			auto make_single_expression_tuple(Expr&& expr) -> typename std::enable_if<is_named_expression_t<typename std::decay<Expr>::type>::value, decltype(std::make_tuple(expr))>::type
+			auto make_single_expression_tuple(Expr&& expr)
+			-> typename std::enable_if<is_named_expression_t<typename std::decay<Expr>::type>::value, decltype(std::make_tuple(expr))>::type
 			{
 				return std::make_tuple(std::forward<Expr>(expr));
 			};
 
 		template<typename Expr>
-			auto make_single_expression_tuple(Expr&& expr) -> typename std::enable_if<is_select_flag_t<typename std::decay<Expr>::type>::value, std::tuple<>>::type
+			auto make_single_expression_tuple(Expr&& expr)
+			-> typename std::enable_if<is_select_flag_t<typename std::decay<Expr>::type>::value, std::tuple<>>::type
 			{
 				return {};
 			};
 
+		/*
 		template<typename Tab>
-			auto make_single_expression_tuple(Tab&& tab) -> typename std::enable_if<is_table_t<typename std::decay<Tab>::type>::value, typename std::decay<Tab>::type::_all_of_t>::type
+			auto make_single_expression_tuple(Tab&& tab)
+			-> typename std::enable_if<is_table_t<typename std::decay<Tab>::type>::value, typename std::decay<Tab>::type::_all_of_t>::type
 			{
 				return {};
 			};
+			*/
 
 		template<typename... Expr>
-			auto make_single_expression_tuple(std::tuple<Expr...>&& t) -> std::tuple<Expr...>
+			auto make_single_expression_tuple(std::tuple<Expr...>&& t)
+			-> std::tuple<Expr...>
 			{
 				return t;
 			};
 
 		template<typename... Expr>
-			auto make_expression_tuple(Expr&&... expr) -> decltype(std::tuple_cat(make_single_expression_tuple(std::forward<Expr>(expr))...))
+			auto make_expression_tuple(Expr&&... expr)
+			-> decltype(std::tuple_cat(make_single_expression_tuple(std::forward<Expr>(expr))...))
 			{
 				return std::tuple_cat(make_single_expression_tuple(std::forward<Expr>(expr))...);
 			};
