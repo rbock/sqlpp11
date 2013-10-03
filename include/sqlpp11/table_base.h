@@ -96,7 +96,7 @@ namespace sqlpp
 		template<typename Db>
 			void serialize(std::ostream& os, Db& db) const
 			{
-				static_cast<const Table*>(this)->serialize(os, db);
+				static_cast<const Table*>(this)->serialize_impl(os, db);
 			}
 
 	};
