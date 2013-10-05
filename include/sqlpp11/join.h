@@ -34,22 +34,18 @@ namespace sqlpp
 {
 	struct inner_join_t
 	{
-		static constexpr bool _require_on = true;
 		static constexpr const char* _name = " INNER ";
 	};
 	struct outer_join_t
 	{
-		static constexpr bool _require_on = true;
 		static constexpr const char* _name = " OUTER ";
 	};
 	struct left_outer_join_t
 	{
-		static constexpr bool _require_on = true;
 		static constexpr const char* _name = " LEFT OUTER ";
 	};
 	struct right_outer_join_t
 	{
-		static constexpr bool _require_on = true;
 		static constexpr const char* _name = " RIGHT OUTER ";
 	};
 
@@ -77,42 +73,43 @@ namespace sqlpp
 		template<typename T>
 			join_t<inner_join_t, join_t, typename std::decay<T>::type> join(T&& t)
 			{
-				static_assert(not (JoinType::_require_on and	is_noop<On>::value), "join type requires on()");
+				static_assert(not is_noop<On>::value, "join type requires on()");
 				return { *this, std::forward<T>(t) };
 			}
 
 		template<typename T>
 			join_t<inner_join_t, join_t, typename std::decay<T>::type> inner_join(T&& t)
 			{
-				static_assert(not (JoinType::_require_on and	is_noop<On>::value), "join type requires on()");
+				static_assert(not is_noop<On>::value, "join type requires on()");
 				return { *this, std::forward<T>(t) };
 			}
 
 		template<typename T>
 			join_t<outer_join_t, join_t, typename std::decay<T>::type> outer_join(T&& t)
 			{
-				static_assert(not (JoinType::_require_on and	is_noop<On>::value), "join type requires on()");
+				static_assert(not is_noop<On>::value, "join type requires on()");
 				return { *this, std::forward<T>(t) };
 			}
 
 		template<typename T>
 			join_t<left_outer_join_t, join_t, typename std::decay<T>::type> left_outer_join(T&& t)
 			{
-				static_assert(not (JoinType::_require_on and	is_noop<On>::value), "join type requires on()");
+				static_assert(not is_noop<On>::value, "join type requires on()");
 				return { *this, std::forward<T>(t) };
 			}
 
 		template<typename T>
 			join_t<right_outer_join_t, join_t, typename std::decay<T>::type> right_outer_join(T&& t)
 			{
-				static_assert(not (JoinType::_require_on and	is_noop<On>::value), "join type requires on()");
+				static_assert(not is_noop<On>::value, "join type requires on()");
 				return { *this, std::forward<T>(t) };
 			}
 
 		template<typename Db>
 			void serialize(std::ostream& os, Db& db) const
 			{
-				static_assert(not (JoinType::_require_on and	is_noop<On>::value), "join type requires on()");
+				// FIXME: Need to check if db supports the join type. e.g. sqlite does not support right outer or full outer join
+				static_assert(not is_noop<On>::value, "joined tables require on()");
 				_lhs.serialize(os, db);
 				os << JoinType::_name;
 			 	os << " JOIN ";
