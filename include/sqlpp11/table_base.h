@@ -54,6 +54,30 @@ namespace sqlpp
 				return { *static_cast<const Table*>(this), std::forward<T>(t) };
 			}
 
+		template<typename T>
+			join_t<inner_join_t, Table, typename std::decay<T>::type> inner_join(T&& t)
+			{
+				return { *static_cast<const Table*>(this), std::forward<T>(t) };
+			}
+
+		template<typename T>
+			join_t<outer_join_t, Table, typename std::decay<T>::type> outer_join(T&& t)
+			{
+				return { *static_cast<const Table*>(this), std::forward<T>(t) };
+			}
+
+		template<typename T>
+			join_t<left_outer_join_t, Table, typename std::decay<T>::type> left_outer_join(T&& t)
+			{
+				return { *static_cast<const Table*>(this), std::forward<T>(t) };
+			}
+
+		template<typename T>
+			join_t<right_outer_join_t, Table, typename std::decay<T>::type> right_outer_join(T&& t)
+			{
+				return { *static_cast<const Table*>(this), std::forward<T>(t) };
+			}
+
 		template<typename AliasProvider>
 			struct alias_t: public ColumnSpec::_name_t::template _member_t<column_t<AliasProvider, ColumnSpec>>...
 		{

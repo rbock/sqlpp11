@@ -28,24 +28,29 @@
 #define SQLPP_JOIN_H
 
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/on.h>
 
 namespace sqlpp
 {
 	struct inner_join_t
 	{
-		static constexpr const char* _name = "INNER";
+		static constexpr bool _require_on = true;
+		static constexpr const char* _name = " INNER ";
 	};
 	struct outer_join_t
 	{
-		static constexpr const char* _name = "OUTER";
+		static constexpr bool _require_on = true;
+		static constexpr const char* _name = " OUTER ";
 	};
-	struct left_join_t
+	struct left_outer_join_t
 	{
-		static constexpr const char* _name = "LEFT OUTER";
+		static constexpr bool _require_on = true;
+		static constexpr const char* _name = " LEFT OUTER ";
 	};
-	struct right_join_t
+	struct right_outer_join_t
 	{
-		static constexpr const char* _name = "RIGHT OUTER";
+		static constexpr bool _require_on = true;
+		static constexpr const char* _name = " RIGHT OUTER ";
 	};
 
 	template<typename JoinType, typename Lhs, typename Rhs, typename On = noop>
@@ -53,42 +58,66 @@ namespace sqlpp
 	{
 		static_assert(is_table_t<Lhs>::value, "invalid lhs argument for join()");
 		static_assert(is_table_t<Rhs>::value, "invalid rhs argument for join()");
-		static_assert(is_noop<On>::value or is_expression_t<On>::value, "invalid on expression in join().on()");
+		static_assert(is_noop<On>::value or is_on_t<On>::value, "invalid on expression in join().on()");
 
 		static_assert(Lhs::_table_set::template is_disjunct_from<typename Rhs::_table_set>::value, "joined tables must not be identical");
 
-		using _is_table = typename std::conditional<is_noop<On>::value, 
-					std::false_type, 
-					std::true_type>::type;
-		using _table_set = typename std::conditional<is_noop<On>::value, 
-					void, 
-					typename Lhs::_table_set::template join<typename Rhs::_table_set>::type>::type;
+		using _is_table = std::true_type;
+		using _table_set = typename Lhs::_table_set::template join<typename Rhs::_table_set>::type;
 
-		template<typename Expr> 
-			using add_on_t = join_t<JoinType, Lhs, Rhs, typename std::decay<Expr>::type>;
+		template<typename OnT> 
+			using set_on_t = join_t<JoinType, Lhs, Rhs, OnT>;
 
 		template<typename Expr>
-			add_on_t<Expr> on(Expr&& expr)
+			set_on_t<on_t<typename std::decay<Expr>::type>> on(Expr&& expr)
 			{
-				return { _lhs, _rhs, std::forward<Expr>(expr) };
+				return { _lhs, _rhs, {std::forward<Expr>(expr)} };
 			}
 
 		template<typename T>
 			join_t<inner_join_t, join_t, typename std::decay<T>::type> join(T&& t)
 			{
+				static_assert(not (JoinType::_require_on and	is_noop<On>::value), "join type requires on()");
+				return { *this, std::forward<T>(t) };
+			}
+
+		template<typename T>
+			join_t<inner_join_t, join_t, typename std::decay<T>::type> inner_join(T&& t)
+			{
+				static_assert(not (JoinType::_require_on and	is_noop<On>::value), "join type requires on()");
+				return { *this, std::forward<T>(t) };
+			}
+
+		template<typename T>
+			join_t<outer_join_t, join_t, typename std::decay<T>::type> outer_join(T&& t)
+			{
+				static_assert(not (JoinType::_require_on and	is_noop<On>::value), "join type requires on()");
+				return { *this, std::forward<T>(t) };
+			}
+
+		template<typename T>
+			join_t<left_outer_join_t, join_t, typename std::decay<T>::type> left_outer_join(T&& t)
+			{
+				static_assert(not (JoinType::_require_on and	is_noop<On>::value), "join type requires on()");
+				return { *this, std::forward<T>(t) };
+			}
+
+		template<typename T>
+			join_t<right_outer_join_t, join_t, typename std::decay<T>::type> right_outer_join(T&& t)
+			{
+				static_assert(not (JoinType::_require_on and	is_noop<On>::value), "join type requires on()");
 				return { *this, std::forward<T>(t) };
 			}
 
 		template<typename Db>
 			void serialize(std::ostream& os, Db& db) const
 			{
-				os << " (";
+				static_assert(not (JoinType::_require_on and	is_noop<On>::value), "join type requires on()");
 				_lhs.serialize(os, db);
-				os << ") " << JoinType::_name << " JOIN (";
+				os << JoinType::_name;
+			 	os << " JOIN ";
 				_rhs.serialize(os, db);
-				os << ") ON ("; 
 				_on.serialize(os, db);
-				os << ")";
 			}
 
 		Lhs _lhs;
