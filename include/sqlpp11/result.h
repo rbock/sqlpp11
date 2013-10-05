@@ -44,8 +44,14 @@ namespace sqlpp
 			ResultRow _result_row;
 
 		public:
+			result_t():
+				_raw_result_row({}),
+				_end({}),
+				_result_row(_raw_result_row)
+				{}
+
 			result_t(db_result_t&& result):
-				_result(std::forward<db_result_t>(result)),
+				_result(std::move(result)),
 				_raw_result_row(_result.next()),
 				_end({}),
 				_result_row(_raw_result_row)
