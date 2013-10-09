@@ -32,7 +32,11 @@
 #include <sqlpp11/select_fwd.h>
 #include <sqlpp11/expression_fwd.h>
 #include <sqlpp11/no_value.h>
+#include <sqlpp11/field.h>
+#include <sqlpp11/result_row.h>
 #include <sqlpp11/table_base.h>
+#include <sqlpp11/select_pseudo_table.h>
+#include <sqlpp11/detail/named_serializable.h>
 #include <sqlpp11/detail/serialize_tuple.h>
 #include <sqlpp11/detail/set.h>
 
@@ -40,17 +44,39 @@ namespace sqlpp
 {
 	namespace detail
 	{
-		template<typename T, typename... Rest>
-			struct get_first_argument
+		template<typename... Rest>
+			struct get_first_argument_if_unique
 			{
-				using type = T;
+				using _value_type = no_value_t;
+				struct _name_t {};
 			};
+
+		template<typename T>
+			struct get_first_argument_if_unique<T>
+			{
+				using _value_type = typename T::_value_type;
+				using _name_t = typename T::_name_t;
+			};
+
+		template<typename Db>
+			struct dynamic_select_expression_list
+			{
+				using type = std::vector<detail::named_serializable_t<Db>>;
+			};
+
+		template<>
+			struct dynamic_select_expression_list<void>
+			{
+				using type = std::vector<noop>;
+			};
+
 	}
-	template<typename... NamedExpr>
-		struct select_expression_list_t<std::tuple<NamedExpr...>>
+
+	template<typename Database, typename... NamedExpr>
+		struct select_expression_list_t<Database, std::tuple<NamedExpr...>>
 		{
-			// check for at least one select expression
-			static_assert(sizeof...(NamedExpr), "at least one select expression required");
+			using _is_select_expression_list = std::true_type;
+			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 
 			// check for duplicate select expressions
 			static_assert(not detail::has_duplicates<NamedExpr...>::value, "at least one duplicate argument detected");
@@ -64,27 +90,50 @@ namespace sqlpp
 			// check for duplicate select expression names
 			static_assert(not detail::has_duplicates<typename NamedExpr::_name_t...>::value, "at least one duplicate name detected");
 			
-			// declare this to be a select expression
-			using _is_select_expression_list = std::true_type;
-
 			// provide type information for sub-selects that are used as expressions
 			struct _column_type {};
-			struct _value_type: std::conditional<sizeof...(NamedExpr) == 1, typename detail::get_first_argument<NamedExpr...>::type::_value_type, no_value_t>::type
+			struct _value_type: detail::get_first_argument_if_unique<NamedExpr...>::_value_type
 			{
 				using _is_expression = typename std::conditional<sizeof...(NamedExpr) == 1, std::true_type, std::false_type>::type;
 				using _is_named_expression = typename std::conditional<sizeof...(NamedExpr) == 1, std::true_type, std::false_type>::type;
 				using _is_alias = std::false_type;
 			};
-			struct _no_name_t {};
-			using _name_t = typename std::conditional<sizeof...(NamedExpr) == 1, typename detail::get_first_argument<NamedExpr...>::type::_name_t, _no_name_t>::type;
+			using _name_t = typename detail::get_first_argument_if_unique<NamedExpr...>::_name_t;
+
+			using _result_row_t = result_row_t<make_field_t<NamedExpr>...>;
+
+			template <typename Select>
+				using _pseudo_table_t = select_pseudo_table_t<Select, NamedExpr...>;
+
+			template <typename Db>
+				using _dynamic_t = select_expression_list_t<Db, std::tuple<NamedExpr...>>;
+
+			template<typename Expr>
+				void add(Expr&& namedExpr)
+				{
+					static_assert(is_named_expression_t<typename std::decay<Expr>::type>::value, "select() arguments require to be named expressions");
+					_dynamic_expressions.push_back(std::forward<Expr>(namedExpr));
+				}
 
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
+					// check for at least one select expression
+					static_assert(_is_dynamic::value or sizeof...(NamedExpr), "at least one select expression required");
+
 					detail::serialize_tuple(os, db, _expressions, ',');
+					bool first = sizeof...(NamedExpr) == 0;
+					for (const auto column : _dynamic_expressions)
+					{
+						if (not first)
+							os << ',';
+						column.serialize(os, db);
+						first = false;
+					}
 				}
 
 			std::tuple<NamedExpr...> _expressions;
+			typename detail::dynamic_select_expression_list<Database>::type _dynamic_expressions;
 		};
 
 }

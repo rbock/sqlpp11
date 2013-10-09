@@ -38,7 +38,7 @@ namespace sqlpp
 	struct straight_join_t;
 
 	template<typename FlagTuple> struct select_flag_list_t;
-	template<typename NamedExprTuple> struct select_expression_list_t;
+	template<typename Database, typename NamedExprTuple> struct select_expression_list_t;
 
 	template<typename... TableOrJoin>	struct from_t;
 

@@ -25,9 +25,10 @@
 
 #include "TabSample.h"
 #include <sqlpp11/select.h>
+#include <sqlpp11/connection.h>
 
 #include <iostream>
-class DbMock
+class DbMock: public sqlpp::connection
 {
 public:
 	const std::string& escape(const std::string& text) { return text; }
@@ -271,6 +272,12 @@ int main()
 		std::cerr << "------------------------\n";
 		s.serialize(std::cerr, db);
 		std::cerr << "------------------------\n";
+	}
+
+	// Test that select can be called with zero columns if it is used with dynamic columns.
+	{
+		auto s = dynamic_select(db).dynamic_columns().add_column(t.alpha);
+		s.serialize(std::cerr, db);
 	}
 
 

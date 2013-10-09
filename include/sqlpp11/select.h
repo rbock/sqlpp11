@@ -27,13 +27,11 @@
 #ifndef SQLPP_SELECT_H
 #define SQLPP_SELECT_H
 
-#include <sqlpp11/result_row.h>
 #include <sqlpp11/result.h>
 #include <sqlpp11/select_fwd.h>
 #include <sqlpp11/noop.h>
 #include <sqlpp11/select_flag_list.h>
 #include <sqlpp11/select_expression_list.h>
-#include <sqlpp11/select_pseudo_table.h>
 #include <sqlpp11/from.h>
 #include <sqlpp11/where.h>
 #include <sqlpp11/group_by.h>
@@ -42,7 +40,6 @@
 #include <sqlpp11/limit.h>
 #include <sqlpp11/offset.h>
 #include <sqlpp11/expression.h>
-#include <sqlpp11/field.h>
 
 #include <sqlpp11/detail/wrong.h>
 #include <sqlpp11/detail/make_flag_tuple.h>
@@ -55,7 +52,7 @@ namespace sqlpp
 	template<
 		typename Database,
 		typename Flags,
-		typename... NamedExpr,
+		typename ExpressionList,
 		typename From,
 		typename Where,
 		typename GroupBy,
@@ -64,11 +61,11 @@ namespace sqlpp
 		typename Limit,
 		typename Offset
 		>
-		struct select_t<Database, Flags, select_expression_list_t<std::tuple<NamedExpr...>>, From, Where, GroupBy, Having, OrderBy, Limit, Offset>
-		: public select_expression_list_t<std::tuple<NamedExpr...>>::_value_type::template operators<select_t<
+		struct select_t
+		: public ExpressionList::_value_type::template operators<select_t<
 		                 Database,
 										 Flags, 
-										 select_expression_list_t<std::tuple<NamedExpr...>>, 
+										 ExpressionList, 
 										 From, 
 										 Where, 
 										 GroupBy, 
@@ -79,7 +76,6 @@ namespace sqlpp
 		{
 			using _Database = Database;
 			using _From = From;
-			using ExpressionList = select_expression_list_t<std::tuple<NamedExpr...>>;
 
 			static_assert(is_noop<Flags>::value or is_select_flag_list_t<Flags>::value, "invalid list of select flags");
 			static_assert(is_select_expression_list_t<ExpressionList>::value, "invalid list of select expressions");
@@ -94,6 +90,8 @@ namespace sqlpp
 			using _is_select = std::true_type;
 			using _requires_braces = std::true_type;
 
+			template<typename ExpressionListT> 
+				using set_expression_list_t = select_t<Database, Flags, ExpressionListT, From, Where, GroupBy, Having, OrderBy, Limit, Offset>;
 			template<typename FromT> 
 				using set_from_t = select_t<Database, Flags, ExpressionList, FromT, Where, GroupBy, Having, OrderBy, Limit, Offset>;
 			template<typename WhereT>
@@ -109,7 +107,7 @@ namespace sqlpp
 			template<typename OffsetT>
 			using set_offset_t = select_t<Database, Flags, ExpressionList, From, Where, GroupBy, Having, OrderBy, Limit, OffsetT>;
 
-			using _result_row_t = result_row_t<make_field_t<NamedExpr>...>;
+			using _result_row_t = typename ExpressionList::_result_row_t;
 
 			// Indicators
 			using _value_type = typename std::conditional<
@@ -165,6 +163,34 @@ namespace sqlpp
 				_offset(offset)
 			{
 			}
+
+			auto dynamic_columns()
+				-> set_expression_list_t<typename ExpressionList::template _dynamic_t<Database>>
+				{
+					static_assert(not std::is_same<Database, void>::value, "cannot call dynamic_from() in a non-dynamic select");
+					static_assert(is_noop<From>::value, "cannot call dynamic_columns() after from()");
+					return {
+							_flags, 
+							{_expression_list._expressions}, 
+							_from,
+							_where, 
+							_group_by, 
+							_having, 
+							_order_by, 
+							_limit,
+							_offset
+							};
+				}
+
+			template<typename NamedExpr>
+				select_t& add_column(NamedExpr&& namedExpr)
+				{
+					static_assert(is_dynamic_t<ExpressionList>::value, "cannot call add_column() in a non-dynamic column list");
+
+					_expression_list.add(std::forward<NamedExpr>(namedExpr));
+
+					return *this;
+				}
 
 			// sqlpp functions
 			template<typename... Table>
@@ -497,7 +523,7 @@ namespace sqlpp
 			template<typename AliasProvider>
 				struct _pseudo_table_t
 				{
-					using table = select_pseudo_table_t<select_t, NamedExpr...>;
+					using table = typename ExpressionList::template _pseudo_table_t<select_t>;
 					using alias = typename table::template alias_t<AliasProvider>;
 				};
 
@@ -573,11 +599,12 @@ namespace sqlpp
 	{
 		template<typename... Expr>
 			using make_select_expression_list_t = 
-				select_expression_list_t<decltype(make_expression_tuple(std::declval<Expr>()...))>;
+				select_expression_list_t<void, decltype(make_expression_tuple(std::declval<Expr>()...))>;
 	}
 
 	template<typename... NamedExpr>
-		select_t<void, detail::make_select_flag_list_t<NamedExpr...>, detail::make_select_expression_list_t<NamedExpr...>> select(NamedExpr&&... namedExpr)
+		auto select(NamedExpr&&... namedExpr)
+		-> select_t<void, detail::make_select_flag_list_t<NamedExpr...>, detail::make_select_expression_list_t<NamedExpr...>>
 		{
 			return { 
 				{ detail::make_flag_tuple(std::forward<NamedExpr>(namedExpr)...) }, 
@@ -585,12 +612,24 @@ namespace sqlpp
 			};
 		}
 	template<typename Db, typename... NamedExpr>
-		select_t<typename std::decay<Db>::type, detail::make_select_flag_list_t<NamedExpr...>, detail::make_select_expression_list_t<NamedExpr...>> dynamic_select(const Db& db, NamedExpr&&... namedExpr)
+		auto dynamic_select(const Db& db, NamedExpr&&... namedExpr)
+		-> select_t<typename std::decay<Db>::type, detail::make_select_flag_list_t<NamedExpr...>, detail::make_select_expression_list_t<NamedExpr...>>
 		{
 			return { 
 				{ detail::make_flag_tuple(std::forward<NamedExpr>(namedExpr)...) }, 
 				{ detail::make_expression_tuple(std::forward<NamedExpr>(namedExpr)...) }
 			};
 		}
+
+#warning: need to add dynamic fields
+	/* Idea: Use a vector of serializable or similar for select.
+	 *      Translate the vector into a map<string, text-similar with an index>, first = name, second = something similar to text which knows its index
+	 *      
+	 *      What about default constructing the result? Not a problem. The map is empty then.
+	 *      
+	 *      But how to transport the vector of serializables from the select into the result?
+	 *
+	 *      Maybe store the names of the map content in a field in the query?
+	 */
 }
 #endif
