@@ -572,7 +572,7 @@ namespace sqlpp
 
 					std::ostringstream oss;
 					serialize(oss, db);
-					return {db.select(oss.str())};
+					return {db.select(oss.str()), _expression_list._dynamic_expression_names};
 				}
 
 			Flags _flags;
@@ -621,15 +621,5 @@ namespace sqlpp
 			};
 		}
 
-#warning: need to add dynamic fields
-	/* Idea: Use a vector of serializable or similar for select.
-	 *      Translate the vector into a map<string, text-similar with an index>, first = name, second = something similar to text which knows its index
-	 *      
-	 *      What about default constructing the result? Not a problem. The map is empty then.
-	 *      
-	 *      But how to transport the vector of serializables from the select into the result?
-	 *
-	 *      Maybe store the names of the map content in a field in the query?
-	 */
 }
 #endif

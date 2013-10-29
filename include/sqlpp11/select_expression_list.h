@@ -100,7 +100,9 @@ namespace sqlpp
 			};
 			using _name_t = typename detail::get_first_argument_if_unique<NamedExpr...>::_name_t;
 
-			using _result_row_t = result_row_t<make_field_t<NamedExpr>...>;
+			using _result_row_t = typename std::conditional<_is_dynamic::value,
+				dynamic_result_row_t<make_field_t<NamedExpr>...>,
+				result_row_t<make_field_t<NamedExpr>...>>::type;
 
 			template <typename Select>
 				using _pseudo_table_t = select_pseudo_table_t<Select, NamedExpr...>;
@@ -113,6 +115,7 @@ namespace sqlpp
 				{
 					static_assert(is_named_expression_t<typename std::decay<Expr>::type>::value, "select() arguments require to be named expressions");
 					_dynamic_expressions.push_back(std::forward<Expr>(namedExpr));
+					_dynamic_expression_names.push_back(std::decay<Expr>::type::_name_t::_get_name());
 				}
 
 			template<typename Db>
@@ -134,6 +137,7 @@ namespace sqlpp
 
 			std::tuple<NamedExpr...> _expressions;
 			typename detail::dynamic_select_expression_list<Database>::type _dynamic_expressions;
+			std::vector<std::string> _dynamic_expression_names;
 		};
 
 }

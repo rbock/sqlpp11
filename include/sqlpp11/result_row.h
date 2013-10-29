@@ -29,7 +29,10 @@
 
 #include <sqlpp11/raw_result_row.h>
 #include <sqlpp11/field.h>
+#include <sqlpp11/text.h>
 #include <iostream>
+#include <map>
+
 namespace sqlpp
 {
 	namespace detail
@@ -44,6 +47,7 @@ namespace sqlpp
 			{
 				using _field = typename NamedExpr::_name_t::template _member_t<typename NamedExpr::_value_type::template _result_entry_t<index>>;
 				using _rest = result_row_impl<level, index + 1, Rest...>;
+				static constexpr size_t _last_index = _rest::_last_index;
 
 				result_row_impl(const raw_result_row_t& raw_result_row):
 					_field({raw_result_row}),
@@ -65,6 +69,7 @@ namespace sqlpp
 			{
 				using _multi_field = typename AliasProvider::_name_t::template _member_t<result_row_impl<level + 1, index, Col...>>;
 				using _rest = result_row_impl<level, index + sizeof...(Col), Rest...>;
+				static constexpr size_t _last_index = _rest::_last_index;
 
 				result_row_impl(const raw_result_row_t& raw_result_row):
 					_multi_field({raw_result_row}),
@@ -82,6 +87,7 @@ namespace sqlpp
 		template<size_t level, size_t index>
 			struct result_row_impl<level, index>
 			{
+				static constexpr size_t _last_index = index;
 				result_row_impl(const raw_result_row_t& raw_result_row)
 				{}
 
@@ -95,16 +101,18 @@ namespace sqlpp
 	template<typename... NamedExpr>
 	struct result_row_t: public detail::result_row_impl<0, 0, NamedExpr...>
 	{
+		using _impl = detail::result_row_impl<0, 0, NamedExpr...>;
 		bool _is_row;
 
-		result_row_t(const raw_result_row_t& raw_result_row): 
-			detail::result_row_impl<0, 0, NamedExpr...>(raw_result_row),
+		result_row_t(const raw_result_row_t& raw_result_row, const std::vector<std::string>&): // FIXME: it hurts a bit to always transport the dynamic part as well
+			_impl(raw_result_row),
 			_is_row(raw_result_row.data != nullptr)
-		{}
+		{
+		}
 
 		result_row_t& operator=(const raw_result_row_t& raw_result_row)
 		{
-			detail::result_row_impl<0, 0, NamedExpr...>::operator=(raw_result_row);
+			_impl::operator=(raw_result_row);
 			_is_row = raw_result_row.data != nullptr;
 			return *this;
 		}
@@ -113,6 +121,83 @@ namespace sqlpp
 		{
 			return _is_row;
 		}
+	};
+
+	template<typename... NamedExpr>
+	struct dynamic_result_row_t: public detail::result_row_impl<0, 0, NamedExpr...>
+	{
+		using _impl = detail::result_row_impl<0, 0, NamedExpr...>;
+		using _field_type = detail::text::_result_entry_t<0>;
+		static constexpr size_t _last_static_index = _impl::_last_index;
+
+		bool _is_row;
+		std::vector<std::string> _dynamic_columns;
+		std::map<std::string, _field_type> _dynamic_fields;
+
+		dynamic_result_row_t(const raw_result_row_t& raw_result_row, std::vector<std::string> dynamic_columns): 
+			detail::result_row_impl<0, 0, NamedExpr...>(raw_result_row),
+			_is_row(raw_result_row.data != nullptr)
+		{
+			raw_result_row_t dynamic_row = raw_result_row;
+			if (_is_row)
+			{
+				dynamic_row.data += _last_static_index;
+				dynamic_row.len += _last_static_index;
+				for (const auto& column : _dynamic_columns)
+				{
+					_dynamic_fields.insert(std::make_pair(column, _field_type(dynamic_row)));
+					++dynamic_row.data;
+					++dynamic_row.len;
+				}
+			}
+			else
+			{
+				for (const auto& column : _dynamic_columns)
+				{
+					_dynamic_fields.insert(std::make_pair(column, _field_type(dynamic_row)));
+				}
+			}
+
+		}
+
+		dynamic_result_row_t& operator=(const raw_result_row_t& raw_result_row)
+		{
+			detail::result_row_impl<0, 0, NamedExpr...>::operator=(raw_result_row);
+			_is_row = raw_result_row.data != nullptr;
+
+			raw_result_row_t dynamic_row = raw_result_row;
+			if (_is_row)
+			{
+				dynamic_row.data += _last_static_index;
+				dynamic_row.len += _last_static_index;
+				for (const auto& column : _dynamic_columns)
+				{
+					_dynamic_fields.at(column) = dynamic_row;
+					++dynamic_row.data;
+					++dynamic_row.len;
+				}
+			}
+			else
+			{
+				for (const auto& column : _dynamic_columns)
+				{
+					_dynamic_fields.at(column) = dynamic_row;
+				}
+			}
+
+			return *this;
+		}
+
+		const _field_type& at(const std::string& field_name) const
+		{
+			return _dynamic_fields.at(field_name);
+		}
+
+		explicit operator bool() const
+		{
+			return _is_row;
+		}
+
 	};
 }
 
