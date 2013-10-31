@@ -33,7 +33,7 @@
 
 namespace sqlpp
 {
-	template<typename Db, typename ResultRow>
+	template<typename Db, typename ResultRow, typename DynamicNames>
 		class result_t
 		{
 			using db_result_t = typename Db::_result_t;
@@ -41,7 +41,7 @@ namespace sqlpp
 			db_result_t _result;
 			raw_result_row_t _raw_result_row;
 			raw_result_row_t _end;
-			std::vector<std::string> _dynamic_columns; // only needed in case of dynamic columns in the select 
+			DynamicNames _dynamic_columns; // only needed in case of dynamic columns in the select 
 			ResultRow _result_row;
 
 		public:
@@ -52,7 +52,7 @@ namespace sqlpp
 				_result_row(_raw_result_row, _dynamic_columns)
 				{}
 
-			result_t(db_result_t&& result, std::vector<std::string> dynamic_columns):
+			result_t(db_result_t&& result, DynamicNames dynamic_columns):
 				_result(std::move(result)),
 				_raw_result_row(_result.next()),
 				_end({}),

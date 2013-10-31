@@ -108,6 +108,7 @@ namespace sqlpp
 			using set_offset_t = select_t<Database, Flags, ExpressionList, From, Where, GroupBy, Having, OrderBy, Limit, OffsetT>;
 
 			using _result_row_t = typename ExpressionList::_result_row_t;
+			using _dynamic_names_t = typename ExpressionList::_dynamic_names_t;
 
 			// Indicators
 			using _value_type = typename std::conditional<
@@ -560,10 +561,9 @@ namespace sqlpp
 					return *this;
 				}
 
-
 			// Execute
 			template<typename Db>
-				result_t<Db, _result_row_t> run(Db& db) const
+				result_t<Db, _result_row_t, _dynamic_names_t> run(Db& db) const
 				{
 					static_assert(not is_noop<ExpressionList>::value, "cannot run select without having selected anything");
 					static_assert(is_from_t<From>::value, "cannot run select without a from()");
@@ -572,7 +572,7 @@ namespace sqlpp
 
 					std::ostringstream oss;
 					serialize(oss, db);
-					return {db.select(oss.str()), _expression_list._dynamic_expression_names};
+					return {db.select(oss.str()), _expression_list._dynamic_expressions._dynamic_expression_names};
 				}
 
 			Flags _flags;

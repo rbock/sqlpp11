@@ -61,13 +61,43 @@ namespace sqlpp
 		template<typename Db>
 			struct dynamic_select_expression_list
 			{
-				using type = std::vector<detail::named_serializable_t<Db>>;
+				using _names_t = std::vector<std::string>;
+				std::vector<detail::named_serializable_t<Db>> _dynamic_expressions;
+				_names_t _dynamic_expression_names;
+
+				template<typename Expr>
+				void push_back(Expr&& expr)
+				{
+					_dynamic_expression_names.push_back(std::decay<Expr>::type::_name_t::_get_name());
+					_dynamic_expressions.push_back(std::forward<Expr>(expr));
+				}
+				void serialize(std::ostream& os, Db& db, bool first) const
+				{
+					for (const auto column : _dynamic_expressions)
+					{
+						if (not first)
+							os << ',';
+						column.serialize(os, db);
+						first = false;
+					}
+				}
+
 			};
 
 		template<>
 			struct dynamic_select_expression_list<void>
 			{
-				using type = std::vector<noop>;
+				struct _names_t {};
+				_names_t _dynamic_expression_names;
+
+				template<typename T>
+					void push_back(const T&) {}
+
+				template<typename Db>
+					void serialize(std::ostream&, Db&, bool) const
+					{
+					}
+
 			};
 
 	}
@@ -104,6 +134,8 @@ namespace sqlpp
 				dynamic_result_row_t<make_field_t<NamedExpr>...>,
 				result_row_t<make_field_t<NamedExpr>...>>::type;
 
+			using _dynamic_names_t = typename detail::dynamic_select_expression_list<Database>::_names_t;
+
 			template <typename Select>
 				using _pseudo_table_t = select_pseudo_table_t<Select, NamedExpr...>;
 
@@ -115,7 +147,6 @@ namespace sqlpp
 				{
 					static_assert(is_named_expression_t<typename std::decay<Expr>::type>::value, "select() arguments require to be named expressions");
 					_dynamic_expressions.push_back(std::forward<Expr>(namedExpr));
-					_dynamic_expression_names.push_back(std::decay<Expr>::type::_name_t::_get_name());
 				}
 
 			template<typename Db>
@@ -125,19 +156,11 @@ namespace sqlpp
 					static_assert(_is_dynamic::value or sizeof...(NamedExpr), "at least one select expression required");
 
 					detail::serialize_tuple(os, db, _expressions, ',');
-					bool first = sizeof...(NamedExpr) == 0;
-					for (const auto column : _dynamic_expressions)
-					{
-						if (not first)
-							os << ',';
-						column.serialize(os, db);
-						first = false;
-					}
+					_dynamic_expressions.serialize(os, db, sizeof...(NamedExpr) == 0);
 				}
 
 			std::tuple<NamedExpr...> _expressions;
-			typename detail::dynamic_select_expression_list<Database>::type _dynamic_expressions;
-			std::vector<std::string> _dynamic_expression_names;
+			detail::dynamic_select_expression_list<Database> _dynamic_expressions;
 		};
 
 }

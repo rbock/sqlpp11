@@ -104,7 +104,8 @@ namespace sqlpp
 		using _impl = detail::result_row_impl<0, 0, NamedExpr...>;
 		bool _is_row;
 
-		result_row_t(const raw_result_row_t& raw_result_row, const std::vector<std::string>&): // FIXME: it hurts a bit to always transport the dynamic part as well
+		template<typename T>
+		result_row_t(const raw_result_row_t& raw_result_row, const T&):
 			_impl(raw_result_row),
 			_is_row(raw_result_row.data != nullptr)
 		{
