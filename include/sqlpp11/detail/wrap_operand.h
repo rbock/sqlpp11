@@ -101,7 +101,7 @@ namespace sqlpp
 				template<typename Db>
 					void serialize(std::ostream& os, Db& db) const
 					{
-						os << '"' << db.escape(_t) << '"';
+						os << '\'' << db.escape(_t) << '\'';
 					}
 
 				bool _is_trivial() const { return _t.empty(); }

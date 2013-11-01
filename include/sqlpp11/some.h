@@ -72,6 +72,7 @@ namespace sqlpp
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
+					static_assert(Db::_supports_some, "some() not supported by current database");
 					os << "SOME(";
 					_select.serialize(os, db);
 					os << ")";

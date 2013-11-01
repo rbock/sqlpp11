@@ -34,18 +34,42 @@ namespace sqlpp
 {
 	struct inner_join_t
 	{
+		template<typename Db>
+			struct _is_supported 
+			{ 
+				static constexpr bool value = Db::_supports_inner_join; 
+			};
+
 		static constexpr const char* _name = " INNER ";
 	};
 	struct outer_join_t
 	{
+		template<typename Db>
+			struct _is_supported 
+			{ 
+				static constexpr bool value = Db::_supports_outer_join; 
+			};
+
 		static constexpr const char* _name = " OUTER ";
 	};
 	struct left_outer_join_t
 	{
+		template<typename Db>
+			struct _is_supported 
+			{ 
+				static constexpr bool value = Db::_supports_left_outer_join; 
+			};
+
 		static constexpr const char* _name = " LEFT OUTER ";
 	};
 	struct right_outer_join_t
 	{
+		template<typename Db>
+			struct _is_supported 
+			{ 
+				static constexpr bool value = Db::_supports_right_outer_join; 
+			};
+
 		static constexpr const char* _name = " RIGHT OUTER ";
 	};
 
@@ -109,6 +133,7 @@ namespace sqlpp
 			void serialize(std::ostream& os, Db& db) const
 			{
 				// FIXME: Need to check if db supports the join type. e.g. sqlite does not support right outer or full outer join
+				static_assert(JoinType::template _is_supported<Db>::value, "join type not supported by current database");
 				static_assert(not is_noop<On>::value, "joined tables require on()");
 				_lhs.serialize(os, db);
 				os << JoinType::_name;

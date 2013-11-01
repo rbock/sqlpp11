@@ -25,12 +25,18 @@
 
 #include "TabSample.h"
 #include <sqlpp11/select.h>
+#include <sqlpp11/functions.h>
 #include <sqlpp11/connection.h>
 
 #include <iostream>
 class DbMock: public sqlpp::connection
 {
 public:
+	static constexpr bool _supports_any = true;
+
+	static constexpr bool _use_concat_function = true;
+	static constexpr bool _use_concat_operator = false;
+
 	const std::string& escape(const std::string& text) { return text; }
 };
 
@@ -266,7 +272,7 @@ int main()
 	{
 		auto s = dynamic_select(db, all_of(t)).dynamic_from().dynamic_where().dynamic_limit().dynamic_offset();
 		s = s.add_from(t);
-		s = s.add_where(t.alpha > 7);
+		s = s.add_where(t.alpha > 7 and t.alpha == any(select(t.alpha).from(t).where(t.alpha < 3)));
 		s = s.set_limit(30);
 		s = s.set_limit(3);
 		std::cerr << "------------------------\n";

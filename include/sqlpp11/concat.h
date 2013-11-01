@@ -74,9 +74,19 @@ namespace sqlpp
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
-					os << "CONCAT(";
-					detail::serialize_tuple(os, db, _args, ',');
-					os << ")";
+					static_assert(Db::_use_concat_operator or Db::_use_concat_function, "neither concat operator nor concat function supported by current database");
+					if (Db::_use_concat_operator)
+					{
+						os << "(";
+						detail::serialize_tuple(os, db, _args, "||");
+						os << ")";
+					}
+					else if (Db::_use_concat_function)
+					{
+						os << "CONCAT(";
+						detail::serialize_tuple(os, db, _args, ',');
+						os << ")";
+					}
 				}
 
 		private:

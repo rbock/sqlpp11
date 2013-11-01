@@ -38,8 +38,8 @@ namespace sqlpp
 		template<std::size_t begin, std::size_t index, std::size_t end>
 			struct tuple_serializer_impl
 			{
-				template<typename Db, typename Tuple>
-					static void serialize(std::ostream& os, Db& db, const Tuple& flags_and_columns, char separator)
+				template<typename Db, typename Tuple, typename Separator>
+					static void serialize(std::ostream& os, Db& db, const Tuple& flags_and_columns, const Separator& separator)
 					{
 						if (index > begin)
 							os << separator;
@@ -56,14 +56,14 @@ namespace sqlpp
 		template<std::size_t begin, std::size_t end>
 			struct tuple_serializer_impl<begin, end, end>
 			{
-				template<typename Db, typename Tuple>
-					static void serialize(std::ostream& os, Db& db, const Tuple& flags_and_columns, char separator)
+				template<typename Db, typename Tuple, typename Separator>
+					static void serialize(std::ostream& os, Db& db, const Tuple& flags_and_columns, const Separator& separator)
 					{
 					}
 			};
 
-		template<typename Db, typename Tuple>
-			static void serialize_tuple(std::ostream& os, Db& db, const Tuple& flags_and_columns, char separator)
+		template<typename Db, typename Tuple, typename Separator>
+			static void serialize_tuple(std::ostream& os, Db& db, const Tuple& flags_and_columns, const Separator& separator)
 			{
 				tuple_serializer_impl<0, 0, std::tuple_size<Tuple>::value>::serialize(os, db, flags_and_columns, separator);
 			}
