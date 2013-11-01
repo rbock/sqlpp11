@@ -71,6 +71,7 @@ namespace sqlpp
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
+					static_assert(Db::_supports_count, "count() not supported by current database");
 					os << "COUNT(";
 					_expr.serialize(os, db);
 					os << ")";

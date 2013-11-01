@@ -46,6 +46,7 @@ namespace sqlpp
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
+					static_assert(Db::_supports_having, "having() not supported by current database");
 					os << " HAVING ";
 					_expr.serialize(os, db);
 				}
@@ -69,6 +70,7 @@ namespace sqlpp
 
 		void serialize(std::ostream& os, Db& db) const
 		{
+			static_assert(Db::_supports_having, "having() not supported by current database");
 			if (_conditions.empty())
 				return;
 

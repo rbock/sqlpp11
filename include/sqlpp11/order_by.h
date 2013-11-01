@@ -54,6 +54,7 @@ namespace sqlpp
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
+					static_assert(Db::_supports_order_by, "order by not supported by current database");
 					os << " ORDER BY ";
 					detail::serialize_tuple(os, db, _orderExpressions, ',');
 				}
@@ -76,6 +77,7 @@ namespace sqlpp
 
 			void serialize(std::ostream& os, Db& db) const
 			{
+				static_assert(Db::_supports_order_by, "order by not supported by current database");
 				if (_expressions.empty())
 					return;
 				os << " ORDER BY ";

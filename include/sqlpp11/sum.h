@@ -37,7 +37,7 @@ namespace sqlpp
 		template<typename Expr>
 		struct max_t: public boolean::template operators<max_t<Expr>>
 		{
-			static_assert(is_value_t<Expr>::value, "max() requires a value expression as argument");
+			static_assert(is_numeric_t<Expr>::value, "sum() requires a numeric expression as argument");
 
 			struct _value_type: public Expr::_value_type::_base_value_type
 			{
@@ -46,7 +46,7 @@ namespace sqlpp
 
 			struct _name_t
 			{
-				static constexpr const char* _get_name() { return "MAX"; }
+				static constexpr const char* _get_name() { return "SUM"; }
 				template<typename T>
 					struct _member_t
 					{
@@ -71,7 +71,8 @@ namespace sqlpp
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
-					os << "MAX(";
+					static_assert(Db::_supports_sum, "sum not supported by current database");
+					os << "SUM(";
 					_expr.serialize(os, db);
 					os << ")";
 				}

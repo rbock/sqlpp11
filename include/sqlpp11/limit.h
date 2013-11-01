@@ -40,6 +40,7 @@ namespace sqlpp
 		template<typename Db>
 			void serialize(std::ostream& os, Db& db) const
 			{
+				static_assert(Db::_supports_limit, "limit not supported by current database");
 				os << " LIMIT " << _limit;
 			}
 
@@ -69,6 +70,7 @@ namespace sqlpp
 		template<typename Db>
 			void serialize(std::ostream& os, Db& db) const
 			{
+				static_assert(Db::_supports_limit, "limit not supported by current database");
 				if (_limit > 0)
 					os << " LIMIT " << _limit;
 			}

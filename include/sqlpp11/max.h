@@ -71,6 +71,7 @@ namespace sqlpp
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
+					static_assert(Db::_supports_max, "max not supported by current database");
 					os << "MAX(";
 					_expr.serialize(os, db);
 					os << ")";

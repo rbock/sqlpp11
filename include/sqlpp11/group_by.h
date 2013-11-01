@@ -57,6 +57,7 @@ namespace sqlpp
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
+					static_assert(Db::_supports_group_by, "group_by() not supported by current database");
 					os << " GROUP BY ";
 					detail::serialize_tuple(os, db, _expressions, ',');
 				}
@@ -80,6 +81,7 @@ namespace sqlpp
 
 			void serialize(std::ostream& os, Db& db) const
 			{
+				static_assert(Db::_supports_group_by, "group_by() not supported by current database");
 				if (_expressions.empty())
 					return;
 				os << " GROUP BY ";

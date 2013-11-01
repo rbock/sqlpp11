@@ -75,6 +75,7 @@ namespace sqlpp
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
+					static_assert(Db::_supports_like, "like() not supported by current database");
 					_operand.serialize(os, db);
 					os << " LIKE(";
 					_pattern.serialize(os, db);

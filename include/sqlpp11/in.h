@@ -35,10 +35,10 @@ namespace sqlpp
 {
 	namespace detail
 	{
-		template<bool not_inverted, typename Operand, typename... Args>
-		struct in_t: public Operand::_value_type::template operators<in_t<not_inverted, Operand, Args...>>
+		template<bool NotInverted, typename Operand, typename... Args>
+		struct in_t: public Operand::_value_type::template operators<in_t<NotInverted, Operand, Args...>>
 		{
-			static constexpr bool inverted = not not_inverted;
+			static constexpr bool _inverted = not NotInverted;
 			static_assert(sizeof...(Args) > 0, "in() requires at least one argument");
 
 			struct _value_type: public Operand::_value_type::_base_value_type
@@ -48,7 +48,7 @@ namespace sqlpp
 
 			struct _name_t
 			{
-				static constexpr const char* _get_name() { return inverted ? "NOT IN" : "IN"; }
+				static constexpr const char* _get_name() { return _inverted ? "NOT IN" : "IN"; }
 				template<typename T>
 					struct _member_t
 					{
@@ -75,8 +75,10 @@ namespace sqlpp
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
+					static_assert(NotInverted and Db::_supports_in
+							or _inverted and Db::_supports_not_in, "in() not supported by current database");
 					_operand.serialize(os, db);
-					os << (inverted ? " NOT IN(" : " IN(");
+					os << (_inverted ? " NOT IN(" : " IN(");
 					detail::serialize_tuple(os, db, _args, ',');
 					os << ")";
 				}

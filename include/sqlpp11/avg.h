@@ -37,7 +37,7 @@ namespace sqlpp
 		template<typename Expr>
 		struct avg_t: public boolean::template operators<avg_t<Expr>>
 		{
-			static_assert(is_value_t<Expr>::value, "avg() requires a value expression as argument");
+			static_assert(is_numeric_t<Expr>::value, "avg() requires a value expression as argument");
 
 			struct _value_type: public Expr::_value_type::_base_value_type
 			{
@@ -71,6 +71,7 @@ namespace sqlpp
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
+					static_assert(Db::_supports_avg, "avg() not supported by current database");
 					os << "AVG(";
 					_expr.serialize(os, db);
 					os << ")";

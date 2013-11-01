@@ -71,6 +71,7 @@ namespace sqlpp
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
+					static_assert(Db::_supports_exists, "exists() not supported by current database");
 					os << "EXISTS(";
 					_select.serialize(os, db);
 					os << ")";
