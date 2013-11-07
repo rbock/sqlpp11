@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_IN_H
-#define SQLPP_IN_H
+#ifndef SQLPP_IS_NULL_H
+#define SQLPP_IS_NULL_H
 
 #include <sstream>
 #include <sqlpp11/type_traits.h>
@@ -36,11 +36,10 @@ namespace sqlpp
 	namespace detail
 	{
 		// The ValueType should be boolean, this is a hack because boolean is not fully defined when the compiler first gets here...
-		template<bool NotInverted, typename ValueType, typename Operand, typename... Args>
-		struct in_t: public ValueType::_base_value_type::template operators<in_t<NotInverted, ValueType, Args...>>
+		template<bool NotInverted, typename ValueType, typename Operand>
+		struct is_null_t: public ValueType::_base_value_type::template operators<is_null_t<NotInverted, ValueType, Operand>>
 		{
 			static constexpr bool _inverted = not NotInverted;
-			static_assert(sizeof...(Args) > 0, "in() requires at least one argument");
 
 			struct _value_type: public ValueType::_base_value_type // we requite fully defined boolean here
 			{
@@ -49,7 +48,7 @@ namespace sqlpp
 
 			struct _name_t
 			{
-				static constexpr const char* _get_name() { return _inverted ? "NOT IN" : "IN"; }
+				static constexpr const char* _get_name() { return _inverted ? "IS NOT NULL" : "IS NULL"; }
 				template<typename T>
 					struct _member_t
 					{
@@ -57,36 +56,31 @@ namespace sqlpp
 					};
 			};
 
-			in_t(const Operand& operand, const Args&... args):
-				_operand(operand),
-				_args(args...)
+			is_null_t(const Operand& operand):
+				_operand(operand)
 			{}
 
-			in_t(Operand&& operand, Args&&... args):
-				_operand(std::move(operand)),
-				_args(std::move(args...))
+			is_null_t(Operand&& operand):
+				_operand(std::move(operand))
 			{}
 
-			in_t(const in_t&) = default;
-			in_t(in_t&&) = default;
-			in_t& operator=(const in_t&) = default;
-			in_t& operator=(in_t&&) = default;
-			~in_t() = default;
+			is_null_t(const is_null_t&) = default;
+			is_null_t(is_null_t&&) = default;
+			is_null_t& operator=(const is_null_t&) = default;
+			is_null_t& operator=(is_null_t&&) = default;
+			~is_null_t() = default;
 
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
-					static_assert(NotInverted and Db::_supports_in
-							or _inverted and Db::_supports_not_in, "in() and/or not_in() not supported by current database");
+					static_assert(NotInverted and Db::_supports_is_null
+							or _inverted and Db::_supports_is_not_null, "is_null() and/or is_not_null() not supported by current database");
 					_operand.serialize(os, db);
-					os << (_inverted ? " NOT IN(" : " IN(");
-					detail::serialize_tuple(os, db, _args, ',');
-					os << ")";
+					os << (_inverted ? " IS NOT NULL" : " IS NULL");
 				}
 
 		private:
 			Operand _operand;
-			std::tuple<Args...> _args;
 		};
 	}
 }

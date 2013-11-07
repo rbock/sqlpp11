@@ -31,6 +31,7 @@
 #include <sqlpp11/alias.h>
 #include <sqlpp11/sort_order.h>
 #include <sqlpp11/in.h>
+#include <sqlpp11/is_null.h>
 
 namespace sqlpp
 {
@@ -62,12 +63,6 @@ namespace sqlpp
 		{
 			using _value_type = boolean;
 			static constexpr const char* _name = ">";
-		};
-
-		struct is_null_
-		{
-			using _value_type = boolean;
-			static constexpr const char* _name = "IS NULL";
 		};
 
 		struct is_not_null_
@@ -116,12 +111,12 @@ namespace sqlpp
 					return { *static_cast<const Base*>(this), std::forward<T>(t) };
 				}
 
-			null_expression_t<Base, is_null_> is_null() const
+			is_null_t<true, boolean, Base> is_null() const
 			{
 				return { *static_cast<const Base*>(this) };
 			}
 
-			null_expression_t<Base, is_not_null_> is_not_null() const
+			is_null_t<false, boolean, Base> is_not_null() const
 			{
 				return { *static_cast<const Base*>(this) };
 			}
@@ -152,6 +147,7 @@ namespace sqlpp
 			template<typename alias_provider>
 				expression_alias_t<Base, typename std::decay<alias_provider>::type> as(alias_provider&&)
 				{
+					static_assert(not is_nameless_expression_t<Base>::value, "expression cannot have a name, e.g. like any()");
 					return { *static_cast<const Base*>(this) };
 				}
 
