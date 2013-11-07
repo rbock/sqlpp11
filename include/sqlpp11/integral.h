@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_NUMERIC_H
-#define SQLPP_NUMERIC_H
+#ifndef SQLPP_INTEGRAL_H
+#define SQLPP_INTEGRAL_H
 
 #include <cstdlib>
 #include <sqlpp11/detail/basic_operators.h>
@@ -38,18 +38,19 @@ namespace sqlpp
 	namespace detail
 	{
 
-		// numeric value type
-		struct numeric
+		// integral value type
+		struct integral
 		{
-			using _base_value_type = numeric;
+			using _base_value_type = integral;
 			using _is_numeric = std::true_type;
+			using _is_floating_point = std::true_type;
 			using _is_value = std::true_type;
 			using _is_expression = std::true_type;
 			
 			template<size_t index>
 			struct _result_entry_t
 			{
-				using _value_type = numeric;
+				using _value_type = integral;
 				_result_entry_t(const raw_result_row_t& row):
 					_is_valid(row.data != nullptr),
 					_is_null(row.data == nullptr or row.data[index] == nullptr),
@@ -94,27 +95,30 @@ namespace sqlpp
 				int64_t _value;
 			};
 
+			template<typename T>
 			struct plus_
 			{
-				using _value_type = numeric;
+				using _value_type = typename wrap_operand<typename std::decay<T>::type>::type::_value_type;
 				static constexpr const char* _name = "+";
 			};
 
+			template<typename T>
 			struct minus_
 			{
-				using _value_type = numeric;
+				using _value_type = typename wrap_operand<typename std::decay<T>::type>::type::_value_type;
 				static constexpr const char* _name = "-";
 			};
 
+			template<typename T>
 			struct multiplies_
 			{
-				using _value_type = numeric;
+				using _value_type = typename wrap_operand<typename std::decay<T>::type>::type::_value_type;
 				static constexpr const char* _name = "*";
 			};
 
 			struct divides_
 			{
-				using _value_type = numeric;
+				using _value_type = floating_point;
 				static constexpr const char* _name = "/";
 			};
 
@@ -125,19 +129,19 @@ namespace sqlpp
 				struct operators: public basic_operators<Base, _constraint>
 			{
 				template<typename T>
-					binary_expression_t<Base, plus_, typename _constraint<T>::type> operator +(T&& t) const
+					binary_expression_t<Base, plus_<T>, typename _constraint<T>::type> operator +(T&& t) const
 					{
 						return { *static_cast<const Base*>(this), std::forward<T>(t) };
 					}
 
 				template<typename T>
-					binary_expression_t<Base, minus_, typename _constraint<T>::type> operator -(T&& t) const
+					binary_expression_t<Base, minus_<T>, typename _constraint<T>::type> operator -(T&& t) const
 					{
 						return { *static_cast<const Base*>(this), std::forward<T>(t) };
 					}
 
 				template<typename T>
-					binary_expression_t<Base, multiplies_, typename _constraint<T>::type> operator *(T&& t) const
+					binary_expression_t<Base, multiplies_<T>, typename _constraint<T>::type> operator *(T&& t) const
 					{
 						return { *static_cast<const Base*>(this), std::forward<T>(t) };
 					}
@@ -177,16 +181,16 @@ namespace sqlpp
 		};
 
 		template<size_t index>
-		std::ostream& operator<<(std::ostream& os, const numeric::_result_entry_t<index>& e)
+		std::ostream& operator<<(std::ostream& os, const integral::_result_entry_t<index>& e)
 		{
 			return os << e.value();
 		}
 	}
 
-	using tinyint = detail::numeric;
-	using smallint = detail::numeric;
-	using integer = detail::numeric;
-	using bigint = detail::numeric;
+	using tinyint = detail::integral;
+	using smallint = detail::integral;
+	using integer = detail::integral;
+	using bigint = detail::integral;
 
 }
 #endif

@@ -35,7 +35,8 @@ namespace sqlpp
 	namespace detail
 	{
 		struct boolean;
-		struct numeric;
+		struct integral;
+		struct floating_point;
 		struct text;
 
 		struct bool_operand
@@ -62,17 +63,41 @@ namespace sqlpp
 		};
 
 		template<typename T>
-			struct numeric_operand
+			struct integral_operand
 			{
 				static constexpr bool _is_expression = true;
-				using _value_type = numeric;
+				using _value_type = integral;
 
-				numeric_operand(T t): _t(t) {}
-				numeric_operand(const numeric_operand&) = default;
-				numeric_operand(numeric_operand&&) = default;
-				numeric_operand& operator=(const numeric_operand&) = default;
-				numeric_operand& operator=(numeric_operand&&) = default;
-				~numeric_operand() = default;
+				integral_operand(T t): _t(t) {}
+				integral_operand(const integral_operand&) = default;
+				integral_operand(integral_operand&&) = default;
+				integral_operand& operator=(const integral_operand&) = default;
+				integral_operand& operator=(integral_operand&&) = default;
+				~integral_operand() = default;
+
+				template<typename Db>
+					void serialize(std::ostream& os, Db& db) const
+					{
+						os << _t;
+					}
+
+				bool _is_trivial() const { return _t == 0; }
+
+				T _t;
+			};
+
+		template<typename T>
+			struct floating_point_operand
+			{
+				static constexpr bool _is_expression = true;
+				using _value_type = floating_point;
+
+				floating_point_operand(T t): _t(t) {}
+				floating_point_operand(const floating_point_operand&) = default;
+				floating_point_operand(floating_point_operand&&) = default;
+				floating_point_operand& operator=(const floating_point_operand&) = default;
+				floating_point_operand& operator=(floating_point_operand&&) = default;
+				~floating_point_operand() = default;
 
 				template<typename Db>
 					void serialize(std::ostream& os, Db& db) const
@@ -124,7 +149,13 @@ namespace sqlpp
 		template<typename T>
 			struct wrap_operand<T, typename std::enable_if<std::is_integral<T>::value>::type>
 			{
-				using type = numeric_operand<T>;
+				using type = integral_operand<T>;
+			};
+
+		template<typename T>
+			struct wrap_operand<T, typename std::enable_if<std::is_floating_point<T>::value>::type>
+			{
+				using type = floating_point_operand<T>;
 			};
 
 		template<typename T>
