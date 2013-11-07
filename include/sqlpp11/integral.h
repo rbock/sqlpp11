@@ -43,7 +43,7 @@ namespace sqlpp
 		{
 			using _base_value_type = integral;
 			using _is_numeric = std::true_type;
-			using _is_floating_point = std::true_type;
+			using _is_integral = std::true_type;
 			using _is_value = std::true_type;
 			using _is_expression = std::true_type;
 			

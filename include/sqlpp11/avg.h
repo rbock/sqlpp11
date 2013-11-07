@@ -35,11 +35,11 @@ namespace sqlpp
 	namespace detail
 	{
 		template<typename Expr>
-		struct avg_t: public boolean::template operators<avg_t<Expr>>
+		struct avg_t: public floating_point::template operators<avg_t<Expr>>
 		{
 			static_assert(is_numeric_t<Expr>::value, "avg() requires a value expression as argument");
 
-			struct _value_type: public Expr::_value_type::_base_value_type
+			struct _value_type: public floating_point
 			{
 				using _is_named_expression = std::true_type;
 			};

@@ -75,6 +75,8 @@ int main()
 	{
 		using T = decltype(t);
 		static_assert(not sqlpp::is_numeric_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_integral_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_floating_point_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_named_expression_t<T>::value, "type requirement");
 		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
@@ -90,6 +92,8 @@ int main()
 	{
 		using T = decltype(t.as(sqlpp::alias::a));
 		static_assert(not sqlpp::is_numeric_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_integral_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_floating_point_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_named_expression_t<T>::value, "type requirement");
 		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
@@ -101,10 +105,12 @@ int main()
 		static_assert(sqlpp::is_table_t<T>::value, "type requirement");
 	}
 
-	// Test a colum of an alias of table
+	// Test an integral column of an alias of table
 	{
 		using T = decltype(t.as(sqlpp::alias::a).alpha);
 		static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_integral_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_floating_point_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_named_expression_t<T>::value, "type requirement");
 		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
@@ -117,10 +123,12 @@ int main()
 	}
 
 
-	// Test a numeric table column
+	// Test an integral table column
 	{
 		using T = decltype(t.alpha);
 		static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_integral_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_floating_point_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_named_expression_t<T>::value, "type requirement");
 		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
@@ -131,6 +139,24 @@ int main()
 		static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
 	}
+
+	// Test a floating point table column
+	{
+		using T = decltype(f.omega);
+		static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_integral_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_floating_point_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_named_expression_t<T>::value, "type requirement");
+		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
+		static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
+		static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
+	}
+
 	// Test a an alias of a numeric table column
 	{
 		using T = decltype(t.alpha.as(sqlpp::alias::a));
@@ -284,12 +310,12 @@ int main()
 	// Test that result sets with identical name/value combinations have identical types
 	{
 		auto a = select(t.alpha);
-		auto b = select(f.omega.as(t.alpha));
+		auto b = select(f.epsilon.as(t.alpha));
 		using A = typename decltype(a)::_result_row_t;
 		using B = typename decltype(b)::_result_row_t;
 		static_assert(std::is_same<
 				decltype(t.alpha)::_value_type::_base_value_type, 
-				decltype(f.omega)::_value_type::_base_value_type>::value, "Two bigint columns must have identical base_value_type");
+				decltype(f.epsilon)::_value_type::_base_value_type>::value, "Two bigint columns must have identical base_value_type");
 		static_assert(std::is_same<A, B>::value, "select with identical columns(name/value_type) need to have identical result_types");
 	}
 
