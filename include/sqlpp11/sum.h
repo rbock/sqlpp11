@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_MAX_H
-#define SQLPP_MAX_H
+#ifndef SQLPP_SUM_H
+#define SQLPP_SUM_H
 
 #include <sstream>
 #include <sqlpp11/type_traits.h>
@@ -35,7 +35,7 @@ namespace sqlpp
 	namespace detail
 	{
 		template<typename Expr>
-		struct max_t: public boolean::template operators<max_t<Expr>>
+		struct sum_t: public boolean::template operators<sum_t<Expr>>
 		{
 			static_assert(is_numeric_t<Expr>::value, "sum() requires a numeric expression as argument");
 
@@ -50,23 +50,23 @@ namespace sqlpp
 				template<typename T>
 					struct _member_t
 					{
-						T max;
+						T sum;
 					};
 			};
 
-			max_t(Expr&& expr):
+			sum_t(Expr&& expr):
 				_expr(std::move(expr))
 			{}
 
-			max_t(const Expr& expr):
+			sum_t(const Expr& expr):
 				_expr(expr)
 			{}
 
-			max_t(const max_t&) = default;
-			max_t(max_t&&) = default;
-			max_t& operator=(const max_t&) = default;
-			max_t& operator=(max_t&&) = default;
-			~max_t() = default;
+			sum_t(const sum_t&) = default;
+			sum_t(sum_t&&) = default;
+			sum_t& operator=(const sum_t&) = default;
+			sum_t& operator=(sum_t&&) = default;
+			~sum_t() = default;
 
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
@@ -83,7 +83,7 @@ namespace sqlpp
 	}
 
 	template<typename T>
-	auto max(T&& t) -> typename detail::max_t<typename operand_t<T, is_value_t>::type>
+	auto sum(T&& t) -> typename detail::sum_t<typename operand_t<T, is_value_t>::type>
 	{
 		return { std::forward<T>(t) };
 	}

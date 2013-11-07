@@ -110,7 +110,7 @@ namespace sqlpp
 					}
 
 				template<typename T>
-					detail::like_t<Base, typename _constraint<T>::type> like(T&& t) const
+					detail::like_t<boolean, Base, typename _constraint<T>::type> like(T&& t) const
 					{
 						return { *static_cast<const Base*>(this), std::forward<T>(t) };
 					}
