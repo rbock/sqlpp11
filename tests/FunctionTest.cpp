@@ -60,6 +60,25 @@ int main()
 		static_assert(not sqlpp::is_text_t<TT>::value, "type requirement");
 	}
 
+	// Test in with value list
+	{
+		using TI = decltype(t.alpha.in(sqlpp::value_list(std::vector<int>({1, 2, 3}))));
+		using TF = decltype(f.omega.in(sqlpp::value_list(std::vector<float>({1.0, 2.0, 3.0}))));
+		using TT = decltype(t.beta.in(sqlpp::value_list(std::vector<std::string>({"a", "b", "c"}))));
+		static_assert(sqlpp::is_named_expression_t<TI>::value, "type requirement");
+		static_assert(sqlpp::is_boolean_t<TI>::value, "type requirement");
+		static_assert(not sqlpp::is_numeric_t<TI>::value, "type requirement");
+		static_assert(not sqlpp::is_text_t<TI>::value, "type requirement");
+		static_assert(sqlpp::is_named_expression_t<TF>::value, "type requirement");
+		static_assert(sqlpp::is_boolean_t<TF>::value, "type requirement");
+		static_assert(not sqlpp::is_numeric_t<TF>::value, "type requirement");
+		static_assert(not sqlpp::is_text_t<TF>::value, "type requirement");
+		static_assert(sqlpp::is_named_expression_t<TF>::value, "type requirement");
+		static_assert(sqlpp::is_boolean_t<TT>::value, "type requirement");
+		static_assert(not sqlpp::is_numeric_t<TT>::value, "type requirement");
+		static_assert(not sqlpp::is_text_t<TT>::value, "type requirement");
+	}
+
 	// Test not_in
 	{
 		using TI = decltype(t.alpha.not_in(1, 2, 3));
@@ -74,6 +93,25 @@ int main()
 		static_assert(not sqlpp::is_numeric_t<TF>::value, "type requirement");
 		static_assert(not sqlpp::is_text_t<TF>::value, "type requirement");
 		static_assert(sqlpp::is_named_expression_t<TT>::value, "type requirement");
+		static_assert(sqlpp::is_boolean_t<TT>::value, "type requirement");
+		static_assert(not sqlpp::is_numeric_t<TT>::value, "type requirement");
+		static_assert(not sqlpp::is_text_t<TT>::value, "type requirement");
+	}
+
+	// Test not in with value list
+	{
+		using TI = decltype(t.alpha.not_in(sqlpp::value_list(std::vector<int>({1, 2, 3}))));
+		using TF = decltype(f.omega.not_in(sqlpp::value_list(std::vector<float>({1.0, 2.0, 3.0}))));
+		using TT = decltype(t.beta.not_in(sqlpp::value_list(std::vector<std::string>({"a", "b", "c"}))));
+		static_assert(sqlpp::is_named_expression_t<TI>::value, "type requirement");
+		static_assert(sqlpp::is_boolean_t<TI>::value, "type requirement");
+		static_assert(not sqlpp::is_numeric_t<TI>::value, "type requirement");
+		static_assert(not sqlpp::is_text_t<TI>::value, "type requirement");
+		static_assert(sqlpp::is_named_expression_t<TF>::value, "type requirement");
+		static_assert(sqlpp::is_boolean_t<TF>::value, "type requirement");
+		static_assert(not sqlpp::is_numeric_t<TF>::value, "type requirement");
+		static_assert(not sqlpp::is_text_t<TF>::value, "type requirement");
+		static_assert(sqlpp::is_named_expression_t<TF>::value, "type requirement");
 		static_assert(sqlpp::is_boolean_t<TT>::value, "type requirement");
 		static_assert(not sqlpp::is_numeric_t<TT>::value, "type requirement");
 		static_assert(not sqlpp::is_text_t<TT>::value, "type requirement");
@@ -149,17 +187,17 @@ int main()
 		using TT = decltype(any(select(t.beta).from(t)));
 		using TF = decltype(any(select(f.omega).from(t)));
 		static_assert(not sqlpp::is_named_expression_t<TI>::value, "type requirement");
-		static_assert(sqlpp::is_nameless_expression_t<TI>::value, "type requirement");
+		static_assert(sqlpp::is_multi_expression_t<TI>::value, "type requirement");
 		static_assert(sqlpp::is_numeric_t<TI>::value, "type requirement");
 		static_assert(sqlpp::is_integral_t<TI>::value, "type requirement");
 		static_assert(not sqlpp::is_text_t<TI>::value, "type requirement");
 		static_assert(not sqlpp::is_named_expression_t<TF>::value, "type requirement");
-		static_assert(sqlpp::is_nameless_expression_t<TF>::value, "type requirement");
+		static_assert(sqlpp::is_multi_expression_t<TF>::value, "type requirement");
 		static_assert(sqlpp::is_numeric_t<TF>::value, "tFpe requirement");
 		static_assert(sqlpp::is_floating_point_t<TF>::value, "type requirement");
 		static_assert(not sqlpp::is_text_t<TF>::value, "type requirement");
 		static_assert(not sqlpp::is_named_expression_t<TT>::value, "type requirement");
-		static_assert(sqlpp::is_nameless_expression_t<TT>::value, "type requirement");
+		static_assert(sqlpp::is_multi_expression_t<TT>::value, "type requirement");
 		static_assert(not sqlpp::is_numeric_t<TT>::value, "type requirement");
 		static_assert(not sqlpp::is_integral_t<TT>::value, "type requirement");
 		static_assert(not sqlpp::is_floating_point_t<TT>::value, "type requirement");
@@ -172,18 +210,18 @@ int main()
 		using TT = decltype(some(select(t.beta).from(t)));
 		using TF = decltype(some(select(f.omega).from(t)));
 		static_assert(not sqlpp::is_named_expression_t<TI>::value, "type requirement");
-		static_assert(sqlpp::is_nameless_expression_t<TI>::value, "type requirement");
+		static_assert(sqlpp::is_multi_expression_t<TI>::value, "type requirement");
 		static_assert(sqlpp::is_numeric_t<TI>::value, "type requirement");
 		static_assert(sqlpp::is_integral_t<TI>::value, "type requirement");
 		static_assert(not sqlpp::is_text_t<TI>::value, "type requirement");
 		static_assert(sqlpp::is_numeric_t<TF>::value, "type requirement");
 		static_assert(not sqlpp::is_named_expression_t<TF>::value, "type requirement");
-		static_assert(sqlpp::is_nameless_expression_t<TF>::value, "type requirement");
+		static_assert(sqlpp::is_multi_expression_t<TF>::value, "type requirement");
 		static_assert(sqlpp::is_floating_point_t<TF>::value, "type requirement");
 		static_assert(not sqlpp::is_text_t<TF>::value, "type requirement");
 		static_assert(not sqlpp::is_numeric_t<TT>::value, "type requirement");
 		static_assert(not sqlpp::is_named_expression_t<TT>::value, "type requirement");
-		static_assert(sqlpp::is_nameless_expression_t<TT>::value, "type requirement");
+		static_assert(sqlpp::is_multi_expression_t<TT>::value, "type requirement");
 		static_assert(not sqlpp::is_integral_t<TT>::value, "type requirement");
 		static_assert(not sqlpp::is_floating_point_t<TT>::value, "type requirement");
 		static_assert(sqlpp::is_text_t<TT>::value, "type requirement");
