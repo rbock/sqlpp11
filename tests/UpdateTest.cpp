@@ -25,15 +25,9 @@
 
 #include <iostream>
 #include <sqlpp11/update.h>
-#include <sqlpp11/select.h>
 #include "TabSample.h"
-
-#include <iostream>
-class DbMock
-{
-public:
-	const std::string& escape(const std::string& text) { return text; }
-};
+#include "MockDb.h"
+#include "is_regular.h"
 
 DbMock db;
 
@@ -45,6 +39,21 @@ int main()
 	auto y = t.beta = "kaesekuchen";
 	auto z = t.gamma = true;
 
+	{
+		using T = decltype(update(t));
+		static_assert(sqlpp::is_regular<T>::value, "type requirement");
+	}
+
+	{
+		using T = decltype(update(t).set(t.gamma = false).where(t.beta != "transparent"));
+		static_assert(sqlpp::is_regular<T>::value, "type requirement");
+	}
+
+	{
+		using T = decltype(dynamic_update(db, t).dynamic_set(t.gamma = false).dynamic_where());
+		static_assert(sqlpp::is_regular<T>::value, "type requirement");
+	}
+
 	update(t).serialize(std::cerr, db); std::cerr << "\n";
 	update(t).set(t.gamma = false).serialize(std::cerr, db); std::cerr << "\n";
 	update(t).set(t.gamma = false).where(t.beta != "transparent").serialize(std::cerr, db); std::cerr << "\n";
@@ -52,8 +61,5 @@ int main()
 	u = u.add_set(t.gamma = false);
 	u.serialize(std::cerr, db); std::cerr << "\n";
 
-	//insert_into(t).values(7, "wurstwaren", true).serialize(std::cerr, db); std::cerr << "\n";
-	//insert_into(t).columns(t.alpha, t.beta).values(25, "drei").serialize(std::cerr, db); std::cerr << "\n";
-	//insert_into(t).columns(t.alpha, t.beta).select(select(t.alpha, t.beta).from(t)).serialize(std::cerr, db);
 	return 0;
 }

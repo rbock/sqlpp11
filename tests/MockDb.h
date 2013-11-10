@@ -23,46 +23,45 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
-#include <sqlpp11/remove.h>
-#include <sqlpp11/select.h>
-#include "TabSample.h"
-#include "MockDb.h"
-#include "is_regular.h"
+#ifndef SQLPP_MOCK_DB_H
+#define  SQLPP_MOCK_DB_H
 
+#include <sqlpp11/connection.h>
 
-DbMock db;
-
-int main()
+class DbMock: public sqlpp::connection
 {
-	TabSample t;
+public:
+	// join types
+	static constexpr bool _supports_inner_join = true;
+	static constexpr bool _supports_outer_join = true;
+	static constexpr bool _supports_left_outer_join = true;
+	static constexpr bool _supports_right_outer_join = true;
 
-	auto x = t.alpha = 7;
-	auto y = t.beta = "kaesekuchen";
-	auto z = t.gamma = true;
+	// functions
+	static constexpr bool _supports_avg = true;
+	static constexpr bool _supports_count = true;
+	static constexpr bool _supports_exists = true;
+	static constexpr bool _supports_like = true;
+	static constexpr bool _supports_in = true;
+	static constexpr bool _supports_max = true;
+	static constexpr bool _supports_min = true;
+	static constexpr bool _supports_not_in = true;
+	static constexpr bool _supports_sum = true;
 
-	{
-		using T = decltype(remove_from(t));
-		static_assert(sqlpp::is_regular<T>::value, "type requirement");
-	}
+	// select
+	static constexpr bool _supports_group_by = true;
+	static constexpr bool _supports_having = true;
+	static constexpr bool _supports_limit = true;
+	static constexpr bool _supports_order_by = true;
+	static constexpr bool _supports_select_as_table = true;
 
-	{
-		using T = decltype(remove_from(t).where(t.beta != "transparent"));
-		static_assert(sqlpp::is_regular<T>::value, "type requirement");
-	}
+	static constexpr bool _supports_some = true;
+	static constexpr bool _supports_any = true;
+	static constexpr bool _use_concat_operator = true;
+	static constexpr bool _use_concat_function = true;
 
-	{
-		using T = decltype(dynamic_remove_from(db, t).dynamic_using_().dynamic_where());
-		static_assert(sqlpp::is_regular<T>::value, "type requirement");
-	}
+	const std::string& escape(const std::string& text) { return text; }
+};
 
-	remove_from(t).serialize(std::cerr, db); std::cerr << "\n";
-	remove_from(t).where(t.beta != "transparent").serialize(std::cerr, db); std::cerr << "\n";
-	remove_from(t).using_(t).serialize(std::cerr, db); std::cerr << "\n";
-	auto r = dynamic_remove_from(db, t).dynamic_using_().dynamic_where();
-	r = r.add_using_(t);
-	r = r.add_where(t.beta != "transparent");
-	r.serialize(std::cerr, db); std::cerr << "\n";
+#endif
 
-	return 0;
-}

@@ -69,6 +69,8 @@ namespace sqlpp
 			static constexpr bool _supports_exists = true;
 			static constexpr bool _supports_like = true;
 			static constexpr bool _supports_in = true;
+			static constexpr bool _supports_is_null = true;
+			static constexpr bool _supports_is_not_null = true;
 			static constexpr bool _supports_max = true;
 			static constexpr bool _supports_min = true;
 			static constexpr bool _supports_not_in = true;

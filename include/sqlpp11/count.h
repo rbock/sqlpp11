@@ -28,18 +28,18 @@
 #define SQLPP_COUNT_H
 
 #include <sstream>
-#include <sqlpp11/numeric.h>
+#include <sqlpp11/integral.h>
 
 namespace sqlpp
 {
 	namespace detail
 	{
 		template<typename Expr>
-		struct count_t: public numeric::template operators<count_t<Expr>>
+		struct count_t: public integral::template operators<count_t<Expr>>
 		{
 			static_assert(is_value_t<Expr>::value, "count() requires a sql value as argument");
 
-			struct _value_type: public numeric
+			struct _value_type: public integral
 			{
 				using _is_named_expression = std::true_type;
 			};

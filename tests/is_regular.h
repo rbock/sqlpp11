@@ -24,70 +24,26 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_AVG_H
-#define SQLPP_AVG_H
+#ifndef SQLPP_IS_REGULAR_H
+#define SQLPP_IS_REGULAR_H
 
-#include <sstream>
-#include <sqlpp11/type_traits.h>
+#include <type_traits>
 
 namespace sqlpp
 {
-	namespace detail
-	{
-		template<typename Expr>
-		struct avg_t: public floating_point::template operators<avg_t<Expr>>
-		{
-			static_assert(is_numeric_t<Expr>::value, "avg() requires a value expression as argument");
-
-			struct _value_type: public floating_point
-			{
-				using _is_named_expression = std::true_type;
-			};
-
-			struct _name_t
-			{
-				static constexpr const char* _get_name() { return "AVG"; }
-				template<typename T>
-					struct _member_t
-					{
-						T avg;
-					};
-			};
-
-			avg_t(Expr&& expr):
-				_expr(std::move(expr))
-			{}
-
-			avg_t(const Expr& expr):
-				_expr(expr)
-			{}
-
-			avg_t(const avg_t&) = default;
-			avg_t(avg_t&&) = default;
-			avg_t& operator=(const avg_t&) = default;
-			avg_t& operator=(avg_t&&) = default;
-			~avg_t() = default;
-
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					static_assert(Db::_supports_avg, "avg() not supported by current database");
-					os << "AVG(";
-					_expr.serialize(os, db);
-					os << ")";
-				}
-
-		private:
-			Expr _expr;
-		};
-	}
-
 	template<typename T>
-	auto avg(T&& t) -> typename detail::avg_t<typename operand_t<T, is_value_t>::type>
-	{
-		return { std::forward<T>(t) };
-	}
-
+		struct is_regular
+		{
+			static constexpr bool value = true
+				and std::is_nothrow_move_constructible<T>::value
+				and std::is_move_assignable<T>::value // containers and strings are not noexcept_assignable
+				and std::is_copy_constructible<T>::value
+				and std::is_copy_assignable<T>::value
+				// default constructor makes no sense
+				// (not) equals would be possible
+				// not sure about less
+				;
+		};
 }
 
 #endif

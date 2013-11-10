@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_NUMERIC_H
-#define SQLPP_NUMERIC_H
+#ifndef SQLPP_FLOATING_POINT_H
+#define SQLPP_FLOATING_POINT_H
 
 #include <cstdlib>
 #include <sqlpp11/detail/basic_operators.h>
@@ -38,29 +38,30 @@ namespace sqlpp
 	namespace detail
 	{
 
-		// numeric value type
-		struct numeric
+		// floating_point value type
+		struct floating_point
 		{
-			using _base_value_type = numeric;
+			using _base_value_type = floating_point;
 			using _is_numeric = std::true_type;
+			using _is_floating_point = std::true_type;
 			using _is_value = std::true_type;
 			using _is_expression = std::true_type;
 			
 			template<size_t index>
 			struct _result_entry_t
 			{
-				using _value_type = numeric;
+				using _value_type = floating_point;
 				_result_entry_t(const raw_result_row_t& row):
 					_is_valid(row.data != nullptr),
 					_is_null(row.data == nullptr or row.data[index] == nullptr),
-					_value(_is_null ? 0 : std::strtoll(row.data[index], nullptr, 10))
+					_value(_is_null ? 0 : std::strtod(row.data[index], nullptr))
 					{}
 
 				_result_entry_t& operator=(const raw_result_row_t& row)
 				{
 					_is_valid = (row.data != nullptr);
 					_is_null = row.data == nullptr or row.data[index] == nullptr;
-					_value = _is_null ? 0 : std::strtoll(row.data[index], nullptr, 10);
+					_value = _is_null ? 0 : std::strtod(row.data[index], nullptr);
 					return *this;
 				}
 
@@ -79,42 +80,42 @@ namespace sqlpp
 					return _is_null; 
 				}
 
-				int64_t value() const
+				double value() const
 				{
 					if (not _is_valid)
 						throw exception("accessing value in non-existing row");
 					return _value;
 				}
 
-				operator int64_t() const { return value(); }
+				operator double() const { return value(); }
 
 			private:
 				bool _is_valid;
 				bool _is_null;
-				int64_t _value;
+				double _value;
 			};
 
 			struct plus_
 			{
-				using _value_type = numeric;
+				using _value_type = floating_point;
 				static constexpr const char* _name = "+";
 			};
 
 			struct minus_
 			{
-				using _value_type = numeric;
+				using _value_type = floating_point;
 				static constexpr const char* _name = "-";
 			};
 
 			struct multiplies_
 			{
-				using _value_type = numeric;
+				using _value_type = floating_point;
 				static constexpr const char* _name = "*";
 			};
 
 			struct divides_
 			{
-				using _value_type = numeric;
+				using _value_type = floating_point;
 				static constexpr const char* _name = "/";
 			};
 
@@ -127,24 +128,28 @@ namespace sqlpp
 				template<typename T>
 					binary_expression_t<Base, plus_, typename _constraint<T>::type> operator +(T&& t) const
 					{
+						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 						return { *static_cast<const Base*>(this), std::forward<T>(t) };
 					}
 
 				template<typename T>
 					binary_expression_t<Base, minus_, typename _constraint<T>::type> operator -(T&& t) const
 					{
+						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 						return { *static_cast<const Base*>(this), std::forward<T>(t) };
 					}
 
 				template<typename T>
 					binary_expression_t<Base, multiplies_, typename _constraint<T>::type> operator *(T&& t) const
 					{
+						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 						return { *static_cast<const Base*>(this), std::forward<T>(t) };
 					}
 
 				template<typename T>
 					binary_expression_t<Base, divides_, typename _constraint<T>::type> operator /(T&& t) const
 					{
+						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 						return { *static_cast<const Base*>(this), std::forward<T>(t) };
 					}
 
@@ -177,16 +182,13 @@ namespace sqlpp
 		};
 
 		template<size_t index>
-		std::ostream& operator<<(std::ostream& os, const numeric::_result_entry_t<index>& e)
+		std::ostream& operator<<(std::ostream& os, const floating_point::_result_entry_t<index>& e)
 		{
 			return os << e.value();
 		}
 	}
 
-	using tinyint = detail::numeric;
-	using smallint = detail::numeric;
-	using integer = detail::numeric;
-	using bigint = detail::numeric;
+	using floating_point = detail::floating_point;
 
 }
 #endif

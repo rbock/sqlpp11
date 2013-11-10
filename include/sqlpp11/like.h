@@ -35,13 +35,14 @@ namespace sqlpp
 {
 	namespace detail
 	{
-		template<typename Operand, typename Pattern>
-		struct like_t: public Operand::_value_type::template operators<like_t<Operand, Pattern>>
+		// The ValueType should be boolean, this is a hack because boolean is not fully defined when the compiler first gets here...
+		template<typename ValueType, typename Operand, typename Pattern>
+		struct like_t: public ValueType::_base_value_type::template operators<like_t<ValueType, Operand, Pattern>>
 		{
 			static_assert(is_text_t<Operand>::value, "Operand for like() has to be a text");
 			static_assert(is_text_t<Pattern>::value, "Pattern for like() has to be a text");
 
-			struct _value_type: public Operand::_value_type::_base_value_type
+			struct _value_type: public ValueType::_base_value_type // we requite fully defined boolean here
 			{
 				using _is_named_expression = std::true_type;
 			};
@@ -86,12 +87,6 @@ namespace sqlpp
 			Operand _operand;
 			Pattern _pattern;
 		};
-	}
-
-	template<typename... T>
-	auto like(T&&... t) -> typename detail::like_t<typename operand_t<T, is_text_t>::type...>
-	{
-		return { std::forward<T>(t)... };
 	}
 }
 

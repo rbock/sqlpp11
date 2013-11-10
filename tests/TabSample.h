@@ -33,6 +33,23 @@
 
 namespace TabFoo_
 {
+	struct Epsilon
+	{
+		struct _name_t
+		{
+			static constexpr const char* _get_name() { return "epsilon"; }
+			template<typename T>
+				struct _member_t
+				{
+					T epsilon;
+				};
+		};
+		using _value_type = sqlpp::bigint;
+		struct _column_type
+		{
+		};
+	};
+
 	struct Omega
 	{
 		struct _name_t
@@ -44,7 +61,7 @@ namespace TabFoo_
 					T omega;
 				};
 		};
-		using _value_type = sqlpp::bigint;
+		using _value_type = sqlpp::floating_point;
 		struct _column_type
 		{
 		};
@@ -53,6 +70,7 @@ namespace TabFoo_
 
 struct TabFoo: sqlpp::table_base_t<
 									TabFoo, 
+									TabFoo_::Epsilon,
 									TabFoo_::Omega
 													 >
 {

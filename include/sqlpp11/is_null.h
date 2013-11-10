@@ -24,70 +24,65 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_AVG_H
-#define SQLPP_AVG_H
+#ifndef SQLPP_IS_NULL_H
+#define SQLPP_IS_NULL_H
 
 #include <sstream>
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/detail/set.h>
 
 namespace sqlpp
 {
 	namespace detail
 	{
-		template<typename Expr>
-		struct avg_t: public floating_point::template operators<avg_t<Expr>>
+		// The ValueType should be boolean, this is a hack because boolean is not fully defined when the compiler first gets here...
+		template<bool NotInverted, typename ValueType, typename Operand>
+		struct is_null_t: public ValueType::_base_value_type::template operators<is_null_t<NotInverted, ValueType, Operand>>
 		{
-			static_assert(is_numeric_t<Expr>::value, "avg() requires a value expression as argument");
+			static constexpr bool _inverted = not NotInverted;
 
-			struct _value_type: public floating_point
+			struct _value_type: public ValueType::_base_value_type // we requite fully defined boolean here
 			{
 				using _is_named_expression = std::true_type;
 			};
 
 			struct _name_t
 			{
-				static constexpr const char* _get_name() { return "AVG"; }
+				static constexpr const char* _get_name() { return _inverted ? "IS NOT NULL" : "IS NULL"; }
 				template<typename T>
 					struct _member_t
 					{
-						T avg;
+						T in;
 					};
 			};
 
-			avg_t(Expr&& expr):
-				_expr(std::move(expr))
+			is_null_t(const Operand& operand):
+				_operand(operand)
 			{}
 
-			avg_t(const Expr& expr):
-				_expr(expr)
+			is_null_t(Operand&& operand):
+				_operand(std::move(operand))
 			{}
 
-			avg_t(const avg_t&) = default;
-			avg_t(avg_t&&) = default;
-			avg_t& operator=(const avg_t&) = default;
-			avg_t& operator=(avg_t&&) = default;
-			~avg_t() = default;
+			is_null_t(const is_null_t&) = default;
+			is_null_t(is_null_t&&) = default;
+			is_null_t& operator=(const is_null_t&) = default;
+			is_null_t& operator=(is_null_t&&) = default;
+			~is_null_t() = default;
 
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
-					static_assert(Db::_supports_avg, "avg() not supported by current database");
-					os << "AVG(";
-					_expr.serialize(os, db);
-					os << ")";
+					static_assert(NotInverted and Db::_supports_is_null
+							or _inverted and Db::_supports_is_not_null, "is_null() and/or is_not_null() not supported by current database");
+					_operand.serialize(os, db);
+					os << (_inverted ? " IS NOT NULL" : " IS NULL");
 				}
 
 		private:
-			Expr _expr;
+			Operand _operand;
 		};
 	}
-
-	template<typename T>
-	auto avg(T&& t) -> typename detail::avg_t<typename operand_t<T, is_value_t>::type>
-	{
-		return { std::forward<T>(t) };
-	}
-
 }
 
 #endif

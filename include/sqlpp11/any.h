@@ -42,7 +42,7 @@ namespace sqlpp
 
 			struct _value_type: public Select::_value_type::_base_value_type
 			{
-				using _is_named_expression = std::true_type;
+				using _is_multi_expression = std::true_type; // must not be named
 			};
 
 			struct _name_t

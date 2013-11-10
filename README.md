@@ -22,6 +22,8 @@ This results in several benefits, e.g.
 
 The library supports both static and dynamic queries. The former offers greater benefit in terms of type and consistency checking. The latter makes it easier to construct queries on the flight.
 
+Specific traits of databases (e.g. unsupported or non-standard features) are known at compile time as well. This way, the compiler can tell the developer at compile time if a query is not accepted by the database (e.g. if a feature is missing). And the library can form the query in the correct manner, for instance if the engine uses concat instead of operator|| to concatenate strings.
+
 
 Your help is needed:
 --------------------

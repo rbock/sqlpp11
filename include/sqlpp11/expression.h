@@ -175,39 +175,6 @@ namespace sqlpp
 			Lhs _lhs;
 		};
 
-	template<typename Lhs, typename O>
-		struct null_expression_t: public O::_value_type::template operators<null_expression_t<Lhs, O>>
-		{
-			using _value_type = typename O::_value_type;
-
-			null_expression_t(Lhs&& l):
-				_lhs(std::move(l))
-			{}
-
-			null_expression_t(const Lhs& l):
-				_lhs(l)
-			{}
-
-			null_expression_t(const null_expression_t&) = default;
-			null_expression_t(null_expression_t&&) = default;
-			null_expression_t& operator=(const null_expression_t&) = default;
-			null_expression_t& operator=(null_expression_t&&) = default;
-			~null_expression_t() = default;
-
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					os << "(";
-					_lhs.serialize(os, db);
-					os << " ";
-					os << O::_name;
-					os << ")";
-				}
-
-		private:
-			Lhs _lhs;
-		};
-
 	template<typename Lhs, typename O, typename Rhs>
 		struct binary_expression_t: public O::_value_type::template operators<binary_expression_t<Lhs, O, Rhs>>
 		{

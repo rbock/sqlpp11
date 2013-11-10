@@ -126,17 +126,20 @@ namespace sqlpp
 				template<typename T>
 					binary_expression_t<Base, and_, typename _constraint<T>::type> operator and(T&& t) const
 					{
+						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 						return { *static_cast<const Base*>(this), std::forward<T>(t) };
 					}
 
 				template<typename T>
 					binary_expression_t<Base, or_, typename _constraint<T>::type> operator or(T&& t) const
 					{
+						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 						return { *static_cast<const Base*>(this), std::forward<T>(t) };
 					}
 
 				not_t<Base> operator not() const
 				{
+					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be as operand for operator not");
 					return { *static_cast<const Base*>(this) };
 				}
 			};

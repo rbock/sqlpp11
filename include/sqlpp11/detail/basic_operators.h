@@ -31,6 +31,7 @@
 #include <sqlpp11/alias.h>
 #include <sqlpp11/sort_order.h>
 #include <sqlpp11/in.h>
+#include <sqlpp11/is_null.h>
 
 namespace sqlpp
 {
@@ -64,19 +65,6 @@ namespace sqlpp
 			static constexpr const char* _name = ">";
 		};
 
-		struct is_null_
-		{
-			using _value_type = boolean;
-			static constexpr const char* _name = "IS NULL";
-		};
-
-		struct is_not_null_
-		{
-			using _value_type = boolean;
-			static constexpr const char* _name = "IS NOT NULL";
-		};
-
-
 		// basic operators
 		template<typename Base, template<typename> class Constraint>
 			struct basic_operators
@@ -84,74 +72,87 @@ namespace sqlpp
 			template<typename T>
 				equal_t<Base, typename Constraint<T>::type> operator==(T&& t) const
 				{
+					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 					return { *static_cast<const Base*>(this), std::forward<T>(t) };
 				}
 
 			template<typename T>
 				not_equal_t<Base, typename Constraint<T>::type> operator!=(T&& t) const
 				{
+					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 					return { *static_cast<const Base*>(this), std::forward<T>(t) };
 				}
 			template<typename T>
 				binary_expression_t<Base, lt_, typename Constraint<T>::type> operator<(T&& t) const
 				{
+					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 					return { *static_cast<const Base*>(this), std::forward<T>(t) };
 				}
 
 			template<typename T>
 				binary_expression_t<Base, le_, typename Constraint<T>::type> operator<=(T&& t) const
 				{
+					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 					return { *static_cast<const Base*>(this), std::forward<T>(t) };
 				}
 
 			template<typename T>
 				binary_expression_t<Base, ge_, typename Constraint<T>::type> operator>=(T&& t) const
 				{
+					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 					return { *static_cast<const Base*>(this), std::forward<T>(t) };
 				}
 
 			template<typename T>
 				binary_expression_t<Base, gt_, typename Constraint<T>::type> operator>(T&& t) const
 				{
+					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 					return { *static_cast<const Base*>(this), std::forward<T>(t) };
 				}
 
-			null_expression_t<Base, is_null_> is_null() const
+			is_null_t<true, boolean, Base> is_null() const
 			{
+				static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used with is_null()");
 				return { *static_cast<const Base*>(this) };
 			}
 
-			null_expression_t<Base, is_not_null_> is_not_null() const
+			is_null_t<false, boolean, Base> is_not_null() const
 			{
+				static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used with is_not_null()");
 				return { *static_cast<const Base*>(this) };
 			}
 
 			sort_order_t<Base, sort_type::asc> asc()
 			{ 
+				static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used for sorting");
 				return { *static_cast<const Base*>(this) };
 			}
 
 			sort_order_t<Base, sort_type::desc> desc()
 			{ 
+				static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used for sorting");
 				return { *static_cast<const Base*>(this) };
 			}
 
 			// Hint: use value_list wrapper for containers...
 			template<typename... T>
-				in_t<true, Base, typename Constraint<T>::type...> in(T&&... t) const
+				in_t<true, boolean, Base, typename Constraint<T>::type...> in(T&&... t) const
 				{
+					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used with in()");
 					return { *static_cast<const Base*>(this), std::forward<T>(t)... };
 				}
 
 			template<typename... T>
-				in_t<false, Base, typename Constraint<T>::type...> not_in(T&&... t) const
+				in_t<false, boolean, Base, typename Constraint<T>::type...> not_in(T&&... t) const
 				{
+					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot with be used with not_in()");
 					return { *static_cast<const Base*>(this), std::forward<T>(t)... };
 				}
 
 			template<typename alias_provider>
 				expression_alias_t<Base, typename std::decay<alias_provider>::type> as(alias_provider&&)
 				{
+					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot have a name");
 					return { *static_cast<const Base*>(this) };
 				}
 

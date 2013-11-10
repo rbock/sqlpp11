@@ -28,7 +28,8 @@
 #define SQLPP_COLUMN_TYPES_H
 
 #include <sqlpp11/boolean.h>
-#include <sqlpp11/numeric.h>
+#include <sqlpp11/integral.h>
+#include <sqlpp11/floating_point.h>
 #include <sqlpp11/text.h>
 
 #endif
