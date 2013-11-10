@@ -24,47 +24,15 @@
  */
 
 #include "TabSample.h"
+#include "MockDb.h"
+#include "is_regular.h"
 #include <sqlpp11/select.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/connection.h>
 
 #include <iostream>
-class DbMock: public sqlpp::connection
-{
-public:
-	// join types
-	static constexpr bool _supports_inner_join = true;
-	static constexpr bool _supports_outer_join = true;
-	static constexpr bool _supports_left_outer_join = true;
-	static constexpr bool _supports_right_outer_join = true;
 
-	// functions
-	static constexpr bool _supports_avg = true;
-	static constexpr bool _supports_count = true;
-	static constexpr bool _supports_exists = true;
-	static constexpr bool _supports_like = true;
-	static constexpr bool _supports_in = true;
-	static constexpr bool _supports_max = true;
-	static constexpr bool _supports_min = true;
-	static constexpr bool _supports_not_in = true;
-	static constexpr bool _supports_sum = true;
-
-	// select
-	static constexpr bool _supports_group_by = true;
-	static constexpr bool _supports_having = true;
-	static constexpr bool _supports_limit = true;
-	static constexpr bool _supports_order_by = true;
-	static constexpr bool _supports_select_as_table = true;
-
-	static constexpr bool _supports_some = true;
-	static constexpr bool _supports_any = true;
-	static constexpr bool _use_concat_operator = true;
-	static constexpr bool _use_concat_function = true;
-
-	const std::string& escape(const std::string& text) { return text; }
-};
-
-DbMock db;
+DbMock db = {};
 
 int main()
 {
@@ -86,6 +54,7 @@ int main()
 		static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_table_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
 	// Test an alias of table
@@ -103,6 +72,7 @@ int main()
 		static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_alias_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_table_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
 	// Test an integral column of an alias of table
@@ -120,6 +90,7 @@ int main()
 		static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
 
@@ -138,6 +109,7 @@ int main()
 		static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
 	// Test a floating point table column
@@ -155,6 +127,7 @@ int main()
 		static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
 	// Test a an alias of a numeric table column
@@ -170,6 +143,7 @@ int main()
 		static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_alias_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
 	// Test a select of a single column without a from
@@ -185,6 +159,7 @@ int main()
 		static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
 	// Test a select of a single numeric table column
@@ -200,6 +175,7 @@ int main()
 		static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
 	// Test a select of an alias of a single numeric table column
@@ -215,6 +191,7 @@ int main()
 		static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
 	// Test an alias of a select of a single numeric table column
@@ -230,6 +207,7 @@ int main()
 		static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_alias_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_table_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
 	// Test the column of an alias of a select of an alias of a single numeric table column
@@ -245,6 +223,7 @@ int main()
 		static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_alias_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_table_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
 	// Test the column of an alias of a select of a single numeric table column
@@ -260,6 +239,7 @@ int main()
 		static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
 	// Test an alias of a select of an alias of a single numeric table column
@@ -275,6 +255,7 @@ int main()
 		static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
 	// Test that select(all_of(tab)) is expanded in select
@@ -317,6 +298,8 @@ int main()
 				decltype(t.alpha)::_value_type::_base_value_type, 
 				decltype(f.epsilon)::_value_type::_base_value_type>::value, "Two bigint columns must have identical base_value_type");
 		static_assert(std::is_same<A, B>::value, "select with identical columns(name/value_type) need to have identical result_types");
+		static_assert(sqlpp::is_regular<A>::value, "type requirement");
+		static_assert(sqlpp::is_regular<B>::value, "type requirement");
 	}
 
 	{
@@ -328,6 +311,8 @@ int main()
 		std::cerr << "------------------------\n";
 		s.serialize(std::cerr, db);
 		std::cerr << "------------------------\n";
+		using T = decltype(s);
+		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
 	// Test that select can be called with zero columns if it is used with dynamic columns.
@@ -339,6 +324,7 @@ int main()
 
 	static_assert(sqlpp::is_select_flag_t<decltype(sqlpp::all)>::value, "sqlpp::all has to be a select_flag");
   using T = sqlpp::detail::wrap_operand<int>::type;
+	static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	static_assert(T::_is_expression, "T has to be an expression");
 	static_assert(std::is_same<typename T::_value_type::_is_numeric, std::true_type>::value, "T has to be a numeric");
 	static_assert(sqlpp::is_numeric_t<T>::value, "T has to be a numeric");

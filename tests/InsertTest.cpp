@@ -23,17 +23,11 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
-#include <sqlpp11/insert.h>
-#include <sqlpp11/select.h>
 #include "TabSample.h"
-
+#include "MockDb.h"
+#include "is_regular.h"
+#include <sqlpp11/insert.h>
 #include <iostream>
-class DbMock
-{
-public:
-	const std::string& escape(const std::string& text) { return text; }
-};
 
 DbMock db;
 
@@ -47,14 +41,26 @@ int main()
 	auto a = t.alpha;
 	a = t.alpha;
 
+	{
+		using T = decltype(insert_into(t));
+		static_assert(sqlpp::is_regular<T>::value, "type requirement");
+	}
+
+	{
+		using T = decltype(insert_into(t).set(t.beta = "kirschauflauf"));
+		static_assert(sqlpp::is_regular<T>::value, "type requirement");
+	}
+
+	{
+		using T = decltype(dynamic_insert_into(db, t).dynamic_set());
+		static_assert(sqlpp::is_regular<T>::value, "type requirement");
+	}
 
 	insert_into(t).serialize(std::cerr, db); std::cerr << "\n";
 	insert_into(t).set(t.beta = "kirschauflauf").serialize(std::cerr, db); std::cerr << "\n";
 	auto i = dynamic_insert_into(db, t).dynamic_set();
 	i = i.add_set(t.beta = "kirschauflauf");
 	i.serialize(std::cerr, db); std::cerr << "\n";
-	//insert_into(t).values(7, "wurstwaren", true).serialize(std::cerr, db); std::cerr << "\n";
-	//insert_into(t).columns(t.alpha, t.beta).values(25, "drei").serialize(std::cerr, db); std::cerr << "\n";
-	//insert_into(t).columns(t.alpha, t.beta).select(select(t.alpha, t.beta).from(t)).serialize(std::cerr, db);
+
 	return 0;
 }
