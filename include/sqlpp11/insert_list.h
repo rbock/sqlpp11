@@ -114,8 +114,10 @@ namespace sqlpp
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
-					if (sizeof...(Assignments) + _dynamic_columns.size())
+					if (sizeof...(Assignments) + _dynamic_columns.size() == 0)
+					{
 						detail::serialize_empty_insert_list(os, db);
+					}
 					else
 					{
 						os << " (";

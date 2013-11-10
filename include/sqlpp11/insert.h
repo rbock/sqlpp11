@@ -99,7 +99,9 @@ namespace sqlpp
 						detail::serialize_empty_insert_list(os, db);
 					}
 					else
+					{
 						_insert_list.serialize(os, db);
+					}
 					return *this;
 				}
 
