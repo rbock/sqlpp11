@@ -99,6 +99,5 @@ sqlpp11 requires a certain api in order to connect with the database, see databa
 
   * MySQL: https://github.com/rbock/sqlpp11-connector-mysql
   * Sqlite3: https://github.com/rbock/sqlpp11-connector-sqlite3
-
-
+  * PostgreSQL: https://github.com/pbondo/sqlpp11-connector-postgresql
 
