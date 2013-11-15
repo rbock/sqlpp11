@@ -38,7 +38,9 @@ namespace sqlpp
 		template<typename Db>
 			struct serializable_t
 			{
-				template<typename T>
+				template<typename T,
+					typename std::enable_if<not std::is_same<typename std::decay<T>::type, serializable_t<Db>>::value, int>::type = 0 // prevent accidental overload for copy constructor
+					>
 					serializable_t(T&& t):
 						_impl(std::make_shared<_impl_t<typename std::decay<T>::type>>(std::forward<T>(t)))
 				{}

@@ -27,11 +27,10 @@
 #ifndef SQLPP_INSERT_LIST_H
 #define SQLPP_INSERT_LIST_H
 
-#include <vector>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/detail/set.h>
 #include <sqlpp11/detail/serialize_tuple.h>
-#include <sqlpp11/detail/serializable.h>
+#include <sqlpp11/detail/serializable_list.h>
 
 namespace sqlpp
 {
@@ -46,18 +45,6 @@ namespace sqlpp
 				else
 					os << " DEFAULT VALUES";
 			}
-
-		template<typename Db>
-			struct dynamic_column_list
-			{
-				using type = std::vector<detail::serializable_t<Db>>;
-			};
-
-		template<>
-			struct dynamic_column_list<void>
-			{
-				using type = std::vector<noop>;
-			};
 
 		template<typename Column>
 			struct insert_column
@@ -107,8 +94,8 @@ namespace sqlpp
 				{
 					static_assert(is_assignment_t<typename std::decay<Assignment>::type>::value, "set() arguments require to be assigments");
 					static_assert(not ProhibitPredicate<typename std::decay<Assignment>::type>::value, "set() argument must not be used in insert");
-					_dynamic_columns.push_back(std::forward<typename Assignment::column_type>(assignment._lhs));
-					_dynamic_values.push_back(std::forward<typename Assignment::value_type>(assignment._rhs));
+					_dynamic_columns.emplace_back(detail::insert_column<typename Assignment::column_type>{std::forward<typename Assignment::column_type>(assignment._lhs)});
+					_dynamic_values.emplace_back(std::forward<typename Assignment::value_type>(assignment._rhs));
 				}
 
 			template<typename Db>
@@ -120,38 +107,22 @@ namespace sqlpp
 					}
 					else
 					{
+						constexpr bool first = sizeof...(Assignments) == 0;
+
 						os << " (";
 						detail::serialize_tuple(os, db, _columns, ',');
-						{
-							bool first = sizeof...(Assignments) == 0;
-							for (const auto column : _dynamic_columns)
-							{
-								if (not first)
-									os << ',';
-								column.serialize(os, db);
-								first = false;
-							}
-						}
+						_dynamic_columns.serialize(os, db, first);
 						os << ") VALUES (";
 						detail::serialize_tuple(os, db, _values, ',');
-						{
-							bool first = sizeof...(Assignments) == 0;
-							for (const auto column : _dynamic_values)
-							{
-								if (not first)
-									os << ',';
-								column.serialize(os, db);
-								first = false;
-							}
-						}
+						_dynamic_values.serialize(os, db, first);
 						os << ")";
 					}
 				}
 
 			std::tuple<detail::insert_column<typename Assignments::column_type>...> _columns;
 			std::tuple<typename Assignments::value_type...> _values;
-			typename detail::dynamic_column_list<Database>::type _dynamic_columns;
-			typename detail::dynamic_column_list<Database>::type _dynamic_values;
+			typename detail::serializable_list<Database> _dynamic_columns;
+			typename detail::serializable_list<Database> _dynamic_values;
 		};
 
 }

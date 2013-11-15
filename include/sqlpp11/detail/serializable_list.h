@@ -24,76 +24,84 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_NAMED_SERIALIZABLE_H
-#define SQLPP_NAMED_SERIALIZABLE_H
+#ifndef SQLPP_SERIALIZABLE_LIST_H
+#define SQLPP_SERIALIZABLE_LIST_H
 
-#include <ostream>
 #include <vector>
-#include <memory>
+#include <sqlpp11/detail/serializable.h>
 
 namespace sqlpp
 {
 	namespace detail
 	{
 		template<typename Db>
-			struct named_serializable_t
+			struct serializable_list
 			{
-				template<typename T, 
-					typename std::enable_if<not std::is_same<typename std::decay<T>::type, named_serializable_t<Db>>::value, int>::type = 0 // prevent accidental overload for copy constructor
-						>
-					named_serializable_t(T&& t):
-						_impl(std::make_shared<_impl_t<typename std::decay<T>::type>>(std::forward<T>(t)))
-				{}
+				std::vector<detail::serializable_t<Db>> _serializables;
 
-				named_serializable_t(const named_serializable_t&) = default;
-				named_serializable_t(named_serializable_t&&) = default;
-				named_serializable_t& operator=(const named_serializable_t&) = default;
-				named_serializable_t& operator=(named_serializable_t&&) = default;
-				~named_serializable_t() = default;
-
-				void serialize(std::ostream& os, Db& db) const
+				std::size_t size() const
 				{
-					_impl->serialize(os, db);
+					return _serializables.size();
 				}
 
-				std::string _get_name() const
+				bool empty() const
 				{
-					_impl->_get_name();
+					return _serializables.empty();
 				}
 
-			private:
-				struct _impl_base
+				template<typename Expr>
+				void emplace_back(Expr&& expr)
 				{
-					virtual void serialize(std::ostream& os, Db& db) const = 0;
-					virtual std::string _get_name() const = 0;
-				};
+					_serializables.emplace_back(std::forward<Expr>(expr));
+				}
 
-				template<typename T>
-					struct _impl_t: public _impl_base
+				void serialize(std::ostream& os, Db& db, bool first) const
 				{
-					_impl_t(const T& t):
-						_t(t)
-					{}
-
-					_impl_t(T&& t):
-						_t(std::move(t))
-					{}
-
-					void serialize(std::ostream& os, Db& db) const
+					for (const auto entry : _serializables)
 					{
-						_t.serialize(os, db);
+						if (not first)
+							os << ',';
+						entry.serialize(os, db);
+						first = false;
 					}
+				}
 
-					std::string _get_name() const
+				void serialize(std::ostream& os, Db& db, const std::string& separator, bool first) const
+				{
+					for (const auto entry : _serializables)
 					{
-						return T::_name_t::_get_name();
+						if (not first)
+							os << separator;
+						entry.serialize(os, db);
+						first = false;
 					}
+				}
 
-					T _t;
-				};
-
-				std::shared_ptr<const _impl_base> _impl;
 			};
+
+		template<>
+			struct serializable_list<void>
+			{
+				template<typename T>
+					void emplace_back(const T&) {}
+
+				constexpr std::size_t size() const
+				{
+					return 0;
+				}
+
+				constexpr bool empty() const
+				{
+					return true;
+				}
+
+				template<typename Db>
+					void serialize(std::ostream&, Db&, bool) const
+					{
+					}
+
+			};
+
 	}
 }
 
