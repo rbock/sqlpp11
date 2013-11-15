@@ -27,29 +27,13 @@
 #ifndef SQLPP_ASSIGNMENT_LIST_H
 #define SQLPP_ASSIGNMENT_LIST_H
 
-#include <vector>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/detail/set.h>
 #include <sqlpp11/detail/serialize_tuple.h>
-#include <sqlpp11/detail/serializable.h>
+#include <sqlpp11/detail/serializable_list.h>
 
 namespace sqlpp
 {
-	namespace detail
-	{
-		template<typename Db>
-			struct dynamic_assignment_list
-			{
-				using type = std::vector<detail::serializable_t<Db>>;
-			};
-
-		template<>
-			struct dynamic_assignment_list<void>
-			{
-				using type = std::vector<noop>;
-			};
-	};
-
 	template<typename Database, template<typename> class ProhibitPredicate, typename... Assignments>
 		struct assignment_list_t
 		{
@@ -75,7 +59,7 @@ namespace sqlpp
 				{
 					static_assert(is_assignment_t<typename std::decay<Assignment>::type>::value, "set() arguments require to be assigments");
 					static_assert(not ProhibitPredicate<typename std::decay<Assignment>::type::column_type>::value, "set() argument must not be updated");
-					_dynamic_assignments.push_back(std::forward<Assignment>(assignment));
+					_dynamic_assignments.emplace_back(std::forward<Assignment>(assignment));
 				}
 
 			template<typename Db>
@@ -83,18 +67,11 @@ namespace sqlpp
 				{
 					os << " SET ";
 					detail::serialize_tuple(os, db, _assignments, ',');
-					bool first = sizeof...(Assignments) == 0;
-					for (const auto& assignment : _dynamic_assignments)
-					{
-						if (not first)
-							os << ',';
-						assignment.serialize(os, db);
-						first = false;
-					}
+					_dynamic_assignments.serialize(os, db, sizeof...(Assignments) == 0);
 				}
 
-			std::tuple<Assignments...> _assignments;
-			typename detail::dynamic_assignment_list<Database>::type _dynamic_assignments;
+			std::tuple<typename std::decay<Assignments>::type...> _assignments;
+			typename detail::serializable_list<Database> _dynamic_assignments;
 		};
 
 }
