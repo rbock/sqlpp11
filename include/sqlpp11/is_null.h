@@ -73,8 +73,8 @@ namespace sqlpp
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
-					static_assert(NotInverted and Db::_supports_is_null
-							or _inverted and Db::_supports_is_not_null, "is_null() and/or is_not_null() not supported by current database");
+					static_assert((NotInverted and Db::_supports_is_null)
+							or (_inverted and Db::_supports_is_not_null), "is_null() and/or is_not_null() not supported by current database");
 					_operand.serialize(os, db);
 					os << (_inverted ? " IS NOT NULL" : " IS NULL");
 				}
