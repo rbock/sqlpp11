@@ -69,7 +69,7 @@ namespace sqlpp
 				void push_back(Expr&& expr)
 				{
 					_dynamic_expression_names.push_back(std::decay<Expr>::type::_name_t::_get_name());
-					_dynamic_expressions.push_back(std::forward<Expr>(expr));
+					_dynamic_expressions.emplace_back(std::forward<Expr>(expr));
 				}
 				void serialize(std::ostream& os, Db& db, bool first) const
 				{

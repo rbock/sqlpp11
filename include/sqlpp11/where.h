@@ -28,12 +28,11 @@
 #define SQLPP_WHERE_H
 
 #include <ostream>
-#include <vector>
 #include <sqlpp11/select_fwd.h>
 #include <sqlpp11/expression.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/detail/set.h>
-#include <sqlpp11/detail/serializable.h>
+#include <sqlpp11/detail/serializable_list.h>
 
 namespace sqlpp
 {
@@ -65,7 +64,7 @@ namespace sqlpp
 			void add(Expr&& expr)
 			{
 				static_assert(is_expression_t<typename std::decay<Expr>::type>::value, "invalid expression argument in where()");
-				_conditions.push_back(std::forward<Expr>(expr));
+				_conditions.emplace_back(std::forward<Expr>(expr));
 			}
 
 		void serialize(std::ostream& os, Db& db) const
@@ -75,16 +74,10 @@ namespace sqlpp
 
 			os << " WHERE ";
 			bool first = true;
-			for (const auto& condition : _conditions)
-			{
-				if (not first)
-					os << " AND ";
-				condition.serialize(os, db);
-				first = false;
-			}
+			_conditions.serialize(os, db, " AND ", true);
 		}
 
-		std::vector<detail::serializable_t<Db>> _conditions;
+		detail::serializable_list<Db> _conditions;
 	};
 
 }
