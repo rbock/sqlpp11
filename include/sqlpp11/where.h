@@ -47,13 +47,12 @@ namespace sqlpp
 			using _valid_expressions = typename detail::make_set_if<is_expression_t, Expr...>::type;
 			static_assert(_valid_expressions::size::value == sizeof...(Expr), "at least one argument is not an expression in where()");
 
-		template<typename E>
-			void add(E&& expr)
-			{
-				static_assert(is_expression_t<typename std::decay<E>::type>::value, "invalid expression argument in add_where()");
-				static_assert(_is_dynamic::value, "cannot add expressions to a non-dynamic where()");
-				_dynamic_expressions.emplace_back(std::forward<E>(expr));
-			}
+			template<typename E>
+				void add(E&& expr)
+				{
+					static_assert(is_expression_t<typename std::decay<E>::type>::value, "invalid expression argument in add_where()");
+					_dynamic_expressions.emplace_back(std::forward<E>(expr));
+				}
 
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
@@ -62,7 +61,7 @@ namespace sqlpp
 						return;
 					os << " WHERE ";
 					detail::serialize_tuple(os, db, _expressions, " AND ");
-					_dynamic_expressions.serialize(os, db, " AND ", true);
+					_dynamic_expressions.serialize(os, db, " AND ", sizeof...(Expr) == 0);
 				}
 
 			std::tuple<Expr...> _expressions;

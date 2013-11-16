@@ -28,21 +28,21 @@
 #define SQLPP_FROM_H
 
 #include <ostream>
-#include <vector>
 #include <sqlpp11/select_fwd.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/detail/serializable.h>
+#include <sqlpp11/detail/serializable_list.h>
 #include <sqlpp11/detail/serialize_tuple.h>
 
 namespace sqlpp
 {
-	template<typename... TableOrJoin>
+	template<typename Database, typename... TableOrJoin>
 		struct from_t
 		{
 			using _is_from = std::true_type;
+			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 
 			// ensure one argument at least
-			static_assert(sizeof...(TableOrJoin), "at least one table or join argument required in from()");
+			static_assert(_is_dynamic::value or sizeof...(TableOrJoin), "at least one table or join argument required in from()");
 
 			// check for duplicate arguments
 			static_assert(not detail::has_duplicates<TableOrJoin...>::value, "at least one duplicate argument detected in from()");
@@ -54,46 +54,26 @@ namespace sqlpp
 			// FIXME: Joins contain two tables. This is not being dealt with at the moment
 
 
+			template<typename Table>
+				void add(Table&& table)
+				{
+					static_assert(is_table_t<typename std::decay<Table>::type>::value, "from arguments require to be tables or joins");
+					_dynamic_tables.emplace_back(std::forward<Table>(table));
+				}
+
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
+					if (sizeof...(TableOrJoin) == 0 and _dynamic_tables.empty())
+						return;
 					os << " FROM ";
 					detail::serialize_tuple(os, db, _tables, ',');
+					_dynamic_tables.serialize(os, db, sizeof...(TableOrJoin) == 0);
 				}
 
 			std::tuple<TableOrJoin...> _tables;
+			detail::serializable_list<Database> _dynamic_tables;
 		};
-
-	template<typename Db>
-	struct dynamic_from_t
-	{
-		using _is_from = std::true_type;
-		using _is_dynamic = std::true_type;
-
-		template<typename Table>
-		void add(Table&& table)
-		{
-			static_assert(is_table_t<typename std::decay<Table>::type>::value, "from arguments require to be tables or joins");
-			_dynamic_tables.push_back(std::forward<Table>(table));
-		}
-
-		void serialize(std::ostream& os, Db& db) const
-		{
-			if (_dynamic_tables.empty())
-				return;
-			os << " FROM ";
-			bool first = true;
-			for (const auto& table : _dynamic_tables)
-			{
-				if (not first)
-					os << ',';
-				table.serialize(os, db);
-				first = false;
-			}
-		}
-
-		std::vector<detail::serializable_t<Db>> _dynamic_tables;
-	};
 }
 
 #endif

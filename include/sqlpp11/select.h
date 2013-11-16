@@ -196,7 +196,7 @@ namespace sqlpp
 			// sqlpp functions
 			template<typename... Table>
 				auto from(Table&&... table)
-				-> set_from_t<from_t<typename std::decay<Table>::type...>>
+				-> set_from_t<from_t<void, typename std::decay<Table>::type...>>
 				{
 					static_assert(not is_noop<ExpressionList>::value, "cannot call from() without having selected anything");
 					static_assert(is_noop<From>::value, "cannot call from() twice for a single select");
@@ -213,8 +213,9 @@ namespace sqlpp
 							};
 				}
 
-				auto dynamic_from()
-				-> set_from_t<dynamic_from_t<Database>>
+			template<typename... Table>
+				auto dynamic_from(Table&&... table)
+				-> set_from_t<from_t<Database, typename std::decay<Table>::type...>>
 				{
 					static_assert(not std::is_same<Database, void>::value, "cannot call dynamic_from() in a non-dynamic select");
 					static_assert(not is_noop<ExpressionList>::value, "cannot call from() without having selected anything");
@@ -222,7 +223,7 @@ namespace sqlpp
 					return {
 							_flags, 
 							_expression_list, 
-							{{}}, 
+							{std::tuple<typename std::decay<Table>::type...>{std::forward<Table>(table)...}}, 
 							_where, 
 							_group_by, 
 							_having, 
@@ -293,7 +294,7 @@ namespace sqlpp
 
 			template<typename... Col>
 				auto group_by(Col&&... column)
-				-> set_group_by_t<group_by_t<typename std::decay<Col>::type...>>
+				-> set_group_by_t<group_by_t<void, typename std::decay<Col>::type...>>
 				{
 					static_assert(not is_noop<From>::value, "cannot call group_by() without a from()");
 					static_assert(is_noop<GroupBy>::value, "cannot call group_by() twice for a single select");
@@ -310,8 +311,9 @@ namespace sqlpp
 							};
 				}
 
-				auto group_by()
-				-> set_group_by_t<group_by_t<Database>>
+			template<typename... Col>
+				auto dynamic_group_by(Col&&... column)
+				-> set_group_by_t<group_by_t<Database, typename std::decay<Col>::type...>>
 				{
 					static_assert(not is_noop<From>::value, "cannot call group_by() without a from()");
 					static_assert(is_noop<GroupBy>::value, "cannot call group_by() twice for a single select");
@@ -320,7 +322,7 @@ namespace sqlpp
 							_expression_list,
 							_from,
 							_where,
-							{{}},
+							{std::tuple<typename std::decay<Col>::type...>{std::forward<Col>(column)...}},
 							_having,
 							_order_by,
 							_limit,
@@ -338,9 +340,9 @@ namespace sqlpp
 					return *this;
 				}
 
-			template<typename Expr>
-				auto having(Expr&& expr)
-				-> set_having_t<having_t<typename std::decay<Expr>::type>> 
+			template<typename... Expr>
+				auto having(Expr&&... expr)
+				-> set_having_t<having_t<void, typename std::decay<Expr>::type...>> 
 				{
 					static_assert(not is_noop<GroupBy>::value, "cannot call having() without a group_by");
 					static_assert(is_noop<Having>::value, "cannot call having() twice for a single select");
@@ -350,15 +352,16 @@ namespace sqlpp
 							_from,
 							_where,
 							_group_by,
-							{std::forward<Expr>(expr)},
+							{std::tuple<typename std::decay<Expr>::type...>{std::forward<Expr>(expr)...}},
 							_order_by,
 							_limit,
 							_offset,
 							};
 				}
 
-			auto dynamic_having()
-				-> set_having_t<dynamic_having_t<Database>>
+			template<typename... Expr>
+				auto dynamic_having(Expr&&... expr)
+				-> set_having_t<having_t<Database, typename std::decay<Expr>::type...>> 
 				{
 					static_assert(not is_noop<GroupBy>::value, "cannot call having() without a group_by");
 					static_assert(is_noop<Having>::value, "cannot call having() twice for a single select");
@@ -368,7 +371,7 @@ namespace sqlpp
 							_from,
 							_where,
 							_group_by,
-							{{}},
+							{std::tuple<typename std::decay<Expr>::type...>{std::forward<Expr>(expr)...}},
 							_order_by,
 							_limit,
 							_offset,
@@ -387,7 +390,7 @@ namespace sqlpp
 
 			template<typename... OrderExpr>
 				auto order_by(OrderExpr&&... expr)
-				-> set_order_by_t<order_by_t<typename std::decay<OrderExpr>::type...>>
+				-> set_order_by_t<order_by_t<void, typename std::decay<OrderExpr>::type...>>
 				{
 					static_assert(not is_noop<From>::value, "cannot call order_by() without a from()");
 					static_assert(is_noop<OrderBy>::value, "cannot call order_by() twice for a single select");
@@ -404,8 +407,9 @@ namespace sqlpp
 							};
 				}
 
-			auto dynamic_order_by()
-				-> set_order_by_t<dynamic_order_by_t<Database>>
+			template<typename... OrderExpr>
+				auto dynamic_order_by(OrderExpr&&... expr)
+				-> set_order_by_t<order_by_t<Database, typename std::decay<OrderExpr>::type...>>
 				{
 					static_assert(not is_noop<From>::value, "cannot call order_by() without a from()");
 					static_assert(is_noop<OrderBy>::value, "cannot call order_by() twice for a single select");
@@ -416,7 +420,7 @@ namespace sqlpp
 							_where,
 							_group_by,
 							_having,
-							{{}},
+							{std::tuple<typename std::decay<OrderExpr>::type...>{std::forward<OrderExpr>(expr)...}},
 							_limit,
 							_offset,
 							};

@@ -36,62 +36,43 @@
 
 namespace sqlpp
 {
-	template<typename... OrderExpr>
+	template<typename Database,typename... Expr>
 		struct order_by_t
 		{
+			using _is_order_by = std::true_type;
+			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
+
 			// check for at least one order expression
-			static_assert(sizeof...(OrderExpr), "at least one sort-order expression required in order_by()");
+			static_assert(_is_dynamic::value or sizeof...(Expr), "at least one sort-order expression required in order_by()");
 
 			// check for duplicate order expressions
-			static_assert(not detail::has_duplicates<OrderExpr...>::value, "at least one duplicate argument detected in order_by()");
+			static_assert(not detail::has_duplicates<Expr...>::value, "at least one duplicate argument detected in order_by()");
 
 			// check for invalid order expressions
-			using _valid_expressions = typename detail::make_set_if<is_sort_order_t, OrderExpr...>::type;
-			static_assert(_valid_expressions::size::value == sizeof...(OrderExpr), "at least one argument is not a sort order expression in order_by()");
+			using _valid_expressions = typename detail::make_set_if<is_sort_order_t, Expr...>::type;
+			static_assert(_valid_expressions::size::value == sizeof...(Expr), "at least one argument is not a sort order expression in order_by()");
 
-			using _is_order_by = std::true_type;
+			template<typename E>
+				void add(E&& expr)
+				{
+					static_assert(is_sort_order_t<typename std::decay<E>::type>::value, "order_by arguments require to be sort-order expressions");
+					_dynamic_expressions.push_back(std::forward<E>(expr));
+				}
 
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
 					static_assert(Db::_supports_order_by, "order by not supported by current database");
+					if (sizeof...(Expr) == 0 and _dynamic_expressions.empty())
+						return;
+
 					os << " ORDER BY ";
-					detail::serialize_tuple(os, db, _orderExpressions, ',');
+					detail::serialize_tuple(os, db, _expressions, ',');
+					_dynamic_expressions.serialize(os, db, sizeof...(Expr) == 0);
 				}
 
-			std::tuple<OrderExpr...> _orderExpressions;
-		};
-
-	template<typename Db>
-		struct dynamic_order_by_t
-		{
-			using _is_order_by = std::true_type;
-			using _is_dynamic = std::true_type;
-
-			template<typename Expr>
-				void add(Expr&& expr)
-				{
-					static_assert(is_sort_order_t<typename std::decay<Expr>::type>::value, "order_by arguments require to be sort-order expressions");
-					_expressions.push_back(std::forward<Expr>(expr));
-				}
-
-			void serialize(std::ostream& os, Db& db) const
-			{
-				static_assert(Db::_supports_order_by, "order by not supported by current database");
-				if (_expressions.empty())
-					return;
-				os << " ORDER BY ";
-				bool first = true;
-				for (const auto& expr : _expressions)
-				{
-					if (not first)
-						os << ',';
-					expr.serialize(os, db);
-					first = false;
-				}
-			}
-
-			std::vector<detail::serializable_t<Db>> _expressions;
+			std::tuple<Expr...> _expressions;
+			detail::serializable_list<Database> _dynamic_expressions;
 		};
 
 }

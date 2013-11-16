@@ -62,7 +62,7 @@ namespace sqlpp
 
 			template<typename... Tab>
 				auto using_(Tab&&... tab)
-				-> set_using_t<using_t<typename std::decay<Tab>::type...>>
+				-> set_using_t<using_t<void, typename std::decay<Tab>::type...>>
 				{
 					static_assert(std::is_same<Using, noop>::value, "cannot call using() twice");
 					static_assert(std::is_same<Where, noop>::value, "cannot call using() after where()");
@@ -73,14 +73,15 @@ namespace sqlpp
 					};
 				}
 
-			auto dynamic_using_()
-				-> set_using_t<dynamic_using_t<Database>>
+			template<typename... Tab>
+				auto dynamic_using_(Tab&&... tab)
+				-> set_using_t<using_t<Database, typename std::decay<Tab>::type...>>
 				{
 					static_assert(std::is_same<Using, noop>::value, "cannot call using() twice");
 					static_assert(std::is_same<Where, noop>::value, "cannot call using() after where()");
 					return {
 						_table,
-							{{}},
+							{std::tuple<typename std::decay<Tab>::type...>{std::forward<Tab>(tab)...}},
 							_where
 					};
 				}

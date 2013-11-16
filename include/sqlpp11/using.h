@@ -30,17 +30,18 @@
 #include <ostream>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/detail/set.h>
+#include <sqlpp11/detail/serializable_list.h>
 #include <sqlpp11/detail/serialize_tuple.h>
-#include <sqlpp11/detail/serializable.h>
 
 namespace sqlpp
 {
-	template<typename... Table>
+	template<typename Database, typename... Table>
 		struct using_t
 		{
 			using _is_using = std::true_type;
+			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 
-			static_assert(sizeof...(Table), "at least one table argument required in using()");
+			static_assert(_is_dynamic::value or sizeof...(Table), "at least one table argument required in using()");
 
 			// check for duplicate arguments
 			static_assert(not detail::has_duplicates<Table...>::value, "at least one duplicate argument detected in using()");
@@ -50,46 +51,27 @@ namespace sqlpp
 			static_assert(_valid_expressions::size::value == sizeof...(Table), "at least one argument is not an table in using()");
 
 
+			template<typename T>
+				void add(T&& table)
+				{
+					static_assert(is_table_t<typename std::decay<T>::type>::value, "using() arguments require to be tables");
+					_dynamic_tables.emplace_back(std::forward<T>(table));
+				}
+
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
+					if (sizeof...(Table) == 0 and _dynamic_tables.empty())
+						return;
 					os << " USING ";
 					detail::serialize_tuple(os, db, _tables, ',');
+					_dynamic_tables.serialize(os, db, sizeof...(Table) == 0);
 				}
 
 			std::tuple<Table...> _tables;
+			detail::serializable_list<Database> _dynamic_tables;
 		};
 
-	template<typename Db>
-	struct dynamic_using_t
-	{
-		using _is_using = std::true_type;
-		using _is_dynamic = std::true_type;
-
-		template<typename Table>
-		void add(Table&& table)
-		{
-			static_assert(is_table_t<typename std::decay<Table>::type>::value, "using arguments require to be tables");
-			_dynamic_tables.push_back(std::forward<Table>(table));
-		}
-
-		void serialize(std::ostream& os, Db& db) const
-		{
-			if (_dynamic_tables.empty())
-				return;
-			os << " USING ";
-			bool first = true;
-			for (const auto& table : _dynamic_tables)
-			{
-				if (not first)
-					os << ',';
-				table.serialize(os, db);
-				first = false;
-			}
-		}
-
-		std::vector<detail::serializable_t<Db>> _dynamic_tables;
-	};
 }
 
 #endif
