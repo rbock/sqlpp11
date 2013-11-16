@@ -42,7 +42,7 @@ namespace sqlpp
 
 	template<typename... TableOrJoin>	struct from_t;
 
-	template<typename Expr>	struct where_t;
+	template<typename Database, typename... Expr>	struct where_t;
 
 	template<typename... Expr> struct group_by_t;
 

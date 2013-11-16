@@ -146,6 +146,7 @@ namespace sqlpp
 				void add(Expr&& namedExpr)
 				{
 					static_assert(is_named_expression_t<typename std::decay<Expr>::type>::value, "select() arguments require to be named expressions");
+					static_assert(_is_dynamic::value, "cannot add columns to a non-dynamic column list");
 					_dynamic_expressions.push_back(std::forward<Expr>(namedExpr));
 				}
 

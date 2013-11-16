@@ -94,26 +94,27 @@ namespace sqlpp
 					return *this;
 				}
 
-			template<typename Expr>
-				auto where(Expr&& where)
-				-> set_where_t<where_t<typename std::decay<Expr>::type>>
+			template<typename... Expr>
+				auto where(Expr&&... expr)
+				-> set_where_t<where_t<void, typename std::decay<Expr>::type...>>
 				{
 					static_assert(std::is_same<Where, noop>::value, "cannot call where() twice");
 					return {
 							_table,
 							_using,
-							{std::forward<Expr>(where)},
+							{std::tuple<typename std::decay<Expr>::type...>{std::forward<Expr>(expr)...}},
 					};
 				}
 
-			auto dynamic_where()
-				-> set_where_t<dynamic_where_t<Database>>
+			template<typename... Expr>
+			auto dynamic_where(Expr&&... expr)
+				-> set_where_t<where_t<Database, typename std::decay<Expr>::type...>>
 				{
 					static_assert(std::is_same<Where, noop>::value, "cannot call where() twice");
 					return {
 						_table, 
 							_using, 
-							{{}}, 
+							{std::tuple<typename std::decay<Expr>::type...>{std::forward<Expr>(expr)...}},
 					};
 				}
 

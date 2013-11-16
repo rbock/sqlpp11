@@ -49,7 +49,7 @@ namespace sqlpp
 
 			// check for invalid arguments
 			using _valid_expressions = typename detail::make_set_if<is_table_t, TableOrJoin...>::type;
-			static_assert(_valid_expressions::size::value == sizeof...(TableOrJoin), "at least one argument is not an table or join in from()");
+			static_assert(_valid_expressions::size::value == sizeof...(TableOrJoin), "at least one argument is not a table or join in from()");
 
 			// FIXME: Joins contain two tables. This is not being dealt with at the moment
 

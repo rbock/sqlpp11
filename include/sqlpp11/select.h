@@ -243,9 +243,9 @@ namespace sqlpp
 					return *this;
 				}
 
-			template<typename Expr>
-				auto where(Expr&& expr)
-				-> set_where_t<where_t<typename std::decay<Expr>::type>> 
+			template<typename... Expr>
+				auto where(Expr&&... expr)
+				-> set_where_t<where_t<void, typename std::decay<Expr>::type...>> 
 				{
 					static_assert(not is_noop<From>::value, "cannot call where() without a from()");
 					static_assert(is_noop<Where>::value, "cannot call where() or dynamic_where() twice for a single select");
@@ -253,7 +253,7 @@ namespace sqlpp
 							_flags, 
 							_expression_list, 
 							_from, 
-							{std::forward<Expr>(expr)}, 
+							{std::tuple<typename std::decay<Expr>::type...>{std::forward<Expr>(expr)...}},
 							_group_by,
 							_having,
 							_order_by,
@@ -262,8 +262,9 @@ namespace sqlpp
 							};
 				}
 
-				auto dynamic_where()
-				-> set_where_t<dynamic_where_t<Database>>
+			template<typename... Expr>
+				auto dynamic_where(Expr&&... expr)
+				-> set_where_t<where_t<Database, typename std::decay<Expr>::type...>>
 				{
 					static_assert(not is_noop<From>::value, "cannot call dynamic_where() without a from()");
 					static_assert(is_noop<Where>::value, "cannot call where() or dynamic_where() twice for a single select");
@@ -271,7 +272,7 @@ namespace sqlpp
 							_flags, 
 							_expression_list, 
 							_from, 
-							{{}}, 
+							{std::tuple<typename std::decay<Expr>::type...>{std::forward<Expr>(expr)...}},
 							_group_by,
 							_having,
 							_order_by,
@@ -283,7 +284,7 @@ namespace sqlpp
 			template<typename Expr>
 				select_t& add_where(Expr&& expr)
 				{
-					static_assert(is_dynamic_t<Where>::value, "cannot call add_where() in a non-dynamic where");
+					static_assert(is_dynamic_t<Where>::value, "cannot call add_where() with a non-dynamic where");
 
 					_where.add(std::forward<Expr>(expr));
 

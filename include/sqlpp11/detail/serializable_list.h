@@ -66,7 +66,8 @@ namespace sqlpp
 					}
 				}
 
-				void serialize(std::ostream& os, Db& db, const std::string& separator, bool first) const
+				template<typename Separator>
+				void serialize(std::ostream& os, Db& db, const Separator& separator, bool first) const
 				{
 					for (const auto entry : _serializables)
 					{
@@ -99,6 +100,11 @@ namespace sqlpp
 					void serialize(std::ostream&, Db&, bool) const
 					{
 					}
+
+				template<typename Db, typename Separator>
+				void serialize(std::ostream& os, Db& db, const Separator& separator, bool first) const
+				{
+				}
 
 			};
 
