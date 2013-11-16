@@ -364,5 +364,23 @@ int main()
 		static_assert(sqlpp::is_text_t<TT>::value, "type requirement");
 	}
 
+	// test verbatim_table
+	{
+		using T = decltype(sqlpp::verbatim_table("cheesecake"));
+		static_assert(not sqlpp::is_named_expression_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_table_t<T>::value, "type requirement");
+	}
+
+	// test verbatim_table alias
+	{
+		SQLPP_ALIAS_PROVIDER_GENERATOR(kaesekuchen);
+		using T = decltype(sqlpp::verbatim_table("cheesecake").as(kaesekuchen));
+		static_assert(not sqlpp::is_named_expression_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_table_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_alias_t<T>::value, "type requirement");
+	}
+
 	return 0;
 }

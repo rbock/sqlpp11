@@ -24,36 +24,58 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_IS_REGULAR_H
-#define SQLPP_IS_REGULAR_H
+#ifndef SQLPP_VERBATIM_TABLE_H
+#define SQLPP_VERBATIM_TABLE_H
 
-#include <type_traits>
+#include <sqlpp11/no_value.h>
 
 namespace sqlpp
 {
-	template<typename T>
-		struct is_regular
+	namespace detail
+	{
+		struct unusable_pseudo_column_t
 		{
-#if defined __clang__
-  #if __has_feature(cxx_thread_local)
-    #define SQLPP_TEST_NO_THROW_MOVE_CONSTRUCTIBLE // clang 3.2 has a problem with nothrow_constructibility (it also does not have thread_local support)
-  #endif
-#else
-  #define SQLPP_TEST_NO_THROW_MOVE_CONSTRUCTIBLE
-#endif
-
-			static constexpr bool value = true
-#if defined SQLPP_TEST_NO_THROW_MOVE_CONSTRUCTIBLE
-				and std::is_nothrow_move_constructible<T>::value
-#endif
-				and std::is_move_assignable<T>::value // containers and strings are not noexcept_assignable
-				and std::is_copy_constructible<T>::value
-				and std::is_copy_assignable<T>::value
-				// default constructor makes no sense
-				// (not) equals would be possible
-				// not sure about less
-				;
+			struct _name_t
+			{
+				template<typename T>
+					struct _member_t
+					{
+					};
+			};
+			using _value_type = no_value_t;
+			struct _column_type {};
 		};
+	}
+
+	struct verbatim_table_t: public sqlpp::table_base_t<verbatim_table_t, detail::unusable_pseudo_column_t>
+	{
+		using _value_type = no_value_t;
+
+		verbatim_table_t(std::string name):
+			_name(name)
+		{
+		}
+
+		verbatim_table_t(const verbatim_table_t& rhs) = default;
+		verbatim_table_t(verbatim_table_t&& rhs) = default;
+		verbatim_table_t& operator=(const verbatim_table_t& rhs) = default;
+		verbatim_table_t& operator=(verbatim_table_t&& rhs) = default;
+		~verbatim_table_t() = default;
+
+		template<typename Db>
+			void serialize(std::ostream& os, Db& db) const
+			{
+				os << _name;
+			}
+
+		std::string _name;
+	};
+
+	verbatim_table_t verbatim_table(std::string name)
+	{
+		return { name };
+	}
+
 }
 
 #endif
