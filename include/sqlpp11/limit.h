@@ -52,16 +52,6 @@ namespace sqlpp
 		using _is_limit = std::true_type;
 		using _is_dynamic = std::true_type;
 
-		dynamic_limit_t():
-			_limit(0)
-		{}
-
-		dynamic_limit_t(const dynamic_limit_t&) = default;
-		dynamic_limit_t(dynamic_limit_t&&) = default;
-		dynamic_limit_t& operator=(const dynamic_limit_t&) = default;
-		dynamic_limit_t& operator=(dynamic_limit_t&&) = default;
-		~dynamic_limit_t() = default;
-
 		void set(std::size_t limit)
 		{
 			_limit = limit;
@@ -75,7 +65,7 @@ namespace sqlpp
 					os << " LIMIT " << _limit;
 			}
 
-		std::size_t _limit = 0;
+		std::size_t _limit;
 	};
 }
 

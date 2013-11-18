@@ -51,15 +51,6 @@ namespace sqlpp
 		using _is_offset = std::true_type;
 		using _is_dynamic = std::true_type;
 
-		dynamic_offset_t():
-			_offset(0)
-		{}
-		dynamic_offset_t(const dynamic_offset_t&) = default;
-		dynamic_offset_t(dynamic_offset_t&&) = default;
-		dynamic_offset_t& operator=(const dynamic_offset_t&) = default;
-		dynamic_offset_t& operator=(dynamic_offset_t&&) = default;
-		~dynamic_offset_t() = default;
-
 		void set(std::size_t offset)
 		{
 			_offset = offset;
@@ -72,7 +63,7 @@ namespace sqlpp
 					os << " OFFSET " << _offset;
 			}
 
-		std::size_t _offset = 0;
+		std::size_t _offset;
 	};
 
 }

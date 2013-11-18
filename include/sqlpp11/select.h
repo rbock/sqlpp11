@@ -454,7 +454,7 @@ namespace sqlpp
 				};
 			}
 
-			auto dynamic_limit()
+			auto dynamic_limit(std::size_t limit = 0)
 				->set_limit_t<dynamic_limit_t>
 			{
 				static_assert(not is_noop<From>::value, "cannot call limit() without a from()");
@@ -467,7 +467,7 @@ namespace sqlpp
 						_group_by,
 						_having,
 						_order_by,
-						{},
+						{limit},
 						_offset,
 				};
 			}
@@ -499,7 +499,7 @@ namespace sqlpp
 				};
 			}
 
-			auto dynamic_offset()
+			auto dynamic_offset(std::size_t offset = 0)
 				-> set_offset_t<dynamic_offset_t>
 			{
 				static_assert(not is_noop<Limit>::value, "cannot call offset() without a limit");
@@ -513,7 +513,7 @@ namespace sqlpp
 						_having,
 						_order_by,
 						_limit,
-						{},
+						{offset},
 				};
 			}
 
