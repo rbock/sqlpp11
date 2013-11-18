@@ -28,22 +28,24 @@
 #define SQLPP_GROUP_BY_H
 
 #include <ostream>
-#include <vector>
 #include <tuple>
 #include <sqlpp11/select_fwd.h>
 #include <sqlpp11/expression.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/detail/set.h>
 #include <sqlpp11/detail/serialize_tuple.h>
-#include <sqlpp11/detail/serializable.h>
+#include <sqlpp11/detail/serializable_list.h>
 
 namespace sqlpp
 {
-	template<typename... Expr>
+	template<typename Database, typename... Expr>
 		struct group_by_t
 		{
+			using _is_group_by = std::true_type;
+			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
+
 			// ensure one argument at least
-			static_assert(sizeof...(Expr), "at least one expression (e.g. a column) required in group_by()");
+			static_assert(_is_dynamic::value or sizeof...(Expr), "at least one expression (e.g. a column) required in group_by()");
 
 			// check for duplicate expressions
 			static_assert(not detail::has_duplicates<Expr...>::value, "at least one duplicate argument detected in group_by()");
@@ -52,50 +54,28 @@ namespace sqlpp
 			using _valid_expressions = typename detail::make_set_if<is_expression_t, Expr...>::type;
 			static_assert(_valid_expressions::size::value == sizeof...(Expr), "at least one argument is not an expression in group_by()");
 
-			using _is_group_by = std::true_type;
+			template<typename E>
+				void add(E&& expr)
+				{
+					static_assert(is_table_t<typename std::decay<E>::type>::value, "from arguments require to be tables or joins");
+					_dynamic_expressions.emplace_back(std::forward<E>(expr));
+				}
 
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
 					static_assert(Db::_supports_group_by, "group_by() not supported by current database");
+					if (sizeof...(Expr) == 0 and _dynamic_expressions.empty())
+						return;
+
 					os << " GROUP BY ";
 					detail::serialize_tuple(os, db, _expressions, ',');
+					_dynamic_expressions.serialize(os, db, sizeof...(Expr) == 0);
 				}
 
 			std::tuple<Expr...> _expressions;
+			detail::serializable_list<Database> _dynamic_expressions;
 
-		};
-
-	template<typename Db>
-		struct dynamic_group_by_t
-		{
-			using _is_group_by = std::true_type;
-			using _is_dynamic = std::true_type;
-
-			template<typename Expr>
-				void add(Expr&& expr)
-				{
-					static_assert(is_expression_t<typename std::decay<Expr>::type>::value, "group_by arguments require to be expressions");
-					_expressions.push_back(std::forward<Expr>(expr));
-				}
-
-			void serialize(std::ostream& os, Db& db) const
-			{
-				static_assert(Db::_supports_group_by, "group_by() not supported by current database");
-				if (_expressions.empty())
-					return;
-				os << " GROUP BY ";
-				bool first = true;
-				for (const auto& expr : _expressions)
-				{
-					if (not first)
-						os << ',';
-					expr.serialize(os, db);
-					first = false;
-				}
-			}
-
-			std::vector<detail::serializable_t<Db>> _expressions;
 		};
 
 }

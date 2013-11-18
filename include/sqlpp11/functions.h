@@ -38,6 +38,7 @@
 #include <sqlpp11/max.h>
 #include <sqlpp11/avg.h>
 #include <sqlpp11/sum.h>
+#include <sqlpp11/verbatim_table.h>
 
 namespace sqlpp
 {

@@ -88,10 +88,15 @@ namespace sqlpp
 		template<typename OnT> 
 			using set_on_t = join_t<JoinType, Lhs, Rhs, OnT>;
 
-		template<typename Expr>
-			set_on_t<on_t<typename std::decay<Expr>::type>> on(Expr&& expr)
+		template<typename... Expr>
+			auto on(Expr&&... expr)
+			-> set_on_t<on_t<void, typename std::decay<Expr>::type...>>
 			{
-				return { _lhs, _rhs, {std::forward<Expr>(expr)} };
+				static_assert(is_noop<On>::value, "cannot call on() twice for a single join()");
+				return { _lhs, 
+					_rhs, 
+					{std::tuple<typename std::decay<Expr>::type...>{std::forward<Expr>(expr)...}}
+			 	};
 			}
 
 		template<typename T>

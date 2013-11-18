@@ -34,8 +34,18 @@ namespace sqlpp
 	template<typename T>
 		struct is_regular
 		{
+#if defined __clang__
+  #if __has_feature(cxx_thread_local)
+    #define SQLPP_TEST_NO_THROW_MOVE_CONSTRUCTIBLE // clang 3.2 has a problem with nothrow_constructibility (it also does not have thread_local support)
+  #endif
+#else
+  #define SQLPP_TEST_NO_THROW_MOVE_CONSTRUCTIBLE
+#endif
+
 			static constexpr bool value = true
+#if defined SQLPP_TEST_NO_THROW_MOVE_CONSTRUCTIBLE
 				and std::is_nothrow_move_constructible<T>::value
+#endif
 				and std::is_move_assignable<T>::value // containers and strings are not noexcept_assignable
 				and std::is_copy_constructible<T>::value
 				and std::is_copy_assignable<T>::value

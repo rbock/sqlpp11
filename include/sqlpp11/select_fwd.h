@@ -40,15 +40,15 @@ namespace sqlpp
 	template<typename FlagTuple> struct select_flag_list_t;
 	template<typename Database, typename NamedExprTuple> struct select_expression_list_t;
 
-	template<typename... TableOrJoin>	struct from_t;
+	template<typename Database, typename... TableOrJoin>	struct from_t;
 
-	template<typename Expr>	struct where_t;
+	template<typename Database, typename... Expr>	struct where_t;
 
-	template<typename... Expr> struct group_by_t;
+	template<typename Database, typename... Expr> struct group_by_t;
 
-	template<typename Expr> struct having_t;
+	template<typename Database, typename... Expr> struct having_t;
 
-	template<typename... Expr> struct order_by_t;
+	template<typename Database, typename... Expr> struct order_by_t;
 
 	struct limit_t;
 

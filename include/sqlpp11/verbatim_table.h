@@ -24,47 +24,57 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_OFFSET_H
-#define SQLPP_OFFSET_H
+#ifndef SQLPP_VERBATIM_TABLE_H
+#define SQLPP_VERBATIM_TABLE_H
 
-#include <ostream>
-#include <sqlpp11/select_fwd.h>
-#include <sqlpp11/type_traits.h>
+#include <sqlpp11/no_value.h>
 
 namespace sqlpp
 {
-	struct offset_t
+	namespace detail
 	{
-		using _is_offset = std::true_type;
-
-		template<typename Db>
-			void serialize(std::ostream& os, Db& db) const
-			{
-				os << " OFFSET " << _offset;
-			}
-
-		const std::size_t _offset;
-	};
-
-	struct dynamic_offset_t
-	{
-		using _is_offset = std::true_type;
-		using _is_dynamic = std::true_type;
-
-		void set(std::size_t offset)
+		struct unusable_pseudo_column_t
 		{
-			_offset = offset;
+			struct _name_t
+			{
+				template<typename T>
+					struct _member_t
+					{
+					};
+			};
+			using _value_type = no_value_t;
+			struct _column_type {};
+		};
+	}
+
+	struct verbatim_table_t: public sqlpp::table_base_t<verbatim_table_t, detail::unusable_pseudo_column_t>
+	{
+		using _value_type = no_value_t;
+
+		verbatim_table_t(std::string name):
+			_name(name)
+		{
 		}
 
+		verbatim_table_t(const verbatim_table_t& rhs) = default;
+		verbatim_table_t(verbatim_table_t&& rhs) = default;
+		verbatim_table_t& operator=(const verbatim_table_t& rhs) = default;
+		verbatim_table_t& operator=(verbatim_table_t&& rhs) = default;
+		~verbatim_table_t() = default;
+
 		template<typename Db>
 			void serialize(std::ostream& os, Db& db) const
 			{
-				if (_offset > 0)
-					os << " OFFSET " << _offset;
+				os << _name;
 			}
 
-		std::size_t _offset;
+		std::string _name;
 	};
+
+	verbatim_table_t verbatim_table(std::string name)
+	{
+		return { name };
+	}
 
 }
 

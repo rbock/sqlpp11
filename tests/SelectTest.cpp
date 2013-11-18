@@ -318,7 +318,13 @@ int main()
 	// Test that select can be called with zero columns if it is used with dynamic columns.
 	{
 		auto s = dynamic_select(db).dynamic_columns().add_column(t.alpha);
-		s.serialize(std::cerr, db);
+		s.serialize(std::cerr, db); std::cerr << "\n";
+	}
+
+	// Test that verbatim_table compiles
+	{
+		auto s = select(t.alpha).from(sqlpp::verbatim_table("my_unknown_table"));
+		s.serialize(std::cerr, db); std::cerr << "\n";
 	}
 
 

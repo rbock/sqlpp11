@@ -28,65 +28,46 @@
 #define SQLPP_HAVING_H
 
 #include <ostream>
-#include <vector>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/expression.h>
 #include <sqlpp11/detail/set.h>
-#include <sqlpp11/detail/serializable.h>
+#include <sqlpp11/detail/serialize_tuple.h>
+#include <sqlpp11/detail/serializable_list.h>
 
 namespace sqlpp
 {
-	template<typename Expr>
+	template<typename Database, typename... Expr>
 		struct having_t
 		{
-			static_assert(is_expression_t<Expr>::value, "invalid expression argument in having()");
-
 			using _is_having = std::true_type;
+			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
+
+			static_assert(_is_dynamic::value or sizeof...(Expr), "at least one expression argument required in having()");
+			using _valid_expressions = typename detail::make_set_if<is_expression_t, Expr...>::type;
+			static_assert(_valid_expressions::size::value == sizeof...(Expr), "at least one argument is not an expression in having()");
+
+			template<typename E>
+				void add(E&& expr)
+				{
+					static_assert(is_expression_t<typename std::decay<E>::type>::value, "invalid expression argument in add_having()");
+					_dynamic_expressions.emplace_back(std::forward<E>(expr));
+				}
 
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
 					static_assert(Db::_supports_having, "having() not supported by current database");
+
+					if (sizeof...(Expr) == 0 and _dynamic_expressions.empty())
+						return;
 					os << " HAVING ";
-					_expr.serialize(os, db);
+					detail::serialize_tuple(os, db, _expressions, " AND ");
+					_dynamic_expressions.serialize(os, db, " AND ", sizeof...(Expr) == 0);
 				}
 
-			Expr _expr;
+			std::tuple<Expr...> _expressions;
+			detail::serializable_list<Database> _dynamic_expressions;
 		};
-
-	template<typename Db>
-	struct dynamic_having_t
-	{
-
-		using _is_having = std::true_type;
-		using _is_dynamic = std::true_type;
-
-		template<typename Expr>
-			void add(Expr&& expr)
-			{
-				static_assert(is_expression_t<typename std::decay<Expr>::type>::value, "invalid expression argument in having()");
-				_conditions.push_back(std::forward<Expr>(expr));
-			}
-
-		void serialize(std::ostream& os, Db& db) const
-		{
-			static_assert(Db::_supports_having, "having() not supported by current database");
-			if (_conditions.empty())
-				return;
-
-			os << " HAVING ";
-			bool first = true;
-			for (const auto& condition : _conditions)
-			{
-				if (not first)
-					os << " AND ";
-				condition.serialize(os, db);
-				first = false;
-			}
-		}
-
-		std::vector<detail::serializable_t<Db>> _conditions;
-	};
 
 }
 
