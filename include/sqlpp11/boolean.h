@@ -63,6 +63,7 @@ namespace sqlpp
 			using _is_boolean = std::true_type;
 			using _is_value = std::true_type;
 			using _is_expression = std::true_type;
+			using _cpp_value_type = bool;
 
 			struct plus_
 			{

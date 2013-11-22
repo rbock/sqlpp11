@@ -37,6 +37,8 @@ namespace sqlpp
 	struct parameter_t
 	{
 		using _is_parameter = std::true_type;
+		using _value_type = ValueType;
+		using _is_expression_t = std::true_type;
 
 		template<typename Db>
 			void serialize(std::ostream& os, Db& db) const
@@ -45,8 +47,15 @@ namespace sqlpp
 				os << " ? ";
 			}
 
-		using _member_t = NameType::_name_t::_member_t<ValueType::_cpp_value_type>;
+		using _member_t = typename NameType::_name_t::template _member_t<typename ValueType::_cpp_value_type>;
 	};
+
+	template<typename NamedExpr>
+		auto parameter(NamedExpr&& namedExpr)
+		-> parameter_t<typename std::decay<NamedExpr>::type::_value_type, typename std::decay<NamedExpr>::type>
+		{
+			return {};
+		}
 }
 
 #endif

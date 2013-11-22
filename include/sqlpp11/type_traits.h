@@ -116,6 +116,7 @@ namespace sqlpp
 	SQLPP_TYPE_TRAIT_GENERATOR(is_insert_list);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_sort_order);
 	SQLPP_TYPE_TRAIT_GENERATOR(requires_braces);
+	SQLPP_TYPE_TRAIT_GENERATOR(is_parameter);
 
 	SQLPP_CONNECTOR_TRAIT_GENERATOR(has_empty_list_insert);
 

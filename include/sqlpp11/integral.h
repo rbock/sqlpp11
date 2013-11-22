@@ -46,6 +46,7 @@ namespace sqlpp
 			using _is_integral = std::true_type;
 			using _is_value = std::true_type;
 			using _is_expression = std::true_type;
+			using _cpp_value_type = int64_t;
 			
 			template<size_t index>
 			struct _result_entry_t

@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_PARAMETER_H
-#define SQLPP_PARAMETER_H
+#ifndef SQLPP_PARAMETER_LIST_H
+#define SQLPP_PARAMETER_LIST_H
 
 #include <tuple>
 
@@ -55,6 +55,35 @@ namespace sqlpp
 
 		std::tuple<const typename Parameter::type&...> _parameter_tuple;
 	};
+
+	namespace detail
+	{
+		template<typename Exp, typename Enable = void>
+			struct get_parameter_tuple
+			{
+				using type = std::tuple<>;
+			};
+
+		template<typename Exp>
+			struct get_parameter_tuple<Exp, typename std::enable_if<is_parameter_t<Exp>::value, void>::type>
+			{
+				using type = std::tuple<Exp>;
+			};
+
+		template<typename... Param>
+			struct get_parameter_tuple<std::tuple<Param...>, void>
+			{
+				// cat together parameter tuples
+				using type = decltype(std::tuple_cat(std::declval<typename get_parameter_tuple<Param>::type>()...));
+			};
+
+		template<typename Exp>
+			struct get_parameter_tuple<Exp, typename std::enable_if<not std::is_same<typename Exp::_parameters, void>::value, void>::type>
+			{
+				using type = typename get_parameter_tuple<typename Exp::_parameters>::type;
+			};
+
+	}
 
 }
 

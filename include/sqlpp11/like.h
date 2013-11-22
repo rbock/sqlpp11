@@ -41,6 +41,7 @@ namespace sqlpp
 		{
 			static_assert(is_text_t<Operand>::value, "Operand for like() has to be a text");
 			static_assert(is_text_t<Pattern>::value, "Pattern for like() has to be a text");
+			using _parameters = std::tuple<ValueType, Pattern>;
 
 			struct _value_type: public ValueType::_base_value_type // we requite fully defined boolean here
 			{
