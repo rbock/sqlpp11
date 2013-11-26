@@ -42,6 +42,8 @@ namespace TabFoo_
 				struct _member_t
 				{
 					T epsilon;
+					T& operator()() { return epsilon; }
+					const T& operator()() const { return epsilon; }
 				};
 		};
 		using _value_type = sqlpp::bigint;
@@ -59,6 +61,8 @@ namespace TabFoo_
 				struct _member_t
 				{
 					T omega;
+					T& operator()() { return omega; }
+					const T& operator()() const { return omega; }
 				};
 		};
 		using _value_type = sqlpp::floating_point;
@@ -102,6 +106,8 @@ namespace TabSample_
 				struct _member_t
 				{
 					T alpha;
+					T& operator()() { return alpha; }
+					const T& operator()() const { return alpha; }
 				};
 		};
 		using _value_type = sqlpp::bigint;
@@ -124,6 +130,8 @@ namespace TabSample_
 				struct _member_t
 				{
 					T beta;
+					T& operator()() { return beta; }
+					const T& operator()() const { return beta; }
 				};
 		};
 		using _value_type = sqlpp::varchar;
@@ -144,6 +152,8 @@ namespace TabSample_
 				struct _member_t
 				{
 					T gamma;
+					T& operator()() { return gamma; }
+					const T& operator()() const { return gamma; }
 				};
 		};
 		using _value_type = sqlpp::boolean;

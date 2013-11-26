@@ -32,6 +32,7 @@
 #include <iostream>
 
 DbMock db = {};
+SQLPP_ALIAS_PROVIDER_GENERATOR(kaesekuchen);
 
 int main()
 {
@@ -374,7 +375,6 @@ int main()
 
 	// test verbatim_table alias
 	{
-		SQLPP_ALIAS_PROVIDER_GENERATOR(kaesekuchen);
 		using T = decltype(sqlpp::verbatim_table("cheesecake").as(kaesekuchen));
 		static_assert(not sqlpp::is_named_expression_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");

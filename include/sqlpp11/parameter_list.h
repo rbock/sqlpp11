@@ -27,33 +27,54 @@
 #ifndef SQLPP_PARAMETER_LIST_H
 #define SQLPP_PARAMETER_LIST_H
 
+#include <sqlpp11/detail/wrong.h>
 #include <tuple>
 
 namespace sqlpp
 {
+	template<typename T>
+		struct named_parameter_list_t
+		{
+			static_assert(detail::wrong<T>::value, "Template parameter for named_parameter_list_t has to be a tuple");
+		};
+
 	template<typename... Parameter>
-		struct named_parameter_list_t: public Parameter::_member_t...
+		struct named_parameter_list_t<std::tuple<Parameter...>>: public Parameter::_member_t...
 	{
 		named_parameter_list_t():
 			Parameter::_member_t()...,
 			_parameter_tuple(static_cast<typename Parameter::_member_t&>(*this)()...)
 		{}
 
-		named_parameter_list_t(const named_parameter_list_t& rhs):
+		named_parameter_list_t(const named_parameter_list_t& rhs)
+			noexcept(std::is_nothrow_copy_constructible<std::tuple<typename Parameter::_member_t...>>::value):
 			Parameter::_member_t(static_cast<const typename Parameter::_member_t&>(rhs))...,
 			_parameter_tuple(static_cast<typename Parameter::_member_t&>(*this)()...)
 		{}
 
-		named_parameter_list_t(named_parameter_list_t&& rhs):
+		named_parameter_list_t(named_parameter_list_t&& rhs)
+			noexcept(std::is_nothrow_move_constructible<std::tuple<typename Parameter::_member_t...>>::value):
 			Parameter::_member_t(std::move(static_cast<typename Parameter::_member_t&>(rhs)))...,
 			_parameter_tuple(static_cast<typename Parameter::_member_t&>(*this)()...)
 		{}
 
-		named_parameter_list_t& operator=(const named_parameter_list_t&) = delete;
-		named_parameter_list_t& operator=(named_parameter_list_t&&) = delete;
+		named_parameter_list_t& operator=(const named_parameter_list_t& rhs)
+			noexcept(std::is_nothrow_copy_assignable<std::tuple<typename Parameter::_member_t&...>>::value)
+		{
+			_parameter_tuple = rhs._parameter_tuple;
+			return *this;
+		}
+
+		named_parameter_list_t& operator=(named_parameter_list_t&& rhs)
+			noexcept(std::is_nothrow_move_assignable<std::tuple<typename Parameter::_member_t&...>>::value)
+		{
+			_parameter_tuple = std::move(rhs._parameter_tuple);
+			return *this;
+		}
+
 		~named_parameter_list_t() = default;
 
-		std::tuple<const typename Parameter::type&...> _parameter_tuple;
+		std::tuple<typename Parameter::_value_type::_cpp_value_type&...> _parameter_tuple;
 	};
 
 	namespace detail
@@ -78,11 +99,18 @@ namespace sqlpp
 			};
 
 		template<typename Exp>
-			struct get_parameter_tuple<Exp, typename std::enable_if<not std::is_same<typename Exp::_parameters, void>::value, void>::type>
+			struct get_parameter_tuple<Exp, typename std::enable_if<not std::is_same<typename Exp::_parameter_t, void>::value, void>::type>
 			{
-				using type = typename get_parameter_tuple<typename Exp::_parameters>::type;
+				using type = typename get_parameter_tuple<typename Exp::_parameter_t>::type;
 			};
 
+	}
+
+	template<typename Exp>
+	auto named_parameter_list(const Exp& exp)
+	-> named_parameter_list_t<typename detail::get_parameter_tuple<typename std::decay<Exp>::type>::type>
+	{
+		return {};
 	}
 
 }

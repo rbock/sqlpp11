@@ -40,6 +40,7 @@
 #include <sqlpp11/limit.h>
 #include <sqlpp11/offset.h>
 #include <sqlpp11/expression.h>
+#include <sqlpp11/parameter_list.h>
 
 #include <sqlpp11/detail/wrong.h>
 #include <sqlpp11/detail/make_flag_tuple.h>
@@ -589,6 +590,7 @@ namespace sqlpp
 			OrderBy _order_by;
 			Limit _limit;
 			Offset _offset;
+			decltype(named_parameter_list(std::declval<std::tuple<Where, Having>>())) _parameter_list;
 		};
 
 	// construct select flag list

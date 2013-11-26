@@ -65,7 +65,8 @@ namespace sqlpp
 					_dynamic_expressions.serialize(os, db, " AND ", sizeof...(Expr) == 0);
 				}
 
-			std::tuple<Expr...> _expressions;
+			using _parameter_t = std::tuple<Expr...>;
+			_parameter_t _expressions;
 			detail::serializable_list<Database> _dynamic_expressions;
 		};
 

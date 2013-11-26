@@ -40,7 +40,7 @@ namespace sqlpp
 			using _is_assignment = std::true_type;
 			using column_type = Lhs;
 			using value_type = Rhs;
-			using _parameters = std::tuple<Lhs, Rhs>;
+			using _parameter_t = std::tuple<Lhs, Rhs>;
 
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
@@ -65,7 +65,7 @@ namespace sqlpp
 		struct equal_t: public ValueType::template operators<equal_t<Lhs, Rhs>>
 		{
 			using _value_type = ValueType;
-			using _parameters = std::tuple<Lhs, Rhs>;
+			using _parameter_t = std::tuple<Lhs, Rhs>;
 
 			template<typename L, typename R>
 			equal_t(L&& l, R&& r):
@@ -105,7 +105,7 @@ namespace sqlpp
 		struct not_equal_t: public ValueType::template operators<not_equal_t<Lhs, Rhs>>
 		{
 			using _value_type = ValueType;
-			using _parameters = std::tuple<Lhs, Rhs>;
+			using _parameter_t = std::tuple<Lhs, Rhs>;
 
 			template<typename L, typename R>
 			not_equal_t(L&& l, R&& r):
@@ -145,7 +145,7 @@ namespace sqlpp
 		struct not_t: public ValueType::template operators<not_t<Lhs>>
 		{
 			using _value_type = ValueType;
-			using _parameters = std::tuple<Lhs>;
+			using _parameter_t = std::tuple<Lhs>;
 
 			not_t(Lhs l):
 				_lhs(l)
@@ -182,7 +182,7 @@ namespace sqlpp
 		struct binary_expression_t: public O::_value_type::template operators<binary_expression_t<Lhs, O, Rhs>>
 		{
 			using _value_type = typename O::_value_type;
-			using _parameters = std::tuple<Lhs, Rhs>;
+			using _parameter_t = std::tuple<Lhs, Rhs>;
 
 			binary_expression_t(Lhs&& l, Rhs&& r):
 				_lhs(std::move(l)), 
