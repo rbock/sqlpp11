@@ -52,6 +52,13 @@ namespace sqlpp
 			struct _result_entry_t
 			{
 				using _value_type = integral;
+
+				_result_entry_t():
+					_is_valid(false),
+					_is_null(true),
+					_value(0)
+					{}
+
 				_result_entry_t(const raw_result_row_t& row):
 					_is_valid(row.data != nullptr),
 					_is_null(row.data == nullptr or row.data[index] == nullptr),
@@ -81,19 +88,19 @@ namespace sqlpp
 					return _is_null; 
 				}
 
-				int64_t value() const
+				_cpp_value_type value() const
 				{
 					if (not _is_valid)
 						throw exception("accessing value in non-existing row");
 					return _value;
 				}
 
-				operator int64_t() const { return value(); }
+				operator _cpp_value_type() const { return value(); }
 
 			private:
 				bool _is_valid;
 				bool _is_null;
-				int64_t _value;
+				_cpp_value_type _value;
 			};
 
 			template<typename T>

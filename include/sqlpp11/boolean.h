@@ -103,19 +103,19 @@ namespace sqlpp
 					return _is_null; 
 				}
 
-				bool value() const
+				_cpp_value_type value() const
 				{
 					if (not _is_valid)
 						throw exception("accessing value in non-existing row");
 					return _value;
 				}
 
-				operator bool() const { return value(); }
+				operator _cpp_value_type() const { return value(); }
 
 			private:
 				bool _is_valid;
 				bool _is_null;
-				bool _value;
+				_cpp_value_type _value;
 			};
 
 			template<typename T>

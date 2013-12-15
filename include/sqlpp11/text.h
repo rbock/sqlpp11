@@ -54,14 +54,14 @@ namespace sqlpp
 				_result_entry_t(const raw_result_row_t& row):
 					_is_valid(row.data != nullptr),
 					_is_null(row.data == nullptr or row.data[index] == nullptr),
-					_value(_is_null ? "" : std::string(row.data[index], row.data[index] + row.len[index]))
+					_value(_is_null ? "" : _cpp_value_type(row.data[index], row.data[index] + row.len[index]))
 					{}
 
 				_result_entry_t& operator=(const raw_result_row_t& row)
 				{
 					_is_valid = (row.data != nullptr);
 					_is_null = row.data == nullptr or row.data[index] == nullptr;
-					_value = _is_null ? "" : std::string(row.data[index], row.data[index] + row.len[index]);
+					_value = _is_null ? "" : _cpp_value_type(row.data[index], row.data[index] + row.len[index]);
 					return *this;
 				}
 
@@ -73,8 +73,8 @@ namespace sqlpp
 
 				bool _is_trivial() const { return value().empty(); }
 
-				bool operator==(const std::string& rhs) const { return value() == rhs; }
-				bool operator!=(const std::string& rhs) const { return not operator==(rhs); }
+				bool operator==(const _cpp_value_type& rhs) const { return value() == rhs; }
+				bool operator!=(const _cpp_value_type& rhs) const { return not operator==(rhs); }
 
 				bool is_null() const
 			 	{ 
@@ -83,19 +83,19 @@ namespace sqlpp
 					return _is_null; 
 				}
 
-				std::string value() const
+				_cpp_value_type value() const
 				{
 					if (not _is_valid)
 						throw exception("accessing value in non-existing row");
 					return _value;
 				}
 
-				operator std::string() const { return value(); }
+				operator _cpp_value_type() const { return value(); }
 
 			private:
 				bool _is_valid;
 				bool _is_null;
-				std::string _value;
+				_cpp_value_type _value;
 			};
 
 			template<typename T>
