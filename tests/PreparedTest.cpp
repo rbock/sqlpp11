@@ -77,7 +77,9 @@ int main()
 
 	// OK, fine, now create a named parameter list from an expression
 	{
-		auto npl = named_parameter_list(t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha) or t.gamma != parameter(t.gamma));
+		using Exp = decltype(t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha) or t.gamma != parameter(t.gamma));
+		using T = sqlpp::make_parameter_list_t<Exp>::type;
+		T npl;
 		static_assert(std::is_same<typename decltype(t.alpha)::_value_type::_cpp_value_type, decltype(npl.alpha)>::value, "type requirement");
 		static_assert(std::is_same<typename decltype(t.beta)::_value_type::_cpp_value_type, decltype(npl.beta)>::value, "type requirement");
 		static_assert(std::is_same<typename decltype(t.gamma)::_value_type::_cpp_value_type, decltype(npl.gamma)>::value, "type requirement");
@@ -89,7 +91,10 @@ int main()
 
 	// Wonderful, now take a look at the parameter list of a select
 	{
-		auto npl = select(all_of(t)).from(t).where(t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha) or t.gamma != parameter(t.gamma))._parameter_list;
+		auto s = select(all_of(t)).from(t).where(t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha) or t.gamma != parameter(t.gamma));
+		using S = decltype(s);
+		using T = sqlpp::make_parameter_list_t<S>::type;
+		T npl;
 
 		static_assert(std::is_same<typename decltype(t.alpha)::_value_type::_cpp_value_type, decltype(npl.alpha)>::value, "type requirement");
 		static_assert(std::is_same<typename decltype(t.beta)::_value_type::_cpp_value_type, decltype(npl.beta)>::value, "type requirement");
@@ -101,6 +106,8 @@ int main()
 		npl.alpha = 7;
 		auto x = npl;
 		x = npl;
+		std::cerr << x.alpha << std::endl;
+		x = decltype(npl)();
 		std::cerr << x.alpha << std::endl;
 	}
 

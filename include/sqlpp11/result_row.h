@@ -103,19 +103,34 @@ namespace sqlpp
 	{
 		using _impl = detail::result_row_impl<0, 0, NamedExpr...>;
 		bool _is_row;
+		raw_result_row_t _raw_result_row;
+
+		result_row_t():
+			_raw_result_row(),
+			_impl(_raw_result_row),
+			_is_row(false)
+		{
+		}
 
 		template<typename T>
 		result_row_t(const raw_result_row_t& raw_result_row, const T&):
-			_impl(raw_result_row),
-			_is_row(raw_result_row.data != nullptr)
+			_raw_result_row(raw_result_row),
+			_impl(_raw_result_row),
+			_is_row(_raw_result_row.data != nullptr)
 		{
 		}
 
 		result_row_t& operator=(const raw_result_row_t& raw_result_row)
 		{
 			_impl::operator=(raw_result_row);
-			_is_row = raw_result_row.data != nullptr;
+			_raw_result_row = raw_result_row;
+			_is_row = _raw_result_row.data != nullptr;
 			return *this;
+		}
+
+		bool operator==(const result_row_t& rhs)
+		{
+			return _raw_result_row == rhs._raw_result_row;
 		}
 
 		explicit operator bool() const

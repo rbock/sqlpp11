@@ -41,6 +41,7 @@
 #include <sqlpp11/offset.h>
 #include <sqlpp11/expression.h>
 #include <sqlpp11/parameter_list.h>
+#include <sqlpp11/prepared_select.h>
 
 #include <sqlpp11/detail/wrong.h>
 #include <sqlpp11/detail/make_flag_tuple.h>
@@ -569,7 +570,21 @@ namespace sqlpp
 
 			// Execute
 			template<typename Db>
-				result_t<Db, _result_row_t, _dynamic_names_t> run(Db& db) const
+				auto run(Db& db) const
+				-> result_t<decltype(db.select(*this))>
+				{
+					static_assert(not is_noop<ExpressionList>::value, "cannot run select without having selected anything");
+					static_assert(is_from_t<From>::value, "cannot run select without a from()");
+					static_assert(_parameter_list_t::size::value == 0, "cannot run select directly with parameters, use prepare instead");
+					// FIXME: Check for missing aliases (if references are used)
+					// FIXME: Check for missing tables, well, actually, check for missing tables at the where(), order_by(), etc.
+
+					return {db.select(*this)};
+				}
+
+			/*
+			template<typename Db>
+				prepared_select_t<Db, select_t> run(Db& db) const
 				{
 					static_assert(not is_noop<ExpressionList>::value, "cannot run select without having selected anything");
 					static_assert(is_from_t<From>::value, "cannot run select without a from()");
@@ -578,8 +593,9 @@ namespace sqlpp
 
 					std::ostringstream oss;
 					serialize(oss, db);
-					return {db.select(oss.str()), _expression_list._dynamic_expressions._dynamic_expression_names};
+					return {db.prepare_select(oss.str()), _expression_list._dynamic_expressions._dynamic_expression_names};
 				}
+				*/
 
 			Flags _flags;
 			ExpressionList _expression_list;
@@ -590,7 +606,8 @@ namespace sqlpp
 			OrderBy _order_by;
 			Limit _limit;
 			Offset _offset;
-			decltype(named_parameter_list(std::declval<std::tuple<Where, Having>>())) _parameter_list;
+			using _parameter_t = std::tuple<Where, Having>;
+			using _parameter_list_t = typename make_parameter_list_t<select_t>::type;
 		};
 
 	// construct select flag list

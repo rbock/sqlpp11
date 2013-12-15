@@ -28,7 +28,7 @@
 #define SQLPP_PREPARED_SELECT_H
 
 #include <sqlpp11/parameter_list.h>
-#include <tuple>
+#include <sqlpp11/result.h>
 
 namespace sqlpp
 {
@@ -37,8 +37,18 @@ namespace sqlpp
 		{
 			using _result_row_t = typename Select::_result_row_t;
 			using _parameter_list_t = typename Select::_parameter_list_t;
+			using _dynamic_names_t = typename Select::_dynamic_names_t;
+			using _handle_t = typename Db::_prepared_handle_t;
 
-			typename Db::prepared_query_handle _name;
+			auto run(Db& db) const
+				-> result_t<decltype(db.run_prepared_select(this))>
+			{
+				return {db.run_prepared_select(_handle, params), _dynamic_names};
+			}
+
+			_parameter_list_t params;
+			_dynamic_names_t _dynamic_names;
+			_handle_t _handle;
 		};
 
 }

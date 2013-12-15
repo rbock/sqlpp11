@@ -33,31 +33,27 @@
 
 namespace sqlpp
 {
-	template<typename Db, typename ResultRow, typename DynamicNames>
+	template<typename DbResult>
 		class result_t
 		{
-			using db_result_t = typename Db::_result_t;
+			using db_result_t = DbResult;
+			using result_row_t = typename db_result_t::result_row_t;
 
-			db_result_t _result;
-			raw_result_row_t _raw_result_row;
-			raw_result_row_t _end;
-			DynamicNames _dynamic_columns; // only needed in case of dynamic columns in the select 
-			ResultRow _result_row;
+			db_result_t _db_result;
+			result_row_t _result_row;
+			result_row_t _end;
 
 		public:
 			result_t():
-				_raw_result_row({}),
-				_end({}),
-				_dynamic_columns(),
-				_result_row(_raw_result_row, _dynamic_columns)
+				_db_result(),
+				_result_row(),
+				_end()
 				{}
 
-			result_t(db_result_t&& result, DynamicNames dynamic_columns):
-				_result(std::move(result)),
-				_raw_result_row(_result.next()),
-				_end({}),
-				_dynamic_columns(dynamic_columns),
-				_result_row(_raw_result_row, _dynamic_columns)
+			result_t(db_result_t&& result):
+				_db_result(std::move(result)),
+				_result_row(_db_result.next()),
+				_end({})
 				{}
 
 			result_t(const result_t&) = delete;
@@ -69,26 +65,26 @@ namespace sqlpp
 			class iterator
 			{
 			public:
-				iterator(result_t& result, raw_result_row_t& raw_result_row):
+				iterator(result_t& result, result_row_t& result_row):
 					_result(result),
-					_raw_result_row(raw_result_row)
+					_result_row(result_row)
 				{
 					//std::cerr << "result::iterator::constructor" << std::endl;
 				}
 
-				const ResultRow& operator*() const
+				const result_row_t& operator*() const
 				{
 					return _result.front();
 				}
 
-				const ResultRow* operator->() const
+				const result_row_t* operator->() const
 				{
 					return &_result.front();
 				}
 
 				bool operator==(const iterator& rhs) const
 				{
-					return _raw_result_row == rhs._raw_result_row;
+					return _result_row == rhs._result_row;
 				}
 
 				bool operator!=(const iterator& rhs) const
@@ -102,12 +98,12 @@ namespace sqlpp
 				}
 
 				result_t& _result;
-				raw_result_row_t& _raw_result_row;
+				result_row_t& _result_row;
 			};
 
 			iterator begin()
 			{
-				return iterator(*this, _raw_result_row);
+				return iterator(*this, _result_row);
 			}
 
 			iterator end()
@@ -115,20 +111,19 @@ namespace sqlpp
 				return iterator(*this, _end);
 			}
 
-			const ResultRow& front() const
+			const result_row_t& front() const
 			{
 				return _result_row;
 			}
 
 			bool empty() const
 			{
-				return _raw_result_row == _end;
+				return _result_row == _end;
 			}
 
 			void pop_front()
 			{
-				_raw_result_row = _result.next();
-				_result_row = _raw_result_row;
+				_result_row = _db_result.next();
 			}
 
 		};
