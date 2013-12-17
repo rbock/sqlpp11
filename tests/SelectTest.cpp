@@ -298,8 +298,6 @@ int main()
 				decltype(t.alpha)::_value_type::_base_value_type, 
 				decltype(f.epsilon)::_value_type::_base_value_type>::value, "Two bigint columns must have identical base_value_type");
 		static_assert(std::is_same<A, B>::value, "select with identical columns(name/value_type) need to have identical result_types");
-		static_assert(sqlpp::is_regular<A>::value, "type requirement");
-		static_assert(sqlpp::is_regular<B>::value, "type requirement");
 	}
 
 	{

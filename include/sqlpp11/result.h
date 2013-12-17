@@ -40,21 +40,19 @@ namespace sqlpp
 			using result_row_t = typename db_result_t::result_row_t;
 
 			db_result_t _db_result;
-			result_row_t _result_row;
-			result_row_t _end;
+			db_result_t _end;
 
 		public:
 			result_t():
 				_db_result(),
-				_result_row(),
 				_end()
 				{}
 
 			result_t(db_result_t&& result):
 				_db_result(std::move(result)),
-				_result_row(_db_result.next()),
-				_end({})
-				{}
+				_end()
+				{
+				}
 
 			result_t(const result_t&) = delete;
 			result_t(result_t&&) = default;
@@ -65,11 +63,9 @@ namespace sqlpp
 			class iterator
 			{
 			public:
-				iterator(result_t& result, result_row_t& result_row):
-					_result(result),
-					_result_row(result_row)
+				iterator(db_result_t& result):
+					_result(result)
 				{
-					//std::cerr << "result::iterator::constructor" << std::endl;
 				}
 
 				const result_row_t& operator*() const
@@ -84,7 +80,7 @@ namespace sqlpp
 
 				bool operator==(const iterator& rhs) const
 				{
-					return _result_row == rhs._result_row;
+					return _result.front() == rhs._result.front();
 				}
 
 				bool operator!=(const iterator& rhs) const
@@ -97,33 +93,32 @@ namespace sqlpp
 					_result.pop_front();
 				}
 
-				result_t& _result;
-				result_row_t& _result_row;
+				db_result_t& _result;
 			};
 
 			iterator begin()
 			{
-				return iterator(*this, _result_row);
+				return iterator(_db_result);
 			}
 
 			iterator end()
 			{
-				return iterator(*this, _end);
+				return iterator(_end);
 			}
 
 			const result_row_t& front() const
 			{
-				return _result_row;
+				return _db_result.front();
 			}
 
 			bool empty() const
 			{
-				return _result_row == _end;
+				return _db_result.front() == _end.front();
 			}
 
 			void pop_front()
 			{
-				_result_row = _db_result.next();
+				_db_result.pop_front();
 			}
 
 		};

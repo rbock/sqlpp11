@@ -51,6 +51,12 @@ namespace sqlpp
 			template<size_t index>
 			struct _result_entry_t
 			{
+				_result_entry_t():
+					_is_valid(false),
+					_is_null(true),
+					_value("")
+					{}
+
 				_result_entry_t(const raw_result_row_t& row):
 					_is_valid(row.data != nullptr),
 					_is_null(row.data == nullptr or row.data[index] == nullptr),

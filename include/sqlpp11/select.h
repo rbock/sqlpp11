@@ -568,6 +568,11 @@ namespace sqlpp
 					return *this;
 				}
 
+			const typename ExpressionList::_dynamic_names_t& get_dynamic_names() const
+			{
+				return _expression_list._dynamic_expressions._dynamic_expression_names;
+			}
+
 			// Execute
 			template<typename Db>
 				auto run(Db& db) const

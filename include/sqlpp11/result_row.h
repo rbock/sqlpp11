@@ -106,19 +106,24 @@ namespace sqlpp
 		raw_result_row_t _raw_result_row;
 
 		result_row_t():
-			_raw_result_row(),
-			_impl(_raw_result_row),
+			_impl({}),
+			_raw_result_row({}),
 			_is_row(false)
 		{
 		}
 
 		template<typename T>
 		result_row_t(const raw_result_row_t& raw_result_row, const T&):
+			_impl(raw_result_row),
 			_raw_result_row(raw_result_row),
-			_impl(_raw_result_row),
 			_is_row(_raw_result_row.data != nullptr)
 		{
 		}
+
+		result_row_t(const result_row_t&) = delete;
+		result_row_t(result_row_t&&) = default;
+		result_row_t& operator=(const result_row_t&) = delete;
+		result_row_t& operator=(result_row_t&&) = default;
 
 		result_row_t& operator=(const raw_result_row_t& raw_result_row)
 		{
@@ -128,7 +133,7 @@ namespace sqlpp
 			return *this;
 		}
 
-		bool operator==(const result_row_t& rhs)
+		bool operator==(const result_row_t& rhs) const
 		{
 			return _raw_result_row == rhs._raw_result_row;
 		}
@@ -146,12 +151,21 @@ namespace sqlpp
 		using _field_type = detail::text::_result_entry_t<0>;
 		static constexpr size_t _last_static_index = _impl::_last_index;
 
+		raw_result_row_t _raw_result_row;
 		bool _is_row;
 		std::vector<std::string> _dynamic_columns;
 		std::map<std::string, _field_type> _dynamic_fields;
 
+		dynamic_result_row_t(): 
+			_impl({}),
+			_raw_result_row({}),
+			_is_row(false)
+		{
+		}
+
 		dynamic_result_row_t(const raw_result_row_t& raw_result_row, std::vector<std::string> dynamic_columns): 
-			detail::result_row_impl<0, 0, NamedExpr...>(raw_result_row),
+			_impl(raw_result_row),
+			_raw_result_row(raw_result_row),
 			_is_row(raw_result_row.data != nullptr)
 		{
 			raw_result_row_t dynamic_row = raw_result_row;
@@ -176,9 +190,15 @@ namespace sqlpp
 
 		}
 
+		dynamic_result_row_t(const dynamic_result_row_t&) = delete;
+		dynamic_result_row_t(dynamic_result_row_t&&) = default;
+		dynamic_result_row_t& operator=(const dynamic_result_row_t&) = delete;
+		dynamic_result_row_t& operator=(dynamic_result_row_t&&) = default;
+
 		dynamic_result_row_t& operator=(const raw_result_row_t& raw_result_row)
 		{
 			detail::result_row_impl<0, 0, NamedExpr...>::operator=(raw_result_row);
+			_raw_result_row = raw_result_row;
 			_is_row = raw_result_row.data != nullptr;
 
 			raw_result_row_t dynamic_row = raw_result_row;
@@ -202,6 +222,11 @@ namespace sqlpp
 			}
 
 			return *this;
+		}
+
+		bool operator==(const dynamic_result_row_t& rhs) const
+		{
+			return _raw_result_row == rhs._raw_result_row;
 		}
 
 		const _field_type& at(const std::string& field_name) const
