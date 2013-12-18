@@ -166,7 +166,8 @@ namespace sqlpp
 		dynamic_result_row_t(const raw_result_row_t& raw_result_row, std::vector<std::string> dynamic_columns): 
 			_impl(raw_result_row),
 			_raw_result_row(raw_result_row),
-			_is_row(raw_result_row.data != nullptr)
+			_is_row(raw_result_row.data != nullptr),
+			_dynamic_columns(dynamic_columns)
 		{
 			raw_result_row_t dynamic_row = raw_result_row;
 			if (_is_row)
@@ -197,7 +198,7 @@ namespace sqlpp
 
 		dynamic_result_row_t& operator=(const raw_result_row_t& raw_result_row)
 		{
-			detail::result_row_impl<0, 0, NamedExpr...>::operator=(raw_result_row);
+			_impl::operator=(raw_result_row);
 			_raw_result_row = raw_result_row;
 			_is_row = raw_result_row.data != nullptr;
 
