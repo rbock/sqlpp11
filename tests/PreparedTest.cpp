@@ -80,9 +80,9 @@ int main()
 		using Exp = decltype(t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha) or t.gamma != parameter(t.gamma));
 		using T = sqlpp::make_parameter_list_t<Exp>::type;
 		T npl;
-		static_assert(std::is_same<typename decltype(t.alpha)::_value_type::_cpp_value_type, decltype(npl.alpha)>::value, "type requirement");
-		static_assert(std::is_same<typename decltype(t.beta)::_value_type::_cpp_value_type, decltype(npl.beta)>::value, "type requirement");
-		static_assert(std::is_same<typename decltype(t.gamma)::_value_type::_cpp_value_type, decltype(npl.gamma)>::value, "type requirement");
+		static_assert(std::is_same<typename decltype(t.alpha)::_value_type::_parameter_t<true>, decltype(npl.alpha)>::value, "type requirement");
+		static_assert(std::is_same<typename decltype(t.beta)::_value_type::_parameter_t<true>, decltype(npl.beta)>::value, "type requirement");
+		static_assert(std::is_same<typename decltype(t.gamma)::_value_type::_parameter_t<false>, decltype(npl.gamma)>::value, "type requirement");
 
 		static_assert(std::is_same<decltype(std::get<0>(npl._parameter_tuple)), decltype(npl.beta)&>::value, "type requirement");
 		static_assert(std::is_same<decltype(std::get<1>(npl._parameter_tuple)), decltype(npl.alpha)&>::value, "type requirement");
@@ -96,9 +96,9 @@ int main()
 		using T = sqlpp::make_parameter_list_t<S>::type;
 		T npl;
 
-		static_assert(std::is_same<typename decltype(t.alpha)::_value_type::_cpp_value_type, decltype(npl.alpha)>::value, "type requirement");
-		static_assert(std::is_same<typename decltype(t.beta)::_value_type::_cpp_value_type, decltype(npl.beta)>::value, "type requirement");
-		static_assert(std::is_same<typename decltype(t.gamma)::_value_type::_cpp_value_type, decltype(npl.gamma)>::value, "type requirement");
+		static_assert(std::is_same<typename decltype(t.alpha)::_value_type::_parameter_t<true>, decltype(npl.alpha)>::value, "type requirement");
+		static_assert(std::is_same<typename decltype(t.beta)::_value_type::_parameter_t<true>, decltype(npl.beta)>::value, "type requirement");
+		static_assert(std::is_same<typename decltype(t.gamma)::_value_type::_parameter_t<false>, decltype(npl.gamma)>::value, "type requirement");
 
 		static_assert(std::is_same<decltype(std::get<0>(npl._parameter_tuple)), decltype(npl.beta)&>::value, "type requirement");
 		static_assert(std::is_same<decltype(std::get<1>(npl._parameter_tuple)), decltype(npl.alpha)&>::value, "type requirement");

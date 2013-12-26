@@ -33,29 +33,31 @@
 
 namespace sqlpp
 {
-	template<typename ValueType, typename NameType>
+	template<typename ValueType, typename NameType, bool TrivialValueIsNull>
 	struct parameter_t
 	{
-		using _is_parameter = std::true_type;
 		using _value_type = ValueType;
+		using _parameter_type = typename ValueType::template _parameter_t<TrivialValueIsNull>;
+		using _is_parameter = std::true_type;
 		using _is_expression_t = std::true_type;
 
 		template<typename Db>
 			void serialize(std::ostream& os, Db& db) const
 			{
 				static_assert(Db::_supports_parameter, "parameter not supported by current database");
-				os << " ? ";
+				os << " ? "; // FIXME: Need to support positional placeholders and also type indicators for postgres for instance
 			}
 
-		using _member_t = typename NameType::_name_t::template _member_t<typename ValueType::_cpp_value_type>;
+		using _member_t = typename NameType::_name_t::template _member_t<_parameter_type>;
 	};
 
-	template<typename NamedExpr>
+	template<typename NamedExpr, bool TrivialValueIsNull = trivial_value_is_null_t<typename std::decay<NamedExpr>::type>::value>
 		auto parameter(NamedExpr&& namedExpr)
-		-> parameter_t<typename std::decay<NamedExpr>::type::_value_type, typename std::decay<NamedExpr>::type>
+		-> parameter_t<typename std::decay<NamedExpr>::type::_value_type, typename std::decay<NamedExpr>::type, TrivialValueIsNull>
 		{
 			return {};
 		}
+
 }
 
 #endif

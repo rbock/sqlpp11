@@ -48,6 +48,60 @@ namespace sqlpp
 			using _is_expression = std::true_type;
 			using _cpp_value_type = int64_t;
 			
+			template<bool TrivialValueIsNull>
+			struct _parameter_t
+			{
+				using _value_type = integral;
+
+				_parameter_t():
+					_value(0),
+					_is_null(TrivialValueIsNull and _is_trivial())
+					{}
+
+				_parameter_t(const _cpp_value_type& value):
+					_value(value),
+					_is_null(TrivialValueIsNull and _is_trivial())
+					{}
+
+				_parameter_t& operator=(const _cpp_value_type& value)
+				{
+					_value = value;
+					_is_null = (TrivialValueIsNull and _is_trivial());
+					return *this;
+				}
+
+				_parameter_t& operator=(const std::nullptr_t&)
+				{
+					_value = 0;
+					_is_null = true;
+					return *this;
+				}
+
+				template<typename Db>
+					void serialize(std::ostream& os, Db& db) const
+					{
+						os << value();
+					}
+
+				bool _is_trivial() const { return value() == 0; }
+
+				bool is_null() const
+			 	{ 
+					return _is_null; 
+				}
+
+				_cpp_value_type value() const
+				{
+					return _value;
+				}
+
+				operator _cpp_value_type() const { return value(); }
+
+			private:
+				_cpp_value_type _value;
+				bool _is_null;
+			};
+
 			template<size_t index>
 			struct _result_entry_t
 			{

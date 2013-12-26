@@ -74,7 +74,7 @@ namespace sqlpp
 
 		~parameter_list_t() = default;
 
-		using parameter_tuple_t = std::tuple<typename Parameter::_value_type::_cpp_value_type&...>;
+		using parameter_tuple_t = std::tuple<typename Parameter::_parameter_type&...>;
 		using size = std::tuple_size<parameter_tuple_t>;
 	 	parameter_tuple_t _parameter_tuple;
 	};

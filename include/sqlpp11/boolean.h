@@ -50,12 +50,6 @@ namespace sqlpp
 			static constexpr const char* _name = "AND";
 		};
 
-		struct not_
-		{
-			using _value_type = boolean;
-			static constexpr const char* _name = "NOT";
-		};
-
 		// boolean value type
 		struct boolean
 		{
@@ -65,10 +59,58 @@ namespace sqlpp
 			using _is_expression = std::true_type;
 			using _cpp_value_type = bool;
 
-			struct plus_
+			template<bool TrivialValueIsNull>
+			struct _parameter_t
 			{
 				using _value_type = boolean;
-				static constexpr const char* _name = "+";
+
+				_parameter_t():
+					_value(false),
+					_is_null(TrivialValueIsNull and _is_trivial())
+					{}
+
+				_parameter_t(const _cpp_value_type& value):
+					_value(value),
+					_is_null(TrivialValueIsNull and _is_trivial())
+					{}
+
+				_parameter_t& operator=(const _cpp_value_type& value)
+				{
+					_value = value;
+					_is_null = (TrivialValueIsNull and _is_trivial());
+					return *this;
+				}
+
+				_parameter_t& operator=(const std::nullptr_t&)
+				{
+					_value = false;
+					_is_null = true;
+					return *this;
+				}
+
+				template<typename Db>
+					void serialize(std::ostream& os, Db& db) const
+					{
+						os << value();
+					}
+
+				bool _is_trivial() const { return value() == false; }
+
+				bool is_null() const
+			 	{ 
+					return _is_null; 
+				}
+
+				_cpp_value_type value() const
+				{
+					return _value;
+				}
+
+				operator _cpp_value_type() const { return value(); }
+
+			private:
+				_cpp_value_type _value;
+				bool _is_null;
 			};
 
 			template<size_t index>
