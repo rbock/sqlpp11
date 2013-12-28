@@ -87,6 +87,8 @@ struct TabFoo: sqlpp::table_base_t<
 		struct _member_t
 		{
 			T tabFoo;
+			T& operator()() { return tabFoo; }
+			const T& operator()() const { return tabFoo; }
 		};
 	template<typename Db>
 		void serialize_impl(std::ostream& os, Db& db) const
@@ -179,6 +181,8 @@ struct TabSample: sqlpp::table_base_t<
 			struct _member_t
 			{
 				T tabSample;
+				T& operator()() { return tabSample; }
+				const T& operator()() const { return tabSample; }
 			};
 	};
 	template<typename Db>

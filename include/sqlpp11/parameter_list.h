@@ -41,42 +41,7 @@ namespace sqlpp
 	template<typename... Parameter>
 		struct parameter_list_t<std::tuple<Parameter...>>: public Parameter::_member_t...
 	{
-		parameter_list_t():
-			Parameter::_member_t()...,
-			_parameter_tuple(static_cast<typename Parameter::_member_t&>(*this)()...)
-		{}
-
-		parameter_list_t(const parameter_list_t& rhs)
-			noexcept(std::is_nothrow_copy_constructible<std::tuple<typename Parameter::_member_t...>>::value):
-			Parameter::_member_t(static_cast<const typename Parameter::_member_t&>(rhs))...,
-			_parameter_tuple(static_cast<typename Parameter::_member_t&>(*this)()...)
-		{}
-
-		parameter_list_t(parameter_list_t&& rhs)
-			noexcept(std::is_nothrow_move_constructible<std::tuple<typename Parameter::_member_t...>>::value):
-			Parameter::_member_t(std::move(static_cast<typename Parameter::_member_t&>(rhs)))...,
-			_parameter_tuple(static_cast<typename Parameter::_member_t&>(*this)()...)
-		{}
-
-		parameter_list_t& operator=(const parameter_list_t& rhs)
-			noexcept(std::is_nothrow_copy_assignable<std::tuple<typename Parameter::_member_t&...>>::value)
-		{
-			_parameter_tuple = rhs._parameter_tuple;
-			return *this;
-		}
-
-		parameter_list_t& operator=(parameter_list_t&& rhs)
-			noexcept(std::is_nothrow_move_assignable<std::tuple<typename Parameter::_member_t&...>>::value)
-		{
-			_parameter_tuple = std::move(rhs._parameter_tuple);
-			return *this;
-		}
-
-		~parameter_list_t() = default;
-
-		using parameter_tuple_t = std::tuple<typename Parameter::_parameter_type&...>;
-		using size = std::tuple_size<parameter_tuple_t>;
-	 	parameter_tuple_t _parameter_tuple;
+		using size = std::integral_constant<std::size_t, sizeof...(Parameter)>;
 	};
 
 	namespace detail

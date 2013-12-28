@@ -40,15 +40,25 @@ namespace sqlpp
 		using _parameter_type = typename ValueType::template _parameter_t<TrivialValueIsNull>;
 		using _is_parameter = std::true_type;
 		using _is_expression_t = std::true_type;
+		using _member_t = typename NameType::_name_t::template _member_t<_parameter_type>;
 
 		template<typename Db>
 			void serialize(std::ostream& os, Db& db) const
 			{
-				static_assert(Db::_supports_parameter, "parameter not supported by current database");
-				os << " ? "; // FIXME: Need to support positional placeholders and also type indicators for postgres for instance
+				static_assert(Db::_supports_prepared, "prepared statements not supported by current database");
+				static_assert(Db::_use_questionmark_parameter or Db::_use_positional_dollar_parameter, "no known way to serialize parameter placeholders for current database");
+				if (Db::_use_questionmark_parameter)
+					os << '?';
+				else if (Db::_use_positional_dollar_parameter)
+					os << '$' << index + 1;
 			}
 
-		using _member_t = typename NameType::_name_t::template _member_t<_parameter_type>;
+		constexpr bool _is_trivial() const
+		{
+			return false;
+		}
+
+		size_t index;
 	};
 
 	template<typename NamedExpr, bool TrivialValueIsNull = trivial_value_is_null_t<typename std::decay<NamedExpr>::type>::value>

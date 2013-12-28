@@ -587,20 +587,16 @@ namespace sqlpp
 					return {db.select(*this)};
 				}
 
-			/*
 			template<typename Db>
-				prepared_select_t<Db, select_t> run(Db& db) const
+				prepared_select_t<typename std::decay<Db>::type, select_t> prepare(Db& db) const
 				{
 					static_assert(not is_noop<ExpressionList>::value, "cannot run select without having selected anything");
 					static_assert(is_from_t<From>::value, "cannot run select without a from()");
 					// FIXME: Check for missing aliases (if references are used)
 					// FIXME: Check for missing tables, well, actually, check for missing tables at the where(), order_by(), etc.
 
-					std::ostringstream oss;
-					serialize(oss, db);
-					return {db.prepare_select(oss.str()), _expression_list._dynamic_expressions._dynamic_expression_names};
+					return {{}, get_dynamic_names(), db.prepare_select(*this)};
 				}
-				*/
 
 			Flags _flags;
 			ExpressionList _expression_list;

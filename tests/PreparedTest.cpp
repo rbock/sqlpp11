@@ -83,10 +83,6 @@ int main()
 		static_assert(std::is_same<typename decltype(t.alpha)::_value_type::_parameter_t<true>, decltype(npl.alpha)>::value, "type requirement");
 		static_assert(std::is_same<typename decltype(t.beta)::_value_type::_parameter_t<true>, decltype(npl.beta)>::value, "type requirement");
 		static_assert(std::is_same<typename decltype(t.gamma)::_value_type::_parameter_t<false>, decltype(npl.gamma)>::value, "type requirement");
-
-		static_assert(std::is_same<decltype(std::get<0>(npl._parameter_tuple)), decltype(npl.beta)&>::value, "type requirement");
-		static_assert(std::is_same<decltype(std::get<1>(npl._parameter_tuple)), decltype(npl.alpha)&>::value, "type requirement");
-		static_assert(std::is_same<decltype(std::get<2>(npl._parameter_tuple)), decltype(npl.gamma)&>::value, "type requirement");
 	}
 
 	// Wonderful, now take a look at the parameter list of a select
@@ -99,10 +95,6 @@ int main()
 		static_assert(std::is_same<typename decltype(t.alpha)::_value_type::_parameter_t<true>, decltype(npl.alpha)>::value, "type requirement");
 		static_assert(std::is_same<typename decltype(t.beta)::_value_type::_parameter_t<true>, decltype(npl.beta)>::value, "type requirement");
 		static_assert(std::is_same<typename decltype(t.gamma)::_value_type::_parameter_t<false>, decltype(npl.gamma)>::value, "type requirement");
-
-		static_assert(std::is_same<decltype(std::get<0>(npl._parameter_tuple)), decltype(npl.beta)&>::value, "type requirement");
-		static_assert(std::is_same<decltype(std::get<1>(npl._parameter_tuple)), decltype(npl.alpha)&>::value, "type requirement");
-		static_assert(std::is_same<decltype(std::get<2>(npl._parameter_tuple)), decltype(npl.gamma)&>::value, "type requirement");
 		npl.alpha = 7;
 		auto x = npl;
 		x = npl;

@@ -42,6 +42,12 @@ namespace sqlpp
 			using value_type = Rhs;
 			using _parameter_t = std::tuple<Lhs, Rhs>;
 
+			size_t _set_parameter_index(size_t index)
+			{
+				index = set_parameter_index(_lhs, index);
+				return set_parameter_index(_rhs, index);
+			}
+
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
@@ -66,6 +72,12 @@ namespace sqlpp
 		{
 			using _value_type = ValueType;
 			using _parameter_t = std::tuple<Lhs, Rhs>;
+
+			size_t _set_parameter_index(size_t index)
+			{
+				index = set_parameter_index(_lhs, index);
+				return set_parameter_index(_rhs, index);
+			}
 
 			template<typename L, typename R>
 			equal_t(L&& l, R&& r):
@@ -107,6 +119,12 @@ namespace sqlpp
 			using _value_type = ValueType;
 			using _parameter_t = std::tuple<Lhs, Rhs>;
 
+			size_t _set_parameter_index(size_t index)
+			{
+				index = set_parameter_index(_lhs, index);
+				return set_parameter_index(_rhs, index);
+			}
+
 			template<typename L, typename R>
 			not_equal_t(L&& l, R&& r):
 				_lhs(std::forward<L>(l)), 
@@ -147,6 +165,11 @@ namespace sqlpp
 			using _value_type = ValueType;
 			using _parameter_t = std::tuple<Lhs>;
 
+			size_t _set_parameter_index(size_t index)
+			{
+				return set_parameter_index(_lhs, index);
+			}
+
 			not_t(Lhs l):
 				_lhs(l)
 			{}
@@ -183,6 +206,12 @@ namespace sqlpp
 		{
 			using _value_type = typename O::_value_type;
 			using _parameter_t = std::tuple<Lhs, Rhs>;
+
+			size_t _set_parameter_index(size_t index)
+			{
+				index = set_parameter_index(_lhs, index);
+				return set_parameter_index(_rhs, index);
+			}
 
 			binary_expression_t(Lhs&& l, Rhs&& r):
 				_lhs(std::move(l)), 

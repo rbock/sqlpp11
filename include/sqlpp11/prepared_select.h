@@ -38,7 +38,7 @@ namespace sqlpp
 			using _result_row_t = typename Select::_result_row_t;
 			using _parameter_list_t = typename Select::_parameter_list_t;
 			using _dynamic_names_t = typename Select::_dynamic_names_t;
-			using _handle_t = typename Db::_prepared_handle_t;
+			using _handle_t = typename Db::template _prepared_query_t<Select>;
 
 			auto run(Db& db) const
 				-> result_t<decltype(db.run_prepared_select(this))>
