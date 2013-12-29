@@ -573,6 +573,16 @@ namespace sqlpp
 				return _expression_list._dynamic_expressions._dynamic_expression_names;
 			}
 
+			static constexpr size_t get_no_of_parameters()
+			{
+				return _parameter_list_t::size::value;
+			}
+
+			size_t get_no_of_result_columns() const
+			{
+				return _result_row_t::static_size(); // FIXME: Need to add the size of dynamic columns
+			}
+
 			// Execute
 			template<typename Db>
 				auto run(Db& db) const
@@ -580,7 +590,7 @@ namespace sqlpp
 				{
 					static_assert(not is_noop<ExpressionList>::value, "cannot run select without having selected anything");
 					static_assert(is_from_t<From>::value, "cannot run select without a from()");
-					static_assert(_parameter_list_t::size::value == 0, "cannot run select directly with parameters, use prepare instead");
+					static_assert(get_no_of_parameters() == 0, "cannot run select directly with parameters, use prepare instead");
 					// FIXME: Check for missing aliases (if references are used)
 					// FIXME: Check for missing tables, well, actually, check for missing tables at the where(), order_by(), etc.
 

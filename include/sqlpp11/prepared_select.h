@@ -38,17 +38,22 @@ namespace sqlpp
 			using _result_row_t = typename Select::_result_row_t;
 			using _parameter_list_t = typename Select::_parameter_list_t;
 			using _dynamic_names_t = typename Select::_dynamic_names_t;
-			using _handle_t = typename Db::template _prepared_query_t<Select>;
+			using _prepared_query_t = typename Db::_prepared_query_t;
 
 			auto run(Db& db) const
-				-> result_t<decltype(db.run_prepared_select(this))>
+				-> result_t<decltype(db.run_prepared_select(*this))>
 			{
-				return {db.run_prepared_select(_handle, params), _dynamic_names};
+				return {db.run_prepared_select(*this)};
+			}
+
+			void bind_params() const
+			{
+				params._bind(_prepared_query);
 			}
 
 			_parameter_list_t params;
 			_dynamic_names_t _dynamic_names;
-			_handle_t _handle;
+			mutable _prepared_query_t _prepared_query;
 		};
 
 }

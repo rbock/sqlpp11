@@ -90,12 +90,12 @@ namespace sqlpp
 					return _is_null; 
 				}
 
-				_cpp_value_type value() const
+				const _cpp_value_type* value() const
 				{
-					return _value;
+					return &_value;
 				}
 
-				operator _cpp_value_type() const { return value(); }
+				operator _cpp_value_type() const { return _value; }
 
 			private:
 				_cpp_value_type _value;

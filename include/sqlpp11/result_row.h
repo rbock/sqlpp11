@@ -142,6 +142,11 @@ namespace sqlpp
 		{
 			return _is_row;
 		}
+
+		static constexpr size_t static_size()
+		{
+			return sizeof...(NamedExpr);
+		}
 	};
 
 	template<typename... NamedExpr>

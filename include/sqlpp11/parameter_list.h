@@ -40,9 +40,31 @@ namespace sqlpp
 
 	template<typename... Parameter>
 		struct parameter_list_t<std::tuple<Parameter...>>: public Parameter::_member_t...
-	{
-		using size = std::integral_constant<std::size_t, sizeof...(Parameter)>;
-	};
+		{
+			using _member_tuple_t = std::tuple<typename Parameter::_member_t...>;
+			using size = std::integral_constant<std::size_t, sizeof...(Parameter)>;
+
+			template<typename Target>
+				void _bind(Target& target) const
+				{
+					_bind_impl(target, index_t<0>());
+				}
+
+		private:
+			template<size_t> struct index_t {}; // this is just for overloading
+
+			template<typename Target, size_t index>
+				void _bind_impl(Target& target, const index_t<index>&) const
+				{
+					target.bind_param(index, static_cast<typename std::tuple_element<index, const _member_tuple_t>::type&>(*this)());
+					_bind_impl(target, index_t<index + 1>());
+				}
+
+			template<typename Target>
+				void _bind_impl(Target& target, const index_t<size::value>&) const
+				{
+				}
+		};
 
 	namespace detail
 	{
