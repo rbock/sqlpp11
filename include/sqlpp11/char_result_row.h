@@ -24,17 +24,17 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_RAW_RESULT_ROW_H
-#define SQLPP_RAW_RESULT_ROW_H
+#ifndef SQLPP_CHAR_RESULT_ROW_H
+#define SQLPP_CHAR_RESULT_ROW_H
 
 namespace sqlpp
 {
-	struct raw_result_row_t
+	struct char_result_row_t
 	{
 		char** data;
 		size_t* len;
 
-		bool operator==(const raw_result_row_t& rhs) const
+		bool operator==(const char_result_row_t& rhs) const
 		{
 			return data == rhs.data and len == rhs.len; 
 		}

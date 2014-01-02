@@ -41,7 +41,7 @@ namespace sqlpp
 			using _prepared_query_t = typename Db::_prepared_query_t;
 
 			auto run(Db& db) const
-				-> result_t<decltype(db.run_prepared_select(*this))>
+				-> result_t<decltype(db.run_prepared_select(*this)), _result_row_t>
 			{
 				return {db.run_prepared_select(*this)};
 			}

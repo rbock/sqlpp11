@@ -30,7 +30,6 @@
 #include <cstdlib>
 #include <sqlpp11/detail/basic_operators.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/raw_result_row.h>
 #include <sqlpp11/exception.h>
 
 namespace sqlpp

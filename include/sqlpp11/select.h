@@ -586,7 +586,7 @@ namespace sqlpp
 			// Execute
 			template<typename Db>
 				auto run(Db& db) const
-				-> result_t<decltype(db.select(*this))>
+				-> result_t<decltype(db.select(*this)), _result_row_t>
 				{
 					static_assert(not is_noop<ExpressionList>::value, "cannot run select without having selected anything");
 					static_assert(is_from_t<From>::value, "cannot run select without a from()");

@@ -27,31 +27,30 @@
 #ifndef SQLPP_RESULT_H
 #define SQLPP_RESULT_H
 
-#include <sqlpp11/raw_result_row.h>
-
 #include <iostream>
 
 namespace sqlpp
 {
-	template<typename DbResult>
+	template<typename DbResult, typename ResultRow>
 		class result_t
 		{
 			using db_result_t = DbResult;
-			using result_row_t = typename db_result_t::result_row_t;
+			using result_row_t = ResultRow;
 
-			db_result_t _db_result;
+			db_result_t _result;
+			result_row_t _result_row;
 			db_result_t _end;
+			result_row_t _end_row;
 
 		public:
-			result_t():
-				_db_result(),
-				_end()
-				{}
+			result_t() = default;
 
-			result_t(db_result_t&& result):
-				_db_result(std::move(result)),
-				_end()
+			template<typename DynamicNames>
+			result_t(db_result_t&& result, const DynamicNames& dynamic_names):
+				_result(std::move(result)),
+				_result_row(dynamic_names)
 				{
+					_result.next(_result_row);
 				}
 
 			result_t(const result_t&) = delete;
@@ -63,24 +62,25 @@ namespace sqlpp
 			class iterator
 			{
 			public:
-				iterator(db_result_t& result):
-					_result(result)
+				iterator(db_result_t& result, result_row_t& result_row):
+					_result(result),
+					_result_row(result_row)
 				{
 				}
 
 				const result_row_t& operator*() const
 				{
-					return _result.front();
+					return _result_row;
 				}
 
 				const result_row_t* operator->() const
 				{
-					return &_result.front();
+					return &_result_row;
 				}
 
 				bool operator==(const iterator& rhs) const
 				{
-					return _result.front() == rhs._result.front();
+					return _result_row == rhs._result_row;
 				}
 
 				bool operator!=(const iterator& rhs) const
@@ -90,35 +90,36 @@ namespace sqlpp
 
 				void operator++()
 				{
-					_result.pop_front();
+					_result.next(result_row);
 				}
 
 				db_result_t& _result;
+				result_row_t& _result_row;
 			};
 
 			iterator begin()
 			{
-				return iterator(_db_result);
+				return iterator(_result, _result_row);
 			}
 
 			iterator end()
 			{
-				return iterator(_end);
+				return iterator(_end, _end_row);
 			}
 
 			const result_row_t& front() const
 			{
-				return _db_result.front();
+				return _result_row;
 			}
 
 			bool empty() const
 			{
-				return _db_result.front() == _end.front();
+				return _result_row == _end_row;
 			}
 
 			void pop_front()
 			{
-				_db_result.pop_front();
+				_result.next(_result_row);
 			}
 
 		};

@@ -30,7 +30,7 @@
 #include <cstdlib>
 #include <sqlpp11/detail/basic_operators.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/raw_result_row.h>
+#include <sqlpp11/char_result_row.h> // FIXME: Need to update floating_point
 #include <sqlpp11/exception.h>
 
 namespace sqlpp
@@ -113,13 +113,13 @@ namespace sqlpp
 					_value(0)
 					{}
 
-				_result_entry_t(const raw_result_row_t& row):
+				_result_entry_t(const char_result_row_t& row):
 					_is_valid(row.data != nullptr),
 					_is_null(row.data == nullptr or row.data[index] == nullptr),
 					_value(_is_null ? 0 : std::strtod(row.data[index], nullptr))
 					{}
 
-				_result_entry_t& operator=(const raw_result_row_t& row)
+				_result_entry_t& operator=(const char_result_row_t& row)
 				{
 					_is_valid = (row.data != nullptr);
 					_is_null = row.data == nullptr or row.data[index] == nullptr;

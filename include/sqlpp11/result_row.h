@@ -27,7 +27,7 @@
 #ifndef SQLPP_RESULT_ROW_H
 #define SQLPP_RESULT_ROW_H
 
-#include <sqlpp11/raw_result_row.h>
+#include <sqlpp11/char_result_row.h>
 #include <sqlpp11/field.h>
 #include <sqlpp11/text.h>
 #include <iostream>
@@ -52,16 +52,16 @@ namespace sqlpp
 				static constexpr size_t _last_index = _rest::_last_index;
 
 				result_row_impl() = default;
-				result_row_impl(const raw_result_row_t& raw_result_row):
-					_field({{raw_result_row.data[index], raw_result_row.len[index]}}),
-					_rest(raw_result_row)
+				result_row_impl(const char_result_row_t& char_result_row_t):
+					_field({{char_result_row_t.data[index], char_result_row_t.len[index]}}),
+					_rest(char_result_row_t)
 				{
 				}
 
-				result_row_impl& operator=(const raw_result_row_t& raw_result_row)
+				result_row_impl& operator=(const char_result_row_t& char_result_row_t)
 				{
-					_field::operator()().assign(raw_result_row.data[index], raw_result_row.len[index]);
-					_rest::operator=(raw_result_row);
+					_field::operator()().assign(char_result_row_t.data[index], char_result_row_t.len[index]);
+					_rest::operator=(char_result_row_t);
 					return *this;
 				}
 
@@ -90,15 +90,15 @@ namespace sqlpp
 				static constexpr size_t _last_index = _rest::_last_index;
 
 				result_row_impl() = default;
-				result_row_impl(const raw_result_row_t& raw_result_row):
-					_multi_field({raw_result_row}),
-					_rest(raw_result_row)
+				result_row_impl(const char_result_row_t& char_result_row_t):
+					_multi_field({char_result_row_t}),
+					_rest(char_result_row_t)
 				{}
 
-				result_row_impl& operator=(const raw_result_row_t& raw_result_row)
+				result_row_impl& operator=(const char_result_row_t& char_result_row_t)
 				{
-					_multi_field::operator=({raw_result_row});
-					_rest::operator=(raw_result_row);
+					_multi_field::operator=({char_result_row_t});
+					_rest::operator=(char_result_row_t);
 					return *this;
 				}
 
@@ -121,11 +121,11 @@ namespace sqlpp
 			{
 				static constexpr size_t _last_index = index;
 				result_row_impl() = default;
-				result_row_impl(const raw_result_row_t& raw_result_row)
+				result_row_impl(const char_result_row_t& char_result_row_t)
 				{
 				}
 
-				result_row_impl& operator=(const raw_result_row_t& raw_result_row)
+				result_row_impl& operator=(const char_result_row_t& char_result_row_t)
 				{
 					return *this;
 				}
@@ -154,10 +154,10 @@ namespace sqlpp
 		{
 		}
 
-		template<typename T>
-		result_row_t(const raw_result_row_t& raw_result_row, const T&):
-			_impl(raw_result_row),
-			_is_valid(true)
+		template<typename DynamicNames>
+		result_row_t(const DynamicNames&):
+			_impl(),
+			_is_valid(false)
 		{
 		}
 
@@ -166,9 +166,9 @@ namespace sqlpp
 		result_row_t& operator=(const result_row_t&) = delete;
 		result_row_t& operator=(result_row_t&&) = default;
 
-		result_row_t& operator=(const raw_result_row_t& raw_result_row)
+		result_row_t& operator=(const char_result_row_t& char_result_row_t)
 		{
-			_impl::operator=(raw_result_row);
+			_impl::operator=(char_result_row_t);
 			_is_valid = true;
 			return *this;
 		}
@@ -218,20 +218,11 @@ namespace sqlpp
 		{
 		}
 
-		dynamic_result_row_t(const raw_result_row_t& raw_result_row, std::vector<std::string> dynamic_columns): 
-			_impl(raw_result_row),
-			_is_valid(true),
+		dynamic_result_row_t(const std::vector<std::string>& dynamic_columns): 
+			_impl(),
+			_is_valid(false),
 			_dynamic_columns(dynamic_columns)
 		{
-			raw_result_row_t dynamic_row = raw_result_row;
-			dynamic_row.data += _last_static_index;
-			dynamic_row.len += _last_static_index;
-			for (const auto& column : _dynamic_columns)
-			{
-				_dynamic_fields.insert(std::make_pair(column, _field_type(dynamic_row.data[0], dynamic_row.len[0])));
-				++dynamic_row.data;
-				++dynamic_row.len;
-			}
 		}
 
 		dynamic_result_row_t(const dynamic_result_row_t&) = delete;
@@ -239,12 +230,12 @@ namespace sqlpp
 		dynamic_result_row_t& operator=(const dynamic_result_row_t&) = delete;
 		dynamic_result_row_t& operator=(dynamic_result_row_t&&) = default;
 
-		dynamic_result_row_t& operator=(const raw_result_row_t& raw_result_row)
+		dynamic_result_row_t& operator=(const char_result_row_t& char_result_row)
 		{
-			_impl::operator=(raw_result_row);
+			_impl::operator=(char_result_row);
 			_is_valid = true;
 
-			raw_result_row_t dynamic_row = raw_result_row;
+			char_result_row_t dynamic_row = char_result_row;
 
 			dynamic_row.data += _last_static_index;
 			dynamic_row.len += _last_static_index;
