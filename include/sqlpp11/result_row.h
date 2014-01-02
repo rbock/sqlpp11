@@ -44,29 +44,37 @@ namespace sqlpp
 
 		template<size_t level, size_t index, typename NamedExpr, typename... Rest>
 			struct result_row_impl<level, index, NamedExpr, Rest...>: 
-			public NamedExpr::_name_t::template _member_t<typename NamedExpr::_value_type::template _result_entry_t<index>>,
+			public NamedExpr::_name_t::template _member_t<typename NamedExpr::_value_type::_result_entry_t>,
 			public result_row_impl<level, index + 1, Rest...>
 			{
-				using _field = typename NamedExpr::_name_t::template _member_t<typename NamedExpr::_value_type::template _result_entry_t<index>>;
+				using _field = typename NamedExpr::_name_t::template _member_t<typename NamedExpr::_value_type::_result_entry_t>;
 				using _rest = result_row_impl<level, index + 1, Rest...>;
 				static constexpr size_t _last_index = _rest::_last_index;
 
+				result_row_impl() = default;
 				result_row_impl(const raw_result_row_t& raw_result_row):
-					_field({raw_result_row}),
+					_field({{raw_result_row.data[index], raw_result_row.len[index]}}),
 					_rest(raw_result_row)
-				{}
+				{
+				}
 
 				result_row_impl& operator=(const raw_result_row_t& raw_result_row)
 				{
-					_field::operator=({raw_result_row});
+					_field::operator()().assign(raw_result_row.data[index], raw_result_row.len[index]);
 					_rest::operator=(raw_result_row);
 					return *this;
+				}
+
+				void invalidate()
+				{
+					_field::operator()().invalidate();
+					_rest::invalidate();
 				}
 
 				template<typename Target>
 				void _bind(Target& target)
 				{
-					_field::operator().bind(target, index);
+					_field::operator()().bind(target, index);
 					std::cerr << "binding result " << index << std::endl;
 					_rest::_bind(target);
 				}
@@ -81,6 +89,7 @@ namespace sqlpp
 				using _rest = result_row_impl<level, index + sizeof...(Col), Rest...>;
 				static constexpr size_t _last_index = _rest::_last_index;
 
+				result_row_impl() = default;
 				result_row_impl(const raw_result_row_t& raw_result_row):
 					_multi_field({raw_result_row}),
 					_rest(raw_result_row)
@@ -91,6 +100,12 @@ namespace sqlpp
 					_multi_field::operator=({raw_result_row});
 					_rest::operator=(raw_result_row);
 					return *this;
+				}
+
+				void invalidate()
+				{
+					_multi_field::invalidate();
+					_rest::invalidate();
 				}
 
 				template<typename Target>
@@ -105,12 +120,18 @@ namespace sqlpp
 			struct result_row_impl<level, index>
 			{
 				static constexpr size_t _last_index = index;
+				result_row_impl() = default;
 				result_row_impl(const raw_result_row_t& raw_result_row)
-				{}
+				{
+				}
 
 				result_row_impl& operator=(const raw_result_row_t& raw_result_row)
 				{
 					return *this;
+				}
+
+				void invalidate()
+				{
 				}
 
 				template<typename Target>
@@ -124,22 +145,19 @@ namespace sqlpp
 	struct result_row_t: public detail::result_row_impl<0, 0, NamedExpr...>
 	{
 		using _impl = detail::result_row_impl<0, 0, NamedExpr...>;
-		bool _is_row;
-		raw_result_row_t _raw_result_row;
+		bool _is_valid;
 		static constexpr size_t _last_static_index = _impl::_last_index;
 
 		result_row_t():
-			_impl({}),
-			_raw_result_row({}),
-			_is_row(false)
+			_impl(),
+			_is_valid(false)
 		{
 		}
 
 		template<typename T>
 		result_row_t(const raw_result_row_t& raw_result_row, const T&):
 			_impl(raw_result_row),
-			_raw_result_row(raw_result_row),
-			_is_row(_raw_result_row.data != nullptr)
+			_is_valid(true)
 		{
 		}
 
@@ -151,19 +169,24 @@ namespace sqlpp
 		result_row_t& operator=(const raw_result_row_t& raw_result_row)
 		{
 			_impl::operator=(raw_result_row);
-			_raw_result_row = raw_result_row;
-			_is_row = _raw_result_row.data != nullptr;
+			_is_valid = true;
 			return *this;
+		}
+
+		void invalidate()
+		{
+			_impl::invalidate();
+			_is_valid = false;
 		}
 
 		bool operator==(const result_row_t& rhs) const
 		{
-			return _raw_result_row == rhs._raw_result_row;
+			return _is_valid == rhs._is_valid;
 		}
 
 		explicit operator bool() const
 		{
-			return _is_row;
+			return _is_valid;
 		}
 
 		static constexpr size_t static_size()
@@ -182,47 +205,33 @@ namespace sqlpp
 	struct dynamic_result_row_t: public detail::result_row_impl<0, 0, NamedExpr...>
 	{
 		using _impl = detail::result_row_impl<0, 0, NamedExpr...>;
-		using _field_type = detail::text::_result_entry_t<0>;
+		using _field_type = detail::text::_result_entry_t;
 		static constexpr size_t _last_static_index = _impl::_last_index;
 
-		raw_result_row_t _raw_result_row;
-		bool _is_row;
+		bool _is_valid;
 		std::vector<std::string> _dynamic_columns;
 		std::map<std::string, _field_type> _dynamic_fields;
 
 		dynamic_result_row_t(): 
-			_impl({}),
-			_raw_result_row({}),
-			_is_row(false)
+			_impl(),
+			_is_valid(false)
 		{
 		}
 
 		dynamic_result_row_t(const raw_result_row_t& raw_result_row, std::vector<std::string> dynamic_columns): 
 			_impl(raw_result_row),
-			_raw_result_row(raw_result_row),
-			_is_row(raw_result_row.data != nullptr),
+			_is_valid(true),
 			_dynamic_columns(dynamic_columns)
 		{
 			raw_result_row_t dynamic_row = raw_result_row;
-			if (_is_row)
+			dynamic_row.data += _last_static_index;
+			dynamic_row.len += _last_static_index;
+			for (const auto& column : _dynamic_columns)
 			{
-				dynamic_row.data += _last_static_index;
-				dynamic_row.len += _last_static_index;
-				for (const auto& column : _dynamic_columns)
-				{
-					_dynamic_fields.insert(std::make_pair(column, _field_type(dynamic_row)));
-					++dynamic_row.data;
-					++dynamic_row.len;
-				}
+				_dynamic_fields.insert(std::make_pair(column, _field_type(dynamic_row.data[0], dynamic_row.len[0])));
+				++dynamic_row.data;
+				++dynamic_row.len;
 			}
-			else
-			{
-				for (const auto& column : _dynamic_columns)
-				{
-					_dynamic_fields.insert(std::make_pair(column, _field_type(dynamic_row)));
-				}
-			}
-
 		}
 
 		dynamic_result_row_t(const dynamic_result_row_t&) = delete;
@@ -233,35 +242,34 @@ namespace sqlpp
 		dynamic_result_row_t& operator=(const raw_result_row_t& raw_result_row)
 		{
 			_impl::operator=(raw_result_row);
-			_raw_result_row = raw_result_row;
-			_is_row = raw_result_row.data != nullptr;
+			_is_valid = true;
 
 			raw_result_row_t dynamic_row = raw_result_row;
-			if (_is_row)
-			{
-				dynamic_row.data += _last_static_index;
-				dynamic_row.len += _last_static_index;
-				for (const auto& column : _dynamic_columns)
-				{
-					_dynamic_fields.at(column) = dynamic_row;
-					++dynamic_row.data;
-					++dynamic_row.len;
-				}
-			}
-			else
-			{
-				for (const auto& column : _dynamic_columns)
-				{
-					_dynamic_fields.at(column) = dynamic_row;
-				}
-			}
 
+			dynamic_row.data += _last_static_index;
+			dynamic_row.len += _last_static_index;
+			for (const auto& column : _dynamic_columns)
+			{
+				_dynamic_fields.at(column).assign(dynamic_row.data[0], dynamic_row.len[0]);
+				++dynamic_row.data;
+				++dynamic_row.len;
+			}
 			return *this;
+		}
+
+		void invalidate()
+		{
+			_impl::invalidate();
+			_is_valid = false;
+			for (const auto& column : _dynamic_columns)
+			{
+				_dynamic_fields.at(column).invalidate();
+			}
 		}
 
 		bool operator==(const dynamic_result_row_t& rhs) const
 		{
-			return _raw_result_row == rhs._raw_result_row;
+			return _is_valid == rhs._is_valid;
 		}
 
 		const _field_type& at(const std::string& field_name) const
@@ -271,7 +279,7 @@ namespace sqlpp
 
 		explicit operator bool() const
 		{
-			return _is_row;
+			return _is_valid;
 		}
 
 	};

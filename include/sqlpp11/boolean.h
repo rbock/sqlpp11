@@ -120,21 +120,32 @@ namespace sqlpp
 				bool _is_null;
 			};
 
-			template<size_t index>
 			struct _result_entry_t
 			{
-				_result_entry_t(const raw_result_row_t& row):
-					_is_valid(row.data != nullptr),
-					_is_null(row.data == nullptr or row.data[index] == nullptr),
-					_value(_is_null ? false : (std::strtoll(row.data[index], nullptr, 10) != 0))
+				_result_entry_t():
+					_is_valid(false),
+					_is_null(true),
+					_value(false)
 					{}
 
-				_result_entry_t& operator=(const raw_result_row_t& row)
+				_result_entry_t(const char* data, size_t):
+					_is_valid(true),
+					_is_null(data == nullptr),
+					_value(_is_null ? false : (data[0] == 't' or data[0] == '1'))
+					{}
+
+				void assign(const char* data, size_t)
 				{
-					_is_valid = (row.data != nullptr);
-					_is_null = row.data == nullptr or row.data[index] == nullptr;
-					_value = _is_null ? false : (std::strtoll(row.data[index], nullptr, 10) != 0);
-					return *this;
+					_is_valid = true;
+					_is_null = data == nullptr;
+					_value = _is_null ? false : (data[0] == 't' or data[0] == '1');
+				}
+
+				void invalidate()
+				{
+					_is_valid = false;
+					_is_null = true;
+					_value = 0;
 				}
 
 				template<typename Db>
@@ -160,6 +171,12 @@ namespace sqlpp
 				}
 
 				operator _cpp_value_type() const { return value(); }
+
+				template<typename Target>
+					void bind(Target& target, size_t i)
+					{
+						target.bind_boolean_result(i, &_value, &_is_null);
+					}
 
 			private:
 				bool _is_valid;
@@ -195,8 +212,7 @@ namespace sqlpp
 			};
 		};
 
-		template<size_t index>
-		std::ostream& operator<<(std::ostream& os, const boolean::_result_entry_t<index>& e)
+		inline std::ostream& operator<<(std::ostream& os, const boolean::_result_entry_t& e)
 		{
 			return os << e.value();
 		}

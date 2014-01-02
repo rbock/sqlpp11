@@ -121,7 +121,6 @@ namespace sqlpp
 				bool _is_null;
 			};
 
-			template<size_t index>
 			struct _result_entry_t
 			{
 				using _value_type = integral;
@@ -132,18 +131,24 @@ namespace sqlpp
 					_value(0)
 					{}
 
-				_result_entry_t(const raw_result_row_t& row):
-					_is_valid(row.data != nullptr),
-					_is_null(row.data == nullptr or row.data[index] == nullptr),
-					_value(_is_null ? 0 : std::strtoll(row.data[index], nullptr, 10))
+				_result_entry_t(const char* data, size_t):
+					_is_valid(true),
+					_is_null(data == nullptr),
+					_value(_is_null ? 0 : std::strtoll(data, nullptr, 10))
 					{}
 
-				_result_entry_t& operator=(const raw_result_row_t& row)
+				void assign(const char* data, size_t)
 				{
-					_is_valid = (row.data != nullptr);
-					_is_null = row.data == nullptr or row.data[index] == nullptr;
-					_value = _is_null ? 0 : std::strtoll(row.data[index], nullptr, 10);
-					return *this;
+					_is_valid = true;
+					_is_null = data == nullptr;
+					_value = _is_null ? 0 : std::strtoll(data, nullptr, 10);
+				}
+
+				void invalidate()
+				{
+					_is_valid = false;
+					_is_null = true;
+					_value = 0;
 				}
 
 				template<typename Db>
@@ -171,9 +176,9 @@ namespace sqlpp
 				operator _cpp_value_type() const { return value(); }
 
 				template<typename Target>
-					void bind(Target& target, size_t i) const // Hint: Cannot use index here because of dynamic result rows which can use index==0 for several fields
+					void bind(Target& target, size_t i)
 					{
-						target.bind_integral_result(i, &_value, _is_null);
+						target.bind_integral_result(i, &_value, &_is_null);
 					}
 
 			private:
@@ -271,8 +276,7 @@ namespace sqlpp
 			};
 		};
 
-		template<size_t index>
-		std::ostream& operator<<(std::ostream& os, const integral::_result_entry_t<index>& e)
+		inline std::ostream& operator<<(std::ostream& os, const integral::_result_entry_t& e)
 		{
 			return os << e.value();
 		}
