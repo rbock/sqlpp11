@@ -617,7 +617,7 @@ namespace sqlpp
 			OrderBy _order_by;
 			Limit _limit;
 			Offset _offset;
-			using _parameter_t = std::tuple<Where, Having>;
+			using _parameter_tuple_t = std::tuple<Where, Having>;
 			using _parameter_list_t = typename make_parameter_list_t<select_t>::type;
 		};
 

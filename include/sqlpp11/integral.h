@@ -48,25 +48,37 @@ namespace sqlpp
 			using _is_expression = std::true_type;
 			using _cpp_value_type = int64_t;
 			
-			template<bool TrivialValueIsNull>
 			struct _parameter_t
 			{
 				using _value_type = integral;
 
-				_parameter_t():
+				_parameter_t(const std::true_type&):
+					_trivial_value_is_null(true),
 					_value(0),
-					_is_null(TrivialValueIsNull and _is_trivial())
+					_is_null(_trivial_value_is_null	and _is_trivial())
+					{}
+
+				_parameter_t(const std::false_type&):
+					_trivial_value_is_null(false),
+					_value(0),
+					_is_null(_trivial_value_is_null	and _is_trivial())
+					{}
+
+				_parameter_t(bool trivial_value_is_null):
+					_trivial_value_is_null(trivial_value_is_null),
+					_value(0),
+					_is_null(_trivial_value_is_null	and _is_trivial())
 					{}
 
 				_parameter_t(const _cpp_value_type& value):
 					_value(value),
-					_is_null(TrivialValueIsNull and _is_trivial())
+					_is_null(_trivial_value_is_null and _is_trivial())
 					{}
 
 				_parameter_t& operator=(const _cpp_value_type& value)
 				{
 					_value = value;
-					_is_null = (TrivialValueIsNull and _is_trivial());
+					_is_null = (_trivial_value_is_null and _is_trivial());
 					return *this;
 				}
 
@@ -90,14 +102,21 @@ namespace sqlpp
 					return _is_null; 
 				}
 
-				const _cpp_value_type* value() const
+				const _cpp_value_type& value() const
 				{
-					return &_value;
+					return _value;
 				}
 
 				operator _cpp_value_type() const { return _value; }
 
+				template<typename Target>
+					void bind(Target& target, size_t index) const
+					{
+						target.bind_integral_parameter(index, &_value, _is_null);
+					}
+
 			private:
+				bool _trivial_value_is_null;
 				_cpp_value_type _value;
 				bool _is_null;
 			};
@@ -150,6 +169,12 @@ namespace sqlpp
 				}
 
 				operator _cpp_value_type() const { return value(); }
+
+				template<typename Target>
+					void bind(Target& target, size_t i) const // Hint: Cannot use index here because of dynamic result rows which can use index==0 for several fields
+					{
+						target.bind_integral_result(i, &_value, _is_null);
+					}
 
 			private:
 				bool _is_valid;

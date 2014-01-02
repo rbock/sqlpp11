@@ -69,8 +69,8 @@ namespace sqlpp
 				return set_parameter_index(_expressions, index);
 			}
 
-			using _parameter_t = std::tuple<Expr...>;
-			_parameter_t _expressions;
+			using _parameter_tuple_t = std::tuple<Expr...>;
+			_parameter_tuple_t _expressions; // FIXME: Do we need those?
 			detail::serializable_list<Database> _dynamic_expressions;
 		};
 }

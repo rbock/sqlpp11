@@ -39,10 +39,14 @@ namespace sqlpp
 		};
 
 	template<typename... Parameter>
-		struct parameter_list_t<std::tuple<Parameter...>>: public Parameter::_member_t...
+		struct parameter_list_t<std::tuple<Parameter...>>: public Parameter::_instance_t...
 		{
-			using _member_tuple_t = std::tuple<typename Parameter::_member_t...>;
+			using _member_tuple_t = std::tuple<typename Parameter::_instance_t...>;
 			using size = std::integral_constant<std::size_t, sizeof...(Parameter)>;
+
+			parameter_list_t():
+				Parameter::_instance_t({typename Parameter::_trivial_value_is_null()})...
+			{}
 
 			template<typename Target>
 				void _bind(Target& target) const
@@ -56,7 +60,8 @@ namespace sqlpp
 			template<typename Target, size_t index>
 				void _bind_impl(Target& target, const index_t<index>&) const
 				{
-					target.bind_param(index, static_cast<typename std::tuple_element<index, const _member_tuple_t>::type&>(*this)());
+					const auto& parameter = static_cast<typename std::tuple_element<index, const _member_tuple_t>::type&>(*this)();
+					parameter.bind(target, index);
 					_bind_impl(target, index_t<index + 1>());
 				}
 
@@ -88,9 +93,9 @@ namespace sqlpp
 			};
 
 		template<typename Exp>
-			struct get_parameter_tuple<Exp, typename std::enable_if<not std::is_same<typename Exp::_parameter_t, void>::value, void>::type>
+			struct get_parameter_tuple<Exp, typename std::enable_if<not std::is_same<typename Exp::_parameter_tuple_t, void>::value, void>::type>
 			{
-				using type = typename get_parameter_tuple<typename Exp::_parameter_t>::type;
+				using type = typename get_parameter_tuple<typename Exp::_parameter_tuple_t>::type;
 			};
 
 	}

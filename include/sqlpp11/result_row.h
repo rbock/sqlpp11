@@ -37,6 +37,8 @@ namespace sqlpp
 {
 	namespace detail
 	{
+		template<size_t> struct index_t {}; // this is just for overloading
+
 		template<size_t level, size_t index, typename... NamedExpr>
 			struct result_row_impl;
 
@@ -60,14 +62,22 @@ namespace sqlpp
 					_rest::operator=(raw_result_row);
 					return *this;
 				}
+
+				template<typename Target>
+				void _bind(Target& target)
+				{
+					_field::operator().bind(target, index);
+					std::cerr << "binding result " << index << std::endl;
+					_rest::_bind(target);
+				}
 			};
 
 		template<size_t level, size_t index, typename AliasProvider, typename... Col, typename... Rest>
 			struct result_row_impl<level, index, multi_field_t<AliasProvider, std::tuple<Col...>>, Rest...>: 
-			public AliasProvider::_name_t::template _member_t<result_row_impl<level + 1, index, Col...>>, // level prevents identical closures to be present twice in the inheritance tree
+			public AliasProvider::_name_t::template _member_t<result_row_impl<level, index, Col...>>, // level prevents identical closures to be present twice in the inheritance tree
 			public result_row_impl<level, index + sizeof...(Col), Rest...>
 			{
-				using _multi_field = typename AliasProvider::_name_t::template _member_t<result_row_impl<level + 1, index, Col...>>;
+				using _multi_field = typename AliasProvider::_name_t::template _member_t<result_row_impl<level, index, Col...>>;
 				using _rest = result_row_impl<level, index + sizeof...(Col), Rest...>;
 				static constexpr size_t _last_index = _rest::_last_index;
 
@@ -82,6 +92,13 @@ namespace sqlpp
 					_rest::operator=(raw_result_row);
 					return *this;
 				}
+
+				template<typename Target>
+				void _bind(const Target& target)
+				{
+					_multi_field::_bind(target);
+					_rest::_bind(target);
+				}
 			};
 
 		template<size_t level, size_t index>
@@ -95,6 +112,11 @@ namespace sqlpp
 				{
 					return *this;
 				}
+
+				template<typename Target>
+				void _bind(Target& target)
+				{
+				}
 			};
 	}
 
@@ -104,6 +126,7 @@ namespace sqlpp
 		using _impl = detail::result_row_impl<0, 0, NamedExpr...>;
 		bool _is_row;
 		raw_result_row_t _raw_result_row;
+		static constexpr size_t _last_static_index = _impl::_last_index;
 
 		result_row_t():
 			_impl({}),
@@ -145,8 +168,14 @@ namespace sqlpp
 
 		static constexpr size_t static_size()
 		{
-			return sizeof...(NamedExpr);
+			return _last_static_index;
 		}
+
+		template<typename Target>
+			void bind_result(Target& target)
+			{
+				_impl::_bind(target);
+			}
 	};
 
 	template<typename... NamedExpr>

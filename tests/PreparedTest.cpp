@@ -80,9 +80,9 @@ int main()
 		using Exp = decltype(t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha) or t.gamma != parameter(t.gamma));
 		using T = sqlpp::make_parameter_list_t<Exp>::type;
 		T npl;
-		static_assert(std::is_same<typename decltype(t.alpha)::_value_type::_parameter_t<true>, decltype(npl.alpha)>::value, "type requirement");
-		static_assert(std::is_same<typename decltype(t.beta)::_value_type::_parameter_t<true>, decltype(npl.beta)>::value, "type requirement");
-		static_assert(std::is_same<typename decltype(t.gamma)::_value_type::_parameter_t<false>, decltype(npl.gamma)>::value, "type requirement");
+		static_assert(std::is_same<typename decltype(t.alpha)::_value_type::_parameter_t, decltype(npl.alpha)>::value, "type requirement");
+		static_assert(std::is_same<typename decltype(t.beta)::_value_type::_parameter_t, decltype(npl.beta)>::value, "type requirement");
+		static_assert(std::is_same<typename decltype(t.gamma)::_value_type::_parameter_t, decltype(npl.gamma)>::value, "type requirement");
 	}
 
 	// Wonderful, now take a look at the parameter list of a select
@@ -92,9 +92,9 @@ int main()
 		using T = sqlpp::make_parameter_list_t<S>::type;
 		T npl;
 
-		static_assert(std::is_same<typename decltype(t.alpha)::_value_type::_parameter_t<true>, decltype(npl.alpha)>::value, "type requirement");
-		static_assert(std::is_same<typename decltype(t.beta)::_value_type::_parameter_t<true>, decltype(npl.beta)>::value, "type requirement");
-		static_assert(std::is_same<typename decltype(t.gamma)::_value_type::_parameter_t<false>, decltype(npl.gamma)>::value, "type requirement");
+		static_assert(std::is_same<typename decltype(t.alpha)::_value_type::_parameter_t, decltype(npl.alpha)>::value, "type requirement");
+		static_assert(std::is_same<typename decltype(t.beta)::_value_type::_parameter_t, decltype(npl.beta)>::value, "type requirement");
+		static_assert(std::is_same<typename decltype(t.gamma)::_value_type::_parameter_t, decltype(npl.gamma)>::value, "type requirement");
 		npl.alpha = 7;
 		auto x = npl;
 		x = npl;

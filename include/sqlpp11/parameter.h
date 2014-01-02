@@ -33,14 +33,16 @@
 
 namespace sqlpp
 {
-	template<typename ValueType, typename NameType, bool TrivialValueIsNull>
+	template<typename ValueType, typename NameType, typename TrivialValueIsNull>
 	struct parameter_t
 	{
 		using _value_type = ValueType;
-		using _parameter_type = typename ValueType::template _parameter_t<TrivialValueIsNull>;
 		using _is_parameter = std::true_type;
 		using _is_expression_t = std::true_type;
-		using _member_t = typename NameType::_name_t::template _member_t<_parameter_type>;
+		using _instance_t = typename NameType::_name_t::template _member_t<typename ValueType::_parameter_t>;
+		using _trivial_value_is_null = TrivialValueIsNull;
+
+		static_assert(std::is_same<_trivial_value_is_null, std::true_type>::value or std::is_same<_trivial_value_is_null, std::false_type>::value, "Invalid template parameter TrivialValueIsNull");
 
 		template<typename Db>
 			void serialize(std::ostream& os, Db& db) const
@@ -61,7 +63,7 @@ namespace sqlpp
 		size_t index;
 	};
 
-	template<typename NamedExpr, bool TrivialValueIsNull = trivial_value_is_null_t<typename std::decay<NamedExpr>::type>::value>
+	template<typename NamedExpr, typename TrivialValueIsNull = trivial_value_is_null_t<typename std::decay<NamedExpr>::type>>
 		auto parameter(NamedExpr&& namedExpr)
 		-> parameter_t<typename std::decay<NamedExpr>::type::_value_type, typename std::decay<NamedExpr>::type, TrivialValueIsNull>
 		{

@@ -48,25 +48,31 @@ namespace sqlpp
 			using _is_expression = std::true_type;
 			using _cpp_value_type = std::string;
 
-			template<bool TrivialValueIsNull>
 			struct _parameter_t
 			{
 				using _value_type = integral;
 
-				_parameter_t():
+				_parameter_t(const std::true_type&):
+					_trivial_value_is_null(true),
 					_value(""),
-					_is_null(TrivialValueIsNull and _is_trivial())
+					_is_null(_trivial_value_is_null and _is_trivial())
+					{}
+
+				_parameter_t(const std::false_type&):
+					_trivial_value_is_null(false),
+					_value(""),
+					_is_null(_trivial_value_is_null and _is_trivial())
 					{}
 
 				_parameter_t(const _cpp_value_type& value):
 					_value(value),
-					_is_null(TrivialValueIsNull and _is_trivial())
+					_is_null(_trivial_value_is_null and _is_trivial())
 					{}
 
 				_parameter_t& operator=(const _cpp_value_type& value)
 				{
 					_value = value;
-					_is_null = (TrivialValueIsNull and _is_trivial());
+					_is_null = (_trivial_value_is_null and _is_trivial());
 					return *this;
 				}
 
@@ -98,6 +104,7 @@ namespace sqlpp
 				operator _cpp_value_type() const { return value(); }
 
 			private:
+				bool _trivial_value_is_null;
 				_cpp_value_type _value;
 				bool _is_null;
 			};
