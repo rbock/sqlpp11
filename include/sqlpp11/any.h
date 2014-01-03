@@ -52,6 +52,8 @@ namespace sqlpp
 					struct _member_t
 					{
 						T any;
+						T& operator()() { return any; }
+						const T& operator()() const { return any; }
 					};
 			};
 

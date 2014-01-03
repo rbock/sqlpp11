@@ -594,7 +594,7 @@ namespace sqlpp
 					// FIXME: Check for missing aliases (if references are used)
 					// FIXME: Check for missing tables, well, actually, check for missing tables at the where(), order_by(), etc.
 
-					return {db.select(*this)};
+					return {db.select(*this), get_dynamic_names()};
 				}
 
 			template<typename Db>

@@ -90,7 +90,7 @@ namespace sqlpp
 
 				void operator++()
 				{
-					_result.next(result_row);
+					_result.next(_result_row);
 				}
 
 				db_result_t& _result;

@@ -51,6 +51,8 @@ namespace sqlpp
 					struct _member_t
 					{
 						T max;
+						T& operator()() { return max; }
+						const T& operator()() const { return max; }
 					};
 			};
 

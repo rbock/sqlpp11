@@ -65,6 +65,12 @@ namespace sqlpp
 					return *this;
 				}
 
+				void validate()
+				{
+					_field::operator()().validate();
+					_rest::validate();
+				}
+
 				void invalidate()
 				{
 					_field::operator()().invalidate();
@@ -97,14 +103,20 @@ namespace sqlpp
 
 				result_row_impl& operator=(const char_result_row_t& char_result_row_t)
 				{
-					_multi_field::operator=({char_result_row_t});
+					_multi_field::operator()() = char_result_row_t;
 					_rest::operator=(char_result_row_t);
 					return *this;
 				}
 
+				void validate()
+				{
+					_multi_field::operator()().validate();
+					_rest::validate();
+				}
+
 				void invalidate()
 				{
-					_multi_field::invalidate();
+					_multi_field::operator()().invalidate();
 					_rest::invalidate();
 				}
 
@@ -128,6 +140,10 @@ namespace sqlpp
 				result_row_impl& operator=(const char_result_row_t& char_result_row_t)
 				{
 					return *this;
+				}
+
+				void validate()
+				{
 				}
 
 				void invalidate()
@@ -171,6 +187,12 @@ namespace sqlpp
 			_impl::operator=(char_result_row_t);
 			_is_valid = true;
 			return *this;
+		}
+
+		void validate()
+		{
+			_impl::validate();
+			_is_valid = true;
 		}
 
 		void invalidate()

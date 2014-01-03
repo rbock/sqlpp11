@@ -63,13 +63,7 @@ namespace sqlpp
 					_is_null(_trivial_value_is_null	and _is_trivial())
 					{}
 
-				_parameter_t(bool trivial_value_is_null):
-					_trivial_value_is_null(trivial_value_is_null),
-					_value(0),
-					_is_null(_trivial_value_is_null	and _is_trivial())
-					{}
-
-				_parameter_t(const _cpp_value_type& value):
+				explicit _parameter_t(const _cpp_value_type& value):
 					_value(value),
 					_is_null(_trivial_value_is_null and _is_trivial())
 					{}
@@ -81,11 +75,10 @@ namespace sqlpp
 					return *this;
 				}
 
-				_parameter_t& operator=(const std::nullptr_t&)
+				void set_null()
 				{
 					_value = 0;
 					_is_null = true;
-					return *this;
 				}
 
 				template<typename Db>
@@ -148,6 +141,11 @@ namespace sqlpp
 					_is_valid = false;
 					_is_null = true;
 					_value = 0;
+				}
+
+				void validate()
+				{
+					_is_valid = true;
 				}
 
 				template<typename Db>
