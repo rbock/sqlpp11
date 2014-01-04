@@ -115,7 +115,7 @@ namespace sqlpp
 
 			private:
 				bool _trivial_value_is_null;
-				_cpp_value_type _value;
+				signed char _value;
 				bool _is_null;
 			};
 
@@ -185,7 +185,7 @@ namespace sqlpp
 			private:
 				bool _is_valid;
 				bool _is_null;
-				_cpp_value_type _value;
+				signed char _value;
 			};
 
 			template<typename T>
