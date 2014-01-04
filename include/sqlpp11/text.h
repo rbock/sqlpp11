@@ -102,6 +102,12 @@ namespace sqlpp
 
 				operator _cpp_value_type() const { return value(); }
 
+				template<typename Target>
+					void bind(Target& target, size_t index) const
+					{
+						target.bind_text_parameter(index, &_value, _is_null);
+					}
+
 			private:
 				bool _trivial_value_is_null;
 				_cpp_value_type _value;
