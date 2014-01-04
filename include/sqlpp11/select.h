@@ -150,6 +150,7 @@ namespace sqlpp
 				_limit(std::move(limit)),
 				_offset(std::move(offset))
 			{
+				// FIXME: Need to calculate parameter positions here and in other constructors
 			}
 
 			constexpr select_t(const Flags& flags, const ExpressionList& expression_list, const From& from,

@@ -263,7 +263,7 @@ namespace sqlpp
 			dynamic_row.len += _last_static_index;
 			for (const auto& column : _dynamic_columns)
 			{
-				_dynamic_fields.at(column).assign(dynamic_row.data[0], dynamic_row.len[0]);
+				_dynamic_fields[column].assign(dynamic_row.data[0], dynamic_row.len[0]);
 				++dynamic_row.data;
 				++dynamic_row.len;
 			}
