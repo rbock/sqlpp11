@@ -31,6 +31,7 @@
 #include <sqlpp11/detail/serialize_tuple.h>
 #include <sqlpp11/alias.h>
 #include <sqlpp11/noop.h>
+#include <sqlpp11/parameter_list.h> // FIXME: a forward for set_parameter_index would be nice here
 
 namespace sqlpp
 {
@@ -45,7 +46,8 @@ namespace sqlpp
 			size_t _set_parameter_index(size_t index)
 			{
 				index = set_parameter_index(_lhs, index);
-				return set_parameter_index(_rhs, index);
+				index = set_parameter_index(_rhs, index);
+				return index;
 			}
 
 			template<typename Db>

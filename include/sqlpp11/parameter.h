@@ -52,7 +52,7 @@ namespace sqlpp
 				if (Db::_use_questionmark_parameter)
 					os << '?';
 				else if (Db::_use_positional_dollar_parameter)
-					os << '$' << index + 1;
+					os << '$' << _index + 1;
 			}
 
 		constexpr bool _is_trivial() const
@@ -60,7 +60,13 @@ namespace sqlpp
 			return false;
 		}
 
-		size_t index;
+		size_t _set_parameter_index(size_t index)
+		{
+			_index = index;
+			return index + 1;
+		}
+
+		size_t _index;
 	};
 
 	template<typename NamedExpr, typename TrivialValueIsNull = trivial_value_is_null_t<typename std::decay<NamedExpr>::type>>

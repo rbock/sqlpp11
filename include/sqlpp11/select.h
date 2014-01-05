@@ -111,6 +111,8 @@ namespace sqlpp
 
 			using _result_row_t = typename ExpressionList::_result_row_t;
 			using _dynamic_names_t = typename ExpressionList::_dynamic_names_t;
+			using _parameter_tuple_t = std::tuple<Where, Having>;
+			using _parameter_list_t = typename make_parameter_list_t<select_t>::type;
 
 			// Indicators
 			using _value_type = typename std::conditional<
@@ -127,6 +129,7 @@ namespace sqlpp
 			{
 				static_assert(std::is_same<select_t, sqlpp::select_t<Database, Flags, ExpressionList>>::value,
 						"basic constructor only available for select_t<Flags, ExpressionList> (default template parameters)");
+				_set_parameter_index(0);
 			}
 
 			select_t(const select_t& rhs) = default;
@@ -137,7 +140,7 @@ namespace sqlpp
 
 			// Other constructors
 
-			constexpr select_t(Flags&& flags, ExpressionList&& expression_list, From&& from,
+			select_t(Flags&& flags, ExpressionList&& expression_list, From&& from,
 					Where&& where, GroupBy&& group_by, Having&& having,
 					OrderBy&& order_by, Limit&& limit, Offset&& offset):
 				_flags(std::move(flags)),
@@ -150,10 +153,10 @@ namespace sqlpp
 				_limit(std::move(limit)),
 				_offset(std::move(offset))
 			{
-				// FIXME: Need to calculate parameter positions here and in other constructors
+				_set_parameter_index(0);
 			}
 
-			constexpr select_t(const Flags& flags, const ExpressionList& expression_list, const From& from,
+			select_t(const Flags& flags, const ExpressionList& expression_list, const From& from,
 					const Where& where, const GroupBy& group_by, const Having& having,
 					const OrderBy& order_by, const Limit& limit, const Offset& offset):
 				_flags(flags),
@@ -166,6 +169,7 @@ namespace sqlpp
 				_limit(limit),
 				_offset(offset)
 			{
+				_set_parameter_index(0);
 			}
 
 			auto dynamic_columns()
@@ -609,6 +613,13 @@ namespace sqlpp
 					return {{}, get_dynamic_names(), db.prepare_select(*this)};
 				}
 
+			size_t _set_parameter_index(size_t index)
+			{
+				index = set_parameter_index(_where, index);
+				index = set_parameter_index(_having, index);
+				return index;
+			}
+
 			Flags _flags;
 			ExpressionList _expression_list;
 			From _from;
@@ -618,8 +629,6 @@ namespace sqlpp
 			OrderBy _order_by;
 			Limit _limit;
 			Offset _offset;
-			using _parameter_tuple_t = std::tuple<Where, Having>;
-			using _parameter_list_t = typename make_parameter_list_t<select_t>::type;
 		};
 
 	// construct select flag list

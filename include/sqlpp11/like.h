@@ -74,6 +74,13 @@ namespace sqlpp
 			like_t& operator=(like_t&&) = default;
 			~like_t() = default;
 
+			size_t _set_parameter_index(size_t index)
+			{
+				index = set_parameter_index(_operand, index);
+				index = set_parameter_index(_pattern, index);
+				return index;
+			}
+
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{

@@ -126,6 +126,70 @@ namespace sqlpp
 			using type = parameter_list_t<typename detail::get_parameter_tuple<typename std::decay<Exp>::type>::type>;
 		};
 
+	template<typename T>
+	size_t set_parameter_index(T& t, size_t index);
+
+	namespace detail
+	{
+		template<typename Exp, typename Enable = void>
+			struct set_parameter_index_t
+			{
+				size_t operator()(Exp& e, size_t index)
+				{
+					return index;
+				}
+			};
+
+		template<typename Exp>
+			struct set_parameter_index_t<Exp, typename std::enable_if<is_parameter_t<Exp>::value, void>::type>
+			{
+				size_t operator()(Exp& e, size_t index)
+				{
+					return e._set_parameter_index(index);
+				}
+			};
+
+		template<typename... Param>
+			struct set_parameter_index_t<std::tuple<Param...>, void>
+			{
+				template<size_t> struct type{};
+
+				size_t operator()(std::tuple<Param...>& t, size_t index)
+				{
+					return impl(t, index, type<0>());
+				}
+			private:
+				template<size_t pos>
+				size_t impl(std::tuple<Param...>& t, size_t index, const type<pos>&)
+				{
+					index = sqlpp::set_parameter_index(std::get<pos>(t), index);
+					return impl(t, index, type<pos + 1>());
+				}
+
+				size_t impl(std::tuple<Param...>& t, size_t index, const type<sizeof...(Param)>&)
+				{
+					return index;
+				}
+			};
+
+		template<typename Exp>
+			struct set_parameter_index_t<Exp, typename std::enable_if<not std::is_same<typename Exp::_parameter_tuple_t, void>::value, void>::type>
+			{
+				size_t operator()(Exp& e, size_t index)
+				{
+					return e._set_parameter_index(index);
+				}
+			};
+
+	}
+
+
+	template<typename T>
+	size_t set_parameter_index(T& t, size_t index)
+	{
+		return detail::set_parameter_index_t<T>()(t, index);
+	}
+
 }
 
 #endif
