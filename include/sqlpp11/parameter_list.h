@@ -32,6 +32,25 @@
 
 namespace sqlpp
 {
+	namespace detail
+	{
+		template<typename... T>
+			struct or_t;
+
+		template<typename T, typename... Rest>
+			struct or_t<T, Rest...>
+			{
+				static constexpr bool value = T::value or or_t<Rest...>::value;
+			};
+
+		template<>
+			struct or_t<>
+			{
+				static constexpr bool value = false;
+			};
+
+	}
+
 	template<typename T>
 		struct parameter_list_t
 		{
@@ -43,9 +62,10 @@ namespace sqlpp
 		{
 			using _member_tuple_t = std::tuple<typename Parameter::_instance_t...>;
 			using size = std::integral_constant<std::size_t, sizeof...(Parameter)>;
+			using _contains_trivial_value_is_null_t = detail::or_t<typename Parameter::_trivial_value_is_null_t...>;
 
 			parameter_list_t():
-				Parameter::_instance_t({typename Parameter::_trivial_value_is_null()})...
+				Parameter::_instance_t({typename Parameter::_trivial_value_is_null_t()})...
 			{}
 
 			template<typename Target>

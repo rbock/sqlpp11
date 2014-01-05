@@ -34,6 +34,7 @@
 #include <sqlpp11/detail/set.h>
 #include <sqlpp11/detail/serialize_tuple.h>
 #include <sqlpp11/detail/serializable_list.h>
+#include <sqlpp11/parameter_list.h>
 
 namespace sqlpp
 {
@@ -42,10 +43,14 @@ namespace sqlpp
 		{
 			using _is_where = std::true_type;
 			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
+			using _parameter_tuple_t = std::tuple<Expr...>;
 
 			static_assert(_is_dynamic::value or sizeof...(Expr), "at least one expression argument required in where()");
 			using _valid_expressions = typename detail::make_set_if<is_expression_t, Expr...>::type;
 			static_assert(_valid_expressions::size::value == sizeof...(Expr), "at least one argument is not an expression in where()");
+
+			using _parameter_list_t = typename make_parameter_list_t<_parameter_tuple_t>::type;
+			static_assert(not _parameter_list_t::_contains_trivial_value_is_null_t::value, "must not use trivial_value_is_null in parameters of where expression, use where_parameter() instead of parameter() to turn off automatic conversion");
 
 			template<typename E>
 				void add(E&& expr)
@@ -69,8 +74,7 @@ namespace sqlpp
 				return set_parameter_index(_expressions, index);
 			}
 
-			using _parameter_tuple_t = std::tuple<Expr...>;
-			_parameter_tuple_t _expressions; // FIXME: Do we need those?
+			_parameter_tuple_t _expressions;
 			detail::serializable_list<Database> _dynamic_expressions;
 		};
 }

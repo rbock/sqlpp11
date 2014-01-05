@@ -87,7 +87,7 @@ int main()
 
 	// Wonderful, now take a look at the parameter list of a select
 	{
-		auto s = select(all_of(t)).from(t).where(t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha) or t.gamma != parameter(t.gamma));
+		auto s = select(all_of(t)).from(t).where(t.beta.like(where_parameter(t.beta)) and t.alpha == where_parameter(t.alpha) or t.gamma != parameter(t.gamma));
 		using S = decltype(s);
 		using T = sqlpp::make_parameter_list_t<S>::type;
 		T npl;
