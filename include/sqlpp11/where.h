@@ -71,7 +71,8 @@ namespace sqlpp
 
 			size_t _set_parameter_index(size_t index)
 			{
-				return set_parameter_index(_expressions, index);
+				index = set_parameter_index(_expressions, index);
+				return index;
 			}
 
 			_parameter_tuple_t _expressions;

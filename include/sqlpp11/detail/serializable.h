@@ -30,6 +30,7 @@
 #include <ostream>
 #include <vector>
 #include <memory>
+#include <sqlpp11/parameter_list.h>
 
 namespace sqlpp
 {
@@ -65,6 +66,7 @@ namespace sqlpp
 				template<typename T>
 					struct _impl_t: public _impl_base
 				{
+					static_assert(not make_parameter_list_t<T>::type::size::value, "parameters not supported in dynamic query parts");
 					_impl_t(const T& t):
 						_t(t)
 					{}
