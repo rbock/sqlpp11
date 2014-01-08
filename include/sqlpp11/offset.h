@@ -33,18 +33,29 @@
 
 namespace sqlpp
 {
-	struct offset_t
-	{
-		using _is_offset = std::true_type;
+	template<typename Offset>
+		struct offset_t
+		{
+			using _is_offset = std::true_type;
+			using _parameter_tuple_t = std::tuple<Offset>;
+			static_assert(std::is_integral<Offset>::value 
+					or (is_parameter_t<Offset>::value and is_numeric_t<Offset>::value), "offset requires an integral value or integral parameter");
 
-		template<typename Db>
-			void serialize(std::ostream& os, Db& db) const
+
+			template<typename Db>
+				void serialize(std::ostream& os, Db& db) const
+				{
+					os << " OFFSET " << _offset;
+				}
+
+			size_t _set_parameter_index(size_t index)
 			{
-				os << " OFFSET " << _offset;
+				index = set_parameter_index(_offset, index);
+				return index;
 			}
 
-		const std::size_t _offset;
-	};
+			Offset _offset;
+		};
 
 	struct dynamic_offset_t
 	{

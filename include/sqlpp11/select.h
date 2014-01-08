@@ -111,7 +111,7 @@ namespace sqlpp
 
 			using _result_row_t = typename ExpressionList::_result_row_t;
 			using _dynamic_names_t = typename ExpressionList::_dynamic_names_t;
-			using _parameter_tuple_t = std::tuple<Where, Having>;
+			using _parameter_tuple_t = std::tuple<ExpressionList, Where, GroupBy, Having, OrderBy, Limit, Offset>;
 			using _parameter_list_t = typename make_parameter_list_t<select_t>::type;
 
 			// Indicators
@@ -129,7 +129,6 @@ namespace sqlpp
 			{
 				static_assert(std::is_same<select_t, sqlpp::select_t<Database, Flags, ExpressionList>>::value,
 						"basic constructor only available for select_t<Flags, ExpressionList> (default template parameters)");
-				_set_parameter_index(0);
 			}
 
 			select_t(const select_t& rhs) = default;
@@ -153,7 +152,6 @@ namespace sqlpp
 				_limit(std::move(limit)),
 				_offset(std::move(offset))
 			{
-				_set_parameter_index(0);
 			}
 
 			select_t(const Flags& flags, const ExpressionList& expression_list, const From& from,
@@ -169,7 +167,6 @@ namespace sqlpp
 				_limit(limit),
 				_offset(offset)
 			{
-				_set_parameter_index(0);
 			}
 
 			auto dynamic_columns()
@@ -443,23 +440,24 @@ namespace sqlpp
 					return *this;
 				}
 
-			auto limit(std::size_t limit)
-				-> set_limit_t<limit_t>
-			{
-				static_assert(not is_noop<From>::value, "cannot call limit() without a from()");
-				static_assert(is_noop<Limit>::value, "cannot call limit() twice for a single select");
-				return {
+			template<typename Expr>
+				auto limit(Expr limit)
+				-> set_limit_t<limit_t<typename std::decay<Expr>::type>>
+				{
+					static_assert(not is_noop<From>::value, "cannot call limit() without a from()");
+					static_assert(is_noop<Limit>::value, "cannot call limit() twice for a single select");
+					return {
 						_flags, 
-						_expression_list,
-						_from,
-						_where,
-						_group_by,
-						_having,
-						_order_by,
-						{limit},
-						_offset,
-				};
-			}
+							_expression_list,
+							_from,
+							_where,
+							_group_by,
+							_having,
+							_order_by,
+							{limit},
+							_offset,
+					};
+				}
 
 			auto dynamic_limit(std::size_t limit = 0)
 				->set_limit_t<dynamic_limit_t>
@@ -488,8 +486,9 @@ namespace sqlpp
 				return *this;
 			}
 
-			auto offset(std::size_t offset)
-				-> set_offset_t<offset_t>
+			template<typename Expr>
+			auto offset(Expr offset)
+				-> set_offset_t<offset_t<typename std::decay<Expr>::type>>
 			{
 				static_assert(not is_noop<Limit>::value, "cannot call offset() without a limit");
 				static_assert(is_noop<Offset>::value, "cannot call offset() twice for a single select");
@@ -602,21 +601,29 @@ namespace sqlpp
 					return {db.select(*this), get_dynamic_names()};
 				}
 
+			// Prepare
 			template<typename Db>
-				prepared_select_t<typename std::decay<Db>::type, select_t> prepare(Db& db) const
+				auto prepare(Db& db)
+				-> prepared_select_t<typename std::decay<Db>::type, select_t>
 				{
 					static_assert(not is_noop<ExpressionList>::value, "cannot run select without having selected anything");
 					static_assert(is_from_t<From>::value, "cannot run select without a from()");
 					// FIXME: Check for missing aliases (if references are used)
 					// FIXME: Check for missing tables, well, actually, check for missing tables at the where(), order_by(), etc.
 
+					_set_parameter_index(0);
 					return {{}, get_dynamic_names(), db.prepare_select(*this)};
 				}
 
 			size_t _set_parameter_index(size_t index)
 			{
+				index = set_parameter_index(_expression_list, index);
 				index = set_parameter_index(_where, index);
+				index = set_parameter_index(_group_by, index);
 				index = set_parameter_index(_having, index);
+				index = set_parameter_index(_order_by, index);
+				index = set_parameter_index(_limit, index);
+				index = set_parameter_index(_offset, index);
 				return index;
 			}
 

@@ -33,19 +33,29 @@
 
 namespace sqlpp
 {
-	struct limit_t
-	{
-		using _is_limit = std::true_type;
+	template<typename Limit>
+		struct limit_t
+		{
+			using _is_limit = std::true_type;
+			using _parameter_tuple_t = std::tuple<Limit>;
+			static_assert(std::is_integral<Limit>::value 
+					or (is_parameter_t<Limit>::value and is_numeric_t<Limit>::value), "limit requires an integral value or integral parameter");
 
-		template<typename Db>
-			void serialize(std::ostream& os, Db& db) const
+			template<typename Db>
+				void serialize(std::ostream& os, Db& db) const
+				{
+					static_assert(Db::_supports_limit, "limit not supported by current database");
+					os << " LIMIT " << _limit;
+				}
+
+			size_t _set_parameter_index(size_t index)
 			{
-				static_assert(Db::_supports_limit, "limit not supported by current database");
-				os << " LIMIT " << _limit;
+				index = set_parameter_index(_limit, index);
+				return index;
 			}
 
-		std::size_t _limit;
-	};
+			Limit _limit;
+		};
 
 	struct dynamic_limit_t
 	{

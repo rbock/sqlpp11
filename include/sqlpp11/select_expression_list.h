@@ -107,6 +107,7 @@ namespace sqlpp
 		{
 			using _is_select_expression_list = std::true_type;
 			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
+			using _parameter_tuple_t = std::tuple<NamedExpr...>;
 
 			// check for duplicate select expressions
 			static_assert(not detail::has_duplicates<NamedExpr...>::value, "at least one duplicate argument detected");
@@ -160,7 +161,13 @@ namespace sqlpp
 					_dynamic_expressions.serialize(os, db, sizeof...(NamedExpr) == 0);
 				}
 
-			std::tuple<NamedExpr...> _expressions;
+			size_t _set_parameter_index(size_t index)
+			{
+				index = set_parameter_index(_expressions, index);
+				return index;
+			}
+
+			_parameter_tuple_t _expressions;
 			detail::dynamic_select_expression_list<Database> _dynamic_expressions;
 		};
 
