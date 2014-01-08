@@ -39,6 +39,7 @@ namespace sqlpp
 		{
 			using _is_assignment_list = std::true_type;
 			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
+			using _parameter_tuple_t = std::tuple<Assignments...>;
 
 			// check for at least one order expression
 			static_assert(_is_dynamic::value or sizeof...(Assignments), "at least one assignment expression required in set()");
@@ -70,7 +71,13 @@ namespace sqlpp
 					_dynamic_assignments.serialize(os, db, sizeof...(Assignments) == 0);
 				}
 
-			std::tuple<typename std::decay<Assignments>::type...> _assignments;
+			size_t _set_parameter_index(size_t index)
+			{
+				index = set_parameter_index(_assignments, index);
+				return index;
+			}
+
+			_parameter_tuple_t _assignments;
 			typename detail::serializable_list<Database> _dynamic_assignments;
 		};
 

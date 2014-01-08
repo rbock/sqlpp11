@@ -32,6 +32,8 @@
 #include <sqlpp11/assignment_list.h>
 #include <sqlpp11/where.h>
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/parameter_list.h>
+#include <sqlpp11/prepared_update.h>
 
 namespace sqlpp
 {
@@ -59,6 +61,9 @@ namespace sqlpp
 				using set_assignments_t = update_t<Database, Table, AssignmentsT, Where>;
 			template<typename WhereT> 
 				using set_where_t = update_t<Database, Table, Assignments, WhereT>;
+
+			using _parameter_tuple_t = std::tuple<Table, Assignments, Where>;
+			using _parameter_list_t = typename make_parameter_list_t<update_t>::type;
 
 			template<typename... Assignment>
 				auto set(Assignment&&... assignment)
@@ -147,13 +152,35 @@ namespace sqlpp
 					return *this;
 				}
 
+			static constexpr size_t _get_static_no_of_parameters()
+			{
+				return _parameter_list_t::size::value;
+			}
+
 			template<typename Db>
 				std::size_t run(Db& db) const
 				{
-					std::ostringstream oss;
-					serialize(oss, db);
-					return db.update(oss.str());
+					static_assert(not is_noop<Assignments>::value, "calling set() required before running update");
+					static_assert(_get_static_no_of_parameters() == 0, "cannot run update directly with parameters, use prepare instead");
+					return db.update(*this);
 				}
+
+			template<typename Db>
+				auto prepare(Db& db)
+				-> prepared_update_t<typename std::decay<Db>::type, update_t>
+				{
+					static_assert(not is_noop<Assignments>::value, "calling set() required before running update");
+
+					_set_parameter_index(0);
+					return {{}, db.prepare_update(*this)};
+				}
+
+			size_t _set_parameter_index(size_t index)
+			{
+				index = set_parameter_index(_table, index);
+				index = set_parameter_index(_assignments, index);
+				return index;
+			}
 
 			Table _table;
 			Assignments _assignments;

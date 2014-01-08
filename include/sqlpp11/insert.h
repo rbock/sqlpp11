@@ -111,17 +111,17 @@ namespace sqlpp
 					return *this;
 				}
 
-			static constexpr size_t _get_static_no_of_parameters()
-			{
-				return _parameter_list_t::size::value;
-			}
-
 			template<typename Db>
 				insert_t& serialize(std::ostream& os, Db& db)
 				{
 					static_cast<const insert_t*>(this)->serialize(os, db);
 					return *this;
 				}
+
+			static constexpr size_t _get_static_no_of_parameters()
+			{
+				return _parameter_list_t::size::value;
+			}
 
 			template<typename Db>
 				std::size_t run(Db& db) const

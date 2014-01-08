@@ -33,7 +33,7 @@
 namespace sqlpp
 {
 	template<typename Db, typename Remove>
-		struct prepared_select_t
+		struct prepared_remove_t
 		{
 			using _parameter_list_t = typename Remove::_parameter_list_t;
 			using _prepared_query_t = typename Db::_prepared_query_t;

@@ -33,7 +33,7 @@
 namespace sqlpp
 {
 	template<typename Db, typename Update>
-		struct prepared_select_t
+		struct prepared_update_t
 		{
 			using _parameter_list_t = typename Update::_parameter_list_t;
 			using _prepared_query_t = typename Db::_prepared_query_t;
