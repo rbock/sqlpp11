@@ -24,26 +24,24 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_PREPARED_SELECT_H
-#define SQLPP_PREPARED_SELECT_H
+#ifndef SQLPP_PREPARED_INSERT_H
+#define SQLPP_PREPARED_INSERT_H
 
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/result.h>
 
 namespace sqlpp
 {
-	template<typename Db, typename Select>
-		struct prepared_select_t
+	template<typename Db, typename Insert>
+		struct prepared_insert_t
 		{
-			using _result_row_t = typename Select::_result_row_t;
-			using _parameter_list_t = typename Select::_parameter_list_t;
-			using _dynamic_names_t = typename Select::_dynamic_names_t;
+			using _parameter_list_t = typename Insert::_parameter_list_t;
 			using _prepared_query_t = typename Db::_prepared_query_t;
 
 			auto run(Db& db) const
-				-> result_t<decltype(db.run_prepared_select(*this)), _result_row_t>
+				-> size_t
 			{
-				return {db.run_prepared_select(*this), _dynamic_names};
+				return db.run_prepared_insert(*this);
 			}
 
 			void _bind_params() const
@@ -52,7 +50,6 @@ namespace sqlpp
 			}
 
 			_parameter_list_t params;
-			_dynamic_names_t _dynamic_names;
 			mutable _prepared_query_t _prepared_query;
 		};
 

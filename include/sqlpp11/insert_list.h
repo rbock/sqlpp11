@@ -63,6 +63,7 @@ namespace sqlpp
 		{
 			using _is_insert_list = std::true_type;
 			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
+			using _parameter_tuple_t = std::tuple<typename Assignments::value_type...>;
 
 			// check for at least one order expression
 			static_assert(_is_dynamic::value or sizeof...(Assignments), "at least one select expression required in set()");
@@ -119,8 +120,14 @@ namespace sqlpp
 					}
 				}
 
+			size_t _set_parameter_index(size_t index)
+			{
+				index = set_parameter_index(_values, index);
+				return index;
+			}
+
 			std::tuple<detail::insert_column<typename Assignments::column_type>...> _columns;
-			std::tuple<typename Assignments::value_type...> _values;
+			_parameter_tuple_t _values;
 			typename detail::serializable_list<Database> _dynamic_columns;
 			typename detail::serializable_list<Database> _dynamic_values;
 		};
