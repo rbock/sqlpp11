@@ -123,6 +123,11 @@ namespace sqlpp
 				return _parameter_list_t::size::value;
 			}
 
+			size_t _get_no_of_parameters()
+			{
+				return _parameter_list_t::size::value; // FIXME: Need to add dynamic parameters here
+			}
+
 			template<typename Db>
 				std::size_t run(Db& db) const
 				{

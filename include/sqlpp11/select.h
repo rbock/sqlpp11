@@ -582,6 +582,11 @@ namespace sqlpp
 				return _parameter_list_t::size::value;
 			}
 
+			size_t _get_no_of_parameters()
+			{
+				return _parameter_list_t::size::value; // FIXME: Need to add dynamic parameters here
+			}
+
 			size_t get_no_of_result_columns() const
 			{
 				return _result_row_t::static_size(); // FIXME: Need to add the size of dynamic columns
