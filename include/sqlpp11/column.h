@@ -28,12 +28,13 @@
 #define SQLPP_COLUMN_H
 
 #include <ostream>
+#include <sqlpp11/column_fwd.h>
 #include <sqlpp11/expression.h>
 #include <sqlpp11/alias.h>
-#include <sqlpp11/column_fwd.h>
 #include <sqlpp11/detail/wrong.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/sort_order.h>
+#include <sqlpp11/interpreter.h>
 
 namespace sqlpp
 {
@@ -59,12 +60,6 @@ namespace sqlpp
 		~column_t() = default;
 
 		template<typename Db>
-			void serialize(std::ostream& os, Db& db) const
-			{
-				os << Table::_name_t::_get_name() << '.' << _name_t::_get_name();
-			}
-
-		template<typename Db>
 			void serialize_name(std::ostream& os, Db& db) const
 			{
 				os << _name_t::_get_name();
@@ -84,6 +79,17 @@ namespace sqlpp
 				return { *this, std::forward<T>(t) };
 			}
 	};
+
+	template<typename Db, typename... Args>
+		struct interpreter_t<Db, column_t<Args...>>
+		{
+			using T = column_t<Args...>;
+			template<typename Context>
+				static void _(const T& t, Context& context)
+				{
+					context << T::_table::_name_t::_get_name() << '.' << T::_name_t::_get_name();
+				}
+		};
 
 }
 

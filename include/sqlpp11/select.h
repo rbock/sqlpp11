@@ -42,6 +42,7 @@
 #include <sqlpp11/expression.h>
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/prepared_select.h>
+#include <sqlpp11/interpreter.h>
 
 #include <sqlpp11/detail/wrong.h>
 #include <sqlpp11/detail/make_flag_tuple.h>

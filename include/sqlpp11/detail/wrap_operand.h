@@ -28,7 +28,9 @@
 #define SQLPP_DETAIL_WRAP_OPERAND_H
 
 #include <ostream>
-#include <type_traits>
+#include <sqlpp11/interpreter.h>
+
+// FIXME: must leave detail, since it is interpreted (and might require specializations)
 
 namespace sqlpp
 {
@@ -38,11 +40,12 @@ namespace sqlpp
 		struct integral;
 		struct floating_point;
 		struct text;
+	}
 
 		struct bool_operand
 		{
 			static constexpr bool _is_expression = true;
-			using _value_type = boolean;
+			using _value_type = detail::boolean;
 
 			bool_operand(bool t): _t(t) {}
 			bool_operand(const bool_operand&) = default;
@@ -66,7 +69,7 @@ namespace sqlpp
 			struct integral_operand
 			{
 				static constexpr bool _is_expression = true;
-				using _value_type = integral;
+				using _value_type = detail::integral;
 
 				integral_operand(T t): _t(t) {}
 				integral_operand(const integral_operand&) = default;
@@ -86,11 +89,23 @@ namespace sqlpp
 				T _t;
 			};
 
+	template<typename Db, typename T>
+		struct interpreter_t<Db, integral_operand<T>>
+		{
+			using Operand = integral_operand<T>;
+			template<typename Context>
+				static void _(const Operand& t, Context& context)
+				{
+					context << t._t;
+				}
+		};
+
+
 		template<typename T>
 			struct floating_point_operand
 			{
 				static constexpr bool _is_expression = true;
-				using _value_type = floating_point;
+				using _value_type = detail::floating_point;
 
 				floating_point_operand(T t): _t(t) {}
 				floating_point_operand(const floating_point_operand&) = default;
@@ -114,7 +129,7 @@ namespace sqlpp
 			struct text_operand
 			{
 				static constexpr bool _is_expression = true;
-				using _value_type = text;
+				using _value_type = detail::text;
 
 				text_operand(const T& t): _t(t) {}
 				text_operand(const text_operand&) = default;
@@ -163,7 +178,6 @@ namespace sqlpp
 			{
 				using type = text_operand<T>;
 			};
-	}
 }
 
 #endif

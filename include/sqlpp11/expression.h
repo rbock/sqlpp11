@@ -27,11 +27,11 @@
 #ifndef SQLPP_EXPRESSION_H
 #define SQLPP_EXPRESSION_H
 
-#include <sqlpp11/detail/wrap_operand.h>
-#include <sqlpp11/detail/serialize_tuple.h>
 #include <sqlpp11/alias.h>
 #include <sqlpp11/noop.h>
-#include <sqlpp11/parameter_list.h> // FIXME: a forward for set_parameter_index would be nice here
+#include <sqlpp11/interpreter.h>
+#include <sqlpp11/detail/wrap_operand.h>
+#include <sqlpp11/detail/serialize_tuple.h>
 
 namespace sqlpp
 {
@@ -41,45 +41,36 @@ namespace sqlpp
 			using _is_assignment = std::true_type;
 			using column_type = Lhs;
 			using value_type = Rhs;
-			using _parameter_tuple_t = std::tuple<Lhs, Rhs>;
-
-			size_t _set_parameter_index(size_t index)
-			{
-				index = set_parameter_index(_lhs, index);
-				index = set_parameter_index(_rhs, index);
-				return index;
-			}
-
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					_lhs.serialize_name(os, db);
-					if (trivial_value_is_null_t<Lhs>::value and _rhs._is_trivial())
-					{
-						os << "=NULL";
-					}
-					else
-					{
-						os << "=";
-						_rhs.serialize(os, db);
-					}
-				}
 
 			Lhs _lhs;
 			Rhs _rhs;
 		};
 
+	template<typename Db, typename Lhs, typename Rhs>
+		struct interpreter_t<Db, assignment_t<Lhs, Rhs>>
+		{
+			using T = assignment_t<Lhs, Rhs>;
+			template<typename Context>
+				static void _(const T& t, Context& context)
+				{
+					interpret(t._lhs, context);
+					if (trivial_value_is_null_t<Lhs>::value and t._rhs._is_trivial())
+					{
+						context << "=NULL";
+					}
+					else
+					{
+						context << "=";
+						interpret(t._rhs, context);
+					}
+				}
+		};
+
+
 	template<typename Lhs, typename Rhs, typename ValueType = detail::boolean>
 		struct equal_t: public ValueType::template operators<equal_t<Lhs, Rhs>>
 		{
-			using _value_type = ValueType;
-			using _parameter_tuple_t = std::tuple<Lhs, Rhs>;
-
-			size_t _set_parameter_index(size_t index)
-			{
-				index = set_parameter_index(_lhs, index);
-				return set_parameter_index(_rhs, index);
-			}
+			using _value_type = ValueType; // FIXME: Can we use boolean directly here?
 
 			template<typename L, typename R>
 			equal_t(L&& l, R&& r):
@@ -93,39 +84,37 @@ namespace sqlpp
 			equal_t& operator=(equal_t&&) = default;
 			~equal_t() = default;
 
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					os << "(";
-					_lhs.serialize(os, db);
-					if (trivial_value_is_null_t<Lhs>::value and _rhs._is_trivial())
-					{
-						os << " IS NULL";
-					}
-					else
-					{
-						os << "=";
-						_rhs.serialize(os, db);
-					}
-					os << ")";
-				}
-
 		private:
 			Lhs _lhs;
 			Rhs _rhs;
+		};
+
+	template<typename Db, typename... Args>
+		struct interpreter_t<Db, equal_t<Args...>>
+		{
+			using T = equal_t<Args...>;
+			template<typename Context>
+				static void interpret(const T& t, Context& context)
+				{
+					context << "(";
+					interpret(t._lhs, context);
+					if (trivial_value_is_null_t<typename T::Lhs>::value and t._rhs._is_trivial())
+					{
+						context << "IS NULL";
+					}
+					else
+					{
+						context << "=";
+						interpret(t._rhs, context);
+					}
+					context << ")";
+				}
 		};
 
 	template<typename Lhs, typename Rhs, typename ValueType = detail::boolean>
 		struct not_equal_t: public ValueType::template operators<not_equal_t<Lhs, Rhs>>
 		{
 			using _value_type = ValueType;
-			using _parameter_tuple_t = std::tuple<Lhs, Rhs>;
-
-			size_t _set_parameter_index(size_t index)
-			{
-				index = set_parameter_index(_lhs, index);
-				return set_parameter_index(_rhs, index);
-			}
 
 			template<typename L, typename R>
 			not_equal_t(L&& l, R&& r):
@@ -139,38 +128,36 @@ namespace sqlpp
 			not_equal_t& operator=(not_equal_t&&) = default;
 			~not_equal_t() = default;
 
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
+			Lhs _lhs;
+			Rhs _rhs;
+		};
+
+	template<typename Db, typename... Args>
+		struct interpreter_t<Db, not_equal_t<Args...>>
+		{
+			using T = not_equal_t<Args...>;
+			template<typename Context>
+				static void interpret(const T& t, Context& context)
 				{
-					os << "(";
-					_lhs.serialize(os, db);
-					if (trivial_value_is_null_t<Lhs>::value and _rhs._is_trivial())
+					context << "(";
+					interpret(t._lhs, context);
+					if (trivial_value_is_null_t<typename T::Lhs>::value and t._rhs._is_trivial())
 					{
-						os << " IS NOT NULL";
+						context << "IS NOT NULL";
 					}
 					else
 					{
-						os << "!=";
-						_rhs.serialize(os, db);
+						context << "!=";
+						interpret(t._rhs, context);
 					}
-					os << ")";
+					context << ")";
 				}
-
-		private:
-			Lhs _lhs;
-			Rhs _rhs;
 		};
 
 	template<typename Lhs, typename ValueType = detail::boolean>
 		struct not_t: public ValueType::template operators<not_t<Lhs>>
 		{
 			using _value_type = ValueType;
-			using _parameter_tuple_t = std::tuple<Lhs>;
-
-			size_t _set_parameter_index(size_t index)
-			{
-				return set_parameter_index(_lhs, index);
-			}
 
 			not_t(Lhs l):
 				_lhs(l)
@@ -182,47 +169,39 @@ namespace sqlpp
 			not_t& operator=(not_t&&) = default;
 			~not_t() = default;
 
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
+			Lhs _lhs;
+		};
+
+	template<typename Db, typename... Args>
+		struct interpreter_t<Db, not_t<Args...>>
+		{
+			using T = not_t<Args...>;
+			template<typename Context>
+				static void interpret(const T& t, Context& context)
 				{
-					os << "(";
-					if (trivial_value_is_null_t<Lhs>::value and _lhs._is_trivial())
+					context << "(";
+					if (trivial_value_is_null_t<typename T::Lhs>::value and t._lhs._is_trivial())
 					{
-						_lhs.serialize(os, db);
-						os << " IS NULL";
+						interpret(t._lhs, context);
+						context << "IS NULL";
 					}
 					else
 					{
-						os << "NOT";
-						_lhs.serialize(os, db);
+						context << "NOT ";
+						interpret(t._lhs, context);
 					}
-					os << ")";
+					context << ")";
 				}
-
-		private:
-			Lhs _lhs;
 		};
 
 	template<typename Lhs, typename O, typename Rhs>
 		struct binary_expression_t: public O::_value_type::template operators<binary_expression_t<Lhs, O, Rhs>>
 		{
 			using _value_type = typename O::_value_type;
-			using _parameter_tuple_t = std::tuple<Lhs, Rhs>;
 
-			size_t _set_parameter_index(size_t index)
-			{
-				index = set_parameter_index(_lhs, index);
-				return set_parameter_index(_rhs, index);
-			}
-
-			binary_expression_t(Lhs&& l, Rhs&& r):
-				_lhs(std::move(l)), 
-				_rhs(std::move(r))
-			{}
-
-			binary_expression_t(const Lhs& l, const Rhs& r):
-				_lhs(l), 
-				_rhs(r)
+			binary_expression_t(Lhs lhs, Rhs rhs):
+				_lhs(lhs), 
+				_rhs(rhs)
 			{}
 
 			binary_expression_t(const binary_expression_t&) = default;
@@ -231,19 +210,23 @@ namespace sqlpp
 			binary_expression_t& operator=(binary_expression_t&&) = default;
 			~binary_expression_t() = default;
 
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					os << "(";
-					_lhs.serialize(os, db);
-					os << O::_name;
-					_rhs.serialize(os, db);
-					os << ")";
-				}
-
-		private:
 			Lhs _lhs;
 			Rhs _rhs;
+		};
+
+	template<typename Db, typename... Args>
+		struct interpreter_t<Db, binary_expression_t<Args...>>
+		{
+			using T = binary_expression_t<Args...>;
+			template<typename Context>
+				static void interpret(const T& t, Context& context)
+				{
+					context << "(";
+					interpret(t._lhs, context);
+					context << T::O::_name;
+					interpret(t._rhs, context);
+					context << ")";
+				}
 		};
 
 }

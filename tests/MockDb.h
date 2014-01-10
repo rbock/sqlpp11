@@ -31,6 +31,22 @@
 class DbMock: public sqlpp::connection
 {
 public:
+	struct Printer
+	{
+		using _database_t = DbMock;
+		Printer(std::ostream& os):
+			_os(os)
+		{}
+
+		template<typename T>
+			std::ostream& operator<<(const T& t)
+			{
+				return _os << t;
+			}
+
+		std::ostream& _os;
+	};
+
 	// join types
 	static constexpr bool _supports_inner_join = true;
 	static constexpr bool _supports_outer_join = true;
