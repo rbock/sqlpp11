@@ -41,8 +41,9 @@ namespace sqlpp
 		{
 			static_assert(is_text_t<Operand>::value, "Operand for like() has to be a text");
 			static_assert(is_text_t<Pattern>::value, "Pattern for like() has to be a text");
+			using _parameter_tuple_t = std::tuple<ValueType, Pattern>;
 
-			struct _value_type: public ValueType::_base_value_type // we requite fully defined boolean here
+			struct _value_type: public ValueType::_base_value_type // we require fully defined boolean here
 			{
 				using _is_named_expression = std::true_type;
 			};
@@ -72,6 +73,13 @@ namespace sqlpp
 			like_t& operator=(const like_t&) = default;
 			like_t& operator=(like_t&&) = default;
 			~like_t() = default;
+
+			size_t _set_parameter_index(size_t index)
+			{
+				index = set_parameter_index(_operand, index);
+				index = set_parameter_index(_pattern, index);
+				return index;
+			}
 
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const

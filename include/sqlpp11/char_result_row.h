@@ -24,72 +24,21 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_MAX_H
-#define SQLPP_MAX_H
-
-#include <sstream>
-#include <sqlpp11/type_traits.h>
+#ifndef SQLPP_CHAR_RESULT_ROW_H
+#define SQLPP_CHAR_RESULT_ROW_H
 
 namespace sqlpp
 {
-	namespace detail
+	struct char_result_row_t
 	{
-		template<typename Expr>
-		struct max_t: public boolean::template operators<max_t<Expr>>
+		char** data;
+		size_t* len;
+
+		bool operator==(const char_result_row_t& rhs) const
 		{
-			static_assert(is_value_t<Expr>::value, "max() requires a value expression as argument");
-
-			struct _value_type: public Expr::_value_type::_base_value_type
-			{
-				using _is_named_expression = std::true_type;
-			};
-
-			struct _name_t
-			{
-				static constexpr const char* _get_name() { return "MAX"; }
-				template<typename T>
-					struct _member_t
-					{
-						T max;
-						T& operator()() { return max; }
-						const T& operator()() const { return max; }
-					};
-			};
-
-			max_t(Expr&& expr):
-				_expr(std::move(expr))
-			{}
-
-			max_t(const Expr& expr):
-				_expr(expr)
-			{}
-
-			max_t(const max_t&) = default;
-			max_t(max_t&&) = default;
-			max_t& operator=(const max_t&) = default;
-			max_t& operator=(max_t&&) = default;
-			~max_t() = default;
-
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					static_assert(Db::_supports_max, "max not supported by current database");
-					os << "MAX(";
-					_expr.serialize(os, db);
-					os << ")";
-				}
-
-		private:
-			Expr _expr;
-		};
-	}
-
-	template<typename T>
-	auto max(T&& t) -> typename detail::max_t<typename operand_t<T, is_value_t>::type>
-	{
-		return { std::forward<T>(t) };
-	}
-
+			return data == rhs.data and len == rhs.len; 
+		}
+	};
 }
 
 #endif

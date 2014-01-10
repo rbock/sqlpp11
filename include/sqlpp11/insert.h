@@ -32,6 +32,9 @@
 #include <sqlpp11/select_fwd.h>
 #include <sqlpp11/insert_list.h>
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/parameter_list.h>
+#include <sqlpp11/prepared_insert.h>
+
 #include <sqlpp11/detail/serialize_tuple.h>
 
 namespace sqlpp
@@ -55,6 +58,9 @@ namespace sqlpp
 
 			template<typename AssignmentT> 
 				using set_insert_list_t = insert_t<Database, Table, AssignmentT>;
+
+			using _parameter_tuple_t = std::tuple<Table, InsertList>;
+			using _parameter_list_t = typename make_parameter_list_t<insert_t>::type;
 
 			template<typename... Assignment>
 				auto set(Assignment&&... assignment)
@@ -112,16 +118,45 @@ namespace sqlpp
 					return *this;
 				}
 
+			static constexpr size_t _get_static_no_of_parameters()
+			{
+				return _parameter_list_t::size::value;
+			}
+
+			size_t _get_no_of_parameters()
+			{
+				return _parameter_list_t::size::value; // FIXME: Need to add dynamic parameters here
+			}
+
 			template<typename Db>
 				std::size_t run(Db& db) const
 				{
 					constexpr bool calledSet = not is_noop<InsertList>::value;
 					constexpr bool requireSet = Table::_required_insert_columns::size::value > 0;
 					static_assert(calledSet or not requireSet, "calling set() required for given table");
-					std::ostringstream oss;
-					serialize(oss, db);
-					return db.insert(oss.str());
+					static_assert(_get_static_no_of_parameters() == 0, "cannot run insert directly with parameters, use prepare instead");
+					return db.insert(*this);
 				}
+
+			template<typename Db>
+				auto prepare(Db& db)
+				-> prepared_insert_t<typename std::decay<Db>::type, insert_t>
+				{
+					constexpr bool calledSet = not is_noop<InsertList>::value;
+					constexpr bool requireSet = Table::_required_insert_columns::size::value > 0;
+					static_assert(calledSet or not requireSet, "calling set() required for given table");
+
+					_set_parameter_index(0);
+					return {{}, db.prepare_insert(*this)};
+				}
+
+			size_t _set_parameter_index(size_t index)
+			{
+				index = set_parameter_index(_table, index);
+				index = set_parameter_index(_insert_list, index);
+				return index;
+			}
+
 
 			Table _table;
 			InsertList _insert_list;

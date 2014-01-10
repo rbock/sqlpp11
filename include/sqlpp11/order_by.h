@@ -41,6 +41,7 @@ namespace sqlpp
 		{
 			using _is_order_by = std::true_type;
 			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
+			using _parameter_tuple_t = std::tuple<Expr...>;
 
 			// check for at least one order expression
 			static_assert(_is_dynamic::value or sizeof...(Expr), "at least one sort-order expression required in order_by()");
@@ -71,7 +72,13 @@ namespace sqlpp
 					_dynamic_expressions.serialize(os, db, sizeof...(Expr) == 0);
 				}
 
-			std::tuple<Expr...> _expressions;
+			size_t _set_parameter_index(size_t index)
+			{
+				index = set_parameter_index(_expressions, index);
+				return index;
+			}
+
+			_parameter_tuple_t _expressions;
 			detail::serializable_list<Database> _dynamic_expressions;
 		};
 

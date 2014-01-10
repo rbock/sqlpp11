@@ -40,6 +40,8 @@
 #include <sqlpp11/limit.h>
 #include <sqlpp11/offset.h>
 #include <sqlpp11/expression.h>
+#include <sqlpp11/parameter_list.h>
+#include <sqlpp11/prepared_select.h>
 
 #include <sqlpp11/detail/wrong.h>
 #include <sqlpp11/detail/make_flag_tuple.h>
@@ -109,6 +111,8 @@ namespace sqlpp
 
 			using _result_row_t = typename ExpressionList::_result_row_t;
 			using _dynamic_names_t = typename ExpressionList::_dynamic_names_t;
+			using _parameter_tuple_t = std::tuple<ExpressionList, Where, GroupBy, Having, OrderBy, Limit, Offset>;
+			using _parameter_list_t = typename make_parameter_list_t<select_t>::type;
 
 			// Indicators
 			using _value_type = typename std::conditional<
@@ -135,7 +139,7 @@ namespace sqlpp
 
 			// Other constructors
 
-			constexpr select_t(Flags&& flags, ExpressionList&& expression_list, From&& from,
+			select_t(Flags&& flags, ExpressionList&& expression_list, From&& from,
 					Where&& where, GroupBy&& group_by, Having&& having,
 					OrderBy&& order_by, Limit&& limit, Offset&& offset):
 				_flags(std::move(flags)),
@@ -150,7 +154,7 @@ namespace sqlpp
 			{
 			}
 
-			constexpr select_t(const Flags& flags, const ExpressionList& expression_list, const From& from,
+			select_t(const Flags& flags, const ExpressionList& expression_list, const From& from,
 					const Where& where, const GroupBy& group_by, const Having& having,
 					const OrderBy& order_by, const Limit& limit, const Offset& offset):
 				_flags(flags),
@@ -436,23 +440,24 @@ namespace sqlpp
 					return *this;
 				}
 
-			auto limit(std::size_t limit)
-				-> set_limit_t<limit_t>
-			{
-				static_assert(not is_noop<From>::value, "cannot call limit() without a from()");
-				static_assert(is_noop<Limit>::value, "cannot call limit() twice for a single select");
-				return {
+			template<typename Expr>
+				auto limit(Expr limit)
+				-> set_limit_t<limit_t<typename std::decay<Expr>::type>>
+				{
+					static_assert(not is_noop<From>::value, "cannot call limit() without a from()");
+					static_assert(is_noop<Limit>::value, "cannot call limit() twice for a single select");
+					return {
 						_flags, 
-						_expression_list,
-						_from,
-						_where,
-						_group_by,
-						_having,
-						_order_by,
-						{limit},
-						_offset,
-				};
-			}
+							_expression_list,
+							_from,
+							_where,
+							_group_by,
+							_having,
+							_order_by,
+							{limit},
+							_offset,
+					};
+				}
 
 			auto dynamic_limit(std::size_t limit = 0)
 				->set_limit_t<dynamic_limit_t>
@@ -481,8 +486,9 @@ namespace sqlpp
 				return *this;
 			}
 
-			auto offset(std::size_t offset)
-				-> set_offset_t<offset_t>
+			template<typename Expr>
+			auto offset(Expr offset)
+				-> set_offset_t<offset_t<typename std::decay<Expr>::type>>
 			{
 				static_assert(not is_noop<Limit>::value, "cannot call offset() without a limit");
 				static_assert(is_noop<Offset>::value, "cannot call offset() twice for a single select");
@@ -566,19 +572,65 @@ namespace sqlpp
 					return *this;
 				}
 
+			const typename ExpressionList::_dynamic_names_t& get_dynamic_names() const
+			{
+				return _expression_list._dynamic_expressions._dynamic_expression_names;
+			}
+
+			static constexpr size_t _get_static_no_of_parameters()
+			{
+				return _parameter_list_t::size::value;
+			}
+
+			size_t _get_no_of_parameters()
+			{
+				return _parameter_list_t::size::value; // FIXME: Need to add dynamic parameters here
+			}
+
+			size_t get_no_of_result_columns() const
+			{
+				return _result_row_t::static_size(); // FIXME: Need to add the size of dynamic columns
+			}
+
 			// Execute
 			template<typename Db>
-				result_t<Db, _result_row_t, _dynamic_names_t> run(Db& db) const
+				auto run(Db& db) const
+				-> result_t<decltype(db.select(*this)), _result_row_t>
+				{
+					static_assert(not is_noop<ExpressionList>::value, "cannot run select without having selected anything");
+					static_assert(is_from_t<From>::value, "cannot run select without a from()");
+					static_assert(_get_static_no_of_parameters() == 0, "cannot run select directly with parameters, use prepare instead");
+					// FIXME: Check for missing aliases (if references are used)
+					// FIXME: Check for missing tables, well, actually, check for missing tables at the where(), order_by(), etc.
+
+					return {db.select(*this), get_dynamic_names()};
+				}
+
+			// Prepare
+			template<typename Db>
+				auto prepare(Db& db)
+				-> prepared_select_t<typename std::decay<Db>::type, select_t>
 				{
 					static_assert(not is_noop<ExpressionList>::value, "cannot run select without having selected anything");
 					static_assert(is_from_t<From>::value, "cannot run select without a from()");
 					// FIXME: Check for missing aliases (if references are used)
 					// FIXME: Check for missing tables, well, actually, check for missing tables at the where(), order_by(), etc.
 
-					std::ostringstream oss;
-					serialize(oss, db);
-					return {db.select(oss.str()), _expression_list._dynamic_expressions._dynamic_expression_names};
+					_set_parameter_index(0);
+					return {{}, get_dynamic_names(), db.prepare_select(*this)};
 				}
+
+			size_t _set_parameter_index(size_t index)
+			{
+				index = set_parameter_index(_expression_list, index);
+				index = set_parameter_index(_where, index);
+				index = set_parameter_index(_group_by, index);
+				index = set_parameter_index(_having, index);
+				index = set_parameter_index(_order_by, index);
+				index = set_parameter_index(_limit, index);
+				index = set_parameter_index(_offset, index);
+				return index;
+			}
 
 			Flags _flags;
 			ExpressionList _expression_list;

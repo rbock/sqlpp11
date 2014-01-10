@@ -24,71 +24,37 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_MAX_H
-#define SQLPP_MAX_H
+#ifndef SQLPP_PREPARED_SELECT_H
+#define SQLPP_PREPARED_SELECT_H
 
-#include <sstream>
-#include <sqlpp11/type_traits.h>
+#include <sqlpp11/parameter_list.h>
+#include <sqlpp11/result.h>
 
 namespace sqlpp
 {
-	namespace detail
-	{
-		template<typename Expr>
-		struct max_t: public boolean::template operators<max_t<Expr>>
+	template<typename Db, typename Select>
+		struct prepared_select_t
 		{
-			static_assert(is_value_t<Expr>::value, "max() requires a value expression as argument");
+			using _result_row_t = typename Select::_result_row_t;
+			using _parameter_list_t = typename Select::_parameter_list_t;
+			using _dynamic_names_t = typename Select::_dynamic_names_t;
+			using _prepared_query_t = typename Db::_prepared_query_t;
 
-			struct _value_type: public Expr::_value_type::_base_value_type
+			auto run(Db& db) const
+				-> result_t<decltype(db.run_prepared_select(*this)), _result_row_t>
 			{
-				using _is_named_expression = std::true_type;
-			};
+				return {db.run_prepared_select(*this), _dynamic_names};
+			}
 
-			struct _name_t
+			void _bind_params() const
 			{
-				static constexpr const char* _get_name() { return "MAX"; }
-				template<typename T>
-					struct _member_t
-					{
-						T max;
-						T& operator()() { return max; }
-						const T& operator()() const { return max; }
-					};
-			};
+				params._bind(_prepared_query);
+			}
 
-			max_t(Expr&& expr):
-				_expr(std::move(expr))
-			{}
-
-			max_t(const Expr& expr):
-				_expr(expr)
-			{}
-
-			max_t(const max_t&) = default;
-			max_t(max_t&&) = default;
-			max_t& operator=(const max_t&) = default;
-			max_t& operator=(max_t&&) = default;
-			~max_t() = default;
-
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					static_assert(Db::_supports_max, "max not supported by current database");
-					os << "MAX(";
-					_expr.serialize(os, db);
-					os << ")";
-				}
-
-		private:
-			Expr _expr;
+			_parameter_list_t params;
+			_dynamic_names_t _dynamic_names;
+			mutable _prepared_query_t _prepared_query;
 		};
-	}
-
-	template<typename T>
-	auto max(T&& t) -> typename detail::max_t<typename operand_t<T, is_value_t>::type>
-	{
-		return { std::forward<T>(t) };
-	}
 
 }
 

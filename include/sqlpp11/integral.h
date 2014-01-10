@@ -30,7 +30,6 @@
 #include <cstdlib>
 #include <sqlpp11/detail/basic_operators.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/raw_result_row.h>
 #include <sqlpp11/exception.h>
 
 namespace sqlpp
@@ -46,23 +45,107 @@ namespace sqlpp
 			using _is_integral = std::true_type;
 			using _is_value = std::true_type;
 			using _is_expression = std::true_type;
+			using _cpp_value_type = int64_t;
 			
-			template<size_t index>
+			struct _parameter_t
+			{
+				using _value_type = integral;
+
+				_parameter_t(const std::true_type&):
+					_trivial_value_is_null(true),
+					_value(0),
+					_is_null(_trivial_value_is_null	and _is_trivial())
+					{}
+
+				_parameter_t(const std::false_type&):
+					_trivial_value_is_null(false),
+					_value(0),
+					_is_null(_trivial_value_is_null	and _is_trivial())
+					{}
+
+				explicit _parameter_t(const _cpp_value_type& value):
+					_value(value),
+					_is_null(_trivial_value_is_null and _is_trivial())
+					{}
+
+				_parameter_t& operator=(const _cpp_value_type& value)
+				{
+					_value = value;
+					_is_null = (_trivial_value_is_null and _is_trivial());
+					return *this;
+				}
+
+				void set_null()
+				{
+					_value = 0;
+					_is_null = true;
+				}
+
+				template<typename Db>
+					void serialize(std::ostream& os, Db& db) const
+					{
+						os << value();
+					}
+
+				bool _is_trivial() const { return value() == 0; }
+
+				bool is_null() const
+			 	{ 
+					return _is_null; 
+				}
+
+				const _cpp_value_type& value() const
+				{
+					return _value;
+				}
+
+				operator _cpp_value_type() const { return _value; }
+
+				template<typename Target>
+					void bind(Target& target, size_t index) const
+					{
+						target.bind_integral_parameter(index, &_value, _is_null);
+					}
+
+			private:
+				bool _trivial_value_is_null;
+				_cpp_value_type _value;
+				bool _is_null;
+			};
+
 			struct _result_entry_t
 			{
 				using _value_type = integral;
-				_result_entry_t(const raw_result_row_t& row):
-					_is_valid(row.data != nullptr),
-					_is_null(row.data == nullptr or row.data[index] == nullptr),
-					_value(_is_null ? 0 : std::strtoll(row.data[index], nullptr, 10))
+
+				_result_entry_t():
+					_is_valid(false),
+					_is_null(true),
+					_value(0)
 					{}
 
-				_result_entry_t& operator=(const raw_result_row_t& row)
+				_result_entry_t(const char* data, size_t):
+					_is_valid(true),
+					_is_null(data == nullptr),
+					_value(_is_null ? 0 : std::strtoll(data, nullptr, 10))
+					{}
+
+				void assign(const char* data, size_t)
 				{
-					_is_valid = (row.data != nullptr);
-					_is_null = row.data == nullptr or row.data[index] == nullptr;
-					_value = _is_null ? 0 : std::strtoll(row.data[index], nullptr, 10);
-					return *this;
+					_is_valid = true;
+					_is_null = data == nullptr;
+					_value = _is_null ? 0 : std::strtoll(data, nullptr, 10);
+				}
+
+				void invalidate()
+				{
+					_is_valid = false;
+					_is_null = true;
+					_value = 0;
+				}
+
+				void validate()
+				{
+					_is_valid = true;
 				}
 
 				template<typename Db>
@@ -80,19 +163,25 @@ namespace sqlpp
 					return _is_null; 
 				}
 
-				int64_t value() const
+				_cpp_value_type value() const
 				{
 					if (not _is_valid)
 						throw exception("accessing value in non-existing row");
 					return _value;
 				}
 
-				operator int64_t() const { return value(); }
+				operator _cpp_value_type() const { return value(); }
+
+				template<typename Target>
+					void bind(Target& target, size_t i)
+					{
+						target.bind_integral_result(i, &_value, &_is_null);
+					}
 
 			private:
 				bool _is_valid;
 				bool _is_null;
-				int64_t _value;
+				_cpp_value_type _value;
 			};
 
 			template<typename T>
@@ -184,8 +273,7 @@ namespace sqlpp
 			};
 		};
 
-		template<size_t index>
-		std::ostream& operator<<(std::ostream& os, const integral::_result_entry_t<index>& e)
+		inline std::ostream& operator<<(std::ostream& os, const integral::_result_entry_t& e)
 		{
 			return os << e.value();
 		}

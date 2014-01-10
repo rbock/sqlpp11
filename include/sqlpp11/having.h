@@ -41,10 +41,14 @@ namespace sqlpp
 		{
 			using _is_having = std::true_type;
 			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
+			using _parameter_tuple_t = std::tuple<Expr...>;
 
 			static_assert(_is_dynamic::value or sizeof...(Expr), "at least one expression argument required in having()");
 			using _valid_expressions = typename detail::make_set_if<is_expression_t, Expr...>::type;
 			static_assert(_valid_expressions::size::value == sizeof...(Expr), "at least one argument is not an expression in having()");
+
+			using _parameter_list_t = typename make_parameter_list_t<_parameter_tuple_t>::type;
+			static_assert(not _parameter_list_t::_contains_trivial_value_is_null_t::value, "must not use trivial_value_is_null in parameters of having expression, use where_parameter() instead of parameter() to turn off automatic conversion");
 
 			template<typename E>
 				void add(E&& expr)
@@ -65,7 +69,13 @@ namespace sqlpp
 					_dynamic_expressions.serialize(os, db, " AND ", sizeof...(Expr) == 0);
 				}
 
-			std::tuple<Expr...> _expressions;
+			size_t _set_parameter_index(size_t index)
+			{
+				index = set_parameter_index(_expressions, index);
+				return index;
+			}
+
+			_parameter_tuple_t _expressions;
 			detail::serializable_list<Database> _dynamic_expressions;
 		};
 

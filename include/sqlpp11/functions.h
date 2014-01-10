@@ -28,6 +28,8 @@
 #define SQLPP_FUNCTIONS_H
 
 #include <sstream>
+#include <sqlpp11/parameter.h>
+#include <sqlpp11/parameter_list.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/column_types.h>
 #include <sqlpp11/exists.h>

@@ -24,21 +24,35 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_RAW_RESULT_ROW_H
-#define SQLPP_RAW_RESULT_ROW_H
+#ifndef SQLPP_PREPARED_UPDATE_H
+#define SQLPP_PREPARED_UPDATE_H
+
+#include <sqlpp11/parameter_list.h>
+#include <sqlpp11/result.h>
 
 namespace sqlpp
 {
-	struct raw_result_row_t
-	{
-		const char** data;
-		const size_t* len;
-
-		bool operator==(const raw_result_row_t& rhs) const
+	template<typename Db, typename Update>
+		struct prepared_update_t
 		{
-			return data == rhs.data and len == rhs.len; 
-		}
-	};
+			using _parameter_list_t = typename Update::_parameter_list_t;
+			using _prepared_query_t = typename Db::_prepared_query_t;
+
+			auto run(Db& db) const
+				-> size_t
+			{
+				return db.run_prepared_insert(*this);
+			}
+
+			void _bind_params() const
+			{
+				params._bind(_prepared_query);
+			}
+
+			_parameter_list_t params;
+			mutable _prepared_query_t _prepared_query;
+		};
+
 }
 
 #endif

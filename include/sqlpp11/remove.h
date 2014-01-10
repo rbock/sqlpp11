@@ -32,6 +32,8 @@
 #include <sqlpp11/using.h>
 #include <sqlpp11/where.h>
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/parameter_list.h>
+#include <sqlpp11/prepared_remove.h>
 
 namespace sqlpp
 {
@@ -59,6 +61,9 @@ namespace sqlpp
 				using set_using_t = remove_t<Database, Table, UsingT, Where>;
 			template<typename WhereT> 
 				using set_where_t = remove_t<Database, Table, Using, WhereT>;
+
+			using _parameter_tuple_t = std::tuple<Table, Using, Where>;
+			using _parameter_list_t = typename make_parameter_list_t<remove_t>::type;
 
 			template<typename... Tab>
 				auto using_(Tab&&... tab)
@@ -147,13 +152,39 @@ namespace sqlpp
 					return *this;
 				}
 
+			static constexpr size_t _get_static_no_of_parameters()
+			{
+				return _parameter_list_t::size::value;
+			}
+
+			size_t _get_no_of_parameters()
+			{
+				return _parameter_list_t::size::value; // FIXME: Need to add dynamic parameters here
+			}
+
 			template<typename Db>
 				std::size_t run(Db& db) const
 				{
-					std::ostringstream oss;
-					serialize(oss, db);
-					return db.remove(oss.str());
+					static_assert(_get_static_no_of_parameters() == 0, "cannot run remove directly with parameters, use prepare instead");
+					return db.remove(*this);
 				}
+
+			template<typename Db>
+				auto prepare(Db& db)
+				-> prepared_remove_t<typename std::decay<Db>::type, remove_t>
+				{
+					_set_parameter_index(0);
+					return {{}, db.prepare_remove(*this)};
+				}
+
+			size_t _set_parameter_index(size_t index)
+			{
+				index = set_parameter_index(_table, index);
+				index = set_parameter_index(_using, index);
+				index = set_parameter_index(_where, index);
+				return index;
+			}
+
 
 			Table _table;
 			Using _using;

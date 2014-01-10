@@ -41,13 +41,9 @@ namespace sqlpp
 				template<typename T>\
 				struct _member_t\
 				{\
-					template<typename... TT>\
-					_member_t(TT&&... t): name(std::forward<TT>(t)...) {}\
-					\
-					template<typename TT>\
-					_member_t& operator=(TT&& t) { name = std::forward<TT>(t); return *this; }\
-					\
 					T name;\
+					T& operator()() { return name; }\
+					const T& operator()() const { return name; }\
 				};\
 			};\
 		};\

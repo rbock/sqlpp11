@@ -31,6 +31,7 @@
 #include <sqlpp11/detail/serialize_tuple.h>
 #include <sqlpp11/alias.h>
 #include <sqlpp11/noop.h>
+#include <sqlpp11/parameter_list.h> // FIXME: a forward for set_parameter_index would be nice here
 
 namespace sqlpp
 {
@@ -40,6 +41,14 @@ namespace sqlpp
 			using _is_assignment = std::true_type;
 			using column_type = Lhs;
 			using value_type = Rhs;
+			using _parameter_tuple_t = std::tuple<Lhs, Rhs>;
+
+			size_t _set_parameter_index(size_t index)
+			{
+				index = set_parameter_index(_lhs, index);
+				index = set_parameter_index(_rhs, index);
+				return index;
+			}
 
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
@@ -64,6 +73,13 @@ namespace sqlpp
 		struct equal_t: public ValueType::template operators<equal_t<Lhs, Rhs>>
 		{
 			using _value_type = ValueType;
+			using _parameter_tuple_t = std::tuple<Lhs, Rhs>;
+
+			size_t _set_parameter_index(size_t index)
+			{
+				index = set_parameter_index(_lhs, index);
+				return set_parameter_index(_rhs, index);
+			}
 
 			template<typename L, typename R>
 			equal_t(L&& l, R&& r):
@@ -103,6 +119,13 @@ namespace sqlpp
 		struct not_equal_t: public ValueType::template operators<not_equal_t<Lhs, Rhs>>
 		{
 			using _value_type = ValueType;
+			using _parameter_tuple_t = std::tuple<Lhs, Rhs>;
+
+			size_t _set_parameter_index(size_t index)
+			{
+				index = set_parameter_index(_lhs, index);
+				return set_parameter_index(_rhs, index);
+			}
 
 			template<typename L, typename R>
 			not_equal_t(L&& l, R&& r):
@@ -142,10 +165,15 @@ namespace sqlpp
 		struct not_t: public ValueType::template operators<not_t<Lhs>>
 		{
 			using _value_type = ValueType;
+			using _parameter_tuple_t = std::tuple<Lhs>;
 
-			template<typename L>
-			not_t(L&& l):
-				_lhs(std::forward<L>(l))
+			size_t _set_parameter_index(size_t index)
+			{
+				return set_parameter_index(_lhs, index);
+			}
+
+			not_t(Lhs l):
+				_lhs(l)
 			{}
 
 			not_t(const not_t&) = default;
@@ -179,6 +207,13 @@ namespace sqlpp
 		struct binary_expression_t: public O::_value_type::template operators<binary_expression_t<Lhs, O, Rhs>>
 		{
 			using _value_type = typename O::_value_type;
+			using _parameter_tuple_t = std::tuple<Lhs, Rhs>;
+
+			size_t _set_parameter_index(size_t index)
+			{
+				index = set_parameter_index(_lhs, index);
+				return set_parameter_index(_rhs, index);
+			}
 
 			binary_expression_t(Lhs&& l, Rhs&& r):
 				_lhs(std::move(l)), 

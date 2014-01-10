@@ -50,8 +50,10 @@ namespace sqlpp
 
 	template<typename Database, typename... Expr> struct order_by_t;
 
+	template<typename Limit>
 	struct limit_t;
 
+	template<typename Offset>
 	struct offset_t;
 
 	template<

@@ -47,12 +47,12 @@ namespace sqlpp
 	namespace detail\
 	{\
 		template<typename T, typename Enable = void>\
-			struct name##_impl: std::false_type {};\
+			struct name##_impl { using type = std::false_type; };\
 		template<typename T>\
-			struct name##_impl<T, typename std::enable_if<std::is_same<typename T::_column_type::_##name, std::true_type>::value>::type>: std::true_type {};\
+			struct name##_impl<T, typename std::enable_if<std::is_same<typename T::_column_type::_##name, std::true_type>::value>::type> { using type = std::true_type; };\
 	}\
 	template<typename T>\
-		struct name##_t: detail::name##_impl<T> {};
+		using name##_t = typename detail::name##_impl<T>::type;
 
 #define SQLPP_TYPE_TRAIT_GENERATOR(name) \
 	namespace detail\
@@ -116,6 +116,7 @@ namespace sqlpp
 	SQLPP_TYPE_TRAIT_GENERATOR(is_insert_list);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_sort_order);
 	SQLPP_TYPE_TRAIT_GENERATOR(requires_braces);
+	SQLPP_TYPE_TRAIT_GENERATOR(is_parameter);
 
 	SQLPP_CONNECTOR_TRAIT_GENERATOR(has_empty_list_insert);
 

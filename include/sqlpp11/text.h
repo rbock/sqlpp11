@@ -30,7 +30,6 @@
 #include <cstdlib>
 #include <sqlpp11/detail/basic_operators.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/raw_result_row.h>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/concat.h>
 #include <sqlpp11/like.h>
@@ -46,21 +45,40 @@ namespace sqlpp
 			using _is_text = std::true_type;
 			using _is_value = std::true_type;
 			using _is_expression = std::true_type;
+			using _cpp_value_type = std::string;
 
-			template<size_t index>
-			struct _result_entry_t
+			struct _parameter_t
 			{
-				_result_entry_t(const raw_result_row_t& row):
-					_is_valid(row.data != nullptr),
-					_is_null(row.data == nullptr or row.data[index] == nullptr),
-					_value(_is_null ? "" : std::string(row.data[index], row.data[index] + row.len[index]))
+				using _value_type = integral;
+
+				_parameter_t(const std::true_type&):
+					_trivial_value_is_null(true),
+					_value(""),
+					_is_null(_trivial_value_is_null and _is_trivial())
 					{}
 
-				_result_entry_t& operator=(const raw_result_row_t& row)
+				_parameter_t(const std::false_type&):
+					_trivial_value_is_null(false),
+					_value(""),
+					_is_null(_trivial_value_is_null and _is_trivial())
+					{}
+
+				_parameter_t(const _cpp_value_type& value):
+					_value(value),
+					_is_null(_trivial_value_is_null and _is_trivial())
+					{}
+
+				_parameter_t& operator=(const _cpp_value_type& value)
 				{
-					_is_valid = (row.data != nullptr);
-					_is_null = row.data == nullptr or row.data[index] == nullptr;
-					_value = _is_null ? "" : std::string(row.data[index], row.data[index] + row.len[index]);
+					_value = value;
+					_is_null = (_trivial_value_is_null and _is_trivial());
+					return *this;
+				}
+
+				_parameter_t& operator=(const std::nullptr_t&)
+				{
+					_value = "";
+					_is_null = true;
 					return *this;
 				}
 
@@ -70,31 +88,105 @@ namespace sqlpp
 						os << value();
 					}
 
-				bool _is_trivial() const { return value().empty(); }
+				bool _is_trivial() const { return value() == ""; }
 
-				bool operator==(const std::string& rhs) const { return value() == rhs; }
-				bool operator!=(const std::string& rhs) const { return not operator==(rhs); }
+				bool is_null() const
+			 	{ 
+					return _is_null; 
+				}
+
+				_cpp_value_type value() const
+				{
+					return _value;
+				}
+
+				operator _cpp_value_type() const { return value(); }
+
+				template<typename Target>
+					void bind(Target& target, size_t index) const
+					{
+						target.bind_text_parameter(index, &_value, _is_null);
+					}
+
+			private:
+				bool _trivial_value_is_null;
+				_cpp_value_type _value;
+				bool _is_null;
+			};
+
+			struct _result_entry_t
+			{
+				_result_entry_t():
+					_is_valid(false),
+					_value_ptr(nullptr),
+					_len(0)
+					{}
+
+				_result_entry_t(char* data, size_t len):
+					_is_valid(true),
+					_value_ptr(data),
+					_len(_value_ptr ? 0 : len)
+					{}
+
+				void assign(char* data, size_t len)
+				{
+					_is_valid = true;
+					_value_ptr = data;
+					_len = _value_ptr ? 0 : len;
+				}
+
+				void validate()
+				{
+					_is_valid = true;
+				}
+
+				void invalidate()
+				{
+					_is_valid = false;
+					_value_ptr = nullptr;
+					_len = 0;
+				}
+
+				template<typename Db>
+					void serialize(std::ostream& os, Db& db) const
+					{
+						os << value();
+					}
+
+				bool _is_trivial() const { return _len == 0; }
+
+				bool operator==(const _cpp_value_type& rhs) const { return value() == rhs; }
+				bool operator!=(const _cpp_value_type& rhs) const { return not operator==(rhs); }
 
 				bool is_null() const
 			 	{ 
 					if (not _is_valid)
 						throw exception("accessing is_null in non-existing row");
-					return _is_null; 
+					return _value_ptr == nullptr; 
 				}
 
-				std::string value() const
+				_cpp_value_type value() const
 				{
 					if (not _is_valid)
 						throw exception("accessing value in non-existing row");
-					return _value;
+					if (_value_ptr)
+						return std::string(_value_ptr, _value_ptr + _len);
+					else
+						return "";
 				}
 
-				operator std::string() const { return value(); }
+				operator _cpp_value_type() const { return value(); }
+
+				template<typename Target>
+					void bind(Target& target, size_t i)
+					{
+						target.bind_text_result(i, &_value_ptr, &_len);
+					}
 
 			private:
 				bool _is_valid;
-				bool _is_null;
-				std::string _value;
+				char* _value_ptr;
+				size_t _len;
 			};
 
 			template<typename T>
@@ -120,8 +212,7 @@ namespace sqlpp
 			};
 		};
 
-		template<size_t index>
-		std::ostream& operator<<(std::ostream& os, const text::_result_entry_t<index>& e)
+		inline std::ostream& operator<<(std::ostream& os, const text::_result_entry_t& e)
 		{
 			return os << e.value();
 		}

@@ -40,6 +40,7 @@ namespace sqlpp
 		{
 			using _is_using = std::true_type;
 			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
+			using _parameter_tuple_t = std::tuple<Table...>;
 
 			static_assert(_is_dynamic::value or sizeof...(Table), "at least one table argument required in using()");
 
@@ -68,7 +69,13 @@ namespace sqlpp
 					_dynamic_tables.serialize(os, db, sizeof...(Table) == 0);
 				}
 
-			std::tuple<Table...> _tables;
+			size_t _set_parameter_index(size_t index)
+			{
+				index = set_parameter_index(_tables, index);
+				return index;
+			}
+
+			_parameter_tuple_t _tables;
 			detail::serializable_list<Database> _dynamic_tables;
 		};
 

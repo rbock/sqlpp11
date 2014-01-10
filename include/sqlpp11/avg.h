@@ -51,6 +51,8 @@ namespace sqlpp
 					struct _member_t
 					{
 						T avg;
+						T& operator()() { return avg; }
+						const T& operator()() const { return avg; }
 					};
 			};
 
