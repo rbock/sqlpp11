@@ -42,11 +42,11 @@ namespace sqlpp
 				}
 		};
 
-	template<typename Context, typename T>
-		void interpret(const T& t, Context& context)
+	template<typename T, typename Context>
+		auto interpret(const T& t, Context& context)
+		-> decltype(interpreter_t<typename std::decay<Context>::type::_database_t, typename std::decay<T>::type>::_(t, context))
 		{
-			using Db = typename std::decay<Context>::type::_database_t;
-			interpreter_t<Db, typename std::decay<T>::type>::_(t, context);
+			return interpreter_t<typename std::decay<Context>::type::_database_t, typename std::decay<T>::type>::_(t, context);
 		}
 
 }

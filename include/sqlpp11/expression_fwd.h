@@ -29,11 +29,20 @@
 
 namespace sqlpp
 {
-	template<typename T>
-		struct is_expression_t;
+	template<typename Lhs, typename Rhs>
+		struct assignment_t;
 
-	template<typename T>
-		struct is_named_expression_t;
+	template<typename Lhs, typename Rhs>
+		struct equal_t;
+
+	template<typename Lhs, typename Rhs>
+		struct not_equal_t;
+
+	template<typename Lhs>
+		struct not_t;
+
+	template<typename Lhs, typename O, typename Rhs>
+		struct binary_expression_t;
 }
 
 #endif

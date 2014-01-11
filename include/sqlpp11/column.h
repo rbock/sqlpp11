@@ -85,9 +85,10 @@ namespace sqlpp
 		{
 			using T = column_t<Args...>;
 			template<typename Context>
-				static void _(const T& t, Context& context)
+				static Context& _(const T& t, Context& context)
 				{
 					context << T::_table::_name_t::_get_name() << '.' << T::_name_t::_get_name();
+					return context;
 				}
 		};
 

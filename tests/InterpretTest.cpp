@@ -36,8 +36,10 @@ int main()
 {
 	TabSample t;
 
-	interpret(t.alpha, printer);
-	interpret(t.alpha = 7, printer);
+	interpret(t.alpha, printer).flush();
+	interpret(t.alpha = 7, printer).flush();
+	sqlpp::text_operand o = {"kaesekuchen"};
+	interpret(t.beta + "kaesekuchen", printer).flush();
 
 	return 0;
 }

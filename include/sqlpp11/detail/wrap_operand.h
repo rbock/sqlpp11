@@ -27,7 +27,6 @@
 #ifndef SQLPP_DETAIL_WRAP_OPERAND_H
 #define SQLPP_DETAIL_WRAP_OPERAND_H
 
-#include <ostream>
 #include <sqlpp11/interpreter.h>
 
 // FIXME: must leave detail, since it is interpreted (and might require specializations)
@@ -42,28 +41,26 @@ namespace sqlpp
 		struct text;
 	}
 
-		struct bool_operand
+		struct boolean_operand
 		{
 			static constexpr bool _is_expression = true;
 			using _value_type = detail::boolean;
-
-			bool_operand(bool t): _t(t) {}
-			bool_operand(const bool_operand&) = default;
-			bool_operand(bool_operand&&) = default;
-			bool_operand& operator=(const bool_operand&) = default;
-			bool_operand& operator=(bool_operand&&) = default;
-			~bool_operand() = default;
-
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					os << _t;
-				}
 
 			bool _is_trivial() const { return _t == false; }
 
 			bool _t;
 		};
+
+		template<typename Db>
+			struct interpreter_t<Db, boolean_operand>
+			{
+				using Operand = boolean_operand;
+				template<typename Context>
+					static void _(const Operand& t, Context& context)
+					{
+						context << t._t;
+					}
+			};
 
 		template<typename T>
 			struct integral_operand
@@ -71,34 +68,21 @@ namespace sqlpp
 				static constexpr bool _is_expression = true;
 				using _value_type = detail::integral;
 
-				integral_operand(T t): _t(t) {}
-				integral_operand(const integral_operand&) = default;
-				integral_operand(integral_operand&&) = default;
-				integral_operand& operator=(const integral_operand&) = default;
-				integral_operand& operator=(integral_operand&&) = default;
-				~integral_operand() = default;
-
-				template<typename Db>
-					void serialize(std::ostream& os, Db& db) const
-					{
-						os << _t;
-					}
-
 				bool _is_trivial() const { return _t == 0; }
 
 				T _t;
 			};
 
-	template<typename Db, typename T>
-		struct interpreter_t<Db, integral_operand<T>>
-		{
-			using Operand = integral_operand<T>;
-			template<typename Context>
-				static void _(const Operand& t, Context& context)
-				{
-					context << t._t;
-				}
-		};
+		template<typename Db, typename T>
+			struct interpreter_t<Db, integral_operand<T>>
+			{
+				using Operand = integral_operand<T>;
+				template<typename Context>
+					static void _(const Operand& t, Context& context)
+					{
+						context << t._t;
+					}
+			};
 
 
 		template<typename T>
@@ -107,46 +91,41 @@ namespace sqlpp
 				static constexpr bool _is_expression = true;
 				using _value_type = detail::floating_point;
 
-				floating_point_operand(T t): _t(t) {}
-				floating_point_operand(const floating_point_operand&) = default;
-				floating_point_operand(floating_point_operand&&) = default;
-				floating_point_operand& operator=(const floating_point_operand&) = default;
-				floating_point_operand& operator=(floating_point_operand&&) = default;
-				~floating_point_operand() = default;
-
-				template<typename Db>
-					void serialize(std::ostream& os, Db& db) const
-					{
-						os << _t;
-					}
-
 				bool _is_trivial() const { return _t == 0; }
 
 				T _t;
 			};
 
-		template<typename T>
+		template<typename Db, typename T>
+			struct interpreter_t<Db, floating_point_operand<T>>
+			{
+				using Operand = floating_point_operand<T>;
+				template<typename Context>
+					static void _(const Operand& t, Context& context)
+					{
+						context << t._t;
+					}
+			};
+
 			struct text_operand
 			{
 				static constexpr bool _is_expression = true;
 				using _value_type = detail::text;
 
-				text_operand(const T& t): _t(t) {}
-				text_operand(const text_operand&) = default;
-				text_operand(text_operand&&) = default;
-				text_operand& operator=(const text_operand&) = default;
-				text_operand& operator=(text_operand&&) = default;
-				~text_operand() = default;
-
-				template<typename Db>
-					void serialize(std::ostream& os, Db& db) const
-					{
-						os << '\'' << db.escape(_t) << '\'';
-					}
-
 				bool _is_trivial() const { return _t.empty(); }
 
 				std::string _t;
+			};
+
+		template<typename Db>
+			struct interpreter_t<Db, text_operand>
+			{
+				using Operand = text_operand;
+				template<typename Context>
+					static void _(const Operand& t, Context& context)
+					{
+						context << '\'' << context.escape(t._t) << '\'';
+					}
 			};
 
 		template<typename T, typename Enable = void>
@@ -158,7 +137,7 @@ namespace sqlpp
 		template<>
 			struct wrap_operand<bool, void>
 			{
-				using type = bool_operand;
+				using type = boolean_operand;
 			};
 
 		template<typename T>
@@ -176,7 +155,7 @@ namespace sqlpp
 		template<typename T>
 			struct wrap_operand<T, typename std::enable_if<std::is_convertible<T, std::string>::value>::type>
 			{
-				using type = text_operand<T>;
+				using type = text_operand;
 			};
 }
 

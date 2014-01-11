@@ -80,7 +80,7 @@ namespace sqlpp
 							or (_inverted and Db::_supports_not_in), "in() and/or not_in() not supported by current database");
 					_operand.serialize(os, db);
 					os << (_inverted ? " NOT IN(" : " IN(");
-					detail::serialize_tuple(os, db, _args, ',');
+					serialize_tuple(os, db, _args, ',');
 					os << ")";
 				}
 

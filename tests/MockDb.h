@@ -39,10 +39,20 @@ public:
 		{}
 
 		template<typename T>
-			std::ostream& operator<<(const T& t)
+			std::ostream& operator<<(T t)
 			{
 				return _os << t;
 			}
+
+		void flush()
+		{
+			_os << std::endl;
+		}
+
+		std::string escape(std::string arg)
+		{
+			return arg;
+		}
 
 		std::ostream& _os;
 	};

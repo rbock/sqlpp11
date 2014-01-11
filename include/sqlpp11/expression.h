@@ -28,7 +28,9 @@
 #define SQLPP_EXPRESSION_H
 
 #include <sqlpp11/alias.h>
+#include <sqlpp11/boolean.h>
 #include <sqlpp11/noop.h>
+#include <sqlpp11/expression_fwd.h>
 #include <sqlpp11/interpreter.h>
 #include <sqlpp11/detail/wrap_operand.h>
 #include <sqlpp11/detail/serialize_tuple.h>
@@ -51,7 +53,7 @@ namespace sqlpp
 		{
 			using T = assignment_t<Lhs, Rhs>;
 			template<typename Context>
-				static void _(const T& t, Context& context)
+				static Context& _(const T& t, Context& context)
 				{
 					interpret(t._lhs, context);
 					if (trivial_value_is_null_t<Lhs>::value and t._rhs._is_trivial())
@@ -63,14 +65,15 @@ namespace sqlpp
 						context << "=";
 						interpret(t._rhs, context);
 					}
+					return context;
 				}
 		};
 
 
-	template<typename Lhs, typename Rhs, typename ValueType = detail::boolean>
-		struct equal_t: public ValueType::template operators<equal_t<Lhs, Rhs>>
+	template<typename Lhs, typename Rhs>
+		struct equal_t: public detail::boolean::template operators<equal_t<Lhs, Rhs>>
 		{
-			using _value_type = ValueType; // FIXME: Can we use boolean directly here?
+			using _value_type = detail::boolean;
 
 			template<typename L, typename R>
 			equal_t(L&& l, R&& r):
@@ -89,16 +92,16 @@ namespace sqlpp
 			Rhs _rhs;
 		};
 
-	template<typename Db, typename... Args>
-		struct interpreter_t<Db, equal_t<Args...>>
+	template<typename Db, typename Lhs, typename Rhs>
+		struct interpreter_t<Db, equal_t<Lhs, Rhs>>
 		{
-			using T = equal_t<Args...>;
+			using T = equal_t<Lhs, Rhs>;
 			template<typename Context>
-				static void interpret(const T& t, Context& context)
+				static Context& interpret(const T& t, Context& context)
 				{
 					context << "(";
 					interpret(t._lhs, context);
-					if (trivial_value_is_null_t<typename T::Lhs>::value and t._rhs._is_trivial())
+					if (trivial_value_is_null_t<Lhs>::value and t._rhs._is_trivial())
 					{
 						context << "IS NULL";
 					}
@@ -108,13 +111,14 @@ namespace sqlpp
 						interpret(t._rhs, context);
 					}
 					context << ")";
+					return context;
 				}
 		};
 
-	template<typename Lhs, typename Rhs, typename ValueType = detail::boolean>
-		struct not_equal_t: public ValueType::template operators<not_equal_t<Lhs, Rhs>>
+	template<typename Lhs, typename Rhs>
+		struct not_equal_t: public detail::boolean::template operators<not_equal_t<Lhs, Rhs>>
 		{
-			using _value_type = ValueType;
+			using _value_type = detail::boolean;
 
 			template<typename L, typename R>
 			not_equal_t(L&& l, R&& r):
@@ -132,16 +136,16 @@ namespace sqlpp
 			Rhs _rhs;
 		};
 
-	template<typename Db, typename... Args>
-		struct interpreter_t<Db, not_equal_t<Args...>>
+	template<typename Db, typename Lhs, typename Rhs>
+		struct interpreter_t<Db, not_equal_t<Lhs, Rhs>>
 		{
-			using T = not_equal_t<Args...>;
+			using T = not_equal_t<Lhs, Rhs>;
 			template<typename Context>
-				static void interpret(const T& t, Context& context)
+				static Context& interpret(const T& t, Context& context)
 				{
 					context << "(";
 					interpret(t._lhs, context);
-					if (trivial_value_is_null_t<typename T::Lhs>::value and t._rhs._is_trivial())
+					if (trivial_value_is_null_t<Lhs>::value and t._rhs._is_trivial())
 					{
 						context << "IS NOT NULL";
 					}
@@ -151,13 +155,14 @@ namespace sqlpp
 						interpret(t._rhs, context);
 					}
 					context << ")";
+					return context;
 				}
 		};
 
-	template<typename Lhs, typename ValueType = detail::boolean>
-		struct not_t: public ValueType::template operators<not_t<Lhs>>
+	template<typename Lhs>
+		struct not_t: public detail::boolean::template operators<not_t<Lhs>>
 		{
-			using _value_type = ValueType;
+			using _value_type = detail::boolean;
 
 			not_t(Lhs l):
 				_lhs(l)
@@ -172,15 +177,15 @@ namespace sqlpp
 			Lhs _lhs;
 		};
 
-	template<typename Db, typename... Args>
-		struct interpreter_t<Db, not_t<Args...>>
+	template<typename Db, typename Lhs>
+		struct interpreter_t<Db, not_t<Lhs>>
 		{
-			using T = not_t<Args...>;
+			using T = not_t<Lhs>;
 			template<typename Context>
-				static void interpret(const T& t, Context& context)
+				static Context& interpret(const T& t, Context& context)
 				{
 					context << "(";
-					if (trivial_value_is_null_t<typename T::Lhs>::value and t._lhs._is_trivial())
+					if (trivial_value_is_null_t<Lhs>::value and t._lhs._is_trivial())
 					{
 						interpret(t._lhs, context);
 						context << "IS NULL";
@@ -191,6 +196,7 @@ namespace sqlpp
 						interpret(t._lhs, context);
 					}
 					context << ")";
+					return context;
 				}
 		};
 
@@ -214,18 +220,19 @@ namespace sqlpp
 			Rhs _rhs;
 		};
 
-	template<typename Db, typename... Args>
-		struct interpreter_t<Db, binary_expression_t<Args...>>
+	template<typename Db, typename Lhs, typename O, typename Rhs>
+		struct interpreter_t<Db, binary_expression_t<Lhs, O, Rhs>>
 		{
-			using T = binary_expression_t<Args...>;
+			using T = binary_expression_t<Lhs, O, Rhs>;
 			template<typename Context>
-				static void interpret(const T& t, Context& context)
+				static Context& interpret(const T& t, Context& context)
 				{
 					context << "(";
 					interpret(t._lhs, context);
 					context << T::O::_name;
 					interpret(t._rhs, context);
 					context << ")";
+					return context;
 				}
 		};
 

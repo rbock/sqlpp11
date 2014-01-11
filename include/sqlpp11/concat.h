@@ -29,12 +29,11 @@
 
 #include <sstream>
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/detail/set.h>
 
 namespace sqlpp
 {
-	namespace detail
-	{
 		template<typename First, typename... Args>
 		struct concat_t: public First::_value_type::template operators<concat_t<First, Args...>>
 		{
@@ -71,31 +70,27 @@ namespace sqlpp
 			concat_t& operator=(concat_t&&) = default;
 			~concat_t() = default;
 
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					static_assert(Db::_use_concat_operator or Db::_use_concat_function, "neither concat operator nor concat function supported by current database");
-					if (Db::_use_concat_operator)
-					{
-						os << "(";
-						detail::serialize_tuple(os, db, _args, "||");
-						os << ")";
-					}
-					else if (Db::_use_concat_function)
-					{
-						os << "CONCAT(";
-						detail::serialize_tuple(os, db, _args, ',');
-						os << ")";
-					}
-				}
-
-		private:
 			std::tuple<First, Args...> _args;
 		};
-	}
+
+		//FIXME: Write partial specialization for mysql
+	template<typename Db, typename First, typename... Args>
+		struct interpreter_t<Db, concat_t<First, Args...>>
+		{
+			using T = concat_t<First, Args...>;
+			template<typename Context>
+				static Context& _(const T& t, Context& context)
+				{
+						context << "(";
+						interpret_tuple(t._args, "||", context);
+						context << ")";
+						return context;
+				}
+		};
+
 
 	template<typename... T>
-	auto concat(T&&... t) -> typename detail::concat_t<typename operand_t<T, is_text_t>::type...>
+	auto concat(T&&... t) -> concat_t<typename operand_t<T, is_text_t>::type...>
 	{
 		return { std::forward<T>(t)... };
 	}
