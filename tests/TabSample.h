@@ -27,7 +27,7 @@
 #ifndef SQLPP_TAB_SAMPLE_H
 #define SQLPP_TAB_SAMPLE_H
 
-#include <sqlpp11/table_base.h>
+#include <sqlpp11/table.h>
 #include <sqlpp11/column_types.h>
 
 
@@ -72,7 +72,7 @@ namespace TabFoo_
 	};
 }
 
-struct TabFoo: sqlpp::table_base_t<
+struct TabFoo: sqlpp::table_t<
 									TabFoo, 
 									TabFoo_::Epsilon,
 									TabFoo_::Omega
@@ -166,7 +166,7 @@ namespace TabSample_
 	};
 }
 
-struct TabSample: sqlpp::table_base_t<
+struct TabSample: sqlpp::table_t<
 									TabSample, 
 									TabSample_::Alpha, 
 									TabSample_::Beta,

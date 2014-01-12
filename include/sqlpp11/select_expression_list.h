@@ -34,7 +34,7 @@
 #include <sqlpp11/no_value.h>
 #include <sqlpp11/field.h>
 #include <sqlpp11/result_row.h>
-#include <sqlpp11/table_base.h>
+#include <sqlpp11/table.h>
 #include <sqlpp11/select_pseudo_table.h>
 #include <sqlpp11/detail/named_serializable.h>
 #include <sqlpp11/detail/serialize_tuple.h>
@@ -185,7 +185,7 @@ namespace sqlpp
 			static Context& _(const T& t, Context& context)
 			{
 				interpret_tuple(t._expressions, ',', context);
-				if (not t._dynamic_expressions.empty())
+				if (sizeof...(NamedExpr) and not t._dynamic_expressions.empty())
 					context << ',';
 				interpret(t._dynamic_expressions, context);
 				return context;

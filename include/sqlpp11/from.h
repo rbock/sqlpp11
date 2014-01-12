@@ -74,6 +74,25 @@ namespace sqlpp
 			std::tuple<TableOrJoin...> _tables;
 			detail::serializable_list<Database> _dynamic_tables;
 		};
+
+	template<typename Context, typename Database, typename... TableOrJoin>
+		struct interpreter_t<Context, from_t<Database, TableOrJoin...>>
+		{
+			using T = from_t<Database, TableOrJoin...>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				if (sizeof...(TableOrJoin) == 0 and t._dynamic_tables.empty())
+					return context;
+				context << " FROM ";
+				interpret_tuple(t._tables, ',', context);
+				if (sizeof...(TableOrJoin) and not t._dynamic_tables.empty())
+					context << ',';
+				interpret_serializable_list(t._dynamic_tables, ',', context);
+				return context;
+			}
+		};
+
 }
 
 #endif

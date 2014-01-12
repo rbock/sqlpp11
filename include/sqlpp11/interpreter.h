@@ -32,7 +32,7 @@
 
 namespace sqlpp
 {
-	template<typename Context, typename T>
+	template<typename Context, typename T, typename Enable = void>
 		struct interpreter_t
 		{
 			static void _(const T& t, Context& context)

@@ -43,6 +43,7 @@ int main()
 	interpret(t.beta + "kaesekuchen", printer).flush();
 
 	interpret(select(sqlpp::distinct, t.alpha, t.beta), printer).flush();
+	interpret(select(sqlpp::distinct, t.alpha, t.beta).from(t), printer).flush();
 
 	return 0;
 }

@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_TABLE_BASE_H
-#define SQLPP_TABLE_BASE_H
+#ifndef SQLPP_TABLE_H
+#define SQLPP_TABLE_H
 
 #include <ostream>
 #include <sqlpp11/alias.h>
@@ -37,8 +37,10 @@
 
 namespace sqlpp
 {
+	struct table_base_t {};
+
 	template<typename Table, typename... ColumnSpec>
-	struct table_base_t: public ColumnSpec::_name_t::template _member_t<column_t<Table, ColumnSpec>>...
+	struct table_t: public table_base_t, public ColumnSpec::_name_t::template _member_t<column_t<Table, ColumnSpec>>...
 	{
 		using _table_set = detail::set<Table>; // Hint need a set here to be similar to a join (which always represents more than one table)
 		using _all_columns = typename detail::make_set<column_t<Table, ColumnSpec>...>::type;
@@ -117,12 +119,10 @@ namespace sqlpp
 				return {*static_cast<const Table*>(this)};
 			}
 
-		template<typename Db>
-			void serialize(std::ostream& os, Db& db) const
-			{
-				static_cast<const Table*>(this)->serialize_impl(os, db);
-			}
-
+		const Table& ref() const
+		{
+			return *static_cast<const Table*>(this);
+		}
 	};
 
 	template<typename Table>
@@ -130,6 +130,19 @@ namespace sqlpp
 	{
 		return {};
 	}
+
+	template<typename Context, typename X>
+		struct interpreter_t<Context, X, typename std::enable_if<std::is_base_of<table_base_t, X>::value, void>::type>
+		{
+			using T = X;
+
+			static Context& _(const T& t, Context& context)
+			{
+				context << "table";
+				return context;
+			}
+		};
+
 
 }
 
