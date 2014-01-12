@@ -41,122 +41,126 @@ namespace sqlpp
 		struct text;
 	}
 
-		struct boolean_operand
+	struct boolean_operand
+	{
+		static constexpr bool _is_expression = true;
+		using _value_type = detail::boolean;
+
+		bool _is_trivial() const { return _t == false; }
+
+		bool _t;
+	};
+
+	template<typename Context>
+		struct interpreter_t<Context, boolean_operand>
 		{
-			static constexpr bool _is_expression = true;
-			using _value_type = detail::boolean;
+			using Operand = boolean_operand;
 
-			bool _is_trivial() const { return _t == false; }
-
-			bool _t;
+			static Context& _(const Operand& t, Context& context)
+			{
+				context << t._t;
+				return context;
+			}
 		};
 
-		template<typename Db>
-			struct interpreter_t<Db, boolean_operand>
+	template<typename T>
+		struct integral_operand
+		{
+			static constexpr bool _is_expression = true;
+			using _value_type = detail::integral;
+
+			bool _is_trivial() const { return _t == 0; }
+
+			T _t;
+		};
+
+	template<typename Context, typename T>
+		struct interpreter_t<Context, integral_operand<T>>
+		{
+			using Operand = integral_operand<T>;
+
+			static Context& _(const Operand& t, Context& context)
 			{
-				using Operand = boolean_operand;
-				template<typename Context>
-					static void _(const Operand& t, Context& context)
-					{
-						context << t._t;
-					}
-			};
+				context << t._t;
+				return context;
+			}
+		};
 
-		template<typename T>
-			struct integral_operand
+
+	template<typename T>
+		struct floating_point_operand
+		{
+			static constexpr bool _is_expression = true;
+			using _value_type = detail::floating_point;
+
+			bool _is_trivial() const { return _t == 0; }
+
+			T _t;
+		};
+
+	template<typename Context, typename T>
+		struct interpreter_t<Context, floating_point_operand<T>>
+		{
+			using Operand = floating_point_operand<T>;
+
+			static Context& _(const Operand& t, Context& context)
 			{
-				static constexpr bool _is_expression = true;
-				using _value_type = detail::integral;
+				context << t._t;
+				return context;
+			}
+		};
 
-				bool _is_trivial() const { return _t == 0; }
+	struct text_operand
+	{
+		static constexpr bool _is_expression = true;
+		using _value_type = detail::text;
 
-				T _t;
-			};
+		bool _is_trivial() const { return _t.empty(); }
 
-		template<typename Db, typename T>
-			struct interpreter_t<Db, integral_operand<T>>
+		std::string _t;
+	};
+
+	template<typename Context>
+		struct interpreter_t<Context, text_operand>
+		{
+			using Operand = text_operand;
+
+			static Context& _(const Operand& t, Context& context)
 			{
-				using Operand = integral_operand<T>;
-				template<typename Context>
-					static void _(const Operand& t, Context& context)
-					{
-						context << t._t;
-					}
-			};
+				context << '\'' << context.escape(t._t) << '\'';
+				return context;
+			}
+		};
 
+	template<typename T, typename Enable = void>
+		struct wrap_operand
+		{
+			using type = T;
+		};
 
-		template<typename T>
-			struct floating_point_operand
-			{
-				static constexpr bool _is_expression = true;
-				using _value_type = detail::floating_point;
+	template<>
+		struct wrap_operand<bool, void>
+		{
+			using type = boolean_operand;
+		};
 
-				bool _is_trivial() const { return _t == 0; }
+	template<typename T>
+		struct wrap_operand<T, typename std::enable_if<std::is_integral<T>::value>::type>
+		{
+			using type = integral_operand<T>;
+		};
 
-				T _t;
-			};
+	template<typename T>
+		struct wrap_operand<T, typename std::enable_if<std::is_floating_point<T>::value>::type>
+		{
+			using type = floating_point_operand<T>;
+		};
 
-		template<typename Db, typename T>
-			struct interpreter_t<Db, floating_point_operand<T>>
-			{
-				using Operand = floating_point_operand<T>;
-				template<typename Context>
-					static void _(const Operand& t, Context& context)
-					{
-						context << t._t;
-					}
-			};
-
-			struct text_operand
-			{
-				static constexpr bool _is_expression = true;
-				using _value_type = detail::text;
-
-				bool _is_trivial() const { return _t.empty(); }
-
-				std::string _t;
-			};
-
-		template<typename Db>
-			struct interpreter_t<Db, text_operand>
-			{
-				using Operand = text_operand;
-				template<typename Context>
-					static void _(const Operand& t, Context& context)
-					{
-						context << '\'' << context.escape(t._t) << '\'';
-					}
-			};
-
-		template<typename T, typename Enable = void>
-			struct wrap_operand
-			{
-				using type = T;
-			};
-
-		template<>
-			struct wrap_operand<bool, void>
-			{
-				using type = boolean_operand;
-			};
-
-		template<typename T>
-			struct wrap_operand<T, typename std::enable_if<std::is_integral<T>::value>::type>
-			{
-				using type = integral_operand<T>;
-			};
-
-		template<typename T>
-			struct wrap_operand<T, typename std::enable_if<std::is_floating_point<T>::value>::type>
-			{
-				using type = floating_point_operand<T>;
-			};
-
-		template<typename T>
-			struct wrap_operand<T, typename std::enable_if<std::is_convertible<T, std::string>::value>::type>
-			{
-				using type = text_operand;
-			};
+	template<typename T>
+		struct wrap_operand<T, typename std::enable_if<std::is_convertible<T, std::string>::value>::type>
+		{
+			using type = text_operand;
+		};
 }
 
 #endif

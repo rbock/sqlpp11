@@ -32,21 +32,20 @@
 
 namespace sqlpp
 {
-	template<typename Db, typename T>
+	template<typename Context, typename T>
 		struct interpreter_t
 		{
-			template<typename Context>
-				static void _(const T& t, Context& context)
-				{
-					static_assert(detail::wrong<Db, T>::value, "missing interpreter specialization");
-				}
+			static void _(const T& t, Context& context)
+			{
+				static_assert(detail::wrong<Context, T>::value, "missing interpreter specialization");
+			}
 		};
 
 	template<typename T, typename Context>
 		auto interpret(const T& t, Context& context)
-		-> decltype(interpreter_t<typename std::decay<Context>::type::_database_t, typename std::decay<T>::type>::_(t, context))
+		-> decltype(interpreter_t<typename std::decay<Context>::type, typename std::decay<T>::type>::_(t, context))
 		{
-			return interpreter_t<typename std::decay<Context>::type::_database_t, typename std::decay<T>::type>::_(t, context);
+			return interpreter_t<typename std::decay<Context>::type, typename std::decay<T>::type>::_(t, context);
 		}
 
 }

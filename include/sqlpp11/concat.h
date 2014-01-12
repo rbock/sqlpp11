@@ -74,18 +74,18 @@ namespace sqlpp
 		};
 
 		//FIXME: Write partial specialization for mysql
-	template<typename Db, typename First, typename... Args>
-		struct interpreter_t<Db, concat_t<First, Args...>>
+	template<typename Context, typename First, typename... Args>
+		struct interpreter_t<Context, concat_t<First, Args...>>
 		{
 			using T = concat_t<First, Args...>;
-			template<typename Context>
-				static Context& _(const T& t, Context& context)
-				{
-						context << "(";
-						interpret_tuple(t._args, "||", context);
-						context << ")";
-						return context;
-				}
+
+			static Context& _(const T& t, Context& context)
+			{
+				context << "(";
+				interpret_tuple(t._args, "||", context);
+				context << ")";
+				return context;
+			}
 		};
 
 

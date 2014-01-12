@@ -48,192 +48,192 @@ namespace sqlpp
 			Rhs _rhs;
 		};
 
-	template<typename Db, typename Lhs, typename Rhs>
-		struct interpreter_t<Db, assignment_t<Lhs, Rhs>>
+	template<typename Context, typename Lhs, typename Rhs>
+		struct interpreter_t<Context, assignment_t<Lhs, Rhs>>
 		{
 			using T = assignment_t<Lhs, Rhs>;
-			template<typename Context>
-				static Context& _(const T& t, Context& context)
+
+			static Context& _(const T& t, Context& context)
+			{
+				interpret(t._lhs, context);
+				if (trivial_value_is_null_t<Lhs>::value and t._rhs._is_trivial())
 				{
-					interpret(t._lhs, context);
-					if (trivial_value_is_null_t<Lhs>::value and t._rhs._is_trivial())
-					{
-						context << "=NULL";
-					}
-					else
-					{
-						context << "=";
-						interpret(t._rhs, context);
-					}
-					return context;
+					context << "=NULL";
 				}
+				else
+				{
+					context << "=";
+					interpret(t._rhs, context);
+				}
+				return context;
+			}
 		};
 
 
 	template<typename Lhs, typename Rhs>
 		struct equal_t: public detail::boolean::template operators<equal_t<Lhs, Rhs>>
-		{
-			using _value_type = detail::boolean;
+	{
+		using _value_type = detail::boolean;
 
-			template<typename L, typename R>
+		template<typename L, typename R>
 			equal_t(L&& l, R&& r):
 				_lhs(std::forward<L>(l)), 
 				_rhs(std::forward<R>(r))
-			{}
+		{}
 
-			equal_t(const equal_t&) = default;
-			equal_t(equal_t&&) = default;
-			equal_t& operator=(const equal_t&) = default;
-			equal_t& operator=(equal_t&&) = default;
-			~equal_t() = default;
+		equal_t(const equal_t&) = default;
+		equal_t(equal_t&&) = default;
+		equal_t& operator=(const equal_t&) = default;
+		equal_t& operator=(equal_t&&) = default;
+		~equal_t() = default;
 
-		private:
-			Lhs _lhs;
-			Rhs _rhs;
-		};
+	private:
+		Lhs _lhs;
+		Rhs _rhs;
+	};
 
-	template<typename Db, typename Lhs, typename Rhs>
-		struct interpreter_t<Db, equal_t<Lhs, Rhs>>
+	template<typename Context, typename Lhs, typename Rhs>
+		struct interpreter_t<Context, equal_t<Lhs, Rhs>>
 		{
 			using T = equal_t<Lhs, Rhs>;
-			template<typename Context>
-				static Context& interpret(const T& t, Context& context)
+
+			static Context& interpret(const T& t, Context& context)
+			{
+				context << "(";
+				interpret(t._lhs, context);
+				if (trivial_value_is_null_t<Lhs>::value and t._rhs._is_trivial())
 				{
-					context << "(";
-					interpret(t._lhs, context);
-					if (trivial_value_is_null_t<Lhs>::value and t._rhs._is_trivial())
-					{
-						context << "IS NULL";
-					}
-					else
-					{
-						context << "=";
-						interpret(t._rhs, context);
-					}
-					context << ")";
-					return context;
+					context << "IS NULL";
 				}
+				else
+				{
+					context << "=";
+					interpret(t._rhs, context);
+				}
+				context << ")";
+				return context;
+			}
 		};
 
 	template<typename Lhs, typename Rhs>
 		struct not_equal_t: public detail::boolean::template operators<not_equal_t<Lhs, Rhs>>
-		{
-			using _value_type = detail::boolean;
+	{
+		using _value_type = detail::boolean;
 
-			template<typename L, typename R>
+		template<typename L, typename R>
 			not_equal_t(L&& l, R&& r):
 				_lhs(std::forward<L>(l)), 
 				_rhs(std::forward<R>(r))
-			{}
+		{}
 
-			not_equal_t(const not_equal_t&) = default;
-			not_equal_t(not_equal_t&&) = default;
-			not_equal_t& operator=(const not_equal_t&) = default;
-			not_equal_t& operator=(not_equal_t&&) = default;
-			~not_equal_t() = default;
+		not_equal_t(const not_equal_t&) = default;
+		not_equal_t(not_equal_t&&) = default;
+		not_equal_t& operator=(const not_equal_t&) = default;
+		not_equal_t& operator=(not_equal_t&&) = default;
+		~not_equal_t() = default;
 
-			Lhs _lhs;
-			Rhs _rhs;
-		};
+		Lhs _lhs;
+		Rhs _rhs;
+	};
 
-	template<typename Db, typename Lhs, typename Rhs>
-		struct interpreter_t<Db, not_equal_t<Lhs, Rhs>>
+	template<typename Context, typename Lhs, typename Rhs>
+		struct interpreter_t<Context, not_equal_t<Lhs, Rhs>>
 		{
 			using T = not_equal_t<Lhs, Rhs>;
-			template<typename Context>
-				static Context& interpret(const T& t, Context& context)
+
+			static Context& interpret(const T& t, Context& context)
+			{
+				context << "(";
+				interpret(t._lhs, context);
+				if (trivial_value_is_null_t<Lhs>::value and t._rhs._is_trivial())
 				{
-					context << "(";
-					interpret(t._lhs, context);
-					if (trivial_value_is_null_t<Lhs>::value and t._rhs._is_trivial())
-					{
-						context << "IS NOT NULL";
-					}
-					else
-					{
-						context << "!=";
-						interpret(t._rhs, context);
-					}
-					context << ")";
-					return context;
+					context << "IS NOT NULL";
 				}
+				else
+				{
+					context << "!=";
+					interpret(t._rhs, context);
+				}
+				context << ")";
+				return context;
+			}
 		};
 
 	template<typename Lhs>
 		struct not_t: public detail::boolean::template operators<not_t<Lhs>>
-		{
-			using _value_type = detail::boolean;
+	{
+		using _value_type = detail::boolean;
 
-			not_t(Lhs l):
-				_lhs(l)
-			{}
+		not_t(Lhs l):
+			_lhs(l)
+		{}
 
-			not_t(const not_t&) = default;
-			not_t(not_t&&) = default;
-			not_t& operator=(const not_t&) = default;
-			not_t& operator=(not_t&&) = default;
-			~not_t() = default;
+		not_t(const not_t&) = default;
+		not_t(not_t&&) = default;
+		not_t& operator=(const not_t&) = default;
+		not_t& operator=(not_t&&) = default;
+		~not_t() = default;
 
-			Lhs _lhs;
-		};
+		Lhs _lhs;
+	};
 
-	template<typename Db, typename Lhs>
-		struct interpreter_t<Db, not_t<Lhs>>
+	template<typename Context, typename Lhs>
+		struct interpreter_t<Context, not_t<Lhs>>
 		{
 			using T = not_t<Lhs>;
-			template<typename Context>
-				static Context& interpret(const T& t, Context& context)
+
+			static Context& interpret(const T& t, Context& context)
+			{
+				context << "(";
+				if (trivial_value_is_null_t<Lhs>::value and t._lhs._is_trivial())
 				{
-					context << "(";
-					if (trivial_value_is_null_t<Lhs>::value and t._lhs._is_trivial())
-					{
-						interpret(t._lhs, context);
-						context << "IS NULL";
-					}
-					else
-					{
-						context << "NOT ";
-						interpret(t._lhs, context);
-					}
-					context << ")";
-					return context;
+					interpret(t._lhs, context);
+					context << "IS NULL";
 				}
+				else
+				{
+					context << "NOT ";
+					interpret(t._lhs, context);
+				}
+				context << ")";
+				return context;
+			}
 		};
 
 	template<typename Lhs, typename O, typename Rhs>
 		struct binary_expression_t: public O::_value_type::template operators<binary_expression_t<Lhs, O, Rhs>>
-		{
-			using _value_type = typename O::_value_type;
+	{
+		using _value_type = typename O::_value_type;
 
-			binary_expression_t(Lhs lhs, Rhs rhs):
-				_lhs(lhs), 
-				_rhs(rhs)
-			{}
+		binary_expression_t(Lhs lhs, Rhs rhs):
+			_lhs(lhs), 
+			_rhs(rhs)
+		{}
 
-			binary_expression_t(const binary_expression_t&) = default;
-			binary_expression_t(binary_expression_t&&) = default;
-			binary_expression_t& operator=(const binary_expression_t&) = default;
-			binary_expression_t& operator=(binary_expression_t&&) = default;
-			~binary_expression_t() = default;
+		binary_expression_t(const binary_expression_t&) = default;
+		binary_expression_t(binary_expression_t&&) = default;
+		binary_expression_t& operator=(const binary_expression_t&) = default;
+		binary_expression_t& operator=(binary_expression_t&&) = default;
+		~binary_expression_t() = default;
 
-			Lhs _lhs;
-			Rhs _rhs;
-		};
+		Lhs _lhs;
+		Rhs _rhs;
+	};
 
-	template<typename Db, typename Lhs, typename O, typename Rhs>
-		struct interpreter_t<Db, binary_expression_t<Lhs, O, Rhs>>
+	template<typename Context, typename Lhs, typename O, typename Rhs>
+		struct interpreter_t<Context, binary_expression_t<Lhs, O, Rhs>>
 		{
 			using T = binary_expression_t<Lhs, O, Rhs>;
-			template<typename Context>
-				static Context& interpret(const T& t, Context& context)
-				{
-					context << "(";
-					interpret(t._lhs, context);
-					context << T::O::_name;
-					interpret(t._rhs, context);
-					context << ")";
-					return context;
-				}
+
+			static Context& interpret(const T& t, Context& context)
+			{
+				context << "(";
+				interpret(t._lhs, context);
+				context << T::O::_name;
+				interpret(t._rhs, context);
+				context << ")";
+				return context;
+			}
 		};
 
 }

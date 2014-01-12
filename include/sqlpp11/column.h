@@ -80,16 +80,16 @@ namespace sqlpp
 			}
 	};
 
-	template<typename Db, typename... Args>
-		struct interpreter_t<Db, column_t<Args...>>
+	template<typename Context, typename... Args>
+		struct interpreter_t<Context, column_t<Args...>>
 		{
 			using T = column_t<Args...>;
-			template<typename Context>
-				static Context& _(const T& t, Context& context)
-				{
-					context << T::_table::_name_t::_get_name() << '.' << T::_name_t::_get_name();
-					return context;
-				}
+
+			static Context& _(const T& t, Context& context)
+			{
+				context << T::_table::_name_t::_get_name() << '.' << T::_name_t::_get_name();
+				return context;
+			}
 		};
 
 }

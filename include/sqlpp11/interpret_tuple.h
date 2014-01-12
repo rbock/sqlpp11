@@ -33,10 +33,10 @@
 
 namespace sqlpp
 {
-	template<typename Db, typename Tuple>
+	template<typename Context, typename Tuple>
 		struct tuple_interpreter_t
 		{
-			template<typename Separator, typename Context>
+			template<typename Separator>
 				static void _(const Tuple& t, const Separator& separator, Context& context)
 				{
 					_impl(t, separator, context, type<0>());
@@ -45,7 +45,7 @@ namespace sqlpp
 		private:
 			template<size_t> struct type {};
 
-			template<typename Separator, typename Context, size_t index>
+			template<typename Separator, size_t index>
 				static void _impl(const Tuple& t, const Separator& separator, Context& context, const type<index>&)
 				{
 					if (index)
@@ -60,7 +60,7 @@ namespace sqlpp
 					_impl(t, separator, context, type<index + 1>());
 				}
 
-			template<typename Separator, typename Context>
+			template<typename Separator>
 				static void _impl(const Tuple& t, const Separator& separator, Context& context, const type<std::tuple_size<Tuple>::value>&)
 				{
 				}
@@ -68,9 +68,9 @@ namespace sqlpp
 
 	template<typename Tuple, typename Separator, typename Context>
 		auto interpret_tuple(const Tuple& t, const Separator& separator, Context& context)
-		-> decltype(tuple_interpreter_t<typename std::decay<Context>::type::_database_t, typename std::decay<Tuple>::type>::_(t, separator, context))
+		-> decltype(tuple_interpreter_t<typename std::decay<Context>::type, typename std::decay<Tuple>::type>::_(t, separator, context))
 		{
-			return tuple_interpreter_t<typename std::decay<Context>::type::_database_t, typename std::decay<Tuple>::type>::_(t, separator, context);
+			return tuple_interpreter_t<typename std::decay<Context>::type, typename std::decay<Tuple>::type>::_(t, separator, context);
 		}
 }
 
