@@ -62,27 +62,27 @@ namespace sqlpp
 					_dynamic_expressions.emplace_back(std::forward<E>(expr));
 				}
 
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					static_assert(Db::_supports_group_by, "group_by() not supported by current database");
-					if (sizeof...(Expr) == 0 and _dynamic_expressions.empty())
-						return;
-
-					os << " GROUP BY ";
-					detail::serialize_tuple(os, db, _expressions, ',');
-					_dynamic_expressions.serialize(os, db, sizeof...(Expr) == 0);
-				}
-
-			size_t _set_parameter_index(size_t index)
-			{
-				index = set_parameter_index(_expressions, index);
-				return index;
-			}
-
 			_parameter_tuple_t _expressions;
 			detail::serializable_list<Database> _dynamic_expressions;
 
+		};
+
+	template<typename Context, typename Database, typename... Expr>
+		struct interpreter_t<Context, group_by_t<Database, Expr...>>
+		{
+			using T = group_by_t<Database, Expr...>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				if (sizeof...(Expr) == 0 and t._dynamic_expressions.empty())
+					return context;
+				context << " GROUP BY ";
+				interpret_tuple(t._expressions, ',', context);
+				if (sizeof...(Expr) and not t._dynamic_expressions.empty())
+					context << ',';
+				interpret_serializable_list(t._dynamic_expressions, ',', context);
+				return context;
+			}
 		};
 
 }

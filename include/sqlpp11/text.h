@@ -203,10 +203,10 @@ namespace sqlpp
 					}
 
 				template<typename T>
-					detail::like_t<boolean, Base, typename _constraint<T>::type> like(T&& t) const
+					like_t<boolean, Base, typename _constraint<T>::type> like(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-						return { *static_cast<const Base*>(this), std::forward<T>(t) };
+						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
 
 			};

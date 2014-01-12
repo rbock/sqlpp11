@@ -33,8 +33,6 @@
 
 namespace sqlpp
 {
-	namespace detail
-	{
 		// The ValueType should be boolean, this is a hack because boolean is not fully defined when the compiler first gets here...
 		template<typename ValueType, typename Operand, typename Pattern>
 		struct like_t: public ValueType::_base_value_type::template operators<like_t<ValueType, Operand, Pattern>>
@@ -74,13 +72,6 @@ namespace sqlpp
 			like_t& operator=(like_t&&) = default;
 			~like_t() = default;
 
-			size_t _set_parameter_index(size_t index)
-			{
-				index = set_parameter_index(_operand, index);
-				index = set_parameter_index(_pattern, index);
-				return index;
-			}
-
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
@@ -91,11 +82,25 @@ namespace sqlpp
 					os << ")";
 				}
 
-		private:
 			Operand _operand;
 			Pattern _pattern;
 		};
-	}
+
+	template<typename Context, typename ValueType, typename Operand, typename Pattern>
+		struct interpreter_t<Context, like_t<ValueType, Operand, Pattern>>
+		{
+			using T = like_t<ValueType, Operand, Pattern>;
+
+			static Context& _(const T& t, Context& context)
+			{
+					interpret(t._operand, context);
+					context << " LIKE(";
+					interpret(t._pattern, context);
+					context << ")";
+					return context;
+			}
+		};
+
 }
 
 #endif
