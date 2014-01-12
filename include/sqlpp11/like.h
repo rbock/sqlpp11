@@ -27,69 +27,67 @@
 #ifndef SQLPP_LIKE_H
 #define SQLPP_LIKE_H
 
-#include <sstream>
+#include <sqlpp11/boolean.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/detail/set.h>
 
 namespace sqlpp
 {
-		// The ValueType should be boolean, this is a hack because boolean is not fully defined when the compiler first gets here...
-		template<typename ValueType, typename Operand, typename Pattern>
-		struct like_t: public ValueType::_base_value_type::template operators<like_t<ValueType, Operand, Pattern>>
+	template<typename Operand, typename Pattern>
+		struct like_t: public boolean::template operators<like_t<Operand, Pattern>>
+	{
+		static_assert(is_text_t<Operand>::value, "Operand for like() has to be a text");
+		static_assert(is_text_t<Pattern>::value, "Pattern for like() has to be a text");
+
+		struct _value_type: public boolean
 		{
-			static_assert(is_text_t<Operand>::value, "Operand for like() has to be a text");
-			static_assert(is_text_t<Pattern>::value, "Pattern for like() has to be a text");
-			using _parameter_tuple_t = std::tuple<ValueType, Pattern>;
-
-			struct _value_type: public ValueType::_base_value_type // we require fully defined boolean here
-			{
-				using _is_named_expression = std::true_type;
-			};
-
-			struct _name_t
-			{
-				static constexpr const char* _get_name() { return "LIKE"; }
-				template<typename T>
-					struct _member_t
-					{
-						T like;
-					};
-			};
-
-			like_t(Operand&& operand, Pattern&& pattern):
-				_operand(std::move(operand)),
-				_pattern(std::move(pattern))
-			{}
-
-			like_t(const Operand& operand, const Pattern& pattern):
-				_operand(operand),
-				_pattern(pattern)
-			{}
-
-			like_t(const like_t&) = default;
-			like_t(like_t&&) = default;
-			like_t& operator=(const like_t&) = default;
-			like_t& operator=(like_t&&) = default;
-			~like_t() = default;
-
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					static_assert(Db::_supports_like, "like() not supported by current database");
-					_operand.serialize(os, db);
-					os << " LIKE(";
-					_pattern.serialize(os, db);
-					os << ")";
-				}
-
-			Operand _operand;
-			Pattern _pattern;
+			using _is_named_expression = std::true_type;
 		};
 
-	template<typename Context, typename ValueType, typename Operand, typename Pattern>
-		struct interpreter_t<Context, like_t<ValueType, Operand, Pattern>>
+		struct _name_t
 		{
-			using T = like_t<ValueType, Operand, Pattern>;
+			static constexpr const char* _get_name() { return "LIKE"; }
+			template<typename T>
+				struct _member_t
+				{
+					T like;
+				};
+		};
+
+		like_t(Operand&& operand, Pattern&& pattern):
+			_operand(std::move(operand)),
+			_pattern(std::move(pattern))
+		{}
+
+		like_t(const Operand& operand, const Pattern& pattern):
+			_operand(operand),
+			_pattern(pattern)
+		{}
+
+		like_t(const like_t&) = default;
+		like_t(like_t&&) = default;
+		like_t& operator=(const like_t&) = default;
+		like_t& operator=(like_t&&) = default;
+		~like_t() = default;
+
+		template<typename Db>
+			void serialize(std::ostream& os, Db& db) const
+			{
+				static_assert(Db::_supports_like, "like() not supported by current database");
+				_operand.serialize(os, db);
+				os << " LIKE(";
+				_pattern.serialize(os, db);
+				os << ")";
+			}
+
+		Operand _operand;
+		Pattern _pattern;
+	};
+
+	template<typename Context, typename Operand, typename Pattern>
+		struct interpreter_t<Context, like_t<Operand, Pattern>>
+		{
+			using T = like_t<Operand, Pattern>;
 
 			static Context& _(const T& t, Context& context)
 			{
