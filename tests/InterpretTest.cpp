@@ -39,11 +39,13 @@ int main()
 
 	interpret(t.alpha, printer).flush();
 	interpret(t.alpha = 7, printer).flush();
+	interpret(t.alpha == 7, printer).flush();
 	sqlpp::text_operand o = {"kaesekuchen"};
 	interpret(t.beta + "kaesekuchen", printer).flush();
 
 	interpret(select(sqlpp::distinct, t.alpha, t.beta), printer).flush();
 	interpret(select(sqlpp::distinct, t.alpha, t.beta).from(t), printer).flush();
+	interpret(select(sqlpp::distinct, t.alpha, t.beta).from(t).where(t.alpha == 3), printer).flush();
 
 	return 0;
 }

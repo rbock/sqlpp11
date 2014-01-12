@@ -62,22 +62,30 @@ namespace sqlpp
 			template<typename Db>
 				void serialize(std::ostream& os, Db& db) const
 				{
-					if (sizeof...(Expr) == 0 and _dynamic_expressions.empty())
-						return;
-					os << " WHERE ";
-					detail::serialize_tuple(os, db, _expressions, " AND ");
-					_dynamic_expressions.serialize(os, db, " AND ", sizeof...(Expr) == 0);
 				}
-
-			size_t _set_parameter_index(size_t index)
-			{
-				index = set_parameter_index(_expressions, index);
-				return index;
-			}
 
 			_parameter_tuple_t _expressions;
 			detail::serializable_list<Database> _dynamic_expressions;
 		};
+
+	template<typename Context, typename Database, typename... Expr>
+		struct interpreter_t<Context, where_t<Database, Expr...>>
+		{
+			using T = where_t<Database, Expr...>;
+
+			static Context& _(const T& t, Context& context)
+			{
+					if (sizeof...(Expr) == 0 and t._dynamic_expressions.empty())
+						return context;
+					context << " WHERE ";
+					interpret_tuple(t._expressions, " AND ", context);
+					if (sizeof...(Expr) and not t._dynamic_expressions.empty())
+						context << " AND ";
+					interpret_serializable_list(t._dynamic_expressions, " AND ", context);
+					return context;
+			}
+		};
+
 }
 
 #endif

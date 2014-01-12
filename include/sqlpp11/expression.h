@@ -75,10 +75,9 @@ namespace sqlpp
 	{
 		using _value_type = detail::boolean;
 
-		template<typename L, typename R>
-			equal_t(L&& l, R&& r):
-				_lhs(std::forward<L>(l)), 
-				_rhs(std::forward<R>(r))
+			equal_t(Lhs lhs, Rhs rhs):
+				_lhs(lhs), 
+				_rhs(rhs)
 		{}
 
 		equal_t(const equal_t&) = default;
@@ -87,7 +86,6 @@ namespace sqlpp
 		equal_t& operator=(equal_t&&) = default;
 		~equal_t() = default;
 
-	private:
 		Lhs _lhs;
 		Rhs _rhs;
 	};
@@ -97,7 +95,7 @@ namespace sqlpp
 		{
 			using T = equal_t<Lhs, Rhs>;
 
-			static Context& interpret(const T& t, Context& context)
+			static Context& _(const T& t, Context& context)
 			{
 				context << "(";
 				interpret(t._lhs, context);
@@ -120,10 +118,9 @@ namespace sqlpp
 	{
 		using _value_type = detail::boolean;
 
-		template<typename L, typename R>
-			not_equal_t(L&& l, R&& r):
-				_lhs(std::forward<L>(l)), 
-				_rhs(std::forward<R>(r))
+			not_equal_t(Lhs lhs, Rhs rhs):
+				_lhs(lhs), 
+				_rhs(rhs)
 		{}
 
 		not_equal_t(const not_equal_t&) = default;
@@ -141,7 +138,7 @@ namespace sqlpp
 		{
 			using T = not_equal_t<Lhs, Rhs>;
 
-			static Context& interpret(const T& t, Context& context)
+			static Context& _(const T& t, Context& context)
 			{
 				context << "(";
 				interpret(t._lhs, context);
@@ -182,7 +179,7 @@ namespace sqlpp
 		{
 			using T = not_t<Lhs>;
 
-			static Context& interpret(const T& t, Context& context)
+			static Context& _(const T& t, Context& context)
 			{
 				context << "(";
 				if (trivial_value_is_null_t<Lhs>::value and t._lhs._is_trivial())
@@ -225,7 +222,7 @@ namespace sqlpp
 		{
 			using T = binary_expression_t<Lhs, O, Rhs>;
 
-			static Context& interpret(const T& t, Context& context)
+			static Context& _(const T& t, Context& context)
 			{
 				context << "(";
 				interpret(t._lhs, context);

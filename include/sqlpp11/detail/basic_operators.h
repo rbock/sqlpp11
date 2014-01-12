@@ -73,27 +73,27 @@ namespace sqlpp
 				equal_t<Base, typename Constraint<T>::type> operator==(T&& t) const
 				{
 					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-					return { *static_cast<const Base*>(this), std::forward<T>(t) };
+					return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 				}
 
 			template<typename T>
 				not_equal_t<Base, typename Constraint<T>::type> operator!=(T&& t) const
 				{
 					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-					return { *static_cast<const Base*>(this), std::forward<T>(t) };
+					return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 				}
 			template<typename T>
 				binary_expression_t<Base, lt_, typename Constraint<T>::type> operator<(T&& t) const
 				{
 					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-					return { *static_cast<const Base*>(this), std::forward<T>(t) };
+					return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 				}
 
 			template<typename T>
 				binary_expression_t<Base, le_, typename Constraint<T>::type> operator<=(T&& t) const
 				{
 					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-					return { *static_cast<const Base*>(this), std::forward<T>(t) };
+					return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 				}
 
 			template<typename T>
