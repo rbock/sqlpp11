@@ -33,10 +33,18 @@ namespace sqlpp
 {
 	struct noop 
 	{
-		template<typename Db>
-			void serialize(std::ostream& os, Db& db) const
-			{}
 	};
+
+	template<typename Context>
+		struct interpreter_t<Context, noop>
+		{
+			using T = noop;
+
+			static Context& _(const T& t, Context& context)
+			{
+				return context;
+			}
+		};
 
 	template<typename T>
 	struct is_noop: std::is_same<T, noop> {};

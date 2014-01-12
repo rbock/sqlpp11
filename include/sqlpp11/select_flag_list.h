@@ -43,14 +43,18 @@ namespace sqlpp
 		{ 
 			using _is_select_flag = std::true_type; 
 		};
-
-		template<typename Db>
-			void serialize(std::ostream& os, const Db&) const
-			{
-				os << "ALL";
-			}
 	};
 	static constexpr all_t all = {};
+
+	template<typename Context>
+		struct interpreter_t<Context, all_t>
+		{
+			static Context& _(const all_t&, Context& context)
+			{
+				context << "ALL";
+				return context;
+			}
+		};
 
 	struct distinct_t
 	{
@@ -58,14 +62,18 @@ namespace sqlpp
 		{ 
 			using _is_select_flag = std::true_type; 
 		};
-
-		template<typename Db>
-			void serialize(std::ostream& os, const Db&) const
-			{
-				os << "DISTINCT";
-			}
 	};
 	static constexpr distinct_t distinct = {};
+
+	template<typename Context>
+		struct interpreter_t<Context, distinct_t>
+		{
+			static Context& _(const distinct_t&, Context& context)
+			{
+				context << "DISTINCT";
+				return context;
+			}
+		};
 
 	struct straight_join_t
 	{
@@ -73,14 +81,18 @@ namespace sqlpp
 		{ 
 			using _is_select_flag = std::true_type; 
 		};
-
-		template<typename Db>
-			void serialize(std::ostream& os, const Db&) const
-			{
-				os << "STRAIGHT_JOIN";
-			}
 	};
 	static constexpr straight_join_t straight_join = {};
+
+	template<typename Context>
+		struct interpreter_t<Context, straight_join_t>
+		{
+			static Context& _(const straight_join_t&, Context& context)
+			{
+				context << "STRAIGHT_JOIN";
+				return context;
+			}
+		};
 
 	// select_flag_list_t
 	template<typename... Flag>
@@ -104,6 +116,21 @@ namespace sqlpp
 
 			std::tuple<Flag...> _flags;
 		};
+
+	template<typename Context, typename... Flag>
+		struct interpreter_t<Context, select_flag_list_t<std::tuple<Flag...>>>
+		{
+			using T = select_flag_list_t<std::tuple<Flag...>>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				interpret_tuple(t._flags, ' ', context);
+				if (sizeof...(Flag))
+					context << ' ';
+				return context;
+			}
+		};
+
 
 }
 

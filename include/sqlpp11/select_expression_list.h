@@ -57,32 +57,27 @@ namespace sqlpp
 				using _value_type = typename T::_value_type;
 				using _name_t = typename T::_name_t;
 			};
+	}
 
-		template<typename Db>
-			struct dynamic_select_expression_list
-			{
-				using _names_t = std::vector<std::string>;
-				std::vector<detail::named_serializable_t<Db>> _dynamic_expressions;
-				_names_t _dynamic_expression_names;
+	template<typename Db>
+		struct dynamic_select_expression_list
+		{
+			using _names_t = std::vector<std::string>;
+			std::vector<detail::named_serializable_t<Db>> _dynamic_expressions;
+			_names_t _dynamic_expression_names;
 
-				template<typename Expr>
+			template<typename Expr>
 				void push_back(Expr&& expr)
 				{
 					_dynamic_expression_names.push_back(std::decay<Expr>::type::_name_t::_get_name());
 					_dynamic_expressions.emplace_back(std::forward<Expr>(expr));
 				}
-				void serialize(std::ostream& os, Db& db, bool first) const
-				{
-					for (const auto column : _dynamic_expressions)
-					{
-						if (not first)
-							os << ',';
-						column.serialize(os, db);
-						first = false;
-					}
-				}
 
-			};
+			bool empty() const
+			{
+				return _dynamic_expressions.empty();
+			}
+		};
 
 		template<>
 			struct dynamic_select_expression_list<void>
@@ -93,14 +88,38 @@ namespace sqlpp
 				template<typename T>
 					void push_back(const T&) {}
 
-				template<typename Db>
-					void serialize(std::ostream&, Db&, bool) const
-					{
-					}
-
+				static constexpr bool empty()
+				{
+					return true;
+				}
 			};
 
-	}
+	template<typename Context, typename Db>
+		struct interpreter_t<Context, dynamic_select_expression_list<Db>>
+		{
+			using T = dynamic_select_expression_list<Db>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				for (const auto column : t._dynamic_expressions)
+				{
+					interpret(column, context);
+				}
+				return context;
+			}
+		};
+
+	template<typename Context>
+		struct interpreter_t<Context, dynamic_select_expression_list<void>>
+		{
+			using T = dynamic_select_expression_list<void>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				return context;
+			}
+		};
+
 
 	template<typename Database, typename... NamedExpr>
 		struct select_expression_list_t<Database, std::tuple<NamedExpr...>>
@@ -108,6 +127,9 @@ namespace sqlpp
 			using _is_select_expression_list = std::true_type;
 			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 			using _parameter_tuple_t = std::tuple<NamedExpr...>;
+
+			// check for at least one expression
+			static_assert(_is_dynamic::value or sizeof...(NamedExpr), "at least one select expression required");
 
 			// check for duplicate select expressions
 			static_assert(not detail::has_duplicates<NamedExpr...>::value, "at least one duplicate argument detected");
@@ -135,7 +157,7 @@ namespace sqlpp
 				dynamic_result_row_t<make_field_t<NamedExpr>...>,
 				result_row_t<make_field_t<NamedExpr>...>>::type;
 
-			using _dynamic_names_t = typename detail::dynamic_select_expression_list<Database>::_names_t;
+			using _dynamic_names_t = typename dynamic_select_expression_list<Database>::_names_t;
 
 			template <typename Select>
 				using _pseudo_table_t = select_pseudo_table_t<Select, NamedExpr...>;
@@ -151,24 +173,23 @@ namespace sqlpp
 					_dynamic_expressions.push_back(std::forward<Expr>(namedExpr));
 				}
 
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					// check for at least one select expression
-					static_assert(_is_dynamic::value or sizeof...(NamedExpr), "at least one select expression required");
-
-					detail::serialize_tuple(os, db, _expressions, ',');
-					_dynamic_expressions.serialize(os, db, sizeof...(NamedExpr) == 0);
-				}
-
-			size_t _set_parameter_index(size_t index)
-			{
-				index = set_parameter_index(_expressions, index);
-				return index;
-			}
-
 			_parameter_tuple_t _expressions;
-			detail::dynamic_select_expression_list<Database> _dynamic_expressions;
+			dynamic_select_expression_list<Database> _dynamic_expressions;
+		};
+
+	template<typename Context, typename Database, typename... NamedExpr>
+		struct interpreter_t<Context, select_expression_list_t<Database, NamedExpr...>>
+		{
+			using T = select_expression_list_t<Database, NamedExpr...>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				interpret_tuple(t._expressions, ',', context);
+				if (not t._dynamic_expressions.empty())
+					context << ',';
+				interpret(t._dynamic_expressions, context);
+				return context;
+			}
 		};
 
 }

@@ -25,6 +25,7 @@
 
 #include "TabSample.h"
 #include "MockDb.h"
+#include <sqlpp11/select.h>
 
 #include <iostream>
 
@@ -40,6 +41,8 @@ int main()
 	interpret(t.alpha = 7, printer).flush();
 	sqlpp::text_operand o = {"kaesekuchen"};
 	interpret(t.beta + "kaesekuchen", printer).flush();
+
+	interpret(select(sqlpp::distinct, t.alpha, t.beta), printer).flush();
 
 	return 0;
 }

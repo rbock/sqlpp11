@@ -547,32 +547,6 @@ namespace sqlpp
 							*this).as(aliasProvider);
 				}
 
-			// Serialize
-			template<typename Db>
-				const select_t& serialize(std::ostream& os, Db& db) const
-				{
-					os << "SELECT ";
-
-					_flags.serialize(os, db);
-					_expression_list.serialize(os, db);
-					_from.serialize(os, db);
-					_where.serialize(os, db);
-					_group_by.serialize(os, db);
-					_having.serialize(os, db);
-					_order_by.serialize(os, db);
-					_limit.serialize(os, db);
-					_offset.serialize(os, db);
-
-					return *this;
-				}
-
-			template<typename Db>
-				select_t& serialize(std::ostream& os, Db& db)
-				{
-					const_cast<const select_t*>(this)->serialize(os, db);
-					return *this;
-				}
-
 			const typename ExpressionList::_dynamic_names_t& get_dynamic_names() const
 			{
 				return _expression_list._dynamic_expressions._dynamic_expression_names;
@@ -643,6 +617,59 @@ namespace sqlpp
 			Limit _limit;
 			Offset _offset;
 		};
+
+			template<typename Context, 
+				typename Database,
+				typename Flags,
+				typename ExpressionList,
+				typename From,
+				typename Where,
+				typename GroupBy,
+				typename Having,
+				typename OrderBy,
+				typename Limit,
+				typename Offset
+					>
+		struct interpreter_t<Context, select_t<Database,
+										 Flags, 
+										 ExpressionList, 
+										 From, 
+										 Where, 
+										 GroupBy, 
+										 Having, 
+										 OrderBy, 
+										 Limit, 
+										 Offset>>
+		{
+			using T = select_t<Database,
+										 Flags, 
+										 ExpressionList, 
+										 From, 
+										 Where, 
+										 GroupBy, 
+										 Having, 
+										 OrderBy, 
+										 Limit, 
+										 Offset>;
+
+			static Context& _(const T& t, Context& context)
+			{
+					context << "SELECT ";
+
+					interpret(t._flags, context);
+					interpret(t._expression_list, context);
+					interpret(t._from, context);
+					interpret(t._where, context);
+					interpret(t._group_by, context);
+					interpret(t._having, context);
+					interpret(t._order_by, context);
+					interpret(t._limit, context);
+					interpret(t._offset, context);
+
+					return context;
+			}
+		};
+
 
 	// construct select flag list
 	namespace detail
