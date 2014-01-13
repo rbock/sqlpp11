@@ -56,11 +56,7 @@ namespace sqlpp
 					};
 			};
 
-			concat_t(First&& first, Args&&... args):
-				_args(std::move(first), std::move(args)...)
-			{}
-
-			concat_t(const First& first, const Args&... args):
+			concat_t(First first, Args... args):
 				_args(first, args...)
 			{}
 

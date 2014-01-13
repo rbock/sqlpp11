@@ -47,7 +47,7 @@ namespace sqlpp
 		};
 	}
 
-	struct verbatim_table_t: public sqlpp::table_base_t<verbatim_table_t, detail::unusable_pseudo_column_t>
+	struct verbatim_table_t: public sqlpp::table_t<verbatim_table_t, detail::unusable_pseudo_column_t>
 	{
 		using _value_type = no_value_t;
 

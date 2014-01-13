@@ -34,7 +34,7 @@
 namespace sqlpp
 {
 	template<typename ValueType, typename NameType, typename TrivialValueIsNull>
-	struct parameter_t
+	struct parameter_t: public ValueType::template operators<parameter_t<ValueType, NameType, TrivialValueIsNull>>
 	{
 		using _value_type = ValueType;
 		using _is_parameter = std::true_type;
@@ -44,30 +44,32 @@ namespace sqlpp
 
 		static_assert(std::is_same<_trivial_value_is_null_t, std::true_type>::value or std::is_same<_trivial_value_is_null_t, std::false_type>::value, "Invalid template parameter TrivialValueIsNull");
 
-		template<typename Db>
-			void serialize(std::ostream& os, Db& db) const
-			{
-				static_assert(Db::_supports_prepared, "prepared statements not supported by current database");
-				static_assert(Db::_use_questionmark_parameter or Db::_use_positional_dollar_parameter, "no known way to serialize parameter placeholders for current database");
-				if (Db::_use_questionmark_parameter)
-					os << '?';
-				else if (Db::_use_positional_dollar_parameter)
-					os << '$' << _index + 1;
-			}
+		parameter_t()
+		{}
+
+		parameter_t(const parameter_t&) = default;
+		parameter_t(parameter_t&&) = default;
+		parameter_t& operator=(const parameter_t&) = default;
+		parameter_t& operator=(parameter_t&&) = default;
+		~parameter_t() = default;
 
 		constexpr bool _is_trivial() const
 		{
 			return false;
 		}
-
-		size_t _set_parameter_index(size_t index)
-		{
-			_index = index;
-			return index + 1;
-		}
-
-		size_t _index;
 	};
+
+	template<typename Context, typename ValueType, typename NameType, typename TrivialValueIsNull>
+		struct interpreter_t<Context, parameter_t<ValueType, NameType, TrivialValueIsNull>>
+		{
+			using T = parameter_t<ValueType, NameType, TrivialValueIsNull>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				context << "?";
+				return context;
+			}
+		};
 
 	template<typename NamedExpr, typename TrivialValueIsNull = trivial_value_is_null_t<typename std::decay<NamedExpr>::type>>
 		auto parameter(NamedExpr&& namedExpr)

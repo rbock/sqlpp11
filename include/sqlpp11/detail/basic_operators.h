@@ -73,7 +73,7 @@ namespace sqlpp
 				equal_t<Base, typename Constraint<T>::type> operator==(T&& t) const
 				{
 					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-					return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
+					return { *static_cast<const Base*>(this), {std::forward<T>(t)}	};
 				}
 
 			template<typename T>
@@ -100,14 +100,14 @@ namespace sqlpp
 				binary_expression_t<Base, ge_, typename Constraint<T>::type> operator>=(T&& t) const
 				{
 					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-					return { *static_cast<const Base*>(this), std::forward<T>(t) };
+					return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 				}
 
 			template<typename T>
 				binary_expression_t<Base, gt_, typename Constraint<T>::type> operator>(T&& t) const
 				{
 					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-					return { *static_cast<const Base*>(this), std::forward<T>(t) };
+					return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 				}
 
 			is_null_t<true, boolean, Base> is_null() const
@@ -139,14 +139,14 @@ namespace sqlpp
 				in_t<true, boolean, Base, typename Constraint<T>::type...> in(T&&... t) const
 				{
 					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used with in()");
-					return { *static_cast<const Base*>(this), std::forward<T>(t)... };
+					return { *static_cast<const Base*>(this), {std::forward<T>(t)}... };
 				}
 
 			template<typename... T>
 				in_t<false, boolean, Base, typename Constraint<T>::type...> not_in(T&&... t) const
 				{
 					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot with be used with not_in()");
-					return { *static_cast<const Base*>(this), std::forward<T>(t)... };
+					return { *static_cast<const Base*>(this), {std::forward<T>(t)}... };
 				}
 
 			template<typename alias_provider>
