@@ -48,6 +48,8 @@ int main()
 	interpret(select(sqlpp::distinct, t.alpha, t.beta).from(t).where(t.alpha == 3), printer).flush();
 	interpret(select(sqlpp::distinct, t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma), printer).flush();
 	interpret(select(sqlpp::distinct, t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma).having(t.beta.like("%kuchen")), printer).flush();
+	interpret(select(sqlpp::distinct, t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma).having(t.beta.like("%kuchen")).order_by(t.beta.asc()), printer).flush();
+	interpret(select(sqlpp::distinct, t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma).having(t.beta.like("%kuchen")).order_by(t.beta.asc()).limit(17).offset(3), printer).flush();
 
 	return 0;
 }

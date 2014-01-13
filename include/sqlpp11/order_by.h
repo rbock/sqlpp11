@@ -60,27 +60,28 @@ namespace sqlpp
 					_dynamic_expressions.push_back(std::forward<E>(expr));
 				}
 
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					static_assert(Db::_supports_order_by, "order by not supported by current database");
-					if (sizeof...(Expr) == 0 and _dynamic_expressions.empty())
-						return;
-
-					os << " ORDER BY ";
-					detail::serialize_tuple(os, db, _expressions, ',');
-					_dynamic_expressions.serialize(os, db, sizeof...(Expr) == 0);
-				}
-
-			size_t _set_parameter_index(size_t index)
-			{
-				index = set_parameter_index(_expressions, index);
-				return index;
-			}
-
 			_parameter_tuple_t _expressions;
 			detail::serializable_list<Database> _dynamic_expressions;
 		};
+
+	template<typename Context, typename Database, typename... Expr>
+		struct interpreter_t<Context, order_by_t<Database, Expr...>>
+		{
+			using T = order_by_t<Database, Expr...>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				if (sizeof...(Expr) == 0 and t._dynamic_expressions.empty())
+					return context;
+				context << " ORDER BY ";
+				interpret_tuple(t._expressions, ',', context);
+				if (sizeof...(Expr) and not t._dynamic_expressions.empty())
+					context << ',';
+				interpret_serializable_list(t._dynamic_expressions, ',', context);
+				return context;
+			}
+		};
+
 
 }
 
