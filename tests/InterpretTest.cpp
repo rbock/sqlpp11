@@ -26,6 +26,7 @@
 #include "TabSample.h"
 #include "MockDb.h"
 #include <sqlpp11/select.h>
+#include <sqlpp11/insert.h>
 #include <sqlpp11/functions.h>
 
 #include <iostream>
@@ -53,6 +54,10 @@ int main()
 
 	interpret(parameter(t.alpha), printer).flush();
 	interpret(t.alpha == parameter(t.alpha), printer).flush();
+
+	interpret(insert_into(t), printer).flush();
+	interpret(insert_into(t).default_values(), printer).flush();
+	interpret(insert_into(t).set(t.gamma = true), printer).flush();
 
 	return 0;
 }

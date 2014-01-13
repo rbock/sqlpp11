@@ -59,11 +59,10 @@ namespace sqlpp
 		column_t& operator=(column_t&&) = default;
 		~column_t() = default;
 
-		template<typename Db>
-			void serialize_name(std::ostream& os, Db& db) const
-			{
-				os << _name_t::_get_name();
-			}
+		static constexpr const char* _get_name()
+		{
+			return _name_t::_get_name();
+		}
 
 		template<typename alias_provider>
 			expression_alias_t<column_t, typename std::decay<alias_provider>::type> as(alias_provider&&) const

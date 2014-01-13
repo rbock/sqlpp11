@@ -34,30 +34,43 @@
 
 namespace sqlpp
 {
-	namespace detail
+	struct insert_default_values_t
 	{
-		template<typename Db>
-			void serialize_empty_insert_list(std::ostream& os, const Db& db)
-			{
+		using _is_insert_list = std::true_type;
+		using _is_dynamic = std::false_type;
+	}; 
 
-				if (connector_has_empty_list_insert_t<typename std::decay<Db>::type>::value)
-					os << " () VALUES()";
-				else
-					os << " DEFAULT VALUES";
+	template<typename Context>
+		struct interpreter_t<Context, insert_default_values_t>
+		{
+			using T = insert_default_values_t;
+
+			static Context& _(const T& t, Context& context)
+			{
+				context << " DEFAULT VALUES";
+				return context;
 			}
+		};
 
 		template<typename Column>
-			struct insert_column
+			struct insert_column_t
 			{
-				template<typename Db>
-					void serialize(std::ostream& os, Db& db) const
-					{
-						_column.serialize_name(os, db);
-					}
-
 				Column _column;
 			};
-	}
+
+	template<typename Context, typename Column>
+		struct interpreter_t<Context, insert_column_t<Column>>
+		{
+			using T = insert_column_t<Column>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				context << t._column._get_name();
+				return context;
+			}
+		};
+
+
 	template<typename Database, template<typename> class ProhibitPredicate, typename... Assignments>
 		struct insert_list_t
 		{
@@ -95,42 +108,46 @@ namespace sqlpp
 				{
 					static_assert(is_assignment_t<typename std::decay<Assignment>::type>::value, "set() arguments require to be assigments");
 					static_assert(not ProhibitPredicate<typename std::decay<Assignment>::type>::value, "set() argument must not be used in insert");
-					_dynamic_columns.emplace_back(detail::insert_column<typename Assignment::column_type>{std::forward<typename Assignment::column_type>(assignment._lhs)});
+					_dynamic_columns.emplace_back(insert_column_t<typename Assignment::column_type>{std::forward<typename Assignment::column_type>(assignment._lhs)});
 					_dynamic_values.emplace_back(std::forward<typename Assignment::value_type>(assignment._rhs));
 				}
 
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					if (sizeof...(Assignments) + _dynamic_columns.size() == 0)
-					{
-						detail::serialize_empty_insert_list(os, db);
-					}
-					else
-					{
-						constexpr bool first = sizeof...(Assignments) == 0;
 
-						os << " (";
-						detail::serialize_tuple(os, db, _columns, ',');
-						_dynamic_columns.serialize(os, db, first);
-						os << ") VALUES (";
-						detail::serialize_tuple(os, db, _values, ',');
-						_dynamic_values.serialize(os, db, first);
-						os << ")";
-					}
-				}
-
-			size_t _set_parameter_index(size_t index)
-			{
-				index = set_parameter_index(_values, index);
-				return index;
-			}
-
-			std::tuple<detail::insert_column<typename Assignments::column_type>...> _columns;
+			std::tuple<insert_column_t<typename Assignments::column_type>...> _columns;
 			_parameter_tuple_t _values;
 			typename detail::serializable_list<Database> _dynamic_columns;
 			typename detail::serializable_list<Database> _dynamic_values;
 		};
+
+	template<typename Context, typename Database, template<typename> class ProhibitPredicate, typename... Assignments>
+		struct interpreter_t<Context, insert_list_t<Database, ProhibitPredicate, Assignments...>>
+		{
+			using T = insert_list_t<Database, ProhibitPredicate, Assignments...>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				if (sizeof...(Assignments) + t._dynamic_columns.size() == 0)
+				{
+					interpret(insert_default_values_t(), context);
+				}
+				else
+				{
+					context << " (";
+					interpret_tuple(t._columns, ",", context);
+					if (sizeof...(Assignments) and not t._dynamic_columns.empty())
+						context << ',';
+					interpret_serializable_list(t._dynamic_columns, ',', context);
+					context << ") VALUES(";
+					interpret_tuple(t._values, ",", context);
+					if (sizeof...(Assignments) and not t._dynamic_values.empty())
+						context << ',';
+					interpret_serializable_list(t._dynamic_values, ',', context);
+					context << ")";
+				}
+				return context;
+			}
+		};
+
 
 }
 
