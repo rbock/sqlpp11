@@ -50,7 +50,7 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
-				context << "LIMIT " << t._limit;
+				context << " LIMIT " << t._limit;
 				return context;
 			}
 		};

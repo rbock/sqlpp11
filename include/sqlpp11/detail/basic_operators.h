@@ -155,8 +155,6 @@ namespace sqlpp
 					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot have a name");
 					return { *static_cast<const Base*>(this) };
 				}
-
-			constexpr bool _is_trivial() const { return false; }
 		};
 	}
 

@@ -40,7 +40,12 @@ int main()
 	TabSample t;
 
 	interpret(t.alpha, printer).flush();
-	interpret(t.alpha = 7, printer).flush();
+	interpret(t.alpha = 0, printer).flush();
+	interpret(t.alpha = sqlpp::tvin(0), printer).flush();
+	interpret(t.alpha == 0, printer).flush();
+	interpret(t.alpha == sqlpp::tvin(0), printer).flush();
+	interpret(t.alpha != 0, printer).flush();
+	interpret(t.gamma != sqlpp::tvin(false), printer).flush();
 	interpret(t.alpha == 7, printer).flush();
 	interpret(t.beta + "kaesekuchen", printer).flush();
 
@@ -58,6 +63,7 @@ int main()
 	interpret(insert_into(t), printer).flush();
 	interpret(insert_into(t).default_values(), printer).flush();
 	interpret(insert_into(t).set(t.gamma = true), printer).flush();
+	interpret(insert_into(t).set(t.gamma = sqlpp::tvin(false)), printer).flush();
 
 	return 0;
 }

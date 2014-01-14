@@ -31,6 +31,7 @@
 #include <sqlpp11/boolean.h>
 #include <sqlpp11/noop.h>
 #include <sqlpp11/expression_fwd.h>
+#include <sqlpp11/tvin.h>
 #include <sqlpp11/interpreter.h>
 #include <sqlpp11/detail/wrap_operand.h>
 #include <sqlpp11/detail/serialize_tuple.h>
@@ -42,10 +43,22 @@ namespace sqlpp
 		{
 			using _is_assignment = std::true_type;
 			using column_type = Lhs;
-			using value_type = Rhs;
+			using value_type = tvin_wrap_t<Rhs>;
+			// FIXME: Need parameter_tuple back
+
+			assignment_t(Lhs lhs, Rhs rhs):
+				_lhs(lhs), 
+				_rhs(rhs)
+			{}
+
+			assignment_t(const assignment_t&) = default;
+			assignment_t(assignment_t&&) = default;
+			assignment_t& operator=(const assignment_t&) = default;
+			assignment_t& operator=(assignment_t&&) = default;
+			~assignment_t() = default;
 
 			Lhs _lhs;
-			Rhs _rhs;
+			tvin_wrap_t<Rhs> _rhs;
 		};
 
 	template<typename Context, typename Lhs, typename Rhs>
@@ -56,7 +69,7 @@ namespace sqlpp
 			static Context& _(const T& t, Context& context)
 			{
 				interpret(t._lhs, context);
-				if (trivial_value_is_null_t<Lhs>::value and t._rhs._is_trivial())
+				if (t._rhs._is_trivial())
 				{
 					context << "=NULL";
 				}
@@ -75,9 +88,9 @@ namespace sqlpp
 	{
 		using _value_type = detail::boolean;
 
-			equal_t(Lhs lhs, Rhs rhs):
-				_lhs(lhs), 
-				_rhs(rhs)
+		equal_t(Lhs lhs, Rhs rhs):
+			_lhs(lhs), 
+			_rhs(rhs)
 		{}
 
 		equal_t(const equal_t&) = default;
@@ -87,7 +100,7 @@ namespace sqlpp
 		~equal_t() = default;
 
 		Lhs _lhs;
-		Rhs _rhs;
+		tvin_wrap_t<Rhs> _rhs;
 	};
 
 	template<typename Context, typename Lhs, typename Rhs>
@@ -99,9 +112,9 @@ namespace sqlpp
 			{
 				context << "(";
 				interpret(t._lhs, context);
-				if (trivial_value_is_null_t<Lhs>::value and t._rhs._is_trivial())
+				if (t._rhs._is_trivial())
 				{
-					context << "IS NULL";
+					context << " IS NULL";
 				}
 				else
 				{
@@ -130,7 +143,7 @@ namespace sqlpp
 		~not_equal_t() = default;
 
 		Lhs _lhs;
-		Rhs _rhs;
+		tvin_wrap_t<Rhs> _rhs;
 	};
 
 	template<typename Context, typename Lhs, typename Rhs>
@@ -142,9 +155,9 @@ namespace sqlpp
 			{
 				context << "(";
 				interpret(t._lhs, context);
-				if (trivial_value_is_null_t<Lhs>::value and t._rhs._is_trivial())
+				if (t._rhs._is_trivial())
 				{
-					context << "IS NOT NULL";
+					context << " IS NOT NULL";
 				}
 				else
 				{
@@ -182,16 +195,8 @@ namespace sqlpp
 			static Context& _(const T& t, Context& context)
 			{
 				context << "(";
-				if (trivial_value_is_null_t<Lhs>::value and t._lhs._is_trivial())
-				{
-					interpret(t._lhs, context);
-					context << "IS NULL";
-				}
-				else
-				{
-					context << "NOT ";
-					interpret(t._lhs, context);
-				}
+				context << "NOT ";
+				interpret(t._lhs, context);
 				context << ")";
 				return context;
 			}

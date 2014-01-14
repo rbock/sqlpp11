@@ -75,7 +75,7 @@ namespace sqlpp
 			-> typename std::enable_if<not std::is_same<column_t, typename std::decay<T>::type>::value, 
 			     assignment_t<column_t, typename _value_type::template _constraint<T>::type>>::type
 			{
-				return { *this, std::forward<T>(t) };
+				return { *this, {std::forward<T>(t)} };
 			}
 	};
 

@@ -48,7 +48,6 @@ namespace sqlpp
 			static_assert(_valid_expressions::size::value == sizeof...(Expr), "at least one argument is not an expression in having()");
 
 			using _parameter_list_t = typename make_parameter_list_t<_parameter_tuple_t>::type;
-			static_assert(not _parameter_list_t::_contains_trivial_value_is_null_t::value, "must not use trivial_value_is_null in parameters of having expression, use where_parameter() instead of parameter() to turn off automatic conversion");
 
 			template<typename E>
 				void add(E&& expr)

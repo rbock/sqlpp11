@@ -52,26 +52,24 @@ namespace sqlpp
 				using _value_type = integral;
 
 				_parameter_t(const std::true_type&):
-					_trivial_value_is_null(true),
 					_value(""),
-					_is_null(_trivial_value_is_null and _is_trivial())
+					_is_null(false)
 					{}
 
 				_parameter_t(const std::false_type&):
-					_trivial_value_is_null(false),
 					_value(""),
-					_is_null(_trivial_value_is_null and _is_trivial())
+					_is_null(false)
 					{}
 
 				_parameter_t(const _cpp_value_type& value):
 					_value(value),
-					_is_null(_trivial_value_is_null and _is_trivial())
+					_is_null(false)
 					{}
 
 				_parameter_t& operator=(const _cpp_value_type& value)
 				{
 					_value = value;
-					_is_null = (_trivial_value_is_null and _is_trivial());
+					_is_null = false;
 					return *this;
 				}
 
@@ -87,8 +85,6 @@ namespace sqlpp
 					{
 						os << value();
 					}
-
-				bool _is_trivial() const { return value() == ""; }
 
 				bool is_null() const
 			 	{ 
@@ -109,7 +105,6 @@ namespace sqlpp
 					}
 
 			private:
-				bool _trivial_value_is_null;
 				_cpp_value_type _value;
 				bool _is_null;
 			};
@@ -152,8 +147,6 @@ namespace sqlpp
 					{
 						os << value();
 					}
-
-				bool _is_trivial() const { return _len == 0; }
 
 				bool operator==(const _cpp_value_type& rhs) const { return value() == rhs; }
 				bool operator!=(const _cpp_value_type& rhs) const { return not operator==(rhs); }
