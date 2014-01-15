@@ -35,8 +35,6 @@
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/prepared_insert.h>
 
-#include <sqlpp11/detail/serialize_tuple.h>
-
 namespace sqlpp
 {
 
@@ -77,24 +75,24 @@ namespace sqlpp
 
 			template<typename... Assignment>
 				auto set(Assignment&&... assignment)
-				-> set_insert_list_t<insert_list_t<void, must_not_insert_t, typename std::decay<Assignment>::type...>>
+				-> set_insert_list_t<insert_list_t<void, typename std::decay<Assignment>::type...>>
 				{
 					static_assert(std::is_same<InsertList, noop>::value, "cannot call set() after set() or default_values()");
 					// FIXME:  Need to check if all required columns are set
 					return {
 							_table,
-							insert_list_t<void, must_not_insert_t, typename std::decay<Assignment>::type...>{std::forward<Assignment>(assignment)...},
+							insert_list_t<void, typename std::decay<Assignment>::type...>{std::forward<Assignment>(assignment)...},
 					};
 				}
 
 			template<typename... Assignment>
 				auto dynamic_set(Assignment&&... assignment)
-				-> set_insert_list_t<insert_list_t<Database, must_not_insert_t, typename std::decay<Assignment>::type...>>
+				-> set_insert_list_t<insert_list_t<Database, typename std::decay<Assignment>::type...>>
 				{
 					static_assert(std::is_same<InsertList, noop>::value, "cannot call set() after set() or default_values()");
 					return {
 							_table,
-							insert_list_t<Database, must_not_insert_t, typename std::decay<Assignment>::type...>{std::forward<Assignment>(assignment)...},
+							insert_list_t<Database, typename std::decay<Assignment>::type...>{std::forward<Assignment>(assignment)...},
 					};
 				}
 
@@ -130,7 +128,7 @@ namespace sqlpp
 				}
 
 			template<typename Db>
-				auto prepare(Db& db)
+				auto prepare(Db& db) const
 				-> prepared_insert_t<typename std::decay<Db>::type, insert_t>
 				{
 					constexpr bool calledSet = not is_noop<InsertList>::value;

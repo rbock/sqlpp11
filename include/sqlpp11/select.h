@@ -584,28 +584,15 @@ namespace sqlpp
 			// Prepare
 			template<typename Db>
 				auto prepare(Db& db)
-				-> prepared_select_t<typename std::decay<Db>::type, select_t>
+				-> prepared_select_t<typename std::decay<Db>::type, select_t> const
 				{
 					static_assert(not is_noop<ExpressionList>::value, "cannot run select without having selected anything");
 					static_assert(is_from_t<From>::value, "cannot run select without a from()");
 					// FIXME: Check for missing aliases (if references are used)
 					// FIXME: Check for missing tables, well, actually, check for missing tables at the where(), order_by(), etc.
 
-					_set_parameter_index(0);
 					return {{}, get_dynamic_names(), db.prepare_select(*this)};
 				}
-
-			size_t _set_parameter_index(size_t index)
-			{
-				index = set_parameter_index(_expression_list, index);
-				index = set_parameter_index(_where, index);
-				index = set_parameter_index(_group_by, index);
-				index = set_parameter_index(_having, index);
-				index = set_parameter_index(_order_by, index);
-				index = set_parameter_index(_limit, index);
-				index = set_parameter_index(_offset, index);
-				return index;
-			}
 
 			Flags _flags;
 			ExpressionList _expression_list;

@@ -71,7 +71,7 @@ namespace sqlpp
 		};
 
 
-	template<typename Database, template<typename> class ProhibitPredicate, typename... Assignments>
+	template<typename Database, typename... Assignments>
 		struct insert_list_t
 		{
 			using _is_insert_list = std::true_type;
@@ -89,7 +89,7 @@ namespace sqlpp
 			static_assert(_assignment_set::size::value == sizeof...(Assignments), "at least one argument is not an assignment in set()");
 
 			// check for prohibited assignments
-			using _prohibited_assignment_set = typename detail::make_set_if<ProhibitPredicate, typename Assignments::column_type...>::type;
+			using _prohibited_assignment_set = typename detail::make_set_if<must_not_insert_t, typename Assignments::column_type...>::type;
 			static_assert(_prohibited_assignment_set::size::value == 0, "at least one assignment is prohibited by its column definition in set()");
 
 			insert_list_t(Assignments... assignment):
@@ -107,7 +107,7 @@ namespace sqlpp
 				void add(Assignment&& assignment)
 				{
 					static_assert(is_assignment_t<typename std::decay<Assignment>::type>::value, "set() arguments require to be assigments");
-					static_assert(not ProhibitPredicate<typename std::decay<Assignment>::type>::value, "set() argument must not be used in insert");
+					static_assert(not must_not_insert_t<typename std::decay<Assignment>::type>::value, "set() argument must not be used in insert");
 					_dynamic_columns.emplace_back(insert_column_t<typename Assignment::column_type>{std::forward<typename Assignment::column_type>(assignment._lhs)});
 					_dynamic_values.emplace_back(std::forward<typename Assignment::value_type>(assignment._rhs));
 				}
@@ -119,10 +119,10 @@ namespace sqlpp
 			typename detail::serializable_list<Database> _dynamic_values;
 		};
 
-	template<typename Context, typename Database, template<typename> class ProhibitPredicate, typename... Assignments>
-		struct interpreter_t<Context, insert_list_t<Database, ProhibitPredicate, Assignments...>>
+	template<typename Context, typename Database, typename... Assignments>
+		struct interpreter_t<Context, insert_list_t<Database, Assignments...>>
 		{
-			using T = insert_list_t<Database, ProhibitPredicate, Assignments...>;
+			using T = insert_list_t<Database, Assignments...>;
 
 			static Context& _(const T& t, Context& context)
 			{

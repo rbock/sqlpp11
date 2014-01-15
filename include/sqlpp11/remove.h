@@ -145,13 +145,6 @@ namespace sqlpp
 					return *this;
 				}
 
-			template<typename Db>
-				remove_t& serialize(std::ostream& os, Db& db)
-				{
-					static_cast<const remove_t*>(this)->serialize(os, db);
-					return *this;
-				}
-
 			static constexpr size_t _get_static_no_of_parameters()
 			{
 				return _parameter_list_t::size::value;
@@ -170,21 +163,11 @@ namespace sqlpp
 				}
 
 			template<typename Db>
-				auto prepare(Db& db)
+				auto prepare(Db& db) const
 				-> prepared_remove_t<typename std::decay<Db>::type, remove_t>
 				{
-					_set_parameter_index(0);
 					return {{}, db.prepare_remove(*this)};
 				}
-
-			size_t _set_parameter_index(size_t index)
-			{
-				index = set_parameter_index(_table, index);
-				index = set_parameter_index(_using, index);
-				index = set_parameter_index(_where, index);
-				return index;
-			}
-
 
 			Table _table;
 			Using _using;

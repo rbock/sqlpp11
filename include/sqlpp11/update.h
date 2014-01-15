@@ -67,7 +67,7 @@ namespace sqlpp
 
 			template<typename... Assignment>
 				auto set(Assignment&&... assignment)
-				-> set_assignments_t<assignment_list_t<void, must_not_update_t, typename std::decay<Assignment>::type...>>
+				-> set_assignments_t<assignment_list_t<void, typename std::decay<Assignment>::type...>>
 				{
 					static_assert(std::is_same<Assignments, noop>::value, "cannot call set() twice");
 					return {
@@ -79,7 +79,7 @@ namespace sqlpp
 
 			template<typename... Assignment>
 				auto dynamic_set(Assignment&&... assignment)
-				-> set_assignments_t<assignment_list_t<Database, must_not_update_t, typename std::decay<Assignment>::type...>>
+				-> set_assignments_t<assignment_list_t<Database, typename std::decay<Assignment>::type...>>
 				{
 					static_assert(std::is_same<Assignments, noop>::value, "cannot call set() twice");
 					return {
@@ -135,23 +135,6 @@ namespace sqlpp
 					return *this;
 				}
 
-			template<typename Db>
-				const update_t& serialize(std::ostream& os, Db& db) const
-				{
-					os << "UPDATE ";
-					_table.serialize(os, db);
-					_assignments.serialize(os, db);
-					_where.serialize(os, db);
-					return *this;
-				}
-
-			template<typename Db>
-				update_t& serialize(std::ostream& os, Db& db)
-				{
-					static_cast<const update_t*>(this)->serialize(os, db);
-					return *this;
-				}
-
 			static constexpr size_t _get_static_no_of_parameters()
 			{
 				return _parameter_list_t::size::value;
@@ -176,20 +159,32 @@ namespace sqlpp
 				{
 					static_assert(not is_noop<Assignments>::value, "calling set() required before running update");
 
-					_set_parameter_index(0);
 					return {{}, db.prepare_update(*this)};
 				}
-
-			size_t _set_parameter_index(size_t index)
-			{
-				index = set_parameter_index(_table, index);
-				index = set_parameter_index(_assignments, index);
-				return index;
-			}
 
 			Table _table;
 			Assignments _assignments;
 			Where _where;
+		};
+
+	template<typename Context, 
+		typename Database,
+		typename Table,
+		typename Assignments,
+		typename Where
+		>
+		struct interpreter_t<Context, update_t<Database, Table, Assignments, Where>>
+		{
+			using T = update_t<Database, Table, Assignments, Where>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				context << "UPDATE ";
+				interpret(t._table, context);
+				interpret(t._assignments, context);
+				interpret(t._where, context);
+				return context;
+			}
 		};
 
 	template<typename Table>

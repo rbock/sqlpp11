@@ -27,6 +27,7 @@
 #include "MockDb.h"
 #include <sqlpp11/select.h>
 #include <sqlpp11/insert.h>
+#include <sqlpp11/update.h>
 #include <sqlpp11/functions.h>
 
 #include <iostream>
@@ -64,6 +65,9 @@ int main()
 	interpret(insert_into(t).default_values(), printer).flush();
 	interpret(insert_into(t).set(t.gamma = true), printer).flush();
 	interpret(insert_into(t).set(t.gamma = sqlpp::tvin(false)), printer).flush();
+
+	interpret(update(t), printer).flush();
+	interpret(update(t).set(t.gamma = true), printer).flush();
 
 	return 0;
 }
