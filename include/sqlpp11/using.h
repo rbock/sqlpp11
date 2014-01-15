@@ -79,6 +79,25 @@ namespace sqlpp
 			detail::serializable_list<Database> _dynamic_tables;
 		};
 
+	template<typename Context, typename Database, typename... Table>
+		struct interpreter_t<Context, using_t<Database, Table...>>
+		{
+			using T = using_t<Database, Table...>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				if (sizeof...(Table) == 0 and t._dynamic_tables.empty())
+					return context;
+				context << " USING ";
+				interpret_tuple(t._tables, ',', context);
+				if (sizeof...(Table) and not t._dynamic_tables.empty())
+					context << ',';
+				interpret_serializable_list(t._dynamic_tables, ',', context);
+				return context;
+			}
+		};
+
+
 }
 
 #endif

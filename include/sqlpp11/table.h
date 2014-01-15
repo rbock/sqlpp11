@@ -138,7 +138,7 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
-				context << "table";
+				context << T::_name_t::_get_name(); // FIXME: need a special rule for pseudo tables
 				return context;
 			}
 		};

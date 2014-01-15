@@ -25,9 +25,10 @@
 
 #include "TabSample.h"
 #include "MockDb.h"
-#include <sqlpp11/select.h>
 #include <sqlpp11/insert.h>
+#include <sqlpp11/select.h>
 #include <sqlpp11/update.h>
+#include <sqlpp11/remove.h>
 #include <sqlpp11/functions.h>
 
 #include <iostream>
@@ -69,6 +70,10 @@ int main()
 	interpret(update(t), printer).flush();
 	interpret(update(t).set(t.gamma = true), printer).flush();
 	interpret(update(t).set(t.gamma = true).where(t.beta.in("kaesekuchen", "cheesecake")), printer).flush();
+
+	interpret(remove_from(t), printer).flush();
+	interpret(remove_from(t).where(t.alpha == sqlpp::tvin(0)), printer).flush();
+	interpret(remove_from(t).using_(t).where(t.alpha == sqlpp::tvin(0)), printer).flush();
 
 	return 0;
 }

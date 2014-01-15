@@ -57,6 +57,9 @@ namespace sqlpp
 			static_assert(is_noop<Using>::value or is_using_t<Using>::value, "invalid 'Using' argument");
 			static_assert(is_noop<Where>::value or is_where_t<Where>::value, "invalid 'Where' argument");
 
+
+			// FIXME: We might want to have everywhere() or all() to indicate that everything is to be removed, same with update and select
+
 			template<typename UsingT> 
 				using set_using_t = remove_t<Database, Table, UsingT, Where>;
 			template<typename WhereT> 
@@ -134,17 +137,6 @@ namespace sqlpp
 					return *this;
 				}
 
-
-			template<typename Db>
-				const remove_t& serialize(std::ostream& os, Db& db) const
-				{
-					os << "DELETE FROM ";
-					_table.serialize(os, db);
-					_using.serialize(os, db);
-					_where.serialize(os, db);
-					return *this;
-				}
-
 			static constexpr size_t _get_static_no_of_parameters()
 			{
 				return _parameter_list_t::size::value;
@@ -172,6 +164,21 @@ namespace sqlpp
 			Table _table;
 			Using _using;
 			Where _where;
+		};
+
+	template<typename Context, typename Database, typename Table, typename Using, typename Where>
+		struct interpreter_t<Context, remove_t<Database, Table, Using, Where>>
+		{
+			using T = remove_t<Database, Table, Using, Where>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				context << "DELETE FROM ";
+				interpret(t._table, context);
+				interpret(t._using, context);
+				interpret(t._where, context);
+				return context;
+			}
 		};
 
 	template<typename Table>
