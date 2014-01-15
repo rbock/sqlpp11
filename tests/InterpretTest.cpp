@@ -68,6 +68,7 @@ int main()
 
 	interpret(update(t), printer).flush();
 	interpret(update(t).set(t.gamma = true), printer).flush();
+	interpret(update(t).set(t.gamma = true).where(t.beta.in("kaesekuchen", "cheesecake")), printer).flush();
 
 	return 0;
 }

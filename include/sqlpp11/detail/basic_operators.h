@@ -30,7 +30,7 @@
 #include <sqlpp11/expression_fwd.h>
 #include <sqlpp11/alias.h>
 #include <sqlpp11/sort_order.h>
-#include <sqlpp11/in.h>
+#include <sqlpp11/in_fwd.h>
 #include <sqlpp11/is_null.h>
 
 namespace sqlpp
@@ -136,14 +136,14 @@ namespace sqlpp
 
 			// Hint: use value_list wrapper for containers...
 			template<typename... T>
-				in_t<true, boolean, Base, typename Constraint<T>::type...> in(T&&... t) const
+				in_t<true, Base, typename Constraint<T>::type...> in(T&&... t) const
 				{
 					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used with in()");
 					return { *static_cast<const Base*>(this), {std::forward<T>(t)}... };
 				}
 
 			template<typename... T>
-				in_t<false, boolean, Base, typename Constraint<T>::type...> not_in(T&&... t) const
+				in_t<false, Base, typename Constraint<T>::type...> not_in(T&&... t) const
 				{
 					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot with be used with not_in()");
 					return { *static_cast<const Base*>(this), {std::forward<T>(t)}... };

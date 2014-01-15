@@ -24,25 +24,26 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_IN_H
-#define SQLPP_IN_H
+#ifndef SQLPP_IN_FWD_H
+#define SQLPP_IN_FWD_H
 
-#include <sstream>
+#include <sqlpp11/in_fwd.h>
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/boolean.h>
 #include <sqlpp11/detail/set.h>
 
 namespace sqlpp
 {
+	// FIXME: Move to vendor namespace
 	namespace detail
 	{
-		// The ValueType should be boolean, this is a hack because boolean is not fully defined when the compiler first gets here...
-		template<bool NotInverted, typename ValueType, typename Operand, typename... Args>
-		struct in_t: public ValueType::_base_value_type::template operators<in_t<NotInverted, ValueType, Args...>>
+		template<bool NotInverted, typename Operand, typename... Args>
+		struct in_t: public boolean::template operators<in_t<NotInverted, Operand, Args...>>
 		{
 			static constexpr bool _inverted = not NotInverted;
 			static_assert(sizeof...(Args) > 0, "in() requires at least one argument");
 
-			struct _value_type: public ValueType::_base_value_type // we requite fully defined boolean here
+			struct _value_type: public boolean
 			{
 				using _is_named_expression = std::true_type;
 			};
@@ -84,11 +85,26 @@ namespace sqlpp
 					os << ")";
 				}
 
-		private:
 			Operand _operand;
 			std::tuple<Args...> _args;
 		};
 	}
+
+	template<typename Context, bool NotInverted, typename Operand, typename... Args>
+		struct interpreter_t<Context, detail::in_t<NotInverted, Operand, Args...>>
+		{
+			using T = detail::in_t<NotInverted, Operand, Args...>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				interpret(t._operand, context);
+				context << (t._inverted ? " NOT IN(" : " IN(");
+				interpret_tuple(t._args, ',', context);
+				context << ')';
+				return context;
+			}
+		};
+
 }
 
 #endif

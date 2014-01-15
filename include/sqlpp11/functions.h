@@ -32,6 +32,7 @@
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/column_types.h>
+#include <sqlpp11/in.h>
 #include <sqlpp11/exists.h>
 #include <sqlpp11/any.h>
 #include <sqlpp11/some.h>
