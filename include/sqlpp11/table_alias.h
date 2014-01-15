@@ -24,76 +24,65 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SUM_H
-#define SQLPP_SUM_H
+#ifndef SQLPP_TABLE_ALIAS_H
+#define SQLPP_TABLE_ALIAS_H
 
-#include <sstream>
+#include <string>
+#include <ostream>
+#include <sqlpp11/column.h>
+#include <sqlpp11/alias.h>
+#include <sqlpp11/detail/set.h>
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
-	namespace detail
+	struct table_alias_base_t {};
+
+	template<typename AliasProvider, typename Table, typename... ColumnSpec>
+		struct table_alias_t: public table_alias_base_t, public ColumnSpec::_name_t::template _member_t<column_t<AliasProvider, ColumnSpec>>...
 	{
-		template<typename Expr>
-		struct sum_t: public boolean::template operators<sum_t<Expr>>
+		//FIXME: Need to add join functionality
+		using _is_table = std::true_type;
+		using _table_set = detail::set<table_alias_t>;
+
+		struct _value_type: Table::_value_type
 		{
-			static_assert(is_numeric_t<Expr>::value, "sum() requires a numeric expression as argument");
-
-			struct _value_type: public Expr::_value_type::_base_value_type
-			{
-				using _is_named_expression = std::true_type;
-			};
-
-			struct _name_t
-			{
-				static constexpr const char* _get_name() { return "SUM"; }
-				template<typename T>
-					struct _member_t
-					{
-						T sum;
-						T& operator()() { return sum; }
-						const T& operator()() const { return sum; }
-					};
-			};
-
-			sum_t(Expr&& expr):
-				_expr(std::move(expr))
-			{}
-
-			sum_t(const Expr& expr):
-				_expr(expr)
-			{}
-
-			sum_t(const sum_t&) = default;
-			sum_t(sum_t&&) = default;
-			sum_t& operator=(const sum_t&) = default;
-			sum_t& operator=(sum_t&&) = default;
-			~sum_t() = default;
-
-			Expr _expr;
+			using _is_expression = std::false_type;
+			using _is_named_expression = copy_type_trait<Table, is_value_t>;
+			using _is_alias = std::true_type;
 		};
-	}
 
-	template<typename Context, typename Expr>
-		struct interpreter_t<Context, detail::sum_t<Expr>>
+		using _name_t = typename AliasProvider::_name_t;
+		using _all_of_t = std::tuple<column_t<AliasProvider, ColumnSpec>...>;
+
+		table_alias_t(Table table):
+			_table(table)
+		{}
+
+		template<typename Db>
+			void serialize(std::ostream& os, Db& db) const
+			{
+				os << "("; _table.serialize(os, db); os << ") AS " << _name_t::_get_name();
+			}
+
+		Table _table;
+	};
+
+	template<typename Context, typename X>
+		struct interpreter_t<Context, X, typename std::enable_if<std::is_base_of<table_alias_base_t, X>::value, void>::type>
 		{
-			using T = detail::sum_t<Expr>;
+			using T = X;
 
 			static Context& _(const T& t, Context& context)
 			{
-				context << "SUM(";
-				interpret(t._expr, context);
-				context << ")";
+				context << "(";
+				interpret(t._table, context);
+				context << ") AS " << T::_name_t::_get_name();
 				return context;
 			}
 		};
 
-	template<typename T>
-	auto sum(T&& t) -> typename detail::sum_t<typename operand_t<T, is_value_t>::type>
-	{
-		return { std::forward<T>(t) };
-	}
-
 }
 
 #endif
+

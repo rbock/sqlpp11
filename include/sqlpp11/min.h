@@ -70,19 +70,23 @@ namespace sqlpp
 			min_t& operator=(min_t&&) = default;
 			~min_t() = default;
 
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					static_assert(Db::_supports_min, "min not supported by current database");
-					os << "MIN(";
-					_expr.serialize(os, db);
-					os << ")";
-				}
-
-		private:
 			Expr _expr;
 		};
 	}
+
+	template<typename Context, typename Expr>
+		struct interpreter_t<Context, detail::min_t<Expr>>
+		{
+			using T = detail::min_t<Expr>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				context << "MIN(";
+				interpret(t._expr, context);
+				context << ")";
+				return context;
+			}
+		};
 
 	template<typename T>
 	auto min(T&& t) -> typename detail::min_t<typename operand_t<T, is_value_t>::type>

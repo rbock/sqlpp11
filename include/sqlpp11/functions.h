@@ -27,10 +27,8 @@
 #ifndef SQLPP_FUNCTIONS_H
 #define SQLPP_FUNCTIONS_H
 
-#include <sstream>
 #include <sqlpp11/parameter.h>
 #include <sqlpp11/parameter_list.h>
-#include <sqlpp11/type_traits.h>
 #include <sqlpp11/column_types.h>
 #include <sqlpp11/in.h>
 #include <sqlpp11/exists.h>
@@ -57,12 +55,6 @@ namespace sqlpp
 	{
 		using _value_type = ValueType;
 
-		template<typename Db>
-		void serialize(std::ostream& os, const Db& db) const
-		{
-			os << _verbatim;
-		}
-
 		verbatim_t(const std::string& verbatim): _verbatim(verbatim) {}
 		verbatim_t(std::string&& verbatim): _verbatim(std::forward<std::string>(verbatim)) {}
 		verbatim_t(const verbatim_t&) = default;
@@ -73,6 +65,18 @@ namespace sqlpp
 
 		std::string _verbatim;
 	};
+
+	template<typename Context, typename ValueType>
+		struct interpreter_t<Context, verbatim_t<ValueType>>
+		{
+			using T = verbatim_t<ValueType>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				context << t._verbatim;
+				return context;
+			}
+		};
 
 	template<typename ValueType, typename StringType>
 		auto verbatim(StringType&& s) -> verbatim_t<ValueType>
@@ -93,24 +97,29 @@ namespace sqlpp
 		{
 			using _container_t = Container;
 			using _value_type = typename operand_t<typename _container_t::value_type, is_value_t>::type::_value_type;
-			using _iterator = decltype(std::begin(std::declval<_container_t>()));
-
-			template<typename Db>
-				void serialize(std::ostream& os, const Db& db) const
-				{
-					bool first = true;
-					for (const auto& entry: _container)
-					{
-						if (first)
-							first = false;
-						else
-							os << ',';
-
-						value(entry).serialize(os, db);
-					}
-				}
 
 			_container_t _container;
+		};
+
+	template<typename Context, typename Container>
+		struct interpreter_t<Context, value_list_t<Container>>
+		{
+			using T = value_list_t<Container>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				bool first = true;
+				for (const auto& entry: t._container)
+				{
+					if (first)
+						first = false;
+					else
+						context << ',';
+
+					interpret(value(entry), context);
+				}
+				return context;
+			}
 		};
 
 	template<typename Container>

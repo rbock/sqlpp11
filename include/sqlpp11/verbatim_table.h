@@ -62,14 +62,21 @@ namespace sqlpp
 		verbatim_table_t& operator=(verbatim_table_t&& rhs) = default;
 		~verbatim_table_t() = default;
 
-		template<typename Db>
-			void serialize(std::ostream& os, Db& db) const
-			{
-				os << _name;
-			}
-
 		std::string _name;
 	};
+
+	template<typename Context>
+		struct interpreter_t<Context, verbatim_table_t>
+		{
+			using T = verbatim_table_t;
+
+			static Context& _(const T& t, Context& context)
+			{
+				context << t._name;
+				return context;
+			}
+		};
+
 
 	verbatim_table_t verbatim_table(std::string name)
 	{

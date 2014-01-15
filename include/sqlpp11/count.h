@@ -70,19 +70,23 @@ namespace sqlpp
 			count_t& operator=(count_t&&) = default;
 			~count_t() = default;
 
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					static_assert(Db::_supports_count, "count() not supported by current database");
-					os << "COUNT(";
-					_expr.serialize(os, db);
-					os << ")";
-				}
-
-		private:
 			Expr _expr;
 		};
 	}
+
+	template<typename Context, typename Expr>
+		struct interpreter_t<Context, detail::count_t<Expr>>
+		{
+			using T = detail::count_t<Expr>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				context << "COUNT(";
+				interpret(t._expr, context);
+				context << ")";
+				return context;
+			}
+		};
 
 	template<typename T>
 	auto count(T&& t) -> typename detail::count_t<typename operand_t<T, is_value_t>::type>

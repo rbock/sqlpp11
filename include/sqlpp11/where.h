@@ -58,11 +58,6 @@ namespace sqlpp
 					_dynamic_expressions.emplace_back(std::forward<E>(expr));
 				}
 
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-				}
-
 			_parameter_tuple_t _expressions;
 			detail::serializable_list<Database> _dynamic_expressions;
 		};

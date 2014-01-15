@@ -75,5 +75,22 @@ int main()
 	interpret(remove_from(t).where(t.alpha == sqlpp::tvin(0)), printer).flush();
 	interpret(remove_from(t).using_(t).where(t.alpha == sqlpp::tvin(0)), printer).flush();
 
+	// functions
+	interpret(sqlpp::value(7), printer).flush();
+	interpret(sqlpp::verbatim<sqlpp::detail::integral>("irgendwas integrales"), printer).flush();
+	interpret(sqlpp::value_list(std::vector<int>({1,2,3,4,5,6,8})), printer).flush();
+	interpret(exists(select(t.alpha).from(t)), printer).flush();
+	interpret(any(select(t.alpha).from(t)), printer).flush();
+	interpret(some(select(t.alpha).from(t)), printer).flush();
+	interpret(count(t.alpha), printer).flush();
+	interpret(min(t.alpha), printer).flush();
+	interpret(max(t.alpha), printer).flush();
+	interpret(avg(t.alpha), printer).flush();
+	interpret(sum(t.alpha), printer).flush();
+	interpret(sqlpp::verbatim_table("whatever"), printer).flush();
+
+	interpret(t.as(t.alpha), printer).flush();
+	interpret(t.as(t.alpha).beta, printer).flush();
+
 	return 0;
 }

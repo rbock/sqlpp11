@@ -27,8 +27,7 @@
 #ifndef SQLPP_TABLE_H
 #define SQLPP_TABLE_H
 
-#include <ostream>
-#include <sqlpp11/alias.h>
+#include <sqlpp11/table_alias.h>
 #include <sqlpp11/no_value.h>
 #include <sqlpp11/column.h>
 #include <sqlpp11/detail/set.h>
@@ -81,40 +80,7 @@ namespace sqlpp
 			}
 
 		template<typename AliasProvider>
-			struct alias_t: public ColumnSpec::_name_t::template _member_t<column_t<AliasProvider, ColumnSpec>>...
-		{
-			using _is_table = std::true_type;
-			using _table_set = detail::set<alias_t>;
-
-			struct _value_type: Table::_value_type
-			{
-				using _is_expression = std::false_type;
-				using _is_named_expression = copy_type_trait<Table, is_value_t>;
-				using _is_alias = std::true_type;
-			};
-
-			using _name_t = typename AliasProvider::_name_t;
-			using _all_of_t = std::tuple<column_t<AliasProvider, ColumnSpec>...>;
-
-			alias_t(const Table& table):
-				_table(table)
-			{}
-
-			alias_t(Table&& table):
-				_table(std::move(table))
-			{}
-
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					os << "("; _table.serialize(os, db); os << ") AS " << _name_t::_get_name();
-				}
-
-			Table _table;
-		};
-
-		template<typename AliasProvider>
-			alias_t<AliasProvider> as(const AliasProvider&) const
+			table_alias_t<typename std::decay<AliasProvider>::type, Table, ColumnSpec...> as(const AliasProvider&) const
 			{
 				return {*static_cast<const Table*>(this)};
 			}

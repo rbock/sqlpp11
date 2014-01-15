@@ -27,7 +27,6 @@
 #ifndef SQLPP_EXISTS_H
 #define SQLPP_EXISTS_H
 
-#include <sstream>
 #include <sqlpp11/boolean.h>
 
 namespace sqlpp
@@ -70,19 +69,24 @@ namespace sqlpp
 			exists_t& operator=(exists_t&&) = default;
 			~exists_t() = default;
 
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					static_assert(Db::_supports_exists, "exists() not supported by current database");
-					os << "EXISTS(";
-					_select.serialize(os, db);
-					os << ")";
-				}
-
-		private:
 			Select _select;
 		};
 	}
+
+	template<typename Context, typename Select>
+		struct interpreter_t<Context, detail::exists_t<Select>>
+		{
+			using T = detail::exists_t<Select>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				context << "EXISTS(";
+				interpret(t._select, context);
+				context << ")";
+				return context;
+			}
+		};
+
 
 	template<typename T>
 	auto exists(T&& t) -> typename detail::exists_t<typename operand_t<T, is_select_t>::type>

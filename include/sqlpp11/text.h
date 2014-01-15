@@ -80,12 +80,6 @@ namespace sqlpp
 					return *this;
 				}
 
-				template<typename Db>
-					void serialize(std::ostream& os, Db& db) const
-					{
-						os << value();
-					}
-
 				bool is_null() const
 			 	{ 
 					return _is_null; 
@@ -141,12 +135,6 @@ namespace sqlpp
 					_value_ptr = nullptr;
 					_len = 0;
 				}
-
-				template<typename Db>
-					void serialize(std::ostream& os, Db& db) const
-					{
-						os << value();
-					}
 
 				bool operator==(const _cpp_value_type& rhs) const { return value() == rhs; }
 				bool operator!=(const _cpp_value_type& rhs) const { return not operator==(rhs); }

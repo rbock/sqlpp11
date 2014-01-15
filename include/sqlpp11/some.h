@@ -71,19 +71,23 @@ namespace sqlpp
 			some_t& operator=(some_t&&) = default;
 			~some_t() = default;
 
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					static_assert(Db::_supports_some, "some() not supported by current database");
-					os << "SOME(";
-					_select.serialize(os, db);
-					os << ")";
-				}
-
-		private:
 			Select _select;
 		};
 	}
+
+	template<typename Context, typename Select>
+		struct interpreter_t<Context, detail::some_t<Select>>
+		{
+			using T = detail::some_t<Select>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				context << "SOME(";
+				interpret(t._select, context);
+				context << ")";
+				return context;
+			}
+		};
 
 	template<typename T>
 	auto some(T&& t) -> typename detail::some_t<typename operand_t<T, is_select_t>::type>
