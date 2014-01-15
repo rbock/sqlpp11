@@ -59,12 +59,6 @@ namespace sqlpp
 			_table(table)
 		{}
 
-		template<typename Db>
-			void serialize(std::ostream& os, Db& db) const
-			{
-				os << "("; _table.serialize(os, db); os << ") AS " << _name_t::_get_name();
-			}
-
 		Table _table;
 	};
 

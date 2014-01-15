@@ -63,20 +63,6 @@ namespace sqlpp
 					_dynamic_assignments.emplace_back(std::forward<Assignment>(assignment));
 				}
 
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					os << " SET ";
-					detail::serialize_tuple(os, db, _assignments, ',');
-					_dynamic_assignments.serialize(os, db, sizeof...(Assignments) == 0);
-				}
-
-			size_t _set_parameter_index(size_t index)
-			{
-				index = set_parameter_index(_assignments, index);
-				return index;
-			}
-
 			_parameter_tuple_t _assignments;
 			typename detail::serializable_list<Database> _dynamic_assignments;
 		};

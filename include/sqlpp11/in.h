@@ -74,17 +74,6 @@ namespace sqlpp
 			in_t& operator=(in_t&&) = default;
 			~in_t() = default;
 
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					static_assert((NotInverted and Db::_supports_in)
-							or (_inverted and Db::_supports_not_in), "in() and/or not_in() not supported by current database");
-					_operand.serialize(os, db);
-					os << (_inverted ? " NOT IN(" : " IN(");
-					serialize_tuple(os, db, _args, ',');
-					os << ")";
-				}
-
 			Operand _operand;
 			std::tuple<Args...> _args;
 		};

@@ -107,13 +107,6 @@ namespace sqlpp
 
 			using _is_select_flag_list = std::true_type; 
 
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					detail::serialize_tuple(os, db, _flags, ' ');
-					os << ' ';
-				}
-
 			std::tuple<Flag...> _flags;
 		};
 

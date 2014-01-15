@@ -70,16 +70,6 @@ namespace sqlpp
 		like_t& operator=(like_t&&) = default;
 		~like_t() = default;
 
-		template<typename Db>
-			void serialize(std::ostream& os, Db& db) const
-			{
-				static_assert(Db::_supports_like, "like() not supported by current database");
-				_operand.serialize(os, db);
-				os << " LIKE(";
-				_pattern.serialize(os, db);
-				os << ")";
-			}
-
 		Operand _operand;
 		Pattern _pattern;
 	};

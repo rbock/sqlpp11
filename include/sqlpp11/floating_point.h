@@ -76,12 +76,6 @@ namespace sqlpp
 					return *this;
 				}
 
-				template<typename Db>
-					void serialize(std::ostream& os, Db& db) const
-					{
-						os << value();
-					}
-
 				bool is_null() const
 			 	{ 
 					return _is_null; 
@@ -139,12 +133,6 @@ namespace sqlpp
 					_is_null = true;
 					_value = 0;
 				}
-
-				template<typename Db>
-					void serialize(std::ostream& os, Db& db) const
-					{
-						os << value();
-					}
 
 				bool is_null() const
 			 	{ 

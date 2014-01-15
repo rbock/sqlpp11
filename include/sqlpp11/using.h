@@ -59,22 +59,6 @@ namespace sqlpp
 					_dynamic_tables.emplace_back(std::forward<T>(table));
 				}
 
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					if (sizeof...(Table) == 0 and _dynamic_tables.empty())
-						return;
-					os << " USING ";
-					detail::serialize_tuple(os, db, _tables, ',');
-					_dynamic_tables.serialize(os, db, sizeof...(Table) == 0);
-				}
-
-			size_t _set_parameter_index(size_t index)
-			{
-				index = set_parameter_index(_tables, index);
-				return index;
-			}
-
 			_parameter_tuple_t _tables;
 			detail::serializable_list<Database> _dynamic_tables;
 		};

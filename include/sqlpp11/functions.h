@@ -84,12 +84,12 @@ namespace sqlpp
 			return { std::forward<StringType>(s) };
 		}
 
-	template<typename Expression, typename Db>
-		auto flatten(const Expression& exp, const Db& db) -> verbatim_t<typename std::decay<Expression>::type::_value_type::_base_value_type>
+	template<typename Expression, typename Context>
+		auto flatten(const Expression& exp, const Context& context) -> verbatim_t<typename std::decay<Expression>::type::_value_type::_base_value_type>
 		{
-			std::ostringstream os;
-			exp.serialize(os, db);
-			return { os.str() };
+			context.clear();
+			interpret(exp, context);
+			return { context.str() };
 		}
 	
 	template<typename Container>
