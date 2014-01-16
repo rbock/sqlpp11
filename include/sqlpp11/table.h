@@ -46,6 +46,8 @@ namespace sqlpp
 		static_assert(_all_columns::size::value, "at least one column required per table");
 		using _required_insert_columns = typename detail::make_set_if<require_insert_t, column_t<Table, ColumnSpec>...>::type;
 		using _all_of_t = std::tuple<column_t<Table, ColumnSpec>...>;
+		template<typename AliasProvider>
+			using _alias_t = table_alias_t<typename std::decay<AliasProvider>::type, Table, ColumnSpec...>;
 
 		using _is_table = std::true_type;
 
@@ -80,7 +82,7 @@ namespace sqlpp
 			}
 
 		template<typename AliasProvider>
-			table_alias_t<typename std::decay<AliasProvider>::type, Table, ColumnSpec...> as(const AliasProvider&) const
+			_alias_t<AliasProvider> as(const AliasProvider&) const
 			{
 				return {*static_cast<const Table*>(this)};
 			}
@@ -98,13 +100,13 @@ namespace sqlpp
 	}
 
 	template<typename Context, typename X>
-		struct interpreter_t<Context, X, typename std::enable_if<std::is_base_of<table_base_t, X>::value, void>::type>
+		struct interpreter_t<Context, X, typename std::enable_if<std::is_base_of<table_base_t, X>::value and not is_pseudo_table_t<X>::value, void>::type>
 		{
 			using T = X;
 
 			static Context& _(const T& t, Context& context)
 			{
-				context << T::_name_t::_get_name(); // FIXME: need a special rule for pseudo tables
+				context << T::_name_t::_get_name();
 				return context;
 			}
 		};

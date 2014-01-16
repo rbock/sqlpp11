@@ -49,6 +49,7 @@ namespace sqlpp
 																						 NamedExpr...>, select_column_spec_t<NamedExpr>...>
 	{
 		using _value_type = no_value_t;
+		using _is_pseudo_table = std::true_type;
 
 		select_pseudo_table_t(const Select& select):
 			_select(select)
@@ -66,16 +67,21 @@ namespace sqlpp
 		select_pseudo_table_t& operator=(select_pseudo_table_t&& rhs) = default;
 		~select_pseudo_table_t() = default;
 
-		template<typename Db>
-			void serialize(std::ostream& os, Db& db) const
-			{
-				static_assert(Db::_supports_select_as_table, "select as table not supported by current database");
-				_select.serialize(os, db);
-			}
-
 		Select _select;
 	};
 
+	template<typename Context, typename Select, typename... NamedExpr>
+		struct interpreter_t<Context, select_pseudo_table_t<Select, NamedExpr...>>
+		{
+			using T = select_pseudo_table_t<Select, NamedExpr...>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				interpret(t._select, context);
+				return context;
+			}
+		};
+	
 }
 
 #endif

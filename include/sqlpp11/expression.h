@@ -231,7 +231,7 @@ namespace sqlpp
 			{
 				context << "(";
 				interpret(t._lhs, context);
-				context << T::O::_name;
+				context << O::_name;
 				interpret(t._rhs, context);
 				context << ")";
 				return context;

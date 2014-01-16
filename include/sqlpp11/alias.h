@@ -90,14 +90,23 @@ namespace sqlpp
 
 		using _name_t = typename AliasProvider::_name_t;
 
-		template<typename Db>
-			void serialize(std::ostream& os, Db& db) const
-			{
-				os << "("; _expression.serialize(os, db); os << ") AS " << _name_t::_get_name();
-			}
-
 		Expression _expression;
 	};
+
+	template<typename Context, typename Expression, typename AliasProvider>
+		struct interpreter_t<Context, expression_alias_t<Expression, AliasProvider>>
+		{
+			using T = expression_alias_t<Expression, AliasProvider>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				context << '(';
+				interpret(t._expression, context);
+				context << ") AS ";
+				context << T::_name_t::_get_name();
+				return context;
+			}
+		};
 
 }
 

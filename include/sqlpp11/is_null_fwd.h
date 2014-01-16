@@ -24,68 +24,16 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_IS_NULL_H
-#define SQLPP_IS_NULL_H
-
-#include <sqlpp11/boolean.h>
-#include <sqlpp11/type_traits.h>
-#include <sqlpp11/detail/set.h>
+#ifndef SQLPP_IS_NULL_FWD_H
+#define SQLPP_IS_NULL_FWD_H
 
 namespace sqlpp
 {
 	namespace detail
 	{
 		template<bool NotInverted, typename Operand>
-		struct is_null_t: public boolean::template operators<is_null_t<NotInverted, Operand>>
-		{
-			static constexpr bool _inverted = not NotInverted;
-
-			struct _value_type: public boolean
-			{
-				using _is_named_expression = std::true_type;
-			};
-
-			struct _name_t
-			{
-				static constexpr const char* _get_name() { return _inverted ? "IS NOT NULL" : "IS NULL"; }
-				template<typename T>
-					struct _member_t
-					{
-						T in;
-					};
-			};
-
-			is_null_t(const Operand& operand):
-				_operand(operand)
-			{}
-
-			is_null_t(Operand&& operand):
-				_operand(std::move(operand))
-			{}
-
-			is_null_t(const is_null_t&) = default;
-			is_null_t(is_null_t&&) = default;
-			is_null_t& operator=(const is_null_t&) = default;
-			is_null_t& operator=(is_null_t&&) = default;
-			~is_null_t() = default;
-
-			Operand _operand;
-		};
+		struct is_null_t;
 	}
-
-	template<typename Context, bool NotInverted, typename Operand>
-		struct interpreter_t<Context, detail::is_null_t<NotInverted, Operand>>
-		{
-			using T = detail::is_null_t<NotInverted, Operand>;
-
-			static Context& _(const T& t, Context& context)
-			{
-				interpret(t._operand, context);
-				context << (t._inverted ? " IS NOT NULL" : " IS NULL");
-				return context;
-			}
-		};
-
 }
 
 #endif

@@ -92,5 +92,10 @@ int main()
 	interpret(t.as(t.alpha), printer).flush();
 	interpret(t.as(t.alpha).beta, printer).flush();
 
+	interpret(multi_column(t.alpha, t.alpha, (t.beta + "cake").as(t.gamma)), printer).flush();
+	interpret(t.alpha.is_null(), printer).flush();
+
+	interpret(select(t.alpha).from(t).where(t.beta > "kaesekuchen").as(t.gamma), printer).flush();
+
 	return 0;
 }

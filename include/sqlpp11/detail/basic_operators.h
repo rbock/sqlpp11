@@ -31,7 +31,7 @@
 #include <sqlpp11/alias.h>
 #include <sqlpp11/sort_order.h>
 #include <sqlpp11/in_fwd.h>
-#include <sqlpp11/is_null.h>
+#include <sqlpp11/is_null_fwd.h>
 
 namespace sqlpp
 {
@@ -110,13 +110,13 @@ namespace sqlpp
 					return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 				}
 
-			is_null_t<true, boolean, Base> is_null() const
+			is_null_t<true, Base> is_null() const
 			{
 				static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used with is_null()");
 				return { *static_cast<const Base*>(this) };
 			}
 
-			is_null_t<false, boolean, Base> is_not_null() const
+			is_null_t<false, Base> is_not_null() const
 			{
 				static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used with is_not_null()");
 				return { *static_cast<const Base*>(this) };

@@ -28,7 +28,7 @@
 #define SQLPP_TABLE_ALIAS_H
 
 #include <string>
-#include <ostream>
+#include <sqlpp11/interpreter.h>
 #include <sqlpp11/column.h>
 #include <sqlpp11/alias.h>
 #include <sqlpp11/detail/set.h>

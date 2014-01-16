@@ -537,7 +537,7 @@ namespace sqlpp
 				struct _pseudo_table_t
 				{
 					using table = typename ExpressionList::template _pseudo_table_t<select_t>;
-					using alias = typename table::template alias_t<AliasProvider>;
+					using alias = typename table::template _alias_t<AliasProvider>;
 				};
 
 			template<typename AliasProvider>

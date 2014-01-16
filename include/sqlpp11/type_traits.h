@@ -94,6 +94,7 @@ namespace sqlpp
 	SQLPP_IS_COLUMN_TRAIT_GENERATOR(can_be_null);
 
 	SQLPP_TYPE_TRAIT_GENERATOR(is_table);
+	SQLPP_TYPE_TRAIT_GENERATOR(is_pseudo_table);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_select);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_select_flag_list);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_select_expression_list);
