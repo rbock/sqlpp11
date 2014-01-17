@@ -134,23 +134,30 @@ namespace sqlpp
 				return { *this, std::forward<T>(t) };
 			}
 
-		template<typename Db>
-			void serialize(std::ostream& os, Db& db) const
-			{
-				// FIXME: Need to check if db supports the join type. e.g. sqlite does not support right outer or full outer join
-				static_assert(JoinType::template _is_supported<Db>::value, "join type not supported by current database");
-				static_assert(not is_noop<On>::value, "joined tables require on()");
-				_lhs.serialize(os, db);
-				os << JoinType::_name;
-			 	os << " JOIN ";
-				_rhs.serialize(os, db);
-				_on.serialize(os, db);
-			}
-
 		Lhs _lhs;
 		Rhs _rhs;
 		On _on;
 	};
+
+	// FIXME: Need to check if db supports the join type. e.g. sqlite does not support right outer or full outer join
+	template<typename Context, typename JoinType, typename Lhs, typename Rhs, typename On>
+		struct interpreter_t<Context, join_t<JoinType, Lhs, Rhs, On>>
+		{
+			using T = join_t<JoinType, Lhs, Rhs, On>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				static_assert(not is_noop<On>::value, "joined tables require on()");
+				interpret(t._lhs, context);
+				context << JoinType::_name;
+			 	context << " JOIN ";
+				context << "(";
+				interpret(t._rhs, context);
+				interpret(t._on, context);
+				return context;
+			}
+		};
+
 }
 
 #endif

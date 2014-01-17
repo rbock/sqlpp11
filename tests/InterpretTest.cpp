@@ -34,7 +34,7 @@
 #include <iostream>
 
 DbMock db = {};
-DbMock::Printer printer(std::cerr);
+DbMock::context printer(std::cerr);
 SQLPP_ALIAS_PROVIDER_GENERATOR(kaesekuchen);
 
 int main()
@@ -89,13 +89,24 @@ int main()
 	interpret(sum(t.alpha), printer).flush();
 	interpret(sqlpp::verbatim_table("whatever"), printer).flush();
 
+	// alias
 	interpret(t.as(t.alpha), printer).flush();
 	interpret(t.as(t.alpha).beta, printer).flush();
 
-	interpret(multi_column(t.alpha, t.alpha, (t.beta + "cake").as(t.gamma)), printer).flush();
+	// select alias
+	interpret(select(t.alpha).from(t).where(t.beta > "kaesekuchen").as(t.gamma), printer).flush();
+
 	interpret(t.alpha.is_null(), printer).flush();
 
-	interpret(select(t.alpha).from(t).where(t.beta > "kaesekuchen").as(t.gamma), printer).flush();
+	// join
+	interpret(t.inner_join(t.as(t.alpha)).on(t.beta == t.as(t.alpha).beta), printer).flush();
+
+	// multi_column
+	interpret(multi_column(t.alpha, t.alpha, (t.beta + "cake").as(t.gamma)), printer).flush();
+
+	// dynamic select
+	interpret(dynamic_select(db, t.alpha).dynamic_columns().add_column(t.beta), printer).flush();
+
 
 	return 0;
 }

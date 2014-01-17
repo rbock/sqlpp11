@@ -88,6 +88,7 @@ namespace sqlpp
 	template<typename Expression, typename Context>
 		auto flatten(const Expression& exp, const Context& context) -> verbatim_t<typename std::decay<Expression>::type::_value_type::_base_value_type>
 		{
+			static_assert(not make_parameter_list_t<Expression>::type::size::value, "parameters not supported in flattened expressions");
 			context.clear();
 			interpret(exp, context);
 			return { context.str() };

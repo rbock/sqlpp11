@@ -37,8 +37,7 @@ namespace sqlpp
 		struct limit_t
 		{
 			using _is_limit = std::true_type;
-			static_assert(std::is_integral<Limit>::value 
-					or (is_parameter_t<Limit>::value and is_numeric_t<Limit>::value), "limit requires an integral value or integral parameter");
+			static_assert(is_integral_t<Limit>::value, "limit requires an integral value or integral parameter");
 
 			Limit _limit;
 		};
@@ -50,7 +49,8 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
-				context << " LIMIT " << t._limit;
+				context << " LIMIT ";
+			 	interpret(t._limit, context);
 				return context;
 			}
 		};
@@ -65,16 +65,22 @@ namespace sqlpp
 			_limit = limit;
 		}
 
-		template<typename Db>
-			void serialize(std::ostream& os, Db& db) const
-			{
-				static_assert(Db::_supports_limit, "limit not supported by current database");
-				if (_limit > 0)
-					os << " LIMIT " << _limit;
-			}
-
 		std::size_t _limit;
 	};
+
+	template<typename Context>
+		struct interpreter_t<Context, dynamic_limit_t>
+		{
+			using T = dynamic_limit_t;
+
+			static Context& _(const T& t, Context& context)
+			{
+				if (t._limit > 0)
+					context << " LIMIT " << t._limit;
+				return context;
+			}
+		};
+
 }
 
 #endif

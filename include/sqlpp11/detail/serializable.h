@@ -27,9 +27,8 @@
 #ifndef SQLPP_SERIALIZABLE_H
 #define SQLPP_SERIALIZABLE_H
 
-#include <ostream>
-#include <vector>
 #include <memory>
+#include <sqlpp11/serializer.h>
 #include <sqlpp11/parameter_list.h>
 
 namespace sqlpp
@@ -39,11 +38,11 @@ namespace sqlpp
 		template<typename Db>
 			struct serializable_t
 			{
-				template<typename T,
-					typename std::enable_if<not std::is_same<typename std::decay<T>::type, serializable_t<Db>>::value, int>::type = 0 // prevent accidental overload for copy constructor
-					>
-					serializable_t(T&& t):
-						_impl(std::make_shared<_impl_t<typename std::decay<T>::type>>(std::forward<T>(t)))
+				using _context_t = typename Db::context;
+
+				template<typename T>
+					serializable_t(T t):
+						_impl(std::make_shared<_impl_t<typename std::decay<T>::type>>(t))
 				{}
 
 				serializable_t(const serializable_t&) = default;
@@ -52,15 +51,21 @@ namespace sqlpp
 				serializable_t& operator=(serializable_t&&) = default;
 				~serializable_t() = default;
 
-				void serialize(std::ostream& os, Db& db) const
+				sqlpp::serializer& interpret(sqlpp::serializer& context) const
 				{
-					_impl->serialize(os, db);
+					return _impl->interpret(context);
+				}
+
+				_context_t& interpret(_context_t& context) const
+				{
+					return _impl->interpret(context);
 				}
 
 			private:
 				struct _impl_base
 				{
-					virtual void serialize(std::ostream& os, Db& db) const = 0;
+					virtual sqlpp::serializer& interpret(sqlpp::serializer& context) const = 0;
+					virtual _context_t interpret(_context_t& context) const = 0;
 				};
 
 				template<typename T>
@@ -75,16 +80,37 @@ namespace sqlpp
 						_t(std::move(t))
 					{}
 
-					void serialize(std::ostream& os, Db& db) const
+					sqlpp::serializer& interpret(sqlpp::serializer& context) const
 					{
-						_t.serialize(os, db);
+						sqlpp::interpret(_t, context);
+						return context;
 					}
+
+					_context_t& interpret(_context_t& context) const
+					{
+						sqlpp::interpret(_t, context);
+						return context;
+					}
+
 					T _t;
 				};
 
 				std::shared_ptr<const _impl_base> _impl;
 			};
 	}
+
+	template<typename Context, typename Database>
+		struct interpreter_t<Context, detail::serializable_t<Database>>
+		{
+			using T = detail::serializable_t<Database>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				t.interpret(context);
+				return context;
+			}
+		};
+
 }
 
 #endif

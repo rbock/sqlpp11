@@ -27,9 +27,9 @@
 #ifndef SQLPP_NAMED_SERIALIZABLE_H
 #define SQLPP_NAMED_SERIALIZABLE_H
 
-#include <ostream>
-#include <vector>
 #include <memory>
+#include <sqlpp11/serializer.h>
+#include <sqlpp11/parameter_list.h>
 
 namespace sqlpp
 {
@@ -38,11 +38,11 @@ namespace sqlpp
 		template<typename Db>
 			struct named_serializable_t
 			{
-				template<typename T, 
-					typename std::enable_if<not std::is_same<typename std::decay<T>::type, named_serializable_t<Db>>::value, int>::type = 0 // prevent accidental overload for copy constructor
-						>
-					named_serializable_t(T&& t):
-						_impl(std::make_shared<_impl_t<typename std::decay<T>::type>>(std::forward<T>(t)))
+				using _context_t = typename Db::context;
+
+				template<typename T>
+					named_serializable_t(T t):
+						_impl(std::make_shared<_impl_t<typename std::decay<T>::type>>(t))
 				{}
 
 				named_serializable_t(const named_serializable_t&) = default;
@@ -51,9 +51,14 @@ namespace sqlpp
 				named_serializable_t& operator=(named_serializable_t&&) = default;
 				~named_serializable_t() = default;
 
-				void serialize(std::ostream& os, Db& db) const
+				sqlpp::serializer& interpret(sqlpp::serializer& context) const
 				{
-					_impl->serialize(os, db);
+					return _impl->interpret(context);
+				}
+
+				_context_t& interpret(_context_t& context) const
+				{
+					return _impl->interpret(context);
 				}
 
 				std::string _get_name() const
@@ -64,13 +69,15 @@ namespace sqlpp
 			private:
 				struct _impl_base
 				{
-					virtual void serialize(std::ostream& os, Db& db) const = 0;
+					virtual sqlpp::serializer& interpret(sqlpp::serializer& context) const = 0;
+					virtual _context_t& interpret(_context_t& context) const = 0;
 					virtual std::string _get_name() const = 0;
 				};
 
 				template<typename T>
 					struct _impl_t: public _impl_base
 				{
+					static_assert(not make_parameter_list_t<T>::type::size::value, "parameters not supported in dynamic query parts");
 					_impl_t(const T& t):
 						_t(t)
 					{}
@@ -79,9 +86,16 @@ namespace sqlpp
 						_t(std::move(t))
 					{}
 
-					void serialize(std::ostream& os, Db& db) const
+					sqlpp::serializer& interpret(sqlpp::serializer& context) const
 					{
-						_t.serialize(os, db);
+						sqlpp::interpret(_t, context);
+						return context;
+					}
+
+					_context_t& interpret(_context_t& context) const
+					{
+						sqlpp::interpret(_t, context);
+						return context;
 					}
 
 					std::string _get_name() const
@@ -95,6 +109,19 @@ namespace sqlpp
 				std::shared_ptr<const _impl_base> _impl;
 			};
 	}
+
+	template<typename Context, typename Database>
+		struct interpreter_t<Context, detail::named_serializable_t<Database>>
+		{
+			using T = detail::named_serializable_t<Database>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				t.interpret(context);
+				return context;
+			}
+		};
+
 }
 
 #endif

@@ -443,7 +443,7 @@ namespace sqlpp
 
 			template<typename Expr>
 				auto limit(Expr limit)
-				-> set_limit_t<limit_t<typename std::decay<Expr>::type>>
+				-> set_limit_t<limit_t<typename wrap_operand<typename std::decay<Expr>::type>::type>>
 				{
 					static_assert(not is_noop<From>::value, "cannot call limit() without a from()");
 					static_assert(is_noop<Limit>::value, "cannot call limit() twice for a single select");
@@ -489,7 +489,7 @@ namespace sqlpp
 
 			template<typename Expr>
 			auto offset(Expr offset)
-				-> set_offset_t<offset_t<typename std::decay<Expr>::type>>
+				-> set_offset_t<offset_t<typename wrap_operand<typename std::decay<Expr>::type>::type>>
 			{
 				static_assert(not is_noop<Limit>::value, "cannot call offset() without a limit");
 				static_assert(is_noop<Offset>::value, "cannot call offset() twice for a single select");
