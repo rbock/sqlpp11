@@ -1,5 +1,6 @@
 macro (build_and_run arg)
-	add_executable(${arg} ${arg}.cpp)
+	# Add headers to sources to enable file browsing in IDEs
+	add_executable(${arg} ${arg}.cpp ${sqlpp_headers})
 	add_test(${arg} ${arg})
 endmacro ()
 
