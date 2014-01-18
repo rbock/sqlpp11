@@ -67,17 +67,20 @@ namespace sqlpp
 		std::string _verbatim;
 	};
 
-	template<typename Context, typename ValueType>
-		struct vendor::interpreter_t<Context, verbatim_t<ValueType>>
-		{
-			using T = verbatim_t<ValueType>;
-
-			static Context& _(const T& t, Context& context)
+	namespace vendor
+	{
+		template<typename Context, typename ValueType>
+			struct interpreter_t<Context, verbatim_t<ValueType>>
 			{
-				context << t._verbatim;
-				return context;
-			}
-		};
+				using T = verbatim_t<ValueType>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					context << t._verbatim;
+					return context;
+				}
+			};
+	}
 
 	template<typename ValueType, typename StringType>
 		auto verbatim(StringType&& s) -> verbatim_t<ValueType>
@@ -93,7 +96,7 @@ namespace sqlpp
 			interpret(exp, context);
 			return { context.str() };
 		}
-	
+
 	template<typename Container>
 		struct value_list_t // to be used in .in() method
 		{
@@ -103,33 +106,36 @@ namespace sqlpp
 			_container_t _container;
 		};
 
-	template<typename Context, typename Container>
-		struct vendor::interpreter_t<Context, value_list_t<Container>>
-		{
-			using T = value_list_t<Container>;
-
-			static Context& _(const T& t, Context& context)
+	namespace vendor
+	{
+		template<typename Context, typename Container>
+			struct interpreter_t<Context, value_list_t<Container>>
 			{
-				bool first = true;
-				for (const auto& entry: t._container)
-				{
-					if (first)
-						first = false;
-					else
-						context << ',';
+				using T = value_list_t<Container>;
 
-					interpret(value(entry), context);
+				static Context& _(const T& t, Context& context)
+				{
+					bool first = true;
+					for (const auto& entry: t._container)
+					{
+						if (first)
+							first = false;
+						else
+							context << ',';
+
+						interpret(value(entry), context);
+					}
+					return context;
 				}
-				return context;
-			}
-		};
+			};
+	}
 
 	template<typename Container>
-	auto value_list(Container&& c) -> value_list_t<typename std::decay<Container>::type>
-	{
-		static_assert(not is_value_t<typename std::decay<Container>::type::value_type>::value, "value_list() is to be called with a container of non-sql-type like std::vector<int>, or std::list(string)");
-		return { std::forward<Container>(c) };
-	}
+		auto value_list(Container&& c) -> value_list_t<typename std::decay<Container>::type>
+		{
+			static_assert(not is_value_t<typename std::decay<Container>::type::value_type>::value, "value_list() is to be called with a container of non-sql-type like std::vector<int>, or std::list(string)");
+			return { std::forward<Container>(c) };
+		}
 
 	template<typename T>
 		constexpr const char* get_sql_name(const T&) 

@@ -165,20 +165,23 @@ namespace sqlpp
 			Where _where;
 		};
 
-	template<typename Context, typename Database, typename Table, typename Using, typename Where>
-		struct vendor::interpreter_t<Context, remove_t<Database, Table, Using, Where>>
-		{
-			using T = remove_t<Database, Table, Using, Where>;
-
-			static Context& _(const T& t, Context& context)
+	namespace vendor
+	{
+		template<typename Context, typename Database, typename Table, typename Using, typename Where>
+			struct interpreter_t<Context, remove_t<Database, Table, Using, Where>>
 			{
-				context << "DELETE FROM ";
-				interpret(t._table, context);
-				interpret(t._using, context);
-				interpret(t._where, context);
-				return context;
-			}
-		};
+				using T = remove_t<Database, Table, Using, Where>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					context << "DELETE FROM ";
+					interpret(t._table, context);
+					interpret(t._using, context);
+					interpret(t._where, context);
+					return context;
+				}
+			};
+	}
 
 	template<typename Table>
 		constexpr remove_t<void, typename std::decay<Table>::type> remove_from(Table&& table)

@@ -45,21 +45,24 @@ namespace sqlpp
 			Expression _expression;
 		};
 
-	template<typename Context, typename Expression, typename AliasProvider>
-		struct vendor::interpreter_t<Context, expression_alias_t<Expression, AliasProvider>>
-		{
-			using T = expression_alias_t<Expression, AliasProvider>;
-
-			static Context& _(const T& t, Context& context)
+	namespace vendor
+	{
+		template<typename Context, typename Expression, typename AliasProvider>
+			struct interpreter_t<Context, expression_alias_t<Expression, AliasProvider>>
 			{
-				context << '(';
-				interpret(t._expression, context);
-				context << ") AS ";
-				context << T::_name_t::_get_name();
-				return context;
-			}
-		};
+				using T = expression_alias_t<Expression, AliasProvider>;
 
+				static Context& _(const T& t, Context& context)
+				{
+					context << '(';
+					interpret(t._expression, context);
+					context << ") AS ";
+					context << T::_name_t::_get_name();
+					return context;
+				}
+			};
+
+	}
 }
 
 #endif

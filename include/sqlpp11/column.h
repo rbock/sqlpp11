@@ -78,18 +78,21 @@ namespace sqlpp
 			}
 	};
 
-	template<typename Context, typename... Args>
-		struct vendor::interpreter_t<Context, column_t<Args...>>
-		{
-			using T = column_t<Args...>;
-
-			static Context& _(const T& t, Context& context)
+	namespace vendor
+	{
+		template<typename Context, typename... Args>
+			struct interpreter_t<Context, column_t<Args...>>
 			{
-				context << T::_table::_name_t::_get_name() << '.' << T::_name_t::_get_name();
-				return context;
-			}
-		};
+				using T = column_t<Args...>;
 
+				static Context& _(const T& t, Context& context)
+				{
+					context << T::_table::_name_t::_get_name() << '.' << T::_name_t::_get_name();
+					return context;
+				}
+			};
+
+	}
 }
 
 #endif

@@ -75,25 +75,28 @@ namespace sqlpp
 		};
 	}
 
-	template<typename Context, typename Select>
-		struct vendor::interpreter_t<Context, vendor::some_t<Select>>
-		{
-			using T = vendor::some_t<Select>;
-
-			static Context& _(const T& t, Context& context)
+	namespace vendor
+	{
+		template<typename Context, typename Select>
+			struct interpreter_t<Context, vendor::some_t<Select>>
 			{
-				context << "SOME(";
-				interpret(t._select, context);
-				context << ")";
-				return context;
-			}
-		};
+				using T = vendor::some_t<Select>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					context << "SOME(";
+					interpret(t._select, context);
+					context << ")";
+					return context;
+				}
+			};
+	}
 
 	template<typename T>
-	auto some(T&& t) -> typename vendor::some_t<typename operand_t<T, is_select_t>::type>
-	{
-		return { std::forward<T>(t) };
-	}
+		auto some(T&& t) -> typename vendor::some_t<typename operand_t<T, is_select_t>::type>
+		{
+			return { std::forward<T>(t) };
+		}
 
 }
 

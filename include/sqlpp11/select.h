@@ -606,42 +606,44 @@ namespace sqlpp
 			Offset _offset;
 		};
 
-			template<typename Context, 
-				typename Database,
-				typename Flags,
-				typename ExpressionList,
-				typename From,
-				typename Where,
-				typename GroupBy,
-				typename Having,
-				typename OrderBy,
-				typename Limit,
-				typename Offset
-					>
-		struct vendor::interpreter_t<Context, select_t<Database,
-										 Flags, 
-										 ExpressionList, 
-										 From, 
-										 Where, 
-										 GroupBy, 
-										 Having, 
-										 OrderBy, 
-										 Limit, 
-										 Offset>>
-		{
-			using T = select_t<Database,
-										 Flags, 
-										 ExpressionList, 
-										 From, 
-										 Where, 
-										 GroupBy, 
-										 Having, 
-										 OrderBy, 
-										 Limit, 
-										 Offset>;
-
-			static Context& _(const T& t, Context& context)
+	namespace vendor
+	{
+		template<typename Context, 
+			typename Database,
+			typename Flags,
+			typename ExpressionList,
+			typename From,
+			typename Where,
+			typename GroupBy,
+			typename Having,
+			typename OrderBy,
+			typename Limit,
+			typename Offset
+				>
+				struct interpreter_t<Context, select_t<Database,
+			Flags, 
+			ExpressionList, 
+			From, 
+			Where, 
+			GroupBy, 
+			Having, 
+			OrderBy, 
+			Limit, 
+			Offset>>
 			{
+				using T = select_t<Database,
+				Flags, 
+				ExpressionList, 
+				From, 
+				Where, 
+				GroupBy, 
+				Having, 
+				OrderBy, 
+				Limit, 
+				Offset>;
+
+				static Context& _(const T& t, Context& context)
+				{
 					context << "SELECT ";
 
 					interpret(t._flags, context);
@@ -655,8 +657,9 @@ namespace sqlpp
 					interpret(t._offset, context);
 
 					return context;
-			}
-		};
+				}
+			};
+	}
 
 
 	// construct select flag list
@@ -664,7 +667,7 @@ namespace sqlpp
 	{
 		template<typename... Expr>
 			using make_select_flag_list_t = 
-				vendor::select_flag_list_t<decltype(make_flag_tuple(std::declval<Expr>()...))>;
+			vendor::select_flag_list_t<decltype(make_flag_tuple(std::declval<Expr>()...))>;
 	}
 
 	// construct select expression list
@@ -672,7 +675,7 @@ namespace sqlpp
 	{
 		template<typename... Expr>
 			using make_select_expression_list_t = 
-				vendor::select_expression_list_t<void, decltype(make_expression_tuple(std::declval<Expr>()...))>;
+			vendor::select_expression_list_t<void, decltype(make_expression_tuple(std::declval<Expr>()...))>;
 	}
 
 	template<typename... NamedExpr>
@@ -681,7 +684,7 @@ namespace sqlpp
 		{
 			return { 
 				{ detail::make_flag_tuple(std::forward<NamedExpr>(namedExpr)...) }, 
-				{ detail::make_expression_tuple(std::forward<NamedExpr>(namedExpr)...) }
+					{ detail::make_expression_tuple(std::forward<NamedExpr>(namedExpr)...) }
 			};
 		}
 	template<typename Db, typename... NamedExpr>
@@ -690,7 +693,7 @@ namespace sqlpp
 		{
 			return { 
 				{ detail::make_flag_tuple(std::forward<NamedExpr>(namedExpr)...) }, 
-				{ detail::make_expression_tuple(std::forward<NamedExpr>(namedExpr)...) }
+					{ detail::make_expression_tuple(std::forward<NamedExpr>(namedExpr)...) }
 			};
 		}
 

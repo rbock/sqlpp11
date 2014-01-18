@@ -74,25 +74,28 @@ namespace sqlpp
 		};
 	}
 
-	template<typename Context, typename Expr>
-		struct vendor::interpreter_t<Context, vendor::sum_t<Expr>>
-		{
-			using T = vendor::sum_t<Expr>;
-
-			static Context& _(const T& t, Context& context)
+	namespace vendor
+	{
+		template<typename Context, typename Expr>
+			struct interpreter_t<Context, vendor::sum_t<Expr>>
 			{
-				context << "SUM(";
-				interpret(t._expr, context);
-				context << ")";
-				return context;
-			}
-		};
+				using T = vendor::sum_t<Expr>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					context << "SUM(";
+					interpret(t._expr, context);
+					context << ")";
+					return context;
+				}
+			};
+	}
 
 	template<typename T>
-	auto sum(T&& t) -> typename vendor::sum_t<typename operand_t<T, is_value_t>::type>
-	{
-		return { std::forward<T>(t) };
-	}
+		auto sum(T&& t) -> typename vendor::sum_t<typename operand_t<T, is_value_t>::type>
+		{
+			return { std::forward<T>(t) };
+		}
 
 }
 

@@ -73,26 +73,29 @@ namespace sqlpp
 		};
 	}
 
-	template<typename Context, typename Select>
-		struct vendor::interpreter_t<Context, vendor::exists_t<Select>>
-		{
-			using T = vendor::exists_t<Select>;
-
-			static Context& _(const T& t, Context& context)
+	namespace vendor
+	{
+		template<typename Context, typename Select>
+			struct interpreter_t<Context, vendor::exists_t<Select>>
 			{
-				context << "EXISTS(";
-				interpret(t._select, context);
-				context << ")";
-				return context;
-			}
-		};
+				using T = vendor::exists_t<Select>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					context << "EXISTS(";
+					interpret(t._select, context);
+					context << ")";
+					return context;
+				}
+			};
+	}
 
 
 	template<typename T>
-	auto exists(T&& t) -> typename vendor::exists_t<typename operand_t<T, is_select_t>::type>
-	{
-		return { std::forward<T>(t) };
-	}
+		auto exists(T&& t) -> typename vendor::exists_t<typename operand_t<T, is_select_t>::type>
+		{
+			return { std::forward<T>(t) };
+		}
 
 }
 

@@ -55,23 +55,26 @@ namespace sqlpp
 			std::tuple<NamedExpr...> _columns;
 		};
 
-	template<typename Context, typename AliasProvider, typename... NamedExpr>
-		struct vendor::interpreter_t<Context, multi_column_t<AliasProvider, NamedExpr...>>
-		{
-			using T = multi_column_t<AliasProvider, NamedExpr...>;
-
-			static Context& _(const T& t, Context& context)
+	namespace vendor
+	{
+		template<typename Context, typename AliasProvider, typename... NamedExpr>
+			struct interpreter_t<Context, multi_column_t<AliasProvider, NamedExpr...>>
 			{
-				interpret_tuple(t._columns, ',', context);
-				return context;
-			}
-		};
+				using T = multi_column_t<AliasProvider, NamedExpr...>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					interpret_tuple(t._columns, ',', context);
+					return context;
+				}
+			};
+	}
 
 	namespace detail
 	{
 		template<typename AliasProvider, typename... Expr>
 			using make_multi_column_t = 
-				multi_column_t<typename std::decay<AliasProvider>::type, decltype(make_expression_tuple(std::declval<Expr>()...))>;
+			multi_column_t<typename std::decay<AliasProvider>::type, decltype(make_expression_tuple(std::declval<Expr>()...))>;
 	}
 
 	template<typename AliasProvider, typename... NamedExpr>

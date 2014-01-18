@@ -74,25 +74,28 @@ namespace sqlpp
 		};
 	}
 
-	template<typename Context, typename Expr>
-		struct vendor::interpreter_t<Context, vendor::count_t<Expr>>
-		{
-			using T = vendor::count_t<Expr>;
-
-			static Context& _(const T& t, Context& context)
+	namespace vendor
+	{
+		template<typename Context, typename Expr>
+			struct interpreter_t<Context, vendor::count_t<Expr>>
 			{
-				context << "COUNT(";
-				interpret(t._expr, context);
-				context << ")";
-				return context;
-			}
-		};
+				using T = vendor::count_t<Expr>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					context << "COUNT(";
+					interpret(t._expr, context);
+					context << ")";
+					return context;
+				}
+			};
+	}
 
 	template<typename T>
-	auto count(T&& t) -> typename vendor::count_t<typename operand_t<T, is_value_t>::type>
-	{
-		return { std::forward<T>(t) };
-	}
+		auto count(T&& t) -> typename vendor::count_t<typename operand_t<T, is_value_t>::type>
+		{
+			return { std::forward<T>(t) };
+		}
 
 }
 

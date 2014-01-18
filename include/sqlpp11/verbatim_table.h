@@ -65,17 +65,20 @@ namespace sqlpp
 		std::string _name;
 	};
 
-	template<typename Context>
-		struct vendor::interpreter_t<Context, verbatim_table_t>
-		{
-			using T = verbatim_table_t;
-
-			static Context& _(const T& t, Context& context)
+	namespace vendor
+	{
+		template<typename Context>
+			struct interpreter_t<Context, verbatim_table_t>
 			{
-				context << t._name;
-				return context;
-			}
-		};
+				using T = verbatim_table_t;
+
+				static Context& _(const T& t, Context& context)
+				{
+					context << t._name;
+					return context;
+				}
+			};
+	}
 
 
 	verbatim_table_t verbatim_table(std::string name)

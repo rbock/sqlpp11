@@ -167,25 +167,28 @@ namespace sqlpp
 			Where _where;
 		};
 
-	template<typename Context, 
-		typename Database,
-		typename Table,
-		typename Assignments,
-		typename Where
-		>
-		struct vendor::interpreter_t<Context, update_t<Database, Table, Assignments, Where>>
-		{
-			using T = update_t<Database, Table, Assignments, Where>;
+	namespace vendor
+	{
+		template<typename Context, 
+			typename Database,
+			typename Table,
+			typename Assignments,
+			typename Where
+				>
+				struct interpreter_t<Context, update_t<Database, Table, Assignments, Where>>
+				{
+					using T = update_t<Database, Table, Assignments, Where>;
 
-			static Context& _(const T& t, Context& context)
-			{
-				context << "UPDATE ";
-				interpret(t._table, context);
-				interpret(t._assignments, context);
-				interpret(t._where, context);
-				return context;
-			}
-		};
+					static Context& _(const T& t, Context& context)
+					{
+						context << "UPDATE ";
+						interpret(t._table, context);
+						interpret(t._assignments, context);
+						interpret(t._where, context);
+						return context;
+					}
+				};
+	}
 
 	template<typename Table>
 		constexpr update_t<void, typename std::decay<Table>::type> update(Table&& table)

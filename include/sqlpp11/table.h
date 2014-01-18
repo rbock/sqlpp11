@@ -99,19 +99,22 @@ namespace sqlpp
 		return {};
 	}
 
-	template<typename Context, typename X>
-		struct vendor::interpreter_t<Context, X, typename std::enable_if<std::is_base_of<table_base_t, X>::value and not is_pseudo_table_t<X>::value, void>::type>
-		{
-			using T = X;
-
-			static Context& _(const T& t, Context& context)
+	namespace vendor
+	{
+		template<typename Context, typename X>
+			struct interpreter_t<Context, X, typename std::enable_if<std::is_base_of<table_base_t, X>::value and not is_pseudo_table_t<X>::value, void>::type>
 			{
-				context << T::_name_t::_get_name();
-				return context;
-			}
-		};
+				using T = X;
+
+				static Context& _(const T& t, Context& context)
+				{
+					context << T::_name_t::_get_name();
+					return context;
+				}
+			};
 
 
+	}
 }
 
 #endif

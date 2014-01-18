@@ -43,27 +43,30 @@ namespace sqlpp
 			Expression _expression;
 		};
 
-	template<typename Context, typename Expression, sort_type SortType>
-		struct vendor::interpreter_t<Context, sort_order_t<Expression, SortType>>
-		{
-			using T = sort_order_t<Expression, SortType>;
-
-			static Context& _(const T& t, Context& context)
+	namespace vendor
+	{
+		template<typename Context, typename Expression, sort_type SortType>
+			struct interpreter_t<Context, sort_order_t<Expression, SortType>>
 			{
-				interpret(t._expression, context);
-				switch(SortType)
-				{
-				case sort_type::asc:
-					context << " ASC";
-					break;
-				default:
-					context << " DESC";
-					break;
-				}
-				return context;
-			}
-		};
+				using T = sort_order_t<Expression, SortType>;
 
+				static Context& _(const T& t, Context& context)
+				{
+					interpret(t._expression, context);
+					switch(SortType)
+					{
+					case sort_type::asc:
+						context << " ASC";
+						break;
+					default:
+						context << " DESC";
+						break;
+					}
+					return context;
+				}
+			};
+
+	}
 }
 
 #endif

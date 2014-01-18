@@ -141,24 +141,27 @@ namespace sqlpp
 		};
 
 	// FIXME: Need to check if db supports the join type. e.g. sqlite does not support right outer or full outer join
-	template<typename Context, typename JoinType, typename Lhs, typename Rhs, typename On>
-		struct vendor::interpreter_t<Context, join_t<JoinType, Lhs, Rhs, On>>
-		{
-			using T = join_t<JoinType, Lhs, Rhs, On>;
-
-			static Context& _(const T& t, Context& context)
+	namespace vendor
+	{
+		template<typename Context, typename JoinType, typename Lhs, typename Rhs, typename On>
+			struct interpreter_t<Context, join_t<JoinType, Lhs, Rhs, On>>
 			{
-				static_assert(not vendor::is_noop<On>::value, "joined tables require on()");
-				interpret(t._lhs, context);
-				context << JoinType::_name;
-				context << " JOIN ";
-				context << "(";
-				interpret(t._rhs, context);
-				interpret(t._on, context);
-				return context;
-			}
-		};
+				using T = join_t<JoinType, Lhs, Rhs, On>;
 
+				static Context& _(const T& t, Context& context)
+				{
+					static_assert(not vendor::is_noop<On>::value, "joined tables require on()");
+					interpret(t._lhs, context);
+					context << JoinType::_name;
+					context << " JOIN ";
+					context << "(";
+					interpret(t._rhs, context);
+					interpret(t._on, context);
+					return context;
+				}
+			};
+
+	}
 }
 
 #endif

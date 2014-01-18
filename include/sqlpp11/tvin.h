@@ -53,16 +53,19 @@ namespace sqlpp
 			_operand_t _value;
 		};
 
-	template<typename Context, typename Type>
-		struct vendor::interpreter_t<Context, tvin_t<Type>>
-		{
-			using T = tvin_t<Type>;
-
-			static void _(const T& t, Context& context)
+	namespace vendor
+	{
+		template<typename Context, typename Type>
+			struct interpreter_t<Context, tvin_t<Type>>
 			{
-				static_assert(detail::wrong<T>::value, "tvin() must not be used with anything but =, ==, != and !");
-			}
-		};
+				using T = tvin_t<Type>;
+
+				static void _(const T& t, Context& context)
+				{
+					static_assert(detail::wrong<T>::value, "tvin() must not be used with anything but =, ==, != and !");
+				}
+			};
+	}
 
 	template<typename T>
 		struct tvin_wrap_t
@@ -104,31 +107,33 @@ namespace sqlpp
 			typename tvin_t<T>::_operand_t _value;
 		};
 
-	template<typename Context, typename Type>
-		struct vendor::interpreter_t<Context, tvin_wrap_t<Type>>
-		{
-			using T = tvin_wrap_t<Type>;
-
-			static Context& _(const T& t, Context& context)
+	namespace vendor
+	{
+		template<typename Context, typename Type>
+			struct interpreter_t<Context, tvin_wrap_t<Type>>
 			{
-				if (t._is_trivial())
-				{
-					context << "NULL";
-				}
-				else
-				{
-					interpret(t._value, context);
-				}
-				return context;
-			}
-		};
+				using T = tvin_wrap_t<Type>;
 
+				static Context& _(const T& t, Context& context)
+				{
+					if (t._is_trivial())
+					{
+						context << "NULL";
+					}
+					else
+					{
+						interpret(t._value, context);
+					}
+					return context;
+				}
+			};
+	}
 
 	template<typename T>
-	auto tvin(T t) -> tvin_t<typename std::decay<T>::type>
-	{
-		return {t};
-	}
+		auto tvin(T t) -> tvin_t<typename std::decay<T>::type>
+		{
+			return {t};
+		}
 
 }
 

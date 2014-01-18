@@ -70,18 +70,21 @@ namespace sqlpp
 		Select _select;
 	};
 
-	template<typename Context, typename Select, typename... NamedExpr>
-		struct vendor::interpreter_t<Context, select_pseudo_table_t<Select, NamedExpr...>>
-		{
-			using T = select_pseudo_table_t<Select, NamedExpr...>;
-
-			static Context& _(const T& t, Context& context)
+	namespace vendor
+	{
+		template<typename Context, typename Select, typename... NamedExpr>
+			struct interpreter_t<Context, select_pseudo_table_t<Select, NamedExpr...>>
 			{
-				interpret(t._select, context);
-				return context;
-			}
-		};
-	
+				using T = select_pseudo_table_t<Select, NamedExpr...>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					interpret(t._select, context);
+					return context;
+				}
+			};
+
+	}
 }
 
 #endif

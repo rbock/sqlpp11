@@ -49,17 +49,20 @@ namespace sqlpp
 		~parameter_t() = default;
 	};
 
-	template<typename Context, typename ValueType, typename NameType>
-		struct vendor::interpreter_t<Context, parameter_t<ValueType, NameType>>
-		{
-			using T = parameter_t<ValueType, NameType>;
-
-			static Context& _(const T& t, Context& context)
+	namespace vendor
+	{
+		template<typename Context, typename ValueType, typename NameType>
+			struct interpreter_t<Context, parameter_t<ValueType, NameType>>
 			{
-				context << "?";
-				return context;
-			}
-		};
+				using T = parameter_t<ValueType, NameType>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					context << "?";
+					return context;
+				}
+			};
+	}
 
 	template<typename NamedExpr>
 		auto parameter(NamedExpr&& namedExpr)

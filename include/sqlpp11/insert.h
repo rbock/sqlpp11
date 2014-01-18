@@ -133,19 +133,22 @@ namespace sqlpp
 			InsertList _insert_list;
 		};
 
-	template<typename Context, typename Database, typename Table, typename InsertList>
-		struct vendor::interpreter_t<Context, insert_t<Database, Table, InsertList>>
-		{
-			using T = insert_t<Database, Table, InsertList>;
-
-			static Context& _(const T& t, Context& context)
+	namespace vendor
+	{
+		template<typename Context, typename Database, typename Table, typename InsertList>
+			struct interpreter_t<Context, insert_t<Database, Table, InsertList>>
 			{
-				context << "INSERT INTO ";
-				interpret(t._table, context);
-				interpret(t._insert_list, context);
-				return context;
-			}
-		};
+				using T = insert_t<Database, Table, InsertList>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					context << "INSERT INTO ";
+					interpret(t._table, context);
+					interpret(t._insert_list, context);
+					return context;
+				}
+			};
+	}
 
 	template<typename Table>
 		insert_t<void, typename std::decay<Table>::type> insert_into(Table&& table)
