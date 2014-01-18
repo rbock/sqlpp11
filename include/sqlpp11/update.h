@@ -140,7 +140,7 @@ namespace sqlpp
 				return _parameter_list_t::size::value;
 			}
 
-			size_t _get_no_of_parameters()
+			size_t _get_no_of_parameters() const
 			{
 				return _parameter_list_t::size::value; // FIXME: Need to add dynamic parameters here
 			}
@@ -154,7 +154,7 @@ namespace sqlpp
 				}
 
 			template<typename Db>
-				auto prepare(Db& db)
+				auto prepare(Db& db) const
 				-> prepared_update_t<typename std::decay<Db>::type, update_t>
 				{
 					static_assert(not vendor::is_noop<Assignments>::value, "calling set() required before running update");

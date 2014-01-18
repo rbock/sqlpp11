@@ -141,7 +141,7 @@ namespace sqlpp
 				return _parameter_list_t::size::value;
 			}
 
-			size_t _get_no_of_parameters()
+			size_t _get_no_of_parameters() const
 			{
 				return _parameter_list_t::size::value; // FIXME: Need to add dynamic parameters here
 			}
