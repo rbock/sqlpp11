@@ -24,18 +24,28 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_IN_H
-#define SQLPP_IN_H
+#ifndef SQLPP_EXPRESSION_FWD_H
+#define SQLPP_EXPRESSION_FWD_H
 
 namespace sqlpp
 {
-	// FIXME: Move to vendor namespace
-	namespace detail
+	namespace vendor
 	{
-		template<bool NotInverted, typename Operand, typename... Args>
-		struct in_t;
-	}
+		template<typename Lhs, typename Rhs>
+			struct assignment_t;
 
+		template<typename Lhs, typename Rhs>
+			struct equal_t;
+
+		template<typename Lhs, typename Rhs>
+			struct not_equal_t;
+
+		template<typename Lhs>
+			struct not_t;
+
+		template<typename Lhs, typename O, typename Rhs>
+			struct binary_expression_t;
+	}
 }
 
 #endif

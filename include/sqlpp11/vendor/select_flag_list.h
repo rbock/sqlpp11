@@ -30,9 +30,8 @@
 #include <sqlpp11/select_fwd.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/detail/set.h>
-#include <sqlpp11/detail/serialize_tuple.h>
+#include <sqlpp11/vendor/interpret_tuple.h>
 #include <tuple>
-#include <ostream>
 
 namespace sqlpp
 {
@@ -47,7 +46,7 @@ namespace sqlpp
 	static constexpr all_t all = {};
 
 	template<typename Context>
-		struct interpreter_t<Context, all_t>
+		struct vendor::interpreter_t<Context, all_t>
 		{
 			static Context& _(const all_t&, Context& context)
 			{
@@ -66,7 +65,7 @@ namespace sqlpp
 	static constexpr distinct_t distinct = {};
 
 	template<typename Context>
-		struct interpreter_t<Context, distinct_t>
+		struct vendor::interpreter_t<Context, distinct_t>
 		{
 			static Context& _(const distinct_t&, Context& context)
 			{
@@ -85,7 +84,7 @@ namespace sqlpp
 	static constexpr straight_join_t straight_join = {};
 
 	template<typename Context>
-		struct interpreter_t<Context, straight_join_t>
+		struct vendor::interpreter_t<Context, straight_join_t>
 		{
 			static Context& _(const straight_join_t&, Context& context)
 			{
@@ -94,36 +93,44 @@ namespace sqlpp
 			}
 		};
 
-	// select_flag_list_t
-	template<typename... Flag>
-		struct select_flag_list_t<std::tuple<Flag...>>
-		{
-			// check for duplicate order expressions
-			static_assert(not detail::has_duplicates<Flag...>::value, "at least one duplicate argument detected in select flag list");
-
-			// check for invalid order expressions
-			using _valid_flags = typename detail::make_set_if<is_select_flag_t, Flag...>::type;
-			static_assert(_valid_flags::size::value == sizeof...(Flag), "at least one argument is not a select flag in select flag list");
-
-			using _is_select_flag_list = std::true_type; 
-
-			std::tuple<Flag...> _flags;
-		};
-
-	template<typename Context, typename... Flag>
-		struct interpreter_t<Context, select_flag_list_t<std::tuple<Flag...>>>
-		{
-			using T = select_flag_list_t<std::tuple<Flag...>>;
-
-			static Context& _(const T& t, Context& context)
+	namespace vendor
+	{
+		template<typename T>
+			struct select_flag_list_t
 			{
-				interpret_tuple(t._flags, ' ', context);
-				if (sizeof...(Flag))
-					context << ' ';
-				return context;
-			}
-		};
+				static_assert(detail::wrong<T>::value, "invalid argument for select_flag_list");
+			};
 
+		// select_flag_list_t
+		template<typename... Flag>
+			struct select_flag_list_t<std::tuple<Flag...>>
+			{
+				// check for duplicate order expressions
+				static_assert(not detail::has_duplicates<Flag...>::value, "at least one duplicate argument detected in select flag list");
+
+				// check for invalid order expressions
+				using _valid_flags = typename detail::make_set_if<is_select_flag_t, Flag...>::type;
+				static_assert(_valid_flags::size::value == sizeof...(Flag), "at least one argument is not a select flag in select flag list");
+
+				using _is_select_flag_list = std::true_type; 
+
+				std::tuple<Flag...> _flags;
+			};
+
+		template<typename Context, typename... Flag>
+			struct interpreter_t<Context, select_flag_list_t<std::tuple<Flag...>>>
+			{
+				using T = select_flag_list_t<std::tuple<Flag...>>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					interpret_tuple(t._flags, ' ', context);
+					if (sizeof...(Flag))
+						context << ' ';
+					return context;
+				}
+			};
+	}
 
 }
 

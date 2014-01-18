@@ -24,63 +24,17 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_OFFSET_H
-#define SQLPP_OFFSET_H
-
-#include <ostream>
-#include <sqlpp11/select_fwd.h>
-#include <sqlpp11/type_traits.h>
+#ifndef SQLPP_NOOP_FWD_H
+#define SQLPP_NOOP_FWD_H
 
 namespace sqlpp
 {
-	template<typename Offset>
-		struct offset_t
-		{
-			using _is_offset = std::true_type;
-			static_assert(is_integral_t<Offset>::value, "offset requires an integral value or integral parameter");
-
-			Offset _offset;
-		};
-
-	template<typename Context, typename Offset>
-		struct interpreter_t<Context, offset_t<Offset>>
-		{
-			using T = offset_t<Offset>;
-
-			static Context& _(const T& t, Context& context)
-			{
-				context << " OFFSET ";
-			 	interpret(t._offset, context);
-				return context;
-			}
-		};
-
-	struct dynamic_offset_t
+	namespace vendor
 	{
-		using _is_offset = std::true_type;
-		using _is_dynamic = std::true_type;
+		struct noop;
 
-		void set(std::size_t offset)
-		{
-			_offset = offset;
-		}
-
-		std::size_t _offset;
-	};
-
-	template<typename Context>
-		struct interpreter_t<Context, dynamic_offset_t>
-		{
-			using T = dynamic_offset_t;
-
-			static Context& _(const T& t, Context& context)
-			{
-				if (t._offset > 0)
-					context << " OFFSET " << t._offset;
-				return context;
-			}
-		};
-
+		template<typename T>
+			struct is_noop;
+	}
 }
-
 #endif

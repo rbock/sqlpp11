@@ -24,68 +24,64 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_IS_NULL_H
-#define SQLPP_IS_NULL_H
+#ifndef SQLPP_OFFSET_H
+#define SQLPP_OFFSET_H
 
-#include <sqlpp11/boolean.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/detail/set.h>
 
 namespace sqlpp
 {
-	namespace detail
+	namespace vendor
 	{
-		template<bool NotInverted, typename Operand>
-		struct is_null_t: public boolean::template operators<is_null_t<NotInverted, Operand>>
-		{
-			static constexpr bool _inverted = not NotInverted;
-
-			struct _value_type: public boolean
+		template<typename Offset>
+			struct offset_t
 			{
-				using _is_named_expression = std::true_type;
+				using _is_offset = std::true_type;
+				static_assert(is_integral_t<Offset>::value, "offset requires an integral value or integral parameter");
+
+				Offset _offset;
 			};
 
-			struct _name_t
+		template<typename Context, typename Offset>
+			struct interpreter_t<Context, offset_t<Offset>>
 			{
-				static constexpr const char* _get_name() { return _inverted ? "IS NOT NULL" : "IS NULL"; }
-				template<typename T>
-					struct _member_t
-					{
-						T in;
-					};
+				using T = offset_t<Offset>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					context << " OFFSET ";
+					interpret(t._offset, context);
+					return context;
+				}
 			};
 
-			is_null_t(const Operand& operand):
-				_operand(operand)
-			{}
-
-			is_null_t(Operand&& operand):
-				_operand(std::move(operand))
-			{}
-
-			is_null_t(const is_null_t&) = default;
-			is_null_t(is_null_t&&) = default;
-			is_null_t& operator=(const is_null_t&) = default;
-			is_null_t& operator=(is_null_t&&) = default;
-			~is_null_t() = default;
-
-			Operand _operand;
-		};
-	}
-
-	template<typename Context, bool NotInverted, typename Operand>
-		struct interpreter_t<Context, detail::is_null_t<NotInverted, Operand>>
+		struct dynamic_offset_t
 		{
-			using T = detail::is_null_t<NotInverted, Operand>;
+			using _is_offset = std::true_type;
+			using _is_dynamic = std::true_type;
 
-			static Context& _(const T& t, Context& context)
+			void set(std::size_t offset)
 			{
-				interpret(t._operand, context);
-				context << (t._inverted ? " IS NOT NULL" : " IS NULL");
-				return context;
+				_offset = offset;
 			}
+
+			std::size_t _offset;
 		};
 
+		template<typename Context>
+			struct interpreter_t<Context, dynamic_offset_t>
+			{
+				using T = dynamic_offset_t;
+
+				static Context& _(const T& t, Context& context)
+				{
+					if (t._offset > 0)
+						context << " OFFSET " << t._offset;
+					return context;
+				}
+			};
+
+	}
 }
 
 #endif

@@ -33,23 +33,23 @@
 
 namespace sqlpp
 {
-	namespace detail
+	namespace vendor
 	{
 		template<typename Db>
-			struct named_serializable_t
+			struct named_interpretable_t
 			{
 				using _context_t = typename Db::context;
 
 				template<typename T>
-					named_serializable_t(T t):
+					named_interpretable_t(T t):
 						_impl(std::make_shared<_impl_t<typename std::decay<T>::type>>(t))
 				{}
 
-				named_serializable_t(const named_serializable_t&) = default;
-				named_serializable_t(named_serializable_t&&) = default;
-				named_serializable_t& operator=(const named_serializable_t&) = default;
-				named_serializable_t& operator=(named_serializable_t&&) = default;
-				~named_serializable_t() = default;
+				named_interpretable_t(const named_interpretable_t&) = default;
+				named_interpretable_t(named_interpretable_t&&) = default;
+				named_interpretable_t& operator=(const named_interpretable_t&) = default;
+				named_interpretable_t& operator=(named_interpretable_t&&) = default;
+				~named_interpretable_t() = default;
 
 				sqlpp::serializer& interpret(sqlpp::serializer& context) const
 				{
@@ -108,19 +108,19 @@ namespace sqlpp
 
 				std::shared_ptr<const _impl_base> _impl;
 			};
-	}
 
-	template<typename Context, typename Database>
-		struct interpreter_t<Context, detail::named_serializable_t<Database>>
-		{
-			using T = detail::named_serializable_t<Database>;
-
-			static Context& _(const T& t, Context& context)
+		template<typename Context, typename Database>
+			struct interpreter_t<Context, named_interpretable_t<Database>>
 			{
-				t.interpret(context);
-				return context;
-			}
-		};
+				using T = named_interpretable_t<Database>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					t.interpret(context);
+					return context;
+				}
+			};
+	}
 
 }
 

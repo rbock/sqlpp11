@@ -30,16 +30,16 @@
 // TVIN: Trivial value is NULL
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/interpreter.h>
+#include <sqlpp11/vendor/interpreter.h>
 
 namespace sqlpp
 {
 	template<typename T>
 		struct tvin_t
 		{
-			using _wrapped_t = typename wrap_operand<T>::type;
-			static_assert(not std::is_same<_wrapped_t, T>::value, "tvin() used with invalid type (only string and primitive types allowed)");
-			using _value_type = typename _wrapped_t::_value_type;
+			using _operand_t = typename vendor::wrap_operand<T>::type;
+			static_assert(not std::is_same<_operand_t, T>::value, "tvin() used with invalid type (only string and primitive types allowed)");
+			using _value_type = typename _operand_t::_value_type;
 
 			tvin_t(T t): 
 				_value({t})
@@ -50,11 +50,11 @@ namespace sqlpp
 			tvin_t& operator=(tvin_t&&) = default;
 			~tvin_t() = default;
 
-			_wrapped_t _value;
+			_operand_t _value;
 		};
 
 	template<typename Context, typename Type>
-		struct interpreter_t<Context, tvin_t<Type>>
+		struct vendor::interpreter_t<Context, tvin_t<Type>>
 		{
 			using T = tvin_t<Type>;
 
@@ -101,11 +101,11 @@ namespace sqlpp
 			tvin_wrap_t& operator=(tvin_wrap_t&&) = default;
 			~tvin_wrap_t() = default;
 
-			typename tvin_t<T>::_wrapped_t _value;
+			typename tvin_t<T>::_operand_t _value;
 		};
 
 	template<typename Context, typename Type>
-		struct interpreter_t<Context, tvin_wrap_t<Type>>
+		struct vendor::interpreter_t<Context, tvin_wrap_t<Type>>
 		{
 			using T = tvin_wrap_t<Type>;
 

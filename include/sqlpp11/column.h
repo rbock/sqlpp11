@@ -27,14 +27,13 @@
 #ifndef SQLPP_COLUMN_H
 #define SQLPP_COLUMN_H
 
-#include <ostream>
-#include <sqlpp11/column_fwd.h>
-#include <sqlpp11/expression.h>
 #include <sqlpp11/alias.h>
-#include <sqlpp11/detail/wrong.h>
-#include <sqlpp11/type_traits.h>
+#include <sqlpp11/column_fwd.h>
 #include <sqlpp11/sort_order.h>
-#include <sqlpp11/interpreter.h>
+#include <sqlpp11/type_traits.h>
+#include <sqlpp11/vendor/interpreter.h>
+#include <sqlpp11/vendor/expression.h>
+#include <sqlpp11/detail/wrong.h>
 
 namespace sqlpp
 {
@@ -73,14 +72,14 @@ namespace sqlpp
 		template<typename T>
 			auto operator =(T&& t) const
 			-> typename std::enable_if<not std::is_same<column_t, typename std::decay<T>::type>::value, 
-			     assignment_t<column_t, typename _value_type::template _constraint<T>::type>>::type
+			     vendor::assignment_t<column_t, typename _value_type::template _constraint<T>::type>>::type
 			{
 				return { *this, {std::forward<T>(t)} };
 			}
 	};
 
 	template<typename Context, typename... Args>
-		struct interpreter_t<Context, column_t<Args...>>
+		struct vendor::interpreter_t<Context, column_t<Args...>>
 		{
 			using T = column_t<Args...>;
 

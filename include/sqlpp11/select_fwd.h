@@ -27,7 +27,8 @@
 #ifndef SQLPP_SELECT_FWD_H
 #define SQLPP_SELECT_FWD_H
 
-#include <sqlpp11/noop_fwd.h>
+// FIXME: Do we really need this file?
+#include <sqlpp11/vendor/noop_fwd.h>
 #include <type_traits>
 
 namespace sqlpp
@@ -37,36 +38,17 @@ namespace sqlpp
 	struct distinct_t;
 	struct straight_join_t;
 
-	template<typename FlagTuple> struct select_flag_list_t;
-	template<typename Database, typename NamedExprTuple> struct select_expression_list_t;
-
-	template<typename Database, typename... TableOrJoin>	struct from_t;
-
-	template<typename Database, typename... Expr>	struct where_t;
-
-	template<typename Database, typename... Expr> struct group_by_t;
-
-	template<typename Database, typename... Expr> struct having_t;
-
-	template<typename Database, typename... Expr> struct order_by_t;
-
-	template<typename Limit>
-	struct limit_t;
-
-	template<typename Offset>
-	struct offset_t;
-
 	template<
 		typename Db,
-		typename Flags = noop,
-		typename ExpressionList = noop,
-		typename From = noop,
-		typename Where = noop,
-		typename GroupBy = noop,
-		typename Having = noop,
-		typename OrderBy = noop,
-		typename Limit = noop,
-		typename Offset = noop
+		typename Flags = vendor::noop,
+		typename ExpressionList = vendor::noop,
+		typename From = vendor::noop,
+		typename Where = vendor::noop,
+		typename GroupBy = vendor::noop,
+		typename Having = vendor::noop,
+		typename OrderBy = vendor::noop,
+		typename Limit = vendor::noop,
+		typename Offset = vendor::noop
 			>
 		struct select_t;
 }

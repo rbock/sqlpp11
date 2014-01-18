@@ -24,22 +24,20 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SERIALIZABLE_LIST_H
-#define SQLPP_SERIALIZABLE_LIST_H
+#ifndef SQLPP_INTERPRETABLE_LIST_H
+#define SQLPP_INTERPRETABLE_LIST_H
 
 #include <vector>
-#include <sqlpp11/detail/serializable.h>
+#include <sqlpp11/vendor/interpretable.h>
 
-// FIXME: Needs to leave detail namespace
-// FIXME: serializable is not a very good name any more...
 namespace sqlpp
 {
-	namespace detail
+	namespace vendor
 	{
 		template<typename Db>
-			struct serializable_list
+			struct interpretable_list_t
 			{
-				std::vector<detail::serializable_t<Db>> _serializables;
+				std::vector<interpretable_t<Db>> _serializables;
 
 				std::size_t size() const
 				{
@@ -60,7 +58,7 @@ namespace sqlpp
 			};
 
 		template<>
-			struct serializable_list<void>
+			struct interpretable_list_t<void>
 			{
 				template<typename T>
 					void emplace_back(const T&) {}
@@ -77,49 +75,48 @@ namespace sqlpp
 
 			};
 
-	}
-
-	template<typename Context, typename List>
-		struct serializable_list_interpreter_t
-		{
-			using T = List;
-
-			template<typename Separator>
-			static Context& _(const T& t, const Separator& separator, Context& context)
+		template<typename Context, typename List>
+			struct serializable_list_interpreter_t
 			{
-				bool first = true;
-				for (const auto entry : t._serializables)
-				{
-					if (not first)
+				using T = List;
+
+				template<typename Separator>
+					static Context& _(const T& t, const Separator& separator, Context& context)
 					{
-						context << separator;
-						first = false;
+						bool first = true;
+						for (const auto entry : t._serializables)
+						{
+							if (not first)
+							{
+								context << separator;
+								first = false;
+							}
+							interpret(t, context);
+						}
+						return context;
 					}
-					interpret(t, context);
-				}
-				return context;
-			}
-		};
+			};
 
-	template<typename Context>
-		struct serializable_list_interpreter_t<Context, detail::serializable_list<void>>
-		{
-			using T = detail::serializable_list<void>;
-
-			template<typename Separator>
-			static Context& _(const T& t, const Separator& separator, Context& context)
+		template<typename Context>
+			struct serializable_list_interpreter_t<Context, interpretable_list_t<void>>
 			{
-				return context;
+				using T = interpretable_list_t<void>;
+
+				template<typename Separator>
+					static Context& _(const T& t, const Separator& separator, Context& context)
+					{
+						return context;
+					}
+			};
+
+		template<typename T, typename Separator, typename Context>
+			auto interpret_list(const T& t, const Separator& separator, Context& context)
+			-> decltype(serializable_list_interpreter_t<typename std::decay<Context>::type, typename std::decay<T>::type>::_(t, separator, context))
+			{
+				return serializable_list_interpreter_t<typename std::decay<Context>::type, typename std::decay<T>::type>::_(t, separator, context);
 			}
-		};
 
-	template<typename T, typename Separator, typename Context>
-		auto interpret_serializable_list(const T& t, const Separator& separator, Context& context)
-		-> decltype(serializable_list_interpreter_t<typename std::decay<Context>::type, typename std::decay<T>::type>::_(t, separator, context))
-		{
-			return serializable_list_interpreter_t<typename std::decay<Context>::type, typename std::decay<T>::type>::_(t, separator, context);
-		}
-
+	}
 }
 
 #endif

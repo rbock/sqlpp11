@@ -24,30 +24,25 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_NOOP_H
-#define SQLPP_NOOP_H
+#ifndef SQLPP_VENDOR_INTERPRET_H
+#define SQLPP_VENDOR_INTERPRET_H
 
-#include <type_traits>
+#include <sqlpp11/detail/wrong.h>
 
 namespace sqlpp
 {
-	struct noop 
+	namespace vendor
 	{
-	};
-
-	template<typename Context>
-		struct interpreter_t<Context, noop>
-		{
-			using T = noop;
-
-			static Context& _(const T& t, Context& context)
+		template<typename Context, typename T, typename Enable = void>
+			struct interpreter_t
 			{
-				return context;
-			}
-		};
-
-	template<typename T>
-	struct is_noop: std::is_same<T, noop> {};
+				static void _(const T& t, Context& context)
+				{
+					static_assert(detail::wrong<Context, T>::value, "missing interpreter specialization");
+				}
+			};
+	}
 
 }
+
 #endif

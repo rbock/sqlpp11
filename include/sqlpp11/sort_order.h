@@ -44,7 +44,7 @@ namespace sqlpp
 		};
 
 	template<typename Context, typename Expression, sort_type SortType>
-		struct interpreter_t<Context, sort_order_t<Expression, SortType>>
+		struct vendor::interpreter_t<Context, sort_order_t<Expression, SortType>>
 		{
 			using T = sort_order_t<Expression, SortType>;
 

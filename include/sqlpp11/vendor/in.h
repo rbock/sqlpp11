@@ -24,74 +24,73 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SUM_H
-#define SQLPP_SUM_H
+#ifndef SQLPP_IN_H
+#define SQLPP_IN_H
 
-#include <sstream>
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/boolean.h>
+#include <sqlpp11/vendor/in_fwd.h>
+#include <sqlpp11/detail/set.h>
 
 namespace sqlpp
 {
 	namespace vendor
 	{
-		template<typename Expr>
-		struct sum_t: public boolean::template operators<sum_t<Expr>>
+		template<bool NotInverted, typename Operand, typename... Args>
+			struct in_t: public boolean::template operators<in_t<NotInverted, Operand, Args...>>
 		{
-			static_assert(is_numeric_t<Expr>::value, "sum() requires a numeric expression as argument");
+			static constexpr bool _inverted = not NotInverted;
+			static_assert(sizeof...(Args) > 0, "in() requires at least one argument");
 
-			struct _value_type: public Expr::_value_type::_base_value_type
+			struct _value_type: public boolean
 			{
 				using _is_named_expression = std::true_type;
 			};
 
 			struct _name_t
 			{
-				static constexpr const char* _get_name() { return "SUM"; }
+				static constexpr const char* _get_name() { return _inverted ? "NOT IN" : "IN"; }
 				template<typename T>
 					struct _member_t
 					{
-						T sum;
-						T& operator()() { return sum; }
-						const T& operator()() const { return sum; }
+						T in;
 					};
 			};
 
-			sum_t(Expr&& expr):
-				_expr(std::move(expr))
+			in_t(const Operand& operand, const Args&... args):
+				_operand(operand),
+				_args(args...)
 			{}
 
-			sum_t(const Expr& expr):
-				_expr(expr)
+			in_t(Operand&& operand, Args&&... args):
+				_operand(std::move(operand)),
+				_args(std::move(args...))
 			{}
 
-			sum_t(const sum_t&) = default;
-			sum_t(sum_t&&) = default;
-			sum_t& operator=(const sum_t&) = default;
-			sum_t& operator=(sum_t&&) = default;
-			~sum_t() = default;
+			in_t(const in_t&) = default;
+			in_t(in_t&&) = default;
+			in_t& operator=(const in_t&) = default;
+			in_t& operator=(in_t&&) = default;
+			~in_t() = default;
 
-			Expr _expr;
+			Operand _operand;
+			std::tuple<Args...> _args;
 		};
-	}
 
-	template<typename Context, typename Expr>
-		struct vendor::interpreter_t<Context, vendor::sum_t<Expr>>
-		{
-			using T = vendor::sum_t<Expr>;
-
-			static Context& _(const T& t, Context& context)
+		template<typename Context, bool NotInverted, typename Operand, typename... Args>
+			struct interpreter_t<Context, vendor::in_t<NotInverted, Operand, Args...>>
 			{
-				context << "SUM(";
-				interpret(t._expr, context);
-				context << ")";
-				return context;
-			}
-		};
+				using T = vendor::in_t<NotInverted, Operand, Args...>;
 
-	template<typename T>
-	auto sum(T&& t) -> typename vendor::sum_t<typename operand_t<T, is_value_t>::type>
-	{
-		return { std::forward<T>(t) };
+				static Context& _(const T& t, Context& context)
+				{
+					interpret(t._operand, context);
+					context << (t._inverted ? " NOT IN(" : " IN(");
+					interpret_tuple(t._args, ',', context);
+					context << ')';
+					return context;
+				}
+			};
 	}
 
 }

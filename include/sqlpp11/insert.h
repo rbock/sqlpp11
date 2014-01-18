@@ -27,37 +27,28 @@
 #ifndef SQLPP_INSERT_H
 #define SQLPP_INSERT_H
 
-#include <sstream>
-#include <sqlpp11/noop.h>
-#include <sqlpp11/select_fwd.h>
-#include <sqlpp11/insert_list.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/parameter_list.h>
 #include <sqlpp11/prepared_insert.h>
+#include <sqlpp11/vendor/noop.h>
+#include <sqlpp11/vendor/insert_list.h>
+#include <sqlpp11/parameter_list.h>
 
 namespace sqlpp
 {
 
 	template<
 		typename Database = void,
-		typename Table = noop,
-		typename InsertList = noop
-		>
-	struct insert_t;
-
-	template<
-		typename Database,
-		typename Table,
-		typename InsertList
+		typename Table = vendor::noop,
+		typename InsertList = vendor::noop
 		>
 		struct insert_t
 		{
-			static_assert(is_noop<Table>::value or is_table_t<Table>::value, "invalid 'Table' argument");
-			static_assert(is_noop<InsertList>::value or is_insert_list_t<InsertList>::value, "invalid 'InsertList' argument");
+			static_assert(vendor::is_noop<Table>::value or is_table_t<Table>::value, "invalid 'Table' argument");
+			static_assert(vendor::is_noop<InsertList>::value or is_insert_list_t<InsertList>::value, "invalid 'InsertList' argument");
 
 			template<typename AssignmentT> 
 				using set_insert_list_t = insert_t<Database, Table, AssignmentT>;
-			using use_default_values_t = insert_t<Database, Table, insert_default_values_t>;
+			using use_default_values_t = insert_t<Database, Table, vendor::insert_default_values_t>;
 
 			using _parameter_tuple_t = std::tuple<Table, InsertList>;
 			using _parameter_list_t = typename make_parameter_list_t<insert_t>::type;
@@ -65,7 +56,7 @@ namespace sqlpp
 			auto default_values()
 				-> use_default_values_t
 				{
-					static_assert(std::is_same<InsertList, noop>::value, "cannot call default_values() after set() or default_values()");
+					static_assert(std::is_same<InsertList, vendor::noop>::value, "cannot call default_values() after set() or default_values()");
 					// FIXME:  Need to check if all required columns are set
 					return {
 							_table,
@@ -75,24 +66,24 @@ namespace sqlpp
 
 			template<typename... Assignment>
 				auto set(Assignment&&... assignment)
-				-> set_insert_list_t<insert_list_t<void, typename std::decay<Assignment>::type...>>
+				-> set_insert_list_t<vendor::insert_list_t<void, typename std::decay<Assignment>::type...>>
 				{
-					static_assert(std::is_same<InsertList, noop>::value, "cannot call set() after set() or default_values()");
+					static_assert(std::is_same<InsertList, vendor::noop>::value, "cannot call set() after set() or default_values()");
 					// FIXME:  Need to check if all required columns are set
 					return {
 							_table,
-							insert_list_t<void, typename std::decay<Assignment>::type...>{std::forward<Assignment>(assignment)...},
+							vendor::insert_list_t<void, typename std::decay<Assignment>::type...>{std::forward<Assignment>(assignment)...},
 					};
 				}
 
 			template<typename... Assignment>
 				auto dynamic_set(Assignment&&... assignment)
-				-> set_insert_list_t<insert_list_t<Database, typename std::decay<Assignment>::type...>>
+				-> set_insert_list_t<vendor::insert_list_t<Database, typename std::decay<Assignment>::type...>>
 				{
-					static_assert(std::is_same<InsertList, noop>::value, "cannot call set() after set() or default_values()");
+					static_assert(std::is_same<InsertList, vendor::noop>::value, "cannot call set() after set() or default_values()");
 					return {
 							_table,
-							insert_list_t<Database, typename std::decay<Assignment>::type...>{std::forward<Assignment>(assignment)...},
+							vendor::insert_list_t<Database, typename std::decay<Assignment>::type...>{std::forward<Assignment>(assignment)...},
 					};
 				}
 
@@ -120,7 +111,7 @@ namespace sqlpp
 				std::size_t run(Db& db) const
 				{
 					// FIXME: check if set or default_values() has ben called
-					constexpr bool calledSet = not is_noop<InsertList>::value;
+					constexpr bool calledSet = not vendor::is_noop<InsertList>::value;
 					constexpr bool requireSet = Table::_required_insert_columns::size::value > 0;
 					static_assert(calledSet or not requireSet, "calling set() required for given table");
 					static_assert(_get_static_no_of_parameters() == 0, "cannot run insert directly with parameters, use prepare instead");
@@ -131,7 +122,7 @@ namespace sqlpp
 				auto prepare(Db& db) const
 				-> prepared_insert_t<typename std::decay<Db>::type, insert_t>
 				{
-					constexpr bool calledSet = not is_noop<InsertList>::value;
+					constexpr bool calledSet = not vendor::is_noop<InsertList>::value;
 					constexpr bool requireSet = Table::_required_insert_columns::size::value > 0;
 					static_assert(calledSet or not requireSet, "calling set() required for given table");
 
@@ -143,7 +134,7 @@ namespace sqlpp
 		};
 
 	template<typename Context, typename Database, typename Table, typename InsertList>
-		struct interpreter_t<Context, insert_t<Database, Table, InsertList>>
+		struct vendor::interpreter_t<Context, insert_t<Database, Table, InsertList>>
 		{
 			using T = insert_t<Database, Table, InsertList>;
 

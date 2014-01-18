@@ -24,14 +24,46 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_NOOP_FWD_H
-#define SQLPP_NOOP_FWD_H
+#ifndef SQLPP_FIELD_H
+#define SQLPP_FIELD_H
+
+#include <sqlpp11/multi_column.h>
 
 namespace sqlpp
 {
-	struct noop;
+	namespace vendor
+	{
+		template<typename NameType, typename ValueType>
+			struct field_t
+			{ 
+				using _name_t = NameType;
+				using _value_type = ValueType;
+			};
 
-	template<typename T>
-	struct is_noop;
+		template<typename AliasProvider, typename FieldTuple>
+			struct multi_field_t
+			{
+			};
+
+		namespace detail
+		{
+			template<typename NamedExpr>
+				struct make_field_t_impl
+				{
+					using type = field_t<typename NamedExpr::_name_t, typename NamedExpr::_value_type::_base_value_type>;
+				};
+
+			template<typename AliasProvider, typename... NamedExpr>
+				struct make_field_t_impl<multi_column_t<AliasProvider, std::tuple<NamedExpr...>>>
+				{
+					using type = multi_field_t<AliasProvider, std::tuple<typename make_field_t_impl<NamedExpr>::type...>>;
+				};
+		}
+
+		template<typename NamedExpr>
+			using make_field_t = typename detail::make_field_t_impl<NamedExpr>::type;
+	}
+
 }
+
 #endif

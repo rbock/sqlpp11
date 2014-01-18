@@ -28,9 +28,8 @@
 #define SQLPP_FLOATING_POINT_H
 
 #include <cstdlib>
-#include <sqlpp11/detail/basic_operators.h>
+#include <sqlpp11/basic_operators.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/char_result_row.h> // FIXME: Need to update floating_point
 #include <sqlpp11/exception.h>
 
 namespace sqlpp
@@ -193,28 +192,28 @@ namespace sqlpp
 				struct operators: public basic_operators<Base, _constraint>
 			{
 				template<typename T>
-					binary_expression_t<Base, plus_, typename _constraint<T>::type> operator +(T&& t) const
+					vendor::binary_expression_t<Base, plus_, typename _constraint<T>::type> operator +(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 						return { *static_cast<const Base*>(this), std::forward<T>(t) };
 					}
 
 				template<typename T>
-					binary_expression_t<Base, minus_, typename _constraint<T>::type> operator -(T&& t) const
+					vendor::binary_expression_t<Base, minus_, typename _constraint<T>::type> operator -(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 						return { *static_cast<const Base*>(this), std::forward<T>(t) };
 					}
 
 				template<typename T>
-					binary_expression_t<Base, multiplies_, typename _constraint<T>::type> operator *(T&& t) const
+					vendor::binary_expression_t<Base, multiplies_, typename _constraint<T>::type> operator *(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 						return { *static_cast<const Base*>(this), std::forward<T>(t) };
 					}
 
 				template<typename T>
-					binary_expression_t<Base, divides_, typename _constraint<T>::type> operator /(T&& t) const
+					vendor::binary_expression_t<Base, divides_, typename _constraint<T>::type> operator /(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 						return { *static_cast<const Base*>(this), std::forward<T>(t) };

@@ -25,6 +25,7 @@
 
 #include "TabSample.h"
 #include "MockDb.h"
+#include <sqlpp11/alias_provider.h>
 #include <sqlpp11/insert.h>
 #include <sqlpp11/select.h>
 #include <sqlpp11/update.h>
@@ -35,7 +36,7 @@
 
 DbMock db = {};
 DbMock::context printer(std::cerr);
-SQLPP_ALIAS_PROVIDER_GENERATOR(kaesekuchen);
+SQLPP_ALIAS_PROVIDER(kaesekuchen);
 
 int main()
 {
@@ -61,6 +62,7 @@ int main()
 
 	interpret(parameter(t.alpha), printer).flush();
 	interpret(t.alpha == parameter(t.alpha), printer).flush();
+	interpret(t.alpha == parameter(t.alpha) and (t.beta + "gimmick").like(parameter(t.beta)), printer).flush();
 
 	interpret(insert_into(t), printer).flush();
 	interpret(insert_into(t).default_values(), printer).flush();
@@ -76,7 +78,7 @@ int main()
 	interpret(remove_from(t).using_(t).where(t.alpha == sqlpp::tvin(0)), printer).flush();
 
 	// functions
-	interpret(sqlpp::value(7), printer).flush();
+	sqlpp::interpret(sqlpp::value(7), printer).flush(); // FIXME: Why is the namespace specifier required?
 	interpret(sqlpp::verbatim<sqlpp::detail::integral>("irgendwas integrales"), printer).flush();
 	interpret(sqlpp::value_list(std::vector<int>({1,2,3,4,5,6,8})), printer).flush();
 	interpret(exists(select(t.alpha).from(t)), printer).flush();
@@ -106,7 +108,6 @@ int main()
 
 	// dynamic select
 	interpret(dynamic_select(db, t.alpha).dynamic_columns().add_column(t.beta), printer).flush();
-
 
 	return 0;
 }

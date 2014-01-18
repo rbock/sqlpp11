@@ -32,7 +32,7 @@
 
 namespace sqlpp
 {
-	namespace detail
+	namespace vendor
 	{
 		template<typename Expr>
 		struct avg_t: public floating_point::template operators<avg_t<Expr>>
@@ -75,9 +75,9 @@ namespace sqlpp
 	}
 
 	template<typename Context, typename Expr>
-		struct interpreter_t<Context, detail::avg_t<Expr>>
+		struct vendor::interpreter_t<Context, vendor::avg_t<Expr>>
 		{
-			using T = detail::avg_t<Expr>;
+			using T = vendor::avg_t<Expr>;
 
 			static Context& _(const T& t, Context& context)
 			{
@@ -89,7 +89,7 @@ namespace sqlpp
 		};
 
 	template<typename T>
-	auto avg(T&& t) -> typename detail::avg_t<typename operand_t<T, is_value_t>::type>
+	auto avg(T&& t) -> typename vendor::avg_t<typename operand_t<T, is_value_t>::type>
 	{
 		return { std::forward<T>(t) };
 	}

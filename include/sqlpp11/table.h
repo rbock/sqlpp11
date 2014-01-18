@@ -27,12 +27,12 @@
 #ifndef SQLPP_TABLE_H
 #define SQLPP_TABLE_H
 
+#include <sqlpp11/type_traits.h>
 #include <sqlpp11/table_alias.h>
-#include <sqlpp11/no_value.h>
 #include <sqlpp11/column.h>
 #include <sqlpp11/detail/set.h>
-#include <sqlpp11/type_traits.h>
 #include <sqlpp11/join.h>
+#include <sqlpp11/no_value.h>
 
 namespace sqlpp
 {
@@ -100,7 +100,7 @@ namespace sqlpp
 	}
 
 	template<typename Context, typename X>
-		struct interpreter_t<Context, X, typename std::enable_if<std::is_base_of<table_base_t, X>::value and not is_pseudo_table_t<X>::value, void>::type>
+		struct vendor::interpreter_t<Context, X, typename std::enable_if<std::is_base_of<table_base_t, X>::value and not is_pseudo_table_t<X>::value, void>::type>
 		{
 			using T = X;
 

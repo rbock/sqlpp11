@@ -24,16 +24,34 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_IS_NULL_FWD_H
-#define SQLPP_IS_NULL_FWD_H
+#ifndef SQLPP_NOOP_H
+#define SQLPP_NOOP_H
+
+#include <type_traits>
+#include <sqlpp11/vendor/noop_fwd.h>
 
 namespace sqlpp
 {
-	namespace detail
+	namespace vendor
 	{
-		template<bool NotInverted, typename Operand>
-		struct is_null_t;
-	}
-}
+		struct noop 
+		{
+		};
 
+		template<typename Context>
+			struct interpreter_t<Context, noop>
+			{
+				using T = noop;
+
+				static Context& _(const T& t, Context& context)
+				{
+					return context;
+				}
+			};
+
+		template<typename T>
+			struct is_noop: std::is_same<T, noop> {};
+	}
+
+}
 #endif

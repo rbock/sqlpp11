@@ -24,24 +24,22 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_IN_FWD_H
-#define SQLPP_IN_FWD_H
+#ifndef SQLPP_LIKE_H
+#define SQLPP_LIKE_H
 
-#include <sqlpp11/in_fwd.h>
-#include <sqlpp11/type_traits.h>
 #include <sqlpp11/boolean.h>
+#include <sqlpp11/type_traits.h>
 #include <sqlpp11/detail/set.h>
 
 namespace sqlpp
 {
-	// FIXME: Move to vendor namespace
-	namespace detail
+	namespace vendor
 	{
-		template<bool NotInverted, typename Operand, typename... Args>
-		struct in_t: public boolean::template operators<in_t<NotInverted, Operand, Args...>>
+		template<typename Operand, typename Pattern>
+			struct like_t: public boolean::template operators<like_t<Operand, Pattern>>
 		{
-			static constexpr bool _inverted = not NotInverted;
-			static_assert(sizeof...(Args) > 0, "in() requires at least one argument");
+			static_assert(is_text_t<Operand>::value, "Operand for like() has to be a text");
+			static_assert(is_text_t<Pattern>::value, "Pattern for like() has to be a text");
 
 			struct _value_type: public boolean
 			{
@@ -50,50 +48,49 @@ namespace sqlpp
 
 			struct _name_t
 			{
-				static constexpr const char* _get_name() { return _inverted ? "NOT IN" : "IN"; }
+				static constexpr const char* _get_name() { return "LIKE"; }
 				template<typename T>
 					struct _member_t
 					{
-						T in;
+						T like;
 					};
 			};
 
-			in_t(const Operand& operand, const Args&... args):
-				_operand(operand),
-				_args(args...)
-			{}
-
-			in_t(Operand&& operand, Args&&... args):
+			like_t(Operand&& operand, Pattern&& pattern):
 				_operand(std::move(operand)),
-				_args(std::move(args...))
+				_pattern(std::move(pattern))
 			{}
 
-			in_t(const in_t&) = default;
-			in_t(in_t&&) = default;
-			in_t& operator=(const in_t&) = default;
-			in_t& operator=(in_t&&) = default;
-			~in_t() = default;
+			like_t(const Operand& operand, const Pattern& pattern):
+				_operand(operand),
+				_pattern(pattern)
+			{}
+
+			like_t(const like_t&) = default;
+			like_t(like_t&&) = default;
+			like_t& operator=(const like_t&) = default;
+			like_t& operator=(like_t&&) = default;
+			~like_t() = default;
 
 			Operand _operand;
-			std::tuple<Args...> _args;
+			Pattern _pattern;
 		};
-	}
 
-	template<typename Context, bool NotInverted, typename Operand, typename... Args>
-		struct interpreter_t<Context, detail::in_t<NotInverted, Operand, Args...>>
-		{
-			using T = detail::in_t<NotInverted, Operand, Args...>;
-
-			static Context& _(const T& t, Context& context)
+		template<typename Context, typename Operand, typename Pattern>
+			struct interpreter_t<Context, like_t<Operand, Pattern>>
 			{
-				interpret(t._operand, context);
-				context << (t._inverted ? " NOT IN(" : " IN(");
-				interpret_tuple(t._args, ',', context);
-				context << ')';
-				return context;
-			}
-		};
+				using T = like_t<Operand, Pattern>;
 
+				static Context& _(const T& t, Context& context)
+				{
+					interpret(t._operand, context);
+					context << " LIKE(";
+					interpret(t._pattern, context);
+					context << ")";
+					return context;
+				}
+			};
+	}
 }
 
 #endif

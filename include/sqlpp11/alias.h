@@ -30,71 +30,23 @@
 #include <sqlpp11/type_traits.h>
 namespace sqlpp
 {
-	namespace alias
-	{
-#define SQLPP_ALIAS_PROVIDER_GENERATOR(name) \
-		struct name##_t\
-		{\
-			struct _name_t\
-			{\
-				static constexpr const char* _get_name() { return #name; }\
-				template<typename T>\
-				struct _member_t\
-				{\
-					T name;\
-					T& operator()() { return name; }\
-					const T& operator()() const { return name; }\
-				};\
-			};\
-		};\
-		constexpr name##_t name = {};
-
-		SQLPP_ALIAS_PROVIDER_GENERATOR(a);
-		SQLPP_ALIAS_PROVIDER_GENERATOR(b);
-		SQLPP_ALIAS_PROVIDER_GENERATOR(c);
-		SQLPP_ALIAS_PROVIDER_GENERATOR(d);
-		SQLPP_ALIAS_PROVIDER_GENERATOR(e);
-		SQLPP_ALIAS_PROVIDER_GENERATOR(f);
-		SQLPP_ALIAS_PROVIDER_GENERATOR(g);
-		SQLPP_ALIAS_PROVIDER_GENERATOR(h);
-		SQLPP_ALIAS_PROVIDER_GENERATOR(i);
-		SQLPP_ALIAS_PROVIDER_GENERATOR(j);
-		SQLPP_ALIAS_PROVIDER_GENERATOR(k);
-		SQLPP_ALIAS_PROVIDER_GENERATOR(l);
-		SQLPP_ALIAS_PROVIDER_GENERATOR(m);
-		SQLPP_ALIAS_PROVIDER_GENERATOR(n);
-		SQLPP_ALIAS_PROVIDER_GENERATOR(o);
-		SQLPP_ALIAS_PROVIDER_GENERATOR(p);
-		SQLPP_ALIAS_PROVIDER_GENERATOR(q);
-		SQLPP_ALIAS_PROVIDER_GENERATOR(s);
-		SQLPP_ALIAS_PROVIDER_GENERATOR(t);
-		SQLPP_ALIAS_PROVIDER_GENERATOR(u);
-		SQLPP_ALIAS_PROVIDER_GENERATOR(v);
-		SQLPP_ALIAS_PROVIDER_GENERATOR(w);
-		SQLPP_ALIAS_PROVIDER_GENERATOR(x);
-		SQLPP_ALIAS_PROVIDER_GENERATOR(y);
-		SQLPP_ALIAS_PROVIDER_GENERATOR(z);
-		SQLPP_ALIAS_PROVIDER_GENERATOR(left);
-		SQLPP_ALIAS_PROVIDER_GENERATOR(right);
-	};
-
 	template<typename Expression, typename AliasProvider>
 		struct expression_alias_t
-	{
-		struct _value_type: Expression::_value_type
 		{
-			using _is_expression = std::false_type;
-			using _is_named_expression = std::true_type;
-			using _is_alias = std::true_type;
+			struct _value_type: Expression::_value_type
+			{
+				using _is_expression = std::false_type;
+				using _is_named_expression = std::true_type;
+				using _is_alias = std::true_type;
+			};
+
+			using _name_t = typename AliasProvider::_name_t;
+
+			Expression _expression;
 		};
 
-		using _name_t = typename AliasProvider::_name_t;
-
-		Expression _expression;
-	};
-
 	template<typename Context, typename Expression, typename AliasProvider>
-		struct interpreter_t<Context, expression_alias_t<Expression, AliasProvider>>
+		struct vendor::interpreter_t<Context, expression_alias_t<Expression, AliasProvider>>
 		{
 			using T = expression_alias_t<Expression, AliasProvider>;
 

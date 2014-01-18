@@ -31,7 +31,6 @@
 
 namespace sqlpp
 {
-	// boolean value type
 	struct no_value_t
 	{
 		template<typename T>

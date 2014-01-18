@@ -24,62 +24,16 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_LIMIT_H
-#define SQLPP_LIMIT_H
-
-#include <ostream>
-#include <sqlpp11/select_fwd.h>
-#include <sqlpp11/type_traits.h>
+#ifndef SQLPP_IN_FWD_H
+#define SQLPP_IN_FWD_H
 
 namespace sqlpp
 {
-	template<typename Limit>
-		struct limit_t
-		{
-			using _is_limit = std::true_type;
-			static_assert(is_integral_t<Limit>::value, "limit requires an integral value or integral parameter");
-
-			Limit _limit;
-		};
-
-	template<typename Context, typename Limit>
-		struct interpreter_t<Context, limit_t<Limit>>
-		{
-			using T = limit_t<Limit>;
-
-			static Context& _(const T& t, Context& context)
-			{
-				context << " LIMIT ";
-			 	interpret(t._limit, context);
-				return context;
-			}
-		};
-
-	struct dynamic_limit_t
+	namespace vendor
 	{
-		using _is_limit = std::true_type;
-		using _is_dynamic = std::true_type;
-
-		void set(std::size_t limit)
-		{
-			_limit = limit;
-		}
-
-		std::size_t _limit;
-	};
-
-	template<typename Context>
-		struct interpreter_t<Context, dynamic_limit_t>
-		{
-			using T = dynamic_limit_t;
-
-			static Context& _(const T& t, Context& context)
-			{
-				if (t._limit > 0)
-					context << " LIMIT " << t._limit;
-				return context;
-			}
-		};
+		template<bool NotInverted, typename Operand, typename... Args>
+		struct in_t;
+	}
 
 }
 

@@ -24,71 +24,66 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_LIKE_H
-#define SQLPP_LIKE_H
+#ifndef SQLPP_CONCAT_H
+#define SQLPP_CONCAT_H
 
-#include <sqlpp11/boolean.h>
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/vendor/interpret_tuple.h>
 #include <sqlpp11/detail/set.h>
 
 namespace sqlpp
 {
-	template<typename Operand, typename Pattern>
-		struct like_t: public boolean::template operators<like_t<Operand, Pattern>>
+	namespace vendor
 	{
-		static_assert(is_text_t<Operand>::value, "Operand for like() has to be a text");
-		static_assert(is_text_t<Pattern>::value, "Pattern for like() has to be a text");
-
-		struct _value_type: public boolean
+		template<typename First, typename... Args>
+			struct concat_t: public First::_value_type::template operators<concat_t<First, Args...>>
 		{
-			using _is_named_expression = std::true_type;
-		};
+			static_assert(sizeof...(Args) > 0, "concat requires two arguments at least");
+			using _valid_args = typename detail::make_set_if_not<is_text_t, First, Args...>::type;
+			static_assert(_valid_args::size::value == 0, "at least one non-text argument detected in concat()");
 
-		struct _name_t
-		{
-			static constexpr const char* _get_name() { return "LIKE"; }
-			template<typename T>
-				struct _member_t
-				{
-					T like;
-				};
-		};
-
-		like_t(Operand&& operand, Pattern&& pattern):
-			_operand(std::move(operand)),
-			_pattern(std::move(pattern))
-		{}
-
-		like_t(const Operand& operand, const Pattern& pattern):
-			_operand(operand),
-			_pattern(pattern)
-		{}
-
-		like_t(const like_t&) = default;
-		like_t(like_t&&) = default;
-		like_t& operator=(const like_t&) = default;
-		like_t& operator=(like_t&&) = default;
-		~like_t() = default;
-
-		Operand _operand;
-		Pattern _pattern;
-	};
-
-	template<typename Context, typename Operand, typename Pattern>
-		struct interpreter_t<Context, like_t<Operand, Pattern>>
-		{
-			using T = like_t<Operand, Pattern>;
-
-			static Context& _(const T& t, Context& context)
+			struct _value_type: public First::_value_type::_base_value_type
 			{
-					interpret(t._operand, context);
-					context << " LIKE(";
-					interpret(t._pattern, context);
+				using _is_named_expression = std::true_type;
+			};
+
+			struct _name_t
+			{
+				static constexpr const char* _get_name() { return "CONCAT"; }
+				template<typename T>
+					struct _member_t
+					{
+						T concat;
+					};
+			};
+
+			concat_t(First first, Args... args):
+				_args(first, args...)
+			{}
+
+			concat_t(const concat_t&) = default;
+			concat_t(concat_t&&) = default;
+			concat_t& operator=(const concat_t&) = default;
+			concat_t& operator=(concat_t&&) = default;
+			~concat_t() = default;
+
+			std::tuple<First, Args...> _args;
+		};
+
+		template<typename Context, typename First, typename... Args>
+			struct interpreter_t<Context, concat_t<First, Args...>>
+			{
+				using T = concat_t<First, Args...>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					context << "(";
+					interpret_tuple(t._args, "||", context);
 					context << ")";
 					return context;
-			}
-		};
-
+				}
+			};
+	}
 }
 
 #endif

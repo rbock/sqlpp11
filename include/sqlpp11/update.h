@@ -27,21 +27,20 @@
 #ifndef SQLPP_UPDATE_H
 #define SQLPP_UPDATE_H
 
-#include <sstream>
-#include <sqlpp11/noop.h>
-#include <sqlpp11/assignment_list.h>
-#include <sqlpp11/where.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/prepared_update.h>
+#include <sqlpp11/vendor/update_list.h>
+#include <sqlpp11/vendor/noop.h>
+#include <sqlpp11/vendor/where.h>
 
 namespace sqlpp
 {
 	template<
 		typename Database = void,
-		typename Table = noop,
-		typename Assignments = noop,
-		typename Where = noop
+		typename Table = vendor::noop,
+		typename Assignments = vendor::noop,
+		typename Where = vendor::noop
 		>
 	struct update_t;
 
@@ -53,9 +52,9 @@ namespace sqlpp
 		>
 		struct update_t
 		{
-			static_assert(is_noop<Table>::value or is_table_t<Table>::value, "invalid 'Table' argument");
-			static_assert(is_noop<Assignments>::value or is_assignment_list_t<Assignments>::value, "invalid 'Assignments' arguments");
-			static_assert(is_noop<Where>::value or is_where_t<Where>::value, "invalid 'Where' argument");
+			static_assert(vendor::is_noop<Table>::value or is_table_t<Table>::value, "invalid 'Table' argument");
+			static_assert(vendor::is_noop<Assignments>::value or is_update_list_t<Assignments>::value, "invalid 'Assignments' arguments");
+			static_assert(vendor::is_noop<Where>::value or is_where_t<Where>::value, "invalid 'Where' argument");
 
 			template<typename AssignmentsT> 
 				using set_assignments_t = update_t<Database, Table, AssignmentsT, Where>;
@@ -68,9 +67,9 @@ namespace sqlpp
 
 			template<typename... Assignment>
 				auto set(Assignment&&... assignment)
-				-> set_assignments_t<assignment_list_t<void, typename std::decay<Assignment>::type...>>
+				-> set_assignments_t<vendor::update_list_t<void, typename std::decay<Assignment>::type...>>
 				{
-					static_assert(std::is_same<Assignments, noop>::value, "cannot call set() twice");
+					static_assert(vendor::is_noop<Assignments>::value, "cannot call set() twice");
 					return {
 							_table,
 								{std::tuple<typename std::decay<Assignment>::type...>{std::forward<Assignment>(assignment)...}},
@@ -80,9 +79,9 @@ namespace sqlpp
 
 			template<typename... Assignment>
 				auto dynamic_set(Assignment&&... assignment)
-				-> set_assignments_t<assignment_list_t<Database, typename std::decay<Assignment>::type...>>
+				-> set_assignments_t<vendor::update_list_t<Database, typename std::decay<Assignment>::type...>>
 				{
-					static_assert(std::is_same<Assignments, noop>::value, "cannot call set() twice");
+					static_assert(vendor::is_noop<Assignments>::value, "cannot call set() twice");
 					return {
 							_table,
 								{std::tuple<typename std::decay<Assignment>::type...>{std::forward<Assignment>(assignment)...}},
@@ -102,10 +101,10 @@ namespace sqlpp
 
 			template<typename... Expr>
 				auto where(Expr&&... expr)
-				-> set_where_t<where_t<void, typename std::decay<Expr>::type...>>
+				-> set_where_t<vendor::where_t<void, typename std::decay<Expr>::type...>>
 				{
-					static_assert(not std::is_same<Assignments, noop>::value, "cannot call where() if set() hasn't been called yet");
-					static_assert(std::is_same<Where, noop>::value, "cannot call where() twice");
+					static_assert(not vendor::is_noop<Assignments>::value, "cannot call where() if set() hasn't been called yet");
+					static_assert(vendor::is_noop<Where>::value, "cannot call where() twice");
 					return {
 							_table,
 							_assignments,
@@ -115,10 +114,10 @@ namespace sqlpp
 
 			template<typename... Expr>
 				auto dynamic_where(Expr&&... expr)
-				-> set_where_t<where_t<Database, typename std::decay<Expr>::type...>>
+				-> set_where_t<vendor::where_t<Database, typename std::decay<Expr>::type...>>
 				{
-					static_assert(not std::is_same<Assignments, noop>::value, "cannot call where() if set() hasn't been called yet");
-					static_assert(std::is_same<Where, noop>::value, "cannot call where() twice");
+					static_assert(not vendor::is_noop<Assignments>::value, "cannot call where() if set() hasn't been called yet");
+					static_assert(vendor::is_noop<Where>::value, "cannot call where() twice");
 					return {
 						_table, 
 							_assignments, 
@@ -149,7 +148,7 @@ namespace sqlpp
 			template<typename Db>
 				std::size_t run(Db& db) const
 				{
-					static_assert(not is_noop<Assignments>::value, "calling set() required before running update");
+					static_assert(not vendor::is_noop<Assignments>::value, "calling set() required before running update");
 					static_assert(_get_static_no_of_parameters() == 0, "cannot run update directly with parameters, use prepare instead");
 					return db.update(*this);
 				}
@@ -158,7 +157,7 @@ namespace sqlpp
 				auto prepare(Db& db)
 				-> prepared_update_t<typename std::decay<Db>::type, update_t>
 				{
-					static_assert(not is_noop<Assignments>::value, "calling set() required before running update");
+					static_assert(not vendor::is_noop<Assignments>::value, "calling set() required before running update");
 
 					return {{}, db.prepare_update(*this)};
 				}
@@ -174,7 +173,7 @@ namespace sqlpp
 		typename Assignments,
 		typename Where
 		>
-		struct interpreter_t<Context, update_t<Database, Table, Assignments, Where>>
+		struct vendor::interpreter_t<Context, update_t<Database, Table, Assignments, Where>>
 		{
 			using T = update_t<Database, Table, Assignments, Where>;
 

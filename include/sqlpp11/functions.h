@@ -30,8 +30,8 @@
 #include <sqlpp11/parameter.h>
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/column_types.h>
-#include <sqlpp11/in.h>
-#include <sqlpp11/is_null.h>
+#include <sqlpp11/vendor/in.h>
+#include <sqlpp11/vendor/is_null.h>
 #include <sqlpp11/exists.h>
 #include <sqlpp11/any.h>
 #include <sqlpp11/some.h>
@@ -40,7 +40,7 @@
 #include <sqlpp11/max.h>
 #include <sqlpp11/avg.h>
 #include <sqlpp11/sum.h>
-#include <sqlpp11/verbatim_table.h>
+#include <sqlpp11/verbatim_table.h> // Csaba Csoma suggests: unsafe_sql instead of verbatim
 
 namespace sqlpp
 {
@@ -51,7 +51,7 @@ namespace sqlpp
 			return { std::forward<T>(t) };
 		}
 
-	template<typename ValueType>
+	template<typename ValueType> // Csaba Csoma suggests: unsafe_sql instead of verbatim
 	struct verbatim_t: public ValueType::template operators<verbatim_t<ValueType>>
 	{
 		using _value_type = ValueType;
@@ -68,7 +68,7 @@ namespace sqlpp
 	};
 
 	template<typename Context, typename ValueType>
-		struct interpreter_t<Context, verbatim_t<ValueType>>
+		struct vendor::interpreter_t<Context, verbatim_t<ValueType>>
 		{
 			using T = verbatim_t<ValueType>;
 
@@ -104,7 +104,7 @@ namespace sqlpp
 		};
 
 	template<typename Context, typename Container>
-		struct interpreter_t<Context, value_list_t<Container>>
+		struct vendor::interpreter_t<Context, value_list_t<Container>>
 		{
 			using T = value_list_t<Container>;
 

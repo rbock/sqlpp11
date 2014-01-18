@@ -32,7 +32,7 @@
 
 namespace sqlpp
 {
-	namespace detail
+	namespace vendor
 	{
 		template<typename Expr>
 		struct max_t: public boolean::template operators<max_t<Expr>>
@@ -75,9 +75,9 @@ namespace sqlpp
 	}
 
 	template<typename Context, typename Expr>
-		struct interpreter_t<Context, detail::max_t<Expr>>
+		struct vendor::interpreter_t<Context, vendor::max_t<Expr>>
 		{
-			using T = detail::max_t<Expr>;
+			using T = vendor::max_t<Expr>;
 
 			static Context& _(const T& t, Context& context)
 			{
@@ -89,7 +89,7 @@ namespace sqlpp
 		};
 
 	template<typename T>
-	auto max(T&& t) -> typename detail::max_t<typename operand_t<T, is_value_t>::type>
+	auto max(T&& t) -> typename vendor::max_t<typename operand_t<T, is_value_t>::type>
 	{
 		return { std::forward<T>(t) };
 	}

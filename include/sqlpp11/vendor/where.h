@@ -29,57 +29,60 @@
 
 #include <ostream>
 #include <sqlpp11/select_fwd.h>
-#include <sqlpp11/expression.h>
+#include <sqlpp11/vendor/expression.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/detail/set.h>
-#include <sqlpp11/detail/serialize_tuple.h>
-#include <sqlpp11/detail/serializable_list.h>
+#include <sqlpp11/vendor/interpret_tuple.h>
+#include <sqlpp11/vendor/interpretable_list.h>
 #include <sqlpp11/parameter_list.h>
 
 namespace sqlpp
 {
-	template<typename Database, typename... Expr>
-		struct where_t
-		{
-			using _is_where = std::true_type;
-			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
-			using _parameter_tuple_t = std::tuple<Expr...>;
-
-			static_assert(_is_dynamic::value or sizeof...(Expr), "at least one expression argument required in where()");
-			using _valid_expressions = typename detail::make_set_if<is_expression_t, Expr...>::type;
-			static_assert(_valid_expressions::size::value == sizeof...(Expr), "at least one argument is not an expression in where()");
-
-			using _parameter_list_t = typename make_parameter_list_t<_parameter_tuple_t>::type;
-
-			template<typename E>
-				void add(E&& expr)
-				{
-					static_assert(is_expression_t<typename std::decay<E>::type>::value, "invalid expression argument in add_where()");
-					_dynamic_expressions.emplace_back(std::forward<E>(expr));
-				}
-
-			_parameter_tuple_t _expressions;
-			detail::serializable_list<Database> _dynamic_expressions;
-		};
-
-	template<typename Context, typename Database, typename... Expr>
-		struct interpreter_t<Context, where_t<Database, Expr...>>
-		{
-			using T = where_t<Database, Expr...>;
-
-			static Context& _(const T& t, Context& context)
+	namespace vendor
+	{
+		template<typename Database, typename... Expr>
+			struct where_t
 			{
+				using _is_where = std::true_type;
+				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
+				using _parameter_tuple_t = std::tuple<Expr...>;
+
+				static_assert(_is_dynamic::value or sizeof...(Expr), "at least one expression argument required in where()");
+				using _valid_expressions = typename sqlpp::detail::make_set_if<is_expression_t, Expr...>::type;
+				static_assert(_valid_expressions::size::value == sizeof...(Expr), "at least one argument is not an expression in where()");
+
+				using _parameter_list_t = typename make_parameter_list_t<_parameter_tuple_t>::type;
+
+				template<typename E>
+					void add(E&& expr)
+					{
+						static_assert(is_expression_t<typename std::decay<E>::type>::value, "invalid expression argument in add_where()");
+						_dynamic_expressions.emplace_back(std::forward<E>(expr));
+					}
+
+				_parameter_tuple_t _expressions;
+				vendor::interpretable_list_t<Database> _dynamic_expressions;
+			};
+
+		template<typename Context, typename Database, typename... Expr>
+			struct interpreter_t<Context, where_t<Database, Expr...>>
+			{
+				using T = where_t<Database, Expr...>;
+
+				static Context& _(const T& t, Context& context)
+				{
 					if (sizeof...(Expr) == 0 and t._dynamic_expressions.empty())
 						return context;
 					context << " WHERE ";
 					interpret_tuple(t._expressions, " AND ", context);
 					if (sizeof...(Expr) and not t._dynamic_expressions.empty())
 						context << " AND ";
-					interpret_serializable_list(t._dynamic_expressions, " AND ", context);
+					interpret_list(t._dynamic_expressions, " AND ", context);
 					return context;
-			}
-		};
+				}
+			};
 
+	}
 }
 
 #endif

@@ -28,11 +28,11 @@
 #define SQLPP_TEXT_H
 
 #include <cstdlib>
-#include <sqlpp11/detail/basic_operators.h>
+#include <sqlpp11/basic_operators.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/exception.h>
-#include <sqlpp11/concat.h>
-#include <sqlpp11/like.h>
+#include <sqlpp11/vendor/concat.h>
+#include <sqlpp11/vendor/like.h>
 
 namespace sqlpp
 {
@@ -177,14 +177,14 @@ namespace sqlpp
 				struct operators: public basic_operators<Base, _constraint>
 			{
 				template<typename T>
-					concat_t<Base, typename _constraint<T>::type> operator+(T&& t) const
+					vendor::concat_t<Base, typename _constraint<T>::type> operator+(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
 
 				template<typename T>
-					like_t<Base, typename _constraint<T>::type> like(T&& t) const
+					vendor::like_t<Base, typename _constraint<T>::type> like(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };

@@ -66,7 +66,7 @@ namespace sqlpp
 	};
 
 	template<typename Context>
-		struct interpreter_t<Context, verbatim_table_t>
+		struct vendor::interpreter_t<Context, verbatim_table_t>
 		{
 			using T = verbatim_table_t;
 

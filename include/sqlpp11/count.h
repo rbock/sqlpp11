@@ -32,14 +32,14 @@
 
 namespace sqlpp
 {
-	namespace detail
+	namespace vendor
 	{
 		template<typename Expr>
-		struct count_t: public integral::template operators<count_t<Expr>>
+		struct count_t: public sqlpp::detail::integral::template operators<count_t<Expr>>
 		{
 			static_assert(is_value_t<Expr>::value, "count() requires a sql value as argument");
 
-			struct _value_type: public integral
+			struct _value_type: public sqlpp::detail::integral
 			{
 				using _is_named_expression = std::true_type;
 			};
@@ -75,9 +75,9 @@ namespace sqlpp
 	}
 
 	template<typename Context, typename Expr>
-		struct interpreter_t<Context, detail::count_t<Expr>>
+		struct vendor::interpreter_t<Context, vendor::count_t<Expr>>
 		{
-			using T = detail::count_t<Expr>;
+			using T = vendor::count_t<Expr>;
 
 			static Context& _(const T& t, Context& context)
 			{
@@ -89,7 +89,7 @@ namespace sqlpp
 		};
 
 	template<typename T>
-	auto count(T&& t) -> typename detail::count_t<typename operand_t<T, is_value_t>::type>
+	auto count(T&& t) -> typename vendor::count_t<typename operand_t<T, is_value_t>::type>
 	{
 		return { std::forward<T>(t) };
 	}

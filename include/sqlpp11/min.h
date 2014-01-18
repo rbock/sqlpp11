@@ -32,7 +32,7 @@
 
 namespace sqlpp
 {
-	namespace detail
+	namespace vendor
 	{
 		template<typename Expr>
 		struct min_t: public boolean::template operators<min_t<Expr>>
@@ -75,9 +75,9 @@ namespace sqlpp
 	}
 
 	template<typename Context, typename Expr>
-		struct interpreter_t<Context, detail::min_t<Expr>>
+		struct vendor::interpreter_t<Context, vendor::min_t<Expr>>
 		{
-			using T = detail::min_t<Expr>;
+			using T = vendor::min_t<Expr>;
 
 			static Context& _(const T& t, Context& context)
 			{
@@ -89,7 +89,7 @@ namespace sqlpp
 		};
 
 	template<typename T>
-	auto min(T&& t) -> typename detail::min_t<typename operand_t<T, is_value_t>::type>
+	auto min(T&& t) -> typename vendor::min_t<typename operand_t<T, is_value_t>::type>
 	{
 		return { std::forward<T>(t) };
 	}

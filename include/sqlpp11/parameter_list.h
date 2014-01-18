@@ -32,25 +32,6 @@
 
 namespace sqlpp
 {
-	namespace detail
-	{
-		template<typename... T>
-			struct or_t;
-
-		template<typename T, typename... Rest>
-			struct or_t<T, Rest...>
-			{
-				static constexpr bool value = T::value or or_t<Rest...>::value;
-			};
-
-		template<>
-			struct or_t<>
-			{
-				static constexpr bool value = false;
-			};
-
-	}
-
 	template<typename T>
 		struct parameter_list_t
 		{

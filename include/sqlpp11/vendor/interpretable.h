@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SERIALIZABLE_H
-#define SQLPP_SERIALIZABLE_H
+#ifndef SQLPP_INTERPRETABLE_H
+#define SQLPP_INTERPRETABLE_H
 
 #include <memory>
 #include <sqlpp11/serializer.h>
@@ -33,23 +33,23 @@
 
 namespace sqlpp
 {
-	namespace detail
+	namespace vendor
 	{
 		template<typename Db>
-			struct serializable_t
+			struct interpretable_t
 			{
 				using _context_t = typename Db::context;
 
 				template<typename T>
-					serializable_t(T t):
+					interpretable_t(T t):
 						_impl(std::make_shared<_impl_t<typename std::decay<T>::type>>(t))
 				{}
 
-				serializable_t(const serializable_t&) = default;
-				serializable_t(serializable_t&&) = default;
-				serializable_t& operator=(const serializable_t&) = default;
-				serializable_t& operator=(serializable_t&&) = default;
-				~serializable_t() = default;
+				interpretable_t(const interpretable_t&) = default;
+				interpretable_t(interpretable_t&&) = default;
+				interpretable_t& operator=(const interpretable_t&) = default;
+				interpretable_t& operator=(interpretable_t&&) = default;
+				~interpretable_t() = default;
 
 				sqlpp::serializer& interpret(sqlpp::serializer& context) const
 				{
@@ -97,20 +97,20 @@ namespace sqlpp
 
 				std::shared_ptr<const _impl_base> _impl;
 			};
-	}
 
-	template<typename Context, typename Database>
-		struct interpreter_t<Context, detail::serializable_t<Database>>
-		{
-			using T = detail::serializable_t<Database>;
-
-			static Context& _(const T& t, Context& context)
+		template<typename Context, typename Database>
+			struct interpreter_t<Context, interpretable_t<Database>>
 			{
-				t.interpret(context);
-				return context;
-			}
-		};
+				using T = interpretable_t<Database>;
 
+				static Context& _(const T& t, Context& context)
+				{
+					t.interpret(context);
+					return context;
+				}
+			};
+
+	}
 }
 
 #endif

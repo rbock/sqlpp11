@@ -27,21 +27,20 @@
 #ifndef SQLPP_REMOVE_H
 #define SQLPP_REMOVE_H
 
-#include <sstream>
-#include <sqlpp11/noop.h>
-#include <sqlpp11/using.h>
-#include <sqlpp11/where.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/prepared_remove.h>
+#include <sqlpp11/vendor/noop.h>
+#include <sqlpp11/vendor/using.h>
+#include <sqlpp11/vendor/where.h>
 
 namespace sqlpp
 {
 	template<
 		typename Database,
 		typename Table,
-		typename Using = noop,
-		typename Where = noop
+		typename Using = vendor::noop,
+		typename Where = vendor::noop
 		>
 	struct remove_t;
 
@@ -53,9 +52,9 @@ namespace sqlpp
 		>
 		struct remove_t
 		{
-			static_assert(is_noop<Table>::value or is_table_t<Table>::value, "invalid 'Table' argument");
-			static_assert(is_noop<Using>::value or is_using_t<Using>::value, "invalid 'Using' argument");
-			static_assert(is_noop<Where>::value or is_where_t<Where>::value, "invalid 'Where' argument");
+			static_assert(vendor::is_noop<Table>::value or is_table_t<Table>::value, "invalid 'Table' argument");
+			static_assert(vendor::is_noop<Using>::value or is_using_t<Using>::value, "invalid 'Using' argument");
+			static_assert(vendor::is_noop<Where>::value or is_where_t<Where>::value, "invalid 'Where' argument");
 
 
 			// FIXME: We might want to have everywhere() or all() to indicate that everything is to be removed, same with update and select
@@ -70,10 +69,10 @@ namespace sqlpp
 
 			template<typename... Tab>
 				auto using_(Tab&&... tab)
-				-> set_using_t<using_t<void, typename std::decay<Tab>::type...>>
+				-> set_using_t<vendor::using_t<void, typename std::decay<Tab>::type...>>
 				{
-					static_assert(std::is_same<Using, noop>::value, "cannot call using() twice");
-					static_assert(std::is_same<Where, noop>::value, "cannot call using() after where()");
+					static_assert(vendor::is_noop<Using>::value, "cannot call using() twice");
+					static_assert(vendor::is_noop<Where>::value, "cannot call using() after where()");
 					return {
 							_table,
 							{std::tuple<typename std::decay<Tab>::type...>{std::forward<Tab>(tab)...}},
@@ -83,10 +82,10 @@ namespace sqlpp
 
 			template<typename... Tab>
 				auto dynamic_using_(Tab&&... tab)
-				-> set_using_t<using_t<Database, typename std::decay<Tab>::type...>>
+				-> set_using_t<vendor::using_t<Database, typename std::decay<Tab>::type...>>
 				{
-					static_assert(std::is_same<Using, noop>::value, "cannot call using() twice");
-					static_assert(std::is_same<Where, noop>::value, "cannot call using() after where()");
+					static_assert(vendor::is_noop<Using>::value, "cannot call using() twice");
+					static_assert(vendor::is_noop<Where>::value, "cannot call using() after where()");
 					return {
 						_table,
 							{std::tuple<typename std::decay<Tab>::type...>{std::forward<Tab>(tab)...}},
@@ -105,9 +104,9 @@ namespace sqlpp
 
 			template<typename... Expr>
 				auto where(Expr&&... expr)
-				-> set_where_t<where_t<void, typename std::decay<Expr>::type...>>
+				-> set_where_t<vendor::where_t<void, typename std::decay<Expr>::type...>>
 				{
-					static_assert(std::is_same<Where, noop>::value, "cannot call where() twice");
+					static_assert(vendor::is_noop<Where>::value, "cannot call where() twice");
 					return {
 							_table,
 							_using,
@@ -117,9 +116,9 @@ namespace sqlpp
 
 			template<typename... Expr>
 			auto dynamic_where(Expr&&... expr)
-				-> set_where_t<where_t<Database, typename std::decay<Expr>::type...>>
+				-> set_where_t<vendor::where_t<Database, typename std::decay<Expr>::type...>>
 				{
-					static_assert(std::is_same<Where, noop>::value, "cannot call where() twice");
+					static_assert(vendor::is_noop<Where>::value, "cannot call where() twice");
 					return {
 						_table, 
 							_using, 
@@ -167,7 +166,7 @@ namespace sqlpp
 		};
 
 	template<typename Context, typename Database, typename Table, typename Using, typename Where>
-		struct interpreter_t<Context, remove_t<Database, Table, Using, Where>>
+		struct vendor::interpreter_t<Context, remove_t<Database, Table, Using, Where>>
 		{
 			using T = remove_t<Database, Table, Using, Where>;
 

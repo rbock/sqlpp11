@@ -28,7 +28,7 @@
 #define SQLPP_TYPE_TRAITS_H
 
 #include <type_traits>
-#include <sqlpp11/detail/wrap_operand.h>
+#include <sqlpp11/vendor/wrap_operand.h>
 
 namespace sqlpp
 {
@@ -112,7 +112,7 @@ namespace sqlpp
 	SQLPP_TYPE_TRAIT_GENERATOR(is_multi_column);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_value_list);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_assignment);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_assignment_list);
+	SQLPP_TYPE_TRAIT_GENERATOR(is_update_list);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_insert_list);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_sort_order);
 	SQLPP_TYPE_TRAIT_GENERATOR(requires_braces);
@@ -126,12 +126,11 @@ namespace sqlpp
 	template<typename T, template<typename> class IsCorrectType>
 		struct operand_t
 		{
-			using type = typename wrap_operand<typename std::decay<T>::type>::type;
+			using type = typename vendor::wrap_operand<typename std::decay<T>::type>::type;
 			static_assert(not is_alias_t<type>::value, "expression operand must not be an alias");
 			static_assert(is_expression_t<type>::value, "expression required");
 			static_assert(IsCorrectType<type>::value, "invalid operand type");
 		};
-
 	
 }
 

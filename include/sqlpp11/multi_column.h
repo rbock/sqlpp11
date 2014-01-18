@@ -56,7 +56,7 @@ namespace sqlpp
 		};
 
 	template<typename Context, typename AliasProvider, typename... NamedExpr>
-		struct interpreter_t<Context, multi_column_t<AliasProvider, NamedExpr...>>
+		struct vendor::interpreter_t<Context, multi_column_t<AliasProvider, NamedExpr...>>
 		{
 			using T = multi_column_t<AliasProvider, NamedExpr...>;
 

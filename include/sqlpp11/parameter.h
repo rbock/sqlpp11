@@ -27,8 +27,6 @@
 #ifndef SQLPP_PARAMETER_H
 #define SQLPP_PARAMETER_H
 
-#include <ostream>
-#include <sqlpp11/select_fwd.h>
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp
@@ -52,7 +50,7 @@ namespace sqlpp
 	};
 
 	template<typename Context, typename ValueType, typename NameType>
-		struct interpreter_t<Context, parameter_t<ValueType, NameType>>
+		struct vendor::interpreter_t<Context, parameter_t<ValueType, NameType>>
 		{
 			using T = parameter_t<ValueType, NameType>;
 

@@ -71,7 +71,7 @@ namespace sqlpp
 	};
 
 	template<typename Context, typename Select, typename... NamedExpr>
-		struct interpreter_t<Context, select_pseudo_table_t<Select, NamedExpr...>>
+		struct vendor::interpreter_t<Context, select_pseudo_table_t<Select, NamedExpr...>>
 		{
 			using T = select_pseudo_table_t<Select, NamedExpr...>;
 

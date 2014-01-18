@@ -24,25 +24,20 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_EXPRESSION_FWD_H
-#define SQLPP_EXPRESSION_FWD_H
+#ifndef SQLPP_INTERPRET_H
+#define SQLPP_INTERPRET_H
+
+#include <sqlpp11/vendor/interpreter.h>
 
 namespace sqlpp
 {
-	template<typename Lhs, typename Rhs>
-		struct assignment_t;
+	template<typename T, typename Context>
+		auto interpret(const T& t, Context& context)
+		-> decltype(vendor::interpreter_t<typename std::decay<Context>::type, typename std::decay<T>::type>::_(t, context))
+		{
+			return vendor::interpreter_t<typename std::decay<Context>::type, typename std::decay<T>::type>::_(t, context);
+		}
 
-	template<typename Lhs, typename Rhs>
-		struct equal_t;
-
-	template<typename Lhs, typename Rhs>
-		struct not_equal_t;
-
-	template<typename Lhs>
-		struct not_t;
-
-	template<typename Lhs, typename O, typename Rhs>
-		struct binary_expression_t;
 }
 
 #endif

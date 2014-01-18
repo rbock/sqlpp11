@@ -24,30 +24,16 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_INTERPRETER_H
-#define SQLPP_INTERPRETER_H
-
-#include <type_traits>
-#include <sqlpp11/detail/wrong.h>
+#ifndef SQLPP_IS_NULL_FWD_H
+#define SQLPP_IS_NULL_FWD_H
 
 namespace sqlpp
 {
-	template<typename Context, typename T, typename Enable = void>
-		struct interpreter_t
-		{
-			static void _(const T& t, Context& context)
-			{
-				static_assert(detail::wrong<Context, T>::value, "missing interpreter specialization");
-			}
-		};
-
-	template<typename T, typename Context>
-		auto interpret(const T& t, Context& context)
-		-> decltype(interpreter_t<typename std::decay<Context>::type, typename std::decay<T>::type>::_(t, context))
-		{
-			return interpreter_t<typename std::decay<Context>::type, typename std::decay<T>::type>::_(t, context);
-		}
-
+	namespace vendor
+	{
+		template<bool NotInverted, typename Operand>
+		struct is_null_t;
+	}
 }
 
 #endif

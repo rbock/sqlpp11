@@ -31,7 +31,7 @@
 
 namespace sqlpp
 {
-	namespace detail
+	namespace vendor
 	{
 		template<typename Select>
 		struct exists_t: public boolean::template operators<exists_t<Select>>
@@ -74,9 +74,9 @@ namespace sqlpp
 	}
 
 	template<typename Context, typename Select>
-		struct interpreter_t<Context, detail::exists_t<Select>>
+		struct vendor::interpreter_t<Context, vendor::exists_t<Select>>
 		{
-			using T = detail::exists_t<Select>;
+			using T = vendor::exists_t<Select>;
 
 			static Context& _(const T& t, Context& context)
 			{
@@ -89,7 +89,7 @@ namespace sqlpp
 
 
 	template<typename T>
-	auto exists(T&& t) -> typename detail::exists_t<typename operand_t<T, is_select_t>::type>
+	auto exists(T&& t) -> typename vendor::exists_t<typename operand_t<T, is_select_t>::type>
 	{
 		return { std::forward<T>(t) };
 	}

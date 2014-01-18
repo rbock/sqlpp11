@@ -24,71 +24,66 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_CONCAT_H
-#define SQLPP_CONCAT_H
+#ifndef SQLPP_IS_NULL_H
+#define SQLPP_IS_NULL_H
 
-#include <sstream>
+#include <sqlpp11/boolean.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/detail/set.h>
 
 namespace sqlpp
 {
-		template<typename First, typename... Args>
-		struct concat_t: public First::_value_type::template operators<concat_t<First, Args...>>
+	namespace vendor
+	{
+		template<bool NotInverted, typename Operand>
+		struct is_null_t: public boolean::template operators<is_null_t<NotInverted, Operand>>
 		{
-			static_assert(sizeof...(Args) > 0, "concat requires two arguments at least");
-			using _valid_args = typename detail::make_set_if_not<is_text_t, First, Args...>::type;
-			static_assert(_valid_args::size::value == 0, "at least one non-text argument detected in concat()");
+			static constexpr bool _inverted = not NotInverted;
 
-			struct _value_type: public First::_value_type::_base_value_type
+			struct _value_type: public boolean
 			{
 				using _is_named_expression = std::true_type;
 			};
 
 			struct _name_t
 			{
-				static constexpr const char* _get_name() { return "CONCAT"; }
+				static constexpr const char* _get_name() { return _inverted ? "IS NOT NULL" : "IS NULL"; }
 				template<typename T>
 					struct _member_t
 					{
-						T concat;
+						T in;
 					};
 			};
 
-			concat_t(First first, Args... args):
-				_args(first, args...)
+			is_null_t(const Operand& operand):
+				_operand(operand)
 			{}
 
-			concat_t(const concat_t&) = default;
-			concat_t(concat_t&&) = default;
-			concat_t& operator=(const concat_t&) = default;
-			concat_t& operator=(concat_t&&) = default;
-			~concat_t() = default;
+			is_null_t(Operand&& operand):
+				_operand(std::move(operand))
+			{}
 
-			std::tuple<First, Args...> _args;
+			is_null_t(const is_null_t&) = default;
+			is_null_t(is_null_t&&) = default;
+			is_null_t& operator=(const is_null_t&) = default;
+			is_null_t& operator=(is_null_t&&) = default;
+			~is_null_t() = default;
+
+			Operand _operand;
 		};
 
-		//FIXME: Write partial specialization for mysql
-	template<typename Context, typename First, typename... Args>
-		struct interpreter_t<Context, concat_t<First, Args...>>
-		{
-			using T = concat_t<First, Args...>;
-
-			static Context& _(const T& t, Context& context)
+		template<typename Context, bool NotInverted, typename Operand>
+			struct interpreter_t<Context, ::sqlpp::vendor::is_null_t<NotInverted, Operand>>
 			{
-				context << "(";
-				interpret_tuple(t._args, "||", context);
-				context << ")";
-				return context;
-			}
-		};
+				using T = ::sqlpp::vendor::is_null_t<NotInverted, Operand>;
 
-
-	template<typename... T>
-	auto concat(T&&... t) -> concat_t<typename operand_t<T, is_text_t>::type...>
-	{
-		return { std::forward<T>(t)... };
+				static Context& _(const T& t, Context& context)
+				{
+					interpret(t._operand, context);
+					context << (t._inverted ? " IS NOT NULL" : " IS NULL");
+					return context;
+				}
+			};
 	}
 
 }

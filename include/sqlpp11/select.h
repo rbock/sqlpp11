@@ -29,20 +29,21 @@
 
 #include <sqlpp11/result.h>
 #include <sqlpp11/select_fwd.h>
-#include <sqlpp11/noop.h>
-#include <sqlpp11/select_flag_list.h>
-#include <sqlpp11/select_expression_list.h>
-#include <sqlpp11/from.h>
-#include <sqlpp11/where.h>
-#include <sqlpp11/group_by.h>
-#include <sqlpp11/having.h>
-#include <sqlpp11/order_by.h>
-#include <sqlpp11/limit.h>
-#include <sqlpp11/offset.h>
-#include <sqlpp11/expression.h>
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/prepared_select.h>
-#include <sqlpp11/interpreter.h>
+
+#include <sqlpp11/vendor/noop.h>
+#include <sqlpp11/vendor/select_flag_list.h>
+#include <sqlpp11/vendor/select_expression_list.h>
+#include <sqlpp11/vendor/from.h>
+#include <sqlpp11/vendor/where.h>
+#include <sqlpp11/vendor/group_by.h>
+#include <sqlpp11/vendor/having.h>
+#include <sqlpp11/vendor/order_by.h>
+#include <sqlpp11/vendor/limit.h>
+#include <sqlpp11/vendor/offset.h>
+#include <sqlpp11/vendor/expression.h>
+#include <sqlpp11/vendor/interpreter.h>
 
 #include <sqlpp11/detail/wrong.h>
 #include <sqlpp11/detail/make_flag_tuple.h>
@@ -80,15 +81,15 @@ namespace sqlpp
 			using _Database = Database;
 			using _From = From;
 
-			static_assert(is_noop<Flags>::value or is_select_flag_list_t<Flags>::value, "invalid list of select flags");
+			static_assert(vendor::is_noop<Flags>::value or is_select_flag_list_t<Flags>::value, "invalid list of select flags");
 			static_assert(is_select_expression_list_t<ExpressionList>::value, "invalid list of select expressions");
-			static_assert(is_noop<From>::value or is_from_t<From>::value, "invalid 'from' argument");
-			static_assert(is_noop<Where>::value or is_where_t<Where>::value, "invalid 'where' argument");
-			static_assert(is_noop<GroupBy>::value or is_group_by_t<GroupBy>::value, "invalid 'group by' arguments");
-			static_assert(is_noop<Having>::value or is_having_t<Having>::value, "invalid 'having' arguments");
-			static_assert(is_noop<OrderBy>::value or is_order_by_t<OrderBy>::value, "invalid 'order by' arguments");
-			static_assert(is_noop<Limit>::value or is_limit_t<Limit>::value, "invalid 'limit' arguments");
-			static_assert(is_noop<Offset>::value or is_offset_t<Offset>::value, "invalid 'offset' arguments");
+			static_assert(vendor::is_noop<From>::value or is_from_t<From>::value, "invalid 'from' argument");
+			static_assert(vendor::is_noop<Where>::value or is_where_t<Where>::value, "invalid 'where' argument");
+			static_assert(vendor::is_noop<GroupBy>::value or is_group_by_t<GroupBy>::value, "invalid 'group by' arguments");
+			static_assert(vendor::is_noop<Having>::value or is_having_t<Having>::value, "invalid 'having' arguments");
+			static_assert(vendor::is_noop<OrderBy>::value or is_order_by_t<OrderBy>::value, "invalid 'order by' arguments");
+			static_assert(vendor::is_noop<Limit>::value or is_limit_t<Limit>::value, "invalid 'limit' arguments");
+			static_assert(vendor::is_noop<Offset>::value or is_offset_t<Offset>::value, "invalid 'offset' arguments");
 
 			using _is_select = std::true_type;
 			using _requires_braces = std::true_type;
@@ -117,7 +118,7 @@ namespace sqlpp
 
 			// Indicators
 			using _value_type = typename std::conditional<
-				is_noop<From>::value, 
+				vendor::is_noop<From>::value, 
 				no_value_t, // If there is no from, the select is not complete (this logic is a bit simple, but better than nothing)
 				typename ExpressionList::_value_type>::type;
 
@@ -174,7 +175,7 @@ namespace sqlpp
 				-> set_expression_list_t<typename ExpressionList::template _dynamic_t<Database>>
 				{
 					static_assert(not std::is_same<Database, void>::value, "cannot call dynamic_from() in a non-dynamic select");
-					static_assert(is_noop<From>::value, "cannot call dynamic_columns() after from()");
+					static_assert(vendor::is_noop<From>::value, "cannot call dynamic_columns() after from()");
 					return {
 							_flags, 
 							{_expression_list._expressions}, 
@@ -201,10 +202,10 @@ namespace sqlpp
 			// sqlpp functions
 			template<typename... Table>
 				auto from(Table&&... table)
-				-> set_from_t<from_t<void, typename std::decay<Table>::type...>>
+				-> set_from_t<vendor::from_t<void, typename std::decay<Table>::type...>>
 				{
-					static_assert(not is_noop<ExpressionList>::value, "cannot call from() without having selected anything");
-					static_assert(is_noop<From>::value, "cannot call from() twice for a single select");
+					static_assert(not vendor::is_noop<ExpressionList>::value, "cannot call from() without having selected anything");
+					static_assert(vendor::is_noop<From>::value, "cannot call from() twice for a single select");
 					return {
 							_flags, 
 							_expression_list, 
@@ -220,11 +221,11 @@ namespace sqlpp
 
 			template<typename... Table>
 				auto dynamic_from(Table&&... table)
-				-> set_from_t<from_t<Database, typename std::decay<Table>::type...>>
+				-> set_from_t<vendor::from_t<Database, typename std::decay<Table>::type...>>
 				{
 					static_assert(not std::is_same<Database, void>::value, "cannot call dynamic_from() in a non-dynamic select");
-					static_assert(not is_noop<ExpressionList>::value, "cannot call from() without having selected anything");
-					static_assert(is_noop<From>::value, "cannot call from() twice for a single select");
+					static_assert(not vendor::is_noop<ExpressionList>::value, "cannot call from() without having selected anything");
+					static_assert(vendor::is_noop<From>::value, "cannot call from() twice for a single select");
 					return {
 							_flags, 
 							_expression_list, 
@@ -241,7 +242,7 @@ namespace sqlpp
 			template<typename Table>
 				select_t& add_from(Table&& table)
 				{
-					static_assert(not is_noop<ExpressionList>::value, "cannot call add_from() without having selected anything");
+					static_assert(not vendor::is_noop<ExpressionList>::value, "cannot call add_from() without having selected anything");
 					static_assert(is_dynamic_t<From>::value, "cannot call add_from() in a non-dynamic from");
 
 					_from.add(std::forward<Table>(table));
@@ -251,10 +252,10 @@ namespace sqlpp
 
 			template<typename... Expr>
 				auto where(Expr&&... expr)
-				-> set_where_t<where_t<void, typename std::decay<Expr>::type...>> 
+				-> set_where_t<vendor::where_t<void, typename std::decay<Expr>::type...>> 
 				{
-					static_assert(not is_noop<From>::value, "cannot call where() without a from()");
-					static_assert(is_noop<Where>::value, "cannot call where() or dynamic_where() twice for a single select");
+					static_assert(not vendor::is_noop<From>::value, "cannot call where() without a from()");
+					static_assert(vendor::is_noop<Where>::value, "cannot call where() or dynamic_where() twice for a single select");
 					return {
 							_flags, 
 							_expression_list, 
@@ -270,10 +271,10 @@ namespace sqlpp
 
 			template<typename... Expr>
 				auto dynamic_where(Expr&&... expr)
-				-> set_where_t<where_t<Database, typename std::decay<Expr>::type...>>
+				-> set_where_t<vendor::where_t<Database, typename std::decay<Expr>::type...>>
 				{
-					static_assert(not is_noop<From>::value, "cannot call dynamic_where() without a from()");
-					static_assert(is_noop<Where>::value, "cannot call where() or dynamic_where() twice for a single select");
+					static_assert(not vendor::is_noop<From>::value, "cannot call dynamic_where() without a from()");
+					static_assert(vendor::is_noop<Where>::value, "cannot call where() or dynamic_where() twice for a single select");
 					return {
 							_flags, 
 							_expression_list, 
@@ -299,10 +300,10 @@ namespace sqlpp
 
 			template<typename... Col>
 				auto group_by(Col&&... column)
-				-> set_group_by_t<group_by_t<void, typename std::decay<Col>::type...>>
+				-> set_group_by_t<vendor::group_by_t<void, typename std::decay<Col>::type...>>
 				{
-					static_assert(not is_noop<From>::value, "cannot call group_by() without a from()");
-					static_assert(is_noop<GroupBy>::value, "cannot call group_by() twice for a single select");
+					static_assert(not vendor::is_noop<From>::value, "cannot call group_by() without a from()");
+					static_assert(vendor::is_noop<GroupBy>::value, "cannot call group_by() twice for a single select");
 					return {
 							_flags, 
 							_expression_list,
@@ -318,10 +319,10 @@ namespace sqlpp
 
 			template<typename... Col>
 				auto dynamic_group_by(Col&&... column)
-				-> set_group_by_t<group_by_t<Database, typename std::decay<Col>::type...>>
+				-> set_group_by_t<vendor::group_by_t<Database, typename std::decay<Col>::type...>>
 				{
-					static_assert(not is_noop<From>::value, "cannot call group_by() without a from()");
-					static_assert(is_noop<GroupBy>::value, "cannot call group_by() twice for a single select");
+					static_assert(not vendor::is_noop<From>::value, "cannot call group_by() without a from()");
+					static_assert(vendor::is_noop<GroupBy>::value, "cannot call group_by() twice for a single select");
 					return {
 							_flags, 
 							_expression_list,
@@ -347,10 +348,10 @@ namespace sqlpp
 
 			template<typename... Expr>
 				auto having(Expr&&... expr)
-				-> set_having_t<having_t<void, typename std::decay<Expr>::type...>> 
+				-> set_having_t<vendor::having_t<void, typename std::decay<Expr>::type...>> 
 				{
-					static_assert(not is_noop<GroupBy>::value, "cannot call having() without a group_by");
-					static_assert(is_noop<Having>::value, "cannot call having() twice for a single select");
+					static_assert(not vendor::is_noop<GroupBy>::value, "cannot call having() without a group_by");
+					static_assert(vendor::is_noop<Having>::value, "cannot call having() twice for a single select");
 					return {
 							_flags, 
 							_expression_list,
@@ -366,10 +367,10 @@ namespace sqlpp
 
 			template<typename... Expr>
 				auto dynamic_having(Expr&&... expr)
-				-> set_having_t<having_t<Database, typename std::decay<Expr>::type...>> 
+				-> set_having_t<vendor::having_t<Database, typename std::decay<Expr>::type...>> 
 				{
-					static_assert(not is_noop<GroupBy>::value, "cannot call having() without a group_by");
-					static_assert(is_noop<Having>::value, "cannot call having() twice for a single select");
+					static_assert(not vendor::is_noop<GroupBy>::value, "cannot call having() without a group_by");
+					static_assert(vendor::is_noop<Having>::value, "cannot call having() twice for a single select");
 					return {
 						_flags, 
 							_expression_list,
@@ -395,10 +396,10 @@ namespace sqlpp
 
 			template<typename... OrderExpr>
 				auto order_by(OrderExpr&&... expr)
-				-> set_order_by_t<order_by_t<void, typename std::decay<OrderExpr>::type...>>
+				-> set_order_by_t<vendor::order_by_t<void, typename std::decay<OrderExpr>::type...>>
 				{
-					static_assert(not is_noop<From>::value, "cannot call order_by() without a from()");
-					static_assert(is_noop<OrderBy>::value, "cannot call order_by() twice for a single select");
+					static_assert(not vendor::is_noop<From>::value, "cannot call order_by() without a from()");
+					static_assert(vendor::is_noop<OrderBy>::value, "cannot call order_by() twice for a single select");
 					return {
 							_flags, 
 							_expression_list,
@@ -414,10 +415,10 @@ namespace sqlpp
 
 			template<typename... OrderExpr>
 				auto dynamic_order_by(OrderExpr&&... expr)
-				-> set_order_by_t<order_by_t<Database, typename std::decay<OrderExpr>::type...>>
+				-> set_order_by_t<vendor::order_by_t<Database, typename std::decay<OrderExpr>::type...>>
 				{
-					static_assert(not is_noop<From>::value, "cannot call order_by() without a from()");
-					static_assert(is_noop<OrderBy>::value, "cannot call order_by() twice for a single select");
+					static_assert(not vendor::is_noop<From>::value, "cannot call order_by() without a from()");
+					static_assert(vendor::is_noop<OrderBy>::value, "cannot call order_by() twice for a single select");
 					return {
 							_flags, 
 							_expression_list,
@@ -443,10 +444,10 @@ namespace sqlpp
 
 			template<typename Expr>
 				auto limit(Expr limit)
-				-> set_limit_t<limit_t<typename wrap_operand<typename std::decay<Expr>::type>::type>>
+				-> set_limit_t<vendor::limit_t<typename vendor::wrap_operand<typename std::decay<Expr>::type>::type>>
 				{
-					static_assert(not is_noop<From>::value, "cannot call limit() without a from()");
-					static_assert(is_noop<Limit>::value, "cannot call limit() twice for a single select");
+					static_assert(not vendor::is_noop<From>::value, "cannot call limit() without a from()");
+					static_assert(vendor::is_noop<Limit>::value, "cannot call limit() twice for a single select");
 					return {
 						_flags, 
 							_expression_list,
@@ -461,10 +462,10 @@ namespace sqlpp
 				}
 
 			auto dynamic_limit(std::size_t limit = 0)
-				->set_limit_t<dynamic_limit_t>
+				->set_limit_t<vendor::dynamic_limit_t>
 			{
-				static_assert(not is_noop<From>::value, "cannot call limit() without a from()");
-				static_assert(is_noop<Limit>::value, "cannot call limit() twice for a single select");
+				static_assert(not vendor::is_noop<From>::value, "cannot call limit() without a from()");
+				static_assert(vendor::is_noop<Limit>::value, "cannot call limit() twice for a single select");
 				return {
 						_flags, 
 						_expression_list,
@@ -489,10 +490,10 @@ namespace sqlpp
 
 			template<typename Expr>
 			auto offset(Expr offset)
-				-> set_offset_t<offset_t<typename wrap_operand<typename std::decay<Expr>::type>::type>>
+				-> set_offset_t<vendor::offset_t<typename vendor::wrap_operand<typename std::decay<Expr>::type>::type>>
 			{
-				static_assert(not is_noop<Limit>::value, "cannot call offset() without a limit");
-				static_assert(is_noop<Offset>::value, "cannot call offset() twice for a single select");
+				static_assert(not vendor::is_noop<Limit>::value, "cannot call offset() without a limit");
+				static_assert(vendor::is_noop<Offset>::value, "cannot call offset() twice for a single select");
 				return {
 						_flags, 
 						_expression_list,
@@ -507,10 +508,10 @@ namespace sqlpp
 			}
 
 			auto dynamic_offset(std::size_t offset = 0)
-				-> set_offset_t<dynamic_offset_t>
+				-> set_offset_t<vendor::dynamic_offset_t>
 			{
-				static_assert(not is_noop<Limit>::value, "cannot call offset() without a limit");
-				static_assert(is_noop<Offset>::value, "cannot call offset() twice for a single select");
+				static_assert(not vendor::is_noop<Limit>::value, "cannot call offset() without a limit");
+				static_assert(vendor::is_noop<Offset>::value, "cannot call offset() twice for a single select");
 				return {
 						_flags, 
 						_expression_list,
@@ -572,7 +573,7 @@ namespace sqlpp
 				auto run(Db& db) const
 				-> result_t<decltype(db.select(*this)), _result_row_t>
 				{
-					static_assert(not is_noop<ExpressionList>::value, "cannot run select without having selected anything");
+					static_assert(not vendor::is_noop<ExpressionList>::value, "cannot run select without having selected anything");
 					static_assert(is_from_t<From>::value, "cannot run select without a from()");
 					static_assert(_get_static_no_of_parameters() == 0, "cannot run select directly with parameters, use prepare instead");
 					// FIXME: Check for missing aliases (if references are used)
@@ -586,7 +587,7 @@ namespace sqlpp
 				auto prepare(Db& db)
 				-> prepared_select_t<typename std::decay<Db>::type, select_t> const
 				{
-					static_assert(not is_noop<ExpressionList>::value, "cannot run select without having selected anything");
+					static_assert(not vendor::is_noop<ExpressionList>::value, "cannot run select without having selected anything");
 					static_assert(is_from_t<From>::value, "cannot run select without a from()");
 					// FIXME: Check for missing aliases (if references are used)
 					// FIXME: Check for missing tables, well, actually, check for missing tables at the where(), order_by(), etc.
@@ -617,7 +618,7 @@ namespace sqlpp
 				typename Limit,
 				typename Offset
 					>
-		struct interpreter_t<Context, select_t<Database,
+		struct vendor::interpreter_t<Context, select_t<Database,
 										 Flags, 
 										 ExpressionList, 
 										 From, 
@@ -663,7 +664,7 @@ namespace sqlpp
 	{
 		template<typename... Expr>
 			using make_select_flag_list_t = 
-				select_flag_list_t<decltype(make_flag_tuple(std::declval<Expr>()...))>;
+				vendor::select_flag_list_t<decltype(make_flag_tuple(std::declval<Expr>()...))>;
 	}
 
 	// construct select expression list
@@ -671,7 +672,7 @@ namespace sqlpp
 	{
 		template<typename... Expr>
 			using make_select_expression_list_t = 
-				select_expression_list_t<void, decltype(make_expression_tuple(std::declval<Expr>()...))>;
+				vendor::select_expression_list_t<void, decltype(make_expression_tuple(std::declval<Expr>()...))>;
 	}
 
 	template<typename... NamedExpr>

@@ -24,44 +24,59 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_FIELD_H
-#define SQLPP_FIELD_H
+#ifndef SQLPP_ALIAS_PROVIDER_H
+#define SQLPP_ALIAS_PROVIDER_H
 
-#include <ostream>
-#include <sqlpp11/multi_column.h>
+#define SQLPP_ALIAS_PROVIDER(name) \
+	struct name##_t\
+	{\
+		struct _name_t\
+		{\
+			static constexpr const char* _get_name() { return #name; }\
+			template<typename T>\
+			struct _member_t\
+			{\
+				T name;\
+				T& operator()() { return name; }\
+				const T& operator()() const { return name; }\
+			};\
+		};\
+	};\
+	constexpr name##_t name = {};
 
 namespace sqlpp
 {
-	template<typename NameType, typename ValueType>
-	struct field_t
-	{ 
-		using _name_t = NameType;
-		using _value_type = ValueType;
-	};
-
-	template<typename AliasProvider, typename FieldTuple>
-		struct multi_field_t
-		{
-		};
-
-	namespace detail
+	namespace alias
 	{
-		template<typename NamedExpr>
-			struct make_field_t_impl
-			{
-				using type = field_t<typename NamedExpr::_name_t, typename NamedExpr::_value_type::_base_value_type>;
-			};
-
-		template<typename AliasProvider, typename... NamedExpr>
-			struct make_field_t_impl<multi_column_t<AliasProvider, std::tuple<NamedExpr...>>>
-			{
-				using type = multi_field_t<AliasProvider, std::tuple<typename make_field_t_impl<NamedExpr>::type...>>;
-			};
+		SQLPP_ALIAS_PROVIDER(a);
+		SQLPP_ALIAS_PROVIDER(b);
+		SQLPP_ALIAS_PROVIDER(c);
+		SQLPP_ALIAS_PROVIDER(d);
+		SQLPP_ALIAS_PROVIDER(e);
+		SQLPP_ALIAS_PROVIDER(f);
+		SQLPP_ALIAS_PROVIDER(g);
+		SQLPP_ALIAS_PROVIDER(h);
+		SQLPP_ALIAS_PROVIDER(i);
+		SQLPP_ALIAS_PROVIDER(j);
+		SQLPP_ALIAS_PROVIDER(k);
+		SQLPP_ALIAS_PROVIDER(l);
+		SQLPP_ALIAS_PROVIDER(m);
+		SQLPP_ALIAS_PROVIDER(n);
+		SQLPP_ALIAS_PROVIDER(o);
+		SQLPP_ALIAS_PROVIDER(p);
+		SQLPP_ALIAS_PROVIDER(q);
+		SQLPP_ALIAS_PROVIDER(s);
+		SQLPP_ALIAS_PROVIDER(t);
+		SQLPP_ALIAS_PROVIDER(u);
+		SQLPP_ALIAS_PROVIDER(v);
+		SQLPP_ALIAS_PROVIDER(w);
+		SQLPP_ALIAS_PROVIDER(x);
+		SQLPP_ALIAS_PROVIDER(y);
+		SQLPP_ALIAS_PROVIDER(z);
+		SQLPP_ALIAS_PROVIDER(left);
+		SQLPP_ALIAS_PROVIDER(right);
 	}
-
-	template<typename NamedExpr>
-	using make_field_t = typename detail::make_field_t_impl<NamedExpr>::type;
-
 }
 
 #endif
+
