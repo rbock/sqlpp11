@@ -33,7 +33,9 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 endif ()
 
-include_directories("${PROJECT_SOURCE_DIR}/include")
+set(include_dir "${PROJECT_SOURCE_DIR}/include")
+file(GLOB_RECURSE sqlpp_headers ${include_dir}/*.h)
+include_directories(${include_dir})
 add_subdirectory(tests)
 
 install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/sqlpp11" DESTINATION include)
