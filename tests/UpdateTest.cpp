@@ -30,6 +30,7 @@
 #include "is_regular.h"
 
 DbMock db;
+DbMock::_context_t printer(std::cerr);
 
 int main()
 {
@@ -54,12 +55,12 @@ int main()
 		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
-	update(t).serialize(std::cerr, db); std::cerr << "\n";
-	update(t).set(t.gamma = false).serialize(std::cerr, db); std::cerr << "\n";
-	update(t).set(t.gamma = false).where(t.beta != "transparent").serialize(std::cerr, db); std::cerr << "\n";
+	interpret(update(t), printer).flush();
+	interpret(update(t).set(t.gamma = false), printer).flush();
+	interpret(update(t).set(t.gamma = false).where(t.beta != "transparent"), printer).flush();
 	auto u = dynamic_update(db, t).dynamic_set(t.gamma = false).dynamic_where();
 	u = u.add_set(t.gamma = false);
-	u.serialize(std::cerr, db); std::cerr << "\n";
+	interpret(u, printer).flush();
 
 	return 0;
 }

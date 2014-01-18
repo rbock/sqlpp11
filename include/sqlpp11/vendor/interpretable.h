@@ -30,6 +30,7 @@
 #include <memory>
 #include <sqlpp11/serializer.h>
 #include <sqlpp11/parameter_list.h>
+#include <sqlpp11/interpret.h>
 
 namespace sqlpp
 {
@@ -38,7 +39,7 @@ namespace sqlpp
 		template<typename Db>
 			struct interpretable_t
 			{
-				using _context_t = typename Db::context;
+				using _context_t = typename Db::_context_t;
 
 				template<typename T>
 					interpretable_t(T t):
@@ -51,7 +52,7 @@ namespace sqlpp
 				interpretable_t& operator=(interpretable_t&&) = default;
 				~interpretable_t() = default;
 
-				sqlpp::serializer& interpret(sqlpp::serializer& context) const
+				sqlpp::serializer_t& interpret(sqlpp::serializer_t& context) const
 				{
 					return _impl->interpret(context);
 				}
@@ -64,8 +65,8 @@ namespace sqlpp
 			private:
 				struct _impl_base
 				{
-					virtual sqlpp::serializer& interpret(sqlpp::serializer& context) const = 0;
-					virtual _context_t interpret(_context_t& context) const = 0;
+					virtual sqlpp::serializer_t& interpret(sqlpp::serializer_t& context) const = 0;
+					virtual _context_t& interpret(_context_t& context) const = 0;
 				};
 
 				template<typename T>
@@ -80,7 +81,7 @@ namespace sqlpp
 						_t(std::move(t))
 					{}
 
-					sqlpp::serializer& interpret(sqlpp::serializer& context) const
+					sqlpp::serializer_t& interpret(sqlpp::serializer_t& context) const
 					{
 						sqlpp::interpret(_t, context);
 						return context;

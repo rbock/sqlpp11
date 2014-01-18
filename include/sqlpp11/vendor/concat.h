@@ -39,7 +39,7 @@ namespace sqlpp
 			struct concat_t: public First::_value_type::template operators<concat_t<First, Args...>>
 		{
 			static_assert(sizeof...(Args) > 0, "concat requires two arguments at least");
-			using _valid_args = typename detail::make_set_if_not<is_text_t, First, Args...>::type;
+			using _valid_args = typename ::sqlpp::detail::make_set_if_not<is_text_t, First, Args...>::type;
 			static_assert(_valid_args::size::value == 0, "at least one non-text argument detected in concat()");
 
 			struct _value_type: public First::_value_type::_base_value_type

@@ -38,7 +38,7 @@ namespace sqlpp
 		template<typename Db>
 			struct named_interpretable_t
 			{
-				using _context_t = typename Db::context;
+				using _context_t = typename Db::_context_t;
 
 				template<typename T>
 					named_interpretable_t(T t):
@@ -51,7 +51,7 @@ namespace sqlpp
 				named_interpretable_t& operator=(named_interpretable_t&&) = default;
 				~named_interpretable_t() = default;
 
-				sqlpp::serializer& interpret(sqlpp::serializer& context) const
+				sqlpp::serializer_t& interpret(sqlpp::serializer_t& context) const
 				{
 					return _impl->interpret(context);
 				}
@@ -69,7 +69,7 @@ namespace sqlpp
 			private:
 				struct _impl_base
 				{
-					virtual sqlpp::serializer& interpret(sqlpp::serializer& context) const = 0;
+					virtual sqlpp::serializer_t& interpret(sqlpp::serializer_t& context) const = 0;
 					virtual _context_t& interpret(_context_t& context) const = 0;
 					virtual std::string _get_name() const = 0;
 				};
@@ -86,7 +86,7 @@ namespace sqlpp
 						_t(std::move(t))
 					{}
 
-					sqlpp::serializer& interpret(sqlpp::serializer& context) const
+					sqlpp::serializer_t& interpret(sqlpp::serializer_t& context) const
 					{
 						sqlpp::interpret(_t, context);
 						return context;

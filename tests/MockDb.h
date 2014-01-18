@@ -27,66 +27,14 @@
 #define  SQLPP_MOCK_DB_H
 
 #include <sqlpp11/connection.h>
+#include <sqlpp11/serializer.h>
 
-class DbMock: public sqlpp::connection
+struct DbMock: public sqlpp::connection
 {
-public:
-	struct context
+	struct _context_t : public sqlpp::serializer_t
 	{
-		using _database_t = DbMock;
-		context(std::ostream& os):
-			_os(os)
-		{}
-
-		template<typename T>
-			std::ostream& operator<<(T t)
-			{
-				return _os << t;
-			}
-
-		void flush()
-		{
-			_os << std::endl;
-		}
-
-		std::string escape(std::string arg)
-		{
-			return arg;
-		}
-
-		std::ostream& _os;
+		_context_t(std::ostream& os): sqlpp::serializer_t(os) {}
 	};
-
-	// join types
-	static constexpr bool _supports_inner_join = true;
-	static constexpr bool _supports_outer_join = true;
-	static constexpr bool _supports_left_outer_join = true;
-	static constexpr bool _supports_right_outer_join = true;
-
-	// functions
-	static constexpr bool _supports_avg = true;
-	static constexpr bool _supports_count = true;
-	static constexpr bool _supports_exists = true;
-	static constexpr bool _supports_like = true;
-	static constexpr bool _supports_in = true;
-	static constexpr bool _supports_max = true;
-	static constexpr bool _supports_min = true;
-	static constexpr bool _supports_not_in = true;
-	static constexpr bool _supports_sum = true;
-
-	// select
-	static constexpr bool _supports_group_by = true;
-	static constexpr bool _supports_having = true;
-	static constexpr bool _supports_limit = true;
-	static constexpr bool _supports_order_by = true;
-	static constexpr bool _supports_select_as_table = true;
-
-	static constexpr bool _supports_some = true;
-	static constexpr bool _supports_any = true;
-	static constexpr bool _use_concat_operator = true;
-	static constexpr bool _use_concat_function = true;
-
-	const std::string& escape(const std::string& text) { return text; }
 };
 
 #endif

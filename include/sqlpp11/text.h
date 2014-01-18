@@ -51,14 +51,9 @@ namespace sqlpp
 			{
 				using _value_type = integral;
 
-				_parameter_t(const std::true_type&):
+				_parameter_t():
 					_value(""),
-					_is_null(false)
-					{}
-
-				_parameter_t(const std::false_type&):
-					_value(""),
-					_is_null(false)
+					_is_null(true)
 					{}
 
 				_parameter_t(const _cpp_value_type& value):

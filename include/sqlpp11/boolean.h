@@ -63,14 +63,9 @@ namespace sqlpp
 			{
 				using _value_type = boolean;
 
-				_parameter_t(const std::true_type&):
+				_parameter_t():
 					_value(false),
-					_is_null(false)
-					{}
-
-				_parameter_t(const std::false_type&):
-					_value(false),
-					_is_null(false)
+					_is_null(true)
 					{}
 
 				_parameter_t(const _cpp_value_type& value):
@@ -186,14 +181,14 @@ namespace sqlpp
 					vendor::binary_expression_t<Base, and_, typename _constraint<T>::type> operator and(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-						return { *static_cast<const Base*>(this), std::forward<T>(t) };
+						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
 
 				template<typename T>
 					vendor::binary_expression_t<Base, or_, typename _constraint<T>::type> operator or(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-						return { *static_cast<const Base*>(this), std::forward<T>(t) };
+						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
 
 				vendor::not_t<Base> operator not() const

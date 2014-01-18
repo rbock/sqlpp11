@@ -91,7 +91,7 @@ namespace sqlpp
 								context << separator;
 								first = false;
 							}
-							interpret(t, context);
+							interpret(entry, context);
 						}
 						return context;
 					}

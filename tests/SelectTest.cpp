@@ -26,6 +26,7 @@
 #include "TabSample.h"
 #include "MockDb.h"
 #include "is_regular.h"
+#include <sqlpp11/alias_provider.h>
 #include <sqlpp11/select.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/connection.h>
@@ -33,6 +34,15 @@
 #include <iostream>
 
 DbMock db = {};
+DbMock::_context_t printer(std::cerr);
+
+namespace alias
+{
+	SQLPP_ALIAS_PROVIDER(a);
+	SQLPP_ALIAS_PROVIDER(b);
+	SQLPP_ALIAS_PROVIDER(left);
+	SQLPP_ALIAS_PROVIDER(right);
+}
 
 int main()
 {
@@ -59,7 +69,7 @@ int main()
 
 	// Test an alias of table
 	{
-		using T = decltype(t.as(sqlpp::alias::a));
+		using T = decltype(t.as(alias::a));
 		static_assert(not sqlpp::is_numeric_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_integral_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_floating_point_t<T>::value, "type requirement");
@@ -77,7 +87,7 @@ int main()
 
 	// Test an integral column of an alias of table
 	{
-		using T = decltype(t.as(sqlpp::alias::a).alpha);
+		using T = decltype(t.as(alias::a).alpha);
 		static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_integral_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_floating_point_t<T>::value, "type requirement");
@@ -132,7 +142,7 @@ int main()
 
 	// Test a an alias of a numeric table column
 	{
-		using T = decltype(t.alpha.as(sqlpp::alias::a));
+		using T = decltype(t.alpha.as(alias::a));
 		static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_named_expression_t<T>::value, "type requirement");
@@ -180,7 +190,7 @@ int main()
 
 	// Test a select of an alias of a single numeric table column
 	{
-		using T = decltype(select(t.alpha.as(sqlpp::alias::a)).from(t));
+		using T = decltype(select(t.alpha.as(alias::a)).from(t));
 		static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_named_expression_t<T>::value, "type requirement");
@@ -196,7 +206,7 @@ int main()
 
 	// Test an alias of a select of a single numeric table column
 	{
-		using T = decltype(select(t.alpha).from(t).as(sqlpp::alias::b));
+		using T = decltype(select(t.alpha).from(t).as(alias::b));
 		static_assert(not sqlpp::is_numeric_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_named_expression_t<T>::value, "type requirement");
@@ -212,7 +222,7 @@ int main()
 
 	// Test the column of an alias of a select of an alias of a single numeric table column
 	{
-		using T = decltype(select(t.alpha.as(sqlpp::alias::a)).from(t).as(sqlpp::alias::b));
+		using T = decltype(select(t.alpha.as(alias::a)).from(t).as(alias::b));
 		static_assert(not sqlpp::is_numeric_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_named_expression_t<T>::value, "type requirement");
@@ -228,7 +238,7 @@ int main()
 
 	// Test the column of an alias of a select of a single numeric table column
 	{
-		using T = decltype(select(t.alpha).from(t).as(sqlpp::alias::b).alpha);
+		using T = decltype(select(t.alpha).from(t).as(alias::b).alpha);
 		static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_named_expression_t<T>::value, "type requirement");
@@ -244,7 +254,7 @@ int main()
 
 	// Test an alias of a select of an alias of a single numeric table column
 	{
-		using T = decltype(select(t.alpha.as(sqlpp::alias::a)).from(t).as(sqlpp::alias::b).a);
+		using T = decltype(select(t.alpha.as(alias::a)).from(t).as(alias::b).a);
 		static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_named_expression_t<T>::value, "type requirement");
@@ -269,22 +279,22 @@ int main()
 
 	// Test that select(all_of(tab)) is expanded in multi_column
 	{
-		auto a = multi_column(sqlpp::alias::a, all_of(t));
-		auto b = multi_column(sqlpp::alias::a, t.alpha, t.beta, t.gamma);
+		auto a = multi_column(alias::a, all_of(t));
+		auto b = multi_column(alias::a, t.alpha, t.beta, t.gamma);
 		static_assert(std::is_same<decltype(a), decltype(b)>::value, "all_of(t) has to be expanded by multi_column");
 	}
 
 	// Test that select(tab) is expanded in multi_column
 	{
-		auto a = multi_column(sqlpp::alias::a, all_of(t));
-		auto b = multi_column(sqlpp::alias::a, t.alpha, t.beta, t.gamma);
+		auto a = multi_column(alias::a, all_of(t));
+		auto b = multi_column(alias::a, t.alpha, t.beta, t.gamma);
 		static_assert(std::is_same<decltype(a), decltype(b)>::value, "t has to be expanded by multi_column");
 	}
 
 	// Test that a multicolumn is not a value
 	{
-		auto m = multi_column(sqlpp::alias::a, t.alpha, t.beta);
-		auto a = select(m).from(t).as(sqlpp::alias::b).a;
+		auto m = multi_column(alias::a, t.alpha, t.beta);
+		auto a = select(m).from(t).as(alias::b).a;
 		static_assert(not sqlpp::is_value_t<decltype(a)>::value, "a multi_column is not a value");
 	}
 
@@ -307,7 +317,7 @@ int main()
 		s = s.set_limit(30);
 		s = s.set_limit(3);
 		std::cerr << "------------------------\n";
-		s.serialize(std::cerr, db);
+		interpret(s, printer).flush();
 		std::cerr << "------------------------\n";
 		using T = decltype(s);
 		static_assert(sqlpp::is_regular<T>::value, "type requirement");
@@ -316,18 +326,18 @@ int main()
 	// Test that select can be called with zero columns if it is used with dynamic columns.
 	{
 		auto s = dynamic_select(db).dynamic_columns().add_column(t.alpha);
-		s.serialize(std::cerr, db); std::cerr << "\n";
+		interpret(s, printer).flush();
 	}
 
 	// Test that verbatim_table compiles
 	{
 		auto s = select(t.alpha).from(sqlpp::verbatim_table("my_unknown_table"));
-		s.serialize(std::cerr, db); std::cerr << "\n";
+		interpret(s, printer).flush();
 	}
 
 
 	static_assert(sqlpp::is_select_flag_t<decltype(sqlpp::all)>::value, "sqlpp::all has to be a select_flag");
-  using T = sqlpp::detail::wrap_operand<int>::type;
+  using T = sqlpp::vendor::wrap_operand<int>::type;
 	static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	static_assert(T::_is_expression, "T has to be an expression");
 	static_assert(std::is_same<typename T::_value_type::_is_numeric, std::true_type>::value, "T has to be a numeric");
@@ -339,29 +349,28 @@ int main()
 	auto y = t.gamma and true and t.gamma;
 	!t.gamma;
 	t.beta < "kaesekuchen";
-	(t.beta + "hallenhalma").serialize(std::cerr, db);
-	concat(t.beta, "hallenhalma").serialize(std::cerr, db);
+	interpret(t.beta + "hallenhalma", printer).flush();
 	static_assert(sqlpp::must_not_insert_t<decltype(t.alpha)>::value, "alpha must not be inserted");
-	t.alpha.serialize(std::cerr, db);
+	interpret(t.alpha, printer).flush();
 	std::cerr << "\n" << sizeof(TabSample) << std::endl;
 	static_assert(std::is_same<typename decltype(t.alpha)::_value_type::_is_named_expression, std::true_type>::value, "alpha should be a named expression");
 	static_assert(sqlpp::is_named_expression_t<decltype(t.alpha)>::value, "alpha should be a named expression");
-	static_assert(sqlpp::is_named_expression_t<decltype(t.alpha.as(sqlpp::alias::a))>::value, "an alias of alpha should be a named expression");
-	static_assert(sqlpp::is_alias_t<decltype(t.alpha.as(sqlpp::alias::a))>::value, "an alias of alpha should be an alias");
+	static_assert(sqlpp::is_named_expression_t<decltype(t.alpha.as(alias::a))>::value, "an alias of alpha should be a named expression");
+	static_assert(sqlpp::is_alias_t<decltype(t.alpha.as(alias::a))>::value, "an alias of alpha should be an alias");
 	auto z = select(t.alpha) == 7;
-	auto l = t.as(sqlpp::alias::left);
-	auto r = select(t.gamma.as(sqlpp::alias::a)).from(t).where(t.gamma == true).as(sqlpp::alias::right);
+	auto l = t.as(alias::left);
+	auto r = select(t.gamma.as(alias::a)).from(t).where(t.gamma == true).as(alias::right);
 	static_assert(sqlpp::is_boolean_t<decltype(select(t.gamma).from(t))>::value, "select(bool) has to be a bool");
-	select(sqlpp::distinct, sqlpp::straight_join, l.alpha, l.beta, select(r.a).from(r))
+	interpret(select(sqlpp::distinct, sqlpp::straight_join, l.alpha, l.beta, select(r.a).from(r))
 		.from(l, r)
-		.where(t.beta == "hello world" and select(t.gamma).from(t))// .as(sqlpp::alias::right))
+		.where(t.beta == "hello world" and select(t.gamma).from(t))// .as(alias::right))
 		.group_by(l.gamma, r.a)
 		.having(r.a != true)
 		.order_by(l.beta.asc())
 		.limit(17)
 		.offset(3)
-		.as(sqlpp::alias::a)
-		.serialize(std::cerr, db);
+		.as(alias::a)
+		, printer).flush();
 
 	return 0;
 }

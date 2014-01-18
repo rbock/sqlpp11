@@ -35,7 +35,7 @@
 #include <iostream>
 
 DbMock db = {};
-DbMock::context printer(std::cerr);
+DbMock::_context_t printer(std::cerr);
 SQLPP_ALIAS_PROVIDER(kaesekuchen);
 
 int main()

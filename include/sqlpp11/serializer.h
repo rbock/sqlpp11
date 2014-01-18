@@ -30,9 +30,9 @@
 
 namespace sqlpp
 {
-	struct serializer
+	struct serializer_t
 	{
-		serializer(std::ostream& os):
+		serializer_t(std::ostream& os):
 			_os(os)
 		{}
 

@@ -135,9 +135,6 @@ namespace sqlpp
 				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 				using _parameter_tuple_t = std::tuple<NamedExpr...>;
 
-				// check for at least one expression
-				static_assert(_is_dynamic::value or sizeof...(NamedExpr), "at least one select expression required");
-
 				// check for duplicate select expressions
 				static_assert(not ::sqlpp::detail::has_duplicates<NamedExpr...>::value, "at least one duplicate argument detected");
 
@@ -191,6 +188,9 @@ namespace sqlpp
 
 				static Context& _(const T& t, Context& context)
 				{
+					// check for at least one expression
+					static_assert(T::_is_dynamic::value or sizeof...(NamedExpr), "at least one select expression required");
+
 					interpret_tuple(t._expressions, ',', context);
 					if (sizeof...(NamedExpr) and not t._dynamic_expressions.empty())
 						context << ',';
