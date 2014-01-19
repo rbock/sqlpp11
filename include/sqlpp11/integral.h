@@ -28,9 +28,10 @@
 #define SQLPP_INTEGRAL_H
 
 #include <cstdlib>
-#include <sqlpp11/detail/basic_operators.h>
+#include <sqlpp11/basic_operators.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/exception.h>
+#include <sqlpp11/vendor/value_type.h>
 
 namespace sqlpp
 {
@@ -51,27 +52,20 @@ namespace sqlpp
 			{
 				using _value_type = integral;
 
-				_parameter_t(const std::true_type&):
-					_trivial_value_is_null(true),
+				_parameter_t():
 					_value(0),
-					_is_null(_trivial_value_is_null	and _is_trivial())
-					{}
-
-				_parameter_t(const std::false_type&):
-					_trivial_value_is_null(false),
-					_value(0),
-					_is_null(_trivial_value_is_null	and _is_trivial())
+					_is_null(true)
 					{}
 
 				explicit _parameter_t(const _cpp_value_type& value):
 					_value(value),
-					_is_null(_trivial_value_is_null and _is_trivial())
+					_is_null(false)
 					{}
 
 				_parameter_t& operator=(const _cpp_value_type& value)
 				{
 					_value = value;
-					_is_null = (_trivial_value_is_null and _is_trivial());
+					_is_null = false;
 					return *this;
 				}
 
@@ -80,14 +74,6 @@ namespace sqlpp
 					_value = 0;
 					_is_null = true;
 				}
-
-				template<typename Db>
-					void serialize(std::ostream& os, Db& db) const
-					{
-						os << value();
-					}
-
-				bool _is_trivial() const { return value() == 0; }
 
 				bool is_null() const
 			 	{ 
@@ -108,7 +94,6 @@ namespace sqlpp
 					}
 
 			private:
-				bool _trivial_value_is_null;
 				_cpp_value_type _value;
 				bool _is_null;
 			};
@@ -148,14 +133,6 @@ namespace sqlpp
 					_is_valid = true;
 				}
 
-				template<typename Db>
-					void serialize(std::ostream& os, Db& db) const
-					{
-						os << value();
-					}
-
-				bool _is_trivial() const { return value() == 0; }
-
 				bool is_null() const
 			 	{ 
 					if (not _is_valid)
@@ -185,65 +162,57 @@ namespace sqlpp
 			};
 
 			template<typename T>
-			struct plus_
-			{
-				using _value_type = typename wrap_operand<typename std::decay<T>::type>::type::_value_type;
-				static constexpr const char* _name = "+";
-			};
-
-			template<typename T>
-			struct minus_
-			{
-				using _value_type = typename wrap_operand<typename std::decay<T>::type>::type::_value_type;
-				static constexpr const char* _name = "-";
-			};
-
-			template<typename T>
-			struct multiplies_
-			{
-				using _value_type = typename wrap_operand<typename std::decay<T>::type>::type::_value_type;
-				static constexpr const char* _name = "*";
-			};
-
-			struct divides_
-			{
-				using _value_type = floating_point;
-				static constexpr const char* _name = "/";
-			};
-
-			template<typename T>
 				using _constraint = operand_t<T, is_numeric_t>;
 
 			template<typename Base>
 				struct operators: public basic_operators<Base, _constraint>
 			{
 				template<typename T>
-					binary_expression_t<Base, plus_<T>, typename _constraint<T>::type> operator +(T&& t) const
+					vendor::plus_t<Base, vendor::value_type_t<T>, typename _constraint<T>::type> operator +(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-						return { *static_cast<const Base*>(this), std::forward<T>(t) };
+						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
 
 				template<typename T>
-					binary_expression_t<Base, minus_<T>, typename _constraint<T>::type> operator -(T&& t) const
+					vendor::minus_t<Base, vendor::value_type_t<T>, typename _constraint<T>::type> operator -(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-						return { *static_cast<const Base*>(this), std::forward<T>(t) };
+						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
 
 				template<typename T>
-					binary_expression_t<Base, multiplies_<T>, typename _constraint<T>::type> operator *(T&& t) const
+					vendor::multiplies_t<Base, vendor::value_type_t<T>, typename _constraint<T>::type> operator *(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-						return { *static_cast<const Base*>(this), std::forward<T>(t) };
+						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
 
 				template<typename T>
-					binary_expression_t<Base, divides_, typename _constraint<T>::type> operator /(T&& t) const
+					vendor::divides_t<Base, typename _constraint<T>::type> operator /(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-						return { *static_cast<const Base*>(this), std::forward<T>(t) };
+						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
+
+				template<typename T>
+					vendor::modulus_t<Base, typename _constraint<T>::type> operator %(T&& t) const
+					{
+						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
+						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
+					}
+
+				vendor::unary_plus_t<integral, Base> operator +() const
+				{
+					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as unary operand");
+					return { *static_cast<const Base*>(this) };
+				}
+
+				vendor::unary_minus_t<integral, Base> operator -() const
+				{
+					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as unary operand");
+					return { *static_cast<const Base*>(this) };
+				}
 
 				template<typename T>
 					auto operator +=(T&& t) const -> decltype(std::declval<Base>() = std::declval<Base>() + std::forward<T>(t))

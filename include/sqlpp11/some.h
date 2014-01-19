@@ -32,7 +32,7 @@
 
 namespace sqlpp
 {
-	namespace detail
+	namespace vendor
 	{
 		template<typename Select>
 		struct some_t: public boolean::template operators<some_t<Select>>
@@ -71,25 +71,32 @@ namespace sqlpp
 			some_t& operator=(some_t&&) = default;
 			~some_t() = default;
 
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					static_assert(Db::_supports_some, "some() not supported by current database");
-					os << "SOME(";
-					_select.serialize(os, db);
-					os << ")";
-				}
-
-		private:
 			Select _select;
 		};
 	}
 
-	template<typename T>
-	auto some(T&& t) -> typename detail::some_t<typename operand_t<T, is_select_t>::type>
+	namespace vendor
 	{
-		return { std::forward<T>(t) };
+		template<typename Context, typename Select>
+			struct interpreter_t<Context, vendor::some_t<Select>>
+			{
+				using T = vendor::some_t<Select>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					context << "SOME(";
+					interpret(t._select, context);
+					context << ")";
+					return context;
+				}
+			};
 	}
+
+	template<typename T>
+		auto some(T&& t) -> typename vendor::some_t<typename operand_t<T, is_select_t>::type>
+		{
+			return { std::forward<T>(t) };
+		}
 
 }
 

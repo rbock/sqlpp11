@@ -32,25 +32,6 @@
 
 namespace sqlpp
 {
-	namespace detail
-	{
-		template<typename... T>
-			struct or_t;
-
-		template<typename T, typename... Rest>
-			struct or_t<T, Rest...>
-			{
-				static constexpr bool value = T::value or or_t<Rest...>::value;
-			};
-
-		template<>
-			struct or_t<>
-			{
-				static constexpr bool value = false;
-			};
-
-	}
-
 	template<typename T>
 		struct parameter_list_t
 		{
@@ -62,10 +43,8 @@ namespace sqlpp
 		{
 			using _member_tuple_t = std::tuple<typename Parameter::_instance_t...>;
 			using size = std::integral_constant<std::size_t, sizeof...(Parameter)>;
-			using _contains_trivial_value_is_null_t = detail::or_t<typename Parameter::_trivial_value_is_null_t...>;
 
-			parameter_list_t():
-				Parameter::_instance_t({typename Parameter::_trivial_value_is_null_t()})...
+			parameter_list_t()
 			{}
 
 			template<typename Target>
@@ -125,70 +104,6 @@ namespace sqlpp
 		{
 			using type = parameter_list_t<typename detail::get_parameter_tuple<typename std::decay<Exp>::type>::type>;
 		};
-
-	template<typename T>
-	size_t set_parameter_index(T& t, size_t index);
-
-	namespace detail
-	{
-		template<typename Exp, typename Enable = void>
-			struct set_parameter_index_t
-			{
-				size_t operator()(Exp& e, size_t index)
-				{
-					return index;
-				}
-			};
-
-		template<typename Exp>
-			struct set_parameter_index_t<Exp, typename std::enable_if<is_parameter_t<Exp>::value, void>::type>
-			{
-				size_t operator()(Exp& e, size_t index)
-				{
-					return e._set_parameter_index(index);
-				}
-			};
-
-		template<typename... Param>
-			struct set_parameter_index_t<std::tuple<Param...>, void>
-			{
-				template<size_t> struct type{};
-
-				size_t operator()(std::tuple<Param...>& t, size_t index)
-				{
-					return impl(t, index, type<0>());
-				}
-			private:
-				template<size_t pos>
-				size_t impl(std::tuple<Param...>& t, size_t index, const type<pos>&)
-				{
-					index = sqlpp::set_parameter_index(std::get<pos>(t), index);
-					return impl(t, index, type<pos + 1>());
-				}
-
-				size_t impl(std::tuple<Param...>& t, size_t index, const type<sizeof...(Param)>&)
-				{
-					return index;
-				}
-			};
-
-		template<typename Exp>
-			struct set_parameter_index_t<Exp, typename std::enable_if<not std::is_same<typename Exp::_parameter_tuple_t, void>::value, void>::type>
-			{
-				size_t operator()(Exp& e, size_t index)
-				{
-					return e._set_parameter_index(index);
-				}
-			};
-
-	}
-
-
-	template<typename T>
-	size_t set_parameter_index(T& t, size_t index)
-	{
-		return detail::set_parameter_index_t<T>()(t, index);
-	}
 
 }
 

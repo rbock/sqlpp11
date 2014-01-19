@@ -28,11 +28,11 @@
 #define SQLPP_TEXT_H
 
 #include <cstdlib>
-#include <sqlpp11/detail/basic_operators.h>
+#include <sqlpp11/basic_operators.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/exception.h>
-#include <sqlpp11/concat.h>
-#include <sqlpp11/like.h>
+#include <sqlpp11/vendor/concat.h>
+#include <sqlpp11/vendor/like.h>
 
 namespace sqlpp
 {
@@ -51,27 +51,20 @@ namespace sqlpp
 			{
 				using _value_type = integral;
 
-				_parameter_t(const std::true_type&):
-					_trivial_value_is_null(true),
+				_parameter_t():
 					_value(""),
-					_is_null(_trivial_value_is_null and _is_trivial())
-					{}
-
-				_parameter_t(const std::false_type&):
-					_trivial_value_is_null(false),
-					_value(""),
-					_is_null(_trivial_value_is_null and _is_trivial())
+					_is_null(true)
 					{}
 
 				_parameter_t(const _cpp_value_type& value):
 					_value(value),
-					_is_null(_trivial_value_is_null and _is_trivial())
+					_is_null(false)
 					{}
 
 				_parameter_t& operator=(const _cpp_value_type& value)
 				{
 					_value = value;
-					_is_null = (_trivial_value_is_null and _is_trivial());
+					_is_null = false;
 					return *this;
 				}
 
@@ -81,14 +74,6 @@ namespace sqlpp
 					_is_null = true;
 					return *this;
 				}
-
-				template<typename Db>
-					void serialize(std::ostream& os, Db& db) const
-					{
-						os << value();
-					}
-
-				bool _is_trivial() const { return value() == ""; }
 
 				bool is_null() const
 			 	{ 
@@ -109,7 +94,6 @@ namespace sqlpp
 					}
 
 			private:
-				bool _trivial_value_is_null;
 				_cpp_value_type _value;
 				bool _is_null;
 			};
@@ -146,14 +130,6 @@ namespace sqlpp
 					_value_ptr = nullptr;
 					_len = 0;
 				}
-
-				template<typename Db>
-					void serialize(std::ostream& os, Db& db) const
-					{
-						os << value();
-					}
-
-				bool _is_trivial() const { return _len == 0; }
 
 				bool operator==(const _cpp_value_type& rhs) const { return value() == rhs; }
 				bool operator!=(const _cpp_value_type& rhs) const { return not operator==(rhs); }
@@ -196,17 +172,17 @@ namespace sqlpp
 				struct operators: public basic_operators<Base, _constraint>
 			{
 				template<typename T>
-					detail::concat_t<Base, typename _constraint<T>::type> operator+(T&& t) const
+					vendor::concat_t<Base, typename _constraint<T>::type> operator+(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-						return { *static_cast<const Base*>(this), std::forward<T>(t) };
+						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
 
 				template<typename T>
-					detail::like_t<boolean, Base, typename _constraint<T>::type> like(T&& t) const
+					vendor::like_t<Base, typename _constraint<T>::type> like(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-						return { *static_cast<const Base*>(this), std::forward<T>(t) };
+						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
 
 			};

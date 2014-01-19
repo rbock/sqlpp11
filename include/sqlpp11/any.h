@@ -32,7 +32,7 @@
 
 namespace sqlpp
 {
-	namespace detail
+	namespace vendor
 	{
 		template<typename Select>
 		struct any_t: public boolean::template operators<any_t<Select>>
@@ -71,26 +71,33 @@ namespace sqlpp
 			any_t& operator=(any_t&&) = default;
 			~any_t() = default;
 
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					static_assert(Db::_supports_any, "any() not supported by current database");
-					os << "ANY(";
-					_select.serialize(os, db);
-					os << ")";
-				}
-
-		private:
 			Select _select;
 		};
 	}
 
-	template<typename T>
-	auto any(T&& t) -> typename detail::any_t<typename operand_t<T, is_select_t>::type>
+	namespace vendor
 	{
-		return { std::forward<T>(t) };
-	}
+		template<typename Context, typename Select>
+			struct interpreter_t<Context, vendor::any_t<Select>>
+			{
+				using T = vendor::any_t<Select>;
 
+				static Context& _(const T& t, Context& context)
+				{
+					context << "ANY(";
+					interpret(t._select, context);
+					context << ")";
+					return context;
+				}
+			};
+
+		template<typename T>
+			auto any(T&& t) -> typename vendor::any_t<typename operand_t<T, is_select_t>::type>
+			{
+				return { std::forward<T>(t) };
+			}
+
+	}
 }
 
 #endif

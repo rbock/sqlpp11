@@ -27,10 +27,9 @@
 #ifndef SQLPP_RESULT_ROW_H
 #define SQLPP_RESULT_ROW_H
 
-#include <sqlpp11/char_result_row.h>
-#include <sqlpp11/field.h>
+#include <sqlpp11/vendor/char_result_row.h>
+#include <sqlpp11/vendor/field.h>
 #include <sqlpp11/text.h>
-#include <iostream>
 #include <map>
 
 namespace sqlpp
@@ -87,7 +86,7 @@ namespace sqlpp
 			};
 
 		template<size_t level, size_t index, typename AliasProvider, typename... Col, typename... Rest>
-			struct result_row_impl<level, index, multi_field_t<AliasProvider, std::tuple<Col...>>, Rest...>: 
+			struct result_row_impl<level, index, vendor::multi_field_t<AliasProvider, std::tuple<Col...>>, Rest...>: 
 			public AliasProvider::_name_t::template _member_t<result_row_impl<level, index, Col...>>, // level prevents identical closures to be present twice in the inheritance tree
 			public result_row_impl<level, index + sizeof...(Col), Rest...>
 			{

@@ -28,7 +28,8 @@
 #define SQLPP_BOOLEAN_H
 
 #include <cstdlib>
-#include <sqlpp11/detail/basic_operators.h>
+#include <ostream>
+#include <sqlpp11/basic_operators.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/exception.h>
 
@@ -37,18 +38,6 @@ namespace sqlpp
 	// boolean operators
 	namespace detail
 	{
-		struct or_
-		{
-			using _value_type = boolean;
-			static constexpr const char* _name = "OR";
-		};
-
-		struct and_
-		{
-			using _value_type = boolean;
-			static constexpr const char* _name = "AND";
-		};
-
 		// boolean value type
 		struct boolean
 		{
@@ -62,27 +51,20 @@ namespace sqlpp
 			{
 				using _value_type = boolean;
 
-				_parameter_t(const std::true_type&):
-					_trivial_value_is_null(true),
+				_parameter_t():
 					_value(false),
-					_is_null(_trivial_value_is_null and _is_trivial())
-					{}
-
-				_parameter_t(const std::false_type&):
-					_trivial_value_is_null(false),
-					_value(false),
-					_is_null(_trivial_value_is_null and _is_trivial())
+					_is_null(true)
 					{}
 
 				_parameter_t(const _cpp_value_type& value):
 					_value(value),
-					_is_null(_trivial_value_is_null and _is_trivial())
+					_is_null(false)
 					{}
 
 				_parameter_t& operator=(const _cpp_value_type& value)
 				{
 					_value = value;
-					_is_null = (_trivial_value_is_null and _is_trivial());
+					_is_null = (false);
 					return *this;
 				}
 
@@ -92,14 +74,6 @@ namespace sqlpp
 					_is_null = true;
 					return *this;
 				}
-
-				template<typename Db>
-					void serialize(std::ostream& os, Db& db) const
-					{
-						os << value();
-					}
-
-				bool _is_trivial() const { return value() == false; }
 
 				bool is_null() const
 			 	{ 
@@ -120,7 +94,6 @@ namespace sqlpp
 					}
 
 			private:
-				bool _trivial_value_is_null;
 				signed char _value;
 				bool _is_null;
 			};
@@ -158,14 +131,6 @@ namespace sqlpp
 					_value = 0;
 				}
 
-				template<typename Db>
-					void serialize(std::ostream& os, Db& db) const
-					{
-						os << value();
-					}
-
-				bool _is_trivial() const { return value() == false; }
-
 				bool is_null() const
 			 	{ 
 					if (not _is_valid)
@@ -201,20 +166,20 @@ namespace sqlpp
 				struct operators: public basic_operators<Base, _constraint>
 			{
 				template<typename T>
-					binary_expression_t<Base, and_, typename _constraint<T>::type> operator and(T&& t) const
+					vendor::logical_and_t<Base, typename _constraint<T>::type> operator and(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-						return { *static_cast<const Base*>(this), std::forward<T>(t) };
+						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
 
 				template<typename T>
-					binary_expression_t<Base, or_, typename _constraint<T>::type> operator or(T&& t) const
+					vendor::logical_or_t<Base, typename _constraint<T>::type> operator or(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-						return { *static_cast<const Base*>(this), std::forward<T>(t) };
+						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
 
-				not_t<Base> operator not() const
+				vendor::logical_not_t<Base> operator not() const
 				{
 					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be as operand for operator not");
 					return { *static_cast<const Base*>(this) };

@@ -27,10 +27,9 @@
 #ifndef SQLPP_ON_H
 #define SQLPP_ON_H
 
-#include <ostream>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/detail/serialize_tuple.h>
-#include <sqlpp11/detail/serializable_list.h>
+#include <sqlpp11/vendor/interpret_tuple.h>
+#include <sqlpp11/vendor/interpretable_list.h>
 
 namespace sqlpp
 {
@@ -51,20 +50,31 @@ namespace sqlpp
 					_dynamic_expressions.emplace_back(std::forward<E>(expr));
 				}
 
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					if (sizeof...(Expr) == 0 and _dynamic_expressions.empty())
-						return;
-					os << " ON ";
-					detail::serialize_tuple(os, db, _expressions, " AND ");
-					_dynamic_expressions.serialize(os, db, " AND ", sizeof...(Expr) == 0);
-				}
-
 			std::tuple<Expr...> _expressions;
-			detail::serializable_list<Database> _dynamic_expressions;
+			vendor::interpretable_list_t<Database> _dynamic_expressions;
 		};
 
+	namespace vendor
+	{
+		template<typename Context, typename Database, typename... Expr>
+			struct interpreter_t<Context, on_t<Database, Expr...>>
+			{
+				using T = on_t<Database, Expr...>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					if (sizeof...(Expr) == 0 and t._dynamic_expressions.empty())
+						return context;
+					context << " ON ";
+					interpret_tuple(t._expressions, " AND ", context);
+					if (sizeof...(Expr) and not t._dynamic_expressions.empty())
+						context << " AND ";
+					interpret_list(t._dynamic_expressions, " AND ", context);
+					return context;
+				}
+			};
+
+	}
 }
 
 #endif

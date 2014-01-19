@@ -27,58 +27,46 @@
 #ifndef SQLPP_PARAMETER_H
 #define SQLPP_PARAMETER_H
 
-#include <ostream>
-#include <sqlpp11/select_fwd.h>
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
-	template<typename ValueType, typename NameType, typename TrivialValueIsNull>
-	struct parameter_t
+	template<typename ValueType, typename NameType>
+	struct parameter_t: public ValueType::template operators<parameter_t<ValueType, NameType>>
 	{
 		using _value_type = ValueType;
 		using _is_parameter = std::true_type;
 		using _is_expression_t = std::true_type;
 		using _instance_t = typename NameType::_name_t::template _member_t<typename ValueType::_parameter_t>;
-		using _trivial_value_is_null_t = TrivialValueIsNull;
 
-		static_assert(std::is_same<_trivial_value_is_null_t, std::true_type>::value or std::is_same<_trivial_value_is_null_t, std::false_type>::value, "Invalid template parameter TrivialValueIsNull");
+		parameter_t()
+		{}
 
-		template<typename Db>
-			void serialize(std::ostream& os, Db& db) const
-			{
-				static_assert(Db::_supports_prepared, "prepared statements not supported by current database");
-				static_assert(Db::_use_questionmark_parameter or Db::_use_positional_dollar_parameter, "no known way to serialize parameter placeholders for current database");
-				if (Db::_use_questionmark_parameter)
-					os << '?';
-				else if (Db::_use_positional_dollar_parameter)
-					os << '$' << _index + 1;
-			}
-
-		constexpr bool _is_trivial() const
-		{
-			return false;
-		}
-
-		size_t _set_parameter_index(size_t index)
-		{
-			_index = index;
-			return index + 1;
-		}
-
-		size_t _index;
+		parameter_t(const parameter_t&) = default;
+		parameter_t(parameter_t&&) = default;
+		parameter_t& operator=(const parameter_t&) = default;
+		parameter_t& operator=(parameter_t&&) = default;
+		~parameter_t() = default;
 	};
 
-	template<typename NamedExpr, typename TrivialValueIsNull = trivial_value_is_null_t<typename std::decay<NamedExpr>::type>>
-		auto parameter(NamedExpr&& namedExpr)
-		-> parameter_t<typename std::decay<NamedExpr>::type::_value_type, typename std::decay<NamedExpr>::type, TrivialValueIsNull>
-		{
-			return {};
-		}
+	namespace vendor
+	{
+		template<typename Context, typename ValueType, typename NameType>
+			struct interpreter_t<Context, parameter_t<ValueType, NameType>>
+			{
+				using T = parameter_t<ValueType, NameType>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					context << "?";
+					return context;
+				}
+			};
+	}
 
 	template<typename NamedExpr>
-		auto where_parameter(NamedExpr&& namedExpr)
-		-> parameter_t<typename std::decay<NamedExpr>::type::_value_type, typename std::decay<NamedExpr>::type, std::false_type>
+		auto parameter(NamedExpr&& namedExpr)
+		-> parameter_t<typename std::decay<NamedExpr>::type::_value_type, typename std::decay<NamedExpr>::type>
 		{
 			return {};
 		}

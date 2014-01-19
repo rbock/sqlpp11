@@ -32,7 +32,7 @@
 
 namespace sqlpp
 {
-	namespace detail
+	namespace vendor
 	{
 		template<typename Expr>
 		struct sum_t: public boolean::template operators<sum_t<Expr>>
@@ -70,25 +70,32 @@ namespace sqlpp
 			sum_t& operator=(sum_t&&) = default;
 			~sum_t() = default;
 
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					static_assert(Db::_supports_sum, "sum not supported by current database");
-					os << "SUM(";
-					_expr.serialize(os, db);
-					os << ")";
-				}
-
-		private:
 			Expr _expr;
 		};
 	}
 
-	template<typename T>
-	auto sum(T&& t) -> typename detail::sum_t<typename operand_t<T, is_value_t>::type>
+	namespace vendor
 	{
-		return { std::forward<T>(t) };
+		template<typename Context, typename Expr>
+			struct interpreter_t<Context, vendor::sum_t<Expr>>
+			{
+				using T = vendor::sum_t<Expr>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					context << "SUM(";
+					interpret(t._expr, context);
+					context << ")";
+					return context;
+				}
+			};
 	}
+
+	template<typename T>
+		auto sum(T&& t) -> typename vendor::sum_t<typename operand_t<T, is_value_t>::type>
+		{
+			return { std::forward<T>(t) };
+		}
 
 }
 

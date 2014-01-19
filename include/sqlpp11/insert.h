@@ -27,61 +27,63 @@
 #ifndef SQLPP_INSERT_H
 #define SQLPP_INSERT_H
 
-#include <sstream>
-#include <sqlpp11/noop.h>
-#include <sqlpp11/select_fwd.h>
-#include <sqlpp11/insert_list.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/parameter_list.h>
 #include <sqlpp11/prepared_insert.h>
-
-#include <sqlpp11/detail/serialize_tuple.h>
+#include <sqlpp11/vendor/noop.h>
+#include <sqlpp11/vendor/insert_list.h>
+#include <sqlpp11/parameter_list.h>
 
 namespace sqlpp
 {
-	template<
-		typename Database = void,
-		typename Table = noop,
-		typename InsertList = noop
-		>
-	struct insert_t;
 
 	template<
-		typename Database,
-		typename Table,
-		typename InsertList
+		typename Database = void,
+		typename Table = vendor::noop,
+		typename InsertList = vendor::noop
 		>
 		struct insert_t
 		{
-			static_assert(is_noop<Table>::value or is_table_t<Table>::value, "invalid 'Table' argument");
-			static_assert(is_noop<InsertList>::value or is_insert_list_t<InsertList>::value, "invalid 'InsertList' argument");
+			static_assert(vendor::is_noop<Table>::value or is_table_t<Table>::value, "invalid 'Table' argument");
+			static_assert(vendor::is_noop<InsertList>::value or is_insert_list_t<InsertList>::value, "invalid 'InsertList' argument");
 
 			template<typename AssignmentT> 
 				using set_insert_list_t = insert_t<Database, Table, AssignmentT>;
+			using use_default_values_t = insert_t<Database, Table, vendor::insert_default_values_t>;
 
 			using _parameter_tuple_t = std::tuple<Table, InsertList>;
 			using _parameter_list_t = typename make_parameter_list_t<insert_t>::type;
 
-			template<typename... Assignment>
-				auto set(Assignment&&... assignment)
-				-> set_insert_list_t<insert_list_t<void, must_not_insert_t, typename std::decay<Assignment>::type...>>
+			auto default_values()
+				-> use_default_values_t
 				{
-					static_assert(std::is_same<InsertList, noop>::value, "cannot call set() twice");
+					static_assert(std::is_same<InsertList, vendor::noop>::value, "cannot call default_values() after set() or default_values()");
 					// FIXME:  Need to check if all required columns are set
 					return {
 							_table,
-							insert_list_t<void, must_not_insert_t, typename std::decay<Assignment>::type...>{std::forward<Assignment>(assignment)...},
+								{},
+					};
+				}
+
+			template<typename... Assignment>
+				auto set(Assignment&&... assignment)
+				-> set_insert_list_t<vendor::insert_list_t<void, typename std::decay<Assignment>::type...>>
+				{
+					static_assert(std::is_same<InsertList, vendor::noop>::value, "cannot call set() after set() or default_values()");
+					// FIXME:  Need to check if all required columns are set
+					return {
+							_table,
+							vendor::insert_list_t<void, typename std::decay<Assignment>::type...>{std::forward<Assignment>(assignment)...},
 					};
 				}
 
 			template<typename... Assignment>
 				auto dynamic_set(Assignment&&... assignment)
-				-> set_insert_list_t<insert_list_t<Database, must_not_insert_t, typename std::decay<Assignment>::type...>>
+				-> set_insert_list_t<vendor::insert_list_t<Database, typename std::decay<Assignment>::type...>>
 				{
-					static_assert(std::is_same<InsertList, noop>::value, "cannot call set() twice");
+					static_assert(std::is_same<InsertList, vendor::noop>::value, "cannot call set() after set() or default_values()");
 					return {
 							_table,
-							insert_list_t<Database, must_not_insert_t, typename std::decay<Assignment>::type...>{std::forward<Assignment>(assignment)...},
+							vendor::insert_list_t<Database, typename std::decay<Assignment>::type...>{std::forward<Assignment>(assignment)...},
 					};
 				}
 
@@ -95,35 +97,12 @@ namespace sqlpp
 					return *this;
 				}
 
-			template<typename Db>
-				const insert_t& serialize(std::ostream& os, Db& db) const
-				{
-					os << "INSERT INTO ";
-					_table.serialize(os, db);
-					if (is_noop<InsertList>::value)
-					{
-						detail::serialize_empty_insert_list(os, db);
-					}
-					else
-					{
-						_insert_list.serialize(os, db);
-					}
-					return *this;
-				}
-
-			template<typename Db>
-				insert_t& serialize(std::ostream& os, Db& db)
-				{
-					static_cast<const insert_t*>(this)->serialize(os, db);
-					return *this;
-				}
-
 			static constexpr size_t _get_static_no_of_parameters()
 			{
 				return _parameter_list_t::size::value;
 			}
 
-			size_t _get_no_of_parameters()
+			size_t _get_no_of_parameters() const
 			{
 				return _parameter_list_t::size::value; // FIXME: Need to add dynamic parameters here
 			}
@@ -131,7 +110,8 @@ namespace sqlpp
 			template<typename Db>
 				std::size_t run(Db& db) const
 				{
-					constexpr bool calledSet = not is_noop<InsertList>::value;
+					// FIXME: check if set or default_values() has ben called
+					constexpr bool calledSet = not vendor::is_noop<InsertList>::value;
 					constexpr bool requireSet = Table::_required_insert_columns::size::value > 0;
 					static_assert(calledSet or not requireSet, "calling set() required for given table");
 					static_assert(_get_static_no_of_parameters() == 0, "cannot run insert directly with parameters, use prepare instead");
@@ -139,28 +119,36 @@ namespace sqlpp
 				}
 
 			template<typename Db>
-				auto prepare(Db& db)
+				auto prepare(Db& db) const
 				-> prepared_insert_t<typename std::decay<Db>::type, insert_t>
 				{
-					constexpr bool calledSet = not is_noop<InsertList>::value;
+					constexpr bool calledSet = not vendor::is_noop<InsertList>::value;
 					constexpr bool requireSet = Table::_required_insert_columns::size::value > 0;
 					static_assert(calledSet or not requireSet, "calling set() required for given table");
 
-					_set_parameter_index(0);
 					return {{}, db.prepare_insert(*this)};
 				}
-
-			size_t _set_parameter_index(size_t index)
-			{
-				index = set_parameter_index(_table, index);
-				index = set_parameter_index(_insert_list, index);
-				return index;
-			}
-
 
 			Table _table;
 			InsertList _insert_list;
 		};
+
+	namespace vendor
+	{
+		template<typename Context, typename Database, typename Table, typename InsertList>
+			struct interpreter_t<Context, insert_t<Database, Table, InsertList>>
+			{
+				using T = insert_t<Database, Table, InsertList>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					context << "INSERT INTO ";
+					interpret(t._table, context);
+					interpret(t._insert_list, context);
+					return context;
+				}
+			};
+	}
 
 	template<typename Table>
 		insert_t<void, typename std::decay<Table>::type> insert_into(Table&& table)

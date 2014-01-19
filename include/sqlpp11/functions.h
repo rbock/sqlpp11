@@ -27,11 +27,11 @@
 #ifndef SQLPP_FUNCTIONS_H
 #define SQLPP_FUNCTIONS_H
 
-#include <sstream>
 #include <sqlpp11/parameter.h>
 #include <sqlpp11/parameter_list.h>
-#include <sqlpp11/type_traits.h>
 #include <sqlpp11/column_types.h>
+#include <sqlpp11/vendor/in.h>
+#include <sqlpp11/vendor/is_null.h>
 #include <sqlpp11/exists.h>
 #include <sqlpp11/any.h>
 #include <sqlpp11/some.h>
@@ -40,7 +40,7 @@
 #include <sqlpp11/max.h>
 #include <sqlpp11/avg.h>
 #include <sqlpp11/sum.h>
-#include <sqlpp11/verbatim_table.h>
+#include <sqlpp11/verbatim_table.h> // Csaba Csoma suggests: unsafe_sql instead of verbatim
 
 namespace sqlpp
 {
@@ -51,16 +51,10 @@ namespace sqlpp
 			return { std::forward<T>(t) };
 		}
 
-	template<typename ValueType>
+	template<typename ValueType> // Csaba Csoma suggests: unsafe_sql instead of verbatim
 	struct verbatim_t: public ValueType::template operators<verbatim_t<ValueType>>
 	{
 		using _value_type = ValueType;
-
-		template<typename Db>
-		void serialize(std::ostream& os, const Db& db) const
-		{
-			os << _verbatim;
-		}
 
 		verbatim_t(const std::string& verbatim): _verbatim(verbatim) {}
 		verbatim_t(std::string&& verbatim): _verbatim(std::forward<std::string>(verbatim)) {}
@@ -73,51 +67,75 @@ namespace sqlpp
 		std::string _verbatim;
 	};
 
+	namespace vendor
+	{
+		template<typename Context, typename ValueType>
+			struct interpreter_t<Context, verbatim_t<ValueType>>
+			{
+				using T = verbatim_t<ValueType>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					context << t._verbatim;
+					return context;
+				}
+			};
+	}
+
 	template<typename ValueType, typename StringType>
 		auto verbatim(StringType&& s) -> verbatim_t<ValueType>
 		{
 			return { std::forward<StringType>(s) };
 		}
 
-	template<typename Expression, typename Db>
-		auto flatten(const Expression& exp, const Db& db) -> verbatim_t<typename std::decay<Expression>::type::_value_type::_base_value_type>
+	template<typename Expression, typename Context>
+		auto flatten(const Expression& exp, const Context& context) -> verbatim_t<typename std::decay<Expression>::type::_value_type::_base_value_type>
 		{
-			std::ostringstream os;
-			exp.serialize(os, db);
-			return { os.str() };
+			static_assert(not make_parameter_list_t<Expression>::type::size::value, "parameters not supported in flattened expressions");
+			context.clear();
+			interpret(exp, context);
+			return { context.str() };
 		}
-	
+
 	template<typename Container>
 		struct value_list_t // to be used in .in() method
 		{
 			using _container_t = Container;
 			using _value_type = typename operand_t<typename _container_t::value_type, is_value_t>::type::_value_type;
-			using _iterator = decltype(std::begin(std::declval<_container_t>()));
-
-			template<typename Db>
-				void serialize(std::ostream& os, const Db& db) const
-				{
-					bool first = true;
-					for (const auto& entry: _container)
-					{
-						if (first)
-							first = false;
-						else
-							os << ',';
-
-						value(entry).serialize(os, db);
-					}
-				}
 
 			_container_t _container;
 		};
 
-	template<typename Container>
-	auto value_list(Container&& c) -> value_list_t<typename std::decay<Container>::type>
+	namespace vendor
 	{
-		static_assert(not is_value_t<typename std::decay<Container>::type::value_type>::value, "value_list() is to be called with a container of non-sql-type like std::vector<int>, or std::list(string)");
-		return { std::forward<Container>(c) };
+		template<typename Context, typename Container>
+			struct interpreter_t<Context, value_list_t<Container>>
+			{
+				using T = value_list_t<Container>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					bool first = true;
+					for (const auto& entry: t._container)
+					{
+						if (first)
+							first = false;
+						else
+							context << ',';
+
+						interpret(value(entry), context);
+					}
+					return context;
+				}
+			};
 	}
+
+	template<typename Container>
+		auto value_list(Container&& c) -> value_list_t<typename std::decay<Container>::type>
+		{
+			static_assert(not is_value_t<typename std::decay<Container>::type::value_type>::value, "value_list() is to be called with a container of non-sql-type like std::vector<int>, or std::list(string)");
+			return { std::forward<Container>(c) };
+		}
 
 	template<typename T>
 		constexpr const char* get_sql_name(const T&) 
