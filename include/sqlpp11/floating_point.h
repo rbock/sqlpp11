@@ -161,30 +161,6 @@ namespace sqlpp
 				_cpp_value_type _value;
 			};
 
-			struct plus_
-			{
-				using _value_type = floating_point;
-				static constexpr const char* _name = "+";
-			};
-
-			struct minus_
-			{
-				using _value_type = floating_point;
-				static constexpr const char* _name = "-";
-			};
-
-			struct multiplies_
-			{
-				using _value_type = floating_point;
-				static constexpr const char* _name = "*";
-			};
-
-			struct divides_
-			{
-				using _value_type = floating_point;
-				static constexpr const char* _name = "/";
-			};
-
 			template<typename T>
 				using _constraint = operand_t<T, is_numeric_t>;
 
@@ -192,32 +168,44 @@ namespace sqlpp
 				struct operators: public basic_operators<Base, _constraint>
 			{
 				template<typename T>
-					vendor::binary_expression_t<Base, plus_, typename _constraint<T>::type> operator +(T&& t) const
+					vendor::plus_t<Base, floating_point, typename _constraint<T>::type> operator +(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
 
 				template<typename T>
-					vendor::binary_expression_t<Base, minus_, typename _constraint<T>::type> operator -(T&& t) const
+					vendor::minus_t<Base, floating_point, typename _constraint<T>::type> operator -(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
 
 				template<typename T>
-					vendor::binary_expression_t<Base, multiplies_, typename _constraint<T>::type> operator *(T&& t) const
+					vendor::multiplies_t<Base, floating_point, typename _constraint<T>::type> operator *(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
 
 				template<typename T>
-					vendor::binary_expression_t<Base, divides_, typename _constraint<T>::type> operator /(T&& t) const
+					vendor::divides_t<Base, typename _constraint<T>::type> operator /(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
+
+				vendor::unary_plus_t<floating_point, Base> operator +() const
+				{
+					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as unary operand");
+					return { *static_cast<const Base*>(this) };
+				}
+
+				vendor::unary_minus_t<floating_point, Base> operator -() const
+				{
+					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as unary operand");
+					return { *static_cast<const Base*>(this) };
+				}
 
 				template<typename T>
 					auto operator +=(T&& t) const -> decltype(std::declval<Base>() = std::declval<Base>() + std::forward<T>(t))

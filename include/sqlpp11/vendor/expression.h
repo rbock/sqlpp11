@@ -173,28 +173,28 @@ namespace sqlpp
 			};
 
 		template<typename Lhs>
-			struct not_t: public detail::boolean::template operators<not_t<Lhs>>
+			struct logical_not_t: public detail::boolean::template operators<logical_not_t<Lhs>>
 		{
 			using _value_type = detail::boolean;
 			using _parameter_tuple_t = std::tuple<Lhs>;
 
-			not_t(Lhs l):
+			logical_not_t(Lhs l):
 				_lhs(l)
 			{}
 
-			not_t(const not_t&) = default;
-			not_t(not_t&&) = default;
-			not_t& operator=(const not_t&) = default;
-			not_t& operator=(not_t&&) = default;
-			~not_t() = default;
+			logical_not_t(const logical_not_t&) = default;
+			logical_not_t(logical_not_t&&) = default;
+			logical_not_t& operator=(const logical_not_t&) = default;
+			logical_not_t& operator=(logical_not_t&&) = default;
+			~logical_not_t() = default;
 
 			Lhs _lhs;
 		};
 
 		template<typename Context, typename Lhs>
-			struct interpreter_t<Context, not_t<Lhs>>
+			struct interpreter_t<Context, logical_not_t<Lhs>>
 			{
-				using T = not_t<Lhs>;
+				using T = logical_not_t<Lhs>;
 
 				static Context& _(const T& t, Context& context)
 				{
@@ -236,6 +236,40 @@ namespace sqlpp
 				{
 					context << "(";
 					interpret(t._lhs, context);
+					context << O::_name;
+					interpret(t._rhs, context);
+					context << ")";
+					return context;
+				}
+			};
+
+		template<typename O, typename Rhs>
+			struct unary_expression_t: public O::_value_type::template operators<unary_expression_t<O, Rhs>>
+		{
+			using _value_type = typename O::_value_type;
+			using _parameter_tuple_t = std::tuple<Rhs>;
+
+			unary_expression_t(Rhs rhs):
+				_rhs(rhs)
+			{}
+
+			unary_expression_t(const unary_expression_t&) = default;
+			unary_expression_t(unary_expression_t&&) = default;
+			unary_expression_t& operator=(const unary_expression_t&) = default;
+			unary_expression_t& operator=(unary_expression_t&&) = default;
+			~unary_expression_t() = default;
+
+			Rhs _rhs;
+		};
+
+		template<typename Context, typename O, typename Rhs>
+			struct interpreter_t<Context, unary_expression_t<O, Rhs>>
+			{
+				using T = unary_expression_t<O, Rhs>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					context << "(";
 					context << O::_name;
 					interpret(t._rhs, context);
 					context << ")";

@@ -43,6 +43,9 @@ int main()
 	TabSample t;
 
 	interpret(t.alpha, printer).flush();
+	interpret(-t.alpha, printer).flush();
+	interpret(+t.alpha, printer).flush();
+	interpret(-(t.alpha + 7), printer).flush();
 	interpret(t.alpha = 0, printer).flush();
 	interpret(t.alpha = sqlpp::tvin(0), printer).flush();
 	interpret(t.alpha == 0, printer).flush();

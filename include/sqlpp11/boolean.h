@@ -38,18 +38,6 @@ namespace sqlpp
 	// boolean operators
 	namespace detail
 	{
-		struct or_
-		{
-			using _value_type = boolean;
-			static constexpr const char* _name = " OR ";
-		};
-
-		struct and_
-		{
-			using _value_type = boolean;
-			static constexpr const char* _name = " AND ";
-		};
-
 		// boolean value type
 		struct boolean
 		{
@@ -178,20 +166,20 @@ namespace sqlpp
 				struct operators: public basic_operators<Base, _constraint>
 			{
 				template<typename T>
-					vendor::binary_expression_t<Base, and_, typename _constraint<T>::type> operator and(T&& t) const
+					vendor::logical_and_t<Base, typename _constraint<T>::type> operator and(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
 
 				template<typename T>
-					vendor::binary_expression_t<Base, or_, typename _constraint<T>::type> operator or(T&& t) const
+					vendor::logical_or_t<Base, typename _constraint<T>::type> operator or(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
 
-				vendor::not_t<Base> operator not() const
+				vendor::logical_not_t<Base> operator not() const
 				{
 					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be as operand for operator not");
 					return { *static_cast<const Base*>(this) };
