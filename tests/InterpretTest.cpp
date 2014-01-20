@@ -110,7 +110,7 @@ int main()
 	interpret(multi_column(t.alpha, t.alpha, (t.beta + "cake").as(t.gamma)), printer).flush();
 
 	// dynamic select
-	interpret(dynamic_select(db).dynamic_columns(t.alpha).add_column(t.beta), printer).flush();
+	interpret(dynamic_select(db).dynamic_flags().dynamic_columns(t.alpha).add_column(t.beta), printer).flush();
 
 	return 0;
 }

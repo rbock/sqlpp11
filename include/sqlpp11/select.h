@@ -151,12 +151,12 @@ namespace sqlpp
 			// select functions
 			template<typename... Flag>
 			auto flags(Flag&&... flag)
-				-> set_flag_list_t<vendor::select_flag_list_t<void, typename std::decay<Flag>::type...>>
+				-> set_flag_list_t<vendor::select_flag_list_t<void, std::tuple<typename std::decay<Flag>::type...>>>
 				{
-					static_assert(vendor::is_noop<FlagList>::value, "cannot call flags() after specifying them the first time");
-					static_assert(vendor::is_noop<ColumnList>::value, "cannot call dynamic_flags() after specifying columns");
+					static_assert(not FlagList::size::value, "cannot call dynamic_flags() after specifying them the first time");
+					static_assert(not ColumnList::size::value, "cannot call columns() after specifying them the first time");
 					return {
-							{flag...}, 
+							{std::tuple<typename std::decay<Flag>::type...>{std::forward<Flag>(flag)...}}, 
 							_column_list, 
 							_from,
 							_where, 
@@ -170,13 +170,13 @@ namespace sqlpp
 
 			template<typename... Flag>
 			auto dynamic_flags(Flag&&... flag)
-				-> set_flag_list_t<vendor::select_flag_list_t<Database, typename std::decay<Flag>::type...>>
+				-> set_flag_list_t<vendor::select_flag_list_t<Database, std::tuple<typename std::decay<Flag>::type...>>>
 				{
 					static_assert(not std::is_same<Database, void>::value, "cannot call dynamic_flags() in a non-dynamic select");
-					static_assert(vendor::is_noop<FlagList>::value, "cannot call dynamic_flags() after specifying them the first time");
-					static_assert(vendor::is_noop<ColumnList>::value, "cannot call dynamic_flags() after specifying columns");
+					static_assert(not FlagList::size::value, "cannot call dynamic_flags() after specifying them the first time");
+					static_assert(not ColumnList::size::value, "cannot call columns() after specifying them the first time");
 					return {
-							{flag...}, 
+							{std::tuple<typename std::decay<Flag>::type...>{std::forward<Flag>(flag)...}}, 
 							_column_list, 
 							_from,
 							_where, 
@@ -190,7 +190,7 @@ namespace sqlpp
 
 			template<typename... Column>
 			auto columns(Column&&... column)
-				-> set_column_list_t<vendor::select_column_list_t<void, typename std::decay<Column>::type...>>
+				-> set_column_list_t<vendor::select_column_list_t<void, std::tuple<typename std::decay<Column>::type...>>>
 				{
 					static_assert(not ColumnList::size::value, "cannot call columns() after specifying them the first time");
 					return {
