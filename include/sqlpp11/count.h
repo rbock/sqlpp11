@@ -91,6 +91,7 @@ namespace sqlpp
 			};
 	}
 
+#warning: Add optional distinct flag to aggregate functions
 	template<typename T>
 		auto count(T&& t) -> typename vendor::count_t<typename operand_t<T, is_value_t>::type>
 		{

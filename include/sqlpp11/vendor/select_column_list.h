@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SELECT_EXPRESSION_LIST_H
-#define SQLPP_SELECT_EXPRESSION_LIST_H
+#ifndef SQLPP_SELECT_COLUMN_LIST_H
+#define SQLPP_SELECT_COLUMN_LIST_H
 
 #include <tuple>
 #include <sqlpp11/result_row.h>
@@ -61,27 +61,27 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Db>
-			struct dynamic_select_expression_list
+			struct dynamic_select_column_list
 			{
 				using _names_t = std::vector<std::string>;
-				std::vector<vendor::named_interpretable_t<Db>> _dynamic_expressions;
+				std::vector<vendor::named_interpretable_t<Db>> _dynamic_columns;
 				_names_t _dynamic_expression_names;
 
 				template<typename Expr>
 					void push_back(Expr&& expr)
 					{
 						_dynamic_expression_names.push_back(std::decay<Expr>::type::_name_t::_get_name());
-						_dynamic_expressions.emplace_back(std::forward<Expr>(expr));
+						_dynamic_columns.emplace_back(std::forward<Expr>(expr));
 					}
 
 				bool empty() const
 				{
-					return _dynamic_expressions.empty();
+					return _dynamic_columns.empty();
 				}
 			};
 
 		template<>
-			struct dynamic_select_expression_list<void>
+			struct dynamic_select_column_list<void>
 			{
 				struct _names_t {};
 				_names_t _dynamic_expression_names;
@@ -96,13 +96,13 @@ namespace sqlpp
 			};
 
 		template<typename Context, typename Db>
-			struct interpreter_t<Context, dynamic_select_expression_list<Db>>
+			struct interpreter_t<Context, dynamic_select_column_list<Db>>
 			{
-				using T = dynamic_select_expression_list<Db>;
+				using T = dynamic_select_column_list<Db>;
 
 				static Context& _(const T& t, Context& context)
 				{
-					for (const auto column : t._dynamic_expressions)
+					for (const auto column : t._dynamic_columns)
 					{
 						interpret(column, context);
 					}
@@ -111,9 +111,9 @@ namespace sqlpp
 			};
 
 		template<typename Context>
-			struct interpreter_t<Context, dynamic_select_expression_list<void>>
+			struct interpreter_t<Context, dynamic_select_column_list<void>>
 			{
-				using T = dynamic_select_expression_list<void>;
+				using T = dynamic_select_column_list<void>;
 
 				static Context& _(const T& t, Context& context)
 				{
@@ -123,17 +123,18 @@ namespace sqlpp
 
 
 		template<typename Database, typename T>
-			struct select_expression_list_t
+			struct select_column_list_t
 			{
-				static_assert(::sqlpp::detail::wrong<Database, T>::value, "invalid template argument for select_expression_list");
+				static_assert(::sqlpp::detail::wrong<Database, T>::value, "invalid template argument for select_column_list");
 			};
 
 		template<typename Database, typename... NamedExpr>
-			struct select_expression_list_t<Database, std::tuple<NamedExpr...>>
+			struct select_column_list_t<Database, std::tuple<NamedExpr...>>
 			{
-				using _is_select_expression_list = std::true_type;
+				using _is_select_column_list = std::true_type;
 				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 				using _parameter_tuple_t = std::tuple<NamedExpr...>;
+				using size = std::tuple_size<_parameter_tuple_t>;
 
 				// check for duplicate select expressions
 				static_assert(not ::sqlpp::detail::has_duplicates<NamedExpr...>::value, "at least one duplicate argument detected");
@@ -161,40 +162,40 @@ namespace sqlpp
 							dynamic_result_row_t<make_field_t<NamedExpr>...>,
 							result_row_t<make_field_t<NamedExpr>...>>::type;
 
-				using _dynamic_names_t = typename dynamic_select_expression_list<Database>::_names_t;
+				using _dynamic_names_t = typename dynamic_select_column_list<Database>::_names_t;
 
 				template <typename Select>
 					using _pseudo_table_t = select_pseudo_table_t<Select, NamedExpr...>;
 
 				template <typename Db>
-					using _dynamic_t = select_expression_list_t<Db, std::tuple<NamedExpr...>>;
+					using _dynamic_t = select_column_list_t<Db, std::tuple<NamedExpr...>>;
 
 				template<typename Expr>
 					void add(Expr&& namedExpr)
 					{
 						static_assert(is_named_expression_t<typename std::decay<Expr>::type>::value, "select() arguments require to be named expressions");
 						static_assert(_is_dynamic::value, "cannot add columns to a non-dynamic column list");
-						_dynamic_expressions.push_back(std::forward<Expr>(namedExpr));
+						_dynamic_columns.push_back(std::forward<Expr>(namedExpr));
 					}
 
-				_parameter_tuple_t _expressions;
-				dynamic_select_expression_list<Database> _dynamic_expressions;
+				_parameter_tuple_t _columns;
+				dynamic_select_column_list<Database> _dynamic_columns;
 			};
 
 		template<typename Context, typename Database, typename... NamedExpr>
-			struct interpreter_t<Context, select_expression_list_t<Database, NamedExpr...>>
+			struct interpreter_t<Context, select_column_list_t<Database, NamedExpr...>>
 			{
-				using T = select_expression_list_t<Database, NamedExpr...>;
+				using T = select_column_list_t<Database, NamedExpr...>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					// check for at least one expression
 					static_assert(T::_is_dynamic::value or sizeof...(NamedExpr), "at least one select expression required");
 
-					interpret_tuple(t._expressions, ',', context);
-					if (sizeof...(NamedExpr) and not t._dynamic_expressions.empty())
+					interpret_tuple(t._columns, ',', context);
+					if (sizeof...(NamedExpr) and not t._dynamic_columns.empty())
 						context << ',';
-					interpret(t._dynamic_expressions, context);
+					interpret(t._dynamic_columns, context);
 					return context;
 				}
 			};

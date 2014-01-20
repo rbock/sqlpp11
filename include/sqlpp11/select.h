@@ -34,7 +34,7 @@
 
 #include <sqlpp11/vendor/noop.h>
 #include <sqlpp11/vendor/select_flag_list.h>
-#include <sqlpp11/vendor/select_expression_list.h>
+#include <sqlpp11/vendor/select_column_list.h>
 #include <sqlpp11/vendor/from.h>
 #include <sqlpp11/vendor/where.h>
 #include <sqlpp11/vendor/group_by.h>
@@ -55,8 +55,8 @@ namespace sqlpp
 {
 	template<
 		typename Database,
-		typename Flags,
-		typename ExpressionList,
+		typename FlagList,
+		typename ColumnList,
 		typename From,
 		typename Where,
 		typename GroupBy,
@@ -66,10 +66,10 @@ namespace sqlpp
 		typename Offset
 		>
 		struct select_t
-		: public ExpressionList::_value_type::template operators<select_t<
+		: public ColumnList::_value_type::template operators<select_t<
 		                 Database,
-										 Flags, 
-										 ExpressionList, 
+										 FlagList, 
+										 ColumnList, 
 										 From, 
 										 Where, 
 										 GroupBy, 
@@ -81,8 +81,8 @@ namespace sqlpp
 			using _Database = Database;
 			using _From = From;
 
-			static_assert(vendor::is_noop<Flags>::value or is_select_flag_list_t<Flags>::value, "invalid list of select flags");
-			static_assert(vendor::is_noop<ExpressionList> or is_select_expression_list_t<ExpressionList>::value, "invalid list of select expressions");
+			static_assert(is_select_flag_list_t<FlagList>::value, "invalid list of select flags");
+			static_assert(is_select_column_list_t<ColumnList>::value, "invalid list of select expressions");
 			static_assert(vendor::is_noop<From>::value or is_from_t<From>::value, "invalid 'from' argument");
 			static_assert(vendor::is_noop<Where>::value or is_where_t<Where>::value, "invalid 'where' argument");
 			static_assert(vendor::is_noop<GroupBy>::value or is_group_by_t<GroupBy>::value, "invalid 'group by' arguments");
@@ -94,73 +94,44 @@ namespace sqlpp
 			using _is_select = std::true_type;
 			using _requires_braces = std::true_type;
 
-			template<typename ExpressionListT> 
-				using set_expression_list_t = select_t<Database, Flags, ExpressionListT, From, Where, GroupBy, Having, OrderBy, Limit, Offset>;
+			template<typename FlagListT> 
+				using set_flag_list_t = select_t<Database, FlagListT, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>;
+			template<typename ColumnListT> 
+				using set_column_list_t = select_t<Database, FlagList, ColumnListT, From, Where, GroupBy, Having, OrderBy, Limit, Offset>;
 			template<typename FromT> 
-				using set_from_t = select_t<Database, Flags, ExpressionList, FromT, Where, GroupBy, Having, OrderBy, Limit, Offset>;
+				using set_from_t = select_t<Database, FlagList, ColumnList, FromT, Where, GroupBy, Having, OrderBy, Limit, Offset>;
 			template<typename WhereT>
-				using set_where_t = select_t<Database, Flags, ExpressionList, From, WhereT, GroupBy, Having, OrderBy, Limit, Offset>;
+				using set_where_t = select_t<Database, FlagList, ColumnList, From, WhereT, GroupBy, Having, OrderBy, Limit, Offset>;
 			template<typename GroupByT>
-				using set_group_by_t = select_t<Database, Flags, ExpressionList, From, Where, GroupByT, Having, OrderBy, Limit, Offset>;
+				using set_group_by_t = select_t<Database, FlagList, ColumnList, From, Where, GroupByT, Having, OrderBy, Limit, Offset>;
 			template<typename HavingT>
-				using set_having_t = select_t<Database, Flags, ExpressionList, From, Where, GroupBy, HavingT, OrderBy, Limit, Offset>;
+				using set_having_t = select_t<Database, FlagList, ColumnList, From, Where, GroupBy, HavingT, OrderBy, Limit, Offset>;
 			template<typename OrderByT>
-				using set_order_by_t = select_t<Database, Flags, ExpressionList, From, Where, GroupBy, Having, OrderByT, Limit, Offset>;
+				using set_order_by_t = select_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderByT, Limit, Offset>;
 			template<typename LimitT>
-				using set_limit_t = select_t<Database, Flags, ExpressionList, From, Where, GroupBy, Having, OrderBy, LimitT, Offset>;
+				using set_limit_t = select_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, LimitT, Offset>;
 			template<typename OffsetT>
-			using set_offset_t = select_t<Database, Flags, ExpressionList, From, Where, GroupBy, Having, OrderBy, Limit, OffsetT>;
+			using set_offset_t = select_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, OffsetT>;
 
-			using _result_row_t = typename ExpressionList::_result_row_t;
-			using _dynamic_names_t = typename ExpressionList::_dynamic_names_t;
-			using _parameter_tuple_t = std::tuple<ExpressionList, Where, GroupBy, Having, OrderBy, Limit, Offset>;
+			using _result_row_t = typename ColumnList::_result_row_t;
+			using _dynamic_names_t = typename ColumnList::_dynamic_names_t;
+			using _parameter_tuple_t = std::tuple<ColumnList, Where, GroupBy, Having, OrderBy, Limit, Offset>;
 			using _parameter_list_t = typename make_parameter_list_t<select_t>::type;
 
 			// Indicators
 			using _value_type = typename std::conditional<
 				vendor::is_noop<From>::value, 
 				no_value_t, // If there is no from, the select is not complete (this logic is a bit simple, but better than nothing)
-				typename ExpressionList::_value_type>::type;
+				typename ColumnList::_value_type>::type;
 
-			using _name_t = typename ExpressionList::_name_t;
+			using _name_t = typename ColumnList::_name_t;
 
 			// The standard constructors, assigment operators and destructor
-			select_t(Flags&& flags, ExpressionList&& expression_list):
-				_flags(std::move(flags)),
-				_expression_list(std::move(expression_list))
-			{
-				static_assert(std::is_same<select_t, sqlpp::select_t<Database, Flags, ExpressionList>>::value,
-						"basic constructor only available for select_t<Flags, ExpressionList> (default template parameters)");
-			}
-
-			select_t(const select_t& rhs) = default;
-			select_t(select_t&& rhs) = default;
-			select_t& operator=(const select_t& rhs) = default;
-			select_t& operator=(select_t&& rhs) = default;
-			~select_t() = default;
-
-			// Other constructors
-
-			select_t(Flags&& flags, ExpressionList&& expression_list, From&& from,
-					Where&& where, GroupBy&& group_by, Having&& having,
-					OrderBy&& order_by, Limit&& limit, Offset&& offset):
-				_flags(std::move(flags)),
-				_expression_list(std::move(expression_list)),
-				_from(std::move(from)),
-				_where(std::move(where)),
-				_group_by(std::move(group_by)),
-				_having(std::move(having)),
-				_order_by(std::move(order_by)),
-				_limit(std::move(limit)),
-				_offset(std::move(offset))
-			{
-			}
-
-			select_t(const Flags& flags, const ExpressionList& expression_list, const From& from,
-					const Where& where, const GroupBy& group_by, const Having& having,
-					const OrderBy& order_by, const Limit& limit, const Offset& offset):
-				_flags(flags),
-				_expression_list(expression_list),
+			constexpr select_t(FlagList flag_list, ColumnList column_list, From from,
+					Where where, GroupBy group_by, Having having,
+					OrderBy order_by, Limit limit, Offset offset):
+				_flags(flag_list),
+				_column_list(column_list),
 				_from(from),
 				_where(where),
 				_group_by(group_by),
@@ -171,22 +142,79 @@ namespace sqlpp
 			{
 			}
 
-Idea:
-			lets add methods flags(...) and dynamic_flags(...)
-			add method columns(...) and make dynamic_columns(...) take arguments
-			offer empty select() and dynamic_select(db) to call *flags() and *columns() later
-			continue to offer select(...) and dynamic_select(db, ...) for convenience
+			select_t(const select_t& rhs) = default;
+			select_t(select_t&& rhs) = default;
+			select_t& operator=(const select_t& rhs) = default;
+			select_t& operator=(select_t&& rhs) = default;
+			~select_t() = default;
 
-			also: have ONE constructor, taking values
-			
-			auto dynamic_columns()
-				-> set_expression_list_t<typename ExpressionList::template _dynamic_t<Database>>
+			// select functions
+			template<typename... Flag>
+			auto flags(Flag&&... flag)
+				-> set_flag_list_t<vendor::select_flag_list_t<void, typename std::decay<Flag>::type...>>
 				{
-					static_assert(not std::is_same<Database, void>::value, "cannot call dynamic_from() in a non-dynamic select");
-					static_assert(vendor::is_noop<From>::value, "cannot call dynamic_columns() after from()");
+					static_assert(vendor::is_noop<FlagList>::value, "cannot call flags() after specifying them the first time");
+					static_assert(vendor::is_noop<ColumnList>::value, "cannot call dynamic_flags() after specifying columns");
+					return {
+							{flag...}, 
+							_column_list, 
+							_from,
+							_where, 
+							_group_by, 
+							_having, 
+							_order_by, 
+							_limit,
+							_offset
+							};
+				}
+
+			template<typename... Flag>
+			auto dynamic_flags(Flag&&... flag)
+				-> set_flag_list_t<vendor::select_flag_list_t<Database, typename std::decay<Flag>::type...>>
+				{
+					static_assert(not std::is_same<Database, void>::value, "cannot call dynamic_flags() in a non-dynamic select");
+					static_assert(vendor::is_noop<FlagList>::value, "cannot call dynamic_flags() after specifying them the first time");
+					static_assert(vendor::is_noop<ColumnList>::value, "cannot call dynamic_flags() after specifying columns");
+					return {
+							{flag...}, 
+							_column_list, 
+							_from,
+							_where, 
+							_group_by, 
+							_having, 
+							_order_by, 
+							_limit,
+							_offset
+							};
+				}
+
+			template<typename... Column>
+			auto columns(Column&&... column)
+				-> set_column_list_t<vendor::select_column_list_t<void, typename std::decay<Column>::type...>>
+				{
+					static_assert(not ColumnList::size::value, "cannot call columns() after specifying them the first time");
 					return {
 							_flags, 
-							{_expression_list._expressions}, 
+							{std::tuple<typename std::decay<Column>::type...>{std::forward<Column>(column)...}}, 
+							_from,
+							_where, 
+							_group_by, 
+							_having, 
+							_order_by, 
+							_limit,
+							_offset
+							};
+				}
+
+			template<typename... Column>
+			auto dynamic_columns(Column&&... column)
+				-> set_column_list_t<vendor::select_column_list_t<Database, std::tuple<typename std::decay<Column>::type...>>>
+				{
+					static_assert(not std::is_same<Database, void>::value, "cannot call dynamic_columns() in a non-dynamic select");
+					static_assert(not ColumnList::size::value, "cannot call dynamic_columns() after specifying them the first time");
+					return {
+							_flags, 
+							{std::tuple<typename std::decay<Column>::type...>{std::forward<Column>(column)...}}, 
 							_from,
 							_where, 
 							_group_by, 
@@ -200,23 +228,22 @@ Idea:
 			template<typename NamedExpr>
 				select_t& add_column(NamedExpr&& namedExpr)
 				{
-					static_assert(is_dynamic_t<ExpressionList>::value, "cannot call add_column() in a non-dynamic column list");
+					static_assert(is_dynamic_t<ColumnList>::value, "cannot call add_column() in a non-dynamic column list");
 
-					_expression_list.add(std::forward<NamedExpr>(namedExpr));
+					_column_list.add(std::forward<NamedExpr>(namedExpr));
 
 					return *this;
 				}
 
-			// sqlpp functions
 			template<typename... Table>
 				auto from(Table&&... table)
 				-> set_from_t<vendor::from_t<void, typename std::decay<Table>::type...>>
 				{
-					static_assert(not vendor::is_noop<ExpressionList>::value, "cannot call from() without having selected anything");
+					static_assert(not vendor::is_noop<ColumnList>::value, "cannot call from() without having selected anything");
 					static_assert(vendor::is_noop<From>::value, "cannot call from() twice for a single select");
 					return {
 							_flags, 
-							_expression_list, 
+							_column_list, 
 							{std::tuple<typename std::decay<Table>::type...>{std::forward<Table>(table)...}}, 
 							_where, 
 							_group_by, 
@@ -232,11 +259,11 @@ Idea:
 				-> set_from_t<vendor::from_t<Database, typename std::decay<Table>::type...>>
 				{
 					static_assert(not std::is_same<Database, void>::value, "cannot call dynamic_from() in a non-dynamic select");
-					static_assert(not vendor::is_noop<ExpressionList>::value, "cannot call from() without having selected anything");
+					static_assert(not vendor::is_noop<ColumnList>::value, "cannot call from() without having selected anything");
 					static_assert(vendor::is_noop<From>::value, "cannot call from() twice for a single select");
 					return {
 							_flags, 
-							_expression_list, 
+							_column_list, 
 							{std::tuple<typename std::decay<Table>::type...>{std::forward<Table>(table)...}}, 
 							_where, 
 							_group_by, 
@@ -250,7 +277,7 @@ Idea:
 			template<typename Table>
 				select_t& add_from(Table&& table)
 				{
-					static_assert(not vendor::is_noop<ExpressionList>::value, "cannot call add_from() without having selected anything");
+					static_assert(not vendor::is_noop<ColumnList>::value, "cannot call add_from() without having selected anything");
 					static_assert(is_dynamic_t<From>::value, "cannot call add_from() in a non-dynamic from");
 
 					_from.add(std::forward<Table>(table));
@@ -266,7 +293,7 @@ Idea:
 					static_assert(vendor::is_noop<Where>::value, "cannot call where() or dynamic_where() twice for a single select");
 					return {
 							_flags, 
-							_expression_list, 
+							_column_list, 
 							_from, 
 							{std::tuple<typename std::decay<Expr>::type...>{std::forward<Expr>(expr)...}},
 							_group_by,
@@ -285,7 +312,7 @@ Idea:
 					static_assert(vendor::is_noop<Where>::value, "cannot call where() or dynamic_where() twice for a single select");
 					return {
 							_flags, 
-							_expression_list, 
+							_column_list, 
 							_from, 
 							{std::tuple<typename std::decay<Expr>::type...>{std::forward<Expr>(expr)...}},
 							_group_by,
@@ -314,7 +341,7 @@ Idea:
 					static_assert(vendor::is_noop<GroupBy>::value, "cannot call group_by() twice for a single select");
 					return {
 							_flags, 
-							_expression_list,
+							_column_list,
 							_from,
 							_where,
 							{std::tuple<typename std::decay<Col>::type...>{std::forward<Col>(column)...}},
@@ -333,7 +360,7 @@ Idea:
 					static_assert(vendor::is_noop<GroupBy>::value, "cannot call group_by() twice for a single select");
 					return {
 							_flags, 
-							_expression_list,
+							_column_list,
 							_from,
 							_where,
 							{std::tuple<typename std::decay<Col>::type...>{std::forward<Col>(column)...}},
@@ -362,7 +389,7 @@ Idea:
 					static_assert(vendor::is_noop<Having>::value, "cannot call having() twice for a single select");
 					return {
 							_flags, 
-							_expression_list,
+							_column_list,
 							_from,
 							_where,
 							_group_by,
@@ -381,7 +408,7 @@ Idea:
 					static_assert(vendor::is_noop<Having>::value, "cannot call having() twice for a single select");
 					return {
 						_flags, 
-							_expression_list,
+							_column_list,
 							_from,
 							_where,
 							_group_by,
@@ -410,7 +437,7 @@ Idea:
 					static_assert(vendor::is_noop<OrderBy>::value, "cannot call order_by() twice for a single select");
 					return {
 							_flags, 
-							_expression_list,
+							_column_list,
 							_from,
 							_where,
 							_group_by,
@@ -429,7 +456,7 @@ Idea:
 					static_assert(vendor::is_noop<OrderBy>::value, "cannot call order_by() twice for a single select");
 					return {
 							_flags, 
-							_expression_list,
+							_column_list,
 							_from,
 							_where,
 							_group_by,
@@ -458,7 +485,7 @@ Idea:
 					static_assert(vendor::is_noop<Limit>::value, "cannot call limit() twice for a single select");
 					return {
 						_flags, 
-							_expression_list,
+							_column_list,
 							_from,
 							_where,
 							_group_by,
@@ -476,7 +503,7 @@ Idea:
 				static_assert(vendor::is_noop<Limit>::value, "cannot call limit() twice for a single select");
 				return {
 						_flags, 
-						_expression_list,
+						_column_list,
 						_from,
 						_where,
 						_group_by,
@@ -504,7 +531,7 @@ Idea:
 				static_assert(vendor::is_noop<Offset>::value, "cannot call offset() twice for a single select");
 				return {
 						_flags, 
-						_expression_list,
+						_column_list,
 						_from,
 						_where,
 						_group_by,
@@ -522,7 +549,7 @@ Idea:
 				static_assert(vendor::is_noop<Offset>::value, "cannot call offset() twice for a single select");
 				return {
 						_flags, 
-						_expression_list,
+						_column_list,
 						_from,
 						_where,
 						_group_by,
@@ -545,7 +572,7 @@ Idea:
 			template<typename AliasProvider>
 				struct _pseudo_table_t
 				{
-					using table = typename ExpressionList::template _pseudo_table_t<select_t>;
+					using table = typename ColumnList::template _pseudo_table_t<select_t>;
 					using alias = typename table::template _alias_t<AliasProvider>;
 				};
 
@@ -556,9 +583,9 @@ Idea:
 							*this).as(aliasProvider);
 				}
 
-			const typename ExpressionList::_dynamic_names_t& get_dynamic_names() const
+			const typename ColumnList::_dynamic_names_t& get_dynamic_names() const
 			{
-				return _expression_list._dynamic_expressions._dynamic_expression_names;
+				return _column_list._dynamic_expressions._dynamic_expression_names;
 			}
 
 			static constexpr size_t _get_static_no_of_parameters()
@@ -581,7 +608,7 @@ Idea:
 				auto run(Db& db) const
 				-> result_t<decltype(db.select(*this)), _result_row_t>
 				{
-					static_assert(not vendor::is_noop<ExpressionList>::value, "cannot run select without having selected anything");
+					static_assert(not vendor::is_noop<ColumnList>::value, "cannot run select without having selected anything");
 					static_assert(is_from_t<From>::value, "cannot run select without a from()");
 					static_assert(_get_static_no_of_parameters() == 0, "cannot run select directly with parameters, use prepare instead");
 					// FIXME: Check for missing aliases (if references are used)
@@ -595,7 +622,7 @@ Idea:
 				auto prepare(Db& db) const
 				-> prepared_select_t<typename std::decay<Db>::type, select_t>
 				{
-					static_assert(not vendor::is_noop<ExpressionList>::value, "cannot run select without having selected anything");
+					static_assert(not vendor::is_noop<ColumnList>::value, "cannot run select without having selected anything");
 					static_assert(is_from_t<From>::value, "cannot run select without a from()");
 					// FIXME: Check for missing aliases (if references are used)
 					// FIXME: Check for missing tables, well, actually, check for missing tables at the where(), order_by(), etc.
@@ -603,8 +630,8 @@ Idea:
 					return {{}, get_dynamic_names(), db.prepare_select(*this)};
 				}
 
-			Flags _flags;
-			ExpressionList _expression_list;
+			FlagList _flags;
+			ColumnList _column_list;
 			From _from;
 			Where _where;
 			GroupBy _group_by;
@@ -618,8 +645,8 @@ Idea:
 	{
 		template<typename Context, 
 			typename Database,
-			typename Flags,
-			typename ExpressionList,
+			typename FlagList,
+			typename ColumnList,
 			typename From,
 			typename Where,
 			typename GroupBy,
@@ -629,8 +656,8 @@ Idea:
 			typename Offset
 				>
 				struct interpreter_t<Context, select_t<Database,
-			Flags, 
-			ExpressionList, 
+			FlagList, 
+			ColumnList, 
 			From, 
 			Where, 
 			GroupBy, 
@@ -640,8 +667,8 @@ Idea:
 			Offset>>
 			{
 				using T = select_t<Database,
-				Flags, 
-				ExpressionList, 
+				FlagList, 
+				ColumnList, 
 				From, 
 				Where, 
 				GroupBy, 
@@ -655,7 +682,7 @@ Idea:
 					context << "SELECT ";
 
 					interpret(t._flags, context);
-					interpret(t._expression_list, context);
+					interpret(t._column_list, context);
 					interpret(t._from, context);
 					interpret(t._where, context);
 					interpret(t._group_by, context);
@@ -673,35 +700,44 @@ Idea:
 	// construct select flag list
 	namespace detail
 	{
-		template<typename... Expr>
+		template<typename Database, typename... Expr>
 			using make_select_flag_list_t = 
-			vendor::select_flag_list_t<decltype(make_flag_tuple(std::declval<Expr>()...))>;
+			vendor::select_flag_list_t<Database, decltype(make_flag_tuple(std::declval<Expr>()...))>;
 	}
 
 	// construct select expression list
 	namespace detail
 	{
-		template<typename... Expr>
-			using make_select_expression_list_t = 
-			vendor::select_expression_list_t<void, decltype(make_expression_tuple(std::declval<Expr>()...))>;
+		template<typename Database, typename... Expr>
+			using make_select_column_list_t = 
+			vendor::select_column_list_t<Database, decltype(make_expression_tuple(std::declval<Expr>()...))>;
 	}
+
+	auto select()
+		-> select_t<void, vendor::select_flag_list_t<void, std::tuple<>>, vendor::select_column_list_t<void, std::tuple<>>>
+		{
+			return { {}, vendor::select_column_list_t<void, std::tuple<>>{}, {}, {}, {}, {}, {}, {}, {} };
+		}
 
 	template<typename... NamedExpr>
 		auto select(NamedExpr&&... namedExpr)
-		-> select_t<void, detail::make_select_flag_list_t<NamedExpr...>, detail::make_select_expression_list_t<NamedExpr...>>
+		-> select_t<void, detail::make_select_flag_list_t<void, NamedExpr...>, detail::make_select_column_list_t<void, NamedExpr...>>
 		{
 			return { 
 				{ detail::make_flag_tuple(std::forward<NamedExpr>(namedExpr)...) }, 
-					{ detail::make_expression_tuple(std::forward<NamedExpr>(namedExpr)...) }
+					{ detail::make_expression_tuple(std::forward<NamedExpr>(namedExpr)...) },
+				{}, {}, {}, {}, {}, {}, {}
 			};
 		}
+
 	template<typename Db, typename... NamedExpr>
 		auto dynamic_select(const Db& db, NamedExpr&&... namedExpr)
-		-> select_t<typename std::decay<Db>::type, detail::make_select_flag_list_t<NamedExpr...>, detail::make_select_expression_list_t<NamedExpr...>>
+		-> select_t<typename std::decay<Db>::type, detail::make_select_flag_list_t<typename std::decay<Db>::type, NamedExpr...>, detail::make_select_column_list_t<typename std::decay<Db>::type, NamedExpr...>>
 		{
 			return { 
 				{ detail::make_flag_tuple(std::forward<NamedExpr>(namedExpr)...) }, 
-					{ detail::make_expression_tuple(std::forward<NamedExpr>(namedExpr)...) }
+					{ detail::make_expression_tuple(std::forward<NamedExpr>(namedExpr)...) },
+				{}, {}, {}, {}, {}, {}, {}
 			};
 		}
 

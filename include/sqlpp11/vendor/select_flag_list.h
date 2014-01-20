@@ -104,15 +104,15 @@ namespace sqlpp
 
 	namespace vendor
 	{
-		template<typename T>
+		template<typename Database, typename T>
 			struct select_flag_list_t
 			{
 				static_assert(detail::wrong<T>::value, "invalid argument for select_flag_list");
 			};
 
 		// select_flag_list_t
-		template<typename... Flag>
-			struct select_flag_list_t<std::tuple<Flag...>>
+		template<typename Database, typename... Flag>
+			struct select_flag_list_t<Database, std::tuple<Flag...>>
 			{
 				// check for duplicate order expressions
 				static_assert(not detail::has_duplicates<Flag...>::value, "at least one duplicate argument detected in select flag list");
@@ -126,10 +126,10 @@ namespace sqlpp
 				std::tuple<Flag...> _flags;
 			};
 
-		template<typename Context, typename... Flag>
-			struct interpreter_t<Context, select_flag_list_t<std::tuple<Flag...>>>
+		template<typename Context, typename Database, typename... Flag>
+			struct interpreter_t<Context, select_flag_list_t<Database, std::tuple<Flag...>>>
 			{
-				using T = select_flag_list_t<std::tuple<Flag...>>;
+				using T = select_flag_list_t<Database, std::tuple<Flag...>>;
 
 				static Context& _(const T& t, Context& context)
 				{
