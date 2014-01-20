@@ -82,7 +82,7 @@ namespace sqlpp
 			using _From = From;
 
 			static_assert(vendor::is_noop<Flags>::value or is_select_flag_list_t<Flags>::value, "invalid list of select flags");
-			static_assert(is_select_expression_list_t<ExpressionList>::value, "invalid list of select expressions");
+			static_assert(vendor::is_noop<ExpressionList> or is_select_expression_list_t<ExpressionList>::value, "invalid list of select expressions");
 			static_assert(vendor::is_noop<From>::value or is_from_t<From>::value, "invalid 'from' argument");
 			static_assert(vendor::is_noop<Where>::value or is_where_t<Where>::value, "invalid 'where' argument");
 			static_assert(vendor::is_noop<GroupBy>::value or is_group_by_t<GroupBy>::value, "invalid 'group by' arguments");
@@ -171,6 +171,14 @@ namespace sqlpp
 			{
 			}
 
+Idea:
+			lets add methods flags(...) and dynamic_flags(...)
+			add method columns(...) and make dynamic_columns(...) take arguments
+			offer empty select() and dynamic_select(db) to call *flags() and *columns() later
+			continue to offer select(...) and dynamic_select(db, ...) for convenience
+
+			also: have ONE constructor, taking values
+			
 			auto dynamic_columns()
 				-> set_expression_list_t<typename ExpressionList::template _dynamic_t<Database>>
 				{
