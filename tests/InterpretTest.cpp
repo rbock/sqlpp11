@@ -111,6 +111,8 @@ int main()
 
 	// dynamic select
 	interpret(dynamic_select(db).dynamic_flags().dynamic_columns(t.alpha).add_column(t.beta), printer).flush();
+	interpret(dynamic_select(db).dynamic_flags().dynamic_columns().add_column(t.gamma).add_column(t.beta), printer).flush();
+	interpret(dynamic_select(db).dynamic_flags(sqlpp::distinct).add_flag(sqlpp::all).dynamic_columns(t.alpha).add_column(t.beta), printer).flush();
 
 	return 0;
 }

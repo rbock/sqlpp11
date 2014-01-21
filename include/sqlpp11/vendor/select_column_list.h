@@ -102,8 +102,13 @@ namespace sqlpp
 
 				static Context& _(const T& t, Context& context)
 				{
+					bool first = true;
 					for (const auto column : t._dynamic_columns)
 					{
+						if (first)
+							first = false;
+						else
+							context << ',';
 						interpret(column, context);
 					}
 					return context;
@@ -182,18 +187,18 @@ namespace sqlpp
 				dynamic_select_column_list<Database> _dynamic_columns;
 			};
 
-		template<typename Context, typename Database, typename... NamedExpr>
-			struct interpreter_t<Context, select_column_list_t<Database, NamedExpr...>>
+		template<typename Context, typename Database, typename Tuple>
+			struct interpreter_t<Context, select_column_list_t<Database, Tuple>>
 			{
-				using T = select_column_list_t<Database, NamedExpr...>;
+				using T = select_column_list_t<Database, Tuple>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					// check for at least one expression
-					static_assert(T::_is_dynamic::value or sizeof...(NamedExpr), "at least one select expression required");
+					static_assert(T::_is_dynamic::value or T::size::value, "at least one select expression required");
 
 					interpret_tuple(t._columns, ',', context);
-					if (sizeof...(NamedExpr) and not t._dynamic_columns.empty())
+					if (T::size::value and not t._dynamic_columns.empty())
 						context << ',';
 					interpret(t._dynamic_columns, context);
 					return context;

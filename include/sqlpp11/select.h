@@ -131,7 +131,7 @@ namespace sqlpp
 					Where where, GroupBy group_by, Having having,
 					OrderBy order_by, Limit limit, Offset offset):
 				_flags(flag_list),
-				_column_list(column_list),
+				_columns(column_list),
 				_from(from),
 				_where(where),
 				_group_by(group_by),
@@ -157,7 +157,7 @@ namespace sqlpp
 					static_assert(not ColumnList::size::value, "cannot call columns() after specifying them the first time");
 					return {
 							{std::tuple<typename std::decay<Flag>::type...>{std::forward<Flag>(flag)...}}, 
-							_column_list, 
+							_columns, 
 							_from,
 							_where, 
 							_group_by, 
@@ -177,7 +177,7 @@ namespace sqlpp
 					static_assert(not ColumnList::size::value, "cannot call columns() after specifying them the first time");
 					return {
 							{std::tuple<typename std::decay<Flag>::type...>{std::forward<Flag>(flag)...}}, 
-							_column_list, 
+							_columns, 
 							_from,
 							_where, 
 							_group_by, 
@@ -186,6 +186,16 @@ namespace sqlpp
 							_limit,
 							_offset
 							};
+				}
+
+			template<typename Flag>
+				select_t& add_flag(Flag&& flag)
+				{
+					static_assert(is_dynamic_t<FlagList>::value, "cannot call add_flag() in a non-dynamic column list");
+
+					_flags.add(std::forward<Flag>(flag));
+
+					return *this;
 				}
 
 			template<typename... Column>
@@ -230,7 +240,7 @@ namespace sqlpp
 				{
 					static_assert(is_dynamic_t<ColumnList>::value, "cannot call add_column() in a non-dynamic column list");
 
-					_column_list.add(std::forward<NamedExpr>(namedExpr));
+					_columns.add(std::forward<NamedExpr>(namedExpr));
 
 					return *this;
 				}
@@ -243,7 +253,7 @@ namespace sqlpp
 					static_assert(vendor::is_noop<From>::value, "cannot call from() twice for a single select");
 					return {
 							_flags, 
-							_column_list, 
+							_columns, 
 							{std::tuple<typename std::decay<Table>::type...>{std::forward<Table>(table)...}}, 
 							_where, 
 							_group_by, 
@@ -263,7 +273,7 @@ namespace sqlpp
 					static_assert(vendor::is_noop<From>::value, "cannot call from() twice for a single select");
 					return {
 							_flags, 
-							_column_list, 
+							_columns, 
 							{std::tuple<typename std::decay<Table>::type...>{std::forward<Table>(table)...}}, 
 							_where, 
 							_group_by, 
@@ -293,7 +303,7 @@ namespace sqlpp
 					static_assert(vendor::is_noop<Where>::value, "cannot call where() or dynamic_where() twice for a single select");
 					return {
 							_flags, 
-							_column_list, 
+							_columns, 
 							_from, 
 							{std::tuple<typename std::decay<Expr>::type...>{std::forward<Expr>(expr)...}},
 							_group_by,
@@ -312,7 +322,7 @@ namespace sqlpp
 					static_assert(vendor::is_noop<Where>::value, "cannot call where() or dynamic_where() twice for a single select");
 					return {
 							_flags, 
-							_column_list, 
+							_columns, 
 							_from, 
 							{std::tuple<typename std::decay<Expr>::type...>{std::forward<Expr>(expr)...}},
 							_group_by,
@@ -341,7 +351,7 @@ namespace sqlpp
 					static_assert(vendor::is_noop<GroupBy>::value, "cannot call group_by() twice for a single select");
 					return {
 							_flags, 
-							_column_list,
+							_columns,
 							_from,
 							_where,
 							{std::tuple<typename std::decay<Col>::type...>{std::forward<Col>(column)...}},
@@ -360,7 +370,7 @@ namespace sqlpp
 					static_assert(vendor::is_noop<GroupBy>::value, "cannot call group_by() twice for a single select");
 					return {
 							_flags, 
-							_column_list,
+							_columns,
 							_from,
 							_where,
 							{std::tuple<typename std::decay<Col>::type...>{std::forward<Col>(column)...}},
@@ -389,7 +399,7 @@ namespace sqlpp
 					static_assert(vendor::is_noop<Having>::value, "cannot call having() twice for a single select");
 					return {
 							_flags, 
-							_column_list,
+							_columns,
 							_from,
 							_where,
 							_group_by,
@@ -408,7 +418,7 @@ namespace sqlpp
 					static_assert(vendor::is_noop<Having>::value, "cannot call having() twice for a single select");
 					return {
 						_flags, 
-							_column_list,
+							_columns,
 							_from,
 							_where,
 							_group_by,
@@ -437,7 +447,7 @@ namespace sqlpp
 					static_assert(vendor::is_noop<OrderBy>::value, "cannot call order_by() twice for a single select");
 					return {
 							_flags, 
-							_column_list,
+							_columns,
 							_from,
 							_where,
 							_group_by,
@@ -456,7 +466,7 @@ namespace sqlpp
 					static_assert(vendor::is_noop<OrderBy>::value, "cannot call order_by() twice for a single select");
 					return {
 							_flags, 
-							_column_list,
+							_columns,
 							_from,
 							_where,
 							_group_by,
@@ -485,7 +495,7 @@ namespace sqlpp
 					static_assert(vendor::is_noop<Limit>::value, "cannot call limit() twice for a single select");
 					return {
 						_flags, 
-							_column_list,
+							_columns,
 							_from,
 							_where,
 							_group_by,
@@ -503,7 +513,7 @@ namespace sqlpp
 				static_assert(vendor::is_noop<Limit>::value, "cannot call limit() twice for a single select");
 				return {
 						_flags, 
-						_column_list,
+						_columns,
 						_from,
 						_where,
 						_group_by,
@@ -531,7 +541,7 @@ namespace sqlpp
 				static_assert(vendor::is_noop<Offset>::value, "cannot call offset() twice for a single select");
 				return {
 						_flags, 
-						_column_list,
+						_columns,
 						_from,
 						_where,
 						_group_by,
@@ -549,7 +559,7 @@ namespace sqlpp
 				static_assert(vendor::is_noop<Offset>::value, "cannot call offset() twice for a single select");
 				return {
 						_flags, 
-						_column_list,
+						_columns,
 						_from,
 						_where,
 						_group_by,
@@ -585,7 +595,7 @@ namespace sqlpp
 
 			const typename ColumnList::_dynamic_names_t& get_dynamic_names() const
 			{
-				return _column_list._dynamic_expressions._dynamic_expression_names;
+				return _columns._dynamic_expressions._dynamic_expression_names;
 			}
 
 			static constexpr size_t _get_static_no_of_parameters()
@@ -631,7 +641,7 @@ namespace sqlpp
 				}
 
 			FlagList _flags;
-			ColumnList _column_list;
+			ColumnList _columns;
 			From _from;
 			Where _where;
 			GroupBy _group_by;
@@ -682,7 +692,7 @@ namespace sqlpp
 					context << "SELECT ";
 
 					interpret(t._flags, context);
-					interpret(t._column_list, context);
+					interpret(t._columns, context);
 					interpret(t._from, context);
 					interpret(t._where, context);
 					interpret(t._group_by, context);

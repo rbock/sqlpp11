@@ -130,7 +130,7 @@ namespace sqlpp
 					void add(E&& expr)
 					{
 						static_assert(is_select_flag_t<typename std::decay<E>::type>::value, "flag arguments require to be select flags");
-						_dynamic_flags.push_back(std::forward<E>(expr));
+						_dynamic_flags.emplace_back(std::forward<E>(expr));
 					}
 
 				_parameter_tuple_t _flags;
