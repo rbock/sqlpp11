@@ -104,16 +104,21 @@ namespace sqlpp
 
 	namespace vendor
 	{
-		template<typename T>
+		template<typename Database, typename T>
 			struct select_flag_list_t
 			{
 				static_assert(detail::wrong<T>::value, "invalid argument for select_flag_list");
 			};
 
 		// select_flag_list_t
-		template<typename... Flag>
-			struct select_flag_list_t<std::tuple<Flag...>>
+		template<typename Database, typename... Flag>
+			struct select_flag_list_t<Database, std::tuple<Flag...>>
 			{
+				using _is_select_flag_list = std::true_type; 
+				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
+				using _parameter_tuple_t = std::tuple<Flag...>;
+				using size = std::tuple_size<_parameter_tuple_t>;
+
 				// check for duplicate order expressions
 				static_assert(not detail::has_duplicates<Flag...>::value, "at least one duplicate argument detected in select flag list");
 
@@ -121,20 +126,29 @@ namespace sqlpp
 				using _valid_flags = typename detail::make_set_if<is_select_flag_t, Flag...>::type;
 				static_assert(_valid_flags::size::value == sizeof...(Flag), "at least one argument is not a select flag in select flag list");
 
-				using _is_select_flag_list = std::true_type; 
+				template<typename E>
+					void add(E&& expr)
+					{
+						static_assert(is_select_flag_t<typename std::decay<E>::type>::value, "flag arguments require to be select flags");
+						_dynamic_flags.emplace_back(std::forward<E>(expr));
+					}
 
-				std::tuple<Flag...> _flags;
+				_parameter_tuple_t _flags;
+				vendor::interpretable_list_t<Database> _dynamic_flags;
 			};
 
-		template<typename Context, typename... Flag>
-			struct interpreter_t<Context, select_flag_list_t<std::tuple<Flag...>>>
+		template<typename Context, typename Database, typename... Flag>
+			struct interpreter_t<Context, select_flag_list_t<Database, std::tuple<Flag...>>>
 			{
-				using T = select_flag_list_t<std::tuple<Flag...>>;
+				using T = select_flag_list_t<Database, std::tuple<Flag...>>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					interpret_tuple(t._flags, ' ', context);
 					if (sizeof...(Flag))
+						context << ' ';
+					interpret_list(t._dynamic_flags, ',', context);
+					if (not t._dynamic_flags.empty())
 						context << ' ';
 					return context;
 				}

@@ -110,7 +110,9 @@ int main()
 	interpret(multi_column(t.alpha, t.alpha, (t.beta + "cake").as(t.gamma)), printer).flush();
 
 	// dynamic select
-	interpret(dynamic_select(db, t.alpha).dynamic_columns().add_column(t.beta), printer).flush();
+	interpret(dynamic_select(db).dynamic_flags().dynamic_columns(t.alpha).add_column(t.beta).add_column(t.gamma), printer).flush();
+	interpret(dynamic_select(db).dynamic_flags().add_flag(sqlpp::distinct).dynamic_columns().add_column(t.gamma).add_column(t.beta), printer).flush();
+	interpret(dynamic_select(db).dynamic_flags(sqlpp::distinct).add_flag(sqlpp::all).dynamic_columns(t.alpha).add_column(t.beta), printer).flush();
 
 	return 0;
 }
