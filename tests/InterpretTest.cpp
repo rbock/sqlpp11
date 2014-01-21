@@ -114,5 +114,8 @@ int main()
 	interpret(dynamic_select(db).dynamic_flags().add_flag(sqlpp::distinct).dynamic_columns().add_column(t.gamma).add_column(t.beta), printer).flush();
 	interpret(dynamic_select(db).dynamic_flags(sqlpp::distinct).add_flag(sqlpp::all).dynamic_columns(t.alpha).add_column(t.beta), printer).flush();
 
+	// distinct aggregate
+	interpret(count(sqlpp::distinct, t.alpha % 7), printer).flush();
+
 	return 0;
 }
