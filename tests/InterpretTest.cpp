@@ -116,6 +116,8 @@ int main()
 
 	// distinct aggregate
 	interpret(count(sqlpp::distinct, t.alpha % 7), printer).flush();
+	interpret(avg(sqlpp::distinct, t.alpha - 7), printer).flush();
+	interpret(sum(sqlpp::distinct, t.alpha + 7), printer).flush();
 
 	return 0;
 }
