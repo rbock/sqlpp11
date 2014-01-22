@@ -149,6 +149,7 @@ namespace sqlpp
 				std::size_t run(Db& db) const
 				{
 					static_assert(not vendor::is_noop<Assignments>::value, "calling set() required before running update");
+					static_assert(is_where_t<Where>::value, "cannot run update without having a where condition, use .where(true) to update all rows");
 					static_assert(_get_static_no_of_parameters() == 0, "cannot run update directly with parameters, use prepare instead");
 					return db.update(*this);
 				}

@@ -41,6 +41,7 @@ SQLPP_ALIAS_PROVIDER(kaesekuchen);
 int main()
 {
 	TabSample t;
+	TabFoo f;
 
 	interpret(t.alpha, printer).flush();
 	interpret(-t.alpha, printer).flush();
@@ -68,7 +69,7 @@ int main()
 	interpret(t.alpha == parameter(t.alpha) and (t.beta + "gimmick").like(parameter(t.beta)), printer).flush();
 
 	interpret(insert_into(t), printer).flush();
-	interpret(insert_into(t).default_values(), printer).flush();
+	interpret(insert_into(f).default_values(), printer).flush();
 	interpret(insert_into(t).set(t.gamma = true), printer).flush();
 	interpret(insert_into(t).set(t.gamma = sqlpp::tvin(false)), printer).flush();
 
@@ -118,6 +119,9 @@ int main()
 	interpret(count(sqlpp::distinct, t.alpha % 7), printer).flush();
 	interpret(avg(sqlpp::distinct, t.alpha - 7), printer).flush();
 	interpret(sum(sqlpp::distinct, t.alpha + 7), printer).flush();
+
+	interpret(select(all_of(t)).from(t).where(true), printer).flush();
+	interpret(select(all_of(t)).from(t).where(false), printer).flush();
 
 	return 0;
 }

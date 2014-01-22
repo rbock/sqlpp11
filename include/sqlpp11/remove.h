@@ -150,6 +150,7 @@ namespace sqlpp
 				std::size_t run(Db& db) const
 				{
 					static_assert(_get_static_no_of_parameters() == 0, "cannot run remove directly with parameters, use prepare instead");
+					static_assert(is_where_t<Where>::value, "cannot run update without having a where condition, use .where(true) to remove all rows");
 					return db.remove(*this);
 				}
 

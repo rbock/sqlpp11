@@ -82,6 +82,29 @@ namespace sqlpp
 				}
 			};
 
+		template<>
+			struct where_t<void, bool>
+			{
+				using _is_where = std::true_type;
+				using _is_dynamic = std::false_type;
+				using _parameter_tuple_t = std::tuple<>;
+
+				std::tuple<bool> _condition;
+			};
+
+		template<typename Context>
+			struct interpreter_t<Context, where_t<void, bool>>
+			{
+				using T = where_t<void, bool>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					if (not std::get<0>(t._condition))
+						context << " WHERE NULL";
+					return context;
+				}
+			};
+
 	}
 }
 

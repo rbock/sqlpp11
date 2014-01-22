@@ -620,6 +620,7 @@ namespace sqlpp
 				{
 					static_assert(not vendor::is_noop<ColumnList>::value, "cannot run select without having selected anything");
 					static_assert(is_from_t<From>::value, "cannot run select without a from()");
+					static_assert(is_where_t<Where>::value, "cannot run select without having a where condition, use .where(true) to select all rows");
 					static_assert(_get_static_no_of_parameters() == 0, "cannot run select directly with parameters, use prepare instead");
 					// FIXME: Check for missing aliases (if references are used)
 					// FIXME: Check for missing tables, well, actually, check for missing tables at the where(), order_by(), etc.
