@@ -156,6 +156,7 @@ namespace sqlpp
 					context << " JOIN ";
 					context << "(";
 					interpret(t._rhs, context);
+					context << ")";
 					interpret(t._on, context);
 					return context;
 				}

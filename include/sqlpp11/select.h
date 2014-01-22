@@ -595,7 +595,7 @@ namespace sqlpp
 
 			const typename ColumnList::_dynamic_names_t& get_dynamic_names() const
 			{
-				return _columns._dynamic_expressions._dynamic_expression_names;
+				return _columns._dynamic_columns._dynamic_expression_names;
 			}
 
 			static constexpr size_t _get_static_no_of_parameters()

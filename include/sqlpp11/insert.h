@@ -57,7 +57,7 @@ namespace sqlpp
 				-> use_default_values_t
 				{
 					static_assert(std::is_same<InsertList, vendor::noop>::value, "cannot call default_values() after set() or default_values()");
-					// FIXME:  Need to check if all required columns are set
+					static_assert(Table::_required_insert_columns::size::value == 0, "cannot use default_values, because some columns are configured to require values");
 					return {
 							_table,
 								{},
@@ -110,10 +110,7 @@ namespace sqlpp
 			template<typename Db>
 				std::size_t run(Db& db) const
 				{
-					// FIXME: check if set or default_values() has ben called
-					constexpr bool calledSet = not vendor::is_noop<InsertList>::value;
-					constexpr bool requireSet = Table::_required_insert_columns::size::value > 0;
-					static_assert(calledSet or not requireSet, "calling set() required for given table");
+					static_assert(not vendor::is_noop<InsertList>::value, "calling set() or default_values()");
 					static_assert(_get_static_no_of_parameters() == 0, "cannot run insert directly with parameters, use prepare instead");
 					return db.insert(*this);
 				}
