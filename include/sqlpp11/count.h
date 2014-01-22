@@ -27,16 +27,17 @@
 #ifndef SQLPP_COUNT_H
 #define SQLPP_COUNT_H
 
-#include <sstream>
+#include <sqlpp11/select_flags.h>
 #include <sqlpp11/integral.h>
 
 namespace sqlpp
 {
 	namespace vendor
 	{
-		template<typename Expr>
-		struct count_t: public sqlpp::detail::integral::template operators<count_t<Expr>>
+		template<typename Flag, typename Expr>
+		struct count_t: public sqlpp::detail::integral::template operators<count_t<Flag, Expr>>
 		{
+			static_assert(is_noop<Flag>::value or std::is_same<sqlpp::distinct_t, Flag>::value, "count() used with flag other than 'distinct'");
 			static_assert(is_value_t<Expr>::value, "count() requires a sql value as argument");
 
 			struct _value_type: public sqlpp::detail::integral
@@ -76,14 +77,19 @@ namespace sqlpp
 
 	namespace vendor
 	{
-		template<typename Context, typename Expr>
-			struct interpreter_t<Context, vendor::count_t<Expr>>
+		template<typename Context, typename Flag, typename Expr>
+			struct interpreter_t<Context, vendor::count_t<Flag, Expr>>
 			{
-				using T = vendor::count_t<Expr>;
+				using T = vendor::count_t<Flag, Expr>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					context << "COUNT(";
+					if (std::is_same<sqlpp::distinct_t, Flag>::value)
+					{
+						interpret(Flag(), context);
+						context << ' ';
+					}
 					interpret(t._expr, context);
 					context << ")";
 					return context;
@@ -91,9 +97,14 @@ namespace sqlpp
 			};
 	}
 
-#warning: Add optional distinct flag to aggregate functions
 	template<typename T>
-		auto count(T&& t) -> typename vendor::count_t<typename operand_t<T, is_value_t>::type>
+		auto count(T&& t) -> typename vendor::count_t<vendor::noop, typename operand_t<T, is_value_t>::type>
+		{
+			return { std::forward<T>(t) };
+		}
+
+	template<typename T>
+		auto count(const sqlpp::distinct_t&, T&& t) -> typename vendor::count_t<sqlpp::distinct_t, typename operand_t<T, is_value_t>::type>
 		{
 			return { std::forward<T>(t) };
 		}

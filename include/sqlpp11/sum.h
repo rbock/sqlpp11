@@ -34,9 +34,10 @@ namespace sqlpp
 {
 	namespace vendor
 	{
-		template<typename Expr>
-		struct sum_t: public boolean::template operators<sum_t<Expr>>
+		template<typename Flag, typename Expr>
+		struct sum_t: public boolean::template operators<sum_t<Flag, Expr>>
 		{
+			static_assert(is_noop<Flag>::value or std::is_same<sqlpp::distinct_t, Flag>::value, "sum() used with flag other than 'distinct'");
 			static_assert(is_numeric_t<Expr>::value, "sum() requires a numeric expression as argument");
 
 			struct _value_type: public Expr::_value_type::_base_value_type
@@ -76,14 +77,19 @@ namespace sqlpp
 
 	namespace vendor
 	{
-		template<typename Context, typename Expr>
-			struct interpreter_t<Context, vendor::sum_t<Expr>>
+		template<typename Context, typename Flag, typename Expr>
+			struct interpreter_t<Context, vendor::sum_t<Flag, Expr>>
 			{
-				using T = vendor::sum_t<Expr>;
+				using T = vendor::sum_t<Flag, Expr>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					context << "SUM(";
+					if (std::is_same<sqlpp::distinct_t, Flag>::value)
+					{
+						interpret(Flag(), context);
+						context << ' ';
+					}
 					interpret(t._expr, context);
 					context << ")";
 					return context;
@@ -92,7 +98,13 @@ namespace sqlpp
 	}
 
 	template<typename T>
-		auto sum(T&& t) -> typename vendor::sum_t<typename operand_t<T, is_value_t>::type>
+		auto sum(T&& t) -> typename vendor::sum_t<vendor::noop, typename operand_t<T, is_value_t>::type>
+		{
+			return { std::forward<T>(t) };
+		}
+
+	template<typename T>
+		auto sum(const sqlpp::distinct_t&, T&& t) -> typename vendor::sum_t<sqlpp::distinct_t, typename operand_t<T, is_value_t>::type>
 		{
 			return { std::forward<T>(t) };
 		}

@@ -24,84 +24,18 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SELECT_FLAGS_H
-#define SQLPP_SELECT_FLAGS_H
+#ifndef SQLPP_VENDOR_SELECT_FLAG_LIST_H
+#define SQLPP_VENDOR_SELECT_FLAG_LIST_H
 
 #include <sqlpp11/select_fwd.h>
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/select_flags.h>
 #include <sqlpp11/detail/set.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
 #include <tuple>
 
 namespace sqlpp
 {
-	// standard select flags
-	struct all_t
-	{
-		struct _value_type 
-		{ 
-			using _is_select_flag = std::true_type; 
-		};
-	};
-	static constexpr all_t all = {};
-
-	namespace vendor
-	{
-		template<typename Context>
-			struct interpreter_t<Context, all_t>
-			{
-				static Context& _(const all_t&, Context& context)
-				{
-					context << "ALL";
-					return context;
-				}
-			};
-	}
-
-	struct distinct_t
-	{
-		struct _value_type 
-		{ 
-			using _is_select_flag = std::true_type; 
-		};
-	};
-	static constexpr distinct_t distinct = {};
-
-	namespace vendor
-	{
-		template<typename Context>
-			struct interpreter_t<Context, distinct_t>
-			{
-				static Context& _(const distinct_t&, Context& context)
-				{
-					context << "DISTINCT";
-					return context;
-				}
-			};
-	}
-
-	struct straight_join_t
-	{
-		struct _value_type 
-		{ 
-			using _is_select_flag = std::true_type; 
-		};
-	};
-	static constexpr straight_join_t straight_join = {};
-
-	namespace vendor
-	{
-		template<typename Context>
-			struct interpreter_t<Context, straight_join_t>
-			{
-				static Context& _(const straight_join_t&, Context& context)
-				{
-					context << "STRAIGHT_JOIN";
-					return context;
-				}
-			};
-	}
-
 	namespace vendor
 	{
 		template<typename Database, typename T>
