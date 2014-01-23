@@ -57,14 +57,9 @@ namespace sqlpp
 					};
 			};
 
-			in_t(const Operand& operand, const Args&... args):
+			in_t(Operand operand, Args... args):
 				_operand(operand),
 				_args(args...)
-			{}
-
-			in_t(Operand&& operand, Args&&... args):
-				_operand(std::move(operand)),
-				_args(std::move(args...))
 			{}
 
 			in_t(const in_t&) = default;

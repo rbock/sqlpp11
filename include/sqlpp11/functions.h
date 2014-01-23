@@ -103,6 +103,16 @@ namespace sqlpp
 			using _container_t = Container;
 			using _value_type = typename operand_t<typename _container_t::value_type, is_value_t>::type::_value_type;
 
+			value_list_t(_container_t container):
+				_container(container)
+			{}
+
+			value_list_t(const value_list_t&) = default;
+			value_list_t(value_list_t&&) = default;
+			value_list_t& operator=(const value_list_t&) = default;
+			value_list_t& operator=(value_list_t&&) = default;
+			~value_list_t() = default;
+
 			_container_t _container;
 		};
 
