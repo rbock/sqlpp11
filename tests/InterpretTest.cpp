@@ -43,6 +43,8 @@ int main()
 	TabSample t;
 	TabFoo f;
 
+	interpret(t.alpha = sqlpp::null, printer).flush();
+	interpret(t.alpha = sqlpp::default_value, printer).flush();
 	interpret(t.alpha, printer).flush();
 	interpret(-t.alpha, printer).flush();
 	interpret(+t.alpha, printer).flush();
@@ -71,7 +73,7 @@ int main()
 	interpret(insert_into(t), printer).flush();
 	interpret(insert_into(f).default_values(), printer).flush();
 	interpret(insert_into(t).set(t.gamma = true), printer).flush();
-	interpret(insert_into(t).set(t.gamma = sqlpp::tvin(false)), printer).flush();
+	//interpret(insert_into(t).set(t.gamma = sqlpp::tvin(false)), printer).flush(); cannot test this since gamma cannot be null and a static assert is thrown
 
 	interpret(update(t), printer).flush();
 	interpret(update(t).set(t.gamma = true), printer).flush();

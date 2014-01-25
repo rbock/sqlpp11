@@ -40,51 +40,6 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Lhs, typename Rhs>
-			struct assignment_t
-			{
-				using _is_assignment = std::true_type;
-				using column_type = Lhs;
-				using value_type = tvin_wrap_t<Rhs>;
-				using _parameter_tuple_t = std::tuple<Lhs, Rhs>;
-
-				assignment_t(Lhs lhs, Rhs rhs):
-					_lhs(lhs), 
-					_rhs(rhs)
-				{}
-
-				assignment_t(const assignment_t&) = default;
-				assignment_t(assignment_t&&) = default;
-				assignment_t& operator=(const assignment_t&) = default;
-				assignment_t& operator=(assignment_t&&) = default;
-				~assignment_t() = default;
-
-				Lhs _lhs;
-				tvin_wrap_t<Rhs> _rhs;
-			};
-
-		template<typename Context, typename Lhs, typename Rhs>
-			struct interpreter_t<Context, assignment_t<Lhs, Rhs>>
-			{
-				using T = assignment_t<Lhs, Rhs>;
-
-				static Context& _(const T& t, Context& context)
-				{
-					interpret(t._lhs, context);
-					if (t._rhs._is_trivial())
-					{
-						context << "=NULL";
-					}
-					else
-					{
-						context << "=";
-						interpret(t._rhs, context);
-					}
-					return context;
-				}
-			};
-
-
-		template<typename Lhs, typename Rhs>
 			struct equal_t: public detail::boolean::template operators<equal_t<Lhs, Rhs>>
 		{
 			using _value_type = detail::boolean;

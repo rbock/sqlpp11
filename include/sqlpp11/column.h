@@ -29,10 +29,13 @@
 
 #include <sqlpp11/alias.h>
 #include <sqlpp11/column_fwd.h>
+#include <sqlpp11/default_value.h>
+#include <sqlpp11/null.h>
 #include <sqlpp11/sort_order.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/vendor/interpreter.h>
+#include <sqlpp11/vendor/assignment.h>
 #include <sqlpp11/vendor/expression.h>
+#include <sqlpp11/vendor/interpreter.h>
 #include <sqlpp11/detail/wrong.h>
 
 namespace sqlpp
@@ -70,11 +73,24 @@ namespace sqlpp
 			}
 
 		template<typename T>
-			auto operator =(T&& t) const
-			-> typename std::enable_if<not std::is_same<column_t, typename std::decay<T>::type>::value, 
-			     vendor::assignment_t<column_t, typename _value_type::template _constraint<T>::type>>::type
+			auto operator =(T t) const
+			-> typename std::enable_if<_value_type::template _constraint<typename vendor::wrap_operand<T>::type>::value and not std::is_same<column_t, T>::value, 
+			     vendor::assignment_t<column_t, typename vendor::wrap_operand<T>::type>>::type
 			{
-				return { *this, {std::forward<T>(t)} };
+				return { *this, {t} };
+			}
+
+		auto operator =(sqlpp::null_t) const
+			->vendor::assignment_t<column_t, sqlpp::null_t>
+			{
+				static_assert(can_be_null_t<column_t>::value, "column cannot be null");
+				return { *this, {} };
+			}
+
+		auto operator =(sqlpp::default_value_t) const
+			->vendor::assignment_t<column_t, sqlpp::default_value_t>
+			{
+				return { *this, {} };
 			}
 	};
 

@@ -166,20 +166,22 @@ namespace sqlpp
 			};
 
 			template<typename T>
-				using _constraint = operand_t<T, is_text_t>;
+				using _operand_t = operand_t<T, is_text_t>;
+			template<typename T>
+				using _constraint = is_text_t<T>;
 
 			template<typename Base>
-				struct operators: public basic_operators<Base, _constraint>
+				struct operators: public basic_operators<Base, _operand_t>
 			{
 				template<typename T>
-					vendor::concat_t<Base, typename _constraint<T>::type> operator+(T&& t) const
+					vendor::concat_t<Base, typename _operand_t<T>::type> operator+(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
 
 				template<typename T>
-					vendor::like_t<Base, typename _constraint<T>::type> like(T&& t) const
+					vendor::like_t<Base, typename _operand_t<T>::type> like(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };

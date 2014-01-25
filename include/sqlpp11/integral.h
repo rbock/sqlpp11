@@ -162,41 +162,43 @@ namespace sqlpp
 			};
 
 			template<typename T>
-				using _constraint = operand_t<T, is_numeric_t>;
+				using _operand_t = operand_t<T, is_numeric_t>;
+			template<typename T>
+				using _constraint = is_numeric_t<T>;
 
 			template<typename Base>
-				struct operators: public basic_operators<Base, _constraint>
+				struct operators: public basic_operators<Base, _operand_t>
 			{
 				template<typename T>
-					vendor::plus_t<Base, vendor::value_type_t<T>, typename _constraint<T>::type> operator +(T&& t) const
+					vendor::plus_t<Base, vendor::value_type_t<T>, typename _operand_t<T>::type> operator +(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
 
 				template<typename T>
-					vendor::minus_t<Base, vendor::value_type_t<T>, typename _constraint<T>::type> operator -(T&& t) const
+					vendor::minus_t<Base, vendor::value_type_t<T>, typename _operand_t<T>::type> operator -(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
 
 				template<typename T>
-					vendor::multiplies_t<Base, vendor::value_type_t<T>, typename _constraint<T>::type> operator *(T&& t) const
+					vendor::multiplies_t<Base, vendor::value_type_t<T>, typename _operand_t<T>::type> operator *(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
 
 				template<typename T>
-					vendor::divides_t<Base, typename _constraint<T>::type> operator /(T&& t) const
+					vendor::divides_t<Base, typename _operand_t<T>::type> operator /(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
 
 				template<typename T>
-					vendor::modulus_t<Base, typename _constraint<T>::type> operator %(T&& t) const
+					vendor::modulus_t<Base, typename _operand_t<T>::type> operator %(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };

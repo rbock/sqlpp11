@@ -54,14 +54,14 @@ namespace sqlpp
 				static_assert(_assignment_set::size::value == sizeof...(Assignments), "at least one argument is not an assignment in set()");
 
 				// check for prohibited assignments
-				using _prohibited_assignment_set = typename ::sqlpp::detail::make_set_if<must_not_update_t, typename Assignments::column_type...>::type;
+				using _prohibited_assignment_set = typename ::sqlpp::detail::make_set_if<must_not_update_t, typename Assignments::_column_t...>::type;
 				static_assert(_prohibited_assignment_set::size::value == 0, "at least one assignment is prohibited by its column definition in set()");
 
 				template<typename Assignment>
 					void add(Assignment&& assignment)
 					{
 						static_assert(is_assignment_t<typename std::decay<Assignment>::type>::value, "set() arguments require to be assigments");
-						static_assert(not must_not_update_t<typename std::decay<Assignment>::type::column_type>::value, "set() argument must not be updated");
+						static_assert(not must_not_update_t<typename std::decay<Assignment>::type::_column_t>::value, "set() argument must not be updated");
 						_dynamic_assignments.emplace_back(std::forward<Assignment>(assignment));
 					}
 

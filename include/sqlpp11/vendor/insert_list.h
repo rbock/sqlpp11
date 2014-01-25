@@ -91,7 +91,7 @@ namespace sqlpp
 				static_assert(_assignment_set::size::value == sizeof...(Assignments), "at least one argument is not an assignment in set()");
 
 				// check for prohibited assignments
-				using _prohibited_assignment_set = typename ::sqlpp::detail::make_set_if<must_not_insert_t, typename Assignments::column_type...>::type;
+				using _prohibited_assignment_set = typename ::sqlpp::detail::make_set_if<must_not_insert_t, typename Assignments::_column_t...>::type;
 				static_assert(_prohibited_assignment_set::size::value == 0, "at least one assignment is prohibited by its column definition in set()");
 
 				insert_list_t(Assignments... assignment):
@@ -110,12 +110,12 @@ namespace sqlpp
 					{
 						static_assert(is_assignment_t<typename std::decay<Assignment>::type>::value, "set() arguments require to be assigments");
 						static_assert(not must_not_insert_t<typename std::decay<Assignment>::type>::value, "set() argument must not be used in insert");
-						_dynamic_columns.emplace_back(insert_column_t<typename Assignment::column_type>{std::forward<typename Assignment::column_type>(assignment._lhs)});
+						_dynamic_columns.emplace_back(insert_column_t<typename Assignment::_column_t>{std::forward<typename Assignment::_column_t>(assignment._lhs)});
 						_dynamic_values.emplace_back(std::forward<typename Assignment::value_type>(assignment._rhs));
 					}
 
 
-				std::tuple<insert_column_t<typename Assignments::column_type>...> _columns;
+				std::tuple<insert_column_t<typename Assignments::_column_t>...> _columns;
 				std::tuple<typename Assignments::value_type...> _values;
 				typename vendor::interpretable_list_t<Database> _dynamic_columns;
 				typename vendor::interpretable_list_t<Database> _dynamic_values;

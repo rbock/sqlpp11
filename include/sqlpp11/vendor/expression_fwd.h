@@ -32,9 +32,6 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Lhs, typename Rhs>
-			struct assignment_t;
-
-		template<typename Lhs, typename Rhs>
 			struct equal_t;
 
 		template<typename Lhs, typename Rhs>
