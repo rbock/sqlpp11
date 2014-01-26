@@ -36,7 +36,7 @@ namespace sqlpp
 		struct prepared_remove_t
 		{
 			using _parameter_list_t = typename Remove::_parameter_list_t;
-			using _prepared_query_t = typename Db::_prepared_query_t;
+			using _prepared_statement_t = typename Db::_prepared_statement_t;
 
 			auto run(Db& db) const
 				-> size_t
@@ -46,11 +46,11 @@ namespace sqlpp
 
 			void _bind_params() const
 			{
-				params._bind(_prepared_query);
+				params._bind(_prepared_statement);
 			}
 
 			_parameter_list_t params;
-			mutable _prepared_query_t _prepared_query;
+			mutable _prepared_statement_t _prepared_statement;
 		};
 
 }
