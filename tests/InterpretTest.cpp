@@ -44,10 +44,16 @@ int main()
 	TabFoo f;
 
 	interpret(insert_into(t).columns(t.gamma, t.beta), printer).flush();
-	interpret(insert_into(t).columns(t.gamma, t.beta).add_values(true, "cheesecake"), printer).flush();
-	interpret(insert_into(t).columns(t.gamma, t.beta).add_values(true, "cheesecake").add_values(false, sqlpp::tvin(std::string("coffee"))).add_values(false, sqlpp::tvin(std::string())), printer).flush();
-	interpret(insert_into(t).columns(t.gamma, t.beta).add_values(sqlpp::default_value, sqlpp::null), printer).flush();
-	interpret(insert_into(t).columns(t.gamma, t.beta), printer).flush();
+	interpret(insert_into(t).columns(t.gamma, t.beta).add_values(t.gamma = true, t.beta = "cheesecake"), printer).flush();
+	interpret(insert_into(t).columns(t.gamma, t.beta)
+			.add_values(t.gamma = true, t.beta = "cheesecake")
+			.add_values(t.gamma = false, t.beta = sqlpp::tvin(std::string("coffee"))) // FIXME: Want to use const char* const here, too
+			.add_values(t.gamma = false, t.beta = sqlpp::tvin(std::string()))
+			, printer).flush();
+	interpret(insert_into(t).columns(t.gamma, t.beta)
+			.add_values(t.gamma = sqlpp::default_value, t.beta = sqlpp::null)
+			, printer).flush();
+
 	interpret(t.alpha = sqlpp::null, printer).flush();
 	interpret(t.alpha = sqlpp::default_value, printer).flush();
 	interpret(t.alpha, printer).flush();

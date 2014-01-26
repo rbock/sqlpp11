@@ -114,13 +114,9 @@ namespace sqlpp
 					return *this;
 				}
 
-			template<typename Column>
-			//using _insert_value_t = vendor::insert_value_t<typename vendor::wrap_operand<typename Column::_value_type::_cpp_value_type>::type>;
-			using _insert_value_t = vendor::insert_value_t<typename Column::_value_type::_cpp_value_type>;
-
 			template<typename... Column>
 				auto columns(Column... columns)
-				-> set_column_value_list_t<vendor::column_list_t<Column...>, vendor::insert_value_list_t<_insert_value_t<Column>...>>
+				-> set_column_value_list_t<vendor::column_list_t<Column...>, vendor::insert_value_list_t<vendor::insert_value_t<Column>...>>
 				{
 					static_assert(vendor::is_noop<ColumnList>::value, "cannot call columns() twice");
 					static_assert(vendor::is_noop<InsertList>::value, "cannot call columns() after set() or dynamic_set()");
@@ -130,7 +126,7 @@ namespace sqlpp
 						_table,
 						_insert_list,
 						{std::tuple<Column...>{columns...}},
-						vendor::insert_value_list_t<_insert_value_t<Column>...>{},
+						vendor::insert_value_list_t<vendor::insert_value_t<Column>...>{},
 					};
 				}
 

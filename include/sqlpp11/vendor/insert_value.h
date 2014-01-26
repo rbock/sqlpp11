@@ -37,31 +37,51 @@ namespace sqlpp
 {
 	namespace vendor
 	{
-		template<typename ValueType>
+		namespace detail
+		{
+			template<typename Type, bool>
+				struct type_if
+				{
+					using type = Type;
+				};
+
+			template<typename Type>
+				struct type_if<Type, false>
+				{
+					struct type
+					{
+					};
+				};
+		}
+
+		template<typename Column>
 			struct insert_value_t
 			{
 				using _is_insert_value = std::true_type;
-				using _value_t = ValueType;
+				using _pure_value_t = typename Column::_value_type::_cpp_value_type;
+				using _wrapped_value_t = typename wrap_operand<_pure_value_t>::type;
+				using _tvin_t = typename detail::type_if<tvin_t<_pure_value_t>, can_be_null_t<Column>::value>::type; // static asserts and SFINAE do not work together
+				using _null_t = typename detail::type_if<null_t, can_be_null_t<Column>::value>::type; // static asserts and SFINAE do not work together
 
-				insert_value_t(_value_t value):
+				insert_value_t(assignment_t<Column, _wrapped_value_t> assignment):
 					_is_null(false),
 					_is_default(false),
-					_value({value})
+					_value(assignment._rhs)
 				{}
 
-				insert_value_t(tvin_t<_value_t> tvin):
-					_is_null(tvin._is_trivial()),
+				insert_value_t(assignment_t<Column, _tvin_t> assignment):
+					_is_null(assignment._rhs._is_trivial()),
 					_is_default(false),
-					_value({tvin._value})
+					_value(assignment._rhs._value)
 				{}
 
-				insert_value_t(const ::sqlpp::null_t&):
+				insert_value_t(const assignment_t<Column, _null_t>&):
 					_is_null(true),
 					_is_default(false),
 					_value()
 				{}
 
-				insert_value_t(const ::sqlpp::default_value_t&):
+				insert_value_t(const assignment_t<Column, ::sqlpp::default_value_t>&):
 					_is_null(false),
 					_is_default(true),
 					_value()
@@ -75,7 +95,7 @@ namespace sqlpp
 
 				bool _is_null;
 				bool _is_default;
-				typename wrap_operand<_value_t>::type _value;
+				_wrapped_value_t _value;
 			};
 
 		template<typename Context, typename ValueType>

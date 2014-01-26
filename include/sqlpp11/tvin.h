@@ -38,7 +38,7 @@ namespace sqlpp
 		struct tvin_t
 		{
 			using _operand_t = typename vendor::wrap_operand<T>::type;
-			static_assert(not std::is_same<_operand_t, T>::value, "tvin() used with invalid type (only string and primitive types allowed)");
+			static_assert(std::is_same<_operand_t, vendor::text_operand>::value or not std::is_same<_operand_t, T>::value, "tvin() used with invalid type (only string and primitive types allowed)");
 			using _value_type = typename _operand_t::_value_type;
 
 			tvin_t(T t): 

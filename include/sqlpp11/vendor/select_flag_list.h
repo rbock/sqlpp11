@@ -41,7 +41,7 @@ namespace sqlpp
 		template<typename Database, typename T>
 			struct select_flag_list_t
 			{
-				static_assert(detail::wrong<T>::value, "invalid argument for select_flag_list");
+				static_assert(::sqlpp::detail::wrong<T>::value, "invalid argument for select_flag_list");
 			};
 
 		// select_flag_list_t
@@ -54,10 +54,10 @@ namespace sqlpp
 				using size = std::tuple_size<_parameter_tuple_t>;
 
 				// check for duplicate order expressions
-				static_assert(not detail::has_duplicates<Flag...>::value, "at least one duplicate argument detected in select flag list");
+				static_assert(not ::sqlpp::detail::has_duplicates<Flag...>::value, "at least one duplicate argument detected in select flag list");
 
 				// check for invalid order expressions
-				using _valid_flags = typename detail::make_set_if<is_select_flag_t, Flag...>::type;
+				using _valid_flags = typename ::sqlpp::detail::make_set_if<is_select_flag_t, Flag...>::type;
 				static_assert(_valid_flags::size::value == sizeof...(Flag), "at least one argument is not a select flag in select flag list");
 
 				template<typename E>
