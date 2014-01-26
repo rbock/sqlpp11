@@ -43,6 +43,11 @@ int main()
 	TabSample t;
 	TabFoo f;
 
+	interpret(insert_into(t).columns(t.gamma, t.beta), printer).flush();
+	interpret(insert_into(t).columns(t.gamma, t.beta).add_values(true, "cheesecake"), printer).flush();
+	interpret(insert_into(t).columns(t.gamma, t.beta).add_values(true, "cheesecake").add_values(false, sqlpp::tvin(std::string("coffee"))).add_values(false, sqlpp::tvin(std::string())), printer).flush();
+	interpret(insert_into(t).columns(t.gamma, t.beta).add_values(sqlpp::default_value, sqlpp::null), printer).flush();
+	interpret(insert_into(t).columns(t.gamma, t.beta), printer).flush();
 	interpret(t.alpha = sqlpp::null, printer).flush();
 	interpret(t.alpha = sqlpp::default_value, printer).flush();
 	interpret(t.alpha, printer).flush();

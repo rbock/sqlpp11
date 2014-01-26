@@ -50,6 +50,11 @@ namespace sqlpp
 			tvin_t& operator=(tvin_t&&) = default;
 			~tvin_t() = default;
 
+			bool _is_trivial() const
+			{
+				return _value._is_trivial();
+			}
+
 			_operand_t _value;
 		};
 

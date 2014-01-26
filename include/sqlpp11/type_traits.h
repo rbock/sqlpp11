@@ -95,6 +95,7 @@ namespace sqlpp
 
 	SQLPP_TYPE_TRAIT_GENERATOR(is_table);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_pseudo_table);
+	SQLPP_TYPE_TRAIT_GENERATOR(is_column);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_select);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_select_flag_list);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_select_column_list);
@@ -114,6 +115,8 @@ namespace sqlpp
 	SQLPP_TYPE_TRAIT_GENERATOR(is_assignment);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_update_list);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_insert_list);
+	SQLPP_TYPE_TRAIT_GENERATOR(is_insert_value);
+	SQLPP_TYPE_TRAIT_GENERATOR(is_insert_value_list);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_sort_order);
 	SQLPP_TYPE_TRAIT_GENERATOR(requires_braces);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_parameter);
