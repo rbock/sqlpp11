@@ -34,15 +34,14 @@
 
 namespace sqlpp
 {
-	template<typename T>
+	template<typename Operand>
 		struct tvin_t
 		{
-			using _operand_t = typename vendor::wrap_operand<T>::type;
-			static_assert(std::is_same<_operand_t, vendor::text_operand>::value or not std::is_same<_operand_t, T>::value, "tvin() used with invalid type (only string and primitive types allowed)");
+			using _operand_t = Operand;
 			using _value_type = typename _operand_t::_value_type;
 
-			tvin_t(T t): 
-				_value({t})
+			tvin_t(Operand operand): 
+				_value(operand)
 			{}
 			tvin_t(const tvin_t&) = default;
 			tvin_t(tvin_t&&) = default;
@@ -60,10 +59,10 @@ namespace sqlpp
 
 	namespace vendor
 	{
-		template<typename Context, typename Type>
-			struct interpreter_t<Context, tvin_t<Type>>
+		template<typename Context, typename Operand>
+			struct interpreter_t<Context, tvin_t<Operand>>
 			{
-				using T = tvin_t<Type>;
+				using T = tvin_t<Operand>;
 
 				static void _(const T& t, Context& context)
 				{
@@ -114,10 +113,10 @@ namespace sqlpp
 
 	namespace vendor
 	{
-		template<typename Context, typename Type>
-			struct interpreter_t<Context, tvin_wrap_t<Type>>
+		template<typename Context, typename Operand>
+			struct interpreter_t<Context, tvin_wrap_t<Operand>>
 			{
-				using T = tvin_wrap_t<Type>;
+				using T = tvin_wrap_t<Operand>;
 
 				static Context& _(const T& t, Context& context)
 				{
@@ -135,9 +134,12 @@ namespace sqlpp
 	}
 
 	template<typename T>
-		auto tvin(T t) -> tvin_t<typename std::decay<T>::type>
+		auto tvin(T t) -> tvin_t<typename vendor::wrap_operand<T>::type>
 		{
-			return {t};
+			using _operand_t = typename vendor::wrap_operand<T>::type;
+			static_assert(std::is_same<_operand_t, vendor::text_operand>::value
+				 	or not std::is_same<_operand_t, T>::value, "tvin() used with invalid type (only string and primitive types allowed)");
+			return {{t}};
 		}
 
 }

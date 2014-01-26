@@ -164,7 +164,6 @@ namespace sqlpp
 			};
 
 		// FIXME: Need to allow std::ref arguments
-		// FIXME: insert requires to work with value_list
 	}
 }
 

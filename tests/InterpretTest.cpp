@@ -47,7 +47,7 @@ int main()
 	interpret(insert_into(t).columns(t.gamma, t.beta).add_values(t.gamma = true, t.beta = "cheesecake"), printer).flush();
 	interpret(insert_into(t).columns(t.gamma, t.beta)
 			.add_values(t.gamma = true, t.beta = "cheesecake")
-			.add_values(t.gamma = false, t.beta = sqlpp::tvin(std::string("coffee"))) // FIXME: Want to use const char* const here, too
+			.add_values(t.gamma = false, t.beta = sqlpp::tvin("coffee"))
 			.add_values(t.gamma = false, t.beta = sqlpp::tvin(std::string()))
 			, printer).flush();
 	interpret(insert_into(t).columns(t.gamma, t.beta)
