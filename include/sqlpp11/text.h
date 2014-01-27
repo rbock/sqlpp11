@@ -116,7 +116,7 @@ namespace sqlpp
 				{
 					_is_valid = true;
 					_value_ptr = data;
-					_len = _value_ptr ? 0 : len;
+					_len = _value_ptr ? len: 0;
 				}
 
 				void validate()
