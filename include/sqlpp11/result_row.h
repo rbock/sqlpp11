@@ -273,9 +273,9 @@ namespace sqlpp
 		{
 			_impl::invalidate();
 			_is_valid = false;
-			for (const auto& column : _dynamic_columns)
+			for (auto& field : _dynamic_fields)
 			{
-				_dynamic_fields.at(column).invalidate();
+				field.second.invalidate();
 			}
 		}
 
