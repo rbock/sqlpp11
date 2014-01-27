@@ -27,7 +27,6 @@
 #ifndef SQLPP_TEXT_H
 #define SQLPP_TEXT_H
 
-#include <cstdlib>
 #include <sqlpp11/basic_operators.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/exception.h>
