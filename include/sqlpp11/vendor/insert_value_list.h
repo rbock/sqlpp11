@@ -87,8 +87,13 @@ namespace sqlpp
 				static Context& _(const T& t, Context& context)
 				{
 					context << " VALUES ";
+					bool first = true;
 					for (const auto& row : t._insert_values)
 					{
+						if (not first)
+							context << ',';
+						else
+							first = false;
 						context << '(';
 						interpret_tuple(row, ",", context);
 						context << ')';

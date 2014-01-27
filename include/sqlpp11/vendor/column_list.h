@@ -30,6 +30,7 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/detail/set.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
+#include <sqlpp11/vendor/simple_column.h>
 
 namespace sqlpp
 {
@@ -55,7 +56,7 @@ namespace sqlpp
 				using _prohibited_column_set = typename ::sqlpp::detail::make_set_if<must_not_insert_t, Columns...>::type;
 				static_assert(_prohibited_column_set::size::value == 0, "at least one column argument has a must_not_insert flag in its definition");
 
-				_parameter_tuple_t _columns;
+				std::tuple<simple_column_t<Columns>...> _columns;
 			};
 
 		template<typename Context, typename... Columns>

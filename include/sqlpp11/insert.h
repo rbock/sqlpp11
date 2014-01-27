@@ -125,7 +125,7 @@ namespace sqlpp
 					return {
 						_table,
 						_insert_list,
-						{std::tuple<Column...>{columns...}},
+						{std::tuple<vendor::simple_column_t<Column>...>{{columns}...}},
 						vendor::insert_value_list_t<vendor::insert_value_t<Column>...>{},
 					};
 				}
@@ -151,7 +151,7 @@ namespace sqlpp
 			template<typename Db>
 				std::size_t run(Db& db) const
 				{
-					static_assert(not vendor::is_noop<InsertList>::value, "calling set() or default_values()");
+					static_assert(not (vendor::is_noop<InsertList>::value and vendor::is_noop<ColumnList>::value) , "calling set() or default_values()");
 					static_assert(_get_static_no_of_parameters() == 0, "cannot run insert directly with parameters, use prepare instead");
 					return db.insert(*this);
 				}
