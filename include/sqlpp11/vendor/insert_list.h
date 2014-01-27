@@ -31,6 +31,7 @@
 #include <sqlpp11/detail/set.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
 #include <sqlpp11/vendor/interpretable_list.h>
+#include <sqlpp11/vendor/simple_column.h>
 
 namespace sqlpp
 {
@@ -53,25 +54,6 @@ namespace sqlpp
 					return context;
 				}
 			};
-
-		template<typename Column>
-			struct insert_column_t
-			{
-				Column _column;
-			};
-
-		template<typename Context, typename Column>
-			struct interpreter_t<Context, insert_column_t<Column>>
-			{
-				using T = insert_column_t<Column>;
-
-				static Context& _(const T& t, Context& context)
-				{
-					context << t._column._get_name();
-					return context;
-				}
-			};
-
 
 		template<typename Database, typename... Assignments>
 			struct insert_list_t
@@ -110,12 +92,12 @@ namespace sqlpp
 					{
 						static_assert(is_assignment_t<typename std::decay<Assignment>::type>::value, "set() arguments require to be assigments");
 						static_assert(not must_not_insert_t<typename std::decay<Assignment>::type>::value, "set() argument must not be used in insert");
-						_dynamic_columns.emplace_back(insert_column_t<typename Assignment::_column_t>{std::forward<typename Assignment::_column_t>(assignment._lhs)});
+						_dynamic_columns.emplace_back(simple_column_t<typename Assignment::_column_t>{std::forward<typename Assignment::_column_t>(assignment._lhs)});
 						_dynamic_values.emplace_back(std::forward<typename Assignment::value_type>(assignment._rhs));
 					}
 
 
-				std::tuple<insert_column_t<typename Assignments::_column_t>...> _columns;
+				std::tuple<simple_column_t<typename Assignments::_column_t>...> _columns;
 				std::tuple<typename Assignments::value_type...> _values;
 				typename vendor::interpretable_list_t<Database> _dynamic_columns;
 				typename vendor::interpretable_list_t<Database> _dynamic_values;

@@ -77,13 +77,15 @@ namespace sqlpp
 	template<typename JoinType, typename Lhs, typename Rhs, typename On = vendor::noop>
 		struct join_t
 		{
-			static_assert(is_table_t<Lhs>::value, "invalid lhs argument for join()");
-			static_assert(is_table_t<Rhs>::value, "invalid rhs argument for join()");
+			static_assert(is_table_t<Lhs>::value, "lhs argument for join() has to be a table or join");
+			static_assert(is_table_t<Rhs>::value, "rhs argument for join() has to be a table");
+			static_assert(not is_join_t<Rhs>::value, "rhs argument for join must not be a join");
 			static_assert(vendor::is_noop<On>::value or is_on_t<On>::value, "invalid on expression in join().on()");
 
 			static_assert(Lhs::_table_set::template is_disjunct_from<typename Rhs::_table_set>::value, "joined tables must not be identical");
 
 			using _is_table = std::true_type;
+			using _is_join = std::true_type;
 			using _table_set = typename Lhs::_table_set::template join<typename Rhs::_table_set>::type;
 
 			template<typename OnT> 
@@ -140,7 +142,6 @@ namespace sqlpp
 			On _on;
 		};
 
-	// FIXME: Need to check if db supports the join type. e.g. sqlite does not support right outer or full outer join
 	namespace vendor
 	{
 		template<typename Context, typename JoinType, typename Lhs, typename Rhs, typename On>
@@ -154,9 +155,7 @@ namespace sqlpp
 					interpret(t._lhs, context);
 					context << JoinType::_name;
 					context << " JOIN ";
-					context << "(";
 					interpret(t._rhs, context);
-					context << ")";
 					interpret(t._on, context);
 					return context;
 				}

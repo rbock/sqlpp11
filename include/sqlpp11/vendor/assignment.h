@@ -31,6 +31,7 @@
 #include <sqlpp11/null.h>
 #include <sqlpp11/tvin.h>
 #include <sqlpp11/vendor/interpreter.h>
+#include <sqlpp11/vendor/simple_column.h>
 
 namespace sqlpp
 {
@@ -68,7 +69,7 @@ namespace sqlpp
 
 				static Context& _(const T& t, Context& context)
 				{
-					interpret(t._lhs, context);
+					interpret(simple_column(t._lhs), context);
 					context << "=";
 					interpret(t._rhs, context);
 					return context;
@@ -107,7 +108,7 @@ namespace sqlpp
 
 				static Context& _(const T& t, Context& context)
 				{
-					interpret(t._lhs, context);
+					interpret(simple_column(t._lhs), context);
 					if (t._rhs._value._is_trivial())
 					{
 						context << "=NULL";
