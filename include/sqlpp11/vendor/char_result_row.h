@@ -31,7 +31,7 @@ namespace sqlpp
 {
 	struct char_result_row_t
 	{
-		char** data;
+		const char** data;
 		size_t* len;
 
 		bool operator==(const char_result_row_t& rhs) const

@@ -111,7 +111,7 @@ namespace sqlpp
 					_len(_value_ptr ? 0 : len)
 					{}
 
-				void assign(char* data, size_t len)
+				void assign(const char* data, size_t len)
 				{
 					_is_valid = true;
 					_value_ptr = data;
