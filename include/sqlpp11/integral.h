@@ -28,10 +28,10 @@
 #define SQLPP_INTEGRAL_H
 
 #include <cstdlib>
-#include <sqlpp11/detail/basic_operators.h>
+#include <sqlpp11/basic_operators.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/raw_result_row.h>
 #include <sqlpp11/exception.h>
+#include <sqlpp11/vendor/value_type.h>
 
 namespace sqlpp
 {
@@ -46,32 +46,92 @@ namespace sqlpp
 			using _is_integral = std::true_type;
 			using _is_value = std::true_type;
 			using _is_expression = std::true_type;
+			using _cpp_value_type = int64_t;
 			
-			template<size_t index>
-			struct _result_entry_t
+			struct _parameter_t
 			{
 				using _value_type = integral;
-				_result_entry_t(const raw_result_row_t& row):
-					_is_valid(row.data != nullptr),
-					_is_null(row.data == nullptr or row.data[index] == nullptr),
-					_value(_is_null ? 0 : std::strtoll(row.data[index], nullptr, 10))
+
+				_parameter_t():
+					_value(0),
+					_is_null(true)
 					{}
 
-				_result_entry_t& operator=(const raw_result_row_t& row)
+				explicit _parameter_t(const _cpp_value_type& value):
+					_value(value),
+					_is_null(false)
+					{}
+
+				_parameter_t& operator=(const _cpp_value_type& value)
 				{
-					_is_valid = (row.data != nullptr);
-					_is_null = row.data == nullptr or row.data[index] == nullptr;
-					_value = _is_null ? 0 : std::strtoll(row.data[index], nullptr, 10);
+					_value = value;
+					_is_null = false;
 					return *this;
 				}
 
-				template<typename Db>
-					void serialize(std::ostream& os, Db& db) const
+				void set_null()
+				{
+					_value = 0;
+					_is_null = true;
+				}
+
+				bool is_null() const
+			 	{ 
+					return _is_null; 
+				}
+
+				const _cpp_value_type& value() const
+				{
+					return _value;
+				}
+
+				operator _cpp_value_type() const { return _value; }
+
+				template<typename Target>
+					void _bind(Target& target, size_t index) const
 					{
-						os << value();
+						target._bind_integral_parameter(index, &_value, _is_null);
 					}
 
-				bool _is_trivial() const { return value() == 0; }
+			private:
+				_cpp_value_type _value;
+				bool _is_null;
+			};
+
+			struct _result_entry_t
+			{
+				using _value_type = integral;
+
+				_result_entry_t():
+					_is_valid(false),
+					_is_null(true),
+					_value(0)
+					{}
+
+				_result_entry_t(const char* data, size_t):
+					_is_valid(true),
+					_is_null(data == nullptr),
+					_value(_is_null ? 0 : std::strtoll(data, nullptr, 10))
+					{}
+
+				void assign(const char* data, size_t)
+				{
+					_is_valid = true;
+					_is_null = data == nullptr;
+					_value = _is_null ? 0 : std::strtoll(data, nullptr, 10);
+				}
+
+				void invalidate()
+				{
+					_is_valid = false;
+					_is_null = true;
+					_value = 0;
+				}
+
+				void validate()
+				{
+					_is_valid = true;
+				}
 
 				bool is_null() const
 			 	{ 
@@ -80,81 +140,81 @@ namespace sqlpp
 					return _is_null; 
 				}
 
-				int64_t value() const
+				_cpp_value_type value() const
 				{
 					if (not _is_valid)
 						throw exception("accessing value in non-existing row");
 					return _value;
 				}
 
-				operator int64_t() const { return value(); }
+				operator _cpp_value_type() const { return value(); }
+
+				template<typename Target>
+					void _bind(Target& target, size_t i)
+					{
+						target._bind_integral_result(i, &_value, &_is_null);
+					}
 
 			private:
 				bool _is_valid;
 				bool _is_null;
-				int64_t _value;
+				_cpp_value_type _value;
 			};
 
 			template<typename T>
-			struct plus_
-			{
-				using _value_type = typename wrap_operand<typename std::decay<T>::type>::type::_value_type;
-				static constexpr const char* _name = "+";
-			};
-
+				using _operand_t = operand_t<T, is_numeric_t>;
 			template<typename T>
-			struct minus_
-			{
-				using _value_type = typename wrap_operand<typename std::decay<T>::type>::type::_value_type;
-				static constexpr const char* _name = "-";
-			};
-
-			template<typename T>
-			struct multiplies_
-			{
-				using _value_type = typename wrap_operand<typename std::decay<T>::type>::type::_value_type;
-				static constexpr const char* _name = "*";
-			};
-
-			struct divides_
-			{
-				using _value_type = floating_point;
-				static constexpr const char* _name = "/";
-			};
-
-			template<typename T>
-				using _constraint = operand_t<T, is_numeric_t>;
+				using _constraint = is_numeric_t<T>;
 
 			template<typename Base>
-				struct operators: public basic_operators<Base, _constraint>
+				struct operators: public basic_operators<Base, _operand_t>
 			{
 				template<typename T>
-					binary_expression_t<Base, plus_<T>, typename _constraint<T>::type> operator +(T&& t) const
+					vendor::plus_t<Base, vendor::value_type_t<T>, typename _operand_t<T>::type> operator +(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-						return { *static_cast<const Base*>(this), std::forward<T>(t) };
+						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
 
 				template<typename T>
-					binary_expression_t<Base, minus_<T>, typename _constraint<T>::type> operator -(T&& t) const
+					vendor::minus_t<Base, vendor::value_type_t<T>, typename _operand_t<T>::type> operator -(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-						return { *static_cast<const Base*>(this), std::forward<T>(t) };
+						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
 
 				template<typename T>
-					binary_expression_t<Base, multiplies_<T>, typename _constraint<T>::type> operator *(T&& t) const
+					vendor::multiplies_t<Base, vendor::value_type_t<T>, typename _operand_t<T>::type> operator *(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-						return { *static_cast<const Base*>(this), std::forward<T>(t) };
+						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
 
 				template<typename T>
-					binary_expression_t<Base, divides_, typename _constraint<T>::type> operator /(T&& t) const
+					vendor::divides_t<Base, typename _operand_t<T>::type> operator /(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-						return { *static_cast<const Base*>(this), std::forward<T>(t) };
+						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
+
+				template<typename T>
+					vendor::modulus_t<Base, typename _operand_t<T>::type> operator %(T&& t) const
+					{
+						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
+						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
+					}
+
+				vendor::unary_plus_t<integral, Base> operator +() const
+				{
+					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as unary operand");
+					return { *static_cast<const Base*>(this) };
+				}
+
+				vendor::unary_minus_t<integral, Base> operator -() const
+				{
+					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as unary operand");
+					return { *static_cast<const Base*>(this) };
+				}
 
 				template<typename T>
 					auto operator +=(T&& t) const -> decltype(std::declval<Base>() = std::declval<Base>() + std::forward<T>(t))
@@ -184,8 +244,7 @@ namespace sqlpp
 			};
 		};
 
-		template<size_t index>
-		std::ostream& operator<<(std::ostream& os, const integral::_result_entry_t<index>& e)
+		inline std::ostream& operator<<(std::ostream& os, const integral::_result_entry_t& e)
 		{
 			return os << e.value();
 		}

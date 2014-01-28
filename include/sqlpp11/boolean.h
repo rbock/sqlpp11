@@ -28,9 +28,9 @@
 #define SQLPP_BOOLEAN_H
 
 #include <cstdlib>
-#include <sqlpp11/detail/basic_operators.h>
+#include <ostream>
+#include <sqlpp11/basic_operators.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/raw_result_row.h>
 #include <sqlpp11/exception.h>
 
 namespace sqlpp
@@ -38,24 +38,6 @@ namespace sqlpp
 	// boolean operators
 	namespace detail
 	{
-		struct or_
-		{
-			using _value_type = boolean;
-			static constexpr const char* _name = "OR";
-		};
-
-		struct and_
-		{
-			using _value_type = boolean;
-			static constexpr const char* _name = "AND";
-		};
-
-		struct not_
-		{
-			using _value_type = boolean;
-			static constexpr const char* _name = "NOT";
-		};
-
 		// boolean value type
 		struct boolean
 		{
@@ -63,37 +45,91 @@ namespace sqlpp
 			using _is_boolean = std::true_type;
 			using _is_value = std::true_type;
 			using _is_expression = std::true_type;
+			using _cpp_value_type = bool;
 
-			struct plus_
+			struct _parameter_t
 			{
 				using _value_type = boolean;
-				static constexpr const char* _name = "+";
-			};
 
-			template<size_t index>
-			struct _result_entry_t
-			{
-				_result_entry_t(const raw_result_row_t& row):
-					_is_valid(row.data != nullptr),
-					_is_null(row.data == nullptr or row.data[index] == nullptr),
-					_value(_is_null ? false : (std::strtoll(row.data[index], nullptr, 10) != 0))
+				_parameter_t():
+					_value(false),
+					_is_null(true)
 					{}
 
-				_result_entry_t& operator=(const raw_result_row_t& row)
+				_parameter_t(const _cpp_value_type& value):
+					_value(value),
+					_is_null(false)
+					{}
+
+				_parameter_t& operator=(const _cpp_value_type& value)
 				{
-					_is_valid = (row.data != nullptr);
-					_is_null = row.data == nullptr or row.data[index] == nullptr;
-					_value = _is_null ? false : (std::strtoll(row.data[index], nullptr, 10) != 0);
+					_value = value;
+					_is_null = (false);
 					return *this;
 				}
 
-				template<typename Db>
-					void serialize(std::ostream& os, Db& db) const
+				_parameter_t& operator=(const std::nullptr_t&)
+				{
+					_value = false;
+					_is_null = true;
+					return *this;
+				}
+
+				bool is_null() const
+			 	{ 
+					return _is_null; 
+				}
+
+				_cpp_value_type value() const
+				{
+					return _value;
+				}
+
+				operator _cpp_value_type() const { return value(); }
+
+				template<typename Target>
+					void _bind(Target& target, size_t index) const
 					{
-						os << value();
+						target._bind_boolean_parameter(index, &_value, _is_null);
 					}
 
-				bool _is_trivial() const { return value() == false; }
+			private:
+				signed char _value;
+				bool _is_null;
+			};
+
+			struct _result_entry_t
+			{
+				_result_entry_t():
+					_is_valid(false),
+					_is_null(true),
+					_value(false)
+					{}
+
+				_result_entry_t(const char* data, size_t):
+					_is_valid(true),
+					_is_null(data == nullptr),
+					_value(_is_null ? false : (data[0] == 't' or data[0] == '1'))
+					{}
+
+				void assign(const char* data, size_t)
+				{
+					_is_valid = true;
+					_is_null = data == nullptr;
+					_value = _is_null ? false : (data[0] == 't' or data[0] == '1');
+				}
+
+				void validate()
+				{
+					_is_valid = true;
+				}
+
+				void invalidate()
+				{
+					_is_valid = false;
+					_is_null = true;
+					_value = 0;
+				}
 
 				bool is_null() const
 			 	{ 
@@ -102,42 +138,50 @@ namespace sqlpp
 					return _is_null; 
 				}
 
-				bool value() const
+				_cpp_value_type value() const
 				{
 					if (not _is_valid)
 						throw exception("accessing value in non-existing row");
 					return _value;
 				}
 
-				operator bool() const { return value(); }
+				operator _cpp_value_type() const { return value(); }
+
+				template<typename Target>
+					void _bind(Target& target, size_t i)
+					{
+						target._bind_boolean_result(i, &_value, &_is_null);
+					}
 
 			private:
 				bool _is_valid;
 				bool _is_null;
-				bool _value;
+				signed char _value;
 			};
 
 			template<typename T>
-				using _constraint = operand_t<T, is_boolean_t>;
+				using _operand_t = operand_t<T, is_boolean_t>;
+			template<typename T>
+				using _constraint = is_boolean_t<T>;
 
 			template<typename Base>
-				struct operators: public basic_operators<Base, _constraint>
+				struct operators: public basic_operators<Base, _operand_t>
 			{
 				template<typename T>
-					binary_expression_t<Base, and_, typename _constraint<T>::type> operator and(T&& t) const
+					vendor::logical_and_t<Base, typename _operand_t<T>::type> operator and(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-						return { *static_cast<const Base*>(this), std::forward<T>(t) };
+						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
 
 				template<typename T>
-					binary_expression_t<Base, or_, typename _constraint<T>::type> operator or(T&& t) const
+					vendor::logical_or_t<Base, typename _operand_t<T>::type> operator or(T&& t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-						return { *static_cast<const Base*>(this), std::forward<T>(t) };
+						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
 					}
 
-				not_t<Base> operator not() const
+				vendor::logical_not_t<Base> operator not() const
 				{
 					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be as operand for operator not");
 					return { *static_cast<const Base*>(this) };
@@ -145,8 +189,7 @@ namespace sqlpp
 			};
 		};
 
-		template<size_t index>
-		std::ostream& operator<<(std::ostream& os, const boolean::_result_entry_t<index>& e)
+		inline std::ostream& operator<<(std::ostream& os, const boolean::_result_entry_t& e)
 		{
 			return os << e.value();
 		}

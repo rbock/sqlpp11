@@ -32,7 +32,7 @@
 
 namespace sqlpp
 {
-	namespace detail
+	namespace vendor
 	{
 		template<typename Expr>
 		struct max_t: public boolean::template operators<max_t<Expr>>
@@ -51,6 +51,8 @@ namespace sqlpp
 					struct _member_t
 					{
 						T max;
+						T& operator()() { return max; }
+						const T& operator()() const { return max; }
 					};
 			};
 
@@ -68,25 +70,32 @@ namespace sqlpp
 			max_t& operator=(max_t&&) = default;
 			~max_t() = default;
 
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					static_assert(Db::_supports_max, "max not supported by current database");
-					os << "MAX(";
-					_expr.serialize(os, db);
-					os << ")";
-				}
-
-		private:
 			Expr _expr;
 		};
 	}
 
-	template<typename T>
-	auto max(T&& t) -> typename detail::max_t<typename operand_t<T, is_value_t>::type>
+	namespace vendor
 	{
-		return { std::forward<T>(t) };
+		template<typename Context, typename Expr>
+			struct interpreter_t<Context, vendor::max_t<Expr>>
+			{
+				using T = vendor::max_t<Expr>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					context << "MAX(";
+					interpret(t._expr, context);
+					context << ")";
+					return context;
+				}
+			};
 	}
+
+	template<typename T>
+		auto max(T&& t) -> typename vendor::max_t<typename operand_t<T, is_value_t>::type>
+		{
+			return { std::forward<T>(t) };
+		}
 
 }
 

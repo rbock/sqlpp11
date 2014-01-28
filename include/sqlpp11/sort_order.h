@@ -40,23 +40,33 @@ namespace sqlpp
 		{
 			using _is_sort_order = std::true_type;
 
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
+			Expression _expression;
+		};
+
+	namespace vendor
+	{
+		template<typename Context, typename Expression, sort_type SortType>
+			struct interpreter_t<Context, sort_order_t<Expression, SortType>>
+			{
+				using T = sort_order_t<Expression, SortType>;
+
+				static Context& _(const T& t, Context& context)
 				{
-					_expression.serialize(os, db);
+					interpret(t._expression, context);
 					switch(SortType)
 					{
 					case sort_type::asc:
-						os << " ASC";
+						context << " ASC";
 						break;
 					default:
-						os << " DESC";
+						context << " DESC";
 						break;
 					}
+					return context;
 				}
+			};
 
-			Expression _expression;
-		};
+	}
 }
 
 #endif

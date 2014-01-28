@@ -32,7 +32,7 @@
 
 namespace sqlpp
 {
-	namespace detail
+	namespace vendor
 	{
 		template<typename Expr>
 		struct min_t: public boolean::template operators<min_t<Expr>>
@@ -51,6 +51,8 @@ namespace sqlpp
 					struct _member_t
 					{
 						T min;
+						T& operator()() { return min; }
+						const T& operator()() const { return min; }
 					};
 			};
 
@@ -68,25 +70,32 @@ namespace sqlpp
 			min_t& operator=(min_t&&) = default;
 			~min_t() = default;
 
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					static_assert(Db::_supports_min, "min not supported by current database");
-					os << "MIN(";
-					_expr.serialize(os, db);
-					os << ")";
-				}
-
-		private:
 			Expr _expr;
 		};
 	}
 
-	template<typename T>
-	auto min(T&& t) -> typename detail::min_t<typename operand_t<T, is_value_t>::type>
+	namespace vendor
 	{
-		return { std::forward<T>(t) };
+		template<typename Context, typename Expr>
+			struct interpreter_t<Context, vendor::min_t<Expr>>
+			{
+				using T = vendor::min_t<Expr>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					context << "MIN(";
+					interpret(t._expr, context);
+					context << ")";
+					return context;
+				}
+			};
 	}
+
+	template<typename T>
+		auto min(T&& t) -> typename vendor::min_t<typename operand_t<T, is_value_t>::type>
+		{
+			return { std::forward<T>(t) };
+		}
 
 }
 

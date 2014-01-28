@@ -32,11 +32,12 @@
 
 namespace sqlpp
 {
-	namespace detail
+	namespace vendor
 	{
-		template<typename Expr>
-		struct avg_t: public floating_point::template operators<avg_t<Expr>>
+		template<typename Flag, typename Expr>
+		struct avg_t: public floating_point::template operators<avg_t<Flag, Expr>>
 		{
+			static_assert(is_noop<Flag>::value or std::is_same<sqlpp::distinct_t, Flag>::value, "avg() used with flag other than 'distinct'");
 			static_assert(is_numeric_t<Expr>::value, "avg() requires a value expression as argument");
 
 			struct _value_type: public floating_point
@@ -51,6 +52,8 @@ namespace sqlpp
 					struct _member_t
 					{
 						T avg;
+						T& operator()() { return avg; }
+						const T& operator()() const { return avg; }
 					};
 			};
 
@@ -68,25 +71,43 @@ namespace sqlpp
 			avg_t& operator=(avg_t&&) = default;
 			~avg_t() = default;
 
-			template<typename Db>
-				void serialize(std::ostream& os, Db& db) const
-				{
-					static_assert(Db::_supports_avg, "avg() not supported by current database");
-					os << "AVG(";
-					_expr.serialize(os, db);
-					os << ")";
-				}
-
-		private:
 			Expr _expr;
 		};
 	}
 
-	template<typename T>
-	auto avg(T&& t) -> typename detail::avg_t<typename operand_t<T, is_value_t>::type>
+	namespace vendor
 	{
-		return { std::forward<T>(t) };
+		template<typename Context, typename Flag, typename Expr>
+			struct interpreter_t<Context, vendor::avg_t<Flag, Expr>>
+			{
+				using T = vendor::avg_t<Flag, Expr>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					context << "AVG(";
+					if (std::is_same<sqlpp::distinct_t, Flag>::value)
+					{
+						interpret(Flag(), context);
+						context << ' ';
+					}
+					interpret(t._expr, context);
+					context << ")";
+					return context;
+				}
+			};
 	}
+
+	template<typename T>
+		auto avg(T&& t) -> typename vendor::avg_t<vendor::noop, typename operand_t<T, is_value_t>::type>
+		{
+			return { std::forward<T>(t) };
+		}
+
+	template<typename T>
+		auto avg(const sqlpp::distinct_t&, T&& t) -> typename vendor::avg_t<sqlpp::distinct_t, typename operand_t<T, is_value_t>::type>
+		{
+			return { std::forward<T>(t) };
+		}
 
 }
 

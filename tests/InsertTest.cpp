@@ -23,17 +23,18 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "TabSample.h"
+#include "Sample.h"
 #include "MockDb.h"
 #include "is_regular.h"
 #include <sqlpp11/insert.h>
 #include <iostream>
 
 DbMock db;
+DbMock::_context_t printer(std::cerr);
 
 int main()
 {
-	TabSample t;
+	test::TabBar t;
 
 	auto x = t.alpha = 7;
 	auto y = t.beta = "kaesekuchen";
@@ -56,11 +57,11 @@ int main()
 		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
-	insert_into(t).serialize(std::cerr, db); std::cerr << "\n";
-	insert_into(t).set(t.beta = "kirschauflauf").serialize(std::cerr, db); std::cerr << "\n";
+	interpret(insert_into(t), printer).flush();
+	interpret(insert_into(t).set(t.beta = "kirschauflauf"), printer).flush();
 	auto i = dynamic_insert_into(db, t).dynamic_set();
 	i = i.add_set(t.beta = "kirschauflauf");
-	i.serialize(std::cerr, db); std::cerr << "\n";
+	interpret(i, printer).flush();
 
 	return 0;
 }

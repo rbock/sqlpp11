@@ -23,8 +23,9 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "TabSample.h"
+#include "Sample.h"
 #include "MockDb.h"
+#include <sqlpp11/alias_provider.h>
 #include <sqlpp11/select.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/connection.h>
@@ -32,11 +33,12 @@
 #include <iostream>
 
 DbMock db = {};
+SQLPP_ALIAS_PROVIDER(kaesekuchen);
 
 int main()
 {
-	TabSample t;
-	TabFoo f; 
+	test::TabFoo f; 
+	test::TabBar t;
 
 	// MEMBER FUNCTIONS
 	// ----------------
@@ -374,7 +376,6 @@ int main()
 
 	// test verbatim_table alias
 	{
-		SQLPP_ALIAS_PROVIDER_GENERATOR(kaesekuchen);
 		using T = decltype(sqlpp::verbatim_table("cheesecake").as(kaesekuchen));
 		static_assert(not sqlpp::is_named_expression_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");

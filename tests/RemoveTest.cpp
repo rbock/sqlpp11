@@ -26,16 +26,17 @@
 #include <iostream>
 #include <sqlpp11/remove.h>
 #include <sqlpp11/select.h>
-#include "TabSample.h"
+#include "Sample.h"
 #include "MockDb.h"
 #include "is_regular.h"
 
 
 DbMock db;
+DbMock::_context_t printer(std::cerr);
 
 int main()
 {
-	TabSample t;
+	test::TabBar t;
 
 	auto x = t.alpha = 7;
 	auto y = t.beta = "kaesekuchen";
@@ -56,13 +57,13 @@ int main()
 		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
-	remove_from(t).serialize(std::cerr, db); std::cerr << "\n";
-	remove_from(t).where(t.beta != "transparent").serialize(std::cerr, db); std::cerr << "\n";
-	remove_from(t).using_(t).serialize(std::cerr, db); std::cerr << "\n";
+	interpret(remove_from(t), printer).flush();
+	interpret(remove_from(t).where(t.beta != "transparent"), printer).flush();
+	interpret(remove_from(t).using_(t), printer).flush();
 	auto r = dynamic_remove_from(db, t).dynamic_using_().dynamic_where();
 	r = r.add_using_(t);
 	r = r.add_where(t.beta != "transparent");
-	r.serialize(std::cerr, db); std::cerr << "\n";
+	interpret(r, printer).flush();
 
 	return 0;
 }

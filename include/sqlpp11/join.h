@@ -29,6 +29,7 @@
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/on.h>
+#include <sqlpp11/vendor/noop.h>
 
 namespace sqlpp
 {
@@ -73,84 +74,94 @@ namespace sqlpp
 		static constexpr const char* _name = " RIGHT OUTER ";
 	};
 
-	template<typename JoinType, typename Lhs, typename Rhs, typename On = noop>
-	struct join_t
+	template<typename JoinType, typename Lhs, typename Rhs, typename On = vendor::noop>
+		struct join_t
+		{
+			static_assert(is_table_t<Lhs>::value, "lhs argument for join() has to be a table or join");
+			static_assert(is_table_t<Rhs>::value, "rhs argument for join() has to be a table");
+			static_assert(not is_join_t<Rhs>::value, "rhs argument for join must not be a join");
+			static_assert(vendor::is_noop<On>::value or is_on_t<On>::value, "invalid on expression in join().on()");
+
+			static_assert(Lhs::_table_set::template is_disjunct_from<typename Rhs::_table_set>::value, "joined tables must not be identical");
+
+			using _is_table = std::true_type;
+			using _is_join = std::true_type;
+			using _table_set = typename Lhs::_table_set::template join<typename Rhs::_table_set>::type;
+
+			template<typename OnT> 
+				using set_on_t = join_t<JoinType, Lhs, Rhs, OnT>;
+
+			template<typename... Expr>
+				auto on(Expr&&... expr)
+				-> set_on_t<on_t<void, typename std::decay<Expr>::type...>>
+				{
+					static_assert(vendor::is_noop<On>::value, "cannot call on() twice for a single join()");
+					return { _lhs, 
+						_rhs, 
+						{std::tuple<typename std::decay<Expr>::type...>{std::forward<Expr>(expr)...}}
+					};
+				}
+
+			template<typename T>
+				join_t<inner_join_t, join_t, typename std::decay<T>::type> join(T&& t)
+				{
+					static_assert(not vendor::is_noop<On>::value, "join type requires on()");
+					return { *this, std::forward<T>(t) };
+				}
+
+			template<typename T>
+				join_t<inner_join_t, join_t, typename std::decay<T>::type> inner_join(T&& t)
+				{
+					static_assert(not vendor::is_noop<On>::value, "join type requires on()");
+					return { *this, std::forward<T>(t) };
+				}
+
+			template<typename T>
+				join_t<outer_join_t, join_t, typename std::decay<T>::type> outer_join(T&& t)
+				{
+					static_assert(not vendor::is_noop<On>::value, "join type requires on()");
+					return { *this, std::forward<T>(t) };
+				}
+
+			template<typename T>
+				join_t<left_outer_join_t, join_t, typename std::decay<T>::type> left_outer_join(T&& t)
+				{
+					static_assert(not vendor::is_noop<On>::value, "join type requires on()");
+					return { *this, std::forward<T>(t) };
+				}
+
+			template<typename T>
+				join_t<right_outer_join_t, join_t, typename std::decay<T>::type> right_outer_join(T&& t)
+				{
+					static_assert(not vendor::is_noop<On>::value, "join type requires on()");
+					return { *this, std::forward<T>(t) };
+				}
+
+			Lhs _lhs;
+			Rhs _rhs;
+			On _on;
+		};
+
+	namespace vendor
 	{
-		static_assert(is_table_t<Lhs>::value, "invalid lhs argument for join()");
-		static_assert(is_table_t<Rhs>::value, "invalid rhs argument for join()");
-		static_assert(is_noop<On>::value or is_on_t<On>::value, "invalid on expression in join().on()");
-
-		static_assert(Lhs::_table_set::template is_disjunct_from<typename Rhs::_table_set>::value, "joined tables must not be identical");
-
-		using _is_table = std::true_type;
-		using _table_set = typename Lhs::_table_set::template join<typename Rhs::_table_set>::type;
-
-		template<typename OnT> 
-			using set_on_t = join_t<JoinType, Lhs, Rhs, OnT>;
-
-		template<typename... Expr>
-			auto on(Expr&&... expr)
-			-> set_on_t<on_t<void, typename std::decay<Expr>::type...>>
+		template<typename Context, typename JoinType, typename Lhs, typename Rhs, typename On>
+			struct interpreter_t<Context, join_t<JoinType, Lhs, Rhs, On>>
 			{
-				static_assert(is_noop<On>::value, "cannot call on() twice for a single join()");
-				return { _lhs, 
-					_rhs, 
-					{std::tuple<typename std::decay<Expr>::type...>{std::forward<Expr>(expr)...}}
-			 	};
-			}
+				using T = join_t<JoinType, Lhs, Rhs, On>;
 
-		template<typename T>
-			join_t<inner_join_t, join_t, typename std::decay<T>::type> join(T&& t)
-			{
-				static_assert(not is_noop<On>::value, "join type requires on()");
-				return { *this, std::forward<T>(t) };
-			}
+				static Context& _(const T& t, Context& context)
+				{
+					static_assert(not vendor::is_noop<On>::value, "joined tables require on()");
+					interpret(t._lhs, context);
+					context << JoinType::_name;
+					context << " JOIN ";
+					interpret(t._rhs, context);
+					interpret(t._on, context);
+					return context;
+				}
+			};
 
-		template<typename T>
-			join_t<inner_join_t, join_t, typename std::decay<T>::type> inner_join(T&& t)
-			{
-				static_assert(not is_noop<On>::value, "join type requires on()");
-				return { *this, std::forward<T>(t) };
-			}
-
-		template<typename T>
-			join_t<outer_join_t, join_t, typename std::decay<T>::type> outer_join(T&& t)
-			{
-				static_assert(not is_noop<On>::value, "join type requires on()");
-				return { *this, std::forward<T>(t) };
-			}
-
-		template<typename T>
-			join_t<left_outer_join_t, join_t, typename std::decay<T>::type> left_outer_join(T&& t)
-			{
-				static_assert(not is_noop<On>::value, "join type requires on()");
-				return { *this, std::forward<T>(t) };
-			}
-
-		template<typename T>
-			join_t<right_outer_join_t, join_t, typename std::decay<T>::type> right_outer_join(T&& t)
-			{
-				static_assert(not is_noop<On>::value, "join type requires on()");
-				return { *this, std::forward<T>(t) };
-			}
-
-		template<typename Db>
-			void serialize(std::ostream& os, Db& db) const
-			{
-				// FIXME: Need to check if db supports the join type. e.g. sqlite does not support right outer or full outer join
-				static_assert(JoinType::template _is_supported<Db>::value, "join type not supported by current database");
-				static_assert(not is_noop<On>::value, "joined tables require on()");
-				_lhs.serialize(os, db);
-				os << JoinType::_name;
-			 	os << " JOIN ";
-				_rhs.serialize(os, db);
-				_on.serialize(os, db);
-			}
-
-		Lhs _lhs;
-		Rhs _rhs;
-		On _on;
-	};
+	}
 }
 
 #endif

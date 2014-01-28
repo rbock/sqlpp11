@@ -27,19 +27,20 @@
 #ifndef SQLPP_REMOVE_H
 #define SQLPP_REMOVE_H
 
-#include <sstream>
-#include <sqlpp11/noop.h>
-#include <sqlpp11/using.h>
-#include <sqlpp11/where.h>
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/parameter_list.h>
+#include <sqlpp11/prepared_remove.h>
+#include <sqlpp11/vendor/noop.h>
+#include <sqlpp11/vendor/using.h>
+#include <sqlpp11/vendor/where.h>
 
 namespace sqlpp
 {
 	template<
 		typename Database,
 		typename Table,
-		typename Using = noop,
-		typename Where = noop
+		typename Using = vendor::noop,
+		typename Where = vendor::noop
 		>
 	struct remove_t;
 
@@ -51,21 +52,24 @@ namespace sqlpp
 		>
 		struct remove_t
 		{
-			static_assert(is_noop<Table>::value or is_table_t<Table>::value, "invalid 'Table' argument");
-			static_assert(is_noop<Using>::value or is_using_t<Using>::value, "invalid 'Using' argument");
-			static_assert(is_noop<Where>::value or is_where_t<Where>::value, "invalid 'Where' argument");
+			static_assert(vendor::is_noop<Table>::value or is_table_t<Table>::value, "invalid 'Table' argument");
+			static_assert(vendor::is_noop<Using>::value or is_using_t<Using>::value, "invalid 'Using' argument");
+			static_assert(vendor::is_noop<Where>::value or is_where_t<Where>::value, "invalid 'Where' argument");
 
 			template<typename UsingT> 
 				using set_using_t = remove_t<Database, Table, UsingT, Where>;
 			template<typename WhereT> 
 				using set_where_t = remove_t<Database, Table, Using, WhereT>;
 
+			using _parameter_tuple_t = std::tuple<Table, Using, Where>;
+			using _parameter_list_t = typename make_parameter_list_t<remove_t>::type;
+
 			template<typename... Tab>
 				auto using_(Tab&&... tab)
-				-> set_using_t<using_t<void, typename std::decay<Tab>::type...>>
+				-> set_using_t<vendor::using_t<void, typename std::decay<Tab>::type...>>
 				{
-					static_assert(std::is_same<Using, noop>::value, "cannot call using() twice");
-					static_assert(std::is_same<Where, noop>::value, "cannot call using() after where()");
+					static_assert(vendor::is_noop<Using>::value, "cannot call using() twice");
+					static_assert(vendor::is_noop<Where>::value, "cannot call using() after where()");
 					return {
 							_table,
 							{std::tuple<typename std::decay<Tab>::type...>{std::forward<Tab>(tab)...}},
@@ -75,10 +79,10 @@ namespace sqlpp
 
 			template<typename... Tab>
 				auto dynamic_using_(Tab&&... tab)
-				-> set_using_t<using_t<Database, typename std::decay<Tab>::type...>>
+				-> set_using_t<vendor::using_t<Database, typename std::decay<Tab>::type...>>
 				{
-					static_assert(std::is_same<Using, noop>::value, "cannot call using() twice");
-					static_assert(std::is_same<Where, noop>::value, "cannot call using() after where()");
+					static_assert(vendor::is_noop<Using>::value, "cannot call using() twice");
+					static_assert(vendor::is_noop<Where>::value, "cannot call using() after where()");
 					return {
 						_table,
 							{std::tuple<typename std::decay<Tab>::type...>{std::forward<Tab>(tab)...}},
@@ -97,9 +101,9 @@ namespace sqlpp
 
 			template<typename... Expr>
 				auto where(Expr&&... expr)
-				-> set_where_t<where_t<void, typename std::decay<Expr>::type...>>
+				-> set_where_t<vendor::where_t<void, typename std::decay<Expr>::type...>>
 				{
-					static_assert(std::is_same<Where, noop>::value, "cannot call where() twice");
+					static_assert(vendor::is_noop<Where>::value, "cannot call where() twice");
 					return {
 							_table,
 							_using,
@@ -109,9 +113,9 @@ namespace sqlpp
 
 			template<typename... Expr>
 			auto dynamic_where(Expr&&... expr)
-				-> set_where_t<where_t<Database, typename std::decay<Expr>::type...>>
+				-> set_where_t<vendor::where_t<Database, typename std::decay<Expr>::type...>>
 				{
-					static_assert(std::is_same<Where, noop>::value, "cannot call where() twice");
+					static_assert(vendor::is_noop<Where>::value, "cannot call where() twice");
 					return {
 						_table, 
 							_using, 
@@ -129,36 +133,53 @@ namespace sqlpp
 					return *this;
 				}
 
+			static constexpr size_t _get_static_no_of_parameters()
+			{
+				return _parameter_list_t::size::value;
+			}
 
-			template<typename Db>
-				const remove_t& serialize(std::ostream& os, Db& db) const
-				{
-					os << "DELETE FROM ";
-					_table.serialize(os, db);
-					_using.serialize(os, db);
-					_where.serialize(os, db);
-					return *this;
-				}
-
-			template<typename Db>
-				remove_t& serialize(std::ostream& os, Db& db)
-				{
-					static_cast<const remove_t*>(this)->serialize(os, db);
-					return *this;
-				}
+			size_t _get_no_of_parameters() const
+			{
+				return _parameter_list_t::size::value;
+			}
 
 			template<typename Db>
 				std::size_t run(Db& db) const
 				{
-					std::ostringstream oss;
-					serialize(oss, db);
-					return db.remove(oss.str());
+					static_assert(_get_static_no_of_parameters() == 0, "cannot run remove directly with parameters, use prepare instead");
+					static_assert(is_where_t<Where>::value, "cannot run update without having a where condition, use .where(true) to remove all rows");
+					return db.remove(*this);
+				}
+
+			template<typename Db>
+				auto prepare(Db& db) const
+				-> prepared_remove_t<typename std::decay<Db>::type, remove_t>
+				{
+					return {{}, db.prepare_remove(*this)};
 				}
 
 			Table _table;
 			Using _using;
 			Where _where;
 		};
+
+	namespace vendor
+	{
+		template<typename Context, typename Database, typename Table, typename Using, typename Where>
+			struct interpreter_t<Context, remove_t<Database, Table, Using, Where>>
+			{
+				using T = remove_t<Database, Table, Using, Where>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					context << "DELETE FROM ";
+					interpret(t._table, context);
+					interpret(t._using, context);
+					interpret(t._where, context);
+					return context;
+				}
+			};
+	}
 
 	template<typename Table>
 		constexpr remove_t<void, typename std::decay<Table>::type> remove_from(Table&& table)

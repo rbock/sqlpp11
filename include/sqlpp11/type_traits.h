@@ -28,7 +28,7 @@
 #define SQLPP_TYPE_TRAITS_H
 
 #include <type_traits>
-#include <sqlpp11/detail/wrap_operand.h>
+#include <sqlpp11/vendor/wrap_operand.h>
 
 namespace sqlpp
 {
@@ -47,12 +47,12 @@ namespace sqlpp
 	namespace detail\
 	{\
 		template<typename T, typename Enable = void>\
-			struct name##_impl: std::false_type {};\
+			struct name##_impl { using type = std::false_type; };\
 		template<typename T>\
-			struct name##_impl<T, typename std::enable_if<std::is_same<typename T::_column_type::_##name, std::true_type>::value>::type>: std::true_type {};\
+			struct name##_impl<T, typename std::enable_if<std::is_same<typename T::_column_type::_##name, std::true_type>::value>::type> { using type = std::true_type; };\
 	}\
 	template<typename T>\
-		struct name##_t: detail::name##_impl<T> {};
+		using name##_t = typename detail::name##_impl<T>::type;
 
 #define SQLPP_TYPE_TRAIT_GENERATOR(name) \
 	namespace detail\
@@ -85,19 +85,21 @@ namespace sqlpp
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(expression);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(named_expression);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(multi_expression);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(alias); // FIXME: Is this really part of the value?
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(alias);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(select_flag);
 
 	SQLPP_IS_COLUMN_TRAIT_GENERATOR(must_not_insert);
 	SQLPP_IS_COLUMN_TRAIT_GENERATOR(must_not_update);
 	SQLPP_IS_COLUMN_TRAIT_GENERATOR(require_insert);
 	SQLPP_IS_COLUMN_TRAIT_GENERATOR(can_be_null);
-	SQLPP_IS_COLUMN_TRAIT_GENERATOR(trivial_value_is_null);
 
 	SQLPP_TYPE_TRAIT_GENERATOR(is_table);
+	SQLPP_TYPE_TRAIT_GENERATOR(is_join);
+	SQLPP_TYPE_TRAIT_GENERATOR(is_pseudo_table);
+	SQLPP_TYPE_TRAIT_GENERATOR(is_column);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_select);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_select_flag_list);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_select_expression_list);
+	SQLPP_TYPE_TRAIT_GENERATOR(is_select_column_list);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_from);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_on);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_dynamic);
@@ -112,10 +114,13 @@ namespace sqlpp
 	SQLPP_TYPE_TRAIT_GENERATOR(is_multi_column);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_value_list);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_assignment);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_assignment_list);
+	SQLPP_TYPE_TRAIT_GENERATOR(is_update_list);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_insert_list);
+	SQLPP_TYPE_TRAIT_GENERATOR(is_insert_value);
+	SQLPP_TYPE_TRAIT_GENERATOR(is_insert_value_list);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_sort_order);
 	SQLPP_TYPE_TRAIT_GENERATOR(requires_braces);
+	SQLPP_TYPE_TRAIT_GENERATOR(is_parameter);
 
 	SQLPP_CONNECTOR_TRAIT_GENERATOR(has_empty_list_insert);
 
@@ -125,12 +130,11 @@ namespace sqlpp
 	template<typename T, template<typename> class IsCorrectType>
 		struct operand_t
 		{
-			using type = typename detail::wrap_operand<typename std::decay<T>::type>::type;
+			using type = typename vendor::wrap_operand<typename std::decay<T>::type>::type;
 			static_assert(not is_alias_t<type>::value, "expression operand must not be an alias");
 			static_assert(is_expression_t<type>::value, "expression required");
 			static_assert(IsCorrectType<type>::value, "invalid operand type");
 		};
-
 	
 }
 
