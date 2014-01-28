@@ -79,8 +79,7 @@ namespace sqlpp
 				template<typename Target>
 				void _bind(Target& target)
 				{
-					_field::operator()().bind(target, index);
-					std::cerr << "binding result " << index << std::endl;
+					_field::operator()()._bind(target, index);
 					_rest::_bind(target);
 				}
 			};
@@ -120,9 +119,9 @@ namespace sqlpp
 				}
 
 				template<typename Target>
-				void _bind(const Target& target)
+				void _bind(Target& target)
 				{
-					_multi_field::_bind(target);
+					_multi_field::operator()()._bind(target);
 					_rest::_bind(target);
 				}
 			};

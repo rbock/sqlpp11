@@ -88,9 +88,9 @@ namespace sqlpp
 				operator _cpp_value_type() const { return value(); }
 
 				template<typename Target>
-					void bind(Target& target, size_t index) const
+					void _bind(Target& target, size_t index) const
 					{
-						target.bind_boolean_parameter(index, &_value, _is_null);
+						target._bind_boolean_parameter(index, &_value, _is_null);
 					}
 
 			private:
@@ -148,9 +148,9 @@ namespace sqlpp
 				operator _cpp_value_type() const { return value(); }
 
 				template<typename Target>
-					void bind(Target& target, size_t i)
+					void _bind(Target& target, size_t i)
 					{
-						target.bind_boolean_result(i, &_value, &_is_null);
+						target._bind_boolean_result(i, &_value, &_is_null);
 					}
 
 			private:

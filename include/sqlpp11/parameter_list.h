@@ -60,7 +60,7 @@ namespace sqlpp
 				void _bind_impl(Target& target, const index_t<index>&) const
 				{
 					const auto& parameter = static_cast<typename std::tuple_element<index, const _member_tuple_t>::type&>(*this)();
-					parameter.bind(target, index);
+					parameter._bind(target, index);
 					_bind_impl(target, index_t<index + 1>());
 				}
 
