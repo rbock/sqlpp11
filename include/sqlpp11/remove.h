@@ -56,9 +56,6 @@ namespace sqlpp
 			static_assert(vendor::is_noop<Using>::value or is_using_t<Using>::value, "invalid 'Using' argument");
 			static_assert(vendor::is_noop<Where>::value or is_where_t<Where>::value, "invalid 'Where' argument");
 
-
-			// FIXME: We might want to have everywhere() or all() to indicate that everything is to be removed, same with update and select
-
 			template<typename UsingT> 
 				using set_using_t = remove_t<Database, Table, UsingT, Where>;
 			template<typename WhereT> 
@@ -143,7 +140,7 @@ namespace sqlpp
 
 			size_t _get_no_of_parameters() const
 			{
-				return _parameter_list_t::size::value; // FIXME: Need to add dynamic parameters here
+				return _parameter_list_t::size::value;
 			}
 
 			template<typename Db>

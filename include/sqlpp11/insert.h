@@ -145,7 +145,7 @@ namespace sqlpp
 
 			size_t _get_no_of_parameters() const
 			{
-				return _parameter_list_t::size::value; // FIXME: Need to add dynamic parameters here
+				return _parameter_list_t::size::value;
 			}
 
 			template<typename Db>

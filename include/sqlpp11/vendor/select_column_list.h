@@ -83,7 +83,10 @@ namespace sqlpp
 		template<>
 			struct dynamic_select_column_list<void>
 			{
-				struct _names_t {};
+				struct _names_t
+				{
+					static constexpr size_t size() { return 0; }
+				};
 				_names_t _dynamic_expression_names;
 
 				template<typename T>

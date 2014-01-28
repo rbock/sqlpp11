@@ -55,7 +55,6 @@ namespace sqlpp
 
 				// FIXME: Joins contain two tables. This is not being dealt with at the moment when looking at duplicates, for instance
 
-
 				template<typename Table>
 					void add(Table&& table)
 					{

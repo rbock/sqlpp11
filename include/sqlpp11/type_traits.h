@@ -85,7 +85,7 @@ namespace sqlpp
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(expression);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(named_expression);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(multi_expression);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(alias); // FIXME: Is this really part of the value?
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(alias);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(select_flag);
 
 	SQLPP_IS_COLUMN_TRAIT_GENERATOR(must_not_insert);

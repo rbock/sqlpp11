@@ -28,7 +28,6 @@
 #define SQLPP_NOOP_H
 
 #include <type_traits>
-#include <sqlpp11/vendor/noop_fwd.h>
 
 namespace sqlpp
 {

@@ -60,7 +60,6 @@ namespace sqlpp
 				using set_assignments_t = update_t<Database, Table, AssignmentsT, Where>;
 			template<typename WhereT> 
 				using set_where_t = update_t<Database, Table, Assignments, WhereT>;
-			//FIXME: add method to explicitly indicate that EVERYTHING should be updated?
 
 			using _parameter_tuple_t = std::tuple<Table, Assignments, Where>;
 			using _parameter_list_t = typename make_parameter_list_t<update_t>::type;
@@ -142,7 +141,7 @@ namespace sqlpp
 
 			size_t _get_no_of_parameters() const
 			{
-				return _parameter_list_t::size::value; // FIXME: Need to add dynamic parameters here
+				return _parameter_list_t::size::value;
 			}
 
 			template<typename Db>

@@ -194,19 +194,6 @@ namespace sqlpp
 		struct has_duplicates
 		: std::integral_constant<bool, make_set<T...>::type::size::value != sizeof...(T)> {};
 
-#if WANT_AUTO_JOIN
-	template<typename T>
-		struct begin // FIXME: Should move this into set struct
-		{
-			static_assert(wrong<T>::value, "begin template used on invalid type container");
-		};
-	
-	template<typename T, typename... Rest>
-		struct begin<set<T, Rest...>>
-		{
-			using type = T;
-		};
-#endif // WANT_AUTO_JOIN
 	}
 }
 

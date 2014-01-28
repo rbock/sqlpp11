@@ -27,12 +27,14 @@
 #ifndef SQLPP_SELECT_FWD_H
 #define SQLPP_SELECT_FWD_H
 
-// FIXME: Do we really need this file?
-#include <sqlpp11/vendor/noop_fwd.h>
 #include <type_traits>
 
 namespace sqlpp
 {
+	namespace vendor
+	{
+		struct noop;
+	}
 	// select flags
 	struct all_t;
 	struct distinct_t;
