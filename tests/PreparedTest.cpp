@@ -23,7 +23,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "TabSample.h"
+#include "Sample.h"
 #include "MockDb.h"
 #include "is_regular.h"
 #include <sqlpp11/functions.h>
@@ -35,8 +35,8 @@ DbMock db = {};
 
 int main()
 {
-	TabSample t;
-	TabFoo f; 
+	test::TabFoo f; 
+	test::TabBar t;
 
 	// empty parameter lists
 	{

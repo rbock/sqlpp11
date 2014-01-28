@@ -23,7 +23,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "TabSample.h"
+#include "Sample.h"
 #include "MockDb.h"
 #include "is_regular.h"
 #include <sqlpp11/alias_provider.h>
@@ -46,8 +46,8 @@ namespace alias
 
 int main()
 {
-	TabSample t;
-	TabFoo f; 
+	test::TabFoo f; 
+	test::TabBar t;
 
 	// Test a table
 	{
@@ -342,7 +342,7 @@ int main()
 	static_assert(T::_is_expression, "T has to be an expression");
 	static_assert(std::is_same<typename T::_value_type::_is_numeric, std::true_type>::value, "T has to be a numeric");
 	static_assert(sqlpp::is_numeric_t<T>::value, "T has to be a numeric");
-	static_assert(sqlpp::is_numeric_t<decltype(t.alpha)>::value, "TabSample.alpha has to be a numeric");
+	static_assert(sqlpp::is_numeric_t<decltype(t.alpha)>::value, "TabBar.alpha has to be a numeric");
 	((t.alpha + 7) + 4).asc();
 	static_assert(sqlpp::is_boolean_t<decltype(t.gamma == t.gamma)>::value, "Comparison expression have to be boolean");
 	auto x = (t.gamma == true) and (t.alpha == 7);
@@ -352,7 +352,7 @@ int main()
 	interpret(t.beta + "hallenhalma", printer).flush();
 	static_assert(sqlpp::must_not_insert_t<decltype(t.alpha)>::value, "alpha must not be inserted");
 	interpret(t.alpha, printer).flush();
-	std::cerr << "\n" << sizeof(TabSample) << std::endl;
+	std::cerr << "\n" << sizeof(test::TabBar) << std::endl;
 	static_assert(std::is_same<typename decltype(t.alpha)::_value_type::_is_named_expression, std::true_type>::value, "alpha should be a named expression");
 	static_assert(sqlpp::is_named_expression_t<decltype(t.alpha)>::value, "alpha should be a named expression");
 	static_assert(sqlpp::is_named_expression_t<decltype(t.alpha.as(alias::a))>::value, "an alias of alpha should be a named expression");

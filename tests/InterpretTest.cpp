@@ -23,7 +23,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "TabSample.h"
+#include "Sample.h"
 #include "MockDb.h"
 #include <sqlpp11/alias_provider.h>
 #include <sqlpp11/insert.h>
@@ -40,8 +40,8 @@ SQLPP_ALIAS_PROVIDER(kaesekuchen);
 
 int main()
 {
-	TabSample t;
-	TabFoo f;
+	test::TabFoo f;
+	test::TabBar t;
 
 	interpret(insert_into(t).columns(t.gamma, t.beta), printer).flush();
 	interpret(insert_into(t).columns(t.gamma, t.beta).add_values(t.gamma = true, t.beta = "cheesecake"), printer).flush();

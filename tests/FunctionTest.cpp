@@ -23,7 +23,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "TabSample.h"
+#include "Sample.h"
 #include "MockDb.h"
 #include <sqlpp11/alias_provider.h>
 #include <sqlpp11/select.h>
@@ -37,8 +37,8 @@ SQLPP_ALIAS_PROVIDER(kaesekuchen);
 
 int main()
 {
-	TabSample t;
-	TabFoo f; 
+	test::TabFoo f; 
+	test::TabBar t;
 
 	// MEMBER FUNCTIONS
 	// ----------------

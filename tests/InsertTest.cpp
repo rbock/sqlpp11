@@ -23,7 +23,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "TabSample.h"
+#include "Sample.h"
 #include "MockDb.h"
 #include "is_regular.h"
 #include <sqlpp11/insert.h>
@@ -34,7 +34,7 @@ DbMock::_context_t printer(std::cerr);
 
 int main()
 {
-	TabSample t;
+	test::TabBar t;
 
 	auto x = t.alpha = 7;
 	auto y = t.beta = "kaesekuchen";

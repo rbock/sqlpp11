@@ -25,7 +25,7 @@
 
 #include <iostream>
 #include <sqlpp11/update.h>
-#include "TabSample.h"
+#include "Sample.h"
 #include "MockDb.h"
 #include "is_regular.h"
 
@@ -34,7 +34,7 @@ DbMock::_context_t printer(std::cerr);
 
 int main()
 {
-	TabSample t;
+	test::TabBar t;
 
 	auto x = t.alpha = 7;
 	auto y = t.beta = "kaesekuchen";
