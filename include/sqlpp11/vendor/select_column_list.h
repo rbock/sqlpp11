@@ -133,7 +133,7 @@ namespace sqlpp
 		template<typename Database, typename T>
 			struct select_column_list_t
 			{
-				static_assert(::sqlpp::detail::wrong<Database, T>::value, "invalid template argument for select_column_list");
+				static_assert(::sqlpp::vendor::wrong_t<Database, T>::value, "invalid template argument for select_column_list");
 			};
 
 		template<typename Database, typename... NamedExpr>

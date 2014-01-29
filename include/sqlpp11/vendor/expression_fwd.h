@@ -44,37 +44,37 @@ namespace sqlpp
 		{
 			struct less_than
 			{
-				using _value_type = detail::boolean;
+				using _value_type = ::sqlpp::detail::boolean;
 				static constexpr const char* _name = "<";
 			};
 
 			struct less_equal
 			{
-				using _value_type = detail::boolean;
+				using _value_type = ::sqlpp::detail::boolean;
 				static constexpr const char* _name = "<=";
 			};
 
 			struct greater_equal
 			{
-				using _value_type = detail::boolean;
+				using _value_type = ::sqlpp::detail::boolean;
 				static constexpr const char* _name = ">=";
 			};
 
 			struct greater_than
 			{
-				using _value_type = detail::boolean;
+				using _value_type = ::sqlpp::detail::boolean;
 				static constexpr const char* _name = ">";
 			};
 
 			struct logical_or
 			{
-				using _value_type = detail::boolean;
+				using _value_type = ::sqlpp::detail::boolean;
 				static constexpr const char* _name = " OR ";
 			};
 
 			struct logical_and
 			{
-				using _value_type = detail::boolean;
+				using _value_type = ::sqlpp::detail::boolean;
 				static constexpr const char* _name = " AND ";
 			};
 
@@ -101,13 +101,13 @@ namespace sqlpp
 
 			struct divides
 			{
-				using _value_type = detail::floating_point;
+				using _value_type = ::sqlpp::detail::floating_point;
 				static constexpr const char* _name = "/";
 			};
 
 			struct modulus
 			{
-				using _value_type = detail::integral;
+				using _value_type = ::sqlpp::detail::integral;
 				static constexpr const char* _name = "%";
 			};
 

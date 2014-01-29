@@ -41,7 +41,7 @@ namespace sqlpp
 		template<typename Database, typename T>
 			struct select_flag_list_t
 			{
-				static_assert(::sqlpp::detail::wrong<T>::value, "invalid argument for select_flag_list");
+				static_assert(::sqlpp::vendor::wrong_t<T>::value, "invalid argument for select_flag_list");
 			};
 
 		// select_flag_list_t

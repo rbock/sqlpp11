@@ -45,7 +45,7 @@
 #include <sqlpp11/vendor/expression.h>
 #include <sqlpp11/vendor/interpreter.h>
 
-#include <sqlpp11/detail/wrong.h>
+#include <sqlpp11/vendor/wrong.h>
 #include <sqlpp11/detail/make_flag_tuple.h>
 #include <sqlpp11/detail/make_expression_tuple.h>
 

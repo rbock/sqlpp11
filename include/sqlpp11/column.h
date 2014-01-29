@@ -36,7 +36,7 @@
 #include <sqlpp11/vendor/assignment.h>
 #include <sqlpp11/vendor/expression.h>
 #include <sqlpp11/vendor/interpreter.h>
-#include <sqlpp11/detail/wrong.h>
+#include <sqlpp11/vendor/wrong.h>
 
 namespace sqlpp
 {

@@ -27,7 +27,7 @@
 #ifndef SQLPP_PARAMETER_LIST_H
 #define SQLPP_PARAMETER_LIST_H
 
-#include <sqlpp11/detail/wrong.h>
+#include <sqlpp11/vendor/wrong.h>
 #include <tuple>
 
 namespace sqlpp
@@ -35,7 +35,7 @@ namespace sqlpp
 	template<typename T>
 		struct parameter_list_t
 		{
-			static_assert(detail::wrong<T>::value, "Template parameter for parameter_list_t has to be a tuple");
+			static_assert(vendor::wrong_t<T>::value, "Template parameter for parameter_list_t has to be a tuple");
 		};
 
 	template<typename... Parameter>

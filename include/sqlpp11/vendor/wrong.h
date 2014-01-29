@@ -24,19 +24,29 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DETAIL_WRONG_H
-#define SQLPP_DETAIL_WRONG_H
+#ifndef SQLPP_VENDOR_WRONG_H
+#define SQLPP_VENDOR_WRONG_H
 
 #include <type_traits>
 
 namespace sqlpp
 {
-	namespace detail
+	namespace vendor
 	{
-		// A template that always returns false
-		// To be used with static assert, for instance, to ensure it
-		// fires only when the template is instantiated.
-		template<class ...T> struct wrong : std::false_type {};
+		namespace detail
+		{
+			// A template that always returns false
+			// To be used with static assert, for instance, to ensure it
+			// fires only when the template is instantiated.
+			template<class ...T> struct wrong_t
+			{
+				using type = std::false_type;
+			};
+		}
+
+		template<class ...T>
+			using wrong_t = typename detail::wrong_t<T...>::type;
 	}
+
 }
 #endif

@@ -35,7 +35,7 @@ namespace sqlpp
 	template<typename AliasProvider, typename T>
 		struct multi_column_t
 		{
-			static_assert(detail::wrong<T>::value, "invalid argument for multicolumn_t");
+			static_assert(vendor::wrong_t<T>::value, "invalid argument for multicolumn_t");
 		};
 
 	template<typename AliasProvider, typename... NamedExpr>

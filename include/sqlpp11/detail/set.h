@@ -28,7 +28,7 @@
 #define SQLPP_DETAIL_SET_H
 
 #include <type_traits>
-#include <sqlpp11/detail/wrong.h>
+#include <sqlpp11/vendor/wrong.h>
 
 namespace sqlpp
 {
@@ -76,7 +76,7 @@ namespace sqlpp
 		template<typename T>
 			struct is_superset_of
 			{
-				static_assert(wrong<T>::value, "invalid argument for is_superset_of");
+				static_assert(::sqlpp::vendor::wrong_t<T>::value, "invalid argument for is_superset_of");
 			};
 
 		template<typename... T>
@@ -86,7 +86,7 @@ namespace sqlpp
 		template<typename T>
 			struct join
 			{
-				static_assert(wrong<T>::value, "invalid argument for set::join");
+				static_assert(::sqlpp::vendor::wrong_t<T>::value, "invalid argument for set::join");
 			};
 
 		template<typename... T>
@@ -96,7 +96,7 @@ namespace sqlpp
 		template<typename T>
 			struct is_disjunct_from
 			{
-				static_assert(wrong<T>::value, "invalid argument for is_disjunct_from");
+				static_assert(::sqlpp::vendor::wrong_t<T>::value, "invalid argument for is_disjunct_from");
 			};
 
 		template<typename... T>
@@ -106,7 +106,7 @@ namespace sqlpp
 		template<typename T>
 			struct is_subset_of
 			{
-				static_assert(wrong<T>::value, "invalid argument for is_subset_of");
+				static_assert(::sqlpp::vendor::wrong_t<T>::value, "invalid argument for is_subset_of");
 			};
 
 		template<typename... T>
@@ -116,7 +116,7 @@ namespace sqlpp
 		template<typename T>
 			struct equals
 			{
-				static_assert(wrong<T>::value, "invalid argument for equals");
+				static_assert(::sqlpp::vendor::wrong_t<T>::value, "invalid argument for equals");
 			};
 
 		template<typename... T>
