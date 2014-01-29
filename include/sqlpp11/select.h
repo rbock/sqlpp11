@@ -615,7 +615,7 @@ namespace sqlpp
 
 			// Execute
 			template<typename Db>
-				auto run(Db& db) const
+				auto _run(Db& db) const
 				-> result_t<decltype(db.select(*this)), _result_row_t>
 				{
 					static_assert(not vendor::is_noop<ColumnList>::value, "cannot run select without having selected anything");
@@ -630,7 +630,7 @@ namespace sqlpp
 
 			// Prepare
 			template<typename Db>
-				auto prepare(Db& db) const
+				auto _prepare(Db& db) const
 				-> prepared_select_t<typename std::decay<Db>::type, select_t>
 				{
 					static_assert(not vendor::is_noop<ColumnList>::value, "cannot run select without having selected anything");

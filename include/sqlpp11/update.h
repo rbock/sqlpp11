@@ -145,7 +145,7 @@ namespace sqlpp
 			}
 
 			template<typename Db>
-				std::size_t run(Db& db) const
+				std::size_t _run(Db& db) const
 				{
 					static_assert(not vendor::is_noop<Assignments>::value, "calling set() required before running update");
 					static_assert(is_where_t<Where>::value, "cannot run update without having a where condition, use .where(true) to update all rows");
@@ -154,7 +154,7 @@ namespace sqlpp
 				}
 
 			template<typename Db>
-				auto prepare(Db& db) const
+				auto _prepare(Db& db) const
 				-> prepared_update_t<typename std::decay<Db>::type, update_t>
 				{
 					static_assert(not vendor::is_noop<Assignments>::value, "calling set() required before running update");

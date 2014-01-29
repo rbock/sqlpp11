@@ -149,7 +149,7 @@ namespace sqlpp
 			}
 
 			template<typename Db>
-				std::size_t run(Db& db) const
+				std::size_t _run(Db& db) const
 				{
 					static_assert(not (vendor::is_noop<InsertList>::value and vendor::is_noop<ColumnList>::value) , "calling set() or default_values()");
 					static_assert(_get_static_no_of_parameters() == 0, "cannot run insert directly with parameters, use prepare instead");
@@ -157,7 +157,7 @@ namespace sqlpp
 				}
 
 			template<typename Db>
-				auto prepare(Db& db) const
+				auto _prepare(Db& db) const
 				-> prepared_insert_t<typename std::decay<Db>::type, insert_t>
 				{
 					constexpr bool calledSet = not vendor::is_noop<InsertList>::value;
