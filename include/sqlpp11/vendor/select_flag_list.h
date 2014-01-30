@@ -61,10 +61,10 @@ namespace sqlpp
 				static_assert(_valid_flags::size::value == sizeof...(Flag), "at least one argument is not a select flag in select flag list");
 
 				template<typename E>
-					void add(E&& expr)
+					void add(E expr)
 					{
-						static_assert(is_select_flag_t<typename std::decay<E>::type>::value, "flag arguments require to be select flags");
-						_dynamic_flags.emplace_back(std::forward<E>(expr));
+						static_assert(is_select_flag_t<E>::value, "flag arguments require to be select flags");
+						_dynamic_flags.emplace_back(expr);
 					}
 
 				_parameter_tuple_t _flags;

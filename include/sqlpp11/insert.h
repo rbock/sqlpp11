@@ -76,40 +76,40 @@ namespace sqlpp
 				}
 
 			template<typename... Assignment>
-				auto set(Assignment&&... assignment)
-				-> set_insert_list_t<vendor::insert_list_t<void, typename std::decay<Assignment>::type...>>
+				auto set(Assignment... assignment)
+				-> set_insert_list_t<vendor::insert_list_t<void, Assignment...>>
 				{
 					static_assert(std::is_same<InsertList, vendor::noop>::value, "cannot call set() after set() or default_values()");
 					static_assert(vendor::is_noop<ColumnList>::value, "cannot call set() after columns()");
 					// FIXME:  Need to check if all required columns are set
 					return {
 							_table,
-							vendor::insert_list_t<void, typename std::decay<Assignment>::type...>{std::forward<Assignment>(assignment)...},
+							vendor::insert_list_t<void, Assignment...>{assignment...},
 							_column_list,
 							_value_list,
 					};
 				}
 
 			template<typename... Assignment>
-				auto dynamic_set(Assignment&&... assignment)
-				-> set_insert_list_t<vendor::insert_list_t<Database, typename std::decay<Assignment>::type...>>
+				auto dynamic_set(Assignment... assignment)
+				-> set_insert_list_t<vendor::insert_list_t<Database, Assignment...>>
 				{
 					static_assert(std::is_same<InsertList, vendor::noop>::value, "cannot call set() after set() or default_values()");
 					static_assert(vendor::is_noop<ColumnList>::value, "cannot call set() after columns()");
 					return {
 							_table,
-							vendor::insert_list_t<Database, typename std::decay<Assignment>::type...>{std::forward<Assignment>(assignment)...},
+							vendor::insert_list_t<Database, Assignment...>{assignment...},
 							_column_list,
 							_value_list,
 					};
 				}
 
 			template<typename Assignment>
-				insert_t add_set(Assignment&& assignment)
+				insert_t add_set(Assignment assignment)
 				{
 					static_assert(is_dynamic_t<InsertList>::value, "cannot call add_set() in a non-dynamic set");
 
-					_insert_list.add(std::forward<Assignment>(assignment));
+					_insert_list.add(assignment);
 
 					return *this;
 				}
@@ -158,7 +158,7 @@ namespace sqlpp
 
 			template<typename Db>
 				auto _prepare(Db& db) const
-				-> prepared_insert_t<typename std::decay<Db>::type, insert_t>
+				-> prepared_insert_t<Db, insert_t>
 				{
 					constexpr bool calledSet = not vendor::is_noop<InsertList>::value;
 					constexpr bool requireSet = Table::_required_insert_columns::size::value > 0;
@@ -205,15 +205,15 @@ namespace sqlpp
 	}
 
 	template<typename Table>
-		insert_t<void, typename std::decay<Table>::type> insert_into(Table&& table)
+		insert_t<void, Table> insert_into(Table table)
 		{
-			return {std::forward<Table>(table)};
+			return {table};
 		}
 
 	template<typename Database, typename Table>
-		insert_t<typename std::decay<Database>::type, typename std::decay<Table>::type> dynamic_insert_into(Database&& db, Table&& table)
+		insert_t<Database, Table> dynamic_insert_into(const Database& db, Table table)
 		{
-			return {std::forward<Table>(table)};
+			return {table};
 		}
 
 }

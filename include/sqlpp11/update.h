@@ -65,71 +65,71 @@ namespace sqlpp
 			using _parameter_list_t = typename make_parameter_list_t<update_t>::type;
 
 			template<typename... Assignment>
-				auto set(Assignment&&... assignment)
-				-> set_assignments_t<vendor::update_list_t<void, typename std::decay<Assignment>::type...>>
+				auto set(Assignment... assignment)
+				-> set_assignments_t<vendor::update_list_t<void, Assignment...>>
 				{
 					static_assert(vendor::is_noop<Assignments>::value, "cannot call set() twice");
 					return {
 							_table,
-								{std::tuple<typename std::decay<Assignment>::type...>{std::forward<Assignment>(assignment)...}},
+								{std::tuple<Assignment...>{assignment...}},
 							_where,
 					};
 				}
 
 			template<typename... Assignment>
-				auto dynamic_set(Assignment&&... assignment)
-				-> set_assignments_t<vendor::update_list_t<Database, typename std::decay<Assignment>::type...>>
+				auto dynamic_set(Assignment... assignment)
+				-> set_assignments_t<vendor::update_list_t<Database, Assignment...>>
 				{
 					static_assert(vendor::is_noop<Assignments>::value, "cannot call set() twice");
 					return {
 							_table,
-								{std::tuple<typename std::decay<Assignment>::type...>{std::forward<Assignment>(assignment)...}},
+								{std::tuple<Assignment...>{assignment...}},
 							_where,
 					};
 				}
 
 			template<typename Assignment>
-				update_t& add_set(Assignment&& assignment)
+				update_t& add_set(Assignment assignment)
 				{
 					static_assert(is_dynamic_t<Assignments>::value, "cannot call add_set() in a non-dynamic set");
 
-					_assignments.add(std::forward<Assignment>(assignment));
+					_assignments.add(assignment);
 
 					return *this;
 				}
 
 			template<typename... Expr>
-				auto where(Expr&&... expr)
-				-> set_where_t<vendor::where_t<void, typename std::decay<Expr>::type...>>
+				auto where(Expr... expr)
+				-> set_where_t<vendor::where_t<void, Expr...>>
 				{
 					static_assert(not vendor::is_noop<Assignments>::value, "cannot call where() if set() hasn't been called yet");
 					static_assert(vendor::is_noop<Where>::value, "cannot call where() twice");
 					return {
 							_table,
 							_assignments,
-							{std::tuple<typename std::decay<Expr>::type...>{std::forward<Expr>(expr)...}},
+							{std::tuple<Expr...>{expr...}},
 					};
 				}
 
 			template<typename... Expr>
-				auto dynamic_where(Expr&&... expr)
-				-> set_where_t<vendor::where_t<Database, typename std::decay<Expr>::type...>>
+				auto dynamic_where(Expr... expr)
+				-> set_where_t<vendor::where_t<Database, Expr...>>
 				{
 					static_assert(not vendor::is_noop<Assignments>::value, "cannot call where() if set() hasn't been called yet");
 					static_assert(vendor::is_noop<Where>::value, "cannot call where() twice");
 					return {
 						_table, 
 							_assignments, 
-							{std::tuple<typename std::decay<Expr>::type...>{std::forward<Expr>(expr)...}},
+							{std::tuple<Expr...>{expr...}},
 					};
 				}
 
 			template<typename Expr>
-				update_t& add_where(Expr&& expr)
+				update_t& add_where(Expr expr)
 				{
 					static_assert(is_dynamic_t<Where>::value, "cannot call add_where() in a non-dynamic where");
 
-					_where.add(std::forward<Expr>(expr));
+					_where.add(expr);
 
 					return *this;
 				}
@@ -155,7 +155,7 @@ namespace sqlpp
 
 			template<typename Db>
 				auto _prepare(Db& db) const
-				-> prepared_update_t<typename std::decay<Db>::type, update_t>
+				-> prepared_update_t<Db, update_t>
 				{
 					static_assert(not vendor::is_noop<Assignments>::value, "calling set() required before running update");
 
@@ -191,15 +191,15 @@ namespace sqlpp
 	}
 
 	template<typename Table>
-		constexpr update_t<void, typename std::decay<Table>::type> update(Table&& table)
+		constexpr update_t<void, Table> update(Table table)
 		{
-			return {std::forward<Table>(table)};
+			return {table};
 		}
 
 	template<typename Db, typename Table>
-		constexpr update_t<typename std::decay<Db>::type, typename std::decay<Table>::type> dynamic_update(Db&& db, Table&& table)
+		constexpr update_t<Db, Table> dynamic_update(const Db&, Table table)
 		{
-			return {std::forward<Table>(table)};
+			return {table};
 		}
 
 }

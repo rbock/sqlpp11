@@ -55,10 +55,10 @@ namespace sqlpp
 				static_assert(_valid_expressions::size::value == sizeof...(Expr), "at least one argument is not a sort order expression in order_by()");
 
 				template<typename E>
-					void add(E&& expr)
+					void add(E expr)
 					{
-						static_assert(is_sort_order_t<typename std::decay<E>::type>::value, "order_by arguments require to be sort-order expressions");
-						_dynamic_expressions.push_back(std::forward<E>(expr));
+						static_assert(is_sort_order_t<E>::value, "order_by arguments require to be sort-order expressions");
+						_dynamic_expressions.push_back(expr);
 					}
 
 				_parameter_tuple_t _expressions;

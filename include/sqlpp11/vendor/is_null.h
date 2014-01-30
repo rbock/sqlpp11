@@ -55,12 +55,8 @@ namespace sqlpp
 					};
 			};
 
-			is_null_t(const Operand& operand):
+			is_null_t(Operand operand):
 				_operand(operand)
-			{}
-
-			is_null_t(Operand&& operand):
-				_operand(std::move(operand))
 			{}
 
 			is_null_t(const is_null_t&) = default;

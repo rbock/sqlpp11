@@ -33,36 +33,36 @@ namespace sqlpp
 	{
 		// accept select flags
 		template<typename Expr>
-			auto make_single_flag_tuple(Expr&& expr) -> typename std::enable_if<is_select_flag_t<typename std::decay<Expr>::type>::value, decltype(std::make_tuple(expr))>::type
+			auto make_single_flag_tuple(Expr expr) -> typename std::enable_if<is_select_flag_t<Expr>::value, decltype(std::make_tuple(expr))>::type
 			{
-				return std::make_tuple(std::forward<Expr>(expr));
+				return std::make_tuple(expr);
 			};
 
 		// ignore named expressions
 		template<typename Expr>
-			auto make_single_flag_tuple(Expr&& expr) -> typename std::enable_if<is_named_expression_t<typename std::decay<Expr>::type>::value, std::tuple<>>::type
+			auto make_single_flag_tuple(Expr expr) -> typename std::enable_if<is_named_expression_t<Expr>::value, std::tuple<>>::type
 			{
 				return {};
 			};
 
 		// ignore tables
 		template<typename Tab>
-			auto make_single_flag_tuple(Tab&& tab) -> typename std::enable_if<is_table_t<typename std::decay<Tab>::type>::value, std::tuple<>>::type
+			auto make_single_flag_tuple(Tab tab) -> typename std::enable_if<is_table_t<Tab>::value, std::tuple<>>::type
 			{
 				return {};
 			};
 
 		// ignore tuples of expressions
 		template<typename... Expr>
-			auto make_single_flag_tuple(std::tuple<Expr...>&& t) -> std::tuple<>
+			auto make_single_flag_tuple(std::tuple<Expr...> t) -> std::tuple<>
 			{
 				return {};
 			};
 
 		template<typename... Expr>
-			auto make_flag_tuple(Expr&&... expr) -> decltype(std::tuple_cat(make_single_flag_tuple(std::forward<Expr>(expr))...))
+			auto make_flag_tuple(Expr... expr) -> decltype(std::tuple_cat(make_single_flag_tuple(expr)...))
 			{
-				return std::tuple_cat(make_single_flag_tuple(std::forward<Expr>(expr))...);
+				return std::tuple_cat(make_single_flag_tuple(expr)...);
 			};
 
 	}

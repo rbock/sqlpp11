@@ -27,8 +27,7 @@
 #ifndef SQLPP_RESULT_H
 #define SQLPP_RESULT_H
 
-#include <iostream>
-
+// FIXME: include for move?
 namespace sqlpp
 {
 	template<typename DbResult, typename ResultRow>

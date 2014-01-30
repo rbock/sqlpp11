@@ -56,11 +56,7 @@ namespace sqlpp
 					};
 			};
 
-			max_t(Expr&& expr):
-				_expr(std::move(expr))
-			{}
-
-			max_t(const Expr& expr):
+			max_t(Expr expr):
 				_expr(expr)
 			{}
 
@@ -92,9 +88,9 @@ namespace sqlpp
 	}
 
 	template<typename T>
-		auto max(T&& t) -> typename vendor::max_t<typename operand_t<T, is_value_t>::type>
+		auto max(T t) -> typename vendor::max_t<typename operand_t<T, is_value_t>::type>
 		{
-			return { std::forward<T>(t) };
+			return { t };
 		}
 
 }

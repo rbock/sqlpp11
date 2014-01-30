@@ -170,38 +170,38 @@ namespace sqlpp
 				struct operators: public basic_operators<Base, _operand_t>
 			{
 				template<typename T>
-					vendor::plus_t<Base, vendor::value_type_t<T>, typename _operand_t<T>::type> operator +(T&& t) const
+					vendor::plus_t<Base, vendor::value_type_t<T>, typename _operand_t<T>::type> operator +(T t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
+						return { *static_cast<const Base*>(this), {t} };
 					}
 
 				template<typename T>
-					vendor::minus_t<Base, vendor::value_type_t<T>, typename _operand_t<T>::type> operator -(T&& t) const
+					vendor::minus_t<Base, vendor::value_type_t<T>, typename _operand_t<T>::type> operator -(T t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
+						return { *static_cast<const Base*>(this), {t} };
 					}
 
 				template<typename T>
-					vendor::multiplies_t<Base, vendor::value_type_t<T>, typename _operand_t<T>::type> operator *(T&& t) const
+					vendor::multiplies_t<Base, vendor::value_type_t<T>, typename _operand_t<T>::type> operator *(T t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
+						return { *static_cast<const Base*>(this), {t} };
 					}
 
 				template<typename T>
-					vendor::divides_t<Base, typename _operand_t<T>::type> operator /(T&& t) const
+					vendor::divides_t<Base, typename _operand_t<T>::type> operator /(T t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
+						return { *static_cast<const Base*>(this), {t} };
 					}
 
 				template<typename T>
-					vendor::modulus_t<Base, typename _operand_t<T>::type> operator %(T&& t) const
+					vendor::modulus_t<Base, typename _operand_t<T>::type> operator %(T t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
+						return { *static_cast<const Base*>(this), {t} };
 					}
 
 				vendor::unary_plus_t<integral, Base> operator +() const
@@ -217,27 +217,27 @@ namespace sqlpp
 				}
 
 				template<typename T>
-					auto operator +=(T&& t) const -> decltype(std::declval<Base>() = std::declval<Base>() + std::forward<T>(t))
+					auto operator +=(T t) const -> decltype(std::declval<Base>() = std::declval<Base>() + t)
 					{
-						return *static_cast<const Base*>(this) = operator +(std::forward<T>(t));
+						return *static_cast<const Base*>(this) = operator +(t);
 					}
 
 				template<typename T>
-					auto operator -=(T&& t) const -> decltype(std::declval<Base>() = std::declval<Base>() - std::forward<T>(t))
+					auto operator -=(T t) const -> decltype(std::declval<Base>() = std::declval<Base>() - t)
 					{
-						return *static_cast<const Base*>(this) = operator -(std::forward<T>(t));
+						return *static_cast<const Base*>(this) = operator -(t);
 					}
 
 				template<typename T>
-					auto operator /=(T&& t) const -> decltype(std::declval<Base>() = std::declval<Base>() / std::forward<T>(t))
+					auto operator /=(T t) const -> decltype(std::declval<Base>() = std::declval<Base>() / t)
 					{
-						return *static_cast<const Base*>(this) = operator /(std::forward<T>(t));
+						return *static_cast<const Base*>(this) = operator /(t);
 					}
 
 				template<typename T>
-					auto operator *=(T&& t) const -> decltype(std::declval<Base>() = std::declval<Base>() * std::forward<T>(t))
+					auto operator *=(T t) const -> decltype(std::declval<Base>() = std::declval<Base>() * t)
 					{
-						return *static_cast<const Base*>(this) = operator *(std::forward<T>(t));
+						return *static_cast<const Base*>(this) = operator *(t);
 					}
 
 

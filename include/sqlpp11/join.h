@@ -92,49 +92,49 @@ namespace sqlpp
 				using set_on_t = join_t<JoinType, Lhs, Rhs, OnT>;
 
 			template<typename... Expr>
-				auto on(Expr&&... expr)
-				-> set_on_t<on_t<void, typename std::decay<Expr>::type...>>
+				auto on(Expr... expr)
+				-> set_on_t<on_t<void, Expr...>>
 				{
 					static_assert(vendor::is_noop<On>::value, "cannot call on() twice for a single join()");
 					return { _lhs, 
 						_rhs, 
-						{std::tuple<typename std::decay<Expr>::type...>{std::forward<Expr>(expr)...}}
+						{std::tuple<Expr...>{expr...}}
 					};
 				}
 
 			template<typename T>
-				join_t<inner_join_t, join_t, typename std::decay<T>::type> join(T&& t)
+				join_t<inner_join_t, join_t, T> join(T t)
 				{
 					static_assert(not vendor::is_noop<On>::value, "join type requires on()");
-					return { *this, std::forward<T>(t) };
+					return { *this, t };
 				}
 
 			template<typename T>
-				join_t<inner_join_t, join_t, typename std::decay<T>::type> inner_join(T&& t)
+				join_t<inner_join_t, join_t, T> inner_join(T t)
 				{
 					static_assert(not vendor::is_noop<On>::value, "join type requires on()");
-					return { *this, std::forward<T>(t) };
+					return { *this, t };
 				}
 
 			template<typename T>
-				join_t<outer_join_t, join_t, typename std::decay<T>::type> outer_join(T&& t)
+				join_t<outer_join_t, join_t, T> outer_join(T t)
 				{
 					static_assert(not vendor::is_noop<On>::value, "join type requires on()");
-					return { *this, std::forward<T>(t) };
+					return { *this, t };
 				}
 
 			template<typename T>
-				join_t<left_outer_join_t, join_t, typename std::decay<T>::type> left_outer_join(T&& t)
+				join_t<left_outer_join_t, join_t, T> left_outer_join(T t)
 				{
 					static_assert(not vendor::is_noop<On>::value, "join type requires on()");
-					return { *this, std::forward<T>(t) };
+					return { *this, t };
 				}
 
 			template<typename T>
-				join_t<right_outer_join_t, join_t, typename std::decay<T>::type> right_outer_join(T&& t)
+				join_t<right_outer_join_t, join_t, T> right_outer_join(T t)
 				{
 					static_assert(not vendor::is_noop<On>::value, "join type requires on()");
-					return { *this, std::forward<T>(t) };
+					return { *this, t };
 				}
 
 			Lhs _lhs;

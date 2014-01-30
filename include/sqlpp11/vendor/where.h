@@ -54,10 +54,10 @@ namespace sqlpp
 				using _parameter_list_t = typename make_parameter_list_t<_parameter_tuple_t>::type;
 
 				template<typename E>
-					void add(E&& expr)
+					void add(E expr)
 					{
-						static_assert(is_expression_t<typename std::decay<E>::type>::value, "invalid expression argument in add_where()");
-						_dynamic_expressions.emplace_back(std::forward<E>(expr));
+						static_assert(is_expression_t<E>::value, "invalid expression argument in add_where()");
+						_dynamic_expressions.emplace_back(expr);
 					}
 
 				_parameter_tuple_t _expressions;

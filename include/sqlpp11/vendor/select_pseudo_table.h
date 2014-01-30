@@ -51,13 +51,8 @@ namespace sqlpp
 		using _value_type = no_value_t;
 		using _is_pseudo_table = std::true_type;
 
-		select_pseudo_table_t(const Select& select):
+		select_pseudo_table_t(Select select):
 			_select(select)
-		{
-		}
-
-		select_pseudo_table_t(Select&& select):
-			_select(std::move(select))
 		{
 		}
 

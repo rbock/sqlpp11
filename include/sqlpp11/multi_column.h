@@ -74,13 +74,13 @@ namespace sqlpp
 	{
 		template<typename AliasProvider, typename... Expr>
 			using make_multi_column_t = 
-			multi_column_t<typename std::decay<AliasProvider>::type, decltype(make_expression_tuple(std::declval<Expr>()...))>;
+			multi_column_t<AliasProvider, decltype(make_expression_tuple(std::declval<Expr>()...))>;
 	}
 
 	template<typename AliasProvider, typename... NamedExpr>
-		detail::make_multi_column_t<AliasProvider, NamedExpr...> multi_column(AliasProvider&& aliasProvider, NamedExpr&&... namedExpr) 
+		detail::make_multi_column_t<AliasProvider, NamedExpr...> multi_column(const AliasProvider& aliasProvider, NamedExpr... namedExpr) 
 		{
-			return { detail::make_expression_tuple(std::forward<NamedExpr>(namedExpr)...)};
+			return { detail::make_expression_tuple(namedExpr...)};
 		}
 
 }

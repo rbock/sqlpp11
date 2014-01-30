@@ -57,11 +57,7 @@ namespace sqlpp
 					};
 			};
 
-			some_t(Select&& select):
-				_select(std::move(select))
-			{}
-
-			some_t(const Select& select):
+			some_t(Select select):
 				_select(select)
 			{}
 
@@ -93,9 +89,9 @@ namespace sqlpp
 	}
 
 	template<typename T>
-		auto some(T&& t) -> typename vendor::some_t<typename operand_t<T, is_select_t>::type>
+		auto some(T t) -> typename vendor::some_t<typename operand_t<T, is_select_t>::type>
 		{
-			return { std::forward<T>(t) };
+			return { t };
 		}
 
 }

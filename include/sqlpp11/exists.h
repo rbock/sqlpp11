@@ -55,11 +55,7 @@ namespace sqlpp
 					};
 			};
 
-			exists_t(Select&& select):
-				_select(std::move(select))
-			{}
-
-			exists_t(const Select& select):
+			exists_t(Select select):
 				_select(select)
 			{}
 
@@ -92,9 +88,9 @@ namespace sqlpp
 
 
 	template<typename T>
-		auto exists(T&& t) -> typename vendor::exists_t<typename operand_t<T, is_select_t>::type>
+		auto exists(T t) -> typename vendor::exists_t<typename operand_t<T, is_select_t>::type>
 		{
-			return { std::forward<T>(t) };
+			return { t };
 		}
 
 }

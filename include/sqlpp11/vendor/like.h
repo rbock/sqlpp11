@@ -57,12 +57,7 @@ namespace sqlpp
 					};
 			};
 
-			like_t(Operand&& operand, Pattern&& pattern):
-				_operand(std::move(operand)),
-				_pattern(std::move(pattern))
-			{}
-
-			like_t(const Operand& operand, const Pattern& pattern):
+			like_t(Operand operand, Pattern pattern):
 				_operand(operand),
 				_pattern(pattern)
 			{}

@@ -102,7 +102,7 @@ namespace sqlpp
 	template<typename Exp>
 		struct make_parameter_list_t
 		{
-			using type = parameter_list_t<typename detail::get_parameter_tuple<typename std::decay<Exp>::type>::type>;
+			using type = parameter_list_t<typename detail::get_parameter_tuple<Exp>::type>;
 		};
 
 }

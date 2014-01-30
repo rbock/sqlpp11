@@ -45,10 +45,10 @@
 namespace sqlpp
 {
 	template<typename T>
-		auto value(T&& t) -> typename operand_t<T, is_value_t>::type
+		auto value(T t) -> typename operand_t<T, is_value_t>::type
 		{
-			static_assert(not is_value_t<typename std::decay<T>::type>::value, "value() is to be called with non-sql-type like int, or string");
-			return { std::forward<T>(t) };
+			static_assert(not is_value_t<T>::value, "value() is to be called with non-sql-type like int, or string");
+			return { t };
 		}
 
 	template<typename ValueType> // Csaba Csoma suggests: unsafe_sql instead of verbatim
@@ -56,8 +56,7 @@ namespace sqlpp
 	{
 		using _value_type = ValueType;
 
-		verbatim_t(const std::string& verbatim): _verbatim(verbatim) {}
-		verbatim_t(std::string&& verbatim): _verbatim(std::forward<std::string>(verbatim)) {}
+		verbatim_t(std::string verbatim): _verbatim(verbatim) {}
 		verbatim_t(const verbatim_t&) = default;
 		verbatim_t(verbatim_t&&) = default;
 		verbatim_t& operator=(const verbatim_t&) = default;
@@ -83,13 +82,13 @@ namespace sqlpp
 	}
 
 	template<typename ValueType, typename StringType>
-		auto verbatim(StringType&& s) -> verbatim_t<ValueType>
+		auto verbatim(StringType s) -> verbatim_t<ValueType>
 		{
-			return { std::forward<StringType>(s) };
+			return { s };
 		}
 
 	template<typename Expression, typename Context>
-		auto flatten(const Expression& exp, const Context& context) -> verbatim_t<typename std::decay<Expression>::type::_value_type::_base_value_type>
+		auto flatten(const Expression& exp, const Context& context) -> verbatim_t<typename Expression::_value_type::_base_value_type>
 		{
 			static_assert(not make_parameter_list_t<Expression>::type::size::value, "parameters not supported in flattened expressions");
 			context.clear();
@@ -141,16 +140,16 @@ namespace sqlpp
 	}
 
 	template<typename Container>
-		auto value_list(Container&& c) -> value_list_t<typename std::decay<Container>::type>
+		auto value_list(Container c) -> value_list_t<Container>
 		{
-			static_assert(not is_value_t<typename std::decay<Container>::type::value_type>::value, "value_list() is to be called with a container of non-sql-type like std::vector<int>, or std::list(string)");
-			return { std::forward<Container>(c) };
+			static_assert(not is_value_t<typename Container::value_type>::value, "value_list() is to be called with a container of non-sql-type like std::vector<int>, or std::list(string)");
+			return { c };
 		}
 
 	template<typename T>
 		constexpr const char* get_sql_name(const T&) 
 		{
-			return std::decay<T>::type::_name_t::_get_name();
+			return T::type::_name_t::_get_name();
 		}
 
 

@@ -65,8 +65,8 @@ namespace sqlpp
 	}
 
 	template<typename NamedExpr>
-		auto parameter(NamedExpr&& namedExpr)
-		-> parameter_t<typename std::decay<NamedExpr>::type::_value_type, typename std::decay<NamedExpr>::type>
+		auto parameter(NamedExpr namedExpr)
+		-> parameter_t<typename NamedExpr::_value_type, NamedExpr>
 		{
 			return {};
 		}

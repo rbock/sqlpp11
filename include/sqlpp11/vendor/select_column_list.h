@@ -68,10 +68,10 @@ namespace sqlpp
 				_names_t _dynamic_expression_names;
 
 				template<typename Expr>
-					void push_back(Expr&& expr)
+					void push_back(Expr expr)
 					{
-						_dynamic_expression_names.push_back(std::decay<Expr>::type::_name_t::_get_name());
-						_dynamic_columns.emplace_back(std::forward<Expr>(expr));
+						_dynamic_expression_names.push_back(Expr::_name_t::_get_name());
+						_dynamic_columns.emplace_back(expr);
 					}
 
 				bool empty() const
@@ -179,11 +179,11 @@ namespace sqlpp
 					using _dynamic_t = select_column_list_t<Db, std::tuple<NamedExpr...>>;
 
 				template<typename Expr>
-					void add(Expr&& namedExpr)
+					void add(Expr namedExpr)
 					{
-						static_assert(is_named_expression_t<typename std::decay<Expr>::type>::value, "select() arguments require to be named expressions");
+						static_assert(is_named_expression_t<Expr>::value, "select() arguments require to be named expressions");
 						static_assert(_is_dynamic::value, "cannot add columns to a non-dynamic column list");
-						_dynamic_columns.push_back(std::forward<Expr>(namedExpr));
+						_dynamic_columns.push_back(namedExpr);
 					}
 
 				_parameter_tuple_t _columns;

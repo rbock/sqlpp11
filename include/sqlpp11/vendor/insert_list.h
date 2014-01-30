@@ -88,12 +88,12 @@ namespace sqlpp
 				~insert_list_t() = default;
 
 				template<typename Assignment>
-					void add(Assignment&& assignment)
+					void add(Assignment assignment)
 					{
-						static_assert(is_assignment_t<typename std::decay<Assignment>::type>::value, "set() arguments require to be assigments");
-						static_assert(not must_not_insert_t<typename std::decay<Assignment>::type>::value, "set() argument must not be used in insert");
-						_dynamic_columns.emplace_back(simple_column_t<typename Assignment::_column_t>{std::forward<typename Assignment::_column_t>(assignment._lhs)});
-						_dynamic_values.emplace_back(std::forward<typename Assignment::value_type>(assignment._rhs));
+						static_assert(is_assignment_t<Assignment>::value, "set() arguments require to be assigments");
+						static_assert(not must_not_insert_t<Assignment>::value, "set() argument must not be used in insert");
+						_dynamic_columns.emplace_back(simple_column_t<typename Assignment::_column_t>{assignment._lhs});
+						_dynamic_values.emplace_back(assignment._rhs);
 					}
 
 

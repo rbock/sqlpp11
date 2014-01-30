@@ -65,70 +65,70 @@ namespace sqlpp
 			using _parameter_list_t = typename make_parameter_list_t<remove_t>::type;
 
 			template<typename... Tab>
-				auto using_(Tab&&... tab)
-				-> set_using_t<vendor::using_t<void, typename std::decay<Tab>::type...>>
+				auto using_(Tab... tab)
+				-> set_using_t<vendor::using_t<void, Tab...>>
 				{
 					static_assert(vendor::is_noop<Using>::value, "cannot call using() twice");
 					static_assert(vendor::is_noop<Where>::value, "cannot call using() after where()");
 					return {
 							_table,
-							{std::tuple<typename std::decay<Tab>::type...>{std::forward<Tab>(tab)...}},
+							{std::tuple<Tab...>{tab...}},
 							_where
 					};
 				}
 
 			template<typename... Tab>
-				auto dynamic_using_(Tab&&... tab)
-				-> set_using_t<vendor::using_t<Database, typename std::decay<Tab>::type...>>
+				auto dynamic_using_(Tab... tab)
+				-> set_using_t<vendor::using_t<Database, Tab...>>
 				{
 					static_assert(vendor::is_noop<Using>::value, "cannot call using() twice");
 					static_assert(vendor::is_noop<Where>::value, "cannot call using() after where()");
 					return {
 						_table,
-							{std::tuple<typename std::decay<Tab>::type...>{std::forward<Tab>(tab)...}},
+							{std::tuple<Tab...>{tab...}},
 							_where
 					};
 				}
 
 			template<typename Tab>
-				remove_t& add_using_(Tab&& table)
+				remove_t& add_using_(Tab table)
 				{
 					static_assert(is_dynamic_t<Using>::value, "cannot call add_using() in a non-dynamic using");
-					_using.add(std::forward<Tab>(table));
+					_using.add(table);
 
 					return *this;
 				}
 
 			template<typename... Expr>
-				auto where(Expr&&... expr)
-				-> set_where_t<vendor::where_t<void, typename std::decay<Expr>::type...>>
+				auto where(Expr... expr)
+				-> set_where_t<vendor::where_t<void, Expr...>>
 				{
 					static_assert(vendor::is_noop<Where>::value, "cannot call where() twice");
 					return {
 							_table,
 							_using,
-							{std::tuple<typename std::decay<Expr>::type...>{std::forward<Expr>(expr)...}},
+							{std::tuple<Expr...>{expr...}},
 					};
 				}
 
 			template<typename... Expr>
-			auto dynamic_where(Expr&&... expr)
-				-> set_where_t<vendor::where_t<Database, typename std::decay<Expr>::type...>>
+			auto dynamic_where(Expr... expr)
+				-> set_where_t<vendor::where_t<Database, Expr...>>
 				{
 					static_assert(vendor::is_noop<Where>::value, "cannot call where() twice");
 					return {
 						_table, 
 							_using, 
-							{std::tuple<typename std::decay<Expr>::type...>{std::forward<Expr>(expr)...}},
+							{std::tuple<Expr...>{expr...}},
 					};
 				}
 
 			template<typename Expr>
-				remove_t& add_where(Expr&& expr)
+				remove_t& add_where(Expr expr)
 				{
 					static_assert(is_dynamic_t<Where>::value, "cannot call add_where() in a non-dynamic where");
 
-					_where.add(std::forward<Expr>(expr));
+					_where.add(expr);
 
 					return *this;
 				}
@@ -153,7 +153,7 @@ namespace sqlpp
 
 			template<typename Db>
 				auto _prepare(Db& db) const
-				-> prepared_remove_t<typename std::decay<Db>::type, remove_t>
+				-> prepared_remove_t<Db, remove_t>
 				{
 					return {{}, db.prepare_remove(*this)};
 				}
@@ -182,15 +182,15 @@ namespace sqlpp
 	}
 
 	template<typename Table>
-		constexpr remove_t<void, typename std::decay<Table>::type> remove_from(Table&& table)
+		constexpr remove_t<void, Table> remove_from(Table table)
 		{
-			return {std::forward<Table>(table)};
+			return {table};
 		}
 
 	template<typename Db, typename Table>
-		constexpr remove_t<typename std::decay<Db>::type, typename std::decay<Table>::type> dynamic_remove_from(Db&& db, Table&& table)
+		constexpr remove_t<Db, Table> dynamic_remove_from(const Db&, Table table)
 		{
-			return {std::forward<Table>(table)};
+			return {table};
 		}
 
 }

@@ -56,11 +56,7 @@ namespace sqlpp
 					};
 			};
 
-			min_t(Expr&& expr):
-				_expr(std::move(expr))
-			{}
-
-			min_t(const Expr& expr):
+			min_t(Expr expr):
 				_expr(expr)
 			{}
 
@@ -92,9 +88,9 @@ namespace sqlpp
 	}
 
 	template<typename T>
-		auto min(T&& t) -> typename vendor::min_t<typename operand_t<T, is_value_t>::type>
+		auto min(T t) -> typename vendor::min_t<typename operand_t<T, is_value_t>::type>
 		{
-			return { std::forward<T>(t) };
+			return { t };
 		}
 
 }
