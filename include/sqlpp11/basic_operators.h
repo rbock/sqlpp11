@@ -46,44 +46,44 @@ namespace sqlpp
 		struct basic_operators
 		{
 			template<typename T>
-				vendor::equal_t<Base, typename Constraint<T>::type> operator==(T&& t) const
+				vendor::equal_t<Base, typename Constraint<T>::type> operator==(T t) const
 				{
 					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-					return { *static_cast<const Base*>(this), {std::forward<T>(t)}	};
+					return { *static_cast<const Base*>(this), {t}	};
 				}
 
 			template<typename T>
-				vendor::not_equal_t<Base, typename Constraint<T>::type> operator!=(T&& t) const
+				vendor::not_equal_t<Base, typename Constraint<T>::type> operator!=(T t) const
 				{
 					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-					return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
+					return { *static_cast<const Base*>(this), {t} };
 				}
 			template<typename T>
-				vendor::less_than_t<Base, typename Constraint<T>::type> operator<(T&& t) const
+				vendor::less_than_t<Base, typename Constraint<T>::type> operator<(T t) const
 				{
 					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-					return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
-				}
-
-			template<typename T>
-				vendor::less_equal_t<Base, typename Constraint<T>::type> operator<=(T&& t) const
-				{
-					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-					return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
+					return { *static_cast<const Base*>(this), {t} };
 				}
 
 			template<typename T>
-				vendor::greater_than_t<Base, typename Constraint<T>::type> operator>(T&& t) const
+				vendor::less_equal_t<Base, typename Constraint<T>::type> operator<=(T t) const
 				{
 					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-					return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
+					return { *static_cast<const Base*>(this), {t} };
 				}
 
 			template<typename T>
-				vendor::greater_equal_t<Base, typename Constraint<T>::type> operator>=(T&& t) const
+				vendor::greater_than_t<Base, typename Constraint<T>::type> operator>(T t) const
 				{
 					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-					return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
+					return { *static_cast<const Base*>(this), {t} };
+				}
+
+			template<typename T>
+				vendor::greater_equal_t<Base, typename Constraint<T>::type> operator>=(T t) const
+				{
+					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
+					return { *static_cast<const Base*>(this), {t} };
 				}
 
 			vendor::is_null_t<true, Base> is_null() const
@@ -112,21 +112,21 @@ namespace sqlpp
 
 			// Hint: use value_list wrapper for containers...
 			template<typename... T>
-				vendor::in_t<true, Base, typename Constraint<T>::type...> in(T&&... t) const
+				vendor::in_t<true, Base, typename Constraint<T>::type...> in(T... t) const
 				{
 					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used with in()");
-					return { *static_cast<const Base*>(this), {std::forward<T>(t)}... };
+					return { *static_cast<const Base*>(this), {t}... };
 				}
 
 			template<typename... T>
-				vendor::in_t<false, Base, typename Constraint<T>::type...> not_in(T&&... t) const
+				vendor::in_t<false, Base, typename Constraint<T>::type...> not_in(T... t) const
 				{
 					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot with be used with not_in()");
-					return { *static_cast<const Base*>(this), {std::forward<T>(t)}... };
+					return { *static_cast<const Base*>(this), {t}... };
 				}
 
 			template<typename alias_provider>
-				expression_alias_t<Base, typename std::decay<alias_provider>::type> as(alias_provider&&)
+				expression_alias_t<Base, alias_provider> as(const alias_provider&)
 				{
 					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot have a name");
 					return { *static_cast<const Base*>(this) };

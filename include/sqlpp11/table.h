@@ -47,38 +47,38 @@ namespace sqlpp
 		using _required_insert_columns = typename detail::make_set_if<require_insert_t, column_t<Table, ColumnSpec>...>::type;
 		using _all_of_t = std::tuple<column_t<Table, ColumnSpec>...>;
 		template<typename AliasProvider>
-			using _alias_t = table_alias_t<typename std::decay<AliasProvider>::type, Table, ColumnSpec...>;
+			using _alias_t = table_alias_t<AliasProvider, Table, ColumnSpec...>;
 
 		using _is_table = std::true_type;
 
 		template<typename T>
-			join_t<inner_join_t, Table, typename std::decay<T>::type> join(T&& t)
+			join_t<inner_join_t, Table, T> join(T t)
 			{
-				return { *static_cast<const Table*>(this), std::forward<T>(t) };
+				return { *static_cast<const Table*>(this), t };
 			}
 
 		template<typename T>
-			join_t<inner_join_t, Table, typename std::decay<T>::type> inner_join(T&& t)
+			join_t<inner_join_t, Table, T> inner_join(T t)
 			{
-				return { *static_cast<const Table*>(this), std::forward<T>(t) };
+				return { *static_cast<const Table*>(this), t };
 			}
 
 		template<typename T>
-			join_t<outer_join_t, Table, typename std::decay<T>::type> outer_join(T&& t)
+			join_t<outer_join_t, Table, T> outer_join(T t)
 			{
-				return { *static_cast<const Table*>(this), std::forward<T>(t) };
+				return { *static_cast<const Table*>(this), t };
 			}
 
 		template<typename T>
-			join_t<left_outer_join_t, Table, typename std::decay<T>::type> left_outer_join(T&& t)
+			join_t<left_outer_join_t, Table, T> left_outer_join(T t)
 			{
-				return { *static_cast<const Table*>(this), std::forward<T>(t) };
+				return { *static_cast<const Table*>(this), t };
 			}
 
 		template<typename T>
-			join_t<right_outer_join_t, Table, typename std::decay<T>::type> right_outer_join(T&& t)
+			join_t<right_outer_join_t, Table, T> right_outer_join(T t)
 			{
-				return { *static_cast<const Table*>(this), std::forward<T>(t) };
+				return { *static_cast<const Table*>(this), t };
 			}
 
 		template<typename AliasProvider>
@@ -94,7 +94,7 @@ namespace sqlpp
 	};
 
 	template<typename Table>
-	auto all_of(Table&& t) -> typename std::decay<Table>::type::_all_of_t
+	auto all_of(Table t) -> typename Table::_all_of_t
 	{
 		return {};
 	}

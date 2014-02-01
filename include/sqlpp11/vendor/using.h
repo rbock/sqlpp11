@@ -54,10 +54,10 @@ namespace sqlpp
 
 
 				template<typename T>
-					void add(T&& table)
+					void add(T table)
 					{
-						static_assert(is_table_t<typename std::decay<T>::type>::value, "using() arguments require to be tables");
-						_dynamic_tables.emplace_back(std::forward<T>(table));
+						static_assert(is_table_t<T>::value, "using() arguments require to be tables");
+						_dynamic_tables.emplace_back(table);
 					}
 
 				_parameter_tuple_t _tables;

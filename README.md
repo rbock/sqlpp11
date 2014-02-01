@@ -1,7 +1,7 @@
 sqlpp11
 =======
 
-A type safe template library for SQL queries and results in C++
+A type safe embedded domain specific language for SQL queries and results in C++
 
 
 Motivation:
@@ -22,7 +22,7 @@ This results in several benefits, e.g.
 
 The library supports both static and dynamic queries. The former offers greater benefit in terms of type and consistency checking. The latter makes it easier to construct queries on the flight.
 
-Specific traits of databases (e.g. unsupported or non-standard features) are known at compile time as well. This way, the compiler can tell the developer at compile time if a query is not accepted by the database (e.g. if a feature is missing). And the library can form the query in the correct manner, for instance if the engine uses concat instead of operator|| to concatenate strings.
+sqlpp11 is vendor-neutral. Specific traits of databases (e.g. unsupported or non-standard features) are are handled by connector libraries. Connector libraries can inform the developer of missing features at compile time. They also interpret expressions specifically where needed. For example, the connector could use the operator|| or the concat method for string concatenation without the developer being required to change the statement.
 
 
 Your help is needed:
@@ -64,14 +64,14 @@ for (const auto& row : db.run(select(all_of(foo)).from(foo).where(foo.hasFun or 
 }
 
 // selecting zero or one row, showing off with an alias:
-SQLPP_ALIAS_PROVIDER_GENERATOR(cheese);
+SQLPP_ALIAS_PROVIDER(cheese);
 if (const auto& row = db.run(select(foo.name.as(cheese)).from(foo).where(foo.id == 17)))
 {
     std::cerr << "found: " << row.cheese << std::endl;
 }
 
 // selecting a single row with a single result:
-return db.run(select(count(foo.id)).from(foo)).front().count;
+return db.run(select(count(foo.id)).from(foo).where(true)).front().count;
 
 Of course there are joins and subqueries, more functions, order_by, group_by etc.
 These will be documented soon.

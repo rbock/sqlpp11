@@ -68,9 +68,9 @@ namespace sqlpp
 
 	template<typename Tuple, typename Separator, typename Context>
 		auto interpret_tuple(const Tuple& t, const Separator& separator, Context& context)
-		-> decltype(tuple_interpreter_t<typename std::decay<Context>::type, typename std::decay<Tuple>::type>::_(t, separator, context))
+		-> decltype(tuple_interpreter_t<Context, Tuple>::_(t, separator, context))
 		{
-			return tuple_interpreter_t<typename std::decay<Context>::type, typename std::decay<Tuple>::type>::_(t, separator, context);
+			return tuple_interpreter_t<Context, Tuple>::_(t, separator, context);
 		}
 }
 

@@ -33,9 +33,9 @@ namespace sqlpp
 {
 	template<typename T, typename Context>
 		auto interpret(const T& t, Context& context)
-		-> decltype(vendor::interpreter_t<typename std::decay<Context>::type, typename std::decay<T>::type>::_(t, context))
+		-> decltype(vendor::interpreter_t<Context, T>::_(t, context))
 		{
-			return vendor::interpreter_t<typename std::decay<Context>::type, typename std::decay<T>::type>::_(t, context);
+			return vendor::interpreter_t<Context, T>::_(t, context);
 		}
 
 }

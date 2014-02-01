@@ -45,7 +45,7 @@ namespace sqlpp
 		struct boolean_operand
 		{
 			static constexpr bool _is_expression = true;
-			using _value_type = detail::boolean;
+			using _value_type = sqlpp::detail::boolean;
 
 			bool _is_trivial() const { return _t == false; }
 
@@ -68,7 +68,7 @@ namespace sqlpp
 			struct integral_operand
 			{
 				static constexpr bool _is_expression = true;
-				using _value_type = detail::integral;
+				using _value_type = ::sqlpp::detail::integral;
 
 				bool _is_trivial() const { return _t == 0; }
 
@@ -92,7 +92,7 @@ namespace sqlpp
 			struct floating_point_operand
 			{
 				static constexpr bool _is_expression = true;
-				using _value_type = detail::floating_point;
+				using _value_type = ::sqlpp::detail::floating_point;
 
 				bool _is_trivial() const { return _t == 0; }
 
@@ -114,7 +114,7 @@ namespace sqlpp
 		struct text_operand
 		{
 			static constexpr bool _is_expression = true;
-			using _value_type = detail::text;
+			using _value_type = ::sqlpp::detail::text;
 
 			bool _is_trivial() const { return _t.empty(); }
 

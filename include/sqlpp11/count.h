@@ -57,11 +57,7 @@ namespace sqlpp
 					};
 			};
 
-			count_t(Expr&& expr):
-				_expr(std::move(expr))
-			{}
-
-			count_t(const Expr& expr):
+			count_t(const Expr expr):
 				_expr(expr)
 			{}
 
@@ -98,15 +94,15 @@ namespace sqlpp
 	}
 
 	template<typename T>
-		auto count(T&& t) -> typename vendor::count_t<vendor::noop, typename operand_t<T, is_value_t>::type>
+		auto count(T t) -> typename vendor::count_t<vendor::noop, typename operand_t<T, is_value_t>::type>
 		{
-			return { std::forward<T>(t) };
+			return { t };
 		}
 
 	template<typename T>
-		auto count(const sqlpp::distinct_t&, T&& t) -> typename vendor::count_t<sqlpp::distinct_t, typename operand_t<T, is_value_t>::type>
+		auto count(const sqlpp::distinct_t&, T t) -> typename vendor::count_t<sqlpp::distinct_t, typename operand_t<T, is_value_t>::type>
 		{
-			return { std::forward<T>(t) };
+			return { t };
 		}
 
 }

@@ -35,7 +35,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename T>
-			using value_type_t = typename wrap_operand<typename std::decay<T>::type>::type::_value_type;
+			using value_type_t = typename wrap_operand<T>::type::_value_type;
 	}
 }
 #endif

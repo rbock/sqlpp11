@@ -66,7 +66,7 @@ namespace sqlpp
 
 				static void _(const T& t, Context& context)
 				{
-					static_assert(detail::wrong<T>::value, "tvin() must not be used with anything but =, ==, != and !");
+					static_assert(vendor::wrong_t<T>::value, "tvin() must not be used with anything but =, ==, != and !");
 				}
 			};
 	}

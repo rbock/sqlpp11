@@ -173,17 +173,17 @@ namespace sqlpp
 				struct operators: public basic_operators<Base, _operand_t>
 			{
 				template<typename T>
-					vendor::concat_t<Base, typename _operand_t<T>::type> operator+(T&& t) const
+					vendor::concat_t<Base, typename _operand_t<T>::type> operator+(T t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
+						return { *static_cast<const Base*>(this), {t} };
 					}
 
 				template<typename T>
-					vendor::like_t<Base, typename _operand_t<T>::type> like(T&& t) const
+					vendor::like_t<Base, typename _operand_t<T>::type> like(T t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
+						return { *static_cast<const Base*>(this), {t} };
 					}
 
 			};

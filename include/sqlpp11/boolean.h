@@ -168,17 +168,17 @@ namespace sqlpp
 				struct operators: public basic_operators<Base, _operand_t>
 			{
 				template<typename T>
-					vendor::logical_and_t<Base, typename _operand_t<T>::type> operator and(T&& t) const
+					vendor::logical_and_t<Base, typename _operand_t<T>::type> operator and(T t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
+						return { *static_cast<const Base*>(this), {t} };
 					}
 
 				template<typename T>
-					vendor::logical_or_t<Base, typename _operand_t<T>::type> operator or(T&& t) const
+					vendor::logical_or_t<Base, typename _operand_t<T>::type> operator or(T t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-						return { *static_cast<const Base*>(this), {std::forward<T>(t)} };
+						return { *static_cast<const Base*>(this), {t} };
 					}
 
 				vendor::logical_not_t<Base> operator not() const

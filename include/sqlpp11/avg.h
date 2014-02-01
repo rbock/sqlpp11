@@ -57,11 +57,7 @@ namespace sqlpp
 					};
 			};
 
-			avg_t(Expr&& expr):
-				_expr(std::move(expr))
-			{}
-
-			avg_t(const Expr& expr):
+			avg_t(Expr expr):
 				_expr(expr)
 			{}
 
@@ -98,15 +94,15 @@ namespace sqlpp
 	}
 
 	template<typename T>
-		auto avg(T&& t) -> typename vendor::avg_t<vendor::noop, typename operand_t<T, is_value_t>::type>
+		auto avg(T t) -> typename vendor::avg_t<vendor::noop, typename operand_t<T, is_value_t>::type>
 		{
-			return { std::forward<T>(t) };
+			return { t };
 		}
 
 	template<typename T>
-		auto avg(const sqlpp::distinct_t&, T&& t) -> typename vendor::avg_t<sqlpp::distinct_t, typename operand_t<T, is_value_t>::type>
+		auto avg(const sqlpp::distinct_t&, T t) -> typename vendor::avg_t<sqlpp::distinct_t, typename operand_t<T, is_value_t>::type>
 		{
-			return { std::forward<T>(t) };
+			return { t };
 		}
 
 }

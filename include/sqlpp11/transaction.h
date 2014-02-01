@@ -87,7 +87,7 @@ namespace sqlpp
 	};
 
 	template<typename Db>
-		transaction_t<typename std::decay<Db>::type> start_transaction(Db& db, bool report_unfinished_transaction = report_auto_rollback)
+		transaction_t<Db> start_transaction(Db& db, bool report_unfinished_transaction = report_auto_rollback)
 		{
 			return { db, report_unfinished_transaction };
 		};

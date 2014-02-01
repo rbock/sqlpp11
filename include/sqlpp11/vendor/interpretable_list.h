@@ -50,9 +50,9 @@ namespace sqlpp
 				}
 
 				template<typename Expr>
-				void emplace_back(Expr&& expr)
+				void emplace_back(Expr expr)
 				{
-					_serializables.emplace_back(std::forward<Expr>(expr));
+					_serializables.emplace_back(expr);
 				}
 
 			};
@@ -111,9 +111,9 @@ namespace sqlpp
 
 		template<typename T, typename Separator, typename Context>
 			auto interpret_list(const T& t, const Separator& separator, Context& context)
-			-> decltype(serializable_list_interpreter_t<typename std::decay<Context>::type, typename std::decay<T>::type>::_(t, separator, context))
+			-> decltype(serializable_list_interpreter_t<Context, T>::_(t, separator, context))
 			{
-				return serializable_list_interpreter_t<typename std::decay<Context>::type, typename std::decay<T>::type>::_(t, separator, context);
+				return serializable_list_interpreter_t<Context, T>::_(t, separator, context);
 			}
 
 	}

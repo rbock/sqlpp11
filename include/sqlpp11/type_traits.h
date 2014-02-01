@@ -130,7 +130,7 @@ namespace sqlpp
 	template<typename T, template<typename> class IsCorrectType>
 		struct operand_t
 		{
-			using type = typename vendor::wrap_operand<typename std::decay<T>::type>::type;
+			using type = typename vendor::wrap_operand<T>::type;
 			static_assert(not is_alias_t<type>::value, "expression operand must not be an alias");
 			static_assert(is_expression_t<type>::value, "expression required");
 			static_assert(IsCorrectType<type>::value, "invalid operand type");

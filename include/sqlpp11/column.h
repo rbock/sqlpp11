@@ -36,7 +36,7 @@
 #include <sqlpp11/vendor/assignment.h>
 #include <sqlpp11/vendor/expression.h>
 #include <sqlpp11/vendor/interpreter.h>
-#include <sqlpp11/detail/wrong.h>
+#include <sqlpp11/vendor/wrong.h>
 
 namespace sqlpp
 {
@@ -68,7 +68,7 @@ namespace sqlpp
 		}
 
 		template<typename alias_provider>
-			expression_alias_t<column_t, typename std::decay<alias_provider>::type> as(alias_provider&&) const
+			expression_alias_t<column_t, alias_provider> as(const alias_provider&) const
 			{
 				return { *this };
 			}

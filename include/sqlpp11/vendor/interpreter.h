@@ -27,7 +27,7 @@
 #ifndef SQLPP_VENDOR_INTERPRET_H
 #define SQLPP_VENDOR_INTERPRET_H
 
-#include <sqlpp11/detail/wrong.h>
+#include <sqlpp11/vendor/wrong.h>
 
 namespace sqlpp
 {
@@ -38,7 +38,7 @@ namespace sqlpp
 			{
 				static void _(const T& t, Context& context)
 				{
-					static_assert(detail::wrong<Context, T>::value, "missing interpreter specialization");
+					static_assert(wrong_t<Context, T>::value, "missing interpreter specialization");
 				}
 			};
 	}

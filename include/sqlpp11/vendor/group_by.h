@@ -56,10 +56,10 @@ namespace sqlpp
 				static_assert(_valid_expressions::size::value == sizeof...(Expr), "at least one argument is not an expression in group_by()");
 
 				template<typename E>
-					void add(E&& expr)
+					void add(E expr)
 					{
-						static_assert(is_table_t<typename std::decay<E>::type>::value, "from arguments require to be tables or joins");
-						_dynamic_expressions.emplace_back(std::forward<E>(expr));
+						static_assert(is_table_t<E>::value, "from arguments require to be tables or joins");
+						_dynamic_expressions.emplace_back(expr);
 					}
 
 				_parameter_tuple_t _expressions;

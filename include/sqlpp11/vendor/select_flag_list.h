@@ -41,7 +41,7 @@ namespace sqlpp
 		template<typename Database, typename T>
 			struct select_flag_list_t
 			{
-				static_assert(::sqlpp::detail::wrong<T>::value, "invalid argument for select_flag_list");
+				static_assert(::sqlpp::vendor::wrong_t<T>::value, "invalid argument for select_flag_list");
 			};
 
 		// select_flag_list_t
@@ -61,10 +61,10 @@ namespace sqlpp
 				static_assert(_valid_flags::size::value == sizeof...(Flag), "at least one argument is not a select flag in select flag list");
 
 				template<typename E>
-					void add(E&& expr)
+					void add(E expr)
 					{
-						static_assert(is_select_flag_t<typename std::decay<E>::type>::value, "flag arguments require to be select flags");
-						_dynamic_flags.emplace_back(std::forward<E>(expr));
+						static_assert(is_select_flag_t<E>::value, "flag arguments require to be select flags");
+						_dynamic_flags.emplace_back(expr);
 					}
 
 				_parameter_tuple_t _flags;

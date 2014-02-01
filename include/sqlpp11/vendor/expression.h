@@ -40,9 +40,9 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Lhs, typename Rhs>
-			struct equal_t: public detail::boolean::template operators<equal_t<Lhs, Rhs>>
+			struct equal_t: public ::sqlpp::detail::boolean::template operators<equal_t<Lhs, Rhs>>
 		{
-			using _value_type = detail::boolean;
+			using _value_type = ::sqlpp::detail::boolean;
 			using _parameter_tuple_t = std::tuple<Lhs, Rhs>;
 
 			equal_t(Lhs lhs, Rhs rhs):
@@ -84,9 +84,9 @@ namespace sqlpp
 			};
 
 		template<typename Lhs, typename Rhs>
-			struct not_equal_t: public detail::boolean::template operators<not_equal_t<Lhs, Rhs>>
+			struct not_equal_t: public ::sqlpp::detail::boolean::template operators<not_equal_t<Lhs, Rhs>>
 		{
-			using _value_type = detail::boolean;
+			using _value_type = ::sqlpp::detail::boolean;
 			using _parameter_tuple_t = std::tuple<Lhs, Rhs>;
 
 			not_equal_t(Lhs lhs, Rhs rhs):
@@ -128,9 +128,9 @@ namespace sqlpp
 			};
 
 		template<typename Lhs>
-			struct logical_not_t: public detail::boolean::template operators<logical_not_t<Lhs>>
+			struct logical_not_t: public ::sqlpp::detail::boolean::template operators<logical_not_t<Lhs>>
 		{
-			using _value_type = detail::boolean;
+			using _value_type = ::sqlpp::detail::boolean;
 			using _parameter_tuple_t = std::tuple<Lhs>;
 
 			logical_not_t(Lhs l):

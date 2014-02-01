@@ -43,7 +43,7 @@ namespace sqlpp
 
 				template<typename T>
 					interpretable_t(T t):
-						_impl(std::make_shared<_impl_t<typename std::decay<T>::type>>(t))
+						_impl(std::make_shared<_impl_t<T>>(t))
 				{}
 
 				interpretable_t(const interpretable_t&) = default;
@@ -73,12 +73,8 @@ namespace sqlpp
 					struct _impl_t: public _impl_base
 				{
 					static_assert(not make_parameter_list_t<T>::type::size::value, "parameters not supported in dynamic statement parts");
-					_impl_t(const T& t):
+					_impl_t(T t):
 						_t(t)
-					{}
-
-					_impl_t(T&& t):
-						_t(std::move(t))
 					{}
 
 					sqlpp::serializer_t& interpret(sqlpp::serializer_t& context) const

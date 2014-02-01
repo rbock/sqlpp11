@@ -56,10 +56,10 @@ namespace sqlpp
 				// FIXME: Joins contain two tables. This is not being dealt with at the moment when looking at duplicates, for instance
 
 				template<typename Table>
-					void add(Table&& table)
+					void add(Table table)
 					{
-						static_assert(is_table_t<typename std::decay<Table>::type>::value, "from arguments require to be tables or joins");
-						_dynamic_tables.emplace_back(std::forward<Table>(table));
+						static_assert(is_table_t<Table>::value, "from arguments require to be tables or joins");
+						_dynamic_tables.emplace_back(table);
 					}
 
 				std::tuple<TableOrJoin...> _tables;
