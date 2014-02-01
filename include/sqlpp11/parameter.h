@@ -65,8 +65,15 @@ namespace sqlpp
 	}
 
 	template<typename NamedExpr>
-		auto parameter(NamedExpr namedExpr)
+		auto parameter(const NamedExpr&)
 		-> parameter_t<typename NamedExpr::_value_type, NamedExpr>
+		{
+			return {};
+		}
+
+	template<typename ValueType, typename AliasProvider>
+		auto parameter(const ValueType&, const AliasProvider&)
+		-> parameter_t<ValueType, AliasProvider>
 		{
 			return {};
 		}
