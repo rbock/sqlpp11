@@ -37,7 +37,7 @@
 #include <sqlpp11/vendor/select_pseudo_table.h>
 #include <sqlpp11/vendor/named_interpretable.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
-#include <sqlpp11/detail/set.h>
+#include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
 {

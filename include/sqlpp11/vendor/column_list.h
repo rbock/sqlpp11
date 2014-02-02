@@ -28,7 +28,7 @@
 #define SQLPP_COLUMN_LIST_H
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/detail/set.h>
+#include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
 #include <sqlpp11/vendor/simple_column.h>
 

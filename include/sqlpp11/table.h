@@ -30,7 +30,7 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/table_alias.h>
 #include <sqlpp11/column.h>
-#include <sqlpp11/detail/set.h>
+#include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/join.h>
 #include <sqlpp11/no_value.h>
 
@@ -41,7 +41,7 @@ namespace sqlpp
 	template<typename Table, typename... ColumnSpec>
 	struct table_t: public table_base_t, public ColumnSpec::_name_t::template _member_t<column_t<Table, ColumnSpec>>...
 	{
-		using _table_set = detail::set<Table>; // Hint need a set here to be similar to a join (which always represents more than one table)
+		using _table_set = detail::type_set<Table>; // Hint need a type_set here to be similar to a join (which always represents more than one table)
 		using _all_columns = typename detail::make_set<column_t<Table, ColumnSpec>...>::type;
 		static_assert(_all_columns::size::value, "at least one column required per table");
 		using _required_insert_columns = typename detail::make_set_if<require_insert_t, column_t<Table, ColumnSpec>...>::type;

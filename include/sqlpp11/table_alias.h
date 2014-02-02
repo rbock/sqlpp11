@@ -31,7 +31,7 @@
 #include <sqlpp11/interpret.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/alias.h>
-#include <sqlpp11/detail/set.h>
+#include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
 {
@@ -42,7 +42,7 @@ namespace sqlpp
 	{
 		//FIXME: Need to add join functionality
 		using _is_table = std::true_type;
-		using _table_set = detail::set<table_alias_t>;
+		using _table_set = detail::type_set<table_alias_t>;
 
 		struct _value_type: Table::_value_type
 		{
