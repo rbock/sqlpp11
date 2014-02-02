@@ -29,49 +29,27 @@
 
 #include <type_traits>
 #include <sqlpp11/vendor/wrong.h>
+#include <sqlpp11/detail/logic.h>
 
 namespace sqlpp
 {
 	namespace detail
 	{
+		// some forward declarations and helpers
 		template<typename... T>
 			struct make_set;
 
 		template<typename T>
 			class type_set_element {};
 
-		template<typename SET, typename... T>
-			struct is_superset_of_impl
-			: std::false_type {};
-
-		template<typename SET>
-			struct is_superset_of_impl<SET>
-			: std::true_type {};
-
-		template<typename SET, typename T, typename... Rest>
-			struct is_superset_of_impl<SET, T, Rest...>
-			: std::integral_constant<bool, SET::template contains<T>::value and is_superset_of_impl<SET, Rest...>::value> {};
-
-		template<typename SET, typename... T>
-			struct is_disjunct_from_impl
-			: std::false_type {};
-
-		template<typename SET>
-			struct is_disjunct_from_impl<SET>
-			: std::true_type {};
-
-		template<typename SET, typename T, typename... Rest>
-			struct is_disjunct_from_impl<SET, T, Rest...>
-			: std::integral_constant<bool, not SET::template contains<T>::value and is_disjunct_from_impl<SET, Rest...>::value> {};
-
+		// A type set
 		template<typename... Element>
 			struct type_set: type_set_element<Element>...
 		{
-			struct size: std::integral_constant<size_t, sizeof...(Element)> {};
+			using size = std::integral_constant<size_t, sizeof...(Element)>;
 
 			template<typename T>
-				struct contains
-				: std::integral_constant<bool, std::is_base_of<type_set_element<T>, type_set>::value> {};
+				using count = std::is_base_of<type_set_element<T>, type_set>;
 
 			template<typename T>
 				struct is_superset_of
@@ -81,7 +59,7 @@ namespace sqlpp
 
 			template<typename... T>
 				struct is_superset_of<type_set<T...>>
-				: is_superset_of_impl<type_set, T...>{};
+				: and_t<count, T...> {};
 
 			template<typename T>
 				struct join
@@ -94,16 +72,6 @@ namespace sqlpp
 				: make_set<Element..., T...> {};
 
 			template<typename T>
-				struct is_disjunct_from
-				{
-					static_assert(::sqlpp::vendor::wrong_t<T>::value, "invalid argument for is_disjunct_from");
-				};
-
-			template<typename... T>
-				struct is_disjunct_from<type_set<T...>>
-				: is_disjunct_from_impl<type_set, T...>{};
-
-			template<typename T>
 				struct is_subset_of
 				{
 					static_assert(::sqlpp::vendor::wrong_t<T>::value, "invalid argument for is_subset_of");
@@ -111,20 +79,19 @@ namespace sqlpp
 
 			template<typename... T>
 				struct is_subset_of<type_set<T...>>
-				: is_superset_of_impl<type_set<T...>, Element...>{};
+				: type_set<T...>::template is_superset_of<type_set>{};
 
 			template<typename T>
-				struct equals
+				struct is_disjunct_from
 				{
-					static_assert(::sqlpp::vendor::wrong_t<T>::value, "invalid argument for equals");
+					static_assert(::sqlpp::vendor::wrong_t<T>::value, "invalid argument for is_disjunct_from");
 				};
 
 			template<typename... T>
-				struct equals<type_set<T...>>
-				: std::integral_constant<bool, 
-				is_superset_of_impl<type_set<T...>, Element...>::value 
-					and
-					is_superset_of_impl<type_set<Element...>, T...>::value> {};
+				struct is_disjunct_from<type_set<T...>>
+				{
+					static constexpr bool value = not(or_t<type_set::count, T...>::value or or_t<type_set<T...>::template count, Element...>::value);
+				};
 
 			template<typename T, typename Enable = void>
 				struct insert
@@ -133,23 +100,18 @@ namespace sqlpp
 				};
 
 			template<typename T>
-				struct insert<T, typename std::enable_if<not type_set::template contains<T>::value>::type>
+				struct insert<T, typename std::enable_if<not type_set::template count<T>::value>::type>
 				{
 					using type = type_set<Element..., T>;
-				};
-
-			template<template<typename A> class Predicate, typename T, typename Enable = void>
-				struct insert_if
-				{
-					using type = type_set;
 				};
 
 			template<template<typename A> class Predicate, typename T>
-				struct insert_if<Predicate, T, typename std::enable_if<not type_set::template contains<T>::value and Predicate<T>::value>::type>
+				struct insert_if
 				{
-					using type = type_set<Element..., T>;
+					using type = typename std::conditional<Predicate<T>::value,
+								type_set<Element..., T>,
+								type_set>::type;
 				};
-
 		};
 
 		template<>
@@ -182,17 +144,13 @@ namespace sqlpp
 		template<template<typename> class Predicate, typename... T>
 			struct make_set_if_not
 			{
-				template<typename A>
-					struct InversePredicate
-					{
-						static constexpr bool value = not Predicate<A>::value;
-					};
+				template<typename X>
+				using InversePredicate = std::integral_constant<bool, not Predicate<X>::value>;
 				using type = typename make_set_if<InversePredicate, T...>::type;
 			};
 
 		template<typename... T>
-			struct has_duplicates
-			: std::integral_constant<bool, make_set<T...>::type::size::value != sizeof...(T)> {};
+			using has_duplicates = std::integral_constant<bool, make_set<T...>::type::size::value != sizeof...(T)>;
 
 	}
 }

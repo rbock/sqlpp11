@@ -28,7 +28,7 @@
 #define SQLPP_COLUMN_LIST_H
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/detail/logic.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
 #include <sqlpp11/vendor/simple_column.h>
 
@@ -49,12 +49,10 @@ namespace sqlpp
 				static_assert(not ::sqlpp::detail::has_duplicates<Columns...>::value, "at least one duplicate argument detected in columns()");
 
 				// check for invalid columns
-				using _column_set = typename ::sqlpp::detail::make_set_if<is_column_t, Columns...>::type;
-				static_assert(_column_set::size::value == sizeof...(Columns), "at least one argument is not a column in columns()");
+				static_assert(::sqlpp::detail::and_t<is_column_t, Columns...>::value, "at least one argument is not a column in columns()");
 
 				// check for prohibited columns
-				using _prohibited_column_set = typename ::sqlpp::detail::make_set_if<must_not_insert_t, Columns...>::type;
-				static_assert(_prohibited_column_set::size::value == 0, "at least one column argument has a must_not_insert flag in its definition");
+				static_assert(not ::sqlpp::detail::or_t<must_not_insert_t, Columns...>::value, "at least one column argument has a must_not_insert flag in its definition");
 
 				std::tuple<simple_column_t<Columns>...> _columns;
 			};

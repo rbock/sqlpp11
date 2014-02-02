@@ -31,9 +31,9 @@
 #include <sqlpp11/result_row.h>
 #include <sqlpp11/select_fwd.h>
 #include <sqlpp11/table.h>
-#include <sqlpp11/vendor/expression_fwd.h>
 #include <sqlpp11/no_value.h>
 #include <sqlpp11/vendor/field.h>
+#include <sqlpp11/vendor/expression_fwd.h>
 #include <sqlpp11/vendor/select_pseudo_table.h>
 #include <sqlpp11/vendor/named_interpretable.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
@@ -149,9 +149,8 @@ namespace sqlpp
 
 				// check for invalid select expressions
 				template<typename T>
-					struct is_valid_expression_t: public std::integral_constant<bool, is_named_expression_t<T>::value or is_multi_column_t<T>::value> {};
-				using _valid_expressions = typename ::sqlpp::detail::make_set_if<is_valid_expression_t, NamedExpr...>::type;
-				static_assert(_valid_expressions::size::value == sizeof...(NamedExpr), "at least one argument is not a named expression");
+					using is_valid_expression_t = std::integral_constant<bool, is_named_expression_t<T>::value or is_multi_column_t<T>::value>;
+				static_assert(::sqlpp::detail::and_t<is_valid_expression_t, NamedExpr...>::value, "at least one argument is not a named expression");
 
 				// check for duplicate select expression names
 				static_assert(not ::sqlpp::detail::has_duplicates<typename NamedExpr::_name_t...>::value, "at least one duplicate name detected");

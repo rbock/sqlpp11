@@ -29,7 +29,7 @@
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
-#include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/detail/logic.h>
 
 namespace sqlpp
 {
@@ -39,8 +39,7 @@ namespace sqlpp
 			struct concat_t: public First::_value_type::template operators<concat_t<First, Args...>>
 		{
 			static_assert(sizeof...(Args) > 0, "concat requires two arguments at least");
-			using _valid_args = typename ::sqlpp::detail::make_set_if_not<is_text_t, First, Args...>::type;
-			static_assert(_valid_args::size::value == 0, "at least one non-text argument detected in concat()");
+			static_assert(sqlpp::detail::and_t<is_text_t, First, Args...>::value, "at least one non-text argument detected in concat()");
 
 			struct _value_type: public First::_value_type::_base_value_type
 			{

@@ -51,8 +51,7 @@ namespace sqlpp
 				static_assert(not ::sqlpp::detail::has_duplicates<Expr...>::value, "at least one duplicate argument detected in order_by()");
 
 				// check for invalid order expressions
-				using _valid_expressions = typename ::sqlpp::detail::make_set_if<is_sort_order_t, Expr...>::type;
-				static_assert(_valid_expressions::size::value == sizeof...(Expr), "at least one argument is not a sort order expression in order_by()");
+				static_assert(::sqlpp::detail::and_t<is_sort_order_t, Expr...>::value, "at least one argument is not a sort order expression in order_by()");
 
 				template<typename E>
 					void add(E expr)

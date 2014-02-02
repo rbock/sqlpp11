@@ -28,9 +28,9 @@
 #define SQLPP_ON_H
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
 #include <sqlpp11/vendor/interpretable_list.h>
+#include <sqlpp11/detail/logic.h>
 
 namespace sqlpp
 {
@@ -41,8 +41,7 @@ namespace sqlpp
 			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 
 			static_assert(_is_dynamic::value or sizeof...(Expr), "at least one expression argument required in on()");
-			using _valid_expressions = typename detail::make_set_if<is_expression_t, Expr...>::type;
-			static_assert(_valid_expressions::size::value == sizeof...(Expr), "at least one argument is not an expression in on()");
+			static_assert(detail::and_t<is_expression_t, Expr...>::value, "at least one argument is not an expression in on()");
 
 			template<typename E>
 				void add(E expr)

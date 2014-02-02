@@ -28,10 +28,10 @@
 #define SQLPP_INSERT_LIST_H
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
 #include <sqlpp11/vendor/interpretable_list.h>
 #include <sqlpp11/vendor/simple_column.h>
+#include <sqlpp11/detail/logic.h>
 
 namespace sqlpp
 {
@@ -69,12 +69,10 @@ namespace sqlpp
 				static_assert(not ::sqlpp::detail::has_duplicates<Assignments...>::value, "at least one duplicate argument detected in set()");
 
 				// check for invalid assignments
-				using _assignment_set = typename ::sqlpp::detail::make_set_if<is_assignment_t, Assignments...>::type;
-				static_assert(_assignment_set::size::value == sizeof...(Assignments), "at least one argument is not an assignment in set()");
+				static_assert(sqlpp::detail::and_t<is_assignment_t, Assignments...>::value, "at least one argument is not an assignment in set()");
 
 				// check for prohibited assignments
-				using _prohibited_assignment_set = typename ::sqlpp::detail::make_set_if<must_not_insert_t, typename Assignments::_column_t...>::type;
-				static_assert(_prohibited_assignment_set::size::value == 0, "at least one assignment is prohibited by its column definition in set()");
+				static_assert(not sqlpp::detail::or_t<must_not_insert_t, typename Assignments::_column_t...>::value, "at least one assignment is prohibited by its column definition in set()");
 
 				insert_list_t(Assignments... assignment):
 					_columns({assignment._lhs}...),

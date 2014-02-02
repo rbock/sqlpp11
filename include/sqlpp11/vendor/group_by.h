@@ -32,7 +32,7 @@
 #include <sqlpp11/vendor/expression.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
 #include <sqlpp11/vendor/interpretable_list.h>
-#include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/detail/logic.h>
 
 namespace sqlpp
 {
@@ -52,8 +52,7 @@ namespace sqlpp
 				static_assert(not ::sqlpp::detail::has_duplicates<Expr...>::value, "at least one duplicate argument detected in group_by()");
 
 				// check for invalid expressions
-				using _valid_expressions = typename ::sqlpp::detail::make_set_if<is_expression_t, Expr...>::type;
-				static_assert(_valid_expressions::size::value == sizeof...(Expr), "at least one argument is not an expression in group_by()");
+				static_assert(::sqlpp::detail::and_t<is_expression_t, Expr...>::value, "at least one argument is not an expression in group_by()");
 
 				template<typename E>
 					void add(E expr)

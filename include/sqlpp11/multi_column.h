@@ -27,8 +27,9 @@
 #ifndef SQLPP_MULTI_COLUMN_H
 #define SQLPP_MULTI_COLUMN_H
 
-#include <sqlpp11/detail/make_expression_tuple.h>
 #include <sqlpp11/no_value.h>
+#include <sqlpp11/detail/make_expression_tuple.h>
+#include <sqlpp11/detail/logic.h>
 
 namespace sqlpp
 {
@@ -41,8 +42,7 @@ namespace sqlpp
 	template<typename AliasProvider, typename... NamedExpr>
 		struct multi_column_t<AliasProvider, std::tuple<NamedExpr...>>
 		{
-			using _named_expr_set = typename detail::make_set_if<is_named_expression_t, NamedExpr...>::type;
-			static_assert(_named_expr_set::size::value == sizeof...(NamedExpr), "multi_column parameters need to be named expressions");
+			static_assert(detail::and_t<is_named_expression_t, NamedExpr...>::value, "multi_column parameters need to be named expressions");
 
 			using _name_t = typename AliasProvider::_name_t;
 
