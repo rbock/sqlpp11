@@ -70,7 +70,7 @@ namespace sqlpp
 			_prepared_statement_t prepare_select(Select& s);
 
 			template<typename PreparedSelect>
-			<<char_result_t or bind_result_t>> run_prepared_select(const PreparedSelect& s);
+			<<char_result_t or bind_result_t>> run_prepared_select(const PreparedSelect& s); // call s._bind_params()
 
 			//! "direct insert
 			template<typename Insert>
@@ -81,7 +81,7 @@ namespace sqlpp
 			_prepared_statement_t prepare_insert(Insert& i);
 
 			template<typename PreparedInsert>
-			size_t run_prepared_insert(const PreparedInsert& i);
+			size_t run_prepared_insert(const PreparedInsert& i); // call i._bind_params()
 
 			//! "direct" update
 			template<typename Update>
@@ -92,7 +92,7 @@ namespace sqlpp
 			_prepared_statement_t prepare_update(Update& u);
 
 			template<typename PreparedUpdate>
-			size_t run_prepared_update(const PreparedUpdate& u);
+			size_t run_prepared_update(const PreparedUpdate& u); // call u._bind_params()
 
 			//! "direct" remove
 			template<typename Remove>
@@ -103,7 +103,7 @@ namespace sqlpp
 			_prepared_statement_t prepare_remove(Remove& r);
 
 			template<typename PreparedRemove>
-			size_t run_prepared_remove(const PreparedRemove& r);
+			size_t run_prepared_remove(const PreparedRemove& r); // call r._bind_params()
 
 			//! call run on the argument
 			template<typename T>
