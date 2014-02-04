@@ -164,10 +164,12 @@ namespace sqlpp
 		template<typename Lhs, typename O, typename Rhs>
 			struct binary_expression_t: public O::_value_type::template operators<binary_expression_t<Lhs, O, Rhs>>
 		{
+			using _lhs_t = Lhs;
+			using _rhs_t = Rhs;
 			using _value_type = typename O::_value_type;
-			using _parameter_tuple_t = std::tuple<Lhs, Rhs>;
+			using _parameter_tuple_t = std::tuple<_lhs_t, _rhs_t>;
 
-			binary_expression_t(Lhs lhs, Rhs rhs):
+			binary_expression_t(_lhs_t lhs, _rhs_t rhs):
 				_lhs(lhs), 
 				_rhs(rhs)
 			{}
@@ -178,8 +180,8 @@ namespace sqlpp
 			binary_expression_t& operator=(binary_expression_t&&) = default;
 			~binary_expression_t() = default;
 
-			Lhs _lhs;
-			Rhs _rhs;
+			_lhs_t _lhs;
+			_rhs_t _rhs;
 		};
 
 		template<typename Context, typename Lhs, typename O, typename Rhs>

@@ -24,61 +24,65 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_TABLE_ALIAS_H
-#define SQLPP_TABLE_ALIAS_H
+#ifndef SQLPP_DETAIL_LOGIC_H
+#define SQLPP_DETAIL_LOGIC_H
 
-#include <sqlpp11/column_fwd.h>
-#include <sqlpp11/interpret.h>
-#include <sqlpp11/type_traits.h>
-#include <sqlpp11/alias.h>
-#include <sqlpp11/detail/type_set.h>
+#include <type_traits>
 
 namespace sqlpp
 {
-	struct table_alias_base_t {};
-
-	template<typename AliasProvider, typename Table, typename... ColumnSpec>
-		struct table_alias_t: public table_alias_base_t, public ColumnSpec::_name_t::template _member_t<column_t<AliasProvider, ColumnSpec>>...
+	namespace detail
 	{
-		//FIXME: Need to add join functionality
-		using _is_table = std::true_type;
-		using _table_set = detail::type_set<table_alias_t>;
+		template<bool... b>
+			struct and_impl;
 
-		struct _value_type: Table::_value_type
-		{
-			using _is_expression = std::false_type;
-			using _is_named_expression = copy_type_trait<Table, is_value_t>;
-			using _is_alias = std::true_type;
-		};
-
-		using _name_t = typename AliasProvider::_name_t;
-		using _all_of_t = std::tuple<column_t<AliasProvider, ColumnSpec>...>;
-
-		table_alias_t(Table table):
-			_table(table)
-		{}
-
-		Table _table;
-	};
-
-	namespace vendor
-	{
-		template<typename Context, typename X>
-			struct interpreter_t<Context, X, typename std::enable_if<std::is_base_of<table_alias_base_t, X>::value, void>::type>
+		template<>
+			struct and_impl<>
 			{
-				using T = X;
-
-				static Context& _(const T& t, Context& context)
-				{
-					context << "(";
-					interpret(t._table, context);
-					context << ") AS " << T::_name_t::_get_name();
-					return context;
-				}
+				static constexpr bool value = true;
 			};
+
+		template<bool... Rest>
+			struct and_impl<true, Rest...>
+			{
+				static constexpr bool value = and_impl<Rest...>::value;
+			};
+
+		template<bool... Rest>
+			struct and_impl<false, Rest...>
+			{
+				static constexpr bool value = false;
+			};
+
+		template<template<typename> class Predicate, typename... T>
+			using and_t = and_impl<Predicate<T>::value...>;
+
+		template<bool... b>
+			struct or_impl;
+
+		template<>
+			struct or_impl<>
+			{
+				static constexpr bool value = false;
+			};
+
+		template<bool... Rest>
+			struct or_impl<false, Rest...>
+			{
+				static constexpr bool value = or_impl<Rest...>::value;
+			};
+
+		template<bool... Rest>
+			struct or_impl<true, Rest...>
+			{
+				static constexpr bool value = true;
+			};
+
+		template<template<typename> class Predicate, typename... T>
+			using or_t = or_impl<Predicate<T>::value...>;
 
 	}
 }
 
-#endif
 
+#endif

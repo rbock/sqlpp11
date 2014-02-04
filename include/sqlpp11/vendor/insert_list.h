@@ -28,10 +28,10 @@
 #define SQLPP_INSERT_LIST_H
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/detail/set.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
 #include <sqlpp11/vendor/interpretable_list.h>
 #include <sqlpp11/vendor/simple_column.h>
+#include <sqlpp11/detail/logic.h>
 
 namespace sqlpp
 {
@@ -61,6 +61,10 @@ namespace sqlpp
 				using _is_insert_list = std::true_type;
 				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 				using _parameter_tuple_t = std::tuple<Assignments...>;
+				template<template<typename...> class Target>
+					using copy_assignments_t = Target<Assignments...>; // FIXME: Nice idea to copy variadic template arguments?
+				template<template<typename...> class Target, template<typename> class Wrap>
+					using copy_wrapped_assignments_t = Target<Wrap<Assignments>...>;
 
 				// check for at least one order expression
 				static_assert(_is_dynamic::value or sizeof...(Assignments), "at least one select expression required in set()");
@@ -69,14 +73,13 @@ namespace sqlpp
 				static_assert(not ::sqlpp::detail::has_duplicates<Assignments...>::value, "at least one duplicate argument detected in set()");
 
 				// check for invalid assignments
-				using _assignment_set = typename ::sqlpp::detail::make_set_if<is_assignment_t, Assignments...>::type;
-				static_assert(_assignment_set::size::value == sizeof...(Assignments), "at least one argument is not an assignment in set()");
+				static_assert(sqlpp::detail::and_t<is_assignment_t, Assignments...>::value, "at least one argument is not an assignment in set()");
 
 				// check for prohibited assignments
-				using _prohibited_assignment_set = typename ::sqlpp::detail::make_set_if<must_not_insert_t, typename Assignments::_column_t...>::type;
-				static_assert(_prohibited_assignment_set::size::value == 0, "at least one assignment is prohibited by its column definition in set()");
+				static_assert(not sqlpp::detail::or_t<must_not_insert_t, typename Assignments::_column_t...>::value, "at least one assignment is prohibited by its column definition in set()");
 
 				insert_list_t(Assignments... assignment):
+					_assignments(assignment...),
 					_columns({assignment._lhs}...),
 					_values(assignment._rhs...)
 					{}
@@ -99,6 +102,7 @@ namespace sqlpp
 
 				std::tuple<simple_column_t<typename Assignments::_column_t>...> _columns;
 				std::tuple<typename Assignments::value_type...> _values;
+				std::tuple<Assignments...> _assignments; // FIXME: Need to replace _columns and _values by _assignments (connector-container requires assignments)
 				typename vendor::interpretable_list_t<Database> _dynamic_columns;
 				typename vendor::interpretable_list_t<Database> _dynamic_values;
 			};

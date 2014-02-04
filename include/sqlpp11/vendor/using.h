@@ -28,9 +28,9 @@
 #define SQLPP_USING_H
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/detail/set.h>
 #include <sqlpp11/vendor/interpretable_list.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
+#include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
 {
@@ -49,8 +49,7 @@ namespace sqlpp
 				static_assert(not ::sqlpp::detail::has_duplicates<Table...>::value, "at least one duplicate argument detected in using()");
 
 				// check for invalid arguments
-				using _valid_expressions = typename ::sqlpp::detail::make_set_if<is_table_t, Table...>::type;
-				static_assert(_valid_expressions::size::value == sizeof...(Table), "at least one argument is not an table in using()");
+				static_assert(::sqlpp::detail::and_t<is_table_t, Table...>::value, "at least one argument is not an table in using()");
 
 
 				template<typename T>

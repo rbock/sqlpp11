@@ -31,7 +31,7 @@
 #include <sqlpp11/vendor/expression.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
 #include <sqlpp11/vendor/interpretable_list.h>
-#include <sqlpp11/detail/set.h>
+#include <sqlpp11/detail/logic.h>
 
 namespace sqlpp
 {
@@ -45,8 +45,7 @@ namespace sqlpp
 				using _parameter_tuple_t = std::tuple<Expr...>;
 
 				static_assert(_is_dynamic::value or sizeof...(Expr), "at least one expression argument required in having()");
-				using _valid_expressions = typename ::sqlpp::detail::make_set_if<is_expression_t, Expr...>::type;
-				static_assert(_valid_expressions::size::value == sizeof...(Expr), "at least one argument is not an expression in having()");
+				static_assert(::sqlpp::detail::and_t<is_expression_t, Expr...>::value, "at least one argument is not an expression in having()");
 
 				using _parameter_list_t = typename make_parameter_list_t<_parameter_tuple_t>::type;
 

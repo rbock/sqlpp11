@@ -29,7 +29,7 @@
 
 #include <sqlpp11/boolean.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/detail/set.h>
+#include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
 {

@@ -28,7 +28,7 @@
 #define SQLPP_INSERT_VALUE_LIST_H
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/detail/set.h>
+#include <sqlpp11/detail/logic.h>
 #include <sqlpp11/vendor/insert_value.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
 
@@ -44,8 +44,7 @@ namespace sqlpp
 				static_assert(sizeof...(InsertValues), "at least one insert value required");
 
 				// check for invalid arguments
-				using _insert_values_set = typename ::sqlpp::detail::make_set_if<is_insert_value_t, InsertValues...>::type;
-				static_assert(_insert_values_set::size::value == sizeof...(InsertValues), "at least one argument is not an insert value");
+				static_assert(::sqlpp::detail::and_t<is_insert_value_t, InsertValues...>::value, "at least one argument is not an insert value");
 
 				using _value_tuple_t = std::tuple<InsertValues...>;
 

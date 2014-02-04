@@ -24,64 +24,38 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_CONCAT_H
-#define SQLPP_CONCAT_H
+#ifndef SQLPP_DATABASE_INTERPRETER_H
+#define SQLPP_DATABASE_INTERPRETER_H
 
-#include <sqlpp11/type_traits.h>
-#include <sqlpp11/vendor/interpret_tuple.h>
-#include <sqlpp11/detail/logic.h>
+#include <sqlpp11/vendor/concat.h>
+#include <sqlpp11/vendor/insert_list.h>
 
+/*
+ * sqlpp11 offers an interpreter that can be used to serialize the expression tree 
+ * into a standard SQL string.
+ *
+ * The connector library can specialize the interpreter template to partially or 
+ * completely change the way the expression tree is interpreted.
+ *
+ * For example, this specialization will produce indexed parameters instead of just '?'
+ */
 namespace sqlpp
 {
 	namespace vendor
 	{
-		template<typename First, typename... Args>
-			struct concat_t: public First::_value_type::template operators<concat_t<First, Args...>>
-		{
-			static_assert(sizeof...(Args) > 0, "concat requires two arguments at least");
-			static_assert(sqlpp::detail::and_t<is_text_t, First, Args...>::value, "at least one non-text argument detected in concat()");
-
-			struct _value_type: public First::_value_type::_base_value_type
+		template<typename ValueType, typename NameType>
+			struct interpreter_t<database::context_t, parameter_t<ValueType, NameType>>
 			{
-				using _is_named_expression = std::true_type;
-			};
+				using T = parameter_t<ValueType, NameType>;
 
-			struct _name_t
-			{
-				static constexpr const char* _get_name() { return "CONCAT"; }
-				template<typename T>
-					struct _member_t
-					{
-						T concat;
-					};
-			};
-
-			concat_t(First first, Args... args):
-				_args(first, args...)
-			{}
-
-			concat_t(const concat_t&) = default;
-			concat_t(concat_t&&) = default;
-			concat_t& operator=(const concat_t&) = default;
-			concat_t& operator=(concat_t&&) = default;
-			~concat_t() = default;
-
-			std::tuple<First, Args...> _args;
-		};
-
-		template<typename Context, typename First, typename... Args>
-			struct interpreter_t<Context, concat_t<First, Args...>>
-			{
-				using T = concat_t<First, Args...>;
-
-				static Context& _(const T& t, Context& context)
+				static database::context_t& _(const T& t, database::context_t& context)
 				{
-					context << "(";
-					interpret_tuple(t._args, "||", context);
-					context << ")";
+					context << "?" << context.count();
+					context.pop_count();
 					return context;
 				}
 			};
+
 	}
 }
 

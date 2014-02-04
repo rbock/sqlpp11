@@ -24,61 +24,35 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_TABLE_ALIAS_H
-#define SQLPP_TABLE_ALIAS_H
 
-#include <sqlpp11/column_fwd.h>
-#include <sqlpp11/interpret.h>
-#include <sqlpp11/type_traits.h>
-#include <sqlpp11/alias.h>
-#include <sqlpp11/detail/type_set.h>
+#ifndef SQLPP_DATABASE_PREPARED_STATEMENT_H
+#define SQLPP_DATABASE_PREPARED_STATEMENT_H
+
+#include <memory>
+#include <string>
 
 namespace sqlpp
 {
-	struct table_alias_base_t {};
-
-	template<typename AliasProvider, typename Table, typename... ColumnSpec>
-		struct table_alias_t: public table_alias_base_t, public ColumnSpec::_name_t::template _member_t<column_t<AliasProvider, ColumnSpec>>...
+	namespace database
 	{
-		//FIXME: Need to add join functionality
-		using _is_table = std::true_type;
-		using _table_set = detail::type_set<table_alias_t>;
-
-		struct _value_type: Table::_value_type
+		class prepared_statement_t
 		{
-			using _is_expression = std::false_type;
-			using _is_named_expression = copy_type_trait<Table, is_value_t>;
-			using _is_alias = std::true_type;
+		public:
+			prepared_statement_t() = delete;
+			prepared_statement_t(...);
+			prepared_statement_t(const prepared_statement_t&) = delete;
+			prepared_statement_t(prepared_statement_t&& rhs);
+			prepared_statement_t& operator=(const prepared_statement_t&) = delete;
+			prepared_statement_t& operator=(prepared_statement_t&&);
+			~prepared_statement_t();
+
+			bool operator==(const prepared_statement_t& rhs) const;
+
+			// These are called by the sqlpp11::prepared_*_t to bind the individual parameters
+			void _bind_boolean_parameter(size_t index, const signed char* value, bool is_null);
+			void _bind_integral_parameter(size_t index, const int64_t* value, bool is_null);
+			void _bind_text_parameter(size_t index, const std::string* value, bool is_null);
 		};
-
-		using _name_t = typename AliasProvider::_name_t;
-		using _all_of_t = std::tuple<column_t<AliasProvider, ColumnSpec>...>;
-
-		table_alias_t(Table table):
-			_table(table)
-		{}
-
-		Table _table;
-	};
-
-	namespace vendor
-	{
-		template<typename Context, typename X>
-			struct interpreter_t<Context, X, typename std::enable_if<std::is_base_of<table_alias_base_t, X>::value, void>::type>
-			{
-				using T = X;
-
-				static Context& _(const T& t, Context& context)
-				{
-					context << "(";
-					interpret(t._table, context);
-					context << ") AS " << T::_name_t::_get_name();
-					return context;
-				}
-			};
-
 	}
 }
-
 #endif
-

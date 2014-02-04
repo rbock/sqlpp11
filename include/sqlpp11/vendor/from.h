@@ -27,11 +27,11 @@
 #ifndef SQLPP_FROM_H
 #define SQLPP_FROM_H
 
-#include <ostream>
 #include <sqlpp11/select_fwd.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/vendor/interpretable_list.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
+#include <sqlpp11/detail/logic.h>
 
 namespace sqlpp
 {
@@ -50,8 +50,7 @@ namespace sqlpp
 				static_assert(not ::sqlpp::detail::has_duplicates<TableOrJoin...>::value, "at least one duplicate argument detected in from()");
 
 				// check for invalid arguments
-				using _valid_expressions = typename ::sqlpp::detail::make_set_if<is_table_t, TableOrJoin...>::type;
-				static_assert(_valid_expressions::size::value == sizeof...(TableOrJoin), "at least one argument is not a table or join in from()");
+				static_assert(::sqlpp::detail::and_t<is_table_t, TableOrJoin...>::value, "at least one argument is not a table or join in from()");
 
 				// FIXME: Joins contain two tables. This is not being dealt with at the moment when looking at duplicates, for instance
 

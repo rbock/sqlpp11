@@ -14,8 +14,10 @@ build_and_run(SelectTest)
 build_and_run(FunctionTest)
 build_and_run(PreparedTest)
 
+find_package(PythonInterp REQUIRED)
+
 add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_LIST_DIR}/Sample.h 
-	COMMAND ${CMAKE_SOURCE_DIR}/scripts/ddl2cpp ${CMAKE_CURRENT_LIST_DIR}/sample.sql Sample test
+	COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/scripts/ddl2cpp ${CMAKE_CURRENT_LIST_DIR}/sample.sql Sample test
 	)
 

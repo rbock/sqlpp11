@@ -44,6 +44,7 @@ namespace sqlpp
 	struct column_t: public ColumnSpec::_value_type::template operators<column_t<Table, ColumnSpec>>
 	{ 
 		using _is_column = std::true_type;
+		using _spec_t = ColumnSpec;
 		using _table = Table;
 		using _column_type = typename ColumnSpec::_column_type;
 		struct _value_type: ColumnSpec::_value_type

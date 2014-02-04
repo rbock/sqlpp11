@@ -30,7 +30,7 @@
 #include <sqlpp11/select_fwd.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/select_flags.h>
-#include <sqlpp11/detail/set.h>
+#include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
 #include <tuple>
 
@@ -57,8 +57,7 @@ namespace sqlpp
 				static_assert(not ::sqlpp::detail::has_duplicates<Flag...>::value, "at least one duplicate argument detected in select flag list");
 
 				// check for invalid order expressions
-				using _valid_flags = typename ::sqlpp::detail::make_set_if<is_select_flag_t, Flag...>::type;
-				static_assert(_valid_flags::size::value == sizeof...(Flag), "at least one argument is not a select flag in select flag list");
+				static_assert(::sqlpp::detail::and_t<is_select_flag_t, Flag...>::value, "at least one argument is not a select flag in select flag list");
 
 				template<typename E>
 					void add(E expr)
