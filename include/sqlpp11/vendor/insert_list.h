@@ -61,6 +61,10 @@ namespace sqlpp
 				using _is_insert_list = std::true_type;
 				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 				using _parameter_tuple_t = std::tuple<Assignments...>;
+				template<template<typename...> class Target>
+					using copy_assignments_t = Target<Assignments...>; // FIXME: Nice idea to copy variadic template arguments?
+				template<template<typename...> class Target, template<typename> class Wrap>
+					using copy_wrapped_assignments_t = Target<Wrap<Assignments>...>;
 
 				// check for at least one order expression
 				static_assert(_is_dynamic::value or sizeof...(Assignments), "at least one select expression required in set()");
@@ -75,6 +79,7 @@ namespace sqlpp
 				static_assert(not sqlpp::detail::or_t<must_not_insert_t, typename Assignments::_column_t...>::value, "at least one assignment is prohibited by its column definition in set()");
 
 				insert_list_t(Assignments... assignment):
+					_assignments(assignment...),
 					_columns({assignment._lhs}...),
 					_values(assignment._rhs...)
 					{}
@@ -97,6 +102,7 @@ namespace sqlpp
 
 				std::tuple<simple_column_t<typename Assignments::_column_t>...> _columns;
 				std::tuple<typename Assignments::value_type...> _values;
+				std::tuple<Assignments...> _assignments; // FIXME: Need to replace _columns and _values by _assignments (connector-container requires assignments)
 				typename vendor::interpretable_list_t<Database> _dynamic_columns;
 				typename vendor::interpretable_list_t<Database> _dynamic_values;
 			};

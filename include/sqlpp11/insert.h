@@ -30,9 +30,11 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/prepared_insert.h>
+#include <sqlpp11/default_value.h>
 #include <sqlpp11/vendor/column_list.h>
 #include <sqlpp11/vendor/noop.h>
 #include <sqlpp11/vendor/insert_list.h>
+#include <sqlpp11/vendor/assignment.h>
 #include <sqlpp11/vendor/insert_value_list.h>
 
 namespace sqlpp
