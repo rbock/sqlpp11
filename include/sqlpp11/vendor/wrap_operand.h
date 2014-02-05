@@ -46,10 +46,11 @@ namespace sqlpp
 		{
 			static constexpr bool _is_expression = true;
 			using _value_type = sqlpp::detail::boolean;
+			using _value_t = bool;
 
 			bool _is_trivial() const { return _t == false; }
 
-			bool _t;
+			_value_t _t;
 		};
 
 		template<typename Context>
@@ -69,10 +70,11 @@ namespace sqlpp
 			{
 				static constexpr bool _is_expression = true;
 				using _value_type = ::sqlpp::detail::integral;
+				using _value_t = T;
 
 				bool _is_trivial() const { return _t == 0; }
 
-				T _t;
+				_value_t _t;
 			};
 
 		template<typename Context, typename T>
@@ -93,10 +95,11 @@ namespace sqlpp
 			{
 				static constexpr bool _is_expression = true;
 				using _value_type = ::sqlpp::detail::floating_point;
+				using _value_t = T;
 
 				bool _is_trivial() const { return _t == 0; }
 
-				T _t;
+				_value_t _t;
 			};
 
 		template<typename Context, typename T>
@@ -115,10 +118,11 @@ namespace sqlpp
 		{
 			static constexpr bool _is_expression = true;
 			using _value_type = ::sqlpp::detail::text;
+			using _value_t = std::string;
 
 			bool _is_trivial() const { return _t.empty(); }
 
-			std::string _t;
+			_value_t _t;
 		};
 
 		template<typename Context>
