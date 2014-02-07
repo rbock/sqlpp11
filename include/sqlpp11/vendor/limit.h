@@ -42,7 +42,7 @@ namespace sqlpp
 				using _is_limit = std::true_type;
 				static_assert(is_integral_t<Limit>::value, "limit requires an integral value or integral parameter");
 
-				limit_t(size_t value):
+				limit_t(Limit value):
 					_value(value)
 				{}
 
@@ -62,9 +62,17 @@ namespace sqlpp
 				using _is_limit = std::true_type;
 				using _is_dynamic = std::true_type;
 
-				dynamic_limit_t(size_t value):
-					_value(value)
-				{}
+				dynamic_limit_t():
+					_value(noop())
+				{
+				}
+
+				template<typename Limit>
+					dynamic_limit_t(Limit value):
+						_initialized(true),
+						_value(typename wrap_operand<Limit>::type(value))
+				{
+				}
 
 				dynamic_limit_t(const dynamic_limit_t&) = default;
 				dynamic_limit_t(dynamic_limit_t&&) = default;
@@ -72,13 +80,19 @@ namespace sqlpp
 				dynamic_limit_t& operator=(dynamic_limit_t&&) = default;
 				~dynamic_limit_t() = default;
 
-				void set_limit(std::size_t limit)
-				{
-					_value = limit;
-				}
+				template<typename Limit>
+					void set_limit(Limit value)
+					{
+						using arg_t = typename wrap_operand<Limit>::type;
+						_value = arg_t(value);
+						_initialized = true;
+					}
 
+#warning this is stupid! Will get dangling references when copying
 				dynamic_limit_t& _limit = *this;
-				std::size_t _value; // FIXME: This should be a serializable!
+				
+				bool _initialized = false;
+				interpretable_t<Database> _value;
 			};
 
 		struct no_limit_t
@@ -101,7 +115,7 @@ namespace sqlpp
 		template<typename Derived>
 			struct crtp_wrapper_t<Derived, no_limit_t>
 			{
-				template<typename Arg>
+				template<typename... Args>
 					struct delayed_get_database_t
 					{
 						using type = get_database_t<Derived>;
@@ -109,17 +123,19 @@ namespace sqlpp
 
 				template<typename Arg>
 					auto limit(Arg arg)
-					-> vendor::update_policies_t<Derived, no_limit_t, limit_t<Arg>>
+					-> vendor::update_policies_t<Derived, no_limit_t, limit_t<typename wrap_operand<Arg>::type>>
 					{
-						return { static_cast<Derived&>(*this), limit_t<Arg>(arg) };
+						typename wrap_operand<Arg>::type value = {arg};
+						return { static_cast<Derived&>(*this), limit_t<typename wrap_operand<Arg>::type>(value) };
 					}
 
-				template<typename Arg>
-				auto dynamic_limit(Arg arg)
-					-> vendor::update_policies_t<Derived, no_limit_t, dynamic_limit_t<typename delayed_get_database_t<Arg>::type>>
+				template<typename... Args>
+				auto dynamic_limit(Args... args)
+					-> vendor::update_policies_t<Derived, no_limit_t, dynamic_limit_t<typename delayed_get_database_t<Args...>::type>>
 					{
+						static_assert(sizeof...(Args) < 2, "dynamic_limit must be called with zero or one arguments");
 						static_assert(not std::is_same<get_database_t<Derived>, void>::value, "dynamic_limit must not be called in a static statement");
-						return { static_cast<Derived&>(*this), dynamic_limit_t<typename delayed_get_database_t<Arg>::type>(arg) };
+						return { static_cast<Derived&>(*this), dynamic_limit_t<typename delayed_get_database_t<Args...>::type>(args...) };
 					}
 			};
 
@@ -131,8 +147,8 @@ namespace sqlpp
 
 				static Context& _(const T& t, Context& context)
 				{
-					if (t._value > 0)
-						context << " LIMIT " << t._limit;
+					if (t._initialized)
+						interpret(t._value, context);
 					return context;
 				}
 			};
