@@ -40,41 +40,85 @@ namespace sqlpp
 {
 	namespace vendor
 	{
-		template<typename Database, typename... Expr>
+		// WHERE
+		template<typename Database, typename... Expressions>
 			struct where_t
 			{
 				using _is_where = std::true_type;
 				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
-				using _parameter_tuple_t = std::tuple<Expr...>;
+				using _parameter_tuple_t = std::tuple<Expressions...>;
 
-				static_assert(_is_dynamic::value or sizeof...(Expr), "at least one expression argument required in where()");
-				static_assert(sqlpp::detail::and_t<is_expression_t, Expr...>::value, "at least one argument is not an expression in where()");
+				static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression argument required in where()");
+				static_assert(sqlpp::detail::and_t<is_expression_t, Expressions...>::value, "at least one argument is not an expression in where()");
 
 				using _parameter_list_t = typename make_parameter_list_t<_parameter_tuple_t>::type;
 
+				where_t(Expressions... expressions):
+					_expressions(expressions...)
+				{}
+
+				where_t(const where_t&) = default;
+				where_t(where_t&&) = default;
+				where_t& operator=(const where_t&) = default;
+				where_t& operator=(where_t&&) = default;
+				~where_t() = default;
+
 				template<typename E>
-					void add(E expr)
+					void add_where(E expr)
 					{
+						static_assert(_is_dynamic::value, "add_where can only be called for dynamic_where");
 						static_assert(is_expression_t<E>::value, "invalid expression argument in add_where()");
 						_dynamic_expressions.emplace_back(expr);
 					}
 
+				where_t& _where = *this;
 				_parameter_tuple_t _expressions;
 				vendor::interpretable_list_t<Database> _dynamic_expressions;
 			};
 
-		template<typename Context, typename Database, typename... Expr>
-			struct interpreter_t<Context, where_t<Database, Expr...>>
+		struct no_where_t
+		{
+			no_where_t& _where = *this;
+		};
+
+		// CRTP Wrappers
+		template<typename Derived, typename Database, typename... Args>
+			struct crtp_wrapper_t<Derived, where_t<Database, Args...>>
 			{
-				using T = where_t<Database, Expr...>;
+			};
+
+		template<typename Derived>
+			struct crtp_wrapper_t<Derived, no_where_t>
+			{
+				template<typename... Args>
+					auto where(Args... args)
+					-> vendor::update_policies_t<Derived, no_where_t, where_t<void, Args...>>
+					{
+						return { static_cast<Derived&>(*this), where_t<void, Args...>(args...) };
+					}
+
+				template<typename... Args>
+					auto dynamic_where(Args... args)
+					-> vendor::update_policies_t<Derived, no_where_t, where_t<get_database_t<Derived>, Args...>>
+					{
+						static_assert(not std::is_same<get_database_t<Derived>, void>::value, "dynamic_where must not be called in a static statement");
+						return { static_cast<Derived&>(*this), where_t<get_database_t<Derived>, Args...>(args...) };
+					}
+			};
+
+		// Interpreters
+		template<typename Context, typename Database, typename... Expressions>
+			struct interpreter_t<Context, where_t<Database, Expressions...>>
+			{
+				using T = where_t<Database, Expressions...>;
 
 				static Context& _(const T& t, Context& context)
 				{
-					if (sizeof...(Expr) == 0 and t._dynamic_expressions.empty())
+					if (sizeof...(Expressions) == 0 and t._dynamic_expressions.empty())
 						return context;
 					context << " WHERE ";
 					interpret_tuple(t._expressions, " AND ", context);
-					if (sizeof...(Expr) and not t._dynamic_expressions.empty())
+					if (sizeof...(Expressions) and not t._dynamic_expressions.empty())
 						context << " AND ";
 					interpret_list(t._dynamic_expressions, " AND ", context);
 					return context;
@@ -100,6 +144,17 @@ namespace sqlpp
 				{
 					if (not std::get<0>(t._condition))
 						context << " WHERE NULL";
+					return context;
+				}
+			};
+
+		template<typename Context>
+			struct interpreter_t<Context, no_where_t>
+			{
+				using T = no_where_t;
+
+				static Context& _(const T& t, Context& context)
+				{
 					return context;
 				}
 			};

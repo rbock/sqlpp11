@@ -43,6 +43,7 @@ int main()
 	test::TabFoo f;
 	test::TabBar t;
 
+	/*
 	interpret(insert_into(t).columns(t.gamma, t.beta), printer).flush();
 	interpret(insert_into(t).columns(t.gamma, t.beta).add_values(t.gamma = true, t.beta = "cheesecake"), printer).flush();
 	interpret(insert_into(t).columns(t.gamma, t.beta)
@@ -90,10 +91,13 @@ int main()
 	interpret(update(t), printer).flush();
 	interpret(update(t).set(t.gamma = true), printer).flush();
 	interpret(update(t).set(t.gamma = true).where(t.beta.in("kaesekuchen", "cheesecake")), printer).flush();
+	*/
 
 	interpret(remove_from(t), printer).flush();
+	interpret(remove_from(t).using_(t), printer).flush();
 	interpret(remove_from(t).where(t.alpha == sqlpp::tvin(0)), printer).flush();
 	interpret(remove_from(t).using_(t).where(t.alpha == sqlpp::tvin(0)), printer).flush();
+	/*
 
 	// functions
 	sqlpp::interpret(sqlpp::value(7), printer).flush(); // FIXME: Why is the namespace specifier required?
@@ -136,6 +140,6 @@ int main()
 
 	interpret(select(all_of(t)).from(t).where(true), printer).flush();
 	interpret(select(all_of(t)).from(t).where(false), printer).flush();
-
+*/
 	return 0;
 }

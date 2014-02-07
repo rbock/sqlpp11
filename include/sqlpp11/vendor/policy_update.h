@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_VENDOR_INTERPRETER_H
-#define SQLPP_VENDOR_INTERPRETER_H
+#ifndef SQLPP_VENDOR_POLICY_UPDATE_H
+#define SQLPP_VENDOR_POLICY_UPDATE_H
 
 #include <sqlpp11/vendor/wrong.h>
 
@@ -33,14 +33,25 @@ namespace sqlpp
 {
 	namespace vendor
 	{
-		template<typename Context, typename T, typename Enable = void>
-			struct interpreter_t
+		template<typename Needle, typename Replacement>
+			struct policy_update_impl
 			{
-				static void _(const T& t, Context& context)
-				{
-					static_assert(wrong_t<Context, T>::value, "missing interpreter specialization");
-				}
+				template<typename T>
+					using _policy_t = typename std::conditional<std::is_same<Needle, T>::value, Replacement, T>::type;
 			};
+
+		template<typename T, typename Needle, typename Replacement>
+			using policy_update_t = typename policy_update_impl<Needle, Replacement>::template _policy_t<T>;
+
+		template<typename Original, typename Needle, typename Replacement>
+			struct update_policies_impl
+			{
+				using type = typename Original::template _policy_update_t<Needle, Replacement>;
+			};
+
+		template<typename Original, typename Needle, typename Replacement>
+			using update_policies_t = typename update_policies_impl<Original, Needle, Replacement>::type;
+
 	}
 
 }

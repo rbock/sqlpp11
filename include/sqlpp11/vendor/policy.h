@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_VENDOR_INTERPRETER_H
-#define SQLPP_VENDOR_INTERPRETER_H
+#ifndef SQLPP_VENDOR_POLICY_H
+#define SQLPP_VENDOR_POLICY_H
 
 #include <sqlpp11/vendor/wrong.h>
 
@@ -33,14 +33,28 @@ namespace sqlpp
 {
 	namespace vendor
 	{
-		template<typename Context, typename T, typename Enable = void>
-			struct interpreter_t
-			{
-				static void _(const T& t, Context& context)
-				{
-					static_assert(wrong_t<Context, T>::value, "missing interpreter specialization");
-				}
-			};
+		template<typename PolicyImpl>
+			struct policy_t: public PolicyImpl
+		{
+			policy_t()
+			{}
+
+			template<typename Whatever>
+				policy_t(const Whatever&, policy_t policy):
+					PolicyImpl(policy)
+			{}
+
+			template<typename Whatever>
+				policy_t(const Whatever&, PolicyImpl impl):
+					PolicyImpl(impl)
+			{}
+
+			template<typename Derived, typename Whatever>
+				policy_t(Derived derived, const Whatever&):
+					PolicyImpl(derived)
+			{}
+		};
+
 	}
 
 }

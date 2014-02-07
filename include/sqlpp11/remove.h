@@ -31,107 +31,53 @@
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/prepared_remove.h>
 #include <sqlpp11/vendor/noop.h>
+#include <sqlpp11/vendor/from.h>
 #include <sqlpp11/vendor/using.h>
 #include <sqlpp11/vendor/where.h>
+#include <sqlpp11/vendor/crtp_wrapper.h>
+#include <sqlpp11/vendor/policy.h>
+#include <sqlpp11/vendor/policy_update.h>
 
 namespace sqlpp
 {
-	template<
-		typename Database,
-		typename Table,
-		typename Using = vendor::noop,
-		typename Where = vendor::noop
-		>
-	struct remove_t;
+	namespace detail
+	{
+		template<typename From, typename Using, typename Where>
+			struct check_remove_t
+			{
+				static_assert(is_where_t<Where>::value, "cannot run remove without having a where condition, use .where(true) to remove all rows");
+				static constexpr bool value = true;
+			};
+	}
 
-	template<
-		typename Database,
-		typename Table,
-		typename Using,
-		typename Where
-		>
-		struct remove_t
+	template<typename Database, typename... Policies>
+		struct remove_t: public vendor::policy_t<Policies>..., public vendor::crtp_wrapper_t<remove_t<Database, Policies...>, Policies>...
 		{
-			static_assert(vendor::is_noop<Table>::value or is_table_t<Table>::value, "invalid 'Table' argument");
-			static_assert(vendor::is_noop<Using>::value or is_using_t<Using>::value, "invalid 'Using' argument");
-			static_assert(vendor::is_noop<Where>::value or is_where_t<Where>::value, "invalid 'Where' argument");
+			template<typename Needle, typename Replacement>
+				using _policy_update_t = remove_t<Database, vendor::policy_update_t<Policies, Needle, Replacement>...>;
 
-			template<typename UsingT> 
-				using set_using_t = remove_t<Database, Table, UsingT, Where>;
-			template<typename WhereT> 
-				using set_where_t = remove_t<Database, Table, Using, WhereT>;
-
-			using _parameter_tuple_t = std::tuple<Table, Using, Where>;
+			using _database_t = Database;
+			using _parameter_tuple_t = std::tuple<Policies...>;
 			using _parameter_list_t = typename make_parameter_list_t<remove_t>::type;
 
-			template<typename... Tab>
-				auto using_(Tab... tab)
-				-> set_using_t<vendor::using_t<void, Tab...>>
-				{
-					static_assert(vendor::is_noop<Using>::value, "cannot call using() twice");
-					static_assert(vendor::is_noop<Where>::value, "cannot call using() after where()");
-					return {
-							_table,
-							{std::tuple<Tab...>{tab...}},
-							_where
-					};
-				}
+			remove_t()
+			{}
 
-			template<typename... Tab>
-				auto dynamic_using_(Tab... tab)
-				-> set_using_t<vendor::using_t<Database, Tab...>>
-				{
-					static_assert(vendor::is_noop<Using>::value, "cannot call using() twice");
-					static_assert(vendor::is_noop<Where>::value, "cannot call using() after where()");
-					return {
-						_table,
-							{std::tuple<Tab...>{tab...}},
-							_where
-					};
-				}
+			template<typename Whatever>
+				remove_t(remove_t r, Whatever whatever):
+					vendor::policy_t<Policies>(r, whatever)...
+			{}
 
-			template<typename Tab>
-				remove_t& add_using_(Tab table)
-				{
-					static_assert(is_dynamic_t<Using>::value, "cannot call add_using() in a non-dynamic using");
-					_using.add(table);
+			template<typename Remove, typename Whatever>
+				remove_t(Remove r, Whatever whatever):
+					vendor::policy_t<Policies>(r, whatever)...
+			{}
 
-					return *this;
-				}
-
-			template<typename... Expr>
-				auto where(Expr... expr)
-				-> set_where_t<vendor::where_t<void, Expr...>>
-				{
-					static_assert(vendor::is_noop<Where>::value, "cannot call where() twice");
-					return {
-							_table,
-							_using,
-							{std::tuple<Expr...>{expr...}},
-					};
-				}
-
-			template<typename... Expr>
-			auto dynamic_where(Expr... expr)
-				-> set_where_t<vendor::where_t<Database, Expr...>>
-				{
-					static_assert(vendor::is_noop<Where>::value, "cannot call where() twice");
-					return {
-						_table, 
-							_using, 
-							{std::tuple<Expr...>{expr...}},
-					};
-				}
-
-			template<typename Expr>
-				remove_t& add_where(Expr expr)
-				{
-					static_assert(is_dynamic_t<Where>::value, "cannot call add_where() in a non-dynamic where");
-
-					_where.add(expr);
-
-					return *this;
-				}
+			remove_t(const remove_t& r) = default;
+			remove_t(remove_t&& r) = default;
+			remove_t& operator=(const remove_t& r) = default;
+			remove_t& operator=(remove_t&& r) = default;
+			~remove_t() = default;
 
 			static constexpr size_t _get_static_no_of_parameters()
 			{
@@ -147,33 +93,30 @@ namespace sqlpp
 				std::size_t _run(Db& db) const
 				{
 					static_assert(_get_static_no_of_parameters() == 0, "cannot run remove directly with parameters, use prepare instead");
-					static_assert(is_where_t<Where>::value, "cannot run update without having a where condition, use .where(true) to remove all rows");
+					static_assert(detail::check_remove_t<Policies...>::value, "Cannot run this expression");
 					return db.remove(*this);
 				}
 
 			template<typename Db>
 				auto _prepare(Db& db) const
-				-> prepared_remove_t<Db, remove_t>
+				-> prepared_remove_t<Database, remove_t>
 				{
+					static_assert(detail::check_remove_t<Policies...>::value, "Cannot run this expression");
 					return {{}, db.prepare_remove(*this)};
 				}
-
-			Table _table;
-			Using _using;
-			Where _where;
 		};
 
 	namespace vendor
 	{
-		template<typename Context, typename Database, typename Table, typename Using, typename Where>
-			struct interpreter_t<Context, remove_t<Database, Table, Using, Where>>
+		template<typename Context, typename Database, typename... Policies>
+			struct interpreter_t<Context, remove_t<Database, Policies...>>
 			{
-				using T = remove_t<Database, Table, Using, Where>;
+				using T = remove_t<Database, Policies...>;
 
 				static Context& _(const T& t, Context& context)
 				{
-					context << "DELETE FROM ";
-					interpret(t._table, context);
+					context << "DELETE";
+					interpret(t._from, context);
 					interpret(t._using, context);
 					interpret(t._where, context);
 					return context;
@@ -181,16 +124,19 @@ namespace sqlpp
 			};
 	}
 
+	template<typename Database>
+		using blank_remove_t = remove_t<Database, vendor::no_from_t, vendor::no_using_t, vendor::no_where_t>;
+
 	template<typename Table>
-		constexpr remove_t<void, Table> remove_from(Table table)
+		constexpr remove_t<void, vendor::from_t<void, Table>, vendor::no_using_t, vendor::no_where_t> remove_from(Table table)
 		{
-			return {table};
+			return { blank_remove_t<void>(), vendor::from_t<void, Table>{table} };
 		}
 
-	template<typename Db, typename Table>
-		constexpr remove_t<Db, Table> dynamic_remove_from(const Db&, Table table)
+	template<typename Database, typename Table>
+		constexpr remove_t<Database, vendor::from_t<void, Table>, vendor::no_using_t, vendor::no_where_t> dynamic_remove_from(const Database&, Table table)
 		{
-			return {table};
+			return { blank_remove_t<Database>(), vendor::from_t<Database, Table>{table} };
 		}
 
 }

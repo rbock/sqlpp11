@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_VENDOR_INTERPRETER_H
-#define SQLPP_VENDOR_INTERPRETER_H
+#ifndef SQLPP_VENDOR_CRTP_WRAPPER_H
+#define SQLPP_VENDOR_CRTP_WRAPPER_H
 
 #include <sqlpp11/vendor/wrong.h>
 
@@ -33,13 +33,22 @@ namespace sqlpp
 {
 	namespace vendor
 	{
-		template<typename Context, typename T, typename Enable = void>
-			struct interpreter_t
+		template<typename T>
+			struct get_database_impl;
+
+		template<template<typename, typename...> class Statement, typename Database, typename... Policies>
+			struct get_database_impl<Statement<Database, Policies...>>
 			{
-				static void _(const T& t, Context& context)
-				{
-					static_assert(wrong_t<Context, T>::value, "missing interpreter specialization");
-				}
+				using type = Database;
+			};
+
+		template<typename T>
+			using get_database_t = typename get_database_impl<T>::type;
+		
+		template<typename Derived, typename Policy>
+			struct crtp_wrapper_t
+			{
+				static_assert(wrong_t<Derived, Policy>::value, "missing crtp policy specialization");
 			};
 	}
 
