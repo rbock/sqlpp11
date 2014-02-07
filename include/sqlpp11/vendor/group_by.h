@@ -32,57 +32,111 @@
 #include <sqlpp11/vendor/expression.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
 #include <sqlpp11/vendor/interpretable_list.h>
+#include <sqlpp11/vendor/policy_update.h>
+#include <sqlpp11/vendor/crtp_wrapper.h>
 #include <sqlpp11/detail/logic.h>
 
 namespace sqlpp
 {
 	namespace vendor
 	{
-		template<typename Database, typename... Expr>
+		// GROUP BY
+		template<typename Database, typename... Expressions>
 			struct group_by_t
 			{
 				using _is_group_by = std::true_type;
 				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
-				using _parameter_tuple_t = std::tuple<Expr...>;
+				using _parameter_tuple_t = std::tuple<Expressions...>;
 
-				// ensure one argument at least
-				static_assert(_is_dynamic::value or sizeof...(Expr), "at least one expression (e.g. a column) required in group_by()");
+				static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression (e.g. a column) required in group_by()");
 
-				// check for duplicate expressions
-				static_assert(not ::sqlpp::detail::has_duplicates<Expr...>::value, "at least one duplicate argument detected in group_by()");
+				static_assert(not ::sqlpp::detail::has_duplicates<Expressions...>::value, "at least one duplicate argument detected in group_by()");
 
-				// check for invalid expressions
-				static_assert(::sqlpp::detail::and_t<is_expression_t, Expr...>::value, "at least one argument is not an expression in group_by()");
+				static_assert(::sqlpp::detail::and_t<is_expression_t, Expressions...>::value, "at least one argument is not an expression in group_by()");
 
-				template<typename E>
-					void add(E expr)
+				group_by_t(Expressions... expressions):
+					_expressions(expressions...)
+				{}
+
+				group_by_t(const group_by_t&) = default;
+				group_by_t(group_by_t&&) = default;
+				group_by_t& operator=(const group_by_t&) = default;
+				group_by_t& operator=(group_by_t&&) = default;
+				~group_by_t() = default;
+
+				template<typename Expression>
+					void add_group_by(Expression expression)
 					{
-						static_assert(is_table_t<E>::value, "from arguments require to be tables or joins");
-						_dynamic_expressions.emplace_back(expr);
+						static_assert(is_table_t<Expression>::value, "from arguments require to be tables or joins");
+						_dynamic_expressions.emplace_back(expression);
 					}
 
+				group_by_t& _group_by = *this;
 				_parameter_tuple_t _expressions;
 				vendor::interpretable_list_t<Database> _dynamic_expressions;
-
 			};
 
-		template<typename Context, typename Database, typename... Expr>
-			struct interpreter_t<Context, group_by_t<Database, Expr...>>
+		struct no_group_by_t
+		{
+			using _is_group_by = std::true_type;
+			no_group_by_t& _group_by = *this;
+		};
+
+		// CRTP Wrappers
+		template<typename Derived, typename Database, typename... Args>
+			struct crtp_wrapper_t<Derived, group_by_t<Database, Args...>>
 			{
-				using T = group_by_t<Database, Expr...>;
+			};
+
+		template<typename Derived>
+			struct crtp_wrapper_t<Derived, no_group_by_t>
+			{
+				template<typename... Args>
+					auto group_by(Args... args)
+					-> vendor::update_policies_t<Derived, no_group_by_t, group_by_t<void, Args...>>
+					{
+						return { static_cast<Derived&>(*this), group_by_t<void, Args...>(args...) };
+					}
+
+				template<typename... Args>
+					auto dynamic_group_by(Args... args)
+					-> vendor::update_policies_t<Derived, no_group_by_t, group_by_t<get_database_t<Derived>, Args...>>
+					{
+						static_assert(not std::is_same<get_database_t<Derived>, void>::value, "dynamic_group_by must not be called in a static statement");
+						return { static_cast<Derived&>(*this), group_by_t<get_database_t<Derived>, Args...>(args...) };
+					}
+			};
+
+		// Interpreters
+		template<typename Context, typename Database, typename... Expressions>
+			struct interpreter_t<Context, group_by_t<Database, Expressions...>>
+			{
+				using T = group_by_t<Database, Expressions...>;
 
 				static Context& _(const T& t, Context& context)
 				{
-					if (sizeof...(Expr) == 0 and t._dynamic_expressions.empty())
+					if (sizeof...(Expressions) == 0 and t._dynamic_expressions.empty())
 						return context;
 					context << " GROUP BY ";
 					interpret_tuple(t._expressions, ',', context);
-					if (sizeof...(Expr) and not t._dynamic_expressions.empty())
+					if (sizeof...(Expressions) and not t._dynamic_expressions.empty())
 						context << ',';
 					interpret_list(t._dynamic_expressions, ',', context);
 					return context;
 				}
 			};
+
+		template<typename Context>
+			struct interpreter_t<Context, no_group_by_t>
+			{
+				using T = no_group_by_t;
+
+				static Context& _(const T& t, Context& context)
+				{
+					return context;
+				}
+			};
+
 	}
 }
 

@@ -31,27 +31,7 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
-		struct noop;
-	}
-	// select flags
-	struct all_t;
-	struct distinct_t;
-	struct straight_join_t;
-
-	template<
-		typename Db,
-		typename Flags = vendor::noop,
-		typename ExpressionList = vendor::noop,
-		typename From = vendor::noop,
-		typename Where = vendor::noop,
-		typename GroupBy = vendor::noop,
-		typename Having = vendor::noop,
-		typename OrderBy = vendor::noop,
-		typename Limit = vendor::noop,
-		typename Offset = vendor::noop
-			>
+	template<typename Database, typename... Policies>
 		struct select_t;
 }
 #endif

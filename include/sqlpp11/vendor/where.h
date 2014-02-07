@@ -27,14 +27,14 @@
 #ifndef SQLPP_WHERE_H
 #define SQLPP_WHERE_H
 
-#include <ostream>
-#include <sqlpp11/select_fwd.h>
-#include <sqlpp11/vendor/expression.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/detail/logic.h>
+#include <sqlpp11/parameter_list.h>
+#include <sqlpp11/vendor/expression.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
 #include <sqlpp11/vendor/interpretable_list.h>
-#include <sqlpp11/parameter_list.h>
+#include <sqlpp11/vendor/policy_update.h>
+#include <sqlpp11/vendor/crtp_wrapper.h>
+#include <sqlpp11/detail/logic.h>
 
 namespace sqlpp
 {
@@ -76,8 +76,18 @@ namespace sqlpp
 				vendor::interpretable_list_t<Database> _dynamic_expressions;
 			};
 
+		template<>
+			struct where_t<void, bool>
+			{
+				using _is_where = std::true_type;
+				using _is_dynamic = std::false_type;
+
+				std::tuple<bool> _condition;
+			};
+
 		struct no_where_t
 		{
+			using _is_where = std::true_type;
 			no_where_t& _where = *this;
 		};
 
@@ -123,16 +133,6 @@ namespace sqlpp
 					interpret_list(t._dynamic_expressions, " AND ", context);
 					return context;
 				}
-			};
-
-		template<>
-			struct where_t<void, bool>
-			{
-				using _is_where = std::true_type;
-				using _is_dynamic = std::false_type;
-				using _parameter_tuple_t = std::tuple<>;
-
-				std::tuple<bool> _condition;
 			};
 
 		template<typename Context>

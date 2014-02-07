@@ -28,20 +28,94 @@
 #define SQLPP_OFFSET_H
 
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/vendor/policy_update.h>
+#include <sqlpp11/vendor/crtp_wrapper.h>
 
 namespace sqlpp
 {
 	namespace vendor
 	{
+		// OFFSET
 		template<typename Offset>
 			struct offset_t
 			{
 				using _is_offset = std::true_type;
 				static_assert(is_integral_t<Offset>::value, "offset requires an integral value or integral parameter");
 
-				Offset _offset;
+				offset_t(size_t value):
+					_value(value)
+				{}
+
+				offset_t(const offset_t&) = default;
+				offset_t(offset_t&&) = default;
+				offset_t& operator=(const offset_t&) = default;
+				offset_t& operator=(offset_t&&) = default;
+				~offset_t() = default;
+
+				offset_t& _offset = *this;
+				Offset _value;
 			};
 
+		struct dynamic_offset_t
+		{
+			using _is_offset = std::true_type;
+			using _is_dynamic = std::true_type;
+
+			dynamic_offset_t(size_t value):
+				_value(value)
+			{}
+
+			dynamic_offset_t(const dynamic_offset_t&) = default;
+			dynamic_offset_t(dynamic_offset_t&&) = default;
+			dynamic_offset_t& operator=(const dynamic_offset_t&) = default;
+			dynamic_offset_t& operator=(dynamic_offset_t&&) = default;
+			~dynamic_offset_t() = default;
+
+			void set_offset(std::size_t offset)
+			{
+				_value = offset;
+			}
+
+			dynamic_offset_t& _offset = *this;
+			std::size_t _value; // FIXME: This should be a serializable!
+		};
+
+		struct no_offset_t
+		{
+			using _is_offset = std::true_type;
+			no_offset_t& _offset = *this;
+		};
+
+		// CRTP Wrappers
+		template<typename Derived, typename Limit>
+			struct crtp_wrapper_t<Derived, offset_t<Limit>>
+			{
+			};
+
+		template<typename Derived>
+			struct crtp_wrapper_t<Derived, dynamic_offset_t>
+			{
+			};
+
+		template<typename Derived>
+			struct crtp_wrapper_t<Derived, no_offset_t>
+			{
+				template<typename Arg>
+					auto offset(Arg arg)
+					-> vendor::update_policies_t<Derived, no_offset_t, offset_t<Arg>>
+					{
+						return { static_cast<Derived&>(*this), offset_t<Arg>(arg) };
+					}
+
+				auto dynamic_offset(size_t arg)
+					-> vendor::update_policies_t<Derived, no_offset_t, dynamic_offset_t>
+					{
+						static_assert(not std::is_same<get_database_t<Derived>, void>::value, "dynamic_offset must not be called in a static statement");
+						return { static_cast<Derived&>(*this), dynamic_offset_t(arg) };
+					}
+			};
+
+		// Interpreters
 		template<typename Context, typename Offset>
 			struct interpreter_t<Context, offset_t<Offset>>
 			{
@@ -55,19 +129,6 @@ namespace sqlpp
 				}
 			};
 
-		struct dynamic_offset_t
-		{
-			using _is_offset = std::true_type;
-			using _is_dynamic = std::true_type;
-
-			void set(std::size_t offset)
-			{
-				_offset = offset;
-			}
-
-			std::size_t _offset;
-		};
-
 		template<typename Context>
 			struct interpreter_t<Context, dynamic_offset_t>
 			{
@@ -75,12 +136,22 @@ namespace sqlpp
 
 				static Context& _(const T& t, Context& context)
 				{
-					if (t._offset > 0)
+					if (t._value > 0)
 						context << " OFFSET " << t._offset;
 					return context;
 				}
 			};
 
+		template<typename Context>
+			struct interpreter_t<Context, no_offset_t>
+			{
+				using T = no_offset_t;
+
+				static Context& _(const T& t, Context& context)
+				{
+					return context;
+				}
+			};
 	}
 }
 

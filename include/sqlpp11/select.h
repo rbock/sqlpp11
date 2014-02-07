@@ -28,7 +28,6 @@
 #define SQLPP_SELECT_H
 
 #include <sqlpp11/result.h>
-#include <sqlpp11/select_fwd.h>
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/prepared_select.h>
 
@@ -45,74 +44,69 @@
 #include <sqlpp11/vendor/expression.h>
 #include <sqlpp11/vendor/interpreter.h>
 #include <sqlpp11/vendor/wrong.h>
+#include <sqlpp11/vendor/crtp_wrapper.h>
+#include <sqlpp11/vendor/policy.h>
+#include <sqlpp11/vendor/policy_update.h>
+
 
 #include <sqlpp11/detail/make_flag_tuple.h>
 #include <sqlpp11/detail/make_expression_tuple.h>
 
-#include <sstream>
-
 namespace sqlpp
 {
-	template<
-		typename Database,
-		typename FlagList,
-		typename ColumnList,
-		typename From,
-		typename Where,
-		typename GroupBy,
-		typename Having,
-		typename OrderBy,
-		typename Limit,
-		typename Offset
-		>
-		struct select_t
-		: public ColumnList::_value_type::template operators<select_t<
-		                 Database,
-										 FlagList, 
-										 ColumnList, 
-										 From, 
-										 Where, 
-										 GroupBy, 
-										 Having, 
-										 OrderBy, 
-										 Limit, 
-										 Offset>>
-		{
-			using _Database = Database;
-			using _From = From;
+	namespace detail
+	{
+		template<
+			typename FlagList, 
+			typename ColumnList, 
+			typename From,
+			typename Where, 
+			typename GroupBy, 
+			typename Having,
+			typename OrderBy, 
+			typename Limit, 
+			typename Offset
+			>
+			struct check_select_t
+			{
+				//static_assert(is_where_t<Where>::value, "cannot select remove without having a where condition, use .where(true) to remove all rows");
+				static constexpr bool value = true;
+			};
+	}
 
-			static_assert(is_select_flag_list_t<FlagList>::value, "invalid list of select flags");
-			static_assert(is_select_column_list_t<ColumnList>::value, "invalid list of select expressions");
-			static_assert(vendor::is_noop<From>::value or is_from_t<From>::value, "invalid 'from' argument");
-			static_assert(vendor::is_noop<Where>::value or is_where_t<Where>::value, "invalid 'where' argument");
-			static_assert(vendor::is_noop<GroupBy>::value or is_group_by_t<GroupBy>::value, "invalid 'group by' arguments");
-			static_assert(vendor::is_noop<Having>::value or is_having_t<Having>::value, "invalid 'having' arguments");
-			static_assert(vendor::is_noop<OrderBy>::value or is_order_by_t<OrderBy>::value, "invalid 'order by' arguments");
-			static_assert(vendor::is_noop<Limit>::value or is_limit_t<Limit>::value, "invalid 'limit' arguments");
-			static_assert(vendor::is_noop<Offset>::value or is_offset_t<Offset>::value, "invalid 'offset' arguments");
+	template<typename Database, typename... Policies>
+		struct select_t: public vendor::policy_t<Policies>..., public vendor::crtp_wrapper_t<select_t<Database, Policies...>, Policies>...
+		{
+			template<typename Needle, typename Replacement>
+				using _policy_update_t = select_t<Database, vendor::policy_update_t<Policies, Needle, Replacement>...>;
+
+			using _database_t = Database;
+			using _parameter_tuple_t = std::tuple<Policies...>;
+			using _parameter_list_t = typename make_parameter_list_t<select_t>::type;
+			
+			select_t()
+			{}
+
+			template<typename Whatever>
+				select_t(select_t r, Whatever whatever):
+					vendor::policy_t<Policies>(r, whatever)...
+			{}
+
+			template<typename Remove, typename Whatever>
+				select_t(Remove r, Whatever whatever):
+					vendor::policy_t<Policies>(r, whatever)...
+			{}
+
+			select_t(const select_t& r) = default;
+			select_t(select_t&& r) = default;
+			select_t& operator=(const select_t& r) = default;
+			select_t& operator=(select_t&& r) = default;
+			~select_t() = default;
 
 			using _is_select = std::true_type;
 			using _requires_braces = std::true_type;
 
-			template<typename FlagListT> 
-				using set_flag_list_t = select_t<Database, FlagListT, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>;
-			template<typename ColumnListT> 
-				using set_column_list_t = select_t<Database, FlagList, ColumnListT, From, Where, GroupBy, Having, OrderBy, Limit, Offset>;
-			template<typename FromT> 
-				using set_from_t = select_t<Database, FlagList, ColumnList, FromT, Where, GroupBy, Having, OrderBy, Limit, Offset>;
-			template<typename WhereT>
-				using set_where_t = select_t<Database, FlagList, ColumnList, From, WhereT, GroupBy, Having, OrderBy, Limit, Offset>;
-			template<typename GroupByT>
-				using set_group_by_t = select_t<Database, FlagList, ColumnList, From, Where, GroupByT, Having, OrderBy, Limit, Offset>;
-			template<typename HavingT>
-				using set_having_t = select_t<Database, FlagList, ColumnList, From, Where, GroupBy, HavingT, OrderBy, Limit, Offset>;
-			template<typename OrderByT>
-				using set_order_by_t = select_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderByT, Limit, Offset>;
-			template<typename LimitT>
-				using set_limit_t = select_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, LimitT, Offset>;
-			template<typename OffsetT>
-			using set_offset_t = select_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, OffsetT>;
-
+			/*
 			using _result_row_t = typename ColumnList::_result_row_t;
 			using _dynamic_names_t = typename ColumnList::_dynamic_names_t;
 			using _parameter_tuple_t = std::tuple<ColumnList, Where, GroupBy, Having, OrderBy, Limit, Offset>;
@@ -640,58 +634,21 @@ namespace sqlpp
 
 					return {{}, get_dynamic_names(), db.prepare_select(*this)};
 				}
-
-			FlagList _flags;
-			ColumnList _columns;
-			From _from;
-			Where _where;
-			GroupBy _group_by;
-			Having _having;
-			OrderBy _order_by;
-			Limit _limit;
-			Offset _offset;
+*/
 		};
 
 	namespace vendor
 	{
-		template<typename Context, 
-			typename Database,
-			typename FlagList,
-			typename ColumnList,
-			typename From,
-			typename Where,
-			typename GroupBy,
-			typename Having,
-			typename OrderBy,
-			typename Limit,
-			typename Offset
-				>
-				struct interpreter_t<Context, select_t<Database,
-			FlagList, 
-			ColumnList, 
-			From, 
-			Where, 
-			GroupBy, 
-			Having, 
-			OrderBy, 
-			Limit, 
-			Offset>>
+		template<typename Context, typename Database, typename... Policies>
+			struct interpreter_t<Context, select_t<Database, Policies...>>
 			{
-				using T = select_t<Database,
-				FlagList, 
-				ColumnList, 
-				From, 
-				Where, 
-				GroupBy, 
-				Having, 
-				OrderBy, 
-				Limit, 
-				Offset>;
+				using T = select_t<Database, Policies...>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					context << "SELECT ";
 
+					/*
 					interpret(t._flags, context);
 					interpret(t._columns, context);
 					interpret(t._from, context);
@@ -701,12 +658,15 @@ namespace sqlpp
 					interpret(t._order_by, context);
 					interpret(t._limit, context);
 					interpret(t._offset, context);
+					*/
 
 					return context;
 				}
 			};
 	}
 
+
+	/*
 
 	// construct select flag list
 	namespace detail
@@ -751,6 +711,7 @@ namespace sqlpp
 				{}, {}, {}, {}, {}, {}, {}
 			};
 		}
+		*/
 
 }
 #endif

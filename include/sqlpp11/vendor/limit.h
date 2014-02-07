@@ -27,21 +27,106 @@
 #ifndef SQLPP_LIMIT_H
 #define SQLPP_LIMIT_H
 
-#include <ostream>
-#include <sqlpp11/select_fwd.h>
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/vendor/policy_update.h>
+#include <sqlpp11/vendor/crtp_wrapper.h>
 
 namespace sqlpp
 {
 	namespace vendor
 	{
+		// LIMIT
 		template<typename Limit>
 			struct limit_t
 			{
 				using _is_limit = std::true_type;
 				static_assert(is_integral_t<Limit>::value, "limit requires an integral value or integral parameter");
 
-				Limit _limit;
+				limit_t(size_t value):
+					_value(value)
+				{}
+
+				limit_t(const limit_t&) = default;
+				limit_t(limit_t&&) = default;
+				limit_t& operator=(const limit_t&) = default;
+				limit_t& operator=(limit_t&&) = default;
+				~limit_t() = default;
+
+				limit_t& _limit = *this;
+				Limit _value;
+			};
+
+		struct dynamic_limit_t
+		{
+			using _is_limit = std::true_type;
+			using _is_dynamic = std::true_type;
+
+			dynamic_limit_t(size_t value):
+				_value(value)
+			{}
+
+			dynamic_limit_t(const dynamic_limit_t&) = default;
+			dynamic_limit_t(dynamic_limit_t&&) = default;
+			dynamic_limit_t& operator=(const dynamic_limit_t&) = default;
+			dynamic_limit_t& operator=(dynamic_limit_t&&) = default;
+			~dynamic_limit_t() = default;
+
+			void set_limit(std::size_t limit)
+			{
+				_value = limit;
+			}
+
+			dynamic_limit_t& _limit = *this;
+			std::size_t _value; // FIXME: This should be a serializable!
+		};
+
+		struct no_limit_t
+		{
+			using _is_limit = std::true_type;
+			no_limit_t& _limit = *this;
+		};
+
+		// CRTP Wrappers
+		template<typename Derived, typename Limit>
+			struct crtp_wrapper_t<Derived, limit_t<Limit>>
+			{
+			};
+
+		template<typename Derived>
+			struct crtp_wrapper_t<Derived, dynamic_limit_t>
+			{
+			};
+
+		template<typename Derived>
+			struct crtp_wrapper_t<Derived, no_limit_t>
+			{
+				template<typename Arg>
+					auto limit(Arg arg)
+					-> vendor::update_policies_t<Derived, no_limit_t, limit_t<Arg>>
+					{
+						return { static_cast<Derived&>(*this), limit_t<Arg>(arg) };
+					}
+
+				auto dynamic_limit(size_t arg)
+					-> vendor::update_policies_t<Derived, no_limit_t, dynamic_limit_t>
+					{
+						static_assert(not std::is_same<get_database_t<Derived>, void>::value, "dynamic_limit must not be called in a static statement");
+						return { static_cast<Derived&>(*this), dynamic_limit_t(arg) };
+					}
+			};
+
+		// Interpreters
+		template<typename Context>
+			struct interpreter_t<Context, dynamic_limit_t>
+			{
+				using T = dynamic_limit_t;
+
+				static Context& _(const T& t, Context& context)
+				{
+					if (t._value > 0)
+						context << " LIMIT " << t._limit;
+					return context;
+				}
 			};
 
 		template<typename Context, typename Limit>
@@ -52,38 +137,23 @@ namespace sqlpp
 				static Context& _(const T& t, Context& context)
 				{
 					context << " LIMIT ";
-					interpret(t._limit, context);
+					interpret(t._value, context);
 					return context;
 				}
 			};
 
-		struct dynamic_limit_t
-		{
-			using _is_limit = std::true_type;
-			using _is_dynamic = std::true_type;
-
-			void set(std::size_t limit)
-			{
-				_limit = limit;
-			}
-
-			std::size_t _limit;
-		};
-
 		template<typename Context>
-			struct interpreter_t<Context, dynamic_limit_t>
+			struct interpreter_t<Context, no_limit_t>
 			{
-				using T = dynamic_limit_t;
+				using T = no_limit_t;
 
 				static Context& _(const T& t, Context& context)
 				{
-					if (t._limit > 0)
-						context << " LIMIT " << t._limit;
 					return context;
 				}
 			};
-	}
 
+	}
 }
 
 #endif

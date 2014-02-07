@@ -27,62 +27,110 @@
 #ifndef SQLPP_VENDOR_SELECT_FLAG_LIST_H
 #define SQLPP_VENDOR_SELECT_FLAG_LIST_H
 
+#include <tuple>
 #include <sqlpp11/select_fwd.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/select_flags.h>
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
-#include <tuple>
+#include <sqlpp11/vendor/policy_update.h>
+#include <sqlpp11/vendor/crtp_wrapper.h>
 
 namespace sqlpp
 {
 	namespace vendor
 	{
-		template<typename Database, typename T>
+		// SELECT FLAGS
+		template<typename Database, typename... Flags>
 			struct select_flag_list_t
-			{
-				static_assert(::sqlpp::vendor::wrong_t<T>::value, "invalid argument for select_flag_list");
-			};
-
-		// select_flag_list_t
-		template<typename Database, typename... Flag>
-			struct select_flag_list_t<Database, std::tuple<Flag...>>
 			{
 				using _is_select_flag_list = std::true_type; 
 				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
-				using _parameter_tuple_t = std::tuple<Flag...>;
+				using _parameter_tuple_t = std::tuple<Flags...>;
 				using size = std::tuple_size<_parameter_tuple_t>;
 
-				// check for duplicate order expressions
-				static_assert(not ::sqlpp::detail::has_duplicates<Flag...>::value, "at least one duplicate argument detected in select flag list");
+				static_assert(not ::sqlpp::detail::has_duplicates<Flags...>::value, "at least one duplicate argument detected in select flag list");
 
-				// check for invalid order expressions
-				static_assert(::sqlpp::detail::and_t<is_select_flag_t, Flag...>::value, "at least one argument is not a select flag in select flag list");
+				static_assert(::sqlpp::detail::and_t<is_select_flag_t, Flags...>::value, "at least one argument is not a select flag in select flag list");
 
-				template<typename E>
-					void add(E expr)
+				select_flag_list_t(Flags... flags):
+					_flags(flags...)
+				{}
+
+				select_flag_list_t(const select_flag_list_t&) = default;
+				select_flag_list_t(select_flag_list_t&&) = default;
+				select_flag_list_t& operator=(const select_flag_list_t&) = default;
+				select_flag_list_t& operator=(select_flag_list_t&&) = default;
+				~select_flag_list_t() = default;
+
+				template<typename Flag>
+					void add_flag(Flag flag)
 					{
-						static_assert(is_select_flag_t<E>::value, "flag arguments require to be select flags");
-						_dynamic_flags.emplace_back(expr);
+						static_assert(is_select_flag_t<Flag>::value, "flag arguments require to be select flags");
+						_dynamic_flags.emplace_back(flag);
 					}
 
+				select_flag_list_t& _flag_list = *this;
 				_parameter_tuple_t _flags;
 				vendor::interpretable_list_t<Database> _dynamic_flags;
 			};
 
-		template<typename Context, typename Database, typename... Flag>
-			struct interpreter_t<Context, select_flag_list_t<Database, std::tuple<Flag...>>>
+		struct no_select_flag_list_t
+		{
+			using _is_select_flag_list = std::true_type;
+			no_select_flag_list_t& _flag_list = *this;
+		};
+
+		// CRTP Wrappers
+		template<typename Derived, typename Database, typename... Args>
+			struct crtp_wrapper_t<Derived, select_flag_list_t<Database, Args...>>
 			{
-				using T = select_flag_list_t<Database, std::tuple<Flag...>>;
+			};
+
+		template<typename Derived>
+			struct crtp_wrapper_t<Derived, no_select_flag_list_t>
+			{
+				template<typename... Args>
+					auto flags(Args... args)
+					-> vendor::update_policies_t<Derived, no_select_flag_list_t, select_flag_list_t<void, Args...>>
+					{
+						return { static_cast<Derived&>(*this), select_flag_list_t<void, Args...>(args...) };
+					}
+
+				template<typename... Args>
+					auto dynamic_flags(Args... args)
+					-> vendor::update_policies_t<Derived, no_select_flag_list_t, select_flag_list_t<get_database_t<Derived>, Args...>>
+					{
+						static_assert(not std::is_same<get_database_t<Derived>, void>::value, "dynamic_flags must not be called in a static statement");
+						return { static_cast<Derived&>(*this), select_flag_list_t<get_database_t<Derived>, Args...>(args...) };
+					}
+			};
+
+		// Interpreters
+		template<typename Context, typename Database, typename... Flags>
+			struct interpreter_t<Context, select_flag_list_t<Database, Flags...>>
+			{
+				using T = select_flag_list_t<Database, Flags...>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					interpret_tuple(t._flags, ' ', context);
-					if (sizeof...(Flag))
+					if (sizeof...(Flags))
 						context << ' ';
 					interpret_list(t._dynamic_flags, ',', context);
 					if (not t._dynamic_flags.empty())
 						context << ' ';
+					return context;
+				}
+			};
+
+		template<typename Context>
+			struct interpreter_t<Context, no_select_flag_list_t>
+			{
+				using T = no_select_flag_list_t;
+
+				static Context& _(const T& t, Context& context)
+				{
 					return context;
 				}
 			};

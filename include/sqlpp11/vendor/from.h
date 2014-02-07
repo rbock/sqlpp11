@@ -83,7 +83,6 @@ namespace sqlpp
 			no_from_t& _from = *this;
 		};
 
-
 		// CRTP Wrappers
 		template<typename Derived, typename Database, typename... Args>
 			struct crtp_wrapper_t<Derived, from_t<Database, Args...>>
@@ -108,7 +107,6 @@ namespace sqlpp
 						return { static_cast<Derived&>(*this), from_t<get_database_t<Derived>, Args...>(args...) };
 					}
 			};
-
 
 		// Interpreters
 		template<typename Context, typename Database, typename... Tables>
@@ -139,8 +137,8 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 
+	}
 }
 
 #endif
