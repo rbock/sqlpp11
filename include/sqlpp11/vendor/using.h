@@ -71,14 +71,14 @@ namespace sqlpp
 						_dynamic_tables.emplace_back(table);
 					}
 
-				using_t& _using = *this;
+				const using_t& _using() const { return *this; }
 				_parameter_tuple_t _tables;
 				vendor::interpretable_list_t<Database> _dynamic_tables;
 			};
 
 		struct no_using_t
 		{
-			no_using_t& _using = *this;
+			const no_using_t& _using() const { return *this; }
 		};
 
 		// CRTP Wrapper

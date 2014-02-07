@@ -191,15 +191,15 @@ namespace sqlpp
 				{
 					context << "SELECT ";
 
-					interpret(t._flag_list, context);
-					interpret(t._column_list, context);
-					interpret(t._from, context);
-					interpret(t._where, context);
-					interpret(t._group_by, context);
-					interpret(t._having, context);
-					interpret(t._order_by, context);
-					interpret(t._limit, context);
-					interpret(t._offset, context);
+					interpret(t._flag_list(), context);
+					interpret(t._column_list(), context);
+					interpret(t._from(), context);
+					interpret(t._where(), context);
+					interpret(t._group_by(), context);
+					interpret(t._having(), context);
+					interpret(t._order_by(), context);
+					interpret(t._limit(), context);
+					interpret(t._offset(), context);
 
 					return context;
 				}

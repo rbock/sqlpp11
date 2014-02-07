@@ -116,9 +116,9 @@ namespace sqlpp
 				static Context& _(const T& t, Context& context)
 				{
 					context << "DELETE";
-					interpret(t._from, context);
-					interpret(t._using, context);
-					interpret(t._where, context);
+					interpret(t._from(), context);
+					interpret(t._using(), context);
+					interpret(t._where(), context);
 					return context;
 				}
 			};

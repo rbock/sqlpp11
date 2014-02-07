@@ -69,7 +69,7 @@ namespace sqlpp
 						_dynamic_expressions.emplace_back(expr);
 					}
 
-				having_t& _having = *this;
+				const having_t& _having() const { return *this; }
 				_parameter_tuple_t _expressions;
 				vendor::interpretable_list_t<Database> _dynamic_expressions;
 			};
@@ -77,7 +77,7 @@ namespace sqlpp
 		struct no_having_t
 		{
 			using _is_having = std::true_type;
-			no_having_t& _having = *this;
+			const no_having_t& _having() const { return *this; }
 		};
 
 		// CRTP Wrappers

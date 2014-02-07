@@ -72,7 +72,7 @@ namespace sqlpp
 						_dynamic_tables.emplace_back(table);
 					}
 
-				from_t& _from = *this;
+				const from_t& _from() const { return *this; }
 				std::tuple<Tables...> _tables;
 				vendor::interpretable_list_t<Database> _dynamic_tables;
 			};
@@ -80,7 +80,7 @@ namespace sqlpp
 		struct no_from_t
 		{
 			using _is_from = std::true_type;
-			no_from_t& _from = *this;
+			const no_from_t& _from() const { return *this; }
 		};
 
 		// CRTP Wrappers

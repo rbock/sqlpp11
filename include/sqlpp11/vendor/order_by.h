@@ -70,7 +70,7 @@ namespace sqlpp
 						_dynamic_expressions.push_back(expressions);
 					}
 
-				order_by_t& _order_by = *this;
+				const order_by_t& _order_by() const { return *this; }
 				_parameter_tuple_t _expressions;
 				vendor::interpretable_list_t<Database> _dynamic_expressions;
 			};
@@ -78,7 +78,7 @@ namespace sqlpp
 		struct no_order_by_t
 		{
 			using _is_order_by = std::true_type;
-			no_order_by_t& _order_by = *this;
+			const no_order_by_t& _order_by() const { return *this; }
 		};
 
 		// CRTP Wrappers

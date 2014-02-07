@@ -188,7 +188,7 @@ namespace sqlpp
 						_dynamic_columns.push_back(namedExpr);
 					}
 
-				select_column_list_t& _column_list = *this;
+				const select_column_list_t& _column_list() const { return *this; }
 				_parameter_tuple_t _columns;
 				dynamic_select_column_list<Database> _dynamic_columns;
 			};
@@ -196,7 +196,7 @@ namespace sqlpp
 		struct no_select_column_list_t
 		{
 			using _is_select_column_list = std::true_type;
-			no_select_column_list_t& _column_list = *this;
+			const no_select_column_list_t& _column_list() const { return *this; }
 		};
 
 		// CRTP Wrappers

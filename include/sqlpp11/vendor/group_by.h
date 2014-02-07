@@ -71,7 +71,7 @@ namespace sqlpp
 						_dynamic_expressions.emplace_back(expression);
 					}
 
-				group_by_t& _group_by = *this;
+				const group_by_t& _group_by() const { return *this; }
 				_parameter_tuple_t _expressions;
 				vendor::interpretable_list_t<Database> _dynamic_expressions;
 			};
@@ -79,7 +79,7 @@ namespace sqlpp
 		struct no_group_by_t
 		{
 			using _is_group_by = std::true_type;
-			no_group_by_t& _group_by = *this;
+			const no_group_by_t& _group_by() const { return *this; }
 		};
 
 		// CRTP Wrappers

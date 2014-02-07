@@ -70,7 +70,7 @@ namespace sqlpp
 						_dynamic_flags.emplace_back(flag);
 					}
 
-				select_flag_list_t& _flag_list = *this;
+				const select_flag_list_t& _flag_list() const { return *this; }
 				_parameter_tuple_t _flags;
 				vendor::interpretable_list_t<Database> _dynamic_flags;
 			};
@@ -78,7 +78,7 @@ namespace sqlpp
 		struct no_select_flag_list_t
 		{
 			using _is_select_flag_list = std::true_type;
-			no_select_flag_list_t& _flag_list = *this;
+			const no_select_flag_list_t& _flag_list() const { return *this; }
 		};
 
 		// CRTP Wrappers

@@ -71,7 +71,7 @@ namespace sqlpp
 						_dynamic_expressions.emplace_back(expr);
 					}
 
-				where_t& _where = *this;
+				const where_t& _where() const { return *this; }
 				_parameter_tuple_t _expressions;
 				vendor::interpretable_list_t<Database> _dynamic_expressions;
 			};
@@ -88,7 +88,7 @@ namespace sqlpp
 		struct no_where_t
 		{
 			using _is_where = std::true_type;
-			no_where_t& _where = *this;
+			const no_where_t& _where() const { return *this; }
 		};
 
 		// CRTP Wrappers

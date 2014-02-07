@@ -52,7 +52,7 @@ namespace sqlpp
 				offset_t& operator=(offset_t&&) = default;
 				~offset_t() = default;
 
-				offset_t& _offset = *this;
+				const offset_t& _offset() const { return *this; }
 
 				Offset _value;
 			};
@@ -89,7 +89,7 @@ namespace sqlpp
 						_initialized = true;
 					}
 
-				dynamic_offset_t& _offset = *this;
+				const dynamic_offset_t& _offset() const { return *this; }
 				bool _initialized = false;
 				interpretable_t<Database> _value;
 			};
@@ -97,7 +97,7 @@ namespace sqlpp
 		struct no_offset_t
 		{
 			using _is_offset = std::true_type;
-			no_offset_t& _offset = *this;
+			const no_offset_t& _offset() const { return *this; }
 		};
 
 		// CRTP Wrappers

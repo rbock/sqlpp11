@@ -52,7 +52,7 @@ namespace sqlpp
 				limit_t& operator=(limit_t&&) = default;
 				~limit_t() = default;
 
-				limit_t& _limit = *this;
+				const limit_t& _limit() const { return *this; }
 				Limit _value;
 			};
 
@@ -88,8 +88,7 @@ namespace sqlpp
 						_initialized = true;
 					}
 
-#warning this is stupid! Will get dangling references when copying
-				dynamic_limit_t& _limit = *this;
+				const dynamic_limit_t& _limit() const { return *this; }
 				
 				bool _initialized = false;
 				interpretable_t<Database> _value;
@@ -98,7 +97,7 @@ namespace sqlpp
 		struct no_limit_t
 		{
 			using _is_limit = std::true_type;
-			no_limit_t& _limit = *this;
+			const no_limit_t& _limit() const { return *this; }
 		};
 
 		// CRTP Wrappers
