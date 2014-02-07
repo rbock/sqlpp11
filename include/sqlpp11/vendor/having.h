@@ -52,6 +52,16 @@ namespace sqlpp
 
 				using _parameter_list_t = typename make_parameter_list_t<_parameter_tuple_t>::type;
 
+				having_t(Expressions... expressions):
+					_expressions(expressions...)
+				{}
+
+				having_t(const having_t&) = default;
+				having_t(having_t&&) = default;
+				having_t& operator=(const having_t&) = default;
+				having_t& operator=(having_t&&) = default;
+				~having_t() = default;
+
 				template<typename Expression>
 					void add(Expression expr)
 					{

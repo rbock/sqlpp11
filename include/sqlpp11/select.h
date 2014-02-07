@@ -120,459 +120,6 @@ namespace sqlpp
 
 			using _name_t = typename ColumnList::_name_t;
 
-			// The standard constructors, assigment operators and destructor
-			constexpr select_t(FlagList flag_list, ColumnList column_list, From from,
-					Where where, GroupBy group_by, Having having,
-					OrderBy order_by, Limit limit, Offset offset):
-				_flags(flag_list),
-				_columns(column_list),
-				_from(from),
-				_where(where),
-				_group_by(group_by),
-				_having(having),
-				_order_by(order_by),
-				_limit(limit),
-				_offset(offset)
-			{
-			}
-
-			select_t(const select_t& rhs) = default;
-			select_t(select_t&& rhs) = default;
-			select_t& operator=(const select_t& rhs) = default;
-			select_t& operator=(select_t&& rhs) = default;
-			~select_t() = default;
-
-			// select functions
-			template<typename... Flag>
-			auto flags(Flag... flag)
-				-> set_flag_list_t<vendor::select_flag_list_t<void, std::tuple<Flag...>>>
-				{
-					static_assert(not FlagList::size::value, "cannot call dynamic_flags() after specifying them the first time");
-					static_assert(not ColumnList::size::value, "cannot call columns() after specifying them the first time");
-					return {
-							{std::tuple<Flag...>{flag...}}, 
-							_columns, 
-							_from,
-							_where, 
-							_group_by, 
-							_having, 
-							_order_by, 
-							_limit,
-							_offset
-							};
-				}
-
-			template<typename... Flag>
-			auto dynamic_flags(Flag... flag)
-				-> set_flag_list_t<vendor::select_flag_list_t<Database, std::tuple<Flag...>>>
-				{
-					static_assert(not std::is_same<Database, void>::value, "cannot call dynamic_flags() in a non-dynamic select");
-					static_assert(not FlagList::size::value, "cannot call dynamic_flags() after specifying them the first time");
-					static_assert(not ColumnList::size::value, "cannot call columns() after specifying them the first time");
-					return {
-							{std::tuple<Flag...>{flag...}}, 
-							_columns, 
-							_from,
-							_where, 
-							_group_by, 
-							_having, 
-							_order_by, 
-							_limit,
-							_offset
-							};
-				}
-
-			template<typename Flag>
-				select_t& add_flag(Flag flag)
-				{
-					static_assert(is_dynamic_t<FlagList>::value, "cannot call add_flag() in a non-dynamic column list");
-
-					_flags.add(flag);
-
-					return *this;
-				}
-
-			template<typename... Column>
-			auto columns(Column... column)
-				-> set_column_list_t<vendor::select_column_list_t<void, std::tuple<Column...>>>
-				{
-					static_assert(not ColumnList::size::value, "cannot call columns() after specifying them the first time");
-					return {
-							_flags, 
-							{std::tuple<Column...>{column...}}, 
-							_from,
-							_where, 
-							_group_by, 
-							_having, 
-							_order_by, 
-							_limit,
-							_offset
-							};
-				}
-
-			template<typename... Column>
-			auto dynamic_columns(Column... column)
-				-> set_column_list_t<vendor::select_column_list_t<Database, std::tuple<Column...>>>
-				{
-					static_assert(not std::is_same<Database, void>::value, "cannot call dynamic_columns() in a non-dynamic select");
-					static_assert(not ColumnList::size::value, "cannot call dynamic_columns() after specifying them the first time");
-					return {
-							_flags, 
-							{std::tuple<Column...>{column...}}, 
-							_from,
-							_where, 
-							_group_by, 
-							_having, 
-							_order_by, 
-							_limit,
-							_offset
-							};
-				}
-
-			template<typename NamedExpr>
-				select_t& add_column(NamedExpr namedExpr)
-				{
-					static_assert(is_dynamic_t<ColumnList>::value, "cannot call add_column() in a non-dynamic column list");
-
-					_columns.add(namedExpr);
-
-					return *this;
-				}
-
-			template<typename... Table>
-				auto from(Table... table)
-				-> set_from_t<vendor::from_t<void, Table...>>
-				{
-					static_assert(not vendor::is_noop<ColumnList>::value, "cannot call from() without having selected anything");
-					static_assert(vendor::is_noop<From>::value, "cannot call from() twice for a single select");
-					return {
-							_flags, 
-							_columns, 
-							{std::tuple<Table...>{table...}}, 
-							_where, 
-							_group_by, 
-							_having, 
-							_order_by, 
-							_limit,
-							_offset
-							};
-				}
-
-			template<typename... Table>
-				auto dynamic_from(Table... table)
-				-> set_from_t<vendor::from_t<Database, Table...>>
-				{
-					static_assert(not std::is_same<Database, void>::value, "cannot call dynamic_from() in a non-dynamic select");
-					static_assert(not vendor::is_noop<ColumnList>::value, "cannot call from() without having selected anything");
-					static_assert(vendor::is_noop<From>::value, "cannot call from() twice for a single select");
-					return {
-							_flags, 
-							_columns, 
-							{std::tuple<Table...>{table...}}, 
-							_where, 
-							_group_by, 
-							_having, 
-							_order_by, 
-							_limit,
-							_offset
-							};
-				}
-
-			template<typename Table>
-				select_t& add_from(Table table)
-				{
-					static_assert(not vendor::is_noop<ColumnList>::value, "cannot call add_from() without having selected anything");
-					static_assert(is_dynamic_t<From>::value, "cannot call add_from() in a non-dynamic from");
-
-					_from.add(table);
-
-					return *this;
-				}
-
-			template<typename... Expr>
-				auto where(Expr... expr)
-				-> set_where_t<vendor::where_t<void, Expr...>> 
-				{
-					static_assert(not vendor::is_noop<From>::value, "cannot call where() without a from()");
-					static_assert(vendor::is_noop<Where>::value, "cannot call where() or dynamic_where() twice for a single select");
-					return {
-							_flags, 
-							_columns, 
-							_from, 
-							{std::tuple<Expr...>{expr...}},
-							_group_by,
-							_having,
-							_order_by,
-							_limit,
-							_offset,
-							};
-				}
-
-			template<typename... Expr>
-				auto dynamic_where(Expr... expr)
-				-> set_where_t<vendor::where_t<Database, Expr...>>
-				{
-					static_assert(not vendor::is_noop<From>::value, "cannot call dynamic_where() without a from()");
-					static_assert(vendor::is_noop<Where>::value, "cannot call where() or dynamic_where() twice for a single select");
-					return {
-							_flags, 
-							_columns, 
-							_from, 
-							{std::tuple<Expr...>{expr...}},
-							_group_by,
-							_having,
-							_order_by,
-							_limit,
-							_offset,
-							};
-				}
-
-			template<typename Expr>
-				select_t& add_where(Expr expr)
-				{
-					static_assert(is_dynamic_t<Where>::value, "cannot call add_where() with a non-dynamic where");
-
-					_where.add(expr);
-
-					return *this;
-				}
-
-			template<typename... Col>
-				auto group_by(Col... column)
-				-> set_group_by_t<vendor::group_by_t<void, Col...>>
-				{
-					static_assert(not vendor::is_noop<From>::value, "cannot call group_by() without a from()");
-					static_assert(vendor::is_noop<GroupBy>::value, "cannot call group_by() twice for a single select");
-					return {
-							_flags, 
-							_columns,
-							_from,
-							_where,
-							{std::tuple<Col...>{column...}},
-							_having,
-							_order_by,
-							_limit,
-							_offset,
-							};
-				}
-
-			template<typename... Col>
-				auto dynamic_group_by(Col... column)
-				-> set_group_by_t<vendor::group_by_t<Database, Col...>>
-				{
-					static_assert(not vendor::is_noop<From>::value, "cannot call group_by() without a from()");
-					static_assert(vendor::is_noop<GroupBy>::value, "cannot call group_by() twice for a single select");
-					return {
-							_flags, 
-							_columns,
-							_from,
-							_where,
-							{std::tuple<Col...>{column...}},
-							_having,
-							_order_by,
-							_limit,
-							_offset,
-							};
-				}
-
-			template<typename Expr>
-				select_t& add_group_by(Expr expr)
-				{
-					static_assert(is_dynamic_t<GroupBy>::value, "cannot call add_group_by() in a non-dynamic group_by");
-
-					_group_by.add(expr);
-
-					return *this;
-				}
-
-			template<typename... Expr>
-				auto having(Expr... expr)
-				-> set_having_t<vendor::having_t<void, Expr...>> 
-				{
-					static_assert(not vendor::is_noop<GroupBy>::value, "cannot call having() without a group_by");
-					static_assert(vendor::is_noop<Having>::value, "cannot call having() twice for a single select");
-					return {
-							_flags, 
-							_columns,
-							_from,
-							_where,
-							_group_by,
-							{std::tuple<Expr...>{expr...}},
-							_order_by,
-							_limit,
-							_offset,
-							};
-				}
-
-			template<typename... Expr>
-				auto dynamic_having(Expr... expr)
-				-> set_having_t<vendor::having_t<Database, Expr...>> 
-				{
-					static_assert(not vendor::is_noop<GroupBy>::value, "cannot call having() without a group_by");
-					static_assert(vendor::is_noop<Having>::value, "cannot call having() twice for a single select");
-					return {
-						_flags, 
-							_columns,
-							_from,
-							_where,
-							_group_by,
-							{std::tuple<Expr...>{expr...}},
-							_order_by,
-							_limit,
-							_offset,
-					};
-				}
-
-			template<typename Expr>
-				select_t& add_having(Expr expr)
-				{
-					static_assert(is_dynamic_t<Having>::value, "cannot call add_having() in a non-dynamic having");
-
-					_having.add(expr);
-
-					return *this;
-				}
-
-			template<typename... OrderExpr>
-				auto order_by(OrderExpr... expr)
-				-> set_order_by_t<vendor::order_by_t<void, OrderExpr...>>
-				{
-					static_assert(not vendor::is_noop<From>::value, "cannot call order_by() without a from()");
-					static_assert(vendor::is_noop<OrderBy>::value, "cannot call order_by() twice for a single select");
-					return {
-							_flags, 
-							_columns,
-							_from,
-							_where,
-							_group_by,
-							_having,
-							{std::tuple<OrderExpr...>{expr...}},
-							_limit,
-							_offset,
-							};
-				}
-
-			template<typename... OrderExpr>
-				auto dynamic_order_by(OrderExpr... expr)
-				-> set_order_by_t<vendor::order_by_t<Database, OrderExpr...>>
-				{
-					static_assert(not vendor::is_noop<From>::value, "cannot call order_by() without a from()");
-					static_assert(vendor::is_noop<OrderBy>::value, "cannot call order_by() twice for a single select");
-					return {
-							_flags, 
-							_columns,
-							_from,
-							_where,
-							_group_by,
-							_having,
-							{std::tuple<OrderExpr...>{expr...}},
-							_limit,
-							_offset,
-							};
-				}
-
-			template<typename Expr>
-				select_t& add_order_by(Expr expr)
-				{
-					static_assert(is_dynamic_t<OrderBy>::value, "cannot call add_order_by() in a non-dynamic order_by");
-
-					_order_by.add(expr);
-
-					return *this;
-				}
-
-			template<typename Expr>
-				auto limit(Expr limit)
-				-> set_limit_t<vendor::limit_t<typename vendor::wrap_operand<Expr>::type>>
-				{
-					static_assert(not vendor::is_noop<From>::value, "cannot call limit() without a from()");
-					static_assert(vendor::is_noop<Limit>::value, "cannot call limit() twice for a single select");
-					return {
-						_flags, 
-							_columns,
-							_from,
-							_where,
-							_group_by,
-							_having,
-							_order_by,
-							{limit},
-							_offset,
-					};
-				}
-
-			auto dynamic_limit(std::size_t limit = 0)
-				->set_limit_t<vendor::dynamic_limit_t>
-			{
-				static_assert(not vendor::is_noop<From>::value, "cannot call limit() without a from()");
-				static_assert(vendor::is_noop<Limit>::value, "cannot call limit() twice for a single select");
-				return {
-						_flags, 
-						_columns,
-						_from,
-						_where,
-						_group_by,
-						_having,
-						_order_by,
-						{limit},
-						_offset,
-				};
-			}
-
-			select_t& set_limit(std::size_t limit)
-			{
-				static_assert(is_dynamic_t<Limit>::value, "cannot call set_limit() in a non-dynamic limit");
-
-				_limit.set(limit);
-
-				return *this;
-			}
-
-			template<typename Expr>
-			auto offset(Expr offset)
-				-> set_offset_t<vendor::offset_t<typename vendor::wrap_operand<Expr>::type>>
-			{
-				static_assert(not vendor::is_noop<Limit>::value, "cannot call offset() without a limit");
-				static_assert(vendor::is_noop<Offset>::value, "cannot call offset() twice for a single select");
-				return {
-						_flags, 
-						_columns,
-						_from,
-						_where,
-						_group_by,
-						_having,
-						_order_by,
-						_limit,
-						{offset},
-				};
-			}
-
-			auto dynamic_offset(std::size_t offset = 0)
-				-> set_offset_t<vendor::dynamic_offset_t>
-			{
-				static_assert(not vendor::is_noop<Limit>::value, "cannot call offset() without a limit");
-				static_assert(vendor::is_noop<Offset>::value, "cannot call offset() twice for a single select");
-				return {
-						_flags, 
-						_columns,
-						_from,
-						_where,
-						_group_by,
-						_having,
-						_order_by,
-						_limit,
-						{offset},
-				};
-			}
-
-			select_t& set_offset(std::size_t offset)
-			{
-				static_assert(is_dynamic_t<Offset>::value, "cannot call set_offset() in a non-dynamic limit");
-
-				_offset.set(offset);
-
-				return *this;
-			}
-
 			template<typename AliasProvider>
 				struct _pseudo_table_t
 				{
@@ -648,9 +195,8 @@ namespace sqlpp
 				{
 					context << "SELECT ";
 
-					/*
-					interpret(t._flags, context);
-					interpret(t._columns, context);
+					interpret(t._flag_list, context);
+					interpret(t._column_list, context);
 					interpret(t._from, context);
 					interpret(t._where, context);
 					interpret(t._group_by, context);
@@ -658,60 +204,48 @@ namespace sqlpp
 					interpret(t._order_by, context);
 					interpret(t._limit, context);
 					interpret(t._offset, context);
-					*/
 
 					return context;
 				}
 			};
 	}
 
+	template<typename Database>
+		using blank_select_t = select_t<Database, 
+					vendor::no_select_flag_list_t, 
+					vendor::no_select_column_list_t, 
+					vendor::no_from_t,
+					vendor::no_where_t, 
+					vendor::no_group_by_t,
+					vendor::no_having_t,
+					vendor::no_order_by_t,
+					vendor::no_limit_t,
+					vendor::no_offset_t>;
 
-	/*
-
-	// construct select flag list
-	namespace detail
+	blank_select_t<void> select() // FIXME: These should be constexpr
 	{
-		template<typename Database, typename... Expr>
-			using make_select_flag_list_t = 
-			vendor::select_flag_list_t<Database, decltype(make_flag_tuple(std::declval<Expr>()...))>;
+		return { blank_select_t<void>() };
 	}
 
-	// construct select expression list
-	namespace detail
-	{
-		template<typename Database, typename... Expr>
-			using make_select_column_list_t = 
-			vendor::select_column_list_t<Database, decltype(make_expression_tuple(std::declval<Expr>()...))>;
-	}
-
-	auto select()
-		-> select_t<void, vendor::select_flag_list_t<void, std::tuple<>>, vendor::select_column_list_t<void, std::tuple<>>>
+	template<typename... Columns>
+		auto select(Columns... columns)
+		-> vendor::update_policies_t<blank_select_t<void>, vendor::no_select_column_list_t, vendor::select_column_list_t<void, Columns...>>
 		{
-			return { {}, vendor::select_column_list_t<void, std::tuple<>>{}, {}, {}, {}, {}, {}, {}, {} };
+			return { blank_select_t<void>(), vendor::select_column_list_t<void, Columns...>(columns...) };
 		}
 
-	template<typename... NamedExpr>
-		auto select(NamedExpr... namedExpr)
-		-> select_t<void, detail::make_select_flag_list_t<void, NamedExpr...>, detail::make_select_column_list_t<void, NamedExpr...>>
+	template<typename Database>
+		blank_select_t<Database> dynamic_select()
 		{
-			return { 
-				{ detail::make_flag_tuple(namedExpr...) }, 
-					{ detail::make_expression_tuple(namedExpr...) },
-				{}, {}, {}, {}, {}, {}, {}
-			};
+			return { blank_select_t<void>() };
 		}
 
-	template<typename Db, typename... NamedExpr>
-		auto dynamic_select(const Db& db, NamedExpr... namedExpr)
-		-> select_t<Db, detail::make_select_flag_list_t<Db, NamedExpr...>, detail::make_select_column_list_t<Db, NamedExpr...>>
+	template<typename Database, typename... Columns>
+		auto dynamic_select(Columns... columns)
+		-> vendor::update_policies_t<blank_select_t<Database>, vendor::no_select_column_list_t, vendor::select_column_list_t<void, Columns...>>
 		{
-			return { 
-				{ detail::make_flag_tuple(namedExpr...) }, 
-					{ detail::make_expression_tuple(namedExpr...) },
-				{}, {}, {}, {}, {}, {}, {}
-			};
+			return { blank_select_t<Database>(), vendor::select_column_list_t<void, Columns...>(columns...) };
 		}
-		*/
 
 }
 #endif

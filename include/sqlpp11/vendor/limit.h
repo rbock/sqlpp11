@@ -56,29 +56,30 @@ namespace sqlpp
 				Limit _value;
 			};
 
-		struct dynamic_limit_t
-		{
-			using _is_limit = std::true_type;
-			using _is_dynamic = std::true_type;
-
-			dynamic_limit_t(size_t value):
-				_value(value)
-			{}
-
-			dynamic_limit_t(const dynamic_limit_t&) = default;
-			dynamic_limit_t(dynamic_limit_t&&) = default;
-			dynamic_limit_t& operator=(const dynamic_limit_t&) = default;
-			dynamic_limit_t& operator=(dynamic_limit_t&&) = default;
-			~dynamic_limit_t() = default;
-
-			void set_limit(std::size_t limit)
+		template<typename Database>
+			struct dynamic_limit_t
 			{
-				_value = limit;
-			}
+				using _is_limit = std::true_type;
+				using _is_dynamic = std::true_type;
 
-			dynamic_limit_t& _limit = *this;
-			std::size_t _value; // FIXME: This should be a serializable!
-		};
+				dynamic_limit_t(size_t value):
+					_value(value)
+				{}
+
+				dynamic_limit_t(const dynamic_limit_t&) = default;
+				dynamic_limit_t(dynamic_limit_t&&) = default;
+				dynamic_limit_t& operator=(const dynamic_limit_t&) = default;
+				dynamic_limit_t& operator=(dynamic_limit_t&&) = default;
+				~dynamic_limit_t() = default;
+
+				void set_limit(std::size_t limit)
+				{
+					_value = limit;
+				}
+
+				dynamic_limit_t& _limit = *this;
+				std::size_t _value; // FIXME: This should be a serializable!
+			};
 
 		struct no_limit_t
 		{
@@ -92,8 +93,8 @@ namespace sqlpp
 			{
 			};
 
-		template<typename Derived>
-			struct crtp_wrapper_t<Derived, dynamic_limit_t>
+		template<typename Derived, typename Database>
+			struct crtp_wrapper_t<Derived, dynamic_limit_t<Database>>
 			{
 			};
 
@@ -101,25 +102,32 @@ namespace sqlpp
 			struct crtp_wrapper_t<Derived, no_limit_t>
 			{
 				template<typename Arg>
+					struct delayed_get_database_t
+					{
+						using type = get_database_t<Derived>;
+					};
+
+				template<typename Arg>
 					auto limit(Arg arg)
 					-> vendor::update_policies_t<Derived, no_limit_t, limit_t<Arg>>
 					{
 						return { static_cast<Derived&>(*this), limit_t<Arg>(arg) };
 					}
 
-				auto dynamic_limit(size_t arg)
-					-> vendor::update_policies_t<Derived, no_limit_t, dynamic_limit_t>
+				template<typename Arg>
+				auto dynamic_limit(Arg arg)
+					-> vendor::update_policies_t<Derived, no_limit_t, dynamic_limit_t<typename delayed_get_database_t<Arg>::type>>
 					{
 						static_assert(not std::is_same<get_database_t<Derived>, void>::value, "dynamic_limit must not be called in a static statement");
-						return { static_cast<Derived&>(*this), dynamic_limit_t(arg) };
+						return { static_cast<Derived&>(*this), dynamic_limit_t<typename delayed_get_database_t<Arg>::type>(arg) };
 					}
 			};
 
 		// Interpreters
-		template<typename Context>
-			struct interpreter_t<Context, dynamic_limit_t>
+		template<typename Context, typename Database>
+			struct interpreter_t<Context, dynamic_limit_t<Database>>
 			{
-				using T = dynamic_limit_t;
+				using T = dynamic_limit_t<Database>;
 
 				static Context& _(const T& t, Context& context)
 				{

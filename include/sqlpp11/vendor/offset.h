@@ -56,29 +56,30 @@ namespace sqlpp
 				Offset _value;
 			};
 
-		struct dynamic_offset_t
-		{
-			using _is_offset = std::true_type;
-			using _is_dynamic = std::true_type;
-
-			dynamic_offset_t(size_t value):
-				_value(value)
-			{}
-
-			dynamic_offset_t(const dynamic_offset_t&) = default;
-			dynamic_offset_t(dynamic_offset_t&&) = default;
-			dynamic_offset_t& operator=(const dynamic_offset_t&) = default;
-			dynamic_offset_t& operator=(dynamic_offset_t&&) = default;
-			~dynamic_offset_t() = default;
-
-			void set_offset(std::size_t offset)
+		template<typename Database>
+			struct dynamic_offset_t
 			{
-				_value = offset;
-			}
+				using _is_offset = std::true_type;
+				using _is_dynamic = std::true_type;
 
-			dynamic_offset_t& _offset = *this;
-			std::size_t _value; // FIXME: This should be a serializable!
-		};
+				dynamic_offset_t(size_t value):
+					_value(value)
+				{}
+
+				dynamic_offset_t(const dynamic_offset_t&) = default;
+				dynamic_offset_t(dynamic_offset_t&&) = default;
+				dynamic_offset_t& operator=(const dynamic_offset_t&) = default;
+				dynamic_offset_t& operator=(dynamic_offset_t&&) = default;
+				~dynamic_offset_t() = default;
+
+				void set_offset(std::size_t offset)
+				{
+					_value = offset;
+				}
+
+				dynamic_offset_t& _offset = *this;
+				std::size_t _value; // FIXME: This should be a serializable!
+			};
 
 		struct no_offset_t
 		{
@@ -92,8 +93,8 @@ namespace sqlpp
 			{
 			};
 
-		template<typename Derived>
-			struct crtp_wrapper_t<Derived, dynamic_offset_t>
+		template<typename Derived, typename Database>
+			struct crtp_wrapper_t<Derived, dynamic_offset_t<Database>>
 			{
 			};
 
@@ -101,17 +102,24 @@ namespace sqlpp
 			struct crtp_wrapper_t<Derived, no_offset_t>
 			{
 				template<typename Arg>
+					struct delayed_get_database_t
+					{
+						using type = get_database_t<Derived>;
+					};
+
+				template<typename Arg>
 					auto offset(Arg arg)
 					-> vendor::update_policies_t<Derived, no_offset_t, offset_t<Arg>>
 					{
 						return { static_cast<Derived&>(*this), offset_t<Arg>(arg) };
 					}
 
-				auto dynamic_offset(size_t arg)
-					-> vendor::update_policies_t<Derived, no_offset_t, dynamic_offset_t>
+				template<typename Arg>
+				auto dynamic_offset(Arg arg)
+					-> vendor::update_policies_t<Derived, no_offset_t, dynamic_offset_t<typename delayed_get_database_t<Arg>::type>>
 					{
 						static_assert(not std::is_same<get_database_t<Derived>, void>::value, "dynamic_offset must not be called in a static statement");
-						return { static_cast<Derived&>(*this), dynamic_offset_t(arg) };
+						return { static_cast<Derived&>(*this), dynamic_offset_t<get_database_t<Derived>>(arg) };
 					}
 			};
 
@@ -129,10 +137,10 @@ namespace sqlpp
 				}
 			};
 
-		template<typename Context>
-			struct interpreter_t<Context, dynamic_offset_t>
+		template<typename Context, typename Database>
+			struct interpreter_t<Context, dynamic_offset_t<Database>>
 			{
-				using T = dynamic_offset_t;
+				using T = dynamic_offset_t<Database>;
 
 				static Context& _(const T& t, Context& context)
 				{

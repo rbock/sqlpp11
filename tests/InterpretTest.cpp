@@ -69,15 +69,20 @@ int main()
 	interpret(t.gamma != sqlpp::tvin(false), printer).flush();
 	interpret(t.alpha == 7, printer).flush();
 	interpret(t.beta + "kaesekuchen", printer).flush();
+	*/
 
-	interpret(select(sqlpp::distinct, t.alpha, t.beta), printer).flush();
-	interpret(select(sqlpp::distinct, t.alpha, t.beta).from(t), printer).flush();
-	interpret(select(sqlpp::distinct, t.alpha, t.beta).from(t).where(t.alpha == 3), printer).flush();
-	interpret(select(sqlpp::distinct, t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma), printer).flush();
-	interpret(select(sqlpp::distinct, t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma).having(t.beta.like("%kuchen")), printer).flush();
-	interpret(select(sqlpp::distinct, t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma).having(t.beta.like("%kuchen")).order_by(t.beta.asc()), printer).flush();
-	interpret(select(sqlpp::distinct, t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma).having(t.beta.like("%kuchen")).order_by(t.beta.asc()).limit(17).offset(3), printer).flush();
+	interpret(sqlpp::select(), printer).flush();
+	interpret(sqlpp::select().flags(sqlpp::distinct), printer).flush();
+	interpret(select(t.alpha, t.beta).flags(sqlpp::distinct), printer).flush();
+	interpret(select(t.alpha, t.beta), printer).flush();
+	interpret(select(t.alpha, t.beta).from(t), printer).flush();
+	interpret(select(t.alpha, t.beta).from(t).where(t.alpha == 3), printer).flush();
+	interpret(select(t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma), printer).flush();
+	interpret(select(t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma).having(t.beta.like("%kuchen")), printer).flush();
+	interpret(select(t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma).having(t.beta.like("%kuchen")).order_by(t.beta.asc()), printer).flush();
+	interpret(select(t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma).having(t.beta.like("%kuchen")).order_by(t.beta.asc()).limit(17).offset(3), printer).flush();
 
+	/*
 	interpret(parameter(sqlpp::bigint(), t.alpha), printer).flush();
 	interpret(parameter(t.alpha), printer).flush();
 	interpret(t.alpha == parameter(t.alpha), printer).flush();
