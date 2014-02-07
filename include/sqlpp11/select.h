@@ -48,10 +48,6 @@
 #include <sqlpp11/vendor/policy.h>
 #include <sqlpp11/vendor/policy_update.h>
 
-
-#include <sqlpp11/detail/make_flag_tuple.h>
-#include <sqlpp11/detail/make_expression_tuple.h>
-
 namespace sqlpp
 {
 	namespace detail

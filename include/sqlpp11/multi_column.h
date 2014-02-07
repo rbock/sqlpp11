@@ -28,7 +28,6 @@
 #define SQLPP_MULTI_COLUMN_H
 
 #include <sqlpp11/no_value.h>
-#include <sqlpp11/detail/make_expression_tuple.h>
 #include <sqlpp11/detail/logic.h>
 
 namespace sqlpp
@@ -74,13 +73,13 @@ namespace sqlpp
 	{
 		template<typename AliasProvider, typename... Expr>
 			using make_multi_column_t = 
-			multi_column_t<AliasProvider, decltype(make_expression_tuple(std::declval<Expr>()...))>;
+			multi_column_t<AliasProvider, std::tuple<Expr...>>;
 	}
 
 	template<typename AliasProvider, typename... NamedExpr>
 		detail::make_multi_column_t<AliasProvider, NamedExpr...> multi_column(const AliasProvider& aliasProvider, NamedExpr... namedExpr) 
 		{
-			return { detail::make_expression_tuple(namedExpr...)};
+			return { std::tuple<NamedExpr...>(namedExpr...)};
 		}
 
 }
