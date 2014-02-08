@@ -133,6 +133,7 @@ int main()
 	// multi_column
 	*/
 	interpret(multi_column(t.alpha, t.alpha, (t.beta + "cake").as(t.gamma)), printer).flush();
+	interpret(multi_column(t, all_of(t)), printer).flush();
 
 	// dynamic select
 	{

@@ -48,6 +48,8 @@
 #include <sqlpp11/vendor/policy.h>
 #include <sqlpp11/vendor/policy_update.h>
 
+#include <sqlpp11/detail/copy_tuple_args.h>
+
 namespace sqlpp
 {
 	namespace detail
@@ -217,37 +219,13 @@ namespace sqlpp
 					vendor::no_limit_t,
 					vendor::no_offset_t>;
 
-	template<typename T>
-		struct as_tuple
-		{
-			static std::tuple<T> _(T t) { return { t }; };
-		};
-
-	template<typename... Args>
-		struct as_tuple<std::tuple<Args...>>
-		{
-			static std::tuple<Args...> _(std::tuple<Args...> t) { return t; }
-		};
-
-	template<template<typename, typename...> class Target, typename First, typename T>
-		struct copy_tuple_args_impl
-		{
-			static_assert(vendor::wrong_t<T>::value, "copy_tuple_args must be called with a tuple");
-		};
-
-	template<template<typename First, typename...> class Target, typename First, typename... Args>
-		struct copy_tuple_args_impl<Target, First, std::tuple<Args...>>
-		{
-			using type = Target<First, Args...>;
-		};
-
-	template<template<typename First, typename...> class Target, typename First, typename T>
-		using copy_tuple_args_t = typename copy_tuple_args_impl<Target, First, T>::type;
-
-	template<typename Database, typename... Columns>
-		using make_select_column_list_t = 
-							copy_tuple_args_t<vendor::select_column_list_t, Database, 
-									decltype(std::tuple_cat(as_tuple<Columns>::_(std::declval<Columns>())...))>;
+	namespace detail
+	{
+		template<typename Database, typename... Columns>
+			using make_select_column_list_t = 
+			copy_tuple_args_t<vendor::select_column_list_t, Database, 
+			decltype(std::tuple_cat(as_tuple<Columns>::_(std::declval<Columns>())...))>;
+	}
 
 
 	blank_select_t<void> select() // FIXME: These should be constexpr
@@ -259,9 +237,9 @@ namespace sqlpp
 		auto select(Columns... columns)
 		-> vendor::update_policies_t<blank_select_t<void>, 
 		       vendor::no_select_column_list_t, 
-					 make_select_column_list_t<void, Columns...>>
+					 detail::make_select_column_list_t<void, Columns...>>
 		{
-			return { blank_select_t<void>(), make_select_column_list_t<void, Columns...>(std::tuple_cat(as_tuple<Columns>::_(columns)...)) };
+			return { blank_select_t<void>(), detail::make_select_column_list_t<void, Columns...>(std::tuple_cat(detail::as_tuple<Columns>::_(columns)...)) };
 		}
 
 	template<typename Database>
@@ -272,9 +250,9 @@ namespace sqlpp
 
 	template<typename Database, typename... Columns>
 		auto dynamic_select(const Database&, Columns... columns)
-		-> vendor::update_policies_t<blank_select_t<Database>, vendor::no_select_column_list_t, make_select_column_list_t<void, Columns...>>
+		-> vendor::update_policies_t<blank_select_t<Database>, vendor::no_select_column_list_t, detail::make_select_column_list_t<void, Columns...>>
 		{
-			return { blank_select_t<Database>(), make_select_column_list_t<void, Columns...>(std::tuple_cat(as_tuple<Columns>::_(columns)...)) };
+			return { blank_select_t<Database>(), detail::make_select_column_list_t<void, Columns...>(std::tuple_cat(detail::as_tuple<Columns>::_(columns)...)) };
 		}
 
 }
