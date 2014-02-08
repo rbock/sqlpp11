@@ -79,7 +79,6 @@ namespace sqlpp
 
 		struct no_from_t
 		{
-			using _is_from = std::true_type;
 			const no_from_t& _from() const { return *this; }
 		};
 

@@ -69,6 +69,12 @@ namespace sqlpp
 			{
 				using _column_list_t = ColumnList;
 				using _from_t = ColumnList;
+
+				using _value_type = typename std::conditional<
+					sqlpp::is_from_t<From>::value,
+					typename ColumnList::_value_type,
+					no_value_t // If there is no from, the select is not complete (this logic is a bit simple, but better than nothing)
+						>::type;
 				template<typename Database>
 					struct can_run_t
 					{
@@ -87,7 +93,7 @@ namespace sqlpp
 	// SELECT
 	template<typename Database, typename... Policies>
 		struct select_t: public vendor::policy_t<Policies>..., public vendor::crtp_wrapper_t<select_t<Database, Policies...>, Policies>...,
-										 public detail::select_helper_t<Policies...>::_column_list_t::_value_type::template operators<select_t<Database, Policies...>>
+										 public detail::select_helper_t<Policies...>::_value_type::template operators<select_t<Database, Policies...>>
 		{
 			template<typename Needle, typename Replacement>
 				using _policy_update_t = select_t<Database, vendor::policy_update_t<Policies, Needle, Replacement>...>;
@@ -103,8 +109,7 @@ namespace sqlpp
 			using _is_select = std::true_type;
 			using _requires_braces = std::true_type;
 
-			// FIXME: introduce checks whether this select could really be used as a value
-			using _value_type = typename _column_list_t::_value_type;
+			using _value_type = typename detail::select_helper_t<Policies...>::_value_type;
 			using _name_t = typename _column_list_t::_name_t;
 
 			select_t()

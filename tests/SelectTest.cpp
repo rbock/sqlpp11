@@ -159,8 +159,6 @@ int main()
 	// Test a select of a single column without a from
 	{
 		using T = decltype(select(t.alpha)); // Hint: The current rule is pretty crude (a from is required), but certainly better than nothing
-#warning Need to reactivate these tests
-		/*
 		static_assert(not sqlpp::is_numeric_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_named_expression_t<T>::value, "type requirement");
@@ -172,7 +170,6 @@ int main()
 		static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_regular<T>::value, "type requirement");
-		*/
 	}
 
 	// Test a select of a single numeric table column
@@ -360,7 +357,7 @@ int main()
 	static_assert(sqlpp::is_named_expression_t<decltype(t.alpha)>::value, "alpha should be a named expression");
 	static_assert(sqlpp::is_named_expression_t<decltype(t.alpha.as(alias::a))>::value, "an alias of alpha should be a named expression");
 	static_assert(sqlpp::is_alias_t<decltype(t.alpha.as(alias::a))>::value, "an alias of alpha should be an alias");
-	auto z = select(t.alpha) == 7;
+	auto z = select(t.alpha).from(t) == 7;
 	auto l = t.as(alias::left);
 	auto r = select(t.gamma.as(alias::a)).from(t).where(t.gamma == true).as(alias::right);
 	static_assert(sqlpp::is_boolean_t<decltype(select(t.gamma).from(t))>::value, "select(bool) has to be a bool");
