@@ -297,7 +297,6 @@ int main()
 		auto a = select(m).from(t).as(alias::b).a;
 		static_assert(not sqlpp::is_value_t<decltype(a)>::value, "a multi_column is not a value");
 	}
-
 	// Test that result sets with identical name/value combinations have identical types
 	{
 		auto a = select(t.alpha);
@@ -312,10 +311,10 @@ int main()
 
 	{
 		auto s = dynamic_select(db, all_of(t)).dynamic_from().dynamic_where().dynamic_limit().dynamic_offset();
-		s = s.add_from(t);
-		s = s.add_where(t.alpha > 7 and t.alpha == any(select(t.alpha).from(t).where(t.alpha < 3)));
-		s = s.set_limit(30);
-		s = s.set_limit(3);
+		s.add_from(t);
+		s.add_where(t.alpha > 7 and t.alpha == any(select(t.alpha).from(t).where(t.alpha < 3)));
+		s.set_limit(30);
+		s.set_limit(3);
 		std::cerr << "------------------------\n";
 		interpret(s, printer).flush();
 		std::cerr << "------------------------\n";
@@ -325,7 +324,8 @@ int main()
 
 	// Test that select can be called with zero columns if it is used with dynamic columns.
 	{
-		auto s = dynamic_select(db).dynamic_columns().add_column(t.alpha);
+		auto s = dynamic_select(db).dynamic_columns();
+		s.add_column(t.alpha);
 		interpret(s, printer).flush();
 	}
 
@@ -357,11 +357,11 @@ int main()
 	static_assert(sqlpp::is_named_expression_t<decltype(t.alpha)>::value, "alpha should be a named expression");
 	static_assert(sqlpp::is_named_expression_t<decltype(t.alpha.as(alias::a))>::value, "an alias of alpha should be a named expression");
 	static_assert(sqlpp::is_alias_t<decltype(t.alpha.as(alias::a))>::value, "an alias of alpha should be an alias");
-	auto z = select(t.alpha) == 7;
+	auto z = select(t.alpha).from(t) == 7;
 	auto l = t.as(alias::left);
 	auto r = select(t.gamma.as(alias::a)).from(t).where(t.gamma == true).as(alias::right);
 	static_assert(sqlpp::is_boolean_t<decltype(select(t.gamma).from(t))>::value, "select(bool) has to be a bool");
-	interpret(select(sqlpp::distinct, sqlpp::straight_join, l.alpha, l.beta, select(r.a).from(r))
+	interpret(sqlpp::select().flags(sqlpp::distinct, sqlpp::straight_join).columns(l.alpha, l.beta, select(r.a).from(r))
 		.from(l, r)
 		.where(t.beta == "hello world" and select(t.gamma).from(t))// .as(alias::right))
 		.group_by(l.gamma, r.a)

@@ -31,52 +31,107 @@
 #include <sqlpp11/vendor/interpretable_list.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
 #include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/vendor/policy_update.h>
+#include <sqlpp11/vendor/crtp_wrapper.h>
 
 namespace sqlpp
 {
 	namespace vendor
 	{
-		template<typename Database, typename... Table>
+		// USING
+		template<typename Database, typename... Tables>
 			struct using_t
 			{
 				using _is_using = std::true_type;
 				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
-				using _parameter_tuple_t = std::tuple<Table...>;
+				using _parameter_tuple_t = std::tuple<Tables...>;
 
-				static_assert(_is_dynamic::value or sizeof...(Table), "at least one table argument required in using()");
+				static_assert(_is_dynamic::value or sizeof...(Tables), "at least one table argument required in using()");
 
-				// check for duplicate arguments
-				static_assert(not ::sqlpp::detail::has_duplicates<Table...>::value, "at least one duplicate argument detected in using()");
+				static_assert(not ::sqlpp::detail::has_duplicates<Tables...>::value, "at least one duplicate argument detected in using()");
 
-				// check for invalid arguments
-				static_assert(::sqlpp::detail::and_t<is_table_t, Table...>::value, "at least one argument is not an table in using()");
+				static_assert(::sqlpp::detail::and_t<is_table_t, Tables...>::value, "at least one argument is not an table in using()");
+
+				using_t(Tables... tables):
+					_tables(tables...)
+				{}
+
+				using_t(const using_t&) = default;
+				using_t(using_t&&) = default;
+				using_t& operator=(const using_t&) = default;
+				using_t& operator=(using_t&&) = default;
+				~using_t() = default;
 
 
-				template<typename T>
-					void add(T table)
+				template<typename Table>
+					void add_using(Table table)
 					{
-						static_assert(is_table_t<T>::value, "using() arguments require to be tables");
+						static_assert(_is_dynamic::value, "add_using can only be called for dynamic_using");
+						static_assert(is_table_t<Table>::value, "using() arguments require to be tables");
 						_dynamic_tables.emplace_back(table);
 					}
 
+				const using_t& _using() const { return *this; }
 				_parameter_tuple_t _tables;
 				vendor::interpretable_list_t<Database> _dynamic_tables;
 			};
 
-		template<typename Context, typename Database, typename... Table>
-			struct interpreter_t<Context, using_t<Database, Table...>>
+		struct no_using_t
+		{
+			const no_using_t& _using() const { return *this; }
+		};
+
+		// CRTP Wrapper
+		template<typename Derived, typename Database, typename... Args>
+			struct crtp_wrapper_t<Derived, using_t<Database, Args...>>
 			{
-				using T = using_t<Database, Table...>;
+			};
+
+		template<typename Derived>
+			struct crtp_wrapper_t<Derived, no_using_t>
+			{
+				template<typename... Args>
+					auto using_(Args... args)
+					-> vendor::update_policies_t<Derived, no_using_t, using_t<void, Args...>>
+					{
+						return { static_cast<Derived&>(*this), using_t<void, Args...>(args...) };
+					}
+
+				template<typename... Args>
+					auto dynamic_using(Args... args)
+					-> vendor::update_policies_t<Derived, no_using_t, using_t<get_database_t<Derived>, Args...>>
+					{
+						static_assert(not std::is_same<get_database_t<Derived>, void>::value, "dynamic_using must not be called in a static statement");
+						return { static_cast<Derived&>(*this), using_t<get_database_t<Derived>, Args...>(args...) };
+					}
+			};
+
+		// Interpreters
+		template<typename Context, typename Database, typename... Tables>
+			struct interpreter_t<Context, using_t<Database, Tables...>>
+			{
+				using T = using_t<Database, Tables...>;
 
 				static Context& _(const T& t, Context& context)
 				{
-					if (sizeof...(Table) == 0 and t._dynamic_tables.empty())
+					if (sizeof...(Tables) == 0 and t._dynamic_tables.empty())
 						return context;
 					context << " USING ";
 					interpret_tuple(t._tables, ',', context);
-					if (sizeof...(Table) and not t._dynamic_tables.empty())
+					if (sizeof...(Tables) and not t._dynamic_tables.empty())
 						context << ',';
 					interpret_list(t._dynamic_tables, ',', context);
+					return context;
+				}
+			};
+
+		template<typename Context>
+			struct interpreter_t<Context, no_using_t>
+			{
+				using T = no_using_t;
+
+				static Context& _(const T& t, Context& context)
+				{
 					return context;
 				}
 			};

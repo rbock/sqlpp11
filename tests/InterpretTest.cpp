@@ -44,15 +44,16 @@ int main()
 	test::TabBar t;
 
 	interpret(insert_into(t).columns(t.gamma, t.beta), printer).flush();
-	interpret(insert_into(t).columns(t.gamma, t.beta).add_values(t.gamma = true, t.beta = "cheesecake"), printer).flush();
-	interpret(insert_into(t).columns(t.gamma, t.beta)
-			.add_values(t.gamma = true, t.beta = "cheesecake")
-			.add_values(t.gamma = false, t.beta = sqlpp::tvin("coffee"))
-			.add_values(t.gamma = false, t.beta = sqlpp::tvin(std::string()))
-			, printer).flush();
-	interpret(insert_into(t).columns(t.gamma, t.beta)
-			.add_values(t.gamma = sqlpp::default_value, t.beta = sqlpp::null)
-			, printer).flush();
+	{
+		auto i = insert_into(t).columns(t.gamma, t.beta);
+		i.add_values(t.gamma = true, t.beta = "cheesecake");
+		interpret(i, printer).flush();
+		i.add_values(t.gamma = false, t.beta = sqlpp::tvin("coffee"));
+		i.add_values(t.gamma = false, t.beta = sqlpp::tvin(std::string()));
+		interpret(i, printer).flush();
+		i.add_values(t.gamma = sqlpp::default_value, t.beta = sqlpp::null);
+		interpret(i, printer).flush();
+	}
 
 	interpret(t.alpha = sqlpp::null, printer).flush();
 	interpret(t.alpha = sqlpp::default_value, printer).flush();
@@ -69,13 +70,16 @@ int main()
 	interpret(t.alpha == 7, printer).flush();
 	interpret(t.beta + "kaesekuchen", printer).flush();
 
-	interpret(select(sqlpp::distinct, t.alpha, t.beta), printer).flush();
-	interpret(select(sqlpp::distinct, t.alpha, t.beta).from(t), printer).flush();
-	interpret(select(sqlpp::distinct, t.alpha, t.beta).from(t).where(t.alpha == 3), printer).flush();
-	interpret(select(sqlpp::distinct, t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma), printer).flush();
-	interpret(select(sqlpp::distinct, t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma).having(t.beta.like("%kuchen")), printer).flush();
-	interpret(select(sqlpp::distinct, t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma).having(t.beta.like("%kuchen")).order_by(t.beta.asc()), printer).flush();
-	interpret(select(sqlpp::distinct, t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma).having(t.beta.like("%kuchen")).order_by(t.beta.asc()).limit(17).offset(3), printer).flush();
+	interpret(sqlpp::select(), printer).flush();
+	interpret(sqlpp::select().flags(sqlpp::distinct), printer).flush();
+	interpret(select(t.alpha, t.beta).flags(sqlpp::distinct), printer).flush();
+	interpret(select(t.alpha, t.beta), printer).flush();
+	interpret(select(t.alpha, t.beta).from(t), printer).flush();
+	interpret(select(t.alpha, t.beta).from(t).where(t.alpha == 3), printer).flush();
+	interpret(select(t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma), printer).flush();
+	interpret(select(t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma).having(t.beta.like("%kuchen")), printer).flush();
+	interpret(select(t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma).having(t.beta.like("%kuchen")).order_by(t.beta.asc()), printer).flush();
+	interpret(select(t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma).having(t.beta.like("%kuchen")).order_by(t.beta.asc()).limit(17).offset(3), printer).flush();
 
 	interpret(parameter(sqlpp::bigint(), t.alpha), printer).flush();
 	interpret(parameter(t.alpha), printer).flush();
@@ -92,6 +96,7 @@ int main()
 	interpret(update(t).set(t.gamma = true).where(t.beta.in("kaesekuchen", "cheesecake")), printer).flush();
 
 	interpret(remove_from(t), printer).flush();
+	interpret(remove_from(t).using_(t), printer).flush();
 	interpret(remove_from(t).where(t.alpha == sqlpp::tvin(0)), printer).flush();
 	interpret(remove_from(t).using_(t).where(t.alpha == sqlpp::tvin(0)), printer).flush();
 
@@ -123,11 +128,29 @@ int main()
 
 	// multi_column
 	interpret(multi_column(t.alpha, t.alpha, (t.beta + "cake").as(t.gamma)), printer).flush();
+	interpret(multi_column(t, all_of(t)), printer).flush();
 
 	// dynamic select
-	interpret(dynamic_select(db).dynamic_flags().dynamic_columns(t.alpha).add_column(t.beta).add_column(t.gamma), printer).flush();
-	interpret(dynamic_select(db).dynamic_flags().add_flag(sqlpp::distinct).dynamic_columns().add_column(t.gamma).add_column(t.beta), printer).flush();
-	interpret(dynamic_select(db).dynamic_flags(sqlpp::distinct).add_flag(sqlpp::all).dynamic_columns(t.alpha).add_column(t.beta), printer).flush();
+	{
+		auto s = dynamic_select(db).dynamic_flags().dynamic_columns();
+		s.add_column(t.beta);
+		s.add_column(t.gamma);
+		interpret(s, printer).flush();
+	}
+	{
+		auto s = dynamic_select(db).dynamic_flags().dynamic_columns();
+		s.add_flag(sqlpp::distinct);
+		s.add_column(t.beta);
+		s.add_column(t.gamma);
+		interpret(s, printer).flush();
+	}
+	{
+		auto s = dynamic_select(db).dynamic_flags(sqlpp::distinct).dynamic_columns(t.alpha);
+		s.add_flag(sqlpp::all);
+		s.add_column(t.beta);
+		s.add_column(t.gamma);
+		interpret(s, printer).flush();
+	}
 
 	// distinct aggregate
 	interpret(count(sqlpp::distinct, t.alpha % 7), printer).flush();
@@ -136,6 +159,5 @@ int main()
 
 	interpret(select(all_of(t)).from(t).where(true), printer).flush();
 	interpret(select(all_of(t)).from(t).where(false), printer).flush();
-
 	return 0;
 }

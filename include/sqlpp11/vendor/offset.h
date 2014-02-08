@@ -28,20 +28,117 @@
 #define SQLPP_OFFSET_H
 
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/vendor/policy_update.h>
+#include <sqlpp11/vendor/crtp_wrapper.h>
 
 namespace sqlpp
 {
 	namespace vendor
 	{
+		// OFFSET
 		template<typename Offset>
 			struct offset_t
 			{
 				using _is_offset = std::true_type;
 				static_assert(is_integral_t<Offset>::value, "offset requires an integral value or integral parameter");
 
-				Offset _offset;
+				offset_t(Offset value):
+					_value(value)
+				{}
+
+				offset_t(const offset_t&) = default;
+				offset_t(offset_t&&) = default;
+				offset_t& operator=(const offset_t&) = default;
+				offset_t& operator=(offset_t&&) = default;
+				~offset_t() = default;
+
+				const offset_t& _offset() const { return *this; }
+
+				Offset _value;
 			};
 
+		template<typename Database>
+			struct dynamic_offset_t
+			{
+				using _is_offset = std::true_type;
+				using _is_dynamic = std::true_type;
+
+				dynamic_offset_t():
+					_value(noop())
+				{
+				}
+
+				template<typename Offset>
+					dynamic_offset_t(Offset value):
+						_initialized(true),
+						_value(typename wrap_operand<Offset>::type(value))
+				{
+				}
+
+				dynamic_offset_t(const dynamic_offset_t&) = default;
+				dynamic_offset_t(dynamic_offset_t&&) = default;
+				dynamic_offset_t& operator=(const dynamic_offset_t&) = default;
+				dynamic_offset_t& operator=(dynamic_offset_t&&) = default;
+				~dynamic_offset_t() = default;
+
+				template<typename Offset>
+					void set_offset(Offset value)
+					{
+						using arg_t = typename wrap_operand<Offset>::type;
+						_value = arg_t(value);
+						_initialized = true;
+					}
+
+				const dynamic_offset_t& _offset() const { return *this; }
+				bool _initialized = false;
+				interpretable_t<Database> _value;
+			};
+
+		struct no_offset_t
+		{
+			using _is_offset = std::true_type;
+			const no_offset_t& _offset() const { return *this; }
+		};
+
+		// CRTP Wrappers
+		template<typename Derived, typename Offset>
+			struct crtp_wrapper_t<Derived, offset_t<Offset>>
+			{
+			};
+
+		template<typename Derived, typename Database>
+			struct crtp_wrapper_t<Derived, dynamic_offset_t<Database>>
+			{
+			};
+
+		template<typename Derived>
+			struct crtp_wrapper_t<Derived, no_offset_t>
+			{
+				template<typename... Args>
+					struct delayed_get_database_t
+					{
+						using type = get_database_t<Derived>;
+					};
+
+				template<typename Arg>
+					auto offset(Arg arg)
+					-> vendor::update_policies_t<Derived, no_offset_t, offset_t<typename wrap_operand<Arg>::type>>
+					{
+						typename wrap_operand<Arg>::type value = {arg};
+						return { static_cast<Derived&>(*this), offset_t<typename wrap_operand<Arg>::type>(value) };
+					}
+
+				template<typename... Args>
+				auto dynamic_offset(Args... args)
+					-> vendor::update_policies_t<Derived, no_offset_t, dynamic_offset_t<typename delayed_get_database_t<Args...>::type>>
+					{
+						static_assert(sizeof...(Args) < 2, "dynamic_offset must be called with zero or one arguments");
+						static_assert(not std::is_same<get_database_t<Derived>, void>::value, "dynamic_offset must not be called in a static statement");
+						return { static_cast<Derived&>(*this), dynamic_offset_t<typename delayed_get_database_t<Args...>::type>(args...) };
+					}
+			};
+
+		// Interpreters
 		template<typename Context, typename Offset>
 			struct interpreter_t<Context, offset_t<Offset>>
 			{
@@ -50,37 +147,37 @@ namespace sqlpp
 				static Context& _(const T& t, Context& context)
 				{
 					context << " OFFSET ";
-					interpret(t._offset, context);
+					interpret(t._value, context);
 					return context;
 				}
 			};
 
-		struct dynamic_offset_t
-		{
-			using _is_offset = std::true_type;
-			using _is_dynamic = std::true_type;
-
-			void set(std::size_t offset)
+		template<typename Context, typename Database>
+			struct interpreter_t<Context, dynamic_offset_t<Database>>
 			{
-				_offset = offset;
-			}
-
-			std::size_t _offset;
-		};
-
-		template<typename Context>
-			struct interpreter_t<Context, dynamic_offset_t>
-			{
-				using T = dynamic_offset_t;
+				using T = dynamic_offset_t<Database>;
 
 				static Context& _(const T& t, Context& context)
 				{
-					if (t._offset > 0)
-						context << " OFFSET " << t._offset;
+					if (t._initialized)
+					{
+						context << " OFFSET ";
+						interpret(t._value, context);
+					}
 					return context;
 				}
 			};
 
+		template<typename Context>
+			struct interpreter_t<Context, no_offset_t>
+			{
+				using T = no_offset_t;
+
+				static Context& _(const T& t, Context& context)
+				{
+					return context;
+				}
+			};
 	}
 }
 

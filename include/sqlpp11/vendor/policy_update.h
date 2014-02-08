@@ -24,54 +24,36 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_COLUMN_LIST_H
-#define SQLPP_COLUMN_LIST_H
+#ifndef SQLPP_VENDOR_POLICY_UPDATE_H
+#define SQLPP_VENDOR_POLICY_UPDATE_H
 
-#include <sqlpp11/type_traits.h>
-#include <sqlpp11/detail/logic.h>
-#include <sqlpp11/vendor/interpret_tuple.h>
-#include <sqlpp11/vendor/simple_column.h>
+#include <sqlpp11/vendor/wrong.h>
 
 namespace sqlpp
 {
 	namespace vendor
 	{
-		template<typename... Columns>
-			struct column_list_t
+		template<typename Needle, typename Replacement>
+			struct policy_update_impl
 			{
-				using _is_column_list = std::true_type;
-				using _parameter_tuple_t = std::tuple<Columns...>;
-
-				// check for at least one order column
-				static_assert(sizeof...(Columns), "at least one column required in columns()");
-
-				// check for duplicate columns
-				static_assert(not ::sqlpp::detail::has_duplicates<Columns...>::value, "at least one duplicate argument detected in columns()");
-
-				// check for invalid columns
-				static_assert(::sqlpp::detail::and_t<is_column_t, Columns...>::value, "at least one argument is not a column in columns()");
-
-				// check for prohibited columns
-				static_assert(not ::sqlpp::detail::or_t<must_not_insert_t, Columns...>::value, "at least one column argument has a must_not_insert flag in its definition");
-
-				std::tuple<simple_column_t<Columns>...> _columns;
+				template<typename T>
+					using _policy_t = typename std::conditional<std::is_same<Needle, T>::value, Replacement, T>::type;
 			};
 
-		template<typename Context, typename... Columns>
-			struct interpreter_t<Context, column_list_t<Columns...>>
+		template<typename T, typename Needle, typename Replacement>
+			using policy_update_t = typename policy_update_impl<Needle, Replacement>::template _policy_t<T>;
+
+		template<typename Original, typename Needle, typename Replacement>
+			struct update_policies_impl
 			{
-				using T = column_list_t<Columns...>;
-
-				static Context& _(const T& t, Context& context)
-				{
-					context << " (";
-					interpret_tuple(t._columns, ",", context);
-					context << ")";
-
-					return context;
-				}
+				using type = typename Original::template _policy_update_t<Needle, Replacement>;
 			};
+
+		template<typename Original, typename Needle, typename Replacement>
+			using update_policies_t = typename update_policies_impl<Original, Needle, Replacement>::type;
+
 	}
+
 }
 
 #endif

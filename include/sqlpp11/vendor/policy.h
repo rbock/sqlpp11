@@ -24,47 +24,39 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DETAIL_MAKE_FLAG_TUPLE_H
-#define SQLPP_DETAIL_MAKE_FLAG_TUPLE_H
+#ifndef SQLPP_VENDOR_POLICY_H
+#define SQLPP_VENDOR_POLICY_H
+
+#include <sqlpp11/vendor/wrong.h>
 
 namespace sqlpp
 {
-	namespace detail
+	namespace vendor
 	{
-		// accept select flags
-		template<typename Expr>
-			auto make_single_flag_tuple(Expr expr) -> typename std::enable_if<is_select_flag_t<Expr>::value, decltype(std::make_tuple(expr))>::type
-			{
-				return std::make_tuple(expr);
-			};
+		template<typename PolicyImpl>
+			struct policy_t: public PolicyImpl
+		{
+			policy_t()
+			{}
 
-		// ignore named expressions
-		template<typename Expr>
-			auto make_single_flag_tuple(Expr expr) -> typename std::enable_if<is_named_expression_t<Expr>::value, std::tuple<>>::type
-			{
-				return {};
-			};
+			template<typename Whatever>
+				policy_t(const Whatever&, policy_t policy):
+					PolicyImpl(policy)
+			{}
 
-		// ignore tables
-		template<typename Tab>
-			auto make_single_flag_tuple(Tab tab) -> typename std::enable_if<is_table_t<Tab>::value, std::tuple<>>::type
-			{
-				return {};
-			};
+			template<typename Whatever>
+				policy_t(const Whatever&, PolicyImpl impl):
+					PolicyImpl(impl)
+			{}
 
-		// ignore tuples of expressions
-		template<typename... Expr>
-			auto make_single_flag_tuple(std::tuple<Expr...> t) -> std::tuple<>
-			{
-				return {};
-			};
-
-		template<typename... Expr>
-			auto make_flag_tuple(Expr... expr) -> decltype(std::tuple_cat(make_single_flag_tuple(expr)...))
-			{
-				return std::tuple_cat(make_single_flag_tuple(expr)...);
-			};
+			template<typename Derived, typename Whatever>
+				policy_t(Derived derived, const Whatever&):
+					PolicyImpl(derived)
+			{}
+		};
 
 	}
+
 }
+
 #endif

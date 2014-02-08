@@ -53,16 +53,16 @@ int main()
 	}
 
 	{
-		using T = decltype(dynamic_remove_from(db, t).dynamic_using_().dynamic_where());
+		using T = decltype(dynamic_remove_from(db, t).dynamic_using().dynamic_where());
 		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
 	interpret(remove_from(t), printer).flush();
 	interpret(remove_from(t).where(t.beta != "transparent"), printer).flush();
 	interpret(remove_from(t).using_(t), printer).flush();
-	auto r = dynamic_remove_from(db, t).dynamic_using_().dynamic_where();
-	r = r.add_using_(t);
-	r = r.add_where(t.beta != "transparent");
+	auto r = dynamic_remove_from(db, t).dynamic_using().dynamic_where();
+	r.add_using(t);
+	r.add_where(t.beta != "transparent");
 	interpret(r, printer).flush();
 
 	return 0;

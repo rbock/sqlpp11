@@ -24,41 +24,34 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DETAIL_MAKE_EXPRESSION_TUPLE_H
-#define SQLPP_DETAIL_MAKE_EXPRESSION_TUPLE_H
+#ifndef SQLPP_VENDOR_CRTP_WRAPPER_H
+#define SQLPP_VENDOR_CRTP_WRAPPER_H
+
+#include <sqlpp11/vendor/wrong.h>
 
 namespace sqlpp
 {
-	namespace detail
+	namespace vendor
 	{
-		template<typename Expr>
-			auto make_single_expression_tuple(Expr expr)
-			-> typename std::enable_if<is_named_expression_t<Expr>::value, decltype(std::make_tuple(expr))>::type
+		template<typename T>
+			struct get_database_impl;
+
+		template<template<typename, typename...> class Statement, typename Database, typename... Policies>
+			struct get_database_impl<Statement<Database, Policies...>>
 			{
-				return std::make_tuple(expr);
+				using type = Database;
 			};
 
-		template<typename Expr>
-			auto make_single_expression_tuple(Expr expr)
-			-> typename std::enable_if<is_select_flag_t<Expr>::value, std::tuple<>>::type
+		template<typename T>
+			using get_database_t = typename get_database_impl<T>::type;
+		
+		template<typename Derived, typename Policy>
+			struct crtp_wrapper_t
 			{
-				return {};
+				static_assert(wrong_t<Derived, Policy>::value, "missing crtp policy specialization");
 			};
-
-		template<typename... Expr>
-			auto make_single_expression_tuple(std::tuple<Expr...> t)
-			-> std::tuple<Expr...>
-			{
-				return t;
-			};
-
-		template<typename... Expr>
-			auto make_expression_tuple(Expr... expr)
-			-> decltype(std::tuple_cat(make_single_expression_tuple(expr)...))
-			{
-				return std::tuple_cat(make_single_expression_tuple(expr)...);
-			};
-
 	}
+
 }
+
 #endif

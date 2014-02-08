@@ -32,58 +32,112 @@
 #include <sqlpp11/vendor/interpretable_list.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
 #include <sqlpp11/detail/logic.h>
+#include <sqlpp11/vendor/policy_update.h>
+#include <sqlpp11/vendor/crtp_wrapper.h>
 
 namespace sqlpp
 {
 	namespace vendor
 	{
-		template<typename Database, typename... TableOrJoin>
+		// FROM
+		template<typename Database, typename... Tables>
 			struct from_t
 			{
 				using _is_from = std::true_type;
 				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 
-				// ensure one argument at least
-				static_assert(_is_dynamic::value or sizeof...(TableOrJoin), "at least one table or join argument required in from()");
+				static_assert(_is_dynamic::value or sizeof...(Tables), "at least one table or join argument required in from()");
 
-				// check for duplicate arguments
-				static_assert(not ::sqlpp::detail::has_duplicates<TableOrJoin...>::value, "at least one duplicate argument detected in from()");
+				static_assert(not ::sqlpp::detail::has_duplicates<Tables...>::value, "at least one duplicate argument detected in from()");
 
-				// check for invalid arguments
-				static_assert(::sqlpp::detail::and_t<is_table_t, TableOrJoin...>::value, "at least one argument is not a table or join in from()");
+				static_assert(::sqlpp::detail::and_t<is_table_t, Tables...>::value, "at least one argument is not a table or join in from()");
 
 				// FIXME: Joins contain two tables. This is not being dealt with at the moment when looking at duplicates, for instance
 
+				from_t(Tables... tables):
+					_tables(tables...)
+				{}
+
+				from_t(const from_t&) = default;
+				from_t(from_t&&) = default;
+				from_t& operator=(const from_t&) = default;
+				from_t& operator=(from_t&&) = default;
+				~from_t() = default;
+
 				template<typename Table>
-					void add(Table table)
+					void add_from(Table table)
 					{
+						static_assert(_is_dynamic::value, "add_from can only be called for dynamic_from");
 						static_assert(is_table_t<Table>::value, "from arguments require to be tables or joins");
 						_dynamic_tables.emplace_back(table);
 					}
 
-				std::tuple<TableOrJoin...> _tables;
+				const from_t& _from() const { return *this; }
+				std::tuple<Tables...> _tables;
 				vendor::interpretable_list_t<Database> _dynamic_tables;
 			};
 
-		template<typename Context, typename Database, typename... TableOrJoin>
-			struct interpreter_t<Context, from_t<Database, TableOrJoin...>>
+		struct no_from_t
+		{
+			const no_from_t& _from() const { return *this; }
+		};
+
+		// CRTP Wrappers
+		template<typename Derived, typename Database, typename... Args>
+			struct crtp_wrapper_t<Derived, from_t<Database, Args...>>
 			{
-				using T = from_t<Database, TableOrJoin...>;
+			};
+
+		template<typename Derived>
+			struct crtp_wrapper_t<Derived, no_from_t>
+			{
+				template<typename... Args>
+					auto from(Args... args)
+					-> vendor::update_policies_t<Derived, no_from_t, from_t<void, Args...>>
+					{
+						return { static_cast<Derived&>(*this), from_t<void, Args...>(args...) };
+					}
+
+				template<typename... Args>
+					auto dynamic_from(Args... args)
+					-> vendor::update_policies_t<Derived, no_from_t, from_t<get_database_t<Derived>, Args...>>
+					{
+						static_assert(not std::is_same<get_database_t<Derived>, void>::value, "dynamic_from must not be called in a static statement");
+						return { static_cast<Derived&>(*this), from_t<get_database_t<Derived>, Args...>(args...) };
+					}
+			};
+
+		// Interpreters
+		template<typename Context, typename Database, typename... Tables>
+			struct interpreter_t<Context, from_t<Database, Tables...>>
+			{
+				using T = from_t<Database, Tables...>;
 
 				static Context& _(const T& t, Context& context)
 				{
-					if (sizeof...(TableOrJoin) == 0 and t._dynamic_tables.empty())
+					if (sizeof...(Tables) == 0 and t._dynamic_tables.empty())
 						return context;
 					context << " FROM ";
 					interpret_tuple(t._tables, ',', context);
-					if (sizeof...(TableOrJoin) and not t._dynamic_tables.empty())
+					if (sizeof...(Tables) and not t._dynamic_tables.empty())
 						context << ',';
 					interpret_list(t._dynamic_tables, ',', context);
 					return context;
 				}
 			};
-	}
 
+		template<typename Context>
+			struct interpreter_t<Context, no_from_t>
+			{
+				using T = no_from_t;
+
+				static Context& _(const T& t, Context& context)
+				{
+					return context;
+				}
+			};
+
+	}
 }
 
 #endif

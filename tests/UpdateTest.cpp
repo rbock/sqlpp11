@@ -59,7 +59,7 @@ int main()
 	interpret(update(t).set(t.gamma = false), printer).flush();
 	interpret(update(t).set(t.gamma = false).where(t.beta != "transparent"), printer).flush();
 	auto u = dynamic_update(db, t).dynamic_set(t.gamma = false).dynamic_where();
-	u = u.add_set(t.gamma = false);
+	u.add_set(t.gamma = false);
 	interpret(u, printer).flush();
 
 	return 0;

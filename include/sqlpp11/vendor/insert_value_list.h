@@ -29,28 +29,102 @@
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/detail/logic.h>
-#include <sqlpp11/vendor/insert_value.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
+#include <sqlpp11/vendor/insert_value.h>
+#include <sqlpp11/vendor/simple_column.h>
+#include <sqlpp11/vendor/policy_update.h>
+#include <sqlpp11/vendor/crtp_wrapper.h>
 
 namespace sqlpp
 {
 	namespace vendor
 	{
-		template<typename... InsertValues>
-			struct insert_value_list_t
+		// COLUMN AND VALUE LIST
+		struct insert_default_values_t
+		{
+			using _is_insert_list = std::true_type;
+			using _is_dynamic = std::false_type;
+			const insert_default_values_t& _insert_value_list() const { return *this; }
+		}; 
+
+		template<typename Database, typename... Assignments>
+			struct insert_list_t
 			{
-				using _is_insert_value_list = std::true_type;
+				using _is_insert_list = std::true_type;
+				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
+				using _parameter_tuple_t = std::tuple<Assignments...>;
+				template<template<typename...> class Target>
+					using copy_assignments_t = Target<Assignments...>; // FIXME: Nice idea to copy variadic template arguments?
+				template<template<typename...> class Target, template<typename> class Wrap>
+					using copy_wrapped_assignments_t = Target<Wrap<Assignments>...>;
 
-				static_assert(sizeof...(InsertValues), "at least one insert value required");
+				static_assert(_is_dynamic::value or sizeof...(Assignments), "at least one select expression required in set()");
 
-				// check for invalid arguments
-				static_assert(::sqlpp::detail::and_t<is_insert_value_t, InsertValues...>::value, "at least one argument is not an insert value");
+				static_assert(not ::sqlpp::detail::has_duplicates<Assignments...>::value, "at least one duplicate argument detected in set()");
 
-				using _value_tuple_t = std::tuple<InsertValues...>;
+				static_assert(sqlpp::detail::and_t<is_assignment_t, Assignments...>::value, "at least one argument is not an assignment in set()");
 
-				void add(_value_tuple_t value_tuple)
+				static_assert(not sqlpp::detail::or_t<must_not_insert_t, typename Assignments::_column_t...>::value, "at least one assignment is prohibited by its column definition in set()");
+
+				insert_list_t(Assignments... assignment):
+					_assignments(assignment...),
+					_columns({assignment._lhs}...),
+					_values(assignment._rhs...)
+					{}
+
+				insert_list_t(const insert_list_t&) = default;
+				insert_list_t(insert_list_t&&) = default;
+				insert_list_t& operator=(const insert_list_t&) = default;
+				insert_list_t& operator=(insert_list_t&&) = default;
+				~insert_list_t() = default;
+
+				template<typename Assignment>
+					void add_set(Assignment assignment)
+					{
+						static_assert(is_assignment_t<Assignment>::value, "set() arguments require to be assigments");
+						static_assert(not must_not_insert_t<Assignment>::value, "set() argument must not be used in insert");
+						_dynamic_columns.emplace_back(simple_column_t<typename Assignment::_column_t>{assignment._lhs});
+						_dynamic_values.emplace_back(assignment._rhs);
+					}
+
+
+				const insert_list_t& _insert_value_list() const { return *this; }
+				std::tuple<simple_column_t<typename Assignments::_column_t>...> _columns;
+				std::tuple<typename Assignments::value_type...> _values;
+				std::tuple<Assignments...> _assignments; // FIXME: Need to replace _columns and _values by _assignments (connector-container requires assignments)
+				typename vendor::interpretable_list_t<Database> _dynamic_columns;
+				typename vendor::interpretable_list_t<Database> _dynamic_values;
+			};
+
+		template<typename... Columns>
+			struct column_list_t
+			{
+				using _is_column_list = std::true_type;
+				using _parameter_tuple_t = std::tuple<Columns...>;
+
+				static_assert(sizeof...(Columns), "at least one column required in columns()");
+
+				static_assert(not ::sqlpp::detail::has_duplicates<Columns...>::value, "at least one duplicate argument detected in columns()");
+
+				static_assert(::sqlpp::detail::and_t<is_column_t, Columns...>::value, "at least one argument is not a column in columns()");
+
+				static_assert(not ::sqlpp::detail::or_t<must_not_insert_t, Columns...>::value, "at least one column argument has a must_not_insert flag in its definition");
+
+				using _value_tuple_t = std::tuple<vendor::insert_value_t<Columns>...>;
+
+				column_list_t(Columns... columns):
+					_columns(simple_column_t<Columns>{columns}...)
+				{}
+
+				column_list_t(const column_list_t&) = default;
+				column_list_t(column_list_t&&) = default;
+				column_list_t& operator=(const column_list_t&) = default;
+				column_list_t& operator=(column_list_t&&) = default;
+				~column_list_t() = default;
+
+				void add_values(vendor::insert_value_t<Columns>... values)
 				{
-					_insert_values.emplace_back(value_tuple);
+					_insert_values.emplace_back(values...);
 				}
 
 				bool empty() const
@@ -58,33 +132,95 @@ namespace sqlpp
 					return _insert_values.empty();
 				}
 
+				const column_list_t& _insert_value_list() const { return *this; }
+				std::tuple<simple_column_t<Columns>...> _columns;
 				std::vector<_value_tuple_t> _insert_values;
 			};
 
-		template<>
-			struct insert_value_list_t<noop>
+		struct no_insert_value_list_t
+		{
+			using _is_insert_value_list = std::true_type;
+			const no_insert_value_list_t& _insert_value_list() const { return *this; }
+		};
+
+		// CRTP Wrappers
+		template<typename Derived>
+			struct crtp_wrapper_t<Derived, insert_default_values_t>
 			{
-				using _is_insert_value_list = std::true_type;
-
-				using _value_tuple_t = std::tuple<>;
-
-				void add(_value_tuple_t value_tuple)
-				{
-				}
-
-				static constexpr bool empty()
-				{
-					return true;
-				}
 			};
 
-		template<typename Context, typename... InsertValues>
-			struct interpreter_t<Context, insert_value_list_t<InsertValues...>>
+		template<typename Derived, typename Database, typename... Args>
+			struct crtp_wrapper_t<Derived, column_list_t<Database, Args...>>
 			{
-				using T = insert_value_list_t<InsertValues...>;
+			};
+
+		template<typename Derived, typename Database, typename... Args>
+			struct crtp_wrapper_t<Derived, insert_list_t<Database, Args...>>
+			{
+			};
+
+		template<typename Derived>
+			struct crtp_wrapper_t<Derived, no_insert_value_list_t>
+			{
+				template<typename... Args>
+					struct delayed_t
+					{
+						using type = Derived;
+					};
+
+				template<typename Arg = void>
+					auto default_values()
+					-> vendor::update_policies_t<typename delayed_t<Arg>::type, no_insert_value_list_t, insert_default_values_t>
+					{
+						return { static_cast<Derived&>(*this), insert_default_values_t{} };
+					}
+
+				template<typename... Args>
+					auto columns(Args... args)
+					-> vendor::update_policies_t<Derived, no_insert_value_list_t, column_list_t<Args...>>
+					{
+						return { static_cast<Derived&>(*this), column_list_t<Args...>(args...) };
+					}
+
+				template<typename... Args>
+					auto set(Args... args)
+					-> vendor::update_policies_t<Derived, no_insert_value_list_t, insert_list_t<void, Args...>>
+					{
+						return { static_cast<Derived&>(*this), insert_list_t<void, Args...>(args...) };
+					}
+
+				template<typename... Args>
+					auto dynamic_set(Args... args)
+					-> vendor::update_policies_t<Derived, no_insert_value_list_t, insert_list_t<get_database_t<Derived>, Args...>>
+					{
+						static_assert(not std::is_same<get_database_t<Derived>, void>::value, "dynamic_insert_list must not be called in a static statement");
+						return { static_cast<Derived&>(*this), insert_list_t<get_database_t<Derived>, Args...>(args...) };
+					}
+			};
+
+		// Interpreters
+		template<typename Context>
+			struct interpreter_t<Context, insert_default_values_t>
+			{
+				using T = insert_default_values_t;
 
 				static Context& _(const T& t, Context& context)
 				{
+					context << " DEFAULT VALUES";
+					return context;
+				}
+			};
+
+		template<typename Context, typename... Columns>
+			struct interpreter_t<Context, column_list_t<Columns...>>
+			{
+				using T = column_list_t<Columns...>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					context << " (";
+					interpret_tuple(t._columns, ",", context);
+					context << ")";
 					context << " VALUES ";
 					bool first = true;
 					for (const auto& row : t._insert_values)
@@ -97,20 +233,51 @@ namespace sqlpp
 						interpret_tuple(row, ",", context);
 						context << ')';
 					}
+
+					return context;
+				}
+			};
+
+		template<typename Context, typename Database, typename... Assignments>
+			struct interpreter_t<Context, insert_list_t<Database, Assignments...>>
+			{
+				using T = insert_list_t<Database, Assignments...>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					if (sizeof...(Assignments) + t._dynamic_columns.size() == 0)
+					{
+						interpret(insert_default_values_t(), context);
+					}
+					else
+					{
+						context << " (";
+						interpret_tuple(t._columns, ",", context);
+						if (sizeof...(Assignments) and not t._dynamic_columns.empty())
+							context << ',';
+						interpret_list(t._dynamic_columns, ',', context);
+						context << ") VALUES(";
+						interpret_tuple(t._values, ",", context);
+						if (sizeof...(Assignments) and not t._dynamic_values.empty())
+							context << ',';
+						interpret_list(t._dynamic_values, ',', context);
+						context << ")";
+					}
 					return context;
 				}
 			};
 
 		template<typename Context>
-			struct interpreter_t<Context, insert_value_list_t<noop>>
+			struct interpreter_t<Context, no_insert_value_list_t>
 			{
-				using T = insert_value_list_t<noop>;
+				using T = no_insert_value_list_t;
 
 				static Context& _(const T& t, Context& context)
 				{
 					return context;
 				}
 			};
+
 	}
 }
 

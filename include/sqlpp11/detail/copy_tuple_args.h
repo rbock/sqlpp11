@@ -24,46 +24,44 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_FIELD_H
-#define SQLPP_FIELD_H
+#ifndef SQLPP_DETAIL_COPY_TUPLE_ARGS_H
+#define SQLPP_DETAIL_COPY_TUPLE_ARGS_H
 
-#include <sqlpp11/multi_column.h>
+#include <tuple>
 
 namespace sqlpp
 {
-	namespace vendor
+	namespace detail
 	{
-		template<typename NameType, typename ValueType>
-			struct field_t
-			{ 
-				using _name_t = NameType;
-				using _value_type = ValueType;
-			};
-
-		template<typename AliasProvider, typename FieldTuple>
-			struct multi_field_t
+		template<typename T>
+			struct as_tuple
 			{
+				static std::tuple<T> _(T t) { return std::tuple<T>{ t }; };
 			};
 
-		namespace detail
-		{
-			template<typename NamedExpr>
-				struct make_field_t_impl
-				{
-					using type = field_t<typename NamedExpr::_name_t, typename NamedExpr::_value_type::_base_value_type>;
-				};
+		template<typename... Args>
+			struct as_tuple<std::tuple<Args...>>
+			{
+				static std::tuple<Args...> _(std::tuple<Args...> t) { return t; }
+			};
 
-			template<typename AliasProvider, typename... NamedExpr>
-				struct make_field_t_impl<multi_column_t<AliasProvider, NamedExpr...>>
-				{
-					using type = multi_field_t<AliasProvider, std::tuple<typename make_field_t_impl<NamedExpr>::type...>>;
-				};
-		}
+		template<template<typename, typename...> class Target, typename First, typename T>
+			struct copy_tuple_args_impl
+			{
+				static_assert(vendor::wrong_t<T>::value, "copy_tuple_args must be called with a tuple");
+			};
 
-		template<typename NamedExpr>
-			using make_field_t = typename detail::make_field_t_impl<NamedExpr>::type;
+		template<template<typename First, typename...> class Target, typename First, typename... Args>
+			struct copy_tuple_args_impl<Target, First, std::tuple<Args...>>
+			{
+				using type = Target<First, Args...>;
+			};
+
+		template<template<typename First, typename...> class Target, typename First, typename T>
+			using copy_tuple_args_t = typename copy_tuple_args_impl<Target, First, T>::type;
+
 	}
-
 }
+
 
 #endif
