@@ -363,9 +363,8 @@ int main()
 	auto z = select(t.alpha) == 7;
 	auto l = t.as(alias::left);
 	auto r = select(t.gamma.as(alias::a)).from(t).where(t.gamma == true).as(alias::right);
-#if 0
 	static_assert(sqlpp::is_boolean_t<decltype(select(t.gamma).from(t))>::value, "select(bool) has to be a bool");
-	interpret(select(sqlpp::distinct, sqlpp::straight_join, l.alpha, l.beta, select(r.a).from(r))
+	interpret(sqlpp::select().flags(sqlpp::distinct, sqlpp::straight_join).columns(l.alpha, l.beta, select(r.a).from(r))
 		.from(l, r)
 		.where(t.beta == "hello world" and select(t.gamma).from(t))// .as(alias::right))
 		.group_by(l.gamma, r.a)
@@ -375,7 +374,6 @@ int main()
 		.offset(3)
 		.as(alias::a)
 		, printer).flush();
-#endif
 
 	return 0;
 }

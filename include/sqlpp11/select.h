@@ -86,7 +86,8 @@ namespace sqlpp
 
 	// SELECT
 	template<typename Database, typename... Policies>
-		struct select_t: public vendor::policy_t<Policies>..., public vendor::crtp_wrapper_t<select_t<Database, Policies...>, Policies>...
+		struct select_t: public vendor::policy_t<Policies>..., public vendor::crtp_wrapper_t<select_t<Database, Policies...>, Policies>...,
+										 public detail::select_helper_t<Policies...>::_column_list_t::_value_type::template operators<select_t<Database, Policies...>>
 		{
 			template<typename Needle, typename Replacement>
 				using _policy_update_t = select_t<Database, vendor::policy_update_t<Policies, Needle, Replacement>...>;
