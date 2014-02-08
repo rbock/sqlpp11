@@ -31,7 +31,7 @@
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/prepared_remove.h>
 #include <sqlpp11/vendor/noop.h>
-#include <sqlpp11/vendor/from.h>
+#include <sqlpp11/vendor/single_table.h>
 #include <sqlpp11/vendor/using.h>
 #include <sqlpp11/vendor/where.h>
 #include <sqlpp11/vendor/crtp_wrapper.h>
@@ -42,7 +42,7 @@ namespace sqlpp
 {
 	namespace detail
 	{
-		template<typename From, typename Using, typename Where>
+		template<typename Table, typename Using, typename Where>
 			struct check_remove_t
 			{
 				static_assert(is_where_t<Where>::value, "cannot run remove without having a where condition, use .where(true) to remove all rows");
@@ -73,10 +73,10 @@ namespace sqlpp
 					vendor::policy_t<Policies>(r, whatever)...
 			{}
 
-			remove_t(const remove_t& r) = default;
-			remove_t(remove_t&& r) = default;
-			remove_t& operator=(const remove_t& r) = default;
-			remove_t& operator=(remove_t&& r) = default;
+			remove_t(const remove_t&) = default;
+			remove_t(remove_t&&) = default;
+			remove_t& operator=(const remove_t&) = default;
+			remove_t& operator=(remove_t&&) = default;
 			~remove_t() = default;
 
 			static constexpr size_t _get_static_no_of_parameters()
@@ -93,7 +93,7 @@ namespace sqlpp
 				std::size_t _run(Db& db) const
 				{
 					static_assert(_get_static_no_of_parameters() == 0, "cannot run remove directly with parameters, use prepare instead");
-					static_assert(detail::check_remove_t<Policies...>::value, "Cannot run this expression");
+					static_assert(detail::check_remove_t<Policies...>::value, "Cannot run this remove expression");
 					return db.remove(*this);
 				}
 
@@ -101,7 +101,7 @@ namespace sqlpp
 				auto _prepare(Db& db) const
 				-> prepared_remove_t<Database, remove_t>
 				{
-					static_assert(detail::check_remove_t<Policies...>::value, "Cannot run this expression");
+					static_assert(detail::check_remove_t<Policies...>::value, "Cannot run this remove expression");
 					return {{}, db.prepare_remove(*this)};
 				}
 		};
@@ -115,8 +115,8 @@ namespace sqlpp
 
 				static Context& _(const T& t, Context& context)
 				{
-					context << "DELETE";
-					interpret(t._from(), context);
+					context << "DELETE FROM";
+					interpret(t._single_table(), context);
 					interpret(t._using(), context);
 					interpret(t._where(), context);
 					return context;
@@ -125,18 +125,20 @@ namespace sqlpp
 	}
 
 	template<typename Database>
-		using blank_remove_t = remove_t<Database, vendor::no_from_t, vendor::no_using_t, vendor::no_where_t>;
+		using blank_remove_t = remove_t<Database, vendor::no_single_table_t, vendor::no_using_t, vendor::no_where_t>;
 
 	template<typename Table>
-		constexpr remove_t<void, vendor::from_t<void, Table>, vendor::no_using_t, vendor::no_where_t> remove_from(Table table)
+		constexpr auto remove_from(Table table)
+		-> remove_t<void, vendor::single_table_t<void, Table>, vendor::no_using_t, vendor::no_where_t>
 		{
-			return { blank_remove_t<void>(), vendor::from_t<void, Table>{table} };
+			return { blank_remove_t<void>(), vendor::single_table_t<void, Table>{table} };
 		}
 
 	template<typename Database, typename Table>
-		constexpr remove_t<Database, vendor::from_t<void, Table>, vendor::no_using_t, vendor::no_where_t> dynamic_remove_from(const Database&, Table table)
+		constexpr auto  dynamic_remove_from(const Database&, Table table)
+		-> remove_t<Database, vendor::single_table_t<void, Table>, vendor::no_using_t, vendor::no_where_t>
 		{
-			return { blank_remove_t<Database>(), vendor::from_t<Database, Table>{table} };
+			return { blank_remove_t<Database>(), vendor::single_table_t<Database, Table>{table} };
 		}
 
 }

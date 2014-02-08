@@ -43,18 +43,19 @@ int main()
 	test::TabFoo f;
 	test::TabBar t;
 
-	/*
 	interpret(insert_into(t).columns(t.gamma, t.beta), printer).flush();
-	interpret(insert_into(t).columns(t.gamma, t.beta).add_values(t.gamma = true, t.beta = "cheesecake"), printer).flush();
-	interpret(insert_into(t).columns(t.gamma, t.beta)
-			.add_values(t.gamma = true, t.beta = "cheesecake")
-			.add_values(t.gamma = false, t.beta = sqlpp::tvin("coffee"))
-			.add_values(t.gamma = false, t.beta = sqlpp::tvin(std::string()))
-			, printer).flush();
-	interpret(insert_into(t).columns(t.gamma, t.beta)
-			.add_values(t.gamma = sqlpp::default_value, t.beta = sqlpp::null)
-			, printer).flush();
+	{
+		auto i = insert_into(t).columns(t.gamma, t.beta);
+		i.add_values(t.gamma = true, t.beta = "cheesecake");
+		interpret(i, printer).flush();
+		i.add_values(t.gamma = false, t.beta = sqlpp::tvin("coffee"));
+		i.add_values(t.gamma = false, t.beta = sqlpp::tvin(std::string()));
+		interpret(i, printer).flush();
+		i.add_values(t.gamma = sqlpp::default_value, t.beta = sqlpp::null);
+		interpret(i, printer).flush();
+	}
 
+	/*
 	interpret(t.alpha = sqlpp::null, printer).flush();
 	interpret(t.alpha = sqlpp::default_value, printer).flush();
 	interpret(t.alpha, printer).flush();
@@ -87,12 +88,14 @@ int main()
 	interpret(parameter(t.alpha), printer).flush();
 	interpret(t.alpha == parameter(t.alpha), printer).flush();
 	interpret(t.alpha == parameter(t.alpha) and (t.beta + "gimmick").like(parameter(t.beta)), printer).flush();
+	*/
 
 	interpret(insert_into(t), printer).flush();
 	interpret(insert_into(f).default_values(), printer).flush();
 	interpret(insert_into(t).set(t.gamma = true), printer).flush();
 	//interpret(insert_into(t).set(t.gamma = sqlpp::tvin(false)), printer).flush(); cannot test this since gamma cannot be null and a static assert is thrown
 
+	/*
 	interpret(update(t), printer).flush();
 	interpret(update(t).set(t.gamma = true), printer).flush();
 	interpret(update(t).set(t.gamma = true).where(t.beta.in("kaesekuchen", "cheesecake")), printer).flush();
