@@ -71,6 +71,7 @@ namespace sqlpp
 
 	namespace detail
 	{
+#warning need to handle all_of here.
 		template<typename AliasProvider, typename... Expr>
 			using make_multi_column_t = 
 			multi_column_t<AliasProvider, std::tuple<Expr...>>;

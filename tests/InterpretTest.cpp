@@ -131,20 +131,38 @@ int main()
 	interpret(t.inner_join(t.as(t.alpha)).on(t.beta == t.as(t.alpha).beta), printer).flush();
 
 	// multi_column
+	*/
 	interpret(multi_column(t.alpha, t.alpha, (t.beta + "cake").as(t.gamma)), printer).flush();
 
 	// dynamic select
-	interpret(dynamic_select(db).dynamic_flags().dynamic_columns(t.alpha).add_column(t.beta).add_column(t.gamma), printer).flush();
-	interpret(dynamic_select(db).dynamic_flags().add_flag(sqlpp::distinct).dynamic_columns().add_column(t.gamma).add_column(t.beta), printer).flush();
-	interpret(dynamic_select(db).dynamic_flags(sqlpp::distinct).add_flag(sqlpp::all).dynamic_columns(t.alpha).add_column(t.beta), printer).flush();
+	{
+		auto s = dynamic_select(db).dynamic_flags().dynamic_columns();
+		s.add_column(t.beta);
+		s.add_column(t.gamma);
+		interpret(s, printer).flush();
+	}
+	{
+		auto s = dynamic_select(db).dynamic_flags().dynamic_columns();
+		s.add_flag(sqlpp::distinct);
+		s.add_column(t.beta);
+		s.add_column(t.gamma);
+		interpret(s, printer).flush();
+	}
+	{
+		auto s = dynamic_select(db).dynamic_flags(sqlpp::distinct).dynamic_columns(t.alpha);
+		s.add_flag(sqlpp::all);
+		s.add_column(t.beta);
+		s.add_column(t.gamma);
+		interpret(s, printer).flush();
+	}
+	/*
 
 	// distinct aggregate
 	interpret(count(sqlpp::distinct, t.alpha % 7), printer).flush();
 	interpret(avg(sqlpp::distinct, t.alpha - 7), printer).flush();
 	interpret(sum(sqlpp::distinct, t.alpha + 7), printer).flush();
-
+*/
 	interpret(select(all_of(t)).from(t).where(true), printer).flush();
 	interpret(select(all_of(t)).from(t).where(false), printer).flush();
-*/
 	return 0;
 }

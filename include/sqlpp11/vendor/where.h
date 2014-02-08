@@ -82,7 +82,18 @@ namespace sqlpp
 				using _is_where = std::true_type;
 				using _is_dynamic = std::false_type;
 
-				std::tuple<bool> _condition;
+				where_t(bool condition):
+					_condition(condition)
+				{}
+
+				where_t(const where_t&) = default;
+				where_t(where_t&&) = default;
+				where_t& operator=(const where_t&) = default;
+				where_t& operator=(where_t&&) = default;
+				~where_t() = default;
+
+				const where_t& _where() const { return *this; }
+				bool _condition;
 			};
 
 		struct no_where_t
@@ -142,7 +153,7 @@ namespace sqlpp
 
 				static Context& _(const T& t, Context& context)
 				{
-					if (not std::get<0>(t._condition))
+					if (not t._condition)
 						context << " WHERE NULL";
 					return context;
 				}

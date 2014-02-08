@@ -170,6 +170,10 @@ namespace sqlpp
 				template <typename Db>
 					using _dynamic_t = select_column_list_t<Db, std::tuple<Columns...>>;
 
+				select_column_list_t(std::tuple<Columns...> columns):
+					_columns(columns)
+				{}
+
 				select_column_list_t(Columns... columns):
 					_columns(columns...)
 				{}
@@ -196,6 +200,17 @@ namespace sqlpp
 		struct no_select_column_list_t
 		{
 			using _is_select_column_list = std::true_type;
+			using _result_row_t = ::sqlpp::result_row_t<>;
+			using _dynamic_names_t = typename dynamic_select_column_list<void>::_names_t;
+			using _value_type = no_value_t;
+			struct _name_t {};
+
+			template<typename T>
+				struct _pseudo_table_t
+				{
+					static_assert(wrong_t<T>::value, "Cannot use a select as a table when no columns have been selected yet");
+				};
+
 			const no_select_column_list_t& _column_list() const { return *this; }
 		};
 

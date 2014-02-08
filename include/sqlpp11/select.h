@@ -63,13 +63,26 @@ namespace sqlpp
 			typename Limit, 
 			typename Offset
 			>
-			struct check_select_t
+			struct select_helper_t
 			{
-				//static_assert(is_where_t<Where>::value, "cannot select remove without having a where condition, use .where(true) to remove all rows");
-				static constexpr bool value = true;
+				using _column_list_t = ColumnList;
+				using _from_t = ColumnList;
+				template<typename Database>
+					struct can_run_t
+					{
+						//static_assert(is_where_t<Where>::value, "cannot select remove without having a where condition, use .where(true) to remove all rows");
+						//static_assert(not vendor::is_noop<ColumnList>::value, "cannot run select without having selected anything");
+						//static_assert(is_from_t<From>::value, "cannot run select without a from()");
+						//static_assert(is_where_t<Where>::value, "cannot run select without having a where condition, use .where(true) to select all rows");
+						// FIXME: Check for missing aliases (if references are used)
+						// FIXME: Check for missing tables, well, actually, check for missing tables at the where(), order_by(), etc.
+
+						static constexpr bool value = true;
+					};
 			};
 	}
 
+	// SELECT
 	template<typename Database, typename... Policies>
 		struct select_t: public vendor::policy_t<Policies>..., public vendor::crtp_wrapper_t<select_t<Database, Policies...>, Policies>...
 		{
@@ -80,6 +93,17 @@ namespace sqlpp
 			using _parameter_tuple_t = std::tuple<Policies...>;
 			using _parameter_list_t = typename make_parameter_list_t<select_t>::type;
 			
+			using _column_list_t = typename detail::select_helper_t<Policies...>::_column_list_t;
+			using _result_row_t = typename _column_list_t::_result_row_t;
+			using _dynamic_names_t = typename _column_list_t::_dynamic_names_t;
+
+			using _is_select = std::true_type;
+			using _requires_braces = std::true_type;
+
+			// FIXME: introduce checks whether this select could really be used as a value
+			using _value_type = typename _column_list_t::_value_type;
+			using _name_t = typename _column_list_t::_name_t;
+
 			select_t()
 			{}
 
@@ -99,27 +123,11 @@ namespace sqlpp
 			select_t& operator=(select_t&& r) = default;
 			~select_t() = default;
 
-			using _is_select = std::true_type;
-			using _requires_braces = std::true_type;
-
-			/*
-			using _result_row_t = typename ColumnList::_result_row_t;
-			using _dynamic_names_t = typename ColumnList::_dynamic_names_t;
-			using _parameter_tuple_t = std::tuple<ColumnList, Where, GroupBy, Having, OrderBy, Limit, Offset>;
-			using _parameter_list_t = typename make_parameter_list_t<select_t>::type;
-
 			// Indicators
-			using _value_type = typename std::conditional<
-				vendor::is_noop<From>::value, 
-				no_value_t, // If there is no from, the select is not complete (this logic is a bit simple, but better than nothing)
-				typename ColumnList::_value_type>::type;
-
-			using _name_t = typename ColumnList::_name_t;
-
 			template<typename AliasProvider>
 				struct _pseudo_table_t
 				{
-					using table = typename ColumnList::template _pseudo_table_t<select_t>;
+					using table = typename _column_list_t::template _pseudo_table_t<select_t>;
 					using alias = typename table::template _alias_t<AliasProvider>;
 				};
 
@@ -130,9 +138,9 @@ namespace sqlpp
 							*this).as(aliasProvider);
 				}
 
-			const typename ColumnList::_dynamic_names_t& get_dynamic_names() const
+			const _dynamic_names_t& get_dynamic_names() const
 			{
-				return _columns._dynamic_columns._dynamic_expression_names;
+				return _column_list_t::_dynamic_columns._dynamic_expression_names;
 			}
 
 			static constexpr size_t _get_static_no_of_parameters()
@@ -155,13 +163,8 @@ namespace sqlpp
 				auto _run(Db& db) const
 				-> result_t<decltype(db.select(*this)), _result_row_t>
 				{
-					static_assert(not vendor::is_noop<ColumnList>::value, "cannot run select without having selected anything");
-					static_assert(is_from_t<From>::value, "cannot run select without a from()");
-					static_assert(is_where_t<Where>::value, "cannot run select without having a where condition, use .where(true) to select all rows");
+					static_assert(detail::select_helper_t<Policies...>::template can_run_t<Db>::value, "Cannot execute select statement");
 					static_assert(_get_static_no_of_parameters() == 0, "cannot run select directly with parameters, use prepare instead");
-					// FIXME: Check for missing aliases (if references are used)
-					// FIXME: Check for missing tables, well, actually, check for missing tables at the where(), order_by(), etc.
-
 					return {db.select(*this), get_dynamic_names()};
 				}
 
@@ -170,14 +173,10 @@ namespace sqlpp
 				auto _prepare(Db& db) const
 				-> prepared_select_t<Db, select_t>
 				{
-					static_assert(not vendor::is_noop<ColumnList>::value, "cannot run select without having selected anything");
-					static_assert(is_from_t<From>::value, "cannot run select without a from()");
-					// FIXME: Check for missing aliases (if references are used)
-					// FIXME: Check for missing tables, well, actually, check for missing tables at the where(), order_by(), etc.
+					static_assert(detail::select_helper_t<Policies...>::template can_run_t<Db>::value, "Cannot prepare select statement");
 
 					return {{}, get_dynamic_names(), db.prepare_select(*this)};
 				}
-*/
 		};
 
 	namespace vendor
@@ -218,6 +217,39 @@ namespace sqlpp
 					vendor::no_limit_t,
 					vendor::no_offset_t>;
 
+	template<typename T>
+		struct as_tuple
+		{
+			static std::tuple<T> _(T t) { return { t }; };
+		};
+
+	template<typename... Args>
+		struct as_tuple<std::tuple<Args...>>
+		{
+			static std::tuple<Args...> _(std::tuple<Args...> t) { return t; }
+		};
+
+	template<template<typename, typename...> class Target, typename First, typename T>
+		struct copy_tuple_args_impl
+		{
+			static_assert(vendor::wrong_t<T>::value, "copy_tuple_args must be called with a tuple");
+		};
+
+	template<template<typename First, typename...> class Target, typename First, typename... Args>
+		struct copy_tuple_args_impl<Target, First, std::tuple<Args...>>
+		{
+			using type = Target<First, Args...>;
+		};
+
+	template<template<typename First, typename...> class Target, typename First, typename T>
+		using copy_tuple_args_t = typename copy_tuple_args_impl<Target, First, T>::type;
+
+	template<typename Database, typename... Columns>
+		using make_select_column_list_t = 
+							copy_tuple_args_t<vendor::select_column_list_t, Database, 
+									decltype(std::tuple_cat(as_tuple<Columns>::_(std::declval<Columns>())...))>;
+
+
 	blank_select_t<void> select() // FIXME: These should be constexpr
 	{
 		return { blank_select_t<void>() };
@@ -225,22 +257,24 @@ namespace sqlpp
 
 	template<typename... Columns>
 		auto select(Columns... columns)
-		-> vendor::update_policies_t<blank_select_t<void>, vendor::no_select_column_list_t, vendor::select_column_list_t<void, Columns...>>
+		-> vendor::update_policies_t<blank_select_t<void>, 
+		       vendor::no_select_column_list_t, 
+					 make_select_column_list_t<void, Columns...>>
 		{
-			return { blank_select_t<void>(), vendor::select_column_list_t<void, Columns...>(columns...) };
+			return { blank_select_t<void>(), make_select_column_list_t<void, Columns...>(std::tuple_cat(as_tuple<Columns>::_(columns)...)) };
 		}
 
 	template<typename Database>
-		blank_select_t<Database> dynamic_select()
+		blank_select_t<Database> dynamic_select(const Database&)
 		{
-			return { blank_select_t<void>() };
+			return { blank_select_t<Database>() };
 		}
 
 	template<typename Database, typename... Columns>
-		auto dynamic_select(Columns... columns)
-		-> vendor::update_policies_t<blank_select_t<Database>, vendor::no_select_column_list_t, vendor::select_column_list_t<void, Columns...>>
+		auto dynamic_select(const Database&, Columns... columns)
+		-> vendor::update_policies_t<blank_select_t<Database>, vendor::no_select_column_list_t, make_select_column_list_t<void, Columns...>>
 		{
-			return { blank_select_t<Database>(), vendor::select_column_list_t<void, Columns...>(columns...) };
+			return { blank_select_t<Database>(), make_select_column_list_t<void, Columns...>(std::tuple_cat(as_tuple<Columns>::_(columns)...)) };
 		}
 
 }
