@@ -55,7 +55,6 @@ int main()
 		interpret(i, printer).flush();
 	}
 
-	/*
 	interpret(t.alpha = sqlpp::null, printer).flush();
 	interpret(t.alpha = sqlpp::default_value, printer).flush();
 	interpret(t.alpha, printer).flush();
@@ -70,7 +69,6 @@ int main()
 	interpret(t.gamma != sqlpp::tvin(false), printer).flush();
 	interpret(t.alpha == 7, printer).flush();
 	interpret(t.beta + "kaesekuchen", printer).flush();
-	*/
 
 	interpret(sqlpp::select(), printer).flush();
 	interpret(sqlpp::select().flags(sqlpp::distinct), printer).flush();
@@ -83,29 +81,24 @@ int main()
 	interpret(select(t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma).having(t.beta.like("%kuchen")).order_by(t.beta.asc()), printer).flush();
 	interpret(select(t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma).having(t.beta.like("%kuchen")).order_by(t.beta.asc()).limit(17).offset(3), printer).flush();
 
-	/*
 	interpret(parameter(sqlpp::bigint(), t.alpha), printer).flush();
 	interpret(parameter(t.alpha), printer).flush();
 	interpret(t.alpha == parameter(t.alpha), printer).flush();
 	interpret(t.alpha == parameter(t.alpha) and (t.beta + "gimmick").like(parameter(t.beta)), printer).flush();
-	*/
 
 	interpret(insert_into(t), printer).flush();
 	interpret(insert_into(f).default_values(), printer).flush();
 	interpret(insert_into(t).set(t.gamma = true), printer).flush();
 	//interpret(insert_into(t).set(t.gamma = sqlpp::tvin(false)), printer).flush(); cannot test this since gamma cannot be null and a static assert is thrown
 
-	/*
 	interpret(update(t), printer).flush();
 	interpret(update(t).set(t.gamma = true), printer).flush();
 	interpret(update(t).set(t.gamma = true).where(t.beta.in("kaesekuchen", "cheesecake")), printer).flush();
-	*/
 
 	interpret(remove_from(t), printer).flush();
 	interpret(remove_from(t).using_(t), printer).flush();
 	interpret(remove_from(t).where(t.alpha == sqlpp::tvin(0)), printer).flush();
 	interpret(remove_from(t).using_(t).where(t.alpha == sqlpp::tvin(0)), printer).flush();
-	/*
 
 	// functions
 	sqlpp::interpret(sqlpp::value(7), printer).flush(); // FIXME: Why is the namespace specifier required?
@@ -134,7 +127,6 @@ int main()
 	interpret(t.inner_join(t.as(t.alpha)).on(t.beta == t.as(t.alpha).beta), printer).flush();
 
 	// multi_column
-	*/
 	interpret(multi_column(t.alpha, t.alpha, (t.beta + "cake").as(t.gamma)), printer).flush();
 	interpret(multi_column(t, all_of(t)), printer).flush();
 
@@ -159,13 +151,12 @@ int main()
 		s.add_column(t.gamma);
 		interpret(s, printer).flush();
 	}
-	/*
 
 	// distinct aggregate
 	interpret(count(sqlpp::distinct, t.alpha % 7), printer).flush();
 	interpret(avg(sqlpp::distinct, t.alpha - 7), printer).flush();
 	interpret(sum(sqlpp::distinct, t.alpha + 7), printer).flush();
-*/
+
 	interpret(select(all_of(t)).from(t).where(true), printer).flush();
 	interpret(select(all_of(t)).from(t).where(false), printer).flush();
 	return 0;

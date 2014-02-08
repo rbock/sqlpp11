@@ -36,7 +36,7 @@ namespace sqlpp
 		template<typename T>
 			struct as_tuple
 			{
-				static std::tuple<T> _(T t) { return { t }; };
+				static std::tuple<T> _(T t) { return std::tuple<T>{ t }; };
 			};
 
 		template<typename... Args>

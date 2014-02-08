@@ -84,7 +84,7 @@ namespace sqlpp
 					void set_limit(Limit value)
 					{
 						using arg_t = typename wrap_operand<Limit>::type;
-						_value = arg_t(value);
+						_value = arg_t{value};
 						_initialized = true;
 					}
 
@@ -147,7 +147,10 @@ namespace sqlpp
 				static Context& _(const T& t, Context& context)
 				{
 					if (t._initialized)
+					{
+						context << " LIMIT ";
 						interpret(t._value, context);
+					}
 					return context;
 				}
 			};

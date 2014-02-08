@@ -44,7 +44,7 @@ namespace sqlpp
 	{
 		template<
 			typename Table,
-			typename InsertValueList,
+			typename InsertValueList
 				>
 				struct check_insert_t
 				{
@@ -140,7 +140,7 @@ namespace sqlpp
 		constexpr auto  dynamic_insert_into(const Database&, Table table)
 		-> insert_t<Database, vendor::single_table_t<void, Table>, vendor::no_insert_value_list_t>
 		{
-			return { blank_insert_t<Database>(), vendor::single_table_t<Database, Table>{table} };
+			return { blank_insert_t<Database>(), vendor::single_table_t<void, Table>{table} };
 		}
 
 }

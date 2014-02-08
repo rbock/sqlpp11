@@ -60,7 +60,7 @@ int main()
 	interpret(insert_into(t), printer).flush();
 	interpret(insert_into(t).set(t.beta = "kirschauflauf"), printer).flush();
 	auto i = dynamic_insert_into(db, t).dynamic_set();
-	i = i.add_set(t.beta = "kirschauflauf");
+	i.add_set(t.beta = "kirschauflauf");
 	interpret(i, printer).flush();
 
 	return 0;

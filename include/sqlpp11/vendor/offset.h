@@ -160,7 +160,10 @@ namespace sqlpp
 				static Context& _(const T& t, Context& context)
 				{
 					if (t._initialized)
-						context << " OFFSET " << t._offset;
+					{
+						context << " OFFSET ";
+						interpret(t._value, context);
+					}
 					return context;
 				}
 			};

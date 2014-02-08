@@ -138,7 +138,7 @@ namespace sqlpp
 		constexpr auto  dynamic_remove_from(const Database&, Table table)
 		-> remove_t<Database, vendor::single_table_t<void, Table>, vendor::no_using_t, vendor::no_where_t>
 		{
-			return { blank_remove_t<Database>(), vendor::single_table_t<Database, Table>{table} };
+			return { blank_remove_t<Database>(), vendor::single_table_t<void, Table>{table} };
 		}
 
 }
