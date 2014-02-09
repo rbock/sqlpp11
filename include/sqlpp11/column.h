@@ -37,6 +37,7 @@
 #include <sqlpp11/vendor/expression.h>
 #include <sqlpp11/vendor/interpreter.h>
 #include <sqlpp11/vendor/wrong.h>
+#include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
 {
@@ -46,6 +47,7 @@ namespace sqlpp
 		using _is_column = std::true_type;
 		using _spec_t = ColumnSpec;
 		using _table = Table;
+		using _table_set = detail::type_set<_table>;
 		using _column_type = typename ColumnSpec::_column_type;
 		struct _value_type: ColumnSpec::_value_type
 		{

@@ -43,7 +43,7 @@ int main()
 	test::TabFoo f;
 	test::TabBar t;
 
-	interpret(insert_into(t).columns(t.gamma, t.beta), printer).flush();
+	interpret(insert_into(t).columns(t.beta, t.gamma), printer).flush();
 	{
 		auto i = insert_into(t).columns(t.gamma, t.beta);
 		i.add_values(t.gamma = true, t.beta = "cheesecake");

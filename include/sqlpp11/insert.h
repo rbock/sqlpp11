@@ -48,6 +48,7 @@ namespace sqlpp
 				>
 				struct check_insert_t
 				{
+					static_assert(Table::_table_set::template is_superset_of<typename InsertValueList::_table_set>::value, "inserted columns do not match the table in insert_into");
 					//static_assert(not (vendor::is_noop<InsertList>::value and vendor::is_noop<ColumnList>::value) , "calling set() or default_values()");
 					static constexpr bool value = true;
 				};
@@ -65,6 +66,8 @@ namespace sqlpp
 
 			insert_t()
 			{}
+
+			static_assert(detail::check_insert_t<Policies...>::value, "invalid insert_into");
 
 			template<typename Whatever>
 				insert_t(insert_t i, Whatever whatever):

@@ -33,20 +33,14 @@ namespace sqlpp
 {
 	namespace vendor
 	{
-		namespace detail
-		{
-			// A template that always returns false
-			// To be used with static assert, for instance, to ensure it
-			// fires only when the template is instantiated.
-			template<class ...T> struct wrong_t
-			{
-				using type = std::false_type;
-			};
-		}
-
+		// A template that always returns false
+		// To be used with static assert, for instance, to ensure it
+		// fires only when the template is instantiated.
 		template<class ...T>
-			using wrong_t = typename detail::wrong_t<T...>::type;
+			struct wrong_t
+			{
+				static constexpr bool value = false;
+			};
 	}
-
 }
 #endif

@@ -30,7 +30,7 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/vendor/policy_update.h>
 #include <sqlpp11/vendor/crtp_wrapper.h>
-#include <iostream> // FIXME: REMOVE
+#include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
 {
@@ -55,12 +55,13 @@ namespace sqlpp
 				~single_table_t() = default;
 
 				const single_table_t& _single_table() const { return *this; }
+				using _table_set = typename Table::_table_set;
 				Table _table;
 			};
 
 		struct no_single_table_t
 		{
-			using _is_single_table = std::true_type;
+			using _table_set = ::sqlpp::detail::type_set<>;
 			const no_single_table_t& _single_table() const { return *this; }
 		};
 

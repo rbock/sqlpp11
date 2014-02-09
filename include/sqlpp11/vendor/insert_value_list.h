@@ -43,6 +43,7 @@ namespace sqlpp
 		struct insert_default_values_t
 		{
 			using _is_insert_list = std::true_type;
+			using _table_set = ::sqlpp::detail::type_set<>;
 			using _is_dynamic = std::false_type;
 			const insert_default_values_t& _insert_value_list() const { return *this; }
 		}; 
@@ -66,6 +67,9 @@ namespace sqlpp
 
 				static_assert(not sqlpp::detail::or_t<must_not_insert_t, typename Assignments::_column_t...>::value, "at least one assignment is prohibited by its column definition in set()");
 
+				using _table_set = typename ::sqlpp::detail::make_joined_set<typename Assignments::_column_t::_table_set...>::type;
+				static_assert(_is_dynamic::value ? (_table_set::size::value < 2) : (_table_set::size::value == 1), "set() contains assignments for tables from several columns");
+				
 				insert_list_t(Assignments... assignment):
 					_assignments(assignment...),
 					_columns({assignment._lhs}...),
@@ -111,6 +115,9 @@ namespace sqlpp
 				static_assert(not ::sqlpp::detail::or_t<must_not_insert_t, Columns...>::value, "at least one column argument has a must_not_insert flag in its definition");
 
 				using _value_tuple_t = std::tuple<vendor::insert_value_t<Columns>...>;
+				using _table_set = typename ::sqlpp::detail::make_joined_set<typename Columns::_table_set...>::type;
+
+				static_assert(_table_set::size::value == 1, "columns from multiple tables in columns()");
 
 				column_list_t(Columns... columns):
 					_columns(simple_column_t<Columns>{columns}...)
@@ -139,7 +146,7 @@ namespace sqlpp
 
 		struct no_insert_value_list_t
 		{
-			using _is_insert_value_list = std::true_type;
+			using _table_set = ::sqlpp::detail::type_set<>;
 			const no_insert_value_list_t& _insert_value_list() const { return *this; }
 		};
 

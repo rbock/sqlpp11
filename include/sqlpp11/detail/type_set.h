@@ -27,6 +27,7 @@
 #ifndef SQLPP_DETAIL_TYPE_SET_H
 #define SQLPP_DETAIL_TYPE_SET_H
 
+#include <tuple>
 #include <type_traits>
 #include <sqlpp11/vendor/wrong.h>
 #include <sqlpp11/detail/logic.h>
@@ -39,17 +40,21 @@ namespace sqlpp
 		template<typename... T>
 			struct make_set;
 
-		template<typename T>
-			class type_set_element {};
-
 		// A type set
 		template<typename... Element>
-			struct type_set: type_set_element<Element>...
+			struct type_set
 		{
-			using size = std::integral_constant<size_t, sizeof...(Element)>;
+			using _elements_t = std::tuple<Element...>;
+			using size = std::tuple_size<_elements_t>;
+			using _is_type_set = std::true_type;
 
 			template<typename T>
-				using count = std::is_base_of<type_set_element<T>, type_set>;
+				struct count
+			{
+				template<typename E>
+					using same = std::is_same<T, E>;
+				static constexpr bool value = or_t<same, Element...>::value;
+			};
 
 			template<typename T>
 				struct is_superset_of
@@ -59,7 +64,9 @@ namespace sqlpp
 
 			template<typename... T>
 				struct is_superset_of<type_set<T...>>
-				: and_t<count, T...> {};
+				{
+					static constexpr bool value = and_t<count, T...>::value;
+				};
 
 			template<typename T>
 				struct join
@@ -69,7 +76,9 @@ namespace sqlpp
 
 			template<typename... T>
 				struct join<type_set<T...>>
-				: make_set<Element..., T...> {};
+				{
+					using type = typename make_set<Element..., T...>::type;
+				};
 
 			template<typename T>
 				struct is_subset_of
@@ -79,7 +88,9 @@ namespace sqlpp
 
 			template<typename... T>
 				struct is_subset_of<type_set<T...>>
-				: type_set<T...>::template is_superset_of<type_set>{};
+				{
+					static constexpr bool value = type_set<T...>::template is_superset_of<type_set>::value;
+				};
 
 			template<typename T>
 				struct is_disjunct_from
@@ -93,16 +104,12 @@ namespace sqlpp
 					static constexpr bool value = not(or_t<type_set::count, T...>::value or or_t<type_set<T...>::template count, Element...>::value);
 				};
 
-			template<typename T, typename Enable = void>
+			template<typename T>
 				struct insert
 				{
-					using type = type_set;
-				};
-
-			template<typename T>
-				struct insert<T, typename std::enable_if<not type_set::template count<T>::value>::type>
-				{
-					using type = type_set<Element..., T>;
+					using type = typename std::conditional<count<T>::value,
+								type_set,
+								type_set<Element..., T>>::type;
 				};
 
 			template<template<typename A> class Predicate, typename T>
@@ -151,6 +158,34 @@ namespace sqlpp
 
 		template<typename... T>
 			using has_duplicates = std::integral_constant<bool, make_set<T...>::type::size::value != sizeof...(T)>;
+
+		template<typename... T>
+			struct make_joined_set
+			{
+				static_assert(::sqlpp::vendor::wrong_t<T...>::value, "invalid argument for joined set");
+			};
+
+		template<>
+			struct make_joined_set<>
+			{
+				using type = type_set<>;
+			};
+
+		/*
+		template<typename... E>
+			struct make_joined_set<type_set<E...>>
+			{
+				using type = type_set<E...>;
+			};
+			*/
+
+		template<typename... E, typename... T>
+			struct make_joined_set<type_set<E...>, T...>
+			{
+				using _rest = typename make_joined_set<T...>::type;
+				
+				using type = typename type_set<E...>::template join<_rest>::type;
+			};
 
 	}
 }
