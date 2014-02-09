@@ -33,7 +33,6 @@
 #include <sqlpp11/vendor/interpret_tuple.h>
 #include <sqlpp11/vendor/interpretable_list.h>
 #include <sqlpp11/vendor/policy_update.h>
-#include <sqlpp11/vendor/crtp_wrapper.h>
 #include <sqlpp11/detail/logic.h>
 
 namespace sqlpp

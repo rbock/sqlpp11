@@ -44,8 +44,6 @@
 #include <sqlpp11/vendor/expression.h>
 #include <sqlpp11/vendor/interpreter.h>
 #include <sqlpp11/vendor/wrong.h>
-#include <sqlpp11/vendor/crtp_wrapper.h>
-#include <sqlpp11/vendor/policy.h>
 #include <sqlpp11/vendor/policy_update.h>
 
 #include <sqlpp11/detail/copy_tuple_args.h>

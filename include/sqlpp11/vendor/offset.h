@@ -29,7 +29,6 @@
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/vendor/policy_update.h>
-#include <sqlpp11/vendor/crtp_wrapper.h>
 
 namespace sqlpp
 {

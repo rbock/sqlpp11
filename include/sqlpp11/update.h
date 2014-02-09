@@ -34,8 +34,6 @@
 #include <sqlpp11/vendor/update_list.h>
 #include <sqlpp11/vendor/noop.h>
 #include <sqlpp11/vendor/where.h>
-#include <sqlpp11/vendor/crtp_wrapper.h>
-#include <sqlpp11/vendor/policy.h>
 #include <sqlpp11/vendor/policy_update.h>
 
 namespace sqlpp

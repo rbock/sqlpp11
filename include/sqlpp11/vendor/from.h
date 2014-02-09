@@ -32,7 +32,6 @@
 #include <sqlpp11/vendor/interpret_tuple.h>
 #include <sqlpp11/detail/logic.h>
 #include <sqlpp11/vendor/policy_update.h>
-#include <sqlpp11/vendor/crtp_wrapper.h>
 
 namespace sqlpp
 {
@@ -81,12 +80,6 @@ namespace sqlpp
 		{
 			using _is_noop = std::true_type;
 		};
-
-		// CRTP Wrappers
-		template<typename Derived, typename Database, typename... Args>
-			struct crtp_wrapper_t<Derived, from_t<Database, Args...>>
-			{
-			};
 
 		// Interpreters
 		template<typename Context, typename Database, typename... Tables>
