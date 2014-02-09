@@ -130,7 +130,7 @@ namespace sqlpp
 				void add_values(Args... args)
 				{
 					static_assert(is_column_list_t<InsertValueList>::value, "cannot call add_set() before columns()");
-					return _insert_value_list.add_columns(args...);
+					return _insert_value_list.add_values(args...);
 				}
 
 			// run and prepare

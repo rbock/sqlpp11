@@ -64,8 +64,8 @@ namespace sqlpp
 				group_by_t& operator=(group_by_t&&) = default;
 				~group_by_t() = default;
 
-				template<typename Expression>
-					void add_group_by(Expression expression)
+				template<typename Statement, typename Expression>
+					void add_group_by(const Statement&, Expression expression)
 					{
 						static_assert(is_table_t<Expression>::value, "from arguments require to be tables or joins");
 						_dynamic_expressions.emplace_back(expression);
@@ -78,34 +78,8 @@ namespace sqlpp
 
 		struct no_group_by_t
 		{
-			using _is_group_by = std::true_type;
-			const no_group_by_t& _group_by() const { return *this; }
+			using _is_noop = std::true_type;
 		};
-
-		// CRTP Wrappers
-		template<typename Derived, typename Database, typename... Args>
-			struct crtp_wrapper_t<Derived, group_by_t<Database, Args...>>
-			{
-			};
-
-		template<typename Derived>
-			struct crtp_wrapper_t<Derived, no_group_by_t>
-			{
-				template<typename... Args>
-					auto group_by(Args... args)
-					-> vendor::update_policies_t<Derived, no_group_by_t, group_by_t<void, Args...>>
-					{
-						return { static_cast<Derived&>(*this), group_by_t<void, Args...>(args...) };
-					}
-
-				template<typename... Args>
-					auto dynamic_group_by(Args... args)
-					-> vendor::update_policies_t<Derived, no_group_by_t, group_by_t<get_database_t<Derived>, Args...>>
-					{
-						static_assert(not std::is_same<get_database_t<Derived>, void>::value, "dynamic_group_by must not be called in a static statement");
-						return { static_cast<Derived&>(*this), group_by_t<get_database_t<Derived>, Args...>(args...) };
-					}
-			};
 
 		// Interpreters
 		template<typename Context, typename Database, typename... Expressions>

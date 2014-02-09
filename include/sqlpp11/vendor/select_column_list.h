@@ -29,7 +29,6 @@
 
 #include <tuple>
 #include <sqlpp11/result_row.h>
-#include <sqlpp11/select_fwd.h>
 #include <sqlpp11/table.h>
 #include <sqlpp11/no_value.h>
 #include <sqlpp11/vendor/field.h>
@@ -184,8 +183,8 @@ namespace sqlpp
 				select_column_list_t& operator=(select_column_list_t&&) = default;
 				~select_column_list_t() = default;
 
-				template<typename Expr>
-					void add_column(Expr namedExpr)
+				template<typename Select, typename Expr>
+					void add_column(const Select&, Expr namedExpr)
 					{
 						static_assert(is_named_expression_t<Expr>::value, "select() arguments require to be named expressions");
 						static_assert(_is_dynamic::value, "cannot add columns to a non-dynamic column list");
@@ -199,7 +198,7 @@ namespace sqlpp
 
 		struct no_select_column_list_t
 		{
-			using _is_select_column_list = std::true_type;
+			using _is_noop = std::true_type;
 			using _result_row_t = ::sqlpp::result_row_t<>;
 			using _dynamic_names_t = typename dynamic_select_column_list<void>::_names_t;
 			using _value_type = no_value_t;
@@ -210,34 +209,7 @@ namespace sqlpp
 				{
 					static_assert(wrong_t<T>::value, "Cannot use a select as a table when no columns have been selected yet");
 				};
-
-			const no_select_column_list_t& _column_list() const { return *this; }
 		};
-
-		// CRTP Wrappers
-		template<typename Derived, typename Database, typename... Args>
-			struct crtp_wrapper_t<Derived, select_column_list_t<Database, Args...>>
-			{
-			};
-
-		template<typename Derived>
-			struct crtp_wrapper_t<Derived, no_select_column_list_t>
-			{
-				template<typename... Args>
-					auto columns(Args... args)
-					-> vendor::update_policies_t<Derived, no_select_column_list_t, select_column_list_t<void, Args...>>
-					{
-						return { static_cast<Derived&>(*this), select_column_list_t<void, Args...>(args...) };
-					}
-
-				template<typename... Args>
-					auto dynamic_columns(Args... args)
-					-> vendor::update_policies_t<Derived, no_select_column_list_t, select_column_list_t<get_database_t<Derived>, Args...>>
-					{
-						static_assert(not std::is_same<get_database_t<Derived>, void>::value, "dynamic_columns must not be called in a static statement");
-						return { static_cast<Derived&>(*this), select_column_list_t<get_database_t<Derived>, Args...>(args...) };
-					}
-			};
 
 		// Interpreters
 		template<typename Context, typename Database, typename... Columns>

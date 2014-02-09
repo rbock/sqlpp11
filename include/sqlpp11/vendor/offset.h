@@ -52,8 +52,6 @@ namespace sqlpp
 				offset_t& operator=(offset_t&&) = default;
 				~offset_t() = default;
 
-				const offset_t& _offset() const { return *this; }
-
 				Offset _value;
 			};
 
@@ -89,54 +87,14 @@ namespace sqlpp
 						_initialized = true;
 					}
 
-				const dynamic_offset_t& _offset() const { return *this; }
 				bool _initialized = false;
 				interpretable_t<Database> _value;
 			};
 
 		struct no_offset_t
 		{
-			using _is_offset = std::true_type;
-			const no_offset_t& _offset() const { return *this; }
+			using _is_noop = std::true_type;
 		};
-
-		// CRTP Wrappers
-		template<typename Derived, typename Offset>
-			struct crtp_wrapper_t<Derived, offset_t<Offset>>
-			{
-			};
-
-		template<typename Derived, typename Database>
-			struct crtp_wrapper_t<Derived, dynamic_offset_t<Database>>
-			{
-			};
-
-		template<typename Derived>
-			struct crtp_wrapper_t<Derived, no_offset_t>
-			{
-				template<typename... Args>
-					struct delayed_get_database_t
-					{
-						using type = get_database_t<Derived>;
-					};
-
-				template<typename Arg>
-					auto offset(Arg arg)
-					-> vendor::update_policies_t<Derived, no_offset_t, offset_t<typename wrap_operand<Arg>::type>>
-					{
-						typename wrap_operand<Arg>::type value = {arg};
-						return { static_cast<Derived&>(*this), offset_t<typename wrap_operand<Arg>::type>(value) };
-					}
-
-				template<typename... Args>
-				auto dynamic_offset(Args... args)
-					-> vendor::update_policies_t<Derived, no_offset_t, dynamic_offset_t<typename delayed_get_database_t<Args...>::type>>
-					{
-						static_assert(sizeof...(Args) < 2, "dynamic_offset must be called with zero or one arguments");
-						static_assert(not std::is_same<get_database_t<Derived>, void>::value, "dynamic_offset must not be called in a static statement");
-						return { static_cast<Derived&>(*this), dynamic_offset_t<typename delayed_get_database_t<Args...>::type>(args...) };
-					}
-			};
 
 		// Interpreters
 		template<typename Context, typename Offset>

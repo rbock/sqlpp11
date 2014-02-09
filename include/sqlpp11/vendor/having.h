@@ -69,41 +69,14 @@ namespace sqlpp
 						_dynamic_expressions.emplace_back(expr);
 					}
 
-				const having_t& _having() const { return *this; }
 				_parameter_tuple_t _expressions;
 				vendor::interpretable_list_t<Database> _dynamic_expressions;
 			};
 
 		struct no_having_t
 		{
-			using _is_having = std::true_type;
-			const no_having_t& _having() const { return *this; }
+			using _is_noop = std::true_type;
 		};
-
-		// CRTP Wrappers
-		template<typename Derived, typename Database, typename... Args>
-			struct crtp_wrapper_t<Derived, having_t<Database, Args...>>
-			{
-			};
-
-		template<typename Derived>
-			struct crtp_wrapper_t<Derived, no_having_t>
-			{
-				template<typename... Args>
-					auto having(Args... args)
-					-> vendor::update_policies_t<Derived, no_having_t, having_t<void, Args...>>
-					{
-						return { static_cast<Derived&>(*this), having_t<void, Args...>(args...) };
-					}
-
-				template<typename... Args>
-					auto dynamic_having(Args... args)
-					-> vendor::update_policies_t<Derived, no_having_t, having_t<get_database_t<Derived>, Args...>>
-					{
-						static_assert(not std::is_same<get_database_t<Derived>, void>::value, "dynamic_having must not be called in a static statement");
-						return { static_cast<Derived&>(*this), having_t<get_database_t<Derived>, Args...>(args...) };
-					}
-			};
 
 		// Interpreters
 		template<typename Context, typename Database, typename... Expressions>

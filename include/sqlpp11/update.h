@@ -44,7 +44,7 @@ namespace sqlpp
 	{
 		template<
 			typename Table,
-			typename Assignments,
+			typename UpdateList,
 			typename Where
 			>
 		struct check_update_t
@@ -53,27 +53,50 @@ namespace sqlpp
 		};
 	}
 
-	template<typename Database, typename... Policies>
-		struct update_t: public vendor::policy_t<Policies>..., public vendor::crtp_wrapper_t<update_t<Database, Policies...>, Policies>...
+	template<typename Database = void, 
+			typename Table = vendor::no_single_table_t,
+			typename UpdateList = vendor::no_update_list_t,
+			typename Where = vendor::no_where_t>
+		struct update_t
 		{
-			template<typename Needle, typename Replacement>
-				using _policy_update_t = update_t<Database, vendor::policy_update_t<Policies, Needle, Replacement>...>;
-
 			using _database_t = Database;
-			using _parameter_tuple_t = std::tuple<Policies...>;
+			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
+
+			template<typename Needle, typename Replacement, typename... Policies>
+				struct _policies_update_impl
+				{
+					using type =  update_t<Database, vendor::policy_update_t<Policies, Needle, Replacement>...>;
+				};
+
+			template<typename Needle, typename Replacement>
+				using _policies_update_t = typename _policies_update_impl<Needle, Replacement, Table, UpdateList, Where>::type;
+
+			using _parameter_tuple_t = std::tuple<Table, UpdateList, Where>;
 			using _parameter_list_t = typename make_parameter_list_t<update_t>::type;
 
 			update_t()
 			{}
 
-			template<typename Whatever>
-				update_t(update_t r, Whatever whatever):
-					vendor::policy_t<Policies>(r, whatever)...
+			// Constructors
+			template<typename X>
+				update_t(X x, Table table):
+					_table(table),
+					_update_list(x._update_list),
+					_where(x._where)
 			{}
 
-			template<typename Remove, typename Whatever>
-				update_t(Remove r, Whatever whatever):
-					vendor::policy_t<Policies>(r, whatever)...
+			template<typename X>
+				update_t(X x, UpdateList update_list):
+					_table(x._table),
+					_update_list(update_list),
+					_where(x._where)
+			{}
+
+			template<typename X>
+				update_t(X x, Where where):
+					_table(x._table),
+					_update_list(x._update_list),
+					_where(where)
 			{}
 
 			update_t(const update_t&) = default;
@@ -82,6 +105,59 @@ namespace sqlpp
 			update_t& operator=(update_t&&) = default;
 			~update_t() = default;
 
+			// type update functions
+			template<typename... Args>
+				auto set(Args... args)
+				-> _policies_update_t<vendor::no_update_list_t, vendor::update_list_t<void, Args...>>
+				{
+					static_assert(is_noop_t<UpdateList>::value, "cannot call set()/dynamic_set() twice");
+					return { *this, vendor::update_list_t<void, Args...>(args...) };
+				}
+
+			template<typename... Args>
+				auto dynamic_set(Args... args)
+				-> _policies_update_t<vendor::no_update_list_t, vendor::update_list_t<_database_t, Args...>>
+				{
+					static_assert(is_noop_t<UpdateList>::value, "cannot call set()/dynamic_set() twice");
+					static_assert(_is_dynamic::value, "dynamic_set must not be called in a static statement");
+					return { *this, vendor::update_list_t<_database_t, Args...>(args...) };
+				}
+
+			template<typename... Args>
+				auto where(Args... args)
+				-> _policies_update_t<vendor::no_where_t, vendor::where_t<void, Args...>>
+				{
+					static_assert(is_noop_t<Where>::value, "cannot call where()/dynamic_where() twice");
+					return { *this, vendor::where_t<void, Args...>(args...) };
+				}
+
+			template<typename... Args>
+				auto dynamic_where(Args... args)
+				-> _policies_update_t<vendor::no_where_t, vendor::where_t<_database_t, Args...>>
+				{
+					static_assert(is_noop_t<Where>::value, "cannot call where()/dynamic_where() twice");
+					static_assert(not std::is_same<_database_t, void>::value, "dynamic_where must not be called in a static statement");
+					return { *this, vendor::where_t<_database_t, Args...>(args...) };
+				}
+
+			// value adding methods
+			template<typename... Args>
+				void add_set(Args... args)
+				{
+					static_assert(is_update_list_t<UpdateList>::value, "cannot call add_set() before dynamic_set()");
+					static_assert(is_dynamic_t<UpdateList>::value, "cannot call add_set() before dynamic_set()");
+					return _update_list.add_set(*this, args...);
+				}
+
+			template<typename... Args>
+				void add_where(Args... args)
+				{
+					static_assert(is_where_t<Where>::value, "cannot call add_where() before dynamic_where()");
+					static_assert(is_dynamic_t<Where>::value, "cannot call add_where() before dynamic_where()");
+					return _where.add_where(*this, args...);
+				}
+
+			// run and prepare
 			static constexpr size_t _get_static_no_of_parameters()
 			{
 				return _parameter_list_t::size::value;
@@ -96,7 +172,6 @@ namespace sqlpp
 				std::size_t _run(Db& db) const
 				{
 					static_assert(_get_static_no_of_parameters() == 0, "cannot run update directly with parameters, use prepare instead");
-					static_assert(detail::check_update_t<Policies...>::value, "Cannot run this update expression");
 					return db.update(*this);
 				}
 
@@ -104,9 +179,12 @@ namespace sqlpp
 				auto _prepare(Db& db) const
 				-> prepared_update_t<Database, update_t>
 				{
-					static_assert(detail::check_update_t<Policies...>::value, "Cannot run this update expression");
 					return {{}, db.prepare_update(*this)};
 				}
+
+			Table _table;
+			UpdateList _update_list;
+			Where _where;
 		};
 
 	namespace vendor
@@ -119,29 +197,26 @@ namespace sqlpp
 				static Context& _(const T& t, Context& context)
 				{
 					context << "UPDATE ";
-					interpret(t._single_table(), context);
-					interpret(t._update_list(), context);
-					interpret(t._where(), context);
+					interpret(t._table, context);
+					interpret(t._update_list, context);
+					interpret(t._where, context);
 					return context;
 				}
 			};
 	}
 
-	template<typename Database>
-		using blank_update_t = update_t<Database, vendor::no_single_table_t, vendor::no_update_list_t, vendor::no_where_t>;
-
 	template<typename Table>
 		constexpr auto update(Table table)
-		-> update_t<void, vendor::single_table_t<void, Table>, vendor::no_update_list_t, vendor::no_where_t>
+		-> update_t<void, vendor::single_table_t<void, Table>>
 		{
-			return { blank_update_t<void>(), vendor::single_table_t<void, Table>{table} };
+			return { update_t<void>(), vendor::single_table_t<void, Table>{table} };
 		}
 
 	template<typename Database, typename Table>
 		constexpr auto  dynamic_update(const Database&, Table table)
-		-> update_t<Database, vendor::single_table_t<void, Table>, vendor::no_update_list_t, vendor::no_where_t>
+		-> update_t<Database, vendor::single_table_t<void, Table>>
 		{
-			return { blank_update_t<Database>(), vendor::single_table_t<void, Table>{table} };
+			return { update_t<Database>(), vendor::single_table_t<void, Table>{table} };
 		}
 
 }

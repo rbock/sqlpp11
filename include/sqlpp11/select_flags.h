@@ -27,7 +27,6 @@
 #ifndef SQLPP_SELECT_FLAGS_H
 #define SQLPP_SELECT_FLAGS_H
 
-#include <sqlpp11/select_fwd.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/vendor/interpret_tuple.h>

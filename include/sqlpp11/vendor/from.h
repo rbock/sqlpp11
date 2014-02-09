@@ -27,7 +27,6 @@
 #ifndef SQLPP_FROM_H
 #define SQLPP_FROM_H
 
-#include <sqlpp11/select_fwd.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/vendor/interpretable_list.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
@@ -66,47 +65,27 @@ namespace sqlpp
 				from_t& operator=(from_t&&) = default;
 				~from_t() = default;
 
-				template<typename Table>
-					void add_from(Table table)
+				template<typename Select, typename Table>
+					void add_from(const Select&, Table table)
 					{
 						static_assert(_is_dynamic::value, "add_from can only be called for dynamic_from");
 						static_assert(is_table_t<Table>::value, "from arguments require to be tables or joins");
 						_dynamic_tables.emplace_back(table);
 					}
 
-				const from_t& _from() const { return *this; }
 				std::tuple<Tables...> _tables;
 				vendor::interpretable_list_t<Database> _dynamic_tables;
 			};
 
 		struct no_from_t
 		{
-			const no_from_t& _from() const { return *this; }
+			using _is_noop = std::true_type;
 		};
 
 		// CRTP Wrappers
 		template<typename Derived, typename Database, typename... Args>
 			struct crtp_wrapper_t<Derived, from_t<Database, Args...>>
 			{
-			};
-
-		template<typename Derived>
-			struct crtp_wrapper_t<Derived, no_from_t>
-			{
-				template<typename... Args>
-					auto from(Args... args)
-					-> vendor::update_policies_t<Derived, no_from_t, from_t<void, Args...>>
-					{
-						return { static_cast<Derived&>(*this), from_t<void, Args...>(args...) };
-					}
-
-				template<typename... Args>
-					auto dynamic_from(Args... args)
-					-> vendor::update_policies_t<Derived, no_from_t, from_t<get_database_t<Derived>, Args...>>
-					{
-						static_assert(not std::is_same<get_database_t<Derived>, void>::value, "dynamic_from must not be called in a static statement");
-						return { static_cast<Derived&>(*this), from_t<get_database_t<Derived>, Args...>(args...) };
-					}
 			};
 
 		// Interpreters

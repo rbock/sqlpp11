@@ -62,8 +62,8 @@ namespace sqlpp
 				update_list_t& operator=(update_list_t&&) = default;
 				~update_list_t() = default;
 
-				template<typename Assignment>
-					void add_set(Assignment assignment)
+				template<typename Update, typename Assignment>
+					void add_set(const Update&, Assignment assignment)
 					{
 						static_assert(is_assignment_t<Assignment>::value, "set() arguments require to be assigments");
 						static_assert(not must_not_update_t<typename Assignment::_column_t>::value, "set() argument must not be updated");
@@ -77,34 +77,9 @@ namespace sqlpp
 
 		struct no_update_list_t
 		{
-			using _is_update_list = std::true_type;
+			using _is_noop = std::true_type;
 			const no_update_list_t& _update_list() const { return *this; }
 		};
-
-		// CRTP Wrappers
-		template<typename Derived, typename Database, typename... Args>
-			struct crtp_wrapper_t<Derived, update_list_t<Database, Args...>>
-			{
-			};
-
-		template<typename Derived>
-			struct crtp_wrapper_t<Derived, no_update_list_t>
-			{
-				template<typename... Args>
-					auto set(Args... args)
-					-> vendor::update_policies_t<Derived, no_update_list_t, update_list_t<void, Args...>>
-					{
-						return { static_cast<Derived&>(*this), update_list_t<void, Args...>(args...) };
-					}
-
-				template<typename... Args>
-					auto dynamic_set(Args... args)
-					-> vendor::update_policies_t<Derived, no_update_list_t, update_list_t<get_database_t<Derived>, Args...>>
-					{
-						static_assert(not std::is_same<get_database_t<Derived>, void>::value, "dynamic_update_list must not be called in a static statement");
-						return { static_cast<Derived&>(*this), update_list_t<get_database_t<Derived>, Args...>(args...) };
-					}
-			};
 
 		// Interpreters
 		template<typename Context, typename Database, typename... Assignments>
