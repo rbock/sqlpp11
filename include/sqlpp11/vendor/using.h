@@ -71,40 +71,14 @@ namespace sqlpp
 						_dynamic_tables.emplace_back(table);
 					}
 
-				const using_t& _using() const { return *this; }
 				_parameter_tuple_t _tables;
 				vendor::interpretable_list_t<Database> _dynamic_tables;
 			};
 
 		struct no_using_t
 		{
-			const no_using_t& _using() const { return *this; }
+			using _is_noop = std::true_type;
 		};
-
-		// CRTP Wrapper
-		template<typename Derived, typename Database, typename... Args>
-			struct crtp_wrapper_t<Derived, using_t<Database, Args...>>
-			{
-			};
-
-		template<typename Derived>
-			struct crtp_wrapper_t<Derived, no_using_t>
-			{
-				template<typename... Args>
-					auto using_(Args... args)
-					-> vendor::update_policies_t<Derived, no_using_t, using_t<void, Args...>>
-					{
-						return { static_cast<Derived&>(*this), using_t<void, Args...>(args...) };
-					}
-
-				template<typename... Args>
-					auto dynamic_using(Args... args)
-					-> vendor::update_policies_t<Derived, no_using_t, using_t<get_database_t<Derived>, Args...>>
-					{
-						static_assert(not std::is_same<get_database_t<Derived>, void>::value, "dynamic_using must not be called in a static statement");
-						return { static_cast<Derived&>(*this), using_t<get_database_t<Derived>, Args...>(args...) };
-					}
-			};
 
 		// Interpreters
 		template<typename Context, typename Database, typename... Tables>

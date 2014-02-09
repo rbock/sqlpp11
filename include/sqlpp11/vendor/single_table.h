@@ -28,8 +28,6 @@
 #define SQLPP_VENDOR_SINGLE_TABLE_H
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/vendor/policy_update.h>
-#include <sqlpp11/vendor/crtp_wrapper.h>
 #include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
@@ -54,7 +52,6 @@ namespace sqlpp
 				single_table_t& operator=(single_table_t&&) = default;
 				~single_table_t() = default;
 
-				const single_table_t& _single_table() const { return *this; }
 				using _table_set = typename Table::_table_set;
 				Table _table;
 			};
@@ -62,19 +59,7 @@ namespace sqlpp
 		struct no_single_table_t
 		{
 			using _table_set = ::sqlpp::detail::type_set<>;
-			const no_single_table_t& _single_table() const { return *this; }
 		};
-
-		// CRTP Wrappers
-		template<typename Derived, typename Database, typename Table>
-			struct crtp_wrapper_t<Derived, single_table_t<Database, Table>>
-			{
-			};
-
-		template<typename Derived>
-			struct crtp_wrapper_t<Derived, no_single_table_t>
-			{
-			};
 
 		// Interpreters
 		template<typename Context, typename Database, typename Table>

@@ -57,6 +57,7 @@ int main()
 		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
+	interpret(insert_into(t).default_values(), printer).flush();
 	interpret(insert_into(t), printer).flush();
 	interpret(insert_into(t).set(t.beta = "kirschauflauf"), printer).flush();
 	auto i = dynamic_insert_into(db, t).dynamic_set();
