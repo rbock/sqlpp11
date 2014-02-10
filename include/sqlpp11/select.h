@@ -96,6 +96,7 @@ namespace sqlpp
 
 			using _parameter_tuple_t = std::tuple<FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>;
 			using _parameter_list_t = typename make_parameter_list_t<select_t>::type;
+			using _table_set = ::sqlpp::detail::type_set<>;
 			
 			using _column_list_t = ColumnList;
 			using _result_row_t = typename _column_list_t::_result_row_t;
