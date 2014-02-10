@@ -28,6 +28,7 @@
 #define SQLPP_PARAMETER_H
 
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
 {
@@ -38,6 +39,7 @@ namespace sqlpp
 		using _is_parameter = std::true_type;
 		using _is_expression_t = std::true_type;
 		using _instance_t = typename NameType::_name_t::template _member_t<typename ValueType::_parameter_t>;
+		using _table_set = sqlpp::detail::type_set<>;
 
 		parameter_t()
 		{}

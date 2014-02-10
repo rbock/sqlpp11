@@ -63,7 +63,10 @@ namespace sqlpp
 
 				static_assert(not sqlpp::detail::or_t<must_not_insert_t, typename Assignments::_column_t...>::value, "at least one assignment is prohibited by its column definition in set()");
 
-				using _table_set = typename ::sqlpp::detail::make_joined_set<typename Assignments::_column_t::_table_set...>::type;
+				using _table_set = typename ::sqlpp::detail::make_joined_set<
+					typename Assignments::_column_t::_table_set...,
+					typename Assignments::value_type::_table_set...
+					>::type;
 				static_assert(_is_dynamic::value ? (_table_set::size::value < 2) : (_table_set::size::value == 1), "set() contains assignments for tables from several columns");
 				
 				insert_list_t(Assignments... assignment):

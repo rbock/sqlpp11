@@ -27,8 +27,8 @@
 #ifndef SQLPP_ANY_H
 #define SQLPP_ANY_H
 
-#include <sstream>
 #include <sqlpp11/boolean.h>
+#include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
 {
@@ -56,6 +56,8 @@ namespace sqlpp
 						const T& operator()() const { return any; }
 					};
 			};
+
+			using _table_set = ::sqlpp::detail::type_set<>; // FIXME: Can selects leak tables here?
 
 			any_t(Select select):
 				_select(select)

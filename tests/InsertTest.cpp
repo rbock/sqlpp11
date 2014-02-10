@@ -35,6 +35,7 @@ DbMock::_context_t printer(std::cerr);
 int main()
 {
 	test::TabBar t;
+	test::TabFoo f;
 
 	auto x = t.alpha = 7;
 	auto y = t.beta = "kaesekuchen";

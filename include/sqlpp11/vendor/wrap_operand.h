@@ -29,6 +29,7 @@
 
 #include <string>
 #include <sqlpp11/vendor/interpreter.h>
+#include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
 {
@@ -47,6 +48,7 @@ namespace sqlpp
 			static constexpr bool _is_expression = true;
 			using _value_type = sqlpp::detail::boolean;
 			using _value_t = bool;
+			using _table_set = ::sqlpp::detail::type_set<>;
 
 			bool _is_trivial() const { return _t == false; }
 
@@ -71,6 +73,7 @@ namespace sqlpp
 				static constexpr bool _is_expression = true;
 				using _value_type = ::sqlpp::detail::integral;
 				using _value_t = T;
+				using _table_set = ::sqlpp::detail::type_set<>;
 
 				bool _is_trivial() const { return _t == 0; }
 
@@ -96,6 +99,7 @@ namespace sqlpp
 				static constexpr bool _is_expression = true;
 				using _value_type = ::sqlpp::detail::floating_point;
 				using _value_t = T;
+				using _table_set = ::sqlpp::detail::type_set<>;
 
 				bool _is_trivial() const { return _t == 0; }
 
@@ -119,6 +123,7 @@ namespace sqlpp
 			static constexpr bool _is_expression = true;
 			using _value_type = ::sqlpp::detail::text;
 			using _value_t = std::string;
+			using _table_set = ::sqlpp::detail::type_set<>;
 
 			bool _is_trivial() const { return _t.empty(); }
 
