@@ -52,6 +52,12 @@ namespace sqlpp
 
 				static_assert(not ::sqlpp::detail::or_t<must_not_update_t, typename Assignments::_column_t...>::value, "at least one assignment is prohibited by its column definition in set()");
 
+				using _column_table_set = typename ::sqlpp::detail::make_joined_set<typename Assignments::_column_t::_table_set...>::type;
+				using _value_table_set = typename ::sqlpp::detail::make_joined_set<typename Assignments::value_type::_table_set...>::type;
+				using _table_set = typename ::sqlpp::detail::make_joined_set<_column_table_set, _value_table_set>::type;
+				static_assert(sizeof...(Assignments) ? (_column_table_set::size::value == 1) : true, "set() contains assignments for tables from several columns");
+				static_assert(_value_table_set::template is_subset_of<_column_table_set>::value, "set() contains values from foreign tables");
+
 				update_list_t(Assignments... assignments):
 					_assignments(assignments...)
 				{}
@@ -70,7 +76,6 @@ namespace sqlpp
 						_dynamic_assignments.emplace_back(assignment);
 					}
 
-				const update_list_t& _update_list() const { return *this; }
 				_parameter_tuple_t _assignments;
 				typename vendor::interpretable_list_t<Database> _dynamic_assignments;
 			};
@@ -78,7 +83,7 @@ namespace sqlpp
 		struct no_update_list_t
 		{
 			using _is_noop = std::true_type;
-			const no_update_list_t& _update_list() const { return *this; }
+			using _table_set = ::sqlpp::detail::type_set<>;
 		};
 
 		// Interpreters

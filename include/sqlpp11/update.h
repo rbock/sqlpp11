@@ -57,6 +57,8 @@ namespace sqlpp
 			typename Where = vendor::no_where_t>
 		struct update_t
 		{
+			static_assert(Table::_table_set::template is_superset_of<typename UpdateList::_table_set>::value, "updated columns do not match the table");
+
 			using _database_t = Database;
 			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 
@@ -109,7 +111,7 @@ namespace sqlpp
 				-> _policies_update_t<vendor::no_update_list_t, vendor::update_list_t<void, Args...>>
 				{
 					static_assert(is_noop_t<UpdateList>::value, "cannot call set()/dynamic_set() twice");
-					return { *this, vendor::update_list_t<void, Args...>(args...) };
+					return { *this, vendor::update_list_t<void, Args...>{args...} };
 				}
 
 			template<typename... Args>
@@ -118,7 +120,7 @@ namespace sqlpp
 				{
 					static_assert(is_noop_t<UpdateList>::value, "cannot call set()/dynamic_set() twice");
 					static_assert(_is_dynamic::value, "dynamic_set must not be called in a static statement");
-					return { *this, vendor::update_list_t<_database_t, Args...>(args...) };
+					return { *this, vendor::update_list_t<_database_t, Args...>{args...} };
 				}
 
 			template<typename... Args>
@@ -126,7 +128,7 @@ namespace sqlpp
 				-> _policies_update_t<vendor::no_where_t, vendor::where_t<void, Args...>>
 				{
 					static_assert(is_noop_t<Where>::value, "cannot call where()/dynamic_where() twice");
-					return { *this, vendor::where_t<void, Args...>(args...) };
+					return { *this, vendor::where_t<void, Args...>{args...} };
 				}
 
 			template<typename... Args>
@@ -135,7 +137,7 @@ namespace sqlpp
 				{
 					static_assert(is_noop_t<Where>::value, "cannot call where()/dynamic_where() twice");
 					static_assert(not std::is_same<_database_t, void>::value, "dynamic_where must not be called in a static statement");
-					return { *this, vendor::where_t<_database_t, Args...>(args...) };
+					return { *this, vendor::where_t<_database_t, Args...>{args...} };
 				}
 
 			// value adding methods

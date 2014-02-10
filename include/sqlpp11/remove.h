@@ -108,7 +108,7 @@ namespace sqlpp
 				-> _policies_update_t<vendor::no_using_t, vendor::using_t<void, Args...>>
 				{
 					static_assert(is_noop_t<Using>::value, "cannot call using_()/dynamic_using() twice");
-					return { *this, vendor::using_t<void, Args...>(args...) };
+					return { *this, vendor::using_t<void, Args...>{args...} };
 				}
 
 			template<typename... Args>
@@ -117,7 +117,7 @@ namespace sqlpp
 				{
 					static_assert(is_noop_t<Using>::value, "cannot call using_()/dynamic_using() twice");
 					static_assert(not std::is_same<_database_t, void>::value, "dynamic_using must not be called in a static statement");
-					return { *this, vendor::using_t<_database_t, Args...>(args...) };
+					return { *this, vendor::using_t<_database_t, Args...>{args...} };
 				}
 
 			template<typename... Args>
@@ -125,7 +125,7 @@ namespace sqlpp
 				-> _policies_update_t<vendor::no_where_t, vendor::where_t<void, Args...>>
 				{
 					static_assert(is_noop_t<Where>::value, "cannot call where()/dynamic_where() twice");
-					return { *this, vendor::where_t<void, Args...>(args...) };
+					return { *this, vendor::where_t<void, Args...>{args...} };
 				}
 
 			template<typename... Args>
@@ -134,7 +134,7 @@ namespace sqlpp
 				{
 					static_assert(is_noop_t<Where>::value, "cannot call where()/dynamic_where() twice");
 					static_assert(not std::is_same<_database_t, void>::value, "dynamic_where must not be called in a static statement");
-					return { *this, vendor::where_t<_database_t, Args...>(args...) };
+					return { *this, vendor::where_t<_database_t, Args...>{args...} };
 				}
 
 			// value adding methods

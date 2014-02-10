@@ -45,10 +45,11 @@ namespace sqlpp
 			>
 		struct insert_t
 		{
-			static_assert(Table::_table_set::template is_superset_of<typename InsertValueList::_table_set>::value, "inserted columns do not match the table in insert_into");
+			static_assert(Table::_table_set::template is_superset_of<typename InsertValueList::_table_set>::value, "columns do not match the table they are to be inserted into");
 
 			using _database_t = Database;
 			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
+			using _table_set = typename Table::_table_set;
 
 			template<typename Needle, typename Replacement, typename... Policies>
 				struct _policies_update_impl
@@ -97,7 +98,7 @@ namespace sqlpp
 				-> _policies_update_t<vendor::no_insert_value_list_t, vendor::column_list_t<Args...>>
 				{
 					static_assert(is_noop_t<InsertValueList>::value, "cannot combine columns() with other methods");
-					return { *this, vendor::column_list_t<Args...>(args...) };
+					return { *this, vendor::column_list_t<Args...>{args...} };
 				}
 
 			template<typename... Args>
@@ -105,7 +106,7 @@ namespace sqlpp
 				-> _policies_update_t<vendor::no_insert_value_list_t, vendor::insert_list_t<void, Args...>>
 				{
 					static_assert(is_noop_t<InsertValueList>::value, "cannot combine set() with other methods");
-					return { *this, vendor::insert_list_t<void, Args...>(args...) };
+					return { *this, vendor::insert_list_t<void, Args...>{args...} };
 				}
 
 			template<typename... Args>
@@ -114,7 +115,7 @@ namespace sqlpp
 				{
 					static_assert(is_noop_t<InsertValueList>::value, "cannot combine dynamic_set() with other methods");
 					static_assert(_is_dynamic::value, "dynamic_set must not be called in a static statement");
-					return { *this, vendor::insert_list_t<_database_t, Args...>(args...) };
+					return { *this, vendor::insert_list_t<_database_t, Args...>{args...} };
 				}
 
 			// value adding methods
@@ -129,7 +130,7 @@ namespace sqlpp
 			template<typename... Args>
 				void add_values(Args... args)
 				{
-					static_assert(is_column_list_t<InsertValueList>::value, "cannot call add_set() before columns()");
+					static_assert(is_column_list_t<InsertValueList>::value, "cannot call add_values() before columns()");
 					return _insert_value_list.add_values(args...);
 				}
 

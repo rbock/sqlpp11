@@ -240,7 +240,7 @@ namespace sqlpp
 				-> _policies_update_t<vendor::no_select_flag_list_t, vendor::select_flag_list_t<void, Args...>>
 				{
 					static_assert(is_noop_t<FlagList>::value, "flags()/dynamic_flags() must not be called twice");
-					return { *this, vendor::select_flag_list_t<void, Args...>(args...) };
+					return { *this, vendor::select_flag_list_t<void, Args...>{args...} };
 				}
 
 			template<typename... Args>
@@ -249,7 +249,7 @@ namespace sqlpp
 				{
 					static_assert(is_noop_t<FlagList>::value, "flags()/dynamic_flags() must not be called twice");
 					static_assert(_is_dynamic::value, "dynamic_flags must not be called in a static statement");
-					return { *this, vendor::select_flag_list_t<_database_t, Args...>(args...) };
+					return { *this, vendor::select_flag_list_t<_database_t, Args...>{args...} };
 				}
 
 			template<typename... Args>
@@ -257,7 +257,7 @@ namespace sqlpp
 				-> _policies_update_t<vendor::no_select_column_list_t, vendor::select_column_list_t<void, Args...>>
 				{
 					static_assert(is_noop_t<ColumnList>::value, "columns()/dynamic_columns() must not be called twice");
-					return { *this, vendor::select_column_list_t<void, Args...>(args...) };
+					return { *this, vendor::select_column_list_t<void, Args...>{args...} };
 				}
 
 			template<typename... Args>
@@ -266,14 +266,14 @@ namespace sqlpp
 				{
 					static_assert(is_noop_t<ColumnList>::value, "columns()/dynamic_columns() must not be called twice");
 					static_assert(_is_dynamic::value, "dynamic_columns must not be called in a static statement");
-					return { *this, vendor::select_column_list_t<_database_t, Args...>(args...) };
+					return { *this, vendor::select_column_list_t<_database_t, Args...>{args...} };
 				}
 
 			template<typename... Args>
 				auto from(Args... args)
 				-> _policies_update_t<vendor::no_from_t, vendor::from_t<void, Args...>>
 				{
-					return { *this, vendor::from_t<void, Args...>(args...) };
+					return { *this, vendor::from_t<void, Args...>{args...} };
 				}
 
 			template<typename... Args>
@@ -281,7 +281,7 @@ namespace sqlpp
 				-> _policies_update_t<vendor::no_from_t, vendor::from_t<_database_t, Args...>>
 				{
 					static_assert(not std::is_same<_database_t, void>::value, "dynamic_from must not be called in a static statement");
-					return { *this, vendor::from_t<_database_t, Args...>(args...) };
+					return { *this, vendor::from_t<_database_t, Args...>{args...} };
 				}
 
 			template<typename... Args>
@@ -289,7 +289,7 @@ namespace sqlpp
 				-> _policies_update_t<vendor::no_where_t, vendor::where_t<void, Args...>>
 				{
 					static_assert(is_noop_t<Where>::value, "cannot call where()/dynamic_where() twice");
-					return { *this, vendor::where_t<void, Args...>(args...) };
+					return { *this, vendor::where_t<void, Args...>{args...} };
 				}
 
 			template<typename... Args>
@@ -298,7 +298,7 @@ namespace sqlpp
 				{
 					static_assert(is_noop_t<Where>::value, "cannot call where()/dynamic_where() twice");
 					static_assert(not std::is_same<_database_t, void>::value, "dynamic_where must not be called in a static statement");
-					return { *this, vendor::where_t<_database_t, Args...>(args...) };
+					return { *this, vendor::where_t<_database_t, Args...>{args...} };
 				}
 
 			template<typename... Args>
@@ -306,7 +306,7 @@ namespace sqlpp
 				-> _policies_update_t<vendor::no_group_by_t, vendor::group_by_t<void, Args...>>
 				{
 					static_assert(is_noop_t<GroupBy>::value, "cannot call group_by()/dynamic_group_by() twice");
-					return { *this, vendor::group_by_t<void, Args...>(args...) };
+					return { *this, vendor::group_by_t<void, Args...>{args...} };
 				}
 
 			template<typename... Args>
@@ -315,7 +315,7 @@ namespace sqlpp
 				{
 					static_assert(is_noop_t<GroupBy>::value, "cannot call group_by()/dynamic_group_by() twice");
 					static_assert(not std::is_same<_database_t, void>::value, "dynamic_group_by must not be called in a static statement");
-					return { *this, vendor::group_by_t<_database_t, Args...>(args...) };
+					return { *this, vendor::group_by_t<_database_t, Args...>{args...} };
 				}
 
 			template<typename... Args>
@@ -323,7 +323,7 @@ namespace sqlpp
 				-> _policies_update_t<vendor::no_having_t, vendor::having_t<void, Args...>>
 				{
 					static_assert(is_noop_t<Having>::value, "cannot call having()/dynamic_having() twice");
-					return { *this, vendor::having_t<void, Args...>(args...) };
+					return { *this, vendor::having_t<void, Args...>{args...} };
 				}
 
 			template<typename... Args>
@@ -332,7 +332,7 @@ namespace sqlpp
 				{
 					static_assert(is_noop_t<Having>::value, "cannot call having()/dynamic_having() twice");
 					static_assert(not std::is_same<_database_t, void>::value, "dynamic_having must not be called in a static statement");
-					return { *this, vendor::having_t<_database_t, Args...>(args...) };
+					return { *this, vendor::having_t<_database_t, Args...>{args...} };
 				}
 
 			template<typename... Args>
@@ -340,7 +340,7 @@ namespace sqlpp
 				-> _policies_update_t<vendor::no_order_by_t, vendor::order_by_t<void, Args...>>
 				{
 					static_assert(is_noop_t<OrderBy>::value, "cannot call order_by()/dynamic_order_by() twice");
-					return { *this, vendor::order_by_t<void, Args...>(args...) };
+					return { *this, vendor::order_by_t<void, Args...>{args...} };
 				}
 
 			template<typename... Args>
@@ -349,7 +349,7 @@ namespace sqlpp
 				{
 					static_assert(is_noop_t<OrderBy>::value, "cannot call order_by()/dynamic_order_by() twice");
 					static_assert(not std::is_same<_database_t, void>::value, "dynamic_order_by must not be called in a static statement");
-					return { *this, vendor::order_by_t<_database_t, Args...>(args...) };
+					return { *this, vendor::order_by_t<_database_t, Args...>{args...} };
 				}
 
 			template<typename Arg>
@@ -357,7 +357,7 @@ namespace sqlpp
 				-> _policies_update_t<vendor::no_limit_t, vendor::limit_t<typename vendor::wrap_operand<Arg>::type>>
 				{
 					static_assert(is_noop_t<Limit>::value, "cannot call limit()/dynamic_limit() twice");
-					return { *this, vendor::limit_t<typename vendor::wrap_operand<Arg>::type>({arg}) };
+					return { *this, vendor::limit_t<typename vendor::wrap_operand<Arg>::type>{{arg}} };
 				}
 
 				auto dynamic_limit()
@@ -365,7 +365,7 @@ namespace sqlpp
 				{
 					static_assert(is_noop_t<Limit>::value, "cannot call limit()/dynamic_limit() twice");
 					static_assert(not std::is_same<_database_t, void>::value, "dynamic_limit must not be called in a static statement");
-					return { *this, vendor::dynamic_limit_t<_database_t>() };
+					return { *this, vendor::dynamic_limit_t<_database_t>{} };
 				}
 
 			template<typename Arg>
@@ -373,7 +373,7 @@ namespace sqlpp
 				-> _policies_update_t<vendor::no_offset_t, vendor::offset_t<typename vendor::wrap_operand<Arg>::type>>
 				{
 					static_assert(is_noop_t<Offset>::value, "cannot call offset()/dynamic_offset() twice");
-					return { *this, vendor::offset_t<typename vendor::wrap_operand<Arg>::type>({arg}) };
+					return { *this, vendor::offset_t<typename vendor::wrap_operand<Arg>::type>{{arg}} };
 				}
 
 				auto dynamic_offset()
@@ -381,7 +381,7 @@ namespace sqlpp
 				{
 					static_assert(is_noop_t<Offset>::value, "cannot call offset()/dynamic_offset() twice");
 					static_assert(not std::is_same<_database_t, void>::value, "dynamic_offset must not be called in a static statement");
-					return { *this, vendor::dynamic_offset_t<_database_t>() };
+					return { *this, vendor::dynamic_offset_t<_database_t>{} };
 				}
 
 			// value adding methods
