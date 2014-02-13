@@ -35,6 +35,7 @@ DbMock::_context_t printer(std::cerr);
 int main()
 {
 	test::TabBar t;
+	test::TabFoo f;
 
 	auto x = t.alpha = 7;
 	auto y = t.beta = "kaesekuchen";
@@ -57,8 +58,13 @@ int main()
 		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
+	interpret(insert_into(t).default_values(), printer).flush();
 	interpret(insert_into(t), printer).flush();
 	interpret(insert_into(t).set(t.beta = "kirschauflauf"), printer).flush();
+	interpret(insert_into(t).columns(t.beta), printer).flush();
+	auto multi_insert = insert_into(t).columns(t.beta, t.delta);
+	multi_insert.add_values(t.beta = "cheesecake", t.delta = 1); 
+	multi_insert.add_values(t.beta = sqlpp::default_value, t.delta = sqlpp::default_value); 
 	auto i = dynamic_insert_into(db, t).dynamic_set();
 	i.add_set(t.beta = "kirschauflauf");
 	interpret(i, printer).flush();

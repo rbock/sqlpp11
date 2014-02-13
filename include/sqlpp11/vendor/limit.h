@@ -29,7 +29,6 @@
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/vendor/policy_update.h>
-#include <sqlpp11/vendor/crtp_wrapper.h>
 
 namespace sqlpp
 {
@@ -52,7 +51,6 @@ namespace sqlpp
 				limit_t& operator=(limit_t&&) = default;
 				~limit_t() = default;
 
-				const limit_t& _limit() const { return *this; }
 				Limit _value;
 			};
 
@@ -88,55 +86,14 @@ namespace sqlpp
 						_initialized = true;
 					}
 
-				const dynamic_limit_t& _limit() const { return *this; }
-				
 				bool _initialized = false;
 				interpretable_t<Database> _value;
 			};
 
 		struct no_limit_t
 		{
-			using _is_limit = std::true_type;
-			const no_limit_t& _limit() const { return *this; }
+			using _is_noop = std::true_type;
 		};
-
-		// CRTP Wrappers
-		template<typename Derived, typename Limit>
-			struct crtp_wrapper_t<Derived, limit_t<Limit>>
-			{
-			};
-
-		template<typename Derived, typename Database>
-			struct crtp_wrapper_t<Derived, dynamic_limit_t<Database>>
-			{
-			};
-
-		template<typename Derived>
-			struct crtp_wrapper_t<Derived, no_limit_t>
-			{
-				template<typename... Args>
-					struct delayed_get_database_t
-					{
-						using type = get_database_t<Derived>;
-					};
-
-				template<typename Arg>
-					auto limit(Arg arg)
-					-> vendor::update_policies_t<Derived, no_limit_t, limit_t<typename wrap_operand<Arg>::type>>
-					{
-						typename wrap_operand<Arg>::type value = {arg};
-						return { static_cast<Derived&>(*this), limit_t<typename wrap_operand<Arg>::type>(value) };
-					}
-
-				template<typename... Args>
-				auto dynamic_limit(Args... args)
-					-> vendor::update_policies_t<Derived, no_limit_t, dynamic_limit_t<typename delayed_get_database_t<Args...>::type>>
-					{
-						static_assert(sizeof...(Args) < 2, "dynamic_limit must be called with zero or one arguments");
-						static_assert(not std::is_same<get_database_t<Derived>, void>::value, "dynamic_limit must not be called in a static statement");
-						return { static_cast<Derived&>(*this), dynamic_limit_t<typename delayed_get_database_t<Args...>::type>(args...) };
-					}
-			};
 
 		// Interpreters
 		template<typename Context, typename Database>

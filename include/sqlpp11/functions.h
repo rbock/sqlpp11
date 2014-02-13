@@ -47,6 +47,7 @@ namespace sqlpp
 	template<typename T>
 		auto value(T t) -> typename operand_t<T, is_value_t>::type
 		{
+			using _table_set = ::sqlpp::detail::type_set<>;
 			static_assert(not is_value_t<T>::value, "value() is to be called with non-sql-type like int, or string");
 			return { t };
 		}
@@ -55,6 +56,7 @@ namespace sqlpp
 	struct verbatim_t: public ValueType::template operators<verbatim_t<ValueType>>
 	{
 		using _value_type = ValueType;
+		using _table_set = ::sqlpp::detail::type_set<>;
 
 		verbatim_t(std::string verbatim): _verbatim(verbatim) {}
 		verbatim_t(const verbatim_t&) = default;
@@ -100,6 +102,7 @@ namespace sqlpp
 		struct value_list_t // to be used in .in() method
 		{
 			using _container_t = Container;
+			using _table_set = ::sqlpp::detail::type_set<>;// FIXME: Could it be something else?
 			using _value_type = typename operand_t<typename _container_t::value_type, is_value_t>::type::_value_type;
 
 			value_list_t(_container_t container):

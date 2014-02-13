@@ -180,6 +180,12 @@ namespace sqlpp
 					}
 
 				template<typename T>
+					auto operator +=(T t) const -> decltype(std::declval<Base>() = std::declval<Base>() + t)
+					{
+						return *static_cast<const Base*>(this) = operator +(t);
+					}
+
+				template<typename T>
 					vendor::like_t<Base, typename _operand_t<T>::type> like(T t) const
 					{
 						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");

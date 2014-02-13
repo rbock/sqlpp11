@@ -44,6 +44,7 @@ namespace sqlpp
 				using _column_t = Lhs;
 				using value_type = Rhs;
 				using _parameter_tuple_t = std::tuple<_column_t, Rhs>;
+				using _table_set = typename Lhs::_table_set::template join<typename Rhs::_table_set>::type;
 
 				static_assert(not std::is_same<Rhs, null_t>::value or can_be_null_t<_column_t>::value, "column cannot be null");
 

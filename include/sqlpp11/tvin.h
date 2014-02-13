@@ -39,6 +39,7 @@ namespace sqlpp
 		{
 			using _operand_t = Operand;
 			using _value_type = typename _operand_t::_value_type;
+			using _table_set = typename _operand_t::_table_set;
 
 			tvin_t(Operand operand): 
 				_value(operand)
@@ -74,6 +75,7 @@ namespace sqlpp
 	template<typename T>
 		struct tvin_wrap_t
 		{
+			using _table_set = typename T::_table_set;
 			static constexpr bool _is_trivial()
 			{
 				return false;
@@ -94,6 +96,7 @@ namespace sqlpp
 	template<typename T>
 		struct tvin_wrap_t<tvin_t<T>>
 		{
+			using _table_set = typename T::_table_set;
 			bool _is_trivial() const
 			{
 				return _value._is_trivial();

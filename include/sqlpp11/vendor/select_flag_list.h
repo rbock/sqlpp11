@@ -28,13 +28,11 @@
 #define SQLPP_VENDOR_SELECT_FLAG_LIST_H
 
 #include <tuple>
-#include <sqlpp11/select_fwd.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/select_flags.h>
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
 #include <sqlpp11/vendor/policy_update.h>
-#include <sqlpp11/vendor/crtp_wrapper.h>
 
 namespace sqlpp
 {
@@ -63,8 +61,8 @@ namespace sqlpp
 				select_flag_list_t& operator=(select_flag_list_t&&) = default;
 				~select_flag_list_t() = default;
 
-				template<typename Flag>
-					void add_flag(Flag flag)
+				template<typename Select, typename Flag>
+					void add_flag(const Select&, Flag flag)
 					{
 						static_assert(is_select_flag_t<Flag>::value, "flag arguments require to be select flags");
 						_dynamic_flags.emplace_back(flag);
@@ -77,34 +75,9 @@ namespace sqlpp
 
 		struct no_select_flag_list_t
 		{
-			using _is_select_flag_list = std::true_type;
-			const no_select_flag_list_t& _flag_list() const { return *this; }
+			using _is_noop = std::true_type;
 		};
 
-		// CRTP Wrappers
-		template<typename Derived, typename Database, typename... Args>
-			struct crtp_wrapper_t<Derived, select_flag_list_t<Database, Args...>>
-			{
-			};
-
-		template<typename Derived>
-			struct crtp_wrapper_t<Derived, no_select_flag_list_t>
-			{
-				template<typename... Args>
-					auto flags(Args... args)
-					-> vendor::update_policies_t<Derived, no_select_flag_list_t, select_flag_list_t<void, Args...>>
-					{
-						return { static_cast<Derived&>(*this), select_flag_list_t<void, Args...>(args...) };
-					}
-
-				template<typename... Args>
-					auto dynamic_flags(Args... args)
-					-> vendor::update_policies_t<Derived, no_select_flag_list_t, select_flag_list_t<get_database_t<Derived>, Args...>>
-					{
-						static_assert(not std::is_same<get_database_t<Derived>, void>::value, "dynamic_flags must not be called in a static statement");
-						return { static_cast<Derived&>(*this), select_flag_list_t<get_database_t<Derived>, Args...>(args...) };
-					}
-			};
 
 		// Interpreters
 		template<typename Context, typename Database, typename... Flags>

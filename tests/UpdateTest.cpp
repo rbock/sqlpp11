@@ -35,6 +35,7 @@ DbMock::_context_t printer(std::cerr);
 int main()
 {
 	test::TabBar t;
+	test::TabFoo f;
 
 	auto x = t.alpha = 7;
 	auto y = t.beta = "kaesekuchen";
@@ -58,6 +59,7 @@ int main()
 	interpret(update(t), printer).flush();
 	interpret(update(t).set(t.gamma = false), printer).flush();
 	interpret(update(t).set(t.gamma = false).where(t.beta != "transparent"), printer).flush();
+	interpret(update(t).set(t.beta = "opaque").where(t.beta != t.beta), printer).flush();
 	auto u = dynamic_update(db, t).dynamic_set(t.gamma = false).dynamic_where();
 	u.add_set(t.gamma = false);
 	interpret(u, printer).flush();

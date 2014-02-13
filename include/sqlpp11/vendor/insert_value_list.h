@@ -32,8 +32,6 @@
 #include <sqlpp11/vendor/interpret_tuple.h>
 #include <sqlpp11/vendor/insert_value.h>
 #include <sqlpp11/vendor/simple_column.h>
-#include <sqlpp11/vendor/policy_update.h>
-#include <sqlpp11/vendor/crtp_wrapper.h>
 
 namespace sqlpp
 {
@@ -42,10 +40,8 @@ namespace sqlpp
 		// COLUMN AND VALUE LIST
 		struct insert_default_values_t
 		{
-			using _is_insert_list = std::true_type;
 			using _table_set = ::sqlpp::detail::type_set<>;
 			using _is_dynamic = std::false_type;
-			const insert_default_values_t& _insert_value_list() const { return *this; }
 		}; 
 
 		template<typename Database, typename... Assignments>
@@ -67,8 +63,11 @@ namespace sqlpp
 
 				static_assert(not sqlpp::detail::or_t<must_not_insert_t, typename Assignments::_column_t...>::value, "at least one assignment is prohibited by its column definition in set()");
 
-				using _table_set = typename ::sqlpp::detail::make_joined_set<typename Assignments::_column_t::_table_set...>::type;
-				static_assert(_is_dynamic::value ? (_table_set::size::value < 2) : (_table_set::size::value == 1), "set() contains assignments for tables from several columns");
+				using _column_table_set = typename ::sqlpp::detail::make_joined_set<typename Assignments::_column_t::_table_set...>::type;
+				using _value_table_set = typename ::sqlpp::detail::make_joined_set<typename Assignments::value_type::_table_set...>::type;
+				using _table_set = typename ::sqlpp::detail::make_joined_set<_column_table_set, _value_table_set>::type;
+				static_assert(sizeof...(Assignments) ? (_column_table_set::size::value == 1) : true, "set() contains assignments for tables from several columns");
+				static_assert(_value_table_set::template is_subset_of<_column_table_set>::value, "set() contains values from foreign tables");
 				
 				insert_list_t(Assignments... assignment):
 					_assignments(assignment...),
@@ -82,17 +81,20 @@ namespace sqlpp
 				insert_list_t& operator=(insert_list_t&&) = default;
 				~insert_list_t() = default;
 
-				template<typename Assignment>
-					void add_set(Assignment assignment)
+				template<typename Insert, typename Assignment>
+					void add_set(const Insert&, Assignment assignment)
 					{
-						static_assert(is_assignment_t<Assignment>::value, "set() arguments require to be assigments");
-						static_assert(not must_not_insert_t<Assignment>::value, "set() argument must not be used in insert");
+						static_assert(is_assignment_t<Assignment>::value, "add_set() arguments require to be assigments");
+						static_assert(not must_not_insert_t<Assignment>::value, "add_set() argument must not be used in insert");
+						using _column_table_set = typename Assignment::_column_t::_table_set;
+						using _value_table_set = typename Assignment::value_type::_table_set;
+						static_assert(_value_table_set::template is_subset_of<typename Insert::_table_set>::value, "add_set() contains a column from a foreign table");
+						static_assert(_column_table_set::template is_subset_of<typename Insert::_table_set>::value, "add_set() contains a value from a foreign table");
 						_dynamic_columns.emplace_back(simple_column_t<typename Assignment::_column_t>{assignment._lhs});
 						_dynamic_values.emplace_back(assignment._rhs);
 					}
 
 
-				const insert_list_t& _insert_value_list() const { return *this; }
 				std::tuple<simple_column_t<typename Assignments::_column_t>...> _columns;
 				std::tuple<typename Assignments::value_type...> _values;
 				std::tuple<Assignments...> _assignments; // FIXME: Need to replace _columns and _values by _assignments (connector-container requires assignments)
@@ -129,9 +131,14 @@ namespace sqlpp
 				column_list_t& operator=(column_list_t&&) = default;
 				~column_list_t() = default;
 
-				void add_values(vendor::insert_value_t<Columns>... values)
+				template<typename... Assignments>
+				void add_values(Assignments... assignments)
 				{
-					_insert_values.emplace_back(values...);
+					static_assert(::sqlpp::detail::and_t<is_assignment_t, Assignments...>::value, "add_values() arguments have to be assignments");
+					using _arg_value_tuple = std::tuple<vendor::insert_value_t<typename Assignments::_column_t>...>;
+					using _args_correct = std::is_same<_arg_value_tuple, _value_tuple_t>;
+					static_assert(_args_correct::value, "add_values() arguments do not match columns() arguments");
+					add_values_impl(_args_correct{}, assignments...); // dispatch to prevent error messages due to incorrect arguments
 				}
 
 				bool empty() const
@@ -139,71 +146,26 @@ namespace sqlpp
 					return _insert_values.empty();
 				}
 
-				const column_list_t& _insert_value_list() const { return *this; }
 				std::tuple<simple_column_t<Columns>...> _columns;
 				std::vector<_value_tuple_t> _insert_values;
+
+			private:
+				template<typename... Assignments>
+				void add_values_impl(const std::true_type&, Assignments... assignments)
+				{
+					_insert_values.emplace_back(vendor::insert_value_t<typename Assignments::_column_t>{assignments}...);
+				}
+
+				template<typename... Assignments>
+				void add_values_impl(const std::false_type&, Assignments... assignments);
+
 			};
 
 		struct no_insert_value_list_t
 		{
+			using _is_noop = std::true_type;
 			using _table_set = ::sqlpp::detail::type_set<>;
-			const no_insert_value_list_t& _insert_value_list() const { return *this; }
 		};
-
-		// CRTP Wrappers
-		template<typename Derived>
-			struct crtp_wrapper_t<Derived, insert_default_values_t>
-			{
-			};
-
-		template<typename Derived, typename Database, typename... Args>
-			struct crtp_wrapper_t<Derived, column_list_t<Database, Args...>>
-			{
-			};
-
-		template<typename Derived, typename Database, typename... Args>
-			struct crtp_wrapper_t<Derived, insert_list_t<Database, Args...>>
-			{
-			};
-
-		template<typename Derived>
-			struct crtp_wrapper_t<Derived, no_insert_value_list_t>
-			{
-				template<typename... Args>
-					struct delayed_t
-					{
-						using type = Derived;
-					};
-
-				template<typename Arg = void>
-					auto default_values()
-					-> vendor::update_policies_t<typename delayed_t<Arg>::type, no_insert_value_list_t, insert_default_values_t>
-					{
-						return { static_cast<Derived&>(*this), insert_default_values_t{} };
-					}
-
-				template<typename... Args>
-					auto columns(Args... args)
-					-> vendor::update_policies_t<Derived, no_insert_value_list_t, column_list_t<Args...>>
-					{
-						return { static_cast<Derived&>(*this), column_list_t<Args...>(args...) };
-					}
-
-				template<typename... Args>
-					auto set(Args... args)
-					-> vendor::update_policies_t<Derived, no_insert_value_list_t, insert_list_t<void, Args...>>
-					{
-						return { static_cast<Derived&>(*this), insert_list_t<void, Args...>(args...) };
-					}
-
-				template<typename... Args>
-					auto dynamic_set(Args... args)
-					-> vendor::update_policies_t<Derived, no_insert_value_list_t, insert_list_t<get_database_t<Derived>, Args...>>
-					{
-						static_assert(not std::is_same<get_database_t<Derived>, void>::value, "dynamic_insert_list must not be called in a static statement");
-						return { static_cast<Derived&>(*this), insert_list_t<get_database_t<Derived>, Args...>(args...) };
-					}
-			};
 
 		// Interpreters
 		template<typename Context>

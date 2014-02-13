@@ -35,6 +35,7 @@ CREATE TABLE tab_bar
 (
 	alpha bigint AUTO_INCREMENT,
 	beta varchar(255) NULL DEFAULT "",
-	gamma bool NOT NULL
+	gamma bool NOT NULL,
+	delta int
 );
 

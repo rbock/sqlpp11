@@ -44,6 +44,7 @@ namespace sqlpp
 		{
 			using _value_type = ::sqlpp::detail::boolean;
 			using _parameter_tuple_t = std::tuple<Lhs, Rhs>;
+			using _table_set = typename ::sqlpp::detail::make_joined_set<typename Lhs::_table_set, typename Rhs::_table_set>::type;
 
 			equal_t(Lhs lhs, Rhs rhs):
 				_lhs(lhs), 
@@ -88,6 +89,7 @@ namespace sqlpp
 		{
 			using _value_type = ::sqlpp::detail::boolean;
 			using _parameter_tuple_t = std::tuple<Lhs, Rhs>;
+			using _table_set = typename ::sqlpp::detail::make_joined_set<typename Lhs::_table_set, typename Rhs::_table_set>::type;
 
 			not_equal_t(Lhs lhs, Rhs rhs):
 				_lhs(lhs), 
@@ -132,6 +134,7 @@ namespace sqlpp
 		{
 			using _value_type = ::sqlpp::detail::boolean;
 			using _parameter_tuple_t = std::tuple<Lhs>;
+			using _table_set = typename Lhs::_table_set;
 
 			logical_not_t(Lhs l):
 				_lhs(l)
@@ -168,6 +171,7 @@ namespace sqlpp
 			using _rhs_t = Rhs;
 			using _value_type = typename O::_value_type;
 			using _parameter_tuple_t = std::tuple<_lhs_t, _rhs_t>;
+			using _table_set = typename ::sqlpp::detail::make_joined_set<typename Lhs::_table_set, typename Rhs::_table_set>::type;
 
 			binary_expression_t(_lhs_t lhs, _rhs_t rhs):
 				_lhs(lhs), 

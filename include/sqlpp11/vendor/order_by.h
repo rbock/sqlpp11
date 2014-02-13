@@ -28,12 +28,10 @@
 #define SQLPP_ORDER_BY_H
 
 #include <tuple>
-#include <sqlpp11/select_fwd.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
 #include <sqlpp11/vendor/interpretable.h>
 #include <sqlpp11/vendor/policy_update.h>
-#include <sqlpp11/vendor/crtp_wrapper.h>
 #include <sqlpp11/detail/logic.h>
 
 namespace sqlpp
@@ -63,48 +61,21 @@ namespace sqlpp
 				order_by_t& operator=(order_by_t&&) = default;
 				~order_by_t() = default;
 
-				template<typename Expression>
-					void add_order_by(Expression expressions)
+				template<typename Statement, typename Expression>
+					void add_order_by(const Statement&, Expression expressions)
 					{
 						static_assert(is_sort_order_t<Expression>::value, "order_by arguments require to be sort-order expressions");
 						_dynamic_expressions.push_back(expressions);
 					}
 
-				const order_by_t& _order_by() const { return *this; }
 				_parameter_tuple_t _expressions;
 				vendor::interpretable_list_t<Database> _dynamic_expressions;
 			};
 
 		struct no_order_by_t
 		{
-			using _is_order_by = std::true_type;
-			const no_order_by_t& _order_by() const { return *this; }
+			using _is_noop = std::true_type;
 		};
-
-		// CRTP Wrappers
-		template<typename Derived, typename Database, typename... Args>
-			struct crtp_wrapper_t<Derived, order_by_t<Database, Args...>>
-			{
-			};
-
-		template<typename Derived>
-			struct crtp_wrapper_t<Derived, no_order_by_t>
-			{
-				template<typename... Args>
-					auto order_by(Args... args)
-					-> vendor::update_policies_t<Derived, no_order_by_t, order_by_t<void, Args...>>
-					{
-						return { static_cast<Derived&>(*this), order_by_t<void, Args...>(args...) };
-					}
-
-				template<typename... Args>
-					auto dynamic_order_by(Args... args)
-					-> vendor::update_policies_t<Derived, no_order_by_t, order_by_t<get_database_t<Derived>, Args...>>
-					{
-						static_assert(not std::is_same<get_database_t<Derived>, void>::value, "dynamic_order_by must not be called in a static statement");
-						return { static_cast<Derived&>(*this), order_by_t<get_database_t<Derived>, Args...>(args...) };
-					}
-			};
 
 		// Interpreters
 		template<typename Context, typename Database, typename... Expressions>

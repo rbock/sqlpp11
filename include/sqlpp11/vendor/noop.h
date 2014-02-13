@@ -35,6 +35,7 @@ namespace sqlpp
 	{
 		struct noop 
 		{
+			using is_noop = std::true_type;
 		};
 
 		template<typename Context>

@@ -25,7 +25,6 @@
 
 #include <iostream>
 #include <sqlpp11/remove.h>
-#include <sqlpp11/select.h>
 #include "Sample.h"
 #include "MockDb.h"
 #include "is_regular.h"

@@ -32,6 +32,7 @@
 #include <sqlpp11/tvin.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/vendor/interpreter.h>
+#include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
 {
@@ -43,6 +44,7 @@ namespace sqlpp
 				struct type_if
 				{
 					using type = Type;
+					using _table_set = typename Type::_table_set;
 				};
 
 			template<typename Type>
@@ -50,6 +52,7 @@ namespace sqlpp
 				{
 					struct type
 					{
+						using _table_set = sqlpp::detail::type_set<>;
 					};
 				};
 		}

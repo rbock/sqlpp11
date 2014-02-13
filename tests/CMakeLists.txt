@@ -19,5 +19,6 @@ find_package(PythonInterp REQUIRED)
 add_custom_command(
 	OUTPUT ${CMAKE_CURRENT_LIST_DIR}/Sample.h 
 	COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/scripts/ddl2cpp ${CMAKE_CURRENT_LIST_DIR}/sample.sql Sample test
+	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/sample.sql
 	)
 

@@ -23,6 +23,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <iostream>
 #include "Sample.h"
 #include "MockDb.h"
 #include "is_regular.h"
@@ -31,7 +32,6 @@
 #include <sqlpp11/functions.h>
 #include <sqlpp11/connection.h>
 
-#include <iostream>
 
 DbMock db = {};
 DbMock::_context_t printer(std::cerr);
@@ -175,6 +175,8 @@ int main()
 	// Test a select of a single numeric table column
 	{
 		using T = decltype(select(t.alpha).from(t));
+		static_assert(sqlpp::is_select_column_list_t<decltype(T::_column_list)>::value, "Must not be noop");
+		static_assert(sqlpp::is_from_t<decltype(T::_from)>::value, "Must not be noop");
 		static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_named_expression_t<T>::value, "type requirement");
@@ -271,7 +273,7 @@ int main()
 	// Test that select(all_of(tab)) is expanded in select
 	{
 		auto a = select(all_of(t));
-		auto b = select(t.alpha, t.beta, t.gamma);
+		auto b = select(t.alpha, t.beta, t.gamma, t.delta);
 		//auto c = select(t);
 		static_assert(std::is_same<decltype(a), decltype(b)>::value, "all_of(t) has to be expanded by select()");
 		//static_assert(std::is_same<decltype(b), decltype(c)>::value, "t has to be expanded by select()");
@@ -280,14 +282,14 @@ int main()
 	// Test that select(all_of(tab)) is expanded in multi_column
 	{
 		auto a = multi_column(alias::a, all_of(t));
-		auto b = multi_column(alias::a, t.alpha, t.beta, t.gamma);
+		auto b = multi_column(alias::a, t.alpha, t.beta, t.gamma, t.delta);
 		static_assert(std::is_same<decltype(a), decltype(b)>::value, "all_of(t) has to be expanded by multi_column");
 	}
 
 	// Test that select(tab) is expanded in multi_column
 	{
 		auto a = multi_column(alias::a, all_of(t));
-		auto b = multi_column(alias::a, t.alpha, t.beta, t.gamma);
+		auto b = multi_column(alias::a, t.alpha, t.beta, t.gamma, t.delta);
 		static_assert(std::is_same<decltype(a), decltype(b)>::value, "t has to be expanded by multi_column");
 	}
 
