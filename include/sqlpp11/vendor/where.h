@@ -47,7 +47,8 @@ namespace sqlpp
 				using _parameter_tuple_t = std::tuple<Expressions...>;
 
 				static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression argument required in where()");
-				static_assert(sqlpp::detail::and_t<is_expression_t, Expressions...>::value, "at least one argument is not an expression in where()");
+				static_assert(not sqlpp::detail::or_t<is_assignment_t, Expressions...>::value, "at least one argument is an assignment in where()");
+				static_assert(sqlpp::detail::and_t<is_expression_t, Expressions...>::value, "at least one argument is not valid expression in where()");
 
 				using _parameter_list_t = typename make_parameter_list_t<_parameter_tuple_t>::type;
 
@@ -80,6 +81,7 @@ namespace sqlpp
 			{
 				using _is_where = std::true_type;
 				using _is_dynamic = std::false_type;
+				using _table_set = ::sqlpp::detail::type_set<>;
 
 				where_t(bool condition):
 					_condition(condition)

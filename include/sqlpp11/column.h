@@ -84,6 +84,14 @@ namespace sqlpp
 				return { *this, {t} };
 			}
 
+		template<typename T>
+			auto operator =(T t) const
+			-> typename std::enable_if<not(_value_type::template _constraint<typename vendor::wrap_operand<T>::type>::value and not std::is_same<column_t, T>::value),
+			     vendor::assignment_t<column_t, typename vendor::wrap_operand<T>::type>>::type
+			{
+				static_assert(sqlpp::vendor::wrong_t<T>::value, "invalid assignment operand");
+			}
+
 		auto operator =(sqlpp::null_t) const
 			->vendor::assignment_t<column_t, sqlpp::null_t>
 			{

@@ -157,9 +157,7 @@ namespace sqlpp
 				}
 
 				template<typename... Assignments>
-				void add_values_impl(const std::false_type&, Assignments... assignments)
-				{
-				}
+				void add_values_impl(const std::false_type&, Assignments... assignments);
 
 			};
 

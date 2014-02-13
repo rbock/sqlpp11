@@ -273,7 +273,7 @@ int main()
 	// Test that select(all_of(tab)) is expanded in select
 	{
 		auto a = select(all_of(t));
-		auto b = select(t.alpha, t.beta, t.gamma);
+		auto b = select(t.alpha, t.beta, t.gamma, t.delta);
 		//auto c = select(t);
 		static_assert(std::is_same<decltype(a), decltype(b)>::value, "all_of(t) has to be expanded by select()");
 		//static_assert(std::is_same<decltype(b), decltype(c)>::value, "t has to be expanded by select()");
@@ -282,14 +282,14 @@ int main()
 	// Test that select(all_of(tab)) is expanded in multi_column
 	{
 		auto a = multi_column(alias::a, all_of(t));
-		auto b = multi_column(alias::a, t.alpha, t.beta, t.gamma);
+		auto b = multi_column(alias::a, t.alpha, t.beta, t.gamma, t.delta);
 		static_assert(std::is_same<decltype(a), decltype(b)>::value, "all_of(t) has to be expanded by multi_column");
 	}
 
 	// Test that select(tab) is expanded in multi_column
 	{
 		auto a = multi_column(alias::a, all_of(t));
-		auto b = multi_column(alias::a, t.alpha, t.beta, t.gamma);
+		auto b = multi_column(alias::a, t.alpha, t.beta, t.gamma, t.delta);
 		static_assert(std::is_same<decltype(a), decltype(b)>::value, "t has to be expanded by multi_column");
 	}
 

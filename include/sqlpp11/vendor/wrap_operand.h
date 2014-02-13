@@ -50,6 +50,20 @@ namespace sqlpp
 			using _value_t = bool;
 			using _table_set = ::sqlpp::detail::type_set<>;
 
+			boolean_operand():
+				_t{}
+			{}
+
+			boolean_operand(_value_t t):
+				_t(t)
+			{}
+
+			boolean_operand(const boolean_operand&) = default;
+			boolean_operand(boolean_operand&&) = default;
+			boolean_operand& operator=(const boolean_operand&) = default;
+			boolean_operand& operator=(boolean_operand&&) = default;
+			~boolean_operand() = default;
+
 			bool _is_trivial() const { return _t == false; }
 
 			_value_t _t;
@@ -67,23 +81,36 @@ namespace sqlpp
 				}
 			};
 
-		template<typename T>
-			struct integral_operand
+		struct integral_operand
+		{
+			static constexpr bool _is_expression = true;
+			using _value_type = ::sqlpp::detail::integral;
+			using _value_t = int64_t;
+			using _table_set = ::sqlpp::detail::type_set<>;
+
+			integral_operand():
+				_t{}
+			{}
+
+			integral_operand(_value_t t):
+				_t(t)
+			{}
+
+			integral_operand(const integral_operand&) = default;
+			integral_operand(integral_operand&&) = default;
+			integral_operand& operator=(const integral_operand&) = default;
+			integral_operand& operator=(integral_operand&&) = default;
+			~integral_operand() = default;
+
+			bool _is_trivial() const { return _t == 0; }
+
+			_value_t _t;
+		};
+
+		template<typename Context>
+			struct interpreter_t<Context, integral_operand>
 			{
-				static constexpr bool _is_expression = true;
-				using _value_type = ::sqlpp::detail::integral;
-				using _value_t = T;
-				using _table_set = ::sqlpp::detail::type_set<>;
-
-				bool _is_trivial() const { return _t == 0; }
-
-				_value_t _t;
-			};
-
-		template<typename Context, typename T>
-			struct interpreter_t<Context, integral_operand<T>>
-			{
-				using Operand = integral_operand<T>;
+				using Operand = integral_operand;
 
 				static Context& _(const Operand& t, Context& context)
 				{
@@ -93,23 +120,36 @@ namespace sqlpp
 			};
 
 
-		template<typename T>
-			struct floating_point_operand
+		struct floating_point_operand
+		{
+			static constexpr bool _is_expression = true;
+			using _value_type = ::sqlpp::detail::floating_point;
+			using _value_t = double;
+			using _table_set = ::sqlpp::detail::type_set<>;
+
+			floating_point_operand():
+				_t{}
+			{}
+
+			floating_point_operand(_value_t t):
+				_t(t)
+			{}
+
+			floating_point_operand(const floating_point_operand&) = default;
+			floating_point_operand(floating_point_operand&&) = default;
+			floating_point_operand& operator=(const floating_point_operand&) = default;
+			floating_point_operand& operator=(floating_point_operand&&) = default;
+			~floating_point_operand() = default;
+
+			bool _is_trivial() const { return _t == 0; }
+
+			_value_t _t;
+		};
+
+		template<typename Context>
+			struct interpreter_t<Context, floating_point_operand>
 			{
-				static constexpr bool _is_expression = true;
-				using _value_type = ::sqlpp::detail::floating_point;
-				using _value_t = T;
-				using _table_set = ::sqlpp::detail::type_set<>;
-
-				bool _is_trivial() const { return _t == 0; }
-
-				_value_t _t;
-			};
-
-		template<typename Context, typename T>
-			struct interpreter_t<Context, floating_point_operand<T>>
-			{
-				using Operand = floating_point_operand<T>;
+				using Operand = floating_point_operand;
 
 				static Context& _(const Operand& t, Context& context)
 				{
@@ -124,6 +164,20 @@ namespace sqlpp
 			using _value_type = ::sqlpp::detail::text;
 			using _value_t = std::string;
 			using _table_set = ::sqlpp::detail::type_set<>;
+
+			text_operand():
+				_t{}
+			{}
+
+			text_operand(_value_t t):
+				_t(t)
+			{}
+
+			text_operand(const text_operand&) = default;
+			text_operand(text_operand&&) = default;
+			text_operand& operator=(const text_operand&) = default;
+			text_operand& operator=(text_operand&&) = default;
+			~text_operand() = default;
 
 			bool _is_trivial() const { return _t.empty(); }
 
@@ -157,13 +211,13 @@ namespace sqlpp
 		template<typename T>
 			struct wrap_operand<T, typename std::enable_if<std::is_integral<T>::value>::type>
 			{
-				using type = integral_operand<T>;
+				using type = integral_operand;
 			};
 
 		template<typename T>
 			struct wrap_operand<T, typename std::enable_if<std::is_floating_point<T>::value>::type>
 			{
-				using type = floating_point_operand<T>;
+				using type = floating_point_operand;
 			};
 
 		template<typename T>
