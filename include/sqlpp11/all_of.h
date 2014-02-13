@@ -24,53 +24,48 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DETAIL_COPY_TUPLE_ARGS_H
-#define SQLPP_DETAIL_COPY_TUPLE_ARGS_H
+#ifndef SQLPP_ALL_OF_H
+#define SQLPP_ALL_OF_H
 
-#include <tuple>
+#include <sqlpp11/interpret.h>
+#include <sqlpp11/alias.h>
+#include <sqlpp11/multi_column.h>
 
 namespace sqlpp
 {
 	template<typename Table>
-	struct all_of_t;
+	struct all_of_t
+ 	{
+		using _column_tuple_t = typename Table::_column_tuple_t;
 
-	namespace detail
+		template<typename AliasProvider>
+			detail::copy_tuple_args_t<multi_column_alias_t, AliasProvider, _column_tuple_t> as(const AliasProvider& alias)
+			{
+				return ::sqlpp::multi_column(_column_tuple_t{}).as(alias);
+			}
+	};
+
+	template<typename Table>
+	auto all_of(Table t) -> all_of_t<Table>
 	{
-		template<typename T>
-			struct as_tuple
-			{
-				static std::tuple<T> _(T t) { return std::tuple<T>{ t }; }
-			};
-
-		template<typename T>
-			struct as_tuple<::sqlpp::all_of_t<T>>
-			{
-				static typename ::sqlpp::all_of_t<T>::_column_tuple_t _(::sqlpp::all_of_t<T>) { return { }; }
-			};
-
-		template<typename... Args>
-			struct as_tuple<std::tuple<Args...>>
-			{
-				static std::tuple<Args...> _(std::tuple<Args...> t) { return t; }
-			};
-
-		template<template<typename, typename...> class Target, typename First, typename T>
-			struct copy_tuple_args_impl
-			{
-				static_assert(vendor::wrong_t<T>::value, "copy_tuple_args must be called with a tuple");
-			};
-
-		template<template<typename First, typename...> class Target, typename First, typename... Args>
-			struct copy_tuple_args_impl<Target, First, std::tuple<Args...>>
-			{
-				using type = Target<First, Args...>;
-			};
-
-		template<template<typename First, typename...> class Target, typename First, typename T>
-			using copy_tuple_args_t = typename copy_tuple_args_impl<Target, First, T>::type;
-
+		return {};
 	}
+
+	namespace vendor
+	{
+		template<typename Context, typename Table>
+			struct interpreter_t<Context, all_of_t<Table>>
+			{
+				using T = all_of_t<Table>;
+
+				static Context& _(const T& t, const Context&)
+				{
+					static_assert(wrong_t<T>::value, "all_of(table) does not seem to be used in select");
+				}
+			};
+	}
+
 }
 
-
 #endif
+

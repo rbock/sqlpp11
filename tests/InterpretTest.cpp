@@ -127,8 +127,9 @@ int main()
 	interpret(t.inner_join(t.as(t.alpha)).on(t.beta == t.as(t.alpha).beta), printer).flush();
 
 	// multi_column
-	interpret(multi_column(t.alpha, t.alpha, (t.beta + "cake").as(t.gamma)), printer).flush();
-	interpret(multi_column(t, all_of(t)), printer).flush();
+	interpret(multi_column(t.alpha, (t.beta + "cake").as(t.gamma)).as(t.alpha), printer).flush();
+	interpret(multi_column(all_of(t)).as(t), printer).flush();
+	interpret(all_of(t).as(t), printer).flush();
 
 	// dynamic select
 	{

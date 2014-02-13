@@ -52,7 +52,7 @@ namespace sqlpp
 		};
 
 		using _name_t = typename AliasProvider::_name_t;
-		using _all_of_t = std::tuple<column_t<AliasProvider, ColumnSpec>...>;
+		using _column_tuple_t = std::tuple<column_t<Table, ColumnSpec>...>;
 
 		table_alias_t(Table table):
 			_table(table)
