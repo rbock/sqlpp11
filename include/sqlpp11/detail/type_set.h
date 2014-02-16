@@ -41,19 +41,20 @@ namespace sqlpp
 			struct make_set;
 
 		// A type set
-		template<typename... Element>
+		template<typename... Elements>
 			struct type_set
 		{
-			using _elements_t = std::tuple<Element...>;
-			using size = std::tuple_size<_elements_t>;
+			using size = std::integral_constant<size_t, sizeof...(Elements)>;
 			using _is_type_set = std::true_type;
+
+			static_assert(std::is_same<type_set, typename make_set<Elements...>::type>::value, "use make_set to construct a set");
 
 			template<typename T>
 				struct count
 			{
 				template<typename E>
 					using same = std::is_same<T, E>;
-				static constexpr bool value = or_t<same, Element...>::value;
+				static constexpr bool value = or_t<same, Elements...>::value;
 			};
 
 			template<typename T>
@@ -77,7 +78,7 @@ namespace sqlpp
 			template<typename... T>
 				struct join<type_set<T...>>
 				{
-					using type = typename make_set<Element..., T...>::type;
+					using type = typename make_set<Elements..., T...>::type;
 				};
 
 			template<typename T>
@@ -101,7 +102,7 @@ namespace sqlpp
 			template<typename... T>
 				struct is_disjunct_from<type_set<T...>>
 				{
-					static constexpr bool value = not(or_t<type_set::count, T...>::value or or_t<type_set<T...>::template count, Element...>::value);
+					static constexpr bool value = not(or_t<type_set::count, T...>::value or or_t<type_set<T...>::template count, Elements...>::value);
 				};
 
 			template<typename T>
@@ -109,14 +110,14 @@ namespace sqlpp
 				{
 					using type = typename std::conditional<count<T>::value,
 								type_set,
-								type_set<Element..., T>>::type;
+								type_set<T, Elements...>>::type;
 				};
 
 			template<template<typename A> class Predicate, typename T>
 				struct insert_if
 				{
 					using type = typename std::conditional<Predicate<T>::value,
-								type_set<Element..., T>,
+								type_set<Elements..., T>,
 								type_set>::type;
 				};
 		};
