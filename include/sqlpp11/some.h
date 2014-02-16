@@ -27,8 +27,8 @@
 #ifndef SQLPP_SOME_H
 #define SQLPP_SOME_H
 
-#include <sstream>
 #include <sqlpp11/boolean.h>
+#include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
 {
@@ -56,6 +56,7 @@ namespace sqlpp
 						const T& operator()() const { return some; }
 					};
 			};
+			using _table_set = typename Select::_table_set;
 
 			some_t(Select select):
 				_select(select)

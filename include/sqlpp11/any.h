@@ -57,7 +57,7 @@ namespace sqlpp
 					};
 			};
 
-			using _table_set = ::sqlpp::detail::type_set<>; // FIXME: Can selects leak tables here?
+			using _table_set = typename Select::_table_set;
 
 			any_t(Select select):
 				_select(select)

@@ -39,6 +39,7 @@ namespace sqlpp
 		struct is_null_t: public boolean::template operators<is_null_t<NotInverted, Operand>>
 		{
 			static constexpr bool _inverted = not NotInverted;
+			using _table_set = typename Operand::_table_set;
 
 			struct _value_type: public boolean
 			{

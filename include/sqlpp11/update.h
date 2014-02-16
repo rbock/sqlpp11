@@ -178,7 +178,7 @@ namespace sqlpp
 
 			template<typename Db>
 				auto _prepare(Db& db) const
-				-> prepared_update_t<Database, update_t>
+				-> prepared_update_t<Db, update_t>
 				{
 					return {{}, db.prepare_update(*this)};
 				}

@@ -175,7 +175,7 @@ namespace sqlpp
 
 			template<typename Db>
 				auto _prepare(Db& db) const
-				-> prepared_remove_t<Database, remove_t>
+				-> prepared_remove_t<Db, remove_t>
 				{
 					//static_assert(detail::check_remove_t<Policies...>::value, "Cannot run this remove expression");
 					return {{}, db.prepare_remove(*this)};
@@ -195,7 +195,7 @@ namespace sqlpp
 
 				static Context& _(const T& t, Context& context)
 				{
-					context << "DELETE FROM";
+					context << "DELETE FROM ";
 					interpret(t._table, context);
 					interpret(t._using, context);
 					interpret(t._where, context);
