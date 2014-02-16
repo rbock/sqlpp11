@@ -46,14 +46,14 @@ namespace sqlpp
 		struct basic_operators
 		{
 			template<typename T>
-				vendor::equal_t<Base, typename Constraint<T>::type> operator==(T t) const
+				vendor::equal_to_t<Base, typename Constraint<T>::type> operator==(T t) const
 				{
 					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 					return { *static_cast<const Base*>(this), {t}	};
 				}
 
 			template<typename T>
-				vendor::not_equal_t<Base, typename Constraint<T>::type> operator!=(T t) const
+				vendor::not_equal_to_t<Base, typename Constraint<T>::type> operator!=(T t) const
 				{
 					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 					return { *static_cast<const Base*>(this), {t} };

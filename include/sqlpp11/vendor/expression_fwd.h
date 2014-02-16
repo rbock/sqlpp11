@@ -31,18 +31,9 @@ namespace sqlpp
 {
 	namespace vendor
 	{
-		template<typename Lhs, typename Rhs>
-			struct equal_t;
-
-		template<typename Lhs, typename Rhs>
-			struct not_equal_t;
-
-		template<typename Lhs>
-			struct logical_not_t;
-
 		namespace tag
 		{
-			struct less_than
+			struct less
 			{
 				using _value_type = ::sqlpp::detail::boolean;
 				static constexpr const char* _name = "<";
@@ -54,13 +45,23 @@ namespace sqlpp
 				static constexpr const char* _name = "<=";
 			};
 
+			struct equal_to
+			{
+				using _value_type = ::sqlpp::detail::boolean;
+			};
+
+			struct not_equal_to
+			{
+				using _value_type = ::sqlpp::detail::boolean;
+			};
+
 			struct greater_equal
 			{
 				using _value_type = ::sqlpp::detail::boolean;
 				static constexpr const char* _name = ">=";
 			};
 
-			struct greater_than
+			struct greater
 			{
 				using _value_type = ::sqlpp::detail::boolean;
 				static constexpr const char* _name = ">";
@@ -76,6 +77,11 @@ namespace sqlpp
 			{
 				using _value_type = ::sqlpp::detail::boolean;
 				static constexpr const char* _name = " AND ";
+			};
+
+			struct logical_not
+			{
+				using _value_type = ::sqlpp::detail::boolean;
 			};
 
 			template<typename ValueType>
@@ -133,13 +139,19 @@ namespace sqlpp
 			struct unary_expression_t;
 
 		template<typename Lhs, typename Rhs>
-			using less_than_t = binary_expression_t<Lhs, tag::less_than, Rhs>;
+			using less_than_t = binary_expression_t<Lhs, tag::less, Rhs>;
 
 		template<typename Lhs, typename Rhs>
 			using less_equal_t = binary_expression_t<Lhs, tag::less_equal, Rhs>;
 
 		template<typename Lhs, typename Rhs>
-			using greater_than_t = binary_expression_t<Lhs, tag::greater_than, Rhs>;
+			using equal_to_t = binary_expression_t<Lhs, tag::equal_to, Rhs>;
+
+		template<typename Lhs, typename Rhs>
+			using not_equal_to_t = binary_expression_t<Lhs, tag::not_equal_to, Rhs>;
+
+		template<typename Lhs, typename Rhs>
+			using greater_than_t = binary_expression_t<Lhs, tag::greater, Rhs>;
 
 		template<typename Lhs, typename Rhs>
 			using greater_equal_t = binary_expression_t<Lhs, tag::greater_equal, Rhs>;
@@ -164,6 +176,9 @@ namespace sqlpp
 
 		template<typename Lhs, typename Rhs>
 			using modulus_t = binary_expression_t<Lhs, tag::modulus, Rhs>;
+
+		template<typename Rhs>
+			using logical_not_t = unary_expression_t<tag::logical_not, Rhs>;
 
 		template<typename ValueType, typename Rhs>
 			using unary_plus_t = unary_expression_t<tag::unary_plus<ValueType>, Rhs>;

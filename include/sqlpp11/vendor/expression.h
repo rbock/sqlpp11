@@ -40,31 +40,31 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Lhs, typename Rhs>
-			struct equal_t: public ::sqlpp::detail::boolean::template operators<equal_t<Lhs, Rhs>>
+			struct binary_expression_t<Lhs, tag::equal_to, Rhs>: public ::sqlpp::detail::boolean::template operators<equal_to_t<Lhs, Rhs>>
 		{
 			using _value_type = ::sqlpp::detail::boolean;
 			using _parameter_tuple_t = std::tuple<Lhs, Rhs>;
 			using _table_set = typename ::sqlpp::detail::make_joined_set<typename Lhs::_table_set, typename Rhs::_table_set>::type;
 
-			equal_t(Lhs lhs, Rhs rhs):
+			binary_expression_t(Lhs lhs, Rhs rhs):
 				_lhs(lhs), 
 				_rhs(rhs)
 			{}
 
-			equal_t(const equal_t&) = default;
-			equal_t(equal_t&&) = default;
-			equal_t& operator=(const equal_t&) = default;
-			equal_t& operator=(equal_t&&) = default;
-			~equal_t() = default;
+			binary_expression_t(const binary_expression_t&) = default;
+			binary_expression_t(binary_expression_t&&) = default;
+			binary_expression_t& operator=(const binary_expression_t&) = default;
+			binary_expression_t& operator=(binary_expression_t&&) = default;
+			~binary_expression_t() = default;
 
 			Lhs _lhs;
 			tvin_wrap_t<Rhs> _rhs;
 		};
 
 		template<typename Context, typename Lhs, typename Rhs>
-			struct interpreter_t<Context, equal_t<Lhs, Rhs>>
+			struct interpreter_t<Context, equal_to_t<Lhs, Rhs>>
 			{
-				using T = equal_t<Lhs, Rhs>;
+				using T = equal_to_t<Lhs, Rhs>;
 
 				static Context& _(const T& t, Context& context)
 				{
@@ -85,31 +85,32 @@ namespace sqlpp
 			};
 
 		template<typename Lhs, typename Rhs>
-			struct not_equal_t: public ::sqlpp::detail::boolean::template operators<not_equal_t<Lhs, Rhs>>
+			struct binary_expression_t<Lhs, tag::not_equal_to, Rhs>: public ::sqlpp::detail::boolean::template operators<not_equal_to_t<Lhs, Rhs>>
 		{
 			using _value_type = ::sqlpp::detail::boolean;
 			using _parameter_tuple_t = std::tuple<Lhs, Rhs>;
 			using _table_set = typename ::sqlpp::detail::make_joined_set<typename Lhs::_table_set, typename Rhs::_table_set>::type;
 
-			not_equal_t(Lhs lhs, Rhs rhs):
+			binary_expression_t(Lhs lhs, Rhs rhs):
 				_lhs(lhs), 
 				_rhs(rhs)
 			{}
 
-			not_equal_t(const not_equal_t&) = default;
-			not_equal_t(not_equal_t&&) = default;
-			not_equal_t& operator=(const not_equal_t&) = default;
-			not_equal_t& operator=(not_equal_t&&) = default;
-			~not_equal_t() = default;
+			binary_expression_t(const binary_expression_t&) = default;
+			binary_expression_t(binary_expression_t&&) = default;
+			binary_expression_t& operator=(const binary_expression_t&) = default;
+			binary_expression_t& operator=(binary_expression_t&&) = default;
+			~binary_expression_t() = default;
 
 			Lhs _lhs;
 			tvin_wrap_t<Rhs> _rhs;
 		};
 
+		/*
 		template<typename Context, typename Lhs, typename Rhs>
-			struct interpreter_t<Context, not_equal_t<Lhs, Rhs>>
+			struct interpreter_t<Context, not_equal_to_t<Lhs, Rhs>>
 			{
-				using T = not_equal_t<Lhs, Rhs>;
+				using T = not_equal_to_t<Lhs, Rhs>;
 
 				static Context& _(const T& t, Context& context)
 				{
@@ -128,31 +129,32 @@ namespace sqlpp
 					return context;
 				}
 			};
+			*/
 
-		template<typename Lhs>
-			struct logical_not_t: public ::sqlpp::detail::boolean::template operators<logical_not_t<Lhs>>
+		template<typename Rhs>
+			struct unary_expression_t<tag::logical_not, Rhs>: public ::sqlpp::detail::boolean::template operators<logical_not_t<Rhs>>
 		{
 			using _value_type = ::sqlpp::detail::boolean;
-			using _parameter_tuple_t = std::tuple<Lhs>;
-			using _table_set = typename Lhs::_table_set;
+			using _parameter_tuple_t = std::tuple<Rhs>;
+			using _table_set = typename Rhs::_table_set;
 
-			logical_not_t(Lhs l):
-				_lhs(l)
+			unary_expression_t(Rhs rhs):
+				_rhs(rhs)
 			{}
 
-			logical_not_t(const logical_not_t&) = default;
-			logical_not_t(logical_not_t&&) = default;
-			logical_not_t& operator=(const logical_not_t&) = default;
-			logical_not_t& operator=(logical_not_t&&) = default;
-			~logical_not_t() = default;
+			unary_expression_t(const unary_expression_t&) = default;
+			unary_expression_t(unary_expression_t&&) = default;
+			unary_expression_t& operator=(const unary_expression_t&) = default;
+			unary_expression_t& operator=(unary_expression_t&&) = default;
+			~unary_expression_t() = default;
 
-			Lhs _lhs;
+			Rhs _rhs;
 		};
 
-		template<typename Context, typename Lhs>
-			struct interpreter_t<Context, logical_not_t<Lhs>>
+		template<typename Context, typename Rhs>
+			struct interpreter_t<Context, logical_not_t<Rhs>>
 			{
-				using T = logical_not_t<Lhs>;
+				using T = logical_not_t<Rhs>;
 
 				static Context& _(const T& t, Context& context)
 				{
