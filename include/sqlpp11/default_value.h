@@ -43,7 +43,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context>
-			struct interpreter_t<Context, default_value_t>
+			struct serializer_t<Context, default_value_t>
 			{
 				using Operand = default_value_t;
 

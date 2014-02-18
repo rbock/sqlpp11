@@ -34,7 +34,7 @@
 
 
 DbMock db = {};
-DbMock::_context_t printer(std::cerr);
+DbMock::_serializer_context_t printer(std::cerr);
 
 namespace alias
 {
@@ -311,7 +311,7 @@ int main()
 		s.set_limit(30);
 		s.set_limit(3);
 		std::cerr << "------------------------\n";
-		interpret(s, printer).flush();
+		serialize(s, printer).flush();
 		std::cerr << "------------------------\n";
 		using T = decltype(s);
 		static_assert(sqlpp::is_regular<T>::value, "type requirement");
@@ -321,13 +321,13 @@ int main()
 	{
 		auto s = dynamic_select(db).dynamic_columns();
 		s.add_column(t.alpha);
-		interpret(s, printer).flush();
+		serialize(s, printer).flush();
 	}
 
 	// Test that verbatim_table compiles
 	{
 		auto s = select(t.alpha).from(sqlpp::verbatim_table("my_unknown_table"));
-		interpret(s, printer).flush();
+		serialize(s, printer).flush();
 	}
 
 
@@ -344,9 +344,9 @@ int main()
 	auto y = t.gamma and true and t.gamma;
 	!t.gamma;
 	t.beta < "kaesekuchen";
-	interpret(t.beta + "hallenhalma", printer).flush();
+	serialize(t.beta + "hallenhalma", printer).flush();
 	static_assert(sqlpp::must_not_insert_t<decltype(t.alpha)>::value, "alpha must not be inserted");
-	interpret(t.alpha, printer).flush();
+	serialize(t.alpha, printer).flush();
 	std::cerr << "\n" << sizeof(test::TabBar) << std::endl;
 	static_assert(std::is_same<typename decltype(t.alpha)::_value_type::_is_named_expression, std::true_type>::value, "alpha should be a named expression");
 	static_assert(sqlpp::is_named_expression_t<decltype(t.alpha)>::value, "alpha should be a named expression");
@@ -356,7 +356,7 @@ int main()
 	auto l = t.as(alias::left);
 	auto r = select(t.gamma.as(alias::a)).from(t).where(t.gamma == true).as(alias::right);
 	static_assert(sqlpp::is_boolean_t<decltype(select(t.gamma).from(t))>::value, "select(bool) has to be a bool");
-	interpret(sqlpp::select().flags(sqlpp::distinct, sqlpp::straight_join).columns(l.alpha, l.beta, select(r.a).from(r))
+	serialize(sqlpp::select().flags(sqlpp::distinct, sqlpp::straight_join).columns(l.alpha, l.beta, select(r.a).from(r))
 		.from(l, r)
 		.where(t.beta == "hello world" and select(t.gamma).from(t))// .as(alias::right))
 		.group_by(l.gamma, r.a)

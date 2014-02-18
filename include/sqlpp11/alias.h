@@ -48,14 +48,14 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename Expression, typename AliasProvider>
-			struct interpreter_t<Context, expression_alias_t<Expression, AliasProvider>>
+			struct serializer_t<Context, expression_alias_t<Expression, AliasProvider>>
 			{
 				using T = expression_alias_t<Expression, AliasProvider>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					context << '(';
-					interpret(t._expression, context);
+					serialize(t._expression, context);
 					context << ") AS ";
 					context << T::_name_t::_get_name();
 					return context;

@@ -72,14 +72,14 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename Select>
-			struct interpreter_t<Context, vendor::exists_t<Select>>
+			struct serializer_t<Context, vendor::exists_t<Select>>
 			{
 				using T = vendor::exists_t<Select>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					context << "EXISTS(";
-					interpret(t._select, context);
+					serialize(t._select, context);
 					context << ")";
 					return context;
 				}

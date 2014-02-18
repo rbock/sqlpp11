@@ -97,7 +97,7 @@ namespace sqlpp
 
 		// Interpreters
 		template<typename Context, typename Database>
-			struct interpreter_t<Context, dynamic_limit_t<Database>>
+			struct serializer_t<Context, dynamic_limit_t<Database>>
 			{
 				using T = dynamic_limit_t<Database>;
 
@@ -106,27 +106,27 @@ namespace sqlpp
 					if (t._initialized)
 					{
 						context << " LIMIT ";
-						interpret(t._value, context);
+						serialize(t._value, context);
 					}
 					return context;
 				}
 			};
 
 		template<typename Context, typename Limit>
-			struct interpreter_t<Context, limit_t<Limit>>
+			struct serializer_t<Context, limit_t<Limit>>
 			{
 				using T = limit_t<Limit>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					context << " LIMIT ";
-					interpret(t._value, context);
+					serialize(t._value, context);
 					return context;
 				}
 			};
 
 		template<typename Context>
-			struct interpreter_t<Context, no_limit_t>
+			struct serializer_t<Context, no_limit_t>
 			{
 				using T = no_limit_t;
 

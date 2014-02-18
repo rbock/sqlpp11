@@ -64,14 +64,14 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename X>
-			struct interpreter_t<Context, X, typename std::enable_if<std::is_base_of<table_alias_base_t, X>::value, void>::type>
+			struct serializer_t<Context, X, typename std::enable_if<std::is_base_of<table_alias_base_t, X>::value, void>::type>
 			{
 				using T = X;
 
 				static Context& _(const T& t, Context& context)
 				{
 					context << "(";
-					interpret(t._table, context);
+					serialize(t._table, context);
 					context << ") AS " << T::_name_t::_get_name();
 					return context;
 				}

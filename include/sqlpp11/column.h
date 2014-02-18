@@ -35,7 +35,7 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/vendor/assignment.h>
 #include <sqlpp11/vendor/expression.h>
-#include <sqlpp11/vendor/interpreter.h>
+#include <sqlpp11/vendor/serializer.h>
 #include <sqlpp11/vendor/wrong.h>
 #include <sqlpp11/detail/type_set.h>
 
@@ -109,7 +109,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename... Args>
-			struct interpreter_t<Context, column_t<Args...>>
+			struct serializer_t<Context, column_t<Args...>>
 			{
 				using T = column_t<Args...>;
 

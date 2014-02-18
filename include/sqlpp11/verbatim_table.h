@@ -68,7 +68,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context>
-			struct interpreter_t<Context, verbatim_table_t>
+			struct serializer_t<Context, verbatim_table_t>
 			{
 				using T = verbatim_table_t;
 

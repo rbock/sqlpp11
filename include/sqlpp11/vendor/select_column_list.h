@@ -99,7 +99,7 @@ namespace sqlpp
 			};
 
 		template<typename Context, typename Db>
-			struct interpreter_t<Context, dynamic_select_column_list<Db>>
+			struct serializer_t<Context, dynamic_select_column_list<Db>>
 			{
 				using T = dynamic_select_column_list<Db>;
 
@@ -112,14 +112,14 @@ namespace sqlpp
 							first = false;
 						else
 							context << ',';
-						interpret(column, context);
+						serialize(column, context);
 					}
 					return context;
 				}
 			};
 
 		template<typename Context>
-			struct interpreter_t<Context, dynamic_select_column_list<void>>
+			struct serializer_t<Context, dynamic_select_column_list<void>>
 			{
 				using T = dynamic_select_column_list<void>;
 
@@ -212,7 +212,7 @@ namespace sqlpp
 
 		// Interpreters
 		template<typename Context, typename Database, typename... Columns>
-			struct interpreter_t<Context, select_column_list_t<Database, Columns...>>
+			struct serializer_t<Context, select_column_list_t<Database, Columns...>>
 			{
 				using T = select_column_list_t<Database, Columns...>;
 
@@ -224,13 +224,13 @@ namespace sqlpp
 					interpret_tuple(t._columns, ',', context);
 					if (T::size::value and not t._dynamic_columns.empty())
 						context << ',';
-					interpret(t._dynamic_columns, context);
+					serialize(t._dynamic_columns, context);
 					return context;
 				}
 			};
 
 		template<typename Context>
-			struct interpreter_t<Context, no_select_column_list_t>
+			struct serializer_t<Context, no_select_column_list_t>
 			{
 				using T = no_select_column_list_t;
 

@@ -63,13 +63,13 @@ namespace sqlpp
 
 		// Interpreters
 		template<typename Context, typename Database, typename Table>
-			struct interpreter_t<Context, single_table_t<Database, Table>>
+			struct serializer_t<Context, single_table_t<Database, Table>>
 			{
 				using T = single_table_t<Database, Table>;
 
 				static Context& _(const T& t, Context& context)
 				{
-					interpret(t._table, context);
+					serialize(t._table, context);
 					return context;
 				}
 			};

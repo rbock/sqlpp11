@@ -23,16 +23,16 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SERIALIZER_H
-#define SQLPP_SERIALIZER_H
+#ifndef SQLPP_SERIALIZER_CONTEXT_H
+#define SQLPP_SERIALIZER_CONTEXT_H
 
 #include <ostream>
 
 namespace sqlpp
 {
-	struct serializer_t
+	struct serializer_context_t
 	{
-		serializer_t(std::ostream& os):
+		serializer_context_t(std::ostream& os):
 			_os(os)
 		{}
 
@@ -49,6 +49,7 @@ namespace sqlpp
 
 		std::string escape(std::string arg)
 		{
+// FIXME: Need to do better escaping
 			return arg;
 		}
 

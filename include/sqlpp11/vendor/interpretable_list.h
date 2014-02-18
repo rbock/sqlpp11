@@ -91,7 +91,7 @@ namespace sqlpp
 								context << separator;
 								first = false;
 							}
-							interpret(entry, context);
+							serialize(entry, context);
 						}
 						return context;
 					}

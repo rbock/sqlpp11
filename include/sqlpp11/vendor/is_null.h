@@ -70,13 +70,13 @@ namespace sqlpp
 		};
 
 		template<typename Context, bool NotInverted, typename Operand>
-			struct interpreter_t<Context, ::sqlpp::vendor::is_null_t<NotInverted, Operand>>
+			struct serializer_t<Context, ::sqlpp::vendor::is_null_t<NotInverted, Operand>>
 			{
 				using T = ::sqlpp::vendor::is_null_t<NotInverted, Operand>;
 
 				static Context& _(const T& t, Context& context)
 				{
-					interpret(t._operand, context);
+					serialize(t._operand, context);
 					context << (t._inverted ? " IS NOT NULL" : " IS NULL");
 					return context;
 				}

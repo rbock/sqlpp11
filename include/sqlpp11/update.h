@@ -191,16 +191,16 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename Database, typename... Policies>
-			struct interpreter_t<Context, update_t<Database, Policies...>>
+			struct serializer_t<Context, update_t<Database, Policies...>>
 			{
 				using T = update_t<Database, Policies...>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					context << "UPDATE ";
-					interpret(t._table, context);
-					interpret(t._update_list, context);
-					interpret(t._where, context);
+					serialize(t._table, context);
+					serialize(t._update_list, context);
+					serialize(t._where, context);
 					return context;
 				}
 			};

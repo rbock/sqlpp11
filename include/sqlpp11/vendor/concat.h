@@ -71,7 +71,7 @@ namespace sqlpp
 		};
 
 		template<typename Context, typename First, typename... Args>
-			struct interpreter_t<Context, concat_t<First, Args...>>
+			struct serializer_t<Context, concat_t<First, Args...>>
 			{
 				using T = concat_t<First, Args...>;
 

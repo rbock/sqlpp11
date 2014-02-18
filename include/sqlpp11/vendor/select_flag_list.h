@@ -81,7 +81,7 @@ namespace sqlpp
 
 		// Interpreters
 		template<typename Context, typename Database, typename... Flags>
-			struct interpreter_t<Context, select_flag_list_t<Database, Flags...>>
+			struct serializer_t<Context, select_flag_list_t<Database, Flags...>>
 			{
 				using T = select_flag_list_t<Database, Flags...>;
 
@@ -98,7 +98,7 @@ namespace sqlpp
 			};
 
 		template<typename Context>
-			struct interpreter_t<Context, no_select_flag_list_t>
+			struct serializer_t<Context, no_select_flag_list_t>
 			{
 				using T = no_select_flag_list_t;
 

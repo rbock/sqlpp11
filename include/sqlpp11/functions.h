@@ -71,7 +71,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename ValueType>
-			struct interpreter_t<Context, verbatim_t<ValueType>>
+			struct serializer_t<Context, verbatim_t<ValueType>>
 			{
 				using T = verbatim_t<ValueType>;
 
@@ -94,7 +94,7 @@ namespace sqlpp
 		{
 			static_assert(not make_parameter_list_t<Expression>::type::size::value, "parameters not supported in flattened expressions");
 			context.clear();
-			interpret(exp, context);
+			serialize(exp, context);
 			return { context.str() };
 		}
 
@@ -121,7 +121,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename Container>
-			struct interpreter_t<Context, value_list_t<Container>>
+			struct serializer_t<Context, value_list_t<Container>>
 			{
 				using T = value_list_t<Container>;
 
@@ -135,7 +135,7 @@ namespace sqlpp
 						else
 							context << ',';
 
-						interpret(value(entry), context);
+						serialize(value(entry), context);
 					}
 					return context;
 				}

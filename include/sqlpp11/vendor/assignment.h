@@ -30,7 +30,8 @@
 #include <sqlpp11/default_value.h>
 #include <sqlpp11/null.h>
 #include <sqlpp11/tvin.h>
-#include <sqlpp11/vendor/interpreter.h>
+#include <sqlpp11/serialize.h>
+#include <sqlpp11/vendor/serializer.h>
 #include <sqlpp11/vendor/simple_column.h>
 
 namespace sqlpp
@@ -64,15 +65,15 @@ namespace sqlpp
 			};
 
 		template<typename Context, typename Lhs, typename Rhs>
-			struct interpreter_t<Context, assignment_t<Lhs, Rhs>>
+			struct serializer_t<Context, assignment_t<Lhs, Rhs>>
 			{
 				using T = assignment_t<Lhs, Rhs>;
 
 				static Context& _(const T& t, Context& context)
 				{
-					interpret(simple_column(t._lhs), context);
+					serialize(simple_column(t._lhs), context);
 					context << "=";
-					interpret(t._rhs, context);
+					serialize(t._rhs, context);
 					return context;
 				}
 			};
@@ -103,13 +104,13 @@ namespace sqlpp
 			};
 
 		template<typename Context, typename Lhs, typename Rhs>
-			struct interpreter_t<Context, assignment_t<Lhs, tvin_t<Rhs>>>
+			struct serializer_t<Context, assignment_t<Lhs, tvin_t<Rhs>>>
 			{
 				using T = assignment_t<Lhs, tvin_t<Rhs>>;
 
 				static Context& _(const T& t, Context& context)
 				{
-					interpret(simple_column(t._lhs), context);
+					serialize(simple_column(t._lhs), context);
 					if (t._rhs._value._is_trivial())
 					{
 						context << "=NULL";
@@ -117,7 +118,7 @@ namespace sqlpp
 					else
 					{
 						context << "=";
-						interpret(t._rhs._value, context);
+						serialize(t._rhs._value, context);
 					}
 					return context;
 				}

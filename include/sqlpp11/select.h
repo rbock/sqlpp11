@@ -42,7 +42,7 @@
 #include <sqlpp11/vendor/limit.h>
 #include <sqlpp11/vendor/offset.h>
 #include <sqlpp11/vendor/expression.h>
-#include <sqlpp11/vendor/interpreter.h>
+#include <sqlpp11/vendor/serializer.h>
 #include <sqlpp11/vendor/wrong.h>
 #include <sqlpp11/vendor/policy_update.h>
 
@@ -540,7 +540,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename Database, typename... Policies>
-			struct interpreter_t<Context, select_t<Database, Policies...>>
+			struct serializer_t<Context, select_t<Database, Policies...>>
 			{
 				using T = select_t<Database, Policies...>;
 
@@ -548,15 +548,15 @@ namespace sqlpp
 				{
 					context << "SELECT ";
 
-					interpret(t._flag_list, context);
-					interpret(t._column_list, context);
-					interpret(t._from, context);
-					interpret(t._where, context);
-					interpret(t._group_by, context);
-					interpret(t._having, context);
-					interpret(t._order_by, context);
-					interpret(t._limit, context);
-					interpret(t._offset, context);
+					serialize(t._flag_list, context);
+					serialize(t._column_list, context);
+					serialize(t._from, context);
+					serialize(t._where, context);
+					serialize(t._group_by, context);
+					serialize(t._having, context);
+					serialize(t._order_by, context);
+					serialize(t._limit, context);
+					serialize(t._offset, context);
 
 					return context;
 				}

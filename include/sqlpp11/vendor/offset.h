@@ -97,20 +97,20 @@ namespace sqlpp
 
 		// Interpreters
 		template<typename Context, typename Offset>
-			struct interpreter_t<Context, offset_t<Offset>>
+			struct serializer_t<Context, offset_t<Offset>>
 			{
 				using T = offset_t<Offset>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					context << " OFFSET ";
-					interpret(t._value, context);
+					serialize(t._value, context);
 					return context;
 				}
 			};
 
 		template<typename Context, typename Database>
-			struct interpreter_t<Context, dynamic_offset_t<Database>>
+			struct serializer_t<Context, dynamic_offset_t<Database>>
 			{
 				using T = dynamic_offset_t<Database>;
 
@@ -119,14 +119,14 @@ namespace sqlpp
 					if (t._initialized)
 					{
 						context << " OFFSET ";
-						interpret(t._value, context);
+						serialize(t._value, context);
 					}
 					return context;
 				}
 			};
 
 		template<typename Context>
-			struct interpreter_t<Context, no_offset_t>
+			struct serializer_t<Context, no_offset_t>
 			{
 				using T = no_offset_t;
 

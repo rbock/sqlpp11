@@ -27,14 +27,29 @@
 #define  SQLPP_MOCK_DB_H
 
 #include <sqlpp11/connection.h>
-#include <sqlpp11/serializer.h>
+#include <sqlpp11/serializer_context.h>
+#include <sqlpp11/serialize.h>
 
 struct DbMock: public sqlpp::connection
 {
-	struct _context_t : public sqlpp::serializer_t
+	struct _serializer_context_t : public sqlpp::serializer_context_t
 	{
-		_context_t(std::ostream& os): sqlpp::serializer_t(os) {}
+		_serializer_context_t(std::ostream& os): sqlpp::serializer_context_t(os) {}
 	};
+
+	using _interpreter_context_t = _serializer_context_t;
+
+	template<typename T>
+	static _serializer_context_t& _serialize_interpretable(const T& t, _serializer_context_t& context)
+	{
+		return ::sqlpp::serialize(t, context);
+	}
+
+	template<typename T>
+	static _interpreter_context_t& _interpret_interpretable(const T& t, _interpreter_context_t& context)
+	{
+		return ::sqlpp::serialize(t, context);
+	}
 };
 
 #endif

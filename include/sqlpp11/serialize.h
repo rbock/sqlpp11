@@ -24,72 +24,18 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_MAX_H
-#define SQLPP_MAX_H
+#ifndef SQLPP_SERIALIZE_H
+#define SQLPP_SERIALIZE_H
 
-#include <sqlpp11/type_traits.h>
+#include <sqlpp11/vendor/serializer.h>
 
 namespace sqlpp
 {
-	namespace vendor
-	{
-		template<typename Expr>
-		struct max_t: public boolean::template operators<max_t<Expr>>
+	template<typename T, typename Context>
+		auto serialize(const T& t, Context& context)
+		-> decltype(vendor::serializer_t<Context, T>::_(t, context))
 		{
-			static_assert(is_value_t<Expr>::value, "max() requires a value expression as argument");
-
-			struct _value_type: public Expr::_value_type::_base_value_type
-			{
-				using _is_named_expression = std::true_type;
-			};
-
-			struct _name_t
-			{
-				static constexpr const char* _get_name() { return "MAX"; }
-				template<typename T>
-					struct _member_t
-					{
-						T max;
-						T& operator()() { return max; }
-						const T& operator()() const { return max; }
-					};
-			};
-
-			max_t(Expr expr):
-				_expr(expr)
-			{}
-
-			max_t(const max_t&) = default;
-			max_t(max_t&&) = default;
-			max_t& operator=(const max_t&) = default;
-			max_t& operator=(max_t&&) = default;
-			~max_t() = default;
-
-			Expr _expr;
-		};
-	}
-
-	namespace vendor
-	{
-		template<typename Context, typename Expr>
-			struct serializer_t<Context, vendor::max_t<Expr>>
-			{
-				using T = vendor::max_t<Expr>;
-
-				static Context& _(const T& t, Context& context)
-				{
-					context << "MAX(";
-					serialize(t._expr, context);
-					context << ")";
-					return context;
-				}
-			};
-	}
-
-	template<typename T>
-		auto max(T t) -> typename vendor::max_t<typename operand_t<T, is_value_t>::type>
-		{
-			return { t };
+			return vendor::serializer_t<Context, T>::_(t, context);
 		}
 
 }

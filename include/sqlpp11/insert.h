@@ -166,15 +166,15 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename Database, typename... Policies>
-			struct interpreter_t<Context, insert_t<Database, Policies...>>
+			struct serializer_t<Context, insert_t<Database, Policies...>>
 			{
 				using T = insert_t<Database, Policies...>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					context << "INSERT INTO ";
-					interpret(t._table, context);
-					interpret(t._insert_value_list, context);
+					serialize(t._table, context);
+					serialize(t._insert_value_list, context);
 					return context;
 				}
 			};

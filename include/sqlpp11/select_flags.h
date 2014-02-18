@@ -47,7 +47,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context>
-			struct interpreter_t<Context, all_t>
+			struct serializer_t<Context, all_t>
 			{
 				static Context& _(const all_t&, Context& context)
 				{
@@ -69,7 +69,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context>
-			struct interpreter_t<Context, distinct_t>
+			struct serializer_t<Context, distinct_t>
 			{
 				static Context& _(const distinct_t&, Context& context)
 				{
@@ -91,7 +91,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context>
-			struct interpreter_t<Context, straight_join_t>
+			struct serializer_t<Context, straight_join_t>
 			{
 				static Context& _(const straight_join_t&, Context& context)
 				{

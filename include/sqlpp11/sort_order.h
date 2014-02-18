@@ -46,13 +46,13 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename Expression, sort_type SortType>
-			struct interpreter_t<Context, sort_order_t<Expression, SortType>>
+			struct serializer_t<Context, sort_order_t<Expression, SortType>>
 			{
 				using T = sort_order_t<Expression, SortType>;
 
 				static Context& _(const T& t, Context& context)
 				{
-					interpret(t._expression, context);
+					serialize(t._expression, context);
 					switch(SortType)
 					{
 					case sort_type::asc:

@@ -79,7 +79,7 @@ namespace sqlpp
 
 		// Interpreters
 		template<typename Context, typename Database, typename... Expressions>
-			struct interpreter_t<Context, order_by_t<Database, Expressions...>>
+			struct serializer_t<Context, order_by_t<Database, Expressions...>>
 			{
 				using T = order_by_t<Database, Expressions...>;
 
@@ -97,7 +97,7 @@ namespace sqlpp
 			};
 
 		template<typename Context>
-			struct interpreter_t<Context, no_order_by_t>
+			struct serializer_t<Context, no_order_by_t>
 			{
 				using T = no_order_by_t;
 

@@ -27,7 +27,7 @@
 #ifndef SQLPP_SIMPLE_COLUMN_H
 #define SQLPP_SIMPLE_COLUMN_H
 
-#include <sqlpp11/vendor/interpreter.h>
+#include <sqlpp11/vendor/serializer.h>
 
 namespace sqlpp
 {
@@ -40,7 +40,7 @@ namespace sqlpp
 			};
 
 		template<typename Context, typename Column>
-			struct interpreter_t<Context, simple_column_t<Column>>
+			struct serializer_t<Context, simple_column_t<Column>>
 			{
 				using T = simple_column_t<Column>;
 

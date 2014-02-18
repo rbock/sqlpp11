@@ -27,7 +27,6 @@
 #ifndef SQLPP_SUM_H
 #define SQLPP_SUM_H
 
-#include <sstream>
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp
@@ -74,7 +73,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename Flag, typename Expr>
-			struct interpreter_t<Context, vendor::sum_t<Flag, Expr>>
+			struct serializer_t<Context, vendor::sum_t<Flag, Expr>>
 			{
 				using T = vendor::sum_t<Flag, Expr>;
 
@@ -83,10 +82,10 @@ namespace sqlpp
 					context << "SUM(";
 					if (std::is_same<sqlpp::distinct_t, Flag>::value)
 					{
-						interpret(Flag(), context);
+						serialize(Flag(), context);
 						context << ' ';
 					}
-					interpret(t._expr, context);
+					serialize(t._expr, context);
 					context << ")";
 					return context;
 				}

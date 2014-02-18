@@ -28,7 +28,7 @@
 #define SQLPP_DETAIL_WRAP_OPERAND_H
 
 #include <string>
-#include <sqlpp11/vendor/interpreter.h>
+#include <sqlpp11/vendor/serializer.h>
 #include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
@@ -70,7 +70,7 @@ namespace sqlpp
 		};
 
 		template<typename Context>
-			struct interpreter_t<Context, boolean_operand>
+			struct serializer_t<Context, boolean_operand>
 			{
 				using Operand = boolean_operand;
 
@@ -108,7 +108,7 @@ namespace sqlpp
 		};
 
 		template<typename Context>
-			struct interpreter_t<Context, integral_operand>
+			struct serializer_t<Context, integral_operand>
 			{
 				using Operand = integral_operand;
 
@@ -147,7 +147,7 @@ namespace sqlpp
 		};
 
 		template<typename Context>
-			struct interpreter_t<Context, floating_point_operand>
+			struct serializer_t<Context, floating_point_operand>
 			{
 				using Operand = floating_point_operand;
 
@@ -185,7 +185,7 @@ namespace sqlpp
 		};
 
 		template<typename Context>
-			struct interpreter_t<Context, text_operand>
+			struct serializer_t<Context, text_operand>
 			{
 				using Operand = text_operand;
 

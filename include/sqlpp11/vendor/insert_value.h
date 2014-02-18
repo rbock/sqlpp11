@@ -31,7 +31,7 @@
 #include <sqlpp11/null.h>
 #include <sqlpp11/tvin.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/vendor/interpreter.h>
+#include <sqlpp11/vendor/serializer.h>
 #include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
@@ -102,7 +102,7 @@ namespace sqlpp
 			};
 
 		template<typename Context, typename ValueType>
-			struct interpreter_t<Context, insert_value_t<ValueType>>
+			struct serializer_t<Context, insert_value_t<ValueType>>
 			{
 				using T = insert_value_t<ValueType>;
 
@@ -113,7 +113,7 @@ namespace sqlpp
 					else if (t._is_default)
 						context << "DEFAULT";
 					else
-						interpret(t._value, context);
+						serialize(t._value, context);
 					return context;
 				}
 			};

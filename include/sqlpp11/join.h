@@ -145,18 +145,18 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename JoinType, typename Lhs, typename Rhs, typename On>
-			struct interpreter_t<Context, join_t<JoinType, Lhs, Rhs, On>>
+			struct serializer_t<Context, join_t<JoinType, Lhs, Rhs, On>>
 			{
 				using T = join_t<JoinType, Lhs, Rhs, On>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					static_assert(not vendor::is_noop<On>::value, "joined tables require on()");
-					interpret(t._lhs, context);
+					serialize(t._lhs, context);
 					context << JoinType::_name;
 					context << " JOIN ";
-					interpret(t._rhs, context);
-					interpret(t._on, context);
+					serialize(t._rhs, context);
+					serialize(t._on, context);
 					return context;
 				}
 			};

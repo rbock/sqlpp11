@@ -30,7 +30,8 @@
 // TVIN: Trivial value is NULL
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/vendor/interpreter.h>
+#include <sqlpp11/serialize.h>
+#include <sqlpp11/vendor/serializer.h>
 
 namespace sqlpp
 {
@@ -61,7 +62,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename Operand>
-			struct interpreter_t<Context, tvin_t<Operand>>
+			struct serializer_t<Context, tvin_t<Operand>>
 			{
 				using T = tvin_t<Operand>;
 
@@ -117,7 +118,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename Operand>
-			struct interpreter_t<Context, tvin_wrap_t<Operand>>
+			struct serializer_t<Context, tvin_wrap_t<Operand>>
 			{
 				using T = tvin_wrap_t<Operand>;
 
@@ -129,7 +130,7 @@ namespace sqlpp
 					}
 					else
 					{
-						interpret(t._value, context);
+						serialize(t._value, context);
 					}
 					return context;
 				}

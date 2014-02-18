@@ -81,7 +81,7 @@ namespace sqlpp
 
 		// Interpreters
 		template<typename Context, typename Database, typename... Tables>
-			struct interpreter_t<Context, using_t<Database, Tables...>>
+			struct serializer_t<Context, using_t<Database, Tables...>>
 			{
 				using T = using_t<Database, Tables...>;
 
@@ -99,7 +99,7 @@ namespace sqlpp
 			};
 
 		template<typename Context>
-			struct interpreter_t<Context, no_using_t>
+			struct serializer_t<Context, no_using_t>
 			{
 				using T = no_using_t;
 

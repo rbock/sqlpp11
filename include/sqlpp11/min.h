@@ -27,7 +27,6 @@
 #ifndef SQLPP_MIN_H
 #define SQLPP_MIN_H
 
-#include <sstream>
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp
@@ -73,14 +72,14 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename Expr>
-			struct interpreter_t<Context, vendor::min_t<Expr>>
+			struct serializer_t<Context, vendor::min_t<Expr>>
 			{
 				using T = vendor::min_t<Expr>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					context << "MIN(";
-					interpret(t._expr, context);
+					serialize(t._expr, context);
 					context << ")";
 					return context;
 				}

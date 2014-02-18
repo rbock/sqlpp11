@@ -171,7 +171,7 @@ namespace sqlpp
 
 		// Interpreters
 		template<typename Context>
-			struct interpreter_t<Context, insert_default_values_t>
+			struct serializer_t<Context, insert_default_values_t>
 			{
 				using T = insert_default_values_t;
 
@@ -183,7 +183,7 @@ namespace sqlpp
 			};
 
 		template<typename Context, typename... Columns>
-			struct interpreter_t<Context, column_list_t<Columns...>>
+			struct serializer_t<Context, column_list_t<Columns...>>
 			{
 				using T = column_list_t<Columns...>;
 
@@ -210,7 +210,7 @@ namespace sqlpp
 			};
 
 		template<typename Context, typename Database, typename... Assignments>
-			struct interpreter_t<Context, insert_list_t<Database, Assignments...>>
+			struct serializer_t<Context, insert_list_t<Database, Assignments...>>
 			{
 				using T = insert_list_t<Database, Assignments...>;
 
@@ -218,7 +218,7 @@ namespace sqlpp
 				{
 					if (sizeof...(Assignments) + t._dynamic_columns.size() == 0)
 					{
-						interpret(insert_default_values_t(), context);
+						serialize(insert_default_values_t(), context);
 					}
 					else
 					{
@@ -239,7 +239,7 @@ namespace sqlpp
 			};
 
 		template<typename Context>
-			struct interpreter_t<Context, no_insert_value_list_t>
+			struct serializer_t<Context, no_insert_value_list_t>
 			{
 				using T = no_insert_value_list_t;
 

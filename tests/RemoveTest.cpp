@@ -31,7 +31,7 @@
 
 
 DbMock db;
-DbMock::_context_t printer(std::cerr);
+DbMock::_serializer_context_t printer(std::cerr);
 
 int main()
 {
@@ -56,13 +56,13 @@ int main()
 		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
-	interpret(remove_from(t), printer).flush();
-	interpret(remove_from(t).where(t.beta != "transparent"), printer).flush();
-	interpret(remove_from(t).using_(t), printer).flush();
+	serialize(remove_from(t), printer).flush();
+	serialize(remove_from(t).where(t.beta != "transparent"), printer).flush();
+	serialize(remove_from(t).using_(t), printer).flush();
 	auto r = dynamic_remove_from(db, t).dynamic_using().dynamic_where();
 	r.add_using(t);
 	r.add_where(t.beta != "transparent");
-	interpret(r, printer).flush();
+	serialize(r, printer).flush();
 
 	return 0;
 }

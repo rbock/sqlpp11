@@ -106,7 +106,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename... Columns>
-			struct interpreter_t<Context, multi_column_t<void, Columns...>>
+			struct serializer_t<Context, multi_column_t<void, Columns...>>
 			{
 				using T = multi_column_t<void, Columns...>;
 
@@ -117,7 +117,7 @@ namespace sqlpp
 			};
 
 		template<typename Context, typename AliasProvider, typename... Columns>
-			struct interpreter_t<Context, multi_column_alias_t<AliasProvider, Columns...>>
+			struct serializer_t<Context, multi_column_alias_t<AliasProvider, Columns...>>
 			{
 				using T = multi_column_alias_t<AliasProvider, Columns...>;
 

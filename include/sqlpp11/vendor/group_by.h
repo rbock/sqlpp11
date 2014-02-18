@@ -82,7 +82,7 @@ namespace sqlpp
 
 		// Interpreters
 		template<typename Context, typename Database, typename... Expressions>
-			struct interpreter_t<Context, group_by_t<Database, Expressions...>>
+			struct serializer_t<Context, group_by_t<Database, Expressions...>>
 			{
 				using T = group_by_t<Database, Expressions...>;
 
@@ -100,7 +100,7 @@ namespace sqlpp
 			};
 
 		template<typename Context>
-			struct interpreter_t<Context, no_group_by_t>
+			struct serializer_t<Context, no_group_by_t>
 			{
 				using T = no_group_by_t;
 

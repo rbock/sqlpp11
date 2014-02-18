@@ -104,7 +104,7 @@ namespace sqlpp
 
 		// Interpreters
 		template<typename Context, typename Database, typename... Expressions>
-			struct interpreter_t<Context, where_t<Database, Expressions...>>
+			struct serializer_t<Context, where_t<Database, Expressions...>>
 			{
 				using T = where_t<Database, Expressions...>;
 
@@ -122,7 +122,7 @@ namespace sqlpp
 			};
 
 		template<typename Context>
-			struct interpreter_t<Context, where_t<void, bool>>
+			struct serializer_t<Context, where_t<void, bool>>
 			{
 				using T = where_t<void, bool>;
 
@@ -135,7 +135,7 @@ namespace sqlpp
 			};
 
 		template<typename Context>
-			struct interpreter_t<Context, no_where_t>
+			struct serializer_t<Context, no_where_t>
 			{
 				using T = no_where_t;
 

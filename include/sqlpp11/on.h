@@ -57,7 +57,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename Database, typename... Expr>
-			struct interpreter_t<Context, on_t<Database, Expr...>>
+			struct serializer_t<Context, on_t<Database, Expr...>>
 			{
 				using T = on_t<Database, Expr...>;
 

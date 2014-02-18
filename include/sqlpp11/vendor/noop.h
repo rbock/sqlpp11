@@ -39,7 +39,7 @@ namespace sqlpp
 		};
 
 		template<typename Context>
-			struct interpreter_t<Context, noop>
+			struct serializer_t<Context, noop>
 			{
 				using T = noop;
 

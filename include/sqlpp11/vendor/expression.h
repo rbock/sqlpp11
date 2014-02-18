@@ -32,7 +32,7 @@
 #include <sqlpp11/tvin.h>
 #include <sqlpp11/vendor/noop.h>
 #include <sqlpp11/vendor/expression_fwd.h>
-#include <sqlpp11/vendor/interpreter.h>
+#include <sqlpp11/vendor/serializer.h>
 #include <sqlpp11/vendor/wrap_operand.h>
 
 namespace sqlpp
@@ -62,14 +62,14 @@ namespace sqlpp
 		};
 
 		template<typename Context, typename Lhs, typename Rhs>
-			struct interpreter_t<Context, equal_to_t<Lhs, Rhs>>
+			struct serializer_t<Context, equal_to_t<Lhs, Rhs>>
 			{
 				using T = equal_to_t<Lhs, Rhs>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					context << "(";
-					interpret(t._lhs, context);
+					serialize(t._lhs, context);
 					if (t._rhs._is_trivial())
 					{
 						context << " IS NULL";
@@ -77,7 +77,7 @@ namespace sqlpp
 					else
 					{
 						context << "=";
-						interpret(t._rhs, context);
+						serialize(t._rhs, context);
 					}
 					context << ")";
 					return context;
@@ -106,16 +106,15 @@ namespace sqlpp
 			tvin_wrap_t<Rhs> _rhs;
 		};
 
-		/*
 		template<typename Context, typename Lhs, typename Rhs>
-			struct interpreter_t<Context, not_equal_to_t<Lhs, Rhs>>
+			struct serializer_t<Context, not_equal_to_t<Lhs, Rhs>>
 			{
 				using T = not_equal_to_t<Lhs, Rhs>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					context << "(";
-					interpret(t._lhs, context);
+					serialize(t._lhs, context);
 					if (t._rhs._is_trivial())
 					{
 						context << " IS NOT NULL";
@@ -123,13 +122,12 @@ namespace sqlpp
 					else
 					{
 						context << "!=";
-						interpret(t._rhs, context);
+						serialize(t._rhs, context);
 					}
 					context << ")";
 					return context;
 				}
 			};
-			*/
 
 		template<typename Rhs>
 			struct unary_expression_t<tag::logical_not, Rhs>: public ::sqlpp::detail::boolean::template operators<logical_not_t<Rhs>>
@@ -152,7 +150,7 @@ namespace sqlpp
 		};
 
 		template<typename Context, typename Rhs>
-			struct interpreter_t<Context, logical_not_t<Rhs>>
+			struct serializer_t<Context, logical_not_t<Rhs>>
 			{
 				using T = logical_not_t<Rhs>;
 
@@ -160,7 +158,7 @@ namespace sqlpp
 				{
 					context << "(";
 					context << "NOT ";
-					interpret(t._lhs, context);
+					serialize(t._lhs, context);
 					context << ")";
 					return context;
 				}
@@ -191,16 +189,16 @@ namespace sqlpp
 		};
 
 		template<typename Context, typename Lhs, typename O, typename Rhs>
-			struct interpreter_t<Context, binary_expression_t<Lhs, O, Rhs>>
+			struct serializer_t<Context, binary_expression_t<Lhs, O, Rhs>>
 			{
 				using T = binary_expression_t<Lhs, O, Rhs>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					context << "(";
-					interpret(t._lhs, context);
+					serialize(t._lhs, context);
 					context << O::_name;
-					interpret(t._rhs, context);
+					serialize(t._rhs, context);
 					context << ")";
 					return context;
 				}
@@ -226,7 +224,7 @@ namespace sqlpp
 		};
 
 		template<typename Context, typename O, typename Rhs>
-			struct interpreter_t<Context, unary_expression_t<O, Rhs>>
+			struct serializer_t<Context, unary_expression_t<O, Rhs>>
 			{
 				using T = unary_expression_t<O, Rhs>;
 
@@ -234,7 +232,7 @@ namespace sqlpp
 				{
 					context << "(";
 					context << O::_name;
-					interpret(t._rhs, context);
+					serialize(t._rhs, context);
 					context << ")";
 					return context;
 				}

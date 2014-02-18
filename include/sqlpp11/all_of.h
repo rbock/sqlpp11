@@ -54,7 +54,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename Table>
-			struct interpreter_t<Context, all_of_t<Table>>
+			struct serializer_t<Context, all_of_t<Table>>
 			{
 				using T = all_of_t<Table>;
 

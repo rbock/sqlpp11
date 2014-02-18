@@ -74,13 +74,13 @@ namespace sqlpp
 		};
 
 		template<typename Context, bool NotInverted, typename Operand, typename... Args>
-			struct interpreter_t<Context, vendor::in_t<NotInverted, Operand, Args...>>
+			struct serializer_t<Context, vendor::in_t<NotInverted, Operand, Args...>>
 			{
 				using T = vendor::in_t<NotInverted, Operand, Args...>;
 
 				static Context& _(const T& t, Context& context)
 				{
-					interpret(t._operand, context);
+					serialize(t._operand, context);
 					context << (t._inverted ? " NOT IN(" : " IN(");
 					interpret_tuple(t._args, ',', context);
 					context << ')';

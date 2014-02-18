@@ -74,7 +74,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename Flag, typename Expr>
-			struct interpreter_t<Context, vendor::count_t<Flag, Expr>>
+			struct serializer_t<Context, vendor::count_t<Flag, Expr>>
 			{
 				using T = vendor::count_t<Flag, Expr>;
 
@@ -83,10 +83,10 @@ namespace sqlpp
 					context << "COUNT(";
 					if (std::is_same<sqlpp::distinct_t, Flag>::value)
 					{
-						interpret(Flag(), context);
+						serialize(Flag(), context);
 						context << ' ';
 					}
-					interpret(t._expr, context);
+					serialize(t._expr, context);
 					context << ")";
 					return context;
 				}
