@@ -24,32 +24,98 @@
  */
 
 #ifndef SQLPP_MOCK_DB_H
-#define  SQLPP_MOCK_DB_H
+#define SQLPP_MOCK_DB_H
 
-#include <sqlpp11/connection.h>
 #include <sqlpp11/serializer_context.h>
-#include <sqlpp11/serialize.h>
+#include <sqlpp11/connection.h>
 
 struct DbMock: public sqlpp::connection
 {
-	struct _serializer_context_t : public sqlpp::serializer_context_t
-	{
-		_serializer_context_t(std::ostream& os): sqlpp::serializer_context_t(os) {}
-	};
-
+	using _serializer_context_t = sqlpp::serializer_context_t;
 	using _interpreter_context_t = _serializer_context_t;
 
 	template<typename T>
-	static _serializer_context_t& _serialize_interpretable(const T& t, _serializer_context_t& context)
+	static _serializer_context_t _serialize_interpretable(const T& t, _serializer_context_t& context)
 	{
-		return ::sqlpp::serialize(t, context);
+		sqlpp::serialize(t, context);
+		return context;
 	}
 
 	template<typename T>
-	static _interpreter_context_t& _interpret_interpretable(const T& t, _interpreter_context_t& context)
+	static _serializer_context_t _interpret_interpretable(const T& t, _interpreter_context_t& context)
 	{
-		return ::sqlpp::serialize(t, context);
+		sqlpp::serialize(t, context);
+		return context;
 	}
+
+	class result_t
+	{
+	public:
+		constexpr bool operator==(const result_t& rhs) const
+		{
+			return true;
+		}
+
+		template<typename ResultRow>
+			void next(ResultRow& result_row)
+			{
+				result_row.invalidate();
+			};
+	};
+
+	// Directly executed statements start here
+	template<typename T>
+		auto operator() (const T& t) -> decltype(t._run(*this))
+		{
+			return t._run(*this);
+		}
+
+	template<typename Insert>
+		size_t insert(const Insert& x)
+		{
+			return 0;
+		}
+
+	template<typename Update>
+		size_t update(const Update& x)
+		{
+			return 0;
+		}
+
+	template<typename Remove>
+		size_t remove(const Remove& x)
+		{
+			return 0;
+		}
+
+	template<typename Select>
+		result_t select(const Select& s)
+		{
+			return {};
+		}
+
+	// Prepared statements start here
+	using _prepared_statement_t = std::nullptr_t;
+
+	template<typename T>
+		auto prepare(const T& t) -> decltype(t._prepare(*this))
+		{
+			return t._prepare(*this);
+		}
+
+
+	template<typename Insert>
+		_prepared_statement_t prepare_insert(Insert& x)
+		{
+			return nullptr;
+		}
+
+	template<typename PreparedInsert>
+		size_t run_prepared_insert(const PreparedInsert& x)
+		{
+			return 0;
+		}
+
 };
 
 #endif
