@@ -142,6 +142,18 @@ struct MockDb: public sqlpp::connection
 			return 0;
 		}
 
+	template<typename Select>
+		_prepared_statement_t prepare_select(Select& x)
+		{
+			return nullptr;
+		}
+
+	template<typename PreparedSelect>
+		result_t run_prepared_select(PreparedSelect& x)
+		{
+			return {};
+		}
+
 };
 
 #endif
