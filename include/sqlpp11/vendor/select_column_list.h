@@ -156,9 +156,10 @@ namespace sqlpp
 				};
 				using _name_t = typename ::sqlpp::detail::get_first_argument_if_unique<Columns...>::_name_t;
 
+				template<typename Db>
 				using _result_row_t = typename std::conditional<_is_dynamic::value,
-							dynamic_result_row_t<make_field_t<Columns>...>,
-							result_row_t<make_field_t<Columns>...>>::type;
+							dynamic_result_row_t<Db, make_field_t<Columns>...>,
+							result_row_t<Db, make_field_t<Columns>...>>::type;
 
 				using _dynamic_names_t = typename dynamic_select_column_list<Database>::_names_t;
 
@@ -198,7 +199,8 @@ namespace sqlpp
 		struct no_select_column_list_t
 		{
 			using _is_noop = std::true_type;
-			using _result_row_t = ::sqlpp::result_row_t<>;
+			template<typename Db>
+				using _result_row_t = ::sqlpp::result_row_t<Db>;
 			using _dynamic_names_t = typename dynamic_select_column_list<void>::_names_t;
 			using _value_type = no_value_t;
 			struct _name_t {};

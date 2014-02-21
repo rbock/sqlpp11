@@ -31,7 +31,7 @@
 
 #include <iostream>
 
-DbMock db = {};
+MockDb db = {};
 
 int main()
 {

@@ -41,13 +41,13 @@ namespace sqlpp
 		template<size_t level, size_t index, typename... NamedExpr>
 			struct result_row_impl;
 
-		template<size_t level, size_t index, typename NamedExpr, typename... Rest>
-			struct result_row_impl<level, index, NamedExpr, Rest...>: 
-			public NamedExpr::_name_t::template _member_t<typename NamedExpr::_value_type::template _result_entry_t<NamedExpr::_trivial_value_is_null>>,
-			public result_row_impl<level, index + 1, Rest...>
+		template<size_t level, size_t index, typename Db, typename NamedExpr, typename... Rest>
+			struct result_row_impl<level, index, Db, NamedExpr, Rest...>: 
+			public NamedExpr::_name_t::template _member_t<typename NamedExpr::_value_type::template _result_entry_t<Db, NamedExpr::_trivial_value_is_null>>,
+			public result_row_impl<level, index + 1, Db, Rest...>
 			{
-				using _field = typename NamedExpr::_name_t::template _member_t<typename NamedExpr::_value_type::template _result_entry_t<NamedExpr::_trivial_value_is_null>>;
-				using _rest = result_row_impl<level, index + 1, Rest...>;
+				using _field = typename NamedExpr::_name_t::template _member_t<typename NamedExpr::_value_type::template _result_entry_t<Db, NamedExpr::_trivial_value_is_null>>;
+				using _rest = result_row_impl<level, index + 1, Db, Rest...>;
 				static constexpr size_t _last_index = _rest::_last_index;
 
 				result_row_impl() = default;
@@ -84,13 +84,13 @@ namespace sqlpp
 				}
 			};
 
-		template<size_t level, size_t index, typename AliasProvider, typename... Col, typename... Rest>
-			struct result_row_impl<level, index, vendor::multi_field_t<AliasProvider, std::tuple<Col...>>, Rest...>: 
-			public AliasProvider::_name_t::template _member_t<result_row_impl<level, index, Col...>>, // level prevents identical closures to be present twice in the inheritance tree
-			public result_row_impl<level, index + sizeof...(Col), Rest...>
+		template<size_t level, size_t index, typename AliasProvider, typename Db, typename... Col, typename... Rest>
+			struct result_row_impl<level, index, Db, vendor::multi_field_t<AliasProvider, std::tuple<Col...>>, Rest...>: 
+			public AliasProvider::_name_t::template _member_t<result_row_impl<level, index, Db, Col...>>, // level prevents identical closures to be present twice in the inheritance tree
+			public result_row_impl<level, index + sizeof...(Col), Db, Rest...>
 			{
-				using _multi_field = typename AliasProvider::_name_t::template _member_t<result_row_impl<level, index, Col...>>;
-				using _rest = result_row_impl<level, index + sizeof...(Col), Rest...>;
+				using _multi_field = typename AliasProvider::_name_t::template _member_t<result_row_impl<level, index, Db, Col...>>;
+				using _rest = result_row_impl<level, index + sizeof...(Col), Db, Rest...>;
 				static constexpr size_t _last_index = _rest::_last_index;
 
 				result_row_impl() = default;
@@ -126,8 +126,8 @@ namespace sqlpp
 				}
 			};
 
-		template<size_t level, size_t index>
-			struct result_row_impl<level, index>
+		template<size_t level, size_t index, typename Db>
+			struct result_row_impl<level, index, Db>
 			{
 				static constexpr size_t _last_index = index;
 				result_row_impl() = default;
@@ -155,10 +155,10 @@ namespace sqlpp
 			};
 	}
 
-	template<typename... NamedExpr>
-	struct result_row_t: public detail::result_row_impl<0, 0, NamedExpr...>
+	template<typename Db, typename... NamedExpr>
+	struct result_row_t: public detail::result_row_impl<0, 0, Db, NamedExpr...>
 	{
-		using _impl = detail::result_row_impl<0, 0, NamedExpr...>;
+		using _impl = detail::result_row_impl<0, 0, Db, NamedExpr...>;
 		bool _is_valid;
 		static constexpr size_t _last_static_index = _impl::_last_index;
 
@@ -221,11 +221,11 @@ namespace sqlpp
 			}
 	};
 
-	template<typename... NamedExpr>
-	struct dynamic_result_row_t: public detail::result_row_impl<0, 0, NamedExpr...>
+	template<typename Db, typename... NamedExpr>
+	struct dynamic_result_row_t: public detail::result_row_impl<0, 0, Db, NamedExpr...>
 	{
-		using _impl = detail::result_row_impl<0, 0, NamedExpr...>;
-		using _field_type = detail::text::_result_entry_t<>;
+		using _impl = detail::result_row_impl<0, 0, Db, NamedExpr...>;
+		using _field_type = detail::text::_result_entry_t<Db, false>;
 		static constexpr size_t _last_static_index = _impl::_last_index;
 
 		bool _is_valid;

@@ -29,8 +29,8 @@
 #include "MockDb.h"
 #include "is_regular.h"
 
-DbMock db;
-DbMock::_serializer_context_t printer;
+MockDb db;
+MockDb::_serializer_context_t printer;
 
 int main()
 {

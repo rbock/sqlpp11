@@ -30,7 +30,7 @@
 #include <sqlpp11/serializer_context.h>
 #include <sqlpp11/connection.h>
 
-struct DbMock: public sqlpp::connection
+struct MockDb: public sqlpp::connection
 {
 	struct _serializer_context_t
 	{

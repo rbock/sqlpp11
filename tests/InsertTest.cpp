@@ -29,8 +29,8 @@
 #include <sqlpp11/insert.h>
 #include <iostream>
 
-DbMock db;
-DbMock::_serializer_context_t printer;
+MockDb db;
+MockDb::_serializer_context_t printer;
 
 int main()
 {

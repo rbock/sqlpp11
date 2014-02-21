@@ -99,7 +99,8 @@ namespace sqlpp
 			using _table_set = ::sqlpp::detail::type_set<>;
 			
 			using _column_list_t = ColumnList;
-			using _result_row_t = typename _column_list_t::_result_row_t;
+			template<typename Db>
+				using _result_row_t = typename _column_list_t::template _result_row_t<Db>;
 			using _dynamic_names_t = typename _column_list_t::_dynamic_names_t;
 
 			using _is_select = std::true_type;
@@ -490,13 +491,13 @@ namespace sqlpp
 
 			size_t get_no_of_result_columns() const
 			{
-				return _result_row_t::static_size() + get_dynamic_names().size();
+				return _column_list_t::static_size() + get_dynamic_names().size();
 			}
 
 			template<typename Db>
 				struct can_run_t
 				{
-					//static_assert(is_where_t<Where>::value, "cannot select remove without having a where condition, use .where(true) to remove all rows");
+					//static_assert(is_where_t<Where>::value, "cannot select select without having a where condition, use .where(true) to remove all rows");
 					//static_assert(not vendor::is_noop<ColumnList>::value, "cannot run select without having selected anything");
 					//static_assert(is_from_t<From>::value, "cannot run select without a from()");
 					//static_assert(is_where_t<Where>::value, "cannot run select without having a where condition, use .where(true) to select all rows");
@@ -509,7 +510,7 @@ namespace sqlpp
 			// Execute
 			template<typename Db>
 				auto _run(Db& db) const
-				-> result_t<decltype(db.select(*this)), _result_row_t>
+				-> result_t<decltype(db.select(*this)), _result_row_t<Db>>
 				{
 					static_assert(can_run_t<Db>::value, "Cannot execute select statement");
 					static_assert(_get_static_no_of_parameters() == 0, "cannot run select directly with parameters, use prepare instead");
