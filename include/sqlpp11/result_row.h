@@ -43,10 +43,10 @@ namespace sqlpp
 
 		template<size_t level, size_t index, typename NamedExpr, typename... Rest>
 			struct result_row_impl<level, index, NamedExpr, Rest...>: 
-			public NamedExpr::_name_t::template _member_t<typename NamedExpr::_value_type::_result_entry_t>,
+			public NamedExpr::_name_t::template _member_t<typename NamedExpr::_value_type::template _result_entry_t<NamedExpr::_trivial_value_is_null>>,
 			public result_row_impl<level, index + 1, Rest...>
 			{
-				using _field = typename NamedExpr::_name_t::template _member_t<typename NamedExpr::_value_type::_result_entry_t>;
+				using _field = typename NamedExpr::_name_t::template _member_t<typename NamedExpr::_value_type::template _result_entry_t<NamedExpr::_trivial_value_is_null>>;
 				using _rest = result_row_impl<level, index + 1, Rest...>;
 				static constexpr size_t _last_index = _rest::_last_index;
 
@@ -225,7 +225,7 @@ namespace sqlpp
 	struct dynamic_result_row_t: public detail::result_row_impl<0, 0, NamedExpr...>
 	{
 		using _impl = detail::result_row_impl<0, 0, NamedExpr...>;
-		using _field_type = detail::text::_result_entry_t;
+		using _field_type = detail::text::_result_entry_t<>;
 		static constexpr size_t _last_static_index = _impl::_last_index;
 
 		bool _is_valid;

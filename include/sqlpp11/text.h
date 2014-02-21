@@ -97,6 +97,7 @@ namespace sqlpp
 				bool _is_null;
 			};
 
+			template<bool TrivialIsNull = false>
 			struct _result_entry_t
 			{
 				_result_entry_t():
@@ -195,7 +196,8 @@ namespace sqlpp
 			};
 		};
 
-		inline std::ostream& operator<<(std::ostream& os, const text::_result_entry_t& e)
+		template<bool TrivialIsNull>
+		inline std::ostream& operator<<(std::ostream& os, const text::_result_entry_t<TrivialIsNull>& e)
 		{
 			return os << e.value();
 		}

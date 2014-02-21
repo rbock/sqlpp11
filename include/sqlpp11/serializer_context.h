@@ -42,15 +42,21 @@ namespace sqlpp
 				return _os << t;
 			}
 
-		void flush()
+		static std::string escape(std::string arg)
 		{
-			_os << std::endl;
-		}
-
-		std::string escape(std::string arg)
-		{
-// FIXME: Need to do better escaping
-			return arg;
+			if (arg.find('\''))
+			{
+				std::string retVal;
+				for (const auto c : arg)
+				{
+					if (c == '\'')
+						retVal.push_back(c);
+					retVal.push_back(c);
+				}
+				return retVal;
+			}
+			else
+				return arg;
 		}
 
 		std::ostream& _os;

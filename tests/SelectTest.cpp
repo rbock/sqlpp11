@@ -34,7 +34,7 @@
 
 
 DbMock db = {};
-DbMock::_serializer_context_t printer(std::cerr);
+DbMock::_serializer_context_t printer;
 
 namespace alias
 {
@@ -311,7 +311,7 @@ int main()
 		s.set_limit(30);
 		s.set_limit(3);
 		std::cerr << "------------------------\n";
-		serialize(s, printer).flush();
+		serialize(s, printer).str();
 		std::cerr << "------------------------\n";
 		using T = decltype(s);
 		static_assert(sqlpp::is_regular<T>::value, "type requirement");
@@ -321,13 +321,13 @@ int main()
 	{
 		auto s = dynamic_select(db).dynamic_columns();
 		s.add_column(t.alpha);
-		serialize(s, printer).flush();
+		serialize(s, printer).str();
 	}
 
 	// Test that verbatim_table compiles
 	{
 		auto s = select(t.alpha).from(sqlpp::verbatim_table("my_unknown_table"));
-		serialize(s, printer).flush();
+		serialize(s, printer).str();
 	}
 
 
@@ -344,9 +344,9 @@ int main()
 	auto y = t.gamma and true and t.gamma;
 	!t.gamma;
 	t.beta < "kaesekuchen";
-	serialize(t.beta + "hallenhalma", printer).flush();
+	serialize(t.beta + "hallenhalma", printer).str();
 	static_assert(sqlpp::must_not_insert_t<decltype(t.alpha)>::value, "alpha must not be inserted");
-	serialize(t.alpha, printer).flush();
+	serialize(t.alpha, printer).str();
 	std::cerr << "\n" << sizeof(test::TabBar) << std::endl;
 	static_assert(std::is_same<typename decltype(t.alpha)::_value_type::_is_named_expression, std::true_type>::value, "alpha should be a named expression");
 	static_assert(sqlpp::is_named_expression_t<decltype(t.alpha)>::value, "alpha should be a named expression");
@@ -365,7 +365,7 @@ int main()
 		.limit(17)
 		.offset(3)
 		.as(alias::a)
-		, printer).flush();
+		, printer).str();
 
 	return 0;
 }

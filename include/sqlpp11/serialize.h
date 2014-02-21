@@ -38,6 +38,16 @@ namespace sqlpp
 			return vendor::serializer_t<Context, T>::_(t, context);
 		}
 
+	namespace vendor // Required if you want to call serialize(sqlpp::value(7), printer), for instance
+	{
+		template<typename T, typename Context>
+			auto serialize(const T& t, Context& context)
+			-> decltype(vendor::serializer_t<Context, T>::_(t, context))
+			{
+				return vendor::serializer_t<Context, T>::_(t, context);
+			}
+	}
+
 }
 
 #endif

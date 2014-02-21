@@ -26,23 +26,49 @@
 #ifndef SQLPP_MOCK_DB_H
 #define SQLPP_MOCK_DB_H
 
+#include <sstream>
 #include <sqlpp11/serializer_context.h>
 #include <sqlpp11/connection.h>
 
 struct DbMock: public sqlpp::connection
 {
-	using _serializer_context_t = sqlpp::serializer_context_t;
+	struct _serializer_context_t
+	{
+		std::ostringstream _os;
+
+		std::string str() const
+		{
+			return _os.str();
+		}
+
+		void reset()
+		{
+			_os.clear();
+		}
+
+		template<typename T>
+			std::ostream& operator<<(T t)
+			{
+				return _os << t;
+			}
+
+		static std::string escape(std::string arg)
+		{
+			return sqlpp::serializer_context_t::escape(arg);
+		}
+	};
+
 	using _interpreter_context_t = _serializer_context_t;
 
 	template<typename T>
-	static _serializer_context_t _serialize_interpretable(const T& t, _serializer_context_t& context)
+	static _serializer_context_t& _serialize_interpretable(const T& t, _serializer_context_t& context)
 	{
 		sqlpp::serialize(t, context);
 		return context;
 	}
 
 	template<typename T>
-	static _serializer_context_t _interpret_interpretable(const T& t, _interpreter_context_t& context)
+	static _serializer_context_t& _interpret_interpretable(const T& t, _interpreter_context_t& context)
 	{
 		sqlpp::serialize(t, context);
 		return context;

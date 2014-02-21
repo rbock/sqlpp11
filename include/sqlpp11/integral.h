@@ -98,6 +98,7 @@ namespace sqlpp
 				bool _is_null;
 			};
 
+			template<bool NullIsTrivial = false>
 			struct _result_entry_t
 			{
 				using _value_type = integral;
@@ -244,7 +245,8 @@ namespace sqlpp
 			};
 		};
 
-		inline std::ostream& operator<<(std::ostream& os, const integral::_result_entry_t& e)
+		template<bool NullIsTrivial>
+		inline std::ostream& operator<<(std::ostream& os, const integral::_result_entry_t<NullIsTrivial>& e)
 		{
 			return os << e.value();
 		}

@@ -61,7 +61,7 @@ namespace sqlpp
 				template<typename Context>
 				auto serialize(Context& context) const
 				-> typename std::enable_if<std::is_same<Context, _serializer_context_t>::value 
-						               and not std::is_same<Context, sqlpp::serializer_context_t>::value, void>::type
+						               and not std::is_same<Context, sqlpp::serializer_context_t>::value, Context&>::type
 				{
 					return _impl->db_serialize(context);
 				}

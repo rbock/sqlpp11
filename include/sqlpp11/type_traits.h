@@ -92,6 +92,7 @@ namespace sqlpp
 	SQLPP_IS_COLUMN_TRAIT_GENERATOR(must_not_update);
 	SQLPP_IS_COLUMN_TRAIT_GENERATOR(require_insert);
 	SQLPP_IS_COLUMN_TRAIT_GENERATOR(can_be_null);
+	SQLPP_IS_COLUMN_TRAIT_GENERATOR(trivial_value_is_null);
 
 	SQLPP_TYPE_TRAIT_GENERATOR(is_noop);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_table);
