@@ -58,7 +58,7 @@ namespace sqlpp
 			~binary_expression_t() = default;
 
 			Lhs _lhs;
-			tvin_wrap_t<Rhs> _rhs;
+			maybe_tvin_t<Rhs> _rhs;
 		};
 
 		template<typename Context, typename Lhs, typename Rhs>
@@ -103,7 +103,7 @@ namespace sqlpp
 			~binary_expression_t() = default;
 
 			Lhs _lhs;
-			tvin_wrap_t<Rhs> _rhs;
+			maybe_tvin_t<Rhs> _rhs;
 		};
 
 		template<typename Context, typename Lhs, typename Rhs>
