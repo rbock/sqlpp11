@@ -28,6 +28,7 @@
 #define SQLPP_INTEGRAL_H
 
 #include <cstdlib>
+#include <cassert>
 #include <sqlpp11/basic_operators.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/exception.h>
@@ -136,15 +137,28 @@ namespace sqlpp
 
 				bool is_null() const
 			 	{ 
-					if (not _is_valid)
+					if (connector_assert_result_validity_t<Db>::value)
+						assert(_is_valid);
+					else if (not _is_valid)
 						throw exception("accessing is_null in non-existing row");
 					return _is_null; 
 				}
 
 				_cpp_value_type value() const
 				{
-					if (not _is_valid)
-						throw exception("accessing value in non-existing row");
+					const bool null_value = _is_null and not NullIsTrivial and not connector_null_result_is_trivial_value_t<Db>::value;
+					if (connector_assert_result_validity_t<Db>::value)
+					{
+						assert(_is_valid);
+						assert(not null_value);
+					}
+					else
+					{
+						if (not _is_valid)
+							throw exception("accessing value in non-existing row");
+						if (null_value)
+							throw exception("accessing value of NULL field");
+					}
 					return _value;
 				}
 
