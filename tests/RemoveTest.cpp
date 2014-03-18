@@ -64,5 +64,7 @@ int main()
 	r.add_where(t.beta != "transparent");
 	serialize(r, printer).str();
 
+	db(r);
+
 	return 0;
 }

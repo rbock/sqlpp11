@@ -64,5 +64,7 @@ int main()
 	u.add_set(t.gamma = false);
 	serialize(u, printer).str();
 
+	db(u);
+
 	return 0;
 }

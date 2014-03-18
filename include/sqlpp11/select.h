@@ -58,8 +58,8 @@ namespace sqlpp
 			>
 			struct select_helper_t
 			{
-				static_assert(is_noop_t<ColumnList>::value or sqlpp::is_select_column_list_t<ColumnList>::value, "Yikes");
-				static_assert(is_noop_t<From>::value or sqlpp::is_from_t<From>::value, "Yikes");
+				static_assert(is_noop_t<ColumnList>::value or sqlpp::is_select_column_list_t<ColumnList>::value, "column list of select is neither naught nor a valid column list");
+				static_assert(is_noop_t<From>::value or sqlpp::is_from_t<From>::value, "from() part of select is neither naught nor a valid from()");
 				using _value_type = typename std::conditional<
 					sqlpp::is_from_t<From>::value,
 					typename ColumnList::_value_type,
@@ -497,6 +497,9 @@ namespace sqlpp
 			template<typename Db>
 				struct can_run_t
 				{
+					static_assert(column_list::_table_set::template is_subset_t<_from_t::_table_set>::value
+							subset_of_t sollte ein eigenes template sein, das macht so etwas wie obiges sicher einfacher lesbar
+							also: use any and all instead of and_t and or_t
 					//static_assert(is_where_t<Where>::value, "cannot select select without having a where condition, use .where(true) to remove all rows");
 					//static_assert(not vendor::is_noop<ColumnList>::value, "cannot run select without having selected anything");
 					//static_assert(is_from_t<From>::value, "cannot run select without a from()");
