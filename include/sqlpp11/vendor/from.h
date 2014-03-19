@@ -49,7 +49,7 @@ namespace sqlpp
 				// FIXME: Joins contain two tables. This is not being dealt with at the moment when looking at duplicates, for instance
 				static_assert(not ::sqlpp::detail::has_duplicates<Tables...>::value, "at least one duplicate argument detected in from()");
 
-				static_assert(::sqlpp::detail::and_t<is_table_t, Tables...>::value, "at least one argument is not a table or join in from()");
+				static_assert(::sqlpp::detail::all_t<is_table_t, Tables...>::value, "at least one argument is not a table or join in from()");
 
 				using _table_set = typename ::sqlpp::detail::make_joined_set<typename Tables::_table_set...>;
 

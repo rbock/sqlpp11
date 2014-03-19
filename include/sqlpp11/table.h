@@ -44,7 +44,7 @@ namespace sqlpp
 	{
 		using _table_set = detail::type_set<Table>; // Hint need a type_set here to be similar to a join (which always represents more than one table)
 		static_assert(sizeof...(ColumnSpec), "at least one column required per table");
-		using _required_insert_columns = typename detail::make_set_if<require_insert_t, column_t<Table, ColumnSpec>...>::type;
+		using _required_insert_columns = typename detail::make_type_set_if<require_insert_t, column_t<Table, ColumnSpec>...>::type;
 		using _column_tuple_t = std::tuple<column_t<Table, ColumnSpec>...>;
 		template<typename AliasProvider>
 			using _alias_t = table_alias_t<AliasProvider, Table, ColumnSpec...>;

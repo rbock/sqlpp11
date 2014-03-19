@@ -143,7 +143,7 @@ namespace sqlpp
 
 				template<typename T>
 					using is_valid_expression_t = std::integral_constant<bool, is_named_expression_t<T>::value or is_multi_column_t<T>::value>;
-				static_assert(::sqlpp::detail::and_t<is_valid_expression_t, Columns...>::value, "at least one argument is not a named expression");
+				static_assert(::sqlpp::detail::all_t<is_valid_expression_t, Columns...>::value, "at least one argument is not a named expression");
 
 				static_assert(not ::sqlpp::detail::has_duplicates<typename Columns::_name_t...>::value, "at least one duplicate name detected");
 

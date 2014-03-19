@@ -47,7 +47,7 @@ namespace sqlpp
 				using _parameter_tuple_t = std::tuple<Expressions...>;
 
 				static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression argument required in having()");
-				static_assert(::sqlpp::detail::and_t<is_expression_t, Expressions...>::value, "at least one argument is not an expression in having()");
+				static_assert(::sqlpp::detail::all_t<is_expression_t, Expressions...>::value, "at least one argument is not an expression in having()");
 
 				using _parameter_list_t = typename make_parameter_list_t<_parameter_tuple_t>::type;
 

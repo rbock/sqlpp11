@@ -49,7 +49,7 @@ namespace sqlpp
 
 				static_assert(not ::sqlpp::detail::has_duplicates<Tables...>::value, "at least one duplicate argument detected in using()");
 
-				static_assert(::sqlpp::detail::and_t<is_table_t, Tables...>::value, "at least one argument is not an table in using()");
+				static_assert(::sqlpp::detail::all_t<is_table_t, Tables...>::value, "at least one argument is not an table in using()");
 
 				using_t(Tables... tables):
 					_tables(tables...)

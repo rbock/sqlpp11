@@ -51,7 +51,7 @@ namespace sqlpp
 
 				static_assert(not ::sqlpp::detail::has_duplicates<Expressions...>::value, "at least one duplicate argument detected in group_by()");
 
-				static_assert(::sqlpp::detail::and_t<is_expression_t, Expressions...>::value, "at least one argument is not an expression in group_by()");
+				static_assert(::sqlpp::detail::all_t<is_expression_t, Expressions...>::value, "at least one argument is not an expression in group_by()");
 
 				group_by_t(Expressions... expressions):
 					_expressions(expressions...)

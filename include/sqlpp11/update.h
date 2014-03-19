@@ -57,8 +57,8 @@ namespace sqlpp
 			typename Where = vendor::no_where_t>
 		struct update_t
 		{
-			static_assert(Table::_table_set::template is_superset_of<typename UpdateList::_table_set>::value, "updated columns do not match the table");
-			static_assert(Table::_table_set::template is_superset_of<typename Where::_table_set>::value, "where condition does not match updated table");
+			static_assert(::sqlpp::detail::is_superset_of<typename Table::_table_set, typename UpdateList::_table_set>::value, "updated columns do not match the table");
+			static_assert(::sqlpp::detail::is_superset_of<typename Table::_table_set, typename Where::_table_set>::value, "where condition does not match updated table");
 
 			using _database_t = Database;
 			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;

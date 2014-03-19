@@ -82,11 +82,11 @@ namespace sqlpp
 			static_assert(not is_join_t<Rhs>::value, "rhs argument for join must not be a join");
 			static_assert(vendor::is_noop<On>::value or is_on_t<On>::value, "invalid on expression in join().on()");
 
-			static_assert(Lhs::_table_set::template is_disjunct_from<typename Rhs::_table_set>::value, "joined tables must not be identical");
+			static_assert(::sqlpp::detail::is_disjunct_from<typename Lhs::_table_set, typename Rhs::_table_set>::value, "joined tables must not be identical");
 
 			using _is_table = std::true_type;
 			using _is_join = std::true_type;
-			using _table_set = typename Lhs::_table_set::template join<typename Rhs::_table_set>::type;
+			using _table_set = typename ::sqlpp::detail::make_joined_set<typename Lhs::_table_set, typename Rhs::_table_set>::type;
 
 			template<typename OnT> 
 				using set_on_t = join_t<JoinType, Lhs, Rhs, OnT>;
