@@ -74,7 +74,7 @@ namespace sqlpp
 	}
 
 	template<typename T>
-		struct tvin_wrap_t
+		struct maybe_tvin_t
 		{
 			using _table_set = typename T::_table_set;
 			static constexpr bool _is_trivial()
@@ -82,20 +82,20 @@ namespace sqlpp
 				return false;
 			}
 
-			tvin_wrap_t(T t): 
+			maybe_tvin_t(T t): 
 				_value(t)
 			{}
-			tvin_wrap_t(const tvin_wrap_t&) = default;
-			tvin_wrap_t(tvin_wrap_t&&) = default;
-			tvin_wrap_t& operator=(const tvin_wrap_t&) = default;
-			tvin_wrap_t& operator=(tvin_wrap_t&&) = default;
-			~tvin_wrap_t() = default;
+			maybe_tvin_t(const maybe_tvin_t&) = default;
+			maybe_tvin_t(maybe_tvin_t&&) = default;
+			maybe_tvin_t& operator=(const maybe_tvin_t&) = default;
+			maybe_tvin_t& operator=(maybe_tvin_t&&) = default;
+			~maybe_tvin_t() = default;
 
 			T _value;
 		};
 
 	template<typename T>
-		struct tvin_wrap_t<tvin_t<T>>
+		struct maybe_tvin_t<tvin_t<T>>
 		{
 			using _table_set = typename T::_table_set;
 			bool _is_trivial() const
@@ -103,14 +103,14 @@ namespace sqlpp
 				return _value._is_trivial();
 			};
 
-			tvin_wrap_t(tvin_t<T> t): 
+			maybe_tvin_t(tvin_t<T> t): 
 				_value(t._value)
 			{}
-			tvin_wrap_t(const tvin_wrap_t&) = default;
-			tvin_wrap_t(tvin_wrap_t&&) = default;
-			tvin_wrap_t& operator=(const tvin_wrap_t&) = default;
-			tvin_wrap_t& operator=(tvin_wrap_t&&) = default;
-			~tvin_wrap_t() = default;
+			maybe_tvin_t(const maybe_tvin_t&) = default;
+			maybe_tvin_t(maybe_tvin_t&&) = default;
+			maybe_tvin_t& operator=(const maybe_tvin_t&) = default;
+			maybe_tvin_t& operator=(maybe_tvin_t&&) = default;
+			~maybe_tvin_t() = default;
 
 			typename tvin_t<T>::_operand_t _value;
 		};
@@ -118,9 +118,9 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename Operand>
-			struct serializer_t<Context, tvin_wrap_t<Operand>>
+			struct serializer_t<Context, maybe_tvin_t<Operand>>
 			{
-				using T = tvin_wrap_t<Operand>;
+				using T = maybe_tvin_t<Operand>;
 
 				static Context& _(const T& t, Context& context)
 				{

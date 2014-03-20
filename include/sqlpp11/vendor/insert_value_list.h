@@ -61,15 +61,15 @@ namespace sqlpp
 
 				static_assert(not ::sqlpp::detail::has_duplicates<Assignments...>::value, "at least one duplicate argument detected in set()");
 
-				static_assert(sqlpp::detail::and_t<is_assignment_t, Assignments...>::value, "at least one argument is not an assignment in set()");
+				static_assert(sqlpp::detail::all_t<is_assignment_t, Assignments...>::value, "at least one argument is not an assignment in set()");
 
-				static_assert(not sqlpp::detail::or_t<must_not_insert_t, typename Assignments::_column_t...>::value, "at least one assignment is prohibited by its column definition in set()");
+				static_assert(not sqlpp::detail::any_t<must_not_insert_t, typename Assignments::_column_t...>::value, "at least one assignment is prohibited by its column definition in set()");
 
 				using _column_table_set = typename ::sqlpp::detail::make_joined_set<typename Assignments::_column_t::_table_set...>::type;
 				using _value_table_set = typename ::sqlpp::detail::make_joined_set<typename Assignments::value_type::_table_set...>::type;
 				using _table_set = typename ::sqlpp::detail::make_joined_set<_column_table_set, _value_table_set>::type;
 				static_assert(sizeof...(Assignments) ? (_column_table_set::size::value == 1) : true, "set() contains assignments for tables from several columns");
-				static_assert(_value_table_set::template is_subset_of<_column_table_set>::value, "set() contains values from foreign tables");
+				static_assert(::sqlpp::detail::is_subset_of<_value_table_set, _column_table_set>::value, "set() contains values from foreign tables");
 				
 				insert_list_t(Assignments... assignment):
 					_assignments(assignment...),
@@ -90,8 +90,8 @@ namespace sqlpp
 						static_assert(not must_not_insert_t<Assignment>::value, "add_set() argument must not be used in insert");
 						using _column_table_set = typename Assignment::_column_t::_table_set;
 						using _value_table_set = typename Assignment::value_type::_table_set;
-						static_assert(_value_table_set::template is_subset_of<typename Insert::_table_set>::value, "add_set() contains a column from a foreign table");
-						static_assert(_column_table_set::template is_subset_of<typename Insert::_table_set>::value, "add_set() contains a value from a foreign table");
+						static_assert(::sqlpp::detail::is_subset_of<_value_table_set, typename Insert::_table_set>::value, "add_set() contains a column from a foreign table");
+						static_assert(::sqlpp::detail::is_subset_of<_column_table_set, typename Insert::_table_set>::value, "add_set() contains a value from a foreign table");
 						_dynamic_columns.emplace_back(simple_column_t<typename Assignment::_column_t>{assignment._lhs});
 						_dynamic_values.emplace_back(assignment._rhs);
 					}
@@ -114,9 +114,9 @@ namespace sqlpp
 
 				static_assert(not ::sqlpp::detail::has_duplicates<Columns...>::value, "at least one duplicate argument detected in columns()");
 
-				static_assert(::sqlpp::detail::and_t<is_column_t, Columns...>::value, "at least one argument is not a column in columns()");
+				static_assert(::sqlpp::detail::all_t<is_column_t, Columns...>::value, "at least one argument is not a column in columns()");
 
-				static_assert(not ::sqlpp::detail::or_t<must_not_insert_t, Columns...>::value, "at least one column argument has a must_not_insert flag in its definition");
+				static_assert(not ::sqlpp::detail::any_t<must_not_insert_t, Columns...>::value, "at least one column argument has a must_not_insert flag in its definition");
 
 				using _value_tuple_t = std::tuple<vendor::insert_value_t<Columns>...>;
 				using _table_set = typename ::sqlpp::detail::make_joined_set<typename Columns::_table_set...>::type;
@@ -136,7 +136,7 @@ namespace sqlpp
 				template<typename... Assignments>
 				void add_values(Assignments... assignments)
 				{
-					static_assert(::sqlpp::detail::and_t<is_assignment_t, Assignments...>::value, "add_values() arguments have to be assignments");
+					static_assert(::sqlpp::detail::all_t<is_assignment_t, Assignments...>::value, "add_values() arguments have to be assignments");
 					using _arg_value_tuple = std::tuple<vendor::insert_value_t<typename Assignments::_column_t>...>;
 					using _args_correct = std::is_same<_arg_value_tuple, _value_tuple_t>;
 					static_assert(_args_correct::value, "add_values() arguments do not match columns() arguments");

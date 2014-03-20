@@ -92,6 +92,7 @@ namespace sqlpp
 	SQLPP_IS_COLUMN_TRAIT_GENERATOR(must_not_update);
 	SQLPP_IS_COLUMN_TRAIT_GENERATOR(require_insert);
 	SQLPP_IS_COLUMN_TRAIT_GENERATOR(can_be_null);
+	SQLPP_IS_COLUMN_TRAIT_GENERATOR(trivial_value_is_null);
 
 	SQLPP_TYPE_TRAIT_GENERATOR(is_noop);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_table);
@@ -123,7 +124,8 @@ namespace sqlpp
 	SQLPP_TYPE_TRAIT_GENERATOR(requires_braces);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_parameter);
 
-	SQLPP_CONNECTOR_TRAIT_GENERATOR(has_empty_list_insert);
+	SQLPP_CONNECTOR_TRAIT_GENERATOR(null_result_is_trivial_value);
+	SQLPP_CONNECTOR_TRAIT_GENERATOR(assert_result_validity);
 
 	template<typename T, template<typename> class IsTag>
 		using copy_type_trait = typename std::conditional<IsTag<T>::value, std::true_type, std::false_type>::type;

@@ -36,8 +36,6 @@ namespace sqlpp
 		static constexpr bool _is_expression = true;
 		using _value_type = no_value_t;
 		using _table_set = ::sqlpp::detail::type_set<>;
-
-		static constexpr bool _is_trivial() { return false; }
 	};
 
 	namespace vendor

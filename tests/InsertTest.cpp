@@ -29,8 +29,8 @@
 #include <sqlpp11/insert.h>
 #include <iostream>
 
-DbMock db;
-DbMock::_serializer_context_t printer(std::cerr);
+MockDb db;
+MockDb::_serializer_context_t printer;
 
 int main()
 {
@@ -58,16 +58,22 @@ int main()
 		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
-	serialize(insert_into(t).default_values(), printer).flush();
-	serialize(insert_into(t), printer).flush();
-	serialize(insert_into(t).set(t.beta = "kirschauflauf"), printer).flush();
-	serialize(insert_into(t).columns(t.beta), printer).flush();
+	db(insert_into(t).default_values());
+	db(insert_into(t).set(t.beta = "kirschauflauf"));
+
+	serialize(insert_into(t).default_values(), printer).str();
+
+	serialize(insert_into(t), printer).str();
+	serialize(insert_into(t).set(t.beta = "kirschauflauf"), printer).str();
+	serialize(insert_into(t).columns(t.beta), printer).str();
 	auto multi_insert = insert_into(t).columns(t.beta, t.delta);
 	multi_insert.add_values(t.beta = "cheesecake", t.delta = 1); 
 	multi_insert.add_values(t.beta = sqlpp::default_value, t.delta = sqlpp::default_value); 
 	auto i = dynamic_insert_into(db, t).dynamic_set();
 	i.add_set(t.beta = "kirschauflauf");
-	serialize(i, printer).flush();
+	serialize(i, printer).str();
+
+	db(multi_insert);
 
 	return 0;
 }

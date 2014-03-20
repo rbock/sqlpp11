@@ -38,6 +38,30 @@ namespace sqlpp
 {
 	namespace vendor
 	{
+		template<typename T, typename Enable = void>
+		struct is_trivial_t
+		{
+			static constexpr bool _(const T&)
+			{
+				return false;
+			}
+		};
+
+		template<typename T>
+		struct is_trivial_t<T, typename std::enable_if<std::is_member_function_pointer<decltype(&T::_is_trivial)>::value, void>::type>
+		{
+			static bool _(const T& t)
+			{
+				return t._is_trivial();
+			}
+		};
+
+		template<typename T>
+		bool is_trivial(const T& t)
+		{
+			return is_trivial_t<typename T::value_type>::_(t);
+		}
+
 		template<typename Lhs, typename Rhs>
 			struct assignment_t
 			{
@@ -45,9 +69,9 @@ namespace sqlpp
 				using _column_t = Lhs;
 				using value_type = Rhs;
 				using _parameter_tuple_t = std::tuple<_column_t, Rhs>;
-				using _table_set = typename Lhs::_table_set::template join<typename Rhs::_table_set>::type;
+				using _table_set = typename ::sqlpp::detail::make_joined_set<typename Lhs::_table_set, typename Rhs::_table_set>::type;
 
-				static_assert(not std::is_same<Rhs, null_t>::value or can_be_null_t<_column_t>::value, "column cannot be null");
+				static_assert(can_be_null_t<_column_t>::value ? true : not std::is_same<Rhs, null_t>::value, "column must not be null");
 
 				assignment_t(_column_t lhs, value_type rhs):
 					_lhs(lhs), 
@@ -71,9 +95,19 @@ namespace sqlpp
 
 				static Context& _(const T& t, Context& context)
 				{
-					serialize(simple_column(t._lhs), context);
-					context << "=";
-					serialize(t._rhs, context);
+					if ((trivial_value_is_null_t<typename T::_column_t>::value
+								and is_trivial_t<typename T::value_type>::_(t._rhs))
+							or (std::is_same<Rhs, null_t>::value))
+					{
+						serialize(simple_column(t._lhs), context);
+						context << "=NULL";
+					}
+					else
+					{
+						serialize(simple_column(t._lhs), context);
+						context << "=";
+						serialize(t._rhs, context);
+					}
 					return context;
 				}
 			};
@@ -85,6 +119,7 @@ namespace sqlpp
 				using _column_t = Lhs;
 				using value_type = tvin_t<Rhs>;
 				using _parameter_tuple_t = std::tuple<_column_t, Rhs>;
+				using _table_set = typename ::sqlpp::detail::make_joined_set<typename Lhs::_table_set, typename Rhs::_table_set>::type;
 
 				static_assert(can_be_null_t<_column_t>::value, "column cannot be null");
 

@@ -33,11 +33,12 @@ namespace sqlpp
 {
 	namespace vendor
 	{
-		template<typename NameType, typename ValueType>
+		template<typename NameType, typename ValueType, bool TrivialValueIsNull>
 			struct field_t
 			{ 
 				using _name_t = NameType;
 				using _value_type = ValueType;
+				static constexpr bool _trivial_value_is_null = TrivialValueIsNull;
 			};
 
 		template<typename AliasProvider, typename FieldTuple>
@@ -50,7 +51,9 @@ namespace sqlpp
 			template<typename NamedExpr>
 				struct make_field_t_impl
 				{
-					using type = field_t<typename NamedExpr::_name_t, typename NamedExpr::_value_type::_base_value_type>;
+					using type = field_t<typename NamedExpr::_name_t, 
+								typename NamedExpr::_value_type::_base_value_type,
+								trivial_value_is_null_t<NamedExpr>::value>;
 				};
 
 			template<typename AliasProvider, typename... NamedExpr>

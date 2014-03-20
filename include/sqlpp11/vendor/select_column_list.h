@@ -143,7 +143,7 @@ namespace sqlpp
 
 				template<typename T>
 					using is_valid_expression_t = std::integral_constant<bool, is_named_expression_t<T>::value or is_multi_column_t<T>::value>;
-				static_assert(::sqlpp::detail::and_t<is_valid_expression_t, Columns...>::value, "at least one argument is not a named expression");
+				static_assert(::sqlpp::detail::all_t<is_valid_expression_t, Columns...>::value, "at least one argument is not a named expression");
 
 				static_assert(not ::sqlpp::detail::has_duplicates<typename Columns::_name_t...>::value, "at least one duplicate name detected");
 
@@ -156,9 +156,10 @@ namespace sqlpp
 				};
 				using _name_t = typename ::sqlpp::detail::get_first_argument_if_unique<Columns...>::_name_t;
 
+				template<typename Db>
 				using _result_row_t = typename std::conditional<_is_dynamic::value,
-							dynamic_result_row_t<make_field_t<Columns>...>,
-							result_row_t<make_field_t<Columns>...>>::type;
+							dynamic_result_row_t<Db, make_field_t<Columns>...>,
+							result_row_t<Db, make_field_t<Columns>...>>::type;
 
 				using _dynamic_names_t = typename dynamic_select_column_list<Database>::_names_t;
 
@@ -198,7 +199,8 @@ namespace sqlpp
 		struct no_select_column_list_t
 		{
 			using _is_noop = std::true_type;
-			using _result_row_t = ::sqlpp::result_row_t<>;
+			template<typename Db>
+				using _result_row_t = ::sqlpp::result_row_t<Db>;
 			using _dynamic_names_t = typename dynamic_select_column_list<void>::_names_t;
 			using _value_type = no_value_t;
 			struct _name_t {};

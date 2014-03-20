@@ -30,8 +30,8 @@
 #include "is_regular.h"
 
 
-DbMock db;
-DbMock::_serializer_context_t printer(std::cerr);
+MockDb db;
+MockDb::_serializer_context_t printer;
 
 int main()
 {
@@ -56,13 +56,15 @@ int main()
 		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
-	serialize(remove_from(t), printer).flush();
-	serialize(remove_from(t).where(t.beta != "transparent"), printer).flush();
-	serialize(remove_from(t).using_(t), printer).flush();
+	serialize(remove_from(t), printer).str();
+	serialize(remove_from(t).where(t.beta != "transparent"), printer).str();
+	serialize(remove_from(t).using_(t), printer).str();
 	auto r = dynamic_remove_from(db, t).dynamic_using().dynamic_where();
 	r.add_using(t);
 	r.add_where(t.beta != "transparent");
-	serialize(r, printer).flush();
+	serialize(r, printer).str();
+
+	db(r);
 
 	return 0;
 }

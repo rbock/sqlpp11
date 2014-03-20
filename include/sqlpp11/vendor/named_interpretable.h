@@ -57,9 +57,13 @@ namespace sqlpp
 					return _impl->serialize(context);
 				}
 
-				_serializer_context_t& serialize(_serializer_context_t& context) const
+				// This method only exists if Db::_serializer_context_t and sqlpp::serializer_context_t are not the same
+				template<typename Context>
+				auto serialize(Context& context) const
+				-> typename std::enable_if<std::is_same<Context, _serializer_context_t>::value 
+						               and not std::is_same<Context, sqlpp::serializer_context_t>::value, Context&>::type
 				{
-					return _impl->serialize(context);
+					return _impl->db_serialize(context);
 				}
 
 				_interpreter_context_t& interpret(_interpreter_context_t& context) const
@@ -76,7 +80,7 @@ namespace sqlpp
 				struct _impl_base
 				{
 					virtual sqlpp::serializer_context_t& serialize(sqlpp::serializer_context_t& context) const = 0;
-					virtual _serializer_context_t& serialize(_serializer_context_t& context) const = 0;
+					virtual _serializer_context_t& db_serialize(_serializer_context_t& context) const = 0;
 					virtual _interpreter_context_t& interpret(_interpreter_context_t& context) const = 0;
 					virtual std::string _get_name() const = 0;
 				};
@@ -95,7 +99,7 @@ namespace sqlpp
 						return context;
 					}
 
-					_serializer_context_t& serialize(_serializer_context_t& context) const
+					_serializer_context_t& db_serialize(_serializer_context_t& context) const
 					{
 						Db::_serialize_interpretable(_t, context);
 						return context;

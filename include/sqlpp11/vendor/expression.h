@@ -58,7 +58,7 @@ namespace sqlpp
 			~binary_expression_t() = default;
 
 			Lhs _lhs;
-			tvin_wrap_t<Rhs> _rhs;
+			maybe_tvin_t<Rhs> _rhs;
 		};
 
 		template<typename Context, typename Lhs, typename Rhs>
@@ -103,7 +103,7 @@ namespace sqlpp
 			~binary_expression_t() = default;
 
 			Lhs _lhs;
-			tvin_wrap_t<Rhs> _rhs;
+			maybe_tvin_t<Rhs> _rhs;
 		};
 
 		template<typename Context, typename Lhs, typename Rhs>
@@ -209,6 +209,7 @@ namespace sqlpp
 		{
 			using _value_type = typename O::_value_type;
 			using _parameter_tuple_t = std::tuple<Rhs>;
+			using _table_set = typename Rhs::_table_set;
 
 			unary_expression_t(Rhs rhs):
 				_rhs(rhs)
