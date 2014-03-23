@@ -80,7 +80,7 @@ namespace sqlpp
 			typename Limit = vendor::no_limit_t, 
 			typename Offset = vendor::no_offset_t
 				>
-		struct select_t: public detail::select_helper_t<ColumnList, From>::_value_type::template operators<select_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>
+		struct select_t: public detail::select_helper_t<ColumnList, From>::_value_type::template expression_operators<select_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>
 		{
 			using _database_t = Database;
 			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;

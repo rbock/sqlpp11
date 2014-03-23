@@ -129,16 +129,6 @@ namespace sqlpp
 
 	template<typename T, template<typename> class IsTag>
 		using copy_type_trait = typename std::conditional<IsTag<T>::value, std::true_type, std::false_type>::type;
-
-	template<typename T, template<typename> class IsCorrectType>
-		struct operand_t
-		{
-			using type = typename vendor::wrap_operand<T>::type;
-			static_assert(not is_alias_t<type>::value, "expression operand must not be an alias");
-			static_assert(is_expression_t<type>::value, "expression required");
-			static_assert(IsCorrectType<type>::value, "invalid operand type");
-		};
-	
 }
 
 #endif

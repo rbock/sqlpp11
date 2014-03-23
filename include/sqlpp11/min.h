@@ -34,7 +34,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Expr>
-		struct min_t: public boolean::template operators<min_t<Expr>>
+		struct min_t: public Expr::_value_type::template expression_operators<min_t<Expr>>
 		{
 			static_assert(is_value_t<Expr>::value, "min() requires a value expression as argument");
 
@@ -87,8 +87,9 @@ namespace sqlpp
 	}
 
 	template<typename T>
-		auto min(T t) -> typename vendor::min_t<typename operand_t<T, is_value_t>::type>
+		auto min(T t) -> typename vendor::min_t<vendor::wrap_operand_t<T>>
 		{
+			static_assert(is_value_t<vendor::wrap_operand_t<T>>::value, "min() requires a value expression as argument");
 			return { t };
 		}
 

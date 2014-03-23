@@ -33,6 +33,9 @@ namespace sqlpp
 	template<typename Expression, typename AliasProvider>
 		struct expression_alias_t
 		{
+			static_assert(is_expression_t<Expression>::value, "invalid argument for an expression alias");
+			static_assert(not is_alias_t<Expression>::value, "cannot create an alias of an alias");
+
 			struct _value_type: Expression::_value_type
 			{
 				using _is_expression = std::false_type;

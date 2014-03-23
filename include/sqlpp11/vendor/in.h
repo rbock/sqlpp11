@@ -37,7 +37,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<bool NotInverted, typename Operand, typename... Args>
-			struct in_t: public boolean::template operators<in_t<NotInverted, Operand, Args...>>
+			struct in_t: public boolean::template expression_operators<in_t<NotInverted, Operand, Args...>>
 		{
 			static constexpr bool _inverted = not NotInverted;
 			static_assert(sizeof...(Args) > 0, "in() requires at least one argument");

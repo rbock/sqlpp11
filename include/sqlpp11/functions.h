@@ -32,6 +32,7 @@
 #include <sqlpp11/column_types.h>
 #include <sqlpp11/vendor/in.h>
 #include <sqlpp11/vendor/is_null.h>
+#include <sqlpp11/vendor/value_type.h>
 #include <sqlpp11/exists.h>
 #include <sqlpp11/any.h>
 #include <sqlpp11/some.h>
@@ -45,7 +46,7 @@
 namespace sqlpp
 {
 	template<typename T>
-		auto value(T t) -> typename operand_t<T, is_value_t>::type
+		auto value(T t) -> vendor::wrap_operand_t<T>
 		{
 			using _table_set = ::sqlpp::detail::type_set<>;
 			static_assert(not is_value_t<T>::value, "value() is to be called with non-sql-type like int, or string");
@@ -53,7 +54,7 @@ namespace sqlpp
 		}
 
 	template<typename ValueType> // Csaba Csoma suggests: unsafe_sql instead of verbatim
-	struct verbatim_t: public ValueType::template operators<verbatim_t<ValueType>>
+	struct verbatim_t: public ValueType::template expression_operators<verbatim_t<ValueType>>
 	{
 		using _value_type = ValueType;
 		using _table_set = ::sqlpp::detail::type_set<>;
@@ -103,7 +104,7 @@ namespace sqlpp
 		{
 			using _container_t = Container;
 			using _table_set = ::sqlpp::detail::type_set<>;// FIXME: Could it be something else?
-			using _value_type = typename operand_t<typename _container_t::value_type, is_value_t>::type::_value_type;
+			using _value_type = vendor::value_type_t<typename _container_t::value_type>;
 
 			value_list_t(_container_t container):
 				_container(container)

@@ -42,7 +42,8 @@
 namespace sqlpp
 {
 	template<typename Table, typename ColumnSpec>
-	struct column_t: public ColumnSpec::_value_type::template operators<column_t<Table, ColumnSpec>>
+	struct column_t: public ColumnSpec::_value_type::template expression_operators<column_t<Table, ColumnSpec>>,
+	                 public ColumnSpec::_value_type::template column_operators<column_t<Table, ColumnSpec>>
 	{ 
 		using _is_column = std::true_type;
 		using _spec_t = ColumnSpec;
@@ -55,6 +56,8 @@ namespace sqlpp
 			using _is_named_expression = std::true_type;
 			using _is_alias = std::false_type;
 		};
+		template<typename T>
+			using _is_valid_operand = typename _value_type::template _is_valid_operand<T>;
 
 		using _name_t = typename ColumnSpec::_name_t;
 
@@ -77,19 +80,12 @@ namespace sqlpp
 			}
 
 		template<typename T>
-			auto operator =(T t) const
-			-> typename std::enable_if<_value_type::template _constraint<typename vendor::wrap_operand<T>::type>::value and not std::is_same<column_t, T>::value, 
-			     vendor::assignment_t<column_t, typename vendor::wrap_operand<T>::type>>::type
+			auto operator =(T t) const -> vendor::assignment_t<column_t, typename vendor::wrap_operand<T>::type>
 			{
-				return { *this, {t} };
-			}
+				using rhs = vendor::wrap_operand_t<T>;
+				static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand assignment operand");
 
-		template<typename T>
-			auto operator =(T t) const
-			-> typename std::enable_if<not(_value_type::template _constraint<typename vendor::wrap_operand<T>::type>::value and not std::is_same<column_t, T>::value),
-			     vendor::assignment_t<column_t, typename vendor::wrap_operand<T>::type>>::type
-			{
-				static_assert(sqlpp::vendor::wrong_t<T>::value, "invalid assignment operand");
+				return { *this, {t} };
 			}
 
 		auto operator =(sqlpp::null_t) const

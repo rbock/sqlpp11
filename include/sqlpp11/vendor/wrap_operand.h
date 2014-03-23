@@ -227,6 +227,10 @@ namespace sqlpp
 			};
 
 		// FIXME: Need to allow std::ref arguments
+
+		template<typename T>
+			using wrap_operand_t = typename wrap_operand<T>::type;
+
 	}
 }
 

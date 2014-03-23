@@ -35,14 +35,15 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Select>
-		struct any_t: public boolean::template operators<any_t<Select>>
+		struct any_t
 		{
 			static_assert(is_select_t<Select>::value, "any() requires a single column select expression as argument");
 			static_assert(is_value_t<Select>::value, "any() requires a single column select expression as argument");
 
 			struct _value_type: public Select::_value_type::_base_value_type
 			{
-				using _is_multi_expression = std::true_type; // must not be named
+				using _is_expression = std::false_type;
+				using _is_multi_expression = std::true_type; // must not be named or used with +,-,*,/, etc
 			};
 
 			struct _name_t
@@ -90,8 +91,9 @@ namespace sqlpp
 			};
 
 		template<typename T>
-			auto any(T t) -> typename vendor::any_t<typename operand_t<T, is_select_t>::type>
+			auto any(T t) -> typename vendor::any_t<vendor::wrap_operand_t<T>>
 			{
+				static_assert(is_select_t<vendor::wrap_operand_t<T>>::value, "any() requires a select expression as argument");
 				return { t };
 			}
 

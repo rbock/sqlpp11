@@ -36,7 +36,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename First, typename... Args>
-			struct concat_t: public First::_value_type::template operators<concat_t<First, Args...>>
+			struct concat_t: public First::_value_type::template expression_operators<concat_t<First, Args...>>
 		{
 			static_assert(sizeof...(Args) > 0, "concat requires two arguments at least");
 			static_assert(sqlpp::detail::all_t<is_text_t, First, Args...>::value, "at least one non-text argument detected in concat()");

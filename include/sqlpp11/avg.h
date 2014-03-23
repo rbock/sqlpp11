@@ -34,7 +34,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Flag, typename Expr>
-		struct avg_t: public floating_point::template operators<avg_t<Flag, Expr>>
+		struct avg_t: public floating_point::template expression_operators<avg_t<Flag, Expr>>
 		{
 			static_assert(is_noop<Flag>::value or std::is_same<sqlpp::distinct_t, Flag>::value, "avg() used with flag other than 'distinct'");
 			static_assert(is_numeric_t<Expr>::value, "avg() requires a value expression as argument");
@@ -93,14 +93,16 @@ namespace sqlpp
 	}
 
 	template<typename T>
-		auto avg(T t) -> typename vendor::avg_t<vendor::noop, typename operand_t<T, is_value_t>::type>
+		auto avg(T t) -> typename vendor::avg_t<vendor::noop, vendor::wrap_operand_t<T>>
 		{
+			static_assert(is_numeric_t<vendor::wrap_operand_t<T>>::value, "avg() requires a value expression as argument");
 			return { t };
 		}
 
 	template<typename T>
-		auto avg(const sqlpp::distinct_t&, T t) -> typename vendor::avg_t<sqlpp::distinct_t, typename operand_t<T, is_value_t>::type>
+		auto avg(const sqlpp::distinct_t&, T t) -> typename vendor::avg_t<sqlpp::distinct_t, vendor::wrap_operand_t<T>>
 		{
+			static_assert(is_numeric_t<vendor::wrap_operand_t<T>>::value, "avg() requires a value expression as argument");
 			return { t };
 		}
 

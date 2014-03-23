@@ -245,8 +245,8 @@ int main()
 		static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_named_expression_t<T>::value, "type requirement");
 		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
-		static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
-		static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
+		static_assert(sqlpp::must_not_insert_t<T>::value, "type requirement");
+		static_assert(sqlpp::must_not_update_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
@@ -261,8 +261,8 @@ int main()
 		static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_named_expression_t<T>::value, "type requirement");
 		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
-		static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
-		static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
+		static_assert(sqlpp::must_not_insert_t<T>::value, "type requirement");
+		static_assert(sqlpp::must_not_update_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");

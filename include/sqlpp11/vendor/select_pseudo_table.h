@@ -37,7 +37,11 @@ namespace sqlpp
 		{
 			using _name_t = typename Expr::_name_t;
 			using _value_type = typename Expr::_value_type;
-			struct _column_type {};
+			struct _column_type 
+			{
+        using _must_not_insert = std::true_type;
+        using _must_not_update = std::true_type;
+			};
 		};
 
 	template<

@@ -34,7 +34,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Flag, typename Expr>
-		struct sum_t: public boolean::template operators<sum_t<Flag, Expr>>
+		struct sum_t: public Expr::_value_type::template expression_operators<sum_t<Flag, Expr>>
 		{
 			static_assert(is_noop<Flag>::value or std::is_same<sqlpp::distinct_t, Flag>::value, "sum() used with flag other than 'distinct'");
 			static_assert(is_numeric_t<Expr>::value, "sum() requires a numeric expression as argument");
@@ -93,14 +93,16 @@ namespace sqlpp
 	}
 
 	template<typename T>
-		auto sum(T t) -> typename vendor::sum_t<vendor::noop, typename operand_t<T, is_value_t>::type>
+		auto sum(T t) -> typename vendor::sum_t<vendor::noop, vendor::wrap_operand_t<T>>
 		{
+			static_assert(is_numeric_t<vendor::wrap_operand_t<T>>::value, "sum() requires a numeric expression as argument");
 			return { t };
 		}
 
 	template<typename T>
-		auto sum(const sqlpp::distinct_t&, T t) -> typename vendor::sum_t<sqlpp::distinct_t, typename operand_t<T, is_value_t>::type>
+		auto sum(const sqlpp::distinct_t&, T t) -> typename vendor::sum_t<sqlpp::distinct_t, vendor::wrap_operand_t<T>>
 		{
+			static_assert(is_numeric_t<vendor::wrap_operand_t<T>>::value, "sum() requires a numeric expression as argument");
 			return { t };
 		}
 

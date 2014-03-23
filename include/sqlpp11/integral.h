@@ -29,7 +29,7 @@
 
 #include <cstdlib>
 #include <cassert>
-#include <sqlpp11/basic_operators.h>
+#include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/vendor/value_type.h>
@@ -177,85 +177,111 @@ namespace sqlpp
 			};
 
 			template<typename T>
-				using _operand_t = operand_t<T, is_numeric_t>;
-			template<typename T>
-				using _constraint = is_numeric_t<T>;
+				struct _is_valid_operand
+			{
+				static constexpr bool value = 
+					is_expression_t<T>::value // expressions are OK
+					and is_numeric_t<T>::value // the correct value type is required, of course
+					;
+			};
 
 			template<typename Base>
-				struct operators: public basic_operators<Base, _operand_t>
+				struct expression_operators: public basic_expression_operators<Base, is_numeric_t>
 			{
 				template<typename T>
-					vendor::plus_t<Base, vendor::value_type_t<T>, typename _operand_t<T>::type> operator +(T t) const
+					vendor::plus_t<Base, vendor::value_type_t<T>, vendor::wrap_operand_t<T>> operator +(T t) const
 					{
-						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
+						using rhs = vendor::wrap_operand_t<T>;
+						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+
 						return { *static_cast<const Base*>(this), {t} };
 					}
 
 				template<typename T>
-					vendor::minus_t<Base, vendor::value_type_t<T>, typename _operand_t<T>::type> operator -(T t) const
+					vendor::minus_t<Base, vendor::value_type_t<T>, vendor::wrap_operand_t<T>> operator -(T t) const
 					{
-						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
+						using rhs = vendor::wrap_operand_t<T>;
+						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+
 						return { *static_cast<const Base*>(this), {t} };
 					}
 
 				template<typename T>
-					vendor::multiplies_t<Base, vendor::value_type_t<T>, typename _operand_t<T>::type> operator *(T t) const
+					vendor::multiplies_t<Base, vendor::value_type_t<T>, vendor::wrap_operand_t<T>> operator *(T t) const
 					{
-						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
+						using rhs = vendor::wrap_operand_t<T>;
+						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+
 						return { *static_cast<const Base*>(this), {t} };
 					}
 
 				template<typename T>
-					vendor::divides_t<Base, typename _operand_t<T>::type> operator /(T t) const
+					vendor::divides_t<Base, vendor::wrap_operand_t<T>> operator /(T t) const
 					{
-						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
+						using rhs = vendor::wrap_operand_t<T>;
+						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+
 						return { *static_cast<const Base*>(this), {t} };
 					}
 
 				template<typename T>
-					vendor::modulus_t<Base, typename _operand_t<T>::type> operator %(T t) const
+					vendor::modulus_t<Base, vendor::wrap_operand_t<T>> operator %(T t) const
 					{
-						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
+						using rhs = vendor::wrap_operand_t<T>;
+						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+
 						return { *static_cast<const Base*>(this), {t} };
 					}
 
 				vendor::unary_plus_t<integral, Base> operator +() const
 				{
-					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as unary operand");
 					return { *static_cast<const Base*>(this) };
 				}
 
 				vendor::unary_minus_t<integral, Base> operator -() const
 				{
-					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as unary operand");
 					return { *static_cast<const Base*>(this) };
 				}
+			};
 
+			template<typename Base>
+				struct column_operators
+			{
 				template<typename T>
-					auto operator +=(T t) const -> decltype(std::declval<Base>() = std::declval<Base>() + t)
+					auto operator +=(T t) const -> vendor::assignment_t<Base, vendor::plus_t<Base, vendor::value_type_t<T>, vendor::wrap_operand_t<T>>>
 					{
-						return *static_cast<const Base*>(this) = operator +(t);
+						using rhs = vendor::wrap_operand_t<T>;
+						static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
+
+						return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
 					}
 
 				template<typename T>
-					auto operator -=(T t) const -> decltype(std::declval<Base>() = std::declval<Base>() - t)
+					auto operator -=(T t) const -> vendor::assignment_t<Base, vendor::minus_t<Base, vendor::value_type_t<T>, vendor::wrap_operand_t<T>>>
 					{
-						return *static_cast<const Base*>(this) = operator -(t);
+						using rhs = vendor::wrap_operand_t<T>;
+						static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
+
+						return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
 					}
 
 				template<typename T>
-					auto operator /=(T t) const -> decltype(std::declval<Base>() = std::declval<Base>() / t)
+					auto operator /=(T t) const -> vendor::assignment_t<Base, vendor::divides_t<Base, vendor::wrap_operand_t<T>>>
 					{
-						return *static_cast<const Base*>(this) = operator /(t);
+						using rhs = vendor::wrap_operand_t<T>;
+						static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
+
+						return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
 					}
 
 				template<typename T>
-					auto operator *=(T t) const -> decltype(std::declval<Base>() = std::declval<Base>() * t)
+					auto operator *=(T t) const -> vendor::assignment_t<Base, vendor::multiplies_t<Base, vendor::value_type_t<T>, vendor::wrap_operand_t<T>>>
 					{
-						return *static_cast<const Base*>(this) = operator *(t);
+						using rhs = vendor::wrap_operand_t<T>;
+						static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
+
+						return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
 					}
-
-
 			};
 		};
 

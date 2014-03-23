@@ -36,7 +36,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Operand, typename Pattern>
-			struct like_t: public boolean::template operators<like_t<Operand, Pattern>>
+			struct like_t: public boolean::template expression_operators<like_t<Operand, Pattern>>
 		{
 			static_assert(is_text_t<Operand>::value, "Operand for like() has to be a text");
 			static_assert(is_text_t<Pattern>::value, "Pattern for like() has to be a text");

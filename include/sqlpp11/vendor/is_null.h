@@ -36,7 +36,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<bool NotInverted, typename Operand>
-		struct is_null_t: public boolean::template operators<is_null_t<NotInverted, Operand>>
+		struct is_null_t: public boolean::template expression_operators<is_null_t<NotInverted, Operand>>
 		{
 			static constexpr bool _inverted = not NotInverted;
 			using _table_set = typename Operand::_table_set;

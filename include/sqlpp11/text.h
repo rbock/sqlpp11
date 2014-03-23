@@ -28,7 +28,7 @@
 #define SQLPP_TEXT_H
 
 #include <cassert>
-#include <sqlpp11/basic_operators.h>
+#include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/vendor/concat.h>
@@ -180,33 +180,47 @@ namespace sqlpp
 			};
 
 			template<typename T>
-				using _operand_t = operand_t<T, is_text_t>;
-			template<typename T>
-				using _constraint = is_text_t<T>;
+				struct _is_valid_operand
+			{
+				static constexpr bool value = 
+					is_expression_t<T>::value // expressions are OK
+					and is_text_t<T>::value // the correct value type is required, of course
+					;
+			};
 
 			template<typename Base>
-				struct operators: public basic_operators<Base, _operand_t>
+				struct expression_operators: public basic_expression_operators<Base, is_text_t>
 			{
 				template<typename T>
-					vendor::concat_t<Base, typename _operand_t<T>::type> operator+(T t) const
+					vendor::concat_t<Base, vendor::wrap_operand_t<T>> operator+(T t) const
 					{
-						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
+						using rhs = vendor::wrap_operand_t<T>;
+						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+
 						return { *static_cast<const Base*>(this), {t} };
 					}
 
 				template<typename T>
-					auto operator +=(T t) const -> decltype(std::declval<Base>() = std::declval<Base>() + t)
+					vendor::like_t<Base, vendor::wrap_operand_t<T>> like(T t) const
 					{
-						return *static_cast<const Base*>(this) = operator +(t);
-					}
+						using rhs = vendor::wrap_operand_t<T>;
+						static_assert(_is_valid_operand<rhs>::value, "invalid argument for like()");
 
-				template<typename T>
-					vendor::like_t<Base, typename _operand_t<T>::type> like(T t) const
-					{
-						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
 						return { *static_cast<const Base*>(this), {t} };
 					}
+			};
 
+			template<typename Base>
+				struct column_operators
+			{
+				template<typename T>
+					auto operator +=(T t) const -> vendor::assignment_t<Base, vendor::concat_t<Base, vendor::wrap_operand_t<T>>>
+					{
+						using rhs = vendor::wrap_operand_t<T>;
+						static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
+
+						return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
+					}
 			};
 		};
 

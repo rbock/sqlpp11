@@ -40,7 +40,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Lhs, typename Rhs>
-			struct binary_expression_t<Lhs, tag::equal_to, Rhs>: public ::sqlpp::detail::boolean::template operators<equal_to_t<Lhs, Rhs>>
+			struct binary_expression_t<Lhs, tag::equal_to, Rhs>: public ::sqlpp::detail::boolean::template expression_operators<equal_to_t<Lhs, Rhs>>
 		{
 			using _value_type = ::sqlpp::detail::boolean;
 			using _parameter_tuple_t = std::tuple<Lhs, Rhs>;
@@ -85,7 +85,7 @@ namespace sqlpp
 			};
 
 		template<typename Lhs, typename Rhs>
-			struct binary_expression_t<Lhs, tag::not_equal_to, Rhs>: public ::sqlpp::detail::boolean::template operators<not_equal_to_t<Lhs, Rhs>>
+			struct binary_expression_t<Lhs, tag::not_equal_to, Rhs>: public ::sqlpp::detail::boolean::template expression_operators<not_equal_to_t<Lhs, Rhs>>
 		{
 			using _value_type = ::sqlpp::detail::boolean;
 			using _parameter_tuple_t = std::tuple<Lhs, Rhs>;
@@ -130,7 +130,7 @@ namespace sqlpp
 			};
 
 		template<typename Rhs>
-			struct unary_expression_t<tag::logical_not, Rhs>: public ::sqlpp::detail::boolean::template operators<logical_not_t<Rhs>>
+			struct unary_expression_t<tag::logical_not, Rhs>: public ::sqlpp::detail::boolean::template expression_operators<logical_not_t<Rhs>>
 		{
 			using _value_type = ::sqlpp::detail::boolean;
 			using _parameter_tuple_t = std::tuple<Rhs>;
@@ -165,7 +165,7 @@ namespace sqlpp
 			};
 
 		template<typename Lhs, typename O, typename Rhs>
-			struct binary_expression_t: public O::_value_type::template operators<binary_expression_t<Lhs, O, Rhs>>
+			struct binary_expression_t: public O::_value_type::template expression_operators<binary_expression_t<Lhs, O, Rhs>>
 		{
 			using _lhs_t = Lhs;
 			using _rhs_t = Rhs;
@@ -205,7 +205,7 @@ namespace sqlpp
 			};
 
 		template<typename O, typename Rhs>
-			struct unary_expression_t: public O::_value_type::template operators<unary_expression_t<O, Rhs>>
+			struct unary_expression_t: public O::_value_type::template expression_operators<unary_expression_t<O, Rhs>>
 		{
 			using _value_type = typename O::_value_type;
 			using _parameter_tuple_t = std::tuple<Rhs>;

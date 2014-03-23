@@ -34,7 +34,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Expr>
-		struct max_t: public boolean::template operators<max_t<Expr>>
+		struct max_t: public Expr::_value_type::template expression_operators<max_t<Expr>>
 		{
 			static_assert(is_value_t<Expr>::value, "max() requires a value expression as argument");
 
@@ -87,8 +87,9 @@ namespace sqlpp
 	}
 
 	template<typename T>
-		auto max(T t) -> typename vendor::max_t<typename operand_t<T, is_value_t>::type>
+		auto max(T t) -> typename vendor::max_t<vendor::wrap_operand_t<T>>
 		{
+			static_assert(is_value_t<vendor::wrap_operand_t<T>>::value, "max() requires a value expression as argument");
 			return { t };
 		}
 

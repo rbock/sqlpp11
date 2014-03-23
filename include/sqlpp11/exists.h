@@ -34,7 +34,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Select>
-		struct exists_t: public boolean::template operators<exists_t<Select>>
+		struct exists_t: public boolean::template expression_operators<exists_t<Select>>
 		{
 			static_assert(is_select_t<Select>::value, "exists() requires a select expression as argument");
 
@@ -88,8 +88,9 @@ namespace sqlpp
 
 
 	template<typename T>
-		auto exists(T t) -> typename vendor::exists_t<typename operand_t<T, is_select_t>::type>
+		auto exists(T t) -> typename vendor::exists_t<vendor::wrap_operand_t<T>>
 		{
+			static_assert(is_select_t<vendor::wrap_operand_t<T>>::value, "exists() requires a select expression as argument");
 			return { t };
 		}
 

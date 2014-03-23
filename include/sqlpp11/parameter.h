@@ -33,11 +33,15 @@
 namespace sqlpp
 {
 	template<typename ValueType, typename NameType>
-	struct parameter_t: public ValueType::template operators<parameter_t<ValueType, NameType>>
+	struct parameter_t: public ValueType::template expression_operators<parameter_t<ValueType, NameType>>
 	{
-		using _value_type = ValueType;
+#warning need to check that Value Type is an SQL value type!
+		struct _value_type: public ValueType
+		{
+			using _is_expression = std::true_type;
+			using _is_alias = std::false_type;
+		};
 		using _is_parameter = std::true_type;
-		using _is_expression_t = std::true_type;
 		using _instance_t = typename NameType::_name_t::template _member_t<typename ValueType::_parameter_t>;
 		using _table_set = sqlpp::detail::type_set<>;
 

@@ -30,7 +30,7 @@
 #include <cstdlib>
 #include <cassert>
 #include <ostream>
-#include <sqlpp11/basic_operators.h>
+#include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/exception.h>
 
@@ -175,32 +175,44 @@ namespace sqlpp
 			};
 
 			template<typename T>
-				using _operand_t = operand_t<T, is_boolean_t>;
-			template<typename T>
-				using _constraint = is_boolean_t<T>;
+				struct _is_valid_operand
+			{
+				static constexpr bool value = 
+					is_expression_t<T>::value // expressions are OK
+					and is_boolean_t<T>::value // the correct value type is required, of course
+					;
+			};
 
 			template<typename Base>
-				struct operators: public basic_operators<Base, _operand_t>
+				struct expression_operators: public basic_expression_operators<Base, is_boolean_t>
 			{
 				template<typename T>
-					vendor::logical_and_t<Base, typename _operand_t<T>::type> operator and(T t) const
+					vendor::logical_and_t<Base, vendor::wrap_operand_t<T>> operator and(T t) const
 					{
-						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-						return { *static_cast<const Base*>(this), {t} };
+						using rhs = vendor::wrap_operand_t<T>;
+						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+
+						return { *static_cast<const Base*>(this), rhs{t} };
 					}
 
 				template<typename T>
-					vendor::logical_or_t<Base, typename _operand_t<T>::type> operator or(T t) const
+					vendor::logical_or_t<Base, vendor::wrap_operand_t<T>> operator or(T t) const
 					{
-						static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be used as left hand side operand");
-						return { *static_cast<const Base*>(this), {t} };
+						using rhs = vendor::wrap_operand_t<T>;
+						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+
+						return { *static_cast<const Base*>(this), rhs{t} };
 					}
 
 				vendor::logical_not_t<Base> operator not() const
 				{
-					static_assert(not is_multi_expression_t<Base>::value, "multi-expression cannot be as operand for operator not");
 					return { *static_cast<const Base*>(this) };
 				}
+			};
+
+			template<typename Base>
+				struct column_operators
+			{
 			};
 		};
 

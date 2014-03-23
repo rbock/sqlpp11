@@ -36,8 +36,19 @@ namespace sqlpp
 		template<typename T>
 			using _constraint = std::false_type;
 
+		template<typename T>
+			struct _is_valid_operand
+			{
+				static constexpr bool value = false;
+			};
+
 		template<typename Base>
-			struct operators
+			struct expression_operators
+			{
+			};
+
+		template<typename Base>
+			struct column_operators
 			{
 			};
 	};

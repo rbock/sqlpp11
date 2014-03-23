@@ -40,6 +40,8 @@ int main()
 	test::TabFoo f; 
 	test::TabBar t;
 
+	//f.omega + 4 *= "";
+
 	// MEMBER FUNCTIONS
 	// ----------------
 	
