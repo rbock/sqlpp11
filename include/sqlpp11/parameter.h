@@ -35,7 +35,6 @@ namespace sqlpp
 	template<typename ValueType, typename NameType>
 	struct parameter_t: public ValueType::template expression_operators<parameter_t<ValueType, NameType>>
 	{
-#warning need to check that Value Type is an SQL value type!
 		struct _value_type: public ValueType
 		{
 			using _is_expression = std::true_type;
@@ -74,6 +73,7 @@ namespace sqlpp
 		auto parameter(const NamedExpr&)
 		-> parameter_t<typename NamedExpr::_value_type, NamedExpr>
 		{
+			static_assert(is_named_expression_t<NamedExpr>::value, "not a named expression");
 			return {};
 		}
 
@@ -81,6 +81,8 @@ namespace sqlpp
 		auto parameter(const ValueType&, const AliasProvider&)
 		-> parameter_t<ValueType, AliasProvider>
 		{
+			static_assert(is_expression_t<ValueType>::value, "first argument is not an expression");
+			static_assert(is_alias_provider_t<AliasProvider>::value, "second argument is not an alias provider");
 			return {};
 		}
 
