@@ -68,8 +68,8 @@ namespace sqlpp
 			insert_t()
 			{}
 
-			template<typename Select, typename T>
-				insert_t(Select s, T t):
+			template<typename Statement, typename T>
+				insert_t(Statement s, T t):
 					_table(detail::arg_selector<Table>::_(s._table, t)),
 					_insert_value_list(detail::arg_selector<InsertValueList>::_(s._insert_value_list, t))
 			{}
