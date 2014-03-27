@@ -34,6 +34,8 @@ namespace sqlpp
 		template<typename Target>
 			struct arg_selector
 			{
+				static Target _(Target, Target t) { return t; }
+
 				template<typename X>
 					static Target _(X, Target t) { return t; }
 
