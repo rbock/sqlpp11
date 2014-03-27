@@ -35,6 +35,7 @@
 #include <sqlpp11/vendor/single_table.h>
 #include <sqlpp11/vendor/insert_value_list.h>
 #include <sqlpp11/vendor/policy_update.h>
+#include <sqlpp11/detail/arg_selector.h>
 
 namespace sqlpp
 {
@@ -67,16 +68,10 @@ namespace sqlpp
 			insert_t()
 			{}
 
-			template<typename X>
-				insert_t(X x, Table table):
-					_table(table),
-					_insert_value_list(x._insert_value_list)
-			{}
-
-			template<typename X>
-				insert_t(X x, InsertValueList insert_value_list):
-					_table(x._table),
-					_insert_value_list(insert_value_list)
+			template<typename Statement, typename T>
+				insert_t(Statement s, T t):
+					_table(detail::arg_selector<Table>::_(s._table, t)),
+					_insert_value_list(detail::arg_selector<InsertValueList>::_(s._insert_value_list, t))
 			{}
 
 			insert_t(const insert_t&) = default;

@@ -35,6 +35,7 @@
 #include <sqlpp11/vendor/noop.h>
 #include <sqlpp11/vendor/where.h>
 #include <sqlpp11/vendor/policy_update.h>
+#include <sqlpp11/detail/arg_selector.h>
 
 namespace sqlpp
 {
@@ -75,29 +76,15 @@ namespace sqlpp
 			using _parameter_tuple_t = std::tuple<Table, UpdateList, Where>;
 			using _parameter_list_t = typename make_parameter_list_t<update_t>::type;
 
+			// Constructors
 			update_t()
 			{}
 
-			// Constructors
-			template<typename X>
-				update_t(X x, Table table):
-					_table(table),
-					_update_list(x._update_list),
-					_where(x._where)
-			{}
-
-			template<typename X>
-				update_t(X x, UpdateList update_list):
-					_table(x._table),
-					_update_list(update_list),
-					_where(x._where)
-			{}
-
-			template<typename X>
-				update_t(X x, Where where):
-					_table(x._table),
-					_update_list(x._update_list),
-					_where(where)
+			template<typename Statement, typename T>
+				update_t(Statement s, T t):
+					_table(detail::arg_selector<Table>::_(s._table, t)),
+					_update_list(detail::arg_selector<UpdateList>::_(s._update_list, t)),
+					_where(detail::arg_selector<Where>::_(s._where, t))
 			{}
 
 			update_t(const update_t&) = default;

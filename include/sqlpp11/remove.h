@@ -35,6 +35,7 @@
 #include <sqlpp11/vendor/using.h>
 #include <sqlpp11/vendor/where.h>
 #include <sqlpp11/vendor/policy_update.h>
+#include <sqlpp11/detail/arg_selector.h>
 
 namespace sqlpp
 {
@@ -75,25 +76,11 @@ namespace sqlpp
 			remove_t()
 			{}
 
-			template<typename X>
-				remove_t(X x, Table table):
-					_table(table),
-					_using(x._using),
-					_where(x._where)
-			{}
-
-			template<typename X>
-				remove_t(X x, Using using_):
-					_table(x._table),
-					_using(using_),
-					_where(x._where)
-			{}
-
-			template<typename X>
-				remove_t(X x, Where where):
-					_table(x._table),
-					_using(x._using),
-					_where(where)
+			template<typename Statement, typename T>
+				remove_t(Statement s, T t):
+					_table(detail::arg_selector<Table>::_(s._table, t)),
+					_using(detail::arg_selector<Using>::_(s._using, t)),
+					_where(detail::arg_selector<Where>::_(s._where, t))
 			{}
 
 			remove_t(const remove_t&) = default;

@@ -47,6 +47,7 @@
 #include <sqlpp11/vendor/policy_update.h>
 
 #include <sqlpp11/detail/copy_tuple_args.h>
+#include <sqlpp11/detail/arg_selector.h>
 
 namespace sqlpp
 {
@@ -80,6 +81,7 @@ namespace sqlpp
 			typename Limit = vendor::no_limit_t, 
 			typename Offset = vendor::no_offset_t
 				>
+#warning: idea: require from() for anything AFTER FROM, including dynamic columns. Then just check for from() in the run methods
 		struct select_t: public detail::select_helper_t<ColumnList, From>::_value_type::template expression_operators<select_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>
 		{
 			using _database_t = Database;
@@ -113,121 +115,17 @@ namespace sqlpp
 			select_t()
 			{}
 
-			template<typename X>
-				select_t(X x, FlagList flag_list):
-					_flag_list(flag_list),
-					_column_list(x._column_list),
-					_from(x._from),
-					_where(x._where),
-					_group_by(x._group_by),
-					_having(x._having),
-					_order_by(x._order_by),
-					_limit(x._limit),
-					_offset(x._offset)
-			{}
-
-			template<typename X>
-				select_t(X x, ColumnList column_list):
-					_flag_list(x._flag_list),
-					_column_list(column_list),
-					_from(x._from),
-					_where(x._where),
-					_group_by(x._group_by),
-					_having(x._having),
-					_order_by(x._order_by),
-					_limit(x._limit),
-					_offset(x._offset)
-			{}
-
-			template<typename X>
-				select_t(X x, From from):
-					_flag_list(x._flag_list),
-					_column_list(x._column_list),
-					_from(from),
-					_where(x._where),
-					_group_by(x._group_by),
-					_having(x._having),
-					_order_by(x._order_by),
-					_limit(x._limit),
-					_offset(x._offset)
-			{}
-
-			template<typename X>
-				select_t(X x, Where where):
-					_flag_list(x._flag_list),
-					_column_list(x._column_list),
-					_from(x._from),
-					_where(where),
-					_group_by(x._group_by),
-					_having(x._having),
-					_order_by(x._order_by),
-					_limit(x._limit),
-					_offset(x._offset)
-			{}
-
-			template<typename X>
-				select_t(X x, GroupBy group_by):
-					_flag_list(x._flag_list),
-					_column_list(x._column_list),
-					_from(x._from),
-					_where(x._where),
-					_group_by(group_by),
-					_having(x._having),
-					_order_by(x._order_by),
-					_limit(x._limit),
-					_offset(x._offset)
-			{}
-
-			template<typename X>
-				select_t(X x, Having having):
-					_flag_list(x._flag_list),
-					_column_list(x._column_list),
-					_from(x._from),
-					_where(x._where),
-					_group_by(x._group_by),
-					_having(having),
-					_order_by(x._order_by),
-					_limit(x._limit),
-					_offset(x._offset)
-			{}
-
-			template<typename X>
-				select_t(X x, OrderBy order_by):
-					_flag_list(x._flag_list),
-					_column_list(x._column_list),
-					_from(x._from),
-					_where(x._where),
-					_group_by(x._group_by),
-					_having(x._having),
-					_order_by(order_by),
-					_limit(x._limit),
-					_offset(x._offset)
-			{}
-
-			template<typename X>
-				select_t(X x, Limit limit):
-					_flag_list(x._flag_list),
-					_column_list(x._column_list),
-					_from(x._from),
-					_where(x._where),
-					_group_by(x._group_by),
-					_having(x._having),
-					_order_by(x._order_by),
-					_limit(limit),
-					_offset(x._offset)
-			{}
-
-			template<typename X>
-				select_t(X x, Offset offset):
-					_flag_list(x._flag_list),
-					_column_list(x._column_list),
-					_from(x._from),
-					_where(x._where),
-					_group_by(x._group_by),
-					_having(x._having),
-					_order_by(x._order_by),
-					_limit(x._limit),
-					_offset(offset)
+			template<typename Statement, typename T>
+				select_t(Statement s, T t):
+					_flag_list(detail::arg_selector<FlagList>::_(s._flag_list, t)),
+					_column_list(detail::arg_selector<ColumnList>::_(s._column_list, t)),
+					_from(detail::arg_selector<From>::_(s._from, t)),
+					_where(detail::arg_selector<Where>::_(s._where, t)),
+					_group_by(detail::arg_selector<GroupBy>::_(s._group_by, t)),
+					_having(detail::arg_selector<Having>::_(s._having, t)),
+					_order_by(detail::arg_selector<OrderBy>::_(s._order_by, t)),
+					_limit(detail::arg_selector<Limit>::_(s._limit, t)),
+					_offset(detail::arg_selector<Offset>::_(s._offset, t))
 			{}
 
 			select_t(const select_t& r) = default;
