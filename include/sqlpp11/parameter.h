@@ -28,6 +28,7 @@
 #define SQLPP_PARAMETER_H
 
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/alias_provider.h>
 #include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
@@ -81,7 +82,7 @@ namespace sqlpp
 		auto parameter(const ValueType&, const AliasProvider&)
 		-> parameter_t<ValueType, AliasProvider>
 		{
-			static_assert(is_expression_t<ValueType>::value, "first argument is not an expression");
+			static_assert(is_value_t<ValueType>::value, "first argument is not a value type");
 			static_assert(is_alias_provider_t<AliasProvider>::value, "second argument is not an alias provider");
 			return {};
 		}
