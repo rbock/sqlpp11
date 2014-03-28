@@ -42,8 +42,7 @@ namespace sqlpp
 		// integral value type
 		struct integral
 		{
-#warning why do I need base_value_type? Would it be sufficient to use _value_type instead?
-#warning what is the difference between _is_value and _is_expression?
+			using _value_type = integral;
 			using _base_value_type = integral;
 			using _is_numeric = std::true_type;
 			using _is_integral = std::true_type;
@@ -51,7 +50,6 @@ namespace sqlpp
 			using _is_expression = std::true_type;
 			using _cpp_value_type = int64_t;
 
-			using _value_type = integral;
 			
 			struct _parameter_t
 			{
