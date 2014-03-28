@@ -139,6 +139,8 @@ namespace sqlpp
 				using _parameter_tuple_t = std::tuple<Columns...>;
 				using size = std::tuple_size<_parameter_tuple_t>;
 
+				using _table_set = sqlpp::detail::make_joined_set_t<typename Columns::_table_set...>;
+
 				static_assert(not ::sqlpp::detail::has_duplicates<Columns...>::value, "at least one duplicate argument detected");
 
 				template<typename T>

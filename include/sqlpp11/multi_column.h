@@ -29,6 +29,7 @@
 
 #include <sqlpp11/no_value.h>
 #include <sqlpp11/detail/logic.h>
+#include <sqlpp11/detail/type_set.h>
 
 #include <sqlpp11/detail/copy_tuple_args.h>
 
@@ -41,6 +42,8 @@ namespace sqlpp
 		struct multi_column_t
 		{
 			static_assert(detail::all_t<is_named_expression_t, Columns...>::value, "multi_column parameters need to be named expressions");
+
+			using _table_set = sqlpp::detail::make_joined_set_t<typename Columns::_table_set...>;
 
 			multi_column_t(std::tuple<Columns...> columns):
 				_columns(columns)
@@ -75,6 +78,7 @@ namespace sqlpp
 			static_assert(detail::all_t<is_named_expression_t, Columns...>::value, "multi_column parameters need to be named expressions");
 
 			using _name_t = typename AliasProvider::_name_t;
+			using _table_set = sqlpp::detail::make_joined_set_t<typename Columns::_table_set...>;
 
 			multi_column_alias_t(multi_column_t<void, Columns...> multi_column):
 				_columns(multi_column._columns)

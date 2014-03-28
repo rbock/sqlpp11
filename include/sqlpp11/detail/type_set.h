@@ -191,6 +191,9 @@ namespace sqlpp
 				using type = typename joined_set<type_set<E...>, _rest>::type;
 			};
 
+		template<typename... Sets>
+			using make_joined_set_t = typename make_joined_set<Sets...>::type;
+
 	}
 }
 
