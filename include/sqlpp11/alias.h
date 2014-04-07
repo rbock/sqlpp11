@@ -44,6 +44,7 @@ namespace sqlpp
 			};
 
 			using _name_t = typename AliasProvider::_name_t;
+			using _table_set = typename Expression::_table_set;
 
 			Expression _expression;
 		};

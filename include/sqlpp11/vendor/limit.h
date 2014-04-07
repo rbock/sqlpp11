@@ -29,6 +29,7 @@
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/vendor/policy_update.h>
+#include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
 {
@@ -40,6 +41,7 @@ namespace sqlpp
 			{
 				using _is_limit = std::true_type;
 				static_assert(is_integral_t<Limit>::value, "limit requires an integral value or integral parameter");
+				using _table_set = ::sqlpp::detail::type_set<>;
 
 				limit_t(Limit value):
 					_value(value)
@@ -93,6 +95,7 @@ namespace sqlpp
 		struct no_limit_t
 		{
 			using _is_noop = std::true_type;
+			using _table_set = ::sqlpp::detail::type_set<>;
 		};
 
 		// Interpreters

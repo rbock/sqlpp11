@@ -75,6 +75,7 @@ namespace sqlpp
 		struct no_having_t
 		{
 			using _is_noop = std::true_type;
+			using _table_set = ::sqlpp::detail::type_set<>;
 		};
 
 		// Interpreters

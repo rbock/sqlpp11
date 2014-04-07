@@ -29,6 +29,7 @@
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/vendor/policy_update.h>
+#include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
 {
@@ -93,6 +94,7 @@ namespace sqlpp
 		struct no_offset_t
 		{
 			using _is_noop = std::true_type;
+			using _table_set = ::sqlpp::detail::type_set<>;
 		};
 
 		// Interpreters

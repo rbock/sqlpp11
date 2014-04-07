@@ -78,6 +78,7 @@ namespace sqlpp
 		struct no_group_by_t
 		{
 			using _is_noop = std::true_type;
+			using _table_set = ::sqlpp::detail::type_set<>;
 		};
 
 		// Interpreters

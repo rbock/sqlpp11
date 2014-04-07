@@ -51,7 +51,7 @@ namespace sqlpp
 
 				static_assert(::sqlpp::detail::all_t<is_table_t, Tables...>::value, "at least one argument is not a table or join in from()");
 
-				using _table_set = typename ::sqlpp::detail::make_joined_set<typename Tables::_table_set...>;
+				using _table_set = ::sqlpp::detail::make_joined_set_t<typename Tables::_table_set...>;
 
 
 				from_t(Tables... tables):

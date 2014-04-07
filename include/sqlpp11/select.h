@@ -391,9 +391,6 @@ namespace sqlpp
 				return _column_list_t::static_size() + get_dynamic_names().size();
 			}
 
-			template<typename Db>
-				struct can_run_t
-				{
 					/*
 					static_assert(column_list::_table_set::template is_subset_t<_from_t::_table_set>::value
 					static_assert(detail::is_subset_of<column_list::_table_set, _from_t::_table_set>::value
@@ -406,8 +403,10 @@ namespace sqlpp
 					//static_assert(is_where_t<Where>::value, "cannot run select without having a where condition, use .where(true) to select all rows");
 					// FIXME: Check for missing aliases (if references are used)
 					// FIXME: Check for missing tables, well, actually, check for missing tables at the where(), order_by(), etc.
-
-					static constexpr bool value = true;
+			template<typename A>
+				struct is_table_subset_of_from
+				{
+					static constexpr bool value = ::sqlpp::detail::is_subset_of<typename A::_table_set, typename From::_table_set>::value;
 				};
 
 			// Execute
@@ -415,7 +414,16 @@ namespace sqlpp
 				auto _run(Db& db) const
 				-> result_t<decltype(db.select(*this)), _result_row_t<Db>>
 				{
-					static_assert(can_run_t<Db>::value, "Cannot execute select statement");
+#warning: need to check in add_xy method as well
+#warning: need add_wxy_without_table_check
+#warning: might want to add an .extra_tables() method to say which tables might also be used here, say via dynamic_from or because this is a subselect
+					static_assert(is_table_subset_of_from<ColumnList>::value, "selected columns require additional tables in from()");
+					static_assert(is_table_subset_of_from<Where>::value, "where() expression requires additional tables in from()");
+					static_assert(is_table_subset_of_from<GroupBy>::value, "group_by() expression requires additional tables in from()");
+					static_assert(is_table_subset_of_from<Having>::value, "having() expression requires additional tables in from()");
+					static_assert(is_table_subset_of_from<OrderBy>::value, "order_by() expression requires additional tables in from()");
+					static_assert(is_table_subset_of_from<Limit>::value, "limit() expression requires additional tables in from()");
+					static_assert(is_table_subset_of_from<Offset>::value, "offset() expression requires additional tables in from()");
 					static_assert(_get_static_no_of_parameters() == 0, "cannot run select directly with parameters, use prepare instead");
 					return {db.select(*this), get_dynamic_names()};
 				}
@@ -425,7 +433,6 @@ namespace sqlpp
 				auto _prepare(Db& db) const
 				-> prepared_select_t<Db, select_t>
 				{
-					static_assert(can_run_t<Db>::value, "Cannot prepare select statement");
 
 					return {{}, get_dynamic_names(), db.prepare_select(*this)};
 				}

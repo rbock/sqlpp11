@@ -61,13 +61,11 @@ int main()
 		const std::string b = row.tabBar.beta;
 	}
 
-#warning this should fail because f is not in from()
-	for (const auto& row : db(select(f.omega, all_of(t).as(t), t.gamma).from(t).where(true)))
+	for (const auto& row : db(select(all_of(t).as(t), t.gamma).from(t).where(t.alpha > 7)))
 	{
 		int64_t a = row.tabBar.alpha;
 		const std::string b = row.tabBar.beta;
 		const bool g = row.gamma;
-		const float o = row.omega;
 	}
 
 	return 0;
