@@ -131,7 +131,8 @@ namespace sqlpp
 				>
 		struct select_t: public detail::select_helper_t<ColumnList, From>::_value_type::template expression_operators<select_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
 		Where::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
-		Limit::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>
+		Limit::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
+		Offset::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>
 		{
 			using _database_t = Database;
 			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
@@ -284,22 +285,6 @@ namespace sqlpp
 					return { *this, vendor::order_by_t<_database_t, Args...>{args...} };
 				}
 
-			template<typename Arg>
-				auto offset(Arg arg)
-				-> _policies_update_t<vendor::no_offset_t, vendor::offset_t<typename vendor::wrap_operand<Arg>::type>>
-				{
-					static_assert(is_noop_t<Offset>::value, "cannot call offset()/dynamic_offset() twice");
-					return { *this, vendor::offset_t<typename vendor::wrap_operand<Arg>::type>{{arg}} };
-				}
-
-				auto dynamic_offset()
-				-> _policies_update_t<vendor::no_offset_t, vendor::dynamic_offset_t<_database_t>>
-				{
-					static_assert(is_noop_t<Offset>::value, "cannot call offset()/dynamic_offset() twice");
-					static_assert(not std::is_same<_database_t, void>::value, "dynamic_offset must not be called in a static statement");
-					return { *this, vendor::dynamic_offset_t<_database_t>{} };
-				}
-
 			// value adding methods
 			template<typename... Args>
 				void add_flag(Args... args)
@@ -347,22 +332,6 @@ namespace sqlpp
 					static_assert(is_order_by_t<OrderBy>::value, "cannot call add_order_by() before dynamic_order_by()");
 					static_assert(is_dynamic_t<OrderBy>::value, "cannot call add_order_by() before dynamic_order_by()");
 					return _order_by.add_order_by(*this, args...);
-				}
-
-			template<typename Arg>
-				void set_limit(Arg arg)
-				{
-					static_assert(is_limit_t<Limit>::value, "cannot call add_limit() before dynamic_limit()");
-					static_assert(is_dynamic_t<Limit>::value, "cannot call add_limit() before dynamic_limit()");
-					return _limit.set_limit(arg);
-				}
-
-			template<typename Arg>
-				void set_offset(Arg arg)
-				{
-					static_assert(is_offset_t<Offset>::value, "cannot call add_offset() before dynamic_offset()");
-					static_assert(is_dynamic_t<Offset>::value, "cannot call add_offset() before dynamic_offset()");
-					return _offset.set_offset(arg);
 				}
 
 			// PseudoTable

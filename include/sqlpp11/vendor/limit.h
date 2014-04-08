@@ -86,23 +86,15 @@ namespace sqlpp
 				dynamic_limit_t& operator=(dynamic_limit_t&&) = default;
 				~dynamic_limit_t() = default;
 
-				template<typename Limit>
-					void set_limit(Limit value)
-					{
-						using arg_t = typename wrap_operand<Limit>::type;
-						_value = arg_t{value};
-						_initialized = true;
-					}
-
 				template<typename Policies>
 					struct _methods_t
 					{
 						template<typename Limit>
 							void set_limit(Limit value)
 							{
-						using arg_t = typename wrap_operand<Limit>::type;
-						static_cast<typename Policies::_select_t*>(this)->_limit._value = arg_t{value};
-						static_cast<typename Policies::_select_t*>(this)->_limit._initialized = true;
+								using arg_t = typename wrap_operand<Limit>::type;
+								static_cast<typename Policies::_select_t*>(this)->_limit._value = arg_t{value};
+								static_cast<typename Policies::_select_t*>(this)->_limit._initialized = true;
 							}
 					};
 
