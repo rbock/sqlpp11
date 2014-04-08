@@ -116,6 +116,7 @@ namespace sqlpp
 					using _database_t = typename Policies::_database_t;
 					template<typename T>
 					using _new_select_t = typename Policies::template _policies_update_t<no_where_t, T>;
+
 					template<typename... Args>
 						auto where(Args... args)
 						-> _new_select_t<where_t<void, Args...>>

@@ -130,7 +130,8 @@ namespace sqlpp
 			typename Offset
 				>
 		struct select_t: public detail::select_helper_t<ColumnList, From>::_value_type::template expression_operators<select_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
-		Where::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>
+		Where::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
+		Limit::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>
 		{
 			using _database_t = Database;
 			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
@@ -281,22 +282,6 @@ namespace sqlpp
 					static_assert(is_noop_t<OrderBy>::value, "cannot call order_by()/dynamic_order_by() twice");
 					static_assert(not std::is_same<_database_t, void>::value, "dynamic_order_by must not be called in a static statement");
 					return { *this, vendor::order_by_t<_database_t, Args...>{args...} };
-				}
-
-			template<typename Arg>
-				auto limit(Arg arg)
-				-> _policies_update_t<vendor::no_limit_t, vendor::limit_t<typename vendor::wrap_operand<Arg>::type>>
-				{
-					static_assert(is_noop_t<Limit>::value, "cannot call limit()/dynamic_limit() twice");
-					return { *this, vendor::limit_t<typename vendor::wrap_operand<Arg>::type>{{arg}} };
-				}
-
-				auto dynamic_limit()
-				-> _policies_update_t<vendor::no_limit_t, vendor::dynamic_limit_t<_database_t>>
-				{
-					static_assert(is_noop_t<Limit>::value, "cannot call limit()/dynamic_limit() twice");
-					static_assert(not std::is_same<_database_t, void>::value, "dynamic_limit must not be called in a static statement");
-					return { *this, vendor::dynamic_limit_t<_database_t>{} };
 				}
 
 			template<typename Arg>
