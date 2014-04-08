@@ -71,6 +71,7 @@ namespace sqlpp
 						template<typename Expression>
 							void add_group_by(Expression expression)
 							{
+								static_assert(_is_dynamic::value, "add_group_by must not be called for static group_by");
 								static_assert(is_expression_t<Expression>::value, "invalid expression argument in add_group_by()");
 #warning: Need to dispatch to actual add method to prevent error messages from being generated
 								return static_cast<typename Policies::_select_t*>(this)->_group_by._dynamic_expressions.emplace_back(expression);

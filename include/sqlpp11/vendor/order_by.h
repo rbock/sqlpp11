@@ -70,6 +70,7 @@ namespace sqlpp
 						template<typename Expression>
 							void add_order_by(Expression expression)
 							{
+								static_assert(_is_dynamic::value, "add_order_by must not be called for static order_by");
 								static_assert(is_sort_order_t<Expression>::value, "invalid expression argument in add_order_by()");
 #warning: Need to dispatch to actual add method to prevent error messages from being generated
 								return static_cast<typename Policies::_select_t*>(this)->_order_by._dynamic_expressions.emplace_back(expression);

@@ -130,6 +130,7 @@ namespace sqlpp
 			typename Offset
 				>
 		struct select_t: public detail::select_helper_t<ColumnList, From>::_value_type::template expression_operators<select_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
+		FlagList::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
 		Where::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
 		GroupBy::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
 		Having::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
@@ -189,23 +190,6 @@ namespace sqlpp
 
 			// type update functions
 			template<typename... Args>
-				auto flags(Args... args)
-				-> _policies_update_t<vendor::no_select_flag_list_t, vendor::select_flag_list_t<void, Args...>>
-				{
-					static_assert(is_noop_t<FlagList>::value, "flags()/dynamic_flags() must not be called twice");
-					return { *this, vendor::select_flag_list_t<void, Args...>{args...} };
-				}
-
-			template<typename... Args>
-				auto dynamic_flags(Args... args)
-				-> _policies_update_t<vendor::no_select_flag_list_t, vendor::select_flag_list_t<_database_t, Args...>>
-				{
-					static_assert(is_noop_t<FlagList>::value, "flags()/dynamic_flags() must not be called twice");
-					static_assert(_is_dynamic::value, "dynamic_flags must not be called in a static statement");
-					return { *this, vendor::select_flag_list_t<_database_t, Args...>{args...} };
-				}
-
-			template<typename... Args>
 				auto columns(Args... args)
 				-> _policies_update_t<vendor::no_select_column_list_t, vendor::select_column_list_t<void, Args...>>
 				{
@@ -238,14 +222,6 @@ namespace sqlpp
 				}
 
 			// value adding methods
-			template<typename... Args>
-				void add_flag(Args... args)
-				{
-					static_assert(is_select_flag_list_t<FlagList>::value, "cannot call add_flag() before dynamic_flags()");
-					static_assert(is_dynamic_t<FlagList>::value, "cannot call add_flag() before dynamic_flags()");
-					return _flag_list.add_flag(*this, args...);
-				}
-
 			template<typename... Args>
 				void add_column(Args... args)
 				{

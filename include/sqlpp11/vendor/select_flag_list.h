@@ -61,12 +61,18 @@ namespace sqlpp
 				select_flag_list_t& operator=(select_flag_list_t&&) = default;
 				~select_flag_list_t() = default;
 
-				template<typename Select, typename Flag>
-					void add_flag(const Select&, Flag flag)
+				template<typename Policies>
+					struct _methods_t
 					{
-						static_assert(is_select_flag_t<Flag>::value, "flag arguments require to be select flags");
-						_dynamic_flags.emplace_back(flag);
-					}
+						template<typename Flag>
+							void add_flag(Flag flag)
+							{
+								static_assert(_is_dynamic::value, "add_flag must not be called for static select flags");
+								static_assert(is_select_flag_t<Flag>::value, "invalid select flag argument in add_flag()");
+#warning: Need to dispatch to actual add method to prevent error messages from being generated
+								return static_cast<typename Policies::_select_t*>(this)->_flag_list._dynamic_flags.emplace_back(flag);
+							}
+					};
 
 				const select_flag_list_t& _flag_list() const { return *this; }
 				_parameter_tuple_t _flags;
@@ -76,6 +82,29 @@ namespace sqlpp
 		struct no_select_flag_list_t
 		{
 			using _is_noop = std::true_type;
+
+			template<typename Policies>
+				struct _methods_t
+				{
+					using _database_t = typename Policies::_database_t;
+					template<typename T>
+					using _new_select_t = typename Policies::template _policies_update_t<no_select_flag_list_t, T>;
+
+					template<typename... Args>
+						auto flags(Args... args)
+						-> _new_select_t<select_flag_list_t<void, Args...>>
+						{
+							return { *static_cast<typename Policies::_select_t*>(this), select_flag_list_t<void, Args...>{args...} };
+						}
+
+					template<typename... Args>
+						auto dynamic_flags(Args... args)
+						-> _new_select_t<select_flag_list_t<_database_t, Args...>>
+						{
+							static_assert(not std::is_same<_database_t, void>::value, "dynamic_flags must not be called in a static statement");
+							return { *static_cast<typename Policies::_select_t*>(this), vendor::select_flag_list_t<_database_t, Args...>{args...} };
+						}
+				};
 		};
 
 
