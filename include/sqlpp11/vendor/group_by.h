@@ -46,6 +46,8 @@ namespace sqlpp
 				using _is_group_by = std::true_type;
 				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 				using _parameter_tuple_t = std::tuple<Expressions...>;
+#warning Has no parameter_list?
+				using _table_set = typename ::sqlpp::detail::make_joined_set<typename Expressions::_table_set...>::type;
 
 				static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression (e.g. a column) required in group_by()");
 
@@ -63,12 +65,17 @@ namespace sqlpp
 				group_by_t& operator=(group_by_t&&) = default;
 				~group_by_t() = default;
 
-				template<typename Statement, typename Expression>
-					void add_group_by(const Statement&, Expression expression)
+				template<typename Policies>
+					struct _methods_t
 					{
-						static_assert(is_table_t<Expression>::value, "from arguments require to be tables or joins");
-						_dynamic_expressions.emplace_back(expression);
-					}
+						template<typename Expression>
+							void add_group_by(Expression expression)
+							{
+								static_assert(is_expression_t<Expression>::value, "invalid expression argument in add_group_by()");
+#warning: Need to dispatch to actual add method to prevent error messages from being generated
+								return static_cast<typename Policies::_select_t*>(this)->_group_by._dynamic_expressions.emplace_back(expression);
+							}
+					};
 
 				const group_by_t& _group_by() const { return *this; }
 				_parameter_tuple_t _expressions;
@@ -79,6 +86,29 @@ namespace sqlpp
 		{
 			using _is_noop = std::true_type;
 			using _table_set = ::sqlpp::detail::type_set<>;
+
+			template<typename Policies>
+				struct _methods_t
+				{
+					using _database_t = typename Policies::_database_t;
+					template<typename T>
+					using _new_select_t = typename Policies::template _policies_update_t<no_group_by_t, T>;
+
+					template<typename... Args>
+						auto group_by(Args... args)
+						-> _new_select_t<group_by_t<void, Args...>>
+						{
+							return { *static_cast<typename Policies::_select_t*>(this), group_by_t<void, Args...>{args...} };
+						}
+
+					template<typename... Args>
+						auto dynamic_group_by(Args... args)
+						-> _new_select_t<group_by_t<_database_t, Args...>>
+						{
+							static_assert(not std::is_same<_database_t, void>::value, "dynamic_group_by must not be called in a static statement");
+							return { *static_cast<typename Policies::_select_t*>(this), vendor::group_by_t<_database_t, Args...>{args...} };
+						}
+				};
 		};
 
 		// Interpreters

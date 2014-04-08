@@ -131,6 +131,7 @@ namespace sqlpp
 				>
 		struct select_t: public detail::select_helper_t<ColumnList, From>::_value_type::template expression_operators<select_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
 		Where::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
+		GroupBy::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
 		Having::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
 		OrderBy::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
 		Limit::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
@@ -236,23 +237,6 @@ namespace sqlpp
 					return { *this, vendor::from_t<_database_t, Args...>{args...} };
 				}
 
-			template<typename... Args>
-				auto group_by(Args... args)
-				-> _policies_update_t<vendor::no_group_by_t, vendor::group_by_t<void, Args...>>
-				{
-					static_assert(is_noop_t<GroupBy>::value, "cannot call group_by()/dynamic_group_by() twice");
-					return { *this, vendor::group_by_t<void, Args...>{args...} };
-				}
-
-			template<typename... Args>
-				auto dynamic_group_by(Args... args)
-				-> _policies_update_t<vendor::no_group_by_t, vendor::group_by_t<_database_t, Args...>>
-				{
-					static_assert(is_noop_t<GroupBy>::value, "cannot call group_by()/dynamic_group_by() twice");
-					static_assert(not std::is_same<_database_t, void>::value, "dynamic_group_by must not be called in a static statement");
-					return { *this, vendor::group_by_t<_database_t, Args...>{args...} };
-				}
-
 			// value adding methods
 			template<typename... Args>
 				void add_flag(Args... args)
@@ -276,14 +260,6 @@ namespace sqlpp
 					static_assert(is_from_t<From>::value, "cannot call add_from() before dynamic_from()");
 					static_assert(is_dynamic_t<From>::value, "cannot call add_using() before dynamic_from()");
 					return _from.add_from(*this, args...);
-				}
-
-			template<typename... Args>
-				void add_group_by(Args... args)
-				{
-					static_assert(is_group_by_t<GroupBy>::value, "cannot call add_group_by() before dynamic_group_by()");
-					static_assert(is_dynamic_t<GroupBy>::value, "cannot call add_group_by() before dynamic_group_by()");
-					return _group_by.add_group_by(*this, args...);
 				}
 
 			// PseudoTable
