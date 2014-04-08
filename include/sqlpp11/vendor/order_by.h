@@ -46,6 +46,8 @@ namespace sqlpp
 				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 				using _parameter_tuple_t = std::tuple<Expressions...>;
 
+				using _table_set = typename ::sqlpp::detail::make_joined_set<typename Expressions::_table_set...>::type;
+
 				static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one sort-order expression required in order_by()");
 
 				static_assert(not ::sqlpp::detail::has_duplicates<Expressions...>::value, "at least one duplicate argument detected in order_by()");
@@ -62,12 +64,17 @@ namespace sqlpp
 				order_by_t& operator=(order_by_t&&) = default;
 				~order_by_t() = default;
 
-				template<typename Statement, typename Expression>
-					void add_order_by(const Statement&, Expression expressions)
+				template<typename Policies>
+					struct _methods_t
 					{
-						static_assert(is_sort_order_t<Expression>::value, "order_by arguments require to be sort-order expressions");
-						_dynamic_expressions.push_back(expressions);
-					}
+						template<typename Expression>
+							void add_order_by(Expression expression)
+							{
+								static_assert(is_sort_order_t<Expression>::value, "invalid expression argument in add_order_by()");
+#warning: Need to dispatch to actual add method to prevent error messages from being generated
+								return static_cast<typename Policies::_select_t*>(this)->_order_by._dynamic_expressions.emplace_back(expression);
+							}
+					};
 
 				_parameter_tuple_t _expressions;
 				vendor::interpretable_list_t<Database> _dynamic_expressions;
@@ -77,6 +84,29 @@ namespace sqlpp
 		{
 			using _is_noop = std::true_type;
 			using _table_set = ::sqlpp::detail::type_set<>;
+
+			template<typename Policies>
+				struct _methods_t
+				{
+					using _database_t = typename Policies::_database_t;
+					template<typename T>
+					using _new_select_t = typename Policies::template _policies_update_t<no_order_by_t, T>;
+
+					template<typename... Args>
+						auto order_by(Args... args)
+						-> _new_select_t<order_by_t<void, Args...>>
+						{
+							return { *static_cast<typename Policies::_select_t*>(this), order_by_t<void, Args...>{args...} };
+						}
+
+					template<typename... Args>
+						auto dynamic_order_by(Args... args)
+						-> _new_select_t<order_by_t<_database_t, Args...>>
+						{
+							static_assert(not std::is_same<_database_t, void>::value, "dynamic_order_by must not be called in a static statement");
+							return { *static_cast<typename Policies::_select_t*>(this), vendor::order_by_t<_database_t, Args...>{args...} };
+						}
+				};
 		};
 
 		// Interpreters

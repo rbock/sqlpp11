@@ -41,6 +41,7 @@ namespace sqlpp
 			{
 				using _is_limit = std::true_type;
 				static_assert(is_integral_t<Limit>::value, "limit requires an integral value or integral parameter");
+				// FIXME: Is this really always empty?
 				using _table_set = ::sqlpp::detail::type_set<>;
 
 				limit_t(Limit value):

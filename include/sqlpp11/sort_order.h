@@ -27,6 +27,8 @@
 #ifndef SQLPP_SORT_ORDER_H
 #define SQLPP_SORT_ORDER_H
 
+#include <sqlpp11/detail/type_set.h>
+
 namespace sqlpp
 {
 	enum class sort_type
@@ -39,6 +41,7 @@ namespace sqlpp
 		struct sort_order_t
 		{
 			using _is_sort_order = std::true_type;
+			using _table_set = typename Expression::_table_set;
 
 			Expression _expression;
 		};

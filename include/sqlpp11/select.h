@@ -131,6 +131,7 @@ namespace sqlpp
 				>
 		struct select_t: public detail::select_helper_t<ColumnList, From>::_value_type::template expression_operators<select_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
 		Where::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
+		OrderBy::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
 		Limit::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
 		Offset::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>
 		{
@@ -268,23 +269,6 @@ namespace sqlpp
 					return { *this, vendor::having_t<_database_t, Args...>{args...} };
 				}
 
-			template<typename... Args>
-				auto order_by(Args... args)
-				-> _policies_update_t<vendor::no_order_by_t, vendor::order_by_t<void, Args...>>
-				{
-					static_assert(is_noop_t<OrderBy>::value, "cannot call order_by()/dynamic_order_by() twice");
-					return { *this, vendor::order_by_t<void, Args...>{args...} };
-				}
-
-			template<typename... Args>
-				auto dynamic_order_by(Args... args)
-				-> _policies_update_t<vendor::no_order_by_t, vendor::order_by_t<_database_t, Args...>>
-				{
-					static_assert(is_noop_t<OrderBy>::value, "cannot call order_by()/dynamic_order_by() twice");
-					static_assert(not std::is_same<_database_t, void>::value, "dynamic_order_by must not be called in a static statement");
-					return { *this, vendor::order_by_t<_database_t, Args...>{args...} };
-				}
-
 			// value adding methods
 			template<typename... Args>
 				void add_flag(Args... args)
@@ -324,14 +308,6 @@ namespace sqlpp
 					static_assert(is_having_t<Having>::value, "cannot call add_having() before dynamic_having()");
 					static_assert(is_dynamic_t<Having>::value, "cannot call add_having() before dynamic_having()");
 					return _having.add_having(*this, args...);
-				}
-
-			template<typename... Args>
-				void add_order_by(Args... args)
-				{
-					static_assert(is_order_by_t<OrderBy>::value, "cannot call add_order_by() before dynamic_order_by()");
-					static_assert(is_dynamic_t<OrderBy>::value, "cannot call add_order_by() before dynamic_order_by()");
-					return _order_by.add_order_by(*this, args...);
 				}
 
 			// PseudoTable

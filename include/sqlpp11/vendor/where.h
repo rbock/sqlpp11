@@ -131,7 +131,6 @@ namespace sqlpp
 							static_assert(not std::is_same<_database_t, void>::value, "dynamic_where must not be called in a static statement");
 							return { *static_cast<typename Policies::_select_t*>(this), vendor::where_t<_database_t, Args...>{args...} };
 						}
-
 				};
 		};
 
