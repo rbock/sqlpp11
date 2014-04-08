@@ -51,6 +51,54 @@
 
 namespace sqlpp
 {
+	template<typename Database = void,
+			typename FlagList = vendor::no_select_flag_list_t, 
+			typename ColumnList = vendor::no_select_column_list_t, 
+			typename From = vendor::no_from_t,
+			typename Where = vendor::no_where_t, 
+			typename GroupBy = vendor::no_group_by_t, 
+			typename Having = vendor::no_having_t,
+			typename OrderBy = vendor::no_order_by_t, 
+			typename Limit = vendor::no_limit_t, 
+			typename Offset = vendor::no_offset_t
+				>
+		struct select_t;
+	namespace detail
+	{
+		template<typename Db,
+				typename FlagList, 
+				typename ColumnList, 
+				typename From,
+				typename Where, 
+				typename GroupBy, 
+				typename Having,
+				typename OrderBy, 
+				typename Limit, 
+				typename Offset
+					>
+			struct select_policies_t
+			{
+				using _database_t = Db;
+				using _select_t = select_t<Db, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>;
+				template<typename Needle, typename Replacement, typename... Policies>
+					struct _policies_update_impl
+					{
+						using type =  select_t<Db, vendor::policy_update_t<Policies, Needle, Replacement>...>;
+					};
+
+				template<typename Needle, typename Replacement>
+					using _policies_update_t = typename _policies_update_impl<Needle, Replacement, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>::type;
+
+					static_assert(is_noop_t<ColumnList>::value or sqlpp::is_select_column_list_t<ColumnList>::value, "column list of select is neither naught nor a valid column list");
+					static_assert(is_noop_t<From>::value or sqlpp::is_from_t<From>::value, "from() part of select is neither naught nor a valid from()");
+					using _value_type = typename std::conditional<
+						sqlpp::is_from_t<From>::value,
+						typename ColumnList::_value_type,
+						no_value_t // If there is no from, the select is not complete (this logic is a bit simple, but better than nothing)
+							>::type;
+			};
+	}
+
 	namespace detail
 	{
 		template<
@@ -70,18 +118,19 @@ namespace sqlpp
 	}
 
 	// SELECT
-	template<typename Database = void,
-			typename FlagList = vendor::no_select_flag_list_t, 
-			typename ColumnList = vendor::no_select_column_list_t, 
-			typename From = vendor::no_from_t,
-			typename Where = vendor::no_where_t, 
-			typename GroupBy = vendor::no_group_by_t, 
-			typename Having = vendor::no_having_t,
-			typename OrderBy = vendor::no_order_by_t, 
-			typename Limit = vendor::no_limit_t, 
-			typename Offset = vendor::no_offset_t
+	template<typename Database,
+			typename FlagList, 
+			typename ColumnList, 
+			typename From,
+			typename Where, 
+			typename GroupBy, 
+			typename Having,
+			typename OrderBy, 
+			typename Limit, 
+			typename Offset
 				>
-		struct select_t: public detail::select_helper_t<ColumnList, From>::_value_type::template expression_operators<select_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>
+		struct select_t: public detail::select_helper_t<ColumnList, From>::_value_type::template expression_operators<select_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
+		Where::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>
 		{
 			using _database_t = Database;
 			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
@@ -181,23 +230,6 @@ namespace sqlpp
 				{
 					static_assert(not std::is_same<_database_t, void>::value, "dynamic_from must not be called in a static statement");
 					return { *this, vendor::from_t<_database_t, Args...>{args...} };
-				}
-
-			template<typename... Args>
-				auto where(Args... args)
-				-> _policies_update_t<vendor::no_where_t, vendor::where_t<void, Args...>>
-				{
-					static_assert(is_noop_t<Where>::value, "cannot call where()/dynamic_where() twice");
-					return { *this, vendor::where_t<void, Args...>{args...} };
-				}
-
-			template<typename... Args>
-				auto dynamic_where(Args... args)
-				-> _policies_update_t<vendor::no_where_t, vendor::where_t<_database_t, Args...>>
-				{
-					static_assert(is_noop_t<Where>::value, "cannot call where()/dynamic_where() twice");
-					static_assert(not std::is_same<_database_t, void>::value, "dynamic_where must not be called in a static statement");
-					return { *this, vendor::where_t<_database_t, Args...>{args...} };
 				}
 
 			template<typename... Args>
@@ -306,14 +338,6 @@ namespace sqlpp
 					static_assert(is_from_t<From>::value, "cannot call add_from() before dynamic_from()");
 					static_assert(is_dynamic_t<From>::value, "cannot call add_using() before dynamic_from()");
 					return _from.add_from(*this, args...);
-				}
-
-			template<typename... Args>
-				void add_where(Args... args)
-				{
-					static_assert(is_where_t<Where>::value, "cannot call add_where() before dynamic_where()");
-					static_assert(is_dynamic_t<Where>::value, "cannot call add_where() before dynamic_where()");
-					return _where.add_where(*this, args...);
 				}
 
 			template<typename... Args>
