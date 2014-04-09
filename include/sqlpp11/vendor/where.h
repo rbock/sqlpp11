@@ -70,6 +70,7 @@ namespace sqlpp
 						template<typename Expression>
 							void add_where(Expression expression)
 							{
+								static_assert(_is_dynamic::value, "add_where can only be called for dynamic_where");
 								static_assert(is_expression_t<Expression>::value, "invalid expression argument in add_where()");
 #warning: Need to dispatch to actual add method to prevent error messages from being generated
 								return static_cast<typename Policies::_select_t*>(this)->_where._dynamic_expressions.emplace_back(expression);

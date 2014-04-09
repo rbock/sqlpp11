@@ -131,6 +131,7 @@ namespace sqlpp
 				>
 		struct select_t: public detail::select_helper_t<ColumnList, From>::_value_type::template expression_operators<select_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
 		FlagList::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
+		From::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
 		Where::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
 		GroupBy::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
 		Having::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
@@ -206,21 +207,6 @@ namespace sqlpp
 					return { *this, vendor::select_column_list_t<_database_t, Args...>{args...} };
 				}
 
-			template<typename... Args>
-				auto from(Args... args)
-				-> _policies_update_t<vendor::no_from_t, vendor::from_t<void, Args...>>
-				{
-					return { *this, vendor::from_t<void, Args...>{args...} };
-				}
-
-			template<typename... Args>
-				auto dynamic_from(Args... args)
-				-> _policies_update_t<vendor::no_from_t, vendor::from_t<_database_t, Args...>>
-				{
-					static_assert(not std::is_same<_database_t, void>::value, "dynamic_from must not be called in a static statement");
-					return { *this, vendor::from_t<_database_t, Args...>{args...} };
-				}
-
 			// value adding methods
 			template<typename... Args>
 				void add_column(Args... args)
@@ -228,14 +214,6 @@ namespace sqlpp
 					static_assert(is_select_column_list_t<ColumnList>::value, "cannot call add_column() before dynamic_columns()");
 					static_assert(is_dynamic_t<ColumnList>::value, "cannot call add_column() before dynamic_columns()");
 					return _column_list.add_column(*this, args...);
-				}
-
-			template<typename... Args>
-				void add_from(Args... args)
-				{
-					static_assert(is_from_t<From>::value, "cannot call add_from() before dynamic_from()");
-					static_assert(is_dynamic_t<From>::value, "cannot call add_using() before dynamic_from()");
-					return _from.add_from(*this, args...);
 				}
 
 			// PseudoTable
