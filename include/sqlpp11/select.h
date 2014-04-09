@@ -131,6 +131,7 @@ namespace sqlpp
 				>
 		struct select_t: public detail::select_helper_t<ColumnList, From>::_value_type::template expression_operators<select_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
 		FlagList::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
+		ColumnList::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
 		From::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
 		Where::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
 		GroupBy::template _methods_t<detail::select_policies_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>,
@@ -188,33 +189,6 @@ namespace sqlpp
 			select_t& operator=(const select_t& r) = default;
 			select_t& operator=(select_t&& r) = default;
 			~select_t() = default;
-
-			// type update functions
-			template<typename... Args>
-				auto columns(Args... args)
-				-> _policies_update_t<vendor::no_select_column_list_t, vendor::select_column_list_t<void, Args...>>
-				{
-					static_assert(is_noop_t<ColumnList>::value, "columns()/dynamic_columns() must not be called twice");
-					return { *this, vendor::select_column_list_t<void, Args...>{args...} };
-				}
-
-			template<typename... Args>
-				auto dynamic_columns(Args... args)
-				-> _policies_update_t<vendor::no_select_column_list_t, vendor::select_column_list_t<_database_t, Args...>>
-				{
-					static_assert(is_noop_t<ColumnList>::value, "columns()/dynamic_columns() must not be called twice");
-					static_assert(_is_dynamic::value, "dynamic_columns must not be called in a static statement");
-					return { *this, vendor::select_column_list_t<_database_t, Args...>{args...} };
-				}
-
-			// value adding methods
-			template<typename... Args>
-				void add_column(Args... args)
-				{
-					static_assert(is_select_column_list_t<ColumnList>::value, "cannot call add_column() before dynamic_columns()");
-					static_assert(is_dynamic_t<ColumnList>::value, "cannot call add_column() before dynamic_columns()");
-					return _column_list.add_column(*this, args...);
-				}
 
 			// PseudoTable
 			template<typename AliasProvider>
