@@ -195,7 +195,7 @@ namespace sqlpp
 								static_assert(_is_dynamic::value, "add_column can only be called for dynamic_column");
 								static_assert(is_named_expression_t<NamedExpression>::value, "invalid named expression argument in add_column()");
 #warning: Need to dispatch to actual add method to prevent error messages from being generated
-								return static_cast<typename Policies::_select_t*>(this)->_column_list._dynamic_columns.emplace_back(namedExpression);
+								return static_cast<typename Policies::_statement_t*>(this)->_column_list._dynamic_columns.emplace_back(namedExpression);
 							}
 					};
 
@@ -232,7 +232,7 @@ namespace sqlpp
 						-> _new_select_t<select_column_list_t<void, Args...>>
 						{
 #warning need to handle all_of_t here
-							return { *static_cast<typename Policies::_select_t*>(this), select_column_list_t<void, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), select_column_list_t<void, Args...>{args...} };
 						}
 
 					template<typename... Args>
@@ -240,7 +240,7 @@ namespace sqlpp
 						-> _new_select_t<select_column_list_t<_database_t, Args...>>
 						{
 							static_assert(not std::is_same<_database_t, void>::value, "dynamic_columns must not be called in a static statement");
-							return { *static_cast<typename Policies::_select_t*>(this), vendor::select_column_list_t<_database_t, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), vendor::select_column_list_t<_database_t, Args...>{args...} };
 						}
 				};
 		};

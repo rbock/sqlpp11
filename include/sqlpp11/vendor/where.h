@@ -73,7 +73,7 @@ namespace sqlpp
 								static_assert(_is_dynamic::value, "add_where can only be called for dynamic_where");
 								static_assert(is_expression_t<Expression>::value, "invalid expression argument in add_where()");
 #warning: Need to dispatch to actual add method to prevent error messages from being generated
-								return static_cast<typename Policies::_select_t*>(this)->_where._dynamic_expressions.emplace_back(expression);
+								return static_cast<typename Policies::_statement_t*>(this)->_where._dynamic_expressions.emplace_back(expression);
 							}
 					};
 
@@ -122,7 +122,7 @@ namespace sqlpp
 						auto where(Args... args)
 						-> _new_select_t<where_t<void, Args...>>
 						{
-							return { *static_cast<typename Policies::_select_t*>(this), where_t<void, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), where_t<void, Args...>{args...} };
 						}
 
 					template<typename... Args>
@@ -130,7 +130,7 @@ namespace sqlpp
 						-> _new_select_t<where_t<_database_t, Args...>>
 						{
 							static_assert(not std::is_same<_database_t, void>::value, "dynamic_where must not be called in a static statement");
-							return { *static_cast<typename Policies::_select_t*>(this), vendor::where_t<_database_t, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), vendor::where_t<_database_t, Args...>{args...} };
 						}
 				};
 		};

@@ -73,7 +73,7 @@ namespace sqlpp
 								static_assert(_is_dynamic::value, "add_order_by must not be called for static order_by");
 								static_assert(is_sort_order_t<Expression>::value, "invalid expression argument in add_order_by()");
 #warning: Need to dispatch to actual add method to prevent error messages from being generated
-								return static_cast<typename Policies::_select_t*>(this)->_order_by._dynamic_expressions.emplace_back(expression);
+								return static_cast<typename Policies::_statement_t*>(this)->_order_by._dynamic_expressions.emplace_back(expression);
 							}
 					};
 
@@ -97,7 +97,7 @@ namespace sqlpp
 						auto order_by(Args... args)
 						-> _new_select_t<order_by_t<void, Args...>>
 						{
-							return { *static_cast<typename Policies::_select_t*>(this), order_by_t<void, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), order_by_t<void, Args...>{args...} };
 						}
 
 					template<typename... Args>
@@ -105,7 +105,7 @@ namespace sqlpp
 						-> _new_select_t<order_by_t<_database_t, Args...>>
 						{
 							static_assert(not std::is_same<_database_t, void>::value, "dynamic_order_by must not be called in a static statement");
-							return { *static_cast<typename Policies::_select_t*>(this), vendor::order_by_t<_database_t, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), vendor::order_by_t<_database_t, Args...>{args...} };
 						}
 				};
 		};

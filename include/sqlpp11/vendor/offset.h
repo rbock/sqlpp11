@@ -93,8 +93,8 @@ namespace sqlpp
 							void set_offset(Offset value)
 							{
 								using arg_t = typename wrap_operand<Offset>::type;
-								static_cast<typename Policies::_select_t*>(this)->_offset._value = arg_t{value};
-								static_cast<typename Policies::_select_t*>(this)->_offset._initialized = true;
+								static_cast<typename Policies::_statement_t*>(this)->_offset._value = arg_t{value};
+								static_cast<typename Policies::_statement_t*>(this)->_offset._initialized = true;
 							}
 					};
 
@@ -118,14 +118,14 @@ namespace sqlpp
 						auto offset(Arg arg)
 						-> _new_select_t<offset_t<typename wrap_operand<Arg>::type>>
 						{
-							return { *static_cast<typename Policies::_select_t*>(this), offset_t<typename wrap_operand<Arg>::type>{{arg}} };
+							return { *static_cast<typename Policies::_statement_t*>(this), offset_t<typename wrap_operand<Arg>::type>{{arg}} };
 						}
 
 					auto dynamic_offset()
 						-> _new_select_t<dynamic_offset_t<_database_t>>
 						{
 							static_assert(not std::is_same<_database_t, void>::value, "dynamic_offset must not be called in a static statement");
-							return { *static_cast<typename Policies::_select_t*>(this), dynamic_offset_t<_database_t>{} };
+							return { *static_cast<typename Policies::_statement_t*>(this), dynamic_offset_t<_database_t>{} };
 						}
 				};
 		};

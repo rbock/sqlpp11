@@ -74,7 +74,7 @@ namespace sqlpp
 								static_assert(_is_dynamic::value, "add_group_by must not be called for static group_by");
 								static_assert(is_expression_t<Expression>::value, "invalid expression argument in add_group_by()");
 #warning: Need to dispatch to actual add method to prevent error messages from being generated
-								return static_cast<typename Policies::_select_t*>(this)->_group_by._dynamic_expressions.emplace_back(expression);
+								return static_cast<typename Policies::_statement_t*>(this)->_group_by._dynamic_expressions.emplace_back(expression);
 							}
 					};
 
@@ -99,7 +99,7 @@ namespace sqlpp
 						auto group_by(Args... args)
 						-> _new_select_t<group_by_t<void, Args...>>
 						{
-							return { *static_cast<typename Policies::_select_t*>(this), group_by_t<void, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), group_by_t<void, Args...>{args...} };
 						}
 
 					template<typename... Args>
@@ -107,7 +107,7 @@ namespace sqlpp
 						-> _new_select_t<group_by_t<_database_t, Args...>>
 						{
 							static_assert(not std::is_same<_database_t, void>::value, "dynamic_group_by must not be called in a static statement");
-							return { *static_cast<typename Policies::_select_t*>(this), vendor::group_by_t<_database_t, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), vendor::group_by_t<_database_t, Args...>{args...} };
 						}
 				};
 		};

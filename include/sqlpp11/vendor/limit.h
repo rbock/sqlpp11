@@ -94,8 +94,8 @@ namespace sqlpp
 							void set_limit(Limit value)
 							{
 								using arg_t = typename wrap_operand<Limit>::type;
-								static_cast<typename Policies::_select_t*>(this)->_limit._value = arg_t{value};
-								static_cast<typename Policies::_select_t*>(this)->_limit._initialized = true;
+								static_cast<typename Policies::_statement_t*>(this)->_limit._value = arg_t{value};
+								static_cast<typename Policies::_statement_t*>(this)->_limit._initialized = true;
 							}
 					};
 
@@ -119,14 +119,14 @@ namespace sqlpp
 						auto limit(Arg arg)
 						-> _new_select_t<limit_t<typename wrap_operand<Arg>::type>>
 						{
-							return { *static_cast<typename Policies::_select_t*>(this), limit_t<typename wrap_operand<Arg>::type>{{arg}} };
+							return { *static_cast<typename Policies::_statement_t*>(this), limit_t<typename wrap_operand<Arg>::type>{{arg}} };
 						}
 
 					auto dynamic_limit()
 						-> _new_select_t<dynamic_limit_t<_database_t>>
 						{
 							static_assert(not std::is_same<_database_t, void>::value, "dynamic_limit must not be called in a static statement");
-							return { *static_cast<typename Policies::_select_t*>(this), dynamic_limit_t<_database_t>{} };
+							return { *static_cast<typename Policies::_statement_t*>(this), dynamic_limit_t<_database_t>{} };
 						}
 				};
 		};

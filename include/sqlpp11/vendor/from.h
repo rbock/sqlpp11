@@ -72,7 +72,7 @@ namespace sqlpp
 							{
 								static_assert(is_table_t<Table>::value, "invalid expression argument in add_from()");
 #warning: Need to dispatch to actual add method to prevent error messages from being generated
-								return static_cast<typename Policies::_select_t*>(this)->_from._dynamic_tables.emplace_back(table);
+								return static_cast<typename Policies::_statement_t*>(this)->_from._dynamic_tables.emplace_back(table);
 							}
 					};
 
@@ -96,7 +96,7 @@ namespace sqlpp
 						auto from(Args... args)
 						-> _new_select_t<from_t<void, Args...>>
 						{
-							return { *static_cast<typename Policies::_select_t*>(this), from_t<void, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), from_t<void, Args...>{args...} };
 						}
 
 					template<typename... Args>
@@ -104,7 +104,7 @@ namespace sqlpp
 						-> _new_select_t<from_t<_database_t, Args...>>
 						{
 							static_assert(not std::is_same<_database_t, void>::value, "dynamic_from must not be called in a static statement");
-							return { *static_cast<typename Policies::_select_t*>(this), vendor::from_t<_database_t, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), vendor::from_t<_database_t, Args...>{args...} };
 						}
 				};
 		};
