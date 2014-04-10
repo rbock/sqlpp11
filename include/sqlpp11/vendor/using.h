@@ -61,14 +61,31 @@ namespace sqlpp
 				using_t& operator=(using_t&&) = default;
 				~using_t() = default;
 
-
-				template<typename Table>
-					void add_using(Table table)
+				template<typename Policies>
+					struct _methods_t
 					{
-						static_assert(_is_dynamic::value, "add_using can only be called for dynamic_using");
-						static_assert(is_table_t<Table>::value, "using() arguments require to be tables");
-						_dynamic_tables.emplace_back(table);
-					}
+						template<typename Table>
+							void add_using(Table table)
+							{
+								static_assert(_is_dynamic::value, "add_using must not be called for static using()");
+								static_assert(is_table_t<Table>::value, "invalid table argument in add_using()");
+
+								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, _is_dynamic, is_table_t<Table>>;
+
+								_add_using_impl(table, ok()); // dispatch to prevent compile messages after the static_assert
+							}
+
+					private:
+						template<typename Table>
+							void _add_using_impl(Table table, const std::true_type&)
+							{
+								return static_cast<typename Policies::_statement_t*>(this)->_using._dynamic_tables.emplace_back(table);
+							}
+
+						template<typename Table>
+							void _add_using_impl(Table table, const std::false_type&);
+					};
+
 
 				_parameter_tuple_t _tables;
 				vendor::interpretable_list_t<Database> _dynamic_tables;
@@ -77,6 +94,30 @@ namespace sqlpp
 		struct no_using_t
 		{
 			using _is_noop = std::true_type;
+			using _table_set = ::sqlpp::detail::type_set<>;
+
+			template<typename Policies>
+				struct _methods_t
+				{
+					using _database_t = typename Policies::_database_t;
+					template<typename T>
+					using _new_select_t = typename Policies::template _policies_update_t<no_using_t, T>;
+
+					template<typename... Args>
+						auto using_(Args... args)
+						-> _new_select_t<using_t<void, Args...>>
+						{
+							return { *static_cast<typename Policies::_statement_t*>(this), using_t<void, Args...>{args...} };
+						}
+
+					template<typename... Args>
+						auto dynamic_using(Args... args)
+						-> _new_select_t<using_t<_database_t, Args...>>
+						{
+							static_assert(not std::is_same<_database_t, void>::value, "dynamic_using must not be called in a static statement");
+							return { *static_cast<typename Policies::_statement_t*>(this), vendor::using_t<_database_t, Args...>{args...} };
+						}
+				};
 		};
 
 		// Interpreters

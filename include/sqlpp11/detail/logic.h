@@ -69,7 +69,7 @@ namespace sqlpp
 		template<bool... Rest>
 			struct any_impl<false, Rest...>
 			{
-				using type = typename all_impl<Rest...>::type;
+				using type = typename any_impl<Rest...>::type;
 			};
 
 		template<bool... Rest>
