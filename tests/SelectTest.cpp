@@ -49,6 +49,7 @@ int main()
 	test::TabFoo f; 
 	test::TabBar t;
 
+	/*
 	for (const auto& row : db(select(all_of(t)).from(t).where(true)))
 	{
 		int64_t a = row.alpha;
@@ -66,6 +67,22 @@ int main()
 		int64_t a = row.tabBar.alpha;
 		const std::string b = row.tabBar.beta;
 		const bool g = row.gamma;
+	}
+	*/
+
+	auto s = dynamic_select(db).dynamic_columns(t.alpha).dynamic_flags().dynamic_from(t).dynamic_where().dynamic_group_by(t.alpha).dynamic_order_by().dynamic_having(t.gamma).dynamic_limit().dynamic_offset();
+	s.add_flag(sqlpp::distinct);
+	s.add_column(t.beta);
+	s.add_from(f);
+	s.add_where(t.alpha > 7);
+	s.add_having(t.alpha > 7);
+	s.set_limit(3);
+	s.set_offset(3);
+	s.add_group_by(t.beta);
+	s.add_order_by(t.beta.asc());
+	for (const auto& row : db(s))
+	{
+		int64_t a = row.alpha;
 	}
 
 	return 0;

@@ -41,6 +41,7 @@ namespace sqlpp
 			{
 				using _is_limit = std::true_type;
 				static_assert(is_integral_t<Limit>::value, "limit requires an integral value or integral parameter");
+				// FIXME: Is this really always empty?
 				using _table_set = ::sqlpp::detail::type_set<>;
 
 				limit_t(Limit value):
@@ -53,6 +54,11 @@ namespace sqlpp
 				limit_t& operator=(limit_t&&) = default;
 				~limit_t() = default;
 
+				template<typename Policies>
+					struct _methods_t
+					{
+					};
+
 				Limit _value;
 			};
 
@@ -61,6 +67,7 @@ namespace sqlpp
 			{
 				using _is_limit = std::true_type;
 				using _is_dynamic = std::true_type;
+				using _table_set = ::sqlpp::detail::type_set<>;
 
 				dynamic_limit_t():
 					_value(noop())
@@ -80,13 +87,17 @@ namespace sqlpp
 				dynamic_limit_t& operator=(dynamic_limit_t&&) = default;
 				~dynamic_limit_t() = default;
 
-				template<typename Limit>
-					void set_limit(Limit value)
+				template<typename Policies>
+					struct _methods_t
 					{
-						using arg_t = typename wrap_operand<Limit>::type;
-						_value = arg_t{value};
-						_initialized = true;
-					}
+						template<typename Limit>
+							void set_limit(Limit value)
+							{
+								using arg_t = typename wrap_operand<Limit>::type;
+								static_cast<typename Policies::_statement_t*>(this)->_limit._value = arg_t{value};
+								static_cast<typename Policies::_statement_t*>(this)->_limit._initialized = true;
+							}
+					};
 
 				bool _initialized = false;
 				interpretable_t<Database> _value;
@@ -96,6 +107,28 @@ namespace sqlpp
 		{
 			using _is_noop = std::true_type;
 			using _table_set = ::sqlpp::detail::type_set<>;
+
+			template<typename Policies>
+				struct _methods_t
+				{
+					using _database_t = typename Policies::_database_t;
+					template<typename T>
+					using _new_statement_t = typename Policies::template _new_statement_t<no_limit_t, T>;
+
+					template<typename Arg>
+						auto limit(Arg arg)
+						-> _new_statement_t<limit_t<typename wrap_operand<Arg>::type>>
+						{
+							return { *static_cast<typename Policies::_statement_t*>(this), limit_t<typename wrap_operand<Arg>::type>{{arg}} };
+						}
+
+					auto dynamic_limit()
+						-> _new_statement_t<dynamic_limit_t<_database_t>>
+						{
+							static_assert(not std::is_same<_database_t, void>::value, "dynamic_limit must not be called in a static statement");
+							return { *static_cast<typename Policies::_statement_t*>(this), dynamic_limit_t<_database_t>{} };
+						}
+				};
 		};
 
 		// Interpreters

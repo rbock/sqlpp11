@@ -40,6 +40,7 @@ namespace sqlpp
 			struct offset_t
 			{
 				using _is_offset = std::true_type;
+				using _table_set = ::sqlpp::detail::type_set<>;
 				static_assert(is_integral_t<Offset>::value, "offset requires an integral value or integral parameter");
 
 				offset_t(Offset value):
@@ -52,6 +53,11 @@ namespace sqlpp
 				offset_t& operator=(offset_t&&) = default;
 				~offset_t() = default;
 
+				template<typename Policies>
+					struct _methods_t
+					{
+					};
+
 				Offset _value;
 			};
 
@@ -60,6 +66,7 @@ namespace sqlpp
 			{
 				using _is_offset = std::true_type;
 				using _is_dynamic = std::true_type;
+				using _table_set = ::sqlpp::detail::type_set<>;
 
 				dynamic_offset_t():
 					_value(noop())
@@ -79,13 +86,17 @@ namespace sqlpp
 				dynamic_offset_t& operator=(dynamic_offset_t&&) = default;
 				~dynamic_offset_t() = default;
 
-				template<typename Offset>
-					void set_offset(Offset value)
+				template<typename Policies>
+					struct _methods_t
 					{
-						using arg_t = typename wrap_operand<Offset>::type;
-						_value = arg_t(value);
-						_initialized = true;
-					}
+						template<typename Offset>
+							void set_offset(Offset value)
+							{
+								using arg_t = typename wrap_operand<Offset>::type;
+								static_cast<typename Policies::_statement_t*>(this)->_offset._value = arg_t{value};
+								static_cast<typename Policies::_statement_t*>(this)->_offset._initialized = true;
+							}
+					};
 
 				bool _initialized = false;
 				interpretable_t<Database> _value;
@@ -95,6 +106,28 @@ namespace sqlpp
 		{
 			using _is_noop = std::true_type;
 			using _table_set = ::sqlpp::detail::type_set<>;
+
+			template<typename Policies>
+				struct _methods_t
+				{
+					using _database_t = typename Policies::_database_t;
+					template<typename T>
+					using _new_statement_t = typename Policies::template _new_statement_t<no_offset_t, T>;
+
+					template<typename Arg>
+						auto offset(Arg arg)
+						-> _new_statement_t<offset_t<typename wrap_operand<Arg>::type>>
+						{
+							return { *static_cast<typename Policies::_statement_t*>(this), offset_t<typename wrap_operand<Arg>::type>{{arg}} };
+						}
+
+					auto dynamic_offset()
+						-> _new_statement_t<dynamic_offset_t<_database_t>>
+						{
+							static_assert(not std::is_same<_database_t, void>::value, "dynamic_offset must not be called in a static statement");
+							return { *static_cast<typename Policies::_statement_t*>(this), dynamic_offset_t<_database_t>{} };
+						}
+				};
 		};
 
 		// Interpreters

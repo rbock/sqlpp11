@@ -39,23 +39,23 @@ namespace sqlpp
 		template<>
 			struct all_impl<>
 			{
-				static constexpr bool value = true;
+				using type = std::true_type;
 			};
 
 		template<bool... Rest>
 			struct all_impl<true, Rest...>
 			{
-				static constexpr bool value = all_impl<Rest...>::value;
+				using type = typename all_impl<Rest...>::type;
 			};
 
 		template<bool... Rest>
 			struct all_impl<false, Rest...>
 			{
-				static constexpr bool value = false;
+				using type = std::false_type;
 			};
 
 		template<template<typename> class Predicate, typename... T>
-			using all_t = all_impl<Predicate<T>::value...>;
+			using all_t = typename all_impl<Predicate<T>::value...>::type;
 
 		template<bool... b>
 			struct any_impl;
@@ -63,24 +63,46 @@ namespace sqlpp
 		template<>
 			struct any_impl<>
 			{
-				static constexpr bool value = false;
+				using type = std::false_type;
 			};
 
 		template<bool... Rest>
 			struct any_impl<false, Rest...>
 			{
-				static constexpr bool value = any_impl<Rest...>::value;
+				using type = typename any_impl<Rest...>::type;
 			};
 
 		template<bool... Rest>
 			struct any_impl<true, Rest...>
 			{
-				static constexpr bool value = true;
+				using type = std::true_type;
 			};
 
 		template<template<typename> class Predicate, typename... T>
-			using any_t = any_impl<Predicate<T>::value...>;
+			using any_t = typename any_impl<Predicate<T>::value...>::type;
 
+		template<bool>
+			struct not_impl;
+
+		template<> 
+			struct not_impl<true>
+		{
+			using type = std::false_type;
+		};
+
+		template<> 
+			struct not_impl<false>
+		{
+			using type = std::true_type;
+		};
+
+
+		template<template<typename> class Predicate, typename... T>
+			using not_t = typename not_impl<Predicate<T>::value...>::type;
+
+
+		template<typename T>
+			using identity_t = T;
 	}
 }
 

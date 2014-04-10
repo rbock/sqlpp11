@@ -39,37 +39,59 @@
 
 namespace sqlpp
 {
+	template<typename Db,
+			typename... Policies
+				>
+		struct remove_t;
+
 	namespace detail
 	{
-		template<typename Table, typename Using, typename Where>
-			struct check_remove_t
+		template<typename Db = void,
+			typename Table = vendor::no_single_table_t,
+			typename Using = vendor::no_using_t,
+			typename Where = vendor::no_where_t
+				>
+			struct remove_policies_t 
 			{
-				static_assert(is_where_t<Where>::value, "cannot run remove without having a where condition, use .where(true) to remove all rows");
-				static constexpr bool value = true;
+				using _database_t = Db;
+				using _table_t = Table;
+				using _using_t = Using;
+				using _where_t = Where;
+
+				using _statement_t = remove_t<Db, Table, Using, Where>;
+
+				struct _methods_t:
+					public _using_t::template _methods_t<remove_policies_t>,
+					public _where_t::template _methods_t<remove_policies_t>
+				{};
+
+				template<typename Needle, typename Replacement, typename... Policies>
+					struct _policies_update_t
+					{
+						using type =  remove_t<Db, vendor::policy_update_t<Policies, Needle, Replacement>...>;
+					};
+
+				template<typename Needle, typename Replacement>
+					using _new_statement_t = typename _policies_update_t<Needle, Replacement, Table, Using, Where>::type;
 			};
 	}
 
 	// REMOVE
-	template<typename Database,
-	 		typename Table = vendor::no_single_table_t,
-	 		typename Using = vendor::no_using_t,
-	 		typename Where = vendor::no_where_t
+	template<typename Db,
+			typename... Policies
 				>
-		struct remove_t
+		struct remove_t:
+			public detail::remove_policies_t<Db, Policies...>::_methods_t
 		{
-			using _database_t = Database;
-			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
+			using _policies_t = typename detail::remove_policies_t<Db, Policies...>;
+			using _database_t = typename _policies_t::_database_t;
+			using _table_t = typename _policies_t::_table_t;
+			using _using_t = typename _policies_t::_using_t;
+			using _where_t = typename _policies_t::_where_t;
 
-			template<typename Needle, typename Replacement, typename... Policies>
-				struct _policies_update_impl
-				{
-					using type =  remove_t<Database, vendor::policy_update_t<Policies, Needle, Replacement>...>;
-				};
+			using _is_dynamic = typename std::conditional<std::is_same<_database_t, void>::value, std::false_type, std::true_type>::type;
 
-			template<typename Needle, typename Replacement>
-				using _policies_update_t = typename _policies_update_impl<Needle, Replacement, Table, Using, Where>::type;
-
-			using _parameter_tuple_t = std::tuple<Table, Using, Where>;
+			using _parameter_tuple_t = std::tuple<Policies...>;
 			using _parameter_list_t = typename make_parameter_list_t<remove_t>::type;
 
 			// Constructors
@@ -78,9 +100,9 @@ namespace sqlpp
 
 			template<typename Statement, typename T>
 				remove_t(Statement s, T t):
-					_table(detail::arg_selector<Table>::_(s._table, t)),
-					_using(detail::arg_selector<Using>::_(s._using, t)),
-					_where(detail::arg_selector<Where>::_(s._where, t))
+					_table(detail::arg_selector<_table_t>::_(s._table, t)),
+					_using(detail::arg_selector<_using_t>::_(s._using, t)),
+					_where(detail::arg_selector<_where_t>::_(s._where, t))
 			{}
 
 			remove_t(const remove_t&) = default;
@@ -88,58 +110,6 @@ namespace sqlpp
 			remove_t& operator=(const remove_t&) = default;
 			remove_t& operator=(remove_t&&) = default;
 			~remove_t() = default;
-
-			// type update functions
-			template<typename... Args>
-				auto using_(Args... args)
-				-> _policies_update_t<vendor::no_using_t, vendor::using_t<void, Args...>>
-				{
-					static_assert(is_noop_t<Using>::value, "cannot call using_()/dynamic_using() twice");
-					return { *this, vendor::using_t<void, Args...>{args...} };
-				}
-
-			template<typename... Args>
-				auto dynamic_using(Args... args)
-				-> _policies_update_t<vendor::no_using_t, vendor::using_t<_database_t, Args...>>
-				{
-					static_assert(is_noop_t<Using>::value, "cannot call using_()/dynamic_using() twice");
-					static_assert(not std::is_same<_database_t, void>::value, "dynamic_using must not be called in a static statement");
-					return { *this, vendor::using_t<_database_t, Args...>{args...} };
-				}
-
-			template<typename... Args>
-				auto where(Args... args)
-				-> _policies_update_t<vendor::no_where_t, vendor::where_t<void, Args...>>
-				{
-					static_assert(is_noop_t<Where>::value, "cannot call where()/dynamic_where() twice");
-					return { *this, vendor::where_t<void, Args...>{args...} };
-				}
-
-			template<typename... Args>
-				auto dynamic_where(Args... args)
-				-> _policies_update_t<vendor::no_where_t, vendor::where_t<_database_t, Args...>>
-				{
-					static_assert(is_noop_t<Where>::value, "cannot call where()/dynamic_where() twice");
-					static_assert(not std::is_same<_database_t, void>::value, "dynamic_where must not be called in a static statement");
-					return { *this, vendor::where_t<_database_t, Args...>{args...} };
-				}
-
-			// value adding methods
-			template<typename... Args>
-				void add_using(Args... args)
-				{
-					static_assert(is_using_t<Using>::value, "cannot call add_using() before dynamic_using()");
-					static_assert(is_dynamic_t<Using>::value, "cannot call add_using() before dynamic_using()");
-					return _using.add_using(args...);
-				}
-
-			template<typename... Args>
-				void add_where(Args... args)
-				{
-					static_assert(is_where_t<Where>::value, "cannot call add_where() before dynamic_where()");
-					static_assert(is_dynamic_t<Where>::value, "cannot call add_where() before dynamic_where()");
-					return _where.add_where(*this, args...);
-				}
 
 			// run and prepare
 			static constexpr size_t _get_static_no_of_parameters()
@@ -152,25 +122,25 @@ namespace sqlpp
 				return _parameter_list_t::size::value;
 			}
 
-			template<typename Db>
-				std::size_t _run(Db& db) const
+			template<typename Database>
+				std::size_t _run(Database& db) const
 				{
 					static_assert(_get_static_no_of_parameters() == 0, "cannot run remove directly with parameters, use prepare instead");
-					//static_assert(detail::check_remove_t<Policies...>::value, "Cannot run this remove expression");
+					static_assert(is_where_t<_where_t>::value, "cannot run remove without having a where condition, use .where(true) to remove all rows");
 					return db.remove(*this);
 				}
 
-			template<typename Db>
-				auto _prepare(Db& db) const
-				-> prepared_remove_t<Db, remove_t>
+			template<typename Database>
+				auto _prepare(Database& db) const
+				-> prepared_remove_t<Database, remove_t>
 				{
-					//static_assert(detail::check_remove_t<Policies...>::value, "Cannot run this remove expression");
+					static_assert(is_where_t<_where_t>::value, "cannot run remove without having a where condition, use .where(true) to remove all rows");
 					return {{}, db.prepare_remove(*this)};
 				}
 
-			Table _table;
-			Using _using;
-			Where _where;
+			_table_t _table;
+			_using_t _using;
+			_where_t _where;
 		};
 
 	namespace vendor
@@ -191,18 +161,21 @@ namespace sqlpp
 			};
 	}
 
+	template<typename Database, typename... Policies>
+		using make_remove_t = typename detail::remove_policies_t<Database, Policies...>::_statement_t;
+
 	template<typename Table>
 		constexpr auto remove_from(Table table)
-		-> remove_t<void, vendor::single_table_t<void, Table>>
+		-> make_remove_t<void, vendor::single_table_t<void, Table>>
 		{
-			return { remove_t<void>(), vendor::single_table_t<void, Table>{table} };
+			return { make_remove_t<void>(), vendor::single_table_t<void, Table>{table} };
 		}
 
 	template<typename Database, typename Table>
 		constexpr auto  dynamic_remove_from(const Database&, Table table)
-		-> remove_t<Database, vendor::single_table_t<void, Table>>
+		-> make_remove_t<Database, vendor::single_table_t<void, Table>>
 		{
-			return { remove_t<Database>(), vendor::single_table_t<void, Table>{table} };
+			return { make_remove_t<Database>(), vendor::single_table_t<void, Table>{table} };
 		}
 
 }

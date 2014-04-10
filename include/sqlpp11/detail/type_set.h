@@ -145,6 +145,9 @@ namespace sqlpp
 				using type = typename make_type_set<Rest...>::type::template insert<T>::type;
 			};
 
+		template<typename... T>
+			using make_type_set_t = typename make_type_set<T...>::type;
+
 		template<template<typename> class Predicate, typename... T>
 			struct make_type_set_if;
 

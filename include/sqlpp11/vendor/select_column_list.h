@@ -68,7 +68,7 @@ namespace sqlpp
 				_names_t _dynamic_expression_names;
 
 				template<typename Expr>
-					void push_back(Expr expr)
+					void emplace_back(Expr expr)
 					{
 						_dynamic_expression_names.push_back(Expr::_name_t::_get_name());
 						_dynamic_columns.emplace_back(expr);
@@ -89,8 +89,9 @@ namespace sqlpp
 				};
 				_names_t _dynamic_expression_names;
 
+#warning: Put an assert here or remove implementation to make sure this never aktually gets called
 				template<typename T>
-					void push_back(const T&) {}
+					void emplace_back(const T&) {}
 
 				static constexpr bool empty()
 				{
@@ -185,13 +186,31 @@ namespace sqlpp
 				select_column_list_t& operator=(select_column_list_t&&) = default;
 				~select_column_list_t() = default;
 
-				template<typename Select, typename Expr>
-					void add_column(const Select&, Expr namedExpr)
+				template<typename Policies>
+					struct _methods_t
 					{
-						static_assert(is_named_expression_t<Expr>::value, "select() arguments require to be named expressions");
-						static_assert(_is_dynamic::value, "cannot add columns to a non-dynamic column list");
-						_dynamic_columns.push_back(namedExpr);
-					}
+						template<typename NamedExpression>
+							void add_column(NamedExpression namedExpression)
+							{
+								static_assert(_is_dynamic::value, "add_column can only be called for dynamic_column");
+								static_assert(is_named_expression_t<NamedExpression>::value, "invalid named expression argument in add_column()");
+
+								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, _is_dynamic, is_named_expression_t<NamedExpression>>;
+
+								_add_column_impl(namedExpression, ok()); // dispatch to prevent compile messages after the static_assert
+							}
+
+					private:
+						template<typename NamedExpression>
+							void _add_column_impl(NamedExpression namedExpression, const std::true_type&)
+							{
+								return static_cast<typename Policies::_statement_t*>(this)->_column_list._dynamic_columns.emplace_back(namedExpression);
+							}
+
+						template<typename NamedExpression>
+							void _add_column_impl(NamedExpression namedExpression, const std::false_type&);
+					};
+
 
 				const select_column_list_t& _column_list() const { return *this; }
 				_parameter_tuple_t _columns;
@@ -211,6 +230,30 @@ namespace sqlpp
 				struct _pseudo_table_t
 				{
 					static_assert(wrong_t<T>::value, "Cannot use a select as a table when no columns have been selected yet");
+				};
+
+			template<typename Policies>
+				struct _methods_t
+				{
+					using _database_t = typename Policies::_database_t;
+					template<typename T>
+					using _new_statement_t = typename Policies::template _new_statement_t<no_select_column_list_t, T>;
+
+					template<typename... Args>
+						auto columns(Args... args)
+						-> _new_statement_t<select_column_list_t<void, Args...>>
+						{
+#warning need to handle all_of_t here
+							return { *static_cast<typename Policies::_statement_t*>(this), select_column_list_t<void, Args...>{args...} };
+						}
+
+					template<typename... Args>
+						auto dynamic_columns(Args... args)
+						-> _new_statement_t<select_column_list_t<_database_t, Args...>>
+						{
+							static_assert(not std::is_same<_database_t, void>::value, "dynamic_columns must not be called in a static statement");
+							return { *static_cast<typename Policies::_statement_t*>(this), vendor::select_column_list_t<_database_t, Args...>{args...} };
+						}
 				};
 		};
 

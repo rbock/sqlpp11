@@ -51,14 +51,61 @@
 
 namespace sqlpp
 {
+	template<typename Db,
+			typename... Policies
+				>
+		struct select_t;
+
 	namespace detail
 	{
-		template<
-			typename ColumnList, 
-			typename From
-			>
-			struct select_helper_t
+		template<typename Db = void,
+			typename FlagList = vendor::no_select_flag_list_t, 
+			typename ColumnList = vendor::no_select_column_list_t, 
+			typename From = vendor::no_from_t,
+			typename Where = vendor::no_where_t, 
+			typename GroupBy = vendor::no_group_by_t, 
+			typename Having = vendor::no_having_t,
+			typename OrderBy = vendor::no_order_by_t, 
+			typename Limit = vendor::no_limit_t, 
+			typename Offset = vendor::no_offset_t
+				>
+			struct select_policies_t
 			{
+				using _database_t = Db;
+				using _flag_list_t = FlagList;
+				using _column_list_t = ColumnList;
+				using _from_t = From;
+				using _where_t = Where;
+				using _group_by_t = GroupBy;
+				using _having_t = Having;
+				using _order_by_t = OrderBy;
+				using _limit_t = Limit;
+				using _offset_t = Offset;
+
+				using _statement_t = select_t<Db, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>;
+
+				struct _methods_t:
+					public _flag_list_t::template _methods_t<select_policies_t>,
+					public _column_list_t::template _methods_t<select_policies_t>,
+					public _from_t::template _methods_t<select_policies_t>,
+					public _where_t::template _methods_t<select_policies_t>,
+					public _group_by_t::template _methods_t<select_policies_t>,
+					public _having_t::template _methods_t<select_policies_t>,
+					public _order_by_t::template _methods_t<select_policies_t>,
+					public _limit_t::template _methods_t<select_policies_t>,
+					public _offset_t::template _methods_t<select_policies_t>
+				{};
+
+				template<typename Needle, typename Replacement, typename... Policies>
+					struct _policies_update_t
+					{
+						static_assert(detail::is_element_of<Needle, make_type_set_t<Policies...>>::value, "policies update for non-policy class detected");
+						using type =  select_t<Db, vendor::policy_update_t<Policies, Needle, Replacement>...>;
+					};
+
+				template<typename Needle, typename Replacement>
+					using _new_statement_t = typename _policies_update_t<Needle, Replacement, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>::type;
+
 				static_assert(is_noop_t<ColumnList>::value or sqlpp::is_select_column_list_t<ColumnList>::value, "column list of select is neither naught nor a valid column list");
 				static_assert(is_noop_t<From>::value or sqlpp::is_from_t<From>::value, "from() part of select is neither naught nor a valid from()");
 				using _value_type = typename std::conditional<
@@ -70,44 +117,39 @@ namespace sqlpp
 	}
 
 	// SELECT
-	template<typename Database = void,
-			typename FlagList = vendor::no_select_flag_list_t, 
-			typename ColumnList = vendor::no_select_column_list_t, 
-			typename From = vendor::no_from_t,
-			typename Where = vendor::no_where_t, 
-			typename GroupBy = vendor::no_group_by_t, 
-			typename Having = vendor::no_having_t,
-			typename OrderBy = vendor::no_order_by_t, 
-			typename Limit = vendor::no_limit_t, 
-			typename Offset = vendor::no_offset_t
+	template<typename Db,
+			typename... Policies
 				>
-		struct select_t: public detail::select_helper_t<ColumnList, From>::_value_type::template expression_operators<select_t<Database, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>>
+		struct select_t:
+			public detail::select_policies_t<Db, Policies...>::_value_type::template expression_operators<select_t<Db, Policies...>>,
+			public detail::select_policies_t<Db, Policies...>::_methods_t
 		{
-			using _database_t = Database;
-			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
+			using _policies_t = typename detail::select_policies_t<Db, Policies...>;
+			using _database_t = typename _policies_t::_database_t;
+			using _flag_list_t = typename _policies_t::_flag_list_t;
+			using _column_list_t = typename _policies_t::_column_list_t;
+			using _from_t = typename _policies_t::_from_t;
+			using _where_t = typename _policies_t::_where_t;
+			using _group_by_t = typename _policies_t::_group_by_t;
+			using _having_t = typename _policies_t::_having_t;
+			using _order_by_t = typename _policies_t::_order_by_t;
+			using _limit_t = typename _policies_t::_limit_t;
+			using _offset_t = typename _policies_t::_offset_t;
 
-			template<typename Needle, typename Replacement, typename... Policies>
-				struct _policies_update_impl
-				{
-					using type =  select_t<Database, vendor::policy_update_t<Policies, Needle, Replacement>...>;
-				};
+			using _is_dynamic = typename std::conditional<std::is_same<_database_t, void>::value, std::false_type, std::true_type>::type;
 
-			template<typename Needle, typename Replacement>
-				using _policies_update_t = typename _policies_update_impl<Needle, Replacement, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>::type;
-
-			using _parameter_tuple_t = std::tuple<FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>;
+			using _parameter_tuple_t = std::tuple<Policies...>;
 			using _parameter_list_t = typename make_parameter_list_t<select_t>::type;
 			using _table_set = ::sqlpp::detail::type_set<>;
 			
-			using _column_list_t = ColumnList;
-			template<typename Db>
-				using _result_row_t = typename _column_list_t::template _result_row_t<Db>;
+			template<typename Database>
+				using _result_row_t = typename _column_list_t::template _result_row_t<Database>;
 			using _dynamic_names_t = typename _column_list_t::_dynamic_names_t;
 
 			using _is_select = std::true_type;
 			using _requires_braces = std::true_type;
 
-			using _value_type = typename detail::select_helper_t<ColumnList, From>::_value_type;
+			using _value_type = typename detail::select_policies_t<Db, Policies...>::_value_type;
 			using _name_t = typename _column_list_t::_name_t;
 
 			// Constructors
@@ -116,15 +158,15 @@ namespace sqlpp
 
 			template<typename Statement, typename T>
 				select_t(Statement s, T t):
-					_flag_list(detail::arg_selector<FlagList>::_(s._flag_list, t)),
-					_column_list(detail::arg_selector<ColumnList>::_(s._column_list, t)),
-					_from(detail::arg_selector<From>::_(s._from, t)),
-					_where(detail::arg_selector<Where>::_(s._where, t)),
-					_group_by(detail::arg_selector<GroupBy>::_(s._group_by, t)),
-					_having(detail::arg_selector<Having>::_(s._having, t)),
-					_order_by(detail::arg_selector<OrderBy>::_(s._order_by, t)),
-					_limit(detail::arg_selector<Limit>::_(s._limit, t)),
-					_offset(detail::arg_selector<Offset>::_(s._offset, t))
+					_flag_list(detail::arg_selector<_flag_list_t>::_(s._flag_list, t)),
+					_column_list(detail::arg_selector<_column_list_t>::_(s._column_list, t)),
+					_from(detail::arg_selector<_from_t>::_(s._from, t)),
+					_where(detail::arg_selector<_where_t>::_(s._where, t)),
+					_group_by(detail::arg_selector<_group_by_t>::_(s._group_by, t)),
+					_having(detail::arg_selector<_having_t>::_(s._having, t)),
+					_order_by(detail::arg_selector<_order_by_t>::_(s._order_by, t)),
+					_limit(detail::arg_selector<_limit_t>::_(s._limit, t)),
+					_offset(detail::arg_selector<_offset_t>::_(s._offset, t))
 			{}
 
 			select_t(const select_t& r) = default;
@@ -132,229 +174,6 @@ namespace sqlpp
 			select_t& operator=(const select_t& r) = default;
 			select_t& operator=(select_t&& r) = default;
 			~select_t() = default;
-
-			// type update functions
-			template<typename... Args>
-				auto flags(Args... args)
-				-> _policies_update_t<vendor::no_select_flag_list_t, vendor::select_flag_list_t<void, Args...>>
-				{
-					static_assert(is_noop_t<FlagList>::value, "flags()/dynamic_flags() must not be called twice");
-					return { *this, vendor::select_flag_list_t<void, Args...>{args...} };
-				}
-
-			template<typename... Args>
-				auto dynamic_flags(Args... args)
-				-> _policies_update_t<vendor::no_select_flag_list_t, vendor::select_flag_list_t<_database_t, Args...>>
-				{
-					static_assert(is_noop_t<FlagList>::value, "flags()/dynamic_flags() must not be called twice");
-					static_assert(_is_dynamic::value, "dynamic_flags must not be called in a static statement");
-					return { *this, vendor::select_flag_list_t<_database_t, Args...>{args...} };
-				}
-
-			template<typename... Args>
-				auto columns(Args... args)
-				-> _policies_update_t<vendor::no_select_column_list_t, vendor::select_column_list_t<void, Args...>>
-				{
-					static_assert(is_noop_t<ColumnList>::value, "columns()/dynamic_columns() must not be called twice");
-					return { *this, vendor::select_column_list_t<void, Args...>{args...} };
-				}
-
-			template<typename... Args>
-				auto dynamic_columns(Args... args)
-				-> _policies_update_t<vendor::no_select_column_list_t, vendor::select_column_list_t<_database_t, Args...>>
-				{
-					static_assert(is_noop_t<ColumnList>::value, "columns()/dynamic_columns() must not be called twice");
-					static_assert(_is_dynamic::value, "dynamic_columns must not be called in a static statement");
-					return { *this, vendor::select_column_list_t<_database_t, Args...>{args...} };
-				}
-
-			template<typename... Args>
-				auto from(Args... args)
-				-> _policies_update_t<vendor::no_from_t, vendor::from_t<void, Args...>>
-				{
-					return { *this, vendor::from_t<void, Args...>{args...} };
-				}
-
-			template<typename... Args>
-				auto dynamic_from(Args... args)
-				-> _policies_update_t<vendor::no_from_t, vendor::from_t<_database_t, Args...>>
-				{
-					static_assert(not std::is_same<_database_t, void>::value, "dynamic_from must not be called in a static statement");
-					return { *this, vendor::from_t<_database_t, Args...>{args...} };
-				}
-
-			template<typename... Args>
-				auto where(Args... args)
-				-> _policies_update_t<vendor::no_where_t, vendor::where_t<void, Args...>>
-				{
-					static_assert(is_noop_t<Where>::value, "cannot call where()/dynamic_where() twice");
-					return { *this, vendor::where_t<void, Args...>{args...} };
-				}
-
-			template<typename... Args>
-				auto dynamic_where(Args... args)
-				-> _policies_update_t<vendor::no_where_t, vendor::where_t<_database_t, Args...>>
-				{
-					static_assert(is_noop_t<Where>::value, "cannot call where()/dynamic_where() twice");
-					static_assert(not std::is_same<_database_t, void>::value, "dynamic_where must not be called in a static statement");
-					return { *this, vendor::where_t<_database_t, Args...>{args...} };
-				}
-
-			template<typename... Args>
-				auto group_by(Args... args)
-				-> _policies_update_t<vendor::no_group_by_t, vendor::group_by_t<void, Args...>>
-				{
-					static_assert(is_noop_t<GroupBy>::value, "cannot call group_by()/dynamic_group_by() twice");
-					return { *this, vendor::group_by_t<void, Args...>{args...} };
-				}
-
-			template<typename... Args>
-				auto dynamic_group_by(Args... args)
-				-> _policies_update_t<vendor::no_group_by_t, vendor::group_by_t<_database_t, Args...>>
-				{
-					static_assert(is_noop_t<GroupBy>::value, "cannot call group_by()/dynamic_group_by() twice");
-					static_assert(not std::is_same<_database_t, void>::value, "dynamic_group_by must not be called in a static statement");
-					return { *this, vendor::group_by_t<_database_t, Args...>{args...} };
-				}
-
-			template<typename... Args>
-				auto having(Args... args)
-				-> _policies_update_t<vendor::no_having_t, vendor::having_t<void, Args...>>
-				{
-					static_assert(is_noop_t<Having>::value, "cannot call having()/dynamic_having() twice");
-					return { *this, vendor::having_t<void, Args...>{args...} };
-				}
-
-			template<typename... Args>
-				auto dynamic_having(Args... args)
-				-> _policies_update_t<vendor::no_having_t, vendor::having_t<_database_t, Args...>>
-				{
-					static_assert(is_noop_t<Having>::value, "cannot call having()/dynamic_having() twice");
-					static_assert(not std::is_same<_database_t, void>::value, "dynamic_having must not be called in a static statement");
-					return { *this, vendor::having_t<_database_t, Args...>{args...} };
-				}
-
-			template<typename... Args>
-				auto order_by(Args... args)
-				-> _policies_update_t<vendor::no_order_by_t, vendor::order_by_t<void, Args...>>
-				{
-					static_assert(is_noop_t<OrderBy>::value, "cannot call order_by()/dynamic_order_by() twice");
-					return { *this, vendor::order_by_t<void, Args...>{args...} };
-				}
-
-			template<typename... Args>
-				auto dynamic_order_by(Args... args)
-				-> _policies_update_t<vendor::no_order_by_t, vendor::order_by_t<_database_t, Args...>>
-				{
-					static_assert(is_noop_t<OrderBy>::value, "cannot call order_by()/dynamic_order_by() twice");
-					static_assert(not std::is_same<_database_t, void>::value, "dynamic_order_by must not be called in a static statement");
-					return { *this, vendor::order_by_t<_database_t, Args...>{args...} };
-				}
-
-			template<typename Arg>
-				auto limit(Arg arg)
-				-> _policies_update_t<vendor::no_limit_t, vendor::limit_t<typename vendor::wrap_operand<Arg>::type>>
-				{
-					static_assert(is_noop_t<Limit>::value, "cannot call limit()/dynamic_limit() twice");
-					return { *this, vendor::limit_t<typename vendor::wrap_operand<Arg>::type>{{arg}} };
-				}
-
-				auto dynamic_limit()
-				-> _policies_update_t<vendor::no_limit_t, vendor::dynamic_limit_t<_database_t>>
-				{
-					static_assert(is_noop_t<Limit>::value, "cannot call limit()/dynamic_limit() twice");
-					static_assert(not std::is_same<_database_t, void>::value, "dynamic_limit must not be called in a static statement");
-					return { *this, vendor::dynamic_limit_t<_database_t>{} };
-				}
-
-			template<typename Arg>
-				auto offset(Arg arg)
-				-> _policies_update_t<vendor::no_offset_t, vendor::offset_t<typename vendor::wrap_operand<Arg>::type>>
-				{
-					static_assert(is_noop_t<Offset>::value, "cannot call offset()/dynamic_offset() twice");
-					return { *this, vendor::offset_t<typename vendor::wrap_operand<Arg>::type>{{arg}} };
-				}
-
-				auto dynamic_offset()
-				-> _policies_update_t<vendor::no_offset_t, vendor::dynamic_offset_t<_database_t>>
-				{
-					static_assert(is_noop_t<Offset>::value, "cannot call offset()/dynamic_offset() twice");
-					static_assert(not std::is_same<_database_t, void>::value, "dynamic_offset must not be called in a static statement");
-					return { *this, vendor::dynamic_offset_t<_database_t>{} };
-				}
-
-			// value adding methods
-			template<typename... Args>
-				void add_flag(Args... args)
-				{
-					static_assert(is_select_flag_list_t<FlagList>::value, "cannot call add_flag() before dynamic_flags()");
-					static_assert(is_dynamic_t<FlagList>::value, "cannot call add_flag() before dynamic_flags()");
-					return _flag_list.add_flag(*this, args...);
-				}
-
-			template<typename... Args>
-				void add_column(Args... args)
-				{
-					static_assert(is_select_column_list_t<ColumnList>::value, "cannot call add_column() before dynamic_columns()");
-					static_assert(is_dynamic_t<ColumnList>::value, "cannot call add_column() before dynamic_columns()");
-					return _column_list.add_column(*this, args...);
-				}
-
-			template<typename... Args>
-				void add_from(Args... args)
-				{
-					static_assert(is_from_t<From>::value, "cannot call add_from() before dynamic_from()");
-					static_assert(is_dynamic_t<From>::value, "cannot call add_using() before dynamic_from()");
-					return _from.add_from(*this, args...);
-				}
-
-			template<typename... Args>
-				void add_where(Args... args)
-				{
-					static_assert(is_where_t<Where>::value, "cannot call add_where() before dynamic_where()");
-					static_assert(is_dynamic_t<Where>::value, "cannot call add_where() before dynamic_where()");
-					return _where.add_where(*this, args...);
-				}
-
-			template<typename... Args>
-				void add_group_by(Args... args)
-				{
-					static_assert(is_group_by_t<GroupBy>::value, "cannot call add_group_by() before dynamic_group_by()");
-					static_assert(is_dynamic_t<GroupBy>::value, "cannot call add_group_by() before dynamic_group_by()");
-					return _group_by.add_group_by(*this, args...);
-				}
-
-			template<typename... Args>
-				void add_having(Args... args)
-				{
-					static_assert(is_having_t<Having>::value, "cannot call add_having() before dynamic_having()");
-					static_assert(is_dynamic_t<Having>::value, "cannot call add_having() before dynamic_having()");
-					return _having.add_having(*this, args...);
-				}
-
-			template<typename... Args>
-				void add_order_by(Args... args)
-				{
-					static_assert(is_order_by_t<OrderBy>::value, "cannot call add_order_by() before dynamic_order_by()");
-					static_assert(is_dynamic_t<OrderBy>::value, "cannot call add_order_by() before dynamic_order_by()");
-					return _order_by.add_order_by(*this, args...);
-				}
-
-			template<typename Arg>
-				void set_limit(Arg arg)
-				{
-					static_assert(is_limit_t<Limit>::value, "cannot call add_limit() before dynamic_limit()");
-					static_assert(is_dynamic_t<Limit>::value, "cannot call add_limit() before dynamic_limit()");
-					return _limit.set_limit(arg);
-				}
-
-			template<typename Arg>
-				void set_offset(Arg arg)
-				{
-					static_assert(is_offset_t<Offset>::value, "cannot call add_offset() before dynamic_offset()");
-					static_assert(is_dynamic_t<Offset>::value, "cannot call add_offset() before dynamic_offset()");
-					return _offset.set_offset(arg);
-				}
 
 			// PseudoTable
 			template<typename AliasProvider>
@@ -406,46 +225,46 @@ namespace sqlpp
 			template<typename A>
 				struct is_table_subset_of_from
 				{
-					static constexpr bool value = ::sqlpp::detail::is_subset_of<typename A::_table_set, typename From::_table_set>::value;
+					static constexpr bool value = ::sqlpp::detail::is_subset_of<typename A::_table_set, typename _from_t::_table_set>::value;
 				};
 
 			// Execute
-			template<typename Db>
-				auto _run(Db& db) const
-				-> result_t<decltype(db.select(*this)), _result_row_t<Db>>
+			template<typename Database>
+				auto _run(Database& db) const
+				-> result_t<decltype(db.select(*this)), _result_row_t<Database>>
 				{
 #warning: need to check in add_xy method as well
 #warning: need add_wxy_without_table_check
 #warning: might want to add an .extra_tables() method to say which tables might also be used here, say via dynamic_from or because this is a subselect
-					static_assert(is_table_subset_of_from<ColumnList>::value, "selected columns require additional tables in from()");
-					static_assert(is_table_subset_of_from<Where>::value, "where() expression requires additional tables in from()");
-					static_assert(is_table_subset_of_from<GroupBy>::value, "group_by() expression requires additional tables in from()");
-					static_assert(is_table_subset_of_from<Having>::value, "having() expression requires additional tables in from()");
-					static_assert(is_table_subset_of_from<OrderBy>::value, "order_by() expression requires additional tables in from()");
-					static_assert(is_table_subset_of_from<Limit>::value, "limit() expression requires additional tables in from()");
-					static_assert(is_table_subset_of_from<Offset>::value, "offset() expression requires additional tables in from()");
+					static_assert(is_table_subset_of_from<_column_list_t>::value, "selected columns require additional tables in from()");
+					static_assert(is_table_subset_of_from<_where_t>::value, "where() expression requires additional tables in from()");
+					static_assert(is_table_subset_of_from<_group_by_t>::value, "group_by() expression requires additional tables in from()");
+					static_assert(is_table_subset_of_from<_having_t>::value, "having() expression requires additional tables in from()");
+					static_assert(is_table_subset_of_from<_order_by_t>::value, "order_by() expression requires additional tables in from()");
+					static_assert(is_table_subset_of_from<_limit_t>::value, "limit() expression requires additional tables in from()");
+					static_assert(is_table_subset_of_from<_offset_t>::value, "offset() expression requires additional tables in from()");
 					static_assert(_get_static_no_of_parameters() == 0, "cannot run select directly with parameters, use prepare instead");
 					return {db.select(*this), get_dynamic_names()};
 				}
 
 			// Prepare
-			template<typename Db>
-				auto _prepare(Db& db) const
-				-> prepared_select_t<Db, select_t>
+			template<typename Database>
+				auto _prepare(Database& db) const
+				-> prepared_select_t<Database, select_t>
 				{
 
 					return {{}, get_dynamic_names(), db.prepare_select(*this)};
 				}
 
-			FlagList _flag_list;
-			ColumnList _column_list;
-			From _from;
-			Where _where;
-			GroupBy _group_by;
-			Having _having;
-			OrderBy _order_by;
-			Limit _limit;
-			Offset _offset;
+			_flag_list_t _flag_list;
+			_column_list_t _column_list;
+			_from_t _from;
+			_where_t _where;
+			_group_by_t _group_by;
+			_having_t _having;
+			_order_by_t _order_by;
+			_limit_t _limit;
+			_offset_t _offset;
 		};
 
 	namespace vendor
@@ -474,17 +293,8 @@ namespace sqlpp
 			};
 	}
 
-	template<typename Database>
-		using blank_select_t = select_t<Database, 
-					vendor::no_select_flag_list_t, 
-					vendor::no_select_column_list_t, 
-					vendor::no_from_t,
-					vendor::no_where_t, 
-					vendor::no_group_by_t,
-					vendor::no_having_t,
-					vendor::no_order_by_t,
-					vendor::no_limit_t,
-					vendor::no_offset_t>;
+	template<typename Database, typename... Policies>
+		using make_select_t = typename detail::select_policies_t<Database, Policies...>::_statement_t;
 
 	namespace detail
 	{
@@ -494,29 +304,29 @@ namespace sqlpp
 			decltype(std::tuple_cat(as_tuple<Columns>::_(std::declval<Columns>())...))>;
 	}
 
-	select_t<void> select() // FIXME: These should be constexpr
+	make_select_t<void> select() // FIXME: These should be constexpr
 	{
-		return { select_t<void>() };
+		return { };
 	}
 
 	template<typename... Columns>
 		auto select(Columns... columns)
-		-> select_t<void, vendor::no_select_flag_list_t, detail::make_select_column_list_t<void, Columns...>>
+		-> make_select_t<void, vendor::no_select_flag_list_t, detail::make_select_column_list_t<void, Columns...>>
 		{
-			return { select_t<void>(), detail::make_select_column_list_t<void, Columns...>(std::tuple_cat(detail::as_tuple<Columns>::_(columns)...)) };
+			return { make_select_t<void>(), detail::make_select_column_list_t<void, Columns...>(std::tuple_cat(detail::as_tuple<Columns>::_(columns)...)) };
 		}
 
 	template<typename Database>
-		select_t<Database> dynamic_select(const Database&)
+		make_select_t<Database> dynamic_select(const Database&)
 		{
-			return { select_t<Database>() };
+			return { make_select_t<Database>() };
 		}
 
 	template<typename Database, typename... Columns>
 		auto dynamic_select(const Database&, Columns... columns)
-		-> select_t<Database, vendor::no_select_flag_list_t, detail::make_select_column_list_t<void, Columns...>>
+		-> make_select_t<Database, vendor::no_select_flag_list_t, detail::make_select_column_list_t<void, Columns...>>
 		{
-			return { select_t<Database>(), detail::make_select_column_list_t<void, Columns...>(std::tuple_cat(detail::as_tuple<Columns>::_(columns)...)) };
+			return { make_select_t<Database>(), detail::make_select_column_list_t<void, Columns...>(std::tuple_cat(detail::as_tuple<Columns>::_(columns)...)) };
 		}
 
 }

@@ -64,13 +64,30 @@ namespace sqlpp
 				from_t& operator=(from_t&&) = default;
 				~from_t() = default;
 
-				template<typename Select, typename Table>
-					void add_from(const Select&, Table table)
+				template<typename Policies>
+					struct _methods_t
 					{
-						static_assert(_is_dynamic::value, "add_from can only be called for dynamic_from");
-						static_assert(is_table_t<Table>::value, "from arguments require to be tables or joins");
-						_dynamic_tables.emplace_back(table);
-					}
+						template<typename Table>
+							void add_from(Table table)
+							{
+								static_assert(_is_dynamic::value, "add_from must not be called for static from()");
+								static_assert(is_table_t<Table>::value, "invalid table argument in add_from()");
+
+								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, _is_dynamic, is_table_t<Table>>;
+
+								_add_from_impl(table, ok()); // dispatch to prevent compile messages after the static_assert
+							}
+
+					private:
+						template<typename Table>
+							void _add_from_impl(Table table, const std::true_type&)
+							{
+								return static_cast<typename Policies::_statement_t*>(this)->_from._dynamic_tables.emplace_back(table);
+							}
+
+						template<typename Table>
+							void _add_from_impl(Table table, const std::false_type&);
+					};
 
 				std::tuple<Tables...> _tables;
 				vendor::interpretable_list_t<Database> _dynamic_tables;
@@ -79,6 +96,30 @@ namespace sqlpp
 		struct no_from_t
 		{
 			using _is_noop = std::true_type;
+			using _table_set = ::sqlpp::detail::type_set<>;
+
+			template<typename Policies>
+				struct _methods_t
+				{
+					using _database_t = typename Policies::_database_t;
+					template<typename T>
+					using _new_statement_t = typename Policies::template _new_statement_t<no_from_t, T>;
+
+					template<typename... Args>
+						auto from(Args... args)
+						-> _new_statement_t<from_t<void, Args...>>
+						{
+							return { *static_cast<typename Policies::_statement_t*>(this), from_t<void, Args...>{args...} };
+						}
+
+					template<typename... Args>
+						auto dynamic_from(Args... args)
+						-> _new_statement_t<from_t<_database_t, Args...>>
+						{
+							static_assert(not std::is_same<_database_t, void>::value, "dynamic_from must not be called in a static statement");
+							return { *static_cast<typename Policies::_statement_t*>(this), vendor::from_t<_database_t, Args...>{args...} };
+						}
+				};
 		};
 
 		// Interpreters

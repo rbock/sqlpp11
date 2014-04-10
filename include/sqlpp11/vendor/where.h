@@ -64,13 +64,30 @@ namespace sqlpp
 				where_t& operator=(where_t&&) = default;
 				~where_t() = default;
 
-				template<typename Statement, typename Expression>
-					void add_where(const Statement&, Expression expression)
+				template<typename Policies>
+					struct _methods_t
 					{
-						static_assert(_is_dynamic::value, "add_where can only be called for dynamic_where");
-						static_assert(is_expression_t<Expression>::value, "invalid expression argument in add_where()");
-						_dynamic_expressions.emplace_back(expression);
-					}
+						template<typename Expression>
+							void add_where(Expression expression)
+							{
+								static_assert(_is_dynamic::value, "add_where can only be called for dynamic_where");
+								static_assert(is_expression_t<Expression>::value, "invalid expression argument in add_where()");
+
+								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, _is_dynamic, is_expression_t<Expression>>;
+
+								_add_where_impl(expression, ok()); // dispatch to prevent compile messages after the static_assert
+							}
+
+					private:
+						template<typename Expression>
+							void _add_where_impl(Expression expression, const std::true_type&)
+							{
+								return static_cast<typename Policies::_statement_t*>(this)->_where._dynamic_expressions.emplace_back(expression);
+							}
+
+						template<typename Expression>
+							void _add_where_impl(Expression expression, const std::false_type&);
+					};
 
 				_parameter_tuple_t _expressions;
 				vendor::interpretable_list_t<Database> _dynamic_expressions;
@@ -93,6 +110,11 @@ namespace sqlpp
 				where_t& operator=(where_t&&) = default;
 				~where_t() = default;
 
+				template<typename Policies>
+					struct _methods_t
+					{
+					};
+
 				bool _condition;
 			};
 
@@ -100,6 +122,29 @@ namespace sqlpp
 		{
 			using _is_noop = std::true_type;
 			using _table_set = ::sqlpp::detail::type_set<>;
+
+			template<typename Policies>
+				struct _methods_t
+				{
+					using _database_t = typename Policies::_database_t;
+					template<typename T>
+					using _new_statement_t = typename Policies::template _new_statement_t<no_where_t, T>;
+
+					template<typename... Args>
+						auto where(Args... args)
+						-> _new_statement_t<where_t<void, Args...>>
+						{
+							return { *static_cast<typename Policies::_statement_t*>(this), where_t<void, Args...>{args...} };
+						}
+
+					template<typename... Args>
+						auto dynamic_where(Args... args)
+						-> _new_statement_t<where_t<_database_t, Args...>>
+						{
+							static_assert(not std::is_same<_database_t, void>::value, "dynamic_where must not be called in a static statement");
+							return { *static_cast<typename Policies::_statement_t*>(this), vendor::where_t<_database_t, Args...>{args...} };
+						}
+				};
 		};
 
 		// Interpreters

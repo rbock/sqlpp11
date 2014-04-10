@@ -76,6 +76,36 @@ namespace sqlpp
 						_dynamic_assignments.emplace_back(assignment);
 					}
 
+				template<typename Policies>
+					struct _methods_t
+					{
+						template<typename Assignment>
+							void add_set(Assignment assignment)
+							{
+								static_assert(_is_dynamic::value, "add_set must not be called for static from()");
+								static_assert(is_assignment_t<Assignment>::value, "invalid assignment argument in add_set()");
+								static_assert(sqlpp::detail::not_t<must_not_update_t, typename Assignment::_column_t>::value, "set() argument must not be updated");
+
+								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, 
+											_is_dynamic, 
+											is_assignment_t<Assignment>, 
+											sqlpp::detail::not_t<must_not_update_t, typename Assignment::_column_t>>;
+
+								_add_set_impl(assignment, ok()); // dispatch to prevent compile messages after the static_assert
+							}
+
+					private:
+						template<typename Assignment>
+							void _add_set_impl(Assignment assignment, const std::true_type&)
+							{
+								return static_cast<typename Policies::_statement_t*>(this)->_update_list._dynamic_assignments.emplace_back(assignment);
+							}
+
+						template<typename Assignment>
+							void _add_set_impl(Assignment assignment, const std::false_type&);
+					};
+
+
 				_parameter_tuple_t _assignments;
 				typename vendor::interpretable_list_t<Database> _dynamic_assignments;
 			};
@@ -84,6 +114,29 @@ namespace sqlpp
 		{
 			using _is_noop = std::true_type;
 			using _table_set = ::sqlpp::detail::type_set<>;
+
+			template<typename Policies>
+				struct _methods_t
+				{
+					using _database_t = typename Policies::_database_t;
+					template<typename T>
+					using _new_statement_t = typename Policies::template _new_statement_t<no_update_list_t, T>;
+
+					template<typename... Args>
+						auto set(Args... args)
+						-> _new_statement_t<update_list_t<void, Args...>>
+						{
+							return { *static_cast<typename Policies::_statement_t*>(this), update_list_t<void, Args...>{args...} };
+						}
+
+					template<typename... Args>
+						auto dynamic_set(Args... args)
+						-> _new_statement_t<update_list_t<_database_t, Args...>>
+						{
+							static_assert(not std::is_same<_database_t, void>::value, "dynamic_set must not be called in a static statement");
+							return { *static_cast<typename Policies::_statement_t*>(this), vendor::update_list_t<_database_t, Args...>{args...} };
+						}
+				};
 		};
 
 		// Interpreters
