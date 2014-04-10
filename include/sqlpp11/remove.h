@@ -73,7 +73,6 @@ namespace sqlpp
 
 				template<typename Needle, typename Replacement>
 					using _new_statement_t = typename _policies_update_t<Needle, Replacement, Table, Using, Where>::type;
-
 			};
 	}
 
