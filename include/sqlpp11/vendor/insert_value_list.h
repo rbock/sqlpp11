@@ -44,6 +44,10 @@ namespace sqlpp
 		{
 			using _table_set = ::sqlpp::detail::type_set<>;
 			using _is_dynamic = std::false_type;
+
+			template<typename Policies>
+				struct _methods_t
+				{};
 		}; 
 
 		template<typename Database, typename... Assignments>
@@ -96,6 +100,43 @@ namespace sqlpp
 						_dynamic_values.emplace_back(assignment._rhs);
 					}
 
+				template<typename Policies>
+					struct _methods_t
+					{
+						template<typename Assignment>
+							void add_set(Assignment assignment)
+							{
+								static_assert(_is_dynamic::value, "add_set must not be called for static from()");
+								static_assert(is_assignment_t<Assignment>::value, "add_set() arguments require to be assigments");
+								static_assert(not must_not_insert_t<Assignment>::value, "add_set() argument must not be used in insert");
+								using _column_table_set = typename Assignment::_column_t::_table_set;
+								using _value_table_set = typename Assignment::value_type::_table_set;
+								static_assert(::sqlpp::detail::is_subset_of<_value_table_set, typename Policies::_table_set>::value, "add_set() contains a column from a foreign table");
+								static_assert(::sqlpp::detail::is_subset_of<_column_table_set, typename Policies::_table_set>::value, "add_set() contains a value from a foreign table");
+
+								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, 
+											_is_dynamic, 
+											is_assignment_t<Assignment>, 
+											::sqlpp::detail::not_t<must_not_insert_t, typename Assignment::_column_t>,
+											::sqlpp::detail::is_subset_of<_value_table_set, typename Policies::_table_set>,
+											::sqlpp::detail::is_subset_of<_column_table_set, typename Policies::_table_set>>;
+
+								_add_set_impl(assignment, ok()); // dispatch to prevent compile messages after the static_assert
+							}
+
+					private:
+						template<typename Assignment>
+							void _add_set_impl(Assignment assignment, const std::true_type&)
+							{
+								static_cast<typename Policies::_statement_t*>(this)->_insert_value_list._dynamic_columns.emplace_back(simple_column_t<typename Assignment::_column_t>{assignment._lhs});
+								static_cast<typename Policies::_statement_t*>(this)->_insert_value_list._dynamic_values.emplace_back(assignment._rhs);
+							}
+
+						template<typename Assignment>
+							void _add_set_impl(Assignment assignment, const std::false_type&);
+					};
+
+
 
 				std::tuple<simple_column_t<typename Assignments::_column_t>...> _columns;
 				std::tuple<typename Assignments::value_type...> _values;
@@ -133,15 +174,34 @@ namespace sqlpp
 				column_list_t& operator=(column_list_t&&) = default;
 				~column_list_t() = default;
 
-				template<typename... Assignments>
-				void add_values(Assignments... assignments)
-				{
-					static_assert(::sqlpp::detail::all_t<is_assignment_t, Assignments...>::value, "add_values() arguments have to be assignments");
-					using _arg_value_tuple = std::tuple<vendor::insert_value_t<typename Assignments::_column_t>...>;
-					using _args_correct = std::is_same<_arg_value_tuple, _value_tuple_t>;
-					static_assert(_args_correct::value, "add_values() arguments do not match columns() arguments");
-					add_values_impl(_args_correct{}, assignments...); // dispatch to prevent error messages due to incorrect arguments
-				}
+				template<typename Policies>
+					struct _methods_t
+					{
+						template<typename... Assignments>
+							void add_values(Assignments... assignments)
+							{
+								static_assert(::sqlpp::detail::all_t<is_assignment_t, Assignments...>::value, "add_values() arguments have to be assignments");
+								using _arg_value_tuple = std::tuple<vendor::insert_value_t<typename Assignments::_column_t>...>;
+								using _args_correct = std::is_same<_arg_value_tuple, _value_tuple_t>;
+								static_assert(_args_correct::value, "add_values() arguments do not match columns() arguments");
+
+								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, 
+											::sqlpp::detail::all_t<is_assignment_t, Assignments...>, 
+											_args_correct>;
+
+								_add_values_impl(ok(), assignments...); // dispatch to prevent compile messages after the static_assert
+							}
+
+					private:
+						template<typename... Assignments>
+							void _add_values_impl(const std::true_type&, Assignments... assignments)
+							{
+								return static_cast<typename Policies::_statement_t*>(this)->_insert_value_list._insert_values.emplace_back(vendor::insert_value_t<typename Assignments::_column_t>{assignments}...);
+							}
+
+						template<typename... Assignments>
+							void _add_values_impl(const std::false_type&, Assignments... assignments);
+					};
 
 				bool empty() const
 				{
@@ -151,22 +211,48 @@ namespace sqlpp
 				std::tuple<simple_column_t<Columns>...> _columns;
 				std::vector<_value_tuple_t> _insert_values;
 
-			private:
-				template<typename... Assignments>
-				void add_values_impl(const std::true_type&, Assignments... assignments)
-				{
-					_insert_values.emplace_back(vendor::insert_value_t<typename Assignments::_column_t>{assignments}...);
-				}
-
-				template<typename... Assignments>
-				void add_values_impl(const std::false_type&, Assignments... assignments);
-
 			};
 
 		struct no_insert_value_list_t
 		{
 			using _is_noop = std::true_type;
 			using _table_set = ::sqlpp::detail::type_set<>;
+
+			template<typename Policies>
+				struct _methods_t
+				{
+					using _database_t = typename Policies::_database_t;
+					template<typename T>
+					using _new_statement_t = typename Policies::template _new_statement_t<no_insert_value_list_t, T>;
+
+						auto default_values()
+						-> _new_statement_t<insert_default_values_t>
+						{
+							return { *static_cast<typename Policies::_statement_t*>(this), insert_default_values_t{} };
+						}
+
+					template<typename... Args>
+						auto columns(Args... args)
+						-> _new_statement_t<column_list_t<Args...>>
+						{
+							return { *static_cast<typename Policies::_statement_t*>(this), column_list_t<Args...>{args...} };
+						}
+
+					template<typename... Args>
+						auto set(Args... args)
+						-> _new_statement_t<insert_list_t<void, Args...>>
+						{
+							return { *static_cast<typename Policies::_statement_t*>(this), insert_list_t<void, Args...>{args...} };
+						}
+
+					template<typename... Args>
+						auto dynamic_set(Args... args)
+						-> _new_statement_t<insert_list_t<_database_t, Args...>>
+						{
+							static_assert(not std::is_same<_database_t, void>::value, "dynamic_set must not be called in a static statement");
+							return { *static_cast<typename Policies::_statement_t*>(this), vendor::insert_list_t<_database_t, Args...>{args...} };
+						}
+				};
 		};
 
 		// Interpreters
