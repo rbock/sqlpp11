@@ -66,13 +66,13 @@ namespace sqlpp
 				{};
 
 				template<typename Needle, typename Replacement, typename... Policies>
-					struct _policies_update_impl
+					struct _policies_update_t
 					{
 						using type =  remove_t<Db, vendor::policy_update_t<Policies, Needle, Replacement>...>;
 					};
 
 				template<typename Needle, typename Replacement>
-					using _policies_update_t = typename _policies_update_impl<Needle, Replacement, Table, Using, Where>::type;
+					using _new_statement_t = typename _policies_update_t<Needle, Replacement, Table, Using, Where>::type;
 
 			};
 	}

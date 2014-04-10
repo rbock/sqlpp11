@@ -53,13 +53,13 @@ namespace sqlpp
 			using _table_set = typename Table::_table_set;
 
 			template<typename Needle, typename Replacement, typename... Policies>
-				struct _policies_update_impl
+				struct _policies_update_t
 				{
 					using type =  insert_t<Database, vendor::policy_update_t<Policies, Needle, Replacement>...>;
 				};
 
 			template<typename Needle, typename Replacement>
-				using _policies_update_t = typename _policies_update_impl<Needle, Replacement, Table, InsertValueList>::type;
+				using _new_statement_t = typename _policies_update_t<Needle, Replacement, Table, InsertValueList>::type;
 
 			using _parameter_tuple_t = std::tuple<Table, InsertValueList>;
 			using _parameter_list_t = typename make_parameter_list_t<insert_t>::type;
@@ -82,7 +82,7 @@ namespace sqlpp
 
 			// type update functions
 			auto default_values()
-				-> _policies_update_t<vendor::no_insert_value_list_t, vendor::insert_default_values_t>
+				-> _new_statement_t<vendor::no_insert_value_list_t, vendor::insert_default_values_t>
 				{
 					static_assert(is_noop_t<InsertValueList>::value, "cannot combine default_values() with other methods");
 					return { *this, vendor::insert_default_values_t{} };
@@ -90,7 +90,7 @@ namespace sqlpp
 
 			template<typename... Args>
 				auto columns(Args... args)
-				-> _policies_update_t<vendor::no_insert_value_list_t, vendor::column_list_t<Args...>>
+				-> _new_statement_t<vendor::no_insert_value_list_t, vendor::column_list_t<Args...>>
 				{
 					static_assert(is_noop_t<InsertValueList>::value, "cannot combine columns() with other methods");
 					return { *this, vendor::column_list_t<Args...>{args...} };
@@ -98,7 +98,7 @@ namespace sqlpp
 
 			template<typename... Args>
 				auto set(Args... args)
-				-> _policies_update_t<vendor::no_insert_value_list_t, vendor::insert_list_t<void, Args...>>
+				-> _new_statement_t<vendor::no_insert_value_list_t, vendor::insert_list_t<void, Args...>>
 				{
 					static_assert(is_noop_t<InsertValueList>::value, "cannot combine set() with other methods");
 					return { *this, vendor::insert_list_t<void, Args...>{args...} };
@@ -106,7 +106,7 @@ namespace sqlpp
 
 			template<typename... Args>
 				auto dynamic_set(Args... args)
-				-> _policies_update_t<vendor::no_insert_value_list_t, vendor::insert_list_t<_database_t, Args...>>
+				-> _new_statement_t<vendor::no_insert_value_list_t, vendor::insert_list_t<_database_t, Args...>>
 				{
 					static_assert(is_noop_t<InsertValueList>::value, "cannot combine dynamic_set() with other methods");
 					static_assert(_is_dynamic::value, "dynamic_set must not be called in a static statement");

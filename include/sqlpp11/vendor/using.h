@@ -101,18 +101,18 @@ namespace sqlpp
 				{
 					using _database_t = typename Policies::_database_t;
 					template<typename T>
-					using _new_select_t = typename Policies::template _policies_update_t<no_using_t, T>;
+					using _new_statement_t = typename Policies::template _new_statement_t<no_using_t, T>;
 
 					template<typename... Args>
 						auto using_(Args... args)
-						-> _new_select_t<using_t<void, Args...>>
+						-> _new_statement_t<using_t<void, Args...>>
 						{
 							return { *static_cast<typename Policies::_statement_t*>(this), using_t<void, Args...>{args...} };
 						}
 
 					template<typename... Args>
 						auto dynamic_using(Args... args)
-						-> _new_select_t<using_t<_database_t, Args...>>
+						-> _new_statement_t<using_t<_database_t, Args...>>
 						{
 							static_assert(not std::is_same<_database_t, void>::value, "dynamic_using must not be called in a static statement");
 							return { *static_cast<typename Policies::_statement_t*>(this), vendor::using_t<_database_t, Args...>{args...} };

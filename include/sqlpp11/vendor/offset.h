@@ -112,17 +112,17 @@ namespace sqlpp
 				{
 					using _database_t = typename Policies::_database_t;
 					template<typename T>
-					using _new_select_t = typename Policies::template _policies_update_t<no_offset_t, T>;
+					using _new_statement_t = typename Policies::template _new_statement_t<no_offset_t, T>;
 
 					template<typename Arg>
 						auto offset(Arg arg)
-						-> _new_select_t<offset_t<typename wrap_operand<Arg>::type>>
+						-> _new_statement_t<offset_t<typename wrap_operand<Arg>::type>>
 						{
 							return { *static_cast<typename Policies::_statement_t*>(this), offset_t<typename wrap_operand<Arg>::type>{{arg}} };
 						}
 
 					auto dynamic_offset()
-						-> _new_select_t<dynamic_offset_t<_database_t>>
+						-> _new_statement_t<dynamic_offset_t<_database_t>>
 						{
 							static_assert(not std::is_same<_database_t, void>::value, "dynamic_offset must not be called in a static statement");
 							return { *static_cast<typename Policies::_statement_t*>(this), dynamic_offset_t<_database_t>{} };

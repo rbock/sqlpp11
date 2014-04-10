@@ -113,17 +113,17 @@ namespace sqlpp
 				{
 					using _database_t = typename Policies::_database_t;
 					template<typename T>
-					using _new_select_t = typename Policies::template _policies_update_t<no_limit_t, T>;
+					using _new_statement_t = typename Policies::template _new_statement_t<no_limit_t, T>;
 
 					template<typename Arg>
 						auto limit(Arg arg)
-						-> _new_select_t<limit_t<typename wrap_operand<Arg>::type>>
+						-> _new_statement_t<limit_t<typename wrap_operand<Arg>::type>>
 						{
 							return { *static_cast<typename Policies::_statement_t*>(this), limit_t<typename wrap_operand<Arg>::type>{{arg}} };
 						}
 
 					auto dynamic_limit()
-						-> _new_select_t<dynamic_limit_t<_database_t>>
+						-> _new_statement_t<dynamic_limit_t<_database_t>>
 						{
 							static_assert(not std::is_same<_database_t, void>::value, "dynamic_limit must not be called in a static statement");
 							return { *static_cast<typename Policies::_statement_t*>(this), dynamic_limit_t<_database_t>{} };

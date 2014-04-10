@@ -97,14 +97,14 @@ namespace sqlpp
 				{};
 
 				template<typename Needle, typename Replacement, typename... Policies>
-					struct _policies_update_impl
+					struct _policies_update_t
 					{
 						static_assert(detail::is_element_of<Needle, make_type_set_t<Policies...>>::value, "policies update for non-policy class detected");
 						using type =  select_t<Db, vendor::policy_update_t<Policies, Needle, Replacement>...>;
 					};
 
 				template<typename Needle, typename Replacement>
-					using _policies_update_t = typename _policies_update_impl<Needle, Replacement, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>::type;
+					using _new_statement_t = typename _policies_update_t<Needle, Replacement, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>::type;
 
 				static_assert(is_noop_t<ColumnList>::value or sqlpp::is_select_column_list_t<ColumnList>::value, "column list of select is neither naught nor a valid column list");
 				static_assert(is_noop_t<From>::value or sqlpp::is_from_t<From>::value, "from() part of select is neither naught nor a valid from()");

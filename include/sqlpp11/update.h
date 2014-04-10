@@ -65,13 +65,13 @@ namespace sqlpp
 			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 
 			template<typename Needle, typename Replacement, typename... Policies>
-				struct _policies_update_impl
+				struct _policies_update_t
 				{
 					using type =  update_t<Database, vendor::policy_update_t<Policies, Needle, Replacement>...>;
 				};
 
 			template<typename Needle, typename Replacement>
-				using _policies_update_t = typename _policies_update_impl<Needle, Replacement, Table, UpdateList, Where>::type;
+				using _new_statement_t = typename _policies_update_t<Needle, Replacement, Table, UpdateList, Where>::type;
 
 			using _parameter_tuple_t = std::tuple<Table, UpdateList, Where>;
 			using _parameter_list_t = typename make_parameter_list_t<update_t>::type;
@@ -96,7 +96,7 @@ namespace sqlpp
 			// type update functions
 			template<typename... Args>
 				auto set(Args... args)
-				-> _policies_update_t<vendor::no_update_list_t, vendor::update_list_t<void, Args...>>
+				-> _new_statement_t<vendor::no_update_list_t, vendor::update_list_t<void, Args...>>
 				{
 					static_assert(is_noop_t<UpdateList>::value, "cannot call set()/dynamic_set() twice");
 					return { *this, vendor::update_list_t<void, Args...>{args...} };
@@ -104,7 +104,7 @@ namespace sqlpp
 
 			template<typename... Args>
 				auto dynamic_set(Args... args)
-				-> _policies_update_t<vendor::no_update_list_t, vendor::update_list_t<_database_t, Args...>>
+				-> _new_statement_t<vendor::no_update_list_t, vendor::update_list_t<_database_t, Args...>>
 				{
 					static_assert(is_noop_t<UpdateList>::value, "cannot call set()/dynamic_set() twice");
 					static_assert(_is_dynamic::value, "dynamic_set must not be called in a static statement");
@@ -113,7 +113,7 @@ namespace sqlpp
 
 			template<typename... Args>
 				auto where(Args... args)
-				-> _policies_update_t<vendor::no_where_t, vendor::where_t<void, Args...>>
+				-> _new_statement_t<vendor::no_where_t, vendor::where_t<void, Args...>>
 				{
 					static_assert(is_noop_t<Where>::value, "cannot call where()/dynamic_where() twice");
 					return { *this, vendor::where_t<void, Args...>{args...} };
@@ -121,7 +121,7 @@ namespace sqlpp
 
 			template<typename... Args>
 				auto dynamic_where(Args... args)
-				-> _policies_update_t<vendor::no_where_t, vendor::where_t<_database_t, Args...>>
+				-> _new_statement_t<vendor::no_where_t, vendor::where_t<_database_t, Args...>>
 				{
 					static_assert(is_noop_t<Where>::value, "cannot call where()/dynamic_where() twice");
 					static_assert(not std::is_same<_database_t, void>::value, "dynamic_where must not be called in a static statement");
