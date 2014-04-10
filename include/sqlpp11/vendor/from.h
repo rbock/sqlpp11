@@ -70,10 +70,23 @@ namespace sqlpp
 						template<typename Table>
 							void add_from(Table table)
 							{
-								static_assert(is_table_t<Table>::value, "invalid expression argument in add_from()");
-#warning: Need to dispatch to actual add method to prevent error messages from being generated
+								static_assert(_is_dynamic::value, "add_from must not be called for static from()");
+								static_assert(is_table_t<Table>::value, "invalid table argument in add_from()");
+
+								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, _is_dynamic, is_table_t<Table>>;
+
+								_add_from_impl(table, ok()); // dispatch to prevent compile messages after the static_assert
+							}
+
+					private:
+						template<typename Table>
+							void _add_from_impl(Table table, const std::true_type&)
+							{
 								return static_cast<typename Policies::_statement_t*>(this)->_from._dynamic_tables.emplace_back(table);
 							}
+
+						template<typename Table>
+							void _add_from_impl(Table table, const std::false_type&);
 					};
 
 				std::tuple<Tables...> _tables;

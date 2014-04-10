@@ -99,7 +99,7 @@ namespace sqlpp
 				template<typename Needle, typename Replacement, typename... Policies>
 					struct _policies_update_impl
 					{
-#warning: Need to make sure that Needle is in Policies!
+						static_assert(detail::is_element_of<Needle, make_type_set_t<Policies...>>::value, "policies update for non-policy class detected");
 						using type =  select_t<Db, vendor::policy_update_t<Policies, Needle, Replacement>...>;
 					};
 

@@ -73,9 +73,21 @@ namespace sqlpp
 							{
 								static_assert(_is_dynamic::value, "add_group_by must not be called for static group_by");
 								static_assert(is_expression_t<Expression>::value, "invalid expression argument in add_group_by()");
-#warning: Need to dispatch to actual add method to prevent error messages from being generated
+
+								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, _is_dynamic, is_expression_t<Expression>>;
+
+								_add_group_by_impl(expression, ok()); // dispatch to prevent compile messages after the static_assert
+							}
+
+					private:
+						template<typename Expression>
+							void _add_group_by_impl(Expression expression, const std::true_type&)
+							{
 								return static_cast<typename Policies::_statement_t*>(this)->_group_by._dynamic_expressions.emplace_back(expression);
 							}
+
+						template<typename Expression>
+							void _add_group_by_impl(Expression expression, const std::false_type&);
 					};
 
 				const group_by_t& _group_by() const { return *this; }

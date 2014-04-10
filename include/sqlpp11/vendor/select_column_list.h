@@ -194,9 +194,21 @@ namespace sqlpp
 							{
 								static_assert(_is_dynamic::value, "add_column can only be called for dynamic_column");
 								static_assert(is_named_expression_t<NamedExpression>::value, "invalid named expression argument in add_column()");
-#warning: Need to dispatch to actual add method to prevent error messages from being generated
+
+								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, _is_dynamic, is_named_expression_t<NamedExpression>>;
+
+								_add_column_impl(namedExpression, ok()); // dispatch to prevent compile messages after the static_assert
+							}
+
+					private:
+						template<typename NamedExpression>
+							void _add_column_impl(NamedExpression namedExpression, const std::true_type&)
+							{
 								return static_cast<typename Policies::_statement_t*>(this)->_column_list._dynamic_columns.emplace_back(namedExpression);
 							}
+
+						template<typename NamedExpression>
+							void _add_column_impl(NamedExpression namedExpression, const std::false_type&);
 					};
 
 

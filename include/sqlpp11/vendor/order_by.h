@@ -72,9 +72,21 @@ namespace sqlpp
 							{
 								static_assert(_is_dynamic::value, "add_order_by must not be called for static order_by");
 								static_assert(is_sort_order_t<Expression>::value, "invalid expression argument in add_order_by()");
-#warning: Need to dispatch to actual add method to prevent error messages from being generated
+
+								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, _is_dynamic, is_sort_order_t<Expression>>;
+
+								_add_order_by_impl(expression, ok()); // dispatch to prevent compile messages after the static_assert
+							}
+
+					private:
+						template<typename Expression>
+							void _add_order_by_impl(Expression expression, const std::true_type&)
+							{
 								return static_cast<typename Policies::_statement_t*>(this)->_order_by._dynamic_expressions.emplace_back(expression);
 							}
+
+						template<typename Expression>
+							void _add_order_by_impl(Expression expression, const std::false_type&);
 					};
 
 				_parameter_tuple_t _expressions;

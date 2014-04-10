@@ -69,9 +69,21 @@ namespace sqlpp
 							{
 								static_assert(_is_dynamic::value, "add_flag must not be called for static select flags");
 								static_assert(is_select_flag_t<Flag>::value, "invalid select flag argument in add_flag()");
-#warning: Need to dispatch to actual add method to prevent error messages from being generated
+
+								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, _is_dynamic, is_select_flag_t<Flag>>;
+
+								_add_flag_impl(flag, ok()); // dispatch to prevent compile messages after the static_assert
+							}
+
+					private:
+						template<typename Flag>
+							void _add_flag_impl(Flag flag, const std::true_type&)
+							{
 								return static_cast<typename Policies::_statement_t*>(this)->_flag_list._dynamic_flags.emplace_back(flag);
 							}
+
+						template<typename Flag>
+							void _add_flag_impl(Flag flag, const std::false_type&);
 					};
 
 				const select_flag_list_t& _flag_list() const { return *this; }
