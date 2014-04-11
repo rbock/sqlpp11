@@ -45,6 +45,7 @@ namespace sqlpp
 				using _is_order_by = std::true_type;
 				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 				using _parameter_tuple_t = std::tuple<Expressions...>;
+				using _parameter_list_t = typename make_parameter_list_t<_parameter_tuple_t>::type;
 
 				using _table_set = typename ::sqlpp::detail::make_joined_set<typename Expressions::_table_set...>::type;
 
