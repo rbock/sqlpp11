@@ -49,7 +49,6 @@ int main()
 	test::TabFoo f; 
 	test::TabBar t;
 
-	/*
 	for (const auto& row : db(select(all_of(t)).from(t).where(true)))
 	{
 		int64_t a = row.alpha;
@@ -68,7 +67,6 @@ int main()
 		const std::string b = row.tabBar.beta;
 		const bool g = row.gamma;
 	}
-	*/
 
 	auto s = dynamic_select(db).dynamic_columns(t.alpha).dynamic_flags().dynamic_from(t).dynamic_where().dynamic_group_by(t.alpha).dynamic_order_by().dynamic_having(t.gamma).dynamic_limit().dynamic_offset();
 	s.add_flag(sqlpp::distinct);

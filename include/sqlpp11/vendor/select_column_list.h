@@ -89,10 +89,6 @@ namespace sqlpp
 				};
 				_names_t _dynamic_expression_names;
 
-#warning: Put an assert here or remove implementation to make sure this never aktually gets called
-				template<typename T>
-					void emplace_back(const T&) {}
-
 				static constexpr bool empty()
 				{
 					return true;

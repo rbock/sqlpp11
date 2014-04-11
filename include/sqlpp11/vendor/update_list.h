@@ -68,14 +68,6 @@ namespace sqlpp
 				update_list_t& operator=(update_list_t&&) = default;
 				~update_list_t() = default;
 
-				template<typename Update, typename Assignment>
-					void add_set(const Update&, Assignment assignment)
-					{
-						static_assert(is_assignment_t<Assignment>::value, "set() arguments require to be assigments");
-						static_assert(not must_not_update_t<typename Assignment::_column_t>::value, "set() argument must not be updated");
-						_dynamic_assignments.emplace_back(assignment);
-					}
-
 				template<typename Policies>
 					struct _methods_t
 					{

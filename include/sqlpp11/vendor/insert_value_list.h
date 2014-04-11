@@ -87,19 +87,6 @@ namespace sqlpp
 				insert_list_t& operator=(insert_list_t&&) = default;
 				~insert_list_t() = default;
 
-				template<typename Insert, typename Assignment>
-					void add_set(const Insert&, Assignment assignment)
-					{
-						static_assert(is_assignment_t<Assignment>::value, "add_set() arguments require to be assigments");
-						static_assert(not must_not_insert_t<Assignment>::value, "add_set() argument must not be used in insert");
-						using _column_table_set = typename Assignment::_column_t::_table_set;
-						using _value_table_set = typename Assignment::value_type::_table_set;
-						static_assert(::sqlpp::detail::is_subset_of<_value_table_set, typename Insert::_table_set>::value, "add_set() contains a column from a foreign table");
-						static_assert(::sqlpp::detail::is_subset_of<_column_table_set, typename Insert::_table_set>::value, "add_set() contains a value from a foreign table");
-						_dynamic_columns.emplace_back(simple_column_t<typename Assignment::_column_t>{assignment._lhs});
-						_dynamic_values.emplace_back(assignment._rhs);
-					}
-
 				template<typename Policies>
 					struct _methods_t
 					{

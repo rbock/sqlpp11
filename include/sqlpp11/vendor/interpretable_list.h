@@ -60,9 +60,6 @@ namespace sqlpp
 		template<>
 			struct interpretable_list_t<void>
 			{
-				template<typename T>
-					void emplace_back(const T&) {}
-
 				static constexpr std::size_t size()
 				{
 					return 0;
