@@ -197,6 +197,23 @@ namespace sqlpp
 		template<typename... Sets>
 			using make_joined_set_t = typename make_joined_set<Sets...>::type;
 
+		template<typename Minuend, typename Subtrahend>
+			struct make_difference_set
+			{
+				static_assert(::sqlpp::vendor::wrong_t<Minuend, Subtrahend>::value, "invalid argument for difference set");
+			};
+
+		template<typename... Minuends, typename... Subtrahends>
+			struct make_difference_set<type_set<Minuends...>, type_set<Subtrahends...>>
+			{
+				template<typename E>
+				using is_subtrahend = is_element_of<E, type_set<Subtrahends...>>;
+				using type = typename make_type_set_if_not<is_subtrahend, Minuends...>::type;
+			};
+
+		template<typename Minuend, typename Subtrahend>
+			using make_difference_set_t = typename make_difference_set<Minuend, Subtrahend>::type;
+
 	}
 }
 

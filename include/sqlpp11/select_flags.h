@@ -41,6 +41,7 @@ namespace sqlpp
 		{ 
 			using _is_select_flag = std::true_type; 
 		};
+		using _table_set = detail::type_set<>;
 	};
 	static constexpr all_t all = {};
 
@@ -63,6 +64,7 @@ namespace sqlpp
 		{ 
 			using _is_select_flag = std::true_type; 
 		};
+		using _table_set = detail::type_set<>;
 	};
 	static constexpr distinct_t distinct = {};
 
@@ -85,6 +87,7 @@ namespace sqlpp
 		{ 
 			using _is_select_flag = std::true_type; 
 		};
+		using _table_set = detail::type_set<>;
 	};
 	static constexpr straight_join_t straight_join = {};
 

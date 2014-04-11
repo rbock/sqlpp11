@@ -140,7 +140,18 @@ namespace sqlpp
 
 			using _parameter_tuple_t = std::tuple<Policies...>;
 			using _parameter_list_t = typename make_parameter_list_t<select_t>::type;
-			using _table_set = ::sqlpp::detail::type_set<>;
+			using _table_set = detail::make_difference_set_t<
+				typename _from_t::_table_set,
+				detail::make_joined_set_t<
+					typename _flag_list_t::_table_set,
+					typename _column_list_t::_table_set,
+					typename _where_t::_table_set,
+					typename _group_by_t::_table_set,
+					typename _having_t::_table_set,
+					typename _order_by_t::_table_set,
+					typename _limit_t::_table_set,
+					typename _offset_t::_table_set
+						>>;
 			
 			template<typename Database>
 				using _result_row_t = typename _column_list_t::template _result_row_t<Database>;
@@ -210,18 +221,6 @@ namespace sqlpp
 				return _column_list_t::static_size() + get_dynamic_names().size();
 			}
 
-					/*
-					static_assert(column_list::_table_set::template is_subset_t<_from_t::_table_set>::value
-					static_assert(detail::is_subset_of<column_list::_table_set, _from_t::_table_set>::value
-							subset_of_t sollte ein eigenes template sein, das macht so etwas wie obiges sicher einfacher lesbar
-							also: use any and all instead of and_t and or_t
-							*/
-					//static_assert(is_where_t<Where>::value, "cannot select select without having a where condition, use .where(true) to remove all rows");
-					//static_assert(not vendor::is_noop<ColumnList>::value, "cannot run select without having selected anything");
-					//static_assert(is_from_t<From>::value, "cannot run select without a from()");
-					//static_assert(is_where_t<Where>::value, "cannot run select without having a where condition, use .where(true) to select all rows");
-					// FIXME: Check for missing aliases (if references are used)
-					// FIXME: Check for missing tables, well, actually, check for missing tables at the where(), order_by(), etc.
 			template<typename A>
 				struct is_table_subset_of_from
 				{
@@ -244,6 +243,7 @@ namespace sqlpp
 					static_assert(is_table_subset_of_from<_limit_t>::value, "limit() expression requires additional tables in from()");
 					static_assert(is_table_subset_of_from<_offset_t>::value, "offset() expression requires additional tables in from()");
 					static_assert(_get_static_no_of_parameters() == 0, "cannot run select directly with parameters, use prepare instead");
+
 					return {db.select(*this), get_dynamic_names()};
 				}
 

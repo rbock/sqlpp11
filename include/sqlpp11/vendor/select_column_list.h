@@ -216,6 +216,7 @@ namespace sqlpp
 		struct no_select_column_list_t
 		{
 			using _is_noop = std::true_type;
+			using _table_set = ::sqlpp::detail::type_set<>;
 			template<typename Db>
 				using _result_row_t = ::sqlpp::result_row_t<Db>;
 			using _dynamic_names_t = typename dynamic_select_column_list<void>::_names_t;
