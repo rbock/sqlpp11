@@ -109,9 +109,9 @@ namespace sqlpp
 				static_assert(is_noop_t<ColumnList>::value or sqlpp::is_select_column_list_t<ColumnList>::value, "column list of select is neither naught nor a valid column list");
 				static_assert(is_noop_t<From>::value or sqlpp::is_from_t<From>::value, "from() part of select is neither naught nor a valid from()");
 				using _value_type = typename std::conditional<
-					sqlpp::is_from_t<From>::value,
+					_column_list_t::_table_set::size::value ? sqlpp::is_from_t<From>::value : true,
 					typename ColumnList::_value_type,
-					no_value_t // If there is no from, the select is not complete (this logic is a bit simple, but better than nothing)
+					no_value_t // If something is selected that requires a table, then we require a from for this to be a value
 						>::type;
 			};
 	}
@@ -142,7 +142,7 @@ namespace sqlpp
 			using _parameter_list_t = typename make_parameter_list_t<select_t>::type;
 			using _table_set = detail::make_difference_set_t<
 				typename _from_t::_table_set,
-				detail::make_joined_set_t<
+				detail::make_joined_set_t< // Hint: extra_tables are not used here because they are just helpers for dynamic .add_*() methods
 					typename _flag_list_t::_table_set,
 					typename _column_list_t::_table_set,
 					typename _where_t::_table_set,
@@ -235,6 +235,7 @@ namespace sqlpp
 #warning: need to check in add_xy method as well
 #warning: need add_wxy_without_table_check
 #warning: might want to add an .extra_tables() method to say which tables might also be used here, say via dynamic_from or because this is a subselect
+					static_assert(is_table_subset_of_from<_flag_list_t>::value, "flags require additional tables in from()");
 					static_assert(is_table_subset_of_from<_column_list_t>::value, "selected columns require additional tables in from()");
 					static_assert(is_table_subset_of_from<_where_t>::value, "where() expression requires additional tables in from()");
 					static_assert(is_table_subset_of_from<_group_by_t>::value, "group_by() expression requires additional tables in from()");
@@ -242,6 +243,7 @@ namespace sqlpp
 					static_assert(is_table_subset_of_from<_order_by_t>::value, "order_by() expression requires additional tables in from()");
 					static_assert(is_table_subset_of_from<_limit_t>::value, "limit() expression requires additional tables in from()");
 					static_assert(is_table_subset_of_from<_offset_t>::value, "offset() expression requires additional tables in from()");
+					static_assert(not _table_set::size::value, "one sub expression contains tables which are not in the from()");
 					static_assert(_get_static_no_of_parameters() == 0, "cannot run select directly with parameters, use prepare instead");
 
 					return {db.select(*this), get_dynamic_names()};
