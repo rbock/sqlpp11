@@ -42,7 +42,7 @@ namespace sqlpp
 	{
 		//FIXME: Need to add join functionality
 		using _is_table = std::true_type;
-		using _table_set = detail::type_set<table_alias_t>;
+		using _table_set = detail::type_set<AliasProvider>;
 
 		struct _value_type: Table::_value_type
 		{

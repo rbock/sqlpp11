@@ -37,9 +37,6 @@ namespace sqlpp
 		template<typename Select>
 		struct any_t
 		{
-			static_assert(is_select_t<Select>::value, "any() requires a single column select expression as argument");
-			static_assert(is_value_t<Select>::value, "any() requires a single column select expression as argument");
-
 			struct _value_type: public Select::_value_type::_base_value_type
 			{
 				using _is_expression = std::false_type;
@@ -94,6 +91,7 @@ namespace sqlpp
 			auto any(T t) -> typename vendor::any_t<vendor::wrap_operand_t<T>>
 			{
 				static_assert(is_select_t<vendor::wrap_operand_t<T>>::value, "any() requires a select expression as argument");
+				static_assert(is_value_t<vendor::wrap_operand_t<T>>::value, "any() requires a single column select expression as argument");
 				return { t };
 			}
 

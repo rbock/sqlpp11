@@ -108,8 +108,36 @@ namespace sqlpp
 
 				static_assert(is_noop_t<ColumnList>::value or sqlpp::is_select_column_list_t<ColumnList>::value, "column list of select is neither naught nor a valid column list");
 				static_assert(is_noop_t<From>::value or sqlpp::is_from_t<From>::value, "from() part of select is neither naught nor a valid from()");
+
+				using _required_tables = 
+					detail::make_joined_set_t<
+						typename _flag_list_t::_table_set,
+						typename _column_list_t::_table_set,
+						typename _where_t::_table_set,
+						typename _group_by_t::_table_set,
+						typename _having_t::_table_set,
+						typename _order_by_t::_table_set,
+						typename _limit_t::_table_set,
+						typename _offset_t::_table_set
+							>;
+
+				// The tables not covered by the from.
+				using _table_set = detail::make_difference_set_t<
+					_required_tables,
+					typename _from_t::_table_set // Hint: extra_tables are not used here because they are just helpers for dynamic .add_*() methods
+							>;
+
+				// A select can be used as a pseudo table if
+				//   - at least one column is selected
+				//   - the select is complete (leaks no tables)
+				using _can_be_used_as_table = typename std::conditional<
+					is_select_column_list_t<_column_list_t>::value and _table_set::size::value == 0,
+					std::true_type,
+					std::false_type
+					>::type;
+
 				using _value_type = typename std::conditional<
-					_column_list_t::_table_set::size::value ? sqlpp::is_from_t<From>::value : true,
+					is_select_column_list_t<_column_list_t>::value and is_subset_of<typename _column_list_t::_table_set, typename _from_t::_table_set>::value,
 					typename ColumnList::_value_type,
 					no_value_t // If something is selected that requires a table, then we require a from for this to be a value
 						>::type;
@@ -140,18 +168,7 @@ namespace sqlpp
 
 			using _parameter_tuple_t = std::tuple<Policies...>;
 			using _parameter_list_t = typename make_parameter_list_t<select_t>::type;
-			using _table_set = detail::make_difference_set_t<
-				typename _from_t::_table_set,
-				detail::make_joined_set_t< // Hint: extra_tables are not used here because they are just helpers for dynamic .add_*() methods
-					typename _flag_list_t::_table_set,
-					typename _column_list_t::_table_set,
-					typename _where_t::_table_set,
-					typename _group_by_t::_table_set,
-					typename _having_t::_table_set,
-					typename _order_by_t::_table_set,
-					typename _limit_t::_table_set,
-					typename _offset_t::_table_set
-						>>;
+			using _table_set = typename _policies_t::_table_set;
 			
 			template<typename Database>
 				using _result_row_t = typename _column_list_t::template _result_row_t<Database>;
@@ -197,6 +214,7 @@ namespace sqlpp
 			template<typename AliasProvider>
 				typename _pseudo_table_t<AliasProvider>::alias as(const AliasProvider& aliasProvider) const
 				{
+					static_assert(_policies_t::_can_be_used_as_table::value, "select cannot be used as table, incomplete from()");
 					return typename _pseudo_table_t<AliasProvider>::table(
 							*this).as(aliasProvider);
 				}

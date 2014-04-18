@@ -185,11 +185,13 @@ int main()
 		static_assert(not sqlpp::is_text_t<TT>::value, "type requirement");
 	}
 
+
 	// Test any
 	{
+		
 		using TI = decltype(any(select(t.alpha).from(t)));
 		using TT = decltype(any(select(t.beta).from(t)));
-		using TF = decltype(any(select(f.omega).from(t)));
+		using TF = decltype(any(select(f.omega).from(f)));
 		static_assert(not sqlpp::is_named_expression_t<TI>::value, "type requirement");
 		static_assert(sqlpp::is_multi_expression_t<TI>::value, "type requirement");
 		static_assert(sqlpp::is_numeric_t<TI>::value, "type requirement");
@@ -212,7 +214,7 @@ int main()
 	{
 		using TI = decltype(some(select(t.alpha).from(t)));
 		using TT = decltype(some(select(t.beta).from(t)));
-		using TF = decltype(some(select(f.omega).from(t)));
+		using TF = decltype(some(select(f.omega).from(f)));
 		static_assert(not sqlpp::is_named_expression_t<TI>::value, "type requirement");
 		static_assert(sqlpp::is_multi_expression_t<TI>::value, "type requirement");
 		static_assert(sqlpp::is_numeric_t<TI>::value, "type requirement");

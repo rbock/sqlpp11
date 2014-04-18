@@ -36,6 +36,8 @@ namespace sqlpp
 		template<typename T>
 			using _constraint = std::false_type;
 
+		using _base_value_type = no_value_t;
+
 		template<typename T>
 			struct _is_valid_operand
 			{

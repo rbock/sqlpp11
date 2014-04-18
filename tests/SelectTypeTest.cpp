@@ -357,12 +357,27 @@ int main()
 	static_assert(sqlpp::is_named_expression_t<decltype(t.alpha)>::value, "alpha should be a named expression");
 	static_assert(sqlpp::is_named_expression_t<decltype(t.alpha.as(alias::a))>::value, "an alias of alpha should be a named expression");
 	static_assert(sqlpp::is_alias_t<decltype(t.alpha.as(alias::a))>::value, "an alias of alpha should be an alias");
+
 	auto z = select(t.alpha).from(t) == 7;
 	auto l = t.as(alias::left);
 	auto r = select(t.gamma.as(alias::a)).from(t).where(t.gamma == true).as(alias::right);
+	using R = decltype(r);
 	static_assert(sqlpp::is_boolean_t<decltype(select(t.gamma).from(t))>::value, "select(bool) has to be a bool");
-	serialize(sqlpp::select().flags(sqlpp::distinct, sqlpp::straight_join).columns(l.alpha, l.beta, select(r.a).from(r))
-		.from(l, r)
+	auto s = select(r.a).from(r);
+	using RA = decltype(r.a);
+	using S = decltype(s);
+	using SCL = typename S::_column_list_t;
+	using SF = typename S::_from_t;
+	static_assert(sqlpp::is_select_column_list_t<SCL>::value, "no column list");
+	static_assert(sqlpp::is_from_t<SF>::value, "no from list");
+	using SCL_T = typename SCL::_table_set;
+	using SF_T = typename SF::_table_set;
+	static_assert(SCL_T::size::value == 1, "unexpected table_set in column_list");
+	static_assert(SF_T::size::value == 1, "unexpected table_set in from");
+	static_assert(std::is_same<SCL_T, SF_T>::value, "should be the same");
+	static_assert(sqlpp::is_boolean_t<decltype(select(r.a).from(r))>::value, "select(bool) has to be a bool");
+	auto s1 = sqlpp::select().flags(sqlpp::distinct, sqlpp::straight_join).columns(l.alpha, l.beta, select(r.a).from(r))
+		.from(r,t,l)
 		.where(t.beta == "hello world" and select(t.gamma).from(t))// .as(alias::right))
 		.group_by(l.gamma, r.a)
 		.having(r.a != true)
@@ -370,7 +385,8 @@ int main()
 		.limit(17)
 		.offset(3)
 		.as(alias::a)
-		, printer).str();
+		;
+
 
 	return 0;
 }
