@@ -324,7 +324,7 @@ int main()
 
 	// Test that select can be called with zero columns if it is used with dynamic columns.
 	{
-		auto s = dynamic_select(db).dynamic_columns();
+		auto s = dynamic_select(db).dynamic_columns().extra_tables(t);
 		s.add_column(t.alpha);
 		serialize(s, printer).str();
 	}

@@ -186,10 +186,17 @@ namespace sqlpp
 					struct _methods_t
 					{
 						template<typename NamedExpression>
+							void add_column_ntc(NamedExpression namedExpression)
+							{
+								add_column<NamedExpression, std::true_type>(namedExpression);
+							}
+
+						template<typename NamedExpression, typename Ntc = std::false_type>
 							void add_column(NamedExpression namedExpression)
 							{
 								static_assert(_is_dynamic::value, "add_column can only be called for dynamic_column");
 								static_assert(is_named_expression_t<NamedExpression>::value, "invalid named expression argument in add_column()");
+								static_assert(Ntc::value or Policies::template _no_unknown_tables<NamedExpression>::value, "named expression uses tables unknown to this statement in add_column()");
 
 								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, _is_dynamic, is_named_expression_t<NamedExpression>>;
 

@@ -133,20 +133,20 @@ int main()
 
 	// dynamic select
 	{
-		auto s = dynamic_select(db).dynamic_flags().dynamic_columns();
+		auto s = dynamic_select(db).dynamic_flags().dynamic_columns().from(t);
 		s.add_column(t.beta);
 		s.add_column(t.gamma);
 		serialize(s, printer).str();
 	}
 	{
-		auto s = dynamic_select(db).dynamic_flags().dynamic_columns();
+		auto s = dynamic_select(db).dynamic_flags().dynamic_columns().from(t);
 		s.add_flag(sqlpp::distinct);
 		s.add_column(t.beta);
 		s.add_column(t.gamma);
 		serialize(s, printer).str();
 	}
 	{
-		auto s = dynamic_select(db).dynamic_flags(sqlpp::distinct).dynamic_columns(t.alpha);
+		auto s = dynamic_select(db).dynamic_flags(sqlpp::distinct).dynamic_columns(t.alpha).extra_tables(t); // Would fail to run()
 		s.add_flag(sqlpp::all);
 		s.add_column(t.beta);
 		s.add_column(t.gamma);

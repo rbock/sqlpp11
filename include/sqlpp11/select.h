@@ -113,6 +113,11 @@ namespace sqlpp
 				static_assert(is_noop_t<ColumnList>::value or sqlpp::is_select_column_list_t<ColumnList>::value, "column list of select is neither naught nor a valid column list");
 				static_assert(is_noop_t<From>::value or sqlpp::is_from_t<From>::value, "from() part of select is neither naught nor a valid from()");
 
+				using _known_tables = detail::make_joined_set_t<typename _from_t::_table_set, typename _extra_tables_t::_table_set>;
+
+				template<typename Expression>
+					using _no_unknown_tables = detail::is_subset_of<typename Expression::_table_set, _known_tables>;
+
 				using _required_tables = 
 					detail::make_joined_set_t<
 						typename _flag_list_t::_table_set,
