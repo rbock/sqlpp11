@@ -68,7 +68,7 @@ int main()
 		const bool g = row.gamma;
 	}
 
-	auto s = dynamic_select(db).dynamic_columns(t.alpha).dynamic_flags().dynamic_from(t).dynamic_where().dynamic_group_by(t.alpha).dynamic_order_by().dynamic_having(t.gamma).dynamic_limit().dynamic_offset();
+	auto s = dynamic_select(db).dynamic_columns(t.alpha).dynamic_flags().dynamic_from(t).extra_tables(f,t).dynamic_where().dynamic_group_by(t.alpha).dynamic_order_by().dynamic_having(t.gamma).dynamic_limit().dynamic_offset();
 	s.add_flag(sqlpp::distinct);
 	s.add_column(t.beta);
 	s.add_from(f);

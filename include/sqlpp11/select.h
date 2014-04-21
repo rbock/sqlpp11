@@ -35,6 +35,7 @@
 #include <sqlpp11/vendor/select_flag_list.h>
 #include <sqlpp11/vendor/select_column_list.h>
 #include <sqlpp11/vendor/from.h>
+#include <sqlpp11/vendor/extra_tables.h>
 #include <sqlpp11/vendor/where.h>
 #include <sqlpp11/vendor/group_by.h>
 #include <sqlpp11/vendor/having.h>
@@ -62,6 +63,7 @@ namespace sqlpp
 			typename FlagList = vendor::no_select_flag_list_t, 
 			typename ColumnList = vendor::no_select_column_list_t, 
 			typename From = vendor::no_from_t,
+			typename ExtraTables = vendor::no_extra_tables_t,
 			typename Where = vendor::no_where_t, 
 			typename GroupBy = vendor::no_group_by_t, 
 			typename Having = vendor::no_having_t,
@@ -75,6 +77,7 @@ namespace sqlpp
 				using _flag_list_t = FlagList;
 				using _column_list_t = ColumnList;
 				using _from_t = From;
+				using _extra_tables_t = ExtraTables;
 				using _where_t = Where;
 				using _group_by_t = GroupBy;
 				using _having_t = Having;
@@ -82,12 +85,13 @@ namespace sqlpp
 				using _limit_t = Limit;
 				using _offset_t = Offset;
 
-				using _statement_t = select_t<Db, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>;
+				using _statement_t = select_t<Db, FlagList, ColumnList, From, ExtraTables, Where, GroupBy, Having, OrderBy, Limit, Offset>;
 
 				struct _methods_t:
 					public _flag_list_t::template _methods_t<select_policies_t>,
 					public _column_list_t::template _methods_t<select_policies_t>,
 					public _from_t::template _methods_t<select_policies_t>,
+					public _extra_tables_t::template _methods_t<select_policies_t>,
 					public _where_t::template _methods_t<select_policies_t>,
 					public _group_by_t::template _methods_t<select_policies_t>,
 					public _having_t::template _methods_t<select_policies_t>,
@@ -104,7 +108,7 @@ namespace sqlpp
 					};
 
 				template<typename Needle, typename Replacement>
-					using _new_statement_t = typename _policies_update_t<Needle, Replacement, FlagList, ColumnList, From, Where, GroupBy, Having, OrderBy, Limit, Offset>::type;
+					using _new_statement_t = typename _policies_update_t<Needle, Replacement, FlagList, ColumnList, From, ExtraTables, Where, GroupBy, Having, OrderBy, Limit, Offset>::type;
 
 				static_assert(is_noop_t<ColumnList>::value or sqlpp::is_select_column_list_t<ColumnList>::value, "column list of select is neither naught nor a valid column list");
 				static_assert(is_noop_t<From>::value or sqlpp::is_from_t<From>::value, "from() part of select is neither naught nor a valid from()");
@@ -124,7 +128,7 @@ namespace sqlpp
 				// The tables not covered by the from.
 				using _table_set = detail::make_difference_set_t<
 					_required_tables,
-					typename _from_t::_table_set // Hint: extra_tables are not used here because they are just helpers for dynamic .add_*() methods
+					typename _from_t::_table_set // Hint: extra_tables_t is not used here because it is just a helper for dynamic .add_*() methods and should not change the structural integrity
 							>;
 
 				// A select can be used as a pseudo table if
@@ -157,6 +161,7 @@ namespace sqlpp
 			using _flag_list_t = typename _policies_t::_flag_list_t;
 			using _column_list_t = typename _policies_t::_column_list_t;
 			using _from_t = typename _policies_t::_from_t;
+			using _extra_tables_t = typename _policies_t::_extra_tables_t;
 			using _where_t = typename _policies_t::_where_t;
 			using _group_by_t = typename _policies_t::_group_by_t;
 			using _having_t = typename _policies_t::_having_t;
@@ -252,7 +257,6 @@ namespace sqlpp
 				{
 #warning: need to check in add_xy method as well
 #warning: need add_wxy_without_table_check
-#warning: might want to add an .extra_tables() method to say which tables might also be used here, say via dynamic_from or because this is a subselect
 					static_assert(is_table_subset_of_from<_flag_list_t>::value, "flags require additional tables in from()");
 					static_assert(is_table_subset_of_from<_column_list_t>::value, "selected columns require additional tables in from()");
 					static_assert(is_table_subset_of_from<_where_t>::value, "where() expression requires additional tables in from()");
