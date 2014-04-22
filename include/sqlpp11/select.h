@@ -47,7 +47,6 @@
 #include <sqlpp11/vendor/wrong.h>
 #include <sqlpp11/vendor/policy_update.h>
 
-#include <sqlpp11/detail/copy_tuple_args.h>
 #include <sqlpp11/detail/arg_selector.h>
 
 namespace sqlpp
@@ -329,14 +328,6 @@ namespace sqlpp
 	template<typename Database, typename... Policies>
 		using make_select_t = typename detail::select_policies_t<Database, Policies...>::_statement_t;
 
-	namespace detail
-	{
-		template<typename Database, typename... Columns>
-			using make_select_column_list_t = 
-			copy_tuple_args_t<vendor::select_column_list_t, Database, 
-			decltype(std::tuple_cat(as_tuple<Columns>::_(std::declval<Columns>())...))>;
-	}
-
 	make_select_t<void> select() // FIXME: These should be constexpr
 	{
 		return { };
@@ -346,7 +337,7 @@ namespace sqlpp
 		auto select(Columns... columns)
 		-> make_select_t<void, vendor::no_select_flag_list_t, detail::make_select_column_list_t<void, Columns...>>
 		{
-			return { make_select_t<void>(), detail::make_select_column_list_t<void, Columns...>(std::tuple_cat(detail::as_tuple<Columns>::_(columns)...)) };
+			return { make_select_t<void>(), detail::make_select_column_list_t<void, Columns...>{std::tuple_cat(detail::as_tuple<Columns>::_(columns)...)} };
 		}
 
 	template<typename Database>

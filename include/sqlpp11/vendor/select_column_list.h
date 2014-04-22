@@ -38,6 +38,7 @@
 #include <sqlpp11/vendor/interpret_tuple.h>
 #include <sqlpp11/vendor/policy_update.h>
 #include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/detail/copy_tuple_args.h>
 
 namespace sqlpp
 {
@@ -219,7 +220,18 @@ namespace sqlpp
 				_parameter_tuple_t _columns;
 				dynamic_select_column_list<Database> _dynamic_columns;
 			};
+	}
 
+	namespace detail
+	{
+		template<typename Database, typename... Columns>
+			using make_select_column_list_t = 
+			copy_tuple_args_t<vendor::select_column_list_t, Database, 
+			decltype(std::tuple_cat(as_tuple<Columns>::_(std::declval<Columns>())...))>;
+	}
+
+	namespace vendor
+	{
 		struct no_select_column_list_t
 		{
 			using _is_noop = std::true_type;
@@ -245,18 +257,17 @@ namespace sqlpp
 
 					template<typename... Args>
 						auto columns(Args... args)
-						-> _new_statement_t<select_column_list_t<void, Args...>>
+						-> _new_statement_t<::sqlpp::detail::make_select_column_list_t<void, Args...>>
 						{
-#warning need to handle all_of_t here
-							return { *static_cast<typename Policies::_statement_t*>(this), select_column_list_t<void, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), ::sqlpp::detail::make_select_column_list_t<void, Args...>{std::tuple_cat(::sqlpp::detail::as_tuple<Args>::_(args)...)} };
 						}
 
 					template<typename... Args>
 						auto dynamic_columns(Args... args)
-						-> _new_statement_t<select_column_list_t<_database_t, Args...>>
+						-> _new_statement_t<::sqlpp::detail::make_select_column_list_t<_database_t, Args...>>
 						{
 							static_assert(not std::is_same<_database_t, void>::value, "dynamic_columns must not be called in a static statement");
-							return { *static_cast<typename Policies::_statement_t*>(this), vendor::select_column_list_t<_database_t, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), ::sqlpp::detail::make_select_column_list_t<_database_t, Args...>{std::tuple_cat(::sqlpp::detail::as_tuple<Args>::_(args)...)} };
 						}
 				};
 		};

@@ -129,6 +129,7 @@ namespace sqlpp
 			template<typename Database>
 				std::size_t _run(Database& db) const
 				{
+#warning add _check_consistency here and for remove and update
 					static_assert(_get_static_no_of_parameters() == 0, "cannot run insert directly with parameters, use prepare instead");
 					return db.insert(*this);
 				}
