@@ -198,8 +198,13 @@ namespace sqlpp
 								static_assert(_is_dynamic::value, "add_column can only be called for dynamic_column");
 								static_assert(is_named_expression_t<NamedExpression>::value, "invalid named expression argument in add_column()");
 								static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<NamedExpression>::value, "named expression uses tables unknown to this statement in add_column()");
+								using column_names = ::sqlpp::detail::make_type_set_t<typename Columns::_name_t...>;
+								static_assert(not ::sqlpp::detail::is_element_of<typename NamedExpression::_name_t, column_names>::value, "a column of this name is present in the select already");
 
-								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, _is_dynamic, is_named_expression_t<NamedExpression>>;
+								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, 
+											_is_dynamic, 
+											is_named_expression_t<NamedExpression>
+												>;
 
 								_add_column_impl(namedExpression, ok()); // dispatch to prevent compile messages after the static_assert
 							}
