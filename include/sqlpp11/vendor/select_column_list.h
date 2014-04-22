@@ -183,6 +183,11 @@ namespace sqlpp
 				select_column_list_t& operator=(select_column_list_t&&) = default;
 				~select_column_list_t() = default;
 
+				static constexpr size_t static_size()
+				{
+					return size::value;
+				}
+
 				template<typename Policies>
 					struct _methods_t
 					{

@@ -45,6 +45,8 @@ namespace sqlpp
 				using _is_named_expression = std::true_type;
 			};
 
+			using _table_set = typename Expr::_table_set;
+
 			struct _name_t
 			{
 				static constexpr const char* _get_name() { return "COUNT"; }
