@@ -255,22 +255,25 @@ namespace sqlpp
 					static constexpr bool value = ::sqlpp::detail::is_subset_of<typename A::_table_set, typename _from_t::_table_set>::value;
 				};
 
+			void _check_consistency() const
+			{
+				static_assert(is_table_subset_of_from<_flag_list_t>::value, "flags require additional tables in from()");
+				static_assert(is_table_subset_of_from<_column_list_t>::value, "selected columns require additional tables in from()");
+				static_assert(is_table_subset_of_from<_where_t>::value, "where() expression requires additional tables in from()");
+				static_assert(is_table_subset_of_from<_group_by_t>::value, "group_by() expression requires additional tables in from()");
+				static_assert(is_table_subset_of_from<_having_t>::value, "having() expression requires additional tables in from()");
+				static_assert(is_table_subset_of_from<_order_by_t>::value, "order_by() expression requires additional tables in from()");
+				static_assert(is_table_subset_of_from<_limit_t>::value, "limit() expression requires additional tables in from()");
+				static_assert(is_table_subset_of_from<_offset_t>::value, "offset() expression requires additional tables in from()");
+				static_assert(not _table_set::size::value, "one sub expression contains tables which are not in the from()");
+			}
+
 			// Execute
 			template<typename Database>
 				auto _run(Database& db) const
 				-> result_t<decltype(db.select(*this)), _result_row_t<Database>>
 				{
-#warning: need to check in add_xy method as well
-#warning: need add_wxy_without_table_check
-					static_assert(is_table_subset_of_from<_flag_list_t>::value, "flags require additional tables in from()");
-					static_assert(is_table_subset_of_from<_column_list_t>::value, "selected columns require additional tables in from()");
-					static_assert(is_table_subset_of_from<_where_t>::value, "where() expression requires additional tables in from()");
-					static_assert(is_table_subset_of_from<_group_by_t>::value, "group_by() expression requires additional tables in from()");
-					static_assert(is_table_subset_of_from<_having_t>::value, "having() expression requires additional tables in from()");
-					static_assert(is_table_subset_of_from<_order_by_t>::value, "order_by() expression requires additional tables in from()");
-					static_assert(is_table_subset_of_from<_limit_t>::value, "limit() expression requires additional tables in from()");
-					static_assert(is_table_subset_of_from<_offset_t>::value, "offset() expression requires additional tables in from()");
-					static_assert(not _table_set::size::value, "one sub expression contains tables which are not in the from()");
+					_check_consistency();
 					static_assert(_get_static_no_of_parameters() == 0, "cannot run select directly with parameters, use prepare instead");
 
 					return {db.select(*this), get_dynamic_names()};
@@ -281,6 +284,7 @@ namespace sqlpp
 				auto _prepare(Database& db) const
 				-> prepared_select_t<Database, select_t>
 				{
+					_check_consistency();
 
 					return {{}, get_dynamic_names(), db.prepare_select(*this)};
 				}

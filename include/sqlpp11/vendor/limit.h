@@ -93,6 +93,7 @@ namespace sqlpp
 						template<typename Limit>
 							void set_limit(Limit value)
 							{
+								// FIXME: Make sure that Limit does not require external tables? Need to read up on SQL
 								using arg_t = typename wrap_operand<Limit>::type;
 								static_cast<typename Policies::_statement_t*>(this)->_limit._value = arg_t{value};
 								static_cast<typename Policies::_statement_t*>(this)->_limit._initialized = true;

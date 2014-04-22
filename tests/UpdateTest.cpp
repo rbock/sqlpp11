@@ -62,6 +62,7 @@ int main()
 	serialize(update(t).set(t.beta = "opaque").where(t.beta != t.beta), printer).str();
 	auto u = dynamic_update(db, t).dynamic_set(t.gamma = false).dynamic_where();
 	u.add_set(t.gamma = false);
+	u.add_where(t.gamma != false);
 	serialize(u, printer).str();
 
 	db(u);

@@ -32,6 +32,7 @@
 #include <sqlpp11/prepared_remove.h>
 #include <sqlpp11/vendor/noop.h>
 #include <sqlpp11/vendor/single_table.h>
+#include <sqlpp11/vendor/extra_tables.h>
 #include <sqlpp11/vendor/using.h>
 #include <sqlpp11/vendor/where.h>
 #include <sqlpp11/vendor/policy_update.h>
@@ -49,6 +50,7 @@ namespace sqlpp
 		template<typename Db = void,
 			typename Table = vendor::no_single_table_t,
 			typename Using = vendor::no_using_t,
+			typename ExtraTables = vendor::no_extra_tables_t,
 			typename Where = vendor::no_where_t
 				>
 			struct remove_policies_t 
@@ -56,12 +58,14 @@ namespace sqlpp
 				using _database_t = Db;
 				using _table_t = Table;
 				using _using_t = Using;
+				using _extra_tables_t = ExtraTables;
 				using _where_t = Where;
 
-				using _statement_t = remove_t<Db, Table, Using, Where>;
+				using _statement_t = remove_t<Db, Table, Using, ExtraTables, Where>;
 
 				struct _methods_t:
 					public _using_t::template _methods_t<remove_policies_t>,
+					public _extra_tables_t::template _methods_t<remove_policies_t>,
 					public _where_t::template _methods_t<remove_policies_t>
 				{};
 
@@ -72,7 +76,12 @@ namespace sqlpp
 					};
 
 				template<typename Needle, typename Replacement>
-					using _new_statement_t = typename _policies_update_t<Needle, Replacement, Table, Using, Where>::type;
+					using _new_statement_t = typename _policies_update_t<Needle, Replacement, Table, Using, ExtraTables, Where>::type;
+
+				using _known_tables = detail::make_joined_set_t<typename _table_t::_table_set, typename _using_t::_table_set, typename _extra_tables_t::_table_set>;
+
+				template<typename Expression>
+					using _no_unknown_tables = detail::is_subset_of<typename Expression::_table_set, _known_tables>;
 			};
 	}
 
@@ -87,6 +96,7 @@ namespace sqlpp
 			using _database_t = typename _policies_t::_database_t;
 			using _table_t = typename _policies_t::_table_t;
 			using _using_t = typename _policies_t::_using_t;
+			using _extra_tables_t = typename _policies_t::_extra_tables_t;
 			using _where_t = typename _policies_t::_where_t;
 
 			using _is_dynamic = typename std::conditional<std::is_same<_database_t, void>::value, std::false_type, std::true_type>::type;

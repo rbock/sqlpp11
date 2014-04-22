@@ -92,6 +92,7 @@ namespace sqlpp
 						template<typename Offset>
 							void set_offset(Offset value)
 							{
+								// FIXME: Make sure that Offset does not require external tables? Need to read up on SQL
 								using arg_t = typename wrap_operand<Offset>::type;
 								static_cast<typename Policies::_statement_t*>(this)->_offset._value = arg_t{value};
 								static_cast<typename Policies::_statement_t*>(this)->_offset._initialized = true;

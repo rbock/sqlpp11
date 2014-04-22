@@ -72,6 +72,11 @@ namespace sqlpp
 					using _new_statement_t = typename _policies_insert_t<Needle, Replacement, Table, InsertValueList>::type;
 
 				using _table_set = typename _table_t::_table_set;
+
+				using _known_tables = detail::make_joined_set_t<typename _table_t::_table_set>;
+
+				template<typename Expression>
+					using _no_unknown_tables = detail::is_subset_of<typename Expression::_table_set, _known_tables>;
 			};
 	}
 

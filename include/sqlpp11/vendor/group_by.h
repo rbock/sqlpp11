@@ -70,10 +70,17 @@ namespace sqlpp
 					struct _methods_t
 					{
 						template<typename Expression>
+							void add_group_by_ntc(Expression expression)
+							{
+								add_group_by<Expression, std::false_type>(expression);
+							}
+
+						template<typename Expression, typename TableCheckRequired = std::true_type>
 							void add_group_by(Expression expression)
 							{
 								static_assert(_is_dynamic::value, "add_group_by must not be called for static group_by");
 								static_assert(is_expression_t<Expression>::value, "invalid expression argument in add_group_by()");
+								static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Expression>::value, "expression uses tables unknown to this statement in add_group_by()");
 
 								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, _is_dynamic, is_expression_t<Expression>>;
 

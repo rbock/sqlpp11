@@ -73,6 +73,12 @@ namespace sqlpp
 
 				template<typename Needle, typename Replacement>
 					using _new_statement_t = typename _policies_update_t<Needle, Replacement, Table, UpdateList, Where>::type;
+
+				using _known_tables = detail::make_joined_set_t<typename _table_t::_table_set>;
+
+				template<typename Expression>
+					using _no_unknown_tables = detail::is_subset_of<typename Expression::_table_set, _known_tables>;
+
 			};
 	}
 

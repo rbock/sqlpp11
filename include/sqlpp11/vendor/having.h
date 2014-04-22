@@ -67,10 +67,17 @@ namespace sqlpp
 					struct _methods_t
 					{
 						template<typename Expression>
+							void add_having_ntc(Expression expression)
+							{
+								add_having<Expression, std::false_type>(expression);
+							}
+
+						template<typename Expression, typename TableCheckRequired = std::true_type>
 							void add_having(Expression expression)
 							{
 								static_assert(_is_dynamic::value, "add_having must not be called for static having");
 								static_assert(is_expression_t<Expression>::value, "invalid expression argument in add_having()");
+								static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Expression>::value, "expression uses tables unknown to this statement in add_having()");
 
 								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, _is_dynamic, is_expression_t<Expression>>;
 

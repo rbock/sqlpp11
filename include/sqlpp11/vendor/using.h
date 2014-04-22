@@ -51,6 +51,8 @@ namespace sqlpp
 
 				static_assert(::sqlpp::detail::all_t<is_table_t, Tables...>::value, "at least one argument is not an table in using()");
 
+				using _table_set = ::sqlpp::detail::make_joined_set_t<typename Tables::_table_set...>;
+
 				using_t(Tables... tables):
 					_tables(tables...)
 				{}

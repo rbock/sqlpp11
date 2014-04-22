@@ -72,11 +72,18 @@ namespace sqlpp
 					struct _methods_t
 					{
 						template<typename Assignment>
+							void add_set_ntc(Assignment assignment)
+							{
+								add_set<Assignment, std::false_type>(assignment);
+							}
+
+						template<typename Assignment, typename TableCheckRequired = std::true_type>
 							void add_set(Assignment assignment)
 							{
 								static_assert(_is_dynamic::value, "add_set must not be called for static from()");
 								static_assert(is_assignment_t<Assignment>::value, "invalid assignment argument in add_set()");
-								static_assert(sqlpp::detail::not_t<must_not_update_t, typename Assignment::_column_t>::value, "set() argument must not be updated");
+								static_assert(sqlpp::detail::not_t<must_not_update_t, typename Assignment::_column_t>::value, "add_set() argument must not be updated");
+								static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Assignment>::value, "assignment uses tables unknown to this statement in add_set()");
 
 								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, 
 											_is_dynamic, 

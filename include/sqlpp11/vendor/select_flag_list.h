@@ -66,10 +66,17 @@ namespace sqlpp
 					struct _methods_t
 					{
 						template<typename Flag>
+							void add_flag_ntc(Flag flag)
+							{
+								add_flag<Flag, std::false_type>(flag);
+							}
+
+						template<typename Flag, typename TableCheckRequired = std::true_type>
 							void add_flag(Flag flag)
 							{
 								static_assert(_is_dynamic::value, "add_flag must not be called for static select flags");
 								static_assert(is_select_flag_t<Flag>::value, "invalid select flag argument in add_flag()");
+								static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Flag>::value, "flag uses tables unknown to this statement in add_flag()");
 
 								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, _is_dynamic, is_select_flag_t<Flag>>;
 
