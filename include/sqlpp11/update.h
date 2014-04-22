@@ -130,9 +130,25 @@ namespace sqlpp
 				return _parameter_list_t::size::value;
 			}
 
+			template<typename A>
+				struct is_table_subset_of_table
+				{
+					static constexpr bool value = ::sqlpp::detail::is_subset_of<typename A::_table_set, typename _table_t::_table_set>::value;
+				};
+
+			void _check_consistency() const
+			{
+				static_assert(is_where_t<_where_t>::value, "cannot run update without having a where condition, use .where(true) to update all rows");
+
+				static_assert(is_table_subset_of_table<_update_list_t>::value, "updates require additional tables");
+				static_assert(is_table_subset_of_table<_where_t>::value, "where requires additional tables");
+			}
+
 			template<typename Database>
 				std::size_t _run(Database& db) const
 				{
+					_check_consistency();
+
 					static_assert(_get_static_no_of_parameters() == 0, "cannot run update directly with parameters, use prepare instead");
 					return db.update(*this);
 				}
@@ -141,6 +157,8 @@ namespace sqlpp
 				auto _prepare(Database& db) const
 				-> prepared_update_t<Database, update_t>
 				{
+					_check_consistency();
+
 					return {{}, db.prepare_update(*this)};
 				}
 

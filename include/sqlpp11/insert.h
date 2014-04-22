@@ -126,10 +126,22 @@ namespace sqlpp
 				return _parameter_list_t::size::value;
 			}
 
+			template<typename A>
+				struct is_table_subset_of_table
+				{
+					static constexpr bool value = ::sqlpp::detail::is_subset_of<typename A::_table_set, typename _table_t::_table_set>::value;
+				};
+
+			void _check_consistency() const
+			{
+				// FIXME: Read up on what is allowed/prohibited in INSERT
+			}
+
 			template<typename Database>
 				std::size_t _run(Database& db) const
 				{
-#warning add _check_consistency here and for remove and update
+					_check_consistency();
+
 					static_assert(_get_static_no_of_parameters() == 0, "cannot run insert directly with parameters, use prepare instead");
 					return db.insert(*this);
 				}
@@ -138,6 +150,8 @@ namespace sqlpp
 				auto _prepare(Database& db) const
 				-> prepared_insert_t<Database, insert_t>
 				{
+					_check_consistency();
+
 					return {{}, db.prepare_insert(*this)};
 				}
 

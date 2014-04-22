@@ -256,6 +256,8 @@ namespace sqlpp
 
 			void _check_consistency() const
 			{
+				static_assert(is_select_column_list_t<_column_list_t>::value, "no columns selected");
+
 				static_assert(is_table_subset_of_from<_flag_list_t>::value, "flags require additional tables in from()");
 				static_assert(is_table_subset_of_from<_column_list_t>::value, "selected columns require additional tables in from()");
 				static_assert(is_table_subset_of_from<_where_t>::value, "where() expression requires additional tables in from()");
