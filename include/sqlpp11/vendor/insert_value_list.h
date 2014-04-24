@@ -95,7 +95,7 @@ namespace sqlpp
 							{
 								static_assert(_is_dynamic::value, "add_set must not be called for static from()");
 								static_assert(is_assignment_t<Assignment>::value, "add_set() arguments require to be assigments");
-								static_assert(not must_not_insert_t<Assignment>::value, "add_set() argument must not be used in insert");
+								static_assert(not must_not_insert_t<typename Assignment::_column_t>::value, "add_set() argument must not be used in insert");
 								using _column_table_set = typename Assignment::_column_t::_table_set;
 								using _value_table_set = typename Assignment::value_type::_table_set;
 								static_assert(::sqlpp::detail::is_subset_of<_value_table_set, typename Policies::_table_set>::value, "add_set() contains a column from a foreign table");
