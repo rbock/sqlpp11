@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -34,53 +34,75 @@ namespace sqlpp
 	namespace detail
 	{
 		template<bool... b>
-			struct and_impl;
+			struct all_impl;
 
 		template<>
-			struct and_impl<>
+			struct all_impl<>
 			{
-				static constexpr bool value = true;
+				using type = std::true_type;
 			};
 
 		template<bool... Rest>
-			struct and_impl<true, Rest...>
+			struct all_impl<true, Rest...>
 			{
-				static constexpr bool value = and_impl<Rest...>::value;
+				using type = typename all_impl<Rest...>::type;
 			};
 
 		template<bool... Rest>
-			struct and_impl<false, Rest...>
+			struct all_impl<false, Rest...>
 			{
-				static constexpr bool value = false;
+				using type = std::false_type;
 			};
 
 		template<template<typename> class Predicate, typename... T>
-			using and_t = and_impl<Predicate<T>::value...>;
+			using all_t = typename all_impl<Predicate<T>::value...>::type;
 
 		template<bool... b>
-			struct or_impl;
+			struct any_impl;
 
 		template<>
-			struct or_impl<>
+			struct any_impl<>
 			{
-				static constexpr bool value = false;
+				using type = std::false_type;
 			};
 
 		template<bool... Rest>
-			struct or_impl<false, Rest...>
+			struct any_impl<false, Rest...>
 			{
-				static constexpr bool value = or_impl<Rest...>::value;
+				using type = typename any_impl<Rest...>::type;
 			};
 
 		template<bool... Rest>
-			struct or_impl<true, Rest...>
+			struct any_impl<true, Rest...>
 			{
-				static constexpr bool value = true;
+				using type = std::true_type;
 			};
 
 		template<template<typename> class Predicate, typename... T>
-			using or_t = or_impl<Predicate<T>::value...>;
+			using any_t = typename any_impl<Predicate<T>::value...>::type;
 
+		template<bool>
+			struct not_impl;
+
+		template<> 
+			struct not_impl<true>
+		{
+			using type = std::false_type;
+		};
+
+		template<> 
+			struct not_impl<false>
+		{
+			using type = std::true_type;
+		};
+
+
+		template<template<typename> class Predicate, typename... T>
+			using not_t = typename not_impl<Predicate<T>::value...>::type;
+
+
+		template<typename T>
+			using identity_t = T;
 	}
 }
 

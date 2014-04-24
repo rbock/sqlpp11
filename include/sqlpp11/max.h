@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,7 +27,6 @@
 #ifndef SQLPP_MAX_H
 #define SQLPP_MAX_H
 
-#include <sstream>
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp
@@ -35,7 +34,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Expr>
-		struct max_t: public boolean::template operators<max_t<Expr>>
+		struct max_t: public Expr::_value_type::template expression_operators<max_t<Expr>>
 		{
 			static_assert(is_value_t<Expr>::value, "max() requires a value expression as argument");
 
@@ -43,6 +42,8 @@ namespace sqlpp
 			{
 				using _is_named_expression = std::true_type;
 			};
+
+			using _table_set = typename Expr::_table_set;
 
 			struct _name_t
 			{
@@ -73,14 +74,14 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename Expr>
-			struct interpreter_t<Context, vendor::max_t<Expr>>
+			struct serializer_t<Context, vendor::max_t<Expr>>
 			{
 				using T = vendor::max_t<Expr>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					context << "MAX(";
-					interpret(t._expr, context);
+					serialize(t._expr, context);
 					context << ")";
 					return context;
 				}
@@ -88,8 +89,9 @@ namespace sqlpp
 	}
 
 	template<typename T>
-		auto max(T t) -> typename vendor::max_t<typename operand_t<T, is_value_t>::type>
+		auto max(T t) -> typename vendor::max_t<vendor::wrap_operand_t<T>>
 		{
+			static_assert(is_value_t<vendor::wrap_operand_t<T>>::value, "max() requires a value expression as argument");
 			return { t };
 		}
 

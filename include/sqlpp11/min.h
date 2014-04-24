@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,7 +27,6 @@
 #ifndef SQLPP_MIN_H
 #define SQLPP_MIN_H
 
-#include <sstream>
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp
@@ -35,7 +34,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Expr>
-		struct min_t: public boolean::template operators<min_t<Expr>>
+		struct min_t: public Expr::_value_type::template expression_operators<min_t<Expr>>
 		{
 			static_assert(is_value_t<Expr>::value, "min() requires a value expression as argument");
 
@@ -43,6 +42,8 @@ namespace sqlpp
 			{
 				using _is_named_expression = std::true_type;
 			};
+
+			using _table_set = typename Expr::_table_set;
 
 			struct _name_t
 			{
@@ -73,14 +74,14 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename Expr>
-			struct interpreter_t<Context, vendor::min_t<Expr>>
+			struct serializer_t<Context, vendor::min_t<Expr>>
 			{
 				using T = vendor::min_t<Expr>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					context << "MIN(";
-					interpret(t._expr, context);
+					serialize(t._expr, context);
 					context << ")";
 					return context;
 				}
@@ -88,8 +89,9 @@ namespace sqlpp
 	}
 
 	template<typename T>
-		auto min(T t) -> typename vendor::min_t<typename operand_t<T, is_value_t>::type>
+		auto min(T t) -> typename vendor::min_t<vendor::wrap_operand_t<T>>
 		{
+			static_assert(is_value_t<vendor::wrap_operand_t<T>>::value, "min() requires a value expression as argument");
 			return { t };
 		}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -28,23 +28,75 @@
 #define SQLPP_MULTI_COLUMN_H
 
 #include <sqlpp11/no_value.h>
-#include <sqlpp11/detail/make_expression_tuple.h>
 #include <sqlpp11/detail/logic.h>
+#include <sqlpp11/detail/type_set.h>
+
+#include <sqlpp11/detail/copy_tuple_args.h>
 
 namespace sqlpp
 {
-	template<typename AliasProvider, typename T>
+	template<typename AliasProvider, typename... Columns>
+		struct multi_column_alias_t;
+
+	template<typename Unused, typename... Columns>
 		struct multi_column_t
 		{
-			static_assert(vendor::wrong_t<T>::value, "invalid argument for multicolumn_t");
+			static_assert(detail::all_t<is_named_expression_t, Columns...>::value, "multi_column parameters need to be named expressions");
+
+			using _table_set = sqlpp::detail::make_joined_set_t<typename Columns::_table_set...>;
+
+			multi_column_t(std::tuple<Columns...> columns):
+				_columns(columns)
+			{}
+
+			multi_column_t(Columns... columns):
+				_columns(columns...)
+			{}
+
+			multi_column_t(const multi_column_t&) = default;
+			multi_column_t(multi_column_t&&) = default;
+			multi_column_t& operator=(const multi_column_t&) = default;
+			multi_column_t& operator=(multi_column_t&&) = default;
+			~multi_column_t() = default;
+
+			template<typename AliasProvider>
+				multi_column_alias_t<AliasProvider, Columns...> as(const AliasProvider&)
+				{
+					return { *this };
+				}
+
+
+			using _value_type = no_value_t;
+			using _is_multi_column = std::true_type;
+
+			std::tuple<Columns...> _columns;
 		};
 
-	template<typename AliasProvider, typename... NamedExpr>
-		struct multi_column_t<AliasProvider, std::tuple<NamedExpr...>>
+	template<typename AliasProvider, typename... Columns>
+		struct multi_column_alias_t
 		{
-			static_assert(detail::and_t<is_named_expression_t, NamedExpr...>::value, "multi_column parameters need to be named expressions");
+			static_assert(detail::all_t<is_named_expression_t, Columns...>::value, "multi_column parameters need to be named expressions");
 
 			using _name_t = typename AliasProvider::_name_t;
+			using _table_set = sqlpp::detail::make_joined_set_t<typename Columns::_table_set...>;
+
+			multi_column_alias_t(multi_column_t<void, Columns...> multi_column):
+				_columns(multi_column._columns)
+			{}
+
+			multi_column_alias_t(std::tuple<Columns...> columns):
+				_columns(columns)
+			{}
+
+			multi_column_alias_t(Columns... columns):
+				_columns(columns...)
+			{}
+
+			multi_column_alias_t(const multi_column_alias_t&) = default;
+			multi_column_alias_t(multi_column_alias_t&&) = default;
+			multi_column_alias_t& operator=(const multi_column_alias_t&) = default;
+			multi_column_alias_t& operator=(multi_column_alias_t&&) = default;
+			~multi_column_alias_t() = default;
 
 			struct _value_type: public no_value_t
 			{
@@ -52,15 +104,26 @@ namespace sqlpp
 			};
 			using _is_multi_column = std::true_type;
 
-			std::tuple<NamedExpr...> _columns;
+			std::tuple<Columns...> _columns;
 		};
 
 	namespace vendor
 	{
-		template<typename Context, typename AliasProvider, typename... NamedExpr>
-			struct interpreter_t<Context, multi_column_t<AliasProvider, NamedExpr...>>
+		template<typename Context, typename... Columns>
+			struct serializer_t<Context, multi_column_t<void, Columns...>>
 			{
-				using T = multi_column_t<AliasProvider, NamedExpr...>;
+				using T = multi_column_t<void, Columns...>;
+
+				static void _(const T& t, Context& context)
+				{
+					static_assert(wrong_t<Columns...>::value, "multi_column must be used with an alias");
+				}
+			};
+
+		template<typename Context, typename AliasProvider, typename... Columns>
+			struct serializer_t<Context, multi_column_alias_t<AliasProvider, Columns...>>
+			{
+				using T = multi_column_alias_t<AliasProvider, Columns...>;
 
 				static Context& _(const T& t, Context& context)
 				{
@@ -72,16 +135,19 @@ namespace sqlpp
 
 	namespace detail
 	{
-		template<typename AliasProvider, typename... Expr>
+		template<typename... Columns>
 			using make_multi_column_t = 
-			multi_column_t<AliasProvider, decltype(make_expression_tuple(std::declval<Expr>()...))>;
+			detail::copy_tuple_args_t<multi_column_t, void, 
+			decltype(std::tuple_cat(detail::as_tuple<Columns>::_(std::declval<Columns>())...))>;
 	}
 
-	template<typename AliasProvider, typename... NamedExpr>
-		detail::make_multi_column_t<AliasProvider, NamedExpr...> multi_column(const AliasProvider& aliasProvider, NamedExpr... namedExpr) 
+	template<typename... Columns>
+		auto multi_column(Columns... columns)
+		-> detail::make_multi_column_t<Columns...>
 		{
-			return { detail::make_expression_tuple(namedExpr...)};
+			return detail::make_multi_column_t<Columns...>(std::tuple_cat(detail::as_tuple<Columns>::_(columns)...));
 		}
+
 
 }
 

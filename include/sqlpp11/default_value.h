@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -35,6 +35,7 @@ namespace sqlpp
 	{
 		static constexpr bool _is_expression = true;
 		using _value_type = no_value_t;
+		using _table_set = ::sqlpp::detail::type_set<>;
 
 		static constexpr bool _is_trivial() { return false; }
 	};
@@ -42,7 +43,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context>
-			struct interpreter_t<Context, default_value_t>
+			struct serializer_t<Context, default_value_t>
 			{
 				using Operand = default_value_t;
 

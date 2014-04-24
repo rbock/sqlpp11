@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -36,10 +36,11 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename First, typename... Args>
-			struct concat_t: public First::_value_type::template operators<concat_t<First, Args...>>
+			struct concat_t: public First::_value_type::template expression_operators<concat_t<First, Args...>>
 		{
 			static_assert(sizeof...(Args) > 0, "concat requires two arguments at least");
-			static_assert(sqlpp::detail::and_t<is_text_t, First, Args...>::value, "at least one non-text argument detected in concat()");
+			static_assert(sqlpp::detail::all_t<is_text_t, First, Args...>::value, "at least one non-text argument detected in concat()");
+			using _table_set = typename ::sqlpp::detail::make_joined_set<typename First::_table_set, typename Args::_table_set...>::type;
 
 			struct _value_type: public First::_value_type::_base_value_type
 			{
@@ -70,7 +71,7 @@ namespace sqlpp
 		};
 
 		template<typename Context, typename First, typename... Args>
-			struct interpreter_t<Context, concat_t<First, Args...>>
+			struct serializer_t<Context, concat_t<First, Args...>>
 			{
 				using T = concat_t<First, Args...>;
 

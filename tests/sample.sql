@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -26,6 +26,7 @@
 
 CREATE TABLE tab_foo
 (
+	delta varchar(255),
 	epsilon bigint,
 	omega double
 );
@@ -34,6 +35,7 @@ CREATE TABLE tab_bar
 (
 	alpha bigint AUTO_INCREMENT,
 	beta varchar(255) NULL DEFAULT "",
-	gamma bool NOT NULL
+	gamma bool NOT NULL,
+	delta int
 );
 

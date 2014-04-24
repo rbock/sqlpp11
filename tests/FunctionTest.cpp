@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, 
@@ -32,13 +32,15 @@
 
 #include <iostream>
 
-DbMock db = {};
+MockDb db = {};
 SQLPP_ALIAS_PROVIDER(kaesekuchen);
 
 int main()
 {
 	test::TabFoo f; 
 	test::TabBar t;
+
+	//f.omega + 4 *= "";
 
 	// MEMBER FUNCTIONS
 	// ----------------
@@ -183,11 +185,13 @@ int main()
 		static_assert(not sqlpp::is_text_t<TT>::value, "type requirement");
 	}
 
+
 	// Test any
 	{
+		
 		using TI = decltype(any(select(t.alpha).from(t)));
 		using TT = decltype(any(select(t.beta).from(t)));
-		using TF = decltype(any(select(f.omega).from(t)));
+		using TF = decltype(any(select(f.omega).from(f)));
 		static_assert(not sqlpp::is_named_expression_t<TI>::value, "type requirement");
 		static_assert(sqlpp::is_multi_expression_t<TI>::value, "type requirement");
 		static_assert(sqlpp::is_numeric_t<TI>::value, "type requirement");
@@ -210,7 +214,7 @@ int main()
 	{
 		using TI = decltype(some(select(t.alpha).from(t)));
 		using TT = decltype(some(select(t.beta).from(t)));
-		using TF = decltype(some(select(f.omega).from(t)));
+		using TF = decltype(some(select(f.omega).from(f)));
 		static_assert(not sqlpp::is_named_expression_t<TI>::value, "type requirement");
 		static_assert(sqlpp::is_multi_expression_t<TI>::value, "type requirement");
 		static_assert(sqlpp::is_numeric_t<TI>::value, "type requirement");

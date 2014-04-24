@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,7 +27,6 @@
 #ifndef SQLPP_SELECT_FLAGS_H
 #define SQLPP_SELECT_FLAGS_H
 
-#include <sqlpp11/select_fwd.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
@@ -42,13 +41,14 @@ namespace sqlpp
 		{ 
 			using _is_select_flag = std::true_type; 
 		};
+		using _table_set = detail::type_set<>;
 	};
 	static constexpr all_t all = {};
 
 	namespace vendor
 	{
 		template<typename Context>
-			struct interpreter_t<Context, all_t>
+			struct serializer_t<Context, all_t>
 			{
 				static Context& _(const all_t&, Context& context)
 				{
@@ -64,13 +64,14 @@ namespace sqlpp
 		{ 
 			using _is_select_flag = std::true_type; 
 		};
+		using _table_set = detail::type_set<>;
 	};
 	static constexpr distinct_t distinct = {};
 
 	namespace vendor
 	{
 		template<typename Context>
-			struct interpreter_t<Context, distinct_t>
+			struct serializer_t<Context, distinct_t>
 			{
 				static Context& _(const distinct_t&, Context& context)
 				{
@@ -86,13 +87,14 @@ namespace sqlpp
 		{ 
 			using _is_select_flag = std::true_type; 
 		};
+		using _table_set = detail::type_set<>;
 	};
 	static constexpr straight_join_t straight_join = {};
 
 	namespace vendor
 	{
 		template<typename Context>
-			struct interpreter_t<Context, straight_join_t>
+			struct serializer_t<Context, straight_join_t>
 			{
 				static Context& _(const straight_join_t&, Context& context)
 				{

@@ -24,47 +24,36 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef SQLPP_VENDOR_POLICY_UPDATE_H
+#define SQLPP_VENDOR_POLICY_UPDATE_H
 
-#ifndef SQLPP_DATABASE_CHAR_RESULT_H
-#define SQLPP_DATABASE_CHAR_RESULT_H
-
-#include <sqlpp11/vendor/char_result_row.h>
+#include <sqlpp11/vendor/wrong.h>
 
 namespace sqlpp
 {
-	namespace database
+	namespace vendor
 	{
-		/*
-		 * char_result_t yields results as 
-		 * sqlpp11::vendor::char_result_row_t
-		 */
-		class char_result_t
-		{
-			::sqlpp11::vendor::char_result_row_t char_result_row;
-		public:
-			char_result_t(); // default constructor for a result that will not yield a valid row
-			char_result_t(...);
-			char_result_t(const char_result_t&) = delete;
-			char_result_t(char_result_t&& rhs);
-			char_result_t& operator=(const char_result_t&) = delete;
-			char_result_t& operator=(char_result_t&&);
-			~char_result_t();
-
-			bool operator==(const char_result_t& rhs) const;
-
-			template<typename ResultRow>
-			void next(ResultRow& result_row);
-
-			// Something like
-			/*
+		template<typename Needle, typename Replacement>
+			struct policy_update_impl
 			{
-				next_impl();
-				if (_char_result_row.data)
-					result_row = _char_result_row;
-				else
-					result_row.invalidate();
+				template<typename T>
+					using _policy_t = typename std::conditional<std::is_same<Needle, T>::value, Replacement, T>::type;
 			};
-			*/
+
+		template<typename T, typename Needle, typename Replacement>
+			using policy_update_t = typename policy_update_impl<Needle, Replacement>::template _policy_t<T>;
+
+		template<typename Original, typename Needle, typename Replacement>
+			struct update_policies_impl
+			{
+				using type = typename Original::template _policy_update_t<Needle, Replacement>;
+			};
+
+		template<typename Original, typename Needle, typename Replacement>
+			using update_policies_t = typename update_policies_impl<Original, Needle, Replacement>::type;
+
 	}
+
 }
+
 #endif

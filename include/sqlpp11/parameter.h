@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -28,16 +28,22 @@
 #define SQLPP_PARAMETER_H
 
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/alias_provider.h>
+#include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
 {
 	template<typename ValueType, typename NameType>
-	struct parameter_t: public ValueType::template operators<parameter_t<ValueType, NameType>>
+	struct parameter_t: public ValueType::template expression_operators<parameter_t<ValueType, NameType>>
 	{
-		using _value_type = ValueType;
+		struct _value_type: public ValueType
+		{
+			using _is_expression = std::true_type;
+			using _is_alias = std::false_type;
+		};
 		using _is_parameter = std::true_type;
-		using _is_expression_t = std::true_type;
 		using _instance_t = typename NameType::_name_t::template _member_t<typename ValueType::_parameter_t>;
+		using _table_set = sqlpp::detail::type_set<>;
 
 		parameter_t()
 		{}
@@ -52,7 +58,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename ValueType, typename NameType>
-			struct interpreter_t<Context, parameter_t<ValueType, NameType>>
+			struct serializer_t<Context, parameter_t<ValueType, NameType>>
 			{
 				using T = parameter_t<ValueType, NameType>;
 
@@ -68,6 +74,7 @@ namespace sqlpp
 		auto parameter(const NamedExpr&)
 		-> parameter_t<typename NamedExpr::_value_type, NamedExpr>
 		{
+			static_assert(is_named_expression_t<NamedExpr>::value, "not a named expression");
 			return {};
 		}
 
@@ -75,6 +82,8 @@ namespace sqlpp
 		auto parameter(const ValueType&, const AliasProvider&)
 		-> parameter_t<ValueType, AliasProvider>
 		{
+			static_assert(is_value_t<ValueType>::value, "first argument is not a value type");
+			static_assert(is_alias_provider_t<AliasProvider>::value, "second argument is not an alias provider");
 			return {};
 		}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, 
@@ -25,14 +25,13 @@
 
 #include <iostream>
 #include <sqlpp11/remove.h>
-#include <sqlpp11/select.h>
 #include "Sample.h"
 #include "MockDb.h"
 #include "is_regular.h"
 
 
-DbMock db;
-DbMock::_context_t printer(std::cerr);
+MockDb db;
+MockDb::_serializer_context_t printer;
 
 int main()
 {
@@ -53,17 +52,19 @@ int main()
 	}
 
 	{
-		using T = decltype(dynamic_remove_from(db, t).dynamic_using_().dynamic_where());
+		using T = decltype(dynamic_remove_from(db, t).dynamic_using().dynamic_where());
 		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
-	interpret(remove_from(t), printer).flush();
-	interpret(remove_from(t).where(t.beta != "transparent"), printer).flush();
-	interpret(remove_from(t).using_(t), printer).flush();
-	auto r = dynamic_remove_from(db, t).dynamic_using_().dynamic_where();
-	r = r.add_using_(t);
-	r = r.add_where(t.beta != "transparent");
-	interpret(r, printer).flush();
+	serialize(remove_from(t), printer).str();
+	serialize(remove_from(t).where(t.beta != "transparent"), printer).str();
+	serialize(remove_from(t).using_(t), printer).str();
+	auto r = dynamic_remove_from(db, t).dynamic_using().dynamic_where();
+	r.add_using(t);
+	r.add_where(t.beta != "transparent");
+	serialize(r, printer).str();
+
+	db(r);
 
 	return 0;
 }

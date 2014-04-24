@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -34,7 +34,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Select>
-		struct exists_t: public boolean::template operators<exists_t<Select>>
+		struct exists_t: public boolean::template expression_operators<exists_t<Select>>
 		{
 			static_assert(is_select_t<Select>::value, "exists() requires a select expression as argument");
 
@@ -42,6 +42,8 @@ namespace sqlpp
 			{
 				using _is_named_expression = std::true_type;
 			};
+
+			using _table_set = typename Select::_table_set;
 
 			struct _name_t
 			{
@@ -72,14 +74,14 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename Select>
-			struct interpreter_t<Context, vendor::exists_t<Select>>
+			struct serializer_t<Context, vendor::exists_t<Select>>
 			{
 				using T = vendor::exists_t<Select>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					context << "EXISTS(";
-					interpret(t._select, context);
+					serialize(t._select, context);
 					context << ")";
 					return context;
 				}
@@ -88,8 +90,9 @@ namespace sqlpp
 
 
 	template<typename T>
-		auto exists(T t) -> typename vendor::exists_t<typename operand_t<T, is_select_t>::type>
+		auto exists(T t) -> typename vendor::exists_t<vendor::wrap_operand_t<T>>
 		{
+			static_assert(is_select_t<vendor::wrap_operand_t<T>>::value, "exists() requires a select expression as argument");
 			return { t };
 		}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -31,52 +31,133 @@
 #include <sqlpp11/vendor/expression.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
 #include <sqlpp11/vendor/interpretable_list.h>
+#include <sqlpp11/vendor/policy_update.h>
 #include <sqlpp11/detail/logic.h>
 
 namespace sqlpp
 {
 	namespace vendor
 	{
-		template<typename Database, typename... Expr>
+		// HAVING
+		template<typename Database, typename... Expressions>
 			struct having_t
 			{
 				using _is_having = std::true_type;
 				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
-				using _parameter_tuple_t = std::tuple<Expr...>;
+				using _parameter_tuple_t = std::tuple<Expressions...>;
 
-				static_assert(_is_dynamic::value or sizeof...(Expr), "at least one expression argument required in having()");
-				static_assert(::sqlpp::detail::and_t<is_expression_t, Expr...>::value, "at least one argument is not an expression in having()");
+				static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression argument required in having()");
+				static_assert(::sqlpp::detail::all_t<is_expression_t, Expressions...>::value, "at least one argument is not an expression in having()");
 
 				using _parameter_list_t = typename make_parameter_list_t<_parameter_tuple_t>::type;
 
-				template<typename E>
-					void add(E expr)
+				using _table_set = typename ::sqlpp::detail::make_joined_set<typename Expressions::_table_set...>::type;
+
+				having_t(Expressions... expressions):
+					_expressions(expressions...)
+				{}
+
+				having_t(const having_t&) = default;
+				having_t(having_t&&) = default;
+				having_t& operator=(const having_t&) = default;
+				having_t& operator=(having_t&&) = default;
+				~having_t() = default;
+
+				template<typename Policies>
+					struct _methods_t
 					{
-						static_assert(is_expression_t<E>::value, "invalid expression argument in add_having()");
-						_dynamic_expressions.emplace_back(expr);
-					}
+						template<typename Expression>
+							void add_having_ntc(Expression expression)
+							{
+								add_having<Expression, std::false_type>(expression);
+							}
+
+						template<typename Expression, typename TableCheckRequired = std::true_type>
+							void add_having(Expression expression)
+							{
+								static_assert(_is_dynamic::value, "add_having must not be called for static having");
+								static_assert(is_expression_t<Expression>::value, "invalid expression argument in add_having()");
+								static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Expression>::value, "expression uses tables unknown to this statement in add_having()");
+
+								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, _is_dynamic, is_expression_t<Expression>>;
+
+								_add_having_impl(expression, ok()); // dispatch to prevent compile messages after the static_assert
+							}
+
+					private:
+						template<typename Expression>
+							void _add_having_impl(Expression expression, const std::true_type&)
+							{
+								return static_cast<typename Policies::_statement_t*>(this)->_having._dynamic_expressions.emplace_back(expression);
+							}
+
+						template<typename Expression>
+							void _add_having_impl(Expression expression, const std::false_type&);
+					};
 
 				_parameter_tuple_t _expressions;
 				vendor::interpretable_list_t<Database> _dynamic_expressions;
 			};
 
-		template<typename Context, typename Database, typename... Expr>
-			struct interpreter_t<Context, having_t<Database, Expr...>>
+		struct no_having_t
+		{
+			using _is_noop = std::true_type;
+			using _table_set = ::sqlpp::detail::type_set<>;
+
+			template<typename Policies>
+				struct _methods_t
+				{
+					using _database_t = typename Policies::_database_t;
+					template<typename T>
+					using _new_statement_t = typename Policies::template _new_statement_t<no_having_t, T>;
+
+					template<typename... Args>
+						auto having(Args... args)
+						-> _new_statement_t<having_t<void, Args...>>
+						{
+							return { *static_cast<typename Policies::_statement_t*>(this), having_t<void, Args...>{args...} };
+						}
+
+					template<typename... Args>
+						auto dynamic_having(Args... args)
+						-> _new_statement_t<having_t<_database_t, Args...>>
+						{
+							static_assert(not std::is_same<_database_t, void>::value, "dynamic_having must not be called in a static statement");
+							return { *static_cast<typename Policies::_statement_t*>(this), vendor::having_t<_database_t, Args...>{args...} };
+						}
+				};
+		};
+
+		// Interpreters
+		template<typename Context, typename Database, typename... Expressions>
+			struct serializer_t<Context, having_t<Database, Expressions...>>
 			{
-				using T = having_t<Database, Expr...>;
+				using T = having_t<Database, Expressions...>;
 
 				static Context& _(const T& t, Context& context)
 				{
-					if (sizeof...(Expr) == 0 and t._dynamic_expressions.empty())
+					if (sizeof...(Expressions) == 0 and t._dynamic_expressions.empty())
 						return context;
 					context << " HAVING ";
 					interpret_tuple(t._expressions, " AND ", context);
-					if (sizeof...(Expr) and not t._dynamic_expressions.empty())
+					if (sizeof...(Expressions) and not t._dynamic_expressions.empty())
 						context << " AND ";
 					interpret_list(t._dynamic_expressions, " AND ", context);
 					return context;
 				}
 			};
+
+		template<typename Context>
+			struct serializer_t<Context, no_having_t>
+			{
+				using T = no_having_t;
+
+				static Context& _(const T& t, Context& context)
+				{
+					return context;
+				}
+			};
+
 	}
 }
 

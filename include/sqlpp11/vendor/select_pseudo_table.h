@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -37,7 +37,11 @@ namespace sqlpp
 		{
 			using _name_t = typename Expr::_name_t;
 			using _value_type = typename Expr::_value_type;
-			struct _column_type {};
+			struct _column_type 
+			{
+        using _must_not_insert = std::true_type;
+        using _must_not_update = std::true_type;
+			};
 		};
 
 	template<
@@ -68,13 +72,13 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename Select, typename... NamedExpr>
-			struct interpreter_t<Context, select_pseudo_table_t<Select, NamedExpr...>>
+			struct serializer_t<Context, select_pseudo_table_t<Select, NamedExpr...>>
 			{
 				using T = select_pseudo_table_t<Select, NamedExpr...>;
 
 				static Context& _(const T& t, Context& context)
 				{
-					interpret(t._select, context);
+					serialize(t._select, context);
 					return context;
 				}
 			};

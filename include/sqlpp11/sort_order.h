@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,6 +27,8 @@
 #ifndef SQLPP_SORT_ORDER_H
 #define SQLPP_SORT_ORDER_H
 
+#include <sqlpp11/detail/type_set.h>
+
 namespace sqlpp
 {
 	enum class sort_type
@@ -39,6 +41,7 @@ namespace sqlpp
 		struct sort_order_t
 		{
 			using _is_sort_order = std::true_type;
+			using _table_set = typename Expression::_table_set;
 
 			Expression _expression;
 		};
@@ -46,13 +49,13 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename Expression, sort_type SortType>
-			struct interpreter_t<Context, sort_order_t<Expression, SortType>>
+			struct serializer_t<Context, sort_order_t<Expression, SortType>>
 			{
 				using T = sort_order_t<Expression, SortType>;
 
 				static Context& _(const T& t, Context& context)
 				{
-					interpret(t._expression, context);
+					serialize(t._expression, context);
 					switch(SortType)
 					{
 					case sort_type::asc:

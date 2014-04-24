@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -42,7 +42,7 @@ namespace sqlpp
 	{
 		//FIXME: Need to add join functionality
 		using _is_table = std::true_type;
-		using _table_set = detail::type_set<table_alias_t>;
+		using _table_set = detail::type_set<AliasProvider>;
 
 		struct _value_type: Table::_value_type
 		{
@@ -52,7 +52,7 @@ namespace sqlpp
 		};
 
 		using _name_t = typename AliasProvider::_name_t;
-		using _all_of_t = std::tuple<column_t<AliasProvider, ColumnSpec>...>;
+		using _column_tuple_t = std::tuple<column_t<Table, ColumnSpec>...>;
 
 		table_alias_t(Table table):
 			_table(table)
@@ -64,14 +64,14 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename X>
-			struct interpreter_t<Context, X, typename std::enable_if<std::is_base_of<table_alias_base_t, X>::value, void>::type>
+			struct serializer_t<Context, X, typename std::enable_if<std::is_base_of<table_alias_base_t, X>::value, void>::type>
 			{
 				using T = X;
 
 				static Context& _(const T& t, Context& context)
 				{
 					context << "(";
-					interpret(t._table, context);
+					serialize(t._table, context);
 					context << ") AS " << T::_name_t::_get_name();
 					return context;
 				}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -60,9 +60,6 @@ namespace sqlpp
 		template<>
 			struct interpretable_list_t<void>
 			{
-				template<typename T>
-					void emplace_back(const T&) {}
-
 				static constexpr std::size_t size()
 				{
 					return 0;
@@ -91,7 +88,7 @@ namespace sqlpp
 								context << separator;
 								first = false;
 							}
-							interpret(entry, context);
+							serialize(entry, context);
 						}
 						return context;
 					}

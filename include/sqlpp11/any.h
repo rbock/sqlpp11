@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,22 +27,20 @@
 #ifndef SQLPP_ANY_H
 #define SQLPP_ANY_H
 
-#include <sstream>
 #include <sqlpp11/boolean.h>
+#include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
 {
 	namespace vendor
 	{
 		template<typename Select>
-		struct any_t: public boolean::template operators<any_t<Select>>
+		struct any_t
 		{
-			static_assert(is_select_t<Select>::value, "any() requires a single column select expression as argument");
-			static_assert(is_value_t<Select>::value, "any() requires a single column select expression as argument");
-
 			struct _value_type: public Select::_value_type::_base_value_type
 			{
-				using _is_multi_expression = std::true_type; // must not be named
+				using _is_expression = std::false_type;
+				using _is_multi_expression = std::true_type; // must not be named or used with +,-,*,/, etc
 			};
 
 			struct _name_t
@@ -56,6 +54,8 @@ namespace sqlpp
 						const T& operator()() const { return any; }
 					};
 			};
+
+			using _table_set = typename Select::_table_set;
 
 			any_t(Select select):
 				_select(select)
@@ -74,22 +74,24 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename Select>
-			struct interpreter_t<Context, vendor::any_t<Select>>
+			struct serializer_t<Context, vendor::any_t<Select>>
 			{
 				using T = vendor::any_t<Select>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					context << "ANY(";
-					interpret(t._select, context);
+					serialize(t._select, context);
 					context << ")";
 					return context;
 				}
 			};
 
 		template<typename T>
-			auto any(T t) -> typename vendor::any_t<typename operand_t<T, is_select_t>::type>
+			auto any(T t) -> typename vendor::any_t<vendor::wrap_operand_t<T>>
 			{
+				static_assert(is_select_t<vendor::wrap_operand_t<T>>::value, "any() requires a select expression as argument");
+				static_assert(is_value_t<vendor::wrap_operand_t<T>>::value, "any() requires a single column select expression as argument");
 				return { t };
 			}
 

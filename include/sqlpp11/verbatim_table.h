@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -68,7 +68,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context>
-			struct interpreter_t<Context, verbatim_table_t>
+			struct serializer_t<Context, verbatim_table_t>
 			{
 				using T = verbatim_table_t;
 

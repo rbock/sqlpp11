@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -31,52 +31,123 @@
 #include <sqlpp11/vendor/interpretable_list.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
 #include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/vendor/policy_update.h>
 
 namespace sqlpp
 {
 	namespace vendor
 	{
-		template<typename Database, typename... Table>
+		// USING
+		template<typename Database, typename... Tables>
 			struct using_t
 			{
 				using _is_using = std::true_type;
 				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
-				using _parameter_tuple_t = std::tuple<Table...>;
+				using _parameter_tuple_t = std::tuple<Tables...>;
 
-				static_assert(_is_dynamic::value or sizeof...(Table), "at least one table argument required in using()");
+				static_assert(_is_dynamic::value or sizeof...(Tables), "at least one table argument required in using()");
 
-				// check for duplicate arguments
-				static_assert(not ::sqlpp::detail::has_duplicates<Table...>::value, "at least one duplicate argument detected in using()");
+				static_assert(not ::sqlpp::detail::has_duplicates<Tables...>::value, "at least one duplicate argument detected in using()");
 
-				// check for invalid arguments
-				static_assert(::sqlpp::detail::and_t<is_table_t, Table...>::value, "at least one argument is not an table in using()");
+				static_assert(::sqlpp::detail::all_t<is_table_t, Tables...>::value, "at least one argument is not an table in using()");
 
+				using _table_set = ::sqlpp::detail::make_joined_set_t<typename Tables::_table_set...>;
 
-				template<typename T>
-					void add(T table)
+				using_t(Tables... tables):
+					_tables(tables...)
+				{}
+
+				using_t(const using_t&) = default;
+				using_t(using_t&&) = default;
+				using_t& operator=(const using_t&) = default;
+				using_t& operator=(using_t&&) = default;
+				~using_t() = default;
+
+				template<typename Policies>
+					struct _methods_t
 					{
-						static_assert(is_table_t<T>::value, "using() arguments require to be tables");
-						_dynamic_tables.emplace_back(table);
-					}
+						template<typename Table>
+							void add_using(Table table)
+							{
+								static_assert(_is_dynamic::value, "add_using must not be called for static using()");
+								static_assert(is_table_t<Table>::value, "invalid table argument in add_using()");
+
+								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, _is_dynamic, is_table_t<Table>>;
+
+								_add_using_impl(table, ok()); // dispatch to prevent compile messages after the static_assert
+							}
+
+					private:
+						template<typename Table>
+							void _add_using_impl(Table table, const std::true_type&)
+							{
+								return static_cast<typename Policies::_statement_t*>(this)->_using._dynamic_tables.emplace_back(table);
+							}
+
+						template<typename Table>
+							void _add_using_impl(Table table, const std::false_type&);
+					};
+
 
 				_parameter_tuple_t _tables;
 				vendor::interpretable_list_t<Database> _dynamic_tables;
 			};
 
-		template<typename Context, typename Database, typename... Table>
-			struct interpreter_t<Context, using_t<Database, Table...>>
+		struct no_using_t
+		{
+			using _is_noop = std::true_type;
+			using _table_set = ::sqlpp::detail::type_set<>;
+
+			template<typename Policies>
+				struct _methods_t
+				{
+					using _database_t = typename Policies::_database_t;
+					template<typename T>
+					using _new_statement_t = typename Policies::template _new_statement_t<no_using_t, T>;
+
+					template<typename... Args>
+						auto using_(Args... args)
+						-> _new_statement_t<using_t<void, Args...>>
+						{
+							return { *static_cast<typename Policies::_statement_t*>(this), using_t<void, Args...>{args...} };
+						}
+
+					template<typename... Args>
+						auto dynamic_using(Args... args)
+						-> _new_statement_t<using_t<_database_t, Args...>>
+						{
+							static_assert(not std::is_same<_database_t, void>::value, "dynamic_using must not be called in a static statement");
+							return { *static_cast<typename Policies::_statement_t*>(this), vendor::using_t<_database_t, Args...>{args...} };
+						}
+				};
+		};
+
+		// Interpreters
+		template<typename Context, typename Database, typename... Tables>
+			struct serializer_t<Context, using_t<Database, Tables...>>
 			{
-				using T = using_t<Database, Table...>;
+				using T = using_t<Database, Tables...>;
 
 				static Context& _(const T& t, Context& context)
 				{
-					if (sizeof...(Table) == 0 and t._dynamic_tables.empty())
+					if (sizeof...(Tables) == 0 and t._dynamic_tables.empty())
 						return context;
 					context << " USING ";
 					interpret_tuple(t._tables, ',', context);
-					if (sizeof...(Table) and not t._dynamic_tables.empty())
+					if (sizeof...(Tables) and not t._dynamic_tables.empty())
 						context << ',';
 					interpret_list(t._dynamic_tables, ',', context);
+					return context;
+				}
+			};
+
+		template<typename Context>
+			struct serializer_t<Context, no_using_t>
+			{
+				using T = no_using_t;
+
+				static Context& _(const T& t, Context& context)
+				{
 					return context;
 				}
 			};

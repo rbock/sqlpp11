@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -36,11 +36,12 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Operand, typename Pattern>
-			struct like_t: public boolean::template operators<like_t<Operand, Pattern>>
+			struct like_t: public boolean::template expression_operators<like_t<Operand, Pattern>>
 		{
 			static_assert(is_text_t<Operand>::value, "Operand for like() has to be a text");
 			static_assert(is_text_t<Pattern>::value, "Pattern for like() has to be a text");
 			using _parameter_tuple_t = std::tuple<Operand, Pattern>;
+			using _table_set = typename ::sqlpp::detail::make_joined_set<typename Operand::_table_set, typename Pattern::_table_set>::type;
 
 			struct _value_type: public boolean
 			{
@@ -73,15 +74,15 @@ namespace sqlpp
 		};
 
 		template<typename Context, typename Operand, typename Pattern>
-			struct interpreter_t<Context, like_t<Operand, Pattern>>
+			struct serializer_t<Context, like_t<Operand, Pattern>>
 			{
 				using T = like_t<Operand, Pattern>;
 
 				static Context& _(const T& t, Context& context)
 				{
-					interpret(t._operand, context);
+					serialize(t._operand, context);
 					context << " LIKE(";
-					interpret(t._pattern, context);
+					serialize(t._pattern, context);
 					context << ")";
 					return context;
 				}

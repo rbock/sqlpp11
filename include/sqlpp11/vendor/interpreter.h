@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_VENDOR_INTERPRET_H
-#define SQLPP_VENDOR_INTERPRET_H
+#ifndef SQLPP_VENDOR_INTERPRETER_H
+#define SQLPP_VENDOR_INTERPRETER_H
 
 #include <sqlpp11/vendor/wrong.h>
 

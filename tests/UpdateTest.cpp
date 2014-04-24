@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, 
@@ -29,12 +29,13 @@
 #include "MockDb.h"
 #include "is_regular.h"
 
-DbMock db;
-DbMock::_context_t printer(std::cerr);
+MockDb db;
+MockDb::_serializer_context_t printer;
 
 int main()
 {
 	test::TabBar t;
+	test::TabFoo f;
 
 	auto x = t.alpha = 7;
 	auto y = t.beta = "kaesekuchen";
@@ -55,12 +56,16 @@ int main()
 		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
-	interpret(update(t), printer).flush();
-	interpret(update(t).set(t.gamma = false), printer).flush();
-	interpret(update(t).set(t.gamma = false).where(t.beta != "transparent"), printer).flush();
+	serialize(update(t), printer).str();
+	serialize(update(t).set(t.gamma = false), printer).str();
+	serialize(update(t).set(t.gamma = false).where(t.beta != "transparent"), printer).str();
+	serialize(update(t).set(t.beta = "opaque").where(t.beta != t.beta), printer).str();
 	auto u = dynamic_update(db, t).dynamic_set(t.gamma = false).dynamic_where();
-	u = u.add_set(t.gamma = false);
-	interpret(u, printer).flush();
+	u.add_set(t.gamma = false);
+	u.add_where(t.gamma != false);
+	serialize(u, printer).str();
+
+	db(u);
 
 	return 0;
 }

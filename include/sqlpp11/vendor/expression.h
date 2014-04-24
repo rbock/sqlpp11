@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -32,7 +32,7 @@
 #include <sqlpp11/tvin.h>
 #include <sqlpp11/vendor/noop.h>
 #include <sqlpp11/vendor/expression_fwd.h>
-#include <sqlpp11/vendor/interpreter.h>
+#include <sqlpp11/vendor/serializer.h>
 #include <sqlpp11/vendor/wrap_operand.h>
 
 namespace sqlpp
@@ -40,35 +40,36 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Lhs, typename Rhs>
-			struct equal_t: public ::sqlpp::detail::boolean::template operators<equal_t<Lhs, Rhs>>
+			struct binary_expression_t<Lhs, tag::equal_to, Rhs>: public ::sqlpp::detail::boolean::template expression_operators<equal_to_t<Lhs, Rhs>>
 		{
 			using _value_type = ::sqlpp::detail::boolean;
 			using _parameter_tuple_t = std::tuple<Lhs, Rhs>;
+			using _table_set = typename ::sqlpp::detail::make_joined_set<typename Lhs::_table_set, typename Rhs::_table_set>::type;
 
-			equal_t(Lhs lhs, Rhs rhs):
+			binary_expression_t(Lhs lhs, Rhs rhs):
 				_lhs(lhs), 
 				_rhs(rhs)
 			{}
 
-			equal_t(const equal_t&) = default;
-			equal_t(equal_t&&) = default;
-			equal_t& operator=(const equal_t&) = default;
-			equal_t& operator=(equal_t&&) = default;
-			~equal_t() = default;
+			binary_expression_t(const binary_expression_t&) = default;
+			binary_expression_t(binary_expression_t&&) = default;
+			binary_expression_t& operator=(const binary_expression_t&) = default;
+			binary_expression_t& operator=(binary_expression_t&&) = default;
+			~binary_expression_t() = default;
 
 			Lhs _lhs;
-			tvin_wrap_t<Rhs> _rhs;
+			maybe_tvin_t<Rhs> _rhs;
 		};
 
 		template<typename Context, typename Lhs, typename Rhs>
-			struct interpreter_t<Context, equal_t<Lhs, Rhs>>
+			struct serializer_t<Context, equal_to_t<Lhs, Rhs>>
 			{
-				using T = equal_t<Lhs, Rhs>;
+				using T = equal_to_t<Lhs, Rhs>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					context << "(";
-					interpret(t._lhs, context);
+					serialize(t._lhs, context);
 					if (t._rhs._is_trivial())
 					{
 						context << " IS NULL";
@@ -76,7 +77,7 @@ namespace sqlpp
 					else
 					{
 						context << "=";
-						interpret(t._rhs, context);
+						serialize(t._rhs, context);
 					}
 					context << ")";
 					return context;
@@ -84,35 +85,36 @@ namespace sqlpp
 			};
 
 		template<typename Lhs, typename Rhs>
-			struct not_equal_t: public ::sqlpp::detail::boolean::template operators<not_equal_t<Lhs, Rhs>>
+			struct binary_expression_t<Lhs, tag::not_equal_to, Rhs>: public ::sqlpp::detail::boolean::template expression_operators<not_equal_to_t<Lhs, Rhs>>
 		{
 			using _value_type = ::sqlpp::detail::boolean;
 			using _parameter_tuple_t = std::tuple<Lhs, Rhs>;
+			using _table_set = typename ::sqlpp::detail::make_joined_set<typename Lhs::_table_set, typename Rhs::_table_set>::type;
 
-			not_equal_t(Lhs lhs, Rhs rhs):
+			binary_expression_t(Lhs lhs, Rhs rhs):
 				_lhs(lhs), 
 				_rhs(rhs)
 			{}
 
-			not_equal_t(const not_equal_t&) = default;
-			not_equal_t(not_equal_t&&) = default;
-			not_equal_t& operator=(const not_equal_t&) = default;
-			not_equal_t& operator=(not_equal_t&&) = default;
-			~not_equal_t() = default;
+			binary_expression_t(const binary_expression_t&) = default;
+			binary_expression_t(binary_expression_t&&) = default;
+			binary_expression_t& operator=(const binary_expression_t&) = default;
+			binary_expression_t& operator=(binary_expression_t&&) = default;
+			~binary_expression_t() = default;
 
 			Lhs _lhs;
-			tvin_wrap_t<Rhs> _rhs;
+			maybe_tvin_t<Rhs> _rhs;
 		};
 
 		template<typename Context, typename Lhs, typename Rhs>
-			struct interpreter_t<Context, not_equal_t<Lhs, Rhs>>
+			struct serializer_t<Context, not_equal_to_t<Lhs, Rhs>>
 			{
-				using T = not_equal_t<Lhs, Rhs>;
+				using T = not_equal_to_t<Lhs, Rhs>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					context << "(";
-					interpret(t._lhs, context);
+					serialize(t._lhs, context);
 					if (t._rhs._is_trivial())
 					{
 						context << " IS NOT NULL";
@@ -120,54 +122,56 @@ namespace sqlpp
 					else
 					{
 						context << "!=";
-						interpret(t._rhs, context);
+						serialize(t._rhs, context);
 					}
 					context << ")";
 					return context;
 				}
 			};
 
-		template<typename Lhs>
-			struct logical_not_t: public ::sqlpp::detail::boolean::template operators<logical_not_t<Lhs>>
+		template<typename Rhs>
+			struct unary_expression_t<tag::logical_not, Rhs>: public ::sqlpp::detail::boolean::template expression_operators<logical_not_t<Rhs>>
 		{
 			using _value_type = ::sqlpp::detail::boolean;
-			using _parameter_tuple_t = std::tuple<Lhs>;
+			using _parameter_tuple_t = std::tuple<Rhs>;
+			using _table_set = typename Rhs::_table_set;
 
-			logical_not_t(Lhs l):
-				_lhs(l)
+			unary_expression_t(Rhs rhs):
+				_rhs(rhs)
 			{}
 
-			logical_not_t(const logical_not_t&) = default;
-			logical_not_t(logical_not_t&&) = default;
-			logical_not_t& operator=(const logical_not_t&) = default;
-			logical_not_t& operator=(logical_not_t&&) = default;
-			~logical_not_t() = default;
+			unary_expression_t(const unary_expression_t&) = default;
+			unary_expression_t(unary_expression_t&&) = default;
+			unary_expression_t& operator=(const unary_expression_t&) = default;
+			unary_expression_t& operator=(unary_expression_t&&) = default;
+			~unary_expression_t() = default;
 
-			Lhs _lhs;
+			Rhs _rhs;
 		};
 
-		template<typename Context, typename Lhs>
-			struct interpreter_t<Context, logical_not_t<Lhs>>
+		template<typename Context, typename Rhs>
+			struct serializer_t<Context, logical_not_t<Rhs>>
 			{
-				using T = logical_not_t<Lhs>;
+				using T = logical_not_t<Rhs>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					context << "(";
 					context << "NOT ";
-					interpret(t._lhs, context);
+					serialize(t._lhs, context);
 					context << ")";
 					return context;
 				}
 			};
 
 		template<typename Lhs, typename O, typename Rhs>
-			struct binary_expression_t: public O::_value_type::template operators<binary_expression_t<Lhs, O, Rhs>>
+			struct binary_expression_t: public O::_value_type::template expression_operators<binary_expression_t<Lhs, O, Rhs>>
 		{
 			using _lhs_t = Lhs;
 			using _rhs_t = Rhs;
 			using _value_type = typename O::_value_type;
 			using _parameter_tuple_t = std::tuple<_lhs_t, _rhs_t>;
+			using _table_set = typename ::sqlpp::detail::make_joined_set<typename Lhs::_table_set, typename Rhs::_table_set>::type;
 
 			binary_expression_t(_lhs_t lhs, _rhs_t rhs):
 				_lhs(lhs), 
@@ -185,26 +189,27 @@ namespace sqlpp
 		};
 
 		template<typename Context, typename Lhs, typename O, typename Rhs>
-			struct interpreter_t<Context, binary_expression_t<Lhs, O, Rhs>>
+			struct serializer_t<Context, binary_expression_t<Lhs, O, Rhs>>
 			{
 				using T = binary_expression_t<Lhs, O, Rhs>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					context << "(";
-					interpret(t._lhs, context);
+					serialize(t._lhs, context);
 					context << O::_name;
-					interpret(t._rhs, context);
+					serialize(t._rhs, context);
 					context << ")";
 					return context;
 				}
 			};
 
 		template<typename O, typename Rhs>
-			struct unary_expression_t: public O::_value_type::template operators<unary_expression_t<O, Rhs>>
+			struct unary_expression_t: public O::_value_type::template expression_operators<unary_expression_t<O, Rhs>>
 		{
 			using _value_type = typename O::_value_type;
 			using _parameter_tuple_t = std::tuple<Rhs>;
+			using _table_set = typename Rhs::_table_set;
 
 			unary_expression_t(Rhs rhs):
 				_rhs(rhs)
@@ -220,7 +225,7 @@ namespace sqlpp
 		};
 
 		template<typename Context, typename O, typename Rhs>
-			struct interpreter_t<Context, unary_expression_t<O, Rhs>>
+			struct serializer_t<Context, unary_expression_t<O, Rhs>>
 			{
 				using T = unary_expression_t<O, Rhs>;
 
@@ -228,7 +233,7 @@ namespace sqlpp
 				{
 					context << "(";
 					context << O::_name;
-					interpret(t._rhs, context);
+					serialize(t._rhs, context);
 					context << ")";
 					return context;
 				}

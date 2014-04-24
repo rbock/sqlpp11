@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, 
@@ -34,8 +34,8 @@
 
 #include <iostream>
 
-DbMock db = {};
-DbMock::_context_t printer(std::cerr);
+MockDb db = {};
+MockDb::_serializer_context_t printer;
 SQLPP_ALIAS_PROVIDER(kaesekuchen);
 
 int main()
@@ -43,99 +43,123 @@ int main()
 	test::TabFoo f;
 	test::TabBar t;
 
-	interpret(insert_into(t).columns(t.gamma, t.beta), printer).flush();
-	interpret(insert_into(t).columns(t.gamma, t.beta).add_values(t.gamma = true, t.beta = "cheesecake"), printer).flush();
-	interpret(insert_into(t).columns(t.gamma, t.beta)
-			.add_values(t.gamma = true, t.beta = "cheesecake")
-			.add_values(t.gamma = false, t.beta = sqlpp::tvin("coffee"))
-			.add_values(t.gamma = false, t.beta = sqlpp::tvin(std::string()))
-			, printer).flush();
-	interpret(insert_into(t).columns(t.gamma, t.beta)
-			.add_values(t.gamma = sqlpp::default_value, t.beta = sqlpp::null)
-			, printer).flush();
+	serialize(insert_into(t).columns(t.beta, t.gamma), printer).str();
+	{
+		auto i = insert_into(t).columns(t.gamma, t.beta);
+		i.add_values(t.gamma = true, t.beta = "cheesecake");
+		serialize(i, printer).str();
+		i.add_values(t.gamma = false, t.beta = sqlpp::tvin("coffee"));
+		i.add_values(t.gamma = false, t.beta = sqlpp::tvin(std::string()));
+		serialize(i, printer).str();
+		i.add_values(t.gamma = sqlpp::default_value, t.beta = sqlpp::null);
+		serialize(i, printer).str();
+	}
 
-	interpret(t.alpha = sqlpp::null, printer).flush();
-	interpret(t.alpha = sqlpp::default_value, printer).flush();
-	interpret(t.alpha, printer).flush();
-	interpret(-t.alpha, printer).flush();
-	interpret(+t.alpha, printer).flush();
-	interpret(-(t.alpha + 7), printer).flush();
-	interpret(t.alpha = 0, printer).flush();
-	interpret(t.alpha = sqlpp::tvin(0), printer).flush();
-	interpret(t.alpha == 0, printer).flush();
-	interpret(t.alpha == sqlpp::tvin(0), printer).flush();
-	interpret(t.alpha != 0, printer).flush();
-	interpret(t.gamma != sqlpp::tvin(false), printer).flush();
-	interpret(t.alpha == 7, printer).flush();
-	interpret(t.beta + "kaesekuchen", printer).flush();
+	serialize(t.alpha = sqlpp::null, printer).str();
+	serialize(t.alpha = sqlpp::default_value, printer).str();
+	serialize(t.alpha, printer).str();
+	serialize(-t.alpha, printer).str();
+	serialize(+t.alpha, printer).str();
+	serialize(-(t.alpha + 7), printer).str();
+	serialize(t.alpha = 0, printer).str();
+	serialize(t.alpha = sqlpp::tvin(0), printer).str();
+	serialize(t.alpha == 0, printer).str();
+	serialize(t.alpha == sqlpp::tvin(0), printer).str();
+	serialize(t.alpha != 0, printer).str();
+	serialize(t.gamma != sqlpp::tvin(false), printer).str();
+	serialize(t.alpha == 7, printer).str();
+	serialize(t.beta + "kaesekuchen", printer).str();
 
-	interpret(select(sqlpp::distinct, t.alpha, t.beta), printer).flush();
-	interpret(select(sqlpp::distinct, t.alpha, t.beta).from(t), printer).flush();
-	interpret(select(sqlpp::distinct, t.alpha, t.beta).from(t).where(t.alpha == 3), printer).flush();
-	interpret(select(sqlpp::distinct, t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma), printer).flush();
-	interpret(select(sqlpp::distinct, t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma).having(t.beta.like("%kuchen")), printer).flush();
-	interpret(select(sqlpp::distinct, t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma).having(t.beta.like("%kuchen")).order_by(t.beta.asc()), printer).flush();
-	interpret(select(sqlpp::distinct, t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma).having(t.beta.like("%kuchen")).order_by(t.beta.asc()).limit(17).offset(3), printer).flush();
+	serialize(sqlpp::select(), printer).str();
+	serialize(sqlpp::select().flags(sqlpp::distinct), printer).str();
+	serialize(select(t.alpha, t.beta).flags(sqlpp::distinct), printer).str();
+	serialize(select(t.alpha, t.beta), printer).str();
+	serialize(select(t.alpha, t.beta).from(t), printer).str();
+	serialize(select(t.alpha, t.beta).from(t).where(t.alpha == 3), printer).str();
+	serialize(select(t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma), printer).str();
+	serialize(select(t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma).having(t.beta.like("%kuchen")), printer).str();
+	serialize(select(t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma).having(t.beta.like("%kuchen")).order_by(t.beta.asc()), printer).str();
+	serialize(select(t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma).having(t.beta.like("%kuchen")).order_by(t.beta.asc()).limit(17).offset(3), printer).str();
 
-	interpret(parameter(sqlpp::bigint(), t.alpha), printer).flush();
-	interpret(parameter(t.alpha), printer).flush();
-	interpret(t.alpha == parameter(t.alpha), printer).flush();
-	interpret(t.alpha == parameter(t.alpha) and (t.beta + "gimmick").like(parameter(t.beta)), printer).flush();
+	serialize(parameter(sqlpp::bigint(), t.alpha), printer).str();
+	serialize(parameter(t.alpha), printer).str();
+	serialize(t.alpha == parameter(t.alpha), printer).str();
+	serialize(t.alpha == parameter(t.alpha) and (t.beta + "gimmick").like(parameter(t.beta)), printer).str();
 
-	interpret(insert_into(t), printer).flush();
-	interpret(insert_into(f).default_values(), printer).flush();
-	interpret(insert_into(t).set(t.gamma = true), printer).flush();
-	//interpret(insert_into(t).set(t.gamma = sqlpp::tvin(false)), printer).flush(); cannot test this since gamma cannot be null and a static assert is thrown
+	serialize(insert_into(t), printer).str();
+	serialize(insert_into(f).default_values(), printer).str();
+	serialize(insert_into(t).set(t.gamma = true), printer).str();
+	//serialize(insert_into(t).set(t.gamma = sqlpp::tvin(false)), printer).str(); cannot test this since gamma cannot be null and a static assert is thrown
 
-	interpret(update(t), printer).flush();
-	interpret(update(t).set(t.gamma = true), printer).flush();
-	interpret(update(t).set(t.gamma = true).where(t.beta.in("kaesekuchen", "cheesecake")), printer).flush();
+	serialize(update(t), printer).str();
+	serialize(update(t).set(t.gamma = true), printer).str();
+	serialize(update(t).set(t.gamma = true).where(t.beta.in("kaesekuchen", "cheesecake")), printer).str();
 
-	interpret(remove_from(t), printer).flush();
-	interpret(remove_from(t).where(t.alpha == sqlpp::tvin(0)), printer).flush();
-	interpret(remove_from(t).using_(t).where(t.alpha == sqlpp::tvin(0)), printer).flush();
+	serialize(remove_from(t), printer).str();
+	serialize(remove_from(t).using_(t), printer).str();
+	serialize(remove_from(t).where(t.alpha == sqlpp::tvin(0)), printer).str();
+	serialize(remove_from(t).using_(t).where(t.alpha == sqlpp::tvin(0)), printer).str();
 
 	// functions
-	sqlpp::interpret(sqlpp::value(7), printer).flush(); // FIXME: Why is the namespace specifier required?
-	interpret(sqlpp::verbatim<sqlpp::detail::integral>("irgendwas integrales"), printer).flush();
-	interpret(sqlpp::value_list(std::vector<int>({1,2,3,4,5,6,8})), printer).flush();
-	interpret(exists(select(t.alpha).from(t)), printer).flush();
-	interpret(any(select(t.alpha).from(t)), printer).flush();
-	interpret(some(select(t.alpha).from(t)), printer).flush();
-	interpret(count(t.alpha), printer).flush();
-	interpret(min(t.alpha), printer).flush();
-	interpret(max(t.alpha), printer).flush();
-	interpret(avg(t.alpha), printer).flush();
-	interpret(sum(t.alpha), printer).flush();
-	interpret(sqlpp::verbatim_table("whatever"), printer).flush();
+	sqlpp::serialize(sqlpp::value(7), printer).str();// FIXME: Maybe the vendor namespace is not a good idea? argument lives in namespace vendor
+	serialize(sqlpp::verbatim<sqlpp::detail::integral>("irgendwas integrales"), printer).str();
+	serialize(sqlpp::value_list(std::vector<int>({1,2,3,4,5,6,8})), printer).str();
+	serialize(exists(select(t.alpha).from(t)), printer).str();
+	serialize(any(select(t.alpha).from(t)), printer).str();
+	serialize(some(select(t.alpha).from(t)), printer).str();
+	serialize(count(t.alpha), printer).str();
+	serialize(min(t.alpha), printer).str();
+	serialize(max(t.alpha), printer).str();
+	serialize(avg(t.alpha), printer).str();
+	serialize(sum(t.alpha), printer).str();
+	serialize(sqlpp::verbatim_table("whatever"), printer).str();
 
 	// alias
-	interpret(t.as(t.alpha), printer).flush();
-	interpret(t.as(t.alpha).beta, printer).flush();
+	serialize(t.as(t.alpha), printer).str();
+	serialize(t.as(t.alpha).beta, printer).str();
 
 	// select alias
-	interpret(select(t.alpha).from(t).where(t.beta > "kaesekuchen").as(t.gamma), printer).flush();
+	serialize(select(t.alpha).from(t).where(t.beta > "kaesekuchen").as(t.gamma), printer).str();
 
-	interpret(t.alpha.is_null(), printer).flush();
+	serialize(t.alpha.is_null(), printer).str();
 
 	// join
-	interpret(t.inner_join(t.as(t.alpha)).on(t.beta == t.as(t.alpha).beta), printer).flush();
+	serialize(t.inner_join(t.as(t.alpha)).on(t.beta == t.as(t.alpha).beta), printer).str();
 
 	// multi_column
-	interpret(multi_column(t.alpha, t.alpha, (t.beta + "cake").as(t.gamma)), printer).flush();
+	serialize(multi_column(t.alpha, (t.beta + "cake").as(t.gamma)).as(t.alpha), printer).str();
+	serialize(multi_column(all_of(t)).as(t), printer).str();
+	serialize(all_of(t).as(t), printer).str();
 
 	// dynamic select
-	interpret(dynamic_select(db).dynamic_flags().dynamic_columns(t.alpha).add_column(t.beta).add_column(t.gamma), printer).flush();
-	interpret(dynamic_select(db).dynamic_flags().add_flag(sqlpp::distinct).dynamic_columns().add_column(t.gamma).add_column(t.beta), printer).flush();
-	interpret(dynamic_select(db).dynamic_flags(sqlpp::distinct).add_flag(sqlpp::all).dynamic_columns(t.alpha).add_column(t.beta), printer).flush();
+	{
+		auto s = dynamic_select(db).dynamic_flags().dynamic_columns().from(t);
+		s.add_column(t.beta);
+		s.add_column(t.gamma);
+		serialize(s, printer).str();
+	}
+	{
+		auto s = dynamic_select(db).dynamic_flags().dynamic_columns().from(t);
+		s.add_flag(sqlpp::distinct);
+		s.add_column(t.beta);
+		s.add_column(t.gamma);
+		serialize(s, printer).str();
+	}
+	{
+		auto s = dynamic_select(db).dynamic_flags(sqlpp::distinct).dynamic_columns(t.alpha).extra_tables(t); // Would fail to run()
+		s.add_flag(sqlpp::all);
+		s.add_column(t.beta);
+		s.add_column(t.gamma);
+		serialize(s, printer).str();
+	}
 
 	// distinct aggregate
-	interpret(count(sqlpp::distinct, t.alpha % 7), printer).flush();
-	interpret(avg(sqlpp::distinct, t.alpha - 7), printer).flush();
-	interpret(sum(sqlpp::distinct, t.alpha + 7), printer).flush();
+	serialize(count(sqlpp::distinct, t.alpha % 7), printer).str();
+	serialize(avg(sqlpp::distinct, t.alpha - 7), printer).str();
+	serialize(sum(sqlpp::distinct, t.alpha + 7), printer).str();
 
-	interpret(select(all_of(t)).from(t).where(true), printer).flush();
-	interpret(select(all_of(t)).from(t).where(false), printer).flush();
+	serialize(select(all_of(t)).from(t).where(true), printer).str();
+	serialize(select(all_of(t)).from(t).where(false), printer).str();
 
 	return 0;
 }

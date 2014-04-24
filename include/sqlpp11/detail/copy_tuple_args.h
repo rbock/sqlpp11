@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,47 +24,53 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DETAIL_MAKE_FLAG_TUPLE_H
-#define SQLPP_DETAIL_MAKE_FLAG_TUPLE_H
+#ifndef SQLPP_DETAIL_COPY_TUPLE_ARGS_H
+#define SQLPP_DETAIL_COPY_TUPLE_ARGS_H
+
+#include <tuple>
 
 namespace sqlpp
 {
+	template<typename Table>
+	struct all_of_t;
+
 	namespace detail
 	{
-		// accept select flags
-		template<typename Expr>
-			auto make_single_flag_tuple(Expr expr) -> typename std::enable_if<is_select_flag_t<Expr>::value, decltype(std::make_tuple(expr))>::type
+		template<typename T>
+			struct as_tuple
 			{
-				return std::make_tuple(expr);
+				static std::tuple<T> _(T t) { return std::tuple<T>{ t }; }
 			};
 
-		// ignore named expressions
-		template<typename Expr>
-			auto make_single_flag_tuple(Expr expr) -> typename std::enable_if<is_named_expression_t<Expr>::value, std::tuple<>>::type
+		template<typename T>
+			struct as_tuple<::sqlpp::all_of_t<T>>
 			{
-				return {};
+				static typename ::sqlpp::all_of_t<T>::_column_tuple_t _(::sqlpp::all_of_t<T>) { return { }; }
 			};
 
-		// ignore tables
-		template<typename Tab>
-			auto make_single_flag_tuple(Tab tab) -> typename std::enable_if<is_table_t<Tab>::value, std::tuple<>>::type
+		template<typename... Args>
+			struct as_tuple<std::tuple<Args...>>
 			{
-				return {};
+				static std::tuple<Args...> _(std::tuple<Args...> t) { return t; }
 			};
 
-		// ignore tuples of expressions
-		template<typename... Expr>
-			auto make_single_flag_tuple(std::tuple<Expr...> t) -> std::tuple<>
+		template<template<typename, typename...> class Target, typename First, typename T>
+			struct copy_tuple_args_impl
 			{
-				return {};
+				static_assert(vendor::wrong_t<T>::value, "copy_tuple_args must be called with a tuple");
 			};
 
-		template<typename... Expr>
-			auto make_flag_tuple(Expr... expr) -> decltype(std::tuple_cat(make_single_flag_tuple(expr)...))
+		template<template<typename First, typename...> class Target, typename First, typename... Args>
+			struct copy_tuple_args_impl<Target, First, std::tuple<Args...>>
 			{
-				return std::tuple_cat(make_single_flag_tuple(expr)...);
+				using type = Target<First, Args...>;
 			};
+
+		template<template<typename First, typename...> class Target, typename First, typename T>
+			using copy_tuple_args_t = typename copy_tuple_args_impl<Target, First, T>::type;
 
 	}
 }
+
+
 #endif

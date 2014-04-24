@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, 
@@ -29,12 +29,13 @@
 #include <sqlpp11/insert.h>
 #include <iostream>
 
-DbMock db;
-DbMock::_context_t printer(std::cerr);
+MockDb db;
+MockDb::_serializer_context_t printer;
 
 int main()
 {
 	test::TabBar t;
+	test::TabFoo f;
 
 	auto x = t.alpha = 7;
 	auto y = t.beta = "kaesekuchen";
@@ -57,11 +58,22 @@ int main()
 		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
-	interpret(insert_into(t), printer).flush();
-	interpret(insert_into(t).set(t.beta = "kirschauflauf"), printer).flush();
+	db(insert_into(t).default_values());
+	db(insert_into(t).set(t.beta = "kirschauflauf"));
+
+	serialize(insert_into(t).default_values(), printer).str();
+
+	serialize(insert_into(t), printer).str();
+	serialize(insert_into(t).set(t.beta = "kirschauflauf"), printer).str();
+	serialize(insert_into(t).columns(t.beta), printer).str();
+	auto multi_insert = insert_into(t).columns(t.beta, t.delta);
+	multi_insert.add_values(t.beta = "cheesecake", t.delta = 1); 
+	multi_insert.add_values(t.beta = sqlpp::default_value, t.delta = sqlpp::default_value); 
 	auto i = dynamic_insert_into(db, t).dynamic_set();
-	i = i.add_set(t.beta = "kirschauflauf");
-	interpret(i, printer).flush();
+	i.add_set(t.beta = "kirschauflauf");
+	serialize(i, printer).str();
+
+	db(multi_insert);
 
 	return 0;
 }

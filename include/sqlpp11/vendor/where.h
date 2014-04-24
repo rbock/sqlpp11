@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,58 +27,77 @@
 #ifndef SQLPP_WHERE_H
 #define SQLPP_WHERE_H
 
-#include <ostream>
-#include <sqlpp11/select_fwd.h>
-#include <sqlpp11/vendor/expression.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/detail/logic.h>
+#include <sqlpp11/parameter_list.h>
+#include <sqlpp11/vendor/expression.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
 #include <sqlpp11/vendor/interpretable_list.h>
-#include <sqlpp11/parameter_list.h>
+#include <sqlpp11/detail/logic.h>
 
 namespace sqlpp
 {
 	namespace vendor
 	{
-		template<typename Database, typename... Expr>
+		// WHERE
+		template<typename Database, typename... Expressions>
 			struct where_t
 			{
 				using _is_where = std::true_type;
 				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
-				using _parameter_tuple_t = std::tuple<Expr...>;
+				using _parameter_tuple_t = std::tuple<Expressions...>;
 
-				static_assert(_is_dynamic::value or sizeof...(Expr), "at least one expression argument required in where()");
-				static_assert(sqlpp::detail::and_t<is_expression_t, Expr...>::value, "at least one argument is not an expression in where()");
+				static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression argument required in where()");
+				static_assert(not sqlpp::detail::any_t<is_assignment_t, Expressions...>::value, "at least one argument is an assignment in where()");
+				static_assert(sqlpp::detail::all_t<is_expression_t, Expressions...>::value, "at least one argument is not valid expression in where()");
 
 				using _parameter_list_t = typename make_parameter_list_t<_parameter_tuple_t>::type;
 
-				template<typename E>
-					void add(E expr)
+				using _table_set = typename ::sqlpp::detail::make_joined_set<typename Expressions::_table_set...>::type;
+
+				where_t(Expressions... expressions):
+					_expressions(expressions...)
+				{}
+
+				where_t(const where_t&) = default;
+				where_t(where_t&&) = default;
+				where_t& operator=(const where_t&) = default;
+				where_t& operator=(where_t&&) = default;
+				~where_t() = default;
+
+				template<typename Policies>
+					struct _methods_t
 					{
-						static_assert(is_expression_t<E>::value, "invalid expression argument in add_where()");
-						_dynamic_expressions.emplace_back(expr);
-					}
+						template<typename Expression>
+							void add_where_ntc(Expression expression)
+							{
+								add_where<Expression, std::false_type>(expression);
+							}
+
+						template<typename Expression, typename TableCheckRequired = std::true_type>
+							void add_where(Expression expression)
+							{
+								static_assert(_is_dynamic::value, "add_where can only be called for dynamic_where");
+								static_assert(is_expression_t<Expression>::value, "invalid expression argument in add_where()");
+								static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Expression>::value, "expression uses tables unknown to this statement in add_where()");
+
+								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, _is_dynamic, is_expression_t<Expression>>;
+
+								_add_where_impl(expression, ok()); // dispatch to prevent compile messages after the static_assert
+							}
+
+					private:
+						template<typename Expression>
+							void _add_where_impl(Expression expression, const std::true_type&)
+							{
+								return static_cast<typename Policies::_statement_t*>(this)->_where._dynamic_expressions.emplace_back(expression);
+							}
+
+						template<typename Expression>
+							void _add_where_impl(Expression expression, const std::false_type&);
+					};
 
 				_parameter_tuple_t _expressions;
 				vendor::interpretable_list_t<Database> _dynamic_expressions;
-			};
-
-		template<typename Context, typename Database, typename... Expr>
-			struct interpreter_t<Context, where_t<Database, Expr...>>
-			{
-				using T = where_t<Database, Expr...>;
-
-				static Context& _(const T& t, Context& context)
-				{
-					if (sizeof...(Expr) == 0 and t._dynamic_expressions.empty())
-						return context;
-					context << " WHERE ";
-					interpret_tuple(t._expressions, " AND ", context);
-					if (sizeof...(Expr) and not t._dynamic_expressions.empty())
-						context << " AND ";
-					interpret_list(t._dynamic_expressions, " AND ", context);
-					return context;
-				}
 			};
 
 		template<>
@@ -86,20 +105,94 @@ namespace sqlpp
 			{
 				using _is_where = std::true_type;
 				using _is_dynamic = std::false_type;
-				using _parameter_tuple_t = std::tuple<>;
+				using _table_set = ::sqlpp::detail::type_set<>;
 
-				std::tuple<bool> _condition;
+				where_t(bool condition):
+					_condition(condition)
+				{}
+
+				where_t(const where_t&) = default;
+				where_t(where_t&&) = default;
+				where_t& operator=(const where_t&) = default;
+				where_t& operator=(where_t&&) = default;
+				~where_t() = default;
+
+				template<typename Policies>
+					struct _methods_t
+					{
+					};
+
+				bool _condition;
+			};
+
+		struct no_where_t
+		{
+			using _is_noop = std::true_type;
+			using _table_set = ::sqlpp::detail::type_set<>;
+
+			template<typename Policies>
+				struct _methods_t
+				{
+					using _database_t = typename Policies::_database_t;
+					template<typename T>
+					using _new_statement_t = typename Policies::template _new_statement_t<no_where_t, T>;
+
+					template<typename... Args>
+						auto where(Args... args)
+						-> _new_statement_t<where_t<void, Args...>>
+						{
+							return { *static_cast<typename Policies::_statement_t*>(this), where_t<void, Args...>{args...} };
+						}
+
+					template<typename... Args>
+						auto dynamic_where(Args... args)
+						-> _new_statement_t<where_t<_database_t, Args...>>
+						{
+							static_assert(not std::is_same<_database_t, void>::value, "dynamic_where must not be called in a static statement");
+							return { *static_cast<typename Policies::_statement_t*>(this), vendor::where_t<_database_t, Args...>{args...} };
+						}
+				};
+		};
+
+		// Interpreters
+		template<typename Context, typename Database, typename... Expressions>
+			struct serializer_t<Context, where_t<Database, Expressions...>>
+			{
+				using T = where_t<Database, Expressions...>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					if (sizeof...(Expressions) == 0 and t._dynamic_expressions.empty())
+						return context;
+					context << " WHERE ";
+					interpret_tuple(t._expressions, " AND ", context);
+					if (sizeof...(Expressions) and not t._dynamic_expressions.empty())
+						context << " AND ";
+					interpret_list(t._dynamic_expressions, " AND ", context);
+					return context;
+				}
 			};
 
 		template<typename Context>
-			struct interpreter_t<Context, where_t<void, bool>>
+			struct serializer_t<Context, where_t<void, bool>>
 			{
 				using T = where_t<void, bool>;
 
 				static Context& _(const T& t, Context& context)
 				{
-					if (not std::get<0>(t._condition))
+					if (not t._condition)
 						context << " WHERE NULL";
+					return context;
+				}
+			};
+
+		template<typename Context>
+			struct serializer_t<Context, no_where_t>
+			{
+				using T = no_where_t;
+
+				static Context& _(const T& t, Context& context)
+				{
 					return context;
 				}
 			};

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -35,17 +35,20 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/vendor/assignment.h>
 #include <sqlpp11/vendor/expression.h>
-#include <sqlpp11/vendor/interpreter.h>
+#include <sqlpp11/vendor/serializer.h>
 #include <sqlpp11/vendor/wrong.h>
+#include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
 {
 	template<typename Table, typename ColumnSpec>
-	struct column_t: public ColumnSpec::_value_type::template operators<column_t<Table, ColumnSpec>>
+	struct column_t: public ColumnSpec::_value_type::template expression_operators<column_t<Table, ColumnSpec>>,
+	                 public ColumnSpec::_value_type::template column_operators<column_t<Table, ColumnSpec>>
 	{ 
 		using _is_column = std::true_type;
 		using _spec_t = ColumnSpec;
 		using _table = Table;
+		using _table_set = detail::type_set<_table>;
 		using _column_type = typename ColumnSpec::_column_type;
 		struct _value_type: ColumnSpec::_value_type
 		{
@@ -53,6 +56,8 @@ namespace sqlpp
 			using _is_named_expression = std::true_type;
 			using _is_alias = std::false_type;
 		};
+		template<typename T>
+			using _is_valid_operand = typename _value_type::template _is_valid_operand<T>;
 
 		using _name_t = typename ColumnSpec::_name_t;
 
@@ -75,10 +80,11 @@ namespace sqlpp
 			}
 
 		template<typename T>
-			auto operator =(T t) const
-			-> typename std::enable_if<_value_type::template _constraint<typename vendor::wrap_operand<T>::type>::value and not std::is_same<column_t, T>::value, 
-			     vendor::assignment_t<column_t, typename vendor::wrap_operand<T>::type>>::type
+			auto operator =(T t) const -> vendor::assignment_t<column_t, typename vendor::wrap_operand<T>::type>
 			{
+				using rhs = vendor::wrap_operand_t<T>;
+				static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand assignment operand");
+
 				return { *this, {t} };
 			}
 
@@ -99,7 +105,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename... Args>
-			struct interpreter_t<Context, column_t<Args...>>
+			struct serializer_t<Context, column_t<Args...>>
 			{
 				using T = column_t<Args...>;
 

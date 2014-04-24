@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -30,110 +30,96 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/prepared_update.h>
+#include <sqlpp11/vendor/single_table.h>
 #include <sqlpp11/vendor/update_list.h>
 #include <sqlpp11/vendor/noop.h>
 #include <sqlpp11/vendor/where.h>
+#include <sqlpp11/vendor/policy_update.h>
+#include <sqlpp11/detail/arg_selector.h>
 
 namespace sqlpp
 {
-	template<
-		typename Database = void,
-		typename Table = vendor::noop,
-		typename Assignments = vendor::noop,
-		typename Where = vendor::noop
-		>
-	struct update_t;
+	template<typename Db,
+			typename... Policies
+				>
+		struct update_t;
 
-	template<
-		typename Database,
-		typename Table,
-		typename Assignments,
-		typename Where
-		>
-		struct update_t
+	namespace detail
+	{
+		template<typename Db = void, 
+			typename Table = vendor::no_single_table_t,
+			typename UpdateList = vendor::no_update_list_t,
+			typename Where = vendor::no_where_t
+				>
+			struct update_policies_t
+			{
+				using _database_t = Db;
+				using _table_t = Table;
+				using _update_list_t = UpdateList;
+				using _where_t = Where;
+
+				using _statement_t = update_t<Db, Table, UpdateList, Where>;
+
+				struct _methods_t:
+					public _update_list_t::template _methods_t<update_policies_t>,
+					public _where_t::template _methods_t<update_policies_t>
+				{};
+
+				template<typename Needle, typename Replacement, typename... Policies>
+					struct _policies_update_t
+					{
+						using type =  update_t<Db, vendor::policy_update_t<Policies, Needle, Replacement>...>;
+					};
+
+				template<typename Needle, typename Replacement>
+					using _new_statement_t = typename _policies_update_t<Needle, Replacement, Table, UpdateList, Where>::type;
+
+				using _known_tables = detail::make_joined_set_t<typename _table_t::_table_set>;
+
+				template<typename Expression>
+					using _no_unknown_tables = detail::is_subset_of<typename Expression::_table_set, _known_tables>;
+
+			};
+	}
+
+	template<typename Db, 
+			typename... Policies
+				>
+		struct update_t:
+			public detail::update_policies_t<Db, Policies...>::_methods_t
 		{
-			static_assert(vendor::is_noop<Table>::value or is_table_t<Table>::value, "invalid 'Table' argument");
-			static_assert(vendor::is_noop<Assignments>::value or is_update_list_t<Assignments>::value, "invalid 'Assignments' arguments");
-			static_assert(vendor::is_noop<Where>::value or is_where_t<Where>::value, "invalid 'Where' argument");
+			using _policies_t = typename detail::update_policies_t<Db, Policies...>;
+			using _database_t = typename _policies_t::_database_t;
+			using _table_t = typename _policies_t::_table_t;
+			using _update_list_t = typename _policies_t::_update_list_t;
+			using _where_t = typename _policies_t::_where_t;
 
-			template<typename AssignmentsT> 
-				using set_assignments_t = update_t<Database, Table, AssignmentsT, Where>;
-			template<typename WhereT> 
-				using set_where_t = update_t<Database, Table, Assignments, WhereT>;
+			using _is_dynamic = typename std::conditional<std::is_same<_database_t, void>::value, std::false_type, std::true_type>::type;
 
-			using _parameter_tuple_t = std::tuple<Table, Assignments, Where>;
+			using _parameter_tuple_t = std::tuple<Policies...>;
 			using _parameter_list_t = typename make_parameter_list_t<update_t>::type;
 
-			template<typename... Assignment>
-				auto set(Assignment... assignment)
-				-> set_assignments_t<vendor::update_list_t<void, Assignment...>>
-				{
-					static_assert(vendor::is_noop<Assignments>::value, "cannot call set() twice");
-					return {
-							_table,
-								{std::tuple<Assignment...>{assignment...}},
-							_where,
-					};
-				}
+			static_assert(::sqlpp::detail::is_superset_of<typename _table_t::_table_set, typename _update_list_t::_table_set>::value, "updated columns do not match the table");
+			static_assert(::sqlpp::detail::is_superset_of<typename _table_t::_table_set, typename _where_t::_table_set>::value, "where condition does not match updated table");
 
-			template<typename... Assignment>
-				auto dynamic_set(Assignment... assignment)
-				-> set_assignments_t<vendor::update_list_t<Database, Assignment...>>
-				{
-					static_assert(vendor::is_noop<Assignments>::value, "cannot call set() twice");
-					return {
-							_table,
-								{std::tuple<Assignment...>{assignment...}},
-							_where,
-					};
-				}
+			// Constructors
+			update_t()
+			{}
 
-			template<typename Assignment>
-				update_t& add_set(Assignment assignment)
-				{
-					static_assert(is_dynamic_t<Assignments>::value, "cannot call add_set() in a non-dynamic set");
+			template<typename Statement, typename T>
+				update_t(Statement s, T t):
+					_table(detail::arg_selector<_table_t>::_(s._table, t)),
+					_update_list(detail::arg_selector<_update_list_t>::_(s._update_list, t)),
+					_where(detail::arg_selector<_where_t>::_(s._where, t))
+			{}
 
-					_assignments.add(assignment);
+			update_t(const update_t&) = default;
+			update_t(update_t&&) = default;
+			update_t& operator=(const update_t&) = default;
+			update_t& operator=(update_t&&) = default;
+			~update_t() = default;
 
-					return *this;
-				}
-
-			template<typename... Expr>
-				auto where(Expr... expr)
-				-> set_where_t<vendor::where_t<void, Expr...>>
-				{
-					static_assert(not vendor::is_noop<Assignments>::value, "cannot call where() if set() hasn't been called yet");
-					static_assert(vendor::is_noop<Where>::value, "cannot call where() twice");
-					return {
-							_table,
-							_assignments,
-							{std::tuple<Expr...>{expr...}},
-					};
-				}
-
-			template<typename... Expr>
-				auto dynamic_where(Expr... expr)
-				-> set_where_t<vendor::where_t<Database, Expr...>>
-				{
-					static_assert(not vendor::is_noop<Assignments>::value, "cannot call where() if set() hasn't been called yet");
-					static_assert(vendor::is_noop<Where>::value, "cannot call where() twice");
-					return {
-						_table, 
-							_assignments, 
-							{std::tuple<Expr...>{expr...}},
-					};
-				}
-
-			template<typename Expr>
-				update_t& add_where(Expr expr)
-				{
-					static_assert(is_dynamic_t<Where>::value, "cannot call add_where() in a non-dynamic where");
-
-					_where.add(expr);
-
-					return *this;
-				}
-
+			// run and prepare
 			static constexpr size_t _get_static_no_of_parameters()
 			{
 				return _parameter_list_t::size::value;
@@ -144,62 +130,76 @@ namespace sqlpp
 				return _parameter_list_t::size::value;
 			}
 
-			template<typename Db>
-				std::size_t _run(Db& db) const
+			template<typename A>
+				struct is_table_subset_of_table
 				{
-					static_assert(not vendor::is_noop<Assignments>::value, "calling set() required before running update");
-					static_assert(is_where_t<Where>::value, "cannot run update without having a where condition, use .where(true) to update all rows");
+					static constexpr bool value = ::sqlpp::detail::is_subset_of<typename A::_table_set, typename _table_t::_table_set>::value;
+				};
+
+			void _check_consistency() const
+			{
+				static_assert(is_where_t<_where_t>::value, "cannot run update without having a where condition, use .where(true) to update all rows");
+
+				static_assert(is_table_subset_of_table<_update_list_t>::value, "updates require additional tables");
+				static_assert(is_table_subset_of_table<_where_t>::value, "where requires additional tables");
+			}
+
+			template<typename Database>
+				std::size_t _run(Database& db) const
+				{
+					_check_consistency();
+
 					static_assert(_get_static_no_of_parameters() == 0, "cannot run update directly with parameters, use prepare instead");
 					return db.update(*this);
 				}
 
-			template<typename Db>
-				auto _prepare(Db& db) const
-				-> prepared_update_t<Db, update_t>
+			template<typename Database>
+				auto _prepare(Database& db) const
+				-> prepared_update_t<Database, update_t>
 				{
-					static_assert(not vendor::is_noop<Assignments>::value, "calling set() required before running update");
+					_check_consistency();
 
 					return {{}, db.prepare_update(*this)};
 				}
 
-			Table _table;
-			Assignments _assignments;
-			Where _where;
+			_table_t _table;
+			_update_list_t _update_list;
+			_where_t _where;
 		};
 
 	namespace vendor
 	{
-		template<typename Context, 
-			typename Database,
-			typename Table,
-			typename Assignments,
-			typename Where
-				>
-				struct interpreter_t<Context, update_t<Database, Table, Assignments, Where>>
-				{
-					using T = update_t<Database, Table, Assignments, Where>;
+		template<typename Context, typename Database, typename... Policies>
+			struct serializer_t<Context, update_t<Database, Policies...>>
+			{
+				using T = update_t<Database, Policies...>;
 
-					static Context& _(const T& t, Context& context)
-					{
-						context << "UPDATE ";
-						interpret(t._table, context);
-						interpret(t._assignments, context);
-						interpret(t._where, context);
-						return context;
-					}
-				};
+				static Context& _(const T& t, Context& context)
+				{
+					context << "UPDATE ";
+					serialize(t._table, context);
+					serialize(t._update_list, context);
+					serialize(t._where, context);
+					return context;
+				}
+			};
 	}
 
+	template<typename Database, typename... Policies>
+		using make_update_t = typename detail::update_policies_t<Database, Policies...>::_statement_t;
+
 	template<typename Table>
-		constexpr update_t<void, Table> update(Table table)
+		constexpr auto update(Table table)
+		-> make_update_t<void, vendor::single_table_t<void, Table>>
 		{
-			return {table};
+			return { update_t<void>(), vendor::single_table_t<void, Table>{table} };
 		}
 
-	template<typename Db, typename Table>
-		constexpr update_t<Db, Table> dynamic_update(const Db&, Table table)
+	template<typename Database, typename Table>
+		constexpr auto  dynamic_update(const Database&, Table table)
+		-> make_update_t<Database, vendor::single_table_t<void, Table>>
 		{
-			return {table};
+			return { update_t<Database>(), vendor::single_table_t<void, Table>{table} };
 		}
 
 }

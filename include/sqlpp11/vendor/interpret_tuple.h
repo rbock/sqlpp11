@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -28,8 +28,8 @@
 #define SQLPP_INTERPRET_TUPLE_H
 
 #include <tuple>
-#include <ostream>
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/serialize.h>
 
 namespace sqlpp
 {
@@ -54,7 +54,7 @@ namespace sqlpp
 					using entry_type = typename std::tuple_element<index, Tuple>::type;
 					if (requires_braces_t<entry_type>::value)
 						context << "(";
-					interpret(entry, context);
+					serialize(entry, context);
 					if (requires_braces_t<entry_type>::value)
 						context << ")";
 					_impl(t, separator, context, type<index + 1>());

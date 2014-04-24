@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,7 +29,6 @@
 
 #include <tuple>
 #include <sqlpp11/result_row.h>
-#include <sqlpp11/select_fwd.h>
 #include <sqlpp11/table.h>
 #include <sqlpp11/no_value.h>
 #include <sqlpp11/vendor/field.h>
@@ -37,7 +36,9 @@
 #include <sqlpp11/vendor/select_pseudo_table.h>
 #include <sqlpp11/vendor/named_interpretable.h>
 #include <sqlpp11/vendor/interpret_tuple.h>
+#include <sqlpp11/vendor/policy_update.h>
 #include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/detail/copy_tuple_args.h>
 
 namespace sqlpp
 {
@@ -68,7 +69,7 @@ namespace sqlpp
 				_names_t _dynamic_expression_names;
 
 				template<typename Expr>
-					void push_back(Expr expr)
+					void emplace_back(Expr expr)
 					{
 						_dynamic_expression_names.push_back(Expr::_name_t::_get_name());
 						_dynamic_columns.emplace_back(expr);
@@ -89,9 +90,6 @@ namespace sqlpp
 				};
 				_names_t _dynamic_expression_names;
 
-				template<typename T>
-					void push_back(const T&) {}
-
 				static constexpr bool empty()
 				{
 					return true;
@@ -99,7 +97,7 @@ namespace sqlpp
 			};
 
 		template<typename Context, typename Db>
-			struct interpreter_t<Context, dynamic_select_column_list<Db>>
+			struct serializer_t<Context, dynamic_select_column_list<Db>>
 			{
 				using T = dynamic_select_column_list<Db>;
 
@@ -112,14 +110,14 @@ namespace sqlpp
 							first = false;
 						else
 							context << ',';
-						interpret(column, context);
+						serialize(column, context);
 					}
 					return context;
 				}
 			};
 
 		template<typename Context>
-			struct interpreter_t<Context, dynamic_select_column_list<void>>
+			struct serializer_t<Context, dynamic_select_column_list<void>>
 			{
 				using T = dynamic_select_column_list<void>;
 
@@ -130,69 +128,165 @@ namespace sqlpp
 			};
 
 
-		template<typename Database, typename T>
+		// SELECT COLUMNS
+		template<typename Database, typename... Columns>
 			struct select_column_list_t
-			{
-				static_assert(::sqlpp::vendor::wrong_t<Database, T>::value, "invalid template argument for select_column_list");
-			};
-
-		template<typename Database, typename... NamedExpr>
-			struct select_column_list_t<Database, std::tuple<NamedExpr...>>
 			{
 				using _is_select_column_list = std::true_type;
 				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
-				using _parameter_tuple_t = std::tuple<NamedExpr...>;
+				using _parameter_tuple_t = std::tuple<Columns...>;
 				using size = std::tuple_size<_parameter_tuple_t>;
 
-				// check for duplicate select expressions
-				static_assert(not ::sqlpp::detail::has_duplicates<NamedExpr...>::value, "at least one duplicate argument detected");
+				using _table_set = sqlpp::detail::make_joined_set_t<typename Columns::_table_set...>;
 
-				// check for invalid select expressions
+				static_assert(not ::sqlpp::detail::has_duplicates<Columns...>::value, "at least one duplicate argument detected");
+
 				template<typename T>
 					using is_valid_expression_t = std::integral_constant<bool, is_named_expression_t<T>::value or is_multi_column_t<T>::value>;
-				static_assert(::sqlpp::detail::and_t<is_valid_expression_t, NamedExpr...>::value, "at least one argument is not a named expression");
+				static_assert(::sqlpp::detail::all_t<is_valid_expression_t, Columns...>::value, "at least one argument is not a named expression");
 
-				// check for duplicate select expression names
-				static_assert(not ::sqlpp::detail::has_duplicates<typename NamedExpr::_name_t...>::value, "at least one duplicate name detected");
+				static_assert(not ::sqlpp::detail::has_duplicates<typename Columns::_name_t...>::value, "at least one duplicate name detected");
 
-				// provide type information for sub-selects that are used as expressions
 				struct _column_type {};
-				struct _value_type: ::sqlpp::detail::get_first_argument_if_unique<NamedExpr...>::_value_type
+				struct _value_type: ::sqlpp::detail::get_first_argument_if_unique<Columns...>::_value_type
 				{
-					using _is_expression = typename std::conditional<sizeof...(NamedExpr) == 1, std::true_type, std::false_type>::type;
-					using _is_named_expression = typename std::conditional<sizeof...(NamedExpr) == 1, std::true_type, std::false_type>::type;
+					using _is_expression = typename std::conditional<sizeof...(Columns) == 1, std::true_type, std::false_type>::type;
+					using _is_named_expression = typename std::conditional<sizeof...(Columns) == 1, std::true_type, std::false_type>::type;
 					using _is_alias = std::false_type;
 				};
-				using _name_t = typename ::sqlpp::detail::get_first_argument_if_unique<NamedExpr...>::_name_t;
+				using _name_t = typename ::sqlpp::detail::get_first_argument_if_unique<Columns...>::_name_t;
 
+				template<typename Db>
 				using _result_row_t = typename std::conditional<_is_dynamic::value,
-							dynamic_result_row_t<make_field_t<NamedExpr>...>,
-							result_row_t<make_field_t<NamedExpr>...>>::type;
+							dynamic_result_row_t<Db, make_field_t<Columns>...>,
+							result_row_t<Db, make_field_t<Columns>...>>::type;
 
 				using _dynamic_names_t = typename dynamic_select_column_list<Database>::_names_t;
 
 				template <typename Select>
-					using _pseudo_table_t = select_pseudo_table_t<Select, NamedExpr...>;
+					using _pseudo_table_t = select_pseudo_table_t<Select, Columns...>;
 
 				template <typename Db>
-					using _dynamic_t = select_column_list_t<Db, std::tuple<NamedExpr...>>;
+					using _dynamic_t = select_column_list_t<Db, std::tuple<Columns...>>;
 
-				template<typename Expr>
-					void add(Expr namedExpr)
+				select_column_list_t(std::tuple<Columns...> columns):
+					_columns(columns)
+				{}
+
+				select_column_list_t(Columns... columns):
+					_columns(columns...)
+				{}
+
+				select_column_list_t(const select_column_list_t&) = default;
+				select_column_list_t(select_column_list_t&&) = default;
+				select_column_list_t& operator=(const select_column_list_t&) = default;
+				select_column_list_t& operator=(select_column_list_t&&) = default;
+				~select_column_list_t() = default;
+
+				static constexpr size_t static_size()
+				{
+					return size::value;
+				}
+
+				template<typename Policies>
+					struct _methods_t
 					{
-						static_assert(is_named_expression_t<Expr>::value, "select() arguments require to be named expressions");
-						static_assert(_is_dynamic::value, "cannot add columns to a non-dynamic column list");
-						_dynamic_columns.push_back(namedExpr);
-					}
+						template<typename NamedExpression>
+							void add_column_ntc(NamedExpression namedExpression)
+							{
+								add_column<NamedExpression, std::false_type>(namedExpression);
+							}
 
+						template<typename NamedExpression, typename TableCheckRequired = std::true_type>
+							void add_column(NamedExpression namedExpression)
+							{
+								static_assert(_is_dynamic::value, "add_column can only be called for dynamic_column");
+								static_assert(is_named_expression_t<NamedExpression>::value, "invalid named expression argument in add_column()");
+								static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<NamedExpression>::value, "named expression uses tables unknown to this statement in add_column()");
+								using column_names = ::sqlpp::detail::make_type_set_t<typename Columns::_name_t...>;
+								static_assert(not ::sqlpp::detail::is_element_of<typename NamedExpression::_name_t, column_names>::value, "a column of this name is present in the select already");
+
+								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, 
+											_is_dynamic, 
+											is_named_expression_t<NamedExpression>
+												>;
+
+								_add_column_impl(namedExpression, ok()); // dispatch to prevent compile messages after the static_assert
+							}
+
+					private:
+						template<typename NamedExpression>
+							void _add_column_impl(NamedExpression namedExpression, const std::true_type&)
+							{
+								return static_cast<typename Policies::_statement_t*>(this)->_column_list._dynamic_columns.emplace_back(namedExpression);
+							}
+
+						template<typename NamedExpression>
+							void _add_column_impl(NamedExpression namedExpression, const std::false_type&);
+					};
+
+
+				const select_column_list_t& _column_list() const { return *this; }
 				_parameter_tuple_t _columns;
 				dynamic_select_column_list<Database> _dynamic_columns;
 			};
+	}
 
-		template<typename Context, typename Database, typename Tuple>
-			struct interpreter_t<Context, select_column_list_t<Database, Tuple>>
+	namespace detail
+	{
+		template<typename Database, typename... Columns>
+			using make_select_column_list_t = 
+			copy_tuple_args_t<vendor::select_column_list_t, Database, 
+			decltype(std::tuple_cat(as_tuple<Columns>::_(std::declval<Columns>())...))>;
+	}
+
+	namespace vendor
+	{
+		struct no_select_column_list_t
+		{
+			using _is_noop = std::true_type;
+			using _table_set = ::sqlpp::detail::type_set<>;
+			template<typename Db>
+				using _result_row_t = ::sqlpp::result_row_t<Db>;
+			using _dynamic_names_t = typename dynamic_select_column_list<void>::_names_t;
+			using _value_type = no_value_t;
+			struct _name_t {};
+
+			template<typename T>
+				struct _pseudo_table_t
+				{
+					static_assert(wrong_t<T>::value, "Cannot use a select as a table when no columns have been selected yet");
+				};
+
+			template<typename Policies>
+				struct _methods_t
+				{
+					using _database_t = typename Policies::_database_t;
+					template<typename T>
+					using _new_statement_t = typename Policies::template _new_statement_t<no_select_column_list_t, T>;
+
+					template<typename... Args>
+						auto columns(Args... args)
+						-> _new_statement_t<::sqlpp::detail::make_select_column_list_t<void, Args...>>
+						{
+							return { *static_cast<typename Policies::_statement_t*>(this), ::sqlpp::detail::make_select_column_list_t<void, Args...>{std::tuple_cat(::sqlpp::detail::as_tuple<Args>::_(args)...)} };
+						}
+
+					template<typename... Args>
+						auto dynamic_columns(Args... args)
+						-> _new_statement_t<::sqlpp::detail::make_select_column_list_t<_database_t, Args...>>
+						{
+							static_assert(not std::is_same<_database_t, void>::value, "dynamic_columns must not be called in a static statement");
+							return { *static_cast<typename Policies::_statement_t*>(this), ::sqlpp::detail::make_select_column_list_t<_database_t, Args...>{std::tuple_cat(::sqlpp::detail::as_tuple<Args>::_(args)...)} };
+						}
+				};
+		};
+
+		// Interpreters
+		template<typename Context, typename Database, typename... Columns>
+			struct serializer_t<Context, select_column_list_t<Database, Columns...>>
 			{
-				using T = select_column_list_t<Database, Tuple>;
+				using T = select_column_list_t<Database, Columns...>;
 
 				static Context& _(const T& t, Context& context)
 				{
@@ -202,7 +296,18 @@ namespace sqlpp
 					interpret_tuple(t._columns, ',', context);
 					if (T::size::value and not t._dynamic_columns.empty())
 						context << ',';
-					interpret(t._dynamic_columns, context);
+					serialize(t._dynamic_columns, context);
+					return context;
+				}
+			};
+
+		template<typename Context>
+			struct serializer_t<Context, no_select_column_list_t>
+			{
+				using T = no_select_column_list_t;
+
+				static Context& _(const T& t, Context& context)
+				{
 					return context;
 				}
 			};

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -31,115 +31,91 @@
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/prepared_insert.h>
 #include <sqlpp11/default_value.h>
-#include <sqlpp11/vendor/column_list.h>
 #include <sqlpp11/vendor/noop.h>
-#include <sqlpp11/vendor/insert_list.h>
-#include <sqlpp11/vendor/assignment.h>
+#include <sqlpp11/vendor/single_table.h>
 #include <sqlpp11/vendor/insert_value_list.h>
+#include <sqlpp11/vendor/policy_update.h>
+#include <sqlpp11/detail/arg_selector.h>
 
 namespace sqlpp
 {
+	template<typename Db,
+			typename... Policies
+			>
+		struct insert_t;
 
-	template<
-		typename Database = void,
-		typename Table = vendor::noop,
-		typename InsertList = vendor::noop,
-		typename ColumnList = vendor::noop,
-		typename ValueList = vendor::insert_value_list_t<vendor::noop>
-		>
-		struct insert_t
+	namespace detail
+	{
+		template<typename Db,
+				typename Table = vendor::no_single_table_t,
+				typename InsertValueList = vendor::no_insert_value_list_t
+				>
+			struct insert_policies_t
+			{
+				using _database_t = Db;
+				using _table_t = Table;
+				using _insert_value_list_t = InsertValueList;
+
+				using _statement_t = insert_t<Db, Table, InsertValueList>;
+
+				struct _methods_t:
+					public _insert_value_list_t::template _methods_t<insert_policies_t>
+				{};
+
+				template<typename Needle, typename Replacement, typename... Policies>
+					struct _policies_insert_t
+					{
+						using type =  insert_t<Db, vendor::policy_update_t<Policies, Needle, Replacement>...>;
+					};
+
+				template<typename Needle, typename Replacement>
+					using _new_statement_t = typename _policies_insert_t<Needle, Replacement, Table, InsertValueList>::type;
+
+				using _table_set = typename _table_t::_table_set;
+
+				using _known_tables = detail::make_joined_set_t<typename _table_t::_table_set>;
+
+				template<typename Expression>
+					using _no_unknown_tables = detail::is_subset_of<typename Expression::_table_set, _known_tables>;
+			};
+	}
+
+	// INSERT
+	template<typename Db,
+			typename... Policies
+			>
+		struct insert_t:
+			public detail::insert_policies_t<Db, Policies...>::_methods_t
 		{
-			static_assert(vendor::is_noop<Table>::value or is_table_t<Table>::value, "invalid 'Table' argument");
-			static_assert(vendor::is_noop<InsertList>::value or is_insert_list_t<InsertList>::value, "invalid 'InsertList' argument");
-			static_assert(vendor::is_noop<ColumnList>::value or is_column_list_t<ColumnList>::value, "invalid 'ColumnList' argument");
-			static_assert(vendor::is_noop<ValueList>::value or is_insert_value_list_t<ValueList>::value, "invalid 'ValueList' argument");
+			using _policies_t = typename detail::insert_policies_t<Db, Policies...>;
+			using _database_t = typename _policies_t::_database_t;
+			using _table_t = typename _policies_t::_table_t;
+			using _insert_value_list_t = typename _policies_t::_insert_value_list_t;
 
-			using use_default_values_t = insert_t<Database, Table, vendor::insert_default_values_t>;
-			template<typename AssignmentT> 
-				using set_insert_list_t = insert_t<Database, Table, AssignmentT>;
-			template<typename ColumnT, typename ValueT> 
-				using set_column_value_list_t = insert_t<Database, Table, InsertList, ColumnT, ValueT>;
+			using _is_dynamic = typename std::conditional<std::is_same<_database_t, void>::value, std::false_type, std::true_type>::type;
 
-			using _parameter_tuple_t = std::tuple<Table, InsertList>;
+			using _parameter_tuple_t = std::tuple<Policies...>;
 			using _parameter_list_t = typename make_parameter_list_t<insert_t>::type;
 
-			auto default_values()
-				-> use_default_values_t
-				{
-					static_assert(std::is_same<InsertList, vendor::noop>::value, "cannot call default_values() after set() or default_values()");
-					static_assert(vendor::is_noop<ColumnList>::value, "cannot call default_values() after columns()");
-					static_assert(Table::_required_insert_columns::size::value == 0, "cannot use default_values, because some columns are configured to require values");
-					return {
-							_table,
-								{},
-								_column_list,
-								_value_list,
-					};
-				}
+			static_assert(::sqlpp::detail::is_superset_of<typename _table_t::_table_set, typename _insert_value_list_t::_table_set>::value, "columns do not match the table they are to be inserted into");
 
-			template<typename... Assignment>
-				auto set(Assignment... assignment)
-				-> set_insert_list_t<vendor::insert_list_t<void, Assignment...>>
-				{
-					static_assert(std::is_same<InsertList, vendor::noop>::value, "cannot call set() after set() or default_values()");
-					static_assert(vendor::is_noop<ColumnList>::value, "cannot call set() after columns()");
-					// FIXME:  Need to check if all required columns are set
-					return {
-							_table,
-							vendor::insert_list_t<void, Assignment...>{assignment...},
-							_column_list,
-							_value_list,
-					};
-				}
+			// Constructors
+			insert_t()
+			{}
 
-			template<typename... Assignment>
-				auto dynamic_set(Assignment... assignment)
-				-> set_insert_list_t<vendor::insert_list_t<Database, Assignment...>>
-				{
-					static_assert(std::is_same<InsertList, vendor::noop>::value, "cannot call set() after set() or default_values()");
-					static_assert(vendor::is_noop<ColumnList>::value, "cannot call set() after columns()");
-					return {
-							_table,
-							vendor::insert_list_t<Database, Assignment...>{assignment...},
-							_column_list,
-							_value_list,
-					};
-				}
+			template<typename Statement, typename T>
+				insert_t(Statement s, T t):
+					_table(detail::arg_selector<_table_t>::_(s._table, t)),
+					_insert_value_list(detail::arg_selector<_insert_value_list_t>::_(s._insert_value_list, t))
+			{}
 
-			template<typename Assignment>
-				insert_t add_set(Assignment assignment)
-				{
-					static_assert(is_dynamic_t<InsertList>::value, "cannot call add_set() in a non-dynamic set");
+			insert_t(const insert_t&) = default;
+			insert_t(insert_t&&) = default;
+			insert_t& operator=(const insert_t&) = default;
+			insert_t& operator=(insert_t&&) = default;
+			~insert_t() = default;
 
-					_insert_list.add(assignment);
-
-					return *this;
-				}
-
-			template<typename... Column>
-				auto columns(Column... columns)
-				-> set_column_value_list_t<vendor::column_list_t<Column...>, vendor::insert_value_list_t<vendor::insert_value_t<Column>...>>
-				{
-					static_assert(vendor::is_noop<ColumnList>::value, "cannot call columns() twice");
-					static_assert(vendor::is_noop<InsertList>::value, "cannot call columns() after set() or dynamic_set()");
-					// FIXME:  Need to check if all required columns are set
-
-					return {
-						_table,
-						_insert_list,
-						{std::tuple<vendor::simple_column_t<Column>...>{{columns}...}},
-						vendor::insert_value_list_t<vendor::insert_value_t<Column>...>{},
-					};
-				}
-
-			template<typename... Value>
-				insert_t& add_values(Value... values)
-				{
-					static_assert(is_insert_value_list_t<ValueList>::value, "cannot call add_values() before columns()");
-					_value_list.add(typename ValueList::_value_tuple_t{values...});
-					return *this;
-				};
-
+			// run and prepare
 			static constexpr size_t _get_static_no_of_parameters()
 			{
 				return _parameter_list_t::size::value;
@@ -150,72 +126,71 @@ namespace sqlpp
 				return _parameter_list_t::size::value;
 			}
 
-			template<typename Db>
-				std::size_t _run(Db& db) const
+			template<typename A>
+				struct is_table_subset_of_table
 				{
-					static_assert(not (vendor::is_noop<InsertList>::value and vendor::is_noop<ColumnList>::value) , "calling set() or default_values()");
+					static constexpr bool value = ::sqlpp::detail::is_subset_of<typename A::_table_set, typename _table_t::_table_set>::value;
+				};
+
+			void _check_consistency() const
+			{
+				// FIXME: Read up on what is allowed/prohibited in INSERT
+			}
+
+			template<typename Database>
+				std::size_t _run(Database& db) const
+				{
+					_check_consistency();
+
 					static_assert(_get_static_no_of_parameters() == 0, "cannot run insert directly with parameters, use prepare instead");
 					return db.insert(*this);
 				}
 
-			template<typename Db>
-				auto _prepare(Db& db) const
-				-> prepared_insert_t<Db, insert_t>
+			template<typename Database>
+				auto _prepare(Database& db) const
+				-> prepared_insert_t<Database, insert_t>
 				{
-					constexpr bool calledSet = not vendor::is_noop<InsertList>::value;
-					constexpr bool requireSet = Table::_required_insert_columns::size::value > 0;
-					static_assert(calledSet or not requireSet, "calling set() required for given table");
+					_check_consistency();
 
 					return {{}, db.prepare_insert(*this)};
 				}
 
-			Table _table;
-			InsertList _insert_list;
-			ColumnList _column_list;
-			ValueList _value_list;
+			_insert_value_list_t _insert_value_list;
+			_table_t _table;
 		};
 
 	namespace vendor
 	{
-		template<typename Context, typename Database, typename Table, typename InsertList, typename ColumnList, typename ValueList>
-			struct interpreter_t<Context, insert_t<Database, Table, InsertList, ColumnList, ValueList>>
+		template<typename Context, typename Database, typename... Policies>
+			struct serializer_t<Context, insert_t<Database, Policies...>>
 			{
-				using T = insert_t<Database, Table, InsertList, ColumnList, ValueList>;
+				using T = insert_t<Database, Policies...>;
 
 				static Context& _(const T& t, Context& context)
 				{
-					if (not vendor::is_noop<decltype(t._insert_list)>::value)
-					{
-						context << "INSERT INTO ";
-						interpret(t._table, context);
-						interpret(t._insert_list, context);
-					}
-					else if (not t._value_list.empty())
-					{
-						context << "INSERT INTO ";
-						interpret(t._table, context);
-						interpret(t._column_list, context);
-						interpret(t._value_list, context);
-					}
-					else
-					{
-						context << "# empty insert";
-					}
+					context << "INSERT INTO ";
+					serialize(t._table, context);
+					serialize(t._insert_value_list, context);
 					return context;
 				}
 			};
 	}
 
+	template<typename Database, typename... Policies>
+		using make_insert_t = typename detail::insert_policies_t<Database, Policies...>::_statement_t;
+
 	template<typename Table>
-		insert_t<void, Table> insert_into(Table table)
+		constexpr auto insert_into(Table table)
+		-> make_insert_t<void, vendor::single_table_t<void, Table>>
 		{
-			return {table};
+			return { make_insert_t<void>(), vendor::single_table_t<void, Table>{table} };
 		}
 
 	template<typename Database, typename Table>
-		insert_t<Database, Table> dynamic_insert_into(const Database& db, Table table)
+		constexpr auto  dynamic_insert_into(const Database&, Table table)
+		-> make_insert_t<Database, vendor::single_table_t<void, Table>>
 		{
-			return {table};
+			return { make_insert_t<Database>(), vendor::single_table_t<void, Table>{table} };
 		}
 
 }

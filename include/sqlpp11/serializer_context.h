@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, 
@@ -23,16 +23,16 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SERIALIZER_H
-#define SQLPP_SERIALIZER_H
+#ifndef SQLPP_SERIALIZER_CONTEXT_H
+#define SQLPP_SERIALIZER_CONTEXT_H
 
 #include <ostream>
 
 namespace sqlpp
 {
-	struct serializer_t
+	struct serializer_context_t
 	{
-		serializer_t(std::ostream& os):
+		serializer_context_t(std::ostream& os):
 			_os(os)
 		{}
 
@@ -42,14 +42,21 @@ namespace sqlpp
 				return _os << t;
 			}
 
-		void flush()
+		static std::string escape(std::string arg)
 		{
-			_os << std::endl;
-		}
-
-		std::string escape(std::string arg)
-		{
-			return arg;
+			if (arg.find('\''))
+			{
+				std::string retVal;
+				for (const auto c : arg)
+				{
+					if (c == '\'')
+						retVal.push_back(c);
+					retVal.push_back(c);
+				}
+				return retVal;
+			}
+			else
+				return arg;
 		}
 
 		std::ostream& _os;

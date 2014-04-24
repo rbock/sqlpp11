@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -35,15 +35,17 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Flag, typename Expr>
-		struct count_t: public sqlpp::detail::integral::template operators<count_t<Flag, Expr>>
+		struct count_t: public sqlpp::detail::integral::template expression_operators<count_t<Flag, Expr>>
 		{
 			static_assert(is_noop<Flag>::value or std::is_same<sqlpp::distinct_t, Flag>::value, "count() used with flag other than 'distinct'");
-			static_assert(is_value_t<Expr>::value, "count() requires a sql value as argument");
+			static_assert(is_expression_t<Expr>::value, "count() requires a sql expression as argument");
 
 			struct _value_type: public sqlpp::detail::integral
 			{
 				using _is_named_expression = std::true_type;
 			};
+
+			using _table_set = typename Expr::_table_set;
 
 			struct _name_t
 			{
@@ -74,7 +76,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename Flag, typename Expr>
-			struct interpreter_t<Context, vendor::count_t<Flag, Expr>>
+			struct serializer_t<Context, vendor::count_t<Flag, Expr>>
 			{
 				using T = vendor::count_t<Flag, Expr>;
 
@@ -83,10 +85,10 @@ namespace sqlpp
 					context << "COUNT(";
 					if (std::is_same<sqlpp::distinct_t, Flag>::value)
 					{
-						interpret(Flag(), context);
+						serialize(Flag(), context);
 						context << ' ';
 					}
-					interpret(t._expr, context);
+					serialize(t._expr, context);
 					context << ")";
 					return context;
 				}
@@ -94,14 +96,16 @@ namespace sqlpp
 	}
 
 	template<typename T>
-		auto count(T t) -> typename vendor::count_t<vendor::noop, typename operand_t<T, is_value_t>::type>
+		auto count(T t) -> typename vendor::count_t<vendor::noop, vendor::wrap_operand_t<T>>
 		{
+			static_assert(is_expression_t<vendor::wrap_operand_t<T>>::value, "count() requires an expression as argument");
 			return { t };
 		}
 
 	template<typename T>
-		auto count(const sqlpp::distinct_t&, T t) -> typename vendor::count_t<sqlpp::distinct_t, typename operand_t<T, is_value_t>::type>
+		auto count(const sqlpp::distinct_t&, T t) -> typename vendor::count_t<sqlpp::distinct_t, vendor::wrap_operand_t<T>>
 		{
+			static_assert(is_expression_t<vendor::wrap_operand_t<T>>::value, "count() requires an expression as argument");
 			return { t };
 		}
 

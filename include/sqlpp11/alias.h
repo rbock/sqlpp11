@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -33,6 +33,9 @@ namespace sqlpp
 	template<typename Expression, typename AliasProvider>
 		struct expression_alias_t
 		{
+			static_assert(is_expression_t<Expression>::value, "invalid argument for an expression alias");
+			static_assert(not is_alias_t<Expression>::value, "cannot create an alias of an alias");
+
 			struct _value_type: Expression::_value_type
 			{
 				using _is_expression = std::false_type;
@@ -41,6 +44,7 @@ namespace sqlpp
 			};
 
 			using _name_t = typename AliasProvider::_name_t;
+			using _table_set = typename Expression::_table_set;
 
 			Expression _expression;
 		};
@@ -48,14 +52,14 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename Expression, typename AliasProvider>
-			struct interpreter_t<Context, expression_alias_t<Expression, AliasProvider>>
+			struct serializer_t<Context, expression_alias_t<Expression, AliasProvider>>
 			{
 				using T = expression_alias_t<Expression, AliasProvider>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					context << '(';
-					interpret(t._expression, context);
+					serialize(t._expression, context);
 					context << ") AS ";
 					context << T::_name_t::_get_name();
 					return context;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,22 +27,20 @@
 #ifndef SQLPP_SOME_H
 #define SQLPP_SOME_H
 
-#include <sstream>
 #include <sqlpp11/boolean.h>
+#include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
 {
 	namespace vendor
 	{
 		template<typename Select>
-		struct some_t: public boolean::template operators<some_t<Select>>
+		struct some_t
 		{
-			static_assert(is_select_t<Select>::value, "some() requires a single column select expression as argument");
-			static_assert(is_value_t<Select>::value, "some() requires a single column select expression as argument");
-
 			struct _value_type: public Select::_value_type::_base_value_type
 			{
-				using _is_multi_expression = std::true_type; // must not be named
+				using _is_expression = std::false_type;
+				using _is_multi_expression = std::true_type; // must not be named or used with +,-,*,/, etc
 			};
 
 			struct _name_t
@@ -56,6 +54,7 @@ namespace sqlpp
 						const T& operator()() const { return some; }
 					};
 			};
+			using _table_set = typename Select::_table_set;
 
 			some_t(Select select):
 				_select(select)
@@ -74,14 +73,14 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename Select>
-			struct interpreter_t<Context, vendor::some_t<Select>>
+			struct serializer_t<Context, vendor::some_t<Select>>
 			{
 				using T = vendor::some_t<Select>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					context << "SOME(";
-					interpret(t._select, context);
+					serialize(t._select, context);
 					context << ")";
 					return context;
 				}
@@ -89,8 +88,10 @@ namespace sqlpp
 	}
 
 	template<typename T>
-		auto some(T t) -> typename vendor::some_t<typename operand_t<T, is_select_t>::type>
+		auto some(T t) -> typename vendor::some_t<vendor::wrap_operand_t<T>>
 		{
+			static_assert(is_select_t<vendor::wrap_operand_t<T>>::value, "some() requires a single column select expression as argument");
+			static_assert(is_value_t<vendor::wrap_operand_t<T>>::value, "some() requires a single column select expression as argument");
 			return { t };
 		}
 

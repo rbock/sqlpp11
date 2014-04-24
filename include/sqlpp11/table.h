@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,6 +29,7 @@
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/table_alias.h>
+#include <sqlpp11/all_of.h>
 #include <sqlpp11/column.h>
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/join.h>
@@ -42,10 +43,9 @@ namespace sqlpp
 	struct table_t: public table_base_t, public ColumnSpec::_name_t::template _member_t<column_t<Table, ColumnSpec>>...
 	{
 		using _table_set = detail::type_set<Table>; // Hint need a type_set here to be similar to a join (which always represents more than one table)
-		using _all_columns = typename detail::make_set<column_t<Table, ColumnSpec>...>::type;
-		static_assert(_all_columns::size::value, "at least one column required per table");
-		using _required_insert_columns = typename detail::make_set_if<require_insert_t, column_t<Table, ColumnSpec>...>::type;
-		using _all_of_t = std::tuple<column_t<Table, ColumnSpec>...>;
+		static_assert(sizeof...(ColumnSpec), "at least one column required per table");
+		using _required_insert_columns = typename detail::make_type_set_if<require_insert_t, column_t<Table, ColumnSpec>...>::type;
+		using _column_tuple_t = std::tuple<column_t<Table, ColumnSpec>...>;
 		template<typename AliasProvider>
 			using _alias_t = table_alias_t<AliasProvider, Table, ColumnSpec...>;
 
@@ -93,16 +93,10 @@ namespace sqlpp
 		}
 	};
 
-	template<typename Table>
-	auto all_of(Table t) -> typename Table::_all_of_t
-	{
-		return {};
-	}
-
 	namespace vendor
 	{
 		template<typename Context, typename X>
-			struct interpreter_t<Context, X, typename std::enable_if<std::is_base_of<table_base_t, X>::value and not is_pseudo_table_t<X>::value, void>::type>
+			struct serializer_t<Context, X, typename std::enable_if<std::is_base_of<table_base_t, X>::value and not is_pseudo_table_t<X>::value, void>::type>
 			{
 				using T = X;
 

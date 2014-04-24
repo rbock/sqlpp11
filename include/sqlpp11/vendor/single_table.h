@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,53 +24,56 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_COLUMN_LIST_H
-#define SQLPP_COLUMN_LIST_H
+#ifndef SQLPP_VENDOR_SINGLE_TABLE_H
+#define SQLPP_VENDOR_SINGLE_TABLE_H
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/detail/logic.h>
-#include <sqlpp11/vendor/interpret_tuple.h>
-#include <sqlpp11/vendor/simple_column.h>
+#include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
 {
 	namespace vendor
 	{
-		template<typename... Columns>
-			struct column_list_t
+		// A SINGLE TABLE
+		template<typename Database, typename Table>
+			struct single_table_t
 			{
-				using _is_column_list = std::true_type;
-				using _parameter_tuple_t = std::tuple<Columns...>;
+				using _is_single_table = std::true_type;
 
-				// check for at least one order column
-				static_assert(sizeof...(Columns), "at least one column required in columns()");
+				static_assert(is_table_t<Table>::value, "argument has to be a table");
 
-				// check for duplicate columns
-				static_assert(not ::sqlpp::detail::has_duplicates<Columns...>::value, "at least one duplicate argument detected in columns()");
+				single_table_t(Table table):
+					_table(table)
+				{}
 
-				// check for invalid columns
-				static_assert(::sqlpp::detail::and_t<is_column_t, Columns...>::value, "at least one argument is not a column in columns()");
+				single_table_t(const single_table_t&) = default;
+				single_table_t(single_table_t&&) = default;
+				single_table_t& operator=(const single_table_t&) = default;
+				single_table_t& operator=(single_table_t&&) = default;
+				~single_table_t() = default;
 
-				// check for prohibited columns
-				static_assert(not ::sqlpp::detail::or_t<must_not_insert_t, Columns...>::value, "at least one column argument has a must_not_insert flag in its definition");
-
-				std::tuple<simple_column_t<Columns>...> _columns;
+				using _table_set = typename Table::_table_set;
+				Table _table;
 			};
 
-		template<typename Context, typename... Columns>
-			struct interpreter_t<Context, column_list_t<Columns...>>
+		struct no_single_table_t
+		{
+			using _table_set = ::sqlpp::detail::type_set<>;
+		};
+
+		// Interpreters
+		template<typename Context, typename Database, typename Table>
+			struct serializer_t<Context, single_table_t<Database, Table>>
 			{
-				using T = column_list_t<Columns...>;
+				using T = single_table_t<Database, Table>;
 
 				static Context& _(const T& t, Context& context)
 				{
-					context << " (";
-					interpret_tuple(t._columns, ",", context);
-					context << ")";
-
+					serialize(t._table, context);
 					return context;
 				}
 			};
+
 	}
 }
 

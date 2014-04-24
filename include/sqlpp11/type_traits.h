@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -92,7 +92,9 @@ namespace sqlpp
 	SQLPP_IS_COLUMN_TRAIT_GENERATOR(must_not_update);
 	SQLPP_IS_COLUMN_TRAIT_GENERATOR(require_insert);
 	SQLPP_IS_COLUMN_TRAIT_GENERATOR(can_be_null);
+	SQLPP_IS_COLUMN_TRAIT_GENERATOR(trivial_value_is_null);
 
+	SQLPP_TYPE_TRAIT_GENERATOR(is_noop);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_table);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_join);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_pseudo_table);
@@ -122,20 +124,11 @@ namespace sqlpp
 	SQLPP_TYPE_TRAIT_GENERATOR(requires_braces);
 	SQLPP_TYPE_TRAIT_GENERATOR(is_parameter);
 
-	SQLPP_CONNECTOR_TRAIT_GENERATOR(has_empty_list_insert);
+	SQLPP_CONNECTOR_TRAIT_GENERATOR(null_result_is_trivial_value);
+	SQLPP_CONNECTOR_TRAIT_GENERATOR(assert_result_validity);
 
 	template<typename T, template<typename> class IsTag>
 		using copy_type_trait = typename std::conditional<IsTag<T>::value, std::true_type, std::false_type>::type;
-
-	template<typename T, template<typename> class IsCorrectType>
-		struct operand_t
-		{
-			using type = typename vendor::wrap_operand<T>::type;
-			static_assert(not is_alias_t<type>::value, "expression operand must not be an alias");
-			static_assert(is_expression_t<type>::value, "expression required");
-			static_assert(IsCorrectType<type>::value, "invalid operand type");
-		};
-	
 }
 
 #endif

@@ -24,47 +24,32 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef SQLPP_SERIALIZE_H
+#define SQLPP_SERIALIZE_H
 
-#ifndef SQLPP_DATABASE_CHAR_RESULT_H
-#define SQLPP_DATABASE_CHAR_RESULT_H
-
-#include <sqlpp11/vendor/char_result_row.h>
+#include <sqlpp11/vendor/serializer.h>
 
 namespace sqlpp
 {
-	namespace database
-	{
-		/*
-		 * char_result_t yields results as 
-		 * sqlpp11::vendor::char_result_row_t
-		 */
-		class char_result_t
+	template<typename T, typename Context>
+		auto serialize(const T& t, Context& context)
+		-> decltype(vendor::serializer_t<Context, T>::_(t, context))
 		{
-			::sqlpp11::vendor::char_result_row_t char_result_row;
-		public:
-			char_result_t(); // default constructor for a result that will not yield a valid row
-			char_result_t(...);
-			char_result_t(const char_result_t&) = delete;
-			char_result_t(char_result_t&& rhs);
-			char_result_t& operator=(const char_result_t&) = delete;
-			char_result_t& operator=(char_result_t&&);
-			~char_result_t();
+			return vendor::serializer_t<Context, T>::_(t, context);
+		}
 
-			bool operator==(const char_result_t& rhs) const;
-
-			template<typename ResultRow>
-			void next(ResultRow& result_row);
-
-			// Something like
-			/*
+	/*
+	namespace vendor // Required if you want to call serialize(sqlpp::value(7), printer), for instance
+	{
+		template<typename T, typename Context>
+			auto serialize(const T& t, Context& context)
+			-> decltype(vendor::serializer_t<Context, T>::_(t, context))
 			{
-				next_impl();
-				if (_char_result_row.data)
-					result_row = _char_result_row;
-				else
-					result_row.invalidate();
-			};
-			*/
+				return vendor::serializer_t<Context, T>::_(t, context);
+			}
 	}
+	*/
+
 }
+
 #endif

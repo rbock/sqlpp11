@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -82,11 +82,11 @@ namespace sqlpp
 			static_assert(not is_join_t<Rhs>::value, "rhs argument for join must not be a join");
 			static_assert(vendor::is_noop<On>::value or is_on_t<On>::value, "invalid on expression in join().on()");
 
-			static_assert(Lhs::_table_set::template is_disjunct_from<typename Rhs::_table_set>::value, "joined tables must not be identical");
+			static_assert(::sqlpp::detail::is_disjunct_from<typename Lhs::_table_set, typename Rhs::_table_set>::value, "joined tables must not be identical");
 
 			using _is_table = std::true_type;
 			using _is_join = std::true_type;
-			using _table_set = typename Lhs::_table_set::template join<typename Rhs::_table_set>::type;
+			using _table_set = typename ::sqlpp::detail::make_joined_set<typename Lhs::_table_set, typename Rhs::_table_set>::type;
 
 			template<typename OnT> 
 				using set_on_t = join_t<JoinType, Lhs, Rhs, OnT>;
@@ -145,18 +145,18 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Context, typename JoinType, typename Lhs, typename Rhs, typename On>
-			struct interpreter_t<Context, join_t<JoinType, Lhs, Rhs, On>>
+			struct serializer_t<Context, join_t<JoinType, Lhs, Rhs, On>>
 			{
 				using T = join_t<JoinType, Lhs, Rhs, On>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					static_assert(not vendor::is_noop<On>::value, "joined tables require on()");
-					interpret(t._lhs, context);
+					serialize(t._lhs, context);
 					context << JoinType::_name;
 					context << " JOIN ";
-					interpret(t._rhs, context);
-					interpret(t._on, context);
+					serialize(t._rhs, context);
+					serialize(t._on, context);
 					return context;
 				}
 			};

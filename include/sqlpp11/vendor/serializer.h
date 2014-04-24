@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,41 +24,25 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DETAIL_MAKE_EXPRESSION_TUPLE_H
-#define SQLPP_DETAIL_MAKE_EXPRESSION_TUPLE_H
+#ifndef SQLPP_VENDOR_SERIALIZER_H
+#define SQLPP_VENDOR_SERIALIZER_H
+
+#include <sqlpp11/vendor/wrong.h>
 
 namespace sqlpp
 {
-	namespace detail
+	namespace vendor
 	{
-		template<typename Expr>
-			auto make_single_expression_tuple(Expr expr)
-			-> typename std::enable_if<is_named_expression_t<Expr>::value, decltype(std::make_tuple(expr))>::type
+		template<typename Context, typename T, typename Enable = void>
+			struct serializer_t
 			{
-				return std::make_tuple(expr);
+				static void _(const T& t, Context& context)
+				{
+					static_assert(wrong_t<Context, T>::value, "missing serializer specialization");
+				}
 			};
-
-		template<typename Expr>
-			auto make_single_expression_tuple(Expr expr)
-			-> typename std::enable_if<is_select_flag_t<Expr>::value, std::tuple<>>::type
-			{
-				return {};
-			};
-
-		template<typename... Expr>
-			auto make_single_expression_tuple(std::tuple<Expr...> t)
-			-> std::tuple<Expr...>
-			{
-				return t;
-			};
-
-		template<typename... Expr>
-			auto make_expression_tuple(Expr... expr)
-			-> decltype(std::tuple_cat(make_single_expression_tuple(expr)...))
-			{
-				return std::tuple_cat(make_single_expression_tuple(expr)...);
-			};
-
 	}
+
 }
+
 #endif

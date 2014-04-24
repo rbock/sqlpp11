@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2013-2014, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -36,8 +36,21 @@ namespace sqlpp
 		template<typename T>
 			using _constraint = std::false_type;
 
+		using _base_value_type = no_value_t;
+
+		template<typename T>
+			struct _is_valid_operand
+			{
+				static constexpr bool value = false;
+			};
+
 		template<typename Base>
-			struct operators
+			struct expression_operators
+			{
+			};
+
+		template<typename Base>
+			struct column_operators
 			{
 			};
 	};
