@@ -34,52 +34,16 @@ namespace sqlpp
 	namespace detail
 	{
 		template<bool... b>
-			struct all_impl;
-
-		template<>
-			struct all_impl<>
-			{
-				using type = std::true_type;
-			};
-
-		template<bool... Rest>
-			struct all_impl<true, Rest...>
-			{
-				using type = typename all_impl<Rest...>::type;
-			};
-
-		template<bool... Rest>
-			struct all_impl<false, Rest...>
-			{
-				using type = std::false_type;
-			};
+			struct all_helper;
 
 		template<template<typename> class Predicate, typename... T>
-			using all_t = typename all_impl<Predicate<T>::value...>::type;
-
-		template<bool... b>
-			struct any_impl;
-
-		template<>
-			struct any_impl<>
-			{
-				using type = std::false_type;
-			};
-
-		template<bool... Rest>
-			struct any_impl<false, Rest...>
-			{
-				using type = typename any_impl<Rest...>::type;
-			};
-
-		template<bool... Rest>
-			struct any_impl<true, Rest...>
-			{
-				using type = std::true_type;
-			};
+			using all_t = std::is_same<all_helper<Predicate<T>::value...>, all_helper<(true or Predicate<T>::value)...>>;
 
 		template<template<typename> class Predicate, typename... T>
-			using any_t = typename any_impl<Predicate<T>::value...>::type;
+			using any_t = typename std::conditional<std::is_same<all_helper<Predicate<T>::value...>, all_helper<(false and Predicate<T>::value)...>>::value,
+						std::false_type,
+						std::true_type
+							>::type;
 
 		template<bool>
 			struct not_impl;
