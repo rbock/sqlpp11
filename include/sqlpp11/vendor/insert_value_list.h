@@ -67,7 +67,7 @@ namespace sqlpp
 
 				static_assert(sqlpp::detail::all_t<is_assignment_t, Assignments...>::value, "at least one argument is not an assignment in set()");
 
-				static_assert(not sqlpp::detail::any_t<must_not_insert_t, typename Assignments::_column_t...>::value, "at least one assignment is prohibited by its column definition in set()");
+					static_assert(sqlpp::detail::none_t<must_not_insert_t<typename Assignments::_column_t>::value...>::value, "at least one assignment is prohibited by its column definition in set()");
 
 				using _column_table_set = typename ::sqlpp::detail::make_joined_set<typename Assignments::_column_t::_table_set...>::type;
 				using _value_table_set = typename ::sqlpp::detail::make_joined_set<typename Assignments::value_type::_table_set...>::type;
@@ -144,7 +144,7 @@ namespace sqlpp
 
 				static_assert(::sqlpp::detail::all_t<is_column_t, Columns...>::value, "at least one argument is not a column in columns()");
 
-				static_assert(not ::sqlpp::detail::any_t<must_not_insert_t, Columns...>::value, "at least one column argument has a must_not_insert flag in its definition");
+				static_assert(::sqlpp::detail::none_t<must_not_insert_t<Columns>::value...>::value, "at least one column argument has a must_not_insert flag in its definition");
 
 				using _value_tuple_t = std::tuple<vendor::insert_value_t<Columns>...>;
 				using _table_set = typename ::sqlpp::detail::make_joined_set<typename Columns::_table_set...>::type;

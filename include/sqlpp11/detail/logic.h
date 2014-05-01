@@ -33,17 +33,23 @@ namespace sqlpp
 {
 	namespace detail
 	{
-		template<bool... b>
-			struct all_helper;
+		template<bool... B>
+			struct logic_helper;
 
 		template<template<typename> class Predicate, typename... T>
-			using all_t = std::is_same<all_helper<Predicate<T>::value...>, all_helper<(true or Predicate<T>::value)...>>;
+			using all_t = std::integral_constant<
+						bool,
+						std::is_same<logic_helper<Predicate<T>::value...>, logic_helper<(true or Predicate<T>::value)...>>::value>;
 
-		template<template<typename> class Predicate, typename... T>
-			using any_t = typename std::conditional<std::is_same<all_helper<Predicate<T>::value...>, all_helper<(false and Predicate<T>::value)...>>::value,
-						std::false_type,
-						std::true_type
-							>::type;
+		template<bool... B>
+			using any_t = std::integral_constant<
+						bool,
+						not std::is_same<logic_helper<B...>, logic_helper<(false and B)...>>::value>;
+
+		template<bool... B>
+			using none_t = std::integral_constant<
+						bool,
+						std::is_same<logic_helper<B...>, logic_helper<(false and B)...>>::value>;
 
 		template<bool>
 			struct not_impl;

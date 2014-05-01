@@ -50,7 +50,7 @@ namespace sqlpp
 
 				static_assert(::sqlpp::detail::all_t<is_assignment_t, Assignments...>::value, "at least one argument is not an assignment in set()");
 
-				static_assert(not ::sqlpp::detail::any_t<must_not_update_t, typename Assignments::_column_t...>::value, "at least one assignment is prohibited by its column definition in set()");
+				static_assert(::sqlpp::detail::none_t<must_not_update_t<typename Assignments::_column_t>::value...>::value, "at least one assignment is prohibited by its column definition in set()");
 
 				using _column_table_set = typename ::sqlpp::detail::make_joined_set<typename Assignments::_column_t::_table_set...>::type;
 				using _value_table_set = typename ::sqlpp::detail::make_joined_set<typename Assignments::value_type::_table_set...>::type;
