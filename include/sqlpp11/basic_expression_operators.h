@@ -134,14 +134,14 @@ namespace sqlpp
 			template<typename... T>
 				vendor::in_t<true, Base, vendor::wrap_operand_t<T>...> in(T... t) const
 				{
-					static_assert(detail::all_t<_is_valid_comparison_operand, vendor::wrap_operand_t<T>...>::value, "at least one operand of in() is not valid");
+					static_assert(detail::all_t<_is_valid_comparison_operand<vendor::wrap_operand_t<T>>::value...>::value, "at least one operand of in() is not valid");
 					return { *static_cast<const Base*>(this), vendor::wrap_operand_t<T>{t}... };
 				}
 
 			template<typename... T>
 				vendor::in_t<false, Base, vendor::wrap_operand_t<T>...> not_in(T... t) const
 				{
-					static_assert(detail::all_t<_is_valid_comparison_operand, vendor::wrap_operand_t<T>...>::value, "at least one operand of in() is not valid");
+					static_assert(detail::all_t<_is_valid_comparison_operand<vendor::wrap_operand_t<T>>::value...>::value, "at least one operand of in() is not valid");
 					return { *static_cast<const Base*>(this), vendor::wrap_operand_t<T>{t}... };
 				}
 

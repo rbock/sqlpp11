@@ -36,10 +36,10 @@ namespace sqlpp
 		template<bool... B>
 			struct logic_helper;
 
-		template<template<typename> class Predicate, typename... T>
+		template<bool... B>
 			using all_t = std::integral_constant<
 						bool,
-						std::is_same<logic_helper<Predicate<T>::value...>, logic_helper<(true or Predicate<T>::value)...>>::value>;
+						std::is_same<logic_helper<B...>, logic_helper<(true or B)...>>::value>;
 
 		template<bool... B>
 			using any_t = std::integral_constant<

@@ -65,7 +65,7 @@ namespace sqlpp
 
 				static_assert(not ::sqlpp::detail::has_duplicates<Assignments...>::value, "at least one duplicate argument detected in set()");
 
-				static_assert(sqlpp::detail::all_t<is_assignment_t, Assignments...>::value, "at least one argument is not an assignment in set()");
+				static_assert(sqlpp::detail::all_t<is_assignment_t<Assignments>::value...>::value, "at least one argument is not an assignment in set()");
 
 					static_assert(sqlpp::detail::none_t<must_not_insert_t<typename Assignments::_column_t>::value...>::value, "at least one assignment is prohibited by its column definition in set()");
 
@@ -101,12 +101,12 @@ namespace sqlpp
 								static_assert(::sqlpp::detail::is_subset_of<_value_table_set, typename Policies::_table_set>::value, "add_set() contains a column from a foreign table");
 								static_assert(::sqlpp::detail::is_subset_of<_column_table_set, typename Policies::_table_set>::value, "add_set() contains a value from a foreign table");
 
-								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, 
-											_is_dynamic, 
-											is_assignment_t<Assignment>, 
-											::sqlpp::detail::not_t<must_not_insert_t, typename Assignment::_column_t>,
-											::sqlpp::detail::is_subset_of<_value_table_set, typename Policies::_table_set>,
-											::sqlpp::detail::is_subset_of<_column_table_set, typename Policies::_table_set>>;
+								using ok = ::sqlpp::detail::all_t<
+											_is_dynamic::value, 
+											is_assignment_t<Assignment>::value, 
+											not must_not_insert_t<typename Assignment::_column_t>::value,
+											::sqlpp::detail::is_subset_of<_value_table_set, typename Policies::_table_set>::value,
+											::sqlpp::detail::is_subset_of<_column_table_set, typename Policies::_table_set>::value>;
 
 								_add_set_impl(assignment, ok()); // dispatch to prevent compile messages after the static_assert
 							}
@@ -142,7 +142,7 @@ namespace sqlpp
 
 				static_assert(not ::sqlpp::detail::has_duplicates<Columns...>::value, "at least one duplicate argument detected in columns()");
 
-				static_assert(::sqlpp::detail::all_t<is_column_t, Columns...>::value, "at least one argument is not a column in columns()");
+				static_assert(::sqlpp::detail::all_t<is_column_t<Columns>::value...>::value, "at least one argument is not a column in columns()");
 
 				static_assert(::sqlpp::detail::none_t<must_not_insert_t<Columns>::value...>::value, "at least one column argument has a must_not_insert flag in its definition");
 
@@ -167,14 +167,14 @@ namespace sqlpp
 						template<typename... Assignments>
 							void add_values(Assignments... assignments)
 							{
-								static_assert(::sqlpp::detail::all_t<is_assignment_t, Assignments...>::value, "add_values() arguments have to be assignments");
+								static_assert(::sqlpp::detail::all_t<is_assignment_t<Assignments>::value...>::value, "add_values() arguments have to be assignments");
 								using _arg_value_tuple = std::tuple<vendor::insert_value_t<typename Assignments::_column_t>...>;
 								using _args_correct = std::is_same<_arg_value_tuple, _value_tuple_t>;
 								static_assert(_args_correct::value, "add_values() arguments do not match columns() arguments");
 
-								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, 
-											::sqlpp::detail::all_t<is_assignment_t, Assignments...>, 
-											_args_correct>;
+								using ok = ::sqlpp::detail::all_t<
+											::sqlpp::detail::all_t<is_assignment_t<Assignments>::value...>::value, 
+											_args_correct::value>;
 
 								_add_values_impl(ok(), assignments...); // dispatch to prevent compile messages after the static_assert
 							}

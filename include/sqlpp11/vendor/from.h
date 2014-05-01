@@ -49,7 +49,7 @@ namespace sqlpp
 				// FIXME: Joins contain two tables. This is not being dealt with at the moment when looking at duplicates, for instance
 				static_assert(not ::sqlpp::detail::has_duplicates<Tables...>::value, "at least one duplicate argument detected in from()");
 
-				static_assert(::sqlpp::detail::all_t<is_table_t, Tables...>::value, "at least one argument is not a table or join in from()");
+				static_assert(::sqlpp::detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not a table or join in from()");
 
 				using _table_set = ::sqlpp::detail::make_joined_set_t<typename Tables::_table_set...>;
 
@@ -73,7 +73,7 @@ namespace sqlpp
 								static_assert(_is_dynamic::value, "add_from must not be called for static from()");
 								static_assert(is_table_t<Table>::value, "invalid table argument in add_from()");
 
-								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, _is_dynamic, is_table_t<Table>>;
+								using ok = ::sqlpp::detail::all_t<_is_dynamic::value, is_table_t<Table>::value>;
 
 								_add_from_impl(table, ok()); // dispatch to prevent compile messages after the static_assert
 							}

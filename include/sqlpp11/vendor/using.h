@@ -49,7 +49,7 @@ namespace sqlpp
 
 				static_assert(not ::sqlpp::detail::has_duplicates<Tables...>::value, "at least one duplicate argument detected in using()");
 
-				static_assert(::sqlpp::detail::all_t<is_table_t, Tables...>::value, "at least one argument is not an table in using()");
+				static_assert(::sqlpp::detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not an table in using()");
 
 				using _table_set = ::sqlpp::detail::make_joined_set_t<typename Tables::_table_set...>;
 
@@ -72,7 +72,7 @@ namespace sqlpp
 								static_assert(_is_dynamic::value, "add_using must not be called for static using()");
 								static_assert(is_table_t<Table>::value, "invalid table argument in add_using()");
 
-								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, _is_dynamic, is_table_t<Table>>;
+								using ok = ::sqlpp::detail::all_t<_is_dynamic::value, is_table_t<Table>::value>;
 
 								_add_using_impl(table, ok()); // dispatch to prevent compile messages after the static_assert
 							}
