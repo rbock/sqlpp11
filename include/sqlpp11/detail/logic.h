@@ -36,6 +36,7 @@ namespace sqlpp
 		template<bool... B>
 			struct logic_helper;
 
+		// see http://lists.boost.org/Archives/boost/2014/05/212946.php :-)
 		template<bool... B>
 			using all_t = std::integral_constant<
 						bool,
