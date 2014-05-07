@@ -55,7 +55,7 @@ namespace sqlpp
 			// See also: "http://stackoverflow.com/questions/6245735/pretty-print-stdtuple/6245777#6245777"
 			// Beware of gcc-bug: "http://gcc.gnu.org/bugzilla/show_bug.cgi?id=51253", otherwise an empty swallow struct could be used
 			using swallow = int[]; 
-			(void) swallow{(interpret_tuple_element(std::get<Is>(t), separator, context, Is) ,0)...};
+			(void) swallow{(interpret_tuple_element(std::get<Is>(t), separator, context, Is), 0)...};
 			return context;
 		}
 

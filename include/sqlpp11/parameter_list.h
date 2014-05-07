@@ -27,8 +27,9 @@
 #ifndef SQLPP_PARAMETER_LIST_H
 #define SQLPP_PARAMETER_LIST_H
 
-#include <sqlpp11/vendor/wrong.h>
 #include <tuple>
+#include <sqlpp11/vendor/wrong.h>
+#include <sqlpp11/detail/index_sequence.h>
 
 namespace sqlpp
 {
@@ -50,23 +51,15 @@ namespace sqlpp
 			template<typename Target>
 				void _bind(Target& target) const
 				{
-					_bind_impl(target, index_t<0>());
+					_bind_impl(target, ::sqlpp::detail::make_index_sequence<size::value>{});
 				}
 
 		private:
-			template<size_t> struct index_t {}; // this is just for overloading
-
-			template<typename Target, size_t index>
-				void _bind_impl(Target& target, const index_t<index>&) const
+			template<typename Target, size_t... Is>
+				void _bind_impl(Target& target, const ::sqlpp::detail::index_sequence<Is...>&) const
 				{
-					const auto& parameter = static_cast<typename std::tuple_element<index, const _member_tuple_t>::type&>(*this)();
-					parameter._bind(target, index);
-					_bind_impl(target, index_t<index + 1>());
-				}
-
-			template<typename Target>
-				void _bind_impl(Target& target, const index_t<size::value>&) const
-				{
+					using swallow = int[];  // see interpret_tuple.h
+					(void) swallow{(static_cast<typename std::tuple_element<Is, const _member_tuple_t>::type&>(*this)()._bind(target, Is), 0)...};
 				}
 		};
 
