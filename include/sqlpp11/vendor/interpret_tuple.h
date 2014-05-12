@@ -30,47 +30,40 @@
 #include <tuple>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/serialize.h>
+#include <sqlpp11/detail/index_sequence.h>
 
 namespace sqlpp
 {
-	template<typename Context, typename Tuple>
-		struct tuple_interpreter_t
+	template<typename Element, typename Separator, typename Context>
+		static void interpret_tuple_element(const Element& element, const Separator& separator, Context& context, size_t index)
 		{
-			template<typename Separator>
-				static void _(const Tuple& t, const Separator& separator, Context& context)
-				{
-					_impl(t, separator, context, type<0>());
-				};
+			if (index)
+				context << separator;
+			if (requires_braces_t<Element>::value)
+				context << "(";
+			serialize(element, context);
+			if (requires_braces_t<Element>::value)
+				context << ")";
+		}
 
-		private:
-			template<size_t> struct type {};
-
-			template<typename Separator, size_t index>
-				static void _impl(const Tuple& t, const Separator& separator, Context& context, const type<index>&)
-				{
-					if (index)
-						context << separator;
-					const auto& entry = std::get<index>(t);
-					using entry_type = typename std::tuple_element<index, Tuple>::type;
-					if (requires_braces_t<entry_type>::value)
-						context << "(";
-					serialize(entry, context);
-					if (requires_braces_t<entry_type>::value)
-						context << ")";
-					_impl(t, separator, context, type<index + 1>());
-				}
-
-			template<typename Separator>
-				static void _impl(const Tuple& t, const Separator& separator, Context& context, const type<std::tuple_size<Tuple>::value>&)
-				{
-				}
-		};
+	template<typename Tuple, typename Separator, typename Context, size_t... Is>
+		auto interpret_tuple_impl(const Tuple& t, const Separator& separator, Context& context, const ::sqlpp::detail::index_sequence<Is...>&)
+		-> Context&
+		{
+      // Note: A braced-init-list does guarantee the order of evaluation according to 12.6.1 [class.explicit.init] paragraph 2 and 8.5.4 [dcl.init.list] paragraph 4.
+			// See for example: "http://en.cppreference.com/w/cpp/utility/integer_sequence"
+			// See also: "http://stackoverflow.com/questions/6245735/pretty-print-stdtuple/6245777#6245777"
+			// Beware of gcc-bug: "http://gcc.gnu.org/bugzilla/show_bug.cgi?id=51253", otherwise an empty swallow struct could be used
+			using swallow = int[]; 
+			(void) swallow{(interpret_tuple_element(std::get<Is>(t), separator, context, Is), 0)...};
+			return context;
+		}
 
 	template<typename Tuple, typename Separator, typename Context>
 		auto interpret_tuple(const Tuple& t, const Separator& separator, Context& context)
-		-> decltype(tuple_interpreter_t<Context, Tuple>::_(t, separator, context))
+		-> Context&
 		{
-			return tuple_interpreter_t<Context, Tuple>::_(t, separator, context);
+			return interpret_tuple_impl(t, separator, context, ::sqlpp::detail::make_index_sequence<std::tuple_size<Tuple>::value>{});
 		}
 }
 

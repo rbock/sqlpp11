@@ -45,7 +45,7 @@ namespace sqlpp
 
 				static_assert(not ::sqlpp::detail::has_duplicates<Tables...>::value, "at least one duplicate argument detected in extra_tables()");
 
-				static_assert(::sqlpp::detail::all_t<is_table_t, Tables...>::value, "at least one argument is not a table or join in extra_tables()");
+				static_assert(::sqlpp::detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not a table or join in extra_tables()");
 
 				using _table_set = ::sqlpp::detail::make_joined_set_t<typename Tables::_table_set...>;
 

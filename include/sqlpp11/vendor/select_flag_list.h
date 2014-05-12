@@ -50,7 +50,7 @@ namespace sqlpp
 
 				static_assert(not ::sqlpp::detail::has_duplicates<Flags...>::value, "at least one duplicate argument detected in select flag list");
 
-				static_assert(::sqlpp::detail::all_t<is_select_flag_t, Flags...>::value, "at least one argument is not a select flag in select flag list");
+				static_assert(::sqlpp::detail::all_t<is_select_flag_t<Flags>::value...>::value, "at least one argument is not a select flag in select flag list");
 
 				select_flag_list_t(Flags... flags):
 					_flags(flags...)
@@ -78,7 +78,7 @@ namespace sqlpp
 								static_assert(is_select_flag_t<Flag>::value, "invalid select flag argument in add_flag()");
 								static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Flag>::value, "flag uses tables unknown to this statement in add_flag()");
 
-								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, _is_dynamic, is_select_flag_t<Flag>>;
+								using ok = ::sqlpp::detail::all_t<_is_dynamic::value, is_select_flag_t<Flag>::value>;
 
 								_add_flag_impl(flag, ok()); // dispatch to prevent compile messages after the static_assert
 							}

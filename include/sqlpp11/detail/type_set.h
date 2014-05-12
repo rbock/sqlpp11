@@ -79,29 +79,7 @@ namespace sqlpp
 		template<typename E, typename... Elements>
 			struct is_element_of<E, type_set<Elements...>>
 			{
-				template<typename X>
-					using matchE = std::is_same<E, X>;
-				static constexpr bool value = any_t<matchE, Elements...>::value;
-			};
-
-		template<typename L, typename R>
-			struct is_superset_of
-			{
-				static_assert(::sqlpp::vendor::wrong_t<L, R>::value, "L and R have to be type sets");
-			};
-
-		template<typename... LElements, typename... RElements>
-			struct is_superset_of<type_set<LElements...>, type_set<RElements...>>
-			{
-				template<typename X>
-					using is_element_of_L = is_element_of<X, type_set<LElements...>>;
-				static constexpr bool value = all_t<is_element_of_L, RElements...>::value;
-			};
-
-		template<typename L, typename R>
-			struct is_subset_of
-			{
-				static constexpr bool value = is_superset_of<R, L>::value;
+				static constexpr bool value = any_t<std::is_same<E, Elements>::value...>::value;
 			};
 
 		template<typename L, typename R>
@@ -117,6 +95,27 @@ namespace sqlpp
 			};
 
 		template<typename L, typename R>
+			using joined_set_t = typename joined_set<L, R>::type;
+
+		template<typename L, typename R>
+			struct is_superset_of
+			{
+				static_assert(::sqlpp::vendor::wrong_t<L, R>::value, "L and R have to be type sets");
+			};
+
+		template<typename... LElements, typename... RElements>
+			struct is_superset_of<type_set<LElements...>, type_set<RElements...>>
+			{
+				static constexpr bool value = joined_set_t<type_set<LElements...>, type_set<RElements...>>::size::value == sizeof...(LElements);
+			};
+
+		template<typename L, typename R>
+			struct is_subset_of
+			{
+				static constexpr bool value = is_superset_of<R, L>::value;
+			};
+
+		template<typename L, typename R>
 			struct is_disjunct_from
 			{
 				static_assert(::sqlpp::vendor::wrong_t<L, R>::value, "invalid argument for is_disjunct_from");
@@ -125,12 +124,7 @@ namespace sqlpp
 		template<typename... LElements, typename... RElements>
 			struct is_disjunct_from<type_set<LElements...>, type_set<RElements...>>
 			{
-				template<typename X>
-					using is_element_of_L = is_element_of<X, type_set<LElements...>>;
-				template<typename X>
-					using is_element_of_R = is_element_of<X, type_set<RElements...>>;
-				static constexpr bool value = 
-					not(any_t<is_element_of_L, RElements...>::value or any_t<is_element_of_R, LElements...>::value);
+				static constexpr bool value = joined_set_t<type_set<LElements...>, type_set<RElements...>>::size::value == sizeof...(LElements) + sizeof...(RElements);
 			};
 
 		template<>
@@ -191,7 +185,7 @@ namespace sqlpp
 			{
 				using _rest = typename make_joined_set<T...>::type;
 				
-				using type = typename joined_set<type_set<E...>, _rest>::type;
+				using type = joined_set_t<type_set<E...>, _rest>;
 			};
 
 		template<typename... Sets>

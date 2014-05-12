@@ -54,7 +54,7 @@ namespace sqlpp
 
 				static_assert(not ::sqlpp::detail::has_duplicates<Expressions...>::value, "at least one duplicate argument detected in group_by()");
 
-				static_assert(::sqlpp::detail::all_t<is_expression_t, Expressions...>::value, "at least one argument is not an expression in group_by()");
+				static_assert(::sqlpp::detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not an expression in group_by()");
 
 				group_by_t(Expressions... expressions):
 					_expressions(expressions...)
@@ -82,7 +82,7 @@ namespace sqlpp
 								static_assert(is_expression_t<Expression>::value, "invalid expression argument in add_group_by()");
 								static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Expression>::value, "expression uses tables unknown to this statement in add_group_by()");
 
-								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, _is_dynamic, is_expression_t<Expression>>;
+								using ok = ::sqlpp::detail::all_t<_is_dynamic::value, is_expression_t<Expression>::value>;
 
 								_add_group_by_impl(expression, ok()); // dispatch to prevent compile messages after the static_assert
 							}

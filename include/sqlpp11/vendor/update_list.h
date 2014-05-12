@@ -48,9 +48,9 @@ namespace sqlpp
 
 				static_assert(not ::sqlpp::detail::has_duplicates<Assignments...>::value, "at least one duplicate argument detected in set()");
 
-				static_assert(::sqlpp::detail::all_t<is_assignment_t, Assignments...>::value, "at least one argument is not an assignment in set()");
+				static_assert(::sqlpp::detail::all_t<is_assignment_t<Assignments>::value...>::value, "at least one argument is not an assignment in set()");
 
-				static_assert(not ::sqlpp::detail::any_t<must_not_update_t, typename Assignments::_column_t...>::value, "at least one assignment is prohibited by its column definition in set()");
+				static_assert(::sqlpp::detail::none_t<must_not_update_t<typename Assignments::_column_t>::value...>::value, "at least one assignment is prohibited by its column definition in set()");
 
 				using _column_table_set = typename ::sqlpp::detail::make_joined_set<typename Assignments::_column_t::_table_set...>::type;
 				using _value_table_set = typename ::sqlpp::detail::make_joined_set<typename Assignments::value_type::_table_set...>::type;
@@ -85,10 +85,10 @@ namespace sqlpp
 								static_assert(sqlpp::detail::not_t<must_not_update_t, typename Assignment::_column_t>::value, "add_set() argument must not be updated");
 								static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Assignment>::value, "assignment uses tables unknown to this statement in add_set()");
 
-								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, 
-											_is_dynamic, 
-											is_assignment_t<Assignment>, 
-											sqlpp::detail::not_t<must_not_update_t, typename Assignment::_column_t>>;
+								using ok = ::sqlpp::detail::all_t<
+											_is_dynamic::value, 
+											is_assignment_t<Assignment>::value, 
+											not must_not_update_t<typename Assignment::_column_t>::value>;
 
 								_add_set_impl(assignment, ok()); // dispatch to prevent compile messages after the static_assert
 							}

@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DETAIL_LOGIC_H
-#define SQLPP_DETAIL_LOGIC_H
+#ifndef SQLPP_DETAIL_INDEX_SEQUENCE_H
+#define SQLPP_DETAIL_INDEX_SEQUENCE_H
 
 #include <type_traits>
 
@@ -33,47 +33,30 @@ namespace sqlpp
 {
 	namespace detail
 	{
-		template<bool... B>
-			struct logic_helper;
+		// Note: This is a minimalistic implementation of index_sequence available in C++14
+		//       It should be replaced once the project is moved to C++14 or beyond
+		template<std::size_t... Ints>
+			struct index_sequence
+			{};
 
-		// see http://lists.boost.org/Archives/boost/2014/05/212946.php :-)
-		template<bool... B>
-			using all_t = std::integral_constant<
-						bool,
-						std::is_same<logic_helper<B...>, logic_helper<(true or B)...>>::value>;
+		template<typename T, std::size_t N>
+			struct make_index_sequence_impl;
 
-		template<bool... B>
-			using any_t = std::integral_constant<
-						bool,
-						not std::is_same<logic_helper<B...>, logic_helper<(false and B)...>>::value>;
+		template<std::size_t N, std::size_t... Ints>
+			struct make_index_sequence_impl<index_sequence<Ints...>, N>
+			{
+				using type = typename make_index_sequence_impl<index_sequence<Ints..., sizeof...(Ints)>, N - 1>::type;
+			};
 
-		template<bool... B>
-			using none_t = std::integral_constant<
-						bool,
-						std::is_same<logic_helper<B...>, logic_helper<(false and B)...>>::value>;
+		template<std::size_t... Ints>
+			struct make_index_sequence_impl<index_sequence<Ints...>, 0>
+			{
+				using type = index_sequence<Ints...>;
+			};
 
-		template<bool>
-			struct not_impl;
+		template<std::size_t N>
+			using make_index_sequence = typename make_index_sequence_impl<index_sequence<>, N>::type;
 
-		template<> 
-			struct not_impl<true>
-		{
-			using type = std::false_type;
-		};
-
-		template<> 
-			struct not_impl<false>
-		{
-			using type = std::true_type;
-		};
-
-
-		template<template<typename> class Predicate, typename... T>
-			using not_t = typename not_impl<Predicate<T>::value...>::type;
-
-
-		template<typename T>
-			using identity_t = T;
 	}
 }
 

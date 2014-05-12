@@ -53,7 +53,7 @@ namespace sqlpp
 
 				static_assert(not ::sqlpp::detail::has_duplicates<Expressions...>::value, "at least one duplicate argument detected in order_by()");
 
-				static_assert(::sqlpp::detail::all_t<is_sort_order_t, Expressions...>::value, "at least one argument is not a sort order expression in order_by()");
+				static_assert(::sqlpp::detail::all_t<is_sort_order_t<Expressions>::value...>::value, "at least one argument is not a sort order expression in order_by()");
 
 				order_by_t(Expressions... expressions):
 					_expressions(expressions...)
@@ -81,7 +81,7 @@ namespace sqlpp
 								static_assert(is_sort_order_t<Expression>::value, "invalid expression argument in add_order_by()");
 								static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Expression>::value, "expression uses tables unknown to this statement in add_order_by()");
 
-								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, _is_dynamic, is_sort_order_t<Expression>>;
+								using ok = ::sqlpp::detail::all_t<_is_dynamic::value, is_sort_order_t<Expression>::value>;
 
 								_add_order_by_impl(expression, ok()); // dispatch to prevent compile messages after the static_assert
 							}

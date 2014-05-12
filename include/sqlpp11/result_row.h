@@ -27,138 +27,132 @@
 #ifndef SQLPP_RESULT_ROW_H
 #define SQLPP_RESULT_ROW_H
 
+#include <map>
 #include <sqlpp11/vendor/char_result_row.h>
 #include <sqlpp11/vendor/field.h>
 #include <sqlpp11/text.h>
-#include <map>
+#include <sqlpp11/detail/column_index_sequence.h>
 
 namespace sqlpp
 {
 	namespace detail
 	{
-		template<size_t> struct index_t {}; // this is just for overloading
-
-		template<size_t level, size_t index, typename... NamedExpr>
+		template<typename Db, typename IndexSequence, typename... NamedExprs>
 			struct result_row_impl;
 
-		template<size_t level, size_t index, typename Db, typename NamedExpr, typename... Rest>
-			struct result_row_impl<level, index, Db, NamedExpr, Rest...>: 
-			public NamedExpr::_name_t::template _member_t<typename NamedExpr::_value_type::template _result_entry_t<Db, NamedExpr::_trivial_value_is_null>>,
-			public result_row_impl<level, index + 1, Db, Rest...>
+		template<typename Db, std::size_t index, typename NamedExpr>
+			struct result_field:
+				public NamedExpr::_name_t::template _member_t<typename NamedExpr::_value_type::template _result_entry_t<Db, NamedExpr::_trivial_value_is_null>>
 			{
 				using _field = typename NamedExpr::_name_t::template _member_t<typename NamedExpr::_value_type::template _result_entry_t<Db, NamedExpr::_trivial_value_is_null>>;
-				using _rest = result_row_impl<level, index + 1, Db, Rest...>;
-				static constexpr size_t _last_index = _rest::_last_index;
 
-				result_row_impl() = default;
-				result_row_impl(const char_result_row_t& char_result_row_t):
-					_field({{char_result_row_t.data[index], char_result_row_t.len[index]}}),
-					_rest(char_result_row_t)
+				result_field() = default;
+				result_field(const char_result_row_t& char_result_row_t):
+					_field({{char_result_row_t.data[index], char_result_row_t.len[index]}})
 				{
 				}
 
-				result_row_impl& operator=(const char_result_row_t& char_result_row_t)
+				result_field& operator=(const char_result_row_t& char_result_row_t)
 				{
 					_field::operator()().assign(char_result_row_t.data[index], char_result_row_t.len[index]);
-					_rest::operator=(char_result_row_t);
 					return *this;
 				}
 
 				void validate()
 				{
 					_field::operator()().validate();
-					_rest::validate();
 				}
 
 				void invalidate()
 				{
 					_field::operator()().invalidate();
-					_rest::invalidate();
 				}
 
 				template<typename Target>
 				void _bind(Target& target)
 				{
 					_field::operator()()._bind(target, index);
-					_rest::_bind(target);
 				}
 			};
 
-		template<size_t level, size_t index, typename AliasProvider, typename Db, typename... Col, typename... Rest>
-			struct result_row_impl<level, index, Db, vendor::multi_field_t<AliasProvider, std::tuple<Col...>>, Rest...>: 
-			public AliasProvider::_name_t::template _member_t<result_row_impl<level, index, Db, Col...>>, // level prevents identical closures to be present twice in the inheritance tree
-			public result_row_impl<level, index + sizeof...(Col), Db, Rest...>
+		template<std::size_t index, typename AliasProvider, typename Db, typename... NamedExprs>
+			struct result_field<Db, index, vendor::multi_field_t<AliasProvider, std::tuple<NamedExprs...>>>: 
+				public AliasProvider::_name_t::template _member_t<result_row_impl<Db, detail::make_column_index_sequence<index, NamedExprs...>, NamedExprs...>>
 			{
-				using _multi_field = typename AliasProvider::_name_t::template _member_t<result_row_impl<level, index, Db, Col...>>;
-				using _rest = result_row_impl<level, index + sizeof...(Col), Db, Rest...>;
-				static constexpr size_t _last_index = _rest::_last_index;
+				using _multi_field = typename AliasProvider::_name_t::template _member_t<result_row_impl<Db, detail::make_column_index_sequence<index, NamedExprs...>, NamedExprs...>>;
 
-				result_row_impl() = default;
-				result_row_impl(const char_result_row_t& char_result_row_t):
-					_multi_field({char_result_row_t}),
-					_rest(char_result_row_t)
+				result_field() = default;
+				result_field(const char_result_row_t& char_result_row_t):
+					_multi_field({char_result_row_t})
 				{}
 
-				result_row_impl& operator=(const char_result_row_t& char_result_row_t)
+				result_field& operator=(const char_result_row_t& char_result_row_t)
 				{
 					_multi_field::operator()() = char_result_row_t;
-					_rest::operator=(char_result_row_t);
 					return *this;
 				}
 
 				void validate()
 				{
 					_multi_field::operator()().validate();
-					_rest::validate();
 				}
 
 				void invalidate()
 				{
 					_multi_field::operator()().invalidate();
-					_rest::invalidate();
 				}
 
 				template<typename Target>
 				void _bind(Target& target)
 				{
 					_multi_field::operator()()._bind(target);
-					_rest::_bind(target);
 				}
 			};
 
-		template<size_t level, size_t index, typename Db>
-			struct result_row_impl<level, index, Db>
+		template<typename Db, std::size_t LastIndex, std::size_t... Is, typename... NamedExprs>
+			struct result_row_impl<Db, detail::column_index_sequence<LastIndex, Is...>, NamedExprs...>: 
+				public result_field<Db, Is, NamedExprs>...
 			{
-				static constexpr size_t _last_index = index;
+				static constexpr std::size_t _last_index = LastIndex;
 				result_row_impl() = default;
-				result_row_impl(const char_result_row_t& char_result_row_t)
+				result_row_impl(const char_result_row_t& char_result_row):
+					result_field<Db, Is, NamedExprs>(char_result_row)...
 				{
 				}
 
-				result_row_impl& operator=(const char_result_row_t& char_result_row_t)
+				result_row_impl& operator=(const char_result_row_t& char_result_row)
 				{
+					using swallow = int[];
+					(void) swallow{(result_field<Db, Is, NamedExprs>::operator=(char_result_row), 0)...};
 					return *this;
 				}
 
 				void validate()
 				{
+					using swallow = int[];
+					(void) swallow{(result_field<Db, Is, NamedExprs>::validate(), 0)...};
 				}
 
 				void invalidate()
 				{
+					using swallow = int[];
+					(void) swallow{(result_field<Db, Is, NamedExprs>::invalidate(), 0)...};
 				}
 
 				template<typename Target>
 				void _bind(Target& target)
 				{
+					using swallow = int[];
+					(void) swallow{(result_field<Db, Is, NamedExprs>::_bind(target), 0)...};
 				}
 			};
+
 	}
 
-	template<typename Db, typename... NamedExpr>
-	struct result_row_t: public detail::result_row_impl<0, 0, Db, NamedExpr...>
+	template<typename Db, typename... NamedExprs>
+	struct result_row_t: public detail::result_row_impl<Db, detail::make_column_index_sequence<0, NamedExprs...>, NamedExprs...>
 	{
-		using _impl = detail::result_row_impl<0, 0, Db, NamedExpr...>;
+		using _impl = detail::result_row_impl<Db, detail::make_column_index_sequence<0, NamedExprs...>, NamedExprs...>;
 		bool _is_valid;
 		static constexpr size_t _last_static_index = _impl::_last_index;
 
@@ -221,10 +215,10 @@ namespace sqlpp
 			}
 	};
 
-	template<typename Db, typename... NamedExpr>
-	struct dynamic_result_row_t: public detail::result_row_impl<0, 0, Db, NamedExpr...>
+	template<typename Db, typename... NamedExprs>
+	struct dynamic_result_row_t: public detail::result_row_impl<Db, detail::make_column_index_sequence<0, NamedExprs...>, NamedExprs...>
 	{
-		using _impl = detail::result_row_impl<0, 0, Db, NamedExpr...>;
+		using _impl = detail::result_row_impl<Db, detail::make_column_index_sequence<0, NamedExprs...>, NamedExprs...>;
 		using _field_type = detail::text::_result_entry_t<Db, false>;
 		static constexpr size_t _last_static_index = _impl::_last_index;
 

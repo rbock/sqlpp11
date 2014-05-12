@@ -41,7 +41,7 @@ namespace sqlpp
 	template<typename Unused, typename... Columns>
 		struct multi_column_t
 		{
-			static_assert(detail::all_t<is_named_expression_t, Columns...>::value, "multi_column parameters need to be named expressions");
+			static_assert(detail::all_t<is_named_expression_t<Columns>::value...>::value, "multi_column parameters need to be named expressions");
 
 			using _table_set = sqlpp::detail::make_joined_set_t<typename Columns::_table_set...>;
 
@@ -75,7 +75,7 @@ namespace sqlpp
 	template<typename AliasProvider, typename... Columns>
 		struct multi_column_alias_t
 		{
-			static_assert(detail::all_t<is_named_expression_t, Columns...>::value, "multi_column parameters need to be named expressions");
+			static_assert(detail::all_t<is_named_expression_t<Columns>::value...>::value, "multi_column parameters need to be named expressions");
 
 			using _name_t = typename AliasProvider::_name_t;
 			using _table_set = sqlpp::detail::make_joined_set_t<typename Columns::_table_set...>;

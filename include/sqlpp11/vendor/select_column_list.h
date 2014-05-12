@@ -143,7 +143,7 @@ namespace sqlpp
 
 				template<typename T>
 					using is_valid_expression_t = std::integral_constant<bool, is_named_expression_t<T>::value or is_multi_column_t<T>::value>;
-				static_assert(::sqlpp::detail::all_t<is_valid_expression_t, Columns...>::value, "at least one argument is not a named expression");
+				static_assert(::sqlpp::detail::all_t<is_valid_expression_t<Columns>::value...>::value, "at least one argument is not a named expression");
 
 				static_assert(not ::sqlpp::detail::has_duplicates<typename Columns::_name_t...>::value, "at least one duplicate name detected");
 
@@ -206,9 +206,9 @@ namespace sqlpp
 								using column_names = ::sqlpp::detail::make_type_set_t<typename Columns::_name_t...>;
 								static_assert(not ::sqlpp::detail::is_element_of<typename NamedExpression::_name_t, column_names>::value, "a column of this name is present in the select already");
 
-								using ok = ::sqlpp::detail::all_t<sqlpp::detail::identity_t, 
-											_is_dynamic, 
-											is_named_expression_t<NamedExpression>
+								using ok = ::sqlpp::detail::all_t<
+											_is_dynamic::value, 
+											is_named_expression_t<NamedExpression>::value
 												>;
 
 								_add_column_impl(namedExpression, ok()); // dispatch to prevent compile messages after the static_assert
