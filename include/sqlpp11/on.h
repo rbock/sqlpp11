@@ -37,8 +37,8 @@ namespace sqlpp
 	template<typename Database, typename... Expr>
 		struct on_t
 		{
-			using _traits = make_traits_t<no_value_t, tag::on>;
-			using _recursive_traits = make_recursive_traits_t<Expr...>;
+			using _traits = make_traits<no_value_t, tag::on>;
+			using _recursive_traits = make_recursive_traits<Expr...>;
 
 			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 

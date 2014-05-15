@@ -33,8 +33,8 @@ namespace sqlpp
 {
 	struct default_value_t
 	{
-		using _traits = make_traits_t<no_value_t, tag::expression>;
-		using _recursive_traits = make_recursive_traits_t<>;
+		using _traits = make_traits<no_value_t, tag::expression>;
+		using _recursive_traits = make_recursive_traits<>;
 
 		static constexpr bool _is_trivial() { return false; }
 	};

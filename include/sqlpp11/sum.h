@@ -34,10 +34,10 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Flag, typename Expr>
-		struct sum_t: public Expr::_value_type::template expression_operators<sum_t<Flag, Expr>>
+		struct sum_t: public value_type_of<Expr>::template expression_operators<sum_t<Flag, Expr>>
 		{
-			using _traits = make_traits_t<value_type_of<Expr>, tag::expression, tag::named_expression>;
-			using _recursive_traits = make_recursive_traits_t<Select>;
+			using _traits = make_traits<value_type_of<Expr>, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
+			using _recursive_traits = make_recursive_traits<Expr>;
 
 			static_assert(is_noop<Flag>::value or std::is_same<sqlpp::distinct_t, Flag>::value, "sum() used with flag other than 'distinct'");
 			static_assert(is_numeric_t<Expr>::value, "sum() requires a numeric expression as argument");

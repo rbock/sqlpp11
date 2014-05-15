@@ -41,6 +41,7 @@ namespace sqlpp
 		// floating_point value type
 		struct floating_point
 		{
+			using _tag = ::sqlpp::tag::floating_point;
 			using _cpp_value_type = double;
 			
 			struct _parameter_t

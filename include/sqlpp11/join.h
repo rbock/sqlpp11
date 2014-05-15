@@ -77,8 +77,8 @@ namespace sqlpp
 	template<typename JoinType, typename Lhs, typename Rhs, typename On = vendor::noop>
 		struct join_t
 		{
-			using _traits = make_traits_t<no_value_t, tag::table, tag::join>;
-			using _recursive_traits = make_recursive_traits_t<Lhs, Rhs>;
+			using _traits = make_traits<no_value_t, tag::table, tag::join>;
+			using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
 
 			static_assert(is_table_t<Lhs>::value, "lhs argument for join() has to be a table or join");
 			static_assert(is_table_t<Rhs>::value, "rhs argument for join() has to be a table");

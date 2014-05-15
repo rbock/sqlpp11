@@ -36,8 +36,8 @@ namespace sqlpp
 	template<typename ValueType, typename NameType>
 	struct parameter_t: public ValueType::template expression_operators<parameter_t<ValueType, NameType>>
 	{
-		using _traits = make_traits_t<ValueType, tag::parameter, tag::expression>;
-		using _recursive_traits = make_recursive_traits_t<>;
+		using _traits = make_traits<ValueType, tag::parameter, tag::expression>;
+		using _recursive_traits = make_recursive_traits<>;
 
 		using _instance_t = typename NameType::_name_t::template _member_t<typename ValueType::_parameter_t>;
 
@@ -78,7 +78,7 @@ namespace sqlpp
 		auto parameter(const ValueType&, const AliasProvider&)
 		-> parameter_t<ValueType, AliasProvider>
 		{
-			static_assert(is_value_t<ValueType>::value, "first argument is not a value type");
+			static_assert(is_expression_t<ValueType>::value, "first argument is not a value type");
 			static_assert(is_alias_provider_t<AliasProvider>::value, "second argument is not an alias provider");
 			return {};
 		}

@@ -32,14 +32,15 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/serialize.h>
 #include <sqlpp11/vendor/serializer.h>
+#include <sqlpp11/vendor/wrap_operand.h>
 
 namespace sqlpp
 {
 	template<typename Operand>
 		struct tvin_t
 		{
-			using _traits = make_traits_t<value_type_of<Operand>, tag::operand, tag::expression>;
-			using _recursive_traits = make_recursive_traits_t<Operand>;
+			using _traits = make_traits<value_type_of<Operand>, tag::expression>;
+			using _recursive_traits = make_recursive_traits<Operand>;
 
 			tvin_t(Operand operand): 
 				_value(operand)
@@ -55,7 +56,7 @@ namespace sqlpp
 				return _value._is_trivial();
 			}
 
-			_operand_t _value;
+			Operand _value;
 		};
 
 	namespace vendor

@@ -37,8 +37,8 @@ namespace sqlpp
 		template<typename Flag, typename Expr>
 		struct count_t: public sqlpp::detail::integral::template expression_operators<count_t<Flag, Expr>>
 		{
-			using _traits = make_traits_t<value_type_of<Expr>, tag::expression, tag::named_expression>;
-			using _recursive_traits = make_recursive_traits_t<Select>;
+			using _traits = make_traits<::sqlpp::detail::integral, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
+			using _recursive_traits = make_recursive_traits<Expr>;
 
 			static_assert(is_noop<Flag>::value or std::is_same<sqlpp::distinct_t, Flag>::value, "count() used with flag other than 'distinct'");
 			static_assert(is_expression_t<Expr>::value, "count() requires a sql expression as argument");

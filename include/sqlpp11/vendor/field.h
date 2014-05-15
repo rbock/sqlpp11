@@ -52,7 +52,7 @@ namespace sqlpp
 				struct make_field_t_impl
 				{
 					using type = field_t<typename NamedExpr::_name_t, 
-								typename NamedExpr::_value_type::_base_value_type,
+								value_of<NamedExpr>,
 								trivial_value_is_null_t<NamedExpr>::value>;
 				};
 

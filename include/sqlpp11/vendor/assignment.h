@@ -59,26 +59,21 @@ namespace sqlpp
 		template<typename T>
 		bool is_trivial(const T& t)
 		{
-			return is_trivial_t<typename T::value_type>::_(t);
+			return is_trivial_t<value_type_of<T>>::_(t);
 		}
 
 		template<typename Lhs, typename Rhs>
 			struct assignment_t
 			{
-				struct _traits
-				{
-					using _is_assignment = std::true_type;
-					using value_type = no_value;
-				};
-
-				using _recursive_traits = make_recursive_traits_t<Lhs, Rhs>;
+				using _traits = make_traits<no_value_t, tag::assignment>;
+				using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
 
 				using _column_t = Lhs;
 				using _value_t = Lhs;
 
 				static_assert(can_be_null_t<_column_t>::value ? true : not std::is_same<_value_t, null_t>::value, "column must not be null");
 
-				assignment_t(_column_t lhs, value_type rhs):
+				assignment_t(_column_t lhs, _value_t rhs):
 					_lhs(lhs), 
 					_rhs(rhs)
 				{}
@@ -101,7 +96,7 @@ namespace sqlpp
 				static Context& _(const T& t, Context& context)
 				{
 					if ((trivial_value_is_null_t<typename T::_column_t>::value
-								and is_trivial_t<typename T::value_type>::_(t._rhs))
+								and is_trivial_t<value_type_of<T>>::_(t._rhs))
 							or (std::is_same<Rhs, null_t>::value))
 					{
 						serialize(simple_column(t._lhs), context);
@@ -120,15 +115,9 @@ namespace sqlpp
 		template<typename Lhs, typename Rhs>
 			struct assignment_t<Lhs, tvin_t<Rhs>>
 			{
-				struct _traits
-				{
-					using _is_assignment = std::true_type;
-					using value_type = no_value;
-				};
+				using _traits = make_traits<no_value_t, tag::assignment>;
+				using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
 
-				using _recursive_traits = make_recursive_traits_t<Lhs, Rhs>;
-
-				using _is_assignment = std::true_type;
 				using _column_t = Lhs;
 				using _value_t = tvin_t<Rhs>;
 

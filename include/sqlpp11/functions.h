@@ -50,15 +50,15 @@ namespace sqlpp
 		{
 			using _provided_tables = detail::type_set<>;
 			using _required_tables = ::sqlpp::detail::type_set<>;
-			static_assert(not is_value_t<T>::value, "value() is to be called with non-sql-type like int, or string");
+			static_assert(not is_expression_t<T>::value, "value() is to be called with non-sql-type like int, or string");
 			return { t };
 		}
 
 	template<typename ValueType> // Csaba Csoma suggests: unsafe_sql instead of verbatim
 	struct verbatim_t: public ValueType::template expression_operators<verbatim_t<ValueType>>
 	{
-		using _traits = make_traits_t<ValueType, tag::expression>;
-		using _recursive_traits = make_recursive_traits_t<Select>;
+		using _traits = make_traits<ValueType, ::sqlpp::tag::expression>;
+		using _recursive_traits = make_recursive_traits<>;
 
 		verbatim_t(std::string verbatim): _verbatim(verbatim) {}
 		verbatim_t(const verbatim_t&) = default;
@@ -92,7 +92,7 @@ namespace sqlpp
 		}
 
 	template<typename Expression, typename Context>
-		auto flatten(const Expression& exp, const Context& context) -> verbatim_t<typename Expression::_value_type::_base_value_type>
+		auto flatten(const Expression& exp, const Context& context) -> verbatim_t<value_type_of<Expression>>
 		{
 			static_assert(not make_parameter_list_t<Expression>::type::size::value, "parameters not supported in flattened expressions");
 			context.clear();
@@ -103,8 +103,8 @@ namespace sqlpp
 	template<typename Container>
 		struct value_list_t // to be used in .in() method
 		{
-			using _traits = make_traits_t<vendor::value_type_t<typename _container_t::value_type>;
-			using _recursive_traits = make_recursive_traits_t<Select>;
+			using _traits = make_traits<vendor::value_type_t<typename Container::value_type>>;
+			using _recursive_traits = make_recursive_traits<>;
 
 			using _container_t = Container;
 
@@ -148,7 +148,7 @@ namespace sqlpp
 	template<typename Container>
 		auto value_list(Container c) -> value_list_t<Container>
 		{
-			static_assert(not is_value_t<typename Container::value_type>::value, "value_list() is to be called with a container of non-sql-type like std::vector<int>, or std::list(string)");
+			static_assert(not is_expression_t<typename Container::value_type>::value, "value_list() is to be called with a container of non-sql-type like std::vector<int>, or std::list(string)");
 			return { c };
 		}
 

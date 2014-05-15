@@ -39,17 +39,14 @@ namespace sqlpp
 		template<typename... Tables>
 			struct extra_tables_t
 			{
-				using _is_extra_tables = std::true_type;
+				using _traits = make_traits<no_value_t, tag::extra_tables>;
+				using _recursive_traits = make_recursive_traits<Tables...>;
+
+				// FIXME: extra_tables must not require tables!
 
 				static_assert(sizeof...(Tables), "at least one table or join argument required in extra_tables()");
-
 				static_assert(not ::sqlpp::detail::has_duplicates<Tables...>::value, "at least one duplicate argument detected in extra_tables()");
-
 				static_assert(::sqlpp::detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not a table or join in extra_tables()");
-
-				using _provided_tables = ::sqlpp::detail::make_joined_set_t<typename Tables::_provided_tables...>;
-				using _required_tables = ::sqlpp::detail::make_joined_set_t<typename Tables::_required_tables...>;
-
 
 				extra_tables_t()
 				{}
@@ -68,9 +65,8 @@ namespace sqlpp
 
 		struct no_extra_tables_t
 		{
-			using _is_noop = std::true_type;
-			using _provided_tables = detail::type_set<>;
-			using _required_tables = ::sqlpp::detail::type_set<>;
+			using _traits = make_traits<no_value_t, tag::noop>;
+			using _recursive_traits = make_recursive_traits<>;
 
 			template<typename Policies>
 				struct _methods_t

@@ -33,6 +33,7 @@ namespace sqlpp
 {
 	struct no_value_t
 	{
+		using _tag = void;
 		template<typename T>
 			struct _is_valid_operand
 			{

@@ -29,7 +29,7 @@
 
 #include <string>
 #include <sqlpp11/vendor/serializer.h>
-#include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
@@ -45,11 +45,10 @@ namespace sqlpp
 	{
 		struct boolean_operand
 		{
-			static constexpr bool _is_expression = true;
-			using _value_type = sqlpp::detail::boolean;
+			using _traits = make_traits<::sqlpp::detail::boolean, ::sqlpp::tag::expression>;
+			using _recursive_traits = make_recursive_traits<>;
+
 			using _value_t = bool;
-			using _provided_tables = detail::type_set<>;
-			using _required_tables = ::sqlpp::detail::type_set<>;
 
 			boolean_operand():
 				_t{}
@@ -84,11 +83,10 @@ namespace sqlpp
 
 		struct integral_operand
 		{
-			static constexpr bool _is_expression = true;
-			using _value_type = ::sqlpp::detail::integral;
+			using _traits = make_traits<::sqlpp::detail::integral, ::sqlpp::tag::expression>;
+			using _recursive_traits = make_recursive_traits<>;
+
 			using _value_t = int64_t;
-			using _provided_tables = detail::type_set<>;
-			using _required_tables = ::sqlpp::detail::type_set<>;
 
 			integral_operand():
 				_t{}
@@ -124,11 +122,10 @@ namespace sqlpp
 
 		struct floating_point_operand
 		{
-			static constexpr bool _is_expression = true;
-			using _value_type = ::sqlpp::detail::floating_point;
+			using _traits = make_traits<::sqlpp::detail::floating_point, ::sqlpp::tag::expression>;
+			using _recursive_traits = make_recursive_traits<>;
+
 			using _value_t = double;
-			using _provided_tables = detail::type_set<>;
-			using _required_tables = ::sqlpp::detail::type_set<>;
 
 			floating_point_operand():
 				_t{}
@@ -163,11 +160,10 @@ namespace sqlpp
 
 		struct text_operand
 		{
-			static constexpr bool _is_expression = true;
-			using _value_type = ::sqlpp::detail::text;
+			using _traits = make_traits<::sqlpp::detail::text, ::sqlpp::tag::expression>;
+			using _recursive_traits = make_recursive_traits<>;
+
 			using _value_t = std::string;
-			using _provided_tables = detail::type_set<>;
-			using _required_tables = ::sqlpp::detail::type_set<>;
 
 			text_operand():
 				_t{}

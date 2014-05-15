@@ -41,9 +41,9 @@ namespace sqlpp
 		template<typename Database, typename... Tables>
 			struct from_t
 			{
-				using _is_from = std::true_type;
-				using _required_tables = ::sqlpp::detail::make_joined_set_t<typename Tables::_required_tables...>;
-				using _provided_tables = ::sqlpp::detail::make_joined_set_t<typename Tables::_provided_tables...>;
+				using _traits = make_traits<no_value_t, tag::from>;
+				using _recursive_traits = make_recursive_traits<Tables...>;
+
 				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 
 				static_assert(_is_dynamic::value or sizeof...(Tables), "at least one table or join argument required in from()");
@@ -53,7 +53,7 @@ namespace sqlpp
 
 				static_assert(::sqlpp::detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not a table or join in from()");
 
-				static_assert(_required_tables::size::value == 0, "at least one table depends on another table");
+				static_assert(required_tables_of<from_t>::size::value == 0, "at least one table depends on another table");
 
 
 				from_t(Tables... tables):
@@ -97,9 +97,8 @@ namespace sqlpp
 
 		struct no_from_t
 		{
-			using _is_noop = std::true_type;
-			using _provided_tables = detail::type_set<>;
-			using _required_tables = ::sqlpp::detail::type_set<>;
+			using _traits = make_traits<no_value_t, tag::noop>;
+			using _recursive_traits = make_recursive_traits<>;
 
 			template<typename Policies>
 				struct _methods_t

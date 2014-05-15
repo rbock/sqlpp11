@@ -43,13 +43,10 @@ namespace sqlpp
 		template<typename Database, typename... Expressions>
 			struct group_by_t
 			{
-				using _is_group_by = std::true_type;
-				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
-				using _parameter_tuple_t = std::tuple<Expressions...>;
-				using _parameter_list_t = typename make_parameter_list_t<_parameter_tuple_t>::type;
+				using _traits = make_traits<no_value_t, tag::group_by>;
+				using _recursive_traits = make_recursive_traits<Expressions...>;
 
-				using _provided_tables = detail::type_set<>;
-				using _required_tables = typename ::sqlpp::detail::make_joined_set<typename Expressions::_required_tables...>::type;
+				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 
 				static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression (e.g. a column) required in group_by()");
 
@@ -100,15 +97,14 @@ namespace sqlpp
 					};
 
 				const group_by_t& _group_by() const { return *this; }
-				_parameter_tuple_t _expressions;
+				std::tuple<Expression...> _expressions;
 				vendor::interpretable_list_t<Database> _dynamic_expressions;
 			};
 
 		struct no_group_by_t
 		{
-			using _is_noop = std::true_type;
-			using _provided_tables = detail::type_set<>;
-			using _required_tables = ::sqlpp::detail::type_set<>;
+			using _traits = make_traits<no_value_t, tag::noop>;
+			using _recursive_traits = make_recursive_traits<>;
 
 			template<typename Policies>
 				struct _methods_t

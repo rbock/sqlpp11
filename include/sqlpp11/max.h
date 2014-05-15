@@ -34,12 +34,12 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Expr>
-		struct max_t: public Expr::_value_type::template expression_operators<max_t<Expr>>
+		struct max_t: public value_type_of<Expr>::template expression_operators<max_t<Expr>>
 		{
-			using _traits = make_traits_t<value_type_of<Expr>, tag::expression, tag::named_expression>;
-			using _recursive_traits = make_recursive_traits_t<Select>;
+			using _traits = make_traits<value_type_of<Expr>, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
+			using _recursive_traits = make_recursive_traits<Expr>;
 
-			static_assert(is_value_t<Expr>::value, "max() requires a value expression as argument");
+			static_assert(is_expression_t<Expr>::value, "max() requires a value expression as argument");
 
 			struct _name_t
 			{
@@ -87,7 +87,7 @@ namespace sqlpp
 	template<typename T>
 		auto max(T t) -> typename vendor::max_t<vendor::wrap_operand_t<T>>
 		{
-			static_assert(is_value_t<vendor::wrap_operand_t<T>>::value, "max() requires a value expression as argument");
+			static_assert(is_expression_t<vendor::wrap_operand_t<T>>::value, "max() requires a value expression as argument");
 			return { t };
 		}
 

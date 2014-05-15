@@ -39,13 +39,11 @@ namespace sqlpp
 		template<bool NotInverted, typename Operand, typename... Args>
 			struct in_t: public boolean::template expression_operators<in_t<NotInverted, Operand, Args...>>
 		{
+			using _traits = make_traits<boolean, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
+			using _recursive_traits = make_recursive_traits<Operand, Args...>;
+
 			static constexpr bool _inverted = not NotInverted;
 			static_assert(sizeof...(Args) > 0, "in() requires at least one argument");
-
-			struct _value_type: public boolean
-			{
-				using _is_named_expression = std::true_type;
-			};
 
 			struct _name_t
 			{
@@ -56,8 +54,6 @@ namespace sqlpp
 						T in;
 					};
 			};
-			using _provided_tables = detail::type_set<>;
-			using _required_tables = typename ::sqlpp::detail::make_joined_set<typename Operand::_required_tables, typename Args::_required_tables...>::type;
 
 			in_t(Operand operand, Args... args):
 				_operand(operand),

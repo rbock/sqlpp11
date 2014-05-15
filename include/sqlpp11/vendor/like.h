@@ -38,16 +38,11 @@ namespace sqlpp
 		template<typename Operand, typename Pattern>
 			struct like_t: public boolean::template expression_operators<like_t<Operand, Pattern>>
 		{
+			using _traits = make_traits<boolean, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
+			using _recursive_traits = make_recursive_traits<Operand, Pattern>;
+
 			static_assert(is_text_t<Operand>::value, "Operand for like() has to be a text");
 			static_assert(is_text_t<Pattern>::value, "Pattern for like() has to be a text");
-			using _parameter_tuple_t = std::tuple<Operand, Pattern>;
-			using _provided_tables = detail::type_set<>;
-			using _required_tables = typename ::sqlpp::detail::make_joined_set<typename Operand::_required_tables, typename Pattern::_required_tables>::type;
-
-			struct _value_type: public boolean
-			{
-				using _is_named_expression = std::true_type;
-			};
 
 			struct _name_t
 			{

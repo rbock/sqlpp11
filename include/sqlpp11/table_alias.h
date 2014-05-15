@@ -41,7 +41,7 @@ namespace sqlpp
 		struct table_alias_t: public table_alias_base_t, public ColumnSpec::_name_t::template _member_t<column_t<AliasProvider, ColumnSpec>>...
 	{
 		//FIXME: Need to add join functionality
-		using _traits = make_traits_t<value_type_of<Table>, tag::table, tag::alias, tag::named_expression_if<tag::is_expression<Table>>;
+		using _traits = make_traits<value_type_of<Table>, tag::table, tag::alias, tag::named_expression_if<is_expression_t<Table>>>;
 
 		struct _recursive_traits
 		{
@@ -50,7 +50,7 @@ namespace sqlpp
 			using _provided_tables = detail::type_set<Table>;
 		};
 
-		static_assert(Table::_required_tables::size::value == 0, "table aliases must not depend on external tables");
+		static_assert(required_tables_of<Table>::size::value == 0, "table aliases must not depend on external tables");
 
 		using _name_t = typename AliasProvider::_name_t;
 		using _column_tuple_t = std::tuple<column_t<Table, ColumnSpec>...>;

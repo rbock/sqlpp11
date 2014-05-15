@@ -37,8 +37,8 @@ namespace sqlpp
 		template<typename Select>
 		struct some_t
 		{
-			using _traits = make_traits_t<value_type_of<Select>, tag::multi_expression>;
-			using _recursive_traits = make_recursive_traits_t<Select>;
+			using _traits = make_traits<value_type_of<Select>, ::sqlpp::tag::multi_expression>;
+			using _recursive_traits = make_recursive_traits<Select>;
 
 			struct _name_t
 			{
@@ -87,7 +87,7 @@ namespace sqlpp
 		auto some(T t) -> typename vendor::some_t<vendor::wrap_operand_t<T>>
 		{
 			static_assert(is_select_t<vendor::wrap_operand_t<T>>::value, "some() requires a single column select expression as argument");
-			static_assert(is_value_t<vendor::wrap_operand_t<T>>::value, "some() requires a single column select expression as argument");
+			static_assert(is_expression_t<vendor::wrap_operand_t<T>>::value, "some() requires a single column select expression as argument");
 			return { t };
 		}
 

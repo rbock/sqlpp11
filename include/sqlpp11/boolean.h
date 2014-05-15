@@ -42,6 +42,7 @@ namespace sqlpp
 		// boolean value type
 		struct boolean
 		{
+			using _tag = ::sqlpp::tag::boolean;
 			using _cpp_value_type = bool;
 
 			struct _parameter_t

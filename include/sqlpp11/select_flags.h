@@ -37,8 +37,8 @@ namespace sqlpp
 	// standard select flags
 	struct all_t
 	{
-		using _traits = make_traits_t<no_value_t, tag::select_flag>;
-		using _recursive_traits = make_recursive_traits_t<>;
+		using _traits = make_traits<no_value_t, tag::select_flag>;
+		using _recursive_traits = make_recursive_traits<>;
 	};
 	static constexpr all_t all = {};
 
@@ -57,8 +57,8 @@ namespace sqlpp
 
 	struct distinct_t
 	{
-		using _traits = make_traits_t<no_value_t, tag::select_flag>;
-		using _recursive_traits = make_recursive_traits_t<>;
+		using _traits = make_traits<no_value_t, tag::select_flag>;
+		using _recursive_traits = make_recursive_traits<>;
 	};
 	static constexpr distinct_t distinct = {};
 
@@ -77,8 +77,8 @@ namespace sqlpp
 
 	struct straight_join_t
 	{
-		using _traits = make_traits_t<no_value_t, tag::select_flag>;
-		using _recursive_traits = make_recursive_traits_t<>;
+		using _traits = make_traits<no_value_t, tag::select_flag>;
+		using _recursive_traits = make_recursive_traits<>;
 	};
 	static constexpr straight_join_t straight_join = {};
 
