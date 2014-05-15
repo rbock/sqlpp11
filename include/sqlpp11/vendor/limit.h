@@ -42,7 +42,8 @@ namespace sqlpp
 				using _is_limit = std::true_type;
 				static_assert(is_integral_t<Limit>::value, "limit requires an integral value or integral parameter");
 				// FIXME: Is this really always empty?
-				using _table_set = ::sqlpp::detail::type_set<>;
+				using _provided_tables = detail::type_set<>;
+				using _required_tables = ::sqlpp::detail::type_set<>;
 
 				limit_t(Limit value):
 					_value(value)
@@ -67,7 +68,8 @@ namespace sqlpp
 			{
 				using _is_limit = std::true_type;
 				using _is_dynamic = std::true_type;
-				using _table_set = ::sqlpp::detail::type_set<>;
+				using _provided_tables = detail::type_set<>;
+				using _required_tables = ::sqlpp::detail::type_set<>;
 
 				dynamic_limit_t():
 					_value(noop())
@@ -107,7 +109,8 @@ namespace sqlpp
 		struct no_limit_t
 		{
 			using _is_noop = std::true_type;
-			using _table_set = ::sqlpp::detail::type_set<>;
+			using _provided_tables = detail::type_set<>;
+			using _required_tables = ::sqlpp::detail::type_set<>;
 
 			template<typename Policies>
 				struct _methods_t

@@ -40,7 +40,8 @@ namespace sqlpp
 			struct offset_t
 			{
 				using _is_offset = std::true_type;
-				using _table_set = ::sqlpp::detail::type_set<>;
+				using _provided_tables = detail::type_set<>;
+				using _required_tables = ::sqlpp::detail::type_set<>;
 				static_assert(is_integral_t<Offset>::value, "offset requires an integral value or integral parameter");
 
 				offset_t(Offset value):
@@ -66,7 +67,8 @@ namespace sqlpp
 			{
 				using _is_offset = std::true_type;
 				using _is_dynamic = std::true_type;
-				using _table_set = ::sqlpp::detail::type_set<>;
+				using _provided_tables = detail::type_set<>;
+				using _required_tables = ::sqlpp::detail::type_set<>;
 
 				dynamic_offset_t():
 					_value(noop())
@@ -106,7 +108,8 @@ namespace sqlpp
 		struct no_offset_t
 		{
 			using _is_noop = std::true_type;
-			using _table_set = ::sqlpp::detail::type_set<>;
+			using _provided_tables = detail::type_set<>;
+			using _required_tables = ::sqlpp::detail::type_set<>;
 
 			template<typename Policies>
 				struct _methods_t

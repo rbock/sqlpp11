@@ -65,13 +65,18 @@ namespace sqlpp
 		template<typename Lhs, typename Rhs>
 			struct assignment_t
 			{
-				using _is_assignment = std::true_type;
-				using _column_t = Lhs;
-				using value_type = Rhs;
-				using _parameter_tuple_t = std::tuple<_column_t, Rhs>;
-				using _table_set = typename ::sqlpp::detail::make_joined_set<typename Lhs::_table_set, typename Rhs::_table_set>::type;
+				struct _traits
+				{
+					using _is_assignment = std::true_type;
+					using value_type = no_value;
+				};
 
-				static_assert(can_be_null_t<_column_t>::value ? true : not std::is_same<Rhs, null_t>::value, "column must not be null");
+				using _recursive_traits = make_recursive_traits_t<Lhs, Rhs>;
+
+				using _column_t = Lhs;
+				using _value_t = Lhs;
+
+				static_assert(can_be_null_t<_column_t>::value ? true : not std::is_same<_value_t, null_t>::value, "column must not be null");
 
 				assignment_t(_column_t lhs, value_type rhs):
 					_lhs(lhs), 
@@ -85,7 +90,7 @@ namespace sqlpp
 				~assignment_t() = default;
 
 				_column_t _lhs;
-				value_type _rhs;
+				_value_t _rhs;
 			};
 
 		template<typename Context, typename Lhs, typename Rhs>
@@ -115,15 +120,21 @@ namespace sqlpp
 		template<typename Lhs, typename Rhs>
 			struct assignment_t<Lhs, tvin_t<Rhs>>
 			{
+				struct _traits
+				{
+					using _is_assignment = std::true_type;
+					using value_type = no_value;
+				};
+
+				using _recursive_traits = make_recursive_traits_t<Lhs, Rhs>;
+
 				using _is_assignment = std::true_type;
 				using _column_t = Lhs;
-				using value_type = tvin_t<Rhs>;
-				using _parameter_tuple_t = std::tuple<_column_t, Rhs>;
-				using _table_set = typename ::sqlpp::detail::make_joined_set<typename Lhs::_table_set, typename Rhs::_table_set>::type;
+				using _value_t = tvin_t<Rhs>;
 
 				static_assert(can_be_null_t<_column_t>::value, "column cannot be null");
 
-				assignment_t(_column_t lhs, value_type rhs):
+				assignment_t(_column_t lhs, _value_t rhs):
 					_lhs(lhs), 
 					_rhs(rhs)
 				{}
@@ -135,7 +146,7 @@ namespace sqlpp
 				~assignment_t() = default;
 
 				_column_t _lhs;
-				value_type _rhs;
+				_value_t _rhs;
 			};
 
 		template<typename Context, typename Lhs, typename Rhs>

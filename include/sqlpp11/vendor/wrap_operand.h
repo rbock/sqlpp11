@@ -48,7 +48,8 @@ namespace sqlpp
 			static constexpr bool _is_expression = true;
 			using _value_type = sqlpp::detail::boolean;
 			using _value_t = bool;
-			using _table_set = ::sqlpp::detail::type_set<>;
+			using _provided_tables = detail::type_set<>;
+			using _required_tables = ::sqlpp::detail::type_set<>;
 
 			boolean_operand():
 				_t{}
@@ -86,7 +87,8 @@ namespace sqlpp
 			static constexpr bool _is_expression = true;
 			using _value_type = ::sqlpp::detail::integral;
 			using _value_t = int64_t;
-			using _table_set = ::sqlpp::detail::type_set<>;
+			using _provided_tables = detail::type_set<>;
+			using _required_tables = ::sqlpp::detail::type_set<>;
 
 			integral_operand():
 				_t{}
@@ -125,7 +127,8 @@ namespace sqlpp
 			static constexpr bool _is_expression = true;
 			using _value_type = ::sqlpp::detail::floating_point;
 			using _value_t = double;
-			using _table_set = ::sqlpp::detail::type_set<>;
+			using _provided_tables = detail::type_set<>;
+			using _required_tables = ::sqlpp::detail::type_set<>;
 
 			floating_point_operand():
 				_t{}
@@ -163,7 +166,8 @@ namespace sqlpp
 			static constexpr bool _is_expression = true;
 			using _value_type = ::sqlpp::detail::text;
 			using _value_t = std::string;
-			using _table_set = ::sqlpp::detail::type_set<>;
+			using _provided_tables = detail::type_set<>;
+			using _required_tables = ::sqlpp::detail::type_set<>;
 
 			text_operand():
 				_t{}

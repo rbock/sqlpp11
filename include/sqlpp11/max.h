@@ -36,14 +36,10 @@ namespace sqlpp
 		template<typename Expr>
 		struct max_t: public Expr::_value_type::template expression_operators<max_t<Expr>>
 		{
+			using _traits = make_traits_t<value_type_of<Expr>, tag::expression, tag::named_expression>;
+			using _recursive_traits = make_recursive_traits_t<Select>;
+
 			static_assert(is_value_t<Expr>::value, "max() requires a value expression as argument");
-
-			struct _value_type: public Expr::_value_type::_base_value_type
-			{
-				using _is_named_expression = std::true_type;
-			};
-
-			using _table_set = typename Expr::_table_set;
 
 			struct _name_t
 			{

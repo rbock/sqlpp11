@@ -45,21 +45,20 @@ namespace sqlpp
 	struct column_t: public ColumnSpec::_value_type::template expression_operators<column_t<Table, ColumnSpec>>,
 	                 public ColumnSpec::_value_type::template column_operators<column_t<Table, ColumnSpec>>
 	{ 
-		using _is_column = std::true_type;
+		using _traits = make_traits_t<value_type_of<ColumnSpec>, tag::column, tag::expression, tag::named_expression>;
+		struct _recursive_traits
+		{
+			using _provided_tables = detail::type_set<>;
+			using _required_tables = detail::type_set<_table>;
+		};
+
 		using _spec_t = ColumnSpec;
 		using _table = Table;
-		using _table_set = detail::type_set<_table>;
-		using _column_type = typename ColumnSpec::_column_type;
-		struct _value_type: ColumnSpec::_value_type
-		{
-			using _is_expression = std::true_type;
-			using _is_named_expression = std::true_type;
-			using _is_alias = std::false_type;
-		};
-		template<typename T>
-			using _is_valid_operand = typename _value_type::template _is_valid_operand<T>;
+		using _column_type = typename _spec_t::_column_type;
+		using _name_t = typename _spec_t::_name_t;
 
-		using _name_t = typename ColumnSpec::_name_t;
+		template<typename T>
+			using _is_valid_operand = typename value_type_of<ColumnSpec>::template _is_valid_operand<T>;
 
 		column_t() = default;
 		column_t(const column_t&) = default;

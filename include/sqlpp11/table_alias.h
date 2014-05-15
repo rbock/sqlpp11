@@ -41,15 +41,16 @@ namespace sqlpp
 		struct table_alias_t: public table_alias_base_t, public ColumnSpec::_name_t::template _member_t<column_t<AliasProvider, ColumnSpec>>...
 	{
 		//FIXME: Need to add join functionality
-		using _is_table = std::true_type;
-		using _table_set = detail::type_set<AliasProvider>;
+		using _traits = make_traits_t<value_type_of<Table>, tag::table, tag::alias, tag::named_expression_if<tag::is_expression<Table>>;
 
-		struct _value_type: Table::_value_type
+		struct _recursive_traits
 		{
-			using _is_expression = std::false_type;
-			using _is_named_expression = copy_type_trait<Table, is_value_t>;
-			using _is_alias = std::true_type;
+			using _parameters = std::tuple<>;
+			using _required_tables = detail::type_set<>;
+			using _provided_tables = detail::type_set<Table>;
 		};
+
+		static_assert(Table::_required_tables::size::value == 0, "table aliases must not depend on external tables");
 
 		using _name_t = typename AliasProvider::_name_t;
 		using _column_tuple_t = std::tuple<column_t<Table, ColumnSpec>...>;

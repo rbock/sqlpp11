@@ -42,14 +42,7 @@ namespace sqlpp
 		// integral value type
 		struct integral
 		{
-			using _value_type = integral;
-			using _base_value_type = integral;
-			using _is_numeric = std::true_type;
-			using _is_integral = std::true_type;
-			using _is_value = std::true_type;
-			using _is_expression = std::true_type;
 			using _cpp_value_type = int64_t;
-
 			
 			struct _parameter_t
 			{

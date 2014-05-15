@@ -38,9 +38,8 @@ namespace sqlpp
 	template<typename Operand>
 		struct tvin_t
 		{
-			using _operand_t = Operand;
-			using _value_type = typename _operand_t::_value_type;
-			using _table_set = typename _operand_t::_table_set;
+			using _traits = make_traits_t<value_type_of<Operand>, tag::operand, tag::expression>;
+			using _recursive_traits = make_recursive_traits_t<Operand>;
 
 			tvin_t(Operand operand): 
 				_value(operand)
@@ -76,7 +75,8 @@ namespace sqlpp
 	template<typename T>
 		struct maybe_tvin_t
 		{
-			using _table_set = typename T::_table_set;
+			using _provided_tables = detail::type_set<>;
+			using _required_tables = typename T::_required_tables;
 			static constexpr bool _is_trivial()
 			{
 				return false;
@@ -97,7 +97,8 @@ namespace sqlpp
 	template<typename T>
 		struct maybe_tvin_t<tvin_t<T>>
 		{
-			using _table_set = typename T::_table_set;
+			using _provided_tables = detail::type_set<>;
+			using _required_tables = typename T::_required_tables;
 			bool _is_trivial() const
 			{
 				return _value._is_trivial();

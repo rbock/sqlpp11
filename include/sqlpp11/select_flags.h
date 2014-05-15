@@ -37,11 +37,8 @@ namespace sqlpp
 	// standard select flags
 	struct all_t
 	{
-		struct _value_type 
-		{ 
-			using _is_select_flag = std::true_type; 
-		};
-		using _table_set = detail::type_set<>;
+		using _traits = make_traits_t<no_value_t, tag::select_flag>;
+		using _recursive_traits = make_recursive_traits_t<>;
 	};
 	static constexpr all_t all = {};
 
@@ -60,11 +57,8 @@ namespace sqlpp
 
 	struct distinct_t
 	{
-		struct _value_type 
-		{ 
-			using _is_select_flag = std::true_type; 
-		};
-		using _table_set = detail::type_set<>;
+		using _traits = make_traits_t<no_value_t, tag::select_flag>;
+		using _recursive_traits = make_recursive_traits_t<>;
 	};
 	static constexpr distinct_t distinct = {};
 
@@ -83,11 +77,8 @@ namespace sqlpp
 
 	struct straight_join_t
 	{
-		struct _value_type 
-		{ 
-			using _is_select_flag = std::true_type; 
-		};
-		using _table_set = detail::type_set<>;
+		using _traits = make_traits_t<no_value_t, tag::select_flag>;
+		using _recursive_traits = make_recursive_traits_t<>;
 	};
 	static constexpr straight_join_t straight_join = {};
 

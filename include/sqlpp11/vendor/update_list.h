@@ -112,7 +112,8 @@ namespace sqlpp
 		struct no_update_list_t
 		{
 			using _is_noop = std::true_type;
-			using _table_set = ::sqlpp::detail::type_set<>;
+			using _provided_tables = detail::type_set<>;
+			using _required_tables = ::sqlpp::detail::type_set<>;
 
 			template<typename Policies>
 				struct _methods_t

@@ -39,8 +39,11 @@ namespace sqlpp
 			struct single_table_t
 			{
 				using _is_single_table = std::true_type;
+				using _required_tables = typename Table::_required_tables;
+				using _provided_tables = typename Table::_provided_tables;
 
 				static_assert(is_table_t<Table>::value, "argument has to be a table");
+				static_assert(_required_tables::size::value == 0, "table depends on another table");
 
 				single_table_t(Table table):
 					_table(table)
@@ -52,13 +55,13 @@ namespace sqlpp
 				single_table_t& operator=(single_table_t&&) = default;
 				~single_table_t() = default;
 
-				using _table_set = typename Table::_table_set;
 				Table _table;
 			};
 
 		struct no_single_table_t
 		{
-			using _table_set = ::sqlpp::detail::type_set<>;
+			using _provided_tables = detail::type_set<>;
+			using _required_tables = ::sqlpp::detail::type_set<>;
 		};
 
 		// Interpreters

@@ -137,7 +137,8 @@ namespace sqlpp
 				using _parameter_tuple_t = std::tuple<Columns...>;
 				using size = std::tuple_size<_parameter_tuple_t>;
 
-				using _table_set = sqlpp::detail::make_joined_set_t<typename Columns::_table_set...>;
+				using _provided_tables = detail::type_set<>;
+				using _required_tables = sqlpp::detail::make_joined_set_t<typename Columns::_required_tables...>;
 
 				static_assert(not ::sqlpp::detail::has_duplicates<Columns...>::value, "at least one duplicate argument detected");
 
@@ -245,7 +246,8 @@ namespace sqlpp
 		struct no_select_column_list_t
 		{
 			using _is_noop = std::true_type;
-			using _table_set = ::sqlpp::detail::type_set<>;
+			using _provided_tables = detail::type_set<>;
+			using _required_tables = ::sqlpp::detail::type_set<>;
 			template<typename Db>
 				using _result_row_t = ::sqlpp::result_row_t<Db>;
 			using _dynamic_names_t = typename dynamic_select_column_list<void>::_names_t;

@@ -42,7 +42,7 @@ namespace sqlpp
 		// COLUMN AND VALUE LIST
 		struct insert_default_values_t
 		{
-			using _table_set = ::sqlpp::detail::type_set<>;
+			using _required_tables = ::sqlpp::detail::type_set<>;
 			using _is_dynamic = std::false_type;
 
 			template<typename Policies>
@@ -69,11 +69,12 @@ namespace sqlpp
 
 					static_assert(sqlpp::detail::none_t<must_not_insert_t<typename Assignments::_column_t>::value...>::value, "at least one assignment is prohibited by its column definition in set()");
 
-				using _column_table_set = typename ::sqlpp::detail::make_joined_set<typename Assignments::_column_t::_table_set...>::type;
-				using _value_table_set = typename ::sqlpp::detail::make_joined_set<typename Assignments::value_type::_table_set...>::type;
-				using _table_set = typename ::sqlpp::detail::make_joined_set<_column_table_set, _value_table_set>::type;
-				static_assert(sizeof...(Assignments) ? (_column_table_set::size::value == 1) : true, "set() contains assignments for tables from several columns");
-				static_assert(::sqlpp::detail::is_subset_of<_value_table_set, _column_table_set>::value, "set() contains values from foreign tables");
+				using _column_required_tables = typename ::sqlpp::detail::make_joined_set<typename Assignments::_column_t::_required_tables...>::type;
+				using _value_required_tables = typename ::sqlpp::detail::make_joined_set<typename Assignments::value_type::_required_tables...>::type;
+				using _provided_tables = ::sqlpp::detail::type_set<>;
+				using _required_tables = typename ::sqlpp::detail::make_joined_set<_column_required_tables, _value_required_tables>::type;
+				static_assert(sizeof...(Assignments) ? (_column_required_tables::size::value == 1) : true, "set() contains assignments for tables from several columns");
+				static_assert(::sqlpp::detail::is_subset_of<_value_required_tables, _column_required_tables>::value, "set() contains values from foreign tables");
 				
 				insert_list_t(Assignments... assignment):
 					_assignments(assignment...),
@@ -203,7 +204,8 @@ namespace sqlpp
 		struct no_insert_value_list_t
 		{
 			using _is_noop = std::true_type;
-			using _table_set = ::sqlpp::detail::type_set<>;
+			using _provided_tables = ::sqlpp::detail::type_set<>;
+			using _required_tables = ::sqlpp::detail::type_set<>;
 
 			template<typename Policies>
 				struct _methods_t

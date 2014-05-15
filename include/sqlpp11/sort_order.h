@@ -41,7 +41,8 @@ namespace sqlpp
 		struct sort_order_t
 		{
 			using _is_sort_order = std::true_type;
-			using _table_set = typename Expression::_table_set;
+			using _provided_tables = detail::type_set<>;
+			using _required_tables = typename Expression::_required_tables;
 
 			Expression _expression;
 		};

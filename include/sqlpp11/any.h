@@ -37,11 +37,8 @@ namespace sqlpp
 		template<typename Select>
 		struct any_t
 		{
-			struct _value_type: public Select::_value_type::_base_value_type
-			{
-				using _is_expression = std::false_type;
-				using _is_multi_expression = std::true_type; // must not be named or used with +,-,*,/, etc
-			};
+			using _traits = make_traits_t<value_type_of<Select>, tag::multi_expression>;
+			using _recursive_traits = make_recursive_traits_t<Select>;
 
 			struct _name_t
 			{
@@ -54,8 +51,6 @@ namespace sqlpp
 						const T& operator()() const { return any; }
 					};
 			};
-
-			using _table_set = typename Select::_table_set;
 
 			any_t(Select select):
 				_select(select)

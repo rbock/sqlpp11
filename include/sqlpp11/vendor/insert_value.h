@@ -44,7 +44,8 @@ namespace sqlpp
 				struct type_if
 				{
 					using type = Type;
-					using _table_set = typename Type::_table_set;
+					using _provided_tables = detail::type_set<>;
+					using _required_tables = typename Type::_required_tables;
 				};
 
 			template<typename Type>
@@ -52,7 +53,8 @@ namespace sqlpp
 				{
 					struct type
 					{
-						using _table_set = sqlpp::detail::type_set<>;
+						using _provided_tables = detail::type_set<>;
+						using _required_tables = sqlpp::detail::type_set<>;
 					};
 				};
 		}

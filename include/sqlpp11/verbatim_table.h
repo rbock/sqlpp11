@@ -49,8 +49,6 @@ namespace sqlpp
 
 	struct verbatim_table_t: public sqlpp::table_t<verbatim_table_t, detail::unusable_pseudo_column_t>
 	{
-		using _value_type = no_value_t;
-
 		verbatim_table_t(std::string name):
 			_name(name)
 		{

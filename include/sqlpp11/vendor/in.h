@@ -56,7 +56,8 @@ namespace sqlpp
 						T in;
 					};
 			};
-			using _table_set = typename ::sqlpp::detail::make_joined_set<typename Operand::_table_set, typename Args::_table_set...>::type;
+			using _provided_tables = detail::type_set<>;
+			using _required_tables = typename ::sqlpp::detail::make_joined_set<typename Operand::_required_tables, typename Args::_required_tables...>::type;
 
 			in_t(Operand operand, Args... args):
 				_operand(operand),

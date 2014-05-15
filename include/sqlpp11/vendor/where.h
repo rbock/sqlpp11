@@ -52,7 +52,8 @@ namespace sqlpp
 
 				using _parameter_list_t = typename make_parameter_list_t<_parameter_tuple_t>::type;
 
-				using _table_set = typename ::sqlpp::detail::make_joined_set<typename Expressions::_table_set...>::type;
+				using _provided_tables = detail::type_set<>;
+				using _required_tables = typename ::sqlpp::detail::make_joined_set<typename Expressions::_required_tables...>::type;
 
 				where_t(Expressions... expressions):
 					_expressions(expressions...)
@@ -105,7 +106,8 @@ namespace sqlpp
 			{
 				using _is_where = std::true_type;
 				using _is_dynamic = std::false_type;
-				using _table_set = ::sqlpp::detail::type_set<>;
+				using _provided_tables = detail::type_set<>;
+				using _required_tables = ::sqlpp::detail::type_set<>;
 
 				where_t(bool condition):
 					_condition(condition)
@@ -128,7 +130,8 @@ namespace sqlpp
 		struct no_where_t
 		{
 			using _is_noop = std::true_type;
-			using _table_set = ::sqlpp::detail::type_set<>;
+			using _provided_tables = detail::type_set<>;
+			using _required_tables = ::sqlpp::detail::type_set<>;
 
 			template<typename Policies>
 				struct _methods_t

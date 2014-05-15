@@ -36,14 +36,10 @@ namespace sqlpp
 		template<typename Select>
 		struct exists_t: public boolean::template expression_operators<exists_t<Select>>
 		{
+			using _traits = make_traits_t<boolean, tag::expression, tag::named_expression>;
+			using _recursive_traits = make_recursive_traits_t<Select>;
+
 			static_assert(is_select_t<Select>::value, "exists() requires a select expression as argument");
-
-			struct _value_type: public boolean
-			{
-				using _is_named_expression = std::true_type;
-			};
-
-			using _table_set = typename Select::_table_set;
 
 			struct _name_t
 			{

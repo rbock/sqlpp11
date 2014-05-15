@@ -46,7 +46,8 @@ namespace sqlpp
 				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 				using _parameter_tuple_t = std::tuple<Flags...>;
 				using size = std::tuple_size<_parameter_tuple_t>;
-				using _table_set = typename ::sqlpp::detail::make_joined_set<typename Flags::_table_set...>::type;
+				using _provided_tables = detail::type_set<>;
+				using _required_tables = typename ::sqlpp::detail::make_joined_set<typename Flags::_required_tables...>::type;
 
 				static_assert(not ::sqlpp::detail::has_duplicates<Flags...>::value, "at least one duplicate argument detected in select flag list");
 
@@ -102,7 +103,8 @@ namespace sqlpp
 		struct no_select_flag_list_t
 		{
 			using _is_noop = std::true_type;
-			using _table_set = ::sqlpp::detail::type_set<>;
+			using _provided_tables = detail::type_set<>;
+			using _required_tables = ::sqlpp::detail::type_set<>;
 
 			template<typename Policies>
 				struct _methods_t

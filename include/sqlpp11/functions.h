@@ -48,7 +48,8 @@ namespace sqlpp
 	template<typename T>
 		auto value(T t) -> vendor::wrap_operand_t<T>
 		{
-			using _table_set = ::sqlpp::detail::type_set<>;
+			using _provided_tables = detail::type_set<>;
+			using _required_tables = ::sqlpp::detail::type_set<>;
 			static_assert(not is_value_t<T>::value, "value() is to be called with non-sql-type like int, or string");
 			return { t };
 		}
@@ -56,8 +57,8 @@ namespace sqlpp
 	template<typename ValueType> // Csaba Csoma suggests: unsafe_sql instead of verbatim
 	struct verbatim_t: public ValueType::template expression_operators<verbatim_t<ValueType>>
 	{
-		using _value_type = ValueType;
-		using _table_set = ::sqlpp::detail::type_set<>;
+		using _traits = make_traits_t<ValueType, tag::expression>;
+		using _recursive_traits = make_recursive_traits_t<Select>;
 
 		verbatim_t(std::string verbatim): _verbatim(verbatim) {}
 		verbatim_t(const verbatim_t&) = default;
@@ -102,9 +103,10 @@ namespace sqlpp
 	template<typename Container>
 		struct value_list_t // to be used in .in() method
 		{
+			using _traits = make_traits_t<vendor::value_type_t<typename _container_t::value_type>;
+			using _recursive_traits = make_recursive_traits_t<Select>;
+
 			using _container_t = Container;
-			using _table_set = ::sqlpp::detail::type_set<>;// FIXME: Could it be something else?
-			using _value_type = vendor::value_type_t<typename _container_t::value_type>;
 
 			value_list_t(_container_t container):
 				_container(container)

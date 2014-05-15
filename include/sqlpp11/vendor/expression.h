@@ -44,7 +44,8 @@ namespace sqlpp
 		{
 			using _value_type = ::sqlpp::detail::boolean;
 			using _parameter_tuple_t = std::tuple<Lhs, Rhs>;
-			using _table_set = typename ::sqlpp::detail::make_joined_set<typename Lhs::_table_set, typename Rhs::_table_set>::type;
+			using _provided_tables = detail::type_set<>;
+			using _required_tables = typename ::sqlpp::detail::make_joined_set<typename Lhs::_required_tables, typename Rhs::_required_tables>::type;
 
 			binary_expression_t(Lhs lhs, Rhs rhs):
 				_lhs(lhs), 
@@ -89,7 +90,8 @@ namespace sqlpp
 		{
 			using _value_type = ::sqlpp::detail::boolean;
 			using _parameter_tuple_t = std::tuple<Lhs, Rhs>;
-			using _table_set = typename ::sqlpp::detail::make_joined_set<typename Lhs::_table_set, typename Rhs::_table_set>::type;
+			using _provided_tables = detail::type_set<>;
+			using _required_tables = typename ::sqlpp::detail::make_joined_set<typename Lhs::_required_tables, typename Rhs::_required_tables>::type;
 
 			binary_expression_t(Lhs lhs, Rhs rhs):
 				_lhs(lhs), 
@@ -134,7 +136,8 @@ namespace sqlpp
 		{
 			using _value_type = ::sqlpp::detail::boolean;
 			using _parameter_tuple_t = std::tuple<Rhs>;
-			using _table_set = typename Rhs::_table_set;
+			using _provided_tables = detail::type_set<>;
+			using _required_tables = typename Rhs::_required_tables;
 
 			unary_expression_t(Rhs rhs):
 				_rhs(rhs)
@@ -171,7 +174,8 @@ namespace sqlpp
 			using _rhs_t = Rhs;
 			using _value_type = typename O::_value_type;
 			using _parameter_tuple_t = std::tuple<_lhs_t, _rhs_t>;
-			using _table_set = typename ::sqlpp::detail::make_joined_set<typename Lhs::_table_set, typename Rhs::_table_set>::type;
+			using _provided_tables = detail::type_set<>;
+			using _required_tables = typename ::sqlpp::detail::make_joined_set<typename Lhs::_required_tables, typename Rhs::_required_tables>::type;
 
 			binary_expression_t(_lhs_t lhs, _rhs_t rhs):
 				_lhs(lhs), 
@@ -209,7 +213,8 @@ namespace sqlpp
 		{
 			using _value_type = typename O::_value_type;
 			using _parameter_tuple_t = std::tuple<Rhs>;
-			using _table_set = typename Rhs::_table_set;
+			using _provided_tables = detail::type_set<>;
+			using _required_tables = typename Rhs::_required_tables;
 
 			unary_expression_t(Rhs rhs):
 				_rhs(rhs)

@@ -47,7 +47,8 @@ namespace sqlpp
 
 				static_assert(::sqlpp::detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not a table or join in extra_tables()");
 
-				using _table_set = ::sqlpp::detail::make_joined_set_t<typename Tables::_table_set...>;
+				using _provided_tables = ::sqlpp::detail::make_joined_set_t<typename Tables::_provided_tables...>;
+				using _required_tables = ::sqlpp::detail::make_joined_set_t<typename Tables::_required_tables...>;
 
 
 				extra_tables_t()
@@ -68,7 +69,8 @@ namespace sqlpp
 		struct no_extra_tables_t
 		{
 			using _is_noop = std::true_type;
-			using _table_set = ::sqlpp::detail::type_set<>;
+			using _provided_tables = detail::type_set<>;
+			using _required_tables = ::sqlpp::detail::type_set<>;
 
 			template<typename Policies>
 				struct _methods_t
