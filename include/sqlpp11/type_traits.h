@@ -162,6 +162,12 @@ namespace sqlpp
 			{
 				using type = typename T::_recursive_traits::_provided_tables;
 			};
+
+		template<typename T>
+			struct extra_table_of_impl
+			{
+				using type = typename T::_recursive_traits::_extra_tables;
+			};
 	}
 	template<typename T>
 		using value_type_of = typename detail::value_type_of_impl<T>::type;
@@ -171,6 +177,9 @@ namespace sqlpp
 
 	template<typename T>
 		using provided_tables_of = typename detail::provided_table_of_impl<T>::type;
+
+	template<typename T>
+		using extra_tables_of = typename detail::extra_table_of_impl<T>::type;
 
 	template<typename ValueType, typename... Tags>
 		struct make_traits
@@ -183,6 +192,7 @@ namespace sqlpp
 		{
 			using _required_tables = detail::make_joined_set_t<required_tables_of<Arguments>...>;
 			using _provided_tables = detail::make_joined_set_t<provided_tables_of<Arguments>...>;
+			using _extra_tables = detail::make_joined_set_t<extra_tables_of<Arguments>...>;
 		};
 
 }

@@ -40,6 +40,14 @@ namespace sqlpp
 			struct extra_tables_t
 			{
 				using _traits = make_traits<no_value_t, ::sqlpp::tag::extra_tables>;
+				struct _recursive_traits
+				{
+					using _parameters = std::tuple<>;
+					using _required_tables = ::sqlpp::detail::type_set<>;
+					using _provided_tables = ::sqlpp::detail::type_set<>;
+					using _extra_tables = ::sqlpp::detail::type_set<Tables...>;
+				};
+
 				using _recursive_traits = make_recursive_traits<Tables...>;
 
 				// FIXME: extra_tables must not require tables!
