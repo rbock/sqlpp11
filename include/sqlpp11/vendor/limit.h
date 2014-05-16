@@ -39,11 +39,10 @@ namespace sqlpp
 		template<typename Limit>
 			struct limit_t
 			{
-				using _is_limit = std::true_type;
+				using _traits = make_traits<no_value_t, ::sqlpp::tag::limit>;
+				using _recursive_traits = make_recursive_traits<Limit>;
+
 				static_assert(is_integral_t<Limit>::value, "limit requires an integral value or integral parameter");
-				// FIXME: Is this really always empty?
-				using _provided_tables = detail::type_set<>;
-				using _required_tables = ::sqlpp::detail::type_set<>;
 
 				limit_t(Limit value):
 					_value(value)
@@ -66,10 +65,8 @@ namespace sqlpp
 		template<typename Database>
 			struct dynamic_limit_t
 			{
-				using _is_limit = std::true_type;
-				using _is_dynamic = std::true_type;
-				using _provided_tables = detail::type_set<>;
-				using _required_tables = ::sqlpp::detail::type_set<>;
+				using _traits = make_traits<no_value_t, ::sqlpp::tag::limit>;
+				using _recursive_traits = make_recursive_traits<>;
 
 				dynamic_limit_t():
 					_value(noop())
@@ -108,9 +105,8 @@ namespace sqlpp
 
 		struct no_limit_t
 		{
-			using _is_noop = std::true_type;
-			using _provided_tables = detail::type_set<>;
-			using _required_tables = ::sqlpp::detail::type_set<>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
+			using _recursive_traits = make_recursive_traits<>;
 
 			template<typename Policies>
 				struct _methods_t

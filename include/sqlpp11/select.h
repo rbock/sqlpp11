@@ -112,27 +112,27 @@ namespace sqlpp
 				static_assert(is_noop_t<ColumnList>::value or sqlpp::is_select_column_list_t<ColumnList>::value, "column list of select is neither naught nor a valid column list");
 				static_assert(is_noop_t<From>::value or sqlpp::is_from_t<From>::value, "from() part of select is neither naught nor a valid from()");
 
-				using _known_tables = detail::make_joined_set_t<typename _from_t::_table_set, typename _extra_tables_t::_table_set>;
+				using _known_tables = detail::make_joined_set_t<provided_tables_of<_from_t>, provided_tables_of<_extra_tables_t>>; // FIXME, use provided_tables_of<THIS>;
 
 				template<typename Expression>
-					using _no_unknown_tables = detail::is_subset_of<typename Expression::_table_set, _known_tables>;
+					using _no_unknown_tables = detail::is_subset_of<required_tables_of<Expression>, _known_tables>;
 
 				using _required_tables = 
 					detail::make_joined_set_t<
-						typename _flag_list_t::_table_set,
-						typename _column_list_t::_table_set,
-						typename _where_t::_table_set,
-						typename _group_by_t::_table_set,
-						typename _having_t::_table_set,
-						typename _order_by_t::_table_set,
-						typename _limit_t::_table_set,
-						typename _offset_t::_table_set
+						required_tables_of<_flag_list_t>,
+						required_tables_of<_column_list_t>,
+						required_tables_of<_where_t>,
+						required_tables_of<_group_by_t>,
+						required_tables_of<_having_t>,
+						required_tables_of<_order_by_t>,
+						required_tables_of<_limit_t>,
+						required_tables_of<_offset_t>
 							>;
 
 				// The tables not covered by the from.
 				using _table_set = detail::make_difference_set_t<
 					_required_tables,
-					typename _from_t::_table_set // Hint: extra_tables_t is not used here because it is just a helper for dynamic .add_*() methods and should not change the structural integrity
+					provided_tables_of<_from_t> // Hint: extra_tables_t is not used here because it is just a helper for dynamic .add_*() methods and should not change the structural integrity
 							>;
 
 				// A select can be used as a pseudo table if
@@ -145,10 +145,12 @@ namespace sqlpp
 					>::type;
 
 				using _value_type = typename std::conditional<
-					is_select_column_list_t<_column_list_t>::value and is_subset_of<typename _column_list_t::_table_set, typename _from_t::_table_set>::value,
-					typename ColumnList::_value_type,
+					is_select_column_list_t<_column_list_t>::value and is_subset_of<required_tables_of<_column_list_t>, provided_tables_of<_from_t>>::value,
+					value_type_of<_column_list_t>,
 					no_value_t // If something is selected that requires a table, then we require a from for this to be a value
 						>::type;
+
+			using _traits = make_traits<_value_type>;
 			};
 	}
 
@@ -160,6 +162,9 @@ namespace sqlpp
 			public detail::select_policies_t<Db, Policies...>::_value_type::template expression_operators<select_t<Db, Policies...>>,
 			public detail::select_policies_t<Db, Policies...>::_methods_t
 		{
+			using _traits = make_traits<value_type_of<detail::select_policies_t<Db, Policies...>>, ::sqlpp::tag::select>;
+			using _recursive_traits = make_recursive_traits<>; // FIXME
+
 			using _policies_t = typename detail::select_policies_t<Db, Policies...>;
 			using _database_t = typename _policies_t::_database_t;
 			using _flag_list_t = typename _policies_t::_flag_list_t;

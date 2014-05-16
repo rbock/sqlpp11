@@ -31,7 +31,7 @@ namespace sqlpp
 {
 	namespace vendor
 	{
-		namespace tag
+		namespace op
 		{
 			struct less
 			{
@@ -139,52 +139,52 @@ namespace sqlpp
 			struct unary_expression_t;
 
 		template<typename Lhs, typename Rhs>
-			using less_than_t = binary_expression_t<Lhs, tag::less, Rhs>;
+			using less_than_t = binary_expression_t<Lhs, op::less, Rhs>;
 
 		template<typename Lhs, typename Rhs>
-			using less_equal_t = binary_expression_t<Lhs, tag::less_equal, Rhs>;
+			using less_equal_t = binary_expression_t<Lhs, op::less_equal, Rhs>;
 
 		template<typename Lhs, typename Rhs>
-			using equal_to_t = binary_expression_t<Lhs, tag::equal_to, Rhs>;
+			using equal_to_t = binary_expression_t<Lhs, op::equal_to, Rhs>;
 
 		template<typename Lhs, typename Rhs>
-			using not_equal_to_t = binary_expression_t<Lhs, tag::not_equal_to, Rhs>;
+			using not_equal_to_t = binary_expression_t<Lhs, op::not_equal_to, Rhs>;
 
 		template<typename Lhs, typename Rhs>
-			using greater_than_t = binary_expression_t<Lhs, tag::greater, Rhs>;
+			using greater_than_t = binary_expression_t<Lhs, op::greater, Rhs>;
 
 		template<typename Lhs, typename Rhs>
-			using greater_equal_t = binary_expression_t<Lhs, tag::greater_equal, Rhs>;
+			using greater_equal_t = binary_expression_t<Lhs, op::greater_equal, Rhs>;
 
 		template<typename Lhs, typename Rhs>
-			using logical_and_t = binary_expression_t<Lhs, tag::logical_and, Rhs>;
+			using logical_and_t = binary_expression_t<Lhs, op::logical_and, Rhs>;
 
 		template<typename Lhs, typename Rhs>
-			using logical_or_t = binary_expression_t<Lhs, tag::logical_or, Rhs>;
+			using logical_or_t = binary_expression_t<Lhs, op::logical_or, Rhs>;
 
 		template<typename Lhs, typename ValueType, typename Rhs>
-			using plus_t = binary_expression_t<Lhs, tag::plus<ValueType>, Rhs>;
+			using plus_t = binary_expression_t<Lhs, op::plus<ValueType>, Rhs>;
 
 		template<typename Lhs, typename ValueType, typename Rhs>
-			using minus_t = binary_expression_t<Lhs, tag::minus<ValueType>, Rhs>;
+			using minus_t = binary_expression_t<Lhs, op::minus<ValueType>, Rhs>;
 
 		template<typename Lhs, typename ValueType, typename Rhs>
-			using multiplies_t = binary_expression_t<Lhs, tag::multiplies<ValueType>, Rhs>;
+			using multiplies_t = binary_expression_t<Lhs, op::multiplies<ValueType>, Rhs>;
 
 		template<typename Lhs, typename Rhs>
-			using divides_t = binary_expression_t<Lhs, tag::divides, Rhs>;
+			using divides_t = binary_expression_t<Lhs, op::divides, Rhs>;
 
 		template<typename Lhs, typename Rhs>
-			using modulus_t = binary_expression_t<Lhs, tag::modulus, Rhs>;
+			using modulus_t = binary_expression_t<Lhs, op::modulus, Rhs>;
 
 		template<typename Rhs>
-			using logical_not_t = unary_expression_t<tag::logical_not, Rhs>;
+			using logical_not_t = unary_expression_t<op::logical_not, Rhs>;
 
 		template<typename ValueType, typename Rhs>
-			using unary_plus_t = unary_expression_t<tag::unary_plus<ValueType>, Rhs>;
+			using unary_plus_t = unary_expression_t<op::unary_plus<ValueType>, Rhs>;
 
 		template<typename ValueType, typename Rhs>
-			using unary_minus_t = unary_expression_t<tag::unary_minus<ValueType>, Rhs>;
+			using unary_minus_t = unary_expression_t<op::unary_minus<ValueType>, Rhs>;
 
 	}
 }

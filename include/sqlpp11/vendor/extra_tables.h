@@ -39,7 +39,7 @@ namespace sqlpp
 		template<typename... Tables>
 			struct extra_tables_t
 			{
-				using _traits = make_traits<no_value_t, tag::extra_tables>;
+				using _traits = make_traits<no_value_t, ::sqlpp::tag::extra_tables>;
 				using _recursive_traits = make_recursive_traits<Tables...>;
 
 				// FIXME: extra_tables must not require tables!
@@ -65,7 +65,7 @@ namespace sqlpp
 
 		struct no_extra_tables_t
 		{
-			using _traits = make_traits<no_value_t, tag::noop>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
 			using _recursive_traits = make_recursive_traits<>;
 
 			template<typename Policies>

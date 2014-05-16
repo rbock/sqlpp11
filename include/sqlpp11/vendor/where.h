@@ -42,18 +42,14 @@ namespace sqlpp
 		template<typename Database, typename... Expressions>
 			struct where_t
 			{
-				using _is_where = std::true_type;
+				using _traits = make_traits<no_value_t, ::sqlpp::tag::where>;
+				using _recursive_traits = make_recursive_traits<Expressions...>;
+
 				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
-				using _parameter_tuple_t = std::tuple<Expressions...>;
 
 				static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression argument required in where()");
 				static_assert(sqlpp::detail::none_t<is_assignment_t<Expressions>::value...>::value, "at least one argument is an assignment in where()");
 				static_assert(sqlpp::detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not valid expression in where()");
-
-				using _parameter_list_t = typename make_parameter_list_t<_parameter_tuple_t>::type;
-
-				using _provided_tables = detail::type_set<>;
-				using _required_tables = typename ::sqlpp::detail::make_joined_set<typename Expressions::_required_tables...>::type;
 
 				where_t(Expressions... expressions):
 					_expressions(expressions...)
@@ -97,17 +93,15 @@ namespace sqlpp
 							void _add_where_impl(Expression expression, const std::false_type&);
 					};
 
-				_parameter_tuple_t _expressions;
+				std::tuple<Expressions...> _expressions;
 				vendor::interpretable_list_t<Database> _dynamic_expressions;
 			};
 
 		template<>
 			struct where_t<void, bool>
 			{
-				using _is_where = std::true_type;
-				using _is_dynamic = std::false_type;
-				using _provided_tables = detail::type_set<>;
-				using _required_tables = ::sqlpp::detail::type_set<>;
+				using _traits = make_traits<no_value_t, ::sqlpp::tag::where>;
+				using _recursive_traits = make_recursive_traits<>;
 
 				where_t(bool condition):
 					_condition(condition)
@@ -129,9 +123,8 @@ namespace sqlpp
 
 		struct no_where_t
 		{
-			using _is_noop = std::true_type;
-			using _provided_tables = detail::type_set<>;
-			using _required_tables = ::sqlpp::detail::type_set<>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::where>;
+			using _recursive_traits = make_recursive_traits<>;
 
 			template<typename Policies>
 				struct _methods_t

@@ -87,6 +87,7 @@ namespace sqlpp
 			{
 				static_assert(is_select_t<vendor::wrap_operand_t<T>>::value, "any() requires a select expression as argument");
 				static_assert(is_expression_t<vendor::wrap_operand_t<T>>::value, "any() requires a single column select expression as argument");
+				// FIXME: can we accept non-values like NULL here?
 				return { t };
 			}
 

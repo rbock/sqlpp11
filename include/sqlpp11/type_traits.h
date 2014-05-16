@@ -114,6 +114,7 @@ namespace sqlpp
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(select_flag_list);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(select_column_list);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(from);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(extra_tables);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(on);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(dynamic);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(where);
@@ -141,17 +142,6 @@ namespace sqlpp
 
 	template<typename T, template<typename> class IsTag>
 		using copy_type_trait = typename std::conditional<IsTag<T>::value, std::true_type, std::false_type>::type;
-
-	template<typename ValueType, typename... Tags>
-		struct make_traits
-		{
-			using _value_type = ValueType;
-			using _tags = detail::make_type_set_t<typename ValueType::_tag, Tags...>;
-		};
-	template<typename... Arguments>
-		struct make_recursive_traits
-		{
-		};
 
 	namespace detail
 	{
@@ -181,6 +171,20 @@ namespace sqlpp
 
 	template<typename T>
 		using provided_tables_of = typename detail::provided_table_of_impl<T>::type;
+
+	template<typename ValueType, typename... Tags>
+		struct make_traits
+		{
+			using _value_type = ValueType;
+			using _tags = detail::make_type_set_t<typename ValueType::_tag, Tags...>;
+		};
+	template<typename... Arguments>
+		struct make_recursive_traits
+		{
+			using _required_tables = detail::make_joined_set_t<required_tables_of<Arguments>...>;
+			using _provided_tables = detail::make_joined_set_t<provided_tables_of<Arguments>...>;
+		};
+
 }
 
 #endif

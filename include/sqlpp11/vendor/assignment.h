@@ -65,7 +65,7 @@ namespace sqlpp
 		template<typename Lhs, typename Rhs>
 			struct assignment_t
 			{
-				using _traits = make_traits<no_value_t, tag::assignment>;
+				using _traits = make_traits<no_value_t, ::sqlpp::tag::assignment>;
 				using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
 
 				using _column_t = Lhs;
@@ -115,7 +115,7 @@ namespace sqlpp
 		template<typename Lhs, typename Rhs>
 			struct assignment_t<Lhs, tvin_t<Rhs>>
 			{
-				using _traits = make_traits<no_value_t, tag::assignment>;
+				using _traits = make_traits<no_value_t, ::sqlpp::tag::assignment>;
 				using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
 
 				using _column_t = Lhs;

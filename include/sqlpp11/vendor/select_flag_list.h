@@ -42,12 +42,10 @@ namespace sqlpp
 		template<typename Database, typename... Flags>
 			struct select_flag_list_t
 			{
-				using _is_select_flag_list = std::true_type; 
+				using _traits = make_traits<no_value_t, ::sqlpp::tag::select_flag_list>;
+				using _recursive_traits = make_recursive_traits<Flags...>;
+
 				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
-				using _parameter_tuple_t = std::tuple<Flags...>;
-				using size = std::tuple_size<_parameter_tuple_t>;
-				using _provided_tables = detail::type_set<>;
-				using _required_tables = typename ::sqlpp::detail::make_joined_set<typename Flags::_required_tables...>::type;
 
 				static_assert(not ::sqlpp::detail::has_duplicates<Flags...>::value, "at least one duplicate argument detected in select flag list");
 
@@ -96,15 +94,14 @@ namespace sqlpp
 					};
 
 				const select_flag_list_t& _flag_list() const { return *this; }
-				_parameter_tuple_t _flags;
+				std::tuple<Flags...> _flags;
 				vendor::interpretable_list_t<Database> _dynamic_flags;
 			};
 
 		struct no_select_flag_list_t
 		{
-			using _is_noop = std::true_type;
-			using _provided_tables = detail::type_set<>;
-			using _required_tables = ::sqlpp::detail::type_set<>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
+			using _recursive_traits = make_recursive_traits<>;
 
 			template<typename Policies>
 				struct _methods_t

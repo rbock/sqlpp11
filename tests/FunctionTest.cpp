@@ -26,7 +26,7 @@
 #include "Sample.h"
 #include "MockDb.h"
 #include <sqlpp11/alias_provider.h>
-//#include <sqlpp11/select.h>
+#include <sqlpp11/select.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/connection.h>
 
@@ -171,7 +171,6 @@ int main()
 	// SUB_SELECT_FUNCTIONS
 	// --------------------
 	
-#if 0
 	// Test exists
 	{
 		using TI = decltype(exists(select(t.alpha).from(t)));
@@ -189,6 +188,9 @@ int main()
 
 	// Test any
 	{
+		using S = decltype(select(t.alpha).from(t));
+		static_assert(sqlpp::is_numeric_t<S>::value, "type requirement");
+		static_assert(sqlpp::is_numeric_t<S::_column_list_t>::value, "type requirement");
 		
 		using TI = decltype(any(select(t.alpha).from(t)));
 		using TT = decltype(any(select(t.beta).from(t)));
@@ -233,7 +235,6 @@ int main()
 		static_assert(not sqlpp::is_floating_point_t<TT>::value, "type requirement");
 		static_assert(sqlpp::is_text_t<TT>::value, "type requirement");
 	}
-#endif
 
 	// NUMERIC FUNCTIONS
   // -----------------

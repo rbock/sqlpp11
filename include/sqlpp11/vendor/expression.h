@@ -40,7 +40,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Lhs, typename Rhs>
-			struct binary_expression_t<Lhs, tag::equal_to, Rhs>: public ::sqlpp::detail::boolean::template expression_operators<equal_to_t<Lhs, Rhs>>
+			struct binary_expression_t<Lhs, op::equal_to, Rhs>: public ::sqlpp::detail::boolean::template expression_operators<equal_to_t<Lhs, Rhs>>
 		{
 			using _traits = make_traits<boolean, sqlpp::tag::expression>;
 			using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
@@ -84,7 +84,7 @@ namespace sqlpp
 			};
 
 		template<typename Lhs, typename Rhs>
-			struct binary_expression_t<Lhs, tag::not_equal_to, Rhs>: public ::sqlpp::detail::boolean::template expression_operators<not_equal_to_t<Lhs, Rhs>>
+			struct binary_expression_t<Lhs, op::not_equal_to, Rhs>: public ::sqlpp::detail::boolean::template expression_operators<not_equal_to_t<Lhs, Rhs>>
 		{
 			using _traits = make_traits<boolean, sqlpp::tag::expression>;
 			using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
@@ -128,7 +128,7 @@ namespace sqlpp
 			};
 
 		template<typename Rhs>
-			struct unary_expression_t<tag::logical_not, Rhs>: public ::sqlpp::detail::boolean::template expression_operators<logical_not_t<Rhs>>
+			struct unary_expression_t<op::logical_not, Rhs>: public ::sqlpp::detail::boolean::template expression_operators<logical_not_t<Rhs>>
 		{
 			using _traits = make_traits<boolean, sqlpp::tag::expression>;
 			using _recursive_traits = make_recursive_traits<Rhs>;
