@@ -117,7 +117,7 @@ namespace sqlpp
 				template<typename Expression>
 					using _no_unknown_tables = detail::is_subset_of<required_tables_of<Expression>, _known_tables>;
 
-				using _required_tables = 
+				using _all_required_tables = 
 					detail::make_joined_set_t<
 						required_tables_of<_flag_list_t>,
 						required_tables_of<_column_list_t>,
@@ -130,8 +130,8 @@ namespace sqlpp
 							>;
 
 				// The tables not covered by the from.
-				using _table_set = detail::make_difference_set_t<
-					_required_tables,
+				using _required_tables = detail::make_difference_set_t<
+					_all_required_tables,
 					provided_tables_of<_from_t> // Hint: extra_tables_t is not used here because it is just a helper for dynamic .add_*() methods and should not change the structural integrity
 							>;
 
@@ -139,7 +139,7 @@ namespace sqlpp
 				//   - at least one column is selected
 				//   - the select is complete (leaks no tables)
 				using _can_be_used_as_table = typename std::conditional<
-					is_select_column_list_t<_column_list_t>::value and _table_set::size::value == 0,
+					is_select_column_list_t<_column_list_t>::value and _required_tables::size::value == 0,
 					std::true_type,
 					std::false_type
 					>::type;
@@ -150,7 +150,16 @@ namespace sqlpp
 					no_value_t // If something is selected that requires a table, then we require a from for this to be a value
 						>::type;
 
-			using _traits = make_traits<_value_type>;
+				using _traits = make_traits<_value_type>;
+
+				struct _recursive_traits
+				{
+					using _parameters = std::tuple<>; // FIXME
+					using _required_tables = _required_tables;
+					using _provided_tables = detail::type_set<>;
+					using _extra_tables = detail::type_set<>;
+				};
+
 			};
 	}
 
@@ -162,10 +171,12 @@ namespace sqlpp
 			public detail::select_policies_t<Db, Policies...>::_value_type::template expression_operators<select_t<Db, Policies...>>,
 			public detail::select_policies_t<Db, Policies...>::_methods_t
 		{
-			using _traits = make_traits<value_type_of<detail::select_policies_t<Db, Policies...>>, ::sqlpp::tag::select>;
-			using _recursive_traits = make_recursive_traits<>; // FIXME
-
 			using _policies_t = typename detail::select_policies_t<Db, Policies...>;
+
+			using _traits = make_traits<value_type_of<_policies_t>, ::sqlpp::tag::select>;
+
+			using _recursive_traits = typename _policies_t::_recursive_traits;
+
 			using _database_t = typename _policies_t::_database_t;
 			using _flag_list_t = typename _policies_t::_flag_list_t;
 			using _column_list_t = typename _policies_t::_column_list_t;
@@ -182,7 +193,6 @@ namespace sqlpp
 
 			using _parameter_tuple_t = std::tuple<Policies...>;
 			using _parameter_list_t = typename make_parameter_list_t<select_t>::type;
-			using _table_set = typename _policies_t::_table_set;
 			
 			template<typename Database>
 				using _result_row_t = typename _column_list_t::template _result_row_t<Database>;
@@ -256,7 +266,7 @@ namespace sqlpp
 			template<typename A>
 				struct is_table_subset_of_from
 				{
-					static constexpr bool value = ::sqlpp::detail::is_subset_of<typename A::_table_set, typename _from_t::_table_set>::value;
+					static constexpr bool value = ::sqlpp::detail::is_subset_of<required_tables_of<A>, provided_tables_of<_from_t>>::value;
 				};
 
 			void _check_consistency() const
@@ -271,7 +281,7 @@ namespace sqlpp
 				static_assert(is_table_subset_of_from<_order_by_t>::value, "order_by() expression requires additional tables in from()");
 				static_assert(is_table_subset_of_from<_limit_t>::value, "limit() expression requires additional tables in from()");
 				static_assert(is_table_subset_of_from<_offset_t>::value, "offset() expression requires additional tables in from()");
-				static_assert(not _table_set::size::value, "one sub expression contains tables which are not in the from()");
+				static_assert(not required_tables_of<_policies_t>::size::value, "one sub expression contains tables which are not in the from()");
 			}
 
 			// Execute
