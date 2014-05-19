@@ -158,6 +158,9 @@ namespace sqlpp
 			};
 
 		template<template<typename> class Predicate, typename... T>
+			using make_type_set_if_t = typename make_type_set_if<Predicate, T...>::type;
+
+		template<template<typename> class Predicate, typename... T>
 			struct make_type_set_if_not
 			{
 				template<typename X>

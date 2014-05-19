@@ -145,9 +145,9 @@ namespace sqlpp
 					>::type;
 
 				using _value_type = typename std::conditional<
-					is_select_column_list_t<_column_list_t>::value and is_subset_of<required_tables_of<_column_list_t>, provided_tables_of<_from_t>>::value,
+					detail::make_type_set_if_t<is_missing_t, FlagList, ColumnList, From, ExtraTables, Where, GroupBy, Having, OrderBy, Limit, Offset>::size::value == 0,
 					value_type_of<_column_list_t>,
-					no_value_t // If something is selected that requires a table, then we require a from for this to be a value
+					no_value_t // if a required statement part is missing (columns in a select), then the statement cannot be used as a value
 						>::type;
 
 				using _traits = make_traits<_value_type>;

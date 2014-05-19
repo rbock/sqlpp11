@@ -47,14 +47,14 @@ namespace sqlpp
 		template<typename... Rest>
 			struct get_first_argument_if_unique
 			{
-				using _traits = make_traits<no_value_t, tag::select_column_list>;
+				using _traits = make_traits<no_value_t, tag::select_column_list, tag::return_value>;
 				struct _name_t {};
 			};
 
 		template<typename T>
 			struct get_first_argument_if_unique<T>
 			{
-				using _traits = make_traits<value_type_of<T>, tag::select_column_list, tag::expression, tag::named_expression>;
+				using _traits = make_traits<value_type_of<T>, tag::select_column_list, tag::return_value, tag::expression, tag::named_expression>;
 				using _name_t = typename T::_name_t;
 			};
 	}
@@ -239,7 +239,7 @@ namespace sqlpp
 	{
 		struct no_select_column_list_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop, ::sqlpp::tag::missing>;
 			using _recursive_traits = make_recursive_traits<>;
 
 			template<typename Db>
