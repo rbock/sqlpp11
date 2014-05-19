@@ -24,35 +24,37 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_NOOP_H
-#define SQLPP_NOOP_H
+#ifndef SQLPP_DETAIL_GET_LAST_H
+#define SQLPP_DETAIL_GET_LAST_H
 
 #include <type_traits>
 
 namespace sqlpp
 {
-	namespace vendor
+	namespace detail
 	{
-		struct noop 
-		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
-			using _recursive_traits = make_recursive_traits<>;
-		};
+		template<template<typename> class Predicate, typename Default, typename... T>
+			struct get_last_if_impl;
 
-		template<typename Context>
-			struct serializer_t<Context, noop>
+		template<template<typename> class Predicate, typename Default>
+			struct get_last_if_impl<Predicate, Default>
 			{
-				using T = noop;
-
-				static Context& _(const T& t, Context& context)
-				{
-					return context;
-				}
+				using type = Default;
 			};
 
-		template<typename T>
-			struct is_noop: std::is_same<T, noop> {};
-	}
+		template<template<typename> class Predicate, typename Default, typename T, typename... Rest>
+			struct get_last_if_impl<Predicate, Default, T, Rest...>
+			{
+				using rest = typename get_last_if_impl<Predicate, Default, Rest...>::type;
+				using type = typename std::conditional<std::is_same<rest, Default>::value and Predicate<T>::value,
+							T,
+							rest>::type;
+			};
 
+		template<template<typename> class Predicate, typename Default, typename... T>
+			using get_last_if = typename get_last_if_impl<Predicate, Default, T...>::type;
+	}
 }
+
+
 #endif

@@ -48,6 +48,7 @@
 #include <sqlpp11/vendor/policy_update.h>
 
 #include <sqlpp11/detail/arg_selector.h>
+#include <sqlpp11/detail/get_last.h>
 
 namespace sqlpp
 {
@@ -135,18 +136,20 @@ namespace sqlpp
 					provided_tables_of<_from_t> // Hint: extra_tables_t is not used here because it is just a helper for dynamic .add_*() methods and should not change the structural integrity
 							>;
 
+				using _result_provider = detail::get_last_if<is_return_value_t, vendor::noop, FlagList, ColumnList, From, ExtraTables, Where, GroupBy, Having, OrderBy, Limit, Offset>;
+
 				// A select can be used as a pseudo table if
 				//   - at least one column is selected
 				//   - the select is complete (leaks no tables)
 				using _can_be_used_as_table = typename std::conditional<
-					is_select_column_list_t<_column_list_t>::value and _required_tables::size::value == 0,
+					is_select_column_list_t<_result_provider>::value and _required_tables::size::value == 0,
 					std::true_type,
 					std::false_type
 					>::type;
 
 				using _value_type = typename std::conditional<
 					detail::make_type_set_if_t<is_missing_t, FlagList, ColumnList, From, ExtraTables, Where, GroupBy, Having, OrderBy, Limit, Offset>::size::value == 0,
-					value_type_of<_column_list_t>,
+					value_type_of<_result_provider>,
 					no_value_t // if a required statement part is missing (columns in a select), then the statement cannot be used as a value
 						>::type;
 
