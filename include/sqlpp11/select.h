@@ -52,60 +52,24 @@
 
 namespace sqlpp
 {
-	template<typename Db,
-			typename... Policies
-				>
+	template<typename Db, typename... Policies>
 		struct select_t;
 
 #warning STEPS:
-#warning replace _select_column_t by _result_provider
-#warning turn select into a variadic template (and have a empty_select which contains the default settings
 #warning do the same with insert, update and remove
 #warning deal with different return types in the connector (select could be a single value, update could be a range of rows)
 	namespace detail
 	{
-		template<typename Db = void,
-			typename FlagList = vendor::no_select_flag_list_t, 
-			typename ColumnList = vendor::no_select_column_list_t, 
-			typename From = vendor::no_from_t,
-			typename ExtraTables = vendor::no_extra_tables_t,
-			typename Where = vendor::no_where_t, 
-			typename GroupBy = vendor::no_group_by_t, 
-			typename Having = vendor::no_having_t,
-			typename OrderBy = vendor::no_order_by_t, 
-			typename Limit = vendor::no_limit_t, 
-			typename Offset = vendor::no_offset_t
-				>
+		template<typename Db = void, typename... Policies>
 			struct select_policies_t
 			{
 				using _database_t = Db;
-				using _flag_list_t = FlagList;
-				using _column_list_t = ColumnList;
-				using _from_t = From;
-				using _extra_tables_t = ExtraTables;
-				using _where_t = Where;
-				using _group_by_t = GroupBy;
-				using _having_t = Having;
-				using _order_by_t = OrderBy;
-				using _limit_t = Limit;
-				using _offset_t = Offset;
+				using _statement_t = select_t<Db, Policies...>;
 
-				using _statement_t = select_t<Db, FlagList, ColumnList, From, ExtraTables, Where, GroupBy, Having, OrderBy, Limit, Offset>;
-
-				struct _methods_t:
-					public _flag_list_t::template _methods_t<select_policies_t>,
-					public _column_list_t::template _methods_t<select_policies_t>,
-					public _from_t::template _methods_t<select_policies_t>,
-					public _extra_tables_t::template _methods_t<select_policies_t>,
-					public _where_t::template _methods_t<select_policies_t>,
-					public _group_by_t::template _methods_t<select_policies_t>,
-					public _having_t::template _methods_t<select_policies_t>,
-					public _order_by_t::template _methods_t<select_policies_t>,
-					public _limit_t::template _methods_t<select_policies_t>,
-					public _offset_t::template _methods_t<select_policies_t>
+				struct _methods_t: public Policies::template _methods_t<select_policies_t>...
 				{};
 
-				template<typename Needle, typename Replacement, typename... Policies>
+				template<typename Needle, typename Replacement>
 					struct _policies_update_t
 					{
 						static_assert(detail::is_element_of<Needle, make_type_set_t<Policies...>>::value, "policies update for non-policy class detected");
@@ -113,32 +77,24 @@ namespace sqlpp
 					};
 
 				template<typename Needle, typename Replacement>
-					using _new_statement_t = typename _policies_update_t<Needle, Replacement, FlagList, ColumnList, From, ExtraTables, Where, GroupBy, Having, OrderBy, Limit, Offset>::type;
+					using _new_statement_t = typename _policies_update_t<Needle, Replacement>::type;
 
-				using _known_tables = detail::make_joined_set_t<provided_tables_of<_from_t>, extra_tables_of<_extra_tables_t>>;
+				using _all_required_tables = detail::make_joined_set_t<required_tables_of<Policies>...>;
+				using _all_provided_tables = detail::make_joined_set_t<provided_tables_of<Policies>...>;
+				using _all_extra_tables = detail::make_joined_set_t<extra_tables_of<Policies>...>;
+
+				using _known_tables = detail::make_joined_set_t<_all_provided_tables, _all_extra_tables>;
 
 				template<typename Expression>
 					using _no_unknown_tables = detail::is_subset_of<required_tables_of<Expression>, _known_tables>;
 
-				using _all_required_tables = 
-					detail::make_joined_set_t<
-						required_tables_of<_flag_list_t>,
-						required_tables_of<_column_list_t>,
-						required_tables_of<_where_t>,
-						required_tables_of<_group_by_t>,
-						required_tables_of<_having_t>,
-						required_tables_of<_order_by_t>,
-						required_tables_of<_limit_t>,
-						required_tables_of<_offset_t>
-							>;
-
 				// The tables not covered by the from.
 				using _required_tables = detail::make_difference_set_t<
 					_all_required_tables,
-					provided_tables_of<_from_t> // Hint: extra_tables_t is not used here because it is just a helper for dynamic .add_*() methods and should not change the structural integrity
+					_all_provided_tables // Hint: extra_tables are not used here because they are just a helper for dynamic .add_*()
 							>;
 
-				using _result_provider = detail::get_last_if<is_return_value_t, vendor::no_select_column_list_t, FlagList, ColumnList, From, ExtraTables, Where, GroupBy, Having, OrderBy, Limit, Offset>;
+				using _result_provider = detail::get_last_if<is_return_value_t, vendor::no_select_column_list_t, Policies...>;
 
 				// A select can be used as a pseudo table if
 				//   - at least one column is selected
@@ -150,7 +106,7 @@ namespace sqlpp
 					>::type;
 
 				using _value_type = typename std::conditional<
-					detail::make_type_set_if_t<is_missing_t, FlagList, ColumnList, From, ExtraTables, Where, GroupBy, Having, OrderBy, Limit, Offset>::size::value == 0,
+					detail::none_t<is_missing_t<Policies>::value...>::value,
 					value_type_of<_result_provider>,
 					no_value_t // if a required statement part is missing (columns in a select), then the statement cannot be used as a value
 						>::type;
@@ -300,8 +256,6 @@ namespace sqlpp
 
 					return {{}, get_dynamic_names(), db.prepare_select(*this)};
 				}
-
-			std::tuple<Policies...> _terms;
 		};
 
 	namespace vendor
@@ -315,39 +269,51 @@ namespace sqlpp
 				{
 					context << "SELECT ";
 
-					interpret_tuple(t._terms, ' ', context);
+					using swallow = int[]; 
+					(void) swallow{(serialize(static_cast<const Policies&>(t), context), 0)...};
 
 					return context;
 				}
 			};
 	}
 
-	template<typename Database, typename... Policies>
-		using make_select_t = typename detail::select_policies_t<Database, Policies...>::_statement_t;
+	template<typename Database>
+		using blank_select_t = select_t<Database,
+			vendor::no_select_flag_list_t, 
+			vendor::no_select_column_list_t, 
+			vendor::no_from_t,
+			vendor::no_extra_tables_t,
+			vendor::no_where_t, 
+			vendor::no_group_by_t, 
+			vendor::no_having_t,
+			vendor::no_order_by_t, 
+			vendor::no_limit_t, 
+			vendor::no_offset_t>;
 
-	make_select_t<void> select() // FIXME: These should be constexpr
+
+	blank_select_t<void> select() // FIXME: These should be constexpr
 	{
 		return { };
 	}
 
 	template<typename... Columns>
 		auto select(Columns... columns)
-		-> make_select_t<void, vendor::no_select_flag_list_t, detail::make_select_column_list_t<void, Columns...>>
+		-> decltype(blank_select_t<void>().columns(detail::make_select_column_list_t<void, Columns...>(columns...)))
 		{
-			return { make_select_t<void>(), detail::make_select_column_list_t<void, Columns...>{std::tuple_cat(detail::as_tuple<Columns>::_(columns)...)} };
+			return blank_select_t<void>().columns(detail::make_select_column_list_t<void, Columns...>(columns...));
 		}
 
 	template<typename Database>
-		make_select_t<Database> dynamic_select(const Database&)
+		blank_select_t<Database> dynamic_select(const Database&)
 		{
-			return { make_select_t<Database>() };
+			return { };
 		}
 
 	template<typename Database, typename... Columns>
 		auto dynamic_select(const Database&, Columns... columns)
-		-> make_select_t<Database, vendor::no_select_flag_list_t, detail::make_select_column_list_t<void, Columns...>>
+		-> decltype(blank_select_t<Database>().columns(detail::make_select_column_list_t<void, Columns...>(columns...)))
 		{
-			return { make_select_t<Database>(), detail::make_select_column_list_t<void, Columns...>(std::tuple_cat(detail::as_tuple<Columns>::_(columns)...)) };
+			return blank_select_t<Database>().columns(detail::make_select_column_list_t<void, Columns...>(columns...));
 		}
 
 }
