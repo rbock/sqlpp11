@@ -115,9 +115,6 @@ namespace sqlpp
 				template<typename Needle, typename Replacement>
 					using _new_statement_t = typename _policies_update_t<Needle, Replacement, FlagList, ColumnList, From, ExtraTables, Where, GroupBy, Having, OrderBy, Limit, Offset>::type;
 
-				static_assert(is_noop_t<ColumnList>::value or sqlpp::is_select_column_list_t<ColumnList>::value, "column list of select is neither naught nor a valid column list");
-				static_assert(is_noop_t<From>::value or sqlpp::is_from_t<From>::value, "from() part of select is neither naught nor a valid from()");
-
 				using _known_tables = detail::make_joined_set_t<provided_tables_of<_from_t>, extra_tables_of<_extra_tables_t>>;
 
 				template<typename Expression>
@@ -141,7 +138,7 @@ namespace sqlpp
 					provided_tables_of<_from_t> // Hint: extra_tables_t is not used here because it is just a helper for dynamic .add_*() methods and should not change the structural integrity
 							>;
 
-				using _result_provider = detail::get_last_if<is_return_value_t, vendor::noop, FlagList, ColumnList, From, ExtraTables, Where, GroupBy, Having, OrderBy, Limit, Offset>;
+				using _result_provider = detail::get_last_if<is_return_value_t, vendor::no_select_column_list_t, FlagList, ColumnList, From, ExtraTables, Where, GroupBy, Having, OrderBy, Limit, Offset>;
 
 				// A select can be used as a pseudo table if
 				//   - at least one column is selected
@@ -171,33 +168,47 @@ namespace sqlpp
 			};
 	}
 
+	namespace detail
+	{
+		template<typename Target, typename Statement, typename Term>
+			Target pick_arg_impl(Statement statement, Term term, const std::true_type&)
+			{
+				return term;
+			};
+
+		template<typename Target, typename Statement, typename Term>
+			Target pick_arg_impl(Statement statement, Term term, const std::false_type&)
+			{
+				return static_cast<Target>(statement);
+			};
+
+		template<typename Target, typename Statement, typename Term>
+			Target pick_arg(Statement statement, Term term)
+			{
+				return pick_arg_impl<Target>(statement, term, std::is_same<Target, Term>());
+			};
+	}
+
 	// SELECT
 	template<typename Db,
 			typename... Policies
 				>
 		struct select_t:
+			public Policies...,
 			public detail::select_policies_t<Db, Policies...>::_value_type::template expression_operators<select_t<Db, Policies...>>,
 			public detail::select_policies_t<Db, Policies...>::_methods_t
-		{
+	{
 			using _policies_t = typename detail::select_policies_t<Db, Policies...>;
 
 			using _traits = make_traits<value_type_of<_policies_t>, ::sqlpp::tag::select>;
 
 			using _recursive_traits = typename _policies_t::_recursive_traits;
 
-			using _database_t = typename _policies_t::_database_t;
-			using _flag_list_t = typename _policies_t::_flag_list_t;
-			using _column_list_t = typename _policies_t::_column_list_t;
-			using _from_t = typename _policies_t::_from_t;
-			using _extra_tables_t = typename _policies_t::_extra_tables_t;
-			using _where_t = typename _policies_t::_where_t;
-			using _group_by_t = typename _policies_t::_group_by_t;
-			using _having_t = typename _policies_t::_having_t;
-			using _order_by_t = typename _policies_t::_order_by_t;
-			using _limit_t = typename _policies_t::_limit_t;
-			using _offset_t = typename _policies_t::_offset_t;
-
+			using _database_t = Db;
 			using _is_dynamic = typename std::conditional<std::is_same<_database_t, void>::value, std::false_type, std::true_type>::type;
+
+#warning replace _column_list_t by a more generic name
+			using _column_list_t = typename _policies_t::_result_provider;
 
 			using _parameter_tuple_t = std::tuple<Policies...>;
 			using _parameter_list_t = typename make_parameter_list_t<select_t>::type;
@@ -216,17 +227,9 @@ namespace sqlpp
 			select_t()
 			{}
 
-			template<typename Statement, typename T>
-				select_t(Statement s, T t):
-					_flag_list(detail::arg_selector<_flag_list_t>::_(s._flag_list, t)),
-					_column_list(detail::arg_selector<_column_list_t>::_(s._column_list, t)),
-					_from(detail::arg_selector<_from_t>::_(s._from, t)),
-					_where(detail::arg_selector<_where_t>::_(s._where, t)),
-					_group_by(detail::arg_selector<_group_by_t>::_(s._group_by, t)),
-					_having(detail::arg_selector<_having_t>::_(s._having, t)),
-					_order_by(detail::arg_selector<_order_by_t>::_(s._order_by, t)),
-					_limit(detail::arg_selector<_limit_t>::_(s._limit, t)),
-					_offset(detail::arg_selector<_offset_t>::_(s._offset, t))
+			template<typename Statement, typename Term>
+				select_t(Statement statement, Term term):
+					Policies(detail::pick_arg<Policies>(statement, term))...
 			{}
 
 			select_t(const select_t& r) = default;
@@ -253,7 +256,7 @@ namespace sqlpp
 
 			const _dynamic_names_t& get_dynamic_names() const
 			{
-				return _column_list._dynamic_columns._dynamic_expression_names;
+				return static_cast<const _column_list_t&>(*this)._dynamic_columns._dynamic_expression_names;
 			}
 
 			static constexpr size_t _get_static_no_of_parameters()
@@ -271,24 +274,9 @@ namespace sqlpp
 				return _column_list_t::static_size() + get_dynamic_names().size();
 			}
 
-			template<typename A>
-				struct is_table_subset_of_from
-				{
-					static constexpr bool value = ::sqlpp::detail::is_subset_of<required_tables_of<A>, provided_tables_of<_from_t>>::value;
-				};
-
 			void _check_consistency() const
 			{
-				static_assert(is_select_column_list_t<_column_list_t>::value, "no columns selected");
-
-				static_assert(is_table_subset_of_from<_flag_list_t>::value, "flags require additional tables in from()");
-				static_assert(is_table_subset_of_from<_column_list_t>::value, "selected columns require additional tables in from()");
-				static_assert(is_table_subset_of_from<_where_t>::value, "where() expression requires additional tables in from()");
-				static_assert(is_table_subset_of_from<_group_by_t>::value, "group_by() expression requires additional tables in from()");
-				static_assert(is_table_subset_of_from<_having_t>::value, "having() expression requires additional tables in from()");
-				static_assert(is_table_subset_of_from<_order_by_t>::value, "order_by() expression requires additional tables in from()");
-				static_assert(is_table_subset_of_from<_limit_t>::value, "limit() expression requires additional tables in from()");
-				static_assert(is_table_subset_of_from<_offset_t>::value, "offset() expression requires additional tables in from()");
+#warning check for missing terms here, and for missing tables
 				static_assert(not required_tables_of<_policies_t>::size::value, "one sub expression contains tables which are not in the from()");
 			}
 
@@ -313,15 +301,7 @@ namespace sqlpp
 					return {{}, get_dynamic_names(), db.prepare_select(*this)};
 				}
 
-			_flag_list_t _flag_list;
-			_column_list_t _column_list;
-			_from_t _from;
-			_where_t _where;
-			_group_by_t _group_by;
-			_having_t _having;
-			_order_by_t _order_by;
-			_limit_t _limit;
-			_offset_t _offset;
+			std::tuple<Policies...> _terms;
 		};
 
 	namespace vendor
@@ -335,15 +315,7 @@ namespace sqlpp
 				{
 					context << "SELECT ";
 
-					serialize(t._flag_list, context);
-					serialize(t._column_list, context);
-					serialize(t._from, context);
-					serialize(t._where, context);
-					serialize(t._group_by, context);
-					serialize(t._having, context);
-					serialize(t._order_by, context);
-					serialize(t._limit, context);
-					serialize(t._offset, context);
+					interpret_tuple(t._terms, ' ', context);
 
 					return context;
 				}
