@@ -57,6 +57,11 @@ namespace sqlpp
 				>
 		struct select_t;
 
+#warning STEPS:
+#warning replace _select_column_t by _result_provider
+#warning turn select into a variadic template (and have a empty_select which contains the default settings
+#warning do the same with insert, update and remove
+#warning deal with different return types in the connector (select could be a single value, update could be a range of rows)
 	namespace detail
 	{
 		template<typename Db = void,
