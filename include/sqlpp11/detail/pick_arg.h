@@ -24,23 +24,32 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DETAIL_ARG_SELECTOR_H
-#define SQLPP_DETAIL_ARG_SELECTOR_H
+#ifndef SQLPP_DETAIL_PICK_ARG_H
+#define SQLPP_DETAIL_PICK_ARG_H
+
+#include <type_traits>
 
 namespace sqlpp
 {
 	namespace detail
 	{
-		template<typename Target>
-			struct arg_selector
+		template<typename Target, typename Statement, typename Term>
+			Target pick_arg_impl(Statement statement, Term term, const std::true_type&)
 			{
-				static Target _(Target, Target t) { return t; }
+				return term;
+			};
 
-				template<typename X>
-					static Target _(X, Target t) { return t; }
+		template<typename Target, typename Statement, typename Term>
+			Target pick_arg_impl(Statement statement, Term term, const std::false_type&)
+			{
+				return static_cast<Target>(statement);
+			};
 
-				template<typename X>
-					static Target _(Target t, X) { return t; }
+		// Returns a statement's term either by picking the term from the statement or using the new term
+		template<typename Target, typename Statement, typename Term>
+			Target pick_arg(Statement statement, Term term)
+			{
+				return pick_arg_impl<Target>(statement, term, std::is_same<Target, Term>());
 			};
 	}
 }

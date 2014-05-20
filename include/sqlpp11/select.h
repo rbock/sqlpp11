@@ -47,8 +47,9 @@
 #include <sqlpp11/vendor/wrong.h>
 #include <sqlpp11/vendor/policy_update.h>
 
-#include <sqlpp11/detail/arg_selector.h>
+//#include <sqlpp11/detail/arg_selector.h>
 #include <sqlpp11/detail/get_last.h>
+#include <sqlpp11/detail/pick_arg.h>
 
 namespace sqlpp
 {
@@ -94,20 +95,20 @@ namespace sqlpp
 					_all_provided_tables // Hint: extra_tables are not used here because they are just a helper for dynamic .add_*()
 							>;
 
-				using _result_provider = detail::get_last_if<is_return_value_t, vendor::no_select_column_list_t, Policies...>;
+				using _result_type_provider = detail::get_last_if<is_return_value_t, vendor::no_select_column_list_t, Policies...>;
 
 				// A select can be used as a pseudo table if
 				//   - at least one column is selected
 				//   - the select is complete (leaks no tables)
 				using _can_be_used_as_table = typename std::conditional<
-					is_select_column_list_t<_result_provider>::value and _required_tables::size::value == 0,
+					is_select_column_list_t<_result_type_provider>::value and _required_tables::size::value == 0,
 					std::true_type,
 					std::false_type
 					>::type;
 
 				using _value_type = typename std::conditional<
 					detail::none_t<is_missing_t<Policies>::value...>::value,
-					value_type_of<_result_provider>,
+					value_type_of<_result_type_provider>,
 					no_value_t // if a required statement part is missing (columns in a select), then the statement cannot be used as a value
 						>::type;
 
@@ -124,27 +125,6 @@ namespace sqlpp
 			};
 	}
 
-	namespace detail
-	{
-		template<typename Target, typename Statement, typename Term>
-			Target pick_arg_impl(Statement statement, Term term, const std::true_type&)
-			{
-				return term;
-			};
-
-		template<typename Target, typename Statement, typename Term>
-			Target pick_arg_impl(Statement statement, Term term, const std::false_type&)
-			{
-				return static_cast<Target>(statement);
-			};
-
-		template<typename Target, typename Statement, typename Term>
-			Target pick_arg(Statement statement, Term term)
-			{
-				return pick_arg_impl<Target>(statement, term, std::is_same<Target, Term>());
-			};
-	}
-
 	// SELECT
 	template<typename Db,
 			typename... Policies
@@ -157,27 +137,23 @@ namespace sqlpp
 			using _policies_t = typename detail::select_policies_t<Db, Policies...>;
 
 			using _traits = make_traits<value_type_of<_policies_t>, ::sqlpp::tag::select>;
-
 			using _recursive_traits = typename _policies_t::_recursive_traits;
 
 			using _database_t = Db;
 			using _is_dynamic = typename std::conditional<std::is_same<_database_t, void>::value, std::false_type, std::true_type>::type;
 
-#warning replace _column_list_t by a more generic name
-			using _column_list_t = typename _policies_t::_result_provider;
+			using _result_type_provider = typename _policies_t::_result_type_provider;
 
 			using _parameter_tuple_t = std::tuple<Policies...>;
 			using _parameter_list_t = typename make_parameter_list_t<select_t>::type;
 			
 			template<typename Database>
-				using _result_row_t = typename _column_list_t::template _result_row_t<Database>;
-			using _dynamic_names_t = typename _column_list_t::_dynamic_names_t;
+				using _result_row_t = typename _result_type_provider::template _result_row_t<Database>;
+			using _dynamic_names_t = typename _result_type_provider::_dynamic_names_t;
 
-			using _is_select = std::true_type;
 			using _requires_braces = std::true_type;
 
-			using _value_type = typename detail::select_policies_t<Db, Policies...>::_value_type;
-			using _name_t = typename _column_list_t::_name_t;
+			using _name_t = typename _result_type_provider::_name_t;
 
 			// Constructors
 			select_t()
@@ -198,7 +174,7 @@ namespace sqlpp
 			template<typename AliasProvider>
 				struct _pseudo_table_t
 				{
-					using table = typename _column_list_t::template _pseudo_table_t<select_t>;
+					using table = typename _result_type_provider::template _pseudo_table_t<select_t>;
 					using alias = typename table::template _alias_t<AliasProvider>;
 				};
 
@@ -212,7 +188,7 @@ namespace sqlpp
 
 			const _dynamic_names_t& get_dynamic_names() const
 			{
-				return static_cast<const _column_list_t&>(*this)._dynamic_columns._dynamic_expression_names;
+				return static_cast<const _result_type_provider&>(*this)._dynamic_columns._dynamic_expression_names;
 			}
 
 			static constexpr size_t _get_static_no_of_parameters()
@@ -227,7 +203,7 @@ namespace sqlpp
 
 			size_t get_no_of_result_columns() const
 			{
-				return _column_list_t::static_size() + get_dynamic_names().size();
+				return _result_type_provider::static_size() + get_dynamic_names().size();
 			}
 
 			void _check_consistency() const
