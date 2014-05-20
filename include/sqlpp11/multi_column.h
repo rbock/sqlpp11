@@ -76,7 +76,7 @@ namespace sqlpp
 	template<typename AliasProvider, typename... Columns>
 		struct multi_column_alias_t
 		{
-			using _traits = make_traits<no_value_t, tag::alias>;
+			using _traits = make_traits<no_value_t, tag::alias, tag::named_expression>;
 			using _recursive_traits = make_recursive_traits<Columns...>;
 
 			static_assert(detail::all_t<is_named_expression_t<Columns>::value...>::value, "multi_column parameters need to be named expressions");

@@ -92,8 +92,13 @@ namespace sqlpp
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(named_expression);
 	namespace tag
 	{
-	template<typename C>
-		using named_expression_if = typename std::conditional<C::value, tag::named_expression, void>::type;
+		template<typename C>
+			using named_expression_if = typename std::conditional<C::value, tag::named_expression, void>::type;
+	}
+	namespace tag
+	{
+		template<typename C>
+			using expression_if = typename std::conditional<C::value, tag::expression, void>::type;
 	}
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(multi_expression);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(alias);

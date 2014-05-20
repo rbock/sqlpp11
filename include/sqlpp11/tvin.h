@@ -73,18 +73,19 @@ namespace sqlpp
 			};
 	}
 
-	template<typename T>
+	template<typename Operand>
 		struct maybe_tvin_t
 		{
-			using _provided_tables = detail::type_set<>;
-			using _required_tables = typename T::_required_tables;
+			using _traits = make_traits<value_type_of<Operand>, tag::expression>;
+			using _recursive_traits = make_recursive_traits<Operand>;
+
 			static constexpr bool _is_trivial()
 			{
 				return false;
 			}
 
-			maybe_tvin_t(T t): 
-				_value(t)
+			maybe_tvin_t(Operand operand): 
+				_value(operand)
 			{}
 			maybe_tvin_t(const maybe_tvin_t&) = default;
 			maybe_tvin_t(maybe_tvin_t&&) = default;
@@ -92,21 +93,22 @@ namespace sqlpp
 			maybe_tvin_t& operator=(maybe_tvin_t&&) = default;
 			~maybe_tvin_t() = default;
 
-			T _value;
+			Operand _value;
 		};
 
-	template<typename T>
-		struct maybe_tvin_t<tvin_t<T>>
+	template<typename Operand>
+		struct maybe_tvin_t<tvin_t<Operand>>
 		{
-			using _provided_tables = detail::type_set<>;
-			using _required_tables = typename T::_required_tables;
+			using _traits = make_traits<value_type_of<Operand>, tag::expression>;
+			using _recursive_traits = make_recursive_traits<Operand>;
+
 			bool _is_trivial() const
 			{
 				return _value._is_trivial();
 			};
 
-			maybe_tvin_t(tvin_t<T> t): 
-				_value(t._value)
+			maybe_tvin_t(tvin_t<Operand> operand): 
+				_value(operand._value)
 			{}
 			maybe_tvin_t(const maybe_tvin_t&) = default;
 			maybe_tvin_t(maybe_tvin_t&&) = default;
@@ -114,7 +116,7 @@ namespace sqlpp
 			maybe_tvin_t& operator=(maybe_tvin_t&&) = default;
 			~maybe_tvin_t() = default;
 
-			typename tvin_t<T>::_operand_t _value;
+			typename tvin_t<Operand>::_operand_t _value;
 		};
 
 	namespace vendor
@@ -139,13 +141,13 @@ namespace sqlpp
 			};
 	}
 
-	template<typename T>
-		auto tvin(T t) -> tvin_t<typename vendor::wrap_operand<T>::type>
+	template<typename Operand>
+		auto tvin(Operand operand) -> tvin_t<typename vendor::wrap_operand<Operand>::type>
 		{
-			using _operand_t = typename vendor::wrap_operand<T>::type;
+			using _operand_t = typename vendor::wrap_operand<Operand>::type;
 			static_assert(std::is_same<_operand_t, vendor::text_operand>::value
-				 	or not std::is_same<_operand_t, T>::value, "tvin() used with invalid type (only string and primitive types allowed)");
-			return {{t}};
+				 	or not std::is_same<_operand_t, Operand>::value, "tvin() used with invalid type (only string and primitive types allowed)");
+			return {{operand}};
 		}
 
 }

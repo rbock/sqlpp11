@@ -54,6 +54,8 @@ namespace sqlpp
 
 				static_assert(::sqlpp::detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not an expression in group_by()");
 
+				group_by_t& _group_by() { return *this; }
+
 				group_by_t(Expressions... expressions):
 					_expressions(expressions...)
 				{}
@@ -89,7 +91,7 @@ namespace sqlpp
 						template<typename Expression>
 							void _add_group_by_impl(Expression expression, const std::true_type&)
 							{
-								return static_cast<typename Policies::_statement_t*>(this)->_group_by._dynamic_expressions.emplace_back(expression);
+								return static_cast<typename Policies::_statement_t*>(this)->_group_by()._dynamic_expressions.emplace_back(expression);
 							}
 
 						template<typename Expression>

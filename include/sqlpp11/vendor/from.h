@@ -55,6 +55,7 @@ namespace sqlpp
 
 				static_assert(required_tables_of<from_t>::size::value == 0, "at least one table depends on another table");
 
+				from_t& _from() { return *this; }
 
 				from_t(Tables... tables):
 					_tables(tables...)
@@ -84,7 +85,7 @@ namespace sqlpp
 						template<typename Table>
 							void _add_from_impl(Table table, const std::true_type&)
 							{
-								return static_cast<typename Policies::_statement_t*>(this)->_from._dynamic_tables.emplace_back(table);
+								return static_cast<typename Policies::_statement_t*>(this)->_from()._dynamic_tables.emplace_back(table);
 							}
 
 						template<typename Table>

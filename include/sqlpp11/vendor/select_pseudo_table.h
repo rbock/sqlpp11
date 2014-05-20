@@ -35,8 +35,11 @@ namespace sqlpp
 	template<typename Expr>
 		struct select_column_spec_t
 		{
+			using _traits = make_traits<value_type_of<Expr>>;
+			using _recursive_traits = make_recursive_traits<>;
+			using _value_type = value_type_of<Expr>; // FIXME: column specs probably should use _traits, too
+
 			using _name_t = typename Expr::_name_t;
-			using _value_type = typename Expr::_value_type;
 			struct _column_type 
 			{
         using _must_not_insert = std::true_type;

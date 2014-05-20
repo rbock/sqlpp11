@@ -50,6 +50,8 @@ namespace sqlpp
 				static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression argument required in having()");
 				static_assert(::sqlpp::detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not an expression in having()");
 
+				having_t& _having() { return *this; }
+
 				having_t(Expressions... expressions):
 					_expressions(expressions...)
 				{}
@@ -85,7 +87,7 @@ namespace sqlpp
 						template<typename Expression>
 							void _add_having_impl(Expression expression, const std::true_type&)
 							{
-								return static_cast<typename Policies::_statement_t*>(this)->_having._dynamic_expressions.emplace_back(expression);
+								return static_cast<typename Policies::_statement_t*>(this)->_having()._dynamic_expressions.emplace_back(expression);
 							}
 
 						template<typename Expression>

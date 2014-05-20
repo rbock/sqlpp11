@@ -40,9 +40,8 @@ namespace sqlpp
 	template<typename Expression, sort_type SortType>
 		struct sort_order_t
 		{
-			using _is_sort_order = std::true_type;
-			using _provided_tables = detail::type_set<>;
-			using _required_tables = typename Expression::_required_tables;
+			using _traits = make_traits<no_value_t,  tag::sort_order, sqlpp::tag::expression>;
+			using _recursive_traits = make_recursive_traits<Expression>;
 
 			Expression _expression;
 		};

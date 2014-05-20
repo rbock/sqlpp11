@@ -68,6 +68,8 @@ namespace sqlpp
 				using _traits = make_traits<no_value_t, ::sqlpp::tag::limit>;
 				using _recursive_traits = make_recursive_traits<>;
 
+				dynamic_limit_t& _limit() { return *this; }
+
 				dynamic_limit_t():
 					_value(noop())
 				{
@@ -94,8 +96,8 @@ namespace sqlpp
 							{
 								// FIXME: Make sure that Limit does not require external tables? Need to read up on SQL
 								using arg_t = typename wrap_operand<Limit>::type;
-								static_cast<typename Policies::_statement_t*>(this)->_limit._value = arg_t{value};
-								static_cast<typename Policies::_statement_t*>(this)->_limit._initialized = true;
+								static_cast<typename Policies::_statement_t*>(this)->_limit()._value = arg_t{value};
+								static_cast<typename Policies::_statement_t*>(this)->_limit()._initialized = true;
 							}
 					};
 

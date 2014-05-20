@@ -51,6 +51,8 @@ namespace sqlpp
 				static_assert(sqlpp::detail::none_t<is_assignment_t<Expressions>::value...>::value, "at least one argument is an assignment in where()");
 				static_assert(sqlpp::detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not valid expression in where()");
 
+				where_t& _where() { return *this; }
+
 				where_t(Expressions... expressions):
 					_expressions(expressions...)
 				{}
@@ -86,7 +88,7 @@ namespace sqlpp
 						template<typename Expression>
 							void _add_where_impl(Expression expression, const std::true_type&)
 							{
-								return static_cast<typename Policies::_statement_t*>(this)->_where._dynamic_expressions.emplace_back(expression);
+								return static_cast<typename Policies::_statement_t*>(this)->_where()._dynamic_expressions.emplace_back(expression);
 							}
 
 						template<typename Expression>

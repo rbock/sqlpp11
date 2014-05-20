@@ -51,6 +51,8 @@ namespace sqlpp
 
 				static_assert(::sqlpp::detail::all_t<is_select_flag_t<Flags>::value...>::value, "at least one argument is not a select flag in select flag list");
 
+				select_flag_list_t& _select_flag_list() { return *this; }
+
 				select_flag_list_t(Flags... flags):
 					_flags(flags...)
 				{}
@@ -86,7 +88,7 @@ namespace sqlpp
 						template<typename Flag>
 							void _add_flag_impl(Flag flag, const std::true_type&)
 							{
-								return static_cast<typename Policies::_statement_t*>(this)->_flag_list._dynamic_flags.emplace_back(flag);
+								return static_cast<typename Policies::_statement_t*>(this)->_select_flag_list()._dynamic_flags.emplace_back(flag);
 							}
 
 						template<typename Flag>

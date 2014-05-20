@@ -53,6 +53,8 @@ namespace sqlpp
 
 				static_assert(::sqlpp::detail::all_t<is_sort_order_t<Expressions>::value...>::value, "at least one argument is not a sort order expression in order_by()");
 
+				order_by_t& _order_by() { return *this; }
+
 				order_by_t(Expressions... expressions):
 					_expressions(expressions...)
 				{}
@@ -88,7 +90,7 @@ namespace sqlpp
 						template<typename Expression>
 							void _add_order_by_impl(Expression expression, const std::true_type&)
 							{
-								return static_cast<typename Policies::_statement_t*>(this)->_order_by._dynamic_expressions.emplace_back(expression);
+								return static_cast<typename Policies::_statement_t*>(this)->_order_by()._dynamic_expressions.emplace_back(expression);
 							}
 
 						template<typename Expression>

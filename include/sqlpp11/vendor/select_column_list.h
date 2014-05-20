@@ -164,6 +164,8 @@ namespace sqlpp
 				template <typename Db>
 					using _dynamic_t = select_column_list_t<Db, std::tuple<Columns...>>;
 
+				select_column_list_t& _select_column_list() { return *this; }
+
 				select_column_list_t(std::tuple<Columns...> columns):
 					_columns(columns)
 				{}
@@ -213,7 +215,7 @@ namespace sqlpp
 						template<typename NamedExpression>
 							void _add_column_impl(NamedExpression namedExpression, const std::true_type&)
 							{
-								return static_cast<typename Policies::_statement_t*>(this)->_column_list._dynamic_columns.emplace_back(namedExpression);
+								return static_cast<typename Policies::_statement_t*>(this)->_select_column_list()._dynamic_columns.emplace_back(namedExpression);
 							}
 
 						template<typename NamedExpression>

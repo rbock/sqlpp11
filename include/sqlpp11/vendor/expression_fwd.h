@@ -35,99 +35,99 @@ namespace sqlpp
 		{
 			struct less
 			{
-				using _value_type = ::sqlpp::detail::boolean;
+				using _traits = make_traits<::sqlpp::detail::boolean>;
 				static constexpr const char* _name = "<";
 			};
 
 			struct less_equal
 			{
-				using _value_type = ::sqlpp::detail::boolean;
+				using _traits = make_traits<::sqlpp::detail::boolean>;
 				static constexpr const char* _name = "<=";
 			};
 
 			struct equal_to
 			{
-				using _value_type = ::sqlpp::detail::boolean;
+				using _traits = make_traits<::sqlpp::detail::boolean>;
 			};
 
 			struct not_equal_to
 			{
-				using _value_type = ::sqlpp::detail::boolean;
+				using _traits = make_traits<::sqlpp::detail::boolean>;
 			};
 
 			struct greater_equal
 			{
-				using _value_type = ::sqlpp::detail::boolean;
+				using _traits = make_traits<::sqlpp::detail::boolean>;
 				static constexpr const char* _name = ">=";
 			};
 
 			struct greater
 			{
-				using _value_type = ::sqlpp::detail::boolean;
+				using _traits = make_traits<::sqlpp::detail::boolean>;
 				static constexpr const char* _name = ">";
 			};
 
 			struct logical_or
 			{
-				using _value_type = ::sqlpp::detail::boolean;
+				using _traits = make_traits<::sqlpp::detail::boolean>;
 				static constexpr const char* _name = " OR ";
 			};
 
 			struct logical_and
 			{
-				using _value_type = ::sqlpp::detail::boolean;
+				using _traits = make_traits<::sqlpp::detail::boolean>;
 				static constexpr const char* _name = " AND ";
 			};
 
 			struct logical_not
 			{
-				using _value_type = ::sqlpp::detail::boolean;
+				using _traits = make_traits<::sqlpp::detail::boolean>;
 			};
 
 			template<typename ValueType>
 			struct plus
 			{
-				using _value_type = ValueType;
+				using _traits = make_traits<ValueType>;
 				static constexpr const char* _name = "+";
 			};
 
 			template<typename ValueType>
 			struct minus
 			{
-				using _value_type = ValueType;
+				using _traits = make_traits<ValueType>;
 				static constexpr const char* _name = "-";
 			};
 
 			template<typename ValueType>
 			struct multiplies
 			{
-				using _value_type = ValueType;
+				using _traits = make_traits<ValueType>;
 				static constexpr const char* _name = "*";
 			};
 
 			struct divides
 			{
-				using _value_type = ::sqlpp::detail::floating_point;
+				using _traits = make_traits<::sqlpp::detail::floating_point>;
 				static constexpr const char* _name = "/";
 			};
 
 			struct modulus
 			{
-				using _value_type = ::sqlpp::detail::integral;
+				using _traits = make_traits<::sqlpp::detail::integral>;
 				static constexpr const char* _name = "%";
 			};
 
 			template<typename ValueType>
 			struct unary_minus
 			{
-				using _value_type = ValueType;
+				using _traits = make_traits<ValueType>;
 				static constexpr const char* _name = "-";
 			};
 
 			template<typename ValueType>
 			struct unary_plus
 			{
-				using _value_type = ValueType;
+				using _traits = make_traits<ValueType>;
 				static constexpr const char* _name = "+";
 			};
 		}

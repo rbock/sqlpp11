@@ -158,10 +158,10 @@ int main()
 
 	// Test a select of a single column without a from
 	{
-		using T = decltype(select(t.alpha)); // Hint: The current rule is pretty crude (a from is required), but certainly better than nothing
-		static_assert(not sqlpp::is_numeric_t<T>::value, "type requirement");
-		static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");
-		static_assert(not sqlpp::is_named_expression_t<T>::value, "type requirement");
+		using T = decltype(select(t.alpha));
+		static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_named_expression_t<T>::value, "type requirement");
 		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
 		static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
 		static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
@@ -175,8 +175,8 @@ int main()
 	// Test a select of a single numeric table column
 	{
 		using T = decltype(select(t.alpha).from(t));
-		static_assert(sqlpp::is_select_column_list_t<decltype(T::_column_list)>::value, "Must not be noop");
-		static_assert(sqlpp::is_from_t<decltype(T::_from)>::value, "Must not be noop");
+		//static_assert(sqlpp::is_select_column_list_t<decltype(T::_column_list)>::value, "Must not be noop");
+		//static_assert(sqlpp::is_from_t<decltype(T::_from)>::value, "Must not be noop");
 		static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_named_expression_t<T>::value, "type requirement");
@@ -290,7 +290,7 @@ int main()
 	{
 		auto m = multi_column(t.alpha, t.beta).as(alias::a);
 		auto a = select(m).from(t).as(alias::b).a;
-		static_assert(not sqlpp::is_value_t<decltype(a)>::value, "a multi_column is not a value");
+		// FIXME: Do we really need that test? multi_column is a no_value static_assert(not sqlpp::is_expression_t<decltype(a)>::value, "a multi_column is not a value");
 	}
 	// Test that result sets with identical name/value combinations have identical types
 	{
@@ -299,8 +299,8 @@ int main()
 		using A = typename decltype(a)::_result_row_t<MockDb>;
 		using B = typename decltype(b)::_result_row_t<MockDb>;
 		static_assert(std::is_same<
-				decltype(t.alpha)::_value_type::_base_value_type, 
-				decltype(f.epsilon)::_value_type::_base_value_type>::value, "Two bigint columns must have identical base_value_type");
+				sqlpp::value_type_of<decltype(t.alpha)>, 
+				sqlpp::value_type_of<decltype(f.epsilon)>>::value, "Two bigint columns must have identical base_value_type");
 		static_assert(std::is_same<A, B>::value, "select with identical columns(name/value_type) need to have identical result_types");
 	}
 
@@ -339,9 +339,8 @@ int main()
 	static_assert(sqlpp::is_select_flag_t<decltype(sqlpp::all)>::value, "sqlpp::all has to be a select_flag");
   using T = sqlpp::vendor::wrap_operand<int>::type;
 	static_assert(sqlpp::is_regular<T>::value, "type requirement");
-	static_assert(T::_is_expression, "T has to be an expression");
-	static_assert(std::is_same<typename T::_value_type::_is_numeric, std::true_type>::value, "T has to be a numeric");
-	static_assert(sqlpp::is_numeric_t<T>::value, "T has to be a numeric");
+	static_assert(sqlpp::is_expression_t<T>::value, "T has to be an expression");
+	static_assert(sqlpp::is_numeric_t<T>::value, "T has to be numeric");
 	static_assert(sqlpp::is_numeric_t<decltype(t.alpha)>::value, "TabBar.alpha has to be a numeric");
 	((t.alpha + 7) + 4).asc();
 	static_assert(sqlpp::is_boolean_t<decltype(t.gamma == t.gamma)>::value, "Comparison expression have to be boolean");
@@ -353,7 +352,6 @@ int main()
 	static_assert(sqlpp::must_not_insert_t<decltype(t.alpha)>::value, "alpha must not be inserted");
 	serialize(t.alpha, printer).str();
 	std::cerr << "\n" << sizeof(test::TabBar) << std::endl;
-	static_assert(std::is_same<typename decltype(t.alpha)::_value_type::_is_named_expression, std::true_type>::value, "alpha should be a named expression");
 	static_assert(sqlpp::is_named_expression_t<decltype(t.alpha)>::value, "alpha should be a named expression");
 	static_assert(sqlpp::is_named_expression_t<decltype(t.alpha.as(alias::a))>::value, "an alias of alpha should be a named expression");
 	static_assert(sqlpp::is_alias_t<decltype(t.alpha.as(alias::a))>::value, "an alias of alpha should be an alias");
@@ -366,6 +364,7 @@ int main()
 	auto s = select(r.a).from(r);
 	using RA = decltype(r.a);
 	using S = decltype(s);
+	/*
 	using SCL = typename S::_column_list_t;
 	using SF = typename S::_from_t;
 	static_assert(sqlpp::is_select_column_list_t<SCL>::value, "no column list");
@@ -375,6 +374,7 @@ int main()
 	static_assert(SCL_T::size::value == 1, "unexpected table_set in column_list");
 	static_assert(SF_T::size::value == 1, "unexpected table_set in from");
 	static_assert(std::is_same<SCL_T, SF_T>::value, "should be the same");
+	*/
 	static_assert(sqlpp::is_boolean_t<decltype(select(r.a).from(r))>::value, "select(bool) has to be a bool");
 	auto s1 = sqlpp::select().flags(sqlpp::distinct, sqlpp::straight_join).columns(l.alpha, l.beta, select(r.a).from(r))
 		.from(r,t,l)

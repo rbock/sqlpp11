@@ -109,8 +109,13 @@ namespace sqlpp
 				using _value_type = typename std::conditional<
 					detail::none_t<is_missing_t<Policies>::value...>::value,
 					value_type_of<_result_type_provider>,
-					no_value_t // if a required statement part is missing (columns in a select), then the statement cannot be used as a value
+					no_value_t // if a required statement part is missing (e.g. columns in a select), then the statement cannot be used as a value
 						>::type;
+
+				using _is_expression = typename std::conditional<
+					std::is_same<_value_type, no_value_t>::value, 
+					std::false_type, 
+					std::true_type>::type;
 
 				using _traits = make_traits<_value_type>;
 
@@ -136,7 +141,7 @@ namespace sqlpp
 	{
 			using _policies_t = typename detail::select_policies_t<Db, Policies...>;
 
-			using _traits = make_traits<value_type_of<_policies_t>, ::sqlpp::tag::select>;
+			using _traits = make_traits<value_type_of<_policies_t>, ::sqlpp::tag::select, tag::expression_if<typename _policies_t::_is_expression>, tag::named_expression_if<typename _policies_t::_is_expression>>;
 			using _recursive_traits = typename _policies_t::_recursive_traits;
 
 			using _database_t = Db;
@@ -274,9 +279,9 @@ namespace sqlpp
 
 	template<typename... Columns>
 		auto select(Columns... columns)
-		-> decltype(blank_select_t<void>().columns(detail::make_select_column_list_t<void, Columns...>(columns...)))
+		-> decltype(blank_select_t<void>().columns(columns...))
 		{
-			return blank_select_t<void>().columns(detail::make_select_column_list_t<void, Columns...>(columns...));
+			return blank_select_t<void>().columns(columns...);
 		}
 
 	template<typename Database>
@@ -287,9 +292,9 @@ namespace sqlpp
 
 	template<typename Database, typename... Columns>
 		auto dynamic_select(const Database&, Columns... columns)
-		-> decltype(blank_select_t<Database>().columns(detail::make_select_column_list_t<void, Columns...>(columns...)))
+		-> decltype(blank_select_t<Database>().columns(columns...))
 		{
-			return blank_select_t<Database>().columns(detail::make_select_column_list_t<void, Columns...>(columns...));
+			return blank_select_t<Database>().columns(columns...);
 		}
 
 }

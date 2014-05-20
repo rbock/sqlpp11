@@ -36,8 +36,10 @@ namespace sqlpp
 		template<typename NameType, typename ValueType, bool TrivialValueIsNull>
 			struct field_t
 			{ 
+				using _traits = make_traits<ValueType, tag::noop>;
+				using _recursive_traits = make_recursive_traits<>;
+
 				using _name_t = NameType;
-				using _value_type = ValueType;
 				static constexpr bool _trivial_value_is_null = TrivialValueIsNull;
 			};
 
