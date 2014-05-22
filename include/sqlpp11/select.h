@@ -47,7 +47,6 @@
 #include <sqlpp11/vendor/wrong.h>
 #include <sqlpp11/vendor/policy_update.h>
 
-//#include <sqlpp11/detail/arg_selector.h>
 #include <sqlpp11/detail/get_last.h>
 #include <sqlpp11/detail/pick_arg.h>
 

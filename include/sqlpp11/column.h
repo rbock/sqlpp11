@@ -81,12 +81,12 @@ namespace sqlpp
 			}
 
 		template<typename T>
-			auto operator =(T t) const -> vendor::assignment_t<column_t, typename vendor::wrap_operand<T>::type>
+			auto operator =(T t) const -> vendor::assignment_t<column_t, vendor::wrap_operand_t<T>>
 			{
 				using rhs = vendor::wrap_operand_t<T>;
 				static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand assignment operand");
 
-				return { *this, {t} };
+				return { *this, rhs{t} };
 			}
 
 		auto operator =(sqlpp::null_t) const

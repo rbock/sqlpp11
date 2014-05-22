@@ -69,7 +69,7 @@ namespace sqlpp
 				using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
 
 				using _column_t = Lhs;
-				using _value_t = Lhs;
+				using _value_t = Rhs;
 
 				static_assert(can_be_null_t<_column_t>::value ? true : not std::is_same<_value_t, null_t>::value, "column must not be null");
 

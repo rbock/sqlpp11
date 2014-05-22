@@ -77,7 +77,7 @@ namespace sqlpp
 							{
 								static_assert(_is_dynamic::value, "add_where can only be called for dynamic_where");
 								static_assert(is_expression_t<Expression>::value, "invalid expression argument in add_where()");
-								static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Expression>::value, "expression uses tables unknown to this statement in add_where()");
+								static_assert(not TableCheckRequired::value or Policies::template _no_unknown_tables<Expression>::value, "expression uses tables unknown to this statement in add_where()");
 
 								using ok = ::sqlpp::detail::all_t<_is_dynamic::value, is_expression_t<Expression>::value>;
 
