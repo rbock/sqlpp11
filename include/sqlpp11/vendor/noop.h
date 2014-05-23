@@ -28,6 +28,8 @@
 #define SQLPP_NOOP_H
 
 #include <type_traits>
+#include <sqlpp11/no_value.h>
+#include <sqlpp11/vendor/serializer.h>
 
 namespace sqlpp
 {

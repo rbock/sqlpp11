@@ -29,6 +29,13 @@
 
 namespace sqlpp
 {
+	namespace detail
+	{
+		struct boolean;
+		struct integral;
+		struct floating_point;
+	}
+
 	namespace vendor
 	{
 		namespace op

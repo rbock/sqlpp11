@@ -104,16 +104,14 @@ namespace sqlpp
 
 			using _is_dynamic = typename std::conditional<std::is_same<_database_t, void>::value, std::false_type, std::true_type>::type;
 
-			using _parameter_tuple_t = std::tuple<Policies...>;
 			using _parameter_list_t = typename make_parameter_list_t<insert_t>::type;
 
-
 			// Constructors
-			insert_t()
+			constexpr insert_t()
 			{}
 
-			template<typename Statement, typename T>
-				insert_t(Statement statement, T term):
+			template<typename Statement, typename Term>
+				insert_t(Statement statement, Term term):
 					Policies(detail::pick_arg<Policies>(statement, term))...
 			{}
 
@@ -181,11 +179,24 @@ namespace sqlpp
 			vendor::no_single_table_t, 
 			vendor::no_insert_value_list_t>;
 
+	constexpr auto insert()
+		-> blank_insert_t<void>
+		{
+			return { blank_insert_t<void>() };
+		}
+
 	template<typename Table>
 		constexpr auto insert_into(Table table)
 		-> decltype(blank_insert_t<void>().into(table))
 		{
 			return { blank_insert_t<void>().into(table) };
+		}
+
+	template<typename Database>
+		constexpr auto  dynamic_insert(const Database&)
+		-> decltype(blank_insert_t<Database>())
+		{
+			return { blank_insert_t<Database>() };
 		}
 
 	template<typename Database, typename Table>

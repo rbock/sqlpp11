@@ -41,9 +41,10 @@ namespace sqlpp
 		template<typename Database, typename... Tables>
 			struct using_t
 			{
-				using _is_using = std::true_type;
+				using _traits = make_traits<no_value_t, ::sqlpp::tag::using_>;
+				using _recursive_traits = make_recursive_traits<Tables...>;
+
 				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
-				using _parameter_tuple_t = std::tuple<Tables...>;
 
 				static_assert(_is_dynamic::value or sizeof...(Tables), "at least one table argument required in using()");
 
@@ -51,8 +52,7 @@ namespace sqlpp
 
 				static_assert(::sqlpp::detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not an table in using()");
 
-				using _provided_tables = detail::type_set<>;
-				using _required_tables = ::sqlpp::detail::make_joined_set_t<typename Tables::_required_tables...>;
+				using_t& _using() { return *this; }
 
 				using_t(Tables... tables):
 					_tables(tables...)
@@ -82,7 +82,7 @@ namespace sqlpp
 						template<typename Table>
 							void _add_using_impl(Table table, const std::true_type&)
 							{
-								return static_cast<typename Policies::_statement_t*>(this)->_using._dynamic_tables.emplace_back(table);
+								return static_cast<typename Policies::_statement_t*>(this)->_using()._dynamic_tables.emplace_back(table);
 							}
 
 						template<typename Table>
@@ -90,15 +90,14 @@ namespace sqlpp
 					};
 
 
-				_parameter_tuple_t _tables;
+				std::tuple<Tables...> _tables;
 				vendor::interpretable_list_t<Database> _dynamic_tables;
 			};
 
 		struct no_using_t
 		{
-			using _is_noop = std::true_type;
-			using _provided_tables = detail::type_set<>;
-			using _required_tables = ::sqlpp::detail::type_set<>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::where>;
+			using _recursive_traits = make_recursive_traits<>;
 
 			template<typename Policies>
 				struct _methods_t

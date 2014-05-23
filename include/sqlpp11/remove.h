@@ -31,88 +31,90 @@
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/prepared_remove.h>
 #include <sqlpp11/vendor/noop.h>
+#warning: need to use another table provider, since delete can be used with several tables
 #include <sqlpp11/vendor/single_table.h>
 #include <sqlpp11/vendor/extra_tables.h>
 #include <sqlpp11/vendor/using.h>
 #include <sqlpp11/vendor/where.h>
 #include <sqlpp11/vendor/policy_update.h>
-#include <sqlpp11/detail/arg_selector.h>
+
+#include <sqlpp11/detail/get_last.h>
+#include <sqlpp11/detail/pick_arg.h>
 
 namespace sqlpp
 {
-	template<typename Db,
-			typename... Policies
-				>
+	template<typename Db, typename... Policies>
 		struct remove_t;
 
 	namespace detail
 	{
-		template<typename Db = void,
-			typename Table = vendor::no_single_table_t,
-			typename Using = vendor::no_using_t,
-			typename ExtraTables = vendor::no_extra_tables_t,
-			typename Where = vendor::no_where_t
-				>
+		template<typename Db = void, typename... Policies>
 			struct remove_policies_t 
 			{
 				using _database_t = Db;
-				using _table_t = Table;
-				using _using_t = Using;
-				using _extra_tables_t = ExtraTables;
-				using _where_t = Where;
 
-				using _statement_t = remove_t<Db, Table, Using, ExtraTables, Where>;
+				using _statement_t = remove_t<Db, Policies...>;
 
-				struct _methods_t:
-					public _using_t::template _methods_t<remove_policies_t>,
-					public _extra_tables_t::template _methods_t<remove_policies_t>,
-					public _where_t::template _methods_t<remove_policies_t>
+				struct _methods_t: public Policies::template _methods_t<remove_policies_t>...
 				{};
 
-				template<typename Needle, typename Replacement, typename... Policies>
+				template<typename Needle, typename Replacement>
 					struct _policies_update_t
 					{
+						static_assert(detail::is_element_of<Needle, make_type_set_t<Policies...>>::value, "policies update for non-policy class detected");
 						using type =  remove_t<Db, vendor::policy_update_t<Policies, Needle, Replacement>...>;
 					};
 
 				template<typename Needle, typename Replacement>
-					using _new_statement_t = typename _policies_update_t<Needle, Replacement, Table, Using, ExtraTables, Where>::type;
+					using _new_statement_t = typename _policies_update_t<Needle, Replacement>::type;
 
-				using _known_tables = detail::make_joined_set_t<typename _table_t::_table_set, typename _using_t::_table_set, typename _extra_tables_t::_table_set>;
+				using _all_required_tables = detail::make_joined_set_t<required_tables_of<Policies>...>;
+				using _all_provided_tables = detail::make_joined_set_t<provided_tables_of<Policies>...>;
+				using _all_extra_tables = detail::make_joined_set_t<extra_tables_of<Policies>...>;
+
+				using _known_tables = detail::make_joined_set_t<_all_provided_tables, _all_extra_tables>;
 
 				template<typename Expression>
-					using _no_unknown_tables = detail::is_subset_of<typename Expression::_table_set, _known_tables>;
+					using _no_unknown_tables = detail::is_subset_of<required_tables_of<Expression>, _known_tables>;
+
+				// The tables not covered by the from.
+				using _required_tables = detail::make_difference_set_t<
+					_all_required_tables,
+					_all_provided_tables // Hint: extra_tables are not used here because they are just a helper for dynamic .add_*()
+							>;
+
+				using _traits = make_traits<no_value_t>; // FIXME
+
+				struct _recursive_traits
+				{
+					using _parameters = std::tuple<>; // FIXME
+					using _required_tables = _required_tables;
+					using _provided_tables = detail::type_set<>;
+					using _extra_tables = detail::type_set<>;
+				};
 			};
 	}
 
 	// REMOVE
-	template<typename Db,
-			typename... Policies
-				>
+	template<typename Db, typename... Policies>
 		struct remove_t:
+			public Policies...,
 			public detail::remove_policies_t<Db, Policies...>::_methods_t
 		{
 			using _policies_t = typename detail::remove_policies_t<Db, Policies...>;
 			using _database_t = typename _policies_t::_database_t;
-			using _table_t = typename _policies_t::_table_t;
-			using _using_t = typename _policies_t::_using_t;
-			using _extra_tables_t = typename _policies_t::_extra_tables_t;
-			using _where_t = typename _policies_t::_where_t;
 
 			using _is_dynamic = typename std::conditional<std::is_same<_database_t, void>::value, std::false_type, std::true_type>::type;
 
-			using _parameter_tuple_t = std::tuple<Policies...>;
 			using _parameter_list_t = typename make_parameter_list_t<remove_t>::type;
 
 			// Constructors
-			remove_t()
+			constexpr remove_t()
 			{}
 
-			template<typename Statement, typename T>
-				remove_t(Statement s, T t):
-					_table(detail::arg_selector<_table_t>::_(s._table, t)),
-					_using(detail::arg_selector<_using_t>::_(s._using, t)),
-					_where(detail::arg_selector<_where_t>::_(s._where, t))
+			template<typename Statement, typename Term>
+				remove_t(Statement statement, Term term):
+					Policies(detail::pick_arg<Policies>(statement, term))...
 			{}
 
 			remove_t(const remove_t&) = default;
@@ -132,18 +134,15 @@ namespace sqlpp
 				return _parameter_list_t::size::value;
 			}
 
-			template<typename A>
-				struct is_table_subset_of_table
-				{
-					static constexpr bool value = ::sqlpp::detail::is_subset_of<typename A::_table_set, typename _table_t::_table_set>::value;
-				};
-
 			void _check_consistency() const
 			{
+#warning reactivate checks
+#if 0
 				static_assert(is_where_t<_where_t>::value, "cannot run update without having a where condition, use .where(true) to update all rows");
 
 				// FIXME: Read more details about what is allowed and what not in SQL DELETE
 				static_assert(is_table_subset_of_table<_where_t>::value, "where requires additional tables");
+#endif
 			}
 
 			template<typename Database>
@@ -163,10 +162,6 @@ namespace sqlpp
 
 					return {{}, db.prepare_remove(*this)};
 				}
-
-			_table_t _table;
-			_using_t _using;
-			_where_t _where;
 		};
 
 	namespace vendor
@@ -179,31 +174,46 @@ namespace sqlpp
 				static Context& _(const T& t, Context& context)
 				{
 					context << "DELETE FROM ";
-					serialize(t._table, context);
-					serialize(t._using, context);
-					serialize(t._where, context);
+					using swallow = int[]; 
+					(void) swallow{(serialize(static_cast<const Policies&>(t), context), 0)...};
 					return context;
 				}
 			};
 	}
 
-	template<typename Database, typename... Policies>
-		using make_remove_t = typename detail::remove_policies_t<Database, Policies...>::_statement_t;
+	template<typename Database>
+		using blank_remove_t = remove_t<Database,
+			vendor::no_single_table_t,
+			vendor::no_using_t,
+			vendor::no_extra_tables_t,
+			vendor::no_where_t>;
+
+	constexpr auto remove()
+		-> blank_remove_t<void>
+		{
+			return { blank_remove_t<void>() };
+		}
 
 	template<typename Table>
 		constexpr auto remove_from(Table table)
-		-> make_remove_t<void, vendor::single_table_t<void, Table>>
+		-> decltype(blank_remove_t<void>().from(table))
 		{
-			return { make_remove_t<void>(), vendor::single_table_t<void, Table>{table} };
+			return { blank_remove_t<void>().from(table) };
+		}
+
+	template<typename Database>
+		constexpr auto  dynamic_remove(const Database&)
+		-> decltype(blank_remove_t<Database>())
+		{
+			return { blank_remove_t<Database>() };
 		}
 
 	template<typename Database, typename Table>
 		constexpr auto  dynamic_remove_from(const Database&, Table table)
-		-> make_remove_t<Database, vendor::single_table_t<void, Table>>
+		-> decltype(blank_remove_t<Database>().from(table))
 		{
-			return { make_remove_t<Database>(), vendor::single_table_t<void, Table>{table} };
+			return { blank_remove_t<Database>().from(table) };
 		}
-
 }
 
 #endif

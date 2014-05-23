@@ -32,16 +32,11 @@
 #include <sqlpp11/vendor/expression_fwd.h>
 #include <sqlpp11/vendor/in_fwd.h>
 #include <sqlpp11/vendor/is_null_fwd.h>
+#include <sqlpp11/vendor/wrap_operand.h>
 #include <sqlpp11/detail/logic.h>
 
 namespace sqlpp
 {
-
-	namespace detail
-	{
-		struct boolean;
-	}
-
 	// basic operators
 	template<typename Base, template<typename> class IsCorrectValueType>
 		struct basic_expression_operators

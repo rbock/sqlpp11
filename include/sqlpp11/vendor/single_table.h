@@ -80,6 +80,14 @@ namespace sqlpp
 						{
 							return { *static_cast<typename Policies::_statement_t*>(this), single_table_t<void, Args...>{args...} };
 						}
+
+#warning: remove can operate on several tables at once, so it should not use single_table anyway
+					template<typename... Args>
+						auto from(Args... args)
+						-> _new_statement_t<single_table_t<void, Args...>>
+						{
+							return { *static_cast<typename Policies::_statement_t*>(this), single_table_t<void, Args...>{args...} };
+						}
 				};
 		};
 
