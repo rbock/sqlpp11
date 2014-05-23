@@ -59,7 +59,7 @@ namespace sqlpp
 		template<typename T>
 		bool is_trivial(const T& t)
 		{
-			return is_trivial_t<value_type_of<T>>::_(t);
+			return is_trivial_t<T>::_(t);
 		}
 
 		template<typename Lhs, typename Rhs>
@@ -96,7 +96,7 @@ namespace sqlpp
 				static Context& _(const T& t, Context& context)
 				{
 					if ((trivial_value_is_null_t<typename T::_column_t>::value
-								and is_trivial_t<value_type_of<T>>::_(t._rhs))
+								and is_trivial(t._rhs))
 							or (std::is_same<Rhs, null_t>::value))
 					{
 						serialize(simple_column(t._lhs), context);

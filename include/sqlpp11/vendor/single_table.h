@@ -28,6 +28,8 @@
 #define SQLPP_VENDOR_SINGLE_TABLE_H
 
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/no_value.h>
+#include <sqlpp11/vendor/serializer.h>
 #include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp

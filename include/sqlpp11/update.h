@@ -35,82 +35,84 @@
 #include <sqlpp11/vendor/noop.h>
 #include <sqlpp11/vendor/where.h>
 #include <sqlpp11/vendor/policy_update.h>
-#include <sqlpp11/detail/arg_selector.h>
+
+#include <sqlpp11/detail/get_last.h>
+#include <sqlpp11/detail/pick_arg.h>
 
 namespace sqlpp
 {
-	template<typename Db,
-			typename... Policies
-				>
+	template<typename Db, typename... Policies>
 		struct update_t;
 
 	namespace detail
 	{
-		template<typename Db = void, 
-			typename Table = vendor::no_single_table_t,
-			typename UpdateList = vendor::no_update_list_t,
-			typename Where = vendor::no_where_t
-				>
+		template<typename Db = void, typename... Policies>
 			struct update_policies_t
 			{
 				using _database_t = Db;
-				using _table_t = Table;
-				using _update_list_t = UpdateList;
-				using _where_t = Where;
 
-				using _statement_t = update_t<Db, Table, UpdateList, Where>;
+				using _statement_t = update_t<Db, Policies...>;
 
-				struct _methods_t:
-					public _update_list_t::template _methods_t<update_policies_t>,
-					public _where_t::template _methods_t<update_policies_t>
+				struct _methods_t: public Policies::template _methods_t<update_policies_t>...
 				{};
 
-				template<typename Needle, typename Replacement, typename... Policies>
+				template<typename Needle, typename Replacement>
 					struct _policies_update_t
 					{
+						static_assert(detail::is_element_of<Needle, make_type_set_t<Policies...>>::value, "policies update for non-policy class detected");
 						using type =  update_t<Db, vendor::policy_update_t<Policies, Needle, Replacement>...>;
 					};
 
 				template<typename Needle, typename Replacement>
-					using _new_statement_t = typename _policies_update_t<Needle, Replacement, Table, UpdateList, Where>::type;
+					using _new_statement_t = typename _policies_update_t<Needle, Replacement>::type;
 
-				using _known_tables = detail::make_joined_set_t<typename _table_t::_table_set>;
+				using _all_required_tables = detail::make_joined_set_t<required_tables_of<Policies>...>;
+				using _all_provided_tables = detail::make_joined_set_t<provided_tables_of<Policies>...>;
+				using _all_extra_tables = detail::make_joined_set_t<extra_tables_of<Policies>...>;
+
+				using _known_tables = detail::make_joined_set_t<_all_provided_tables, _all_extra_tables>;
 
 				template<typename Expression>
-					using _no_unknown_tables = detail::is_subset_of<typename Expression::_table_set, _known_tables>;
+					using _no_unknown_tables = detail::is_subset_of<required_tables_of<Expression>, _known_tables>;
 
+				// The tables not covered by the from.
+				using _required_tables = detail::make_difference_set_t<
+					_all_required_tables,
+					_all_provided_tables // Hint: extra_tables are not used here because they are just a helper for dynamic .add_*()
+							>;
+
+				using _traits = make_traits<no_value_t>; // FIXME
+
+				struct _recursive_traits
+				{
+					using _parameters = std::tuple<>; // FIXME
+					using _required_tables = _required_tables;
+					using _provided_tables = detail::type_set<>;
+					using _extra_tables = detail::type_set<>;
+				};
 			};
 	}
 
-	template<typename Db, 
-			typename... Policies
-				>
+	// UPDATE
+	template<typename Db, typename... Policies>
 		struct update_t:
+			public Policies...,
 			public detail::update_policies_t<Db, Policies...>::_methods_t
 		{
 			using _policies_t = typename detail::update_policies_t<Db, Policies...>;
 			using _database_t = typename _policies_t::_database_t;
-			using _table_t = typename _policies_t::_table_t;
-			using _update_list_t = typename _policies_t::_update_list_t;
-			using _where_t = typename _policies_t::_where_t;
 
 			using _is_dynamic = typename std::conditional<std::is_same<_database_t, void>::value, std::false_type, std::true_type>::type;
 
-			using _parameter_tuple_t = std::tuple<Policies...>;
 			using _parameter_list_t = typename make_parameter_list_t<update_t>::type;
 
-			static_assert(::sqlpp::detail::is_superset_of<typename _table_t::_table_set, typename _update_list_t::_table_set>::value, "updated columns do not match the table");
-			static_assert(::sqlpp::detail::is_superset_of<typename _table_t::_table_set, typename _where_t::_table_set>::value, "where condition does not match updated table");
-
 			// Constructors
-			update_t()
+			constexpr update_t()
 			{}
 
-			template<typename Statement, typename T>
-				update_t(Statement s, T t):
-					_table(detail::arg_selector<_table_t>::_(s._table, t)),
-					_update_list(detail::arg_selector<_update_list_t>::_(s._update_list, t)),
-					_where(detail::arg_selector<_where_t>::_(s._where, t))
+			template<typename Statement, typename Term>
+				update_t(Statement statement, Term term):
+					Policies(detail::pick_arg<Policies>(statement, term))...
 			{}
 
 			update_t(const update_t&) = default;
@@ -130,18 +132,15 @@ namespace sqlpp
 				return _parameter_list_t::size::value;
 			}
 
-			template<typename A>
-				struct is_table_subset_of_table
-				{
-					static constexpr bool value = ::sqlpp::detail::is_subset_of<typename A::_table_set, typename _table_t::_table_set>::value;
-				};
-
 			void _check_consistency() const
 			{
+#warning reactivate tests
+				/*
 				static_assert(is_where_t<_where_t>::value, "cannot run update without having a where condition, use .where(true) to update all rows");
 
 				static_assert(is_table_subset_of_table<_update_list_t>::value, "updates require additional tables");
 				static_assert(is_table_subset_of_table<_where_t>::value, "where requires additional tables");
+				*/
 			}
 
 			template<typename Database>
@@ -161,10 +160,6 @@ namespace sqlpp
 
 					return {{}, db.prepare_update(*this)};
 				}
-
-			_table_t _table;
-			_update_list_t _update_list;
-			_where_t _where;
 		};
 
 	namespace vendor
@@ -177,31 +172,32 @@ namespace sqlpp
 				static Context& _(const T& t, Context& context)
 				{
 					context << "UPDATE ";
-					serialize(t._table, context);
-					serialize(t._update_list, context);
-					serialize(t._where, context);
+					using swallow = int[]; 
+					(void) swallow{(serialize(static_cast<const Policies&>(t), context), 0)...};
 					return context;
 				}
 			};
 	}
 
-	template<typename Database, typename... Policies>
-		using make_update_t = typename detail::update_policies_t<Database, Policies...>::_statement_t;
+	template<typename Database>
+		using blank_update_t = update_t<Database,
+			vendor::no_single_table_t,
+			vendor::no_update_list_t,
+			vendor::no_where_t>;
 
 	template<typename Table>
 		constexpr auto update(Table table)
-		-> make_update_t<void, vendor::single_table_t<void, Table>>
+		-> decltype(blank_update_t<void>().from(table))
 		{
-			return { update_t<void>(), vendor::single_table_t<void, Table>{table} };
+			return { blank_update_t<void>().from(table) };
 		}
 
 	template<typename Database, typename Table>
 		constexpr auto  dynamic_update(const Database&, Table table)
-		-> make_update_t<Database, vendor::single_table_t<void, Table>>
+		-> decltype(blank_update_t<Database>().from(table))
 		{
-			return { update_t<Database>(), vendor::single_table_t<void, Table>{table} };
+			return { blank_update_t<Database>().from(table) };
 		}
-
 }
 
 #endif
