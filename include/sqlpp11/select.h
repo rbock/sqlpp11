@@ -56,7 +56,6 @@ namespace sqlpp
 		struct select_t;
 
 #warning STEPS:
-#warning do the same with insert, update and remove
 #warning deal with different return types in the connector (select could be a single value, update could be a range of rows)
 	namespace detail
 	{

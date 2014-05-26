@@ -52,7 +52,6 @@ namespace sqlpp
 			struct remove_policies_t 
 			{
 				using _database_t = Db;
-
 				using _statement_t = remove_t<Db, Policies...>;
 
 				struct _methods_t: public Policies::template _methods_t<remove_policies_t>...
