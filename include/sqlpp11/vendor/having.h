@@ -42,16 +42,15 @@ namespace sqlpp
 		template<typename Database, typename... Expressions>
 			struct having_t
 			{
-				using _is_having = std::true_type;
+				using _traits = make_traits<no_value_t, ::sqlpp::tag::having>;
+				using _recursive_traits = make_recursive_traits<Expressions...>;
+
 				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
-				using _parameter_tuple_t = std::tuple<Expressions...>;
 
 				static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression argument required in having()");
 				static_assert(::sqlpp::detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not an expression in having()");
 
-				using _parameter_list_t = typename make_parameter_list_t<_parameter_tuple_t>::type;
-
-				using _table_set = typename ::sqlpp::detail::make_joined_set<typename Expressions::_table_set...>::type;
+				having_t& _having() { return *this; }
 
 				having_t(Expressions... expressions):
 					_expressions(expressions...)
@@ -88,21 +87,21 @@ namespace sqlpp
 						template<typename Expression>
 							void _add_having_impl(Expression expression, const std::true_type&)
 							{
-								return static_cast<typename Policies::_statement_t*>(this)->_having._dynamic_expressions.emplace_back(expression);
+								return static_cast<typename Policies::_statement_t*>(this)->_having()._dynamic_expressions.emplace_back(expression);
 							}
 
 						template<typename Expression>
 							void _add_having_impl(Expression expression, const std::false_type&);
 					};
 
-				_parameter_tuple_t _expressions;
+				std::tuple<Expressions...> _expressions;
 				vendor::interpretable_list_t<Database> _dynamic_expressions;
 			};
 
 		struct no_having_t
 		{
-			using _is_noop = std::true_type;
-			using _table_set = ::sqlpp::detail::type_set<>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
+			using _recursive_traits = make_recursive_traits<>;
 
 			template<typename Policies>
 				struct _methods_t

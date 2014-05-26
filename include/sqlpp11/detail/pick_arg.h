@@ -24,37 +24,35 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_NOOP_H
-#define SQLPP_NOOP_H
+#ifndef SQLPP_DETAIL_PICK_ARG_H
+#define SQLPP_DETAIL_PICK_ARG_H
 
 #include <type_traits>
-#include <sqlpp11/no_value.h>
-#include <sqlpp11/vendor/serializer.h>
 
 namespace sqlpp
 {
-	namespace vendor
+	namespace detail
 	{
-		struct noop 
-		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
-			using _recursive_traits = make_recursive_traits<>;
-		};
-
-		template<typename Context>
-			struct serializer_t<Context, noop>
+		template<typename Target, typename Statement, typename Term>
+			Target pick_arg_impl(Statement statement, Term term, const std::true_type&)
 			{
-				using T = noop;
-
-				static Context& _(const T& t, Context& context)
-				{
-					return context;
-				}
+				return term;
 			};
 
-		template<typename T>
-			struct is_noop: std::is_same<T, noop> {};
-	}
+		template<typename Target, typename Statement, typename Term>
+			Target pick_arg_impl(Statement statement, Term term, const std::false_type&)
+			{
+				return static_cast<Target>(statement);
+			};
 
+		// Returns a statement's term either by picking the term from the statement or using the new term
+		template<typename Target, typename Statement, typename Term>
+			Target pick_arg(Statement statement, Term term)
+			{
+				return pick_arg_impl<Target>(statement, term, std::is_same<Target, Term>());
+			};
+	}
 }
+
+
 #endif

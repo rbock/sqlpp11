@@ -38,8 +38,10 @@ namespace sqlpp
 		template<bool NotInverted, typename Operand>
 		struct is_null_t: public boolean::template expression_operators<is_null_t<NotInverted, Operand>>
 		{
+			using _traits = make_traits<boolean, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
+			using _recursive_traits = make_recursive_traits<Operand>;
+
 			static constexpr bool _inverted = not NotInverted;
-			using _table_set = typename Operand::_table_set;
 
 			struct _value_type: public boolean
 			{

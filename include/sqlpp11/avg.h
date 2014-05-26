@@ -36,15 +36,11 @@ namespace sqlpp
 		template<typename Flag, typename Expr>
 		struct avg_t: public floating_point::template expression_operators<avg_t<Flag, Expr>>
 		{
+			using _traits = make_traits<floating_point, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
+			using _recursive_traits = make_recursive_traits<Expr>;
+
 			static_assert(is_noop<Flag>::value or std::is_same<sqlpp::distinct_t, Flag>::value, "avg() used with flag other than 'distinct'");
 			static_assert(is_numeric_t<Expr>::value, "avg() requires a value expression as argument");
-
-			struct _value_type: public floating_point
-			{
-				using _is_named_expression = std::true_type;
-			};
-
-			using _table_set = typename Expr::_table_set;
 
 			struct _name_t
 			{

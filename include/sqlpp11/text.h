@@ -41,11 +41,7 @@ namespace sqlpp
 		// text value type
 		struct text
 		{
-			using _value_type = text;
-			using _base_value_type = text;
-			using _is_text = std::true_type;
-			using _is_value = std::true_type;
-			using _is_expression = std::true_type;
+			using _tag = ::sqlpp::tag::text;
 			using _cpp_value_type = std::string;
 
 			struct _parameter_t

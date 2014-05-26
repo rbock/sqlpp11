@@ -29,105 +29,112 @@
 
 namespace sqlpp
 {
+	namespace detail
+	{
+		struct boolean;
+		struct integral;
+		struct floating_point;
+	}
+
 	namespace vendor
 	{
-		namespace tag
+		namespace op
 		{
 			struct less
 			{
-				using _value_type = ::sqlpp::detail::boolean;
+				using _traits = make_traits<::sqlpp::detail::boolean>;
 				static constexpr const char* _name = "<";
 			};
 
 			struct less_equal
 			{
-				using _value_type = ::sqlpp::detail::boolean;
+				using _traits = make_traits<::sqlpp::detail::boolean>;
 				static constexpr const char* _name = "<=";
 			};
 
 			struct equal_to
 			{
-				using _value_type = ::sqlpp::detail::boolean;
+				using _traits = make_traits<::sqlpp::detail::boolean>;
 			};
 
 			struct not_equal_to
 			{
-				using _value_type = ::sqlpp::detail::boolean;
+				using _traits = make_traits<::sqlpp::detail::boolean>;
 			};
 
 			struct greater_equal
 			{
-				using _value_type = ::sqlpp::detail::boolean;
+				using _traits = make_traits<::sqlpp::detail::boolean>;
 				static constexpr const char* _name = ">=";
 			};
 
 			struct greater
 			{
-				using _value_type = ::sqlpp::detail::boolean;
+				using _traits = make_traits<::sqlpp::detail::boolean>;
 				static constexpr const char* _name = ">";
 			};
 
 			struct logical_or
 			{
-				using _value_type = ::sqlpp::detail::boolean;
+				using _traits = make_traits<::sqlpp::detail::boolean>;
 				static constexpr const char* _name = " OR ";
 			};
 
 			struct logical_and
 			{
-				using _value_type = ::sqlpp::detail::boolean;
+				using _traits = make_traits<::sqlpp::detail::boolean>;
 				static constexpr const char* _name = " AND ";
 			};
 
 			struct logical_not
 			{
-				using _value_type = ::sqlpp::detail::boolean;
+				using _traits = make_traits<::sqlpp::detail::boolean>;
 			};
 
 			template<typename ValueType>
 			struct plus
 			{
-				using _value_type = ValueType;
+				using _traits = make_traits<ValueType>;
 				static constexpr const char* _name = "+";
 			};
 
 			template<typename ValueType>
 			struct minus
 			{
-				using _value_type = ValueType;
+				using _traits = make_traits<ValueType>;
 				static constexpr const char* _name = "-";
 			};
 
 			template<typename ValueType>
 			struct multiplies
 			{
-				using _value_type = ValueType;
+				using _traits = make_traits<ValueType>;
 				static constexpr const char* _name = "*";
 			};
 
 			struct divides
 			{
-				using _value_type = ::sqlpp::detail::floating_point;
+				using _traits = make_traits<::sqlpp::detail::floating_point>;
 				static constexpr const char* _name = "/";
 			};
 
 			struct modulus
 			{
-				using _value_type = ::sqlpp::detail::integral;
+				using _traits = make_traits<::sqlpp::detail::integral>;
 				static constexpr const char* _name = "%";
 			};
 
 			template<typename ValueType>
 			struct unary_minus
 			{
-				using _value_type = ValueType;
+				using _traits = make_traits<ValueType>;
 				static constexpr const char* _name = "-";
 			};
 
 			template<typename ValueType>
 			struct unary_plus
 			{
-				using _value_type = ValueType;
+				using _traits = make_traits<ValueType>;
 				static constexpr const char* _name = "+";
 			};
 		}
@@ -139,52 +146,52 @@ namespace sqlpp
 			struct unary_expression_t;
 
 		template<typename Lhs, typename Rhs>
-			using less_than_t = binary_expression_t<Lhs, tag::less, Rhs>;
+			using less_than_t = binary_expression_t<Lhs, op::less, Rhs>;
 
 		template<typename Lhs, typename Rhs>
-			using less_equal_t = binary_expression_t<Lhs, tag::less_equal, Rhs>;
+			using less_equal_t = binary_expression_t<Lhs, op::less_equal, Rhs>;
 
 		template<typename Lhs, typename Rhs>
-			using equal_to_t = binary_expression_t<Lhs, tag::equal_to, Rhs>;
+			using equal_to_t = binary_expression_t<Lhs, op::equal_to, Rhs>;
 
 		template<typename Lhs, typename Rhs>
-			using not_equal_to_t = binary_expression_t<Lhs, tag::not_equal_to, Rhs>;
+			using not_equal_to_t = binary_expression_t<Lhs, op::not_equal_to, Rhs>;
 
 		template<typename Lhs, typename Rhs>
-			using greater_than_t = binary_expression_t<Lhs, tag::greater, Rhs>;
+			using greater_than_t = binary_expression_t<Lhs, op::greater, Rhs>;
 
 		template<typename Lhs, typename Rhs>
-			using greater_equal_t = binary_expression_t<Lhs, tag::greater_equal, Rhs>;
+			using greater_equal_t = binary_expression_t<Lhs, op::greater_equal, Rhs>;
 
 		template<typename Lhs, typename Rhs>
-			using logical_and_t = binary_expression_t<Lhs, tag::logical_and, Rhs>;
+			using logical_and_t = binary_expression_t<Lhs, op::logical_and, Rhs>;
 
 		template<typename Lhs, typename Rhs>
-			using logical_or_t = binary_expression_t<Lhs, tag::logical_or, Rhs>;
+			using logical_or_t = binary_expression_t<Lhs, op::logical_or, Rhs>;
 
 		template<typename Lhs, typename ValueType, typename Rhs>
-			using plus_t = binary_expression_t<Lhs, tag::plus<ValueType>, Rhs>;
+			using plus_t = binary_expression_t<Lhs, op::plus<ValueType>, Rhs>;
 
 		template<typename Lhs, typename ValueType, typename Rhs>
-			using minus_t = binary_expression_t<Lhs, tag::minus<ValueType>, Rhs>;
+			using minus_t = binary_expression_t<Lhs, op::minus<ValueType>, Rhs>;
 
 		template<typename Lhs, typename ValueType, typename Rhs>
-			using multiplies_t = binary_expression_t<Lhs, tag::multiplies<ValueType>, Rhs>;
+			using multiplies_t = binary_expression_t<Lhs, op::multiplies<ValueType>, Rhs>;
 
 		template<typename Lhs, typename Rhs>
-			using divides_t = binary_expression_t<Lhs, tag::divides, Rhs>;
+			using divides_t = binary_expression_t<Lhs, op::divides, Rhs>;
 
 		template<typename Lhs, typename Rhs>
-			using modulus_t = binary_expression_t<Lhs, tag::modulus, Rhs>;
+			using modulus_t = binary_expression_t<Lhs, op::modulus, Rhs>;
 
 		template<typename Rhs>
-			using logical_not_t = unary_expression_t<tag::logical_not, Rhs>;
+			using logical_not_t = unary_expression_t<op::logical_not, Rhs>;
 
 		template<typename ValueType, typename Rhs>
-			using unary_plus_t = unary_expression_t<tag::unary_plus<ValueType>, Rhs>;
+			using unary_plus_t = unary_expression_t<op::unary_plus<ValueType>, Rhs>;
 
 		template<typename ValueType, typename Rhs>
-			using unary_minus_t = unary_expression_t<tag::unary_minus<ValueType>, Rhs>;
+			using unary_minus_t = unary_expression_t<op::unary_minus<ValueType>, Rhs>;
 
 	}
 }

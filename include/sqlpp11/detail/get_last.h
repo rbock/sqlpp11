@@ -24,24 +24,35 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DETAIL_ARG_SELECTOR_H
-#define SQLPP_DETAIL_ARG_SELECTOR_H
+#ifndef SQLPP_DETAIL_GET_LAST_H
+#define SQLPP_DETAIL_GET_LAST_H
+
+#include <type_traits>
 
 namespace sqlpp
 {
 	namespace detail
 	{
-		template<typename Target>
-			struct arg_selector
+		template<template<typename> class Predicate, typename Default, typename... T>
+			struct get_last_if_impl;
+
+		template<template<typename> class Predicate, typename Default>
+			struct get_last_if_impl<Predicate, Default>
 			{
-				static Target _(Target, Target t) { return t; }
-
-				template<typename X>
-					static Target _(X, Target t) { return t; }
-
-				template<typename X>
-					static Target _(Target t, X) { return t; }
+				using type = Default;
 			};
+
+		template<template<typename> class Predicate, typename Default, typename T, typename... Rest>
+			struct get_last_if_impl<Predicate, Default, T, Rest...>
+			{
+				using rest = typename get_last_if_impl<Predicate, Default, Rest...>::type;
+				using type = typename std::conditional<std::is_same<rest, Default>::value and Predicate<T>::value,
+							T,
+							rest>::type;
+			};
+
+		template<template<typename> class Predicate, typename Default, typename... T>
+			using get_last_if = typename get_last_if_impl<Predicate, Default, T...>::type;
 	}
 }
 

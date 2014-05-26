@@ -42,15 +42,16 @@ namespace sqlpp
 		template<typename Database, typename... Flags>
 			struct select_flag_list_t
 			{
-				using _is_select_flag_list = std::true_type; 
+				using _traits = make_traits<no_value_t, ::sqlpp::tag::select_flag_list>;
+				using _recursive_traits = make_recursive_traits<Flags...>;
+
 				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
-				using _parameter_tuple_t = std::tuple<Flags...>;
-				using size = std::tuple_size<_parameter_tuple_t>;
-				using _table_set = typename ::sqlpp::detail::make_joined_set<typename Flags::_table_set...>::type;
 
 				static_assert(not ::sqlpp::detail::has_duplicates<Flags...>::value, "at least one duplicate argument detected in select flag list");
 
 				static_assert(::sqlpp::detail::all_t<is_select_flag_t<Flags>::value...>::value, "at least one argument is not a select flag in select flag list");
+
+				select_flag_list_t& _select_flag_list() { return *this; }
 
 				select_flag_list_t(Flags... flags):
 					_flags(flags...)
@@ -87,7 +88,7 @@ namespace sqlpp
 						template<typename Flag>
 							void _add_flag_impl(Flag flag, const std::true_type&)
 							{
-								return static_cast<typename Policies::_statement_t*>(this)->_flag_list._dynamic_flags.emplace_back(flag);
+								return static_cast<typename Policies::_statement_t*>(this)->_select_flag_list()._dynamic_flags.emplace_back(flag);
 							}
 
 						template<typename Flag>
@@ -95,14 +96,14 @@ namespace sqlpp
 					};
 
 				const select_flag_list_t& _flag_list() const { return *this; }
-				_parameter_tuple_t _flags;
+				std::tuple<Flags...> _flags;
 				vendor::interpretable_list_t<Database> _dynamic_flags;
 			};
 
 		struct no_select_flag_list_t
 		{
-			using _is_noop = std::true_type;
-			using _table_set = ::sqlpp::detail::type_set<>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
+			using _recursive_traits = make_recursive_traits<>;
 
 			template<typename Policies>
 				struct _methods_t

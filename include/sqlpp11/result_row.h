@@ -42,9 +42,9 @@ namespace sqlpp
 
 		template<typename Db, std::size_t index, typename NamedExpr>
 			struct result_field:
-				public NamedExpr::_name_t::template _member_t<typename NamedExpr::_value_type::template _result_entry_t<Db, NamedExpr::_trivial_value_is_null>>
+				public NamedExpr::_name_t::template _member_t<typename value_type_of<NamedExpr>::template _result_entry_t<Db, NamedExpr::_trivial_value_is_null>>
 			{
-				using _field = typename NamedExpr::_name_t::template _member_t<typename NamedExpr::_value_type::template _result_entry_t<Db, NamedExpr::_trivial_value_is_null>>;
+				using _field = typename NamedExpr::_name_t::template _member_t<typename value_type_of<NamedExpr>::template _result_entry_t<Db, NamedExpr::_trivial_value_is_null>>;
 
 				result_field() = default;
 				result_field(const char_result_row_t& char_result_row_t):

@@ -44,7 +44,6 @@ namespace sqlpp
 				struct type_if
 				{
 					using type = Type;
-					using _table_set = typename Type::_table_set;
 				};
 
 			template<typename Type>
@@ -52,7 +51,8 @@ namespace sqlpp
 				{
 					struct type
 					{
-						using _table_set = sqlpp::detail::type_set<>;
+						using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
+						using _recursive_traits = make_recursive_traits<>;
 					};
 				};
 		}
@@ -61,7 +61,7 @@ namespace sqlpp
 			struct insert_value_t
 			{
 				using _is_insert_value = std::true_type;
-				using _pure_value_t = typename Column::_value_type::_cpp_value_type;
+				using _pure_value_t = typename value_type_of<Column>::_cpp_value_type;
 				using _wrapped_value_t = typename wrap_operand<_pure_value_t>::type;
 				using _tvin_t = typename detail::type_if<tvin_t<_wrapped_value_t>, can_be_null_t<Column>::value>::type; // static asserts and SFINAE do not work together
 				using _null_t = typename detail::type_if<null_t, can_be_null_t<Column>::value>::type; // static asserts and SFINAE do not work together

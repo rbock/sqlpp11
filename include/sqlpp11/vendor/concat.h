@@ -35,18 +35,15 @@ namespace sqlpp
 {
 	namespace vendor
 	{
+		// FIXME: Remove First, inherit from text_t
 		template<typename First, typename... Args>
-			struct concat_t: public First::_value_type::template expression_operators<concat_t<First, Args...>>
+			struct concat_t: public value_type_of<First>::template expression_operators<concat_t<First, Args...>>
 		{
+			using _traits = make_traits<value_type_of<First>, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
+			using _recursive_traits = make_recursive_traits<First, Args...>;
+
 			static_assert(sizeof...(Args) > 0, "concat requires two arguments at least");
 			static_assert(sqlpp::detail::all_t<is_text_t<First>::value, is_text_t<Args>::value...>::value, "at least one non-text argument detected in concat()");
-			using _table_set = typename ::sqlpp::detail::make_joined_set<typename First::_table_set, typename Args::_table_set...>::type;
-
-			struct _value_type: public First::_value_type::_base_value_type
-			{
-				using _is_named_expression = std::true_type;
-			};
-
 			struct _name_t
 			{
 				static constexpr const char* _get_name() { return "CONCAT"; }

@@ -33,9 +33,8 @@ namespace sqlpp
 {
 	struct default_value_t
 	{
-		static constexpr bool _is_expression = true;
-		using _value_type = no_value_t;
-		using _table_set = ::sqlpp::detail::type_set<>;
+		using _traits = make_traits<no_value_t, tag::expression>;
+		using _recursive_traits = make_recursive_traits<>;
 
 		static constexpr bool _is_trivial() { return false; }
 	};

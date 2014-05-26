@@ -42,16 +42,12 @@ namespace sqlpp
 		// boolean value type
 		struct boolean
 		{
-			using _value_type = boolean;
-			using _base_value_type = boolean;
-			using _is_boolean = std::true_type;
-			using _is_value = std::true_type;
-			using _is_expression = std::true_type;
+			using _tag = ::sqlpp::tag::boolean;
 			using _cpp_value_type = bool;
 
 			struct _parameter_t
 			{
-				using _value_type = boolean;
+				using _value_type = boolean; // FIXME
 
 				_parameter_t():
 					_value(false),

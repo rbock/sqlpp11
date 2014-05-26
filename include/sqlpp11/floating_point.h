@@ -41,17 +41,12 @@ namespace sqlpp
 		// floating_point value type
 		struct floating_point
 		{
-			using _value_type = floating_point;
-			using _base_value_type = floating_point;
-			using _is_numeric = std::true_type;
-			using _is_floating_point = std::true_type;
-			using _is_value = std::true_type;
-			using _is_expression = std::true_type;
+			using _tag = ::sqlpp::tag::floating_point;
 			using _cpp_value_type = double;
 			
 			struct _parameter_t
 			{
-				using _value_type = integral;
+				using _value_type = floating_point;
 
 				_parameter_t():
 					_value(0),

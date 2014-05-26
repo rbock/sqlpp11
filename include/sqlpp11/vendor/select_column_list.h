@@ -47,14 +47,14 @@ namespace sqlpp
 		template<typename... Rest>
 			struct get_first_argument_if_unique
 			{
-				using _value_type = no_value_t;
+				using _traits = make_traits<no_value_t, tag::select_column_list, tag::return_value>;
 				struct _name_t {};
 			};
 
 		template<typename T>
 			struct get_first_argument_if_unique<T>
 			{
-				using _value_type = typename T::_value_type;
+				using _traits = make_traits<value_type_of<T>, tag::select_column_list, tag::return_value, tag::expression, tag::named_expression>;
 				using _name_t = typename T::_name_t;
 			};
 	}
@@ -132,12 +132,13 @@ namespace sqlpp
 		template<typename Database, typename... Columns>
 			struct select_column_list_t
 			{
-				using _is_select_column_list = std::true_type;
-				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
-				using _parameter_tuple_t = std::tuple<Columns...>;
-				using size = std::tuple_size<_parameter_tuple_t>;
+				// get_first_argument_if_unique is kind of ugly
+				using _traits = typename ::sqlpp::detail::get_first_argument_if_unique<Columns...>::_traits;
+				using _recursive_traits = make_recursive_traits<Columns...>;
 
-				using _table_set = sqlpp::detail::make_joined_set_t<typename Columns::_table_set...>;
+				using _name_t = typename ::sqlpp::detail::get_first_argument_if_unique<Columns...>::_name_t;
+
+				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 
 				static_assert(not ::sqlpp::detail::has_duplicates<Columns...>::value, "at least one duplicate argument detected");
 
@@ -148,13 +149,7 @@ namespace sqlpp
 				static_assert(not ::sqlpp::detail::has_duplicates<typename Columns::_name_t...>::value, "at least one duplicate name detected");
 
 				struct _column_type {};
-				struct _value_type: ::sqlpp::detail::get_first_argument_if_unique<Columns...>::_value_type
-				{
-					using _is_expression = typename std::conditional<sizeof...(Columns) == 1, std::true_type, std::false_type>::type;
-					using _is_named_expression = typename std::conditional<sizeof...(Columns) == 1, std::true_type, std::false_type>::type;
-					using _is_alias = std::false_type;
-				};
-				using _name_t = typename ::sqlpp::detail::get_first_argument_if_unique<Columns...>::_name_t;
+
 
 				template<typename Db>
 				using _result_row_t = typename std::conditional<_is_dynamic::value,
@@ -168,6 +163,8 @@ namespace sqlpp
 
 				template <typename Db>
 					using _dynamic_t = select_column_list_t<Db, std::tuple<Columns...>>;
+
+				select_column_list_t& _select_column_list() { return *this; }
 
 				select_column_list_t(std::tuple<Columns...> columns):
 					_columns(columns)
@@ -185,7 +182,7 @@ namespace sqlpp
 
 				static constexpr size_t static_size()
 				{
-					return size::value;
+					return sizeof...(Columns);
 				}
 
 				template<typename Policies>
@@ -218,7 +215,7 @@ namespace sqlpp
 						template<typename NamedExpression>
 							void _add_column_impl(NamedExpression namedExpression, const std::true_type&)
 							{
-								return static_cast<typename Policies::_statement_t*>(this)->_column_list._dynamic_columns.emplace_back(namedExpression);
+								return static_cast<typename Policies::_statement_t*>(this)->_select_column_list()._dynamic_columns.emplace_back(namedExpression);
 							}
 
 						template<typename NamedExpression>
@@ -227,7 +224,7 @@ namespace sqlpp
 
 
 				const select_column_list_t& _column_list() const { return *this; }
-				_parameter_tuple_t _columns;
+				std::tuple<Columns...> _columns;
 				dynamic_select_column_list<Database> _dynamic_columns;
 			};
 	}
@@ -244,12 +241,12 @@ namespace sqlpp
 	{
 		struct no_select_column_list_t
 		{
-			using _is_noop = std::true_type;
-			using _table_set = ::sqlpp::detail::type_set<>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop, ::sqlpp::tag::missing>;
+			using _recursive_traits = make_recursive_traits<>;
+
 			template<typename Db>
 				using _result_row_t = ::sqlpp::result_row_t<Db>;
 			using _dynamic_names_t = typename dynamic_select_column_list<void>::_names_t;
-			using _value_type = no_value_t;
 			struct _name_t {};
 
 			template<typename T>
@@ -291,10 +288,10 @@ namespace sqlpp
 				static Context& _(const T& t, Context& context)
 				{
 					// check for at least one expression
-					static_assert(T::_is_dynamic::value or T::size::value, "at least one select expression required");
+					static_assert(T::_is_dynamic::value or sizeof...(Columns), "at least one select expression required");
 
 					interpret_tuple(t._columns, ',', context);
-					if (T::size::value and not t._dynamic_columns.empty())
+					if (sizeof...(Columns) and not t._dynamic_columns.empty())
 						context << ',';
 					serialize(t._dynamic_columns, context);
 					return context;

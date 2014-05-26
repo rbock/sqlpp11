@@ -39,10 +39,10 @@ namespace sqlpp
 		template<typename Limit>
 			struct limit_t
 			{
-				using _is_limit = std::true_type;
+				using _traits = make_traits<no_value_t, ::sqlpp::tag::limit>;
+				using _recursive_traits = make_recursive_traits<Limit>;
+
 				static_assert(is_integral_t<Limit>::value, "limit requires an integral value or integral parameter");
-				// FIXME: Is this really always empty?
-				using _table_set = ::sqlpp::detail::type_set<>;
 
 				limit_t(Limit value):
 					_value(value)
@@ -65,9 +65,10 @@ namespace sqlpp
 		template<typename Database>
 			struct dynamic_limit_t
 			{
-				using _is_limit = std::true_type;
-				using _is_dynamic = std::true_type;
-				using _table_set = ::sqlpp::detail::type_set<>;
+				using _traits = make_traits<no_value_t, ::sqlpp::tag::limit>;
+				using _recursive_traits = make_recursive_traits<>;
+
+				dynamic_limit_t& _limit() { return *this; }
 
 				dynamic_limit_t():
 					_value(noop())
@@ -95,8 +96,8 @@ namespace sqlpp
 							{
 								// FIXME: Make sure that Limit does not require external tables? Need to read up on SQL
 								using arg_t = typename wrap_operand<Limit>::type;
-								static_cast<typename Policies::_statement_t*>(this)->_limit._value = arg_t{value};
-								static_cast<typename Policies::_statement_t*>(this)->_limit._initialized = true;
+								static_cast<typename Policies::_statement_t*>(this)->_limit()._value = arg_t{value};
+								static_cast<typename Policies::_statement_t*>(this)->_limit()._initialized = true;
 							}
 					};
 
@@ -106,8 +107,8 @@ namespace sqlpp
 
 		struct no_limit_t
 		{
-			using _is_noop = std::true_type;
-			using _table_set = ::sqlpp::detail::type_set<>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
+			using _recursive_traits = make_recursive_traits<>;
 
 			template<typename Policies>
 				struct _methods_t

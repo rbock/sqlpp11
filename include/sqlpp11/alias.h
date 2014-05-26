@@ -28,23 +28,20 @@
 #define SQLPP_ALIAS_H
 
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/vendor/serializer.h>
+
 namespace sqlpp
 {
 	template<typename Expression, typename AliasProvider>
 		struct expression_alias_t
 		{
+			using _traits = make_traits<value_type_of<Expression>, tag::named_expression, tag::alias>;
+			using _recursive_traits = make_recursive_traits<Expression>;
+
 			static_assert(is_expression_t<Expression>::value, "invalid argument for an expression alias");
 			static_assert(not is_alias_t<Expression>::value, "cannot create an alias of an alias");
 
-			struct _value_type: Expression::_value_type
-			{
-				using _is_expression = std::false_type;
-				using _is_named_expression = std::true_type;
-				using _is_alias = std::true_type;
-			};
-
 			using _name_t = typename AliasProvider::_name_t;
-			using _table_set = typename Expression::_table_set;
 
 			Expression _expression;
 		};

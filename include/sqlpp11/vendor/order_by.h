@@ -42,18 +42,18 @@ namespace sqlpp
 		template<typename Database,typename... Expressions>
 			struct order_by_t
 			{
-				using _is_order_by = std::true_type;
-				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
-				using _parameter_tuple_t = std::tuple<Expressions...>;
-				using _parameter_list_t = typename make_parameter_list_t<_parameter_tuple_t>::type;
+				using _traits = make_traits<no_value_t, ::sqlpp::tag::group_by>;
+				using _recursive_traits = make_recursive_traits<Expressions...>;
 
-				using _table_set = typename ::sqlpp::detail::make_joined_set<typename Expressions::_table_set...>::type;
+				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 
 				static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one sort-order expression required in order_by()");
 
 				static_assert(not ::sqlpp::detail::has_duplicates<Expressions...>::value, "at least one duplicate argument detected in order_by()");
 
 				static_assert(::sqlpp::detail::all_t<is_sort_order_t<Expressions>::value...>::value, "at least one argument is not a sort order expression in order_by()");
+
+				order_by_t& _order_by() { return *this; }
 
 				order_by_t(Expressions... expressions):
 					_expressions(expressions...)
@@ -90,21 +90,21 @@ namespace sqlpp
 						template<typename Expression>
 							void _add_order_by_impl(Expression expression, const std::true_type&)
 							{
-								return static_cast<typename Policies::_statement_t*>(this)->_order_by._dynamic_expressions.emplace_back(expression);
+								return static_cast<typename Policies::_statement_t*>(this)->_order_by()._dynamic_expressions.emplace_back(expression);
 							}
 
 						template<typename Expression>
 							void _add_order_by_impl(Expression expression, const std::false_type&);
 					};
 
-				_parameter_tuple_t _expressions;
+				std::tuple<Expressions...> _expressions;
 				vendor::interpretable_list_t<Database> _dynamic_expressions;
 			};
 
 		struct no_order_by_t
 		{
-			using _is_noop = std::true_type;
-			using _table_set = ::sqlpp::detail::type_set<>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
+			using _recursive_traits = make_recursive_traits<>;
 
 			template<typename Policies>
 				struct _methods_t

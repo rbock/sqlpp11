@@ -28,6 +28,8 @@
 #define SQLPP_VENDOR_SINGLE_TABLE_H
 
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/no_value.h>
+#include <sqlpp11/vendor/serializer.h>
 #include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
@@ -38,9 +40,11 @@ namespace sqlpp
 		template<typename Database, typename Table>
 			struct single_table_t
 			{
-				using _is_single_table = std::true_type;
+				using _traits = make_traits<no_value_t, ::sqlpp::tag::single_table>;
+				using _recursive_traits = make_recursive_traits<Table>;
 
 				static_assert(is_table_t<Table>::value, "argument has to be a table");
+				static_assert(required_tables_of<Table>::size::value == 0, "table depends on another table");
 
 				single_table_t(Table table):
 					_table(table)
@@ -52,13 +56,41 @@ namespace sqlpp
 				single_table_t& operator=(single_table_t&&) = default;
 				~single_table_t() = default;
 
-				using _table_set = typename Table::_table_set;
+				template<typename Policies>
+					struct _methods_t
+					{
+					};
+
 				Table _table;
 			};
 
 		struct no_single_table_t
 		{
-			using _table_set = ::sqlpp::detail::type_set<>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
+			using _recursive_traits = make_recursive_traits<>;
+
+			template<typename Policies>
+				struct _methods_t
+				{
+					using _database_t = typename Policies::_database_t;
+					template<typename T>
+					using _new_statement_t = typename Policies::template _new_statement_t<no_single_table_t, T>;
+
+					template<typename... Args>
+						auto into(Args... args)
+						-> _new_statement_t<single_table_t<void, Args...>>
+						{
+							return { *static_cast<typename Policies::_statement_t*>(this), single_table_t<void, Args...>{args...} };
+						}
+
+#warning: remove can operate on several tables at once, so it should not use single_table anyway
+					template<typename... Args>
+						auto from(Args... args)
+						-> _new_statement_t<single_table_t<void, Args...>>
+						{
+							return { *static_cast<typename Policies::_statement_t*>(this), single_table_t<void, Args...>{args...} };
+						}
+				};
 		};
 
 		// Interpreters

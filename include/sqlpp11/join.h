@@ -77,16 +77,17 @@ namespace sqlpp
 	template<typename JoinType, typename Lhs, typename Rhs, typename On = vendor::noop>
 		struct join_t
 		{
+			using _traits = make_traits<no_value_t, tag::table, tag::join>;
+			using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
+
 			static_assert(is_table_t<Lhs>::value, "lhs argument for join() has to be a table or join");
 			static_assert(is_table_t<Rhs>::value, "rhs argument for join() has to be a table");
 			static_assert(not is_join_t<Rhs>::value, "rhs argument for join must not be a join");
 			static_assert(vendor::is_noop<On>::value or is_on_t<On>::value, "invalid on expression in join().on()");
 
-			static_assert(::sqlpp::detail::is_disjunct_from<typename Lhs::_table_set, typename Rhs::_table_set>::value, "joined tables must not be identical");
+			static_assert(::sqlpp::detail::is_disjunct_from<typename Lhs::_provided_tables, typename Rhs::_provided_tables>::value, "joined tables must not be identical");
 
-			using _is_table = std::true_type;
-			using _is_join = std::true_type;
-			using _table_set = typename ::sqlpp::detail::make_joined_set<typename Lhs::_table_set, typename Rhs::_table_set>::type;
+			static_assert(_recursive_traits::_required_tables::size::value == 0, "joined tables must not depend on other tables");
 
 			template<typename OnT> 
 				using set_on_t = join_t<JoinType, Lhs, Rhs, OnT>;

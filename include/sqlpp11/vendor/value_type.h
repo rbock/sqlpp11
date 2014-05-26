@@ -35,7 +35,7 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename T>
-			using value_type_t = typename wrap_operand<T>::type::_value_type;
+			using value_type_t = value_type_of<wrap_operand_t<T>>;
 	}
 }
 #endif
