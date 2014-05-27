@@ -95,6 +95,10 @@ namespace sqlpp
 
 				using _result_type_provider = detail::get_last_if<is_return_value_t, vendor::no_select_column_list_t, Policies...>;
 
+				struct _result_methods_t: public _result_type_provider::template _result_methods_t<select_policies_t>
+				{};
+
+
 				// A select can be used as a pseudo table if
 				//   - at least one column is selected
 				//   - the select is complete (leaks no tables)
@@ -135,6 +139,7 @@ namespace sqlpp
 		struct select_t:
 			public Policies...,
 			public detail::select_policies_t<Db, Policies...>::_value_type::template expression_operators<select_t<Db, Policies...>>,
+			public detail::select_policies_t<Db, Policies...>::_result_methods_t,
 			public detail::select_policies_t<Db, Policies...>::_methods_t
 	{
 			using _policies_t = typename detail::select_policies_t<Db, Policies...>;
@@ -174,21 +179,6 @@ namespace sqlpp
 			~select_t() = default;
 
 			// PseudoTable
-			template<typename AliasProvider>
-				struct _pseudo_table_t
-				{
-					using table = typename _result_type_provider::template _pseudo_table_t<select_t>;
-					using alias = typename table::template _alias_t<AliasProvider>;
-				};
-
-			template<typename AliasProvider>
-				typename _pseudo_table_t<AliasProvider>::alias as(const AliasProvider& aliasProvider) const
-				{
-					static_assert(_policies_t::_can_be_used_as_table::value, "select cannot be used as table, incomplete from()");
-					return typename _pseudo_table_t<AliasProvider>::table(
-							*this).as(aliasProvider);
-				}
-
 			const _dynamic_names_t& get_dynamic_names() const
 			{
 				return static_cast<const _result_type_provider&>(*this)._dynamic_columns._dynamic_expression_names;

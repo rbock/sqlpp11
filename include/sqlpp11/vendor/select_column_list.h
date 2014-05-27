@@ -222,6 +222,32 @@ namespace sqlpp
 							void _add_column_impl(NamedExpression namedExpression, const std::false_type&);
 					};
 
+				template<typename Policies>
+				struct _result_methods_t
+				{
+					using _statement_t = typename Policies::_statement_t;
+
+					template<typename AliasProvider>
+						struct _deferred_table_t
+						{
+							using table = _pseudo_table_t<_statement_t>;
+							using alias = typename _pseudo_table_t<_statement_t>::template _alias_t<AliasProvider>;
+						};
+
+					template<typename AliasProvider>
+						using _table_t = typename _deferred_table_t<AliasProvider>::table;
+
+					template<typename AliasProvider>
+						using _alias_t = typename _deferred_table_t<AliasProvider>::alias;
+
+					template<typename AliasProvider>
+						_alias_t<AliasProvider> as(const AliasProvider& aliasProvider) const
+						{
+							static_assert(Policies::_can_be_used_as_table::value, "statement cannot be used as table, e.g. due to missing tables");
+							return _table_t<AliasProvider>(static_cast<const _statement_t&>(*this)).as(aliasProvider);
+						}
+				};
+
 
 				const select_column_list_t& _column_list() const { return *this; }
 				std::tuple<Columns...> _columns;
@@ -277,6 +303,10 @@ namespace sqlpp
 							return { *static_cast<typename Policies::_statement_t*>(this), ::sqlpp::detail::make_select_column_list_t<_database_t, Args...>{std::tuple_cat(::sqlpp::detail::as_tuple<Args>::_(args)...)} };
 						}
 				};
+
+			template<typename Policies>
+			struct _result_methods_t
+			{};
 		};
 
 		// Interpreters

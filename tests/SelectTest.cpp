@@ -83,5 +83,8 @@ int main()
 		int64_t a = row.alpha;
 	}
 
+
+	auto X = select(all_of(t)).from(t).as(t.alpha);
+
 	return 0;
 }
