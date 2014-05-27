@@ -312,7 +312,7 @@ int main()
 	{
 		auto s = dynamic_select(db, all_of(t)).dynamic_from().dynamic_where().dynamic_limit().dynamic_offset();
 		s.add_from(t);
-		s.add_where(t.alpha > 7 and t.alpha == any(select(t.alpha).from(t).where(t.alpha < 3)));
+		s.add_where_ntc(t.alpha > 7 and t.alpha == any(select(t.alpha).from(t).where(t.alpha < 3)));
 		s.set_limit(30);
 		s.set_limit(3);
 		std::cerr << "------------------------\n";
