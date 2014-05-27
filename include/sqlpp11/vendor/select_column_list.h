@@ -165,6 +165,7 @@ namespace sqlpp
 					using _dynamic_t = select_column_list_t<Db, std::tuple<Columns...>>;
 
 				select_column_list_t& _select_column_list() { return *this; }
+				const select_column_list_t& _select_column_list() const { return *this; }
 
 				select_column_list_t(std::tuple<Columns...> columns):
 					_columns(columns)
@@ -246,6 +247,50 @@ namespace sqlpp
 							static_assert(Policies::_can_be_used_as_table::value, "statement cannot be used as table, e.g. due to missing tables");
 							return _table_t<AliasProvider>(static_cast<const _statement_t&>(*this)).as(aliasProvider);
 						}
+			const _dynamic_names_t& get_dynamic_names() const
+			{
+				return static_cast<const typename Policies::_statement_t*>(this)->_select_column_list()._dynamic_columns._dynamic_expression_names;
+			}
+
+			static constexpr size_t _get_static_no_of_parameters()
+			{
+#warning need to fix this
+				return 0;
+			}
+
+			size_t _get_no_of_parameters() const
+			{
+#warning need to fix this
+				return 0;
+			}
+
+			size_t get_no_of_result_columns() const
+			{
+				return static_size() + get_dynamic_names().size();
+			}
+
+			// Execute
+			template<typename Db>
+				auto _run(Db& db) const
+				-> result_t<decltype(db.select(std::declval<const _statement_t>())), _result_row_t<Db>>
+				{
+					Policies::_check_consistency();
+					static_assert(_get_static_no_of_parameters() == 0, "cannot run select directly with parameters, use prepare instead");
+
+					return {db.select(static_cast<const _statement_t&>(*this)), get_dynamic_names()};
+				}
+#if 0
+
+			// Prepare
+			template<typename Db>
+				auto _prepare(Db& db) const
+				-> prepared_select_t<Db, select_t>
+				{
+					Policies::_check_consistency();
+
+					return {{}, get_dynamic_names(), db.prepare_select(*this)};
+				}
+#endif
 				};
 
 

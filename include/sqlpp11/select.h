@@ -129,6 +129,12 @@ namespace sqlpp
 					using _extra_tables = detail::type_set<>;
 				};
 
+				static void _check_consistency()
+				{
+#warning check for missing terms here, and for missing tables
+					static_assert(not required_tables_of<select_policies_t>::size::value, "one sub expression requires tables which are otherwise not known in the statement");
+				}
+
 			};
 	}
 
@@ -147,17 +153,7 @@ namespace sqlpp
 			using _traits = make_traits<value_type_of<_policies_t>, ::sqlpp::tag::select, tag::expression_if<typename _policies_t::_is_expression>, tag::named_expression_if<typename _policies_t::_is_expression>>;
 			using _recursive_traits = typename _policies_t::_recursive_traits;
 
-			using _database_t = Db;
-			using _is_dynamic = typename std::conditional<std::is_same<_database_t, void>::value, std::false_type, std::true_type>::type;
-
 			using _result_type_provider = typename _policies_t::_result_type_provider;
-
-			using _parameter_tuple_t = std::tuple<Policies...>;
-			using _parameter_list_t = typename make_parameter_list_t<select_t>::type;
-			
-			template<typename Database>
-				using _result_row_t = typename _result_type_provider::template _result_row_t<Database>;
-			using _dynamic_names_t = typename _result_type_provider::_dynamic_names_t;
 
 			using _requires_braces = std::true_type;
 
@@ -178,53 +174,6 @@ namespace sqlpp
 			select_t& operator=(select_t&& r) = default;
 			~select_t() = default;
 
-			// PseudoTable
-			const _dynamic_names_t& get_dynamic_names() const
-			{
-				return static_cast<const _result_type_provider&>(*this)._dynamic_columns._dynamic_expression_names;
-			}
-
-			static constexpr size_t _get_static_no_of_parameters()
-			{
-				return _parameter_list_t::size::value;
-			}
-
-			size_t _get_no_of_parameters() const
-			{
-				return _parameter_list_t::size::value;
-			}
-
-			size_t get_no_of_result_columns() const
-			{
-				return _result_type_provider::static_size() + get_dynamic_names().size();
-			}
-
-			void _check_consistency() const
-			{
-#warning check for missing terms here, and for missing tables
-				static_assert(not required_tables_of<_policies_t>::size::value, "one sub expression contains tables which are not in the from()");
-			}
-
-			// Execute
-			template<typename Database>
-				auto _run(Database& db) const
-				-> result_t<decltype(db.select(*this)), _result_row_t<Database>>
-				{
-					_check_consistency();
-					static_assert(_get_static_no_of_parameters() == 0, "cannot run select directly with parameters, use prepare instead");
-
-					return {db.select(*this), get_dynamic_names()};
-				}
-
-			// Prepare
-			template<typename Database>
-				auto _prepare(Database& db) const
-				-> prepared_select_t<Database, select_t>
-				{
-					_check_consistency();
-
-					return {{}, get_dynamic_names(), db.prepare_select(*this)};
-				}
 		};
 
 	namespace vendor
