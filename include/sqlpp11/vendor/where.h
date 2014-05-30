@@ -75,38 +75,40 @@ namespace sqlpp
 				// Member implementation with data and methods
 				template <typename Policies>
 					struct _impl_t
-				{
-					template<typename Expression>
-						void add_ntc(Expression expression)
-						{
-							add<Expression, std::false_type>(expression);
-						}
+					{
+						using _data_t = where_data_t<Database, Expressions...>;
 
-					template<typename Expression, typename TableCheckRequired = std::true_type>
-						void add(Expression expression)
-						{
-							static_assert(_is_dynamic::value, "where::add() can only be called for dynamic_where");
-							static_assert(is_expression_t<Expression>::value, "invalid expression argument in where::add()");
-							static_assert(not TableCheckRequired::value or Policies::template _no_unknown_tables<Expression>::value, "expression uses tables unknown to this statement in where::add()");
+						template<typename Expression>
+							void add_ntc(Expression expression)
+							{
+								add<Expression, std::false_type>(expression);
+							}
 
-							using ok = ::sqlpp::detail::all_t<_is_dynamic::value, is_expression_t<Expression>::value>;
+						template<typename Expression, typename TableCheckRequired = std::true_type>
+							void add(Expression expression)
+							{
+								static_assert(_is_dynamic::value, "where::add() can only be called for dynamic_where");
+								static_assert(is_expression_t<Expression>::value, "invalid expression argument in where::add()");
+								static_assert(not TableCheckRequired::value or Policies::template _no_unknown_tables<Expression>::value, "expression uses tables unknown to this statement in where::add()");
 
-							_add_impl(expression, ok()); // dispatch to prevent compile messages after the static_assert
-						}
+								using ok = ::sqlpp::detail::all_t<_is_dynamic::value, is_expression_t<Expression>::value>;
 
-				private:
-					template<typename Expression>
-						void _add_impl(Expression expression, const std::true_type&)
-						{
-							return _data._dynamic_expressions.emplace_back(expression);
-						}
+								_add_impl(expression, ok()); // dispatch to prevent compile messages after the static_assert
+							}
 
-					template<typename Expression>
-						void _add_impl(Expression expression, const std::false_type&);
+					private:
+						template<typename Expression>
+							void _add_impl(Expression expression, const std::true_type&)
+							{
+								return _data._dynamic_expressions.emplace_back(expression);
+							}
 
-				public:
-					_data_t _data;
-				};
+						template<typename Expression>
+							void _add_impl(Expression expression, const std::false_type&);
+
+					public:
+						_data_t _data;
+					};
 
 				// Member template for adding the named member to a statement
 				template<typename Policies>
@@ -115,6 +117,12 @@ namespace sqlpp
 						_impl_t<Policies> where;
 						_impl_t<Policies>& operator()() { return where; }
 						const _impl_t<Policies>& operator()() const { return where; }
+
+						template<typename T>
+							static auto _get_member(T t) -> decltype(t.where)
+							{
+								return t.where;
+							}
 					};
 
 				// Additional methods for the statement
@@ -151,9 +159,17 @@ namespace sqlpp
 				template<typename Policies>
 					struct _member_t
 					{
+						using _data_t = where_data_t<void, bool>;
+
 						_impl_t<Policies> where;
 						_impl_t<Policies>& operator()() { return where; }
 						const _impl_t<Policies>& operator()() const { return where; }
+
+						template<typename T>
+							static auto _get_member(T t) -> decltype(t.where)
+							{
+								return t.where;
+							}
 					};
 
 				// Additional methods for the statement
@@ -171,9 +187,7 @@ namespace sqlpp
 			using _recursive_traits = make_recursive_traits<>;
 
 			// Data
-			struct _data_t
-			{
-			};
+			using _data_t = no_data_t;
 
 			// Member implementation with data and methods
 			template<typename Policies>
@@ -186,9 +200,17 @@ namespace sqlpp
 			template<typename Policies>
 				struct _member_t
 				{
+					using _data_t = no_data_t;
+
 					_impl_t<Policies> no_where;
 					_impl_t<Policies>& operator()() { return no_where; }
 					const _impl_t<Policies>& operator()() const { return no_where; }
+
+					template<typename T>
+						static auto _get_member(T t) -> decltype(t.no_where)
+						{
+							return t.no_where;
+						}
 				};
 
 			// Additional methods for the statement
@@ -244,17 +266,6 @@ namespace sqlpp
 				{
 					if (not t._condition)
 						context << " WHERE NULL";
-					return context;
-				}
-			};
-
-		template<typename Context>
-			struct serializer_t<Context, typename no_where_t::_data_t>
-			{
-				using T = typename no_where_t::_data_t;
-
-				static Context& _(const T& t, Context& context)
-				{
 					return context;
 				}
 			};

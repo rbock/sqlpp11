@@ -35,6 +35,20 @@ namespace sqlpp
 {
 	namespace vendor
 	{
+		template<typename... Tables>
+			struct extra_tables_data_t
+			{
+				extra_tables_data_t()
+				{}
+
+				extra_tables_data_t(const extra_tables_data_t&) = default;
+				extra_tables_data_t(extra_tables_data_t&&) = default;
+				extra_tables_data_t& operator=(const extra_tables_data_t&) = default;
+				extra_tables_data_t& operator=(extra_tables_data_t&&) = default;
+				~extra_tables_data_t() = default;
+
+			};
+
 		// EXTRA_TABLES
 		template<typename... Tables>
 			struct extra_tables_t
@@ -56,25 +70,58 @@ namespace sqlpp
 				static_assert(not ::sqlpp::detail::has_duplicates<Tables...>::value, "at least one duplicate argument detected in extra_tables()");
 				static_assert(::sqlpp::detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not a table or join in extra_tables()");
 
-				extra_tables_t()
-				{}
+				// Data
+				using _data_t = extra_tables_data_t<Tables...>;
 
-				extra_tables_t(const extra_tables_t&) = default;
-				extra_tables_t(extra_tables_t&&) = default;
-				extra_tables_t& operator=(const extra_tables_t&) = default;
-				extra_tables_t& operator=(extra_tables_t&&) = default;
-				~extra_tables_t() = default;
+				// Member implementation with data and methods
+				template <typename Policies>
+					struct _impl_t
+				{
+					_data_t _data;
+				};
 
+				// Member template for adding the named member to a statement
+				template<typename Policies>
+					struct _member_t
+					{
+						_impl_t<Policies> extra_tables;
+						_impl_t<Policies>& operator()() { return extra_tables; }
+						const _impl_t<Policies>& operator()() const { return extra_tables; }
+					};
+
+				// Additional methods for the statement
 				template<typename Policies>
 					struct _methods_t
 					{
 					};
 			};
 
+		// NO EXTRA TABLES YET
 		struct no_extra_tables_t
 		{
 			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
 			using _recursive_traits = make_recursive_traits<>;
+
+			// Data
+			struct _data_t
+			{
+			};
+
+			// Member implementation with data and methods
+			template<typename Policies>
+				struct _impl_t
+				{
+					_data_t _data;
+				};
+
+			// Member template for adding the named member to a statement
+			template<typename Policies>
+				struct _member_t
+				{
+					_impl_t<Policies> no_extra_tables_t;
+					_impl_t<Policies>& operator()() { return no_extra_tables_t; }
+					const _impl_t<Policies>& operator()() const { return no_extra_tables_t; }
+				};
 
 			template<typename Policies>
 				struct _methods_t
@@ -86,14 +133,14 @@ namespace sqlpp
 						auto extra_tables(Args...)
 						-> _new_statement_t<extra_tables_t<Args...>>
 						{
-							return { *static_cast<typename Policies::_statement_t*>(this), extra_tables_t<Args...>{} };
+							return { *static_cast<typename Policies::_statement_t*>(this), extra_tables_data_t<Args...>{} };
 						}
 				};
 		};
 
 		// Interpreters
 		template<typename Context, typename Database, typename... Tables>
-			struct serializer_t<Context, extra_tables_t<Database, Tables...>>
+			struct serializer_t<Context, extra_tables_data_t<Database, Tables...>>
 			{
 				using T = extra_tables_t<Database, Tables...>;
 
@@ -104,9 +151,9 @@ namespace sqlpp
 			};
 
 		template<typename Context>
-			struct serializer_t<Context, no_extra_tables_t>
+			struct serializer_t<Context, typename no_extra_tables_t::_data_t>
 			{
-				using T = no_extra_tables_t;
+				using T = typename no_extra_tables_t::_data_t;
 
 				static Context& _(const T& t, Context& context)
 				{

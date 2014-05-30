@@ -143,7 +143,7 @@ namespace sqlpp
 			typename... Policies
 				>
 		struct select_t:
-			public Policies::template _member_t<Policies>...,
+			public Policies::template _member_t<detail::select_policies_t<Db, Policies...>>...,
 			public detail::select_policies_t<Db, Policies...>::_value_type::template expression_operators<select_t<Db, Policies...>>,
 			public detail::select_policies_t<Db, Policies...>::_result_methods_t,
 			public detail::select_policies_t<Db, Policies...>::_methods_t
@@ -165,7 +165,11 @@ namespace sqlpp
 
 			template<typename Statement, typename Term>
 				select_t(Statement statement, Term term):
-					Policies::template _member_t<Policies>{{detail::pick_arg<Policies>(statement, term)}}...
+					Policies::template _member_t<_policies_t>{
+						typename Policies::template _impl_t<_policies_t>{
+								detail::pick_arg<typename Policies::template _member_t<_policies_t>>(statement, term)
+							}}...
+					//Policies::template _member_t<_policies_t>{{detail::pick_arg<typename Policies::template _member_t<_policies_t>>(statement, term)}}...
 			{}
 
 			select_t(const select_t& r) = default;
@@ -196,10 +200,10 @@ namespace sqlpp
 
 	template<typename Database>
 		using blank_select_t = select_t<Database,
-			//vendor::no_select_flag_list_t, 
+			vendor::no_select_flag_list_t, 
 			vendor::no_select_column_list_t, 
-			vendor::no_from_t/*,
-			vendor::no_extra_tables_t*/,
+			vendor::no_from_t,
+			//vendor::no_extra_tables_t,
 			vendor::no_where_t/*, 
 			vendor::no_group_by_t, 
 			vendor::no_having_t,

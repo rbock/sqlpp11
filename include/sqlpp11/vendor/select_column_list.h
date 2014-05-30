@@ -177,17 +177,17 @@ namespace sqlpp
 					struct _impl_t
 					{
 						template<typename NamedExpression>
-							void add_column_ntc(NamedExpression namedExpression)
+							void add_ntc(NamedExpression namedExpression)
 							{
-								add_column<NamedExpression, std::false_type>(namedExpression);
+								add<NamedExpression, std::false_type>(namedExpression);
 							}
 
 						template<typename NamedExpression, typename TableCheckRequired = std::true_type>
-							void add_column(NamedExpression namedExpression)
+							void add(NamedExpression namedExpression)
 							{
-								static_assert(_is_dynamic::value, "add_column can only be called for dynamic_column");
-								static_assert(is_named_expression_t<NamedExpression>::value, "invalid named expression argument in add_column()");
-								static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<NamedExpression>::value, "named expression uses tables unknown to this statement in add_column()");
+								static_assert(_is_dynamic::value, "selected_columns::add() can only be called for dynamic_column");
+								static_assert(is_named_expression_t<NamedExpression>::value, "invalid named expression argument in selected_columns::add()");
+								static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<NamedExpression>::value, "named expression uses tables unknown to this statement in selected_columns::add()");
 								using column_names = ::sqlpp::detail::make_type_set_t<typename Columns::_name_t...>;
 								static_assert(not ::sqlpp::detail::is_element_of<typename NamedExpression::_name_t, column_names>::value, "a column of this name is present in the select already");
 
@@ -196,12 +196,12 @@ namespace sqlpp
 									is_named_expression_t<NamedExpression>::value
 										>;
 
-								_add_column_impl(namedExpression, ok()); // dispatch to prevent compile messages after the static_assert
+								_add_impl(namedExpression, ok()); // dispatch to prevent compile messages after the static_assert
 							}
 
 						//private:
 						template<typename NamedExpression>
-							void _add_column_impl(NamedExpression namedExpression, const std::true_type&)
+							void _add_impl(NamedExpression namedExpression, const std::true_type&)
 							{
 								return _data._dynamic_columns.emplace_back(namedExpression);
 							}
@@ -217,9 +217,17 @@ namespace sqlpp
 				template<typename Policies>
 					struct _member_t
 					{
+						using _data_t = select_column_list_data_t<Database, Columns...>;
+
 						_impl_t<Policies> selected_columns;
 						_impl_t<Policies>& operator()() { return selected_columns; }
 						const _impl_t<Policies>& operator()() const { return selected_columns; }
+
+					template<typename T>
+						static auto _get_member(T t) -> decltype(t.selected_columns)
+						{
+							return t.selected_columns;
+						}
 					};
 
 				// Additional methods for the statement
@@ -333,9 +341,7 @@ namespace sqlpp
 			struct _name_t {};
 
 			// Data
-			struct _data_t
-			{
-			};
+			using _data_t = no_data_t;
 
 			// Member implementation with data and methods
 			template<typename Policies>
@@ -348,9 +354,17 @@ namespace sqlpp
 			template<typename Policies>
 				struct _member_t
 				{
+					using _data_t = no_data_t;
+
 					_impl_t<Policies> no_selected_columns;
 					_impl_t<Policies>& operator()() { return no_selected_columns; }
 					const _impl_t<Policies>& operator()() const { return no_selected_columns; }
+
+					template<typename T>
+						static auto _get_member(T t) -> decltype(t.no_selected_columns)
+						{
+							return t.no_selected_columns;
+						}
 				};
 
 			// Additional methods for the statement
@@ -397,16 +411,6 @@ namespace sqlpp
 				}
 			};
 
-		template<typename Context>
-			struct serializer_t<Context, typename no_select_column_list_t::_data_t>
-			{
-				using T = typename no_select_column_list_t::_data_t;
-
-				static Context& _(const T& t, Context& context)
-				{
-					return context;
-				}
-			};
 	}
 }
 

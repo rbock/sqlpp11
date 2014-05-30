@@ -81,10 +81,11 @@ namespace sqlpp
 					struct _impl_t
 					{
 						template<typename Table>
-							void _add_t(Table table)
+							void add(Table table)
 							{
 								static_assert(_is_dynamic::value, "from::add() must not be called for static from()");
 								static_assert(is_table_t<Table>::value, "invalid table argument in from::add()");
+#warning need to check if table is already known
 
 								using ok = ::sqlpp::detail::all_t<_is_dynamic::value, is_table_t<Table>::value>;
 
@@ -109,9 +110,17 @@ namespace sqlpp
 				template<typename Policies>
 					struct _member_t
 					{
-						_impl_t<Policies> no_from;
-						_impl_t<Policies>& operator()() { return no_from; }
-						const _impl_t<Policies>& operator()() const { return no_from; }
+						using _data_t = from_data_t<Database, Tables...>;
+
+						_impl_t<Policies> from;
+						_impl_t<Policies>& operator()() { return from; }
+						const _impl_t<Policies>& operator()() const { return from; }
+
+						template<typename T>
+							static auto _get_member(T t) -> decltype(t.from)
+							{
+								return t.from;
+							}
 					};
 
 				// Additional methods for the statement
@@ -127,9 +136,7 @@ namespace sqlpp
 			using _recursive_traits = make_recursive_traits<>;
 
 			// Data
-			struct _data_t
-			{
-			};
+			using _data_t = no_data_t;
 
 			// Member implementation with data and methods
 			template<typename Policies>
@@ -142,9 +149,17 @@ namespace sqlpp
 			template<typename Policies>
 				struct _member_t
 				{
+					using _data_t = no_data_t;
+
 					_impl_t<Policies> no_from;
 					_impl_t<Policies>& operator()() { return no_from; }
 					const _impl_t<Policies>& operator()() const { return no_from; }
+
+					template<typename T>
+						static auto _get_member(T t) -> decltype(t.no_from)
+						{
+							return t.no_from;
+						}
 				};
 
 			// Additional methods for the statement
@@ -187,17 +202,6 @@ namespace sqlpp
 					if (sizeof...(Tables) and not t._dynamic_tables.empty())
 						context << ',';
 					interpret_list(t._dynamic_tables, ',', context);
-					return context;
-				}
-			};
-
-		template<typename Context>
-			struct serializer_t<Context, no_from_t::_data_t>
-			{
-				using T = no_from_t::_data_t;
-
-				static Context& _(const T& t, Context& context)
-				{
 					return context;
 				}
 			};
