@@ -203,13 +203,13 @@ namespace sqlpp
 			vendor::no_select_flag_list_t, 
 			vendor::no_select_column_list_t, 
 			vendor::no_from_t,
-			//vendor::no_extra_tables_t,
-			vendor::no_where_t/*, 
+			vendor::no_extra_tables_t,
+			vendor::no_where_t, 
 			vendor::no_group_by_t, 
 			vendor::no_having_t,
 			vendor::no_order_by_t, 
 			vendor::no_limit_t, 
-			vendor::no_offset_t*/>;
+			vendor::no_offset_t>;
 
 
 	blank_select_t<void> select() // FIXME: These should be constexpr

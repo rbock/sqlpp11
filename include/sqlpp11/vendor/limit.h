@@ -35,6 +35,23 @@ namespace sqlpp
 {
 	namespace vendor
 	{
+		// LIMIT DATA
+		template<typename Limit>
+			struct limit_data_t
+			{
+				limit_data_t(Limit value):
+					_value(value)
+				{}
+
+				limit_data_t(const limit_data_t&) = default;
+				limit_data_t(limit_data_t&&) = default;
+				limit_data_t& operator=(const limit_data_t&) = default;
+				limit_data_t& operator=(limit_data_t&&) = default;
+				~limit_data_t() = default;
+
+				Limit _value;
+			};
+
 		// LIMIT
 		template<typename Limit>
 			struct limit_t
@@ -44,71 +61,142 @@ namespace sqlpp
 
 				static_assert(is_integral_t<Limit>::value, "limit requires an integral value or integral parameter");
 
-				limit_t(Limit value):
-					_value(value)
-				{}
+				// Data
+				using _data_t = limit_data_t<Limit>;
 
-				limit_t(const limit_t&) = default;
-				limit_t(limit_t&&) = default;
-				limit_t& operator=(const limit_t&) = default;
-				limit_t& operator=(limit_t&&) = default;
-				~limit_t() = default;
+				// Member implementation with data and methods
+				template <typename Policies>
+					struct _impl_t
+					{
+						_data_t _data;
+					};
+
+				// Member template for adding the named member to a statement
+				template<typename Policies>
+					struct _member_t
+					{
+						_impl_t<Policies> limit;
+						_impl_t<Policies>& operator()() { return limit; }
+						const _impl_t<Policies>& operator()() const { return limit; }
+
+						template<typename T>
+							static auto _get_member(T t) -> decltype(t.limit)
+							{
+								return t.limit;
+							}
+					};
 
 				template<typename Policies>
 					struct _methods_t
 					{
 					};
-
-				Limit _value;
 			};
 
+		// DYNAMIC LIMIT DATA
+		template<typename Database>
+			struct dynamic_limit_data_t
+			{
+				dynamic_limit_data_t():
+					_value(noop())
+				{
+				}
+
+				template<typename Limit>
+					dynamic_limit_data_t(Limit value):
+						_initialized(true),
+						_value(typename wrap_operand<Limit>::type(value))
+				{
+				}
+
+				dynamic_limit_data_t(const dynamic_limit_data_t&) = default;
+				dynamic_limit_data_t(dynamic_limit_data_t&&) = default;
+				dynamic_limit_data_t& operator=(const dynamic_limit_data_t&) = default;
+				dynamic_limit_data_t& operator=(dynamic_limit_data_t&&) = default;
+				~dynamic_limit_data_t() = default;
+
+				bool _initialized = false;
+				interpretable_t<Database> _value;
+			};
+
+		// DYNAMIC LIMIT
 		template<typename Database>
 			struct dynamic_limit_t
 			{
 				using _traits = make_traits<no_value_t, ::sqlpp::tag::limit>;
 				using _recursive_traits = make_recursive_traits<>;
 
-				dynamic_limit_t& _limit() { return *this; }
+				// Data
+				using _data_t = limit_data_t<Database>;
 
-				dynamic_limit_t():
-					_value(noop())
-				{
-				}
-
-				template<typename Limit>
-					dynamic_limit_t(Limit value):
-						_initialized(true),
-						_value(typename wrap_operand<Limit>::type(value))
-				{
-				}
-
-				dynamic_limit_t(const dynamic_limit_t&) = default;
-				dynamic_limit_t(dynamic_limit_t&&) = default;
-				dynamic_limit_t& operator=(const dynamic_limit_t&) = default;
-				dynamic_limit_t& operator=(dynamic_limit_t&&) = default;
-				~dynamic_limit_t() = default;
-
-				template<typename Policies>
-					struct _methods_t
+				// Member implementation with data and methods
+				template <typename Policies>
+					struct _impl_t
 					{
 						template<typename Limit>
-							void set_limit(Limit value)
+							void set(Limit value)
 							{
 								// FIXME: Make sure that Limit does not require external tables? Need to read up on SQL
 								using arg_t = typename wrap_operand<Limit>::type;
-								static_cast<typename Policies::_statement_t*>(this)->_limit()._value = arg_t{value};
-								static_cast<typename Policies::_statement_t*>(this)->_limit()._initialized = true;
+								_data._value = arg_t{value};
+								_data._initialized = true;
+							}
+					public:
+						_data_t _data;
+					};
+
+				// Member template for adding the named member to a statement
+				template<typename Policies>
+					struct _member_t
+					{
+						_impl_t<Policies> limit;
+						_impl_t<Policies>& operator()() { return limit; }
+						const _impl_t<Policies>& operator()() const { return limit; }
+
+						template<typename T>
+							static auto _get_member(T t) -> decltype(t.limit)
+							{
+								return t.limit;
 							}
 					};
 
-				bool _initialized = false;
-				interpretable_t<Database> _value;
+				// Additional methods for the statement
+				template<typename Policies>
+					struct _methods_t
+					{
+					};
 			};
 
 		struct no_limit_t
 		{
 			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
 			using _recursive_traits = make_recursive_traits<>;
+
+			// Data
+			using _data_t = no_data_t;
+
+			// Member implementation with data and methods
+			template<typename Policies>
+				struct _impl_t
+				{
+					_data_t _data;
+				};
+
+			// Member template for adding the named member to a statement
+			template<typename Policies>
+				struct _member_t
+				{
+					using _data_t = no_data_t;
+
+					_impl_t<Policies> no_limit;
+					_impl_t<Policies>& operator()() { return no_limit; }
+					const _impl_t<Policies>& operator()() const { return no_limit; }
+
+					template<typename T>
+						static auto _get_member(T t) -> decltype(t.no_limit)
+						{
+							return t.no_limit;
+						}
+				};
 
 			template<typename Policies>
 				struct _methods_t
@@ -121,23 +209,23 @@ namespace sqlpp
 						auto limit(Arg arg)
 						-> _new_statement_t<limit_t<typename wrap_operand<Arg>::type>>
 						{
-							return { *static_cast<typename Policies::_statement_t*>(this), limit_t<typename wrap_operand<Arg>::type>{{arg}} };
+							return { *static_cast<typename Policies::_statement_t*>(this), limit_data_t<typename wrap_operand<Arg>::type>{{arg}} };
 						}
 
 					auto dynamic_limit()
 						-> _new_statement_t<dynamic_limit_t<_database_t>>
 						{
 							static_assert(not std::is_same<_database_t, void>::value, "dynamic_limit must not be called in a static statement");
-							return { *static_cast<typename Policies::_statement_t*>(this), dynamic_limit_t<_database_t>{} };
+							return { *static_cast<typename Policies::_statement_t*>(this), dynamic_limit_data_t<_database_t>{} };
 						}
 				};
 		};
 
 		// Interpreters
 		template<typename Context, typename Database>
-			struct serializer_t<Context, dynamic_limit_t<Database>>
+			struct serializer_t<Context, dynamic_limit_data_t<Database>>
 			{
-				using T = dynamic_limit_t<Database>;
+				using T = dynamic_limit_data_t<Database>;
 
 				static Context& _(const T& t, Context& context)
 				{
@@ -162,18 +250,6 @@ namespace sqlpp
 					return context;
 				}
 			};
-
-		template<typename Context>
-			struct serializer_t<Context, no_limit_t>
-			{
-				using T = no_limit_t;
-
-				static Context& _(const T& t, Context& context)
-				{
-					return context;
-				}
-			};
-
 	}
 }
 

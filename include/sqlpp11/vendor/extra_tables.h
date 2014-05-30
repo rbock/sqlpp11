@@ -84,9 +84,17 @@ namespace sqlpp
 				template<typename Policies>
 					struct _member_t
 					{
+						using _data_t = extra_tables_data_t<Tables...>;
+
 						_impl_t<Policies> extra_tables;
 						_impl_t<Policies>& operator()() { return extra_tables; }
 						const _impl_t<Policies>& operator()() const { return extra_tables; }
+
+						template<typename T>
+							static auto _get_member(T t) -> decltype(t.extra_tables)
+							{
+								return t.extra_tables;
+							}
 					};
 
 				// Additional methods for the statement
@@ -103,9 +111,7 @@ namespace sqlpp
 			using _recursive_traits = make_recursive_traits<>;
 
 			// Data
-			struct _data_t
-			{
-			};
+			using _data_t = no_data_t;
 
 			// Member implementation with data and methods
 			template<typename Policies>
@@ -118,9 +124,17 @@ namespace sqlpp
 			template<typename Policies>
 				struct _member_t
 				{
-					_impl_t<Policies> no_extra_tables_t;
-					_impl_t<Policies>& operator()() { return no_extra_tables_t; }
-					const _impl_t<Policies>& operator()() const { return no_extra_tables_t; }
+					using _data_t = no_data_t;
+
+					_impl_t<Policies> no_extra_tables;
+					_impl_t<Policies>& operator()() { return no_extra_tables; }
+					const _impl_t<Policies>& operator()() const { return no_extra_tables; }
+
+					template<typename T>
+						static auto _get_member(T t) -> decltype(t.no_extra_tables)
+						{
+							return t.no_extra_tables;
+						}
 				};
 
 			template<typename Policies>
@@ -143,17 +157,6 @@ namespace sqlpp
 			struct serializer_t<Context, extra_tables_data_t<Database, Tables...>>
 			{
 				using T = extra_tables_t<Database, Tables...>;
-
-				static Context& _(const T& t, Context& context)
-				{
-					return context;
-				}
-			};
-
-		template<typename Context>
-			struct serializer_t<Context, typename no_extra_tables_t::_data_t>
-			{
-				using T = typename no_extra_tables_t::_data_t;
 
 				static Context& _(const T& t, Context& context)
 				{

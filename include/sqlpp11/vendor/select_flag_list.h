@@ -38,7 +38,7 @@ namespace sqlpp
 {
 	namespace vendor
 	{
-		// SELECTED COLUMNS DATA
+		// SELECTED FLAGS DATA
 		template<typename Database, typename... Flags>
 			struct select_flag_list_data_t
 			{

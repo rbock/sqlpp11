@@ -39,72 +39,132 @@ namespace sqlpp
 {
 	namespace vendor
 	{
-		template<typename Database,typename... Expressions>
-			struct order_by_t
+		// ORDER BY DATA
+		template<typename Database, typename... Expressions>
+			struct order_by_data_t
 			{
-				using _traits = make_traits<no_value_t, ::sqlpp::tag::group_by>;
-				using _recursive_traits = make_recursive_traits<Expressions...>;
-
-				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
-
-				static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one sort-order expression required in order_by()");
-
-				static_assert(not ::sqlpp::detail::has_duplicates<Expressions...>::value, "at least one duplicate argument detected in order_by()");
-
-				static_assert(::sqlpp::detail::all_t<is_sort_order_t<Expressions>::value...>::value, "at least one argument is not a sort order expression in order_by()");
-
-				order_by_t& _order_by() { return *this; }
-
-				order_by_t(Expressions... expressions):
+				order_by_data_t(Expressions... expressions):
 					_expressions(expressions...)
 				{}
 
-				order_by_t(const order_by_t&) = default;
-				order_by_t(order_by_t&&) = default;
-				order_by_t& operator=(const order_by_t&) = default;
-				order_by_t& operator=(order_by_t&&) = default;
-				~order_by_t() = default;
-
-				template<typename Policies>
-					struct _methods_t
-					{
-						template<typename Expression>
-							void add_order_by_ntc(Expression expression)
-							{
-								add_order_by<Expression, std::false_type>(expression);
-							}
-
-						template<typename Expression, typename TableCheckRequired = std::true_type>
-							void add_order_by(Expression expression)
-							{
-								static_assert(_is_dynamic::value, "add_order_by must not be called for static order_by");
-								static_assert(is_sort_order_t<Expression>::value, "invalid expression argument in add_order_by()");
-								static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Expression>::value, "expression uses tables unknown to this statement in add_order_by()");
-
-								using ok = ::sqlpp::detail::all_t<_is_dynamic::value, is_sort_order_t<Expression>::value>;
-
-								_add_order_by_impl(expression, ok()); // dispatch to prevent compile messages after the static_assert
-							}
-
-					private:
-						template<typename Expression>
-							void _add_order_by_impl(Expression expression, const std::true_type&)
-							{
-								return static_cast<typename Policies::_statement_t*>(this)->_order_by()._dynamic_expressions.emplace_back(expression);
-							}
-
-						template<typename Expression>
-							void _add_order_by_impl(Expression expression, const std::false_type&);
-					};
+				order_by_data_t(const order_by_data_t&) = default;
+				order_by_data_t(order_by_data_t&&) = default;
+				order_by_data_t& operator=(const order_by_data_t&) = default;
+				order_by_data_t& operator=(order_by_data_t&&) = default;
+				~order_by_data_t() = default;
 
 				std::tuple<Expressions...> _expressions;
 				vendor::interpretable_list_t<Database> _dynamic_expressions;
 			};
 
+		// ORDER BY
+		template<typename Database, typename... Expressions>
+			struct order_by_t
+			{
+				using _traits = make_traits<no_value_t, ::sqlpp::tag::order_by>;
+				using _recursive_traits = make_recursive_traits<Expressions...>;
+
+				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
+
+				static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression (e.g. a column) required in order_by()");
+
+				static_assert(not ::sqlpp::detail::has_duplicates<Expressions...>::value, "at least one duplicate argument detected in order_by()");
+
+				static_assert(::sqlpp::detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not an expression in order_by()");
+
+				// Data
+				using _data_t = select_flag_list_data_t<Database, Expressions...>;
+
+				// Member implementation with data and methods
+				template<typename Policies>
+					struct _impl_t
+					{
+						template<typename Expression>
+							void add_ntc(Expression expression)
+							{
+								add<Expression, std::false_type>(expression);
+							}
+
+						template<typename Expression, typename TableCheckRequired = std::true_type>
+							void add(Expression expression)
+							{
+								static_assert(_is_dynamic::value, "add() must not be called for static order_by");
+								static_assert(is_expression_t<Expression>::value, "invalid expression argument in order_by::add()");
+								static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Expression>::value, "expression uses tables unknown to this statement in order_by::add()");
+
+								using ok = ::sqlpp::detail::all_t<_is_dynamic::value, is_expression_t<Expression>::value>;
+
+								_add_impl(expression, ok()); // dispatch to prevent compile messages after the static_assert
+							}
+
+					private:
+						template<typename Expression>
+							void _add_impl(Expression expression, const std::true_type&)
+							{
+								return _data._dynamic_expressions.emplace_back(expression);
+							}
+
+						template<typename Expression>
+							void _add_impl(Expression expression, const std::false_type&);
+					public:
+						_data_t _data;
+					};
+
+				// Member template for adding the named member to a statement
+				template<typename Policies>
+					struct _member_t
+					{
+						using _data_t = order_by_data_t<Database, Expressions...>;
+
+						_impl_t<Policies> order_by;
+						_impl_t<Policies>& operator()() { return order_by; }
+						const _impl_t<Policies>& operator()() const { return order_by; }
+
+						template<typename T>
+							static auto _get_member(T t) -> decltype(t.order_by)
+							{
+								return t.order_by;
+							}
+					};
+
+				template<typename Policies>
+					struct _methods_t
+					{
+					};
+			};
+
+		// NO ORDER BY YET
 		struct no_order_by_t
 		{
 			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
 			using _recursive_traits = make_recursive_traits<>;
+
+			// Data
+			using _data_t = no_data_t;
+
+			// Member implementation with data and methods
+			template<typename Policies>
+				struct _impl_t
+				{
+					_data_t _data;
+				};
+
+			// Member template for adding the named member to a statement
+			template<typename Policies>
+				struct _member_t
+				{
+					using _data_t = no_data_t;
+
+					_impl_t<Policies> no_order_by;
+					_impl_t<Policies>& operator()() { return no_order_by; }
+					const _impl_t<Policies>& operator()() const { return no_order_by; }
+
+					template<typename T>
+						static auto _get_member(T t) -> decltype(t.no_order_by)
+						{
+							return t.no_order_by;
+						}
+				};
 
 			template<typename Policies>
 				struct _methods_t
@@ -117,7 +177,7 @@ namespace sqlpp
 						auto order_by(Args... args)
 						-> _new_statement_t<order_by_t<void, Args...>>
 						{
-							return { *static_cast<typename Policies::_statement_t*>(this), order_by_t<void, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), order_by_data_t<void, Args...>{args...} };
 						}
 
 					template<typename... Args>
@@ -125,16 +185,16 @@ namespace sqlpp
 						-> _new_statement_t<order_by_t<_database_t, Args...>>
 						{
 							static_assert(not std::is_same<_database_t, void>::value, "dynamic_order_by must not be called in a static statement");
-							return { *static_cast<typename Policies::_statement_t*>(this), vendor::order_by_t<_database_t, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), order_by_data_t<_database_t, Args...>{args...} };
 						}
 				};
 		};
 
 		// Interpreters
 		template<typename Context, typename Database, typename... Expressions>
-			struct serializer_t<Context, order_by_t<Database, Expressions...>>
+			struct serializer_t<Context, order_by_data_t<Database, Expressions...>>
 			{
-				using T = order_by_t<Database, Expressions...>;
+				using T = order_by_data_t<Database, Expressions...>;
 
 				static Context& _(const T& t, Context& context)
 				{
@@ -148,18 +208,6 @@ namespace sqlpp
 					return context;
 				}
 			};
-
-		template<typename Context>
-			struct serializer_t<Context, no_order_by_t>
-			{
-				using T = no_order_by_t;
-
-				static Context& _(const T& t, Context& context)
-				{
-					return context;
-				}
-			};
-
 	}
 }
 
