@@ -39,6 +39,12 @@ namespace sqlpp
 		{
 			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
 			using _recursive_traits = make_recursive_traits<>;
+
+			struct _name_t {};
+
+			template<typename Policies>
+				struct _result_methods_t
+				{};
 		};
 
 		template<typename Context>

@@ -37,6 +37,24 @@ namespace sqlpp
 {
 	namespace vendor
 	{
+		// FROM DATA
+		template<typename Database, typename... Tables>
+		struct from_data_t
+		{
+			from_data_t(Tables... tables):
+				_tables(tables...)
+			{}
+
+			from_data_t(const from_data_t&) = default;
+			from_data_t(from_data_t&&) = default;
+			from_data_t& operator=(const from_data_t&) = default;
+			from_data_t& operator=(from_data_t&&) = default;
+			~from_data_t() = default;
+
+			std::tuple<Tables...> _tables;
+			vendor::interpretable_list_t<Database> _dynamic_tables;
+		};
+
 		// FROM
 		template<typename Database, typename... Tables>
 			struct from_t
@@ -55,45 +73,52 @@ namespace sqlpp
 
 				static_assert(required_tables_of<from_t>::size::value == 0, "at least one table depends on another table");
 
-				from_t& _from() { return *this; }
+				// Data
+				using _data_t = from_data_t<Database, Tables...>;
 
-				from_t(Tables... tables):
-					_tables(tables...)
-				{}
-
-				from_t(const from_t&) = default;
-				from_t(from_t&&) = default;
-				from_t& operator=(const from_t&) = default;
-				from_t& operator=(from_t&&) = default;
-				~from_t() = default;
-
+				// Member implementation with data and methods
 				template<typename Policies>
-					struct _methods_t
+					struct _impl_t
 					{
 						template<typename Table>
-							void add_from(Table table)
+							void _add_t(Table table)
 							{
-								static_assert(_is_dynamic::value, "add_from must not be called for static from()");
-								static_assert(is_table_t<Table>::value, "invalid table argument in add_from()");
+								static_assert(_is_dynamic::value, "from::add() must not be called for static from()");
+								static_assert(is_table_t<Table>::value, "invalid table argument in from::add()");
 
 								using ok = ::sqlpp::detail::all_t<_is_dynamic::value, is_table_t<Table>::value>;
 
-								_add_from_impl(table, ok()); // dispatch to prevent compile messages after the static_assert
+								_add_impl(table, ok()); // dispatch to prevent compile messages after the static_assert
 							}
 
 					private:
 						template<typename Table>
-							void _add_from_impl(Table table, const std::true_type&)
+							void _add_impl(Table table, const std::true_type&)
 							{
-								return static_cast<typename Policies::_statement_t*>(this)->_from()._dynamic_tables.emplace_back(table);
+								return _data._dynamic_tables.emplace_back(table);
 							}
 
 						template<typename Table>
-							void _add_from_impl(Table table, const std::false_type&);
+							void _add_impl(Table table, const std::false_type&);
+
+					public:
+						_data_t _data;
 					};
 
-				std::tuple<Tables...> _tables;
-				vendor::interpretable_list_t<Database> _dynamic_tables;
+				// Member template for adding the named member to a statement
+				template<typename Policies>
+					struct _member_t
+					{
+						_impl_t<Policies> no_from;
+						_impl_t<Policies>& operator()() { return no_from; }
+						const _impl_t<Policies>& operator()() const { return no_from; }
+					};
+
+				// Additional methods for the statement
+				template<typename Policies>
+					struct _methods_t
+					{
+					};
 			};
 
 		struct no_from_t
@@ -101,18 +126,40 @@ namespace sqlpp
 			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
 			using _recursive_traits = make_recursive_traits<>;
 
+			// Data
+			struct _data_t
+			{
+			};
+
+			// Member implementation with data and methods
+			template<typename Policies>
+				struct _impl_t
+				{
+					_data_t _data;
+				};
+
+			// Member template for adding the named member to a statement
+			template<typename Policies>
+				struct _member_t
+				{
+					_impl_t<Policies> no_from;
+					_impl_t<Policies>& operator()() { return no_from; }
+					const _impl_t<Policies>& operator()() const { return no_from; }
+				};
+
+			// Additional methods for the statement
 			template<typename Policies>
 				struct _methods_t
 				{
 					using _database_t = typename Policies::_database_t;
 					template<typename T>
-					using _new_statement_t = typename Policies::template _new_statement_t<no_from_t, T>;
+						using _new_statement_t = typename Policies::template _new_statement_t<no_from_t, T>;
 
 					template<typename... Args>
 						auto from(Args... args)
 						-> _new_statement_t<from_t<void, Args...>>
 						{
-							return { *static_cast<typename Policies::_statement_t*>(this), from_t<void, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), from_data_t<void, Args...>{args...} };
 						}
 
 					template<typename... Args>
@@ -120,14 +167,14 @@ namespace sqlpp
 						-> _new_statement_t<from_t<_database_t, Args...>>
 						{
 							static_assert(not std::is_same<_database_t, void>::value, "dynamic_from must not be called in a static statement");
-							return { *static_cast<typename Policies::_statement_t*>(this), vendor::from_t<_database_t, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), from_data_t<_database_t, Args...>{args...} };
 						}
 				};
 		};
 
 		// Interpreters
 		template<typename Context, typename Database, typename... Tables>
-			struct serializer_t<Context, from_t<Database, Tables...>>
+			struct serializer_t<Context, from_data_t<Database, Tables...>>
 			{
 				using T = from_t<Database, Tables...>;
 
@@ -145,9 +192,9 @@ namespace sqlpp
 			};
 
 		template<typename Context>
-			struct serializer_t<Context, no_from_t>
+			struct serializer_t<Context, no_from_t::_data_t>
 			{
-				using T = no_from_t;
+				using T = no_from_t::_data_t;
 
 				static Context& _(const T& t, Context& context)
 				{

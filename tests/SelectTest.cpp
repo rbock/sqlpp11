@@ -55,6 +55,7 @@ int main()
 		const std::string b = row.beta;
 	}
 
+#if 0
 	for (const auto& row : db(select(all_of(t).as(t)).from(t).where(true)))
 	{
 		int64_t a = row.tabBar.alpha;
@@ -85,6 +86,7 @@ int main()
 
 
 	auto X = select(all_of(t)).from(t).as(t.alpha);
+#endif
 
 	return 0;
 }

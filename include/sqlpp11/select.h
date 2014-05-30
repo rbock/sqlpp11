@@ -93,7 +93,7 @@ namespace sqlpp
 					_all_provided_tables // Hint: extra_tables are not used here because they are just a helper for dynamic .add_*()
 							>;
 
-				using _result_type_provider = detail::get_last_if<is_return_value_t, vendor::no_select_column_list_t, Policies...>;
+				using _result_type_provider = detail::get_last_if<is_return_value_t, vendor::noop, Policies...>;
 
 				struct _result_methods_t: public _result_type_provider::template _result_methods_t<select_policies_t>
 				{};
@@ -143,7 +143,7 @@ namespace sqlpp
 			typename... Policies
 				>
 		struct select_t:
-			public Policies...,
+			public Policies::template _member_t<Policies>...,
 			public detail::select_policies_t<Db, Policies...>::_value_type::template expression_operators<select_t<Db, Policies...>>,
 			public detail::select_policies_t<Db, Policies...>::_result_methods_t,
 			public detail::select_policies_t<Db, Policies...>::_methods_t
@@ -165,7 +165,7 @@ namespace sqlpp
 
 			template<typename Statement, typename Term>
 				select_t(Statement statement, Term term):
-					Policies(detail::pick_arg<Policies>(statement, term))...
+					Policies::template _member_t<Policies>{{detail::pick_arg<Policies>(statement, term)}}...
 			{}
 
 			select_t(const select_t& r) = default;
@@ -173,7 +173,6 @@ namespace sqlpp
 			select_t& operator=(const select_t& r) = default;
 			select_t& operator=(select_t&& r) = default;
 			~select_t() = default;
-
 		};
 
 	namespace vendor
@@ -188,7 +187,7 @@ namespace sqlpp
 					context << "SELECT ";
 
 					using swallow = int[]; 
-					(void) swallow{(serialize(static_cast<const Policies&>(t), context), 0)...};
+					(void) swallow{(serialize(static_cast<const Policies&>(t)._data, context), 0)...};
 
 					return context;
 				}
@@ -197,16 +196,16 @@ namespace sqlpp
 
 	template<typename Database>
 		using blank_select_t = select_t<Database,
-			vendor::no_select_flag_list_t, 
+			//vendor::no_select_flag_list_t, 
 			vendor::no_select_column_list_t, 
-			vendor::no_from_t,
-			vendor::no_extra_tables_t,
-			vendor::no_where_t, 
+			vendor::no_from_t/*,
+			vendor::no_extra_tables_t*/,
+			vendor::no_where_t/*, 
 			vendor::no_group_by_t, 
 			vendor::no_having_t,
 			vendor::no_order_by_t, 
 			vendor::no_limit_t, 
-			vendor::no_offset_t>;
+			vendor::no_offset_t*/>;
 
 
 	blank_select_t<void> select() // FIXME: These should be constexpr
