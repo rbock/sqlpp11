@@ -73,7 +73,7 @@ namespace sqlpp
 				static_assert(::sqlpp::detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not an expression in order_by()");
 
 				// Data
-				using _data_t = select_flag_list_data_t<Database, Expressions...>;
+				using _data_t = order_by_data_t<Database, Expressions...>;
 
 				// Member implementation with data and methods
 				template<typename Policies>

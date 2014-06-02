@@ -75,6 +75,8 @@ namespace sqlpp
 				template<typename Policies>
 					struct _member_t
 					{
+						using _data_t = limit_data_t<Limit>;
+
 						_impl_t<Policies> limit;
 						_impl_t<Policies>& operator()() { return limit; }
 						const _impl_t<Policies>& operator()() const { return limit; }
@@ -126,7 +128,7 @@ namespace sqlpp
 				using _recursive_traits = make_recursive_traits<>;
 
 				// Data
-				using _data_t = limit_data_t<Database>;
+				using _data_t = dynamic_limit_data_t<Database>;
 
 				// Member implementation with data and methods
 				template <typename Policies>
@@ -148,6 +150,8 @@ namespace sqlpp
 				template<typename Policies>
 					struct _member_t
 					{
+						using _data_t = dynamic_limit_data_t<Database>;
+
 						_impl_t<Policies> limit;
 						_impl_t<Policies>& operator()() { return limit; }
 						const _impl_t<Policies>& operator()() const { return limit; }

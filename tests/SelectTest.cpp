@@ -55,7 +55,6 @@ int main()
 		int64_t a = row.alpha;
 		const std::string b = row.beta;
 	}
-#if 0
 
 	for (const auto& row : db(select(all_of(t).as(t)).from(t).where(true)))
 	{
@@ -70,7 +69,8 @@ int main()
 		const bool g = row.gamma;
 	}
 
-	auto s = dynamic_select(db).dynamic_columns(all_of(t)).dynamic_flags().dynamic_from(t).extra_tables(f,t).dynamic_where()/*.dynamic_group_by(t.alpha).dynamic_order_by().dynamic_having(t.gamma).dynamic_limit().dynamic_offset()*/;
+	auto stat = sqlpp::select().columns(all_of(t)).flags(sqlpp::all).from(t).extra_tables(f,t).where(t.alpha > 0).group_by(t.alpha).order_by(t.gamma.asc()).having(t.gamma).limit(7).offset(19);
+	auto s = dynamic_select(db).dynamic_columns(all_of(t)).dynamic_flags().dynamic_from(t).extra_tables(f,t).dynamic_where().dynamic_group_by(t.alpha).dynamic_order_by().dynamic_having(t.gamma).dynamic_limit().dynamic_offset();
 	s.select_flags.add(sqlpp::distinct);
 	s.selected_columns.add(f.omega);
 	s.from.add(f);
@@ -85,9 +85,7 @@ int main()
 		int64_t a = row.alpha;
 	}
 
-
 	auto X = select(all_of(t)).from(t).as(t.alpha);
-#endif
 
 	return 0;
 }

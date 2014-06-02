@@ -77,8 +77,6 @@ namespace sqlpp
 				template <typename Policies>
 					struct _impl_t
 					{
-						using _data_t = where_data_t<Database, Expressions...>;
-
 						template<typename Expression>
 							void add_ntc(Expression expression)
 							{
@@ -115,6 +113,8 @@ namespace sqlpp
 				template<typename Policies>
 					struct _member_t
 					{
+						using _data_t = where_data_t<Database, Expressions...>;
+
 						_impl_t<Policies> where;
 						_impl_t<Policies>& operator()() { return where; }
 						const _impl_t<Policies>& operator()() const { return where; }

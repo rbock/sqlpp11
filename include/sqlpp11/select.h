@@ -62,6 +62,7 @@ namespace sqlpp
 		template<typename Db = void, typename... Policies>
 			struct select_policies_t
 			{
+#warning need to check policies' signature, e.g. a _data_t in _member_t template
 				using _database_t = Db;
 				using _statement_t = select_t<Db, Policies...>;
 

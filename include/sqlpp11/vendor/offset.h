@@ -75,6 +75,8 @@ namespace sqlpp
 				template<typename Policies>
 					struct _member_t
 					{
+						using _data_t = offset_data_t<Offset>;
+
 						_impl_t<Policies> offset;
 						_impl_t<Policies>& operator()() { return offset; }
 						const _impl_t<Policies>& operator()() const { return offset; }
@@ -126,7 +128,7 @@ namespace sqlpp
 				using _recursive_traits = make_recursive_traits<>;
 
 				// Data
-				using _data_t = offset_data_t<Database>;
+				using _data_t = dynamic_offset_data_t<Database>;
 
 				// Member implementation with data and methods
 				template <typename Policies>
@@ -148,6 +150,8 @@ namespace sqlpp
 				template<typename Policies>
 					struct _member_t
 					{
+						using _data_t = dynamic_offset_data_t<Database>;
+
 						_impl_t<Policies> offset;
 						_impl_t<Policies>& operator()() { return offset; }
 						const _impl_t<Policies>& operator()() const { return offset; }
