@@ -27,6 +27,7 @@
 #ifndef SQLPP_INSERT_H
 #define SQLPP_INSERT_H
 
+#include <sqlpp11/statement.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/prepared_insert.h>
@@ -34,13 +35,10 @@
 #include <sqlpp11/vendor/noop.h>
 #include <sqlpp11/vendor/single_table.h>
 #include <sqlpp11/vendor/insert_value_list.h>
-#include <sqlpp11/vendor/policy_update.h>
-
-#include <sqlpp11/detail/get_last.h>
-#include <sqlpp11/detail/pick_arg.h>
 
 namespace sqlpp
 {
+#if 0
 	template<typename Db, typename... Policies>
 		struct insert_t;
 
@@ -121,39 +119,6 @@ namespace sqlpp
 			insert_t& operator=(insert_t&&) = default;
 			~insert_t() = default;
 
-			// run and prepare
-			static constexpr size_t _get_static_no_of_parameters()
-			{
-				return _parameter_list_t::size::value;
-			}
-
-			size_t _get_no_of_parameters() const
-			{
-				return _parameter_list_t::size::value;
-			}
-
-			void _check_consistency() const
-			{
-				// FIXME: Read up on what is allowed/prohibited in INSERT
-			}
-
-			template<typename Database>
-				std::size_t _run(Database& db) const
-				{
-					_check_consistency();
-
-					static_assert(_get_static_no_of_parameters() == 0, "cannot run insert directly with parameters, use prepare instead");
-					return db.insert(*this);
-				}
-
-			template<typename Database>
-				auto _prepare(Database& db) const
-				-> prepared_insert_t<Database, insert_t>
-				{
-					_check_consistency();
-
-					return {{}, db.prepare_insert(*this)};
-				}
 		};
 
 	namespace vendor
@@ -173,13 +138,14 @@ namespace sqlpp
 				}
 			};
 	}
+#endif
 
 	template<typename Database>
-		using blank_insert_t = insert_t<Database,
+		using blank_insert_t = statement_t<Database,
 			vendor::no_single_table_t, 
 			vendor::no_insert_value_list_t>;
 
-	constexpr auto insert()
+	auto insert()
 		-> blank_insert_t<void>
 		{
 			return { blank_insert_t<void>() };

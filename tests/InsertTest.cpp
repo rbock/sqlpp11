@@ -67,10 +67,10 @@ int main()
 	serialize(insert_into(t).set(t.beta = "kirschauflauf"), printer).str();
 	serialize(insert_into(t).columns(t.beta), printer).str();
 	auto multi_insert = insert_into(t).columns(t.beta, t.delta);
-	multi_insert.add_values(t.beta = "cheesecake", t.delta = 1); 
-	multi_insert.add_values(t.beta = sqlpp::default_value, t.delta = sqlpp::default_value); 
+	multi_insert.column_list.add(t.beta = "cheesecake", t.delta = 1); 
+	multi_insert.column_list.add(t.beta = sqlpp::default_value, t.delta = sqlpp::default_value); 
 	auto i = dynamic_insert_into(db, t).dynamic_set();
-	i.add_set(t.beta = "kirschauflauf");
+	i.insert_list.add(t.beta = "kirschauflauf");
 	serialize(i, printer).str();
 
 	db(multi_insert);

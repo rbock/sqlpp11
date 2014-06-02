@@ -39,16 +39,68 @@ namespace sqlpp
 {
 	namespace vendor
 	{
+		struct insert_default_values_data_t
+		{};
+
 		// COLUMN AND VALUE LIST
 		struct insert_default_values_t
 		{
 			using _traits = make_traits<no_value_t>;
 			using _recursive_traits = make_recursive_traits<>;
 
+			// Data
+			using _data_t = insert_default_values_data_t;
+
+			// Member implementation with data and methods
+			template<typename Policies>
+				struct _impl_t
+				{
+					_data_t _data;
+				};
+
+			// Member template for adding the named member to a statement
+			template<typename Policies>
+				struct _member_t
+				{
+					using _data_t = insert_default_values_data_t;
+
+					_impl_t<Policies> default_values;
+					_impl_t<Policies>& operator()() { return default_values; }
+					const _impl_t<Policies>& operator()() const { return default_values; }
+
+					template<typename T>
+						static auto _get_member(T t) -> decltype(t.default_values)
+						{
+							return t.default_values;
+						}
+				};
+
 			template<typename Policies>
 				struct _methods_t
 				{};
 		}; 
+
+		template<typename Database, typename... Assignments>
+			struct insert_list_data_t
+			{
+				insert_list_data_t(Assignments... assignments):
+					_assignments(assignments...),
+					_columns({assignments._lhs}...),
+					_values(assignments._rhs...)
+					{}
+
+				insert_list_data_t(const insert_list_data_t&) = default;
+				insert_list_data_t(insert_list_data_t&&) = default;
+				insert_list_data_t& operator=(const insert_list_data_t&) = default;
+				insert_list_data_t& operator=(insert_list_data_t&&) = default;
+				~insert_list_data_t() = default;
+
+				std::tuple<simple_column_t<typename Assignments::_column_t>...> _columns;
+				std::tuple<typename Assignments::_value_t...> _values;
+				std::tuple<Assignments...> _assignments; // FIXME: Need to replace _columns and _values by _assignments (connector-container requires assignments)
+				typename vendor::interpretable_list_t<Database> _dynamic_columns;
+				typename vendor::interpretable_list_t<Database> _dynamic_values;
+			};
 
 		template<typename Database, typename... Assignments>
 			struct insert_list_t
@@ -81,36 +133,26 @@ namespace sqlpp
 				static_assert(::sqlpp::detail::is_subset_of<_value_required_tables, _column_required_tables>::value, "set() contains values from foreign tables");
 				*/
 				
-				insert_list_t& _insert_value_list() { return *this; }
+				// Data
+				using _data_t = insert_list_data_t<Database, Assignments...>;
 
-				insert_list_t(Assignments... assignment):
-					_assignments(assignment...),
-					_columns({assignment._lhs}...),
-					_values(assignment._rhs...)
-					{}
-
-				insert_list_t(const insert_list_t&) = default;
-				insert_list_t(insert_list_t&&) = default;
-				insert_list_t& operator=(const insert_list_t&) = default;
-				insert_list_t& operator=(insert_list_t&&) = default;
-				~insert_list_t() = default;
-
-				template<typename Policies>
-					struct _methods_t
+				// Member implementation with data and methods
+				template <typename Policies>
+					struct _impl_t
 					{
 						template<typename Assignment>
-							void add_set_ntc(Assignment assignment)
+							void add_ntc(Assignment assignment)
 							{
-								add_set<Assignment, std::false_type>(assignment);
+								add<Assignment, std::false_type>(assignment);
 							}
 
 						template<typename Assignment, typename TableCheckRequired = std::true_type>
-							void add_set(Assignment assignment)
+							void add(Assignment assignment)
 							{
-								static_assert(_is_dynamic::value, "add_set must not be called for static from()");
-								static_assert(is_assignment_t<Assignment>::value, "add_set() arguments require to be assigments");
-								static_assert(not must_not_insert_t<typename Assignment::_column_t>::value, "add_set() argument must not be used in insert");
-								static_assert(not TableCheckRequired::value or Policies::template _no_unknown_tables<Assignment>::value, "add_set() contains a column from a foreign table");
+								static_assert(_is_dynamic::value, "add must not be called for static from()");
+								static_assert(is_assignment_t<Assignment>::value, "add() arguments require to be assigments");
+								static_assert(not must_not_insert_t<typename Assignment::_column_t>::value, "add() argument must not be used in insert");
+								static_assert(not TableCheckRequired::value or Policies::template _no_unknown_tables<Assignment>::value, "add() contains a column from a foreign table");
 
 								using ok = ::sqlpp::detail::all_t<
 											_is_dynamic::value, 
@@ -118,28 +160,67 @@ namespace sqlpp
 											not must_not_insert_t<typename Assignment::_column_t>::value,
 											(not TableCheckRequired::value or Policies::template _no_unknown_tables<Assignment>::value)>;
 
-								_add_set_impl(assignment, ok()); // dispatch to prevent compile messages after the static_assert
+								_add_impl(assignment, ok()); // dispatch to prevent compile messages after the static_assert
 							}
 
 					private:
 						template<typename Assignment>
-							void _add_set_impl(Assignment assignment, const std::true_type&)
+							void _add_impl(Assignment assignment, const std::true_type&)
 							{
-								static_cast<typename Policies::_statement_t*>(this)->_insert_value_list()._dynamic_columns.emplace_back(simple_column_t<typename Assignment::_column_t>{assignment._lhs});
-								static_cast<typename Policies::_statement_t*>(this)->_insert_value_list()._dynamic_values.emplace_back(assignment._rhs);
+								_data._dynamic_columns.emplace_back(simple_column_t<typename Assignment::_column_t>{assignment._lhs});
+								_data._dynamic_values.emplace_back(assignment._rhs);
 							}
 
 						template<typename Assignment>
-							void _add_set_impl(Assignment assignment, const std::false_type&);
+							void _add_impl(Assignment assignment, const std::false_type&);
+					public:
+						_data_t _data;
+					};
+
+				// Member template for adding the named member to a statement
+				template<typename Policies>
+					struct _member_t
+					{
+						using _data_t = insert_list_data_t<Database, Assignments...>;
+
+						_impl_t<Policies> insert_list;
+						_impl_t<Policies>& operator()() { return insert_list; }
+						const _impl_t<Policies>& operator()() const { return insert_list; }
+
+						template<typename T>
+							static auto _get_member(T t) -> decltype(t.insert_list)
+							{
+								return t.insert_list;
+							}
+					};
+
+				// Additional methods for the statement
+				template<typename Policies>
+					struct _methods_t
+					{
 					};
 
 
 
-				std::tuple<simple_column_t<typename Assignments::_column_t>...> _columns;
-				std::tuple<typename Assignments::_value_t...> _values;
-				std::tuple<Assignments...> _assignments; // FIXME: Need to replace _columns and _values by _assignments (connector-container requires assignments)
-				typename vendor::interpretable_list_t<Database> _dynamic_columns;
-				typename vendor::interpretable_list_t<Database> _dynamic_values;
+			};
+
+		template<typename... Columns>
+			struct column_list_data_t
+			{
+				column_list_data_t(Columns... columns):
+					_columns(simple_column_t<Columns>{columns}...)
+				{}
+
+				column_list_data_t(const column_list_data_t&) = default;
+				column_list_data_t(column_list_data_t&&) = default;
+				column_list_data_t& operator=(const column_list_data_t&) = default;
+				column_list_data_t& operator=(column_list_data_t&&) = default;
+				~column_list_data_t() = default;
+
+#warning need to define just one version of value_tuple_t
+				using _value_tuple_t = std::tuple<vendor::insert_value_t<Columns>...>;
+				std::tuple<simple_column_t<Columns>...> _columns;
+				std::vector<_value_tuple_t> _insert_values;
 			};
 
 		template<typename... Columns>
@@ -160,23 +241,15 @@ namespace sqlpp
 
 				static_assert(required_tables_of<column_list_t>::size::value == 1, "columns from multiple tables in columns()");
 
-				column_list_t& _insert_value_list() { return *this; }
+				// Data
+				using _data_t = column_list_data_t<Columns...>;
 
-				column_list_t(Columns... columns):
-					_columns(simple_column_t<Columns>{columns}...)
-				{}
-
-				column_list_t(const column_list_t&) = default;
-				column_list_t(column_list_t&&) = default;
-				column_list_t& operator=(const column_list_t&) = default;
-				column_list_t& operator=(column_list_t&&) = default;
-				~column_list_t() = default;
-
-				template<typename Policies>
-					struct _methods_t
+				// Member implementation with data and methods
+				template <typename Policies>
+					struct _impl_t
 					{
 						template<typename... Assignments>
-							void add_values(Assignments... assignments)
+							void add(Assignments... assignments)
 							{
 								static_assert(::sqlpp::detail::all_t<is_assignment_t<Assignments>::value...>::value, "add_values() arguments have to be assignments");
 								using _arg_value_tuple = std::tuple<vendor::insert_value_t<typename Assignments::_column_t>...>;
@@ -187,34 +260,86 @@ namespace sqlpp
 											::sqlpp::detail::all_t<is_assignment_t<Assignments>::value...>::value, 
 											_args_correct::value>;
 
-								_add_values_impl(ok(), assignments...); // dispatch to prevent compile messages after the static_assert
+								_add_impl(ok(), assignments...); // dispatch to prevent compile messages after the static_assert
 							}
 
 					private:
 						template<typename... Assignments>
-							void _add_values_impl(const std::true_type&, Assignments... assignments)
+							void _add_impl(const std::true_type&, Assignments... assignments)
 							{
-								return static_cast<typename Policies::_statement_t*>(this)->_insert_value_list()._insert_values.emplace_back(vendor::insert_value_t<typename Assignments::_column_t>{assignments}...);
+								return _data._insert_values.emplace_back(vendor::insert_value_t<typename Assignments::_column_t>{assignments}...);
 							}
 
 						template<typename... Assignments>
-							void _add_values_impl(const std::false_type&, Assignments... assignments);
+							void _add_impl(const std::false_type&, Assignments... assignments);
+					public:
+						_data_t _data;
 					};
 
+				// Member template for adding the named member to a statement
+				template<typename Policies>
+					struct _member_t
+					{
+						using _data_t = column_list_data_t<Columns...>;
+
+						_impl_t<Policies> column_list;
+						_impl_t<Policies>& operator()() { return column_list; }
+						const _impl_t<Policies>& operator()() const { return column_list; }
+
+						template<typename T>
+							static auto _get_member(T t) -> decltype(t.column_list)
+							{
+								return t.column_list;
+							}
+					};
+
+				// Additional methods for the statement
+				template<typename Policies>
+					struct _methods_t
+					{
+					};
+
+/*
 				bool empty() const
 				{
 					return _insert_values.empty();
 				}
-
-				std::tuple<simple_column_t<Columns>...> _columns;
-				std::vector<_value_tuple_t> _insert_values;
+				*/
 
 			};
 
+		// NO HAVING YET
 		struct no_insert_value_list_t
 		{
 			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
 			using _recursive_traits = make_recursive_traits<>;
+
+			// Data
+			using _data_t = no_data_t;
+
+			// Member implementation with data and methods
+			template<typename Policies>
+				struct _impl_t
+				{
+					_data_t _data;
+				};
+
+			// Member template for adding the named member to a statement
+			template<typename Policies>
+				struct _member_t
+				{
+					using _data_t = no_data_t;
+
+					_impl_t<Policies> no_insert_values;
+					_impl_t<Policies>& operator()() { return no_insert_values; }
+					const _impl_t<Policies>& operator()() const { return no_insert_values; }
+
+					template<typename T>
+						static auto _get_member(T t) -> decltype(t.no_insert_values)
+						{
+							return t.no_insert_values;
+						}
+				};
 
 			template<typename Policies>
 				struct _methods_t
@@ -226,21 +351,21 @@ namespace sqlpp
 						auto default_values()
 						-> _new_statement_t<insert_default_values_t>
 						{
-							return { *static_cast<typename Policies::_statement_t*>(this), insert_default_values_t{} };
+							return { *static_cast<typename Policies::_statement_t*>(this), insert_default_values_data_t{} };
 						}
 
 					template<typename... Args>
 						auto columns(Args... args)
 						-> _new_statement_t<column_list_t<Args...>>
 						{
-							return { *static_cast<typename Policies::_statement_t*>(this), column_list_t<Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), column_list_data_t<Args...>{args...} };
 						}
 
 					template<typename... Args>
 						auto set(Args... args)
 						-> _new_statement_t<insert_list_t<void, Args...>>
 						{
-							return { *static_cast<typename Policies::_statement_t*>(this), insert_list_t<void, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), insert_list_data_t<void, Args...>{args...} };
 						}
 
 					template<typename... Args>
@@ -248,16 +373,16 @@ namespace sqlpp
 						-> _new_statement_t<insert_list_t<_database_t, Args...>>
 						{
 							static_assert(not std::is_same<_database_t, void>::value, "dynamic_set must not be called in a static statement");
-							return { *static_cast<typename Policies::_statement_t*>(this), vendor::insert_list_t<_database_t, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), vendor::insert_list_data_t<_database_t, Args...>{args...} };
 						}
 				};
 		};
 
 		// Interpreters
 		template<typename Context>
-			struct serializer_t<Context, insert_default_values_t>
+			struct serializer_t<Context, insert_default_values_data_t>
 			{
-				using T = insert_default_values_t;
+				using T = insert_default_values_data_t;
 
 				static Context& _(const T& t, Context& context)
 				{
@@ -267,9 +392,9 @@ namespace sqlpp
 			};
 
 		template<typename Context, typename... Columns>
-			struct serializer_t<Context, column_list_t<Columns...>>
+			struct serializer_t<Context, column_list_data_t<Columns...>>
 			{
-				using T = column_list_t<Columns...>;
+				using T = column_list_data_t<Columns...>;
 
 				static Context& _(const T& t, Context& context)
 				{
@@ -294,15 +419,15 @@ namespace sqlpp
 			};
 
 		template<typename Context, typename Database, typename... Assignments>
-			struct serializer_t<Context, insert_list_t<Database, Assignments...>>
+			struct serializer_t<Context, insert_list_data_t<Database, Assignments...>>
 			{
-				using T = insert_list_t<Database, Assignments...>;
+				using T = insert_list_data_t<Database, Assignments...>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					if (sizeof...(Assignments) + t._dynamic_columns.size() == 0)
 					{
-						serialize(insert_default_values_t(), context);
+						serialize(insert_default_values_data_t(), context);
 					}
 					else
 					{
@@ -318,17 +443,6 @@ namespace sqlpp
 						interpret_list(t._dynamic_values, ',', context);
 						context << ")";
 					}
-					return context;
-				}
-			};
-
-		template<typename Context>
-			struct serializer_t<Context, no_insert_value_list_t>
-			{
-				using T = no_insert_value_list_t;
-
-				static Context& _(const T& t, Context& context)
-				{
 					return context;
 				}
 			};
