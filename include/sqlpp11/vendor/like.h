@@ -36,7 +36,8 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Operand, typename Pattern>
-			struct like_t: public boolean::template expression_operators<like_t<Operand, Pattern>>
+			struct like_t: public boolean::template expression_operators<like_t<Operand, Pattern>>,
+										 public alias_operators<like_t<Operand, Pattern>>
 		{
 			using _traits = make_traits<boolean, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
 			using _recursive_traits = make_recursive_traits<Operand, Pattern>;

@@ -34,7 +34,8 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Expr>
-		struct min_t: public value_type_of<Expr>::template expression_operators<min_t<Expr>>
+		struct min_t: public value_type_of<Expr>::template expression_operators<min_t<Expr>>,
+									public alias_operators<min_t<Expr>>
 		{
 			using _traits = make_traits<value_type_of<Expr>, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
 			using _recursive_traits = make_recursive_traits<Expr>;

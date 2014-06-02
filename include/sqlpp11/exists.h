@@ -34,7 +34,8 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Select>
-		struct exists_t: public boolean::template expression_operators<exists_t<Select>>
+		struct exists_t: public boolean::template expression_operators<exists_t<Select>>,
+										 public alias_operators<exists_t<Select>>
 		{
 			using _traits = make_traits<boolean, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
 			using _recursive_traits = make_recursive_traits<Select>;

@@ -237,9 +237,9 @@ namespace sqlpp
 
 		// Interpreters
 		template<typename Context, typename Offset>
-			struct serializer_t<Context, offset_t<Offset>>
+			struct serializer_t<Context, offset_data_t<Offset>>
 			{
-				using T = offset_t<Offset>;
+				using T = offset_data_t<Offset>;
 
 				static Context& _(const T& t, Context& context)
 				{
@@ -250,9 +250,9 @@ namespace sqlpp
 			};
 
 		template<typename Context, typename Database>
-			struct serializer_t<Context, dynamic_offset_t<Database>>
+			struct serializer_t<Context, dynamic_offset_data_t<Database>>
 			{
-				using T = dynamic_offset_t<Database>;
+				using T = dynamic_offset_data_t<Database>;
 
 				static Context& _(const T& t, Context& context)
 				{

@@ -55,7 +55,8 @@ namespace sqlpp
 		}
 
 	template<typename ValueType> // Csaba Csoma suggests: unsafe_sql instead of verbatim
-	struct verbatim_t: public ValueType::template expression_operators<verbatim_t<ValueType>>
+	struct verbatim_t: public ValueType::template expression_operators<verbatim_t<ValueType>>,
+										 public alias_operators<verbatim_t<ValueType>>
 	{
 		using _traits = make_traits<ValueType, ::sqlpp::tag::expression>;
 		using _recursive_traits = make_recursive_traits<>;

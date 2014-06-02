@@ -131,6 +131,8 @@ namespace sqlpp
 		template<typename Database, typename... Columns>
 			struct select_column_list_data_t
 			{
+				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
+
 				select_column_list_data_t(Columns... columns):
 					_columns(columns...)
 				{}

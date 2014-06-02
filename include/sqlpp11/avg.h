@@ -34,7 +34,8 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Flag, typename Expr>
-		struct avg_t: public floating_point::template expression_operators<avg_t<Flag, Expr>>
+		struct avg_t: public floating_point::template expression_operators<avg_t<Flag, Expr>>,
+									public alias_operators<avg_t<Flag, Expr>>
 		{
 			using _traits = make_traits<floating_point, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
 			using _recursive_traits = make_recursive_traits<Expr>;

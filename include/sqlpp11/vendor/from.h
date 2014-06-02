@@ -191,7 +191,7 @@ namespace sqlpp
 		template<typename Context, typename Database, typename... Tables>
 			struct serializer_t<Context, from_data_t<Database, Tables...>>
 			{
-				using T = from_t<Database, Tables...>;
+				using T = from_data_t<Database, Tables...>;
 
 				static Context& _(const T& t, Context& context)
 				{

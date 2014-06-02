@@ -186,13 +186,14 @@ namespace sqlpp
 			struct serializer_t<Context, select_t<Database, Policies...>>
 			{
 				using T = select_t<Database, Policies...>;
+				using P = ::sqlpp::detail::select_policies_t<Database, Policies...>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					context << "SELECT ";
 
 					using swallow = int[]; 
-					(void) swallow{(serialize(static_cast<const Policies&>(t)._data, context), 0)...};
+					(void) swallow{(serialize(static_cast<const typename Policies::template _member_t<P>&>(t)()._data, context), 0)...};
 
 					return context;
 				}
