@@ -50,7 +50,7 @@ namespace sqlpp
 		{
 			using _provided_tables = detail::type_set<>;
 			using _required_tables = ::sqlpp::detail::type_set<>;
-			static_assert(not is_expression_t<T>::value, "value() is to be called with non-sql-type like int, or string");
+			static_assert(is_wrapped_value_t<vendor::wrap_operand_t<T>>::value, "value() is to be called with non-sql-type like int, or string");
 			return { t };
 		}
 
@@ -149,7 +149,7 @@ namespace sqlpp
 	template<typename Container>
 		auto value_list(Container c) -> value_list_t<Container>
 		{
-			static_assert(not is_expression_t<typename Container::value_type>::value, "value_list() is to be called with a container of non-sql-type like std::vector<int>, or std::list(string)");
+			static_assert(is_wrapped_value_t<vendor::wrap_operand_t<typename Container::value_type>>::value, "value_list() is to be called with a container of non-sql-type like std::vector<int>, or std::list(string)");
 			return { c };
 		}
 

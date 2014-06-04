@@ -46,12 +46,12 @@ int main()
 	serialize(insert_into(t).columns(t.beta, t.gamma), printer).str();
 	{
 		auto i = insert_into(t).columns(t.gamma, t.beta);
-		i.add_values(t.gamma = true, t.beta = "cheesecake");
+		i.values.add(t.gamma = true, t.beta = "cheesecake");
 		serialize(i, printer).str();
-		i.add_values(t.gamma = false, t.beta = sqlpp::tvin("coffee"));
-		i.add_values(t.gamma = false, t.beta = sqlpp::tvin(std::string()));
+		i.values.add(t.gamma = false, t.beta = sqlpp::tvin("coffee"));
+		i.values.add(t.gamma = false, t.beta = sqlpp::tvin(std::string()));
 		serialize(i, printer).str();
-		i.add_values(t.gamma = sqlpp::default_value, t.beta = sqlpp::null);
+		i.values.add(t.gamma = sqlpp::default_value, t.beta = sqlpp::null);
 		serialize(i, printer).str();
 	}
 
@@ -134,22 +134,22 @@ int main()
 	// dynamic select
 	{
 		auto s = dynamic_select(db).dynamic_flags().dynamic_columns().from(t);
-		s.add_column(t.beta);
-		s.add_column(t.gamma);
+		s.selected_columns.add(t.beta);
+		s.selected_columns.add(t.gamma);
 		serialize(s, printer).str();
 	}
 	{
 		auto s = dynamic_select(db).dynamic_flags().dynamic_columns().from(t);
-		s.add_flag(sqlpp::distinct);
-		s.add_column(t.beta);
-		s.add_column(t.gamma);
+		s.select_flags.add(sqlpp::distinct);
+		s.selected_columns.add(t.beta);
+		s.selected_columns.add(t.gamma);
 		serialize(s, printer).str();
 	}
 	{
 		auto s = dynamic_select(db).dynamic_flags(sqlpp::distinct).dynamic_columns(t.alpha).extra_tables(t); // Would fail to run()
-		s.add_flag(sqlpp::all);
-		s.add_column(t.beta);
-		s.add_column(t.gamma);
+		s.select_flags.add(sqlpp::all);
+		s.selected_columns.add(t.beta);
+		s.selected_columns.add(t.gamma);
 		serialize(s, printer).str();
 	}
 

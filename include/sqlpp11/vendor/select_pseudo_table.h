@@ -55,8 +55,8 @@ namespace sqlpp
 																						 Select,
 																						 NamedExpr...>, select_column_spec_t<NamedExpr>...>
 	{
-		using _value_type = no_value_t;
-		using _is_pseudo_table = std::true_type;
+		using _traits = make_traits<no_value_t, tag::table, tag::pseudo_table>;
+		using _recursive_traits = make_recursive_traits<>;
 
 		select_pseudo_table_t(Select select):
 			_select(select)

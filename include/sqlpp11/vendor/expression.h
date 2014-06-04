@@ -203,7 +203,7 @@ namespace sqlpp
 			};
 
 		template<typename O, typename Rhs>
-			struct unary_expression_t: public O::_value_type::template expression_operators<unary_expression_t<O, Rhs>>,
+			struct unary_expression_t: public value_type_of<O>::template expression_operators<unary_expression_t<O, Rhs>>,
 																 public alias_operators<unary_expression_t<O, Rhs>>
 		{
 			using _traits = make_traits<value_type_of<O>, sqlpp::tag::expression>;

@@ -243,9 +243,9 @@ namespace sqlpp
 			};
 
 		template<typename Context, typename Limit>
-			struct serializer_t<Context, limit_t<Limit>>
+			struct serializer_t<Context, limit_data_t<Limit>>
 			{
-				using T = limit_t<Limit>;
+				using T = limit_data_t<Limit>;
 
 				static Context& _(const T& t, Context& context)
 				{

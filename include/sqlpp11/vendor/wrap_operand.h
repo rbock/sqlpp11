@@ -45,7 +45,7 @@ namespace sqlpp
 	{
 		struct boolean_operand
 		{
-			using _traits = make_traits<::sqlpp::detail::boolean, ::sqlpp::tag::expression>;
+			using _traits = make_traits<::sqlpp::detail::boolean, ::sqlpp::tag::expression, ::sqlpp::tag::wrapped_value>;
 			using _recursive_traits = make_recursive_traits<>;
 
 			using _value_t = bool;
@@ -83,7 +83,7 @@ namespace sqlpp
 
 		struct integral_operand
 		{
-			using _traits = make_traits<::sqlpp::detail::integral, ::sqlpp::tag::expression>;
+			using _traits = make_traits<::sqlpp::detail::integral, ::sqlpp::tag::expression, ::sqlpp::tag::wrapped_value>;
 			using _recursive_traits = make_recursive_traits<>;
 
 			using _value_t = int64_t;
@@ -122,7 +122,7 @@ namespace sqlpp
 
 		struct floating_point_operand
 		{
-			using _traits = make_traits<::sqlpp::detail::floating_point, ::sqlpp::tag::expression>;
+			using _traits = make_traits<::sqlpp::detail::floating_point, ::sqlpp::tag::expression, ::sqlpp::tag::wrapped_value>;
 			using _recursive_traits = make_recursive_traits<>;
 
 			using _value_t = double;
@@ -160,7 +160,7 @@ namespace sqlpp
 
 		struct text_operand
 		{
-			using _traits = make_traits<::sqlpp::detail::text, ::sqlpp::tag::expression>;
+			using _traits = make_traits<::sqlpp::detail::text, ::sqlpp::tag::expression, ::sqlpp::tag::wrapped_value>;
 			using _recursive_traits = make_recursive_traits<>;
 
 			using _value_t = std::string;

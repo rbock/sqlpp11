@@ -282,14 +282,14 @@ namespace sqlpp
 					{
 						using _data_t = column_list_data_t<Columns...>;
 
-						_impl_t<Policies> column_list;
-						_impl_t<Policies>& operator()() { return column_list; }
-						const _impl_t<Policies>& operator()() const { return column_list; }
+						_impl_t<Policies> values;
+						_impl_t<Policies>& operator()() { return values; }
+						const _impl_t<Policies>& operator()() const { return values; }
 
 						template<typename T>
-							static auto _get_member(T t) -> decltype(t.column_list)
+							static auto _get_member(T t) -> decltype(t.values)
 							{
-								return t.column_list;
+								return t.values;
 							}
 					};
 

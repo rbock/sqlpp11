@@ -35,10 +35,8 @@
 
 namespace sqlpp
 {
-	struct table_alias_base_t {};
-
 	template<typename AliasProvider, typename Table, typename... ColumnSpec>
-		struct table_alias_t: public table_alias_base_t, public ColumnSpec::_name_t::template _member_t<column_t<AliasProvider, ColumnSpec>>...
+		struct table_alias_t: public ColumnSpec::_name_t::template _member_t<column_t<AliasProvider, ColumnSpec>>...
 	{
 		//FIXME: Need to add join functionality
 		using _traits = make_traits<value_type_of<Table>, tag::table, tag::alias, tag::named_expression_if<is_expression_t<Table>>>;
@@ -65,10 +63,10 @@ namespace sqlpp
 
 	namespace vendor
 	{
-		template<typename Context, typename X>
-			struct serializer_t<Context, X, typename std::enable_if<std::is_base_of<table_alias_base_t, X>::value, void>::type>
+		template<typename Context, typename AliasProvider, typename Table, typename... ColumnSpec>
+			struct serializer_t<Context, table_alias_t<AliasProvider, Table, ColumnSpec...>>
 			{
-				using T = X;
+				using T = table_alias_t<AliasProvider, Table, ColumnSpec...>;
 
 				static Context& _(const T& t, Context& context)
 				{
