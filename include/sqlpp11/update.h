@@ -27,6 +27,8 @@
 #ifndef SQLPP_UPDATE_H
 #define SQLPP_UPDATE_H
 
+#include <sqlpp11/statement.h>
+
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/prepared_update.h>
@@ -34,13 +36,10 @@
 #include <sqlpp11/vendor/update_list.h>
 #include <sqlpp11/vendor/noop.h>
 #include <sqlpp11/vendor/where.h>
-#include <sqlpp11/vendor/policy_update.h>
-
-#include <sqlpp11/detail/get_last.h>
-#include <sqlpp11/detail/pick_arg.h>
 
 namespace sqlpp
 {
+#if 0
 	template<typename Db, typename... Policies>
 		struct update_t;
 
@@ -178,9 +177,10 @@ namespace sqlpp
 				}
 			};
 	}
+#endif
 
 	template<typename Database>
-		using blank_update_t = update_t<Database,
+		using blank_update_t = statement_t<Database,
 			vendor::no_single_table_t,
 			vendor::no_update_list_t,
 			vendor::no_where_t>;
