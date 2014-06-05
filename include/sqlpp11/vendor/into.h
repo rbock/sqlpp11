@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_VENDOR_SINGLE_TABLE_H
-#define SQLPP_VENDOR_SINGLE_TABLE_H
+#ifndef SQLPP_VENDOR_INTO_H
+#define SQLPP_VENDOR_INTO_H
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/no_value.h>
@@ -38,32 +38,32 @@ namespace sqlpp
 	{
 		// A SINGLE TABLE DATA
 		template<typename Database, typename Table>
-			struct single_table_data_t
+			struct into_data_t
 			{
-				single_table_data_t(Table table):
+				into_data_t(Table table):
 					_table(table)
 				{}
 
-				single_table_data_t(const single_table_data_t&) = default;
-				single_table_data_t(single_table_data_t&&) = default;
-				single_table_data_t& operator=(const single_table_data_t&) = default;
-				single_table_data_t& operator=(single_table_data_t&&) = default;
-				~single_table_data_t() = default;
+				into_data_t(const into_data_t&) = default;
+				into_data_t(into_data_t&&) = default;
+				into_data_t& operator=(const into_data_t&) = default;
+				into_data_t& operator=(into_data_t&&) = default;
+				~into_data_t() = default;
 
 				Table _table;
 			};
 
 		// A SINGLE TABLE
 		template<typename Database, typename Table>
-			struct single_table_t
+			struct into_t
 			{
-				using _traits = make_traits<no_value_t, ::sqlpp::tag::single_table, tag::return_value>;
+				using _traits = make_traits<no_value_t, ::sqlpp::tag::into, tag::return_value>;
 				using _recursive_traits = make_recursive_traits<Table>;
 
 				static_assert(is_table_t<Table>::value, "argument has to be a table");
 				static_assert(required_tables_of<Table>::size::value == 0, "table depends on another table");
 
-				using _data_t = single_table_data_t<Database, Table>;
+				using _data_t = into_data_t<Database, Table>;
 
 				struct _name_t {};
 
@@ -78,16 +78,16 @@ namespace sqlpp
 				template<typename Policies>
 					struct _member_t
 					{
-						using _data_t = single_table_data_t<Database, Table>;
+						using _data_t = into_data_t<Database, Table>;
 
-						_impl_t<Policies> from;
-						_impl_t<Policies>& operator()() { return from; }
-						const _impl_t<Policies>& operator()() const { return from; }
+						_impl_t<Policies> into;
+						_impl_t<Policies>& operator()() { return into; }
+						const _impl_t<Policies>& operator()() const { return into; }
 
 						template<typename T>
-							static auto _get_member(T t) -> decltype(t.from)
+							static auto _get_member(T t) -> decltype(t.into)
 							{
-								return t.from;
+								return t.into;
 							}
 					};
 
@@ -149,7 +149,7 @@ namespace sqlpp
 			};
 
 		// NO INTO YET
-		struct no_single_table_t
+		struct no_into_t
 		{
 			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
 			using _recursive_traits = make_recursive_traits<>;
@@ -170,14 +170,14 @@ namespace sqlpp
 				{
 					using _data_t = no_data_t;
 
-					_impl_t<Policies> no_from;
-					_impl_t<Policies>& operator()() { return no_from; }
-					const _impl_t<Policies>& operator()() const { return no_from; }
+					_impl_t<Policies> no_into;
+					_impl_t<Policies>& operator()() { return no_into; }
+					const _impl_t<Policies>& operator()() const { return no_into; }
 
 					template<typename T>
-						static auto _get_member(T t) -> decltype(t.no_from)
+						static auto _get_member(T t) -> decltype(t.no_into)
 						{
-							return t.no_from;
+							return t.no_into;
 						}
 				};
 
@@ -186,23 +186,22 @@ namespace sqlpp
 				{
 					using _database_t = typename Policies::_database_t;
 					template<typename T>
-					using _new_statement_t = typename Policies::template _new_statement_t<no_single_table_t, T>;
+					using _new_statement_t = typename Policies::template _new_statement_t<no_into_t, T>;
 
-#warning: remove can operate on several tables at once, so it should not use single_table anyway
 					template<typename... Args>
-						auto from(Args... args)
-						-> _new_statement_t<single_table_t<void, Args...>>
+						auto into(Args... args)
+						-> _new_statement_t<into_t<void, Args...>>
 						{
-							return { *static_cast<typename Policies::_statement_t*>(this), single_table_data_t<void, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), into_data_t<void, Args...>{args...} };
 						}
 				};
 		};
 
 		// Interpreters
 		template<typename Context, typename Database, typename Table>
-			struct serializer_t<Context, single_table_data_t<Database, Table>>
+			struct serializer_t<Context, into_data_t<Database, Table>>
 			{
-				using T = single_table_data_t<Database, Table>;
+				using T = into_data_t<Database, Table>;
 
 				static Context& _(const T& t, Context& context)
 				{

@@ -33,14 +33,14 @@
 #include <sqlpp11/prepared_insert.h>
 #include <sqlpp11/default_value.h>
 #include <sqlpp11/vendor/noop.h>
-#include <sqlpp11/vendor/single_table.h>
+#include <sqlpp11/vendor/into.h>
 #include <sqlpp11/vendor/insert_value_list.h>
 
 namespace sqlpp
 {
 	template<typename Database>
 		using blank_insert_t = statement_t<Database,
-			vendor::no_single_table_t, 
+			vendor::no_into_t, 
 			vendor::no_insert_value_list_t>;
 
 	auto insert()
