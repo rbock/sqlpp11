@@ -71,7 +71,8 @@ int main()
 	multi_insert.values.add(t.beta = sqlpp::default_value, t.delta = sqlpp::default_value); 
 	auto i = dynamic_insert_into(db, t).dynamic_set();
 	i.insert_list.add(t.beta = "kirschauflauf");
-	serialize(i, printer).str();
+	printer.reset();
+	std::cerr << serialize(i, printer).str() << std::endl;
 
 	db(multi_insert);
 

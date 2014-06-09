@@ -205,6 +205,7 @@ namespace sqlpp
 
 				static Context& _(const T& t, Context& context)
 				{
+					context << " INTO ";
 					serialize(t._table, context);
 					return context;
 				}

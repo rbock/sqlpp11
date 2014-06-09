@@ -38,8 +38,30 @@
 
 namespace sqlpp
 {
+	struct insert_name_t {};
+
+	struct insert_t: public vendor::statement_name_t<insert_name_t>
+	{};
+
+	namespace vendor
+	{
+		template<typename Context>
+			struct serializer_t<Context, insert_name_t>
+			{
+				using T = insert_name_t;
+
+				static Context& _(const T& t, Context& context)
+				{
+					context << "INSERT ";
+
+					return context;
+				}
+			};
+	}
+
 	template<typename Database>
 		using blank_insert_t = statement_t<Database,
+			insert_t,
 			vendor::no_into_t, 
 			vendor::no_insert_value_list_t>;
 

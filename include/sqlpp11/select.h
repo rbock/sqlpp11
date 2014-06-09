@@ -46,8 +46,30 @@
 
 namespace sqlpp
 {
+	struct select_name_t {};
+
+	struct select_t: public vendor::statement_name_t<select_name_t>
+	{};
+
+	namespace vendor
+	{
+		template<typename Context>
+			struct serializer_t<Context, select_name_t>
+			{
+				using T = select_name_t;
+
+				static Context& _(const T& t, Context& context)
+				{
+					context << "SELECT ";
+
+					return context;
+				}
+			};
+	}
+
 	template<typename Database>
 		using blank_select_t = statement_t<Database,
+			select_t,
 			vendor::no_select_flag_list_t, 
 			vendor::no_select_column_list_t, 
 			vendor::no_from_t,

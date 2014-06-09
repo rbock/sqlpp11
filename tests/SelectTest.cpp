@@ -85,6 +85,9 @@ int main()
 		int64_t a = row.alpha;
 	}
 
+	printer.reset();
+	std::cerr << serialize(s, printer).str() << std::endl;
+
 	auto X = select(all_of(t)).from(t).as(t.alpha);
 
 	return 0;

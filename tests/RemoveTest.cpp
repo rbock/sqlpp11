@@ -62,7 +62,10 @@ int main()
 	auto r = dynamic_remove_from(db, t).dynamic_using().dynamic_where();
 	r.using_.add(t);
 	r.where.add(t.beta != "transparent");
-	serialize(r, printer).str();
+	printer.reset();
+	std::cerr << serialize(r, printer).str() << std::endl;
+	printer.reset();
+	std::cerr << serialize(remove_from(t).where(true), printer).str() << std::endl;
 
 	db(r);
 

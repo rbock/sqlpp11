@@ -39,148 +39,84 @@
 
 namespace sqlpp
 {
-#if 0
-	template<typename Db, typename... Policies>
-		struct update_t;
+	struct update_name_t {};
 
-	namespace detail
+	struct update_t: public vendor::statement_name_t<update_name_t>
 	{
-		template<typename Db = void, typename... Policies>
-			struct update_policies_t
+		using _traits = make_traits<no_value_t, tag::return_value>;
+		struct _name_t {};
+
+		template<typename Policies>
+			struct _result_methods_t
 			{
-				using _database_t = Db;
+				using _statement_t = typename Policies::_statement_t;
 
-				using _statement_t = update_t<Db, Policies...>;
+				const _statement_t& _get_statement() const
+				{
+					return static_cast<const _statement_t&>(*this);
+				}
 
-				struct _methods_t: public Policies::template _methods_t<update_policies_t>...
-				{};
+				static constexpr size_t _get_static_no_of_parameters()
+				{
+#warning need to fix this
+					return 0;
+					//return _parameter_list_t::size::value;
+				}
 
-				template<typename Needle, typename Replacement>
-					struct _policies_update_t
+				size_t _get_no_of_parameters() const
+				{
+#warning need to fix this
+					return 0;
+					//return _parameter_list_t::size::value;
+				}
+
+				void _check_consistency() const
+				{
+					// FIXME: Read up on what is allowed/prohibited in INSERT
+				}
+
+				template<typename Db>
+					auto _run(Db& db) const -> decltype(db.update(_get_statement()))
 					{
-						static_assert(detail::is_element_of<Needle, make_type_set_t<Policies...>>::value, "policies update for non-policy class detected");
-						using type =  update_t<Db, vendor::policy_update_t<Policies, Needle, Replacement>...>;
-					};
+						_check_consistency();
 
-				template<typename Needle, typename Replacement>
-					using _new_statement_t = typename _policies_update_t<Needle, Replacement>::type;
+						static_assert(_get_static_no_of_parameters() == 0, "cannot run update directly with parameters, use prepare instead");
+						return db.update(*this);
+					}
 
-				using _all_required_tables = detail::make_joined_set_t<required_tables_of<Policies>...>;
-				using _all_provided_tables = detail::make_joined_set_t<provided_tables_of<Policies>...>;
-				using _all_extra_tables = detail::make_joined_set_t<extra_tables_of<Policies>...>;
-
-				using _known_tables = detail::make_joined_set_t<_all_provided_tables, _all_extra_tables>;
-
-				template<typename Expression>
-					using _no_unknown_tables = detail::is_subset_of<required_tables_of<Expression>, _known_tables>;
-
-				// The tables not covered by the from.
-				using _required_tables = detail::make_difference_set_t<
-					_all_required_tables,
-					_all_provided_tables // Hint: extra_tables are not used here because they are just a helper for dynamic .add_*()
-							>;
-
-				using _traits = make_traits<no_value_t>; // FIXME
-
-				struct _recursive_traits
-				{
-					using _parameters = std::tuple<>; // FIXME
-					using _required_tables = _required_tables;
-					using _provided_tables = detail::type_set<>;
-					using _extra_tables = detail::type_set<>;
-				};
-			};
-	}
-
-	// UPDATE
-	template<typename Db, typename... Policies>
-		struct update_t:
-			public Policies...,
-			public detail::update_policies_t<Db, Policies...>::_methods_t
-		{
-			using _policies_t = typename detail::update_policies_t<Db, Policies...>;
-			using _database_t = typename _policies_t::_database_t;
-
-			using _is_dynamic = typename std::conditional<std::is_same<_database_t, void>::value, std::false_type, std::true_type>::type;
-
-			using _parameter_list_t = typename make_parameter_list_t<update_t>::type;
-
-			// Constructors
-			constexpr update_t()
-			{}
-
-			template<typename Statement, typename Term>
-				update_t(Statement statement, Term term):
-					Policies(detail::pick_arg<Policies>(statement, term))...
-			{}
-
-			update_t(const update_t&) = default;
-			update_t(update_t&&) = default;
-			update_t& operator=(const update_t&) = default;
-			update_t& operator=(update_t&&) = default;
-			~update_t() = default;
-
-			// run and prepare
-			static constexpr size_t _get_static_no_of_parameters()
-			{
-				return _parameter_list_t::size::value;
-			}
-
-			size_t _get_no_of_parameters() const
-			{
-				return _parameter_list_t::size::value;
-			}
-
-			void _check_consistency() const
-			{
-#warning reactivate tests
 				/*
-				static_assert(is_where_t<_where_t>::value, "cannot run update without having a where condition, use .where(true) to update all rows");
+					 template<typename Db>
+					 auto _prepare(Db& db) const
+					 -> prepared_update_t<Db, update_t>
+					 {
+					 _check_consistency();
 
-				static_assert(is_table_subset_of_table<_update_list_t>::value, "updates require additional tables");
-				static_assert(is_table_subset_of_table<_where_t>::value, "where requires additional tables");
-				*/
-			}
+					 return {{}, db.prepare_update(*this)};
+					 }
+					 */
+			};
+	};
 
-			template<typename Database>
-				std::size_t _run(Database& db) const
-				{
-					_check_consistency();
-
-					static_assert(_get_static_no_of_parameters() == 0, "cannot run update directly with parameters, use prepare instead");
-					return db.update(*this);
-				}
-
-			template<typename Database>
-				auto _prepare(Database& db) const
-				-> prepared_update_t<Database, update_t>
-				{
-					_check_consistency();
-
-					return {{}, db.prepare_update(*this)};
-				}
-		};
 
 	namespace vendor
 	{
-		template<typename Context, typename Database, typename... Policies>
-			struct serializer_t<Context, update_t<Database, Policies...>>
+		template<typename Context>
+			struct serializer_t<Context, update_name_t>
 			{
-				using T = update_t<Database, Policies...>;
+				using T = update_name_t;
 
 				static Context& _(const T& t, Context& context)
 				{
 					context << "UPDATE ";
-					using swallow = int[]; 
-					(void) swallow{(serialize(static_cast<const Policies&>(t), context), 0)...};
+
 					return context;
 				}
 			};
 	}
-#endif
 
 	template<typename Database>
 		using blank_update_t = statement_t<Database,
+			update_t,
 			vendor::no_single_table_t,
 			vendor::no_update_list_t,
 			vendor::no_where_t>;

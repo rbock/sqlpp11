@@ -127,7 +127,6 @@ namespace sqlpp
 			};
 	}
 
-	// SELECT
 	template<typename Db,
 			typename... Policies
 				>
@@ -178,15 +177,53 @@ namespace sqlpp
 
 				static Context& _(const T& t, Context& context)
 				{
-#warning: Need to have a class that provides the "SELECT" or "INSERT", etc
-					context << "SELECT ";
-
 					using swallow = int[]; 
 					(void) swallow{(serialize(static_cast<const typename Policies::template _member_t<P>&>(t)()._data, context), 0)...};
 
 					return context;
 				}
 			};
+
+		template<typename NameData>
+		struct statement_name_t
+		{
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
+			using _recursive_traits = make_recursive_traits<>;
+
+			// Data
+			using _data_t = NameData;
+
+			// Member implementation with data and methods
+			template<typename Policies>
+				struct _impl_t
+				{
+					_data_t _data;
+				};
+
+			// Member template for adding the named member to a statement
+			template<typename Policies>
+				struct _member_t
+				{
+					using _data_t = NameData;
+
+					_impl_t<Policies> statement_name;
+					_impl_t<Policies>& operator()() { return statement_name; }
+					const _impl_t<Policies>& operator()() const { return statement_name; }
+
+					template<typename T>
+						static auto _get_member(T t) -> decltype(t.statement_name)
+						{
+							return t.statement_name;
+						}
+				};
+
+			// Additional methods for the statement
+			template<typename Policies>
+				struct _methods_t
+				{
+				};
+		};
+
 	}
 }
 

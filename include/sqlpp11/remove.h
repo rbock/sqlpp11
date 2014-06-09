@@ -33,17 +33,91 @@
 #include <sqlpp11/prepared_remove.h>
 #include <sqlpp11/vendor/noop.h>
 #warning: need to use another table provider, since delete can be used with several tables
-#include <sqlpp11/vendor/single_table.h>
+#include <sqlpp11/vendor/from.h>
 #include <sqlpp11/vendor/extra_tables.h>
 #include <sqlpp11/vendor/using.h>
 #include <sqlpp11/vendor/where.h>
 
 namespace sqlpp
 {
+	struct remove_name_t {};
+	struct remove_t: public vendor::statement_name_t<remove_name_t>
+	{
+		using _traits = make_traits<no_value_t, tag::return_value>;
+		struct _name_t {};
+
+		template<typename Policies>
+			struct _result_methods_t
+			{
+				using _statement_t = typename Policies::_statement_t;
+
+				const _statement_t& _get_statement() const
+				{
+					return static_cast<const _statement_t&>(*this);
+				}
+
+				static constexpr size_t _get_static_no_of_parameters()
+				{
+#warning need to fix this
+					return 0;
+					//return _parameter_list_t::size::value;
+				}
+
+				size_t _get_no_of_parameters() const
+				{
+#warning need to fix this
+					return 0;
+					//return _parameter_list_t::size::value;
+				}
+
+				void _check_consistency() const
+				{
+					// FIXME: Read up on what is allowed/prohibited in INSERT
+				}
+
+				template<typename Db>
+					auto _run(Db& db) const -> decltype(db.remove(_get_statement()))
+					{
+						_check_consistency();
+
+						static_assert(_get_static_no_of_parameters() == 0, "cannot run remove directly with parameters, use prepare instead");
+						return db.remove(*this);
+					}
+
+				/*
+					 template<typename Db>
+					 auto _prepare(Db& db) const
+					 -> prepared_remove_t<Db, remove_t>
+					 {
+					 _check_consistency();
+
+					 return {{}, db.prepare_remove(*this)};
+					 }
+					 */
+			};
+	};
+
+
+	namespace vendor
+	{
+		template<typename Context>
+			struct serializer_t<Context, remove_name_t>
+			{
+				using T = remove_name_t;
+
+				static Context& _(const T& t, Context& context)
+				{
+					context << "DELETE";
+
+					return context;
+				}
+			};
+	}
+
 	template<typename Database>
 		using blank_remove_t = statement_t<Database,
-#warning Make this another policy that can take several table (cannot be select's from, since it has to be a result provider)
-			vendor::no_single_table_t,
+			remove_t,
+			vendor::no_from_t,
 			vendor::no_using_t,
 			vendor::no_extra_tables_t,
 			vendor::no_where_t>;
