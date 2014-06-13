@@ -56,31 +56,12 @@ namespace sqlpp
 					return static_cast<const _statement_t&>(*this);
 				}
 
-				static constexpr size_t _get_static_no_of_parameters()
-				{
-#warning need to fix this
-					return 0;
-					//return _parameter_list_t::size::value;
-				}
-
-				size_t _get_no_of_parameters() const
-				{
-#warning need to fix this
-					return 0;
-					//return _parameter_list_t::size::value;
-				}
-
-				void _check_consistency() const
-				{
-					// FIXME: Read up on what is allowed/prohibited in INSERT
-				}
-
 				template<typename Db>
 					auto _run(Db& db) const -> decltype(db.remove(_get_statement()))
 					{
-						_check_consistency();
+						_statement_t::_check_consistency();
 
-						static_assert(_get_static_no_of_parameters() == 0, "cannot run remove directly with parameters, use prepare instead");
+						static_assert(_statement_t::_get_static_no_of_parameters() == 0, "cannot run remove directly with parameters, use prepare instead");
 						return db.remove(*this);
 					}
 

@@ -56,31 +56,12 @@ namespace sqlpp
 					return static_cast<const _statement_t&>(*this);
 				}
 
-				static constexpr size_t _get_static_no_of_parameters()
-				{
-#warning need to fix this
-					return 0;
-					//return _parameter_list_t::size::value;
-				}
-
-				size_t _get_no_of_parameters() const
-				{
-#warning need to fix this
-					return 0;
-					//return _parameter_list_t::size::value;
-				}
-
-				void _check_consistency() const
-				{
-					// FIXME: Read up on what is allowed/prohibited in INSERT
-				}
-
 				template<typename Db>
 					auto _run(Db& db) const -> decltype(db.update(_get_statement()))
 					{
-						_check_consistency();
+						_statement_t::_check_consistency();
 
-						static_assert(_get_static_no_of_parameters() == 0, "cannot run update directly with parameters, use prepare instead");
+						static_assert(_statement_t::_get_static_no_of_parameters() == 0, "cannot run update directly with parameters, use prepare instead");
 						return db.update(*this);
 					}
 
@@ -89,9 +70,9 @@ namespace sqlpp
 					 auto _prepare(Db& db) const
 					 -> prepared_update_t<Db, update_t>
 					 {
-					 _check_consistency();
+					   _statement_t::_check_consistency();
 
-					 return {{}, db.prepare_update(*this)};
+					   return {{}, db.prepare_update(*this)};
 					 }
 					 */
 			};

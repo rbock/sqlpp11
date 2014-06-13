@@ -117,13 +117,6 @@ namespace sqlpp
 					using _provided_tables = detail::type_set<>;
 					using _extra_tables = detail::type_set<>;
 				};
-
-				static void _check_consistency()
-				{
-#warning check for missing terms here, and for missing tables
-					static_assert(not required_tables_of<statement_policies_t>::size::value, "one sub expression requires tables which are otherwise not known in the statement");
-				}
-
 			};
 	}
 
@@ -165,6 +158,27 @@ namespace sqlpp
 			statement_t& operator=(const statement_t& r) = default;
 			statement_t& operator=(statement_t&& r) = default;
 			~statement_t() = default;
+
+			static constexpr size_t _get_static_no_of_parameters()
+			{
+#warning need to fix this
+				return 0;
+				//return _parameter_list_t::size::value;
+			}
+
+			size_t _get_no_of_parameters() const
+			{
+				return _get_static_no_of_parameters();
+			}
+
+			static void _check_consistency()
+			{
+				// FIXME: Check each "methods" or each member...
+#warning check for missing terms here, and for missing tables
+					static_assert(not required_tables_of<_policies_t>::size::value, "one sub expression requires tables which are otherwise not known in the statement");
+			}
+
+
 		};
 
 	namespace vendor

@@ -281,18 +281,6 @@ namespace sqlpp
 							return _get_statement().selected_columns._data._dynamic_columns._dynamic_expression_names;
 						}
 
-						static constexpr size_t _get_static_no_of_parameters()
-						{
-#warning need to fix this
-							return 0;
-						}
-
-						size_t _get_no_of_parameters() const
-						{
-#warning need to fix this
-							return 0;
-						}
-
 						size_t get_no_of_result_columns() const
 						{
 							return sizeof...(Columns) + get_dynamic_names().size();
@@ -303,8 +291,8 @@ namespace sqlpp
 							auto _run(Db& db) const
 							-> result_t<decltype(db.select(_get_statement())), _result_row_t<Db>>
 							{
-								Policies::_check_consistency();
-								static_assert(_get_static_no_of_parameters() == 0, "cannot run select directly with parameters, use prepare instead");
+								_statement_t::_check_consistency();
+								static_assert(_statement_t::_get_static_no_of_parameters() == 0, "cannot run select directly with parameters, use prepare instead");
 
 								return {db.select(_get_statement()), get_dynamic_names()};
 							}
@@ -315,7 +303,7 @@ namespace sqlpp
 							auto _prepare(Db& db) const
 							-> prepared_select_t<Db, select_t>
 							{
-								Policies::_check_consistency();
+								_statement_t::_check_consistency();
 
 								return {{}, get_dynamic_names(), db.prepare_select(*this)};
 							}

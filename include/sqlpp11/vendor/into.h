@@ -107,44 +107,25 @@ namespace sqlpp
 							return static_cast<const _statement_t&>(*this);
 						}
 
-			static constexpr size_t _get_static_no_of_parameters()
-			{
-#warning need to fix this
-							return 0;
-				//return _parameter_list_t::size::value;
-			}
+						template<typename Db>
+							auto _run(Db& db) const -> decltype(db.insert(_get_statement()))
+							{
+								_statement_t::_check_consistency();
 
-			size_t _get_no_of_parameters() const
-			{
-#warning need to fix this
-							return 0;
-				//return _parameter_list_t::size::value;
-			}
+								static_assert(_statement_t::_get_static_no_of_parameters() == 0, "cannot run insert directly with parameters, use prepare instead");
+								return db.insert(*this);
+							}
 
-			void _check_consistency() const
-			{
-				// FIXME: Read up on what is allowed/prohibited in INSERT
-			}
+						/*
+						template<typename Db>
+							auto _prepare(Db& db) const
+							-> prepared_insert_t<Db, insert_t>
+							{
+								_statement_t::_check_consistency();
 
-			template<typename Db>
-				auto _run(Db& db) const -> decltype(db.insert(_get_statement()))
-				{
-					_check_consistency();
-
-					static_assert(_get_static_no_of_parameters() == 0, "cannot run insert directly with parameters, use prepare instead");
-					return db.insert(*this);
-				}
-
-			/*
-			template<typename Db>
-				auto _prepare(Db& db) const
-				-> prepared_insert_t<Db, insert_t>
-				{
-					_check_consistency();
-
-					return {{}, db.prepare_insert(*this)};
-				}
-				*/
+								return {{}, db.prepare_insert(*this)};
+							}
+							*/
 					};
 			};
 
