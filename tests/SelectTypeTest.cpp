@@ -311,10 +311,10 @@ int main()
 
 	{
 		auto s = dynamic_select(db, all_of(t)).dynamic_from().dynamic_where().dynamic_limit().dynamic_offset();
-		s.add_from(t);
-		s.add_where(t.alpha > 7 and t.alpha == any(select(t.alpha).from(t).where(t.alpha < 3)));
-		s.set_limit(30);
-		s.set_limit(3);
+		s.from.add(t);
+		s.where.add_ntc(t.alpha > 7 and t.alpha == any(select(t.alpha).from(t).where(t.alpha < 3)));
+		s.limit.set(30);
+		s.limit.set(3);
 		std::cerr << "------------------------\n";
 		serialize(s, printer).str();
 		std::cerr << "------------------------\n";
@@ -325,7 +325,7 @@ int main()
 	// Test that select can be called with zero columns if it is used with dynamic columns.
 	{
 		auto s = dynamic_select(db).dynamic_columns().extra_tables(t);
-		s.add_column(t.alpha);
+		s.selected_columns.add(t.alpha);
 		serialize(s, printer).str();
 	}
 
@@ -386,7 +386,6 @@ int main()
 		.offset(3)
 		.as(alias::a)
 		;
-
 
 	return 0;
 }

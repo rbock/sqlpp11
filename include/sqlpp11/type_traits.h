@@ -88,6 +88,7 @@ namespace sqlpp
 				detail::is_element_of<tag::integral, typename T::_traits::_tags>::value,
 				detail::is_element_of<tag::floating_point, typename T::_traits::_tags>::value>;
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(text);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(wrapped_value);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(expression);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(named_expression);
 	namespace tag
@@ -122,6 +123,7 @@ namespace sqlpp
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(select_column_list);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(from);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(single_table);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(into);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(extra_tables);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(on);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(dynamic);

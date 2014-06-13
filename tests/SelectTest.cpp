@@ -49,6 +49,7 @@ int main()
 	test::TabFoo f; 
 	test::TabBar t;
 
+	sqlpp::select(t.alpha).flags(sqlpp::all).from(t);
 	for (const auto& row : db(select(all_of(t)).from(t).where(true)))
 	{
 		int64_t a = row.alpha;
@@ -68,20 +69,26 @@ int main()
 		const bool g = row.gamma;
 	}
 
+	auto stat = sqlpp::select().columns(all_of(t)).flags(sqlpp::all).from(t).extra_tables(f,t).where(t.alpha > 0).group_by(t.alpha).order_by(t.gamma.asc()).having(t.gamma).limit(7).offset(19);
 	auto s = dynamic_select(db).dynamic_columns(all_of(t)).dynamic_flags().dynamic_from(t).extra_tables(f,t).dynamic_where().dynamic_group_by(t.alpha).dynamic_order_by().dynamic_having(t.gamma).dynamic_limit().dynamic_offset();
-	s.add_flag(sqlpp::distinct);
-	s.add_column(f.omega);
-	s.add_from(f);
-	s.add_where(t.alpha > 7);
-	s.add_having(t.alpha > 7);
-	s.set_limit(3);
-	s.set_offset(3);
-	s.add_group_by(t.beta);
-	s.add_order_by(t.beta.asc());
+	s.select_flags.add(sqlpp::distinct);
+	s.selected_columns.add(f.omega);
+	s.from.add(f);
+	s.where.add(t.alpha > 7);
+	s.having.add(t.alpha > 7);
+	s.limit.set(3);
+	s.offset.set(3);
+	s.group_by.add(t.beta);
+	s.order_by.add(t.beta.asc());
 	for (const auto& row : db(s))
 	{
 		int64_t a = row.alpha;
 	}
+
+	printer.reset();
+	std::cerr << serialize(s, printer).str() << std::endl;
+
+	auto X = select(all_of(t)).from(t).as(t.alpha);
 
 	return 0;
 }

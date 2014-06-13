@@ -74,7 +74,7 @@ namespace sqlpp
 
 	template<typename NamedExpr>
 		auto parameter(const NamedExpr&)
-		-> parameter_t<typename NamedExpr::_value_type, NamedExpr>
+		-> parameter_t<value_type_of<NamedExpr>, NamedExpr>
 		{
 			static_assert(is_named_expression_t<NamedExpr>::value, "not a named expression");
 			return {};
@@ -82,7 +82,7 @@ namespace sqlpp
 
 	template<typename ValueType, typename AliasProvider>
 		auto parameter(const ValueType&, const AliasProvider&)
-		-> parameter_t<ValueType, AliasProvider>
+		-> parameter_t<vendor::wrap_operand_t<ValueType>, AliasProvider>
 		{
 			static_assert(is_expression_t<ValueType>::value, "first argument is not a value type");
 			static_assert(is_alias_provider_t<AliasProvider>::value, "second argument is not an alias provider");

@@ -27,9 +27,7 @@
 #ifndef SQLPP_SELECT_H
 #define SQLPP_SELECT_H
 
-#include <sqlpp11/result.h>
-#include <sqlpp11/parameter_list.h>
-#include <sqlpp11/prepared_select.h>
+#include <sqlpp11/statement.h>
 
 #include <sqlpp11/vendor/noop.h>
 #include <sqlpp11/vendor/select_flag_list.h>
@@ -43,213 +41,26 @@
 #include <sqlpp11/vendor/limit.h>
 #include <sqlpp11/vendor/offset.h>
 #include <sqlpp11/vendor/expression.h>
-#include <sqlpp11/vendor/serializer.h>
 #include <sqlpp11/vendor/wrong.h>
-#include <sqlpp11/vendor/policy_update.h>
 
-#include <sqlpp11/detail/get_last.h>
-#include <sqlpp11/detail/pick_arg.h>
 
 namespace sqlpp
 {
-	template<typename Db, typename... Policies>
-		struct select_t;
+	struct select_name_t {};
 
-#warning STEPS:
-#warning deal with different return types in the connector (select could be a single value, update could be a range of rows)
-	namespace detail
-	{
-		template<typename Db = void, typename... Policies>
-			struct select_policies_t
-			{
-				using _database_t = Db;
-				using _statement_t = select_t<Db, Policies...>;
-
-				struct _methods_t: public Policies::template _methods_t<select_policies_t>...
-				{};
-
-				template<typename Needle, typename Replacement>
-					struct _policies_update_t
-					{
-						static_assert(detail::is_element_of<Needle, make_type_set_t<Policies...>>::value, "policies update for non-policy class detected");
-						using type =  select_t<Db, vendor::policy_update_t<Policies, Needle, Replacement>...>;
-					};
-
-				template<typename Needle, typename Replacement>
-					using _new_statement_t = typename _policies_update_t<Needle, Replacement>::type;
-
-				using _all_required_tables = detail::make_joined_set_t<required_tables_of<Policies>...>;
-				using _all_provided_tables = detail::make_joined_set_t<provided_tables_of<Policies>...>;
-				using _all_extra_tables = detail::make_joined_set_t<extra_tables_of<Policies>...>;
-
-				using _known_tables = detail::make_joined_set_t<_all_provided_tables, _all_extra_tables>;
-
-				template<typename Expression>
-					using _no_unknown_tables = detail::is_subset_of<required_tables_of<Expression>, _known_tables>;
-
-				// The tables not covered by the from.
-				using _required_tables = detail::make_difference_set_t<
-					_all_required_tables,
-					_all_provided_tables // Hint: extra_tables are not used here because they are just a helper for dynamic .add_*()
-							>;
-
-				using _result_type_provider = detail::get_last_if<is_return_value_t, vendor::no_select_column_list_t, Policies...>;
-
-				// A select can be used as a pseudo table if
-				//   - at least one column is selected
-				//   - the select is complete (leaks no tables)
-				using _can_be_used_as_table = typename std::conditional<
-					is_select_column_list_t<_result_type_provider>::value and _required_tables::size::value == 0,
-					std::true_type,
-					std::false_type
-					>::type;
-
-				using _value_type = typename std::conditional<
-					detail::none_t<is_missing_t<Policies>::value...>::value,
-					value_type_of<_result_type_provider>,
-					no_value_t // if a required statement part is missing (e.g. columns in a select), then the statement cannot be used as a value
-						>::type;
-
-				using _is_expression = typename std::conditional<
-					std::is_same<_value_type, no_value_t>::value, 
-					std::false_type, 
-					std::true_type>::type;
-
-				using _traits = make_traits<_value_type>;
-
-				struct _recursive_traits
-				{
-					using _parameters = std::tuple<>; // FIXME
-					using _required_tables = _required_tables;
-					using _provided_tables = detail::type_set<>;
-					using _extra_tables = detail::type_set<>;
-				};
-
-			};
-	}
-
-	// SELECT
-	template<typename Db,
-			typename... Policies
-				>
-		struct select_t:
-			public Policies...,
-			public detail::select_policies_t<Db, Policies...>::_value_type::template expression_operators<select_t<Db, Policies...>>,
-			public detail::select_policies_t<Db, Policies...>::_methods_t
-	{
-			using _policies_t = typename detail::select_policies_t<Db, Policies...>;
-
-			using _traits = make_traits<value_type_of<_policies_t>, ::sqlpp::tag::select, tag::expression_if<typename _policies_t::_is_expression>, tag::named_expression_if<typename _policies_t::_is_expression>>;
-			using _recursive_traits = typename _policies_t::_recursive_traits;
-
-			using _database_t = Db;
-			using _is_dynamic = typename std::conditional<std::is_same<_database_t, void>::value, std::false_type, std::true_type>::type;
-
-			using _result_type_provider = typename _policies_t::_result_type_provider;
-
-			using _parameter_tuple_t = std::tuple<Policies...>;
-			using _parameter_list_t = typename make_parameter_list_t<select_t>::type;
-			
-			template<typename Database>
-				using _result_row_t = typename _result_type_provider::template _result_row_t<Database>;
-			using _dynamic_names_t = typename _result_type_provider::_dynamic_names_t;
-
-			using _requires_braces = std::true_type;
-
-			using _name_t = typename _result_type_provider::_name_t;
-
-			// Constructors
-			select_t()
-			{}
-
-			template<typename Statement, typename Term>
-				select_t(Statement statement, Term term):
-					Policies(detail::pick_arg<Policies>(statement, term))...
-			{}
-
-			select_t(const select_t& r) = default;
-			select_t(select_t&& r) = default;
-			select_t& operator=(const select_t& r) = default;
-			select_t& operator=(select_t&& r) = default;
-			~select_t() = default;
-
-			// PseudoTable
-			template<typename AliasProvider>
-				struct _pseudo_table_t
-				{
-					using table = typename _result_type_provider::template _pseudo_table_t<select_t>;
-					using alias = typename table::template _alias_t<AliasProvider>;
-				};
-
-			template<typename AliasProvider>
-				typename _pseudo_table_t<AliasProvider>::alias as(const AliasProvider& aliasProvider) const
-				{
-					static_assert(_policies_t::_can_be_used_as_table::value, "select cannot be used as table, incomplete from()");
-					return typename _pseudo_table_t<AliasProvider>::table(
-							*this).as(aliasProvider);
-				}
-
-			const _dynamic_names_t& get_dynamic_names() const
-			{
-				return static_cast<const _result_type_provider&>(*this)._dynamic_columns._dynamic_expression_names;
-			}
-
-			static constexpr size_t _get_static_no_of_parameters()
-			{
-				return _parameter_list_t::size::value;
-			}
-
-			size_t _get_no_of_parameters() const
-			{
-				return _parameter_list_t::size::value;
-			}
-
-			size_t get_no_of_result_columns() const
-			{
-				return _result_type_provider::static_size() + get_dynamic_names().size();
-			}
-
-			void _check_consistency() const
-			{
-#warning check for missing terms here, and for missing tables
-				static_assert(not required_tables_of<_policies_t>::size::value, "one sub expression contains tables which are not in the from()");
-			}
-
-			// Execute
-			template<typename Database>
-				auto _run(Database& db) const
-				-> result_t<decltype(db.select(*this)), _result_row_t<Database>>
-				{
-					_check_consistency();
-					static_assert(_get_static_no_of_parameters() == 0, "cannot run select directly with parameters, use prepare instead");
-
-					return {db.select(*this), get_dynamic_names()};
-				}
-
-			// Prepare
-			template<typename Database>
-				auto _prepare(Database& db) const
-				-> prepared_select_t<Database, select_t>
-				{
-					_check_consistency();
-
-					return {{}, get_dynamic_names(), db.prepare_select(*this)};
-				}
-		};
+	struct select_t: public vendor::statement_name_t<select_name_t>
+	{};
 
 	namespace vendor
 	{
-		template<typename Context, typename Database, typename... Policies>
-			struct serializer_t<Context, select_t<Database, Policies...>>
+		template<typename Context>
+			struct serializer_t<Context, select_name_t>
 			{
-				using T = select_t<Database, Policies...>;
+				using T = select_name_t;
 
 				static Context& _(const T& t, Context& context)
 				{
 					context << "SELECT ";
-
-					using swallow = int[]; 
-					(void) swallow{(serialize(static_cast<const Policies&>(t), context), 0)...};
 
 					return context;
 				}
@@ -257,7 +68,8 @@ namespace sqlpp
 	}
 
 	template<typename Database>
-		using blank_select_t = select_t<Database,
+		using blank_select_t = statement_t<Database,
+			select_t,
 			vendor::no_select_flag_list_t, 
 			vendor::no_select_column_list_t, 
 			vendor::no_from_t,

@@ -39,6 +39,24 @@ namespace sqlpp
 {
 	namespace vendor
 	{
+		// GROUP BY DATA
+		template<typename Database, typename... Expressions>
+			struct group_by_data_t
+			{
+				group_by_data_t(Expressions... expressions):
+					_expressions(expressions...)
+				{}
+
+				group_by_data_t(const group_by_data_t&) = default;
+				group_by_data_t(group_by_data_t&&) = default;
+				group_by_data_t& operator=(const group_by_data_t&) = default;
+				group_by_data_t& operator=(group_by_data_t&&) = default;
+				~group_by_data_t() = default;
+
+				std::tuple<Expressions...> _expressions;
+				vendor::interpretable_list_t<Database> _dynamic_expressions;
+			};
+
 		// GROUP BY
 		template<typename Database, typename... Expressions>
 			struct group_by_t
@@ -54,59 +72,99 @@ namespace sqlpp
 
 				static_assert(::sqlpp::detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not an expression in group_by()");
 
-				group_by_t& _group_by() { return *this; }
+				// Data
+				using _data_t = group_by_data_t<Database, Expressions...>;
 
-				group_by_t(Expressions... expressions):
-					_expressions(expressions...)
-				{}
-
-				group_by_t(const group_by_t&) = default;
-				group_by_t(group_by_t&&) = default;
-				group_by_t& operator=(const group_by_t&) = default;
-				group_by_t& operator=(group_by_t&&) = default;
-				~group_by_t() = default;
-
+				// Member implementation with data and methods
 				template<typename Policies>
-					struct _methods_t
+					struct _impl_t
 					{
 						template<typename Expression>
-							void add_group_by_ntc(Expression expression)
+							void add_ntc(Expression expression)
 							{
-								add_group_by<Expression, std::false_type>(expression);
+								add<Expression, std::false_type>(expression);
 							}
 
 						template<typename Expression, typename TableCheckRequired = std::true_type>
-							void add_group_by(Expression expression)
+							void add(Expression expression)
 							{
-								static_assert(_is_dynamic::value, "add_group_by must not be called for static group_by");
-								static_assert(is_expression_t<Expression>::value, "invalid expression argument in add_group_by()");
-								static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Expression>::value, "expression uses tables unknown to this statement in add_group_by()");
+								static_assert(_is_dynamic::value, "add() must not be called for static group_by");
+								static_assert(is_expression_t<Expression>::value, "invalid expression argument in group_by::add()");
+								static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Expression>::value, "expression uses tables unknown to this statement in group_by::add()");
 
 								using ok = ::sqlpp::detail::all_t<_is_dynamic::value, is_expression_t<Expression>::value>;
 
-								_add_group_by_impl(expression, ok()); // dispatch to prevent compile messages after the static_assert
+								_add_impl(expression, ok()); // dispatch to prevent compile messages after the static_assert
 							}
 
 					private:
 						template<typename Expression>
-							void _add_group_by_impl(Expression expression, const std::true_type&)
+							void _add_impl(Expression expression, const std::true_type&)
 							{
-								return static_cast<typename Policies::_statement_t*>(this)->_group_by()._dynamic_expressions.emplace_back(expression);
+								return _data._dynamic_expressions.emplace_back(expression);
 							}
 
 						template<typename Expression>
-							void _add_group_by_impl(Expression expression, const std::false_type&);
+							void _add_impl(Expression expression, const std::false_type&);
+					public:
+						_data_t _data;
 					};
 
-				const group_by_t& _group_by() const { return *this; }
-				std::tuple<Expressions...> _expressions;
-				vendor::interpretable_list_t<Database> _dynamic_expressions;
+				// Member template for adding the named member to a statement
+				template<typename Policies>
+					struct _member_t
+					{
+						using _data_t = group_by_data_t<Database, Expressions...>;
+
+						_impl_t<Policies> group_by;
+						_impl_t<Policies>& operator()() { return group_by; }
+						const _impl_t<Policies>& operator()() const { return group_by; }
+
+						template<typename T>
+							static auto _get_member(T t) -> decltype(t.group_by)
+							{
+								return t.group_by;
+							}
+					};
+
+				template<typename Policies>
+					struct _methods_t
+					{
+					};
 			};
 
+		// NO GROUP BY YET
 		struct no_group_by_t
 		{
 			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
 			using _recursive_traits = make_recursive_traits<>;
+
+			// Data
+			using _data_t = no_data_t;
+
+			// Member implementation with data and methods
+			template<typename Policies>
+				struct _impl_t
+				{
+					_data_t _data;
+				};
+
+			// Member template for adding the named member to a statement
+			template<typename Policies>
+				struct _member_t
+				{
+					using _data_t = no_data_t;
+
+					_impl_t<Policies> no_group_by;
+					_impl_t<Policies>& operator()() { return no_group_by; }
+					const _impl_t<Policies>& operator()() const { return no_group_by; }
+
+					template<typename T>
+						static auto _get_member(T t) -> decltype(t.no_group_by)
+						{
+							return t.no_group_by;
+						}
+				};
 
 			template<typename Policies>
 				struct _methods_t
@@ -119,7 +177,7 @@ namespace sqlpp
 						auto group_by(Args... args)
 						-> _new_statement_t<group_by_t<void, Args...>>
 						{
-							return { *static_cast<typename Policies::_statement_t*>(this), group_by_t<void, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), group_by_data_t<void, Args...>{args...} };
 						}
 
 					template<typename... Args>
@@ -127,16 +185,16 @@ namespace sqlpp
 						-> _new_statement_t<group_by_t<_database_t, Args...>>
 						{
 							static_assert(not std::is_same<_database_t, void>::value, "dynamic_group_by must not be called in a static statement");
-							return { *static_cast<typename Policies::_statement_t*>(this), vendor::group_by_t<_database_t, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), group_by_data_t<_database_t, Args...>{args...} };
 						}
 				};
 		};
 
 		// Interpreters
 		template<typename Context, typename Database, typename... Expressions>
-			struct serializer_t<Context, group_by_t<Database, Expressions...>>
+			struct serializer_t<Context, group_by_data_t<Database, Expressions...>>
 			{
-				using T = group_by_t<Database, Expressions...>;
+				using T = group_by_data_t<Database, Expressions...>;
 
 				static Context& _(const T& t, Context& context)
 				{
@@ -150,18 +208,6 @@ namespace sqlpp
 					return context;
 				}
 			};
-
-		template<typename Context>
-			struct serializer_t<Context, no_group_by_t>
-			{
-				using T = no_group_by_t;
-
-				static Context& _(const T& t, Context& context)
-				{
-					return context;
-				}
-			};
-
 	}
 }
 

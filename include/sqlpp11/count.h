@@ -35,7 +35,8 @@ namespace sqlpp
 	namespace vendor
 	{
 		template<typename Flag, typename Expr>
-		struct count_t: public sqlpp::detail::integral::template expression_operators<count_t<Flag, Expr>>
+		struct count_t: public sqlpp::detail::integral::template expression_operators<count_t<Flag, Expr>>,
+										public alias_operators<count_t<Flag, Expr>>
 		{
 			using _traits = make_traits<::sqlpp::detail::integral, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
 			using _recursive_traits = make_recursive_traits<Expr>;

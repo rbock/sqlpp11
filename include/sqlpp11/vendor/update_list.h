@@ -36,6 +36,24 @@ namespace sqlpp
 {
 	namespace vendor
 	{
+		// UPDATE ASSIGNMENTS DATA
+		template<typename Database, typename... Assignments>
+			struct update_list_data_t
+			{
+				update_list_data_t(Assignments... assignments):
+					_assignments(assignments...)
+				{}
+
+				update_list_data_t(const update_list_data_t&) = default;
+				update_list_data_t(update_list_data_t&&) = default;
+				update_list_data_t& operator=(const update_list_data_t&) = default;
+				update_list_data_t& operator=(update_list_data_t&&) = default;
+				~update_list_data_t() = default;
+
+				std::tuple<Assignments...> _assignments;
+				typename vendor::interpretable_list_t<Database> _dynamic_assignments;
+			};
+
 		// UPDATE ASSIGNMENTS
 		template<typename Database, typename... Assignments>
 			struct update_list_t
@@ -61,63 +79,103 @@ namespace sqlpp
 				static_assert(::sqlpp::detail::is_subset_of<_value_table_set, _column_table_set>::value, "set() contains values from foreign tables");
 				*/
 
-				update_list_t& _update_list() { return *this; }
+				// Data
+				using _data_t = update_list_data_t<Database, Assignments...>;
 
-				update_list_t(Assignments... assignments):
-					_assignments(assignments...)
-				{}
-
-				update_list_t(const update_list_t&) = default;
-				update_list_t(update_list_t&&) = default;
-				update_list_t& operator=(const update_list_t&) = default;
-				update_list_t& operator=(update_list_t&&) = default;
-				~update_list_t() = default;
-
-				template<typename Policies>
-					struct _methods_t
+				// Member implementation with data and methods
+				template <typename Policies>
+					struct _impl_t
 					{
 						template<typename Assignment>
-							void add_set_ntc(Assignment assignment)
+							void add_ntc(Assignment assignment)
 							{
-								add_set<Assignment, std::false_type>(assignment);
+								add<Assignment, std::false_type>(assignment);
 							}
 
 						template<typename Assignment, typename TableCheckRequired = std::true_type>
-							void add_set(Assignment assignment)
+							void add(Assignment assignment)
 							{
-								static_assert(_is_dynamic::value, "add_set must not be called for static from()");
-								static_assert(is_assignment_t<Assignment>::value, "invalid assignment argument in add_set()");
-								static_assert(sqlpp::detail::not_t<must_not_update_t, typename Assignment::_column_t>::value, "add_set() argument must not be updated");
-								static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Assignment>::value, "assignment uses tables unknown to this statement in add_set()");
+								static_assert(_is_dynamic::value, "add must not be called for static from()");
+								static_assert(is_assignment_t<Assignment>::value, "invalid assignment argument in add()");
+								static_assert(sqlpp::detail::not_t<must_not_update_t, typename Assignment::_column_t>::value, "add() argument must not be updated");
+								static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Assignment>::value, "assignment uses tables unknown to this statement in add()");
 
 								using ok = ::sqlpp::detail::all_t<
 											_is_dynamic::value, 
 											is_assignment_t<Assignment>::value, 
 											not must_not_update_t<typename Assignment::_column_t>::value>;
 
-								_add_set_impl(assignment, ok()); // dispatch to prevent compile messages after the static_assert
+								_add_impl(assignment, ok()); // dispatch to prevent compile messages after the static_assert
 							}
 
 					private:
 						template<typename Assignment>
-							void _add_set_impl(Assignment assignment, const std::true_type&)
+							void _add_impl(Assignment assignment, const std::true_type&)
 							{
-								return static_cast<typename Policies::_statement_t*>(this)->_update_list()._dynamic_assignments.emplace_back(assignment);
+								return _data._dynamic_assignments.emplace_back(assignment);
 							}
 
 						template<typename Assignment>
-							void _add_set_impl(Assignment assignment, const std::false_type&);
+							void _add_impl(Assignment assignment, const std::false_type&);
+					public:
+						_data_t _data;
 					};
 
+				// Member template for adding the named member to a statement
+				template<typename Policies>
+					struct _member_t
+					{
+						using _data_t = update_list_data_t<Database, Assignments...>;
 
-				std::tuple<Assignments...> _assignments;
-				typename vendor::interpretable_list_t<Database> _dynamic_assignments;
+						_impl_t<Policies> assignments;
+						_impl_t<Policies>& operator()() { return assignments; }
+						const _impl_t<Policies>& operator()() const { return assignments; }
+
+						template<typename T>
+							static auto _get_member(T t) -> decltype(t.assignments)
+							{
+								return t.assignments;
+							}
+					};
+
+				// Additional methods for the statement
+				template<typename Policies>
+					struct _methods_t
+					{
+					};
 			};
 
 		struct no_update_list_t
 		{
 			using _traits = make_traits<no_value_t, ::sqlpp::tag::where>;
 			using _recursive_traits = make_recursive_traits<>;
+
+			// Data
+			using _data_t = no_data_t;
+
+			// Member implementation with data and methods
+			template<typename Policies>
+				struct _impl_t
+				{
+					_data_t _data;
+				};
+
+			// Member template for adding the named member to a statement
+			template<typename Policies>
+				struct _member_t
+				{
+					using _data_t = no_data_t;
+
+					_impl_t<Policies> no_assignments;
+					_impl_t<Policies>& operator()() { return no_assignments; }
+					const _impl_t<Policies>& operator()() const { return no_assignments; }
+
+					template<typename T>
+						static auto _get_member(T t) -> decltype(t.no_assignments)
+						{
+							return t.no_assignments;
+						}
+				};
 
 			template<typename Policies>
 				struct _methods_t
@@ -130,7 +188,7 @@ namespace sqlpp
 						auto set(Args... args)
 						-> _new_statement_t<update_list_t<void, Args...>>
 						{
-							return { *static_cast<typename Policies::_statement_t*>(this), update_list_t<void, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), update_list_data_t<void, Args...>{args...} };
 						}
 
 					template<typename... Args>
@@ -138,16 +196,16 @@ namespace sqlpp
 						-> _new_statement_t<update_list_t<_database_t, Args...>>
 						{
 							static_assert(not std::is_same<_database_t, void>::value, "dynamic_set must not be called in a static statement");
-							return { *static_cast<typename Policies::_statement_t*>(this), vendor::update_list_t<_database_t, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), vendor::update_list_data_t<_database_t, Args...>{args...} };
 						}
 				};
 		};
 
 		// Interpreters
 		template<typename Context, typename Database, typename... Assignments>
-			struct serializer_t<Context, update_list_t<Database, Assignments...>>
+			struct serializer_t<Context, update_list_data_t<Database, Assignments...>>
 			{
-				using T = update_list_t<Database, Assignments...>;
+				using T = update_list_data_t<Database, Assignments...>;
 
 				static Context& _(const T& t, Context& context)
 				{
@@ -159,18 +217,6 @@ namespace sqlpp
 					return context;
 				}
 			};
-
-		template<typename Context>
-			struct serializer_t<Context, no_update_list_t>
-			{
-				using T = no_update_list_t;
-
-				static Context& _(const T& t, Context& context)
-				{
-					return context;
-				}
-			};
-
 	}
 }
 

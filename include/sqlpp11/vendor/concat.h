@@ -37,7 +37,8 @@ namespace sqlpp
 	{
 		// FIXME: Remove First, inherit from text_t
 		template<typename First, typename... Args>
-			struct concat_t: public value_type_of<First>::template expression_operators<concat_t<First, Args...>>
+			struct concat_t: public value_type_of<First>::template expression_operators<concat_t<First, Args...>>,
+											 public alias_operators<concat_t<First, Args...>>
 		{
 			using _traits = make_traits<value_type_of<First>, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
 			using _recursive_traits = make_recursive_traits<First, Args...>;

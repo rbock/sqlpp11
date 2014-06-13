@@ -38,6 +38,24 @@ namespace sqlpp
 {
 	namespace vendor
 	{
+		// SELECTED FLAGS DATA
+		template<typename Database, typename... Flags>
+			struct select_flag_list_data_t
+			{
+				select_flag_list_data_t(Flags... flags):
+					_flags(flags...)
+				{}
+
+				select_flag_list_data_t(const select_flag_list_data_t&) = default;
+				select_flag_list_data_t(select_flag_list_data_t&&) = default;
+				select_flag_list_data_t& operator=(const select_flag_list_data_t&) = default;
+				select_flag_list_data_t& operator=(select_flag_list_data_t&&) = default;
+				~select_flag_list_data_t() = default;
+
+				std::tuple<Flags...> _flags;
+				vendor::interpretable_list_t<Database> _dynamic_flags;
+			};
+
 		// SELECT FLAGS
 		template<typename Database, typename... Flags>
 			struct select_flag_list_t
@@ -51,59 +69,100 @@ namespace sqlpp
 
 				static_assert(::sqlpp::detail::all_t<is_select_flag_t<Flags>::value...>::value, "at least one argument is not a select flag in select flag list");
 
-				select_flag_list_t& _select_flag_list() { return *this; }
+				// Data
+				using _data_t = select_flag_list_data_t<Database, Flags...>;
 
-				select_flag_list_t(Flags... flags):
-					_flags(flags...)
-				{}
-
-				select_flag_list_t(const select_flag_list_t&) = default;
-				select_flag_list_t(select_flag_list_t&&) = default;
-				select_flag_list_t& operator=(const select_flag_list_t&) = default;
-				select_flag_list_t& operator=(select_flag_list_t&&) = default;
-				~select_flag_list_t() = default;
-
+				// Member implementation with data and methods
 				template<typename Policies>
-					struct _methods_t
+					struct _impl_t
 					{
 						template<typename Flag>
-							void add_flag_ntc(Flag flag)
+							void add_ntc(Flag flag)
 							{
-								add_flag<Flag, std::false_type>(flag);
+								add<Flag, std::false_type>(flag);
 							}
 
 						template<typename Flag, typename TableCheckRequired = std::true_type>
-							void add_flag(Flag flag)
+							void add(Flag flag)
 							{
-								static_assert(_is_dynamic::value, "add_flag must not be called for static select flags");
-								static_assert(is_select_flag_t<Flag>::value, "invalid select flag argument in add_flag()");
-								static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Flag>::value, "flag uses tables unknown to this statement in add_flag()");
+								static_assert(_is_dynamic::value, "select_flags::add() must not be called for static select flags");
+								static_assert(is_select_flag_t<Flag>::value, "invalid select flag argument in select_flags::add()");
+								static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Flag>::value, "flag uses tables unknown to this statement in select_flags::add()");
 
 								using ok = ::sqlpp::detail::all_t<_is_dynamic::value, is_select_flag_t<Flag>::value>;
 
-								_add_flag_impl(flag, ok()); // dispatch to prevent compile messages after the static_assert
+								_add_impl(flag, ok()); // dispatch to prevent compile messages after the static_assert
 							}
 
 					private:
 						template<typename Flag>
-							void _add_flag_impl(Flag flag, const std::true_type&)
+							void _add_impl(Flag flag, const std::true_type&)
 							{
-								return static_cast<typename Policies::_statement_t*>(this)->_select_flag_list()._dynamic_flags.emplace_back(flag);
+								return _data._dynamic_flags.emplace_back(flag);
 							}
 
 						template<typename Flag>
-							void _add_flag_impl(Flag flag, const std::false_type&);
+							void _add_impl(Flag flag, const std::false_type&);
+					public:
+						_data_t _data;
 					};
 
-				const select_flag_list_t& _flag_list() const { return *this; }
-				std::tuple<Flags...> _flags;
-				vendor::interpretable_list_t<Database> _dynamic_flags;
+				// Member template for adding the named member to a statement
+				template<typename Policies>
+					struct _member_t
+					{
+						using _data_t = select_flag_list_data_t<Database, Flags...>;
+
+						_impl_t<Policies> select_flags;
+						_impl_t<Policies>& operator()() { return select_flags; }
+						const _impl_t<Policies>& operator()() const { return select_flags; }
+
+						template<typename T>
+							static auto _get_member(T t) -> decltype(t.select_flags)
+							{
+								return t.select_flags;
+							}
+					};
+
+				// Additional methods for the statement
+				template<typename Policies>
+					struct _methods_t
+					{
+					};
+
 			};
 
 		struct no_select_flag_list_t
 		{
 			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
 			using _recursive_traits = make_recursive_traits<>;
+
+			// Data
+			using _data_t = no_data_t;
+
+			// Member implementation with data and methods
+			template<typename Policies>
+				struct _impl_t
+				{
+					_data_t _data;
+				};
+
+			// Member template for adding the named member to a statement
+			template<typename Policies>
+				struct _member_t
+				{
+					using _data_t = no_data_t;
+
+					_impl_t<Policies> no_select_flags;
+					_impl_t<Policies>& operator()() { return no_select_flags; }
+					const _impl_t<Policies>& operator()() const { return no_select_flags; }
+
+					template<typename T>
+						static auto _get_member(T t) -> decltype(t.no_select_flags)
+						{
+							return t.no_select_flags;
+						}
+				};
 
 			template<typename Policies>
 				struct _methods_t
@@ -116,7 +175,7 @@ namespace sqlpp
 						auto flags(Args... args)
 						-> _new_statement_t<select_flag_list_t<void, Args...>>
 						{
-							return { *static_cast<typename Policies::_statement_t*>(this), select_flag_list_t<void, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), select_flag_list_data_t<void, Args...>{args...} };
 						}
 
 					template<typename... Args>
@@ -124,7 +183,7 @@ namespace sqlpp
 						-> _new_statement_t<select_flag_list_t<_database_t, Args...>>
 						{
 							static_assert(not std::is_same<_database_t, void>::value, "dynamic_flags must not be called in a static statement");
-							return { *static_cast<typename Policies::_statement_t*>(this), vendor::select_flag_list_t<_database_t, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), select_flag_list_data_t<_database_t, Args...>{args...} };
 						}
 				};
 		};
@@ -132,9 +191,9 @@ namespace sqlpp
 
 		// Interpreters
 		template<typename Context, typename Database, typename... Flags>
-			struct serializer_t<Context, select_flag_list_t<Database, Flags...>>
+			struct serializer_t<Context, select_flag_list_data_t<Database, Flags...>>
 			{
-				using T = select_flag_list_t<Database, Flags...>;
+				using T = select_flag_list_data_t<Database, Flags...>;
 
 				static Context& _(const T& t, Context& context)
 				{
@@ -148,16 +207,6 @@ namespace sqlpp
 				}
 			};
 
-		template<typename Context>
-			struct serializer_t<Context, no_select_flag_list_t>
-			{
-				using T = no_select_flag_list_t;
-
-				static Context& _(const T& t, Context& context)
-				{
-					return context;
-				}
-			};
 	}
 
 }

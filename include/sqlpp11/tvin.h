@@ -42,6 +42,8 @@ namespace sqlpp
 			using _traits = make_traits<value_type_of<Operand>, tag::expression>;
 			using _recursive_traits = make_recursive_traits<Operand>;
 
+			using _operand_t = Operand;
+
 			tvin_t(Operand operand): 
 				_value(operand)
 			{}

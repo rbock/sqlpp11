@@ -139,7 +139,11 @@ namespace sqlpp
 					static_assert(detail::all_t<_is_valid_comparison_operand<vendor::wrap_operand_t<T>>::value...>::value, "at least one operand of in() is not valid");
 					return { *static_cast<const Base*>(this), vendor::wrap_operand_t<T>{t}... };
 				}
+		};
 
+	template<typename Base>
+		struct alias_operators
+		{
 			template<typename alias_provider>
 				expression_alias_t<Base, alias_provider> as(const alias_provider&)
 				{

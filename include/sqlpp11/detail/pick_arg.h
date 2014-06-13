@@ -34,22 +34,22 @@ namespace sqlpp
 	namespace detail
 	{
 		template<typename Target, typename Statement, typename Term>
-			Target pick_arg_impl(Statement statement, Term term, const std::true_type&)
+			typename Target::_data_t pick_arg_impl(Statement statement, Term term, const std::true_type&)
 			{
 				return term;
 			};
 
 		template<typename Target, typename Statement, typename Term>
-			Target pick_arg_impl(Statement statement, Term term, const std::false_type&)
+			typename Target::_data_t pick_arg_impl(Statement statement, Term term, const std::false_type&)
 			{
-				return static_cast<Target>(statement);
+				return Target::_get_member(statement)._data;
 			};
 
 		// Returns a statement's term either by picking the term from the statement or using the new term
 		template<typename Target, typename Statement, typename Term>
-			Target pick_arg(Statement statement, Term term)
+			typename Target::_data_t pick_arg(Statement statement, Term term)
 			{
-				return pick_arg_impl<Target>(statement, term, std::is_same<Target, Term>());
+				return pick_arg_impl<Target>(statement, term, std::is_same<typename Target::_data_t, Term>());
 			};
 	}
 }
