@@ -33,10 +33,10 @@
 #include <sqlpp11/null.h>
 #include <sqlpp11/sort_order.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/vendor/assignment.h>
-#include <sqlpp11/vendor/expression.h>
-#include <sqlpp11/vendor/serializer.h>
-#include <sqlpp11/vendor/wrong.h>
+#include <sqlpp11/assignment.h>
+#include <sqlpp11/expression.h>
+#include <sqlpp11/serializer.h>
+#include <sqlpp11/wrong.h>
 #include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp

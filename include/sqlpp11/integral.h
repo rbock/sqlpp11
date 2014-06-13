@@ -32,7 +32,7 @@
 #include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/exception.h>
-#include <sqlpp11/vendor/value_type.h>
+#include <sqlpp11/value_type.h>
 
 namespace sqlpp
 {

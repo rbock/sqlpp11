@@ -24,36 +24,39 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_VENDOR_POLICY_UPDATE_H
-#define SQLPP_VENDOR_POLICY_UPDATE_H
+#ifndef SQLPP_SIMPLE_COLUMN_H
+#define SQLPP_SIMPLE_COLUMN_H
 
-#include <sqlpp11/vendor/wrong.h>
+#include <sqlpp11/serializer.h>
 
 namespace sqlpp
 {
 	namespace vendor
 	{
-		template<typename Needle, typename Replacement>
-			struct policy_update_impl
+		template<typename Column>
+			struct simple_column_t
 			{
-				template<typename T>
-					using _policy_t = typename std::conditional<std::is_same<Needle, T>::value, Replacement, T>::type;
+				Column _column;
 			};
 
-		template<typename T, typename Needle, typename Replacement>
-			using policy_update_t = typename policy_update_impl<Needle, Replacement>::template _policy_t<T>;
-
-		template<typename Original, typename Needle, typename Replacement>
-			struct update_policies_impl
+		template<typename Context, typename Column>
+			struct serializer_t<Context, simple_column_t<Column>>
 			{
-				using type = typename Original::template _policy_update_t<Needle, Replacement>;
+				using T = simple_column_t<Column>;
+
+				static Context& _(const T& t, Context& context)
+				{
+					context << t._column._get_name();
+					return context;
+				}
 			};
 
-		template<typename Original, typename Needle, typename Replacement>
-			using update_policies_t = typename update_policies_impl<Original, Needle, Replacement>::type;
-
+		template<typename Column>
+			simple_column_t<Column> simple_column(Column c)
+			{
+				return {c};
+			}
 	}
-
 }
 
 #endif

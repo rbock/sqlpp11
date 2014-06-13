@@ -30,10 +30,10 @@
 #include <sqlpp11/alias.h>
 #include <sqlpp11/boolean.h>
 #include <sqlpp11/tvin.h>
-#include <sqlpp11/vendor/noop.h>
-#include <sqlpp11/vendor/expression_fwd.h>
-#include <sqlpp11/vendor/serializer.h>
-#include <sqlpp11/vendor/wrap_operand.h>
+#include <sqlpp11/noop.h>
+#include <sqlpp11/expression_fwd.h>
+#include <sqlpp11/serializer.h>
+#include <sqlpp11/wrap_operand.h>
 
 namespace sqlpp
 {

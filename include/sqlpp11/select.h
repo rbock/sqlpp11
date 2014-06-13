@@ -29,19 +29,19 @@
 
 #include <sqlpp11/statement.h>
 
-#include <sqlpp11/vendor/noop.h>
-#include <sqlpp11/vendor/select_flag_list.h>
-#include <sqlpp11/vendor/select_column_list.h>
-#include <sqlpp11/vendor/from.h>
-#include <sqlpp11/vendor/extra_tables.h>
-#include <sqlpp11/vendor/where.h>
-#include <sqlpp11/vendor/group_by.h>
-#include <sqlpp11/vendor/having.h>
-#include <sqlpp11/vendor/order_by.h>
-#include <sqlpp11/vendor/limit.h>
-#include <sqlpp11/vendor/offset.h>
-#include <sqlpp11/vendor/expression.h>
-#include <sqlpp11/vendor/wrong.h>
+#include <sqlpp11/noop.h>
+#include <sqlpp11/select_flag_list.h>
+#include <sqlpp11/select_column_list.h>
+#include <sqlpp11/from.h>
+#include <sqlpp11/extra_tables.h>
+#include <sqlpp11/where.h>
+#include <sqlpp11/group_by.h>
+#include <sqlpp11/having.h>
+#include <sqlpp11/order_by.h>
+#include <sqlpp11/limit.h>
+#include <sqlpp11/offset.h>
+#include <sqlpp11/expression.h>
+#include <sqlpp11/wrong.h>
 
 
 namespace sqlpp

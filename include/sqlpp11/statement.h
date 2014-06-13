@@ -31,9 +31,9 @@
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/prepared_select.h>
 #include <sqlpp11/serialize.h>
-#include <sqlpp11/vendor/noop.h>
-#include <sqlpp11/vendor/policy_update.h>
-#include <sqlpp11/vendor/serializer.h>
+#include <sqlpp11/noop.h>
+#include <sqlpp11/policy_update.h>
+#include <sqlpp11/serializer.h>
 
 #include <sqlpp11/detail/get_last.h>
 #include <sqlpp11/detail/pick_arg.h>

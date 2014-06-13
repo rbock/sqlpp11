@@ -24,12 +24,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_VENDOR_INTO_H
-#define SQLPP_VENDOR_INTO_H
+#ifndef SQLPP_INTO_H
+#define SQLPP_INTO_H
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/no_value.h>
-#include <sqlpp11/vendor/serializer.h>
+#include <sqlpp11/serializer.h>
 #include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp

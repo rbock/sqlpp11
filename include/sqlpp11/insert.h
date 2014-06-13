@@ -32,9 +32,9 @@
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/prepared_insert.h>
 #include <sqlpp11/default_value.h>
-#include <sqlpp11/vendor/noop.h>
-#include <sqlpp11/vendor/into.h>
-#include <sqlpp11/vendor/insert_value_list.h>
+#include <sqlpp11/noop.h>
+#include <sqlpp11/into.h>
+#include <sqlpp11/insert_value_list.h>
 
 namespace sqlpp
 {

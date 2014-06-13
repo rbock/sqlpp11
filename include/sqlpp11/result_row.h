@@ -28,8 +28,8 @@
 #define SQLPP_RESULT_ROW_H
 
 #include <map>
-#include <sqlpp11/vendor/char_result_row.h>
-#include <sqlpp11/vendor/field.h>
+#include <sqlpp11/char_result_row.h>
+#include <sqlpp11/field.h>
 #include <sqlpp11/text.h>
 #include <sqlpp11/detail/column_index_sequence.h>
 

@@ -31,7 +31,7 @@
 #include <sqlpp11/null.h>
 #include <sqlpp11/tvin.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/vendor/serializer.h>
+#include <sqlpp11/serializer.h>
 #include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp

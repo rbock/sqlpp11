@@ -31,12 +31,12 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/prepared_remove.h>
-#include <sqlpp11/vendor/noop.h>
+#include <sqlpp11/noop.h>
 #warning: need to use another table provider, since delete can be used with several tables
-#include <sqlpp11/vendor/from.h>
-#include <sqlpp11/vendor/extra_tables.h>
-#include <sqlpp11/vendor/using.h>
-#include <sqlpp11/vendor/where.h>
+#include <sqlpp11/from.h>
+#include <sqlpp11/extra_tables.h>
+#include <sqlpp11/using.h>
+#include <sqlpp11/where.h>
 
 namespace sqlpp
 {

@@ -24,39 +24,25 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SIMPLE_COLUMN_H
-#define SQLPP_SIMPLE_COLUMN_H
+#ifndef SQLPP_SERIALIZER_H
+#define SQLPP_SERIALIZER_H
 
-#include <sqlpp11/vendor/serializer.h>
+#include <sqlpp11/wrong.h>
 
 namespace sqlpp
 {
 	namespace vendor
 	{
-		template<typename Column>
-			struct simple_column_t
+		template<typename Context, typename T, typename Enable = void>
+			struct serializer_t
 			{
-				Column _column;
-			};
-
-		template<typename Context, typename Column>
-			struct serializer_t<Context, simple_column_t<Column>>
-			{
-				using T = simple_column_t<Column>;
-
-				static Context& _(const T& t, Context& context)
+				static void _(const T& t, Context& context)
 				{
-					context << t._column._get_name();
-					return context;
+					static_assert(wrong_t<Context, T>::value, "missing serializer specialization");
 				}
 			};
-
-		template<typename Column>
-			simple_column_t<Column> simple_column(Column c)
-			{
-				return {c};
-			}
 	}
+
 }
 
 #endif

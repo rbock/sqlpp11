@@ -24,25 +24,28 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_VENDOR_SERIALIZER_H
-#define SQLPP_VENDOR_SERIALIZER_H
+#ifndef SQLPP_WRONG_H
+#define SQLPP_WRONG_H
 
-#include <sqlpp11/vendor/wrong.h>
+#include <type_traits>
 
 namespace sqlpp
 {
 	namespace vendor
 	{
-		template<typename Context, typename T, typename Enable = void>
-			struct serializer_t
-			{
-				static void _(const T& t, Context& context)
+		namespace detail
+		{
+			// A template that always returns false
+			// To be used with static assert, for instance, to ensure it
+			// fires only when the template is instantiated.
+			template<typename... T>
+				struct wrong
 				{
-					static_assert(wrong_t<Context, T>::value, "missing serializer specialization");
-				}
-			};
+					using type = std::false_type;
+				};
+		}
+		template<typename... T>
+			using wrong_t = typename detail::wrong<T...>::type;
 	}
-
 }
-
 #endif

@@ -28,7 +28,7 @@
 #define SQLPP_DETAIL_WRAP_OPERAND_H
 
 #include <string>
-#include <sqlpp11/vendor/serializer.h>
+#include <sqlpp11/serializer.h>
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp

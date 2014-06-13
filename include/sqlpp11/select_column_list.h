@@ -31,12 +31,12 @@
 #include <sqlpp11/result_row.h>
 #include <sqlpp11/table.h>
 #include <sqlpp11/no_value.h>
-#include <sqlpp11/vendor/field.h>
-#include <sqlpp11/vendor/expression_fwd.h>
-#include <sqlpp11/vendor/select_pseudo_table.h>
-#include <sqlpp11/vendor/named_interpretable.h>
-#include <sqlpp11/vendor/interpret_tuple.h>
-#include <sqlpp11/vendor/policy_update.h>
+#include <sqlpp11/field.h>
+#include <sqlpp11/expression_fwd.h>
+#include <sqlpp11/select_pseudo_table.h>
+#include <sqlpp11/named_interpretable.h>
+#include <sqlpp11/interpret_tuple.h>
+#include <sqlpp11/policy_update.h>
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/detail/copy_tuple_args.h>
 

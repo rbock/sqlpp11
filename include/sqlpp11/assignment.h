@@ -31,8 +31,8 @@
 #include <sqlpp11/null.h>
 #include <sqlpp11/tvin.h>
 #include <sqlpp11/serialize.h>
-#include <sqlpp11/vendor/serializer.h>
-#include <sqlpp11/vendor/simple_column.h>
+#include <sqlpp11/serializer.h>
+#include <sqlpp11/simple_column.h>
 
 namespace sqlpp
 {

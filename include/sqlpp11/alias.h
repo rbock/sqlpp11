@@ -28,7 +28,7 @@
 #define SQLPP_ALIAS_H
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/vendor/serializer.h>
+#include <sqlpp11/serializer.h>
 
 namespace sqlpp
 {

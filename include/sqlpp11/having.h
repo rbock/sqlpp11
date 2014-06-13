@@ -24,59 +24,55 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_GROUP_BY_H
-#define SQLPP_GROUP_BY_H
+#ifndef SQLPP_HAVING_H
+#define SQLPP_HAVING_H
 
-#include <tuple>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/vendor/expression.h>
-#include <sqlpp11/vendor/interpret_tuple.h>
-#include <sqlpp11/vendor/interpretable_list.h>
-#include <sqlpp11/vendor/policy_update.h>
+#include <sqlpp11/expression.h>
+#include <sqlpp11/interpret_tuple.h>
+#include <sqlpp11/interpretable_list.h>
+#include <sqlpp11/policy_update.h>
 #include <sqlpp11/detail/logic.h>
 
 namespace sqlpp
 {
 	namespace vendor
 	{
-		// GROUP BY DATA
+		// HAVING DATA
 		template<typename Database, typename... Expressions>
-			struct group_by_data_t
+			struct having_data_t
 			{
-				group_by_data_t(Expressions... expressions):
+				having_data_t(Expressions... expressions):
 					_expressions(expressions...)
 				{}
 
-				group_by_data_t(const group_by_data_t&) = default;
-				group_by_data_t(group_by_data_t&&) = default;
-				group_by_data_t& operator=(const group_by_data_t&) = default;
-				group_by_data_t& operator=(group_by_data_t&&) = default;
-				~group_by_data_t() = default;
+				having_data_t(const having_data_t&) = default;
+				having_data_t(having_data_t&&) = default;
+				having_data_t& operator=(const having_data_t&) = default;
+				having_data_t& operator=(having_data_t&&) = default;
+				~having_data_t() = default;
 
 				std::tuple<Expressions...> _expressions;
 				vendor::interpretable_list_t<Database> _dynamic_expressions;
 			};
 
-		// GROUP BY
+		// HAVING
 		template<typename Database, typename... Expressions>
-			struct group_by_t
+			struct having_t
 			{
-				using _traits = make_traits<no_value_t, ::sqlpp::tag::group_by>;
+				using _traits = make_traits<no_value_t, ::sqlpp::tag::having>;
 				using _recursive_traits = make_recursive_traits<Expressions...>;
 
 				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 
-				static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression (e.g. a column) required in group_by()");
-
-				static_assert(not ::sqlpp::detail::has_duplicates<Expressions...>::value, "at least one duplicate argument detected in group_by()");
-
-				static_assert(::sqlpp::detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not an expression in group_by()");
+				static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression argument required in having()");
+				static_assert(::sqlpp::detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not an expression in having()");
 
 				// Data
-				using _data_t = group_by_data_t<Database, Expressions...>;
+				using _data_t = having_data_t<Database, Expressions...>;
 
 				// Member implementation with data and methods
-				template<typename Policies>
+				template <typename Policies>
 					struct _impl_t
 					{
 						template<typename Expression>
@@ -88,9 +84,9 @@ namespace sqlpp
 						template<typename Expression, typename TableCheckRequired = std::true_type>
 							void add(Expression expression)
 							{
-								static_assert(_is_dynamic::value, "add() must not be called for static group_by");
-								static_assert(is_expression_t<Expression>::value, "invalid expression argument in group_by::add()");
-								static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Expression>::value, "expression uses tables unknown to this statement in group_by::add()");
+								static_assert(_is_dynamic::value, "having::add() can only be called for dynamic_having");
+								static_assert(is_expression_t<Expression>::value, "invalid expression argument in having::add()");
+								static_assert(not TableCheckRequired::value or Policies::template _no_unknown_tables<Expression>::value, "expression uses tables unknown to this statement in having::add()");
 
 								using ok = ::sqlpp::detail::all_t<_is_dynamic::value, is_expression_t<Expression>::value>;
 
@@ -106,6 +102,7 @@ namespace sqlpp
 
 						template<typename Expression>
 							void _add_impl(Expression expression, const std::false_type&);
+
 					public:
 						_data_t _data;
 					};
@@ -114,27 +111,28 @@ namespace sqlpp
 				template<typename Policies>
 					struct _member_t
 					{
-						using _data_t = group_by_data_t<Database, Expressions...>;
+						using _data_t = having_data_t<Database, Expressions...>;
 
-						_impl_t<Policies> group_by;
-						_impl_t<Policies>& operator()() { return group_by; }
-						const _impl_t<Policies>& operator()() const { return group_by; }
+						_impl_t<Policies> having;
+						_impl_t<Policies>& operator()() { return having; }
+						const _impl_t<Policies>& operator()() const { return having; }
 
 						template<typename T>
-							static auto _get_member(T t) -> decltype(t.group_by)
+							static auto _get_member(T t) -> decltype(t.having)
 							{
-								return t.group_by;
+								return t.having;
 							}
 					};
 
+				// Additional methods for the statement
 				template<typename Policies>
 					struct _methods_t
 					{
 					};
 			};
 
-		// NO GROUP BY YET
-		struct no_group_by_t
+		// NO HAVING YET
+		struct no_having_t
 		{
 			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
 			using _recursive_traits = make_recursive_traits<>;
@@ -155,14 +153,14 @@ namespace sqlpp
 				{
 					using _data_t = no_data_t;
 
-					_impl_t<Policies> no_group_by;
-					_impl_t<Policies>& operator()() { return no_group_by; }
-					const _impl_t<Policies>& operator()() const { return no_group_by; }
+					_impl_t<Policies> no_having;
+					_impl_t<Policies>& operator()() { return no_having; }
+					const _impl_t<Policies>& operator()() const { return no_having; }
 
 					template<typename T>
-						static auto _get_member(T t) -> decltype(t.no_group_by)
+						static auto _get_member(T t) -> decltype(t.no_having)
 						{
-							return t.no_group_by;
+							return t.no_having;
 						}
 				};
 
@@ -171,40 +169,40 @@ namespace sqlpp
 				{
 					using _database_t = typename Policies::_database_t;
 					template<typename T>
-					using _new_statement_t = typename Policies::template _new_statement_t<no_group_by_t, T>;
+					using _new_statement_t = typename Policies::template _new_statement_t<no_having_t, T>;
 
 					template<typename... Args>
-						auto group_by(Args... args)
-						-> _new_statement_t<group_by_t<void, Args...>>
+						auto having(Args... args)
+						-> _new_statement_t<having_t<void, Args...>>
 						{
-							return { *static_cast<typename Policies::_statement_t*>(this), group_by_data_t<void, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), having_data_t<void, Args...>{args...} };
 						}
 
 					template<typename... Args>
-						auto dynamic_group_by(Args... args)
-						-> _new_statement_t<group_by_t<_database_t, Args...>>
+						auto dynamic_having(Args... args)
+						-> _new_statement_t<having_t<_database_t, Args...>>
 						{
-							static_assert(not std::is_same<_database_t, void>::value, "dynamic_group_by must not be called in a static statement");
-							return { *static_cast<typename Policies::_statement_t*>(this), group_by_data_t<_database_t, Args...>{args...} };
+							static_assert(not std::is_same<_database_t, void>::value, "dynamic_having must not be called in a static statement");
+							return { *static_cast<typename Policies::_statement_t*>(this), having_data_t<_database_t, Args...>{args...} };
 						}
 				};
 		};
 
 		// Interpreters
 		template<typename Context, typename Database, typename... Expressions>
-			struct serializer_t<Context, group_by_data_t<Database, Expressions...>>
+			struct serializer_t<Context, having_data_t<Database, Expressions...>>
 			{
-				using T = group_by_data_t<Database, Expressions...>;
+				using T = having_data_t<Database, Expressions...>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					if (sizeof...(Expressions) == 0 and t._dynamic_expressions.empty())
 						return context;
-					context << " GROUP BY ";
-					interpret_tuple(t._expressions, ',', context);
+					context << " HAVING ";
+					interpret_tuple(t._expressions, " AND ", context);
 					if (sizeof...(Expressions) and not t._dynamic_expressions.empty())
-						context << ',';
-					interpret_list(t._dynamic_expressions, ',', context);
+						context << " AND ";
+					interpret_list(t._dynamic_expressions, " AND ", context);
 					return context;
 				}
 			};

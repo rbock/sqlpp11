@@ -29,7 +29,7 @@
 
 #include <tuple>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/vendor/wrong.h>
+#include <sqlpp11/wrong.h>
 #include <sqlpp11/detail/index_sequence.h>
 
 namespace sqlpp

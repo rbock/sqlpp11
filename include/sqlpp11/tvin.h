@@ -31,8 +31,8 @@
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/serialize.h>
-#include <sqlpp11/vendor/serializer.h>
-#include <sqlpp11/vendor/wrap_operand.h>
+#include <sqlpp11/serializer.h>
+#include <sqlpp11/wrap_operand.h>
 
 namespace sqlpp
 {

@@ -27,7 +27,7 @@
 #ifndef SQLPP_SERIALIZE_H
 #define SQLPP_SERIALIZE_H
 
-#include <sqlpp11/vendor/serializer.h>
+#include <sqlpp11/serializer.h>
 
 namespace sqlpp
 {

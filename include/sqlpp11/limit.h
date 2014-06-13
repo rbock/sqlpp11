@@ -28,7 +28,7 @@
 #define SQLPP_LIMIT_H
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/vendor/policy_update.h>
+#include <sqlpp11/policy_update.h>
 #include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp

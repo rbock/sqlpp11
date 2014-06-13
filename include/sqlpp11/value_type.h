@@ -28,7 +28,7 @@
 #define SQLPP_VALUE_TYPE_H
 
 #include <type_traits>
-#include <sqlpp11/vendor/wrap_operand.h>
+#include <sqlpp11/wrap_operand.h>
 
 namespace sqlpp
 {

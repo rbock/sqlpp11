@@ -24,25 +24,57 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_VENDOR_INTERPRETER_H
-#define SQLPP_VENDOR_INTERPRETER_H
+#ifndef SQLPP_NOOP_H
+#define SQLPP_NOOP_H
 
-#include <sqlpp11/vendor/wrong.h>
+#include <type_traits>
+#include <sqlpp11/no_value.h>
+#include <sqlpp11/serializer.h>
 
 namespace sqlpp
 {
 	namespace vendor
 	{
-		template<typename Context, typename T, typename Enable = void>
-			struct interpreter_t
+#warning: Need extra include file for no_data
+		struct no_data_t {};
+
+		template<typename Context>
+			struct serializer_t<Context, no_data_t>
 			{
-				static void _(const T& t, Context& context)
+				using T = no_data_t;
+
+				static Context& _(const T& t, Context& context)
 				{
-					static_assert(wrong_t<Context, T>::value, "missing interpreter specialization");
+					return context;
 				}
 			};
+
+		struct noop 
+		{
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
+			using _recursive_traits = make_recursive_traits<>;
+
+			struct _name_t {};
+
+			template<typename Policies>
+				struct _result_methods_t
+				{};
+		};
+
+		template<typename Context>
+			struct serializer_t<Context, noop>
+			{
+				using T = noop;
+
+				static Context& _(const T& t, Context& context)
+				{
+					return context;
+				}
+			};
+
+		template<typename T>
+			struct is_noop: std::is_same<T, noop> {};
 	}
 
 }
-
 #endif

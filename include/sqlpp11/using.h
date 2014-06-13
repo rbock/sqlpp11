@@ -24,68 +24,64 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_FROM_H
-#define SQLPP_FROM_H
+#ifndef SQLPP_USING_H
+#define SQLPP_USING_H
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/vendor/interpretable_list.h>
-#include <sqlpp11/vendor/interpret_tuple.h>
-#include <sqlpp11/detail/logic.h>
-#include <sqlpp11/vendor/policy_update.h>
+#include <sqlpp11/interpretable_list.h>
+#include <sqlpp11/interpret_tuple.h>
+#include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/policy_update.h>
 
 namespace sqlpp
 {
 	namespace vendor
 	{
-		// FROM DATA
+		// USING DATA
 		template<typename Database, typename... Tables>
-		struct from_data_t
-		{
-			from_data_t(Tables... tables):
-				_tables(tables...)
-			{}
-
-			from_data_t(const from_data_t&) = default;
-			from_data_t(from_data_t&&) = default;
-			from_data_t& operator=(const from_data_t&) = default;
-			from_data_t& operator=(from_data_t&&) = default;
-			~from_data_t() = default;
-
-			std::tuple<Tables...> _tables;
-			vendor::interpretable_list_t<Database> _dynamic_tables;
-		};
-
-		// FROM
-		template<typename Database, typename... Tables>
-			struct from_t
+			struct using_data_t
 			{
-				using _traits = make_traits<no_value_t, ::sqlpp::tag::from>;
+				using_data_t(Tables... tables):
+					_tables(tables...)
+				{}
+
+				using_data_t(const using_data_t&) = default;
+				using_data_t(using_data_t&&) = default;
+				using_data_t& operator=(const using_data_t&) = default;
+				using_data_t& operator=(using_data_t&&) = default;
+				~using_data_t() = default;
+
+				std::tuple<Tables...> _tables;
+				vendor::interpretable_list_t<Database> _dynamic_tables;
+			};
+
+		// USING
+		template<typename Database, typename... Tables>
+			struct using_t
+			{
+				using _traits = make_traits<no_value_t, ::sqlpp::tag::using_>;
 				using _recursive_traits = make_recursive_traits<Tables...>;
 
 				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 
-				static_assert(_is_dynamic::value or sizeof...(Tables), "at least one table or join argument required in from()");
+				static_assert(_is_dynamic::value or sizeof...(Tables), "at least one table argument required in using()");
 
-				// FIXME: Joins contain two tables. This is not being dealt with at the moment when looking at duplicates, for instance
-				static_assert(not ::sqlpp::detail::has_duplicates<Tables...>::value, "at least one duplicate argument detected in from()");
+				static_assert(not ::sqlpp::detail::has_duplicates<Tables...>::value, "at least one duplicate argument detected in using()");
 
-				static_assert(::sqlpp::detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not a table or join in from()");
-
-				static_assert(required_tables_of<from_t>::size::value == 0, "at least one table depends on another table");
+				static_assert(::sqlpp::detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not an table in using()");
 
 				// Data
-				using _data_t = from_data_t<Database, Tables...>;
+				using _data_t = using_data_t<Database, Tables...>;
 
 				// Member implementation with data and methods
-				template<typename Policies>
+				template <typename Policies>
 					struct _impl_t
 					{
 						template<typename Table>
 							void add(Table table)
 							{
-								static_assert(_is_dynamic::value, "from::add() must not be called for static from()");
-								static_assert(is_table_t<Table>::value, "invalid table argument in from::add()");
-#warning need to check if table is already known
+								static_assert(_is_dynamic::value, "add must not be called for static using()");
+								static_assert(is_table_t<Table>::value, "invalid table argument in add()");
 
 								using ok = ::sqlpp::detail::all_t<_is_dynamic::value, is_table_t<Table>::value>;
 
@@ -110,16 +106,16 @@ namespace sqlpp
 				template<typename Policies>
 					struct _member_t
 					{
-						using _data_t = from_data_t<Database, Tables...>;
+						using _data_t = using_data_t<Database, Tables...>;
 
-						_impl_t<Policies> from;
-						_impl_t<Policies>& operator()() { return from; }
-						const _impl_t<Policies>& operator()() const { return from; }
+						_impl_t<Policies> using_;
+						_impl_t<Policies>& operator()() { return using_; }
+						const _impl_t<Policies>& operator()() const { return using_; }
 
 						template<typename T>
-							static auto _get_member(T t) -> decltype(t.from)
+							static auto _get_member(T t) -> decltype(t.using_)
 							{
-								return t.from;
+								return t.using_;
 							}
 					};
 
@@ -130,9 +126,10 @@ namespace sqlpp
 					};
 			};
 
-		struct no_from_t
+		// NO USING YET
+		struct no_using_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::where>;
 			using _recursive_traits = make_recursive_traits<>;
 
 			// Data
@@ -151,53 +148,52 @@ namespace sqlpp
 				{
 					using _data_t = no_data_t;
 
-					_impl_t<Policies> no_from;
-					_impl_t<Policies>& operator()() { return no_from; }
-					const _impl_t<Policies>& operator()() const { return no_from; }
+					_impl_t<Policies> no_using;
+					_impl_t<Policies>& operator()() { return no_using; }
+					const _impl_t<Policies>& operator()() const { return no_using; }
 
 					template<typename T>
-						static auto _get_member(T t) -> decltype(t.no_from)
+						static auto _get_member(T t) -> decltype(t.no_using)
 						{
-							return t.no_from;
+							return t.no_using;
 						}
 				};
 
-			// Additional methods for the statement
 			template<typename Policies>
 				struct _methods_t
 				{
 					using _database_t = typename Policies::_database_t;
 					template<typename T>
-						using _new_statement_t = typename Policies::template _new_statement_t<no_from_t, T>;
+					using _new_statement_t = typename Policies::template _new_statement_t<no_using_t, T>;
 
 					template<typename... Args>
-						auto from(Args... args)
-						-> _new_statement_t<from_t<void, Args...>>
+						auto using_(Args... args)
+						-> _new_statement_t<using_t<void, Args...>>
 						{
-							return { *static_cast<typename Policies::_statement_t*>(this), from_data_t<void, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), using_data_t<void, Args...>{args...} };
 						}
 
 					template<typename... Args>
-						auto dynamic_from(Args... args)
-						-> _new_statement_t<from_t<_database_t, Args...>>
+						auto dynamic_using(Args... args)
+						-> _new_statement_t<using_t<_database_t, Args...>>
 						{
-							static_assert(not std::is_same<_database_t, void>::value, "dynamic_from must not be called in a static statement");
-							return { *static_cast<typename Policies::_statement_t*>(this), from_data_t<_database_t, Args...>{args...} };
+							static_assert(not std::is_same<_database_t, void>::value, "dynamic_using must not be called in a static statement");
+							return { *static_cast<typename Policies::_statement_t*>(this), using_data_t<_database_t, Args...>{args...} };
 						}
 				};
 		};
 
 		// Interpreters
 		template<typename Context, typename Database, typename... Tables>
-			struct serializer_t<Context, from_data_t<Database, Tables...>>
+			struct serializer_t<Context, using_data_t<Database, Tables...>>
 			{
-				using T = from_data_t<Database, Tables...>;
+				using T = using_data_t<Database, Tables...>;
 
 				static Context& _(const T& t, Context& context)
 				{
 					if (sizeof...(Tables) == 0 and t._dynamic_tables.empty())
 						return context;
-					context << " FROM ";
+					context << " USING ";
 					interpret_tuple(t._tables, ',', context);
 					if (sizeof...(Tables) and not t._dynamic_tables.empty())
 						context << ',';
@@ -205,7 +201,6 @@ namespace sqlpp
 					return context;
 				}
 			};
-
 	}
 }
 

@@ -31,8 +31,8 @@
 #include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/exception.h>
-#include <sqlpp11/vendor/concat.h>
-#include <sqlpp11/vendor/like.h>
+#include <sqlpp11/concat.h>
+#include <sqlpp11/like.h>
 
 namespace sqlpp
 {

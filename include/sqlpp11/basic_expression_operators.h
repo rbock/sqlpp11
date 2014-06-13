@@ -29,10 +29,10 @@
 
 #include <sqlpp11/alias.h>
 #include <sqlpp11/sort_order.h>
-#include <sqlpp11/vendor/expression_fwd.h>
-#include <sqlpp11/vendor/in_fwd.h>
-#include <sqlpp11/vendor/is_null_fwd.h>
-#include <sqlpp11/vendor/wrap_operand.h>
+#include <sqlpp11/expression_fwd.h>
+#include <sqlpp11/in_fwd.h>
+#include <sqlpp11/is_null_fwd.h>
+#include <sqlpp11/wrap_operand.h>
 #include <sqlpp11/detail/logic.h>
 
 namespace sqlpp

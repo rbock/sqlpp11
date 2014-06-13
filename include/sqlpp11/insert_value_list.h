@@ -29,11 +29,11 @@
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/detail/logic.h>
-#include <sqlpp11/vendor/assignment.h>
-#include <sqlpp11/vendor/interpretable_list.h>
-#include <sqlpp11/vendor/interpret_tuple.h>
-#include <sqlpp11/vendor/insert_value.h>
-#include <sqlpp11/vendor/simple_column.h>
+#include <sqlpp11/assignment.h>
+#include <sqlpp11/interpretable_list.h>
+#include <sqlpp11/interpret_tuple.h>
+#include <sqlpp11/insert_value.h>
+#include <sqlpp11/simple_column.h>
 
 namespace sqlpp
 {

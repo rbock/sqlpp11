@@ -32,10 +32,10 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/prepared_update.h>
-#include <sqlpp11/vendor/single_table.h>
-#include <sqlpp11/vendor/update_list.h>
-#include <sqlpp11/vendor/noop.h>
-#include <sqlpp11/vendor/where.h>
+#include <sqlpp11/single_table.h>
+#include <sqlpp11/update_list.h>
+#include <sqlpp11/noop.h>
+#include <sqlpp11/where.h>
 
 namespace sqlpp
 {

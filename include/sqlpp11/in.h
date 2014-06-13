@@ -24,64 +24,69 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_CONCAT_H
-#define SQLPP_CONCAT_H
+#ifndef SQLPP_IN_H
+#define SQLPP_IN_H
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/vendor/interpret_tuple.h>
-#include <sqlpp11/detail/logic.h>
+#include <sqlpp11/boolean.h>
+#include <sqlpp11/in_fwd.h>
+#include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
 {
 	namespace vendor
 	{
-		// FIXME: Remove First, inherit from text_t
-		template<typename First, typename... Args>
-			struct concat_t: public value_type_of<First>::template expression_operators<concat_t<First, Args...>>,
-											 public alias_operators<concat_t<First, Args...>>
+		template<bool NotInverted, typename Operand, typename... Args>
+			struct in_t: public boolean::template expression_operators<in_t<NotInverted, Operand, Args...>>,
+									 public alias_operators<in_t<NotInverted, Operand, Args...>>
 		{
-			using _traits = make_traits<value_type_of<First>, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
-			using _recursive_traits = make_recursive_traits<First, Args...>;
+			using _traits = make_traits<boolean, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
+			using _recursive_traits = make_recursive_traits<Operand, Args...>;
 
-			static_assert(sizeof...(Args) > 0, "concat requires two arguments at least");
-			static_assert(sqlpp::detail::all_t<is_text_t<First>::value, is_text_t<Args>::value...>::value, "at least one non-text argument detected in concat()");
+			static constexpr bool _inverted = not NotInverted;
+			static_assert(sizeof...(Args) > 0, "in() requires at least one argument");
+
 			struct _name_t
 			{
-				static constexpr const char* _get_name() { return "CONCAT"; }
+				static constexpr const char* _get_name() { return _inverted ? "NOT IN" : "IN"; }
 				template<typename T>
 					struct _member_t
 					{
-						T concat;
+						T in;
 					};
 			};
 
-			concat_t(First first, Args... args):
-				_args(first, args...)
+			in_t(Operand operand, Args... args):
+				_operand(operand),
+				_args(args...)
 			{}
 
-			concat_t(const concat_t&) = default;
-			concat_t(concat_t&&) = default;
-			concat_t& operator=(const concat_t&) = default;
-			concat_t& operator=(concat_t&&) = default;
-			~concat_t() = default;
+			in_t(const in_t&) = default;
+			in_t(in_t&&) = default;
+			in_t& operator=(const in_t&) = default;
+			in_t& operator=(in_t&&) = default;
+			~in_t() = default;
 
-			std::tuple<First, Args...> _args;
+			Operand _operand;
+			std::tuple<Args...> _args;
 		};
 
-		template<typename Context, typename First, typename... Args>
-			struct serializer_t<Context, concat_t<First, Args...>>
+		template<typename Context, bool NotInverted, typename Operand, typename... Args>
+			struct serializer_t<Context, vendor::in_t<NotInverted, Operand, Args...>>
 			{
-				using T = concat_t<First, Args...>;
+				using T = vendor::in_t<NotInverted, Operand, Args...>;
 
 				static Context& _(const T& t, Context& context)
 				{
-					context << "(";
-					interpret_tuple(t._args, "||", context);
-					context << ")";
+					serialize(t._operand, context);
+					context << (t._inverted ? " NOT IN(" : " IN(");
+					interpret_tuple(t._args, ',', context);
+					context << ')';
 					return context;
 				}
 			};
 	}
+
 }
 
 #endif

@@ -29,7 +29,7 @@
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/on.h>
-#include <sqlpp11/vendor/noop.h>
+#include <sqlpp11/noop.h>
 
 namespace sqlpp
 {

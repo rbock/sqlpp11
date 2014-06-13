@@ -27,7 +27,7 @@
 #ifndef SQLPP_INTERPRET_H
 #define SQLPP_INTERPRET_H
 
-#include <sqlpp11/vendor/interpreter.h>
+#include <sqlpp11/interpreter.h>
 
 namespace sqlpp
 {

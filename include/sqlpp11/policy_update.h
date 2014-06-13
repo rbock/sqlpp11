@@ -24,28 +24,36 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_VENDOR_WRONG_H
-#define SQLPP_VENDOR_WRONG_H
+#ifndef SQLPP_POLICY_UPDATE_H
+#define SQLPP_POLICY_UPDATE_H
 
-#include <type_traits>
+#include <sqlpp11/wrong.h>
 
 namespace sqlpp
 {
 	namespace vendor
 	{
-		namespace detail
-		{
-			// A template that always returns false
-			// To be used with static assert, for instance, to ensure it
-			// fires only when the template is instantiated.
-			template<typename... T>
-				struct wrong
-				{
-					using type = std::false_type;
-				};
-		}
-		template<typename... T>
-			using wrong_t = typename detail::wrong<T...>::type;
+		template<typename Needle, typename Replacement>
+			struct policy_update_impl
+			{
+				template<typename T>
+					using _policy_t = typename std::conditional<std::is_same<Needle, T>::value, Replacement, T>::type;
+			};
+
+		template<typename T, typename Needle, typename Replacement>
+			using policy_update_t = typename policy_update_impl<Needle, Replacement>::template _policy_t<T>;
+
+		template<typename Original, typename Needle, typename Replacement>
+			struct update_policies_impl
+			{
+				using type = typename Original::template _policy_update_t<Needle, Replacement>;
+			};
+
+		template<typename Original, typename Needle, typename Replacement>
+			using update_policies_t = typename update_policies_impl<Original, Needle, Replacement>::type;
+
 	}
+
 }
+
 #endif

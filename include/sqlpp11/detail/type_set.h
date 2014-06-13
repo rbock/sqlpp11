@@ -29,7 +29,7 @@
 
 #include <tuple>
 #include <type_traits>
-#include <sqlpp11/vendor/wrong.h>
+#include <sqlpp11/wrong.h>
 #include <sqlpp11/detail/logic.h>
 
 namespace sqlpp

@@ -29,9 +29,9 @@
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/parameter_list.h>
-#include <sqlpp11/vendor/expression.h>
-#include <sqlpp11/vendor/interpret_tuple.h>
-#include <sqlpp11/vendor/interpretable_list.h>
+#include <sqlpp11/expression.h>
+#include <sqlpp11/interpret_tuple.h>
+#include <sqlpp11/interpretable_list.h>
 #include <sqlpp11/detail/logic.h>
 
 namespace sqlpp

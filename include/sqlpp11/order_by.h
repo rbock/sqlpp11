@@ -29,9 +29,9 @@
 
 #include <tuple>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/vendor/interpret_tuple.h>
-#include <sqlpp11/vendor/interpretable.h>
-#include <sqlpp11/vendor/policy_update.h>
+#include <sqlpp11/interpret_tuple.h>
+#include <sqlpp11/interpretable.h>
+#include <sqlpp11/policy_update.h>
 #include <sqlpp11/detail/logic.h>
 #include <sqlpp11/detail/type_set.h>
 
