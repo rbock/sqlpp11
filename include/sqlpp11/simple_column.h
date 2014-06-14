@@ -28,6 +28,7 @@
 #define SQLPP_SIMPLE_COLUMN_H
 
 #include <sqlpp11/serializer.h>
+#include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
@@ -35,6 +36,9 @@ namespace sqlpp
 		struct simple_column_t
 		{
 			Column _column;
+
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
+			using _recursive_traits = make_recursive_traits<>;
 		};
 
 	template<typename Context, typename Column>
@@ -52,6 +56,7 @@ namespace sqlpp
 	template<typename Column>
 		simple_column_t<Column> simple_column(Column c)
 		{
+#warning: make sure that there are no parameters in Column
 			return {c};
 		}
 }

@@ -69,7 +69,7 @@ namespace sqlpp
 					 auto _prepare(Db& db) const
 					 -> prepared_remove_t<Db, _statement_t>
 					 {
-						 _check_consistency();
+						 _statement_t::_check_consistency();
 
 						 return {{}, db.prepare_remove(*this)};
 					 }

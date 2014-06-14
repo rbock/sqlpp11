@@ -82,7 +82,7 @@ namespace sqlpp
 			template<typename T>
 				struct _impl_t: public _impl_base
 			{
-				static_assert(not make_parameter_list_t<T>::type::size::value, "parameters not supported in dynamic statement parts");
+				static_assert(not make_parameter_list_t<T>::size::value, "parameters not supported in dynamic statement parts");
 				_impl_t(T t):
 					_t(t)
 				{}
