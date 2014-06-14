@@ -36,8 +36,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		// WHERE DATA
 		template<typename Database, typename... Expressions>
 			struct where_data_t
@@ -53,7 +51,7 @@ namespace sqlpp
 				~where_data_t() = default;
 
 				std::tuple<Expressions...> _expressions;
-				vendor::interpretable_list_t<Database> _dynamic_expressions;
+				interpretable_list_t<Database> _dynamic_expressions;
 			};
 
 		// WHERE(EXPR)
@@ -271,7 +269,6 @@ namespace sqlpp
 				}
 			};
 
-	}
 }
 
 #endif

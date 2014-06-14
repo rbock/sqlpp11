@@ -41,8 +41,6 @@ namespace sqlpp
 		struct text;
 	}
 
-	namespace vendor
-	{
 		struct boolean_operand
 		{
 			using _traits = make_traits<::sqlpp::detail::boolean, ::sqlpp::tag::expression, ::sqlpp::tag::wrapped_value>;
@@ -231,7 +229,6 @@ namespace sqlpp
 		template<typename T>
 			using wrap_operand_t = typename wrap_operand<T>::type;
 
-	}
 }
 
 #endif

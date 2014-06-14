@@ -33,8 +33,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		template<bool NotInverted, typename Operand>
 		struct is_null_t: public boolean::template expression_operators<is_null_t<NotInverted, Operand>>,
 											public alias_operators<is_null_t<NotInverted, Operand>>
@@ -73,9 +71,9 @@ namespace sqlpp
 		};
 
 		template<typename Context, bool NotInverted, typename Operand>
-			struct serializer_t<Context, ::sqlpp::vendor::is_null_t<NotInverted, Operand>>
+			struct serializer_t<Context, ::sqlpp::is_null_t<NotInverted, Operand>>
 			{
-				using T = ::sqlpp::vendor::is_null_t<NotInverted, Operand>;
+				using T = ::sqlpp::is_null_t<NotInverted, Operand>;
 
 				static Context& _(const T& t, Context& context)
 				{
@@ -84,7 +82,6 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 
 }
 

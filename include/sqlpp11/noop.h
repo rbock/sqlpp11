@@ -33,8 +33,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 #warning: Need extra include file for no_data
 		struct no_data_t {};
 
@@ -74,7 +72,6 @@ namespace sqlpp
 
 		template<typename T>
 			struct is_noop: std::is_same<T, noop> {};
-	}
 
 }
 #endif

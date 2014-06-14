@@ -63,8 +63,6 @@ namespace sqlpp
 		std::string _name;
 	};
 
-	namespace vendor
-	{
 		template<typename Context>
 			struct serializer_t<Context, verbatim_table_t>
 			{
@@ -76,7 +74,6 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 
 
 	verbatim_table_t verbatim_table(std::string name)

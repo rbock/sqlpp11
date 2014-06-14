@@ -31,8 +31,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		template<typename Needle, typename Replacement>
 			struct policy_update_impl
 			{
@@ -52,7 +50,6 @@ namespace sqlpp
 		template<typename Original, typename Needle, typename Replacement>
 			using update_policies_t = typename update_policies_impl<Original, Needle, Replacement>::type;
 
-	}
 
 }
 

@@ -33,8 +33,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		template<typename Operand, typename Pattern>
 			struct like_t: public boolean::template expression_operators<like_t<Operand, Pattern>>,
 										 public alias_operators<like_t<Operand, Pattern>>
@@ -84,7 +82,6 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 }
 
 #endif

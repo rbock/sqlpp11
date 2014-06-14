@@ -186,56 +186,56 @@ namespace sqlpp
 				struct expression_operators: public basic_expression_operators<Base, is_numeric_t>
 			{
 				template<typename T>
-					vendor::plus_t<Base, vendor::value_type_t<T>, vendor::wrap_operand_t<T>> operator +(T t) const
+					plus_t<Base, value_type_t<T>, wrap_operand_t<T>> operator +(T t) const
 					{
-						using rhs = vendor::wrap_operand_t<T>;
+						using rhs = wrap_operand_t<T>;
 						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
 
 						return { *static_cast<const Base*>(this), {t} };
 					}
 
 				template<typename T>
-					vendor::minus_t<Base, vendor::value_type_t<T>, vendor::wrap_operand_t<T>> operator -(T t) const
+					minus_t<Base, value_type_t<T>, wrap_operand_t<T>> operator -(T t) const
 					{
-						using rhs = vendor::wrap_operand_t<T>;
+						using rhs = wrap_operand_t<T>;
 						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
 
 						return { *static_cast<const Base*>(this), {t} };
 					}
 
 				template<typename T>
-					vendor::multiplies_t<Base, vendor::value_type_t<T>, vendor::wrap_operand_t<T>> operator *(T t) const
+					multiplies_t<Base, value_type_t<T>, wrap_operand_t<T>> operator *(T t) const
 					{
-						using rhs = vendor::wrap_operand_t<T>;
+						using rhs = wrap_operand_t<T>;
 						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
 
 						return { *static_cast<const Base*>(this), {t} };
 					}
 
 				template<typename T>
-					vendor::divides_t<Base, vendor::wrap_operand_t<T>> operator /(T t) const
+					divides_t<Base, wrap_operand_t<T>> operator /(T t) const
 					{
-						using rhs = vendor::wrap_operand_t<T>;
+						using rhs = wrap_operand_t<T>;
 						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
 
 						return { *static_cast<const Base*>(this), {t} };
 					}
 
 				template<typename T>
-					vendor::modulus_t<Base, vendor::wrap_operand_t<T>> operator %(T t) const
+					modulus_t<Base, wrap_operand_t<T>> operator %(T t) const
 					{
-						using rhs = vendor::wrap_operand_t<T>;
+						using rhs = wrap_operand_t<T>;
 						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
 
 						return { *static_cast<const Base*>(this), {t} };
 					}
 
-				vendor::unary_plus_t<integral, Base> operator +() const
+				unary_plus_t<integral, Base> operator +() const
 				{
 					return { *static_cast<const Base*>(this) };
 				}
 
-				vendor::unary_minus_t<integral, Base> operator -() const
+				unary_minus_t<integral, Base> operator -() const
 				{
 					return { *static_cast<const Base*>(this) };
 				}
@@ -245,36 +245,36 @@ namespace sqlpp
 				struct column_operators
 			{
 				template<typename T>
-					auto operator +=(T t) const -> vendor::assignment_t<Base, vendor::plus_t<Base, vendor::value_type_t<T>, vendor::wrap_operand_t<T>>>
+					auto operator +=(T t) const -> assignment_t<Base, plus_t<Base, value_type_t<T>, wrap_operand_t<T>>>
 					{
-						using rhs = vendor::wrap_operand_t<T>;
+						using rhs = wrap_operand_t<T>;
 						static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
 
 						return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
 					}
 
 				template<typename T>
-					auto operator -=(T t) const -> vendor::assignment_t<Base, vendor::minus_t<Base, vendor::value_type_t<T>, vendor::wrap_operand_t<T>>>
+					auto operator -=(T t) const -> assignment_t<Base, minus_t<Base, value_type_t<T>, wrap_operand_t<T>>>
 					{
-						using rhs = vendor::wrap_operand_t<T>;
+						using rhs = wrap_operand_t<T>;
 						static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
 
 						return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
 					}
 
 				template<typename T>
-					auto operator /=(T t) const -> vendor::assignment_t<Base, vendor::divides_t<Base, vendor::wrap_operand_t<T>>>
+					auto operator /=(T t) const -> assignment_t<Base, divides_t<Base, wrap_operand_t<T>>>
 					{
-						using rhs = vendor::wrap_operand_t<T>;
+						using rhs = wrap_operand_t<T>;
 						static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
 
 						return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
 					}
 
 				template<typename T>
-					auto operator *=(T t) const -> vendor::assignment_t<Base, vendor::multiplies_t<Base, vendor::value_type_t<T>, vendor::wrap_operand_t<T>>>
+					auto operator *=(T t) const -> assignment_t<Base, multiplies_t<Base, value_type_t<T>, wrap_operand_t<T>>>
 					{
-						using rhs = vendor::wrap_operand_t<T>;
+						using rhs = wrap_operand_t<T>;
 						static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
 
 						return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };

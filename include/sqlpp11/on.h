@@ -53,11 +53,9 @@ namespace sqlpp
 				}
 
 			std::tuple<Expr...> _expressions;
-			vendor::interpretable_list_t<Database> _dynamic_expressions;
+			interpretable_list_t<Database> _dynamic_expressions;
 		};
 
-	namespace vendor
-	{
 		template<typename Context, typename Database, typename... Expr>
 			struct serializer_t<Context, on_t<Database, Expr...>>
 			{
@@ -76,7 +74,6 @@ namespace sqlpp
 				}
 			};
 
-	}
 }
 
 #endif

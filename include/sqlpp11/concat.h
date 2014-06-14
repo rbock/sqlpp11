@@ -33,8 +33,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		// FIXME: Remove First, inherit from text_t
 		template<typename First, typename... Args>
 			struct concat_t: public value_type_of<First>::template expression_operators<concat_t<First, Args...>>,
@@ -81,7 +79,6 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 }
 
 #endif

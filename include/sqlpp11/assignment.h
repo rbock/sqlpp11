@@ -36,8 +36,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		template<typename T, typename Enable = void>
 		struct is_trivial_t
 		{
@@ -158,7 +156,6 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 }
 
 #endif

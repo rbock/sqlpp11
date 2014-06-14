@@ -32,8 +32,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		template<typename Flag, typename Expr>
 		struct count_t: public sqlpp::detail::integral::template expression_operators<count_t<Flag, Expr>>,
 										public alias_operators<count_t<Flag, Expr>>
@@ -68,14 +66,11 @@ namespace sqlpp
 
 			Expr _expr;
 		};
-	}
 
-	namespace vendor
-	{
 		template<typename Context, typename Flag, typename Expr>
-			struct serializer_t<Context, vendor::count_t<Flag, Expr>>
+			struct serializer_t<Context, count_t<Flag, Expr>>
 			{
-				using T = vendor::count_t<Flag, Expr>;
+				using T = count_t<Flag, Expr>;
 
 				static Context& _(const T& t, Context& context)
 				{
@@ -90,19 +85,18 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 
 	template<typename T>
-		auto count(T t) -> typename vendor::count_t<vendor::noop, vendor::wrap_operand_t<T>>
+		auto count(T t) -> typename count_t<noop, wrap_operand_t<T>>
 		{
-			static_assert(is_expression_t<vendor::wrap_operand_t<T>>::value, "count() requires an expression as argument");
+			static_assert(is_expression_t<wrap_operand_t<T>>::value, "count() requires an expression as argument");
 			return { t };
 		}
 
 	template<typename T>
-		auto count(const sqlpp::distinct_t&, T t) -> typename vendor::count_t<sqlpp::distinct_t, vendor::wrap_operand_t<T>>
+		auto count(const sqlpp::distinct_t&, T t) -> typename count_t<sqlpp::distinct_t, wrap_operand_t<T>>
 		{
-			static_assert(is_expression_t<vendor::wrap_operand_t<T>>::value, "count() requires an expression as argument");
+			static_assert(is_expression_t<wrap_operand_t<T>>::value, "count() requires an expression as argument");
 			return { t };
 		}
 

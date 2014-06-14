@@ -51,8 +51,6 @@ namespace sqlpp
 		return {};
 	}
 
-	namespace vendor
-	{
 		template<typename Context, typename Table>
 			struct serializer_t<Context, all_of_t<Table>>
 			{
@@ -63,7 +61,6 @@ namespace sqlpp
 					static_assert(wrong_t<T>::value, "all_of(table) does not seem to be used in select");
 				}
 			};
-	}
 
 }
 

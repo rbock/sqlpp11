@@ -36,8 +36,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		namespace detail
 		{
 			template<typename Type, bool>
@@ -118,7 +116,6 @@ namespace sqlpp
 				}
 			};
 
-	}
 }
 
 #endif

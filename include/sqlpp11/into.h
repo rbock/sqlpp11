@@ -34,8 +34,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		// A SINGLE TABLE DATA
 		template<typename Database, typename Table>
 			struct into_data_t
@@ -192,7 +190,6 @@ namespace sqlpp
 				}
 			};
 
-	}
 }
 
 #endif

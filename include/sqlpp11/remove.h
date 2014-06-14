@@ -41,7 +41,7 @@
 namespace sqlpp
 {
 	struct remove_name_t {};
-	struct remove_t: public vendor::statement_name_t<remove_name_t>
+	struct remove_t: public statement_name_t<remove_name_t>
 	{
 		using _traits = make_traits<no_value_t, tag::return_value>;
 		struct _name_t {};
@@ -79,8 +79,6 @@ namespace sqlpp
 	};
 
 
-	namespace vendor
-	{
 		template<typename Context>
 			struct serializer_t<Context, remove_name_t>
 			{
@@ -93,15 +91,14 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 
 	template<typename Database>
 		using blank_remove_t = statement_t<Database,
 			remove_t,
-			vendor::no_from_t,
-			vendor::no_using_t,
-			vendor::no_extra_tables_t,
-			vendor::no_where_t>;
+			no_from_t,
+			no_using_t,
+			no_extra_tables_t,
+			no_where_t>;
 
 	auto remove()
 		-> blank_remove_t<void>

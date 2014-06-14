@@ -33,8 +33,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		// OFFSET DATA
 		template<typename Offset>
 			struct offset_data_t
@@ -264,7 +262,6 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 }
 
 #endif

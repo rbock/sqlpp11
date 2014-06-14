@@ -36,8 +36,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		// SELECTED FLAGS DATA
 		template<typename Database, typename... Flags>
 			struct select_flag_list_data_t
@@ -53,7 +51,7 @@ namespace sqlpp
 				~select_flag_list_data_t() = default;
 
 				std::tuple<Flags...> _flags;
-				vendor::interpretable_list_t<Database> _dynamic_flags;
+				interpretable_list_t<Database> _dynamic_flags;
 			};
 
 		// SELECT FLAGS
@@ -207,7 +205,6 @@ namespace sqlpp
 				}
 			};
 
-	}
 
 }
 

@@ -31,8 +31,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		template<typename Column>
 			struct simple_column_t
 			{
@@ -56,7 +54,6 @@ namespace sqlpp
 			{
 				return {c};
 			}
-	}
 }
 
 #endif

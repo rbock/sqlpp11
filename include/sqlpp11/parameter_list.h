@@ -37,7 +37,7 @@ namespace sqlpp
 	template<typename T>
 		struct parameter_list_t
 		{
-			static_assert(vendor::wrong_t<T>::value, "Template parameter for parameter_list_t has to be a tuple");
+			static_assert(wrong_t<T>::value, "Template parameter for parameter_list_t has to be a tuple");
 		};
 
 	template<typename... Parameter>

@@ -37,8 +37,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		// GROUP BY DATA
 		template<typename Database, typename... Expressions>
 			struct group_by_data_t
@@ -54,7 +52,7 @@ namespace sqlpp
 				~group_by_data_t() = default;
 
 				std::tuple<Expressions...> _expressions;
-				vendor::interpretable_list_t<Database> _dynamic_expressions;
+				interpretable_list_t<Database> _dynamic_expressions;
 			};
 
 		// GROUP BY
@@ -208,7 +206,6 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 }
 
 #endif

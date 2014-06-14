@@ -42,8 +42,6 @@ namespace sqlpp
 	};
 	static constexpr all_t all = {};
 
-	namespace vendor
-	{
 		template<typename Context>
 			struct serializer_t<Context, all_t>
 			{
@@ -53,7 +51,6 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 
 	struct distinct_t
 	{
@@ -62,8 +59,6 @@ namespace sqlpp
 	};
 	static constexpr distinct_t distinct = {};
 
-	namespace vendor
-	{
 		template<typename Context>
 			struct serializer_t<Context, distinct_t>
 			{
@@ -73,7 +68,6 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 
 	struct straight_join_t
 	{
@@ -82,8 +76,6 @@ namespace sqlpp
 	};
 	static constexpr straight_join_t straight_join = {};
 
-	namespace vendor
-	{
 		template<typename Context>
 			struct serializer_t<Context, straight_join_t>
 			{
@@ -93,7 +85,6 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 
 }
 

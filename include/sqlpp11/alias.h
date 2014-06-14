@@ -46,8 +46,6 @@ namespace sqlpp
 			Expression _expression;
 		};
 
-	namespace vendor
-	{
 		template<typename Context, typename Expression, typename AliasProvider>
 			struct serializer_t<Context, expression_alias_t<Expression, AliasProvider>>
 			{
@@ -63,7 +61,6 @@ namespace sqlpp
 				}
 			};
 
-	}
 }
 
 #endif

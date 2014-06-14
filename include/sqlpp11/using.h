@@ -35,8 +35,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		// USING DATA
 		template<typename Database, typename... Tables>
 			struct using_data_t
@@ -52,7 +50,7 @@ namespace sqlpp
 				~using_data_t() = default;
 
 				std::tuple<Tables...> _tables;
-				vendor::interpretable_list_t<Database> _dynamic_tables;
+				interpretable_list_t<Database> _dynamic_tables;
 			};
 
 		// USING
@@ -201,7 +199,6 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 }
 
 #endif

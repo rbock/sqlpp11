@@ -110,8 +110,6 @@ namespace sqlpp
 			std::tuple<Columns...> _columns;
 		};
 
-	namespace vendor
-	{
 		template<typename Context, typename... Columns>
 			struct serializer_t<Context, multi_column_t<void, Columns...>>
 			{
@@ -134,7 +132,6 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 
 	namespace detail
 	{

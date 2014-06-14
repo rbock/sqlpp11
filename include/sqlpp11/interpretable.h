@@ -35,8 +35,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		template<typename Db>
 			struct interpretable_t
 			{
@@ -125,7 +123,6 @@ namespace sqlpp
 				}
 			};
 
-	}
 }
 
 #endif

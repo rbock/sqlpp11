@@ -46,11 +46,11 @@
 namespace sqlpp
 {
 	template<typename T>
-		auto value(T t) -> vendor::wrap_operand_t<T>
+		auto value(T t) -> wrap_operand_t<T>
 		{
 			using _provided_tables = detail::type_set<>;
 			using _required_tables = ::sqlpp::detail::type_set<>;
-			static_assert(is_wrapped_value_t<vendor::wrap_operand_t<T>>::value, "value() is to be called with non-sql-type like int, or string");
+			static_assert(is_wrapped_value_t<wrap_operand_t<T>>::value, "value() is to be called with non-sql-type like int, or string");
 			return { t };
 		}
 
@@ -71,8 +71,6 @@ namespace sqlpp
 		std::string _verbatim;
 	};
 
-	namespace vendor
-	{
 		template<typename Context, typename ValueType>
 			struct serializer_t<Context, verbatim_t<ValueType>>
 			{
@@ -84,7 +82,6 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 
 	template<typename ValueType, typename StringType>
 		auto verbatim(StringType s) -> verbatim_t<ValueType>
@@ -104,7 +101,7 @@ namespace sqlpp
 	template<typename Container>
 		struct value_list_t // to be used in .in() method
 		{
-			using _traits = make_traits<vendor::value_type_t<typename Container::value_type>>;
+			using _traits = make_traits<value_type_t<typename Container::value_type>>;
 			using _recursive_traits = make_recursive_traits<>;
 
 			using _container_t = Container;
@@ -122,8 +119,6 @@ namespace sqlpp
 			_container_t _container;
 		};
 
-	namespace vendor
-	{
 		template<typename Context, typename Container>
 			struct serializer_t<Context, value_list_t<Container>>
 			{
@@ -144,12 +139,11 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 
 	template<typename Container>
 		auto value_list(Container c) -> value_list_t<Container>
 		{
-			static_assert(is_wrapped_value_t<vendor::wrap_operand_t<typename Container::value_type>>::value, "value_list() is to be called with a container of non-sql-type like std::vector<int>, or std::list(string)");
+			static_assert(is_wrapped_value_t<wrap_operand_t<typename Container::value_type>>::value, "value_list() is to be called with a container of non-sql-type like std::vector<int>, or std::list(string)");
 			return { c };
 		}
 

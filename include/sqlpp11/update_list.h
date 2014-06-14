@@ -34,8 +34,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		// UPDATE ASSIGNMENTS DATA
 		template<typename Database, typename... Assignments>
 			struct update_list_data_t
@@ -51,7 +49,7 @@ namespace sqlpp
 				~update_list_data_t() = default;
 
 				std::tuple<Assignments...> _assignments;
-				typename vendor::interpretable_list_t<Database> _dynamic_assignments;
+				typename interpretable_list_t<Database> _dynamic_assignments;
 			};
 
 		// UPDATE ASSIGNMENTS
@@ -196,7 +194,7 @@ namespace sqlpp
 						-> _new_statement_t<update_list_t<_database_t, Args...>>
 						{
 							static_assert(not std::is_same<_database_t, void>::value, "dynamic_set must not be called in a static statement");
-							return { *static_cast<typename Policies::_statement_t*>(this), vendor::update_list_data_t<_database_t, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), update_list_data_t<_database_t, Args...>{args...} };
 						}
 				};
 		};
@@ -217,7 +215,6 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 }
 
 #endif

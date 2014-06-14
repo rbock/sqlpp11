@@ -33,8 +33,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		template<typename... Tables>
 			struct extra_tables_data_t
 			{
@@ -164,7 +162,6 @@ namespace sqlpp
 				}
 			};
 
-	}
 }
 
 #endif

@@ -184,24 +184,24 @@ namespace sqlpp
 				struct expression_operators: public basic_expression_operators<Base, is_boolean_t>
 			{
 				template<typename T>
-					vendor::logical_and_t<Base, vendor::wrap_operand_t<T>> operator and(T t) const
+					logical_and_t<Base, wrap_operand_t<T>> operator and(T t) const
 					{
-						using rhs = vendor::wrap_operand_t<T>;
+						using rhs = wrap_operand_t<T>;
 						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
 
 						return { *static_cast<const Base*>(this), rhs{t} };
 					}
 
 				template<typename T>
-					vendor::logical_or_t<Base, vendor::wrap_operand_t<T>> operator or(T t) const
+					logical_or_t<Base, wrap_operand_t<T>> operator or(T t) const
 					{
-						using rhs = vendor::wrap_operand_t<T>;
+						using rhs = wrap_operand_t<T>;
 						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
 
 						return { *static_cast<const Base*>(this), rhs{t} };
 					}
 
-				vendor::logical_not_t<Base> operator not() const
+				logical_not_t<Base> operator not() const
 				{
 					return { *static_cast<const Base*>(this) };
 				}

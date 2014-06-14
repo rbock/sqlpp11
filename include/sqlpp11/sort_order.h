@@ -46,8 +46,6 @@ namespace sqlpp
 			Expression _expression;
 		};
 
-	namespace vendor
-	{
 		template<typename Context, typename Expression, sort_type SortType>
 			struct serializer_t<Context, sort_order_t<Expression, SortType>>
 			{
@@ -69,7 +67,6 @@ namespace sqlpp
 				}
 			};
 
-	}
 }
 
 #endif

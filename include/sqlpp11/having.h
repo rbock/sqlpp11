@@ -36,8 +36,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		// HAVING DATA
 		template<typename Database, typename... Expressions>
 			struct having_data_t
@@ -53,7 +51,7 @@ namespace sqlpp
 				~having_data_t() = default;
 
 				std::tuple<Expressions...> _expressions;
-				vendor::interpretable_list_t<Database> _dynamic_expressions;
+				interpretable_list_t<Database> _dynamic_expressions;
 			};
 
 		// HAVING
@@ -206,7 +204,6 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 }
 
 #endif

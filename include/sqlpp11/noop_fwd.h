@@ -29,12 +29,9 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		struct noop;
 
 		template<typename T>
 			struct is_noop;
-	}
 }
 #endif

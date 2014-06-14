@@ -31,8 +31,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		template<typename Flag, typename Expr>
 		struct avg_t: public floating_point::template expression_operators<avg_t<Flag, Expr>>,
 									public alias_operators<avg_t<Flag, Expr>>
@@ -67,14 +65,11 @@ namespace sqlpp
 
 			Expr _expr;
 		};
-	}
 
-	namespace vendor
-	{
 		template<typename Context, typename Flag, typename Expr>
-			struct serializer_t<Context, vendor::avg_t<Flag, Expr>>
+			struct serializer_t<Context, avg_t<Flag, Expr>>
 			{
-				using T = vendor::avg_t<Flag, Expr>;
+				using T = avg_t<Flag, Expr>;
 
 				static Context& _(const T& t, Context& context)
 				{
@@ -89,19 +84,18 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 
 	template<typename T>
-		auto avg(T t) -> typename vendor::avg_t<vendor::noop, vendor::wrap_operand_t<T>>
+		auto avg(T t) -> typename avg_t<noop, wrap_operand_t<T>>
 		{
-			static_assert(is_numeric_t<vendor::wrap_operand_t<T>>::value, "avg() requires a value expression as argument");
+			static_assert(is_numeric_t<wrap_operand_t<T>>::value, "avg() requires a value expression as argument");
 			return { t };
 		}
 
 	template<typename T>
-		auto avg(const sqlpp::distinct_t&, T t) -> typename vendor::avg_t<sqlpp::distinct_t, vendor::wrap_operand_t<T>>
+		auto avg(const sqlpp::distinct_t&, T t) -> typename avg_t<sqlpp::distinct_t, wrap_operand_t<T>>
 		{
-			static_assert(is_numeric_t<vendor::wrap_operand_t<T>>::value, "avg() requires a value expression as argument");
+			static_assert(is_numeric_t<wrap_operand_t<T>>::value, "avg() requires a value expression as argument");
 			return { t };
 		}
 

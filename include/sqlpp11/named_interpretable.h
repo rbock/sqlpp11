@@ -33,8 +33,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		template<typename Db>
 			struct named_interpretable_t
 			{
@@ -133,7 +131,6 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 
 }
 

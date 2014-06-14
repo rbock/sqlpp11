@@ -31,8 +31,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		template<typename Expr>
 		struct min_t: public value_type_of<Expr>::template expression_operators<min_t<Expr>>,
 									public alias_operators<min_t<Expr>>
@@ -66,14 +64,11 @@ namespace sqlpp
 
 			Expr _expr;
 		};
-	}
 
-	namespace vendor
-	{
 		template<typename Context, typename Expr>
-			struct serializer_t<Context, vendor::min_t<Expr>>
+			struct serializer_t<Context, min_t<Expr>>
 			{
-				using T = vendor::min_t<Expr>;
+				using T = min_t<Expr>;
 
 				static Context& _(const T& t, Context& context)
 				{
@@ -83,12 +78,11 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 
 	template<typename T>
-		auto min(T t) -> typename vendor::min_t<vendor::wrap_operand_t<T>>
+		auto min(T t) -> typename min_t<wrap_operand_t<T>>
 		{
-			static_assert(is_expression_t<vendor::wrap_operand_t<T>>::value, "min() requires a value expression as argument");
+			static_assert(is_expression_t<wrap_operand_t<T>>::value, "min() requires a value expression as argument");
 			return { t };
 		}
 

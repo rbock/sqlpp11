@@ -81,30 +81,28 @@ namespace sqlpp
 			}
 
 		template<typename T>
-			auto operator =(T t) const -> vendor::assignment_t<column_t, vendor::wrap_operand_t<T>>
+			auto operator =(T t) const -> assignment_t<column_t, wrap_operand_t<T>>
 			{
-				using rhs = vendor::wrap_operand_t<T>;
+				using rhs = wrap_operand_t<T>;
 				static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand assignment operand");
 
 				return { *this, rhs{t} };
 			}
 
 		auto operator =(sqlpp::null_t) const
-			->vendor::assignment_t<column_t, sqlpp::null_t>
+			->assignment_t<column_t, sqlpp::null_t>
 			{
 				static_assert(can_be_null_t<column_t>::value, "column cannot be null");
 				return { *this, {} };
 			}
 
 		auto operator =(sqlpp::default_value_t) const
-			->vendor::assignment_t<column_t, sqlpp::default_value_t>
+			->assignment_t<column_t, sqlpp::default_value_t>
 			{
 				return { *this, {} };
 			}
 	};
 
-	namespace vendor
-	{
 		template<typename Context, typename... Args>
 			struct serializer_t<Context, column_t<Args...>>
 			{
@@ -117,7 +115,6 @@ namespace sqlpp
 				}
 			};
 
-	}
 }
 
 #endif

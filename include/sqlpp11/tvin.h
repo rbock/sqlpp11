@@ -61,8 +61,6 @@ namespace sqlpp
 			Operand _value;
 		};
 
-	namespace vendor
-	{
 		template<typename Context, typename Operand>
 			struct serializer_t<Context, tvin_t<Operand>>
 			{
@@ -70,10 +68,9 @@ namespace sqlpp
 
 				static void _(const T& t, Context& context)
 				{
-					static_assert(vendor::wrong_t<T>::value, "tvin() must not be used with anything but =, ==, != and !");
+					static_assert(wrong_t<T>::value, "tvin() must not be used with anything but =, ==, != and !");
 				}
 			};
-	}
 
 	template<typename Operand>
 		struct maybe_tvin_t
@@ -121,8 +118,6 @@ namespace sqlpp
 			typename tvin_t<Operand>::_operand_t _value;
 		};
 
-	namespace vendor
-	{
 		template<typename Context, typename Operand>
 			struct serializer_t<Context, maybe_tvin_t<Operand>>
 			{
@@ -141,13 +136,12 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 
 	template<typename Operand>
-		auto tvin(Operand operand) -> tvin_t<typename vendor::wrap_operand<Operand>::type>
+		auto tvin(Operand operand) -> tvin_t<typename wrap_operand<Operand>::type>
 		{
-			using _operand_t = typename vendor::wrap_operand<Operand>::type;
-			static_assert(std::is_same<_operand_t, vendor::text_operand>::value
+			using _operand_t = typename wrap_operand<Operand>::type;
+			static_assert(std::is_same<_operand_t, text_operand>::value
 				 	or not std::is_same<_operand_t, Operand>::value, "tvin() used with invalid type (only string and primitive types allowed)");
 			return {{operand}};
 		}

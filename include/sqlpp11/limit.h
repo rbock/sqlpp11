@@ -33,8 +33,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		// LIMIT DATA
 		template<typename Limit>
 			struct limit_data_t
@@ -254,7 +252,6 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 }
 
 #endif

@@ -32,8 +32,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		template<typename Select>
 		struct some_t
 		{
@@ -64,14 +62,11 @@ namespace sqlpp
 
 			Select _select;
 		};
-	}
 
-	namespace vendor
-	{
 		template<typename Context, typename Select>
-			struct serializer_t<Context, vendor::some_t<Select>>
+			struct serializer_t<Context, some_t<Select>>
 			{
-				using T = vendor::some_t<Select>;
+				using T = some_t<Select>;
 
 				static Context& _(const T& t, Context& context)
 				{
@@ -81,13 +76,12 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 
 	template<typename T>
-		auto some(T t) -> typename vendor::some_t<vendor::wrap_operand_t<T>>
+		auto some(T t) -> typename some_t<wrap_operand_t<T>>
 		{
-			static_assert(is_select_t<vendor::wrap_operand_t<T>>::value, "some() requires a single column select expression as argument");
-			static_assert(is_expression_t<vendor::wrap_operand_t<T>>::value, "some() requires a single column select expression as argument");
+			static_assert(is_select_t<wrap_operand_t<T>>::value, "some() requires a single column select expression as argument");
+			static_assert(is_expression_t<wrap_operand_t<T>>::value, "some() requires a single column select expression as argument");
 			return { t };
 		}
 

@@ -37,8 +37,6 @@ namespace sqlpp
 		using _recursive_traits = make_recursive_traits<>;
 	};
 
-	namespace vendor
-	{
 		template<typename Context>
 			struct serializer_t<Context, null_t>
 			{
@@ -50,7 +48,6 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 
 	constexpr null_t null = {};
 

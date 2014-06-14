@@ -36,8 +36,6 @@ namespace sqlpp
 		struct floating_point;
 	}
 
-	namespace vendor
-	{
 		namespace op
 		{
 			struct less
@@ -193,7 +191,6 @@ namespace sqlpp
 		template<typename ValueType, typename Rhs>
 			using unary_minus_t = unary_expression_t<op::unary_minus<ValueType>, Rhs>;
 
-	}
 }
 
 #endif

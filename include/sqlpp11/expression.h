@@ -37,8 +37,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		template<typename Lhs, typename Rhs>
 			struct binary_expression_t<Lhs, op::equal_to, Rhs>: public ::sqlpp::detail::boolean::template expression_operators<binary_expression_t<Lhs, op::equal_to, Rhs>>,
 																													public alias_operators<binary_expression_t<Lhs, op::equal_to, Rhs>>
@@ -236,7 +234,6 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 }
 
 #endif

@@ -59,13 +59,11 @@ namespace sqlpp
 			};
 	}
 
-	namespace vendor
-	{
 		template<typename Db>
 			struct dynamic_select_column_list
 			{
 				using _names_t = std::vector<std::string>;
-				std::vector<vendor::named_interpretable_t<Db>> _dynamic_columns;
+				std::vector<named_interpretable_t<Db>> _dynamic_columns;
 				_names_t _dynamic_expression_names;
 
 				template<typename Expr>
@@ -311,18 +309,15 @@ namespace sqlpp
 					};
 
 			};
-	}
 
 	namespace detail
 	{
 		template<typename Database, typename... Columns>
 			using make_select_column_list_t = 
-			copy_tuple_args_t<vendor::select_column_list_t, Database, 
+			copy_tuple_args_t<select_column_list_t, Database, 
 			decltype(std::tuple_cat(as_tuple<Columns>::_(std::declval<Columns>())...))>;
 	}
 
-	namespace vendor
-	{
 		struct no_select_column_list_t
 		{
 			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop, ::sqlpp::tag::missing>;
@@ -401,7 +396,6 @@ namespace sqlpp
 				}
 			};
 
-	}
 }
 
 #endif

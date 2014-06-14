@@ -31,8 +31,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		template<typename Flag, typename Expr>
 		struct sum_t: public value_type_of<Expr>::template expression_operators<sum_t<Flag, Expr>>,
 									public alias_operators<sum_t<Flag, Expr>>
@@ -67,14 +65,11 @@ namespace sqlpp
 
 			Expr _expr;
 		};
-	}
 
-	namespace vendor
-	{
 		template<typename Context, typename Flag, typename Expr>
-			struct serializer_t<Context, vendor::sum_t<Flag, Expr>>
+			struct serializer_t<Context, sum_t<Flag, Expr>>
 			{
-				using T = vendor::sum_t<Flag, Expr>;
+				using T = sum_t<Flag, Expr>;
 
 				static Context& _(const T& t, Context& context)
 				{
@@ -89,19 +84,18 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 
 	template<typename T>
-		auto sum(T t) -> typename vendor::sum_t<vendor::noop, vendor::wrap_operand_t<T>>
+		auto sum(T t) -> typename sum_t<noop, wrap_operand_t<T>>
 		{
-			static_assert(is_numeric_t<vendor::wrap_operand_t<T>>::value, "sum() requires a numeric expression as argument");
+			static_assert(is_numeric_t<wrap_operand_t<T>>::value, "sum() requires a numeric expression as argument");
 			return { t };
 		}
 
 	template<typename T>
-		auto sum(const sqlpp::distinct_t&, T t) -> typename vendor::sum_t<sqlpp::distinct_t, vendor::wrap_operand_t<T>>
+		auto sum(const sqlpp::distinct_t&, T t) -> typename sum_t<sqlpp::distinct_t, wrap_operand_t<T>>
 		{
-			static_assert(is_numeric_t<vendor::wrap_operand_t<T>>::value, "sum() requires a numeric expression as argument");
+			static_assert(is_numeric_t<wrap_operand_t<T>>::value, "sum() requires a numeric expression as argument");
 			return { t };
 		}
 

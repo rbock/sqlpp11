@@ -72,8 +72,6 @@ namespace sqlpp
 		Select _select;
 	};
 
-	namespace vendor
-	{
 		template<typename Context, typename Select, typename... NamedExpr>
 			struct serializer_t<Context, select_pseudo_table_t<Select, NamedExpr...>>
 			{
@@ -86,7 +84,6 @@ namespace sqlpp
 				}
 			};
 
-	}
 }
 
 #endif

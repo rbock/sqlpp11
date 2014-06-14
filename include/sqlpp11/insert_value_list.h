@@ -37,8 +37,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		struct insert_default_values_data_t
 		{};
 
@@ -98,8 +96,8 @@ namespace sqlpp
 				std::tuple<simple_column_t<typename Assignments::_column_t>...> _columns;
 				std::tuple<typename Assignments::_value_t...> _values;
 				std::tuple<Assignments...> _assignments; // FIXME: Need to replace _columns and _values by _assignments (connector-container requires assignments)
-				typename vendor::interpretable_list_t<Database> _dynamic_columns;
-				typename vendor::interpretable_list_t<Database> _dynamic_values;
+				interpretable_list_t<Database> _dynamic_columns;
+				interpretable_list_t<Database> _dynamic_values;
 			};
 
 		template<typename Database, typename... Assignments>
@@ -218,7 +216,7 @@ namespace sqlpp
 				~column_list_data_t() = default;
 
 #warning need to define just one version of value_tuple_t
-				using _value_tuple_t = std::tuple<vendor::insert_value_t<Columns>...>;
+				using _value_tuple_t = std::tuple<insert_value_t<Columns>...>;
 				std::tuple<simple_column_t<Columns>...> _columns;
 				std::vector<_value_tuple_t> _insert_values;
 			};
@@ -237,7 +235,7 @@ namespace sqlpp
 
 				static_assert(::sqlpp::detail::none_t<must_not_insert_t<Columns>::value...>::value, "at least one column argument has a must_not_insert flag in its definition");
 
-				using _value_tuple_t = std::tuple<vendor::insert_value_t<Columns>...>;
+				using _value_tuple_t = std::tuple<insert_value_t<Columns>...>;
 
 				static_assert(required_tables_of<column_list_t>::size::value == 1, "columns from multiple tables in columns()");
 
@@ -252,7 +250,7 @@ namespace sqlpp
 							void add(Assignments... assignments)
 							{
 								static_assert(::sqlpp::detail::all_t<is_assignment_t<Assignments>::value...>::value, "add_values() arguments have to be assignments");
-								using _arg_value_tuple = std::tuple<vendor::insert_value_t<typename Assignments::_column_t>...>;
+								using _arg_value_tuple = std::tuple<insert_value_t<typename Assignments::_column_t>...>;
 								using _args_correct = std::is_same<_arg_value_tuple, _value_tuple_t>;
 								static_assert(_args_correct::value, "add_values() arguments do not match columns() arguments");
 
@@ -267,7 +265,7 @@ namespace sqlpp
 						template<typename... Assignments>
 							void _add_impl(const std::true_type&, Assignments... assignments)
 							{
-								return _data._insert_values.emplace_back(vendor::insert_value_t<typename Assignments::_column_t>{assignments}...);
+								return _data._insert_values.emplace_back(insert_value_t<typename Assignments::_column_t>{assignments}...);
 							}
 
 						template<typename... Assignments>
@@ -373,7 +371,7 @@ namespace sqlpp
 						-> _new_statement_t<insert_list_t<_database_t, Args...>>
 						{
 							static_assert(not std::is_same<_database_t, void>::value, "dynamic_set must not be called in a static statement");
-							return { *static_cast<typename Policies::_statement_t*>(this), vendor::insert_list_data_t<_database_t, Args...>{args...} };
+							return { *static_cast<typename Policies::_statement_t*>(this), insert_list_data_t<_database_t, Args...>{args...} };
 						}
 				};
 		};
@@ -447,7 +445,6 @@ namespace sqlpp
 				}
 			};
 
-	}
 }
 
 #endif

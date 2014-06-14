@@ -61,7 +61,7 @@ namespace sqlpp
 					struct _policies_update_t
 					{
 						static_assert(detail::is_element_of<Needle, make_type_set_t<Policies...>>::value, "policies update for non-policy class detected");
-						using type =  statement_t<Db, vendor::policy_update_t<Policies, Needle, Replacement>...>;
+						using type =  statement_t<Db, policy_update_t<Policies, Needle, Replacement>...>;
 					};
 
 				template<typename Needle, typename Replacement>
@@ -82,7 +82,7 @@ namespace sqlpp
 					_all_provided_tables // Hint: extra_tables are not used here because they are just a helper for dynamic .add_*()
 							>;
 
-				using _result_type_provider = detail::get_last_if<is_return_value_t, vendor::noop, Policies...>;
+				using _result_type_provider = detail::get_last_if<is_return_value_t, noop, Policies...>;
 
 				struct _result_methods_t: public _result_type_provider::template _result_methods_t<statement_policies_t>
 				{};
@@ -181,8 +181,6 @@ namespace sqlpp
 
 		};
 
-	namespace vendor
-	{
 		template<typename Context, typename Database, typename... Policies>
 			struct serializer_t<Context, statement_t<Database, Policies...>>
 			{
@@ -238,7 +236,6 @@ namespace sqlpp
 				};
 		};
 
-	}
 }
 
 #endif

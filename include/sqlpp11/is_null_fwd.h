@@ -29,11 +29,8 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		template<bool NotInverted, typename Operand>
 		struct is_null_t;
-	}
 }
 
 #endif

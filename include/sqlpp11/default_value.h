@@ -39,8 +39,6 @@ namespace sqlpp
 		static constexpr bool _is_trivial() { return false; }
 	};
 
-	namespace vendor
-	{
 		template<typename Context>
 			struct serializer_t<Context, default_value_t>
 			{
@@ -52,7 +50,6 @@ namespace sqlpp
 					return context;
 				}
 			};
-	}
 
 	constexpr default_value_t default_value = {};
 

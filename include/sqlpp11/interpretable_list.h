@@ -32,8 +32,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		template<typename Db>
 			struct interpretable_list_t
 			{
@@ -113,7 +111,6 @@ namespace sqlpp
 				return serializable_list_interpreter_t<Context, T>::_(t, separator, context);
 			}
 
-	}
 }
 
 #endif

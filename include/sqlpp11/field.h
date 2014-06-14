@@ -31,8 +31,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		template<typename NameType, typename ValueType, bool TrivialValueIsNull>
 			struct field_t
 			{ 
@@ -67,7 +65,6 @@ namespace sqlpp
 
 		template<typename NamedExpr>
 			using make_field_t = typename detail::make_field_t_impl<NamedExpr>::type;
-	}
 
 }
 

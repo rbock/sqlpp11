@@ -31,8 +31,6 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
 		template<typename Context, typename T, typename Enable = void>
 			struct serializer_t
 			{
@@ -41,7 +39,6 @@ namespace sqlpp
 					static_assert(wrong_t<Context, T>::value, "missing serializer specialization");
 				}
 			};
-	}
 
 }
 

@@ -61,8 +61,6 @@ namespace sqlpp
 		Table _table;
 	};
 
-	namespace vendor
-	{
 		template<typename Context, typename AliasProvider, typename Table, typename... ColumnSpec>
 			struct serializer_t<Context, table_alias_t<AliasProvider, Table, ColumnSpec...>>
 			{
@@ -77,7 +75,6 @@ namespace sqlpp
 				}
 			};
 
-	}
 }
 
 #endif

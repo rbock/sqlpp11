@@ -189,18 +189,18 @@ namespace sqlpp
 				struct expression_operators: public basic_expression_operators<Base, is_text_t>
 			{
 				template<typename T>
-					vendor::concat_t<Base, vendor::wrap_operand_t<T>> operator+(T t) const
+					concat_t<Base, wrap_operand_t<T>> operator+(T t) const
 					{
-						using rhs = vendor::wrap_operand_t<T>;
+						using rhs = wrap_operand_t<T>;
 						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
 
 						return { *static_cast<const Base*>(this), {t} };
 					}
 
 				template<typename T>
-					vendor::like_t<Base, vendor::wrap_operand_t<T>> like(T t) const
+					like_t<Base, wrap_operand_t<T>> like(T t) const
 					{
-						using rhs = vendor::wrap_operand_t<T>;
+						using rhs = wrap_operand_t<T>;
 						static_assert(_is_valid_operand<rhs>::value, "invalid argument for like()");
 
 						return { *static_cast<const Base*>(this), {t} };
@@ -211,9 +211,9 @@ namespace sqlpp
 				struct column_operators
 			{
 				template<typename T>
-					auto operator +=(T t) const -> vendor::assignment_t<Base, vendor::concat_t<Base, vendor::wrap_operand_t<T>>>
+					auto operator +=(T t) const -> assignment_t<Base, concat_t<Base, wrap_operand_t<T>>>
 					{
-						using rhs = vendor::wrap_operand_t<T>;
+						using rhs = wrap_operand_t<T>;
 						static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
 
 						return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
