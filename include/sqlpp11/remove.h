@@ -65,16 +65,14 @@ namespace sqlpp
 						return db.remove(*this);
 					}
 
-				/*
 					 template<typename Db>
 					 auto _prepare(Db& db) const
-					 -> prepared_remove_t<Db, remove_t>
+					 -> prepared_remove_t<Db, _statement_t>
 					 {
-					 _check_consistency();
+						 _check_consistency();
 
-					 return {{}, db.prepare_remove(*this)};
+						 return {{}, db.prepare_remove(*this)};
 					 }
-					 */
 			};
 	};
 

@@ -64,40 +64,8 @@ namespace sqlpp
 				}
 		};
 
-	namespace detail
-	{
-		template<typename Exp, typename Enable = void>
-			struct get_parameter_tuple
-			{
-				using type = std::tuple<>;
-			};
-
-		template<typename Exp>
-			struct get_parameter_tuple<Exp, typename std::enable_if<is_parameter_t<Exp>::value, void>::type>
-			{
-				using type = std::tuple<Exp>;
-			};
-
-		template<typename... Param>
-			struct get_parameter_tuple<std::tuple<Param...>, void>
-			{
-				// cat together parameter tuples
-				using type = decltype(std::tuple_cat(std::declval<typename get_parameter_tuple<Param>::type>()...));
-			};
-
-		template<typename Exp>
-			struct get_parameter_tuple<Exp, typename std::enable_if<not std::is_same<typename Exp::_parameter_tuple_t, void>::value, void>::type>
-			{
-				using type = typename get_parameter_tuple<typename Exp::_parameter_tuple_t>::type;
-			};
-
-	}
-
 	template<typename Exp>
-		struct make_parameter_list_t
-		{
-			using type = parameter_list_t<typename detail::get_parameter_tuple<Exp>::type>;
-		};
+		using make_parameter_list_t = parameter_list_t<parameters_of<Exp>>;
 
 }
 

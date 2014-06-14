@@ -133,16 +133,14 @@ namespace sqlpp
 							return db.insert(*this);
 						}
 
-					/*
 						 template<typename Db>
 						 auto _prepare(Db& db) const
-						 -> prepared_insert_t<Db, insert_t>
+						 -> prepared_insert_t<Db, _statement_t>
 						 {
-						 _check_consistency();
+							 _check_consistency();
 
-						 return {{}, db.prepare_insert(*this)};
+							 return {{}, db.prepare_insert(*this)};
 						 }
-						 */
 				};
 		};
 

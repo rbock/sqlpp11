@@ -294,18 +294,16 @@ namespace sqlpp
 
 							return {db.select(_get_statement()), get_dynamic_names()};
 						}
-#if 0
 
 					// Prepare
 					template<typename Db>
 						auto _prepare(Db& db) const
-						-> prepared_select_t<Db, select_t>
+						-> prepared_select_t<Db, _statement_t>
 						{
 							_statement_t::_check_consistency();
 
 							return {{}, get_dynamic_names(), db.prepare_select(*this)};
 						}
-#endif
 				};
 
 		};

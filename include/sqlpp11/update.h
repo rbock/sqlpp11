@@ -65,16 +65,14 @@ namespace sqlpp
 						return db.update(*this);
 					}
 
-				/*
 					 template<typename Db>
 					 auto _prepare(Db& db) const
-					 -> prepared_update_t<Db, update_t>
+					 -> prepared_update_t<Db, _statement_t>
 					 {
-					 _statement_t::_check_consistency();
+						 _statement_t::_check_consistency();
 
-					 return {{}, db.prepare_update(*this)};
+						 return {{}, db.prepare_update(*this)};
 					 }
-					 */
 			};
 	};
 

@@ -112,10 +112,10 @@ namespace sqlpp
 
 				struct _recursive_traits
 				{
-					using _parameters = std::tuple<>; // FIXME
 					using _required_tables = _required_tables;
 					using _provided_tables = detail::type_set<>;
 					using _extra_tables = detail::type_set<>;
+					using _parameters = detail::make_parameter_list_t<parameters_of<Policies>...>;
 				};
 			};
 	}
