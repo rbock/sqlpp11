@@ -35,93 +35,93 @@
 
 namespace sqlpp
 {
-		template<typename Db>
-			struct interpretable_t
+	template<typename Db>
+		struct interpretable_t
+		{
+			using _serializer_context_t = typename Db::_serializer_context_t;
+			using _interpreter_context_t = typename Db::_interpreter_context_t;
+
+			template<typename T>
+				interpretable_t(T t):
+					_impl(std::make_shared<_impl_t<T>>(t))
+			{}
+
+			interpretable_t(const interpretable_t&) = default;
+			interpretable_t(interpretable_t&&) = default;
+			interpretable_t& operator=(const interpretable_t&) = default;
+			interpretable_t& operator=(interpretable_t&&) = default;
+			~interpretable_t() = default;
+
+			sqlpp::serializer_context_t& serialize(sqlpp::serializer_context_t& context) const
 			{
-				using _serializer_context_t = typename Db::_serializer_context_t;
-				using _interpreter_context_t = typename Db::_interpreter_context_t;
+				return _impl->serialize(context);
+			}
 
-				template<typename T>
-					interpretable_t(T t):
-						_impl(std::make_shared<_impl_t<T>>(t))
-				{}
-
-				interpretable_t(const interpretable_t&) = default;
-				interpretable_t(interpretable_t&&) = default;
-				interpretable_t& operator=(const interpretable_t&) = default;
-				interpretable_t& operator=(interpretable_t&&) = default;
-				~interpretable_t() = default;
-
-				sqlpp::serializer_context_t& serialize(sqlpp::serializer_context_t& context) const
-				{
-					return _impl->serialize(context);
-				}
-
-				// This method only exists if Db::_serializer_context_t and sqlpp::serializer_context_t are not the same
-				template<typename Context>
+			// This method only exists if Db::_serializer_context_t and sqlpp::serializer_context_t are not the same
+			template<typename Context>
 				auto serialize(Context& context) const
 				-> typename std::enable_if<std::is_same<Context, _serializer_context_t>::value 
-						               and not std::is_same<Context, sqlpp::serializer_context_t>::value, Context&>::type
+				and not std::is_same<Context, sqlpp::serializer_context_t>::value, Context&>::type
 				{
 					return _impl->db_serialize(context);
 				}
 
-				_interpreter_context_t& interpret(_interpreter_context_t& context) const
-				{
-					return _impl->interpret(context);
-				}
+			_interpreter_context_t& interpret(_interpreter_context_t& context) const
+			{
+				return _impl->interpret(context);
+			}
 
-			private:
-				struct _impl_base
-				{
-					virtual sqlpp::serializer_context_t& serialize(sqlpp::serializer_context_t& context) const = 0;
-					virtual _serializer_context_t& db_serialize(_serializer_context_t& context) const = 0;
-					virtual _interpreter_context_t& interpret(_interpreter_context_t& context) const = 0;
-				};
-
-				template<typename T>
-					struct _impl_t: public _impl_base
-				{
-					static_assert(not make_parameter_list_t<T>::type::size::value, "parameters not supported in dynamic statement parts");
-					_impl_t(T t):
-						_t(t)
-					{}
-
-					sqlpp::serializer_context_t& serialize(sqlpp::serializer_context_t& context) const
-					{
-						sqlpp::serialize(_t, context);
-						return context;
-					}
-
-					_serializer_context_t& db_serialize(_serializer_context_t& context) const
-					{
-						Db::_serialize_interpretable(_t, context);
-						return context;
-					}
-
-					_interpreter_context_t& interpret(_interpreter_context_t& context) const
-					{
-						Db::_interpret_interpretable(_t, context);
-						return context;
-					}
-
-					T _t;
-				};
-
-				std::shared_ptr<const _impl_base> _impl;
+		private:
+			struct _impl_base
+			{
+				virtual sqlpp::serializer_context_t& serialize(sqlpp::serializer_context_t& context) const = 0;
+				virtual _serializer_context_t& db_serialize(_serializer_context_t& context) const = 0;
+				virtual _interpreter_context_t& interpret(_interpreter_context_t& context) const = 0;
 			};
 
-		template<typename Context, typename Database>
-			struct serializer_t<Context, interpretable_t<Database>>
+			template<typename T>
+				struct _impl_t: public _impl_base
 			{
-				using T = interpretable_t<Database>;
+				static_assert(not make_parameter_list_t<T>::type::size::value, "parameters not supported in dynamic statement parts");
+				_impl_t(T t):
+					_t(t)
+				{}
 
-				static Context& _(const T& t, Context& context)
+				sqlpp::serializer_context_t& serialize(sqlpp::serializer_context_t& context) const
 				{
-					t.serialize(context);
+					sqlpp::serialize(_t, context);
 					return context;
 				}
+
+				_serializer_context_t& db_serialize(_serializer_context_t& context) const
+				{
+					Db::_serialize_interpretable(_t, context);
+					return context;
+				}
+
+				_interpreter_context_t& interpret(_interpreter_context_t& context) const
+				{
+					Db::_interpret_interpretable(_t, context);
+					return context;
+				}
+
+				T _t;
 			};
+
+			std::shared_ptr<const _impl_base> _impl;
+		};
+
+	template<typename Context, typename Database>
+		struct serializer_t<Context, interpretable_t<Database>>
+		{
+			using T = interpretable_t<Database>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				t.serialize(context);
+				return context;
+			}
+		};
 
 }
 

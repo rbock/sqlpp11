@@ -36,85 +36,85 @@
 
 namespace sqlpp
 {
-		namespace detail
+	namespace detail
+	{
+		template<typename Type, bool>
+			struct type_if
+			{
+				using type = Type;
+			};
+
+		template<typename Type>
+			struct type_if<Type, false>
+			{
+				struct type
+				{
+					using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
+					using _recursive_traits = make_recursive_traits<>;
+				};
+			};
+	}
+
+	template<typename Column>
+		struct insert_value_t
 		{
-			template<typename Type, bool>
-				struct type_if
-				{
-					using type = Type;
-				};
+			using _is_insert_value = std::true_type;
+			using _pure_value_t = typename value_type_of<Column>::_cpp_value_type;
+			using _wrapped_value_t = typename wrap_operand<_pure_value_t>::type;
+			using _tvin_t = typename detail::type_if<tvin_t<_wrapped_value_t>, can_be_null_t<Column>::value>::type; // static asserts and SFINAE do not work together
+			using _null_t = typename detail::type_if<null_t, can_be_null_t<Column>::value>::type; // static asserts and SFINAE do not work together
 
-			template<typename Type>
-				struct type_if<Type, false>
-				{
-					struct type
-					{
-						using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
-						using _recursive_traits = make_recursive_traits<>;
-					};
-				};
-		}
+			insert_value_t(assignment_t<Column, _wrapped_value_t> assignment):
+				_is_null(false),
+				_is_default(false),
+				_value(assignment._rhs)
+			{}
 
-		template<typename Column>
-			struct insert_value_t
+			insert_value_t(assignment_t<Column, _tvin_t> assignment):
+				_is_null(assignment._rhs._is_trivial()),
+				_is_default(false),
+				_value(assignment._rhs._value)
+			{}
+
+			insert_value_t(const assignment_t<Column, _null_t>&):
+				_is_null(true),
+				_is_default(false),
+				_value()
+			{}
+
+			insert_value_t(const assignment_t<Column, ::sqlpp::default_value_t>&):
+				_is_null(false),
+				_is_default(true),
+				_value()
+			{}
+
+			insert_value_t(const insert_value_t&) = default;
+			insert_value_t(insert_value_t&&) = default;
+			insert_value_t& operator=(const insert_value_t&) = default;
+			insert_value_t& operator=(insert_value_t&&) = default;
+			~insert_value_t() = default;
+
+			bool _is_null;
+			bool _is_default;
+			_wrapped_value_t _value;
+		};
+
+	template<typename Context, typename ValueType>
+		struct serializer_t<Context, insert_value_t<ValueType>>
+		{
+			using T = insert_value_t<ValueType>;
+
+			static Context& _(const T& t, Context& context)
 			{
-				using _is_insert_value = std::true_type;
-				using _pure_value_t = typename value_type_of<Column>::_cpp_value_type;
-				using _wrapped_value_t = typename wrap_operand<_pure_value_t>::type;
-				using _tvin_t = typename detail::type_if<tvin_t<_wrapped_value_t>, can_be_null_t<Column>::value>::type; // static asserts and SFINAE do not work together
-				using _null_t = typename detail::type_if<null_t, can_be_null_t<Column>::value>::type; // static asserts and SFINAE do not work together
-
-				insert_value_t(assignment_t<Column, _wrapped_value_t> assignment):
-					_is_null(false),
-					_is_default(false),
-					_value(assignment._rhs)
-				{}
-
-				insert_value_t(assignment_t<Column, _tvin_t> assignment):
-					_is_null(assignment._rhs._is_trivial()),
-					_is_default(false),
-					_value(assignment._rhs._value)
-				{}
-
-				insert_value_t(const assignment_t<Column, _null_t>&):
-					_is_null(true),
-					_is_default(false),
-					_value()
-				{}
-
-				insert_value_t(const assignment_t<Column, ::sqlpp::default_value_t>&):
-					_is_null(false),
-					_is_default(true),
-					_value()
-				{}
-
-				insert_value_t(const insert_value_t&) = default;
-				insert_value_t(insert_value_t&&) = default;
-				insert_value_t& operator=(const insert_value_t&) = default;
-				insert_value_t& operator=(insert_value_t&&) = default;
-				~insert_value_t() = default;
-
-				bool _is_null;
-				bool _is_default;
-				_wrapped_value_t _value;
-			};
-
-		template<typename Context, typename ValueType>
-			struct serializer_t<Context, insert_value_t<ValueType>>
-			{
-				using T = insert_value_t<ValueType>;
-
-				static Context& _(const T& t, Context& context)
-				{
-					if (t._is_null)
-						context << "NULL";
-					else if (t._is_default)
-						context << "DEFAULT";
-					else
-						serialize(t._value, context);
-					return context;
-				}
-			};
+				if (t._is_null)
+					context << "NULL";
+				else if (t._is_default)
+					context << "DEFAULT";
+				else
+					serialize(t._value, context);
+				return context;
+			}
+		};
 
 }
 

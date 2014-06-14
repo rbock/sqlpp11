@@ -46,26 +46,26 @@ namespace sqlpp
 			Expression _expression;
 		};
 
-		template<typename Context, typename Expression, sort_type SortType>
-			struct serializer_t<Context, sort_order_t<Expression, SortType>>
-			{
-				using T = sort_order_t<Expression, SortType>;
+	template<typename Context, typename Expression, sort_type SortType>
+		struct serializer_t<Context, sort_order_t<Expression, SortType>>
+		{
+			using T = sort_order_t<Expression, SortType>;
 
-				static Context& _(const T& t, Context& context)
+			static Context& _(const T& t, Context& context)
+			{
+				serialize(t._expression, context);
+				switch(SortType)
 				{
-					serialize(t._expression, context);
-					switch(SortType)
-					{
-					case sort_type::asc:
-						context << " ASC";
-						break;
-					default:
-						context << " DESC";
-						break;
-					}
-					return context;
+				case sort_type::asc:
+					context << " ASC";
+					break;
+				default:
+					context << " DESC";
+					break;
 				}
-			};
+				return context;
+			}
+		};
 
 }
 

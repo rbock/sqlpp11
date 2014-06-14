@@ -43,24 +43,24 @@ namespace sqlpp
 	struct insert_t: public statement_name_t<insert_name_t>
 	{};
 
-		template<typename Context>
-			struct serializer_t<Context, insert_name_t>
+	template<typename Context>
+		struct serializer_t<Context, insert_name_t>
+		{
+			using T = insert_name_t;
+
+			static Context& _(const T& t, Context& context)
 			{
-				using T = insert_name_t;
+				context << "INSERT ";
 
-				static Context& _(const T& t, Context& context)
-				{
-					context << "INSERT ";
-
-					return context;
-				}
-			};
+				return context;
+			}
+		};
 
 	template<typename Database>
 		using blank_insert_t = statement_t<Database,
-			insert_t,
-			no_into_t, 
-			no_insert_value_list_t>;
+					insert_t,
+					no_into_t, 
+					no_insert_value_list_t>;
 
 	auto insert()
 		-> blank_insert_t<void>

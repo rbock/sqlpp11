@@ -35,108 +35,68 @@
 
 namespace sqlpp
 {
-		// USING DATA
-		template<typename Database, typename... Tables>
-			struct using_data_t
-			{
-				using_data_t(Tables... tables):
-					_tables(tables...)
-				{}
-
-				using_data_t(const using_data_t&) = default;
-				using_data_t(using_data_t&&) = default;
-				using_data_t& operator=(const using_data_t&) = default;
-				using_data_t& operator=(using_data_t&&) = default;
-				~using_data_t() = default;
-
-				std::tuple<Tables...> _tables;
-				interpretable_list_t<Database> _dynamic_tables;
-			};
-
-		// USING
-		template<typename Database, typename... Tables>
-			struct using_t
-			{
-				using _traits = make_traits<no_value_t, ::sqlpp::tag::using_>;
-				using _recursive_traits = make_recursive_traits<Tables...>;
-
-				using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
-
-				static_assert(_is_dynamic::value or sizeof...(Tables), "at least one table argument required in using()");
-
-				static_assert(not ::sqlpp::detail::has_duplicates<Tables...>::value, "at least one duplicate argument detected in using()");
-
-				static_assert(::sqlpp::detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not an table in using()");
-
-				// Data
-				using _data_t = using_data_t<Database, Tables...>;
-
-				// Member implementation with data and methods
-				template <typename Policies>
-					struct _impl_t
-					{
-						template<typename Table>
-							void add(Table table)
-							{
-								static_assert(_is_dynamic::value, "add must not be called for static using()");
-								static_assert(is_table_t<Table>::value, "invalid table argument in add()");
-
-								using ok = ::sqlpp::detail::all_t<_is_dynamic::value, is_table_t<Table>::value>;
-
-								_add_impl(table, ok()); // dispatch to prevent compile messages after the static_assert
-							}
-
-					private:
-						template<typename Table>
-							void _add_impl(Table table, const std::true_type&)
-							{
-								return _data._dynamic_tables.emplace_back(table);
-							}
-
-						template<typename Table>
-							void _add_impl(Table table, const std::false_type&);
-
-					public:
-						_data_t _data;
-					};
-
-				// Member template for adding the named member to a statement
-				template<typename Policies>
-					struct _member_t
-					{
-						using _data_t = using_data_t<Database, Tables...>;
-
-						_impl_t<Policies> using_;
-						_impl_t<Policies>& operator()() { return using_; }
-						const _impl_t<Policies>& operator()() const { return using_; }
-
-						template<typename T>
-							static auto _get_member(T t) -> decltype(t.using_)
-							{
-								return t.using_;
-							}
-					};
-
-				// Additional methods for the statement
-				template<typename Policies>
-					struct _methods_t
-					{
-					};
-			};
-
-		// NO USING YET
-		struct no_using_t
+	// USING DATA
+	template<typename Database, typename... Tables>
+		struct using_data_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::where>;
-			using _recursive_traits = make_recursive_traits<>;
+			using_data_t(Tables... tables):
+				_tables(tables...)
+			{}
+
+			using_data_t(const using_data_t&) = default;
+			using_data_t(using_data_t&&) = default;
+			using_data_t& operator=(const using_data_t&) = default;
+			using_data_t& operator=(using_data_t&&) = default;
+			~using_data_t() = default;
+
+			std::tuple<Tables...> _tables;
+			interpretable_list_t<Database> _dynamic_tables;
+		};
+
+	// USING
+	template<typename Database, typename... Tables>
+		struct using_t
+		{
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::using_>;
+			using _recursive_traits = make_recursive_traits<Tables...>;
+
+			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
+
+			static_assert(_is_dynamic::value or sizeof...(Tables), "at least one table argument required in using()");
+
+			static_assert(not ::sqlpp::detail::has_duplicates<Tables...>::value, "at least one duplicate argument detected in using()");
+
+			static_assert(::sqlpp::detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not an table in using()");
 
 			// Data
-			using _data_t = no_data_t;
+			using _data_t = using_data_t<Database, Tables...>;
 
 			// Member implementation with data and methods
-			template<typename Policies>
+			template <typename Policies>
 				struct _impl_t
 				{
+					template<typename Table>
+						void add(Table table)
+						{
+							static_assert(_is_dynamic::value, "add must not be called for static using()");
+							static_assert(is_table_t<Table>::value, "invalid table argument in add()");
+
+							using ok = ::sqlpp::detail::all_t<_is_dynamic::value, is_table_t<Table>::value>;
+
+							_add_impl(table, ok()); // dispatch to prevent compile messages after the static_assert
+						}
+
+				private:
+					template<typename Table>
+						void _add_impl(Table table, const std::true_type&)
+						{
+							return _data._dynamic_tables.emplace_back(table);
+						}
+
+					template<typename Table>
+						void _add_impl(Table table, const std::false_type&);
+
+				public:
 					_data_t _data;
 				};
 
@@ -144,61 +104,101 @@ namespace sqlpp
 			template<typename Policies>
 				struct _member_t
 				{
-					using _data_t = no_data_t;
+					using _data_t = using_data_t<Database, Tables...>;
 
-					_impl_t<Policies> no_using;
-					_impl_t<Policies>& operator()() { return no_using; }
-					const _impl_t<Policies>& operator()() const { return no_using; }
+					_impl_t<Policies> using_;
+					_impl_t<Policies>& operator()() { return using_; }
+					const _impl_t<Policies>& operator()() const { return using_; }
 
 					template<typename T>
-						static auto _get_member(T t) -> decltype(t.no_using)
+						static auto _get_member(T t) -> decltype(t.using_)
 						{
-							return t.no_using;
+							return t.using_;
 						}
 				};
 
+			// Additional methods for the statement
 			template<typename Policies>
 				struct _methods_t
 				{
-					using _database_t = typename Policies::_database_t;
-					template<typename T>
-					using _new_statement_t = typename Policies::template _new_statement_t<no_using_t, T>;
-
-					template<typename... Args>
-						auto using_(Args... args)
-						-> _new_statement_t<using_t<void, Args...>>
-						{
-							return { *static_cast<typename Policies::_statement_t*>(this), using_data_t<void, Args...>{args...} };
-						}
-
-					template<typename... Args>
-						auto dynamic_using(Args... args)
-						-> _new_statement_t<using_t<_database_t, Args...>>
-						{
-							static_assert(not std::is_same<_database_t, void>::value, "dynamic_using must not be called in a static statement");
-							return { *static_cast<typename Policies::_statement_t*>(this), using_data_t<_database_t, Args...>{args...} };
-						}
 				};
 		};
 
-		// Interpreters
-		template<typename Context, typename Database, typename... Tables>
-			struct serializer_t<Context, using_data_t<Database, Tables...>>
-			{
-				using T = using_data_t<Database, Tables...>;
+	// NO USING YET
+	struct no_using_t
+	{
+		using _traits = make_traits<no_value_t, ::sqlpp::tag::where>;
+		using _recursive_traits = make_recursive_traits<>;
 
-				static Context& _(const T& t, Context& context)
-				{
-					if (sizeof...(Tables) == 0 and t._dynamic_tables.empty())
-						return context;
-					context << " USING ";
-					interpret_tuple(t._tables, ',', context);
-					if (sizeof...(Tables) and not t._dynamic_tables.empty())
-						context << ',';
-					interpret_list(t._dynamic_tables, ',', context);
-					return context;
-				}
+		// Data
+		using _data_t = no_data_t;
+
+		// Member implementation with data and methods
+		template<typename Policies>
+			struct _impl_t
+			{
+				_data_t _data;
 			};
+
+		// Member template for adding the named member to a statement
+		template<typename Policies>
+			struct _member_t
+			{
+				using _data_t = no_data_t;
+
+				_impl_t<Policies> no_using;
+				_impl_t<Policies>& operator()() { return no_using; }
+				const _impl_t<Policies>& operator()() const { return no_using; }
+
+				template<typename T>
+					static auto _get_member(T t) -> decltype(t.no_using)
+					{
+						return t.no_using;
+					}
+			};
+
+		template<typename Policies>
+			struct _methods_t
+			{
+				using _database_t = typename Policies::_database_t;
+				template<typename T>
+					using _new_statement_t = typename Policies::template _new_statement_t<no_using_t, T>;
+
+				template<typename... Args>
+					auto using_(Args... args)
+					-> _new_statement_t<using_t<void, Args...>>
+					{
+						return { *static_cast<typename Policies::_statement_t*>(this), using_data_t<void, Args...>{args...} };
+					}
+
+				template<typename... Args>
+					auto dynamic_using(Args... args)
+					-> _new_statement_t<using_t<_database_t, Args...>>
+					{
+						static_assert(not std::is_same<_database_t, void>::value, "dynamic_using must not be called in a static statement");
+						return { *static_cast<typename Policies::_statement_t*>(this), using_data_t<_database_t, Args...>{args...} };
+					}
+			};
+	};
+
+	// Interpreters
+	template<typename Context, typename Database, typename... Tables>
+		struct serializer_t<Context, using_data_t<Database, Tables...>>
+		{
+			using T = using_data_t<Database, Tables...>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				if (sizeof...(Tables) == 0 and t._dynamic_tables.empty())
+					return context;
+				context << " USING ";
+				interpret_tuple(t._tables, ',', context);
+				if (sizeof...(Tables) and not t._dynamic_tables.empty())
+					context << ',';
+				interpret_list(t._dynamic_tables, ',', context);
+				return context;
+			}
+		};
 }
 
 #endif

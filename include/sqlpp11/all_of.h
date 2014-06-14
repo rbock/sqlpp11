@@ -34,33 +34,33 @@
 namespace sqlpp
 {
 	template<typename Table>
-	struct all_of_t
- 	{
-		using _column_tuple_t = typename Table::_column_tuple_t;
+		struct all_of_t
+		{
+			using _column_tuple_t = typename Table::_column_tuple_t;
 
-		template<typename AliasProvider>
-			detail::copy_tuple_args_t<multi_column_alias_t, AliasProvider, _column_tuple_t> as(const AliasProvider& alias)
-			{
-				return ::sqlpp::multi_column(_column_tuple_t{}).as(alias);
-			}
-	};
+			template<typename AliasProvider>
+				detail::copy_tuple_args_t<multi_column_alias_t, AliasProvider, _column_tuple_t> as(const AliasProvider& alias)
+				{
+					return ::sqlpp::multi_column(_column_tuple_t{}).as(alias);
+				}
+		};
 
 	template<typename Table>
-	auto all_of(Table t) -> all_of_t<Table>
-	{
-		return {};
-	}
+		auto all_of(Table t) -> all_of_t<Table>
+		{
+			return {};
+		}
 
-		template<typename Context, typename Table>
-			struct serializer_t<Context, all_of_t<Table>>
+	template<typename Context, typename Table>
+		struct serializer_t<Context, all_of_t<Table>>
+		{
+			using T = all_of_t<Table>;
+
+			static Context& _(const T& t, const Context&)
 			{
-				using T = all_of_t<Table>;
-
-				static Context& _(const T& t, const Context&)
-				{
-					static_assert(wrong_t<T>::value, "all_of(table) does not seem to be used in select");
-				}
-			};
+				static_assert(wrong_t<T>::value, "all_of(table) does not seem to be used in select");
+			}
+		};
 
 }
 

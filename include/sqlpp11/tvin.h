@@ -61,16 +61,16 @@ namespace sqlpp
 			Operand _value;
 		};
 
-		template<typename Context, typename Operand>
-			struct serializer_t<Context, tvin_t<Operand>>
-			{
-				using T = tvin_t<Operand>;
+	template<typename Context, typename Operand>
+		struct serializer_t<Context, tvin_t<Operand>>
+		{
+			using T = tvin_t<Operand>;
 
-				static void _(const T& t, Context& context)
-				{
-					static_assert(wrong_t<T>::value, "tvin() must not be used with anything but =, ==, != and !");
-				}
-			};
+			static void _(const T& t, Context& context)
+			{
+				static_assert(wrong_t<T>::value, "tvin() must not be used with anything but =, ==, != and !");
+			}
+		};
 
 	template<typename Operand>
 		struct maybe_tvin_t
@@ -118,31 +118,31 @@ namespace sqlpp
 			typename tvin_t<Operand>::_operand_t _value;
 		};
 
-		template<typename Context, typename Operand>
-			struct serializer_t<Context, maybe_tvin_t<Operand>>
-			{
-				using T = maybe_tvin_t<Operand>;
+	template<typename Context, typename Operand>
+		struct serializer_t<Context, maybe_tvin_t<Operand>>
+		{
+			using T = maybe_tvin_t<Operand>;
 
-				static Context& _(const T& t, Context& context)
+			static Context& _(const T& t, Context& context)
+			{
+				if (t._is_trivial())
 				{
-					if (t._is_trivial())
-					{
-						context << "NULL";
-					}
-					else
-					{
-						serialize(t._value, context);
-					}
-					return context;
+					context << "NULL";
 				}
-			};
+				else
+				{
+					serialize(t._value, context);
+				}
+				return context;
+			}
+		};
 
 	template<typename Operand>
 		auto tvin(Operand operand) -> tvin_t<typename wrap_operand<Operand>::type>
 		{
 			using _operand_t = typename wrap_operand<Operand>::type;
 			static_assert(std::is_same<_operand_t, text_operand>::value
-				 	or not std::is_same<_operand_t, Operand>::value, "tvin() used with invalid type (only string and primitive types allowed)");
+					or not std::is_same<_operand_t, Operand>::value, "tvin() used with invalid type (only string and primitive types allowed)");
 			return {{operand}};
 		}
 

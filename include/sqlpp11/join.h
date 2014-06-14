@@ -143,22 +143,22 @@ namespace sqlpp
 			On _on;
 		};
 
-		template<typename Context, typename JoinType, typename Lhs, typename Rhs, typename On>
-			struct serializer_t<Context, join_t<JoinType, Lhs, Rhs, On>>
-			{
-				using T = join_t<JoinType, Lhs, Rhs, On>;
+	template<typename Context, typename JoinType, typename Lhs, typename Rhs, typename On>
+		struct serializer_t<Context, join_t<JoinType, Lhs, Rhs, On>>
+		{
+			using T = join_t<JoinType, Lhs, Rhs, On>;
 
-				static Context& _(const T& t, Context& context)
-				{
-					static_assert(not is_noop<On>::value, "joined tables require on()");
-					serialize(t._lhs, context);
-					context << JoinType::_name;
-					context << " JOIN ";
-					serialize(t._rhs, context);
-					serialize(t._on, context);
-					return context;
-				}
-			};
+			static Context& _(const T& t, Context& context)
+			{
+				static_assert(not is_noop<On>::value, "joined tables require on()");
+				serialize(t._lhs, context);
+				context << JoinType::_name;
+				context << " JOIN ";
+				serialize(t._rhs, context);
+				serialize(t._on, context);
+				return context;
+			}
+		};
 
 }
 

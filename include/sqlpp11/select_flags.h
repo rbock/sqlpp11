@@ -42,15 +42,15 @@ namespace sqlpp
 	};
 	static constexpr all_t all = {};
 
-		template<typename Context>
-			struct serializer_t<Context, all_t>
+	template<typename Context>
+		struct serializer_t<Context, all_t>
+		{
+			static Context& _(const all_t&, Context& context)
 			{
-				static Context& _(const all_t&, Context& context)
-				{
-					context << "ALL";
-					return context;
-				}
-			};
+				context << "ALL";
+				return context;
+			}
+		};
 
 	struct distinct_t
 	{
@@ -59,15 +59,15 @@ namespace sqlpp
 	};
 	static constexpr distinct_t distinct = {};
 
-		template<typename Context>
-			struct serializer_t<Context, distinct_t>
+	template<typename Context>
+		struct serializer_t<Context, distinct_t>
+		{
+			static Context& _(const distinct_t&, Context& context)
 			{
-				static Context& _(const distinct_t&, Context& context)
-				{
-					context << "DISTINCT";
-					return context;
-				}
-			};
+				context << "DISTINCT";
+				return context;
+			}
+		};
 
 	struct straight_join_t
 	{
@@ -76,15 +76,15 @@ namespace sqlpp
 	};
 	static constexpr straight_join_t straight_join = {};
 
-		template<typename Context>
-			struct serializer_t<Context, straight_join_t>
+	template<typename Context>
+		struct serializer_t<Context, straight_join_t>
+		{
+			static Context& _(const straight_join_t&, Context& context)
 			{
-				static Context& _(const straight_join_t&, Context& context)
-				{
-					context << "STRAIGHT_JOIN";
-					return context;
-				}
-			};
+				context << "STRAIGHT_JOIN";
+				return context;
+			}
+		};
 
 }
 

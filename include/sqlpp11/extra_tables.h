@@ -33,86 +33,46 @@
 
 namespace sqlpp
 {
-		template<typename... Tables>
-			struct extra_tables_data_t
-			{
-				extra_tables_data_t()
-				{}
-
-				extra_tables_data_t(const extra_tables_data_t&) = default;
-				extra_tables_data_t(extra_tables_data_t&&) = default;
-				extra_tables_data_t& operator=(const extra_tables_data_t&) = default;
-				extra_tables_data_t& operator=(extra_tables_data_t&&) = default;
-				~extra_tables_data_t() = default;
-
-			};
-
-		// EXTRA_TABLES
-		template<typename... Tables>
-			struct extra_tables_t
-			{
-				using _traits = make_traits<no_value_t, ::sqlpp::tag::extra_tables>;
-				struct _recursive_traits
-				{
-					using _parameters = std::tuple<>;
-					using _required_tables = ::sqlpp::detail::type_set<>;
-					using _provided_tables = ::sqlpp::detail::type_set<>;
-					using _extra_tables = ::sqlpp::detail::type_set<Tables...>;
-				};
-
-				using _recursive_traits = make_recursive_traits<Tables...>;
-
-				// FIXME: extra_tables must not require tables!
-
-				static_assert(sizeof...(Tables), "at least one table or join argument required in extra_tables()");
-				static_assert(not ::sqlpp::detail::has_duplicates<Tables...>::value, "at least one duplicate argument detected in extra_tables()");
-				static_assert(::sqlpp::detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not a table or join in extra_tables()");
-
-				// Data
-				using _data_t = extra_tables_data_t<Tables...>;
-
-				// Member implementation with data and methods
-				template <typename Policies>
-					struct _impl_t
-				{
-					_data_t _data;
-				};
-
-				// Member template for adding the named member to a statement
-				template<typename Policies>
-					struct _member_t
-					{
-						using _data_t = extra_tables_data_t<Tables...>;
-
-						_impl_t<Policies> extra_tables;
-						_impl_t<Policies>& operator()() { return extra_tables; }
-						const _impl_t<Policies>& operator()() const { return extra_tables; }
-
-						template<typename T>
-							static auto _get_member(T t) -> decltype(t.extra_tables)
-							{
-								return t.extra_tables;
-							}
-					};
-
-				// Additional methods for the statement
-				template<typename Policies>
-					struct _methods_t
-					{
-					};
-			};
-
-		// NO EXTRA TABLES YET
-		struct no_extra_tables_t
+	template<typename... Tables>
+		struct extra_tables_data_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
-			using _recursive_traits = make_recursive_traits<>;
+			extra_tables_data_t()
+			{}
+
+			extra_tables_data_t(const extra_tables_data_t&) = default;
+			extra_tables_data_t(extra_tables_data_t&&) = default;
+			extra_tables_data_t& operator=(const extra_tables_data_t&) = default;
+			extra_tables_data_t& operator=(extra_tables_data_t&&) = default;
+			~extra_tables_data_t() = default;
+
+		};
+
+	// EXTRA_TABLES
+	template<typename... Tables>
+		struct extra_tables_t
+		{
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::extra_tables>;
+			struct _recursive_traits
+			{
+				using _parameters = std::tuple<>;
+				using _required_tables = ::sqlpp::detail::type_set<>;
+				using _provided_tables = ::sqlpp::detail::type_set<>;
+				using _extra_tables = ::sqlpp::detail::type_set<Tables...>;
+			};
+
+			using _recursive_traits = make_recursive_traits<Tables...>;
+
+			// FIXME: extra_tables must not require tables!
+
+			static_assert(sizeof...(Tables), "at least one table or join argument required in extra_tables()");
+			static_assert(not ::sqlpp::detail::has_duplicates<Tables...>::value, "at least one duplicate argument detected in extra_tables()");
+			static_assert(::sqlpp::detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not a table or join in extra_tables()");
 
 			// Data
-			using _data_t = no_data_t;
+			using _data_t = extra_tables_data_t<Tables...>;
 
 			// Member implementation with data and methods
-			template<typename Policies>
+			template <typename Policies>
 				struct _impl_t
 				{
 					_data_t _data;
@@ -122,45 +82,85 @@ namespace sqlpp
 			template<typename Policies>
 				struct _member_t
 				{
-					using _data_t = no_data_t;
+					using _data_t = extra_tables_data_t<Tables...>;
 
-					_impl_t<Policies> no_extra_tables;
-					_impl_t<Policies>& operator()() { return no_extra_tables; }
-					const _impl_t<Policies>& operator()() const { return no_extra_tables; }
+					_impl_t<Policies> extra_tables;
+					_impl_t<Policies>& operator()() { return extra_tables; }
+					const _impl_t<Policies>& operator()() const { return extra_tables; }
 
 					template<typename T>
-						static auto _get_member(T t) -> decltype(t.no_extra_tables)
+						static auto _get_member(T t) -> decltype(t.extra_tables)
 						{
-							return t.no_extra_tables;
+							return t.extra_tables;
 						}
 				};
 
+			// Additional methods for the statement
 			template<typename Policies>
 				struct _methods_t
 				{
-					template<typename T>
-					using _new_statement_t = typename Policies::template _new_statement_t<no_extra_tables_t, T>;
-
-					template<typename... Args>
-						auto extra_tables(Args...)
-						-> _new_statement_t<extra_tables_t<Args...>>
-						{
-							return { *static_cast<typename Policies::_statement_t*>(this), extra_tables_data_t<Args...>{} };
-						}
 				};
 		};
 
-		// Interpreters
-		template<typename Context, typename Database, typename... Tables>
-			struct serializer_t<Context, extra_tables_data_t<Database, Tables...>>
-			{
-				using T = extra_tables_data_t<Database, Tables...>;
+	// NO EXTRA TABLES YET
+	struct no_extra_tables_t
+	{
+		using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
+		using _recursive_traits = make_recursive_traits<>;
 
-				static Context& _(const T& t, Context& context)
-				{
-					return context;
-				}
+		// Data
+		using _data_t = no_data_t;
+
+		// Member implementation with data and methods
+		template<typename Policies>
+			struct _impl_t
+			{
+				_data_t _data;
 			};
+
+		// Member template for adding the named member to a statement
+		template<typename Policies>
+			struct _member_t
+			{
+				using _data_t = no_data_t;
+
+				_impl_t<Policies> no_extra_tables;
+				_impl_t<Policies>& operator()() { return no_extra_tables; }
+				const _impl_t<Policies>& operator()() const { return no_extra_tables; }
+
+				template<typename T>
+					static auto _get_member(T t) -> decltype(t.no_extra_tables)
+					{
+						return t.no_extra_tables;
+					}
+			};
+
+		template<typename Policies>
+			struct _methods_t
+			{
+				template<typename T>
+					using _new_statement_t = typename Policies::template _new_statement_t<no_extra_tables_t, T>;
+
+				template<typename... Args>
+					auto extra_tables(Args...)
+					-> _new_statement_t<extra_tables_t<Args...>>
+					{
+						return { *static_cast<typename Policies::_statement_t*>(this), extra_tables_data_t<Args...>{} };
+					}
+			};
+	};
+
+	// Interpreters
+	template<typename Context, typename Database, typename... Tables>
+		struct serializer_t<Context, extra_tables_data_t<Database, Tables...>>
+		{
+			using T = extra_tables_data_t<Database, Tables...>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				return context;
+			}
+		};
 
 }
 

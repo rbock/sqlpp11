@@ -31,59 +31,59 @@
 
 namespace sqlpp
 {
-		template<typename Flag, typename Expr>
+	template<typename Flag, typename Expr>
 		struct avg_t: public floating_point::template expression_operators<avg_t<Flag, Expr>>,
-									public alias_operators<avg_t<Flag, Expr>>
+		public alias_operators<avg_t<Flag, Expr>>
+	{
+		using _traits = make_traits<floating_point, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
+		using _recursive_traits = make_recursive_traits<Expr>;
+
+		static_assert(is_noop<Flag>::value or std::is_same<sqlpp::distinct_t, Flag>::value, "avg() used with flag other than 'distinct'");
+		static_assert(is_numeric_t<Expr>::value, "avg() requires a value expression as argument");
+
+		struct _name_t
 		{
-			using _traits = make_traits<floating_point, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
-			using _recursive_traits = make_recursive_traits<Expr>;
-
-			static_assert(is_noop<Flag>::value or std::is_same<sqlpp::distinct_t, Flag>::value, "avg() used with flag other than 'distinct'");
-			static_assert(is_numeric_t<Expr>::value, "avg() requires a value expression as argument");
-
-			struct _name_t
-			{
-				static constexpr const char* _get_name() { return "AVG"; }
-				template<typename T>
-					struct _member_t
-					{
-						T avg;
-						T& operator()() { return avg; }
-						const T& operator()() const { return avg; }
-					};
-			};
-
-			avg_t(Expr expr):
-				_expr(expr)
-			{}
-
-			avg_t(const avg_t&) = default;
-			avg_t(avg_t&&) = default;
-			avg_t& operator=(const avg_t&) = default;
-			avg_t& operator=(avg_t&&) = default;
-			~avg_t() = default;
-
-			Expr _expr;
+			static constexpr const char* _get_name() { return "AVG"; }
+			template<typename T>
+				struct _member_t
+				{
+					T avg;
+					T& operator()() { return avg; }
+					const T& operator()() const { return avg; }
+				};
 		};
 
-		template<typename Context, typename Flag, typename Expr>
-			struct serializer_t<Context, avg_t<Flag, Expr>>
-			{
-				using T = avg_t<Flag, Expr>;
+		avg_t(Expr expr):
+			_expr(expr)
+		{}
 
-				static Context& _(const T& t, Context& context)
+		avg_t(const avg_t&) = default;
+		avg_t(avg_t&&) = default;
+		avg_t& operator=(const avg_t&) = default;
+		avg_t& operator=(avg_t&&) = default;
+		~avg_t() = default;
+
+		Expr _expr;
+	};
+
+	template<typename Context, typename Flag, typename Expr>
+		struct serializer_t<Context, avg_t<Flag, Expr>>
+		{
+			using T = avg_t<Flag, Expr>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				context << "AVG(";
+				if (std::is_same<sqlpp::distinct_t, Flag>::value)
 				{
-					context << "AVG(";
-					if (std::is_same<sqlpp::distinct_t, Flag>::value)
-					{
-						serialize(Flag(), context);
-						context << ' ';
-					}
-					serialize(t._expr, context);
-					context << ")";
-					return context;
+					serialize(Flag(), context);
+					context << ' ';
 				}
-			};
+				serialize(t._expr, context);
+				context << ")";
+				return context;
+			}
+		};
 
 	template<typename T>
 		auto avg(T t) -> typename avg_t<noop, wrap_operand_t<T>>

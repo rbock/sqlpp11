@@ -42,8 +42,8 @@
 namespace sqlpp
 {
 	template<typename Table, typename ColumnSpec>
-	struct column_t: public ColumnSpec::_value_type::template expression_operators<column_t<Table, ColumnSpec>>,
-	                 public ColumnSpec::_value_type::template column_operators<column_t<Table, ColumnSpec>>
+		struct column_t: public ColumnSpec::_value_type::template expression_operators<column_t<Table, ColumnSpec>>,
+		public ColumnSpec::_value_type::template column_operators<column_t<Table, ColumnSpec>>
 	{ 
 		using _traits = make_traits<typename ColumnSpec::_value_type, tag::column, tag::expression, tag::named_expression>;
 		struct _recursive_traits
@@ -103,17 +103,17 @@ namespace sqlpp
 			}
 	};
 
-		template<typename Context, typename... Args>
-			struct serializer_t<Context, column_t<Args...>>
-			{
-				using T = column_t<Args...>;
+	template<typename Context, typename... Args>
+		struct serializer_t<Context, column_t<Args...>>
+		{
+			using T = column_t<Args...>;
 
-				static Context& _(const T& t, Context& context)
-				{
-					context << T::_table::_name_t::_get_name() << '.' << T::_name_t::_get_name();
-					return context;
-				}
-			};
+			static Context& _(const T& t, Context& context)
+			{
+				context << T::_table::_name_t::_get_name() << '.' << T::_name_t::_get_name();
+				return context;
+			}
+		};
 
 }
 

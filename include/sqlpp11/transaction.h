@@ -35,56 +35,56 @@ namespace sqlpp
 	static constexpr bool report_auto_rollback = true;
 
 	template<typename Db>
-	class transaction_t
-	{
-		Db& _db;
-		const bool _report_unfinished_transaction;
-		bool _finished = false;
-
-	public:
-		transaction_t(Db& db, bool report_unfinished_transaction):
-			_db(db),
-			_report_unfinished_transaction(report_unfinished_transaction)
+		class transaction_t
 		{
-			_db.start_transaction();
-		}
+			Db& _db;
+			const bool _report_unfinished_transaction;
+			bool _finished = false;
 
-		transaction_t(const transaction_t&) = delete;
-		transaction_t(transaction_t&&) = default;
-		transaction_t& operator=(const transaction_t&) = delete;
-		transaction_t& operator=(transaction_t&&) = delete;
-
-		~transaction_t()
-		{
-			if (not _finished)
+		public:
+			transaction_t(Db& db, bool report_unfinished_transaction):
+				_db(db),
+				_report_unfinished_transaction(report_unfinished_transaction)
 			{
-				try
+				_db.start_transaction();
+			}
+
+			transaction_t(const transaction_t&) = delete;
+			transaction_t(transaction_t&&) = default;
+			transaction_t& operator=(const transaction_t&) = delete;
+			transaction_t& operator=(transaction_t&&) = delete;
+
+			~transaction_t()
+			{
+				if (not _finished)
 				{
-					_db.rollback_transaction(_report_unfinished_transaction);
-				}
-				catch(const std::exception& e)
-				{
-					_db.report_rollback_failure(std::string("auto rollback failed: ") + e.what());
-				}
-				catch(...)
-				{
-					_db.report_rollback_failure("auto rollback failed with unknown exception");
+					try
+					{
+						_db.rollback_transaction(_report_unfinished_transaction);
+					}
+					catch(const std::exception& e)
+					{
+						_db.report_rollback_failure(std::string("auto rollback failed: ") + e.what());
+					}
+					catch(...)
+					{
+						_db.report_rollback_failure("auto rollback failed with unknown exception");
+					}
 				}
 			}
-		}
 
-		void commit()
-		{
-			_finished = true;
-			_db.commit_transaction();
-		}
+			void commit()
+			{
+				_finished = true;
+				_db.commit_transaction();
+			}
 
-		void rollback()
-		{
-			_finished = true;
-			_db.rollback_transaction(false);
-		}
-	};
+			void rollback()
+			{
+				_finished = true;
+				_db.rollback_transaction(false);
+			}
+		};
 
 	template<typename Db>
 		transaction_t<Db> start_transaction(Db& db, bool report_unfinished_transaction = report_auto_rollback)

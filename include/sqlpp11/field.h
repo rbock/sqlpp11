@@ -31,40 +31,40 @@
 
 namespace sqlpp
 {
-		template<typename NameType, typename ValueType, bool TrivialValueIsNull>
-			struct field_t
-			{ 
-				using _traits = make_traits<ValueType, tag::noop>;
-				using _recursive_traits = make_recursive_traits<>;
+	template<typename NameType, typename ValueType, bool TrivialValueIsNull>
+		struct field_t
+		{ 
+			using _traits = make_traits<ValueType, tag::noop>;
+			using _recursive_traits = make_recursive_traits<>;
 
-				using _name_t = NameType;
-				static constexpr bool _trivial_value_is_null = TrivialValueIsNull;
-			};
+			using _name_t = NameType;
+			static constexpr bool _trivial_value_is_null = TrivialValueIsNull;
+		};
 
-		template<typename AliasProvider, typename FieldTuple>
-			struct multi_field_t
-			{
-			};
-
-		namespace detail
+	template<typename AliasProvider, typename FieldTuple>
+		struct multi_field_t
 		{
-			template<typename NamedExpr>
-				struct make_field_t_impl
-				{
-					using type = field_t<typename NamedExpr::_name_t, 
-								value_type_of<NamedExpr>,
-								trivial_value_is_null_t<NamedExpr>::value>;
-				};
+		};
 
-			template<typename AliasProvider, typename... NamedExpr>
-				struct make_field_t_impl<multi_column_alias_t<AliasProvider, NamedExpr...>>
-				{
-					using type = multi_field_t<AliasProvider, std::tuple<typename make_field_t_impl<NamedExpr>::type...>>;
-				};
-		}
-
+	namespace detail
+	{
 		template<typename NamedExpr>
-			using make_field_t = typename detail::make_field_t_impl<NamedExpr>::type;
+			struct make_field_t_impl
+			{
+				using type = field_t<typename NamedExpr::_name_t, 
+							value_type_of<NamedExpr>,
+							trivial_value_is_null_t<NamedExpr>::value>;
+			};
+
+		template<typename AliasProvider, typename... NamedExpr>
+			struct make_field_t_impl<multi_column_alias_t<AliasProvider, NamedExpr...>>
+			{
+				using type = multi_field_t<AliasProvider, std::tuple<typename make_field_t_impl<NamedExpr>::type...>>;
+			};
+	}
+
+	template<typename NamedExpr>
+		using make_field_t = typename detail::make_field_t_impl<NamedExpr>::type;
 
 }
 

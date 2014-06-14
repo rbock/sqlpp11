@@ -42,9 +42,9 @@ namespace sqlpp
 
 			auto _run(Database& db) const
 				-> result_t<decltype(db.run_prepared_select(*this)), _result_row_t>
-			{
-				return {db.run_prepared_select(*this), _dynamic_names};
-			}
+				{
+					return {db.run_prepared_select(*this), _dynamic_names};
+				}
 
 			void _bind_params() const
 			{

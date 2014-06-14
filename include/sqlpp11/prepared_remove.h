@@ -40,9 +40,9 @@ namespace sqlpp
 
 			auto _run(Db& db) const
 				-> size_t
-			{
-				return db.run_prepared_insert(*this);
-			}
+				{
+					return db.run_prepared_insert(*this);
+				}
 
 			void _bind_params() const
 			{

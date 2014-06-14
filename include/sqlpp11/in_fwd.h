@@ -29,7 +29,7 @@
 
 namespace sqlpp
 {
-		template<bool NotInverted, typename Operand, typename... Args>
+	template<bool NotInverted, typename Operand, typename... Args>
 		struct in_t;
 
 }

@@ -32,59 +32,59 @@
 
 namespace sqlpp
 {
-		template<typename Flag, typename Expr>
+	template<typename Flag, typename Expr>
 		struct count_t: public sqlpp::detail::integral::template expression_operators<count_t<Flag, Expr>>,
-										public alias_operators<count_t<Flag, Expr>>
+		public alias_operators<count_t<Flag, Expr>>
+	{
+		using _traits = make_traits<::sqlpp::detail::integral, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
+		using _recursive_traits = make_recursive_traits<Expr>;
+
+		static_assert(is_noop<Flag>::value or std::is_same<sqlpp::distinct_t, Flag>::value, "count() used with flag other than 'distinct'");
+		static_assert(is_expression_t<Expr>::value, "count() requires a sql expression as argument");
+
+		struct _name_t
 		{
-			using _traits = make_traits<::sqlpp::detail::integral, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
-			using _recursive_traits = make_recursive_traits<Expr>;
-
-			static_assert(is_noop<Flag>::value or std::is_same<sqlpp::distinct_t, Flag>::value, "count() used with flag other than 'distinct'");
-			static_assert(is_expression_t<Expr>::value, "count() requires a sql expression as argument");
-
-			struct _name_t
-			{
-				static constexpr const char* _get_name() { return "COUNT"; }
-				template<typename T>
-					struct _member_t
-					{
-						T count;
-						T& operator()() { return count; }
-						const T& operator()() const { return count; }
-					};
-			};
-
-			count_t(const Expr expr):
-				_expr(expr)
-			{}
-
-			count_t(const count_t&) = default;
-			count_t(count_t&&) = default;
-			count_t& operator=(const count_t&) = default;
-			count_t& operator=(count_t&&) = default;
-			~count_t() = default;
-
-			Expr _expr;
+			static constexpr const char* _get_name() { return "COUNT"; }
+			template<typename T>
+				struct _member_t
+				{
+					T count;
+					T& operator()() { return count; }
+					const T& operator()() const { return count; }
+				};
 		};
 
-		template<typename Context, typename Flag, typename Expr>
-			struct serializer_t<Context, count_t<Flag, Expr>>
-			{
-				using T = count_t<Flag, Expr>;
+		count_t(const Expr expr):
+			_expr(expr)
+		{}
 
-				static Context& _(const T& t, Context& context)
+		count_t(const count_t&) = default;
+		count_t(count_t&&) = default;
+		count_t& operator=(const count_t&) = default;
+		count_t& operator=(count_t&&) = default;
+		~count_t() = default;
+
+		Expr _expr;
+	};
+
+	template<typename Context, typename Flag, typename Expr>
+		struct serializer_t<Context, count_t<Flag, Expr>>
+		{
+			using T = count_t<Flag, Expr>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				context << "COUNT(";
+				if (std::is_same<sqlpp::distinct_t, Flag>::value)
 				{
-					context << "COUNT(";
-					if (std::is_same<sqlpp::distinct_t, Flag>::value)
-					{
-						serialize(Flag(), context);
-						context << ' ';
-					}
-					serialize(t._expr, context);
-					context << ")";
-					return context;
+					serialize(Flag(), context);
+					context << ' ';
 				}
-			};
+				serialize(t._expr, context);
+				context << ")";
+				return context;
+			}
+		};
 
 	template<typename T>
 		auto count(T t) -> typename count_t<noop, wrap_operand_t<T>>

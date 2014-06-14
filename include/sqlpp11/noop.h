@@ -34,44 +34,44 @@
 namespace sqlpp
 {
 #warning: Need extra include file for no_data
-		struct no_data_t {};
+	struct no_data_t {};
 
-		template<typename Context>
-			struct serializer_t<Context, no_data_t>
-			{
-				using T = no_data_t;
-
-				static Context& _(const T& t, Context& context)
-				{
-					return context;
-				}
-			};
-
-		struct noop 
+	template<typename Context>
+		struct serializer_t<Context, no_data_t>
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
-			using _recursive_traits = make_recursive_traits<>;
+			using T = no_data_t;
 
-			struct _name_t {};
-
-			template<typename Policies>
-				struct _result_methods_t
-				{};
+			static Context& _(const T& t, Context& context)
+			{
+				return context;
+			}
 		};
 
-		template<typename Context>
-			struct serializer_t<Context, noop>
+	struct noop 
+	{
+		using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
+		using _recursive_traits = make_recursive_traits<>;
+
+		struct _name_t {};
+
+		template<typename Policies>
+			struct _result_methods_t
+			{};
+	};
+
+	template<typename Context>
+		struct serializer_t<Context, noop>
+		{
+			using T = noop;
+
+			static Context& _(const T& t, Context& context)
 			{
-				using T = noop;
+				return context;
+			}
+		};
 
-				static Context& _(const T& t, Context& context)
-				{
-					return context;
-				}
-			};
-
-		template<typename T>
-			struct is_noop: std::is_same<T, noop> {};
+	template<typename T>
+		struct is_noop: std::is_same<T, noop> {};
 
 }
 #endif

@@ -43,13 +43,13 @@ namespace sqlpp
 		{
 			template<typename T>
 				struct _is_valid_comparison_operand
-			{
-				static constexpr bool value = 
-					(is_expression_t<T>::value // expressions are OK
-					or is_multi_expression_t<T>::value) // multi-expressions like ANY are OK for comparisons, too
-					and IsCorrectValueType<T>::value // the correct value type is required, of course
-					;
-			};
+				{
+					static constexpr bool value = 
+						(is_expression_t<T>::value // expressions are OK
+						 or is_multi_expression_t<T>::value) // multi-expressions like ANY are OK for comparisons, too
+						and IsCorrectValueType<T>::value // the correct value type is required, of course
+						;
+				};
 
 			template<typename T>
 				equal_to_t<Base, wrap_operand_t<T>> operator==(T t) const

@@ -34,55 +34,55 @@
 
 namespace sqlpp
 {
-		template<bool NotInverted, typename Operand, typename... Args>
-			struct in_t: public boolean::template expression_operators<in_t<NotInverted, Operand, Args...>>,
-									 public alias_operators<in_t<NotInverted, Operand, Args...>>
+	template<bool NotInverted, typename Operand, typename... Args>
+		struct in_t: public boolean::template expression_operators<in_t<NotInverted, Operand, Args...>>,
+		public alias_operators<in_t<NotInverted, Operand, Args...>>
+	{
+		using _traits = make_traits<boolean, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
+		using _recursive_traits = make_recursive_traits<Operand, Args...>;
+
+		static constexpr bool _inverted = not NotInverted;
+		static_assert(sizeof...(Args) > 0, "in() requires at least one argument");
+
+		struct _name_t
 		{
-			using _traits = make_traits<boolean, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
-			using _recursive_traits = make_recursive_traits<Operand, Args...>;
-
-			static constexpr bool _inverted = not NotInverted;
-			static_assert(sizeof...(Args) > 0, "in() requires at least one argument");
-
-			struct _name_t
-			{
-				static constexpr const char* _get_name() { return _inverted ? "NOT IN" : "IN"; }
-				template<typename T>
-					struct _member_t
-					{
-						T in;
-					};
-			};
-
-			in_t(Operand operand, Args... args):
-				_operand(operand),
-				_args(args...)
-			{}
-
-			in_t(const in_t&) = default;
-			in_t(in_t&&) = default;
-			in_t& operator=(const in_t&) = default;
-			in_t& operator=(in_t&&) = default;
-			~in_t() = default;
-
-			Operand _operand;
-			std::tuple<Args...> _args;
+			static constexpr const char* _get_name() { return _inverted ? "NOT IN" : "IN"; }
+			template<typename T>
+				struct _member_t
+				{
+					T in;
+				};
 		};
 
-		template<typename Context, bool NotInverted, typename Operand, typename... Args>
-			struct serializer_t<Context, in_t<NotInverted, Operand, Args...>>
-			{
-				using T = in_t<NotInverted, Operand, Args...>;
+		in_t(Operand operand, Args... args):
+			_operand(operand),
+			_args(args...)
+		{}
 
-				static Context& _(const T& t, Context& context)
-				{
-					serialize(t._operand, context);
-					context << (t._inverted ? " NOT IN(" : " IN(");
-					interpret_tuple(t._args, ',', context);
-					context << ')';
-					return context;
-				}
-			};
+		in_t(const in_t&) = default;
+		in_t(in_t&&) = default;
+		in_t& operator=(const in_t&) = default;
+		in_t& operator=(in_t&&) = default;
+		~in_t() = default;
+
+		Operand _operand;
+		std::tuple<Args...> _args;
+	};
+
+	template<typename Context, bool NotInverted, typename Operand, typename... Args>
+		struct serializer_t<Context, in_t<NotInverted, Operand, Args...>>
+		{
+			using T = in_t<NotInverted, Operand, Args...>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				serialize(t._operand, context);
+				context << (t._inverted ? " NOT IN(" : " IN(");
+				interpret_tuple(t._args, ',', context);
+				context << ')';
+				return context;
+			}
+		};
 
 }
 

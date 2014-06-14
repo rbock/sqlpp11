@@ -31,53 +31,53 @@
 
 namespace sqlpp
 {
-		template<typename Expr>
+	template<typename Expr>
 		struct max_t: public value_type_of<Expr>::template expression_operators<max_t<Expr>>,
-									public alias_operators<max_t<Expr>>
+		public alias_operators<max_t<Expr>>
+	{
+		using _traits = make_traits<value_type_of<Expr>, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
+		using _recursive_traits = make_recursive_traits<Expr>;
+
+		static_assert(is_expression_t<Expr>::value, "max() requires a value expression as argument");
+
+		struct _name_t
 		{
-			using _traits = make_traits<value_type_of<Expr>, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
-			using _recursive_traits = make_recursive_traits<Expr>;
-
-			static_assert(is_expression_t<Expr>::value, "max() requires a value expression as argument");
-
-			struct _name_t
-			{
-				static constexpr const char* _get_name() { return "MAX"; }
-				template<typename T>
-					struct _member_t
-					{
-						T max;
-						T& operator()() { return max; }
-						const T& operator()() const { return max; }
-					};
-			};
-
-			max_t(Expr expr):
-				_expr(expr)
-			{}
-
-			max_t(const max_t&) = default;
-			max_t(max_t&&) = default;
-			max_t& operator=(const max_t&) = default;
-			max_t& operator=(max_t&&) = default;
-			~max_t() = default;
-
-			Expr _expr;
+			static constexpr const char* _get_name() { return "MAX"; }
+			template<typename T>
+				struct _member_t
+				{
+					T max;
+					T& operator()() { return max; }
+					const T& operator()() const { return max; }
+				};
 		};
 
-		template<typename Context, typename Expr>
-			struct serializer_t<Context, max_t<Expr>>
-			{
-				using T = max_t<Expr>;
+		max_t(Expr expr):
+			_expr(expr)
+		{}
 
-				static Context& _(const T& t, Context& context)
-				{
-					context << "MAX(";
-					serialize(t._expr, context);
-					context << ")";
-					return context;
-				}
-			};
+		max_t(const max_t&) = default;
+		max_t(max_t&&) = default;
+		max_t& operator=(const max_t&) = default;
+		max_t& operator=(max_t&&) = default;
+		~max_t() = default;
+
+		Expr _expr;
+	};
+
+	template<typename Context, typename Expr>
+		struct serializer_t<Context, max_t<Expr>>
+		{
+			using T = max_t<Expr>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				context << "MAX(";
+				serialize(t._expr, context);
+				context << ")";
+				return context;
+			}
+		};
 
 	template<typename T>
 		auto max(T t) -> typename max_t<wrap_operand_t<T>>

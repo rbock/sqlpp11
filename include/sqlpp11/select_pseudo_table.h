@@ -42,13 +42,13 @@ namespace sqlpp
 			using _name_t = typename Expr::_name_t;
 			struct _column_type 
 			{
-        using _must_not_insert = std::true_type;
-        using _must_not_update = std::true_type;
+				using _must_not_insert = std::true_type;
+				using _must_not_update = std::true_type;
 			};
 		};
 
 	template<
-						 typename Select,
+		typename Select,
 						 typename... NamedExpr
 							 >
 							 struct select_pseudo_table_t: public sqlpp::table_t<select_pseudo_table_t<
@@ -72,17 +72,17 @@ namespace sqlpp
 		Select _select;
 	};
 
-		template<typename Context, typename Select, typename... NamedExpr>
-			struct serializer_t<Context, select_pseudo_table_t<Select, NamedExpr...>>
-			{
-				using T = select_pseudo_table_t<Select, NamedExpr...>;
+	template<typename Context, typename Select, typename... NamedExpr>
+		struct serializer_t<Context, select_pseudo_table_t<Select, NamedExpr...>>
+		{
+			using T = select_pseudo_table_t<Select, NamedExpr...>;
 
-				static Context& _(const T& t, Context& context)
-				{
-					serialize(t._select, context);
-					return context;
-				}
-			};
+			static Context& _(const T& t, Context& context)
+			{
+				serialize(t._select, context);
+				return context;
+			}
+		};
 
 }
 

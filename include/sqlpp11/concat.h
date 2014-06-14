@@ -33,52 +33,52 @@
 
 namespace sqlpp
 {
-		// FIXME: Remove First, inherit from text_t
-		template<typename First, typename... Args>
-			struct concat_t: public value_type_of<First>::template expression_operators<concat_t<First, Args...>>,
-											 public alias_operators<concat_t<First, Args...>>
+	// FIXME: Remove First, inherit from text_t
+	template<typename First, typename... Args>
+		struct concat_t: public value_type_of<First>::template expression_operators<concat_t<First, Args...>>,
+		public alias_operators<concat_t<First, Args...>>
+	{
+		using _traits = make_traits<value_type_of<First>, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
+		using _recursive_traits = make_recursive_traits<First, Args...>;
+
+		static_assert(sizeof...(Args) > 0, "concat requires two arguments at least");
+		static_assert(sqlpp::detail::all_t<is_text_t<First>::value, is_text_t<Args>::value...>::value, "at least one non-text argument detected in concat()");
+		struct _name_t
 		{
-			using _traits = make_traits<value_type_of<First>, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
-			using _recursive_traits = make_recursive_traits<First, Args...>;
-
-			static_assert(sizeof...(Args) > 0, "concat requires two arguments at least");
-			static_assert(sqlpp::detail::all_t<is_text_t<First>::value, is_text_t<Args>::value...>::value, "at least one non-text argument detected in concat()");
-			struct _name_t
-			{
-				static constexpr const char* _get_name() { return "CONCAT"; }
-				template<typename T>
-					struct _member_t
-					{
-						T concat;
-					};
-			};
-
-			concat_t(First first, Args... args):
-				_args(first, args...)
-			{}
-
-			concat_t(const concat_t&) = default;
-			concat_t(concat_t&&) = default;
-			concat_t& operator=(const concat_t&) = default;
-			concat_t& operator=(concat_t&&) = default;
-			~concat_t() = default;
-
-			std::tuple<First, Args...> _args;
+			static constexpr const char* _get_name() { return "CONCAT"; }
+			template<typename T>
+				struct _member_t
+				{
+					T concat;
+				};
 		};
 
-		template<typename Context, typename First, typename... Args>
-			struct serializer_t<Context, concat_t<First, Args...>>
-			{
-				using T = concat_t<First, Args...>;
+		concat_t(First first, Args... args):
+			_args(first, args...)
+		{}
 
-				static Context& _(const T& t, Context& context)
-				{
-					context << "(";
-					interpret_tuple(t._args, "||", context);
-					context << ")";
-					return context;
-				}
-			};
+		concat_t(const concat_t&) = default;
+		concat_t(concat_t&&) = default;
+		concat_t& operator=(const concat_t&) = default;
+		concat_t& operator=(concat_t&&) = default;
+		~concat_t() = default;
+
+		std::tuple<First, Args...> _args;
+	};
+
+	template<typename Context, typename First, typename... Args>
+		struct serializer_t<Context, concat_t<First, Args...>>
+		{
+			using T = concat_t<First, Args...>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				context << "(";
+				interpret_tuple(t._args, "||", context);
+				context << ")";
+				return context;
+			}
+		};
 }
 
 #endif

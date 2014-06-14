@@ -40,7 +40,7 @@ namespace sqlpp
 	struct table_base_t {};
 
 	template<typename Table, typename... ColumnSpec>
-	struct table_t: public table_base_t, public ColumnSpec::_name_t::template _member_t<column_t<Table, ColumnSpec>>...
+		struct table_t: public table_base_t, public ColumnSpec::_name_t::template _member_t<column_t<Table, ColumnSpec>>...
 	{
 		using _traits = make_traits<no_value_t, tag::table>;
 
@@ -101,17 +101,17 @@ namespace sqlpp
 		}
 	};
 
-		template<typename Context, typename X>
-			struct serializer_t<Context, X, typename std::enable_if<std::is_base_of<table_base_t, X>::value and not is_pseudo_table_t<X>::value, void>::type>
-			{
-				using T = X;
+	template<typename Context, typename X>
+		struct serializer_t<Context, X, typename std::enable_if<std::is_base_of<table_base_t, X>::value and not is_pseudo_table_t<X>::value, void>::type>
+		{
+			using T = X;
 
-				static Context& _(const T& t, Context& context)
-				{
-					context << T::_name_t::_get_name();
-					return context;
-				}
-			};
+			static Context& _(const T& t, Context& context)
+			{
+				context << T::_name_t::_get_name();
+				return context;
+			}
+		};
 
 
 }

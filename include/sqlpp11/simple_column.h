@@ -31,29 +31,29 @@
 
 namespace sqlpp
 {
-		template<typename Column>
-			struct simple_column_t
-			{
-				Column _column;
-			};
+	template<typename Column>
+		struct simple_column_t
+		{
+			Column _column;
+		};
 
-		template<typename Context, typename Column>
-			struct serializer_t<Context, simple_column_t<Column>>
-			{
-				using T = simple_column_t<Column>;
+	template<typename Context, typename Column>
+		struct serializer_t<Context, simple_column_t<Column>>
+		{
+			using T = simple_column_t<Column>;
 
-				static Context& _(const T& t, Context& context)
-				{
-					context << t._column._get_name();
-					return context;
-				}
-			};
-
-		template<typename Column>
-			simple_column_t<Column> simple_column(Column c)
+			static Context& _(const T& t, Context& context)
 			{
-				return {c};
+				context << t._column._get_name();
+				return context;
 			}
+		};
+
+	template<typename Column>
+		simple_column_t<Column> simple_column(Column c)
+		{
+			return {c};
+		}
 }
 
 #endif

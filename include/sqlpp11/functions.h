@@ -55,8 +55,8 @@ namespace sqlpp
 		}
 
 	template<typename ValueType> // Csaba Csoma suggests: unsafe_sql instead of verbatim
-	struct verbatim_t: public ValueType::template expression_operators<verbatim_t<ValueType>>,
-										 public alias_operators<verbatim_t<ValueType>>
+		struct verbatim_t: public ValueType::template expression_operators<verbatim_t<ValueType>>,
+		public alias_operators<verbatim_t<ValueType>>
 	{
 		using _traits = make_traits<ValueType, ::sqlpp::tag::expression>;
 		using _recursive_traits = make_recursive_traits<>;
@@ -71,17 +71,17 @@ namespace sqlpp
 		std::string _verbatim;
 	};
 
-		template<typename Context, typename ValueType>
-			struct serializer_t<Context, verbatim_t<ValueType>>
-			{
-				using T = verbatim_t<ValueType>;
+	template<typename Context, typename ValueType>
+		struct serializer_t<Context, verbatim_t<ValueType>>
+		{
+			using T = verbatim_t<ValueType>;
 
-				static Context& _(const T& t, Context& context)
-				{
-					context << t._verbatim;
-					return context;
-				}
-			};
+			static Context& _(const T& t, Context& context)
+			{
+				context << t._verbatim;
+				return context;
+			}
+		};
 
 	template<typename ValueType, typename StringType>
 		auto verbatim(StringType s) -> verbatim_t<ValueType>
@@ -119,26 +119,26 @@ namespace sqlpp
 			_container_t _container;
 		};
 
-		template<typename Context, typename Container>
-			struct serializer_t<Context, value_list_t<Container>>
+	template<typename Context, typename Container>
+		struct serializer_t<Context, value_list_t<Container>>
+		{
+			using T = value_list_t<Container>;
+
+			static Context& _(const T& t, Context& context)
 			{
-				using T = value_list_t<Container>;
-
-				static Context& _(const T& t, Context& context)
+				bool first = true;
+				for (const auto& entry: t._container)
 				{
-					bool first = true;
-					for (const auto& entry: t._container)
-					{
-						if (first)
-							first = false;
-						else
-							context << ',';
+					if (first)
+						first = false;
+					else
+						context << ',';
 
-						serialize(value(entry), context);
-					}
-					return context;
+					serialize(value(entry), context);
 				}
-			};
+				return context;
+			}
+		};
 
 	template<typename Container>
 		auto value_list(Container c) -> value_list_t<Container>

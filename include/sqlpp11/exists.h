@@ -31,53 +31,53 @@
 
 namespace sqlpp
 {
-		template<typename Select>
+	template<typename Select>
 		struct exists_t: public boolean::template expression_operators<exists_t<Select>>,
-										 public alias_operators<exists_t<Select>>
+		public alias_operators<exists_t<Select>>
+	{
+		using _traits = make_traits<boolean, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
+		using _recursive_traits = make_recursive_traits<Select>;
+
+		static_assert(is_select_t<Select>::value, "exists() requires a select expression as argument");
+
+		struct _name_t
 		{
-			using _traits = make_traits<boolean, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
-			using _recursive_traits = make_recursive_traits<Select>;
-
-			static_assert(is_select_t<Select>::value, "exists() requires a select expression as argument");
-
-			struct _name_t
-			{
-				static constexpr const char* _get_name() { return "EXISTS"; }
-				template<typename T>
-					struct _member_t
-					{
-						T exists;
-						T& operator()() { return exists; }
-						const T& operator()() const { return exists; }
-					};
-			};
-
-			exists_t(Select select):
-				_select(select)
-			{}
-
-			exists_t(const exists_t&) = default;
-			exists_t(exists_t&&) = default;
-			exists_t& operator=(const exists_t&) = default;
-			exists_t& operator=(exists_t&&) = default;
-			~exists_t() = default;
-
-			Select _select;
+			static constexpr const char* _get_name() { return "EXISTS"; }
+			template<typename T>
+				struct _member_t
+				{
+					T exists;
+					T& operator()() { return exists; }
+					const T& operator()() const { return exists; }
+				};
 		};
 
-		template<typename Context, typename Select>
-			struct serializer_t<Context, exists_t<Select>>
-			{
-				using T = exists_t<Select>;
+		exists_t(Select select):
+			_select(select)
+		{}
 
-				static Context& _(const T& t, Context& context)
-				{
-					context << "EXISTS(";
-					serialize(t._select, context);
-					context << ")";
-					return context;
-				}
-			};
+		exists_t(const exists_t&) = default;
+		exists_t(exists_t&&) = default;
+		exists_t& operator=(const exists_t&) = default;
+		exists_t& operator=(exists_t&&) = default;
+		~exists_t() = default;
+
+		Select _select;
+	};
+
+	template<typename Context, typename Select>
+		struct serializer_t<Context, exists_t<Select>>
+		{
+			using T = exists_t<Select>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				context << "EXISTS(";
+				serialize(t._select, context);
+				context << ")";
+				return context;
+			}
+		};
 
 
 	template<typename T>

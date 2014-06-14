@@ -50,7 +50,7 @@ namespace sqlpp
 		auto interpret_tuple_impl(const Tuple& t, const Separator& separator, Context& context, const ::sqlpp::detail::index_sequence<Is...>&)
 		-> Context&
 		{
-      // Note: A braced-init-list does guarantee the order of evaluation according to 12.6.1 [class.explicit.init] paragraph 2 and 8.5.4 [dcl.init.list] paragraph 4.
+			// Note: A braced-init-list does guarantee the order of evaluation according to 12.6.1 [class.explicit.init] paragraph 2 and 8.5.4 [dcl.init.list] paragraph 4.
 			// See for example: "http://en.cppreference.com/w/cpp/utility/integer_sequence"
 			// See also: "http://stackoverflow.com/questions/6245735/pretty-print-stdtuple/6245777#6245777"
 			// Beware of gcc-bug: "http://gcc.gnu.org/bugzilla/show_bug.cgi?id=51253", otherwise an empty swallow struct could be used

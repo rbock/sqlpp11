@@ -70,34 +70,34 @@ namespace sqlpp
 					 auto _prepare(Db& db) const
 					 -> prepared_update_t<Db, update_t>
 					 {
-					   _statement_t::_check_consistency();
+					 _statement_t::_check_consistency();
 
-					   return {{}, db.prepare_update(*this)};
+					 return {{}, db.prepare_update(*this)};
 					 }
 					 */
 			};
 	};
 
 
-		template<typename Context>
-			struct serializer_t<Context, update_name_t>
+	template<typename Context>
+		struct serializer_t<Context, update_name_t>
+		{
+			using T = update_name_t;
+
+			static Context& _(const T& t, Context& context)
 			{
-				using T = update_name_t;
+				context << "UPDATE ";
 
-				static Context& _(const T& t, Context& context)
-				{
-					context << "UPDATE ";
-
-					return context;
-				}
-			};
+				return context;
+			}
+		};
 
 	template<typename Database>
 		using blank_update_t = statement_t<Database,
-			update_t,
-			no_single_table_t,
-			no_update_list_t,
-			no_where_t>;
+					update_t,
+					no_single_table_t,
+					no_update_list_t,
+					no_where_t>;
 
 	template<typename Table>
 		constexpr auto update(Table table)

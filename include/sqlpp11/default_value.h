@@ -39,17 +39,17 @@ namespace sqlpp
 		static constexpr bool _is_trivial() { return false; }
 	};
 
-		template<typename Context>
-			struct serializer_t<Context, default_value_t>
-			{
-				using Operand = default_value_t;
+	template<typename Context>
+		struct serializer_t<Context, default_value_t>
+		{
+			using Operand = default_value_t;
 
-				static Context& _(const Operand& t, Context& context)
-				{
-					context << "DEFAULT";
-					return context;
-				}
-			};
+			static Context& _(const Operand& t, Context& context)
+			{
+				context << "DEFAULT";
+				return context;
+			}
+		};
 
 	constexpr default_value_t default_value = {};
 

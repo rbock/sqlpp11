@@ -34,7 +34,7 @@
 namespace sqlpp
 {
 	template<typename ValueType, typename NameType>
-	struct parameter_t: public ValueType::template expression_operators<parameter_t<ValueType, NameType>>
+		struct parameter_t: public ValueType::template expression_operators<parameter_t<ValueType, NameType>>
 	{
 		using _traits = make_traits<ValueType, tag::parameter, tag::expression>;
 		struct _recursive_traits
@@ -57,17 +57,17 @@ namespace sqlpp
 		~parameter_t() = default;
 	};
 
-		template<typename Context, typename ValueType, typename NameType>
-			struct serializer_t<Context, parameter_t<ValueType, NameType>>
-			{
-				using T = parameter_t<ValueType, NameType>;
+	template<typename Context, typename ValueType, typename NameType>
+		struct serializer_t<Context, parameter_t<ValueType, NameType>>
+		{
+			using T = parameter_t<ValueType, NameType>;
 
-				static Context& _(const T& t, Context& context)
-				{
-					context << "?";
-					return context;
-				}
-			};
+			static Context& _(const T& t, Context& context)
+			{
+				context << "?";
+				return context;
+			}
+		};
 
 	template<typename NamedExpr>
 		auto parameter(const NamedExpr&)

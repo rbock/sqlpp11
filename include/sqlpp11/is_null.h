@@ -33,55 +33,55 @@
 
 namespace sqlpp
 {
-		template<bool NotInverted, typename Operand>
+	template<bool NotInverted, typename Operand>
 		struct is_null_t: public boolean::template expression_operators<is_null_t<NotInverted, Operand>>,
-											public alias_operators<is_null_t<NotInverted, Operand>>
+		public alias_operators<is_null_t<NotInverted, Operand>>
+	{
+		using _traits = make_traits<boolean, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
+		using _recursive_traits = make_recursive_traits<Operand>;
+
+		static constexpr bool _inverted = not NotInverted;
+
+		struct _value_type: public boolean
 		{
-			using _traits = make_traits<boolean, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
-			using _recursive_traits = make_recursive_traits<Operand>;
-
-			static constexpr bool _inverted = not NotInverted;
-
-			struct _value_type: public boolean
-			{
-				using _is_named_expression = std::true_type;
-			};
-
-			struct _name_t
-			{
-				static constexpr const char* _get_name() { return _inverted ? "IS NOT NULL" : "IS NULL"; }
-				template<typename T>
-					struct _member_t
-					{
-						T in;
-					};
-			};
-
-			is_null_t(Operand operand):
-				_operand(operand)
-			{}
-
-			is_null_t(const is_null_t&) = default;
-			is_null_t(is_null_t&&) = default;
-			is_null_t& operator=(const is_null_t&) = default;
-			is_null_t& operator=(is_null_t&&) = default;
-			~is_null_t() = default;
-
-			Operand _operand;
+			using _is_named_expression = std::true_type;
 		};
 
-		template<typename Context, bool NotInverted, typename Operand>
-			struct serializer_t<Context, ::sqlpp::is_null_t<NotInverted, Operand>>
-			{
-				using T = ::sqlpp::is_null_t<NotInverted, Operand>;
-
-				static Context& _(const T& t, Context& context)
+		struct _name_t
+		{
+			static constexpr const char* _get_name() { return _inverted ? "IS NOT NULL" : "IS NULL"; }
+			template<typename T>
+				struct _member_t
 				{
-					serialize(t._operand, context);
-					context << (t._inverted ? " IS NOT NULL" : " IS NULL");
-					return context;
-				}
-			};
+					T in;
+				};
+		};
+
+		is_null_t(Operand operand):
+			_operand(operand)
+		{}
+
+		is_null_t(const is_null_t&) = default;
+		is_null_t(is_null_t&&) = default;
+		is_null_t& operator=(const is_null_t&) = default;
+		is_null_t& operator=(is_null_t&&) = default;
+		~is_null_t() = default;
+
+		Operand _operand;
+	};
+
+	template<typename Context, bool NotInverted, typename Operand>
+		struct serializer_t<Context, ::sqlpp::is_null_t<NotInverted, Operand>>
+		{
+			using T = ::sqlpp::is_null_t<NotInverted, Operand>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				serialize(t._operand, context);
+				context << (t._inverted ? " IS NOT NULL" : " IS NULL");
+				return context;
+			}
+		};
 
 }
 

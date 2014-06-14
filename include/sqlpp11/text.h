@@ -51,12 +51,12 @@ namespace sqlpp
 				_parameter_t():
 					_value(""),
 					_is_null(true)
-					{}
+				{}
 
 				_parameter_t(const _cpp_value_type& value):
 					_value(value),
 					_is_null(false)
-					{}
+				{}
 
 				_parameter_t& operator=(const _cpp_value_type& value)
 				{
@@ -73,7 +73,7 @@ namespace sqlpp
 				}
 
 				bool is_null() const
-			 	{ 
+				{ 
 					return _is_null; 
 				}
 
@@ -96,94 +96,94 @@ namespace sqlpp
 			};
 
 			template<typename Db, bool NullIsTrivial = false>
-			struct _result_entry_t
-			{
-				_result_entry_t():
-					_is_valid(false),
-					_value_ptr(nullptr),
-					_len(0)
+				struct _result_entry_t
+				{
+					_result_entry_t():
+						_is_valid(false),
+						_value_ptr(nullptr),
+						_len(0)
 					{}
 
-				_result_entry_t(char* data, size_t len):
-					_is_valid(true),
-					_value_ptr(data),
-					_len(_value_ptr ? 0 : len)
-					{}
+					_result_entry_t(char* data, size_t len):
+						_is_valid(true),
+						_value_ptr(data),
+						_len(_value_ptr ? 0 : len)
+						{}
 
-				void assign(const char* data, size_t len)
-				{
-					_is_valid = true;
-					_value_ptr = data;
-					_len = _value_ptr ? len: 0;
-				}
-
-				void validate()
-				{
-					_is_valid = true;
-				}
-
-				void invalidate()
-				{
-					_is_valid = false;
-					_value_ptr = nullptr;
-					_len = 0;
-				}
-
-				bool operator==(const _cpp_value_type& rhs) const { return value() == rhs; }
-				bool operator!=(const _cpp_value_type& rhs) const { return not operator==(rhs); }
-
-				bool is_null() const
-			 	{ 
-					if (connector_assert_result_validity_t<Db>::value)
-						assert(_is_valid);
-					else if (not _is_valid)
-						throw exception("accessing is_null in non-existing row");
-					return _value_ptr == nullptr; 
-				}
-
-				_cpp_value_type value() const
-				{
-					const bool null_value = _value_ptr == nullptr and not NullIsTrivial and not connector_null_result_is_trivial_value_t<Db>::value;
-					if (connector_assert_result_validity_t<Db>::value)
+					void assign(const char* data, size_t len)
 					{
-						assert(_is_valid);
-						assert(not null_value);
-					}
-					else
-					{
-						if (not _is_valid)
-							throw exception("accessing value in non-existing row");
-						if (null_value)
-							throw exception("accessing value of NULL field");
-					}
-					if (_value_ptr) 
-						return std::string(_value_ptr, _value_ptr + _len);
-					else
-						return "";
-				}
-
-				operator _cpp_value_type() const { return value(); }
-
-				template<typename Target>
-					void _bind(Target& target, size_t i)
-					{
-						target._bind_text_result(i, &_value_ptr, &_len);
+						_is_valid = true;
+						_value_ptr = data;
+						_len = _value_ptr ? len: 0;
 					}
 
-			private:
-				bool _is_valid;
-				const char* _value_ptr;
-				size_t _len;
-			};
+					void validate()
+					{
+						_is_valid = true;
+					}
+
+					void invalidate()
+					{
+						_is_valid = false;
+						_value_ptr = nullptr;
+						_len = 0;
+					}
+
+					bool operator==(const _cpp_value_type& rhs) const { return value() == rhs; }
+					bool operator!=(const _cpp_value_type& rhs) const { return not operator==(rhs); }
+
+					bool is_null() const
+					{ 
+						if (connector_assert_result_validity_t<Db>::value)
+							assert(_is_valid);
+						else if (not _is_valid)
+							throw exception("accessing is_null in non-existing row");
+						return _value_ptr == nullptr; 
+					}
+
+					_cpp_value_type value() const
+					{
+						const bool null_value = _value_ptr == nullptr and not NullIsTrivial and not connector_null_result_is_trivial_value_t<Db>::value;
+						if (connector_assert_result_validity_t<Db>::value)
+						{
+							assert(_is_valid);
+							assert(not null_value);
+						}
+						else
+						{
+							if (not _is_valid)
+								throw exception("accessing value in non-existing row");
+							if (null_value)
+								throw exception("accessing value of NULL field");
+						}
+						if (_value_ptr) 
+							return std::string(_value_ptr, _value_ptr + _len);
+						else
+							return "";
+					}
+
+					operator _cpp_value_type() const { return value(); }
+
+					template<typename Target>
+						void _bind(Target& target, size_t i)
+						{
+							target._bind_text_result(i, &_value_ptr, &_len);
+						}
+
+				private:
+					bool _is_valid;
+					const char* _value_ptr;
+					size_t _len;
+				};
 
 			template<typename T>
 				struct _is_valid_operand
-			{
-				static constexpr bool value = 
-					is_expression_t<T>::value // expressions are OK
-					and is_text_t<T>::value // the correct value type is required, of course
-					;
-			};
+				{
+					static constexpr bool value = 
+						is_expression_t<T>::value // expressions are OK
+						and is_text_t<T>::value // the correct value type is required, of course
+						;
+				};
 
 			template<typename Base>
 				struct expression_operators: public basic_expression_operators<Base, is_text_t>
@@ -209,23 +209,23 @@ namespace sqlpp
 
 			template<typename Base>
 				struct column_operators
-			{
-				template<typename T>
-					auto operator +=(T t) const -> assignment_t<Base, concat_t<Base, wrap_operand_t<T>>>
-					{
-						using rhs = wrap_operand_t<T>;
-						static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
+				{
+					template<typename T>
+						auto operator +=(T t) const -> assignment_t<Base, concat_t<Base, wrap_operand_t<T>>>
+						{
+							using rhs = wrap_operand_t<T>;
+							static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
 
-						return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
-					}
-			};
+							return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
+						}
+				};
 		};
 
 		template<typename Db, bool TrivialIsNull>
-		inline std::ostream& operator<<(std::ostream& os, const text::_result_entry_t<Db, TrivialIsNull>& e)
-		{
-			return os << e.value();
-		}
+			inline std::ostream& operator<<(std::ostream& os, const text::_result_entry_t<Db, TrivialIsNull>& e)
+			{
+				return os << e.value();
+			}
 	}
 
 	using text = detail::text;

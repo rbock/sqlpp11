@@ -32,7 +32,7 @@
 
 namespace sqlpp
 {
-		template<typename Select>
+	template<typename Select>
 		struct some_t
 		{
 			using _traits = make_traits<value_type_of<Select>, ::sqlpp::tag::multi_expression>;
@@ -63,19 +63,19 @@ namespace sqlpp
 			Select _select;
 		};
 
-		template<typename Context, typename Select>
-			struct serializer_t<Context, some_t<Select>>
-			{
-				using T = some_t<Select>;
+	template<typename Context, typename Select>
+		struct serializer_t<Context, some_t<Select>>
+		{
+			using T = some_t<Select>;
 
-				static Context& _(const T& t, Context& context)
-				{
-					context << "SOME(";
-					serialize(t._select, context);
-					context << ")";
-					return context;
-				}
-			};
+			static Context& _(const T& t, Context& context)
+			{
+				context << "SOME(";
+				serialize(t._select, context);
+				context << ")";
+				return context;
+			}
+		};
 
 	template<typename T>
 		auto some(T t) -> typename some_t<wrap_operand_t<T>>

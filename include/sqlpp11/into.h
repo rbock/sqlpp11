@@ -34,110 +34,39 @@
 
 namespace sqlpp
 {
-		// A SINGLE TABLE DATA
-		template<typename Database, typename Table>
-			struct into_data_t
-			{
-				into_data_t(Table table):
-					_table(table)
-				{}
-
-				into_data_t(const into_data_t&) = default;
-				into_data_t(into_data_t&&) = default;
-				into_data_t& operator=(const into_data_t&) = default;
-				into_data_t& operator=(into_data_t&&) = default;
-				~into_data_t() = default;
-
-				Table _table;
-			};
-
-		// A SINGLE TABLE
-		template<typename Database, typename Table>
-			struct into_t
-			{
-				using _traits = make_traits<no_value_t, ::sqlpp::tag::into, tag::return_value>;
-				using _recursive_traits = make_recursive_traits<Table>;
-
-				static_assert(is_table_t<Table>::value, "argument has to be a table");
-				static_assert(required_tables_of<Table>::size::value == 0, "table depends on another table");
-
-				using _data_t = into_data_t<Database, Table>;
-
-				struct _name_t {};
-
-				// Member implementation with data and methods
-				template <typename Policies>
-					struct _impl_t
-					{
-						_data_t _data;
-					};
-
-				// Member template for adding the named member to a statement
-				template<typename Policies>
-					struct _member_t
-					{
-						using _data_t = into_data_t<Database, Table>;
-
-						_impl_t<Policies> into;
-						_impl_t<Policies>& operator()() { return into; }
-						const _impl_t<Policies>& operator()() const { return into; }
-
-						template<typename T>
-							static auto _get_member(T t) -> decltype(t.into)
-							{
-								return t.into;
-							}
-					};
-
-				// Additional methods for the statement
-				template<typename Policies>
-					struct _methods_t
-					{
-					};
-
-				template<typename Policies>
-					struct _result_methods_t
-					{
-						using _statement_t = typename Policies::_statement_t;
-
-						const _statement_t& _get_statement() const
-						{
-							return static_cast<const _statement_t&>(*this);
-						}
-
-						template<typename Db>
-							auto _run(Db& db) const -> decltype(db.insert(_get_statement()))
-							{
-								_statement_t::_check_consistency();
-
-								static_assert(_statement_t::_get_static_no_of_parameters() == 0, "cannot run insert directly with parameters, use prepare instead");
-								return db.insert(*this);
-							}
-
-						/*
-						template<typename Db>
-							auto _prepare(Db& db) const
-							-> prepared_insert_t<Db, insert_t>
-							{
-								_statement_t::_check_consistency();
-
-								return {{}, db.prepare_insert(*this)};
-							}
-							*/
-					};
-			};
-
-		// NO INTO YET
-		struct no_into_t
+	// A SINGLE TABLE DATA
+	template<typename Database, typename Table>
+		struct into_data_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
-			using _recursive_traits = make_recursive_traits<>;
+			into_data_t(Table table):
+				_table(table)
+			{}
 
-			// Data
-			using _data_t = no_data_t;
+			into_data_t(const into_data_t&) = default;
+			into_data_t(into_data_t&&) = default;
+			into_data_t& operator=(const into_data_t&) = default;
+			into_data_t& operator=(into_data_t&&) = default;
+			~into_data_t() = default;
+
+			Table _table;
+		};
+
+	// A SINGLE TABLE
+	template<typename Database, typename Table>
+		struct into_t
+		{
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::into, tag::return_value>;
+			using _recursive_traits = make_recursive_traits<Table>;
+
+			static_assert(is_table_t<Table>::value, "argument has to be a table");
+			static_assert(required_tables_of<Table>::size::value == 0, "table depends on another table");
+
+			using _data_t = into_data_t<Database, Table>;
+
+			struct _name_t {};
 
 			// Member implementation with data and methods
-			template<typename Policies>
+			template <typename Policies>
 				struct _impl_t
 				{
 					_data_t _data;
@@ -147,48 +76,119 @@ namespace sqlpp
 			template<typename Policies>
 				struct _member_t
 				{
-					using _data_t = no_data_t;
+					using _data_t = into_data_t<Database, Table>;
 
-					_impl_t<Policies> no_into;
-					_impl_t<Policies>& operator()() { return no_into; }
-					const _impl_t<Policies>& operator()() const { return no_into; }
+					_impl_t<Policies> into;
+					_impl_t<Policies>& operator()() { return into; }
+					const _impl_t<Policies>& operator()() const { return into; }
 
 					template<typename T>
-						static auto _get_member(T t) -> decltype(t.no_into)
+						static auto _get_member(T t) -> decltype(t.into)
 						{
-							return t.no_into;
+							return t.into;
 						}
 				};
 
+			// Additional methods for the statement
 			template<typename Policies>
 				struct _methods_t
 				{
-					using _database_t = typename Policies::_database_t;
-					template<typename T>
-					using _new_statement_t = typename Policies::template _new_statement_t<no_into_t, T>;
+				};
 
-					template<typename... Args>
-						auto into(Args... args)
-						-> _new_statement_t<into_t<void, Args...>>
+			template<typename Policies>
+				struct _result_methods_t
+				{
+					using _statement_t = typename Policies::_statement_t;
+
+					const _statement_t& _get_statement() const
+					{
+						return static_cast<const _statement_t&>(*this);
+					}
+
+					template<typename Db>
+						auto _run(Db& db) const -> decltype(db.insert(_get_statement()))
 						{
-							return { *static_cast<typename Policies::_statement_t*>(this), into_data_t<void, Args...>{args...} };
+							_statement_t::_check_consistency();
+
+							static_assert(_statement_t::_get_static_no_of_parameters() == 0, "cannot run insert directly with parameters, use prepare instead");
+							return db.insert(*this);
 						}
+
+					/*
+						 template<typename Db>
+						 auto _prepare(Db& db) const
+						 -> prepared_insert_t<Db, insert_t>
+						 {
+						 _statement_t::_check_consistency();
+
+						 return {{}, db.prepare_insert(*this)};
+						 }
+						 */
 				};
 		};
 
-		// Interpreters
-		template<typename Context, typename Database, typename Table>
-			struct serializer_t<Context, into_data_t<Database, Table>>
-			{
-				using T = into_data_t<Database, Table>;
+	// NO INTO YET
+	struct no_into_t
+	{
+		using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
+		using _recursive_traits = make_recursive_traits<>;
 
-				static Context& _(const T& t, Context& context)
-				{
-					context << " INTO ";
-					serialize(t._table, context);
-					return context;
-				}
+		// Data
+		using _data_t = no_data_t;
+
+		// Member implementation with data and methods
+		template<typename Policies>
+			struct _impl_t
+			{
+				_data_t _data;
 			};
+
+		// Member template for adding the named member to a statement
+		template<typename Policies>
+			struct _member_t
+			{
+				using _data_t = no_data_t;
+
+				_impl_t<Policies> no_into;
+				_impl_t<Policies>& operator()() { return no_into; }
+				const _impl_t<Policies>& operator()() const { return no_into; }
+
+				template<typename T>
+					static auto _get_member(T t) -> decltype(t.no_into)
+					{
+						return t.no_into;
+					}
+			};
+
+		template<typename Policies>
+			struct _methods_t
+			{
+				using _database_t = typename Policies::_database_t;
+				template<typename T>
+					using _new_statement_t = typename Policies::template _new_statement_t<no_into_t, T>;
+
+				template<typename... Args>
+					auto into(Args... args)
+					-> _new_statement_t<into_t<void, Args...>>
+					{
+						return { *static_cast<typename Policies::_statement_t*>(this), into_data_t<void, Args...>{args...} };
+					}
+			};
+	};
+
+	// Interpreters
+	template<typename Context, typename Database, typename Table>
+		struct serializer_t<Context, into_data_t<Database, Table>>
+		{
+			using T = into_data_t<Database, Table>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				context << " INTO ";
+				serialize(t._table, context);
+				return context;
+			}
+		};
 
 }
 
