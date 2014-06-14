@@ -33,17 +33,17 @@
 #include <sqlpp11/null.h>
 #include <sqlpp11/sort_order.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/vendor/assignment.h>
-#include <sqlpp11/vendor/expression.h>
-#include <sqlpp11/vendor/serializer.h>
-#include <sqlpp11/vendor/wrong.h>
+#include <sqlpp11/assignment.h>
+#include <sqlpp11/expression.h>
+#include <sqlpp11/serializer.h>
+#include <sqlpp11/wrong.h>
 #include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
 {
 	template<typename Table, typename ColumnSpec>
-	struct column_t: public ColumnSpec::_value_type::template expression_operators<column_t<Table, ColumnSpec>>,
-	                 public ColumnSpec::_value_type::template column_operators<column_t<Table, ColumnSpec>>
+		struct column_t: public ColumnSpec::_value_type::template expression_operators<column_t<Table, ColumnSpec>>,
+		public ColumnSpec::_value_type::template column_operators<column_t<Table, ColumnSpec>>
 	{ 
 		using _traits = make_traits<typename ColumnSpec::_value_type, tag::column, tag::expression, tag::named_expression>;
 		struct _recursive_traits
@@ -81,43 +81,40 @@ namespace sqlpp
 			}
 
 		template<typename T>
-			auto operator =(T t) const -> vendor::assignment_t<column_t, vendor::wrap_operand_t<T>>
+			auto operator =(T t) const -> assignment_t<column_t, wrap_operand_t<T>>
 			{
-				using rhs = vendor::wrap_operand_t<T>;
+				using rhs = wrap_operand_t<T>;
 				static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand assignment operand");
 
 				return { *this, rhs{t} };
 			}
 
 		auto operator =(sqlpp::null_t) const
-			->vendor::assignment_t<column_t, sqlpp::null_t>
+			->assignment_t<column_t, sqlpp::null_t>
 			{
 				static_assert(can_be_null_t<column_t>::value, "column cannot be null");
 				return { *this, {} };
 			}
 
 		auto operator =(sqlpp::default_value_t) const
-			->vendor::assignment_t<column_t, sqlpp::default_value_t>
+			->assignment_t<column_t, sqlpp::default_value_t>
 			{
 				return { *this, {} };
 			}
 	};
 
-	namespace vendor
-	{
-		template<typename Context, typename... Args>
-			struct serializer_t<Context, column_t<Args...>>
+	template<typename Context, typename... Args>
+		struct serializer_t<Context, column_t<Args...>>
+		{
+			using T = column_t<Args...>;
+
+			static Context& _(const T& t, Context& context)
 			{
-				using T = column_t<Args...>;
+				context << T::_table::_name_t::_get_name() << '.' << T::_name_t::_get_name();
+				return context;
+			}
+		};
 
-				static Context& _(const T& t, Context& context)
-				{
-					context << T::_table::_name_t::_get_name() << '.' << T::_name_t::_get_name();
-					return context;
-				}
-			};
-
-	}
 }
 
 #endif

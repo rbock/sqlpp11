@@ -36,57 +36,57 @@ namespace sqlpp
 	namespace detail\
 	{\
 		template<typename T, typename Enable = void>\
-			struct is_##name##_impl: std::false_type {};\
+		struct is_##name##_impl: std::false_type {};\
 		template<typename T>\
-			struct is_##name##_impl<T, typename std::enable_if<std::is_same<typename T::_value_type::_is_##name, std::true_type>::value>::type>: std::true_type {};\
+		struct is_##name##_impl<T, typename std::enable_if<std::is_same<typename T::_value_type::_is_##name, std::true_type>::value>::type>: std::true_type {};\
 	}\
 	namespace tag\
 	{\
 		struct name{};\
 	};\
 	template<typename T>\
-		using is_##name##_t = detail::is_element_of<tag::name, typename T::_traits::_tags>;
+	using is_##name##_t = detail::is_element_of<tag::name, typename T::_traits::_tags>;
 
 #define SQLPP_IS_COLUMN_TRAIT_GENERATOR(name) \
 	namespace detail\
 	{\
 		template<typename T, typename Enable = void>\
-			struct name##_impl { using type = std::false_type; };\
+		struct name##_impl { using type = std::false_type; };\
 		template<typename T>\
-			struct name##_impl<T, typename std::enable_if<std::is_same<typename T::_column_type::_##name, std::true_type>::value>::type> { using type = std::true_type; };\
+		struct name##_impl<T, typename std::enable_if<std::is_same<typename T::_column_type::_##name, std::true_type>::value>::type> { using type = std::true_type; };\
 	}\
 	template<typename T>\
-		using name##_t = typename detail::name##_impl<T>::type;
+	using name##_t = typename detail::name##_impl<T>::type;
 
 #define SQLPP_TYPE_TRAIT_GENERATOR(name) \
 	namespace detail\
 	{\
 		template<typename T, typename Enable = void>\
-			struct name##_impl: std::false_type {};\
+		struct name##_impl: std::false_type {};\
 		template<typename T>\
-			struct name##_impl<T, typename std::enable_if<std::is_same<typename T::_##name, std::true_type>::value>::type>: std::true_type {};\
+		struct name##_impl<T, typename std::enable_if<std::is_same<typename T::_##name, std::true_type>::value>::type>: std::true_type {};\
 	}\
 	template<typename T>\
-		struct name##_t: detail::name##_impl<T> {};
+	struct name##_t: detail::name##_impl<T> {};
 
 #define SQLPP_CONNECTOR_TRAIT_GENERATOR(name) \
 	namespace detail\
 	{\
 		template<typename T, typename Enable = void>\
-			struct connector_##name##_impl: std::false_type {};\
+		struct connector_##name##_impl: std::false_type {};\
 		template<typename T>\
-			struct connector_##name##_impl<T, typename std::enable_if<std::is_same<typename T::_tags::_##name, std::true_type>::value>::type>: std::true_type {};\
+		struct connector_##name##_impl<T, typename std::enable_if<std::is_same<typename T::_tags::_##name, std::true_type>::value>::type>: std::true_type {};\
 	}\
 	template<typename T>\
-		struct connector_##name##_t: detail::connector_##name##_impl<T> {};
+	struct connector_##name##_t: detail::connector_##name##_impl<T> {};
 
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(boolean);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(integral);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(floating_point);
 	template<typename T>
 		using is_numeric_t = detail::any_t<
-				detail::is_element_of<tag::integral, typename T::_traits::_tags>::value,
-				detail::is_element_of<tag::floating_point, typename T::_traits::_tags>::value>;
+		detail::is_element_of<tag::integral, typename T::_traits::_tags>::value,
+		detail::is_element_of<tag::floating_point, typename T::_traits::_tags>::value>;
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(text);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(wrapped_value);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(expression);

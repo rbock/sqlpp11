@@ -29,10 +29,10 @@
 
 #include <sqlpp11/alias.h>
 #include <sqlpp11/sort_order.h>
-#include <sqlpp11/vendor/expression_fwd.h>
-#include <sqlpp11/vendor/in_fwd.h>
-#include <sqlpp11/vendor/is_null_fwd.h>
-#include <sqlpp11/vendor/wrap_operand.h>
+#include <sqlpp11/expression_fwd.h>
+#include <sqlpp11/in_fwd.h>
+#include <sqlpp11/is_null_fwd.h>
+#include <sqlpp11/wrap_operand.h>
 #include <sqlpp11/detail/logic.h>
 
 namespace sqlpp
@@ -43,74 +43,74 @@ namespace sqlpp
 		{
 			template<typename T>
 				struct _is_valid_comparison_operand
-			{
-				static constexpr bool value = 
-					(is_expression_t<T>::value // expressions are OK
-					or is_multi_expression_t<T>::value) // multi-expressions like ANY are OK for comparisons, too
-					and IsCorrectValueType<T>::value // the correct value type is required, of course
-					;
-			};
+				{
+					static constexpr bool value = 
+						(is_expression_t<T>::value // expressions are OK
+						 or is_multi_expression_t<T>::value) // multi-expressions like ANY are OK for comparisons, too
+						and IsCorrectValueType<T>::value // the correct value type is required, of course
+						;
+				};
 
 			template<typename T>
-				vendor::equal_to_t<Base, vendor::wrap_operand_t<T>> operator==(T t) const
+				equal_to_t<Base, wrap_operand_t<T>> operator==(T t) const
 				{
-					using rhs = vendor::wrap_operand_t<T>;
+					using rhs = wrap_operand_t<T>;
 					static_assert(_is_valid_comparison_operand<rhs>::value, "invalid rhs operand in comparison");
 
 					return { *static_cast<const Base*>(this), rhs{t} };
 				}
 
 			template<typename T>
-				vendor::not_equal_to_t<Base, vendor::wrap_operand_t<T>> operator!=(T t) const
+				not_equal_to_t<Base, wrap_operand_t<T>> operator!=(T t) const
 				{
-					using rhs = vendor::wrap_operand_t<T>;
+					using rhs = wrap_operand_t<T>;
 					static_assert(_is_valid_comparison_operand<rhs>::value, "invalid rhs operand in comparison");
 
 					return { *static_cast<const Base*>(this), rhs{t} };
 				}
 
 			template<typename T>
-				vendor::less_than_t<Base, vendor::wrap_operand_t<T>> operator<(T t) const
+				less_than_t<Base, wrap_operand_t<T>> operator<(T t) const
 				{
-					using rhs = vendor::wrap_operand_t<T>;
+					using rhs = wrap_operand_t<T>;
 					static_assert(_is_valid_comparison_operand<rhs>::value, "invalid rhs operand in comparison");
 
 					return { *static_cast<const Base*>(this), rhs{t} };
 				}
 
 			template<typename T>
-				vendor::less_equal_t<Base, vendor::wrap_operand_t<T>> operator<=(T t) const
+				less_equal_t<Base, wrap_operand_t<T>> operator<=(T t) const
 				{
-					using rhs = vendor::wrap_operand_t<T>;
+					using rhs = wrap_operand_t<T>;
 					static_assert(_is_valid_comparison_operand<rhs>::value, "invalid rhs operand in comparison");
 
 					return { *static_cast<const Base*>(this), rhs{t} };
 				}
 
 			template<typename T>
-				vendor::greater_than_t<Base, vendor::wrap_operand_t<T>> operator>(T t) const
+				greater_than_t<Base, wrap_operand_t<T>> operator>(T t) const
 				{
-					using rhs = vendor::wrap_operand_t<T>;
+					using rhs = wrap_operand_t<T>;
 					static_assert(_is_valid_comparison_operand<rhs>::value, "invalid rhs operand in comparison");
 
 					return { *static_cast<const Base*>(this), rhs{t} };
 				}
 
 			template<typename T>
-				vendor::greater_equal_t<Base, vendor::wrap_operand_t<T>> operator>=(T t) const
+				greater_equal_t<Base, wrap_operand_t<T>> operator>=(T t) const
 				{
-					using rhs = vendor::wrap_operand_t<T>;
+					using rhs = wrap_operand_t<T>;
 					static_assert(_is_valid_comparison_operand<rhs>::value, "invalid rhs operand in comparison");
 
 					return { *static_cast<const Base*>(this), rhs{t} };
 				}
 
-			vendor::is_null_t<true, Base> is_null() const
+			is_null_t<true, Base> is_null() const
 			{
 				return { *static_cast<const Base*>(this) };
 			}
 
-			vendor::is_null_t<false, Base> is_not_null() const
+			is_null_t<false, Base> is_not_null() const
 			{
 				return { *static_cast<const Base*>(this) };
 			}
@@ -127,17 +127,17 @@ namespace sqlpp
 
 			// Hint: use value_list wrapper for containers...
 			template<typename... T>
-				vendor::in_t<true, Base, vendor::wrap_operand_t<T>...> in(T... t) const
+				in_t<true, Base, wrap_operand_t<T>...> in(T... t) const
 				{
-					static_assert(detail::all_t<_is_valid_comparison_operand<vendor::wrap_operand_t<T>>::value...>::value, "at least one operand of in() is not valid");
-					return { *static_cast<const Base*>(this), vendor::wrap_operand_t<T>{t}... };
+					static_assert(detail::all_t<_is_valid_comparison_operand<wrap_operand_t<T>>::value...>::value, "at least one operand of in() is not valid");
+					return { *static_cast<const Base*>(this), wrap_operand_t<T>{t}... };
 				}
 
 			template<typename... T>
-				vendor::in_t<false, Base, vendor::wrap_operand_t<T>...> not_in(T... t) const
+				in_t<false, Base, wrap_operand_t<T>...> not_in(T... t) const
 				{
-					static_assert(detail::all_t<_is_valid_comparison_operand<vendor::wrap_operand_t<T>>::value...>::value, "at least one operand of in() is not valid");
-					return { *static_cast<const Base*>(this), vendor::wrap_operand_t<T>{t}... };
+					static_assert(detail::all_t<_is_valid_comparison_operand<wrap_operand_t<T>>::value...>::value, "at least one operand of in() is not valid");
+					return { *static_cast<const Base*>(this), wrap_operand_t<T>{t}... };
 				}
 		};
 

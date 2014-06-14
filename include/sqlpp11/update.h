@@ -32,16 +32,16 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/prepared_update.h>
-#include <sqlpp11/vendor/single_table.h>
-#include <sqlpp11/vendor/update_list.h>
-#include <sqlpp11/vendor/noop.h>
-#include <sqlpp11/vendor/where.h>
+#include <sqlpp11/single_table.h>
+#include <sqlpp11/update_list.h>
+#include <sqlpp11/noop.h>
+#include <sqlpp11/where.h>
 
 namespace sqlpp
 {
 	struct update_name_t {};
 
-	struct update_t: public vendor::statement_name_t<update_name_t>
+	struct update_t: public statement_name_t<update_name_t>
 	{
 		using _traits = make_traits<no_value_t, tag::return_value>;
 		struct _name_t {};
@@ -70,37 +70,34 @@ namespace sqlpp
 					 auto _prepare(Db& db) const
 					 -> prepared_update_t<Db, update_t>
 					 {
-					   _statement_t::_check_consistency();
+					 _statement_t::_check_consistency();
 
-					   return {{}, db.prepare_update(*this)};
+					 return {{}, db.prepare_update(*this)};
 					 }
 					 */
 			};
 	};
 
 
-	namespace vendor
-	{
-		template<typename Context>
-			struct serializer_t<Context, update_name_t>
+	template<typename Context>
+		struct serializer_t<Context, update_name_t>
+		{
+			using T = update_name_t;
+
+			static Context& _(const T& t, Context& context)
 			{
-				using T = update_name_t;
+				context << "UPDATE ";
 
-				static Context& _(const T& t, Context& context)
-				{
-					context << "UPDATE ";
-
-					return context;
-				}
-			};
-	}
+				return context;
+			}
+		};
 
 	template<typename Database>
 		using blank_update_t = statement_t<Database,
-			update_t,
-			vendor::no_single_table_t,
-			vendor::no_update_list_t,
-			vendor::no_where_t>;
+					update_t,
+					no_single_table_t,
+					no_update_list_t,
+					no_where_t>;
 
 	template<typename Table>
 		constexpr auto update(Table table)

@@ -34,7 +34,7 @@
 namespace sqlpp
 {
 	template<typename ValueType, typename NameType>
-	struct parameter_t: public ValueType::template expression_operators<parameter_t<ValueType, NameType>>
+		struct parameter_t: public ValueType::template expression_operators<parameter_t<ValueType, NameType>>
 	{
 		using _traits = make_traits<ValueType, tag::parameter, tag::expression>;
 		struct _recursive_traits
@@ -57,20 +57,17 @@ namespace sqlpp
 		~parameter_t() = default;
 	};
 
-	namespace vendor
-	{
-		template<typename Context, typename ValueType, typename NameType>
-			struct serializer_t<Context, parameter_t<ValueType, NameType>>
-			{
-				using T = parameter_t<ValueType, NameType>;
+	template<typename Context, typename ValueType, typename NameType>
+		struct serializer_t<Context, parameter_t<ValueType, NameType>>
+		{
+			using T = parameter_t<ValueType, NameType>;
 
-				static Context& _(const T& t, Context& context)
-				{
-					context << "?";
-					return context;
-				}
-			};
-	}
+			static Context& _(const T& t, Context& context)
+			{
+				context << "?";
+				return context;
+			}
+		};
 
 	template<typename NamedExpr>
 		auto parameter(const NamedExpr&)
@@ -82,7 +79,7 @@ namespace sqlpp
 
 	template<typename ValueType, typename AliasProvider>
 		auto parameter(const ValueType&, const AliasProvider&)
-		-> parameter_t<vendor::wrap_operand_t<ValueType>, AliasProvider>
+		-> parameter_t<wrap_operand_t<ValueType>, AliasProvider>
 		{
 			static_assert(is_expression_t<ValueType>::value, "first argument is not a value type");
 			static_assert(is_alias_provider_t<AliasProvider>::value, "second argument is not an alias provider");

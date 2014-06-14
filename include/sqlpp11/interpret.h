@@ -27,15 +27,15 @@
 #ifndef SQLPP_INTERPRET_H
 #define SQLPP_INTERPRET_H
 
-#include <sqlpp11/vendor/interpreter.h>
+#include <sqlpp11/interpreter.h>
 
 namespace sqlpp
 {
 	template<typename T, typename Context>
 		auto interpret(const T& t, Context& context)
-		-> decltype(vendor::interpreter_t<Context, T>::_(t, context))
+		-> decltype(interpreter_t<Context, T>::_(t, context))
 		{
-			return vendor::interpreter_t<Context, T>::_(t, context);
+			return interpreter_t<Context, T>::_(t, context);
 		}
 
 }

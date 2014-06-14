@@ -45,12 +45,12 @@ namespace sqlpp
 			result_t() = default;
 
 			template<typename DynamicNames>
-			result_t(db_result_t&& result, const DynamicNames& dynamic_names):
-				_result(std::move(result)),
-				_result_row(dynamic_names)
-				{
-					_result.next(_result_row);
-				}
+				result_t(db_result_t&& result, const DynamicNames& dynamic_names):
+					_result(std::move(result)),
+					_result_row(dynamic_names)
+			{
+				_result.next(_result_row);
+			}
 
 			result_t(const result_t&) = delete;
 			result_t(result_t&&) = default;

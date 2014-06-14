@@ -31,9 +31,9 @@
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/prepared_select.h>
 #include <sqlpp11/serialize.h>
-#include <sqlpp11/vendor/noop.h>
-#include <sqlpp11/vendor/policy_update.h>
-#include <sqlpp11/vendor/serializer.h>
+#include <sqlpp11/noop.h>
+#include <sqlpp11/policy_update.h>
+#include <sqlpp11/serializer.h>
 
 #include <sqlpp11/detail/get_last.h>
 #include <sqlpp11/detail/pick_arg.h>
@@ -61,7 +61,7 @@ namespace sqlpp
 					struct _policies_update_t
 					{
 						static_assert(detail::is_element_of<Needle, make_type_set_t<Policies...>>::value, "policies update for non-policy class detected");
-						using type =  statement_t<Db, vendor::policy_update_t<Policies, Needle, Replacement>...>;
+						using type =  statement_t<Db, policy_update_t<Policies, Needle, Replacement>...>;
 					};
 
 				template<typename Needle, typename Replacement>
@@ -80,9 +80,9 @@ namespace sqlpp
 				using _required_tables = detail::make_difference_set_t<
 					_all_required_tables,
 					_all_provided_tables // Hint: extra_tables are not used here because they are just a helper for dynamic .add_*()
-							>;
+						>;
 
-				using _result_type_provider = detail::get_last_if<is_return_value_t, vendor::noop, Policies...>;
+				using _result_type_provider = detail::get_last_if<is_return_value_t, noop, Policies...>;
 
 				struct _result_methods_t: public _result_type_provider::template _result_methods_t<statement_policies_t>
 				{};
@@ -95,7 +95,7 @@ namespace sqlpp
 					is_select_column_list_t<_result_type_provider>::value and _required_tables::size::value == 0,
 					std::true_type,
 					std::false_type
-					>::type;
+						>::type;
 
 				using _value_type = typename std::conditional<
 					detail::none_t<is_missing_t<Policies>::value...>::value,
@@ -121,84 +121,82 @@ namespace sqlpp
 	}
 
 	template<typename Db,
-			typename... Policies
-				>
-		struct statement_t:
-			public Policies::template _member_t<detail::statement_policies_t<Db, Policies...>>...,
-			public detail::statement_policies_t<Db, Policies...>::_value_type::template expression_operators<statement_t<Db, Policies...>>,
-			public detail::statement_policies_t<Db, Policies...>::_result_methods_t,
-			public detail::statement_policies_t<Db, Policies...>::_methods_t
+		typename... Policies
+			>
+			struct statement_t:
+				public Policies::template _member_t<detail::statement_policies_t<Db, Policies...>>...,
+				public detail::statement_policies_t<Db, Policies...>::_value_type::template expression_operators<statement_t<Db, Policies...>>,
+				public detail::statement_policies_t<Db, Policies...>::_result_methods_t,
+				public detail::statement_policies_t<Db, Policies...>::_methods_t
 	{
-			using _policies_t = typename detail::statement_policies_t<Db, Policies...>;
+		using _policies_t = typename detail::statement_policies_t<Db, Policies...>;
 
-			using _traits = make_traits<value_type_of<_policies_t>, ::sqlpp::tag::select, tag::expression_if<typename _policies_t::_is_expression>, tag::named_expression_if<typename _policies_t::_is_expression>>;
-			using _recursive_traits = typename _policies_t::_recursive_traits;
+		using _traits = make_traits<value_type_of<_policies_t>, ::sqlpp::tag::select, tag::expression_if<typename _policies_t::_is_expression>, tag::named_expression_if<typename _policies_t::_is_expression>>;
+		using _recursive_traits = typename _policies_t::_recursive_traits;
 
-			using _result_type_provider = typename _policies_t::_result_type_provider;
+		using _result_type_provider = typename _policies_t::_result_type_provider;
 
-			using _requires_braces = std::true_type;
+		using _requires_braces = std::true_type;
 
-			using _name_t = typename _result_type_provider::_name_t;
+		using _name_t = typename _result_type_provider::_name_t;
 
-			// Constructors
-			statement_t()
-			{}
+		// Constructors
+		statement_t()
+		{}
 
-			template<typename Statement, typename Term>
-				statement_t(Statement statement, Term term):
-					Policies::template _member_t<_policies_t>{
-						typename Policies::template _impl_t<_policies_t>{
-								detail::pick_arg<typename Policies::template _member_t<_policies_t>>(statement, term)
-							}}...
-					//Policies::template _member_t<_policies_t>{{detail::pick_arg<typename Policies::template _member_t<_policies_t>>(statement, term)}}...
-			{}
+		template<typename Statement, typename Term>
+			statement_t(Statement statement, Term term):
+				Policies::template _member_t<_policies_t>{
+					typename Policies::template _impl_t<_policies_t>{
+						detail::pick_arg<typename Policies::template _member_t<_policies_t>>(statement, term)
+					}}...
+		//Policies::template _member_t<_policies_t>{{detail::pick_arg<typename Policies::template _member_t<_policies_t>>(statement, term)}}...
+		{}
 
-			statement_t(const statement_t& r) = default;
-			statement_t(statement_t&& r) = default;
-			statement_t& operator=(const statement_t& r) = default;
-			statement_t& operator=(statement_t&& r) = default;
-			~statement_t() = default;
+		statement_t(const statement_t& r) = default;
+		statement_t(statement_t&& r) = default;
+		statement_t& operator=(const statement_t& r) = default;
+		statement_t& operator=(statement_t&& r) = default;
+		~statement_t() = default;
 
-			static constexpr size_t _get_static_no_of_parameters()
-			{
+		static constexpr size_t _get_static_no_of_parameters()
+		{
 #warning need to fix this
-				return 0;
-				//return _parameter_list_t::size::value;
-			}
+			return 0;
+			//return _parameter_list_t::size::value;
+		}
 
-			size_t _get_no_of_parameters() const
-			{
-				return _get_static_no_of_parameters();
-			}
+		size_t _get_no_of_parameters() const
+		{
+			return _get_static_no_of_parameters();
+		}
 
-			static void _check_consistency()
-			{
-				// FIXME: Check each "methods" or each member...
+		static void _check_consistency()
+		{
+			// FIXME: Check each "methods" or each member...
 #warning check for missing terms here, and for missing tables
-					static_assert(not required_tables_of<_policies_t>::size::value, "one sub expression requires tables which are otherwise not known in the statement");
+			static_assert(not required_tables_of<_policies_t>::size::value, "one sub expression requires tables which are otherwise not known in the statement");
+		}
+
+
+	};
+
+	template<typename Context, typename Database, typename... Policies>
+		struct serializer_t<Context, statement_t<Database, Policies...>>
+		{
+			using T = statement_t<Database, Policies...>;
+			using P = ::sqlpp::detail::statement_policies_t<Database, Policies...>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				using swallow = int[]; 
+				(void) swallow{(serialize(static_cast<const typename Policies::template _member_t<P>&>(t)()._data, context), 0)...};
+
+				return context;
 			}
-
-
 		};
 
-	namespace vendor
-	{
-		template<typename Context, typename Database, typename... Policies>
-			struct serializer_t<Context, statement_t<Database, Policies...>>
-			{
-				using T = statement_t<Database, Policies...>;
-				using P = ::sqlpp::detail::statement_policies_t<Database, Policies...>;
-
-				static Context& _(const T& t, Context& context)
-				{
-					using swallow = int[]; 
-					(void) swallow{(serialize(static_cast<const typename Policies::template _member_t<P>&>(t)()._data, context), 0)...};
-
-					return context;
-				}
-			};
-
-		template<typename NameData>
+	template<typename NameData>
 		struct statement_name_t
 		{
 			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
@@ -238,7 +236,6 @@ namespace sqlpp
 				};
 		};
 
-	}
 }
 
 #endif

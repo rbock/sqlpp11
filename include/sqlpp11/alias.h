@@ -28,7 +28,7 @@
 #define SQLPP_ALIAS_H
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/vendor/serializer.h>
+#include <sqlpp11/serializer.h>
 
 namespace sqlpp
 {
@@ -46,24 +46,21 @@ namespace sqlpp
 			Expression _expression;
 		};
 
-	namespace vendor
-	{
-		template<typename Context, typename Expression, typename AliasProvider>
-			struct serializer_t<Context, expression_alias_t<Expression, AliasProvider>>
+	template<typename Context, typename Expression, typename AliasProvider>
+		struct serializer_t<Context, expression_alias_t<Expression, AliasProvider>>
+		{
+			using T = expression_alias_t<Expression, AliasProvider>;
+
+			static Context& _(const T& t, Context& context)
 			{
-				using T = expression_alias_t<Expression, AliasProvider>;
+				context << '(';
+				serialize(t._expression, context);
+				context << ") AS ";
+				context << T::_name_t::_get_name();
+				return context;
+			}
+		};
 
-				static Context& _(const T& t, Context& context)
-				{
-					context << '(';
-					serialize(t._expression, context);
-					context << ") AS ";
-					context << T::_name_t::_get_name();
-					return context;
-				}
-			};
-
-	}
 }
 
 #endif

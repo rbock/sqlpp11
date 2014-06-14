@@ -32,9 +32,7 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
-		template<typename Select>
+	template<typename Select>
 		struct any_t
 		{
 			using _traits = make_traits<value_type_of<Select>, ::sqlpp::tag::multi_expression>;
@@ -64,34 +62,30 @@ namespace sqlpp
 
 			Select _select;
 		};
-	}
 
-	namespace vendor
-	{
-		template<typename Context, typename Select>
-			struct serializer_t<Context, vendor::any_t<Select>>
+	template<typename Context, typename Select>
+		struct serializer_t<Context, any_t<Select>>
+		{
+			using T = any_t<Select>;
+
+			static Context& _(const T& t, Context& context)
 			{
-				using T = vendor::any_t<Select>;
-
-				static Context& _(const T& t, Context& context)
-				{
-					context << "ANY(";
-					serialize(t._select, context);
-					context << ")";
-					return context;
-				}
-			};
-
-		template<typename T>
-			auto any(T t) -> typename vendor::any_t<vendor::wrap_operand_t<T>>
-			{
-				static_assert(is_select_t<vendor::wrap_operand_t<T>>::value, "any() requires a select expression as argument");
-				static_assert(is_expression_t<vendor::wrap_operand_t<T>>::value, "any() requires a single column select expression as argument");
-				// FIXME: can we accept non-values like NULL here?
-				return { t };
+				context << "ANY(";
+				serialize(t._select, context);
+				context << ")";
+				return context;
 			}
+		};
 
-	}
+	template<typename T>
+		auto any(T t) -> any_t<wrap_operand_t<T>>
+		{
+			static_assert(is_select_t<wrap_operand_t<T>>::value, "any() requires a select expression as argument");
+			static_assert(is_expression_t<wrap_operand_t<T>>::value, "any() requires a single column select expression as argument");
+			// FIXME: can we accept non-values like NULL here?
+			return { t };
+		}
+
 }
 
 #endif

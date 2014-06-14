@@ -32,38 +32,35 @@
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/prepared_insert.h>
 #include <sqlpp11/default_value.h>
-#include <sqlpp11/vendor/noop.h>
-#include <sqlpp11/vendor/into.h>
-#include <sqlpp11/vendor/insert_value_list.h>
+#include <sqlpp11/noop.h>
+#include <sqlpp11/into.h>
+#include <sqlpp11/insert_value_list.h>
 
 namespace sqlpp
 {
 	struct insert_name_t {};
 
-	struct insert_t: public vendor::statement_name_t<insert_name_t>
+	struct insert_t: public statement_name_t<insert_name_t>
 	{};
 
-	namespace vendor
-	{
-		template<typename Context>
-			struct serializer_t<Context, insert_name_t>
+	template<typename Context>
+		struct serializer_t<Context, insert_name_t>
+		{
+			using T = insert_name_t;
+
+			static Context& _(const T& t, Context& context)
 			{
-				using T = insert_name_t;
+				context << "INSERT ";
 
-				static Context& _(const T& t, Context& context)
-				{
-					context << "INSERT ";
-
-					return context;
-				}
-			};
-	}
+				return context;
+			}
+		};
 
 	template<typename Database>
 		using blank_insert_t = statement_t<Database,
-			insert_t,
-			vendor::no_into_t, 
-			vendor::no_insert_value_list_t>;
+					insert_t,
+					no_into_t, 
+					no_insert_value_list_t>;
 
 	auto insert()
 		-> blank_insert_t<void>

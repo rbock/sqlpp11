@@ -110,31 +110,28 @@ namespace sqlpp
 			std::tuple<Columns...> _columns;
 		};
 
-	namespace vendor
-	{
-		template<typename Context, typename... Columns>
-			struct serializer_t<Context, multi_column_t<void, Columns...>>
+	template<typename Context, typename... Columns>
+		struct serializer_t<Context, multi_column_t<void, Columns...>>
+		{
+			using T = multi_column_t<void, Columns...>;
+
+			static void _(const T& t, Context& context)
 			{
-				using T = multi_column_t<void, Columns...>;
+				static_assert(wrong_t<Columns...>::value, "multi_column must be used with an alias");
+			}
+		};
 
-				static void _(const T& t, Context& context)
-				{
-					static_assert(wrong_t<Columns...>::value, "multi_column must be used with an alias");
-				}
-			};
+	template<typename Context, typename AliasProvider, typename... Columns>
+		struct serializer_t<Context, multi_column_alias_t<AliasProvider, Columns...>>
+		{
+			using T = multi_column_alias_t<AliasProvider, Columns...>;
 
-		template<typename Context, typename AliasProvider, typename... Columns>
-			struct serializer_t<Context, multi_column_alias_t<AliasProvider, Columns...>>
+			static Context& _(const T& t, Context& context)
 			{
-				using T = multi_column_alias_t<AliasProvider, Columns...>;
-
-				static Context& _(const T& t, Context& context)
-				{
-					interpret_tuple(t._columns, ',', context);
-					return context;
-				}
-			};
-	}
+				interpret_tuple(t._columns, ',', context);
+				return context;
+			}
+		};
 
 	namespace detail
 	{

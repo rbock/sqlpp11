@@ -28,8 +28,8 @@
 #define SQLPP_ON_H
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/vendor/interpret_tuple.h>
-#include <sqlpp11/vendor/interpretable_list.h>
+#include <sqlpp11/interpret_tuple.h>
+#include <sqlpp11/interpretable_list.h>
 #include <sqlpp11/detail/logic.h>
 
 namespace sqlpp
@@ -53,30 +53,27 @@ namespace sqlpp
 				}
 
 			std::tuple<Expr...> _expressions;
-			vendor::interpretable_list_t<Database> _dynamic_expressions;
+			interpretable_list_t<Database> _dynamic_expressions;
 		};
 
-	namespace vendor
-	{
-		template<typename Context, typename Database, typename... Expr>
-			struct serializer_t<Context, on_t<Database, Expr...>>
+	template<typename Context, typename Database, typename... Expr>
+		struct serializer_t<Context, on_t<Database, Expr...>>
+		{
+			using T = on_t<Database, Expr...>;
+
+			static Context& _(const T& t, Context& context)
 			{
-				using T = on_t<Database, Expr...>;
-
-				static Context& _(const T& t, Context& context)
-				{
-					if (sizeof...(Expr) == 0 and t._dynamic_expressions.empty())
-						return context;
-					context << " ON ";
-					interpret_tuple(t._expressions, " AND ", context);
-					if (sizeof...(Expr) and not t._dynamic_expressions.empty())
-						context << " AND ";
-					interpret_list(t._dynamic_expressions, " AND ", context);
+				if (sizeof...(Expr) == 0 and t._dynamic_expressions.empty())
 					return context;
-				}
-			};
+				context << " ON ";
+				interpret_tuple(t._expressions, " AND ", context);
+				if (sizeof...(Expr) and not t._dynamic_expressions.empty())
+					context << " AND ";
+				interpret_list(t._dynamic_expressions, " AND ", context);
+				return context;
+			}
+		};
 
-	}
 }
 
 #endif

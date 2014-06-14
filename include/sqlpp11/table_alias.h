@@ -61,23 +61,20 @@ namespace sqlpp
 		Table _table;
 	};
 
-	namespace vendor
-	{
-		template<typename Context, typename AliasProvider, typename Table, typename... ColumnSpec>
-			struct serializer_t<Context, table_alias_t<AliasProvider, Table, ColumnSpec...>>
+	template<typename Context, typename AliasProvider, typename Table, typename... ColumnSpec>
+		struct serializer_t<Context, table_alias_t<AliasProvider, Table, ColumnSpec...>>
+		{
+			using T = table_alias_t<AliasProvider, Table, ColumnSpec...>;
+
+			static Context& _(const T& t, Context& context)
 			{
-				using T = table_alias_t<AliasProvider, Table, ColumnSpec...>;
+				context << "(";
+				serialize(t._table, context);
+				context << ") AS " << T::_name_t::_get_name();
+				return context;
+			}
+		};
 
-				static Context& _(const T& t, Context& context)
-				{
-					context << "(";
-					serialize(t._table, context);
-					context << ") AS " << T::_name_t::_get_name();
-					return context;
-				}
-			};
-
-	}
 }
 
 #endif

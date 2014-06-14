@@ -31,17 +31,17 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/prepared_remove.h>
-#include <sqlpp11/vendor/noop.h>
+#include <sqlpp11/noop.h>
 #warning: need to use another table provider, since delete can be used with several tables
-#include <sqlpp11/vendor/from.h>
-#include <sqlpp11/vendor/extra_tables.h>
-#include <sqlpp11/vendor/using.h>
-#include <sqlpp11/vendor/where.h>
+#include <sqlpp11/from.h>
+#include <sqlpp11/extra_tables.h>
+#include <sqlpp11/using.h>
+#include <sqlpp11/where.h>
 
 namespace sqlpp
 {
 	struct remove_name_t {};
-	struct remove_t: public vendor::statement_name_t<remove_name_t>
+	struct remove_t: public statement_name_t<remove_name_t>
 	{
 		using _traits = make_traits<no_value_t, tag::return_value>;
 		struct _name_t {};
@@ -79,29 +79,26 @@ namespace sqlpp
 	};
 
 
-	namespace vendor
-	{
-		template<typename Context>
-			struct serializer_t<Context, remove_name_t>
+	template<typename Context>
+		struct serializer_t<Context, remove_name_t>
+		{
+			using T = remove_name_t;
+
+			static Context& _(const T& t, Context& context)
 			{
-				using T = remove_name_t;
+				context << "DELETE";
 
-				static Context& _(const T& t, Context& context)
-				{
-					context << "DELETE";
-
-					return context;
-				}
-			};
-	}
+				return context;
+			}
+		};
 
 	template<typename Database>
 		using blank_remove_t = statement_t<Database,
-			remove_t,
-			vendor::no_from_t,
-			vendor::no_using_t,
-			vendor::no_extra_tables_t,
-			vendor::no_where_t>;
+					remove_t,
+					no_from_t,
+					no_using_t,
+					no_extra_tables_t,
+					no_where_t>;
 
 	auto remove()
 		-> blank_remove_t<void>

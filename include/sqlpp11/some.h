@@ -32,9 +32,7 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
-		template<typename Select>
+	template<typename Select>
 		struct some_t
 		{
 			using _traits = make_traits<value_type_of<Select>, ::sqlpp::tag::multi_expression>;
@@ -64,30 +62,26 @@ namespace sqlpp
 
 			Select _select;
 		};
-	}
 
-	namespace vendor
-	{
-		template<typename Context, typename Select>
-			struct serializer_t<Context, vendor::some_t<Select>>
+	template<typename Context, typename Select>
+		struct serializer_t<Context, some_t<Select>>
+		{
+			using T = some_t<Select>;
+
+			static Context& _(const T& t, Context& context)
 			{
-				using T = vendor::some_t<Select>;
-
-				static Context& _(const T& t, Context& context)
-				{
-					context << "SOME(";
-					serialize(t._select, context);
-					context << ")";
-					return context;
-				}
-			};
-	}
+				context << "SOME(";
+				serialize(t._select, context);
+				context << ")";
+				return context;
+			}
+		};
 
 	template<typename T>
-		auto some(T t) -> typename vendor::some_t<vendor::wrap_operand_t<T>>
+		auto some(T t) -> some_t<wrap_operand_t<T>>
 		{
-			static_assert(is_select_t<vendor::wrap_operand_t<T>>::value, "some() requires a single column select expression as argument");
-			static_assert(is_expression_t<vendor::wrap_operand_t<T>>::value, "some() requires a single column select expression as argument");
+			static_assert(is_select_t<wrap_operand_t<T>>::value, "some() requires a single column select expression as argument");
+			static_assert(is_expression_t<wrap_operand_t<T>>::value, "some() requires a single column select expression as argument");
 			return { t };
 		}
 
