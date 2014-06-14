@@ -337,7 +337,7 @@ int main()
 
 
 	static_assert(sqlpp::is_select_flag_t<decltype(sqlpp::all)>::value, "sqlpp::all has to be a select_flag");
-  using T = sqlpp::vendor::wrap_operand<int>::type;
+  using T = sqlpp::wrap_operand<int>::type;
 	static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	static_assert(sqlpp::is_expression_t<T>::value, "T has to be an expression");
 	static_assert(sqlpp::is_numeric_t<T>::value, "T has to be numeric");
