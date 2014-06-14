@@ -80,7 +80,7 @@ namespace sqlpp
 		};
 
 	template<typename T>
-		auto min(T t) -> typename min_t<wrap_operand_t<T>>
+		auto min(T t) -> min_t<wrap_operand_t<T>>
 		{
 			static_assert(is_expression_t<wrap_operand_t<T>>::value, "min() requires a value expression as argument");
 			return { t };

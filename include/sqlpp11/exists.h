@@ -81,7 +81,7 @@ namespace sqlpp
 
 
 	template<typename T>
-		auto exists(T t) -> typename exists_t<wrap_operand_t<T>>
+		auto exists(T t) -> exists_t<wrap_operand_t<T>>
 		{
 			static_assert(is_select_t<wrap_operand_t<T>>::value, "exists() requires a select expression as argument");
 			return { t };

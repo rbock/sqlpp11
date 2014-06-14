@@ -86,14 +86,14 @@ namespace sqlpp
 		};
 
 	template<typename T>
-		auto sum(T t) -> typename sum_t<noop, wrap_operand_t<T>>
+		auto sum(T t) -> sum_t<noop, wrap_operand_t<T>>
 		{
 			static_assert(is_numeric_t<wrap_operand_t<T>>::value, "sum() requires a numeric expression as argument");
 			return { t };
 		}
 
 	template<typename T>
-		auto sum(const sqlpp::distinct_t&, T t) -> typename sum_t<sqlpp::distinct_t, wrap_operand_t<T>>
+		auto sum(const sqlpp::distinct_t&, T t) -> sum_t<sqlpp::distinct_t, wrap_operand_t<T>>
 		{
 			static_assert(is_numeric_t<wrap_operand_t<T>>::value, "sum() requires a numeric expression as argument");
 			return { t };

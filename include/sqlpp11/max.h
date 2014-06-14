@@ -80,7 +80,7 @@ namespace sqlpp
 		};
 
 	template<typename T>
-		auto max(T t) -> typename max_t<wrap_operand_t<T>>
+		auto max(T t) -> max_t<wrap_operand_t<T>>
 		{
 			static_assert(is_expression_t<wrap_operand_t<T>>::value, "max() requires a value expression as argument");
 			return { t };

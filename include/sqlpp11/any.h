@@ -78,7 +78,7 @@ namespace sqlpp
 		};
 
 	template<typename T>
-		auto any(T t) -> typename any_t<wrap_operand_t<T>>
+		auto any(T t) -> any_t<wrap_operand_t<T>>
 		{
 			static_assert(is_select_t<wrap_operand_t<T>>::value, "any() requires a select expression as argument");
 			static_assert(is_expression_t<wrap_operand_t<T>>::value, "any() requires a single column select expression as argument");

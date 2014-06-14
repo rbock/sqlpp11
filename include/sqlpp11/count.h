@@ -87,14 +87,14 @@ namespace sqlpp
 		};
 
 	template<typename T>
-		auto count(T t) -> typename count_t<noop, wrap_operand_t<T>>
+		auto count(T t) -> count_t<noop, wrap_operand_t<T>>
 		{
 			static_assert(is_expression_t<wrap_operand_t<T>>::value, "count() requires an expression as argument");
 			return { t };
 		}
 
 	template<typename T>
-		auto count(const sqlpp::distinct_t&, T t) -> typename count_t<sqlpp::distinct_t, wrap_operand_t<T>>
+		auto count(const sqlpp::distinct_t&, T t) -> count_t<sqlpp::distinct_t, wrap_operand_t<T>>
 		{
 			static_assert(is_expression_t<wrap_operand_t<T>>::value, "count() requires an expression as argument");
 			return { t };

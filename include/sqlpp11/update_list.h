@@ -49,7 +49,7 @@ namespace sqlpp
 			~update_list_data_t() = default;
 
 			std::tuple<Assignments...> _assignments;
-			typename interpretable_list_t<Database> _dynamic_assignments;
+			interpretable_list_t<Database> _dynamic_assignments;
 		};
 
 	// UPDATE ASSIGNMENTS

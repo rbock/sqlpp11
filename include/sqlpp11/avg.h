@@ -86,14 +86,14 @@ namespace sqlpp
 		};
 
 	template<typename T>
-		auto avg(T t) -> typename avg_t<noop, wrap_operand_t<T>>
+		auto avg(T t) -> avg_t<noop, wrap_operand_t<T>>
 		{
 			static_assert(is_numeric_t<wrap_operand_t<T>>::value, "avg() requires a value expression as argument");
 			return { t };
 		}
 
 	template<typename T>
-		auto avg(const sqlpp::distinct_t&, T t) -> typename avg_t<sqlpp::distinct_t, wrap_operand_t<T>>
+		auto avg(const sqlpp::distinct_t&, T t) -> avg_t<sqlpp::distinct_t, wrap_operand_t<T>>
 		{
 			static_assert(is_numeric_t<wrap_operand_t<T>>::value, "avg() requires a value expression as argument");
 			return { t };
