@@ -43,8 +43,6 @@ namespace sqlpp
 	template<typename Db, typename... Policies>
 		struct statement_t;
 
-#warning STEPS:
-#warning deal with different return types in the connector (select could be a single value, update could be a range of rows)
 	namespace detail
 	{
 		template<typename Db = void, typename... Policies>
@@ -115,7 +113,7 @@ namespace sqlpp
 					using _required_tables = _required_tables;
 					using _provided_tables = detail::type_set<>;
 					using _extra_tables = detail::type_set<>;
-					using _parameters = detail::make_parameter_list_t<parameters_of<Policies>...>;
+					using _parameters = detail::make_parameter_tuple_t<parameters_of<Policies>...>;
 				};
 			};
 	}
@@ -161,9 +159,7 @@ namespace sqlpp
 
 		static constexpr size_t _get_static_no_of_parameters()
 		{
-#warning need to fix this
-			return 0;
-			//return _parameter_list_t::size::value;
+			return std::tuple_size<parameters_of<statement_t>>::value;
 		}
 
 		size_t _get_no_of_parameters() const

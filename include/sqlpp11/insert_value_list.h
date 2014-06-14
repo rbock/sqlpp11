@@ -106,7 +106,7 @@ namespace sqlpp
 			using _traits = make_traits<no_value_t, ::sqlpp::tag::insert_list>;
 			using _recursive_traits = make_recursive_traits<typename Assignments::_column_t..., typename Assignments::_value_t...>;
 
-			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
+			using _is_dynamic = is_database<Database>;
 
 			template<template<typename...> class Target>
 				using copy_assignments_t = Target<Assignments...>; // FIXME: Nice idea to copy variadic template arguments?

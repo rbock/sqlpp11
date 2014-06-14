@@ -29,6 +29,7 @@
 
 #include <tuple>
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/no_data.h>
 #include <sqlpp11/select_flags.h>
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/interpret_tuple.h>
@@ -61,7 +62,7 @@ namespace sqlpp
 			using _traits = make_traits<no_value_t, ::sqlpp::tag::select_flag_list>;
 			using _recursive_traits = make_recursive_traits<Flags...>;
 
-			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
+			using _is_dynamic = is_database<Database>;
 
 			static_assert(not ::sqlpp::detail::has_duplicates<Flags...>::value, "at least one duplicate argument detected in select flag list");
 

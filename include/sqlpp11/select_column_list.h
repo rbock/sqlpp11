@@ -129,8 +129,6 @@ namespace sqlpp
 	template<typename Database, typename... Columns>
 		struct select_column_list_data_t
 		{
-			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
-
 			select_column_list_data_t(Columns... columns):
 				_columns(columns...)
 			{}
@@ -159,12 +157,11 @@ namespace sqlpp
 
 			using _name_t = typename ::sqlpp::detail::select_traits<Columns...>::_name_t;
 
-			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
+			using _is_dynamic = is_database<Database>;
 
+			static_assert(_is_dynamic::value or sizeof...(Columns), "at least one select expression required");
 			static_assert(not ::sqlpp::detail::has_duplicates<Columns...>::value, "at least one duplicate argument detected");
-
 			static_assert(::sqlpp::detail::all_t<(is_named_expression_t<Columns>::value or is_multi_column_t<Columns>::value)...>::value, "at least one argument is not a named expression");
-
 			static_assert(not ::sqlpp::detail::has_duplicates<typename Columns::_name_t...>::value, "at least one duplicate name detected");
 
 			struct _column_type {};
@@ -383,9 +380,6 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
-				// check for at least one expression
-				static_assert(T::_is_dynamic::value or sizeof...(Columns), "at least one select expression required");
-
 				interpret_tuple(t._columns, ',', context);
 				if (sizeof...(Columns) and not t._dynamic_columns.empty())
 					context << ',';

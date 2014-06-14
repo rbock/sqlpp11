@@ -33,20 +33,6 @@
 
 namespace sqlpp
 {
-#warning: Need extra include file for no_data
-	struct no_data_t {};
-
-	template<typename Context>
-		struct serializer_t<Context, no_data_t>
-		{
-			using T = no_data_t;
-
-			static Context& _(const T& t, Context& context)
-			{
-				return context;
-			}
-		};
-
 	struct noop 
 	{
 		using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;

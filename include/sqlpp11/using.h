@@ -60,7 +60,7 @@ namespace sqlpp
 			using _traits = make_traits<no_value_t, ::sqlpp::tag::using_>;
 			using _recursive_traits = make_recursive_traits<Tables...>;
 
-			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
+			using _is_dynamic = is_database<Database>;
 
 			static_assert(_is_dynamic::value or sizeof...(Tables), "at least one table argument required in using()");
 

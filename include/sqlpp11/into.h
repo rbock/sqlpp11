@@ -29,6 +29,7 @@
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/no_value.h>
+#include <sqlpp11/no_data.h>
 #include <sqlpp11/prepared_insert.h>
 #include <sqlpp11/serializer.h>
 #include <sqlpp11/detail/type_set.h>

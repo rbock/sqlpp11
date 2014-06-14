@@ -62,7 +62,7 @@ namespace sqlpp
 			using _traits = make_traits<no_value_t, ::sqlpp::tag::group_by>;
 			using _recursive_traits = make_recursive_traits<Expressions...>;
 
-			using _is_dynamic = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
+			using _is_dynamic = is_database<Database>;
 
 			static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression (e.g. a column) required in group_by()");
 

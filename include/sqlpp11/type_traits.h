@@ -126,7 +126,6 @@ namespace sqlpp
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(into);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(extra_tables);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(on);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(dynamic);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(where);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(group_by);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(having);
@@ -149,6 +148,9 @@ namespace sqlpp
 
 	SQLPP_CONNECTOR_TRAIT_GENERATOR(null_result_is_trivial_value);
 	SQLPP_CONNECTOR_TRAIT_GENERATOR(assert_result_validity);
+
+	template<typename Database>
+		using is_database = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 
 	template<typename T, template<typename> class IsTag>
 		using copy_type_trait = typename std::conditional<IsTag<T>::value, std::true_type, std::false_type>::type;
@@ -186,14 +188,13 @@ namespace sqlpp
 			};
 
 		template<typename... T>
-			struct make_parameter_list_impl
+			struct make_parameter_tuple_impl
 			{
 				using type = decltype(std::tuple_cat(std::declval<T>()...));
 			};
 
-#warning this will lead to confusion with ::sqlpp::make_parameter_list_t in parameter_list.h
 		template<typename... T>
-			using make_parameter_list_t = typename make_parameter_list_impl<T...>::type;
+			using make_parameter_tuple_t = typename make_parameter_tuple_impl<T...>::type;
 	}
 	template<typename T>
 		using value_type_of = typename detail::value_type_of_impl<T>::type;
@@ -222,7 +223,7 @@ namespace sqlpp
 			using _required_tables = detail::make_joined_set_t<required_tables_of<Arguments>...>;
 			using _provided_tables = detail::make_joined_set_t<provided_tables_of<Arguments>...>;
 			using _extra_tables = detail::make_joined_set_t<extra_tables_of<Arguments>...>;
-			using _parameters = detail::make_parameter_list_t<parameters_of<Arguments>...>;
+			using _parameters = detail::make_parameter_tuple_t<parameters_of<Arguments>...>;
 		};
 
 }
