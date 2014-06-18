@@ -386,6 +386,14 @@ int main()
 		.offset(3)
 		.as(alias::a)
 		;
+  sqlpp::provided_tables_of<decltype(r)>::wurstbrot;
+  decltype(r.a)::wurstbrot;
+	decltype((r.a != true)._lhs)::kaesekuchen;
+  sqlpp::required_tables_of<decltype(r.a != true)>::wurstbrot;
+  sqlpp::required_tables_of<decltype(t.alpha != 1)>::wurstbrot;
+  decltype(s1)::kaesekuchen;
+#if 0
+#endif
 
 	return 0;
 }
