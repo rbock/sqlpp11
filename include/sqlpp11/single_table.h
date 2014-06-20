@@ -57,7 +57,7 @@ namespace sqlpp
 	template<typename Database, typename Table>
 		struct single_table_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::single_table, tag::return_value>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::single_table>;
 			using _recursive_traits = make_recursive_traits<Table>;
 
 			static_assert(is_table_t<Table>::value, "argument has to be a table");
@@ -97,53 +97,6 @@ namespace sqlpp
 				{
 				};
 
-			template<typename Policies>
-				struct _result_methods_t
-				{
-					using _statement_t = typename Policies::_statement_t;
-
-					const _statement_t& _get_statement() const
-					{
-						return static_cast<const _statement_t&>(*this);
-					}
-
-					static constexpr size_t _get_static_no_of_parameters()
-					{
-#warning need to fix this
-						return 0;
-						//return _parameter_list_t::size::value;
-					}
-
-					size_t _get_no_of_parameters() const
-					{
-#warning need to fix this
-						return 0;
-						//return _parameter_list_t::size::value;
-					}
-
-					void _check_consistency() const
-					{
-						// FIXME: Read up on what is allowed/prohibited in INSERT
-					}
-
-					template<typename Db>
-						auto _run(Db& db) const -> decltype(db.insert(_get_statement()))
-						{
-							_check_consistency();
-
-							static_assert(_get_static_no_of_parameters() == 0, "cannot run insert directly with parameters, use prepare instead");
-							return db.insert(_get_statement());
-						}
-
-						 template<typename Db>
-						 auto _prepare(Db& db) const
-						 -> prepared_insert_t<Db, _statement_t>
-						 {
-							 _check_consistency();
-
-							 return {{}, db.prepare_insert(_get_statement())};
-						 }
-				};
 		};
 
 	// NO INTO YET

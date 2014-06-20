@@ -62,7 +62,7 @@ namespace sqlpp
 						_statement_t::_check_consistency();
 
 						static_assert(_statement_t::_get_static_no_of_parameters() == 0, "cannot run update directly with parameters, use prepare instead");
-						return db.update(*this);
+						return db.update(_get_statement());
 					}
 
 					 template<typename Db>
@@ -71,7 +71,7 @@ namespace sqlpp
 					 {
 						 _statement_t::_check_consistency();
 
-						 return {{}, db.prepare_update(*this)};
+						 return {{}, db.prepare_update(_get_statement())};
 					 }
 			};
 	};

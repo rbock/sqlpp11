@@ -41,7 +41,39 @@ namespace sqlpp
 	struct insert_name_t {};
 
 	struct insert_t: public statement_name_t<insert_name_t>
-	{};
+	{
+		using _traits = make_traits<no_value_t, tag::return_value>;
+		struct _name_t {};
+
+		template<typename Policies>
+			struct _result_methods_t
+			{
+				using _statement_t = typename Policies::_statement_t;
+
+				const _statement_t& _get_statement() const
+				{
+					return static_cast<const _statement_t&>(*this);
+				}
+
+				template<typename Db>
+					auto _run(Db& db) const -> decltype(db.insert(_get_statement()))
+					{
+						_statement_t::_check_consistency();
+
+						static_assert(_statement_t::_get_static_no_of_parameters() == 0, "cannot run insert directly with parameters, use prepare instead");
+						return db.insert(_get_statement());
+					}
+
+					 template<typename Db>
+					 auto _prepare(Db& db) const
+					 -> prepared_insert_t<Db, _statement_t>
+					 {
+						 _statement_t::_check_consistency();
+
+						 return {{}, db.prepare_insert(_get_statement())};
+					 }
+			};
+	};
 
 	template<typename Context>
 		struct serializer_t<Context, insert_name_t>
