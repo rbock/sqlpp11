@@ -34,6 +34,7 @@
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/insert_value.h>
 #include <sqlpp11/simple_column.h>
+#include <sqlpp11/no_data.h>
 
 namespace sqlpp
 {

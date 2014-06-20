@@ -29,6 +29,7 @@
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/interpret_tuple.h>
+#include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/detail/logic.h>
 
 namespace sqlpp

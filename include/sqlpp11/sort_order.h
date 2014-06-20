@@ -28,6 +28,7 @@
 #define SQLPP_SORT_ORDER_H
 
 #include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/no_value.h>
 
 namespace sqlpp
 {

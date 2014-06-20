@@ -132,7 +132,7 @@ namespace sqlpp
 							_check_consistency();
 
 							static_assert(_get_static_no_of_parameters() == 0, "cannot run insert directly with parameters, use prepare instead");
-							return db.insert(*this);
+							return db.insert(_get_statement());
 						}
 
 						 template<typename Db>
@@ -141,7 +141,7 @@ namespace sqlpp
 						 {
 							 _check_consistency();
 
-							 return {{}, db.prepare_insert(*this)};
+							 return {{}, db.prepare_insert(_get_statement())};
 						 }
 				};
 		};

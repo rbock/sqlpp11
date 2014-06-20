@@ -35,7 +35,7 @@ namespace sqlpp
 	template<typename Db, typename Remove>
 		struct prepared_remove_t
 		{
-			using _parameter_list_t = typename Remove::_parameter_list_t;
+			using _parameter_list_t = make_parameter_list_t<Remove>;
 			using _prepared_statement_t = typename Db::_prepared_statement_t;
 
 			auto _run(Db& db) const

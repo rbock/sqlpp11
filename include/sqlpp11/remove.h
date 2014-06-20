@@ -62,7 +62,7 @@ namespace sqlpp
 						_statement_t::_check_consistency();
 
 						static_assert(_statement_t::_get_static_no_of_parameters() == 0, "cannot run remove directly with parameters, use prepare instead");
-						return db.remove(*this);
+						return db.remove(_get_statement());
 					}
 
 					 template<typename Db>
@@ -71,7 +71,7 @@ namespace sqlpp
 					 {
 						 _statement_t::_check_consistency();
 
-						 return {{}, db.prepare_remove(*this)};
+						 return {{}, db.prepare_remove(_get_statement())};
 					 }
 			};
 	};

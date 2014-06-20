@@ -36,7 +36,7 @@ namespace sqlpp
 		struct prepared_select_t
 		{
 			using _result_row_t = typename Select::template _result_row_t<Database>;
-			using _parameter_list_t = parameters_of<Select>;
+			using _parameter_list_t = make_parameter_list_t<Select>;
 			using _dynamic_names_t = typename Select::_dynamic_names_t;
 			using _prepared_statement_t = typename Database::_prepared_statement_t;
 

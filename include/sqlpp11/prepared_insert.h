@@ -35,7 +35,7 @@ namespace sqlpp
 	template<typename Db, typename Insert>
 		struct prepared_insert_t
 		{
-			using _parameter_list_t = typename Insert::_parameter_list_t;
+			using _parameter_list_t = make_parameter_list_t<Insert>;
 			using _prepared_statement_t = typename Db::_prepared_statement_t;
 
 			auto _run(Db& db) const
