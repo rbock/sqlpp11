@@ -30,6 +30,7 @@
 #include <sqlpp11/alias.h>
 #include <sqlpp11/sort_order.h>
 #include <sqlpp11/expression_fwd.h>
+#include <sqlpp11/assignment.h>
 #include <sqlpp11/in_fwd.h>
 #include <sqlpp11/is_null_fwd.h>
 #include <sqlpp11/wrap_operand.h>
