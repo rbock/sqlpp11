@@ -60,8 +60,6 @@ namespace sqlpp
 				using _extra_tables = ::sqlpp::detail::type_set<Tables...>;
 			};
 
-			using _recursive_traits = make_recursive_traits<Tables...>;
-
 			// FIXME: extra_tables must not require tables!
 
 			static_assert(sizeof...(Tables), "at least one table or join argument required in extra_tables()");

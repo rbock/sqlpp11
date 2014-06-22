@@ -110,7 +110,7 @@ namespace sqlpp
 
 				struct _recursive_traits
 				{
-					using _required_tables = _required_tables;
+					using _required_tables = statement_policies_t::_required_tables;
 					using _provided_tables = detail::type_set<>;
 					using _extra_tables = detail::type_set<>;
 					using _parameters = detail::make_parameter_tuple_t<parameters_of<Policies>...>;

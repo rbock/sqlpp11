@@ -284,7 +284,7 @@ namespace sqlpp
 					// Execute
 					template<typename Db>
 						auto _run(Db& db) const
-						-> result_t<decltype(db.select(_get_statement())), _result_row_t<Db>>
+						-> result_t<decltype(db.select(this->_get_statement())), _result_row_t<Db>>
 						{
 							_statement_t::_check_consistency();
 							static_assert(_statement_t::_get_static_no_of_parameters() == 0, "cannot run select directly with parameters, use prepare instead");

@@ -57,7 +57,7 @@ namespace sqlpp
 				}
 
 				template<typename Db>
-					auto _run(Db& db) const -> decltype(db.update(_get_statement()))
+					auto _run(Db& db) const -> decltype(db.update(this->_get_statement()))
 					{
 						_statement_t::_check_consistency();
 
