@@ -89,6 +89,7 @@ namespace sqlpp
 			template<typename Policies>
 				struct _methods_t
 				{
+					static void _check_consistency() {}
 				};
 		};
 
@@ -164,6 +165,8 @@ namespace sqlpp
 			template<typename Policies>
 				struct _methods_t
 				{
+					static void _check_consistency() {}
+
 					template<typename Offset>
 						void set_offset(Offset value)
 						{
@@ -216,6 +219,8 @@ namespace sqlpp
 				using _database_t = typename Policies::_database_t;
 				template<typename T>
 					using _new_statement_t = typename Policies::template _new_statement_t<no_offset_t, T>;
+
+				static void _check_consistency() {}
 
 				template<typename Arg>
 					auto offset(Arg arg)

@@ -140,6 +140,7 @@ namespace sqlpp
 			template<typename Policies>
 				struct _methods_t
 				{
+					static void _check_consistency() {}
 				};
 		};
 
@@ -181,6 +182,8 @@ namespace sqlpp
 				using _database_t = typename Policies::_database_t;
 				template<typename T>
 					using _new_statement_t = typename Policies::template _new_statement_t<no_update_list_t, T>;
+
+				static void _check_consistency() {}
 
 				template<typename... Args>
 					auto set(Args... args)

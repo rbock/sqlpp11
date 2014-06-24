@@ -71,7 +71,7 @@ namespace sqlpp
 					no_select_column_list_t, 
 					no_from_t,
 					no_extra_tables_t,
-					no_where_t, 
+					no_where_t<true>, 
 					no_group_by_t, 
 					no_having_t,
 					no_order_by_t, 

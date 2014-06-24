@@ -95,6 +95,7 @@ namespace sqlpp
 			template<typename Policies>
 				struct _methods_t
 				{
+					static void _check_consistency() {}
 				};
 
 		};
@@ -139,6 +140,7 @@ namespace sqlpp
 				template<typename T>
 					using _new_statement_t = typename Policies::template _new_statement_t<no_single_table_t, T>;
 
+					static void _check_consistency() {}
 #warning: remove can operate on several tables at once, so it should not use single_table anyway
 				template<typename... Args>
 					auto from(Args... args)

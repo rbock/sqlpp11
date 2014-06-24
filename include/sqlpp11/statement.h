@@ -52,9 +52,6 @@ namespace sqlpp
 				using _database_t = Db;
 				using _statement_t = statement_t<Db, Policies...>;
 
-				struct _methods_t: public Policies::template _methods_t<statement_policies_t>...
-				{};
-
 				template<typename Needle, typename Replacement>
 					struct _policies_update_t
 					{
@@ -125,7 +122,7 @@ namespace sqlpp
 				public Policies::template _member_t<detail::statement_policies_t<Db, Policies...>>...,
 				public detail::statement_policies_t<Db, Policies...>::_value_type::template expression_operators<statement_t<Db, Policies...>>,
 				public detail::statement_policies_t<Db, Policies...>::_result_methods_t,
-				public detail::statement_policies_t<Db, Policies...>::_methods_t
+				public Policies::template _methods_t<detail::statement_policies_t<Db, Policies...>>...
 	{
 		using _policies_t = typename detail::statement_policies_t<Db, Policies...>;
 
@@ -172,6 +169,9 @@ namespace sqlpp
 			// FIXME: Check each "methods" or each member...
 #warning check for missing terms here, and for missing tables
 			static_assert(not required_tables_of<_policies_t>::size::value, "one sub expression requires tables which are otherwise not known in the statement");
+
+			using swallow = int[]; 
+			(void) swallow{(Policies::template _methods_t<detail::statement_policies_t<Db, Policies...>>::_check_consistency(), 0)...};
 		}
 
 
@@ -229,6 +229,7 @@ namespace sqlpp
 			template<typename Policies>
 				struct _methods_t
 				{
+					static void _check_consistency() {}
 				};
 		};
 

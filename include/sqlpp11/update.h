@@ -95,7 +95,8 @@ namespace sqlpp
 					update_t,
 					no_single_table_t,
 					no_update_list_t,
-					no_where_t>;
+					no_where_t<true>
+						>;
 
 	template<typename Table>
 		constexpr auto update(Table table)

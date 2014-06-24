@@ -57,7 +57,7 @@ namespace sqlpp
 	template<typename Database, typename Table>
 		struct into_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::into, tag::return_value>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::into>;
 			using _recursive_traits = make_recursive_traits<Table>;
 
 			static_assert(is_table_t<Table>::value, "argument has to be a table");
@@ -95,36 +95,9 @@ namespace sqlpp
 			template<typename Policies>
 				struct _methods_t
 				{
+					static void _check_consistency() {}
 				};
 
-			template<typename Policies>
-				struct _result_methods_t
-				{
-					using _statement_t = typename Policies::_statement_t;
-
-					const _statement_t& _get_statement() const
-					{
-						return static_cast<const _statement_t&>(*this);
-					}
-
-					template<typename Db>
-						auto _run(Db& db) const -> decltype(db.insert(this->_get_statement()))
-						{
-							_statement_t::_check_consistency();
-
-							static_assert(_statement_t::_get_static_no_of_parameters() == 0, "cannot run insert directly with parameters, use prepare instead");
-							return db.insert(_get_statement());
-						}
-
-					template<typename Db>
-						auto _prepare(Db& db) const
-						-> prepared_insert_t<Db, _statement_t>
-						{
-							_statement_t::_check_consistency();
-
-							return {{}, db.prepare_insert(_get_statement())};
-						}
-				};
 		};
 
 	// NO INTO YET
@@ -166,6 +139,11 @@ namespace sqlpp
 				using _database_t = typename Policies::_database_t;
 				template<typename T>
 					using _new_statement_t = typename Policies::template _new_statement_t<no_into_t, T>;
+
+					static void _check_consistency()
+					{
+						static_assert(wrong_t<Policies>::value, "into() required");
+					}
 
 				template<typename... Args>
 					auto into(Args... args)

@@ -127,6 +127,7 @@ namespace sqlpp
 			template<typename Policies>
 				struct _methods_t
 				{
+					static void _check_consistency() {}
 				};
 		};
 
@@ -174,67 +175,74 @@ namespace sqlpp
 			template<typename Policies>
 				struct _methods_t
 				{
+					static void _check_consistency() {}
 				};
 
 		};
 
 	// NO WHERE YET
-	struct no_where_t
-	{
-		using _traits = make_traits<no_value_t, ::sqlpp::tag::where>;
-		using _recursive_traits = make_recursive_traits<>;
+	template<bool Required>
+		struct no_where_t
+		{
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::where>;
+			using _recursive_traits = make_recursive_traits<>;
 
-		// Data
-		using _data_t = no_data_t;
+			// Data
+			using _data_t = no_data_t;
 
-		// Member implementation with data and methods
-		template<typename Policies>
-			struct _impl_t
-			{
-				_data_t _data;
-			};
+			// Member implementation with data and methods
+			template<typename Policies>
+				struct _impl_t
+				{
+					_data_t _data;
+				};
 
-		// Member template for adding the named member to a statement
-		template<typename Policies>
-			struct _member_t
-			{
-				using _data_t = no_data_t;
+			// Member template for adding the named member to a statement
+			template<typename Policies>
+				struct _member_t
+				{
+					using _data_t = no_data_t;
 
-				_impl_t<Policies> no_where;
-				_impl_t<Policies>& operator()() { return no_where; }
-				const _impl_t<Policies>& operator()() const { return no_where; }
+					_impl_t<Policies> no_where;
+					_impl_t<Policies>& operator()() { return no_where; }
+					const _impl_t<Policies>& operator()() const { return no_where; }
 
-				template<typename T>
-					static auto _get_member(T t) -> decltype(t.no_where)
+					template<typename T>
+						static auto _get_member(T t) -> decltype(t.no_where)
+						{
+							return t.no_where;
+						}
+				};
+
+			// Additional methods for the statement
+			template<typename Policies>
+				struct _methods_t
+				{
+					using _database_t = typename Policies::_database_t;
+					template<typename T>
+						using _new_statement_t = typename Policies::template _new_statement_t<no_where_t, T>;
+
+					static void _check_consistency()
 					{
-						return t.no_where;
-					}
-			};
-
-		// Additional methods for the statement
-		template<typename Policies>
-			struct _methods_t
-			{
-				using _database_t = typename Policies::_database_t;
-				template<typename T>
-					using _new_statement_t = typename Policies::template _new_statement_t<no_where_t, T>;
-
-				template<typename... Args>
-					auto where(Args... args)
-					-> _new_statement_t<where_t<void, Args...>>
-					{
-						return { *static_cast<typename Policies::_statement_t*>(this), where_data_t<void, Args...>{args...} };
+						static_assert(Required ? wrong_t<Policies>::value : true, "where expression required, e.g. where(true)");
 					}
 
-				template<typename... Args>
-					auto dynamic_where(Args... args)
-					-> _new_statement_t<where_t<_database_t, Args...>>
-					{
-						static_assert(not std::is_same<_database_t, void>::value, "dynamic_where must not be called in a static statement");
-						return { *static_cast<typename Policies::_statement_t*>(this), where_data_t<_database_t, Args...>{args...} };
-					}
-			};
-	};
+					template<typename... Args>
+						auto where(Args... args)
+						-> _new_statement_t<where_t<void, Args...>>
+						{
+							return { *static_cast<typename Policies::_statement_t*>(this), where_data_t<void, Args...>{args...} };
+						}
+
+					template<typename... Args>
+						auto dynamic_where(Args... args)
+						-> _new_statement_t<where_t<_database_t, Args...>>
+						{
+							static_assert(not std::is_same<_database_t, void>::value, "dynamic_where must not be called in a static statement");
+							return { *static_cast<typename Policies::_statement_t*>(this), where_data_t<_database_t, Args...>{args...} };
+						}
+				};
+		};
 
 	// Interpreters
 	template<typename Context, typename Database, typename... Expressions>

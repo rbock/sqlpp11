@@ -96,7 +96,8 @@ namespace sqlpp
 					no_from_t,
 					no_using_t,
 					no_extra_tables_t,
-					no_where_t>;
+					no_where_t<true>
+						>;
 
 	auto remove()
 		-> blank_remove_t<void>
