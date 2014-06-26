@@ -116,24 +116,6 @@ namespace sqlpp
 			template<template<typename...> class Target, template<typename> class Wrap>
 				using copy_wrapped_assignments_t = Target<Wrap<Assignments>...>;
 
-			static_assert(_is_dynamic::value or sizeof...(Assignments), "at least one assignment required in set()");
-
-			static_assert(not ::sqlpp::detail::has_duplicates<Assignments...>::value, "at least one duplicate argument detected in set()");
-
-			static_assert(sqlpp::detail::all_t<is_assignment_t<Assignments>::value...>::value, "at least one argument is not an assignment in set()");
-
-			static_assert(sqlpp::detail::none_t<must_not_insert_t<typename Assignments::_column_t>::value...>::value, "at least one assignment is prohibited by its column definition in set()");
-
-#warning: Need to reactivate these checks
-			/*
-				 using _column_required_tables = typename ::sqlpp::detail::make_joined_set<typename Assignments::_column_t::_required_tables...>::type;
-				 using _value_required_tables = typename ::sqlpp::detail::make_joined_set<typename Assignments::value_type::_required_tables...>::type;
-				 using _provided_tables = ::sqlpp::detail::type_set<>;
-				 using _required_tables = typename ::sqlpp::detail::make_joined_set<_column_required_tables, _value_required_tables>::type;
-				 static_assert(sizeof...(Assignments) ? (_column_required_tables::size::value == 1) : true, "set() contains assignments for tables from several columns");
-				 static_assert(::sqlpp::detail::is_subset_of<_value_required_tables, _column_required_tables>::value, "set() contains values from foreign tables");
-				 */
-
 			// Data
 			using _data_t = insert_list_data_t<Database, Assignments...>;
 
@@ -152,14 +134,14 @@ namespace sqlpp
 						{
 							static_assert(_is_dynamic::value, "add must not be called for static from()");
 							static_assert(is_assignment_t<Assignment>::value, "add() arguments require to be assigments");
+							using _assigned_columns = detail::make_type_set_t<typename Assignments::_column_t...>;
+							static_assert(not detail::is_element_of<typename Assignment::_column_t, _assigned_columns>::value, "Must not assign value to column twice");
 							static_assert(not must_not_insert_t<typename Assignment::_column_t>::value, "add() argument must not be used in insert");
 							static_assert(not TableCheckRequired::value or Policies::template _no_unknown_tables<Assignment>::value, "add() contains a column from a foreign table");
 
 							using ok = ::sqlpp::detail::all_t<
 								_is_dynamic::value, 
-								is_assignment_t<Assignment>::value, 
-								not must_not_insert_t<typename Assignment::_column_t>::value,
-								(not TableCheckRequired::value or Policies::template _no_unknown_tables<Assignment>::value)>;
+								is_assignment_t<Assignment>::value>;
 
 							_add_impl(assignment, ok()); // dispatch to prevent compile messages after the static_assert
 						}
@@ -217,7 +199,6 @@ namespace sqlpp
 			column_list_data_t& operator=(column_list_data_t&&) = default;
 			~column_list_data_t() = default;
 
-#warning need to define just one version of value_tuple_t
 			using _value_tuple_t = std::tuple<insert_value_t<Columns>...>;
 			std::tuple<simple_column_t<Columns>...> _columns;
 			std::vector<_value_tuple_t> _insert_values;
@@ -237,7 +218,7 @@ namespace sqlpp
 
 			static_assert(::sqlpp::detail::none_t<must_not_insert_t<Columns>::value...>::value, "at least one column argument has a must_not_insert flag in its definition");
 
-			using _value_tuple_t = std::tuple<insert_value_t<Columns>...>;
+			using _value_tuple_t = typename column_list_data_t<Columns...>::_value_tuple_t;
 
 			static_assert(required_tables_of<column_list_t>::size::value == 1, "columns from multiple tables in columns()");
 
@@ -299,17 +280,9 @@ namespace sqlpp
 				{
 					static void _check_consistency() {}
 				};
-
-			/*
-				 bool empty() const
-				 {
-				 return _insert_values.empty();
-				 }
-				 */
-
 		};
 
-	// NO HAVING YET
+	// NO INSERT COLUMNS/VALUES YET
 	struct no_insert_value_list_t
 	{
 		using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
@@ -364,19 +337,34 @@ namespace sqlpp
 						return { *static_cast<typename Policies::_statement_t*>(this), column_list_data_t<Args...>{args...} };
 					}
 
-				template<typename... Args>
-					auto set(Args... args)
-					-> _new_statement_t<insert_list_t<void, Args...>>
+				template<typename... Assignments>
+					auto set(Assignments... assignments)
+					-> _new_statement_t<insert_list_t<void, Assignments...>>
 					{
-						return { *static_cast<typename Policies::_statement_t*>(this), insert_list_data_t<void, Args...>{args...} };
+						static_assert(sizeof...(Assignments), "at least one assignment expression required in set()");
+						return _set_impl<void>(assignments...);
 					}
 
-				template<typename... Args>
-					auto dynamic_set(Args... args)
-					-> _new_statement_t<insert_list_t<_database_t, Args...>>
+				template<typename... Assignments>
+					auto dynamic_set(Assignments... assignments)
+					-> _new_statement_t<insert_list_t<_database_t, Assignments...>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_set must not be called in a static statement");
-						return { *static_cast<typename Policies::_statement_t*>(this), insert_list_data_t<_database_t, Args...>{args...} };
+						return _set_impl<_database_t>(assignments...);
+					}
+			private:
+				template<typename Database, typename... Assignments>
+					auto _set_impl(Assignments... assignments)
+					-> _new_statement_t<insert_list_t<Database, Assignments...>>
+					{
+						static_assert(not ::sqlpp::detail::has_duplicates<Assignments...>::value, "at least one duplicate argument detected in set()");
+						static_assert(sqlpp::detail::all_t<is_assignment_t<Assignments>::value...>::value, "at least one argument is not an assignment in set()");
+						static_assert(sqlpp::detail::none_t<must_not_insert_t<typename Assignments::_column_t>::value...>::value, "at least one assignment is prohibited by its column definition in set()");
+
+						using _column_required_tables = typename ::sqlpp::detail::make_joined_set<required_tables_of<typename Assignments::_column_t>...>::type;
+						static_assert(sizeof...(Assignments) ? (_column_required_tables::size::value == 1) : true, "set() contains assignments for columns from several tables");
+
+						return { *static_cast<typename Policies::_statement_t*>(this), insert_list_data_t<Database, Assignments...>{assignments...} };
 					}
 			};
 	};
