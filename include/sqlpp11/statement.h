@@ -48,7 +48,6 @@ namespace sqlpp
 		template<typename Db = void, typename... Policies>
 			struct statement_policies_t
 			{
-#warning need to check policies' signature, e.g. a _data_t in _member_t template
 				using _database_t = Db;
 				using _statement_t = statement_t<Db, Policies...>;
 
@@ -166,8 +165,6 @@ namespace sqlpp
 
 		static void _check_consistency()
 		{
-			// FIXME: Check each "methods" or each member...
-#warning check for missing terms here, and for missing tables
 			static_assert(not required_tables_of<_policies_t>::size::value, "one sub expression requires tables which are otherwise not known in the statement");
 
 			using swallow = int[]; 

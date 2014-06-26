@@ -56,7 +56,6 @@ namespace sqlpp
 	template<typename Column>
 		simple_column_t<Column> simple_column(Column c)
 		{
-#warning: make sure that there are no parameters in Column
 			return {c};
 		}
 }

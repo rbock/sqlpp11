@@ -60,23 +60,6 @@ namespace sqlpp
 			using _recursive_traits = make_recursive_traits<Assignments...>;
 			using _is_dynamic = is_database<Database>;
 
-			static_assert(_is_dynamic::value or sizeof...(Assignments), "at least one assignment expression required in set()");
-
-			static_assert(not ::sqlpp::detail::has_duplicates<Assignments...>::value, "at least one duplicate argument detected in set()");
-
-			static_assert(::sqlpp::detail::all_t<is_assignment_t<Assignments>::value...>::value, "at least one argument is not an assignment in set()");
-
-			static_assert(::sqlpp::detail::none_t<must_not_update_t<typename Assignments::_column_t>::value...>::value, "at least one assignment is prohibited by its column definition in set()");
-
-#warning reactivate tests
-			/*
-				 using _column_table_set = typename ::sqlpp::detail::make_joined_set<typename Assignments::_column_t::_table_set...>::type;
-				 using _value_table_set = typename ::sqlpp::detail::make_joined_set<typename Assignments::value_type::_table_set...>::type;
-				 using _table_set = typename ::sqlpp::detail::make_joined_set<_column_table_set, _value_table_set>::type;
-				 static_assert(sizeof...(Assignments) ? (_column_table_set::size::value == 1) : true, "set() contains assignments for tables from several columns");
-				 static_assert(::sqlpp::detail::is_subset_of<_value_table_set, _column_table_set>::value, "set() contains values from foreign tables");
-				 */
-
 			// Data
 			using _data_t = update_list_data_t<Database, Assignments...>;
 
@@ -95,13 +78,14 @@ namespace sqlpp
 						{
 							static_assert(_is_dynamic::value, "add must not be called for static from()");
 							static_assert(is_assignment_t<Assignment>::value, "invalid assignment argument in add()");
+							using _assigned_columns = detail::make_type_set_t<typename Assignments::_column_t...>;
+							static_assert(not detail::is_element_of<typename Assignment::_column_t, _assigned_columns>::value, "Must not assign value to column twice");
 							static_assert(sqlpp::detail::not_t<must_not_update_t, typename Assignment::_column_t>::value, "add() argument must not be updated");
 							static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Assignment>::value, "assignment uses tables unknown to this statement in add()");
 
 							using ok = ::sqlpp::detail::all_t<
 								_is_dynamic::value, 
-								is_assignment_t<Assignment>::value, 
-								not must_not_update_t<typename Assignment::_column_t>::value>;
+								is_assignment_t<Assignment>::value>;
 
 							_add_impl(assignment, ok()); // dispatch to prevent compile messages after the static_assert
 						}
@@ -185,19 +169,37 @@ namespace sqlpp
 
 				static void _check_consistency() {}
 
-				template<typename... Args>
-					auto set(Args... args)
-					-> _new_statement_t<update_list_t<void, Args...>>
+				template<typename... Assignments>
+					auto set(Assignments... assignments)
+					-> _new_statement_t<update_list_t<void, Assignments...>>
 					{
-						return { *static_cast<typename Policies::_statement_t*>(this), update_list_data_t<void, Args...>{args...} };
+						static_assert(sizeof...(Assignments), "at least one assignment expression required in set()");
+						return _set_impl<void>(assignments...);
 					}
 
-				template<typename... Args>
-					auto dynamic_set(Args... args)
-					-> _new_statement_t<update_list_t<_database_t, Args...>>
+				template<typename... Assignments>
+					auto dynamic_set(Assignments... assignments)
+					-> _new_statement_t<update_list_t<_database_t, Assignments...>>
 					{
-						static_assert(not std::is_same<_database_t, void>::value, "dynamic_set must not be called in a static statement");
-						return { *static_cast<typename Policies::_statement_t*>(this), update_list_data_t<_database_t, Args...>{args...} };
+						static_assert(not std::is_same<_database_t, void>::value, "dynamic_set() must not be called in a static statement");
+						return _set_impl<_database_t>(assignments...);
+					}
+
+			private:
+				template<typename Database, typename... Assignments>
+					auto _set_impl(Assignments... assignments)
+					-> _new_statement_t<update_list_t<Database, Assignments...>>
+					{
+						static_assert(not ::sqlpp::detail::has_duplicates<Assignments...>::value, "at least one duplicate argument detected in set()");
+						static_assert(::sqlpp::detail::all_t<is_assignment_t<Assignments>::value...>::value, "at least one argument is not an assignment in set()");
+						static_assert(::sqlpp::detail::none_t<must_not_update_t<typename Assignments::_column_t>::value...>::value, "at least one assignment is prohibited by its column definition in set()");
+
+						using _column_table_set = typename ::sqlpp::detail::make_joined_set<required_tables_of<typename Assignments::_column_t>...>::type;
+						using _value_table_set = typename ::sqlpp::detail::make_joined_set<required_tables_of<typename Assignments::_value_t>...>::type;
+						static_assert(sizeof...(Assignments) ? (_column_table_set::size::value == 1) : true, "set() contains assignments for columns from more than one table");
+						static_assert(::sqlpp::detail::is_subset_of<_value_table_set, _column_table_set>::value, "set() contains values from foreign tables");
+
+						return { *static_cast<typename Policies::_statement_t*>(this), update_list_data_t<Database, Assignments...>{assignments...} };
 					}
 			};
 	};

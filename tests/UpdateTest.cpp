@@ -61,8 +61,7 @@ int main()
 	serialize(update(t).set(t.gamma = false).where(t.beta != "transparent"), printer).str();
 	serialize(update(t).set(t.beta = "opaque").where(t.beta != t.beta), printer).str();
 	auto u = dynamic_update(db, t).dynamic_set(t.gamma = false).dynamic_where();
-#warning: This should fail since gamma is set already
-	u.assignments.add(t.gamma = false);
+	u.assignments.add(t.beta = "cannot update gamma a second time");
 	u.where.add(t.gamma != false);
 	printer.reset();
 	std::cerr << serialize(u, printer).str() << std::endl;
