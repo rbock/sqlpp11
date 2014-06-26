@@ -32,6 +32,7 @@
 #include <sqlpp11/interpretable_list.h>
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/detail/logic.h>
+#include <sqlpp11/detail/sum.h>
 #include <sqlpp11/policy_update.h>
 
 namespace sqlpp
@@ -60,17 +61,7 @@ namespace sqlpp
 		{
 			using _traits = make_traits<no_value_t, ::sqlpp::tag::from>;
 			using _recursive_traits = make_recursive_traits<Tables...>;
-
 			using _is_dynamic = is_database<Database>;
-
-			static_assert(_is_dynamic::value or sizeof...(Tables), "at least one table or join argument required in from()");
-
-			// FIXME: Joins contain two tables. This is not being dealt with at the moment when looking at duplicates, for instance
-			static_assert(not ::sqlpp::detail::has_duplicates<Tables...>::value, "at least one duplicate argument detected in from()");
-
-			static_assert(::sqlpp::detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not a table or join in from()");
-
-			static_assert(required_tables_of<from_t>::size::value == 0, "at least one table depends on another table");
 
 			// Data
 			using _data_t = from_data_t<Database, Tables...>;
@@ -84,7 +75,9 @@ namespace sqlpp
 						{
 							static_assert(_is_dynamic::value, "from::add() must not be called for static from()");
 							static_assert(is_table_t<Table>::value, "invalid table argument in from::add()");
-#warning need to check if table is already known
+							using _known_tables = detail::make_joined_set_t<provided_tables_of<Tables>...>; // Hint: Joins contain more than one table
+							using _known_table_names = detail::transform_set_t<name_of, _known_tables>;
+							static_assert(not detail::is_element_of<typename Table::_name_t, _known_table_names>::value, "Must not use the same table name twice in from()");
 
 							using ok = ::sqlpp::detail::all_t<_is_dynamic::value, is_table_t<Table>::value>;
 
@@ -172,20 +165,39 @@ namespace sqlpp
 
 				static void _check_consistency() {}
 
-				template<typename... Args>
-					auto from(Args... args)
-					-> _new_statement_t<from_t<void, Args...>>
+				template<typename... Tables>
+					auto from(Tables... tables)
+					-> _new_statement_t<from_t<void, Tables...>>
 					{
-						return { *static_cast<typename Policies::_statement_t*>(this), from_data_t<void, Args...>{args...} };
+						static_assert(sizeof...(Tables), "at least one table or join argument required in from()");
+						return _from_impl<void>(tables...);
 					}
 
-				template<typename... Args>
-					auto dynamic_from(Args... args)
-					-> _new_statement_t<from_t<_database_t, Args...>>
+				template<typename... Tables>
+					auto dynamic_from(Tables... tables)
+					-> _new_statement_t<from_t<_database_t, Tables...>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_from must not be called in a static statement");
-						return { *static_cast<typename Policies::_statement_t*>(this), from_data_t<_database_t, Args...>{args...} };
+						return _from_impl<_database_t>(tables...);
 					}
+
+			private:
+				template<typename Database, typename... Tables>
+					auto _from_impl(Tables... tables)
+					-> _new_statement_t<from_t<Database, Tables...>>
+					{
+						static_assert(::sqlpp::detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not a table or join in from()");
+						static_assert(required_tables_of<from_t<Database, Tables...>>::size::value == 0, "at least one table depends on another table");
+
+						static constexpr std::size_t _number_of_tables = detail::sum(provided_tables_of<Tables>::size::value...);
+						using _unique_tables = detail::make_joined_set_t<provided_tables_of<Tables>...>;
+						using _unique_table_names = detail::transform_set_t<name_of, _unique_tables>;
+						static_assert(_number_of_tables == _unique_tables::size::value, "at least one duplicate table detected in from()");
+						static_assert(_number_of_tables == _unique_table_names::size::value, "at least one duplicate table name detected in from()");
+
+						return { *static_cast<typename Policies::_statement_t*>(this), from_data_t<Database, Tables...>{tables...} };
+					}
+
 			};
 	};
 

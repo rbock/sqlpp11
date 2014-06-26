@@ -211,6 +211,24 @@ namespace sqlpp
 		template<typename Minuend, typename Subtrahend>
 			using make_difference_set_t = typename make_difference_set<Minuend, Subtrahend>::type;
 
+
+		template<template<typename> class Transformation, typename T>
+			struct transform_set
+			{
+				static_assert(::sqlpp::wrong_t<T>::value, "invalid argument for transform_set");
+			};
+
+		template<template<typename> class Transformation, typename... E>
+			struct transform_set<Transformation, type_set<E...>>
+			{
+				using type = typename make_type_set<Transformation<E>...>::type;
+			};
+
+		template<template<typename> class Transformation, typename T>
+			using transform_set_t = typename transform_set<Transformation, T>::type;
+
+
+
 	}
 }
 

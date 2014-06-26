@@ -49,8 +49,10 @@ namespace sqlpp
 
 	struct verbatim_table_t: public sqlpp::table_t<verbatim_table_t, detail::unusable_pseudo_column_t>
 	{
-		verbatim_table_t(std::string name):
-			_name(name)
+		struct _name_t {};
+
+		verbatim_table_t(std::string representation):
+			_representation(representation)
 		{
 		}
 
@@ -60,7 +62,7 @@ namespace sqlpp
 		verbatim_table_t& operator=(verbatim_table_t&& rhs) = default;
 		~verbatim_table_t() = default;
 
-		std::string _name;
+		std::string _representation;
 	};
 
 	template<typename Context>
@@ -70,7 +72,7 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
-				context << t._name;
+				context << t._representation;
 				return context;
 			}
 		};

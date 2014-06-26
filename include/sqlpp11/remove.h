@@ -32,7 +32,6 @@
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/prepared_remove.h>
 #include <sqlpp11/noop.h>
-#warning: need to use another table provider, since delete can be used with several tables
 #include <sqlpp11/from.h>
 #include <sqlpp11/extra_tables.h>
 #include <sqlpp11/using.h>

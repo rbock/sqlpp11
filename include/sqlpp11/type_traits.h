@@ -187,6 +187,12 @@ namespace sqlpp
 				using type = typename T::_recursive_traits::_parameters;
 			};
 
+		template<typename T>
+			struct name_of_impl
+			{
+				using type = typename T::_name_t;
+			};
+
 		template<typename... T>
 			struct make_parameter_tuple_impl
 			{
@@ -210,6 +216,9 @@ namespace sqlpp
 
 	template<typename T>
 		using parameters_of = typename detail::parameters_of_impl<T>::type;
+
+	template<typename T>
+		using name_of = typename detail::name_of_impl<T>::type;
 
 	template<typename ValueType, typename... Tags>
 		struct make_traits
