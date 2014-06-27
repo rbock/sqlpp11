@@ -28,7 +28,6 @@
 #define SQLPP_RESULT_ROW_H
 
 #include <map>
-#include <sqlpp11/char_result_row.h>
 #include <sqlpp11/field.h>
 #include <sqlpp11/text.h>
 #include <sqlpp11/detail/column_index_sequence.h>
@@ -47,16 +46,6 @@ namespace sqlpp
 			using _field = typename NamedExpr::_name_t::template _member_t<typename value_type_of<NamedExpr>::template _result_entry_t<Db, NamedExpr::_trivial_value_is_null>>;
 
 			result_field() = default;
-			result_field(const char_result_row_t& char_result_row_t):
-				_field({{char_result_row_t.data[index], char_result_row_t.len[index]}})
-				{
-				}
-
-			result_field& operator=(const char_result_row_t& char_result_row_t)
-			{
-				_field::operator()().assign(char_result_row_t.data[index], char_result_row_t.len[index]);
-				return *this;
-			}
 
 			void validate()
 			{
@@ -82,15 +71,6 @@ namespace sqlpp
 				using _multi_field = typename AliasProvider::_name_t::template _member_t<result_row_impl<Db, detail::make_column_index_sequence<index, NamedExprs...>, NamedExprs...>>;
 
 				result_field() = default;
-				result_field(const char_result_row_t& char_result_row_t):
-					_multi_field({char_result_row_t})
-					{}
-
-				result_field& operator=(const char_result_row_t& char_result_row_t)
-				{
-					_multi_field::operator()() = char_result_row_t;
-					return *this;
-				}
 
 				void validate()
 				{
@@ -114,18 +94,8 @@ namespace sqlpp
 			public result_field<Db, Is, NamedExprs>...
 			{
 				static constexpr std::size_t _last_index = LastIndex;
-				result_row_impl() = default;
-				result_row_impl(const char_result_row_t& char_result_row):
-					result_field<Db, Is, NamedExprs>(char_result_row)...
-				{
-				}
 
-				result_row_impl& operator=(const char_result_row_t& char_result_row)
-				{
-					using swallow = int[];
-					(void) swallow{(result_field<Db, Is, NamedExprs>::operator=(char_result_row), 0)...};
-					return *this;
-				}
+				result_row_impl() = default;
 
 				void validate()
 				{
@@ -174,13 +144,6 @@ namespace sqlpp
 		result_row_t& operator=(const result_row_t&) = delete;
 		result_row_t& operator=(result_row_t&&) = default;
 
-		result_row_t& operator=(const char_result_row_t& char_result_row_t)
-		{
-			_impl::operator=(char_result_row_t);
-			_is_valid = true;
-			return *this;
-		}
-
 		void validate()
 		{
 			_impl::validate();
@@ -209,7 +172,7 @@ namespace sqlpp
 		}
 
 		template<typename Target>
-			void bind_result(Target& target)
+			void _bind(Target& target)
 			{
 				_impl::_bind(target);
 			}
@@ -247,24 +210,6 @@ namespace sqlpp
 		dynamic_result_row_t(dynamic_result_row_t&&) = default;
 		dynamic_result_row_t& operator=(const dynamic_result_row_t&) = delete;
 		dynamic_result_row_t& operator=(dynamic_result_row_t&&) = default;
-
-		dynamic_result_row_t& operator=(const char_result_row_t& char_result_row)
-		{
-			_impl::operator=(char_result_row);
-			_is_valid = true;
-
-			char_result_row_t dynamic_row = char_result_row;
-
-			dynamic_row.data += _last_static_index;
-			dynamic_row.len += _last_static_index;
-			for (const auto& column : _dynamic_columns)
-			{
-				_dynamic_fields.at(column).assign(dynamic_row.data[0], dynamic_row.len[0]);
-				++dynamic_row.data;
-				++dynamic_row.len;
-			}
-			return *this;
-		}
 
 		void validate()
 		{
