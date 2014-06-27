@@ -237,6 +237,10 @@ namespace sqlpp
 			_is_valid(false),
 			_dynamic_columns(dynamic_columns)
 		{
+			for (auto name : _dynamic_columns)
+			{
+				_dynamic_fields.insert({name, _field_type{}});
+			}
 		}
 
 		dynamic_result_row_t(const dynamic_result_row_t&) = delete;
@@ -255,11 +259,22 @@ namespace sqlpp
 			dynamic_row.len += _last_static_index;
 			for (const auto& column : _dynamic_columns)
 			{
-				_dynamic_fields[column].assign(dynamic_row.data[0], dynamic_row.len[0]);
+				_dynamic_fields.at(column).assign(dynamic_row.data[0], dynamic_row.len[0]);
 				++dynamic_row.data;
 				++dynamic_row.len;
 			}
 			return *this;
+		}
+
+		void validate()
+		{
+
+			_impl::validate();
+			_is_valid = true;
+			for (auto& field : _dynamic_fields)
+			{
+				field.second.validate();
+			}
 		}
 
 		void invalidate()
@@ -287,6 +302,17 @@ namespace sqlpp
 			return _is_valid;
 		}
 
+		template<typename Target>
+			void _bind(Target& target)
+			{
+				_impl::_bind(target);
+
+				std::size_t index = _last_static_index;
+				for (const auto& name  : _dynamic_columns)
+				{
+					_dynamic_fields.at(name)._bind(target, ++index);
+				}
+			}
 	};
 }
 
