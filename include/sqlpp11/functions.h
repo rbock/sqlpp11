@@ -48,8 +48,6 @@ namespace sqlpp
 	template<typename T>
 		auto value(T t) -> wrap_operand_t<T>
 		{
-			using _provided_tables = detail::type_set<>;
-			using _required_tables = ::sqlpp::detail::type_set<>;
 			static_assert(is_wrapped_value_t<wrap_operand_t<T>>::value, "value() is to be called with non-sql-type like int, or string");
 			return { t };
 		}

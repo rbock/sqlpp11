@@ -71,7 +71,7 @@ namespace sqlpp
 
 			std::string _get_name() const
 			{
-				_impl->_get_name();
+				return _impl->_get_name();
 			}
 
 		private:

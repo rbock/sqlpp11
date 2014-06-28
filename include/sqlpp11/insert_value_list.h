@@ -96,9 +96,9 @@ namespace sqlpp
 			insert_list_data_t& operator=(insert_list_data_t&&) = default;
 			~insert_list_data_t() = default;
 
+			std::tuple<Assignments...> _assignments; // FIXME: Need to replace _columns and _values by _assignments (connector-container requires assignments)
 			std::tuple<simple_column_t<typename Assignments::_column_t>...> _columns;
 			std::tuple<typename Assignments::_value_t...> _values;
-			std::tuple<Assignments...> _assignments; // FIXME: Need to replace _columns and _values by _assignments (connector-container requires assignments)
 			interpretable_list_t<Database> _dynamic_columns;
 			interpretable_list_t<Database> _dynamic_values;
 		};

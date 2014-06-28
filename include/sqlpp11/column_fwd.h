@@ -31,7 +31,7 @@
 namespace sqlpp
 {
 	template<typename Table, typename ColumnSpec>
-		class column_t;
+		struct column_t;
 }
 
 #endif
