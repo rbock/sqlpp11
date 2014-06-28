@@ -290,11 +290,8 @@ int main()
 	{
 		auto m = multi_column(t.alpha, t.beta).as(alias::a);
 		static_assert(not sqlpp::is_expression_t<decltype(m)>::value, "a multi_column is not a value");
-
-#warning: A multicolumn cannot be used if the select is to be used like a table
-		auto a = select(m).from(t).as(alias::b).a;
-		//static_assert(not sqlpp::is_expression_t<decltype(a)>::value, "a multi_column is not a value");
 	}
+
 	// Test that result sets with identical name/value combinations have identical types
 	{
 		auto a = select(t.alpha);

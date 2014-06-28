@@ -269,6 +269,7 @@ namespace sqlpp
 						_alias_t<AliasProvider> as(const AliasProvider& aliasProvider) const
 						{
 							static_assert(Policies::_can_be_used_as_table::value, "statement cannot be used as table, e.g. due to missing tables");
+							static_assert(::sqlpp::detail::none_t<is_multi_column_t<Columns>::value...>::value, "cannot use multi-columns in sub selects");
 							return _table_t<AliasProvider>(_get_statement()).as(aliasProvider);
 						}
 
