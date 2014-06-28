@@ -54,12 +54,14 @@ int main()
 	{
 		int64_t a = row.alpha;
 		const std::string b = row.beta;
+		std::cout << a << ", " << b << std::endl;
 	}
 
 	for (const auto& row : db(select(all_of(t).as(t)).from(t).where(true)))
 	{
 		int64_t a = row.tabBar.alpha;
 		const std::string b = row.tabBar.beta;
+		std::cout << a << ", " << b << std::endl;
 	}
 
 	for (const auto& row : db(select(all_of(t).as(t), t.gamma).from(t).where(t.alpha > 7)))
@@ -67,9 +69,11 @@ int main()
 		int64_t a = row.tabBar.alpha;
 		const std::string b = row.tabBar.beta;
 		const bool g = row.gamma;
+		std::cout << a << ", " << b << ", " << g << std::endl;
 	}
 
 	auto stat = sqlpp::select().columns(all_of(t)).flags(sqlpp::all).from(t).extra_tables(f,t).where(t.alpha > 0).group_by(t.alpha).order_by(t.gamma.asc()).having(t.gamma).limit(7).offset(19);
+
 	auto s = dynamic_select(db).dynamic_columns(all_of(t)).dynamic_flags().dynamic_from(t).extra_tables(f,t).dynamic_where().dynamic_group_by(t.alpha).dynamic_order_by().dynamic_having(t.gamma).dynamic_limit().dynamic_offset();
 	s.select_flags.add(sqlpp::distinct);
 	s.selected_columns.add(f.omega);
@@ -83,12 +87,13 @@ int main()
 	for (const auto& row : db(s))
 	{
 		int64_t a = row.alpha;
+		std::cout << a << std::endl;
 	}
 
 	printer.reset();
 	std::cerr << serialize(s, printer).str() << std::endl;
-
-	auto X = select(all_of(t)).from(t).as(t.alpha);
+	printer.reset();
+	std::cerr << serialize(stat, printer).str() << std::endl;
 
 	return 0;
 }

@@ -35,11 +35,7 @@ MockDb::_serializer_context_t printer;
 int main()
 {
 	test::TabBar t;
-	test::TabFoo f;
-
-	auto x = t.alpha = 7;
-	auto y = t.beta = "kaesekuchen";
-	auto z = t.gamma = true;
+	//test::TabFoo f;
 
 	{
 		using T = decltype(update(t));

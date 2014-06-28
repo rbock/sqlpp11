@@ -35,7 +35,7 @@ MockDb db = {};
 
 int main()
 {
-	test::TabFoo f; 
+	//test::TabFoo f; 
 	test::TabBar t;
 
 	// empty parameter lists
@@ -65,20 +65,20 @@ int main()
 
 	// single parameter in larger expression
 	{
-		using T = sqlpp::parameters_of<decltype(t.beta.like("%") and t.alpha == parameter(t.alpha) or t.gamma != false)>;
+		using T = sqlpp::parameters_of<decltype((t.beta.like("%") and t.alpha == parameter(t.alpha)) or t.gamma != false)>;
 		static_assert(std::is_same<T, std::tuple<decltype(parameter(t.alpha))>>::value, "type requirement");
 	}
 
 	// three parameters in expression
 	{
-		using T = sqlpp::parameters_of<decltype(t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha) or t.gamma != parameter(t.gamma))>;
+		using T = sqlpp::parameters_of<decltype((t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha)) or t.gamma != parameter(t.gamma))>;
 		static_assert(std::tuple_size<T>::value == 3, "type requirement");
 		static_assert(std::is_same<T, std::tuple<decltype(parameter(t.beta)), decltype(parameter(t.alpha)),decltype(parameter(t.gamma))>>::value, "type requirement");
 	}
 
 	// OK, fine, now create a named parameter list from an expression
 	{
-		using Exp = decltype(t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha) or t.gamma != parameter(t.gamma));
+		using Exp = decltype((t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha)) or t.gamma != parameter(t.gamma));
 		using T = sqlpp::make_parameter_list_t<Exp>;
 		T npl;
 		static_assert(std::is_same<typename sqlpp::value_type_of<decltype(t.alpha)>::_parameter_t, decltype(npl.alpha)>::value, "type requirement");
@@ -88,7 +88,7 @@ int main()
 
 	// Wonderful, now take a look at the parameter list of a select
 	{
-		auto s = select(all_of(t)).from(t).where(t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha) or t.gamma != parameter(t.gamma));
+		auto s = select(all_of(t)).from(t).where((t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha)) or t.gamma != parameter(t.gamma));
 		auto p = db.prepare(s);
 		p.params.alpha = 7;
 		using S = decltype(s);
