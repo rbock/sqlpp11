@@ -289,8 +289,11 @@ int main()
 	// Test that a multicolumn is not a value
 	{
 		auto m = multi_column(t.alpha, t.beta).as(alias::a);
+		static_assert(not sqlpp::is_expression_t<decltype(m)>::value, "a multi_column is not a value");
+
+#warning: A multicolumn cannot be used if the select is to be used like a table
 		auto a = select(m).from(t).as(alias::b).a;
-		// FIXME: Do we really need that test? multi_column is a no_value static_assert(not sqlpp::is_expression_t<decltype(a)>::value, "a multi_column is not a value");
+		//static_assert(not sqlpp::is_expression_t<decltype(a)>::value, "a multi_column is not a value");
 	}
 	// Test that result sets with identical name/value combinations have identical types
 	{
@@ -307,6 +310,7 @@ int main()
 	for (const auto& row : db(select(all_of(t)).from(t).where(true)))
 	{
 		int64_t a = row.alpha;
+		std::cout << a << std::endl;
 	}
 
 	{
@@ -344,8 +348,6 @@ int main()
 	static_assert(sqlpp::is_numeric_t<decltype(t.alpha)>::value, "TabBar.alpha has to be a numeric");
 	((t.alpha + 7) + 4).asc();
 	static_assert(sqlpp::is_boolean_t<decltype(t.gamma == t.gamma)>::value, "Comparison expression have to be boolean");
-	auto x = (t.gamma == true) and (t.alpha == 7);
-	auto y = t.gamma and true and t.gamma;
 	!t.gamma;
 	t.beta < "kaesekuchen";
 	serialize(t.beta + "hallenhalma", printer).str();
@@ -356,25 +358,9 @@ int main()
 	static_assert(sqlpp::is_named_expression_t<decltype(t.alpha.as(alias::a))>::value, "an alias of alpha should be a named expression");
 	static_assert(sqlpp::is_alias_t<decltype(t.alpha.as(alias::a))>::value, "an alias of alpha should be an alias");
 
-	auto z = select(t.alpha).from(t) == 7;
 	auto l = t.as(alias::left);
 	auto r = select(t.gamma.as(alias::a)).from(t).where(t.gamma == true).as(alias::right);
-	using R = decltype(r);
 	static_assert(sqlpp::is_boolean_t<decltype(select(t.gamma).from(t))>::value, "select(bool) has to be a bool");
-	auto s = select(r.a).from(r);
-	using RA = decltype(r.a);
-	using S = decltype(s);
-	/*
-	using SCL = typename S::_column_list_t;
-	using SF = typename S::_from_t;
-	static_assert(sqlpp::is_select_column_list_t<SCL>::value, "no column list");
-	static_assert(sqlpp::is_from_t<SF>::value, "no from list");
-	using SCL_T = typename SCL::_table_set;
-	using SF_T = typename SF::_table_set;
-	static_assert(SCL_T::size::value == 1, "unexpected table_set in column_list");
-	static_assert(SF_T::size::value == 1, "unexpected table_set in from");
-	static_assert(std::is_same<SCL_T, SF_T>::value, "should be the same");
-	*/
 	static_assert(sqlpp::is_boolean_t<decltype(select(r.a).from(r))>::value, "select(bool) has to be a bool");
 	auto s1 = sqlpp::select().flags(sqlpp::distinct, sqlpp::straight_join).columns(l.alpha, l.beta, select(r.a).from(r))
 		.from(r,t,l)

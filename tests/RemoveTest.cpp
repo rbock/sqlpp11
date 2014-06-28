@@ -37,10 +37,6 @@ int main()
 {
 	test::TabBar t;
 
-	auto x = t.alpha = 7;
-	auto y = t.beta = "kaesekuchen";
-	auto z = t.gamma = true;
-
 	{
 		using T = decltype(remove_from(t));
 		static_assert(sqlpp::is_regular<T>::value, "type requirement");
