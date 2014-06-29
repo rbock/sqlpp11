@@ -108,27 +108,14 @@ namespace sqlpp
 						_value(0)
 					{}
 
-					_result_entry_t(const char* data, size_t):
-						_is_valid(true),
-						_is_null(data == nullptr),
-						_value(_is_null ? 0 : std::strtoll(data, nullptr, 10))
-						{}
-
-					void assign(const char* data, size_t)
-					{
-						_is_valid = true;
-						_is_null = data == nullptr;
-						_value = _is_null ? 0 : std::strtoll(data, nullptr, 10);
-					}
-
-					void invalidate()
+					void _invalidate()
 					{
 						_is_valid = false;
 						_is_null = true;
 						_value = 0;
 					}
 
-					void validate()
+					void _validate()
 					{
 						_is_valid = true;
 					}
