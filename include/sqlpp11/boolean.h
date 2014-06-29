@@ -105,19 +105,6 @@ namespace sqlpp
 						_value(false)
 					{}
 
-					_result_entry_t(const char* data, size_t):
-						_is_valid(true),
-						_is_null(data == nullptr),
-						_value(_is_null ? false : (data[0] == 't' or data[0] == '1'))
-						{}
-
-					void assign(const char* data, size_t)
-					{
-						_is_valid = true;
-						_is_null = data == nullptr;
-						_value = _is_null ? false : (data[0] == 't' or data[0] == '1');
-					}
-
 					void _validate()
 					{
 						_is_valid = true;

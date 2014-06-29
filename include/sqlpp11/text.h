@@ -104,19 +104,6 @@ namespace sqlpp
 						_len(0)
 					{}
 
-					_result_entry_t(char* data, size_t len):
-						_is_valid(true),
-						_value_ptr(data),
-						_len(_value_ptr ? 0 : len)
-						{}
-
-					void assign(const char* data, size_t len)
-					{
-						_is_valid = true;
-						_value_ptr = data;
-						_len = _value_ptr ? len: 0;
-					}
-
 					void _validate()
 					{
 						_is_valid = true;
