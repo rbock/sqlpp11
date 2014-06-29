@@ -118,12 +118,12 @@ namespace sqlpp
 						_value = _is_null ? false : (data[0] == 't' or data[0] == '1');
 					}
 
-					void validate()
+					void _validate()
 					{
 						_is_valid = true;
 					}
 
-					void invalidate()
+					void _invalidate()
 					{
 						_is_valid = false;
 						_is_null = true;

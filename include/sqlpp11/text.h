@@ -117,12 +117,12 @@ namespace sqlpp
 						_len = _value_ptr ? len: 0;
 					}
 
-					void validate()
+					void _validate()
 					{
 						_is_valid = true;
 					}
 
-					void invalidate()
+					void _invalidate()
 					{
 						_is_valid = false;
 						_value_ptr = nullptr;

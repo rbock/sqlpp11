@@ -119,12 +119,12 @@ namespace sqlpp
 						_value = _is_null ? 0 : std::strtoll(data, nullptr, 10);
 					}
 
-					void validate()
+					void _validate()
 					{
 						_is_valid = true;
 					}
 
-					void invalidate()
+					void _invalidate()
 					{
 						_is_valid = false;
 						_is_null = true;
