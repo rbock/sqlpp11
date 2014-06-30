@@ -35,11 +35,7 @@ MockDb::_serializer_context_t printer;
 int main()
 {
 	test::TabBar t;
-	test::TabFoo f;
-
-	auto x = t.alpha = 7;
-	auto y = t.beta = "kaesekuchen";
-	auto z = t.gamma = true;
+	//test::TabFoo f;
 
 	{
 		using T = decltype(update(t));
@@ -61,9 +57,10 @@ int main()
 	serialize(update(t).set(t.gamma = false).where(t.beta != "transparent"), printer).str();
 	serialize(update(t).set(t.beta = "opaque").where(t.beta != t.beta), printer).str();
 	auto u = dynamic_update(db, t).dynamic_set(t.gamma = false).dynamic_where();
-	u.add_set(t.gamma = false);
-	u.add_where(t.gamma != false);
-	serialize(u, printer).str();
+	u.assignments.add(t.beta = "cannot update gamma a second time");
+	u.where.add(t.gamma != false);
+	printer.reset();
+	std::cerr << serialize(u, printer).str() << std::endl;
 
 	db(u);
 

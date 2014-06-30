@@ -41,9 +41,10 @@ namespace sqlpp
 	template<typename Unused, typename... Columns>
 		struct multi_column_t
 		{
-			static_assert(detail::all_t<is_named_expression_t<Columns>::value...>::value, "multi_column parameters need to be named expressions");
+			using _traits = make_traits<no_value_t>;
+			using _recursive_traits = make_recursive_traits<Columns...>;
 
-			using _table_set = sqlpp::detail::make_joined_set_t<typename Columns::_table_set...>;
+			static_assert(detail::all_t<is_named_expression_t<Columns>::value...>::value, "multi_column parameters need to be named expressions");
 
 			multi_column_t(std::tuple<Columns...> columns):
 				_columns(columns)
@@ -75,10 +76,12 @@ namespace sqlpp
 	template<typename AliasProvider, typename... Columns>
 		struct multi_column_alias_t
 		{
+			using _traits = make_traits<no_value_t, tag::alias, tag::multi_column, tag::named_expression>;
+			using _recursive_traits = make_recursive_traits<Columns...>;
+
 			static_assert(detail::all_t<is_named_expression_t<Columns>::value...>::value, "multi_column parameters need to be named expressions");
 
 			using _name_t = typename AliasProvider::_name_t;
-			using _table_set = sqlpp::detail::make_joined_set_t<typename Columns::_table_set...>;
 
 			multi_column_alias_t(multi_column_t<void, Columns...> multi_column):
 				_columns(multi_column._columns)
@@ -107,31 +110,28 @@ namespace sqlpp
 			std::tuple<Columns...> _columns;
 		};
 
-	namespace vendor
-	{
-		template<typename Context, typename... Columns>
-			struct serializer_t<Context, multi_column_t<void, Columns...>>
+	template<typename Context, typename... Columns>
+		struct serializer_t<Context, multi_column_t<void, Columns...>>
+		{
+			using T = multi_column_t<void, Columns...>;
+
+			static void _(const T& t, Context& context)
 			{
-				using T = multi_column_t<void, Columns...>;
+				static_assert(wrong_t<Columns...>::value, "multi_column must be used with an alias");
+			}
+		};
 
-				static void _(const T& t, Context& context)
-				{
-					static_assert(wrong_t<Columns...>::value, "multi_column must be used with an alias");
-				}
-			};
+	template<typename Context, typename AliasProvider, typename... Columns>
+		struct serializer_t<Context, multi_column_alias_t<AliasProvider, Columns...>>
+		{
+			using T = multi_column_alias_t<AliasProvider, Columns...>;
 
-		template<typename Context, typename AliasProvider, typename... Columns>
-			struct serializer_t<Context, multi_column_alias_t<AliasProvider, Columns...>>
+			static Context& _(const T& t, Context& context)
 			{
-				using T = multi_column_alias_t<AliasProvider, Columns...>;
-
-				static Context& _(const T& t, Context& context)
-				{
-					interpret_tuple(t._columns, ',', context);
-					return context;
-				}
-			};
-	}
+				interpret_tuple(t._columns, ',', context);
+				return context;
+			}
+		};
 
 	namespace detail
 	{

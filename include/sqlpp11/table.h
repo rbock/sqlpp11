@@ -40,16 +40,24 @@ namespace sqlpp
 	struct table_base_t {};
 
 	template<typename Table, typename... ColumnSpec>
-	struct table_t: public table_base_t, public ColumnSpec::_name_t::template _member_t<column_t<Table, ColumnSpec>>...
+		struct table_t: public table_base_t, public ColumnSpec::_name_t::template _member_t<column_t<Table, ColumnSpec>>...
 	{
-		using _table_set = detail::type_set<Table>; // Hint need a type_set here to be similar to a join (which always represents more than one table)
+		using _traits = make_traits<no_value_t, tag::table>;
+
+		struct _recursive_traits
+		{
+			using _parameters = std::tuple<>;
+			using _required_tables = detail::type_set<>;
+			using _provided_tables = detail::type_set<Table>;
+			using _extra_tables = detail::type_set<>;
+		};
+
 		static_assert(sizeof...(ColumnSpec), "at least one column required per table");
 		using _required_insert_columns = typename detail::make_type_set_if<require_insert_t, column_t<Table, ColumnSpec>...>::type;
 		using _column_tuple_t = std::tuple<column_t<Table, ColumnSpec>...>;
 		template<typename AliasProvider>
 			using _alias_t = table_alias_t<AliasProvider, Table, ColumnSpec...>;
 
-		using _is_table = std::true_type;
 
 		template<typename T>
 			join_t<inner_join_t, Table, T> join(T t)
@@ -93,22 +101,19 @@ namespace sqlpp
 		}
 	};
 
-	namespace vendor
-	{
-		template<typename Context, typename X>
-			struct serializer_t<Context, X, typename std::enable_if<std::is_base_of<table_base_t, X>::value and not is_pseudo_table_t<X>::value, void>::type>
+	template<typename Context, typename X>
+		struct serializer_t<Context, X, typename std::enable_if<std::is_base_of<table_base_t, X>::value and not is_pseudo_table_t<X>::value, void>::type>
+		{
+			using T = X;
+
+			static Context& _(const T& t, Context& context)
 			{
-				using T = X;
-
-				static Context& _(const T& t, Context& context)
-				{
-					context << T::_name_t::_get_name();
-					return context;
-				}
-			};
+				context << T::_name_t::_get_name();
+				return context;
+			}
+		};
 
 
-	}
 }
 
 #endif

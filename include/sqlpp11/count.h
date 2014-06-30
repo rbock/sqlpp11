@@ -32,80 +32,71 @@
 
 namespace sqlpp
 {
-	namespace vendor
+	template<typename Flag, typename Expr>
+		struct count_t: public sqlpp::detail::integral::template expression_operators<count_t<Flag, Expr>>,
+		public alias_operators<count_t<Flag, Expr>>
 	{
-		template<typename Flag, typename Expr>
-		struct count_t: public sqlpp::detail::integral::template expression_operators<count_t<Flag, Expr>>
+		using _traits = make_traits<::sqlpp::detail::integral, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
+		using _recursive_traits = make_recursive_traits<Expr>;
+
+		static_assert(is_noop<Flag>::value or std::is_same<sqlpp::distinct_t, Flag>::value, "count() used with flag other than 'distinct'");
+		static_assert(is_expression_t<Expr>::value, "count() requires a sql expression as argument");
+
+		struct _name_t
 		{
-			static_assert(is_noop<Flag>::value or std::is_same<sqlpp::distinct_t, Flag>::value, "count() used with flag other than 'distinct'");
-			static_assert(is_expression_t<Expr>::value, "count() requires a sql expression as argument");
-
-			struct _value_type: public sqlpp::detail::integral
-			{
-				using _is_named_expression = std::true_type;
-			};
-
-			using _table_set = typename Expr::_table_set;
-
-			struct _name_t
-			{
-				static constexpr const char* _get_name() { return "COUNT"; }
-				template<typename T>
-					struct _member_t
-					{
-						T count;
-						T& operator()() { return count; }
-						const T& operator()() const { return count; }
-					};
-			};
-
-			count_t(const Expr expr):
-				_expr(expr)
-			{}
-
-			count_t(const count_t&) = default;
-			count_t(count_t&&) = default;
-			count_t& operator=(const count_t&) = default;
-			count_t& operator=(count_t&&) = default;
-			~count_t() = default;
-
-			Expr _expr;
-		};
-	}
-
-	namespace vendor
-	{
-		template<typename Context, typename Flag, typename Expr>
-			struct serializer_t<Context, vendor::count_t<Flag, Expr>>
-			{
-				using T = vendor::count_t<Flag, Expr>;
-
-				static Context& _(const T& t, Context& context)
+			static constexpr const char* _get_name() { return "COUNT"; }
+			template<typename T>
+				struct _member_t
 				{
-					context << "COUNT(";
-					if (std::is_same<sqlpp::distinct_t, Flag>::value)
-					{
-						serialize(Flag(), context);
-						context << ' ';
-					}
-					serialize(t._expr, context);
-					context << ")";
-					return context;
+					T count;
+					T& operator()() { return count; }
+					const T& operator()() const { return count; }
+				};
+		};
+
+		count_t(const Expr expr):
+			_expr(expr)
+		{}
+
+		count_t(const count_t&) = default;
+		count_t(count_t&&) = default;
+		count_t& operator=(const count_t&) = default;
+		count_t& operator=(count_t&&) = default;
+		~count_t() = default;
+
+		Expr _expr;
+	};
+
+	template<typename Context, typename Flag, typename Expr>
+		struct serializer_t<Context, count_t<Flag, Expr>>
+		{
+			using T = count_t<Flag, Expr>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				context << "COUNT(";
+				if (std::is_same<sqlpp::distinct_t, Flag>::value)
+				{
+					serialize(Flag(), context);
+					context << ' ';
 				}
-			};
-	}
+				serialize(t._expr, context);
+				context << ")";
+				return context;
+			}
+		};
 
 	template<typename T>
-		auto count(T t) -> typename vendor::count_t<vendor::noop, vendor::wrap_operand_t<T>>
+		auto count(T t) -> count_t<noop, wrap_operand_t<T>>
 		{
-			static_assert(is_expression_t<vendor::wrap_operand_t<T>>::value, "count() requires an expression as argument");
+			static_assert(is_expression_t<wrap_operand_t<T>>::value, "count() requires an expression as argument");
 			return { t };
 		}
 
 	template<typename T>
-		auto count(const sqlpp::distinct_t&, T t) -> typename vendor::count_t<sqlpp::distinct_t, vendor::wrap_operand_t<T>>
+		auto count(const sqlpp::distinct_t&, T t) -> count_t<sqlpp::distinct_t, wrap_operand_t<T>>
 		{
-			static_assert(is_expression_t<vendor::wrap_operand_t<T>>::value, "count() requires an expression as argument");
+			static_assert(is_expression_t<wrap_operand_t<T>>::value, "count() requires an expression as argument");
 			return { t };
 		}
 

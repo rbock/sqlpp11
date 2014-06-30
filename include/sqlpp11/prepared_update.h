@@ -35,14 +35,14 @@ namespace sqlpp
 	template<typename Db, typename Update>
 		struct prepared_update_t
 		{
-			using _parameter_list_t = typename Update::_parameter_list_t;
+			using _parameter_list_t = make_parameter_list_t<Update>;
 			using _prepared_statement_t = typename Db::_prepared_statement_t;
 
 			auto _run(Db& db) const
 				-> size_t
-			{
-				return db.run_prepared_insert(*this);
-			}
+				{
+					return db.run_prepared_insert(*this);
+				}
 
 			void _bind_params() const
 			{

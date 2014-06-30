@@ -29,7 +29,7 @@
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/on.h>
-#include <sqlpp11/vendor/noop.h>
+#include <sqlpp11/noop.h>
 
 namespace sqlpp
 {
@@ -74,19 +74,20 @@ namespace sqlpp
 		static constexpr const char* _name = " RIGHT OUTER ";
 	};
 
-	template<typename JoinType, typename Lhs, typename Rhs, typename On = vendor::noop>
+	template<typename JoinType, typename Lhs, typename Rhs, typename On = noop>
 		struct join_t
 		{
+			using _traits = make_traits<no_value_t, tag::table, tag::join>;
+			using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
+
 			static_assert(is_table_t<Lhs>::value, "lhs argument for join() has to be a table or join");
 			static_assert(is_table_t<Rhs>::value, "rhs argument for join() has to be a table");
 			static_assert(not is_join_t<Rhs>::value, "rhs argument for join must not be a join");
-			static_assert(vendor::is_noop<On>::value or is_on_t<On>::value, "invalid on expression in join().on()");
+			static_assert(is_noop<On>::value or is_on_t<On>::value, "invalid on expression in join().on()");
 
-			static_assert(::sqlpp::detail::is_disjunct_from<typename Lhs::_table_set, typename Rhs::_table_set>::value, "joined tables must not be identical");
+			static_assert(::sqlpp::detail::is_disjunct_from<provided_tables_of<Lhs>, provided_tables_of<Rhs>>::value, "joined tables must not be identical");
 
-			using _is_table = std::true_type;
-			using _is_join = std::true_type;
-			using _table_set = typename ::sqlpp::detail::make_joined_set<typename Lhs::_table_set, typename Rhs::_table_set>::type;
+			static_assert(_recursive_traits::_required_tables::size::value == 0, "joined tables must not depend on other tables");
 
 			template<typename OnT> 
 				using set_on_t = join_t<JoinType, Lhs, Rhs, OnT>;
@@ -95,7 +96,7 @@ namespace sqlpp
 				auto on(Expr... expr)
 				-> set_on_t<on_t<void, Expr...>>
 				{
-					static_assert(vendor::is_noop<On>::value, "cannot call on() twice for a single join()");
+					static_assert(is_noop<On>::value, "cannot call on() twice for a single join()");
 					return { _lhs, 
 						_rhs, 
 						{std::tuple<Expr...>{expr...}}
@@ -105,35 +106,35 @@ namespace sqlpp
 			template<typename T>
 				join_t<inner_join_t, join_t, T> join(T t)
 				{
-					static_assert(not vendor::is_noop<On>::value, "join type requires on()");
+					static_assert(not is_noop<On>::value, "join type requires on()");
 					return { *this, t };
 				}
 
 			template<typename T>
 				join_t<inner_join_t, join_t, T> inner_join(T t)
 				{
-					static_assert(not vendor::is_noop<On>::value, "join type requires on()");
+					static_assert(not is_noop<On>::value, "join type requires on()");
 					return { *this, t };
 				}
 
 			template<typename T>
 				join_t<outer_join_t, join_t, T> outer_join(T t)
 				{
-					static_assert(not vendor::is_noop<On>::value, "join type requires on()");
+					static_assert(not is_noop<On>::value, "join type requires on()");
 					return { *this, t };
 				}
 
 			template<typename T>
 				join_t<left_outer_join_t, join_t, T> left_outer_join(T t)
 				{
-					static_assert(not vendor::is_noop<On>::value, "join type requires on()");
+					static_assert(not is_noop<On>::value, "join type requires on()");
 					return { *this, t };
 				}
 
 			template<typename T>
 				join_t<right_outer_join_t, join_t, T> right_outer_join(T t)
 				{
-					static_assert(not vendor::is_noop<On>::value, "join type requires on()");
+					static_assert(not is_noop<On>::value, "join type requires on()");
 					return { *this, t };
 				}
 
@@ -142,26 +143,23 @@ namespace sqlpp
 			On _on;
 		};
 
-	namespace vendor
-	{
-		template<typename Context, typename JoinType, typename Lhs, typename Rhs, typename On>
-			struct serializer_t<Context, join_t<JoinType, Lhs, Rhs, On>>
+	template<typename Context, typename JoinType, typename Lhs, typename Rhs, typename On>
+		struct serializer_t<Context, join_t<JoinType, Lhs, Rhs, On>>
+		{
+			using T = join_t<JoinType, Lhs, Rhs, On>;
+
+			static Context& _(const T& t, Context& context)
 			{
-				using T = join_t<JoinType, Lhs, Rhs, On>;
+				static_assert(not is_noop<On>::value, "joined tables require on()");
+				serialize(t._lhs, context);
+				context << JoinType::_name;
+				context << " JOIN ";
+				serialize(t._rhs, context);
+				serialize(t._on, context);
+				return context;
+			}
+		};
 
-				static Context& _(const T& t, Context& context)
-				{
-					static_assert(not vendor::is_noop<On>::value, "joined tables require on()");
-					serialize(t._lhs, context);
-					context << JoinType::_name;
-					context << " JOIN ";
-					serialize(t._rhs, context);
-					serialize(t._on, context);
-					return context;
-				}
-			};
-
-	}
 }
 
 #endif

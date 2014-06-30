@@ -14,6 +14,7 @@ build_and_run(SelectTest)
 build_and_run(SelectTypeTest)
 build_and_run(FunctionTest)
 build_and_run(PreparedTest)
+build_and_run(Minimalistic)
 
 find_package(PythonInterp REQUIRED)
 

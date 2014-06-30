@@ -36,15 +36,15 @@ namespace sqlpp
 		struct prepared_select_t
 		{
 			using _result_row_t = typename Select::template _result_row_t<Database>;
-			using _parameter_list_t = typename Select::_parameter_list_t;
+			using _parameter_list_t = make_parameter_list_t<Select>;
 			using _dynamic_names_t = typename Select::_dynamic_names_t;
 			using _prepared_statement_t = typename Database::_prepared_statement_t;
 
 			auto _run(Database& db) const
 				-> result_t<decltype(db.run_prepared_select(*this)), _result_row_t>
-			{
-				return {db.run_prepared_select(*this), _dynamic_names};
-			}
+				{
+					return {db.run_prepared_select(*this), _dynamic_names};
+				}
 
 			void _bind_params() const
 			{

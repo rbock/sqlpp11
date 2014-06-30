@@ -42,26 +42,22 @@ namespace sqlpp
 		// boolean value type
 		struct boolean
 		{
-			using _value_type = boolean;
-			using _base_value_type = boolean;
-			using _is_boolean = std::true_type;
-			using _is_value = std::true_type;
-			using _is_expression = std::true_type;
+			using _tag = ::sqlpp::tag::boolean;
 			using _cpp_value_type = bool;
 
 			struct _parameter_t
 			{
-				using _value_type = boolean;
+				using _value_type = boolean; // FIXME
 
 				_parameter_t():
 					_value(false),
 					_is_null(true)
-					{}
+				{}
 
 				_parameter_t(const _cpp_value_type& value):
 					_value(value),
 					_is_null(false)
-					{}
+				{}
 
 				_parameter_t& operator=(const _cpp_value_type& value)
 				{
@@ -78,7 +74,7 @@ namespace sqlpp
 				}
 
 				bool is_null() const
-			 	{ 
+				{ 
 					return _is_null; 
 				}
 
@@ -101,111 +97,98 @@ namespace sqlpp
 			};
 
 			template<typename Db, bool NullIsTrivial = false>
-			struct _result_entry_t
-			{
-				_result_entry_t():
-					_is_valid(false),
-					_is_null(true),
-					_value(false)
+				struct _result_entry_t
+				{
+					_result_entry_t():
+						_is_valid(false),
+						_is_null(true),
+						_value(false)
 					{}
 
-				_result_entry_t(const char* data, size_t):
-					_is_valid(true),
-					_is_null(data == nullptr),
-					_value(_is_null ? false : (data[0] == 't' or data[0] == '1'))
-					{}
-
-				void assign(const char* data, size_t)
-				{
-					_is_valid = true;
-					_is_null = data == nullptr;
-					_value = _is_null ? false : (data[0] == 't' or data[0] == '1');
-				}
-
-				void validate()
-				{
-					_is_valid = true;
-				}
-
-				void invalidate()
-				{
-					_is_valid = false;
-					_is_null = true;
-					_value = 0;
-				}
-
-				bool is_null() const
-			 	{ 
-					if (connector_assert_result_validity_t<Db>::value)
-						assert(_is_valid);
-					else if (not _is_valid)
-						throw exception("accessing is_null in non-existing row");
-					return _is_null; 
-				}
-
-				_cpp_value_type value() const
-				{
-					const bool null_value = _is_null and not NullIsTrivial and not connector_null_result_is_trivial_value_t<Db>::value;
-					if (connector_assert_result_validity_t<Db>::value)
+					void _validate()
 					{
-						assert(_is_valid);
-						assert(not null_value);
-					}
-					else
-					{
-						if (not _is_valid)
-							throw exception("accessing value in non-existing row");
-						if (null_value)
-							throw exception("accessing value of NULL field");
-					}
-					return _value;
-				}
-
-				operator _cpp_value_type() const { return value(); }
-
-				template<typename Target>
-					void _bind(Target& target, size_t i)
-					{
-						target._bind_boolean_result(i, &_value, &_is_null);
+						_is_valid = true;
 					}
 
-			private:
-				bool _is_valid;
-				bool _is_null;
-				signed char _value;
-			};
+					void _invalidate()
+					{
+						_is_valid = false;
+						_is_null = true;
+						_value = 0;
+					}
+
+					bool is_null() const
+					{ 
+						if (connector_assert_result_validity_t<Db>::value)
+							assert(_is_valid);
+						else if (not _is_valid)
+							throw exception("accessing is_null in non-existing row");
+						return _is_null; 
+					}
+
+					_cpp_value_type value() const
+					{
+						const bool null_value = _is_null and not NullIsTrivial and not connector_null_result_is_trivial_value_t<Db>::value;
+						if (connector_assert_result_validity_t<Db>::value)
+						{
+							assert(_is_valid);
+							assert(not null_value);
+						}
+						else
+						{
+							if (not _is_valid)
+								throw exception("accessing value in non-existing row");
+							if (null_value)
+								throw exception("accessing value of NULL field");
+						}
+						return _value;
+					}
+
+					operator _cpp_value_type() const { return value(); }
+
+					template<typename Target>
+						void _bind(Target& target, size_t i)
+						{
+							target._bind_boolean_result(i, &_value, &_is_null);
+						}
+
+				private:
+					bool _is_valid;
+					bool _is_null;
+					signed char _value;
+				};
 
 			template<typename T>
 				struct _is_valid_operand
-			{
-				static constexpr bool value = 
-					is_expression_t<T>::value // expressions are OK
-					and is_boolean_t<T>::value // the correct value type is required, of course
-					;
-			};
+				{
+					static constexpr bool value = 
+						is_expression_t<T>::value // expressions are OK
+						and is_boolean_t<T>::value // the correct value type is required, of course
+						;
+				};
 
 			template<typename Base>
 				struct expression_operators: public basic_expression_operators<Base, is_boolean_t>
 			{
 				template<typename T>
-					vendor::logical_and_t<Base, vendor::wrap_operand_t<T>> operator and(T t) const
+					logical_and_t<Base, wrap_operand_t<T>> operator and(T t) const
 					{
-						using rhs = vendor::wrap_operand_t<T>;
+						using rhs = wrap_operand_t<T>;
 						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
 
 						return { *static_cast<const Base*>(this), rhs{t} };
 					}
 
 				template<typename T>
-					vendor::logical_or_t<Base, vendor::wrap_operand_t<T>> operator or(T t) const
+					logical_or_t<Base, wrap_operand_t<T>> operator or(T t) const
 					{
-						using rhs = vendor::wrap_operand_t<T>;
+						using rhs = wrap_operand_t<T>;
 						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
 
 						return { *static_cast<const Base*>(this), rhs{t} };
 					}
 
-				vendor::logical_not_t<Base> operator not() const
+				logical_not_t<Base> operator not() const
 				{
 					return { *static_cast<const Base*>(this) };
 				}
@@ -213,15 +196,15 @@ namespace sqlpp
 
 			template<typename Base>
 				struct column_operators
-			{
-			};
+				{
+				};
 		};
 
 		template<typename Db, bool TrivialIsNull>
-		inline std::ostream& operator<<(std::ostream& os, const boolean::_result_entry_t<Db, TrivialIsNull>& e)
-		{
-			return os << e.value();
-		}
+			inline std::ostream& operator<<(std::ostream& os, const boolean::_result_entry_t<Db, TrivialIsNull>& e)
+			{
+				return os << e.value();
+			}
 	}
 
 	using boolean = detail::boolean;

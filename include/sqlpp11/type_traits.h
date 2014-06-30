@@ -28,7 +28,7 @@
 #define SQLPP_TYPE_TRAITS_H
 
 #include <type_traits>
-#include <sqlpp11/vendor/wrap_operand.h>
+#include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
 {
@@ -36,54 +36,71 @@ namespace sqlpp
 	namespace detail\
 	{\
 		template<typename T, typename Enable = void>\
-			struct is_##name##_impl: std::false_type {};\
+		struct is_##name##_impl: std::false_type {};\
 		template<typename T>\
-			struct is_##name##_impl<T, typename std::enable_if<std::is_same<typename T::_value_type::_is_##name, std::true_type>::value>::type>: std::true_type {};\
+		struct is_##name##_impl<T, typename std::enable_if<std::is_same<typename T::_value_type::_is_##name, std::true_type>::value>::type>: std::true_type {};\
 	}\
+	namespace tag\
+	{\
+		struct name{};\
+	};\
 	template<typename T>\
-		struct is_##name##_t: detail::is_##name##_impl<T> {};
+	using is_##name##_t = detail::is_element_of<tag::name, typename T::_traits::_tags>;
 
 #define SQLPP_IS_COLUMN_TRAIT_GENERATOR(name) \
 	namespace detail\
 	{\
 		template<typename T, typename Enable = void>\
-			struct name##_impl { using type = std::false_type; };\
+		struct name##_impl { using type = std::false_type; };\
 		template<typename T>\
-			struct name##_impl<T, typename std::enable_if<std::is_same<typename T::_column_type::_##name, std::true_type>::value>::type> { using type = std::true_type; };\
+		struct name##_impl<T, typename std::enable_if<std::is_same<typename T::_column_type::_##name, std::true_type>::value>::type> { using type = std::true_type; };\
 	}\
 	template<typename T>\
-		using name##_t = typename detail::name##_impl<T>::type;
+	using name##_t = typename detail::name##_impl<T>::type;
 
 #define SQLPP_TYPE_TRAIT_GENERATOR(name) \
 	namespace detail\
 	{\
 		template<typename T, typename Enable = void>\
-			struct name##_impl: std::false_type {};\
+		struct name##_impl: std::false_type {};\
 		template<typename T>\
-			struct name##_impl<T, typename std::enable_if<std::is_same<typename T::_##name, std::true_type>::value>::type>: std::true_type {};\
+		struct name##_impl<T, typename std::enable_if<std::is_same<typename T::_##name, std::true_type>::value>::type>: std::true_type {};\
 	}\
 	template<typename T>\
-		struct name##_t: detail::name##_impl<T> {};
+	struct name##_t: detail::name##_impl<T> {};
 
 #define SQLPP_CONNECTOR_TRAIT_GENERATOR(name) \
 	namespace detail\
 	{\
 		template<typename T, typename Enable = void>\
-			struct connector_##name##_impl: std::false_type {};\
+		struct connector_##name##_impl: std::false_type {};\
 		template<typename T>\
-			struct connector_##name##_impl<T, typename std::enable_if<std::is_same<typename T::_tags::_##name, std::true_type>::value>::type>: std::true_type {};\
+		struct connector_##name##_impl<T, typename std::enable_if<std::is_same<typename T::_tags::_##name, std::true_type>::value>::type>: std::true_type {};\
 	}\
 	template<typename T>\
-		struct connector_##name##_t: detail::connector_##name##_impl<T> {};
+	struct connector_##name##_t: detail::connector_##name##_impl<T> {};
 
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(boolean);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(numeric);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(integral);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(floating_point);
+	template<typename T>
+		using is_numeric_t = detail::any_t<
+		detail::is_element_of<tag::integral, typename T::_traits::_tags>::value,
+		detail::is_element_of<tag::floating_point, typename T::_traits::_tags>::value>;
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(text);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(value);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(wrapped_value);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(expression);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(named_expression);
+	namespace tag
+	{
+		template<typename C>
+			using named_expression_if = typename std::conditional<C::value, tag::named_expression, void>::type;
+	}
+	namespace tag
+	{
+		template<typename C>
+			using expression_if = typename std::conditional<C::value, tag::expression, void>::type;
+	}
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(multi_expression);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(alias);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(select_flag);
@@ -94,41 +111,130 @@ namespace sqlpp
 	SQLPP_IS_COLUMN_TRAIT_GENERATOR(can_be_null);
 	SQLPP_IS_COLUMN_TRAIT_GENERATOR(trivial_value_is_null);
 
-	SQLPP_TYPE_TRAIT_GENERATOR(is_noop);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_table);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_join);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_pseudo_table);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_column);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_select);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_select_flag_list);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_select_column_list);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_from);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_on);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_dynamic);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_where);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_group_by);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_having);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_order_by);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_limit);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_offset);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_using);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_column_list);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_multi_column);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_value_list);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_assignment);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_update_list);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_insert_list);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_insert_value);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_insert_value_list);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_sort_order);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(noop);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(missing);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(return_value);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(table);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(join);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(pseudo_table);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(column);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(select);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(select_flag_list);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(select_column_list);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(from);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(single_table);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(into);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(extra_tables);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(on);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(where);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(group_by);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(having);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(order_by);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(limit);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(offset);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(using_);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(column_list);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(multi_column);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(value_list);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(assignment);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(update_list);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(insert_list);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(insert_value);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(insert_value_list);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(sort_order);
+	SQLPP_IS_VALUE_TRAIT_GENERATOR(parameter);
+
 	SQLPP_TYPE_TRAIT_GENERATOR(requires_braces);
-	SQLPP_TYPE_TRAIT_GENERATOR(is_parameter);
 
 	SQLPP_CONNECTOR_TRAIT_GENERATOR(null_result_is_trivial_value);
 	SQLPP_CONNECTOR_TRAIT_GENERATOR(assert_result_validity);
 
+	template<typename Database>
+		using is_database = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
+
 	template<typename T, template<typename> class IsTag>
 		using copy_type_trait = typename std::conditional<IsTag<T>::value, std::true_type, std::false_type>::type;
+
+	namespace detail
+	{
+		template<typename T>
+			struct value_type_of_impl
+			{
+				using type = typename T::_traits::_value_type;
+			};
+
+		template<typename T>
+			struct required_table_of_impl
+			{
+				using type = typename T::_recursive_traits::_required_tables;
+			};
+
+		template<typename T>
+			struct provided_table_of_impl
+			{
+				using type = typename T::_recursive_traits::_provided_tables;
+			};
+
+		template<typename T>
+			struct extra_table_of_impl
+			{
+				using type = typename T::_recursive_traits::_extra_tables;
+			};
+
+		template<typename T>
+			struct parameters_of_impl
+			{
+				using type = typename T::_recursive_traits::_parameters;
+			};
+
+		template<typename T>
+			struct name_of_impl
+			{
+				using type = typename T::_name_t;
+			};
+
+		template<typename... T>
+			struct make_parameter_tuple_impl
+			{
+				using type = decltype(std::tuple_cat(std::declval<T>()...));
+			};
+
+		template<typename... T>
+			using make_parameter_tuple_t = typename make_parameter_tuple_impl<T...>::type;
+	}
+	template<typename T>
+		using value_type_of = typename detail::value_type_of_impl<T>::type;
+
+	template<typename T>
+		using required_tables_of = typename detail::required_table_of_impl<T>::type;
+
+	template<typename T>
+		using provided_tables_of = typename detail::provided_table_of_impl<T>::type;
+
+	template<typename T>
+		using extra_tables_of = typename detail::extra_table_of_impl<T>::type;
+
+	template<typename T>
+		using parameters_of = typename detail::parameters_of_impl<T>::type;
+
+	template<typename T>
+		using name_of = typename detail::name_of_impl<T>::type;
+
+	template<typename ValueType, typename... Tags>
+		struct make_traits
+		{
+			using _value_type = ValueType;
+			using _tags = detail::make_type_set_t<typename ValueType::_tag, Tags...>;
+		};
+	template<typename... Arguments>
+		struct make_recursive_traits
+		{
+			using _required_tables = detail::make_joined_set_t<required_tables_of<Arguments>...>;
+			using _provided_tables = detail::make_joined_set_t<provided_tables_of<Arguments>...>;
+			using _extra_tables = detail::make_joined_set_t<extra_tables_of<Arguments>...>;
+			using _parameters = detail::make_parameter_tuple_t<parameters_of<Arguments>...>;
+		};
+
 }
 
 #endif

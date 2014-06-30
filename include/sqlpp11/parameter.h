@@ -34,16 +34,18 @@
 namespace sqlpp
 {
 	template<typename ValueType, typename NameType>
-	struct parameter_t: public ValueType::template expression_operators<parameter_t<ValueType, NameType>>
+		struct parameter_t: public ValueType::template expression_operators<parameter_t<ValueType, NameType>>
 	{
-		struct _value_type: public ValueType
+		using _traits = make_traits<ValueType, tag::parameter, tag::expression>;
+		struct _recursive_traits
 		{
-			using _is_expression = std::true_type;
-			using _is_alias = std::false_type;
+			using _parameters = std::tuple<parameter_t>;
+			using _provided_tables = detail::type_set<>;
+			using _required_tables = detail::type_set<>;
+			using _extra_tables = detail::type_set<>;
 		};
-		using _is_parameter = std::true_type;
+
 		using _instance_t = typename NameType::_name_t::template _member_t<typename ValueType::_parameter_t>;
-		using _table_set = sqlpp::detail::type_set<>;
 
 		parameter_t()
 		{}
@@ -55,24 +57,21 @@ namespace sqlpp
 		~parameter_t() = default;
 	};
 
-	namespace vendor
-	{
-		template<typename Context, typename ValueType, typename NameType>
-			struct serializer_t<Context, parameter_t<ValueType, NameType>>
-			{
-				using T = parameter_t<ValueType, NameType>;
+	template<typename Context, typename ValueType, typename NameType>
+		struct serializer_t<Context, parameter_t<ValueType, NameType>>
+		{
+			using T = parameter_t<ValueType, NameType>;
 
-				static Context& _(const T& t, Context& context)
-				{
-					context << "?";
-					return context;
-				}
-			};
-	}
+			static Context& _(const T& t, Context& context)
+			{
+				context << "?";
+				return context;
+			}
+		};
 
 	template<typename NamedExpr>
 		auto parameter(const NamedExpr&)
-		-> parameter_t<typename NamedExpr::_value_type, NamedExpr>
+		-> parameter_t<value_type_of<NamedExpr>, NamedExpr>
 		{
 			static_assert(is_named_expression_t<NamedExpr>::value, "not a named expression");
 			return {};
@@ -80,9 +79,9 @@ namespace sqlpp
 
 	template<typename ValueType, typename AliasProvider>
 		auto parameter(const ValueType&, const AliasProvider&)
-		-> parameter_t<ValueType, AliasProvider>
+		-> parameter_t<wrap_operand_t<ValueType>, AliasProvider>
 		{
-			static_assert(is_value_t<ValueType>::value, "first argument is not a value type");
+			static_assert(is_expression_t<ValueType>::value, "first argument is not a value type");
 			static_assert(is_alias_provider_t<AliasProvider>::value, "second argument is not an alias provider");
 			return {};
 		}

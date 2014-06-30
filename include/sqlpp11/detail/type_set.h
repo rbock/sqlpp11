@@ -29,7 +29,7 @@
 
 #include <tuple>
 #include <type_traits>
-#include <sqlpp11/vendor/wrong.h>
+#include <sqlpp11/wrong.h>
 #include <sqlpp11/detail/logic.h>
 
 namespace sqlpp
@@ -73,7 +73,7 @@ namespace sqlpp
 		template<typename E, typename SET>
 			struct is_element_of
 			{
-				static_assert(::sqlpp::vendor::wrong_t<E, SET>::value, "SET has to be a type set");
+				static_assert(::sqlpp::wrong_t<E, SET>::value, "SET has to be a type set");
 			};
 
 		template<typename E, typename... Elements>
@@ -85,7 +85,7 @@ namespace sqlpp
 		template<typename L, typename R>
 			struct joined_set
 			{
-				static_assert(::sqlpp::vendor::wrong_t<L, R>::value, "L and R have to be type sets");
+				static_assert(::sqlpp::wrong_t<L, R>::value, "L and R have to be type sets");
 			};
 
 		template<typename... LElements, typename... RElements>
@@ -100,7 +100,7 @@ namespace sqlpp
 		template<typename L, typename R>
 			struct is_superset_of
 			{
-				static_assert(::sqlpp::vendor::wrong_t<L, R>::value, "L and R have to be type sets");
+				static_assert(::sqlpp::wrong_t<L, R>::value, "L and R have to be type sets");
 			};
 
 		template<typename... LElements, typename... RElements>
@@ -118,7 +118,7 @@ namespace sqlpp
 		template<typename L, typename R>
 			struct is_disjunct_from
 			{
-				static_assert(::sqlpp::vendor::wrong_t<L, R>::value, "invalid argument for is_disjunct_from");
+				static_assert(::sqlpp::wrong_t<L, R>::value, "invalid argument for is_disjunct_from");
 			};
 
 		template<typename... LElements, typename... RElements>
@@ -158,6 +158,9 @@ namespace sqlpp
 			};
 
 		template<template<typename> class Predicate, typename... T>
+			using make_type_set_if_t = typename make_type_set_if<Predicate, T...>::type;
+
+		template<template<typename> class Predicate, typename... T>
 			struct make_type_set_if_not
 			{
 				template<typename X>
@@ -171,7 +174,7 @@ namespace sqlpp
 		template<typename... T>
 			struct make_joined_set
 			{
-				static_assert(::sqlpp::vendor::wrong_t<T...>::value, "invalid argument for joined set");
+				static_assert(::sqlpp::wrong_t<T...>::value, "invalid argument for joined set");
 			};
 
 		template<>
@@ -194,7 +197,7 @@ namespace sqlpp
 		template<typename Minuend, typename Subtrahend>
 			struct make_difference_set
 			{
-				static_assert(::sqlpp::vendor::wrong_t<Minuend, Subtrahend>::value, "invalid argument for difference set");
+				static_assert(::sqlpp::wrong_t<Minuend, Subtrahend>::value, "invalid argument for difference set");
 			};
 
 		template<typename... Minuends, typename... Subtrahends>
@@ -207,6 +210,24 @@ namespace sqlpp
 
 		template<typename Minuend, typename Subtrahend>
 			using make_difference_set_t = typename make_difference_set<Minuend, Subtrahend>::type;
+
+
+		template<template<typename> class Transformation, typename T>
+			struct transform_set
+			{
+				static_assert(::sqlpp::wrong_t<T>::value, "invalid argument for transform_set");
+			};
+
+		template<template<typename> class Transformation, typename... E>
+			struct transform_set<Transformation, type_set<E...>>
+			{
+				using type = typename make_type_set<Transformation<E>...>::type;
+			};
+
+		template<template<typename> class Transformation, typename T>
+			using transform_set_t = typename transform_set<Transformation, T>::type;
+
+
 
 	}
 }

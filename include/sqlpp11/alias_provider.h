@@ -31,20 +31,20 @@
 
 #define SQLPP_ALIAS_PROVIDER(name) \
 	struct name##_t\
+{\
+	struct _name_t\
 	{\
-		struct _name_t\
+		static constexpr const char* _get_name() { return #name; }\
+		template<typename T>\
+		struct _member_t\
 		{\
-			static constexpr const char* _get_name() { return #name; }\
-			template<typename T>\
-			struct _member_t\
-			{\
-				T name;\
-				T& operator()() { return name; }\
-				const T& operator()() const { return name; }\
-			};\
+			T name;\
+			T& operator()() { return name; }\
+			const T& operator()() const { return name; }\
 		};\
 	};\
-	constexpr name##_t name = {};
+};\
+constexpr name##_t name = {};
 
 namespace sqlpp
 {

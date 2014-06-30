@@ -43,7 +43,7 @@ struct MockDb: public sqlpp::connection
 
 		void reset()
 		{
-			_os.clear();
+			_os.str("");
 		}
 
 		template<typename T>
@@ -85,7 +85,7 @@ struct MockDb: public sqlpp::connection
 		template<typename ResultRow>
 			void next(ResultRow& result_row)
 			{
-				result_row.invalidate();
+				result_row._invalidate();
 			};
 	};
 

@@ -28,7 +28,8 @@
 #define SQLPP_PARAMETER_LIST_H
 
 #include <tuple>
-#include <sqlpp11/vendor/wrong.h>
+#include <sqlpp11/type_traits.h>
+#include <sqlpp11/wrong.h>
 #include <sqlpp11/detail/index_sequence.h>
 
 namespace sqlpp
@@ -36,7 +37,7 @@ namespace sqlpp
 	template<typename T>
 		struct parameter_list_t
 		{
-			static_assert(vendor::wrong_t<T>::value, "Template parameter for parameter_list_t has to be a tuple");
+			static_assert(wrong_t<T>::value, "Template parameter for parameter_list_t has to be a tuple");
 		};
 
 	template<typename... Parameter>
@@ -63,40 +64,8 @@ namespace sqlpp
 				}
 		};
 
-	namespace detail
-	{
-		template<typename Exp, typename Enable = void>
-			struct get_parameter_tuple
-			{
-				using type = std::tuple<>;
-			};
-
-		template<typename Exp>
-			struct get_parameter_tuple<Exp, typename std::enable_if<is_parameter_t<Exp>::value, void>::type>
-			{
-				using type = std::tuple<Exp>;
-			};
-
-		template<typename... Param>
-			struct get_parameter_tuple<std::tuple<Param...>, void>
-			{
-				// cat together parameter tuples
-				using type = decltype(std::tuple_cat(std::declval<typename get_parameter_tuple<Param>::type>()...));
-			};
-
-		template<typename Exp>
-			struct get_parameter_tuple<Exp, typename std::enable_if<not std::is_same<typename Exp::_parameter_tuple_t, void>::value, void>::type>
-			{
-				using type = typename get_parameter_tuple<typename Exp::_parameter_tuple_t>::type;
-			};
-
-	}
-
 	template<typename Exp>
-		struct make_parameter_list_t
-		{
-			using type = parameter_list_t<typename detail::get_parameter_tuple<Exp>::type>;
-		};
+		using make_parameter_list_t = parameter_list_t<parameters_of<Exp>>;
 
 }
 

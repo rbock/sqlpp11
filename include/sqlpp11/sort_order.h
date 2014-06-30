@@ -28,6 +28,7 @@
 #define SQLPP_SORT_ORDER_H
 
 #include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/no_value.h>
 
 namespace sqlpp
 {
@@ -40,36 +41,33 @@ namespace sqlpp
 	template<typename Expression, sort_type SortType>
 		struct sort_order_t
 		{
-			using _is_sort_order = std::true_type;
-			using _table_set = typename Expression::_table_set;
+			using _traits = make_traits<no_value_t,  tag::sort_order, sqlpp::tag::expression>;
+			using _recursive_traits = make_recursive_traits<Expression>;
 
 			Expression _expression;
 		};
 
-	namespace vendor
-	{
-		template<typename Context, typename Expression, sort_type SortType>
-			struct serializer_t<Context, sort_order_t<Expression, SortType>>
+	template<typename Context, typename Expression, sort_type SortType>
+		struct serializer_t<Context, sort_order_t<Expression, SortType>>
+		{
+			using T = sort_order_t<Expression, SortType>;
+
+			static Context& _(const T& t, Context& context)
 			{
-				using T = sort_order_t<Expression, SortType>;
-
-				static Context& _(const T& t, Context& context)
+				serialize(t._expression, context);
+				switch(SortType)
 				{
-					serialize(t._expression, context);
-					switch(SortType)
-					{
-					case sort_type::asc:
-						context << " ASC";
-						break;
-					default:
-						context << " DESC";
-						break;
-					}
-					return context;
+				case sort_type::asc:
+					context << " ASC";
+					break;
+				default:
+					context << " DESC";
+					break;
 				}
-			};
+				return context;
+			}
+		};
 
-	}
 }
 
 #endif

@@ -31,67 +31,58 @@
 
 namespace sqlpp
 {
-	namespace vendor
+	template<typename Expr>
+		struct min_t: public value_type_of<Expr>::template expression_operators<min_t<Expr>>,
+		public alias_operators<min_t<Expr>>
 	{
-		template<typename Expr>
-		struct min_t: public Expr::_value_type::template expression_operators<min_t<Expr>>
+		using _traits = make_traits<value_type_of<Expr>, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
+		using _recursive_traits = make_recursive_traits<Expr>;
+
+		static_assert(is_expression_t<Expr>::value, "min() requires a value expression as argument");
+
+		struct _name_t
 		{
-			static_assert(is_value_t<Expr>::value, "min() requires a value expression as argument");
-
-			struct _value_type: public Expr::_value_type::_base_value_type
-			{
-				using _is_named_expression = std::true_type;
-			};
-
-			using _table_set = typename Expr::_table_set;
-
-			struct _name_t
-			{
-				static constexpr const char* _get_name() { return "MIN"; }
-				template<typename T>
-					struct _member_t
-					{
-						T min;
-						T& operator()() { return min; }
-						const T& operator()() const { return min; }
-					};
-			};
-
-			min_t(Expr expr):
-				_expr(expr)
-			{}
-
-			min_t(const min_t&) = default;
-			min_t(min_t&&) = default;
-			min_t& operator=(const min_t&) = default;
-			min_t& operator=(min_t&&) = default;
-			~min_t() = default;
-
-			Expr _expr;
-		};
-	}
-
-	namespace vendor
-	{
-		template<typename Context, typename Expr>
-			struct serializer_t<Context, vendor::min_t<Expr>>
-			{
-				using T = vendor::min_t<Expr>;
-
-				static Context& _(const T& t, Context& context)
+			static constexpr const char* _get_name() { return "MIN"; }
+			template<typename T>
+				struct _member_t
 				{
-					context << "MIN(";
-					serialize(t._expr, context);
-					context << ")";
-					return context;
-				}
-			};
-	}
+					T min;
+					T& operator()() { return min; }
+					const T& operator()() const { return min; }
+				};
+		};
+
+		min_t(Expr expr):
+			_expr(expr)
+		{}
+
+		min_t(const min_t&) = default;
+		min_t(min_t&&) = default;
+		min_t& operator=(const min_t&) = default;
+		min_t& operator=(min_t&&) = default;
+		~min_t() = default;
+
+		Expr _expr;
+	};
+
+	template<typename Context, typename Expr>
+		struct serializer_t<Context, min_t<Expr>>
+		{
+			using T = min_t<Expr>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				context << "MIN(";
+				serialize(t._expr, context);
+				context << ")";
+				return context;
+			}
+		};
 
 	template<typename T>
-		auto min(T t) -> typename vendor::min_t<vendor::wrap_operand_t<T>>
+		auto min(T t) -> min_t<wrap_operand_t<T>>
 		{
-			static_assert(is_value_t<vendor::wrap_operand_t<T>>::value, "min() requires a value expression as argument");
+			static_assert(is_expression_t<wrap_operand_t<T>>::value, "min() requires a value expression as argument");
 			return { t };
 		}
 

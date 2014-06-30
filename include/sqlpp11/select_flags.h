@@ -29,7 +29,7 @@
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/detail/type_set.h>
-#include <sqlpp11/vendor/interpret_tuple.h>
+#include <sqlpp11/interpret_tuple.h>
 #include <tuple>
 
 namespace sqlpp
@@ -37,72 +37,54 @@ namespace sqlpp
 	// standard select flags
 	struct all_t
 	{
-		struct _value_type 
-		{ 
-			using _is_select_flag = std::true_type; 
-		};
-		using _table_set = detail::type_set<>;
+		using _traits = make_traits<no_value_t, tag::select_flag>;
+		using _recursive_traits = make_recursive_traits<>;
 	};
 	static constexpr all_t all = {};
 
-	namespace vendor
-	{
-		template<typename Context>
-			struct serializer_t<Context, all_t>
+	template<typename Context>
+		struct serializer_t<Context, all_t>
+		{
+			static Context& _(const all_t&, Context& context)
 			{
-				static Context& _(const all_t&, Context& context)
-				{
-					context << "ALL";
-					return context;
-				}
-			};
-	}
+				context << "ALL";
+				return context;
+			}
+		};
 
 	struct distinct_t
 	{
-		struct _value_type 
-		{ 
-			using _is_select_flag = std::true_type; 
-		};
-		using _table_set = detail::type_set<>;
+		using _traits = make_traits<no_value_t, tag::select_flag>;
+		using _recursive_traits = make_recursive_traits<>;
 	};
 	static constexpr distinct_t distinct = {};
 
-	namespace vendor
-	{
-		template<typename Context>
-			struct serializer_t<Context, distinct_t>
+	template<typename Context>
+		struct serializer_t<Context, distinct_t>
+		{
+			static Context& _(const distinct_t&, Context& context)
 			{
-				static Context& _(const distinct_t&, Context& context)
-				{
-					context << "DISTINCT";
-					return context;
-				}
-			};
-	}
+				context << "DISTINCT";
+				return context;
+			}
+		};
 
 	struct straight_join_t
 	{
-		struct _value_type 
-		{ 
-			using _is_select_flag = std::true_type; 
-		};
-		using _table_set = detail::type_set<>;
+		using _traits = make_traits<no_value_t, tag::select_flag>;
+		using _recursive_traits = make_recursive_traits<>;
 	};
 	static constexpr straight_join_t straight_join = {};
 
-	namespace vendor
-	{
-		template<typename Context>
-			struct serializer_t<Context, straight_join_t>
+	template<typename Context>
+		struct serializer_t<Context, straight_join_t>
+		{
+			static Context& _(const straight_join_t&, Context& context)
 			{
-				static Context& _(const straight_join_t&, Context& context)
-				{
-					context << "STRAIGHT_JOIN";
-					return context;
-				}
-			};
-	}
+				context << "STRAIGHT_JOIN";
+				return context;
+			}
+		};
 
 }
 

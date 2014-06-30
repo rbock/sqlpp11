@@ -31,8 +31,8 @@
 #include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/exception.h>
-#include <sqlpp11/vendor/concat.h>
-#include <sqlpp11/vendor/like.h>
+#include <sqlpp11/concat.h>
+#include <sqlpp11/like.h>
 
 namespace sqlpp
 {
@@ -41,11 +41,7 @@ namespace sqlpp
 		// text value type
 		struct text
 		{
-			using _value_type = text;
-			using _base_value_type = text;
-			using _is_text = std::true_type;
-			using _is_value = std::true_type;
-			using _is_expression = std::true_type;
+			using _tag = ::sqlpp::tag::text;
 			using _cpp_value_type = std::string;
 
 			struct _parameter_t
@@ -55,12 +51,12 @@ namespace sqlpp
 				_parameter_t():
 					_value(""),
 					_is_null(true)
-					{}
+				{}
 
 				_parameter_t(const _cpp_value_type& value):
 					_value(value),
 					_is_null(false)
-					{}
+				{}
 
 				_parameter_t& operator=(const _cpp_value_type& value)
 				{
@@ -77,7 +73,7 @@ namespace sqlpp
 				}
 
 				bool is_null() const
-			 	{ 
+				{ 
 					return _is_null; 
 				}
 
@@ -100,111 +96,98 @@ namespace sqlpp
 			};
 
 			template<typename Db, bool NullIsTrivial = false>
-			struct _result_entry_t
-			{
-				_result_entry_t():
-					_is_valid(false),
-					_value_ptr(nullptr),
-					_len(0)
+				struct _result_entry_t
+				{
+					_result_entry_t():
+						_is_valid(false),
+						_value_ptr(nullptr),
+						_len(0)
 					{}
 
-				_result_entry_t(char* data, size_t len):
-					_is_valid(true),
-					_value_ptr(data),
-					_len(_value_ptr ? 0 : len)
-					{}
-
-				void assign(const char* data, size_t len)
-				{
-					_is_valid = true;
-					_value_ptr = data;
-					_len = _value_ptr ? len: 0;
-				}
-
-				void validate()
-				{
-					_is_valid = true;
-				}
-
-				void invalidate()
-				{
-					_is_valid = false;
-					_value_ptr = nullptr;
-					_len = 0;
-				}
-
-				bool operator==(const _cpp_value_type& rhs) const { return value() == rhs; }
-				bool operator!=(const _cpp_value_type& rhs) const { return not operator==(rhs); }
-
-				bool is_null() const
-			 	{ 
-					if (connector_assert_result_validity_t<Db>::value)
-						assert(_is_valid);
-					else if (not _is_valid)
-						throw exception("accessing is_null in non-existing row");
-					return _value_ptr == nullptr; 
-				}
-
-				_cpp_value_type value() const
-				{
-					const bool null_value = _value_ptr == nullptr and not NullIsTrivial and not connector_null_result_is_trivial_value_t<Db>::value;
-					if (connector_assert_result_validity_t<Db>::value)
+					void _validate()
 					{
-						assert(_is_valid);
-						assert(not null_value);
-					}
-					else
-					{
-						if (not _is_valid)
-							throw exception("accessing value in non-existing row");
-						if (null_value)
-							throw exception("accessing value of NULL field");
-					}
-					if (_value_ptr) 
-						return std::string(_value_ptr, _value_ptr + _len);
-					else
-						return "";
-				}
-
-				operator _cpp_value_type() const { return value(); }
-
-				template<typename Target>
-					void _bind(Target& target, size_t i)
-					{
-						target._bind_text_result(i, &_value_ptr, &_len);
+						_is_valid = true;
 					}
 
-			private:
-				bool _is_valid;
-				const char* _value_ptr;
-				size_t _len;
-			};
+					void _invalidate()
+					{
+						_is_valid = false;
+						_value_ptr = nullptr;
+						_len = 0;
+					}
+
+					bool operator==(const _cpp_value_type& rhs) const { return value() == rhs; }
+					bool operator!=(const _cpp_value_type& rhs) const { return not operator==(rhs); }
+
+					bool is_null() const
+					{ 
+						if (connector_assert_result_validity_t<Db>::value)
+							assert(_is_valid);
+						else if (not _is_valid)
+							throw exception("accessing is_null in non-existing row");
+						return _value_ptr == nullptr; 
+					}
+
+					_cpp_value_type value() const
+					{
+						const bool null_value = _value_ptr == nullptr and not NullIsTrivial and not connector_null_result_is_trivial_value_t<Db>::value;
+						if (connector_assert_result_validity_t<Db>::value)
+						{
+							assert(_is_valid);
+							assert(not null_value);
+						}
+						else
+						{
+							if (not _is_valid)
+								throw exception("accessing value in non-existing row");
+							if (null_value)
+								throw exception("accessing value of NULL field");
+						}
+						if (_value_ptr) 
+							return std::string(_value_ptr, _value_ptr + _len);
+						else
+							return "";
+					}
+
+					operator _cpp_value_type() const { return value(); }
+
+					template<typename Target>
+						void _bind(Target& target, size_t i)
+						{
+							target._bind_text_result(i, &_value_ptr, &_len);
+						}
+
+				private:
+					bool _is_valid;
+					const char* _value_ptr;
+					size_t _len;
+				};
 
 			template<typename T>
 				struct _is_valid_operand
-			{
-				static constexpr bool value = 
-					is_expression_t<T>::value // expressions are OK
-					and is_text_t<T>::value // the correct value type is required, of course
-					;
-			};
+				{
+					static constexpr bool value = 
+						is_expression_t<T>::value // expressions are OK
+						and is_text_t<T>::value // the correct value type is required, of course
+						;
+				};
 
 			template<typename Base>
 				struct expression_operators: public basic_expression_operators<Base, is_text_t>
 			{
 				template<typename T>
-					vendor::concat_t<Base, vendor::wrap_operand_t<T>> operator+(T t) const
+					concat_t<Base, wrap_operand_t<T>> operator+(T t) const
 					{
-						using rhs = vendor::wrap_operand_t<T>;
+						using rhs = wrap_operand_t<T>;
 						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
 
 						return { *static_cast<const Base*>(this), {t} };
 					}
 
 				template<typename T>
-					vendor::like_t<Base, vendor::wrap_operand_t<T>> like(T t) const
+					like_t<Base, wrap_operand_t<T>> like(T t) const
 					{
-						using rhs = vendor::wrap_operand_t<T>;
+						using rhs = wrap_operand_t<T>;
 						static_assert(_is_valid_operand<rhs>::value, "invalid argument for like()");
 
 						return { *static_cast<const Base*>(this), {t} };
@@ -213,23 +196,23 @@ namespace sqlpp
 
 			template<typename Base>
 				struct column_operators
-			{
-				template<typename T>
-					auto operator +=(T t) const -> vendor::assignment_t<Base, vendor::concat_t<Base, vendor::wrap_operand_t<T>>>
-					{
-						using rhs = vendor::wrap_operand_t<T>;
-						static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
+				{
+					template<typename T>
+						auto operator +=(T t) const -> assignment_t<Base, concat_t<Base, wrap_operand_t<T>>>
+						{
+							using rhs = wrap_operand_t<T>;
+							static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
 
-						return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
-					}
-			};
+							return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
+						}
+				};
 		};
 
 		template<typename Db, bool TrivialIsNull>
-		inline std::ostream& operator<<(std::ostream& os, const text::_result_entry_t<Db, TrivialIsNull>& e)
-		{
-			return os << e.value();
-		}
+			inline std::ostream& operator<<(std::ostream& os, const text::_result_entry_t<Db, TrivialIsNull>& e)
+			{
+				return os << e.value();
+			}
 	}
 
 	using text = detail::text;

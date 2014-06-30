@@ -49,7 +49,7 @@ namespace sqlpp
 			};
 
 		template<std::size_t LastIndex, std::size_t... Ints, typename AliasProvider, typename... Fields, typename... Rest>
-			struct make_column_index_sequence_impl<column_index_sequence<LastIndex, Ints...>, vendor::multi_field_t<AliasProvider, Fields...>, Rest...>
+			struct make_column_index_sequence_impl<column_index_sequence<LastIndex, Ints...>, multi_field_t<AliasProvider, Fields...>, Rest...>
 			{
 				using type = typename make_column_index_sequence_impl<column_index_sequence<LastIndex + sizeof...(Fields), Ints..., LastIndex + sizeof...(Fields)>, Rest...>::type;
 			};

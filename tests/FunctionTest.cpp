@@ -188,6 +188,8 @@ int main()
 
 	// Test any
 	{
+		using S = decltype(select(t.alpha).from(t));
+		static_assert(sqlpp::is_numeric_t<S>::value, "type requirement");
 		
 		using TI = decltype(any(select(t.alpha).from(t)));
 		using TT = decltype(any(select(t.beta).from(t)));

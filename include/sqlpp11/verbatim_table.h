@@ -49,10 +49,10 @@ namespace sqlpp
 
 	struct verbatim_table_t: public sqlpp::table_t<verbatim_table_t, detail::unusable_pseudo_column_t>
 	{
-		using _value_type = no_value_t;
+		struct _name_t {};
 
-		verbatim_table_t(std::string name):
-			_name(name)
+		verbatim_table_t(std::string representation):
+			_representation(representation)
 		{
 		}
 
@@ -62,23 +62,20 @@ namespace sqlpp
 		verbatim_table_t& operator=(verbatim_table_t&& rhs) = default;
 		~verbatim_table_t() = default;
 
-		std::string _name;
+		std::string _representation;
 	};
 
-	namespace vendor
-	{
-		template<typename Context>
-			struct serializer_t<Context, verbatim_table_t>
-			{
-				using T = verbatim_table_t;
+	template<typename Context>
+		struct serializer_t<Context, verbatim_table_t>
+		{
+			using T = verbatim_table_t;
 
-				static Context& _(const T& t, Context& context)
-				{
-					context << t._name;
-					return context;
-				}
-			};
-	}
+			static Context& _(const T& t, Context& context)
+			{
+				context << t._representation;
+				return context;
+			}
+		};
 
 
 	verbatim_table_t verbatim_table(std::string name)

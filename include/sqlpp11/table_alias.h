@@ -35,21 +35,21 @@
 
 namespace sqlpp
 {
-	struct table_alias_base_t {};
-
 	template<typename AliasProvider, typename Table, typename... ColumnSpec>
-		struct table_alias_t: public table_alias_base_t, public ColumnSpec::_name_t::template _member_t<column_t<AliasProvider, ColumnSpec>>...
+		struct table_alias_t: public ColumnSpec::_name_t::template _member_t<column_t<AliasProvider, ColumnSpec>>...
 	{
 		//FIXME: Need to add join functionality
-		using _is_table = std::true_type;
-		using _table_set = detail::type_set<AliasProvider>;
+		using _traits = make_traits<value_type_of<Table>, tag::table, tag::alias, tag::named_expression_if<is_expression_t<Table>>>;
 
-		struct _value_type: Table::_value_type
+		struct _recursive_traits
 		{
-			using _is_expression = std::false_type;
-			using _is_named_expression = copy_type_trait<Table, is_value_t>;
-			using _is_alias = std::true_type;
+			using _parameters = std::tuple<>;
+			using _required_tables = detail::type_set<>;
+			using _provided_tables = detail::type_set<AliasProvider>;
+			using _extra_tables = detail::type_set<>;
 		};
+
+		static_assert(required_tables_of<Table>::size::value == 0, "table aliases must not depend on external tables");
 
 		using _name_t = typename AliasProvider::_name_t;
 		using _column_tuple_t = std::tuple<column_t<Table, ColumnSpec>...>;
@@ -61,23 +61,20 @@ namespace sqlpp
 		Table _table;
 	};
 
-	namespace vendor
-	{
-		template<typename Context, typename X>
-			struct serializer_t<Context, X, typename std::enable_if<std::is_base_of<table_alias_base_t, X>::value, void>::type>
+	template<typename Context, typename AliasProvider, typename Table, typename... ColumnSpec>
+		struct serializer_t<Context, table_alias_t<AliasProvider, Table, ColumnSpec...>>
+		{
+			using T = table_alias_t<AliasProvider, Table, ColumnSpec...>;
+
+			static Context& _(const T& t, Context& context)
 			{
-				using T = X;
+				context << "(";
+				serialize(t._table, context);
+				context << ") AS " << T::_name_t::_get_name();
+				return context;
+			}
+		};
 
-				static Context& _(const T& t, Context& context)
-				{
-					context << "(";
-					serialize(t._table, context);
-					context << ") AS " << T::_name_t::_get_name();
-					return context;
-				}
-			};
-
-	}
 }
 
 #endif

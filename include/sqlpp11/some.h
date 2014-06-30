@@ -32,16 +32,11 @@
 
 namespace sqlpp
 {
-	namespace vendor
-	{
-		template<typename Select>
+	template<typename Select>
 		struct some_t
 		{
-			struct _value_type: public Select::_value_type::_base_value_type
-			{
-				using _is_expression = std::false_type;
-				using _is_multi_expression = std::true_type; // must not be named or used with +,-,*,/, etc
-			};
+			using _traits = make_traits<value_type_of<Select>, ::sqlpp::tag::multi_expression>;
+			using _recursive_traits = make_recursive_traits<Select>;
 
 			struct _name_t
 			{
@@ -54,7 +49,6 @@ namespace sqlpp
 						const T& operator()() const { return some; }
 					};
 			};
-			using _table_set = typename Select::_table_set;
 
 			some_t(Select select):
 				_select(select)
@@ -68,30 +62,26 @@ namespace sqlpp
 
 			Select _select;
 		};
-	}
 
-	namespace vendor
-	{
-		template<typename Context, typename Select>
-			struct serializer_t<Context, vendor::some_t<Select>>
+	template<typename Context, typename Select>
+		struct serializer_t<Context, some_t<Select>>
+		{
+			using T = some_t<Select>;
+
+			static Context& _(const T& t, Context& context)
 			{
-				using T = vendor::some_t<Select>;
-
-				static Context& _(const T& t, Context& context)
-				{
-					context << "SOME(";
-					serialize(t._select, context);
-					context << ")";
-					return context;
-				}
-			};
-	}
+				context << "SOME(";
+				serialize(t._select, context);
+				context << ")";
+				return context;
+			}
+		};
 
 	template<typename T>
-		auto some(T t) -> typename vendor::some_t<vendor::wrap_operand_t<T>>
+		auto some(T t) -> some_t<wrap_operand_t<T>>
 		{
-			static_assert(is_select_t<vendor::wrap_operand_t<T>>::value, "some() requires a single column select expression as argument");
-			static_assert(is_value_t<vendor::wrap_operand_t<T>>::value, "some() requires a single column select expression as argument");
+			static_assert(is_select_t<wrap_operand_t<T>>::value, "some() requires a single column select expression as argument");
+			static_assert(is_expression_t<wrap_operand_t<T>>::value, "some() requires a single column select expression as argument");
 			return { t };
 		}
 

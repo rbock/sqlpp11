@@ -33,33 +33,34 @@
 #include <sqlpp11/null.h>
 #include <sqlpp11/sort_order.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/vendor/assignment.h>
-#include <sqlpp11/vendor/expression.h>
-#include <sqlpp11/vendor/serializer.h>
-#include <sqlpp11/vendor/wrong.h>
+#include <sqlpp11/assignment.h>
+#include <sqlpp11/expression.h>
+#include <sqlpp11/serializer.h>
+#include <sqlpp11/wrong.h>
 #include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
 {
 	template<typename Table, typename ColumnSpec>
-	struct column_t: public ColumnSpec::_value_type::template expression_operators<column_t<Table, ColumnSpec>>,
-	                 public ColumnSpec::_value_type::template column_operators<column_t<Table, ColumnSpec>>
+		struct column_t: public ColumnSpec::_value_type::template expression_operators<column_t<Table, ColumnSpec>>,
+		public ColumnSpec::_value_type::template column_operators<column_t<Table, ColumnSpec>>
 	{ 
-		using _is_column = std::true_type;
+		using _traits = make_traits<typename ColumnSpec::_value_type, tag::column, tag::expression, tag::named_expression>;
+		struct _recursive_traits
+		{
+			using _parameters = std::tuple<>;
+			using _provided_tables = detail::type_set<>;
+			using _required_tables = detail::type_set<Table>;
+			using _extra_tables = detail::type_set<>;
+		};
+
 		using _spec_t = ColumnSpec;
 		using _table = Table;
-		using _table_set = detail::type_set<_table>;
-		using _column_type = typename ColumnSpec::_column_type;
-		struct _value_type: ColumnSpec::_value_type
-		{
-			using _is_expression = std::true_type;
-			using _is_named_expression = std::true_type;
-			using _is_alias = std::false_type;
-		};
-		template<typename T>
-			using _is_valid_operand = typename _value_type::template _is_valid_operand<T>;
+		using _column_type = typename _spec_t::_column_type;
+		using _name_t = typename _spec_t::_name_t;
 
-		using _name_t = typename ColumnSpec::_name_t;
+		template<typename T>
+			using _is_valid_operand = typename ColumnSpec::_value_type::template _is_valid_operand<T>;
 
 		column_t() = default;
 		column_t(const column_t&) = default;
@@ -80,43 +81,40 @@ namespace sqlpp
 			}
 
 		template<typename T>
-			auto operator =(T t) const -> vendor::assignment_t<column_t, typename vendor::wrap_operand<T>::type>
+			auto operator =(T t) const -> assignment_t<column_t, wrap_operand_t<T>>
 			{
-				using rhs = vendor::wrap_operand_t<T>;
+				using rhs = wrap_operand_t<T>;
 				static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand assignment operand");
 
-				return { *this, {t} };
+				return { *this, rhs{t} };
 			}
 
 		auto operator =(sqlpp::null_t) const
-			->vendor::assignment_t<column_t, sqlpp::null_t>
+			->assignment_t<column_t, sqlpp::null_t>
 			{
 				static_assert(can_be_null_t<column_t>::value, "column cannot be null");
 				return { *this, {} };
 			}
 
 		auto operator =(sqlpp::default_value_t) const
-			->vendor::assignment_t<column_t, sqlpp::default_value_t>
+			->assignment_t<column_t, sqlpp::default_value_t>
 			{
 				return { *this, {} };
 			}
 	};
 
-	namespace vendor
-	{
-		template<typename Context, typename... Args>
-			struct serializer_t<Context, column_t<Args...>>
+	template<typename Context, typename... Args>
+		struct serializer_t<Context, column_t<Args...>>
+		{
+			using T = column_t<Args...>;
+
+			static Context& _(const T& t, Context& context)
 			{
-				using T = column_t<Args...>;
+				context << T::_table::_name_t::_get_name() << '.' << T::_name_t::_get_name();
+				return context;
+			}
+		};
 
-				static Context& _(const T& t, Context& context)
-				{
-					context << T::_table::_name_t::_get_name() << '.' << T::_name_t::_get_name();
-					return context;
-				}
-			};
-
-	}
 }
 
 #endif
