@@ -49,7 +49,7 @@ TabFoo foo;
 Db db(/* some arguments*/);
 
 // selecting zero or more results, iterating over the results
-for (const auto& row : db.run(select(foo.name, foo.hasFun).from(foo).where(foo.id > 17 and foo.name.like("%bar%"))))
+for (const auto& row : db(select(foo.name, foo.hasFun).from(foo).where(foo.id > 17 and foo.name.like("%bar%"))))
 {
     if (row.name.is_null())
         std::cerr << "name is null, will convert to empty string" << std::endl;
@@ -58,32 +58,32 @@ for (const auto& row : db.run(select(foo.name, foo.hasFun).from(foo).where(foo.i
 }
 
 // selecting ALL columns of a table
-for (const auto& row : db.run(select(all_of(foo)).from(foo).where(foo.hasFun or foo.name == "joker")))
+for (const auto& row : db(select(all_of(foo)).from(foo).where(foo.hasFun or foo.name == "joker")))
 {
     int64_t id = row.id; // numeric fields are implicitly convertible to numeric c++ types
 }
 
 // selecting zero or one row, showing off with an alias:
 SQLPP_ALIAS_PROVIDER(cheese);
-if (const auto& row = db.run(select(foo.name.as(cheese)).from(foo).where(foo.id == 17)))
+if (const auto& row = db(select(foo.name.as(cheese)).from(foo).where(foo.id == 17)))
 {
     std::cerr << "found: " << row.cheese << std::endl;
 }
 
 // selecting a single row with a single result:
-return db.run(select(count(foo.id)).from(foo).where(true)).front().count;
+return db(select(count(foo.id)).from(foo).where(true)).front().count;
 
 Of course there are joins and subqueries, more functions, order_by, group_by etc.
 These will be documented soon.
 
 // A sample insert
-db.run(insert_into(foo).set(foo.id = 17, foo.name = "bar", foo.hasFun = true));
+db(insert_into(foo).set(foo.id = 17, foo.name = "bar", foo.hasFun = true));
 
 // A sample update
-db.run(update(foo).set(foo.hasFun = not foo.hasFun).where(foo.name != "nobody"));
+db(update(foo).set(foo.hasFun = not foo.hasFun).where(foo.name != "nobody"));
 
 // A sample delete
-db.run(remove_from(foo).where(not foo.hasFun));
+db(remove_from(foo).where(not foo.hasFun));
 ```
 
 Requirements:
@@ -99,5 +99,5 @@ sqlpp11 requires a certain api in order to connect with the database, see databa
 
   * MySQL: https://github.com/rbock/sqlpp11-connector-mysql
   * Sqlite3: https://github.com/rbock/sqlpp11-connector-sqlite3
-  * PostgreSQL: https://github.com/pbondo/sqlpp11-connector-postgresql
+  * PostgreSQL: https://github.com/matthijs/sqlpp11-connector-postgresql
 
