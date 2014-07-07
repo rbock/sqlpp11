@@ -80,7 +80,9 @@ namespace sqlpp
 			*/
 
 			// These are called by the result row to bind individual result values
+			// More will be added over time
 			void _bind_boolean_result(size_t index, signed char* value, bool* is_null);
+			void _bind_floating_point_result(size_t index, double* value, bool* is_null);
 			void _bind_integral_result(size_t index, int64_t* value, bool* is_null);
 			void _bind_text_result(size_t index, const char** text, size_t* len);
 			...
