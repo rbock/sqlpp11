@@ -52,7 +52,10 @@ namespace sqlpp
 		{
 		public:
 			using _prepared_statement_t = << handle to a prepared statement of the database >>;
-			using _context_t = << This context is used to interpret the dynamic parts of dynamic statemtents>>;
+			using _serializer_context_t = << This context is used to serialize a statement >>
+			using _interpreter_context_t = << This context is used interpret a statement >>;
+			                               // serializer and interpreter are typically the same for string based connectors
+																		 // the types are required for dynamic statement components, see sqlpp11/interpretable.h
 
 			connection(...);
 			~connection();
@@ -63,14 +66,14 @@ namespace sqlpp
 
 			//! "direct" select
 			template<typename Select>
-			<<char_result_t or bind_result_t>> select(const Select& s);
+			<<bind_result_t>> select(const Select& s);
 
 			//! prepared select
 			template<typename Select>
 			_prepared_statement_t prepare_select(Select& s);
 
 			template<typename PreparedSelect>
-			<<char_result_t or bind_result_t>> run_prepared_select(const PreparedSelect& s); // call s._bind_params()
+			<<bind_result_t>> run_prepared_select(const PreparedSelect& s); // call s._bind_params()
 
 			//! "direct insert
 			template<typename Insert>
@@ -107,7 +110,7 @@ namespace sqlpp
 
 			//! call run on the argument
 			template<typename T>
-				auto run(const T& t) -> decltype(t._run(*this))
+				auto operator() (const T& t) -> decltype(t._run(*this))
 				{
 					return t._run(*this);
 				}
