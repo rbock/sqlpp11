@@ -107,4 +107,3 @@ sqlpp11 requires a certain api in order to connect with the database, see databa
 To demonstrate that sqlpp11 can work with other backends as well, here is an experimental backend for structs in standard containers:
 
   * STL Container: https://github.com/rbock/sqlpp11-connector-stl
-
