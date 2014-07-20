@@ -216,6 +216,7 @@ namespace sqlpp
 	}
 
 	using text = detail::text;
+	using blob = detail::text;
 	using varchar = detail::text;
 	using char_ = detail::text;
 
