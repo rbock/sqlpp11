@@ -3,6 +3,7 @@ sqlpp11
 
 A type safe embedded domain specific language for SQL queries and results in C++
 
+Extensive documentation is found in the wiki, https://github.com/rbock/sqlpp11/wiki
 
 Motivation:
 -----------
@@ -92,7 +93,9 @@ __Compiler:__
 sqlpp11 makes heavy use of C++11 and requires a recent compiler and STL. The following compilers are known to compile the test programs:
 
   * clang-3.2 on Ubuntu-12.4
+  * clang-3.4 on Ubuntu-12.4
   * g++-4.8 on Ubuntu-12.4
+  * g++-4.9 on Debian Unstable
 
 __Database Connector:__
 sqlpp11 requires a certain api in order to connect with the database, see database/api.h.
@@ -100,4 +103,8 @@ sqlpp11 requires a certain api in order to connect with the database, see databa
   * MySQL: https://github.com/rbock/sqlpp11-connector-mysql
   * Sqlite3: https://github.com/rbock/sqlpp11-connector-sqlite3
   * PostgreSQL: https://github.com/matthijs/sqlpp11-connector-postgresql
+  
+To demonstrate that sqlpp11 can work with other backends as well, here is an experimental backend for structs in standard containers:
+
+  * STL Container: https://github.com/rbock/sqlpp11-connector-stl
 
