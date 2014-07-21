@@ -33,19 +33,19 @@
 namespace sqlpp
 {
 #define SQLPP_IS_VALUE_TRAIT_GENERATOR(name) \
+	namespace tag\
+	{\
+		struct name{};\
+	};\
 	namespace detail\
 	{\
 		template<typename T, typename Enable = void>\
 		struct is_##name##_impl: std::false_type {};\
 		template<typename T>\
-		struct is_##name##_impl<T, typename std::enable_if<std::is_same<typename T::_value_type::_is_##name, std::true_type>::value>::type>: std::true_type {};\
+		struct is_##name##_impl<T, typename std::enable_if<detail::is_element_of<tag::name, typename T::_traits::_tags>::value>::type>: std::true_type {};\
 	}\
-	namespace tag\
-	{\
-		struct name{};\
-	};\
 	template<typename T>\
-	using is_##name##_t = detail::is_element_of<tag::name, typename T::_traits::_tags>;
+	using is_##name##_t = typename detail::is_##name##_impl<T>::type;
 
 #define SQLPP_IS_COLUMN_TRAIT_GENERATOR(name) \
 	namespace detail\
