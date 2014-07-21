@@ -40,9 +40,9 @@ namespace sqlpp
 	namespace detail\
 	{\
 		template<typename T, typename Enable = void>\
-		struct is_##name##_impl: std::false_type {};\
+		struct is_##name##_impl { using type = std::false_type; };\
 		template<typename T>\
-		struct is_##name##_impl<T, typename std::enable_if<detail::is_element_of<tag::name, typename T::_traits::_tags>::value>::type>: std::true_type {};\
+		struct is_##name##_impl<T, typename std::enable_if<detail::is_element_of<tag::name, typename T::_traits::_tags>::value>::type> { using type = std::true_type; };\
 	}\
 	template<typename T>\
 	using is_##name##_t = typename detail::is_##name##_impl<T>::type;
