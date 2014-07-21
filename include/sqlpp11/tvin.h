@@ -77,69 +77,11 @@ namespace sqlpp
 	template<typename T>
 		using is_tvin_t = typename detail::is_tvin_impl<T>::type;
 
-
-
+#warning: disallow tvin in other places which are not =, == or !=
 	template<typename Context, typename Operand>
 		struct serializer_t<Context, tvin_t<Operand>>
 		{
 			using T = tvin_t<Operand>;
-
-			static void _(const T& t, Context& context)
-			{
-				static_assert(wrong_t<T>::value, "tvin() must not be used with anything but =, ==, != and !");
-			}
-		};
-
-	template<typename Operand>
-		struct maybe_tvin_t
-		{
-			using _traits = make_traits<value_type_of<Operand>, tag::expression>;
-			using _recursive_traits = make_recursive_traits<Operand>;
-
-			static constexpr bool _is_trivial()
-			{
-				return false;
-			}
-
-			maybe_tvin_t(Operand operand): 
-				_value(operand)
-			{}
-			maybe_tvin_t(const maybe_tvin_t&) = default;
-			maybe_tvin_t(maybe_tvin_t&&) = default;
-			maybe_tvin_t& operator=(const maybe_tvin_t&) = default;
-			maybe_tvin_t& operator=(maybe_tvin_t&&) = default;
-			~maybe_tvin_t() = default;
-
-			Operand _value;
-		};
-
-	template<typename Operand>
-		struct maybe_tvin_t<tvin_t<Operand>>
-		{
-			using _traits = make_traits<value_type_of<Operand>, tag::expression>;
-			using _recursive_traits = make_recursive_traits<Operand>;
-
-			bool _is_trivial() const
-			{
-				return _value._is_trivial();
-			};
-
-			maybe_tvin_t(tvin_t<Operand> operand): 
-				_value(operand._value)
-			{}
-			maybe_tvin_t(const maybe_tvin_t&) = default;
-			maybe_tvin_t(maybe_tvin_t&&) = default;
-			maybe_tvin_t& operator=(const maybe_tvin_t&) = default;
-			maybe_tvin_t& operator=(maybe_tvin_t&&) = default;
-			~maybe_tvin_t() = default;
-
-			typename tvin_t<Operand>::_operand_t _value;
-		};
-
-	template<typename Context, typename Operand>
-		struct serializer_t<Context, maybe_tvin_t<Operand>>
-		{
-			using T = maybe_tvin_t<Operand>;
 
 			static Context& _(const T& t, Context& context)
 			{

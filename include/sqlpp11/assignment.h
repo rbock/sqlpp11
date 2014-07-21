@@ -43,12 +43,12 @@ namespace sqlpp
 			using _traits = make_traits<no_value_t, ::sqlpp::tag::assignment>;
 			using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
 
-			using _column_t = Lhs;
-			using _value_t = Rhs;
+			using _lhs_t = Lhs;
+			using _rhs_t = Rhs;
 
-			static_assert(can_be_null_t<_column_t>::value ? true : not std::is_same<_value_t, null_t>::value, "column must not be null");
+			static_assert(can_be_null_t<_lhs_t>::value ? true : not (std::is_same<_rhs_t, null_t>::value or is_tvin_t<_rhs_t>::value), "column must not be null");
 
-			assignment_t(_column_t lhs, _value_t rhs):
+			assignment_t(_lhs_t lhs, _rhs_t rhs):
 				_lhs(lhs), 
 				_rhs(rhs)
 			{}
@@ -59,8 +59,8 @@ namespace sqlpp
 			assignment_t& operator=(assignment_t&&) = default;
 			~assignment_t() = default;
 
-			_column_t _lhs;
-			_value_t _rhs;
+			_lhs_t _lhs;
+			_rhs_t _rhs;
 		};
 
 	template<typename Context, typename Lhs, typename Rhs>
@@ -70,7 +70,7 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
-				if (((trivial_value_is_null_t<typename T::_column_t>::value or is_tvin_t<typename T::_value_t>::value)
+				if (((trivial_value_is_null_t<typename T::_lhs_t>::value or is_tvin_t<typename T::_rhs_t>::value)
 							and is_trivial(t._rhs))
 						or (std::is_same<Rhs, null_t>::value))
 				{
@@ -87,52 +87,6 @@ namespace sqlpp
 			}
 		};
 
-	template<typename Lhs, typename Rhs>
-		struct assignment_t<Lhs, tvin_t<Rhs>>
-		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::assignment>;
-			using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
-
-			using _column_t = Lhs;
-			using _value_t = tvin_t<Rhs>;
-
-			static_assert(can_be_null_t<_column_t>::value, "column cannot be null");
-
-			assignment_t(_column_t lhs, _value_t rhs):
-				_lhs(lhs), 
-				_rhs(rhs)
-			{}
-
-			assignment_t(const assignment_t&) = default;
-			assignment_t(assignment_t&&) = default;
-			assignment_t& operator=(const assignment_t&) = default;
-			assignment_t& operator=(assignment_t&&) = default;
-			~assignment_t() = default;
-
-			_column_t _lhs;
-			_value_t _rhs;
-		};
-
-	template<typename Context, typename Lhs, typename Rhs>
-		struct serializer_t<Context, assignment_t<Lhs, tvin_t<Rhs>>>
-		{
-			using T = assignment_t<Lhs, tvin_t<Rhs>>;
-
-			static Context& _(const T& t, Context& context)
-			{
-				serialize(simple_column(t._lhs), context);
-				if (t._rhs._value._is_trivial())
-				{
-					context << "=NULL";
-				}
-				else
-				{
-					context << "=";
-					serialize(t._rhs._value, context);
-				}
-				return context;
-			}
-		};
 }
 
 #endif

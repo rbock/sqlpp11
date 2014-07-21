@@ -58,9 +58,9 @@ namespace sqlpp
 	template<typename Expression>
 		constexpr bool rhs_is_null(const Expression& e)
 		{
-			return (((trivial_value_is_null_t<typename Expression::_column_t>::value or is_tvin_t<typename Expression::_value_t>::value)
+			return (((trivial_value_is_null_t<typename Expression::_lhs_t>::value or is_tvin_t<typename Expression::_rhs_t>::value)
 							and is_trivial(e._rhs))
-						or (std::is_same<typename Expression::_value_t, null_t>::value));
+						or (std::is_same<typename Expression::_rhs_t, null_t>::value));
 		}
 }
 
