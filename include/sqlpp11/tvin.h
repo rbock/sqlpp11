@@ -61,6 +61,24 @@ namespace sqlpp
 			Operand _value;
 		};
 
+	namespace detail
+	{
+		template<typename T>
+			struct is_tvin_impl
+			{
+				using type = std::false_type;
+			};
+		template<typename T>
+			struct is_tvin_impl<tvin_t<T>>
+			{
+				using type = std::true_type;
+			};
+	}
+	template<typename T>
+		using is_tvin_t = typename detail::is_tvin_impl<T>::type;
+
+
+
 	template<typename Context, typename Operand>
 		struct serializer_t<Context, tvin_t<Operand>>
 		{

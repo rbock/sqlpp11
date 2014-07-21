@@ -30,36 +30,13 @@
 #include <sqlpp11/default_value.h>
 #include <sqlpp11/null.h>
 #include <sqlpp11/tvin.h>
+#include <sqlpp11/rhs_is_null.h>
 #include <sqlpp11/serialize.h>
 #include <sqlpp11/serializer.h>
 #include <sqlpp11/simple_column.h>
 
 namespace sqlpp
 {
-	template<typename T, typename Enable = void>
-		struct is_trivial_t
-		{
-			static constexpr bool _(const T&)
-			{
-				return false;
-			}
-		};
-
-	template<typename T>
-		struct is_trivial_t<T, typename std::enable_if<std::is_member_function_pointer<decltype(&T::_is_trivial)>::value, void>::type>
-		{
-			static bool _(const T& t)
-			{
-				return t._is_trivial();
-			}
-		};
-
-	template<typename T>
-		bool is_trivial(const T& t)
-		{
-			return is_trivial_t<T>::_(t);
-		}
-
 	template<typename Lhs, typename Rhs>
 		struct assignment_t
 		{
@@ -93,7 +70,7 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
-				if ((trivial_value_is_null_t<typename T::_column_t>::value
+				if (((trivial_value_is_null_t<typename T::_column_t>::value or is_tvin_t<typename T::_value_t>::value)
 							and is_trivial(t._rhs))
 						or (std::is_same<Rhs, null_t>::value))
 				{
