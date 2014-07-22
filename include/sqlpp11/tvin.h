@@ -37,6 +37,56 @@
 namespace sqlpp
 {
 	template<typename Operand>
+		struct tvin_arg_t
+		{
+			using _traits = make_traits<value_type_of<Operand>, tag::expression>;
+			using _recursive_traits = make_recursive_traits<Operand>;
+
+			using _operand_t = Operand;
+
+			tvin_arg_t(_operand_t operand): 
+				_value(operand)
+			{}
+			tvin_arg_t(const tvin_arg_t&) = default;
+			tvin_arg_t(tvin_arg_t&&) = default;
+			tvin_arg_t& operator=(const tvin_arg_t&) = default;
+			tvin_arg_t& operator=(tvin_arg_t&&) = default;
+			~tvin_arg_t() = default;
+
+			_operand_t _value;
+		};
+
+	template<typename Context, typename Operand>
+		struct serializer_t<Context, tvin_arg_t<Operand>>
+		{
+			using T = tvin_arg_t<Operand>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				static_assert(wrong_t<Context, Operand>::value, "tvin may only be used with operators =, == and !=");
+			}
+		};
+
+	template<typename T>
+		struct tvin_t;
+
+	namespace detail
+	{
+	template<typename T>
+		struct allow_tvin_impl
+		{
+			using type = T;
+		};
+	template <typename T>
+		struct allow_tvin_impl<tvin_arg_t<T>>
+		{
+			using type = tvin_t<T>;
+		};
+	}
+	template<typename T>
+		using allow_tvin_t = typename detail::allow_tvin_impl<T>::type;
+
+	template<typename Operand>
 		struct tvin_t
 		{
 			using _traits = make_traits<value_type_of<Operand>, tag::expression>;
@@ -44,8 +94,8 @@ namespace sqlpp
 
 			using _operand_t = Operand;
 
-			tvin_t(Operand operand): 
-				_value(operand)
+			tvin_t(tvin_arg_t<Operand> arg): 
+				_value(arg._value)
 			{}
 			tvin_t(const tvin_t&) = default;
 			tvin_t(tvin_t&&) = default;
@@ -58,7 +108,7 @@ namespace sqlpp
 				return _value._is_trivial();
 			}
 
-			Operand _value;
+			_operand_t _value;
 		};
 
 	namespace detail
@@ -77,7 +127,6 @@ namespace sqlpp
 	template<typename T>
 		using is_tvin_t = typename detail::is_tvin_impl<T>::type;
 
-#warning: disallow tvin in other places which are not =, == or !=
 	template<typename Context, typename Operand>
 		struct serializer_t<Context, tvin_t<Operand>>
 		{
@@ -98,7 +147,7 @@ namespace sqlpp
 		};
 
 	template<typename Operand>
-		auto tvin(Operand operand) -> tvin_t<typename wrap_operand<Operand>::type>
+		auto tvin(Operand operand) -> tvin_arg_t<typename wrap_operand<Operand>::type>
 		{
 			using _operand_t = typename wrap_operand<Operand>::type;
 			static_assert(std::is_same<_operand_t, text_operand>::value

@@ -44,7 +44,7 @@ namespace sqlpp
 			using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
 
 			using _lhs_t = Lhs;
-			using _rhs_t = Rhs;
+			using _rhs_t = allow_tvin_t<Rhs>;
 
 			static_assert(can_be_null_t<_lhs_t>::value ? true : not (std::is_same<_rhs_t, null_t>::value or is_tvin_t<_rhs_t>::value), "column must not be null");
 

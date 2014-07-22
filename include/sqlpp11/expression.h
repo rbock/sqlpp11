@@ -44,7 +44,7 @@ namespace sqlpp
 			using _traits = make_traits<boolean, sqlpp::tag::expression>;
 			using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
 			using _lhs_t = Lhs;
-			using _rhs_t = Rhs;
+			using _rhs_t = allow_tvin_t<Rhs>;
 
 			binary_expression_t(_lhs_t lhs, _rhs_t rhs):
 				_lhs(lhs), 
@@ -91,9 +91,9 @@ namespace sqlpp
 			using _traits = make_traits<boolean, sqlpp::tag::expression>;
 			using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
 			using _lhs_t = Lhs;
-			using _rhs_t = Rhs;
+			using _rhs_t = allow_tvin_t<Rhs>;
 
-			binary_expression_t(Lhs lhs, Rhs rhs):
+			binary_expression_t(Lhs lhs, _rhs_t rhs):
 				_lhs(lhs), 
 				_rhs(rhs)
 			{}

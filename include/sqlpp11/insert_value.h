@@ -61,7 +61,7 @@ namespace sqlpp
 			using _is_insert_value = std::true_type;
 			using _pure_value_t = typename value_type_of<Column>::_cpp_value_type;
 			using _wrapped_value_t = typename wrap_operand<_pure_value_t>::type;
-			using _tvin_t = typename detail::type_if<tvin_t<_wrapped_value_t>, can_be_null_t<Column>::value>::type; // static asserts and SFINAE do not work together
+			using _tvin_t = typename detail::type_if<tvin_arg_t<_wrapped_value_t>, can_be_null_t<Column>::value>::type; // static asserts and SFINAE do not work together
 			using _null_t = typename detail::type_if<null_t, can_be_null_t<Column>::value>::type; // static asserts and SFINAE do not work together
 
 			insert_value_t(assignment_t<Column, _wrapped_value_t> assignment):
