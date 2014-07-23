@@ -43,6 +43,7 @@ namespace sqlpp
 			using _provided_tables = detail::type_set<>;
 			using _required_tables = detail::type_set<>;
 			using _extra_tables = detail::type_set<>;
+			using _can_be_null = std::true_type;
 		};
 
 		using _instance_t = typename NameType::_name_t::template _member_t<typename ValueType::_parameter_t>;

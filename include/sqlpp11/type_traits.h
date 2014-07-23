@@ -32,6 +32,30 @@
 
 namespace sqlpp
 {
+	namespace detail
+	{
+		template<typename T, typename Enable = void>
+		struct can_be_null_impl { using type = std::false_type; };
+		template<typename T>
+		struct can_be_null_impl<T, typename std::enable_if<T::_recursive_traits::_can_be_null::value>::type> { using type = std::true_type; };
+	}
+	template<typename T>
+	using can_be_null_t = typename detail::can_be_null_impl<T>::type;
+
+	namespace tag\
+	{\
+		struct can_be_null{};\
+	};\
+	namespace detail\
+	{\
+		template<typename T, typename Enable = void>\
+		struct column_spec_can_be_null_impl { using type = std::false_type; };\
+		template<typename T>\
+		struct column_spec_can_be_null_impl<T, typename std::enable_if<detail::is_element_of<tag::can_be_null, typename T::_traits::_tags>::value>::type> { using type = std::true_type; };\
+	}\
+	template<typename T>\
+	using column_spec_can_be_null_t = typename detail::column_spec_can_be_null_impl<T>::type;
+
 #define SQLPP_VALUE_TRAIT_GENERATOR(name) \
 	namespace tag\
 	{\
@@ -112,7 +136,6 @@ namespace sqlpp
 	SQLPP_VALUE_TRAIT_GENERATOR(must_not_insert);
 	SQLPP_VALUE_TRAIT_GENERATOR(must_not_update);
 	SQLPP_VALUE_TRAIT_GENERATOR(require_insert);
-	SQLPP_VALUE_TRAIT_GENERATOR(can_be_null);
 	SQLPP_VALUE_TRAIT_GENERATOR(trivial_value_is_null);
 
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(noop);
@@ -237,6 +260,7 @@ namespace sqlpp
 			using _provided_tables = detail::make_joined_set_t<provided_tables_of<Arguments>...>;
 			using _extra_tables = detail::make_joined_set_t<extra_tables_of<Arguments>...>;
 			using _parameters = detail::make_parameter_tuple_t<parameters_of<Arguments>...>;
+			using _can_be_null = detail::any_t<can_be_null_t<Arguments>::value...>;
 		};
 
 }

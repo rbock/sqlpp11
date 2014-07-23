@@ -110,6 +110,7 @@ namespace sqlpp
 					using _provided_tables = detail::type_set<>;
 					using _extra_tables = detail::type_set<>;
 					using _parameters = detail::make_parameter_tuple_t<parameters_of<Policies>...>;
+					using _can_be_null = detail::any_t<can_be_null_t<_value_type>::value>;
 				};
 			};
 	}
