@@ -37,8 +37,11 @@ namespace sqlpp
 		{
 			using _name_t = typename NamedExpr::_name_t;
 
-#warning take can_be_null from named expression...
-			using _traits = make_traits<value_type_of<NamedExpr>, tag::must_not_insert, tag::must_not_update>;
+			using _traits = make_traits<value_type_of<NamedExpr>, 
+						tag::must_not_insert, 
+						tag::must_not_update,
+						typename std::conditional<can_be_null_t<NamedExpr>::value, tag::can_be_null, void>::type
+							>;
 		};
 
 	template<
