@@ -42,8 +42,7 @@ namespace sqlpp
 					{
 					};
 			};
-			using _value_type = no_value_t;
-			struct _column_type {};
+			using _traits = make_traits<no_value_t>;
 		};
 	}
 

@@ -32,6 +32,21 @@
 
 namespace sqlpp
 {
+#define SQLPP_VALUE_TRAIT_GENERATOR(name) \
+	namespace tag\
+	{\
+		struct name{};\
+	};\
+	namespace detail\
+	{\
+		template<typename T, typename Enable = void>\
+		struct name##_impl { using type = std::false_type; };\
+		template<typename T>\
+		struct name##_impl<T, typename std::enable_if<detail::is_element_of<tag::name, typename T::_traits::_tags>::value>::type> { using type = std::true_type; };\
+	}\
+	template<typename T>\
+	using name##_t = typename detail::name##_impl<T>::type;
+
 #define SQLPP_IS_VALUE_TRAIT_GENERATOR(name) \
 	namespace tag\
 	{\
@@ -46,17 +61,6 @@ namespace sqlpp
 	}\
 	template<typename T>\
 	using is_##name##_t = typename detail::is_##name##_impl<T>::type;
-
-#define SQLPP_IS_COLUMN_TRAIT_GENERATOR(name) \
-	namespace detail\
-	{\
-		template<typename T, typename Enable = void>\
-		struct name##_impl { using type = std::false_type; };\
-		template<typename T>\
-		struct name##_impl<T, typename std::enable_if<std::is_same<typename T::_column_type::_##name, std::true_type>::value>::type> { using type = std::true_type; };\
-	}\
-	template<typename T>\
-	using name##_t = typename detail::name##_impl<T>::type;
 
 #define SQLPP_TYPE_TRAIT_GENERATOR(name) \
 	namespace detail\
@@ -105,11 +109,11 @@ namespace sqlpp
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(alias);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(select_flag);
 
-	SQLPP_IS_COLUMN_TRAIT_GENERATOR(must_not_insert);
-	SQLPP_IS_COLUMN_TRAIT_GENERATOR(must_not_update);
-	SQLPP_IS_COLUMN_TRAIT_GENERATOR(require_insert);
-	SQLPP_IS_COLUMN_TRAIT_GENERATOR(can_be_null);
-	SQLPP_IS_COLUMN_TRAIT_GENERATOR(trivial_value_is_null);
+	SQLPP_VALUE_TRAIT_GENERATOR(must_not_insert);
+	SQLPP_VALUE_TRAIT_GENERATOR(must_not_update);
+	SQLPP_VALUE_TRAIT_GENERATOR(require_insert);
+	SQLPP_VALUE_TRAIT_GENERATOR(can_be_null);
+	SQLPP_VALUE_TRAIT_GENERATOR(trivial_value_is_null);
 
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(noop);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(missing);
