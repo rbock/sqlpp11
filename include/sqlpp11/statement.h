@@ -63,6 +63,7 @@ namespace sqlpp
 
 				using _all_required_tables = detail::make_joined_set_t<required_tables_of<Policies>...>;
 				using _all_provided_tables = detail::make_joined_set_t<provided_tables_of<Policies>...>;
+				using _all_provided_outer_tables = detail::make_joined_set_t<provided_outer_tables_of<Policies>...>;
 				using _all_extra_tables = detail::make_joined_set_t<extra_tables_of<Policies>...>;
 
 				using _known_tables = detail::make_joined_set_t<_all_provided_tables, _all_extra_tables>;
@@ -108,6 +109,7 @@ namespace sqlpp
 				{
 					using _required_tables = statement_policies_t::_required_tables;
 					using _provided_tables = detail::type_set<>;
+					using _provided_outer_tables = detail::type_set<>;
 					using _extra_tables = detail::type_set<>;
 					using _parameters = detail::make_parameter_tuple_t<parameters_of<Policies>...>;
 					using _can_be_null = detail::any_t<can_be_null_t<_value_type>::value>;
@@ -128,6 +130,7 @@ namespace sqlpp
 
 		using _traits = make_traits<value_type_of<_policies_t>, ::sqlpp::tag::select, tag::expression_if<typename _policies_t::_is_expression>, tag::named_expression_if<typename _policies_t::_is_expression>>;
 		using _recursive_traits = typename _policies_t::_recursive_traits;
+		using _used_outer_tables = typename _policies_t::_all_provided_outer_tables;
 
 		using _result_type_provider = typename _policies_t::_result_type_provider;
 

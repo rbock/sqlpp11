@@ -46,6 +46,7 @@ namespace sqlpp
 			using _parameters = std::tuple<>;
 			using _required_tables = detail::type_set<>;
 			using _provided_tables = detail::type_set<AliasProvider>;
+			using _provided_outer_tables = detail::type_set<>;
 			using _extra_tables = detail::type_set<>;
 			using _can_be_null = std::false_type;
 		};

@@ -35,41 +35,29 @@ namespace sqlpp
 {
 	struct inner_join_t
 	{
-		template<typename Db>
-			struct _is_supported 
-			{ 
-				static constexpr bool value = Db::_supports_inner_join; 
-			};
+		template<typename Lhs, typename Rhs>
+			using _provided_outer_tables = detail::make_joined_set<provided_outer_tables_of<Lhs>, provided_outer_tables_of<Rhs>>;
 
 		static constexpr const char* _name = " INNER ";
 	};
 	struct outer_join_t
 	{
-		template<typename Db>
-			struct _is_supported 
-			{ 
-				static constexpr bool value = Db::_supports_outer_join; 
-			};
+		template<typename Lhs, typename Rhs>
+			using _provided_outer_tables = detail::make_joined_set<provided_tables_of<Lhs>, provided_tables_of<Rhs>>;
 
 		static constexpr const char* _name = " OUTER ";
 	};
 	struct left_outer_join_t
 	{
-		template<typename Db>
-			struct _is_supported 
-			{ 
-				static constexpr bool value = Db::_supports_left_outer_join; 
-			};
+		template<typename Lhs, typename Rhs>
+			using _provided_outer_tables = detail::make_joined_set<provided_outer_tables_of<Lhs>, provided_tables_of<Rhs>>;
 
 		static constexpr const char* _name = " LEFT OUTER ";
 	};
 	struct right_outer_join_t
 	{
-		template<typename Db>
-			struct _is_supported 
-			{ 
-				static constexpr bool value = Db::_supports_right_outer_join; 
-			};
+		template<typename Lhs, typename Rhs>
+			using _provided_outer_tables = detail::make_joined_set<provided_tables_of<Lhs>, provided_outer_tables_of<Rhs>>;
 
 		static constexpr const char* _name = " RIGHT OUTER ";
 	};
@@ -78,7 +66,16 @@ namespace sqlpp
 		struct join_t
 		{
 			using _traits = make_traits<no_value_t, tag::table, tag::join>;
-			using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
+			struct _recursive_traits
+			{
+				using _required_tables = detail::make_joined_set_t<required_tables_of<Lhs>, required_tables_of<Rhs>>;
+				using _provided_tables = detail::make_joined_set_t<provided_tables_of<Lhs>, provided_tables_of<Rhs>>;
+				using _provided_outer_tables = typename JoinType::template _provided_outer_tables<Lhs, Rhs>;
+				using _extra_tables = detail::make_joined_set_t<extra_tables_of<Lhs>, extra_tables_of<Rhs>>;
+				using _parameters = detail::make_parameter_tuple_t<parameters_of<Lhs>, parameters_of<Rhs>>;
+				using _can_be_null = std::false_type;
+			};
+
 
 			static_assert(is_table_t<Lhs>::value, "lhs argument for join() has to be a table or join");
 			static_assert(is_table_t<Rhs>::value, "rhs argument for join() has to be a table");

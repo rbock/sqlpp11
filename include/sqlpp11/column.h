@@ -55,6 +55,7 @@ namespace sqlpp
 		{
 			using _parameters = std::tuple<>;
 			using _provided_tables = detail::type_set<>;
+			using _provided_outer_tables = detail::type_set<>;
 			using _required_tables = detail::type_set<Table>;
 			using _extra_tables = detail::type_set<>;
 			using _can_be_null = column_spec_can_be_null_t<ColumnSpec>;

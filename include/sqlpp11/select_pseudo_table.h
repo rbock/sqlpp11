@@ -35,6 +35,7 @@ namespace sqlpp
 	template<typename NamedExpr>
 		struct select_column_spec_t
 		{
+#warning use Select here to determine if a column relates to a outer join table
 			using _name_t = typename NamedExpr::_name_t;
 
 			using _traits = make_traits<value_type_of<NamedExpr>, 
