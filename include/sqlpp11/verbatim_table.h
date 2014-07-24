@@ -46,6 +46,7 @@ namespace sqlpp
 		};
 	}
 
+#warning a verbatim table is always an outer table
 	struct verbatim_table_t: public sqlpp::table_t<verbatim_table_t, detail::unusable_pseudo_column_t>
 	{
 		struct _name_t {};

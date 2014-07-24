@@ -52,6 +52,7 @@ namespace sqlpp
 			return { t };
 		}
 
+#warning: verbatim_t always "can_be_null" (espcially since we cannot determine the required tables later on)
 	template<typename ValueType> // Csaba Csoma suggests: unsafe_sql instead of verbatim
 		struct verbatim_t: public ValueType::template expression_operators<verbatim_t<ValueType>>,
 		public alias_operators<verbatim_t<ValueType>>
