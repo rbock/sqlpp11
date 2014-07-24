@@ -204,12 +204,29 @@ namespace sqlpp
 			struct make_difference_set<type_set<Minuends...>, type_set<Subtrahends...>>
 			{
 				template<typename E>
-				using is_subtrahend = is_element_of<E, type_set<Subtrahends...>>;
+					using is_subtrahend = is_element_of<E, type_set<Subtrahends...>>;
 				using type = typename make_type_set_if_not<is_subtrahend, Minuends...>::type;
 			};
 
 		template<typename Minuend, typename Subtrahend>
 			using make_difference_set_t = typename make_difference_set<Minuend, Subtrahend>::type;
+
+		template<typename Lhs, typename Rhs>
+			struct make_intersect_set
+			{
+				static_assert(::sqlpp::wrong_t<Lhs, Rhs>::value, "invalid argument for intersect set");
+			};
+
+		template<typename... LhsElements, typename... RhsElements>
+			struct make_intersect_set<type_set<LhsElements...>, type_set<RhsElements...>>
+			{
+				template<typename E>
+					using is_in_both = is_element_of<E, make_type_set_t<LhsElements..., RhsElements...>>;
+				using type = typename make_type_set_if<is_in_both, LhsElements...>::type;
+			};
+
+		template<typename Lhs, typename Rhs>
+			using make_intersect_set_t = typename make_intersect_set<Lhs, Rhs>::type;
 
 
 		template<template<typename> class Transformation, typename T>

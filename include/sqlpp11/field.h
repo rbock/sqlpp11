@@ -48,6 +48,7 @@ namespace sqlpp
 
 	namespace detail
 	{
+#warning: Need to transport the "can be null" information via field_t to result_entry structs
 		template<typename NamedExpr>
 			struct make_field_t_impl
 			{
