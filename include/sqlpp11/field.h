@@ -50,7 +50,6 @@ namespace sqlpp
 
 	namespace detail
 	{
-#warning: Need to transport the "can be null" information via field_t to result_entry structs
 		template<typename Select, typename NamedExpr>
 			struct make_field_t_impl
 			{
@@ -60,7 +59,7 @@ namespace sqlpp
 				using type = field_t<typename NamedExpr::_name_t, 
 							value_type_of<NamedExpr>,
 							detail::any_t<_can_be_null, _depends_on_outer_table>::value,
-							null_is_trivial_value<NamedExpr>::value>;
+							null_is_trivial_value_t<NamedExpr>::value>;
 			};
 
 		template<typename Select, typename AliasProvider, typename... NamedExprs>

@@ -28,7 +28,6 @@
 #define SQLPP_INTEGRAL_H
 
 #include <cstdlib>
-#include <cassert>
 #include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/exception.h>
@@ -98,7 +97,26 @@ namespace sqlpp
 			};
 
 			template<typename Db, typename FieldSpec>
-				struct _result_entry_t
+				struct _result_entry_t;
+
+			// I am SO waiting for concepts lite!
+			template<typename Field, typename Enable = void>
+				struct field_methods_t
+				{
+					operator _cpp_value_type() const { return static_cast<const Field&>(*this).value(); }
+				};
+
+			template<typename Db, typename FieldSpec>
+				struct field_methods_t<
+						_result_entry_t<Db, FieldSpec>, 
+				    typename std::enable_if<connector_enforce_result_validity_t<Db>::value 
+							and column_spec_can_be_null_t<FieldSpec>::value
+							and not null_is_trivial_value_t<FieldSpec>::value>::type>
+				{
+				};
+
+			template<typename Db, typename FieldSpec>
+				struct _result_entry_t: public field_methods_t<_result_entry_t<Db, FieldSpec>>
 				{
 					using _value_type = integral;
 
@@ -122,32 +140,29 @@ namespace sqlpp
 
 					bool is_null() const
 					{ 
-						if (connector_assert_result_validity_t<Db>::value)
-							assert(_is_valid);
-						else if (not _is_valid)
+						if (not _is_valid)
 							throw exception("accessing is_null in non-existing row");
 						return _is_null; 
 					}
 
 					_cpp_value_type value() const
 					{
-						const bool null_value = _is_null and not null_is_trivial_value_t<FieldSpec>::value and not connector_null_result_is_trivial_value_t<Db>::value;
-						if (connector_assert_result_validity_t<Db>::value)
+						if (not _is_valid)
+							throw exception("accessing value in non-existing row");
+
+						if (_is_null)
 						{
-							assert(_is_valid);
-							assert(not null_value);
-						}
-						else
-						{
-							if (not _is_valid)
-								throw exception("accessing value in non-existing row");
-							if (null_value)
+							if (connector_enforce_result_validity_t<Db>::value and not null_is_trivial_value_t<FieldSpec>::value)
+							{
 								throw exception("accessing value of NULL field");
+							}
+							else
+							{
+								return 0;
+							}
 						}
 						return _value;
 					}
-
-					operator _cpp_value_type() const { return value(); }
 
 					template<typename Target>
 						void _bind(Target& target, size_t i)
