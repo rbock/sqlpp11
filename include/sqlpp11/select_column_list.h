@@ -54,7 +54,6 @@ namespace sqlpp
 		template<typename Column>
 			struct select_traits<Column>
 			{
-#warning need to transport the "can be null information here"
 				using _traits = make_traits<value_type_of<Column>, tag::select_column_list, tag::return_value, tag::expression, tag::named_expression>;
 				using _name_t = typename Column::_name_t;
 			};

@@ -112,7 +112,12 @@ namespace sqlpp
 					using _provided_outer_tables = detail::type_set<>;
 					using _extra_tables = detail::type_set<>;
 					using _parameters = detail::make_parameter_tuple_t<parameters_of<Policies>...>;
-					using _can_be_null = detail::any_t<can_be_null_t<_value_type>::value>;
+					using _can_be_null = detail::any_t<
+									can_be_null_t<_result_type_provider>::value, 
+									::sqlpp::detail::make_intersect_set_t<
+									  required_tables_of<_result_type_provider>, 
+								    provided_outer_tables_of<statement_policies_t>
+								  >::size::value>;
 				};
 			};
 	}
@@ -128,7 +133,10 @@ namespace sqlpp
 	{
 		using _policies_t = typename detail::statement_policies_t<Db, Policies...>;
 
-		using _traits = make_traits<value_type_of<_policies_t>, ::sqlpp::tag::select, tag::expression_if<typename _policies_t::_is_expression>, tag::named_expression_if<typename _policies_t::_is_expression>>;
+		using _traits = make_traits<value_type_of<_policies_t>,
+					::sqlpp::tag::select, 
+					tag::expression_if<typename _policies_t::_is_expression>, 
+					tag::named_expression_if<typename _policies_t::_is_expression>>;
 		using _recursive_traits = typename _policies_t::_recursive_traits;
 		using _used_outer_tables = typename _policies_t::_all_provided_outer_tables;
 
