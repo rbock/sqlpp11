@@ -245,10 +245,19 @@ namespace sqlpp
 						return static_cast<const _statement_t&>(*this);
 					}
 
+					template<typename Db, typename Column>
+					 struct	_deferred_field_t
+					 {
+						 using type = make_field_t<_statement_t, Column>;
+					 };
+
+					template<typename Db, typename Column>
+						using _field_t = typename _deferred_field_t<Db, Column>::type;
+
 					template<typename Db>
 						using _result_row_t = typename std::conditional<_is_dynamic::value,
-									dynamic_result_row_t<Db, make_field_t<Columns>...>,
-									result_row_t<Db, make_field_t<Columns>...>>::type;
+									dynamic_result_row_t<Db, _field_t<Db, Columns>...>,
+									result_row_t<Db, _field_t<Db, Columns>...>>::type;
 
 					using _dynamic_names_t = typename dynamic_select_column_list<Database>::_names_t;
 

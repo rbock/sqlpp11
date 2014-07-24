@@ -31,14 +31,16 @@
 
 namespace sqlpp
 {
-	template<typename NameType, typename ValueType, bool TrivialValueIsNull>
+	template<typename NameType, typename ValueType, bool CanBeNull, bool NullIsTrivialValue>
 		struct field_t
 		{ 
-			using _traits = make_traits<ValueType, tag::noop>;
+			using _traits = make_traits<ValueType, tag::noop, 
+						typename std::conditional<CanBeNull, tag::can_be_null, void>::type,
+						typename std::conditional<NullIsTrivialValue, tag::null_is_trivial_value, void>::type
+						>;
 			using _recursive_traits = make_recursive_traits<>;
 
 			using _name_t = NameType;
-			static constexpr bool _trivial_value_is_null = TrivialValueIsNull;
 		};
 
 	template<typename AliasProvider, typename FieldTuple>
@@ -49,23 +51,27 @@ namespace sqlpp
 	namespace detail
 	{
 #warning: Need to transport the "can be null" information via field_t to result_entry structs
-		template<typename NamedExpr>
+		template<typename Select, typename NamedExpr>
 			struct make_field_t_impl
 			{
+				static constexpr bool _can_be_null = can_be_null_t<NamedExpr>::value;
+				static constexpr bool _depends_on_outer_table = detail::make_intersect_set_t<required_tables_of<NamedExpr>, typename Select::_used_outer_tables>::size::value > 0;
+
 				using type = field_t<typename NamedExpr::_name_t, 
 							value_type_of<NamedExpr>,
-							trivial_value_is_null_t<NamedExpr>::value>;
+							detail::any_t<_can_be_null, _depends_on_outer_table>::value,
+							null_is_trivial_value<NamedExpr>::value>;
 			};
 
-		template<typename AliasProvider, typename... NamedExpr>
-			struct make_field_t_impl<multi_column_alias_t<AliasProvider, NamedExpr...>>
+		template<typename Select, typename AliasProvider, typename... NamedExprs>
+			struct make_field_t_impl<Select, multi_column_alias_t<AliasProvider, NamedExprs...>>
 			{
-				using type = multi_field_t<AliasProvider, std::tuple<typename make_field_t_impl<NamedExpr>::type...>>;
+				using type = multi_field_t<AliasProvider, std::tuple<typename make_field_t_impl<Select, NamedExprs>::type...>>;
 			};
 	}
 
-	template<typename NamedExpr>
-		using make_field_t = typename detail::make_field_t_impl<NamedExpr>::type;
+	template<typename Select, typename NamedExpr>
+		using make_field_t = typename detail::make_field_t_impl<Select, NamedExpr>::type;
 
 }
 

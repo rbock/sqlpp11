@@ -137,6 +137,7 @@ namespace sqlpp
 	SQLPP_VALUE_TRAIT_GENERATOR(must_not_update);
 	SQLPP_VALUE_TRAIT_GENERATOR(require_insert);
 	SQLPP_VALUE_TRAIT_GENERATOR(trivial_value_is_null);
+	SQLPP_VALUE_TRAIT_GENERATOR(null_is_trivial_value);
 
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(noop);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(missing);

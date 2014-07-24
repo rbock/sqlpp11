@@ -95,7 +95,7 @@ namespace sqlpp
 				bool _is_null;
 			};
 
-			template<typename Db, bool NullIsTrivial = false>
+			template<typename Db, typename FieldSpec>
 				struct _result_entry_t
 				{
 					using _value_type = integral;
@@ -129,7 +129,7 @@ namespace sqlpp
 
 					_cpp_value_type value() const
 					{
-						const bool null_value = _is_null and not NullIsTrivial and not connector_null_result_is_trivial_value_t<Db>::value;
+						const bool null_value = _is_null and not null_is_trivial_value_t<FieldSpec>::value and not connector_null_result_is_trivial_value_t<Db>::value;
 						if (connector_assert_result_validity_t<Db>::value)
 						{
 							assert(_is_valid);
@@ -257,8 +257,8 @@ namespace sqlpp
 				};
 		};
 
-		template<typename Db, bool TrivialIsNull>
-			inline std::ostream& operator<<(std::ostream& os, const floating_point::_result_entry_t<Db, TrivialIsNull>& e)
+		template<typename Db, typename FieldSpec>
+			inline std::ostream& operator<<(std::ostream& os, const floating_point::_result_entry_t<Db, FieldSpec>& e)
 			{
 				return os << e.value();
 			}
