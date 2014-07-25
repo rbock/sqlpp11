@@ -96,7 +96,7 @@ namespace sqlpp
 			};
 
 			template<typename Db, typename FieldSpec>
-				struct _result_entry_t;
+				struct _result_field_t;
 
 			// I am SO waiting for concepts lite!
 			template<typename Field, typename Enable = void>
@@ -107,7 +107,7 @@ namespace sqlpp
 
 			template<typename Db, typename FieldSpec>
 				struct field_methods_t<
-						_result_entry_t<Db, FieldSpec>, 
+						_result_field_t<Db, FieldSpec>, 
 				    typename std::enable_if<connector_enforce_result_validity_t<Db>::value 
 							and column_spec_can_be_null_t<FieldSpec>::value
 							and not null_is_trivial_value_t<FieldSpec>::value>::type>
@@ -115,9 +115,9 @@ namespace sqlpp
 				};
 
 			template<typename Db, typename FieldSpec>
-				struct _result_entry_t: public field_methods_t<_result_entry_t<Db, FieldSpec>>
+				struct _result_field_t: public field_methods_t<_result_field_t<Db, FieldSpec>>
 				{
-					_result_entry_t():
+					_result_field_t():
 						_is_valid(false),
 						_is_null(true),
 						_value(false)
@@ -216,7 +216,7 @@ namespace sqlpp
 		};
 
 		template<typename Db, typename FieldSpec>
-			inline std::ostream& operator<<(std::ostream& os, const boolean::_result_entry_t<Db, FieldSpec>& e)
+			inline std::ostream& operator<<(std::ostream& os, const boolean::_result_field_t<Db, FieldSpec>& e)
 			{
 				return os << e.value();
 			}
