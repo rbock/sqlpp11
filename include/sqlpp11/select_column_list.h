@@ -31,7 +31,7 @@
 #include <sqlpp11/result_row.h>
 #include <sqlpp11/table.h>
 #include <sqlpp11/no_value.h>
-#include <sqlpp11/field.h>
+#include <sqlpp11/field_spec.h>
 #include <sqlpp11/expression_fwd.h>
 #include <sqlpp11/select_pseudo_table.h>
 #include <sqlpp11/named_interpretable.h>
@@ -248,7 +248,7 @@ namespace sqlpp
 					template<typename Db, typename Column>
 					 struct	_deferred_field_t
 					 {
-						 using type = make_field_t<_statement_t, Column>;
+						 using type = make_field_spec_t<_statement_t, Column>;
 					 };
 
 					template<typename Db, typename Column>

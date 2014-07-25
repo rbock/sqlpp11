@@ -24,15 +24,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_FIELD_H
-#define SQLPP_FIELD_H
+#ifndef SQLPP_FIELD_SPEC_H
+#define SQLPP_FIELD_SPEC_H
 
 #include <sqlpp11/multi_column.h>
 
 namespace sqlpp
 {
 	template<typename NameType, typename ValueType, bool CanBeNull, bool NullIsTrivialValue>
-		struct field_t
+		struct field_spec_t
 		{ 
 			using _traits = make_traits<ValueType, tag::noop, 
 						typename std::conditional<CanBeNull, tag::can_be_null, void>::type,
@@ -43,34 +43,34 @@ namespace sqlpp
 			using _name_t = NameType;
 		};
 
-	template<typename AliasProvider, typename FieldTuple>
-		struct multi_field_t
+	template<typename AliasProvider, typename FieldSpecTuple>
+		struct multi_field_spec_t
 		{
 		};
 
 	namespace detail
 	{
 		template<typename Select, typename NamedExpr>
-			struct make_field_t_impl
+			struct make_field_spec_impl
 			{
 				static constexpr bool _can_be_null = can_be_null_t<NamedExpr>::value;
 				static constexpr bool _depends_on_outer_table = detail::make_intersect_set_t<required_tables_of<NamedExpr>, typename Select::_used_outer_tables>::size::value > 0;
 
-				using type = field_t<typename NamedExpr::_name_t, 
+				using type = field_spec_t<typename NamedExpr::_name_t, 
 							value_type_of<NamedExpr>,
 							detail::any_t<_can_be_null, _depends_on_outer_table>::value,
 							null_is_trivial_value_t<NamedExpr>::value>;
 			};
 
 		template<typename Select, typename AliasProvider, typename... NamedExprs>
-			struct make_field_t_impl<Select, multi_column_alias_t<AliasProvider, NamedExprs...>>
+			struct make_field_spec_impl<Select, multi_column_alias_t<AliasProvider, NamedExprs...>>
 			{
-				using type = multi_field_t<AliasProvider, std::tuple<typename make_field_t_impl<Select, NamedExprs>::type...>>;
+				using type = multi_field_spec_t<AliasProvider, std::tuple<typename make_field_spec_impl<Select, NamedExprs>::type...>>;
 			};
 	}
 
 	template<typename Select, typename NamedExpr>
-		using make_field_t = typename detail::make_field_t_impl<Select, NamedExpr>::type;
+		using make_field_spec_t = typename detail::make_field_spec_impl<Select, NamedExpr>::type;
 
 }
 

@@ -28,7 +28,7 @@
 #define SQLPP_RESULT_ROW_H
 
 #include <map>
-#include <sqlpp11/field.h>
+#include <sqlpp11/field_spec.h>
 #include <sqlpp11/text.h>
 #include <sqlpp11/detail/column_index_sequence.h>
 
@@ -65,7 +65,7 @@ namespace sqlpp
 		};
 
 		template<std::size_t index, typename AliasProvider, typename Db, typename... FieldSpecs>
-			struct result_field<Db, index, multi_field_t<AliasProvider, std::tuple<FieldSpecs...>>>: 
+			struct result_field<Db, index, multi_field_spec_t<AliasProvider, std::tuple<FieldSpecs...>>>: 
 			public AliasProvider::_name_t::template _member_t<result_row_impl<Db, detail::make_column_index_sequence<index, FieldSpecs...>, FieldSpecs...>>
 			{
 				using _multi_field = typename AliasProvider::_name_t::template _member_t<result_row_impl<Db, detail::make_column_index_sequence<index, FieldSpecs...>, FieldSpecs...>>;
