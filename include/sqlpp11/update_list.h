@@ -194,7 +194,7 @@ namespace sqlpp
 						static_assert(::sqlpp::detail::all_t<is_assignment_t<Assignments>::value...>::value, "at least one argument is not an assignment in set()");
 						static_assert(::sqlpp::detail::none_t<must_not_update_t<typename Assignments::_lhs_t>::value...>::value, "at least one assignment is prohibited by its column definition in set()");
 
-						using _column_required_tables = typename ::sqlpp::detail::make_joined_set<required_tables_of<typename Assignments::_lhs_t>...>::type;
+						using _column_required_tables = ::sqlpp::detail::make_joined_set_t<required_tables_of<typename Assignments::_lhs_t>...>;
 						static_assert(sizeof...(Assignments) ? (_column_required_tables::size::value == 1) : true, "set() contains assignments for columns from more than one table");
 
 						return { *static_cast<typename Policies::_statement_t*>(this), update_list_data_t<Database, Assignments...>{assignments...} };
