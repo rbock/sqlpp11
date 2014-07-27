@@ -174,7 +174,7 @@ namespace sqlpp
 
 	SQLPP_TYPE_TRAIT_GENERATOR(requires_braces);
 
-	SQLPP_CONNECTOR_TRAIT_GENERATOR(enforce_result_validity);
+	SQLPP_CONNECTOR_TRAIT_GENERATOR(enforce_null_result_treatment);
 
 	template<typename Database>
 		using is_database = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;

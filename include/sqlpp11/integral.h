@@ -103,22 +103,37 @@ namespace sqlpp
 			template<typename Field, typename Enable = void>
 				struct field_methods_t
 				{
+					static constexpr bool _null_is_trivial = true;
 					operator _cpp_value_type() const { return static_cast<const Field&>(*this).value(); }
 				};
 
 			template<typename Db, typename FieldSpec>
 				struct field_methods_t<
 						_result_field_t<Db, FieldSpec>, 
-				    typename std::enable_if<connector_enforce_result_validity_t<Db>::value 
+				    typename std::enable_if<connector_enforce_null_result_treatment_t<Db>::value 
 							and column_spec_can_be_null_t<FieldSpec>::value
 							and not null_is_trivial_value_t<FieldSpec>::value>::type>
 				{
+					static constexpr bool _null_is_trivial = false;
 				};
 
 			template<typename Db, typename FieldSpec>
 				struct _result_field_t: public field_methods_t<_result_field_t<Db, FieldSpec>>
 				{
-					using _value_type = integral;
+					using _field_methods_t = field_methods_t<_result_field_t<Db, FieldSpec>>;
+
+					using _traits = make_traits<integral,
+								typename std::conditional<_field_methods_t::_null_is_trivial, ::sqlpp::tag::null_is_trivial_value, void>::type>;
+
+					struct _recursive_traits
+					{
+						using _parameters = std::tuple<>;
+						using _provided_tables = detail::type_set<>;
+						using _provided_outer_tables = detail::type_set<>;
+						using _required_tables = detail::type_set<>;
+						using _extra_tables = detail::type_set<>;
+						using _can_be_null = column_spec_can_be_null_t<FieldSpec>;
+					};
 
 					_result_field_t():
 						_is_valid(false),
@@ -152,7 +167,7 @@ namespace sqlpp
 
 						if (_is_null)
 						{
-							if (connector_enforce_result_validity_t<Db>::value and not null_is_trivial_value_t<FieldSpec>::value)
+							if (connector_enforce_null_result_treatment_t<Db>::value and not null_is_trivial_value_t<FieldSpec>::value)
 							{
 								throw exception("accessing value of NULL field");
 							}

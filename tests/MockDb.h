@@ -30,8 +30,14 @@
 #include <sqlpp11/serializer_context.h>
 #include <sqlpp11/connection.h>
 
-struct MockDb: public sqlpp::connection
+template<bool enforceNullResultTreatment>
+struct MockDbT: public sqlpp::connection
 {
+	struct _tags
+	{
+		using _enforce_null_result_treatment = std::integral_constant<bool, enforceNullResultTreatment>;
+	};
+
 	struct _serializer_context_t
 	{
 		std::ostringstream _os;
@@ -155,6 +161,9 @@ struct MockDb: public sqlpp::connection
 		}
 
 };
+
+using MockDb = MockDbT<false>;
+using EnforceDb = MockDbT<true>;
 
 #endif
 
