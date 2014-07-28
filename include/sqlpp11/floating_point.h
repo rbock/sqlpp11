@@ -28,7 +28,6 @@
 #define SQLPP_FLOATING_POINT_H
 
 #include <cstdlib>
-#include <cassert>
 #include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/exception.h>
@@ -41,7 +40,8 @@ namespace sqlpp
 		// floating_point value type
 		struct floating_point
 		{
-			using _tag = ::sqlpp::tag::floating_point;
+			using _traits = make_traits<floating_point, ::sqlpp::tag::is_floating_point, ::sqlpp::tag::is_expression>;
+			using _tag = ::sqlpp::tag::is_floating_point;
 			using _cpp_value_type = double;
 
 			struct _parameter_t
@@ -95,12 +95,46 @@ namespace sqlpp
 				bool _is_null;
 			};
 
-			template<typename Db, bool NullIsTrivial = false>
-				struct _result_entry_t
-				{
-					using _value_type = integral;
+			template<typename Db, typename FieldSpec>
+				struct _result_field_t;
 
-					_result_entry_t():
+			// I am SO waiting for concepts lite!
+			template<typename Field, typename Enable = void>
+				struct field_methods_t
+				{
+					static constexpr bool _null_is_trivial = true;
+					operator _cpp_value_type() const { return static_cast<const Field&>(*this).value(); }
+				};
+
+			template<typename Db, typename FieldSpec>
+				struct field_methods_t<
+						_result_field_t<Db, FieldSpec>, 
+				    typename std::enable_if<enforce_null_result_treatment_t<Db>::value 
+							and column_spec_can_be_null_t<FieldSpec>::value
+							and not null_is_trivial_value_t<FieldSpec>::value>::type>
+				{
+					static constexpr bool _null_is_trivial = false;
+				};
+
+			template<typename Db, typename FieldSpec>
+				struct _result_field_t: public field_methods_t<_result_field_t<Db, FieldSpec>>
+				{
+					using _field_methods_t = field_methods_t<_result_field_t<Db, FieldSpec>>;
+
+					using _traits = make_traits<integral,
+								tag_if<tag::null_is_trivial_value, _field_methods_t::_null_is_trivial>>;
+
+					struct _recursive_traits
+					{
+						using _parameters = std::tuple<>;
+						using _provided_tables = detail::type_set<>;
+						using _provided_outer_tables = detail::type_set<>;
+						using _required_tables = detail::type_set<>;
+						using _extra_tables = detail::type_set<>;
+						using _can_be_null = column_spec_can_be_null_t<FieldSpec>;
+					};
+
+					_result_field_t():
 						_is_valid(false),
 						_is_null(true),
 						_value(0)
@@ -120,32 +154,29 @@ namespace sqlpp
 
 					bool is_null() const
 					{ 
-						if (connector_assert_result_validity_t<Db>::value)
-							assert(_is_valid);
-						else if (not _is_valid)
+						if (not _is_valid)
 							throw exception("accessing is_null in non-existing row");
 						return _is_null; 
 					}
 
 					_cpp_value_type value() const
 					{
-						const bool null_value = _is_null and not NullIsTrivial and not connector_null_result_is_trivial_value_t<Db>::value;
-						if (connector_assert_result_validity_t<Db>::value)
+						if (not _is_valid)
+							throw exception("accessing value in non-existing row");
+
+						if (_is_null)
 						{
-							assert(_is_valid);
-							assert(not null_value);
-						}
-						else
-						{
-							if (not _is_valid)
-								throw exception("accessing value in non-existing row");
-							if (null_value)
+							if (enforce_null_result_treatment_t<Db>::value and not null_is_trivial_value_t<FieldSpec>::value)
+							{
 								throw exception("accessing value of NULL field");
+							}
+							else
+							{
+								return 0;
+							}
 						}
 						return _value;
 					}
-
-					operator _cpp_value_type() const { return value(); }
 
 					template<typename Target>
 						void _bind(Target& target, size_t i)
@@ -257,8 +288,8 @@ namespace sqlpp
 				};
 		};
 
-		template<typename Db, bool TrivialIsNull>
-			inline std::ostream& operator<<(std::ostream& os, const floating_point::_result_entry_t<Db, TrivialIsNull>& e)
+		template<typename Db, typename FieldSpec>
+			inline std::ostream& operator<<(std::ostream& os, const floating_point::_result_field_t<Db, FieldSpec>& e)
 			{
 				return os << e.value();
 			}

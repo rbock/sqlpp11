@@ -37,15 +37,65 @@
 namespace sqlpp
 {
 	template<typename Operand>
-		struct tvin_t
+		struct tvin_arg_t
 		{
-			using _traits = make_traits<value_type_of<Operand>, tag::expression>;
+			using _traits = make_traits<value_type_of<Operand>, tag::is_expression>;
 			using _recursive_traits = make_recursive_traits<Operand>;
 
 			using _operand_t = Operand;
 
-			tvin_t(Operand operand): 
+			tvin_arg_t(_operand_t operand): 
 				_value(operand)
+			{}
+			tvin_arg_t(const tvin_arg_t&) = default;
+			tvin_arg_t(tvin_arg_t&&) = default;
+			tvin_arg_t& operator=(const tvin_arg_t&) = default;
+			tvin_arg_t& operator=(tvin_arg_t&&) = default;
+			~tvin_arg_t() = default;
+
+			_operand_t _value;
+		};
+
+	template<typename Context, typename Operand>
+		struct serializer_t<Context, tvin_arg_t<Operand>>
+		{
+			using T = tvin_arg_t<Operand>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				static_assert(wrong_t<Context, Operand>::value, "tvin may only be used with operators =, == and !=");
+			}
+		};
+
+	template<typename T>
+		struct tvin_t;
+
+	namespace detail
+	{
+	template<typename T>
+		struct allow_tvin_impl
+		{
+			using type = T;
+		};
+	template <typename T>
+		struct allow_tvin_impl<tvin_arg_t<T>>
+		{
+			using type = tvin_t<T>;
+		};
+	}
+	template<typename T>
+		using allow_tvin_t = typename detail::allow_tvin_impl<T>::type;
+
+	template<typename Operand>
+		struct tvin_t
+		{
+			using _traits = make_traits<value_type_of<Operand>, tag::is_expression>;
+			using _recursive_traits = make_recursive_traits<Operand>;
+
+			using _operand_t = Operand;
+
+			tvin_t(tvin_arg_t<Operand> arg): 
+				_value(arg._value)
 			{}
 			tvin_t(const tvin_t&) = default;
 			tvin_t(tvin_t&&) = default;
@@ -58,70 +108,29 @@ namespace sqlpp
 				return _value._is_trivial();
 			}
 
-			Operand _value;
+			_operand_t _value;
 		};
+
+	namespace detail
+	{
+		template<typename T>
+			struct is_tvin_impl
+			{
+				using type = std::false_type;
+			};
+		template<typename T>
+			struct is_tvin_impl<tvin_t<T>>
+			{
+				using type = std::true_type;
+			};
+	}
+	template<typename T>
+		using is_tvin_t = typename detail::is_tvin_impl<T>::type;
 
 	template<typename Context, typename Operand>
 		struct serializer_t<Context, tvin_t<Operand>>
 		{
 			using T = tvin_t<Operand>;
-
-			static void _(const T& t, Context& context)
-			{
-				static_assert(wrong_t<T>::value, "tvin() must not be used with anything but =, ==, != and !");
-			}
-		};
-
-	template<typename Operand>
-		struct maybe_tvin_t
-		{
-			using _traits = make_traits<value_type_of<Operand>, tag::expression>;
-			using _recursive_traits = make_recursive_traits<Operand>;
-
-			static constexpr bool _is_trivial()
-			{
-				return false;
-			}
-
-			maybe_tvin_t(Operand operand): 
-				_value(operand)
-			{}
-			maybe_tvin_t(const maybe_tvin_t&) = default;
-			maybe_tvin_t(maybe_tvin_t&&) = default;
-			maybe_tvin_t& operator=(const maybe_tvin_t&) = default;
-			maybe_tvin_t& operator=(maybe_tvin_t&&) = default;
-			~maybe_tvin_t() = default;
-
-			Operand _value;
-		};
-
-	template<typename Operand>
-		struct maybe_tvin_t<tvin_t<Operand>>
-		{
-			using _traits = make_traits<value_type_of<Operand>, tag::expression>;
-			using _recursive_traits = make_recursive_traits<Operand>;
-
-			bool _is_trivial() const
-			{
-				return _value._is_trivial();
-			};
-
-			maybe_tvin_t(tvin_t<Operand> operand): 
-				_value(operand._value)
-			{}
-			maybe_tvin_t(const maybe_tvin_t&) = default;
-			maybe_tvin_t(maybe_tvin_t&&) = default;
-			maybe_tvin_t& operator=(const maybe_tvin_t&) = default;
-			maybe_tvin_t& operator=(maybe_tvin_t&&) = default;
-			~maybe_tvin_t() = default;
-
-			typename tvin_t<Operand>::_operand_t _value;
-		};
-
-	template<typename Context, typename Operand>
-		struct serializer_t<Context, maybe_tvin_t<Operand>>
-		{
-			using T = maybe_tvin_t<Operand>;
 
 			static Context& _(const T& t, Context& context)
 			{
@@ -138,7 +147,7 @@ namespace sqlpp
 		};
 
 	template<typename Operand>
-		auto tvin(Operand operand) -> tvin_t<typename wrap_operand<Operand>::type>
+		auto tvin(Operand operand) -> tvin_arg_t<typename wrap_operand<Operand>::type>
 		{
 			using _operand_t = typename wrap_operand<Operand>::type;
 			static_assert(std::is_same<_operand_t, text_operand>::value

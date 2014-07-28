@@ -21,11 +21,7 @@ namespace test
             const T& operator()() const { return delta; }
           };
       };
-      using _value_type = sqlpp::varchar;
-      struct _column_type
-      {
-        using _can_be_null = std::true_type;
-      };
+      using _traits = sqlpp::make_traits<sqlpp::varchar, sqlpp::tag::can_be_null>;
     };
     struct Epsilon
     {
@@ -40,11 +36,7 @@ namespace test
             const T& operator()() const { return epsilon; }
           };
       };
-      using _value_type = sqlpp::bigint;
-      struct _column_type
-      {
-        using _can_be_null = std::true_type;
-      };
+      using _traits = sqlpp::make_traits<sqlpp::bigint, sqlpp::tag::can_be_null>;
     };
     struct Omega
     {
@@ -59,11 +51,7 @@ namespace test
             const T& operator()() const { return omega; }
           };
       };
-      using _value_type = sqlpp::floating_point;
-      struct _column_type
-      {
-        using _can_be_null = std::true_type;
-      };
+      using _traits = sqlpp::make_traits<sqlpp::floating_point, sqlpp::tag::can_be_null>;
     };
   }
 
@@ -100,13 +88,7 @@ namespace test
             const T& operator()() const { return alpha; }
           };
       };
-      using _value_type = sqlpp::bigint;
-      struct _column_type
-      {
-        using _must_not_insert = std::true_type;
-        using _must_not_update = std::true_type;
-        using _can_be_null = std::true_type;
-      };
+      using _traits = sqlpp::make_traits<sqlpp::bigint, sqlpp::tag::must_not_insert, sqlpp::tag::must_not_update, sqlpp::tag::can_be_null>;
     };
     struct Beta
     {
@@ -121,11 +103,7 @@ namespace test
             const T& operator()() const { return beta; }
           };
       };
-      using _value_type = sqlpp::varchar;
-      struct _column_type
-      {
-        using _can_be_null = std::true_type;
-      };
+      using _traits = sqlpp::make_traits<sqlpp::varchar, sqlpp::tag::can_be_null>;
     };
     struct Gamma
     {
@@ -140,11 +118,7 @@ namespace test
             const T& operator()() const { return gamma; }
           };
       };
-      using _value_type = sqlpp::boolean;
-      struct _column_type
-      {
-        using _require_insert = std::true_type;
-      };
+      using _traits = sqlpp::make_traits<sqlpp::boolean, sqlpp::tag::require_insert>;
     };
     struct Delta
     {
@@ -159,11 +133,7 @@ namespace test
             const T& operator()() const { return delta; }
           };
       };
-      using _value_type = sqlpp::integer;
-      struct _column_type
-      {
-        using _can_be_null = std::true_type;
-      };
+      using _traits = sqlpp::make_traits<sqlpp::integer, sqlpp::tag::can_be_null>;
     };
   }
 

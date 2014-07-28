@@ -54,7 +54,7 @@ namespace sqlpp
 	template<typename Limit>
 		struct limit_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::limit>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_limit>;
 			using _recursive_traits = make_recursive_traits<Limit>;
 
 			static_assert(is_integral_t<Limit>::value, "limit requires an integral value or integral parameter");
@@ -123,7 +123,7 @@ namespace sqlpp
 	template<typename Database>
 		struct dynamic_limit_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::limit>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_limit>;
 			using _recursive_traits = make_recursive_traits<>;
 
 			// Data
@@ -172,7 +172,7 @@ namespace sqlpp
 
 	struct no_limit_t
 	{
-		using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
+		using _traits = make_traits<no_value_t, ::sqlpp::tag::is_noop>;
 		using _recursive_traits = make_recursive_traits<>;
 
 		// Data

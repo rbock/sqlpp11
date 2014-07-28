@@ -31,7 +31,7 @@
 #include <sqlpp11/result_row.h>
 #include <sqlpp11/table.h>
 #include <sqlpp11/no_value.h>
-#include <sqlpp11/field.h>
+#include <sqlpp11/field_spec.h>
 #include <sqlpp11/expression_fwd.h>
 #include <sqlpp11/select_pseudo_table.h>
 #include <sqlpp11/named_interpretable.h>
@@ -47,14 +47,14 @@ namespace sqlpp
 		template<typename... Columns>
 			struct select_traits
 			{
-				using _traits = make_traits<no_value_t, tag::select_column_list, tag::return_value>;
+				using _traits = make_traits<no_value_t, tag::is_select_column_list, tag::is_return_value>;
 				struct _name_t {};
 			};
 
 		template<typename Column>
 			struct select_traits<Column>
 			{
-				using _traits = make_traits<value_type_of<Column>, tag::select_column_list, tag::return_value, tag::expression, tag::named_expression>;
+				using _traits = make_traits<value_type_of<Column>, tag::is_select_column_list, tag::is_return_value, tag::is_expression, tag::is_named_expression>;
 				using _name_t = typename Column::_name_t;
 			};
 	}
@@ -245,10 +245,19 @@ namespace sqlpp
 						return static_cast<const _statement_t&>(*this);
 					}
 
+					template<typename Db, typename Column>
+					 struct	_deferred_field_t
+					 {
+						 using type = make_field_spec_t<_statement_t, Column>;
+					 };
+
+					template<typename Db, typename Column>
+						using _field_t = typename _deferred_field_t<Db, Column>::type;
+
 					template<typename Db>
 						using _result_row_t = typename std::conditional<_is_dynamic::value,
-									dynamic_result_row_t<Db, make_field_t<Columns>...>,
-									result_row_t<Db, make_field_t<Columns>...>>::type;
+									dynamic_result_row_t<Db, _field_t<Db, Columns>...>,
+									result_row_t<Db, _field_t<Db, Columns>...>>::type;
 
 					using _dynamic_names_t = typename dynamic_select_column_list<Database>::_names_t;
 
@@ -317,7 +326,7 @@ namespace sqlpp
 
 	struct no_select_column_list_t
 	{
-		using _traits = make_traits<no_value_t, ::sqlpp::tag::noop, ::sqlpp::tag::missing>;
+		using _traits = make_traits<no_value_t, ::sqlpp::tag::is_noop, ::sqlpp::tag::is_missing>;
 		using _recursive_traits = make_recursive_traits<>;
 
 		struct _name_t {};

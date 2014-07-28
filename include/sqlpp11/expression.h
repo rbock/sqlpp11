@@ -41,10 +41,12 @@ namespace sqlpp
 		struct binary_expression_t<Lhs, op::equal_to, Rhs>: public ::sqlpp::detail::boolean::template expression_operators<binary_expression_t<Lhs, op::equal_to, Rhs>>,
 		public alias_operators<binary_expression_t<Lhs, op::equal_to, Rhs>>
 		{
-			using _traits = make_traits<boolean, sqlpp::tag::expression>;
+			using _traits = make_traits<boolean, sqlpp::tag::is_expression>;
 			using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
+			using _lhs_t = Lhs;
+			using _rhs_t = allow_tvin_t<Rhs>;
 
-			binary_expression_t(Lhs lhs, Rhs rhs):
+			binary_expression_t(_lhs_t lhs, _rhs_t rhs):
 				_lhs(lhs), 
 				_rhs(rhs)
 			{}
@@ -55,8 +57,8 @@ namespace sqlpp
 			binary_expression_t& operator=(binary_expression_t&&) = default;
 			~binary_expression_t() = default;
 
-			Lhs _lhs;
-			maybe_tvin_t<Rhs> _rhs;
+			_lhs_t _lhs;
+			_rhs_t _rhs;
 		};
 
 	template<typename Context, typename Lhs, typename Rhs>
@@ -68,7 +70,7 @@ namespace sqlpp
 			{
 				context << "(";
 				serialize(t._lhs, context);
-				if (t._rhs._is_trivial())
+				if (rhs_is_null(t))
 				{
 					context << " IS NULL";
 				}
@@ -86,10 +88,12 @@ namespace sqlpp
 		struct binary_expression_t<Lhs, op::not_equal_to, Rhs>: public ::sqlpp::detail::boolean::template expression_operators<binary_expression_t<Lhs, op::not_equal_to, Rhs>>,
 		public alias_operators<binary_expression_t<Lhs, op::not_equal_to, Rhs>>
 		{
-			using _traits = make_traits<boolean, sqlpp::tag::expression>;
+			using _traits = make_traits<boolean, sqlpp::tag::is_expression>;
 			using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
+			using _lhs_t = Lhs;
+			using _rhs_t = allow_tvin_t<Rhs>;
 
-			binary_expression_t(Lhs lhs, Rhs rhs):
+			binary_expression_t(Lhs lhs, _rhs_t rhs):
 				_lhs(lhs), 
 				_rhs(rhs)
 			{}
@@ -100,8 +104,8 @@ namespace sqlpp
 			binary_expression_t& operator=(binary_expression_t&&) = default;
 			~binary_expression_t() = default;
 
-			Lhs _lhs;
-			maybe_tvin_t<Rhs> _rhs;
+			_lhs_t _lhs;
+			_rhs_t _rhs;
 		};
 
 	template<typename Context, typename Lhs, typename Rhs>
@@ -113,7 +117,7 @@ namespace sqlpp
 			{
 				context << "(";
 				serialize(t._lhs, context);
-				if (t._rhs._is_trivial())
+				if (rhs_is_null(t))
 				{
 					context << " IS NOT NULL";
 				}
@@ -131,7 +135,7 @@ namespace sqlpp
 		struct unary_expression_t<op::logical_not, Rhs>: public ::sqlpp::detail::boolean::template expression_operators<unary_expression_t<op::logical_not, Rhs>>,
 		public alias_operators<unary_expression_t<op::logical_not, Rhs>>
 		{
-			using _traits = make_traits<boolean, sqlpp::tag::expression>;
+			using _traits = make_traits<boolean, sqlpp::tag::is_expression>;
 			using _recursive_traits = make_recursive_traits<Rhs>;
 
 			unary_expression_t(Rhs rhs):
@@ -155,10 +159,17 @@ namespace sqlpp
 			static Context& _(const T& t, Context& context)
 			{
 				context << "(";
-				context << "NOT ";
-				serialize(t._lhs, context);
+				if (trivial_value_is_null_t<Rhs>::value)
+				{
+					serialize(t._lhs, context);
+					context << " IS NULL ";
+				}
+				else
+				{
+					context << "NOT ";
+					serialize(t._rhs, context);
+				}
 				context << ")";
-				return context;
 			}
 		};
 
@@ -166,7 +177,7 @@ namespace sqlpp
 		struct binary_expression_t: public value_type_of<O>::template expression_operators<binary_expression_t<Lhs, O, Rhs>>,
 		public alias_operators<binary_expression_t<Lhs, O, Rhs>>
 	{
-		using _traits = make_traits<value_type_of<O>, sqlpp::tag::expression>;
+		using _traits = make_traits<value_type_of<O>, sqlpp::tag::is_expression>;
 		using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
 
 		binary_expression_t(Lhs lhs, Rhs rhs):
@@ -204,7 +215,7 @@ namespace sqlpp
 		struct unary_expression_t: public value_type_of<O>::template expression_operators<unary_expression_t<O, Rhs>>,
 		public alias_operators<unary_expression_t<O, Rhs>>
 	{
-		using _traits = make_traits<value_type_of<O>, sqlpp::tag::expression>;
+		using _traits = make_traits<value_type_of<O>, sqlpp::tag::is_expression>;
 		using _recursive_traits = make_recursive_traits<Rhs>;
 
 		unary_expression_t(Rhs rhs):

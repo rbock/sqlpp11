@@ -33,7 +33,7 @@ namespace sqlpp
 {
 	struct null_t
 	{
-		using _traits = make_traits<no_value_t, tag::expression>;
+		using _traits = make_traits<no_value_t, tag::is_expression>;
 		using _recursive_traits = make_recursive_traits<>;
 	};
 

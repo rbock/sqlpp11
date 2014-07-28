@@ -58,7 +58,7 @@ namespace sqlpp
 	template<typename Database, typename... Expressions>
 		struct where_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::where>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_where>;
 			using _recursive_traits = make_recursive_traits<Expressions...>;
 
 			using _is_dynamic = is_database<Database>;
@@ -141,7 +141,7 @@ namespace sqlpp
 	template<>
 		struct where_t<void, bool>
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::where>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_where>;
 			using _recursive_traits = make_recursive_traits<>;
 
 			// Data
@@ -184,7 +184,7 @@ namespace sqlpp
 	template<bool Required>
 		struct no_where_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::where>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_where>;
 			using _recursive_traits = make_recursive_traits<>;
 
 			// Data

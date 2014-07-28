@@ -155,22 +155,20 @@ for tableCreation in tableCreations:
         print('          };', file=header)
         print('      };', file=header)
         #print(sqlColumnType)
-        print('      using _value_type = ' + NAMESPACE + '::' + types[sqlColumnType] + ';', file=header)
-        print('      struct _column_type', file=header)
-        print('      {', file=header)
+        traitslist = [NAMESPACE + '::' + types[sqlColumnType]];
         requireInsert = True
         if column.hasAutoValue:
-            print('        using _must_not_insert = std::true_type;', file=header)
-            print('        using _must_not_update = std::true_type;', file=header)
+            traitslist.append(NAMESPACE + '::tag::must_not_insert');
+            traitslist.append(NAMESPACE + '::tag::must_not_update');
             requireInsert = False
         if not column.notNull:
-            print('        using _can_be_null = std::true_type;', file=header)
+            traitslist.append(NAMESPACE + '::tag::can_be_null');
             requireInsert = False
         if column.hasDefaultValue:
             requireInsert = False
         if requireInsert:
-            print('        using _require_insert = std::true_type;', file=header)
-        print('      };', file=header)
+            traitslist.append(NAMESPACE + '::tag::require_insert');
+        print('      using _traits = ' + NAMESPACE + '::make_traits<' + ', '.join(traitslist) + '>;', file=header)
         print('    };', file=header)
     print('  }', file=header)
     print('', file=header)

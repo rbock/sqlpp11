@@ -56,7 +56,7 @@ namespace sqlpp
 	template<typename Database, typename... Assignments>
 		struct update_list_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::update_list>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_update_list>;
 			using _recursive_traits = make_recursive_traits<Assignments...>;
 			using _is_dynamic = is_database<Database>;
 
@@ -78,9 +78,9 @@ namespace sqlpp
 						{
 							static_assert(_is_dynamic::value, "add must not be called for static from()");
 							static_assert(is_assignment_t<Assignment>::value, "invalid assignment argument in add()");
-							using _assigned_columns = detail::make_type_set_t<typename Assignments::_column_t...>;
-							static_assert(not detail::is_element_of<typename Assignment::_column_t, _assigned_columns>::value, "Must not assign value to column twice");
-							static_assert(sqlpp::detail::not_t<must_not_update_t, typename Assignment::_column_t>::value, "add() argument must not be updated");
+							using _assigned_columns = detail::make_type_set_t<typename Assignments::_lhs_t...>;
+							static_assert(not detail::is_element_of<typename Assignment::_lhs_t, _assigned_columns>::value, "Must not assign value to column twice");
+							static_assert(sqlpp::detail::not_t<must_not_update_t, typename Assignment::_lhs_t>::value, "add() argument must not be updated");
 							static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Assignment>::value, "assignment uses tables unknown to this statement in add()");
 
 							using ok = ::sqlpp::detail::all_t<
@@ -130,7 +130,7 @@ namespace sqlpp
 
 	struct no_update_list_t
 	{
-		using _traits = make_traits<no_value_t, ::sqlpp::tag::where>;
+		using _traits = make_traits<no_value_t, ::sqlpp::tag::is_where>;
 		using _recursive_traits = make_recursive_traits<>;
 
 		// Data
@@ -192,9 +192,9 @@ namespace sqlpp
 					{
 						static_assert(not ::sqlpp::detail::has_duplicates<Assignments...>::value, "at least one duplicate argument detected in set()");
 						static_assert(::sqlpp::detail::all_t<is_assignment_t<Assignments>::value...>::value, "at least one argument is not an assignment in set()");
-						static_assert(::sqlpp::detail::none_t<must_not_update_t<typename Assignments::_column_t>::value...>::value, "at least one assignment is prohibited by its column definition in set()");
+						static_assert(::sqlpp::detail::none_t<must_not_update_t<typename Assignments::_lhs_t>::value...>::value, "at least one assignment is prohibited by its column definition in set()");
 
-						using _column_required_tables = typename ::sqlpp::detail::make_joined_set<required_tables_of<typename Assignments::_column_t>...>::type;
+						using _column_required_tables = ::sqlpp::detail::make_joined_set_t<required_tables_of<typename Assignments::_lhs_t>...>;
 						static_assert(sizeof...(Assignments) ? (_column_required_tables::size::value == 1) : true, "set() contains assignments for columns from more than one table");
 
 						return { *static_cast<typename Policies::_statement_t*>(this), update_list_data_t<Database, Assignments...>{assignments...} };

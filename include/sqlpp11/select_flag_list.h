@@ -59,7 +59,7 @@ namespace sqlpp
 	template<typename Database, typename... Flags>
 		struct select_flag_list_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::select_flag_list>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_select_flag_list>;
 			using _recursive_traits = make_recursive_traits<Flags...>;
 
 			using _is_dynamic = is_database<Database>;
@@ -134,7 +134,7 @@ namespace sqlpp
 
 	struct no_select_flag_list_t
 	{
-		using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
+		using _traits = make_traits<no_value_t, ::sqlpp::tag::is_noop>;
 		using _recursive_traits = make_recursive_traits<>;
 
 		// Data

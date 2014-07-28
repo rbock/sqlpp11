@@ -35,7 +35,7 @@ namespace sqlpp
 	template<typename Select>
 		struct any_t
 		{
-			using _traits = make_traits<value_type_of<Select>, ::sqlpp::tag::multi_expression>;
+			using _traits = make_traits<value_type_of<Select>, ::sqlpp::tag::is_multi_expression>;
 			using _recursive_traits = make_recursive_traits<Select>;
 
 			struct _name_t

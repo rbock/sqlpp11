@@ -42,13 +42,17 @@ namespace sqlpp
 					{
 					};
 			};
-			using _value_type = no_value_t;
-			struct _column_type {};
+			using _traits = make_traits<no_value_t>;
 		};
 	}
 
 	struct verbatim_table_t: public sqlpp::table_t<verbatim_table_t, detail::unusable_pseudo_column_t>
 	{
+		struct _recursive_traits: public sqlpp::table_t<verbatim_table_t, detail::unusable_pseudo_column_t>::_recursive_traits
+		{
+			using _provided_outer_tables = detail::type_set<verbatim_table_t>;
+		};
+
 		struct _name_t {};
 
 		verbatim_table_t(std::string representation):

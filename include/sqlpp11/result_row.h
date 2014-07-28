@@ -28,7 +28,7 @@
 #define SQLPP_RESULT_ROW_H
 
 #include <map>
-#include <sqlpp11/field.h>
+#include <sqlpp11/field_spec.h>
 #include <sqlpp11/text.h>
 #include <sqlpp11/detail/column_index_sequence.h>
 
@@ -36,14 +36,14 @@ namespace sqlpp
 {
 	namespace detail
 	{
-		template<typename Db, typename IndexSequence, typename... NamedExprs>
+		template<typename Db, typename IndexSequence, typename... FieldSpecs>
 			struct result_row_impl;
 
-		template<typename Db, std::size_t index, typename NamedExpr>
+		template<typename Db, std::size_t index, typename FieldSpec>
 			struct result_field:
-				public NamedExpr::_name_t::template _member_t<typename value_type_of<NamedExpr>::template _result_entry_t<Db, NamedExpr::_trivial_value_is_null>>
+				public FieldSpec::_name_t::template _member_t<typename value_type_of<FieldSpec>::template _result_field_t<Db, FieldSpec>>
 		{
-			using _field = typename NamedExpr::_name_t::template _member_t<typename value_type_of<NamedExpr>::template _result_entry_t<Db, NamedExpr::_trivial_value_is_null>>;
+			using _field = typename FieldSpec::_name_t::template _member_t<typename value_type_of<FieldSpec>::template _result_field_t<Db, FieldSpec>>;
 
 			result_field() = default;
 
@@ -64,11 +64,11 @@ namespace sqlpp
 				}
 		};
 
-		template<std::size_t index, typename AliasProvider, typename Db, typename... NamedExprs>
-			struct result_field<Db, index, multi_field_t<AliasProvider, std::tuple<NamedExprs...>>>: 
-			public AliasProvider::_name_t::template _member_t<result_row_impl<Db, detail::make_column_index_sequence<index, NamedExprs...>, NamedExprs...>>
+		template<std::size_t index, typename AliasProvider, typename Db, typename... FieldSpecs>
+			struct result_field<Db, index, multi_field_spec_t<AliasProvider, std::tuple<FieldSpecs...>>>: 
+			public AliasProvider::_name_t::template _member_t<result_row_impl<Db, detail::make_column_index_sequence<index, FieldSpecs...>, FieldSpecs...>>
 			{
-				using _multi_field = typename AliasProvider::_name_t::template _member_t<result_row_impl<Db, detail::make_column_index_sequence<index, NamedExprs...>, NamedExprs...>>;
+				using _multi_field = typename AliasProvider::_name_t::template _member_t<result_row_impl<Db, detail::make_column_index_sequence<index, FieldSpecs...>, FieldSpecs...>>;
 
 				result_field() = default;
 
@@ -89,9 +89,9 @@ namespace sqlpp
 					}
 			};
 
-		template<typename Db, std::size_t LastIndex, std::size_t... Is, typename... NamedExprs>
-			struct result_row_impl<Db, detail::column_index_sequence<LastIndex, Is...>, NamedExprs...>: 
-			public result_field<Db, Is, NamedExprs>...
+		template<typename Db, std::size_t LastIndex, std::size_t... Is, typename... FieldSpecs>
+			struct result_row_impl<Db, detail::column_index_sequence<LastIndex, Is...>, FieldSpecs...>: 
+			public result_field<Db, Is, FieldSpecs>...
 			{
 				static constexpr std::size_t _last_index = LastIndex;
 
@@ -100,29 +100,29 @@ namespace sqlpp
 				void _validate()
 				{
 					using swallow = int[];
-					(void) swallow{(result_field<Db, Is, NamedExprs>::_validate(), 0)...};
+					(void) swallow{(result_field<Db, Is, FieldSpecs>::_validate(), 0)...};
 				}
 
 				void _invalidate()
 				{
 					using swallow = int[];
-					(void) swallow{(result_field<Db, Is, NamedExprs>::_invalidate(), 0)...};
+					(void) swallow{(result_field<Db, Is, FieldSpecs>::_invalidate(), 0)...};
 				}
 
 				template<typename Target>
 					void _bind(Target& target)
 					{
 						using swallow = int[];
-						(void) swallow{(result_field<Db, Is, NamedExprs>::_bind(target), 0)...};
+						(void) swallow{(result_field<Db, Is, FieldSpecs>::_bind(target), 0)...};
 					}
 			};
 
 	}
 
-	template<typename Db, typename... NamedExprs>
-		struct result_row_t: public detail::result_row_impl<Db, detail::make_column_index_sequence<0, NamedExprs...>, NamedExprs...>
+	template<typename Db, typename... FieldSpecs>
+		struct result_row_t: public detail::result_row_impl<Db, detail::make_column_index_sequence<0, FieldSpecs...>, FieldSpecs...>
 	{
-		using _impl = detail::result_row_impl<Db, detail::make_column_index_sequence<0, NamedExprs...>, NamedExprs...>;
+		using _impl = detail::result_row_impl<Db, detail::make_column_index_sequence<0, FieldSpecs...>, FieldSpecs...>;
 		bool _is_valid;
 		static constexpr size_t _last_static_index = _impl::_last_index;
 
@@ -178,11 +178,18 @@ namespace sqlpp
 			}
 	};
 
-	template<typename Db, typename... NamedExprs>
-		struct dynamic_result_row_t: public detail::result_row_impl<Db, detail::make_column_index_sequence<0, NamedExprs...>, NamedExprs...>
+	template<typename Db, typename... FieldSpecs>
+		struct dynamic_result_row_t: public detail::result_row_impl<Db, detail::make_column_index_sequence<0, FieldSpecs...>, FieldSpecs...>
 	{
-		using _impl = detail::result_row_impl<Db, detail::make_column_index_sequence<0, NamedExprs...>, NamedExprs...>;
-		using _field_type = detail::text::_result_entry_t<Db, false>;
+		using _impl = detail::result_row_impl<Db, detail::make_column_index_sequence<0, FieldSpecs...>, FieldSpecs...>;
+		struct _field_spec_t
+		{
+			using _traits = make_traits<detail::text, tag::is_noop, tag::can_be_null, tag::null_is_trivial_value>;
+			using _recursive_traits = make_recursive_traits<>;
+
+			struct _name_t {};
+		};
+		using _field_type = detail::text::_result_field_t<Db, _field_spec_t>;
 		static constexpr size_t _last_static_index = _impl::_last_index;
 
 		bool _is_valid;

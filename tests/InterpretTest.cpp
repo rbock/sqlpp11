@@ -36,7 +36,6 @@
 
 MockDb db = {};
 MockDb::_serializer_context_t printer;
-SQLPP_ALIAS_PROVIDER(kaesekuchen);
 
 int main()
 {
@@ -125,6 +124,10 @@ int main()
 
 	// join
 	serialize(t.inner_join(t.as(t.alpha)).on(t.beta == t.as(t.alpha).beta), printer).str();
+	{
+		auto inner = t.inner_join(t.as(t.alpha)).on(t.beta == t.as(t.alpha).beta);
+		serialize(select(t.alpha).from(inner), printer).str();
+	}
 
 	// multi_column
 	serialize(multi_column(t.alpha, (t.beta + "cake").as(t.gamma)).as(t.alpha), printer).str();

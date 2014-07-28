@@ -32,19 +32,19 @@
 namespace sqlpp
 {
 	// provide type information for sub-selects that are used as named expressions or tables
-	template<typename ValueType, typename NameType>
+	template<typename Select, typename NamedExpr>
 		struct select_column_spec_t
 		{
-			using _traits = make_traits<ValueType>;
-			using _recursive_traits = make_recursive_traits<>;
-			using _value_type = ValueType; // FIXME: column specs probably should use _traits, too
+			using _name_t = typename NamedExpr::_name_t;
 
-			using _name_t = NameType;
-			struct _column_type 
-			{
-				using _must_not_insert = std::true_type;
-				using _must_not_update = std::true_type;
-			};
+			static constexpr bool _can_be_null = can_be_null_t<NamedExpr>::value;
+			static constexpr bool _depends_on_outer_table = detail::make_intersect_set_t<required_tables_of<NamedExpr>, typename Select::_used_outer_tables>::size::value > 0;
+
+			using _traits = make_traits<value_type_of<NamedExpr>, 
+						tag::must_not_insert, 
+						tag::must_not_update,
+						tag_if<tag::can_be_null, _can_be_null or _depends_on_outer_table>
+							>;
 		};
 
 	template<
@@ -53,9 +53,9 @@ namespace sqlpp
 							 >
 							 struct select_pseudo_table_t: public sqlpp::table_t<select_pseudo_table_t<
 																						 Select,
-																						 NamedExpr...>, select_column_spec_t<value_type_of<NamedExpr>, typename NamedExpr::_name_t>...>
+																						 NamedExpr...>, select_column_spec_t<Select, NamedExpr>...>
 	{
-		using _traits = make_traits<no_value_t, tag::table, tag::pseudo_table>;
+		using _traits = make_traits<no_value_t, tag::is_table, tag::is_pseudo_table>;
 		using _recursive_traits = make_recursive_traits<>;
 
 		select_pseudo_table_t(Select select):

@@ -24,48 +24,44 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_FIELD_H
-#define SQLPP_FIELD_H
+#ifndef SQLPP_RHS_IS_NULL_H
+#define SQLPP_RHS_IS_NULL_H
 
-#include <sqlpp11/multi_column.h>
+#include <sqlpp11/tvin.h>
 
 namespace sqlpp
 {
-	template<typename NameType, typename ValueType, bool TrivialValueIsNull>
-		struct field_t
-		{ 
-			using _traits = make_traits<ValueType, tag::noop>;
-			using _recursive_traits = make_recursive_traits<>;
-
-			using _name_t = NameType;
-			static constexpr bool _trivial_value_is_null = TrivialValueIsNull;
-		};
-
-	template<typename AliasProvider, typename FieldTuple>
-		struct multi_field_t
+	template<typename T, typename Enable = void>
+		struct is_trivial_t
 		{
+			static constexpr bool _(const T&)
+			{
+				return false;
+			}
 		};
 
-	namespace detail
-	{
-		template<typename NamedExpr>
-			struct make_field_t_impl
+	template<typename T>
+		struct is_trivial_t<T, typename std::enable_if<std::is_member_function_pointer<decltype(&T::_is_trivial)>::value, void>::type>
+		{
+			static bool _(const T& t)
 			{
-				using type = field_t<typename NamedExpr::_name_t, 
-							value_type_of<NamedExpr>,
-							trivial_value_is_null_t<NamedExpr>::value>;
-			};
+				return t._is_trivial();
+			}
+		};
 
-		template<typename AliasProvider, typename... NamedExpr>
-			struct make_field_t_impl<multi_column_alias_t<AliasProvider, NamedExpr...>>
-			{
-				using type = multi_field_t<AliasProvider, std::tuple<typename make_field_t_impl<NamedExpr>::type...>>;
-			};
-	}
+	template<typename T>
+		bool is_trivial(const T& t)
+		{
+			return is_trivial_t<T>::_(t);
+		}
 
-	template<typename NamedExpr>
-		using make_field_t = typename detail::make_field_t_impl<NamedExpr>::type;
-
+	template<typename Expression>
+		constexpr bool rhs_is_null(const Expression& e)
+		{
+			return (((trivial_value_is_null_t<typename Expression::_lhs_t>::value or is_tvin_t<typename Expression::_rhs_t>::value)
+							and is_trivial(e._rhs))
+						or (std::is_same<typename Expression::_rhs_t, null_t>::value));
+		}
 }
 
 #endif

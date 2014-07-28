@@ -15,6 +15,7 @@ build_and_run(SelectTypeTest)
 build_and_run(FunctionTest)
 build_and_run(PreparedTest)
 build_and_run(Minimalistic)
+build_and_run(ResultTest)
 
 # if you want to use the generator, you can do something like this:
 #find_package(PythonInterp REQUIRED)

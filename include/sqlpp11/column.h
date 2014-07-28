@@ -42,25 +42,31 @@
 namespace sqlpp
 {
 	template<typename Table, typename ColumnSpec>
-		struct column_t: public ColumnSpec::_value_type::template expression_operators<column_t<Table, ColumnSpec>>,
-		public ColumnSpec::_value_type::template column_operators<column_t<Table, ColumnSpec>>
+		struct column_t: public value_type_of<ColumnSpec>::template expression_operators<column_t<Table, ColumnSpec>>,
+		public value_type_of<ColumnSpec>::template column_operators<column_t<Table, ColumnSpec>>
 	{ 
-		using _traits = make_traits<typename ColumnSpec::_value_type, tag::column, tag::expression, tag::named_expression>;
+		struct _traits
+		{
+			using _value_type = value_type_of<ColumnSpec>;
+			using _tags = detail::make_joined_set_t<detail::type_set<tag::is_column, tag::is_expression, tag::is_named_expression>, typename ColumnSpec::_traits::_tags>;
+		};
+
 		struct _recursive_traits
 		{
 			using _parameters = std::tuple<>;
 			using _provided_tables = detail::type_set<>;
+			using _provided_outer_tables = detail::type_set<>;
 			using _required_tables = detail::type_set<Table>;
 			using _extra_tables = detail::type_set<>;
+			using _can_be_null = column_spec_can_be_null_t<ColumnSpec>;
 		};
 
 		using _spec_t = ColumnSpec;
 		using _table = Table;
-		using _column_type = typename _spec_t::_column_type;
 		using _name_t = typename _spec_t::_name_t;
 
 		template<typename T>
-			using _is_valid_operand = typename ColumnSpec::_value_type::template _is_valid_operand<T>;
+			using _is_valid_operand = typename value_type_of<ColumnSpec>::template _is_valid_operand<T>;
 
 		column_t() = default;
 		column_t(const column_t&) = default;
