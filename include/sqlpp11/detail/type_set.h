@@ -221,7 +221,7 @@ namespace sqlpp
 			struct make_intersect_set<type_set<LhsElements...>, type_set<RhsElements...>>
 			{
 				template<typename E>
-					using is_in_both = is_element_of<E, make_type_set_t<LhsElements..., RhsElements...>>;
+					using is_in_both = all_t<is_element_of<E, type_set<LhsElements...>>::value, is_element_of<E, type_set<RhsElements...>>::value>;
 				using type = typename make_type_set_if<is_in_both, LhsElements...>::type;
 			};
 
