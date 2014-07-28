@@ -41,7 +41,7 @@ namespace sqlpp
 	template<typename Expression, sort_type SortType>
 		struct sort_order_t
 		{
-			using _traits = make_traits<no_value_t,  tag::sort_order, sqlpp::tag::expression>;
+			using _traits = make_traits<no_value_t,  tag::is_sort_order, sqlpp::tag::is_expression>;
 			using _recursive_traits = make_recursive_traits<Expression>;
 
 			Expression _expression;

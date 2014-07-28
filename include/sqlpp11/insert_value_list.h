@@ -106,7 +106,7 @@ namespace sqlpp
 	template<typename Database, typename... Assignments>
 		struct insert_list_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::insert_list>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_insert_list>;
 			using _recursive_traits = make_recursive_traits<typename Assignments::_lhs_t..., typename Assignments::_rhs_t...>;
 
 			using _is_dynamic = is_database<Database>;
@@ -207,7 +207,7 @@ namespace sqlpp
 	template<typename... Columns>
 		struct column_list_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::column_list>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_column_list>;
 			using _recursive_traits = make_recursive_traits<Columns...>;
 
 			static_assert(sizeof...(Columns), "at least one column required in columns()");
@@ -285,7 +285,7 @@ namespace sqlpp
 	// NO INSERT COLUMNS/VALUES YET
 	struct no_insert_value_list_t
 	{
-		using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
+		using _traits = make_traits<no_value_t, ::sqlpp::tag::is_noop>;
 		using _recursive_traits = make_recursive_traits<>;
 
 		// Data

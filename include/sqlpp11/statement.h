@@ -134,15 +134,14 @@ namespace sqlpp
 		using _policies_t = typename detail::statement_policies_t<Db, Policies...>;
 
 		using _traits = make_traits<value_type_of<_policies_t>,
-					::sqlpp::tag::select, 
-					tag::expression_if<typename _policies_t::_is_expression>, 
-					tag::named_expression_if<typename _policies_t::_is_expression>>;
+					::sqlpp::tag::is_select, 
+					tag::is_expression_if<typename _policies_t::_is_expression>, 
+					tag::is_named_expression_if<typename _policies_t::_is_expression>,
+					tag::requires_braces>;
 		using _recursive_traits = typename _policies_t::_recursive_traits;
 		using _used_outer_tables = typename _policies_t::_all_provided_outer_tables;
 
 		using _result_type_provider = typename _policies_t::_result_type_provider;
-
-		using _requires_braces = std::true_type;
 
 		using _name_t = typename _result_type_provider::_name_t;
 
@@ -204,7 +203,7 @@ namespace sqlpp
 	template<typename NameData>
 		struct statement_name_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_noop>;
 			using _recursive_traits = make_recursive_traits<>;
 
 			// Data

@@ -71,56 +71,30 @@ namespace sqlpp
 	template<typename T>\
 	using name##_t = typename detail::name##_impl<T>::type;
 
-#define SQLPP_IS_VALUE_TRAIT_GENERATOR(name) \
-	namespace tag\
-	{\
-		struct name{};\
-	};\
-	namespace detail\
-	{\
-		template<typename T, typename Enable = void>\
-		struct is_##name##_impl { using type = std::false_type; };\
-		template<typename T>\
-		struct is_##name##_impl<T, typename std::enable_if<detail::is_element_of<tag::name, typename T::_traits::_tags>::value>::type> { using type = std::true_type; };\
-	}\
-	template<typename T>\
-	using is_##name##_t = typename detail::is_##name##_impl<T>::type;
-
-#define SQLPP_TYPE_TRAIT_GENERATOR(name) \
-	namespace detail\
-	{\
-		template<typename T, typename Enable = void>\
-		struct name##_impl: std::false_type {};\
-		template<typename T>\
-		struct name##_impl<T, typename std::enable_if<std::is_same<typename T::_##name, std::true_type>::value>::type>: std::true_type {};\
-	}\
-	template<typename T>\
-	struct name##_t: detail::name##_impl<T> {};
-
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(boolean);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(integral);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(floating_point);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_boolean);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_integral);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_floating_point);
 	template<typename T>
 		using is_numeric_t = detail::any_t<
-		detail::is_element_of<tag::integral, typename T::_traits::_tags>::value,
-		detail::is_element_of<tag::floating_point, typename T::_traits::_tags>::value>;
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(text);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(wrapped_value);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(expression);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(named_expression);
+		detail::is_element_of<tag::is_integral, typename T::_traits::_tags>::value,
+		detail::is_element_of<tag::is_floating_point, typename T::_traits::_tags>::value>;
+	SQLPP_VALUE_TRAIT_GENERATOR(is_text);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_wrapped_value);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_expression);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_named_expression);
 	namespace tag
 	{
 		template<typename C>
-			using named_expression_if = typename std::conditional<C::value, tag::named_expression, void>::type;
+			using is_named_expression_if = typename std::conditional<C::value, tag::is_named_expression, void>::type;
 	}
 	namespace tag
 	{
 		template<typename C>
-			using expression_if = typename std::conditional<C::value, tag::expression, void>::type;
+			using is_expression_if = typename std::conditional<C::value, tag::is_expression, void>::type;
 	}
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(multi_expression);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(alias);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(select_flag);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_multi_expression);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_alias);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_select_flag);
 
 	SQLPP_VALUE_TRAIT_GENERATOR(must_not_insert);
 	SQLPP_VALUE_TRAIT_GENERATOR(must_not_update);
@@ -128,40 +102,40 @@ namespace sqlpp
 	SQLPP_VALUE_TRAIT_GENERATOR(trivial_value_is_null);
 	SQLPP_VALUE_TRAIT_GENERATOR(null_is_trivial_value);
 
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(noop);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(missing);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(return_value);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(table);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(join);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(pseudo_table);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(column);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(select);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(select_flag_list);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(select_column_list);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(from);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(single_table);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(into);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(extra_tables);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(on);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(where);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(group_by);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(having);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(order_by);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(limit);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(offset);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(using_);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(column_list);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(multi_column);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(value_list);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(assignment);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(update_list);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(insert_list);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(insert_value);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(insert_value_list);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(sort_order);
-	SQLPP_IS_VALUE_TRAIT_GENERATOR(parameter);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_noop);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_missing);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_return_value);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_table);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_join);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_pseudo_table);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_column);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_select);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_select_flag_list);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_select_column_list);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_from);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_single_table);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_into);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_extra_tables);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_on);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_where);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_group_by);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_having);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_order_by);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_limit);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_offset);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_using_);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_column_list);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_multi_column);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_value_list);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_assignment);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_update_list);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_insert_list);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_insert_value);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_insert_value_list);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_sort_order);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_parameter);
 
-	SQLPP_TYPE_TRAIT_GENERATOR(requires_braces);
+	SQLPP_VALUE_TRAIT_GENERATOR(requires_braces);
 
 	SQLPP_VALUE_TRAIT_GENERATOR(enforce_null_result_treatment);
 

@@ -36,7 +36,7 @@ namespace sqlpp
 		struct count_t: public sqlpp::detail::integral::template expression_operators<count_t<Flag, Expr>>,
 		public alias_operators<count_t<Flag, Expr>>
 	{
-		using _traits = make_traits<::sqlpp::detail::integral, ::sqlpp::tag::expression, ::sqlpp::tag::named_expression>;
+		using _traits = make_traits<::sqlpp::detail::integral, ::sqlpp::tag::is_expression, ::sqlpp::tag::is_named_expression>;
 		using _recursive_traits = make_recursive_traits<Expr>;
 
 		static_assert(is_noop<Flag>::value or std::is_same<sqlpp::distinct_t, Flag>::value, "count() used with flag other than 'distinct'");

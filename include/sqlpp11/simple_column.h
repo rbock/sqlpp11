@@ -37,7 +37,7 @@ namespace sqlpp
 		{
 			Column _column;
 
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_noop>;
 			using _recursive_traits = make_recursive_traits<>;
 		};
 

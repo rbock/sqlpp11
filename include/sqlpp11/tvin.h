@@ -39,7 +39,7 @@ namespace sqlpp
 	template<typename Operand>
 		struct tvin_arg_t
 		{
-			using _traits = make_traits<value_type_of<Operand>, tag::expression>;
+			using _traits = make_traits<value_type_of<Operand>, tag::is_expression>;
 			using _recursive_traits = make_recursive_traits<Operand>;
 
 			using _operand_t = Operand;
@@ -89,7 +89,7 @@ namespace sqlpp
 	template<typename Operand>
 		struct tvin_t
 		{
-			using _traits = make_traits<value_type_of<Operand>, tag::expression>;
+			using _traits = make_traits<value_type_of<Operand>, tag::is_expression>;
 			using _recursive_traits = make_recursive_traits<Operand>;
 
 			using _operand_t = Operand;

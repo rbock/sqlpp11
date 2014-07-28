@@ -36,7 +36,7 @@ namespace sqlpp
 	template<typename ValueType, typename NameType>
 		struct parameter_t: public ValueType::template expression_operators<parameter_t<ValueType, NameType>>
 	{
-		using _traits = make_traits<ValueType, tag::parameter, tag::expression>;
+		using _traits = make_traits<ValueType, tag::is_parameter, tag::is_expression>;
 		struct _recursive_traits
 		{
 			using _parameters = std::tuple<parameter_t>;

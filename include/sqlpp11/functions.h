@@ -56,7 +56,7 @@ namespace sqlpp
 		struct verbatim_t: public ValueType::template expression_operators<verbatim_t<ValueType>>,
 		public alias_operators<verbatim_t<ValueType>>
 	{
-		using _traits = make_traits<ValueType, ::sqlpp::tag::expression>;
+		using _traits = make_traits<ValueType, ::sqlpp::tag::is_expression>;
 		struct _recursive_traits : public make_recursive_traits<>
 		{
 			using _can_be_null = std::true_type; // since we do not know what's going on inside the verbatim, we assume it can be null
@@ -102,7 +102,7 @@ namespace sqlpp
 	template<typename Container>
 		struct value_list_t // to be used in .in() method
 		{
-			using _traits = make_traits<value_type_t<typename Container::value_type>, ::sqlpp::tag::expression>;
+			using _traits = make_traits<value_type_t<typename Container::value_type>, ::sqlpp::tag::is_expression>;
 			using _recursive_traits = make_recursive_traits<>;
 
 			using _container_t = Container;

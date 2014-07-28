@@ -58,7 +58,7 @@ namespace sqlpp
 	template<typename Database, typename... Expressions>
 		struct having_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::having>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_having>;
 			using _recursive_traits = make_recursive_traits<Expressions...>;
 
 			using _is_dynamic = is_database<Database>;
@@ -133,7 +133,7 @@ namespace sqlpp
 	// NO HAVING YET
 	struct no_having_t
 	{
-		using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
+		using _traits = make_traits<no_value_t, ::sqlpp::tag::is_noop>;
 		using _recursive_traits = make_recursive_traits<>;
 
 		// Data

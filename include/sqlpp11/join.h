@@ -65,7 +65,7 @@ namespace sqlpp
 	template<typename JoinType, typename Lhs, typename Rhs, typename On = noop>
 		struct join_t
 		{
-			using _traits = make_traits<no_value_t, tag::table, tag::join>;
+			using _traits = make_traits<no_value_t, tag::is_table, tag::is_join>;
 			struct _recursive_traits
 			{
 				using _required_tables = detail::make_joined_set_t<required_tables_of<Lhs>, required_tables_of<Rhs>>;

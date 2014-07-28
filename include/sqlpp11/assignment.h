@@ -40,7 +40,7 @@ namespace sqlpp
 	template<typename Lhs, typename Rhs>
 		struct assignment_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::assignment>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_assignment>;
 			using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
 
 			using _lhs_t = Lhs;

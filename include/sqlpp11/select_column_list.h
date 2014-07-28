@@ -47,14 +47,14 @@ namespace sqlpp
 		template<typename... Columns>
 			struct select_traits
 			{
-				using _traits = make_traits<no_value_t, tag::select_column_list, tag::return_value>;
+				using _traits = make_traits<no_value_t, tag::is_select_column_list, tag::is_return_value>;
 				struct _name_t {};
 			};
 
 		template<typename Column>
 			struct select_traits<Column>
 			{
-				using _traits = make_traits<value_type_of<Column>, tag::select_column_list, tag::return_value, tag::expression, tag::named_expression>;
+				using _traits = make_traits<value_type_of<Column>, tag::is_select_column_list, tag::is_return_value, tag::is_expression, tag::is_named_expression>;
 				using _name_t = typename Column::_name_t;
 			};
 	}
@@ -326,7 +326,7 @@ namespace sqlpp
 
 	struct no_select_column_list_t
 	{
-		using _traits = make_traits<no_value_t, ::sqlpp::tag::noop, ::sqlpp::tag::missing>;
+		using _traits = make_traits<no_value_t, ::sqlpp::tag::is_noop, ::sqlpp::tag::is_missing>;
 		using _recursive_traits = make_recursive_traits<>;
 
 		struct _name_t {};

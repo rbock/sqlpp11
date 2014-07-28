@@ -37,7 +37,7 @@ namespace sqlpp
 	template<typename Database, typename... Expr>
 		struct on_t
 		{
-			using _traits = make_traits<no_value_t, tag::on>;
+			using _traits = make_traits<no_value_t, tag::is_on>;
 			using _recursive_traits = make_recursive_traits<Expr...>;
 
 			using _is_dynamic = is_database<Database>;

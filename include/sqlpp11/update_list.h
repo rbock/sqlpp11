@@ -56,7 +56,7 @@ namespace sqlpp
 	template<typename Database, typename... Assignments>
 		struct update_list_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::update_list>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_update_list>;
 			using _recursive_traits = make_recursive_traits<Assignments...>;
 			using _is_dynamic = is_database<Database>;
 
@@ -130,7 +130,7 @@ namespace sqlpp
 
 	struct no_update_list_t
 	{
-		using _traits = make_traits<no_value_t, ::sqlpp::tag::where>;
+		using _traits = make_traits<no_value_t, ::sqlpp::tag::is_where>;
 		using _recursive_traits = make_recursive_traits<>;
 
 		// Data

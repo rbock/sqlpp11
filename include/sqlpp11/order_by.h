@@ -59,7 +59,7 @@ namespace sqlpp
 	template<typename Database, typename... Expressions>
 		struct order_by_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::order_by>;
+			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_order_by>;
 			using _recursive_traits = make_recursive_traits<Expressions...>;
 
 			using _is_dynamic = is_database<Database>;
@@ -135,7 +135,7 @@ namespace sqlpp
 	// NO ORDER BY YET
 	struct no_order_by_t
 	{
-		using _traits = make_traits<no_value_t, ::sqlpp::tag::noop>;
+		using _traits = make_traits<no_value_t, ::sqlpp::tag::is_noop>;
 		using _recursive_traits = make_recursive_traits<>;
 
 		// Data

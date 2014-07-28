@@ -39,7 +39,7 @@ namespace sqlpp
 		struct table_alias_t: public ColumnSpec::_name_t::template _member_t<column_t<AliasProvider, ColumnSpec>>...
 	{
 		//FIXME: Need to add join functionality
-		using _traits = make_traits<value_type_of<Table>, tag::table, tag::alias, tag::named_expression_if<is_expression_t<Table>>>;
+		using _traits = make_traits<value_type_of<Table>, tag::is_table, tag::is_alias, tag::is_named_expression_if<is_expression_t<Table>>>;
 
 		struct _recursive_traits
 		{
