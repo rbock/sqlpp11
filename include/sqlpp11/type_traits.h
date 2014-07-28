@@ -97,17 +97,6 @@ namespace sqlpp
 	template<typename T>\
 	struct name##_t: detail::name##_impl<T> {};
 
-#define SQLPP_CONNECTOR_TRAIT_GENERATOR(name) \
-	namespace detail\
-	{\
-		template<typename T, typename Enable = void>\
-		struct connector_##name##_impl: std::false_type {};\
-		template<typename T>\
-		struct connector_##name##_impl<T, typename std::enable_if<std::is_same<typename T::_tags::_##name, std::true_type>::value>::type>: std::true_type {};\
-	}\
-	template<typename T>\
-	struct connector_##name##_t: detail::connector_##name##_impl<T> {};
-
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(boolean);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(integral);
 	SQLPP_IS_VALUE_TRAIT_GENERATOR(floating_point);
@@ -174,7 +163,7 @@ namespace sqlpp
 
 	SQLPP_TYPE_TRAIT_GENERATOR(requires_braces);
 
-	SQLPP_CONNECTOR_TRAIT_GENERATOR(enforce_null_result_treatment);
+	SQLPP_VALUE_TRAIT_GENERATOR(enforce_null_result_treatment);
 
 	template<typename Database>
 		using is_database = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;

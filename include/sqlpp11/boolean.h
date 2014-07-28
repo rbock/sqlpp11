@@ -109,7 +109,7 @@ namespace sqlpp
 			template<typename Db, typename FieldSpec>
 				struct field_methods_t<
 						_result_field_t<Db, FieldSpec>, 
-				    typename std::enable_if<connector_enforce_null_result_treatment_t<Db>::value 
+				    typename std::enable_if<enforce_null_result_treatment_t<Db>::value 
 							and column_spec_can_be_null_t<FieldSpec>::value
 							and not null_is_trivial_value_t<FieldSpec>::value>::type>
 				{
@@ -166,7 +166,7 @@ namespace sqlpp
 
 						if (_is_null)
 						{
-							if (connector_enforce_null_result_treatment_t<Db>::value and not null_is_trivial_value_t<FieldSpec>::value)
+							if (enforce_null_result_treatment_t<Db>::value and not null_is_trivial_value_t<FieldSpec>::value)
 							{
 								throw exception("accessing value of NULL field");
 							}
