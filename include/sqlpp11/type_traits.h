@@ -82,16 +82,6 @@ namespace sqlpp
 	SQLPP_VALUE_TRAIT_GENERATOR(is_wrapped_value);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_expression);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_named_expression);
-	namespace tag
-	{
-		template<typename C>
-			using is_named_expression_if = typename std::conditional<C::value, tag::is_named_expression, void>::type;
-	}
-	namespace tag
-	{
-		template<typename C>
-			using is_expression_if = typename std::conditional<C::value, tag::is_expression, void>::type;
-	}
 	SQLPP_VALUE_TRAIT_GENERATOR(is_multi_expression);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_alias);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_select_flag);
@@ -139,11 +129,11 @@ namespace sqlpp
 
 	SQLPP_VALUE_TRAIT_GENERATOR(enforce_null_result_treatment);
 
+	template<typename Tag, bool Condition>
+		using tag_if = typename std::conditional<Condition, Tag, void>::type;
+
 	template<typename Database>
 		using is_database = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
-
-	template<typename T, template<typename> class IsTag>
-		using copy_type_trait = typename std::conditional<IsTag<T>::value, std::true_type, std::false_type>::type;
 
 	namespace detail
 	{

@@ -51,6 +51,10 @@ namespace sqlpp
 		class connection: public sqlpp::connection // this inheritance helps with ADL for dynamic_select, for instance
 		{
 		public:
+			using _traits = ::sqlpp::make_traits<::sqlpp::no_value_t, 
+								::sqlpp::tag::enforce_null_result_treatment // If that is what you really want, leave it out otherwise
+							>;
+
 			using _prepared_statement_t = << handle to a prepared statement of the database >>;
 			using _serializer_context_t = << This context is used to serialize a statement >>
 			using _interpreter_context_t = << This context is used interpret a statement >>;

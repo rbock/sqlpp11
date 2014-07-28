@@ -43,7 +43,7 @@ namespace sqlpp
 			using _traits = make_traits<value_type_of<NamedExpr>, 
 						tag::must_not_insert, 
 						tag::must_not_update,
-						typename std::conditional<_can_be_null or _depends_on_outer_table, tag::can_be_null, void>::type
+						tag_if<tag::can_be_null, _can_be_null or _depends_on_outer_table>
 							>;
 		};
 

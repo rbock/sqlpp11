@@ -35,9 +35,9 @@ namespace sqlpp
 		struct field_spec_t
 		{ 
 			using _traits = make_traits<ValueType, tag::is_noop, 
-						typename std::conditional<CanBeNull, tag::can_be_null, void>::type,
-						typename std::conditional<NullIsTrivialValue, tag::null_is_trivial_value, void>::type
-						>;
+						tag_if<tag::can_be_null, CanBeNull>,
+						tag_if<tag::null_is_trivial_value, NullIsTrivialValue>
+							>;
 			using _recursive_traits = make_recursive_traits<>;
 
 			using _name_t = NameType;

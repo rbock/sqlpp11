@@ -42,7 +42,7 @@ namespace sqlpp
 		// integral value type
 		struct integral
 		{
-			using _traits = make_traits<integral, ::sqlpp::tag::is_expression>;
+			using _traits = make_traits<integral, ::sqlpp::tag::is_integral, ::sqlpp::tag::is_expression>;
 			using _tag = ::sqlpp::tag::is_integral;
 			using _cpp_value_type = int64_t;
 
@@ -123,7 +123,7 @@ namespace sqlpp
 					using _field_methods_t = field_methods_t<_result_field_t<Db, FieldSpec>>;
 
 					using _traits = make_traits<integral,
-								typename std::conditional<_field_methods_t::_null_is_trivial, ::sqlpp::tag::null_is_trivial_value, void>::type>;
+								tag_if<tag::null_is_trivial_value, _field_methods_t::_null_is_trivial>>;
 
 					struct _recursive_traits
 					{

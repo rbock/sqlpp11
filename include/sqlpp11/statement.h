@@ -98,12 +98,7 @@ namespace sqlpp
 					no_value_t // if a required statement part is missing (e.g. columns in a select), then the statement cannot be used as a value
 						>::type;
 
-				using _is_expression = typename std::conditional<
-					std::is_same<_value_type, no_value_t>::value, 
-					std::false_type, 
-					std::true_type>::type;
-
-				using _traits = make_traits<_value_type>;
+				using _traits = make_traits<_value_type, tag_if<tag::is_expression, not std::is_same<_value_type, no_value_t>::value>>;
 
 				struct _recursive_traits
 				{
@@ -135,8 +130,8 @@ namespace sqlpp
 
 		using _traits = make_traits<value_type_of<_policies_t>,
 					::sqlpp::tag::is_select, 
-					tag::is_expression_if<typename _policies_t::_is_expression>, 
-					tag::is_named_expression_if<typename _policies_t::_is_expression>,
+					tag_if<tag::is_expression, is_expression_t<_policies_t>::value>, 
+					tag_if<tag::is_named_expression, is_expression_t<_policies_t>::value>,
 					tag::requires_braces>;
 		using _recursive_traits = typename _policies_t::_recursive_traits;
 		using _used_outer_tables = typename _policies_t::_all_provided_outer_tables;

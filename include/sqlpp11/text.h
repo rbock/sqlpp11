@@ -40,6 +40,7 @@ namespace sqlpp
 		// text value type
 		struct text
 		{
+			using _traits = make_traits<text, ::sqlpp::tag::is_text, ::sqlpp::tag::is_expression>;
 			using _tag = ::sqlpp::tag::is_text;
 			using _cpp_value_type = std::string;
 
@@ -121,7 +122,7 @@ namespace sqlpp
 					using _field_methods_t = field_methods_t<_result_field_t<Db, FieldSpec>>;
 
 					using _traits = make_traits<integral,
-								typename std::conditional<_field_methods_t::_null_is_trivial, ::sqlpp::tag::null_is_trivial_value, void>::type>;
+								tag_if<tag::null_is_trivial_value, _field_methods_t::_null_is_trivial>>;
 
 					struct _recursive_traits
 					{

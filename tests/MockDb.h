@@ -33,8 +33,9 @@
 template<bool enforceNullResultTreatment>
 struct MockDbT: public sqlpp::connection
 {
-	using _traits = ::sqlpp::make_traits<::sqlpp::no_value_t,
-			 	typename std::conditional<enforceNullResultTreatment, ::sqlpp::tag::enforce_null_result_treatment, void>::type>;
+	using _traits = ::sqlpp::make_traits<::sqlpp::no_value_t, 
+						::sqlpp::tag_if<::sqlpp::tag::enforce_null_result_treatment, enforceNullResultTreatment>
+					>;
 
 	struct _serializer_context_t
 	{
