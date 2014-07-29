@@ -63,7 +63,21 @@ namespace sqlpp
 		{
 			static bool _(const T& t)
 			{
-				return t.is_trivial();
+				if (null_is_trivial_value_t<T>::value)
+				{
+					return t._is_trivial();
+				}
+				else
+				{
+					if (t.is_null())
+					{
+						return false;
+					}
+					else
+					{
+						return t._is_trivial();
+					}
+				}
 			}
 		};
 

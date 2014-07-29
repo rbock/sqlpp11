@@ -219,7 +219,7 @@ namespace sqlpp
 		};
 
 	template<typename T>
-		struct wrap_operand<T, typename std::enable_if<std::is_convertible<T, std::string>::value>::type>
+		struct wrap_operand<T, typename std::enable_if<std::is_convertible<T, std::string>::value and not is_result_field_t<T>::value>::type>
 		{
 			using type = text_operand;
 		};

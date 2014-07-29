@@ -161,7 +161,7 @@ namespace sqlpp
 						return _is_null; 
 					}
 
-					bool is_trivial() const
+					bool _is_trivial() const
 					{
 						if (not _is_valid)
 							throw exception("accessing is_null in non-existing row");
