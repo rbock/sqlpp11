@@ -30,6 +30,8 @@
 #include <sqlpp11/alias.h>
 #include <sqlpp11/boolean.h>
 #include <sqlpp11/tvin.h>
+#include <sqlpp11/rhs_is_null.h>
+#include <sqlpp11/rhs_is_trivial.h>
 #include <sqlpp11/noop.h>
 #include <sqlpp11/expression_fwd.h>
 #include <sqlpp11/serializer.h>
@@ -70,7 +72,8 @@ namespace sqlpp
 			{
 				context << "(";
 				serialize(t._lhs, context);
-				if (rhs_is_null(t))
+				if ((trivial_value_is_null_t<typename T::_lhs_t>::value and rhs_is_trivial(t))
+						or rhs_is_null(t))
 				{
 					context << " IS NULL";
 				}
@@ -117,7 +120,8 @@ namespace sqlpp
 			{
 				context << "(";
 				serialize(t._lhs, context);
-				if (rhs_is_null(t))
+				if ((trivial_value_is_null_t<typename T::_lhs_t>::value and rhs_is_trivial(t))
+						or rhs_is_null(t))
 				{
 					context << " IS NOT NULL";
 				}

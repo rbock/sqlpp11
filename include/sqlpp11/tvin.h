@@ -108,6 +108,11 @@ namespace sqlpp
 				return _value._is_trivial();
 			}
 
+			bool _is_null() const
+			{
+				return _value._is_trivial();
+			}
+
 			_operand_t _value;
 		};
 

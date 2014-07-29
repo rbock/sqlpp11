@@ -122,6 +122,8 @@ namespace sqlpp
 					using _field_methods_t = field_methods_t<_result_field_t<Db, FieldSpec>>;
 
 					using _traits = make_traits<integral,
+								tag::is_result_field,
+								tag::is_expression,
 								tag_if<tag::null_is_trivial_value, _field_methods_t::_null_is_trivial>>;
 
 					struct _recursive_traits
@@ -160,6 +162,14 @@ namespace sqlpp
 						if (not _is_valid)
 							throw exception("accessing is_null in non-existing row");
 						return _value_ptr == nullptr; 
+					}
+
+					bool is_trivial() const
+					{
+						if (not _is_valid)
+							throw exception("accessing is_null in non-existing row");
+
+						return value() == "";
 					}
 
 					_cpp_value_type value() const

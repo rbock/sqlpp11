@@ -64,7 +64,7 @@ int main()
 		std::cout << a << ", " << b << ", " << g << std::endl;
 	}
 
-	for (const auto& row : db(select(all_of(t), all_of(f)).from(t.join(f).on(t.alpha > f.omega)).where(true)))
+	for (const auto& row : db(select(all_of(t), all_of(f)).from(t.join(f).on(t.alpha > f.omega and not t.gamma)).where(true)))
 	{
 		std::cout << row.alpha << std::endl;
 	}
