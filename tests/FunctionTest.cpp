@@ -389,5 +389,20 @@ int main()
 		static_assert(sqlpp::is_alias_t<T>::value, "type requirement");
 	}
 
+	// test tvin
+	{
+		static_assert(std::is_same<decltype(sqlpp::tvin(1)), sqlpp::tvin_arg_t<sqlpp::integral_operand>>::value, "integral values are accepted and wrapped") ;
+		static_assert(std::is_same<decltype(sqlpp::tvin(false)), sqlpp::tvin_arg_t<sqlpp::boolean_operand>>::value, "bool values are accepted and wrapped") ;
+		static_assert(std::is_same<decltype(sqlpp::tvin(0.17)), sqlpp::tvin_arg_t<sqlpp::floating_point_operand>>::value, "float values are accepted and wrapped") ;
+		static_assert(std::is_same<decltype(sqlpp::tvin("test")), sqlpp::tvin_arg_t<sqlpp::text_operand>>::value, "text values are accepted and wrapped") ;
+
+		for (const auto& row : db(select(all_of(t)).from(t).where(true)))
+		{
+			static_assert(std::is_same<decltype(sqlpp::tvin(row.alpha)), sqlpp::tvin_arg_t<decltype(row.alpha)>>::value, "result fields are accepted and not wrapped") ;
+			static_assert(std::is_same<decltype(sqlpp::tvin(row.beta)), sqlpp::tvin_arg_t<decltype(row.beta)>>::value, "result fields are accepted and not wrapped") ;
+			static_assert(std::is_same<decltype(sqlpp::tvin(row.gamma)), sqlpp::tvin_arg_t<decltype(row.gamma)>>::value, "result fields are accepted and not wrapped") ;
+		}
+	}
+
 	return 0;
 }
