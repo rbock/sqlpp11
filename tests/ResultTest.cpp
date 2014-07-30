@@ -50,13 +50,13 @@ int main()
 		static_assert(std::is_member_function_pointer<decltype(&decltype(row.alpha)::is_null)>::value, "Yikes");
 		using T = sqlpp::wrap_operand_t<decltype(row.alpha)>;
 		static_assert(sqlpp::can_be_null_t<T>::value, "row.alpha can be null");
-		static_assert(sqlpp::is_result_field_t<T>::value, "row.alpha can be null");
+		static_assert(sqlpp::is_result_field_t<T>::value, "result_fields are not wrapped");
 		
 		bool x = sqlpp::rhs_is_null(t.alpha == row.alpha);
 		bool y = sqlpp::rhs_is_trivial(t.alpha == row.alpha);
 		std::cerr << x << std::endl;
 		std::cerr << y << std::endl;
-		
+
 		for (const auto& sub : db(select(all_of(t)).from(t).where(t.alpha == row.alpha)))
 		{
 			std::cerr << sub.alpha << std::endl;

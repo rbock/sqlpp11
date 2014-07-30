@@ -28,6 +28,7 @@
 #define SQLPP_RESULT_FIELD_METHODS_H
 
 #include <utility>
+#include <sqlpp11/basic_expression_operators.h>
 
 namespace sqlpp
 {
@@ -69,7 +70,8 @@ namespace sqlpp
 		};
 
 	template<typename Field>
-		struct result_field_methods_t: public result_field_methods_base_t<Field>
+		struct result_field_methods_t: public result_field_methods_base_t<Field>,
+		                               public alias_operators<Field>
 		{
 			using _base_t = result_field_methods_base_t<Field>;
 			using _field_spec_t = typename _base_t::_field_spec_t;
@@ -88,8 +90,6 @@ namespace sqlpp
 				using _extra_tables = detail::type_set<>;
 				using _can_be_null = column_spec_can_be_null_t<_field_spec_t>;
 			};
-
-			using _name_t = typename _field_spec_t::_name_t;
 
 		};
 
