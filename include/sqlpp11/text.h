@@ -47,7 +47,7 @@ namespace sqlpp
 
 			struct _parameter_t
 			{
-				using _value_type = integral;
+				using _value_type = text;
 
 				_parameter_t():
 					_value(""),
@@ -217,10 +217,37 @@ namespace sqlpp
 		size_t _len;
 	};
 
+	template<typename Context, typename Db, typename FieldSpec>
+		struct serializer_t<Context, result_field_t<detail::text, Db, FieldSpec>>
+		{
+			using T = result_field_t<detail::text, Db, FieldSpec>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				if (t.is_null() and not null_is_trivial_value_t<T>::value)
+				{
+					context << "NULL";
+				}
+				else
+				{
+					context << '\'' << context.escape(t.value()) << '\'';
+				}
+				return context;
+			}
+		};
+
 	template<typename Db, typename FieldSpec>
 		inline std::ostream& operator<<(std::ostream& os, const result_field_t<detail::text, Db, FieldSpec>& e)
 		{
-			return os << e.value();
+			if (e.is_null() and not null_is_trivial_value_t<FieldSpec>::value)
+			{
+				os << "NULL";
+			}
+			else
+			{
+				os << e.value();
+			}
+			return serialize(e, os);
 		}
 
 	using text = detail::text;

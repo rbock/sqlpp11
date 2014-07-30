@@ -214,9 +214,8 @@ namespace sqlpp
 	template<typename Db, typename FieldSpec>
 		inline std::ostream& operator<<(std::ostream& os, const result_field_t<detail::boolean, Db, FieldSpec>& e)
 		{
-			return os << e.value();
+			return serialize(e, os);
 		}
-
 
 	using boolean = detail::boolean;
 

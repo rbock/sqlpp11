@@ -269,7 +269,7 @@ namespace sqlpp
 	template<typename Db, typename FieldSpec>
 		inline std::ostream& operator<<(std::ostream& os, const result_field_t<detail::floating_point, Db, FieldSpec>& e)
 		{
-			return os << e.value();
+			return serialize(e, os);
 		}
 
 

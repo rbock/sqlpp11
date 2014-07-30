@@ -156,6 +156,7 @@ int main()
 		serialize(s, printer).str();
 	}
 
+
 	// distinct aggregate
 	serialize(count(sqlpp::distinct, t.alpha % 7), printer).str();
 	serialize(avg(sqlpp::distinct, t.alpha - 7), printer).str();
@@ -163,6 +164,13 @@ int main()
 
 	serialize(select(all_of(t)).from(t).where(true), printer).str();
 	serialize(select(all_of(t)).from(t).where(false), printer).str();
+
+	for (const auto& row : db(select(all_of(t)).from(t).where(true)))
+	{
+		serialize(row.alpha, printer);
+		serialize(row.beta, printer);
+		serialize(row.gamma, printer);
+	}
 
 	return 0;
 }
