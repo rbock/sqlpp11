@@ -32,7 +32,7 @@
 #include <sqlpp11/exception.h>
 #include <sqlpp11/concat.h>
 #include <sqlpp11/like.h>
-#include <sqlpp11/result_field_methods.h>
+#include <sqlpp11/result_field.h>
 
 namespace sqlpp
 {
@@ -96,75 +96,6 @@ namespace sqlpp
 				bool _is_null;
 			};
 
-			template<typename Db, typename FieldSpec>
-				struct _result_field_t: public result_field_methods_t<_result_field_t<Db, FieldSpec>>
-				{
-					_result_field_t():
-						_is_valid(false),
-						_value_ptr(nullptr),
-						_len(0)
-					{}
-
-					void _validate()
-					{
-						_is_valid = true;
-					}
-
-					void _invalidate()
-					{
-						_is_valid = false;
-						_value_ptr = nullptr;
-						_len = 0;
-					}
-
-					bool operator==(const _cpp_value_type& rhs) const { return value() == rhs; }
-					bool operator!=(const _cpp_value_type& rhs) const { return not operator==(rhs); }
-
-					bool is_null() const
-					{ 
-						if (not _is_valid)
-							throw exception("accessing is_null in non-existing row");
-						return _value_ptr == nullptr; 
-					}
-
-					bool _is_trivial() const
-					{
-						if (not _is_valid)
-							throw exception("accessing is_null in non-existing row");
-
-						return value() == "";
-					}
-
-					_cpp_value_type value() const
-					{
-						if (not _is_valid)
-							throw exception("accessing value in non-existing row");
-
-						if (not _value_ptr)
-						{
-							if (enforce_null_result_treatment_t<Db>::value and not null_is_trivial_value_t<FieldSpec>::value)
-							{
-								throw exception("accessing value of NULL field");
-							}
-							else
-							{
-								return "";
-							}
-						}
-						return std::string(_value_ptr, _value_ptr + _len);
-					}
-
-					template<typename Target>
-						void _bind(Target& target, size_t i)
-						{
-							target._bind_text_result(i, &_value_ptr, &_len);
-						}
-
-				private:
-					bool _is_valid;
-					const char* _value_ptr;
-					size_t _len;
-				};
 
 			template<typename T>
 				struct _is_valid_operand
@@ -211,12 +142,86 @@ namespace sqlpp
 				};
 		};
 
-		template<typename Db, typename FieldSpec>
-			inline std::ostream& operator<<(std::ostream& os, const text::_result_field_t<Db, FieldSpec>& e)
-			{
-				return os << e.value();
-			}
 	}
+
+	template<typename Db, typename FieldSpec>
+		struct result_field_t<detail::text, Db, FieldSpec>: public result_field_methods_t<result_field_t<detail::text, Db, FieldSpec>>
+	{
+		static_assert(std::is_same<value_type_of<FieldSpec>, detail::text>::value, "field type mismatch");
+		using _cpp_value_type = typename detail::text::_cpp_value_type;
+
+		result_field_t():
+			_is_valid(false),
+			_value_ptr(nullptr),
+			_len(0)
+		{}
+
+		void _validate()
+		{
+			_is_valid = true;
+		}
+
+		void _invalidate()
+		{
+			_is_valid = false;
+			_value_ptr = nullptr;
+			_len = 0;
+		}
+
+		bool operator==(const _cpp_value_type& rhs) const { return value() == rhs; }
+		bool operator!=(const _cpp_value_type& rhs) const { return not operator==(rhs); }
+
+		bool is_null() const
+		{ 
+			if (not _is_valid)
+				throw exception("accessing is_null in non-existing row");
+			return _value_ptr == nullptr; 
+		}
+
+		bool _is_trivial() const
+		{
+			if (not _is_valid)
+				throw exception("accessing is_null in non-existing row");
+
+			return value() == "";
+		}
+
+		_cpp_value_type value() const
+		{
+			if (not _is_valid)
+				throw exception("accessing value in non-existing row");
+
+			if (not _value_ptr)
+			{
+				if (enforce_null_result_treatment_t<Db>::value and not null_is_trivial_value_t<FieldSpec>::value)
+				{
+					throw exception("accessing value of NULL field");
+				}
+				else
+				{
+					return "";
+				}
+			}
+			return std::string(_value_ptr, _value_ptr + _len);
+		}
+
+		template<typename Target>
+			void _bind(Target& target, size_t i)
+			{
+				target._bind_text_result(i, &_value_ptr, &_len);
+			}
+
+	private:
+		bool _is_valid;
+		const char* _value_ptr;
+		size_t _len;
+	};
+
+	template<typename Db, typename FieldSpec>
+		inline std::ostream& operator<<(std::ostream& os, const result_field_t<detail::text, Db, FieldSpec>& e)
+		{
+			return os << e.value();
+		}
 
 	using text = detail::text;
 	using blob = detail::text;

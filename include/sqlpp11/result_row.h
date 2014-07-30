@@ -41,9 +41,9 @@ namespace sqlpp
 
 		template<typename Db, std::size_t index, typename FieldSpec>
 			struct result_field:
-				public FieldSpec::_name_t::template _member_t<typename value_type_of<FieldSpec>::template _result_field_t<Db, FieldSpec>>
+				public FieldSpec::_name_t::template _member_t<result_field_t<value_type_of<FieldSpec>, Db, FieldSpec>>
 		{
-			using _field = typename FieldSpec::_name_t::template _member_t<typename value_type_of<FieldSpec>::template _result_field_t<Db, FieldSpec>>;
+			using _field = typename FieldSpec::_name_t::template _member_t<result_field_t<value_type_of<FieldSpec>, Db, FieldSpec>>;
 
 			result_field() = default;
 
@@ -189,7 +189,7 @@ namespace sqlpp
 
 			struct _name_t {};
 		};
-		using _field_type = detail::text::_result_field_t<Db, _field_spec_t>;
+		using _field_type = result_field_t<detail::text, Db, _field_spec_t>;
 		static constexpr size_t _last_static_index = _impl::_last_index;
 
 		bool _is_valid;

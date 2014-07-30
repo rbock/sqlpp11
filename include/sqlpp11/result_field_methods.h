@@ -40,8 +40,8 @@ namespace sqlpp
 			static_assert(wrong_t<Field>::value, "Invalid argument for get_field_spec");
 		};
 
-		template<template<typename, typename> class Field, typename Db, typename FieldSpec>
-			struct get_field_spec_impl<Field<Db, FieldSpec>>
+		template<template<typename, typename, typename> class Field, typename ValueType, typename Db, typename FieldSpec>
+			struct get_field_spec_impl<Field<ValueType, Db, FieldSpec>>
 		{
 			using type = FieldSpec;
 		};
@@ -58,9 +58,9 @@ namespace sqlpp
 			operator cpp_value_type_of<_field_spec_t>() const { return static_cast<const Field&>(*this).value(); }
 		};
 
-	template<template<typename, typename> class Field, typename Db, typename FieldSpec>
+	template<template<typename, typename, typename> class Field, typename ValueType, typename Db, typename FieldSpec>
 		struct result_field_methods_base_t<
-				Field<Db, FieldSpec>, 
+				Field<ValueType, Db, FieldSpec>, 
 				typename std::enable_if<enforce_null_result_treatment_t<Db>::value 
 					and column_spec_can_be_null_t<FieldSpec>::value
 					and not null_is_trivial_value_t<FieldSpec>::value>::type>
