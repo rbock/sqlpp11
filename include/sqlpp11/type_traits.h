@@ -193,6 +193,9 @@ namespace sqlpp
 		using value_type_of = typename detail::value_type_of_impl<T>::type;
 
 	template<typename T>
+		using cpp_value_type_of = typename value_type_of<T>::_cpp_value_type;
+
+	template<typename T>
 		using required_tables_of = typename detail::required_table_of_impl<T>::type;
 
 	template<typename T>

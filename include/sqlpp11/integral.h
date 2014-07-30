@@ -33,6 +33,7 @@
 #include <sqlpp11/exception.h>
 #include <sqlpp11/value_type.h>
 #include <sqlpp11/assignment.h>
+#include <sqlpp11/result_field_methods.h>
 
 namespace sqlpp
 {
@@ -97,46 +98,8 @@ namespace sqlpp
 			};
 
 			template<typename Db, typename FieldSpec>
-				struct _result_field_t;
-
-			// I am SO waiting for concepts lite!
-			template<typename Field, typename Enable = void>
-				struct field_methods_t
+				struct _result_field_t: public result_field_methods_t<_result_field_t<Db, FieldSpec>>
 				{
-					static constexpr bool _null_is_trivial = true;
-					operator _cpp_value_type() const { return static_cast<const Field&>(*this).value(); }
-				};
-
-			template<typename Db, typename FieldSpec>
-				struct field_methods_t<
-						_result_field_t<Db, FieldSpec>, 
-				    typename std::enable_if<enforce_null_result_treatment_t<Db>::value 
-							and column_spec_can_be_null_t<FieldSpec>::value
-							and not null_is_trivial_value_t<FieldSpec>::value>::type>
-				{
-					static constexpr bool _null_is_trivial = false;
-				};
-
-			template<typename Db, typename FieldSpec>
-				struct _result_field_t: public field_methods_t<_result_field_t<Db, FieldSpec>>
-				{
-					using _field_methods_t = field_methods_t<_result_field_t<Db, FieldSpec>>;
-
-					using _traits = make_traits<integral,
-								tag::is_result_field,
-								tag::is_expression, 
-								tag_if<tag::null_is_trivial_value, _field_methods_t::_null_is_trivial>>;
-
-					struct _recursive_traits
-					{
-						using _parameters = std::tuple<>;
-						using _provided_tables = detail::type_set<>;
-						using _provided_outer_tables = detail::type_set<>;
-						using _required_tables = detail::type_set<>;
-						using _extra_tables = detail::type_set<>;
-						using _can_be_null = column_spec_can_be_null_t<FieldSpec>;
-					};
-
 					_result_field_t():
 						_is_valid(false),
 						_is_null(true),
