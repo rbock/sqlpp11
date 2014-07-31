@@ -30,6 +30,7 @@
 #include <sqlpp11/serializer_context.h>
 #include <sqlpp11/connection.h>
 
+#warning add serialization to run methods to increase the number of tests
 template<bool enforceNullResultTreatment>
 struct MockDbT: public sqlpp::connection
 {

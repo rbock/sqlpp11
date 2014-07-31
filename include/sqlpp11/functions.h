@@ -45,6 +45,8 @@
 
 namespace sqlpp
 {
+#warning add a value_or_null method that yields a type that can be NULL or have a value (very similar to an optional)
+#warning add a template<typename Db> bool_expression which takes any bool expression as constructor argument
 	template<typename T>
 		auto value(T t) -> wrap_operand_t<T>
 		{
