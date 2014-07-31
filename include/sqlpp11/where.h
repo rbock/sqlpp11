@@ -224,7 +224,7 @@ namespace sqlpp
 
 					static void _check_consistency()
 					{
-						static_assert(Required ? wrong_t<Policies>::value : true, "where expression required, e.g. where(true)");
+						static_assert(Required ? wrong_t<_methods_t>::value : true, "where expression required, e.g. where(true)");
 					}
 
 					template<typename... Args>

@@ -35,8 +35,7 @@ namespace sqlpp
 	template<typename ValueType, typename Db, typename Field>
 		struct result_field_t
 		{
-#warning: Need to rewrite all uses of wrong like this to prevent them from being initialized at the wrong place...
-			static_assert(wrong_t<result_field_t<ValueType, Db, Field>>::value, "Missing specialization for result_field_t");
+			static_assert(wrong_t<result_field_t>::value, "Missing specialization for result_field_t");
 		};
 
 	template<typename Context, typename ValueType, typename Db, typename FieldSpec>

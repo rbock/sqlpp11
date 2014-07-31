@@ -63,7 +63,7 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
-				static_assert(wrong_t<Context, Operand>::value, "tvin may only be used with operators =, == and !=");
+				static_assert(wrong_t<serializer_t>::value, "tvin may only be used with operators =, == and !=");
 			}
 		};
 

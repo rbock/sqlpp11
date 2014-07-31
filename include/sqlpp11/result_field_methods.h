@@ -37,7 +37,7 @@ namespace sqlpp
 		template<typename Field>
 			struct get_field_spec_impl
 		{
-			static_assert(wrong_t<Field>::value, "Invalid argument for get_field_spec");
+			static_assert(wrong_t<get_field_spec_impl>::value, "Invalid argument for get_field_spec");
 		};
 
 		template<template<typename, typename, typename> class Field, typename ValueType, typename Db, typename FieldSpec>

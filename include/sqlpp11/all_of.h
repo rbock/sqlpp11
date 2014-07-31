@@ -58,7 +58,7 @@ namespace sqlpp
 
 			static Context& _(const T& t, const Context&)
 			{
-				static_assert(wrong_t<T>::value, "all_of(table) does not seem to be used in select");
+				static_assert(wrong_t<serializer_t>::value, "all_of(table) does not seem to be used in select");
 			}
 		};
 

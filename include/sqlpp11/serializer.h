@@ -36,7 +36,7 @@ namespace sqlpp
 		{
 			static void _(const T& t, Context& context)
 			{
-				static_assert(wrong_t<Context, T>::value, "missing serializer specialization");
+				static_assert(wrong_t<serializer_t>::value, "missing serializer specialization");
 			}
 		};
 
