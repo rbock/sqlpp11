@@ -101,7 +101,7 @@ int main()
 
 	// functions
 	serialize(sqlpp::value(7), printer).str();
-	serialize(sqlpp::verbatim<sqlpp::detail::integral>("irgendwas integrales"), printer).str();
+	serialize(sqlpp::verbatim<sqlpp::integral>("irgendwas integrales"), printer).str();
 	serialize(sqlpp::value_list(std::vector<int>({1,2,3,4,5,6,8})), printer).str();
 	serialize(exists(select(t.alpha).from(t)), printer).str();
 	serialize(any(select(t.alpha).from(t)), printer).str();

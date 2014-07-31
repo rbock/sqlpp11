@@ -36,116 +36,111 @@
 
 namespace sqlpp
 {
-	// boolean operators
-	namespace detail
+	// boolean value type
+	struct boolean
 	{
-		// boolean value type
-		struct boolean
+		using _traits = make_traits<boolean, ::sqlpp::tag::is_boolean, ::sqlpp::tag::is_expression>;
+		using _tag = ::sqlpp::tag::is_boolean;
+		using _cpp_value_type = bool;
+
+		struct _parameter_t
 		{
-			using _traits = make_traits<boolean, ::sqlpp::tag::is_boolean, ::sqlpp::tag::is_expression>;
-			using _tag = ::sqlpp::tag::is_boolean;
-			using _cpp_value_type = bool;
+			using _value_type = boolean; // FIXME
 
-			struct _parameter_t
+			_parameter_t():
+				_value(false),
+				_is_null(true)
+			{}
+
+			_parameter_t(const _cpp_value_type& value):
+				_value(value),
+				_is_null(false)
+			{}
+
+			_parameter_t& operator=(const _cpp_value_type& value)
 			{
-				using _value_type = boolean; // FIXME
+				_value = value;
+				_is_null = (false);
+				return *this;
+			}
 
-				_parameter_t():
-					_value(false),
-					_is_null(true)
-				{}
-
-				_parameter_t(const _cpp_value_type& value):
-					_value(value),
-					_is_null(false)
-				{}
-
-				_parameter_t& operator=(const _cpp_value_type& value)
-				{
-					_value = value;
-					_is_null = (false);
-					return *this;
-				}
-
-				_parameter_t& operator=(const std::nullptr_t&)
-				{
-					_value = false;
-					_is_null = true;
-					return *this;
-				}
-
-				bool is_null() const
-				{ 
-					return _is_null; 
-				}
-
-				_cpp_value_type value() const
-				{
-					return _value;
-				}
-
-				operator _cpp_value_type() const { return value(); }
-
-				template<typename Target>
-					void _bind(Target& target, size_t index) const
-					{
-						target._bind_boolean_parameter(index, &_value, _is_null);
-					}
-
-			private:
-				signed char _value;
-				bool _is_null;
-			};
-
-			template<typename T>
-				struct _is_valid_operand
-				{
-					static constexpr bool value = 
-						is_expression_t<T>::value // expressions are OK
-						and is_boolean_t<T>::value // the correct value type is required, of course
-						;
-				};
-
-			template<typename Base>
-				struct expression_operators: public basic_expression_operators<Base, is_boolean_t>
+			_parameter_t& operator=(const std::nullptr_t&)
 			{
-				template<typename T>
-					logical_and_t<Base, wrap_operand_t<T>> operator and(T t) const
-					{
-						using rhs = wrap_operand_t<T>;
-						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+				_value = false;
+				_is_null = true;
+				return *this;
+			}
 
-						return { *static_cast<const Base*>(this), rhs{t} };
-					}
+			bool is_null() const
+			{ 
+				return _is_null; 
+			}
 
-				template<typename T>
-					logical_or_t<Base, wrap_operand_t<T>> operator or(T t) const
-					{
-						using rhs = wrap_operand_t<T>;
-						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+			_cpp_value_type value() const
+			{
+				return _value;
+			}
 
-						return { *static_cast<const Base*>(this), rhs{t} };
-					}
+			operator _cpp_value_type() const { return value(); }
 
-				logical_not_t<Base> operator not() const
+			template<typename Target>
+				void _bind(Target& target, size_t index) const
 				{
-					return { *static_cast<const Base*>(this) };
+					target._bind_boolean_parameter(index, &_value, _is_null);
 				}
-			};
 
-			template<typename Base>
-				struct column_operators
-				{
-				};
+		private:
+			signed char _value;
+			bool _is_null;
 		};
 
-	}
+		template<typename T>
+			struct _is_valid_operand
+			{
+				static constexpr bool value = 
+					is_expression_t<T>::value // expressions are OK
+					and is_boolean_t<T>::value // the correct value type is required, of course
+					;
+			};
+
+		template<typename Base>
+			struct expression_operators: public basic_expression_operators<Base, is_boolean_t>
+		{
+			template<typename T>
+				logical_and_t<Base, wrap_operand_t<T>> operator and(T t) const
+				{
+					using rhs = wrap_operand_t<T>;
+					static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+
+					return { *static_cast<const Base*>(this), rhs{t} };
+				}
+
+			template<typename T>
+				logical_or_t<Base, wrap_operand_t<T>> operator or(T t) const
+				{
+					using rhs = wrap_operand_t<T>;
+					static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+
+					return { *static_cast<const Base*>(this), rhs{t} };
+				}
+
+			logical_not_t<Base> operator not() const
+			{
+				return { *static_cast<const Base*>(this) };
+			}
+		};
+
+		template<typename Base>
+			struct column_operators
+			{
+			};
+	};
 
 	template<typename Db, typename FieldSpec>
-		struct result_field_t<detail::boolean, Db, FieldSpec>: public result_field_methods_t<result_field_t<detail::boolean, Db, FieldSpec>>
+		struct result_field_t<boolean, Db, FieldSpec>: public result_field_methods_t<result_field_t<boolean, Db, FieldSpec>>
 	{
-		static_assert(std::is_same<value_type_of<FieldSpec>, detail::boolean>::value, "field type mismatch");
-		using _cpp_value_type = typename detail::boolean::_cpp_value_type;
+		static_assert(std::is_same<value_type_of<FieldSpec>, boolean>::value, "field type mismatch");
+		using _cpp_value_type = typename boolean::_cpp_value_type;
 
 		result_field_t():
 			_is_valid(false),
@@ -212,12 +207,10 @@ namespace sqlpp
 	};
 
 	template<typename Db, typename FieldSpec>
-		inline std::ostream& operator<<(std::ostream& os, const result_field_t<detail::boolean, Db, FieldSpec>& e)
+		inline std::ostream& operator<<(std::ostream& os, const result_field_t<boolean, Db, FieldSpec>& e)
 		{
 			return serialize(e, os);
 		}
-
-	using boolean = detail::boolean;
 
 }
 #endif

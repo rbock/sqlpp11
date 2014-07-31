@@ -184,12 +184,12 @@ namespace sqlpp
 		using _impl = detail::result_row_impl<Db, detail::make_column_index_sequence<0, FieldSpecs...>, FieldSpecs...>;
 		struct _field_spec_t
 		{
-			using _traits = make_traits<detail::text, tag::is_noop, tag::can_be_null, tag::null_is_trivial_value>;
+			using _traits = make_traits<text, tag::is_noop, tag::can_be_null, tag::null_is_trivial_value>;
 			using _recursive_traits = make_recursive_traits<>;
 
 			struct _name_t {};
 		};
-		using _field_type = result_field_t<detail::text, Db, _field_spec_t>;
+		using _field_type = result_field_t<text, Db, _field_spec_t>;
 		static constexpr size_t _last_static_index = _impl::_last_index;
 
 		bool _is_valid;

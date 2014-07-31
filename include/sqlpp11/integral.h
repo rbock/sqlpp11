@@ -37,182 +37,178 @@
 
 namespace sqlpp
 {
-	namespace detail
+	// integral value type
+	struct integral
 	{
+		using _traits = make_traits<integral, ::sqlpp::tag::is_integral, ::sqlpp::tag::is_expression>;
+		using _tag = ::sqlpp::tag::is_integral;
+		using _cpp_value_type = int64_t;
 
-		// integral value type
-		struct integral
+		struct _parameter_t
 		{
-			using _traits = make_traits<integral, ::sqlpp::tag::is_integral, ::sqlpp::tag::is_expression>;
-			using _tag = ::sqlpp::tag::is_integral;
-			using _cpp_value_type = int64_t;
+			using _value_type = integral;
 
-			struct _parameter_t
+			_parameter_t():
+				_value(0),
+				_is_null(true)
+			{}
+
+			explicit _parameter_t(const _cpp_value_type& value):
+				_value(value),
+				_is_null(false)
+			{}
+
+			_parameter_t& operator=(const _cpp_value_type& value)
 			{
-				using _value_type = integral;
+				_value = value;
+				_is_null = false;
+				return *this;
+			}
 
-				_parameter_t():
-					_value(0),
-					_is_null(true)
-				{}
-
-				explicit _parameter_t(const _cpp_value_type& value):
-					_value(value),
-					_is_null(false)
-				{}
-
-				_parameter_t& operator=(const _cpp_value_type& value)
-				{
-					_value = value;
-					_is_null = false;
-					return *this;
-				}
-
-				void set_null()
-				{
-					_value = 0;
-					_is_null = true;
-				}
-
-				bool is_null() const
-				{ 
-					return _is_null; 
-				}
-
-				const _cpp_value_type& value() const
-				{
-					return _value;
-				}
-
-				operator _cpp_value_type() const { return _value; }
-
-				template<typename Target>
-					void _bind(Target& target, size_t index) const
-					{
-						target._bind_integral_parameter(index, &_value, _is_null);
-					}
-
-			private:
-				_cpp_value_type _value;
-				bool _is_null;
-			};
-
-			template<typename T>
-				struct _is_valid_operand
-				{
-					static constexpr bool value = 
-						is_expression_t<T>::value // expressions are OK
-						and is_numeric_t<T>::value // the correct value type is required, of course
-						;
-				};
-
-			template<typename Base>
-				struct expression_operators: public basic_expression_operators<Base, is_numeric_t>
+			void set_null()
 			{
-				template<typename T>
-					plus_t<Base, value_type_t<T>, wrap_operand_t<T>> operator +(T t) const
-					{
-						using rhs = wrap_operand_t<T>;
-						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+				_value = 0;
+				_is_null = true;
+			}
 
-						return { *static_cast<const Base*>(this), {t} };
-					}
+			bool is_null() const
+			{ 
+				return _is_null; 
+			}
 
-				template<typename T>
-					minus_t<Base, value_type_t<T>, wrap_operand_t<T>> operator -(T t) const
-					{
-						using rhs = wrap_operand_t<T>;
-						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+			const _cpp_value_type& value() const
+			{
+				return _value;
+			}
 
-						return { *static_cast<const Base*>(this), {t} };
-					}
+			operator _cpp_value_type() const { return _value; }
 
-				template<typename T>
-					multiplies_t<Base, value_type_t<T>, wrap_operand_t<T>> operator *(T t) const
-					{
-						using rhs = wrap_operand_t<T>;
-						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
-
-						return { *static_cast<const Base*>(this), {t} };
-					}
-
-				template<typename T>
-					divides_t<Base, wrap_operand_t<T>> operator /(T t) const
-					{
-						using rhs = wrap_operand_t<T>;
-						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
-
-						return { *static_cast<const Base*>(this), {t} };
-					}
-
-				template<typename T>
-					modulus_t<Base, wrap_operand_t<T>> operator %(T t) const
-					{
-						using rhs = wrap_operand_t<T>;
-						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
-
-						return { *static_cast<const Base*>(this), {t} };
-					}
-
-				unary_plus_t<integral, Base> operator +() const
+			template<typename Target>
+				void _bind(Target& target, size_t index) const
 				{
-					return { *static_cast<const Base*>(this) };
+					target._bind_integral_parameter(index, &_value, _is_null);
 				}
 
-				unary_minus_t<integral, Base> operator -() const
-				{
-					return { *static_cast<const Base*>(this) };
-				}
-			};
-
-			template<typename Base>
-				struct column_operators
-				{
-					template<typename T>
-						auto operator +=(T t) const -> assignment_t<Base, plus_t<Base, value_type_t<T>, wrap_operand_t<T>>>
-						{
-							using rhs = wrap_operand_t<T>;
-							static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
-
-							return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
-						}
-
-					template<typename T>
-						auto operator -=(T t) const -> assignment_t<Base, minus_t<Base, value_type_t<T>, wrap_operand_t<T>>>
-						{
-							using rhs = wrap_operand_t<T>;
-							static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
-
-							return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
-						}
-
-					template<typename T>
-						auto operator /=(T t) const -> assignment_t<Base, divides_t<Base, wrap_operand_t<T>>>
-						{
-							using rhs = wrap_operand_t<T>;
-							static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
-
-							return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
-						}
-
-					template<typename T>
-						auto operator *=(T t) const -> assignment_t<Base, multiplies_t<Base, value_type_t<T>, wrap_operand_t<T>>>
-						{
-							using rhs = wrap_operand_t<T>;
-							static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
-
-							return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
-						}
-				};
+		private:
+			_cpp_value_type _value;
+			bool _is_null;
 		};
 
-	}
+		template<typename T>
+			struct _is_valid_operand
+			{
+				static constexpr bool value = 
+					is_expression_t<T>::value // expressions are OK
+					and is_numeric_t<T>::value // the correct value type is required, of course
+					;
+			};
+
+		template<typename Base>
+			struct expression_operators: public basic_expression_operators<Base, is_numeric_t>
+		{
+			template<typename T>
+				plus_t<Base, value_type_t<T>, wrap_operand_t<T>> operator +(T t) const
+				{
+					using rhs = wrap_operand_t<T>;
+					static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+
+					return { *static_cast<const Base*>(this), {t} };
+				}
+
+			template<typename T>
+				minus_t<Base, value_type_t<T>, wrap_operand_t<T>> operator -(T t) const
+				{
+					using rhs = wrap_operand_t<T>;
+					static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+
+					return { *static_cast<const Base*>(this), {t} };
+				}
+
+			template<typename T>
+				multiplies_t<Base, value_type_t<T>, wrap_operand_t<T>> operator *(T t) const
+				{
+					using rhs = wrap_operand_t<T>;
+					static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+
+					return { *static_cast<const Base*>(this), {t} };
+				}
+
+			template<typename T>
+				divides_t<Base, wrap_operand_t<T>> operator /(T t) const
+				{
+					using rhs = wrap_operand_t<T>;
+					static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+
+					return { *static_cast<const Base*>(this), {t} };
+				}
+
+			template<typename T>
+				modulus_t<Base, wrap_operand_t<T>> operator %(T t) const
+				{
+					using rhs = wrap_operand_t<T>;
+					static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+
+					return { *static_cast<const Base*>(this), {t} };
+				}
+
+			unary_plus_t<integral, Base> operator +() const
+			{
+				return { *static_cast<const Base*>(this) };
+			}
+
+			unary_minus_t<integral, Base> operator -() const
+			{
+				return { *static_cast<const Base*>(this) };
+			}
+		};
+
+		template<typename Base>
+			struct column_operators
+			{
+				template<typename T>
+					auto operator +=(T t) const -> assignment_t<Base, plus_t<Base, value_type_t<T>, wrap_operand_t<T>>>
+					{
+						using rhs = wrap_operand_t<T>;
+						static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
+
+						return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
+					}
+
+				template<typename T>
+					auto operator -=(T t) const -> assignment_t<Base, minus_t<Base, value_type_t<T>, wrap_operand_t<T>>>
+					{
+						using rhs = wrap_operand_t<T>;
+						static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
+
+						return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
+					}
+
+				template<typename T>
+					auto operator /=(T t) const -> assignment_t<Base, divides_t<Base, wrap_operand_t<T>>>
+					{
+						using rhs = wrap_operand_t<T>;
+						static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
+
+						return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
+					}
+
+				template<typename T>
+					auto operator *=(T t) const -> assignment_t<Base, multiplies_t<Base, value_type_t<T>, wrap_operand_t<T>>>
+					{
+						using rhs = wrap_operand_t<T>;
+						static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
+
+						return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
+					}
+			};
+	};
+
 
 	template<typename Db, typename FieldSpec>
-		struct result_field_t<detail::integral, Db, FieldSpec>: public result_field_methods_t<result_field_t<detail::integral, Db, FieldSpec>>
+		struct result_field_t<integral, Db, FieldSpec>: public result_field_methods_t<result_field_t<integral, Db, FieldSpec>>
 	{
-		static_assert(std::is_same<value_type_of<FieldSpec>, detail::integral>::value, "field type mismatch");
-		using _cpp_value_type = typename detail::integral::_cpp_value_type;
+		static_assert(std::is_same<value_type_of<FieldSpec>, integral>::value, "field type mismatch");
+		using _cpp_value_type = typename integral::_cpp_value_type;
 
 		result_field_t():
 			_is_valid(false),
@@ -279,15 +275,15 @@ namespace sqlpp
 	};
 
 	template<typename Db, typename FieldSpec>
-		inline std::ostream& operator<<(std::ostream& os, const result_field_t<detail::integral, Db, FieldSpec>& e)
+		inline std::ostream& operator<<(std::ostream& os, const result_field_t<integral, Db, FieldSpec>& e)
 		{
 			return serialize(e, os);
 		}
 
-	using tinyint = detail::integral;
-	using smallint = detail::integral;
-	using integer = detail::integral;
-	using bigint = detail::integral;
+	using tinyint = integral;
+	using smallint = integral;
+	using integer = integral;
+	using bigint = integral;
 
 }
 #endif

@@ -29,64 +29,61 @@
 
 namespace sqlpp
 {
-	namespace detail
-	{
-		struct boolean;
-		struct integral;
-		struct floating_point;
-	}
+	struct boolean;
+	struct integral;
+	struct floating_point;
 
 	namespace op
 	{
 		struct less
 		{
-			using _traits = make_traits<::sqlpp::detail::boolean>;
+			using _traits = make_traits<::sqlpp::boolean>;
 			static constexpr const char* _name = "<";
 		};
 
 		struct less_equal
 		{
-			using _traits = make_traits<::sqlpp::detail::boolean>;
+			using _traits = make_traits<::sqlpp::boolean>;
 			static constexpr const char* _name = "<=";
 		};
 
 		struct equal_to
 		{
-			using _traits = make_traits<::sqlpp::detail::boolean>;
+			using _traits = make_traits<::sqlpp::boolean>;
 		};
 
 		struct not_equal_to
 		{
-			using _traits = make_traits<::sqlpp::detail::boolean>;
+			using _traits = make_traits<::sqlpp::boolean>;
 		};
 
 		struct greater_equal
 		{
-			using _traits = make_traits<::sqlpp::detail::boolean>;
+			using _traits = make_traits<::sqlpp::boolean>;
 			static constexpr const char* _name = ">=";
 		};
 
 		struct greater
 		{
-			using _traits = make_traits<::sqlpp::detail::boolean>;
+			using _traits = make_traits<::sqlpp::boolean>;
 			static constexpr const char* _name = ">";
 		};
 
 		struct logical_or
 		{
-			using _traits = make_traits<::sqlpp::detail::boolean>;
+			using _traits = make_traits<::sqlpp::boolean>;
 			static constexpr const char* _name = " OR ";
 		};
 
 		struct logical_and
 		{
-			using _traits = make_traits<::sqlpp::detail::boolean>;
+			using _traits = make_traits<::sqlpp::boolean>;
 			static constexpr const char* _name = " AND ";
 		};
 
 		struct logical_not
 		{
-			using _traits = make_traits<::sqlpp::detail::boolean>;
+			using _traits = make_traits<::sqlpp::boolean>;
 		};
 
 		template<typename ValueType>
@@ -112,13 +109,13 @@ namespace sqlpp
 
 		struct divides
 		{
-			using _traits = make_traits<::sqlpp::detail::floating_point>;
+			using _traits = make_traits<::sqlpp::floating_point>;
 			static constexpr const char* _name = "/";
 		};
 
 		struct modulus
 		{
-			using _traits = make_traits<::sqlpp::detail::integral>;
+			using _traits = make_traits<::sqlpp::integral>;
 			static constexpr const char* _name = "%";
 		};
 

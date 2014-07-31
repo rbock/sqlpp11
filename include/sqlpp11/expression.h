@@ -40,7 +40,7 @@
 namespace sqlpp
 {
 	template<typename Lhs, typename Rhs>
-		struct binary_expression_t<Lhs, op::equal_to, Rhs>: public ::sqlpp::detail::boolean::template expression_operators<binary_expression_t<Lhs, op::equal_to, Rhs>>,
+		struct binary_expression_t<Lhs, op::equal_to, Rhs>: public ::sqlpp::boolean::template expression_operators<binary_expression_t<Lhs, op::equal_to, Rhs>>,
 		public alias_operators<binary_expression_t<Lhs, op::equal_to, Rhs>>
 		{
 			using _traits = make_traits<boolean, sqlpp::tag::is_expression>;
@@ -88,7 +88,7 @@ namespace sqlpp
 		};
 
 	template<typename Lhs, typename Rhs>
-		struct binary_expression_t<Lhs, op::not_equal_to, Rhs>: public ::sqlpp::detail::boolean::template expression_operators<binary_expression_t<Lhs, op::not_equal_to, Rhs>>,
+		struct binary_expression_t<Lhs, op::not_equal_to, Rhs>: public ::sqlpp::boolean::template expression_operators<binary_expression_t<Lhs, op::not_equal_to, Rhs>>,
 		public alias_operators<binary_expression_t<Lhs, op::not_equal_to, Rhs>>
 		{
 			using _traits = make_traits<boolean, sqlpp::tag::is_expression>;
@@ -136,7 +136,7 @@ namespace sqlpp
 		};
 
 	template<typename Rhs>
-		struct unary_expression_t<op::logical_not, Rhs>: public ::sqlpp::detail::boolean::template expression_operators<unary_expression_t<op::logical_not, Rhs>>,
+		struct unary_expression_t<op::logical_not, Rhs>: public ::sqlpp::boolean::template expression_operators<unary_expression_t<op::logical_not, Rhs>>,
 		public alias_operators<unary_expression_t<op::logical_not, Rhs>>
 		{
 			using _traits = make_traits<boolean, sqlpp::tag::is_expression>;

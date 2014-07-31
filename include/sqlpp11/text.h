@@ -36,119 +36,115 @@
 
 namespace sqlpp
 {
-	namespace detail
+	// text value type
+	struct text
 	{
-		// text value type
-		struct text
+		using _traits = make_traits<text, ::sqlpp::tag::is_text, ::sqlpp::tag::is_expression>;
+		using _tag = ::sqlpp::tag::is_text;
+		using _cpp_value_type = std::string;
+
+		struct _parameter_t
 		{
-			using _traits = make_traits<text, ::sqlpp::tag::is_text, ::sqlpp::tag::is_expression>;
-			using _tag = ::sqlpp::tag::is_text;
-			using _cpp_value_type = std::string;
+			using _value_type = text;
 
-			struct _parameter_t
+			_parameter_t():
+				_value(""),
+				_is_null(true)
+			{}
+
+			_parameter_t(const _cpp_value_type& value):
+				_value(value),
+				_is_null(false)
+			{}
+
+			_parameter_t& operator=(const _cpp_value_type& value)
 			{
-				using _value_type = text;
+				_value = value;
+				_is_null = false;
+				return *this;
+			}
 
-				_parameter_t():
-					_value(""),
-					_is_null(true)
-				{}
-
-				_parameter_t(const _cpp_value_type& value):
-					_value(value),
-					_is_null(false)
-				{}
-
-				_parameter_t& operator=(const _cpp_value_type& value)
-				{
-					_value = value;
-					_is_null = false;
-					return *this;
-				}
-
-				_parameter_t& operator=(const std::nullptr_t&)
-				{
-					_value = "";
-					_is_null = true;
-					return *this;
-				}
-
-				bool is_null() const
-				{ 
-					return _is_null; 
-				}
-
-				_cpp_value_type value() const
-				{
-					return _value;
-				}
-
-				operator _cpp_value_type() const { return value(); }
-
-				template<typename Target>
-					void _bind(Target& target, size_t index) const
-					{
-						target._bind_text_parameter(index, &_value, _is_null);
-					}
-
-			private:
-				_cpp_value_type _value;
-				bool _is_null;
-			};
-
-
-			template<typename T>
-				struct _is_valid_operand
-				{
-					static constexpr bool value = 
-						is_expression_t<T>::value // expressions are OK
-						and is_text_t<T>::value // the correct value type is required, of course
-						;
-				};
-
-			template<typename Base>
-				struct expression_operators: public basic_expression_operators<Base, is_text_t>
+			_parameter_t& operator=(const std::nullptr_t&)
 			{
-				template<typename T>
-					concat_t<Base, wrap_operand_t<T>> operator+(T t) const
-					{
-						using rhs = wrap_operand_t<T>;
-						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+				_value = "";
+				_is_null = true;
+				return *this;
+			}
 
-						return { *static_cast<const Base*>(this), {t} };
-					}
+			bool is_null() const
+			{ 
+				return _is_null; 
+			}
 
-				template<typename T>
-					like_t<Base, wrap_operand_t<T>> like(T t) const
-					{
-						using rhs = wrap_operand_t<T>;
-						static_assert(_is_valid_operand<rhs>::value, "invalid argument for like()");
+			_cpp_value_type value() const
+			{
+				return _value;
+			}
 
-						return { *static_cast<const Base*>(this), {t} };
-					}
-			};
+			operator _cpp_value_type() const { return value(); }
 
-			template<typename Base>
-				struct column_operators
+			template<typename Target>
+				void _bind(Target& target, size_t index) const
 				{
-					template<typename T>
-						auto operator +=(T t) const -> assignment_t<Base, concat_t<Base, wrap_operand_t<T>>>
-						{
-							using rhs = wrap_operand_t<T>;
-							static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
+					target._bind_text_parameter(index, &_value, _is_null);
+				}
 
-							return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
-						}
-				};
+		private:
+			_cpp_value_type _value;
+			bool _is_null;
 		};
 
-	}
+
+		template<typename T>
+			struct _is_valid_operand
+			{
+				static constexpr bool value = 
+					is_expression_t<T>::value // expressions are OK
+					and is_text_t<T>::value // the correct value type is required, of course
+					;
+			};
+
+		template<typename Base>
+			struct expression_operators: public basic_expression_operators<Base, is_text_t>
+		{
+			template<typename T>
+				concat_t<Base, wrap_operand_t<T>> operator+(T t) const
+				{
+					using rhs = wrap_operand_t<T>;
+					static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+
+					return { *static_cast<const Base*>(this), {t} };
+				}
+
+			template<typename T>
+				like_t<Base, wrap_operand_t<T>> like(T t) const
+				{
+					using rhs = wrap_operand_t<T>;
+					static_assert(_is_valid_operand<rhs>::value, "invalid argument for like()");
+
+					return { *static_cast<const Base*>(this), {t} };
+				}
+		};
+
+		template<typename Base>
+			struct column_operators
+			{
+				template<typename T>
+					auto operator +=(T t) const -> assignment_t<Base, concat_t<Base, wrap_operand_t<T>>>
+					{
+						using rhs = wrap_operand_t<T>;
+						static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
+
+						return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
+					}
+			};
+	};
 
 	template<typename Db, typename FieldSpec>
-		struct result_field_t<detail::text, Db, FieldSpec>: public result_field_methods_t<result_field_t<detail::text, Db, FieldSpec>>
+		struct result_field_t<text, Db, FieldSpec>: public result_field_methods_t<result_field_t<text, Db, FieldSpec>>
 	{
-		static_assert(std::is_same<value_type_of<FieldSpec>, detail::text>::value, "field type mismatch");
-		using _cpp_value_type = typename detail::text::_cpp_value_type;
+		static_assert(std::is_same<value_type_of<FieldSpec>, text>::value, "field type mismatch");
+		using _cpp_value_type = typename text::_cpp_value_type;
 
 		result_field_t():
 			_is_valid(false),
@@ -218,9 +214,9 @@ namespace sqlpp
 	};
 
 	template<typename Context, typename Db, typename FieldSpec>
-		struct serializer_t<Context, result_field_t<detail::text, Db, FieldSpec>>
+		struct serializer_t<Context, result_field_t<text, Db, FieldSpec>>
 		{
-			using T = result_field_t<detail::text, Db, FieldSpec>;
+			using T = result_field_t<text, Db, FieldSpec>;
 
 			static Context& _(const T& t, Context& context)
 			{
@@ -237,7 +233,7 @@ namespace sqlpp
 		};
 
 	template<typename Db, typename FieldSpec>
-		inline std::ostream& operator<<(std::ostream& os, const result_field_t<detail::text, Db, FieldSpec>& e)
+		inline std::ostream& operator<<(std::ostream& os, const result_field_t<text, Db, FieldSpec>& e)
 		{
 			if (e.is_null() and not null_is_trivial_value_t<FieldSpec>::value)
 			{
@@ -250,10 +246,9 @@ namespace sqlpp
 			return serialize(e, os);
 		}
 
-	using text = detail::text;
-	using blob = detail::text;
-	using varchar = detail::text;
-	using char_ = detail::text;
+	using blob = text;
+	using varchar = text;
+	using char_ = text;
 
 }
 #endif
