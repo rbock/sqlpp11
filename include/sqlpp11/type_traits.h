@@ -71,6 +71,8 @@ namespace sqlpp
 	template<typename T>\
 	using name##_t = typename detail::name##_impl<T>::type;
 
+	SQLPP_VALUE_TRAIT_GENERATOR(is_value_type);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_sql_null);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_boolean);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_integral);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_floating_point);

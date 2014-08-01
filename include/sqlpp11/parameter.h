@@ -83,7 +83,7 @@ namespace sqlpp
 		auto parameter(const ValueType&, const AliasProvider&)
 		-> parameter_t<wrap_operand_t<ValueType>, AliasProvider>
 		{
-			static_assert(is_expression_t<ValueType>::value, "first argument is not a value type");
+			static_assert(is_value_type_t<ValueType>::value, "first argument is not a value type");
 			static_assert(is_alias_provider_t<AliasProvider>::value, "second argument is not an alias provider");
 			return {};
 		}
