@@ -46,7 +46,6 @@
 
 namespace sqlpp
 {
-#warning add a template<typename Db> bool_expression which takes any bool expression as constructor argument
 	template<typename T>
 		auto value(T t) -> wrap_operand_t<T>
 		{
