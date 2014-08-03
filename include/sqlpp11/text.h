@@ -237,13 +237,12 @@ namespace sqlpp
 		{
 			if (e.is_null() and not null_is_trivial_value_t<FieldSpec>::value)
 			{
-				os << "NULL";
+				return os << "NULL";
 			}
 			else
 			{
-				os << e.value();
+				return os << e.value();
 			}
-			return serialize(e, os);
 		}
 
 	using blob = text;
