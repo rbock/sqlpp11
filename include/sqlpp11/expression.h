@@ -165,7 +165,7 @@ namespace sqlpp
 				context << "(";
 				if (trivial_value_is_null_t<Rhs>::value)
 				{
-					serialize(t._lhs, context);
+					serialize(t._rhs, context);
 					context << " IS NULL ";
 				}
 				else
@@ -174,6 +174,8 @@ namespace sqlpp
 					serialize(t._rhs, context);
 				}
 				context << ")";
+
+				return context;
 			}
 		};
 

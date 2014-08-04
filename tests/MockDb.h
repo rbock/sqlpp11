@@ -30,7 +30,6 @@
 #include <sqlpp11/serializer_context.h>
 #include <sqlpp11/connection.h>
 
-#warning add serialization to run methods to increase the number of tests
 template<bool enforceNullResultTreatment>
 struct MockDbT: public sqlpp::connection
 {
@@ -105,24 +104,32 @@ struct MockDbT: public sqlpp::connection
 	template<typename Insert>
 		size_t insert(const Insert& x)
 		{
+			_serializer_context_t context;
+			::sqlpp::serialize(x, context);
 			return 0;
 		}
 
 	template<typename Update>
 		size_t update(const Update& x)
 		{
+			_serializer_context_t context;
+			::sqlpp::serialize(x, context);
 			return 0;
 		}
 
 	template<typename Remove>
 		size_t remove(const Remove& x)
 		{
+			_serializer_context_t context;
+			::sqlpp::serialize(x, context);
 			return 0;
 		}
 
 	template<typename Select>
-		result_t select(const Select& s)
+		result_t select(const Select& x)
 		{
+			_serializer_context_t context;
+			::sqlpp::serialize(x, context);
 			return {};
 		}
 
@@ -139,24 +146,32 @@ struct MockDbT: public sqlpp::connection
 	template<typename Insert>
 		_prepared_statement_t prepare_insert(Insert& x)
 		{
+			_serializer_context_t context;
+			::sqlpp::serialize(x, context);
 			return nullptr;
 		}
 
 	template<typename PreparedInsert>
 		size_t run_prepared_insert(const PreparedInsert& x)
 		{
+			_serializer_context_t context;
+			::sqlpp::serialize(x, context);
 			return 0;
 		}
 
 	template<typename Select>
 		_prepared_statement_t prepare_select(Select& x)
 		{
+			_serializer_context_t context;
+			::sqlpp::serialize(x, context);
 			return nullptr;
 		}
 
 	template<typename PreparedSelect>
 		result_t run_prepared_select(PreparedSelect& x)
 		{
+			_serializer_context_t context;
+			::sqlpp::serialize(x, context);
 			return {};
 		}
 
