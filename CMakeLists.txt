@@ -37,6 +37,7 @@ set(include_dir "${PROJECT_SOURCE_DIR}/include")
 file(GLOB_RECURSE sqlpp_headers ${include_dir}/*.h)
 include_directories(${include_dir})
 add_subdirectory(tests)
+add_subdirectory(test_constraints)
 
 install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/sqlpp11" DESTINATION include)
 
