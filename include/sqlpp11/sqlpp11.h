@@ -35,6 +35,7 @@
 #include <sqlpp11/select.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/transaction.h>
+#include <sqlpp11/boolean_expression.h>
 
 #endif
 

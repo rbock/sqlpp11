@@ -31,271 +31,241 @@
 #include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/exception.h>
+#include <sqlpp11/result_field.h>
 
 namespace sqlpp
 {
-	namespace detail
+	// floating_point value type
+	struct floating_point
 	{
+		using _traits = make_traits<floating_point, ::sqlpp::tag::is_floating_point, ::sqlpp::tag::is_value_type>;
+		using _tag = ::sqlpp::tag::is_floating_point;
+		using _cpp_value_type = double;
 
-		// floating_point value type
-		struct floating_point
+		struct _parameter_t
 		{
-			using _traits = make_traits<floating_point, ::sqlpp::tag::is_floating_point, ::sqlpp::tag::is_expression>;
-			using _tag = ::sqlpp::tag::is_floating_point;
-			using _cpp_value_type = double;
+			using _value_type = floating_point;
 
-			struct _parameter_t
+			_parameter_t():
+				_value(0),
+				_is_null(true)
+			{}
+
+			_parameter_t(const _cpp_value_type& value):
+				_value(value),
+				_is_null(false)
+			{}
+
+			_parameter_t& operator=(const _cpp_value_type& value)
 			{
-				using _value_type = floating_point;
+				_value = value;
+				_is_null = false;
+				return *this;
+			}
 
-				_parameter_t():
-					_value(0),
-					_is_null(true)
-				{}
-
-				_parameter_t(const _cpp_value_type& value):
-					_value(value),
-					_is_null(false)
-				{}
-
-				_parameter_t& operator=(const _cpp_value_type& value)
-				{
-					_value = value;
-					_is_null = false;
-					return *this;
-				}
-
-				_parameter_t& operator=(const std::nullptr_t&)
-				{
-					_value = 0;
-					_is_null = true;
-					return *this;
-				}
-
-				bool is_null() const
-				{ 
-					return _is_null; 
-				}
-
-				const _cpp_value_type& value() const
-				{
-					return _value;
-				}
-
-				operator _cpp_value_type() const { return _value; }
-
-				template<typename Target>
-					void _bind(Target& target, size_t index) const
-					{
-						target._bind_floating_point_parameter(index, &_value, _is_null);
-					}
-
-			private:
-				_cpp_value_type _value;
-				bool _is_null;
-			};
-
-			template<typename Db, typename FieldSpec>
-				struct _result_field_t;
-
-			// I am SO waiting for concepts lite!
-			template<typename Field, typename Enable = void>
-				struct field_methods_t
-				{
-					static constexpr bool _null_is_trivial = true;
-					operator _cpp_value_type() const { return static_cast<const Field&>(*this).value(); }
-				};
-
-			template<typename Db, typename FieldSpec>
-				struct field_methods_t<
-						_result_field_t<Db, FieldSpec>, 
-				    typename std::enable_if<enforce_null_result_treatment_t<Db>::value 
-							and column_spec_can_be_null_t<FieldSpec>::value
-							and not null_is_trivial_value_t<FieldSpec>::value>::type>
-				{
-					static constexpr bool _null_is_trivial = false;
-				};
-
-			template<typename Db, typename FieldSpec>
-				struct _result_field_t: public field_methods_t<_result_field_t<Db, FieldSpec>>
-				{
-					using _field_methods_t = field_methods_t<_result_field_t<Db, FieldSpec>>;
-
-					using _traits = make_traits<integral,
-								tag_if<tag::null_is_trivial_value, _field_methods_t::_null_is_trivial>>;
-
-					struct _recursive_traits
-					{
-						using _parameters = std::tuple<>;
-						using _provided_tables = detail::type_set<>;
-						using _provided_outer_tables = detail::type_set<>;
-						using _required_tables = detail::type_set<>;
-						using _extra_tables = detail::type_set<>;
-						using _can_be_null = column_spec_can_be_null_t<FieldSpec>;
-					};
-
-					_result_field_t():
-						_is_valid(false),
-						_is_null(true),
-						_value(0)
-					{}
-
-					void _validate()
-					{
-						_is_valid = true;
-					}
-
-					void _invalidate()
-					{
-						_is_valid = false;
-						_is_null = true;
-						_value = 0;
-					}
-
-					bool is_null() const
-					{ 
-						if (not _is_valid)
-							throw exception("accessing is_null in non-existing row");
-						return _is_null; 
-					}
-
-					_cpp_value_type value() const
-					{
-						if (not _is_valid)
-							throw exception("accessing value in non-existing row");
-
-						if (_is_null)
-						{
-							if (enforce_null_result_treatment_t<Db>::value and not null_is_trivial_value_t<FieldSpec>::value)
-							{
-								throw exception("accessing value of NULL field");
-							}
-							else
-							{
-								return 0;
-							}
-						}
-						return _value;
-					}
-
-					template<typename Target>
-						void _bind(Target& target, size_t i)
-						{
-							target._bind_floating_point_result(i, &_value, &_is_null);
-						}
-
-				private:
-					bool _is_valid;
-					bool _is_null;
-					_cpp_value_type _value;
-				};
-
-			template<typename T>
-				struct _is_valid_operand
-				{
-					static constexpr bool value = 
-						is_expression_t<T>::value // expressions are OK
-						and is_numeric_t<T>::value // the correct value type is required, of course
-						;
-				};
-
-			template<typename Base>
-				struct expression_operators: public basic_expression_operators<Base, is_numeric_t>
+			_parameter_t& operator=(const std::nullptr_t&)
 			{
-				template<typename T>
-					plus_t<Base, floating_point, wrap_operand_t<T>> operator +(T t) const
-					{
-						using rhs = wrap_operand_t<T>;
-						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+				_value = 0;
+				_is_null = true;
+				return *this;
+			}
 
-						return { *static_cast<const Base*>(this), rhs{t} };
-					}
+			bool is_null() const
+			{ 
+				return _is_null; 
+			}
 
-				template<typename T>
-					minus_t<Base, floating_point, wrap_operand_t<T>> operator -(T t) const
-					{
-						using rhs = wrap_operand_t<T>;
-						static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+			const _cpp_value_type& value() const
+			{
+				return _value;
+			}
 
-						return { *static_cast<const Base*>(this), rhs{t} };
-					}
+			operator _cpp_value_type() const { return _value; }
 
-				template<typename T>
-					multiplies_t<Base, floating_point, wrap_operand_t<T>> operator *(T t) const
-					{
-						using rhs = wrap_operand_t<T>;
-
-						return { *static_cast<const Base*>(this), rhs{t} };
-					}
-
-				template<typename T>
-					divides_t<Base, wrap_operand_t<T>> operator /(T t) const
-					{
-						using rhs = wrap_operand_t<T>;
-
-						return { *static_cast<const Base*>(this), rhs{t} };
-					}
-
-				unary_plus_t<floating_point, Base> operator +() const
+			template<typename Target>
+				void _bind(Target& target, size_t index) const
 				{
-					return { *static_cast<const Base*>(this) };
+					target._bind_floating_point_parameter(index, &_value, _is_null);
 				}
 
-				unary_minus_t<floating_point, Base> operator -() const
-				{
-					return { *static_cast<const Base*>(this) };
-				}
-			};
-
-			template<typename Base>
-				struct column_operators
-				{
-					template<typename T>
-						auto operator +=(T t) const -> assignment_t<Base, plus_t<Base, floating_point, wrap_operand_t<T>>>
-						{
-							using rhs = wrap_operand_t<T>;
-							static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
-
-							return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
-						}
-
-					template<typename T>
-						auto operator -=(T t) const -> assignment_t<Base, minus_t<Base, floating_point, wrap_operand_t<T>>>
-						{
-							using rhs = wrap_operand_t<T>;
-							static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
-
-							return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
-						}
-
-					template<typename T>
-						auto operator /=(T t) const -> assignment_t<Base, divides_t<Base, wrap_operand_t<T>>>
-						{
-							using rhs = wrap_operand_t<T>;
-							static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
-
-							return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
-						}
-
-					template<typename T>
-						auto operator *=(T t) const -> assignment_t<Base, multiplies_t<Base, floating_point, wrap_operand_t<T>>>
-						{
-							using rhs = wrap_operand_t<T>;
-							static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
-
-							return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
-						}
-				};
+		private:
+			_cpp_value_type _value;
+			bool _is_null;
 		};
 
-		template<typename Db, typename FieldSpec>
-			inline std::ostream& operator<<(std::ostream& os, const floating_point::_result_field_t<Db, FieldSpec>& e)
+		template<typename T>
+			struct _is_valid_operand
 			{
-				return os << e.value();
-			}
-	}
+				static constexpr bool value = 
+					is_expression_t<T>::value // expressions are OK
+					and is_numeric_t<T>::value // the correct value type is required, of course
+					;
+			};
 
-	using floating_point = detail::floating_point;
+		template<typename Base>
+			struct expression_operators: public basic_expression_operators<Base, is_numeric_t>
+		{
+			template<typename T>
+				plus_t<Base, floating_point, wrap_operand_t<T>> operator +(T t) const
+				{
+					using rhs = wrap_operand_t<T>;
+					static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+
+					return { *static_cast<const Base*>(this), rhs{t} };
+				}
+
+			template<typename T>
+				minus_t<Base, floating_point, wrap_operand_t<T>> operator -(T t) const
+				{
+					using rhs = wrap_operand_t<T>;
+					static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+
+					return { *static_cast<const Base*>(this), rhs{t} };
+				}
+
+			template<typename T>
+				multiplies_t<Base, floating_point, wrap_operand_t<T>> operator *(T t) const
+				{
+					using rhs = wrap_operand_t<T>;
+
+					return { *static_cast<const Base*>(this), rhs{t} };
+				}
+
+			template<typename T>
+				divides_t<Base, wrap_operand_t<T>> operator /(T t) const
+				{
+					using rhs = wrap_operand_t<T>;
+
+					return { *static_cast<const Base*>(this), rhs{t} };
+				}
+
+			unary_plus_t<floating_point, Base> operator +() const
+			{
+				return { *static_cast<const Base*>(this) };
+			}
+
+			unary_minus_t<floating_point, Base> operator -() const
+			{
+				return { *static_cast<const Base*>(this) };
+			}
+		};
+
+		template<typename Base>
+			struct column_operators
+			{
+				template<typename T>
+					auto operator +=(T t) const -> assignment_t<Base, plus_t<Base, floating_point, wrap_operand_t<T>>>
+					{
+						using rhs = wrap_operand_t<T>;
+						static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
+
+						return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
+					}
+
+				template<typename T>
+					auto operator -=(T t) const -> assignment_t<Base, minus_t<Base, floating_point, wrap_operand_t<T>>>
+					{
+						using rhs = wrap_operand_t<T>;
+						static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
+
+						return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
+					}
+
+				template<typename T>
+					auto operator /=(T t) const -> assignment_t<Base, divides_t<Base, wrap_operand_t<T>>>
+					{
+						using rhs = wrap_operand_t<T>;
+						static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
+
+						return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
+					}
+
+				template<typename T>
+					auto operator *=(T t) const -> assignment_t<Base, multiplies_t<Base, floating_point, wrap_operand_t<T>>>
+					{
+						using rhs = wrap_operand_t<T>;
+						static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
+
+						return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
+					}
+			};
+	};
+
+	template<typename Db, typename FieldSpec>
+		struct result_field_t<floating_point, Db, FieldSpec>: public result_field_methods_t<result_field_t<floating_point, Db, FieldSpec>>
+		{
+			static_assert(std::is_same<value_type_of<FieldSpec>, floating_point>::value, "field type mismatch");
+			using _cpp_value_type = typename floating_point::_cpp_value_type;
+
+			result_field_t():
+				_is_valid(false),
+				_is_null(true),
+				_value(0)
+			{}
+
+			void _validate()
+			{
+				_is_valid = true;
+			}
+
+			void _invalidate()
+			{
+				_is_valid = false;
+				_is_null = true;
+				_value = 0;
+			}
+
+			bool is_null() const
+			{ 
+				if (not _is_valid)
+					throw exception("accessing is_null in non-existing row");
+			return _is_null; 
+		}
+
+		bool _is_trivial() const
+		{
+			if (not _is_valid)
+				throw exception("accessing is_null in non-existing row");
+
+			return value() == 0;
+		}
+
+		_cpp_value_type value() const
+		{
+			if (not _is_valid)
+				throw exception("accessing value in non-existing row");
+
+			if (_is_null)
+			{
+				if (enforce_null_result_treatment_t<Db>::value and not null_is_trivial_value_t<FieldSpec>::value)
+				{
+					throw exception("accessing value of NULL field");
+				}
+				else
+				{
+					return 0;
+				}
+			}
+			return _value;
+		}
+
+		template<typename Target>
+			void _bind(Target& target, size_t i)
+			{
+				target._bind_floating_point_result(i, &_value, &_is_null);
+			}
+
+	private:
+		bool _is_valid;
+		bool _is_null;
+		_cpp_value_type _value;
+	};
+
+	template<typename Db, typename FieldSpec>
+		inline std::ostream& operator<<(std::ostream& os, const result_field_t<floating_point, Db, FieldSpec>& e)
+		{
+			return serialize(e, os);
+		}
 
 }
 #endif

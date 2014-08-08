@@ -36,7 +36,7 @@ namespace sqlpp
 		{
 			static void _(const T& t, Context& context)
 			{
-				static_assert(wrong_t<Context, T>::value, "missing interpreter specialization");
+				static_assert(wrong_t<interpreter_t>::value, "missing interpreter specialization");
 			}
 		};
 

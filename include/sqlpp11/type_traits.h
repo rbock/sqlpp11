@@ -71,6 +71,8 @@ namespace sqlpp
 	template<typename T>\
 	using name##_t = typename detail::name##_impl<T>::type;
 
+	SQLPP_VALUE_TRAIT_GENERATOR(is_value_type);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_sql_null);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_boolean);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_integral);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_floating_point);
@@ -85,6 +87,7 @@ namespace sqlpp
 	SQLPP_VALUE_TRAIT_GENERATOR(is_multi_expression);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_alias);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_select_flag);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_result_field);
 
 	SQLPP_VALUE_TRAIT_GENERATOR(must_not_insert);
 	SQLPP_VALUE_TRAIT_GENERATOR(must_not_update);
@@ -190,6 +193,9 @@ namespace sqlpp
 	}
 	template<typename T>
 		using value_type_of = typename detail::value_type_of_impl<T>::type;
+
+	template<typename T>
+		using cpp_value_type_of = typename value_type_of<T>::_cpp_value_type;
 
 	template<typename T>
 		using required_tables_of = typename detail::required_table_of_impl<T>::type;

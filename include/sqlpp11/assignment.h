@@ -31,6 +31,7 @@
 #include <sqlpp11/null.h>
 #include <sqlpp11/tvin.h>
 #include <sqlpp11/rhs_is_null.h>
+#include <sqlpp11/rhs_is_trivial.h>
 #include <sqlpp11/serialize.h>
 #include <sqlpp11/serializer.h>
 #include <sqlpp11/simple_column.h>
@@ -70,9 +71,8 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
-				if (((trivial_value_is_null_t<typename T::_lhs_t>::value or is_tvin_t<typename T::_rhs_t>::value)
-							and is_trivial(t._rhs))
-						or (std::is_same<Rhs, null_t>::value))
+				if ((trivial_value_is_null_t<typename T::_lhs_t>::value and rhs_is_trivial(t))
+						or rhs_is_null(t))
 				{
 					serialize(simple_column(t._lhs), context);
 					context << "=NULL";

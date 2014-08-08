@@ -42,6 +42,7 @@
 #include <sqlpp11/avg.h>
 #include <sqlpp11/sum.h>
 #include <sqlpp11/verbatim_table.h> // Csaba Csoma suggests: unsafe_sql instead of verbatim
+#include <sqlpp11/value_or_null.h>
 
 namespace sqlpp
 {
@@ -97,6 +98,18 @@ namespace sqlpp
 			context.clear();
 			serialize(exp, context);
 			return { context.str() };
+		}
+
+	template<typename Expression>
+		auto is_null(Expression e) -> decltype(e.is_null())
+		{
+			return e.is_null();
+		}
+
+	template<typename Expression>
+		auto is_not_null(Expression e) -> decltype(e.is_not_null())
+		{
+			return e.is_not_null();
 		}
 
 	template<typename Container>

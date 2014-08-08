@@ -63,7 +63,7 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
-				static_assert(wrong_t<Context, Operand>::value, "tvin may only be used with operators =, == and !=");
+				static_assert(wrong_t<serializer_t>::value, "tvin may only be used with operators =, == and !=");
 			}
 		};
 
@@ -104,6 +104,11 @@ namespace sqlpp
 			~tvin_t() = default;
 
 			bool _is_trivial() const
+			{
+				return _value._is_trivial();
+			}
+
+			bool _is_null() const
 			{
 				return _value._is_trivial();
 			}
@@ -150,8 +155,7 @@ namespace sqlpp
 		auto tvin(Operand operand) -> tvin_arg_t<typename wrap_operand<Operand>::type>
 		{
 			using _operand_t = typename wrap_operand<Operand>::type;
-			static_assert(std::is_same<_operand_t, text_operand>::value
-					or not std::is_same<_operand_t, Operand>::value, "tvin() used with invalid type (only string and primitive types allowed)");
+			static_assert(not std::is_same<_operand_t, Operand>::value or is_result_field_t<Operand>::value, "tvin() used with invalid type (only string and primitive types allowed)");
 			return {{operand}};
 		}
 

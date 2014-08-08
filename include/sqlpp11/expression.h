@@ -30,6 +30,8 @@
 #include <sqlpp11/alias.h>
 #include <sqlpp11/boolean.h>
 #include <sqlpp11/tvin.h>
+#include <sqlpp11/rhs_is_null.h>
+#include <sqlpp11/rhs_is_trivial.h>
 #include <sqlpp11/noop.h>
 #include <sqlpp11/expression_fwd.h>
 #include <sqlpp11/serializer.h>
@@ -38,7 +40,7 @@
 namespace sqlpp
 {
 	template<typename Lhs, typename Rhs>
-		struct binary_expression_t<Lhs, op::equal_to, Rhs>: public ::sqlpp::detail::boolean::template expression_operators<binary_expression_t<Lhs, op::equal_to, Rhs>>,
+		struct binary_expression_t<Lhs, op::equal_to, Rhs>: public ::sqlpp::boolean::template expression_operators<binary_expression_t<Lhs, op::equal_to, Rhs>>,
 		public alias_operators<binary_expression_t<Lhs, op::equal_to, Rhs>>
 		{
 			using _traits = make_traits<boolean, sqlpp::tag::is_expression>;
@@ -70,7 +72,8 @@ namespace sqlpp
 			{
 				context << "(";
 				serialize(t._lhs, context);
-				if (rhs_is_null(t))
+				if ((trivial_value_is_null_t<typename T::_lhs_t>::value and rhs_is_trivial(t))
+						or rhs_is_null(t))
 				{
 					context << " IS NULL";
 				}
@@ -85,7 +88,7 @@ namespace sqlpp
 		};
 
 	template<typename Lhs, typename Rhs>
-		struct binary_expression_t<Lhs, op::not_equal_to, Rhs>: public ::sqlpp::detail::boolean::template expression_operators<binary_expression_t<Lhs, op::not_equal_to, Rhs>>,
+		struct binary_expression_t<Lhs, op::not_equal_to, Rhs>: public ::sqlpp::boolean::template expression_operators<binary_expression_t<Lhs, op::not_equal_to, Rhs>>,
 		public alias_operators<binary_expression_t<Lhs, op::not_equal_to, Rhs>>
 		{
 			using _traits = make_traits<boolean, sqlpp::tag::is_expression>;
@@ -117,7 +120,8 @@ namespace sqlpp
 			{
 				context << "(";
 				serialize(t._lhs, context);
-				if (rhs_is_null(t))
+				if ((trivial_value_is_null_t<typename T::_lhs_t>::value and rhs_is_trivial(t))
+						or rhs_is_null(t))
 				{
 					context << " IS NOT NULL";
 				}
@@ -132,7 +136,7 @@ namespace sqlpp
 		};
 
 	template<typename Rhs>
-		struct unary_expression_t<op::logical_not, Rhs>: public ::sqlpp::detail::boolean::template expression_operators<unary_expression_t<op::logical_not, Rhs>>,
+		struct unary_expression_t<op::logical_not, Rhs>: public ::sqlpp::boolean::template expression_operators<unary_expression_t<op::logical_not, Rhs>>,
 		public alias_operators<unary_expression_t<op::logical_not, Rhs>>
 		{
 			using _traits = make_traits<boolean, sqlpp::tag::is_expression>;
@@ -161,7 +165,7 @@ namespace sqlpp
 				context << "(";
 				if (trivial_value_is_null_t<Rhs>::value)
 				{
-					serialize(t._lhs, context);
+					serialize(t._rhs, context);
 					context << " IS NULL ";
 				}
 				else
@@ -170,6 +174,8 @@ namespace sqlpp
 					serialize(t._rhs, context);
 				}
 				context << ")";
+
+				return context;
 			}
 		};
 

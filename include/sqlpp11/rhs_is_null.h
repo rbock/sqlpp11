@@ -32,7 +32,7 @@
 namespace sqlpp
 {
 	template<typename T, typename Enable = void>
-		struct is_trivial_t
+		struct rhs_is_null_t
 		{
 			static constexpr bool _(const T&)
 			{
@@ -41,27 +41,29 @@ namespace sqlpp
 		};
 
 	template<typename T>
-		struct is_trivial_t<T, typename std::enable_if<std::is_member_function_pointer<decltype(&T::_is_trivial)>::value, void>::type>
+		struct rhs_is_null_t<T, typename std::enable_if<is_tvin_t<T>::value, void>::type>
 		{
 			static bool _(const T& t)
 			{
-				return t._is_trivial();
+				return t._is_null();
 			}
 		};
 
 	template<typename T>
-		bool is_trivial(const T& t)
+		struct rhs_is_null_t<T, typename std::enable_if<is_result_field_t<T>::value, void>::type>
 		{
-			return is_trivial_t<T>::_(t);
-		}
+			static bool _(const T& t)
+			{
+				return t.is_null();
+			}
+		};
 
 	template<typename Expression>
 		constexpr bool rhs_is_null(const Expression& e)
 		{
-			return (((trivial_value_is_null_t<typename Expression::_lhs_t>::value or is_tvin_t<typename Expression::_rhs_t>::value)
-							and is_trivial(e._rhs))
-						or (std::is_same<typename Expression::_rhs_t, null_t>::value));
+			return rhs_is_null_t<typename std::decay<Expression>::type::_rhs_t>::_(e._rhs);
 		}
+
 }
 
 #endif

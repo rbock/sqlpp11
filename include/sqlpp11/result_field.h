@@ -24,22 +24,39 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SERIALIZER_H
-#define SQLPP_SERIALIZER_H
+#ifndef SQLPP_RESULT_FIELD_H
+#define SQLPP_RESULT_FIELD_H
 
 #include <sqlpp11/wrong.h>
+#include <sqlpp11/result_field_methods.h>
 
 namespace sqlpp
 {
-	template<typename Context, typename T, typename Enable = void>
-		struct serializer_t
+	template<typename ValueType, typename Db, typename Field>
+		struct result_field_t
 		{
-			static void _(const T& t, Context& context)
+			static_assert(wrong_t<result_field_t>::value, "Missing specialization for result_field_t");
+		};
+
+	template<typename Context, typename ValueType, typename Db, typename FieldSpec>
+		struct serializer_t<Context, result_field_t<ValueType, Db, FieldSpec>>
+		{
+			using T = result_field_t<ValueType, Db, FieldSpec>;
+
+			static Context& _(const T& t, Context& context)
 			{
-				static_assert(wrong_t<serializer_t>::value, "missing serializer specialization");
+				if (t.is_null() and not null_is_trivial_value_t<T>::value)
+				{
+					context << "NULL";
+				}
+				else
+				{
+					context << t.value();
+				}
+				return context;
 			}
 		};
 
-}
 
+}
 #endif

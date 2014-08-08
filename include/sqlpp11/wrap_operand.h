@@ -33,17 +33,14 @@
 
 namespace sqlpp
 {
-	namespace detail
-	{
-		struct boolean;
-		struct integral;
-		struct floating_point;
-		struct text;
-	}
+	struct boolean;
+	struct integral;
+	struct floating_point;
+	struct text;
 
 	struct boolean_operand
 	{
-		using _traits = make_traits<::sqlpp::detail::boolean, ::sqlpp::tag::is_expression, ::sqlpp::tag::is_wrapped_value>;
+		using _traits = make_traits<::sqlpp::boolean, ::sqlpp::tag::is_expression, ::sqlpp::tag::is_wrapped_value>;
 		using _recursive_traits = make_recursive_traits<>;
 
 		using _value_t = bool;
@@ -81,7 +78,7 @@ namespace sqlpp
 
 	struct integral_operand
 	{
-		using _traits = make_traits<::sqlpp::detail::integral, ::sqlpp::tag::is_expression, ::sqlpp::tag::is_wrapped_value>;
+		using _traits = make_traits<::sqlpp::integral, ::sqlpp::tag::is_expression, ::sqlpp::tag::is_wrapped_value>;
 		using _recursive_traits = make_recursive_traits<>;
 
 		using _value_t = int64_t;
@@ -120,7 +117,7 @@ namespace sqlpp
 
 	struct floating_point_operand
 	{
-		using _traits = make_traits<::sqlpp::detail::floating_point, ::sqlpp::tag::is_expression, ::sqlpp::tag::is_wrapped_value>;
+		using _traits = make_traits<::sqlpp::floating_point, ::sqlpp::tag::is_expression, ::sqlpp::tag::is_wrapped_value>;
 		using _recursive_traits = make_recursive_traits<>;
 
 		using _value_t = double;
@@ -158,7 +155,7 @@ namespace sqlpp
 
 	struct text_operand
 	{
-		using _traits = make_traits<::sqlpp::detail::text, ::sqlpp::tag::is_expression, ::sqlpp::tag::is_wrapped_value>;
+		using _traits = make_traits<::sqlpp::text, ::sqlpp::tag::is_expression, ::sqlpp::tag::is_wrapped_value>;
 		using _recursive_traits = make_recursive_traits<>;
 
 		using _value_t = std::string;
@@ -219,7 +216,7 @@ namespace sqlpp
 		};
 
 	template<typename T>
-		struct wrap_operand<T, typename std::enable_if<std::is_convertible<T, std::string>::value>::type>
+		struct wrap_operand<T, typename std::enable_if<std::is_convertible<T, std::string>::value and not is_result_field_t<T>::value>::type>
 		{
 			using type = text_operand;
 		};

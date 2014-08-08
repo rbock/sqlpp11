@@ -117,7 +117,7 @@ namespace sqlpp
 
 			static void _(const T& t, Context& context)
 			{
-				static_assert(wrong_t<Columns...>::value, "multi_column must be used with an alias");
+				static_assert(wrong_t<serializer_t>::value, "multi_column must be used with an alias");
 			}
 		};
 

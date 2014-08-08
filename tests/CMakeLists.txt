@@ -6,6 +6,7 @@ macro (build_and_run arg)
 	add_test(${arg} ${arg})
 endmacro ()
 
+build_and_run(BooleanExpressionTest)
 build_and_run(InterpretTest)
 build_and_run(InsertTest)
 build_and_run(RemoveTest)

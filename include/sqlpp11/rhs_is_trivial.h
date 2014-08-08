@@ -24,22 +24,68 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SERIALIZER_H
-#define SQLPP_SERIALIZER_H
+#ifndef SQLPP_RHS_IS_TRIVIAL_H
+#define SQLPP_RHS_IS_TRIVIAL_H
 
-#include <sqlpp11/wrong.h>
+#include <sqlpp11/tvin.h>
 
 namespace sqlpp
 {
-	template<typename Context, typename T, typename Enable = void>
-		struct serializer_t
+	template<typename T, typename Enable = void>
+		struct rhs_is_trivial_t
 		{
-			static void _(const T& t, Context& context)
+			static constexpr bool _(const T&)
 			{
-				static_assert(wrong_t<serializer_t>::value, "missing serializer specialization");
+				return false;
 			}
 		};
 
+	template<typename T>
+		struct rhs_is_trivial_t<T, typename std::enable_if<is_wrapped_value_t<T>::value, void>::type>
+		{
+			static bool _(const T& t)
+			{
+				return t._is_trivial();
+			}
+		};
+
+	template<typename T>
+		struct rhs_is_trivial_t<T, typename std::enable_if<is_tvin_t<T>::value, void>::type>
+		{
+			static bool _(const T& t)
+			{
+				return t._is_trivial();
+			}
+		};
+
+	template<typename T>
+		struct rhs_is_trivial_t<T, typename std::enable_if<is_result_field_t<T>::value, void>::type>
+		{
+			static bool _(const T& t)
+			{
+				if (null_is_trivial_value_t<T>::value)
+				{
+					return t._is_trivial();
+				}
+				else
+				{
+					if (t.is_null())
+					{
+						return false;
+					}
+					else
+					{
+						return t._is_trivial();
+					}
+				}
+			}
+		};
+
+	template<typename Expression>
+		constexpr bool rhs_is_trivial(const Expression& e)
+		{
+			return rhs_is_trivial_t<typename std::decay<Expression>::type::_rhs_t>::_(e._rhs);
+		}
 }
 
 #endif

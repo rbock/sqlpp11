@@ -135,6 +135,12 @@ int main()
 		using TI = decltype(t.alpha.is_null());
 		using TF = decltype(f.omega.is_null());
 		using TT = decltype(t.beta.is_null());
+		using TTI = decltype(is_null(t.alpha));
+		using TTF = decltype(is_null(f.omega));
+		using TTT = decltype(is_null(t.beta));
+		static_assert(std::is_same<TI, TTI>::value, "type requirement");
+		static_assert(std::is_same<TF, TTF>::value, "type requirement");
+		static_assert(std::is_same<TT, TTT>::value, "type requirement");
 		static_assert(sqlpp::is_named_expression_t<TI>::value, "type requirement");
 		static_assert(sqlpp::is_boolean_t<TI>::value, "type requirement");
 		static_assert(not sqlpp::is_numeric_t<TI>::value, "type requirement");
@@ -154,6 +160,12 @@ int main()
 		using TI = decltype(t.alpha.is_not_null());
 		using TF = decltype(f.omega.is_not_null());
 		using TT = decltype(t.beta.is_not_null());
+		using TTI = decltype(is_not_null(t.alpha));
+		using TTF = decltype(is_not_null(f.omega));
+		using TTT = decltype(is_not_null(t.beta));
+		static_assert(std::is_same<TI, TTI>::value, "type requirement");
+		static_assert(std::is_same<TF, TTF>::value, "type requirement");
+		static_assert(std::is_same<TT, TTT>::value, "type requirement");
 		static_assert(sqlpp::is_named_expression_t<TI>::value, "type requirement");
 		static_assert(sqlpp::is_boolean_t<TI>::value, "type requirement");
 		static_assert(not sqlpp::is_numeric_t<TI>::value, "type requirement");
@@ -356,6 +368,30 @@ int main()
 		static_assert(sqlpp::is_text_t<TT>::value, "type requirement");
 	}
 
+	// test value_or_null
+	{
+		using TB = decltype(sqlpp::value_or_null(true));
+		using TI = decltype(sqlpp::value_or_null(7));
+		using TF = decltype(sqlpp::value_or_null(5.6));
+		using TT = decltype(sqlpp::value_or_null("hallo"));
+		using TBN = decltype(sqlpp::value_or_null<sqlpp::boolean>(sqlpp::null));
+		using TIN = decltype(sqlpp::value_or_null<sqlpp::integral>(sqlpp::null));
+		using TFN = decltype(sqlpp::value_or_null<sqlpp::floating_point>(sqlpp::null));
+		using TTN = decltype(sqlpp::value_or_null<sqlpp::text>(sqlpp::null));
+		static_assert(std::is_same<TB, TBN>::value, "type_requirement");
+		static_assert(std::is_same<TI, TIN>::value, "type_requirement");
+		static_assert(std::is_same<TF, TFN>::value, "type_requirement");
+		static_assert(std::is_same<TT, TTN>::value, "type_requirement");
+		static_assert(not sqlpp::is_named_expression_t<TB>::value, "type requirement");
+		static_assert(sqlpp::is_boolean_t<TB>::value, "type requirement");
+		static_assert(not sqlpp::is_named_expression_t<TB>::value, "type requirement");
+		static_assert(sqlpp::is_integral_t<TI>::value, "type requirement");
+		static_assert(not sqlpp::is_named_expression_t<TI>::value, "type requirement");
+		static_assert(sqlpp::is_floating_point_t<TF>::value, "type requirement");
+		static_assert(not sqlpp::is_named_expression_t<TT>::value, "type requirement");
+		static_assert(sqlpp::is_text_t<TT>::value, "type requirement");
+	}
+
 	// test verbatim
 	{
 		using TB = decltype(sqlpp::verbatim<sqlpp::boolean>("1"));
@@ -387,6 +423,21 @@ int main()
 		static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_table_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_alias_t<T>::value, "type requirement");
+	}
+
+	// test tvin
+	{
+		static_assert(std::is_same<decltype(sqlpp::tvin(1)), sqlpp::tvin_arg_t<sqlpp::integral_operand>>::value, "integral values are accepted and wrapped") ;
+		static_assert(std::is_same<decltype(sqlpp::tvin(false)), sqlpp::tvin_arg_t<sqlpp::boolean_operand>>::value, "bool values are accepted and wrapped") ;
+		static_assert(std::is_same<decltype(sqlpp::tvin(0.17)), sqlpp::tvin_arg_t<sqlpp::floating_point_operand>>::value, "float values are accepted and wrapped") ;
+		static_assert(std::is_same<decltype(sqlpp::tvin("test")), sqlpp::tvin_arg_t<sqlpp::text_operand>>::value, "text values are accepted and wrapped") ;
+
+		for (const auto& row : db(select(all_of(t)).from(t).where(true)))
+		{
+			static_assert(std::is_same<decltype(sqlpp::tvin(row.alpha)), sqlpp::tvin_arg_t<decltype(row.alpha)>>::value, "result fields are accepted and not wrapped") ;
+			static_assert(std::is_same<decltype(sqlpp::tvin(row.beta)), sqlpp::tvin_arg_t<decltype(row.beta)>>::value, "result fields are accepted and not wrapped") ;
+			static_assert(std::is_same<decltype(sqlpp::tvin(row.gamma)), sqlpp::tvin_arg_t<decltype(row.gamma)>>::value, "result fields are accepted and not wrapped") ;
+		}
 	}
 
 	return 0;

@@ -112,7 +112,7 @@ namespace sqlpp
 									::sqlpp::detail::make_intersect_set_t<
 									  required_tables_of<_result_type_provider>, 
 								    provided_outer_tables_of<statement_policies_t>
-								  >::size::value>;
+								  >::size::value != 0>;
 				};
 			};
 	}
