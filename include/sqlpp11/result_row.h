@@ -30,7 +30,7 @@
 #include <map>
 #include <sqlpp11/field_spec.h>
 #include <sqlpp11/text.h>
-#include <sqlpp11/detail/column_index_sequence.h>
+#include <sqlpp11/detail/field_index_sequence.h>
 
 namespace sqlpp
 {
@@ -66,9 +66,9 @@ namespace sqlpp
 
 		template<std::size_t index, typename AliasProvider, typename Db, typename... FieldSpecs>
 			struct result_field<Db, index, multi_field_spec_t<AliasProvider, std::tuple<FieldSpecs...>>>: 
-			public AliasProvider::_name_t::template _member_t<result_row_impl<Db, detail::make_column_index_sequence<index, FieldSpecs...>, FieldSpecs...>>
+			public AliasProvider::_name_t::template _member_t<result_row_impl<Db, detail::make_field_index_sequence<index, FieldSpecs...>, FieldSpecs...>>
 			{
-				using _multi_field = typename AliasProvider::_name_t::template _member_t<result_row_impl<Db, detail::make_column_index_sequence<index, FieldSpecs...>, FieldSpecs...>>;
+				using _multi_field = typename AliasProvider::_name_t::template _member_t<result_row_impl<Db, detail::make_field_index_sequence<index, FieldSpecs...>, FieldSpecs...>>;
 
 				result_field() = default;
 
@@ -89,12 +89,10 @@ namespace sqlpp
 					}
 			};
 
-		template<typename Db, std::size_t LastIndex, std::size_t... Is, typename... FieldSpecs>
-			struct result_row_impl<Db, detail::column_index_sequence<LastIndex, Is...>, FieldSpecs...>: 
+		template<typename Db, std::size_t NextIndex, std::size_t... Is, typename... FieldSpecs>
+			struct result_row_impl<Db, detail::field_index_sequence<NextIndex, Is...>, FieldSpecs...>: 
 			public result_field<Db, Is, FieldSpecs>...
 			{
-				static constexpr std::size_t _last_index = LastIndex;
-
 				result_row_impl() = default;
 
 				void _validate()
@@ -120,11 +118,11 @@ namespace sqlpp
 	}
 
 	template<typename Db, typename... FieldSpecs>
-		struct result_row_t: public detail::result_row_impl<Db, detail::make_column_index_sequence<0, FieldSpecs...>, FieldSpecs...>
+		struct result_row_t: public detail::result_row_impl<Db, detail::make_field_index_sequence<0, FieldSpecs...>, FieldSpecs...>
 	{
-		using _impl = detail::result_row_impl<Db, detail::make_column_index_sequence<0, FieldSpecs...>, FieldSpecs...>;
+		using _field_index_sequence = detail::make_field_index_sequence<0, FieldSpecs...>;
+		using _impl = detail::result_row_impl<Db, _field_index_sequence, FieldSpecs...>;
 		bool _is_valid;
-		static constexpr size_t _last_static_index = _impl::_last_index;
 
 		result_row_t():
 			_impl(),
@@ -168,7 +166,7 @@ namespace sqlpp
 
 		static constexpr size_t static_size()
 		{
-			return _last_static_index;
+			return _field_index_sequence::_next_index;
 		}
 
 		template<typename Target>
@@ -179,9 +177,10 @@ namespace sqlpp
 	};
 
 	template<typename Db, typename... FieldSpecs>
-		struct dynamic_result_row_t: public detail::result_row_impl<Db, detail::make_column_index_sequence<0, FieldSpecs...>, FieldSpecs...>
+		struct dynamic_result_row_t: public detail::result_row_impl<Db, detail::make_field_index_sequence<0, FieldSpecs...>, FieldSpecs...>
 	{
-		using _impl = detail::result_row_impl<Db, detail::make_column_index_sequence<0, FieldSpecs...>, FieldSpecs...>;
+		using _field_index_sequence = detail::make_field_index_sequence<0, FieldSpecs...>;
+		using _impl = detail::result_row_impl<Db, _field_index_sequence, FieldSpecs...>;
 		struct _field_spec_t
 		{
 			using _traits = make_traits<text, tag::is_noop, tag::can_be_null, tag::null_is_trivial_value>;
@@ -190,10 +189,9 @@ namespace sqlpp
 			struct _name_t {};
 		};
 		using _field_type = result_field_t<text, Db, _field_spec_t>;
-		static constexpr size_t _last_static_index = _impl::_last_index;
 
 		bool _is_valid;
-		std::vector<std::string> _dynamic_columns;
+		std::vector<std::string> _dynamic_field_names;
 		std::map<std::string, _field_type> _dynamic_fields;
 
 		dynamic_result_row_t(): 
@@ -202,12 +200,12 @@ namespace sqlpp
 		{
 		}
 
-		dynamic_result_row_t(const std::vector<std::string>& dynamic_columns): 
+		dynamic_result_row_t(const std::vector<std::string>& dynamic_field_names): 
 			_impl(),
 			_is_valid(false),
-			_dynamic_columns(dynamic_columns)
+			_dynamic_field_names(dynamic_field_names)
 		{
-			for (auto name : _dynamic_columns)
+			for (auto name : _dynamic_field_names)
 			{
 				_dynamic_fields.insert({name, _field_type{}});
 			}
@@ -259,10 +257,11 @@ namespace sqlpp
 			{
 				_impl::_bind(target);
 
-				std::size_t index = _last_static_index;
-				for (const auto& name  : _dynamic_columns)
+				std::size_t index = _field_index_sequence::_next_index;
+				for (const auto& name : _dynamic_field_names)
 				{
-					_dynamic_fields.at(name)._bind(target, ++index);
+					_dynamic_fields.at(name)._bind(target, index);
+					++index;
 				}
 			}
 	};
