@@ -91,11 +91,11 @@ namespace sqlpp
 			return { s };
 		}
 
-	template<typename Expression, typename Context>
-		auto flatten(const Expression& exp, const Context& context) -> verbatim_t<value_type_of<Expression>>
+	template<typename Expression, typename Db>
+		auto flatten(const Expression& exp, Db& db) -> verbatim_t<value_type_of<Expression>>
 		{
-			static_assert(not make_parameter_list_t<Expression>::type::size::value, "parameters not supported in flattened expressions");
-			context.clear();
+			static_assert(not make_parameter_list_t<Expression>::size::value, "parameters are not allowed in flattened expressions");
+			auto context = db.get_serializer_context();
 			serialize(exp, context);
 			return { context.str() };
 		}
@@ -164,7 +164,7 @@ namespace sqlpp
 	template<typename T>
 		constexpr const char* get_sql_name(const T&) 
 		{
-			return T::type::_name_t::_get_name();
+			return T::_name_t::_get_name();
 		}
 
 

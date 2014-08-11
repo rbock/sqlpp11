@@ -79,7 +79,7 @@ namespace sqlpp
 					no_offset_t>;
 
 
-	blank_select_t<void> select() // FIXME: These should be constexpr
+	inline blank_select_t<void> select() // FIXME: These should be constexpr
 	{
 		return { };
 	}
