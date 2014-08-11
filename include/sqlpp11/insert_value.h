@@ -59,34 +59,41 @@ namespace sqlpp
 		struct insert_value_t
 		{
 			using _is_insert_value = std::true_type;
+			using _column_t = Column;
 			using _pure_value_t = typename value_type_of<Column>::_cpp_value_type;
 			using _wrapped_value_t = typename wrap_operand<_pure_value_t>::type;
-			using _tvin_t = typename detail::type_if<tvin_arg_t<_wrapped_value_t>, can_be_null_t<Column>::value>::type; // static asserts and SFINAE do not work together
-			using _null_t = typename detail::type_if<null_t, can_be_null_t<Column>::value>::type; // static asserts and SFINAE do not work together
+			using _tvin_t = tvin_t<_wrapped_value_t>;
 
-			insert_value_t(assignment_t<Column, _wrapped_value_t> assignment):
+			insert_value_t(_wrapped_value_t rhs):
 				_is_null(false),
 				_is_default(false),
-				_value(assignment._rhs)
+				_value(rhs)
 			{}
 
-			insert_value_t(assignment_t<Column, _tvin_t> assignment):
-				_is_null(assignment._rhs._is_trivial()),
+			insert_value_t(_tvin_t rhs):
+				_is_null(rhs._is_trivial()),
 				_is_default(false),
-				_value(assignment._rhs._value)
+				_value(rhs._value)
 			{}
 
-			insert_value_t(const assignment_t<Column, _null_t>&):
+			insert_value_t(const null_t&):
 				_is_null(true),
 				_is_default(false),
-				_value()
+				_value{}
 			{}
 
-			insert_value_t(const assignment_t<Column, ::sqlpp::default_value_t>&):
+			insert_value_t(const default_value_t&):
 				_is_null(false),
 				_is_default(true),
-				_value()
+				_value{}
 			{}
+
+			template<typename Db, typename FieldSpec>
+				insert_value_t(const result_field_t<value_type_of<Column>, Db, FieldSpec>& rhs):
+					_is_null(rhs.is_null()),
+					_is_default(false),
+					_value(rhs.is_null() ? _wrapped_value_t{} : rhs.value())
+					{}
 
 			insert_value_t(const insert_value_t&) = default;
 			insert_value_t(insert_value_t&&) = default;
@@ -106,8 +113,11 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
-				if (t._is_null)
+				if ((trivial_value_is_null_t<typename T::_column_t>::value and t._value._is_trivial())
+						or t._is_null)
+				{
 					context << "NULL";
+				}
 				else if (t._is_default)
 					context << "DEFAULT";
 				else

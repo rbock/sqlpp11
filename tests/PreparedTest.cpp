@@ -106,5 +106,12 @@ int main()
 		std::cerr << x.alpha << std::endl;
 	}
 
+	// Check that a prepared select is default-constructible
+	{
+		auto s = select(all_of(t)).from(t).where((t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha)) or t.gamma != parameter(t.gamma));
+		using P = decltype(db.prepare(s));
+		P p;
+	}
+
 	return 0;
 }

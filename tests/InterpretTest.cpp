@@ -172,5 +172,10 @@ int main()
 		serialize(row.gamma, printer);
 	}
 
+	get_sql_name(t);
+	get_sql_name(t.alpha);
+
+	flatten(t.alpha == 7, db);
+
 	return 0;
 }

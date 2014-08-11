@@ -31,6 +31,7 @@
 #include <sqlpp11/null.h>
 #include <sqlpp11/tvin.h>
 #include <sqlpp11/rhs_is_null.h>
+#include <sqlpp11/rhs_is_default.h>
 #include <sqlpp11/rhs_is_trivial.h>
 #include <sqlpp11/serialize.h>
 #include <sqlpp11/serializer.h>
@@ -71,15 +72,18 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
+				serialize(simple_column(t._lhs), context);
 				if ((trivial_value_is_null_t<typename T::_lhs_t>::value and rhs_is_trivial(t))
 						or rhs_is_null(t))
 				{
-					serialize(simple_column(t._lhs), context);
 					context << "=NULL";
+				}
+				else if (rhs_is_default(t))
+				{
+					context << "=DEFAULT";
 				}
 				else
 				{
-					serialize(simple_column(t._lhs), context);
 					context << "=";
 					serialize(t._rhs, context);
 				}

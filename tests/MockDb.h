@@ -65,6 +65,11 @@ struct MockDbT: public sqlpp::connection
 
 	using _interpreter_context_t = _serializer_context_t;
 
+	_serializer_context_t get_serializer_context()
+	{
+		return {};
+	}
+
 	template<typename T>
 	static _serializer_context_t& _serialize_interpretable(const T& t, _serializer_context_t& context)
 	{
