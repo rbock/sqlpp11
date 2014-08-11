@@ -322,7 +322,10 @@ namespace sqlpp
 				template<typename T>
 					using _new_statement_t = typename Policies::template _new_statement_t<no_insert_value_list_t, T>;
 
-				static void _check_consistency() {}
+				static void _check_consistency() 
+				{
+					static_assert(wrong_t<_methods_t>::value, "insert values required, e.g. set(...) or default_values()");
+				}
 
 				auto default_values()
 					-> _new_statement_t<insert_default_values_t>
