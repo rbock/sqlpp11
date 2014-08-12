@@ -87,7 +87,7 @@ namespace sqlpp
 			insert_list_data_t(Assignments... assignments):
 				_assignments(assignments...),
 				_columns({assignments._lhs}...),
-				_values(assignments._rhs...)
+				_values(insert_value_t<typename Assignments::_lhs_t>{assignments._rhs}...)
 				{}
 
 			insert_list_data_t(const insert_list_data_t&) = default;
@@ -98,7 +98,7 @@ namespace sqlpp
 
 			std::tuple<Assignments...> _assignments; // FIXME: Need to replace _columns and _values by _assignments (connector-container requires assignments)
 			std::tuple<simple_column_t<typename Assignments::_lhs_t>...> _columns;
-			std::tuple<typename Assignments::_rhs_t...> _values;
+			std::tuple<insert_value_t<typename Assignments::_lhs_t>...> _values;
 			interpretable_list_t<Database> _dynamic_columns;
 			interpretable_list_t<Database> _dynamic_values;
 		};
@@ -248,7 +248,7 @@ namespace sqlpp
 					template<typename... Assignments>
 						void _add_impl(const std::true_type&, Assignments... assignments)
 						{
-							return _data._insert_values.emplace_back(insert_value_t<typename Assignments::_lhs_t>{assignments}...);
+							return _data._insert_values.emplace_back(insert_value_t<typename Assignments::_lhs_t>{assignments._rhs}...);
 						}
 
 					template<typename... Assignments>
@@ -322,7 +322,10 @@ namespace sqlpp
 				template<typename T>
 					using _new_statement_t = typename Policies::template _new_statement_t<no_insert_value_list_t, T>;
 
-				static void _check_consistency() {}
+				static void _check_consistency() 
+				{
+					static_assert(wrong_t<_methods_t>::value, "insert values required, e.g. set(...) or default_values()");
+				}
 
 				auto default_values()
 					-> _new_statement_t<insert_default_values_t>

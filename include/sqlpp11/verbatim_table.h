@@ -82,7 +82,7 @@ namespace sqlpp
 		};
 
 
-	verbatim_table_t verbatim_table(std::string name)
+	inline verbatim_table_t verbatim_table(std::string name)
 	{
 		return { name };
 	}

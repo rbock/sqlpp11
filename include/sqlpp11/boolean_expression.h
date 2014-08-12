@@ -33,17 +33,17 @@
 namespace sqlpp
 {
 	template<typename Database>
-		struct boolean_expression_t
+		struct boolean_expression_t: public boolean::template expression_operators<boolean_expression_t<Database>>
 		{
 			using _traits = make_traits<boolean, tag::is_expression>;
 			using _recursive_traits = make_recursive_traits<>;
 
-			template<typename Expression>
-			boolean_expression_t(Expression expression):
-				_expression(expression)
+			template<typename Expr>
+			boolean_expression_t(Expr expr):
+				_expr(expr)
 			{
-				static_assert(is_expression_t<Expression>::value, "boolean_expression requires a boolean expression argument");
-				static_assert(is_boolean_t<Expression>::value, "boolean_expression requires a boolean expression argument");
+				static_assert(is_expression_t<Expr>::value, "boolean_expression requires a boolean expression argument");
+				static_assert(is_boolean_t<Expr>::value, "boolean_expression requires a boolean expression argument");
 			}
 
 			boolean_expression_t(const boolean_expression_t&) = default;
@@ -52,19 +52,20 @@ namespace sqlpp
 			boolean_expression_t& operator=(boolean_expression_t&&) = default;
 			~boolean_expression_t() = default;
 
-			interpretable_t<Database> _expression;
+			interpretable_t<Database> _expr;
 		};
-
-	template<typename Database, typename T>
-		boolean_expression_t<Database> boolean_expression(const Database&, T t)
-		{
-			return {t};
-		}
 
 	template<typename Database, typename T>
 		boolean_expression_t<Database> boolean_expression(T t)
 		{
-			return {t};
+			using Expr = wrap_operand_t<T>;
+			return {Expr{t}};
+		}
+
+	template<typename Database, typename T>
+		boolean_expression_t<Database> boolean_expression(const Database&, T t)
+		{
+			return boolean_expression<Database>(t);
 		}
 
 	template<typename Context, typename Database>
@@ -74,7 +75,7 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
-				return serialize(t._expression);
+				return serialize(t._expr, context);
 			}
 		};
 

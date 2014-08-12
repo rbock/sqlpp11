@@ -65,6 +65,21 @@ namespace sqlpp
 				return *this;
 			}
 
+			_parameter_t& operator=(const tvin_t<wrap_operand_t<_cpp_value_type>>& t)
+			{
+				if (t._is_trivial())
+				{
+					_value = 0;
+					_is_null = true;
+				}
+				else
+				{
+					_value = t._value._t;
+					_is_null = false;
+				}
+				return *this;
+			}
+
 			void set_null()
 			{
 				_value = 0;
@@ -160,6 +175,25 @@ namespace sqlpp
 			{
 				return { *static_cast<const Base*>(this) };
 			}
+
+			template<typename T>
+				bitwise_and_t<Base, value_type_t<T>, wrap_operand_t<T>> operator &(T t) const
+				{
+					using rhs = wrap_operand_t<T>;
+					static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+
+					return { *static_cast<const Base*>(this), {t} };
+				}
+
+			template<typename T>
+				bitwise_or_t<Base, value_type_t<T>, wrap_operand_t<T>> operator |(T t) const
+				{
+					using rhs = wrap_operand_t<T>;
+					static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+
+					return { *static_cast<const Base*>(this), {t} };
+				}
+
 		};
 
 		template<typename Base>

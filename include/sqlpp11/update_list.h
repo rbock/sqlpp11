@@ -167,7 +167,10 @@ namespace sqlpp
 				template<typename T>
 					using _new_statement_t = typename Policies::template _new_statement_t<no_update_list_t, T>;
 
-				static void _check_consistency() {}
+				static void _check_consistency()
+				{
+					static_assert(wrong_t<_methods_t>::value, "update assignments required, i.e. set(...)");
+				}
 
 				template<typename... Assignments>
 					auto set(Assignments... assignments)

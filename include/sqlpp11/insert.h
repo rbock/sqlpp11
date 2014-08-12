@@ -94,7 +94,7 @@ namespace sqlpp
 					no_into_t, 
 					no_insert_value_list_t>;
 
-	auto insert()
+	inline auto insert()
 		-> blank_insert_t<void>
 		{
 			return { blank_insert_t<void>() };

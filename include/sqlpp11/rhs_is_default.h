@@ -24,16 +24,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_RHS_IS_NULL_H
-#define SQLPP_RHS_IS_NULL_H
+#ifndef SQLPP_RHS_IS_DEFAULT_H
+#define SQLPP_RHS_IS_DEFAULT_H
 
-#include <sqlpp11/tvin.h>
-#include <sqlpp11/null.h>
+#include <sqlpp11/default_value.h>
 
 namespace sqlpp
 {
 	template<typename T, typename Enable = void>
-		struct rhs_is_null_t
+		struct rhs_is_default_t
 		{
 			static constexpr bool _(const T&)
 			{
@@ -42,7 +41,7 @@ namespace sqlpp
 		};
 
 	template<typename T>
-		struct rhs_is_null_t<T, typename std::enable_if<std::is_same<T, null_t>::value, void>::type>
+		struct rhs_is_default_t<T, typename std::enable_if<std::is_same<T, default_value_t>::value, void>::type>
 		{
 			static constexpr bool _(const T& t)
 			{
@@ -50,28 +49,10 @@ namespace sqlpp
 			}
 		};
 
-	template<typename T>
-		struct rhs_is_null_t<T, typename std::enable_if<is_tvin_t<T>::value, void>::type>
-		{
-			static bool _(const T& t)
-			{
-				return t._is_null();
-			}
-		};
-
-	template<typename T>
-		struct rhs_is_null_t<T, typename std::enable_if<is_result_field_t<T>::value, void>::type>
-		{
-			static bool _(const T& t)
-			{
-				return t.is_null();
-			}
-		};
-
 	template<typename Expression>
-		constexpr bool rhs_is_null(const Expression& e)
+		constexpr bool rhs_is_default(const Expression& e)
 		{
-			return rhs_is_null_t<typename std::decay<Expression>::type::_rhs_t>::_(e._rhs);
+			return rhs_is_default_t<typename std::decay<Expression>::type::_rhs_t>::_(e._rhs);
 		}
 
 }

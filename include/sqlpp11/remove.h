@@ -98,7 +98,7 @@ namespace sqlpp
 					no_where_t<true>
 						>;
 
-	auto remove()
+	inline auto remove()
 		-> blank_remove_t<void>
 		{
 			return { blank_remove_t<void>() };

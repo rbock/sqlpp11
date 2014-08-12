@@ -152,9 +152,9 @@ namespace sqlpp
 		};
 
 	template<typename Operand>
-		auto tvin(Operand operand) -> tvin_arg_t<typename wrap_operand<Operand>::type>
+		auto tvin(Operand operand) -> tvin_arg_t<wrap_operand_t<Operand>>
 		{
-			using _operand_t = typename wrap_operand<Operand>::type;
+			using _operand_t = wrap_operand_t<Operand>;
 			static_assert(not std::is_same<_operand_t, Operand>::value or is_result_field_t<Operand>::value, "tvin() used with invalid type (only string and primitive types allowed)");
 			return {{operand}};
 		}
