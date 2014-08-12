@@ -35,8 +35,10 @@ int main()
 	test::TabBar t; 
 
 	auto x = boolean_expression(db, t.alpha == 7);
-	x = boolean_expression(db, t.gamma);
 	x = sqlpp::boolean_expression<MockDb>(t.beta.like("%cheesecake"));
+	x = x and boolean_expression(db, t.gamma);
+
+	db(select(t.alpha).from(t).where(x));
 
 	return 0;
 }

@@ -25,12 +25,7 @@
 
 #include "Sample.h"
 #include "MockDb.h"
-#include <sqlpp11/alias_provider.h>
-#include <sqlpp11/insert.h>
-#include <sqlpp11/select.h>
-#include <sqlpp11/update.h>
-#include <sqlpp11/remove.h>
-#include <sqlpp11/functions.h>
+#include <sqlpp11/sqlpp11.h>
 
 #include <iostream>
 
@@ -176,6 +171,15 @@ int main()
 	get_sql_name(t.alpha);
 
 	flatten(t.alpha == 7, db);
+
+	auto x = boolean_expression(db, t.alpha == 7);
+	x = sqlpp::boolean_expression<MockDb>(t.beta.like("%cheesecake"));
+	x = x and boolean_expression(db, t.gamma);
+	std::cerr << "----------------------------" << std::endl;
+	printer.reset();
+	std::cerr << serialize(x, printer).str() << std::endl;
+
+
 
 	return 0;
 }
