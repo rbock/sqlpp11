@@ -63,6 +63,21 @@ namespace sqlpp
 				return *this;
 			}
 
+			_parameter_t& operator=(const tvin_t<wrap_operand_t<_cpp_value_type>>& t)
+			{
+				if (t._is_trivial())
+				{
+					_value = 0;
+					_is_null = true;
+				}
+				else
+				{
+					_value = t._value._t;
+					_is_null = false;
+				}
+				return *this;
+			}
+
 			_parameter_t& operator=(const std::nullptr_t&)
 			{
 				_value = 0;

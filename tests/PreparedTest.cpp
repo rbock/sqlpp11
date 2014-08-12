@@ -91,6 +91,7 @@ int main()
 		auto s = select(all_of(t)).from(t).where((t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha)) or t.gamma != parameter(t.gamma));
 		auto p = db.prepare(s);
 		p.params.alpha = 7;
+		p.params.alpha = sqlpp::tvin(0);
 		using S = decltype(s);
 		using T = sqlpp::make_parameter_list_t<S>;
 		T npl;

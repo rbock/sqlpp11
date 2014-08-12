@@ -32,6 +32,7 @@
 #include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/exception.h>
+#include <sqlpp11/tvin.h>
 #include <sqlpp11/result_field.h>
 
 namespace sqlpp
@@ -60,7 +61,22 @@ namespace sqlpp
 			_parameter_t& operator=(const _cpp_value_type& value)
 			{
 				_value = value;
-				_is_null = (false);
+				_is_null = false;
+				return *this;
+			}
+
+			_parameter_t& operator=(const tvin_t<wrap_operand_t<_cpp_value_type>>& t)
+			{
+				if (t._is_trivial())
+				{
+					_value = false;
+					_is_null = true;
+				}
+				else
+				{
+					_value = t._value._t;
+					_is_null = false;
+				}
 				return *this;
 			}
 
