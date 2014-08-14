@@ -30,8 +30,7 @@
 #include <sqlpp11/alias.h>
 #include <sqlpp11/boolean.h>
 #include <sqlpp11/tvin.h>
-#include <sqlpp11/rhs_is_null.h>
-#include <sqlpp11/rhs_is_trivial.h>
+#include <sqlpp11/rhs_wrap.h>
 #include <sqlpp11/noop.h>
 #include <sqlpp11/expression_fwd.h>
 #include <sqlpp11/serializer.h>
@@ -46,7 +45,7 @@ namespace sqlpp
 			using _traits = make_traits<boolean, sqlpp::tag::is_expression>;
 			using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
 			using _lhs_t = Lhs;
-			using _rhs_t = allow_tvin_t<Rhs>;
+			using _rhs_t = rhs_wrap_t<allow_tvin_t<Rhs>, trivial_value_is_null_t<_lhs_t>::value>;
 
 			binary_expression_t(_lhs_t lhs, _rhs_t rhs):
 				_lhs(lhs), 
@@ -72,8 +71,7 @@ namespace sqlpp
 			{
 				context << "(";
 				serialize(t._lhs, context);
-				if ((trivial_value_is_null_t<typename T::_lhs_t>::value and rhs_is_trivial(t))
-						or rhs_is_null(t))
+				if (t._rhs._is_null())
 				{
 					context << " IS NULL";
 				}
@@ -94,7 +92,7 @@ namespace sqlpp
 			using _traits = make_traits<boolean, sqlpp::tag::is_expression>;
 			using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
 			using _lhs_t = Lhs;
-			using _rhs_t = allow_tvin_t<Rhs>;
+			using _rhs_t = rhs_wrap_t<allow_tvin_t<Rhs>, trivial_value_is_null_t<_lhs_t>::value>;
 
 			binary_expression_t(Lhs lhs, _rhs_t rhs):
 				_lhs(lhs), 
@@ -120,8 +118,7 @@ namespace sqlpp
 			{
 				context << "(";
 				serialize(t._lhs, context);
-				if ((trivial_value_is_null_t<typename T::_lhs_t>::value and rhs_is_trivial(t))
-						or rhs_is_null(t))
+				if (t._rhs._is_null())
 				{
 					context << " IS NOT NULL";
 				}

@@ -92,20 +92,20 @@ namespace sqlpp
 				using rhs = wrap_operand_t<T>;
 				static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand assignment operand");
 
-				return { *this, rhs{t} };
+				return { *this, {rhs{t}} };
 			}
 
 		auto operator =(sqlpp::null_t) const
 			->assignment_t<column_t, sqlpp::null_t>
 			{
 				static_assert(can_be_null_t<column_t>::value, "column cannot be null");
-				return { *this, {} };
+				return { *this, sqlpp::null_t{} };
 			}
 
 		auto operator =(sqlpp::default_value_t) const
 			->assignment_t<column_t, sqlpp::default_value_t>
 			{
-				return { *this, {} };
+				return { *this, sqlpp::default_value_t{} };
 			}
 	};
 

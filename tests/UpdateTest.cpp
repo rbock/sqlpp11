@@ -24,7 +24,7 @@
  */
 
 #include <iostream>
-#include <sqlpp11/update.h>
+#include <sqlpp11/sqlpp11.h>
 #include "Sample.h"
 #include "MockDb.h"
 #include "is_regular.h"
@@ -63,6 +63,11 @@ int main()
 	std::cerr << serialize(u, printer).str() << std::endl;
 
 	db(u);
+
+	db(update(t).set(t.delta = sqlpp::verbatim<sqlpp::integer>("17+4")).where(true));
+	db(update(t).set(t.delta = sqlpp::null).where(true));
+	db(update(t).set(t.delta = sqlpp::default_value).where(true));
+
 
 	return 0;
 }

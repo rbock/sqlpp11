@@ -57,7 +57,7 @@ namespace sqlpp
 					using rhs = wrap_operand_t<T>;
 					static_assert(_is_valid_comparison_operand<rhs>::value, "invalid rhs operand in comparison");
 
-					return { *static_cast<const Base*>(this), rhs{t} };
+					return { *static_cast<const Base*>(this), {rhs{t}} };
 				}
 
 			template<typename T>
@@ -66,7 +66,7 @@ namespace sqlpp
 					using rhs = wrap_operand_t<T>;
 					static_assert(_is_valid_comparison_operand<rhs>::value, "invalid rhs operand in comparison");
 
-					return { *static_cast<const Base*>(this), rhs{t} };
+					return { *static_cast<const Base*>(this), {rhs{t}} };
 				}
 
 			template<typename T>

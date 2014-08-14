@@ -87,7 +87,7 @@ namespace sqlpp
 			insert_list_data_t(Assignments... assignments):
 				_assignments(assignments...),
 				_columns({assignments._lhs}...),
-				_values(insert_value_t<typename Assignments::_lhs_t>{assignments._rhs}...)
+				_values({assignments._rhs}...)
 				{}
 
 			insert_list_data_t(const insert_list_data_t&) = default;
@@ -98,7 +98,7 @@ namespace sqlpp
 
 			std::tuple<Assignments...> _assignments; // FIXME: Need to replace _columns and _values by _assignments (connector-container requires assignments)
 			std::tuple<simple_column_t<typename Assignments::_lhs_t>...> _columns;
-			std::tuple<insert_value_t<typename Assignments::_lhs_t>...> _values;
+			std::tuple<typename Assignments::_rhs_t...> _values;
 			interpretable_list_t<Database> _dynamic_columns;
 			interpretable_list_t<Database> _dynamic_values;
 		};
