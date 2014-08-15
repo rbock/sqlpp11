@@ -52,8 +52,8 @@ int main()
 		static_assert(sqlpp::can_be_null_t<T>::value, "row.alpha can be null");
 		static_assert(sqlpp::is_result_field_t<T>::value, "result_fields are not wrapped");
 		
-		bool x = sqlpp::rhs_is_null(t.alpha == row.alpha);
-		bool y = sqlpp::rhs_is_trivial(t.alpha == row.alpha);
+		bool x = (t.alpha == row.alpha)._rhs._is_null();
+		bool y = (t.alpha == row.alpha)._rhs._is_default();
 		std::cerr << x << std::endl;
 		std::cerr << y << std::endl;
 

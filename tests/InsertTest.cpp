@@ -27,6 +27,7 @@
 #include "MockDb.h"
 #include "is_regular.h"
 #include <sqlpp11/insert.h>
+#include <sqlpp11/functions.h>
 #include <iostream>
 
 MockDb db;
@@ -68,7 +69,12 @@ int main()
 	printer.reset();
 	std::cerr << serialize(i, printer).str() << std::endl;
 
+
 	db(multi_insert);
+
+	db(insert_into(t).set(t.delta = sqlpp::verbatim<sqlpp::integer>("17+4")));
+	db(insert_into(t).set(t.delta = sqlpp::null));
+	db(insert_into(t).set(t.delta = sqlpp::default_value));
 
 	return 0;
 }

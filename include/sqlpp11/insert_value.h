@@ -60,40 +60,34 @@ namespace sqlpp
 		{
 			using _is_insert_value = std::true_type;
 			using _column_t = Column;
+			static constexpr bool _trivial_value_is_null = trivial_value_is_null_t<Column>::value;
 			using _pure_value_t = typename value_type_of<Column>::_cpp_value_type;
 			using _wrapped_value_t = typename wrap_operand<_pure_value_t>::type;
 			using _tvin_t = tvin_t<_wrapped_value_t>;
 
-			insert_value_t(_wrapped_value_t rhs):
-				_is_null(false),
-				_is_default(false),
-				_value(rhs)
+			insert_value_t(rhs_wrap_t<_wrapped_value_t, _trivial_value_is_null> rhs):
+				_is_null(rhs._is_null()),
+				_is_default(rhs._is_default()),
+				_value(rhs._expr._t)
 			{}
 
-			insert_value_t(_tvin_t rhs):
-				_is_null(rhs._is_trivial()),
-				_is_default(false),
-				_value(rhs._value)
+			insert_value_t(rhs_wrap_t<_tvin_t, _trivial_value_is_null> rhs):
+				_is_null(rhs._is_null()),
+				_is_default(rhs._is_default()),
+				_value(rhs._expr._value)
 			{}
 
-			insert_value_t(const null_t&):
+			insert_value_t(const rhs_wrap_t<null_t, _trivial_value_is_null>&):
 				_is_null(true),
 				_is_default(false),
 				_value{}
 			{}
 
-			insert_value_t(const default_value_t&):
+			insert_value_t(const rhs_wrap_t<default_value_t, _trivial_value_is_null>&):
 				_is_null(false),
 				_is_default(true),
 				_value{}
 			{}
-
-			template<typename Db, typename FieldSpec>
-				insert_value_t(const result_field_t<value_type_of<Column>, Db, FieldSpec>& rhs):
-					_is_null(rhs.is_null()),
-					_is_default(false),
-					_value(rhs.is_null() ? _wrapped_value_t{} : rhs.value())
-					{}
 
 			insert_value_t(const insert_value_t&) = default;
 			insert_value_t(insert_value_t&&) = default;
