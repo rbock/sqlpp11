@@ -38,6 +38,24 @@
 
 namespace sqlpp
 {
+	namespace detail
+	{
+		template<typename... Args>
+			struct first_arg_impl
+			{
+				static_assert(wrong_t<first_arg_impl>::value, "At least one argument required");
+			};
+
+		template<typename T, typename... Args>
+			struct first_arg_impl<T, Args...>
+			{
+				using type = T;
+			};
+
+		template<typename... Args>
+			using first_arg_t = typename first_arg_impl<Args...>::type;
+	}
+
 	struct insert_default_values_data_t
 	{};
 
@@ -337,6 +355,11 @@ namespace sqlpp
 					auto columns(Args... args)
 					-> _new_statement_t<column_list_t<Args...>>
 					{
+						static_assert(sizeof...(Args), "at least one column expression required in columns()");
+						using _table = typename detail::first_arg_t<Args...>::_table;
+						using required_columns = typename _table::_required_insert_columns;
+						using columns = detail::make_type_set_t<Args...>;
+						static_assert(detail::is_subset_of<required_columns, columns>::value, "At least one required column is missing in columns()");
 						return { *static_cast<typename Policies::_statement_t*>(this), column_list_data_t<Args...>{args...} };
 					}
 
@@ -345,6 +368,10 @@ namespace sqlpp
 					-> _new_statement_t<insert_list_t<void, Assignments...>>
 					{
 						static_assert(sizeof...(Assignments), "at least one assignment expression required in set()");
+						using _table = typename detail::first_arg_t<Assignments...>::_lhs_t::_table;
+						using required_columns = typename _table::_required_insert_columns;
+						using columns = detail::make_type_set_t<typename Assignments::_lhs_t...>;
+						static_assert(detail::is_subset_of<required_columns, columns>::value, "At least one required column is missing in set()");
 						return _set_impl<void>(assignments...);
 					}
 
