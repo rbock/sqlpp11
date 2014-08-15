@@ -228,17 +228,8 @@ namespace sqlpp
 			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_column_list>;
 			using _recursive_traits = make_recursive_traits<Columns...>;
 
-			static_assert(sizeof...(Columns), "at least one column required in columns()");
-
-			static_assert(not ::sqlpp::detail::has_duplicates<Columns...>::value, "at least one duplicate argument detected in columns()");
-
-			static_assert(::sqlpp::detail::all_t<is_column_t<Columns>::value...>::value, "at least one argument is not a column in columns()");
-
-			static_assert(::sqlpp::detail::none_t<must_not_insert_t<Columns>::value...>::value, "at least one column argument has a must_not_insert flag in its definition");
-
 			using _value_tuple_t = typename column_list_data_t<Columns...>::_value_tuple_t;
 
-			static_assert(required_tables_of<column_list_t>::size::value == 1, "columns from multiple tables in columns()");
 
 			// Data
 			using _data_t = column_list_data_t<Columns...>;
@@ -351,16 +342,23 @@ namespace sqlpp
 						return { *static_cast<typename Policies::_statement_t*>(this), insert_default_values_data_t{} };
 					}
 
-				template<typename... Args>
-					auto columns(Args... args)
-					-> _new_statement_t<column_list_t<Args...>>
+				template<typename... Columns>
+					auto columns(Columns... columns)
+					-> _new_statement_t<column_list_t<Columns...>>
 					{
-						static_assert(sizeof...(Args), "at least one column expression required in columns()");
-						using _table = typename detail::first_arg_t<Args...>::_table;
+						static_assert(sizeof...(Columns), "at least one column required in columns()");
+						static_assert(not ::sqlpp::detail::has_duplicates<Columns...>::value, "at least one duplicate argument detected in columns()");
+						static_assert(::sqlpp::detail::all_t<is_column_t<Columns>::value...>::value, "at least one argument is not a column in columns()");
+						static_assert(::sqlpp::detail::none_t<must_not_insert_t<Columns>::value...>::value, "at least one column argument has a must_not_insert tag in its definition");
+						using _column_required_tables = ::sqlpp::detail::make_joined_set_t<required_tables_of<Columns>...>;
+						static_assert(_column_required_tables::size::value == 1, "columns() contains columns from several tables");
+
+						using _table = typename detail::first_arg_t<Columns...>::_table;
 						using required_columns = typename _table::_required_insert_columns;
-						using columns = detail::make_type_set_t<Args...>;
-						static_assert(detail::is_subset_of<required_columns, columns>::value, "At least one required column is missing in columns()");
-						return { *static_cast<typename Policies::_statement_t*>(this), column_list_data_t<Args...>{args...} };
+						using set_columns = detail::make_type_set_t<Columns...>;
+						static_assert(detail::is_subset_of<required_columns, set_columns>::value, "At least one required column is missing in columns()");
+
+						return { *static_cast<typename Policies::_statement_t*>(this), column_list_data_t<Columns...>{columns...} };
 					}
 
 				template<typename... Assignments>
@@ -368,6 +366,8 @@ namespace sqlpp
 					-> _new_statement_t<insert_list_t<void, Assignments...>>
 					{
 						static_assert(sizeof...(Assignments), "at least one assignment expression required in set()");
+						static_assert(sqlpp::detail::all_t<is_assignment_t<Assignments>::value...>::value, "at least one argument is not an assignment in set()");
+
 						using _table = typename detail::first_arg_t<Assignments...>::_lhs_t::_table;
 						using required_columns = typename _table::_required_insert_columns;
 						using columns = detail::make_type_set_t<typename Assignments::_lhs_t...>;
