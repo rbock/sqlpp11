@@ -54,16 +54,16 @@ int main()
 	}
 
 	db(insert_into(t).default_values());
-	db(insert_into(t).set(t.beta = "kirschauflauf"));
+	db(insert_into(t).set(t.gamma = true, t.beta = "kirschauflauf"));
 
 	serialize(insert_into(t).default_values(), printer).str();
 
 	serialize(insert_into(t), printer).str();
-	serialize(insert_into(t).set(t.beta = "kirschauflauf"), printer).str();
-	serialize(insert_into(t).columns(t.beta), printer).str();
-	auto multi_insert = insert_into(t).columns(t.beta, t.delta);
-	multi_insert.values.add(t.beta = "cheesecake", t.delta = 1); 
-	multi_insert.values.add(t.beta = sqlpp::default_value, t.delta = sqlpp::default_value); 
+	serialize(insert_into(t).set(t.gamma = true, t.beta = "kirschauflauf"), printer).str();
+	serialize(insert_into(t).columns(t.gamma, t.beta), printer).str();
+	auto multi_insert = insert_into(t).columns(t.gamma, t.beta, t.delta);
+	multi_insert.values.add(t.gamma = true, t.beta = "cheesecake", t.delta = 1); 
+	multi_insert.values.add(t.gamma = sqlpp::default_value, t.beta = sqlpp::default_value, t.delta = sqlpp::default_value); 
 	auto i = dynamic_insert_into(db, t).dynamic_set();
 	i.insert_list.add(t.beta = "kirschauflauf");
 	printer.reset();
@@ -72,9 +72,9 @@ int main()
 
 	db(multi_insert);
 
-	db(insert_into(t).set(t.delta = sqlpp::verbatim<sqlpp::integer>("17+4")));
-	db(insert_into(t).set(t.delta = sqlpp::null));
-	db(insert_into(t).set(t.delta = sqlpp::default_value));
+	db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::verbatim<sqlpp::integer>("17+4")));
+	db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::null));
+	db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::default_value));
 
 	return 0;
 }

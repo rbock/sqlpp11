@@ -61,7 +61,7 @@ int main()
 		{
 			std::cerr << sub.alpha << std::endl;
 		}
-		db(insert_into(t).set(t.beta = row.beta));
+		db(insert_into(t).set(t.beta = row.beta, t.gamma = false));
 	}
 
 	sqlpp::select((t.alpha + 1).as(t.alpha)).flags(sqlpp::all).from(t);
