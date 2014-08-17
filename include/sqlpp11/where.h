@@ -181,7 +181,7 @@ namespace sqlpp
 		};
 
 	// NO WHERE YET
-	template<bool Required>
+	template<bool WhereRequired>
 		struct no_where_t
 		{
 			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_where>;
@@ -224,7 +224,9 @@ namespace sqlpp
 
 					static void _check_consistency()
 					{
-						static_assert(Required ? wrong_t<_methods_t>::value : true, "where expression required, e.g. where(true)");
+						static constexpr bool _tables_provided = (Policies::_all_provided_tables::size::value > 0);
+						static constexpr bool _required = WhereRequired and _tables_provided;
+						static_assert(not _required, "where expression required, e.g. where(true)");
 					}
 
 					template<typename... Args>
