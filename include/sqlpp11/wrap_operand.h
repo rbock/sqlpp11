@@ -28,8 +28,10 @@
 #define SQLPP_DETAIL_WRAP_OPERAND_H
 
 #include <string>
+#include <sqlpp11/wrap_operand_fwd.h>
 #include <sqlpp11/serializer.h>
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/basic_expression_operators.h>
 
 namespace sqlpp
 {
@@ -38,7 +40,7 @@ namespace sqlpp
 	struct floating_point;
 	struct text;
 
-	struct boolean_operand
+	struct boolean_operand: public alias_operators<boolean_operand>
 	{
 		using _traits = make_traits<::sqlpp::boolean, ::sqlpp::tag::is_expression, ::sqlpp::tag::is_wrapped_value>;
 		using _recursive_traits = make_recursive_traits<>;
@@ -76,7 +78,7 @@ namespace sqlpp
 			}
 		};
 
-	struct integral_operand
+	struct integral_operand: public alias_operators<integral_operand>
 	{
 		using _traits = make_traits<::sqlpp::integral, ::sqlpp::tag::is_expression, ::sqlpp::tag::is_wrapped_value>;
 		using _recursive_traits = make_recursive_traits<>;
@@ -115,7 +117,7 @@ namespace sqlpp
 		};
 
 
-	struct floating_point_operand
+	struct floating_point_operand: public alias_operators<floating_point_operand>
 	{
 		using _traits = make_traits<::sqlpp::floating_point, ::sqlpp::tag::is_expression, ::sqlpp::tag::is_wrapped_value>;
 		using _recursive_traits = make_recursive_traits<>;
@@ -153,7 +155,7 @@ namespace sqlpp
 			}
 		};
 
-	struct text_operand
+	struct text_operand: public alias_operators<text_operand>
 	{
 		using _traits = make_traits<::sqlpp::text, ::sqlpp::tag::is_expression, ::sqlpp::tag::is_wrapped_value>;
 		using _recursive_traits = make_recursive_traits<>;
@@ -191,7 +193,7 @@ namespace sqlpp
 			}
 		};
 
-	template<typename T, typename Enable = void>
+	template<typename T, typename Enable>
 		struct wrap_operand
 		{
 			using type = T;
@@ -220,11 +222,6 @@ namespace sqlpp
 		{
 			using type = text_operand;
 		};
-
-	// FIXME: Need to allow std::ref arguments
-
-	template<typename T>
-		using wrap_operand_t = typename wrap_operand<T>::type;
 
 }
 

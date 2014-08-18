@@ -92,5 +92,7 @@ int main()
 	printer.reset();
 	std::cerr << serialize(stat, printer).str() << std::endl;
 
+	select(sqlpp::value(7).as(t.alpha));
+
 	return 0;
 }
