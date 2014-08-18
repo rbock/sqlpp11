@@ -24,39 +24,52 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_RESULT_FIELD_H
-#define SQLPP_RESULT_FIELD_H
+#ifndef SQLPP_VERBATIM_H
+#define SQLPP_VERBATIM_H
 
-#include <sqlpp11/wrong.h>
-#include <sqlpp11/result_field_methods.h>
+#include <sqlpp11/type_traits.h>
+#include <sqlpp11/serialize.h>
 
 namespace sqlpp
 {
-	template<typename ValueType, typename Db, typename FieldSpec>
-		struct result_field_t
+	template<typename ValueType> // Csaba Csoma suggests: unsafe_sql instead of verbatim
+		struct verbatim_t: public ValueType::template expression_operators<verbatim_t<ValueType>>,
+		public alias_operators<verbatim_t<ValueType>>
+	{
+		using _traits = make_traits<ValueType, ::sqlpp::tag::is_expression>;
+		struct _recursive_traits : public make_recursive_traits<>
 		{
-			static_assert(wrong_t<result_field_t>::value, "Missing specialization for result_field_t");
+			using _can_be_null = std::true_type; // since we do not know what's going on inside the verbatim, we assume it can be null
 		};
 
-	template<typename Context, typename ValueType, typename Db, typename FieldSpec>
-		struct serializer_t<Context, result_field_t<ValueType, Db, FieldSpec>>
+		verbatim_t(std::string verbatim): _verbatim(verbatim) {}
+		verbatim_t(const verbatim_t&) = default;
+		verbatim_t(verbatim_t&&) = default;
+		verbatim_t& operator=(const verbatim_t&) = default;
+		verbatim_t& operator=(verbatim_t&&) = default;
+		~verbatim_t() = default;
+
+		std::string _verbatim;
+	};
+
+	template<typename Context, typename ValueType>
+		struct serializer_t<Context, verbatim_t<ValueType>>
 		{
-			using T = result_field_t<ValueType, Db, FieldSpec>;
+			using T = verbatim_t<ValueType>;
 
 			static Context& _(const T& t, Context& context)
 			{
-				if (t.is_null() and not null_is_trivial_value_t<T>::value)
-				{
-					context << "NULL";
-				}
-				else
-				{
-					context << t.value();
-				}
+				context << t._verbatim;
 				return context;
 			}
 		};
 
+	template<typename ValueType, typename StringType>
+		auto verbatim(StringType s) -> verbatim_t<ValueType>
+		{
+			return { s };
+		}
 
 }
+
 #endif
