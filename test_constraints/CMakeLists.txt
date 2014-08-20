@@ -22,7 +22,7 @@ function(test_constraint name pattern)
 
 	add_dependencies(test_sqlpp_constraints test_${name})
 
-endfunction(testconstraint)
+endfunction(test_constraint)
 
 
 test_constraint(no_conversion_operator_if_null_not_trivial "int i = row.alpha")
