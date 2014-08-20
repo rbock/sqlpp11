@@ -41,6 +41,12 @@ struct MockDbT: public sqlpp::connection
 	{
 		std::ostringstream _os;
 
+		_serializer_context_t() = default;
+		_serializer_context_t(const _serializer_context_t& rhs)	
+		{
+			_os << rhs._os.str();
+		}
+
 		std::string str() const
 		{
 			return _os.str();

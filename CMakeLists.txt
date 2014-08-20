@@ -23,6 +23,10 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 cmake_minimum_required(VERSION 2.6)
+
+# Cygwin does not define WIN32 and warn if not use with this flag
+set(CMAKE_LEGACY_CYGWIN_WIN32 0) # Remove when CMake >= 2.8.4 is required
+
 project (sqlpp11)
 enable_testing()
 
