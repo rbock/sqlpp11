@@ -54,7 +54,7 @@ namespace sqlpp
 		static_assert(required_tables_of<Table>::size::value == 0, "table aliases must not depend on external tables");
 
 		using _name_t = typename AliasProvider::_name_t;
-		using _column_tuple_t = std::tuple<column_t<Table, ColumnSpec>...>;
+		using _column_tuple_t = std::tuple<column_t<table_alias_t, ColumnSpec>...>;
 
 		table_alias_t(Table table):
 			_table(table)
