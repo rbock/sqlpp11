@@ -24,39 +24,39 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_RESULT_FIELD_H
-#define SQLPP_RESULT_FIELD_H
+#ifndef SQLPP_EVAL_H
+#define SQLPP_EVAL_H
 
-#include <sqlpp11/wrong.h>
-#include <sqlpp11/result_field_methods.h>
+#include <sqlpp11/type_traits.h>
+#include <sqlpp11/field_spec.h>
+#include <sqlpp11/alias_provider.h>
+#include <sqlpp11/verbatim.h>
 
 namespace sqlpp
 {
-	template<typename ValueType, typename Db, typename FieldSpec>
-		struct result_field_t
+	template<typename Db, typename Expr>
+		struct eval_t
 		{
-			static_assert(wrong_t<result_field_t>::value, "Missing specialization for result_field_t");
+			static_assert(is_database<Db>::value, "Db parameter of eval has to be a database connection");
+			static_assert(is_expression_t<Expr>::value, "Expression parameter of eval has to be an sqlpp expression or a string");
+			static_assert(required_tables_of<Expr>::size::value == 0, "Expression cannot be used in eval because it requires tables");
+			using _name_type = alias::a_t::_name_t;
+			using _value_type = value_type_of<Expr>;
+			using _field_spec = field_spec_t<_name_type, _value_type, true, false>;
+			using type = result_field_t<_value_type, Db, _field_spec>;
 		};
 
-	template<typename Context, typename ValueType, typename Db, typename FieldSpec>
-		struct serializer_t<Context, result_field_t<ValueType, Db, FieldSpec>>
+	template<typename Db, typename Expr, typename std::enable_if<not std::is_convertible<Expr, std::string>::value, int>::type = 0>
+		auto eval(Db& db, Expr expr) -> typename eval_t<Db, Expr>::type
 		{
-			using T = result_field_t<ValueType, Db, FieldSpec>;
+			return db(select(expr.as(alias::a))).front().a;
+		}
 
-			static Context& _(const T& t, Context& context)
-			{
-				if (t.is_null() and not null_is_trivial_value_t<T>::value)
-				{
-					context << "NULL";
-				}
-				else
-				{
-					context << t.value();
-				}
-				return context;
-			}
-		};
-
-
+	template<typename ValueType, typename Db>
+		auto eval(Db& db, std::string sql_code) -> decltype(eval(db, verbatim<ValueType>(sql_code)))
+		{
+			return eval(db, verbatim<ValueType>(sql_code));
+		}
 }
+
 #endif

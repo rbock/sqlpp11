@@ -24,39 +24,17 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_RESULT_FIELD_H
-#define SQLPP_RESULT_FIELD_H
-
-#include <sqlpp11/wrong.h>
-#include <sqlpp11/result_field_methods.h>
+#ifndef SQLPP_DETAIL_WRAP_OPERAND_FWD_H
+#define SQLPP_DETAIL_WRAP_OPERAND_FWD_H
 
 namespace sqlpp
 {
-	template<typename ValueType, typename Db, typename FieldSpec>
-		struct result_field_t
-		{
-			static_assert(wrong_t<result_field_t>::value, "Missing specialization for result_field_t");
-		};
+	template<typename T, typename Enable = void>
+		struct wrap_operand;
 
-	template<typename Context, typename ValueType, typename Db, typename FieldSpec>
-		struct serializer_t<Context, result_field_t<ValueType, Db, FieldSpec>>
-		{
-			using T = result_field_t<ValueType, Db, FieldSpec>;
-
-			static Context& _(const T& t, Context& context)
-			{
-				if (t.is_null() and not null_is_trivial_value_t<T>::value)
-				{
-					context << "NULL";
-				}
-				else
-				{
-					context << t.value();
-				}
-				return context;
-			}
-		};
-
+	template<typename T>
+		using wrap_operand_t = typename wrap_operand<T>::type;
 
 }
+
 #endif

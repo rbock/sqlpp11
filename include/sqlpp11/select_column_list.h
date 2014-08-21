@@ -310,7 +310,7 @@ namespace sqlpp
 						{
 							_statement_t::_check_consistency();
 
-							return {{}, get_dynamic_names(), db.prepare_select(_get_statement())};
+							return {make_parameter_list_t<_statement_t>{}, get_dynamic_names(), db.prepare_select(_get_statement())};
 						}
 				};
 
