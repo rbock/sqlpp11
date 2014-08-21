@@ -105,7 +105,7 @@ namespace sqlpp
 			insert_list_data_t(Assignments... assignments):
 				_assignments(assignments...),
 				_columns({assignments._lhs}...),
-				_values({assignments._rhs}...)
+				_values(assignments._rhs...)
 				{}
 
 			insert_list_data_t(const insert_list_data_t&) = default;

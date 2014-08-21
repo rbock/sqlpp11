@@ -10,6 +10,10 @@ Upcoming talks at
    * 2014-09-11: http://sched.co/1r4lue3
   * MeetingC++ (Berlin, Germany): http://meetingcpp.com/index.php/mcpp2014.html
    * 2014-12-05:http://meetingcpp.com/index.php/tv14/items/4.html
+   
+You can contact me 
+  * by posting issues at https://github.com/rbock/sqlpp11/issues
+  * or via email at rbock at eudoxos dot de
 
 Motivation:
 -----------
@@ -25,7 +29,7 @@ This results in several benefits, e.g.
 
   * the library user operates comfortably on structs and functions,
   * the compiler reports many kinds of errors long before the code enters unit testing or production,
-  * the library hides the gory details of string construction for queries and interpreting string based results returned by select calls.
+  * the library hides the gory details of string construction for queries and interpreting results returned by select calls.
 
 The library supports both static and dynamic queries. The former offers greater benefit in terms of type and consistency checking. The latter makes it easier to construct queries on the flight.
 
