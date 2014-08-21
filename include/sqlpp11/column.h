@@ -90,7 +90,7 @@ namespace sqlpp
 			auto operator =(T t) const -> assignment_t<column_t, wrap_operand_t<T>>
 			{
 				using rhs = wrap_operand_t<T>;
-				static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand assignment operand");
+				static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
 
 				return { *this, {rhs{t}} };
 			}
