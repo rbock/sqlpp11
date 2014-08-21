@@ -105,6 +105,7 @@ sqlpp11 makes heavy use of C++11 and requires a recent compiler and STL. The fol
   * clang-3.2 on Ubuntu-12.4
   * clang-3.4 on Ubuntu-12.4
   * g++-4.8 on Ubuntu-12.4
+  * g++-4.8 on cygwin 64bit
   * g++-4.9 on Debian Unstable
 
 __Database Connector:__
