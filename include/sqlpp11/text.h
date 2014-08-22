@@ -150,7 +150,7 @@ namespace sqlpp
 						using rhs = wrap_operand_t<T>;
 						static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
 
-						return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
+						return { *static_cast<const Base*>(this), concat_t<Base, wrap_operand_t<T>>{ *static_cast<const Base*>(this), rhs{t} } };
 					}
 			};
 	};

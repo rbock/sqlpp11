@@ -115,12 +115,12 @@ namespace sqlpp
 				return { *static_cast<const Base*>(this) };
 			}
 
-			sort_order_t<Base, sort_type::asc> asc()
+			sort_order_t<Base, sort_type::asc> asc() const
 			{ 
 				return { *static_cast<const Base*>(this) };
 			}
 
-			sort_order_t<Base, sort_type::desc> desc()
+			sort_order_t<Base, sort_type::desc> desc() const
 			{ 
 				return { *static_cast<const Base*>(this) };
 			}
@@ -145,7 +145,7 @@ namespace sqlpp
 		struct alias_operators
 		{
 			template<typename alias_provider>
-				expression_alias_t<Base, alias_provider> as(const alias_provider&)
+				expression_alias_t<Base, alias_provider> as(const alias_provider&) const
 				{
 					return { *static_cast<const Base*>(this) };
 				}
