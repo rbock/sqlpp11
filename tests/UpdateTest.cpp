@@ -68,6 +68,8 @@ int main()
 	db(update(t).set(t.delta = sqlpp::null).where(true));
 	db(update(t).set(t.delta = sqlpp::default_value).where(true));
 
+	db(update(t).set(t.delta += t.alpha * 2, t.beta += " and cake").where(true));
+
 
 	return 0;
 }

@@ -165,8 +165,6 @@ struct MockDbT: public sqlpp::connection
 	template<typename PreparedInsert>
 		size_t run_prepared_insert(const PreparedInsert& x)
 		{
-			_serializer_context_t context;
-			::sqlpp::serialize(x, context);
 			return 0;
 		}
 
@@ -181,8 +179,6 @@ struct MockDbT: public sqlpp::connection
 	template<typename PreparedSelect>
 		result_t run_prepared_select(PreparedSelect& x)
 		{
-			_serializer_context_t context;
-			::sqlpp::serialize(x, context);
 			return {};
 		}
 
