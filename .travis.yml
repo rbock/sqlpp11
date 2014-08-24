@@ -31,7 +31,7 @@ install:
   - "cd $TRAVIS_BUILD_DIR/build/scripts"
   # Enable test coverage for travis-ci build
   #- "cmake $TRAVIS_BUILD_DIR/src -DNTA_COV_ENABLED=ON"
-  - "cmake $TRAVIS_BUILD_DIR/src"
+  - "cmake $TRAVIS_BUILD_DIR"
 
 script:
   - "cd $TRAVIS_BUILD_DIR/build/scripts"
