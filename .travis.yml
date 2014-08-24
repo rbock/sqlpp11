@@ -2,22 +2,10 @@ language: cpp
 
 os:
   - linux
-  - osx
 
 compiler:
-  - clang
+  # - clang # disabled clang due to missing libc++
   - gcc
-
-matrix:
-  # This excludes OSX builds from the build matrix for gcc
-  exclude:
-    - os: osx
-      compiler: gcc
-
-branches:
-  only:
-    - master
-    - develop
 
 notifications:
  email:
@@ -25,29 +13,20 @@ notifications:
    on_failure: always
 
 before_install:
-  - "if [ $CC = 'gcc' ]; then export CXX=g++; fi"
-  - "if [ $CC = 'clang' ]; then export CXX=clang++; fi"
-  - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ]; then brew install cmake; fi"
-  # Install cpp-coveralls for reporting test coverage under only linux, see https://github.com/eddyxu/cpp-coveralls
-  #- "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then sudo pip install cpp-coveralls; fi"
+  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+  - sudo apt-get update
+  - if [ "$CXX" = "g++" ]; then sudo apt-get install g++-4.8; fi
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
+
 
 install:
   - "mkdir -p $TRAVIS_BUILD_DIR/build/scripts"
   - "cd $TRAVIS_BUILD_DIR/build/scripts"
-  # Enable test coverage for travis-ci build
-  #- "cmake $TRAVIS_BUILD_DIR/src -DNTA_COV_ENABLED=ON"
-  - "cmake $TRAVIS_BUILD_DIR/src"
+  - "cmake $TRAVIS_BUILD_DIR"
 
 script:
   - "cd $TRAVIS_BUILD_DIR/build/scripts"
   - "make -j3"
   # test compile-time constraints
   - "make test_sqlpp_constraints"
-
-after_success:
-  - "cd $TRAVIS_BUILD_DIR"
-  # Send test coverage report to http://coveralls.io under only linux
-  # - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then coveralls --exclude external --exclude doc --exclude src/test; fi"
-
-
 
