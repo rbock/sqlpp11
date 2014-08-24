@@ -387,8 +387,8 @@ namespace sqlpp
 					auto _set_impl(Assignments... assignments)
 					-> _new_statement_t<insert_list_t<Database, Assignments...>>
 					{
-						static_assert(not ::sqlpp::detail::has_duplicates<Assignments...>::value, "at least one duplicate argument detected in set()");
 						static_assert(sqlpp::detail::all_t<is_assignment_t<Assignments>::value...>::value, "at least one argument is not an assignment in set()");
+						static_assert(not ::sqlpp::detail::has_duplicates<typename Assignments::_lhs_t...>::value, "at least one duplicate column detected in set()");
 						static_assert(sqlpp::detail::none_t<must_not_insert_t<typename Assignments::_lhs_t>::value...>::value, "at least one assignment is prohibited by its column definition in set()");
 
 						using _column_required_tables = ::sqlpp::detail::make_joined_set_t<required_tables_of<typename Assignments::_lhs_t>...>;
