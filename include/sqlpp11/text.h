@@ -43,28 +43,34 @@ namespace sqlpp
 		using _tag = ::sqlpp::tag::is_text;
 		using _cpp_value_type = std::string;
 
-		struct _parameter_t
+		template<typename T>
+			using _is_valid_operand = is_text_t<T>;
+	};
+
+	template<>
+		struct parameter_value_t<text>
 		{
 			using _value_type = text;
+			using _cpp_value_type = typename _value_type::_cpp_value_type;
 
-			_parameter_t():
+			parameter_value_t():
 				_value(""),
 				_is_null(true)
 			{}
 
-			_parameter_t(const _cpp_value_type& value):
+			parameter_value_t(const _cpp_value_type& value):
 				_value(value),
 				_is_null(false)
 			{}
 
-			_parameter_t& operator=(const _cpp_value_type& value)
+			parameter_value_t& operator=(const _cpp_value_type& value)
 			{
 				_value = value;
 				_is_null = false;
 				return *this;
 			}
 
-			_parameter_t& operator=(const tvin_t<wrap_operand_t<_cpp_value_type>>& t)
+			parameter_value_t& operator=(const tvin_t<wrap_operand_t<_cpp_value_type>>& t)
 			{
 				if (t._is_trivial())
 				{
@@ -79,7 +85,7 @@ namespace sqlpp
 				return *this;
 			}
 
-			_parameter_t& operator=(const std::nullptr_t&)
+			parameter_value_t& operator=(const std::nullptr_t&)
 			{
 				_value = "";
 				_is_null = true;
@@ -110,50 +116,46 @@ namespace sqlpp
 		};
 
 
+	template<typename Base>
+		struct expression_operators<Base, text>: public basic_expression_operators<Base, text>
+	{
 		template<typename T>
-			struct _is_valid_operand
-			{
-				static constexpr bool value = 
-					is_expression_t<T>::value // expressions are OK
-					and is_text_t<T>::value // the correct value type is required, of course
-					;
-			};
+			using _is_valid_operand = is_valid_operand<text, T>;
 
-		template<typename Base>
-			struct expression_operators: public basic_expression_operators<Base, is_text_t>
+		template<typename T>
+			concat_t<Base, wrap_operand_t<T>> operator+(T t) const
+			{
+				using rhs = wrap_operand_t<T>;
+				static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+
+				return { *static_cast<const Base*>(this), {t} };
+			}
+
+		template<typename T>
+			like_t<Base, wrap_operand_t<T>> like(T t) const
+			{
+				using rhs = wrap_operand_t<T>;
+				static_assert(_is_valid_operand<rhs>::value, "invalid argument for like()");
+
+				return { *static_cast<const Base*>(this), {t} };
+			}
+	};
+
+	template<typename Base>
+		struct column_operators<Base, text>
 		{
 			template<typename T>
-				concat_t<Base, wrap_operand_t<T>> operator+(T t) const
-				{
-					using rhs = wrap_operand_t<T>;
-					static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
-
-					return { *static_cast<const Base*>(this), {t} };
-				}
+				using _is_valid_operand = is_valid_operand<text, T>;
 
 			template<typename T>
-				like_t<Base, wrap_operand_t<T>> like(T t) const
+				auto operator +=(T t) const -> assignment_t<Base, concat_t<Base, wrap_operand_t<T>>>
 				{
 					using rhs = wrap_operand_t<T>;
-					static_assert(_is_valid_operand<rhs>::value, "invalid argument for like()");
+					static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
 
-					return { *static_cast<const Base*>(this), {t} };
+					return { *static_cast<const Base*>(this), concat_t<Base, wrap_operand_t<T>>{ *static_cast<const Base*>(this), rhs{t} } };
 				}
 		};
-
-		template<typename Base>
-			struct column_operators
-			{
-				template<typename T>
-					auto operator +=(T t) const -> assignment_t<Base, concat_t<Base, wrap_operand_t<T>>>
-					{
-						using rhs = wrap_operand_t<T>;
-						static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
-
-						return { *static_cast<const Base*>(this), concat_t<Base, wrap_operand_t<T>>{ *static_cast<const Base*>(this), rhs{t} } };
-					}
-			};
-	};
 
 	template<typename Db, typename FieldSpec>
 		struct result_field_t<text, Db, FieldSpec>: public result_field_methods_t<result_field_t<text, Db, FieldSpec>>

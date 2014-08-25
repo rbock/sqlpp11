@@ -35,8 +35,9 @@
 namespace sqlpp
 {
 	template<bool NotInverted, typename Operand, typename... Args>
-		struct in_t: public boolean::template expression_operators<in_t<NotInverted, Operand, Args...>>,
-		public alias_operators<in_t<NotInverted, Operand, Args...>>
+		struct in_t:
+			public expression_operators<in_t<NotInverted, Operand, Args...>, boolean>,
+			public alias_operators<in_t<NotInverted, Operand, Args...>>
 	{
 		using _traits = make_traits<boolean, ::sqlpp::tag::is_expression, ::sqlpp::tag::is_named_expression>;
 		using _recursive_traits = make_recursive_traits<Operand, Args...>;

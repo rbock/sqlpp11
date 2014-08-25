@@ -42,8 +42,9 @@
 namespace sqlpp
 {
 	template<typename Table, typename ColumnSpec>
-		struct column_t: public value_type_of<ColumnSpec>::template expression_operators<column_t<Table, ColumnSpec>>,
-		public value_type_of<ColumnSpec>::template column_operators<column_t<Table, ColumnSpec>>
+		struct column_t: 
+			public expression_operators<column_t<Table, ColumnSpec>, value_type_of<ColumnSpec>>,
+			public column_operators<column_t<Table, ColumnSpec>, value_type_of<ColumnSpec>>
 	{ 
 		struct _traits
 		{
@@ -66,7 +67,7 @@ namespace sqlpp
 		using _name_t = typename _spec_t::_name_t;
 
 		template<typename T>
-			using _is_valid_operand = typename value_type_of<ColumnSpec>::template _is_valid_operand<T>;
+			using _is_valid_operand = is_valid_operand<value_type_of<ColumnSpec>, T>;
 
 		column_t() = default;
 		column_t(const column_t&) = default;

@@ -122,7 +122,7 @@ namespace sqlpp
 			>
 			struct statement_t:
 				public Policies::template _member_t<detail::statement_policies_t<Db, Policies...>>...,
-				public detail::statement_policies_t<Db, Policies...>::_value_type::template expression_operators<statement_t<Db, Policies...>>,
+				public expression_operators<statement_t<Db, Policies...>, value_type_of<detail::statement_policies_t<Db, Policies...>>>,
 				public detail::statement_policies_t<Db, Policies...>::_result_methods_t,
 				public Policies::template _methods_t<detail::statement_policies_t<Db, Policies...>>...
 	{

@@ -39,8 +39,9 @@
 namespace sqlpp
 {
 	template<typename Lhs, typename Rhs>
-		struct binary_expression_t<Lhs, op::equal_to, Rhs>: public ::sqlpp::boolean::template expression_operators<binary_expression_t<Lhs, op::equal_to, Rhs>>,
-		public alias_operators<binary_expression_t<Lhs, op::equal_to, Rhs>>
+		struct binary_expression_t<Lhs, op::equal_to, Rhs>:
+			public expression_operators<binary_expression_t<Lhs, op::equal_to, Rhs>, boolean>,
+			public alias_operators<binary_expression_t<Lhs, op::equal_to, Rhs>>
 		{
 			using _traits = make_traits<boolean, sqlpp::tag::is_expression>;
 			using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
@@ -86,8 +87,9 @@ namespace sqlpp
 		};
 
 	template<typename Lhs, typename Rhs>
-		struct binary_expression_t<Lhs, op::not_equal_to, Rhs>: public ::sqlpp::boolean::template expression_operators<binary_expression_t<Lhs, op::not_equal_to, Rhs>>,
-		public alias_operators<binary_expression_t<Lhs, op::not_equal_to, Rhs>>
+		struct binary_expression_t<Lhs, op::not_equal_to, Rhs>:
+			public expression_operators<binary_expression_t<Lhs, op::not_equal_to, Rhs>, boolean>,
+			public alias_operators<binary_expression_t<Lhs, op::not_equal_to, Rhs>>
 		{
 			using _traits = make_traits<boolean, sqlpp::tag::is_expression>;
 			using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
@@ -133,8 +135,9 @@ namespace sqlpp
 		};
 
 	template<typename Rhs>
-		struct unary_expression_t<op::logical_not, Rhs>: public ::sqlpp::boolean::template expression_operators<unary_expression_t<op::logical_not, Rhs>>,
-		public alias_operators<unary_expression_t<op::logical_not, Rhs>>
+		struct unary_expression_t<op::logical_not, Rhs>:
+			public expression_operators<unary_expression_t<op::logical_not, Rhs>, boolean>,
+			public alias_operators<unary_expression_t<op::logical_not, Rhs>>
 		{
 			using _traits = make_traits<boolean, sqlpp::tag::is_expression>;
 			using _recursive_traits = make_recursive_traits<Rhs>;
@@ -177,8 +180,9 @@ namespace sqlpp
 		};
 
 	template<typename Lhs, typename O, typename Rhs>
-		struct binary_expression_t: public value_type_of<O>::template expression_operators<binary_expression_t<Lhs, O, Rhs>>,
-		public alias_operators<binary_expression_t<Lhs, O, Rhs>>
+		struct binary_expression_t:
+			public expression_operators<binary_expression_t<Lhs, O, Rhs>, value_type_of<O>>,
+			public alias_operators<binary_expression_t<Lhs, O, Rhs>>
 	{
 		using _traits = make_traits<value_type_of<O>, sqlpp::tag::is_expression>;
 		using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
@@ -215,8 +219,9 @@ namespace sqlpp
 		};
 
 	template<typename O, typename Rhs>
-		struct unary_expression_t: public value_type_of<O>::template expression_operators<unary_expression_t<O, Rhs>>,
-		public alias_operators<unary_expression_t<O, Rhs>>
+		struct unary_expression_t:
+			public expression_operators<unary_expression_t<O, Rhs>, value_type_of<O>>,
+			public alias_operators<unary_expression_t<O, Rhs>>
 	{
 		using _traits = make_traits<value_type_of<O>, sqlpp::tag::is_expression>;
 		using _recursive_traits = make_recursive_traits<Rhs>;

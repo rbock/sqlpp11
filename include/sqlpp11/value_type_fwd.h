@@ -24,69 +24,42 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_MIN_H
-#define SQLPP_MIN_H
+#ifndef SQLPP_VALUE_TYPE_FWD_H
+#define SQLPP_VALUE_TYPE_FWD_H
 
+#include <sqlpp11/wrong.h>
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
-	template<typename Expr>
-		struct min_t:
-			public expression_operators<min_t<Expr>, value_type_of<Expr>>,
-			public alias_operators<min_t<Expr>>
-	{
-		using _traits = make_traits<value_type_of<Expr>, ::sqlpp::tag::is_expression, ::sqlpp::tag::is_named_expression>;
-		using _recursive_traits = make_recursive_traits<Expr>;
-
-		static_assert(is_expression_t<Expr>::value, "min() requires a value expression as argument");
-
-		struct _name_t
+	template<typename ValueType>
+		struct parameter_value_t
 		{
-			static constexpr const char* _get_name() { return "MIN"; }
-			template<typename T>
-				struct _member_t
-				{
-					T min;
-					T& operator()() { return min; }
-					const T& operator()() const { return min; }
-				};
+			static_assert(wrong_t<parameter_value_t>::value, "Missing parameter value type for ValueType");
 		};
 
-		min_t(Expr expr):
-			_expr(expr)
-		{}
-
-		min_t(const min_t&) = default;
-		min_t(min_t&&) = default;
-		min_t& operator=(const min_t&) = default;
-		min_t& operator=(min_t&&) = default;
-		~min_t() = default;
-
-		Expr _expr;
-	};
-
-	template<typename Context, typename Expr>
-		struct serializer_t<Context, min_t<Expr>>
+	template<typename Column, typename ValueType>
+		struct column_operators
 		{
-			using T = min_t<Expr>;
-
-			static Context& _(const T& t, Context& context)
-			{
-				context << "MIN(";
-				serialize(t._expr, context);
-				context << ")";
-				return context;
-			}
+			static_assert(wrong_t<column_operators>::value, "Missing column operators for ValueType");
 		};
 
-	template<typename T>
-		auto min(T t) -> min_t<wrap_operand_t<T>>
+	template<typename Expr, typename ValueType>
+		struct expression_operators
 		{
-			static_assert(is_expression_t<wrap_operand_t<T>>::value, "min() requires a value expression as argument");
-			return { t };
-		}
+			static_assert(wrong_t<expression_operators>::value, "Missing expression operators for ValueType");
+		};
 
+	template<typename ValueType, typename T>
+		struct is_valid_operand
+		{
+			static constexpr bool value = 
+				is_expression_t<T>::value // expressions are OK
+				and ValueType::template _is_valid_operand<T>::value // the correct value type is required, of course
+				;
+		};
 }
 
 #endif
+
+

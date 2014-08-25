@@ -232,6 +232,9 @@ namespace sqlpp
 			using _can_be_null = detail::any_t<can_be_null_t<Arguments>::value...>;
 		};
 
+	template<typename NameProvider, typename Member>
+		using member_t = typename NameProvider::_name_t::template _member_t<Member>;
+
 }
 
 #endif

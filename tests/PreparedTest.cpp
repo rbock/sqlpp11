@@ -81,9 +81,9 @@ int main()
 		using Exp = decltype((t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha)) or t.gamma != parameter(t.gamma));
 		using T = sqlpp::make_parameter_list_t<Exp>;
 		T npl;
-		static_assert(std::is_same<typename sqlpp::value_type_of<decltype(t.alpha)>::_parameter_t, decltype(npl.alpha)>::value, "type requirement");
-		static_assert(std::is_same<typename sqlpp::value_type_of<decltype(t.beta)>::_parameter_t, decltype(npl.beta)>::value, "type requirement");
-		static_assert(std::is_same<typename sqlpp::value_type_of<decltype(t.gamma)>::_parameter_t, decltype(npl.gamma)>::value, "type requirement");
+		static_assert(std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.alpha)>>, decltype(npl.alpha)>::value, "type requirement");
+		static_assert(std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.beta)>>, decltype(npl.beta)>::value, "type requirement");
+		static_assert(std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.gamma)>>, decltype(npl.gamma)>::value, "type requirement");
 	}
 
 	// Wonderful, now take a look at the parameter list of a select
@@ -96,9 +96,9 @@ int main()
 		using T = sqlpp::make_parameter_list_t<S>;
 		T npl;
 
-		static_assert(std::is_same<typename sqlpp::value_type_of<decltype(t.alpha)>::_parameter_t, decltype(npl.alpha)>::value, "type requirement");
-		static_assert(std::is_same<typename sqlpp::value_type_of<decltype(t.beta)>::_parameter_t, decltype(npl.beta)>::value, "type requirement");
-		static_assert(std::is_same<typename sqlpp::value_type_of<decltype(t.gamma)>::_parameter_t, decltype(npl.gamma)>::value, "type requirement");
+		static_assert(std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.alpha)>>, decltype(npl.alpha)>::value, "type requirement");
+		static_assert(std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.beta)>>, decltype(npl.beta)>::value, "type requirement");
+		static_assert(std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.gamma)>>, decltype(npl.gamma)>::value, "type requirement");
 		npl.alpha = 7;
 		auto x = npl;
 		x = npl;

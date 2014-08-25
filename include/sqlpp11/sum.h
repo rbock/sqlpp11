@@ -32,8 +32,9 @@
 namespace sqlpp
 {
 	template<typename Flag, typename Expr>
-		struct sum_t: public value_type_of<Expr>::template expression_operators<sum_t<Flag, Expr>>,
-		public alias_operators<sum_t<Flag, Expr>>
+		struct sum_t:
+			public expression_operators<sum_t<Flag, Expr>, value_type_of<Expr>>,
+			public alias_operators<sum_t<Flag, Expr>>
 	{
 		using _traits = make_traits<value_type_of<Expr>, ::sqlpp::tag::is_expression, ::sqlpp::tag::is_named_expression>;
 		using _recursive_traits = make_recursive_traits<Expr>;
