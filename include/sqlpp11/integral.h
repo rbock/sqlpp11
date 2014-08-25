@@ -119,13 +119,7 @@ namespace sqlpp
 		struct expression_operators<Base, integral>: public basic_expression_operators<Base, integral>
 	{
 		template<typename T>
-			struct _is_valid_operand
-			{
-				static constexpr bool value = 
-					is_expression_t<T>::value // expressions are OK
-					and integral::template _is_valid_operand<T>::value // the correct value type is required, of course
-					;
-			};
+			using _is_valid_operand = is_valid_operand<integral, T>;
 
 		template<typename T>
 			plus_t<Base, value_type_t<T>, wrap_operand_t<T>> operator +(T t) const
@@ -206,13 +200,7 @@ namespace sqlpp
 		struct column_operators<Base, integral>
 		{
 			template<typename T>
-				struct _is_valid_operand
-				{
-					static constexpr bool value = 
-						is_expression_t<T>::value // expressions are OK
-						and integral::template _is_valid_operand<T>::value // the correct value type is required, of course
-						;
-				};
+				using _is_valid_operand = is_valid_operand<integral, T>;
 
 			template<typename T>
 				auto operator +=(T t) const -> assignment_t<Base, plus_t<Base, value_type_t<T>, wrap_operand_t<T>>>

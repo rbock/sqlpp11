@@ -119,13 +119,7 @@ namespace sqlpp
 			public basic_expression_operators<Expr, floating_point>
 		{
 			template<typename T>
-				struct _is_valid_operand
-				{
-					static constexpr bool value = 
-						is_expression_t<T>::value // expressions are OK
-						and floating_point::template _is_valid_operand<T>::value // the correct value type is required, of course
-						;
-				};
+				using _is_valid_operand = is_valid_operand<floating_point, T>;
 
 			template<typename T>
 				plus_t<Expr, floating_point, wrap_operand_t<T>> operator +(T t) const
@@ -176,13 +170,7 @@ namespace sqlpp
 		struct column_operators<Column, floating_point>
 		{
 			template<typename T>
-				struct _is_valid_operand
-				{
-					static constexpr bool value = 
-						is_expression_t<T>::value // expressions are OK
-						and floating_point::template _is_valid_operand<T>::value // the correct value type is required, of course
-						;
-				};
+				using _is_valid_operand = is_valid_operand<floating_point, T>;
 
 			template<typename T>
 				auto operator +=(T t) const -> assignment_t<Column, plus_t<Column, floating_point, wrap_operand_t<T>>>
