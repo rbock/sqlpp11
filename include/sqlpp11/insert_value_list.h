@@ -329,7 +329,7 @@ namespace sqlpp
 			{
 				using _database_t = typename Policies::_database_t;
 				template<typename T>
-					using _new_statement_t = typename Policies::template _new_statement_t<no_insert_value_list_t, T>;
+					using _new_statement_t = new_statement<Policies, no_insert_value_list_t, T>;
 
 				static void _check_consistency() 
 				{

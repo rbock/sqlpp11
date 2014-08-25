@@ -140,7 +140,7 @@ namespace sqlpp
 			struct _methods_t
 			{
 				template<typename T>
-					using _new_statement_t = typename Policies::template _new_statement_t<no_extra_tables_t, T>;
+					using _new_statement_t = new_statement<Policies, no_extra_tables_t, T>;
 
 				static void _check_consistency() {}
 
