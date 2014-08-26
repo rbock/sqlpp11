@@ -48,6 +48,7 @@ namespace sqlpp
 			using _is_valid_operand = is_numeric_t<T>;
 	};
 
+	// integral parameter value
 	template<>
 	struct parameter_value_t<integral>
 	{
@@ -115,6 +116,7 @@ namespace sqlpp
 		bool _is_null;
 	};
 
+	// integral expression operators
 	template<typename Base>
 		struct expression_operators<Base, integral>: public basic_expression_operators<Base, integral>
 	{
@@ -196,6 +198,7 @@ namespace sqlpp
 
 	};
 
+	// integral column operators
 	template<typename Base>
 		struct column_operators<Base, integral>
 		{
@@ -239,6 +242,7 @@ namespace sqlpp
 				}
 		};
 
+	// integral result field
 	template<typename Db, typename FieldSpec>
 		struct result_field_t<integral, Db, FieldSpec>: public result_field_methods_t<result_field_t<integral, Db, FieldSpec>>
 	{
@@ -309,6 +313,7 @@ namespace sqlpp
 		_cpp_value_type _value;
 	};
 
+	// ostream operator for integral result field
 	template<typename Db, typename FieldSpec>
 		inline std::ostream& operator<<(std::ostream& os, const result_field_t<integral, Db, FieldSpec>& e)
 		{

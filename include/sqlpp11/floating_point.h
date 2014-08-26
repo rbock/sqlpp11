@@ -46,6 +46,7 @@ namespace sqlpp
 			using _is_valid_operand = is_numeric_t<T>;
 	};
 
+	// floating_point parameter type
 	template<>
 		struct parameter_value_t<floating_point>
 		{
@@ -114,6 +115,7 @@ namespace sqlpp
 			bool _is_null;
 		};
 
+	// floating_point expression operators
 	template<typename Expr>
 		struct expression_operators<Expr, floating_point>:
 			public basic_expression_operators<Expr, floating_point>
@@ -166,6 +168,7 @@ namespace sqlpp
 			}
 		};
 
+	// floating_point column operators
 	template<typename Column>
 		struct column_operators<Column, floating_point>
 		{
@@ -208,6 +211,7 @@ namespace sqlpp
 					return { *static_cast<const Column*>(this), { *static_cast<const Column*>(this), rhs{t} } };
 				}
 		};
+	// floating_point result field
 	template<typename Db, typename FieldSpec>
 		struct result_field_t<floating_point, Db, FieldSpec>: public result_field_methods_t<result_field_t<floating_point, Db, FieldSpec>>
 		{

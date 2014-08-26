@@ -48,6 +48,7 @@ namespace sqlpp
 			using _is_valid_operand = is_boolean_t<T>;
 	};
 
+	// boolean parameter type
 	template<>
 		struct parameter_value_t<boolean>
 		{
@@ -116,6 +117,7 @@ namespace sqlpp
 			bool _is_null;
 		};
 
+	// boolean expression operators
 	template<typename Base>
 		struct expression_operators<Base, boolean>: public basic_expression_operators<Base, boolean>
 	{
@@ -146,11 +148,13 @@ namespace sqlpp
 		}
 	};
 
+	// boolean column operators
 	template<typename Base>
 		struct column_operators<Base, boolean>
 		{
 		};
 
+	// boolean result field
 	template<typename Db, typename FieldSpec>
 		struct result_field_t<boolean, Db, FieldSpec>: public result_field_methods_t<result_field_t<boolean, Db, FieldSpec>>
 	{

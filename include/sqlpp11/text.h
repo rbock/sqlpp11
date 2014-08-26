@@ -47,6 +47,7 @@ namespace sqlpp
 			using _is_valid_operand = is_text_t<T>;
 	};
 
+	// text parameter type
 	template<>
 		struct parameter_value_t<text>
 		{
@@ -116,6 +117,8 @@ namespace sqlpp
 		};
 
 
+	// text expression operators
+	template<>
 	template<typename Base>
 		struct expression_operators<Base, text>: public basic_expression_operators<Base, text>
 	{
@@ -141,6 +144,7 @@ namespace sqlpp
 			}
 	};
 
+	// text column operators
 	template<typename Base>
 		struct column_operators<Base, text>
 		{
@@ -157,6 +161,7 @@ namespace sqlpp
 				}
 		};
 
+	// text result field
 	template<typename Db, typename FieldSpec>
 		struct result_field_t<text, Db, FieldSpec>: public result_field_methods_t<result_field_t<text, Db, FieldSpec>>
 	{
