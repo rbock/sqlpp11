@@ -78,9 +78,9 @@ namespace sqlpp
 						{
 							static_assert(_is_dynamic::value, "add must not be called for static from()");
 							static_assert(is_assignment_t<Assignment>::value, "invalid assignment argument in add()");
-							using _assigned_columns = detail::make_type_set_t<typename Assignments::_lhs_t...>;
-							static_assert(not detail::is_element_of<typename Assignment::_lhs_t, _assigned_columns>::value, "Must not assign value to column twice");
-							static_assert(sqlpp::detail::not_t<must_not_update_t, typename Assignment::_lhs_t>::value, "add() argument must not be updated");
+							using _assigned_columns = detail::make_type_set_t<lhs_t<Assignments>...>;
+							static_assert(not detail::is_element_of<lhs_t<Assignment>, _assigned_columns>::value, "Must not assign value to column twice");
+							static_assert(sqlpp::detail::not_t<must_not_update_t, lhs_t<Assignment>>::value, "add() argument must not be updated");
 							static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Assignment>::value, "assignment uses tables unknown to this statement in add()");
 
 							using ok = ::sqlpp::detail::all_t<
@@ -194,10 +194,10 @@ namespace sqlpp
 					-> _new_statement_t<update_list_t<Database, Assignments...>>
 					{
 						static_assert(::sqlpp::detail::all_t<is_assignment_t<Assignments>::value...>::value, "at least one argument is not an assignment in set()");
-						static_assert(not ::sqlpp::detail::has_duplicates<typename Assignments::_lhs_t...>::value, "at least one duplicate column detected in set()");
-						static_assert(::sqlpp::detail::none_t<must_not_update_t<typename Assignments::_lhs_t>::value...>::value, "at least one assignment is prohibited by its column definition in set()");
+						static_assert(not ::sqlpp::detail::has_duplicates<lhs_t<Assignments>...>::value, "at least one duplicate column detected in set()");
+						static_assert(::sqlpp::detail::none_t<must_not_update_t<lhs_t<Assignments>>::value...>::value, "at least one assignment is prohibited by its column definition in set()");
 
-						using _column_required_tables = ::sqlpp::detail::make_joined_set_t<required_tables_of<typename Assignments::_lhs_t>...>;
+						using _column_required_tables = ::sqlpp::detail::make_joined_set_t<required_tables_of<lhs_t<Assignments>>...>;
 						static_assert(sizeof...(Assignments) ? (_column_required_tables::size::value == 1) : true, "set() contains assignments for columns from more than one table");
 
 						return { *static_cast<typename Policies::_statement_t*>(this), update_list_data_t<Database, Assignments...>{assignments...} };

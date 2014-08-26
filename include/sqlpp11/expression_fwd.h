@@ -208,6 +208,12 @@ namespace sqlpp
 
 	template<typename Lhs, typename ValueType, typename Rhs>
 		using bitwise_or_t = binary_expression_t<Lhs, op::bitwise_or<ValueType>, Rhs>;
+
+	template<typename Expr>
+		using lhs_t = typename Expr::_lhs_t;
+
+	template<typename Expr>
+		using rhs_t = typename Expr::_rhs_t;
 }
 
 #endif
