@@ -173,18 +173,18 @@ namespace sqlpp
 				static void _check_consistency() {}
 
 				template<typename... Args>
-					auto having(Args... args)
+					auto having(Args... args) const
 					-> _new_statement_t<having_t<void, Args...>>
 					{
-						return { *static_cast<typename Policies::_statement_t*>(this), having_data_t<void, Args...>{args...} };
+						return { *static_cast<const typename Policies::_statement_t*>(this), having_data_t<void, Args...>{args...} };
 					}
 
 				template<typename... Args>
-					auto dynamic_having(Args... args)
+					auto dynamic_having(Args... args) const
 					-> _new_statement_t<having_t<_database_t, Args...>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_having must not be called in a static statement");
-						return { *static_cast<typename Policies::_statement_t*>(this), having_data_t<_database_t, Args...>{args...} };
+						return { *static_cast<const typename Policies::_statement_t*>(this), having_data_t<_database_t, Args...>{args...} };
 					}
 			};
 	};

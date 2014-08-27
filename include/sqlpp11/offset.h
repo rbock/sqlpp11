@@ -223,17 +223,17 @@ namespace sqlpp
 				static void _check_consistency() {}
 
 				template<typename Arg>
-					auto offset(Arg arg)
+					auto offset(Arg arg) const
 					-> _new_statement_t<offset_t<typename wrap_operand<Arg>::type>>
 					{
-						return { *static_cast<typename Policies::_statement_t*>(this), offset_data_t<typename wrap_operand<Arg>::type>{{arg}} };
+						return { *static_cast<const typename Policies::_statement_t*>(this), offset_data_t<typename wrap_operand<Arg>::type>{{arg}} };
 					}
 
-				auto dynamic_offset()
+				auto dynamic_offset() const
 					-> _new_statement_t<dynamic_offset_t<_database_t>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_offset must not be called in a static statement");
-						return { *static_cast<typename Policies::_statement_t*>(this), dynamic_offset_data_t<_database_t>{} };
+						return { *static_cast<const typename Policies::_statement_t*>(this), dynamic_offset_data_t<_database_t>{} };
 					}
 			};
 	};

@@ -146,10 +146,10 @@ namespace sqlpp
 				}
 
 				template<typename... Args>
-					auto into(Args... args)
+					auto into(Args... args) const
 					-> _new_statement_t<into_t<void, Args...>>
 					{
-						return { *static_cast<typename Policies::_statement_t*>(this), into_data_t<void, Args...>{args...} };
+						return { *static_cast<const typename Policies::_statement_t*>(this), into_data_t<void, Args...>{args...} };
 					}
 			};
 	};

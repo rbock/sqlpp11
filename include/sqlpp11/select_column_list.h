@@ -369,18 +369,18 @@ namespace sqlpp
 				static void _check_consistency() {}
 
 				template<typename... Args>
-					auto columns(Args... args)
+					auto columns(Args... args) const
 					-> _new_statement_t<::sqlpp::detail::make_select_column_list_t<void, Args...>>
 					{
-						return { *static_cast<typename Policies::_statement_t*>(this), typename ::sqlpp::detail::make_select_column_list_t<void, Args...>::_data_t{std::tuple_cat(::sqlpp::detail::as_tuple<Args>::_(args)...)} };
+						return { *static_cast<const typename Policies::_statement_t*>(this), typename ::sqlpp::detail::make_select_column_list_t<void, Args...>::_data_t{std::tuple_cat(::sqlpp::detail::as_tuple<Args>::_(args)...)} };
 					}
 
 				template<typename... Args>
-					auto dynamic_columns(Args... args)
+					auto dynamic_columns(Args... args) const
 					-> _new_statement_t<::sqlpp::detail::make_select_column_list_t<_database_t, Args...>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_columns must not be called in a static statement");
-						return { *static_cast<typename Policies::_statement_t*>(this), typename ::sqlpp::detail::make_select_column_list_t<_database_t, Args...>::_data_t{std::tuple_cat(::sqlpp::detail::as_tuple<Args>::_(args)...)} };
+						return { *static_cast<const typename Policies::_statement_t*>(this), typename ::sqlpp::detail::make_select_column_list_t<_database_t, Args...>::_data_t{std::tuple_cat(::sqlpp::detail::as_tuple<Args>::_(args)...)} };
 					}
 			};
 	};

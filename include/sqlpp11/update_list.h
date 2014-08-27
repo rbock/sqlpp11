@@ -173,7 +173,7 @@ namespace sqlpp
 				}
 
 				template<typename... Assignments>
-					auto set(Assignments... assignments)
+					auto set(Assignments... assignments) const
 					-> _new_statement_t<update_list_t<void, Assignments...>>
 					{
 						static_assert(sizeof...(Assignments), "at least one assignment expression required in set()");
@@ -181,7 +181,7 @@ namespace sqlpp
 					}
 
 				template<typename... Assignments>
-					auto dynamic_set(Assignments... assignments)
+					auto dynamic_set(Assignments... assignments) const
 					-> _new_statement_t<update_list_t<_database_t, Assignments...>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_set() must not be called in a static statement");
@@ -190,7 +190,7 @@ namespace sqlpp
 
 			private:
 				template<typename Database, typename... Assignments>
-					auto _set_impl(Assignments... assignments)
+					auto _set_impl(Assignments... assignments) const
 					-> _new_statement_t<update_list_t<Database, Assignments...>>
 					{
 						static_assert(::sqlpp::detail::all_t<is_assignment_t<Assignments>::value...>::value, "at least one argument is not an assignment in set()");
@@ -200,7 +200,7 @@ namespace sqlpp
 						using _column_required_tables = ::sqlpp::detail::make_joined_set_t<required_tables_of<lhs_t<Assignments>>...>;
 						static_assert(sizeof...(Assignments) ? (_column_required_tables::size::value == 1) : true, "set() contains assignments for columns from more than one table");
 
-						return { *static_cast<typename Policies::_statement_t*>(this), update_list_data_t<Database, Assignments...>{assignments...} };
+						return { *static_cast<const typename Policies::_statement_t*>(this), update_list_data_t<Database, Assignments...>{assignments...} };
 					}
 			};
 	};

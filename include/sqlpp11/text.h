@@ -118,7 +118,6 @@ namespace sqlpp
 
 
 	// text expression operators
-	template<>
 	template<typename Base>
 		struct expression_operators<Base, text>: public basic_expression_operators<Base, text>
 	{

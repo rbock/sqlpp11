@@ -143,10 +143,10 @@ namespace sqlpp
 				static void _check_consistency() {}
 
 				template<typename... Args>
-					auto from(Args... args)
+					auto from(Args... args) const
 					-> _new_statement_t<single_table_t<void, Args...>>
 					{
-						return { *static_cast<typename Policies::_statement_t*>(this), single_table_data_t<void, Args...>{args...} };
+						return { *static_cast<const typename Policies::_statement_t*>(this), single_table_data_t<void, Args...>{args...} };
 					}
 			};
 	};

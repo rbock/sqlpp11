@@ -166,7 +166,7 @@ namespace sqlpp
 				static void _check_consistency() {}
 
 				template<typename... Tables>
-					auto from(Tables... tables)
+					auto from(Tables... tables) const
 					-> _new_statement_t<from_t<void, Tables...>>
 					{
 						static_assert(sizeof...(Tables), "at least one table or join argument required in from()");
@@ -174,7 +174,7 @@ namespace sqlpp
 					}
 
 				template<typename... Tables>
-					auto dynamic_from(Tables... tables)
+					auto dynamic_from(Tables... tables) const
 					-> _new_statement_t<from_t<_database_t, Tables...>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_from must not be called in a static statement");
@@ -183,7 +183,7 @@ namespace sqlpp
 
 			private:
 				template<typename Database, typename... Tables>
-					auto _from_impl(Tables... tables)
+					auto _from_impl(Tables... tables) const
 					-> _new_statement_t<from_t<Database, Tables...>>
 					{
 						static_assert(::sqlpp::detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not a table or join in from()");
@@ -195,7 +195,7 @@ namespace sqlpp
 						static_assert(_number_of_tables == _unique_tables::size::value, "at least one duplicate table detected in from()");
 						static_assert(_number_of_tables == _unique_table_names::size::value, "at least one duplicate table name detected in from()");
 
-						return { *static_cast<typename Policies::_statement_t*>(this), from_data_t<Database, Tables...>{tables...} };
+						return { *static_cast<const typename Policies::_statement_t*>(this), from_data_t<Database, Tables...>{tables...} };
 					}
 
 			};
