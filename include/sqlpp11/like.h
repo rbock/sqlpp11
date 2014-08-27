@@ -51,6 +51,8 @@ namespace sqlpp
 				struct _member_t
 				{
 					T like;
+					T& operator()() { return like; }
+					const T& operator()() const { return like; }
 				};
 		};
 
