@@ -339,7 +339,7 @@ namespace sqlpp
 				auto default_values() const
 					-> _new_statement_t<insert_default_values_t>
 					{
-						return { *static_cast<const typename Policies::_statement_t*>(this), insert_default_values_data_t{} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), insert_default_values_data_t{} };
 					}
 
 				template<typename... Columns>
@@ -358,7 +358,7 @@ namespace sqlpp
 						using set_columns = detail::make_type_set_t<Columns...>;
 						static_assert(detail::is_subset_of<required_columns, set_columns>::value, "At least one required column is missing in columns()");
 
-						return { *static_cast<const typename Policies::_statement_t*>(this), column_list_data_t<Columns...>{columns...} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), column_list_data_t<Columns...>{columns...} };
 					}
 
 				template<typename... Assignments>
@@ -394,7 +394,7 @@ namespace sqlpp
 						using _column_required_tables = ::sqlpp::detail::make_joined_set_t<required_tables_of<lhs_t<Assignments>>...>;
 						static_assert(sizeof...(Assignments) ? (_column_required_tables::size::value == 1) : true, "set() contains assignments for columns from several tables");
 
-						return { *static_cast<const typename Policies::_statement_t*>(this), insert_list_data_t<Database, Assignments...>{assignments...} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), insert_list_data_t<Database, Assignments...>{assignments...} };
 					}
 			};
 	};

@@ -200,7 +200,7 @@ namespace sqlpp
 						using _column_required_tables = ::sqlpp::detail::make_joined_set_t<required_tables_of<lhs_t<Assignments>>...>;
 						static_assert(sizeof...(Assignments) ? (_column_required_tables::size::value == 1) : true, "set() contains assignments for columns from more than one table");
 
-						return { *static_cast<const typename Policies::_statement_t*>(this), update_list_data_t<Database, Assignments...>{assignments...} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), update_list_data_t<Database, Assignments...>{assignments...} };
 					}
 			};
 	};

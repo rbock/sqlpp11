@@ -48,7 +48,7 @@ namespace sqlpp
 		template<typename Policies>
 			struct _result_methods_t
 			{
-				using _statement_t = typename Policies::_statement_t;
+				using _statement_t = derived_statement_t<Policies>;
 
 				const _statement_t& _get_statement() const
 				{

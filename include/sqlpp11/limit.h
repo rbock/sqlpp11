@@ -215,14 +215,14 @@ namespace sqlpp
 					auto limit(Arg arg) const
 					-> _new_statement_t<limit_t<typename wrap_operand<Arg>::type>>
 					{
-						return { *static_cast<const typename Policies::_statement_t*>(this), limit_data_t<typename wrap_operand<Arg>::type>{{arg}} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), limit_data_t<typename wrap_operand<Arg>::type>{{arg}} };
 					}
 
 				auto dynamic_limit() const
 					-> _new_statement_t<dynamic_limit_t<_database_t>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_limit must not be called in a static statement");
-						return { *static_cast<const typename Policies::_statement_t*>(this), dynamic_limit_data_t<_database_t>{} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), dynamic_limit_data_t<_database_t>{} };
 					}
 			};
 	};

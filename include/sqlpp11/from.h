@@ -195,7 +195,7 @@ namespace sqlpp
 						static_assert(_number_of_tables == _unique_tables::size::value, "at least one duplicate table detected in from()");
 						static_assert(_number_of_tables == _unique_table_names::size::value, "at least one duplicate table name detected in from()");
 
-						return { *static_cast<const typename Policies::_statement_t*>(this), from_data_t<Database, Tables...>{tables...} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), from_data_t<Database, Tables...>{tables...} };
 					}
 
 			};

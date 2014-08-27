@@ -148,7 +148,7 @@ namespace sqlpp
 					auto extra_tables(Args...) const
 					-> _new_statement_t<extra_tables_t<Args...>>
 					{
-						return { *static_cast<const typename Policies::_statement_t*>(this), extra_tables_data_t<Args...>{} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), extra_tables_data_t<Args...>{} };
 					}
 			};
 	};

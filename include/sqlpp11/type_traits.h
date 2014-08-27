@@ -235,6 +235,8 @@ namespace sqlpp
 	template<typename NameProvider, typename Member>
 		using member_t = typename NameProvider::_name_t::template _member_t<Member>;
 
+	template<typename Policies>
+		using derived_statement_t = typename Policies::_statement_t;
 }
 
 #endif
