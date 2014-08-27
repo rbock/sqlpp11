@@ -105,7 +105,7 @@ namespace sqlpp
 			template<typename Offset>
 				dynamic_offset_data_t(Offset value):
 					_initialized(true),
-					_value(typename wrap_operand<Offset>::type(value))
+					_value(wrap_operand_t<Offset>(value))
 			{
 			}
 
@@ -137,7 +137,7 @@ namespace sqlpp
 						void set(Offset value)
 						{
 							// FIXME: Make sure that Offset does not require external tables? Need to read up on SQL
-							using arg_t = typename wrap_operand<Offset>::type;
+							using arg_t = wrap_operand_t<Offset>;
 							_data._value = arg_t{value};
 							_data._initialized = true;
 						}
@@ -171,7 +171,7 @@ namespace sqlpp
 						void set_offset(Offset value)
 						{
 							// FIXME: Make sure that Offset does not require external tables? Need to read up on SQL
-							using arg_t = typename wrap_operand<Offset>::type;
+							using arg_t = wrap_operand_t<Offset>;
 							static_cast<derived_statement_t<Policies>*>(this)->_offset()._value = arg_t{value};
 							static_cast<derived_statement_t<Policies>*>(this)->_offset()._initialized = true;
 						}
@@ -224,9 +224,9 @@ namespace sqlpp
 
 				template<typename Arg>
 					auto offset(Arg arg) const
-					-> _new_statement_t<offset_t<typename wrap_operand<Arg>::type>>
+					-> _new_statement_t<offset_t<wrap_operand_t<Arg>>>
 					{
-						return { static_cast<const derived_statement_t<Policies>&>(*this), offset_data_t<typename wrap_operand<Arg>::type>{{arg}} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), offset_data_t<wrap_operand_t<Arg>>{{arg}} };
 					}
 
 				auto dynamic_offset() const

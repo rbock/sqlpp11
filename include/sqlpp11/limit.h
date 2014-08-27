@@ -105,7 +105,7 @@ namespace sqlpp
 			template<typename Limit>
 				dynamic_limit_data_t(Limit value):
 					_initialized(true),
-					_value(typename wrap_operand<Limit>::type(value))
+					_value(wrap_operand_t<Limit>(value))
 			{
 			}
 
@@ -137,7 +137,7 @@ namespace sqlpp
 						void set(Limit value)
 						{
 							// FIXME: Make sure that Limit does not require external tables? Need to read up on SQL
-							using arg_t = typename wrap_operand<Limit>::type;
+							using arg_t = wrap_operand_t<Limit>;
 							_data._value = arg_t{value};
 							_data._initialized = true;
 						}
@@ -213,9 +213,9 @@ namespace sqlpp
 
 				template<typename Arg>
 					auto limit(Arg arg) const
-					-> _new_statement_t<limit_t<typename wrap_operand<Arg>::type>>
+					-> _new_statement_t<limit_t<wrap_operand_t<Arg>>>
 					{
-						return { static_cast<const derived_statement_t<Policies>&>(*this), limit_data_t<typename wrap_operand<Arg>::type>{{arg}} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), limit_data_t<wrap_operand_t<Arg>>{{arg}} };
 					}
 
 				auto dynamic_limit() const
