@@ -40,8 +40,8 @@ namespace sqlpp
 	// integral value type
 	struct integral
 	{
-		using _traits = make_traits<integral, ::sqlpp::tag::is_value_type>;
-		using _tag = ::sqlpp::tag::is_integral;
+		using _traits = make_traits<integral, tag::is_value_type>;
+		using _tag = tag::is_integral;
 		using _cpp_value_type = int64_t;
 
 		template<typename T>

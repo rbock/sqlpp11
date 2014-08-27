@@ -109,7 +109,7 @@ namespace sqlpp
 					using _parameters = detail::make_parameter_tuple_t<parameters_of<Policies>...>;
 					using _can_be_null = detail::any_t<
 									can_be_null_t<_result_type_provider>::value, 
-									::sqlpp::detail::make_intersect_set_t<
+									detail::make_intersect_set_t<
 									  required_tables_of<_result_type_provider>, 
 								    provided_outer_tables_of<statement_policies_t>
 								  >::size::value != 0>;
@@ -129,7 +129,7 @@ namespace sqlpp
 		using _policies_t = typename detail::statement_policies_t<Db, Policies...>;
 
 		using _traits = make_traits<value_type_of<_policies_t>,
-					::sqlpp::tag::is_select, 
+					tag::is_select, 
 					tag_if<tag::is_expression, is_expression_t<_policies_t>::value>, 
 					tag_if<tag::is_named_expression, is_expression_t<_policies_t>::value>,
 					tag::requires_braces>;
@@ -184,7 +184,7 @@ namespace sqlpp
 		struct serializer_t<Context, statement_t<Database, Policies...>>
 		{
 			using T = statement_t<Database, Policies...>;
-			using P = ::sqlpp::detail::statement_policies_t<Database, Policies...>;
+			using P = detail::statement_policies_t<Database, Policies...>;
 
 			static Context& _(const T& t, Context& context)
 			{
@@ -198,7 +198,7 @@ namespace sqlpp
 	template<typename NameData>
 		struct statement_name_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_noop>;
+			using _traits = make_traits<no_value_t, tag::is_noop>;
 			using _recursive_traits = make_recursive_traits<>;
 
 			// Data

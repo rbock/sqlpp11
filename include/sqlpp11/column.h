@@ -96,17 +96,17 @@ namespace sqlpp
 				return { *this, {rhs{t}} };
 			}
 
-		auto operator =(sqlpp::null_t) const
-			->assignment_t<column_t, sqlpp::null_t>
+		auto operator =(null_t) const
+			->assignment_t<column_t, null_t>
 			{
 				static_assert(can_be_null_t<column_t>::value, "column cannot be null");
-				return { *this, sqlpp::null_t{} };
+				return { *this, null_t{} };
 			}
 
-		auto operator =(sqlpp::default_value_t) const
-			->assignment_t<column_t, sqlpp::default_value_t>
+		auto operator =(default_value_t) const
+			->assignment_t<column_t, default_value_t>
 			{
-				return { *this, sqlpp::default_value_t{} };
+				return { *this, default_value_t{} };
 			}
 	};
 

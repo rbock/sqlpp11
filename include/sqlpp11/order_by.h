@@ -59,16 +59,16 @@ namespace sqlpp
 	template<typename Database, typename... Expressions>
 		struct order_by_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_order_by>;
+			using _traits = make_traits<no_value_t, tag::is_order_by>;
 			using _recursive_traits = make_recursive_traits<Expressions...>;
 
 			using _is_dynamic = is_database<Database>;
 
 			static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression (e.g. a column) required in order_by()");
 
-			static_assert(not ::sqlpp::detail::has_duplicates<Expressions...>::value, "at least one duplicate argument detected in order_by()");
+			static_assert(not detail::has_duplicates<Expressions...>::value, "at least one duplicate argument detected in order_by()");
 
-			static_assert(::sqlpp::detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not an expression in order_by()");
+			static_assert(detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not an expression in order_by()");
 
 			// Data
 			using _data_t = order_by_data_t<Database, Expressions...>;
@@ -90,7 +90,7 @@ namespace sqlpp
 							static_assert(is_expression_t<Expression>::value, "invalid expression argument in order_by::add()");
 							static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Expression>::value, "expression uses tables unknown to this statement in order_by::add()");
 
-							using ok = ::sqlpp::detail::all_t<_is_dynamic::value, is_expression_t<Expression>::value>;
+							using ok = detail::all_t<_is_dynamic::value, is_expression_t<Expression>::value>;
 
 							_add_impl(expression, ok()); // dispatch to prevent compile messages after the static_assert
 						}
@@ -135,7 +135,7 @@ namespace sqlpp
 	// NO ORDER BY YET
 	struct no_order_by_t
 	{
-		using _traits = make_traits<no_value_t, ::sqlpp::tag::is_noop>;
+		using _traits = make_traits<no_value_t, tag::is_noop>;
 		using _recursive_traits = make_recursive_traits<>;
 
 		// Data

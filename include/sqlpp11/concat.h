@@ -40,11 +40,11 @@ namespace sqlpp
 			public expression_operators<concat_t<First, Args...>, value_type_of<First>>,
 			public alias_operators<concat_t<First, Args...>>
 	{
-		using _traits = make_traits<value_type_of<First>, ::sqlpp::tag::is_expression, ::sqlpp::tag::is_named_expression>;
+		using _traits = make_traits<value_type_of<First>, tag::is_expression, tag::is_named_expression>;
 		using _recursive_traits = make_recursive_traits<First, Args...>;
 
 		static_assert(sizeof...(Args) > 0, "concat requires two arguments at least");
-		static_assert(sqlpp::detail::all_t<is_text_t<First>::value, is_text_t<Args>::value...>::value, "at least one non-text argument detected in concat()");
+		static_assert(detail::all_t<is_text_t<First>::value, is_text_t<Args>::value...>::value, "at least one non-text argument detected in concat()");
 		struct _name_t
 		{
 			static constexpr const char* _get_name() { return "CONCAT"; }

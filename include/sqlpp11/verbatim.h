@@ -37,7 +37,7 @@ namespace sqlpp
 			public expression_operators<verbatim_t<ValueType>, ValueType>,
 			public alias_operators<verbatim_t<ValueType>>
 	{
-		using _traits = make_traits<ValueType, ::sqlpp::tag::is_expression>;
+		using _traits = make_traits<ValueType, tag::is_expression>;
 		struct _recursive_traits : public make_recursive_traits<>
 		{
 			using _can_be_null = std::true_type; // since we do not know what's going on inside the verbatim, we assume it can be null

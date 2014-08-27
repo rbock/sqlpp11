@@ -39,7 +39,7 @@ namespace sqlpp
 			public expression_operators<in_t<NotInverted, Operand, Args...>, boolean>,
 			public alias_operators<in_t<NotInverted, Operand, Args...>>
 	{
-		using _traits = make_traits<boolean, ::sqlpp::tag::is_expression, ::sqlpp::tag::is_named_expression>;
+		using _traits = make_traits<boolean, tag::is_expression, tag::is_named_expression>;
 		using _recursive_traits = make_recursive_traits<Operand, Args...>;
 
 		static constexpr bool _inverted = not NotInverted;

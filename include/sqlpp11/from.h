@@ -59,7 +59,7 @@ namespace sqlpp
 	template<typename Database, typename... Tables>
 		struct from_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_from>;
+			using _traits = make_traits<no_value_t, tag::is_from>;
 			using _recursive_traits = make_recursive_traits<Tables...>;
 			using _is_dynamic = is_database<Database>;
 
@@ -79,7 +79,7 @@ namespace sqlpp
 							using _known_table_names = detail::transform_set_t<name_of, _known_tables>;
 							static_assert(not detail::is_element_of<typename Table::_name_t, _known_table_names>::value, "Must not use the same table name twice in from()");
 
-							using ok = ::sqlpp::detail::all_t<_is_dynamic::value, is_table_t<Table>::value>;
+							using ok = detail::all_t<_is_dynamic::value, is_table_t<Table>::value>;
 
 							_add_impl(table, ok()); // dispatch to prevent compile messages after the static_assert
 						}
@@ -125,7 +125,7 @@ namespace sqlpp
 
 	struct no_from_t
 	{
-		using _traits = make_traits<no_value_t, ::sqlpp::tag::is_noop>;
+		using _traits = make_traits<no_value_t, tag::is_noop>;
 		using _recursive_traits = make_recursive_traits<>;
 
 		// Data
@@ -186,7 +186,7 @@ namespace sqlpp
 					auto _from_impl(Tables... tables) const
 					-> _new_statement_t<from_t<Database, Tables...>>
 					{
-						static_assert(::sqlpp::detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not a table or join in from()");
+						static_assert(detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not a table or join in from()");
 						static_assert(required_tables_of<from_t<Database, Tables...>>::size::value == 0, "at least one table depends on another table");
 
 						static constexpr std::size_t _number_of_tables = detail::sum(provided_tables_of<Tables>::size::value...);

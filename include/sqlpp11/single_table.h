@@ -57,7 +57,7 @@ namespace sqlpp
 	template<typename Database, typename Table>
 		struct single_table_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_single_table>;
+			using _traits = make_traits<no_value_t, tag::is_single_table>;
 			using _recursive_traits = make_recursive_traits<Table>;
 
 			static_assert(is_table_t<Table>::value, "argument has to be a table");
@@ -103,7 +103,7 @@ namespace sqlpp
 	// NO INTO YET
 	struct no_single_table_t
 	{
-		using _traits = make_traits<no_value_t, ::sqlpp::tag::is_noop>;
+		using _traits = make_traits<no_value_t, tag::is_noop>;
 		using _recursive_traits = make_recursive_traits<>;
 
 		// Data

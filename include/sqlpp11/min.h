@@ -36,7 +36,7 @@ namespace sqlpp
 			public expression_operators<min_t<Expr>, value_type_of<Expr>>,
 			public alias_operators<min_t<Expr>>
 	{
-		using _traits = make_traits<value_type_of<Expr>, ::sqlpp::tag::is_expression, ::sqlpp::tag::is_named_expression>;
+		using _traits = make_traits<value_type_of<Expr>, tag::is_expression, tag::is_named_expression>;
 		using _recursive_traits = make_recursive_traits<Expr>;
 
 		static_assert(is_expression_t<Expr>::value, "min() requires a value expression as argument");

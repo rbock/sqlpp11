@@ -82,7 +82,7 @@ namespace sqlpp
 			static_assert(not is_join_t<Rhs>::value, "rhs argument for join must not be a join");
 			static_assert(is_noop<On>::value or is_on_t<On>::value, "invalid on expression in join().on()");
 
-			static_assert(::sqlpp::detail::is_disjunct_from<provided_tables_of<Lhs>, provided_tables_of<Rhs>>::value, "joined tables must not be identical");
+			static_assert(detail::is_disjunct_from<provided_tables_of<Lhs>, provided_tables_of<Rhs>>::value, "joined tables must not be identical");
 
 			static_assert(_recursive_traits::_required_tables::size::value == 0, "joined tables must not depend on other tables");
 

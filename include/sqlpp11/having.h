@@ -58,13 +58,13 @@ namespace sqlpp
 	template<typename Database, typename... Expressions>
 		struct having_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_having>;
+			using _traits = make_traits<no_value_t, tag::is_having>;
 			using _recursive_traits = make_recursive_traits<Expressions...>;
 
 			using _is_dynamic = is_database<Database>;
 
 			static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression argument required in having()");
-			static_assert(::sqlpp::detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not an expression in having()");
+			static_assert(detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not an expression in having()");
 
 			// Data
 			using _data_t = having_data_t<Database, Expressions...>;
@@ -86,7 +86,7 @@ namespace sqlpp
 							static_assert(is_expression_t<Expression>::value, "invalid expression argument in having::add()");
 							static_assert(not TableCheckRequired::value or Policies::template _no_unknown_tables<Expression>::value, "expression uses tables unknown to this statement in having::add()");
 
-							using ok = ::sqlpp::detail::all_t<_is_dynamic::value, is_expression_t<Expression>::value>;
+							using ok = detail::all_t<_is_dynamic::value, is_expression_t<Expression>::value>;
 
 							_add_impl(expression, ok()); // dispatch to prevent compile messages after the static_assert
 						}
@@ -133,7 +133,7 @@ namespace sqlpp
 	// NO HAVING YET
 	struct no_having_t
 	{
-		using _traits = make_traits<no_value_t, ::sqlpp::tag::is_noop>;
+		using _traits = make_traits<no_value_t, tag::is_noop>;
 		using _recursive_traits = make_recursive_traits<>;
 
 		// Data

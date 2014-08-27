@@ -47,7 +47,7 @@ namespace sqlpp
 		}
 
 	template<typename Tuple, typename Separator, typename Context, size_t... Is>
-		auto interpret_tuple_impl(const Tuple& t, const Separator& separator, Context& context, const ::sqlpp::detail::index_sequence<Is...>&)
+		auto interpret_tuple_impl(const Tuple& t, const Separator& separator, Context& context, const detail::index_sequence<Is...>&)
 		-> Context&
 		{
 			// Note: A braced-init-list does guarantee the order of evaluation according to 12.6.1 [class.explicit.init] paragraph 2 and 8.5.4 [dcl.init.list] paragraph 4.
@@ -63,7 +63,7 @@ namespace sqlpp
 		auto interpret_tuple(const Tuple& t, const Separator& separator, Context& context)
 		-> Context&
 		{
-			return interpret_tuple_impl(t, separator, context, ::sqlpp::detail::make_index_sequence<std::tuple_size<Tuple>::value>{});
+			return interpret_tuple_impl(t, separator, context, detail::make_index_sequence<std::tuple_size<Tuple>::value>{});
 		}
 }
 

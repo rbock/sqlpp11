@@ -36,10 +36,10 @@ namespace sqlpp
 			public expression_operators<sum_t<Flag, Expr>, value_type_of<Expr>>,
 			public alias_operators<sum_t<Flag, Expr>>
 	{
-		using _traits = make_traits<value_type_of<Expr>, ::sqlpp::tag::is_expression, ::sqlpp::tag::is_named_expression>;
+		using _traits = make_traits<value_type_of<Expr>, tag::is_expression, tag::is_named_expression>;
 		using _recursive_traits = make_recursive_traits<Expr>;
 
-		static_assert(is_noop<Flag>::value or std::is_same<sqlpp::distinct_t, Flag>::value, "sum() used with flag other than 'distinct'");
+		static_assert(is_noop<Flag>::value or std::is_same<distinct_t, Flag>::value, "sum() used with flag other than 'distinct'");
 		static_assert(is_numeric_t<Expr>::value, "sum() requires a numeric expression as argument");
 
 		struct _name_t
@@ -75,7 +75,7 @@ namespace sqlpp
 			static Context& _(const T& t, Context& context)
 			{
 				context << "SUM(";
-				if (std::is_same<sqlpp::distinct_t, Flag>::value)
+				if (std::is_same<distinct_t, Flag>::value)
 				{
 					serialize(Flag(), context);
 					context << ' ';
@@ -94,7 +94,7 @@ namespace sqlpp
 		}
 
 	template<typename T>
-		auto sum(const sqlpp::distinct_t&, T t) -> sum_t<sqlpp::distinct_t, wrap_operand_t<T>>
+		auto sum(const distinct_t&, T t) -> sum_t<distinct_t, wrap_operand_t<T>>
 		{
 			static_assert(is_numeric_t<wrap_operand_t<T>>::value, "sum() requires a numeric expression as argument");
 			return { t };

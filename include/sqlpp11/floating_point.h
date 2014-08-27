@@ -38,8 +38,8 @@ namespace sqlpp
 	// floating_point value type
 	struct floating_point
 	{
-		using _traits = make_traits<floating_point, ::sqlpp::tag::is_value_type>;
-		using _tag = ::sqlpp::tag::is_floating_point;
+		using _traits = make_traits<floating_point, tag::is_value_type>;
+		using _tag = tag::is_floating_point;
 		using _cpp_value_type = double;
 
 		template<typename T>

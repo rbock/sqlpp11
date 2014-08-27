@@ -152,17 +152,17 @@ namespace sqlpp
 	template<typename Database, typename... Columns>
 		struct select_column_list_t
 		{
-			using _traits = typename ::sqlpp::detail::select_traits<Columns...>::_traits;
+			using _traits = typename detail::select_traits<Columns...>::_traits;
 			using _recursive_traits = make_recursive_traits<Columns...>;
 
-			using _name_t = typename ::sqlpp::detail::select_traits<Columns...>::_name_t;
+			using _name_t = typename detail::select_traits<Columns...>::_name_t;
 
 			using _is_dynamic = is_database<Database>;
 
 			static_assert(_is_dynamic::value or sizeof...(Columns), "at least one select expression required");
-			static_assert(not ::sqlpp::detail::has_duplicates<Columns...>::value, "at least one duplicate argument detected");
-			static_assert(::sqlpp::detail::all_t<(is_named_expression_t<Columns>::value or is_multi_column_t<Columns>::value)...>::value, "at least one argument is not a named expression");
-			static_assert(not ::sqlpp::detail::has_duplicates<typename Columns::_name_t...>::value, "at least one duplicate name detected");
+			static_assert(not detail::has_duplicates<Columns...>::value, "at least one duplicate argument detected");
+			static_assert(detail::all_t<(is_named_expression_t<Columns>::value or is_multi_column_t<Columns>::value)...>::value, "at least one argument is not a named expression");
+			static_assert(not detail::has_duplicates<typename Columns::_name_t...>::value, "at least one duplicate name detected");
 
 			struct _column_type {};
 
@@ -185,10 +185,10 @@ namespace sqlpp
 							static_assert(_is_dynamic::value, "selected_columns::add() can only be called for dynamic_column");
 							static_assert(is_named_expression_t<NamedExpression>::value, "invalid named expression argument in selected_columns::add()");
 							static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<NamedExpression>::value, "named expression uses tables unknown to this statement in selected_columns::add()");
-							using column_names = ::sqlpp::detail::make_type_set_t<typename Columns::_name_t...>;
-							static_assert(not ::sqlpp::detail::is_element_of<typename NamedExpression::_name_t, column_names>::value, "a column of this name is present in the select already");
+							using column_names = detail::make_type_set_t<typename Columns::_name_t...>;
+							static_assert(not detail::is_element_of<typename NamedExpression::_name_t, column_names>::value, "a column of this name is present in the select already");
 
-							using ok = ::sqlpp::detail::all_t<
+							using ok = detail::all_t<
 								_is_dynamic::value, 
 								is_named_expression_t<NamedExpression>::value
 									>;
@@ -278,7 +278,7 @@ namespace sqlpp
 						_alias_t<AliasProvider> as(const AliasProvider& aliasProvider) const
 						{
 							static_assert(Policies::_can_be_used_as_table::value, "statement cannot be used as table, e.g. due to missing tables");
-							static_assert(::sqlpp::detail::none_t<is_multi_column_t<Columns>::value...>::value, "cannot use multi-columns in sub selects");
+							static_assert(detail::none_t<is_multi_column_t<Columns>::value...>::value, "cannot use multi-columns in sub selects");
 							return _table_t<AliasProvider>(_get_statement()).as(aliasProvider);
 						}
 
@@ -326,7 +326,7 @@ namespace sqlpp
 
 	struct no_select_column_list_t
 	{
-		using _traits = make_traits<no_value_t, ::sqlpp::tag::is_noop, ::sqlpp::tag::is_missing>;
+		using _traits = make_traits<no_value_t, tag::is_noop, tag::is_missing>;
 		using _recursive_traits = make_recursive_traits<>;
 
 		struct _name_t {};
@@ -370,17 +370,17 @@ namespace sqlpp
 
 				template<typename... Args>
 					auto columns(Args... args) const
-					-> _new_statement_t<::sqlpp::detail::make_select_column_list_t<void, Args...>>
+					-> _new_statement_t<detail::make_select_column_list_t<void, Args...>>
 					{
-						return { static_cast<const derived_statement_t<Policies>&>(*this), typename ::sqlpp::detail::make_select_column_list_t<void, Args...>::_data_t{std::tuple_cat(::sqlpp::detail::as_tuple<Args>::_(args)...)} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), typename detail::make_select_column_list_t<void, Args...>::_data_t{std::tuple_cat(detail::as_tuple<Args>::_(args)...)} };
 					}
 
 				template<typename... Args>
 					auto dynamic_columns(Args... args) const
-					-> _new_statement_t<::sqlpp::detail::make_select_column_list_t<_database_t, Args...>>
+					-> _new_statement_t<detail::make_select_column_list_t<_database_t, Args...>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_columns must not be called in a static statement");
-						return { static_cast<const derived_statement_t<Policies>&>(*this), typename ::sqlpp::detail::make_select_column_list_t<_database_t, Args...>::_data_t{std::tuple_cat(::sqlpp::detail::as_tuple<Args>::_(args)...)} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), typename detail::make_select_column_list_t<_database_t, Args...>::_data_t{std::tuple_cat(detail::as_tuple<Args>::_(args)...)} };
 					}
 			};
 	};

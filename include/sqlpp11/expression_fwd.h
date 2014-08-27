@@ -37,53 +37,53 @@ namespace sqlpp
 	{
 		struct less
 		{
-			using _traits = make_traits<::sqlpp::boolean>;
+			using _traits = make_traits<boolean>;
 			static constexpr const char* _name = "<";
 		};
 
 		struct less_equal
 		{
-			using _traits = make_traits<::sqlpp::boolean>;
+			using _traits = make_traits<boolean>;
 			static constexpr const char* _name = "<=";
 		};
 
 		struct equal_to
 		{
-			using _traits = make_traits<::sqlpp::boolean>;
+			using _traits = make_traits<boolean>;
 		};
 
 		struct not_equal_to
 		{
-			using _traits = make_traits<::sqlpp::boolean>;
+			using _traits = make_traits<boolean>;
 		};
 
 		struct greater_equal
 		{
-			using _traits = make_traits<::sqlpp::boolean>;
+			using _traits = make_traits<boolean>;
 			static constexpr const char* _name = ">=";
 		};
 
 		struct greater
 		{
-			using _traits = make_traits<::sqlpp::boolean>;
+			using _traits = make_traits<boolean>;
 			static constexpr const char* _name = ">";
 		};
 
 		struct logical_or
 		{
-			using _traits = make_traits<::sqlpp::boolean>;
+			using _traits = make_traits<boolean>;
 			static constexpr const char* _name = " OR ";
 		};
 
 		struct logical_and
 		{
-			using _traits = make_traits<::sqlpp::boolean>;
+			using _traits = make_traits<boolean>;
 			static constexpr const char* _name = " AND ";
 		};
 
 		struct logical_not
 		{
-			using _traits = make_traits<::sqlpp::boolean>;
+			using _traits = make_traits<boolean>;
 		};
 
 		template<typename ValueType>
@@ -109,13 +109,13 @@ namespace sqlpp
 
 		struct divides
 		{
-			using _traits = make_traits<::sqlpp::floating_point>;
+			using _traits = make_traits<floating_point>;
 			static constexpr const char* _name = "/";
 		};
 
 		struct modulus
 		{
-			using _traits = make_traits<::sqlpp::integral>;
+			using _traits = make_traits<integral>;
 			static constexpr const char* _name = "%";
 		};
 

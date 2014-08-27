@@ -49,7 +49,7 @@ namespace sqlpp
 			{
 				struct type
 				{
-					using _traits = make_traits<no_value_t, ::sqlpp::tag::is_noop>;
+					using _traits = make_traits<no_value_t, tag::is_noop>;
 					using _recursive_traits = make_recursive_traits<>;
 				};
 			};

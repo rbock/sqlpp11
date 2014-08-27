@@ -40,8 +40,8 @@ namespace sqlpp
 	// boolean value type
 	struct boolean
 	{
-		using _traits = make_traits<boolean, ::sqlpp::tag::is_value_type>;
-		using _tag = ::sqlpp::tag::is_boolean;
+		using _traits = make_traits<boolean, tag::is_value_type>;
+		using _tag = tag::is_boolean;
 		using _cpp_value_type = bool;
 
 		template<typename T>
