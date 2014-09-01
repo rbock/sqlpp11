@@ -38,8 +38,8 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 endif ()
 
 set(include_dir "${PROJECT_SOURCE_DIR}/include")
-file(GLOB_RECURSE sqlpp_headers ${include_dir}/*.h)
-include_directories(${include_dir})
+file(GLOB_RECURSE sqlpp_headers "${include_dir}/*.h")
+include_directories("${include_dir}")
 add_subdirectory(tests)
 add_subdirectory(test_constraints)
 
