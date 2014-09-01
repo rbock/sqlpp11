@@ -35,6 +35,7 @@
 #include <sqlpp11/insert_value.h>
 #include <sqlpp11/simple_column.h>
 #include <sqlpp11/no_data.h>
+#include <sqlpp11/policy_update.h>
 
 namespace sqlpp
 {
@@ -380,6 +381,7 @@ namespace sqlpp
 					-> _new_statement_t<insert_list_t<_database_t, Assignments...>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_set must not be called in a static statement");
+						static_assert(detail::all_t<is_assignment_t<Assignments>::value...>::value, "at least one argument is not an assignment in set()");
 						return _set_impl<_database_t>(assignments...);
 					}
 			private:
@@ -387,7 +389,6 @@ namespace sqlpp
 					auto _set_impl(Assignments... assignments) const
 					-> _new_statement_t<insert_list_t<Database, Assignments...>>
 					{
-						static_assert(detail::all_t<is_assignment_t<Assignments>::value...>::value, "at least one argument is not an assignment in set()");
 						static_assert(not detail::has_duplicates<lhs_t<Assignments>...>::value, "at least one duplicate column detected in set()");
 						static_assert(detail::none_t<must_not_insert_t<lhs_t<Assignments>>::value...>::value, "at least one assignment is prohibited by its column definition in set()");
 
