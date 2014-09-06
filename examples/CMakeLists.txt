@@ -1,7 +1,7 @@
 
 macro (build arg)
 	# Add headers to sources to enable file browsing in IDEs
-	include_directories("${CMAKE_BINARY_DIR}/tests")
+	include_directories("${CMAKE_SOURCE_DIR}/tests")
 	add_executable("Sqlpp11Example${arg}" "${arg}.cpp" ${sqlpp_headers} "${CMAKE_SOURCE_DIR}/tests/MockDb.h" "${CMAKE_CURRENT_LIST_DIR}/Sample.h")
 	add_test("${arg}" "${arg}")
 endmacro ()
