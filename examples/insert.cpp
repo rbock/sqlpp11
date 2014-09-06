@@ -36,6 +36,21 @@ int main()
 {
 	db(insert_into(f).set(f.name = "loves c++", f.fatal = false));
 
+	//db(insert_into(f).set(f.nahme = "loves c++", f.fatal = false));
+
+	//db(insert_into(f).set(f.name == "loves c++", f.fatal = false));
+
+	//db(insert_into(f).set(f.name = "loves c++", f.fatal = "false"));
+
+	//db(insert_into(p).set(f.name = "loves c++", f.fatal = false));
+
+	//db(insert_into(f).set(f.name = "loves c++", p.feature = 7));
+
+	//db(insert_into(f).set(f.id = 42, f.name = "loves c++", f.fatal = false));
+	
+	//db(insert_into(f).set(f.name = "loves c++"));
+	
+
 	db(insert_into(f).default_values());
 
 	auto i = insert_into(p).columns(p.name, p.feature);
