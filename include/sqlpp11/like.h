@@ -41,9 +41,6 @@ namespace sqlpp
 		using _traits = make_traits<boolean, tag::is_expression, tag::is_named_expression>;
 		using _recursive_traits = make_recursive_traits<Operand, Pattern>;
 
-		static_assert(is_text_t<Operand>::value, "Operand for like() has to be a text");
-		static_assert(is_text_t<Pattern>::value, "Pattern for like() has to be a text");
-
 		struct _name_t
 		{
 			static constexpr const char* _get_name() { return "LIKE"; }
