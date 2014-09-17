@@ -68,6 +68,23 @@ namespace sqlpp
 	template<typename T>
 	using column_spec_can_be_null_t = typename detail::column_spec_can_be_null_impl<T>::type;
 
+	namespace tag
+	{
+		struct is_expression{};
+	};
+	namespace detail
+	{
+		template<typename T, typename Enable = void>
+		struct is_expression_impl { using type = std::false_type; };
+		template<typename T>
+		struct is_expression_impl<T, typename std::enable_if<
+					detail::is_element_of<tag::is_expression, typename T::_traits::_tags>::value
+					and not detail::is_element_of<tag::contains_aggregate_function, typename T::_recursive_traits::_tags>::value
+					>::type> { using type = std::true_type; };
+	}
+	template<typename T>
+	using is_expression_t = typename detail::is_expression_impl<T>::type;
+
 #define SQLPP_VALUE_TRAIT_GENERATOR(name) \
 	namespace tag\
 	{\
@@ -94,7 +111,6 @@ namespace sqlpp
 		detail::is_element_of<tag::is_floating_point, typename T::_traits::_tags>::value>;
 	SQLPP_VALUE_TRAIT_GENERATOR(is_text);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_wrapped_value);
-	SQLPP_VALUE_TRAIT_GENERATOR(is_expression);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_named_expression);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_multi_expression);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_alias);

@@ -39,8 +39,6 @@ namespace sqlpp
 		using _traits = make_traits<value_type_of<Expr>, tag::is_expression, tag::is_named_expression>;
 		using _recursive_traits = make_recursive_traits<Expr, aggregate_function>;
 
-		static_assert(is_expression_t<Expr>::value, "min() requires a value expression as argument");
-
 		struct _name_t
 		{
 			static constexpr const char* _get_name() { return "MIN"; }
@@ -83,8 +81,7 @@ namespace sqlpp
 	template<typename T>
 		auto min(T t) -> min_t<wrap_operand_t<T>>
 		{
-			static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value, "min() cannot be used on an aggregate function");
-			static_assert(is_expression_t<wrap_operand_t<T>>::value, "min() requires a value expression as argument");
+			static_assert(is_expression_t<wrap_operand_t<T>>::value, "min() requires an expression as argument");
 			return { t };
 		}
 
