@@ -49,7 +49,7 @@ namespace sqlpp
 			using _provided_tables = detail::type_set<AliasProvider>;
 			using _provided_outer_tables = detail::type_set<>;
 			using _extra_tables = detail::type_set<>;
-			using _can_be_null = std::false_type;
+			using _tags = detail::type_set<>;
 		};
 
 		static_assert(required_tables_of<Table>::size::value == 0, "table aliases must not depend on external tables");

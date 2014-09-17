@@ -24,6 +24,7 @@ function(test_constraint name pattern)
 
 endfunction(test_constraint)
 
+test_constraint(count_of_count "cannot be used on an aggregate function")
 test_constraint(no_conversion_operator_if_null_not_trivial "int i = row.alpha")
 test_constraint(require_insert "required column is missing")
 test_constraint(must_not_insert "one assignment is prohibited")

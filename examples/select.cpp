@@ -34,6 +34,7 @@
 #include "MockDb.h"
 #include <sqlpp11/sqlpp11.h>
 
+SQLPP_ALIAS_PROVIDER(cheesecake);
 
 MockDb db;
 
@@ -42,7 +43,7 @@ test::TabFeature f;
 
 int main()
 {
-	for (const auto& row : db(select(all_of(p)).from(p).where(true)))
+	for (const auto& row : db(select(all_of(p)).from(p).where(p.id > 7)))
 	{
 		int64_t id = row.id;
 		std::string name = row.name;
@@ -51,7 +52,7 @@ int main()
 
 
 #if	0
-	for (const auto& row : db(select(p.name).from(p).where(true)))
+	for (const auto& row : db(select(p.name).from(p).where(p.name.like("Herb%"))))
 	{
 		int64_t id = row.id;
 		std::string name = row.name;
@@ -62,12 +63,12 @@ int main()
 
 
 #if 0
-	for (const auto& row : db(select(p.name, f.name).from(p,f).where(true)))
+	for (const auto& row : db(select(p.name, f.name.as(cheesecake)).from(p,f).where(p.id > 7 and p.feature == 3)))
 	{
 		//int64_t id = row.id;
 		//std::string a = row.a;
 		std::string name = row.name;
-		//int64_t feature = row.feature;
+		std::string feature = row.cheesecake;
 	}
 #endif
 
@@ -90,7 +91,7 @@ int main()
 	
 	
 
-#if 0
+#if !0
 	auto s = select(all_of(p)) 
 				      .from(p, f)
 						  .where(p.name == any(select(f.name)

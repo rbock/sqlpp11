@@ -37,7 +37,7 @@ namespace sqlpp
 			public alias_operators<avg_t<Flag, Expr>>
 	{
 		using _traits = make_traits<floating_point, tag::is_expression, tag::is_named_expression>;
-		using _recursive_traits = make_recursive_traits<Expr>;
+		using _recursive_traits = make_recursive_traits<Expr, aggregate_function>;
 
 		static_assert(is_noop<Flag>::value or std::is_same<distinct_t, Flag>::value, "avg() used with flag other than 'distinct'");
 		static_assert(is_numeric_t<Expr>::value, "avg() requires a value expression as argument");
@@ -89,6 +89,7 @@ namespace sqlpp
 	template<typename T>
 		auto avg(T t) -> avg_t<noop, wrap_operand_t<T>>
 		{
+			static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value, "avg() cannot be used on an aggregate function");
 			static_assert(is_numeric_t<wrap_operand_t<T>>::value, "avg() requires a value expression as argument");
 			return { t };
 		}
@@ -96,6 +97,7 @@ namespace sqlpp
 	template<typename T>
 		auto avg(const distinct_t&, T t) -> avg_t<distinct_t, wrap_operand_t<T>>
 		{
+			static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value, "avg() cannot be used on an aggregate function");
 			static_assert(is_numeric_t<wrap_operand_t<T>>::value, "avg() requires a value expression as argument");
 			return { t };
 		}

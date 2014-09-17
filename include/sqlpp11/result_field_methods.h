@@ -88,7 +88,9 @@ namespace sqlpp
 				using _provided_outer_tables = detail::type_set<>;
 				using _required_tables = detail::type_set<>;
 				using _extra_tables = detail::type_set<>;
-				using _can_be_null = column_spec_can_be_null_t<_field_spec_t>;
+				using _tags = typename std::conditional<column_spec_can_be_null_t<_field_spec_t>::value,
+										detail::type_set<tag::can_be_null>,
+										detail::type_set<>>::type;
 			};
 
 		};

@@ -37,7 +37,7 @@ namespace sqlpp
 			public alias_operators<sum_t<Flag, Expr>>
 	{
 		using _traits = make_traits<value_type_of<Expr>, tag::is_expression, tag::is_named_expression>;
-		using _recursive_traits = make_recursive_traits<Expr>;
+		using _recursive_traits = make_recursive_traits<Expr, aggregate_function>;
 
 		static_assert(is_noop<Flag>::value or std::is_same<distinct_t, Flag>::value, "sum() used with flag other than 'distinct'");
 		static_assert(is_numeric_t<Expr>::value, "sum() requires a numeric expression as argument");
@@ -89,6 +89,7 @@ namespace sqlpp
 	template<typename T>
 		auto sum(T t) -> sum_t<noop, wrap_operand_t<T>>
 		{
+			static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value, "sum() cannot be used on an aggregate function");
 			static_assert(is_numeric_t<wrap_operand_t<T>>::value, "sum() requires a numeric expression as argument");
 			return { t };
 		}
@@ -96,6 +97,7 @@ namespace sqlpp
 	template<typename T>
 		auto sum(const distinct_t&, T t) -> sum_t<distinct_t, wrap_operand_t<T>>
 		{
+			static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value, "sum() cannot be used on an aggregate function");
 			static_assert(is_numeric_t<wrap_operand_t<T>>::value, "sum() requires a numeric expression as argument");
 			return { t };
 		}

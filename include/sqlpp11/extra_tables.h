@@ -59,7 +59,7 @@ namespace sqlpp
 				using _provided_outer_tables = detail::type_set<>;
 				using _provided_tables = detail::type_set<>;
 				using _extra_tables = detail::type_set<Tables...>;
-				using _can_be_null = std::false_type;
+				using _tags = detail::type_set<>;
 			};
 
 			// FIXME: extra_tables must not require tables!

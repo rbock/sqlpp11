@@ -73,7 +73,7 @@ namespace sqlpp
 				using _provided_outer_tables = typename JoinType::template _provided_outer_tables<Lhs, Rhs>;
 				using _extra_tables = detail::make_joined_set_t<extra_tables_of<Lhs>, extra_tables_of<Rhs>>;
 				using _parameters = detail::make_parameter_tuple_t<parameters_of<Lhs>, parameters_of<Rhs>>;
-				using _can_be_null = std::false_type;
+				using _tags = detail::type_set<>;
 			};
 
 
@@ -94,6 +94,8 @@ namespace sqlpp
 				-> set_on_t<on_t<void, Expr...>>
 				{
 					static_assert(is_noop<On>::value, "cannot call on() twice for a single join()");
+					static_assert(detail::all_t<is_expression_t<Expr>::value...>::value, "at least one argument is not an expression in on()");
+
 					return { _lhs, 
 						_rhs, 
 						{std::tuple<Expr...>{expr...}}

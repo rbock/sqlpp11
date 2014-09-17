@@ -53,7 +53,7 @@ namespace sqlpp
 			using _provided_tables = detail::type_set<Table>;
 			using _provided_outer_tables = detail::type_set<>;
 			using _extra_tables = detail::type_set<>;
-			using _can_be_null = std::false_type;
+			using _tags = detail::type_set<>;
 		};
 
 		static_assert(sizeof...(ColumnSpec), "at least one column required per table");

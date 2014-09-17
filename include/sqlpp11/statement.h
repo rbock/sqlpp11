@@ -98,6 +98,13 @@ namespace sqlpp
 					no_value_t // if a required statement part is missing (e.g. columns in a select), then the statement cannot be used as a value
 						>::type;
 
+				using _can_be_null = detail::any_t<
+					can_be_null_t<_result_type_provider>::value, 
+					detail::make_intersect_set_t<
+						required_tables_of<_result_type_provider>, 
+						_all_provided_outer_tables
+						>::size::value != 0>;
+
 				using _traits = make_traits<_value_type, tag_if<tag::is_expression, not std::is_same<_value_type, no_value_t>::value>>;
 
 				struct _recursive_traits
@@ -107,12 +114,9 @@ namespace sqlpp
 					using _provided_outer_tables = detail::type_set<>;
 					using _extra_tables = detail::type_set<>;
 					using _parameters = detail::make_parameter_tuple_t<parameters_of<Policies>...>;
-					using _can_be_null = detail::any_t<
-									can_be_null_t<_result_type_provider>::value, 
-									detail::make_intersect_set_t<
-									  required_tables_of<_result_type_provider>, 
-								    provided_outer_tables_of<statement_policies_t>
-								  >::size::value != 0>;
+					using _tags = typename std::conditional<_can_be_null::value,
+											detail::type_set<tag::can_be_null>,
+											detail::type_set<>>::type;
 				};
 			};
 	}
