@@ -69,6 +69,11 @@ int main()
 		std::cout << row.alpha << std::endl;
 	}
 
+	for (const auto& row : db(select(count(t.alpha), avg(t.alpha)).from(t).where(true)))
+	{
+		std::cout << row.count << std::endl;
+	}
+
 	auto stat = sqlpp::select().columns(all_of(t)).flags(sqlpp::all).from(t).extra_tables(f,t).where(t.alpha > 0).group_by(t.alpha).order_by(t.gamma.asc()).having(t.gamma).limit(7).offset(19);
 
 	auto s = dynamic_select(db).dynamic_columns(all_of(t)).dynamic_flags().dynamic_from(t).extra_tables(f,t).dynamic_where().dynamic_group_by(t.alpha).dynamic_order_by().dynamic_having(t.gamma).dynamic_limit().dynamic_offset();
