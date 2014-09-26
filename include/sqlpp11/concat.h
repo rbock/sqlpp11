@@ -40,7 +40,7 @@ namespace sqlpp
 			public expression_operators<concat_t<First, Args...>, value_type_of<First>>,
 			public alias_operators<concat_t<First, Args...>>
 	{
-		using _traits = make_traits<value_type_of<First>, tag::is_expression, tag::is_named_expression>;
+		using _traits = make_traits<value_type_of<First>, tag::is_expression, tag::is_selectable>;
 		using _recursive_traits = make_recursive_traits<First, Args...>;
 
 		static_assert(sizeof...(Args) > 0, "concat requires two arguments at least");

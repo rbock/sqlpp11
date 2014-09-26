@@ -54,7 +54,7 @@ namespace sqlpp
 		template<typename Column>
 			struct select_traits<Column>
 			{
-				using _traits = make_traits<value_type_of<Column>, tag::is_select_column_list, tag::is_return_value, tag::is_expression, tag::is_named_expression>;
+				using _traits = make_traits<value_type_of<Column>, tag::is_select_column_list, tag::is_return_value, tag::is_expression, tag::is_selectable>;
 				using _name_t = typename Column::_name_t;
 			};
 	}
@@ -161,7 +161,7 @@ namespace sqlpp
 
 			static_assert(_is_dynamic::value or sizeof...(Columns), "at least one select expression required");
 			static_assert(not detail::has_duplicates<Columns...>::value, "at least one duplicate argument detected");
-			static_assert(detail::all_t<(is_named_expression_t<Columns>::value or is_multi_column_t<Columns>::value)...>::value, "at least one argument is not a named expression");
+			static_assert(detail::all_t<(is_selectable_t<Columns>::value or is_multi_column_t<Columns>::value)...>::value, "at least one argument is not a named expression");
 			static_assert(not detail::has_duplicates<typename Columns::_name_t...>::value, "at least one duplicate name detected");
 
 			struct _column_type {};
@@ -183,14 +183,14 @@ namespace sqlpp
 						void add(NamedExpression namedExpression)
 						{
 							static_assert(_is_dynamic::value, "selected_columns::add() can only be called for dynamic_column");
-							static_assert(is_named_expression_t<NamedExpression>::value, "invalid named expression argument in selected_columns::add()");
+							static_assert(is_selectable_t<NamedExpression>::value, "invalid named expression argument in selected_columns::add()");
 							static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<NamedExpression>::value, "named expression uses tables unknown to this statement in selected_columns::add()");
 							using column_names = detail::make_type_set_t<typename Columns::_name_t...>;
 							static_assert(not detail::is_element_of<typename NamedExpression::_name_t, column_names>::value, "a column of this name is present in the select already");
 
 							using ok = detail::all_t<
 								_is_dynamic::value, 
-								is_named_expression_t<NamedExpression>::value
+								is_selectable_t<NamedExpression>::value
 									>;
 
 							_add_impl(namedExpression, ok()); // dispatch to prevent compile messages after the static_assert

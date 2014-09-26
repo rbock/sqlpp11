@@ -40,7 +40,7 @@ namespace sqlpp
 			public member_t<ColumnSpec, column_t<AliasProvider, ColumnSpec>>...
 	{
 		//FIXME: Need to add join functionality
-		using _traits = make_traits<value_type_of<Table>, tag::is_table, tag::is_alias, tag_if<tag::is_named_expression, is_expression_t<Table>::value>>;
+		using _traits = make_traits<value_type_of<Table>, tag::is_table, tag::is_alias, tag_if<tag::is_selectable, is_expression_t<Table>::value>>;
 
 		struct _recursive_traits
 		{

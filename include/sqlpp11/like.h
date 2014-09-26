@@ -38,7 +38,7 @@ namespace sqlpp
 			public expression_operators<like_t<Operand, Pattern>, boolean>,
 			public alias_operators<like_t<Operand, Pattern>>
 	{
-		using _traits = make_traits<boolean, tag::is_expression, tag::is_named_expression>;
+		using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
 		using _recursive_traits = make_recursive_traits<Operand, Pattern>;
 
 		struct _name_t

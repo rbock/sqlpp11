@@ -76,7 +76,7 @@ namespace sqlpp
 		auto parameter(const NamedExpr&)
 		-> parameter_t<value_type_of<NamedExpr>, NamedExpr>
 		{
-			static_assert(is_named_expression_t<NamedExpr>::value, "not a named expression");
+			static_assert(is_selectable_t<NamedExpr>::value, "not a named expression");
 			return {};
 		}
 

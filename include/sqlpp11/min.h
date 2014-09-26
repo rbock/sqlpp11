@@ -36,7 +36,7 @@ namespace sqlpp
 			public expression_operators<min_t<Expr>, value_type_of<Expr>>,
 			public alias_operators<min_t<Expr>>
 	{
-		using _traits = make_traits<value_type_of<Expr>, tag::is_expression, tag::is_named_expression>;
+		using _traits = make_traits<value_type_of<Expr>, tag::is_expression, tag::is_selectable>;
 		using _recursive_traits = make_recursive_traits<Expr, aggregate_function>;
 
 		struct _name_t

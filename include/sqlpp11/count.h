@@ -37,7 +37,7 @@ namespace sqlpp
 			public expression_operators<count_t<Flag, Expr>, integral>,
 			public alias_operators<count_t<Flag, Expr>>
 	{
-		using _traits = make_traits<integral, tag::is_expression, tag::is_named_expression>;
+		using _traits = make_traits<integral, tag::is_expression, tag::is_selectable>;
 		struct _recursive_traits
 		{
 			using _required_tables = required_tables_of<Expr>;

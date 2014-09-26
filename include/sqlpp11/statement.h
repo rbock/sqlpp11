@@ -135,7 +135,7 @@ namespace sqlpp
 		using _traits = make_traits<value_type_of<_policies_t>,
 					tag::is_select, 
 					tag_if<tag::is_expression, is_expression_t<_policies_t>::value>, 
-					tag_if<tag::is_named_expression, is_expression_t<_policies_t>::value>,
+					tag_if<tag::is_selectable, is_expression_t<_policies_t>::value>,
 					tag::requires_braces>;
 		using _recursive_traits = typename _policies_t::_recursive_traits;
 		using _used_outer_tables = typename _policies_t::_all_provided_outer_tables;

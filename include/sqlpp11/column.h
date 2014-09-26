@@ -49,7 +49,7 @@ namespace sqlpp
 		struct _traits
 		{
 			using _value_type = value_type_of<ColumnSpec>;
-			using _tags = detail::make_joined_set_t<detail::type_set<tag::is_column, tag::is_expression, tag::is_named_expression>, typename ColumnSpec::_traits::_tags>;
+			using _tags = detail::make_joined_set_t<detail::type_set<tag::is_column, tag::is_expression, tag::is_selectable>, typename ColumnSpec::_traits::_tags>;
 		};
 
 		struct _recursive_traits

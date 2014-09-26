@@ -111,7 +111,7 @@ namespace sqlpp
 		detail::is_element_of<tag::is_floating_point, typename T::_traits::_tags>::value>;
 	SQLPP_VALUE_TRAIT_GENERATOR(is_text);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_wrapped_value);
-	SQLPP_VALUE_TRAIT_GENERATOR(is_named_expression);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_selectable);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_multi_expression);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_alias);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_select_flag);

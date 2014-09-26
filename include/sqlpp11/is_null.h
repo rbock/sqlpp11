@@ -38,15 +38,10 @@ namespace sqlpp
 			public expression_operators<is_null_t<NotInverted, Operand>, boolean>,
 			public alias_operators<is_null_t<NotInverted, Operand>>
 	{
-		using _traits = make_traits<boolean, tag::is_expression, tag::is_named_expression>;
+		using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
 		using _recursive_traits = make_recursive_traits<Operand>;
 
 		static constexpr bool _inverted = not NotInverted;
-
-		struct _value_type: public boolean
-		{
-			using _is_named_expression = std::true_type;
-		};
 
 		struct _name_t
 		{

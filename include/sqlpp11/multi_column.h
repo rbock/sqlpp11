@@ -44,7 +44,7 @@ namespace sqlpp
 			using _traits = make_traits<no_value_t>;
 			using _recursive_traits = make_recursive_traits<Columns...>;
 
-			static_assert(detail::all_t<is_named_expression_t<Columns>::value...>::value, "multi_column parameters need to be named expressions");
+			static_assert(detail::all_t<is_selectable_t<Columns>::value...>::value, "multi_column parameters need to be named expressions");
 
 			multi_column_t(std::tuple<Columns...> columns):
 				_columns(columns)
@@ -76,10 +76,10 @@ namespace sqlpp
 	template<typename AliasProvider, typename... Columns>
 		struct multi_column_alias_t
 		{
-			using _traits = make_traits<no_value_t, tag::is_alias, tag::is_multi_column, tag::is_named_expression>;
+			using _traits = make_traits<no_value_t, tag::is_alias, tag::is_multi_column, tag::is_selectable>;
 			using _recursive_traits = make_recursive_traits<Columns...>;
 
-			static_assert(detail::all_t<is_named_expression_t<Columns>::value...>::value, "multi_column parameters need to be named expressions");
+			static_assert(detail::all_t<is_selectable_t<Columns>::value...>::value, "multi_column parameters need to be named expressions");
 
 			using _name_t = typename AliasProvider::_name_t;
 
@@ -103,7 +103,7 @@ namespace sqlpp
 
 			struct _value_type: public no_value_t
 			{
-				using _is_named_expression = std::true_type;
+				using _is_selectable = std::true_type;
 			};
 			using _is_multi_column = std::true_type;
 
