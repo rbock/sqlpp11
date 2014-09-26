@@ -66,10 +66,6 @@ namespace sqlpp
 					return { *this };
 				}
 
-
-			using _value_type = no_value_t;
-			using _is_multi_column = std::true_type;
-
 			std::tuple<Columns...> _columns;
 		};
 
@@ -100,12 +96,6 @@ namespace sqlpp
 			multi_column_alias_t& operator=(const multi_column_alias_t&) = default;
 			multi_column_alias_t& operator=(multi_column_alias_t&&) = default;
 			~multi_column_alias_t() = default;
-
-			struct _value_type: public no_value_t
-			{
-				using _is_selectable = std::true_type;
-			};
-			using _is_multi_column = std::true_type;
 
 			std::tuple<Columns...> _columns;
 		};
