@@ -28,7 +28,7 @@
 #define SQLPP_UPDATE_H
 
 #include <sqlpp11/statement.h>
-
+#include <sqlpp11/connection.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/prepared_update.h>
@@ -109,6 +109,7 @@ namespace sqlpp
 		constexpr auto  dynamic_update(const Database&, Table table)
 		-> decltype(blank_update_t<Database>().from(table))
 		{
+			static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
 			return { blank_update_t<Database>().from(table) };
 		}
 }

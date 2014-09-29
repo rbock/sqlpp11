@@ -28,6 +28,7 @@
 #define SQLPP_REMOVE_H
 
 #include <sqlpp11/statement.h>
+#include <sqlpp11/connection.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/prepared_remove.h>
@@ -115,6 +116,7 @@ namespace sqlpp
 		auto  dynamic_remove(const Database&)
 		-> decltype(blank_remove_t<Database>())
 		{
+			static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
 			return { blank_remove_t<Database>() };
 		}
 
@@ -122,6 +124,7 @@ namespace sqlpp
 		auto  dynamic_remove_from(const Database&, Table table)
 		-> decltype(blank_remove_t<Database>().from(table))
 		{
+			static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
 			return { blank_remove_t<Database>().from(table) };
 		}
 }

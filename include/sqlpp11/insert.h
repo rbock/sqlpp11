@@ -28,6 +28,7 @@
 #define SQLPP_INSERT_H
 
 #include <sqlpp11/statement.h>
+#include <sqlpp11/connection.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/prepared_insert.h>
@@ -111,6 +112,7 @@ namespace sqlpp
 		constexpr auto  dynamic_insert(const Database&)
 		-> decltype(blank_insert_t<Database>())
 		{
+			static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
 			return { blank_insert_t<Database>() };
 		}
 
@@ -118,6 +120,7 @@ namespace sqlpp
 		constexpr auto  dynamic_insert_into(const Database&, Table table)
 		-> decltype(blank_insert_t<Database>().into(table))
 		{
+			static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
 			return { blank_insert_t<Database>().into(table) };
 		}
 }
