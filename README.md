@@ -5,9 +5,11 @@ A type safe embedded domain specific language for SQL queries and results in C++
 
 Extensive documentation is found in the wiki, https://github.com/rbock/sqlpp11/wiki
 
-Upcoming talks at 
+Upcoming talks/workshops) at 
   * CppCon (Bellevue, Washington, USA): http://cppcon.org
-   * 2014-09-11: http://sched.co/1r4lue3
+   * 2014-09-08: http://sched.co/1qhngYK (Workshop Part 1)
+   * 2014-09-11: http://sched.co/1r4lue3 (Talk)
+   * 2014-09-12: http://sched.co/Wi8aWM (Workshop Part 2)
   * MeetingC++ (Berlin, Germany): http://meetingcpp.com/index.php/mcpp2014.html
    * 2014-12-05:http://meetingcpp.com/index.php/tv14/items/4.html
    
