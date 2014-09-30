@@ -30,6 +30,7 @@
 #include <sqlpp11/statement.h>
 
 #include <sqlpp11/noop.h>
+#include <sqlpp11/connection.h>
 #include <sqlpp11/select_flag_list.h>
 #include <sqlpp11/select_column_list.h>
 #include <sqlpp11/from.h>
@@ -94,6 +95,7 @@ namespace sqlpp
 	template<typename Database>
 		blank_select_t<Database> dynamic_select(const Database&)
 		{
+			static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
 			return { };
 		}
 
@@ -101,6 +103,7 @@ namespace sqlpp
 		auto dynamic_select(const Database&, Columns... columns)
 		-> decltype(blank_select_t<Database>().columns(columns...))
 		{
+			static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
 			return blank_select_t<Database>().columns(columns...);
 		}
 

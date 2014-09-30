@@ -58,13 +58,13 @@ namespace sqlpp
 	template<typename Database, typename... Expressions>
 		struct having_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_having>;
+			using _traits = make_traits<no_value_t, tag::is_having>;
 			using _recursive_traits = make_recursive_traits<Expressions...>;
 
 			using _is_dynamic = is_database<Database>;
 
 			static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression argument required in having()");
-			static_assert(::sqlpp::detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not an expression in having()");
+			static_assert(detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not an expression in having()");
 
 			// Data
 			using _data_t = having_data_t<Database, Expressions...>;
@@ -86,7 +86,7 @@ namespace sqlpp
 							static_assert(is_expression_t<Expression>::value, "invalid expression argument in having::add()");
 							static_assert(not TableCheckRequired::value or Policies::template _no_unknown_tables<Expression>::value, "expression uses tables unknown to this statement in having::add()");
 
-							using ok = ::sqlpp::detail::all_t<_is_dynamic::value, is_expression_t<Expression>::value>;
+							using ok = detail::all_t<_is_dynamic::value, is_expression_t<Expression>::value>;
 
 							_add_impl(expression, ok()); // dispatch to prevent compile messages after the static_assert
 						}
@@ -133,7 +133,7 @@ namespace sqlpp
 	// NO HAVING YET
 	struct no_having_t
 	{
-		using _traits = make_traits<no_value_t, ::sqlpp::tag::is_noop>;
+		using _traits = make_traits<no_value_t, tag::is_noop>;
 		using _recursive_traits = make_recursive_traits<>;
 
 		// Data
@@ -168,23 +168,23 @@ namespace sqlpp
 			{
 				using _database_t = typename Policies::_database_t;
 				template<typename T>
-					using _new_statement_t = typename Policies::template _new_statement_t<no_having_t, T>;
+					using _new_statement_t = new_statement<Policies, no_having_t, T>;
 
 				static void _check_consistency() {}
 
 				template<typename... Args>
-					auto having(Args... args)
+					auto having(Args... args) const
 					-> _new_statement_t<having_t<void, Args...>>
 					{
-						return { *static_cast<typename Policies::_statement_t*>(this), having_data_t<void, Args...>{args...} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), having_data_t<void, Args...>{args...} };
 					}
 
 				template<typename... Args>
-					auto dynamic_having(Args... args)
+					auto dynamic_having(Args... args) const
 					-> _new_statement_t<having_t<_database_t, Args...>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_having must not be called in a static statement");
-						return { *static_cast<typename Policies::_statement_t*>(this), having_data_t<_database_t, Args...>{args...} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), having_data_t<_database_t, Args...>{args...} };
 					}
 			};
 	};

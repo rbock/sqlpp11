@@ -41,9 +41,9 @@ namespace sqlpp
 
 		template<typename Db, std::size_t index, typename FieldSpec>
 			struct result_field:
-				public FieldSpec::_name_t::template _member_t<result_field_t<value_type_of<FieldSpec>, Db, FieldSpec>>
+				public member_t<FieldSpec, result_field_t<value_type_of<FieldSpec>, Db, FieldSpec>>
 		{
-			using _field = typename FieldSpec::_name_t::template _member_t<result_field_t<value_type_of<FieldSpec>, Db, FieldSpec>>;
+			using _field = member_t<FieldSpec, result_field_t<value_type_of<FieldSpec>, Db, FieldSpec>>;
 
 			result_field() = default;
 
@@ -66,9 +66,9 @@ namespace sqlpp
 
 		template<std::size_t index, typename AliasProvider, typename Db, typename... FieldSpecs>
 			struct result_field<Db, index, multi_field_spec_t<AliasProvider, std::tuple<FieldSpecs...>>>: 
-			public AliasProvider::_name_t::template _member_t<result_row_impl<Db, detail::make_field_index_sequence<index, FieldSpecs...>, FieldSpecs...>>
+			public member_t<AliasProvider, result_row_impl<Db, detail::make_field_index_sequence<index, FieldSpecs...>, FieldSpecs...>>
 			{
-				using _multi_field = typename AliasProvider::_name_t::template _member_t<result_row_impl<Db, detail::make_field_index_sequence<index, FieldSpecs...>, FieldSpecs...>>;
+				using _multi_field = member_t<AliasProvider, result_row_impl<Db, detail::make_field_index_sequence<index, FieldSpecs...>, FieldSpecs...>>;
 
 				result_field() = default;
 

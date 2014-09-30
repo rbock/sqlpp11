@@ -98,6 +98,13 @@ namespace sqlpp
 					no_value_t // if a required statement part is missing (e.g. columns in a select), then the statement cannot be used as a value
 						>::type;
 
+				using _can_be_null = detail::any_t<
+					can_be_null_t<_result_type_provider>::value, 
+					detail::make_intersect_set_t<
+						required_tables_of<_result_type_provider>, 
+						_all_provided_outer_tables
+						>::size::value != 0>;
+
 				using _traits = make_traits<_value_type, tag_if<tag::is_expression, not std::is_same<_value_type, no_value_t>::value>>;
 
 				struct _recursive_traits
@@ -107,12 +114,9 @@ namespace sqlpp
 					using _provided_outer_tables = detail::type_set<>;
 					using _extra_tables = detail::type_set<>;
 					using _parameters = detail::make_parameter_tuple_t<parameters_of<Policies>...>;
-					using _can_be_null = detail::any_t<
-									can_be_null_t<_result_type_provider>::value, 
-									::sqlpp::detail::make_intersect_set_t<
-									  required_tables_of<_result_type_provider>, 
-								    provided_outer_tables_of<statement_policies_t>
-								  >::size::value != 0>;
+					using _tags = typename std::conditional<_can_be_null::value,
+											detail::type_set<tag::can_be_null>,
+											detail::type_set<>>::type;
 				};
 			};
 	}
@@ -122,16 +126,16 @@ namespace sqlpp
 			>
 			struct statement_t:
 				public Policies::template _member_t<detail::statement_policies_t<Db, Policies...>>...,
-				public detail::statement_policies_t<Db, Policies...>::_value_type::template expression_operators<statement_t<Db, Policies...>>,
+				public expression_operators<statement_t<Db, Policies...>, value_type_of<detail::statement_policies_t<Db, Policies...>>>,
 				public detail::statement_policies_t<Db, Policies...>::_result_methods_t,
 				public Policies::template _methods_t<detail::statement_policies_t<Db, Policies...>>...
 	{
 		using _policies_t = typename detail::statement_policies_t<Db, Policies...>;
 
 		using _traits = make_traits<value_type_of<_policies_t>,
-					::sqlpp::tag::is_select, 
+					tag::is_select, 
 					tag_if<tag::is_expression, is_expression_t<_policies_t>::value>, 
-					tag_if<tag::is_named_expression, is_expression_t<_policies_t>::value>,
+					tag_if<tag::is_selectable, is_expression_t<_policies_t>::value>,
 					tag::requires_braces>;
 		using _recursive_traits = typename _policies_t::_recursive_traits;
 		using _used_outer_tables = typename _policies_t::_all_provided_outer_tables;
@@ -184,7 +188,7 @@ namespace sqlpp
 		struct serializer_t<Context, statement_t<Database, Policies...>>
 		{
 			using T = statement_t<Database, Policies...>;
-			using P = ::sqlpp::detail::statement_policies_t<Database, Policies...>;
+			using P = detail::statement_policies_t<Database, Policies...>;
 
 			static Context& _(const T& t, Context& context)
 			{
@@ -198,7 +202,7 @@ namespace sqlpp
 	template<typename NameData>
 		struct statement_name_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_noop>;
+			using _traits = make_traits<no_value_t, tag::is_noop>;
 			using _recursive_traits = make_recursive_traits<>;
 
 			// Data

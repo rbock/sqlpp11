@@ -27,6 +27,7 @@
 #ifndef SQLPP_DETAIL_LOGIC_H
 #define SQLPP_DETAIL_LOGIC_H
 
+#include <ciso646> // Required for some compilers to use aliases for boolean operators
 #include <type_traits>
 
 namespace sqlpp

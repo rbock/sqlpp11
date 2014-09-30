@@ -54,7 +54,7 @@ namespace sqlpp
 	template<typename Limit>
 		struct limit_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_limit>;
+			using _traits = make_traits<no_value_t, tag::is_limit>;
 			using _recursive_traits = make_recursive_traits<Limit>;
 
 			static_assert(is_integral_t<Limit>::value, "limit requires an integral value or integral parameter");
@@ -105,7 +105,7 @@ namespace sqlpp
 			template<typename Limit>
 				dynamic_limit_data_t(Limit value):
 					_initialized(true),
-					_value(typename wrap_operand<Limit>::type(value))
+					_value(wrap_operand_t<Limit>(value))
 			{
 			}
 
@@ -123,7 +123,7 @@ namespace sqlpp
 	template<typename Database>
 		struct dynamic_limit_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_limit>;
+			using _traits = make_traits<no_value_t, tag::is_limit>;
 			using _recursive_traits = make_recursive_traits<>;
 
 			// Data
@@ -137,7 +137,7 @@ namespace sqlpp
 						void set(Limit value)
 						{
 							// FIXME: Make sure that Limit does not require external tables? Need to read up on SQL
-							using arg_t = typename wrap_operand<Limit>::type;
+							using arg_t = wrap_operand_t<Limit>;
 							_data._value = arg_t{value};
 							_data._initialized = true;
 						}
@@ -172,7 +172,7 @@ namespace sqlpp
 
 	struct no_limit_t
 	{
-		using _traits = make_traits<no_value_t, ::sqlpp::tag::is_noop>;
+		using _traits = make_traits<no_value_t, tag::is_noop>;
 		using _recursive_traits = make_recursive_traits<>;
 
 		// Data
@@ -207,22 +207,22 @@ namespace sqlpp
 			{
 				using _database_t = typename Policies::_database_t;
 				template<typename T>
-					using _new_statement_t = typename Policies::template _new_statement_t<no_limit_t, T>;
+					using _new_statement_t = new_statement<Policies, no_limit_t, T>;
 
 				static void _check_consistency() {}
 
 				template<typename Arg>
-					auto limit(Arg arg)
-					-> _new_statement_t<limit_t<typename wrap_operand<Arg>::type>>
+					auto limit(Arg arg) const
+					-> _new_statement_t<limit_t<wrap_operand_t<Arg>>>
 					{
-						return { *static_cast<typename Policies::_statement_t*>(this), limit_data_t<typename wrap_operand<Arg>::type>{{arg}} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), limit_data_t<wrap_operand_t<Arg>>{{arg}} };
 					}
 
-				auto dynamic_limit()
+				auto dynamic_limit() const
 					-> _new_statement_t<dynamic_limit_t<_database_t>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_limit must not be called in a static statement");
-						return { *static_cast<typename Policies::_statement_t*>(this), dynamic_limit_data_t<_database_t>{} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), dynamic_limit_data_t<_database_t>{} };
 					}
 			};
 	};

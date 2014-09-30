@@ -59,16 +59,16 @@ namespace sqlpp
 	template<typename Database, typename... Expressions>
 		struct order_by_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_order_by>;
+			using _traits = make_traits<no_value_t, tag::is_order_by>;
 			using _recursive_traits = make_recursive_traits<Expressions...>;
 
 			using _is_dynamic = is_database<Database>;
 
 			static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression (e.g. a column) required in order_by()");
 
-			static_assert(not ::sqlpp::detail::has_duplicates<Expressions...>::value, "at least one duplicate argument detected in order_by()");
+			static_assert(not detail::has_duplicates<Expressions...>::value, "at least one duplicate argument detected in order_by()");
 
-			static_assert(::sqlpp::detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not an expression in order_by()");
+			static_assert(detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not an expression in order_by()");
 
 			// Data
 			using _data_t = order_by_data_t<Database, Expressions...>;
@@ -90,7 +90,7 @@ namespace sqlpp
 							static_assert(is_expression_t<Expression>::value, "invalid expression argument in order_by::add()");
 							static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Expression>::value, "expression uses tables unknown to this statement in order_by::add()");
 
-							using ok = ::sqlpp::detail::all_t<_is_dynamic::value, is_expression_t<Expression>::value>;
+							using ok = detail::all_t<_is_dynamic::value, is_expression_t<Expression>::value>;
 
 							_add_impl(expression, ok()); // dispatch to prevent compile messages after the static_assert
 						}
@@ -135,7 +135,7 @@ namespace sqlpp
 	// NO ORDER BY YET
 	struct no_order_by_t
 	{
-		using _traits = make_traits<no_value_t, ::sqlpp::tag::is_noop>;
+		using _traits = make_traits<no_value_t, tag::is_noop>;
 		using _recursive_traits = make_recursive_traits<>;
 
 		// Data
@@ -170,23 +170,23 @@ namespace sqlpp
 			{
 				using _database_t = typename Policies::_database_t;
 				template<typename T>
-					using _new_statement_t = typename Policies::template _new_statement_t<no_order_by_t, T>;
+					using _new_statement_t = new_statement<Policies, no_order_by_t, T>;
 
 				static void _check_consistency() {}
 
 				template<typename... Args>
-					auto order_by(Args... args)
+					auto order_by(Args... args) const
 					-> _new_statement_t<order_by_t<void, Args...>>
 					{
-						return { *static_cast<typename Policies::_statement_t*>(this), order_by_data_t<void, Args...>{args...} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), order_by_data_t<void, Args...>{args...} };
 					}
 
 				template<typename... Args>
-					auto dynamic_order_by(Args... args)
+					auto dynamic_order_by(Args... args) const
 					-> _new_statement_t<order_by_t<_database_t, Args...>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_order_by must not be called in a static statement");
-						return { *static_cast<typename Policies::_statement_t*>(this), order_by_data_t<_database_t, Args...>{args...} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), order_by_data_t<_database_t, Args...>{args...} };
 					}
 			};
 	};

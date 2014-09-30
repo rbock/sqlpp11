@@ -51,22 +51,22 @@ namespace sqlpp
 	template<typename... Tables>
 		struct extra_tables_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_extra_tables>;
+			using _traits = make_traits<no_value_t, tag::is_extra_tables>;
 			struct _recursive_traits
 			{
 				using _parameters = std::tuple<>;
-				using _required_tables = ::sqlpp::detail::type_set<>;
-				using _provided_outer_tables = ::sqlpp::detail::type_set<>;
-				using _provided_tables = ::sqlpp::detail::type_set<>;
-				using _extra_tables = ::sqlpp::detail::type_set<Tables...>;
-				using _can_be_null = std::false_type;
+				using _required_tables = detail::type_set<>;
+				using _provided_outer_tables = detail::type_set<>;
+				using _provided_tables = detail::type_set<>;
+				using _extra_tables = detail::type_set<Tables...>;
+				using _tags = detail::type_set<>;
 			};
 
 			// FIXME: extra_tables must not require tables!
 
 			static_assert(sizeof...(Tables), "at least one table or join argument required in extra_tables()");
-			static_assert(not ::sqlpp::detail::has_duplicates<Tables...>::value, "at least one duplicate argument detected in extra_tables()");
-			static_assert(::sqlpp::detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not a table or join in extra_tables()");
+			static_assert(not detail::has_duplicates<Tables...>::value, "at least one duplicate argument detected in extra_tables()");
+			static_assert(detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not a table or join in extra_tables()");
 
 			// Data
 			using _data_t = extra_tables_data_t<Tables...>;
@@ -106,7 +106,7 @@ namespace sqlpp
 	// NO EXTRA TABLES YET
 	struct no_extra_tables_t
 	{
-		using _traits = make_traits<no_value_t, ::sqlpp::tag::is_noop>;
+		using _traits = make_traits<no_value_t, tag::is_noop>;
 		using _recursive_traits = make_recursive_traits<>;
 
 		// Data
@@ -140,15 +140,15 @@ namespace sqlpp
 			struct _methods_t
 			{
 				template<typename T>
-					using _new_statement_t = typename Policies::template _new_statement_t<no_extra_tables_t, T>;
+					using _new_statement_t = new_statement<Policies, no_extra_tables_t, T>;
 
 				static void _check_consistency() {}
 
 				template<typename... Args>
-					auto extra_tables(Args...)
+					auto extra_tables(Args...) const
 					-> _new_statement_t<extra_tables_t<Args...>>
 					{
-						return { *static_cast<typename Policies::_statement_t*>(this), extra_tables_data_t<Args...>{} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), extra_tables_data_t<Args...>{} };
 					}
 			};
 	};

@@ -32,10 +32,11 @@
 namespace sqlpp
 {
 	template<typename Select>
-		struct exists_t: public boolean::template expression_operators<exists_t<Select>>,
-		public alias_operators<exists_t<Select>>
+		struct exists_t: 
+			public expression_operators<exists_t<Select>, boolean>,
+			public alias_operators<exists_t<Select>>
 	{
-		using _traits = make_traits<boolean, ::sqlpp::tag::is_expression, ::sqlpp::tag::is_named_expression>;
+		using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
 		using _recursive_traits = make_recursive_traits<Select>;
 
 		static_assert(is_select_t<Select>::value, "exists() requires a select expression as argument");

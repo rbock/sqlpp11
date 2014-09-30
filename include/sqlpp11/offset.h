@@ -54,7 +54,7 @@ namespace sqlpp
 	template<typename Offset>
 		struct offset_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_offset>;
+			using _traits = make_traits<no_value_t, tag::is_offset>;
 			using _recursive_traits = make_recursive_traits<Offset>;
 
 			static_assert(is_integral_t<Offset>::value, "offset requires an integral value or integral parameter");
@@ -105,7 +105,7 @@ namespace sqlpp
 			template<typename Offset>
 				dynamic_offset_data_t(Offset value):
 					_initialized(true),
-					_value(typename wrap_operand<Offset>::type(value))
+					_value(wrap_operand_t<Offset>(value))
 			{
 			}
 
@@ -123,7 +123,7 @@ namespace sqlpp
 	template<typename Database>
 		struct dynamic_offset_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_offset>;
+			using _traits = make_traits<no_value_t, tag::is_offset>;
 			using _recursive_traits = make_recursive_traits<>;
 
 			// Data
@@ -137,7 +137,7 @@ namespace sqlpp
 						void set(Offset value)
 						{
 							// FIXME: Make sure that Offset does not require external tables? Need to read up on SQL
-							using arg_t = typename wrap_operand<Offset>::type;
+							using arg_t = wrap_operand_t<Offset>;
 							_data._value = arg_t{value};
 							_data._initialized = true;
 						}
@@ -171,9 +171,9 @@ namespace sqlpp
 						void set_offset(Offset value)
 						{
 							// FIXME: Make sure that Offset does not require external tables? Need to read up on SQL
-							using arg_t = typename wrap_operand<Offset>::type;
-							static_cast<typename Policies::_statement_t*>(this)->_offset()._value = arg_t{value};
-							static_cast<typename Policies::_statement_t*>(this)->_offset()._initialized = true;
+							using arg_t = wrap_operand_t<Offset>;
+							static_cast<derived_statement_t<Policies>*>(this)->_offset()._value = arg_t{value};
+							static_cast<derived_statement_t<Policies>*>(this)->_offset()._initialized = true;
 						}
 				};
 
@@ -183,7 +183,7 @@ namespace sqlpp
 
 	struct no_offset_t
 	{
-		using _traits = make_traits<no_value_t, ::sqlpp::tag::is_noop>;
+		using _traits = make_traits<no_value_t, tag::is_noop>;
 		using _recursive_traits = make_recursive_traits<>;
 
 		// Data
@@ -218,22 +218,22 @@ namespace sqlpp
 			{
 				using _database_t = typename Policies::_database_t;
 				template<typename T>
-					using _new_statement_t = typename Policies::template _new_statement_t<no_offset_t, T>;
+					using _new_statement_t = new_statement<Policies, no_offset_t, T>;
 
 				static void _check_consistency() {}
 
 				template<typename Arg>
-					auto offset(Arg arg)
-					-> _new_statement_t<offset_t<typename wrap_operand<Arg>::type>>
+					auto offset(Arg arg) const
+					-> _new_statement_t<offset_t<wrap_operand_t<Arg>>>
 					{
-						return { *static_cast<typename Policies::_statement_t*>(this), offset_data_t<typename wrap_operand<Arg>::type>{{arg}} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), offset_data_t<wrap_operand_t<Arg>>{{arg}} };
 					}
 
-				auto dynamic_offset()
+				auto dynamic_offset() const
 					-> _new_statement_t<dynamic_offset_t<_database_t>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_offset must not be called in a static statement");
-						return { *static_cast<typename Policies::_statement_t*>(this), dynamic_offset_data_t<_database_t>{} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), dynamic_offset_data_t<_database_t>{} };
 					}
 			};
 	};

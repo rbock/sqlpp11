@@ -42,13 +42,14 @@
 namespace sqlpp
 {
 	template<typename Table, typename ColumnSpec>
-		struct column_t: public value_type_of<ColumnSpec>::template expression_operators<column_t<Table, ColumnSpec>>,
-		public value_type_of<ColumnSpec>::template column_operators<column_t<Table, ColumnSpec>>
+		struct column_t: 
+			public expression_operators<column_t<Table, ColumnSpec>, value_type_of<ColumnSpec>>,
+			public column_operators<column_t<Table, ColumnSpec>, value_type_of<ColumnSpec>>
 	{ 
 		struct _traits
 		{
 			using _value_type = value_type_of<ColumnSpec>;
-			using _tags = detail::make_joined_set_t<detail::type_set<tag::is_column, tag::is_expression, tag::is_named_expression>, typename ColumnSpec::_traits::_tags>;
+			using _tags = detail::make_joined_set_t<detail::type_set<tag::is_column, tag::is_expression, tag::is_selectable>, typename ColumnSpec::_traits::_tags>;
 		};
 
 		struct _recursive_traits
@@ -58,7 +59,9 @@ namespace sqlpp
 			using _provided_outer_tables = detail::type_set<>;
 			using _required_tables = detail::type_set<Table>;
 			using _extra_tables = detail::type_set<>;
-			using _can_be_null = column_spec_can_be_null_t<ColumnSpec>;
+			using _tags = typename std::conditional<column_spec_can_be_null_t<ColumnSpec>::value,
+									detail::type_set<tag::can_be_null>,
+									detail::type_set<>>::type;
 		};
 
 		using _spec_t = ColumnSpec;
@@ -66,7 +69,7 @@ namespace sqlpp
 		using _name_t = typename _spec_t::_name_t;
 
 		template<typename T>
-			using _is_valid_operand = typename value_type_of<ColumnSpec>::template _is_valid_operand<T>;
+			using _is_valid_operand = is_valid_operand<value_type_of<ColumnSpec>, T>;
 
 		column_t() = default;
 		column_t(const column_t&) = default;
@@ -95,17 +98,17 @@ namespace sqlpp
 				return { *this, {rhs{t}} };
 			}
 
-		auto operator =(sqlpp::null_t) const
-			->assignment_t<column_t, sqlpp::null_t>
+		auto operator =(null_t) const
+			->assignment_t<column_t, null_t>
 			{
 				static_assert(can_be_null_t<column_t>::value, "column cannot be null");
-				return { *this, sqlpp::null_t{} };
+				return { *this, null_t{} };
 			}
 
-		auto operator =(sqlpp::default_value_t) const
-			->assignment_t<column_t, sqlpp::default_value_t>
+		auto operator =(default_value_t) const
+			->assignment_t<column_t, default_value_t>
 			{
-				return { *this, sqlpp::default_value_t{} };
+				return { *this, default_value_t{} };
 			}
 	};
 

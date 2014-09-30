@@ -49,7 +49,7 @@ namespace sqlpp
 			{
 				struct type
 				{
-					using _traits = make_traits<no_value_t, ::sqlpp::tag::is_noop>;
+					using _traits = make_traits<no_value_t, tag::is_noop>;
 					using _recursive_traits = make_recursive_traits<>;
 				};
 			};
@@ -62,7 +62,7 @@ namespace sqlpp
 			using _column_t = Column;
 			static constexpr bool _trivial_value_is_null = trivial_value_is_null_t<Column>::value;
 			using _pure_value_t = typename value_type_of<Column>::_cpp_value_type;
-			using _wrapped_value_t = typename wrap_operand<_pure_value_t>::type;
+			using _wrapped_value_t = wrap_operand_t<_pure_value_t>;
 			using _tvin_t = tvin_t<_wrapped_value_t>;
 
 			insert_value_t(rhs_wrap_t<_wrapped_value_t, _trivial_value_is_null> rhs):

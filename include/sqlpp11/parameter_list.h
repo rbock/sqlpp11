@@ -52,12 +52,12 @@ namespace sqlpp
 			template<typename Target>
 				void _bind(Target& target) const
 				{
-					_bind_impl(target, ::sqlpp::detail::make_index_sequence<size::value>{});
+					_bind_impl(target, detail::make_index_sequence<size::value>{});
 				}
 
 		private:
 			template<typename Target, size_t... Is>
-				void _bind_impl(Target& target, const ::sqlpp::detail::index_sequence<Is...>&) const
+				void _bind_impl(Target& target, const detail::index_sequence<Is...>&) const
 				{
 					using swallow = int[];  // see interpret_tuple.h
 					(void) swallow{(static_cast<typename std::tuple_element<Is, const _member_tuple_t>::type&>(*this)()._bind(target, Is), 0)...};
