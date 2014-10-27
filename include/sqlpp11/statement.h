@@ -79,18 +79,19 @@ namespace sqlpp
 
 				using _result_type_provider = detail::get_last_if<is_return_value_t, noop, Policies...>;
 
-				struct _result_methods_t: public _result_type_provider::template _result_methods_t<statement_policies_t>
+				struct _result_methods_t: public _result_type_provider::template _result_methods_t<_statement_t>
 				{};
 
 
 				// A select can be used as a pseudo table if
 				//   - at least one column is selected
 				//   - the select is complete (leaks no tables)
-				using _can_be_used_as_table = typename std::conditional<
-					is_select_column_list_t<_result_type_provider>::value and _required_tables::size::value == 0,
-					std::true_type,
-					std::false_type
-						>::type;
+				static constexpr bool _can_be_used_as_table()
+				{
+					return is_select_column_list_t<_result_type_provider>::value and _required_tables::size::value == 0
+						? true
+						: false;
+				}
 
 				using _value_type = typename std::conditional<
 					detail::none_t<is_missing_t<Policies>::value...>::value,
@@ -171,6 +172,11 @@ namespace sqlpp
 		size_t _get_no_of_parameters() const
 		{
 			return _get_static_no_of_parameters();
+		}
+
+		static constexpr bool _can_be_used_as_table()
+		{
+			return _policies_t::_can_be_used_as_table();
 		}
 
 		static void _check_consistency()

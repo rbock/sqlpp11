@@ -40,7 +40,7 @@ namespace sqlpp
 
 		struct _name_t {};
 
-		template<typename Policies>
+		template<typename Statement>
 			struct _result_methods_t
 			{};
 	};

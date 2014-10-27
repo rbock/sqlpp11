@@ -46,10 +46,10 @@ namespace sqlpp
 		using _traits = make_traits<no_value_t, tag::is_return_value>;
 		struct _name_t {};
 
-		template<typename Policies>
+		template<typename Statement>
 			struct _result_methods_t
 			{
-				using _statement_t = derived_statement_t<Policies>;
+				using _statement_t = Statement;
 
 				const _statement_t& _get_statement() const
 				{

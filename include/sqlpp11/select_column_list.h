@@ -235,10 +235,10 @@ namespace sqlpp
 				};
 
 			// Result methods
-			template<typename Policies>
+			template<typename Statement>
 				struct _result_methods_t
 				{
-					using _statement_t = derived_statement_t<Policies>;
+					using _statement_t = Statement;
 
 					const _statement_t& _get_statement() const
 					{
@@ -277,7 +277,7 @@ namespace sqlpp
 					template<typename AliasProvider>
 						_alias_t<AliasProvider> as(const AliasProvider& aliasProvider) const
 						{
-							static_assert(Policies::_can_be_used_as_table::value, "statement cannot be used as table, e.g. due to missing tables");
+							static_assert(_statement_t::_can_be_used_as_table(), "statement cannot be used as table, e.g. due to missing tables");
 							static_assert(detail::none_t<is_multi_column_t<Columns>::value...>::value, "cannot use multi-columns in sub selects");
 							return _table_t<AliasProvider>(_get_statement()).as(aliasProvider);
 						}
