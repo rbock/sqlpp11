@@ -31,12 +31,12 @@
 
 namespace sqlpp
 {
-	template<typename Database, typename FirstPart, typename... Parts>
-	struct custom_query_t:
-		public FirstPart::_result_type_provider::template _result_methods_t<custom_query_t>
+	template<typename Database, typename... Parts>
+	struct custom_query_t/*:
+		public FirstPart::_result_type_provider::template _result_methods_t<custom_query_t>*/
 	{
-			custom_query_t(Expressions... expressions):
-				_expressions(expressions...)
+			custom_query_t(Parts... parts):
+				_parts(parts...)
 			{}
 
 			custom_query_t(const custom_query_t&) = default;
@@ -45,7 +45,7 @@ namespace sqlpp
 			custom_query_t& operator=(custom_query_t&&) = default;
 			~custom_query_t() = default;
 
-		std::tuple<FirstPart, Parts...> _parts;
+		std::tuple<Parts...> _parts;
 	};
 
 	template<typename Context, typename Database, typename... Parts>
@@ -55,21 +55,21 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
-				interpret_tuple(t._parts, " ", context);
+				interpret_tuple_without_braces(t._parts, " ", context);
 				return context;
 			}
 		};
 
 	template<typename... Parts>
 		auto custom_query(Parts... parts)
-		-> statement_t<void, Parts...>
+		-> custom_query_t<void, Parts...>
 		{
-			return statement_t<void, Parts>(parts...);
+			return custom_query_t<void, Parts...>(parts...);
 		}
 
 	template<typename Database, typename... Parts>
 		auto dynamic_custom_query(const Database&, Parts...)
-		-> statement_t<Database, Parts...>
+		-> custom_query_t<Database, Parts...>
 		{
 			static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
 			return { };
