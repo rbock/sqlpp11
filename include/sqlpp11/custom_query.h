@@ -28,22 +28,48 @@
 #define SQLPP_CUSTOM_QUERY_H
 
 #include <sqlpp11/connection.h>
+#include <sqlpp11/interpret_tuple.h>
+#include <sqlpp11/detail/get_first.h>
 
 namespace sqlpp
 {
 	template<typename Database, typename... Parts>
-	struct custom_query_t/*:
-		public FirstPart::_result_type_provider::template _result_methods_t<custom_query_t>*/
-	{
-			custom_query_t(Parts... parts):
-				_parts(parts...)
-			{}
+	struct custom_query_t;
 
-			custom_query_t(const custom_query_t&) = default;
-			custom_query_t(custom_query_t&&) = default;
-			custom_query_t& operator=(const custom_query_t&) = default;
-			custom_query_t& operator=(custom_query_t&&) = default;
-			~custom_query_t() = default;
+	namespace detail
+	{
+		template<typename Db, typename... Parts>
+		struct custom_parts_t
+		{
+			using _custom_query_t = custom_query_t<Db, Parts...>;
+			using _result_type_provider = detail::get_first_if<is_return_value_t, noop, Parts...>;
+			using _result_methods_t = typename _result_type_provider::template _result_methods_t<_result_type_provider>;
+		};
+	}
+
+	template<typename Database, typename... Parts>
+	struct custom_query_t:
+		private detail::custom_parts_t<Database, Parts...>::_result_methods_t
+	{
+		using _methods_t = typename detail::custom_parts_t<Database, Parts...>::_result_methods_t;
+
+		static void _check_consistency() {};
+
+		template<typename Db>
+		auto _run(Db& db) const	-> decltype(_methods_t::_run(db, *this))
+		{
+			return _methods_t::_run(db, *this);
+		}
+
+		custom_query_t(Parts... parts):
+			_parts(parts...)
+		{}
+
+		custom_query_t(const custom_query_t&) = default;
+		custom_query_t(custom_query_t&&) = default;
+		custom_query_t& operator=(const custom_query_t&) = default;
+		custom_query_t& operator=(custom_query_t&&) = default;
+		~custom_query_t() = default;
 
 		std::tuple<Parts...> _parts;
 	};
@@ -64,6 +90,7 @@ namespace sqlpp
 		auto custom_query(Parts... parts)
 		-> custom_query_t<void, Parts...>
 		{
+			static_assert(sizeof...(Parts) > 0, "custom query requires at least one argument");
 			return custom_query_t<void, Parts...>(parts...);
 		}
 
@@ -71,6 +98,7 @@ namespace sqlpp
 		auto dynamic_custom_query(const Database&, Parts...)
 		-> custom_query_t<Database, Parts...>
 		{
+			static_assert(sizeof...(Parts) > 0, "custom query requires at least one query argument");
 			static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
 			return { };
 		}

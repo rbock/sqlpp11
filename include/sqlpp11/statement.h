@@ -132,16 +132,18 @@ namespace sqlpp
 				public Policies::template _methods_t<detail::statement_policies_t<Db, Policies...>>...
 	{
 		using _policies_t = typename detail::statement_policies_t<Db, Policies...>;
+		using _result_type_provider = typename _policies_t::_result_type_provider;
+		template<typename Composite>
+			using _result_methods_t = typename _result_type_provider::template _result_methods_t<Composite>;
 
 		using _traits = make_traits<value_type_of<_policies_t>,
 					tag::is_select, 
 					tag_if<tag::is_expression, is_expression_t<_policies_t>::value>, 
 					tag_if<tag::is_selectable, is_expression_t<_policies_t>::value>,
+					tag_if<tag::is_return_value, detail::none_t<is_noop_t<_result_type_provider>::value>::value>,
 					tag::requires_braces>;
 		using _recursive_traits = typename _policies_t::_recursive_traits;
 		using _used_outer_tables = typename _policies_t::_all_provided_outer_tables;
-
-		using _result_type_provider = typename _policies_t::_result_type_provider;
 
 		using _name_t = typename _result_type_provider::_name_t;
 

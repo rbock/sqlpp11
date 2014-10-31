@@ -37,8 +37,9 @@ int main()
 	test::TabFoo f; 
 	test::TabBar t;
 
-	auto c = custom_query(select(all_of(t)).from(t), insert_into(t));
-	std::cerr << serialize(c, printer).str() << std::endl;
+	auto c = custom_query(select(all_of(t)).from(t));
+	//std::cerr << serialize(c, printer).str() << std::endl;
+	db(c);
 
 	return 0;
 }
