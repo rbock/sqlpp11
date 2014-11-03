@@ -38,8 +38,9 @@ int main()
 	test::TabBar t;
 
 	auto c = custom_query(select(all_of(t)).from(t));
-	//std::cerr << serialize(c, printer).str() << std::endl;
 	db(c);
+
+	auto p = db.prepare(custom_query(select(all_of(t)).from(t).where(t.alpha > sqlpp::parameter(t.alpha))));
 
 	return 0;
 }

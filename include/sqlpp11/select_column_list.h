@@ -293,17 +293,36 @@ namespace sqlpp
 					}
 
 					// Execute
-					template<typename Db, typename S>
-						auto _run(Db& db, const S& s) const
-						-> result_t<decltype(db.select(s)), _result_row_t<Db>>
+					template<typename Db, typename Composite>
+						auto _run(Db& db, const Composite& composite) const
+						-> result_t<decltype(db.select(composite)), _result_row_t<Db>>
 						{
-							S::_check_consistency();
+							Composite::_check_consistency();
 							static_assert(_statement_t::_get_static_no_of_parameters() == 0, "cannot run select directly with parameters, use prepare instead");
 
-							return {db.select(s), get_dynamic_names()};
+							return {db.select(composite), get_dynamic_names()};
+						}
+
+					template<typename Db>
+						auto _run(Db& db) const
+						-> result_t<decltype(db.select(_get_statement())), _result_row_t<Db>>
+						{
+							_statement_t::_check_consistency();
+							static_assert(_statement_t::_get_static_no_of_parameters() == 0, "cannot run select directly with parameters, use prepare instead");
+
+							return {db.select(_get_statement()), get_dynamic_names()};
 						}
 
 					// Prepare
+					template<typename Db, typename Composite>
+						auto _prepare(Db& db, const Composite& composite) const
+						-> prepared_select_t<Db, _statement_t, Composite>
+						{
+							Composite::_check_consistency();
+
+							return {make_parameter_list_t<Composite>{}, get_dynamic_names(), db.prepare_select(composite)};
+						}
+
 					template<typename Db>
 						auto _prepare(Db& db) const
 						-> prepared_select_t<Db, _statement_t>

@@ -32,12 +32,12 @@
 
 namespace sqlpp
 {
-	template<typename Database, typename Select>
+	template<typename Database, typename Statement, typename Composite = Statement>
 		struct prepared_select_t
 		{
-			using _result_row_t = typename Select::template _result_row_t<Database>;
-			using _parameter_list_t = make_parameter_list_t<Select>;
-			using _dynamic_names_t = typename Select::_dynamic_names_t;
+			using _result_row_t = typename Statement::template _result_row_t<Database>;
+			using _parameter_list_t = make_parameter_list_t<Composite>;
+			using _dynamic_names_t = typename Statement::_dynamic_names_t;
 			using _prepared_statement_t = typename Database::_prepared_statement_t;
 
 			auto _run(Database& db) const

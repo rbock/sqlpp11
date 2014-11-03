@@ -56,6 +56,17 @@ namespace sqlpp
 					return static_cast<const _statement_t&>(*this);
 				}
 
+				// Execute
+				template<typename Db, typename Composite>
+					auto _run(Db& db, const Composite& composite) const
+					-> decltype(db.remove(composite))
+					{
+						Composite::_check_consistency();
+						static_assert(_statement_t::_get_static_no_of_parameters() == 0, "cannot run remove directly with parameters, use prepare instead");
+
+						return db.remove(composite);
+					}
+
 				template<typename Db>
 					auto _run(Db& db) const -> decltype(db.remove(this->_get_statement()))
 					{
@@ -65,14 +76,24 @@ namespace sqlpp
 						return db.remove(_get_statement());
 					}
 
-					 template<typename Db>
-					 auto _prepare(Db& db) const
-					 -> prepared_remove_t<Db, _statement_t>
-					 {
-						 _statement_t::_check_consistency();
+				// Prepare
+				template<typename Db, typename Composite>
+					auto _prepare(Db& db, const Composite& composite) const
+					-> prepared_remove_t<Db, Composite>
+					{
+						Composite::_check_consistency();
 
-						 return {{}, db.prepare_remove(_get_statement())};
-					 }
+						return {{}, db.prepare_remove(composite)};
+					}
+
+				template<typename Db>
+					auto _prepare(Db& db) const
+					-> prepared_remove_t<Db, _statement_t>
+					{
+						_statement_t::_check_consistency();
+
+						return {{}, db.prepare_remove(_get_statement())};
+					}
 			};
 	};
 

@@ -52,6 +52,8 @@ namespace sqlpp
 		private detail::custom_parts_t<Database, Parts...>::_result_methods_t
 	{
 		using _methods_t = typename detail::custom_parts_t<Database, Parts...>::_result_methods_t;
+		using _traits = make_traits<no_value_t>;
+		using _recursive_traits = make_recursive_traits<Parts...>;
 
 		static void _check_consistency() {};
 
@@ -59,6 +61,12 @@ namespace sqlpp
 		auto _run(Db& db) const	-> decltype(_methods_t::_run(db, *this))
 		{
 			return _methods_t::_run(db, *this);
+		}
+
+		template<typename Db>
+		auto _prepare(Db& db) const	-> decltype(_methods_t::_prepare(db, *this))
+		{
+			return _methods_t::_prepare(db, *this);
 		}
 
 		custom_query_t(Parts... parts):
