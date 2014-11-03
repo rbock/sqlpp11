@@ -300,7 +300,7 @@ int main()
 					multi_column(all_of(t)).as(alias::right), // index 8 (including 8, 9, 10, 11)
 					t.alpha.as(alias::a) // index 12
 					).from(t).where(true)); // next index is 13
-		using ResultRow = typename Select::_result_methods_t::template _result_row_t<MockDb>;
+		using ResultRow = typename Select::_result_methods_t<Select>::template _result_row_t<MockDb>;
 		using IndexSequence = ResultRow::_field_index_sequence;
 		static_assert(std::is_same<IndexSequence, sqlpp::detail::field_index_sequence<13, 0, 1, 2, 3, 4, 8, 12>>::value, "invalid field sequence");
 	}
