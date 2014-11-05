@@ -37,10 +37,15 @@ int main()
 	test::TabFoo f; 
 	test::TabBar t;
 
-	auto c = custom_query(select(all_of(t)).from(t));
+	auto c = custom_query(select(all_of(t)).from(t), sqlpp::verbatim("INTO"), t);
+	std::cerr << serialize(c, printer).str() << std::endl;
 	db(c);
 
 	auto p = db.prepare(custom_query(select(all_of(t)).from(t).where(t.alpha > sqlpp::parameter(t.alpha))));
+
+	printer.reset();
+	auto x = custom_query(sqlpp::verbatim<sqlpp::boolean>("PRAGMA writeable_schema") == true);
+	std::cerr << serialize(x, printer).str() << std::endl;
 
 	return 0;
 }

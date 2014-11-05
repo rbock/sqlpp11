@@ -30,6 +30,7 @@
 #include <type_traits>
 #include <sqlpp11/no_value.h>
 #include <sqlpp11/serializer.h>
+#include <sqlpp11/prepared_execute.h>
 
 namespace sqlpp
 {
@@ -42,7 +43,52 @@ namespace sqlpp
 
 		template<typename Statement>
 			struct _result_methods_t
-			{};
+			{
+				using _statement_t = Statement;
+
+				const _statement_t& _get_statement() const
+				{
+					return static_cast<const _statement_t&>(*this);
+				}
+
+				// Execute
+				template<typename Db, typename Composite>
+					auto _run(Db& db, const Composite& composite) const	-> void
+					{
+						Composite::_check_consistency();
+						static_assert(_statement_t::_get_static_no_of_parameters() == 0, "cannot run execute directly with parameters, use prepare instead");
+
+						return db.execute(composite);
+					}
+
+				template<typename Db>
+					auto _run(Db& db) const -> void
+					{
+						_statement_t::_check_consistency();
+
+						static_assert(_statement_t::_get_static_no_of_parameters() == 0, "cannot run insert directly with parameters, use prepare instead");
+						return db.execute(_get_statement());
+					}
+
+				// Prepare
+				template<typename Db, typename Composite>
+					auto _prepare(Db& db, const Composite& composite) const
+					-> prepared_execute_t<Db, Composite>
+					{
+						Composite::_check_consistency();
+
+						return {{}, db.prepare_execute(composite)};
+					}
+
+				template<typename Db>
+					auto _prepare(Db& db) const
+					-> prepared_execute_t<Db, _statement_t>
+					{
+						_statement_t::_check_consistency();
+
+						return {{}, db.prepare_execute(_get_statement())};
+					}
+			};
 	};
 
 	template<typename Context>

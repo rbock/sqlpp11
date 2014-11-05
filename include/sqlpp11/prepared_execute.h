@@ -24,58 +24,34 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_VERBATIM_H
-#define SQLPP_VERBATIM_H
+#ifndef SQLPP_PREPARED_EXECUTE_H
+#define SQLPP_PREPARED_EXECUTE_H
 
-#include <sqlpp11/no_value.h>
-#include <sqlpp11/type_traits.h>
-#include <sqlpp11/serialize.h>
+#include <sqlpp11/parameter_list.h>
+#include <sqlpp11/result.h>
 
 namespace sqlpp
 {
-	template<typename ValueType> // Csaba Csoma suggests: unsafe_sql instead of verbatim
-		struct verbatim_t:
-			public expression_operators<verbatim_t<ValueType>, ValueType>,
-			public alias_operators<verbatim_t<ValueType>>
-	{
-		using _traits = make_traits<ValueType, tag::is_expression>;
-		struct _recursive_traits : public make_recursive_traits<>
+	template<typename Db, typename Statement>
+		struct prepared_execute_t
 		{
-			using _tags = detail::type_set<tag::can_be_null>; // since we do not know what's going on inside the verbatim, we assume it can be null
-		};
+			using _parameter_list_t = make_parameter_list_t<Statement>;
+			using _prepared_statement_t = typename Db::_prepared_statement_t;
 
-		verbatim_t(std::string verbatim): _verbatim(verbatim) {}
-		verbatim_t(const verbatim_t&) = default;
-		verbatim_t(verbatim_t&&) = default;
-		verbatim_t& operator=(const verbatim_t&) = default;
-		verbatim_t& operator=(verbatim_t&&) = default;
-		~verbatim_t() = default;
+			auto _run(Db& db) const
+				-> size_t
+				{
+					return db.run_prepared_execute(*this);
+				}
 
-		std::string _verbatim;
-	};
-
-	template<typename Context, typename ValueType>
-		struct serializer_t<Context, verbatim_t<ValueType>>
-		{
-			using T = verbatim_t<ValueType>;
-
-			static Context& _(const T& t, Context& context)
+			void _bind_params() const
 			{
-				context << t._verbatim;
-				return context;
+				params._bind(_prepared_statement);
 			}
+
+			_parameter_list_t params;
+			mutable _prepared_statement_t _prepared_statement;
 		};
-
-	template<typename ValueType, typename StringType>
-		auto verbatim(StringType s) -> verbatim_t<ValueType>
-		{
-			return { s };
-		}
-
-	auto verbatim(std::string s) -> verbatim_t<no_value_t>
-	{
-		return { s };
-	}
 
 }
 
