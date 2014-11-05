@@ -55,6 +55,16 @@ namespace sqlpp
 		using _traits = make_traits<no_value_t>;
 		using _recursive_traits = make_recursive_traits<Parts...>;
 
+		custom_query_t(Parts... parts):
+			_parts(parts...)
+		{}
+
+		custom_query_t(const custom_query_t&) = default;
+		custom_query_t(custom_query_t&&) = default;
+		custom_query_t& operator=(const custom_query_t&) = default;
+		custom_query_t& operator=(custom_query_t&&) = default;
+		~custom_query_t() = default;
+
 		static void _check_consistency() {};
 
 		template<typename Db>
@@ -69,15 +79,15 @@ namespace sqlpp
 			return _methods_t::_prepare(db, *this);
 		}
 
-		custom_query_t(Parts... parts):
-			_parts(parts...)
-		{}
+		static constexpr size_t _get_static_no_of_parameters()
+		{
+			return std::tuple_size<parameters_of<custom_query_t>>::value;
+		}
 
-		custom_query_t(const custom_query_t&) = default;
-		custom_query_t(custom_query_t&&) = default;
-		custom_query_t& operator=(const custom_query_t&) = default;
-		custom_query_t& operator=(custom_query_t&&) = default;
-		~custom_query_t() = default;
+		size_t _get_no_of_parameters() const
+		{
+			return _get_static_no_of_parameters();
+		}
 
 		std::tuple<Parts...> _parts;
 	};

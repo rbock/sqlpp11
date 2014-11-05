@@ -56,7 +56,7 @@ namespace sqlpp
 					auto _run(Db& db, const Composite& composite) const	-> void
 					{
 						Composite::_check_consistency();
-						static_assert(_statement_t::_get_static_no_of_parameters() == 0, "cannot run execute directly with parameters, use prepare instead");
+						static_assert(Composite::_get_static_no_of_parameters() == 0, "cannot run execute directly with parameters, use prepare instead");
 
 						return db.execute(composite);
 					}

@@ -298,7 +298,7 @@ namespace sqlpp
 						-> result_t<decltype(db.select(composite)), _result_row_t<Db>>
 						{
 							Composite::_check_consistency();
-							static_assert(_statement_t::_get_static_no_of_parameters() == 0, "cannot run select directly with parameters, use prepare instead");
+							static_assert(Composite::_get_static_no_of_parameters() == 0, "cannot run select directly with parameters, use prepare instead");
 
 							return {db.select(composite), get_dynamic_names()};
 						}

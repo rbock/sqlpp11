@@ -112,6 +112,15 @@ struct MockDbT: public sqlpp::connection
 			return t._run(*this);
 		}
 
+	void execute(const std::string& command);
+
+	template<typename Statement>
+		void execute(const Statement& x)
+		{
+			_serializer_context_t context;
+			::sqlpp::serialize(x, context);
+		}
+
 	template<typename Insert>
 		size_t insert(const Insert& x)
 		{
@@ -153,6 +162,14 @@ struct MockDbT: public sqlpp::connection
 			return t._prepare(*this);
 		}
 
+
+	template<typename Statement>
+		_prepared_statement_t prepare_execute(Statement& x)
+		{
+			_serializer_context_t context;
+			::sqlpp::serialize(x, context);
+			return nullptr;
+		}
 
 	template<typename Insert>
 		_prepared_statement_t prepare_insert(Insert& x)

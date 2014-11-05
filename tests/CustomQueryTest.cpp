@@ -42,10 +42,14 @@ int main()
 	db(c);
 
 	auto p = db.prepare(custom_query(select(all_of(t)).from(t).where(t.alpha > sqlpp::parameter(t.alpha))));
+	p.params.alpha = 8;
 
 	printer.reset();
 	auto x = custom_query(sqlpp::verbatim<sqlpp::boolean>("PRAGMA writeable_schema") == true);
 	std::cerr << serialize(x, printer).str() << std::endl;
+	db(x);
+
+	db.prepare(x);
 
 	return 0;
 }
