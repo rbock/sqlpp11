@@ -37,7 +37,7 @@ int main()
 	test::TabFoo f; 
 	test::TabBar t;
 
-	auto c = custom_query(select(all_of(t)).from(t), sqlpp::verbatim("INTO"), t);
+	auto c = custom_query(select(all_of(t)).from(t), sqlpp::verbatim("INTO"), f);
 	std::cerr << serialize(c, printer).str() << std::endl;
 	db(c);
 
@@ -45,11 +45,11 @@ int main()
 	p.params.alpha = 8;
 
 	printer.reset();
-	auto x = custom_query(sqlpp::verbatim<sqlpp::boolean>("PRAGMA writeable_schema") == true);
+	auto x = custom_query(sqlpp::verbatim("PRAGMA writeable_schema = "), true);
 	std::cerr << serialize(x, printer).str() << std::endl;
 	db(x);
 
-	db.prepare(x);
+	db.run_prepared_execute(db.prepare(x));
 
 	return 0;
 }
