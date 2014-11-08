@@ -27,6 +27,7 @@
 #ifndef SQLPP_WHERE_H
 #define SQLPP_WHERE_H
 
+#include <sqlpp11/statement_fwd.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/expression.h>
@@ -278,6 +279,11 @@ namespace sqlpp
 			}
 		};
 
+	template<typename... T>
+		auto where(T&&... t) -> decltype(statement_t<void, no_where_t<false>>().where(std::forward<T>(t)...))
+		{
+			return statement_t<void, no_where_t<false>>().where(std::forward<T>(t)...);
+		}
 }
 
 #endif

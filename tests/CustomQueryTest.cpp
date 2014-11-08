@@ -41,7 +41,7 @@ int main()
 	std::cerr << serialize(c, printer).str() << std::endl;
 	db(c);
 
-	auto p = db.prepare(custom_query(select(all_of(t)).from(t).where(t.alpha > sqlpp::parameter(t.alpha))));
+	auto p = db.prepare(custom_query(select(all_of(t)).from(t), where(t.alpha > sqlpp::parameter(t.alpha))));
 	p.params.alpha = 8;
 
 	printer.reset();
