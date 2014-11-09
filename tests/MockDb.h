@@ -112,6 +112,16 @@ struct MockDbT: public sqlpp::connection
 			return t._run(*this);
 		}
 
+	void execute(const std::string& command);
+
+	template<typename Statement, 
+					typename Enable = typename std::enable_if<not std::is_convertible<Statement, std::string>::value, void>::type>
+		void execute(const Statement& x)
+		{
+			_serializer_context_t context;
+			::sqlpp::serialize(x, context);
+		}
+
 	template<typename Insert>
 		size_t insert(const Insert& x)
 		{
@@ -154,12 +164,25 @@ struct MockDbT: public sqlpp::connection
 		}
 
 
+	template<typename Statement>
+		_prepared_statement_t prepare_execute(Statement& x)
+		{
+			_serializer_context_t context;
+			::sqlpp::serialize(x, context);
+			return nullptr;
+		}
+
 	template<typename Insert>
 		_prepared_statement_t prepare_insert(Insert& x)
 		{
 			_serializer_context_t context;
 			::sqlpp::serialize(x, context);
 			return nullptr;
+		}
+
+	template<typename PreparedExecute>
+		void run_prepared_execute(const PreparedExecute& x)
+		{
 		}
 
 	template<typename PreparedInsert>

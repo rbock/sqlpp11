@@ -24,38 +24,42 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_PREPARED_SELECT_H
-#define SQLPP_PREPARED_SELECT_H
-
-#include <sqlpp11/parameter_list.h>
-#include <sqlpp11/result.h>
+#ifndef SQLPP_HIDDEN_H
+#define SQLPP_HIDDEN_H
 
 namespace sqlpp
 {
-	template<typename Database, typename Statement, typename Composite = Statement>
-		struct prepared_select_t
+	template<typename Part>
+	struct hidden_t:
+		public Part
+	{
+		hidden_t(Part part):
+			Part(part)
+		{}
+
+		hidden_t(const hidden_t&) = default;
+		hidden_t(hidden_t&&) = default;
+		hidden_t& operator=(const hidden_t&) = default;
+		hidden_t& operator=(hidden_t&&) = default;
+		~hidden_t() = default;
+	};
+
+	template<typename Context, typename Part>
+		struct serializer_t<Context, hidden_t<Part>>
 		{
-			using _result_row_t = typename Statement::template _result_row_t<Database>;
-			using _parameter_list_t = make_parameter_list_t<Composite>;
-			using _dynamic_names_t = typename Statement::_dynamic_names_t;
-			using _prepared_statement_t = typename Database::_prepared_statement_t;
+			using T = hidden_t<Part>;
 
-			auto _run(Database& db) const
-				-> result_t<decltype(db.run_prepared_select(*this)), _result_row_t>
-				{
-					return {db.run_prepared_select(*this), _dynamic_names};
-				}
-
-			void _bind_params() const
+			static Context& _(const T& t, Context& context)
 			{
-				params._bind(_prepared_statement);
+				return context;
 			}
-
-			_parameter_list_t params;
-			_dynamic_names_t _dynamic_names;
-			mutable _prepared_statement_t _prepared_statement;
 		};
 
+	template<typename Part>
+		auto hidden(Part part)
+		-> hidden_t<Part>
+		{
+			return {part};
+		}
 }
-
 #endif

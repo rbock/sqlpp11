@@ -7,6 +7,7 @@ macro (build_and_run arg)
 endmacro ()
 
 build_and_run(BooleanExpressionTest)
+build_and_run(CustomQueryTest)
 build_and_run(InterpretTest)
 build_and_run(InsertTest)
 build_and_run(RemoveTest)

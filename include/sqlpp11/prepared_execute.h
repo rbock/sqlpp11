@@ -24,26 +24,24 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_PREPARED_SELECT_H
-#define SQLPP_PREPARED_SELECT_H
+#ifndef SQLPP_PREPARED_EXECUTE_H
+#define SQLPP_PREPARED_EXECUTE_H
 
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/result.h>
 
 namespace sqlpp
 {
-	template<typename Database, typename Statement, typename Composite = Statement>
-		struct prepared_select_t
+	template<typename Db, typename Statement>
+		struct prepared_execute_t
 		{
-			using _result_row_t = typename Statement::template _result_row_t<Database>;
-			using _parameter_list_t = make_parameter_list_t<Composite>;
-			using _dynamic_names_t = typename Statement::_dynamic_names_t;
-			using _prepared_statement_t = typename Database::_prepared_statement_t;
+			using _parameter_list_t = make_parameter_list_t<Statement>;
+			using _prepared_statement_t = typename Db::_prepared_statement_t;
 
-			auto _run(Database& db) const
-				-> result_t<decltype(db.run_prepared_select(*this)), _result_row_t>
+			auto _run(Db& db) const
+				-> void
 				{
-					return {db.run_prepared_select(*this), _dynamic_names};
+					return db.run_prepared_execute(*this);
 				}
 
 			void _bind_params() const
@@ -52,7 +50,6 @@ namespace sqlpp
 			}
 
 			_parameter_list_t params;
-			_dynamic_names_t _dynamic_names;
 			mutable _prepared_statement_t _prepared_statement;
 		};
 

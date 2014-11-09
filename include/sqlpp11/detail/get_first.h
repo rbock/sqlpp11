@@ -24,38 +24,37 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_PREPARED_SELECT_H
-#define SQLPP_PREPARED_SELECT_H
+#ifndef SQLPP_DETAIL_GET_FIRST_H
+#define SQLPP_DETAIL_GET_FIRST_H
 
-#include <sqlpp11/parameter_list.h>
-#include <sqlpp11/result.h>
+#include <type_traits>
 
 namespace sqlpp
 {
-	template<typename Database, typename Statement, typename Composite = Statement>
-		struct prepared_select_t
-		{
-			using _result_row_t = typename Statement::template _result_row_t<Database>;
-			using _parameter_list_t = make_parameter_list_t<Composite>;
-			using _dynamic_names_t = typename Statement::_dynamic_names_t;
-			using _prepared_statement_t = typename Database::_prepared_statement_t;
+	namespace detail
+	{
+		template<template<typename> class Predicate, typename Default, typename... T>
+			struct get_first_if_impl;
 
-			auto _run(Database& db) const
-				-> result_t<decltype(db.run_prepared_select(*this)), _result_row_t>
-				{
-					return {db.run_prepared_select(*this), _dynamic_names};
-				}
-
-			void _bind_params() const
+		template<template<typename> class Predicate, typename Default>
+			struct get_first_if_impl<Predicate, Default>
 			{
-				params._bind(_prepared_statement);
-			}
+				using type = Default;
+			};
 
-			_parameter_list_t params;
-			_dynamic_names_t _dynamic_names;
-			mutable _prepared_statement_t _prepared_statement;
-		};
+		template<template<typename> class Predicate, typename Default, typename T, typename... Rest>
+			struct get_first_if_impl<Predicate, Default, T, Rest...>
+			{
+				using rest = typename get_first_if_impl<Predicate, Default, Rest...>::type;
+				using type = typename std::conditional<Predicate<T>::value,
+							T,
+							rest>::type;
+			};
 
+		template<template<typename> class Predicate, typename Default, typename... T>
+			using get_first_if = typename get_first_if_impl<Predicate, Default, T...>::type;
+	}
 }
+
 
 #endif

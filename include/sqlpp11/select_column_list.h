@@ -235,10 +235,10 @@ namespace sqlpp
 				};
 
 			// Result methods
-			template<typename Policies>
+			template<typename Statement>
 				struct _result_methods_t
 				{
-					using _statement_t = derived_statement_t<Policies>;
+					using _statement_t = Statement;
 
 					const _statement_t& _get_statement() const
 					{
@@ -277,7 +277,7 @@ namespace sqlpp
 					template<typename AliasProvider>
 						_alias_t<AliasProvider> as(const AliasProvider& aliasProvider) const
 						{
-							static_assert(Policies::_can_be_used_as_table::value, "statement cannot be used as table, e.g. due to missing tables");
+							static_assert(_statement_t::_can_be_used_as_table(), "statement cannot be used as table, e.g. due to missing tables");
 							static_assert(detail::none_t<is_multi_column_t<Columns>::value...>::value, "cannot use multi-columns in sub selects");
 							return _table_t<AliasProvider>(_get_statement()).as(aliasProvider);
 						}
@@ -293,9 +293,19 @@ namespace sqlpp
 					}
 
 					// Execute
+					template<typename Db, typename Composite>
+						auto _run(Db& db, const Composite& composite) const
+						-> result_t<decltype(db.select(composite)), _result_row_t<Db>>
+						{
+							Composite::_check_consistency();
+							static_assert(Composite::_get_static_no_of_parameters() == 0, "cannot run select directly with parameters, use prepare instead");
+
+							return {db.select(composite), get_dynamic_names()};
+						}
+
 					template<typename Db>
 						auto _run(Db& db) const
-						-> result_t<decltype(db.select(this->_get_statement())), _result_row_t<Db>>
+						-> result_t<decltype(db.select(_get_statement())), _result_row_t<Db>>
 						{
 							_statement_t::_check_consistency();
 							static_assert(_statement_t::_get_static_no_of_parameters() == 0, "cannot run select directly with parameters, use prepare instead");
@@ -304,6 +314,15 @@ namespace sqlpp
 						}
 
 					// Prepare
+					template<typename Db, typename Composite>
+						auto _prepare(Db& db, const Composite& composite) const
+						-> prepared_select_t<Db, _statement_t, Composite>
+						{
+							Composite::_check_consistency();
+
+							return {make_parameter_list_t<Composite>{}, get_dynamic_names(), db.prepare_select(composite)};
+						}
+
 					template<typename Db>
 						auto _prepare(Db& db) const
 						-> prepared_select_t<Db, _statement_t>

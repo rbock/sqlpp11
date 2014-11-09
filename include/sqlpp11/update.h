@@ -46,15 +46,26 @@ namespace sqlpp
 		using _traits = make_traits<no_value_t, tag::is_return_value>;
 		struct _name_t {};
 
-		template<typename Policies>
+		template<typename Statement>
 			struct _result_methods_t
 			{
-				using _statement_t = derived_statement_t<Policies>;
+				using _statement_t = Statement;
 
 				const _statement_t& _get_statement() const
 				{
 					return static_cast<const _statement_t&>(*this);
 				}
+
+				// Execute
+				template<typename Db, typename Composite>
+					auto _run(Db& db, const Composite& composite) const
+					-> decltype(db.update(composite))
+					{
+						Composite::_check_consistency();
+						static_assert(Composite::_get_static_no_of_parameters() == 0, "cannot run update directly with parameters, use prepare instead");
+
+						return db.update(composite);
+					}
 
 				template<typename Db>
 					auto _run(Db& db) const -> decltype(db.update(this->_get_statement()))
@@ -65,14 +76,24 @@ namespace sqlpp
 						return db.update(_get_statement());
 					}
 
-					 template<typename Db>
-					 auto _prepare(Db& db) const
-					 -> prepared_update_t<Db, _statement_t>
-					 {
-						 _statement_t::_check_consistency();
+				// Prepare
+				template<typename Db, typename Composite>
+					auto _prepare(Db& db, const Composite& composite) const
+					-> prepared_update_t<Db, Composite>
+					{
+						Composite::_check_consistency();
 
-						 return {{}, db.prepare_update(_get_statement())};
-					 }
+						return {{}, db.prepare_update(composite)};
+					}
+
+				template<typename Db>
+					auto _prepare(Db& db) const
+					-> prepared_update_t<Db, _statement_t>
+					{
+						_statement_t::_check_consistency();
+
+						return {{}, db.prepare_update(_get_statement())};
+					}
 			};
 	};
 

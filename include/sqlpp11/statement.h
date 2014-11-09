@@ -79,18 +79,19 @@ namespace sqlpp
 
 				using _result_type_provider = detail::get_last_if<is_return_value_t, noop, Policies...>;
 
-				struct _result_methods_t: public _result_type_provider::template _result_methods_t<statement_policies_t>
+				struct _result_methods_t: public _result_type_provider::template _result_methods_t<_statement_t>
 				{};
 
 
 				// A select can be used as a pseudo table if
 				//   - at least one column is selected
 				//   - the select is complete (leaks no tables)
-				using _can_be_used_as_table = typename std::conditional<
-					is_select_column_list_t<_result_type_provider>::value and _required_tables::size::value == 0,
-					std::true_type,
-					std::false_type
-						>::type;
+				static constexpr bool _can_be_used_as_table()
+				{
+					return is_select_column_list_t<_result_type_provider>::value and _required_tables::size::value == 0
+						? true
+						: false;
+				}
 
 				using _value_type = typename std::conditional<
 					detail::none_t<is_missing_t<Policies>::value...>::value,
@@ -131,16 +132,18 @@ namespace sqlpp
 				public Policies::template _methods_t<detail::statement_policies_t<Db, Policies...>>...
 	{
 		using _policies_t = typename detail::statement_policies_t<Db, Policies...>;
+		using _result_type_provider = typename _policies_t::_result_type_provider;
+		template<typename Composite>
+			using _result_methods_t = typename _result_type_provider::template _result_methods_t<Composite>;
 
 		using _traits = make_traits<value_type_of<_policies_t>,
 					tag::is_select, 
 					tag_if<tag::is_expression, is_expression_t<_policies_t>::value>, 
 					tag_if<tag::is_selectable, is_expression_t<_policies_t>::value>,
+					tag_if<tag::is_return_value, detail::none_t<is_noop_t<_result_type_provider>::value>::value>,
 					tag::requires_braces>;
 		using _recursive_traits = typename _policies_t::_recursive_traits;
 		using _used_outer_tables = typename _policies_t::_all_provided_outer_tables;
-
-		using _result_type_provider = typename _policies_t::_result_type_provider;
 
 		using _name_t = typename _result_type_provider::_name_t;
 
@@ -171,6 +174,11 @@ namespace sqlpp
 		size_t _get_no_of_parameters() const
 		{
 			return _get_static_no_of_parameters();
+		}
+
+		static constexpr bool _can_be_used_as_table()
+		{
+			return _policies_t::_can_be_used_as_table();
 		}
 
 		static void _check_consistency()
