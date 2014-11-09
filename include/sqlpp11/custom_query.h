@@ -73,13 +73,13 @@ namespace sqlpp
 		static void _check_consistency() {};
 
 		template<typename Db>
-		auto _run(Db& db) const	-> decltype(_methods_t::_run(db, *this))
+		auto _run(Db& db) const	-> decltype(std::declval<_methods_t>()._run(db, *this))
 		{
 			return _methods_t::_run(db, *this);
 		}
 
 		template<typename Db>
-		auto _prepare(Db& db) const	-> decltype(_methods_t::_prepare(db, *this))
+		auto _prepare(Db& db) const	-> decltype(std::declval<_methods_t>()._prepare(db, *this))
 		{
 			return _methods_t::_prepare(db, *this);
 		}
