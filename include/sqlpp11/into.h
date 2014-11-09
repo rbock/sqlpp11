@@ -27,6 +27,7 @@
 #ifndef SQLPP_INTO_H
 #define SQLPP_INTO_H
 
+#include <sqlpp11/statement_fwd.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/no_value.h>
 #include <sqlpp11/no_data.h>
@@ -168,6 +169,11 @@ namespace sqlpp
 			}
 		};
 
+	template<typename... T>
+		auto into(T&&... t) -> decltype(statement_t<void, no_into_t>().into(std::forward<T>(t)...))
+		{
+			return statement_t<void, no_into_t>().into(std::forward<T>(t)...);
+		}
 }
 
 #endif

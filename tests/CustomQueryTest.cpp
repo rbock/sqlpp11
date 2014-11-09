@@ -37,7 +37,7 @@ int main()
 	test::TabFoo f; 
 	test::TabBar t;
 
-	auto c = custom_query(select(all_of(t)).from(t), sqlpp::verbatim("INTO"), f);
+	auto c = custom_query(select(all_of(t)).from(t), into(f));
 	std::cerr << serialize(c, printer).str() << std::endl;
 	db(c);
 
