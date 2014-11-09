@@ -24,35 +24,42 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_PREPARED_EXECUTE_H
-#define SQLPP_PREPARED_EXECUTE_H
-
-#include <sqlpp11/parameter_list.h>
-#include <sqlpp11/result.h>
+#ifndef SQLPP_HIDDEN_H
+#define SQLPP_HIDDEN_H
 
 namespace sqlpp
 {
-	template<typename Db, typename Statement>
-		struct prepared_execute_t
+	template<typename Part>
+	struct hidden_t:
+		public Part
+	{
+		hidden_t(Part part):
+			Part(part)
+		{}
+
+		hidden_t(const hidden_t&) = default;
+		hidden_t(hidden_t&&) = default;
+		hidden_t& operator=(const hidden_t&) = default;
+		hidden_t& operator=(hidden_t&&) = default;
+		~hidden_t() = default;
+	};
+
+	template<typename Context, typename Part>
+		struct serializer_t<Context, hidden_t<Part>>
 		{
-			using _parameter_list_t = make_parameter_list_t<Statement>;
-			using _prepared_statement_t = typename Db::_prepared_statement_t;
+			using T = hidden_t<Part>;
 
-			auto _run(Db& db) const
-				-> void
-				{
-					return db.run_prepared_execute(*this);
-				}
-
-			void _bind_params() const
+			static Context& _(const T& t, Context& context)
 			{
-				params._bind(_prepared_statement);
+				return context;
 			}
-
-			_parameter_list_t params;
-			mutable _prepared_statement_t _prepared_statement;
 		};
 
+	template<typename Part>
+		auto hidden(Part part)
+		-> hidden_t<Part>
+		{
+			return {part};
+		}
 }
-
 #endif

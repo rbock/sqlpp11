@@ -29,6 +29,7 @@
 
 #include <sqlpp11/connection.h>
 #include <sqlpp11/interpret_tuple.h>
+#include <sqlpp11/hidden.h>
 #include <sqlpp11/detail/get_first.h>
 
 namespace sqlpp
@@ -57,6 +58,10 @@ namespace sqlpp
 
 		custom_query_t(Parts... parts):
 			_parts(parts...)
+		{}
+
+		custom_query_t(std::tuple<Parts...> parts):
+			_parts(parts)
 		{}
 
 		custom_query_t(const custom_query_t&) = default;
@@ -88,6 +93,13 @@ namespace sqlpp
 		{
 			return _get_static_no_of_parameters();
 		}
+
+		template<typename Part>
+			auto with_result_type_of(Part part)
+			-> custom_query_t<Database, Part, Parts...>
+			{
+				return {tuple_cat(std::make_tuple(part), _parts)};
+			}
 
 		std::tuple<Parts...> _parts;
 	};
