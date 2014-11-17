@@ -292,6 +292,17 @@ namespace sqlpp
 				};
 		};
 
+	struct assert_insert_values_t
+	{
+		using type = std::false_type;
+
+		template<typename T = void>
+			static void _()
+			{
+				static_assert(wrong_t<T>::value, "insert values required, e.g. set(...) or default_values()");
+			};
+	};
+
 	// NO INSERT COLUMNS/VALUES YET
 	struct no_insert_value_list_t
 	{
@@ -332,10 +343,7 @@ namespace sqlpp
 				template<typename T>
 					using _new_statement_t = new_statement<Policies, no_insert_value_list_t, T>;
 
-				static void _check_consistency() 
-				{
-					static_assert(wrong_t<_methods_t>::value, "insert values required, e.g. set(...) or default_values()");
-				}
+				using _consistency_check = assert_insert_values_t;
 
 				auto default_values() const
 					-> _new_statement_t<insert_default_values_t>
