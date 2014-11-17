@@ -38,6 +38,8 @@ namespace sqlpp
 			using _parameter_list_t = make_parameter_list_t<Update>;
 			using _prepared_statement_t = typename Db::_prepared_statement_t;
 
+			using _run_check = consistent_t;
+
 			auto _run(Db& db) const
 				-> size_t
 				{

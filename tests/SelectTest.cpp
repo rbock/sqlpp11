@@ -38,12 +38,9 @@ MockDb::_serializer_context_t printer;
 
 int main()
 {
-	//test::TabFoo f; 
+	test::TabFoo f; 
 	test::TabBar t;
 
-	db(select(all_of(t)).from(t));
-
-#if 0
 	select(t.alpha).flags(sqlpp::all).from(t);
 	for (const auto& row : db(select(all_of(t)).from(t).where(true)))
 	{
@@ -101,7 +98,6 @@ int main()
 	std::cerr << serialize(stat, printer).str() << std::endl;
 
 	select(sqlpp::value(7).as(t.alpha));
-#endif
 
 	return 0;
 }

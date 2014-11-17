@@ -40,6 +40,8 @@ namespace sqlpp
 			using _dynamic_names_t = typename Statement::_dynamic_names_t;
 			using _prepared_statement_t = typename Database::_prepared_statement_t;
 
+			using _run_check = consistent_t;
+
 			auto _run(Database& db) const
 				-> result_t<decltype(db.run_prepared_select(*this)), _result_row_t>
 				{
