@@ -28,6 +28,7 @@
 #define SQLPP_TYPE_TRAITS_H
 
 #include <type_traits>
+#include <tuple>
 #include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp

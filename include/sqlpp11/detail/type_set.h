@@ -27,7 +27,6 @@
 #ifndef SQLPP_DETAIL_TYPE_SET_H
 #define SQLPP_DETAIL_TYPE_SET_H
 
-#include <tuple>
 #include <type_traits>
 #include <sqlpp11/wrong.h>
 #include <sqlpp11/detail/logic.h>
