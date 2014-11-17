@@ -55,18 +55,12 @@ namespace sqlpp
 				template<typename Db, typename Composite>
 					auto _run(Db& db, const Composite& composite) const	-> void
 					{
-						Composite::_check_consistency();
-						static_assert(Composite::_get_static_no_of_parameters() == 0, "cannot run execute directly with parameters, use prepare instead");
-
 						return db.execute(composite);
 					}
 
 				template<typename Db>
 					auto _run(Db& db) const -> void
 					{
-						_statement_t::_check_consistency();
-
-						static_assert(_statement_t::_get_static_no_of_parameters() == 0, "cannot run insert directly with parameters, use prepare instead");
 						return db.execute(_get_statement());
 					}
 
@@ -75,8 +69,6 @@ namespace sqlpp
 					auto _prepare(Db& db, const Composite& composite) const
 					-> prepared_execute_t<Db, Composite>
 					{
-						Composite::_check_consistency();
-
 						return {{}, db.prepare_execute(composite)};
 					}
 
@@ -84,8 +76,6 @@ namespace sqlpp
 					auto _prepare(Db& db) const
 					-> prepared_execute_t<Db, _statement_t>
 					{
-						_statement_t::_check_consistency();
-
 						return {{}, db.prepare_execute(_get_statement())};
 					}
 			};

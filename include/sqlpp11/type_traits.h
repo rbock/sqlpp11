@@ -239,6 +239,16 @@ namespace sqlpp
 
 	template<typename Policies>
 		using derived_statement_t = typename Policies::_statement_t;
+
+	struct consistent_t
+	{
+		using type = std::true_type;
+
+		static void _() {};
+	};
+
+	template<typename T>
+	using is_inconsistent_t = typename std::conditional<std::is_same<consistent_t, T>::value, std::false_type, std::true_type>::type;
 }
 
 #endif

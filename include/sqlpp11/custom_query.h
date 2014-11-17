@@ -70,17 +70,20 @@ namespace sqlpp
 		custom_query_t& operator=(custom_query_t&&) = default;
 		~custom_query_t() = default;
 
-		static void _check_consistency() {};
+		using _consistency_check = consistent_t;
 
 		template<typename Db>
 		auto _run(Db& db) const	-> decltype(std::declval<_methods_t>()._run(db, *this))
 		{
+			static_assert(_get_static_no_of_parameters() == 0, "cannot run execute directly with parameters, use prepare instead");
+			_run_check{};
 			return _methods_t::_run(db, *this);
 		}
 
 		template<typename Db>
 		auto _prepare(Db& db) const	-> decltype(std::declval<_methods_t>()._prepare(db, *this))
 		{
+			_prepare_check{};
 			return _methods_t::_prepare(db, *this);
 		}
 

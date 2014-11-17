@@ -107,9 +107,23 @@ struct MockDbT: public sqlpp::connection
 
 	// Directly executed statements start here
 	template<typename T>
-		auto operator() (const T& t) -> decltype(t._run(*this))
+		auto _run(const T& t, const std::true_type&) -> decltype(t._run(*this))
 		{
 			return t._run(*this);
+		}
+
+	template<typename T>
+		auto _run(const T& t, const std::false_type&) -> decltype(t._run(*this))
+		{
+			return decltype(t._run(*this)){};
+		}
+
+	template<typename T>
+		auto operator() (const T& t) -> decltype(t._run(*this))
+		{
+			T::_run_check::_();
+			using _ok = typename T::_run_check::type;
+			return _run(t, _ok{});
 		}
 
 	void execute(const std::string& command);

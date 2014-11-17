@@ -96,7 +96,7 @@ namespace sqlpp
 			template<typename Policies>
 				struct _methods_t
 				{
-					static void _check_consistency() {}
+					using _consistency_check = consistent_t;
 				};
 
 		};

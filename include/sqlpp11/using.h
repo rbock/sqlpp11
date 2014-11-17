@@ -121,7 +121,7 @@ namespace sqlpp
 			template<typename Policies>
 				struct _methods_t
 				{
-					static void _check_consistency() {}
+					using _consistency_check = consistent_t;
 				};
 		};
 
@@ -165,7 +165,7 @@ namespace sqlpp
 				template<typename T>
 					using _new_statement_t = new_statement<Policies, no_using_t, T>;
 
-				static void _check_consistency() {}
+				using _consistency_check = consistent_t;
 
 				template<typename... Args>
 					auto using_(Args... args) const
