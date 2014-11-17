@@ -124,9 +124,20 @@ namespace sqlpp
 			template<typename Policies>
 				struct _methods_t
 				{
-					static void _check_consistency() {}
+					using _consistency_check = consistent_t;
 				};
 		};
+
+	struct assert_update_assignments_t
+	{
+		using type = std::false_type;
+
+		template<typename T = void>
+			static void _()
+			{
+				static_assert(wrong_t<T>::value, "update assignments required, i.e. set(...)");
+			};
+	};
 
 	struct no_update_list_t
 	{
@@ -167,10 +178,7 @@ namespace sqlpp
 				template<typename T>
 					using _new_statement_t = new_statement<Policies, no_update_list_t, T>;
 
-				static void _check_consistency()
-				{
-					static_assert(wrong_t<_methods_t>::value, "update assignments required, i.e. set(...)");
-				}
+				using _consistency_check = assert_update_assignments_t;
 
 				template<typename... Assignments>
 					auto set(Assignments... assignments) const

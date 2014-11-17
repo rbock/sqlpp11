@@ -35,6 +35,7 @@
 #include <sqlpp11/policy_update.h>
 #include <sqlpp11/serializer.h>
 
+#include <sqlpp11/detail/get_first.h>
 #include <sqlpp11/detail/get_last.h>
 #include <sqlpp11/detail/pick_arg.h>
 
@@ -42,6 +43,28 @@ namespace sqlpp
 {
 	template<typename Db, typename... Policies>
 		struct statement_t;
+
+	struct assert_no_unknown_tables_t
+	{
+		using type = std::false_type;
+
+		template<typename T = void>
+		static void _()
+		{
+			static_assert(wrong_t<T>::value, "one clause requires tables which are otherwise not known in the statement");
+		}
+	};
+
+	struct assert_no_parameters_t
+	{
+		using type = std::false_type;
+
+		template<typename T = void>
+		static void _()
+		{
+			static_assert(wrong_t<T>::value, "cannot run statements with parameters directly, use prepare instead");
+		}
+	};
 
 	namespace detail
 	{
@@ -110,7 +133,7 @@ namespace sqlpp
 
 				struct _recursive_traits
 				{
-					using _required_tables = statement_policies_t::_required_tables;
+					using _required_tables = _required_tables;
 					using _provided_tables = detail::type_set<>;
 					using _provided_outer_tables = detail::type_set<>;
 					using _extra_tables = detail::type_set<>;
@@ -119,6 +142,16 @@ namespace sqlpp
 											detail::type_set<tag::can_be_null>,
 											detail::type_set<>>::type;
 				};
+
+				using _table_check = typename std::conditional<_required_tables::size::value == 0,
+							consistent_t, assert_no_unknown_tables_t>::type;
+				using _parameter_check = typename std::conditional<std::tuple_size<typename _recursive_traits::_parameters>::value == 0,
+							consistent_t, assert_no_parameters_t>::type;
+
+				using _run_check = detail::get_first_if<is_inconsistent_t, consistent_t, 
+							_table_check, _parameter_check, typename Policies::template _methods_t<statement_policies_t>::_consistency_check...>;
+				using _prepare_check = detail::get_first_if<is_inconsistent_t, consistent_t, 
+							_table_check, typename Policies::template _methods_t<statement_policies_t>::_consistency_check...>;
 			};
 	}
 
@@ -132,6 +165,9 @@ namespace sqlpp
 				public Policies::template _methods_t<detail::statement_policies_t<Db, Policies...>>...
 	{
 		using _policies_t = typename detail::statement_policies_t<Db, Policies...>;
+		using _run_check = typename _policies_t::_run_check;
+		using _prepare_check = typename _policies_t::_prepare_check;
+
 		using _result_type_provider = typename _policies_t::_result_type_provider;
 		template<typename Composite>
 			using _result_methods_t = typename _result_type_provider::template _result_methods_t<Composite>;
@@ -181,14 +217,19 @@ namespace sqlpp
 			return _policies_t::_can_be_used_as_table();
 		}
 
-		static void _check_consistency()
+		template<typename Database>
+		auto _run(Database& db) const	-> decltype(std::declval<_result_methods_t<statement_t>>()._run(db))
 		{
-			static_assert(not required_tables_of<_policies_t>::size::value, "one sub expression requires tables which are otherwise not known in the statement");
-
-			using swallow = int[]; 
-			(void) swallow{(Policies::template _methods_t<detail::statement_policies_t<Db, Policies...>>::_check_consistency(), 0)...};
+			_run_check::_();
+			return _result_methods_t<statement_t>::_run(db);
 		}
 
+		template<typename Database>
+		auto _prepare(Database& db) const	-> decltype(std::declval<_result_methods_t<statement_t>>()._prepare(db))
+		{
+			_prepare_check::_();
+			return _result_methods_t<statement_t>::_prepare(db);
+		}
 
 	};
 
@@ -244,7 +285,7 @@ namespace sqlpp
 			template<typename Policies>
 				struct _methods_t
 				{
-					static void _check_consistency() {}
+					using _consistency_check = consistent_t;
 				};
 		};
 

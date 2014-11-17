@@ -231,7 +231,7 @@ namespace sqlpp
 			template<typename Policies>
 				struct _methods_t
 				{
-					static void _check_consistency() {}
+					using _consistency_check = consistent_t;
 				};
 
 			// Result methods
@@ -297,9 +297,6 @@ namespace sqlpp
 						auto _run(Db& db, const Composite& composite) const
 						-> result_t<decltype(db.select(composite)), _result_row_t<Db>>
 						{
-							Composite::_check_consistency();
-							static_assert(Composite::_get_static_no_of_parameters() == 0, "cannot run select directly with parameters, use prepare instead");
-
 							return {db.select(composite), get_dynamic_names()};
 						}
 
@@ -307,9 +304,6 @@ namespace sqlpp
 						auto _run(Db& db) const
 						-> result_t<decltype(db.select(std::declval<_statement_t>())), _result_row_t<Db>>
 						{
-							_statement_t::_check_consistency();
-							static_assert(_statement_t::_get_static_no_of_parameters() == 0, "cannot run select directly with parameters, use prepare instead");
-
 							return {db.select(_get_statement()), get_dynamic_names()};
 						}
 
@@ -318,8 +312,6 @@ namespace sqlpp
 						auto _prepare(Db& db, const Composite& composite) const
 						-> prepared_select_t<Db, _statement_t, Composite>
 						{
-							Composite::_check_consistency();
-
 							return {make_parameter_list_t<Composite>{}, get_dynamic_names(), db.prepare_select(composite)};
 						}
 
@@ -327,8 +319,6 @@ namespace sqlpp
 						auto _prepare(Db& db) const
 						-> prepared_select_t<Db, _statement_t>
 						{
-							_statement_t::_check_consistency();
-
 							return {make_parameter_list_t<_statement_t>{}, get_dynamic_names(), db.prepare_select(_get_statement())};
 						}
 				};
@@ -385,7 +375,7 @@ namespace sqlpp
 				template<typename T>
 					using _new_statement_t = new_statement<Policies, no_select_column_list_t, T>;
 
-				static void _check_consistency() {}
+				using _consistency_check = consistent_t;
 
 				template<typename... Args>
 					auto columns(Args... args) const

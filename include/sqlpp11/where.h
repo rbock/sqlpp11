@@ -128,7 +128,7 @@ namespace sqlpp
 			template<typename Policies>
 				struct _methods_t
 				{
-					static void _check_consistency() {}
+					using _consistency_check = consistent_t;
 				};
 		};
 
@@ -176,10 +176,21 @@ namespace sqlpp
 			template<typename Policies>
 				struct _methods_t
 				{
-					static void _check_consistency() {}
+					using _consistency_check = consistent_t;
 				};
 
 		};
+
+	struct assert_where_t
+	{
+		using type = std::false_type;
+
+		template<typename T = void>
+			static void _()
+			{
+				static_assert(wrong_t<T>::value, "where expression required, e.g. where(true)");
+			};
+	};
 
 	// NO WHERE YET
 	template<bool WhereRequired>
@@ -223,12 +234,10 @@ namespace sqlpp
 					template<typename T>
 						using _new_statement_t = new_statement<Policies, no_where_t, T>;
 
-					static void _check_consistency()
-					{
-						static constexpr bool _tables_provided = (Policies::_all_provided_tables::size::value > 0);
-						static constexpr bool _required = WhereRequired and _tables_provided;
-						static_assert(not _required, "where expression required, e.g. where(true)");
-					}
+					using _consistency_check = typename std::conditional<
+						WhereRequired and (Policies::_all_provided_tables::size::value > 0),
+						assert_where_t,
+						consistent_t>::type;
 
 					template<typename... Args>
 						auto where(Args... args) const

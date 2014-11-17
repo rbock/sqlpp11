@@ -61,18 +61,12 @@ namespace sqlpp
 					auto _run(Db& db, const Composite& composite) const
 					-> decltype(db.update(composite))
 					{
-						Composite::_check_consistency();
-						static_assert(Composite::_get_static_no_of_parameters() == 0, "cannot run update directly with parameters, use prepare instead");
-
 						return db.update(composite);
 					}
 
 				template<typename Db>
 					auto _run(Db& db) const -> decltype(db.update(this->_get_statement()))
 					{
-						_statement_t::_check_consistency();
-
-						static_assert(_statement_t::_get_static_no_of_parameters() == 0, "cannot run update directly with parameters, use prepare instead");
 						return db.update(_get_statement());
 					}
 
@@ -81,8 +75,6 @@ namespace sqlpp
 					auto _prepare(Db& db, const Composite& composite) const
 					-> prepared_update_t<Db, Composite>
 					{
-						Composite::_check_consistency();
-
 						return {{}, db.prepare_update(composite)};
 					}
 
@@ -90,8 +82,6 @@ namespace sqlpp
 					auto _prepare(Db& db) const
 					-> prepared_update_t<Db, _statement_t>
 					{
-						_statement_t::_check_consistency();
-
 						return {{}, db.prepare_update(_get_statement())};
 					}
 			};

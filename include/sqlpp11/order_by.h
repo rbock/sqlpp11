@@ -128,7 +128,7 @@ namespace sqlpp
 			template<typename Policies>
 				struct _methods_t
 				{
-					static void _check_consistency() {}
+					using _consistency_check = consistent_t;
 				};
 		};
 
@@ -172,7 +172,7 @@ namespace sqlpp
 				template<typename T>
 					using _new_statement_t = new_statement<Policies, no_order_by_t, T>;
 
-				static void _check_consistency() {}
+				using _consistency_check = consistent_t;
 
 				template<typename... Args>
 					auto order_by(Args... args) const

@@ -41,7 +41,7 @@ int main()
 	test::TabFoo f; 
 	test::TabBar t;
 
-	sqlpp::select(t.alpha).flags(sqlpp::all).from(t);
+	select(t.alpha).flags(sqlpp::all).from(t);
 	for (const auto& row : db(select(all_of(t)).from(t).where(true)))
 	{
 		int64_t a = row.alpha;

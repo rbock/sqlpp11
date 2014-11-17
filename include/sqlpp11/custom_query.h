@@ -56,6 +56,12 @@ namespace sqlpp
 		using _traits = make_traits<no_value_t>;
 		using _recursive_traits = make_recursive_traits<Parts...>;
 
+		using _parameter_check = typename std::conditional<std::tuple_size<typename _recursive_traits::_parameters>::value == 0,
+					consistent_t, assert_no_parameters_t>::type;
+		using _run_check = detail::get_first_if<is_inconsistent_t, consistent_t, 
+					_parameter_check>;
+		using _prepare_check = consistent_t;
+
 		custom_query_t(Parts... parts):
 			_parts(parts...)
 		{}
@@ -70,17 +76,17 @@ namespace sqlpp
 		custom_query_t& operator=(custom_query_t&&) = default;
 		~custom_query_t() = default;
 
-		static void _check_consistency() {};
-
 		template<typename Db>
 		auto _run(Db& db) const	-> decltype(std::declval<_methods_t>()._run(db, *this))
 		{
+			_run_check::_();
 			return _methods_t::_run(db, *this);
 		}
 
 		template<typename Db>
 		auto _prepare(Db& db) const	-> decltype(std::declval<_methods_t>()._prepare(db, *this))
 		{
+			_prepare_check::_();
 			return _methods_t::_prepare(db, *this);
 		}
 
