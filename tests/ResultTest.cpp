@@ -47,7 +47,7 @@ int main()
 	{
 		static_assert(sqlpp::can_be_null_t<decltype(row.alpha)>::value, "row.alpha can be null");
 		static_assert(sqlpp::null_is_trivial_value_t<decltype(row.alpha)>::value, "row.alpha interprets null_is_trivial");
-		static_assert(std::is_member_function_pointer<decltype(&decltype(row.alpha)::is_null)>::value, "Yikes");
+		static_assert(std::is_same<bool, decltype(row.alpha.is_null())>::value, "Yikes");
 		using T = sqlpp::wrap_operand_t<decltype(row.alpha)>;
 		static_assert(sqlpp::can_be_null_t<T>::value, "row.alpha can be null");
 		static_assert(sqlpp::is_result_field_t<T>::value, "result_fields are not wrapped");

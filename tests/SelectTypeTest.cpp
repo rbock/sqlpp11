@@ -359,7 +359,7 @@ int main()
 	((t.alpha + 7) + 4).asc();
 	static_assert(sqlpp::is_boolean_t<decltype(t.gamma == t.gamma)>::value, "Comparison expression have to be boolean");
 	!t.gamma;
-	t.beta < "kaesekuchen";
+	serialize(t.beta < "kaesekuchen", printer).str();
 	serialize(t.beta + "hallenhalma", printer).str();
 	static_assert(sqlpp::must_not_insert_t<decltype(t.alpha)>::value, "alpha must not be inserted");
 	serialize(t.alpha, printer).str();
