@@ -420,6 +420,11 @@ namespace sqlpp
 			}
 		};
 
+	template<typename... T>
+		auto select_columns(T&&... t) -> decltype(statement_t<void, no_select_column_list_t>().columns(std::forward<T>(t)...))
+		{
+			return statement_t<void, no_select_column_list_t>().columns(std::forward<T>(t)...);
+		}
 }
 
 #endif

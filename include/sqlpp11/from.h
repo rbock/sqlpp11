@@ -220,6 +220,11 @@ namespace sqlpp
 			}
 		};
 
+	template<typename... T>
+		auto from(T&&... t) -> decltype(statement_t<void, no_from_t>().from(std::forward<T>(t)...))
+		{
+			return statement_t<void, no_from_t>().from(std::forward<T>(t)...);
+		}
 }
 
 #endif
