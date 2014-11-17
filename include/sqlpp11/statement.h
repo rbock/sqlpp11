@@ -189,6 +189,19 @@ namespace sqlpp
 			(void) swallow{(Policies::template _methods_t<detail::statement_policies_t<Db, Policies...>>::_check_consistency(), 0)...};
 		}
 
+		template<typename Database>
+		auto _run(Database& db) const	-> decltype(std::declval<_result_methods_t<statement_t>>()._run(db))
+		{
+			return _result_methods_t<statement_t>::_run(db);
+		}
+
+		template<typename Database>
+		auto _prepare(Database& db) const	-> decltype(std::declval<_result_methods_t<statement_t>>()._prepare(db))
+		{
+			return _result_methods_t<statement_t>::_prepare(db);
+		}
+
+
 
 	};
 
