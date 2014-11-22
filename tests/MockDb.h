@@ -113,10 +113,7 @@ struct MockDbT: public sqlpp::connection
 		}
 
 	template<typename T>
-		auto _run(const T& t, const std::false_type&) -> decltype(t._run(*this))
-		{
-			return decltype(t._run(*this)){};
-		}
+		auto _run(const T& t, const std::false_type&) -> decltype(t._run(*this));
 
 	template<typename T>
 		auto operator() (const T& t) -> decltype(t._run(*this))
