@@ -34,6 +34,9 @@
 #include "MockDb.h"
 #include <sqlpp11/sqlpp11.h>
 
+static constexpr bool some_condition = true;
+static constexpr bool some_other_condition = false;
+
 SQLPP_ALIAS_PROVIDER(cheesecake);
 
 MockDb db;
@@ -91,8 +94,8 @@ int main()
 	
 	
 
-#if !0
-	auto s = select(all_of(p)) 
+#if 0
+	auto s = select(p.id, p.name, f.id.as(cheesecake)) 
 				      .from(p, f)
 						  .where(p.name == any(select(f.name)
 										               .from(f)
@@ -103,16 +106,34 @@ int main()
 							.limit(3).offset(7);
 
 	auto x = s.as(sqlpp::alias::x);
-	for (const auto& row : db(select(p.id, x.name)
-				.from(p.join(x).on(p.feature == x.feature))
+	for (const auto& row : db(select(p.id, p.name, all_of(x).as(x))
+				.from(p.join(x).on(p.feature == x.cheesecake))
 				.where(true)))
 	{
 		int id = row.id;
 		std::string name = row.name;
+		std::string x_name = row.x.name;
+		int cheesecake = row.x.cheesecake;
 	}
 #endif
 
 
+
+#if !0
+	auto dysel = dynamic_select(db).dynamic_columns(p.name).from(p).dynamic_where();
+
+	if (some_condition)
+		dysel.selected_columns.add(p.feature);
+
+	if (some_other_condition)
+		dysel.where.add(p.id > 17);
+
+	for (const auto& row : db(dysel))
+	{
+		std::string name = row.name;
+		std::string feature = row.at("feature");
+	}
+#endif
 
 
 

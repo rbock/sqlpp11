@@ -128,6 +128,7 @@ namespace sqlpp
 			template<typename Policies>
 				struct _methods_t
 				{
+#warning: here and elsewhere: add check for missing tables (see select columns, for instance)
 					using _consistency_check = consistent_t;
 				};
 		};

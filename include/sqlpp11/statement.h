@@ -149,9 +149,9 @@ namespace sqlpp
 							consistent_t, assert_no_parameters_t>::type;
 
 				using _run_check = detail::get_first_if<is_inconsistent_t, consistent_t, 
-							_table_check, _parameter_check, typename Policies::template _methods_t<statement_policies_t>::_consistency_check...>;
+							_parameter_check, typename Policies::template _methods_t<statement_policies_t>::_consistency_check..., _table_check>;
 				using _prepare_check = detail::get_first_if<is_inconsistent_t, consistent_t, 
-							_table_check, typename Policies::template _methods_t<statement_policies_t>::_consistency_check...>;
+							typename Policies::template _methods_t<statement_policies_t>::_consistency_check..., _table_check>;
 			};
 	}
 

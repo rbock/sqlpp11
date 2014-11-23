@@ -147,6 +147,17 @@ namespace sqlpp
 			dynamic_select_column_list<Database> _dynamic_columns;
 		};
 
+	struct assert_no_unknown_tables_in_selected_columns_t
+	{
+		using type = std::false_type;
+
+		template<typename T = void>
+		static void _()
+		{
+			static_assert(wrong_t<T>::value, "at least one selected column requires a table which is otherwise not known in the statement");
+		}
+	};
+
 
 	// SELECTED COLUMNS
 	template<typename Database, typename... Columns>
@@ -231,7 +242,9 @@ namespace sqlpp
 			template<typename Policies>
 				struct _methods_t
 				{
-					using _consistency_check = consistent_t;
+					using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<select_column_list_t>::value,
+								consistent_t,
+								assert_no_unknown_tables_in_selected_columns_t>::type;
 				};
 
 			// Result methods
