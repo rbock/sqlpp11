@@ -49,6 +49,7 @@ namespace sqlpp
 	template<typename Context, typename Expression, typename AliasProvider>
 		struct serializer_t<Context, expression_alias_t<Expression, AliasProvider>>
 		{
+			using _serialize_check = serialize_check_of<Context, Expression>;
 			using T = expression_alias_t<Expression, AliasProvider>;
 
 			static Context& _(const T& t, Context& context)

@@ -118,8 +118,10 @@ struct MockDbT: public sqlpp::connection
 	template<typename T>
 		auto operator() (const T& t) -> decltype(t._run(*this))
 		{
-			T::_run_check::_();
-			using _ok = typename T::_run_check::type;
+			sqlpp::run_check_t<T>::_();
+			sqlpp::serialize_check_t<_serializer_context_t, T>::_();
+			using _ok = sqlpp::detail::all_t<sqlpp::run_check_t<T>::type::value,
+				  sqlpp::serialize_check_t<_serializer_context_t, T>::type::value>;
 			return _run(t, _ok{});
 		}
 

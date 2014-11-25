@@ -66,6 +66,7 @@ namespace sqlpp
 	template<typename Context, typename Lhs, typename Rhs>
 		struct serializer_t<Context, equal_to_t<Lhs, Rhs>>
 		{
+			using _serialize_check = serialize_check_of<Context, Lhs, Rhs>;
 			using T = equal_to_t<Lhs, Rhs>;
 
 			static Context& _(const T& t, Context& context)
@@ -114,6 +115,7 @@ namespace sqlpp
 	template<typename Context, typename Lhs, typename Rhs>
 		struct serializer_t<Context, not_equal_to_t<Lhs, Rhs>>
 		{
+			using _serialize_check = serialize_check_of<Context, Lhs, Rhs>;
 			using T = not_equal_to_t<Lhs, Rhs>;
 
 			static Context& _(const T& t, Context& context)
@@ -158,6 +160,7 @@ namespace sqlpp
 	template<typename Context, typename Rhs>
 		struct serializer_t<Context, logical_not_t<Rhs>>
 		{
+			using _serialize_check = serialize_check_of<Context, Rhs>;
 			using T = logical_not_t<Rhs>;
 
 			static Context& _(const T& t, Context& context)
@@ -205,6 +208,7 @@ namespace sqlpp
 	template<typename Context, typename Lhs, typename O, typename Rhs>
 		struct serializer_t<Context, binary_expression_t<Lhs, O, Rhs>>
 		{
+			using _serialize_check = serialize_check_of<Context, Lhs, Rhs>;
 			using T = binary_expression_t<Lhs, O, Rhs>;
 
 			static Context& _(const T& t, Context& context)
@@ -242,6 +246,7 @@ namespace sqlpp
 	template<typename Context, typename O, typename Rhs>
 		struct serializer_t<Context, unary_expression_t<O, Rhs>>
 		{
+			using _serialize_check = serialize_check_of<Context, Rhs>;
 			using T = unary_expression_t<O, Rhs>;
 
 			static Context& _(const T& t, Context& context)

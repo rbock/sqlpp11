@@ -49,12 +49,13 @@ namespace sqlpp
 {
 	struct select_name_t {};
 
-	struct select_t: public statement_name_t<select_name_t>
+	struct select_t: public statement_name_t<select_name_t, tag::is_select>
 	{};
 
 	template<typename Context>
 		struct serializer_t<Context, select_name_t>
 		{
+			using _serialize_check = consistent_t;
 			using T = select_name_t;
 
 			static Context& _(const T& t, Context& context)

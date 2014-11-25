@@ -69,6 +69,7 @@ namespace sqlpp
 	template<typename Context, typename Select>
 		struct serializer_t<Context, exists_t<Select>>
 		{
+			using _serialize_check = serialize_check_of<Context, Select>;
 			using T = exists_t<Select>;
 
 			static Context& _(const T& t, Context& context)

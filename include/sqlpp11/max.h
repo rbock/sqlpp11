@@ -67,6 +67,7 @@ namespace sqlpp
 	template<typename Context, typename Expr>
 		struct serializer_t<Context, max_t<Expr>>
 		{
+			using _serialize_check = serialize_check_of<Context, Expr>;
 			using T = max_t<Expr>;
 
 			static Context& _(const T& t, Context& context)

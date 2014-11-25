@@ -66,6 +66,7 @@ namespace sqlpp
 	template<typename Context, typename Lhs, typename Rhs>
 		struct serializer_t<Context, assignment_t<Lhs, Rhs>>
 		{
+			using _serialize_check = serialize_check_of<Context, Lhs, Rhs>;
 			using T = assignment_t<Lhs, Rhs>;
 
 			static Context& _(const T& t, Context& context)

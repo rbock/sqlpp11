@@ -37,6 +37,7 @@ namespace sqlpp
 	template<typename Context>
 		struct serializer_t<Context, no_data_t>
 		{
+			using _serialize_check = consistent_t;
 			using T = no_data_t;
 
 			static Context& _(const T& t, Context& context)

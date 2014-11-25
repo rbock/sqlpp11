@@ -37,16 +37,6 @@ namespace sqlpp
 		{
 			return serializer_t<Context, T>::_(t, context);
 		}
-
-	/*
-		 template<typename T, typename Context>
-		 auto serialize(const T& t, Context& context)
-		 -> decltype(serializer_t<Context, T>::_(t, context))
-		 {
-		 return serializer_t<Context, T>::_(t, context);
-		 }
-		 */
-
 }
 
 #endif

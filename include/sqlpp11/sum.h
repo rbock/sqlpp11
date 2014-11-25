@@ -70,6 +70,7 @@ namespace sqlpp
 	template<typename Context, typename Flag, typename Expr>
 		struct serializer_t<Context, sum_t<Flag, Expr>>
 		{
+			using _serialize_check = serialize_check_of<Context, Flag, Expr>;
 			using T = sum_t<Flag, Expr>;
 
 			static Context& _(const T& t, Context& context)

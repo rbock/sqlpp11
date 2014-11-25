@@ -71,6 +71,7 @@ namespace sqlpp
 	template<typename Context, typename First, typename... Args>
 		struct serializer_t<Context, concat_t<First, Args...>>
 		{
+			using _serialize_check = serialize_check_of<Context, First, Args...>;
 			using T = concat_t<First, Args...>;
 
 			static Context& _(const T& t, Context& context)

@@ -173,7 +173,8 @@ namespace sqlpp
 			using _result_methods_t = typename _result_type_provider::template _result_methods_t<Composite>;
 
 		using _traits = make_traits<value_type_of<_policies_t>,
-					tag::is_select, 
+					tag::is_statement, 
+					tag_if<tag::is_select, detail::any_t<is_select_t<Policies>::value...>::value>,
 					tag_if<tag::is_expression, is_expression_t<_policies_t>::value>, 
 					tag_if<tag::is_selectable, is_expression_t<_policies_t>::value>,
 					tag_if<tag::is_return_value, detail::none_t<is_noop_t<_result_type_provider>::value>::value>,
@@ -236,8 +237,9 @@ namespace sqlpp
 	template<typename Context, typename Database, typename... Policies>
 		struct serializer_t<Context, statement_t<Database, Policies...>>
 		{
-			using T = statement_t<Database, Policies...>;
 			using P = detail::statement_policies_t<Database, Policies...>;
+			using _serialize_check = serialize_check_of<Context, typename Policies::template _member_t<P>::_data_t...>;
+			using T = statement_t<Database, Policies...>;
 
 			static Context& _(const T& t, Context& context)
 			{
@@ -248,10 +250,10 @@ namespace sqlpp
 			}
 		};
 
-	template<typename NameData>
+	template<typename NameData, typename Tag = tag::is_noop>
 		struct statement_name_t
 		{
-			using _traits = make_traits<no_value_t, tag::is_noop>;
+			using _traits = make_traits<no_value_t, Tag>;
 			using _recursive_traits = make_recursive_traits<>;
 
 			// Data

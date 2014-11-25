@@ -56,14 +56,26 @@ namespace sqlpp
 			_operand_t _value;
 		};
 
+	struct assert_tvin_with_correct_operator_t
+	{
+		using type = std::false_type;
+
+		template<typename T = void>
+		static void _()
+		{
+			static_assert(wrong_t<T>::value, "tvin may only be used with operators =, == and !=");
+		}
+	};
+
 	template<typename Context, typename Operand>
 		struct serializer_t<Context, tvin_arg_t<Operand>>
 		{
+			using _serialize_check = assert_tvin_with_correct_operator_t;
 			using T = tvin_arg_t<Operand>;
 
 			static Context& _(const T& t, Context& context)
 			{
-				static_assert(wrong_t<serializer_t>::value, "tvin may only be used with operators =, == and !=");
+				_serialize_check::_();
 			}
 		};
 
@@ -135,6 +147,7 @@ namespace sqlpp
 	template<typename Context, typename Operand>
 		struct serializer_t<Context, tvin_t<Operand>>
 		{
+			using _serialize_check = serialize_check_of<Context, Operand>;
 			using T = tvin_t<Operand>;
 
 			static Context& _(const T& t, Context& context)

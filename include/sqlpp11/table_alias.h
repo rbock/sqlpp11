@@ -67,6 +67,7 @@ namespace sqlpp
 	template<typename Context, typename AliasProvider, typename Table, typename... ColumnSpec>
 		struct serializer_t<Context, table_alias_t<AliasProvider, Table, ColumnSpec...>>
 		{
+			using _serialize_check = serialize_check_of<Context, Table>;
 			using T = table_alias_t<AliasProvider, Table, ColumnSpec...>;
 
 			static Context& _(const T& t, Context& context)

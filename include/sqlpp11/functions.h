@@ -100,6 +100,7 @@ namespace sqlpp
 	template<typename Context, typename Container>
 		struct serializer_t<Context, value_list_t<Container>>
 		{
+			using _serialize_check = serialize_check_of<Context, wrap_operand_t<typename Container::value_type>>;
 			using T = value_list_t<Container>;
 
 			static Context& _(const T& t, Context& context)

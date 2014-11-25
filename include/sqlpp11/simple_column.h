@@ -44,6 +44,7 @@ namespace sqlpp
 	template<typename Context, typename Column>
 		struct serializer_t<Context, simple_column_t<Column>>
 		{
+			using _serialize_check = serialize_check_of<Context, Column>;
 			using T = simple_column_t<Column>;
 
 			static Context& _(const T& t, Context& context)

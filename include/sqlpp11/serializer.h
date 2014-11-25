@@ -31,12 +31,26 @@
 
 namespace sqlpp
 {
+	template<typename Expression>
+	struct assert_serializer_specialization_t
+	{
+		using type = std::false_type;
+
+		template<typename T = void>
+		static void _()
+		{
+			static_assert(wrong_t<T>::value, "missing serializer specialization");
+		}
+	};
+
 	template<typename Context, typename T, typename Enable = void>
 		struct serializer_t
 		{
+			using _serialize_check = assert_serializer_specialization_t<T>;
+
 			static void _(const T& t, Context& context)
 			{
-				static_assert(wrong_t<serializer_t>::value, "missing serializer specialization");
+				_serialize_check::_();
 			}
 		};
 

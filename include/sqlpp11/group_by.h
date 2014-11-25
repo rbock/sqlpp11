@@ -195,6 +195,7 @@ namespace sqlpp
 	template<typename Context, typename Database, typename... Expressions>
 		struct serializer_t<Context, group_by_data_t<Database, Expressions...>>
 		{
+			using _serialize_check = serialize_check_of<Context, Expressions...>;
 			using T = group_by_data_t<Database, Expressions...>;
 
 			static Context& _(const T& t, Context& context)

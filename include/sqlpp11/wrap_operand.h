@@ -69,6 +69,7 @@ namespace sqlpp
 	template<typename Context>
 		struct serializer_t<Context, boolean_operand>
 		{
+			using _serialize_check = consistent_t;
 			using Operand = boolean_operand;
 
 			static Context& _(const Operand& t, Context& context)
@@ -107,6 +108,7 @@ namespace sqlpp
 	template<typename Context>
 		struct serializer_t<Context, integral_operand>
 		{
+			using _serialize_check = consistent_t;
 			using Operand = integral_operand;
 
 			static Context& _(const Operand& t, Context& context)
@@ -146,6 +148,7 @@ namespace sqlpp
 	template<typename Context>
 		struct serializer_t<Context, floating_point_operand>
 		{
+			using _serialize_check = consistent_t;
 			using Operand = floating_point_operand;
 
 			static Context& _(const Operand& t, Context& context)
@@ -184,6 +187,7 @@ namespace sqlpp
 	template<typename Context>
 		struct serializer_t<Context, text_operand>
 		{
+			using _serialize_check = consistent_t;
 			using Operand = text_operand;
 
 			static Context& _(const Operand& t, Context& context)

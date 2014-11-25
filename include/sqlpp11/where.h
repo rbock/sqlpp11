@@ -261,6 +261,7 @@ namespace sqlpp
 	template<typename Context, typename Database, typename... Expressions>
 		struct serializer_t<Context, where_data_t<Database, Expressions...>>
 		{
+			using _serialize_check = serialize_check_of<Context, Expressions...>;
 			using T = where_data_t<Database, Expressions...>;
 
 			static Context& _(const T& t, Context& context)
@@ -279,6 +280,7 @@ namespace sqlpp
 	template<typename Context>
 		struct serializer_t<Context, where_data_t<void, bool>>
 		{
+			using _serialize_check = consistent_t;
 			using T = where_data_t<void, bool>;
 
 			static Context& _(const T& t, Context& context)

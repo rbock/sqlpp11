@@ -108,6 +108,7 @@ namespace sqlpp
 	template<typename Context, typename X>
 		struct serializer_t<Context, X, typename std::enable_if<std::is_base_of<table_base_t, X>::value and not is_pseudo_table_t<X>::value, void>::type>
 		{
+			using _serialize_check = consistent_t;
 			using T = X;
 
 			static Context& _(const T& t, Context& context)

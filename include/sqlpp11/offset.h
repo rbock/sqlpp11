@@ -242,6 +242,7 @@ namespace sqlpp
 	template<typename Context, typename Offset>
 		struct serializer_t<Context, offset_data_t<Offset>>
 		{
+			using _serialize_check = serialize_check_of<Context, Offset>;
 			using T = offset_data_t<Offset>;
 
 			static Context& _(const T& t, Context& context)
@@ -255,6 +256,7 @@ namespace sqlpp
 	template<typename Context, typename Database>
 		struct serializer_t<Context, dynamic_offset_data_t<Database>>
 		{
+			using _serialize_check = consistent_t;
 			using T = dynamic_offset_data_t<Database>;
 
 			static Context& _(const T& t, Context& context)

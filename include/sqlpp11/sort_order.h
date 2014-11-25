@@ -50,6 +50,7 @@ namespace sqlpp
 	template<typename Context, typename Expression, sort_type SortType>
 		struct serializer_t<Context, sort_order_t<Expression, SortType>>
 		{
+			using _serialize_check = serialize_check_of<Context, Expression>;
 			using T = sort_order_t<Expression, SortType>;
 
 			static Context& _(const T& t, Context& context)

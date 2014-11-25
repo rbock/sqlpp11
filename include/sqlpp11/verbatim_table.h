@@ -72,6 +72,7 @@ namespace sqlpp
 	template<typename Context>
 		struct serializer_t<Context, verbatim_table_t>
 		{
+			using _serialize_check = consistent_t;
 			using T = verbatim_table_t;
 
 			static Context& _(const T& t, Context& context)

@@ -75,6 +75,7 @@ namespace sqlpp
 	template<typename Context, typename Select, typename... NamedExpr>
 		struct serializer_t<Context, select_pseudo_table_t<Select, NamedExpr...>>
 		{
+			using _serialize_check = serialize_check_of<Context, Select, NamedExpr...>;
 			using T = select_pseudo_table_t<Select, NamedExpr...>;
 
 			static Context& _(const T& t, Context& context)

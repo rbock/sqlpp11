@@ -45,6 +45,8 @@ namespace sqlpp
 	template<typename Context>
 		struct serializer_t<Context, all_t>
 		{
+			using _serialize_check = consistent_t;
+
 			static Context& _(const all_t&, Context& context)
 			{
 				context << "ALL";
@@ -62,6 +64,8 @@ namespace sqlpp
 	template<typename Context>
 		struct serializer_t<Context, distinct_t>
 		{
+			using _serialize_check = consistent_t;
+
 			static Context& _(const distinct_t&, Context& context)
 			{
 				context << "DISTINCT";
@@ -79,6 +83,8 @@ namespace sqlpp
 	template<typename Context>
 		struct serializer_t<Context, straight_join_t>
 		{
+			using _serialize_check = consistent_t;
+
 			static Context& _(const straight_join_t&, Context& context)
 			{
 				context << "STRAIGHT_JOIN";

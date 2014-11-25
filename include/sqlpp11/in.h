@@ -73,6 +73,7 @@ namespace sqlpp
 	template<typename Context, bool NotInverted, typename Operand, typename... Args>
 		struct serializer_t<Context, in_t<NotInverted, Operand, Args...>>
 		{
+			using _serialize_check = serialize_check_of<Context, Args...>;
 			using T = in_t<NotInverted, Operand, Args...>;
 
 			static Context& _(const T& t, Context& context)

@@ -231,6 +231,7 @@ namespace sqlpp
 	template<typename Context, typename Database>
 		struct serializer_t<Context, dynamic_limit_data_t<Database>>
 		{
+			using _serialize_check = consistent_t;
 			using T = dynamic_limit_data_t<Database>;
 
 			static Context& _(const T& t, Context& context)
@@ -247,6 +248,7 @@ namespace sqlpp
 	template<typename Context, typename Limit>
 		struct serializer_t<Context, limit_data_t<Limit>>
 		{
+			using _serialize_check = serialize_check_of<Context, Limit>;
 			using T = limit_data_t<Limit>;
 
 			static Context& _(const T& t, Context& context)

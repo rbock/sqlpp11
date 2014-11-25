@@ -188,6 +188,7 @@ namespace sqlpp
 	template<typename Context, typename Database, typename... Tables>
 		struct serializer_t<Context, using_data_t<Database, Tables...>>
 		{
+			using _serialize_check = serialize_check_of<Context, Tables...>;
 			using T = using_data_t<Database, Tables...>;
 
 			static Context& _(const T& t, Context& context)

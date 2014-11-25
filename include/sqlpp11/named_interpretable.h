@@ -123,6 +123,7 @@ namespace sqlpp
 	template<typename Context, typename Database>
 		struct serializer_t<Context, named_interpretable_t<Database>>
 		{
+			using _serialize_check = consistent_t;
 			using T = named_interpretable_t<Database>;
 
 			static Context& _(const T& t, Context& context)

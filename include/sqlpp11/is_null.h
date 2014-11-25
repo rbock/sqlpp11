@@ -69,6 +69,7 @@ namespace sqlpp
 	template<typename Context, bool NotInverted, typename Operand>
 		struct serializer_t<Context, is_null_t<NotInverted, Operand>>
 		{
+			using _serialize_check = serialize_check_of<Context, Operand>;
 			using T = is_null_t<NotInverted, Operand>;
 
 			static Context& _(const T& t, Context& context)

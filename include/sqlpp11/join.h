@@ -145,6 +145,7 @@ namespace sqlpp
 	template<typename Context, typename JoinType, typename Lhs, typename Rhs, typename On>
 		struct serializer_t<Context, join_t<JoinType, Lhs, Rhs, On>>
 		{
+			using _serialize_check = serialize_check_of<Context, Lhs, Rhs, On>;
 			using T = join_t<JoinType, Lhs, Rhs, On>;
 
 			static Context& _(const T& t, Context& context)

@@ -53,7 +53,7 @@ namespace sqlpp
 		private detail::custom_parts_t<Database, Parts...>::_result_methods_t
 	{
 		using _methods_t = typename detail::custom_parts_t<Database, Parts...>::_result_methods_t;
-		using _traits = make_traits<no_value_t>;
+		using _traits = make_traits<no_value_t, tag::is_statement>;
 		using _recursive_traits = make_recursive_traits<Parts...>;
 
 		using _parameter_check = typename std::conditional<std::tuple_size<typename _recursive_traits::_parameters>::value == 0,
@@ -113,6 +113,7 @@ namespace sqlpp
 	template<typename Context, typename Database, typename... Parts>
 		struct serializer_t<Context, custom_query_t<Database, Parts...>>
 		{
+			using _serialize_check = serialize_check_of<Context, Parts...>;
 			using T = custom_query_t<Database, Parts...>;
 
 			static Context& _(const T& t, Context& context)

@@ -71,6 +71,7 @@ namespace sqlpp
 	template<typename Context, typename Operand, typename Pattern>
 		struct serializer_t<Context, like_t<Operand, Pattern>>
 		{
+			using _serialize_check = serialize_check_of<Context, Operand, Pattern>;
 			using T = like_t<Operand, Pattern>;
 
 			static Context& _(const T& t, Context& context)

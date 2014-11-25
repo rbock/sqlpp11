@@ -78,6 +78,7 @@ namespace sqlpp
 							using _known_tables = detail::make_joined_set_t<provided_tables_of<Tables>...>; // Hint: Joins contain more than one table
 							using _known_table_names = detail::transform_set_t<name_of, _known_tables>;
 							static_assert(not detail::is_element_of<typename Table::_name_t, _known_table_names>::value, "Must not use the same table name twice in from()");
+#warning: need to add a check if the argument is serializable!
 
 							using ok = detail::all_t<_is_dynamic::value, is_table_t<Table>::value>;
 
@@ -205,6 +206,7 @@ namespace sqlpp
 	template<typename Context, typename Database, typename... Tables>
 		struct serializer_t<Context, from_data_t<Database, Tables...>>
 		{
+			using _serialize_check = serialize_check_of<Context, Tables...>;
 			using T = from_data_t<Database, Tables...>;
 
 			static Context& _(const T& t, Context& context)

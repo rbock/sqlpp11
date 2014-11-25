@@ -147,6 +147,7 @@ namespace sqlpp
 	template<typename Context, typename Expr, bool TrivialValueIsNull>
 		struct serializer_t<Context, rhs_wrap_t<Expr, TrivialValueIsNull>>
 		{
+			using _serialize_check = serialize_check_of<Context, Expr>;
 			using T = rhs_wrap_t<Expr, TrivialValueIsNull>;
 
 			static Context& _(const T& t, Context& context)

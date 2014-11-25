@@ -425,6 +425,7 @@ namespace sqlpp
 	template<typename Context>
 		struct serializer_t<Context, insert_default_values_data_t>
 		{
+			using _serialize_check = consistent_t;
 			using T = insert_default_values_data_t;
 
 			static Context& _(const T& t, Context& context)
@@ -437,6 +438,7 @@ namespace sqlpp
 	template<typename Context, typename... Columns>
 		struct serializer_t<Context, column_list_data_t<Columns...>>
 		{
+			using _serialize_check = serialize_check_of<Context, Columns...>;
 			using T = column_list_data_t<Columns...>;
 
 			static Context& _(const T& t, Context& context)
@@ -464,6 +466,7 @@ namespace sqlpp
 	template<typename Context, typename Database, typename... Assignments>
 		struct serializer_t<Context, insert_list_data_t<Database, Assignments...>>
 		{
+			using _serialize_check = serialize_check_of<Context, Assignments...>;
 			using T = insert_list_data_t<Database, Assignments...>;
 
 			static Context& _(const T& t, Context& context)

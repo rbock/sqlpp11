@@ -29,7 +29,9 @@
 
 #include <type_traits>
 #include <tuple>
+#include <sqlpp11/serializer.h>
 #include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/detail/get_first.h>
 
 namespace sqlpp
 {
@@ -124,6 +126,8 @@ namespace sqlpp
 	SQLPP_VALUE_TRAIT_GENERATOR(trivial_value_is_null);
 	SQLPP_VALUE_TRAIT_GENERATOR(null_is_trivial_value);
 
+	SQLPP_VALUE_TRAIT_GENERATOR(is_statement);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_prepared_statement);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_noop);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_missing);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_return_value);
@@ -249,6 +253,52 @@ namespace sqlpp
 
 	template<typename T>
 	using is_inconsistent_t = typename std::conditional<std::is_same<consistent_t, T>::value, std::false_type, std::true_type>::type;
+
+	template<typename Context, typename... T>
+	using serialize_check_of = detail::get_first_if<is_inconsistent_t, consistent_t, typename serializer_t<Context, T>::_serialize_check...>;
+
+	struct assert_statement_or_prepared_t
+	{
+		using type = std::false_type;
+
+		template<typename T = void>
+			static void _()
+			{
+				static_assert(wrong_t<T>::value, "connection cannot run something that is neither statement nor prepared statement");
+			};
+	};
+
+	template<typename T, typename Enable = void>
+		struct run_check
+		{
+			using type = assert_statement_or_prepared_t;
+		};
+
+	template<typename T>
+		struct run_check<T, typename std::enable_if<is_statement_t<T>::value or is_prepared_statement_t<T>::value>::type>
+		{
+			using type = typename T::_run_check;
+		};
+
+	template<typename T>
+		using run_check_t = typename run_check<T>::type;
+
+
+	template<typename Context, typename T, typename Enable = void>
+		struct serialize_check
+		{
+			using type = serialize_check_of<Context, T>;
+		};
+
+	template<typename Context, typename T>
+		struct serialize_check<Context, T, typename std::enable_if<is_prepared_statement_t<T>::value>::type>
+		{
+			using type = consistent_t; // this is already serialized
+		};
+
+	template<typename Context, typename T>
+		using serialize_check_t = typename serialize_check<Context, T>::type;
+
 }
 
 #endif

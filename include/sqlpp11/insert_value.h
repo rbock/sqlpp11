@@ -103,6 +103,7 @@ namespace sqlpp
 	template<typename Context, typename ValueType>
 		struct serializer_t<Context, insert_value_t<ValueType>>
 		{
+			using _serialize_check = serialize_check_of<Context, ValueType>;
 			using T = insert_value_t<ValueType>;
 
 			static Context& _(const T& t, Context& context)

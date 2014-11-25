@@ -90,6 +90,7 @@ namespace sqlpp
 	template<typename Context>
 		struct serializer_t<Context, insert_name_t>
 		{
+			using _serialize_check = consistent_t;
 			using T = insert_name_t;
 
 			static Context& _(const T& t, Context& context)
