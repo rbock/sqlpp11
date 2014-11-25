@@ -171,8 +171,21 @@ struct MockDbT: public sqlpp::connection
 	using _prepared_statement_t = std::nullptr_t;
 
 	template<typename T>
+		auto prepare(const T& t, const std::true_type&) -> decltype(t._prepare(*this))
+		{
+			return t._prepare(*this);
+		}
+
+	template<typename T>
+		auto prepare(const T& t, const std::false_type&) -> decltype(t._prepare(*this));
+
+	template<typename T>
 		auto prepare(const T& t) -> decltype(t._prepare(*this))
 		{
+			sqlpp::prepare_check_t<T>::_();
+			sqlpp::serialize_check_t<_serializer_context_t, T>::_();
+			using _ok = sqlpp::detail::all_t<sqlpp::run_check_t<T>::type::value,
+				  sqlpp::serialize_check_t<_serializer_context_t, T>::type::value>;
 			return t._prepare(*this);
 		}
 

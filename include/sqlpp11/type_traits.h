@@ -257,7 +257,7 @@ namespace sqlpp
 	template<typename Context, typename... T>
 	using serialize_check_of = detail::get_first_if<is_inconsistent_t, consistent_t, typename serializer_t<Context, T>::_serialize_check...>;
 
-	struct assert_statement_or_prepared_t
+	struct assert_run_statement_or_prepared_t
 	{
 		using type = std::false_type;
 
@@ -268,10 +268,21 @@ namespace sqlpp
 			};
 	};
 
+	struct assert_prepare_statement_t
+	{
+		using type = std::false_type;
+
+		template<typename T = void>
+			static void _()
+			{
+				static_assert(wrong_t<T>::value, "connection cannot prepare something that is not a statement");
+			};
+	};
+
 	template<typename T, typename Enable = void>
 		struct run_check
 		{
-			using type = assert_statement_or_prepared_t;
+			using type = assert_run_statement_or_prepared_t;
 		};
 
 	template<typename T>
@@ -282,6 +293,21 @@ namespace sqlpp
 
 	template<typename T>
 		using run_check_t = typename run_check<T>::type;
+
+	template<typename T, typename Enable = void>
+		struct prepare_check
+		{
+			using type = assert_prepare_statement_t;
+		};
+
+	template<typename T>
+		struct prepare_check<T, typename std::enable_if<is_statement_t<T>::value>::type>
+		{
+			using type = typename T::_prepare_check;
+		};
+
+	template<typename T>
+		using prepare_check_t = typename prepare_check<T>::type;
 
 
 	template<typename Context, typename T, typename Enable = void>
