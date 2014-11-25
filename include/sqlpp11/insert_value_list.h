@@ -236,6 +236,17 @@ namespace sqlpp
 			std::vector<_value_tuple_t> _insert_values;
 		};
 
+	struct assert_no_unknown_tables_in_column_list_t
+	{
+		using type = std::false_type;
+
+		template<typename T = void>
+		static void _()
+		{
+			static_assert(wrong_t<T>::value, "at least one column requires a table which is otherwise not known in the statement");
+		}
+	};
+
 	template<typename... Columns>
 		struct column_list_t
 		{
@@ -301,7 +312,9 @@ namespace sqlpp
 			template<typename Policies>
 				struct _methods_t
 				{
-					using _consistency_check = consistent_t;
+					using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<column_list_t>::value,
+								consistent_t,
+								assert_no_unknown_tables_in_column_list_t>::type;
 				};
 		};
 

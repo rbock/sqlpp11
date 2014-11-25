@@ -55,6 +55,17 @@ namespace sqlpp
 			interpretable_list_t<Database> _dynamic_expressions;
 		};
 
+	struct assert_no_unknown_tables_in_where_t
+	{
+		using type = std::false_type;
+
+		template<typename T = void>
+		static void _()
+		{
+			static_assert(wrong_t<T>::value, "at least one expression in where() requires a table which is otherwise not known in the statement");
+		}
+	};
+
 	// WHERE(EXPR)
 	template<typename Database, typename... Expressions>
 		struct where_t
@@ -128,8 +139,9 @@ namespace sqlpp
 			template<typename Policies>
 				struct _methods_t
 				{
-#warning: here and elsewhere: add check for missing tables (see select columns, for instance)
-					using _consistency_check = consistent_t;
+					using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<where_t>::value,
+								consistent_t,
+								assert_no_unknown_tables_in_where_t>::type;
 				};
 		};
 

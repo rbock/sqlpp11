@@ -52,6 +52,17 @@ namespace sqlpp
 			interpretable_list_t<Database> _dynamic_assignments;
 		};
 
+	struct assert_no_unknown_tables_in_update_assignments_t
+	{
+		using type = std::false_type;
+
+		template<typename T = void>
+		static void _()
+		{
+			static_assert(wrong_t<T>::value, "at least one update assignment requires a table which is otherwise not known in the statement");
+		}
+	};
+
 	// UPDATE ASSIGNMENTS
 	template<typename Database, typename... Assignments>
 		struct update_list_t
@@ -124,7 +135,9 @@ namespace sqlpp
 			template<typename Policies>
 				struct _methods_t
 				{
-					using _consistency_check = consistent_t;
+					using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<update_list_t>::value,
+								consistent_t,
+								assert_no_unknown_tables_in_update_assignments_t>::type;
 				};
 		};
 

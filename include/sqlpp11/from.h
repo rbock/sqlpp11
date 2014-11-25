@@ -120,6 +120,7 @@ namespace sqlpp
 			template<typename Policies>
 				struct _methods_t
 				{
+					// FIXME: We might want to check if we have too many tables define in the FROM
 					using _consistency_check = consistent_t;
 				};
 		};

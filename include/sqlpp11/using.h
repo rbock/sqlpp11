@@ -121,6 +121,7 @@ namespace sqlpp
 			template<typename Policies>
 				struct _methods_t
 				{
+					// FIXME: Maybe check for unused tables, similar to from
 					using _consistency_check = consistent_t;
 				};
 		};
