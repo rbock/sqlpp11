@@ -80,8 +80,10 @@ namespace sqlpp
 						{
 							static_assert(_is_dynamic::value, "add must not be called for static using()");
 							static_assert(is_table_t<Table>::value, "invalid table argument in add()");
+							using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Table>;
+							_serialize_check::_();
 
-							using ok = detail::all_t<_is_dynamic::value, is_table_t<Table>::value>;
+							using ok = detail::all_t<_is_dynamic::value, is_table_t<Table>::value, _serialize_check::type::value>;
 
 							_add_impl(table, ok()); // dispatch to prevent compile messages after the static_assert
 						}

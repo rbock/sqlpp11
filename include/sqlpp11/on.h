@@ -34,40 +34,57 @@
 
 namespace sqlpp
 {
-	template<typename Database, typename... Expr>
+	template<typename Database, typename... Expressions>
 		struct on_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_on>;
-			using _recursive_traits = make_recursive_traits<Expr...>;
+			using _recursive_traits = make_recursive_traits<Expressions...>;
 
 			using _is_dynamic = is_database<Database>;
 
-			static_assert(_is_dynamic::value or sizeof...(Expr), "at least one expression argument required in on()");
+			static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression argument required in on()");
 
-			template<typename E>
-				void add(E expr)
+			template<typename Expr>
+				void add(Expr expr)
 				{
-					static_assert(is_expression_t<E>::value, "invalid expression argument in add_on()");
-					_dynamic_expressions.emplace_back(expr);
+					static_assert(_is_dynamic::value, "on::add() must not be called for static on()");
+					static_assert(is_expression_t<Expr>::value, "invalid expression argument in on::add()");
+					using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Expr>;
+					_serialize_check::_();
+
+					using ok = detail::all_t<_is_dynamic::value, is_expression_t<Expr>::value, _serialize_check::type::value>;
+
+					_add_impl(expr, ok()); // dispatch to prevent compile messages after the static_assert
 				}
 
-			std::tuple<Expr...> _expressions;
+		private:
+			template<typename Expr>
+				void _add_impl(Expr expr, const std::true_type&)
+				{
+					return _dynamic_expressions.emplace_back(expr);
+				}
+
+			template<typename Expr>
+				void _add_impl(Expr expr, const std::false_type&);
+
+		public:
+			std::tuple<Expressions...> _expressions;
 			interpretable_list_t<Database> _dynamic_expressions;
 		};
 
-	template<typename Context, typename Database, typename... Expr>
-		struct serializer_t<Context, on_t<Database, Expr...>>
+	template<typename Context, typename Database, typename... Expressions>
+		struct serializer_t<Context, on_t<Database, Expressions...>>
 		{
-			using _serialize_check = serialize_check_of<Context, Expr...>;
-			using T = on_t<Database, Expr...>;
+			using _serialize_check = serialize_check_of<Context, Expressions...>;
+			using T = on_t<Database, Expressions...>;
 
 			static Context& _(const T& t, Context& context)
 			{
-				if (sizeof...(Expr) == 0 and t._dynamic_expressions.empty())
+				if (sizeof...(Expressions) == 0 and t._dynamic_expressions.empty())
 					return context;
 				context << " ON ";
 				interpret_tuple(t._expressions, " AND ", context);
-				if (sizeof...(Expr) and not t._dynamic_expressions.empty())
+				if (sizeof...(Expressions) and not t._dynamic_expressions.empty())
 					context << " AND ";
 				interpret_list(t._dynamic_expressions, " AND ", context);
 				return context;

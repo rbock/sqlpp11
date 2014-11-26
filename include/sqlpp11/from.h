@@ -78,9 +78,10 @@ namespace sqlpp
 							using _known_tables = detail::make_joined_set_t<provided_tables_of<Tables>...>; // Hint: Joins contain more than one table
 							using _known_table_names = detail::transform_set_t<name_of, _known_tables>;
 							static_assert(not detail::is_element_of<typename Table::_name_t, _known_table_names>::value, "Must not use the same table name twice in from()");
-#warning: need to add a check if the argument is serializable!
+							using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Table>;
+							_serialize_check::_();
 
-							using ok = detail::all_t<_is_dynamic::value, is_table_t<Table>::value>;
+							using ok = detail::all_t<_is_dynamic::value, is_table_t<Table>::value, _serialize_check::type::value>;
 
 							_add_impl(table, ok()); // dispatch to prevent compile messages after the static_assert
 						}

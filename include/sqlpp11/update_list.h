@@ -93,10 +93,13 @@ namespace sqlpp
 							static_assert(not detail::is_element_of<lhs_t<Assignment>, _assigned_columns>::value, "Must not assign value to column twice");
 							static_assert(detail::not_t<must_not_update_t, lhs_t<Assignment>>::value, "add() argument must not be updated");
 							static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Assignment>::value, "assignment uses tables unknown to this statement in add()");
+							using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Assignment>;
+							_serialize_check::_();
 
 							using ok = detail::all_t<
 								_is_dynamic::value, 
-								is_assignment_t<Assignment>::value>;
+								is_assignment_t<Assignment>::value,
+								_serialize_check::type::value>;
 
 							_add_impl(assignment, ok()); // dispatch to prevent compile messages after the static_assert
 						}

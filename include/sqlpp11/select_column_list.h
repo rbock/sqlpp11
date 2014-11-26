@@ -198,10 +198,13 @@ namespace sqlpp
 							static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<NamedExpression>::value, "named expression uses tables unknown to this statement in selected_columns::add()");
 							using column_names = detail::make_type_set_t<typename Columns::_name_t...>;
 							static_assert(not detail::is_element_of<typename NamedExpression::_name_t, column_names>::value, "a column of this name is present in the select already");
+							using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, NamedExpression>;
+							_serialize_check::_();
 
 							using ok = detail::all_t<
 								_is_dynamic::value, 
-								is_selectable_t<NamedExpression>::value
+								is_selectable_t<NamedExpression>::value,
+								_serialize_check::type::value
 									>;
 
 							_add_impl(namedExpression, ok()); // dispatch to prevent compile messages after the static_assert
