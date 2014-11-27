@@ -193,7 +193,7 @@ namespace sqlpp
 			private:
 				template<typename Database, typename... Tables>
 					auto _from_impl(const std::false_type&, Tables... tables) const
-					-> _new_statement_t<std::false_type, from_t<Database, Tables...>>;
+					-> bad_statement;
 
 				template<typename Database, typename... Tables>
 					auto _from_impl(const std::true_type&, Tables... tables) const

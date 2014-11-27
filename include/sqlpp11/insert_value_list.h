@@ -41,20 +41,20 @@ namespace sqlpp
 {
 	namespace detail
 	{
-		template<typename... Args>
-			struct first_arg_impl
+		template<typename... Columns>
+			struct have_all_required_columns
 			{
-				static_assert(wrong_t<first_arg_impl>::value, "At least one argument required");
+				static constexpr bool value = false;
 			};
 
-		template<typename T, typename... Args>
-			struct first_arg_impl<T, Args...>
+		template<typename First, typename... Columns>
+			struct have_all_required_columns<First, Columns...>
 			{
-				using type = T;
+				using _table = typename First::_table;
+				using required_columns = typename _table::_required_insert_columns;
+				using set_columns = detail::make_type_set_t<First, Columns...>;
+				static constexpr bool value = detail::is_subset_of<required_columns, set_columns>::value;
 			};
-
-		template<typename... Args>
-			using first_arg_t = typename first_arg_impl<Args...>::type;
 	}
 
 	struct insert_default_values_data_t
@@ -369,68 +369,87 @@ namespace sqlpp
 			struct _methods_t
 			{
 				using _database_t = typename Policies::_database_t;
-				template<typename T>
-					using _new_statement_t = new_statement<Policies, no_insert_value_list_t, T>;
+
+				template<typename... T>
+					using _column_check = detail::all_t<is_column_t<T>::value...>;
+
+				template<typename... T>
+					using _assignment_check = detail::all_t<is_assignment_t<T>::value...>;
+
+				template<typename Check, typename T>
+					using _new_statement_t = new_statement_t<Check::value, Policies, no_insert_value_list_t, T>;
 
 				using _consistency_check = assert_insert_values_t;
 
 				auto default_values() const
-					-> _new_statement_t<insert_default_values_t>
+					-> _new_statement_t<std::true_type, insert_default_values_t>
 					{
 						return { static_cast<const derived_statement_t<Policies>&>(*this), insert_default_values_data_t{} };
 					}
 
 				template<typename... Columns>
 					auto columns(Columns... columns) const
-					-> _new_statement_t<column_list_t<Columns...>>
+					-> _new_statement_t<_column_check<Columns...>, column_list_t<Columns...>>
 					{
-						static_assert(sizeof...(Columns), "at least one column required in columns()");
-						static_assert(not detail::has_duplicates<Columns...>::value, "at least one duplicate argument detected in columns()");
 						static_assert(detail::all_t<is_column_t<Columns>::value...>::value, "at least one argument is not a column in columns()");
-						static_assert(detail::none_t<must_not_insert_t<Columns>::value...>::value, "at least one column argument has a must_not_insert tag in its definition");
-						using _column_required_tables = detail::make_joined_set_t<required_tables_of<Columns>...>;
-						static_assert(_column_required_tables::size::value == 1, "columns() contains columns from several tables");
+						static_assert(sizeof...(Columns), "at least one column required in columns()");
 
-						using _table = typename detail::first_arg_t<Columns...>::_table;
-						using required_columns = typename _table::_required_insert_columns;
-						using set_columns = detail::make_type_set_t<Columns...>;
-						static_assert(detail::is_subset_of<required_columns, set_columns>::value, "At least one required column is missing in columns()");
-
-						return { static_cast<const derived_statement_t<Policies>&>(*this), column_list_data_t<Columns...>{columns...} };
+						return _columns_impl(_column_check<Columns...>{}, columns...);
 					}
 
 				template<typename... Assignments>
 					auto set(Assignments... assignments) const
-					-> _new_statement_t<insert_list_t<void, Assignments...>>
+					-> _new_statement_t<_assignment_check<Assignments...>, insert_list_t<void, Assignments...>>
 					{
+						static_assert(_assignment_check<Assignments...>::value, "at least one argument is not an assignment in set()");
 						static_assert(sizeof...(Assignments), "at least one assignment expression required in set()");
-						static_assert(detail::all_t<is_assignment_t<Assignments>::value...>::value, "at least one argument is not an assignment in set()");
 
-						using _table = typename lhs_t<detail::first_arg_t<Assignments...>>::_table;
-						using required_columns = typename _table::_required_insert_columns;
-						using columns = detail::make_type_set_t<lhs_t<Assignments>...>;
-						static_assert(detail::is_subset_of<required_columns, columns>::value, "At least one required column is missing in set()");
-						return _set_impl<void>(assignments...);
+						return _set_impl<void>(_assignment_check<Assignments...>{}, assignments...);
 					}
 
 				template<typename... Assignments>
 					auto dynamic_set(Assignments... assignments) const
-					-> _new_statement_t<insert_list_t<_database_t, Assignments...>>
+					-> _new_statement_t<_assignment_check<Assignments...>, insert_list_t<_database_t, Assignments...>>
 					{
+						static_assert(_assignment_check<Assignments...>::value, "at least one argument is not an assignment in set()");
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_set must not be called in a static statement");
-						static_assert(detail::all_t<is_assignment_t<Assignments>::value...>::value, "at least one argument is not an assignment in set()");
-						return _set_impl<_database_t>(assignments...);
+
+						return _set_impl<_database_t>(_assignment_check<Assignments...>{}, assignments...);
 					}
 			private:
+				template<typename... Columns>
+					auto _columns_impl(const std::false_type&, Columns... columns) const
+					-> bad_statement;
+
+				template<typename... Columns>
+					auto _columns_impl(const std::true_type&, Columns... columns) const
+					-> _new_statement_t<std::true_type, column_list_t<Columns...>>
+					{
+						static_assert(not detail::has_duplicates<Columns...>::value, "at least one duplicate argument detected in columns()");
+						static_assert(detail::none_t<must_not_insert_t<Columns>::value...>::value, "at least one column argument has a must_not_insert tag in its definition");
+						using _column_required_tables = detail::make_joined_set_t<required_tables_of<Columns>...>;
+						static_assert(_column_required_tables::size::value == 1, "columns() contains columns from several tables");
+
+						static_assert(detail::have_all_required_columns<Columns...>::value, "At least one required column is missing in columns()");
+
+						return { static_cast<const derived_statement_t<Policies>&>(*this), column_list_data_t<Columns...>{columns...} };
+					}
+
 				template<typename Database, typename... Assignments>
-					auto _set_impl(Assignments... assignments) const
-					-> _new_statement_t<insert_list_t<Database, Assignments...>>
+					auto _set_impl(const std::false_type&, Assignments... assignments) const
+					-> bad_statement;
+
+				template<typename Database, typename... Assignments>
+					auto _set_impl(const std::true_type&, Assignments... assignments) const
+					-> _new_statement_t<std::true_type, insert_list_t<Database, Assignments...>>
 					{
 						static_assert(not detail::has_duplicates<lhs_t<Assignments>...>::value, "at least one duplicate column detected in set()");
 						static_assert(detail::none_t<must_not_insert_t<lhs_t<Assignments>>::value...>::value, "at least one assignment is prohibited by its column definition in set()");
 
 						using _column_required_tables = detail::make_joined_set_t<required_tables_of<lhs_t<Assignments>>...>;
 						static_assert(sizeof...(Assignments) ? (_column_required_tables::size::value == 1) : true, "set() contains assignments for columns from several tables");
+
+						static_assert(not std::is_same<_database_t, void>::value or detail::have_all_required_columns<lhs_t<Assignments>...>::value, "At least one required column is missing in set()");
 
 						return { static_cast<const derived_statement_t<Policies>&>(*this), insert_list_data_t<Database, Assignments...>{assignments...} };
 					}
