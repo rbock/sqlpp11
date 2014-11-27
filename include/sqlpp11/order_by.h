@@ -178,34 +178,45 @@ namespace sqlpp
 			struct _methods_t
 			{
 				using _database_t = typename Policies::_database_t;
-				template<typename T>
-					using _new_statement_t = new_statement<Policies, no_order_by_t, T>;
+
+				template<typename... T>
+					using _check = detail::all_t<is_expression_t<T>::value...>;
+
+				template<typename Check, typename T>
+					using _new_statement_t = new_statement_t<Check::value, Policies, no_order_by_t, T>;
 
 				using _consistency_check = consistent_t;
 
 				template<typename... Expressions>
 					auto order_by(Expressions... expressions) const
-					-> _new_statement_t<order_by_t<void, Expressions...>>
+					-> _new_statement_t<_check<Expressions...>, order_by_t<void, Expressions...>>
 					{
 						static_assert(sizeof...(Expressions), "at least one expression (e.g. a column) required in order_by()");
-						return _order_by_impl<void>(expressions...);
+						static_assert(detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not an expression in order_by()");
+
+						return _order_by_impl<void>(_check<Expressions...>{}, expressions...);
 					}
 
 				template<typename... Expressions>
 					auto dynamic_order_by(Expressions... expressions) const
-					-> _new_statement_t<order_by_t<_database_t, Expressions...>>
+					-> _new_statement_t<_check<Expressions...>, order_by_t<_database_t, Expressions...>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_order_by must not be called in a static statement");
-						return _order_by_impl<_database_t>(expressions...);
+						static_assert(detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not an expression in order_by()");
+
+						return _order_by_impl<_database_t>(_check<Expressions...>{}, expressions...);
 					}
 
 			private:
 				template<typename Database, typename... Expressions>
-					auto _order_by_impl(Expressions... expressions) const
-						-> _new_statement_t<order_by_t<_database_t, Expressions...>>
+					auto _order_by_impl(const std::false_type&, Expressions... expressions) const
+					-> bad_statement;
+
+				template<typename Database, typename... Expressions>
+					auto _order_by_impl(const std::true_type&, Expressions... expressions) const
+						-> _new_statement_t<std::true_type, order_by_t<_database_t, Expressions...>>
 						{
 							static_assert(not detail::has_duplicates<Expressions...>::value, "at least one duplicate argument detected in order_by()");
-							static_assert(detail::all_t<is_sort_order_t<Expressions>::value...>::value, "at least one argument is not an expression in order_by()");
 
 							return { static_cast<const derived_statement_t<Policies>&>(*this), order_by_data_t<Database, Expressions...>{expressions...} };
 						};
