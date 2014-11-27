@@ -28,6 +28,7 @@
 #define SQLPP_POLICY_UPDATE_H
 
 #include <sqlpp11/wrong.h>
+#include <sqlpp11/bad_statement.h>
 
 namespace sqlpp
 {
@@ -52,6 +53,21 @@ namespace sqlpp
 
 	template<typename Policies, typename Needle, typename Replacement>
 		using new_statement = typename Policies::template _new_statement_t<Needle, Replacement>;
+
+	template<bool, typename Policies, typename Needle, typename Replacement>
+		struct new_statement_impl
+		{
+			using type = typename Policies::template _new_statement_t<Needle, Replacement>;
+		};
+
+	template<typename Policies, typename Needle, typename Replacement>
+		struct new_statement_impl<false, Policies, Needle, Replacement>
+		{
+			using type = bad_statement;
+		};
+
+	template<bool Check, typename Policies, typename Needle, typename Replacement>
+		using new_statement_t = typename new_statement_impl<Check, Policies, Needle, Replacement>::type;
 
 }
 

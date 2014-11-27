@@ -74,9 +74,6 @@ namespace sqlpp
 
 			using _is_dynamic = is_database<Database>;
 
-			static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression argument required in having()");
-			static_assert(detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not an expression in having()");
-
 			// Data
 			using _data_t = having_data_t<Database, Expressions...>;
 
@@ -182,25 +179,46 @@ namespace sqlpp
 			struct _methods_t
 			{
 				using _database_t = typename Policies::_database_t;
-				template<typename T>
-					using _new_statement_t = new_statement<Policies, no_having_t, T>;
+
+				template<typename... T>
+					using _check = detail::all_t<is_expression_t<T>::value...>;
+
+				template<typename Check, typename T>
+					using _new_statement_t = new_statement_t<Check::value, Policies, no_having_t, T>;
 
 				using _consistency_check = consistent_t;
 
-				template<typename... Args>
-					auto having(Args... args) const
-					-> _new_statement_t<having_t<void, Args...>>
+				template<typename... Expressions>
+					auto having(Expressions... expressions) const
+					-> _new_statement_t<_check<Expressions...>, having_t<void, Expressions...>>
 					{
-						return { static_cast<const derived_statement_t<Policies>&>(*this), having_data_t<void, Args...>{args...} };
+						static_assert(_check<Expressions...>::value, "at least one argument is not an expression in having()");
+						static_assert(sizeof...(Expressions), "at least one expression argument required in having()");
+
+						return _having_impl<void>(_check<Expressions...>{}, expressions...);
 					}
 
-				template<typename... Args>
-					auto dynamic_having(Args... args) const
-					-> _new_statement_t<having_t<_database_t, Args...>>
+				template<typename... Expressions>
+					auto dynamic_having(Expressions... expressions) const
+					-> _new_statement_t<_check<Expressions...>, having_t<_database_t, Expressions...>>
 					{
+						static_assert(_check<Expressions...>::value, "at least one argument is not an expression in having()");
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_having must not be called in a static statement");
-						return { static_cast<const derived_statement_t<Policies>&>(*this), having_data_t<_database_t, Args...>{args...} };
+						return _having_impl<_database_t>(_check<Expressions...>{}, expressions...);
 					}
+
+			private:
+				template<typename Database, typename... Expressions>
+					auto _having_impl(const std::false_type&, Expressions... expressions) const
+					-> bad_statement;
+
+				template<typename Database, typename... Expressions>
+					auto _having_impl(const std::true_type&, Expressions... expressions) const
+					-> _new_statement_t<std::true_type, having_t<Database, Expressions...>>
+					{
+						return { static_cast<const derived_statement_t<Policies>&>(*this), having_data_t<_database_t, Expressions...>{expressions...} };
+					}
+
 			};
 	};
 

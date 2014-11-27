@@ -24,51 +24,18 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SORT_ORDER_H
-#define SQLPP_SORT_ORDER_H
-
-#include <sqlpp11/detail/type_set.h>
-#include <sqlpp11/no_value.h>
+#ifndef SQLPP_BAD_STATEMENT_H
+#define SQLPP_BAD_STATEMENT_H
 
 namespace sqlpp
 {
-	enum class sort_type
+	struct bad_statement
 	{
-		asc,
-		desc
+		template<typename... T>
+			bad_statement(T&&...) {}
 	};
-
-	template<typename Expression, sort_type SortType>
-		struct sort_order_t
-		{
-			using _traits = make_traits<no_value_t,  tag::is_sort_order>;
-			using _recursive_traits = make_recursive_traits<Expression>;
-
-			Expression _expression;
-		};
-
-	template<typename Context, typename Expression, sort_type SortType>
-		struct serializer_t<Context, sort_order_t<Expression, SortType>>
-		{
-			using _serialize_check = serialize_check_of<Context, Expression>;
-			using T = sort_order_t<Expression, SortType>;
-
-			static Context& _(const T& t, Context& context)
-			{
-				serialize(t._expression, context);
-				switch(SortType)
-				{
-				case sort_type::asc:
-					context << " ASC";
-					break;
-				default:
-					context << " DESC";
-					break;
-				}
-				return context;
-			}
-		};
-
 }
 
 #endif
+
+

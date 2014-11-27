@@ -163,33 +163,42 @@ namespace sqlpp
 			struct _methods_t
 			{
 				using _database_t = typename Policies::_database_t;
-				template<typename T>
-					using _new_statement_t = new_statement<Policies, no_from_t, T>;
+
+				template<typename... T>
+					using _check = detail::all_t<is_table_t<T>::value...>;
+
+				template<typename Check, typename T>
+					using _new_statement_t = new_statement_t<Check::value, Policies, no_from_t, T>;
 
 				using _consistency_check = consistent_t;
 
 				template<typename... Tables>
 					auto from(Tables... tables) const
-					-> _new_statement_t<from_t<void, Tables...>>
+					-> _new_statement_t<_check<Tables...>, from_t<void, Tables...>>
 					{
+						static_assert(_check<Tables...>::value, "at least one argument is not a table or join in from()");
 						static_assert(sizeof...(Tables), "at least one table or join argument required in from()");
-						return _from_impl<void>(tables...);
+						return _from_impl<void>(_check<Tables...>{}, tables...);
 					}
 
 				template<typename... Tables>
 					auto dynamic_from(Tables... tables) const
-					-> _new_statement_t<from_t<_database_t, Tables...>>
+					-> _new_statement_t<_check<Tables...>, from_t<_database_t, Tables...>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_from must not be called in a static statement");
-						return _from_impl<_database_t>(tables...);
+						static_assert(_check<Tables...>::value, "at least one argument is not a table or join in from()");
+						return _from_impl<_database_t>(_check<Tables...>{}, tables...);
 					}
 
 			private:
 				template<typename Database, typename... Tables>
-					auto _from_impl(Tables... tables) const
-					-> _new_statement_t<from_t<Database, Tables...>>
+					auto _from_impl(const std::false_type&, Tables... tables) const
+					-> _new_statement_t<std::false_type, from_t<Database, Tables...>>;
+
+				template<typename Database, typename... Tables>
+					auto _from_impl(const std::true_type&, Tables... tables) const
+					-> _new_statement_t<std::true_type, from_t<Database, Tables...>>
 					{
-						static_assert(detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not a table or join in from()");
 						static_assert(required_tables_of<from_t<Database, Tables...>>::size::value == 0, "at least one table depends on another table");
 
 						static constexpr std::size_t _number_of_tables = detail::sum(provided_tables_of<Tables>::size::value...);

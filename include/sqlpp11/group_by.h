@@ -75,12 +75,6 @@ namespace sqlpp
 
 			using _is_dynamic = is_database<Database>;
 
-			static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression (e.g. a column) required in group_by()");
-
-			static_assert(not detail::has_duplicates<Expressions...>::value, "at least one duplicate argument detected in group_by()");
-
-			static_assert(detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not an expression in group_by()");
-
 			// Data
 			using _data_t = group_by_data_t<Database, Expressions...>;
 
@@ -189,20 +183,32 @@ namespace sqlpp
 
 				using _consistency_check = consistent_t;
 
-				template<typename... Args>
-					auto group_by(Args... args) const
-					-> _new_statement_t<group_by_t<void, Args...>>
+				template<typename... Expressions>
+					auto group_by(Expressions... expressions) const
+					-> _new_statement_t<group_by_t<void, Expressions...>>
 					{
-						return { static_cast<const derived_statement_t<Policies>&>(*this), group_by_data_t<void, Args...>{args...} };
+						static_assert(sizeof...(Expressions), "at least one expression (e.g. a column) required in group_by()");
+						return _group_by_impl<void>(expressions...);
 					}
 
-				template<typename... Args>
-					auto dynamic_group_by(Args... args) const
-					-> _new_statement_t<group_by_t<_database_t, Args...>>
+				template<typename... Expressions>
+					auto dynamic_group_by(Expressions... expressions) const
+					-> _new_statement_t<group_by_t<_database_t, Expressions...>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_group_by must not be called in a static statement");
-						return { static_cast<const derived_statement_t<Policies>&>(*this), group_by_data_t<_database_t, Args...>{args...} };
+						return _group_by_impl<_database_t>(expressions...);
 					}
+
+			private:
+				template<typename Database, typename... Expressions>
+					auto _group_by_impl(Expressions... expressions) const
+						-> _new_statement_t<group_by_t<_database_t, Expressions...>>
+						{
+							static_assert(not detail::has_duplicates<Expressions...>::value, "at least one duplicate argument detected in group_by()");
+							static_assert(detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not an expression in group_by()");
+
+							return { static_cast<const derived_statement_t<Policies>&>(*this), group_by_data_t<Database, Expressions...>{expressions...} };
+						};
 			};
 	};
 

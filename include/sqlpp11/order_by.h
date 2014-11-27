@@ -75,12 +75,6 @@ namespace sqlpp
 
 			using _is_dynamic = is_database<Database>;
 
-			static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression (e.g. a column) required in order_by()");
-
-			static_assert(not detail::has_duplicates<Expressions...>::value, "at least one duplicate argument detected in order_by()");
-
-			static_assert(detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not an expression in order_by()");
-
 			// Data
 			using _data_t = order_by_data_t<Database, Expressions...>;
 
@@ -98,12 +92,12 @@ namespace sqlpp
 						void add(Expression expression)
 						{
 							static_assert(_is_dynamic::value, "add() must not be called for static order_by");
-							static_assert(is_expression_t<Expression>::value, "invalid expression argument in order_by::add()");
+							static_assert(is_sort_order_t<Expression>::value, "invalid expression argument in order_by::add()");
 							static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Expression>::value, "expression uses tables unknown to this statement in order_by::add()");
 							using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Expression>;
 							_serialize_check::_();
 
-							using ok = detail::all_t<_is_dynamic::value, is_expression_t<Expression>::value, _serialize_check::type::value>;
+							using ok = detail::all_t<_is_dynamic::value, is_sort_order_t<Expression>::value, _serialize_check::type::value>;
 
 							_add_impl(expression, ok()); // dispatch to prevent compile messages after the static_assert
 						}
@@ -189,20 +183,32 @@ namespace sqlpp
 
 				using _consistency_check = consistent_t;
 
-				template<typename... Args>
-					auto order_by(Args... args) const
-					-> _new_statement_t<order_by_t<void, Args...>>
+				template<typename... Expressions>
+					auto order_by(Expressions... expressions) const
+					-> _new_statement_t<order_by_t<void, Expressions...>>
 					{
-						return { static_cast<const derived_statement_t<Policies>&>(*this), order_by_data_t<void, Args...>{args...} };
+						static_assert(sizeof...(Expressions), "at least one expression (e.g. a column) required in order_by()");
+						return _order_by_impl<void>(expressions...);
 					}
 
-				template<typename... Args>
-					auto dynamic_order_by(Args... args) const
-					-> _new_statement_t<order_by_t<_database_t, Args...>>
+				template<typename... Expressions>
+					auto dynamic_order_by(Expressions... expressions) const
+					-> _new_statement_t<order_by_t<_database_t, Expressions...>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_order_by must not be called in a static statement");
-						return { static_cast<const derived_statement_t<Policies>&>(*this), order_by_data_t<_database_t, Args...>{args...} };
+						return _order_by_impl<_database_t>(expressions...);
 					}
+
+			private:
+				template<typename Database, typename... Expressions>
+					auto _order_by_impl(Expressions... expressions) const
+						-> _new_statement_t<order_by_t<_database_t, Expressions...>>
+						{
+							static_assert(not detail::has_duplicates<Expressions...>::value, "at least one duplicate argument detected in order_by()");
+							static_assert(detail::all_t<is_sort_order_t<Expressions>::value...>::value, "at least one argument is not an expression in order_by()");
+
+							return { static_cast<const derived_statement_t<Policies>&>(*this), order_by_data_t<Database, Expressions...>{expressions...} };
+						};
 			};
 	};
 

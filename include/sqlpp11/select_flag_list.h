@@ -64,10 +64,6 @@ namespace sqlpp
 
 			using _is_dynamic = is_database<Database>;
 
-			static_assert(not detail::has_duplicates<Flags...>::value, "at least one duplicate argument detected in select flag list");
-
-			static_assert(detail::all_t<is_select_flag_t<Flags>::value...>::value, "at least one argument is not a select flag in select flag list");
-
 			// Data
 			using _data_t = select_flag_list_data_t<Database, Flags...>;
 
@@ -175,20 +171,32 @@ namespace sqlpp
 
 				using _consistency_check = consistent_t;
 
-				template<typename... Args>
-					auto flags(Args... args) const
-					-> _new_statement_t<select_flag_list_t<void, Args...>>
+				template<typename... Flags>
+					auto flags(Flags... flags) const
+					-> _new_statement_t<select_flag_list_t<void, Flags...>>
 					{
-						return { static_cast<const derived_statement_t<Policies>&>(*this), select_flag_list_data_t<void, Args...>{args...} };
+						return _flags_impl<void>(flags...);
 					}
 
-				template<typename... Args>
-					auto dynamic_flags(Args... args) const
-					-> _new_statement_t<select_flag_list_t<_database_t, Args...>>
+				template<typename... Flags>
+					auto dynamic_flags(Flags... flags) const
+					-> _new_statement_t<select_flag_list_t<_database_t, Flags...>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_flags must not be called in a static statement");
-						return { static_cast<const derived_statement_t<Policies>&>(*this), select_flag_list_data_t<_database_t, Args...>{args...} };
+						return _flags_impl<_database_t>(flags...);
 					}
+
+			private:
+				template<typename Database, typename... Flags>
+					auto _flags_impl(Flags... flags) const
+					-> _new_statement_t<select_flag_list_t<Database, Flags...>>
+					{
+						static_assert(detail::all_t<is_select_flag_t<Flags>::value...>::value, "at least one argument is not a select flag in select flag list");
+						static_assert(not detail::has_duplicates<Flags...>::value, "at least one duplicate argument detected in select flag list");
+
+						return { static_cast<const derived_statement_t<Policies>&>(*this), select_flag_list_data_t<Database, Flags...>{flags...} };
+					}
+
 			};
 	};
 
