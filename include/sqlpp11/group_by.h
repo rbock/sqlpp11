@@ -192,7 +192,7 @@ namespace sqlpp
 					-> _new_statement_t<_check<Expressions...>, group_by_t<void, Expressions...>>
 					{
 						static_assert(sizeof...(Expressions), "at least one expression (e.g. a column) required in group_by()");
-						static_assert(detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not an expression in group_by()");
+						static_assert(_check<Expressions...>::value, "at least one argument is not an expression in group_by()");
 
 						return _group_by_impl<void>(_check<Expressions...>{}, expressions...);
 					}
@@ -202,7 +202,7 @@ namespace sqlpp
 					-> _new_statement_t<_check<Expressions...>, group_by_t<_database_t, Expressions...>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_group_by must not be called in a static statement");
-						static_assert(detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not an expression in group_by()");
+						static_assert(_check<Expressions...>::value, "at least one argument is not an expression in group_by()");
 
 						return _group_by_impl<_database_t>(_check<Expressions...>{}, expressions...);
 					}
