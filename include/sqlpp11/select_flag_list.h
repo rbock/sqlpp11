@@ -166,32 +166,43 @@ namespace sqlpp
 			struct _methods_t
 			{
 				using _database_t = typename Policies::_database_t;
-				template<typename T>
-					using _new_statement_t = new_statement<Policies, no_select_flag_list_t, T>;
+
+				template<typename... T>
+					using _check = detail::all_t<is_select_flag_t<T>::value...>;
+
+				template<typename Check, typename T>
+					using _new_statement_t = new_statement_t<Check::value, Policies, no_select_flag_list_t, T>;
 
 				using _consistency_check = consistent_t;
 
 				template<typename... Flags>
 					auto flags(Flags... flags) const
-					-> _new_statement_t<select_flag_list_t<void, Flags...>>
+					-> _new_statement_t<_check<Flags...>, select_flag_list_t<void, Flags...>>
 					{
-						return _flags_impl<void>(flags...);
+						static_assert(_check<Flags...>::value, "at least one argument is not a select flag in select flag list");
+
+						return _flags_impl<void>(_check<Flags...>{}, flags...);
 					}
 
 				template<typename... Flags>
 					auto dynamic_flags(Flags... flags) const
-					-> _new_statement_t<select_flag_list_t<_database_t, Flags...>>
+					-> _new_statement_t<_check<Flags...>, select_flag_list_t<_database_t, Flags...>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_flags must not be called in a static statement");
-						return _flags_impl<_database_t>(flags...);
+						static_assert(_check<Flags...>::value, "at least one argument is not a select flag in select flag list");
+
+						return _flags_impl<_database_t>(_check<Flags...>{}, flags...);
 					}
 
 			private:
 				template<typename Database, typename... Flags>
-					auto _flags_impl(Flags... flags) const
-					-> _new_statement_t<select_flag_list_t<Database, Flags...>>
+					auto _flags_impl(const std::false_type&, Flags... flags) const
+					-> bad_statement;
+
+				template<typename Database, typename... Flags>
+					auto _flags_impl(const std::true_type&, Flags... flags) const
+					-> _new_statement_t<std::true_type, select_flag_list_t<Database, Flags...>>
 					{
-						static_assert(detail::all_t<is_select_flag_t<Flags>::value...>::value, "at least one argument is not a select flag in select flag list");
 						static_assert(not detail::has_duplicates<Flags...>::value, "at least one duplicate argument detected in select flag list");
 
 						return { static_cast<const derived_statement_t<Policies>&>(*this), select_flag_list_data_t<Database, Flags...>{flags...} };
