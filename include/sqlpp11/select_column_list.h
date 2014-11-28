@@ -170,11 +170,6 @@ namespace sqlpp
 
 			using _is_dynamic = is_database<Database>;
 
-			static_assert(_is_dynamic::value or sizeof...(Columns), "at least one select expression required");
-			static_assert(not detail::has_duplicates<Columns...>::value, "at least one duplicate argument detected");
-			static_assert(detail::all_t<(is_selectable_t<Columns>::value or is_multi_column_t<Columns>::value)...>::value, "at least one argument is not a named expression");
-			static_assert(not detail::has_duplicates<typename Columns::_name_t...>::value, "at least one duplicate name detected");
-
 			struct _column_type {};
 
 			// Data
@@ -343,10 +338,17 @@ namespace sqlpp
 
 	namespace detail
 	{
+		template<typename... Columns>
+			auto tuple_merge(Columns... columns) -> decltype(std::tuple_cat(as_tuple<Columns>::_(columns)...))
+			{
+				return std::tuple_cat(as_tuple<Columns>::_(columns)...);
+			};
+
 		template<typename Database, typename... Columns>
 			using make_select_column_list_t = 
 			copy_tuple_args_t<select_column_list_t, Database, 
-			decltype(std::tuple_cat(as_tuple<Columns>::_(std::declval<Columns>())...))>;
+			decltype(tuple_merge(std::declval<Columns>()...))>;
+
 	}
 
 	struct no_select_column_list_t
@@ -388,24 +390,60 @@ namespace sqlpp
 			struct _methods_t
 			{
 				using _database_t = typename Policies::_database_t;
-				template<typename T>
-					using _new_statement_t = new_statement<Policies, no_select_column_list_t, T>;
+
+				template<typename... T>
+					using _check = detail::all_t<(is_selectable_t<T>::value or is_multi_column_t<T>::value)...>;
+
+				template<typename... T>
+					static constexpr auto _check_tuple(std::tuple<T...>) -> _check<T...>
+					{
+						return {};
+					}
+
+				template<typename... T>
+					static constexpr auto _check_args(T... args) -> decltype(_check_tuple(detail::tuple_merge(args...)))
+					{
+						return _check_tuple(detail::tuple_merge(args...));
+					}
+
+				template<typename Check, typename T>
+					using _new_statement_t = new_statement_t<Check::value, Policies, no_select_column_list_t, T>;
 
 				using _consistency_check = consistent_t;
 
 				template<typename... Args>
 					auto columns(Args... args) const
-					-> _new_statement_t<detail::make_select_column_list_t<void, Args...>>
+					-> _new_statement_t<decltype(_check_args(args...)), detail::make_select_column_list_t<void, Args...>>
 					{
-						return { static_cast<const derived_statement_t<Policies>&>(*this), typename detail::make_select_column_list_t<void, Args...>::_data_t{std::tuple_cat(detail::as_tuple<Args>::_(args)...)} };
+						static_assert(sizeof...(Args), "at least one selectable expression (e.g. a column) required in columns()");
+						static_assert(decltype(_check_args(args...))::value, "at least one argument is not a selectable expression in columns()");
+
+						return _columns_impl<_database_t>(_check_args(args...), detail::tuple_merge(args...));
 					}
 
 				template<typename... Args>
 					auto dynamic_columns(Args... args) const
-					-> _new_statement_t<detail::make_select_column_list_t<_database_t, Args...>>
+					-> _new_statement_t<decltype(_check_args(args...)), detail::make_select_column_list_t<_database_t, Args...>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_columns must not be called in a static statement");
-						return { static_cast<const derived_statement_t<Policies>&>(*this), typename detail::make_select_column_list_t<_database_t, Args...>::_data_t{std::tuple_cat(detail::as_tuple<Args>::_(args)...)} };
+						static_assert(decltype(_check_args(args...))::value, "at least one argument is not a selectable expression in columns()");
+
+						return _columns_impl<_database_t>(_check_args(args...), detail::tuple_merge(args...));
+					}
+
+			private:
+				template<typename Database, typename... Args>
+					auto _columns_impl(const std::false_type&, std::tuple<Args...> args) const
+					-> bad_statement;
+
+				template<typename Database, typename... Args>
+					auto _columns_impl(const std::true_type&, std::tuple<Args...> args) const
+					-> _new_statement_t<_check<Args...>, select_column_list_t<Database, Args...>>
+					{
+						static_assert(not detail::has_duplicates<Args...>::value, "at least one duplicate argument detected");
+						static_assert(not detail::has_duplicates<typename Args::_name_t...>::value, "at least one duplicate name detected");
+
+						return { static_cast<const derived_statement_t<Policies>&>(*this), typename select_column_list_t<Database, Args...>::_data_t{args} };
 					}
 			};
 	};
