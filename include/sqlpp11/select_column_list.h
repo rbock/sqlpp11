@@ -418,7 +418,7 @@ namespace sqlpp
 						static_assert(sizeof...(Args), "at least one selectable expression (e.g. a column) required in columns()");
 						static_assert(decltype(_check_args(args...))::value, "at least one argument is not a selectable expression in columns()");
 
-						return _columns_impl<_database_t>(_check_args(args...), detail::tuple_merge(args...));
+						return _columns_impl<void>(_check_args(args...), detail::tuple_merge(args...));
 					}
 
 				template<typename... Args>
