@@ -74,9 +74,9 @@ namespace sqlpp
 					_data_t _data;
 				};
 
-			// Member template for adding the named member to a statement
+			// Base template to be inherited by the statement
 			template<typename Policies>
-				struct _member_t
+				struct _base_t
 				{
 					using _data_t = single_table_data_t<Database, Table>;
 
@@ -89,12 +89,7 @@ namespace sqlpp
 						{
 							return t.from;
 						}
-				};
 
-			// Additional methods for the statement
-			template<typename Policies>
-				struct _methods_t
-				{
 					using _consistency_check = consistent_t;
 				};
 
@@ -116,9 +111,9 @@ namespace sqlpp
 				_data_t _data;
 			};
 
-		// Member template for adding the named member to a statement
+		// Base template to be inherited by the statement
 		template<typename Policies>
-			struct _member_t
+			struct _base_t
 			{
 				using _data_t = no_data_t;
 
@@ -131,11 +126,7 @@ namespace sqlpp
 					{
 						return t.no_from;
 					}
-			};
 
-		template<typename Policies>
-			struct _methods_t
-			{
 				using _database_t = typename Policies::_database_t;
 				template<typename T>
 					using _new_statement_t = new_statement<Policies, no_single_table_t, T>;

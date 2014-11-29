@@ -115,9 +115,9 @@ namespace sqlpp
 					_data_t _data;
 				};
 
-			// Member template for adding the named member to a statement
+			// Base template to be inherited by the statement
 			template<typename Policies>
-				struct _member_t
+				struct _base_t
 				{
 					using _data_t = having_data_t<Database, Expressions...>;
 
@@ -130,12 +130,7 @@ namespace sqlpp
 						{
 							return t.having;
 						}
-				};
 
-			// Additional methods for the statement
-			template<typename Policies>
-				struct _methods_t
-				{
 					using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<having_t>::value,
 								consistent_t,
 								assert_no_unknown_tables_in_having_t>::type;
@@ -158,9 +153,9 @@ namespace sqlpp
 				_data_t _data;
 			};
 
-		// Member template for adding the named member to a statement
+		// Base template to be inherited by the statement
 		template<typename Policies>
-			struct _member_t
+			struct _base_t
 			{
 				using _data_t = no_data_t;
 
@@ -173,11 +168,7 @@ namespace sqlpp
 					{
 						return t.no_having;
 					}
-			};
 
-		template<typename Policies>
-			struct _methods_t
-			{
 				using _database_t = typename Policies::_database_t;
 
 				template<typename... T>

@@ -78,9 +78,9 @@ namespace sqlpp
 					_data_t _data;
 				};
 
-			// Member template for adding the named member to a statement
+			// Base template to be inherited by the statement
 			template<typename Policies>
-				struct _member_t
+				struct _base_t
 				{
 					using _data_t = extra_tables_data_t<Tables...>;
 
@@ -93,12 +93,7 @@ namespace sqlpp
 						{
 							return t.extra_tables;
 						}
-				};
 
-			// Additional methods for the statement
-			template<typename Policies>
-				struct _methods_t
-				{
 					using _consistency_check = consistent_t;
 				};
 		};
@@ -119,9 +114,9 @@ namespace sqlpp
 				_data_t _data;
 			};
 
-		// Member template for adding the named member to a statement
+		// Base template to be inherited by the statement
 		template<typename Policies>
-			struct _member_t
+			struct _base_t
 			{
 				using _data_t = no_data_t;
 
@@ -134,11 +129,7 @@ namespace sqlpp
 					{
 						return t.no_extra_tables;
 					}
-			};
 
-		template<typename Policies>
-			struct _methods_t
-			{
 				template<typename T>
 					using _new_statement_t = new_statement<Policies, no_extra_tables_t, T>;
 
@@ -148,6 +139,7 @@ namespace sqlpp
 					auto extra_tables(Args...) const
 					-> _new_statement_t<extra_tables_t<Args...>>
 					{
+#warning: need to move static asserts
 						return { static_cast<const derived_statement_t<Policies>&>(*this), extra_tables_data_t<Args...>{} };
 					}
 			};

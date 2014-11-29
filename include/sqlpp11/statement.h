@@ -147,26 +147,24 @@ namespace sqlpp
 							consistent_t, assert_no_unknown_tables_t>::type;
 				using _parameter_check = typename std::conditional<std::tuple_size<typename _recursive_traits::_parameters>::value == 0,
 							consistent_t, assert_no_parameters_t>::type;
-
-				using _run_check = detail::get_first_if<is_inconsistent_t, consistent_t, 
-							_parameter_check, typename Policies::template _methods_t<statement_policies_t>::_consistency_check..., _table_check>;
-				using _prepare_check = detail::get_first_if<is_inconsistent_t, consistent_t, 
-							typename Policies::template _methods_t<statement_policies_t>::_consistency_check..., _table_check>;
 			};
 	}
 
-	template<typename Db,
-		typename... Policies
-			>
+	template<typename Db, typename... Policies>
 			struct statement_t:
-				public Policies::template _member_t<detail::statement_policies_t<Db, Policies...>>...,
+				public Policies::template _base_t<detail::statement_policies_t<Db, Policies...>>...,
 				public expression_operators<statement_t<Db, Policies...>, value_type_of<detail::statement_policies_t<Db, Policies...>>>,
-				public detail::statement_policies_t<Db, Policies...>::_result_methods_t,
-				public Policies::template _methods_t<detail::statement_policies_t<Db, Policies...>>...
+				public detail::statement_policies_t<Db, Policies...>::_result_methods_t
 	{
 		using _policies_t = typename detail::statement_policies_t<Db, Policies...>;
-		using _run_check = typename _policies_t::_run_check;
-		using _prepare_check = typename _policies_t::_prepare_check;
+
+		using _run_check = detail::get_first_if<is_inconsistent_t, consistent_t, 
+					typename _policies_t::_parameter_check, 
+					typename Policies::template _base_t<_policies_t>::_consistency_check..., 
+					typename _policies_t::_table_check>;
+		using _prepare_check = detail::get_first_if<is_inconsistent_t, consistent_t, 
+					typename Policies::template _base_t<_policies_t>::_consistency_check..., 
+					typename _policies_t::_table_check>;
 
 		using _result_type_provider = typename _policies_t::_result_type_provider;
 		template<typename Composite>
@@ -190,11 +188,10 @@ namespace sqlpp
 
 		template<typename Statement, typename Term>
 			statement_t(Statement statement, Term term):
-				Policies::template _member_t<_policies_t>{
+				Policies::template _base_t<_policies_t>{
 					typename Policies::template _impl_t<_policies_t>{
-						detail::pick_arg<typename Policies::template _member_t<_policies_t>>(statement, term)
+						detail::pick_arg<typename Policies::template _base_t<_policies_t>>(statement, term)
 					}}...
-		//Policies::template _member_t<_policies_t>{{detail::pick_arg<typename Policies::template _member_t<_policies_t>>(statement, term)}}...
 		{}
 
 		statement_t(const statement_t& r) = default;
@@ -238,13 +235,13 @@ namespace sqlpp
 		struct serializer_t<Context, statement_t<Database, Policies...>>
 		{
 			using P = detail::statement_policies_t<Database, Policies...>;
-			using _serialize_check = serialize_check_of<Context, typename Policies::template _member_t<P>::_data_t...>;
+			using _serialize_check = serialize_check_of<Context, typename Policies::template _base_t<P>::_data_t...>;
 			using T = statement_t<Database, Policies...>;
 
 			static Context& _(const T& t, Context& context)
 			{
 				using swallow = int[]; 
-				(void) swallow{(serialize(static_cast<const typename Policies::template _member_t<P>&>(t)()._data, context), 0)...};
+				(void) swallow{(serialize(static_cast<const typename Policies::template _base_t<P>&>(t)()._data, context), 0)...};
 
 				return context;
 			}
@@ -266,9 +263,9 @@ namespace sqlpp
 					_data_t _data;
 				};
 
-			// Member template for adding the named member to a statement
+			// Base template to be inherited by the statement
 			template<typename Policies>
-				struct _member_t
+				struct _base_t
 				{
 					using _data_t = NameData;
 
@@ -281,12 +278,7 @@ namespace sqlpp
 						{
 							return t.statement_name;
 						}
-				};
 
-			// Additional methods for the statement
-			template<typename Policies>
-				struct _methods_t
-				{
 					using _consistency_check = consistent_t;
 				};
 		};

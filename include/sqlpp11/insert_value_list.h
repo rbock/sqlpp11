@@ -76,9 +76,9 @@ namespace sqlpp
 				_data_t _data;
 			};
 
-		// Member template for adding the named member to a statement
+		// Base template to be inherited by the statement
 		template<typename Policies>
-			struct _member_t
+			struct _base_t
 			{
 				using _data_t = insert_default_values_data_t;
 
@@ -91,11 +91,7 @@ namespace sqlpp
 					{
 						return t.default_values;
 					}
-			};
 
-		template<typename Policies>
-			struct _methods_t
-			{
 				using _consistency_check = consistent_t;
 			};
 	}; 
@@ -193,9 +189,9 @@ namespace sqlpp
 					_data_t _data;
 				};
 
-			// Member template for adding the named member to a statement
+			// Base template to be inherited by the statement
 			template<typename Policies>
-				struct _member_t
+				struct _base_t
 				{
 					using _data_t = insert_list_data_t<Database, Assignments...>;
 
@@ -208,12 +204,7 @@ namespace sqlpp
 						{
 							return t.insert_list;
 						}
-				};
 
-			// Additional methods for the statement
-			template<typename Policies>
-				struct _methods_t
-				{
 					using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<insert_list_t>::value,
 								consistent_t,
 								assert_no_unknown_tables_in_insert_assignments_t>::type;
@@ -294,9 +285,9 @@ namespace sqlpp
 					_data_t _data;
 				};
 
-			// Member template for adding the named member to a statement
+			// Base template to be inherited by the statement
 			template<typename Policies>
-				struct _member_t
+				struct _base_t
 				{
 					using _data_t = column_list_data_t<Columns...>;
 
@@ -309,12 +300,7 @@ namespace sqlpp
 						{
 							return t.values;
 						}
-				};
 
-			// Additional methods for the statement
-			template<typename Policies>
-				struct _methods_t
-				{
 					using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<column_list_t>::value,
 								consistent_t,
 								assert_no_unknown_tables_in_column_list_t>::type;
@@ -348,9 +334,9 @@ namespace sqlpp
 				_data_t _data;
 			};
 
-		// Member template for adding the named member to a statement
+		// Base template to be inherited by the statement
 		template<typename Policies>
-			struct _member_t
+			struct _base_t
 			{
 				using _data_t = no_data_t;
 
@@ -363,11 +349,7 @@ namespace sqlpp
 					{
 						return t.no_insert_values;
 					}
-			};
 
-		template<typename Policies>
-			struct _methods_t
-			{
 				using _database_t = typename Policies::_database_t;
 
 				template<typename... T>
