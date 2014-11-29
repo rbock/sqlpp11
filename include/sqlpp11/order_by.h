@@ -32,7 +32,7 @@
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/interpretable.h>
 #include <sqlpp11/policy_update.h>
-#include <sqlpp11/detail/logic.h>
+#include <sqlpp11/logic.h>
 #include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
@@ -97,7 +97,7 @@ namespace sqlpp
 							using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Expression>;
 							_serialize_check::_();
 
-							using ok = detail::all_t<_is_dynamic::value, is_sort_order_t<Expression>::value, _serialize_check::type::value>;
+							using ok = logic::all_t<_is_dynamic::value, is_sort_order_t<Expression>::value, _serialize_check::type::value>;
 
 							_add_impl(expression, ok()); // dispatch to prevent compile messages after the static_assert
 						}
@@ -172,7 +172,7 @@ namespace sqlpp
 				using _database_t = typename Policies::_database_t;
 
 				template<typename... T>
-					using _check = detail::all_t<is_sort_order_t<T>::value...>;
+					using _check = logic::all_t<is_sort_order_t<T>::value...>;
 
 				template<typename Check, typename T>
 					using _new_statement_t = new_statement_t<Check::value, Policies, no_order_by_t, T>;

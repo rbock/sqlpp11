@@ -30,7 +30,7 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/basic_expression_operators.h>
-#include <sqlpp11/detail/logic.h>
+#include <sqlpp11/logic.h>
 
 namespace sqlpp
 {
@@ -44,7 +44,7 @@ namespace sqlpp
 		using _recursive_traits = make_recursive_traits<First, Args...>;
 
 		static_assert(sizeof...(Args) > 0, "concat requires two arguments at least");
-		static_assert(detail::all_t<is_text_t<First>::value, is_text_t<Args>::value...>::value, "at least one non-text argument detected in concat()");
+		static_assert(logic::all_t<is_text_t<First>::value, is_text_t<Args>::value...>::value, "at least one non-text argument detected in concat()");
 		struct _name_t
 		{
 			static constexpr const char* _get_name() { return "CONCAT"; }

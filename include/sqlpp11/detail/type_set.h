@@ -29,7 +29,7 @@
 
 #include <type_traits>
 #include <sqlpp11/wrong.h>
-#include <sqlpp11/detail/logic.h>
+#include <sqlpp11/logic.h>
 
 namespace sqlpp
 {
@@ -81,7 +81,7 @@ namespace sqlpp
 		template<typename E, typename... Elements>
 			struct is_element_of<E, type_set<Elements...>>
 			{
-				static constexpr bool value = any_t<std::is_same<E, Elements>::value...>::value;
+				static constexpr bool value = ::sqlpp::logic::any_t<std::is_same<E, Elements>::value...>::value;
 			};
 
 		template<typename L, typename R>
@@ -223,7 +223,7 @@ namespace sqlpp
 			struct make_intersect_set<type_set<LhsElements...>, type_set<RhsElements...>>
 			{
 				template<typename E>
-					using is_in_both = all_t<is_element_of<E, type_set<LhsElements...>>::value, is_element_of<E, type_set<RhsElements...>>::value>;
+					using is_in_both = ::sqlpp::logic::all_t<is_element_of<E, type_set<LhsElements...>>::value, is_element_of<E, type_set<RhsElements...>>::value>;
 				using type = make_type_set_if_t<is_in_both, LhsElements...>;
 			};
 

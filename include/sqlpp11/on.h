@@ -30,7 +30,7 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/interpretable_list.h>
-#include <sqlpp11/detail/logic.h>
+#include <sqlpp11/logic.h>
 
 namespace sqlpp
 {
@@ -52,7 +52,7 @@ namespace sqlpp
 					using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Expr>;
 					_serialize_check::_();
 
-					using ok = detail::all_t<_is_dynamic::value, is_expression_t<Expr>::value, _serialize_check::type::value>;
+					using ok = logic::all_t<_is_dynamic::value, is_expression_t<Expr>::value, _serialize_check::type::value>;
 
 					_add_impl(expr, ok()); // dispatch to prevent compile messages after the static_assert
 				}

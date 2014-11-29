@@ -32,7 +32,7 @@
 
 namespace sqlpp
 {
-	namespace detail
+	namespace logic
 	{
 		template<bool... B>
 			struct logic_helper;

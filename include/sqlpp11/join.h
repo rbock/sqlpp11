@@ -94,7 +94,7 @@ namespace sqlpp
 				-> set_on_t<on_t<void, Expr...>>
 				{
 					static_assert(is_noop<On>::value, "cannot call on() twice for a single join()");
-					static_assert(detail::all_t<is_expression_t<Expr>::value...>::value, "at least one argument is not an expression in on()");
+					static_assert(logic::all_t<is_expression_t<Expr>::value...>::value, "at least one argument is not an expression in on()");
 
 					return { _lhs, 
 						_rhs, 

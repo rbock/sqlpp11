@@ -34,7 +34,7 @@
 #include <sqlpp11/in_fwd.h>
 #include <sqlpp11/is_null_fwd.h>
 #include <sqlpp11/wrap_operand_fwd.h>
-#include <sqlpp11/detail/logic.h>
+#include <sqlpp11/logic.h>
 
 namespace sqlpp
 {
@@ -130,14 +130,14 @@ namespace sqlpp
 			template<typename... T>
 				in_t<true, Expr, wrap_operand_t<T>...> in(T... t) const
 				{
-					static_assert(detail::all_t<_is_valid_comparison_operand<wrap_operand_t<T>>::value...>::value, "at least one operand of in() is not valid");
+					static_assert(logic::all_t<_is_valid_comparison_operand<wrap_operand_t<T>>::value...>::value, "at least one operand of in() is not valid");
 					return { *static_cast<const Expr*>(this), wrap_operand_t<T>{t}... };
 				}
 
 			template<typename... T>
 				in_t<false, Expr, wrap_operand_t<T>...> not_in(T... t) const
 				{
-					static_assert(detail::all_t<_is_valid_comparison_operand<wrap_operand_t<T>>::value...>::value, "at least one operand of in() is not valid");
+					static_assert(logic::all_t<_is_valid_comparison_operand<wrap_operand_t<T>>::value...>::value, "at least one operand of in() is not valid");
 					return { *static_cast<const Expr*>(this), wrap_operand_t<T>{t}... };
 				}
 		};

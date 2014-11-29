@@ -139,7 +139,7 @@ namespace sqlpp
 				using _database_t = typename Policies::_database_t;
 
 				template<typename T>
-					using _check = detail::all_t<is_table_t<T>::value>;
+					using _check = logic::all_t<is_table_t<T>::value>;
 
 				template<typename Check, typename T>
 					using _new_statement_t = new_statement_t<Check::value, Policies, no_into_t, T>;

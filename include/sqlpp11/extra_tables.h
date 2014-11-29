@@ -28,7 +28,7 @@
 #define SQLPP_EXTRA_TABLES_H
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/detail/logic.h>
+#include <sqlpp11/logic.h>
 #include <sqlpp11/policy_update.h>
 
 namespace sqlpp
@@ -128,7 +128,7 @@ namespace sqlpp
 					using _new_statement_t = new_statement_t<Check::value, Policies, no_extra_tables_t, T>;
 
 				template<typename... T>
-					using _check = detail::all_t<is_table_t<T>::value...>;
+					using _check = logic::all_t<is_table_t<T>::value...>;
 
 				using _consistency_check = consistent_t;
 

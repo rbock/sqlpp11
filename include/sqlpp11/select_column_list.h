@@ -196,7 +196,7 @@ namespace sqlpp
 							using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, NamedExpression>;
 							_serialize_check::_();
 
-							using ok = detail::all_t<
+							using ok = logic::all_t<
 								_is_dynamic::value, 
 								is_selectable_t<NamedExpression>::value,
 								_serialize_check::type::value
@@ -284,7 +284,7 @@ namespace sqlpp
 						_alias_t<AliasProvider> as(const AliasProvider& aliasProvider) const
 						{
 							static_assert(_statement_t::_can_be_used_as_table(), "statement cannot be used as table, e.g. due to missing tables");
-							static_assert(detail::none_t<is_multi_column_t<Columns>::value...>::value, "cannot use multi-columns in sub selects");
+							static_assert(logic::none_t<is_multi_column_t<Columns>::value...>::value, "cannot use multi-columns in sub selects");
 							return _table_t<AliasProvider>(_get_statement()).as(aliasProvider);
 						}
 
@@ -382,7 +382,7 @@ namespace sqlpp
 				using _database_t = typename Policies::_database_t;
 
 				template<typename... T>
-					using _check = detail::all_t<(is_selectable_t<T>::value or is_multi_column_t<T>::value)...>;
+					using _check = logic::all_t<(is_selectable_t<T>::value or is_multi_column_t<T>::value)...>;
 
 				template<typename... T>
 					static constexpr auto _check_tuple(std::tuple<T...>) -> _check<T...>

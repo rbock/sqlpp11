@@ -28,7 +28,7 @@
 #define SQLPP_INSERT_VALUE_LIST_H
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/detail/logic.h>
+#include <sqlpp11/logic.h>
 #include <sqlpp11/assignment.h>
 #include <sqlpp11/interpretable_list.h>
 #include <sqlpp11/interpret_tuple.h>
@@ -167,7 +167,7 @@ namespace sqlpp
 							using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Assignment>;
 							_serialize_check::_();
 
-							using ok = detail::all_t<
+							using ok = logic::all_t<
 								_is_dynamic::value, 
 								is_assignment_t<Assignment>::value,
 								_serialize_check::type::value>;
@@ -260,13 +260,13 @@ namespace sqlpp
 					template<typename... Assignments>
 						void add(Assignments... assignments)
 						{
-							static_assert(detail::all_t<is_assignment_t<Assignments>::value...>::value, "add_values() arguments have to be assignments");
+							static_assert(logic::all_t<is_assignment_t<Assignments>::value...>::value, "add_values() arguments have to be assignments");
 							using _arg_value_tuple = std::tuple<insert_value_t<lhs_t<Assignments>>...>;
 							using _args_correct = std::is_same<_arg_value_tuple, _value_tuple_t>;
 							static_assert(_args_correct::value, "add_values() arguments do not match columns() arguments");
 
-							using ok = detail::all_t<
-								detail::all_t<is_assignment_t<Assignments>::value...>::value, 
+							using ok = logic::all_t<
+								logic::all_t<is_assignment_t<Assignments>::value...>::value, 
 								_args_correct::value>;
 
 							_add_impl(ok(), assignments...); // dispatch to prevent compile messages after the static_assert
@@ -353,10 +353,10 @@ namespace sqlpp
 				using _database_t = typename Policies::_database_t;
 
 				template<typename... T>
-					using _column_check = detail::all_t<is_column_t<T>::value...>;
+					using _column_check = logic::all_t<is_column_t<T>::value...>;
 
 				template<typename... T>
-					using _assignment_check = detail::all_t<is_assignment_t<T>::value...>;
+					using _assignment_check = logic::all_t<is_assignment_t<T>::value...>;
 
 				template<typename Check, typename T>
 					using _new_statement_t = new_statement_t<Check::value, Policies, no_insert_value_list_t, T>;
@@ -373,7 +373,7 @@ namespace sqlpp
 					auto columns(Columns... columns) const
 					-> _new_statement_t<_column_check<Columns...>, column_list_t<Columns...>>
 					{
-						static_assert(detail::all_t<is_column_t<Columns>::value...>::value, "at least one argument is not a column in columns()");
+						static_assert(logic::all_t<is_column_t<Columns>::value...>::value, "at least one argument is not a column in columns()");
 						static_assert(sizeof...(Columns), "at least one column required in columns()");
 
 						return _columns_impl(_column_check<Columns...>{}, columns...);
@@ -408,7 +408,7 @@ namespace sqlpp
 					-> _new_statement_t<std::true_type, column_list_t<Columns...>>
 					{
 						static_assert(not detail::has_duplicates<Columns...>::value, "at least one duplicate argument detected in columns()");
-						static_assert(detail::none_t<must_not_insert_t<Columns>::value...>::value, "at least one column argument has a must_not_insert tag in its definition");
+						static_assert(logic::none_t<must_not_insert_t<Columns>::value...>::value, "at least one column argument has a must_not_insert tag in its definition");
 						using _column_required_tables = detail::make_joined_set_t<required_tables_of<Columns>...>;
 						static_assert(_column_required_tables::size::value == 1, "columns() contains columns from several tables");
 
@@ -426,7 +426,7 @@ namespace sqlpp
 					-> _new_statement_t<std::true_type, insert_list_t<Database, Assignments...>>
 					{
 						static_assert(not detail::has_duplicates<lhs_t<Assignments>...>::value, "at least one duplicate column detected in set()");
-						static_assert(detail::none_t<must_not_insert_t<lhs_t<Assignments>>::value...>::value, "at least one assignment is prohibited by its column definition in set()");
+						static_assert(logic::none_t<must_not_insert_t<lhs_t<Assignments>>::value...>::value, "at least one assignment is prohibited by its column definition in set()");
 
 						using _column_required_tables = detail::make_joined_set_t<required_tables_of<lhs_t<Assignments>>...>;
 						static_assert(sizeof...(Assignments) ? (_column_required_tables::size::value == 1) : true, "set() contains assignments for columns from several tables");

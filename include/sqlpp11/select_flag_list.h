@@ -86,7 +86,7 @@ namespace sqlpp
 							using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Flag>;
 							_serialize_check::_();
 
-							using ok = detail::all_t<_is_dynamic::value, is_select_flag_t<Flag>::value, _serialize_check::type::value>;
+							using ok = logic::all_t<_is_dynamic::value, is_select_flag_t<Flag>::value, _serialize_check::type::value>;
 
 							_add_impl(flag, ok()); // dispatch to prevent compile messages after the static_assert
 						}
@@ -159,7 +159,7 @@ namespace sqlpp
 				using _database_t = typename Policies::_database_t;
 
 				template<typename... T>
-					using _check = detail::all_t<is_select_flag_t<T>::value...>;
+					using _check = logic::all_t<is_select_flag_t<T>::value...>;
 
 				template<typename Check, typename T>
 					using _new_statement_t = new_statement_t<Check::value, Policies, no_select_flag_list_t, T>;

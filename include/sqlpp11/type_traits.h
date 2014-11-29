@@ -109,7 +109,7 @@ namespace sqlpp
 	SQLPP_VALUE_TRAIT_GENERATOR(is_integral);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_floating_point);
 	template<typename T>
-		using is_numeric_t = detail::any_t<
+		using is_numeric_t = logic::any_t<
 		detail::is_element_of<tag::is_integral, typename T::_traits::_tags>::value,
 		detail::is_element_of<tag::is_floating_point, typename T::_traits::_tags>::value>;
 	SQLPP_VALUE_TRAIT_GENERATOR(is_text);

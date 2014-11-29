@@ -91,12 +91,12 @@ namespace sqlpp
 							static_assert(is_assignment_t<Assignment>::value, "invalid assignment argument in add()");
 							using _assigned_columns = detail::make_type_set_t<lhs_t<Assignments>...>;
 							static_assert(not detail::is_element_of<lhs_t<Assignment>, _assigned_columns>::value, "Must not assign value to column twice");
-							static_assert(detail::not_t<must_not_update_t, lhs_t<Assignment>>::value, "add() argument must not be updated");
+							static_assert(logic::not_t<must_not_update_t, lhs_t<Assignment>>::value, "add() argument must not be updated");
 							static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Assignment>::value, "assignment uses tables unknown to this statement in add()");
 							using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Assignment>;
 							_serialize_check::_();
 
-							using ok = detail::all_t<
+							using ok = logic::all_t<
 								_is_dynamic::value, 
 								is_assignment_t<Assignment>::value,
 								_serialize_check::type::value>;
@@ -184,7 +184,7 @@ namespace sqlpp
 				using _database_t = typename Policies::_database_t;
 
 				template<typename... T>
-					using _check = detail::all_t<is_assignment_t<T>::value...>;
+					using _check = logic::all_t<is_assignment_t<T>::value...>;
 
 				template<typename Check, typename T>
 					using _new_statement_t = new_statement_t<Check::value, Policies, no_update_list_t, T>;
@@ -221,7 +221,7 @@ namespace sqlpp
 					-> _new_statement_t<std::true_type, update_list_t<Database, Assignments...>>
 					{
 						static_assert(not detail::has_duplicates<lhs_t<Assignments>...>::value, "at least one duplicate column detected in set()");
-						static_assert(detail::none_t<must_not_update_t<lhs_t<Assignments>>::value...>::value, "at least one assignment is prohibited by its column definition in set()");
+						static_assert(logic::none_t<must_not_update_t<lhs_t<Assignments>>::value...>::value, "at least one assignment is prohibited by its column definition in set()");
 
 						using _column_required_tables = detail::make_joined_set_t<required_tables_of<lhs_t<Assignments>>...>;
 						static_assert(sizeof...(Assignments) ? (_column_required_tables::size::value == 1) : true, "set() contains assignments for columns from more than one table");

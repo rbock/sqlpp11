@@ -58,7 +58,7 @@ namespace sqlpp
 
 				using type = field_spec_t<typename NamedExpr::_name_t, 
 							value_type_of<NamedExpr>,
-							detail::any_t<_can_be_null, _depends_on_outer_table>::value,
+							logic::any_t<_can_be_null, _depends_on_outer_table>::value,
 							null_is_trivial_value_t<NamedExpr>::value>;
 			};
 

@@ -117,12 +117,12 @@ namespace sqlpp
 				}
 
 				using _value_type = typename std::conditional<
-					detail::none_t<is_missing_t<Policies>::value...>::value,
+					logic::none_t<is_missing_t<Policies>::value...>::value,
 					value_type_of<_result_type_provider>,
 					no_value_t // if a required statement part is missing (e.g. columns in a select), then the statement cannot be used as a value
 						>::type;
 
-				using _can_be_null = detail::any_t<
+				using _can_be_null = logic::any_t<
 					can_be_null_t<_result_type_provider>::value, 
 					detail::make_intersect_set_t<
 						required_tables_of<_result_type_provider>, 
@@ -172,10 +172,10 @@ namespace sqlpp
 
 		using _traits = make_traits<value_type_of<_policies_t>,
 					tag::is_statement, 
-					tag_if<tag::is_select, detail::any_t<is_select_t<Policies>::value...>::value>,
+					tag_if<tag::is_select, logic::any_t<is_select_t<Policies>::value...>::value>,
 					tag_if<tag::is_expression, is_expression_t<_policies_t>::value>, 
 					tag_if<tag::is_selectable, is_expression_t<_policies_t>::value>,
-					tag_if<tag::is_return_value, detail::none_t<is_noop_t<_result_type_provider>::value>::value>,
+					tag_if<tag::is_return_value, logic::none_t<is_noop_t<_result_type_provider>::value>::value>,
 					tag::requires_braces>;
 		using _recursive_traits = typename _policies_t::_recursive_traits;
 		using _used_outer_tables = typename _policies_t::_all_provided_outer_tables;
