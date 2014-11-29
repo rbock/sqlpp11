@@ -31,7 +31,6 @@
 
 namespace sqlpp
 {
-	template<typename Expression>
 	struct assert_serializer_specialization_t
 	{
 		using type = std::false_type;
@@ -46,7 +45,7 @@ namespace sqlpp
 	template<typename Context, typename T, typename Enable = void>
 		struct serializer_t
 		{
-			using _serialize_check = assert_serializer_specialization_t<T>;
+			using _serialize_check = assert_serializer_specialization_t;
 
 			static void _(const T& t, Context& context)
 			{
