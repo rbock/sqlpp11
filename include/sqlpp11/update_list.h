@@ -191,33 +191,44 @@ namespace sqlpp
 			struct _methods_t
 			{
 				using _database_t = typename Policies::_database_t;
-				template<typename T>
-					using _new_statement_t = new_statement<Policies, no_update_list_t, T>;
+
+				template<typename... T>
+					using _check = detail::all_t<is_assignment_t<T>::value...>;
+
+				template<typename Check, typename T>
+					using _new_statement_t = new_statement_t<Check::value, Policies, no_update_list_t, T>;
 
 				using _consistency_check = assert_update_assignments_t;
 
 				template<typename... Assignments>
 					auto set(Assignments... assignments) const
-					-> _new_statement_t<update_list_t<void, Assignments...>>
+					-> _new_statement_t<_check<Assignments...>, update_list_t<void, Assignments...>>
 					{
 						static_assert(sizeof...(Assignments), "at least one assignment expression required in set()");
-						return _set_impl<void>(assignments...);
+						static_assert(_check<Assignments...>::value, "at least one argument is not an assignment in set()");
+
+						return _set_impl<void>(_check<Assignments...>{}, assignments...);
 					}
 
 				template<typename... Assignments>
 					auto dynamic_set(Assignments... assignments) const
-					-> _new_statement_t<update_list_t<_database_t, Assignments...>>
+					-> _new_statement_t<_check<Assignments...>, update_list_t<_database_t, Assignments...>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_set() must not be called in a static statement");
-						return _set_impl<_database_t>(assignments...);
+						static_assert(_check<Assignments...>::value, "at least one argument is not an assignment in set()");
+
+						return _set_impl<_database_t>(_check<Assignments...>{}, assignments...);
 					}
 
 			private:
 				template<typename Database, typename... Assignments>
-					auto _set_impl(Assignments... assignments) const
-					-> _new_statement_t<update_list_t<Database, Assignments...>>
+					auto _set_impl(const std::false_type&, Assignments... assignments) const
+					-> bad_statement;
+
+				template<typename Database, typename... Assignments>
+					auto _set_impl(const std::true_type&, Assignments... assignments) const
+					-> _new_statement_t<std::true_type, update_list_t<Database, Assignments...>>
 					{
-						static_assert(detail::all_t<is_assignment_t<Assignments>::value...>::value, "at least one argument is not an assignment in set()");
 						static_assert(not detail::has_duplicates<lhs_t<Assignments>...>::value, "at least one duplicate column detected in set()");
 						static_assert(detail::none_t<must_not_update_t<lhs_t<Assignments>>::value...>::value, "at least one assignment is prohibited by its column definition in set()");
 

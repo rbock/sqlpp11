@@ -62,12 +62,6 @@ namespace sqlpp
 
 			using _is_dynamic = is_database<Database>;
 
-			static_assert(_is_dynamic::value or sizeof...(Tables), "at least one table argument required in using()");
-
-			static_assert(not detail::has_duplicates<Tables...>::value, "at least one duplicate argument detected in using()");
-
-			static_assert(detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not an table in using()");
-
 			// Data
 			using _data_t = using_data_t<Database, Tables...>;
 
@@ -165,25 +159,49 @@ namespace sqlpp
 			struct _methods_t
 			{
 				using _database_t = typename Policies::_database_t;
-				template<typename T>
-					using _new_statement_t = new_statement<Policies, no_using_t, T>;
+
+				template<typename... T>
+					using _check = detail::all_t<is_table_t<T>::value...>;
+
+				template<typename Check, typename T>
+					using _new_statement_t = new_statement_t<Check::value, Policies, no_using_t, T>;
 
 				using _consistency_check = consistent_t;
 
 				template<typename... Args>
 					auto using_(Args... args) const
-					-> _new_statement_t<using_t<void, Args...>>
+					-> _new_statement_t<_check<Args...>, using_t<void, Args...>>
 					{
-						return { static_cast<const derived_statement_t<Policies>&>(*this), using_data_t<void, Args...>{args...} };
+						static_assert(not detail::has_duplicates<Args...>::value, "at least one duplicate argument detected in using()");
+						static_assert(sizeof...(Args), "at least one table required in using()");
+						static_assert(_check<Args...>::value, "at least one argument is not an table in using()");
+
+						return { _using_impl<void>(_check<Args...>{}, args...) };
 					}
 
 				template<typename... Args>
 					auto dynamic_using(Args... args) const
-					-> _new_statement_t<using_t<_database_t, Args...>>
+					-> _new_statement_t<_check<Args...>, using_t<_database_t, Args...>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_using must not be called in a static statement");
-						return { static_cast<const derived_statement_t<Policies>&>(*this), using_data_t<_database_t, Args...>{args...} };
+						static_assert(_check<Args...>::value, "at least one argument is not an table in using()");
+
+						return { _using_impl<_database_t>(_check<Args...>{}, args...) };
 					}
+
+			private:
+				template<typename Database, typename... Args>
+					auto _using_impl(const std::false_type&, Args... args) const
+					-> bad_statement;
+
+				template<typename Database, typename... Args>
+					auto _using_impl(const std::true_type&, Args... args) const
+						-> _new_statement_t<std::true_type, using_t<_database_t, Args...>>
+						{
+							static_assert(not detail::has_duplicates<Args...>::value, "at least one duplicate argument detected in using()");
+
+							return { static_cast<const derived_statement_t<Policies>&>(*this), using_data_t<Database, Args...>{args...} };
+						};
 			};
 	};
 
