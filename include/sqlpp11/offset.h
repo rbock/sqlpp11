@@ -134,6 +134,7 @@ namespace sqlpp
 						{
 							// FIXME: Make sure that Offset does not require external tables? Need to read up on SQL
 							using arg_t = wrap_operand_t<Offset>;
+							static_assert(is_integral_t<arg_t>::value, "offset requires an integral value or integral parameter");
 							_data._value = arg_t{value};
 							_data._initialized = true;
 						}
@@ -205,24 +206,42 @@ namespace sqlpp
 					}
 
 				using _database_t = typename Policies::_database_t;
+
 				template<typename T>
-					using _new_statement_t = new_statement<Policies, no_offset_t, T>;
+					using _check = is_integral_t<wrap_operand_t<T>>;
+
+				template<typename Check, typename T>
+					using _new_statement_t = new_statement_t<Check::value, Policies, no_offset_t, T>;
 
 				using _consistency_check = consistent_t;
 
 				template<typename Arg>
 					auto offset(Arg arg) const
-					-> _new_statement_t<offset_t<wrap_operand_t<Arg>>>
+					-> _new_statement_t<_check<Arg>, offset_t<wrap_operand_t<Arg>>>
 					{
-						return { static_cast<const derived_statement_t<Policies>&>(*this), offset_data_t<wrap_operand_t<Arg>>{{arg}} };
+						static_assert(_check<Arg>::value, "offset requires an integral value or integral parameter");
+						return _offset_impl(_check<Arg>{}, wrap_operand_t<Arg>{arg});
 					}
 
 				auto dynamic_offset() const
-					-> _new_statement_t<dynamic_offset_t<_database_t>>
+					-> _new_statement_t<std::true_type, dynamic_offset_t<_database_t>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_offset must not be called in a static statement");
 						return { static_cast<const derived_statement_t<Policies>&>(*this), dynamic_offset_data_t<_database_t>{} };
 					}
+
+			private:
+				template<typename Arg>
+					auto _offset_impl(const std::false_type&, Arg arg) const
+					-> bad_statement;
+
+				template<typename Arg>
+					auto _offset_impl(const std::true_type&, Arg arg) const
+					-> _new_statement_t<std::true_type, offset_t<Arg>>
+					{
+						return { static_cast<const derived_statement_t<Policies>&>(*this), offset_data_t<Arg>{arg} };
+					}
+
 			};
 	};
 

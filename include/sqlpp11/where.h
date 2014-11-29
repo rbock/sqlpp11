@@ -75,10 +75,6 @@ namespace sqlpp
 
 			using _is_dynamic = is_database<Database>;
 
-			static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression argument required in where()");
-			static_assert(detail::none_t<is_assignment_t<Expressions>::value...>::value, "at least one argument is an assignment in where()");
-			static_assert(detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not valid expression in where()");
-
 			// Data
 			using _data_t = where_data_t<Database, Expressions...>;
 
@@ -231,28 +227,55 @@ namespace sqlpp
 						}
 
 					using _database_t = typename Policies::_database_t;
-					template<typename T>
-						using _new_statement_t = new_statement<Policies, no_where_t, T>;
+
+					template<typename... T>
+						using _check = detail::all_t<is_expression_t<T>::value...>;
+
+					template<typename Check, typename T>
+						using _new_statement_t = new_statement_t<Check::value, Policies, no_where_t, T>;
 
 					using _consistency_check = typename std::conditional<
 						WhereRequired and (Policies::_all_provided_tables::size::value > 0),
 						assert_where_t,
 						consistent_t>::type;
 
-					template<typename... Args>
-						auto where(Args... args) const
-						-> _new_statement_t<where_t<void, Args...>>
+					auto where(bool b) const
+						-> _new_statement_t<std::true_type, where_t<void, bool>>
 						{
-							return { static_cast<const derived_statement_t<Policies>&>(*this), where_data_t<void, Args...>{args...} };
+							return { static_cast<const derived_statement_t<Policies>&>(*this), where_data_t<void, bool>{b} };
 						}
 
-					template<typename... Args>
-						auto dynamic_where(Args... args) const
-						-> _new_statement_t<where_t<_database_t, Args...>>
+					template<typename... Expressions>
+						auto where(Expressions... expressions) const
+						-> _new_statement_t<_check<Expressions...>, where_t<void, Expressions...>>
 						{
-							static_assert(not std::is_same<_database_t, void>::value, "dynamic_where must not be called in a static statement");
-							return { static_cast<const derived_statement_t<Policies>&>(*this), where_data_t<_database_t, Args...>{args...} };
+							static_assert(_check<Expressions...>::value, "at least one argument is not an expression in where()");
+							static_assert(sizeof...(Expressions), "at least one expression argument required in where()");
+
+							return _where_impl<void>(_check<Expressions...>{}, expressions...);
 						}
+
+					template<typename... Expressions>
+						auto dynamic_where(Expressions... expressions) const
+						-> _new_statement_t<_check<Expressions...>, where_t<_database_t, Expressions...>>
+						{
+							static_assert(_check<Expressions...>::value, "at least one argument is not an expression in where()");
+							static_assert(not std::is_same<_database_t, void>::value, "dynamic_where must not be called in a static statement");
+							return _where_impl<_database_t>(_check<Expressions...>{}, expressions...);
+						}
+
+				private:
+					template<typename Database, typename... Expressions>
+						auto _where_impl(const std::false_type&, Expressions... expressions) const
+						-> bad_statement;
+
+					template<typename Database, typename... Expressions>
+						auto _where_impl(const std::true_type&, Expressions... expressions) const
+						-> _new_statement_t<std::true_type, where_t<Database, Expressions...>>
+						{
+							return { static_cast<const derived_statement_t<Policies>&>(*this), where_data_t<_database_t, Expressions...>{expressions...} };
+						}
+
 				};
 		};
 

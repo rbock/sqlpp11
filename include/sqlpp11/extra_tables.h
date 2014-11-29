@@ -62,12 +62,6 @@ namespace sqlpp
 				using _tags = detail::type_set<>;
 			};
 
-			// FIXME: extra_tables must not require tables!
-
-			static_assert(sizeof...(Tables), "at least one table or join argument required in extra_tables()");
-			static_assert(not detail::has_duplicates<Tables...>::value, "at least one duplicate argument detected in extra_tables()");
-			static_assert(detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not a table or join in extra_tables()");
-
 			// Data
 			using _data_t = extra_tables_data_t<Tables...>;
 
@@ -130,17 +124,41 @@ namespace sqlpp
 						return t.no_extra_tables;
 					}
 
-				template<typename T>
-					using _new_statement_t = new_statement<Policies, no_extra_tables_t, T>;
+				template<typename Check, typename T>
+					using _new_statement_t = new_statement_t<Check::value, Policies, no_extra_tables_t, T>;
+
+				template<typename... T>
+					using _check = detail::all_t<is_table_t<T>::value...>;
 
 				using _consistency_check = consistent_t;
 
-				template<typename... Args>
-					auto extra_tables(Args...) const
-					-> _new_statement_t<extra_tables_t<Args...>>
+				template<typename... Tables>
+					auto extra_tables(Tables... tables) const
+					-> _new_statement_t<_check<Tables...>, extra_tables_t<Tables...>>
 					{
-#warning: need to move static asserts
-						return { static_cast<const derived_statement_t<Policies>&>(*this), extra_tables_data_t<Args...>{} };
+						static_assert(_check<Tables...>::value, "at least one argument is not a table or join in extra_tables()");
+
+						return _extra_tables_impl<void>(_check<Tables...>{}, tables...);
+					}
+
+			private:
+				template<typename Database, typename... Tables>
+					auto _extra_tables_impl(const std::false_type&, Tables... tables) const
+					-> bad_statement;
+
+				template<typename Database, typename... Tables>
+					auto _extra_tables_impl(const std::true_type&, Tables...) const
+					-> _new_statement_t<std::true_type, extra_tables_t<Tables...>>
+					{
+						static_assert(required_tables_of<extra_tables_t<Tables...>>::size::value == 0, "at least one table depends on another table in extra_tables()");
+
+						static constexpr std::size_t _number_of_tables = detail::sum(provided_tables_of<Tables>::size::value...);
+						using _unique_tables = detail::make_joined_set_t<provided_tables_of<Tables>...>;
+						using _unique_table_names = detail::transform_set_t<name_of, _unique_tables>;
+						static_assert(_number_of_tables == _unique_tables::size::value, "at least one duplicate table detected in extra_tables()");
+						static_assert(_number_of_tables == _unique_table_names::size::value, "at least one duplicate table name detected in extra_tables()");
+
+						return { static_cast<const derived_statement_t<Policies>&>(*this), extra_tables_data_t<Tables...>{} };
 					}
 			};
 	};

@@ -61,9 +61,6 @@ namespace sqlpp
 			using _traits = make_traits<no_value_t, tag::is_into>;
 			using _recursive_traits = make_recursive_traits<Table>;
 
-			static_assert(is_table_t<Table>::value, "argument has to be a table");
-			static_assert(required_tables_of<Table>::size::value == 0, "table depends on another table");
-
 			using _data_t = into_data_t<Database, Table>;
 
 			struct _name_t {};
@@ -140,16 +137,35 @@ namespace sqlpp
 					}
 
 				using _database_t = typename Policies::_database_t;
+
 				template<typename T>
-					using _new_statement_t = new_statement<Policies, no_into_t, T>;
+					using _check = detail::all_t<is_table_t<T>::value>;
+
+				template<typename Check, typename T>
+					using _new_statement_t = new_statement_t<Check::value, Policies, no_into_t, T>;
 
 				using _consistency_check = assert_into_t;
 
-				template<typename... Args>
-					auto into(Args... args) const
-					-> _new_statement_t<into_t<void, Args...>>
+				template<typename Table>
+					auto into(Table table) const
+					-> _new_statement_t<_check<Table>, into_t<void, Table>>
 					{
-						return { static_cast<const derived_statement_t<Policies>&>(*this), into_data_t<void, Args...>{args...} };
+						static_assert(_check<Table>::value, "argument is not a table in into()");
+						return _into_impl<void>(_check<Table>{}, table);
+					}
+
+			private:
+				template<typename Database, typename Table>
+					auto _into_impl(const std::false_type&, Table table) const
+					-> bad_statement;
+
+				template<typename Database, typename Table>
+					auto _into_impl(const std::true_type&, Table table) const
+					-> _new_statement_t<std::true_type, into_t<Database, Table>>
+					{
+						static_assert(required_tables_of<into_t<Database, Table>>::size::value == 0, "argument depends on another table in into()");
+
+						return { static_cast<const derived_statement_t<Policies>&>(*this), into_data_t<Database, Table>{table} };
 					}
 			};
 	};
@@ -169,10 +185,10 @@ namespace sqlpp
 			}
 		};
 
-	template<typename... T>
-		auto into(T&&... t) -> decltype(statement_t<void, no_into_t>().into(std::forward<T>(t)...))
+	template<typename T>
+		auto into(T&& t) -> decltype(statement_t<void, no_into_t>().into(std::forward<T>(t)))
 		{
-			return statement_t<void, no_into_t>().into(std::forward<T>(t)...);
+			return statement_t<void, no_into_t>().into(std::forward<T>(t));
 		}
 }
 

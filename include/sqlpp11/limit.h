@@ -57,8 +57,6 @@ namespace sqlpp
 			using _traits = make_traits<no_value_t, tag::is_limit>;
 			using _recursive_traits = make_recursive_traits<Limit>;
 
-			static_assert(is_integral_t<Limit>::value, "limit requires an integral value or integral parameter");
-
 			// Data
 			using _data_t = limit_data_t<Limit>;
 
@@ -134,6 +132,7 @@ namespace sqlpp
 						{
 							// FIXME: Make sure that Limit does not require external tables? Need to read up on SQL
 							using arg_t = wrap_operand_t<Limit>;
+							static_assert(is_integral_t<arg_t>::value, "limit requires an integral value or integral parameter");
 							_data._value = arg_t{value};
 							_data._initialized = true;
 						}
@@ -195,23 +194,39 @@ namespace sqlpp
 				using _database_t = typename Policies::_database_t;
 
 				template<typename T>
-					using _new_statement_t = new_statement<Policies, no_limit_t, T>;
+					using _check = is_integral_t<wrap_operand_t<T>>;
+
+				template<typename Check, typename T>
+					using _new_statement_t = new_statement_t<Check::value, Policies, no_limit_t, T>;
 
 				using _consistency_check = consistent_t;
 
 				template<typename Arg>
 					auto limit(Arg arg) const
-					-> _new_statement_t<limit_t<wrap_operand_t<Arg>>>
+					-> _new_statement_t<_check<Arg>, limit_t<wrap_operand_t<Arg>>>
 					{
-						return { static_cast<const derived_statement_t<Policies>&>(*this), limit_data_t<wrap_operand_t<Arg>>{{arg}} };
+						static_assert(_check<Arg>::value, "limit requires an integral value or integral parameter");
+						return _limit_impl(_check<Arg>{}, wrap_operand_t<Arg>{arg});
 					}
 
 				auto dynamic_limit() const
-					-> _new_statement_t<dynamic_limit_t<_database_t>>
+					-> _new_statement_t<std::true_type, dynamic_limit_t<_database_t>>
 					{
-						static_assert(not std::is_same<_database_t, void>::value, "dynamic_limit must not be called in a static statement");
 						return { static_cast<const derived_statement_t<Policies>&>(*this), dynamic_limit_data_t<_database_t>{} };
 					}
+
+			private:
+				template<typename Arg>
+					auto _limit_impl(const std::false_type&, Arg arg) const
+					-> bad_statement;
+
+				template<typename Arg>
+					auto _limit_impl(const std::true_type&, Arg arg) const
+					-> _new_statement_t<std::true_type, limit_t<Arg>>
+					{
+						return { static_cast<const derived_statement_t<Policies>&>(*this), limit_data_t<Arg>{arg} };
+					}
+
 			};
 	};
 

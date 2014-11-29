@@ -129,15 +129,33 @@ namespace sqlpp
 
 				using _database_t = typename Policies::_database_t;
 				template<typename T>
-					using _new_statement_t = new_statement<Policies, no_single_table_t, T>;
+					using _check = detail::all_t<is_table_t<T>::value>;
+
+				template<typename Check, typename T>
+					using _new_statement_t = new_statement_t<Check::value, Policies, no_single_table_t, T>;
 
 				using _consistency_check = consistent_t;
 
-				template<typename... Args>
-					auto from(Args... args) const
-					-> _new_statement_t<single_table_t<void, Args...>>
+				template<typename Table>
+					auto single_table(Table table) const
+					-> _new_statement_t<_check<Table>, single_table_t<void, Table>>
 					{
-						return { static_cast<const derived_statement_t<Policies>&>(*this), single_table_data_t<void, Args...>{args...} };
+						static_assert(_check<Table>::value, "argument is not a table in single_table()");
+						return _single_table_impl<void>(_check<Table>{}, table);
+					}
+
+			private:
+				template<typename Database, typename Table>
+					auto _single_table_impl(const std::false_type&, Table table) const
+					-> bad_statement;
+
+				template<typename Database, typename Table>
+					auto _single_table_impl(const std::true_type&, Table table) const
+					-> _new_statement_t<std::true_type, single_table_t<Database, Table>>
+					{
+						static_assert(required_tables_of<single_table_t<Database, Table>>::size::value == 0, "argument depends on another table in single_table()");
+
+						return { static_cast<const derived_statement_t<Policies>&>(*this), single_table_data_t<Database, Table>{table} };
 					}
 			};
 	};

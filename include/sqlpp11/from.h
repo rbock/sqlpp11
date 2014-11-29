@@ -189,7 +189,7 @@ namespace sqlpp
 					auto _from_impl(const std::true_type&, Tables... tables) const
 					-> _new_statement_t<std::true_type, from_t<Database, Tables...>>
 					{
-						static_assert(required_tables_of<from_t<Database, Tables...>>::size::value == 0, "at least one table depends on another table");
+						static_assert(required_tables_of<from_t<Database, Tables...>>::size::value == 0, "at least one table depends on another table in from()");
 
 						static constexpr std::size_t _number_of_tables = detail::sum(provided_tables_of<Tables>::size::value...);
 						using _unique_tables = detail::make_joined_set_t<provided_tables_of<Tables>...>;
