@@ -118,6 +118,7 @@ print('#define '+get_include_guard_name(namespace, pathToHeader), file=header)
 print('', file=header)
 print('#include <' + INCLUDE + '/table.h>', file=header)
 print('#include <' + INCLUDE + '/column_types.h>', file=header)
+print('#include <' + INCLUDE + '/char_sequence.h>', file=header)
 print('', file=header)
 print('namespace ' + namespace, file=header)
 print('{', file=header)
@@ -143,9 +144,10 @@ for tableCreation in tableCreations:
         columnCanBeNull = not column.notNull
         print('    struct ' + columnClass, file=header)
         print('    {', file=header)
-        print('      struct _name_t', file=header)
+        print('      struct _alias_t', file=header)
         print('      {', file=header)
-        print('        static constexpr const char* _get_name() { return "' + sqlColumnName + '"; }', file=header)
+        print('        static constexpr const char _literal[] =  "' + sqlColumnName + '";', file=header)
+        print('        using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;', file=header)
         print('        template<typename T>', file=header)
         print('        struct _member_t', file=header)
         print('          {', file=header)
@@ -154,7 +156,6 @@ for tableCreation in tableCreations:
         print('            const T& operator()() const { return ' + columnMember + '; }', file=header)
         print('          };', file=header)
         print('      };', file=header)
-        #print(sqlColumnType)
         traitslist = [NAMESPACE + '::' + types[sqlColumnType]];
         requireInsert = True
         if column.hasAutoValue:
@@ -175,9 +176,10 @@ for tableCreation in tableCreations:
 
     print('  struct ' + tableClass + ': ' + NAMESPACE + '::table_t<' + tableTemplateParameters + '>', file=header)
     print('  {', file=header)
-    print('    struct _name_t', file=header)
+    print('    struct _alias_t', file=header)
     print('    {', file=header)
-    print('      static constexpr const char* _get_name() { return "' + sqlTableName + '"; }', file=header)
+    print('      static constexpr const char _literal[] =  "' + sqlTableName + '";', file=header)
+    print('      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;', file=header)
     print('      template<typename T>', file=header)
     print('      struct _member_t', file=header)
     print('      {', file=header)

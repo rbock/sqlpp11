@@ -29,27 +29,27 @@
 
 #include <sqlpp11/boolean.h>
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/char_sequence.h>
 #include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
 {
-	template<bool NotInverted, typename Operand>
+	template<typename Operand>
 		struct is_null_t:
-			public expression_operators<is_null_t<NotInverted, Operand>, boolean>,
-			public alias_operators<is_null_t<NotInverted, Operand>>
+			public expression_operators<is_null_t<Operand>, boolean>,
+			public alias_operators<is_null_t<Operand>>
 	{
 		using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
 		using _recursive_traits = make_recursive_traits<Operand>;
 
-		static constexpr bool _inverted = not NotInverted;
-
-		struct _name_t
+		struct _alias_t
 		{
-			static constexpr const char* _get_name() { return _inverted ? "IS NOT NULL" : "IS NULL"; }
+			static constexpr const char _literal[] =  "is_nnull_";
+			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 			template<typename T>
 				struct _member_t
 				{
-					T in;
+					T is_null;
 				};
 		};
 
@@ -66,16 +66,16 @@ namespace sqlpp
 		Operand _operand;
 	};
 
-	template<typename Context, bool NotInverted, typename Operand>
-		struct serializer_t<Context, is_null_t<NotInverted, Operand>>
+	template<typename Context, typename Operand>
+		struct serializer_t<Context, is_null_t<Operand>>
 		{
 			using _serialize_check = serialize_check_of<Context, Operand>;
-			using T = is_null_t<NotInverted, Operand>;
+			using T = is_null_t<Operand>;
 
 			static Context& _(const T& t, Context& context)
 			{
 				serialize(t._operand, context);
-				context << (t._inverted ? " IS NOT NULL" : " IS NULL");
+				context << " IS NULL";
 				return context;
 			}
 		};

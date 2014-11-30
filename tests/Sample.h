@@ -3,6 +3,7 @@
 
 #include <sqlpp11/table.h>
 #include <sqlpp11/column_types.h>
+#include <sqlpp11/char_sequence.h>
 
 namespace test
 {
@@ -10,9 +11,10 @@ namespace test
   {
     struct Delta
     {
-      struct _name_t
+      struct _alias_t
       {
-        static constexpr const char* _get_name() { return "delta"; }
+        static constexpr const char _literal[] =  "delta";
+        using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
         template<typename T>
         struct _member_t
           {
@@ -25,9 +27,10 @@ namespace test
     };
     struct Epsilon
     {
-      struct _name_t
+      struct _alias_t
       {
-        static constexpr const char* _get_name() { return "epsilon"; }
+        static constexpr const char _literal[] =  "epsilon";
+        using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
         template<typename T>
         struct _member_t
           {
@@ -40,9 +43,10 @@ namespace test
     };
     struct Omega
     {
-      struct _name_t
+      struct _alias_t
       {
-        static constexpr const char* _get_name() { return "omega"; }
+        static constexpr const char _literal[] =  "omega";
+        using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
         template<typename T>
         struct _member_t
           {
@@ -60,9 +64,10 @@ namespace test
                TabFoo_::Epsilon,
                TabFoo_::Omega>
   {
-    struct _name_t
+    struct _alias_t
     {
-      static constexpr const char* _get_name() { return "tab_foo"; }
+      static constexpr const char _literal[] =  "tab_foo";
+      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
       template<typename T>
       struct _member_t
       {
@@ -76,9 +81,10 @@ namespace test
   {
     struct Alpha
     {
-      struct _name_t
+      struct _alias_t
       {
-        static constexpr const char* _get_name() { return "alpha"; }
+        static constexpr const char _literal[] =  "alpha";
+        using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
         template<typename T>
         struct _member_t
           {
@@ -91,9 +97,10 @@ namespace test
     };
     struct Beta
     {
-      struct _name_t
+      struct _alias_t
       {
-        static constexpr const char* _get_name() { return "beta"; }
+        static constexpr const char _literal[] =  "beta";
+        using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
         template<typename T>
         struct _member_t
           {
@@ -106,9 +113,10 @@ namespace test
     };
     struct Gamma
     {
-      struct _name_t
+      struct _alias_t
       {
-        static constexpr const char* _get_name() { return "gamma"; }
+        static constexpr const char _literal[] =  "gamma";
+        using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
         template<typename T>
         struct _member_t
           {
@@ -121,9 +129,10 @@ namespace test
     };
     struct Delta
     {
-      struct _name_t
+      struct _alias_t
       {
-        static constexpr const char* _get_name() { return "delta"; }
+        static constexpr const char _literal[] =  "delta";
+        using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
         template<typename T>
         struct _member_t
           {
@@ -142,9 +151,10 @@ namespace test
                TabBar_::Gamma,
                TabBar_::Delta>
   {
-    struct _name_t
+    struct _alias_t
     {
-      static constexpr const char* _get_name() { return "tab_bar"; }
+      static constexpr const char _literal[] =  "tab_bar";
+      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
       template<typename T>
       struct _member_t
       {

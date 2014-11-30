@@ -65,7 +65,7 @@ namespace sqlpp
 
 			using _data_t = single_table_data_t<Database, Table>;
 
-			struct _name_t {};
+			struct _alias_t {};
 
 			// Member implementation with data and methods
 			template <typename Policies>

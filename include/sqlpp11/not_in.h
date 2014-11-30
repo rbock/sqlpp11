@@ -24,66 +24,73 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_CONCAT_H
-#define SQLPP_CONCAT_H
+#ifndef SQLPP_NOT_IN_H
+#define SQLPP_NOT_IN_H
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/char_sequence.h>
-#include <sqlpp11/interpret_tuple.h>
-#include <sqlpp11/basic_expression_operators.h>
-#include <sqlpp11/logic.h>
+#include <sqlpp11/boolean.h>
+#include <sqlpp11/in_fwd.h>
+#include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
 {
-	// FIXME: Remove First, inherit from text_t
-	template<typename First, typename... Args>
-		struct concat_t: 
-			public expression_operators<concat_t<First, Args...>, value_type_of<First>>,
-			public alias_operators<concat_t<First, Args...>>
+	template<typename Operand, typename... Args>
+		struct not_in_t:
+			public expression_operators<not_in_t<Operand, Args...>, boolean>,
+			public alias_operators<not_in_t<Operand, Args...>>
 	{
-		using _traits = make_traits<value_type_of<First>, tag::is_expression, tag::is_selectable>;
-		using _recursive_traits = make_recursive_traits<First, Args...>;
+		using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
+		using _recursive_traits = make_recursive_traits<Operand, Args...>;
 
-		static_assert(sizeof...(Args) > 0, "concat requires two arguments at least");
-		static_assert(logic::all_t<is_text_t<First>::value, is_text_t<Args>::value...>::value, "at least one non-text argument detected in concat()");
+		static_assert(sizeof...(Args) > 0, "not_in() requires at least one argument");
+
 		struct _alias_t
 		{
-			static constexpr const char _literal[] =  "concat_";
+			static constexpr const char _literal[] =  "not_in_";
 			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 			template<typename T>
 				struct _member_t
 				{
-					T concat;
+					T not_in;
 				};
 		};
 
-		concat_t(First first, Args... args):
-			_args(first, args...)
+		not_in_t(Operand operand, Args... args):
+			_operand(operand),
+			_args(args...)
 		{}
 
-		concat_t(const concat_t&) = default;
-		concat_t(concat_t&&) = default;
-		concat_t& operator=(const concat_t&) = default;
-		concat_t& operator=(concat_t&&) = default;
-		~concat_t() = default;
+		not_in_t(const not_in_t&) = default;
+		not_in_t(not_in_t&&) = default;
+		not_in_t& operator=(const not_in_t&) = default;
+		not_in_t& operator=(not_in_t&&) = default;
+		~not_in_t() = default;
 
-		std::tuple<First, Args...> _args;
+		Operand _operand;
+		std::tuple<Args...> _args;
 	};
 
-	template<typename Context, typename First, typename... Args>
-		struct serializer_t<Context, concat_t<First, Args...>>
+	template<typename Context, typename Operand, typename... Args>
+		struct serializer_t<Context, not_in_t<Operand, Args...>>
 		{
-			using _serialize_check = serialize_check_of<Context, First, Args...>;
-			using T = concat_t<First, Args...>;
+			using _serialize_check = serialize_check_of<Context, Args...>;
+			using T = not_in_t<Operand, Args...>;
 
 			static Context& _(const T& t, Context& context)
 			{
-				context << "(";
-				interpret_tuple(t._args, "||", context);
-				context << ")";
+				serialize(t._operand, context);
+				context << " NOT IN(";
+				if (sizeof...(Args) == 1)
+					serialize(std::get<0>(t._args), context); // FIXME: this is a bit of a hack until there is a better overall strategy for using braces
+				                                   // see https://github.com/rbock/sqlpp11/issues/18
+				else
+					interpret_tuple(t._args, ',', context);
+				context << ')';
 				return context;
 			}
 		};
+
 }
 
 #endif

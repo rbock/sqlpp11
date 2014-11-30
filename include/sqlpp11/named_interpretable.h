@@ -30,6 +30,7 @@
 #include <memory>
 #include <sqlpp11/serializer_context.h>
 #include <sqlpp11/parameter_list.h>
+#include <sqlpp11/char_sequence.h>
 
 namespace sqlpp
 {
@@ -111,7 +112,7 @@ namespace sqlpp
 
 				std::string _get_name() const
 				{
-					return T::_name_t::_get_name();
+					return name_of<T>::char_ptr();
 				}
 
 				T _t;

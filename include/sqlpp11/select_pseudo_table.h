@@ -35,7 +35,7 @@ namespace sqlpp
 	template<typename Select, typename NamedExpr>
 		struct select_column_spec_t
 		{
-			using _name_t = typename NamedExpr::_name_t;
+			using _alias_t = typename NamedExpr::_alias_t;
 
 			static constexpr bool _can_be_null = can_be_null_t<NamedExpr>::value;
 			static constexpr bool _depends_on_outer_table = detail::make_intersect_set_t<required_tables_of<NamedExpr>, typename Select::_used_outer_tables>::size::value > 0;

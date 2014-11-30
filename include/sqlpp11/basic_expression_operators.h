@@ -106,12 +106,12 @@ namespace sqlpp
 					return { *static_cast<const Expr*>(this), rhs{t} };
 				}
 
-			is_null_t<true, Expr> is_null() const
+			is_null_t<Expr> is_null() const
 			{
 				return { *static_cast<const Expr*>(this) };
 			}
 
-			is_null_t<false, Expr> is_not_null() const
+			is_not_null_t<Expr> is_not_null() const
 			{
 				return { *static_cast<const Expr*>(this) };
 			}
@@ -128,14 +128,14 @@ namespace sqlpp
 
 			// Hint: use value_list wrapper for containers...
 			template<typename... T>
-				in_t<true, Expr, wrap_operand_t<T>...> in(T... t) const
+				in_t<Expr, wrap_operand_t<T>...> in(T... t) const
 				{
 					static_assert(logic::all_t<_is_valid_comparison_operand<wrap_operand_t<T>>::value...>::value, "at least one operand of in() is not valid");
 					return { *static_cast<const Expr*>(this), wrap_operand_t<T>{t}... };
 				}
 
 			template<typename... T>
-				in_t<false, Expr, wrap_operand_t<T>...> not_in(T... t) const
+				not_in_t<Expr, wrap_operand_t<T>...> not_in(T... t) const
 				{
 					static_assert(logic::all_t<_is_valid_comparison_operand<wrap_operand_t<T>>::value...>::value, "at least one operand of in() is not valid");
 					return { *static_cast<const Expr*>(this), wrap_operand_t<T>{t}... };

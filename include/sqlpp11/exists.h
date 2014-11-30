@@ -27,6 +27,7 @@
 #ifndef SQLPP_EXISTS_H
 #define SQLPP_EXISTS_H
 
+#include <sqlpp11/char_sequence.h>
 #include <sqlpp11/boolean.h>
 
 namespace sqlpp
@@ -41,9 +42,10 @@ namespace sqlpp
 
 		static_assert(is_select_t<Select>::value, "exists() requires a select expression as argument");
 
-		struct _name_t
+		struct _alias_t
 		{
-			static constexpr const char* _get_name() { return "EXISTS"; }
+			static constexpr const char _literal[] =  "exists_";
+			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 			template<typename T>
 				struct _member_t
 				{

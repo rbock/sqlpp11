@@ -31,7 +31,9 @@
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/column_types.h>
 #include <sqlpp11/in.h>
+#include <sqlpp11/not_in.h>
 #include <sqlpp11/is_null.h>
+#include <sqlpp11/is_not_null.h>
 #include <sqlpp11/value_type.h>
 #include <sqlpp11/exists.h>
 #include <sqlpp11/any.h>
@@ -129,7 +131,7 @@ namespace sqlpp
 	template<typename T>
 		constexpr const char* get_sql_name(const T&) 
 		{
-			return T::_name_t::_get_name();
+			return name_of<T>::char_ptr();
 		}
 
 

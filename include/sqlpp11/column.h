@@ -66,7 +66,7 @@ namespace sqlpp
 
 		using _spec_t = ColumnSpec;
 		using _table = Table;
-		using _name_t = typename _spec_t::_name_t;
+		using _alias_t = typename _spec_t::_alias_t;
 
 		template<typename T>
 			using _is_valid_operand = is_valid_operand<value_type_of<ColumnSpec>, T>;
@@ -77,11 +77,6 @@ namespace sqlpp
 		column_t& operator=(const column_t&) = default;
 		column_t& operator=(column_t&&) = default;
 		~column_t() = default;
-
-		static constexpr const char* _get_name()
-		{
-			return _name_t::_get_name();
-		}
 
 		template<typename alias_provider>
 			expression_alias_t<column_t, alias_provider> as(const alias_provider&) const
@@ -120,7 +115,7 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
-				context << T::_table::_name_t::_get_name() << '.' << T::_name_t::_get_name();
+				context << name_of<typename T::_table>::char_ptr() << '.' << name_of<T>::char_ptr();
 				return context;
 			}
 		};

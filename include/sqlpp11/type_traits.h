@@ -201,7 +201,10 @@ namespace sqlpp
 		using recursive_tags_of = typename T::_recursive_traits::_tags;
 
 	template<typename T>
-		using name_of = typename T::_name_t;
+		using alias_of = typename T::_alias_t;
+
+	template<typename T>
+		using name_of = typename T::_alias_t::_name_t;
 
 	template<typename ValueType, typename... Tags>
 		struct make_traits
@@ -239,7 +242,7 @@ namespace sqlpp
 	};
 
 	template<typename NameProvider, typename Member>
-		using member_t = typename NameProvider::_name_t::template _member_t<Member>;
+		using member_t = typename NameProvider::_alias_t::template _member_t<Member>;
 
 	template<typename Policies>
 		using derived_statement_t = typename Policies::_statement_t;

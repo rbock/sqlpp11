@@ -113,7 +113,7 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
-				context << T::_name_t::_get_name();
+				context << name_of<T>::char_ptr();
 				return context;
 			}
 		};

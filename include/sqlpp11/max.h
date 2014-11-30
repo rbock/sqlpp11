@@ -28,6 +28,7 @@
 #define SQLPP_MAX_H
 
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/char_sequence.h>
 
 namespace sqlpp
 {
@@ -39,9 +40,10 @@ namespace sqlpp
 		using _traits = make_traits<value_type_of<Expr>, tag::is_expression, tag::is_selectable>;
 		using _recursive_traits = make_recursive_traits<Expr, aggregate_function>;
 
-		struct _name_t
+		struct _alias_t
 		{
-			static constexpr const char* _get_name() { return "MAX"; }
+			static constexpr const char _literal[] =  "max_";
+			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 			template<typename T>
 				struct _member_t
 				{

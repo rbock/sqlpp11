@@ -35,7 +35,8 @@ namespace sqlpp
 	template<typename Column>
 		struct simple_column_t
 		{
-			Column _column;
+			using _column_t = Column;
+			_column_t _column;
 
 			using _traits = make_traits<no_value_t, tag::is_noop>;
 			using _recursive_traits = make_recursive_traits<>;
@@ -49,7 +50,7 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
-				context << t._column._get_name();
+				context << name_of<typename T::_column_t>::char_ptr();
 				return context;
 			}
 		};

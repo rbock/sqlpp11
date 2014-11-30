@@ -28,26 +28,27 @@
 #define SQLPP_IN_H
 
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/char_sequence.h>
 #include <sqlpp11/boolean.h>
 #include <sqlpp11/in_fwd.h>
 #include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
 {
-	template<bool NotInverted, typename Operand, typename... Args>
+	template<typename Operand, typename... Args>
 		struct in_t:
-			public expression_operators<in_t<NotInverted, Operand, Args...>, boolean>,
-			public alias_operators<in_t<NotInverted, Operand, Args...>>
+			public expression_operators<in_t<Operand, Args...>, boolean>,
+			public alias_operators<in_t<Operand, Args...>>
 	{
 		using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
 		using _recursive_traits = make_recursive_traits<Operand, Args...>;
 
-		static constexpr bool _inverted = not NotInverted;
 		static_assert(sizeof...(Args) > 0, "in() requires at least one argument");
 
-		struct _name_t
+		struct _alias_t
 		{
-			static constexpr const char* _get_name() { return _inverted ? "NOT IN" : "IN"; }
+			static constexpr const char _literal[] =  "in_";
+			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 			template<typename T>
 				struct _member_t
 				{
@@ -70,16 +71,16 @@ namespace sqlpp
 		std::tuple<Args...> _args;
 	};
 
-	template<typename Context, bool NotInverted, typename Operand, typename... Args>
-		struct serializer_t<Context, in_t<NotInverted, Operand, Args...>>
+	template<typename Context, typename Operand, typename... Args>
+		struct serializer_t<Context, in_t<Operand, Args...>>
 		{
 			using _serialize_check = serialize_check_of<Context, Args...>;
-			using T = in_t<NotInverted, Operand, Args...>;
+			using T = in_t<Operand, Args...>;
 
 			static Context& _(const T& t, Context& context)
 			{
 				serialize(t._operand, context);
-				context << (t._inverted ? " NOT IN(" : " IN(");
+				context << " IN(";
 				if (sizeof...(Args) == 1)
 					serialize(std::get<0>(t._args), context); // FIXME: this is a bit of a hack until there is a better overall strategy for using braces
 				                                   // see https://github.com/rbock/sqlpp11/issues/18

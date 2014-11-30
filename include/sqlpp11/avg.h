@@ -28,6 +28,7 @@
 #define SQLPP_AVG_H
 
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/char_sequence.h>
 
 namespace sqlpp
 {
@@ -42,9 +43,10 @@ namespace sqlpp
 		static_assert(is_noop<Flag>::value or std::is_same<distinct_t, Flag>::value, "avg() used with flag other than 'distinct'");
 		static_assert(is_numeric_t<Expr>::value, "avg() requires a value expression as argument");
 
-		struct _name_t
+		struct _alias_t
 		{
-			static constexpr const char* _get_name() { return "AVG"; }
+			static constexpr const char _literal[] =  "avg_";
+			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 			template<typename T>
 				struct _member_t
 				{

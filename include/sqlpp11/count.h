@@ -27,6 +27,7 @@
 #ifndef SQLPP_COUNT_H
 #define SQLPP_COUNT_H
 
+#include <sqlpp11/char_sequence.h>
 #include <sqlpp11/select_flags.h>
 #include <sqlpp11/integral.h>
 
@@ -52,9 +53,10 @@ namespace sqlpp
 
 		static_assert(is_noop<Flag>::value or std::is_same<distinct_t, Flag>::value, "count() used with flag other than 'distinct'");
 
-		struct _name_t
+		struct _alias_t
 		{
-			static constexpr const char* _get_name() { return "COUNT"; }
+			static constexpr const char _literal[] =  "count_";
+			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 			template<typename T>
 				struct _member_t
 				{

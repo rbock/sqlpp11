@@ -41,7 +41,7 @@ namespace sqlpp
 			static_assert(is_expression_t<Expression>::value, "invalid argument for an expression alias");
 			static_assert(not is_alias_t<Expression>::value, "cannot create an alias of an alias");
 
-			using _name_t = typename AliasProvider::_name_t;
+			using _alias_t = typename AliasProvider::_alias_t;
 
 			Expression _expression;
 		};
@@ -57,7 +57,7 @@ namespace sqlpp
 				context << '(';
 				serialize(t._expression, context);
 				context << ") AS ";
-				context << T::_name_t::_get_name();
+				context << name_of<T>::char_ptr();
 				return context;
 			}
 		};

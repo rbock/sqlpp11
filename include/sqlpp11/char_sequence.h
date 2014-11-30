@@ -24,15 +24,33 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_IS_NULL_FWD_H
-#define SQLPP_IS_NULL_FWD_H
+#ifndef SQLPP_CHAR_SEQUENCE_H
+#define SQLPP_CHAR_SEQUENCE_H
+
+#include <sqlpp11/detail/index_sequence.h>
 
 namespace sqlpp
 {
-	template<typename Operand>
-		struct is_null_t;
-	template<typename Operand>
-		struct is_not_null_t;
+	template<char... Cs> struct char_sequence
+	{
+		static const char* char_ptr()
+		{
+			static char s[] = {Cs...};
+			return s;
+		};
+	};
+
+	template<std::size_t N, const char (&s) [N], typename T>
+		struct make_char_sequence_impl;
+
+	template<std::size_t N, const char (&s) [N], size_t... i>
+		struct make_char_sequence_impl<N, s, sqlpp::detail::index_sequence<i...>>
+		{
+			using type = char_sequence<s[i]...>;
+		};
+
+	template<std::size_t N, const char (&Input) [N]>
+		using make_char_sequence = typename make_char_sequence_impl<sizeof(Input), Input, sqlpp::detail::make_index_sequence<sizeof(Input)>>::type;
 }
 
 #endif

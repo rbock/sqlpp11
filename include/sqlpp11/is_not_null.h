@@ -24,69 +24,61 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SOME_H
-#define SQLPP_SOME_H
+#ifndef SQLPP_IS_NOT_NULL_H
+#define SQLPP_IS_NOT_NULL_H
 
 #include <sqlpp11/boolean.h>
-#include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/type_traits.h>
 #include <sqlpp11/char_sequence.h>
+#include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
 {
-	template<typename Select>
-		struct some_t
+	template<typename Operand>
+		struct is_not_null_t:
+			public expression_operators<is_not_null_t<Operand>, boolean>,
+			public alias_operators<is_not_null_t<Operand>>
+	{
+		using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
+		using _recursive_traits = make_recursive_traits<Operand>;
+
+		struct _alias_t
 		{
-			using _traits = make_traits<value_type_of<Select>, tag::is_multi_expression>;
-			using _recursive_traits = make_recursive_traits<Select>;
-
-			struct _alias_t
-			{
-        static constexpr const char _literal[] =  "some_";
-        using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-				template<typename T>
-					struct _member_t
-					{
-						T some;
-						T& operator()() { return some; }
-						const T& operator()() const { return some; }
-					};
-			};
-
-			some_t(Select select):
-				_select(select)
-			{}
-
-			some_t(const some_t&) = default;
-			some_t(some_t&&) = default;
-			some_t& operator=(const some_t&) = default;
-			some_t& operator=(some_t&&) = default;
-			~some_t() = default;
-
-			Select _select;
+			static constexpr const char _literal[] =  "is_not_null_";
+			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+			template<typename T>
+				struct _member_t
+				{
+					T is_not_null;
+				};
 		};
 
-	template<typename Context, typename Select>
-		struct serializer_t<Context, some_t<Select>>
+		is_not_null_t(Operand operand):
+			_operand(operand)
+		{}
+
+		is_not_null_t(const is_not_null_t&) = default;
+		is_not_null_t(is_not_null_t&&) = default;
+		is_not_null_t& operator=(const is_not_null_t&) = default;
+		is_not_null_t& operator=(is_not_null_t&&) = default;
+		~is_not_null_t() = default;
+
+		Operand _operand;
+	};
+
+	template<typename Context, typename Operand>
+		struct serializer_t<Context, is_not_null_t<Operand>>
 		{
-			using _serialize_check = serialize_check_of<Context, Select>;
-			using T = some_t<Select>;
+			using _serialize_check = serialize_check_of<Context, Operand>;
+			using T = is_not_null_t<Operand>;
 
 			static Context& _(const T& t, Context& context)
 			{
-				context << "SOME(";
-				serialize(t._select, context);
-				context << ")";
+				serialize(t._operand, context);
+				context << " IS NOT NULL";
 				return context;
 			}
 		};
-
-	template<typename T>
-		auto some(T t) -> some_t<wrap_operand_t<T>>
-		{
-			static_assert(is_select_t<wrap_operand_t<T>>::value, "some() requires a single column select expression as argument");
-			static_assert(is_expression_t<wrap_operand_t<T>>::value, "some() requires a single column select expression as argument");
-			return { t };
-		}
 
 }
 

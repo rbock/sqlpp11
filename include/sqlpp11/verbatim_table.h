@@ -35,8 +35,10 @@ namespace sqlpp
 	{
 		struct unusable_pseudo_column_t
 		{
-			struct _name_t
+			struct _alias_t
 			{
+        static constexpr const char _literal[] =  "pseudo_column";
+        using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t
 					{
@@ -53,7 +55,11 @@ namespace sqlpp
 			using _provided_outer_tables = detail::type_set<verbatim_table_t>;
 		};
 
-		struct _name_t {};
+		struct _alias_t
+		{
+			static constexpr const char _literal[] =  "verbatim_table"; // FIXME need to use alias for verbatim table
+			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+		};
 
 		verbatim_table_t(std::string representation):
 			_representation(representation)

@@ -48,14 +48,14 @@ namespace sqlpp
 			struct select_traits
 			{
 				using _traits = make_traits<no_value_t, tag::is_select_column_list, tag::is_return_value>;
-				struct _name_t {};
+				struct _alias_t {};
 			};
 
 		template<typename Column>
 			struct select_traits<Column>
 			{
 				using _traits = make_traits<value_type_of<Column>, tag::is_select_column_list, tag::is_return_value, tag::is_expression, tag::is_selectable>;
-				using _name_t = typename Column::_name_t;
+				using _alias_t = typename Column::_alias_t;
 			};
 	}
 
@@ -69,7 +69,7 @@ namespace sqlpp
 			template<typename Expr>
 				void emplace_back(Expr expr)
 				{
-					_dynamic_expression_names.push_back(Expr::_name_t::_get_name());
+					_dynamic_expression_names.push_back(name_of<Expr>::char_ptr());
 					_dynamic_columns.emplace_back(expr);
 				}
 
@@ -166,7 +166,7 @@ namespace sqlpp
 			using _traits = typename detail::select_traits<Columns...>::_traits;
 			using _recursive_traits = make_recursive_traits<Columns...>;
 
-			using _name_t = typename detail::select_traits<Columns...>::_name_t;
+			using _alias_t = typename detail::select_traits<Columns...>::_alias_t;
 
 			using _is_dynamic = is_database<Database>;
 
@@ -191,8 +191,8 @@ namespace sqlpp
 							static_assert(_is_dynamic::value, "selected_columns::add() can only be called for dynamic_column");
 							static_assert(is_selectable_t<NamedExpression>::value, "invalid named expression argument in selected_columns::add()");
 							static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<NamedExpression>::value, "named expression uses tables unknown to this statement in selected_columns::add()");
-							using column_names = detail::make_type_set_t<typename Columns::_name_t...>;
-							static_assert(not detail::is_element_of<typename NamedExpression::_name_t, column_names>::value, "a column of this name is present in the select already");
+							using column_names = detail::make_type_set_t<typename Columns::_alias_t...>;
+							static_assert(not detail::is_element_of<typename NamedExpression::_alias_t, column_names>::value, "a column of this name is present in the select already");
 							using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, NamedExpression>;
 							_serialize_check::_();
 
@@ -351,7 +351,7 @@ namespace sqlpp
 		using _traits = make_traits<no_value_t, tag::is_noop, tag::is_missing>;
 		using _recursive_traits = make_recursive_traits<>;
 
-		struct _name_t {};
+		struct _alias_t {};
 
 		// Data
 		using _data_t = no_data_t;
@@ -431,7 +431,7 @@ namespace sqlpp
 					-> _new_statement_t<_check<Args...>, select_column_list_t<Database, Args...>>
 					{
 						static_assert(not detail::has_duplicates<Args...>::value, "at least one duplicate argument detected");
-						static_assert(not detail::has_duplicates<typename Args::_name_t...>::value, "at least one duplicate name detected");
+						static_assert(not detail::has_duplicates<typename Args::_alias_t...>::value, "at least one duplicate name detected");
 
 						return { static_cast<const derived_statement_t<Policies>&>(*this), typename select_column_list_t<Database, Args...>::_data_t{args} };
 					}

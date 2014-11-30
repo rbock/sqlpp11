@@ -180,7 +180,7 @@ namespace sqlpp
 		using _recursive_traits = typename _policies_t::_recursive_traits;
 		using _used_outer_tables = typename _policies_t::_all_provided_outer_tables;
 
-		using _name_t = typename _result_type_provider::_name_t;
+		using _alias_t = typename _result_type_provider::_alias_t;
 
 		// Constructors
 		statement_t()

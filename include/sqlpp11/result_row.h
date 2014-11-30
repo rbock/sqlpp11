@@ -186,7 +186,7 @@ namespace sqlpp
 			using _traits = make_traits<text, tag::is_noop, tag::can_be_null, tag::null_is_trivial_value>;
 			using _recursive_traits = make_recursive_traits<>;
 
-			struct _name_t {};
+			struct _alias_t {};
 		};
 		using _field_type = result_field_t<text, Db, _field_spec_t>;
 

@@ -77,7 +77,7 @@ namespace sqlpp
 
 			static_assert(logic::all_t<is_selectable_t<Columns>::value...>::value, "multi_column parameters need to be named expressions");
 
-			using _name_t = typename AliasProvider::_name_t;
+			using _alias_t = typename AliasProvider::_alias_t;
 
 			multi_column_alias_t(multi_column_t<void, Columns...> multi_column):
 				_columns(multi_column._columns)
