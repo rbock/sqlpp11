@@ -72,7 +72,7 @@ namespace sqlpp
 			static Context& _(const T& t, Context& context)
 			{
 				context << "(";
-				serialize(t._lhs, context);
+				serialize_operand(t._lhs, context);
 				if (t._rhs._is_null())
 				{
 					context << " IS NULL";
@@ -80,7 +80,7 @@ namespace sqlpp
 				else
 				{
 					context << "=";
-					serialize(t._rhs, context);
+					serialize_operand(t._rhs, context);
 				}
 				context << ")";
 				return context;
@@ -121,7 +121,7 @@ namespace sqlpp
 			static Context& _(const T& t, Context& context)
 			{
 				context << "(";
-				serialize(t._lhs, context);
+				serialize_operand(t._lhs, context);
 				if (t._rhs._is_null())
 				{
 					context << " IS NOT NULL";
@@ -129,7 +129,7 @@ namespace sqlpp
 				else
 				{
 					context << "!=";
-					serialize(t._rhs, context);
+					serialize_operand(t._rhs, context);
 				}
 				context << ")";
 				return context;
@@ -168,13 +168,13 @@ namespace sqlpp
 				context << "(";
 				if (trivial_value_is_null_t<Rhs>::value)
 				{
-					serialize(t._rhs, context);
+					serialize_operand(t._rhs, context);
 					context << " IS NULL ";
 				}
 				else
 				{
 					context << "NOT ";
-					serialize(t._rhs, context);
+					serialize_operand(t._rhs, context);
 				}
 				context << ")";
 
@@ -214,9 +214,9 @@ namespace sqlpp
 			static Context& _(const T& t, Context& context)
 			{
 				context << "(";
-				serialize(t._lhs, context);
+				serialize_operand(t._lhs, context);
 				context << O::_name;
-				serialize(t._rhs, context);
+				serialize_operand(t._rhs, context);
 				context << ")";
 				return context;
 			}
@@ -253,7 +253,7 @@ namespace sqlpp
 			{
 				context << "(";
 				context << O::_name;
-				serialize(t._rhs, context);
+				serialize_operand(t._rhs, context);
 				context << ")";
 				return context;
 			}

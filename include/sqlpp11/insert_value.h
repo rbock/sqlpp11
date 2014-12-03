@@ -116,7 +116,7 @@ namespace sqlpp
 				else if (t._is_default)
 					context << "DEFAULT";
 				else
-					serialize(t._value, context);
+					serialize_operand(t._value, context);
 				return context;
 			}
 		};

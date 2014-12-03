@@ -43,6 +43,7 @@ namespace sqlpp
 
 			template<typename T>
 				interpretable_t(T t):
+					_requires_braces(requires_braces_t<T>::value),
 					_impl(std::make_shared<_impl_t<T>>(t))
 			{}
 
@@ -70,6 +71,8 @@ namespace sqlpp
 			{
 				return _impl->interpret(context);
 			}
+
+			bool _requires_braces;
 
 		private:
 			struct _impl_base
@@ -119,7 +122,15 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
-				t.serialize(context);
+				if (t._requires_braces)
+				{
+					context << '(';
+					t.serialize(context);
+					context << ')';
+				}
+				else
+					t.serialize(context);
+
 				return context;
 			}
 		};

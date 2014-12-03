@@ -73,7 +73,7 @@ namespace sqlpp
 			{
 				serialize(simple_column(t._lhs), context);
 				context << "=";
-				serialize(t._rhs, context);
+				serialize_operand(t._rhs, context);
 				return context;
 			}
 		};

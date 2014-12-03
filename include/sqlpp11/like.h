@@ -78,7 +78,7 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
-				serialize(t._operand, context);
+				serialize_operand(t._operand, context);
 				context << " LIKE(";
 				serialize(t._pattern, context);
 				context << ")";

@@ -39,11 +39,10 @@ namespace sqlpp
 		{
 			if (index)
 				context << separator;
-			if (UseBraces::value and requires_braces_t<Element>::value)
-				context << "(";
-			serialize(element, context);
-			if (UseBraces::value and requires_braces_t<Element>::value)
-				context << ")";
+			if (UseBraces::value)
+				serialize_operand(element, context);
+			else
+				serialize(element, context);
 		}
 
 	template<typename Tuple, typename Separator, typename Context, typename UseBraces, size_t... Is>

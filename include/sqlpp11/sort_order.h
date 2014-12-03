@@ -55,7 +55,7 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
-				serialize(t._expression, context);
+				serialize_operand(t._expression, context);
 				switch(SortType)
 				{
 				case sort_type::asc:

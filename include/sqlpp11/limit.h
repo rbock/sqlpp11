@@ -257,7 +257,7 @@ namespace sqlpp
 			static Context& _(const T& t, Context& context)
 			{
 				context << " LIMIT ";
-				serialize(t._value, context);
+				serialize_operand(t._value, context);
 				return context;
 			}
 		};

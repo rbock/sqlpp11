@@ -107,6 +107,11 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
+				if (t._container.size() == 1)
+				{
+					return serialize(value(t._container[0]), context);
+				}
+
 				bool first = true;
 				for (const auto& entry: t._container)
 				{
@@ -115,7 +120,7 @@ namespace sqlpp
 					else
 						context << ',';
 
-					serialize(value(entry), context);
+					serialize_operand(value(entry), context);
 				}
 				return context;
 			}

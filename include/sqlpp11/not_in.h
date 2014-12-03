@@ -79,11 +79,10 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
-				serialize(t._operand, context);
+				serialize_operand(t._operand, context);
 				context << " NOT IN(";
 				if (sizeof...(Args) == 1)
-					serialize(std::get<0>(t._args), context); // FIXME: this is a bit of a hack until there is a better overall strategy for using braces
-				                                   // see https://github.com/rbock/sqlpp11/issues/18
+					serialize(std::get<0>(t._args), context);
 				else
 					interpret_tuple(t._args, ',', context);
 				context << ')';

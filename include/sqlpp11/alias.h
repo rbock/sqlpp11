@@ -54,9 +54,8 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
-				context << '(';
-				serialize(t._expression, context);
-				context << ") AS ";
+				serialize_operand(t._expression, context);
+				context << " AS ";
 				context << name_of<T>::char_ptr();
 				return context;
 			}

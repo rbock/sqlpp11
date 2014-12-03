@@ -255,7 +255,7 @@ namespace sqlpp
 			static Context& _(const T& t, Context& context)
 			{
 				context << " OFFSET ";
-				serialize(t._value, context);
+				serialize_operand(t._value, context);
 				return context;
 			}
 		};
