@@ -40,14 +40,13 @@ namespace sqlpp
 	struct no_union_t;
 
 	using blank_union_t = statement_t<void,
-				no_order_by_t, 
 				no_union_t>;
-	// There is no limit or offset in union, use it as a pseudo table to do that.
+	// There is no order by or limit or offset in union, use it as a pseudo table to do that.
 	
 	template<bool, typename Union>
 		struct union_statement_impl
 		{
-			using type = statement_t<void, no_order_by_t, Union>;
+			using type = statement_t<void, Union>;
 		};
 
 	template<typename Union>
@@ -83,8 +82,10 @@ namespace sqlpp
 	template<typename Database, typename Flag, typename Lhs, typename Rhs>
 		struct union_t
 		{
-			using _traits = make_traits<no_value_t, tag::is_union>;
+			using _traits = make_traits<no_value_t, tag::is_union, tag::is_select_column_list, tag::is_return_value>;
 			using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
+
+			using _alias_t = struct{};
 
 			// Data
 			using _data_t = union_data_t<Database, Flag, Lhs, Rhs>;
@@ -107,6 +108,10 @@ namespace sqlpp
 					_impl_t<Policies>& operator()() { return union_; }
 					const _impl_t<Policies>& operator()() const { return union_; }
 
+					using _selected_columns_t = decltype(union_._data._lhs.selected_columns);
+					_selected_columns_t& get_selected_columns() { return union_._data._lhs.selected_columns;}
+					const _selected_columns_t& get_selected_columns() const { return union_._data._lhs.selected_columns; }
+
 					template<typename T>
 						static auto _get_member(T t) -> decltype(t.union_)
 						{
@@ -116,7 +121,8 @@ namespace sqlpp
 					using _consistency_check = consistent_t;
 				};
 
-			using _result_methods_t = typename Lhs::template _result_methods_t<Lhs>;
+			template<typename Statement>
+			using _result_methods_t = typename Lhs::template _result_methods_t<Statement>;
 		};
 
 	// NO UNION YET
@@ -162,20 +168,21 @@ namespace sqlpp
 				using _consistency_check = consistent_t;
 
 				template<typename Rhs>
-					auto union_(Rhs rhs) const
-					-> _new_statement_t<_check<Rhs>, union_t<void, noop, derived_statement_t<Policies>, Rhs>>
+					auto union_distinct(Rhs rhs) const
+					-> _new_statement_t<_check<Rhs>, union_t<void, distinct_t, derived_statement_t<Policies>, Rhs>>
 					{
+						static_assert(is_statement_t<Rhs>::value, "argument of union call has to be a statement");
 						// Being a select might be determined by the return type?
 						//FIXME static_assert(is_select this and Rhs, "at least one argument is not an expression in union_()");
 						//FIXME static_assert(same return type, "at least one argument is not an expression in union_()");
 						//FIXME static_assert(consistent/runnable this and Rhs, "at least one expression argument required in union_()");
 						//FIXME static_assert(no order_y in this and Rhs, "at least one expression argument required in union_()");
 
-						return _union_impl<void, noop>(_check<derived_statement_t<Policies>, Rhs>{}, rhs);
+						return _union_impl<void, distinct_t>(_check<derived_statement_t<Policies>, Rhs>{}, rhs);
 					}
 
 				template<typename Rhs>
-					auto union_(all_t, Rhs rhs) const
+					auto union_all(Rhs rhs) const
 					-> _new_statement_t<_check<Rhs>, union_t<void, all_t, derived_statement_t<Policies>, Rhs>>
 					{
 						//FIXME static_assert(is_select this and Rhs, "at least one argument is not an expression in union_()");
@@ -211,11 +218,13 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
+				context << '(';
 				serialize(t._lhs, context);
-				context << " UNION ";
+				context << ") UNION ";
 				serialize(Flag{}, context);
-				context << " ";
+				context << " (";
 				serialize(t._rhs, context);
+				context << ')';
 				return context;
 			}
 		};
