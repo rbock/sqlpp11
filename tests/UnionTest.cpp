@@ -37,12 +37,12 @@ int main()
 	test::TabBar t;
 	test::TabFoo f;
 
-	db(select(t.alpha).from(t).union_distinct(select(f.epsilon).from(f)));
-	db(select(t.alpha).from(t).union_all(select(f.epsilon).from(f)));
+	db(select(t.alpha).from(t).union_distinct(select(f.epsilon.as(t.alpha)).from(f)));
+	db(select(t.alpha).from(t).union_all(select(f.epsilon.as(t.alpha)).from(f)));
 
-	auto u = select(t.alpha).from(t).union_all(select(f.epsilon).from(f)).as(sqlpp::alias::u);
+	auto u = select(t.alpha).from(t).union_all(select(f.epsilon.as(t.alpha)).from(f)).as(sqlpp::alias::u);
 
-	db(select(all_of(u)).from(u).union_all(select(t.delta).from(t)));
+	db(select(all_of(u)).from(u).union_all(select(t.delta.as(t.alpha)).from(t)));
 
 	return 0;
 }
