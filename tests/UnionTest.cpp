@@ -37,22 +37,12 @@ int main()
 	test::TabBar t;
 	test::TabFoo f;
 
-	auto u = select(t.alpha).from(t).union_distinct(select(f.epsilon).from(f));
+	db(select(t.alpha).from(t).union_distinct(select(f.epsilon).from(f)));
+	db(select(t.alpha).from(t).union_all(select(f.epsilon).from(f)));
 
-	printer.reset();
-	std::cerr << serialize(u, printer).str() << std::endl;
+	auto u = select(t.alpha).from(t).union_all(select(f.epsilon).from(f)).as(sqlpp::alias::u);
 
-	auto ua = select(t.alpha).from(t).union_all(select(f.epsilon).from(f)).as(sqlpp::alias::u);
-
-	printer.reset();
-	std::cerr << serialize(ua, printer).str() << std::endl;
-
-	auto uu = select(all_of(ua)).from(ua).union_all(select(t.delta).from(t));
-
-	printer.reset();
-	std::cerr << serialize(uu, printer).str() << std::endl;
-
-	db(u);
+	db(select(all_of(u)).from(u).union_all(select(t.delta).from(t)));
 
 	return 0;
 }

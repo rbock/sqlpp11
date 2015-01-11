@@ -27,6 +27,7 @@
 #define SQLPP_MOCK_DB_H
 
 #include <sstream>
+#include <iostream>
 #include <sqlpp11/serializer_context.h>
 #include <sqlpp11/connection.h>
 
@@ -133,6 +134,7 @@ struct MockDbT: public sqlpp::connection
 		{
 			_serializer_context_t context;
 			::sqlpp::serialize(x, context);
+			std::cout << "Running execute call with\n" << context.str() << std::endl;
 		}
 
 	template<typename Insert>
@@ -140,6 +142,7 @@ struct MockDbT: public sqlpp::connection
 		{
 			_serializer_context_t context;
 			::sqlpp::serialize(x, context);
+			std::cout << "Running insert call with\n" << context.str() << std::endl;
 			return 0;
 		}
 
@@ -148,6 +151,7 @@ struct MockDbT: public sqlpp::connection
 		{
 			_serializer_context_t context;
 			::sqlpp::serialize(x, context);
+			std::cout << "Running update call with\n" << context.str() << std::endl;
 			return 0;
 		}
 
@@ -156,6 +160,7 @@ struct MockDbT: public sqlpp::connection
 		{
 			_serializer_context_t context;
 			::sqlpp::serialize(x, context);
+			std::cout << "Running remove call with\n" << context.str() << std::endl;
 			return 0;
 		}
 
@@ -164,6 +169,7 @@ struct MockDbT: public sqlpp::connection
 		{
 			_serializer_context_t context;
 			::sqlpp::serialize(x, context);
+			std::cout << "Running select call with\n" << context.str() << std::endl;
 			return {};
 		}
 
@@ -195,6 +201,7 @@ struct MockDbT: public sqlpp::connection
 		{
 			_serializer_context_t context;
 			::sqlpp::serialize(x, context);
+			std::cout << "Running prepare execute call with\n" << context.str() << std::endl;
 			return nullptr;
 		}
 
@@ -203,6 +210,7 @@ struct MockDbT: public sqlpp::connection
 		{
 			_serializer_context_t context;
 			::sqlpp::serialize(x, context);
+			std::cout << "Running prepare insert call with\n" << context.str() << std::endl;
 			return nullptr;
 		}
 
@@ -222,6 +230,7 @@ struct MockDbT: public sqlpp::connection
 		{
 			_serializer_context_t context;
 			::sqlpp::serialize(x, context);
+			std::cout << "Running prepare select call with\n" << context.str() << std::endl;
 			return nullptr;
 		}
 
