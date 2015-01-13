@@ -184,6 +184,12 @@ namespace sqlpp
 		using cpp_value_type_of = typename value_type_of<T>::_cpp_value_type;
 
 	template<typename T>
+		using required_ctes_of = typename T::_recursive_traits::_required_ctes;
+
+	template<typename T>
+		using provided_ctes_of = typename T::_recursive_traits::_provided_ctes;
+
+	template<typename T>
 		using required_tables_of = typename T::_recursive_traits::_required_tables;
 
 	template<typename T>
@@ -217,6 +223,8 @@ namespace sqlpp
 	template<typename... Arguments>
 		struct make_recursive_traits
 		{
+			using _required_ctes = detail::make_joined_set_t<required_ctes_of<Arguments>...>;
+			using _provided_ctes = detail::make_joined_set_t<required_ctes_of<Arguments>...>;
 			using _required_tables = detail::make_joined_set_t<required_tables_of<Arguments>...>;
 			using _provided_tables = detail::make_joined_set_t<provided_tables_of<Arguments>...>;
 			using _provided_outer_tables = detail::make_joined_set_t<provided_outer_tables_of<Arguments>...>;
@@ -228,6 +236,8 @@ namespace sqlpp
 	template<typename... Tags>
 		struct recursive_tags
 		{
+			using _required_ctes = detail::type_set<>;
+			using _provided_ctes = detail::type_set<>;
 			using _required_tables = detail::type_set<>;
 			using _provided_tables = detail::type_set<>;
 			using _provided_outer_tables = detail::type_set<>;

@@ -31,6 +31,7 @@
 
 #include <sqlpp11/noop.h>
 #include <sqlpp11/connection.h>
+#include <sqlpp11/with.h>
 #include <sqlpp11/select_flag_list.h>
 #include <sqlpp11/select_column_list.h>
 #include <sqlpp11/from.h>
@@ -69,6 +70,7 @@ namespace sqlpp
 
 	template<typename Database>
 		using blank_select_t = statement_t<Database,
+					no_with_t,
 					select_t,
 					no_select_flag_list_t, 
 					no_select_column_list_t, 

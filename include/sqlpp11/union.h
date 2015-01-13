@@ -83,7 +83,7 @@ namespace sqlpp
 	template<bool, typename Union>
 		struct union_statement_impl
 		{
-			using type = statement_t<void, Union>;
+			using type = statement_t<void, Union, no_union_t>;
 		};
 
 	template<typename Union>
@@ -208,6 +208,7 @@ namespace sqlpp
 					auto union_distinct(Rhs rhs) const
 					-> _new_statement_t<_check<Rhs>, union_t<void, distinct_t, derived_statement_t<Policies>, Rhs>>
 					{
+#warning: make sure that Rhs is a select, not a uninon
 						static_assert(is_statement_t<Rhs>::value, "argument of union call has to be a statement");
 						static_assert(has_result_row_t<Rhs>::value, "argument of a union has to be a (complete) select statement");
 						static_assert(has_result_row_t<derived_statement_t<Policies>>::value, "left hand side argument of a union has to be a (complete) select statement");
