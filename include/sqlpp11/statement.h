@@ -107,6 +107,9 @@ namespace sqlpp
 				template<typename Expression>
 					using _no_unknown_tables = detail::is_subset_of<required_tables_of<Expression>, _known_tables>;
 
+				template<template<typename> class Predicate>
+				using any_t = logic::any_t<Predicate<Policies>::value...>;
+
 				// The tables not covered by the from.
 				using _required_tables = detail::make_difference_set_t<
 					_all_required_tables,
@@ -130,7 +133,7 @@ namespace sqlpp
 				//   - the select is complete (leaks no tables)
 				static constexpr bool _can_be_used_as_table()
 				{
-					return is_select_column_list_t<_result_type_provider>::value
+					return has_result_row_t<_statement_t>::value
 					 	and _required_tables::size::value == 0
 					 	and _required_ctes::size::value == 0
 						? true
@@ -183,15 +186,14 @@ namespace sqlpp
 	{
 		using _policies_t = typename detail::statement_policies_t<Db, Policies...>;
 
+		using _consistency_check = detail::get_first_if<is_inconsistent_t, consistent_t, 
+					typename Policies::template _base_t<_policies_t>::_consistency_check..., 
+					typename _policies_t::_table_check,
+					typename _policies_t::_cte_check>;
 		using _run_check = detail::get_first_if<is_inconsistent_t, consistent_t, 
 					typename _policies_t::_parameter_check, 
-					typename Policies::template _base_t<_policies_t>::_consistency_check..., 
-					typename _policies_t::_table_check,
-					typename _policies_t::_cte_check>;
-		using _prepare_check = detail::get_first_if<is_inconsistent_t, consistent_t, 
-					typename Policies::template _base_t<_policies_t>::_consistency_check..., 
-					typename _policies_t::_table_check,
-					typename _policies_t::_cte_check>;
+					_consistency_check>;
+		using _prepare_check = _consistency_check;
 
 		using _result_type_provider = typename _policies_t::_result_type_provider;
 		template<typename Composite>

@@ -37,12 +37,17 @@ int main()
 	test::TabBar t;
 	test::TabFoo f;
 
-	db(select(t.alpha).from(t).union_distinct(select(f.epsilon.as(t.alpha)).from(f)));
-	db(select(t.alpha).from(t).union_all(select(f.epsilon.as(t.alpha)).from(f)));
+	db(select(t.alpha).from(t).where(true)
+			.union_distinct(select(f.epsilon.as(t.alpha)).from(f).where(true)));
+	db(select(t.alpha).from(t).where(true)
+			.union_all(select(f.epsilon.as(t.alpha)).from(f).where(true)));
 
-	auto u = select(t.alpha).from(t).union_all(select(f.epsilon.as(t.alpha)).from(f)).as(sqlpp::alias::u);
+	auto u = select(t.alpha).from(t).where(true).union_all(select(f.epsilon.as(t.alpha)).from(f).where(true)).as(sqlpp::alias::u);
 
-	db(select(all_of(u)).from(u).union_all(select(t.delta.as(t.alpha)).from(t)));
+	db(select(all_of(u)).from(u).where(true).union_all(select(t.delta.as(t.alpha)).from(t).where(true)));
+	db(select(u.alpha).from(u).where(true).union_all(select(t.delta.as(t.alpha)).from(t).where(true)));
+
+	db(select(t.alpha).from(t).where(true).union_all(select(t.alpha).from(t).where(true)).union_all(select(t.alpha).from(t).where(true)));
 
 	return 0;
 }

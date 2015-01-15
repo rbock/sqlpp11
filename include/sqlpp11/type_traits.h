@@ -339,6 +339,57 @@ namespace sqlpp
 	template<typename Context, typename T>
 		using serialize_check_t = typename serialize_check<Context, T>::type;
 
+	template<typename Statement, typename Enable = void>
+		struct has_result_row_impl
+		{
+			using type = std::false_type;
+		};
+
+	template<typename Statement>
+		struct has_result_row_impl<Statement, 
+		typename std::enable_if<
+			not wrong_t<typename Statement::template _result_methods_t<Statement>::template _result_row_t<void>>::value, 
+		void>::type>
+		{
+			using type = std::true_type;
+		};
+
+	template<typename Statement>
+		using has_result_row_t = typename has_result_row_impl<Statement>::type;
+
+	template<typename Statement, typename Enable = void>
+		struct get_result_row_impl
+		{
+			using type = void;
+		};
+
+	template<typename Statement>
+		struct get_result_row_impl<Statement, 
+		typename std::enable_if<
+			not wrong_t<typename Statement::template _result_methods_t<Statement>::template _result_row_t<void>>::value, 
+		void>::type>
+		{
+			using type = typename Statement::template _result_methods_t<Statement>::template _result_row_t<void>;
+		};
+
+	template<typename Statement>
+		using get_result_row_t = typename get_result_row_impl<Statement>::type;
+
+	template<typename Statement, template<typename> class Predicate, typename Enable=void>
+		struct has_policy_impl
+		{
+			using type = std::false_type;
+		};
+
+	template<typename Statement, template<typename> class Predicate>
+		struct has_policy_impl<Statement, Predicate, typename std::enable_if<is_statement_t<Statement>::value>::type>
+		{
+			using type = std::true_type;
+		};
+
+	template<typename Statement, template<typename> class Predicate>
+		using has_policy_t = typename has_policy_impl<Statement, Predicate>::type;
+
 }
 
 #endif
