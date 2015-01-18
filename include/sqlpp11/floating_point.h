@@ -38,32 +38,39 @@ namespace sqlpp
 	// floating_point value type
 	struct floating_point
 	{
-		using _traits = make_traits<floating_point, ::sqlpp::tag::is_floating_point, ::sqlpp::tag::is_value_type>;
-		using _tag = ::sqlpp::tag::is_floating_point;
+		using _traits = make_traits<floating_point, tag::is_value_type>;
+		using _tag = tag::is_floating_point;
 		using _cpp_value_type = double;
 
-		struct _parameter_t
+		template<typename T>
+			using _is_valid_operand = is_numeric_t<T>;
+	};
+
+	// floating_point parameter type
+	template<>
+		struct parameter_value_t<floating_point>
 		{
 			using _value_type = floating_point;
+			using _cpp_value_type = typename _value_type::_cpp_value_type;
 
-			_parameter_t():
+			parameter_value_t():
 				_value(0),
 				_is_null(true)
 			{}
 
-			_parameter_t(const _cpp_value_type& value):
+			parameter_value_t(const _cpp_value_type& value):
 				_value(value),
 				_is_null(false)
 			{}
 
-			_parameter_t& operator=(const _cpp_value_type& value)
+			parameter_value_t& operator=(const _cpp_value_type& value)
 			{
 				_value = value;
 				_is_null = false;
 				return *this;
 			}
 
-			_parameter_t& operator=(const tvin_t<wrap_operand_t<_cpp_value_type>>& t)
+			parameter_value_t& operator=(const tvin_t<wrap_operand_t<_cpp_value_type>>& t)
 			{
 				if (t._is_trivial())
 				{
@@ -78,7 +85,7 @@ namespace sqlpp
 				return *this;
 			}
 
-			_parameter_t& operator=(const std::nullptr_t&)
+			parameter_value_t& operator=(const std::nullptr_t&)
 			{
 				_value = 0;
 				_is_null = true;
@@ -108,104 +115,103 @@ namespace sqlpp
 			bool _is_null;
 		};
 
-		template<typename T>
-			struct _is_valid_operand
-			{
-				static constexpr bool value = 
-					is_expression_t<T>::value // expressions are OK
-					and is_numeric_t<T>::value // the correct value type is required, of course
-					;
-			};
-
-		template<typename Base>
-			struct expression_operators: public basic_expression_operators<Base, is_numeric_t>
+	// floating_point expression operators
+	template<typename Expr>
+		struct expression_operators<Expr, floating_point>:
+			public basic_expression_operators<Expr, floating_point>
 		{
 			template<typename T>
-				plus_t<Base, floating_point, wrap_operand_t<T>> operator +(T t) const
+				using _is_valid_operand = is_valid_operand<floating_point, T>;
+
+			template<typename T>
+				plus_t<Expr, floating_point, wrap_operand_t<T>> operator +(T t) const
 				{
 					using rhs = wrap_operand_t<T>;
 					static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
 
-					return { *static_cast<const Base*>(this), rhs{t} };
+					return { *static_cast<const Expr*>(this), rhs{t} };
 				}
 
 			template<typename T>
-				minus_t<Base, floating_point, wrap_operand_t<T>> operator -(T t) const
+				minus_t<Expr, floating_point, wrap_operand_t<T>> operator -(T t) const
 				{
 					using rhs = wrap_operand_t<T>;
 					static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
 
-					return { *static_cast<const Base*>(this), rhs{t} };
+					return { *static_cast<const Expr*>(this), rhs{t} };
 				}
 
 			template<typename T>
-				multiplies_t<Base, floating_point, wrap_operand_t<T>> operator *(T t) const
+				multiplies_t<Expr, floating_point, wrap_operand_t<T>> operator *(T t) const
 				{
 					using rhs = wrap_operand_t<T>;
 
-					return { *static_cast<const Base*>(this), rhs{t} };
+					return { *static_cast<const Expr*>(this), rhs{t} };
 				}
 
 			template<typename T>
-				divides_t<Base, wrap_operand_t<T>> operator /(T t) const
+				divides_t<Expr, wrap_operand_t<T>> operator /(T t) const
 				{
 					using rhs = wrap_operand_t<T>;
 
-					return { *static_cast<const Base*>(this), rhs{t} };
+					return { *static_cast<const Expr*>(this), rhs{t} };
 				}
 
-			unary_plus_t<floating_point, Base> operator +() const
+			unary_plus_t<floating_point, Expr> operator +() const
 			{
-				return { *static_cast<const Base*>(this) };
+				return { *static_cast<const Expr*>(this) };
 			}
 
-			unary_minus_t<floating_point, Base> operator -() const
+			unary_minus_t<floating_point, Expr> operator -() const
 			{
-				return { *static_cast<const Base*>(this) };
+				return { *static_cast<const Expr*>(this) };
 			}
 		};
 
-		template<typename Base>
-			struct column_operators
-			{
-				template<typename T>
-					auto operator +=(T t) const -> assignment_t<Base, plus_t<Base, floating_point, wrap_operand_t<T>>>
-					{
-						using rhs = wrap_operand_t<T>;
-						static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
+	// floating_point column operators
+	template<typename Column>
+		struct column_operators<Column, floating_point>
+		{
+			template<typename T>
+				using _is_valid_operand = is_valid_operand<floating_point, T>;
 
-						return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
-					}
+			template<typename T>
+				auto operator +=(T t) const -> assignment_t<Column, plus_t<Column, floating_point, wrap_operand_t<T>>>
+				{
+					using rhs = wrap_operand_t<T>;
+					static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
 
-				template<typename T>
-					auto operator -=(T t) const -> assignment_t<Base, minus_t<Base, floating_point, wrap_operand_t<T>>>
-					{
-						using rhs = wrap_operand_t<T>;
-						static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
+					return { *static_cast<const Column*>(this), { *static_cast<const Column*>(this), rhs{t} } };
+				}
 
-						return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
-					}
+			template<typename T>
+				auto operator -=(T t) const -> assignment_t<Column, minus_t<Column, floating_point, wrap_operand_t<T>>>
+				{
+					using rhs = wrap_operand_t<T>;
+					static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
 
-				template<typename T>
-					auto operator /=(T t) const -> assignment_t<Base, divides_t<Base, wrap_operand_t<T>>>
-					{
-						using rhs = wrap_operand_t<T>;
-						static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
+					return { *static_cast<const Column*>(this), { *static_cast<const Column*>(this), rhs{t} } };
+				}
 
-						return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
-					}
+			template<typename T>
+				auto operator /=(T t) const -> assignment_t<Column, divides_t<Column, wrap_operand_t<T>>>
+				{
+					using rhs = wrap_operand_t<T>;
+					static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
 
-				template<typename T>
-					auto operator *=(T t) const -> assignment_t<Base, multiplies_t<Base, floating_point, wrap_operand_t<T>>>
-					{
-						using rhs = wrap_operand_t<T>;
-						static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
+					return { *static_cast<const Column*>(this), { *static_cast<const Column*>(this), rhs{t} } };
+				}
 
-						return { *static_cast<const Base*>(this), { *static_cast<const Base*>(this), rhs{t} } };
-					}
-			};
-	};
+			template<typename T>
+				auto operator *=(T t) const -> assignment_t<Column, multiplies_t<Column, floating_point, wrap_operand_t<T>>>
+				{
+					using rhs = wrap_operand_t<T>;
+					static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
 
+					return { *static_cast<const Column*>(this), { *static_cast<const Column*>(this), rhs{t} } };
+				}
+		};
+	// floating_point result field
 	template<typename Db, typename FieldSpec>
 		struct result_field_t<floating_point, Db, FieldSpec>: public result_field_methods_t<result_field_t<floating_point, Db, FieldSpec>>
 		{

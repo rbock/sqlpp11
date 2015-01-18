@@ -50,6 +50,8 @@ namespace sqlpp
 	template<typename Original, typename Needle, typename Replacement>
 		using update_policies_t = typename update_policies_impl<Original, Needle, Replacement>::type;
 
+	template<typename Policies, typename Needle, typename Replacement>
+		using new_statement = typename Policies::template _new_statement_t<Needle, Replacement>;
 
 }
 

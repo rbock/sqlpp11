@@ -28,28 +28,24 @@
 #define SQLPP_NO_VALUE_H
 
 #include <type_traits>
+#include <sqlpp11/value_type_fwd.h>
 
 namespace sqlpp
 {
 	struct no_value_t
 	{
 		using _tag = void;
-		template<typename T>
-			struct _is_valid_operand
-			{
-				static constexpr bool value = false;
-			};
-
-		template<typename Base>
-			struct expression_operators
-			{
-			};
-
-		template<typename Base>
-			struct column_operators
-			{
-			};
 	};
+
+	template<typename Base>
+		struct expression_operators<Base, no_value_t>
+		{
+		};
+
+	template<typename Base>
+		struct column_operators<Base, no_value_t>
+		{
+		};
 
 }
 #endif

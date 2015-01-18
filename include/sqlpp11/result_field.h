@@ -32,7 +32,7 @@
 
 namespace sqlpp
 {
-	template<typename ValueType, typename Db, typename Field>
+	template<typename ValueType, typename Db, typename FieldSpec>
 		struct result_field_t
 		{
 			static_assert(wrong_t<result_field_t>::value, "Missing specialization for result_field_t");

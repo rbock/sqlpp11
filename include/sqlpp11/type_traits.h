@@ -32,29 +32,58 @@
 
 namespace sqlpp
 {
+	namespace tag
+	{
+		struct can_be_null{};
+		struct contains_aggregate_function{};
+	};
+
 	namespace detail
 	{
 		template<typename T, typename Enable = void>
 		struct can_be_null_impl { using type = std::false_type; };
 		template<typename T>
-		struct can_be_null_impl<T, typename std::enable_if<T::_recursive_traits::_can_be_null::value>::type> { using type = std::true_type; };
+		struct can_be_null_impl<T, typename std::enable_if<is_element_of<tag::can_be_null, typename T::_recursive_traits::_tags>::value>::type> { using type = std::true_type; };
 	}
 	template<typename T>
 	using can_be_null_t = typename detail::can_be_null_impl<T>::type;
 
-	namespace tag\
-	{\
-		struct can_be_null{};\
-	};\
-	namespace detail\
-	{\
-		template<typename T, typename Enable = void>\
-		struct column_spec_can_be_null_impl { using type = std::false_type; };\
-		template<typename T>\
-		struct column_spec_can_be_null_impl<T, typename std::enable_if<detail::is_element_of<tag::can_be_null, typename T::_traits::_tags>::value>::type> { using type = std::true_type; };\
-	}\
-	template<typename T>\
+	namespace detail
+	{
+		template<typename T, typename Enable = void>
+		struct contains_aggregate_function_impl { using type = std::false_type; };
+		template<typename T>
+		struct contains_aggregate_function_impl<T, typename std::enable_if<is_element_of<tag::contains_aggregate_function, typename T::_recursive_traits::_tags>::value>::type> { using type = std::true_type; };
+	}
+	template<typename T>
+	using contains_aggregate_function_t = typename detail::contains_aggregate_function_impl<T>::type;
+
+	namespace detail
+	{
+		template<typename T, typename Enable = void>
+		struct column_spec_can_be_null_impl { using type = std::false_type; };
+		template<typename T>
+		struct column_spec_can_be_null_impl<T, typename std::enable_if<detail::is_element_of<tag::can_be_null, typename T::_traits::_tags>::value>::type> { using type = std::true_type; };
+	}
+	template<typename T>
 	using column_spec_can_be_null_t = typename detail::column_spec_can_be_null_impl<T>::type;
+
+	namespace tag
+	{
+		struct is_expression{};
+	};
+	namespace detail
+	{
+		template<typename T, typename Enable = void>
+		struct is_expression_impl { using type = std::false_type; };
+		template<typename T>
+		struct is_expression_impl<T, typename std::enable_if<
+					detail::is_element_of<tag::is_expression, typename T::_traits::_tags>::value
+					and not detail::is_element_of<tag::contains_aggregate_function, typename T::_recursive_traits::_tags>::value
+					>::type> { using type = std::true_type; };
+	}
+	template<typename T>
+	using is_expression_t = typename detail::is_expression_impl<T>::type;
 
 #define SQLPP_VALUE_TRAIT_GENERATOR(name) \
 	namespace tag\
@@ -82,8 +111,7 @@ namespace sqlpp
 		detail::is_element_of<tag::is_floating_point, typename T::_traits::_tags>::value>;
 	SQLPP_VALUE_TRAIT_GENERATOR(is_text);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_wrapped_value);
-	SQLPP_VALUE_TRAIT_GENERATOR(is_expression);
-	SQLPP_VALUE_TRAIT_GENERATOR(is_named_expression);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_selectable);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_multi_expression);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_alias);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_select_flag);
@@ -140,80 +168,35 @@ namespace sqlpp
 
 	namespace detail
 	{
-		template<typename T>
-			struct value_type_of_impl
-			{
-				using type = typename T::_traits::_value_type;
-			};
-
-		template<typename T>
-			struct required_table_of_impl
-			{
-				using type = typename T::_recursive_traits::_required_tables;
-			};
-
-		template<typename T>
-			struct provided_table_of_impl
-			{
-				using type = typename T::_recursive_traits::_provided_tables;
-			};
-
-		template<typename T>
-			struct provided_outer_table_of_impl
-			{
-				using type = typename T::_recursive_traits::_provided_outer_tables;
-			};
-
-		template<typename T>
-			struct extra_table_of_impl
-			{
-				using type = typename T::_recursive_traits::_extra_tables;
-			};
-
-		template<typename T>
-			struct parameters_of_impl
-			{
-				using type = typename T::_recursive_traits::_parameters;
-			};
-
-		template<typename T>
-			struct name_of_impl
-			{
-				using type = typename T::_name_t;
-			};
-
 		template<typename... T>
-			struct make_parameter_tuple_impl
-			{
-				using type = decltype(std::tuple_cat(std::declval<T>()...));
-			};
-
-		template<typename... T>
-			using make_parameter_tuple_t = typename make_parameter_tuple_impl<T...>::type;
+			using make_parameter_tuple_t = decltype(std::tuple_cat(std::declval<T>()...));
 	}
 	template<typename T>
-		using value_type_of = typename detail::value_type_of_impl<T>::type;
+		using value_type_of = typename T::_traits::_value_type;
 
 	template<typename T>
 		using cpp_value_type_of = typename value_type_of<T>::_cpp_value_type;
 
 	template<typename T>
-		using required_tables_of = typename detail::required_table_of_impl<T>::type;
+		using required_tables_of = typename T::_recursive_traits::_required_tables;
 
 	template<typename T>
-		using provided_tables_of = typename detail::provided_table_of_impl<T>::type;
+		using provided_tables_of = typename T::_recursive_traits::_provided_tables;
 
 	template<typename T>
-		using provided_outer_tables_of = typename detail::provided_outer_table_of_impl<T>::type;
+		using provided_outer_tables_of = typename T::_recursive_traits::_provided_outer_tables;
 
 	template<typename T>
-		using extra_tables_of = typename detail::extra_table_of_impl<T>::type;
+		using extra_tables_of = typename T::_recursive_traits::_extra_tables;
 
 	template<typename T>
-		using parameters_of = typename detail::parameters_of_impl<T>::type;
+		using parameters_of = typename T::_recursive_traits::_parameters;
 
 	template<typename T>
-		using name_of = typename detail::name_of_impl<T>::type;
+		using recursive_tags_of = typename T::_recursive_traits::_tags;
+
+	template<typename T>
+		using name_of = typename T::_name_t;
 
 	template<typename ValueType, typename... Tags>
 		struct make_traits
@@ -221,6 +204,7 @@ namespace sqlpp
 			using _value_type = ValueType;
 			using _tags = detail::make_type_set_t<typename ValueType::_tag, Tags...>;
 		};
+
 	template<typename... Arguments>
 		struct make_recursive_traits
 		{
@@ -229,9 +213,31 @@ namespace sqlpp
 			using _provided_outer_tables = detail::make_joined_set_t<provided_outer_tables_of<Arguments>...>;
 			using _extra_tables = detail::make_joined_set_t<extra_tables_of<Arguments>...>;
 			using _parameters = detail::make_parameter_tuple_t<parameters_of<Arguments>...>;
-			using _can_be_null = detail::any_t<can_be_null_t<Arguments>::value...>;
+			using _tags = detail::make_joined_set_t<recursive_tags_of<Arguments>...>;
 		};
 
+	template<typename... Tags>
+		struct recursive_tags
+		{
+			using _required_tables = detail::type_set<>;
+			using _provided_tables = detail::type_set<>;
+			using _provided_outer_tables = detail::type_set<>;
+			using _extra_tables = detail::type_set<>;
+			using _parameters = std::tuple<>;
+			using _tags = detail::type_set<Tags...>;
+		};
+
+	struct aggregate_function
+	{
+		struct _traits { using _value_type = void; using _tags = detail::type_set<>; };
+		using _recursive_traits = recursive_tags<tag::contains_aggregate_function>;
+	};
+
+	template<typename NameProvider, typename Member>
+		using member_t = typename NameProvider::_name_t::template _member_t<Member>;
+
+	template<typename Policies>
+		using derived_statement_t = typename Policies::_statement_t;
 }
 
 #endif

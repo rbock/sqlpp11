@@ -41,6 +41,12 @@ struct MockDbT: public sqlpp::connection
 	{
 		std::ostringstream _os;
 
+		_serializer_context_t() = default;
+		_serializer_context_t(const _serializer_context_t& rhs)	
+		{
+			_os << rhs._os.str();
+		}
+
 		std::string str() const
 		{
 			return _os.str();
@@ -159,8 +165,6 @@ struct MockDbT: public sqlpp::connection
 	template<typename PreparedInsert>
 		size_t run_prepared_insert(const PreparedInsert& x)
 		{
-			_serializer_context_t context;
-			::sqlpp::serialize(x, context);
 			return 0;
 		}
 
@@ -175,8 +179,6 @@ struct MockDbT: public sqlpp::connection
 	template<typename PreparedSelect>
 		result_t run_prepared_select(PreparedSelect& x)
 		{
-			_serializer_context_t context;
-			::sqlpp::serialize(x, context);
 			return {};
 		}
 

@@ -58,14 +58,14 @@ namespace sqlpp
 	template<typename Database, typename... Expressions>
 		struct where_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_where>;
+			using _traits = make_traits<no_value_t, tag::is_where>;
 			using _recursive_traits = make_recursive_traits<Expressions...>;
 
 			using _is_dynamic = is_database<Database>;
 
 			static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression argument required in where()");
-			static_assert(sqlpp::detail::none_t<is_assignment_t<Expressions>::value...>::value, "at least one argument is an assignment in where()");
-			static_assert(sqlpp::detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not valid expression in where()");
+			static_assert(detail::none_t<is_assignment_t<Expressions>::value...>::value, "at least one argument is an assignment in where()");
+			static_assert(detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not valid expression in where()");
 
 			// Data
 			using _data_t = where_data_t<Database, Expressions...>;
@@ -87,7 +87,7 @@ namespace sqlpp
 							static_assert(is_expression_t<Expression>::value, "invalid expression argument in where::add()");
 							static_assert(not TableCheckRequired::value or Policies::template _no_unknown_tables<Expression>::value, "expression uses tables unknown to this statement in where::add()");
 
-							using ok = ::sqlpp::detail::all_t<_is_dynamic::value, is_expression_t<Expression>::value>;
+							using ok = detail::all_t<_is_dynamic::value, is_expression_t<Expression>::value>;
 
 							_add_impl(expression, ok()); // dispatch to prevent compile messages after the static_assert
 						}
@@ -141,7 +141,7 @@ namespace sqlpp
 	template<>
 		struct where_t<void, bool>
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_where>;
+			using _traits = make_traits<no_value_t, tag::is_where>;
 			using _recursive_traits = make_recursive_traits<>;
 
 			// Data
@@ -181,10 +181,10 @@ namespace sqlpp
 		};
 
 	// NO WHERE YET
-	template<bool Required>
+	template<bool WhereRequired>
 		struct no_where_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_where>;
+			using _traits = make_traits<no_value_t, tag::is_where>;
 			using _recursive_traits = make_recursive_traits<>;
 
 			// Data
@@ -220,26 +220,28 @@ namespace sqlpp
 				{
 					using _database_t = typename Policies::_database_t;
 					template<typename T>
-						using _new_statement_t = typename Policies::template _new_statement_t<no_where_t, T>;
+						using _new_statement_t = new_statement<Policies, no_where_t, T>;
 
 					static void _check_consistency()
 					{
-						static_assert(Required ? wrong_t<_methods_t>::value : true, "where expression required, e.g. where(true)");
+						static constexpr bool _tables_provided = (Policies::_all_provided_tables::size::value > 0);
+						static constexpr bool _required = WhereRequired and _tables_provided;
+						static_assert(not _required, "where expression required, e.g. where(true)");
 					}
 
 					template<typename... Args>
-						auto where(Args... args)
+						auto where(Args... args) const
 						-> _new_statement_t<where_t<void, Args...>>
 						{
-							return { *static_cast<typename Policies::_statement_t*>(this), where_data_t<void, Args...>{args...} };
+							return { static_cast<const derived_statement_t<Policies>&>(*this), where_data_t<void, Args...>{args...} };
 						}
 
 					template<typename... Args>
-						auto dynamic_where(Args... args)
+						auto dynamic_where(Args... args) const
 						-> _new_statement_t<where_t<_database_t, Args...>>
 						{
 							static_assert(not std::is_same<_database_t, void>::value, "dynamic_where must not be called in a static statement");
-							return { *static_cast<typename Policies::_statement_t*>(this), where_data_t<_database_t, Args...>{args...} };
+							return { static_cast<const derived_statement_t<Policies>&>(*this), where_data_t<_database_t, Args...>{args...} };
 						}
 				};
 		};

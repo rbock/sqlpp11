@@ -175,7 +175,6 @@ for tableCreation in tableCreations:
 
     print('  struct ' + tableClass + ': ' + NAMESPACE + '::table_t<' + tableTemplateParameters + '>', file=header)
     print('  {', file=header)
-    print('    using _value_type = ' + NAMESPACE + '::no_value_t;', file=header)
     print('    struct _name_t', file=header)
     print('    {', file=header)
     print('      static constexpr const char* _get_name() { return "' + sqlTableName + '"; }', file=header)

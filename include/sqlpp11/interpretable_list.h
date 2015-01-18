@@ -84,8 +84,8 @@ namespace sqlpp
 						if (not first)
 						{
 							context << separator;
-							first = false;
 						}
+						first = false;
 						serialize(entry, context);
 					}
 					return context;

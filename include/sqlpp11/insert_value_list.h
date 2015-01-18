@@ -35,6 +35,7 @@
 #include <sqlpp11/insert_value.h>
 #include <sqlpp11/simple_column.h>
 #include <sqlpp11/no_data.h>
+#include <sqlpp11/policy_update.h>
 
 namespace sqlpp
 {
@@ -105,7 +106,7 @@ namespace sqlpp
 			insert_list_data_t(Assignments... assignments):
 				_assignments(assignments...),
 				_columns({assignments._lhs}...),
-				_values({assignments._rhs}...)
+				_values(assignments._rhs...)
 				{}
 
 			insert_list_data_t(const insert_list_data_t&) = default;
@@ -115,8 +116,8 @@ namespace sqlpp
 			~insert_list_data_t() = default;
 
 			std::tuple<Assignments...> _assignments; // FIXME: Need to replace _columns and _values by _assignments (connector-container requires assignments)
-			std::tuple<simple_column_t<typename Assignments::_lhs_t>...> _columns;
-			std::tuple<typename Assignments::_rhs_t...> _values;
+			std::tuple<simple_column_t<lhs_t<Assignments>>...> _columns;
+			std::tuple<rhs_t<Assignments>...> _values;
 			interpretable_list_t<Database> _dynamic_columns;
 			interpretable_list_t<Database> _dynamic_values;
 		};
@@ -124,8 +125,8 @@ namespace sqlpp
 	template<typename Database, typename... Assignments>
 		struct insert_list_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_insert_list>;
-			using _recursive_traits = make_recursive_traits<typename Assignments::_lhs_t..., typename Assignments::_rhs_t...>;
+			using _traits = make_traits<no_value_t, tag::is_insert_list>;
+			using _recursive_traits = make_recursive_traits<lhs_t<Assignments>..., rhs_t<Assignments>...>;
 
 			using _is_dynamic = is_database<Database>;
 
@@ -152,12 +153,12 @@ namespace sqlpp
 						{
 							static_assert(_is_dynamic::value, "add must not be called for static from()");
 							static_assert(is_assignment_t<Assignment>::value, "add() arguments require to be assigments");
-							using _assigned_columns = detail::make_type_set_t<typename Assignments::_lhs_t...>;
-							static_assert(not detail::is_element_of<typename Assignment::_lhs_t, _assigned_columns>::value, "Must not assign value to column twice");
-							static_assert(not must_not_insert_t<typename Assignment::_lhs_t>::value, "add() argument must not be used in insert");
+							using _assigned_columns = detail::make_type_set_t<lhs_t<Assignments>...>;
+							static_assert(not detail::is_element_of<lhs_t<Assignment>, _assigned_columns>::value, "Must not assign value to column twice");
+							static_assert(not must_not_insert_t<lhs_t<Assignment>>::value, "add() argument must not be used in insert");
 							static_assert(not TableCheckRequired::value or Policies::template _no_unknown_tables<Assignment>::value, "add() contains a column from a foreign table");
 
-							using ok = ::sqlpp::detail::all_t<
+							using ok = detail::all_t<
 								_is_dynamic::value, 
 								is_assignment_t<Assignment>::value>;
 
@@ -168,7 +169,7 @@ namespace sqlpp
 					template<typename Assignment>
 						void _add_impl(Assignment assignment, const std::true_type&)
 						{
-							_data._dynamic_columns.emplace_back(simple_column_t<typename Assignment::_lhs_t>{assignment._lhs});
+							_data._dynamic_columns.emplace_back(simple_column_t<lhs_t<Assignment>>{assignment._lhs});
 							_data._dynamic_values.emplace_back(assignment._rhs);
 						}
 
@@ -225,7 +226,7 @@ namespace sqlpp
 	template<typename... Columns>
 		struct column_list_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_column_list>;
+			using _traits = make_traits<no_value_t, tag::is_column_list>;
 			using _recursive_traits = make_recursive_traits<Columns...>;
 
 			using _value_tuple_t = typename column_list_data_t<Columns...>::_value_tuple_t;
@@ -241,13 +242,13 @@ namespace sqlpp
 					template<typename... Assignments>
 						void add(Assignments... assignments)
 						{
-							static_assert(::sqlpp::detail::all_t<is_assignment_t<Assignments>::value...>::value, "add_values() arguments have to be assignments");
-							using _arg_value_tuple = std::tuple<insert_value_t<typename Assignments::_lhs_t>...>;
+							static_assert(detail::all_t<is_assignment_t<Assignments>::value...>::value, "add_values() arguments have to be assignments");
+							using _arg_value_tuple = std::tuple<insert_value_t<lhs_t<Assignments>>...>;
 							using _args_correct = std::is_same<_arg_value_tuple, _value_tuple_t>;
 							static_assert(_args_correct::value, "add_values() arguments do not match columns() arguments");
 
-							using ok = ::sqlpp::detail::all_t<
-								::sqlpp::detail::all_t<is_assignment_t<Assignments>::value...>::value, 
+							using ok = detail::all_t<
+								detail::all_t<is_assignment_t<Assignments>::value...>::value, 
 								_args_correct::value>;
 
 							_add_impl(ok(), assignments...); // dispatch to prevent compile messages after the static_assert
@@ -257,7 +258,7 @@ namespace sqlpp
 					template<typename... Assignments>
 						void _add_impl(const std::true_type&, Assignments... assignments)
 						{
-							return _data._insert_values.emplace_back(insert_value_t<typename Assignments::_lhs_t>{assignments._rhs}...);
+							return _data._insert_values.emplace_back(insert_value_t<lhs_t<Assignments>>{assignments._rhs}...);
 						}
 
 					template<typename... Assignments>
@@ -294,7 +295,7 @@ namespace sqlpp
 	// NO INSERT COLUMNS/VALUES YET
 	struct no_insert_value_list_t
 	{
-		using _traits = make_traits<no_value_t, ::sqlpp::tag::is_noop>;
+		using _traits = make_traits<no_value_t, tag::is_noop>;
 		using _recursive_traits = make_recursive_traits<>;
 
 		// Data
@@ -329,28 +330,28 @@ namespace sqlpp
 			{
 				using _database_t = typename Policies::_database_t;
 				template<typename T>
-					using _new_statement_t = typename Policies::template _new_statement_t<no_insert_value_list_t, T>;
+					using _new_statement_t = new_statement<Policies, no_insert_value_list_t, T>;
 
 				static void _check_consistency() 
 				{
 					static_assert(wrong_t<_methods_t>::value, "insert values required, e.g. set(...) or default_values()");
 				}
 
-				auto default_values()
+				auto default_values() const
 					-> _new_statement_t<insert_default_values_t>
 					{
-						return { *static_cast<typename Policies::_statement_t*>(this), insert_default_values_data_t{} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), insert_default_values_data_t{} };
 					}
 
 				template<typename... Columns>
-					auto columns(Columns... columns)
+					auto columns(Columns... columns) const
 					-> _new_statement_t<column_list_t<Columns...>>
 					{
 						static_assert(sizeof...(Columns), "at least one column required in columns()");
-						static_assert(not ::sqlpp::detail::has_duplicates<Columns...>::value, "at least one duplicate argument detected in columns()");
-						static_assert(::sqlpp::detail::all_t<is_column_t<Columns>::value...>::value, "at least one argument is not a column in columns()");
-						static_assert(::sqlpp::detail::none_t<must_not_insert_t<Columns>::value...>::value, "at least one column argument has a must_not_insert tag in its definition");
-						using _column_required_tables = ::sqlpp::detail::make_joined_set_t<required_tables_of<Columns>...>;
+						static_assert(not detail::has_duplicates<Columns...>::value, "at least one duplicate argument detected in columns()");
+						static_assert(detail::all_t<is_column_t<Columns>::value...>::value, "at least one argument is not a column in columns()");
+						static_assert(detail::none_t<must_not_insert_t<Columns>::value...>::value, "at least one column argument has a must_not_insert tag in its definition");
+						using _column_required_tables = detail::make_joined_set_t<required_tables_of<Columns>...>;
 						static_assert(_column_required_tables::size::value == 1, "columns() contains columns from several tables");
 
 						using _table = typename detail::first_arg_t<Columns...>::_table;
@@ -358,43 +359,43 @@ namespace sqlpp
 						using set_columns = detail::make_type_set_t<Columns...>;
 						static_assert(detail::is_subset_of<required_columns, set_columns>::value, "At least one required column is missing in columns()");
 
-						return { *static_cast<typename Policies::_statement_t*>(this), column_list_data_t<Columns...>{columns...} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), column_list_data_t<Columns...>{columns...} };
 					}
 
 				template<typename... Assignments>
-					auto set(Assignments... assignments)
+					auto set(Assignments... assignments) const
 					-> _new_statement_t<insert_list_t<void, Assignments...>>
 					{
 						static_assert(sizeof...(Assignments), "at least one assignment expression required in set()");
-						static_assert(sqlpp::detail::all_t<is_assignment_t<Assignments>::value...>::value, "at least one argument is not an assignment in set()");
+						static_assert(detail::all_t<is_assignment_t<Assignments>::value...>::value, "at least one argument is not an assignment in set()");
 
-						using _table = typename detail::first_arg_t<Assignments...>::_lhs_t::_table;
+						using _table = typename lhs_t<detail::first_arg_t<Assignments...>>::_table;
 						using required_columns = typename _table::_required_insert_columns;
-						using columns = detail::make_type_set_t<typename Assignments::_lhs_t...>;
+						using columns = detail::make_type_set_t<lhs_t<Assignments>...>;
 						static_assert(detail::is_subset_of<required_columns, columns>::value, "At least one required column is missing in set()");
 						return _set_impl<void>(assignments...);
 					}
 
 				template<typename... Assignments>
-					auto dynamic_set(Assignments... assignments)
+					auto dynamic_set(Assignments... assignments) const
 					-> _new_statement_t<insert_list_t<_database_t, Assignments...>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_set must not be called in a static statement");
+						static_assert(detail::all_t<is_assignment_t<Assignments>::value...>::value, "at least one argument is not an assignment in set()");
 						return _set_impl<_database_t>(assignments...);
 					}
 			private:
 				template<typename Database, typename... Assignments>
-					auto _set_impl(Assignments... assignments)
+					auto _set_impl(Assignments... assignments) const
 					-> _new_statement_t<insert_list_t<Database, Assignments...>>
 					{
-						static_assert(not ::sqlpp::detail::has_duplicates<Assignments...>::value, "at least one duplicate argument detected in set()");
-						static_assert(sqlpp::detail::all_t<is_assignment_t<Assignments>::value...>::value, "at least one argument is not an assignment in set()");
-						static_assert(sqlpp::detail::none_t<must_not_insert_t<typename Assignments::_lhs_t>::value...>::value, "at least one assignment is prohibited by its column definition in set()");
+						static_assert(not detail::has_duplicates<lhs_t<Assignments>...>::value, "at least one duplicate column detected in set()");
+						static_assert(detail::none_t<must_not_insert_t<lhs_t<Assignments>>::value...>::value, "at least one assignment is prohibited by its column definition in set()");
 
-						using _column_required_tables = ::sqlpp::detail::make_joined_set_t<required_tables_of<typename Assignments::_lhs_t>...>;
+						using _column_required_tables = detail::make_joined_set_t<required_tables_of<lhs_t<Assignments>>...>;
 						static_assert(sizeof...(Assignments) ? (_column_required_tables::size::value == 1) : true, "set() contains assignments for columns from several tables");
 
-						return { *static_cast<typename Policies::_statement_t*>(this), insert_list_data_t<Database, Assignments...>{assignments...} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), insert_list_data_t<Database, Assignments...>{assignments...} };
 					}
 			};
 	};

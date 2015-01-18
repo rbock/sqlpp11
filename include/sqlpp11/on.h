@@ -43,7 +43,6 @@ namespace sqlpp
 			using _is_dynamic = is_database<Database>;
 
 			static_assert(_is_dynamic::value or sizeof...(Expr), "at least one expression argument required in on()");
-			static_assert(detail::all_t<is_expression_t<Expr>::value...>::value, "at least one argument is not an expression in on()");
 
 			template<typename E>
 				void add(E expr)

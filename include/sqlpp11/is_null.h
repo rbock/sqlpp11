@@ -34,18 +34,14 @@
 namespace sqlpp
 {
 	template<bool NotInverted, typename Operand>
-		struct is_null_t: public boolean::template expression_operators<is_null_t<NotInverted, Operand>>,
-		public alias_operators<is_null_t<NotInverted, Operand>>
+		struct is_null_t:
+			public expression_operators<is_null_t<NotInverted, Operand>, boolean>,
+			public alias_operators<is_null_t<NotInverted, Operand>>
 	{
-		using _traits = make_traits<boolean, ::sqlpp::tag::is_expression, ::sqlpp::tag::is_named_expression>;
+		using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
 		using _recursive_traits = make_recursive_traits<Operand>;
 
 		static constexpr bool _inverted = not NotInverted;
-
-		struct _value_type: public boolean
-		{
-			using _is_named_expression = std::true_type;
-		};
 
 		struct _name_t
 		{
@@ -71,9 +67,9 @@ namespace sqlpp
 	};
 
 	template<typename Context, bool NotInverted, typename Operand>
-		struct serializer_t<Context, ::sqlpp::is_null_t<NotInverted, Operand>>
+		struct serializer_t<Context, is_null_t<NotInverted, Operand>>
 		{
-			using T = ::sqlpp::is_null_t<NotInverted, Operand>;
+			using T = is_null_t<NotInverted, Operand>;
 
 			static Context& _(const T& t, Context& context)
 			{

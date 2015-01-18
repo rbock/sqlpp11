@@ -57,16 +57,16 @@ namespace sqlpp
 	template<typename Database, typename... Tables>
 		struct using_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_using_>;
+			using _traits = make_traits<no_value_t, tag::is_using_>;
 			using _recursive_traits = make_recursive_traits<Tables...>;
 
 			using _is_dynamic = is_database<Database>;
 
 			static_assert(_is_dynamic::value or sizeof...(Tables), "at least one table argument required in using()");
 
-			static_assert(not ::sqlpp::detail::has_duplicates<Tables...>::value, "at least one duplicate argument detected in using()");
+			static_assert(not detail::has_duplicates<Tables...>::value, "at least one duplicate argument detected in using()");
 
-			static_assert(::sqlpp::detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not an table in using()");
+			static_assert(detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not an table in using()");
 
 			// Data
 			using _data_t = using_data_t<Database, Tables...>;
@@ -81,7 +81,7 @@ namespace sqlpp
 							static_assert(_is_dynamic::value, "add must not be called for static using()");
 							static_assert(is_table_t<Table>::value, "invalid table argument in add()");
 
-							using ok = ::sqlpp::detail::all_t<_is_dynamic::value, is_table_t<Table>::value>;
+							using ok = detail::all_t<_is_dynamic::value, is_table_t<Table>::value>;
 
 							_add_impl(table, ok()); // dispatch to prevent compile messages after the static_assert
 						}
@@ -128,7 +128,7 @@ namespace sqlpp
 	// NO USING YET
 	struct no_using_t
 	{
-		using _traits = make_traits<no_value_t, ::sqlpp::tag::is_where>;
+		using _traits = make_traits<no_value_t, tag::is_where>;
 		using _recursive_traits = make_recursive_traits<>;
 
 		// Data
@@ -163,23 +163,23 @@ namespace sqlpp
 			{
 				using _database_t = typename Policies::_database_t;
 				template<typename T>
-					using _new_statement_t = typename Policies::template _new_statement_t<no_using_t, T>;
+					using _new_statement_t = new_statement<Policies, no_using_t, T>;
 
 				static void _check_consistency() {}
 
 				template<typename... Args>
-					auto using_(Args... args)
+					auto using_(Args... args) const
 					-> _new_statement_t<using_t<void, Args...>>
 					{
-						return { *static_cast<typename Policies::_statement_t*>(this), using_data_t<void, Args...>{args...} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), using_data_t<void, Args...>{args...} };
 					}
 
 				template<typename... Args>
-					auto dynamic_using(Args... args)
+					auto dynamic_using(Args... args) const
 					-> _new_statement_t<using_t<_database_t, Args...>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_using must not be called in a static statement");
-						return { *static_cast<typename Policies::_statement_t*>(this), using_data_t<_database_t, Args...>{args...} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), using_data_t<_database_t, Args...>{args...} };
 					}
 			};
 	};

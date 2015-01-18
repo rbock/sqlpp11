@@ -1,31 +1,33 @@
-include_directories(${CMAKE_BINARY_DIR}/tests)
+include_directories("${CMAKE_SOURCE_DIR}/tests")
 
 add_custom_target(test_sqlpp_constraints COMMAND true)
 
 function(test_constraint name pattern)
 
 	add_executable(
-		${name}
+		"${name}"
 		EXCLUDE_FROM_ALL
-		${name}.cpp
+		"${name}.cpp"
 		)
 
-	add_custom_command(OUTPUT ${name}.out
-				COMMAND ${CMAKE_MAKE_PROGRAM} ${name} > ${CMAKE_CURRENT_BINARY_DIR}/${name}.out 2>&1  || true
-				COMMAND grep ${pattern} ${CMAKE_CURRENT_BINARY_DIR}/${name}.out > /dev/null
-				DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.cpp
+	add_custom_command(OUTPUT "${name}.out"
+				COMMAND "${CMAKE_MAKE_PROGRAM}" "${name}" > "${CMAKE_CURRENT_BINARY_DIR}/${name}.out" 2>&1  || true
+				COMMAND grep "${pattern}" "${CMAKE_CURRENT_BINARY_DIR}/${name}.out" > /dev/null
+				DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${name}.cpp"
 				COMMENT "${name}"
-				)
+				VERBATIM)
 
-	add_custom_target(test_${name} DEPENDS ${name}.out COMMAND true)
-
-
-	add_dependencies(test_sqlpp_constraints test_${name})
-
-endfunction(testconstraint)
+	add_custom_target("test_${name}" DEPENDS "${name}.out" COMMAND true)
 
 
+	add_dependencies(test_sqlpp_constraints "test_${name}")
+
+endfunction(test_constraint)
+
+test_constraint(count_of_count "requires an expression as argument")
+test_constraint(max_of_max "requires an expression as argument")
 test_constraint(no_conversion_operator_if_null_not_trivial "int i = row.alpha")
 test_constraint(require_insert "required column is missing")
 test_constraint(must_not_insert "one assignment is prohibited")
+test_constraint(must_not_update "one assignment is prohibited")
 

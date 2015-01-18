@@ -32,13 +32,14 @@
 namespace sqlpp
 {
 	template<typename Flag, typename Expr>
-		struct avg_t: public floating_point::template expression_operators<avg_t<Flag, Expr>>,
-		public alias_operators<avg_t<Flag, Expr>>
+		struct avg_t:
+			public expression_operators<avg_t<Flag, Expr>, floating_point>,
+			public alias_operators<avg_t<Flag, Expr>>
 	{
-		using _traits = make_traits<floating_point, ::sqlpp::tag::is_expression, ::sqlpp::tag::is_named_expression>;
-		using _recursive_traits = make_recursive_traits<Expr>;
+		using _traits = make_traits<floating_point, tag::is_expression, tag::is_selectable>;
+		using _recursive_traits = make_recursive_traits<Expr, aggregate_function>;
 
-		static_assert(is_noop<Flag>::value or std::is_same<sqlpp::distinct_t, Flag>::value, "avg() used with flag other than 'distinct'");
+		static_assert(is_noop<Flag>::value or std::is_same<distinct_t, Flag>::value, "avg() used with flag other than 'distinct'");
 		static_assert(is_numeric_t<Expr>::value, "avg() requires a value expression as argument");
 
 		struct _name_t
@@ -74,7 +75,7 @@ namespace sqlpp
 			static Context& _(const T& t, Context& context)
 			{
 				context << "AVG(";
-				if (std::is_same<sqlpp::distinct_t, Flag>::value)
+				if (std::is_same<distinct_t, Flag>::value)
 				{
 					serialize(Flag(), context);
 					context << ' ';
@@ -88,13 +89,15 @@ namespace sqlpp
 	template<typename T>
 		auto avg(T t) -> avg_t<noop, wrap_operand_t<T>>
 		{
+			static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value, "avg() cannot be used on an aggregate function");
 			static_assert(is_numeric_t<wrap_operand_t<T>>::value, "avg() requires a value expression as argument");
 			return { t };
 		}
 
 	template<typename T>
-		auto avg(const sqlpp::distinct_t&, T t) -> avg_t<sqlpp::distinct_t, wrap_operand_t<T>>
+		auto avg(const distinct_t&, T t) -> avg_t<distinct_t, wrap_operand_t<T>>
 		{
+			static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value, "avg() cannot be used on an aggregate function");
 			static_assert(is_numeric_t<wrap_operand_t<T>>::value, "avg() requires a value expression as argument");
 			return { t };
 		}

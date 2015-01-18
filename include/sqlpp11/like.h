@@ -34,14 +34,12 @@
 namespace sqlpp
 {
 	template<typename Operand, typename Pattern>
-		struct like_t: public boolean::template expression_operators<like_t<Operand, Pattern>>,
-		public alias_operators<like_t<Operand, Pattern>>
+		struct like_t:
+			public expression_operators<like_t<Operand, Pattern>, boolean>,
+			public alias_operators<like_t<Operand, Pattern>>
 	{
-		using _traits = make_traits<boolean, ::sqlpp::tag::is_expression, ::sqlpp::tag::is_named_expression>;
+		using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
 		using _recursive_traits = make_recursive_traits<Operand, Pattern>;
-
-		static_assert(is_text_t<Operand>::value, "Operand for like() has to be a text");
-		static_assert(is_text_t<Pattern>::value, "Pattern for like() has to be a text");
 
 		struct _name_t
 		{
@@ -50,6 +48,8 @@ namespace sqlpp
 				struct _member_t
 				{
 					T like;
+					T& operator()() { return like; }
+					const T& operator()() const { return like; }
 				};
 		};
 

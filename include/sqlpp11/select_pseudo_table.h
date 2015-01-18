@@ -51,7 +51,7 @@ namespace sqlpp
 		typename Select,
 						 typename... NamedExpr
 							 >
-							 struct select_pseudo_table_t: public sqlpp::table_t<select_pseudo_table_t<
+							 struct select_pseudo_table_t: public table_t<select_pseudo_table_t<
 																						 Select,
 																						 NamedExpr...>, select_column_spec_t<Select, NamedExpr>...>
 	{

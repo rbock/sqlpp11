@@ -41,8 +41,10 @@
 #include <sqlpp11/max.h>
 #include <sqlpp11/avg.h>
 #include <sqlpp11/sum.h>
-#include <sqlpp11/verbatim_table.h> // Csaba Csoma suggests: unsafe_sql instead of verbatim
+#include <sqlpp11/verbatim.h> // Csaba Csoma suggests: unsafe_sql instead of verbatim
+#include <sqlpp11/verbatim_table.h>
 #include <sqlpp11/value_or_null.h>
+#include <sqlpp11/eval.h>
 
 namespace sqlpp
 {
@@ -51,44 +53,6 @@ namespace sqlpp
 		{
 			static_assert(is_wrapped_value_t<wrap_operand_t<T>>::value, "value() is to be called with non-sql-type like int, or string");
 			return { t };
-		}
-
-	template<typename ValueType> // Csaba Csoma suggests: unsafe_sql instead of verbatim
-		struct verbatim_t: public ValueType::template expression_operators<verbatim_t<ValueType>>,
-		public alias_operators<verbatim_t<ValueType>>
-	{
-		using _traits = make_traits<ValueType, ::sqlpp::tag::is_expression>;
-		struct _recursive_traits : public make_recursive_traits<>
-		{
-			using _can_be_null = std::true_type; // since we do not know what's going on inside the verbatim, we assume it can be null
-		};
-
-		verbatim_t(std::string verbatim): _verbatim(verbatim) {}
-		verbatim_t(const verbatim_t&) = default;
-		verbatim_t(verbatim_t&&) = default;
-		verbatim_t& operator=(const verbatim_t&) = default;
-		verbatim_t& operator=(verbatim_t&&) = default;
-		~verbatim_t() = default;
-
-		std::string _verbatim;
-	};
-
-	template<typename Context, typename ValueType>
-		struct serializer_t<Context, verbatim_t<ValueType>>
-		{
-			using T = verbatim_t<ValueType>;
-
-			static Context& _(const T& t, Context& context)
-			{
-				context << t._verbatim;
-				return context;
-			}
-		};
-
-	template<typename ValueType, typename StringType>
-		auto verbatim(StringType s) -> verbatim_t<ValueType>
-		{
-			return { s };
 		}
 
 	template<typename Expression, typename Db>
@@ -115,7 +79,7 @@ namespace sqlpp
 	template<typename Container>
 		struct value_list_t // to be used in .in() method
 		{
-			using _traits = make_traits<value_type_t<typename Container::value_type>, ::sqlpp::tag::is_expression>;
+			using _traits = make_traits<value_type_t<typename Container::value_type>, tag::is_expression>;
 			using _recursive_traits = make_recursive_traits<>;
 
 			using _container_t = Container;

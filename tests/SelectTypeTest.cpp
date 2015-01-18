@@ -56,7 +56,7 @@ int main()
 		static_assert(not sqlpp::is_integral_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_floating_point_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");
-		static_assert(not sqlpp::is_named_expression_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_selectable_t<T>::value, "type requirement");
 		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
 		static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
 		static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
@@ -74,7 +74,7 @@ int main()
 		static_assert(not sqlpp::is_integral_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_floating_point_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");
-		static_assert(not sqlpp::is_named_expression_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_selectable_t<T>::value, "type requirement");
 		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
 		static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
 		static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
@@ -92,7 +92,7 @@ int main()
 		static_assert(sqlpp::is_integral_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_floating_point_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
-		static_assert(sqlpp::is_named_expression_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_selectable_t<T>::value, "type requirement");
 		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
 		static_assert(sqlpp::must_not_insert_t<T>::value, "type requirement");
 		static_assert(sqlpp::must_not_update_t<T>::value, "type requirement");
@@ -111,7 +111,7 @@ int main()
 		static_assert(sqlpp::is_integral_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_floating_point_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
-		static_assert(sqlpp::is_named_expression_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_selectable_t<T>::value, "type requirement");
 		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
 		static_assert(sqlpp::must_not_insert_t<T>::value, "type requirement");
 		static_assert(sqlpp::must_not_update_t<T>::value, "type requirement");
@@ -129,7 +129,7 @@ int main()
 		static_assert(not sqlpp::is_integral_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_floating_point_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
-		static_assert(sqlpp::is_named_expression_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_selectable_t<T>::value, "type requirement");
 		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
 		static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
 		static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
@@ -145,7 +145,7 @@ int main()
 		using T = decltype(t.alpha.as(alias::a));
 		static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");
-		static_assert(sqlpp::is_named_expression_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_selectable_t<T>::value, "type requirement");
 		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
 		static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
 		static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
@@ -161,7 +161,7 @@ int main()
 		using T = decltype(select(t.alpha));
 		static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
-		static_assert(sqlpp::is_named_expression_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_selectable_t<T>::value, "type requirement");
 		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
 		static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
 		static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
@@ -179,7 +179,7 @@ int main()
 		//static_assert(sqlpp::is_from_t<decltype(T::_from)>::value, "Must not be noop");
 		static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
-		static_assert(sqlpp::is_named_expression_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_selectable_t<T>::value, "type requirement");
 		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
 		static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
 		static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
@@ -195,7 +195,7 @@ int main()
 		using T = decltype(select(t.alpha.as(alias::a)).from(t));
 		static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
-		static_assert(sqlpp::is_named_expression_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_selectable_t<T>::value, "type requirement");
 		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
 		static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
 		static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
@@ -211,7 +211,7 @@ int main()
 		using T = decltype(select(t.alpha).from(t).as(alias::b));
 		static_assert(not sqlpp::is_numeric_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");
-		static_assert(not sqlpp::is_named_expression_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_selectable_t<T>::value, "type requirement");
 		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
 		static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
 		static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
@@ -227,7 +227,7 @@ int main()
 		using T = decltype(select(t.alpha.as(alias::a)).from(t).as(alias::b));
 		static_assert(not sqlpp::is_numeric_t<T>::value, "type requirement");
 		static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");
-		static_assert(not sqlpp::is_named_expression_t<T>::value, "type requirement");
+		static_assert(not sqlpp::is_selectable_t<T>::value, "type requirement");
 		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
 		static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
 		static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
@@ -243,7 +243,7 @@ int main()
 		using T = decltype(select(t.alpha).from(t).as(alias::b).alpha);
 		static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
-		static_assert(sqlpp::is_named_expression_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_selectable_t<T>::value, "type requirement");
 		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
 		static_assert(sqlpp::must_not_insert_t<T>::value, "type requirement");
 		static_assert(sqlpp::must_not_update_t<T>::value, "type requirement");
@@ -259,7 +259,7 @@ int main()
 		using T = decltype(select(t.alpha.as(alias::a)).from(t).as(alias::b).a);
 		static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
 		static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
-		static_assert(sqlpp::is_named_expression_t<T>::value, "type requirement");
+		static_assert(sqlpp::is_selectable_t<T>::value, "type requirement");
 		static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
 		static_assert(sqlpp::must_not_insert_t<T>::value, "type requirement");
 		static_assert(sqlpp::must_not_update_t<T>::value, "type requirement");
@@ -364,8 +364,8 @@ int main()
 	static_assert(sqlpp::must_not_insert_t<decltype(t.alpha)>::value, "alpha must not be inserted");
 	serialize(t.alpha, printer).str();
 	std::cerr << "\n" << sizeof(test::TabBar) << std::endl;
-	static_assert(sqlpp::is_named_expression_t<decltype(t.alpha)>::value, "alpha should be a named expression");
-	static_assert(sqlpp::is_named_expression_t<decltype(t.alpha.as(alias::a))>::value, "an alias of alpha should be a named expression");
+	static_assert(sqlpp::is_selectable_t<decltype(t.alpha)>::value, "alpha should be a named expression");
+	static_assert(sqlpp::is_selectable_t<decltype(t.alpha.as(alias::a))>::value, "an alias of alpha should be a named expression");
 	static_assert(sqlpp::is_alias_t<decltype(t.alpha.as(alias::a))>::value, "an alias of alpha should be an alias");
 
 	auto l = t.as(alias::left);

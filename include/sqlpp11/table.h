@@ -40,7 +40,9 @@ namespace sqlpp
 	struct table_base_t {};
 
 	template<typename Table, typename... ColumnSpec>
-		struct table_t: public table_base_t, public ColumnSpec::_name_t::template _member_t<column_t<Table, ColumnSpec>>...
+		struct table_t: 
+			public table_base_t, 
+			public member_t<ColumnSpec, column_t<Table, ColumnSpec>>...
 	{
 		using _traits = make_traits<no_value_t, tag::is_table>;
 
@@ -51,7 +53,7 @@ namespace sqlpp
 			using _provided_tables = detail::type_set<Table>;
 			using _provided_outer_tables = detail::type_set<>;
 			using _extra_tables = detail::type_set<>;
-			using _can_be_null = std::false_type;
+			using _tags = detail::type_set<>;
 		};
 
 		static_assert(sizeof...(ColumnSpec), "at least one column required per table");
@@ -62,31 +64,31 @@ namespace sqlpp
 
 
 		template<typename T>
-			join_t<inner_join_t, Table, T> join(T t)
+			join_t<inner_join_t, Table, T> join(T t) const
 			{
 				return { *static_cast<const Table*>(this), t };
 			}
 
 		template<typename T>
-			join_t<inner_join_t, Table, T> inner_join(T t)
+			join_t<inner_join_t, Table, T> inner_join(T t) const
 			{
 				return { *static_cast<const Table*>(this), t };
 			}
 
 		template<typename T>
-			join_t<outer_join_t, Table, T> outer_join(T t)
+			join_t<outer_join_t, Table, T> outer_join(T t) const
 			{
 				return { *static_cast<const Table*>(this), t };
 			}
 
 		template<typename T>
-			join_t<left_outer_join_t, Table, T> left_outer_join(T t)
+			join_t<left_outer_join_t, Table, T> left_outer_join(T t) const
 			{
 				return { *static_cast<const Table*>(this), t };
 			}
 
 		template<typename T>
-			join_t<right_outer_join_t, Table, T> right_outer_join(T t)
+			join_t<right_outer_join_t, Table, T> right_outer_join(T t) const
 			{
 				return { *static_cast<const Table*>(this), t };
 			}

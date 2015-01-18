@@ -36,10 +36,11 @@
 namespace sqlpp
 {
 	template<typename AliasProvider, typename Table, typename... ColumnSpec>
-		struct table_alias_t: public ColumnSpec::_name_t::template _member_t<column_t<AliasProvider, ColumnSpec>>...
+		struct table_alias_t:
+			public member_t<ColumnSpec, column_t<AliasProvider, ColumnSpec>>...
 	{
 		//FIXME: Need to add join functionality
-		using _traits = make_traits<value_type_of<Table>, tag::is_table, tag::is_alias, tag_if<tag::is_named_expression, is_expression_t<Table>::value>>;
+		using _traits = make_traits<value_type_of<Table>, tag::is_table, tag::is_alias, tag_if<tag::is_selectable, is_expression_t<Table>::value>>;
 
 		struct _recursive_traits
 		{
@@ -48,13 +49,13 @@ namespace sqlpp
 			using _provided_tables = detail::type_set<AliasProvider>;
 			using _provided_outer_tables = detail::type_set<>;
 			using _extra_tables = detail::type_set<>;
-			using _can_be_null = std::false_type;
+			using _tags = detail::type_set<>;
 		};
 
 		static_assert(required_tables_of<Table>::size::value == 0, "table aliases must not depend on external tables");
 
 		using _name_t = typename AliasProvider::_name_t;
-		using _column_tuple_t = std::tuple<column_t<Table, ColumnSpec>...>;
+		using _column_tuple_t = std::tuple<column_t<AliasProvider, ColumnSpec>...>;
 
 		table_alias_t(Table table):
 			_table(table)

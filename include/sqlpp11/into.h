@@ -57,7 +57,7 @@ namespace sqlpp
 	template<typename Database, typename Table>
 		struct into_t
 		{
-			using _traits = make_traits<no_value_t, ::sqlpp::tag::is_into>;
+			using _traits = make_traits<no_value_t, tag::is_into>;
 			using _recursive_traits = make_recursive_traits<Table>;
 
 			static_assert(is_table_t<Table>::value, "argument has to be a table");
@@ -103,7 +103,7 @@ namespace sqlpp
 	// NO INTO YET
 	struct no_into_t
 	{
-		using _traits = make_traits<no_value_t, ::sqlpp::tag::is_noop>;
+		using _traits = make_traits<no_value_t, tag::is_noop>;
 		using _recursive_traits = make_recursive_traits<>;
 
 		// Data
@@ -138,7 +138,7 @@ namespace sqlpp
 			{
 				using _database_t = typename Policies::_database_t;
 				template<typename T>
-					using _new_statement_t = typename Policies::template _new_statement_t<no_into_t, T>;
+					using _new_statement_t = new_statement<Policies, no_into_t, T>;
 
 				static void _check_consistency()
 				{
@@ -146,10 +146,10 @@ namespace sqlpp
 				}
 
 				template<typename... Args>
-					auto into(Args... args)
+					auto into(Args... args) const
 					-> _new_statement_t<into_t<void, Args...>>
 					{
-						return { *static_cast<typename Policies::_statement_t*>(this), into_data_t<void, Args...>{args...} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), into_data_t<void, Args...>{args...} };
 					}
 			};
 	};

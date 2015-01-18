@@ -60,7 +60,6 @@ namespace test
                TabFoo_::Epsilon,
                TabFoo_::Omega>
   {
-    using _value_type = sqlpp::no_value_t;
     struct _name_t
     {
       static constexpr const char* _get_name() { return "tab_foo"; }
@@ -143,7 +142,6 @@ namespace test
                TabBar_::Gamma,
                TabBar_::Delta>
   {
-    using _value_type = sqlpp::no_value_t;
     struct _name_t
     {
       static constexpr const char* _get_name() { return "tab_bar"; }

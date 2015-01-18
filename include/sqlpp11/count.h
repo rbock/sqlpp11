@@ -33,14 +33,24 @@
 namespace sqlpp
 {
 	template<typename Flag, typename Expr>
-		struct count_t: public sqlpp::integral::template expression_operators<count_t<Flag, Expr>>,
-		public alias_operators<count_t<Flag, Expr>>
+		struct count_t: 
+			public expression_operators<count_t<Flag, Expr>, integral>,
+			public alias_operators<count_t<Flag, Expr>>
 	{
-		using _traits = make_traits<::sqlpp::integral, ::sqlpp::tag::is_expression, ::sqlpp::tag::is_named_expression>;
-		using _recursive_traits = make_recursive_traits<Expr>;
+		using _traits = make_traits<integral, tag::is_expression, tag::is_selectable>;
+		struct _recursive_traits
+		{
+			using _required_tables = required_tables_of<Expr>;
+			using _provided_tables = provided_tables_of<Expr>;
+			using _provided_outer_tables = provided_outer_tables_of<Expr>;
+			using _extra_tables = extra_tables_of<Expr>;
+			using _parameters = parameters_of<Expr>;
+			using _tags = detail::make_difference_set_t<detail::joined_set_t<recursive_tags_of<Expr>, recursive_tags_of<aggregate_function>>, 
+						                                      detail::type_set<tag::can_be_null>>;
+		};
 
-		static_assert(is_noop<Flag>::value or std::is_same<sqlpp::distinct_t, Flag>::value, "count() used with flag other than 'distinct'");
-		static_assert(is_expression_t<Expr>::value, "count() requires a sql expression as argument");
+
+		static_assert(is_noop<Flag>::value or std::is_same<distinct_t, Flag>::value, "count() used with flag other than 'distinct'");
 
 		struct _name_t
 		{
@@ -75,7 +85,7 @@ namespace sqlpp
 			static Context& _(const T& t, Context& context)
 			{
 				context << "COUNT(";
-				if (std::is_same<sqlpp::distinct_t, Flag>::value)
+				if (std::is_same<distinct_t, Flag>::value)
 				{
 					serialize(Flag(), context);
 					context << ' ';
@@ -94,7 +104,7 @@ namespace sqlpp
 		}
 
 	template<typename T>
-		auto count(const sqlpp::distinct_t&, T t) -> count_t<sqlpp::distinct_t, wrap_operand_t<T>>
+		auto count(const distinct_t&, T t) -> count_t<distinct_t, wrap_operand_t<T>>
 		{
 			static_assert(is_expression_t<wrap_operand_t<T>>::value, "count() requires an expression as argument");
 			return { t };

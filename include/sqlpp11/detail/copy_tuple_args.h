@@ -43,9 +43,9 @@ namespace sqlpp
 			};
 
 		template<typename T>
-			struct as_tuple<::sqlpp::all_of_t<T>>
+			struct as_tuple<all_of_t<T>>
 			{
-				static typename ::sqlpp::all_of_t<T>::_column_tuple_t _(::sqlpp::all_of_t<T>) { return { }; }
+				static typename all_of_t<T>::_column_tuple_t _(all_of_t<T>) { return { }; }
 			};
 
 		template<typename... Args>

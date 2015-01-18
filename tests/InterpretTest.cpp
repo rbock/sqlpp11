@@ -179,6 +179,9 @@ int main()
 	printer.reset();
 	std::cerr << serialize(x, printer).str() << std::endl;
 
+	printer.reset();
+	std::cerr << serialize(select(all_of(t)).from(t).where(t.alpha.in(select(f.epsilon).from(f).where(true))), printer).str() << std::endl;
+
 
 
 	return 0;
