@@ -33,6 +33,7 @@
 #include <sqlpp11/expression.h>
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/interpretable_list.h>
+#include <sqlpp11/result_row.h>
 #include <sqlpp11/logic.h>
 
 namespace sqlpp
@@ -176,9 +177,12 @@ namespace sqlpp
 					{
 						static_assert(is_statement_t<Rhs>::value, "argument of union call has to be a statement");
 						static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
-						static_assert(has_result_row_t<Rhs>::value, "argument of a union has to be a (complete) select statement");
-						static_assert(has_result_row_t<derived_statement_t<Policies>>::value, "left hand side argument of a union has to be a (complete) select statement");
-						static_assert(std::is_same<get_result_row_t<derived_statement_t<Policies>>, get_result_row_t<Rhs>>::value, "both select statements in a union have to have the same result columns (type and name)");
+						static_assert(has_result_row_t<Rhs>::value, "argument of a union has to be a complete select statement");
+						static_assert(has_result_row_t<derived_statement_t<Policies>>::value, "left hand side argument of a union has to be a complete select statement or union");
+						static_assert(std::is_same<get_result_row_t<derived_statement_t<Policies>>, get_result_row_t<Rhs>>::value, "both arguments in a union have to have the same result columns (type and name)");
+
+						using _result_row_t = get_result_row_t<Rhs>;
+						static_assert(is_static_result_row_t<_result_row_t>::value, "unions must not have dynamically added columns");
 
 						return _union_impl<void, distinct_t>(_check<derived_statement_t<Policies>, Rhs>{}, rhs);
 					}
