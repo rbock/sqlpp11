@@ -37,6 +37,10 @@
 
 namespace sqlpp
 {
+// The cte is displayed as AliasProviderName except within the with:
+//    - the with needs the 
+//      AliasProviderName AS (ColumnNames) (select/union)
+// The result row of the select should not have dynamic parts
 	template<typename AliasProvider>
 		struct pre_cte_t
 		{
