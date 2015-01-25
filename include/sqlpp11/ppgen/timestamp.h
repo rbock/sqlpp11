@@ -27,6 +27,7 @@
 #ifndef _sqlpp__ppgen__timestamp_h
 #define _sqlpp__ppgen__timestamp_h
 
-#define SQLPP_DECLARE_TABLE_GET_TRAITS_timestamp(props) // unimplemented
+#define SQLPP_DECLARE_TABLE_GET_TRAITS_timestamp(...) \
+	sqlpp::timestamp
 
 #endif // _sqlpp__ppgen__timestamp_h

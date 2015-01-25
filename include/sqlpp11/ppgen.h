@@ -24,14 +24,20 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _sqlpp__ppgen__ppgen_h
-#define _sqlpp__ppgen__ppgen_h
+#ifndef _sqlpp__ppgen_h
+#define _sqlpp__ppgen_h
 
+// tools
+#include <sqlpp11/ppgen/wrap_seq.h>
+
+// table props
+#include <sqlpp11/ppgen/engine.h>
+#include <sqlpp11/ppgen/character_set.h>
+
+// col types
 #include <sqlpp11/ppgen/blob.h>
 #include <sqlpp11/ppgen/bool.h>
-#include <sqlpp11/ppgen/character_set.h>
 #include <sqlpp11/ppgen/datetime.h>
-#include <sqlpp11/ppgen/engine.h>
 #include <sqlpp11/ppgen/floating_point.h>
 #include <sqlpp11/ppgen/integer.h>
 #include <sqlpp11/ppgen/not_null.h>
@@ -39,8 +45,8 @@
 #include <sqlpp11/ppgen/text.h>
 #include <sqlpp11/ppgen/timestamp.h>
 #include <sqlpp11/ppgen/varchar.h>
-#include <sqlpp11/ppgen/wrap_seq.h>
 
+// boost.preprocessor
 #include <boost/preprocessor/cat.hpp>
 #include <boost/preprocessor/facilities/expand.hpp>
 #include <boost/preprocessor/seq/for_each_i.hpp>
@@ -155,4 +161,4 @@
 
 /***************************************************************************/
 
-#endif // _sqlpp__ppgen__ppgen_h
+#endif // _sqlpp__ppgen_h

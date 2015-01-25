@@ -27,6 +27,7 @@
 #ifndef _sqlpp__ppgen__varchar_h
 #define _sqlpp__ppgen__varchar_h
 
-#define SQLPP_DECLARE_TABLE_GET_TRAITS_varchar(props) // unimplemented
+#define SQLPP_DECLARE_TABLE_GET_TRAITS_varchar(...) \
+	sqlpp::varchar
 
 #endif // _sqlpp__ppgen__varchar_h

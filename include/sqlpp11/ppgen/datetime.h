@@ -27,6 +27,7 @@
 #ifndef _sqlpp__ppgen__datetime_h
 #define _sqlpp__ppgen__datetime_h
 
-#define SQLPP_DECLARE_TABLE_datetime(props) // unimplemented
+#define SQLPP_DECLARE_TABLE_datetime(...) \
+	sqlpp::datetime
 
 #endif // _sqlpp__ppgen__datetime_h

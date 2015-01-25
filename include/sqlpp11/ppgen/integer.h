@@ -27,10 +27,19 @@
 #ifndef _sqlpp__ppgen__integer_h
 #define _sqlpp__ppgen__integer_h
 
-#define SQLPP_DECLARE_TABLE_GET_TRAITS_tinyint(props) // unimplemented
-#define SQLPP_DECLARE_TABLE_GET_TRAITS_smallint(props) // unimplemented
-#define SQLPP_DECLARE_TABLE_GET_TRAITS_integer(props) // unimplemented
-#define SQLPP_DECLARE_TABLE_GET_TRAITS_int(props) // unimplemented
-#define SQLPP_DECLARE_TABLE_GET_TRAITS_bigint(props) // unimplemented
+#define SQLPP_DECLARE_TABLE_GET_TRAITS_tinyint(...) \
+	sqlpp::tinyint
+
+#define SQLPP_DECLARE_TABLE_GET_TRAITS_smallint(...) \
+	sqlpp::smallint
+
+#define SQLPP_DECLARE_TABLE_GET_TRAITS_integer(...) \
+	sqlpp::integer
+
+#define SQLPP_DECLARE_TABLE_GET_TRAITS_int(...) \
+	sqlpp::integer
+
+#define SQLPP_DECLARE_TABLE_GET_TRAITS_bigint(...) \
+	sqlpp::bigint
 
 #endif // _sqlpp__ppgen__integer_h

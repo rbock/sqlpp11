@@ -27,9 +27,16 @@
 #ifndef _sqlpp__ppgen__blob_h
 #define _sqlpp__ppgen__blob_h
 
-#define SQLPP_DECLARE_TABLE_GET_TRAITS_tinyblob(props) // unimplemented
-#define SQLPP_DECLARE_TABLE_GET_TRAITS_blob(props) // unimplemented
-#define SQLPP_DECLARE_TABLE_GET_TRAITS_mediumblob(props) // unimplemented
-#define SQLPP_DECLARE_TABLE_GET_TRAITS_longblob(props) // unimplemented
+#define SQLPP_DECLARE_TABLE_GET_TRAITS_tinyblob(...) \
+	sqlpp::blob
+
+#define SQLPP_DECLARE_TABLE_GET_TRAITS_blob(...) \
+	sqlpp::blob
+
+#define SQLPP_DECLARE_TABLE_GET_TRAITS_mediumblob(...) \
+	sqlpp::blob
+
+#define SQLPP_DECLARE_TABLE_GET_TRAITS_longblob(...) \
+	sqlpp::blob
 
 #endif // _sqlpp__ppgen__blob_h

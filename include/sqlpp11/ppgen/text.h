@@ -27,6 +27,7 @@
 #ifndef _sqlpp__ppgen__text_h
 #define _sqlpp__ppgen__text_h
 
-#define SQLPP_DECLARE_TABLE_GET_TRAITS_text(props) // unimplemented
+#define SQLPP_DECLARE_TABLE_GET_TRAITS_text(...) \
+	sqlpp::text
 
 #endif // _sqlpp__ppgen__text_h

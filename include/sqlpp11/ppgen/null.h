@@ -27,6 +27,7 @@
 #ifndef _sqlpp__ppgen__null_h
 #define _sqlpp__ppgen__null_h
 
-#define SQLPP_DECLARE_TABLE_GET_TRAITS_NULL(props) // unimplemented
+#define SQLPP_DECLARE_TABLE_GET_TRAITS_NULL(...) \
+	sqlpp::tag::can_be_null
 
 #endif // _sqlpp__ppgen__null_h

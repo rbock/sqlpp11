@@ -27,7 +27,10 @@
 #ifndef _sqlpp__ppgen__floating_point_h
 #define _sqlpp__ppgen__floating_point_h
 
-#define SQLPP_DECLARE_TABLE_GET_TRAITS_double(props) // unimplemented
-#define SQLPP_DECLARE_TABLE_GET_TRAITS_float(props) // unimplemented
+#define SQLPP_DECLARE_TABLE_GET_TRAITS_double(...) \
+	sqlpp::floating_point
+
+#define SQLPP_DECLARE_TABLE_GET_TRAITS_float(...) \
+	sqlpp::floating_point
 
 #endif // _sqlpp__ppgen__floating_point_h
