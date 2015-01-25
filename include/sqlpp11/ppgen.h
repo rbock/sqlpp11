@@ -42,13 +42,9 @@
 #include <sqlpp11/ppgen/wrap_seq.h>
 
 #include <boost/preprocessor/cat.hpp>
-
 #include <boost/preprocessor/facilities/expand.hpp>
-
 #include <boost/preprocessor/seq/for_each_i.hpp>
-
 #include <boost/preprocessor/stringize.hpp>
-
 #include <boost/preprocessor/tuple/elem.hpp>
 #include <boost/preprocessor/tuple/pop_front.hpp>
 #include <boost/preprocessor/tuple/to_seq.hpp>
@@ -102,45 +98,50 @@
 				\
 				T& operator()() { return SQLPP_DECLARE_TABLE_GET_COL_NAME(elem); } \
 				const T& operator()() const { return SQLPP_DECLARE_TABLE_GET_COL_NAME(elem); } \
-			}; \
+			}; /* struct _member_t */ \
+			\
 			using _traits = sqlpp::make_traits< \
 				SQLPP_DECLARE_TABLE_PROCESS_PROPS(SQLPP_DECLARE_TABLE_GET_COL_PROPS(elem)) \
 			>; \
-		}; \
-	};
+		}; /* struct _name_t */ \
+		\
+	}; /* struct SQLPP_DECLARE_TABLE_GET_COL_NAME(elem) */
 
 #define SQLPP_DECLARE_TABLE_AUX(table, cols) \
 	namespace SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table) { \
-	namespace BOOST_PP_CAT(SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table), _) { \
-		BOOST_PP_SEQ_FOR_EACH_I( \
-			 SQLPP_DECLARE_TABLE_IMPL \
-			,~ \
-			,cols \
-		) \
-	} \
-	\
-	struct SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table) \
-		: sqlpp::table_t< \
-			SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table) \
-			SQLPP_DECLARE_TABLE_ENUM_COLS_TYPES( \
-				 SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table) \
+		namespace BOOST_PP_CAT(SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table), _) { \
+			BOOST_PP_SEQ_FOR_EACH_I( \
+				SQLPP_DECLARE_TABLE_IMPL \
+				,~ \
 				,cols \
 			) \
-		> \
-	{ \
-		struct _name_t { \
-			static constexpr const char* _get_name() \
-			{ return BOOST_PP_STRINGIZE(SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table)); } \
-			\
-			template<typename T> \
-			struct _member_t { \
-				T SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table); \
+		} /* namespace BOOST_PP_CAT(SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table), _) */ \
+		\
+		struct SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table) \
+			: sqlpp::table_t< \
+				SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table) \
+				SQLPP_DECLARE_TABLE_ENUM_COLS_TYPES( \
+					SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table) \
+					,cols \
+				) \
+			> \
+		{ \
+			struct _name_t { \
+				static constexpr const char* _get_name() \
+				{ return BOOST_PP_STRINGIZE(SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table)); } \
 				\
-				T& operator()() { return SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table); } \
-				const T& operator()() const { return SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table); } \
-			}; \
-		}; \
-	}; \
+				template<typename T> \
+				struct _member_t { \
+					T SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table); \
+					\
+					T& operator()() { return SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table); } \
+					const T& operator()() const { return SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table); } \
+					\
+				}; /* struct _member_t */ \
+				\
+			}; /* struct _name_t */ \
+			\
+		}; /* struct SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table) */ \
 	\
 	}
 
