@@ -27,11 +27,19 @@
 #ifndef _sqlpp__ppgen__ppgen_h
 #define _sqlpp__ppgen__ppgen_h
 
-#include <sqlpp11/ppgen/wrap_seq.h>
-#include <sqlpp11/ppgen/engine.h>
+#include <sqlpp11/ppgen/blob.h>
+#include <sqlpp11/ppgen/bool.h>
 #include <sqlpp11/ppgen/character_set.h>
-#include <sqlpp11/ppgen/null.h>
+#include <sqlpp11/ppgen/datetime.h>
+#include <sqlpp11/ppgen/engine.h>
+#include <sqlpp11/ppgen/floating_point.h>
+#include <sqlpp11/ppgen/integer.h>
 #include <sqlpp11/ppgen/not_null.h>
+#include <sqlpp11/ppgen/null.h>
+#include <sqlpp11/ppgen/text.h>
+#include <sqlpp11/ppgen/timestamp.h>
+#include <sqlpp11/ppgen/varchar.h>
+#include <sqlpp11/ppgen/wrap_seq.h>
 
 #include <boost/preprocessor/cat.hpp>
 
