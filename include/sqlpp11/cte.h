@@ -73,6 +73,13 @@ namespace sqlpp
 		{
 			using _alias_t = typename AliasProvider::_alias_t;
 
+			cte_t(Statement statement): _statement(statement){}
+			cte_t(const cte_t&) = default;
+			cte_t(cte_t&&) = default;
+			cte_t& operator=(const cte_t&) = default;
+			cte_t& operator=(cte_t&&) = default;
+			~cte_t() = default;
+
 			Statement _statement;
 		};
 
@@ -92,7 +99,7 @@ namespace sqlpp
 		};
 
 
-// The cte is displayed as AliasProviderName except within the with:
+// The cte_t is displayed as AliasProviderName except within the with:
 //    - the with needs the 
 //      AliasProviderName AS (ColumnNames) (select/union)
 // The result row of the select should not have dynamic parts

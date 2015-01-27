@@ -34,6 +34,9 @@ MockDb::_serializer_context_t printer;
 
 int main()
 {
+	const auto t = test::TabBar{};
+
+	auto x = cte(sqlpp::x).as(select(all_of(t)).from(t));
 	// to be done
 
 	return 0;
