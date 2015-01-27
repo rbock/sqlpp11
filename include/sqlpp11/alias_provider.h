@@ -62,7 +62,7 @@ namespace sqlpp
 			static constexpr bool value = true;
 		};
 
-	namespace alias
+	inline namespace alias
 	{
 		SQLPP_ALIAS_PROVIDER(a);
 		SQLPP_ALIAS_PROVIDER(b);
