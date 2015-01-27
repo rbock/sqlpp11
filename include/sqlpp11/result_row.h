@@ -28,6 +28,7 @@
 #define SQLPP_RESULT_ROW_H
 
 #include <map>
+#include <sqlpp11/result_row_fwd.h>
 #include <sqlpp11/field_spec.h>
 #include <sqlpp11/text.h>
 #include <sqlpp11/detail/field_index_sequence.h>

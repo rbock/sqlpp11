@@ -37,6 +37,9 @@
 #include <sqlpp11/interpretable_list.h>
 #include <sqlpp11/logic.h>
 
+
+#include <sqlpp11/cte.h>
+
 namespace sqlpp
 {
 	template<typename Database, typename... Expressions>

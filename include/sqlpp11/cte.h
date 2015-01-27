@@ -27,6 +27,7 @@
 #ifndef SQLPP_CTE_H
 #define SQLPP_CTE_H
 
+#include <sqlpp11/result_row_fwd.h>
 #include <sqlpp11/statement_fwd.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/parameter_list.h>
@@ -37,6 +38,60 @@
 
 namespace sqlpp
 {
+	template<typename AliasProvider, typename Statement, typename... ColumnSpecs>
+		struct cte_t;
+
+	template<typename FieldSpec>
+		struct cte_column_spec_t
+		{
+			using _alias_t = typename FieldSpec::_alias_t;
+
+			using _traits = make_traits<value_type_of<FieldSpec>, 
+						tag::must_not_insert, 
+						tag::must_not_update,
+						tag_if<tag::can_be_null, can_be_null_t<FieldSpec>::value>
+							>;
+		};
+
+	template<typename AliasProvider, typename Statement, typename ResultRow>
+		struct make_cte_impl
+		{
+			using type = void;
+		};
+
+	template<typename AliasProvider, typename Statement, typename... FieldSpecs>
+		struct make_cte_impl<AliasProvider, Statement, result_row_t<void, FieldSpecs...>>
+		{
+			using type = cte_t<AliasProvider, Statement, cte_column_spec_t<FieldSpecs>...>;
+		};
+
+	template<typename AliasProvider, typename Statement>
+		using make_cte_t = typename make_cte_impl<AliasProvider, Statement, get_result_row_t<Statement>>::type;
+
+	template<typename AliasProvider, typename Statement, typename... ColumnSpecs>
+		struct cte_t: public member_t<ColumnSpecs, column_t<AliasProvider, ColumnSpecs>>... // FIXME
+		{
+			using _alias_t = typename AliasProvider::_alias_t;
+
+			Statement _statement;
+		};
+
+	template<typename Context, typename AliasProvider, typename Statement, typename... ColumnSpecs>
+		struct serializer_t<Context, cte_t<AliasProvider, Statement, ColumnSpecs...>>
+		{
+			using _serialize_check = serialize_check_of<Context, Statement>;
+			using T = cte_t<AliasProvider, Statement, ColumnSpecs...>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				context << name_of<T>::char_ptr() << " AS (";
+				serialize(t._statement, context);
+				context << ")";
+				return context;
+			}
+		};
+
+
 // The cte is displayed as AliasProviderName except within the with:
 //    - the with needs the 
 //      AliasProviderName AS (ColumnNames) (select/union)
@@ -46,7 +101,7 @@ namespace sqlpp
 		{
 			template<typename Statement>
 				auto as(Statement statement)
-				-> cte<AliasProvider, Statement>
+				-> make_cte_t<AliasProvider, Statement>
 				{
 					// FIXME: Need to check stuff here.
 					return { statement };
