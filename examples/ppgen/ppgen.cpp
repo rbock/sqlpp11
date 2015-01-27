@@ -26,9 +26,9 @@
 
 #include <sqlpp11/ppgen.h>
 
-#if 0
+#if 0 // syntax example
 SQLPP_DECLARE_TABLE(
-	(table, ENGINE("InnoDB"), CHARACTER_SET("utf-8"))
+	(table, DROP_IF_EXISTS, CREATE_IF_NOT_EXISTS, ENGINE("InnoDB"), CHARACTER_SET("utf-8"), COMMENT("table comments"))
 	,
 	(id, int, NOT_NULL, PRIMARY_KEY, AUTO_INCREMENT)
 	(name, varchar(64), NOT_NULL, INDEX("name_index"), DEFAULT("any name"))
@@ -43,11 +43,12 @@ SQLPP_DECLARE_TABLE(
 	(c0, blob, NULL)
 	(c1, bool, NOT_NULL)
 	(c2, float, NULL)
-	(c3, tinyint, NULL)
-	(c4, smallint, NOT_NULL)
-	(c5, int, NULL)
-	(c6, bigint, NOT_NULL)
-	(c7, text, NULL)
-	(c8, varchar(16), NOT_NULL)
-	(c9, varchar(32), NULL)
+	(c3, double, NULL)
+	(c4, tinyint, NULL)
+	(c5, smallint, NOT_NULL)
+	(c6, int, NULL)
+	(c7, bigint, NOT_NULL)
+	(c8, text, NULL)
+	(c9, varchar(16), NOT_NULL)
+	(c10, varchar(32), NULL)
 )

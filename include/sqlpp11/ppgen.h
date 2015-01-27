@@ -27,6 +27,14 @@
 #ifndef _sqlpp__ppgen_h
 #define _sqlpp__ppgen_h
 
+#include <boost/preprocessor/config/config.hpp>
+
+// enable the Clang support
+#if defined(__clang__) && !BOOST_PP_VARIADICS
+#	undef BOOST_PP_VARIADICS
+#	define BOOST_PP_VARIADICS 1
+#endif // defined(__clang__)
+
 // tools
 #include <sqlpp11/ppgen/wrap_seq.h>
 
