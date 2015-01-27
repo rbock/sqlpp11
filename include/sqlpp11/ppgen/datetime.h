@@ -27,7 +27,9 @@
 #ifndef _sqlpp__ppgen__datetime_h
 #define _sqlpp__ppgen__datetime_h
 
-#define SQLPP_DECLARE_TABLE_datetime(...) \
-	sqlpp::datetime
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_datetime \
+	PROC_datetime
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_datetime(...) \
+	[datetime is not implemented]
 
 #endif // _sqlpp__ppgen__datetime_h

@@ -27,6 +27,9 @@
 #ifndef _sqlpp__ppgen__character_set_h
 #define _sqlpp__ppgen__character_set_h
 
-#define SQLPP_DECLARE_TABLE_CHARACTER_SET(cs) // unimplemented
+#define SQLPP_DECLARE_TABLE_GET_PROC_LAZY_CHARACTER_SET(str) \
+	PROC_CHARACTER_SET
+#define SQLPP_DECLARE_TABLE_GEN_PROC_CHARACTER_SET(str) \
+	[CHARACTER_SET is not implemented]
 
 #endif // _sqlpp__ppgen__character_set_h

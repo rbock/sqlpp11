@@ -27,7 +27,9 @@
 #ifndef _sqlpp__ppgen__null_h
 #define _sqlpp__ppgen__null_h
 
-#define SQLPP_DECLARE_TABLE_GET_TRAITS_NULL(...) \
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_NULL \
+	PROC_NULL
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_NULL(...) \
 	sqlpp::tag::can_be_null
 
 #endif // _sqlpp__ppgen__null_h

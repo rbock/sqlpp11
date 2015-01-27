@@ -27,7 +27,9 @@
 #ifndef _sqlpp__ppgen__bool_h
 #define _sqlpp__ppgen__bool_h
 
-#define SQLPP_DECLARE_TABLE_GET_TRAITS_bool(...) \
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_bool \
+	PROC_bool
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_bool(...) \
 	sqlpp::boolean
 
 #endif // _sqlpp__ppgen__bool_h

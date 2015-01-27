@@ -27,7 +27,9 @@
 #ifndef _sqlpp__ppgen__text_h
 #define _sqlpp__ppgen__text_h
 
-#define SQLPP_DECLARE_TABLE_GET_TRAITS_text(...) \
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_text \
+	PROC_text
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_text(...) \
 	sqlpp::text
 
 #endif // _sqlpp__ppgen__text_h

@@ -27,7 +27,9 @@
 #ifndef _sqlpp__ppgen__timestamp_h
 #define _sqlpp__ppgen__timestamp_h
 
-#define SQLPP_DECLARE_TABLE_GET_TRAITS_timestamp(...) \
-	sqlpp::timestamp
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_timestamp \
+	PROC_timestamp
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_timestamp(...) \
+	[timestamp is not implemented]
 
 #endif // _sqlpp__ppgen__timestamp_h

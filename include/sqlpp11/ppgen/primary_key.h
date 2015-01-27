@@ -24,12 +24,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _sqlpp__ppgen__engine_h
-#define _sqlpp__ppgen__engine_h
+#ifndef _sqlpp__ppgen__primary_key_h
+#define _sqlpp__ppgen__primary_key_h
 
-#define SQLPP_DECLARE_TABLE_GET_PROC_LAZY_ENGINE(str) \
-	PROC_ENGINE
-#define SQLPP_DECLARE_TABLE_GEN_PROC_ENGINE(str) \
-	[ENGINE is not implemented]
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_PRIMARY_KEY \
+	PROC_PRIMARY_KEY
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_PRIMARY_KEY(...) \
+	[PRIMARY_KEY is not implemented]
 
-#endif // _sqlpp__ppgen__engine_h
+#endif // _sqlpp__ppgen__primary_key_h

@@ -27,7 +27,9 @@
 #ifndef _sqlpp__ppgen__varchar_h
 #define _sqlpp__ppgen__varchar_h
 
-#define SQLPP_DECLARE_TABLE_GET_TRAITS_varchar(...) \
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_varchar(str) \
+	PROC_varchar
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_varchar(str) \
 	sqlpp::varchar
 
 #endif // _sqlpp__ppgen__varchar_h

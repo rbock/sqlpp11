@@ -27,16 +27,24 @@
 #ifndef _sqlpp__ppgen__blob_h
 #define _sqlpp__ppgen__blob_h
 
-#define SQLPP_DECLARE_TABLE_GET_TRAITS_tinyblob(...) \
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_tinyblob \
+	PROC_tinyblob
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_tinyblob(...) \
 	sqlpp::blob
 
-#define SQLPP_DECLARE_TABLE_GET_TRAITS_blob(...) \
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_blob \
+	PROC_blob
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_blob(...) \
 	sqlpp::blob
 
-#define SQLPP_DECLARE_TABLE_GET_TRAITS_mediumblob(...) \
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_mediumblob \
+	PROC_mediumblob
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_mediumblob(...) \
 	sqlpp::blob
 
-#define SQLPP_DECLARE_TABLE_GET_TRAITS_longblob(...) \
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_longblob \
+	PROC_longblob
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_longblob(...) \
 	sqlpp::blob
 
 #endif // _sqlpp__ppgen__blob_h
