@@ -30,6 +30,6 @@
 #define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_AUTO_INCREMENT \
 	PROC_AUTO_INCREMENT
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_AUTO_INCREMENT(...) \
-	[AUTO_INCREMENT is not implemented]
+	sqlpp::tag::must_not_update
 
 #endif // _sqlpp__ppgen__auto_increment_h
