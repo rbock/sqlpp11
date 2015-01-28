@@ -11,6 +11,7 @@ build(insert)
 build(update)
 build(remove)
 build(select)
+build(ppgen)
 
 #find_package(PythonInterp REQUIRED)
 
