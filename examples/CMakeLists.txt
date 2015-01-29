@@ -11,7 +11,13 @@ build(insert)
 build(update)
 build(remove)
 build(select)
-build(ppgen)
+find_package(Boost 1.56)
+if(Boost_FOUND)
+  MESSAGE(${Boost_INCLUDE_DIRS})
+  include_directories(${Boost_INCLUDE_DIRS})
+  build(ppgen)
+endif()
+
 
 #find_package(PythonInterp REQUIRED)
 
