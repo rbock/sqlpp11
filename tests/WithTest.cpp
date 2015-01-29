@@ -37,7 +37,8 @@ int main()
 	const auto t = test::TabBar{};
 
 	auto x = cte(sqlpp::x).as(select(all_of(t)).from(t));
-	// to be done
+
+	db(with(x)(select(x.alpha).from(x).where(true)));
 
 	return 0;
 }

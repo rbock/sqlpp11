@@ -71,6 +71,19 @@ namespace sqlpp
 	template<typename AliasProvider, typename Statement, typename... ColumnSpecs>
 		struct cte_t: public member_t<ColumnSpecs, column_t<AliasProvider, ColumnSpecs>>... // FIXME
 		{
+			using _traits = make_traits<no_value_t, tag::is_cte, tag::is_table>;
+			struct _recursive_traits
+			{
+				using _required_ctes = required_ctes_of<Statement>;
+				using _provided_ctes = detail::make_type_set_t<AliasProvider>;
+				using _required_tables = required_tables_of<Statement>;
+				using _provided_tables = detail::type_set<AliasProvider>;
+				using _provided_outer_tables = detail::type_set<>;
+				using _extra_tables = detail::type_set<>;
+				using _parameters = parameters_of<Statement>;
+				using _tags = detail::type_set<>;
+			};
+
 			using _alias_t = typename AliasProvider::_alias_t;
 
 			cte_t(Statement statement): _statement(statement){}

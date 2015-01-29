@@ -126,6 +126,8 @@ namespace sqlpp
 	SQLPP_VALUE_TRAIT_GENERATOR(trivial_value_is_null);
 	SQLPP_VALUE_TRAIT_GENERATOR(null_is_trivial_value);
 
+	SQLPP_VALUE_TRAIT_GENERATOR(is_with);
+	SQLPP_VALUE_TRAIT_GENERATOR(is_cte);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_statement);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_prepared_statement);
 	SQLPP_VALUE_TRAIT_GENERATOR(is_noop);

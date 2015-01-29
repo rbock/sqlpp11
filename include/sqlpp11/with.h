@@ -56,13 +56,12 @@ namespace sqlpp
 			~with_data_t() = default;
 
 			std::tuple<Expressions...> _expressions;
-			interpretable_list_t<Database> _dynamic_expressions;
 		};
 
 	template<typename Database, typename... Expressions>
 		struct with_t
 		{
-			using _traits = make_traits<no_value_t, tag::is_where>;
+			using _traits = make_traits<no_value_t, tag::is_with>;
 			using _recursive_traits = make_recursive_traits<Expressions...>;
 
 			using _is_dynamic = is_database<Database>;
@@ -84,14 +83,14 @@ namespace sqlpp
 				{
 					using _data_t = with_data_t<Database, Expressions...>;
 
-					_impl_t<Policies> where;
-					_impl_t<Policies>& operator()() { return where; }
-					const _impl_t<Policies>& operator()() const { return where; }
+					_impl_t<Policies> with;
+					_impl_t<Policies>& operator()() { return with; }
+					const _impl_t<Policies>& operator()() const { return with; }
 
 					template<typename T>
-						static auto _get_member(T t) -> decltype(t.where)
+						static auto _get_member(T t) -> decltype(t.with)
 						{
-							return t.where;
+							return t.with;
 						}
 
 #warning: Need real checks here
@@ -102,7 +101,7 @@ namespace sqlpp
 
 	struct no_with_t
 	{
-		using _traits = make_traits<no_value_t, tag::is_where>;
+		using _traits = make_traits<no_value_t, tag::is_with>;
 		using _recursive_traits = make_recursive_traits<>;
 
 		// Data
@@ -143,11 +142,26 @@ namespace sqlpp
 
 			template<typename Statement>
 				auto operator()(Statement statement)
-				-> new_statement_t<true, Statement, no_with_t, with_t<Expressions...>>
+				-> new_statement_t<true, typename Statement::_policies_t, no_with_t, with_t<Database, Expressions...>>
 				{
 					// FIXME need checks here, e.g. if there is recursion
 					return { statement, _data };
 				}
+		};
+
+	// Interpreters
+	template<typename Context, typename Database, typename... Expressions>
+		struct serializer_t<Context, with_data_t<Database, Expressions...>>
+		{
+			using _serialize_check = serialize_check_of<Context, Expressions...>;
+			using T = with_data_t<Database, Expressions...>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				context << " WITH ";
+				interpret_tuple(t._expressions, ',', context);
+				return context;
+			}
 		};
 
 	template<typename... Expressions>
