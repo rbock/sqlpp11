@@ -36,29 +36,30 @@
 #endif // defined(__clang__)
 
 // tools
-#include <sqlpp11/ppgen/wrap_seq.h>
+#include <sqlpp11/ppgen/tools/wrap_seq.h>
+#include <sqlpp11/ppgen/tools/tuple_pop_front.h>
 
 // table props
-#include <sqlpp11/ppgen/engine.h>
-#include <sqlpp11/ppgen/character_set.h>
+#include <sqlpp11/ppgen/tblops/engine.h>
+#include <sqlpp11/ppgen/tblops/character_set.h>
 
 // col props
-#include <sqlpp11/ppgen/auto_increment.h>
-#include <sqlpp11/ppgen/blob.h>
-#include <sqlpp11/ppgen/bool.h>
-#include <sqlpp11/ppgen/comment.h>
-#include <sqlpp11/ppgen/datetime.h>
-#include <sqlpp11/ppgen/default.h>
-#include <sqlpp11/ppgen/floating_point.h>
-#include <sqlpp11/ppgen/index.h>
-#include <sqlpp11/ppgen/integer.h>
-#include <sqlpp11/ppgen/not_null.h>
-#include <sqlpp11/ppgen/null.h>
-#include <sqlpp11/ppgen/primary_key.h>
-#include <sqlpp11/ppgen/text.h>
-#include <sqlpp11/ppgen/timestamp.h>
-#include <sqlpp11/ppgen/unique.h>
-#include <sqlpp11/ppgen/varchar.h>
+#include <sqlpp11/ppgen/colops/auto_increment.h>
+#include <sqlpp11/ppgen/colops/blob.h>
+#include <sqlpp11/ppgen/colops/bool.h>
+#include <sqlpp11/ppgen/colops/comment.h>
+#include <sqlpp11/ppgen/colops/datetime.h>
+#include <sqlpp11/ppgen/colops/default.h>
+#include <sqlpp11/ppgen/colops/floating_point.h>
+#include <sqlpp11/ppgen/colops/index.h>
+#include <sqlpp11/ppgen/colops/integer.h>
+#include <sqlpp11/ppgen/colops/not_null.h>
+#include <sqlpp11/ppgen/colops/null.h>
+#include <sqlpp11/ppgen/colops/primary_key.h>
+#include <sqlpp11/ppgen/colops/text.h>
+#include <sqlpp11/ppgen/colops/timestamp.h>
+#include <sqlpp11/ppgen/colops/unique.h>
+#include <sqlpp11/ppgen/colops/varchar.h>
 
 // boost.preprocessor
 #include <boost/preprocessor/cat.hpp>
@@ -81,7 +82,7 @@
 	BOOST_PP_TUPLE_ELEM(0, BOOST_PP_EXPAND table)
 
 #define SQLPP_DECLARE_TABLE_GET_TABLE_PROPS(table) \
-	BOOST_PP_TUPLE_POP_FRONT(BOOST_PP_EXPAND table)
+	SQLPP_BOOST_PP_TUPLE_POP_FRONT(BOOST_PP_EXPAND table)
 
 #define SQLPP_DECLARE_COLUMN_GET_COLUMN_NAME(col) \
 	BOOST_PP_TUPLE_ELEM(0, col)
@@ -123,7 +124,7 @@
 		}; /* struct _alias_t */ \
 		\
 		using _traits = sqlpp::make_traits< \
-			SQLPP_DECLARE_COLUMN_GEN_TRAITS(BOOST_PP_TUPLE_POP_FRONT(elem)) \
+			SQLPP_DECLARE_COLUMN_GEN_TRAITS(SQLPP_BOOST_PP_TUPLE_POP_FRONT(elem)) \
 		>; \
 		\
 	}; /* struct SQLPP_DECLARE_COLUMN_GET_COLUMN_NAME(elem) */
@@ -141,7 +142,7 @@
 	BOOST_PP_SEQ_FOR_EACH( \
 		 SQLPP_DECLARE_TABLE_GEN_PROPS_AUX \
 		,~ \
-		,BOOST_PP_TUPLE_TO_SEQ(BOOST_PP_TUPLE_POP_FRONT(table)) \
+		,BOOST_PP_TUPLE_TO_SEQ(SQLPP_BOOST_PP_TUPLE_POP_FRONT(table)) \
 	)
 
 /***************************************************************************/

@@ -24,12 +24,27 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _sqlpp__ppgen__not_null_h
-#define _sqlpp__ppgen__not_null_h
+#ifndef _sqlpp__ppgen__colops__integer_h
+#define _sqlpp__ppgen__colops__integer_h
 
-#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_NOT_NULL \
-	PROC_SQLPP_NOT_NULL
-#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_NOT_NULL(...) \
-	sqlpp::tag::require_insert
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_tinyint \
+	PROC_tinyint
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_tinyint(...) \
+	sqlpp::tinyint
 
-#endif // _sqlpp__ppgen__not_null_h
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_smallint \
+	PROC_smallint
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_smallint(...) \
+	sqlpp::smallint
+
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_int \
+	PROC_int
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_int(...) \
+	sqlpp::integer
+
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_bigint \
+	PROC_bigint
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_bigint(...) \
+	sqlpp::bigint
+
+#endif // _sqlpp__ppgen__colops__integer_h

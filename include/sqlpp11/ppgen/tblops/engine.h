@@ -24,12 +24,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _sqlpp__ppgen__unique_h
-#define _sqlpp__ppgen__unique_h
+#ifndef _sqlpp__ppgen__tblops__engine_h
+#define _sqlpp__ppgen__tblops__engine_h
 
-#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_UNIQUE \
-	PROC_SQLPP_UNIQUE
-#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_UNIQUE(...) \
-	[UNIQUE is not implemented]
+#define SQLPP_DECLARE_TABLE_GET_PROC_LAZY_SQLPP_ENGINE(str) \
+	PROC_SQLPP_ENGINE
+#define SQLPP_DECLARE_TABLE_GEN_PROC_SQLPP_ENGINE(str) \
+	[ENGINE is not implemented]
 
-#endif // _sqlpp__ppgen__unique_h
+#endif // _sqlpp__ppgen__tblops__engine_h

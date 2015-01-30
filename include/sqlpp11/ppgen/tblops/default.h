@@ -24,15 +24,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _sqlpp__ppgen__wrap_seq_h
-#define _sqlpp__ppgen__wrap_seq_h
+#ifndef _sqlpp__ppgen__tblops__default_h
+#define _sqlpp__ppgen__tblops__default_h
 
-#define SQLPP_WRAP_SEQUENCE_X(...) \
-	((__VA_ARGS__)) SQLPP_WRAP_SEQUENCE_Y
-#define SQLPP_WRAP_SEQUENCE_Y(...) \
-	((__VA_ARGS__)) SQLPP_WRAP_SEQUENCE_X
+#define SQLPP_DECLARE_TABLE_GET_TRAITS_LAZY_SQLPP_DEFAULT(value) \
+	PROC_SQLPP_DEFAULT
+#define SQLPP_DECLARE_TABLE_GEN_TRAITS_PROC_SQLPP_DEFAULT(...) \
+	[DEFAULT is not implemented]
 
-#define SQLPP_WRAP_SEQUENCE_X0
-#define SQLPP_WRAP_SEQUENCE_Y0
-
-#endif // _sqlpp__ppgen__wrap_seq_h
+#endif // _sqlpp__ppgen__tblops__default_h

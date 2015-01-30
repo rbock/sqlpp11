@@ -24,12 +24,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _sqlpp__ppgen__primary_key_h
-#define _sqlpp__ppgen__primary_key_h
+#ifndef _sqlpp__ppgen__colops__not_null_h
+#define _sqlpp__ppgen__colops__not_null_h
 
-#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_PRIMARY_KEY \
-	PROC_SQLPP_PRIMARY_KEY
-#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_PRIMARY_KEY(...) \
-	[PRIMARY_KEY is not implemented]
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_NOT_NULL \
+	PROC_SQLPP_NOT_NULL
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_NOT_NULL(...) \
+	sqlpp::tag::require_insert
 
-#endif // _sqlpp__ppgen__primary_key_h
+#endif // _sqlpp__ppgen__colops__not_null_h

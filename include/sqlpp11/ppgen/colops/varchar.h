@@ -24,12 +24,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _sqlpp__ppgen__character_set_h
-#define _sqlpp__ppgen__character_set_h
+#ifndef _sqlpp__ppgen__colops__varchar_h
+#define _sqlpp__ppgen__colops__varchar_h
 
-#define SQLPP_DECLARE_TABLE_GET_PROC_LAZY_SQLPP_CHARACTER_SET(str) \
-	PROC_SQLPP_CHARACTER_SET
-#define SQLPP_DECLARE_TABLE_GEN_PROC_SQLPP_CHARACTER_SET(str) \
-	[CHARACTER_SET is not implemented]
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_varchar(str) \
+	PROC_varchar
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_varchar(str) \
+	sqlpp::varchar
 
-#endif // _sqlpp__ppgen__character_set_h
+#endif // _sqlpp__ppgen__colops__varchar_h

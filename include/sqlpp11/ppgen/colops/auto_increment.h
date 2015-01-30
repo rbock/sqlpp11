@@ -24,17 +24,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _sqlpp__ppgen__floating_point_h
-#define _sqlpp__ppgen__floating_point_h
+#ifndef _sqlpp__ppgen__colops__auto_increment_h
+#define _sqlpp__ppgen__colops__auto_increment_h
 
-#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_float \
-	PROC_float
-#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_float(...) \
-	sqlpp::floating_point
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_AUTO_INCREMENT \
+	PROC_SQLPP_AUTO_INCREMENT
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_AUTO_INCREMENT(...) \
+	sqlpp::tag::must_not_update
 
-#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_double \
-	PROC_double
-#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_double(...) \
-	sqlpp::floating_point
-
-#endif // _sqlpp__ppgen__floating_point_h
+#endif // _sqlpp__ppgen__colops__auto_increment_h
