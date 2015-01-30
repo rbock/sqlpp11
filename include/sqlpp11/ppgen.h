@@ -72,7 +72,6 @@
 #include <boost/preprocessor/stringize.hpp>
 #include <boost/preprocessor/tuple/elem.hpp>
 #include <boost/preprocessor/tuple/size.hpp>
-#include <boost/preprocessor/tuple/pop_front.hpp>
 #include <boost/preprocessor/tuple/to_seq.hpp>
 
 /***************************************************************************/
