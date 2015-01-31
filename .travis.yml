@@ -25,7 +25,7 @@ install:
   - git checkout tags/boost-1.50.0
   - sudo cp -rf include/boost/* /usr/include/boost/
   - ls -l /usr/include/boost/preprocessor/tuple
-  - sed 's|104600|105000|' -i /usr/include/boost/version.hpp
+  - sudo sed 's|104600|105000|' -i /usr/include/boost/version.hpp
   - "mkdir -p $TRAVIS_BUILD_DIR/build/scripts"
   - "cd $TRAVIS_BUILD_DIR/build/scripts"
   - "cmake $TRAVIS_BUILD_DIR"
