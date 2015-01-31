@@ -26,11 +26,17 @@
 
 #if 0 // syntax example
 SQLPP_DECLARE_TABLE(
-	(table, DROP_IF_EXISTS, CREATE_IF_NOT_EXISTS, ENGINE("InnoDB"), CHARACTER_SET("utf-8"), COMMENT("table comments"))
+	(table, \
+		 SQLPP_DROP_IF_EXISTS \
+		,SQLPP_CREATE_IF_NOT_EXISTS \
+		,SQLPP_ENGINE("InnoDB") \
+		,SQLPP_CHARACTER_SET("utf-8") \
+		,SQLPP_COMMENT("table comments") \
+	)
 	,
-	(id, int, NOT_NULL, PRIMARY_KEY, AUTO_INCREMENT)
-	(name, varchar(64), NOT_NULL, INDEX("name_index"), DEFAULT("any name"))
-	(age, int, NOT_NULL, INDEX("age_index"), UNIQUE, COMMENT("some comments"))
+	(id, int, SQLPP_NOT_NULL, SQLPP_PRIMARY_KEY, SQLPP_AUTO_INCREMENT)
+	(name, varchar(64), SQLPP_NOT_NULL, SQLPP_INDEX("name_index"), SQLPP_DEFAULT("any name"))
+	(age, int, SQLPP_NOT_NULL, SQLPP_INDEX("age_index"), SQLPP_UNIQUE, SQLPP_COMMENT("some comments"))
 )
 #endif
 
