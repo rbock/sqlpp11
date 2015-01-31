@@ -24,12 +24,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _sqlpp__ppgen__default_h
-#define _sqlpp__ppgen__default_h
+#ifndef _sqlpp__ppgen__tblops__character_set_h
+#define _sqlpp__ppgen__tblops__character_set_h
 
-#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_DEFAULT(value) \
-	PROC_SQLPP_DEFAULT
-#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_DEFAULT(...) \
-	[DEFAULT is not implemented]
+#define SQLPP_DECLARE_TABLE_GET_PROC_LAZY_SQLPP_CHARACTER_SET(str) \
+	PROC_SQLPP_CHARACTER_SET
+#define SQLPP_DECLARE_TABLE_GEN_PROC_SQLPP_CHARACTER_SET(str) \
+	[CHARACTER_SET is not implemented]
 
-#endif // _sqlpp__ppgen__default_h
+#endif // _sqlpp__ppgen__tblops__character_set_h

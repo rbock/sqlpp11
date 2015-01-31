@@ -24,12 +24,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _sqlpp__ppgen__bool_h
-#define _sqlpp__ppgen__bool_h
+#ifndef _sqlpp__ppgen__colops__unique_h
+#define _sqlpp__ppgen__colops__unique_h
 
-#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_bool \
-	PROC_bool
-#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_bool(...) \
-	sqlpp::boolean
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_UNIQUE \
+	PROC_SQLPP_UNIQUE
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_UNIQUE(...) \
+	[UNIQUE is not implemented]
 
-#endif // _sqlpp__ppgen__bool_h
+#endif // _sqlpp__ppgen__colops__unique_h

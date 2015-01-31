@@ -24,12 +24,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _sqlpp__ppgen__comment_h
-#define _sqlpp__ppgen__comment_h
+#ifndef _sqlpp__ppgen__colops__key_h
+#define _sqlpp__ppgen__colops__key_h
 
-#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_COMMENT(str) \
-	PROC_SQLPP_COMMENT
-#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_COMMENT(str) \
-	[COMMENT is not implemented]
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_KEY(name) \
+	PROC_SQLPP_KEY
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_KEY(name) \
+	[KEY is not implemented]
 
-#endif // _sqlpp__ppgen__comment_h
+#endif // _sqlpp__ppgen__colops__key_h

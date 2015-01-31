@@ -24,12 +24,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _sqlpp__ppgen__datetime_h
-#define _sqlpp__ppgen__datetime_h
+#ifndef _sqlpp__ppgen__colops__default_h
+#define _sqlpp__ppgen__colops__default_h
 
-#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_datetime \
-	PROC_datetime
-#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_datetime(...) \
-	[datetime is not implemented]
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_DEFAULT(value) \
+	PROC_SQLPP_DEFAULT
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_DEFAULT(...) \
+	[DEFAULT is not implemented]
 
-#endif // _sqlpp__ppgen__datetime_h
+#endif // _sqlpp__ppgen__colops__default_h

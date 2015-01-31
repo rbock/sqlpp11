@@ -24,12 +24,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _sqlpp__ppgen__null_h
-#define _sqlpp__ppgen__null_h
+#ifndef _sqlpp__ppgen__tools__wrap_seq_h
+#define _sqlpp__ppgen__tools__wrap_seq_h
 
-#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_NULL \
-	PROC_SQLPP_NULL
-#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_NULL(...) \
-	sqlpp::tag::can_be_null
+#define SQLPP_WRAP_SEQUENCE_X(...) \
+	((__VA_ARGS__)) SQLPP_WRAP_SEQUENCE_Y
+#define SQLPP_WRAP_SEQUENCE_Y(...) \
+	((__VA_ARGS__)) SQLPP_WRAP_SEQUENCE_X
 
-#endif // _sqlpp__ppgen__null_h
+#define SQLPP_WRAP_SEQUENCE_X0
+#define SQLPP_WRAP_SEQUENCE_Y0
+
+#endif // _sqlpp__ppgen__tools__wrap_seq_h

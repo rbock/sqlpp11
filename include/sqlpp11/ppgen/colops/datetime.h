@@ -24,12 +24,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _sqlpp__ppgen__index_h
-#define _sqlpp__ppgen__index_h
+#ifndef _sqlpp__ppgen__colops__datetime_h
+#define _sqlpp__ppgen__colops__datetime_h
 
-#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_INDEX(name) \
-	PROC_SQLPP_INDEX
-#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_INDEX(name) \
-	[INDEX is not implemented]
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_datetime \
+	PROC_datetime
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_datetime(...) \
+	[datetime is not implemented]
 
-#endif // _sqlpp__ppgen__index_h
+#endif // _sqlpp__ppgen__colops__datetime_h

@@ -24,12 +24,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _sqlpp__ppgen__varchar_h
-#define _sqlpp__ppgen__varchar_h
+#ifndef _sqlpp__ppgen__colops__index_h
+#define _sqlpp__ppgen__colops__index_h
 
-#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_varchar(str) \
-	PROC_varchar
-#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_varchar(str) \
-	sqlpp::varchar
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_INDEX(name) \
+	PROC_SQLPP_INDEX
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_INDEX(name) \
+	[INDEX is not implemented]
 
-#endif // _sqlpp__ppgen__varchar_h
+#endif // _sqlpp__ppgen__colops__index_h
