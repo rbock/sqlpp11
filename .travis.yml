@@ -13,12 +13,19 @@ notifications:
    on_failure: always
 
 before_install:
+  # install boost 1.50 (headers only), travis currently offers 1.46 and 1.48
+  - wget http://sourceforge.net/projects/boost/files/boost/1.50.0/boost_1_50_0.tar.bz2/download -O /tmp/boost.tar.bz2
+  - mkdir -p temp
+  - cd temp
+  - tar jxf /tmp/boost.tar.bz2 boost_1_50_0/boost # extract headers only
+  - sudo mkdir -p /usr/local/include/
+  - sudo ln -s $PWD/boost_1_50_0/boost /usr/local/include
+  - cd ..
+  #install g++-4.8
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - sudo apt-get update
-  - sudo apt-cache search libboost
   - if [ "$CXX" = "g++" ]; then sudo apt-get install g++-4.8; fi
   - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
-
 
 install:
   - "mkdir -p $TRAVIS_BUILD_DIR/build/scripts"
