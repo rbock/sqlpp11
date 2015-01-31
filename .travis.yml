@@ -15,17 +15,11 @@ notifications:
 before_install:
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - sudo apt-get update
-  - if [ "$CXX" = "g++" ]; then sudo apt-get install g++-4.8 libboost-dev; fi
+  - if [ "$CXX" = "g++" ]; then sudo apt-get install g++-4.8; fi
   - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
 
 
 install:
-  - git clone https://github.com/boostorg/preprocessor.git
-  - cd preprocessor
-  - git checkout tags/boost-1.50.0
-  - sudo cp -rf include/boost/* /usr/include/boost/
-  - ls -l /usr/include/boost/preprocessor/tuple
-  - sudo sed 's|104600|105000|' -i /usr/include/boost/version.hpp
   - "mkdir -p $TRAVIS_BUILD_DIR/build/scripts"
   - "cd $TRAVIS_BUILD_DIR/build/scripts"
   - "cmake $TRAVIS_BUILD_DIR"
