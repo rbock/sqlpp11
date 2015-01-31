@@ -23,7 +23,7 @@ install:
   - git clone https://github.com/boostorg/preprocessor.git
   - cd preprocessor
   - git checkout tags/boost-1.50.0
-  - cp -rf include/boost/* /usr/include/boost/
+  - sudo cp -rf include/boost/* /usr/include/boost/
   - ls -l /usr/include/boost/preprocessor/tuple
   - sed 's|104600|105000|' -i /usr/include/boost/version.hpp
   - "mkdir -p $TRAVIS_BUILD_DIR/build/scripts"
