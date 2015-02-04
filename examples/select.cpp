@@ -37,7 +37,7 @@
 static constexpr bool some_condition = true;
 static constexpr bool some_other_condition = false;
 
-SQLPP_ALIAS_PROVIDER(cheesecake);
+SQLPP_ALIAS_PROVIDER(cheesecake)
 
 MockDb db;
 

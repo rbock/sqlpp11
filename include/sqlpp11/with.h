@@ -93,7 +93,7 @@ namespace sqlpp
 							return t.with;
 						}
 
-#warning: Need real checks here
+					// FIXME: Need real checks here
 					using _consistency_check = consistent_t;
 				};
 		};

@@ -103,7 +103,7 @@ struct MockDbT: public sqlpp::connection
 			void next(ResultRow& result_row)
 			{
 				result_row._invalidate();
-			};
+			}
 	};
 
 	// Directly executed statements start here

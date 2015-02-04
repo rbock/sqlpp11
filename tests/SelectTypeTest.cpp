@@ -38,10 +38,10 @@ MockDb::_serializer_context_t printer;
 
 namespace alias
 {
-	SQLPP_ALIAS_PROVIDER(a);
-	SQLPP_ALIAS_PROVIDER(b);
-	SQLPP_ALIAS_PROVIDER(left);
-	SQLPP_ALIAS_PROVIDER(right);
+	SQLPP_ALIAS_PROVIDER(a)
+	SQLPP_ALIAS_PROVIDER(b)
+	SQLPP_ALIAS_PROVIDER(left)
+	SQLPP_ALIAS_PROVIDER(right)
 }
 
 int main()
