@@ -110,7 +110,7 @@ int main()
 				.from(p.join(x).on(p.feature == x.cheesecake))
 				.where(true)))
 	{
-		int id = row.id;
+		int64_t id = row.id;
 		std::string name = row.name;
 		std::string x_name = row.x.name;
 		int cheesecake = row.x.cheesecake;
