@@ -144,7 +144,8 @@ namespace sqlpp
 				auto operator()(Statement statement)
 				-> new_statement_t<true, typename Statement::_policies_t, no_with_t, with_t<Database, Expressions...>>
 				{
-					// FIXME need checks here, e.g. if there is recursion
+					// FIXME need checks here
+					//       check that no cte refers to any of the ctes to the right
 					return { statement, _data };
 				}
 		};
@@ -158,6 +159,7 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
+				// FIXME: If there is a recursive CTE, add a "RECURSIVE" here
 				context << " WITH ";
 				interpret_tuple(t._expressions, ',', context);
 				return context;

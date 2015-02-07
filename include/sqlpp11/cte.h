@@ -69,7 +69,7 @@ namespace sqlpp
 		using make_cte_t = typename make_cte_impl<AliasProvider, Statement, get_result_row_t<Statement>>::type;
 
 	template<typename AliasProvider, typename Statement, typename... ColumnSpecs>
-		struct cte_t: public member_t<ColumnSpecs, column_t<AliasProvider, ColumnSpecs>>... // FIXME
+		struct cte_t: public member_t<ColumnSpecs, column_t<AliasProvider, ColumnSpecs>>...
 		{
 			using _traits = make_traits<no_value_t, tag::is_cte, tag::is_table>;
 			struct _recursive_traits
@@ -83,6 +83,9 @@ namespace sqlpp
 				using _parameters = parameters_of<Statement>;
 				using _tags = detail::type_set<>;
 			};
+
+			// FIXME: need a union_distinct and union_all here
+			//        unions can depend on the cte itself In that case the cte is recursive.
 
 			using _alias_t = typename AliasProvider::_alias_t;
 
@@ -124,6 +127,8 @@ namespace sqlpp
 				-> make_cte_t<AliasProvider, Statement>
 				{
 					// FIXME: Need to check stuff here.
+					// e.g. make sure that the statement does not require this a cte of this name (other ctes are allowed)
+					//      make sure that the statement does not depend on external tables
 					return { statement };
 				}
 		};
