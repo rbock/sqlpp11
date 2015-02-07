@@ -34,7 +34,7 @@
 #include "MockDb.h"
 #include <sqlpp11/sqlpp11.h>
 
-SQLPP_ALIAS_PROVIDER(cheesecake);
+SQLPP_ALIAS_PROVIDER(cheesecake)
 
 MockDb db;
 
@@ -107,7 +107,7 @@ int main()
 				.from(p.join(x).on(p.feature == x.feature))
 				.where(true)))
 	{
-		int id = row.id;
+		int64_t id = row.id;
 		std::string name = row.name;
 	}
 #endif
