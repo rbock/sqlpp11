@@ -27,7 +27,9 @@
 #ifndef SQLPP_CTE_H
 #define SQLPP_CTE_H
 
-#include <sqlpp11/result_row_fwd.h>
+#include <sqlpp11/union_data.h>
+#include <sqlpp11/select_flags.h>
+#include <sqlpp11/result_row.h>
 #include <sqlpp11/statement_fwd.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/parameter_list.h>
@@ -38,7 +40,7 @@
 
 namespace sqlpp
 {
-	template<typename AliasProvider, typename Statement, typename... ColumnSpecs>
+	template<typename AliasProvider, typename Statement, typename... FieldSpecs>
 		struct cte_t;
 
 	template<typename FieldSpec>
@@ -49,7 +51,7 @@ namespace sqlpp
 			using _traits = make_traits<value_type_of<FieldSpec>, 
 						tag::must_not_insert, 
 						tag::must_not_update,
-						tag_if<tag::can_be_null, can_be_null_t<FieldSpec>::value>
+						tag_if<tag::can_be_null, column_spec_can_be_null_t<FieldSpec>::value>
 							>;
 		};
 
@@ -62,14 +64,14 @@ namespace sqlpp
 	template<typename AliasProvider, typename Statement, typename... FieldSpecs>
 		struct make_cte_impl<AliasProvider, Statement, result_row_t<void, FieldSpecs...>>
 		{
-			using type = cte_t<AliasProvider, Statement, cte_column_spec_t<FieldSpecs>...>;
+			using type = cte_t<AliasProvider, Statement, FieldSpecs...>;
 		};
 
 	template<typename AliasProvider, typename Statement>
 		using make_cte_t = typename make_cte_impl<AliasProvider, Statement, get_result_row_t<Statement>>::type;
 
-	template<typename AliasProvider, typename Statement, typename... ColumnSpecs>
-		struct cte_t: public member_t<ColumnSpecs, column_t<AliasProvider, ColumnSpecs>>...
+	template<typename AliasProvider, typename Statement, typename... FieldSpecs>
+		struct cte_t: public member_t<cte_column_spec_t<FieldSpecs>, column_t<AliasProvider, cte_column_spec_t<FieldSpecs>>>...
 		{
 			using _traits = make_traits<no_value_t, tag::is_cte, tag::is_table>; // FIXME: is table? really?
 			struct _recursive_traits
@@ -83,11 +85,54 @@ namespace sqlpp
 				using _parameters = parameters_of<Statement>;
 				using _tags = detail::type_set<>;
 			};
-
-			// FIXME: need a union_distinct and union_all here
-			//        unions can depend on the cte itself In that case the cte is recursive.
-
 			using _alias_t = typename AliasProvider::_alias_t;
+
+			using _column_tuple_t = std::tuple<column_t<AliasProvider, cte_column_spec_t<FieldSpecs>>...>;
+
+			template<typename... T>
+				using _check = logic::all_t<is_statement_t<T>::value...>;
+
+			template<typename Rhs>
+				auto union_distinct(Rhs rhs) const
+				-> typename std::conditional<_check<Rhs>::value, cte_t<AliasProvider, union_data_t<void, distinct_t, Statement, Rhs>, FieldSpecs...>, bad_statement>::type
+				{
+					static_assert(is_statement_t<Rhs>::value, "argument of union call has to be a statement");
+					static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
+					static_assert(has_result_row_t<Rhs>::value, "argument of a union has to be a (complete) select statement");
+
+					using _result_row_t = result_row_t<void, FieldSpecs...>;
+					static_assert(std::is_same<_result_row_t, get_result_row_t<Rhs>>::value, "both select statements in a union have to have the same result columns (type and name)");
+
+					return _union_impl<void, distinct_t>(_check<Rhs>{}, rhs);
+				}
+
+			template<typename Rhs>
+				auto union_all(Rhs rhs) const
+				-> typename std::conditional<_check<Rhs>::value, cte_t<AliasProvider, union_data_t<void, all_t, Statement, Rhs>, FieldSpecs...>, bad_statement>::type
+				{
+					static_assert(is_statement_t<Rhs>::value, "argument of union call has to be a statement");
+					static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
+					static_assert(has_result_row_t<Rhs>::value, "argument of a union has to be a (complete) select statement");
+
+					using _result_row_t = result_row_t<void, FieldSpecs...>;
+					static_assert(std::is_same<_result_row_t, get_result_row_t<Rhs>>::value, "both select statements in a union have to have the same result columns (type and name)");
+
+					return _union_impl<void, all_t>(_check<Rhs>{}, rhs);
+				}
+
+		private:
+			template<typename Database, typename Flag, typename Rhs>
+				auto _union_impl(const std::false_type&, Rhs rhs) const
+				-> bad_statement;
+
+			template<typename Database, typename Flag, typename Rhs>
+				auto _union_impl(const std::true_type&, Rhs rhs) const
+				-> cte_t<AliasProvider, union_data_t<void, Flag, Statement, Rhs>, FieldSpecs...>
+				{
+					return union_data_t<Database, Flag, Statement, Rhs>{_statement, rhs};
+				}
+
+		public:
 
 			cte_t(Statement statement): _statement(statement){}
 			cte_t(const cte_t&) = default;
@@ -143,6 +188,7 @@ namespace sqlpp
 				{
 					static_assert(required_tables_of<Statement>::size::value == 0, "common table expression must not use unknown tables");
 					static_assert(not detail::is_element_of<AliasProvider, required_ctes_of<Statement>>::value, "common table expression must not self-reference in the first part, use union_all/union_distinct for recursion");
+					static_assert(is_static_result_row_t<get_result_row_t<Statement>>::value, "ctes must not have dynamically added columns");
 
 					return { statement };
 				}

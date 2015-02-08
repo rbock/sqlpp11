@@ -40,5 +40,8 @@ int main()
 
 	db(with(x)(select(x.alpha).from(x).where(true)));
 
+	auto y0 = cte(sqlpp::y).as(select(all_of(t)).from(t));
+	auto y = y0.union_all(select(all_of(y0)).from(y0).where(false));
+
 	return 0;
 }
