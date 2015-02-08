@@ -71,12 +71,12 @@ namespace sqlpp
 	template<typename AliasProvider, typename Statement, typename... ColumnSpecs>
 		struct cte_t: public member_t<ColumnSpecs, column_t<AliasProvider, ColumnSpecs>>...
 		{
-			using _traits = make_traits<no_value_t, tag::is_cte, tag::is_table>;
+			using _traits = make_traits<no_value_t, tag::is_cte, tag::is_table>; // FIXME: is table? really?
 			struct _recursive_traits
 			{
-				using _required_ctes = required_ctes_of<Statement>;
-				using _provided_ctes = detail::make_type_set_t<AliasProvider>;
-				using _required_tables = required_tables_of<Statement>;
+				using _required_ctes = detail::make_joined_set_t<required_ctes_of<Statement>, detail::make_type_set_t<AliasProvider>>;
+				using _provided_ctes = detail::type_set<>;
+				using _required_tables = detail::type_set<>;
 				using _provided_tables = detail::type_set<AliasProvider>;
 				using _provided_outer_tables = detail::type_set<>;
 				using _extra_tables = detail::type_set<>;
@@ -122,15 +122,43 @@ namespace sqlpp
 	template<typename AliasProvider>
 		struct pre_cte_t
 		{
+			using _traits = make_traits<no_value_t, tag::is_cte, tag::is_table>; // FIXME: is table? really?
+			struct _recursive_traits
+			{
+				using _required_ctes = detail::make_type_set_t<AliasProvider>;
+				using _provided_ctes = detail::type_set<>;
+				using _required_tables = detail::type_set<>;
+				using _provided_tables = detail::type_set<AliasProvider>;
+				using _provided_outer_tables = detail::type_set<>;
+				using _extra_tables = detail::type_set<>;
+				using _parameters = std::tuple<>;
+				using _tags = detail::type_set<>;
+			};
+
+			using _alias_t = typename AliasProvider::_alias_t;
+
 			template<typename Statement>
 				auto as(Statement statement)
 				-> make_cte_t<AliasProvider, Statement>
 				{
-					// FIXME: Need to check stuff here.
-					// e.g. make sure that the statement does not require this a cte of this name (other ctes are allowed)
-					//      make sure that the statement does not depend on external tables
+					static_assert(required_tables_of<Statement>::size::value == 0, "common table expression must not use unknown tables");
+					static_assert(not detail::is_element_of<AliasProvider, required_ctes_of<Statement>>::value, "common table expression must not self-reference in the first part, use union_all/union_distinct for recursion");
+
 					return { statement };
 				}
+		};
+
+	template<typename Context, typename AliasProvider>
+		struct serializer_t<Context, pre_cte_t<AliasProvider>>
+		{
+			using _serialize_check = consistent_t;
+			using T = pre_cte_t<AliasProvider>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				context << name_of<T>::char_ptr();
+				return context;
+			}
 		};
 
 	template<typename AliasProvider>

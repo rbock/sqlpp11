@@ -62,7 +62,18 @@ namespace sqlpp
 		struct with_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_with>;
-			using _recursive_traits = make_recursive_traits<Expressions...>;
+			struct _recursive_traits
+			{
+				using _required_ctes = detail::type_set<>;
+				using _provided_ctes = detail::make_joined_set_t<required_ctes_of<Expressions>...>; // with provides common table expressions
+				using _required_tables = detail::type_set<>;
+				using _provided_tables = detail::type_set<>;
+				using _provided_outer_tables = detail::type_set<>;
+				using _extra_tables = detail::type_set<>;
+				using _parameters = detail::make_parameter_tuple_t<parameters_of<Expressions>...>;
+				using _tags = detail::type_set<>;
+			};
+
 
 			using _is_dynamic = is_database<Database>;
 
