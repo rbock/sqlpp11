@@ -27,6 +27,7 @@
 #ifndef SQLPP_UNION_H
 #define SQLPP_UNION_H
 
+#include <sqlpp11/union_data.h>
 #include <sqlpp11/statement_fwd.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/parameter_list.h>
@@ -38,7 +39,6 @@
 
 namespace sqlpp
 {
-
 	struct no_union_t;
 
 	using blank_union_t = statement_t<void,
@@ -59,26 +59,6 @@ namespace sqlpp
 
 	template<bool Check, typename Union>
 		using union_statement_t = typename union_statement_impl<Check, Union>::type;
-
-
-	// UNION DATA
-	template<typename Database, typename Flag, typename Lhs, typename Rhs>
-		struct union_data_t
-		{
-			union_data_t(Lhs lhs, Rhs rhs):
-				_lhs(lhs),
-				_rhs(rhs)
-			{}
-
-			union_data_t(const union_data_t&) = default;
-			union_data_t(union_data_t&&) = default;
-			union_data_t& operator=(const union_data_t&) = default;
-			union_data_t& operator=(union_data_t&&) = default;
-			~union_data_t() = default;
-
-			Lhs _lhs;
-			Rhs _rhs;
-		};
 
 	// UNION(EXPR)
 	template<typename Database, typename Flag, typename Lhs, typename Rhs>
@@ -164,7 +144,7 @@ namespace sqlpp
 				using _database_t = typename Policies::_database_t;
 
 				template<typename... T>
-					using _check = logic::all_t<is_statement_t<T>::value...>; // FIXME and consistent/runnable
+					using _check = logic::all_t<is_statement_t<T>::value...>;
 
 				template<typename Check, typename T>
 					using _new_statement_t = union_statement_t<Check::value, T>;
@@ -192,10 +172,13 @@ namespace sqlpp
 					-> _new_statement_t<_check<Rhs>, union_t<void, all_t, derived_statement_t<Policies>, Rhs>>
 					{
 						static_assert(is_statement_t<Rhs>::value, "argument of union call has to be a statement");
+						static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
 						static_assert(has_result_row_t<Rhs>::value, "argument of a union has to be a (complete) select statement");
 						static_assert(has_result_row_t<derived_statement_t<Policies>>::value, "left hand side argument of a union has to be a (complete) select statement");
 						static_assert(std::is_same<get_result_row_t<derived_statement_t<Policies>>, get_result_row_t<Rhs>>::value, "both select statements in a union have to have the same result columns (type and name)");
 
+						using _result_row_t = get_result_row_t<Rhs>;
+						static_assert(is_static_result_row_t<_result_row_t>::value, "unions must not have dynamically added columns");
 
 						return _union_impl<void, all_t>(_check<derived_statement_t<Policies>, Rhs>{}, rhs);
 					}
@@ -215,26 +198,6 @@ namespace sqlpp
 
 			};
 	};
-
-	// Interpreters
-	template<typename Context, typename Database, typename Flag, typename Lhs, typename Rhs>
-		struct serializer_t<Context, union_data_t<Database, Flag, Lhs, Rhs>>
-		{
-			using _serialize_check = serialize_check_of<Context, Lhs, Rhs>;
-			using T = union_data_t<Database, Flag, Lhs, Rhs>;
-
-			static Context& _(const T& t, Context& context)
-			{
-				context << '(';
-				serialize(t._lhs, context);
-				context << ") UNION ";
-				serialize(Flag{}, context);
-				context << " (";
-				serialize(t._rhs, context);
-				context << ')';
-				return context;
-			}
-		};
 
 }
 
