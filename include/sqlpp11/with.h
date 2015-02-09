@@ -45,6 +45,8 @@ namespace sqlpp
 	template<typename Database, typename... Expressions>
 		struct with_data_t
 		{
+			using _is_recursive = logic::any_t<Expressions::_is_recursive...>;
+
 			with_data_t(Expressions... expressions):
 				_expressions(expressions...)
 			{}
@@ -73,7 +75,6 @@ namespace sqlpp
 				using _parameters = detail::make_parameter_tuple_t<parameters_of<Expressions>...>;
 				using _tags = detail::type_set<>;
 			};
-
 
 			using _is_dynamic = is_database<Database>;
 
@@ -172,6 +173,8 @@ namespace sqlpp
 			{
 				// FIXME: If there is a recursive CTE, add a "RECURSIVE" here
 				context << " WITH ";
+				if (T::_is_recursive::value)
+					context << "RECURSIVE ";
 				interpret_tuple(t._expressions, ',', context);
 				return context;
 			}
