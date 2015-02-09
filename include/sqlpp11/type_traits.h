@@ -282,7 +282,7 @@ namespace sqlpp
 			static void _()
 			{
 				static_assert(wrong_t<T>::value, "connection cannot run something that is neither statement nor prepared statement");
-			};
+			}
 	};
 
 	struct assert_prepare_statement_t
@@ -293,7 +293,7 @@ namespace sqlpp
 			static void _()
 			{
 				static_assert(wrong_t<T>::value, "connection cannot prepare something that is not a statement");
-			};
+			}
 	};
 
 	template<typename T, typename Enable = void>

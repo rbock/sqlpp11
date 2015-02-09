@@ -341,7 +341,7 @@ namespace sqlpp
 			auto tuple_merge(Columns... columns) -> decltype(std::tuple_cat(as_tuple<Columns>::_(columns)...))
 			{
 				return std::tuple_cat(as_tuple<Columns>::_(columns)...);
-			};
+			}
 
 		template<typename Database, typename... Columns>
 			using make_select_column_list_t = 
