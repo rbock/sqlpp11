@@ -43,5 +43,10 @@ int main()
 	auto y0 = cte(sqlpp::y).as(select(all_of(t)).from(t));
 	auto y = y0.union_all(select(all_of(y0)).from(y0).where(false));
 
+	std::cout << serialize(y, printer).str() << std::endl; printer.reset();
+	std::cout << serialize(from_table(y), printer).str() << std::endl;
+
+	db(with(y)(select(y.alpha).from(y).where(true)));
+
 	return 0;
 }

@@ -27,6 +27,7 @@
 #ifndef SQLPP_CTE_H
 #define SQLPP_CTE_H
 
+#include <sqlpp11/table_ref.h>
 #include <sqlpp11/union_data.h>
 #include <sqlpp11/select_flags.h>
 #include <sqlpp11/result_row.h>
@@ -40,8 +41,24 @@
 
 namespace sqlpp
 {
-	template<typename AliasProvider, typename Statement, typename... FieldSpecs>
+	template<typename AliasProvider, bool Recursive, typename Statement, typename... FieldSpecs>
 		struct cte_t;
+
+	template<typename AliasProvider>
+		struct cte_ref_t;
+
+	template<typename AliasProvider, bool Recursive, typename Statement, typename... FieldSpecs>
+		auto from_table(cte_t<AliasProvider, Recursive, Statement, FieldSpecs...> t) -> cte_ref_t<AliasProvider>
+		{
+			return cte_ref_t<AliasProvider>{};
+		}
+
+	template<typename AliasProvider, bool Recursive, typename Statement, typename... FieldSpecs>
+		struct from_table_impl<cte_t<AliasProvider, Recursive, Statement, FieldSpecs...>>
+		{
+			using type = cte_ref_t<AliasProvider>;
+		};
+
 
 	template<typename FieldSpec>
 		struct cte_column_spec_t
@@ -64,13 +81,19 @@ namespace sqlpp
 	template<typename AliasProvider, typename Statement, typename... FieldSpecs>
 		struct make_cte_impl<AliasProvider, Statement, result_row_t<void, FieldSpecs...>>
 		{
-			using type = cte_t<AliasProvider, Statement, FieldSpecs...>;
+			using type = cte_t<AliasProvider, false, Statement, FieldSpecs...>;
 		};
 
 	template<typename AliasProvider, typename Statement>
 		using make_cte_t = typename make_cte_impl<AliasProvider, Statement, get_result_row_t<Statement>>::type;
 
-	template<typename AliasProvider, typename Statement, typename... FieldSpecs>
+	template<bool Lhs, typename AliasProvider, typename Rhs>
+		struct cte_union_is_recursive
+		{
+			static constexpr bool value = Lhs or detail::is_element_of<AliasProvider, required_ctes_of<Rhs>>::value;
+		};
+
+	template<typename AliasProvider, bool Recursive, typename Statement, typename... FieldSpecs>
 		struct cte_t: public member_t<cte_column_spec_t<FieldSpecs>, column_t<AliasProvider, cte_column_spec_t<FieldSpecs>>>...
 		{
 			using _traits = make_traits<no_value_t, tag::is_cte, tag::is_table>; // FIXME: is table? really?
@@ -86,6 +109,7 @@ namespace sqlpp
 				using _tags = detail::type_set<>;
 			};
 			using _alias_t = typename AliasProvider::_alias_t;
+			constexpr static bool _is_recursive = Recursive;
 
 			using _column_tuple_t = std::tuple<column_t<AliasProvider, cte_column_spec_t<FieldSpecs>>...>;
 
@@ -94,7 +118,7 @@ namespace sqlpp
 
 			template<typename Rhs>
 				auto union_distinct(Rhs rhs) const
-				-> typename std::conditional<_check<Rhs>::value, cte_t<AliasProvider, union_data_t<void, distinct_t, Statement, Rhs>, FieldSpecs...>, bad_statement>::type
+				-> typename std::conditional<_check<Rhs>::value, cte_t<AliasProvider, cte_union_is_recursive<_is_recursive, AliasProvider, Rhs>::value, union_data_t<void, distinct_t, Statement, Rhs>, FieldSpecs...>, bad_statement>::type
 				{
 					static_assert(is_statement_t<Rhs>::value, "argument of union call has to be a statement");
 					static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
@@ -108,7 +132,7 @@ namespace sqlpp
 
 			template<typename Rhs>
 				auto union_all(Rhs rhs) const
-				-> typename std::conditional<_check<Rhs>::value, cte_t<AliasProvider, union_data_t<void, all_t, Statement, Rhs>, FieldSpecs...>, bad_statement>::type
+				-> typename std::conditional<_check<Rhs>::value, cte_t<AliasProvider, cte_union_is_recursive<_is_recursive, AliasProvider, Rhs>::value, union_data_t<void, all_t, Statement, Rhs>, FieldSpecs...>, bad_statement>::type
 				{
 					static_assert(is_statement_t<Rhs>::value, "argument of union call has to be a statement");
 					static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
@@ -127,7 +151,7 @@ namespace sqlpp
 
 			template<typename Database, typename Flag, typename Rhs>
 				auto _union_impl(const std::true_type&, Rhs rhs) const
-				-> cte_t<AliasProvider, union_data_t<void, Flag, Statement, Rhs>, FieldSpecs...>
+				-> cte_t<AliasProvider, cte_union_is_recursive<_is_recursive, AliasProvider, Rhs>::value, union_data_t<void, Flag, Statement, Rhs>, FieldSpecs...>
 				{
 					return union_data_t<Database, Flag, Statement, Rhs>{_statement, rhs};
 				}
@@ -144,11 +168,11 @@ namespace sqlpp
 			Statement _statement;
 		};
 
-	template<typename Context, typename AliasProvider, typename Statement, typename... ColumnSpecs>
-		struct serializer_t<Context, cte_t<AliasProvider, Statement, ColumnSpecs...>>
+	template<typename Context, typename AliasProvider, bool Recursive, typename Statement, typename... ColumnSpecs>
+		struct serializer_t<Context, cte_t<AliasProvider, Recursive, Statement, ColumnSpecs...>>
 		{
 			using _serialize_check = serialize_check_of<Context, Statement>;
-			using T = cte_t<AliasProvider, Statement, ColumnSpecs...>;
+			using T = cte_t<AliasProvider, Recursive, Statement, ColumnSpecs...>;
 
 			static Context& _(const T& t, Context& context)
 			{
@@ -165,9 +189,9 @@ namespace sqlpp
 //      AliasProviderName AS (ColumnNames) (select/union)
 // The result row of the select should not have dynamic parts
 	template<typename AliasProvider>
-		struct pre_cte_t
+		struct cte_ref_t
 		{
-			using _traits = make_traits<no_value_t, tag::is_cte, tag::is_table>; // FIXME: is table? really?
+			using _traits = make_traits<no_value_t, tag::is_alias, tag::is_cte, tag::is_table>; // FIXME: is table? really?
 			struct _recursive_traits
 			{
 				using _required_ctes = detail::make_type_set_t<AliasProvider>;
@@ -195,10 +219,10 @@ namespace sqlpp
 		};
 
 	template<typename Context, typename AliasProvider>
-		struct serializer_t<Context, pre_cte_t<AliasProvider>>
+		struct serializer_t<Context, cte_ref_t<AliasProvider>>
 		{
 			using _serialize_check = consistent_t;
-			using T = pre_cte_t<AliasProvider>;
+			using T = cte_ref_t<AliasProvider>;
 
 			static Context& _(const T& t, Context& context)
 			{
@@ -209,7 +233,7 @@ namespace sqlpp
 
 	template<typename AliasProvider>
 		auto cte(const AliasProvider&)
-		-> pre_cte_t<AliasProvider>
+		-> cte_ref_t<AliasProvider>
 		{
 			return {};
 		}

@@ -176,6 +176,7 @@ namespace sqlpp
 				if (T::_is_recursive::value)
 					context << "RECURSIVE ";
 				interpret_tuple(t._expressions, ',', context);
+				context << ' ';
 				return context;
 			}
 		};
@@ -184,6 +185,8 @@ namespace sqlpp
 		auto with(Expressions... cte)
 		-> blank_with_t<void, Expressions...>
 		{
+			static_assert(logic::all_t<is_cte_t<Expressions>::value...>::value, "at least one expression in with is not a common table expression");
+			static_assert(logic::none_t<is_alias_t<Expressions>::value...>::value, "at least one expression in with is an incomplete common table expression");
 			return { {cte...} };
 		}
 }
