@@ -28,7 +28,6 @@
 #define SQLPP_CTE_H
 
 #include <sqlpp11/table_ref.h>
-#include <sqlpp11/union_data.h>
 #include <sqlpp11/select_flags.h>
 #include <sqlpp11/result_row.h>
 #include <sqlpp11/statement_fwd.h>
@@ -41,20 +40,70 @@
 
 namespace sqlpp
 {
-	template<typename AliasProvider, bool Recursive, typename Statement, typename... FieldSpecs>
+	template<typename Flag, typename Lhs, typename Rhs>
+		struct cte_union_t
+		{
+			struct _recursive_traits
+			{
+				using _required_ctes = detail::make_joined_set_t<required_ctes_of<Lhs>, required_ctes_of<Rhs>>;
+				using _provided_ctes = detail::type_set<>;
+				using _required_tables = detail::type_set<>;
+				using _provided_tables = detail::type_set<>;
+				using _provided_outer_tables = detail::type_set<>;
+				using _extra_tables = detail::type_set<>;
+				using _parameters = detail::make_parameter_tuple_t<parameters_of<Lhs>, parameters_of<Rhs>>;
+				using _tags = detail::type_set<>;
+			};
+
+			cte_union_t(Lhs lhs, Rhs rhs):
+				_lhs(lhs),
+				_rhs(rhs)
+			{}
+
+			cte_union_t(const cte_union_t&) = default;
+			cte_union_t(cte_union_t&&) = default;
+			cte_union_t& operator=(const cte_union_t&) = default;
+			cte_union_t& operator=(cte_union_t&&) = default;
+			~cte_union_t() = default;
+
+			Lhs _lhs;
+			Rhs _rhs;
+		};
+
+	// Interpreters
+	template<typename Context, typename Flag, typename Lhs, typename Rhs>
+		struct serializer_t<Context, cte_union_t<Flag, Lhs, Rhs>>
+		{
+			using _serialize_check = serialize_check_of<Context, Lhs, Rhs>;
+			using T = cte_union_t<Flag, Lhs, Rhs>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				context << '(';
+				serialize(t._lhs, context);
+				context << ") UNION ";
+				serialize(Flag{}, context);
+				context << " (";
+				serialize(t._rhs, context);
+				context << ')';
+				return context;
+			}
+		};
+
+	template<typename AliasProvider, typename Statement, typename... FieldSpecs>
 		struct cte_t;
 
 	template<typename AliasProvider>
 		struct cte_ref_t;
 
-	template<typename AliasProvider, bool Recursive, typename Statement, typename... FieldSpecs>
-		auto from_table(cte_t<AliasProvider, Recursive, Statement, FieldSpecs...> t) -> cte_ref_t<AliasProvider>
+	template<typename AliasProvider, typename Statement, typename... FieldSpecs>
+		auto from_table(cte_t<AliasProvider, Statement, FieldSpecs...> t) -> cte_ref_t<AliasProvider>
 		{
 			return cte_ref_t<AliasProvider>{};
 		}
 
-	template<typename AliasProvider, bool Recursive, typename Statement, typename... FieldSpecs>
-		struct from_table_impl<cte_t<AliasProvider, Recursive, Statement, FieldSpecs...>>
+	template<typename AliasProvider, typename Statement, typename... FieldSpecs>
+		struct from_table_impl<cte_t<AliasProvider, Statement, FieldSpecs...>>
 		{
 			using type = cte_ref_t<AliasProvider>;
 		};
@@ -81,50 +130,45 @@ namespace sqlpp
 	template<typename AliasProvider, typename Statement, typename... FieldSpecs>
 		struct make_cte_impl<AliasProvider, Statement, result_row_t<void, FieldSpecs...>>
 		{
-			using type = cte_t<AliasProvider, false, Statement, FieldSpecs...>;
+			using type = cte_t<AliasProvider, Statement, FieldSpecs...>;
 		};
 
 	template<typename AliasProvider, typename Statement>
 		using make_cte_t = typename make_cte_impl<AliasProvider, Statement, get_result_row_t<Statement>>::type;
 
-	template<bool Lhs, typename AliasProvider, typename Rhs>
-		struct cte_union_is_recursive
-		{
-			static constexpr bool value = Lhs or detail::is_element_of<AliasProvider, required_ctes_of<Rhs>>::value;
-		};
-
-	template<typename AliasProvider, bool Recursive, typename Statement, typename... FieldSpecs>
+	template<typename AliasProvider, typename Statement, typename... FieldSpecs>
 		struct cte_t: public member_t<cte_column_spec_t<FieldSpecs>, column_t<AliasProvider, cte_column_spec_t<FieldSpecs>>>...
 		{
 			using _traits = make_traits<no_value_t, tag::is_cte, tag::is_table>; // FIXME: is table? really?
 			struct _recursive_traits
 			{
-				using _required_ctes = detail::make_joined_set_t<required_ctes_of<Statement>, detail::make_type_set_t<AliasProvider>>;
+				using _required_ctes = detail::make_joined_set_t<required_ctes_of<Statement>, detail::type_set<AliasProvider>>;
 				using _provided_ctes = detail::type_set<>;
 				using _required_tables = detail::type_set<>;
-				using _provided_tables = detail::type_set<AliasProvider>;
+				using _provided_tables = detail::type_set<>;
 				using _provided_outer_tables = detail::type_set<>;
 				using _extra_tables = detail::type_set<>;
 				using _parameters = parameters_of<Statement>;
 				using _tags = detail::type_set<>;
 			};
 			using _alias_t = typename AliasProvider::_alias_t;
-			constexpr static bool _is_recursive = Recursive;
+			constexpr static bool _is_recursive = detail::is_element_of<AliasProvider, required_ctes_of<Statement>>::value;
 
 			using _column_tuple_t = std::tuple<column_t<AliasProvider, cte_column_spec_t<FieldSpecs>>...>;
 
 			template<typename... T>
 				using _check = logic::all_t<is_statement_t<T>::value...>;
 
+			using _result_row_t = result_row_t<void, FieldSpecs...>; 
+
 			template<typename Rhs>
 				auto union_distinct(Rhs rhs) const
-				-> typename std::conditional<_check<Rhs>::value, cte_t<AliasProvider, cte_union_is_recursive<_is_recursive, AliasProvider, Rhs>::value, union_data_t<void, distinct_t, Statement, Rhs>, FieldSpecs...>, bad_statement>::type
+				-> typename std::conditional<_check<Rhs>::value, cte_t<AliasProvider, cte_union_t<distinct_t, Statement, Rhs>, FieldSpecs...>, bad_statement>::type
 				{
 					static_assert(is_statement_t<Rhs>::value, "argument of union call has to be a statement");
 					static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
 					static_assert(has_result_row_t<Rhs>::value, "argument of a union has to be a (complete) select statement");
 
-					using _result_row_t = result_row_t<void, FieldSpecs...>;
 					static_assert(std::is_same<_result_row_t, get_result_row_t<Rhs>>::value, "both select statements in a union have to have the same result columns (type and name)");
 
 					return _union_impl<void, distinct_t>(_check<Rhs>{}, rhs);
@@ -132,28 +176,27 @@ namespace sqlpp
 
 			template<typename Rhs>
 				auto union_all(Rhs rhs) const
-				-> typename std::conditional<_check<Rhs>::value, cte_t<AliasProvider, cte_union_is_recursive<_is_recursive, AliasProvider, Rhs>::value, union_data_t<void, all_t, Statement, Rhs>, FieldSpecs...>, bad_statement>::type
+				-> typename std::conditional<_check<Rhs>::value, cte_t<AliasProvider, cte_union_t<all_t, Statement, Rhs>, FieldSpecs...>, bad_statement>::type
 				{
 					static_assert(is_statement_t<Rhs>::value, "argument of union call has to be a statement");
 					static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
 					static_assert(has_result_row_t<Rhs>::value, "argument of a union has to be a (complete) select statement");
 
-					using _result_row_t = result_row_t<void, FieldSpecs...>;
 					static_assert(std::is_same<_result_row_t, get_result_row_t<Rhs>>::value, "both select statements in a union have to have the same result columns (type and name)");
 
-					return _union_impl<void, all_t>(_check<Rhs>{}, rhs);
+					return _union_impl<all_t>(_check<Rhs>{}, rhs);
 				}
 
 		private:
-			template<typename Database, typename Flag, typename Rhs>
+			template<typename Flag, typename Rhs>
 				auto _union_impl(const std::false_type&, Rhs rhs) const
 				-> bad_statement;
 
-			template<typename Database, typename Flag, typename Rhs>
+			template<typename Flag, typename Rhs>
 				auto _union_impl(const std::true_type&, Rhs rhs) const
-				-> cte_t<AliasProvider, cte_union_is_recursive<_is_recursive, AliasProvider, Rhs>::value, union_data_t<void, Flag, Statement, Rhs>, FieldSpecs...>
+				-> cte_t<AliasProvider, cte_union_t<Flag, Statement, Rhs>, FieldSpecs...>
 				{
-					return union_data_t<Database, Flag, Statement, Rhs>{_statement, rhs};
+					return cte_union_t<Flag, Statement, Rhs>{_statement, rhs};
 				}
 
 		public:
@@ -168,11 +211,11 @@ namespace sqlpp
 			Statement _statement;
 		};
 
-	template<typename Context, typename AliasProvider, bool Recursive, typename Statement, typename... ColumnSpecs>
-		struct serializer_t<Context, cte_t<AliasProvider, Recursive, Statement, ColumnSpecs...>>
+	template<typename Context, typename AliasProvider, typename Statement, typename... ColumnSpecs>
+		struct serializer_t<Context, cte_t<AliasProvider, Statement, ColumnSpecs...>>
 		{
 			using _serialize_check = serialize_check_of<Context, Statement>;
-			using T = cte_t<AliasProvider, Recursive, Statement, ColumnSpecs...>;
+			using T = cte_t<AliasProvider, Statement, ColumnSpecs...>;
 
 			static Context& _(const T& t, Context& context)
 			{
