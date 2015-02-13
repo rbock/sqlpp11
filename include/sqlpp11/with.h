@@ -27,6 +27,8 @@
 #ifndef SQLPP_WITH_H
 #define SQLPP_WITH_H
 
+#include <sqlpp11/assignment.h>
+#include <sqlpp11/column_fwd.h>
 #include <sqlpp11/statement_fwd.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/no_data.h>
