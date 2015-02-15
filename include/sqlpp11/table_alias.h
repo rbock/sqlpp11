@@ -74,9 +74,12 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
-				context << "(";
+				if (requires_braces_t<T>::value)
+					context << "(";
 				serialize(t._table, context);
-				context << ") AS " << name_of<T>::char_ptr();
+				if (requires_braces_t<T>::value)
+					context << ")";
+				context << " AS " << name_of<T>::char_ptr();
 				return context;
 			}
 		};
