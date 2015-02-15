@@ -192,7 +192,7 @@ namespace sqlpp
 							static_assert(not detail::has_duplicates<Args...>::value, "at least one duplicate argument detected in using()");
 
 							return { static_cast<const derived_statement_t<Policies>&>(*this), using_data_t<Database, Args...>{args...} };
-						};
+						}
 			};
 	};
 

@@ -147,7 +147,7 @@ namespace sqlpp
 			static void _()
 			{
 				static_assert(wrong_t<T>::value, "update assignments required, i.e. set(...)");
-			};
+			}
 	};
 
 	struct no_update_list_t
