@@ -24,35 +24,51 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DETAIL_PICK_ARG_H
-#define SQLPP_DETAIL_PICK_ARG_H
+#ifndef SQLPP_UNION_DATA_H
+#define SQLPP_UNION_DATA_H
 
-#include <type_traits>
+#include <sqlpp11/serializer.h>
 
 namespace sqlpp
 {
-	namespace detail
-	{
-		template<typename Target, typename Statement, typename Term>
-			typename Target::_data_t pick_arg_impl(Statement statement, Term term, const std::true_type&)
-			{
-				return term;
-			}
+	template<typename Database, typename Flag, typename Lhs, typename Rhs>
+		struct union_data_t
+		{
+			union_data_t(Lhs lhs, Rhs rhs):
+				_lhs(lhs),
+				_rhs(rhs)
+			{}
 
-		template<typename Target, typename Statement, typename Term>
-			typename Target::_data_t pick_arg_impl(Statement statement, Term term, const std::false_type&)
-			{
-				return Target::_get_member(statement)._data;
-			}
+			union_data_t(const union_data_t&) = default;
+			union_data_t(union_data_t&&) = default;
+			union_data_t& operator=(const union_data_t&) = default;
+			union_data_t& operator=(union_data_t&&) = default;
+			~union_data_t() = default;
 
-		// Returns a statement's term either by picking the term from the statement or using the new term
-		template<typename Target, typename Statement, typename Term>
-			typename Target::_data_t pick_arg(Statement statement, Term term)
+			Lhs _lhs;
+			Rhs _rhs;
+		};
+
+	// Interpreters
+	template<typename Context, typename Database, typename Flag, typename Lhs, typename Rhs>
+		struct serializer_t<Context, union_data_t<Database, Flag, Lhs, Rhs>>
+		{
+			using _serialize_check = serialize_check_of<Context, Lhs, Rhs>;
+			using T = union_data_t<Database, Flag, Lhs, Rhs>;
+
+			static Context& _(const T& t, Context& context)
 			{
-				return pick_arg_impl<Target>(statement, term, std::is_same<typename Target::_data_t, Term>());
+				context << '(';
+				serialize(t._lhs, context);
+				context << ") UNION ";
+				serialize(Flag{}, context);
+				context << " (";
+				serialize(t._rhs, context);
+				context << ')';
+				return context;
 			}
-	}
+		};
+
 }
-
 
 #endif

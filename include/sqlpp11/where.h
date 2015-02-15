@@ -190,7 +190,7 @@ namespace sqlpp
 			static void _()
 			{
 				static_assert(wrong_t<T>::value, "where expression required, e.g. where(true)");
-			};
+			}
 	};
 
 	// NO WHERE YET

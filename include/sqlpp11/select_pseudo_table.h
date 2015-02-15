@@ -31,6 +31,8 @@
 
 namespace sqlpp
 {
+	// FIXME: We might use field specs here (same as with cte)
+	//
 	// provide type information for sub-selects that are used as named expressions or tables
 	template<typename Select, typename NamedExpr>
 		struct select_column_spec_t

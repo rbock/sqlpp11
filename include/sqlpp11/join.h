@@ -68,6 +68,8 @@ namespace sqlpp
 			using _traits = make_traits<no_value_t, tag::is_table, tag::is_join>;
 			struct _recursive_traits
 			{
+				using _required_ctes = detail::make_joined_set_t<required_ctes_of<Lhs>, required_ctes_of<Rhs>>;
+				using _provided_ctes = detail::type_set<>;
 				using _required_tables = detail::make_joined_set_t<required_tables_of<Lhs>, required_tables_of<Rhs>>;
 				using _provided_tables = detail::make_joined_set_t<provided_tables_of<Lhs>, provided_tables_of<Rhs>>;
 				using _provided_outer_tables = typename JoinType::template _provided_outer_tables<Lhs, Rhs>;

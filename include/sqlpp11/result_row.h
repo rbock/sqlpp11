@@ -28,6 +28,7 @@
 #define SQLPP_RESULT_ROW_H
 
 #include <map>
+#include <sqlpp11/result_row_fwd.h>
 #include <sqlpp11/field_spec.h>
 #include <sqlpp11/text.h>
 #include <sqlpp11/detail/field_index_sequence.h>
@@ -265,6 +266,21 @@ namespace sqlpp
 				}
 			}
 	};
+
+	template<typename T>
+		struct is_static_result_row_impl
+		{
+			using type = std::false_type;
+		};
+
+	template<typename Db, typename... FieldSpecs>
+		struct is_static_result_row_impl<result_row_t<Db, FieldSpecs...>>
+		{
+			using type = std::true_type;
+		};
+
+	template<typename T>
+		using is_static_result_row_t = typename is_static_result_row_impl<T>::type;
 }
 
 #endif

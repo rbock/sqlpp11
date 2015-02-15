@@ -24,35 +24,32 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DETAIL_PICK_ARG_H
-#define SQLPP_DETAIL_PICK_ARG_H
+#ifndef SQLPP_TABLE_REF_H
+#define SQLPP_TABLE_REF_H
 
-#include <type_traits>
+#include <utility>
 
 namespace sqlpp
 {
-	namespace detail
-	{
-		template<typename Target, typename Statement, typename Term>
-			typename Target::_data_t pick_arg_impl(Statement statement, Term term, const std::true_type&)
-			{
-				return term;
-			}
+	template<typename T>
+		auto from_table(T t) -> T
+		{
+			return t;
+		}
 
-		template<typename Target, typename Statement, typename Term>
-			typename Target::_data_t pick_arg_impl(Statement statement, Term term, const std::false_type&)
-			{
-				return Target::_get_member(statement)._data;
-			}
+	template<typename T>
+		struct from_table_impl
+		{
+			using type = T;
+		};
+	template<typename T>
+		using from_table_t = typename from_table_impl<T>::type;
 
-		// Returns a statement's term either by picking the term from the statement or using the new term
-		template<typename Target, typename Statement, typename Term>
-			typename Target::_data_t pick_arg(Statement statement, Term term)
-			{
-				return pick_arg_impl<Target>(statement, term, std::is_same<typename Target::_data_t, Term>());
-			}
-	}
+	template<typename T>
+		auto table_ref(T t) -> T
+		{
+			return t;
+		}
 }
-
 
 #endif

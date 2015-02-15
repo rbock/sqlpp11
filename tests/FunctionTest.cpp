@@ -33,7 +33,7 @@
 #include <iostream>
 
 MockDb db = {};
-SQLPP_ALIAS_PROVIDER(kaesekuchen);
+SQLPP_ALIAS_PROVIDER(kaesekuchen)
 
 int main()
 {

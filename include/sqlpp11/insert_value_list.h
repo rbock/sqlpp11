@@ -315,7 +315,7 @@ namespace sqlpp
 			static void _()
 			{
 				static_assert(wrong_t<T>::value, "insert values required, e.g. set(...) or default_values()");
-			};
+			}
 	};
 
 	// NO INSERT COLUMNS/VALUES YET

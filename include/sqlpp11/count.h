@@ -41,6 +41,8 @@ namespace sqlpp
 		using _traits = make_traits<integral, tag::is_expression, tag::is_selectable>;
 		struct _recursive_traits
 		{
+			using _required_ctes = required_ctes_of<Expr>;
+			using _provided_ctes = detail::type_set<>;
 			using _required_tables = required_tables_of<Expr>;
 			using _provided_tables = provided_tables_of<Expr>;
 			using _provided_outer_tables = provided_outer_tables_of<Expr>;

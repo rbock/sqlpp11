@@ -44,6 +44,17 @@ namespace sqlpp
 	template<typename Db, typename... Policies>
 		struct statement_t;
 
+	struct assert_no_unknown_ctes_t
+	{
+		using type = std::false_type;
+
+		template<typename T = void>
+		static void _()
+		{
+			static_assert(wrong_t<T>::value, "one clause requires common table expressions which are otherwise not known in the statement");
+		}
+	};
+
 	struct assert_no_unknown_tables_t
 	{
 		using type = std::false_type;
@@ -84,6 +95,8 @@ namespace sqlpp
 				template<typename Needle, typename Replacement>
 					using _new_statement_t = typename _policies_update_t<Needle, Replacement>::type;
 
+				using _all_required_ctes = detail::make_joined_set_t<required_ctes_of<Policies>...>;
+				using _all_provided_ctes = detail::make_joined_set_t<provided_ctes_of<Policies>...>;
 				using _all_required_tables = detail::make_joined_set_t<required_tables_of<Policies>...>;
 				using _all_provided_tables = detail::make_joined_set_t<provided_tables_of<Policies>...>;
 				using _all_provided_outer_tables = detail::make_joined_set_t<provided_outer_tables_of<Policies>...>;
@@ -94,10 +107,19 @@ namespace sqlpp
 				template<typename Expression>
 					using _no_unknown_tables = detail::is_subset_of<required_tables_of<Expression>, _known_tables>;
 
+				template<template<typename> class Predicate>
+				using any_t = logic::any_t<Predicate<Policies>::value...>;
+
 				// The tables not covered by the from.
 				using _required_tables = detail::make_difference_set_t<
 					_all_required_tables,
 					_all_provided_tables // Hint: extra_tables are not used here because they are just a helper for dynamic .add_*()
+						>;
+
+				// The common table expressions not covered by the with.
+				using _required_ctes = detail::make_difference_set_t<
+					_all_required_ctes,
+					_all_provided_ctes
 						>;
 
 				using _result_type_provider = detail::get_last_if<is_return_value_t, noop, Policies...>;
@@ -108,10 +130,12 @@ namespace sqlpp
 
 				// A select can be used as a pseudo table if
 				//   - at least one column is selected
-				//   - the select is complete (leaks no tables)
+				//   - the select is complete (leaks no table requirements)
 				static constexpr bool _can_be_used_as_table()
 				{
-					return is_select_column_list_t<_result_type_provider>::value and _required_tables::size::value == 0
+					return has_result_row_t<_statement_t>::value
+					 	and _required_tables::size::value == 0
+					 	and _all_provided_ctes::size::value == 0 // a sub-select must not contain a WITH
 						? true
 						: false;
 				}
@@ -133,6 +157,8 @@ namespace sqlpp
 
 				struct _recursive_traits
 				{
+					using _required_ctes = statement_policies_t::_required_ctes;
+					using _provided_ctes = detail::type_set<>;
 					using _required_tables = statement_policies_t::_required_tables;
 					using _provided_tables = detail::type_set<>;
 					using _provided_outer_tables = detail::type_set<>;
@@ -143,6 +169,8 @@ namespace sqlpp
 											detail::type_set<>>::type;
 				};
 
+				using _cte_check = typename std::conditional<_required_ctes::size::value == 0,
+							consistent_t, assert_no_unknown_ctes_t>::type;
 				using _table_check = typename std::conditional<_required_tables::size::value == 0,
 							consistent_t, assert_no_unknown_tables_t>::type;
 				using _parameter_check = typename std::conditional<std::tuple_size<typename _recursive_traits::_parameters>::value == 0,
@@ -158,13 +186,15 @@ namespace sqlpp
 	{
 		using _policies_t = typename detail::statement_policies_t<Db, Policies...>;
 
-		using _run_check = detail::get_first_if<is_inconsistent_t, consistent_t, 
-					typename _policies_t::_parameter_check, 
+		using _consistency_check = detail::get_first_if<is_inconsistent_t, consistent_t, 
 					typename Policies::template _base_t<_policies_t>::_consistency_check..., 
 					typename _policies_t::_table_check>;
 		using _prepare_check = detail::get_first_if<is_inconsistent_t, consistent_t, 
-					typename Policies::template _base_t<_policies_t>::_consistency_check..., 
-					typename _policies_t::_table_check>;
+					typename _policies_t::_cte_check, 
+					_consistency_check>;
+		using _run_check = detail::get_first_if<is_inconsistent_t, consistent_t, 
+					typename _policies_t::_parameter_check, 
+					_prepare_check>;
 
 		using _result_type_provider = typename _policies_t::_result_type_provider;
 		template<typename Composite>

@@ -286,6 +286,7 @@ namespace sqlpp
 					template<typename AliasProvider>
 						_alias_t<AliasProvider> as(const AliasProvider& aliasProvider) const
 						{
+							consistency_check_t<_statement_t>::_();
 							static_assert(_statement_t::_can_be_used_as_table(), "statement cannot be used as table, e.g. due to missing tables");
 							static_assert(logic::none_t<is_multi_column_t<Columns>::value...>::value, "cannot use multi-columns in sub selects");
 							return _table_t<AliasProvider>(_get_statement()).as(aliasProvider);
@@ -340,7 +341,7 @@ namespace sqlpp
 			auto tuple_merge(Columns... columns) -> decltype(std::tuple_cat(as_tuple<Columns>::_(columns)...))
 			{
 				return std::tuple_cat(as_tuple<Columns>::_(columns)...);
-			};
+			}
 
 		template<typename Database, typename... Columns>
 			using make_select_column_list_t = 

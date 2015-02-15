@@ -211,7 +211,7 @@ namespace sqlpp
 							static_assert(not detail::has_duplicates<Expressions...>::value, "at least one duplicate argument detected in group_by()");
 
 							return { static_cast<const derived_statement_t<Policies>&>(*this), group_by_data_t<Database, Expressions...>{expressions...} };
-						};
+						}
 			};
 	};
 

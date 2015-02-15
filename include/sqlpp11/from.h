@@ -27,6 +27,7 @@
 #ifndef SQLPP_FROM_H
 #define SQLPP_FROM_H
 
+#include <sqlpp11/table_ref.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/no_data.h>
 #include <sqlpp11/interpretable_list.h>
@@ -90,7 +91,7 @@ namespace sqlpp
 					template<typename Table>
 						void _add_impl(Table table, const std::true_type&)
 						{
-							return _data._dynamic_tables.emplace_back(table);
+							return _data._dynamic_tables.emplace_back(from_table(table));
 						}
 
 					template<typename Table>
@@ -164,7 +165,7 @@ namespace sqlpp
 
 				template<typename... Tables>
 					auto from(Tables... tables) const
-					-> _new_statement_t<_check<Tables...>, from_t<void, Tables...>>
+					-> _new_statement_t<_check<Tables...>, from_t<void, from_table_t<Tables>...>>
 					{
 						static_assert(_check<Tables...>::value, "at least one argument is not a table or join in from()");
 						static_assert(sizeof...(Tables), "at least one table or join argument required in from()");
@@ -173,7 +174,7 @@ namespace sqlpp
 
 				template<typename... Tables>
 					auto dynamic_from(Tables... tables) const
-					-> _new_statement_t<_check<Tables...>, from_t<_database_t, Tables...>>
+					-> _new_statement_t<_check<Tables...>, from_t<_database_t, from_table_t<Tables>...>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_from must not be called in a static statement");
 						static_assert(_check<Tables...>::value, "at least one argument is not a table or join in from()");
@@ -187,7 +188,7 @@ namespace sqlpp
 
 				template<typename Database, typename... Tables>
 					auto _from_impl(const std::true_type&, Tables... tables) const
-					-> _new_statement_t<std::true_type, from_t<Database, Tables...>>
+					-> _new_statement_t<std::true_type, from_t<Database, from_table_t<Tables>...>>
 					{
 						static_assert(required_tables_of<from_t<Database, Tables...>>::size::value == 0, "at least one table depends on another table in from()");
 
@@ -197,7 +198,7 @@ namespace sqlpp
 						static_assert(_number_of_tables == _unique_tables::size::value, "at least one duplicate table detected in from()");
 						static_assert(_number_of_tables == _unique_table_names::size::value, "at least one duplicate table name detected in from()");
 
-						return { static_cast<const derived_statement_t<Policies>&>(*this), from_data_t<Database, Tables...>{tables...} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), from_data_t<Database, from_table_t<Tables>...>{from_table(tables)...} };
 					}
 
 			};

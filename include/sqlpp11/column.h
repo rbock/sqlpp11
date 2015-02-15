@@ -54,11 +54,13 @@ namespace sqlpp
 
 		struct _recursive_traits
 		{
-			using _parameters = std::tuple<>;
+			using _required_ctes = detail::type_set<>;
+			using _provided_ctes = detail::type_set<>;
+			using _required_tables = detail::type_set<Table>;
 			using _provided_tables = detail::type_set<>;
 			using _provided_outer_tables = detail::type_set<>;
-			using _required_tables = detail::type_set<Table>;
 			using _extra_tables = detail::type_set<>;
+			using _parameters = std::tuple<>;
 			using _tags = typename std::conditional<column_spec_can_be_null_t<ColumnSpec>::value,
 									detail::type_set<tag::can_be_null>,
 									detail::type_set<>>::type;

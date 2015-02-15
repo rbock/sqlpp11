@@ -90,7 +90,7 @@ namespace sqlpp
 		transaction_t<Db> start_transaction(Db& db, bool report_unfinished_transaction = report_auto_rollback)
 		{
 			return { db, report_unfinished_transaction };
-		};
+		}
 }
 
 #endif

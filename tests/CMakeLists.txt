@@ -19,6 +19,7 @@ endmacro ()
 #build_and_run(Minimalistic)
 #build_and_run(ResultTest)
 build_and_run(UnionTest)
+build_and_run(WithTest)
 
 # if you want to use the generator, you can do something like this:
 #find_package(PythonInterp REQUIRED)

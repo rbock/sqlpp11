@@ -54,11 +54,13 @@ namespace sqlpp
 			using _traits = make_traits<no_value_t, tag::is_extra_tables>;
 			struct _recursive_traits
 			{
-				using _parameters = std::tuple<>;
+				using _required_ctes = detail::make_joined_set_t<required_ctes_of<Tables>...>;
+				using _provided_ctes = detail::type_set<>;
 				using _required_tables = detail::type_set<>;
 				using _provided_outer_tables = detail::type_set<>;
 				using _provided_tables = detail::type_set<>;
 				using _extra_tables = detail::type_set<Tables...>;
+				using _parameters = std::tuple<>;
 				using _tags = detail::type_set<>;
 			};
 
