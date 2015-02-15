@@ -189,12 +189,17 @@ namespace sqlpp
 		using _consistency_check = detail::get_first_if<is_inconsistent_t, consistent_t, 
 					typename Policies::template _base_t<_policies_t>::_consistency_check..., 
 					typename _policies_t::_table_check>;
-		using _prepare_check = detail::get_first_if<is_inconsistent_t, consistent_t, 
-					typename _policies_t::_cte_check, 
-					_consistency_check>;
+
 		using _run_check = detail::get_first_if<is_inconsistent_t, consistent_t, 
 					typename _policies_t::_parameter_check, 
-					_prepare_check>;
+					typename _policies_t::_cte_check, 
+					typename Policies::template _base_t<_policies_t>::_consistency_check..., 
+					typename _policies_t::_table_check>;
+
+		using _prepare_check = detail::get_first_if<is_inconsistent_t, consistent_t,
+					typename _policies_t::_cte_check, 
+					typename Policies::template _base_t<_policies_t>::_consistency_check..., 
+					typename _policies_t::_table_check>;
 
 		using _result_type_provider = typename _policies_t::_result_type_provider;
 		template<typename Composite>
