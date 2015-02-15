@@ -297,6 +297,21 @@ namespace sqlpp
 	};
 
 	template<typename T, typename Enable = void>
+		struct consistency_check
+		{
+			using type = assert_run_statement_or_prepared_t;
+		};
+
+	template<typename T>
+		struct consistency_check<T, typename std::enable_if<is_statement_t<T>::value or is_prepared_statement_t<T>::value>::type>
+		{
+			using type = typename T::_consistency_check;
+		};
+
+	template<typename T>
+		using consistency_check_t = typename consistency_check<T>::type;
+
+	template<typename T, typename Enable = void>
 		struct run_check
 		{
 			using type = assert_run_statement_or_prepared_t;

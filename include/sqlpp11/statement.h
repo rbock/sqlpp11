@@ -130,12 +130,12 @@ namespace sqlpp
 
 				// A select can be used as a pseudo table if
 				//   - at least one column is selected
-				//   - the select is complete (leaks no tables)
+				//   - the select is complete (leaks no table requirements)
 				static constexpr bool _can_be_used_as_table()
 				{
 					return has_result_row_t<_statement_t>::value
 					 	and _required_tables::size::value == 0
-					 	and _required_ctes::size::value == 0
+					 	and _all_provided_ctes::size::value == 0 // a sub-select must not contain a WITH
 						? true
 						: false;
 				}
