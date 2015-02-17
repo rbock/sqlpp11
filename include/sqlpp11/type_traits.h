@@ -155,11 +155,6 @@ namespace sqlpp
 	template<typename Database>
 		using is_database = typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 
-	namespace detail
-	{
-		template<typename... T>
-			using make_parameter_tuple_t = decltype(std::tuple_cat(std::declval<T>()...));
-	}
 	template<typename T>
 		using value_type_of = typename T::_traits::_value_type;
 
@@ -235,7 +230,7 @@ namespace sqlpp
 		template<typename... Nodes>
 			struct parameters_of_impl<type_vector<Nodes...>, void>
 			{
-				using type = detail::make_parameter_tuple_t<typename parameters_of_impl<Nodes>::type...>;
+				using type = detail::type_vector_cat_t<typename parameters_of_impl<Nodes>::type...>;
 			};
 	}
 	template<typename T>\

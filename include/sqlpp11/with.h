@@ -67,8 +67,8 @@ namespace sqlpp
 		{
 			using _traits = make_traits<no_value_t, tag::is_with>;
 			using _nodes = detail::type_vector<>;
-			using _provided_ctes = detail::make_joined_set_t<required_ctes_of<Expressions>...>; // with provides common table expressions
-			using _parameters = detail::make_parameter_tuple_t<parameters_of<Expressions>...>;
+			using _provided_ctes = detail::make_joined_set_t<required_ctes_of<Expressions>...>; // WITH provides common table expressions
+			using _parameters = detail::type_vector_cat_t<parameters_of<Expressions>...>;
 
 			using _is_dynamic = is_database<Database>;
 

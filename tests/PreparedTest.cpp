@@ -40,40 +40,48 @@ int main()
 
 	// empty parameter lists
 	{
-		using T = sqlpp::parameters_of<decltype(t.alpha)>;
-		static_assert(std::is_same<T, std::tuple<>>::value, "type requirement");
+		using T = sqlpp::make_parameter_list_t<decltype(t.alpha)>;
+		static_assert(T::size::value == 0, "type requirement");
 	}
 
 	// single parameter
 	{
-		using T = sqlpp::parameters_of<decltype(parameter(t.alpha))>;
-		static_assert(std::is_same<T, std::tuple<decltype(parameter(t.alpha))>>::value, "type requirement");
+		using T = sqlpp::make_parameter_list_t<decltype(parameter(t.alpha))>;
+		static_assert(T::size::value == 1, "type requirement");
+		auto t = T{};
+		t.alpha = 7;
 	}
 
 	// single parameter
 	{
-		using T = sqlpp::parameters_of<decltype(parameter(t.alpha))>;
-		static_assert(std::is_same<T, std::tuple<decltype(parameter(t.alpha))>>::value, "type requirement");
+		using T = sqlpp::make_parameter_list_t<decltype(parameter(t.beta))>;
+		static_assert(T::size::value == 1, "type requirement");
+		auto t = T{};
+		t.beta = "cheesecake";
 	}
 
 	// single parameter in expression
 	{
-		using T = sqlpp::parameters_of<decltype(t.alpha == parameter(t.alpha))>;
-		static_assert(std::is_same<T, std::tuple<decltype(parameter(t.alpha))>>::value, "type requirement");
+		using T = sqlpp::make_parameter_list_t<decltype(t.alpha == parameter(t.alpha))>;
+		static_assert(T::size::value == 1, "type requirement");
+		auto t = T{};
+		t.alpha = 7;
 	}
 
 
 	// single parameter in larger expression
 	{
-		using T = sqlpp::parameters_of<decltype((t.beta.like("%") and t.alpha == parameter(t.alpha)) or t.gamma != false)>;
-		static_assert(std::is_same<T, std::tuple<decltype(parameter(t.alpha))>>::value, "type requirement");
+		using T = sqlpp::make_parameter_list_t<decltype((t.beta.like("%") and t.alpha == parameter(t.alpha)) or t.gamma != false)>;
+		static_assert(T::size::value == 1, "type requirement");
+		auto t = T{};
+		t.alpha = 7;
 	}
 
 	// three parameters in expression
 	{
 		using T = sqlpp::parameters_of<decltype((t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha)) or t.gamma != parameter(t.gamma))>;
-		static_assert(std::tuple_size<T>::value == 3, "type requirement");
-		static_assert(std::is_same<T, std::tuple<decltype(parameter(t.beta)), decltype(parameter(t.alpha)),decltype(parameter(t.gamma))>>::value, "type requirement");
+		// FIXME: make some test, that does not depend on detail namespace, but still checks the correct order of the parameters
+		static_assert(std::is_same<T, sqlpp::detail::type_vector<decltype(parameter(t.beta)), decltype(parameter(t.alpha)),decltype(parameter(t.gamma))>>::value, "type requirement");
 	}
 
 	// OK, fine, now create a named parameter list from an expression

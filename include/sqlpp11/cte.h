@@ -45,7 +45,7 @@ namespace sqlpp
 		{
 			using _nodes = detail::type_vector<>;
 			using _required_ctes = detail::make_joined_set_t<required_ctes_of<Lhs>, required_ctes_of<Rhs>>;
-			using _parameters = detail::make_parameter_tuple_t<parameters_of<Lhs>, parameters_of<Rhs>>;
+			using _parameters = detail::type_vector_cat_t<parameters_of<Lhs>, parameters_of<Rhs>>;
 
 			cte_union_t(Lhs lhs, Rhs rhs):
 				_lhs(lhs),

@@ -56,7 +56,7 @@ namespace sqlpp
 		using _traits = make_traits<no_value_t, tag::is_statement>;
 		using _nodes = detail::type_vector<Parts...>;
 
-		using _parameter_check = typename std::conditional<std::tuple_size<parameters_of<custom_query_t>>::value == 0,
+		using _parameter_check = typename std::conditional<detail::type_vector_size<parameters_of<custom_query_t>>::value == 0,
 					consistent_t, assert_no_parameters_t>::type;
 		using _run_check = detail::get_first_if<is_inconsistent_t, consistent_t, 
 					_parameter_check>;

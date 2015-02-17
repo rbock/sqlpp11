@@ -155,14 +155,14 @@ namespace sqlpp
 						required_tables_of<_result_type_provider>, 
 						_all_provided_outer_tables
 						>::size::value != 0>;
-				using _parameters = detail::make_parameter_tuple_t<parameters_of<Policies>...>;
+				using _parameters = detail::type_vector_cat_t<parameters_of<Policies>...>;
 				// required_tables and _required_ctes are defined above
 
 				using _cte_check = typename std::conditional<_required_ctes::size::value == 0,
 							consistent_t, assert_no_unknown_ctes_t>::type;
 				using _table_check = typename std::conditional<_required_tables::size::value == 0,
 							consistent_t, assert_no_unknown_tables_t>::type;
-				using _parameter_check = typename std::conditional<std::tuple_size<_parameters>::value == 0,
+				using _parameter_check = typename std::conditional<detail::type_vector_size<_parameters>::value == 0,
 							consistent_t, assert_no_parameters_t>::type;
 			};
 	}
@@ -226,7 +226,7 @@ namespace sqlpp
 
 		static constexpr size_t _get_static_no_of_parameters()
 		{
-			return std::tuple_size<parameters_of<statement_t>>::value;
+			return detail::type_vector_size<parameters_of<statement_t>>::value;
 		}
 
 		size_t _get_no_of_parameters() const
