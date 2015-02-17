@@ -42,17 +42,9 @@ namespace sqlpp
 		//FIXME: Need to add join functionality
 		using _traits = make_traits<value_type_of<Table>, tag::is_table, tag::is_alias, tag_if<tag::is_selectable, is_expression_t<Table>::value>>;
 
-		struct _recursive_traits
-		{
-			using _required_ctes = required_ctes_of<Table>;
-			using _provided_ctes = detail::type_set<>;
-			using _required_tables = detail::type_set<>;
-			using _provided_tables = detail::type_set<AliasProvider>;
-			using _provided_outer_tables = detail::type_set<>;
-			using _extra_tables = detail::type_set<>;
-			using _parameters = std::tuple<>;
-			using _tags = detail::type_set<>;
-		};
+		using _nodes = std::tuple<>;
+		using _required_ctes = required_ctes_of<Table>;
+		using _provided_tables = detail::type_set<AliasProvider>;
 
 		static_assert(required_tables_of<Table>::size::value == 0, "table aliases must not depend on external tables");
 

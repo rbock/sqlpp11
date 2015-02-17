@@ -59,7 +59,7 @@ namespace sqlpp
 		struct into_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_into>;
-			using _recursive_traits = make_recursive_traits<Table>;
+			using _nodes = std::tuple<Table>;
 
 			using _data_t = into_data_t<Database, Table>;
 
@@ -108,7 +108,7 @@ namespace sqlpp
 	struct no_into_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_noop>;
-		using _recursive_traits = make_recursive_traits<>;
+		using _nodes = std::tuple<>;
 
 		// Data
 		using _data_t = no_data_t;

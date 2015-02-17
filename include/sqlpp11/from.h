@@ -61,7 +61,7 @@ namespace sqlpp
 		struct from_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_from>;
-			using _recursive_traits = make_recursive_traits<Tables...>;
+			using _nodes = std::tuple<Tables...>;
 			using _is_dynamic = is_database<Database>;
 
 			// Data
@@ -125,7 +125,7 @@ namespace sqlpp
 	struct no_from_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_noop>;
-		using _recursive_traits = make_recursive_traits<>;
+		using _nodes = std::tuple<>;
 
 		// Data
 		using _data_t = no_data_t;

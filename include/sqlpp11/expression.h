@@ -44,7 +44,7 @@ namespace sqlpp
 			public alias_operators<binary_expression_t<Lhs, op::equal_to, Rhs>>
 		{
 			using _traits = make_traits<boolean, tag::is_expression>;
-			using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
+			using _nodes = std::tuple<Lhs, Rhs>;
 			using _lhs_t = Lhs;
 			using _rhs_t = rhs_wrap_t<allow_tvin_t<Rhs>, trivial_value_is_null_t<_lhs_t>::value>;
 
@@ -93,7 +93,7 @@ namespace sqlpp
 			public alias_operators<binary_expression_t<Lhs, op::not_equal_to, Rhs>>
 		{
 			using _traits = make_traits<boolean, tag::is_expression>;
-			using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
+			using _nodes = std::tuple<Lhs, Rhs>;
 			using _lhs_t = Lhs;
 			using _rhs_t = rhs_wrap_t<allow_tvin_t<Rhs>, trivial_value_is_null_t<_lhs_t>::value>;
 
@@ -142,7 +142,7 @@ namespace sqlpp
 			public alias_operators<unary_expression_t<op::logical_not, Rhs>>
 		{
 			using _traits = make_traits<boolean, tag::is_expression>;
-			using _recursive_traits = make_recursive_traits<Rhs>;
+			using _nodes = std::tuple<Rhs>;
 
 			unary_expression_t(Rhs rhs):
 				_rhs(rhs)
@@ -188,7 +188,7 @@ namespace sqlpp
 			public alias_operators<binary_expression_t<Lhs, O, Rhs>>
 	{
 		using _traits = make_traits<value_type_of<O>, tag::is_expression>;
-		using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
+		using _nodes = std::tuple<Lhs, Rhs>;
 
 		binary_expression_t(Lhs lhs, Rhs rhs):
 			_lhs(lhs), 
@@ -228,7 +228,7 @@ namespace sqlpp
 			public alias_operators<unary_expression_t<O, Rhs>>
 	{
 		using _traits = make_traits<value_type_of<O>, tag::is_expression>;
-		using _recursive_traits = make_recursive_traits<Rhs>;
+		using _nodes = std::tuple<Rhs>;
 
 		unary_expression_t(Rhs rhs):
 			_rhs(rhs)

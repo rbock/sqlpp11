@@ -55,7 +55,7 @@ namespace sqlpp
 		struct limit_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_limit>;
-			using _recursive_traits = make_recursive_traits<Limit>;
+			using _nodes = std::tuple<Limit>;
 
 			// Data
 			using _data_t = limit_data_t<Limit>;
@@ -118,7 +118,7 @@ namespace sqlpp
 		struct dynamic_limit_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_limit>;
-			using _recursive_traits = make_recursive_traits<>;
+			using _nodes = std::tuple<>;
 
 			// Data
 			using _data_t = dynamic_limit_data_t<Database>;
@@ -163,7 +163,7 @@ namespace sqlpp
 	struct no_limit_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_noop>;
-		using _recursive_traits = make_recursive_traits<>;
+		using _nodes = std::tuple<>;
 
 		// Data
 		using _data_t = no_data_t;

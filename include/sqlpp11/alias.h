@@ -36,7 +36,7 @@ namespace sqlpp
 		struct expression_alias_t
 		{
 			using _traits = make_traits<value_type_of<Expression>, tag::is_selectable, tag::is_alias>;
-			using _recursive_traits = make_recursive_traits<Expression>;
+			using _nodes = std::tuple<Expression>;
 
 			static_assert(is_expression_t<Expression>::value, "invalid argument for an expression alias");
 			static_assert(not is_alias_t<Expression>::value, "cannot create an alias of an alias");

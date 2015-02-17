@@ -36,7 +36,7 @@ namespace sqlpp
 		struct boolean_expression_t: public expression_operators<boolean_expression_t<Database>, boolean>
 		{
 			using _traits = make_traits<boolean, tag::is_expression>;
-			using _recursive_traits = make_recursive_traits<>;
+			using _nodes = std::tuple<>;
 
 			template<typename Expr>
 			boolean_expression_t(Expr expr):

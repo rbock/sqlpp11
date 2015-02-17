@@ -50,10 +50,7 @@ namespace sqlpp
 
 	struct verbatim_table_t: public table_t<verbatim_table_t, detail::unusable_pseudo_column_t>
 	{
-		struct _recursive_traits: public table_t<verbatim_table_t, detail::unusable_pseudo_column_t>::_recursive_traits
-		{
-			using _provided_outer_tables = detail::type_set<verbatim_table_t>;
-		};
+		using _nodes = std::tuple<>;
 
 		struct _alias_t
 		{

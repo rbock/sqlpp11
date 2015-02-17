@@ -58,7 +58,7 @@ namespace sqlpp
 		struct single_table_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_single_table>;
-			using _recursive_traits = make_recursive_traits<Table>;
+			using _nodes = std::tuple<Table>;
 
 			static_assert(is_table_t<Table>::value, "argument has to be a table");
 			static_assert(required_tables_of<Table>::size::value == 0, "table depends on another table");
@@ -99,7 +99,7 @@ namespace sqlpp
 	struct no_single_table_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_noop>;
-		using _recursive_traits = make_recursive_traits<>;
+		using _nodes = std::tuple<>;
 
 		// Data
 		using _data_t = no_data_t;

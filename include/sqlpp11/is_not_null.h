@@ -40,7 +40,7 @@ namespace sqlpp
 			public alias_operators<is_not_null_t<Operand>>
 	{
 		using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
-		using _recursive_traits = make_recursive_traits<Operand>;
+		using _nodes = std::tuple<Operand>;
 
 		struct _alias_t
 		{

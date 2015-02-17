@@ -39,7 +39,7 @@ namespace sqlpp
 			_column_t _column;
 
 			using _traits = make_traits<no_value_t, tag::is_noop>;
-			using _recursive_traits = make_recursive_traits<>;
+			using _nodes = std::tuple<>;
 		};
 
 	template<typename Context, typename Column>

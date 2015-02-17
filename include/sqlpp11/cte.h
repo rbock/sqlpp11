@@ -43,17 +43,9 @@ namespace sqlpp
 	template<typename Flag, typename Lhs, typename Rhs>
 		struct cte_union_t
 		{
-			struct _recursive_traits
-			{
-				using _required_ctes = detail::make_joined_set_t<required_ctes_of<Lhs>, required_ctes_of<Rhs>>;
-				using _provided_ctes = detail::type_set<>;
-				using _required_tables = detail::type_set<>;
-				using _provided_tables = detail::type_set<>;
-				using _provided_outer_tables = detail::type_set<>;
-				using _extra_tables = detail::type_set<>;
-				using _parameters = detail::make_parameter_tuple_t<parameters_of<Lhs>, parameters_of<Rhs>>;
-				using _tags = detail::type_set<>;
-			};
+			using _nodes = std::tuple<>;
+			using _required_ctes = detail::make_joined_set_t<required_ctes_of<Lhs>, required_ctes_of<Rhs>>;
+			using _parameters = detail::make_parameter_tuple_t<parameters_of<Lhs>, parameters_of<Rhs>>;
 
 			cte_union_t(Lhs lhs, Rhs rhs):
 				_lhs(lhs),
@@ -140,17 +132,10 @@ namespace sqlpp
 		struct cte_t: public member_t<cte_column_spec_t<FieldSpecs>, column_t<AliasProvider, cte_column_spec_t<FieldSpecs>>>...
 		{
 			using _traits = make_traits<no_value_t, tag::is_cte, tag::is_table>; // FIXME: is table? really?
-			struct _recursive_traits
-			{
-				using _required_ctes = detail::make_joined_set_t<required_ctes_of<Statement>, detail::type_set<AliasProvider>>;
-				using _provided_ctes = detail::type_set<>;
-				using _required_tables = detail::type_set<>;
-				using _provided_tables = detail::type_set<>;
-				using _provided_outer_tables = detail::type_set<>;
-				using _extra_tables = detail::type_set<>;
-				using _parameters = parameters_of<Statement>;
-				using _tags = detail::type_set<>;
-			};
+			using _nodes = std::tuple<>;
+			using _required_ctes = detail::make_joined_set_t<required_ctes_of<Statement>, detail::type_set<AliasProvider>>;
+			using _parameters = parameters_of<Statement>;
+
 			using _alias_t = typename AliasProvider::_alias_t;
 			constexpr static bool _is_recursive = detail::is_element_of<AliasProvider, required_ctes_of<Statement>>::value;
 
@@ -235,17 +220,9 @@ namespace sqlpp
 		struct cte_ref_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_alias, tag::is_cte, tag::is_table>; // FIXME: is table? really?
-			struct _recursive_traits
-			{
-				using _required_ctes = detail::make_type_set_t<AliasProvider>;
-				using _provided_ctes = detail::type_set<>;
-				using _required_tables = detail::type_set<>;
-				using _provided_tables = detail::type_set<AliasProvider>;
-				using _provided_outer_tables = detail::type_set<>;
-				using _extra_tables = detail::type_set<>;
-				using _parameters = std::tuple<>;
-				using _tags = detail::type_set<>;
-			};
+			using _nodes = std::tuple<>;
+			using _required_ctes = detail::make_type_set_t<AliasProvider>;
+			using _provided_tables = detail::type_set<AliasProvider>;
 
 			using _alias_t = typename AliasProvider::_alias_t;
 

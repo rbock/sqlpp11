@@ -41,7 +41,7 @@ namespace sqlpp
 			public alias_operators<not_in_t<Operand, Args...>>
 	{
 		using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
-		using _recursive_traits = make_recursive_traits<Operand, Args...>;
+		using _nodes = std::tuple<Operand, Args...>;
 
 		static_assert(sizeof...(Args) > 0, "not_in() requires at least one argument");
 

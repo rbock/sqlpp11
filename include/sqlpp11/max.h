@@ -38,7 +38,7 @@ namespace sqlpp
 			public alias_operators<max_t<Expr>>
 	{
 		using _traits = make_traits<value_type_of<Expr>, tag::is_expression, tag::is_selectable>;
-		using _recursive_traits = make_recursive_traits<Expr, aggregate_function>;
+		using _nodes = std::tuple<Expr, aggregate_function>;
 
 		struct _alias_t
 		{

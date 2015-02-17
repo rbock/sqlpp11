@@ -37,7 +37,7 @@ namespace sqlpp
 		struct prepared_select_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_prepared_statement>;
-			using _recursive_traits = make_recursive_traits<>;
+			using _nodes = std::tuple<>;
 
 			using _result_row_t = typename Statement::template _result_row_t<Database>;
 			using _parameter_list_t = make_parameter_list_t<Composite>;

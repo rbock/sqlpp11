@@ -42,7 +42,7 @@ namespace sqlpp
 			public alias_operators<concat_t<First, Args...>>
 	{
 		using _traits = make_traits<value_type_of<First>, tag::is_expression, tag::is_selectable>;
-		using _recursive_traits = make_recursive_traits<First, Args...>;
+		using _nodes = std::tuple<First, Args...>;
 
 		static_assert(sizeof...(Args) > 0, "concat requires two arguments at least");
 		static_assert(logic::all_t<is_text_t<First>::value, is_text_t<Args>::value...>::value, "at least one non-text argument detected in concat()");

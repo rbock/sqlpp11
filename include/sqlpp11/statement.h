@@ -146,34 +146,23 @@ namespace sqlpp
 					no_value_t // if a required statement part is missing (e.g. columns in a select), then the statement cannot be used as a value
 						>::type;
 
+				using _traits = make_traits<_value_type, tag_if<tag::is_expression, not std::is_same<_value_type, no_value_t>::value>>;
+
+				using _nodes = std::tuple<>;
 				using _can_be_null = logic::any_t<
 					can_be_null_t<_result_type_provider>::value, 
 					detail::make_intersect_set_t<
 						required_tables_of<_result_type_provider>, 
 						_all_provided_outer_tables
 						>::size::value != 0>;
-
-				using _traits = make_traits<_value_type, tag_if<tag::is_expression, not std::is_same<_value_type, no_value_t>::value>>;
-
-				struct _recursive_traits
-				{
-					using _required_ctes = statement_policies_t::_required_ctes;
-					using _provided_ctes = detail::type_set<>;
-					using _required_tables = statement_policies_t::_required_tables;
-					using _provided_tables = detail::type_set<>;
-					using _provided_outer_tables = detail::type_set<>;
-					using _extra_tables = detail::type_set<>;
-					using _parameters = detail::make_parameter_tuple_t<parameters_of<Policies>...>;
-					using _tags = typename std::conditional<_can_be_null::value,
-											detail::type_set<tag::can_be_null>,
-											detail::type_set<>>::type;
-				};
+				using _parameters = detail::make_parameter_tuple_t<parameters_of<Policies>...>;
+				// required_tables and _required_ctes are defined above
 
 				using _cte_check = typename std::conditional<_required_ctes::size::value == 0,
 							consistent_t, assert_no_unknown_ctes_t>::type;
 				using _table_check = typename std::conditional<_required_tables::size::value == 0,
 							consistent_t, assert_no_unknown_tables_t>::type;
-				using _parameter_check = typename std::conditional<std::tuple_size<typename _recursive_traits::_parameters>::value == 0,
+				using _parameter_check = typename std::conditional<std::tuple_size<_parameters>::value == 0,
 							consistent_t, assert_no_parameters_t>::type;
 			};
 	}
@@ -212,7 +201,7 @@ namespace sqlpp
 					tag_if<tag::is_selectable, is_expression_t<_policies_t>::value>,
 					tag_if<tag::is_return_value, logic::none_t<is_noop_t<_result_type_provider>::value>::value>,
 					tag::requires_braces>;
-		using _recursive_traits = typename _policies_t::_recursive_traits;
+		using _nodes = std::tuple<_policies_t>;
 		using _used_outer_tables = typename _policies_t::_all_provided_outer_tables;
 
 		using _alias_t = typename _result_type_provider::_alias_t;
@@ -286,7 +275,7 @@ namespace sqlpp
 		struct statement_name_t
 		{
 			using _traits = make_traits<no_value_t, Tag>;
-			using _recursive_traits = make_recursive_traits<>;
+			using _nodes = std::tuple<>;
 
 			// Data
 			using _data_t = NameData;
