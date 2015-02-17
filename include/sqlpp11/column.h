@@ -52,7 +52,7 @@ namespace sqlpp
 			using _tags = detail::make_joined_set_t<detail::type_set<tag::is_column, tag::is_expression, tag::is_selectable>, typename ColumnSpec::_traits::_tags>;
 		};
 
-		using _nodes = std::tuple<>;
+		using _nodes = detail::type_vector<>;
 		using _required_tables = detail::type_set<Table>;
 		using _can_be_null = column_spec_can_be_null_t<ColumnSpec>;
 

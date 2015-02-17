@@ -82,7 +82,7 @@ namespace sqlpp
 		struct value_list_t // to be used in .in() method
 		{
 			using _traits = make_traits<value_type_t<typename Container::value_type>, tag::is_expression>;
-			using _nodes = std::tuple<>;
+			using _nodes = detail::type_vector<>;
 
 			using _container_t = Container;
 

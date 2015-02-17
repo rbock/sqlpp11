@@ -81,7 +81,7 @@ namespace sqlpp
 						tag::is_expression, 
 						tag_if<tag::null_is_trivial_value, _base_t::_null_is_trivial>>;
 
-			using _nodes = std::tuple<>;
+			using _nodes = detail::type_vector<>;
 			using _can_be_null = column_spec_can_be_null_t<_field_spec_t>;
 		};
 

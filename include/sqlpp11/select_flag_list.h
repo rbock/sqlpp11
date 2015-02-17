@@ -60,7 +60,7 @@ namespace sqlpp
 		struct select_flag_list_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_select_flag_list>;
-			using _nodes = std::tuple<Flags...>;
+			using _nodes = detail::type_vector<Flags...>;
 
 			using _is_dynamic = is_database<Database>;
 
@@ -128,7 +128,7 @@ namespace sqlpp
 	struct no_select_flag_list_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_noop>;
-		using _nodes = std::tuple<>;
+		using _nodes = detail::type_vector<>;
 
 		// Data
 		using _data_t = no_data_t;

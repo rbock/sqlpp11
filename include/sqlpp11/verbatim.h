@@ -39,7 +39,7 @@ namespace sqlpp
 			public alias_operators<verbatim_t<ValueType>>
 	{
 		using _traits = make_traits<ValueType, tag::is_expression>;
-		using _nodes = std::tuple<>;
+		using _nodes = detail::type_vector<>;
 		using _can_be_null = std::true_type; // since we do not know what's going on inside the verbatim, we assume it can be null
 
 		verbatim_t(std::string verbatim): _verbatim(verbatim) {}

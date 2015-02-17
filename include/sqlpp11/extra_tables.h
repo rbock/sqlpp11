@@ -52,7 +52,7 @@ namespace sqlpp
 		struct extra_tables_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_extra_tables>;
-			using _nodes = std::tuple<>;
+			using _nodes = detail::type_vector<>;
 			using _required_ctes = detail::make_joined_set_t<required_ctes_of<Tables>...>;
 			using _extra_tables = detail::type_set<Tables...>;
 
@@ -90,7 +90,7 @@ namespace sqlpp
 	struct no_extra_tables_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_noop>;
-		using _nodes = std::tuple<>;
+		using _nodes = detail::type_vector<>;
 
 		// Data
 		using _data_t = no_data_t;

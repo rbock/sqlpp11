@@ -66,7 +66,7 @@ namespace sqlpp
 		struct join_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_table, tag::is_join>;
-			using _nodes = std::tuple<Lhs, Rhs>;
+			using _nodes = detail::type_vector<Lhs, Rhs>;
 			using _can_be_null = std::false_type;
 
 			static_assert(is_table_t<Lhs>::value, "lhs argument for join() has to be a table or join");

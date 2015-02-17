@@ -43,7 +43,7 @@ namespace sqlpp
 	template<typename Flag, typename Lhs, typename Rhs>
 		struct cte_union_t
 		{
-			using _nodes = std::tuple<>;
+			using _nodes = detail::type_vector<>;
 			using _required_ctes = detail::make_joined_set_t<required_ctes_of<Lhs>, required_ctes_of<Rhs>>;
 			using _parameters = detail::make_parameter_tuple_t<parameters_of<Lhs>, parameters_of<Rhs>>;
 
@@ -132,7 +132,7 @@ namespace sqlpp
 		struct cte_t: public member_t<cte_column_spec_t<FieldSpecs>, column_t<AliasProvider, cte_column_spec_t<FieldSpecs>>>...
 		{
 			using _traits = make_traits<no_value_t, tag::is_cte, tag::is_table>; // FIXME: is table? really?
-			using _nodes = std::tuple<>;
+			using _nodes = detail::type_vector<>;
 			using _required_ctes = detail::make_joined_set_t<required_ctes_of<Statement>, detail::type_set<AliasProvider>>;
 			using _parameters = parameters_of<Statement>;
 
@@ -220,7 +220,7 @@ namespace sqlpp
 		struct cte_ref_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_alias, tag::is_cte, tag::is_table>; // FIXME: is table? really?
-			using _nodes = std::tuple<>;
+			using _nodes = detail::type_vector<>;
 			using _required_ctes = detail::make_type_set_t<AliasProvider>;
 			using _provided_tables = detail::type_set<AliasProvider>;
 

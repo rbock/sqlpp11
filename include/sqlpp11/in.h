@@ -41,7 +41,7 @@ namespace sqlpp
 			public alias_operators<in_t<Operand, Args...>>
 	{
 		using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
-		using _nodes = std::tuple<Operand, Args...>;
+		using _nodes = detail::type_vector<Operand, Args...>;
 
 		static_assert(sizeof...(Args) > 0, "in() requires at least one argument");
 

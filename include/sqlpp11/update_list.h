@@ -68,7 +68,7 @@ namespace sqlpp
 		struct update_list_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_update_list>;
-			using _nodes = std::tuple<Assignments...>;
+			using _nodes = detail::type_vector<Assignments...>;
 			using _is_dynamic = is_database<Database>;
 
 			// Data
@@ -153,7 +153,7 @@ namespace sqlpp
 	struct no_update_list_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_where>;
-		using _nodes = std::tuple<>;
+		using _nodes = detail::type_vector<>;
 
 		// Data
 		using _data_t = no_data_t;

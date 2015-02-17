@@ -43,7 +43,7 @@ namespace sqlpp
 	struct boolean_operand: public alias_operators<boolean_operand>
 	{
 		using _traits = make_traits<boolean, tag::is_expression, tag::is_wrapped_value>;
-		using _nodes = std::tuple<>;
+		using _nodes = detail::type_vector<>;
 
 		using _value_t = bool;
 
@@ -82,7 +82,7 @@ namespace sqlpp
 	struct integral_operand: public alias_operators<integral_operand>
 	{
 		using _traits = make_traits<integral, tag::is_expression, tag::is_wrapped_value>;
-		using _nodes = std::tuple<>;
+		using _nodes = detail::type_vector<>;
 
 		using _value_t = int64_t;
 
@@ -122,7 +122,7 @@ namespace sqlpp
 	struct floating_point_operand: public alias_operators<floating_point_operand>
 	{
 		using _traits = make_traits<floating_point, tag::is_expression, tag::is_wrapped_value>;
-		using _nodes = std::tuple<>;
+		using _nodes = detail::type_vector<>;
 
 		using _value_t = double;
 
@@ -161,7 +161,7 @@ namespace sqlpp
 	struct text_operand: public alias_operators<text_operand>
 	{
 		using _traits = make_traits<text, tag::is_expression, tag::is_wrapped_value>;
-		using _nodes = std::tuple<>;
+		using _nodes = detail::type_vector<>;
 
 		using _value_t = std::string;
 

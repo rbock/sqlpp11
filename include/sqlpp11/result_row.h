@@ -185,7 +185,7 @@ namespace sqlpp
 		struct _field_spec_t
 		{
 			using _traits = make_traits<text, tag::is_noop, tag::can_be_null, tag::null_is_trivial_value>;
-			using _nodes = std::tuple<>;
+			using _nodes = detail::type_vector<>;
 
 			struct _alias_t {};
 		};

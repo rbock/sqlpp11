@@ -37,7 +37,7 @@ namespace sqlpp
 		struct any_t
 		{
 			using _traits = make_traits<value_type_of<Select>, tag::is_multi_expression>;
-			using _nodes = std::tuple<Select>;
+			using _nodes = detail::type_vector<Select>;
 
 			struct _alias_t
 			{

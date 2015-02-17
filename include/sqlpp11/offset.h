@@ -55,7 +55,7 @@ namespace sqlpp
 		struct offset_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_offset>;
-			using _nodes = std::tuple<Offset>;
+			using _nodes = detail::type_vector<Offset>;
 
 			static_assert(is_integral_t<Offset>::value, "offset requires an integral value or integral parameter");
 
@@ -120,7 +120,7 @@ namespace sqlpp
 		struct dynamic_offset_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_offset>;
-			using _nodes = std::tuple<>;
+			using _nodes = detail::type_vector<>;
 
 			// Data
 			using _data_t = dynamic_offset_data_t<Database>;
@@ -177,7 +177,7 @@ namespace sqlpp
 	struct no_offset_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_noop>;
-		using _nodes = std::tuple<>;
+		using _nodes = detail::type_vector<>;
 
 		// Data
 		using _data_t = no_data_t;

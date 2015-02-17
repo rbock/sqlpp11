@@ -40,7 +40,7 @@ namespace sqlpp
 	{
 		using _traits = make_traits<integral, tag::is_expression, tag::is_selectable>;
 
-		using _nodes = std::tuple<Expr>;
+		using _nodes = detail::type_vector<Expr>;
 		using _can_be_null = std::false_type;
 
 		static_assert(is_noop<Flag>::value or std::is_same<distinct_t, Flag>::value, "count() used with flag other than 'distinct'");

@@ -38,7 +38,7 @@ namespace sqlpp
 			public alias_operators<min_t<Expr>>
 	{
 		using _traits = make_traits<value_type_of<Expr>, tag::is_expression, tag::is_selectable>;
-		using _nodes = std::tuple<Expr, aggregate_function>;
+		using _nodes = detail::type_vector<Expr, aggregate_function>;
 
 		struct _alias_t
 		{

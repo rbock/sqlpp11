@@ -148,7 +148,7 @@ namespace sqlpp
 
 				using _traits = make_traits<_value_type, tag_if<tag::is_expression, not std::is_same<_value_type, no_value_t>::value>>;
 
-				using _nodes = std::tuple<>;
+				using _nodes = detail::type_vector<>;
 				using _can_be_null = logic::any_t<
 					can_be_null_t<_result_type_provider>::value, 
 					detail::make_intersect_set_t<
@@ -201,7 +201,7 @@ namespace sqlpp
 					tag_if<tag::is_selectable, is_expression_t<_policies_t>::value>,
 					tag_if<tag::is_return_value, logic::none_t<is_noop_t<_result_type_provider>::value>::value>,
 					tag::requires_braces>;
-		using _nodes = std::tuple<_policies_t>;
+		using _nodes = detail::type_vector<_policies_t>;
 		using _used_outer_tables = typename _policies_t::_all_provided_outer_tables;
 
 		using _alias_t = typename _result_type_provider::_alias_t;
@@ -275,7 +275,7 @@ namespace sqlpp
 		struct statement_name_t
 		{
 			using _traits = make_traits<no_value_t, Tag>;
-			using _nodes = std::tuple<>;
+			using _nodes = detail::type_vector<>;
 
 			// Data
 			using _data_t = NameData;

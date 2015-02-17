@@ -42,7 +42,7 @@ namespace sqlpp
 		struct multi_column_t
 		{
 			using _traits = make_traits<no_value_t>;
-			using _nodes = std::tuple<Columns...>;
+			using _nodes = detail::type_vector<Columns...>;
 
 			static_assert(logic::all_t<is_selectable_t<Columns>::value...>::value, "multi_column parameters need to be named expressions");
 
@@ -73,7 +73,7 @@ namespace sqlpp
 		struct multi_column_alias_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_alias, tag::is_multi_column, tag::is_selectable>;
-			using _nodes = std::tuple<Columns...>;
+			using _nodes = detail::type_vector<Columns...>;
 
 			static_assert(logic::all_t<is_selectable_t<Columns>::value...>::value, "multi_column parameters need to be named expressions");
 

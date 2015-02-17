@@ -70,7 +70,7 @@ namespace sqlpp
 		struct having_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_having>;
-			using _nodes = std::tuple<Expressions...>;
+			using _nodes = detail::type_vector<Expressions...>;
 
 			using _is_dynamic = is_database<Database>;
 
@@ -141,7 +141,7 @@ namespace sqlpp
 	struct no_having_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_noop>;
-		using _nodes = std::tuple<>;
+		using _nodes = detail::type_vector<>;
 
 		// Data
 		using _data_t = no_data_t;

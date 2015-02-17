@@ -54,7 +54,7 @@ namespace sqlpp
 	{
 		using _methods_t = typename detail::custom_parts_t<Database, Parts...>::_result_methods_t;
 		using _traits = make_traits<no_value_t, tag::is_statement>;
-		using _nodes = std::tuple<Parts...>;
+		using _nodes = detail::type_vector<Parts...>;
 
 		using _parameter_check = typename std::conditional<std::tuple_size<parameters_of<custom_query_t>>::value == 0,
 					consistent_t, assert_no_parameters_t>::type;

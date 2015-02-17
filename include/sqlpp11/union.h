@@ -66,7 +66,7 @@ namespace sqlpp
 		struct union_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_union, tag::is_return_value>;
-			using _nodes = std::tuple<Lhs, Rhs>;
+			using _nodes = detail::type_vector<Lhs, Rhs>;
 
 			using _alias_t = struct{};
 
@@ -114,7 +114,7 @@ namespace sqlpp
 	struct no_union_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_union>;
-		using _nodes = std::tuple<>;
+		using _nodes = detail::type_vector<>;
 
 		// Data
 		using _data_t = no_data_t;

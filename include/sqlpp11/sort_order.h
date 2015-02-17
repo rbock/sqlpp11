@@ -42,7 +42,7 @@ namespace sqlpp
 		struct sort_order_t
 		{
 			using _traits = make_traits<no_value_t,  tag::is_sort_order>;
-			using _nodes = std::tuple<Expression>;
+			using _nodes = detail::type_vector<Expression>;
 
 			Expression _expression;
 		};

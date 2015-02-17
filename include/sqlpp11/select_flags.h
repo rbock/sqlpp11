@@ -38,7 +38,7 @@ namespace sqlpp
 	struct all_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_select_flag>;
-		using _nodes = std::tuple<>;
+		using _nodes = detail::type_vector<>;
 	};
 	static constexpr all_t all = {};
 
@@ -57,7 +57,7 @@ namespace sqlpp
 	struct distinct_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_select_flag>;
-		using _nodes = std::tuple<>;
+		using _nodes = detail::type_vector<>;
 	};
 	static constexpr distinct_t distinct = {};
 
@@ -76,7 +76,7 @@ namespace sqlpp
 	struct straight_join_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_select_flag>;
-		using _nodes = std::tuple<>;
+		using _nodes = detail::type_vector<>;
 	};
 	static constexpr straight_join_t straight_join = {};
 

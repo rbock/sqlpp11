@@ -30,6 +30,7 @@
 #include <type_traits>
 #include <tuple>
 #include <sqlpp11/serializer.h>
+#include <sqlpp11/detail/type_vector.h>
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/detail/get_first.h>
 
@@ -179,7 +180,7 @@ namespace sqlpp
 				using type = typename T::_##trait;\
 			};\
 		template<typename... Nodes>\
-			struct trait##_of_impl<std::tuple<Nodes...>, void>\
+			struct trait##_of_impl<type_vector<Nodes...>, void>\
 			{\
 				using type = detail::make_joined_set_t<typename trait##_of_impl<Nodes>::type...>;\
 			};\
@@ -208,7 +209,7 @@ namespace sqlpp
 				using type = typename T::_##trait;\
 			};\
 		template<typename... Nodes>\
-			struct trait##_impl<std::tuple<Nodes...>, void>\
+			struct trait##_impl<type_vector<Nodes...>, void>\
 			{\
 				using type = logic::any_t<trait##_impl<Nodes>::type::value...>;\
 			};\
@@ -232,7 +233,7 @@ namespace sqlpp
 				using type = typename T::_parameters;
 			};
 		template<typename... Nodes>
-			struct parameters_of_impl<std::tuple<Nodes...>, void>
+			struct parameters_of_impl<type_vector<Nodes...>, void>
 			{
 				using type = detail::make_parameter_tuple_t<typename parameters_of_impl<Nodes>::type...>;
 			};
@@ -255,7 +256,7 @@ namespace sqlpp
 
 	struct aggregate_function
 	{
-		using _nodes = std::tuple<>;
+		using _nodes = detail::type_vector<>;
 		using _contains_aggregate_function = std::true_type;
 	};
 

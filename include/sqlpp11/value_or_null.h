@@ -51,7 +51,7 @@ namespace sqlpp
 			using _cpp_value_type = typename ValueType::_cpp_value_type;
 
 			using _traits = make_traits<ValueType, tag::is_expression>;
-			using _nodes = std::tuple<>;
+			using _nodes = detail::type_vector<>;
 
 			value_or_null_t(_cpp_value_type value):
 				_value(value),

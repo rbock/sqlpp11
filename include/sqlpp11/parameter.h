@@ -39,7 +39,7 @@ namespace sqlpp
 	{
 		using _traits = make_traits<ValueType, tag::is_parameter, tag::is_expression>;
 
-		using _nodes = std::tuple<>;
+		using _nodes = detail::type_vector<>;
 		using _parameters = std::tuple<parameter_t>;
 		using _can_be_null = std::true_type;
 

@@ -42,7 +42,7 @@ namespace sqlpp
 		//FIXME: Need to add join functionality
 		using _traits = make_traits<value_type_of<Table>, tag::is_table, tag::is_alias, tag_if<tag::is_selectable, is_expression_t<Table>::value>>;
 
-		using _nodes = std::tuple<>;
+		using _nodes = detail::type_vector<>;
 		using _required_ctes = required_ctes_of<Table>;
 		using _provided_tables = detail::type_set<AliasProvider>;
 

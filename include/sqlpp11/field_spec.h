@@ -38,7 +38,7 @@ namespace sqlpp
 						tag_if<tag::can_be_null, CanBeNull>,
 						tag_if<tag::null_is_trivial_value, NullIsTrivialValue>
 							>;
-			using _nodes = std::tuple<>;
+			using _nodes = detail::type_vector<>;
 
 			using _alias_t = NameType;
 		};

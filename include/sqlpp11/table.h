@@ -46,7 +46,7 @@ namespace sqlpp
 	{
 		using _traits = make_traits<no_value_t, tag::is_table>;
 
-		using _nodes = std::tuple<>;
+		using _nodes = detail::type_vector<>;
 		using _provided_tables = detail::type_set<Table>;
 
 		static_assert(sizeof...(ColumnSpec), "at least one column required per table");

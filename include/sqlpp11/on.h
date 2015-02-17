@@ -38,7 +38,7 @@ namespace sqlpp
 		struct on_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_on>;
-			using _nodes = std::tuple<Expressions...>;
+			using _nodes = detail::type_vector<Expressions...>;
 
 			using _is_dynamic = is_database<Database>;
 

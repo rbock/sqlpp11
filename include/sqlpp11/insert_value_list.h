@@ -64,7 +64,7 @@ namespace sqlpp
 	struct insert_default_values_t
 	{
 		using _traits = make_traits<no_value_t>;
-		using _nodes = std::tuple<>;
+		using _nodes = detail::type_vector<>;
 
 		// Data
 		using _data_t = insert_default_values_data_t;
@@ -133,7 +133,7 @@ namespace sqlpp
 		struct insert_list_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_insert_list>;
-			using _nodes = std::tuple<lhs_t<Assignments>..., rhs_t<Assignments>...>;
+			using _nodes = detail::type_vector<lhs_t<Assignments>..., rhs_t<Assignments>...>;
 
 			using _is_dynamic = is_database<Database>;
 
@@ -245,7 +245,7 @@ namespace sqlpp
 		struct column_list_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_column_list>;
-			using _nodes = std::tuple<Columns...>;
+			using _nodes = detail::type_vector<Columns...>;
 
 			using _value_tuple_t = typename column_list_data_t<Columns...>::_value_tuple_t;
 
@@ -322,7 +322,7 @@ namespace sqlpp
 	struct no_insert_value_list_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_noop>;
-		using _nodes = std::tuple<>;
+		using _nodes = detail::type_vector<>;
 
 		// Data
 		using _data_t = no_data_t;
