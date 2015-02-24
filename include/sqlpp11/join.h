@@ -66,18 +66,8 @@ namespace sqlpp
 		struct join_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_table, tag::is_join>;
-			struct _recursive_traits
-			{
-				using _required_ctes = detail::make_joined_set_t<required_ctes_of<Lhs>, required_ctes_of<Rhs>>;
-				using _provided_ctes = detail::type_set<>;
-				using _required_tables = detail::make_joined_set_t<required_tables_of<Lhs>, required_tables_of<Rhs>>;
-				using _provided_tables = detail::make_joined_set_t<provided_tables_of<Lhs>, provided_tables_of<Rhs>>;
-				using _provided_outer_tables = typename JoinType::template _provided_outer_tables<Lhs, Rhs>;
-				using _extra_tables = detail::make_joined_set_t<extra_tables_of<Lhs>, extra_tables_of<Rhs>>;
-				using _parameters = detail::make_parameter_tuple_t<parameters_of<Lhs>, parameters_of<Rhs>>;
-				using _tags = detail::type_set<>;
-			};
-
+			using _nodes = detail::type_vector<Lhs, Rhs>;
+			using _can_be_null = std::false_type;
 
 			static_assert(is_table_t<Lhs>::value, "lhs argument for join() has to be a table or join");
 			static_assert(is_table_t<Rhs>::value, "rhs argument for join() has to be a table");
@@ -86,7 +76,7 @@ namespace sqlpp
 
 			static_assert(detail::is_disjunct_from<provided_tables_of<Lhs>, provided_tables_of<Rhs>>::value, "joined tables must not be identical");
 
-			static_assert(_recursive_traits::_required_tables::size::value == 0, "joined tables must not depend on other tables");
+			static_assert(required_tables_of<join_t>::size::value == 0, "joined tables must not depend on other tables");
 
 			template<typename OnT> 
 				using set_on_t = join_t<JoinType, Lhs, Rhs, OnT>;

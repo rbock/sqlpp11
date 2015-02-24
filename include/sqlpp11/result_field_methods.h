@@ -81,20 +81,8 @@ namespace sqlpp
 						tag::is_expression, 
 						tag_if<tag::null_is_trivial_value, _base_t::_null_is_trivial>>;
 
-			struct _recursive_traits
-			{
-				using _required_ctes = detail::type_set<>;
-				using _provided_ctes = detail::type_set<>;
-				using _required_tables = detail::type_set<>;
-				using _provided_tables = detail::type_set<>;
-				using _provided_outer_tables = detail::type_set<>;
-				using _extra_tables = detail::type_set<>;
-				using _parameters = std::tuple<>;
-				using _tags = typename std::conditional<column_spec_can_be_null_t<_field_spec_t>::value,
-										detail::type_set<tag::can_be_null>,
-										detail::type_set<>>::type;
-			};
-
+			using _nodes = detail::type_vector<>;
+			using _can_be_null = column_spec_can_be_null_t<_field_spec_t>;
 		};
 
 }

@@ -41,7 +41,7 @@ namespace sqlpp
 		struct assignment_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_assignment>;
-			using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
+			using _nodes = detail::type_vector<Lhs, Rhs>;
 
 			using _lhs_t = Lhs;
 			using _rhs_t = rhs_wrap_t<allow_tvin_t<Rhs>, trivial_value_is_null_t<_lhs_t>::value>;

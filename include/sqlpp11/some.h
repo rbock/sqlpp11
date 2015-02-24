@@ -37,7 +37,7 @@ namespace sqlpp
 		struct some_t
 		{
 			using _traits = make_traits<value_type_of<Select>, tag::is_multi_expression>;
-			using _recursive_traits = make_recursive_traits<Select>;
+			using _nodes = detail::type_vector<Select>;
 
 			struct _alias_t
 			{

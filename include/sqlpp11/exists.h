@@ -38,7 +38,7 @@ namespace sqlpp
 			public alias_operators<exists_t<Select>>
 	{
 		using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
-		using _recursive_traits = make_recursive_traits<Select>;
+		using _nodes = detail::type_vector<Select>;
 
 		static_assert(is_select_t<Select>::value, "exists() requires a select expression as argument");
 

@@ -58,7 +58,7 @@ namespace sqlpp
 		struct using_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_using_>;
-			using _recursive_traits = make_recursive_traits<Tables...>;
+			using _nodes = detail::type_vector<Tables...>;
 
 			using _is_dynamic = is_database<Database>;
 
@@ -121,7 +121,7 @@ namespace sqlpp
 	struct no_using_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_where>;
-		using _recursive_traits = make_recursive_traits<>;
+		using _nodes = detail::type_vector<>;
 
 		// Data
 		using _data_t = no_data_t;

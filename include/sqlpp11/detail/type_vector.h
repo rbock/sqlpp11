@@ -24,43 +24,65 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_ALIAS_H
-#define SQLPP_ALIAS_H
+#ifndef SQLPP_DETAIL_TYPE_VECTOR_H
+#define SQLPP_DETAIL_TYPE_VECTOR_H
 
-#include <sqlpp11/type_traits.h>
-#include <sqlpp11/serializer.h>
+#include <sqlpp11/wrong.h>
 
 namespace sqlpp
 {
-	template<typename Expression, typename AliasProvider>
-		struct expression_alias_t
-		{
-			using _traits = make_traits<value_type_of<Expression>, tag::is_selectable, tag::is_alias>;
-			using _nodes = detail::type_vector<Expression>;
+	namespace detail
+	{
+		template<typename... T>
+			struct type_vector
+			{};
 
-			static_assert(is_expression_t<Expression>::value, "invalid argument for an expression alias");
-			static_assert(not is_alias_t<Expression>::value, "cannot create an alias of an alias");
-
-			using _alias_t = typename AliasProvider::_alias_t;
-
-			Expression _expression;
-		};
-
-	template<typename Context, typename Expression, typename AliasProvider>
-		struct serializer_t<Context, expression_alias_t<Expression, AliasProvider>>
-		{
-			using _serialize_check = serialize_check_of<Context, Expression>;
-			using T = expression_alias_t<Expression, AliasProvider>;
-
-			static Context& _(const T& t, Context& context)
+		template<typename...T>
+			struct type_vector_cat_impl
 			{
-				serialize_operand(t._expression, context);
-				context << " AS ";
-				context << name_of<T>::char_ptr();
-				return context;
-			}
-		};
+				static_assert(wrong_t<type_vector_cat_impl>::value, "type_vector_cat must be called with type_vector arguments");
+			};
 
+		template<>
+			struct type_vector_cat_impl<>
+			{
+				using type = type_vector<>;
+			};
+
+		template<typename... T>
+			struct type_vector_cat_impl<type_vector<T...>>
+			{
+				using type = type_vector<T...>;
+			};
+
+		template<typename... L, typename... R>
+			struct type_vector_cat_impl<type_vector<L...>, type_vector<R...>>
+			{
+				using type = type_vector<L..., R...>;
+			};
+
+		template<typename... L, typename... Rest>
+			struct type_vector_cat_impl<type_vector<L...>, Rest...>
+			{
+				using type = typename type_vector_cat_impl<type_vector<L...>, typename type_vector_cat_impl<Rest...>::type>::type;
+			};
+
+		template<typename... T>
+			using type_vector_cat_t = typename type_vector_cat_impl<T...>::type;
+
+		template<typename T>
+			struct type_vector_size
+			{
+				static_assert(wrong_t<type_vector_size>::value, "type_vector_size needs to be called with a type_vector argument");
+			};
+
+		template<typename... T>
+			struct type_vector_size<type_vector<T...>>
+			{
+				static constexpr std::size_t value = sizeof...(T);
+			};
+	}
 }
+
 
 #endif

@@ -118,7 +118,7 @@ namespace sqlpp
 		struct rhs_wrap_t
 		{
 			using _traits = typename Expr::_traits;
-			using _recursive_traits = typename Expr::_recursive_traits;
+			using _nodes = detail::type_vector<Expr>;
 
 			rhs_wrap_t(Expr expr):
 				_expr(expr) 

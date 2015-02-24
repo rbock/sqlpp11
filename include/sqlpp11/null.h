@@ -34,7 +34,7 @@ namespace sqlpp
 	struct null_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_expression, tag::is_sql_null>;
-		using _recursive_traits = make_recursive_traits<>;
+		using _nodes = detail::type_vector<>;
 	};
 
 	template<typename Context>

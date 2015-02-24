@@ -52,17 +52,9 @@ namespace sqlpp
 		struct extra_tables_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_extra_tables>;
-			struct _recursive_traits
-			{
-				using _required_ctes = detail::make_joined_set_t<required_ctes_of<Tables>...>;
-				using _provided_ctes = detail::type_set<>;
-				using _required_tables = detail::type_set<>;
-				using _provided_outer_tables = detail::type_set<>;
-				using _provided_tables = detail::type_set<>;
-				using _extra_tables = detail::type_set<Tables...>;
-				using _parameters = std::tuple<>;
-				using _tags = detail::type_set<>;
-			};
+			using _nodes = detail::type_vector<>;
+			using _required_ctes = detail::make_joined_set_t<required_ctes_of<Tables>...>;
+			using _extra_tables = detail::type_set<Tables...>;
 
 			// Data
 			using _data_t = extra_tables_data_t<Tables...>;
@@ -98,7 +90,7 @@ namespace sqlpp
 	struct no_extra_tables_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_noop>;
-		using _recursive_traits = make_recursive_traits<>;
+		using _nodes = detail::type_vector<>;
 
 		// Data
 		using _data_t = no_data_t;

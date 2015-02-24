@@ -40,7 +40,7 @@ namespace sqlpp
 		struct tvin_arg_t
 		{
 			using _traits = make_traits<value_type_of<Operand>, tag::is_expression>;
-			using _recursive_traits = make_recursive_traits<Operand>;
+			using _nodes = detail::type_vector<Operand>;
 
 			using _operand_t = Operand;
 
@@ -102,7 +102,7 @@ namespace sqlpp
 		struct tvin_t
 		{
 			using _traits = make_traits<value_type_of<Operand>, tag::is_expression>;
-			using _recursive_traits = make_recursive_traits<Operand>;
+			using _nodes = detail::type_vector<Operand>;
 
 			using _operand_t = Operand;
 

@@ -37,7 +37,7 @@ namespace sqlpp
 		struct prepared_insert_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_prepared_statement>;
-			using _recursive_traits = make_recursive_traits<>;
+			using _nodes = detail::type_vector<>;
 
 			using _parameter_list_t = make_parameter_list_t<Insert>;
 			using _prepared_statement_t = typename Db::_prepared_statement_t;

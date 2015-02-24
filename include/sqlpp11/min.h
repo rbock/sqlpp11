@@ -38,7 +38,7 @@ namespace sqlpp
 			public alias_operators<min_t<Expr>>
 	{
 		using _traits = make_traits<value_type_of<Expr>, tag::is_expression, tag::is_selectable>;
-		using _recursive_traits = make_recursive_traits<Expr, aggregate_function>;
+		using _nodes = detail::type_vector<Expr, aggregate_function>;
 
 		struct _alias_t
 		{
@@ -84,6 +84,7 @@ namespace sqlpp
 	template<typename T>
 		auto min(T t) -> min_t<wrap_operand_t<T>>
 		{
+			static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value, "min() cannot be used on an aggregate function");
 			static_assert(is_expression_t<wrap_operand_t<T>>::value, "min() requires an expression as argument");
 			return { t };
 		}

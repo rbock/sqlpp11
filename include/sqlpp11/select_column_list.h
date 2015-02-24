@@ -164,7 +164,7 @@ namespace sqlpp
 		struct select_column_list_t
 		{
 			using _traits = typename detail::select_traits<Columns...>::_traits;
-			using _recursive_traits = make_recursive_traits<Columns...>;
+			using _nodes = detail::type_vector<Columns...>;
 
 			using _alias_t = typename detail::select_traits<Columns...>::_alias_t;
 
@@ -353,7 +353,7 @@ namespace sqlpp
 	struct no_select_column_list_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_noop, tag::is_missing>;
-		using _recursive_traits = make_recursive_traits<>;
+		using _nodes = detail::type_vector<>;
 
 		struct _alias_t {};
 

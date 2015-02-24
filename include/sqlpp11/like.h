@@ -40,7 +40,7 @@ namespace sqlpp
 			public alias_operators<like_t<Operand, Pattern>>
 	{
 		using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
-		using _recursive_traits = make_recursive_traits<Operand, Pattern>;
+		using _nodes = detail::type_vector<Operand, Pattern>;
 
 		struct _alias_t
 		{

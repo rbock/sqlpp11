@@ -52,19 +52,9 @@ namespace sqlpp
 			using _tags = detail::make_joined_set_t<detail::type_set<tag::is_column, tag::is_expression, tag::is_selectable>, typename ColumnSpec::_traits::_tags>;
 		};
 
-		struct _recursive_traits
-		{
-			using _required_ctes = detail::type_set<>;
-			using _provided_ctes = detail::type_set<>;
-			using _required_tables = detail::type_set<Table>;
-			using _provided_tables = detail::type_set<>;
-			using _provided_outer_tables = detail::type_set<>;
-			using _extra_tables = detail::type_set<>;
-			using _parameters = std::tuple<>;
-			using _tags = typename std::conditional<column_spec_can_be_null_t<ColumnSpec>::value,
-									detail::type_set<tag::can_be_null>,
-									detail::type_set<>>::type;
-		};
+		using _nodes = detail::type_vector<>;
+		using _required_tables = detail::type_set<Table>;
+		using _can_be_null = column_spec_can_be_null_t<ColumnSpec>;
 
 		using _spec_t = ColumnSpec;
 		using _table = Table;
