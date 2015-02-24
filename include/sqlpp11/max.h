@@ -84,6 +84,7 @@ namespace sqlpp
 	template<typename T>
 		auto max(T t) -> max_t<wrap_operand_t<T>>
 		{
+			static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value, "max() cannot be used on an aggregate function");
 			static_assert(is_expression_t<wrap_operand_t<T>>::value, "max() requires an expression as argument");
 			return { t };
 		}

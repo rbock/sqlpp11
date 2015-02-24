@@ -40,7 +40,7 @@ namespace sqlpp
 	{
 		using _traits = make_traits<integral, tag::is_expression, tag::is_selectable>;
 
-		using _nodes = detail::type_vector<Expr>;
+		using _nodes = detail::type_vector<Expr, aggregate_function>;
 		using _can_be_null = std::false_type;
 
 		static_assert(is_noop<Flag>::value or std::is_same<distinct_t, Flag>::value, "count() used with flag other than 'distinct'");
@@ -98,6 +98,7 @@ namespace sqlpp
 	template<typename T>
 		auto count(T t) -> count_t<noop, wrap_operand_t<T>>
 		{
+			static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value, "count() cannot be used on an aggregate function");
 			static_assert(is_expression_t<wrap_operand_t<T>>::value, "count() requires an expression as argument");
 			return { t };
 		}
@@ -105,6 +106,7 @@ namespace sqlpp
 	template<typename T>
 		auto count(const distinct_t&, T t) -> count_t<distinct_t, wrap_operand_t<T>>
 		{
+			static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value, "count() cannot be used on an aggregate function");
 			static_assert(is_expression_t<wrap_operand_t<T>>::value, "count() requires an expression as argument");
 			return { t };
 		}
