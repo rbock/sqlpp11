@@ -71,13 +71,11 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
-				context << '(';
 				serialize(t._lhs, context);
-				context << ") UNION ";
+				context << " UNION ";
 				serialize(Flag{}, context);
-				context << " (";
+				context << " ";
 				serialize(t._rhs, context);
-				context << ')';
 				return context;
 			}
 		};
