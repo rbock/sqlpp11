@@ -24,45 +24,48 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_UNION_DATA_H
-#define SQLPP_UNION_DATA_H
+#ifndef SQLPP_UNION_FLAGS_H
+#define SQLPP_UNION_FLAGS_H
 
-#include <sqlpp11/serializer.h>
+#include <sqlpp11/type_traits.h>
+#include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/interpret_tuple.h>
+#include <tuple>
 
 namespace sqlpp
 {
-	template<typename Database, typename Flag, typename Lhs, typename Rhs>
-		struct union_data_t
+	// standard select flags
+	struct union_all_t
+	{
+		using _traits = make_traits<no_value_t, tag::is_union_flag>;
+		using _nodes = detail::type_vector<>;
+	};
+
+	template<typename Context>
+		struct serializer_t<Context, union_all_t>
 		{
-			union_data_t(Lhs lhs, Rhs rhs):
-				_lhs(lhs),
-				_rhs(rhs)
-			{}
+			using _serialize_check = consistent_t;
 
-			union_data_t(const union_data_t&) = default;
-			union_data_t(union_data_t&&) = default;
-			union_data_t& operator=(const union_data_t&) = default;
-			union_data_t& operator=(union_data_t&&) = default;
-			~union_data_t() = default;
-
-			Lhs _lhs;
-			Rhs _rhs;
+			static Context& _(const union_all_t&, Context& context)
+			{
+				context << "ALL";
+				return context;
+			}
 		};
 
-	// Interpreters
-	template<typename Context, typename Database, typename Flag, typename Lhs, typename Rhs>
-		struct serializer_t<Context, union_data_t<Database, Flag, Lhs, Rhs>>
-		{
-			using _serialize_check = serialize_check_of<Context, Lhs, Rhs>;
-			using T = union_data_t<Database, Flag, Lhs, Rhs>;
+	struct union_distinct_t
+	{
+		using _traits = make_traits<no_value_t, tag::is_union_flag>;
+		using _nodes = detail::type_vector<>;
+	};
 
-			static Context& _(const T& t, Context& context)
+	template<typename Context>
+		struct serializer_t<Context, union_distinct_t>
+		{
+			using _serialize_check = consistent_t;
+
+			static Context& _(const union_distinct_t&, Context& context)
 			{
-				serialize(t._lhs, context);
-				context << " UNION ";
-				serialize(Flag{}, context);
-				context << " ";
-				serialize(t._rhs, context);
 				return context;
 			}
 		};

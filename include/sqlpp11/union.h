@@ -28,7 +28,7 @@
 #define SQLPP_UNION_H
 
 #include <sqlpp11/union_data.h>
-#include <sqlpp11/select_flags.h>
+#include <sqlpp11/union_flags.h>
 #include <sqlpp11/statement_fwd.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/parameter_list.h>
@@ -154,7 +154,7 @@ namespace sqlpp
 
 				template<typename Rhs>
 					auto union_distinct(Rhs rhs) const
-					-> _new_statement_t<_check<Rhs>, union_t<void, distinct_t, derived_statement_t<Policies>, Rhs>>
+					-> _new_statement_t<_check<Rhs>, union_t<void, union_distinct_t, derived_statement_t<Policies>, Rhs>>
 					{
 						static_assert(is_statement_t<Rhs>::value, "argument of union call has to be a statement");
 						static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
@@ -165,12 +165,12 @@ namespace sqlpp
 						static_assert(std::is_same<get_result_row_t<derived_statement_t<Policies>>, _result_row_t>::value, "both arguments in a union have to have the same result columns (type and name)");
 						static_assert(is_static_result_row_t<_result_row_t>::value, "unions must not have dynamically added columns");
 
-						return _union_impl<void, distinct_t>(_check<derived_statement_t<Policies>, Rhs>{}, rhs);
+						return _union_impl<void, union_distinct_t>(_check<derived_statement_t<Policies>, Rhs>{}, rhs);
 					}
 
 				template<typename Rhs>
 					auto union_all(Rhs rhs) const
-					-> _new_statement_t<_check<Rhs>, union_t<void, all_t, derived_statement_t<Policies>, Rhs>>
+					-> _new_statement_t<_check<Rhs>, union_t<void, union_all_t, derived_statement_t<Policies>, Rhs>>
 					{
 						static_assert(is_statement_t<Rhs>::value, "argument of union call has to be a statement");
 						static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
@@ -181,7 +181,7 @@ namespace sqlpp
 						static_assert(std::is_same<get_result_row_t<derived_statement_t<Policies>>, _result_row_t>::value, "both arguments in a union have to have the same result columns (type and name)");
 						static_assert(is_static_result_row_t<_result_row_t>::value, "unions must not have dynamically added columns");
 
-						return _union_impl<void, all_t>(_check<derived_statement_t<Policies>, Rhs>{}, rhs);
+						return _union_impl<void, union_all_t>(_check<derived_statement_t<Policies>, Rhs>{}, rhs);
 					}
 
 			private:

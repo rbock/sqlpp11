@@ -83,6 +83,7 @@ namespace sqlpp
 	SQLPP_VALUE_TRAIT_GENERATOR(is_multi_expression)
 	SQLPP_VALUE_TRAIT_GENERATOR(is_alias)
 	SQLPP_VALUE_TRAIT_GENERATOR(is_select_flag)
+	SQLPP_VALUE_TRAIT_GENERATOR(is_union_flag)
 	SQLPP_VALUE_TRAIT_GENERATOR(is_result_field)
 
 	SQLPP_VALUE_TRAIT_GENERATOR(must_not_insert)
