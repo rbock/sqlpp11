@@ -70,6 +70,13 @@ namespace sqlpp
 		column_t& operator=(column_t&&) = default;
 		~column_t() = default;
 
+		template<typename T = _table>
+		auto table() const -> _table
+		{
+			static_assert(is_table_t<T>::value, "cannot call get_table for columns of a sub-selects or cte");
+			return _table{};
+		}
+
 		template<typename alias_provider>
 			expression_alias_t<column_t, alias_provider> as(const alias_provider&) const
 			{

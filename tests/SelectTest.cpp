@@ -36,10 +36,22 @@
 MockDb db = {};
 MockDb::_serializer_context_t printer;
 
+template<typename Column>
+int64_t getColumn(const Column& column)
+{
+	auto result = db(select(column.as(sqlpp::a)).from(column.table()).where(true));
+	if (not result.empty())
+		return result.front().a;
+	else
+		return 0;
+}
+
 int main()
 {
 	test::TabFoo f; 
 	test::TabBar t;
+
+	getColumn(t.alpha);
 
 	for (const auto& row : db(select(all_of(t)).from(t).where(true)))
 	{
