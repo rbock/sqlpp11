@@ -1,4 +1,4 @@
-include_directories("${CMAKE_SOURCE_DIR}/tests")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../tests")
 
 add_custom_target(test_sqlpp_constraints COMMAND true)
 
