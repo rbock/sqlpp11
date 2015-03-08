@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -42,19 +42,13 @@ namespace sqlpp
 		//FIXME: Need to add join functionality
 		using _traits = make_traits<value_type_of<Table>, tag::is_table, tag::is_alias, tag_if<tag::is_selectable, is_expression_t<Table>::value>>;
 
-		struct _recursive_traits
-		{
-			using _parameters = std::tuple<>;
-			using _required_tables = detail::type_set<>;
-			using _provided_tables = detail::type_set<AliasProvider>;
-			using _provided_outer_tables = detail::type_set<>;
-			using _extra_tables = detail::type_set<>;
-			using _tags = detail::type_set<>;
-		};
+		using _nodes = detail::type_vector<>;
+		using _required_ctes = required_ctes_of<Table>;
+		using _provided_tables = detail::type_set<AliasProvider>;
 
 		static_assert(required_tables_of<Table>::size::value == 0, "table aliases must not depend on external tables");
 
-		using _name_t = typename AliasProvider::_name_t;
+		using _alias_t = typename AliasProvider::_alias_t;
 		using _column_tuple_t = std::tuple<column_t<AliasProvider, ColumnSpec>...>;
 
 		table_alias_t(Table table):
@@ -67,13 +61,17 @@ namespace sqlpp
 	template<typename Context, typename AliasProvider, typename Table, typename... ColumnSpec>
 		struct serializer_t<Context, table_alias_t<AliasProvider, Table, ColumnSpec...>>
 		{
+			using _serialize_check = serialize_check_of<Context, Table>;
 			using T = table_alias_t<AliasProvider, Table, ColumnSpec...>;
 
 			static Context& _(const T& t, Context& context)
 			{
-				context << "(";
+				if (requires_braces_t<T>::value)
+					context << "(";
 				serialize(t._table, context);
-				context << ") AS " << T::_name_t::_get_name();
+				if (requires_braces_t<T>::value)
+					context << ")";
+				context << " AS " << name_of<T>::char_ptr();
 				return context;
 			}
 		};

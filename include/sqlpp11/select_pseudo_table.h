@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -31,11 +31,13 @@
 
 namespace sqlpp
 {
+	// FIXME: We might use field specs here (same as with cte)
+	//
 	// provide type information for sub-selects that are used as named expressions or tables
 	template<typename Select, typename NamedExpr>
 		struct select_column_spec_t
 		{
-			using _name_t = typename NamedExpr::_name_t;
+			using _alias_t = typename NamedExpr::_alias_t;
 
 			static constexpr bool _can_be_null = can_be_null_t<NamedExpr>::value;
 			static constexpr bool _depends_on_outer_table = detail::make_intersect_set_t<required_tables_of<NamedExpr>, typename Select::_used_outer_tables>::size::value > 0;
@@ -56,7 +58,7 @@ namespace sqlpp
 																						 NamedExpr...>, select_column_spec_t<Select, NamedExpr>...>
 	{
 		using _traits = make_traits<no_value_t, tag::is_table, tag::is_pseudo_table>;
-		using _recursive_traits = make_recursive_traits<>;
+		using _nodes = detail::type_vector<>;
 
 		select_pseudo_table_t(Select select):
 			_select(select)
@@ -75,6 +77,7 @@ namespace sqlpp
 	template<typename Context, typename Select, typename... NamedExpr>
 		struct serializer_t<Context, select_pseudo_table_t<Select, NamedExpr...>>
 		{
+			using _serialize_check = serialize_check_of<Context, Select, NamedExpr...>;
 			using T = select_pseudo_table_t<Select, NamedExpr...>;
 
 			static Context& _(const T& t, Context& context)

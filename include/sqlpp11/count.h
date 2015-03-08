@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,6 +27,7 @@
 #ifndef SQLPP_COUNT_H
 #define SQLPP_COUNT_H
 
+#include <sqlpp11/char_sequence.h>
 #include <sqlpp11/select_flags.h>
 #include <sqlpp11/integral.h>
 
@@ -38,23 +39,16 @@ namespace sqlpp
 			public alias_operators<count_t<Flag, Expr>>
 	{
 		using _traits = make_traits<integral, tag::is_expression, tag::is_selectable>;
-		struct _recursive_traits
-		{
-			using _required_tables = required_tables_of<Expr>;
-			using _provided_tables = provided_tables_of<Expr>;
-			using _provided_outer_tables = provided_outer_tables_of<Expr>;
-			using _extra_tables = extra_tables_of<Expr>;
-			using _parameters = parameters_of<Expr>;
-			using _tags = detail::make_difference_set_t<detail::joined_set_t<recursive_tags_of<Expr>, recursive_tags_of<aggregate_function>>, 
-						                                      detail::type_set<tag::can_be_null>>;
-		};
 
+		using _nodes = detail::type_vector<Expr, aggregate_function>;
+		using _can_be_null = std::false_type;
 
 		static_assert(is_noop<Flag>::value or std::is_same<distinct_t, Flag>::value, "count() used with flag other than 'distinct'");
 
-		struct _name_t
+		struct _alias_t
 		{
-			static constexpr const char* _get_name() { return "COUNT"; }
+			static constexpr const char _literal[] =  "count_";
+			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 			template<typename T>
 				struct _member_t
 				{
@@ -80,6 +74,7 @@ namespace sqlpp
 	template<typename Context, typename Flag, typename Expr>
 		struct serializer_t<Context, count_t<Flag, Expr>>
 		{
+			using _serialize_check = serialize_check_of<Context, Flag, Expr>;
 			using T = count_t<Flag, Expr>;
 
 			static Context& _(const T& t, Context& context)
@@ -89,8 +84,12 @@ namespace sqlpp
 				{
 					serialize(Flag(), context);
 					context << ' ';
+					serialize_operand(t._expr, context);
 				}
-				serialize(t._expr, context);
+				else
+				{
+					serialize(t._expr, context);
+				}
 				context << ")";
 				return context;
 			}
@@ -99,6 +98,7 @@ namespace sqlpp
 	template<typename T>
 		auto count(T t) -> count_t<noop, wrap_operand_t<T>>
 		{
+			static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value, "count() cannot be used on an aggregate function");
 			static_assert(is_expression_t<wrap_operand_t<T>>::value, "count() requires an expression as argument");
 			return { t };
 		}
@@ -106,6 +106,7 @@ namespace sqlpp
 	template<typename T>
 		auto count(const distinct_t&, T t) -> count_t<distinct_t, wrap_operand_t<T>>
 		{
+			static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value, "count() cannot be used on an aggregate function");
 			static_assert(is_expression_t<wrap_operand_t<T>>::value, "count() requires an expression as argument");
 			return { t };
 		}

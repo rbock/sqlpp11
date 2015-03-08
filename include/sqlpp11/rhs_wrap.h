@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -118,7 +118,7 @@ namespace sqlpp
 		struct rhs_wrap_t
 		{
 			using _traits = typename Expr::_traits;
-			using _recursive_traits = typename Expr::_recursive_traits;
+			using _nodes = detail::type_vector<Expr>;
 
 			rhs_wrap_t(Expr expr):
 				_expr(expr) 
@@ -147,6 +147,7 @@ namespace sqlpp
 	template<typename Context, typename Expr, bool TrivialValueIsNull>
 		struct serializer_t<Context, rhs_wrap_t<Expr, TrivialValueIsNull>>
 		{
+			using _serialize_check = serialize_check_of<Context, Expr>;
 			using T = rhs_wrap_t<Expr, TrivialValueIsNull>;
 
 			static Context& _(const T& t, Context& context)

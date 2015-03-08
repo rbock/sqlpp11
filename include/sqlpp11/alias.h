@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -36,12 +36,12 @@ namespace sqlpp
 		struct expression_alias_t
 		{
 			using _traits = make_traits<value_type_of<Expression>, tag::is_selectable, tag::is_alias>;
-			using _recursive_traits = make_recursive_traits<Expression>;
+			using _nodes = detail::type_vector<Expression>;
 
 			static_assert(is_expression_t<Expression>::value, "invalid argument for an expression alias");
 			static_assert(not is_alias_t<Expression>::value, "cannot create an alias of an alias");
 
-			using _name_t = typename AliasProvider::_name_t;
+			using _alias_t = typename AliasProvider::_alias_t;
 
 			Expression _expression;
 		};
@@ -49,14 +49,14 @@ namespace sqlpp
 	template<typename Context, typename Expression, typename AliasProvider>
 		struct serializer_t<Context, expression_alias_t<Expression, AliasProvider>>
 		{
+			using _serialize_check = serialize_check_of<Context, Expression>;
 			using T = expression_alias_t<Expression, AliasProvider>;
 
 			static Context& _(const T& t, Context& context)
 			{
-				context << '(';
-				serialize(t._expression, context);
-				context << ") AS ";
-				context << T::_name_t::_get_name();
+				serialize_operand(t._expression, context);
+				context << " AS ";
+				context << name_of<T>::char_ptr();
 				return context;
 			}
 		};

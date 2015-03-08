@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,6 +29,7 @@
 
 #include <sqlpp11/boolean.h>
 #include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/char_sequence.h>
 
 namespace sqlpp
 {
@@ -36,11 +37,12 @@ namespace sqlpp
 		struct some_t
 		{
 			using _traits = make_traits<value_type_of<Select>, tag::is_multi_expression>;
-			using _recursive_traits = make_recursive_traits<Select>;
+			using _nodes = detail::type_vector<Select>;
 
-			struct _name_t
+			struct _alias_t
 			{
-				static constexpr const char* _get_name() { return "SOME"; }
+        static constexpr const char _literal[] =  "some_";
+        using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t
 					{
@@ -66,6 +68,7 @@ namespace sqlpp
 	template<typename Context, typename Select>
 		struct serializer_t<Context, some_t<Select>>
 		{
+			using _serialize_check = serialize_check_of<Context, Select>;
 			using T = some_t<Select>;
 
 			static Context& _(const T& t, Context& context)

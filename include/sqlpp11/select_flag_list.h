@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -60,13 +60,9 @@ namespace sqlpp
 		struct select_flag_list_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_select_flag_list>;
-			using _recursive_traits = make_recursive_traits<Flags...>;
+			using _nodes = detail::type_vector<Flags...>;
 
 			using _is_dynamic = is_database<Database>;
-
-			static_assert(not detail::has_duplicates<Flags...>::value, "at least one duplicate argument detected in select flag list");
-
-			static_assert(detail::all_t<is_select_flag_t<Flags>::value...>::value, "at least one argument is not a select flag in select flag list");
 
 			// Data
 			using _data_t = select_flag_list_data_t<Database, Flags...>;
@@ -87,8 +83,10 @@ namespace sqlpp
 							static_assert(_is_dynamic::value, "select_flags::add() must not be called for static select flags");
 							static_assert(is_select_flag_t<Flag>::value, "invalid select flag argument in select_flags::add()");
 							static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Flag>::value, "flag uses tables unknown to this statement in select_flags::add()");
+							using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Flag>;
+							_serialize_check::_();
 
-							using ok = detail::all_t<_is_dynamic::value, is_select_flag_t<Flag>::value>;
+							using ok = logic::all_t<_is_dynamic::value, is_select_flag_t<Flag>::value, _serialize_check::type::value>;
 
 							_add_impl(flag, ok()); // dispatch to prevent compile messages after the static_assert
 						}
@@ -106,9 +104,9 @@ namespace sqlpp
 					_data_t _data;
 				};
 
-			// Member template for adding the named member to a statement
+			// Base template to be inherited by the statement
 			template<typename Policies>
-				struct _member_t
+				struct _base_t
 				{
 					using _data_t = select_flag_list_data_t<Database, Flags...>;
 
@@ -121,13 +119,8 @@ namespace sqlpp
 						{
 							return t.select_flags;
 						}
-				};
 
-			// Additional methods for the statement
-			template<typename Policies>
-				struct _methods_t
-				{
-					static void _check_consistency() {}
+					using _consistency_check = consistent_t;
 				};
 
 		};
@@ -135,7 +128,7 @@ namespace sqlpp
 	struct no_select_flag_list_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_noop>;
-		using _recursive_traits = make_recursive_traits<>;
+		using _nodes = detail::type_vector<>;
 
 		// Data
 		using _data_t = no_data_t;
@@ -147,9 +140,9 @@ namespace sqlpp
 				_data_t _data;
 			};
 
-		// Member template for adding the named member to a statement
+		// Base template to be inherited by the statement
 		template<typename Policies>
-			struct _member_t
+			struct _base_t
 			{
 				using _data_t = no_data_t;
 
@@ -162,31 +155,50 @@ namespace sqlpp
 					{
 						return t.no_select_flags;
 					}
-			};
 
-		template<typename Policies>
-			struct _methods_t
-			{
 				using _database_t = typename Policies::_database_t;
-				template<typename T>
-					using _new_statement_t = new_statement<Policies, no_select_flag_list_t, T>;
 
-				static void _check_consistency() {}
+				template<typename... T>
+					using _check = logic::all_t<is_select_flag_t<T>::value...>;
 
-				template<typename... Args>
-					auto flags(Args... args) const
-					-> _new_statement_t<select_flag_list_t<void, Args...>>
+				template<typename Check, typename T>
+					using _new_statement_t = new_statement_t<Check::value, Policies, no_select_flag_list_t, T>;
+
+				using _consistency_check = consistent_t;
+
+				template<typename... Flags>
+					auto flags(Flags... flags) const
+					-> _new_statement_t<_check<Flags...>, select_flag_list_t<void, Flags...>>
 					{
-						return { static_cast<const derived_statement_t<Policies>&>(*this), select_flag_list_data_t<void, Args...>{args...} };
+						static_assert(_check<Flags...>::value, "at least one argument is not a select flag in select flag list");
+
+						return _flags_impl<void>(_check<Flags...>{}, flags...);
 					}
 
-				template<typename... Args>
-					auto dynamic_flags(Args... args) const
-					-> _new_statement_t<select_flag_list_t<_database_t, Args...>>
+				template<typename... Flags>
+					auto dynamic_flags(Flags... flags) const
+					-> _new_statement_t<_check<Flags...>, select_flag_list_t<_database_t, Flags...>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_flags must not be called in a static statement");
-						return { static_cast<const derived_statement_t<Policies>&>(*this), select_flag_list_data_t<_database_t, Args...>{args...} };
+						static_assert(_check<Flags...>::value, "at least one argument is not a select flag in select flag list");
+
+						return _flags_impl<_database_t>(_check<Flags...>{}, flags...);
 					}
+
+			private:
+				template<typename Database, typename... Flags>
+					auto _flags_impl(const std::false_type&, Flags... flags) const
+					-> bad_statement;
+
+				template<typename Database, typename... Flags>
+					auto _flags_impl(const std::true_type&, Flags... flags) const
+					-> _new_statement_t<std::true_type, select_flag_list_t<Database, Flags...>>
+					{
+						static_assert(not detail::has_duplicates<Flags...>::value, "at least one duplicate argument detected in select flag list");
+
+						return { static_cast<const derived_statement_t<Policies>&>(*this), select_flag_list_data_t<Database, Flags...>{flags...} };
+					}
+
 			};
 	};
 
@@ -195,6 +207,7 @@ namespace sqlpp
 	template<typename Context, typename Database, typename... Flags>
 		struct serializer_t<Context, select_flag_list_data_t<Database, Flags...>>
 		{
+			using _serialize_check = serialize_check_of<Context, Flags...>;
 			using T = select_flag_list_data_t<Database, Flags...>;
 
 			static Context& _(const T& t, Context& context)

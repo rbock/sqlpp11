@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -38,9 +38,9 @@ namespace sqlpp
 						tag_if<tag::can_be_null, CanBeNull>,
 						tag_if<tag::null_is_trivial_value, NullIsTrivialValue>
 							>;
-			using _recursive_traits = make_recursive_traits<>;
+			using _nodes = detail::type_vector<>;
 
-			using _name_t = NameType;
+			using _alias_t = NameType;
 		};
 
 	template<typename AliasProvider, typename FieldSpecTuple>
@@ -56,9 +56,9 @@ namespace sqlpp
 				static constexpr bool _can_be_null = can_be_null_t<NamedExpr>::value;
 				static constexpr bool _depends_on_outer_table = detail::make_intersect_set_t<required_tables_of<NamedExpr>, typename Select::_used_outer_tables>::size::value > 0;
 
-				using type = field_spec_t<typename NamedExpr::_name_t, 
+				using type = field_spec_t<typename NamedExpr::_alias_t, 
 							value_type_of<NamedExpr>,
-							detail::any_t<_can_be_null, _depends_on_outer_table>::value,
+							logic::any_t<_can_be_null, _depends_on_outer_table>::value,
 							null_is_trivial_value_t<NamedExpr>::value>;
 			};
 

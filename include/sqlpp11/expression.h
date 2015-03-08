@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -44,7 +44,7 @@ namespace sqlpp
 			public alias_operators<binary_expression_t<Lhs, op::equal_to, Rhs>>
 		{
 			using _traits = make_traits<boolean, tag::is_expression>;
-			using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
+			using _nodes = detail::type_vector<Lhs, Rhs>;
 			using _lhs_t = Lhs;
 			using _rhs_t = rhs_wrap_t<allow_tvin_t<Rhs>, trivial_value_is_null_t<_lhs_t>::value>;
 
@@ -66,12 +66,13 @@ namespace sqlpp
 	template<typename Context, typename Lhs, typename Rhs>
 		struct serializer_t<Context, equal_to_t<Lhs, Rhs>>
 		{
+			using _serialize_check = serialize_check_of<Context, Lhs, Rhs>;
 			using T = equal_to_t<Lhs, Rhs>;
 
 			static Context& _(const T& t, Context& context)
 			{
 				context << "(";
-				serialize(t._lhs, context);
+				serialize_operand(t._lhs, context);
 				if (t._rhs._is_null())
 				{
 					context << " IS NULL";
@@ -79,7 +80,7 @@ namespace sqlpp
 				else
 				{
 					context << "=";
-					serialize(t._rhs, context);
+					serialize_operand(t._rhs, context);
 				}
 				context << ")";
 				return context;
@@ -92,7 +93,7 @@ namespace sqlpp
 			public alias_operators<binary_expression_t<Lhs, op::not_equal_to, Rhs>>
 		{
 			using _traits = make_traits<boolean, tag::is_expression>;
-			using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
+			using _nodes = detail::type_vector<Lhs, Rhs>;
 			using _lhs_t = Lhs;
 			using _rhs_t = rhs_wrap_t<allow_tvin_t<Rhs>, trivial_value_is_null_t<_lhs_t>::value>;
 
@@ -114,12 +115,13 @@ namespace sqlpp
 	template<typename Context, typename Lhs, typename Rhs>
 		struct serializer_t<Context, not_equal_to_t<Lhs, Rhs>>
 		{
+			using _serialize_check = serialize_check_of<Context, Lhs, Rhs>;
 			using T = not_equal_to_t<Lhs, Rhs>;
 
 			static Context& _(const T& t, Context& context)
 			{
 				context << "(";
-				serialize(t._lhs, context);
+				serialize_operand(t._lhs, context);
 				if (t._rhs._is_null())
 				{
 					context << " IS NOT NULL";
@@ -127,7 +129,7 @@ namespace sqlpp
 				else
 				{
 					context << "!=";
-					serialize(t._rhs, context);
+					serialize_operand(t._rhs, context);
 				}
 				context << ")";
 				return context;
@@ -140,7 +142,7 @@ namespace sqlpp
 			public alias_operators<unary_expression_t<op::logical_not, Rhs>>
 		{
 			using _traits = make_traits<boolean, tag::is_expression>;
-			using _recursive_traits = make_recursive_traits<Rhs>;
+			using _nodes = detail::type_vector<Rhs>;
 
 			unary_expression_t(Rhs rhs):
 				_rhs(rhs)
@@ -158,6 +160,7 @@ namespace sqlpp
 	template<typename Context, typename Rhs>
 		struct serializer_t<Context, logical_not_t<Rhs>>
 		{
+			using _serialize_check = serialize_check_of<Context, Rhs>;
 			using T = logical_not_t<Rhs>;
 
 			static Context& _(const T& t, Context& context)
@@ -165,13 +168,13 @@ namespace sqlpp
 				context << "(";
 				if (trivial_value_is_null_t<Rhs>::value)
 				{
-					serialize(t._rhs, context);
+					serialize_operand(t._rhs, context);
 					context << " IS NULL ";
 				}
 				else
 				{
 					context << "NOT ";
-					serialize(t._rhs, context);
+					serialize_operand(t._rhs, context);
 				}
 				context << ")";
 
@@ -185,7 +188,7 @@ namespace sqlpp
 			public alias_operators<binary_expression_t<Lhs, O, Rhs>>
 	{
 		using _traits = make_traits<value_type_of<O>, tag::is_expression>;
-		using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
+		using _nodes = detail::type_vector<Lhs, Rhs>;
 
 		binary_expression_t(Lhs lhs, Rhs rhs):
 			_lhs(lhs), 
@@ -205,14 +208,15 @@ namespace sqlpp
 	template<typename Context, typename Lhs, typename O, typename Rhs>
 		struct serializer_t<Context, binary_expression_t<Lhs, O, Rhs>>
 		{
+			using _serialize_check = serialize_check_of<Context, Lhs, Rhs>;
 			using T = binary_expression_t<Lhs, O, Rhs>;
 
 			static Context& _(const T& t, Context& context)
 			{
 				context << "(";
-				serialize(t._lhs, context);
+				serialize_operand(t._lhs, context);
 				context << O::_name;
-				serialize(t._rhs, context);
+				serialize_operand(t._rhs, context);
 				context << ")";
 				return context;
 			}
@@ -224,7 +228,7 @@ namespace sqlpp
 			public alias_operators<unary_expression_t<O, Rhs>>
 	{
 		using _traits = make_traits<value_type_of<O>, tag::is_expression>;
-		using _recursive_traits = make_recursive_traits<Rhs>;
+		using _nodes = detail::type_vector<Rhs>;
 
 		unary_expression_t(Rhs rhs):
 			_rhs(rhs)
@@ -242,13 +246,14 @@ namespace sqlpp
 	template<typename Context, typename O, typename Rhs>
 		struct serializer_t<Context, unary_expression_t<O, Rhs>>
 		{
+			using _serialize_check = serialize_check_of<Context, Rhs>;
 			using T = unary_expression_t<O, Rhs>;
 
 			static Context& _(const T& t, Context& context)
 			{
 				context << "(";
 				context << O::_name;
-				serialize(t._rhs, context);
+				serialize_operand(t._rhs, context);
 				context << ")";
 				return context;
 			}

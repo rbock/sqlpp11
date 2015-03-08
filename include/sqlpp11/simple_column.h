@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -35,20 +35,22 @@ namespace sqlpp
 	template<typename Column>
 		struct simple_column_t
 		{
-			Column _column;
+			using _column_t = Column;
+			_column_t _column;
 
 			using _traits = make_traits<no_value_t, tag::is_noop>;
-			using _recursive_traits = make_recursive_traits<>;
+			using _nodes = detail::type_vector<>;
 		};
 
 	template<typename Context, typename Column>
 		struct serializer_t<Context, simple_column_t<Column>>
 		{
+			using _serialize_check = serialize_check_of<Context, Column>;
 			using T = simple_column_t<Column>;
 
 			static Context& _(const T& t, Context& context)
 			{
-				context << t._column._get_name();
+				context << name_of<typename T::_column_t>::char_ptr();
 				return context;
 			}
 		};

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -30,6 +30,7 @@
 #include <memory>
 #include <sqlpp11/serializer_context.h>
 #include <sqlpp11/parameter_list.h>
+#include <sqlpp11/char_sequence.h>
 
 namespace sqlpp
 {
@@ -41,6 +42,7 @@ namespace sqlpp
 
 			template<typename T>
 				named_interpretable_t(T t):
+					_requires_braces(requires_braces_t<T>::value),
 					_impl(std::make_shared<_impl_t<T>>(t))
 			{}
 
@@ -73,6 +75,8 @@ namespace sqlpp
 			{
 				return _impl->_get_name();
 			}
+
+			bool _requires_braces;
 
 		private:
 			struct _impl_base
@@ -111,7 +115,7 @@ namespace sqlpp
 
 				std::string _get_name() const
 				{
-					return T::_name_t::_get_name();
+					return name_of<T>::char_ptr();
 				}
 
 				T _t;
@@ -123,11 +127,20 @@ namespace sqlpp
 	template<typename Context, typename Database>
 		struct serializer_t<Context, named_interpretable_t<Database>>
 		{
+			using _serialize_check = consistent_t;
 			using T = named_interpretable_t<Database>;
 
 			static Context& _(const T& t, Context& context)
 			{
-				t.serialize(context);
+				if (t._requires_braces)
+				{
+					context << '(';
+					t.serialize(context);
+					context << ')';
+				}
+				else
+					t.serialize(context);
+
 				return context;
 			}
 		};

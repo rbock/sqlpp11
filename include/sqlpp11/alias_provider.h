@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -28,13 +28,15 @@
 #define SQLPP_ALIAS_PROVIDER_H
 
 #include <type_traits>
+#include <sqlpp11/char_sequence.h>
 
 #define SQLPP_ALIAS_PROVIDER(name) \
 	struct name##_t\
 {\
-	struct _name_t\
+	struct _alias_t\
 	{\
-		static constexpr const char* _get_name() { return #name; }\
+		static constexpr const char _literal[] =  #name;\
+		using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;\
 		template<typename T>\
 		struct _member_t\
 		{\
@@ -55,7 +57,7 @@ namespace sqlpp
 		};
 
 	template<typename T>
-		struct is_alias_provider_t<T, typename std::enable_if<std::is_class<typename T::_name_t::template _member_t<int>>::value, void>::type>
+		struct is_alias_provider_t<T, typename std::enable_if<std::is_class<typename T::_alias_t::template _member_t<int>>::value, void>::type>
 		{
 			static constexpr bool value = true;
 		};

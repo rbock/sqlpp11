@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -58,15 +58,9 @@ namespace sqlpp
 		struct using_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_using_>;
-			using _recursive_traits = make_recursive_traits<Tables...>;
+			using _nodes = detail::type_vector<Tables...>;
 
 			using _is_dynamic = is_database<Database>;
-
-			static_assert(_is_dynamic::value or sizeof...(Tables), "at least one table argument required in using()");
-
-			static_assert(not detail::has_duplicates<Tables...>::value, "at least one duplicate argument detected in using()");
-
-			static_assert(detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not an table in using()");
 
 			// Data
 			using _data_t = using_data_t<Database, Tables...>;
@@ -80,8 +74,10 @@ namespace sqlpp
 						{
 							static_assert(_is_dynamic::value, "add must not be called for static using()");
 							static_assert(is_table_t<Table>::value, "invalid table argument in add()");
+							using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Table>;
+							_serialize_check::_();
 
-							using ok = detail::all_t<_is_dynamic::value, is_table_t<Table>::value>;
+							using ok = logic::all_t<_is_dynamic::value, is_table_t<Table>::value, _serialize_check::type::value>;
 
 							_add_impl(table, ok()); // dispatch to prevent compile messages after the static_assert
 						}
@@ -100,9 +96,9 @@ namespace sqlpp
 					_data_t _data;
 				};
 
-			// Member template for adding the named member to a statement
+			// Base template to be inherited by the statement
 			template<typename Policies>
-				struct _member_t
+				struct _base_t
 				{
 					using _data_t = using_data_t<Database, Tables...>;
 
@@ -115,13 +111,9 @@ namespace sqlpp
 						{
 							return t.using_;
 						}
-				};
 
-			// Additional methods for the statement
-			template<typename Policies>
-				struct _methods_t
-				{
-					static void _check_consistency() {}
+					// FIXME: Maybe check for unused tables, similar to from
+					using _consistency_check = consistent_t;
 				};
 		};
 
@@ -129,7 +121,7 @@ namespace sqlpp
 	struct no_using_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_where>;
-		using _recursive_traits = make_recursive_traits<>;
+		using _nodes = detail::type_vector<>;
 
 		// Data
 		using _data_t = no_data_t;
@@ -141,9 +133,9 @@ namespace sqlpp
 				_data_t _data;
 			};
 
-		// Member template for adding the named member to a statement
+		// Base template to be inherited by the statement
 		template<typename Policies>
-			struct _member_t
+			struct _base_t
 			{
 				using _data_t = no_data_t;
 
@@ -156,31 +148,51 @@ namespace sqlpp
 					{
 						return t.no_using;
 					}
-			};
 
-		template<typename Policies>
-			struct _methods_t
-			{
 				using _database_t = typename Policies::_database_t;
-				template<typename T>
-					using _new_statement_t = new_statement<Policies, no_using_t, T>;
 
-				static void _check_consistency() {}
+				template<typename... T>
+					using _check = logic::all_t<is_table_t<T>::value...>;
+
+				template<typename Check, typename T>
+					using _new_statement_t = new_statement_t<Check::value, Policies, no_using_t, T>;
+
+				using _consistency_check = consistent_t;
 
 				template<typename... Args>
 					auto using_(Args... args) const
-					-> _new_statement_t<using_t<void, Args...>>
+					-> _new_statement_t<_check<Args...>, using_t<void, Args...>>
 					{
-						return { static_cast<const derived_statement_t<Policies>&>(*this), using_data_t<void, Args...>{args...} };
+						static_assert(not detail::has_duplicates<Args...>::value, "at least one duplicate argument detected in using()");
+						static_assert(sizeof...(Args), "at least one table required in using()");
+						static_assert(_check<Args...>::value, "at least one argument is not an table in using()");
+
+						return { _using_impl<void>(_check<Args...>{}, args...) };
 					}
 
 				template<typename... Args>
 					auto dynamic_using(Args... args) const
-					-> _new_statement_t<using_t<_database_t, Args...>>
+					-> _new_statement_t<_check<Args...>, using_t<_database_t, Args...>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_using must not be called in a static statement");
-						return { static_cast<const derived_statement_t<Policies>&>(*this), using_data_t<_database_t, Args...>{args...} };
+						static_assert(_check<Args...>::value, "at least one argument is not an table in using()");
+
+						return { _using_impl<_database_t>(_check<Args...>{}, args...) };
 					}
+
+			private:
+				template<typename Database, typename... Args>
+					auto _using_impl(const std::false_type&, Args... args) const
+					-> bad_statement;
+
+				template<typename Database, typename... Args>
+					auto _using_impl(const std::true_type&, Args... args) const
+						-> _new_statement_t<std::true_type, using_t<_database_t, Args...>>
+						{
+							static_assert(not detail::has_duplicates<Args...>::value, "at least one duplicate argument detected in using()");
+
+							return { static_cast<const derived_statement_t<Policies>&>(*this), using_data_t<Database, Args...>{args...} };
+						}
 			};
 	};
 
@@ -188,6 +200,7 @@ namespace sqlpp
 	template<typename Context, typename Database, typename... Tables>
 		struct serializer_t<Context, using_data_t<Database, Tables...>>
 		{
+			using _serialize_check = serialize_check_of<Context, Tables...>;
 			using T = using_data_t<Database, Tables...>;
 
 			static Context& _(const T& t, Context& context)

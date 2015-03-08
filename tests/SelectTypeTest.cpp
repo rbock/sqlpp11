@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, 
@@ -300,7 +300,7 @@ int main()
 					multi_column(all_of(t)).as(alias::right), // index 8 (including 8, 9, 10, 11)
 					t.alpha.as(alias::a) // index 12
 					).from(t).where(true)); // next index is 13
-		using ResultRow = typename Select::_result_methods_t::template _result_row_t<MockDb>;
+		using ResultRow = typename Select::_result_methods_t<Select>::template _result_row_t<MockDb>;
 		using IndexSequence = ResultRow::_field_index_sequence;
 		static_assert(std::is_same<IndexSequence, sqlpp::detail::field_index_sequence<13, 0, 1, 2, 3, 4, 8, 12>>::value, "invalid field sequence");
 	}
@@ -359,7 +359,7 @@ int main()
 	((t.alpha + 7) + 4).asc();
 	static_assert(sqlpp::is_boolean_t<decltype(t.gamma == t.gamma)>::value, "Comparison expression have to be boolean");
 	!t.gamma;
-	t.beta < "kaesekuchen";
+	serialize(t.beta < "kaesekuchen", printer).str();
 	serialize(t.beta + "hallenhalma", printer).str();
 	static_assert(sqlpp::must_not_insert_t<decltype(t.alpha)>::value, "alpha must not be inserted");
 	serialize(t.alpha, printer).str();

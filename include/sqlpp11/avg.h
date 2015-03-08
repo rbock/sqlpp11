@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -28,6 +28,7 @@
 #define SQLPP_AVG_H
 
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/char_sequence.h>
 
 namespace sqlpp
 {
@@ -37,14 +38,15 @@ namespace sqlpp
 			public alias_operators<avg_t<Flag, Expr>>
 	{
 		using _traits = make_traits<floating_point, tag::is_expression, tag::is_selectable>;
-		using _recursive_traits = make_recursive_traits<Expr, aggregate_function>;
+		using _nodes = detail::type_vector<Expr, aggregate_function>;
 
 		static_assert(is_noop<Flag>::value or std::is_same<distinct_t, Flag>::value, "avg() used with flag other than 'distinct'");
 		static_assert(is_numeric_t<Expr>::value, "avg() requires a value expression as argument");
 
-		struct _name_t
+		struct _alias_t
 		{
-			static constexpr const char* _get_name() { return "AVG"; }
+			static constexpr const char _literal[] =  "avg_";
+			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 			template<typename T>
 				struct _member_t
 				{
@@ -70,6 +72,7 @@ namespace sqlpp
 	template<typename Context, typename Flag, typename Expr>
 		struct serializer_t<Context, avg_t<Flag, Expr>>
 		{
+			using _serialize_check = serialize_check_of<Context, Flag, Expr>;
 			using T = avg_t<Flag, Expr>;
 
 			static Context& _(const T& t, Context& context)
@@ -79,8 +82,12 @@ namespace sqlpp
 				{
 					serialize(Flag(), context);
 					context << ' ';
+					serialize_operand(t._expr, context);
 				}
-				serialize(t._expr, context);
+				else
+				{
+					serialize(t._expr, context);
+				}
 				context << ")";
 				return context;
 			}

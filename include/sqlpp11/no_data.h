@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -37,6 +37,7 @@ namespace sqlpp
 	template<typename Context>
 		struct serializer_t<Context, no_data_t>
 		{
+			using _serialize_check = consistent_t;
 			using T = no_data_t;
 
 			static Context& _(const T& t, Context& context)

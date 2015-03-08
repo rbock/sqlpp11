@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -34,12 +34,13 @@ namespace sqlpp
 	struct null_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_expression, tag::is_sql_null>;
-		using _recursive_traits = make_recursive_traits<>;
+		using _nodes = detail::type_vector<>;
 	};
 
 	template<typename Context>
 		struct serializer_t<Context, null_t>
 		{
+			using _serialize_check = consistent_t;
 			using Operand = null_t;
 
 			static Context& _(const Operand& t, Context& context)

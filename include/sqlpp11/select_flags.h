@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -38,13 +38,15 @@ namespace sqlpp
 	struct all_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_select_flag>;
-		using _recursive_traits = make_recursive_traits<>;
+		using _nodes = detail::type_vector<>;
 	};
 	static constexpr all_t all = {};
 
 	template<typename Context>
 		struct serializer_t<Context, all_t>
 		{
+			using _serialize_check = consistent_t;
+
 			static Context& _(const all_t&, Context& context)
 			{
 				context << "ALL";
@@ -55,13 +57,15 @@ namespace sqlpp
 	struct distinct_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_select_flag>;
-		using _recursive_traits = make_recursive_traits<>;
+		using _nodes = detail::type_vector<>;
 	};
 	static constexpr distinct_t distinct = {};
 
 	template<typename Context>
 		struct serializer_t<Context, distinct_t>
 		{
+			using _serialize_check = consistent_t;
+
 			static Context& _(const distinct_t&, Context& context)
 			{
 				context << "DISTINCT";
@@ -72,13 +76,15 @@ namespace sqlpp
 	struct straight_join_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_select_flag>;
-		using _recursive_traits = make_recursive_traits<>;
+		using _nodes = detail::type_vector<>;
 	};
 	static constexpr straight_join_t straight_join = {};
 
 	template<typename Context>
 		struct serializer_t<Context, straight_join_t>
 		{
+			using _serialize_check = consistent_t;
+
 			static Context& _(const straight_join_t&, Context& context)
 			{
 				context << "STRAIGHT_JOIN";

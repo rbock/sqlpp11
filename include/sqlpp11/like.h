@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,6 +29,7 @@
 
 #include <sqlpp11/boolean.h>
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/char_sequence.h>
 #include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
@@ -39,11 +40,12 @@ namespace sqlpp
 			public alias_operators<like_t<Operand, Pattern>>
 	{
 		using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
-		using _recursive_traits = make_recursive_traits<Operand, Pattern>;
+		using _nodes = detail::type_vector<Operand, Pattern>;
 
-		struct _name_t
+		struct _alias_t
 		{
-			static constexpr const char* _get_name() { return "LIKE"; }
+			static constexpr const char _literal[] =  "like_";
+			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 			template<typename T>
 				struct _member_t
 				{
@@ -71,11 +73,12 @@ namespace sqlpp
 	template<typename Context, typename Operand, typename Pattern>
 		struct serializer_t<Context, like_t<Operand, Pattern>>
 		{
+			using _serialize_check = serialize_check_of<Context, Operand, Pattern>;
 			using T = like_t<Operand, Pattern>;
 
 			static Context& _(const T& t, Context& context)
 			{
-				serialize(t._operand, context);
+				serialize_operand(t._operand, context);
 				context << " LIKE(";
 				serialize(t._pattern, context);
 				context << ")";

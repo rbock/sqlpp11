@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -28,6 +28,7 @@
 #define SQLPP_RESULT_ROW_H
 
 #include <map>
+#include <sqlpp11/result_row_fwd.h>
 #include <sqlpp11/field_spec.h>
 #include <sqlpp11/text.h>
 #include <sqlpp11/detail/field_index_sequence.h>
@@ -184,9 +185,9 @@ namespace sqlpp
 		struct _field_spec_t
 		{
 			using _traits = make_traits<text, tag::is_noop, tag::can_be_null, tag::null_is_trivial_value>;
-			using _recursive_traits = make_recursive_traits<>;
+			using _nodes = detail::type_vector<>;
 
-			struct _name_t {};
+			struct _alias_t {};
 		};
 		using _field_type = result_field_t<text, Db, _field_spec_t>;
 
@@ -265,6 +266,21 @@ namespace sqlpp
 				}
 			}
 	};
+
+	template<typename T>
+		struct is_static_result_row_impl
+		{
+			using type = std::false_type;
+		};
+
+	template<typename Db, typename... FieldSpecs>
+		struct is_static_result_row_impl<result_row_t<Db, FieldSpecs...>>
+		{
+			using type = std::true_type;
+		};
+
+	template<typename T>
+		using is_static_result_row_t = typename is_static_result_row_impl<T>::type;
 }
 
 #endif

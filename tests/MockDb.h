@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, 
@@ -27,6 +27,7 @@
 #define SQLPP_MOCK_DB_H
 
 #include <sstream>
+#include <iostream>
 #include <sqlpp11/serializer_context.h>
 #include <sqlpp11/connection.h>
 
@@ -107,9 +108,33 @@ struct MockDbT: public sqlpp::connection
 
 	// Directly executed statements start here
 	template<typename T>
-		auto operator() (const T& t) -> decltype(t._run(*this))
+		auto _run(const T& t, const std::true_type&) -> decltype(t._run(*this))
 		{
 			return t._run(*this);
+		}
+
+	template<typename T>
+		auto _run(const T& t, const std::false_type&) -> decltype(t._run(*this));
+
+	template<typename T>
+		auto operator() (const T& t) -> decltype(t._run(*this))
+		{
+			sqlpp::run_check_t<T>::_();
+			sqlpp::serialize_check_t<_serializer_context_t, T>::_();
+			using _ok = sqlpp::logic::all_t<sqlpp::run_check_t<T>::type::value,
+				  sqlpp::serialize_check_t<_serializer_context_t, T>::type::value>;
+			return _run(t, _ok{});
+		}
+
+	void execute(const std::string& command);
+
+	template<typename Statement, 
+					typename Enable = typename std::enable_if<not std::is_convertible<Statement, std::string>::value, void>::type>
+		void execute(const Statement& x)
+		{
+			_serializer_context_t context;
+			::sqlpp::serialize(x, context);
+			std::cout << "Running execute call with\n" << context.str() << std::endl;
 		}
 
 	template<typename Insert>
@@ -117,6 +142,7 @@ struct MockDbT: public sqlpp::connection
 		{
 			_serializer_context_t context;
 			::sqlpp::serialize(x, context);
+			std::cout << "Running insert call with\n" << context.str() << std::endl;
 			return 0;
 		}
 
@@ -125,6 +151,7 @@ struct MockDbT: public sqlpp::connection
 		{
 			_serializer_context_t context;
 			::sqlpp::serialize(x, context);
+			std::cout << "Running update call with\n" << context.str() << std::endl;
 			return 0;
 		}
 
@@ -133,6 +160,7 @@ struct MockDbT: public sqlpp::connection
 		{
 			_serializer_context_t context;
 			::sqlpp::serialize(x, context);
+			std::cout << "Running remove call with\n" << context.str() << std::endl;
 			return 0;
 		}
 
@@ -141,6 +169,7 @@ struct MockDbT: public sqlpp::connection
 		{
 			_serializer_context_t context;
 			::sqlpp::serialize(x, context);
+			std::cout << "Running select call with\n" << context.str() << std::endl;
 			return {};
 		}
 
@@ -148,18 +177,46 @@ struct MockDbT: public sqlpp::connection
 	using _prepared_statement_t = std::nullptr_t;
 
 	template<typename T>
-		auto prepare(const T& t) -> decltype(t._prepare(*this))
+		auto _prepare(const T& t, const std::true_type&) -> decltype(t._prepare(*this))
 		{
 			return t._prepare(*this);
 		}
 
+	template<typename T>
+		auto _prepare(const T& t, const std::false_type&) -> decltype(t._prepare(*this));
+
+	template<typename T>
+		auto prepare(const T& t) -> decltype(t._prepare(*this))
+		{
+			sqlpp::prepare_check_t<T>::_();
+			sqlpp::serialize_check_t<_serializer_context_t, T>::_();
+			using _ok = sqlpp::logic::all_t<sqlpp::prepare_check_t<T>::type::value,
+				  sqlpp::serialize_check_t<_serializer_context_t, T>::type::value>;
+			return _prepare(t, _ok{});
+		}
+
+
+	template<typename Statement>
+		_prepared_statement_t prepare_execute(Statement& x)
+		{
+			_serializer_context_t context;
+			::sqlpp::serialize(x, context);
+			std::cout << "Running prepare execute call with\n" << context.str() << std::endl;
+			return nullptr;
+		}
 
 	template<typename Insert>
 		_prepared_statement_t prepare_insert(Insert& x)
 		{
 			_serializer_context_t context;
 			::sqlpp::serialize(x, context);
+			std::cout << "Running prepare insert call with\n" << context.str() << std::endl;
 			return nullptr;
+		}
+
+	template<typename PreparedExecute>
+		void run_prepared_execute(const PreparedExecute& x)
+		{
 		}
 
 	template<typename PreparedInsert>
@@ -173,6 +230,7 @@ struct MockDbT: public sqlpp::connection
 		{
 			_serializer_context_t context;
 			::sqlpp::serialize(x, context);
+			std::cout << "Running prepare select call with\n" << context.str() << std::endl;
 			return nullptr;
 		}
 

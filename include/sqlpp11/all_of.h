@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -51,14 +51,26 @@ namespace sqlpp
 			return {};
 		}
 
+	struct assert_no_stand_alone_all_of_t
+	{
+		using type = std::false_type;
+
+		template<typename T = void>
+		static void _()
+		{
+			static_assert(wrong_t<T>::value, "all_of(table) seems to be used outside of select");
+		}
+	};
+
 	template<typename Context, typename Table>
 		struct serializer_t<Context, all_of_t<Table>>
 		{
+			using _serialize_check = assert_no_stand_alone_all_of_t;
 			using T = all_of_t<Table>;
 
 			static Context& _(const T& t, const Context&)
 			{
-				static_assert(wrong_t<serializer_t>::value, "all_of(table) does not seem to be used in select");
+				_serialize_check::_();
 			}
 		};
 

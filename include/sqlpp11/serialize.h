@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -28,6 +28,7 @@
 #define SQLPP_SERIALIZE_H
 
 #include <sqlpp11/serializer.h>
+#include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
@@ -38,15 +39,21 @@ namespace sqlpp
 			return serializer_t<Context, T>::_(t, context);
 		}
 
-	/*
-		 template<typename T, typename Context>
-		 auto serialize(const T& t, Context& context)
-		 -> decltype(serializer_t<Context, T>::_(t, context))
-		 {
-		 return serializer_t<Context, T>::_(t, context);
-		 }
-		 */
+	template<typename T, typename Context>
+		auto serialize_operand(const T& t, Context& context)
+		-> decltype(serializer_t<Context, T>::_(t, context))
+		{
+			if (requires_braces_t<T>::value)
+			{
+				context << '(';
+				serializer_t<Context, T>::_(t, context);
+				context << ')';
+			}
+			else
+				serializer_t<Context, T>::_(t, context);
 
+			return context;
+		}
 }
 
 #endif

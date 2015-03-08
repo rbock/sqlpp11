@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -52,12 +52,23 @@ namespace sqlpp
 			interpretable_list_t<Database> _dynamic_assignments;
 		};
 
+	struct assert_no_unknown_tables_in_update_assignments_t
+	{
+		using type = std::false_type;
+
+		template<typename T = void>
+		static void _()
+		{
+			static_assert(wrong_t<T>::value, "at least one update assignment requires a table which is otherwise not known in the statement");
+		}
+	};
+
 	// UPDATE ASSIGNMENTS
 	template<typename Database, typename... Assignments>
 		struct update_list_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_update_list>;
-			using _recursive_traits = make_recursive_traits<Assignments...>;
+			using _nodes = detail::type_vector<Assignments...>;
 			using _is_dynamic = is_database<Database>;
 
 			// Data
@@ -80,12 +91,15 @@ namespace sqlpp
 							static_assert(is_assignment_t<Assignment>::value, "invalid assignment argument in add()");
 							using _assigned_columns = detail::make_type_set_t<lhs_t<Assignments>...>;
 							static_assert(not detail::is_element_of<lhs_t<Assignment>, _assigned_columns>::value, "Must not assign value to column twice");
-							static_assert(detail::not_t<must_not_update_t, lhs_t<Assignment>>::value, "add() argument must not be updated");
+							static_assert(logic::not_t<must_not_update_t, lhs_t<Assignment>>::value, "add() argument must not be updated");
 							static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Assignment>::value, "assignment uses tables unknown to this statement in add()");
+							using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Assignment>;
+							_serialize_check::_();
 
-							using ok = detail::all_t<
+							using ok = logic::all_t<
 								_is_dynamic::value, 
-								is_assignment_t<Assignment>::value>;
+								is_assignment_t<Assignment>::value,
+								_serialize_check::type::value>;
 
 							_add_impl(assignment, ok()); // dispatch to prevent compile messages after the static_assert
 						}
@@ -103,9 +117,9 @@ namespace sqlpp
 					_data_t _data;
 				};
 
-			// Member template for adding the named member to a statement
+			// Base template to be inherited by the statement
 			template<typename Policies>
-				struct _member_t
+				struct _base_t
 				{
 					using _data_t = update_list_data_t<Database, Assignments...>;
 
@@ -118,20 +132,28 @@ namespace sqlpp
 						{
 							return t.assignments;
 						}
-				};
 
-			// Additional methods for the statement
-			template<typename Policies>
-				struct _methods_t
-				{
-					static void _check_consistency() {}
+					using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<update_list_t>::value,
+								consistent_t,
+								assert_no_unknown_tables_in_update_assignments_t>::type;
 				};
 		};
+
+	struct assert_update_assignments_t
+	{
+		using type = std::false_type;
+
+		template<typename T = void>
+			static void _()
+			{
+				static_assert(wrong_t<T>::value, "update assignments required, i.e. set(...)");
+			}
+	};
 
 	struct no_update_list_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_where>;
-		using _recursive_traits = make_recursive_traits<>;
+		using _nodes = detail::type_vector<>;
 
 		// Data
 		using _data_t = no_data_t;
@@ -143,9 +165,9 @@ namespace sqlpp
 				_data_t _data;
 			};
 
-		// Member template for adding the named member to a statement
+		// Base template to be inherited by the statement
 		template<typename Policies>
-			struct _member_t
+			struct _base_t
 			{
 				using _data_t = no_data_t;
 
@@ -158,44 +180,48 @@ namespace sqlpp
 					{
 						return t.no_assignments;
 					}
-			};
 
-		template<typename Policies>
-			struct _methods_t
-			{
 				using _database_t = typename Policies::_database_t;
-				template<typename T>
-					using _new_statement_t = new_statement<Policies, no_update_list_t, T>;
 
-				static void _check_consistency()
-				{
-					static_assert(wrong_t<_methods_t>::value, "update assignments required, i.e. set(...)");
-				}
+				template<typename... T>
+					using _check = logic::all_t<is_assignment_t<T>::value...>;
+
+				template<typename Check, typename T>
+					using _new_statement_t = new_statement_t<Check::value, Policies, no_update_list_t, T>;
+
+				using _consistency_check = assert_update_assignments_t;
 
 				template<typename... Assignments>
 					auto set(Assignments... assignments) const
-					-> _new_statement_t<update_list_t<void, Assignments...>>
+					-> _new_statement_t<_check<Assignments...>, update_list_t<void, Assignments...>>
 					{
 						static_assert(sizeof...(Assignments), "at least one assignment expression required in set()");
-						return _set_impl<void>(assignments...);
+						static_assert(_check<Assignments...>::value, "at least one argument is not an assignment in set()");
+
+						return _set_impl<void>(_check<Assignments...>{}, assignments...);
 					}
 
 				template<typename... Assignments>
 					auto dynamic_set(Assignments... assignments) const
-					-> _new_statement_t<update_list_t<_database_t, Assignments...>>
+					-> _new_statement_t<_check<Assignments...>, update_list_t<_database_t, Assignments...>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_set() must not be called in a static statement");
-						return _set_impl<_database_t>(assignments...);
+						static_assert(_check<Assignments...>::value, "at least one argument is not an assignment in set()");
+
+						return _set_impl<_database_t>(_check<Assignments...>{}, assignments...);
 					}
 
 			private:
 				template<typename Database, typename... Assignments>
-					auto _set_impl(Assignments... assignments) const
-					-> _new_statement_t<update_list_t<Database, Assignments...>>
+					auto _set_impl(const std::false_type&, Assignments... assignments) const
+					-> bad_statement;
+
+				template<typename Database, typename... Assignments>
+					auto _set_impl(const std::true_type&, Assignments... assignments) const
+					-> _new_statement_t<std::true_type, update_list_t<Database, Assignments...>>
 					{
-						static_assert(detail::all_t<is_assignment_t<Assignments>::value...>::value, "at least one argument is not an assignment in set()");
 						static_assert(not detail::has_duplicates<lhs_t<Assignments>...>::value, "at least one duplicate column detected in set()");
-						static_assert(detail::none_t<must_not_update_t<lhs_t<Assignments>>::value...>::value, "at least one assignment is prohibited by its column definition in set()");
+						static_assert(logic::none_t<must_not_update_t<lhs_t<Assignments>>::value...>::value, "at least one assignment is prohibited by its column definition in set()");
 
 						using _column_required_tables = detail::make_joined_set_t<required_tables_of<lhs_t<Assignments>>...>;
 						static_assert(sizeof...(Assignments) ? (_column_required_tables::size::value == 1) : true, "set() contains assignments for columns from more than one table");
@@ -209,6 +235,7 @@ namespace sqlpp
 	template<typename Context, typename Database, typename... Assignments>
 		struct serializer_t<Context, update_list_data_t<Database, Assignments...>>
 		{
+			using _serialize_check = serialize_check_of<Context, Assignments...>;
 			using T = update_list_data_t<Database, Assignments...>;
 
 			static Context& _(const T& t, Context& context)

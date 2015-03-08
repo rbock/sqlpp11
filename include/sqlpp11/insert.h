@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -44,41 +44,53 @@ namespace sqlpp
 	struct insert_t: public statement_name_t<insert_name_t>
 	{
 		using _traits = make_traits<no_value_t, tag::is_return_value>;
-		struct _name_t {};
+		struct _alias_t {};
 
-		template<typename Policies>
+		template<typename Statement>
 			struct _result_methods_t
 			{
-				using _statement_t = derived_statement_t<Policies>;
+				using _statement_t = Statement;
 
 				const _statement_t& _get_statement() const
 				{
 					return static_cast<const _statement_t&>(*this);
 				}
 
+				// Execute
+				template<typename Db, typename Composite>
+					auto _run(Db& db, const Composite& composite) const
+					-> decltype(db.insert(composite))
+					{
+						return db.insert(composite);
+					}
+
 				template<typename Db>
 					auto _run(Db& db) const -> decltype(db.insert(this->_get_statement()))
 					{
-						_statement_t::_check_consistency();
-
-						static_assert(_statement_t::_get_static_no_of_parameters() == 0, "cannot run insert directly with parameters, use prepare instead");
 						return db.insert(_get_statement());
 					}
 
-					 template<typename Db>
-					 auto _prepare(Db& db) const
-					 -> prepared_insert_t<Db, _statement_t>
-					 {
-						 _statement_t::_check_consistency();
+				// Prepare
+				template<typename Db, typename Composite>
+					auto _prepare(Db& db, const Composite& composite) const
+					-> prepared_insert_t<Db, Composite>
+					{
+						return {{}, db.prepare_insert(composite)};
+					}
 
-						 return {{}, db.prepare_insert(_get_statement())};
-					 }
+				template<typename Db>
+					auto _prepare(Db& db) const
+					-> prepared_insert_t<Db, _statement_t>
+					{
+						return {{}, db.prepare_insert(_get_statement())};
+					}
 			};
 	};
 
 	template<typename Context>
 		struct serializer_t<Context, insert_name_t>
 		{
+			using _serialize_check = consistent_t;
 			using T = insert_name_t;
 
 			static Context& _(const T& t, Context& context)

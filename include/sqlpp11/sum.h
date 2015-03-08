@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -28,6 +28,7 @@
 #define SQLPP_SUM_H
 
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/char_sequence.h>
 
 namespace sqlpp
 {
@@ -37,14 +38,15 @@ namespace sqlpp
 			public alias_operators<sum_t<Flag, Expr>>
 	{
 		using _traits = make_traits<value_type_of<Expr>, tag::is_expression, tag::is_selectable>;
-		using _recursive_traits = make_recursive_traits<Expr, aggregate_function>;
+		using _nodes = detail::type_vector<Expr, aggregate_function>;
 
 		static_assert(is_noop<Flag>::value or std::is_same<distinct_t, Flag>::value, "sum() used with flag other than 'distinct'");
 		static_assert(is_numeric_t<Expr>::value, "sum() requires a numeric expression as argument");
 
-		struct _name_t
+		struct _alias_t
 		{
-			static constexpr const char* _get_name() { return "SUM"; }
+			static constexpr const char _literal[] =  "sum_";
+			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 			template<typename T>
 				struct _member_t
 				{
@@ -70,6 +72,7 @@ namespace sqlpp
 	template<typename Context, typename Flag, typename Expr>
 		struct serializer_t<Context, sum_t<Flag, Expr>>
 		{
+			using _serialize_check = serialize_check_of<Context, Flag, Expr>;
 			using T = sum_t<Flag, Expr>;
 
 			static Context& _(const T& t, Context& context)
@@ -79,8 +82,11 @@ namespace sqlpp
 				{
 					serialize(Flag(), context);
 					context << ' ';
+					serialize_operand(t._expr, context);
 				}
-				serialize(t._expr, context);
+				else
+					serialize(t._expr, context);
+
 				context << ")";
 				return context;
 			}

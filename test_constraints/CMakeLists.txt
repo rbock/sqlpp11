@@ -1,4 +1,4 @@
-include_directories("${CMAKE_SOURCE_DIR}/tests")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../tests")
 
 add_custom_target(test_sqlpp_constraints COMMAND true)
 
@@ -24,8 +24,8 @@ function(test_constraint name pattern)
 
 endfunction(test_constraint)
 
-test_constraint(count_of_count "requires an expression as argument")
-test_constraint(max_of_max "requires an expression as argument")
+test_constraint(count_of_count "count() cannot be used on an aggregate function")
+test_constraint(max_of_max "max() cannot be used on an aggregate function")
 test_constraint(no_conversion_operator_if_null_not_trivial "int i = row.alpha")
 test_constraint(require_insert "required column is missing")
 test_constraint(must_not_insert "one assignment is prohibited")

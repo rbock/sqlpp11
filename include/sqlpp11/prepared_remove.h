@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,14 +29,20 @@
 
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/result.h>
+#include <sqlpp11/no_value.h>
 
 namespace sqlpp
 {
 	template<typename Db, typename Remove>
 		struct prepared_remove_t
 		{
+			using _traits = make_traits<no_value_t, tag::is_prepared_statement>;
+			using _nodes = detail::type_vector<>;
+
 			using _parameter_list_t = make_parameter_list_t<Remove>;
 			using _prepared_statement_t = typename Db::_prepared_statement_t;
+
+			using _run_check = consistent_t;
 
 			auto _run(Db& db) const
 				-> size_t

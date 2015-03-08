@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -41,7 +41,7 @@ namespace sqlpp
 		struct assignment_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_assignment>;
-			using _recursive_traits = make_recursive_traits<Lhs, Rhs>;
+			using _nodes = detail::type_vector<Lhs, Rhs>;
 
 			using _lhs_t = Lhs;
 			using _rhs_t = rhs_wrap_t<allow_tvin_t<Rhs>, trivial_value_is_null_t<_lhs_t>::value>;
@@ -66,13 +66,14 @@ namespace sqlpp
 	template<typename Context, typename Lhs, typename Rhs>
 		struct serializer_t<Context, assignment_t<Lhs, Rhs>>
 		{
+			using _serialize_check = serialize_check_of<Context, Lhs, Rhs>;
 			using T = assignment_t<Lhs, Rhs>;
 
 			static Context& _(const T& t, Context& context)
 			{
 				serialize(simple_column(t._lhs), context);
 				context << "=";
-				serialize(t._rhs, context);
+				serialize_operand(t._rhs, context);
 				return context;
 			}
 		};

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -55,9 +55,7 @@ namespace sqlpp
 		struct limit_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_limit>;
-			using _recursive_traits = make_recursive_traits<Limit>;
-
-			static_assert(is_integral_t<Limit>::value, "limit requires an integral value or integral parameter");
+			using _nodes = detail::type_vector<Limit>;
 
 			// Data
 			using _data_t = limit_data_t<Limit>;
@@ -69,9 +67,9 @@ namespace sqlpp
 					_data_t _data;
 				};
 
-			// Member template for adding the named member to a statement
+			// Base template to be inherited by the statement
 			template<typename Policies>
-				struct _member_t
+				struct _base_t
 				{
 					using _data_t = limit_data_t<Limit>;
 
@@ -84,12 +82,8 @@ namespace sqlpp
 						{
 							return t.limit;
 						}
-				};
 
-			template<typename Policies>
-				struct _methods_t
-				{
-					static void _check_consistency() {}
+					using _consistency_check = consistent_t;
 				};
 		};
 
@@ -124,7 +118,7 @@ namespace sqlpp
 		struct dynamic_limit_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_limit>;
-			using _recursive_traits = make_recursive_traits<>;
+			using _nodes = detail::type_vector<>;
 
 			// Data
 			using _data_t = dynamic_limit_data_t<Database>;
@@ -138,6 +132,7 @@ namespace sqlpp
 						{
 							// FIXME: Make sure that Limit does not require external tables? Need to read up on SQL
 							using arg_t = wrap_operand_t<Limit>;
+							static_assert(is_integral_t<arg_t>::value, "limit requires an integral value or integral parameter");
 							_data._value = arg_t{value};
 							_data._initialized = true;
 						}
@@ -145,9 +140,9 @@ namespace sqlpp
 					_data_t _data;
 				};
 
-			// Member template for adding the named member to a statement
+			// Base template to be inherited by the statement
 			template<typename Policies>
-				struct _member_t
+				struct _base_t
 				{
 					using _data_t = dynamic_limit_data_t<Database>;
 
@@ -160,20 +155,15 @@ namespace sqlpp
 						{
 							return t.limit;
 						}
-				};
 
-			// Additional methods for the statement
-			template<typename Policies>
-				struct _methods_t
-				{
-					static void _check_consistency() {}
+					using _consistency_check = consistent_t;
 				};
 		};
 
 	struct no_limit_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_noop>;
-		using _recursive_traits = make_recursive_traits<>;
+		using _nodes = detail::type_vector<>;
 
 		// Data
 		using _data_t = no_data_t;
@@ -185,9 +175,9 @@ namespace sqlpp
 				_data_t _data;
 			};
 
-		// Member template for adding the named member to a statement
+		// Base template to be inherited by the statement
 		template<typename Policies>
-			struct _member_t
+			struct _base_t
 			{
 				using _data_t = no_data_t;
 
@@ -200,30 +190,43 @@ namespace sqlpp
 					{
 						return t.no_limit;
 					}
-			};
 
-		template<typename Policies>
-			struct _methods_t
-			{
 				using _database_t = typename Policies::_database_t;
-				template<typename T>
-					using _new_statement_t = new_statement<Policies, no_limit_t, T>;
 
-				static void _check_consistency() {}
+				template<typename T>
+					using _check = is_integral_t<wrap_operand_t<T>>;
+
+				template<typename Check, typename T>
+					using _new_statement_t = new_statement_t<Check::value, Policies, no_limit_t, T>;
+
+				using _consistency_check = consistent_t;
 
 				template<typename Arg>
 					auto limit(Arg arg) const
-					-> _new_statement_t<limit_t<wrap_operand_t<Arg>>>
+					-> _new_statement_t<_check<Arg>, limit_t<wrap_operand_t<Arg>>>
 					{
-						return { static_cast<const derived_statement_t<Policies>&>(*this), limit_data_t<wrap_operand_t<Arg>>{{arg}} };
+						static_assert(_check<Arg>::value, "limit requires an integral value or integral parameter");
+						return _limit_impl(_check<Arg>{}, wrap_operand_t<Arg>{arg});
 					}
 
 				auto dynamic_limit() const
-					-> _new_statement_t<dynamic_limit_t<_database_t>>
+					-> _new_statement_t<std::true_type, dynamic_limit_t<_database_t>>
 					{
-						static_assert(not std::is_same<_database_t, void>::value, "dynamic_limit must not be called in a static statement");
 						return { static_cast<const derived_statement_t<Policies>&>(*this), dynamic_limit_data_t<_database_t>{} };
 					}
+
+			private:
+				template<typename Arg>
+					auto _limit_impl(const std::false_type&, Arg arg) const
+					-> bad_statement;
+
+				template<typename Arg>
+					auto _limit_impl(const std::true_type&, Arg arg) const
+					-> _new_statement_t<std::true_type, limit_t<Arg>>
+					{
+						return { static_cast<const derived_statement_t<Policies>&>(*this), limit_data_t<Arg>{arg} };
+					}
+
 			};
 	};
 
@@ -231,6 +234,7 @@ namespace sqlpp
 	template<typename Context, typename Database>
 		struct serializer_t<Context, dynamic_limit_data_t<Database>>
 		{
+			using _serialize_check = consistent_t;
 			using T = dynamic_limit_data_t<Database>;
 
 			static Context& _(const T& t, Context& context)
@@ -247,12 +251,13 @@ namespace sqlpp
 	template<typename Context, typename Limit>
 		struct serializer_t<Context, limit_data_t<Limit>>
 		{
+			using _serialize_check = serialize_check_of<Context, Limit>;
 			using T = limit_data_t<Limit>;
 
 			static Context& _(const T& t, Context& context)
 			{
 				context << " LIMIT ";
-				serialize(t._value, context);
+				serialize_operand(t._value, context);
 				return context;
 			}
 		};

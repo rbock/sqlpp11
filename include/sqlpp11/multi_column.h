@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -28,7 +28,7 @@
 #define SQLPP_MULTI_COLUMN_H
 
 #include <sqlpp11/no_value.h>
-#include <sqlpp11/detail/logic.h>
+#include <sqlpp11/logic.h>
 #include <sqlpp11/detail/type_set.h>
 
 #include <sqlpp11/detail/copy_tuple_args.h>
@@ -42,9 +42,9 @@ namespace sqlpp
 		struct multi_column_t
 		{
 			using _traits = make_traits<no_value_t>;
-			using _recursive_traits = make_recursive_traits<Columns...>;
+			using _nodes = detail::type_vector<Columns...>;
 
-			static_assert(detail::all_t<is_selectable_t<Columns>::value...>::value, "multi_column parameters need to be named expressions");
+			static_assert(logic::all_t<is_selectable_t<Columns>::value...>::value, "multi_column parameters need to be named expressions");
 
 			multi_column_t(std::tuple<Columns...> columns):
 				_columns(columns)
@@ -73,11 +73,11 @@ namespace sqlpp
 		struct multi_column_alias_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_alias, tag::is_multi_column, tag::is_selectable>;
-			using _recursive_traits = make_recursive_traits<Columns...>;
+			using _nodes = detail::type_vector<Columns...>;
 
-			static_assert(detail::all_t<is_selectable_t<Columns>::value...>::value, "multi_column parameters need to be named expressions");
+			static_assert(logic::all_t<is_selectable_t<Columns>::value...>::value, "multi_column parameters need to be named expressions");
 
-			using _name_t = typename AliasProvider::_name_t;
+			using _alias_t = typename AliasProvider::_alias_t;
 
 			multi_column_alias_t(multi_column_t<void, Columns...> multi_column):
 				_columns(multi_column._columns)
@@ -103,6 +103,7 @@ namespace sqlpp
 	template<typename Context, typename... Columns>
 		struct serializer_t<Context, multi_column_t<void, Columns...>>
 		{
+			using _serialize_check = serialize_check_of<Context, Columns...>;
 			using T = multi_column_t<void, Columns...>;
 
 			static void _(const T& t, Context& context)
@@ -114,6 +115,7 @@ namespace sqlpp
 	template<typename Context, typename AliasProvider, typename... Columns>
 		struct serializer_t<Context, multi_column_alias_t<AliasProvider, Columns...>>
 		{
+			using _serialize_check = serialize_check_of<Context, Columns...>;
 			using T = multi_column_alias_t<AliasProvider, Columns...>;
 
 			static Context& _(const T& t, Context& context)

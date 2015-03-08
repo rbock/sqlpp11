@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,10 +27,9 @@
 #ifndef SQLPP_DETAIL_TYPE_SET_H
 #define SQLPP_DETAIL_TYPE_SET_H
 
-#include <tuple>
 #include <type_traits>
 #include <sqlpp11/wrong.h>
-#include <sqlpp11/detail/logic.h>
+#include <sqlpp11/logic.h>
 
 namespace sqlpp
 {
@@ -39,6 +38,9 @@ namespace sqlpp
 		// some forward declarations and helpers
 		template<typename... T>
 			struct make_type_set;
+
+		template<typename... T>
+			using make_type_set_t = typename make_type_set<T...>::type;
 
 		template<typename E, typename SET>
 			struct is_element_of;
@@ -50,7 +52,7 @@ namespace sqlpp
 			using size = std::integral_constant<size_t, sizeof...(Elements)>;
 			using _is_type_set = std::true_type;
 
-			static_assert(std::is_same<type_set, typename make_type_set<Elements...>::type>::value, "use make_type_set to construct a set");
+			static_assert(std::is_same<type_set, make_type_set_t<Elements...>>::value, "use make_type_set to construct a typeset");
 
 			template<typename T>
 				struct insert
@@ -79,7 +81,7 @@ namespace sqlpp
 		template<typename E, typename... Elements>
 			struct is_element_of<E, type_set<Elements...>>
 			{
-				static constexpr bool value = any_t<std::is_same<E, Elements>::value...>::value;
+				static constexpr bool value = ::sqlpp::logic::any_t<std::is_same<E, Elements>::value...>::value;
 			};
 
 		template<typename L, typename R>
@@ -91,7 +93,7 @@ namespace sqlpp
 		template<typename... LElements, typename... RElements>
 			struct joined_set<type_set<LElements...>, type_set<RElements...>>
 			{
-				using type = typename make_type_set<LElements..., RElements...>::type;
+				using type = make_type_set_t<LElements..., RElements...>;
 			};
 
 		template<typename L, typename R>
@@ -139,9 +141,6 @@ namespace sqlpp
 				using type = typename make_type_set<Rest...>::type::template insert<T>::type;
 			};
 
-		template<typename... T>
-			using make_type_set_t = typename make_type_set<T...>::type;
-
 		template<template<typename> class Predicate, typename... T>
 			struct make_type_set_if;
 
@@ -168,8 +167,11 @@ namespace sqlpp
 				using type = typename make_type_set_if<InversePredicate, T...>::type;
 			};
 
+		template<template<typename> class Predicate, typename... T>
+			using make_type_set_if_not_t = typename make_type_set_if_not<Predicate, T...>::type;
+
 		template<typename... T>
-			using has_duplicates = std::integral_constant<bool, make_type_set<T...>::type::size::value != sizeof...(T)>;
+			using has_duplicates = std::integral_constant<bool, make_type_set_t<T...>::size::value != sizeof...(T)>;
 
 		template<typename... T>
 			struct make_joined_set
@@ -205,7 +207,7 @@ namespace sqlpp
 			{
 				template<typename E>
 					using is_subtrahend = is_element_of<E, type_set<Subtrahends...>>;
-				using type = typename make_type_set_if_not<is_subtrahend, Minuends...>::type;
+				using type = make_type_set_if_not_t<is_subtrahend, Minuends...>;
 			};
 
 		template<typename Minuend, typename Subtrahend>
@@ -221,8 +223,8 @@ namespace sqlpp
 			struct make_intersect_set<type_set<LhsElements...>, type_set<RhsElements...>>
 			{
 				template<typename E>
-					using is_in_both = all_t<is_element_of<E, type_set<LhsElements...>>::value, is_element_of<E, type_set<RhsElements...>>::value>;
-				using type = typename make_type_set_if<is_in_both, LhsElements...>::type;
+					using is_in_both = ::sqlpp::logic::all_t<is_element_of<E, type_set<LhsElements...>>::value, is_element_of<E, type_set<RhsElements...>>::value>;
+				using type = make_type_set_if_t<is_in_both, LhsElements...>;
 			};
 
 		template<typename Lhs, typename Rhs>
@@ -238,7 +240,7 @@ namespace sqlpp
 		template<template<typename> class Transformation, typename... E>
 			struct transform_set<Transformation, type_set<E...>>
 			{
-				using type = typename make_type_set<Transformation<E>...>::type;
+				using type = make_type_set_t<Transformation<E>...>;
 			};
 
 		template<template<typename> class Transformation, typename T>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,6 +27,7 @@
 #ifndef SQLPP_VERBATIM_H
 #define SQLPP_VERBATIM_H
 
+#include <sqlpp11/no_value.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/serialize.h>
 
@@ -38,10 +39,8 @@ namespace sqlpp
 			public alias_operators<verbatim_t<ValueType>>
 	{
 		using _traits = make_traits<ValueType, tag::is_expression>;
-		struct _recursive_traits : public make_recursive_traits<>
-		{
-			using _tags = detail::type_set<tag::can_be_null>; // since we do not know what's going on inside the verbatim, we assume it can be null
-		};
+		using _nodes = detail::type_vector<>;
+		using _can_be_null = std::true_type; // since we do not know what's going on inside the verbatim, we assume it can be null
 
 		verbatim_t(std::string verbatim): _verbatim(verbatim) {}
 		verbatim_t(const verbatim_t&) = default;
@@ -56,6 +55,7 @@ namespace sqlpp
 	template<typename Context, typename ValueType>
 		struct serializer_t<Context, verbatim_t<ValueType>>
 		{
+			using _serialize_check = consistent_t;
 			using T = verbatim_t<ValueType>;
 
 			static Context& _(const T& t, Context& context)
@@ -70,6 +70,11 @@ namespace sqlpp
 		{
 			return { s };
 		}
+
+	inline auto verbatim(std::string s) -> verbatim_t<no_value_t>
+	{
+		return { s };
+	}
 
 }
 

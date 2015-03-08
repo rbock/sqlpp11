@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -44,35 +44,46 @@ namespace sqlpp
 	struct update_t: public statement_name_t<update_name_t>
 	{
 		using _traits = make_traits<no_value_t, tag::is_return_value>;
-		struct _name_t {};
+		struct _alias_t {};
 
-		template<typename Policies>
+		template<typename Statement>
 			struct _result_methods_t
 			{
-				using _statement_t = derived_statement_t<Policies>;
+				using _statement_t = Statement;
 
 				const _statement_t& _get_statement() const
 				{
 					return static_cast<const _statement_t&>(*this);
 				}
 
+				// Execute
+				template<typename Db, typename Composite>
+					auto _run(Db& db, const Composite& composite) const
+					-> decltype(db.update(composite))
+					{
+						return db.update(composite);
+					}
+
 				template<typename Db>
 					auto _run(Db& db) const -> decltype(db.update(this->_get_statement()))
 					{
-						_statement_t::_check_consistency();
-
-						static_assert(_statement_t::_get_static_no_of_parameters() == 0, "cannot run update directly with parameters, use prepare instead");
 						return db.update(_get_statement());
 					}
 
-					 template<typename Db>
-					 auto _prepare(Db& db) const
-					 -> prepared_update_t<Db, _statement_t>
-					 {
-						 _statement_t::_check_consistency();
+				// Prepare
+				template<typename Db, typename Composite>
+					auto _prepare(Db& db, const Composite& composite) const
+					-> prepared_update_t<Db, Composite>
+					{
+						return {{}, db.prepare_update(composite)};
+					}
 
-						 return {{}, db.prepare_update(_get_statement())};
-					 }
+				template<typename Db>
+					auto _prepare(Db& db) const
+					-> prepared_update_t<Db, _statement_t>
+					{
+						return {{}, db.prepare_update(_get_statement())};
+					}
 			};
 	};
 
@@ -80,6 +91,7 @@ namespace sqlpp
 	template<typename Context>
 		struct serializer_t<Context, update_name_t>
 		{
+			using _serialize_check = consistent_t;
 			using T = update_name_t;
 
 			static Context& _(const T& t, Context& context)
@@ -100,17 +112,17 @@ namespace sqlpp
 
 	template<typename Table>
 		constexpr auto update(Table table)
-		-> decltype(blank_update_t<void>().from(table))
+		-> decltype(blank_update_t<void>().single_table(table))
 		{
-			return { blank_update_t<void>().from(table) };
+			return { blank_update_t<void>().single_table(table) };
 		}
 
 	template<typename Database, typename Table>
 		constexpr auto  dynamic_update(const Database&, Table table)
-		-> decltype(blank_update_t<Database>().from(table))
+		-> decltype(blank_update_t<Database>().single_table(table))
 		{
 			static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
-			return { blank_update_t<Database>().from(table) };
+			return { blank_update_t<Database>().single_table(table) };
 		}
 }
 

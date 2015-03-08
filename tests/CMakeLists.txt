@@ -7,6 +7,7 @@ macro (build_and_run arg)
 endmacro ()
 
 build_and_run(BooleanExpressionTest)
+build_and_run(CustomQueryTest)
 build_and_run(InterpretTest)
 build_and_run(InsertTest)
 build_and_run(RemoveTest)
@@ -17,6 +18,8 @@ build_and_run(FunctionTest)
 build_and_run(PreparedTest)
 build_and_run(Minimalistic)
 build_and_run(ResultTest)
+build_and_run(UnionTest)
+build_and_run(WithTest)
 
 # if you want to use the generator, you can do something like this:
 #find_package(PythonInterp REQUIRED)

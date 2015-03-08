@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -50,7 +50,7 @@ namespace sqlpp
 				struct type
 				{
 					using _traits = make_traits<no_value_t, tag::is_noop>;
-					using _recursive_traits = make_recursive_traits<>;
+					using _nodes = detail::type_vector<>;
 				};
 			};
 	}
@@ -103,6 +103,7 @@ namespace sqlpp
 	template<typename Context, typename ValueType>
 		struct serializer_t<Context, insert_value_t<ValueType>>
 		{
+			using _serialize_check = serialize_check_of<Context, ValueType>;
 			using T = insert_value_t<ValueType>;
 
 			static Context& _(const T& t, Context& context)
@@ -115,7 +116,7 @@ namespace sqlpp
 				else if (t._is_default)
 					context << "DEFAULT";
 				else
-					serialize(t._value, context);
+					serialize_operand(t._value, context);
 				return context;
 			}
 		};

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -36,7 +36,7 @@ namespace sqlpp
 		struct boolean_expression_t: public expression_operators<boolean_expression_t<Database>, boolean>
 		{
 			using _traits = make_traits<boolean, tag::is_expression>;
-			using _recursive_traits = make_recursive_traits<>;
+			using _nodes = detail::type_vector<>;
 
 			template<typename Expr>
 			boolean_expression_t(Expr expr):
@@ -71,6 +71,7 @@ namespace sqlpp
 	template<typename Context, typename Database>
 		struct serializer_t<Context, boolean_expression_t<Database>>
 		{
+			using _serialize_check = consistent_t;
 			using T = boolean_expression_t<Database>;
 
 			static Context& _(const T& t, Context& context)

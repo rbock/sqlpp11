@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -37,11 +37,11 @@ namespace sqlpp
 	template<typename T>
 		struct parameter_list_t
 		{
-			static_assert(wrong_t<parameter_list_t>::value, "Template parameter for parameter_list_t has to be a tuple");
+			static_assert(wrong_t<parameter_list_t>::value, "Template parameter for parameter_list_t has to be a type_vector");
 		};
 
 	template<typename... Parameter>
-		struct parameter_list_t<std::tuple<Parameter...>>: public Parameter::_instance_t...
+		struct parameter_list_t<detail::type_vector<Parameter...>>: public Parameter::_instance_t...
 		{
 			using _member_tuple_t = std::tuple<typename Parameter::_instance_t...>;
 			using size = std::integral_constant<std::size_t, sizeof...(Parameter)>;

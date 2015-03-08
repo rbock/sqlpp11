@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,12 +27,13 @@
 #ifndef SQLPP_WHERE_H
 #define SQLPP_WHERE_H
 
+#include <sqlpp11/statement_fwd.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/expression.h>
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/interpretable_list.h>
-#include <sqlpp11/detail/logic.h>
+#include <sqlpp11/logic.h>
 
 namespace sqlpp
 {
@@ -54,18 +55,25 @@ namespace sqlpp
 			interpretable_list_t<Database> _dynamic_expressions;
 		};
 
+	struct assert_no_unknown_tables_in_where_t
+	{
+		using type = std::false_type;
+
+		template<typename T = void>
+		static void _()
+		{
+			static_assert(wrong_t<T>::value, "at least one expression in where() requires a table which is otherwise not known in the statement");
+		}
+	};
+
 	// WHERE(EXPR)
 	template<typename Database, typename... Expressions>
 		struct where_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_where>;
-			using _recursive_traits = make_recursive_traits<Expressions...>;
+			using _nodes = detail::type_vector<Expressions...>;
 
 			using _is_dynamic = is_database<Database>;
-
-			static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression argument required in where()");
-			static_assert(detail::none_t<is_assignment_t<Expressions>::value...>::value, "at least one argument is an assignment in where()");
-			static_assert(detail::all_t<is_expression_t<Expressions>::value...>::value, "at least one argument is not valid expression in where()");
 
 			// Data
 			using _data_t = where_data_t<Database, Expressions...>;
@@ -86,8 +94,10 @@ namespace sqlpp
 							static_assert(_is_dynamic::value, "where::add() can only be called for dynamic_where");
 							static_assert(is_expression_t<Expression>::value, "invalid expression argument in where::add()");
 							static_assert(not TableCheckRequired::value or Policies::template _no_unknown_tables<Expression>::value, "expression uses tables unknown to this statement in where::add()");
+							using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Expression>;
+							_serialize_check::_();
 
-							using ok = detail::all_t<_is_dynamic::value, is_expression_t<Expression>::value>;
+							using ok = logic::all_t<_is_dynamic::value, is_expression_t<Expression>::value, _serialize_check::type::value>;
 
 							_add_impl(expression, ok()); // dispatch to prevent compile messages after the static_assert
 						}
@@ -106,9 +116,9 @@ namespace sqlpp
 					_data_t _data;
 				};
 
-			// Member template for adding the named member to a statement
+			// Base template to be inherited by the statement
 			template<typename Policies>
-				struct _member_t
+				struct _base_t
 				{
 					using _data_t = where_data_t<Database, Expressions...>;
 
@@ -121,13 +131,10 @@ namespace sqlpp
 						{
 							return t.where;
 						}
-				};
 
-			// Additional methods for the statement
-			template<typename Policies>
-				struct _methods_t
-				{
-					static void _check_consistency() {}
+					using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<where_t>::value,
+								consistent_t,
+								assert_no_unknown_tables_in_where_t>::type;
 				};
 		};
 
@@ -142,7 +149,7 @@ namespace sqlpp
 		struct where_t<void, bool>
 		{
 			using _traits = make_traits<no_value_t, tag::is_where>;
-			using _recursive_traits = make_recursive_traits<>;
+			using _nodes = detail::type_vector<>;
 
 			// Data
 			using _data_t = where_data_t<void, bool>;
@@ -154,9 +161,9 @@ namespace sqlpp
 					_data_t _data;
 				};
 
-			// Member template for adding the named member to a statement
+			// Base template to be inherited by the statement
 			template<typename Policies>
-				struct _member_t
+				struct _base_t
 				{
 					using _data_t = where_data_t<void, bool>;
 
@@ -169,23 +176,29 @@ namespace sqlpp
 						{
 							return t.where;
 						}
-				};
 
-			// Additional methods for the statement
-			template<typename Policies>
-				struct _methods_t
-				{
-					static void _check_consistency() {}
+					using _consistency_check = consistent_t;
 				};
 
 		};
+
+	struct assert_where_t
+	{
+		using type = std::false_type;
+
+		template<typename T = void>
+			static void _()
+			{
+				static_assert(wrong_t<T>::value, "where expression required, e.g. where(true)");
+			}
+	};
 
 	// NO WHERE YET
 	template<bool WhereRequired>
 		struct no_where_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_where>;
-			using _recursive_traits = make_recursive_traits<>;
+			using _nodes = detail::type_vector<>;
 
 			// Data
 			using _data_t = no_data_t;
@@ -197,9 +210,9 @@ namespace sqlpp
 					_data_t _data;
 				};
 
-			// Member template for adding the named member to a statement
+			// Base template to be inherited by the statement
 			template<typename Policies>
-				struct _member_t
+				struct _base_t
 				{
 					using _data_t = no_data_t;
 
@@ -212,37 +225,57 @@ namespace sqlpp
 						{
 							return t.no_where;
 						}
-				};
 
-			// Additional methods for the statement
-			template<typename Policies>
-				struct _methods_t
-				{
 					using _database_t = typename Policies::_database_t;
-					template<typename T>
-						using _new_statement_t = new_statement<Policies, no_where_t, T>;
 
-					static void _check_consistency()
-					{
-						static constexpr bool _tables_provided = (Policies::_all_provided_tables::size::value > 0);
-						static constexpr bool _required = WhereRequired and _tables_provided;
-						static_assert(not _required, "where expression required, e.g. where(true)");
-					}
+					template<typename... T>
+						using _check = logic::all_t<is_expression_t<T>::value...>;
 
-					template<typename... Args>
-						auto where(Args... args) const
-						-> _new_statement_t<where_t<void, Args...>>
+					template<typename Check, typename T>
+						using _new_statement_t = new_statement_t<Check::value, Policies, no_where_t, T>;
+
+					using _consistency_check = typename std::conditional<
+						WhereRequired and (Policies::_all_provided_tables::size::value > 0),
+						assert_where_t,
+						consistent_t>::type;
+
+					auto where(bool b) const
+						-> _new_statement_t<std::true_type, where_t<void, bool>>
 						{
-							return { static_cast<const derived_statement_t<Policies>&>(*this), where_data_t<void, Args...>{args...} };
+							return { static_cast<const derived_statement_t<Policies>&>(*this), where_data_t<void, bool>{b} };
 						}
 
-					template<typename... Args>
-						auto dynamic_where(Args... args) const
-						-> _new_statement_t<where_t<_database_t, Args...>>
+					template<typename... Expressions>
+						auto where(Expressions... expressions) const
+						-> _new_statement_t<_check<Expressions...>, where_t<void, Expressions...>>
 						{
+							static_assert(_check<Expressions...>::value, "at least one argument is not an expression in where()");
+							static_assert(sizeof...(Expressions), "at least one expression argument required in where()");
+
+							return _where_impl<void>(_check<Expressions...>{}, expressions...);
+						}
+
+					template<typename... Expressions>
+						auto dynamic_where(Expressions... expressions) const
+						-> _new_statement_t<_check<Expressions...>, where_t<_database_t, Expressions...>>
+						{
+							static_assert(_check<Expressions...>::value, "at least one argument is not an expression in where()");
 							static_assert(not std::is_same<_database_t, void>::value, "dynamic_where must not be called in a static statement");
-							return { static_cast<const derived_statement_t<Policies>&>(*this), where_data_t<_database_t, Args...>{args...} };
+							return _where_impl<_database_t>(_check<Expressions...>{}, expressions...);
 						}
+
+				private:
+					template<typename Database, typename... Expressions>
+						auto _where_impl(const std::false_type&, Expressions... expressions) const
+						-> bad_statement;
+
+					template<typename Database, typename... Expressions>
+						auto _where_impl(const std::true_type&, Expressions... expressions) const
+						-> _new_statement_t<std::true_type, where_t<Database, Expressions...>>
+						{
+							return { static_cast<const derived_statement_t<Policies>&>(*this), where_data_t<_database_t, Expressions...>{expressions...} };
+						}
+
 				};
 		};
 
@@ -250,6 +283,7 @@ namespace sqlpp
 	template<typename Context, typename Database, typename... Expressions>
 		struct serializer_t<Context, where_data_t<Database, Expressions...>>
 		{
+			using _serialize_check = serialize_check_of<Context, Expressions...>;
 			using T = where_data_t<Database, Expressions...>;
 
 			static Context& _(const T& t, Context& context)
@@ -268,6 +302,7 @@ namespace sqlpp
 	template<typename Context>
 		struct serializer_t<Context, where_data_t<void, bool>>
 		{
+			using _serialize_check = consistent_t;
 			using T = where_data_t<void, bool>;
 
 			static Context& _(const T& t, Context& context)
@@ -278,6 +313,11 @@ namespace sqlpp
 			}
 		};
 
+	template<typename... T>
+		auto where(T&&... t) -> decltype(statement_t<void, no_where_t<false>>().where(std::forward<T>(t)...))
+		{
+			return statement_t<void, no_where_t<false>>().where(std::forward<T>(t)...);
+		}
 }
 
 #endif

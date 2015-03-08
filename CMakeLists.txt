@@ -1,4 +1,4 @@
-# Copyright (c) 2013-2014, Roland Bock
+# Copyright (c) 2013-2015, Roland Bock
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without modification,
@@ -36,7 +36,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	set(CMAKE_CXX_FLAGS "-std=c++11 -Wall ${CMAKE_CXX_FLAGS}")
 endif ()
-set(CMAKE_CXX_FLAGS "-Wconversion -Wpedantic ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "-Wconversion -Wpedantic -Wshadow ${CMAKE_CXX_FLAGS}")
 
 set(include_dir "${PROJECT_SOURCE_DIR}/include")
 file(GLOB_RECURSE sqlpp_headers "${include_dir}/*.h")

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -58,14 +58,14 @@ namespace sqlpp
 		struct single_table_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_single_table>;
-			using _recursive_traits = make_recursive_traits<Table>;
+			using _nodes = detail::type_vector<Table>;
 
 			static_assert(is_table_t<Table>::value, "argument has to be a table");
 			static_assert(required_tables_of<Table>::size::value == 0, "table depends on another table");
 
 			using _data_t = single_table_data_t<Database, Table>;
 
-			struct _name_t {};
+			struct _alias_t {};
 
 			// Member implementation with data and methods
 			template <typename Policies>
@@ -74,9 +74,9 @@ namespace sqlpp
 					_data_t _data;
 				};
 
-			// Member template for adding the named member to a statement
+			// Base template to be inherited by the statement
 			template<typename Policies>
-				struct _member_t
+				struct _base_t
 				{
 					using _data_t = single_table_data_t<Database, Table>;
 
@@ -89,13 +89,8 @@ namespace sqlpp
 						{
 							return t.from;
 						}
-				};
 
-			// Additional methods for the statement
-			template<typename Policies>
-				struct _methods_t
-				{
-					static void _check_consistency() {}
+					using _consistency_check = consistent_t;
 				};
 
 		};
@@ -104,7 +99,7 @@ namespace sqlpp
 	struct no_single_table_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_noop>;
-		using _recursive_traits = make_recursive_traits<>;
+		using _nodes = detail::type_vector<>;
 
 		// Data
 		using _data_t = no_data_t;
@@ -116,9 +111,9 @@ namespace sqlpp
 				_data_t _data;
 			};
 
-		// Member template for adding the named member to a statement
+		// Base template to be inherited by the statement
 		template<typename Policies>
-			struct _member_t
+			struct _base_t
 			{
 				using _data_t = no_data_t;
 
@@ -131,22 +126,36 @@ namespace sqlpp
 					{
 						return t.no_from;
 					}
-			};
 
-		template<typename Policies>
-			struct _methods_t
-			{
 				using _database_t = typename Policies::_database_t;
 				template<typename T>
-					using _new_statement_t = new_statement<Policies, no_single_table_t, T>;
+					using _check = logic::all_t<is_table_t<T>::value>;
 
-				static void _check_consistency() {}
+				template<typename Check, typename T>
+					using _new_statement_t = new_statement_t<Check::value, Policies, no_single_table_t, T>;
 
-				template<typename... Args>
-					auto from(Args... args) const
-					-> _new_statement_t<single_table_t<void, Args...>>
+				using _consistency_check = consistent_t;
+
+				template<typename Table>
+					auto single_table(Table table) const
+					-> _new_statement_t<_check<Table>, single_table_t<void, Table>>
 					{
-						return { static_cast<const derived_statement_t<Policies>&>(*this), single_table_data_t<void, Args...>{args...} };
+						static_assert(_check<Table>::value, "argument is not a table in single_table()");
+						return _single_table_impl<void>(_check<Table>{}, table);
+					}
+
+			private:
+				template<typename Database, typename Table>
+					auto _single_table_impl(const std::false_type&, Table table) const
+					-> bad_statement;
+
+				template<typename Database, typename Table>
+					auto _single_table_impl(const std::true_type&, Table table) const
+					-> _new_statement_t<std::true_type, single_table_t<Database, Table>>
+					{
+						static_assert(required_tables_of<single_table_t<Database, Table>>::size::value == 0, "argument depends on another table in single_table()");
+
+						return { static_cast<const derived_statement_t<Policies>&>(*this), single_table_data_t<Database, Table>{table} };
 					}
 			};
 	};
@@ -155,6 +164,7 @@ namespace sqlpp
 	template<typename Context, typename Database, typename Table>
 		struct serializer_t<Context, single_table_data_t<Database, Table>>
 		{
+			using _serialize_check = serialize_check_of<Context, Table>;
 			using T = single_table_data_t<Database, Table>;
 
 			static Context& _(const T& t, Context& context)

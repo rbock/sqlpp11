@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -31,6 +31,7 @@
 
 #include <sqlpp11/noop.h>
 #include <sqlpp11/connection.h>
+#include <sqlpp11/with.h>
 #include <sqlpp11/select_flag_list.h>
 #include <sqlpp11/select_column_list.h>
 #include <sqlpp11/from.h>
@@ -41,6 +42,7 @@
 #include <sqlpp11/order_by.h>
 #include <sqlpp11/limit.h>
 #include <sqlpp11/offset.h>
+#include <sqlpp11/union.h>
 #include <sqlpp11/expression.h>
 #include <sqlpp11/wrong.h>
 
@@ -49,12 +51,13 @@ namespace sqlpp
 {
 	struct select_name_t {};
 
-	struct select_t: public statement_name_t<select_name_t>
+	struct select_t: public statement_name_t<select_name_t, tag::is_select>
 	{};
 
 	template<typename Context>
 		struct serializer_t<Context, select_name_t>
 		{
+			using _serialize_check = consistent_t;
 			using T = select_name_t;
 
 			static Context& _(const T& t, Context& context)
@@ -67,6 +70,7 @@ namespace sqlpp
 
 	template<typename Database>
 		using blank_select_t = statement_t<Database,
+					no_with_t,
 					select_t,
 					no_select_flag_list_t, 
 					no_select_column_list_t, 
@@ -77,7 +81,8 @@ namespace sqlpp
 					no_having_t,
 					no_order_by_t, 
 					no_limit_t, 
-					no_offset_t>;
+					no_offset_t,
+				  no_union_t>;
 
 
 	inline blank_select_t<void> select() // FIXME: These should be constexpr

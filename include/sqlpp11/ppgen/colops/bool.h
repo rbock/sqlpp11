@@ -1,17 +1,17 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2014-2015, niXman (i dot nixman dog gmail dot com)
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -24,59 +24,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DETAIL_LOGIC_H
-#define SQLPP_DETAIL_LOGIC_H
+#ifndef _sqlpp__ppgen__colops__bool_h
+#define _sqlpp__ppgen__colops__bool_h
 
-#include <ciso646> // Required for some compilers to use aliases for boolean operators
-#include <type_traits>
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_bool \
+	PROC_bool
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_bool(...) \
+	sqlpp::boolean
 
-namespace sqlpp
-{
-	namespace detail
-	{
-		template<bool... B>
-			struct logic_helper;
-
-		// see http://lists.boost.org/Archives/boost/2014/05/212946.php :-)
-		template<bool... B>
-			using all_t = std::integral_constant<
-						bool,
-						std::is_same<logic_helper<B...>, logic_helper<(true or B)...>>::value>;
-
-		template<bool... B>
-			using any_t = std::integral_constant<
-						bool,
-						not std::is_same<logic_helper<B...>, logic_helper<(false and B)...>>::value>;
-
-		template<bool... B>
-			using none_t = std::integral_constant<
-						bool,
-						std::is_same<logic_helper<B...>, logic_helper<(false and B)...>>::value>;
-
-		template<bool>
-			struct not_impl;
-
-		template<> 
-			struct not_impl<true>
-		{
-			using type = std::false_type;
-		};
-
-		template<> 
-			struct not_impl<false>
-		{
-			using type = std::true_type;
-		};
-
-
-		template<template<typename> class Predicate, typename... T>
-			using not_t = typename not_impl<Predicate<T>::value...>::type;
-
-
-		template<typename T>
-			using identity_t = T;
-	}
-}
-
-
-#endif
+#endif // _sqlpp__ppgen__colops__bool_h

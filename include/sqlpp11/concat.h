@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -28,9 +28,10 @@
 #define SQLPP_CONCAT_H
 
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/char_sequence.h>
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/basic_expression_operators.h>
-#include <sqlpp11/detail/logic.h>
+#include <sqlpp11/logic.h>
 
 namespace sqlpp
 {
@@ -41,13 +42,14 @@ namespace sqlpp
 			public alias_operators<concat_t<First, Args...>>
 	{
 		using _traits = make_traits<value_type_of<First>, tag::is_expression, tag::is_selectable>;
-		using _recursive_traits = make_recursive_traits<First, Args...>;
+		using _nodes = detail::type_vector<First, Args...>;
 
 		static_assert(sizeof...(Args) > 0, "concat requires two arguments at least");
-		static_assert(detail::all_t<is_text_t<First>::value, is_text_t<Args>::value...>::value, "at least one non-text argument detected in concat()");
-		struct _name_t
+		static_assert(logic::all_t<is_text_t<First>::value, is_text_t<Args>::value...>::value, "at least one non-text argument detected in concat()");
+		struct _alias_t
 		{
-			static constexpr const char* _get_name() { return "CONCAT"; }
+			static constexpr const char _literal[] =  "concat_";
+			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 			template<typename T>
 				struct _member_t
 				{
@@ -71,6 +73,7 @@ namespace sqlpp
 	template<typename Context, typename First, typename... Args>
 		struct serializer_t<Context, concat_t<First, Args...>>
 		{
+			using _serialize_check = serialize_check_of<Context, First, Args...>;
 			using T = concat_t<First, Args...>;
 
 			static Context& _(const T& t, Context& context)

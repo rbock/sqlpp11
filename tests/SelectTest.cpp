@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, 
@@ -36,12 +36,23 @@
 MockDb db = {};
 MockDb::_serializer_context_t printer;
 
+template<typename Column>
+int64_t getColumn(const Column& column)
+{
+	auto result = db(select(column.as(sqlpp::alias::a)).from(column.table()).where(true));
+	if (not result.empty())
+		return result.front().a;
+	else
+		return 0;
+}
+
 int main()
 {
 	test::TabFoo f; 
 	test::TabBar t;
 
-	sqlpp::select(t.alpha).flags(sqlpp::all).from(t);
+	getColumn(t.alpha);
+
 	for (const auto& row : db(select(all_of(t)).from(t).where(true)))
 	{
 		int64_t a = row.alpha;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -35,8 +35,10 @@ namespace sqlpp
 	{
 		struct unusable_pseudo_column_t
 		{
-			struct _name_t
+			struct _alias_t
 			{
+        static constexpr const char _literal[] =  "pseudo_column";
+        using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 				template<typename T>
 					struct _member_t
 					{
@@ -48,12 +50,13 @@ namespace sqlpp
 
 	struct verbatim_table_t: public table_t<verbatim_table_t, detail::unusable_pseudo_column_t>
 	{
-		struct _recursive_traits: public table_t<verbatim_table_t, detail::unusable_pseudo_column_t>::_recursive_traits
-		{
-			using _provided_outer_tables = detail::type_set<verbatim_table_t>;
-		};
+		using _nodes = detail::type_vector<>;
 
-		struct _name_t {};
+		struct _alias_t
+		{
+			static constexpr const char _literal[] =  "verbatim_table"; // FIXME need to use alias for verbatim table
+			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+		};
 
 		verbatim_table_t(std::string representation):
 			_representation(representation)
@@ -72,6 +75,7 @@ namespace sqlpp
 	template<typename Context>
 		struct serializer_t<Context, verbatim_table_t>
 		{
+			using _serialize_check = consistent_t;
 			using T = verbatim_table_t;
 
 			static Context& _(const T& t, Context& context)

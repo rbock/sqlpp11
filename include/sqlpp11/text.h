@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -237,6 +237,7 @@ namespace sqlpp
 	template<typename Context, typename Db, typename FieldSpec>
 		struct serializer_t<Context, result_field_t<text, Db, FieldSpec>>
 		{
+			using _serialize_check = consistent_t;
 			using T = result_field_t<text, Db, FieldSpec>;
 
 			static Context& _(const T& t, Context& context)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -28,7 +28,7 @@
 #define SQLPP_EXTRA_TABLES_H
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/detail/logic.h>
+#include <sqlpp11/logic.h>
 #include <sqlpp11/policy_update.h>
 
 namespace sqlpp
@@ -52,21 +52,9 @@ namespace sqlpp
 		struct extra_tables_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_extra_tables>;
-			struct _recursive_traits
-			{
-				using _parameters = std::tuple<>;
-				using _required_tables = detail::type_set<>;
-				using _provided_outer_tables = detail::type_set<>;
-				using _provided_tables = detail::type_set<>;
-				using _extra_tables = detail::type_set<Tables...>;
-				using _tags = detail::type_set<>;
-			};
-
-			// FIXME: extra_tables must not require tables!
-
-			static_assert(sizeof...(Tables), "at least one table or join argument required in extra_tables()");
-			static_assert(not detail::has_duplicates<Tables...>::value, "at least one duplicate argument detected in extra_tables()");
-			static_assert(detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not a table or join in extra_tables()");
+			using _nodes = detail::type_vector<>;
+			using _required_ctes = detail::make_joined_set_t<required_ctes_of<Tables>...>;
+			using _extra_tables = detail::type_set<Tables...>;
 
 			// Data
 			using _data_t = extra_tables_data_t<Tables...>;
@@ -78,9 +66,9 @@ namespace sqlpp
 					_data_t _data;
 				};
 
-			// Member template for adding the named member to a statement
+			// Base template to be inherited by the statement
 			template<typename Policies>
-				struct _member_t
+				struct _base_t
 				{
 					using _data_t = extra_tables_data_t<Tables...>;
 
@@ -93,13 +81,8 @@ namespace sqlpp
 						{
 							return t.extra_tables;
 						}
-				};
 
-			// Additional methods for the statement
-			template<typename Policies>
-				struct _methods_t
-				{
-					static void _check_consistency() {}
+					using _consistency_check = consistent_t;
 				};
 		};
 
@@ -107,7 +90,7 @@ namespace sqlpp
 	struct no_extra_tables_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_noop>;
-		using _recursive_traits = make_recursive_traits<>;
+		using _nodes = detail::type_vector<>;
 
 		// Data
 		using _data_t = no_data_t;
@@ -119,9 +102,9 @@ namespace sqlpp
 				_data_t _data;
 			};
 
-		// Member template for adding the named member to a statement
+		// Base template to be inherited by the statement
 		template<typename Policies>
-			struct _member_t
+			struct _base_t
 			{
 				using _data_t = no_data_t;
 
@@ -134,21 +117,42 @@ namespace sqlpp
 					{
 						return t.no_extra_tables;
 					}
-			};
 
-		template<typename Policies>
-			struct _methods_t
-			{
-				template<typename T>
-					using _new_statement_t = new_statement<Policies, no_extra_tables_t, T>;
+				template<typename Check, typename T>
+					using _new_statement_t = new_statement_t<Check::value, Policies, no_extra_tables_t, T>;
 
-				static void _check_consistency() {}
+				template<typename... T>
+					using _check = logic::all_t<is_table_t<T>::value...>;
 
-				template<typename... Args>
-					auto extra_tables(Args...) const
-					-> _new_statement_t<extra_tables_t<Args...>>
+				using _consistency_check = consistent_t;
+
+				template<typename... Tables>
+					auto extra_tables(Tables... tables) const
+					-> _new_statement_t<_check<Tables...>, extra_tables_t<Tables...>>
 					{
-						return { static_cast<const derived_statement_t<Policies>&>(*this), extra_tables_data_t<Args...>{} };
+						static_assert(_check<Tables...>::value, "at least one argument is not a table or join in extra_tables()");
+
+						return _extra_tables_impl<void>(_check<Tables...>{}, tables...);
+					}
+
+			private:
+				template<typename Database, typename... Tables>
+					auto _extra_tables_impl(const std::false_type&, Tables... tables) const
+					-> bad_statement;
+
+				template<typename Database, typename... Tables>
+					auto _extra_tables_impl(const std::true_type&, Tables...) const
+					-> _new_statement_t<std::true_type, extra_tables_t<Tables...>>
+					{
+						static_assert(required_tables_of<extra_tables_t<Tables...>>::size::value == 0, "at least one table depends on another table in extra_tables()");
+
+						static constexpr std::size_t _number_of_tables = detail::sum(provided_tables_of<Tables>::size::value...);
+						using _unique_tables = detail::make_joined_set_t<provided_tables_of<Tables>...>;
+						using _unique_table_names = detail::transform_set_t<name_of, _unique_tables>;
+						static_assert(_number_of_tables == _unique_tables::size::value, "at least one duplicate table detected in extra_tables()");
+						static_assert(_number_of_tables == _unique_table_names::size::value, "at least one duplicate table name detected in extra_tables()");
+
+						return { static_cast<const derived_statement_t<Policies>&>(*this), extra_tables_data_t<Tables...>{} };
 					}
 			};
 	};
@@ -157,6 +161,7 @@ namespace sqlpp
 	template<typename Context, typename Database, typename... Tables>
 		struct serializer_t<Context, extra_tables_data_t<Database, Tables...>>
 		{
+			using _serialize_check = serialize_check_of<Context, Tables...>;
 			using T = extra_tables_data_t<Database, Tables...>;
 
 			static Context& _(const T& t, Context& context)

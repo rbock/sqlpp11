@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -34,7 +34,7 @@ namespace sqlpp
 	struct default_value_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_expression>;
-		using _recursive_traits = make_recursive_traits<>;
+		using _nodes = detail::type_vector<>;
 
 		static constexpr bool _is_trivial() { return false; }
 	};
@@ -42,6 +42,7 @@ namespace sqlpp
 	template<typename Context>
 		struct serializer_t<Context, default_value_t>
 		{
+			using _serialize_check = consistent_t;
 			using Operand = default_value_t;
 
 			static Context& _(const Operand& t, Context& context)

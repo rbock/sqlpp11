@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,6 +27,7 @@
 #ifndef SQLPP_EXISTS_H
 #define SQLPP_EXISTS_H
 
+#include <sqlpp11/char_sequence.h>
 #include <sqlpp11/boolean.h>
 
 namespace sqlpp
@@ -37,13 +38,14 @@ namespace sqlpp
 			public alias_operators<exists_t<Select>>
 	{
 		using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
-		using _recursive_traits = make_recursive_traits<Select>;
+		using _nodes = detail::type_vector<Select>;
 
 		static_assert(is_select_t<Select>::value, "exists() requires a select expression as argument");
 
-		struct _name_t
+		struct _alias_t
 		{
-			static constexpr const char* _get_name() { return "EXISTS"; }
+			static constexpr const char _literal[] =  "exists_";
+			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
 			template<typename T>
 				struct _member_t
 				{
@@ -69,6 +71,7 @@ namespace sqlpp
 	template<typename Context, typename Select>
 		struct serializer_t<Context, exists_t<Select>>
 		{
+			using _serialize_check = serialize_check_of<Context, Select>;
 			using T = exists_t<Select>;
 
 			static Context& _(const T& t, Context& context)

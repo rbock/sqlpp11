@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -41,8 +41,8 @@ namespace sqlpp
 	template<typename Expression, sort_type SortType>
 		struct sort_order_t
 		{
-			using _traits = make_traits<no_value_t,  tag::is_sort_order, tag::is_expression>;
-			using _recursive_traits = make_recursive_traits<Expression>;
+			using _traits = make_traits<no_value_t,  tag::is_sort_order>;
+			using _nodes = detail::type_vector<Expression>;
 
 			Expression _expression;
 		};
@@ -50,11 +50,12 @@ namespace sqlpp
 	template<typename Context, typename Expression, sort_type SortType>
 		struct serializer_t<Context, sort_order_t<Expression, SortType>>
 		{
+			using _serialize_check = serialize_check_of<Context, Expression>;
 			using T = sort_order_t<Expression, SortType>;
 
 			static Context& _(const T& t, Context& context)
 			{
-				serialize(t._expression, context);
+				serialize_operand(t._expression, context);
 				switch(SortType)
 				{
 				case sort_type::asc:

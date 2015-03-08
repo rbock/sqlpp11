@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -31,7 +31,9 @@
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/column_types.h>
 #include <sqlpp11/in.h>
+#include <sqlpp11/not_in.h>
 #include <sqlpp11/is_null.h>
+#include <sqlpp11/is_not_null.h>
 #include <sqlpp11/value_type.h>
 #include <sqlpp11/exists.h>
 #include <sqlpp11/any.h>
@@ -80,7 +82,7 @@ namespace sqlpp
 		struct value_list_t // to be used in .in() method
 		{
 			using _traits = make_traits<value_type_t<typename Container::value_type>, tag::is_expression>;
-			using _recursive_traits = make_recursive_traits<>;
+			using _nodes = detail::type_vector<>;
 
 			using _container_t = Container;
 
@@ -100,10 +102,16 @@ namespace sqlpp
 	template<typename Context, typename Container>
 		struct serializer_t<Context, value_list_t<Container>>
 		{
+			using _serialize_check = serialize_check_of<Context, wrap_operand_t<typename Container::value_type>>;
 			using T = value_list_t<Container>;
 
 			static Context& _(const T& t, Context& context)
 			{
+				if (t._container.size() == 1)
+				{
+					return serialize(value(*begin(t._container)), context);
+				}
+
 				bool first = true;
 				for (const auto& entry: t._container)
 				{
@@ -112,7 +120,7 @@ namespace sqlpp
 					else
 						context << ',';
 
-					serialize(value(entry), context);
+					serialize_operand(value(entry), context);
 				}
 				return context;
 			}
@@ -128,7 +136,7 @@ namespace sqlpp
 	template<typename T>
 		constexpr const char* get_sql_name(const T&) 
 		{
-			return T::_name_t::_get_name();
+			return name_of<T>::char_ptr();
 		}
 
 

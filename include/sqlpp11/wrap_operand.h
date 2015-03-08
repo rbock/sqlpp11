@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -43,7 +43,7 @@ namespace sqlpp
 	struct boolean_operand: public alias_operators<boolean_operand>
 	{
 		using _traits = make_traits<boolean, tag::is_expression, tag::is_wrapped_value>;
-		using _recursive_traits = make_recursive_traits<>;
+		using _nodes = detail::type_vector<>;
 
 		using _value_t = bool;
 
@@ -69,6 +69,7 @@ namespace sqlpp
 	template<typename Context>
 		struct serializer_t<Context, boolean_operand>
 		{
+			using _serialize_check = consistent_t;
 			using Operand = boolean_operand;
 
 			static Context& _(const Operand& t, Context& context)
@@ -81,7 +82,7 @@ namespace sqlpp
 	struct integral_operand: public alias_operators<integral_operand>
 	{
 		using _traits = make_traits<integral, tag::is_expression, tag::is_wrapped_value>;
-		using _recursive_traits = make_recursive_traits<>;
+		using _nodes = detail::type_vector<>;
 
 		using _value_t = int64_t;
 
@@ -107,6 +108,7 @@ namespace sqlpp
 	template<typename Context>
 		struct serializer_t<Context, integral_operand>
 		{
+			using _serialize_check = consistent_t;
 			using Operand = integral_operand;
 
 			static Context& _(const Operand& t, Context& context)
@@ -120,7 +122,7 @@ namespace sqlpp
 	struct floating_point_operand: public alias_operators<floating_point_operand>
 	{
 		using _traits = make_traits<floating_point, tag::is_expression, tag::is_wrapped_value>;
-		using _recursive_traits = make_recursive_traits<>;
+		using _nodes = detail::type_vector<>;
 
 		using _value_t = double;
 
@@ -146,6 +148,7 @@ namespace sqlpp
 	template<typename Context>
 		struct serializer_t<Context, floating_point_operand>
 		{
+			using _serialize_check = consistent_t;
 			using Operand = floating_point_operand;
 
 			static Context& _(const Operand& t, Context& context)
@@ -158,7 +161,7 @@ namespace sqlpp
 	struct text_operand: public alias_operators<text_operand>
 	{
 		using _traits = make_traits<text, tag::is_expression, tag::is_wrapped_value>;
-		using _recursive_traits = make_recursive_traits<>;
+		using _nodes = detail::type_vector<>;
 
 		using _value_t = std::string;
 
@@ -184,6 +187,7 @@ namespace sqlpp
 	template<typename Context>
 		struct serializer_t<Context, text_operand>
 		{
+			using _serialize_check = consistent_t;
 			using Operand = text_operand;
 
 			static Context& _(const Operand& t, Context& context)

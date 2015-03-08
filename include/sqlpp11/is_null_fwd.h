@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,8 +29,10 @@
 
 namespace sqlpp
 {
-	template<bool NotInverted, typename Operand>
+	template<typename Operand>
 		struct is_null_t;
+	template<typename Operand>
+		struct is_not_null_t;
 }
 
 #endif

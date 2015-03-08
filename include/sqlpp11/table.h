@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -46,15 +46,8 @@ namespace sqlpp
 	{
 		using _traits = make_traits<no_value_t, tag::is_table>;
 
-		struct _recursive_traits
-		{
-			using _parameters = std::tuple<>;
-			using _required_tables = detail::type_set<>;
-			using _provided_tables = detail::type_set<Table>;
-			using _provided_outer_tables = detail::type_set<>;
-			using _extra_tables = detail::type_set<>;
-			using _tags = detail::type_set<>;
-		};
+		using _nodes = detail::type_vector<>;
+		using _provided_tables = detail::type_set<Table>;
 
 		static_assert(sizeof...(ColumnSpec), "at least one column required per table");
 		using _required_insert_columns = typename detail::make_type_set_if<require_insert_t, column_t<Table, ColumnSpec>...>::type;
@@ -108,11 +101,12 @@ namespace sqlpp
 	template<typename Context, typename X>
 		struct serializer_t<Context, X, typename std::enable_if<std::is_base_of<table_base_t, X>::value and not is_pseudo_table_t<X>::value, void>::type>
 		{
+			using _serialize_check = consistent_t;
 			using T = X;
 
 			static Context& _(const T& t, Context& context)
 			{
-				context << T::_name_t::_get_name();
+				context << name_of<T>::char_ptr();
 				return context;
 			}
 		};

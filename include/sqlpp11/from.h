@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,11 +27,12 @@
 #ifndef SQLPP_FROM_H
 #define SQLPP_FROM_H
 
+#include <sqlpp11/table_ref.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/no_data.h>
 #include <sqlpp11/interpretable_list.h>
 #include <sqlpp11/interpret_tuple.h>
-#include <sqlpp11/detail/logic.h>
+#include <sqlpp11/logic.h>
 #include <sqlpp11/detail/sum.h>
 #include <sqlpp11/policy_update.h>
 
@@ -60,7 +61,7 @@ namespace sqlpp
 		struct from_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_from>;
-			using _recursive_traits = make_recursive_traits<Tables...>;
+			using _nodes = detail::type_vector<Tables...>;
 			using _is_dynamic = is_database<Database>;
 
 			// Data
@@ -77,9 +78,11 @@ namespace sqlpp
 							static_assert(is_table_t<Table>::value, "invalid table argument in from::add()");
 							using _known_tables = detail::make_joined_set_t<provided_tables_of<Tables>...>; // Hint: Joins contain more than one table
 							using _known_table_names = detail::transform_set_t<name_of, _known_tables>;
-							static_assert(not detail::is_element_of<typename Table::_name_t, _known_table_names>::value, "Must not use the same table name twice in from()");
+							static_assert(not detail::is_element_of<typename Table::_alias_t, _known_table_names>::value, "Must not use the same table name twice in from()");
+							using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Table>;
+							_serialize_check::_();
 
-							using ok = detail::all_t<_is_dynamic::value, is_table_t<Table>::value>;
+							using ok = logic::all_t<_is_dynamic::value, is_table_t<Table>::value, _serialize_check::type::value>;
 
 							_add_impl(table, ok()); // dispatch to prevent compile messages after the static_assert
 						}
@@ -88,7 +91,7 @@ namespace sqlpp
 					template<typename Table>
 						void _add_impl(Table table, const std::true_type&)
 						{
-							return _data._dynamic_tables.emplace_back(table);
+							return _data._dynamic_tables.emplace_back(from_table(table));
 						}
 
 					template<typename Table>
@@ -98,9 +101,9 @@ namespace sqlpp
 					_data_t _data;
 				};
 
-			// Member template for adding the named member to a statement
+			// Base template to be inherited by the statement
 			template<typename Policies>
-				struct _member_t
+				struct _base_t
 				{
 					using _data_t = from_data_t<Database, Tables...>;
 
@@ -113,20 +116,16 @@ namespace sqlpp
 						{
 							return t.from;
 						}
-				};
 
-			// Additional methods for the statement
-			template<typename Policies>
-				struct _methods_t
-				{
-					static void _check_consistency() {}
+					// FIXME: We might want to check if we have too many tables define in the FROM
+					using _consistency_check = consistent_t;
 				};
 		};
 
 	struct no_from_t
 	{
 		using _traits = make_traits<no_value_t, tag::is_noop>;
-		using _recursive_traits = make_recursive_traits<>;
+		using _nodes = detail::type_vector<>;
 
 		// Data
 		using _data_t = no_data_t;
@@ -138,9 +137,9 @@ namespace sqlpp
 				_data_t _data;
 			};
 
-		// Member template for adding the named member to a statement
+		// Base template to be inherited by the statement
 		template<typename Policies>
-			struct _member_t
+			struct _base_t
 			{
 				using _data_t = no_data_t;
 
@@ -153,41 +152,45 @@ namespace sqlpp
 					{
 						return t.no_from;
 					}
-			};
 
-		// Additional methods for the statement
-		template<typename Policies>
-			struct _methods_t
-			{
 				using _database_t = typename Policies::_database_t;
-				template<typename T>
-					using _new_statement_t = new_statement<Policies, no_from_t, T>;
 
-				static void _check_consistency() {}
+				template<typename... T>
+					using _check = logic::all_t<is_table_t<T>::value...>;
+
+				template<typename Check, typename T>
+					using _new_statement_t = new_statement_t<Check::value, Policies, no_from_t, T>;
+
+				using _consistency_check = consistent_t;
 
 				template<typename... Tables>
 					auto from(Tables... tables) const
-					-> _new_statement_t<from_t<void, Tables...>>
+					-> _new_statement_t<_check<Tables...>, from_t<void, from_table_t<Tables>...>>
 					{
+						static_assert(_check<Tables...>::value, "at least one argument is not a table or join in from()");
 						static_assert(sizeof...(Tables), "at least one table or join argument required in from()");
-						return _from_impl<void>(tables...);
+						return _from_impl<void>(_check<Tables...>{}, tables...);
 					}
 
 				template<typename... Tables>
 					auto dynamic_from(Tables... tables) const
-					-> _new_statement_t<from_t<_database_t, Tables...>>
+					-> _new_statement_t<_check<Tables...>, from_t<_database_t, from_table_t<Tables>...>>
 					{
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_from must not be called in a static statement");
-						return _from_impl<_database_t>(tables...);
+						static_assert(_check<Tables...>::value, "at least one argument is not a table or join in from()");
+						return _from_impl<_database_t>(_check<Tables...>{}, tables...);
 					}
 
 			private:
 				template<typename Database, typename... Tables>
-					auto _from_impl(Tables... tables) const
-					-> _new_statement_t<from_t<Database, Tables...>>
+					auto _from_impl(const std::false_type&, Tables... tables) const
+					-> bad_statement;
+
+				template<typename Database, typename... Tables>
+					auto _from_impl(const std::true_type&, Tables... tables) const
+					-> _new_statement_t<std::true_type, from_t<Database, from_table_t<Tables>...>>
 					{
-						static_assert(detail::all_t<is_table_t<Tables>::value...>::value, "at least one argument is not a table or join in from()");
-						static_assert(required_tables_of<from_t<Database, Tables...>>::size::value == 0, "at least one table depends on another table");
+						static_assert(required_tables_of<from_t<Database, Tables...>>::size::value == 0, "at least one table depends on another table in from()");
 
 						static constexpr std::size_t _number_of_tables = detail::sum(provided_tables_of<Tables>::size::value...);
 						using _unique_tables = detail::make_joined_set_t<provided_tables_of<Tables>...>;
@@ -195,7 +198,7 @@ namespace sqlpp
 						static_assert(_number_of_tables == _unique_tables::size::value, "at least one duplicate table detected in from()");
 						static_assert(_number_of_tables == _unique_table_names::size::value, "at least one duplicate table name detected in from()");
 
-						return { static_cast<const derived_statement_t<Policies>&>(*this), from_data_t<Database, Tables...>{tables...} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), from_data_t<Database, from_table_t<Tables>...>{from_table(tables)...} };
 					}
 
 			};
@@ -205,6 +208,7 @@ namespace sqlpp
 	template<typename Context, typename Database, typename... Tables>
 		struct serializer_t<Context, from_data_t<Database, Tables...>>
 		{
+			using _serialize_check = serialize_check_of<Context, Tables...>;
 			using T = from_data_t<Database, Tables...>;
 
 			static Context& _(const T& t, Context& context)
@@ -220,6 +224,11 @@ namespace sqlpp
 			}
 		};
 
+	template<typename... T>
+		auto from(T&&... t) -> decltype(statement_t<void, no_from_t>().from(std::forward<T>(t)...))
+		{
+			return statement_t<void, no_from_t>().from(std::forward<T>(t)...);
+		}
 }
 
 #endif
