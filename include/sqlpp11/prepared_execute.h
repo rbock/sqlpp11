@@ -45,7 +45,7 @@ namespace sqlpp
 			using _run_check = consistent_t;
 
 			auto _run(Db& db) const
-				-> void
+				-> size_t
 				{
 					return db.run_prepared_execute(*this);
 				}
