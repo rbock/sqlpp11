@@ -71,7 +71,7 @@ namespace sqlpp
 			return { s };
 		}
 
-	auto verbatim(std::string s) -> verbatim_t<no_value_t>
+	inline auto verbatim(std::string s) -> verbatim_t<no_value_t>
 	{
 		return { s };
 	}
