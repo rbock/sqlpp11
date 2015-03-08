@@ -39,7 +39,7 @@ MockDb::_serializer_context_t printer;
 template<typename Column>
 int64_t getColumn(const Column& column)
 {
-	auto result = db(select(column.as(sqlpp::a)).from(column.table()).where(true));
+	auto result = db(select(column.as(sqlpp::alias::a)).from(column.table()).where(true));
 	if (not result.empty())
 		return result.front().a;
 	else

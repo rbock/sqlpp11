@@ -36,11 +36,11 @@ int main()
 {
 	const auto t = test::TabBar{};
 
-	auto x = cte(sqlpp::x).as(select(all_of(t)).from(t));
+	auto x = sqlpp::cte(sqlpp::alias::x).as(select(all_of(t)).from(t));
 
 	db(with(x)(select(x.alpha).from(x).where(true)));
 
-	auto y0 = cte(sqlpp::y).as(select(all_of(t)).from(t));
+	auto y0 = sqlpp::cte(sqlpp::alias::y).as(select(all_of(t)).from(t));
 	auto y = y0.union_all(select(all_of(y0)).from(y0).where(false));
 
 	std::cout << serialize(y, printer).str() << std::endl; printer.reset();
