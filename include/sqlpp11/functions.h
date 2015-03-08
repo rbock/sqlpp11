@@ -109,7 +109,7 @@ namespace sqlpp
 			{
 				if (t._container.size() == 1)
 				{
-					return serialize(value(t._container[0]), context);
+					return serialize(value(*begin(t._container)), context);
 				}
 
 				bool first = true;
