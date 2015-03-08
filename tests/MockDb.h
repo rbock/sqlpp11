@@ -126,15 +126,19 @@ struct MockDbT: public sqlpp::connection
 			return _run(t, _ok{});
 		}
 
-	void execute(const std::string& command);
+	size_t execute(const std::string& command)
+	{
+		return 0;
+	}
 
 	template<typename Statement, 
 					typename Enable = typename std::enable_if<not std::is_convertible<Statement, std::string>::value, void>::type>
-		void execute(const Statement& x)
+		size_t execute(const Statement& x)
 		{
 			_serializer_context_t context;
 			::sqlpp::serialize(x, context);
 			std::cout << "Running execute call with\n" << context.str() << std::endl;
+			return execute(context.str());
 		}
 
 	template<typename Insert>
@@ -215,8 +219,9 @@ struct MockDbT: public sqlpp::connection
 		}
 
 	template<typename PreparedExecute>
-		void run_prepared_execute(const PreparedExecute& x)
+		size_t run_prepared_execute(const PreparedExecute& x)
 		{
+			return 0;
 		}
 
 	template<typename PreparedInsert>

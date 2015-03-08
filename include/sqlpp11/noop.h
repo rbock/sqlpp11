@@ -53,13 +53,13 @@ namespace sqlpp
 
 				// Execute
 				template<typename Db, typename Composite>
-					auto _run(Db& db, const Composite& composite) const	-> void
+					auto _run(Db& db, const Composite& composite) const	-> size_t
 					{
 						return db.execute(composite);
 					}
 
 				template<typename Db>
-					auto _run(Db& db) const -> void
+					auto _run(Db& db) const -> size_t
 					{
 						return db.execute(_get_statement());
 					}
