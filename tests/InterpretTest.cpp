@@ -62,6 +62,7 @@ int main()
 	serialize(t.alpha != 0, printer).str();
 	serialize(t.gamma != sqlpp::tvin(false), printer).str();
 	serialize(t.alpha == 7, printer).str();
+	serialize(t.delta = sqlpp::tvin(0), printer).str();
 	serialize(t.beta + "kaesekuchen", printer).str();
 
 	serialize(sqlpp::select(), printer).str();

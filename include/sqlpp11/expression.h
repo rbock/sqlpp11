@@ -44,9 +44,9 @@ namespace sqlpp
 			public alias_operators<binary_expression_t<Lhs, op::equal_to, Rhs>>
 		{
 			using _traits = make_traits<boolean, tag::is_expression>;
-			using _nodes = detail::type_vector<Lhs, Rhs>;
 			using _lhs_t = Lhs;
 			using _rhs_t = rhs_wrap_t<allow_tvin_t<Rhs>, trivial_value_is_null_t<_lhs_t>::value>;
+			using _nodes = detail::type_vector<_lhs_t, _rhs_t>;
 
 			binary_expression_t(_lhs_t lhs, _rhs_t rhs):
 				_lhs(lhs), 
@@ -66,8 +66,8 @@ namespace sqlpp
 	template<typename Context, typename Lhs, typename Rhs>
 		struct serializer_t<Context, equal_to_t<Lhs, Rhs>>
 		{
-			using _serialize_check = serialize_check_of<Context, Lhs, Rhs>;
 			using T = equal_to_t<Lhs, Rhs>;
+			using _serialize_check = serialize_check_of<Context, typename T::_lhs_t, typename T::_rhs_t>;
 
 			static Context& _(const T& t, Context& context)
 			{
@@ -93,9 +93,9 @@ namespace sqlpp
 			public alias_operators<binary_expression_t<Lhs, op::not_equal_to, Rhs>>
 		{
 			using _traits = make_traits<boolean, tag::is_expression>;
-			using _nodes = detail::type_vector<Lhs, Rhs>;
 			using _lhs_t = Lhs;
 			using _rhs_t = rhs_wrap_t<allow_tvin_t<Rhs>, trivial_value_is_null_t<_lhs_t>::value>;
+			using _nodes = detail::type_vector<_lhs_t, _rhs_t>;
 
 			binary_expression_t(Lhs lhs, _rhs_t rhs):
 				_lhs(lhs), 
@@ -115,8 +115,8 @@ namespace sqlpp
 	template<typename Context, typename Lhs, typename Rhs>
 		struct serializer_t<Context, not_equal_to_t<Lhs, Rhs>>
 		{
-			using _serialize_check = serialize_check_of<Context, Lhs, Rhs>;
 			using T = not_equal_to_t<Lhs, Rhs>;
+			using _serialize_check = serialize_check_of<Context, typename T::_lhs_t, typename T::_rhs_t>;
 
 			static Context& _(const T& t, Context& context)
 			{

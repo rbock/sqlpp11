@@ -41,10 +41,9 @@ namespace sqlpp
 		struct assignment_t
 		{
 			using _traits = make_traits<no_value_t, tag::is_assignment>;
-			using _nodes = detail::type_vector<Lhs, Rhs>;
-
 			using _lhs_t = Lhs;
 			using _rhs_t = rhs_wrap_t<allow_tvin_t<Rhs>, trivial_value_is_null_t<_lhs_t>::value>;
+			using _nodes = detail::type_vector<_lhs_t, _rhs_t>;
 
 			static_assert(can_be_null_t<_lhs_t>::value ? true : not (std::is_same<_rhs_t, null_t>::value or is_tvin_t<_rhs_t>::value), "column must not be null");
 
@@ -66,8 +65,8 @@ namespace sqlpp
 	template<typename Context, typename Lhs, typename Rhs>
 		struct serializer_t<Context, assignment_t<Lhs, Rhs>>
 		{
-			using _serialize_check = serialize_check_of<Context, Lhs, Rhs>;
 			using T = assignment_t<Lhs, Rhs>;
+			using _serialize_check = serialize_check_of<Context, typename T::_lhs_t, typename T::_rhs_t>;
 
 			static Context& _(const T& t, Context& context)
 			{
