@@ -31,10 +31,10 @@
 
 #include <iostream>
 
-MockDb db = {};
 
 int main()
 {
+	MockDb db = {};
 	//test::TabFoo f; 
 	test::TabBar t;
 

@@ -29,11 +29,11 @@
 #include <sqlpp11/alias_provider.h>
 #include <iostream>
 
-MockDb db;
-MockDb::_serializer_context_t printer;
-
 int main()
 {
+	MockDb db;
+	MockDb::_serializer_context_t printer;
+
 	const auto t = test::TabBar{};
 
 	auto x = sqlpp::cte(sqlpp::alias::x).as(select(all_of(t)).from(t));

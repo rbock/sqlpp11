@@ -27,13 +27,13 @@
 #include "MockDb.h"
 #include <sqlpp11/sqlpp11.h>
 
-MockDb db;
-
-test::TabPerson p;
-test::TabFeature q;
-
 int main()
 {
+	MockDb db;
+
+	test::TabPerson p;
+	test::TabFeature q;
+
 	db(remove_from(p)
 			.using_(p, q)
 			.where(p.feature == q.id and q.fatal == true));

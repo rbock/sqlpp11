@@ -29,11 +29,11 @@
 
 #include <iostream>
 
-MockDb db = {};
-MockDb::_serializer_context_t printer;
-
 int main()
 {
+	MockDb db = {};
+	MockDb::_serializer_context_t printer;
+
 	test::TabFoo f;
 	test::TabBar t;
 

@@ -32,11 +32,11 @@
 static_assert(not sqlpp::enforce_null_result_treatment_t<MockDb>::value, "MockDb interprets NULL as trivial");
 static_assert(sqlpp::enforce_null_result_treatment_t<EnforceDb>::value, "MockDb does not interpret NULL as trivial");
 
-MockDb db = {};
-EnforceDb edb {};
-
 int main()
 {
+	MockDb db = {};
+	EnforceDb edb {};
+
 	test::TabBar t; 
 
 	static_assert(sqlpp::can_be_null_t<decltype(t.alpha)>::value, "t.alpha can be null");
