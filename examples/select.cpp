@@ -34,18 +34,18 @@
 #include "MockDb.h"
 #include <sqlpp11/sqlpp11.h>
 
-static constexpr bool some_condition = true;
-static constexpr bool some_other_condition = false;
-
 SQLPP_ALIAS_PROVIDER(cheesecake)
-
-MockDb db;
-
-test::TabPerson p;
-test::TabFeature f;
 
 int main()
 {
+	static constexpr bool some_condition = true;
+	static constexpr bool some_other_condition = false;
+
+	MockDb db;
+
+	test::TabPerson p;
+	test::TabFeature f;
+
 	for (const auto& row : db(select(all_of(p)).from(p).where(p.id > 7)))
 	{
 		int64_t id = row.id;

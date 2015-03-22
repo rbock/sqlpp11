@@ -215,8 +215,8 @@ namespace sqlpp
 	template<typename... Columns>
 		struct column_list_data_t
 		{
-			column_list_data_t(Columns... columns):
-				_columns(simple_column_t<Columns>{columns}...)
+			column_list_data_t(Columns... cols):
+				_columns(simple_column_t<Columns>{cols}...)
 				{}
 
 			column_list_data_t(const column_list_data_t&) = default;
@@ -370,13 +370,13 @@ namespace sqlpp
 					}
 
 				template<typename... Columns>
-					auto columns(Columns... columns) const
+					auto columns(Columns... cols) const
 					-> _new_statement_t<_column_check<Columns...>, column_list_t<Columns...>>
 					{
 						static_assert(logic::all_t<is_column_t<Columns>::value...>::value, "at least one argument is not a column in columns()");
 						static_assert(sizeof...(Columns), "at least one column required in columns()");
 
-						return _columns_impl(_column_check<Columns...>{}, columns...);
+						return _columns_impl(_column_check<Columns...>{}, cols...);
 					}
 
 				template<typename... Assignments>
@@ -400,11 +400,11 @@ namespace sqlpp
 					}
 			private:
 				template<typename... Columns>
-					auto _columns_impl(const std::false_type&, Columns... columns) const
+					auto _columns_impl(const std::false_type&, Columns... cols) const
 					-> bad_statement;
 
 				template<typename... Columns>
-					auto _columns_impl(const std::true_type&, Columns... columns) const
+					auto _columns_impl(const std::true_type&, Columns... cols) const
 					-> _new_statement_t<std::true_type, column_list_t<Columns...>>
 					{
 						static_assert(not detail::has_duplicates<Columns...>::value, "at least one duplicate argument detected in columns()");
@@ -414,7 +414,7 @@ namespace sqlpp
 
 						static_assert(detail::have_all_required_columns<Columns...>::value, "At least one required column is missing in columns()");
 
-						return { static_cast<const derived_statement_t<Policies>&>(*this), column_list_data_t<Columns...>{columns...} };
+						return { static_cast<const derived_statement_t<Policies>&>(*this), column_list_data_t<Columns...>{cols...} };
 					}
 
 				template<typename Database, typename... Assignments>

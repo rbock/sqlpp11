@@ -33,9 +33,6 @@
 #include <sqlpp11/connection.h>
 
 
-MockDb db = {};
-MockDb::_serializer_context_t printer;
-
 namespace alias
 {
 	SQLPP_ALIAS_PROVIDER(a)
@@ -46,6 +43,9 @@ namespace alias
 
 int main()
 {
+	MockDb db = {};
+	MockDb::_serializer_context_t printer;
+
 	test::TabFoo f; 
 	test::TabBar t;
 

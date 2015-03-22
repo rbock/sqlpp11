@@ -206,9 +206,9 @@ namespace sqlpp
 			_is_valid(false),
 			_dynamic_field_names(dynamic_field_names)
 		{
-			for (auto name : _dynamic_field_names)
+			for (auto field_name : _dynamic_field_names)
 			{
-				_dynamic_fields.insert({name, _field_type{}});
+				_dynamic_fields.insert({field_name, _field_type{}});
 			}
 		}
 
@@ -259,9 +259,9 @@ namespace sqlpp
 				_impl::_bind(target);
 
 				std::size_t index = _field_index_sequence::_next_index;
-				for (const auto& name : _dynamic_field_names)
+				for (const auto& field_name : _dynamic_field_names)
 				{
-					_dynamic_fields.at(name)._bind(target, index);
+					_dynamic_fields.at(field_name)._bind(target, index);
 					++index;
 				}
 			}

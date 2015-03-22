@@ -27,13 +27,13 @@
 #include "MockDb.h"
 #include <sqlpp11/sqlpp11.h>
 
-MockDb db;
-
-test::TabPerson p;
-test::TabFeature f;
-
 int main()
 {
+	MockDb db;
+
+	test::TabPerson p;
+	test::TabFeature f;
+
 	db(insert_into(f).set(f.name = "Loves C++", p.fatal = false));
 
 	db(insert_into(f).set(p.name = "Roland", p.feature = 1));

@@ -32,11 +32,11 @@
 
 #include <iostream>
 
-MockDb db = {};
 SQLPP_ALIAS_PROVIDER(kaesekuchen)
 
 int main()
 {
+	MockDb db = {};
 	test::TabFoo f; 
 	test::TabBar t;
 

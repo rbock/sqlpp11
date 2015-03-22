@@ -61,7 +61,8 @@ SQLPP_DECLARE_TABLE(
 	(fatal, bool        , SQLPP_NOT_NULL      )
 )
 
-int main() {
+int main()
+{
 	MockDb db;
 	tab_person::tab_person   p;
 	tab_feature::tab_feature f;

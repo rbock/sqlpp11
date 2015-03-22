@@ -29,11 +29,11 @@
 #include "MockDb.h"
 #include "is_regular.h"
 
-MockDb db;
-MockDb::_serializer_context_t printer;
-
 int main()
 {
+	MockDb db;
+	MockDb::_serializer_context_t printer;
+
 	test::TabBar t;
 	//test::TabFoo f;
 

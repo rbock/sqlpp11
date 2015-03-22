@@ -60,14 +60,14 @@ namespace sqlpp
 				_is_null(true)
 			{}
 
-			parameter_value_t(const _cpp_value_type& value):
-				_value(value),
+			parameter_value_t(const _cpp_value_type& val):
+				_value(val),
 				_is_null(false)
 			{}
 
-			parameter_value_t& operator=(const _cpp_value_type& value)
+			parameter_value_t& operator=(const _cpp_value_type& val)
 			{
-				_value = value;
+				_value = val;
 				_is_null = false;
 				return *this;
 			}

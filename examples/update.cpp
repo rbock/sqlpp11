@@ -27,12 +27,12 @@
 #include "MockDb.h"
 #include <sqlpp11/sqlpp11.h>
 
-MockDb db;
-
-test::TabPerson p;
-test::TabFeature q;
-
 int main()
 {
+	MockDb db;
+
+	test::TabPerson p;
+	//test::TabFeature q;
+
 	db(update(p).set(p.feature = 7).where(p.id == 23));
 }

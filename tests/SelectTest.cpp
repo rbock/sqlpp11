@@ -33,11 +33,8 @@
 #include <sqlpp11/connection.h>
 
 
-MockDb db = {};
-MockDb::_serializer_context_t printer;
-
-template<typename Column>
-int64_t getColumn(const Column& column)
+template<typename Db, typename Column>
+int64_t getColumn(Db&& db, const Column& column)
 {
 	auto result = db(select(column.as(sqlpp::alias::a)).from(column.table()).where(true));
 	if (not result.empty())
@@ -48,10 +45,13 @@ int64_t getColumn(const Column& column)
 
 int main()
 {
+	MockDb db = {};
+	MockDb::_serializer_context_t printer;
+
 	test::TabFoo f; 
 	test::TabBar t;
 
-	getColumn(t.alpha);
+	getColumn(db, t.alpha);
 
 	for (const auto& row : db(select(all_of(t)).from(t).where(true)))
 	{

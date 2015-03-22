@@ -28,10 +28,10 @@
 #include "MockDb.h"
 #include <sqlpp11/sqlpp11.h>
 
-MockDb db = {};
 
 int main()
 {
+	MockDb db = {};
 	test::TabBar t; 
 
 	auto x = boolean_expression(db, t.alpha == 7);
