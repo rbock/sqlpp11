@@ -64,9 +64,9 @@ namespace sqlpp
 		};
 
 	template<typename Context, typename Lhs, typename Rhs>
-		struct serializer_t<Context, equal_to_t<Lhs, Rhs>>
+		struct serializer_t<Context, binary_expression_t<Lhs, op::equal_to, Rhs>>
 		{
-			using T = equal_to_t<Lhs, Rhs>;
+			using T = binary_expression_t<Lhs, op::equal_to, Rhs>;
 			using _serialize_check = serialize_check_of<Context, typename T::_lhs_t, typename T::_rhs_t>;
 
 			static Context& _(const T& t, Context& context)
@@ -113,9 +113,9 @@ namespace sqlpp
 		};
 
 	template<typename Context, typename Lhs, typename Rhs>
-		struct serializer_t<Context, not_equal_to_t<Lhs, Rhs>>
+		struct serializer_t<Context, binary_expression_t<Lhs, op::not_equal_to, Rhs>>
 		{
-			using T = not_equal_to_t<Lhs, Rhs>;
+			using T = binary_expression_t<Lhs, op::not_equal_to, Rhs>;
 			using _serialize_check = serialize_check_of<Context, typename T::_lhs_t, typename T::_rhs_t>;
 
 			static Context& _(const T& t, Context& context)
@@ -158,10 +158,10 @@ namespace sqlpp
 		};
 
 	template<typename Context, typename Rhs>
-		struct serializer_t<Context, logical_not_t<Rhs>>
+		struct serializer_t<Context, unary_expression_t<op::logical_not, Rhs>>
 		{
 			using _serialize_check = serialize_check_of<Context, Rhs>;
-			using T = logical_not_t<Rhs>;
+			using T = unary_expression_t<op::logical_not, Rhs>;
 
 			static Context& _(const T& t, Context& context)
 			{
