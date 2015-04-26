@@ -5,13 +5,14 @@ A type safe embedded domain specific language for SQL queries and results in C++
 
 Extensive documentation is found in the wiki, https://github.com/rbock/sqlpp11/wiki
 
-Upcoming talks/workshops) at 
+Talks/workshops 
+  * MeetingC++ (Berlin, Germany): http://meetingcpp.com/index.php/mcpp2014.html
+   * 2014-12-05: http://meetingcpp.com/index.php/tv14/items/4.html
   * CppCon (Bellevue, Washington, USA): http://cppcon.org
    * 2014-09-08: http://sched.co/1qhngYK (Workshop Part 1)
    * 2014-09-11: http://sched.co/1r4lue3 (Talk)
    * 2014-09-12: http://sched.co/Wi8aWM (Workshop Part 2)
-  * MeetingC++ (Berlin, Germany): http://meetingcpp.com/index.php/mcpp2014.html
-   * 2014-12-05:http://meetingcpp.com/index.php/tv14/items/4.html
+
    
 You can contact me 
   * by posting issues at https://github.com/rbock/sqlpp11/issues
@@ -35,13 +36,7 @@ This results in several benefits, e.g.
 
 The library supports both static and dynamic queries. The former offers greater benefit in terms of type and consistency checking. The latter makes it easier to construct queries on the flight.
 
-sqlpp11 is vendor-neutral. Specific traits of databases (e.g. unsupported or non-standard features) are are handled by connector libraries. Connector libraries can inform the developer of missing features at compile time. They also interpret expressions specifically where needed. For example, the connector could use the operator|| or the concat method for string concatenation without the developer being required to change the statement.
-
-
-Your help is needed:
---------------------
-The library is already used in production but it is certainly not complete yet. Feature requests, bug reports, contributions to code or documentation are most welcome.
-
+sqlpp11 is vendor-neutral. Specific traits of databases (e.g. unsupported or non-standard features) are handled by connector libraries. Connector libraries can inform the developer of missing features at compile time. They also interpret expressions specifically where needed. For example, the connector could use the operator|| or the concat method for string concatenation without the developer being required to change the statement.
 
 Examples:
 ---------
@@ -98,6 +93,11 @@ db(update(foo).set(foo.hasFun = not foo.hasFun).where(foo.name != "nobody"));
 // A sample delete
 db(remove_from(foo).where(not foo.hasFun));
 ```
+
+Your help is needed:
+--------------------
+The library is already used in production but it is certainly not complete yet. Feature requests, bug reports, contributions to code or documentation are most welcome.
+
 
 Requirements:
 -------------
