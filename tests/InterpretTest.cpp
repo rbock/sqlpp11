@@ -183,6 +183,12 @@ int main()
 	printer.reset();
 	std::cerr << serialize(select(all_of(t)).from(t).where(t.alpha.in(select(f.epsilon).from(f).where(true))), printer).str() << std::endl;
 
+	auto schema = db.attach("lorem");
+	auto s = schema_qualified_table(schema, t).as(sqlpp::alias::x);
+
+	printer.reset();
+	std::cerr << serialize(select(all_of(s)).from(s).where(true), printer).str() << std::endl;
+
 
 
 	return 0;
