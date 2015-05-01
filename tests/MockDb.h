@@ -28,6 +28,7 @@
 
 #include <sstream>
 #include <iostream>
+#include <sqlpp11/schema.h>
 #include <sqlpp11/serializer_context.h>
 #include <sqlpp11/connection.h>
 
@@ -243,6 +244,12 @@ struct MockDbT: public sqlpp::connection
 		result_t run_prepared_select(PreparedSelect& x)
 		{
 			return {};
+		}
+
+	auto attach(std::string name)
+		-> ::sqlpp::schema_t
+		{
+			return {name};
 		}
 
 };

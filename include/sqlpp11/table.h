@@ -44,7 +44,7 @@ namespace sqlpp
 			public table_base_t, 
 			public member_t<ColumnSpec, column_t<Table, ColumnSpec>>...
 	{
-		using _traits = make_traits<no_value_t, tag::is_table>;
+		using _traits = make_traits<no_value_t, tag::is_raw_table, tag::is_table>;
 
 		using _nodes = detail::type_vector<>;
 		using _provided_tables = detail::type_set<Table>;
@@ -52,9 +52,10 @@ namespace sqlpp
 		static_assert(sizeof...(ColumnSpec), "at least one column required per table");
 		using _required_insert_columns = typename detail::make_type_set_if<require_insert_t, column_t<Table, ColumnSpec>...>::type;
 		using _column_tuple_t = std::tuple<column_t<Table, ColumnSpec>...>;
+		template<typename AliasProvider, typename T>
+			using _foreign_table_alias_t = table_alias_t<AliasProvider, T, ColumnSpec...>;
 		template<typename AliasProvider>
 			using _alias_t = table_alias_t<AliasProvider, Table, ColumnSpec...>;
-
 
 		template<typename T>
 			join_t<inner_join_t, Table, T> join(T t) const

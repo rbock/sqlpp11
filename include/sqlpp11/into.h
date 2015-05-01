@@ -139,7 +139,7 @@ namespace sqlpp
 				using _database_t = typename Policies::_database_t;
 
 				template<typename T>
-					using _check = logic::all_t<is_table_t<T>::value>;
+					using _check = logic::all_t<is_raw_table_t<T>::value>;
 
 				template<typename Check, typename T>
 					using _new_statement_t = new_statement_t<Check::value, Policies, no_into_t, T>;
@@ -150,7 +150,7 @@ namespace sqlpp
 					auto into(Table table) const
 					-> _new_statement_t<_check<Table>, into_t<void, Table>>
 					{
-						static_assert(_check<Table>::value, "argument is not a table in into()");
+						static_assert(_check<Table>::value, "argument is not a raw table in into()");
 						return _into_impl<void>(_check<Table>{}, table);
 					}
 

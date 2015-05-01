@@ -24,20 +24,33 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_H
-#define SQLPP_H
+#ifndef SQLPP_SCHEMA_H
+#define SQLPP_SCHEMA_H
 
-#include <sqlpp11/alias_provider.h>
-#include <sqlpp11/column_types.h>
-#include <sqlpp11/insert.h>
-#include <sqlpp11/remove.h>
-#include <sqlpp11/update.h>
-#include <sqlpp11/select.h>
-#include <sqlpp11/functions.h>
-#include <sqlpp11/transaction.h>
-#include <sqlpp11/boolean_expression.h>
-#include <sqlpp11/schema_qualified_table.h>
+#include <sqlpp11/type_traits.h>
+#include <sqlpp11/serializer.h>
+
+namespace sqlpp
+{
+	struct schema_t
+	{
+		std::string _name;
+	};
+
+	template<typename Context>
+		struct serializer_t<Context, schema_t>
+		{
+			using _serialize_check = consistent_t;
+			using T = schema_t;
+
+			static Context& _(const T& t, Context& context)
+			{
+				context << t._name;
+				return context;
+			}
+		};
+
+}
 
 #endif
-
 
