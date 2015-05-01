@@ -29,9 +29,6 @@
 #include <sqlpp11/functions.h>
 #include <sqlpp11/select.h>
 
-#include <iostream>
-
-
 int main()
 {
 	MockDb db = {};
@@ -115,7 +112,7 @@ int main()
 		std::cerr << x.alpha << std::endl;
 	}
 
-	// Check that a prepared select is default-constructible
+	// Check that a prepared select is default-constructable
 	{
 		auto s = select(all_of(t)).from(t).where((t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha)) or t.gamma != parameter(t.gamma));
 		using P = decltype(db.prepare(s));
