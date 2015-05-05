@@ -35,17 +35,16 @@
 
 namespace sqlpp
 {
-	// FIXME: Remove First, inherit from text_t
-	template<typename First, typename... Args>
-		struct concat_t: 
-			public expression_operators<concat_t<First, Args...>, value_type_of<First>>,
-			public alias_operators<concat_t<First, Args...>>
-	{
-		using _traits = make_traits<value_type_of<First>, tag::is_expression, tag::is_selectable>;
-		using _nodes = detail::type_vector<First, Args...>;
+	struct text;
 
-		static_assert(sizeof...(Args) > 0, "concat requires two arguments at least");
-		static_assert(logic::all_t<is_text_t<First>::value, is_text_t<Args>::value...>::value, "at least one non-text argument detected in concat()");
+	template<typename... Args>
+		struct concat_t: 
+			public expression_operators<concat_t<Args...>, text>,
+			public alias_operators<concat_t<Args...>>
+	{
+		using _traits = make_traits<text, tag::is_expression, tag::is_selectable>;
+		using _nodes = detail::type_vector<Args...>;
+
 		struct _alias_t
 		{
 			static constexpr const char _literal[] =  "concat_";
@@ -57,8 +56,8 @@ namespace sqlpp
 				};
 		};
 
-		concat_t(First first, Args... args):
-			_args(first, args...)
+		concat_t(Args... args):
+			_args(args...)
 		{}
 
 		concat_t(const concat_t&) = default;
@@ -67,14 +66,14 @@ namespace sqlpp
 		concat_t& operator=(concat_t&&) = default;
 		~concat_t() = default;
 
-		std::tuple<First, Args...> _args;
+		std::tuple<Args...> _args;
 	};
 
-	template<typename Context, typename First, typename... Args>
-		struct serializer_t<Context, concat_t<First, Args...>>
+	template<typename Context, typename... Args>
+		struct serializer_t<Context, concat_t<Args...>>
 		{
-			using _serialize_check = serialize_check_of<Context, First, Args...>;
-			using T = concat_t<First, Args...>;
+			using _serialize_check = serialize_check_of<Context, Args...>;
+			using T = concat_t<Args...>;
 
 			static Context& _(const T& t, Context& context)
 			{
@@ -84,6 +83,16 @@ namespace sqlpp
 				return context;
 			}
 		};
+
+	template<typename... Args>
+		auto concat(Args... args)
+		-> concat_t<Args...>
+		{
+			static_assert(sizeof...(Args) >= 2, "concat requires two arguments at least");
+			static_assert(logic::all_t<is_text_t<wrap_operand_t<Args>>::value...>::value, "at least one non-text argument detected in concat()");
+
+			return {args...};
+		}
 }
 
 #endif

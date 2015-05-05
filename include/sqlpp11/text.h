@@ -27,15 +27,18 @@
 #ifndef SQLPP_TEXT_H
 #define SQLPP_TEXT_H
 
+#include <sqlpp11/assignment.h>
 #include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/exception.h>
-#include <sqlpp11/concat.h>
 #include <sqlpp11/like.h>
 #include <sqlpp11/result_field.h>
 
 namespace sqlpp
 {
+	template<typename... Args>
+		struct concat_t;
+
 	// text value type
 	struct text
 	{

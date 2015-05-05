@@ -37,6 +37,7 @@
 #include <sqlpp11/value_type.h>
 #include <sqlpp11/exists.h>
 #include <sqlpp11/any.h>
+#include <sqlpp11/concat.h>
 #include <sqlpp11/some.h>
 #include <sqlpp11/count.h>
 #include <sqlpp11/min.h>
