@@ -100,6 +100,8 @@ namespace sqlpp
 			template<typename Separator>
 				static Context& _(const T& t, const Separator& separator, Context& context)
 				{
+					(void)t;
+					(void)separator;
 					return context;
 				}
 		};
