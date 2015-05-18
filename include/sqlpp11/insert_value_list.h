@@ -447,6 +447,7 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
+				(void)t;
 				context << " DEFAULT VALUES";
 				return context;
 			}

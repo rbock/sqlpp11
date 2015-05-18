@@ -36,12 +36,14 @@ namespace sqlpp
 		template<typename Target, typename Statement, typename Term>
 			typename Target::_data_t pick_arg_impl(Statement statement, Term term, const std::true_type&)
 			{
+				(void)statement;
 				return term;
 			}
 
 		template<typename Target, typename Statement, typename Term>
 			typename Target::_data_t pick_arg_impl(Statement statement, Term term, const std::false_type&)
 			{
+				(void)term;
 				return Target::_get_member(statement)._data;
 			}
 

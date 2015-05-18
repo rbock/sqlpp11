@@ -42,6 +42,7 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
+				(void)t;
 				return context;
 			}
 		};
