@@ -30,6 +30,6 @@
 #define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_text \
 	PROC_text
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_text(...) \
-	sqlpp::text
+	::sqlpp::text
 
 #endif // _sqlpp__ppgen__colops__text_h

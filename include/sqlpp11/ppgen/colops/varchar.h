@@ -27,9 +27,9 @@
 #ifndef _sqlpp__ppgen__colops__varchar_h
 #define _sqlpp__ppgen__colops__varchar_h
 
-#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_varchar(str) \
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_varchar\
 	PROC_varchar
-#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_varchar(str) \
-	sqlpp::varchar
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_varchar(...) \
+	::sqlpp::varchar
 
 #endif // _sqlpp__ppgen__colops__varchar_h
