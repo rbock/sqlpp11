@@ -27,7 +27,7 @@
 #ifndef _sqlpp__ppgen__tblops__comment_h
 #define _sqlpp__ppgen__tblops__comment_h
 
-#define SQLPP_DECLARE_TABLE_GET_TRAITS_LAZY_SQLPP_COMMENT(str) \
+#define SQLPP_DECLARE_TABLE_GET_TRAITS_LAZY_SQLPP_COMMENT \
 	PROC_SQLPP_COMMENT
 #define SQLPP_DECLARE_TABLE_GEN_TRAITS_PROC_SQLPP_COMMENT(str) \
 	[COMMENT is not implemented]
