@@ -27,7 +27,7 @@
 #ifndef _sqlpp__ppgen__tblops__character_set_h
 #define _sqlpp__ppgen__tblops__character_set_h
 
-#define SQLPP_DECLARE_TABLE_GET_PROC_LAZY_SQLPP_CHARACTER_SET(str) \
+#define SQLPP_DECLARE_TABLE_GET_PROC_LAZY_SQLPP_CHARACTER_SET \
 	PROC_SQLPP_CHARACTER_SET
 #define SQLPP_DECLARE_TABLE_GEN_PROC_SQLPP_CHARACTER_SET(str) \
 	[CHARACTER_SET is not implemented]

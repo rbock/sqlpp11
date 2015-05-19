@@ -27,7 +27,7 @@
 #ifndef _sqlpp__ppgen__colops__key_h
 #define _sqlpp__ppgen__colops__key_h
 
-#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_KEY(name) \
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_KEY \
 	PROC_SQLPP_KEY
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_KEY(name) \
 	[KEY is not implemented]

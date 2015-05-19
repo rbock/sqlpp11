@@ -27,9 +27,9 @@
 #ifndef _sqlpp__ppgen__colops__index_h
 #define _sqlpp__ppgen__colops__index_h
 
-#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_INDEX(name) \
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_INDEX \
 	PROC_SQLPP_INDEX
-#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_INDEX(name) \
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_INDEX(indexname, ...) \
 	[INDEX is not implemented]
 
 #endif // _sqlpp__ppgen__colops__index_h
