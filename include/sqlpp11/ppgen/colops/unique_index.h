@@ -24,12 +24,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _sqlpp__ppgen__colops__unique_h
-#define _sqlpp__ppgen__colops__unique_h
+#ifndef _sqlpp__ppgen__colops__unique_index_h
+#define _sqlpp__ppgen__colops__unique_index_h
 
-#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_UNIQUE \
-	PROC_SQLPP_UNIQUE
-#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_UNIQUE(...) \
-	[UNIQUE is not implemented]
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_UNIQUE_INDEX \
+	PROC_SQLPP_UNIQUE_INDEX
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_UNIQUE_INDEX(indexname, tblname, /* cols */ ...) \
+	[UNIQUE INDEX is not implemented]
 
-#endif // _sqlpp__ppgen__colops__unique_h
+#endif // _sqlpp__ppgen__colops__unique_index_h

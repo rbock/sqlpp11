@@ -24,12 +24,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _sqlpp__ppgen__colops__key_h
-#define _sqlpp__ppgen__colops__key_h
+#ifndef _sqlpp__ppgen__colops__foreign_key_h
+#define _sqlpp__ppgen__colops__foreign_key_h
 
-#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_KEY(name) \
-	PROC_SQLPP_KEY
-#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_KEY(name) \
-	[KEY is not implemented]
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_FOREIGN_KEY \
+	PROC_SQLPP_FOREIGN_KEY
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_FOREIGN_KEY(keyname, tblname, colname) \
+	[FOREIGN KEY is not implemented]
 
-#endif // _sqlpp__ppgen__colops__key_h
+#endif // _sqlpp__ppgen__colops__foreign_key_h

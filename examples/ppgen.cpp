@@ -48,17 +48,17 @@ SQLPP_DECLARE_TABLE(
 SQLPP_DECLARE_TABLE(
 	(tab_person)
 	,
-	(id     , int         , SQLPP_AUTO_INCREMENT)
-	(name   , varchar(255), SQLPP_NOT_NULL      )
-	(feature, int         , SQLPP_NOT_NULL      )
+	(id     , int         , SQLPP_PRIMARY_KEY)
+	(name   , varchar(255), SQLPP_NOT_NULL   )
+	(feature, int         , SQLPP_NOT_NULL   )
 )
 
 SQLPP_DECLARE_TABLE(
 	(tab_feature)
 	,
-	(id   , int         , SQLPP_AUTO_INCREMENT)
-	(name , varchar(255), SQLPP_NULL          )
-	(fatal, bool        , SQLPP_NOT_NULL      )
+	(id   , int         , SQLPP_PRIMARY_KEY)
+	(name , varchar(255), SQLPP_NULL       )
+	(fatal, bool        , SQLPP_NOT_NULL   )
 )
 
 int main()
