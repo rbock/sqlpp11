@@ -22,6 +22,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+add_library(sqlpp11_testing INTERFACE)
+target_include_directories(sqlpp11_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_options(sqlpp11_testing INTERFACE -Wall -Wextra -pedantic)
+
 set(test_names
   BooleanExpression
   CustomQuery
@@ -41,6 +45,7 @@ set(test_names
 
 create_test_sourcelist(test_sources test_main.cpp ${test_names})
 add_executable(sqlpp11_tests ${test_sources})
+target_link_libraries(sqlpp11_tests PRIVATE sqlpp11 sqlpp11_testing)
 
 foreach(test IN LISTS test_names)
   add_test(NAME sqlpp11.tests.${test}

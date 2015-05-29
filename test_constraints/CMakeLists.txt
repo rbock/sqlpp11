@@ -22,12 +22,11 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-include_directories(../tests)
-
 function(test_constraint name pattern)
   set(test sqlpp11.test_constraints.${name})
   set(target sqlpp11_${name})
   add_executable(${target} EXCLUDE_FROM_ALL ${name}.cpp)
+  target_link_libraries(${target} PRIVATE sqlpp11 sqlpp11_testing)
   add_test(NAME ${test}
     COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target ${target}
     )
