@@ -29,7 +29,7 @@
 #include <sqlpp11/sqlpp11.h>
 
 
-int main()
+int BooleanExpression(int, char**)
 {
 	MockDb db = {};
 	test::TabBar t; 

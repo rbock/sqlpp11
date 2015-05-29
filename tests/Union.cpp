@@ -29,7 +29,7 @@
 #include <sqlpp11/alias_provider.h>
 #include <iostream>
 
-int main()
+int Union(int, char**)
 {
 	MockDb db;
 	MockDb::_serializer_context_t printer;

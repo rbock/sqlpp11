@@ -29,7 +29,7 @@
 #include <sqlpp11/sqlpp11.h>
 #include <sqlpp11/custom_query.h>
 
-int main()
+int CustomQuery(int, char**)
 {
 	MockDb db = {};
 	MockDb::_serializer_context_t printer;

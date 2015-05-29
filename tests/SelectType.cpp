@@ -41,7 +41,7 @@ namespace alias
 	SQLPP_ALIAS_PROVIDER(right)
 }
 
-int main()
+int SelectType(int, char**)
 {
 	MockDb db = {};
 	MockDb::_serializer_context_t printer;

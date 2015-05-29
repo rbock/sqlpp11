@@ -30,7 +30,7 @@
 #include "is_regular.h"
 
 
-int main()
+int Remove(int, char**)
 {
 	MockDb db;
 	MockDb::_serializer_context_t printer;
