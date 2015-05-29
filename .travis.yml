@@ -36,8 +36,12 @@ install:
 before_script:
    - mkdir build
    - cd build
+   - if [[ "$CXX" = "g++" && "$CONFIG" = "Debug" ]]; then export CXXFLAGS="--coverage"; fi
    - cmake .. -DCMAKE_BUILD_TYPE=$CONFIG
 
 script:
    - cmake --build . --config $CONFIG
    - ctest --output-on-failure
+
+after_script:
+  - ../coveralls
