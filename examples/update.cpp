@@ -27,7 +27,7 @@
 #include "MockDb.h"
 #include <sqlpp11/sqlpp11.h>
 
-int main()
+int update(int, char**)
 {
 	MockDb db;
 
@@ -35,4 +35,5 @@ int main()
 	//test::TabFeature q;
 
 	db(update(p).set(p.feature = 7).where(p.id == 23));
+	return 0;
 }
