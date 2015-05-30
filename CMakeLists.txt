@@ -34,6 +34,24 @@ target_include_directories(sqlpp11 INTERFACE
   )
 
 target_compile_features(sqlpp11 INTERFACE
+	cxx_alias_templates
+	cxx_auto_type
+	cxx_constexpr
+	cxx_decltype
+	cxx_defaulted_functions
+	cxx_defaulted_move_initializers
+	cxx_deleted_functions
+	cxx_explicit_conversions
+	cxx_lambdas
+	cxx_noexcept
+	cxx_nullptr
+	cxx_range_for
+	cxx_right_angle_brackets
+	cxx_rvalue_references
+	cxx_static_assert
+	cxx_trailing_return_types
+	cxx_uniform_initialization
+	cxx_template_template_parameters
   cxx_variadic_templates
   )
 
