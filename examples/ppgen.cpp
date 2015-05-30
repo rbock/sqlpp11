@@ -61,7 +61,7 @@ SQLPP_DECLARE_TABLE(
 	(fatal, bool        , SQLPP_NOT_NULL   )
 )
 
-int main()
+int ppgen(int, char**)
 {
 	MockDb db;
 	tab_person::tab_person   p;
@@ -97,4 +97,5 @@ int main()
 	pi.params.feature = true;
 
 	db(pi);
+	return 0;
 }

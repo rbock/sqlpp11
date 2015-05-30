@@ -23,30 +23,45 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <iostream>
 #include "Sample.h"
 #include "MockDb.h"
-#include <sqlpp11/select.h>
-#include <sqlpp11/alias_provider.h>
-#include <iostream>
+#include <sqlpp11/sqlpp11.h>
+#include <sqlpp11/custom_query.h>
 
-int main()
+int CustomQuery(int, char**)
 {
-	MockDb db;
+	MockDb db = {};
 	MockDb::_serializer_context_t printer;
 
-	const auto t = test::TabBar{};
+	test::TabFoo f; 
+	test::TabBar t;
 
-	auto x = sqlpp::cte(sqlpp::alias::x).as(select(all_of(t)).from(t));
+	// A void custom query
+	printer.reset();
+	auto x = custom_query(sqlpp::verbatim("PRAGMA writeable_schema = "), true);
+	std::cerr << serialize(x, printer).str() << std::endl;
+	db(x);
 
-	db(with(x)(select(x.alpha).from(x).where(true)));
+	// Syntactically, it is possible to use this void query as a prepared statement, too, not sure, whether this makes sense very often...
+	db(db.prepare(x));
 
-	auto y0 = sqlpp::cte(sqlpp::alias::y).as(select(all_of(t)).from(t));
-	auto y = y0.union_all(select(all_of(y0)).from(y0).where(false));
+	// A prepared custom select 
+	// The return type of the custom query is determined from the first argument which does have a return type, in this case the select
+	auto p = db.prepare(custom_query(select(all_of(t)).from(t), where(t.alpha > sqlpp::parameter(t.alpha))));
+	p.params.alpha = 8;
+	for (const auto& row : db(p))
+	{
+		std::cerr << row.alpha << std::endl;
+	}
 
-	std::cout << serialize(y, printer).str() << std::endl; printer.reset();
-	std::cout << serialize(from_table(y), printer).str() << std::endl;
-
-	db(with(y)(select(y.alpha).from(y).where(true)));
+	// A custom (select ... into) with adjusted return type
+	// The first argument with a return type is the select, but the custom query is really an insert. Thus, we tell it so.
+	printer.reset();
+	auto c = custom_query(select(all_of(t)).from(t), into(f)).with_result_type_of(insert_into(f));
+	std::cerr << serialize(c, printer).str() << std::endl;
+	auto i = db(c);
+	static_assert(std::is_integral<decltype(i)>::value, "insert yields an integral value");
 
 	return 0;
 }

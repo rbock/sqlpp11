@@ -23,59 +23,53 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <iostream>
+#include <sqlpp11/sqlpp11.h>
 #include "Sample.h"
 #include "MockDb.h"
 #include "is_regular.h"
-#include <sqlpp11/insert.h>
-#include <sqlpp11/functions.h>
-#include <iostream>
 
-
-int main()
+int Update(int, char**)
 {
 	MockDb db;
 	MockDb::_serializer_context_t printer;
+
 	test::TabBar t;
 	//test::TabFoo f;
 
 	{
-		using T = decltype(insert_into(t));
+		using T = decltype(update(t));
 		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
 	{
-		using T = decltype(insert_into(t).set(t.beta = "kirschauflauf"));
+		using T = decltype(update(t).set(t.gamma = false).where(t.beta != "transparent"));
 		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
 	{
-		using T = decltype(dynamic_insert_into(db, t).dynamic_set());
+		using T = decltype(dynamic_update(db, t).dynamic_set(t.gamma = false).dynamic_where());
 		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
-	db(insert_into(t).default_values());
-	db(insert_into(t).set(t.gamma = true, t.beta = "kirschauflauf"));
-
-	serialize(insert_into(t).default_values(), printer).str();
-
-	serialize(insert_into(t), printer).str();
-	serialize(insert_into(t).set(t.gamma = true, t.beta = "kirschauflauf"), printer).str();
-	serialize(insert_into(t).columns(t.gamma, t.beta), printer).str();
-	auto multi_insert = insert_into(t).columns(t.gamma, t.beta, t.delta);
-	multi_insert.values.add(t.gamma = true, t.beta = "cheesecake", t.delta = 1); 
-	multi_insert.values.add(t.gamma = sqlpp::default_value, t.beta = sqlpp::default_value, t.delta = sqlpp::default_value); 
-	auto i = dynamic_insert_into(db, t).dynamic_set();
-	i.insert_list.add(t.beta = "kirschauflauf");
+	serialize(update(t), printer).str();
+	serialize(update(t).set(t.gamma = false), printer).str();
+	serialize(update(t).set(t.gamma = false).where(t.beta != "transparent"), printer).str();
+	serialize(update(t).set(t.beta = "opaque").where(t.beta != t.beta), printer).str();
+	auto u = dynamic_update(db, t).dynamic_set(t.gamma = false).dynamic_where();
+	u.assignments.add(t.beta = "cannot update gamma a second time");
+	u.where.add(t.gamma != false);
 	printer.reset();
-	std::cerr << serialize(i, printer).str() << std::endl;
+	std::cerr << serialize(u, printer).str() << std::endl;
 
+	db(u);
 
-	db(multi_insert);
+	db(update(t).set(t.delta = sqlpp::verbatim<sqlpp::integer>("17+4")).where(true));
+	db(update(t).set(t.delta = sqlpp::null).where(true));
+	db(update(t).set(t.delta = sqlpp::default_value).where(true));
 
-	db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::verbatim<sqlpp::integer>("17+4")));
-	db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::null));
-	db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::default_value));
-	db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::tvin(0)));
+	db(update(t).set(t.delta += t.alpha * 2, t.beta += " and cake").where(true));
+
 
 	return 0;
 }

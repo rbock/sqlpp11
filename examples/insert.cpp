@@ -27,7 +27,7 @@
 #include "MockDb.h"
 #include <sqlpp11/sqlpp11.h>
 
-int main()
+int insert(int, char**)
 {
 	MockDb db;
 
@@ -64,4 +64,5 @@ int main()
 	pi.params.feature = true;
 
 	db(pi);
+	return 0;
 }

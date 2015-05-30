@@ -1,6 +1,9 @@
 sqlpp11
 =======
 
+[![Build Status](https://travis-ci.org/purpleKarrot/sqlpp11.svg?branch=develop)](https://travis-ci.org/purpleKarrot/sqlpp11)
+[![Coverage Status](https://coveralls.io/repos/purpleKarrot/sqlpp11/badge.svg?branch=develop)](https://coveralls.io/r/purpleKarrot/sqlpp11?branch=develop)
+
 A type safe embedded domain specific language for SQL queries and results in C++
 
 Extensive documentation is found in the wiki, https://github.com/rbock/sqlpp11/wiki
