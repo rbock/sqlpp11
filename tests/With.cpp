@@ -29,25 +29,24 @@
 #include <sqlpp11/alias_provider.h>
 #include <iostream>
 
-int main()
+int With(int, char**)
 {
 	MockDb db;
 	MockDb::_serializer_context_t printer;
 
-	test::TabBar t;
-	test::TabFoo f;
+	const auto t = test::TabBar{};
 
-	db(select(t.alpha).from(t).where(true)
-			.union_distinct(select(f.epsilon.as(t.alpha)).from(f).where(true)));
-	db(select(t.alpha).from(t).where(true)
-			.union_all(select(f.epsilon.as(t.alpha)).from(f).where(true)));
+	auto x = sqlpp::cte(sqlpp::alias::x).as(select(all_of(t)).from(t));
 
-	auto u = select(t.alpha).from(t).where(true).union_all(select(f.epsilon.as(t.alpha)).from(f).where(true)).as(sqlpp::alias::u);
+	db(with(x)(select(x.alpha).from(x).where(true)));
 
-	db(select(all_of(u)).from(u).where(true).union_all(select(t.delta.as(t.alpha)).from(t).where(true)));
-	db(select(u.alpha).from(u).where(true).union_all(select(t.delta.as(t.alpha)).from(t).where(true)));
+	auto y0 = sqlpp::cte(sqlpp::alias::y).as(select(all_of(t)).from(t));
+	auto y = y0.union_all(select(all_of(y0)).from(y0).where(false));
 
-	db(select(t.alpha).from(t).where(true).union_all(select(t.alpha).from(t).where(true)).union_all(select(t.alpha).from(t).where(true)));
+	std::cout << serialize(y, printer).str() << std::endl; printer.reset();
+	std::cout << serialize(from_table(y), printer).str() << std::endl;
+
+	db(with(y)(select(y.alpha).from(y).where(true)));
 
 	return 0;
 }

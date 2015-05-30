@@ -36,7 +36,7 @@
 
 SQLPP_ALIAS_PROVIDER(cheesecake)
 
-int main()
+int select(int, char**)
 {
 	static constexpr bool some_condition = true;
 	static constexpr bool some_other_condition = false;
@@ -153,4 +153,5 @@ int main()
 
 
 
+	return 0;
 }

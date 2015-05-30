@@ -23,47 +23,59 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
-#include <sqlpp11/remove.h>
 #include "Sample.h"
 #include "MockDb.h"
 #include "is_regular.h"
+#include <sqlpp11/insert.h>
+#include <sqlpp11/functions.h>
+#include <iostream>
 
 
-int main()
+int Insert(int, char**)
 {
 	MockDb db;
 	MockDb::_serializer_context_t printer;
-
 	test::TabBar t;
+	//test::TabFoo f;
 
 	{
-		using T = decltype(remove_from(t));
+		using T = decltype(insert_into(t));
 		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
 	{
-		using T = decltype(remove_from(t).where(t.beta != "transparent"));
+		using T = decltype(insert_into(t).set(t.beta = "kirschauflauf"));
 		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
 	{
-		using T = decltype(dynamic_remove_from(db, t).dynamic_using().dynamic_where());
+		using T = decltype(dynamic_insert_into(db, t).dynamic_set());
 		static_assert(sqlpp::is_regular<T>::value, "type requirement");
 	}
 
-	serialize(remove_from(t), printer).str();
-	serialize(remove_from(t).where(t.beta != "transparent"), printer).str();
-	serialize(remove_from(t).using_(t), printer).str();
-	auto r = dynamic_remove_from(db, t).dynamic_using().dynamic_where();
-	r.using_.add(t);
-	r.where.add(t.beta != "transparent");
+	db(insert_into(t).default_values());
+	db(insert_into(t).set(t.gamma = true, t.beta = "kirschauflauf"));
+
+	serialize(insert_into(t).default_values(), printer).str();
+
+	serialize(insert_into(t), printer).str();
+	serialize(insert_into(t).set(t.gamma = true, t.beta = "kirschauflauf"), printer).str();
+	serialize(insert_into(t).columns(t.gamma, t.beta), printer).str();
+	auto multi_insert = insert_into(t).columns(t.gamma, t.beta, t.delta);
+	multi_insert.values.add(t.gamma = true, t.beta = "cheesecake", t.delta = 1); 
+	multi_insert.values.add(t.gamma = sqlpp::default_value, t.beta = sqlpp::default_value, t.delta = sqlpp::default_value); 
+	auto i = dynamic_insert_into(db, t).dynamic_set();
+	i.insert_list.add(t.beta = "kirschauflauf");
 	printer.reset();
-	std::cerr << serialize(r, printer).str() << std::endl;
-	printer.reset();
-	std::cerr << serialize(remove_from(t).where(true), printer).str() << std::endl;
+	std::cerr << serialize(i, printer).str() << std::endl;
 
-	db(r);
+
+	db(multi_insert);
+
+	db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::verbatim<sqlpp::integer>("17+4")));
+	db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::null));
+	db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::default_value));
+	db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::tvin(0)));
 
 	return 0;
 }

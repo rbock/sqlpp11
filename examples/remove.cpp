@@ -27,7 +27,7 @@
 #include "MockDb.h"
 #include <sqlpp11/sqlpp11.h>
 
-int main()
+int remove(int, char**)
 {
 	MockDb db;
 
@@ -37,4 +37,5 @@ int main()
 	db(remove_from(p)
 			.using_(p, q)
 			.where(p.feature == q.id and q.fatal == true));
+	return 0;
 }

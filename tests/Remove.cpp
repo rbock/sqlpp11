@@ -24,21 +24,46 @@
  */
 
 #include <iostream>
+#include <sqlpp11/remove.h>
 #include "Sample.h"
 #include "MockDb.h"
-#include <sqlpp11/sqlpp11.h>
+#include "is_regular.h"
 
 
-int main()
+int Remove(int, char**)
 {
-	MockDb db = {};
-	test::TabBar t; 
+	MockDb db;
+	MockDb::_serializer_context_t printer;
 
-	auto x = boolean_expression(db, t.alpha == 7);
-	x = sqlpp::boolean_expression<MockDb>(t.beta.like("%cheesecake"));
-	x = x and boolean_expression(db, t.gamma);
+	test::TabBar t;
 
-	db(select(t.alpha).from(t).where(x));
+	{
+		using T = decltype(remove_from(t));
+		static_assert(sqlpp::is_regular<T>::value, "type requirement");
+	}
+
+	{
+		using T = decltype(remove_from(t).where(t.beta != "transparent"));
+		static_assert(sqlpp::is_regular<T>::value, "type requirement");
+	}
+
+	{
+		using T = decltype(dynamic_remove_from(db, t).dynamic_using().dynamic_where());
+		static_assert(sqlpp::is_regular<T>::value, "type requirement");
+	}
+
+	serialize(remove_from(t), printer).str();
+	serialize(remove_from(t).where(t.beta != "transparent"), printer).str();
+	serialize(remove_from(t).using_(t), printer).str();
+	auto r = dynamic_remove_from(db, t).dynamic_using().dynamic_where();
+	r.using_.add(t);
+	r.where.add(t.beta != "transparent");
+	printer.reset();
+	std::cerr << serialize(r, printer).str() << std::endl;
+	printer.reset();
+	std::cerr << serialize(remove_from(t).where(true), printer).str() << std::endl;
+
+	db(r);
 
 	return 0;
 }

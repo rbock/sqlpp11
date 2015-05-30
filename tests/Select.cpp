@@ -43,7 +43,7 @@ int64_t getColumn(Db&& db, const Column& column)
 		return 0;
 }
 
-int main()
+int Select(int, char**)
 {
 	MockDb db = {};
 	MockDb::_serializer_context_t printer;

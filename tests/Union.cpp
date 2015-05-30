@@ -23,45 +23,31 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
 #include "Sample.h"
 #include "MockDb.h"
-#include <sqlpp11/sqlpp11.h>
-#include <sqlpp11/custom_query.h>
+#include <sqlpp11/select.h>
+#include <sqlpp11/alias_provider.h>
+#include <iostream>
 
-int main()
+int Union(int, char**)
 {
-	MockDb db = {};
+	MockDb db;
 	MockDb::_serializer_context_t printer;
 
-	test::TabFoo f; 
 	test::TabBar t;
+	test::TabFoo f;
 
-	// A void custom query
-	printer.reset();
-	auto x = custom_query(sqlpp::verbatim("PRAGMA writeable_schema = "), true);
-	std::cerr << serialize(x, printer).str() << std::endl;
-	db(x);
+	db(select(t.alpha).from(t).where(true)
+			.union_distinct(select(f.epsilon.as(t.alpha)).from(f).where(true)));
+	db(select(t.alpha).from(t).where(true)
+			.union_all(select(f.epsilon.as(t.alpha)).from(f).where(true)));
 
-	// Syntactically, it is possible to use this void query as a prepared statement, too, not sure, whether this makes sense very often...
-	db(db.prepare(x));
+	auto u = select(t.alpha).from(t).where(true).union_all(select(f.epsilon.as(t.alpha)).from(f).where(true)).as(sqlpp::alias::u);
 
-	// A prepared custom select 
-	// The return type of the custom query is determined from the first argument which does have a return type, in this case the select
-	auto p = db.prepare(custom_query(select(all_of(t)).from(t), where(t.alpha > sqlpp::parameter(t.alpha))));
-	p.params.alpha = 8;
-	for (const auto& row : db(p))
-	{
-		std::cerr << row.alpha << std::endl;
-	}
+	db(select(all_of(u)).from(u).where(true).union_all(select(t.delta.as(t.alpha)).from(t).where(true)));
+	db(select(u.alpha).from(u).where(true).union_all(select(t.delta.as(t.alpha)).from(t).where(true)));
 
-	// A custom (select ... into) with adjusted return type
-	// The first argument with a return type is the select, but the custom query is really an insert. Thus, we tell it so.
-	printer.reset();
-	auto c = custom_query(select(all_of(t)).from(t), into(f)).with_result_type_of(insert_into(f));
-	std::cerr << serialize(c, printer).str() << std::endl;
-	auto i = db(c);
-	static_assert(std::is_integral<decltype(i)>::value, "insert yields an integral value");
+	db(select(t.alpha).from(t).where(true).union_all(select(t.alpha).from(t).where(true)).union_all(select(t.alpha).from(t).where(true)));
 
 	return 0;
 }
