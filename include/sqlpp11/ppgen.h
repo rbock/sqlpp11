@@ -35,6 +35,19 @@
 #	define BOOST_PP_VARIADICS 1
 #endif // defined(__clang__)
 
+// boost.preprocessor
+#include <boost/preprocessor/cat.hpp>
+#include <boost/preprocessor/facilities/expand.hpp>
+#include <boost/preprocessor/punctuation/comma_if.hpp>
+#include <boost/preprocessor/comparison/less.hpp>
+#include <boost/preprocessor/arithmetic/add.hpp>
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/seq/for_each_i.hpp>
+#include <boost/preprocessor/stringize.hpp>
+#include <boost/preprocessor/tuple/elem.hpp>
+#include <boost/preprocessor/tuple/size.hpp>
+#include <boost/preprocessor/tuple/to_seq.hpp>
+
 // tools
 #include <sqlpp11/ppgen/tools/wrap_seq.h>
 #include <sqlpp11/ppgen/tools/tuple_pop_front.h>
@@ -51,6 +64,7 @@
 #include <sqlpp11/ppgen/colops/datetime.h>
 #include <sqlpp11/ppgen/colops/default.h>
 #include <sqlpp11/ppgen/colops/floating_point.h>
+#include <sqlpp11/ppgen/colops/foreign_key.h>
 #include <sqlpp11/ppgen/colops/index.h>
 #include <sqlpp11/ppgen/colops/integer.h>
 #include <sqlpp11/ppgen/colops/not_null.h>
@@ -58,21 +72,8 @@
 #include <sqlpp11/ppgen/colops/primary_key.h>
 #include <sqlpp11/ppgen/colops/text.h>
 #include <sqlpp11/ppgen/colops/timestamp.h>
-#include <sqlpp11/ppgen/colops/unique.h>
+#include <sqlpp11/ppgen/colops/unique_index.h>
 #include <sqlpp11/ppgen/colops/varchar.h>
-
-// boost.preprocessor
-#include <boost/preprocessor/cat.hpp>
-#include <boost/preprocessor/facilities/expand.hpp>
-#include <boost/preprocessor/punctuation/comma_if.hpp>
-#include <boost/preprocessor/comparison/less.hpp>
-#include <boost/preprocessor/arithmetic/add.hpp>
-#include <boost/preprocessor/seq/for_each.hpp>
-#include <boost/preprocessor/seq/for_each_i.hpp>
-#include <boost/preprocessor/stringize.hpp>
-#include <boost/preprocessor/tuple/elem.hpp>
-#include <boost/preprocessor/tuple/size.hpp>
-#include <boost/preprocessor/tuple/to_seq.hpp>
 
 /***************************************************************************/
 // tools

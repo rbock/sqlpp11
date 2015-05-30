@@ -30,6 +30,6 @@
 #define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_varchar(str) \
 	PROC_varchar
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_varchar(str) \
-	sqlpp::varchar
+	::sqlpp::varchar
 
 #endif // _sqlpp__ppgen__colops__varchar_h

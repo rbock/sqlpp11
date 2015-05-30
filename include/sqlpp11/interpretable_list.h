@@ -98,7 +98,7 @@ namespace sqlpp
 			using T = interpretable_list_t<void>;
 
 			template<typename Separator>
-				static Context& _(const T& t, const Separator& separator, Context& context)
+				static Context& _(const T& /* t */, const Separator& /* separator */, Context& context)
 				{
 					return context;
 				}
