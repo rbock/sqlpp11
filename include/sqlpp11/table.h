@@ -60,31 +60,31 @@ namespace sqlpp
 		template<typename T>
 			join_t<inner_join_t, Table, T> join(T t) const
 			{
-				return { *static_cast<const Table*>(this), t };
+				return { *static_cast<const Table*>(this), t, {} };
 			}
 
 		template<typename T>
 			join_t<inner_join_t, Table, T> inner_join(T t) const
 			{
-				return { *static_cast<const Table*>(this), t };
+				return { *static_cast<const Table*>(this), t, {} };
 			}
 
 		template<typename T>
 			join_t<outer_join_t, Table, T> outer_join(T t) const
 			{
-				return { *static_cast<const Table*>(this), t };
+				return { *static_cast<const Table*>(this), t, {} };
 			}
 
 		template<typename T>
 			join_t<left_outer_join_t, Table, T> left_outer_join(T t) const
 			{
-				return { *static_cast<const Table*>(this), t };
+				return { *static_cast<const Table*>(this), t, {} };
 			}
 
 		template<typename T>
 			join_t<right_outer_join_t, Table, T> right_outer_join(T t) const
 			{
-				return { *static_cast<const Table*>(this), t };
+				return { *static_cast<const Table*>(this), t, {} };
 			}
 
 		template<typename AliasProvider>

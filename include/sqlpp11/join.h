@@ -90,7 +90,7 @@ namespace sqlpp
 
 					return { _lhs, 
 						_rhs, 
-						{std::tuple<Expr...>{expr...}}
+						{std::tuple<Expr...>{expr...}, {}}
 					};
 				}
 
@@ -98,35 +98,35 @@ namespace sqlpp
 				join_t<inner_join_t, join_t, T> join(T t)
 				{
 					static_assert(not is_noop<On>::value, "join type requires on()");
-					return { *this, t };
+					return { *this, t, {} };
 				}
 
 			template<typename T>
 				join_t<inner_join_t, join_t, T> inner_join(T t)
 				{
 					static_assert(not is_noop<On>::value, "join type requires on()");
-					return { *this, t };
+					return { *this, t, {} };
 				}
 
 			template<typename T>
 				join_t<outer_join_t, join_t, T> outer_join(T t)
 				{
 					static_assert(not is_noop<On>::value, "join type requires on()");
-					return { *this, t };
+					return { *this, t, {} };
 				}
 
 			template<typename T>
 				join_t<left_outer_join_t, join_t, T> left_outer_join(T t)
 				{
 					static_assert(not is_noop<On>::value, "join type requires on()");
-					return { *this, t };
+					return { *this, t, {} };
 				}
 
 			template<typename T>
 				join_t<right_outer_join_t, join_t, T> right_outer_join(T t)
 				{
 					static_assert(not is_noop<On>::value, "join type requires on()");
-					return { *this, t };
+					return { *this, t, {} };
 				}
 
 			Lhs _lhs;

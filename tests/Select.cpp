@@ -50,6 +50,7 @@ int Select(int, char**)
 
 	test::TabFoo f; 
 	test::TabBar t;
+	const auto tab_a = f.as(sqlpp::alias::a);
 
 	getColumn(db, t.alpha);
 
@@ -76,6 +77,11 @@ int Select(int, char**)
 	}
 
 	for (const auto& row : db(select(all_of(t), all_of(f)).from(t.join(f).on(t.alpha > f.omega and not t.gamma)).where(true)))
+	{
+		std::cout << row.alpha << std::endl;
+	}
+
+	for (const auto& row : db(select(all_of(t), all_of(f)).from(t.join(f).on(t.alpha > f.omega).join(tab_a).on(t.alpha == tab_a.omega)).where(true)))
 	{
 		std::cout << row.alpha << std::endl;
 	}
