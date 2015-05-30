@@ -87,7 +87,7 @@ namespace sqlpp
 		struct cte_ref_t;
 
 	template<typename AliasProvider, typename Statement, typename... FieldSpecs>
-		auto from_table(cte_t<AliasProvider, Statement, FieldSpecs...> t) -> cte_ref_t<AliasProvider>
+		auto from_table(cte_t<AliasProvider, Statement, FieldSpecs...>) -> cte_ref_t<AliasProvider>
 		{
 			return cte_ref_t<AliasProvider>{};
 		}
@@ -242,7 +242,7 @@ namespace sqlpp
 			using _serialize_check = consistent_t;
 			using T = cte_ref_t<AliasProvider>;
 
-			static Context& _(const T& t, Context& context)
+			static Context& _(const T&, Context& context)
 			{
 				context << name_of<T>::char_ptr();
 				return context;

@@ -43,7 +43,7 @@ namespace sqlpp
 			using _serialize_check = consistent_t;
 			using Operand = null_t;
 
-			static Context& _(const Operand& t, Context& context)
+			static Context& _(const Operand&, Context& context)
 			{
 				context << "NULL";
 				return context;

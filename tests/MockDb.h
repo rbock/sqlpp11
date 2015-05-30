@@ -95,7 +95,7 @@ struct MockDbT: public sqlpp::connection
 	class result_t
 	{
 	public:
-		constexpr bool operator==(const result_t& rhs) const
+		constexpr bool operator==(const result_t&) const
 		{
 			return true;
 		}
@@ -127,7 +127,7 @@ struct MockDbT: public sqlpp::connection
 			return _run(t, _ok{});
 		}
 
-	size_t execute(const std::string& command)
+	size_t execute(const std::string&)
 	{
 		return 0;
 	}
@@ -220,13 +220,13 @@ struct MockDbT: public sqlpp::connection
 		}
 
 	template<typename PreparedExecute>
-		size_t run_prepared_execute(const PreparedExecute& x)
+		size_t run_prepared_execute(const PreparedExecute&)
 		{
 			return 0;
 		}
 
 	template<typename PreparedInsert>
-		size_t run_prepared_insert(const PreparedInsert& x)
+		size_t run_prepared_insert(const PreparedInsert&)
 		{
 			return 0;
 		}
@@ -241,7 +241,7 @@ struct MockDbT: public sqlpp::connection
 		}
 
 	template<typename PreparedSelect>
-		result_t run_prepared_select(PreparedSelect& x)
+		result_t run_prepared_select(PreparedSelect&)
 		{
 			return {};
 		}

@@ -164,7 +164,7 @@ namespace sqlpp
 			using _serialize_check = serialize_check_of<Context, Tables...>;
 			using T = extra_tables_data_t<Database, Tables...>;
 
-			static Context& _(const T& t, Context& context)
+			static Context& _(const T&, Context& context)
 			{
 				return context;
 			}

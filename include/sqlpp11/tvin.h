@@ -73,7 +73,7 @@ namespace sqlpp
 			using _serialize_check = assert_tvin_with_correct_operator_t;
 			using T = tvin_arg_t<Operand>;
 
-			static Context& _(const T& t, Context& context)
+			static Context& _(const T&, Context&)
 			{
 				_serialize_check::_();
 			}

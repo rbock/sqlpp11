@@ -445,7 +445,7 @@ namespace sqlpp
 			using _serialize_check = consistent_t;
 			using T = insert_default_values_data_t;
 
-			static Context& _(const T& /* t */, Context& context)
+			static Context& _(const T&, Context& context)
 			{
 				context << " DEFAULT VALUES";
 				return context;

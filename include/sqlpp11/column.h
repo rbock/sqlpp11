@@ -112,7 +112,7 @@ namespace sqlpp
 			using _serialize_check = consistent_t;
 			using T = column_t<Args...>;
 
-			static Context& _(const T& /* t */, Context& context)
+			static Context& _(const T&, Context& context)
 			{
 				context << name_of<typename T::_table>::char_ptr() << '.' << name_of<T>::char_ptr();
 				return context;

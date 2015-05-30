@@ -47,7 +47,7 @@ namespace sqlpp
 		{
 			using _serialize_check = assert_serializer_specialization_t;
 
-			static void _(const T& t, Context& context)
+			static void _(const T&, Context&)
 			{
 				_serialize_check::_();
 			}

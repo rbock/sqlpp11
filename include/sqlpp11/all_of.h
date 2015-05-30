@@ -46,7 +46,7 @@ namespace sqlpp
 		};
 
 	template<typename Table>
-		auto all_of(Table t) -> all_of_t<Table>
+		auto all_of(Table) -> all_of_t<Table>
 		{
 			return {};
 		}
@@ -68,7 +68,7 @@ namespace sqlpp
 			using _serialize_check = assert_no_stand_alone_all_of_t;
 			using T = all_of_t<Table>;
 
-			static Context& _(const T& t, const Context&)
+			static Context& _(const T&, const Context&)
 			{
 				_serialize_check::_();
 			}

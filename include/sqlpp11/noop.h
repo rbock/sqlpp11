@@ -87,7 +87,7 @@ namespace sqlpp
 			using _serialize_check = consistent_t;
 			using T = noop;
 
-			static Context& _(const T& t, Context& context)
+			static Context& _(const T&, Context& context)
 			{
 				return context;
 			}

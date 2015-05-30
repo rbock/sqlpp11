@@ -94,7 +94,7 @@ namespace sqlpp
 			using _serialize_check = consistent_t;
 			using T = remove_name_t;
 
-			static Context& _(const T& t, Context& context)
+			static Context& _(const T&, Context& context)
 			{
 				context << "DELETE";
 
