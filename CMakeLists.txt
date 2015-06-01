@@ -33,6 +33,7 @@ target_include_directories(sqlpp11 INTERFACE
   $<BUILD_INTERFACE:${sqlpp11_SOURCE_DIR}/include>
   )
 
+if (NOT MSVC)
 target_compile_features(sqlpp11 INTERFACE
 	cxx_alias_templates
 	cxx_auto_type
@@ -54,6 +55,7 @@ target_compile_features(sqlpp11 INTERFACE
 	cxx_template_template_parameters
   cxx_variadic_templates
   )
+endif ()
 
 add_subdirectory(tests)
 add_subdirectory(test_constraints)
