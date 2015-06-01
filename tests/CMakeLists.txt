@@ -24,7 +24,10 @@
 
 add_library(sqlpp11_testing INTERFACE)
 target_include_directories(sqlpp11_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if (NOT MSVC)
 target_compile_options(sqlpp11_testing INTERFACE -Wall -Wextra -pedantic)
+endif ()
 
 set(test_names
   BooleanExpression
