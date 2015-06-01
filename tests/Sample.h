@@ -13,7 +13,7 @@ namespace test
     {
       struct _alias_t
       {
-        static constexpr const char _literal[6] =  "delta";
+        static constexpr const char _literal[] =  "delta";
         using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
         template<typename T>
         struct _member_t
@@ -29,7 +29,7 @@ namespace test
     {
       struct _alias_t
       {
-        static constexpr const char _literal[8] =  "epsilon";
+        static constexpr const char _literal[] =  "epsilon";
         using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
         template<typename T>
         struct _member_t
@@ -45,7 +45,7 @@ namespace test
     {
       struct _alias_t
       {
-        static constexpr const char _literal[6] =  "omega";
+        static constexpr const char _literal[] =  "omega";
         using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
         template<typename T>
         struct _member_t
@@ -66,7 +66,7 @@ namespace test
   {
     struct _alias_t
     {
-      static constexpr const char _literal[8] =  "tab_foo";
+      static constexpr const char _literal[] =  "tab_foo";
       using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
       template<typename T>
       struct _member_t
@@ -83,7 +83,7 @@ namespace test
     {
       struct _alias_t
       {
-        static constexpr const char _literal[6] =  "alpha";
+        static constexpr const char _literal[] =  "alpha";
         using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
         template<typename T>
         struct _member_t
@@ -99,7 +99,7 @@ namespace test
     {
       struct _alias_t
       {
-        static constexpr const char _literal[5] =  "beta";
+        static constexpr const char _literal[] =  "beta";
         using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
         template<typename T>
         struct _member_t
@@ -115,7 +115,7 @@ namespace test
     {
       struct _alias_t
       {
-        static constexpr const char _literal[6] =  "gamma";
+        static constexpr const char _literal[] =  "gamma";
         using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
         template<typename T>
         struct _member_t
@@ -131,7 +131,7 @@ namespace test
     {
       struct _alias_t
       {
-        static constexpr const char _literal[6] =  "delta";
+        static constexpr const char _literal[] =  "delta";
         using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
         template<typename T>
         struct _member_t
@@ -153,7 +153,7 @@ namespace test
   {
     struct _alias_t
     {
-      static constexpr const char _literal[8] =  "tab_bar";
+      static constexpr const char _literal[] =  "tab_bar";
       using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
       template<typename T>
       struct _member_t
