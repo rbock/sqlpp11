@@ -1,14 +1,16 @@
 sqlpp11
 =======
 
-[![Build Status](https://travis-ci.org/purpleKarrot/sqlpp11.svg?branch=develop)](https://travis-ci.org/purpleKarrot/sqlpp11)
-[![Coverage Status](https://coveralls.io/repos/purpleKarrot/sqlpp11/badge.svg?branch=develop)](https://coveralls.io/r/purpleKarrot/sqlpp11?branch=develop)
+[![Build Status](https://travis-ci.org/rbock/sqlpp11.svg?branch=develop)](https://travis-ci.org/rbock/sqlpp11?branch=develop)
+[![Coverage Status](https://coveralls.io/repos/rbock/sqlpp11/badge.svg?branch=develop)](https://coveralls.io/r/rbock/sqlpp11?branch=develop)
 
 A type safe embedded domain specific language for SQL queries and results in C++
 
 Extensive documentation is found in the wiki, https://github.com/rbock/sqlpp11/wiki
 
-Upcoming talks/workshops) at 
+Past talks/workshops at 
+  * CppCast: http://cppcast.com
+   * 2015-05-07: http://cppcast.com/2015/05/roland-bock/
   * CppCon (Bellevue, Washington, USA): http://cppcon.org
    * 2014-09-08: http://sched.co/1qhngYK (Workshop Part 1)
    * 2014-09-11: http://sched.co/1r4lue3 (Talk)
