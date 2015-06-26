@@ -54,6 +54,11 @@ int Select(int, char**)
 
 	getColumn(db, t.alpha);
 
+	for (const auto& row : db(select(sqlpp::value(false).as(sqlpp::alias::a))))
+	{
+		std::cout << row.a << std::endl;
+	}
+
 	for (const auto& row : db(select(all_of(t)).from(t).where(true)))
 	{
 		int64_t a = row.alpha;
