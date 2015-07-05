@@ -28,6 +28,7 @@
 #define SQLPP_DETAIL_COPY_TUPLE_ARGS_H
 
 #include <tuple>
+#include <sqlpp11/alias.h>
 
 namespace sqlpp
 {
@@ -36,22 +37,37 @@ namespace sqlpp
 
 	namespace detail
 	{
-		template<typename T>
-			struct as_tuple
+		template<typename T, typename Enable = void>
+			struct auto_alias_impl
 			{
-				static std::tuple<T> _(T t) { return std::tuple<T>{ t }; }
+				using type = T;
 			};
 
 		template<typename T>
-			struct as_tuple<all_of_t<T>>
+			struct auto_alias_impl<T, typename std::enable_if<not wrong_t<typename T::_auto_alias_t>::value>::type>
+			{
+				using type = expression_alias_t<T, typename T::_auto_alias_t>;
+			};
+
+		template<typename T>
+			using auto_alias_t = typename detail::auto_alias_impl<T>::type;
+
+		template<typename T>
+			struct as_column_tuple
+			{
+				static std::tuple<auto_alias_t<T>> _(T t) { return std::tuple<auto_alias_t<T>>{ auto_alias_t<T>{t} }; }
+			};
+
+		template<typename T>
+			struct as_column_tuple<all_of_t<T>>
 			{
 				static typename all_of_t<T>::_column_tuple_t _(all_of_t<T>) { return { }; }
 			};
 
 		template<typename... Args>
-			struct as_tuple<std::tuple<Args...>>
+			struct as_column_tuple<std::tuple<Args...>>
 			{
-				static std::tuple<Args...> _(std::tuple<Args...> t) { return t; }
+				static std::tuple<auto_alias_t<Args>...> _(std::tuple<Args...> t) { return t; }
 			};
 
 		template<template<typename, typename...> class Target, typename First, typename T>

@@ -130,14 +130,14 @@ namespace sqlpp
 		template<typename... Columns>
 			using make_multi_column_t = 
 			detail::copy_tuple_args_t<multi_column_t, void, 
-			decltype(std::tuple_cat(detail::as_tuple<Columns>::_(std::declval<Columns>())...))>;
+			decltype(std::tuple_cat(detail::as_column_tuple<Columns>::_(std::declval<Columns>())...))>;
 	}
 
 	template<typename... Columns>
 		auto multi_column(Columns... columns)
 		-> detail::make_multi_column_t<Columns...>
 		{
-			return detail::make_multi_column_t<Columns...>(std::tuple_cat(detail::as_tuple<Columns>::_(columns)...));
+			return detail::make_multi_column_t<Columns...>(std::tuple_cat(detail::as_column_tuple<Columns>::_(columns)...));
 		}
 
 
