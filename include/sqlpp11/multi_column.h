@@ -129,8 +129,8 @@ namespace sqlpp
 	{
 		template<typename... Columns>
 			using make_multi_column_t = 
-			detail::copy_tuple_args_t<multi_column_t, void, 
-			decltype(std::tuple_cat(detail::as_column_tuple<Columns>::_(std::declval<Columns>())...))>;
+			copy_tuple_args_t<multi_column_t, void, 
+			decltype(column_tuple_merge(std::declval<Columns>()...))>;
 	}
 
 	template<typename... Columns>

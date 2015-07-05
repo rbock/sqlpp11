@@ -40,7 +40,7 @@ namespace sqlpp
 		template<typename T>
 			struct as_column_tuple
 			{
-				static std::tuple<auto_alias_t<T>> _(T t) { return std::tuple<auto_alias_t<T>>{ auto_alias_t<T>{t} }; }
+				static std::tuple<auto_alias_t<T>> _(T t) { return std::tuple<auto_alias_t<T>>(auto_alias_t<T>{t}); }
 			};
 
 		template<typename T>
@@ -69,6 +69,12 @@ namespace sqlpp
 
 		template<template<typename First, typename...> class Target, typename First, typename T>
 			using copy_tuple_args_t = typename copy_tuple_args_impl<Target, First, T>::type;
+
+		template<typename... Columns>
+			auto column_tuple_merge(Columns... columns) -> decltype(std::tuple_cat(as_column_tuple<Columns>::_(columns)...))
+			{
+				return std::tuple_cat(as_column_tuple<Columns>::_(columns)...);
+			}
 
 	}
 }

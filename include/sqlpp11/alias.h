@@ -43,6 +43,16 @@ namespace sqlpp
 
 			using _alias_t = typename AliasProvider::_alias_t;
 
+			expression_alias_t(Expression expression):
+				_expression(expression)
+			{}
+
+			expression_alias_t(const expression_alias_t&) = default;
+			expression_alias_t(expression_alias_t&&) = default;
+			expression_alias_t& operator=(const expression_alias_t&) = default;
+			expression_alias_t& operator=(expression_alias_t&&) = default;
+			~expression_alias_t() = default;
+
 			Expression _expression;
 		};
 

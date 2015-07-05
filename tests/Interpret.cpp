@@ -36,6 +36,7 @@ int Interpret(int, char**)
 
 	test::TabFoo f;
 	test::TabBar t;
+	select(t.alpha.as(t.beta));
 
 	serialize(insert_into(t).columns(t.beta, t.gamma), printer).str();
 	{
