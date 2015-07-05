@@ -95,6 +95,33 @@ namespace sqlpp
 			}
 		};
 
+	template<typename Container>
+		struct value_list_t;
+
+	template<typename Context, typename Operand, typename Container>
+		struct serializer_t<Context, in_t<Operand,  value_list_t<Container>>>
+		{
+			using _serialize_check = serialize_check_of<Context, value_list_t<Container>>;
+			using T = in_t<Operand, value_list_t<Container>>;
+
+			static Context& _(const T& t, Context& context)
+			{
+				const auto& value_list = std::get<0>(t._args);
+				if (value_list._container.empty())
+				{
+					context << " 'operand in empty list' = 'false' ";
+				}
+				else
+				{
+					serialize(t._operand, context);
+					context << " IN(";
+					serialize(value_list, context);
+					context << ')';
+				}
+				return context;
+			}
+		};
+
 }
 
 #endif
