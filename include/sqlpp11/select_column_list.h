@@ -188,7 +188,7 @@ namespace sqlpp
 					template<typename NamedExpression, typename TableCheckRequired = std::true_type>
 						void add(NamedExpression namedExpression)
 						{
-							using named_expression = detail::auto_alias_t<NamedExpression>;
+							using named_expression = auto_alias_t<NamedExpression>;
 							static_assert(_is_dynamic::value, "selected_columns::add() can only be called for dynamic_column");
 							static_assert(is_selectable_t<named_expression>::value, "invalid named expression argument in selected_columns::add()");
 							static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<named_expression>::value, "named expression uses tables unknown to this statement in selected_columns::add()");
@@ -210,7 +210,7 @@ namespace sqlpp
 					template<typename NamedExpression>
 						void _add_impl(NamedExpression namedExpression, const std::true_type&)
 						{
-							return _data._dynamic_columns.emplace_back(detail::auto_alias_t<NamedExpression>{namedExpression});
+							return _data._dynamic_columns.emplace_back(auto_alias_t<NamedExpression>{namedExpression});
 						}
 
 					template<typename NamedExpression>

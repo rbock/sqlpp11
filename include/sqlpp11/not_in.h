@@ -35,6 +35,20 @@
 
 namespace sqlpp
 {
+	struct not_in_alias_t
+	{
+		struct _alias_t
+		{
+			static constexpr const char _literal[] =  "not_in_";
+			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+			template<typename T>
+				struct _member_t
+				{
+					T in;
+				};
+		};
+	};
+
 	template<typename Operand, typename... Args>
 		struct not_in_t:
 			public expression_operators<not_in_t<Operand, Args...>, boolean>,
@@ -45,16 +59,7 @@ namespace sqlpp
 
 		static_assert(sizeof...(Args) > 0, "not_in() requires at least one argument");
 
-		struct _alias_t
-		{
-			static constexpr const char _literal[] =  "not_in_";
-			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-			template<typename T>
-				struct _member_t
-				{
-					T not_in;
-				};
-		};
+		using _auto_alias_t = not_in_alias_t;
 
 		not_in_t(Operand operand, Args... args):
 			_operand(operand),

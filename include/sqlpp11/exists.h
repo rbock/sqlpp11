@@ -32,16 +32,8 @@
 
 namespace sqlpp
 {
-	template<typename Select>
-		struct exists_t: 
-			public expression_operators<exists_t<Select>, boolean>,
-			public alias_operators<exists_t<Select>>
+	struct exists_alias_t
 	{
-		using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
-		using _nodes = detail::type_vector<Select>;
-
-		static_assert(is_select_t<Select>::value, "exists() requires a select expression as argument");
-
 		struct _alias_t
 		{
 			static constexpr const char _literal[] =  "exists_";
@@ -54,6 +46,19 @@ namespace sqlpp
 					const T& operator()() const { return exists; }
 				};
 		};
+	};
+
+	template<typename Select>
+		struct exists_t: 
+			public expression_operators<exists_t<Select>, boolean>,
+			public alias_operators<exists_t<Select>>
+	{
+		using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
+		using _nodes = detail::type_vector<Select>;
+
+		static_assert(is_select_t<Select>::value, "exists() requires a select expression as argument");
+
+		using _auto_alias_t = exists_alias_t;
 
 		exists_t(Select select):
 			_select(select)

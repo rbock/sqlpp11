@@ -34,7 +34,6 @@
 #include <sqlpp11/not_in.h>
 #include <sqlpp11/is_null.h>
 #include <sqlpp11/is_not_null.h>
-#include <sqlpp11/value_type.h>
 #include <sqlpp11/exists.h>
 #include <sqlpp11/any.h>
 #include <sqlpp11/concat.h>
@@ -44,6 +43,7 @@
 #include <sqlpp11/max.h>
 #include <sqlpp11/avg.h>
 #include <sqlpp11/sum.h>
+#include <sqlpp11/value_type.h>
 #include <sqlpp11/verbatim.h> // Csaba Csoma suggests: unsafe_sql instead of verbatim
 #include <sqlpp11/verbatim_table.h>
 #include <sqlpp11/value_or_null.h>

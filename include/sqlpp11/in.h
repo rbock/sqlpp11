@@ -35,16 +35,8 @@
 
 namespace sqlpp
 {
-	template<typename Operand, typename... Args>
-		struct in_t:
-			public expression_operators<in_t<Operand, Args...>, boolean>,
-			public alias_operators<in_t<Operand, Args...>>
+	struct in_alias_t
 	{
-		using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
-		using _nodes = detail::type_vector<Operand, Args...>;
-
-		static_assert(sizeof...(Args) > 0, "in() requires at least one argument");
-
 		struct _alias_t
 		{
 			static constexpr const char _literal[] =  "in_";
@@ -55,6 +47,19 @@ namespace sqlpp
 					T in;
 				};
 		};
+	};
+
+	template<typename Operand, typename... Args>
+		struct in_t:
+			public expression_operators<in_t<Operand, Args...>, boolean>,
+			public alias_operators<in_t<Operand, Args...>>
+	{
+		using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
+		using _nodes = detail::type_vector<Operand, Args...>;
+
+		static_assert(sizeof...(Args) > 0, "in() requires at least one argument");
+
+		using _auto_alias_t = in_alias_t;
 
 		in_t(Operand operand, Args... args):
 			_operand(operand),

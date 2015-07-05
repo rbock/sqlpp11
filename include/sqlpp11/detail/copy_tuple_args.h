@@ -28,7 +28,7 @@
 #define SQLPP_DETAIL_COPY_TUPLE_ARGS_H
 
 #include <tuple>
-#include <sqlpp11/alias.h>
+#include <sqlpp11/auto_alias.h>
 
 namespace sqlpp
 {
@@ -37,21 +37,6 @@ namespace sqlpp
 
 	namespace detail
 	{
-		template<typename T, typename Enable = void>
-			struct auto_alias_impl
-			{
-				using type = T;
-			};
-
-		template<typename T>
-			struct auto_alias_impl<T, typename std::enable_if<not wrong_t<typename T::_auto_alias_t>::value>::type>
-			{
-				using type = expression_alias_t<T, typename T::_auto_alias_t>;
-			};
-
-		template<typename T>
-			using auto_alias_t = typename detail::auto_alias_impl<T>::type;
-
 		template<typename T>
 			struct as_column_tuple
 			{
