@@ -33,18 +33,8 @@
 
 namespace sqlpp
 {
-	template<typename Flag, typename Expr>
-		struct count_t: 
-			public expression_operators<count_t<Flag, Expr>, integral>,
-			public alias_operators<count_t<Flag, Expr>>
+	struct count_alias_t
 	{
-		using _traits = make_traits<integral, tag::is_expression, tag::is_selectable>;
-
-		using _nodes = detail::type_vector<Expr, aggregate_function>;
-		using _can_be_null = std::false_type;
-
-		static_assert(is_noop<Flag>::value or std::is_same<distinct_t, Flag>::value, "count() used with flag other than 'distinct'");
-
 		struct _alias_t
 		{
 			static constexpr const char _literal[] =  "count_";
@@ -57,6 +47,21 @@ namespace sqlpp
 					const T& operator()() const { return count; }
 				};
 		};
+	};
+
+	template<typename Flag, typename Expr>
+		struct count_t: 
+			public expression_operators<count_t<Flag, Expr>, integral>,
+			public alias_operators<count_t<Flag, Expr>>
+	{
+		using _traits = make_traits<integral, tag::is_expression/*, tag::is_selectable*/>;
+
+		using _nodes = detail::type_vector<Expr, aggregate_function>;
+		using _can_be_null = std::false_type;
+
+		static_assert(is_noop<Flag>::value or std::is_same<distinct_t, Flag>::value, "count() used with flag other than 'distinct'");
+
+		using _auto_alias_t = count_alias_t;
 
 		count_t(const Expr expr):
 			_expr(expr)

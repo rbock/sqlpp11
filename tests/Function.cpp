@@ -25,6 +25,7 @@
 
 #include "Sample.h"
 #include "MockDb.h"
+#include <sqlpp11/auto_alias.h>
 #include <sqlpp11/alias_provider.h>
 #include <sqlpp11/select.h>
 #include <sqlpp11/functions.h>
@@ -256,11 +257,11 @@ int Function(int, char**)
 	{
 		using TI = decltype(avg(t.alpha));
 		using TF = decltype(avg(f.omega));
-		static_assert(sqlpp::is_selectable_t<TI>::value, "type requirement");
+		static_assert(sqlpp::has_auto_alias_t<TI>::value, "type requirement");
 		static_assert(sqlpp::is_numeric_t<TI>::value, "type requirement");
 		static_assert(not sqlpp::is_integral_t<TI>::value, "type requirement");
 		static_assert(sqlpp::is_floating_point_t<TI>::value, "type requirement");
-		static_assert(sqlpp::is_selectable_t<TF>::value, "type requirement");
+		static_assert(sqlpp::has_auto_alias_t<TF>::value, "type requirement");
 		static_assert(sqlpp::is_numeric_t<TF>::value, "type requirement");
 		static_assert(not sqlpp::is_integral_t<TF>::value, "type requirement");
 		static_assert(sqlpp::is_floating_point_t<TF>::value, "type requirement");
@@ -271,15 +272,15 @@ int Function(int, char**)
 		using TI = decltype(count(t.alpha));
 		using TT = decltype(count(t.beta));
 		using TF = decltype(count(f.omega));
-		static_assert(sqlpp::is_selectable_t<TI>::value, "type requirement");
+		static_assert(sqlpp::has_auto_alias_t<TI>::value, "type requirement");
 		static_assert(sqlpp::is_numeric_t<TI>::value, "type requirement");
 		static_assert(sqlpp::is_integral_t<TI>::value, "type requirement");
 		static_assert(not sqlpp::is_floating_point_t<TI>::value, "type requirement");
-		static_assert(sqlpp::is_selectable_t<TF>::value, "type requirement");
+		static_assert(sqlpp::has_auto_alias_t<TF>::value, "type requirement");
 		static_assert(sqlpp::is_numeric_t<TF>::value, "type requirement");
 		static_assert(sqlpp::is_integral_t<TF>::value, "type requirement");
 		static_assert(not sqlpp::is_floating_point_t<TF>::value, "type requirement");
-		static_assert(sqlpp::is_selectable_t<TT>::value, "type requirement");
+		static_assert(sqlpp::has_auto_alias_t<TT>::value, "type requirement");
 		static_assert(sqlpp::is_numeric_t<TT>::value, "type requirement");
 		static_assert(sqlpp::is_integral_t<TT>::value, "type requirement");
 		static_assert(not sqlpp::is_floating_point_t<TT>::value, "type requirement");
@@ -292,15 +293,15 @@ int Function(int, char**)
 		using TI = decltype(max(t.alpha));
 		using TF = decltype(max(f.omega));
 		using TT = decltype(max(t.beta));
-		static_assert(sqlpp::is_selectable_t<TI>::value, "type requirement");
+		static_assert(sqlpp::has_auto_alias_t<TI>::value, "type requirement");
 		static_assert(sqlpp::is_numeric_t<TI>::value, "type requirement");
 		static_assert(sqlpp::is_integral_t<TI>::value, "type requirement");
 		static_assert(not sqlpp::is_floating_point_t<TI>::value, "type requirement");
-		static_assert(sqlpp::is_selectable_t<TF>::value, "type requirement");
+		static_assert(sqlpp::has_auto_alias_t<TF>::value, "type requirement");
 		static_assert(sqlpp::is_numeric_t<TF>::value, "type requirement");
 		static_assert(not sqlpp::is_integral_t<TF>::value, "type requirement");
 		static_assert(sqlpp::is_floating_point_t<TF>::value, "type requirement");
-		static_assert(sqlpp::is_selectable_t<TT>::value, "type requirement");
+		static_assert(sqlpp::has_auto_alias_t<TT>::value, "type requirement");
 		static_assert(not sqlpp::is_numeric_t<TT>::value, "type requirement");
 		static_assert(sqlpp::is_text_t<TT>::value, "type requirement");
 	}
@@ -310,7 +311,7 @@ int Function(int, char**)
 		using TI = decltype(min(t.alpha));
 		using TF = decltype(min(f.omega));
 		using TT = decltype(min(t.beta));
-		static_assert(sqlpp::is_selectable_t<TI>::value, "type requirement");
+		static_assert(sqlpp::has_auto_alias_t<TI>::value, "type requirement");
 		static_assert(sqlpp::is_numeric_t<TI>::value, "type requirement");
 		static_assert(sqlpp::is_integral_t<TI>::value, "type requirement");
 		static_assert(not sqlpp::is_floating_point_t<TI>::value, "type requirement");
@@ -327,7 +328,7 @@ int Function(int, char**)
 	{
 		using TI = decltype(sum(t.alpha));
 		using TF = decltype(sum(f.omega));
-		static_assert(sqlpp::is_selectable_t<TF>::value, "type requirement");
+		static_assert(sqlpp::has_auto_alias_t<TF>::value, "type requirement");
 		static_assert(sqlpp::is_numeric_t<TI>::value, "type requirement");
 		static_assert(sqlpp::is_integral_t<TI>::value, "type requirement");
 		static_assert(not sqlpp::is_floating_point_t<TI>::value, "type requirement");

@@ -28,6 +28,7 @@
 #define SQLPP_DETAIL_COPY_TUPLE_ARGS_H
 
 #include <tuple>
+#include <sqlpp11/auto_alias.h>
 
 namespace sqlpp
 {
@@ -37,21 +38,21 @@ namespace sqlpp
 	namespace detail
 	{
 		template<typename T>
-			struct as_tuple
+			struct as_column_tuple
 			{
-				static std::tuple<T> _(T t) { return std::tuple<T>{ t }; }
+				static std::tuple<auto_alias_t<T>> _(T t) { return std::tuple<auto_alias_t<T>>{ auto_alias_t<T>{t} }; }
 			};
 
 		template<typename T>
-			struct as_tuple<all_of_t<T>>
+			struct as_column_tuple<all_of_t<T>>
 			{
 				static typename all_of_t<T>::_column_tuple_t _(all_of_t<T>) { return { }; }
 			};
 
 		template<typename... Args>
-			struct as_tuple<std::tuple<Args...>>
+			struct as_column_tuple<std::tuple<Args...>>
 			{
-				static std::tuple<Args...> _(std::tuple<Args...> t) { return t; }
+				static std::tuple<auto_alias_t<Args>...> _(std::tuple<Args...> t) { return t; }
 			};
 
 		template<template<typename, typename...> class Target, typename First, typename T>

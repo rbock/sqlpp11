@@ -53,6 +53,7 @@ int Select(int, char**)
 	const auto tab_a = f.as(sqlpp::alias::a);
 
 	getColumn(db, t.alpha);
+	select(count(t.alpha));
 
 	for (const auto& row : db(select(sqlpp::value(false).as(sqlpp::alias::a))))
 	{

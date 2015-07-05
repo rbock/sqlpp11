@@ -188,17 +188,18 @@ namespace sqlpp
 					template<typename NamedExpression, typename TableCheckRequired = std::true_type>
 						void add(NamedExpression namedExpression)
 						{
+							using named_expression = auto_alias_t<NamedExpression>;
 							static_assert(_is_dynamic::value, "selected_columns::add() can only be called for dynamic_column");
-							static_assert(is_selectable_t<NamedExpression>::value, "invalid named expression argument in selected_columns::add()");
-							static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<NamedExpression>::value, "named expression uses tables unknown to this statement in selected_columns::add()");
+							static_assert(is_selectable_t<named_expression>::value, "invalid named expression argument in selected_columns::add()");
+							static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<named_expression>::value, "named expression uses tables unknown to this statement in selected_columns::add()");
 							using column_names = detail::make_type_set_t<typename Columns::_alias_t...>;
-							static_assert(not detail::is_element_of<typename NamedExpression::_alias_t, column_names>::value, "a column of this name is present in the select already");
-							using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, NamedExpression>;
+							static_assert(not detail::is_element_of<typename named_expression::_alias_t, column_names>::value, "a column of this name is present in the select already");
+							using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, named_expression>;
 							_serialize_check::_();
 
 							using ok = logic::all_t<
 								_is_dynamic::value, 
-								is_selectable_t<NamedExpression>::value,
+								is_selectable_t<named_expression>::value,
 								_serialize_check::type::value
 									>;
 
@@ -209,7 +210,7 @@ namespace sqlpp
 					template<typename NamedExpression>
 						void _add_impl(NamedExpression namedExpression, const std::true_type&)
 						{
-							return _data._dynamic_columns.emplace_back(namedExpression);
+							return _data._dynamic_columns.emplace_back(auto_alias_t<NamedExpression>{namedExpression});
 						}
 
 					template<typename NamedExpression>
@@ -338,15 +339,15 @@ namespace sqlpp
 	namespace detail
 	{
 		template<typename... Columns>
-			auto tuple_merge(Columns... columns) -> decltype(std::tuple_cat(as_tuple<Columns>::_(columns)...))
+			auto column_tuple_merge(Columns... columns) -> decltype(std::tuple_cat(as_column_tuple<Columns>::_(columns)...))
 			{
-				return std::tuple_cat(as_tuple<Columns>::_(columns)...);
+				return std::tuple_cat(as_column_tuple<Columns>::_(columns)...);
 			}
 
 		template<typename Database, typename... Columns>
 			using make_select_column_list_t = 
 			copy_tuple_args_t<select_column_list_t, Database, 
-			decltype(tuple_merge(std::declval<Columns>()...))>;
+			decltype(column_tuple_merge(std::declval<Columns>()...))>;
 
 	}
 
@@ -395,9 +396,9 @@ namespace sqlpp
 					}
 
 				template<typename... T>
-					static constexpr auto _check_args(T... args) -> decltype(_check_tuple(detail::tuple_merge(args...)))
+					static constexpr auto _check_args(T... args) -> decltype(_check_tuple(detail::column_tuple_merge(args...)))
 					{
-						return _check_tuple(detail::tuple_merge(args...));
+						return _check_tuple(detail::column_tuple_merge(args...));
 					}
 
 				template<typename Check, typename T>
@@ -412,7 +413,7 @@ namespace sqlpp
 						static_assert(sizeof...(Args), "at least one selectable expression (e.g. a column) required in columns()");
 						static_assert(decltype(_check_args(args...))::value, "at least one argument is not a selectable expression in columns()");
 
-						return _columns_impl<void>(_check_args(args...), detail::tuple_merge(args...));
+						return _columns_impl<void>(_check_args(args...), detail::column_tuple_merge(args...));
 					}
 
 				template<typename... Args>
@@ -422,7 +423,7 @@ namespace sqlpp
 						static_assert(not std::is_same<_database_t, void>::value, "dynamic_columns must not be called in a static statement");
 						static_assert(decltype(_check_args(args...))::value, "at least one argument is not a selectable expression in columns()");
 
-						return _columns_impl<_database_t>(_check_args(args...), detail::tuple_merge(args...));
+						return _columns_impl<_database_t>(_check_args(args...), detail::column_tuple_merge(args...));
 					}
 
 			private:

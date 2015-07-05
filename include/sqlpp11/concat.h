@@ -37,14 +37,8 @@ namespace sqlpp
 {
 	struct text;
 
-	template<typename... Args>
-		struct concat_t: 
-			public expression_operators<concat_t<Args...>, text>,
-			public alias_operators<concat_t<Args...>>
+	struct concat_alias_t
 	{
-		using _traits = make_traits<text, tag::is_expression, tag::is_selectable>;
-		using _nodes = detail::type_vector<Args...>;
-
 		struct _alias_t
 		{
 			static constexpr const char _literal[] =  "concat_";
@@ -55,6 +49,17 @@ namespace sqlpp
 					T concat;
 				};
 		};
+	};
+
+	template<typename... Args>
+		struct concat_t: 
+			public expression_operators<concat_t<Args...>, text>,
+			public alias_operators<concat_t<Args...>>
+	{
+		using _traits = make_traits<text, tag::is_expression, tag::is_selectable>;
+		using _nodes = detail::type_vector<Args...>;
+
+		using _auto_alias_t = concat_alias_t;
 
 		concat_t(Args... args):
 			_args(args...)

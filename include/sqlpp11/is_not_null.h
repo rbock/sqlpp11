@@ -34,14 +34,8 @@
 
 namespace sqlpp
 {
-	template<typename Operand>
-		struct is_not_null_t:
-			public expression_operators<is_not_null_t<Operand>, boolean>,
-			public alias_operators<is_not_null_t<Operand>>
+	struct is_not_null_alias_t
 	{
-		using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
-		using _nodes = detail::type_vector<Operand>;
-
 		struct _alias_t
 		{
 			static constexpr const char _literal[] =  "is_not_null_";
@@ -52,6 +46,17 @@ namespace sqlpp
 					T is_not_null;
 				};
 		};
+	};
+
+	template<typename Operand>
+		struct is_not_null_t:
+			public expression_operators<is_not_null_t<Operand>, boolean>,
+			public alias_operators<is_not_null_t<Operand>>
+	{
+		using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
+		using _nodes = detail::type_vector<Operand>;
+
+		using _auto_alias_t = is_not_null_alias_t;
 
 		is_not_null_t(Operand operand):
 			_operand(operand)

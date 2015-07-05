@@ -34,6 +34,20 @@
 
 namespace sqlpp
 {
+	struct is_null_alias_t
+	{
+		struct _alias_t
+		{
+			static constexpr const char _literal[] =  "is_null_";
+			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+			template<typename T>
+				struct _member_t
+				{
+					T is_null;
+				};
+		};
+	};
+
 	template<typename Operand>
 		struct is_null_t:
 			public expression_operators<is_null_t<Operand>, boolean>,
@@ -42,16 +56,7 @@ namespace sqlpp
 		using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
 		using _nodes = detail::type_vector<Operand>;
 
-		struct _alias_t
-		{
-			static constexpr const char _literal[] =  "is_nnull_";
-			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-			template<typename T>
-				struct _member_t
-				{
-					T is_null;
-				};
-		};
+		using _auto_alias_t = is_null_alias_t;
 
 		is_null_t(Operand operand):
 			_operand(operand)
