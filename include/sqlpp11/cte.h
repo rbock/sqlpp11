@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -104,8 +104,8 @@ namespace sqlpp
 		{
 			using _alias_t = typename FieldSpec::_alias_t;
 
-			using _traits = make_traits<value_type_of<FieldSpec>, 
-						tag::must_not_insert, 
+			using _traits = make_traits<value_type_of<FieldSpec>,
+						tag::must_not_insert,
 						tag::must_not_update,
 						tag_if<tag::can_be_null, column_spec_can_be_null_t<FieldSpec>::value>
 							>;
@@ -142,7 +142,7 @@ namespace sqlpp
 			template<typename... T>
 				using _check = logic::all_t<is_statement_t<T>::value...>;
 
-			using _result_row_t = result_row_t<void, FieldSpecs...>; 
+			using _result_row_t = result_row_t<void, FieldSpecs...>;
 
 			template<typename Rhs>
 				auto union_distinct(Rhs rhs) const
@@ -211,7 +211,7 @@ namespace sqlpp
 
 
 // The cte_t is displayed as AliasProviderName except within the with:
-//    - the with needs the 
+//    - the with needs the
 //      AliasProviderName AS (ColumnNames) (select/union)
 // The result row of the select should not have dynamic parts
 	template<typename AliasProvider>

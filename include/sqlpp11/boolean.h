@@ -95,8 +95,8 @@ namespace sqlpp
 			}
 
 			bool is_null() const
-			{ 
-				return _is_null; 
+			{
+				return _is_null;
 			}
 
 			_cpp_value_type value() const
@@ -180,10 +180,10 @@ namespace sqlpp
 		}
 
 		bool is_null() const
-		{ 
+		{
 			if (not _is_valid)
 				throw exception("accessing is_null in non-existing row");
-			return _is_null; 
+			return _is_null;
 		}
 
 		bool _is_trivial() const

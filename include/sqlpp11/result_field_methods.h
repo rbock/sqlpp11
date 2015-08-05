@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -60,8 +60,8 @@ namespace sqlpp
 
 	template<template<typename, typename, typename> class Field, typename ValueType, typename Db, typename FieldSpec>
 		struct result_field_methods_base_t<
-				Field<ValueType, Db, FieldSpec>, 
-				typename std::enable_if<enforce_null_result_treatment_t<Db>::value 
+				Field<ValueType, Db, FieldSpec>,
+				typename std::enable_if<enforce_null_result_treatment_t<Db>::value
 					and column_spec_can_be_null_t<FieldSpec>::value
 					and not null_is_trivial_value_t<FieldSpec>::value>::type>
 		{
@@ -78,7 +78,7 @@ namespace sqlpp
 
 			using _traits = make_traits<value_type_of<_field_spec_t>,
 						tag::is_result_field,
-						tag::is_expression, 
+						tag::is_expression,
 						tag_if<tag::null_is_trivial_value, _base_t::_null_is_trivial>>;
 
 			using _nodes = detail::type_vector<>;

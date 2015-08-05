@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -148,9 +148,9 @@ namespace sqlpp
 
 				using _nodes = detail::type_vector<>;
 				using _can_be_null = logic::any_t<
-					can_be_null_t<_result_type_provider>::value, 
+					can_be_null_t<_result_type_provider>::value,
 					detail::make_intersect_set_t<
-						required_tables_of<_result_type_provider>, 
+						required_tables_of<_result_type_provider>,
 						_all_provided_outer_tables
 						>::size::value != 0>;
 				using _parameters = detail::type_vector_cat_t<parameters_of<Policies>...>;
@@ -173,19 +173,19 @@ namespace sqlpp
 	{
 		using _policies_t = typename detail::statement_policies_t<Db, Policies...>;
 
-		using _consistency_check = detail::get_first_if<is_inconsistent_t, consistent_t, 
-					typename Policies::template _base_t<_policies_t>::_consistency_check..., 
+		using _consistency_check = detail::get_first_if<is_inconsistent_t, consistent_t,
+					typename Policies::template _base_t<_policies_t>::_consistency_check...,
 					typename _policies_t::_table_check>;
 
-		using _run_check = detail::get_first_if<is_inconsistent_t, consistent_t, 
-					typename _policies_t::_parameter_check, 
-					typename _policies_t::_cte_check, 
-					typename Policies::template _base_t<_policies_t>::_consistency_check..., 
+		using _run_check = detail::get_first_if<is_inconsistent_t, consistent_t,
+					typename _policies_t::_parameter_check,
+					typename _policies_t::_cte_check,
+					typename Policies::template _base_t<_policies_t>::_consistency_check...,
 					typename _policies_t::_table_check>;
 
 		using _prepare_check = detail::get_first_if<is_inconsistent_t, consistent_t,
-					typename _policies_t::_cte_check, 
-					typename Policies::template _base_t<_policies_t>::_consistency_check..., 
+					typename _policies_t::_cte_check,
+					typename Policies::template _base_t<_policies_t>::_consistency_check...,
 					typename _policies_t::_table_check>;
 
 		using _result_type_provider = typename _policies_t::_result_type_provider;
@@ -193,9 +193,9 @@ namespace sqlpp
 			using _result_methods_t = typename _result_type_provider::template _result_methods_t<Composite>;
 
 		using _traits = make_traits<value_type_of<_policies_t>,
-					tag::is_statement, 
+					tag::is_statement,
 					tag_if<tag::is_select, logic::any_t<is_select_t<Policies>::value...>::value>,
-					tag_if<tag::is_expression, is_expression_t<_policies_t>::value>, 
+					tag_if<tag::is_expression, is_expression_t<_policies_t>::value>,
 					tag_if<tag::is_selectable, is_expression_t<_policies_t>::value>,
 					tag_if<tag::is_return_value, logic::none_t<is_noop_t<_result_type_provider>::value>::value>,
 					tag::requires_braces>;
@@ -262,7 +262,7 @@ namespace sqlpp
 
 			static Context& _(const T& t, Context& context)
 			{
-				using swallow = int[]; 
+				using swallow = int[];
 				(void) swallow{(serialize(static_cast<const typename Policies::template _base_t<P>&>(t)()._data, context), 0)...};
 
 				return context;

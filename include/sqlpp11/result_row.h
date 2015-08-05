@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -66,7 +66,7 @@ namespace sqlpp
 		};
 
 		template<std::size_t index, typename AliasProvider, typename Db, typename... FieldSpecs>
-			struct result_field<Db, index, multi_field_spec_t<AliasProvider, std::tuple<FieldSpecs...>>>: 
+			struct result_field<Db, index, multi_field_spec_t<AliasProvider, std::tuple<FieldSpecs...>>>:
 			public member_t<AliasProvider, result_row_impl<Db, detail::make_field_index_sequence<index, FieldSpecs...>, FieldSpecs...>>
 			{
 				using _multi_field = member_t<AliasProvider, result_row_impl<Db, detail::make_field_index_sequence<index, FieldSpecs...>, FieldSpecs...>>;
@@ -91,7 +91,7 @@ namespace sqlpp
 			};
 
 		template<typename Db, std::size_t NextIndex, std::size_t... Is, typename... FieldSpecs>
-			struct result_row_impl<Db, detail::field_index_sequence<NextIndex, Is...>, FieldSpecs...>: 
+			struct result_row_impl<Db, detail::field_index_sequence<NextIndex, Is...>, FieldSpecs...>:
 			public result_field<Db, Is, FieldSpecs>...
 			{
 				result_row_impl() = default;
@@ -195,13 +195,13 @@ namespace sqlpp
 		std::vector<std::string> _dynamic_field_names;
 		std::map<std::string, _field_type> _dynamic_fields;
 
-		dynamic_result_row_t(): 
+		dynamic_result_row_t():
 			_impl(),
 			_is_valid(false)
 		{
 		}
 
-		dynamic_result_row_t(const std::vector<std::string>& dynamic_field_names): 
+		dynamic_result_row_t(const std::vector<std::string>& dynamic_field_names):
 			_impl(),
 			_is_valid(false),
 			_dynamic_field_names(dynamic_field_names)
