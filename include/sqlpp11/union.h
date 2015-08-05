@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -45,7 +45,7 @@ namespace sqlpp
 	using blank_union_t = statement_t<void,
 				no_union_t>;
 	// There is no order by or limit or offset in union, use it as a pseudo table to do that.
-	
+
 	template<bool, typename Union>
 		struct union_statement_impl
 		{
@@ -193,7 +193,7 @@ namespace sqlpp
 					auto _union_impl(const std::true_type&, Rhs rhs) const
 					-> _new_statement_t<std::true_type, union_t<Database, Flag, derived_statement_t<Policies>, Rhs>>
 					{
-						return { blank_union_t{}, 
+						return { blank_union_t{},
 							union_data_t<_database_t, Flag, derived_statement_t<Policies>, Rhs>{static_cast<const derived_statement_t<Policies>&>(*this), rhs} };
 					}
 

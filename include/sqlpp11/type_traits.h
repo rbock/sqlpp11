@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -350,9 +350,9 @@ namespace sqlpp
 		};
 
 	template<typename Statement>
-		struct has_result_row_impl<Statement, 
+		struct has_result_row_impl<Statement,
 		typename std::enable_if<
-			not wrong_t<typename Statement::template _result_methods_t<Statement>::template _result_row_t<void>>::value, 
+			not wrong_t<typename Statement::template _result_methods_t<Statement>::template _result_row_t<void>>::value,
 		void>::type>
 		{
 			using type = std::true_type;
@@ -368,9 +368,9 @@ namespace sqlpp
 		};
 
 	template<typename Statement>
-		struct get_result_row_impl<Statement, 
+		struct get_result_row_impl<Statement,
 		typename std::enable_if<
-			not wrong_t<typename Statement::template _result_methods_t<Statement>::template _result_row_t<void>>::value, 
+			not wrong_t<typename Statement::template _result_methods_t<Statement>::template _result_row_t<void>>::value,
 		void>::type>
 		{
 			using type = typename Statement::template _result_methods_t<Statement>::template _result_row_t<void>;

@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -42,8 +42,8 @@ namespace sqlpp
 			static constexpr bool _can_be_null = can_be_null_t<NamedExpr>::value;
 			static constexpr bool _depends_on_outer_table = detail::make_intersect_set_t<required_tables_of<NamedExpr>, typename Select::_used_outer_tables>::size::value > 0;
 
-			using _traits = make_traits<value_type_of<NamedExpr>, 
-						tag::must_not_insert, 
+			using _traits = make_traits<value_type_of<NamedExpr>,
+						tag::must_not_insert,
 						tag::must_not_update,
 						tag_if<tag::can_be_null, _can_be_null or _depends_on_outer_table>
 							>;
