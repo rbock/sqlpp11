@@ -4,6 +4,8 @@ os:
   - linux
   - osx
 
+osx_image: xcode7
+
 compiler:
   - clang
   - gcc
@@ -31,12 +33,17 @@ install:
       && wget http://www.cmake.org/files/v${CMAKE_VERSION_MM}/cmake-${CMAKE_VERSION_FULL}-Linux-x86_64.sh
       && sudo sh cmake-${CMAKE_VERSION_FULL}-Linux-x86_64.sh --prefix=/usr/local --exclude-subdir;
     fi
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install boost cmake; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
+    brew update
+      && ((brew list -1 | grep -q "^$cmake\$") || brew install cmake)
+      && (brew outdated cmake || brew upgrade cmake)
+      && cmake --version;
+    fi
 
 before_script:
    - mkdir build
    - cd build
-   - if [[ "$CXX" = "g++" && "$CONFIG" = "Debug" ]]; then export CXXFLAGS="--coverage"; fi
+   - if [[ "$CXX" = "g++" && "$CONFIG" = "Debug" && "$TRAVIS_OS_NAME" = "linux" ]]; then export CXXFLAGS="--coverage"; fi
    - cmake .. -DCMAKE_BUILD_TYPE=$CONFIG
 
 script:
