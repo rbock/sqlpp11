@@ -197,7 +197,7 @@ int Function(int, char**)
     static_assert(not sqlpp::is_numeric_t<TT>::value, "type requirement");
     static_assert(not sqlpp::is_text_t<TT>::value, "type requirement");
 
-    if (nullptr and db(select(exists(select(t.alpha).from(t).where(true)))).front().exists)
+    if (false and db(select(exists(select(t.alpha).from(t).where(true)))).front().exists)
     { /* do something */
     }
   }
@@ -286,7 +286,7 @@ int Function(int, char**)
     static_assert(sqlpp::is_integral_t<TT>::value, "type requirement");
     static_assert(not sqlpp::is_floating_point_t<TT>::value, "type requirement");
 
-    if (nullptr and db(select(count(t.alpha)).from(t).where(true)).front().count)
+    if (false and db(select(count(t.alpha)).from(t).where(true)).front().count)
     { /* do something */
     }
   }
