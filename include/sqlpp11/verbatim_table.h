@@ -31,66 +31,63 @@
 
 namespace sqlpp
 {
-	namespace detail
-	{
-		struct unusable_pseudo_column_t
-		{
-			struct _alias_t
-			{
-        static constexpr const char _literal[] =  "pseudo_column";
+  namespace detail
+  {
+    struct unusable_pseudo_column_t
+    {
+      struct _alias_t
+      {
+        static constexpr const char _literal[] = "pseudo_column";
         using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-				template<typename T>
-					struct _member_t
-					{
-					};
-			};
-			using _traits = make_traits<no_value_t>;
-		};
-	}
+        template <typename T>
+        struct _member_t
+        {
+        };
+      };
+      using _traits = make_traits<no_value_t>;
+    };
+  }
 
-	struct verbatim_table_t: public table_t<verbatim_table_t, detail::unusable_pseudo_column_t>
-	{
-		using _nodes = detail::type_vector<>;
+  struct verbatim_table_t : public table_t<verbatim_table_t, detail::unusable_pseudo_column_t>
+  {
+    using _nodes = detail::type_vector<>;
 
-		struct _alias_t
-		{
-			static constexpr const char _literal[] =  "verbatim_table"; // FIXME need to use alias for verbatim table
-			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-		};
+    struct _alias_t
+    {
+      static constexpr const char _literal[] = "verbatim_table";  // FIXME need to use alias for verbatim table
+      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+    };
 
-		verbatim_table_t(std::string representation):
-			_representation(representation)
-		{
-		}
+    verbatim_table_t(std::string representation) : _representation(representation)
+    {
+    }
 
-		verbatim_table_t(const verbatim_table_t& rhs) = default;
-		verbatim_table_t(verbatim_table_t&& rhs) = default;
-		verbatim_table_t& operator=(const verbatim_table_t& rhs) = default;
-		verbatim_table_t& operator=(verbatim_table_t&& rhs) = default;
-		~verbatim_table_t() = default;
+    verbatim_table_t(const verbatim_table_t& rhs) = default;
+    verbatim_table_t(verbatim_table_t&& rhs) = default;
+    verbatim_table_t& operator=(const verbatim_table_t& rhs) = default;
+    verbatim_table_t& operator=(verbatim_table_t&& rhs) = default;
+    ~verbatim_table_t() = default;
 
-		std::string _representation;
-	};
+    std::string _representation;
+  };
 
-	template<typename Context>
-		struct serializer_t<Context, verbatim_table_t>
-		{
-			using _serialize_check = consistent_t;
-			using T = verbatim_table_t;
+  template <typename Context>
+  struct serializer_t<Context, verbatim_table_t>
+  {
+    using _serialize_check = consistent_t;
+    using T = verbatim_table_t;
 
-			static Context& _(const T& t, Context& context)
-			{
-				context << t._representation;
-				return context;
-			}
-		};
+    static Context& _(const T& t, Context& context)
+    {
+      context << t._representation;
+      return context;
+    }
+  };
 
-
-	inline verbatim_table_t verbatim_table(std::string name)
-	{
-		return { name };
-	}
-
+  inline verbatim_table_t verbatim_table(std::string name)
+  {
+    return {name};
+  }
 }
 
 #endif

@@ -27,56 +27,49 @@
 #ifndef SQLPP_DETAIL_LOGIC_H
 #define SQLPP_DETAIL_LOGIC_H
 
-#include <ciso646> // Required for some compilers to use aliases for boolean operators
+#include <ciso646>  // Required for some compilers to use aliases for boolean operators
 #include <type_traits>
 
 namespace sqlpp
 {
-	namespace logic
-	{
-		template<bool... B>
-			struct logic_helper;
+  namespace logic
+  {
+    template <bool... B>
+    struct logic_helper;
 
-		// see http://lists.boost.org/Archives/boost/2014/05/212946.php :-)
-		template<bool... B>
-			using all_t = std::integral_constant<
-						bool,
-						std::is_same<logic_helper<B...>, logic_helper<(true or B)...>>::value>;
+    // see http://lists.boost.org/Archives/boost/2014/05/212946.php :-)
+    template <bool... B>
+    using all_t = std::integral_constant<bool, std::is_same<logic_helper<B...>, logic_helper<(true or B)...>>::value>;
 
-		template<bool... B>
-			using any_t = std::integral_constant<
-						bool,
-						not std::is_same<logic_helper<B...>, logic_helper<(false and B)...>>::value>;
+    template <bool... B>
+    using any_t =
+        std::integral_constant<bool, not std::is_same<logic_helper<B...>, logic_helper<(false and B)...>>::value>;
 
-		template<bool... B>
-			using none_t = std::integral_constant<
-						bool,
-						std::is_same<logic_helper<B...>, logic_helper<(false and B)...>>::value>;
+    template <bool... B>
+    using none_t =
+        std::integral_constant<bool, std::is_same<logic_helper<B...>, logic_helper<(false and B)...>>::value>;
 
-		template<bool>
-			struct not_impl;
+    template <bool>
+    struct not_impl;
 
-		template<>
-			struct not_impl<true>
-		{
-			using type = std::false_type;
-		};
+    template <>
+    struct not_impl<true>
+    {
+      using type = std::false_type;
+    };
 
-		template<>
-			struct not_impl<false>
-		{
-			using type = std::true_type;
-		};
+    template <>
+    struct not_impl<false>
+    {
+      using type = std::true_type;
+    };
 
+    template <template <typename> class Predicate, typename... T>
+    using not_t = typename not_impl<Predicate<T>::value...>::type;
 
-		template<template<typename> class Predicate, typename... T>
-			using not_t = typename not_impl<Predicate<T>::value...>::type;
-
-
-		template<typename T>
-			using identity_t = T;
-	}
+    template <typename T>
+    using identity_t = T;
+  }
 }
-
 
 #endif

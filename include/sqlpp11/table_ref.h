@@ -31,25 +31,25 @@
 
 namespace sqlpp
 {
-	template<typename T>
-		auto from_table(T t) -> T
-		{
-			return t;
-		}
+  template <typename T>
+  auto from_table(T t) -> T
+  {
+    return t;
+  }
 
-	template<typename T>
-		struct from_table_impl
-		{
-			using type = T;
-		};
-	template<typename T>
-		using from_table_t = typename from_table_impl<T>::type;
+  template <typename T>
+  struct from_table_impl
+  {
+    using type = T;
+  };
+  template <typename T>
+  using from_table_t = typename from_table_impl<T>::type;
 
-	template<typename T>
-		auto table_ref(T t) -> T
-		{
-			return t;
-		}
+  template <typename T>
+  auto table_ref(T t) -> T
+  {
+    return t;
+  }
 }
 
 #endif

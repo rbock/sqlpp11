@@ -34,42 +34,41 @@
 
 namespace sqlpp
 {
-	// standard select flags
-	struct union_all_t
-	{
-		using _traits = make_traits<no_value_t, tag::is_union_flag>;
-		using _nodes = detail::type_vector<>;
-	};
+  // standard select flags
+  struct union_all_t
+  {
+    using _traits = make_traits<no_value_t, tag::is_union_flag>;
+    using _nodes = detail::type_vector<>;
+  };
 
-	template<typename Context>
-		struct serializer_t<Context, union_all_t>
-		{
-			using _serialize_check = consistent_t;
+  template <typename Context>
+  struct serializer_t<Context, union_all_t>
+  {
+    using _serialize_check = consistent_t;
 
-			static Context& _(const union_all_t&, Context& context)
-			{
-				context << "ALL";
-				return context;
-			}
-		};
+    static Context& _(const union_all_t&, Context& context)
+    {
+      context << "ALL";
+      return context;
+    }
+  };
 
-	struct union_distinct_t
-	{
-		using _traits = make_traits<no_value_t, tag::is_union_flag>;
-		using _nodes = detail::type_vector<>;
-	};
+  struct union_distinct_t
+  {
+    using _traits = make_traits<no_value_t, tag::is_union_flag>;
+    using _nodes = detail::type_vector<>;
+  };
 
-	template<typename Context>
-		struct serializer_t<Context, union_distinct_t>
-		{
-			using _serialize_check = consistent_t;
+  template <typename Context>
+  struct serializer_t<Context, union_distinct_t>
+  {
+    using _serialize_check = consistent_t;
 
-			static Context& _(const union_distinct_t&, Context& context)
-			{
-				return context;
-			}
-		};
-
+    static Context& _(const union_distinct_t&, Context& context)
+    {
+      return context;
+    }
+  };
 }
 
 #endif

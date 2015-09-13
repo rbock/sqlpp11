@@ -32,54 +32,53 @@
 
 namespace sqlpp
 {
-	template<typename Database>
-		struct boolean_expression_t: public expression_operators<boolean_expression_t<Database>, boolean>
-		{
-			using _traits = make_traits<boolean, tag::is_expression>;
-			using _nodes = detail::type_vector<>;
+  template <typename Database>
+  struct boolean_expression_t : public expression_operators<boolean_expression_t<Database>, boolean>
+  {
+    using _traits = make_traits<boolean, tag::is_expression>;
+    using _nodes = detail::type_vector<>;
 
-			template<typename Expr>
-			boolean_expression_t(Expr expr):
-				_expr(expr)
-			{
-				static_assert(is_expression_t<Expr>::value, "boolean_expression requires a boolean expression argument");
-				static_assert(is_boolean_t<Expr>::value, "boolean_expression requires a boolean expression argument");
-			}
+    template <typename Expr>
+    boolean_expression_t(Expr expr)
+        : _expr(expr)
+    {
+      static_assert(is_expression_t<Expr>::value, "boolean_expression requires a boolean expression argument");
+      static_assert(is_boolean_t<Expr>::value, "boolean_expression requires a boolean expression argument");
+    }
 
-			boolean_expression_t(const boolean_expression_t&) = default;
-			boolean_expression_t(boolean_expression_t&&) = default;
-			boolean_expression_t& operator=(const boolean_expression_t&) = default;
-			boolean_expression_t& operator=(boolean_expression_t&&) = default;
-			~boolean_expression_t() = default;
+    boolean_expression_t(const boolean_expression_t&) = default;
+    boolean_expression_t(boolean_expression_t&&) = default;
+    boolean_expression_t& operator=(const boolean_expression_t&) = default;
+    boolean_expression_t& operator=(boolean_expression_t&&) = default;
+    ~boolean_expression_t() = default;
 
-			interpretable_t<Database> _expr;
-		};
+    interpretable_t<Database> _expr;
+  };
 
-	template<typename Database, typename T>
-		boolean_expression_t<Database> boolean_expression(T t)
-		{
-			using Expr = wrap_operand_t<T>;
-			return {Expr{t}};
-		}
+  template <typename Database, typename T>
+  boolean_expression_t<Database> boolean_expression(T t)
+  {
+    using Expr = wrap_operand_t<T>;
+    return {Expr{t}};
+  }
 
-	template<typename Database, typename T>
-		boolean_expression_t<Database> boolean_expression(const Database&, T t)
-		{
-			return boolean_expression<Database>(t);
-		}
+  template <typename Database, typename T>
+  boolean_expression_t<Database> boolean_expression(const Database&, T t)
+  {
+    return boolean_expression<Database>(t);
+  }
 
-	template<typename Context, typename Database>
-		struct serializer_t<Context, boolean_expression_t<Database>>
-		{
-			using _serialize_check = consistent_t;
-			using T = boolean_expression_t<Database>;
+  template <typename Context, typename Database>
+  struct serializer_t<Context, boolean_expression_t<Database>>
+  {
+    using _serialize_check = consistent_t;
+    using T = boolean_expression_t<Database>;
 
-			static Context& _(const T& t, Context& context)
-			{
-				return serialize(t._expr, context);
-			}
-		};
-
+    static Context& _(const T& t, Context& context)
+    {
+      return serialize(t._expr, context);
+    }
+  };
 }
 
 #endif

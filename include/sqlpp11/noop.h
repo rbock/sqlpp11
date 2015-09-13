@@ -34,67 +34,68 @@
 
 namespace sqlpp
 {
-	struct noop
-	{
-		using _traits = make_traits<no_value_t, tag::is_noop>;
-		using _nodes = detail::type_vector<>;
+  struct noop
+  {
+    using _traits = make_traits<no_value_t, tag::is_noop>;
+    using _nodes = detail::type_vector<>;
 
-		struct _alias_t {};
+    struct _alias_t
+    {
+    };
 
-		template<typename Statement>
-			struct _result_methods_t
-			{
-				using _statement_t = Statement;
+    template <typename Statement>
+    struct _result_methods_t
+    {
+      using _statement_t = Statement;
 
-				const _statement_t& _get_statement() const
-				{
-					return static_cast<const _statement_t&>(*this);
-				}
+      const _statement_t& _get_statement() const
+      {
+        return static_cast<const _statement_t&>(*this);
+      }
 
-				// Execute
-				template<typename Db, typename Composite>
-					auto _run(Db& db, const Composite& composite) const	-> size_t
-					{
-						return db.execute(composite);
-					}
+      // Execute
+      template <typename Db, typename Composite>
+      auto _run(Db& db, const Composite& composite) const -> size_t
+      {
+        return db.execute(composite);
+      }
 
-				template<typename Db>
-					auto _run(Db& db) const -> size_t
-					{
-						return db.execute(_get_statement());
-					}
+      template <typename Db>
+      auto _run(Db& db) const -> size_t
+      {
+        return db.execute(_get_statement());
+      }
 
-				// Prepare
-				template<typename Db, typename Composite>
-					auto _prepare(Db& db, const Composite& composite) const
-					-> prepared_execute_t<Db, Composite>
-					{
-						return {{}, db.prepare_execute(composite)};
-					}
+      // Prepare
+      template <typename Db, typename Composite>
+      auto _prepare(Db& db, const Composite& composite) const -> prepared_execute_t<Db, Composite>
+      {
+        return {{}, db.prepare_execute(composite)};
+      }
 
-				template<typename Db>
-					auto _prepare(Db& db) const
-					-> prepared_execute_t<Db, _statement_t>
-					{
-						return {{}, db.prepare_execute(_get_statement())};
-					}
-			};
-	};
+      template <typename Db>
+      auto _prepare(Db& db) const -> prepared_execute_t<Db, _statement_t>
+      {
+        return {{}, db.prepare_execute(_get_statement())};
+      }
+    };
+  };
 
-	template<typename Context>
-		struct serializer_t<Context, noop>
-		{
-			using _serialize_check = consistent_t;
-			using T = noop;
+  template <typename Context>
+  struct serializer_t<Context, noop>
+  {
+    using _serialize_check = consistent_t;
+    using T = noop;
 
-			static Context& _(const T&, Context& context)
-			{
-				return context;
-			}
-		};
+    static Context& _(const T&, Context& context)
+    {
+      return context;
+    }
+  };
 
-	template<typename T>
-		struct is_noop: std::is_same<T, noop> {};
-
+  template <typename T>
+  struct is_noop : std::is_same<T, noop>
+  {
+  };
 }
 #endif

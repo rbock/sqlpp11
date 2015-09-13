@@ -29,8 +29,8 @@
 
 namespace sqlpp
 {
-	template<typename Db, typename... Policies>
-		struct statement_t;
+  template <typename Db, typename... Policies>
+  struct statement_t;
 }
 
 #endif

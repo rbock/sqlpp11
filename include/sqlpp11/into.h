@@ -37,159 +37,171 @@
 
 namespace sqlpp
 {
-	// A SINGLE TABLE DATA
-	template<typename Database, typename Table>
-		struct into_data_t
-		{
-			into_data_t(Table table):
-				_table(table)
-			{}
+  // A SINGLE TABLE DATA
+  template <typename Database, typename Table>
+  struct into_data_t
+  {
+    into_data_t(Table table) : _table(table)
+    {
+    }
 
-			into_data_t(const into_data_t&) = default;
-			into_data_t(into_data_t&&) = default;
-			into_data_t& operator=(const into_data_t&) = default;
-			into_data_t& operator=(into_data_t&&) = default;
-			~into_data_t() = default;
+    into_data_t(const into_data_t&) = default;
+    into_data_t(into_data_t&&) = default;
+    into_data_t& operator=(const into_data_t&) = default;
+    into_data_t& operator=(into_data_t&&) = default;
+    ~into_data_t() = default;
 
-			Table _table;
-		};
+    Table _table;
+  };
 
-	// A SINGLE TABLE
-	template<typename Database, typename Table>
-		struct into_t
-		{
-			using _traits = make_traits<no_value_t, tag::is_into>;
-			using _nodes = detail::type_vector<Table>;
+  // A SINGLE TABLE
+  template <typename Database, typename Table>
+  struct into_t
+  {
+    using _traits = make_traits<no_value_t, tag::is_into>;
+    using _nodes = detail::type_vector<Table>;
 
-			using _data_t = into_data_t<Database, Table>;
+    using _data_t = into_data_t<Database, Table>;
 
-			struct _alias_t {};
+    struct _alias_t
+    {
+    };
 
-			// Member implementation with data and methods
-			template <typename Policies>
-				struct _impl_t
-				{
-					_data_t _data;
-				};
+    // Member implementation with data and methods
+    template <typename Policies>
+    struct _impl_t
+    {
+      _data_t _data;
+    };
 
-			// Base template to be inherited by the statement
-			template<typename Policies>
-				struct _base_t
-				{
-					using _data_t = into_data_t<Database, Table>;
+    // Base template to be inherited by the statement
+    template <typename Policies>
+    struct _base_t
+    {
+      using _data_t = into_data_t<Database, Table>;
 
-					_impl_t<Policies> into;
-					_impl_t<Policies>& operator()() { return into; }
-					const _impl_t<Policies>& operator()() const { return into; }
+      _impl_t<Policies> into;
+      _impl_t<Policies>& operator()()
+      {
+        return into;
+      }
+      const _impl_t<Policies>& operator()() const
+      {
+        return into;
+      }
 
-					template<typename T>
-						static auto _get_member(T t) -> decltype(t.into)
-						{
-							return t.into;
-						}
+      template <typename T>
+      static auto _get_member(T t) -> decltype(t.into)
+      {
+        return t.into;
+      }
 
-					using _consistency_check = consistent_t;
-				};
+      using _consistency_check = consistent_t;
+    };
+  };
 
-		};
+  struct assert_into_t
+  {
+    using type = std::false_type;
 
-	struct assert_into_t
-	{
-		using type = std::false_type;
+    template <typename T = void>
+    static void _()
+    {
+      static_assert(wrong_t<T>::value, "into() required");
+    }
+  };
 
-		template<typename T = void>
-			static void _()
-			{
-				static_assert(wrong_t<T>::value, "into() required");
-			}
-	};
+  // NO INTO YET
+  struct no_into_t
+  {
+    using _traits = make_traits<no_value_t, tag::is_noop>;
+    using _nodes = detail::type_vector<>;
 
-	// NO INTO YET
-	struct no_into_t
-	{
-		using _traits = make_traits<no_value_t, tag::is_noop>;
-		using _nodes = detail::type_vector<>;
+    // Data
+    using _data_t = no_data_t;
 
-		// Data
-		using _data_t = no_data_t;
+    // Member implementation with data and methods
+    template <typename Policies>
+    struct _impl_t
+    {
+      _data_t _data;
+    };
 
-		// Member implementation with data and methods
-		template<typename Policies>
-			struct _impl_t
-			{
-				_data_t _data;
-			};
+    // Base template to be inherited by the statement
+    template <typename Policies>
+    struct _base_t
+    {
+      using _data_t = no_data_t;
 
-		// Base template to be inherited by the statement
-		template<typename Policies>
-			struct _base_t
-			{
-				using _data_t = no_data_t;
+      _impl_t<Policies> no_into;
+      _impl_t<Policies>& operator()()
+      {
+        return no_into;
+      }
+      const _impl_t<Policies>& operator()() const
+      {
+        return no_into;
+      }
 
-				_impl_t<Policies> no_into;
-				_impl_t<Policies>& operator()() { return no_into; }
-				const _impl_t<Policies>& operator()() const { return no_into; }
+      template <typename T>
+      static auto _get_member(T t) -> decltype(t.no_into)
+      {
+        return t.no_into;
+      }
 
-				template<typename T>
-					static auto _get_member(T t) -> decltype(t.no_into)
-					{
-						return t.no_into;
-					}
+      using _database_t = typename Policies::_database_t;
 
-				using _database_t = typename Policies::_database_t;
+      template <typename T>
+      using _check = logic::all_t<is_raw_table_t<T>::value>;
 
-				template<typename T>
-					using _check = logic::all_t<is_raw_table_t<T>::value>;
+      template <typename Check, typename T>
+      using _new_statement_t = new_statement_t<Check::value, Policies, no_into_t, T>;
 
-				template<typename Check, typename T>
-					using _new_statement_t = new_statement_t<Check::value, Policies, no_into_t, T>;
+      using _consistency_check = assert_into_t;
 
-				using _consistency_check = assert_into_t;
+      template <typename Table>
+      auto into(Table table) const -> _new_statement_t<_check<Table>, into_t<void, Table>>
+      {
+        static_assert(_check<Table>::value, "argument is not a raw table in into()");
+        return _into_impl<void>(_check<Table>{}, table);
+      }
 
-				template<typename Table>
-					auto into(Table table) const
-					-> _new_statement_t<_check<Table>, into_t<void, Table>>
-					{
-						static_assert(_check<Table>::value, "argument is not a raw table in into()");
-						return _into_impl<void>(_check<Table>{}, table);
-					}
+    private:
+      template <typename Database, typename Table>
+      auto _into_impl(const std::false_type&, Table table) const -> bad_statement;
 
-			private:
-				template<typename Database, typename Table>
-					auto _into_impl(const std::false_type&, Table table) const
-					-> bad_statement;
+      template <typename Database, typename Table>
+      auto _into_impl(const std::true_type&, Table table) const
+          -> _new_statement_t<std::true_type, into_t<Database, Table>>
+      {
+        static_assert(required_tables_of<into_t<Database, Table>>::size::value == 0,
+                      "argument depends on another table in into()");
 
-				template<typename Database, typename Table>
-					auto _into_impl(const std::true_type&, Table table) const
-					-> _new_statement_t<std::true_type, into_t<Database, Table>>
-					{
-						static_assert(required_tables_of<into_t<Database, Table>>::size::value == 0, "argument depends on another table in into()");
+        return {static_cast<const derived_statement_t<Policies>&>(*this), into_data_t<Database, Table>{table}};
+      }
+    };
+  };
 
-						return { static_cast<const derived_statement_t<Policies>&>(*this), into_data_t<Database, Table>{table} };
-					}
-			};
-	};
+  // Interpreters
+  template <typename Context, typename Database, typename Table>
+  struct serializer_t<Context, into_data_t<Database, Table>>
+  {
+    using _serialize_check = serialize_check_of<Context, Table>;
+    using T = into_data_t<Database, Table>;
 
-	// Interpreters
-	template<typename Context, typename Database, typename Table>
-		struct serializer_t<Context, into_data_t<Database, Table>>
-		{
-			using _serialize_check = serialize_check_of<Context, Table>;
-			using T = into_data_t<Database, Table>;
+    static Context& _(const T& t, Context& context)
+    {
+      context << " INTO ";
+      serialize(t._table, context);
+      return context;
+    }
+  };
 
-			static Context& _(const T& t, Context& context)
-			{
-				context << " INTO ";
-				serialize(t._table, context);
-				return context;
-			}
-		};
-
-	template<typename T>
-		auto into(T&& t) -> decltype(statement_t<void, no_into_t>().into(std::forward<T>(t)))
-		{
-			return statement_t<void, no_into_t>().into(std::forward<T>(t));
-		}
+  template <typename T>
+  auto into(T&& t) -> decltype(statement_t<void, no_into_t>().into(std::forward<T>(t)))
+  {
+    return statement_t<void, no_into_t>().into(std::forward<T>(t));
+  }
 }
 
 #endif

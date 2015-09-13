@@ -29,11 +29,11 @@
 
 namespace sqlpp
 {
-	template<typename Db, typename... FieldSpecs>
-		struct result_row_t;
+  template <typename Db, typename... FieldSpecs>
+  struct result_row_t;
 
-	template<typename Db, typename... FieldSpecs>
-		struct dynamic_result_row_t;
+  template <typename Db, typename... FieldSpecs>
+  struct dynamic_result_row_t;
 }
 
 #endif

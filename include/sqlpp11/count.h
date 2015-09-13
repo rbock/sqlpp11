@@ -33,89 +33,96 @@
 
 namespace sqlpp
 {
-	struct count_alias_t
-	{
-		struct _alias_t
-		{
-			static constexpr const char _literal[] =  "count_";
-			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-			template<typename T>
-				struct _member_t
-				{
-					T count;
-					T& operator()() { return count; }
-					const T& operator()() const { return count; }
-				};
-		};
-	};
+  struct count_alias_t
+  {
+    struct _alias_t
+    {
+      static constexpr const char _literal[] = "count_";
+      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+      template <typename T>
+      struct _member_t
+      {
+        T count;
+        T& operator()()
+        {
+          return count;
+        }
+        const T& operator()() const
+        {
+          return count;
+        }
+      };
+    };
+  };
 
-	template<typename Flag, typename Expr>
-		struct count_t:
-			public expression_operators<count_t<Flag, Expr>, integral>,
-			public alias_operators<count_t<Flag, Expr>>
-	{
-		using _traits = make_traits<integral, tag::is_expression/*, tag::is_selectable*/>;
+  template <typename Flag, typename Expr>
+  struct count_t : public expression_operators<count_t<Flag, Expr>, integral>,
+                   public alias_operators<count_t<Flag, Expr>>
+  {
+    using _traits = make_traits<integral, tag::is_expression /*, tag::is_selectable*/>;
 
-		using _nodes = detail::type_vector<Expr, aggregate_function>;
-		using _can_be_null = std::false_type;
+    using _nodes = detail::type_vector<Expr, aggregate_function>;
+    using _can_be_null = std::false_type;
 
-		static_assert(is_noop<Flag>::value or std::is_same<distinct_t, Flag>::value, "count() used with flag other than 'distinct'");
+    static_assert(is_noop<Flag>::value or std::is_same<distinct_t, Flag>::value,
+                  "count() used with flag other than 'distinct'");
 
-		using _auto_alias_t = count_alias_t;
+    using _auto_alias_t = count_alias_t;
 
-		count_t(const Expr expr):
-			_expr(expr)
-		{}
+    count_t(const Expr expr) : _expr(expr)
+    {
+    }
 
-		count_t(const count_t&) = default;
-		count_t(count_t&&) = default;
-		count_t& operator=(const count_t&) = default;
-		count_t& operator=(count_t&&) = default;
-		~count_t() = default;
+    count_t(const count_t&) = default;
+    count_t(count_t&&) = default;
+    count_t& operator=(const count_t&) = default;
+    count_t& operator=(count_t&&) = default;
+    ~count_t() = default;
 
-		Expr _expr;
-	};
+    Expr _expr;
+  };
 
-	template<typename Context, typename Flag, typename Expr>
-		struct serializer_t<Context, count_t<Flag, Expr>>
-		{
-			using _serialize_check = serialize_check_of<Context, Flag, Expr>;
-			using T = count_t<Flag, Expr>;
+  template <typename Context, typename Flag, typename Expr>
+  struct serializer_t<Context, count_t<Flag, Expr>>
+  {
+    using _serialize_check = serialize_check_of<Context, Flag, Expr>;
+    using T = count_t<Flag, Expr>;
 
-			static Context& _(const T& t, Context& context)
-			{
-				context << "COUNT(";
-				if (std::is_same<distinct_t, Flag>::value)
-				{
-					serialize(Flag(), context);
-					context << ' ';
-					serialize_operand(t._expr, context);
-				}
-				else
-				{
-					serialize(t._expr, context);
-				}
-				context << ")";
-				return context;
-			}
-		};
+    static Context& _(const T& t, Context& context)
+    {
+      context << "COUNT(";
+      if (std::is_same<distinct_t, Flag>::value)
+      {
+        serialize(Flag(), context);
+        context << ' ';
+        serialize_operand(t._expr, context);
+      }
+      else
+      {
+        serialize(t._expr, context);
+      }
+      context << ")";
+      return context;
+    }
+  };
 
-	template<typename T>
-		auto count(T t) -> count_t<noop, wrap_operand_t<T>>
-		{
-			static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value, "count() cannot be used on an aggregate function");
-			static_assert(is_expression_t<wrap_operand_t<T>>::value, "count() requires an expression as argument");
-			return { t };
-		}
+  template <typename T>
+  auto count(T t) -> count_t<noop, wrap_operand_t<T>>
+  {
+    static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value,
+                  "count() cannot be used on an aggregate function");
+    static_assert(is_expression_t<wrap_operand_t<T>>::value, "count() requires an expression as argument");
+    return {t};
+  }
 
-	template<typename T>
-		auto count(const distinct_t&, T t) -> count_t<distinct_t, wrap_operand_t<T>>
-		{
-			static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value, "count() cannot be used on an aggregate function");
-			static_assert(is_expression_t<wrap_operand_t<T>>::value, "count() requires an expression as argument");
-			return { t };
-		}
-
+  template <typename T>
+  auto count(const distinct_t&, T t) -> count_t<distinct_t, wrap_operand_t<T>>
+  {
+    static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value,
+                  "count() cannot be used on an aggregate function");
+    static_assert(is_expression_t<wrap_operand_t<T>>::value, "count() requires an expression as argument");
+    return {t};
+  }
 }
 
 #endif

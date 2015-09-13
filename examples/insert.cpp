@@ -29,40 +29,38 @@
 
 int insert(int, char**)
 {
-	MockDb db;
+  MockDb db;
 
-	test::TabPerson p;
-	test::TabFeature f;
+  test::TabPerson p;
+  test::TabFeature f;
 
-	db(insert_into(f).set(f.name = "loves c++", f.fatal = false));
+  db(insert_into(f).set(f.name = "loves c++", f.fatal = false));
 
-	//db(insert_into(f).set(f.nahme = "loves c++", f.fatal = false));
+  // db(insert_into(f).set(f.nahme = "loves c++", f.fatal = false));
 
-	//db(insert_into(f).set(f.name == "loves c++", f.fatal = false));
+  // db(insert_into(f).set(f.name == "loves c++", f.fatal = false));
 
-	//db(insert_into(f).set(f.name = "loves c++", f.fatal = "false"));
+  // db(insert_into(f).set(f.name = "loves c++", f.fatal = "false"));
 
-	//db(insert_into(p).set(f.name = "loves c++", f.fatal = false));
+  // db(insert_into(p).set(f.name = "loves c++", f.fatal = false));
 
-	//db(insert_into(f).set(f.name = "loves c++", p.feature = 7));
+  // db(insert_into(f).set(f.name = "loves c++", p.feature = 7));
 
-	//db(insert_into(f).set(f.id = 42, f.name = "loves c++", f.fatal = false));
+  // db(insert_into(f).set(f.id = 42, f.name = "loves c++", f.fatal = false));
 
-	//db(insert_into(f).set(f.name = "loves c++"));
+  // db(insert_into(f).set(f.name = "loves c++"));
 
+  db(insert_into(f).default_values());
 
-	db(insert_into(f).default_values());
+  auto i = insert_into(p).columns(p.name, p.feature);
+  i.values.add(p.name = "Roland", p.feature = 1);
+  i.values.add(p.name = "Zaphod", p.feature = sqlpp::default_value);
+  db(i);
 
-	auto i = insert_into(p).columns(p.name, p.feature);
-	i.values.add(p.name = "Roland", p.feature = 1);
-	i.values.add(p.name = "Zaphod", p.feature = sqlpp::default_value);
-	db(i);
+  auto pi = db.prepare(insert_into(p).set(p.name = parameter(f.name), p.feature = parameter(p.feature)));
+  pi.params.name = "likes java";
+  pi.params.feature = true;
 
-
-	auto pi = db.prepare(insert_into(p).set(p.name = parameter(f.name), p.feature = parameter(p.feature)));
-	pi.params.name = "likes java";
-	pi.params.feature = true;
-
-	db(pi);
-	return 0;
+  db(pi);
+  return 0;
 }

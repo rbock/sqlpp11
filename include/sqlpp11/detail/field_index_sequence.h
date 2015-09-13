@@ -32,43 +32,55 @@
 
 namespace sqlpp
 {
-	namespace detail
-	{
-		template<std::size_t NextIndex, std::size_t... Ints>
-			struct field_index_sequence
-			{
-				static constexpr std::size_t _next_index = NextIndex;
-			};
+  namespace detail
+  {
+    template <std::size_t NextIndex, std::size_t... Ints>
+    struct field_index_sequence
+    {
+      static constexpr std::size_t _next_index = NextIndex;
+    };
 
-		template<typename T, typename... Fields>
-			struct make_field_index_sequence_impl
-			{
-				static_assert(wrong_t<make_field_index_sequence_impl>::value, "invalid field index sequence arguments");
-			};
+    template <typename T, typename... Fields>
+    struct make_field_index_sequence_impl
+    {
+      static_assert(wrong_t<make_field_index_sequence_impl>::value, "invalid field index sequence arguments");
+    };
 
-		template<std::size_t NextIndex, std::size_t... Ints, typename NameType, typename ValueType, bool CanBeNull, bool NullIsTrivialValue, typename... Rest>
-			struct make_field_index_sequence_impl<field_index_sequence<NextIndex, Ints...>, field_spec_t<NameType, ValueType, CanBeNull, NullIsTrivialValue>, Rest...>
-			{
-				using type = typename make_field_index_sequence_impl<field_index_sequence<NextIndex + 1, Ints..., NextIndex>, Rest...>::type;
-			};
+    template <std::size_t NextIndex,
+              std::size_t... Ints,
+              typename NameType,
+              typename ValueType,
+              bool CanBeNull,
+              bool NullIsTrivialValue,
+              typename... Rest>
+    struct make_field_index_sequence_impl<field_index_sequence<NextIndex, Ints...>,
+                                          field_spec_t<NameType, ValueType, CanBeNull, NullIsTrivialValue>,
+                                          Rest...>
+    {
+      using type = typename make_field_index_sequence_impl<field_index_sequence<NextIndex + 1, Ints..., NextIndex>,
+                                                           Rest...>::type;
+    };
 
-		template<std::size_t NextIndex, std::size_t... Ints, typename AliasProvider, typename FieldTuple, typename... Rest>
-			struct make_field_index_sequence_impl<field_index_sequence<NextIndex, Ints...>, multi_field_spec_t<AliasProvider, FieldTuple>, Rest...>
-			{
-				using type = typename make_field_index_sequence_impl<field_index_sequence<NextIndex + std::tuple_size<FieldTuple>::value, Ints..., NextIndex>, Rest...>::type;
-			};
+    template <std::size_t NextIndex, std::size_t... Ints, typename AliasProvider, typename FieldTuple, typename... Rest>
+    struct make_field_index_sequence_impl<field_index_sequence<NextIndex, Ints...>,
+                                          multi_field_spec_t<AliasProvider, FieldTuple>,
+                                          Rest...>
+    {
+      using type = typename make_field_index_sequence_impl<
+          field_index_sequence<NextIndex + std::tuple_size<FieldTuple>::value, Ints..., NextIndex>,
+          Rest...>::type;
+    };
 
-		template<std::size_t NextIndex, std::size_t... Ints>
-			struct make_field_index_sequence_impl<field_index_sequence<NextIndex, Ints...>>
-			{
-				using type = field_index_sequence<NextIndex, Ints...>;
-			};
+    template <std::size_t NextIndex, std::size_t... Ints>
+    struct make_field_index_sequence_impl<field_index_sequence<NextIndex, Ints...>>
+    {
+      using type = field_index_sequence<NextIndex, Ints...>;
+    };
 
-		template<std::size_t StartIndex, typename... Fields>
-			using make_field_index_sequence = typename make_field_index_sequence_impl<field_index_sequence<StartIndex>, Fields...>::type;
-
-	}
+    template <std::size_t StartIndex, typename... Fields>
+    using make_field_index_sequence =
+        typename make_field_index_sequence_impl<field_index_sequence<StartIndex>, Fields...>::type;
+  }
 }
-
 
 #endif

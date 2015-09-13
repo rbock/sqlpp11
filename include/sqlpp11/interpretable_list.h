@@ -32,85 +32,82 @@
 
 namespace sqlpp
 {
-	template<typename Db>
-		struct interpretable_list_t
-		{
-			std::vector<interpretable_t<Db>> _serializables;
+  template <typename Db>
+  struct interpretable_list_t
+  {
+    std::vector<interpretable_t<Db>> _serializables;
 
-			std::size_t size() const
-			{
-				return _serializables.size();
-			}
+    std::size_t size() const
+    {
+      return _serializables.size();
+    }
 
-			bool empty() const
-			{
-				return _serializables.empty();
-			}
+    bool empty() const
+    {
+      return _serializables.empty();
+    }
 
-			template<typename Expr>
-				void emplace_back(Expr expr)
-				{
-					_serializables.emplace_back(expr);
-				}
+    template <typename Expr>
+    void emplace_back(Expr expr)
+    {
+      _serializables.emplace_back(expr);
+    }
+  };
 
-		};
+  template <>
+  struct interpretable_list_t<void>
+  {
+    static constexpr std::size_t size()
+    {
+      return 0;
+    }
 
-	template<>
-		struct interpretable_list_t<void>
-		{
-			static constexpr std::size_t size()
-			{
-				return 0;
-			}
+    static constexpr bool empty()
+    {
+      return true;
+    }
+  };
 
-			static constexpr bool empty()
-			{
-				return true;
-			}
+  template <typename Context, typename List>
+  struct serializable_list_interpreter_t
+  {
+    using T = List;
 
-		};
+    template <typename Separator>
+    static Context& _(const T& t, const Separator& separator, Context& context)
+    {
+      bool first = true;
+      for (const auto entry : t._serializables)
+      {
+        if (not first)
+        {
+          context << separator;
+        }
+        first = false;
+        serialize(entry, context);
+      }
+      return context;
+    }
+  };
 
-	template<typename Context, typename List>
-		struct serializable_list_interpreter_t
-		{
-			using T = List;
+  template <typename Context>
+  struct serializable_list_interpreter_t<Context, interpretable_list_t<void>>
+  {
+    using T = interpretable_list_t<void>;
 
-			template<typename Separator>
-				static Context& _(const T& t, const Separator& separator, Context& context)
-				{
-					bool first = true;
-					for (const auto entry : t._serializables)
-					{
-						if (not first)
-						{
-							context << separator;
-						}
-						first = false;
-						serialize(entry, context);
-					}
-					return context;
-				}
-		};
+    template <typename Separator>
+    static Context& _(const T&, const Separator& /* separator */, Context& context)
+    {
+      return context;
+    }
+  };
 
-	template<typename Context>
-		struct serializable_list_interpreter_t<Context, interpretable_list_t<void>>
-		{
-			using T = interpretable_list_t<void>;
-
-			template<typename Separator>
-				static Context& _(const T&, const Separator& /* separator */, Context& context)
-				{
-					return context;
-				}
-		};
-
-	template<typename T, typename Separator, typename Context>
-		auto interpret_list(const T& t, const Separator& separator, Context& context)
-		-> decltype(serializable_list_interpreter_t<Context, T>::_(t, separator, context))
-		{
-			return serializable_list_interpreter_t<Context, T>::_(t, separator, context);
-		}
-
+  template <typename T, typename Separator, typename Context>
+  auto interpret_list(const T& t, const Separator& separator, Context& context)
+      -> decltype(serializable_list_interpreter_t<Context, T>::_(t, separator, context))
+  {
+    return serializable_list_interpreter_t<Context, T>::_(t, separator, context);
+  }
 }
 
 #endif

@@ -32,70 +32,72 @@
 
 namespace sqlpp
 {
-	struct exists_alias_t
-	{
-		struct _alias_t
-		{
-			static constexpr const char _literal[] =  "exists_";
-			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-			template<typename T>
-				struct _member_t
-				{
-					T exists;
-					T& operator()() { return exists; }
-					const T& operator()() const { return exists; }
-				};
-		};
-	};
+  struct exists_alias_t
+  {
+    struct _alias_t
+    {
+      static constexpr const char _literal[] = "exists_";
+      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+      template <typename T>
+      struct _member_t
+      {
+        T exists;
+        T& operator()()
+        {
+          return exists;
+        }
+        const T& operator()() const
+        {
+          return exists;
+        }
+      };
+    };
+  };
 
-	template<typename Select>
-		struct exists_t:
-			public expression_operators<exists_t<Select>, boolean>,
-			public alias_operators<exists_t<Select>>
-	{
-		using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
-		using _nodes = detail::type_vector<Select>;
+  template <typename Select>
+  struct exists_t : public expression_operators<exists_t<Select>, boolean>, public alias_operators<exists_t<Select>>
+  {
+    using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
+    using _nodes = detail::type_vector<Select>;
 
-		static_assert(is_select_t<Select>::value, "exists() requires a select expression as argument");
+    static_assert(is_select_t<Select>::value, "exists() requires a select expression as argument");
 
-		using _auto_alias_t = exists_alias_t;
+    using _auto_alias_t = exists_alias_t;
 
-		exists_t(Select select):
-			_select(select)
-		{}
+    exists_t(Select select) : _select(select)
+    {
+    }
 
-		exists_t(const exists_t&) = default;
-		exists_t(exists_t&&) = default;
-		exists_t& operator=(const exists_t&) = default;
-		exists_t& operator=(exists_t&&) = default;
-		~exists_t() = default;
+    exists_t(const exists_t&) = default;
+    exists_t(exists_t&&) = default;
+    exists_t& operator=(const exists_t&) = default;
+    exists_t& operator=(exists_t&&) = default;
+    ~exists_t() = default;
 
-		Select _select;
-	};
+    Select _select;
+  };
 
-	template<typename Context, typename Select>
-		struct serializer_t<Context, exists_t<Select>>
-		{
-			using _serialize_check = serialize_check_of<Context, Select>;
-			using T = exists_t<Select>;
+  template <typename Context, typename Select>
+  struct serializer_t<Context, exists_t<Select>>
+  {
+    using _serialize_check = serialize_check_of<Context, Select>;
+    using T = exists_t<Select>;
 
-			static Context& _(const T& t, Context& context)
-			{
-				context << "EXISTS(";
-				serialize(t._select, context);
-				context << ")";
-				return context;
-			}
-		};
+    static Context& _(const T& t, Context& context)
+    {
+      context << "EXISTS(";
+      serialize(t._select, context);
+      context << ")";
+      return context;
+    }
+  };
 
-
-	template<typename T>
-		auto exists(T t) -> exists_t<wrap_operand_t<T>>
-		{
-			static_assert(is_select_t<wrap_operand_t<T>>::value, "exists() requires a select expression as argument");
-			return { t };
-		}
-
+  template <typename T>
+  auto exists(T t) -> exists_t<wrap_operand_t<T>>
+  {
+    static_assert(is_select_t<wrap_operand_t<T>>::value, "exists() requires a select expression as argument");
+    return {t};
+  }
 }
 
 #endif

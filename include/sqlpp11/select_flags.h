@@ -34,64 +34,63 @@
 
 namespace sqlpp
 {
-	// standard select flags
-	struct all_t
-	{
-		using _traits = make_traits<no_value_t, tag::is_select_flag>;
-		using _nodes = detail::type_vector<>;
-	};
-	static constexpr all_t all = {};
+  // standard select flags
+  struct all_t
+  {
+    using _traits = make_traits<no_value_t, tag::is_select_flag>;
+    using _nodes = detail::type_vector<>;
+  };
+  static constexpr all_t all = {};
 
-	template<typename Context>
-		struct serializer_t<Context, all_t>
-		{
-			using _serialize_check = consistent_t;
+  template <typename Context>
+  struct serializer_t<Context, all_t>
+  {
+    using _serialize_check = consistent_t;
 
-			static Context& _(const all_t&, Context& context)
-			{
-				context << "ALL";
-				return context;
-			}
-		};
+    static Context& _(const all_t&, Context& context)
+    {
+      context << "ALL";
+      return context;
+    }
+  };
 
-	struct distinct_t
-	{
-		using _traits = make_traits<no_value_t, tag::is_select_flag>;
-		using _nodes = detail::type_vector<>;
-	};
-	static constexpr distinct_t distinct = {};
+  struct distinct_t
+  {
+    using _traits = make_traits<no_value_t, tag::is_select_flag>;
+    using _nodes = detail::type_vector<>;
+  };
+  static constexpr distinct_t distinct = {};
 
-	template<typename Context>
-		struct serializer_t<Context, distinct_t>
-		{
-			using _serialize_check = consistent_t;
+  template <typename Context>
+  struct serializer_t<Context, distinct_t>
+  {
+    using _serialize_check = consistent_t;
 
-			static Context& _(const distinct_t&, Context& context)
-			{
-				context << "DISTINCT";
-				return context;
-			}
-		};
+    static Context& _(const distinct_t&, Context& context)
+    {
+      context << "DISTINCT";
+      return context;
+    }
+  };
 
-	struct straight_join_t
-	{
-		using _traits = make_traits<no_value_t, tag::is_select_flag>;
-		using _nodes = detail::type_vector<>;
-	};
-	static constexpr straight_join_t straight_join = {};
+  struct straight_join_t
+  {
+    using _traits = make_traits<no_value_t, tag::is_select_flag>;
+    using _nodes = detail::type_vector<>;
+  };
+  static constexpr straight_join_t straight_join = {};
 
-	template<typename Context>
-		struct serializer_t<Context, straight_join_t>
-		{
-			using _serialize_check = consistent_t;
+  template <typename Context>
+  struct serializer_t<Context, straight_join_t>
+  {
+    using _serialize_check = consistent_t;
 
-			static Context& _(const straight_join_t&, Context& context)
-			{
-				context << "STRAIGHT_JOIN";
-				return context;
-			}
-		};
-
+    static Context& _(const straight_join_t&, Context& context)
+    {
+      context << "STRAIGHT_JOIN";
+      return context;
+    }
+  };
 }
 
 #endif

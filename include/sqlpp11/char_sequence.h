@@ -31,26 +31,28 @@
 
 namespace sqlpp
 {
-	template<char... Cs> struct char_sequence
-	{
-		static const char* char_ptr()
-		{
-			static char s[] = {Cs...};
-			return s;
-		};
-	};
+  template <char... Cs>
+  struct char_sequence
+  {
+    static const char* char_ptr()
+    {
+      static char s[] = {Cs...};
+      return s;
+    };
+  };
 
-	template<std::size_t N, const char (&s) [N], typename T>
-		struct make_char_sequence_impl;
+  template <std::size_t N, const char(&s)[N], typename T>
+  struct make_char_sequence_impl;
 
-	template<std::size_t N, const char (&s) [N], std::size_t... i>
-		struct make_char_sequence_impl<N, s, sqlpp::detail::index_sequence<i...>>
-		{
-			using type = char_sequence<s[i]...>;
-		};
+  template <std::size_t N, const char(&s)[N], std::size_t... i>
+  struct make_char_sequence_impl<N, s, sqlpp::detail::index_sequence<i...>>
+  {
+    using type = char_sequence<s[i]...>;
+  };
 
-	template<std::size_t N, const char (&Input) [N]>
-		using make_char_sequence = typename make_char_sequence_impl<sizeof(Input), Input, sqlpp::detail::make_index_sequence<sizeof(Input)>>::type;
+  template <std::size_t N, const char(&Input)[N]>
+  using make_char_sequence =
+      typename make_char_sequence_impl<sizeof(Input), Input, sqlpp::detail::make_index_sequence<sizeof(Input)>>::type;
 }
 
 #endif

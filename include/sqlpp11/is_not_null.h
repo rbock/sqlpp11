@@ -34,57 +34,55 @@
 
 namespace sqlpp
 {
-	struct is_not_null_alias_t
-	{
-		struct _alias_t
-		{
-			static constexpr const char _literal[] =  "is_not_null_";
-			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-			template<typename T>
-				struct _member_t
-				{
-					T is_not_null;
-				};
-		};
-	};
+  struct is_not_null_alias_t
+  {
+    struct _alias_t
+    {
+      static constexpr const char _literal[] = "is_not_null_";
+      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+      template <typename T>
+      struct _member_t
+      {
+        T is_not_null;
+      };
+    };
+  };
 
-	template<typename Operand>
-		struct is_not_null_t:
-			public expression_operators<is_not_null_t<Operand>, boolean>,
-			public alias_operators<is_not_null_t<Operand>>
-	{
-		using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
-		using _nodes = detail::type_vector<Operand>;
+  template <typename Operand>
+  struct is_not_null_t : public expression_operators<is_not_null_t<Operand>, boolean>,
+                         public alias_operators<is_not_null_t<Operand>>
+  {
+    using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
+    using _nodes = detail::type_vector<Operand>;
 
-		using _auto_alias_t = is_not_null_alias_t;
+    using _auto_alias_t = is_not_null_alias_t;
 
-		is_not_null_t(Operand operand):
-			_operand(operand)
-		{}
+    is_not_null_t(Operand operand) : _operand(operand)
+    {
+    }
 
-		is_not_null_t(const is_not_null_t&) = default;
-		is_not_null_t(is_not_null_t&&) = default;
-		is_not_null_t& operator=(const is_not_null_t&) = default;
-		is_not_null_t& operator=(is_not_null_t&&) = default;
-		~is_not_null_t() = default;
+    is_not_null_t(const is_not_null_t&) = default;
+    is_not_null_t(is_not_null_t&&) = default;
+    is_not_null_t& operator=(const is_not_null_t&) = default;
+    is_not_null_t& operator=(is_not_null_t&&) = default;
+    ~is_not_null_t() = default;
 
-		Operand _operand;
-	};
+    Operand _operand;
+  };
 
-	template<typename Context, typename Operand>
-		struct serializer_t<Context, is_not_null_t<Operand>>
-		{
-			using _serialize_check = serialize_check_of<Context, Operand>;
-			using T = is_not_null_t<Operand>;
+  template <typename Context, typename Operand>
+  struct serializer_t<Context, is_not_null_t<Operand>>
+  {
+    using _serialize_check = serialize_check_of<Context, Operand>;
+    using T = is_not_null_t<Operand>;
 
-			static Context& _(const T& t, Context& context)
-			{
-				serialize_operand(t._operand, context);
-				context << " IS NOT NULL";
-				return context;
-			}
-		};
-
+    static Context& _(const T& t, Context& context)
+    {
+      serialize_operand(t._operand, context);
+      context << " IS NOT NULL";
+      return context;
+    }
+  };
 }
 
 #endif

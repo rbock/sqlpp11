@@ -31,23 +31,29 @@
 
 int Union(int, char**)
 {
-	MockDb db;
-	MockDb::_serializer_context_t printer;
+  MockDb db;
+  MockDb::_serializer_context_t printer;
 
-	test::TabBar t;
-	test::TabFoo f;
+  test::TabBar t;
+  test::TabFoo f;
 
-	db(select(t.alpha).from(t).where(true)
-			.union_distinct(select(f.epsilon.as(t.alpha)).from(f).where(true)));
-	db(select(t.alpha).from(t).where(true)
-			.union_all(select(f.epsilon.as(t.alpha)).from(f).where(true)));
+  db(select(t.alpha).from(t).where(true).union_distinct(select(f.epsilon.as(t.alpha)).from(f).where(true)));
+  db(select(t.alpha).from(t).where(true).union_all(select(f.epsilon.as(t.alpha)).from(f).where(true)));
 
-	auto u = select(t.alpha).from(t).where(true).union_all(select(f.epsilon.as(t.alpha)).from(f).where(true)).as(sqlpp::alias::u);
+  auto u = select(t.alpha)
+               .from(t)
+               .where(true)
+               .union_all(select(f.epsilon.as(t.alpha)).from(f).where(true))
+               .as(sqlpp::alias::u);
 
-	db(select(all_of(u)).from(u).where(true).union_all(select(t.delta.as(t.alpha)).from(t).where(true)));
-	db(select(u.alpha).from(u).where(true).union_all(select(t.delta.as(t.alpha)).from(t).where(true)));
+  db(select(all_of(u)).from(u).where(true).union_all(select(t.delta.as(t.alpha)).from(t).where(true)));
+  db(select(u.alpha).from(u).where(true).union_all(select(t.delta.as(t.alpha)).from(t).where(true)));
 
-	db(select(t.alpha).from(t).where(true).union_all(select(t.alpha).from(t).where(true)).union_all(select(t.alpha).from(t).where(true)));
+  db(select(t.alpha)
+         .from(t)
+         .where(true)
+         .union_all(select(t.alpha).from(t).where(true))
+         .union_all(select(t.alpha).from(t).where(true)));
 
-	return 0;
+  return 0;
 }

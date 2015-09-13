@@ -39,5 +39,3 @@
 #include <sqlpp11/schema_qualified_table.h>
 
 #endif
-
-

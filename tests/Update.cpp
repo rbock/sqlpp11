@@ -31,45 +31,44 @@
 
 int Update(int, char**)
 {
-	MockDb db;
-	MockDb::_serializer_context_t printer;
+  MockDb db;
+  MockDb::_serializer_context_t printer;
 
-	test::TabBar t;
-	//test::TabFoo f;
+  test::TabBar t;
+  // test::TabFoo f;
 
-	{
-		using T = decltype(update(t));
-		static_assert(sqlpp::is_regular<T>::value, "type requirement");
-	}
+  {
+    using T = decltype(update(t));
+    static_assert(sqlpp::is_regular<T>::value, "type requirement");
+  }
 
-	{
-		using T = decltype(update(t).set(t.gamma = false).where(t.beta != "transparent"));
-		static_assert(sqlpp::is_regular<T>::value, "type requirement");
-	}
+  {
+    using T = decltype(update(t).set(t.gamma = false).where(t.beta != "transparent"));
+    static_assert(sqlpp::is_regular<T>::value, "type requirement");
+  }
 
-	{
-		using T = decltype(dynamic_update(db, t).dynamic_set(t.gamma = false).dynamic_where());
-		static_assert(sqlpp::is_regular<T>::value, "type requirement");
-	}
+  {
+    using T = decltype(dynamic_update(db, t).dynamic_set(t.gamma = false).dynamic_where());
+    static_assert(sqlpp::is_regular<T>::value, "type requirement");
+  }
 
-	serialize(update(t), printer).str();
-	serialize(update(t).set(t.gamma = false), printer).str();
-	serialize(update(t).set(t.gamma = false).where(t.beta != "transparent"), printer).str();
-	serialize(update(t).set(t.beta = "opaque").where(t.beta != t.beta), printer).str();
-	auto u = dynamic_update(db, t).dynamic_set(t.gamma = false).dynamic_where();
-	u.assignments.add(t.beta = "cannot update gamma a second time");
-	u.where.add(t.gamma != false);
-	printer.reset();
-	std::cerr << serialize(u, printer).str() << std::endl;
+  serialize(update(t), printer).str();
+  serialize(update(t).set(t.gamma = false), printer).str();
+  serialize(update(t).set(t.gamma = false).where(t.beta != "transparent"), printer).str();
+  serialize(update(t).set(t.beta = "opaque").where(t.beta != t.beta), printer).str();
+  auto u = dynamic_update(db, t).dynamic_set(t.gamma = false).dynamic_where();
+  u.assignments.add(t.beta = "cannot update gamma a second time");
+  u.where.add(t.gamma != false);
+  printer.reset();
+  std::cerr << serialize(u, printer).str() << std::endl;
 
-	db(u);
+  db(u);
 
-	db(update(t).set(t.delta = sqlpp::verbatim<sqlpp::integer>("17+4")).where(true));
-	db(update(t).set(t.delta = sqlpp::null).where(true));
-	db(update(t).set(t.delta = sqlpp::default_value).where(true));
+  db(update(t).set(t.delta = sqlpp::verbatim<sqlpp::integer>("17+4")).where(true));
+  db(update(t).set(t.delta = sqlpp::null).where(true));
+  db(update(t).set(t.delta = sqlpp::default_value).where(true));
 
-	db(update(t).set(t.delta += t.alpha * 2, t.beta += " and cake").where(true));
+  db(update(t).set(t.delta += t.alpha * 2, t.beta += " and cake").where(true));
 
-
-	return 0;
+  return 0;
 }

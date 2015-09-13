@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+import functools
+import os
+from pprint import pprint
+import re
+import subprocess
+import sys
+
+class ValidationError(Exception): pass
+
+def check_output(cmd, expect_process_error=False):
+    try:
+        return subprocess.check_output(cmd)
+    except Exception as e:
+        if not expect_process_error or not isinstance(e, subprocess.CalledProcessError):
+            print('Exception while running cmd %s' % (cmd,))
+        raise
+
+def changes():
+    return check_output(('git', 'diff', '--no-ext-diff', '--cached', '-U0'))
+
+def toplevel():
+    return check_output(('git', 'rev-parse', '--show-toplevel')).strip(b'\n').decode('utf-8')
+
+def toList(fn):
+    return functools.wraps(fn)(lambda *args, **kwargs: list(fn(*args, **kwargs)))
+
+top = toplevel()
+
+clangformat = "/usr/local/clang_3_6_0/bin/clang-format"
+
+### CLANG-FORMAT BEGIN
+if os.path.exists(os.path.join(top, '.clang-format')):
+    reformatted_files = []
+    files_had_unstaged_edits = []
+    for filename in check_output(['git', 'diff-index', '--cached', '--name-only', 'HEAD']).decode('utf-8').splitlines():
+        if any(filename.endswith(ext) for ext in ('.cpp', '.h', '.hpp')):
+            file_path = os.path.join(top, filename)
+
+            with open(file_path, 'rb') as f:
+                staged = f.read()
+            formatted = check_output([clangformat, file_path])
+
+            if staged == formatted:
+                continue
+
+            try:
+                check_output(['git', 'diff', '--exit-code', file_path], expect_process_error=True)
+            except subprocess.CalledProcessError:
+                files_had_unstaged_edits.append(filename)
+
+            check_output([clangformat, '-i', file_path])
+
+            try:
+                check_output(['git', 'diff', '--exit-code', file_path], expect_process_error=True)
+            except subprocess.CalledProcessError:
+                reformatted_files.append(filename)
+
+    if reformatted_files:
+        print('These files were reformatted with clang-format, please stage the changes first:\n- %s'
+              % '\n- '.join(reformatted_files), file=sys.stderr)
+    if files_had_unstaged_edits:
+        print('\nThese files had unstaged edits before clang-format reformatting. Please stage desired parts and confirm the commit again.\n- %s'
+              % '\n- '.join(files_had_unstaged_edits), file=sys.stderr)
+    if reformatted_files or files_had_unstaged_edits:
+        exit(1)
+### CLANG-FORMAT END
+
+exit(0)
+

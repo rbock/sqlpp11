@@ -32,7 +32,7 @@ MockDb db;
 
 int main()
 {
-	test::TabBar t;
+  test::TabBar t;
 
-	max(max(t.alpha));
+  max(max(t.alpha));
 }

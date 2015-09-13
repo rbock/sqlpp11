@@ -32,20 +32,19 @@
 
 namespace sqlpp
 {
-	struct no_value_t
-	{
-		using _tag = void;
-	};
+  struct no_value_t
+  {
+    using _tag = void;
+  };
 
-	template<typename Base>
-		struct expression_operators<Base, no_value_t>
-		{
-		};
+  template <typename Base>
+  struct expression_operators<Base, no_value_t>
+  {
+  };
 
-	template<typename Base>
-		struct column_operators<Base, no_value_t>
-		{
-		};
-
+  template <typename Base>
+  struct column_operators<Base, no_value_t>
+  {
+  };
 }
 #endif

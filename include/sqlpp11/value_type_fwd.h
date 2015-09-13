@@ -32,34 +32,32 @@
 
 namespace sqlpp
 {
-	template<typename ValueType>
-		struct parameter_value_t
-		{
-			static_assert(wrong_t<parameter_value_t>::value, "Missing parameter value type for ValueType");
-		};
+  template <typename ValueType>
+  struct parameter_value_t
+  {
+    static_assert(wrong_t<parameter_value_t>::value, "Missing parameter value type for ValueType");
+  };
 
-	template<typename Column, typename ValueType>
-		struct column_operators
-		{
-			static_assert(wrong_t<column_operators>::value, "Missing column operators for ValueType");
-		};
+  template <typename Column, typename ValueType>
+  struct column_operators
+  {
+    static_assert(wrong_t<column_operators>::value, "Missing column operators for ValueType");
+  };
 
-	template<typename Expr, typename ValueType>
-		struct expression_operators
-		{
-			static_assert(wrong_t<expression_operators>::value, "Missing expression operators for ValueType");
-		};
+  template <typename Expr, typename ValueType>
+  struct expression_operators
+  {
+    static_assert(wrong_t<expression_operators>::value, "Missing expression operators for ValueType");
+  };
 
-	template<typename ValueType, typename T>
-		struct is_valid_operand
-		{
-			static constexpr bool value =
-				is_expression_t<T>::value // expressions are OK
-				and ValueType::template _is_valid_operand<T>::value // the correct value type is required, of course
-				;
-		};
+  template <typename ValueType, typename T>
+  struct is_valid_operand
+  {
+    static constexpr bool value =
+        is_expression_t<T>::value                            // expressions are OK
+        and ValueType::template _is_valid_operand<T>::value  // the correct value type is required, of course
+        ;
+  };
 }
 
 #endif
-
-

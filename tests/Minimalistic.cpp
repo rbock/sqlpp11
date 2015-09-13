@@ -2,5 +2,5 @@
 
 int Minimalistic(int, char**)
 {
-	return 0;
+  return 0;
 }

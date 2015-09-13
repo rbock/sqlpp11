@@ -32,7 +32,7 @@ MockDb db;
 
 int main()
 {
-	test::TabBar t;
+  test::TabBar t;
 
-	insert_into(t).set(t.beta = "need also to insert gamma");
+  insert_into(t).set(t.beta = "need also to insert gamma");
 }

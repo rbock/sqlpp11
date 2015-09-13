@@ -31,58 +31,59 @@
 
 namespace sqlpp
 {
-	namespace detail
-	{
-		template<typename... T>
-			struct type_vector
-			{};
+  namespace detail
+  {
+    template <typename... T>
+    struct type_vector
+    {
+    };
 
-		template<typename...T>
-			struct type_vector_cat_impl
-			{
-				static_assert(wrong_t<type_vector_cat_impl>::value, "type_vector_cat must be called with type_vector arguments");
-			};
+    template <typename... T>
+    struct type_vector_cat_impl
+    {
+      static_assert(wrong_t<type_vector_cat_impl>::value, "type_vector_cat must be called with type_vector arguments");
+    };
 
-		template<>
-			struct type_vector_cat_impl<>
-			{
-				using type = type_vector<>;
-			};
+    template <>
+    struct type_vector_cat_impl<>
+    {
+      using type = type_vector<>;
+    };
 
-		template<typename... T>
-			struct type_vector_cat_impl<type_vector<T...>>
-			{
-				using type = type_vector<T...>;
-			};
+    template <typename... T>
+    struct type_vector_cat_impl<type_vector<T...>>
+    {
+      using type = type_vector<T...>;
+    };
 
-		template<typename... L, typename... R>
-			struct type_vector_cat_impl<type_vector<L...>, type_vector<R...>>
-			{
-				using type = type_vector<L..., R...>;
-			};
+    template <typename... L, typename... R>
+    struct type_vector_cat_impl<type_vector<L...>, type_vector<R...>>
+    {
+      using type = type_vector<L..., R...>;
+    };
 
-		template<typename... L, typename... Rest>
-			struct type_vector_cat_impl<type_vector<L...>, Rest...>
-			{
-				using type = typename type_vector_cat_impl<type_vector<L...>, typename type_vector_cat_impl<Rest...>::type>::type;
-			};
+    template <typename... L, typename... Rest>
+    struct type_vector_cat_impl<type_vector<L...>, Rest...>
+    {
+      using type = typename type_vector_cat_impl<type_vector<L...>, typename type_vector_cat_impl<Rest...>::type>::type;
+    };
 
-		template<typename... T>
-			using type_vector_cat_t = typename type_vector_cat_impl<T...>::type;
+    template <typename... T>
+    using type_vector_cat_t = typename type_vector_cat_impl<T...>::type;
 
-		template<typename T>
-			struct type_vector_size
-			{
-				static_assert(wrong_t<type_vector_size>::value, "type_vector_size needs to be called with a type_vector argument");
-			};
+    template <typename T>
+    struct type_vector_size
+    {
+      static_assert(wrong_t<type_vector_size>::value,
+                    "type_vector_size needs to be called with a type_vector argument");
+    };
 
-		template<typename... T>
-			struct type_vector_size<type_vector<T...>>
-			{
-				static constexpr std::size_t value = sizeof...(T);
-			};
-	}
+    template <typename... T>
+    struct type_vector_size<type_vector<T...>>
+    {
+      static constexpr std::size_t value = sizeof...(T);
+    };
+  }
 }
-
 
 #endif

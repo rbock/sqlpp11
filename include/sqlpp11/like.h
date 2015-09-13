@@ -34,57 +34,61 @@
 
 namespace sqlpp
 {
-	template<typename Operand, typename Pattern>
-		struct like_t:
-			public expression_operators<like_t<Operand, Pattern>, boolean>,
-			public alias_operators<like_t<Operand, Pattern>>
-	{
-		using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
-		using _nodes = detail::type_vector<Operand, Pattern>;
+  template <typename Operand, typename Pattern>
+  struct like_t : public expression_operators<like_t<Operand, Pattern>, boolean>,
+                  public alias_operators<like_t<Operand, Pattern>>
+  {
+    using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
+    using _nodes = detail::type_vector<Operand, Pattern>;
 
-		struct _alias_t
-		{
-			static constexpr const char _literal[] =  "like_";
-			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-			template<typename T>
-				struct _member_t
-				{
-					T like;
-					T& operator()() { return like; }
-					const T& operator()() const { return like; }
-				};
-		};
+    struct _alias_t
+    {
+      static constexpr const char _literal[] = "like_";
+      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+      template <typename T>
+      struct _member_t
+      {
+        T like;
+        T& operator()()
+        {
+          return like;
+        }
+        const T& operator()() const
+        {
+          return like;
+        }
+      };
+    };
 
-		like_t(Operand operand, Pattern pattern):
-			_operand(operand),
-			_pattern(pattern)
-		{}
+    like_t(Operand operand, Pattern pattern) : _operand(operand), _pattern(pattern)
+    {
+    }
 
-		like_t(const like_t&) = default;
-		like_t(like_t&&) = default;
-		like_t& operator=(const like_t&) = default;
-		like_t& operator=(like_t&&) = default;
-		~like_t() = default;
+    like_t(const like_t&) = default;
+    like_t(like_t&&) = default;
+    like_t& operator=(const like_t&) = default;
+    like_t& operator=(like_t&&) = default;
+    ~like_t() = default;
 
-		Operand _operand;
-		Pattern _pattern;
-	};
+    Operand _operand;
+    Pattern _pattern;
+  };
 
-	template<typename Context, typename Operand, typename Pattern>
-		struct serializer_t<Context, like_t<Operand, Pattern>>
-		{
-			using _serialize_check = serialize_check_of<Context, Operand, Pattern>;
-			using T = like_t<Operand, Pattern>;
+  template <typename Context, typename Operand, typename Pattern>
+  struct serializer_t<Context, like_t<Operand, Pattern>>
+  {
+    using _serialize_check = serialize_check_of<Context, Operand, Pattern>;
+    using T = like_t<Operand, Pattern>;
 
-			static Context& _(const T& t, Context& context)
-			{
-				serialize_operand(t._operand, context);
-				context << " LIKE(";
-				serialize(t._pattern, context);
-				context << ")";
-				return context;
-			}
-		};
+    static Context& _(const T& t, Context& context)
+    {
+      serialize_operand(t._operand, context);
+      context << " LIKE(";
+      serialize(t._pattern, context);
+      context << ")";
+      return context;
+    }
+  };
 }
 
 #endif

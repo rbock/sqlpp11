@@ -32,43 +32,42 @@
 
 namespace sqlpp
 {
-	enum class sort_type
-	{
-		asc,
-		desc
-	};
+  enum class sort_type
+  {
+    asc,
+    desc
+  };
 
-	template<typename Expression, sort_type SortType>
-		struct sort_order_t
-		{
-			using _traits = make_traits<no_value_t,  tag::is_sort_order>;
-			using _nodes = detail::type_vector<Expression>;
+  template <typename Expression, sort_type SortType>
+  struct sort_order_t
+  {
+    using _traits = make_traits<no_value_t, tag::is_sort_order>;
+    using _nodes = detail::type_vector<Expression>;
 
-			Expression _expression;
-		};
+    Expression _expression;
+  };
 
-	template<typename Context, typename Expression, sort_type SortType>
-		struct serializer_t<Context, sort_order_t<Expression, SortType>>
-		{
-			using _serialize_check = serialize_check_of<Context, Expression>;
-			using T = sort_order_t<Expression, SortType>;
+  template <typename Context, typename Expression, sort_type SortType>
+  struct serializer_t<Context, sort_order_t<Expression, SortType>>
+  {
+    using _serialize_check = serialize_check_of<Context, Expression>;
+    using T = sort_order_t<Expression, SortType>;
 
-			static Context& _(const T& t, Context& context)
-			{
-				serialize_operand(t._expression, context);
-				switch(SortType)
-				{
-				case sort_type::asc:
-					context << " ASC";
-					break;
-				default:
-					context << " DESC";
-					break;
-				}
-				return context;
-			}
-		};
-
+    static Context& _(const T& t, Context& context)
+    {
+      serialize_operand(t._expression, context);
+      switch (SortType)
+      {
+        case sort_type::asc:
+          context << " ASC";
+          break;
+        default:
+          context << " DESC";
+          break;
+      }
+      return context;
+    }
+  };
 }
 
 #endif

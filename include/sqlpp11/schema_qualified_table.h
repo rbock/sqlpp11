@@ -36,59 +36,57 @@
 
 namespace sqlpp
 {
-	template<typename Table>
-		struct schema_qualified_table_t
-	{
-		using _traits = make_traits<value_type_of<Table>, tag::is_table>;
+  template <typename Table>
+  struct schema_qualified_table_t
+  {
+    using _traits = make_traits<value_type_of<Table>, tag::is_table>;
 
-		using _nodes = detail::type_vector<>;
-		using _required_ctes = detail::type_set<>;
-		using _provided_tables = detail::type_set<>;
+    using _nodes = detail::type_vector<>;
+    using _required_ctes = detail::type_set<>;
+    using _provided_tables = detail::type_set<>;
 
-		schema_qualified_table_t(schema_t schema, Table table):
-			_schema(schema),
-			_table(table)
-		{}
+    schema_qualified_table_t(schema_t schema, Table table) : _schema(schema), _table(table)
+    {
+    }
 
-		template<typename AliasProvider>
-			typename Table::template _foreign_table_alias_t<AliasProvider, schema_qualified_table_t> as(const AliasProvider&) const
-			{
-				return {*this};
-			}
+    template <typename AliasProvider>
+    typename Table::template _foreign_table_alias_t<AliasProvider, schema_qualified_table_t> as(
+        const AliasProvider&) const
+    {
+      return {*this};
+    }
 
+    schema_t _schema;
+    Table _table;
+  };
 
-		schema_t _schema;
-		Table _table;
-	};
+  template <typename Context, typename Table>
+  struct serializer_t<Context, schema_qualified_table_t<Table>>
+  {
+    using _serialize_check = serialize_check_of<Context, Table>;
+    using T = schema_qualified_table_t<Table>;
 
-	template<typename Context, typename Table>
-		struct serializer_t<Context, schema_qualified_table_t<Table>>
-		{
-			using _serialize_check = serialize_check_of<Context, Table>;
-			using T = schema_qualified_table_t<Table>;
+    static Context& _(const T& t, Context& context)
+    {
+      serialize(t._schema, context);
+      context << '.';
+      serialize(t._table, context);
+      return context;
+    }
+  };
 
-			static Context& _(const T& t, Context& context)
-			{
-				serialize(t._schema, context);
-				context << '.';
-				serialize(t._table, context);
-				return context;
-			}
-		};
+  template <typename Table>
+  auto schema_qualified_table(schema_t schema, Table table) -> schema_qualified_table_t<Table>
+  {
+    static_assert(required_tables_of<Table>::size::value == 0,
+                  "schema qualified tables must not depend on other tables");
+    static_assert(required_ctes_of<Table>::size::value == 0,
+                  "schema qualified tables must not depend on common table expressions");
+    static_assert(is_raw_table_t<Table>::value,
+                  "table must be a raw table, i.e. not an alias or common table expression");
 
-	template<typename Table>
-		auto schema_qualified_table(schema_t schema, Table table)
-		-> schema_qualified_table_t<Table>
-		{
-			static_assert(required_tables_of<Table>::size::value == 0, "schema qualified tables must not depend on other tables");
-			static_assert(required_ctes_of<Table>::size::value == 0, "schema qualified tables must not depend on common table expressions");
-			static_assert(is_raw_table_t<Table>::value, "table must be a raw table, i.e. not an alias or common table expression");
-
-			return {schema, table};
-		}
-
-
+    return {schema, table};
+  }
 }
 
 #endif
-

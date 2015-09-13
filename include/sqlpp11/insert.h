@@ -39,102 +39,96 @@
 
 namespace sqlpp
 {
-	struct insert_name_t {};
+  struct insert_name_t
+  {
+  };
 
-	struct insert_t: public statement_name_t<insert_name_t>
-	{
-		using _traits = make_traits<no_value_t, tag::is_return_value>;
-		struct _alias_t {};
+  struct insert_t : public statement_name_t<insert_name_t>
+  {
+    using _traits = make_traits<no_value_t, tag::is_return_value>;
+    struct _alias_t
+    {
+    };
 
-		template<typename Statement>
-			struct _result_methods_t
-			{
-				using _statement_t = Statement;
+    template <typename Statement>
+    struct _result_methods_t
+    {
+      using _statement_t = Statement;
 
-				const _statement_t& _get_statement() const
-				{
-					return static_cast<const _statement_t&>(*this);
-				}
+      const _statement_t& _get_statement() const
+      {
+        return static_cast<const _statement_t&>(*this);
+      }
 
-				// Execute
-				template<typename Db, typename Composite>
-					auto _run(Db& db, const Composite& composite) const
-					-> decltype(db.insert(composite))
-					{
-						return db.insert(composite);
-					}
+      // Execute
+      template <typename Db, typename Composite>
+      auto _run(Db& db, const Composite& composite) const -> decltype(db.insert(composite))
+      {
+        return db.insert(composite);
+      }
 
-				template<typename Db>
-					auto _run(Db& db) const -> decltype(db.insert(this->_get_statement()))
-					{
-						return db.insert(_get_statement());
-					}
+      template <typename Db>
+      auto _run(Db& db) const -> decltype(db.insert(this->_get_statement()))
+      {
+        return db.insert(_get_statement());
+      }
 
-				// Prepare
-				template<typename Db, typename Composite>
-					auto _prepare(Db& db, const Composite& composite) const
-					-> prepared_insert_t<Db, Composite>
-					{
-						return {{}, db.prepare_insert(composite)};
-					}
+      // Prepare
+      template <typename Db, typename Composite>
+      auto _prepare(Db& db, const Composite& composite) const -> prepared_insert_t<Db, Composite>
+      {
+        return {{}, db.prepare_insert(composite)};
+      }
 
-				template<typename Db>
-					auto _prepare(Db& db) const
-					-> prepared_insert_t<Db, _statement_t>
-					{
-						return {{}, db.prepare_insert(_get_statement())};
-					}
-			};
-	};
+      template <typename Db>
+      auto _prepare(Db& db) const -> prepared_insert_t<Db, _statement_t>
+      {
+        return {{}, db.prepare_insert(_get_statement())};
+      }
+    };
+  };
 
-	template<typename Context>
-		struct serializer_t<Context, insert_name_t>
-		{
-			using _serialize_check = consistent_t;
-			using T = insert_name_t;
+  template <typename Context>
+  struct serializer_t<Context, insert_name_t>
+  {
+    using _serialize_check = consistent_t;
+    using T = insert_name_t;
 
-			static Context& _(const T&, Context& context)
-			{
-				context << "INSERT ";
+    static Context& _(const T&, Context& context)
+    {
+      context << "INSERT ";
 
-				return context;
-			}
-		};
+      return context;
+    }
+  };
 
-	template<typename Database>
-		using blank_insert_t = statement_t<Database,
-					insert_t,
-					no_into_t,
-					no_insert_value_list_t>;
+  template <typename Database>
+  using blank_insert_t = statement_t<Database, insert_t, no_into_t, no_insert_value_list_t>;
 
-	inline auto insert()
-		-> blank_insert_t<void>
-		{
-			return { blank_insert_t<void>() };
-		}
+  inline auto insert() -> blank_insert_t<void>
+  {
+    return {blank_insert_t<void>()};
+  }
 
-	template<typename Table>
-		constexpr auto insert_into(Table table)
-		-> decltype(blank_insert_t<void>().into(table))
-		{
-			return { blank_insert_t<void>().into(table) };
-		}
+  template <typename Table>
+  constexpr auto insert_into(Table table) -> decltype(blank_insert_t<void>().into(table))
+  {
+    return {blank_insert_t<void>().into(table)};
+  }
 
-	template<typename Database>
-		constexpr auto  dynamic_insert(const Database&)
-		-> decltype(blank_insert_t<Database>())
-		{
-			static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
-			return { blank_insert_t<Database>() };
-		}
+  template <typename Database>
+  constexpr auto dynamic_insert(const Database&) -> decltype(blank_insert_t<Database>())
+  {
+    static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
+    return {blank_insert_t<Database>()};
+  }
 
-	template<typename Database, typename Table>
-		constexpr auto  dynamic_insert_into(const Database&, Table table)
-		-> decltype(blank_insert_t<Database>().into(table))
-		{
-			static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
-			return { blank_insert_t<Database>().into(table) };
-		}
+  template <typename Database, typename Table>
+  constexpr auto dynamic_insert_into(const Database&, Table table) -> decltype(blank_insert_t<Database>().into(table))
+  {
+    static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
+    return {blank_insert_t<Database>().into(table)};
+  }
 }
 
 #endif

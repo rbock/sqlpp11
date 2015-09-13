@@ -32,34 +32,34 @@
 
 namespace sqlpp
 {
-	template<typename Column>
-		struct simple_column_t
-		{
-			using _column_t = Column;
-			_column_t _column;
+  template <typename Column>
+  struct simple_column_t
+  {
+    using _column_t = Column;
+    _column_t _column;
 
-			using _traits = make_traits<no_value_t, tag::is_noop>;
-			using _nodes = detail::type_vector<>;
-		};
+    using _traits = make_traits<no_value_t, tag::is_noop>;
+    using _nodes = detail::type_vector<>;
+  };
 
-	template<typename Context, typename Column>
-		struct serializer_t<Context, simple_column_t<Column>>
-		{
-			using _serialize_check = serialize_check_of<Context, Column>;
-			using T = simple_column_t<Column>;
+  template <typename Context, typename Column>
+  struct serializer_t<Context, simple_column_t<Column>>
+  {
+    using _serialize_check = serialize_check_of<Context, Column>;
+    using T = simple_column_t<Column>;
 
-			static Context& _(const T&, Context& context)
-			{
-				context << name_of<typename T::_column_t>::char_ptr();
-				return context;
-			}
-		};
+    static Context& _(const T&, Context& context)
+    {
+      context << name_of<typename T::_column_t>::char_ptr();
+      return context;
+    }
+  };
 
-	template<typename Column>
-		simple_column_t<Column> simple_column(Column c)
-		{
-			return {c};
-		}
+  template <typename Column>
+  simple_column_t<Column> simple_column(Column c)
+  {
+    return {c};
+  }
 }
 
 #endif

@@ -31,30 +31,27 @@
 
 namespace sqlpp
 {
-	namespace detail
-	{
-		template<template<typename> class Predicate, typename Default, typename... T>
-			struct get_last_if_impl;
+  namespace detail
+  {
+    template <template <typename> class Predicate, typename Default, typename... T>
+    struct get_last_if_impl;
 
-		template<template<typename> class Predicate, typename Default>
-			struct get_last_if_impl<Predicate, Default>
-			{
-				using type = Default;
-			};
+    template <template <typename> class Predicate, typename Default>
+    struct get_last_if_impl<Predicate, Default>
+    {
+      using type = Default;
+    };
 
-		template<template<typename> class Predicate, typename Default, typename T, typename... Rest>
-			struct get_last_if_impl<Predicate, Default, T, Rest...>
-			{
-				using rest = typename get_last_if_impl<Predicate, Default, Rest...>::type;
-				using type = typename std::conditional<std::is_same<rest, Default>::value and Predicate<T>::value,
-							T,
-							rest>::type;
-			};
+    template <template <typename> class Predicate, typename Default, typename T, typename... Rest>
+    struct get_last_if_impl<Predicate, Default, T, Rest...>
+    {
+      using rest = typename get_last_if_impl<Predicate, Default, Rest...>::type;
+      using type = typename std::conditional<std::is_same<rest, Default>::value and Predicate<T>::value, T, rest>::type;
+    };
 
-		template<template<typename> class Predicate, typename Default, typename... T>
-			using get_last_if = typename get_last_if_impl<Predicate, Default, T...>::type;
-	}
+    template <template <typename> class Predicate, typename Default, typename... T>
+    using get_last_if = typename get_last_if_impl<Predicate, Default, T...>::type;
+  }
 }
-
 
 #endif

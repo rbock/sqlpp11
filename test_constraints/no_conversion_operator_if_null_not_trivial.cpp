@@ -27,22 +27,23 @@
 #include "MockDb.h"
 #include <sqlpp11/sqlpp11.h>
 
-EnforceDb edb {};
+EnforceDb edb{};
 
 int main()
 {
-	test::TabBar t;
+  test::TabBar t;
 
-	static_assert(sqlpp::can_be_null_t<decltype(t.alpha)>::value, "t.alpha can be null");
-	static_assert(not sqlpp::null_is_trivial_value_t<decltype(t.alpha)>::value, "t.alpha does not say null_is_trivial");
+  static_assert(sqlpp::can_be_null_t<decltype(t.alpha)>::value, "t.alpha can be null");
+  static_assert(not sqlpp::null_is_trivial_value_t<decltype(t.alpha)>::value, "t.alpha does not say null_is_trivial");
 
-	for (const auto& row : edb(select(all_of(t)).from(t).where(true)))
-	{
-		static_assert(sqlpp::can_be_null_t<decltype(row.alpha)>::value, "row.alpha can be null");
-		static_assert(not sqlpp::null_is_trivial_value_t<decltype(row.alpha)>::value, "row.alpha does not interpret null_is_trivial");
+  for (const auto& row : edb(select(all_of(t)).from(t).where(true)))
+  {
+    static_assert(sqlpp::can_be_null_t<decltype(row.alpha)>::value, "row.alpha can be null");
+    static_assert(not sqlpp::null_is_trivial_value_t<decltype(row.alpha)>::value,
+                  "row.alpha does not interpret null_is_trivial");
 
-		int i = row.alpha;
-	}
+    int i = row.alpha;
+  }
 
-	return 0;
+  return 0;
 }

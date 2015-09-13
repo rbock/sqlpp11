@@ -32,100 +32,122 @@
 #include <sqlpp11/functions.h>
 #include <sqlpp11/connection.h>
 
-
-template<typename Db, typename Column>
+template <typename Db, typename Column>
 int64_t getColumn(Db&& db, const Column& column)
 {
-	auto result = db(select(column.as(sqlpp::alias::a)).from(column.table()).where(true));
-	if (not result.empty())
-		return result.front().a;
-	else
-		return 0;
+  auto result = db(select(column.as(sqlpp::alias::a)).from(column.table()).where(true));
+  if (not result.empty())
+    return result.front().a;
+  else
+    return 0;
 }
 
 int Select(int, char**)
 {
-	MockDb db = {};
-	MockDb::_serializer_context_t printer;
+  MockDb db = {};
+  MockDb::_serializer_context_t printer;
 
-	test::TabFoo f;
-	test::TabBar t;
-	const auto tab_a = f.as(sqlpp::alias::a);
+  test::TabFoo f;
+  test::TabBar t;
+  const auto tab_a = f.as(sqlpp::alias::a);
 
-	getColumn(db, t.alpha);
-	select(count(t.alpha));
+  getColumn(db, t.alpha);
+  select(count(t.alpha));
 
-	for (const auto& row : db(select(sqlpp::value(false).as(sqlpp::alias::a))))
-	{
-		std::cout << row.a << std::endl;
-	}
+  for (const auto& row : db(select(sqlpp::value(false).as(sqlpp::alias::a))))
+  {
+    std::cout << row.a << std::endl;
+  }
 
-	for (const auto& row : db(select(all_of(t)).from(t).where(true)))
-	{
-		int64_t a = row.alpha;
-		const std::string b = row.beta;
-		std::cout << a << ", " << b << std::endl;
-	}
+  for (const auto& row : db(select(all_of(t)).from(t).where(true)))
+  {
+    int64_t a = row.alpha;
+    const std::string b = row.beta;
+    std::cout << a << ", " << b << std::endl;
+  }
 
-	for (const auto& row : db(select(all_of(t).as(t)).from(t).where(true)))
-	{
-		int64_t a = row.tabBar.alpha;
-		const std::string b = row.tabBar.beta;
-		std::cout << a << ", " << b << std::endl;
-	}
+  for (const auto& row : db(select(all_of(t).as(t)).from(t).where(true)))
+  {
+    int64_t a = row.tabBar.alpha;
+    const std::string b = row.tabBar.beta;
+    std::cout << a << ", " << b << std::endl;
+  }
 
-	for (const auto& row : db(select(all_of(t).as(t), t.gamma).from(t).where(t.alpha > 7)))
-	{
-		int64_t a = row.tabBar.alpha;
-		const std::string b = row.tabBar.beta;
-		const bool g = row.gamma;
-		std::cout << a << ", " << b << ", " << g << std::endl;
-	}
+  for (const auto& row : db(select(all_of(t).as(t), t.gamma).from(t).where(t.alpha > 7)))
+  {
+    int64_t a = row.tabBar.alpha;
+    const std::string b = row.tabBar.beta;
+    const bool g = row.gamma;
+    std::cout << a << ", " << b << ", " << g << std::endl;
+  }
 
-	for (const auto& row : db(select(all_of(t), all_of(f)).from(t.join(f).on(t.alpha > f.omega and not t.gamma)).where(true)))
-	{
-		std::cout << row.alpha << std::endl;
-	}
+  for (const auto& row :
+       db(select(all_of(t), all_of(f)).from(t.join(f).on(t.alpha > f.omega and not t.gamma)).where(true)))
+  {
+    std::cout << row.alpha << std::endl;
+  }
 
-	for (const auto& row : db(select(all_of(t), all_of(f)).from(t.join(f).on(t.alpha > f.omega).join(tab_a).on(t.alpha == tab_a.omega)).where(true)))
-	{
-		std::cout << row.alpha << std::endl;
-	}
+  for (const auto& row : db(select(all_of(t), all_of(f))
+                                .from(t.join(f).on(t.alpha > f.omega).join(tab_a).on(t.alpha == tab_a.omega))
+                                .where(true)))
+  {
+    std::cout << row.alpha << std::endl;
+  }
 
-	for (const auto& row : db(select(count(t.alpha), avg(t.alpha)).from(t).where(true)))
-	{
-		std::cout << row.count << std::endl;
-	}
+  for (const auto& row : db(select(count(t.alpha), avg(t.alpha)).from(t).where(true)))
+  {
+    std::cout << row.count << std::endl;
+  }
 
-	for (const auto& row : db(select(count(t.alpha), avg(t.alpha)).from(t).where(t.alpha == sqlpp::tvin(0))))
-	{
-		std::cout << row.count << std::endl;
-	}
+  for (const auto& row : db(select(count(t.alpha), avg(t.alpha)).from(t).where(t.alpha == sqlpp::tvin(0))))
+  {
+    std::cout << row.count << std::endl;
+  }
 
-	auto stat = sqlpp::select().columns(all_of(t)).flags(sqlpp::all).from(t).extra_tables(f,t).where(t.alpha > 0).group_by(t.alpha).order_by(t.gamma.asc()).having(t.gamma).limit(7).offset(19);
+  auto stat = sqlpp::select()
+                  .columns(all_of(t))
+                  .flags(sqlpp::all)
+                  .from(t)
+                  .extra_tables(f, t)
+                  .where(t.alpha > 0)
+                  .group_by(t.alpha)
+                  .order_by(t.gamma.asc())
+                  .having(t.gamma)
+                  .limit(7)
+                  .offset(19);
 
-	auto s = dynamic_select(db).dynamic_columns(all_of(t)).dynamic_flags().dynamic_from(t).extra_tables(f,t).dynamic_where().dynamic_group_by(t.alpha).dynamic_order_by().dynamic_having(t.gamma).dynamic_limit().dynamic_offset();
-	s.select_flags.add(sqlpp::distinct);
-	s.selected_columns.add(f.omega);
-	s.from.add(f);
-	s.where.add(t.alpha > 7);
-	s.having.add(t.alpha > 7);
-	s.limit.set(3);
-	s.offset.set(3);
-	s.group_by.add(t.beta);
-	s.order_by.add(t.beta.asc());
-	for (const auto& row : db(s))
-	{
-		int64_t a = row.alpha;
-		std::cout << a << std::endl;
-	}
+  auto s = dynamic_select(db)
+               .dynamic_columns(all_of(t))
+               .dynamic_flags()
+               .dynamic_from(t)
+               .extra_tables(f, t)
+               .dynamic_where()
+               .dynamic_group_by(t.alpha)
+               .dynamic_order_by()
+               .dynamic_having(t.gamma)
+               .dynamic_limit()
+               .dynamic_offset();
+  s.select_flags.add(sqlpp::distinct);
+  s.selected_columns.add(f.omega);
+  s.from.add(f);
+  s.where.add(t.alpha > 7);
+  s.having.add(t.alpha > 7);
+  s.limit.set(3);
+  s.offset.set(3);
+  s.group_by.add(t.beta);
+  s.order_by.add(t.beta.asc());
+  for (const auto& row : db(s))
+  {
+    int64_t a = row.alpha;
+    std::cout << a << std::endl;
+  }
 
-	printer.reset();
-	std::cerr << serialize(s, printer).str() << std::endl;
-	printer.reset();
-	std::cerr << serialize(stat, printer).str() << std::endl;
+  printer.reset();
+  std::cerr << serialize(s, printer).str() << std::endl;
+  printer.reset();
+  std::cerr << serialize(stat, printer).str() << std::endl;
 
-	select(sqlpp::value(7).as(t.alpha));
+  select(sqlpp::value(7).as(t.alpha));
 
-	return 0;
+  return 0;
 }

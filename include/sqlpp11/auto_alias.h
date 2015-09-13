@@ -31,36 +31,35 @@
 
 namespace sqlpp
 {
-	template<typename T, typename Enable = void>
-		struct has_auto_alias_t
-		{
-			static constexpr bool value = false;
-		};
+  template <typename T, typename Enable = void>
+  struct has_auto_alias_t
+  {
+    static constexpr bool value = false;
+  };
 
-	template<typename T>
-		struct has_auto_alias_t<T, typename std::enable_if<not wrong_t<typename T::_auto_alias_t>::value>::type>
-		{
-			static constexpr bool value = true;
-		};
+  template <typename T>
+  struct has_auto_alias_t<T, typename std::enable_if<not wrong_t<typename T::_auto_alias_t>::value>::type>
+  {
+    static constexpr bool value = true;
+  };
 
-	namespace detail
-	{
-		template<typename T, typename Enable = void>
-			struct auto_alias_impl
-			{
-				using type = T;
-			};
+  namespace detail
+  {
+    template <typename T, typename Enable = void>
+    struct auto_alias_impl
+    {
+      using type = T;
+    };
 
-		template<typename T>
-			struct auto_alias_impl<T, typename std::enable_if<has_auto_alias_t<T>::value>::type>
-			{
-				using type = expression_alias_t<T, typename T::_auto_alias_t>;
-			};
-	}
+    template <typename T>
+    struct auto_alias_impl<T, typename std::enable_if<has_auto_alias_t<T>::value>::type>
+    {
+      using type = expression_alias_t<T, typename T::_auto_alias_t>;
+    };
+  }
 
-	template<typename T>
-		using auto_alias_t = typename detail::auto_alias_impl<T>::type;
+  template <typename T>
+  using auto_alias_t = typename detail::auto_alias_impl<T>::type;
 }
-
 
 #endif

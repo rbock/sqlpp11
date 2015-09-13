@@ -33,32 +33,30 @@
 
 namespace sqlpp
 {
-	template<typename Db, typename Update>
-		struct prepared_update_t
-		{
-			using _traits = make_traits<no_value_t, tag::is_prepared_statement>;
-			using _nodes = detail::type_vector<>;
+  template <typename Db, typename Update>
+  struct prepared_update_t
+  {
+    using _traits = make_traits<no_value_t, tag::is_prepared_statement>;
+    using _nodes = detail::type_vector<>;
 
-			using _parameter_list_t = make_parameter_list_t<Update>;
-			using _prepared_statement_t = typename Db::_prepared_statement_t;
+    using _parameter_list_t = make_parameter_list_t<Update>;
+    using _prepared_statement_t = typename Db::_prepared_statement_t;
 
-			using _run_check = consistent_t;
+    using _run_check = consistent_t;
 
-			auto _run(Db& db) const
-				-> size_t
-				{
-					return db.run_prepared_insert(*this);
-				}
+    auto _run(Db& db) const -> size_t
+    {
+      return db.run_prepared_insert(*this);
+    }
 
-			void _bind_params() const
-			{
-				params._bind(_prepared_statement);
-			}
+    void _bind_params() const
+    {
+      params._bind(_prepared_statement);
+    }
 
-			_parameter_list_t params;
-			mutable _prepared_statement_t _prepared_statement;
-		};
-
+    _parameter_list_t params;
+    mutable _prepared_statement_t _prepared_statement;
+  };
 }
 
 #endif

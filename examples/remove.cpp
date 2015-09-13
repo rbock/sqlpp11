@@ -29,13 +29,11 @@
 
 int remove(int, char**)
 {
-	MockDb db;
+  MockDb db;
 
-	test::TabPerson p;
-	test::TabFeature q;
+  test::TabPerson p;
+  test::TabFeature q;
 
-	db(remove_from(p)
-			.using_(p, q)
-			.where(p.feature == q.id and q.fatal == true));
-	return 0;
+  db(remove_from(p).using_(p, q).where(p.feature == q.id and q.fatal == true));
+  return 0;
 }

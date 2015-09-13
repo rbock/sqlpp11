@@ -40,105 +40,95 @@
 
 namespace sqlpp
 {
-	struct remove_name_t {};
-	struct remove_t: public statement_name_t<remove_name_t>
-	{
-		using _traits = make_traits<no_value_t, tag::is_return_value>;
-		struct _alias_t {};
+  struct remove_name_t
+  {
+  };
+  struct remove_t : public statement_name_t<remove_name_t>
+  {
+    using _traits = make_traits<no_value_t, tag::is_return_value>;
+    struct _alias_t
+    {
+    };
 
-		template<typename Statement>
-			struct _result_methods_t
-			{
-				using _statement_t = Statement;
+    template <typename Statement>
+    struct _result_methods_t
+    {
+      using _statement_t = Statement;
 
-				const _statement_t& _get_statement() const
-				{
-					return static_cast<const _statement_t&>(*this);
-				}
+      const _statement_t& _get_statement() const
+      {
+        return static_cast<const _statement_t&>(*this);
+      }
 
-				// Execute
-				template<typename Db, typename Composite>
-					auto _run(Db& db, const Composite& composite) const
-					-> decltype(db.remove(composite))
-					{
-						return db.remove(composite);
-					}
+      // Execute
+      template <typename Db, typename Composite>
+      auto _run(Db& db, const Composite& composite) const -> decltype(db.remove(composite))
+      {
+        return db.remove(composite);
+      }
 
-				template<typename Db>
-					auto _run(Db& db) const -> decltype(db.remove(this->_get_statement()))
-					{
-						return db.remove(_get_statement());
-					}
+      template <typename Db>
+      auto _run(Db& db) const -> decltype(db.remove(this->_get_statement()))
+      {
+        return db.remove(_get_statement());
+      }
 
-				// Prepare
-				template<typename Db, typename Composite>
-					auto _prepare(Db& db, const Composite& composite) const
-					-> prepared_remove_t<Db, Composite>
-					{
-						return {{}, db.prepare_remove(composite)};
-					}
+      // Prepare
+      template <typename Db, typename Composite>
+      auto _prepare(Db& db, const Composite& composite) const -> prepared_remove_t<Db, Composite>
+      {
+        return {{}, db.prepare_remove(composite)};
+      }
 
-				template<typename Db>
-					auto _prepare(Db& db) const
-					-> prepared_remove_t<Db, _statement_t>
-					{
-						return {{}, db.prepare_remove(_get_statement())};
-					}
-			};
-	};
+      template <typename Db>
+      auto _prepare(Db& db) const -> prepared_remove_t<Db, _statement_t>
+      {
+        return {{}, db.prepare_remove(_get_statement())};
+      }
+    };
+  };
 
+  template <typename Context>
+  struct serializer_t<Context, remove_name_t>
+  {
+    using _serialize_check = consistent_t;
+    using T = remove_name_t;
 
-	template<typename Context>
-		struct serializer_t<Context, remove_name_t>
-		{
-			using _serialize_check = consistent_t;
-			using T = remove_name_t;
+    static Context& _(const T&, Context& context)
+    {
+      context << "DELETE";
 
-			static Context& _(const T&, Context& context)
-			{
-				context << "DELETE";
+      return context;
+    }
+  };
 
-				return context;
-			}
-		};
+  template <typename Database>
+  using blank_remove_t = statement_t<Database, remove_t, no_from_t, no_using_t, no_extra_tables_t, no_where_t<true>>;
 
-	template<typename Database>
-		using blank_remove_t = statement_t<Database,
-					remove_t,
-					no_from_t,
-					no_using_t,
-					no_extra_tables_t,
-					no_where_t<true>
-						>;
+  inline auto remove() -> blank_remove_t<void>
+  {
+    return {blank_remove_t<void>()};
+  }
 
-	inline auto remove()
-		-> blank_remove_t<void>
-		{
-			return { blank_remove_t<void>() };
-		}
+  template <typename Table>
+  auto remove_from(Table table) -> decltype(blank_remove_t<void>().from(table))
+  {
+    return {blank_remove_t<void>().from(table)};
+  }
 
-	template<typename Table>
-		auto remove_from(Table table)
-		-> decltype(blank_remove_t<void>().from(table))
-		{
-			return { blank_remove_t<void>().from(table) };
-		}
+  template <typename Database>
+  auto dynamic_remove(const Database&) -> decltype(blank_remove_t<Database>())
+  {
+    static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
+    return {blank_remove_t<Database>()};
+  }
 
-	template<typename Database>
-		auto  dynamic_remove(const Database&)
-		-> decltype(blank_remove_t<Database>())
-		{
-			static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
-			return { blank_remove_t<Database>() };
-		}
-
-	template<typename Database, typename Table>
-		auto  dynamic_remove_from(const Database&, Table table)
-		-> decltype(blank_remove_t<Database>().from(table))
-		{
-			static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
-			return { blank_remove_t<Database>().from(table) };
-		}
+  template <typename Database, typename Table>
+  auto dynamic_remove_from(const Database&, Table table) -> decltype(blank_remove_t<Database>().from(table))
+  {
+    static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
+    return {blank_remove_t<Database>().from(table)};
+  }
 }
 
 #endif

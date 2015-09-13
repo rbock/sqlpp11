@@ -29,11 +29,10 @@
 
 namespace sqlpp
 {
-	template<typename Operand, typename... Args>
-		struct in_t;
-	template<typename Operand, typename... Args>
-		struct not_in_t;
-
+  template <typename Operand, typename... Args>
+  struct in_t;
+  template <typename Operand, typename... Args>
+  struct not_in_t;
 }
 
 #endif

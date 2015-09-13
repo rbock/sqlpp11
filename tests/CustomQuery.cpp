@@ -31,37 +31,39 @@
 
 int CustomQuery(int, char**)
 {
-	MockDb db = {};
-	MockDb::_serializer_context_t printer;
+  MockDb db = {};
+  MockDb::_serializer_context_t printer;
 
-	test::TabFoo f;
-	test::TabBar t;
+  test::TabFoo f;
+  test::TabBar t;
 
-	// A void custom query
-	printer.reset();
-	auto x = custom_query(sqlpp::verbatim("PRAGMA writeable_schema = "), true);
-	std::cerr << serialize(x, printer).str() << std::endl;
-	db(x);
+  // A void custom query
+  printer.reset();
+  auto x = custom_query(sqlpp::verbatim("PRAGMA writeable_schema = "), true);
+  std::cerr << serialize(x, printer).str() << std::endl;
+  db(x);
 
-	// Syntactically, it is possible to use this void query as a prepared statement, too, not sure, whether this makes sense very often...
-	db(db.prepare(x));
+  // Syntactically, it is possible to use this void query as a prepared statement, too, not sure, whether this makes
+  // sense very often...
+  db(db.prepare(x));
 
-	// A prepared custom select
-	// The return type of the custom query is determined from the first argument which does have a return type, in this case the select
-	auto p = db.prepare(custom_query(select(all_of(t)).from(t), where(t.alpha > sqlpp::parameter(t.alpha))));
-	p.params.alpha = 8;
-	for (const auto& row : db(p))
-	{
-		std::cerr << row.alpha << std::endl;
-	}
+  // A prepared custom select
+  // The return type of the custom query is determined from the first argument which does have a return type, in this
+  // case the select
+  auto p = db.prepare(custom_query(select(all_of(t)).from(t), where(t.alpha > sqlpp::parameter(t.alpha))));
+  p.params.alpha = 8;
+  for (const auto& row : db(p))
+  {
+    std::cerr << row.alpha << std::endl;
+  }
 
-	// A custom (select ... into) with adjusted return type
-	// The first argument with a return type is the select, but the custom query is really an insert. Thus, we tell it so.
-	printer.reset();
-	auto c = custom_query(select(all_of(t)).from(t), into(f)).with_result_type_of(insert_into(f));
-	std::cerr << serialize(c, printer).str() << std::endl;
-	auto i = db(c);
-	static_assert(std::is_integral<decltype(i)>::value, "insert yields an integral value");
+  // A custom (select ... into) with adjusted return type
+  // The first argument with a return type is the select, but the custom query is really an insert. Thus, we tell it so.
+  printer.reset();
+  auto c = custom_query(select(all_of(t)).from(t), into(f)).with_result_type_of(insert_into(f));
+  std::cerr << serialize(c, printer).str() << std::endl;
+  auto i = db(c);
+  static_assert(std::is_integral<decltype(i)>::value, "insert yields an integral value");
 
-	return 0;
+  return 0;
 }

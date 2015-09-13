@@ -36,144 +36,155 @@
 
 namespace sqlpp
 {
-	// A SINGLE TABLE DATA
-	template<typename Database, typename Table>
-		struct single_table_data_t
-		{
-			single_table_data_t(Table table):
-				_table(table)
-			{}
+  // A SINGLE TABLE DATA
+  template <typename Database, typename Table>
+  struct single_table_data_t
+  {
+    single_table_data_t(Table table) : _table(table)
+    {
+    }
 
-			single_table_data_t(const single_table_data_t&) = default;
-			single_table_data_t(single_table_data_t&&) = default;
-			single_table_data_t& operator=(const single_table_data_t&) = default;
-			single_table_data_t& operator=(single_table_data_t&&) = default;
-			~single_table_data_t() = default;
+    single_table_data_t(const single_table_data_t&) = default;
+    single_table_data_t(single_table_data_t&&) = default;
+    single_table_data_t& operator=(const single_table_data_t&) = default;
+    single_table_data_t& operator=(single_table_data_t&&) = default;
+    ~single_table_data_t() = default;
 
-			Table _table;
-		};
+    Table _table;
+  };
 
-	// A SINGLE TABLE
-	template<typename Database, typename Table>
-		struct single_table_t
-		{
-			using _traits = make_traits<no_value_t, tag::is_single_table>;
-			using _nodes = detail::type_vector<Table>;
+  // A SINGLE TABLE
+  template <typename Database, typename Table>
+  struct single_table_t
+  {
+    using _traits = make_traits<no_value_t, tag::is_single_table>;
+    using _nodes = detail::type_vector<Table>;
 
-			static_assert(is_table_t<Table>::value, "argument has to be a table");
-			static_assert(required_tables_of<Table>::size::value == 0, "table depends on another table");
+    static_assert(is_table_t<Table>::value, "argument has to be a table");
+    static_assert(required_tables_of<Table>::size::value == 0, "table depends on another table");
 
-			using _data_t = single_table_data_t<Database, Table>;
+    using _data_t = single_table_data_t<Database, Table>;
 
-			struct _alias_t {};
+    struct _alias_t
+    {
+    };
 
-			// Member implementation with data and methods
-			template <typename Policies>
-				struct _impl_t
-				{
-					_data_t _data;
-				};
+    // Member implementation with data and methods
+    template <typename Policies>
+    struct _impl_t
+    {
+      _data_t _data;
+    };
 
-			// Base template to be inherited by the statement
-			template<typename Policies>
-				struct _base_t
-				{
-					using _data_t = single_table_data_t<Database, Table>;
+    // Base template to be inherited by the statement
+    template <typename Policies>
+    struct _base_t
+    {
+      using _data_t = single_table_data_t<Database, Table>;
 
-					_impl_t<Policies> from;
-					_impl_t<Policies>& operator()() { return from; }
-					const _impl_t<Policies>& operator()() const { return from; }
+      _impl_t<Policies> from;
+      _impl_t<Policies>& operator()()
+      {
+        return from;
+      }
+      const _impl_t<Policies>& operator()() const
+      {
+        return from;
+      }
 
-					template<typename T>
-						static auto _get_member(T t) -> decltype(t.from)
-						{
-							return t.from;
-						}
+      template <typename T>
+      static auto _get_member(T t) -> decltype(t.from)
+      {
+        return t.from;
+      }
 
-					using _consistency_check = consistent_t;
-				};
+      using _consistency_check = consistent_t;
+    };
+  };
 
-		};
+  // NO INTO YET
+  struct no_single_table_t
+  {
+    using _traits = make_traits<no_value_t, tag::is_noop>;
+    using _nodes = detail::type_vector<>;
 
-	// NO INTO YET
-	struct no_single_table_t
-	{
-		using _traits = make_traits<no_value_t, tag::is_noop>;
-		using _nodes = detail::type_vector<>;
+    // Data
+    using _data_t = no_data_t;
 
-		// Data
-		using _data_t = no_data_t;
+    // Member implementation with data and methods
+    template <typename Policies>
+    struct _impl_t
+    {
+      _data_t _data;
+    };
 
-		// Member implementation with data and methods
-		template<typename Policies>
-			struct _impl_t
-			{
-				_data_t _data;
-			};
+    // Base template to be inherited by the statement
+    template <typename Policies>
+    struct _base_t
+    {
+      using _data_t = no_data_t;
 
-		// Base template to be inherited by the statement
-		template<typename Policies>
-			struct _base_t
-			{
-				using _data_t = no_data_t;
+      _impl_t<Policies> no_from;
+      _impl_t<Policies>& operator()()
+      {
+        return no_from;
+      }
+      const _impl_t<Policies>& operator()() const
+      {
+        return no_from;
+      }
 
-				_impl_t<Policies> no_from;
-				_impl_t<Policies>& operator()() { return no_from; }
-				const _impl_t<Policies>& operator()() const { return no_from; }
+      template <typename T>
+      static auto _get_member(T t) -> decltype(t.no_from)
+      {
+        return t.no_from;
+      }
 
-				template<typename T>
-					static auto _get_member(T t) -> decltype(t.no_from)
-					{
-						return t.no_from;
-					}
+      using _database_t = typename Policies::_database_t;
+      template <typename T>
+      using _check = logic::all_t<is_table_t<T>::value>;
 
-				using _database_t = typename Policies::_database_t;
-				template<typename T>
-					using _check = logic::all_t<is_table_t<T>::value>;
+      template <typename Check, typename T>
+      using _new_statement_t = new_statement_t<Check::value, Policies, no_single_table_t, T>;
 
-				template<typename Check, typename T>
-					using _new_statement_t = new_statement_t<Check::value, Policies, no_single_table_t, T>;
+      using _consistency_check = consistent_t;
 
-				using _consistency_check = consistent_t;
+      template <typename Table>
+      auto single_table(Table table) const -> _new_statement_t<_check<Table>, single_table_t<void, Table>>
+      {
+        static_assert(_check<Table>::value, "argument is not a table in single_table()");
+        return _single_table_impl<void>(_check<Table>{}, table);
+      }
 
-				template<typename Table>
-					auto single_table(Table table) const
-					-> _new_statement_t<_check<Table>, single_table_t<void, Table>>
-					{
-						static_assert(_check<Table>::value, "argument is not a table in single_table()");
-						return _single_table_impl<void>(_check<Table>{}, table);
-					}
+    private:
+      template <typename Database, typename Table>
+      auto _single_table_impl(const std::false_type&, Table table) const -> bad_statement;
 
-			private:
-				template<typename Database, typename Table>
-					auto _single_table_impl(const std::false_type&, Table table) const
-					-> bad_statement;
+      template <typename Database, typename Table>
+      auto _single_table_impl(const std::true_type&, Table table) const
+          -> _new_statement_t<std::true_type, single_table_t<Database, Table>>
+      {
+        static_assert(required_tables_of<single_table_t<Database, Table>>::size::value == 0,
+                      "argument depends on another table in single_table()");
 
-				template<typename Database, typename Table>
-					auto _single_table_impl(const std::true_type&, Table table) const
-					-> _new_statement_t<std::true_type, single_table_t<Database, Table>>
-					{
-						static_assert(required_tables_of<single_table_t<Database, Table>>::size::value == 0, "argument depends on another table in single_table()");
+        return {static_cast<const derived_statement_t<Policies>&>(*this), single_table_data_t<Database, Table>{table}};
+      }
+    };
+  };
 
-						return { static_cast<const derived_statement_t<Policies>&>(*this), single_table_data_t<Database, Table>{table} };
-					}
-			};
-	};
+  // Interpreters
+  template <typename Context, typename Database, typename Table>
+  struct serializer_t<Context, single_table_data_t<Database, Table>>
+  {
+    using _serialize_check = serialize_check_of<Context, Table>;
+    using T = single_table_data_t<Database, Table>;
 
-	// Interpreters
-	template<typename Context, typename Database, typename Table>
-		struct serializer_t<Context, single_table_data_t<Database, Table>>
-		{
-			using _serialize_check = serialize_check_of<Context, Table>;
-			using T = single_table_data_t<Database, Table>;
-
-			static Context& _(const T& t, Context& context)
-			{
-				serialize(t._table, context);
-				return context;
-			}
-		};
-
+    static Context& _(const T& t, Context& context)
+    {
+      serialize(t._table, context);
+      return context;
+    }
+  };
 }
 
 #endif

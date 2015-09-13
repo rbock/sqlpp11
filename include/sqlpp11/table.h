@@ -37,83 +37,84 @@
 
 namespace sqlpp
 {
-	struct table_base_t {};
+  struct table_base_t
+  {
+  };
 
-	template<typename Table, typename... ColumnSpec>
-		struct table_t:
-			public table_base_t,
-			public member_t<ColumnSpec, column_t<Table, ColumnSpec>>...
-	{
-		using _traits = make_traits<no_value_t, tag::is_raw_table, tag::is_table>;
+  template <typename Table, typename... ColumnSpec>
+  struct table_t : public table_base_t, public member_t<ColumnSpec, column_t<Table, ColumnSpec>>...
+  {
+    using _traits = make_traits<no_value_t, tag::is_raw_table, tag::is_table>;
 
-		using _nodes = detail::type_vector<>;
-		using _provided_tables = detail::type_set<Table>;
+    using _nodes = detail::type_vector<>;
+    using _provided_tables = detail::type_set<Table>;
 
-		static_assert(sizeof...(ColumnSpec), "at least one column required per table");
-		using _required_insert_columns = typename detail::make_type_set_if<require_insert_t, column_t<Table, ColumnSpec>...>::type;
-		using _column_tuple_t = std::tuple<column_t<Table, ColumnSpec>...>;
-		template<typename AliasProvider, typename T>
-			using _foreign_table_alias_t = table_alias_t<AliasProvider, T, ColumnSpec...>;
-		template<typename AliasProvider>
-			using _alias_t = table_alias_t<AliasProvider, Table, ColumnSpec...>;
+    static_assert(sizeof...(ColumnSpec), "at least one column required per table");
+    using _required_insert_columns =
+        typename detail::make_type_set_if<require_insert_t, column_t<Table, ColumnSpec>...>::type;
+    using _column_tuple_t = std::tuple<column_t<Table, ColumnSpec>...>;
+    template <typename AliasProvider, typename T>
+    using _foreign_table_alias_t = table_alias_t<AliasProvider, T, ColumnSpec...>;
+    template <typename AliasProvider>
+    using _alias_t = table_alias_t<AliasProvider, Table, ColumnSpec...>;
 
-		template<typename T>
-			join_t<inner_join_t, Table, T> join(T t) const
-			{
-				return { *static_cast<const Table*>(this), t, {} };
-			}
+    template <typename T>
+    join_t<inner_join_t, Table, T> join(T t) const
+    {
+      return {*static_cast<const Table*>(this), t, {}};
+    }
 
-		template<typename T>
-			join_t<inner_join_t, Table, T> inner_join(T t) const
-			{
-				return { *static_cast<const Table*>(this), t, {} };
-			}
+    template <typename T>
+    join_t<inner_join_t, Table, T> inner_join(T t) const
+    {
+      return {*static_cast<const Table*>(this), t, {}};
+    }
 
-		template<typename T>
-			join_t<outer_join_t, Table, T> outer_join(T t) const
-			{
-				return { *static_cast<const Table*>(this), t, {} };
-			}
+    template <typename T>
+    join_t<outer_join_t, Table, T> outer_join(T t) const
+    {
+      return {*static_cast<const Table*>(this), t, {}};
+    }
 
-		template<typename T>
-			join_t<left_outer_join_t, Table, T> left_outer_join(T t) const
-			{
-				return { *static_cast<const Table*>(this), t, {} };
-			}
+    template <typename T>
+    join_t<left_outer_join_t, Table, T> left_outer_join(T t) const
+    {
+      return {*static_cast<const Table*>(this), t, {}};
+    }
 
-		template<typename T>
-			join_t<right_outer_join_t, Table, T> right_outer_join(T t) const
-			{
-				return { *static_cast<const Table*>(this), t, {} };
-			}
+    template <typename T>
+    join_t<right_outer_join_t, Table, T> right_outer_join(T t) const
+    {
+      return {*static_cast<const Table*>(this), t, {}};
+    }
 
-		template<typename AliasProvider>
-			_alias_t<AliasProvider> as(const AliasProvider&) const
-			{
-				return {*static_cast<const Table*>(this)};
-			}
+    template <typename AliasProvider>
+    _alias_t<AliasProvider> as(const AliasProvider&) const
+    {
+      return {*static_cast<const Table*>(this)};
+    }
 
-		const Table& ref() const
-		{
-			return *static_cast<const Table*>(this);
-		}
-	};
+    const Table& ref() const
+    {
+      return *static_cast<const Table*>(this);
+    }
+  };
 
-	template<typename Context, typename X>
-		struct serializer_t<Context, X, typename std::enable_if<std::is_base_of<table_base_t, X>::value and not is_pseudo_table_t<X>::value, void>::type>
-		{
-			using _serialize_check = consistent_t;
-			using T = X;
+  template <typename Context, typename X>
+  struct serializer_t<
+      Context,
+      X,
+      typename std::enable_if<std::is_base_of<table_base_t, X>::value and not is_pseudo_table_t<X>::value, void>::type>
+  {
+    using _serialize_check = consistent_t;
+    using T = X;
 
-			static Context& _(const T&, Context& context)
-			{
-				context << name_of<T>::char_ptr();
-				return context;
-			}
-		};
-
-
+    static Context& _(const T&, Context& context)
+    {
+      context << name_of<T>::char_ptr();
+      return context;
+    }
+  };
 }
 
 #endif
-

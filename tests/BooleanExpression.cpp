@@ -28,17 +28,16 @@
 #include "MockDb.h"
 #include <sqlpp11/sqlpp11.h>
 
-
 int BooleanExpression(int, char**)
 {
-	MockDb db = {};
-	test::TabBar t;
+  MockDb db = {};
+  test::TabBar t;
 
-	auto x = boolean_expression(db, t.alpha == 7);
-	x = sqlpp::boolean_expression<MockDb>(t.beta.like("%cheesecake"));
-	x = x and boolean_expression(db, t.gamma);
+  auto x = boolean_expression(db, t.alpha == 7);
+  x = sqlpp::boolean_expression<MockDb>(t.beta.like("%cheesecake"));
+  x = x and boolean_expression(db, t.gamma);
 
-	db(select(t.alpha).from(t).where(x));
+  db(select(t.alpha).from(t).where(x));
 
-	return 0;
+  return 0;
 }

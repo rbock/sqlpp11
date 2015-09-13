@@ -29,38 +29,36 @@
 
 namespace sqlpp
 {
-	template<typename Part>
-	struct hidden_t:
-		public Part
-	{
-		hidden_t(Part part):
-			Part(part)
-		{}
+  template <typename Part>
+  struct hidden_t : public Part
+  {
+    hidden_t(Part part) : Part(part)
+    {
+    }
 
-		hidden_t(const hidden_t&) = default;
-		hidden_t(hidden_t&&) = default;
-		hidden_t& operator=(const hidden_t&) = default;
-		hidden_t& operator=(hidden_t&&) = default;
-		~hidden_t() = default;
-	};
+    hidden_t(const hidden_t&) = default;
+    hidden_t(hidden_t&&) = default;
+    hidden_t& operator=(const hidden_t&) = default;
+    hidden_t& operator=(hidden_t&&) = default;
+    ~hidden_t() = default;
+  };
 
-	template<typename Context, typename Part>
-		struct serializer_t<Context, hidden_t<Part>>
-		{
-			using _serialize_check = consistent_t;
-			using T = hidden_t<Part>;
+  template <typename Context, typename Part>
+  struct serializer_t<Context, hidden_t<Part>>
+  {
+    using _serialize_check = consistent_t;
+    using T = hidden_t<Part>;
 
-			static Context& _(const T&, Context& context)
-			{
-				return context;
-			}
-		};
+    static Context& _(const T&, Context& context)
+    {
+      return context;
+    }
+  };
 
-	template<typename Part>
-		auto hidden(Part part)
-		-> hidden_t<Part>
-		{
-			return {part};
-		}
+  template <typename Part>
+  auto hidden(Part part) -> hidden_t<Part>
+  {
+    return {part};
+  }
 }
 #endif

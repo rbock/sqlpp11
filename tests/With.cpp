@@ -31,22 +31,23 @@
 
 int With(int, char**)
 {
-	MockDb db;
-	MockDb::_serializer_context_t printer;
+  MockDb db;
+  MockDb::_serializer_context_t printer;
 
-	const auto t = test::TabBar{};
+  const auto t = test::TabBar{};
 
-	auto x = sqlpp::cte(sqlpp::alias::x).as(select(all_of(t)).from(t));
+  auto x = sqlpp::cte(sqlpp::alias::x).as(select(all_of(t)).from(t));
 
-	db(with(x)(select(x.alpha).from(x).where(true)));
+  db(with(x)(select(x.alpha).from(x).where(true)));
 
-	auto y0 = sqlpp::cte(sqlpp::alias::y).as(select(all_of(t)).from(t));
-	auto y = y0.union_all(select(all_of(y0)).from(y0).where(false));
+  auto y0 = sqlpp::cte(sqlpp::alias::y).as(select(all_of(t)).from(t));
+  auto y = y0.union_all(select(all_of(y0)).from(y0).where(false));
 
-	std::cout << serialize(y, printer).str() << std::endl; printer.reset();
-	std::cout << serialize(from_table(y), printer).str() << std::endl;
+  std::cout << serialize(y, printer).str() << std::endl;
+  printer.reset();
+  std::cout << serialize(from_table(y), printer).str() << std::endl;
 
-	db(with(y)(select(y.alpha).from(y).where(true)));
+  db(with(y)(select(y.alpha).from(y).where(true)));
 
-	return 0;
+  return 0;
 }

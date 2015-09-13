@@ -32,25 +32,23 @@
 
 namespace sqlpp
 {
-	struct schema_t
-	{
-		std::string _name;
-	};
+  struct schema_t
+  {
+    std::string _name;
+  };
 
-	template<typename Context>
-		struct serializer_t<Context, schema_t>
-		{
-			using _serialize_check = consistent_t;
-			using T = schema_t;
+  template <typename Context>
+  struct serializer_t<Context, schema_t>
+  {
+    using _serialize_check = consistent_t;
+    using T = schema_t;
 
-			static Context& _(const T& t, Context& context)
-			{
-				context << t._name;
-				return context;
-			}
-		};
-
+    static Context& _(const T& t, Context& context)
+    {
+      context << t._name;
+      return context;
+    }
+  };
 }
 
 #endif
-

@@ -29,12 +29,11 @@
 
 namespace sqlpp
 {
-	template<typename T, typename Enable = void>
-		struct wrap_operand;
+  template <typename T, typename Enable = void>
+  struct wrap_operand;
 
-	template<typename T>
-		using wrap_operand_t = typename wrap_operand<T>::type;
-
+  template <typename T>
+  using wrap_operand_t = typename wrap_operand<T>::type;
 }
 
 #endif

@@ -32,52 +32,59 @@
 
 namespace sqlpp
 {
-	template<typename Table>
-	struct all_of_t;
+  template <typename Table>
+  struct all_of_t;
 
-	namespace detail
-	{
-		template<typename T>
-			struct as_column_tuple
-			{
-				static std::tuple<auto_alias_t<T>> _(T t) { return std::tuple<auto_alias_t<T>>(auto_alias_t<T>{t}); }
-			};
+  namespace detail
+  {
+    template <typename T>
+    struct as_column_tuple
+    {
+      static std::tuple<auto_alias_t<T>> _(T t)
+      {
+        return std::tuple<auto_alias_t<T>>(auto_alias_t<T>{t});
+      }
+    };
 
-		template<typename T>
-			struct as_column_tuple<all_of_t<T>>
-			{
-				static typename all_of_t<T>::_column_tuple_t _(all_of_t<T>) { return { }; }
-			};
+    template <typename T>
+    struct as_column_tuple<all_of_t<T>>
+    {
+      static typename all_of_t<T>::_column_tuple_t _(all_of_t<T>)
+      {
+        return {};
+      }
+    };
 
-		template<typename... Args>
-			struct as_column_tuple<std::tuple<Args...>>
-			{
-				static std::tuple<auto_alias_t<Args>...> _(std::tuple<Args...> t) { return t; }
-			};
+    template <typename... Args>
+    struct as_column_tuple<std::tuple<Args...>>
+    {
+      static std::tuple<auto_alias_t<Args>...> _(std::tuple<Args...> t)
+      {
+        return t;
+      }
+    };
 
-		template<template<typename, typename...> class Target, typename First, typename T>
-			struct copy_tuple_args_impl
-			{
-				static_assert(wrong_t<copy_tuple_args_impl>::value, "copy_tuple_args must be called with a tuple");
-			};
+    template <template <typename, typename...> class Target, typename First, typename T>
+    struct copy_tuple_args_impl
+    {
+      static_assert(wrong_t<copy_tuple_args_impl>::value, "copy_tuple_args must be called with a tuple");
+    };
 
-		template<template<typename First, typename...> class Target, typename First, typename... Args>
-			struct copy_tuple_args_impl<Target, First, std::tuple<Args...>>
-			{
-				using type = Target<First, Args...>;
-			};
+    template <template <typename First, typename...> class Target, typename First, typename... Args>
+    struct copy_tuple_args_impl<Target, First, std::tuple<Args...>>
+    {
+      using type = Target<First, Args...>;
+    };
 
-		template<template<typename First, typename...> class Target, typename First, typename T>
-			using copy_tuple_args_t = typename copy_tuple_args_impl<Target, First, T>::type;
+    template <template <typename First, typename...> class Target, typename First, typename T>
+    using copy_tuple_args_t = typename copy_tuple_args_impl<Target, First, T>::type;
 
-		template<typename... Columns>
-			auto column_tuple_merge(Columns... columns) -> decltype(std::tuple_cat(as_column_tuple<Columns>::_(columns)...))
-			{
-				return std::tuple_cat(as_column_tuple<Columns>::_(columns)...);
-			}
-
-	}
+    template <typename... Columns>
+    auto column_tuple_merge(Columns... columns) -> decltype(std::tuple_cat(as_column_tuple<Columns>::_(columns)...))
+    {
+      return std::tuple_cat(as_column_tuple<Columns>::_(columns)...);
+    }
+  }
 }
-
 
 #endif

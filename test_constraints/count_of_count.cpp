@@ -32,7 +32,7 @@ MockDb db;
 
 int main()
 {
-	test::TabBar t;
+  test::TabBar t;
 
-	count(count(t.alpha));
+  count(count(t.alpha));
 }

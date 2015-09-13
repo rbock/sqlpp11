@@ -31,30 +31,27 @@
 
 namespace sqlpp
 {
-	namespace detail
-	{
-		template<template<typename> class Predicate, typename Default, typename... T>
-			struct get_first_if_impl;
+  namespace detail
+  {
+    template <template <typename> class Predicate, typename Default, typename... T>
+    struct get_first_if_impl;
 
-		template<template<typename> class Predicate, typename Default>
-			struct get_first_if_impl<Predicate, Default>
-			{
-				using type = Default;
-			};
+    template <template <typename> class Predicate, typename Default>
+    struct get_first_if_impl<Predicate, Default>
+    {
+      using type = Default;
+    };
 
-		template<template<typename> class Predicate, typename Default, typename T, typename... Rest>
-			struct get_first_if_impl<Predicate, Default, T, Rest...>
-			{
-				using rest = typename get_first_if_impl<Predicate, Default, Rest...>::type;
-				using type = typename std::conditional<Predicate<T>::value,
-							T,
-							rest>::type;
-			};
+    template <template <typename> class Predicate, typename Default, typename T, typename... Rest>
+    struct get_first_if_impl<Predicate, Default, T, Rest...>
+    {
+      using rest = typename get_first_if_impl<Predicate, Default, Rest...>::type;
+      using type = typename std::conditional<Predicate<T>::value, T, rest>::type;
+    };
 
-		template<template<typename> class Predicate, typename Default, typename... T>
-			using get_first_if = typename get_first_if_impl<Predicate, Default, T...>::type;
-	}
+    template <template <typename> class Predicate, typename Default, typename... T>
+    using get_first_if = typename get_first_if_impl<Predicate, Default, T...>::type;
+  }
 }
-
 
 #endif

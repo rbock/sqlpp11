@@ -31,42 +31,40 @@
 
 namespace sqlpp
 {
-	template<typename Database, typename Flag, typename Lhs, typename Rhs>
-		struct union_data_t
-		{
-			union_data_t(Lhs lhs, Rhs rhs):
-				_lhs(lhs),
-				_rhs(rhs)
-			{}
+  template <typename Database, typename Flag, typename Lhs, typename Rhs>
+  struct union_data_t
+  {
+    union_data_t(Lhs lhs, Rhs rhs) : _lhs(lhs), _rhs(rhs)
+    {
+    }
 
-			union_data_t(const union_data_t&) = default;
-			union_data_t(union_data_t&&) = default;
-			union_data_t& operator=(const union_data_t&) = default;
-			union_data_t& operator=(union_data_t&&) = default;
-			~union_data_t() = default;
+    union_data_t(const union_data_t&) = default;
+    union_data_t(union_data_t&&) = default;
+    union_data_t& operator=(const union_data_t&) = default;
+    union_data_t& operator=(union_data_t&&) = default;
+    ~union_data_t() = default;
 
-			Lhs _lhs;
-			Rhs _rhs;
-		};
+    Lhs _lhs;
+    Rhs _rhs;
+  };
 
-	// Interpreters
-	template<typename Context, typename Database, typename Flag, typename Lhs, typename Rhs>
-		struct serializer_t<Context, union_data_t<Database, Flag, Lhs, Rhs>>
-		{
-			using _serialize_check = serialize_check_of<Context, Lhs, Rhs>;
-			using T = union_data_t<Database, Flag, Lhs, Rhs>;
+  // Interpreters
+  template <typename Context, typename Database, typename Flag, typename Lhs, typename Rhs>
+  struct serializer_t<Context, union_data_t<Database, Flag, Lhs, Rhs>>
+  {
+    using _serialize_check = serialize_check_of<Context, Lhs, Rhs>;
+    using T = union_data_t<Database, Flag, Lhs, Rhs>;
 
-			static Context& _(const T& t, Context& context)
-			{
-				serialize(t._lhs, context);
-				context << " UNION ";
-				serialize(Flag{}, context);
-				context << " ";
-				serialize(t._rhs, context);
-				return context;
-			}
-		};
-
+    static Context& _(const T& t, Context& context)
+    {
+      serialize(t._lhs, context);
+      context << " UNION ";
+      serialize(Flag{}, context);
+      context << " ";
+      serialize(t._rhs, context);
+      return context;
+    }
+  };
 }
 
 #endif

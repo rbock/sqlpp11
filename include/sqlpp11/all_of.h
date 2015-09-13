@@ -33,48 +33,46 @@
 
 namespace sqlpp
 {
-	template<typename Table>
-		struct all_of_t
-		{
-			using _column_tuple_t = typename Table::_column_tuple_t;
+  template <typename Table>
+  struct all_of_t
+  {
+    using _column_tuple_t = typename Table::_column_tuple_t;
 
-			template<typename AliasProvider>
-				detail::copy_tuple_args_t<multi_column_alias_t, AliasProvider, _column_tuple_t> as(const AliasProvider& alias)
-				{
-					return multi_column(_column_tuple_t{}).as(alias);
-				}
-		};
+    template <typename AliasProvider>
+    detail::copy_tuple_args_t<multi_column_alias_t, AliasProvider, _column_tuple_t> as(const AliasProvider& alias)
+    {
+      return multi_column(_column_tuple_t{}).as(alias);
+    }
+  };
 
-	template<typename Table>
-		auto all_of(Table) -> all_of_t<Table>
-		{
-			return {};
-		}
+  template <typename Table>
+  auto all_of(Table) -> all_of_t<Table>
+  {
+    return {};
+  }
 
-	struct assert_no_stand_alone_all_of_t
-	{
-		using type = std::false_type;
+  struct assert_no_stand_alone_all_of_t
+  {
+    using type = std::false_type;
 
-		template<typename T = void>
-		static void _()
-		{
-			static_assert(wrong_t<T>::value, "all_of(table) seems to be used outside of select");
-		}
-	};
+    template <typename T = void>
+    static void _()
+    {
+      static_assert(wrong_t<T>::value, "all_of(table) seems to be used outside of select");
+    }
+  };
 
-	template<typename Context, typename Table>
-		struct serializer_t<Context, all_of_t<Table>>
-		{
-			using _serialize_check = assert_no_stand_alone_all_of_t;
-			using T = all_of_t<Table>;
+  template <typename Context, typename Table>
+  struct serializer_t<Context, all_of_t<Table>>
+  {
+    using _serialize_check = assert_no_stand_alone_all_of_t;
+    using T = all_of_t<Table>;
 
-			static Context& _(const T&, const Context&)
-			{
-				_serialize_check::_();
-			}
-		};
-
+    static Context& _(const T&, const Context&)
+    {
+      _serialize_check::_();
+    }
+  };
 }
 
 #endif
-

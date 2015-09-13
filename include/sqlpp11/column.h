@@ -41,84 +41,81 @@
 
 namespace sqlpp
 {
-	template<typename Table, typename ColumnSpec>
-		struct column_t:
-			public expression_operators<column_t<Table, ColumnSpec>, value_type_of<ColumnSpec>>,
-			public column_operators<column_t<Table, ColumnSpec>, value_type_of<ColumnSpec>>
-	{
-		struct _traits
-		{
-			using _value_type = value_type_of<ColumnSpec>;
-			using _tags = detail::make_joined_set_t<detail::type_set<tag::is_column, tag::is_expression, tag::is_selectable>, typename ColumnSpec::_traits::_tags>;
-		};
+  template <typename Table, typename ColumnSpec>
+  struct column_t : public expression_operators<column_t<Table, ColumnSpec>, value_type_of<ColumnSpec>>,
+                    public column_operators<column_t<Table, ColumnSpec>, value_type_of<ColumnSpec>>
+  {
+    struct _traits
+    {
+      using _value_type = value_type_of<ColumnSpec>;
+      using _tags = detail::make_joined_set_t<detail::type_set<tag::is_column, tag::is_expression, tag::is_selectable>,
+                                              typename ColumnSpec::_traits::_tags>;
+    };
 
-		using _nodes = detail::type_vector<>;
-		using _required_tables = detail::type_set<Table>;
-		using _can_be_null = column_spec_can_be_null_t<ColumnSpec>;
+    using _nodes = detail::type_vector<>;
+    using _required_tables = detail::type_set<Table>;
+    using _can_be_null = column_spec_can_be_null_t<ColumnSpec>;
 
-		using _spec_t = ColumnSpec;
-		using _table = Table;
-		using _alias_t = typename _spec_t::_alias_t;
+    using _spec_t = ColumnSpec;
+    using _table = Table;
+    using _alias_t = typename _spec_t::_alias_t;
 
-		template<typename T>
-			using _is_valid_operand = is_valid_operand<value_type_of<ColumnSpec>, T>;
+    template <typename T>
+    using _is_valid_operand = is_valid_operand<value_type_of<ColumnSpec>, T>;
 
-		column_t() = default;
-		column_t(const column_t&) = default;
-		column_t(column_t&&) = default;
-		column_t& operator=(const column_t&) = default;
-		column_t& operator=(column_t&&) = default;
-		~column_t() = default;
+    column_t() = default;
+    column_t(const column_t&) = default;
+    column_t(column_t&&) = default;
+    column_t& operator=(const column_t&) = default;
+    column_t& operator=(column_t&&) = default;
+    ~column_t() = default;
 
-		template<typename T = _table>
-		auto table() const -> _table
-		{
-			static_assert(is_table_t<T>::value, "cannot call get_table for columns of a sub-selects or cte");
-			return _table{};
-		}
+    template <typename T = _table>
+    auto table() const -> _table
+    {
+      static_assert(is_table_t<T>::value, "cannot call get_table for columns of a sub-selects or cte");
+      return _table{};
+    }
 
-		template<typename alias_provider>
-			expression_alias_t<column_t, alias_provider> as(const alias_provider&) const
-			{
-				return { *this };
-			}
+    template <typename alias_provider>
+    expression_alias_t<column_t, alias_provider> as(const alias_provider&) const
+    {
+      return {*this};
+    }
 
-		template<typename T>
-			auto operator =(T t) const -> assignment_t<column_t, wrap_operand_t<T>>
-			{
-				using rhs = wrap_operand_t<T>;
-				static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
+    template <typename T>
+    auto operator=(T t) const -> assignment_t<column_t, wrap_operand_t<T>>
+    {
+      using rhs = wrap_operand_t<T>;
+      static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
 
-				return { *this, {rhs{t}} };
-			}
+      return {*this, {rhs{t}}};
+    }
 
-		auto operator =(null_t) const
-			->assignment_t<column_t, null_t>
-			{
-				static_assert(can_be_null_t<column_t>::value, "column cannot be null");
-				return { *this, null_t{} };
-			}
+    auto operator=(null_t) const -> assignment_t<column_t, null_t>
+    {
+      static_assert(can_be_null_t<column_t>::value, "column cannot be null");
+      return {*this, null_t{}};
+    }
 
-		auto operator =(default_value_t) const
-			->assignment_t<column_t, default_value_t>
-			{
-				return { *this, default_value_t{} };
-			}
-	};
+    auto operator=(default_value_t) const -> assignment_t<column_t, default_value_t>
+    {
+      return {*this, default_value_t{}};
+    }
+  };
 
-	template<typename Context, typename... Args>
-		struct serializer_t<Context, column_t<Args...>>
-		{
-			using _serialize_check = consistent_t;
-			using T = column_t<Args...>;
+  template <typename Context, typename... Args>
+  struct serializer_t<Context, column_t<Args...>>
+  {
+    using _serialize_check = consistent_t;
+    using T = column_t<Args...>;
 
-			static Context& _(const T&, Context& context)
-			{
-				context << name_of<typename T::_table>::char_ptr() << '.' << name_of<T>::char_ptr();
-				return context;
-			}
-		};
-
+    static Context& _(const T&, Context& context)
+    {
+      context << name_of<typename T::_table>::char_ptr() << '.' << name_of<T>::char_ptr();
+      return context;
+    }
+  };
 }
 
 #endif

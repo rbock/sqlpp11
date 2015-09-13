@@ -29,13 +29,13 @@
 
 namespace sqlpp
 {
-	struct bad_statement
-	{
-		template<typename... T>
-			bad_statement(T&&...) {}
-	};
+  struct bad_statement
+  {
+    template <typename... T>
+    bad_statement(T&&...)
+    {
+    }
+  };
 }
 
 #endif
-
-

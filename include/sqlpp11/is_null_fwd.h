@@ -29,10 +29,10 @@
 
 namespace sqlpp
 {
-	template<typename Operand>
-		struct is_null_t;
-	template<typename Operand>
-		struct is_not_null_t;
+  template <typename Operand>
+  struct is_null_t;
+  template <typename Operand>
+  struct is_not_null_t;
 }
 
 #endif

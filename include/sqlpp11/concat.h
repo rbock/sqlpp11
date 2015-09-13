@@ -35,69 +35,67 @@
 
 namespace sqlpp
 {
-	struct text;
+  struct text;
 
-	struct concat_alias_t
-	{
-		struct _alias_t
-		{
-			static constexpr const char _literal[] =  "concat_";
-			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-			template<typename T>
-				struct _member_t
-				{
-					T concat;
-				};
-		};
-	};
+  struct concat_alias_t
+  {
+    struct _alias_t
+    {
+      static constexpr const char _literal[] = "concat_";
+      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+      template <typename T>
+      struct _member_t
+      {
+        T concat;
+      };
+    };
+  };
 
-	template<typename... Args>
-		struct concat_t:
-			public expression_operators<concat_t<Args...>, text>,
-			public alias_operators<concat_t<Args...>>
-	{
-		using _traits = make_traits<text, tag::is_expression, tag::is_selectable>;
-		using _nodes = detail::type_vector<Args...>;
+  template <typename... Args>
+  struct concat_t : public expression_operators<concat_t<Args...>, text>, public alias_operators<concat_t<Args...>>
+  {
+    using _traits = make_traits<text, tag::is_expression, tag::is_selectable>;
+    using _nodes = detail::type_vector<Args...>;
 
-		using _auto_alias_t = concat_alias_t;
+    using _auto_alias_t = concat_alias_t;
 
-		concat_t(Args... args):
-			_args(args...)
-		{}
+    concat_t(Args... args) : _args(args...)
+    {
+    }
 
-		concat_t(const concat_t&) = default;
-		concat_t(concat_t&&) = default;
-		concat_t& operator=(const concat_t&) = default;
-		concat_t& operator=(concat_t&&) = default;
-		~concat_t() = default;
+    concat_t(const concat_t&) = default;
+    concat_t(concat_t&&) = default;
+    concat_t& operator=(const concat_t&) = default;
+    concat_t& operator=(concat_t&&) = default;
+    ~concat_t() = default;
 
-		std::tuple<Args...> _args;
-	};
+    std::tuple<Args...> _args;
+  };
 
-	template<typename Context, typename... Args>
-		struct serializer_t<Context, concat_t<Args...>>
-		{
-			using _serialize_check = serialize_check_of<Context, Args...>;
-			using T = concat_t<Args...>;
+  template <typename Context, typename... Args>
+  struct serializer_t<Context, concat_t<Args...>>
+  {
+    using _serialize_check = serialize_check_of<Context, Args...>;
+    using T = concat_t<Args...>;
 
-			static Context& _(const T& t, Context& context)
-			{
-				context << "(";
-				interpret_tuple(t._args, "||", context);
-				context << ")";
-				return context;
-			}
-		};
+    static Context& _(const T& t, Context& context)
+    {
+      context << "(";
+      interpret_tuple(t._args, "||", context);
+      context << ")";
+      return context;
+    }
+  };
 
-	template<typename... Args>
-		auto concat(Args... args)
-		-> concat_t<Args...>
-		{
-			static_assert(sizeof...(Args) >= 2, "concat requires two arguments at least");
-			static_assert(logic::all_t<is_text_t<wrap_operand_t<Args>>::value...>::value, "at least one non-text argument detected in concat()");
+  template <typename... Args>
+  auto concat(Args... args) -> concat_t<Args...>
+  {
+    static_assert(sizeof...(Args) >= 2, "concat requires two arguments at least");
+    static_assert(logic::all_t<is_text_t<wrap_operand_t<Args>>::value...>::value,
+                  "at least one non-text argument detected in concat()");
 
-			return {args...};
-		}
+    return {args...};
+  }
 }
 
 #endif

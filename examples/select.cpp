@@ -38,23 +38,22 @@ SQLPP_ALIAS_PROVIDER(cheesecake)
 
 int select(int, char**)
 {
-	static constexpr bool some_condition = true;
-	static constexpr bool some_other_condition = false;
+  static constexpr bool some_condition = true;
+  static constexpr bool some_other_condition = false;
 
-	MockDb db;
+  MockDb db;
 
-	test::TabPerson p;
-	test::TabFeature f;
+  test::TabPerson p;
+  test::TabFeature f;
 
-	for (const auto& row : db(select(all_of(p)).from(p).where(p.id > 7)))
-	{
-		int64_t id = row.id;
-		std::string name = row.name;
-		int64_t feature = row.feature;
-	}
+  for (const auto& row : db(select(all_of(p)).from(p).where(p.id > 7)))
+  {
+    int64_t id = row.id;
+    std::string name = row.name;
+    int64_t feature = row.feature;
+  }
 
-
-#if	0
+#if 0
 	for (const auto& row : db(select(p.name).from(p).where(p.name.like("Herb%"))))
 	{
 		int64_t id = row.id;
@@ -62,8 +61,6 @@ int select(int, char**)
 		int64_t feature = row.feature;
 	}
 #endif
-
-
 
 #if 0
 	for (const auto& row : db(select(p.name, f.name.as(cheesecake)).from(p,f).where(p.id > 7 and p.feature == 3)))
@@ -75,8 +72,6 @@ int select(int, char**)
 	}
 #endif
 
-
-
 #if 0
 	for (const auto& row : db(select(multi_column(all_of(p)).as(p), multi_column(f.name, f.id).as(f)).from(p,f).where(true)))
 	{
@@ -87,12 +82,6 @@ int select(int, char**)
 		//int64_t feature = row.feature;
 	}
 #endif
-
-
-
-
-
-
 
 #if 0
 	auto s = select(p.id, p.name, f.id.as(cheesecake))
@@ -117,41 +106,21 @@ int select(int, char**)
 	}
 #endif
 
-
-
 #if !0
-	auto dysel = dynamic_select(db).dynamic_columns(p.name).from(p).dynamic_where();
+  auto dysel = dynamic_select(db).dynamic_columns(p.name).from(p).dynamic_where();
 
-	if (some_condition)
-		dysel.selected_columns.add(p.feature);
+  if (some_condition)
+    dysel.selected_columns.add(p.feature);
 
-	if (some_other_condition)
-		dysel.where.add(p.id > 17);
+  if (some_other_condition)
+    dysel.where.add(p.id > 17);
 
-	for (const auto& row : db(dysel))
-	{
-		std::string name = row.name;
-		std::string feature = row.at("feature");
-	}
+  for (const auto& row : db(dysel))
+  {
+    std::string name = row.name;
+    std::string feature = row.at("feature");
+  }
 #endif
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	return 0;
+  return 0;
 }

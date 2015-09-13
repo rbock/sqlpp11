@@ -32,68 +32,72 @@
 
 namespace sqlpp
 {
-	struct max_alias_t
-	{
-		struct _alias_t
-		{
-			static constexpr const char _literal[] =  "max_";
-			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-			template<typename T>
-				struct _member_t
-				{
-					T max;
-					T& operator()() { return max; }
-					const T& operator()() const { return max; }
-				};
-		};
-	};
+  struct max_alias_t
+  {
+    struct _alias_t
+    {
+      static constexpr const char _literal[] = "max_";
+      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+      template <typename T>
+      struct _member_t
+      {
+        T max;
+        T& operator()()
+        {
+          return max;
+        }
+        const T& operator()() const
+        {
+          return max;
+        }
+      };
+    };
+  };
 
-	template<typename Expr>
-		struct max_t:
-			public expression_operators<max_t<Expr>, value_type_of<Expr>>,
-			public alias_operators<max_t<Expr>>
-	{
-		using _traits = make_traits<value_type_of<Expr>, tag::is_expression, tag::is_selectable>;
-		using _nodes = detail::type_vector<Expr, aggregate_function>;
+  template <typename Expr>
+  struct max_t : public expression_operators<max_t<Expr>, value_type_of<Expr>>, public alias_operators<max_t<Expr>>
+  {
+    using _traits = make_traits<value_type_of<Expr>, tag::is_expression, tag::is_selectable>;
+    using _nodes = detail::type_vector<Expr, aggregate_function>;
 
-		using _auto_alias_t = max_alias_t;
+    using _auto_alias_t = max_alias_t;
 
-		max_t(Expr expr):
-			_expr(expr)
-		{}
+    max_t(Expr expr) : _expr(expr)
+    {
+    }
 
-		max_t(const max_t&) = default;
-		max_t(max_t&&) = default;
-		max_t& operator=(const max_t&) = default;
-		max_t& operator=(max_t&&) = default;
-		~max_t() = default;
+    max_t(const max_t&) = default;
+    max_t(max_t&&) = default;
+    max_t& operator=(const max_t&) = default;
+    max_t& operator=(max_t&&) = default;
+    ~max_t() = default;
 
-		Expr _expr;
-	};
+    Expr _expr;
+  };
 
-	template<typename Context, typename Expr>
-		struct serializer_t<Context, max_t<Expr>>
-		{
-			using _serialize_check = serialize_check_of<Context, Expr>;
-			using T = max_t<Expr>;
+  template <typename Context, typename Expr>
+  struct serializer_t<Context, max_t<Expr>>
+  {
+    using _serialize_check = serialize_check_of<Context, Expr>;
+    using T = max_t<Expr>;
 
-			static Context& _(const T& t, Context& context)
-			{
-				context << "MAX(";
-				serialize(t._expr, context);
-				context << ")";
-				return context;
-			}
-		};
+    static Context& _(const T& t, Context& context)
+    {
+      context << "MAX(";
+      serialize(t._expr, context);
+      context << ")";
+      return context;
+    }
+  };
 
-	template<typename T>
-		auto max(T t) -> max_t<wrap_operand_t<T>>
-		{
-			static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value, "max() cannot be used on an aggregate function");
-			static_assert(is_expression_t<wrap_operand_t<T>>::value, "max() requires an expression as argument");
-			return { t };
-		}
-
+  template <typename T>
+  auto max(T t) -> max_t<wrap_operand_t<T>>
+  {
+    static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value,
+                  "max() cannot be used on an aggregate function");
+    static_assert(is_expression_t<wrap_operand_t<T>>::value, "max() requires an expression as argument");
+    return {t};
+  }
 }
 
 #endif

@@ -31,27 +31,26 @@
 
 namespace sqlpp
 {
-	struct null_t
-	{
-		using _traits = make_traits<no_value_t, tag::is_expression, tag::is_sql_null>;
-		using _nodes = detail::type_vector<>;
-	};
+  struct null_t
+  {
+    using _traits = make_traits<no_value_t, tag::is_expression, tag::is_sql_null>;
+    using _nodes = detail::type_vector<>;
+  };
 
-	template<typename Context>
-		struct serializer_t<Context, null_t>
-		{
-			using _serialize_check = consistent_t;
-			using Operand = null_t;
+  template <typename Context>
+  struct serializer_t<Context, null_t>
+  {
+    using _serialize_check = consistent_t;
+    using Operand = null_t;
 
-			static Context& _(const Operand&, Context& context)
-			{
-				context << "NULL";
-				return context;
-			}
-		};
+    static Context& _(const Operand&, Context& context)
+    {
+      context << "NULL";
+      return context;
+    }
+  };
 
-	constexpr null_t null = {};
-
+  constexpr null_t null = {};
 }
 
 #endif

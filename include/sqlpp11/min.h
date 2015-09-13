@@ -32,68 +32,72 @@
 
 namespace sqlpp
 {
-	struct min_alias_t
-	{
-		struct _alias_t
-		{
-			static constexpr const char _literal[] =  "min_";
-			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-			template<typename T>
-				struct _member_t
-				{
-					T min;
-					T& operator()() { return min; }
-					const T& operator()() const { return min; }
-				};
-		};
-	};
+  struct min_alias_t
+  {
+    struct _alias_t
+    {
+      static constexpr const char _literal[] = "min_";
+      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+      template <typename T>
+      struct _member_t
+      {
+        T min;
+        T& operator()()
+        {
+          return min;
+        }
+        const T& operator()() const
+        {
+          return min;
+        }
+      };
+    };
+  };
 
-	template<typename Expr>
-		struct min_t:
-			public expression_operators<min_t<Expr>, value_type_of<Expr>>,
-			public alias_operators<min_t<Expr>>
-	{
-		using _traits = make_traits<value_type_of<Expr>, tag::is_expression, tag::is_selectable>;
-		using _nodes = detail::type_vector<Expr, aggregate_function>;
+  template <typename Expr>
+  struct min_t : public expression_operators<min_t<Expr>, value_type_of<Expr>>, public alias_operators<min_t<Expr>>
+  {
+    using _traits = make_traits<value_type_of<Expr>, tag::is_expression, tag::is_selectable>;
+    using _nodes = detail::type_vector<Expr, aggregate_function>;
 
-		using _auto_alias_t = min_alias_t;
+    using _auto_alias_t = min_alias_t;
 
-		min_t(Expr expr):
-			_expr(expr)
-		{}
+    min_t(Expr expr) : _expr(expr)
+    {
+    }
 
-		min_t(const min_t&) = default;
-		min_t(min_t&&) = default;
-		min_t& operator=(const min_t&) = default;
-		min_t& operator=(min_t&&) = default;
-		~min_t() = default;
+    min_t(const min_t&) = default;
+    min_t(min_t&&) = default;
+    min_t& operator=(const min_t&) = default;
+    min_t& operator=(min_t&&) = default;
+    ~min_t() = default;
 
-		Expr _expr;
-	};
+    Expr _expr;
+  };
 
-	template<typename Context, typename Expr>
-		struct serializer_t<Context, min_t<Expr>>
-		{
-			using _serialize_check = serialize_check_of<Context, Expr>;
-			using T = min_t<Expr>;
+  template <typename Context, typename Expr>
+  struct serializer_t<Context, min_t<Expr>>
+  {
+    using _serialize_check = serialize_check_of<Context, Expr>;
+    using T = min_t<Expr>;
 
-			static Context& _(const T& t, Context& context)
-			{
-				context << "MIN(";
-				serialize(t._expr, context);
-				context << ")";
-				return context;
-			}
-		};
+    static Context& _(const T& t, Context& context)
+    {
+      context << "MIN(";
+      serialize(t._expr, context);
+      context << ")";
+      return context;
+    }
+  };
 
-	template<typename T>
-		auto min(T t) -> min_t<wrap_operand_t<T>>
-		{
-			static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value, "min() cannot be used on an aggregate function");
-			static_assert(is_expression_t<wrap_operand_t<T>>::value, "min() requires an expression as argument");
-			return { t };
-		}
-
+  template <typename T>
+  auto min(T t) -> min_t<wrap_operand_t<T>>
+  {
+    static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value,
+                  "min() cannot be used on an aggregate function");
+    static_assert(is_expression_t<wrap_operand_t<T>>::value, "min() requires an expression as argument");
+    return {t};
+  }
 }
 
 #endif

@@ -35,94 +35,90 @@
 
 namespace sqlpp
 {
-	struct not_in_alias_t
-	{
-		struct _alias_t
-		{
-			static constexpr const char _literal[] =  "not_in_";
-			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-			template<typename T>
-				struct _member_t
-				{
-					T in;
-				};
-		};
-	};
+  struct not_in_alias_t
+  {
+    struct _alias_t
+    {
+      static constexpr const char _literal[] = "not_in_";
+      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+      template <typename T>
+      struct _member_t
+      {
+        T in;
+      };
+    };
+  };
 
-	template<typename Operand, typename... Args>
-		struct not_in_t:
-			public expression_operators<not_in_t<Operand, Args...>, boolean>,
-			public alias_operators<not_in_t<Operand, Args...>>
-	{
-		using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
-		using _nodes = detail::type_vector<Operand, Args...>;
+  template <typename Operand, typename... Args>
+  struct not_in_t : public expression_operators<not_in_t<Operand, Args...>, boolean>,
+                    public alias_operators<not_in_t<Operand, Args...>>
+  {
+    using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
+    using _nodes = detail::type_vector<Operand, Args...>;
 
-		static_assert(sizeof...(Args) > 0, "not_in() requires at least one argument");
+    static_assert(sizeof...(Args) > 0, "not_in() requires at least one argument");
 
-		using _auto_alias_t = not_in_alias_t;
+    using _auto_alias_t = not_in_alias_t;
 
-		not_in_t(Operand operand, Args... args):
-			_operand(operand),
-			_args(args...)
-		{}
+    not_in_t(Operand operand, Args... args) : _operand(operand), _args(args...)
+    {
+    }
 
-		not_in_t(const not_in_t&) = default;
-		not_in_t(not_in_t&&) = default;
-		not_in_t& operator=(const not_in_t&) = default;
-		not_in_t& operator=(not_in_t&&) = default;
-		~not_in_t() = default;
+    not_in_t(const not_in_t&) = default;
+    not_in_t(not_in_t&&) = default;
+    not_in_t& operator=(const not_in_t&) = default;
+    not_in_t& operator=(not_in_t&&) = default;
+    ~not_in_t() = default;
 
-		Operand _operand;
-		std::tuple<Args...> _args;
-	};
+    Operand _operand;
+    std::tuple<Args...> _args;
+  };
 
-	template<typename Context, typename Operand, typename... Args>
-		struct serializer_t<Context, not_in_t<Operand, Args...>>
-		{
-			using _serialize_check = serialize_check_of<Context, Args...>;
-			using T = not_in_t<Operand, Args...>;
+  template <typename Context, typename Operand, typename... Args>
+  struct serializer_t<Context, not_in_t<Operand, Args...>>
+  {
+    using _serialize_check = serialize_check_of<Context, Args...>;
+    using T = not_in_t<Operand, Args...>;
 
-			static Context& _(const T& t, Context& context)
-			{
-				serialize_operand(t._operand, context);
-				context << " NOT IN(";
-				if (sizeof...(Args) == 1)
-					serialize(std::get<0>(t._args), context);
-				else
-					interpret_tuple(t._args, ',', context);
-				context << ')';
-				return context;
-			}
-		};
+    static Context& _(const T& t, Context& context)
+    {
+      serialize_operand(t._operand, context);
+      context << " NOT IN(";
+      if (sizeof...(Args) == 1)
+        serialize(std::get<0>(t._args), context);
+      else
+        interpret_tuple(t._args, ',', context);
+      context << ')';
+      return context;
+    }
+  };
 
-	template<typename Container>
-		struct value_list_t;
+  template <typename Container>
+  struct value_list_t;
 
-	template<typename Context, typename Operand, typename Container>
-		struct serializer_t<Context, not_in_t<Operand,  value_list_t<Container>>>
-		{
-			using _serialize_check = serialize_check_of<Context, value_list_t<Container>>;
-			using T = not_in_t<Operand, value_list_t<Container>>;
+  template <typename Context, typename Operand, typename Container>
+  struct serializer_t<Context, not_in_t<Operand, value_list_t<Container>>>
+  {
+    using _serialize_check = serialize_check_of<Context, value_list_t<Container>>;
+    using T = not_in_t<Operand, value_list_t<Container>>;
 
-			static Context& _(const T& t, Context& context)
-			{
-				const auto& value_list = std::get<0>(t._args);
-				if (value_list._container.empty())
-				{
-					context << " 'operand not in empty list' != 'false' ";
-				}
-				else
-				{
-					serialize(t._operand, context);
-					context << " NOT IN(";
-					serialize(value_list, context);
-					context << ')';
-				}
-				return context;
-			}
-		};
-
-
+    static Context& _(const T& t, Context& context)
+    {
+      const auto& value_list = std::get<0>(t._args);
+      if (value_list._container.empty())
+      {
+        context << " 'operand not in empty list' != 'false' ";
+      }
+      else
+      {
+        serialize(t._operand, context);
+        context << " NOT IN(";
+        serialize(value_list, context);
+        context << ')';
+      }
+      return context;
+    }
+  };
 }
 
 #endif

@@ -29,9 +29,9 @@
 
 namespace sqlpp
 {
-	struct noop;
+  struct noop;
 
-	template<typename T>
-		struct is_noop;
+  template <typename T>
+  struct is_noop;
 }
 #endif

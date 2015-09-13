@@ -32,88 +32,95 @@
 
 namespace sqlpp
 {
-	struct avg_alias_t
-	{
-		struct _alias_t
-		{
-			static constexpr const char _literal[] =  "avg_";
-			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-			template<typename T>
-				struct _member_t
-				{
-					T avg;
-					T& operator()() { return avg; }
-					const T& operator()() const { return avg; }
-				};
-		};
-	};
+  struct avg_alias_t
+  {
+    struct _alias_t
+    {
+      static constexpr const char _literal[] = "avg_";
+      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+      template <typename T>
+      struct _member_t
+      {
+        T avg;
+        T& operator()()
+        {
+          return avg;
+        }
+        const T& operator()() const
+        {
+          return avg;
+        }
+      };
+    };
+  };
 
-	template<typename Flag, typename Expr>
-		struct avg_t:
-			public expression_operators<avg_t<Flag, Expr>, floating_point>,
-			public alias_operators<avg_t<Flag, Expr>>
-	{
-		using _traits = make_traits<floating_point, tag::is_expression, tag::is_selectable>;
-		using _nodes = detail::type_vector<Expr, aggregate_function>;
+  template <typename Flag, typename Expr>
+  struct avg_t : public expression_operators<avg_t<Flag, Expr>, floating_point>,
+                 public alias_operators<avg_t<Flag, Expr>>
+  {
+    using _traits = make_traits<floating_point, tag::is_expression, tag::is_selectable>;
+    using _nodes = detail::type_vector<Expr, aggregate_function>;
 
-		static_assert(is_noop<Flag>::value or std::is_same<distinct_t, Flag>::value, "avg() used with flag other than 'distinct'");
-		static_assert(is_numeric_t<Expr>::value, "avg() requires a value expression as argument");
+    static_assert(is_noop<Flag>::value or std::is_same<distinct_t, Flag>::value,
+                  "avg() used with flag other than 'distinct'");
+    static_assert(is_numeric_t<Expr>::value, "avg() requires a value expression as argument");
 
-		using _auto_alias_t = avg_alias_t;
+    using _auto_alias_t = avg_alias_t;
 
-		avg_t(Expr expr):
-			_expr(expr)
-		{}
+    avg_t(Expr expr) : _expr(expr)
+    {
+    }
 
-		avg_t(const avg_t&) = default;
-		avg_t(avg_t&&) = default;
-		avg_t& operator=(const avg_t&) = default;
-		avg_t& operator=(avg_t&&) = default;
-		~avg_t() = default;
+    avg_t(const avg_t&) = default;
+    avg_t(avg_t&&) = default;
+    avg_t& operator=(const avg_t&) = default;
+    avg_t& operator=(avg_t&&) = default;
+    ~avg_t() = default;
 
-		Expr _expr;
-	};
+    Expr _expr;
+  };
 
-	template<typename Context, typename Flag, typename Expr>
-		struct serializer_t<Context, avg_t<Flag, Expr>>
-		{
-			using _serialize_check = serialize_check_of<Context, Flag, Expr>;
-			using T = avg_t<Flag, Expr>;
+  template <typename Context, typename Flag, typename Expr>
+  struct serializer_t<Context, avg_t<Flag, Expr>>
+  {
+    using _serialize_check = serialize_check_of<Context, Flag, Expr>;
+    using T = avg_t<Flag, Expr>;
 
-			static Context& _(const T& t, Context& context)
-			{
-				context << "AVG(";
-				if (std::is_same<distinct_t, Flag>::value)
-				{
-					serialize(Flag(), context);
-					context << ' ';
-					serialize_operand(t._expr, context);
-				}
-				else
-				{
-					serialize(t._expr, context);
-				}
-				context << ")";
-				return context;
-			}
-		};
+    static Context& _(const T& t, Context& context)
+    {
+      context << "AVG(";
+      if (std::is_same<distinct_t, Flag>::value)
+      {
+        serialize(Flag(), context);
+        context << ' ';
+        serialize_operand(t._expr, context);
+      }
+      else
+      {
+        serialize(t._expr, context);
+      }
+      context << ")";
+      return context;
+    }
+  };
 
-	template<typename T>
-		auto avg(T t) -> avg_t<noop, wrap_operand_t<T>>
-		{
-			static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value, "avg() cannot be used on an aggregate function");
-			static_assert(is_numeric_t<wrap_operand_t<T>>::value, "avg() requires a value expression as argument");
-			return { t };
-		}
+  template <typename T>
+  auto avg(T t) -> avg_t<noop, wrap_operand_t<T>>
+  {
+    static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value,
+                  "avg() cannot be used on an aggregate function");
+    static_assert(is_numeric_t<wrap_operand_t<T>>::value, "avg() requires a value expression as argument");
+    return {t};
+  }
 
-	template<typename T>
-		auto avg(const distinct_t&, T t) -> avg_t<distinct_t, wrap_operand_t<T>>
-		{
-			static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value, "avg() cannot be used on an aggregate function");
-			static_assert(is_numeric_t<wrap_operand_t<T>>::value, "avg() requires a value expression as argument");
-			return { t };
-		}
-
+  template <typename T>
+  auto avg(const distinct_t&, T t) -> avg_t<distinct_t, wrap_operand_t<T>>
+  {
+    static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value,
+                  "avg() cannot be used on an aggregate function");
+    static_assert(is_numeric_t<wrap_operand_t<T>>::value, "avg() requires a value expression as argument");
+    return {t};
+  }
 }
 
 #endif

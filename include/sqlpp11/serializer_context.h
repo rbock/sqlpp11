@@ -30,38 +30,37 @@
 
 namespace sqlpp
 {
-	struct serializer_context_t
-	{
-		serializer_context_t(std::ostream& os):
-			_os(os)
-		{}
+  struct serializer_context_t
+  {
+    serializer_context_t(std::ostream& os) : _os(os)
+    {
+    }
 
-		template<typename T>
-			std::ostream& operator<<(T t)
-			{
-				return _os << t;
-			}
+    template <typename T>
+    std::ostream& operator<<(T t)
+    {
+      return _os << t;
+    }
 
-		static std::string escape(std::string arg)
-		{
-			if (arg.find('\''))
-			{
-				std::string retVal;
-				for (const auto c : arg)
-				{
-					if (c == '\'')
-						retVal.push_back(c);
-					retVal.push_back(c);
-				}
-				return retVal;
-			}
-			else
-				return arg;
-		}
+    static std::string escape(std::string arg)
+    {
+      if (arg.find('\''))
+      {
+        std::string retVal;
+        for (const auto c : arg)
+        {
+          if (c == '\'')
+            retVal.push_back(c);
+          retVal.push_back(c);
+        }
+        return retVal;
+      }
+      else
+        return arg;
+    }
 
-		std::ostream& _os;
-	};
+    std::ostream& _os;
+  };
 }
 
 #endif
-

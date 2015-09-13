@@ -29,41 +29,40 @@
 #include "MockDb.h"
 #include "is_regular.h"
 
-
 int Remove(int, char**)
 {
-	MockDb db;
-	MockDb::_serializer_context_t printer;
+  MockDb db;
+  MockDb::_serializer_context_t printer;
 
-	test::TabBar t;
+  test::TabBar t;
 
-	{
-		using T = decltype(remove_from(t));
-		static_assert(sqlpp::is_regular<T>::value, "type requirement");
-	}
+  {
+    using T = decltype(remove_from(t));
+    static_assert(sqlpp::is_regular<T>::value, "type requirement");
+  }
 
-	{
-		using T = decltype(remove_from(t).where(t.beta != "transparent"));
-		static_assert(sqlpp::is_regular<T>::value, "type requirement");
-	}
+  {
+    using T = decltype(remove_from(t).where(t.beta != "transparent"));
+    static_assert(sqlpp::is_regular<T>::value, "type requirement");
+  }
 
-	{
-		using T = decltype(dynamic_remove_from(db, t).dynamic_using().dynamic_where());
-		static_assert(sqlpp::is_regular<T>::value, "type requirement");
-	}
+  {
+    using T = decltype(dynamic_remove_from(db, t).dynamic_using().dynamic_where());
+    static_assert(sqlpp::is_regular<T>::value, "type requirement");
+  }
 
-	serialize(remove_from(t), printer).str();
-	serialize(remove_from(t).where(t.beta != "transparent"), printer).str();
-	serialize(remove_from(t).using_(t), printer).str();
-	auto r = dynamic_remove_from(db, t).dynamic_using().dynamic_where();
-	r.using_.add(t);
-	r.where.add(t.beta != "transparent");
-	printer.reset();
-	std::cerr << serialize(r, printer).str() << std::endl;
-	printer.reset();
-	std::cerr << serialize(remove_from(t).where(true), printer).str() << std::endl;
+  serialize(remove_from(t), printer).str();
+  serialize(remove_from(t).where(t.beta != "transparent"), printer).str();
+  serialize(remove_from(t).using_(t), printer).str();
+  auto r = dynamic_remove_from(db, t).dynamic_using().dynamic_where();
+  r.using_.add(t);
+  r.where.add(t.beta != "transparent");
+  printer.reset();
+  std::cerr << serialize(r, printer).str() << std::endl;
+  printer.reset();
+  std::cerr << serialize(remove_from(t).where(true), printer).str() << std::endl;
 
-	db(r);
+  db(r);
 
-	return 0;
+  return 0;
 }

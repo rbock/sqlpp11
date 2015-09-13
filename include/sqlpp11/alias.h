@@ -32,45 +32,44 @@
 
 namespace sqlpp
 {
-	template<typename Expression, typename AliasProvider>
-		struct expression_alias_t
-		{
-			using _traits = make_traits<value_type_of<Expression>, tag::is_selectable, tag::is_alias>;
-			using _nodes = detail::type_vector<Expression>;
+  template <typename Expression, typename AliasProvider>
+  struct expression_alias_t
+  {
+    using _traits = make_traits<value_type_of<Expression>, tag::is_selectable, tag::is_alias>;
+    using _nodes = detail::type_vector<Expression>;
 
-			static_assert(is_expression_t<Expression>::value, "invalid argument for an expression alias");
-			static_assert(not is_alias_t<Expression>::value, "cannot create an alias of an alias");
+    static_assert(is_expression_t<Expression>::value, "invalid argument for an expression alias");
+    static_assert(not is_alias_t<Expression>::value, "cannot create an alias of an alias");
 
-			using _alias_t = typename AliasProvider::_alias_t;
+    using _alias_t = typename AliasProvider::_alias_t;
 
-			expression_alias_t(Expression expression):
-				_expression(expression)
-			{}
+    expression_alias_t(Expression expression) : _expression(expression)
+    {
+    }
 
-			expression_alias_t(const expression_alias_t&) = default;
-			expression_alias_t(expression_alias_t&&) = default;
-			expression_alias_t& operator=(const expression_alias_t&) = default;
-			expression_alias_t& operator=(expression_alias_t&&) = default;
-			~expression_alias_t() = default;
+    expression_alias_t(const expression_alias_t&) = default;
+    expression_alias_t(expression_alias_t&&) = default;
+    expression_alias_t& operator=(const expression_alias_t&) = default;
+    expression_alias_t& operator=(expression_alias_t&&) = default;
+    ~expression_alias_t() = default;
 
-			Expression _expression;
-		};
+    Expression _expression;
+  };
 
-	template<typename Context, typename Expression, typename AliasProvider>
-		struct serializer_t<Context, expression_alias_t<Expression, AliasProvider>>
-		{
-			using _serialize_check = serialize_check_of<Context, Expression>;
-			using T = expression_alias_t<Expression, AliasProvider>;
+  template <typename Context, typename Expression, typename AliasProvider>
+  struct serializer_t<Context, expression_alias_t<Expression, AliasProvider>>
+  {
+    using _serialize_check = serialize_check_of<Context, Expression>;
+    using T = expression_alias_t<Expression, AliasProvider>;
 
-			static Context& _(const T& t, Context& context)
-			{
-				serialize_operand(t._expression, context);
-				context << " AS ";
-				context << name_of<T>::char_ptr();
-				return context;
-			}
-		};
-
+    static Context& _(const T& t, Context& context)
+    {
+      serialize_operand(t._expression, context);
+      context << " AS ";
+      context << name_of<T>::char_ptr();
+      return context;
+    }
+  };
 }
 
 #endif

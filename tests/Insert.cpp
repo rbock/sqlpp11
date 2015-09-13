@@ -30,52 +30,51 @@
 #include <sqlpp11/functions.h>
 #include <iostream>
 
-
 int Insert(int, char**)
 {
-	MockDb db;
-	MockDb::_serializer_context_t printer;
-	test::TabBar t;
-	//test::TabFoo f;
+  MockDb db;
+  MockDb::_serializer_context_t printer;
+  test::TabBar t;
+  // test::TabFoo f;
 
-	{
-		using T = decltype(insert_into(t));
-		static_assert(sqlpp::is_regular<T>::value, "type requirement");
-	}
+  {
+    using T = decltype(insert_into(t));
+    static_assert(sqlpp::is_regular<T>::value, "type requirement");
+  }
 
-	{
-		using T = decltype(insert_into(t).set(t.beta = "kirschauflauf"));
-		static_assert(sqlpp::is_regular<T>::value, "type requirement");
-	}
+  {
+    using T = decltype(insert_into(t).set(t.beta = "kirschauflauf"));
+    static_assert(sqlpp::is_regular<T>::value, "type requirement");
+  }
 
-	{
-		using T = decltype(dynamic_insert_into(db, t).dynamic_set());
-		static_assert(sqlpp::is_regular<T>::value, "type requirement");
-	}
+  {
+    using T = decltype(dynamic_insert_into(db, t).dynamic_set());
+    static_assert(sqlpp::is_regular<T>::value, "type requirement");
+  }
 
-	db(insert_into(t).default_values());
-	db(insert_into(t).set(t.gamma = true, t.beta = "kirschauflauf"));
+  db(insert_into(t).default_values());
+  db(insert_into(t).set(t.gamma = true, t.beta = "kirschauflauf"));
 
-	serialize(insert_into(t).default_values(), printer).str();
+  serialize(insert_into(t).default_values(), printer).str();
 
-	serialize(insert_into(t), printer).str();
-	serialize(insert_into(t).set(t.gamma = true, t.beta = "kirschauflauf"), printer).str();
-	serialize(insert_into(t).columns(t.gamma, t.beta), printer).str();
-	auto multi_insert = insert_into(t).columns(t.gamma, t.beta, t.delta);
-	multi_insert.values.add(t.gamma = true, t.beta = "cheesecake", t.delta = 1);
-	multi_insert.values.add(t.gamma = sqlpp::default_value, t.beta = sqlpp::default_value, t.delta = sqlpp::default_value);
-	auto i = dynamic_insert_into(db, t).dynamic_set();
-	i.insert_list.add(t.beta = "kirschauflauf");
-	printer.reset();
-	std::cerr << serialize(i, printer).str() << std::endl;
+  serialize(insert_into(t), printer).str();
+  serialize(insert_into(t).set(t.gamma = true, t.beta = "kirschauflauf"), printer).str();
+  serialize(insert_into(t).columns(t.gamma, t.beta), printer).str();
+  auto multi_insert = insert_into(t).columns(t.gamma, t.beta, t.delta);
+  multi_insert.values.add(t.gamma = true, t.beta = "cheesecake", t.delta = 1);
+  multi_insert.values.add(t.gamma = sqlpp::default_value, t.beta = sqlpp::default_value,
+                          t.delta = sqlpp::default_value);
+  auto i = dynamic_insert_into(db, t).dynamic_set();
+  i.insert_list.add(t.beta = "kirschauflauf");
+  printer.reset();
+  std::cerr << serialize(i, printer).str() << std::endl;
 
+  db(multi_insert);
 
-	db(multi_insert);
+  db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::verbatim<sqlpp::integer>("17+4")));
+  db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::null));
+  db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::default_value));
+  db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::tvin(0)));
 
-	db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::verbatim<sqlpp::integer>("17+4")));
-	db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::null));
-	db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::default_value));
-	db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::tvin(0)));
-
-	return 0;
+  return 0;
 }

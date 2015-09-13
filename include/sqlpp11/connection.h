@@ -29,8 +29,9 @@
 
 namespace sqlpp
 {
-	struct connection {};
+  struct connection
+  {
+  };
 }
 
 #endif
-

@@ -32,32 +32,30 @@
 
 namespace sqlpp
 {
-	template<typename ValueType, typename Db, typename FieldSpec>
-		struct result_field_t
-		{
-			static_assert(wrong_t<result_field_t>::value, "Missing specialization for result_field_t");
-		};
+  template <typename ValueType, typename Db, typename FieldSpec>
+  struct result_field_t
+  {
+    static_assert(wrong_t<result_field_t>::value, "Missing specialization for result_field_t");
+  };
 
-	template<typename Context, typename ValueType, typename Db, typename FieldSpec>
-		struct serializer_t<Context, result_field_t<ValueType, Db, FieldSpec>>
-		{
-			using _serialize_check = consistent_t;
-			using T = result_field_t<ValueType, Db, FieldSpec>;
+  template <typename Context, typename ValueType, typename Db, typename FieldSpec>
+  struct serializer_t<Context, result_field_t<ValueType, Db, FieldSpec>>
+  {
+    using _serialize_check = consistent_t;
+    using T = result_field_t<ValueType, Db, FieldSpec>;
 
-			static Context& _(const T& t, Context& context)
-			{
-				if (t.is_null() and not null_is_trivial_value_t<T>::value)
-				{
-					context << "NULL";
-				}
-				else
-				{
-					context << t.value();
-				}
-				return context;
-			}
-		};
-
-
+    static Context& _(const T& t, Context& context)
+    {
+      if (t.is_null() and not null_is_trivial_value_t<T>::value)
+      {
+        context << "NULL";
+      }
+      else
+      {
+        context << t.value();
+      }
+      return context;
+    }
+  };
 }
 #endif

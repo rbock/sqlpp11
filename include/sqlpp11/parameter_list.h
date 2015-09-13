@@ -34,39 +34,40 @@
 
 namespace sqlpp
 {
-	template<typename T>
-		struct parameter_list_t
-		{
-			static_assert(wrong_t<parameter_list_t>::value, "Template parameter for parameter_list_t has to be a type_vector");
-		};
+  template <typename T>
+  struct parameter_list_t
+  {
+    static_assert(wrong_t<parameter_list_t>::value, "Template parameter for parameter_list_t has to be a type_vector");
+  };
 
-	template<typename... Parameter>
-		struct parameter_list_t<detail::type_vector<Parameter...>>: public Parameter::_instance_t...
-		{
-			using _member_tuple_t = std::tuple<typename Parameter::_instance_t...>;
-			using size = std::integral_constant<std::size_t, sizeof...(Parameter)>;
+  template <typename... Parameter>
+  struct parameter_list_t<detail::type_vector<Parameter...>> : public Parameter::_instance_t...
+  {
+    using _member_tuple_t = std::tuple<typename Parameter::_instance_t...>;
+    using size = std::integral_constant<std::size_t, sizeof...(Parameter)>;
 
-			parameter_list_t()
-			{}
+    parameter_list_t()
+    {
+    }
 
-			template<typename Target>
-				void _bind(Target& target) const
-				{
-					_bind_impl(target, detail::make_index_sequence<size::value>{});
-				}
+    template <typename Target>
+    void _bind(Target& target) const
+    {
+      _bind_impl(target, detail::make_index_sequence<size::value>{});
+    }
 
-		private:
-			template<typename Target, size_t... Is>
-				void _bind_impl(Target& target, const detail::index_sequence<Is...>&) const
-				{
-					using swallow = int[];  // see interpret_tuple.h
-					(void) swallow{(static_cast<typename std::tuple_element<Is, const _member_tuple_t>::type&>(*this)()._bind(target, Is), 0)...};
-				}
-		};
+  private:
+    template <typename Target, size_t... Is>
+    void _bind_impl(Target& target, const detail::index_sequence<Is...>&) const
+    {
+      using swallow = int[];  // see interpret_tuple.h
+      (void)swallow{(
+          static_cast<typename std::tuple_element<Is, const _member_tuple_t>::type&>(*this)()._bind(target, Is), 0)...};
+    }
+  };
 
-	template<typename Exp>
-		using make_parameter_list_t = parameter_list_t<parameters_of<Exp>>;
-
+  template <typename Exp>
+  using make_parameter_list_t = parameter_list_t<parameters_of<Exp>>;
 }
 
 #endif

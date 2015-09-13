@@ -31,93 +31,112 @@
 
 int Prepared(int, char**)
 {
-	MockDb db = {};
-	//test::TabFoo f;
-	test::TabBar t;
+  MockDb db = {};
+  // test::TabFoo f;
+  test::TabBar t;
 
-	// empty parameter lists
-	{
-		using P = sqlpp::make_parameter_list_t<decltype(t.alpha)>;
-		static_assert(P::size::value == 0, "type requirement");
-	}
+  // empty parameter lists
+  {
+    using P = sqlpp::make_parameter_list_t<decltype(t.alpha)>;
+    static_assert(P::size::value == 0, "type requirement");
+  }
 
-	// single parameter
-	{
-		using P = sqlpp::make_parameter_list_t<decltype(parameter(t.alpha))>;
-		static_assert(P::size::value == 1, "type requirement");
-		auto p = P{};
-		p.alpha = 7;
-	}
+  // single parameter
+  {
+    using P = sqlpp::make_parameter_list_t<decltype(parameter(t.alpha))>;
+    static_assert(P::size::value == 1, "type requirement");
+    auto p = P{};
+    p.alpha = 7;
+  }
 
-	// single parameter
-	{
-		using P = sqlpp::make_parameter_list_t<decltype(parameter(t.beta))>;
-		static_assert(P::size::value == 1, "type requirement");
-		auto p = P{};
-		p.beta = "cheesecake";
-	}
+  // single parameter
+  {
+    using P = sqlpp::make_parameter_list_t<decltype(parameter(t.beta))>;
+    static_assert(P::size::value == 1, "type requirement");
+    auto p = P{};
+    p.beta = "cheesecake";
+  }
 
-	// single parameter in expression
-	{
-		using P = sqlpp::make_parameter_list_t<decltype(t.alpha == parameter(t.alpha))>;
-		static_assert(P::size::value == 1, "type requirement");
-		auto p = P{};
-		p.alpha = 7;
-	}
+  // single parameter in expression
+  {
+    using P = sqlpp::make_parameter_list_t<decltype(t.alpha == parameter(t.alpha))>;
+    static_assert(P::size::value == 1, "type requirement");
+    auto p = P{};
+    p.alpha = 7;
+  }
 
+  // single parameter in larger expression
+  {
+    using P = sqlpp::make_parameter_list_t<decltype((t.beta.like("%") and t.alpha == parameter(t.alpha)) or
+                                                    t.gamma != false)>;
+    static_assert(P::size::value == 1, "type requirement");
+    auto p = P{};
+    p.alpha = 7;
+  }
 
-	// single parameter in larger expression
-	{
-		using P = sqlpp::make_parameter_list_t<decltype((t.beta.like("%") and t.alpha == parameter(t.alpha)) or t.gamma != false)>;
-		static_assert(P::size::value == 1, "type requirement");
-		auto p = P{};
-		p.alpha = 7;
-	}
+  // three parameters in expression
+  {
+    using P = sqlpp::parameters_of<decltype((t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha)) or
+                                            t.gamma != parameter(t.gamma))>;
+    // FIXME: make some test, that does not depend on detail namespace, but still checks the correct order of the
+    // parameters
+    static_assert(std::is_same<P, sqlpp::detail::type_vector<decltype(parameter(t.beta)), decltype(parameter(t.alpha)),
+                                                             decltype(parameter(t.gamma))>>::value,
+                  "type requirement");
+  }
 
-	// three parameters in expression
-	{
-		using P = sqlpp::parameters_of<decltype((t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha)) or t.gamma != parameter(t.gamma))>;
-		// FIXME: make some test, that does not depend on detail namespace, but still checks the correct order of the parameters
-		static_assert(std::is_same<P, sqlpp::detail::type_vector<decltype(parameter(t.beta)), decltype(parameter(t.alpha)),decltype(parameter(t.gamma))>>::value, "type requirement");
-	}
+  // OK, fine, now create a named parameter list from an expression
+  {
+    using Exp =
+        decltype((t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha)) or t.gamma != parameter(t.gamma));
+    using P = sqlpp::make_parameter_list_t<Exp>;
+    P npl;
+    static_assert(
+        std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.alpha)>>, decltype(npl.alpha)>::value,
+        "type requirement");
+    static_assert(
+        std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.beta)>>, decltype(npl.beta)>::value,
+        "type requirement");
+    static_assert(
+        std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.gamma)>>, decltype(npl.gamma)>::value,
+        "type requirement");
+  }
 
-	// OK, fine, now create a named parameter list from an expression
-	{
-		using Exp = decltype((t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha)) or t.gamma != parameter(t.gamma));
-		using P = sqlpp::make_parameter_list_t<Exp>;
-		P npl;
-		static_assert(std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.alpha)>>, decltype(npl.alpha)>::value, "type requirement");
-		static_assert(std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.beta)>>, decltype(npl.beta)>::value, "type requirement");
-		static_assert(std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.gamma)>>, decltype(npl.gamma)>::value, "type requirement");
-	}
+  // Wonderful, now take a look at the parameter list of a select
+  {
+    auto s = select(all_of(t)).from(t).where((t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha)) or
+                                             t.gamma != parameter(t.gamma));
+    auto p = db.prepare(s);
+    p.params.alpha = 7;
+    p.params.alpha = sqlpp::tvin(0);
+    using S = decltype(s);
+    using P = sqlpp::make_parameter_list_t<S>;
+    P npl;
 
-	// Wonderful, now take a look at the parameter list of a select
-	{
-		auto s = select(all_of(t)).from(t).where((t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha)) or t.gamma != parameter(t.gamma));
-		auto p = db.prepare(s);
-		p.params.alpha = 7;
-		p.params.alpha = sqlpp::tvin(0);
-		using S = decltype(s);
-		using P = sqlpp::make_parameter_list_t<S>;
-		P npl;
+    static_assert(
+        std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.alpha)>>, decltype(npl.alpha)>::value,
+        "type requirement");
+    static_assert(
+        std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.beta)>>, decltype(npl.beta)>::value,
+        "type requirement");
+    static_assert(
+        std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.gamma)>>, decltype(npl.gamma)>::value,
+        "type requirement");
+    npl.alpha = 7;
+    auto x = npl;
+    x = npl;
+    std::cerr << x.alpha << std::endl;
+    x = decltype(npl)();
+    std::cerr << x.alpha << std::endl;
+  }
 
-		static_assert(std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.alpha)>>, decltype(npl.alpha)>::value, "type requirement");
-		static_assert(std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.beta)>>, decltype(npl.beta)>::value, "type requirement");
-		static_assert(std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.gamma)>>, decltype(npl.gamma)>::value, "type requirement");
-		npl.alpha = 7;
-		auto x = npl;
-		x = npl;
-		std::cerr << x.alpha << std::endl;
-		x = decltype(npl)();
-		std::cerr << x.alpha << std::endl;
-	}
+  // Check that a prepared select is default-constructable
+  {
+    auto s = select(all_of(t)).from(t).where((t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha)) or
+                                             t.gamma != parameter(t.gamma));
+    using P = decltype(db.prepare(s));
+    P p;
+  }
 
-	// Check that a prepared select is default-constructable
-	{
-		auto s = select(all_of(t)).from(t).where((t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha)) or t.gamma != parameter(t.gamma));
-		using P = decltype(db.prepare(s));
-		P p;
-	}
-
-	return 0;
+  return 0;
 }
