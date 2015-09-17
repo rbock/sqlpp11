@@ -321,36 +321,6 @@ namespace sqlpp
   template <typename T>
   using consistency_check_t = typename consistency_check<T>::type;
 
-  template <typename T, typename Enable = void>
-  struct run_check
-  {
-    using type = assert_run_statement_or_prepared_t;
-  };
-
-  template <typename T>
-  struct run_check<T, typename std::enable_if<is_statement_t<T>::value or is_prepared_statement_t<T>::value>::type>
-  {
-    using type = typename T::_run_check;
-  };
-
-  template <typename T>
-  using run_check_t = typename run_check<T>::type;
-
-  template <typename T, typename Enable = void>
-  struct prepare_check
-  {
-    using type = assert_prepare_statement_t;
-  };
-
-  template <typename T>
-  struct prepare_check<T, typename std::enable_if<is_statement_t<T>::value>::type>
-  {
-    using type = typename T::_prepare_check;
-  };
-
-  template <typename T>
-  using prepare_check_t = typename prepare_check<T>::type;
-
   template <typename Context, typename T, typename Enable = void>
   struct serialize_check
   {
@@ -365,6 +335,40 @@ namespace sqlpp
 
   template <typename Context, typename T>
   using serialize_check_t = typename serialize_check<Context, T>::type;
+
+  template <typename Context, typename T, typename Enable = void>
+  struct run_check
+  {
+    using type = assert_run_statement_or_prepared_t;
+  };
+
+  template <typename Context, typename T>
+  struct run_check<Context,
+                   T,
+                   typename std::enable_if<is_statement_t<T>::value or is_prepared_statement_t<T>::value>::type>
+  {
+    using type =
+        detail::get_first_if<is_inconsistent_t, consistent_t, typename T::_run_check, serialize_check_t<Context, T>>;
+  };
+
+  template <typename Context, typename T>
+  using run_check_t = typename run_check<Context, T>::type;
+
+  template <typename Context, typename T, typename Enable = void>
+  struct prepare_check
+  {
+    using type = assert_prepare_statement_t;
+  };
+
+  template <typename Context, typename T>
+  struct prepare_check<Context, T, typename std::enable_if<is_statement_t<T>::value>::type>
+  {
+    using type = detail::
+        get_first_if<is_inconsistent_t, consistent_t, typename T::_prepare_check, serialize_check_t<Context, T>>;
+  };
+
+  template <typename Context, typename T>
+  using prepare_check_t = typename prepare_check<Context, T>::type;
 
   template <typename Statement, typename Enable = void>
   struct has_result_row_impl
