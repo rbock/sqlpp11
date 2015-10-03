@@ -46,7 +46,7 @@ namespace sqlpp
         std::integral_constant<bool, not std::is_same<logic_helper<B...>, logic_helper<(B and false)...>>::value>;
 
     template <bool... B>
-    using none_t = std::is_same<logic_helper<B...>, logic_helper<(B or false)...>>;
+    using none_t = std::is_same<logic_helper<B...>, logic_helper<(B and false)...>>;
 
     template <bool>
     struct not_impl;
