@@ -168,6 +168,17 @@ namespace sqlpp
     }
   };
 
+  struct assert_aggregates_t
+  {
+    using type = std::false_type;
+
+    template <typename T = void>
+    static void _()
+    {
+      static_assert(wrong_t<T>::value, "not all columns are made of aggregates, despite group_by or similar");
+    }
+  };
+
   // SELECTED COLUMNS
   template <typename Database, typename... Columns>
   struct select_column_list_t
@@ -262,10 +273,16 @@ namespace sqlpp
         return t.selected_columns;
       }
 
-      using _consistency_check =
+      using _column_check =
           typename std::conditional<Policies::template _no_unknown_tables<select_column_list_t>::value,
                                     consistent_t,
                                     assert_no_unknown_tables_in_selected_columns_t>::type;
+
+      using _aggregate_check = typename std::conditional<Policies::template _no_unknown_aggregates<Columns...>::value,
+                                                         consistent_t,
+                                                         assert_aggregates_t>::type;
+
+      using _consistency_check = detail::get_first_if<is_inconsistent_t, consistent_t, _column_check, _aggregate_check>;
     };
 
     // Result methods

@@ -375,7 +375,7 @@ int SelectType(int, char**)
   static_assert(sqlpp::is_boolean_t<decltype(select(r.a).from(r))>::value, "select(bool) has to be a bool");
   auto s1 = sqlpp::select()
                 .flags(sqlpp::distinct, sqlpp::straight_join)
-                .columns(l.alpha, l.beta, select(r.a).from(r))
+                .columns(l.gamma, r.a)
                 .from(r, t, l)
                 .where(t.beta == "hello world" and select(t.gamma).from(t))  // .as(alias::right))
                 .group_by(l.gamma, r.a)

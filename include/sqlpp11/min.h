@@ -59,6 +59,7 @@ namespace sqlpp
   {
     using _traits = make_traits<value_type_of<Expr>, tag::is_expression, tag::is_selectable>;
     using _nodes = detail::type_vector<Expr, aggregate_function>;
+    using _is_aggregate_expression = std::true_type;
 
     using _auto_alias_t = min_alias_t;
 

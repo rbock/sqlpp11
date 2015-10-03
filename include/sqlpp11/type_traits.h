@@ -195,6 +195,7 @@ namespace sqlpp
   SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(provided_tables)
   SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(provided_outer_tables)
   SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(extra_tables)
+  SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(provided_aggregates)
 
 #define SQLPP_RECURSIVE_TRAIT_GENERATOR(trait)                                                        \
   namespace detail                                                                                    \
@@ -220,6 +221,38 @@ namespace sqlpp
 
   SQLPP_RECURSIVE_TRAIT_GENERATOR(can_be_null)
   SQLPP_RECURSIVE_TRAIT_GENERATOR(contains_aggregate_function)
+
+  namespace detail
+  {
+    template <typename KnownAggregates, typename T, typename Leaf = void>
+    struct is_aggregate_expression_impl
+    {
+      using type = typename is_aggregate_expression_impl<KnownAggregates, typename T::_nodes>::type;
+    };
+    template <typename KnownAggregates, typename T>
+    struct is_aggregate_expression_impl<
+        KnownAggregates,
+        T,
+        typename std::enable_if<std::is_class<typename T::_is_aggregate_expression>::value>::type>
+    {
+      using type = typename T::_is_aggregate_expression;
+    };
+    template <typename KnownAggregates, typename T>
+    struct is_aggregate_expression_impl<KnownAggregates,
+                                        T,
+                                        typename std::enable_if<detail::is_element_of<T, KnownAggregates>::value>::type>
+    {
+      using type = std::true_type;
+    };
+    template <typename KnownAggregates, typename... Nodes>
+    struct is_aggregate_expression_impl<KnownAggregates, type_vector<Nodes...>, void>
+    {
+      using type =
+          logic::all_t<sizeof...(Nodes) != 0, is_aggregate_expression_impl<KnownAggregates, Nodes>::type::value...>;
+    };
+  }
+  template <typename KnownAggregates, typename T>
+  using is_aggregate_expression_t = typename detail::is_aggregate_expression_impl<KnownAggregates, T>::type;
 
   namespace detail
   {
