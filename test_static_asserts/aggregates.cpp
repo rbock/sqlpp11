@@ -66,45 +66,67 @@ namespace sqlpp
   }
 }
 
-SQLPP_ALIAS_PROVIDER(whatever);
-
-int Aggregates(int, char**)
+namespace
 {
+  SQLPP_ALIAS_PROVIDER(whatever);
   using sqlpp::test::run_check;
-
-  // test::TabFoo f;
-  test::TabBar t;
+  static constexpr auto t = test::TabBar{};
 
   // If there is no group_by, we can select whatever we want
-  run_check(select(all_of(t)).from(t).where(true));
-  run_check(select(t.alpha).from(t).where(true));
-  run_check(select(count(t.alpha)).from(t).where(true));
+  void no_group_by()
+  {
+    run_check(select(all_of(t)).from(t).where(true));
+    run_check(select(t.alpha).from(t).where(true));
+    run_check(select(count(t.alpha)).from(t).where(true));
+  }
+
+  // If there is a dynamic group_by, we can still select whatever we want
+  // because there is no way of knowing which expressions might have been added dynamically
+  void dynamic_group_by()
+  {
+    run_check(select(all_of(t)).from(t).where(true));
+    run_check(select(t.alpha).from(t).where(true));
+    run_check(select(count(t.alpha)).from(t).where(true));
+  }
 
   // If there is a static group_by, selected columns must be made of group_by expressions, or aggregate expression (e.g.
   // count(t.id)) or values to be valid
-  run_check(select(t.alpha).from(t).where(true).group_by(t.alpha));
-  run_check(select((t.alpha + 42).as(whatever)).from(t).where(true).group_by(t.alpha));
-  run_check(select((t.alpha + 42).as(whatever)).from(t).where(true).group_by(t.alpha, t.alpha + t.delta * 17));
-  run_check(
-      select((t.alpha + t.delta * 17).as(whatever)).from(t).where(true).group_by(t.alpha, t.alpha + t.delta * 17));
-  run_check(select((t.beta + "fortytwo").as(whatever)).from(t).where(true).group_by(t.beta));
+  void static_group_by_ok()
+  {
+    run_check(select(t.alpha).from(t).where(true).group_by(t.alpha));
+    run_check(select((t.alpha + 42).as(whatever)).from(t).where(true).group_by(t.alpha));
+    run_check(select((t.alpha + 42).as(whatever)).from(t).where(true).group_by(t.alpha, t.alpha + t.delta * 17));
+    run_check(
+        select((t.alpha + t.delta * 17).as(whatever)).from(t).where(true).group_by(t.alpha, t.alpha + t.delta * 17));
+    run_check(select((t.beta + "fortytwo").as(whatever)).from(t).where(true).group_by(t.beta));
 
-  run_check(select(avg(t.alpha)).from(t).where(true).group_by(t.beta));
-  run_check(select(count(t.alpha)).from(t).where(true).group_by(t.beta));
-  run_check(select(max(t.alpha)).from(t).where(true).group_by(t.beta));
-  run_check(select(min(t.alpha)).from(t).where(true).group_by(t.beta));
-  run_check(select(sum(t.alpha)).from(t).where(true).group_by(t.beta));
+    run_check(select(avg(t.alpha)).from(t).where(true).group_by(t.beta));
+    run_check(select(count(t.alpha)).from(t).where(true).group_by(t.beta));
+    run_check(select(max(t.alpha)).from(t).where(true).group_by(t.beta));
+    run_check(select(min(t.alpha)).from(t).where(true).group_by(t.beta));
+    run_check(select(sum(t.alpha)).from(t).where(true).group_by(t.beta));
 
-  run_check(select((t.alpha + count(t.delta)).as(whatever)).from(t).where(true).group_by(t.alpha));
+    run_check(select((t.alpha + count(t.delta)).as(whatever)).from(t).where(true).group_by(t.alpha));
 
-  run_check(select(sqlpp::value(1).as(whatever)).from(t).where(true).group_by(t.alpha));
-  run_check(select(sqlpp::value("whatever").as(whatever)).from(t).where(true).group_by(t.alpha));
+    run_check(select(sqlpp::value(1).as(whatever)).from(t).where(true).group_by(t.alpha));
+    run_check(select(sqlpp::value("whatever").as(whatever)).from(t).where(true).group_by(t.alpha));
+  }
 
-  // Otherwise, they are invalid
-  run_check<sqlpp::assert_aggregates_t>(select(t.beta).from(t).where(true).group_by(t.alpha));
-  run_check<sqlpp::assert_aggregates_t>(select((t.alpha + t.delta).as(whatever)).from(t).where(true).group_by(t.alpha));
-  run_check<sqlpp::assert_aggregates_t>(
-      select((t.alpha + t.delta).as(whatever)).from(t).where(true).group_by(t.alpha, t.alpha + t.delta * 17));
+  // Failures with static group_by and selected non-aggregates or incorrect aggregates
+  void static_group_by_nok()
+  {
+    run_check<sqlpp::assert_aggregates_t>(select(t.beta).from(t).where(true).group_by(t.alpha));
+    run_check<sqlpp::assert_aggregates_t>(
+        select((t.alpha + t.delta).as(whatever)).from(t).where(true).group_by(t.alpha));
+    run_check<sqlpp::assert_aggregates_t>(
+        select((t.alpha + t.delta).as(whatever)).from(t).where(true).group_by(t.alpha, t.alpha + t.delta * 17));
+  }
+}
 
-  return 0;
+int main(int, char**)
+{
+  no_group_by();
+  dynamic_group_by();
+  static_group_by_ok();
+  static_group_by_nok();
 }
