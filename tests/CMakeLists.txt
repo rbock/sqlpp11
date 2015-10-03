@@ -30,6 +30,7 @@ target_compile_options(sqlpp11_testing INTERFACE -Wall -Wextra -pedantic)
 endif ()
 
 set(test_names
+  Aggregates
   BooleanExpression
   CustomQuery
   Interpret

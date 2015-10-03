@@ -103,11 +103,17 @@ namespace sqlpp
       using _all_provided_tables = detail::make_joined_set_t<provided_tables_of<Policies>...>;
       using _all_provided_outer_tables = detail::make_joined_set_t<provided_outer_tables_of<Policies>...>;
       using _all_extra_tables = detail::make_joined_set_t<extra_tables_of<Policies>...>;
+      using _all_provided_aggregates = detail::make_joined_set_t<provided_aggregates_of<Policies>...>;
 
       using _known_tables = detail::make_joined_set_t<_all_provided_tables, _all_extra_tables>;
 
       template <typename Expression>
       using _no_unknown_tables = detail::is_subset_of<required_tables_of<Expression>, _known_tables>;
+
+      template <typename... Expressions>
+      using _no_unknown_aggregates =
+          logic::any_t<_all_provided_aggregates::size::value == 0,
+                       logic::all_t<is_aggregate_expression_t<_all_provided_aggregates, Expressions>::value...>::value>;
 
       template <template <typename> class Predicate>
       using any_t = logic::any_t<Predicate<Policies>::value...>;

@@ -75,6 +75,9 @@ namespace sqlpp
     using _nodes = detail::type_vector<Expressions...>;
 
     using _is_dynamic = is_database<Database>;
+    using _provided_aggregates = typename std::conditional<_is_dynamic::value,
+                                                           detail::type_set<>,
+                                                           detail::make_type_set_t<Expressions...>>::type;
 
     // Data
     using _data_t = group_by_data_t<Database, Expressions...>;
