@@ -60,6 +60,7 @@ namespace sqlpp
   {
     using _traits = make_traits<value_type_of<Expr>, tag::is_expression, tag::is_selectable>;
     using _nodes = detail::type_vector<Expr, aggregate_function>;
+    using _is_aggregate_expression = std::true_type;
 
     static_assert(is_noop<Flag>::value or std::is_same<distinct_t, Flag>::value,
                   "sum() used with flag other than 'distinct'");

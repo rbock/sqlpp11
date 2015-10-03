@@ -292,7 +292,6 @@ namespace sqlpp
   {
     using _nodes = detail::type_vector<>;
     using _contains_aggregate_function = std::true_type;
-    using _is_aggregate_expression = std::true_type;
   };
 
   template <typename NameProvider, typename Member>
