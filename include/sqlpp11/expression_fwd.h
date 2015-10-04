@@ -32,6 +32,7 @@ namespace sqlpp
   struct boolean;
   struct integral;
   struct floating_point;
+  struct noop;
 
   namespace op
   {
@@ -208,11 +209,38 @@ namespace sqlpp
   template <typename Lhs, typename ValueType, typename Rhs>
   using bitwise_or_t = binary_expression_t<Lhs, op::bitwise_or<ValueType>, Rhs>;
 
-  template <typename Expr>
-  using lhs_t = typename Expr::_lhs_t;
+  namespace detail
+  {
+    template <typename Expr, typename Enable = void>
+    struct lhs_impl
+    {
+      using type = noop;
+    };
+
+    template <typename Expr>
+    struct lhs_impl<Expr, typename std::enable_if<std::is_class<typename Expr::_lhs_t>::value>::type>
+    {
+      using type = typename Expr::_lhs_t;
+    };
+
+    template <typename Expr, typename Enable = void>
+    struct rhs_impl
+    {
+      using type = noop;
+    };
+
+    template <typename Expr>
+    struct rhs_impl<Expr, typename std::enable_if<std::is_class<typename Expr::_rhs_t>::value>::type>
+    {
+      using type = typename Expr::_rhs_t;
+    };
+  }
 
   template <typename Expr>
-  using rhs_t = typename Expr::_rhs_t;
+  using lhs_t = typename detail::lhs_impl<Expr>::type;
+
+  template <typename Expr>
+  using rhs_t = typename detail::rhs_impl<Expr>::type;
 }
 
 #endif
