@@ -29,4 +29,5 @@ function(test_compile name)
 endfunction()
 
 test_compile(aggregates)
+test_compile(insert)
 

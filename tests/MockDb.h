@@ -29,6 +29,8 @@
 #include <sstream>
 #include <iostream>
 #include <sqlpp11/schema.h>
+#include <sqlpp11/no_value.h>
+#include <sqlpp11/serialize.h>
 #include <sqlpp11/serializer_context.h>
 #include <sqlpp11/connection.h>
 

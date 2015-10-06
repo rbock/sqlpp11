@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2015-2015, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -68,7 +68,7 @@ namespace sqlpp
 
 namespace
 {
-  SQLPP_ALIAS_PROVIDER(whatever);
+  SQLPP_ALIAS_PROVIDER(whatever)
   using sqlpp::test::run_check;
   static constexpr auto t = test::TabBar{};
 
