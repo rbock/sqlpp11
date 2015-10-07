@@ -220,24 +220,6 @@ namespace sqlpp
       static_check_t<not std::is_same<Database, void>::value, assert_insert_dynamic_set_statement_dynamic_t>,
       check_insert_set_t<Assignments...>>;
 
-  namespace detail
-  {
-    template <typename Assert, typename Policies, typename Needle, typename Replacement>
-    struct new_statement_or_assert_impl
-    {
-      using type = Assert;
-    };
-
-    template <typename Policies, typename Needle, typename Replacement>
-    struct new_statement_or_assert_impl<consistent_t, Policies, Needle, Replacement>
-    {
-      using type = typename Policies::template _new_statement_t<Needle, Replacement>;
-    };
-  }
-  template <typename Assert, typename Policies, typename Needle, typename Replacement>
-  using new_statement_or_assert_t =
-      typename detail::new_statement_or_assert_impl<Assert, Policies, Needle, Replacement>::type;
-
   SQLPP_PORTABLE_STATIC_ASSERT(
       assert_no_unknown_tables_in_insert_assignments_t,
       "at least one insert assignment requires a table which is otherwise not known in the statement");
@@ -488,9 +470,6 @@ namespace sqlpp
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check::value, Policies, no_insert_value_list_t, T>;
 
-      template <typename Assert, typename T>
-      using _result_t = new_statement_or_assert_t<Assert, Policies, no_insert_value_list_t, T>;
-
       using _consistency_check = assert_insert_values_t;
 
       auto default_values() const -> _new_statement_t<std::true_type, insert_default_values_t>
@@ -520,12 +499,10 @@ namespace sqlpp
 
       template <typename... Assignments>
       auto dynamic_set(Assignments... assignments) const
-          -> _result_t<check_insert_dynamic_set_t<_database_t, Assignments...>,
-                       insert_list_t<_database_t, Assignments...>>
+          -> _new_statement_t<check_insert_dynamic_set_t<_database_t, Assignments...>,
+                              insert_list_t<_database_t, Assignments...>>
       {
-        struct Check : check_insert_dynamic_set_t<_database_t, Assignments...>
-        {
-        };
+        using Check = check_insert_dynamic_set_t<_database_t, Assignments...>;
         Check{}._();
 
         return _set_impl<_database_t>(typename Check::type{}, assignments...);
