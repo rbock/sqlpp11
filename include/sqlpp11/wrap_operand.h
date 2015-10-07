@@ -28,6 +28,7 @@
 #define SQLPP_DETAIL_WRAP_OPERAND_H
 
 #include <string>
+#include <sqlpp11/date_fwd.h>
 #include <sqlpp11/wrap_operand_fwd.h>
 #include <sqlpp11/serializer.h>
 #include <sqlpp11/type_traits.h>
@@ -65,6 +66,36 @@ namespace sqlpp
     bool _is_trivial() const
     {
       return _t == false;
+    }
+
+    _value_t _t;
+  };
+
+  struct date_operand : public alias_operators<date_operand>
+  {
+    using _traits = make_traits<date, tag::is_expression, tag::is_wrapped_value>;
+    using _nodes = detail::type_vector<>;
+    using _is_aggregate_expression = std::true_type;
+
+    using _value_t = day_point;
+
+    date_operand() : _t{}
+    {
+    }
+
+    date_operand(_value_t t) : _t(t)
+    {
+    }
+
+    date_operand(const date_operand&) = default;
+    date_operand(date_operand&&) = default;
+    date_operand& operator=(const date_operand&) = default;
+    date_operand& operator=(date_operand&&) = default;
+    ~date_operand() = default;
+
+    bool _is_trivial() const
+    {
+      return _t == day_point{};
     }
 
     _value_t _t;
@@ -222,6 +253,12 @@ namespace sqlpp
   struct wrap_operand<bool, void>
   {
     using type = boolean_operand;
+  };
+
+  template <>
+  struct wrap_operand<day_point, void>
+  {
+    using type = date_operand;
   };
 
   template <typename T>

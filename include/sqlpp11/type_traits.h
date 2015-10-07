@@ -89,6 +89,8 @@ namespace sqlpp
   SQLPP_VALUE_TRAIT_GENERATOR(is_value_type)
   SQLPP_VALUE_TRAIT_GENERATOR(is_sql_null)
   SQLPP_VALUE_TRAIT_GENERATOR(is_boolean)
+  SQLPP_VALUE_TRAIT_GENERATOR(is_date)
+  SQLPP_VALUE_TRAIT_GENERATOR(is_datetime)
   SQLPP_VALUE_TRAIT_GENERATOR(is_integral)
   SQLPP_VALUE_TRAIT_GENERATOR(is_floating_point)
   template <typename T>
