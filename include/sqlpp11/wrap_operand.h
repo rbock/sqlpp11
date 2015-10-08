@@ -28,7 +28,7 @@
 #define SQLPP_DETAIL_WRAP_OPERAND_H
 
 #include <string>
-#include <sqlpp11/date_fwd.h>
+#include <sqlpp11/date_time_fwd.h>
 #include <sqlpp11/wrap_operand_fwd.h>
 #include <sqlpp11/serializer.h>
 #include <sqlpp11/type_traits.h>
@@ -71,27 +71,28 @@ namespace sqlpp
     _value_t _t;
   };
 
-  struct date_operand : public alias_operators<date_operand>
+  template <typename Rep, typename Period>
+  struct date_time_operand : public alias_operators<date_time_operand<Rep, Period>>
   {
     using _traits = make_traits<date, tag::is_expression, tag::is_wrapped_value>;
     using _nodes = detail::type_vector<>;
     using _is_aggregate_expression = std::true_type;
 
-    using _value_t = day_point;
+    using _value_t = std::chrono::time_point<Rep, Period>;
 
-    date_operand() : _t{}
+    date_time_operand() : _t{}
     {
     }
 
-    date_operand(_value_t t) : _t(t)
+    date_time_operand(_value_t t) : _t(t)
     {
     }
 
-    date_operand(const date_operand&) = default;
-    date_operand(date_operand&&) = default;
-    date_operand& operator=(const date_operand&) = default;
-    date_operand& operator=(date_operand&&) = default;
-    ~date_operand() = default;
+    date_time_operand(const date_time_operand&) = default;
+    date_time_operand(date_time_operand&&) = default;
+    date_time_operand& operator=(const date_time_operand&) = default;
+    date_time_operand& operator=(date_time_operand&&) = default;
+    ~date_time_operand() = default;
 
     bool _is_trivial() const
     {
@@ -255,10 +256,10 @@ namespace sqlpp
     using type = boolean_operand;
   };
 
-  template <>
-  struct wrap_operand<day_point, void>
+  template <typename Rep, typename Period>
+  struct wrap_operand<std::chrono::time_point<Rep, Period>, void>
   {
-    using type = date_operand;
+    using type = date_time_operand<Rep, Period>;
   };
 
   template <typename T>

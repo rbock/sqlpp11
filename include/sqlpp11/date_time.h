@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DATE_H
-#define SQLPP_DATE_H
+#ifndef SQLPP_DATE_TIME_H
+#define SQLPP_DATE_TIME_H
 
 #include <sqlpp11/date_time_fwd.h>
 #include <sqlpp11/basic_expression_operators.h>
@@ -37,22 +37,22 @@
 
 namespace sqlpp
 {
-  // date value type
-  struct date
+  // date_time value type
+  struct date_time
   {
-    using _traits = make_traits<date, tag::is_value_type>;
-    using _tag = tag::is_date;
-    using _cpp_value_type = day_point;
+    using _traits = make_traits<date_time, tag::is_value_type>;
+    using _tag = tag::is_date_time;
+    using _cpp_value_type = ms_point;
 
     template <typename T>
     using _is_valid_operand = is_time_point_t<T>;
   };
 
-  // date parameter value
+  // date_time parameter value
   template <>
-  struct parameter_value_t<date>
+  struct parameter_value_t<date_time>
   {
-    using _value_type = date;
+    using _value_type = date_time;
     using _cpp_value_type = typename _value_type::_cpp_value_type;
 
     parameter_value_t() : _value{}, _is_null(true)
@@ -117,28 +117,29 @@ namespace sqlpp
     bool _is_null;
   };
 
-  // date expression operators
+  // date_time expression operators
   template <typename Base>
-  struct expression_operators<Base, date> : public basic_expression_operators<Base, date>
+  struct expression_operators<Base, date_time> : public basic_expression_operators<Base, date_time>
   {
     template <typename T>
-    using _is_valid_operand = is_valid_operand<date, T>;
+    using _is_valid_operand = is_valid_operand<date_time, T>;
   };
 
-  // date column operators
+  // date_time column operators
   template <typename Base>
-  struct column_operators<Base, date>
+  struct column_operators<Base, date_time>
   {
     template <typename T>
-    using _is_valid_operand = is_valid_operand<date, T>;
+    using _is_valid_operand = is_valid_operand<date_time, T>;
   };
 
-  // date result field
+  // date_time result field
   template <typename Db, typename FieldSpec>
-  struct result_field_t<date, Db, FieldSpec> : public result_field_methods_t<result_field_t<date, Db, FieldSpec>>
+  struct result_field_t<date_time, Db, FieldSpec>
+      : public result_field_methods_t<result_field_t<date_time, Db, FieldSpec>>
   {
-    static_assert(std::is_same<value_type_of<FieldSpec>, date>::value, "field type mismatch");
-    using _cpp_value_type = typename date::_cpp_value_type;
+    static_assert(std::is_same<value_type_of<FieldSpec>, date_time>::value, "field type mismatch");
+    using _cpp_value_type = typename date_time::_cpp_value_type;
 
     result_field_t() : _is_valid(false), _is_null(true), _value{}
     {
@@ -202,9 +203,9 @@ namespace sqlpp
     _cpp_value_type _value;
   };
 
-  // ostream operator for date result field
+  // ostream operator for date_time result field
   template <typename Db, typename FieldSpec>
-  inline std::ostream& operator<<(std::ostream& os, const result_field_t<date, Db, FieldSpec>& e)
+  inline std::ostream& operator<<(std::ostream& os, const result_field_t<date_time, Db, FieldSpec>& e)
   {
     return serialize(e, os);
   }

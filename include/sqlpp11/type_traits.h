@@ -90,12 +90,16 @@ namespace sqlpp
   SQLPP_VALUE_TRAIT_GENERATOR(is_sql_null)
   SQLPP_VALUE_TRAIT_GENERATOR(is_boolean)
   SQLPP_VALUE_TRAIT_GENERATOR(is_date)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_datetime)
+  SQLPP_VALUE_TRAIT_GENERATOR(is_date_time)
   SQLPP_VALUE_TRAIT_GENERATOR(is_integral)
   SQLPP_VALUE_TRAIT_GENERATOR(is_floating_point)
   template <typename T>
   using is_numeric_t = logic::any_t<detail::is_element_of<tag::is_integral, typename T::_traits::_tags>::value,
                                     detail::is_element_of<tag::is_floating_point, typename T::_traits::_tags>::value>;
+
+  template <typename T>
+  using is_time_point_t = logic::any_t<detail::is_element_of<tag::is_date, typename T::_traits::_tags>::value,
+                                       detail::is_element_of<tag::is_date_time, typename T::_traits::_tags>::value>;
 
   SQLPP_VALUE_TRAIT_GENERATOR(is_text)
   SQLPP_VALUE_TRAIT_GENERATOR(is_wrapped_value)
