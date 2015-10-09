@@ -29,6 +29,7 @@
 
 #include <type_traits>
 #include <tuple>
+#include <sqlpp11/consistent.h>
 #include <sqlpp11/serializer.h>
 #include <sqlpp11/detail/type_vector.h>
 #include <sqlpp11/detail/type_set.h>
@@ -305,14 +306,6 @@ namespace sqlpp
 
   template <typename Policies>
   using derived_statement_t = typename Policies::_statement_t;
-
-  struct consistent_t
-  {
-    static constexpr bool value = true;
-    using type = std::true_type;
-
-    static void _(){};
-  };
 
   template <typename T>
   using is_inconsistent_t =
