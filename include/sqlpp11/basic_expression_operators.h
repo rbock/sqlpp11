@@ -44,13 +44,15 @@ namespace sqlpp
   SQLPP_PORTABLE_STATIC_ASSERT(assert_valid_rhs_comparison_operand_t, "invalid rhs operand in comparison");
 
   template <typename LhsValueType, typename RhsType>
-  using check_rhs_comparison_operand_t = static_check_t<
-      (is_expression_t<RhsType>::value  // expressions are OK
-       or
-       is_multi_expression_t<RhsType>::value)  // multi-expressions like ANY are OK for comparisons, too
-          and
-          LhsValueType::template _is_valid_operand<RhsType>::value,  // the correct value type is required, of course
-      assert_valid_rhs_comparison_operand_t>;
+  using check_rhs_comparison_operand_t =
+      static_check_t<(is_expression_t<sqlpp::wrap_operand_t<RhsType>>::value  // expressions are OK
+                      or
+                      is_multi_expression_t<sqlpp::wrap_operand_t<RhsType>>::value)  // multi-expressions like ANY are
+                                                                                     // OK for comparisons, too
+                         and
+                         LhsValueType::template _is_valid_operand<
+                             sqlpp::wrap_operand_t<RhsType>>::value,  // the correct value type is required, of course
+                     assert_valid_rhs_comparison_operand_t>;
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_valid_in_arguments_t, "at least one operand of in() is not valid");
 
