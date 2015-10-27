@@ -42,7 +42,7 @@ namespace sqlpp
   {
     using _traits = make_traits<date_time, tag::is_value_type>;
     using _tag = tag::is_date_time;
-    using _cpp_value_type = ms_point;
+    using _cpp_value_type = cpp::ms_point;
 
     template <typename T>
     using _is_valid_operand = is_time_point_t<T>;
@@ -74,7 +74,7 @@ namespace sqlpp
     {
       if (t._is_trivial())
       {
-        _value = day_point{};
+        _value = _cpp_value_type{};
         _is_null = true;
       }
       else
@@ -87,7 +87,7 @@ namespace sqlpp
 
     void set_null()
     {
-      _value = day_point{};
+      _value = _cpp_value_type{};
       _is_null = true;
     }
 
@@ -149,7 +149,7 @@ namespace sqlpp
     {
       _is_valid = false;
       _is_null = true;
-      _value = day_point{};
+      _value = _cpp_value_type{};
     }
 
     void _validate()
@@ -169,7 +169,7 @@ namespace sqlpp
       if (not _is_valid)
         throw exception("accessing is_null in non-existing row");
 
-      return value() == day_point{};
+      return value() == _cpp_value_type{};
     }
 
     _cpp_value_type value() const
@@ -185,7 +185,7 @@ namespace sqlpp
         }
         else
         {
-          return day_point{};
+          return _cpp_value_type{};
         }
       }
       return _value;
@@ -202,12 +202,5 @@ namespace sqlpp
     bool _is_null;
     _cpp_value_type _value;
   };
-
-  // ostream operator for date_time result field
-  template <typename Db, typename FieldSpec>
-  inline std::ostream& operator<<(std::ostream& os, const result_field_t<date_time, Db, FieldSpec>& e)
-  {
-    return serialize(e, os);
-  }
 }
 #endif

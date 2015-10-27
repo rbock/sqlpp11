@@ -71,14 +71,14 @@ namespace sqlpp
     _value_t _t;
   };
 
-  template <typename Rep, typename Period>
-  struct date_time_operand : public alias_operators<date_time_operand<Rep, Period>>
+  template <typename Period>
+  struct date_time_operand : public alias_operators<date_time_operand<Period>>
   {
     using _traits = make_traits<date, tag::is_expression, tag::is_wrapped_value>;
     using _nodes = detail::type_vector<>;
     using _is_aggregate_expression = std::true_type;
 
-    using _value_t = std::chrono::time_point<Rep, Period>;
+    using _value_t = std::chrono::time_point<std::chrono::system_clock, Period>;
 
     date_time_operand() : _t{}
     {
@@ -96,7 +96,7 @@ namespace sqlpp
 
     bool _is_trivial() const
     {
-      return _t == day_point{};
+      return _t == _value_t{};
     }
 
     _value_t _t;
@@ -256,10 +256,10 @@ namespace sqlpp
     using type = boolean_operand;
   };
 
-  template <typename Rep, typename Period>
-  struct wrap_operand<std::chrono::time_point<Rep, Period>, void>
+  template <typename Period>
+  struct wrap_operand<std::chrono::time_point<std::chrono::system_clock, Period>, void>
   {
-    using type = date_time_operand<Rep, Period>;
+    using type = date_time_operand<Period>;
   };
 
   template <typename T>
