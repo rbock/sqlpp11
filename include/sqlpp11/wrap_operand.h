@@ -27,6 +27,7 @@
 #ifndef SQLPP_DETAIL_WRAP_OPERAND_H
 #define SQLPP_DETAIL_WRAP_OPERAND_H
 
+#include <date.h>
 #include <string>
 #include <sqlpp11/date_time_fwd.h>
 #include <sqlpp11/wrap_operand_fwd.h>
@@ -71,6 +72,19 @@ namespace sqlpp
     _value_t _t;
   };
 
+  template <typename Context>
+  struct serializer_t<Context, boolean_operand>
+  {
+    using _serialize_check = consistent_t;
+    using Operand = boolean_operand;
+
+    static Context& _(const Operand& t, Context& context)
+    {
+      context << t._t;
+      return context;
+    }
+  };
+
   template <typename Period>
   struct date_time_operand : public alias_operators<date_time_operand<Period>>
   {
@@ -102,15 +116,32 @@ namespace sqlpp
     _value_t _t;
   };
 
-  template <typename Context>
-  struct serializer_t<Context, boolean_operand>
+  template <typename Context, typename Period>
+  struct serializer_t<Context, date_time_operand<Period>>
   {
     using _serialize_check = consistent_t;
-    using Operand = boolean_operand;
+    using Operand = date_time_operand<Period>;
 
     static Context& _(const Operand& t, Context& context)
     {
-      context << t._t;
+      const auto dp = ::date::floor<::date::days>(t._t);
+      const auto time = ::date::make_time(t._t - dp);
+      const auto ymd = ::date::year_month_day{dp};
+      context << "TIMESTAMP '" << ymd << ' ' << time << "'";
+      return context;
+    }
+  };
+
+  template <typename Context>
+  struct serializer_t<Context, date_time_operand<cpp::days>>
+  {
+    using _serialize_check = consistent_t;
+    using Operand = date_time_operand<cpp::days>;
+
+    static Context& _(const Operand& t, Context& context)
+    {
+      const auto ymd = ::date::year_month_day{t._t};
+      context << "DATE '" << ymd << "'";
       return context;
     }
   };

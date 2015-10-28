@@ -212,5 +212,75 @@ namespace test
       };
     };
   };
+
+  namespace TabDateTime_
+  {
+    struct ColDate
+    {
+      struct _alias_t
+      {
+        static constexpr const char _literal[] = "col_date";
+        using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+        template <typename T>
+        struct _member_t
+        {
+          T colDate;
+          T& operator()()
+          {
+            return colDate;
+          }
+          const T& operator()() const
+          {
+            return colDate;
+          }
+        };
+      };
+      using _traits = sqlpp::make_traits<sqlpp::date, sqlpp::tag::can_be_null>;
+    };
+    struct ColDateTime
+    {
+      struct _alias_t
+      {
+        static constexpr const char _literal[] = "col_date_time";
+        using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+        template <typename T>
+        struct _member_t
+        {
+          T colDateTime;
+          T& operator()()
+          {
+            return colDateTime;
+          }
+          const T& operator()() const
+          {
+            return colDateTime;
+          }
+        };
+      };
+      using _traits = sqlpp::make_traits<sqlpp::date_time, sqlpp::tag::can_be_null>;
+    };
+  }
+
+  struct TabDateTime : sqlpp::table_t<TabDateTime, TabDateTime_::ColDate, TabDateTime_::ColDateTime>
+  {
+    struct _alias_t
+    {
+      static constexpr const char _literal[] = "tab_date_time";
+      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+      template <typename T>
+      struct _member_t
+      {
+        T tabDateTime;
+        T& operator()()
+        {
+          return tabDateTime;
+        }
+        const T& operator()() const
+        {
+          return tabDateTime;
+        }
+      };
+    };
+  };
 }
 #endif

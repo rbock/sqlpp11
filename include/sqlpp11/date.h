@@ -27,6 +27,7 @@
 #ifndef SQLPP_DATE_H
 #define SQLPP_DATE_H
 
+#include <date.h>
 #include <sqlpp11/date_time_fwd.h>
 #include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/type_traits.h>
@@ -138,7 +139,7 @@ namespace sqlpp
   struct result_field_t<date, Db, FieldSpec> : public result_field_methods_t<result_field_t<date, Db, FieldSpec>>
   {
     static_assert(std::is_same<value_type_of<FieldSpec>, date>::value, "field type mismatch");
-    using _cpp_value_type = typename date::_cpp_value_type;
+    using _cpp_value_type = typename sqlpp::date::_cpp_value_type;
 
     result_field_t() : _is_valid(false), _is_null(true), _value{}
     {
@@ -201,5 +202,32 @@ namespace sqlpp
     bool _is_null;
     _cpp_value_type _value;
   };
+
+  template <typename Context, typename Db, typename FieldSpec>
+  struct serializer_t<Context, result_field_t<date, Db, FieldSpec>>
+  {
+    using _serialize_check = consistent_t;
+    using T = result_field_t<date, Db, FieldSpec>;
+
+    static Context& _(const T& t, Context& context)
+    {
+      if (t.is_null() and not null_is_trivial_value_t<FieldSpec>::value)
+      {
+        context << "NULL";
+      }
+      else
+      {
+        const auto ymd = ::date::year_month_day{t.value()};
+        context << ymd;
+      }
+      return context;
+    }
+  };
+
+  template <typename Db, typename FieldSpec>
+  inline std::ostream& operator<<(std::ostream& os, const result_field_t<date, Db, FieldSpec>& e)
+  {
+    return serialize(e, os);
+  }
 }
 #endif

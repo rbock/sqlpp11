@@ -202,5 +202,34 @@ namespace sqlpp
     bool _is_null;
     _cpp_value_type _value;
   };
+
+  template <typename Context, typename Db, typename FieldSpec>
+  struct serializer_t<Context, result_field_t<date_time, Db, FieldSpec>>
+  {
+    using _serialize_check = consistent_t;
+    using T = result_field_t<date_time, Db, FieldSpec>;
+
+    static Context& _(const T& t, Context& context)
+    {
+      if (t.is_null() and not null_is_trivial_value_t<FieldSpec>::value)
+      {
+        context << "NULL";
+      }
+      else
+      {
+        const auto dp = ::date::floor<::date::days>(t);
+        const auto time = ::date::make_time(t - dp);
+        const auto ymd = ::date::year_month_day{dp};
+        context << ymd << ' ' << time;
+      }
+      return context;
+    }
+  };
+
+  template <typename Db, typename FieldSpec>
+  inline std::ostream& operator<<(std::ostream& os, const result_field_t<date_time, Db, FieldSpec>& e)
+  {
+    return serialize(e, os);
+  }
 }
 #endif
