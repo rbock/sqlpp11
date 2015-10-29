@@ -28,7 +28,7 @@
 #define SQLPP_DATE_H
 
 #include <date.h>
-#include <sqlpp11/date_time_fwd.h>
+#include <sqlpp11/date_time.h>
 #include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/exception.h>
@@ -43,10 +43,12 @@ namespace sqlpp
   {
     using _traits = make_traits<date, tag::is_value_type>;
     using _tag = tag::is_date;
-    using _cpp_value_type = cpp::day_point;
+    using _cpp_value_type = ::sqlpp::chrono::day_point;
 
     template <typename T>
     using _is_valid_operand = is_time_point_t<T>;
+    template <typename T>
+    using _is_valid_assignment_operand = is_date_t<T>;
   };
 
   // date parameter value
@@ -194,7 +196,7 @@ namespace sqlpp
     template <typename Target>
     void _bind(Target& target, size_t i)
     {
-      target._bind_day_point_result(i, &_value, &_is_null);
+      target._bind_date_result(i, &_value, &_is_null);
     }
 
   private:

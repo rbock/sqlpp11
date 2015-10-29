@@ -42,7 +42,7 @@ namespace sqlpp
   {
     using _traits = make_traits<date_time, tag::is_value_type>;
     using _tag = tag::is_date_time;
-    using _cpp_value_type = cpp::ms_point;
+    using _cpp_value_type = ::sqlpp::chrono::mus_point;
 
     template <typename T>
     using _is_valid_operand = is_time_point_t<T>;
@@ -109,7 +109,7 @@ namespace sqlpp
     template <typename Target>
     void _bind(Target& target, size_t index) const
     {
-      target._bind_date_parameter(index, &_value, _is_null);
+      target._bind_date_time_parameter(index, &_value, _is_null);
     }
 
   private:
@@ -194,7 +194,7 @@ namespace sqlpp
     template <typename Target>
     void _bind(Target& target, size_t i)
     {
-      target._bind_date_result(i, &_value, &_is_null);
+      target._bind_date_time_result(i, &_value, &_is_null);
     }
 
   private:
@@ -217,8 +217,8 @@ namespace sqlpp
       }
       else
       {
-        const auto dp = ::date::floor<::date::days>(t);
-        const auto time = ::date::make_time(t - dp);
+        const auto dp = ::date::floor<::date::days>(t.value());
+        const auto time = ::date::make_time(t.value() - dp);
         const auto ymd = ::date::year_month_day{dp};
         context << ymd << ' ' << time;
       }

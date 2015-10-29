@@ -36,32 +36,35 @@ int DateTime(int, char**)
   MockDb::_serializer_context_t printer;
   test::TabDateTime t;
 
-  for (const auto& row : db(select(sqlpp::value(std::chrono::system_clock::now()).as(now))))
+  for (const auto& row : db(select(::sqlpp::value(std::chrono::system_clock::now()).as(now))))
   {
     std::cout << row.now;
   }
+  for (const auto& row : db(select(all_of(t)).from(t).where(true)))
+  {
+    std::cout << row.colDate;
+    std::cout << row.colDateTime;
+  }
   printer.reset();
-  std::cerr << serialize(sqlpp::value(std::chrono::system_clock::now()), printer).str() << std::endl;
+  std::cerr << serialize(::sqlpp::value(std::chrono::system_clock::now()), printer).str() << std::endl;
 
-  db(insert_into(t).set(t.colDate = ::date::floor<sqlpp::cpp::days>(std::chrono::system_clock::now())));
-  db(insert_into(t).set(t.colDate = std::chrono::system_clock::now()));
-  db(insert_into(t).set(t.colDateTime = ::date::floor<sqlpp::cpp::days>(std::chrono::system_clock::now())));
+  db(insert_into(t).set(t.colDate = ::date::floor<::sqlpp::chrono::days>(std::chrono::system_clock::now())));
+  db(insert_into(t).set(t.colDateTime = ::date::floor<::sqlpp::chrono::days>(std::chrono::system_clock::now())));
   db(insert_into(t).set(t.colDateTime = std::chrono::system_clock::now()));
 
   db(update(t)
-         .set(t.colDate = ::date::floor<sqlpp::cpp::days>(std::chrono::system_clock::now()))
+         .set(t.colDate = ::date::floor<::sqlpp::chrono::days>(std::chrono::system_clock::now()))
          .where(t.colDate < std::chrono::system_clock::now()));
-  db(update(t).set(t.colDate = std::chrono::system_clock::now()).where(t.colDate < std::chrono::system_clock::now()));
   db(update(t)
-         .set(t.colDateTime = ::date::floor<sqlpp::cpp::days>(std::chrono::system_clock::now()))
+         .set(t.colDateTime = ::date::floor<::sqlpp::chrono::days>(std::chrono::system_clock::now()))
          .where(t.colDate < std::chrono::system_clock::now()));
   db(update(t)
          .set(t.colDateTime = std::chrono::system_clock::now())
          .where(t.colDate < std::chrono::system_clock::now()));
 
-  db(remove_from(t).where(t.colDate == ::date::floor<sqlpp::cpp::days>(std::chrono::system_clock::now())));
+  db(remove_from(t).where(t.colDate == ::date::floor<::sqlpp::chrono::days>(std::chrono::system_clock::now())));
   db(remove_from(t).where(t.colDate == std::chrono::system_clock::now()));
-  db(remove_from(t).where(t.colDateTime == ::date::floor<sqlpp::cpp::days>(std::chrono::system_clock::now())));
+  db(remove_from(t).where(t.colDateTime == ::date::floor<::sqlpp::chrono::days>(std::chrono::system_clock::now())));
   db(remove_from(t).where(t.colDateTime == std::chrono::system_clock::now()));
 
   return 0;

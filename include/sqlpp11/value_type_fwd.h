@@ -58,6 +58,27 @@ namespace sqlpp
         and ValueType::template _is_valid_operand<T>::value  // the correct value type is required, of course
         ;
   };
+
+  template <typename ValueType, typename T, typename Enable = void>
+  struct is_valid_assignment_operand
+  {
+    static constexpr bool value =
+        is_expression_t<T>::value                            // expressions are OK
+        and ValueType::template _is_valid_operand<T>::value  // the correct value type is required, of course
+        ;
+  };
+
+  template <typename ValueType, typename T>
+  struct is_valid_assignment_operand<
+      ValueType,
+      T,
+      typename std::enable_if<std::is_class<typename ValueType::template _is_valid_assignment_operand<T>>::value>::type>
+  {
+    static constexpr bool value =
+        is_expression_t<T>::value                                       // expressions are OK
+        and ValueType::template _is_valid_assignment_operand<T>::value  // the correct value type is required, of course
+        ;
+  };
 }
 
 #endif

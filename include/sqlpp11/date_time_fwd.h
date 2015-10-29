@@ -31,16 +31,16 @@
 
 namespace sqlpp
 {
-  namespace cpp
+  namespace chrono
   {
     using days = std::chrono::duration<int, std::ratio_multiply<std::ratio<24>, std::chrono::hours::period>>;
 
     using day_point = std::chrono::time_point<std::chrono::system_clock, days>;
-    using ms_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>;
+    using mus_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>;
   }
 
   struct date;
   struct date_time;
-};
+}
 
 #endif

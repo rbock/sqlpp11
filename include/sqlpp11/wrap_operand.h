@@ -85,10 +85,54 @@ namespace sqlpp
     }
   };
 
+  struct date_operand : public alias_operators<date_operand>
+  {
+    using _traits = make_traits<date, tag::is_expression, tag::is_wrapped_value>;
+    using _nodes = detail::type_vector<>;
+    using _is_aggregate_expression = std::true_type;
+
+    using _value_t = ::sqlpp::chrono::day_point;
+
+    date_operand() : _t{}
+    {
+    }
+
+    date_operand(_value_t t) : _t(t)
+    {
+    }
+
+    date_operand(const date_operand&) = default;
+    date_operand(date_operand&&) = default;
+    date_operand& operator=(const date_operand&) = default;
+    date_operand& operator=(date_operand&&) = default;
+    ~date_operand() = default;
+
+    bool _is_trivial() const
+    {
+      return _t == _value_t{};
+    }
+
+    _value_t _t;
+  };
+
+  template <typename Context>
+  struct serializer_t<Context, date_operand>
+  {
+    using _serialize_check = consistent_t;
+    using Operand = date_operand;
+
+    static Context& _(const Operand& t, Context& context)
+    {
+      const auto ymd = ::date::year_month_day{t._t};
+      context << "DATE '" << ymd << "'";
+      return context;
+    }
+  };
+
   template <typename Period>
   struct date_time_operand : public alias_operators<date_time_operand<Period>>
   {
-    using _traits = make_traits<date, tag::is_expression, tag::is_wrapped_value>;
+    using _traits = make_traits<date_time, tag::is_expression, tag::is_wrapped_value>;
     using _nodes = detail::type_vector<>;
     using _is_aggregate_expression = std::true_type;
 
@@ -128,20 +172,6 @@ namespace sqlpp
       const auto time = ::date::make_time(t._t - dp);
       const auto ymd = ::date::year_month_day{dp};
       context << "TIMESTAMP '" << ymd << ' ' << time << "'";
-      return context;
-    }
-  };
-
-  template <typename Context>
-  struct serializer_t<Context, date_time_operand<cpp::days>>
-  {
-    using _serialize_check = consistent_t;
-    using Operand = date_time_operand<cpp::days>;
-
-    static Context& _(const Operand& t, Context& context)
-    {
-      const auto ymd = ::date::year_month_day{t._t};
-      context << "DATE '" << ymd << "'";
       return context;
     }
   };
@@ -291,6 +321,12 @@ namespace sqlpp
   struct wrap_operand<std::chrono::time_point<std::chrono::system_clock, Period>, void>
   {
     using type = date_time_operand<Period>;
+  };
+
+  template <>
+  struct wrap_operand<std::chrono::time_point<std::chrono::system_clock, sqlpp::chrono::days>, void>
+  {
+    using type = date_operand;
   };
 
   template <typename T>

@@ -62,6 +62,8 @@ namespace sqlpp
 
     template <typename T>
     using _is_valid_operand = is_valid_operand<value_type_of<ColumnSpec>, T>;
+    template <typename T>
+    using _is_valid_assignment_operand = is_valid_assignment_operand<value_type_of<ColumnSpec>, T>;
 
     column_t() = default;
     column_t(const column_t&) = default;
@@ -87,7 +89,7 @@ namespace sqlpp
     auto operator=(T t) const -> assignment_t<column_t, wrap_operand_t<T>>
     {
       using rhs = wrap_operand_t<T>;
-      static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
+      static_assert(_is_valid_assignment_operand<rhs>::value, "invalid rhs assignment operand");
 
       return {*this, {rhs{t}}};
     }
