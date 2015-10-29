@@ -22,6 +22,7 @@ notifications:
 install:
   - CMAKE_VERSION_MM=3.2
   - CMAKE_VERSION_FULL=$CMAKE_VERSION_MM.2
+  - git clone https://github.com/HowardHinnant/date
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
       && sudo add-apt-repository -y ppa:apokluda/boost1.53
@@ -44,7 +45,7 @@ before_script:
    - mkdir build
    - cd build
    - if [[ "$CXX" = "g++" && "$CONFIG" = "Debug" && "$TRAVIS_OS_NAME" = "linux" ]]; then export CXXFLAGS="--coverage"; fi
-   - cmake .. -DCMAKE_BUILD_TYPE=$CONFIG
+   - cmake .. -DCMAKE_BUILD_TYPE=$CONFIG -DDATE_INCLUDE_DIR=$PWD/../date
 
 script:
    - cmake --build . --config $CONFIG
