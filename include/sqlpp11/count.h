@@ -29,7 +29,7 @@
 
 #include <sqlpp11/char_sequence.h>
 #include <sqlpp11/select_flags.h>
-#include <sqlpp11/integral.h>
+#include <sqlpp11/data_types/integral.h>
 
 namespace sqlpp
 {

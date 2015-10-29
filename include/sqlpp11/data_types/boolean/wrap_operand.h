@@ -24,28 +24,20 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_NO_VALUE_H
-#define SQLPP_NO_VALUE_H
+#ifndef SQLPP_BOOLEAN_WRAP_OPERAND_H
+#define SQLPP_BOOLEAN_WRAP_OPERAND_H
 
-#include <type_traits>
-#include <sqlpp11/value_type_fwd.h>
-#include <sqlpp11/data_types/column_operators.h>
+#include <sqlpp11/wrap_operand.h>
 
 namespace sqlpp
 {
-  struct no_value_t
-  {
-    using _tag = void;
-  };
+  struct boolean_operand;
 
-  template <typename Base>
-  struct expression_operators<Base, no_value_t>
+  template <>
+  struct wrap_operand<bool, void>
   {
-  };
-
-  template <typename Base>
-  struct column_operators<Base, no_value_t>
-  {
+    using type = boolean_operand;
   };
 }
+
 #endif

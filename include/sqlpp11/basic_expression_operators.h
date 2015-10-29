@@ -36,7 +36,7 @@
 #include <sqlpp11/expression_fwd.h>
 #include <sqlpp11/in_fwd.h>
 #include <sqlpp11/is_null_fwd.h>
-#include <sqlpp11/wrap_operand_fwd.h>
+#include <sqlpp11/wrap_operand.h>
 #include <sqlpp11/logic.h>
 
 namespace sqlpp
@@ -219,15 +219,6 @@ namespace sqlpp
       return {*static_cast<const Expr*>(this), wrap_operand_t<T>{t}...};
     }
   };
-
-  template <typename Expr>
-  struct alias_operators
-  {
-    template <typename alias_provider>
-    expression_alias_t<Expr, alias_provider> as(const alias_provider&) const
-    {
-      return {*static_cast<const Expr*>(this)};
-    }
-  };
 }
+
 #endif

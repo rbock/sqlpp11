@@ -28,7 +28,7 @@
 #define SQLPP_EXPRESSION_H
 
 #include <sqlpp11/alias.h>
-#include <sqlpp11/boolean.h>
+#include <sqlpp11/data_types/boolean.h>
 #include <sqlpp11/tvin.h>
 #include <sqlpp11/rhs_wrap.h>
 #include <sqlpp11/noop.h>

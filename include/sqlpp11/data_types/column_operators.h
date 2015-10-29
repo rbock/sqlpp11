@@ -24,28 +24,18 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_NO_VALUE_H
-#define SQLPP_NO_VALUE_H
+#ifndef SQLPP_COLUMN_OPERATORS_H
+#define SQLPP_COLUMN_OPERATORS_H
 
-#include <type_traits>
-#include <sqlpp11/value_type_fwd.h>
-#include <sqlpp11/data_types/column_operators.h>
+#include <sqlpp11/wrong.h>
 
 namespace sqlpp
 {
-  struct no_value_t
+  template <typename Column, typename ValueType>
+  struct column_operators
   {
-    using _tag = void;
-  };
-
-  template <typename Base>
-  struct expression_operators<Base, no_value_t>
-  {
-  };
-
-  template <typename Base>
-  struct column_operators<Base, no_value_t>
-  {
+    static_assert(wrong_t<column_operators>::value, "Missing column operators for ValueType");
   };
 }
+
 #endif

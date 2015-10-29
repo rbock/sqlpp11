@@ -27,9 +27,10 @@
 #ifndef SQLPP_VALUE_OR_NULL_H
 #define SQLPP_VALUE_OR_NULL_H
 
+// FIXME: This is very similar to functions.h
 #include <sqlpp11/parameter.h>
 #include <sqlpp11/parameter_list.h>
-#include <sqlpp11/column_types.h>
+#include <sqlpp11/data_types.h>
 #include <sqlpp11/in.h>
 #include <sqlpp11/value_type.h>
 #include <sqlpp11/exists.h>

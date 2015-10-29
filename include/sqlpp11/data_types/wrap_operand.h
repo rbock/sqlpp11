@@ -27,25 +27,12 @@
 #ifndef SQLPP_DETAIL_WRAP_OPERAND_H
 #define SQLPP_DETAIL_WRAP_OPERAND_H
 
-namespace sqlpp
-{
-  template <typename T, typename Enable = void>
-  struct wrap_operand
-  {
-    using type = T;
-  };
-
-  template <typename T>
-  using wrap_operand_t = typename wrap_operand<T>::type;
-}
-
 #include <date.h>
 #include <string>
 #include <sqlpp11/date_time_fwd.h>
 #include <sqlpp11/serializer.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/basic_expression_operators.h>
-#include <sqlpp11/alias_operators.h>
 
 namespace sqlpp
 {
@@ -271,6 +258,18 @@ namespace sqlpp
       context << '\'' << context.escape(t._t) << '\'';
       return context;
     }
+  };
+
+  template <typename T, typename Enable = void>
+  struct wrap_operand
+  {
+    using type = T;
+  };
+
+  template <>
+  struct wrap_operand<bool, void>
+  {
+    using type = boolean_operand;
   };
 
   template <typename Period>

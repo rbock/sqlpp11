@@ -24,28 +24,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_NO_VALUE_H
-#define SQLPP_NO_VALUE_H
+#ifndef SQLPP_DATA_TYPES_H
+#define SQLPP_DATA_TYPES_H
 
-#include <type_traits>
-#include <sqlpp11/value_type_fwd.h>
-#include <sqlpp11/data_types/column_operators.h>
+#include <sqlpp11/data_types/boolean.h>
+#include <sqlpp11/data_types/integral.h>
+#include <sqlpp11/data_types/floating_point.h>
+#include <sqlpp11/data_types/text.h>
+#include <sqlpp11/data_types/day_point.h>
+#include <sqlpp11/data_types/time_point.h>
 
-namespace sqlpp
-{
-  struct no_value_t
-  {
-    using _tag = void;
-  };
-
-  template <typename Base>
-  struct expression_operators<Base, no_value_t>
-  {
-  };
-
-  template <typename Base>
-  struct column_operators<Base, no_value_t>
-  {
-  };
-}
 #endif

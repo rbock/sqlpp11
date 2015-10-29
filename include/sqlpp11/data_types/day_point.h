@@ -28,7 +28,7 @@
 #define SQLPP_DAY_POINT_H
 
 #include <date.h>
-#include <sqlpp11/time_point.h>
+#include <sqlpp11/data_types/time_point.h>
 #include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/exception.h>

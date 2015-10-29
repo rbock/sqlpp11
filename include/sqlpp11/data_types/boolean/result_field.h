@@ -24,138 +24,18 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_BOOLEAN_H
-#define SQLPP_BOOLEAN_H
+#ifndef SQLPP_BOOLEAN_RESULT_FIELD_H
+#define SQLPP_BOOLEAN_RESULT_FIELD_H
 
-#include <cstdlib>
-#include <ostream>
 #include <sqlpp11/basic_expression_operators.h>
+#include <sqlpp11/result_field_methods.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/exception.h>
-#include <sqlpp11/tvin.h>
 #include <sqlpp11/result_field.h>
+#include <sqlpp11/data_types/boolean/data_type.h>
 
 namespace sqlpp
 {
-  // boolean value type
-  struct boolean
-  {
-    using _traits = make_traits<boolean, tag::is_value_type>;
-    using _tag = tag::is_boolean;
-    using _cpp_value_type = bool;
-
-    template <typename T>
-    using _is_valid_operand = is_boolean_t<T>;
-  };
-
-  // boolean parameter type
-  template <>
-  struct parameter_value_t<boolean>
-  {
-    using _value_type = boolean;  // FIXME
-    using _cpp_value_type = typename _value_type::_cpp_value_type;
-
-    parameter_value_t() : _value(false), _is_null(true)
-    {
-    }
-
-    parameter_value_t(const _cpp_value_type& val) : _value(val), _is_null(false)
-    {
-    }
-
-    parameter_value_t& operator=(const _cpp_value_type& val)
-    {
-      _value = val;
-      _is_null = false;
-      return *this;
-    }
-
-    parameter_value_t& operator=(const tvin_t<wrap_operand_t<_cpp_value_type>>& t)
-    {
-      if (t._is_trivial())
-      {
-        _value = false;
-        _is_null = true;
-      }
-      else
-      {
-        _value = t._value._t;
-        _is_null = false;
-      }
-      return *this;
-    }
-
-    parameter_value_t& operator=(const std::nullptr_t&)
-    {
-      _value = false;
-      _is_null = true;
-      return *this;
-    }
-
-    bool is_null() const
-    {
-      return _is_null;
-    }
-
-    _cpp_value_type value() const
-    {
-      return _value;
-    }
-
-    operator _cpp_value_type() const
-    {
-      return value();
-    }
-
-    template <typename Target>
-    void _bind(Target& target, size_t index) const
-    {
-      target._bind_boolean_parameter(index, &_value, _is_null);
-    }
-
-  private:
-    signed char _value;
-    bool _is_null;
-  };
-
-  // boolean expression operators
-  template <typename Base>
-  struct expression_operators<Base, boolean> : public basic_expression_operators<Base, boolean>
-  {
-    template <typename T>
-    using _is_valid_operand = is_valid_operand<boolean, T>;
-
-    template <typename T>
-    logical_and_t<Base, wrap_operand_t<T>> operator and(T t) const
-    {
-      using rhs = wrap_operand_t<T>;
-      static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
-
-      return {*static_cast<const Base*>(this), rhs{t}};
-    }
-
-    template <typename T>
-    logical_or_t<Base, wrap_operand_t<T>> operator or(T t) const
-    {
-      using rhs = wrap_operand_t<T>;
-      static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
-
-      return {*static_cast<const Base*>(this), rhs{t}};
-    }
-
-    logical_not_t<Base> operator not() const
-    {
-      return {*static_cast<const Base*>(this)};
-    }
-  };
-
-  // boolean column operators
-  template <typename Base>
-  struct column_operators<Base, boolean>
-  {
-  };
-
-  // boolean result field
   template <typename Db, typename FieldSpec>
   struct result_field_t<boolean, Db, FieldSpec> : public result_field_methods_t<result_field_t<boolean, Db, FieldSpec>>
   {
@@ -223,11 +103,5 @@ namespace sqlpp
     bool _is_null;
     signed char _value;
   };
-
-  template <typename Db, typename FieldSpec>
-  inline std::ostream& operator<<(std::ostream& os, const result_field_t<boolean, Db, FieldSpec>& e)
-  {
-    return serialize(e, os);
-  }
 }
 #endif

@@ -27,11 +27,7 @@
 #ifndef SQLPP_COLUMN_TYPES_H
 #define SQLPP_COLUMN_TYPES_H
 
-#include <sqlpp11/boolean.h>
-#include <sqlpp11/day_point.h>
-#include <sqlpp11/time_point.h>
-#include <sqlpp11/integral.h>
-#include <sqlpp11/floating_point.h>
-#include <sqlpp11/text.h>
+#warning column_types.h is deprecated, please include data_types.h instead
+#include <sqlpp11/data_types.h>
 
 #endif

@@ -24,16 +24,21 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DETAIL_WRAP_OPERAND_FWD_H
-#define SQLPP_DETAIL_WRAP_OPERAND_FWD_H
+#ifndef SQLPP_ALIAS_OPERATORS_H
+#define SQLPP_ALIAS_OPERATORS_H
+
+#include <sqlpp11/alias.h>
 
 namespace sqlpp
 {
-  template <typename T, typename Enable = void>
-  struct wrap_operand;
-
-  template <typename T>
-  using wrap_operand_t = typename wrap_operand<T>::type;
+  template <typename Expr>
+  struct alias_operators
+  {
+    template <typename alias_provider>
+    expression_alias_t<Expr, alias_provider> as(const alias_provider&) const
+    {
+      return {*static_cast<const Expr*>(this)};
+    }
+  };
 }
-
 #endif

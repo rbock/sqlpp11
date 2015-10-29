@@ -32,18 +32,6 @@
 
 namespace sqlpp
 {
-  template <typename ValueType>
-  struct parameter_value_t
-  {
-    static_assert(wrong_t<parameter_value_t>::value, "Missing parameter value type for ValueType");
-  };
-
-  template <typename Column, typename ValueType>
-  struct column_operators
-  {
-    static_assert(wrong_t<column_operators>::value, "Missing column operators for ValueType");
-  };
-
   template <typename Expr, typename ValueType>
   struct expression_operators
   {

@@ -24,28 +24,34 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_NO_VALUE_H
-#define SQLPP_NO_VALUE_H
+#ifndef SQLPP_BOOLEAN_SERIALIZE_H
+#define SQLPP_BOOLEAN_SERIALIZE_H
 
-#include <type_traits>
-#include <sqlpp11/value_type_fwd.h>
-#include <sqlpp11/data_types/column_operators.h>
+#include <sqlpp11/data_types/boolean/result_field.h>
+#include <sqlpp11/data_types/boolean/operand.h>
+#include <ostream>
 
 namespace sqlpp
 {
-  struct no_value_t
+  struct boolean;
+
+  template <typename Context>
+  struct serializer_t<Context, boolean_operand>
   {
-    using _tag = void;
+    using _serialize_check = consistent_t;
+    using Operand = boolean_operand;
+
+    static Context& _(const Operand& t, Context& context)
+    {
+      context << t._t;
+      return context;
+    }
   };
 
-  template <typename Base>
-  struct expression_operators<Base, no_value_t>
+  template <typename Db, typename FieldSpec>
+  inline std::ostream& operator<<(std::ostream& os, const result_field_t<boolean, Db, FieldSpec>& e)
   {
-  };
-
-  template <typename Base>
-  struct column_operators<Base, no_value_t>
-  {
-  };
+    return serialize(e, os);
+  }
 }
 #endif

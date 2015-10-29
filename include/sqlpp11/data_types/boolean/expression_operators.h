@@ -24,28 +24,42 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_NO_VALUE_H
-#define SQLPP_NO_VALUE_H
+#ifndef SQLPP_BOOLEAN_EXPRESSION_OPERATORS_H
+#define SQLPP_BOOLEAN_EXPRESSION_OPERATORS_H
 
-#include <type_traits>
-#include <sqlpp11/value_type_fwd.h>
-#include <sqlpp11/data_types/column_operators.h>
+#include <sqlpp11/basic_expression_operators.h>
 
 namespace sqlpp
 {
-  struct no_value_t
-  {
-    using _tag = void;
-  };
-
   template <typename Base>
-  struct expression_operators<Base, no_value_t>
+  struct expression_operators<Base, boolean> : public basic_expression_operators<Base, boolean>
   {
-  };
+    template <typename T>
+    using _is_valid_operand = is_valid_operand<boolean, T>;
 
-  template <typename Base>
-  struct column_operators<Base, no_value_t>
-  {
+    template <typename T>
+    logical_and_t<Base, wrap_operand_t<T>> operator and(T t) const
+    {
+      using rhs = wrap_operand_t<T>;
+      static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+
+      return {*static_cast<const Base*>(this), rhs{t}};
+    }
+
+    template <typename T>
+    logical_or_t<Base, wrap_operand_t<T>> operator or(T t) const
+    {
+      using rhs = wrap_operand_t<T>;
+      static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+
+      return {*static_cast<const Base*>(this), rhs{t}};
+    }
+
+    logical_not_t<Base> operator not() const
+    {
+      return {*static_cast<const Base*>(this)};
+    }
   };
 }
+
 #endif

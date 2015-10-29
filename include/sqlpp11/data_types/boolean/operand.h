@@ -24,28 +24,45 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_NO_VALUE_H
-#define SQLPP_NO_VALUE_H
+#ifndef SQLPP_BOOLEAN_OPERAND_H
+#define SQLPP_BOOLEAN_OPERAND_H
 
-#include <type_traits>
-#include <sqlpp11/value_type_fwd.h>
-#include <sqlpp11/data_types/column_operators.h>
+#include <sqlpp11/type_traits.h>
+#include <sqlpp11/alias_operators.h>
 
 namespace sqlpp
 {
-  struct no_value_t
-  {
-    using _tag = void;
-  };
+  struct boolean;
 
-  template <typename Base>
-  struct expression_operators<Base, no_value_t>
+  struct boolean_operand : public alias_operators<boolean_operand>
   {
-  };
+    using _traits = make_traits<boolean, tag::is_expression, tag::is_wrapped_value>;
+    using _nodes = detail::type_vector<>;
+    using _is_aggregate_expression = std::true_type;
 
-  template <typename Base>
-  struct column_operators<Base, no_value_t>
-  {
+    using _value_t = bool;
+
+    boolean_operand() : _t{}
+    {
+    }
+
+    boolean_operand(_value_t t) : _t(t)
+    {
+    }
+
+    boolean_operand(const boolean_operand&) = default;
+    boolean_operand(boolean_operand&&) = default;
+    boolean_operand& operator=(const boolean_operand&) = default;
+    boolean_operand& operator=(boolean_operand&&) = default;
+    ~boolean_operand() = default;
+
+    bool _is_trivial() const
+    {
+      return _t == false;
+    }
+
+    _value_t _t;
   };
 }
+
 #endif

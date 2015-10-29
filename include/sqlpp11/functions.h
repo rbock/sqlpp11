@@ -29,7 +29,7 @@
 
 #include <sqlpp11/parameter.h>
 #include <sqlpp11/parameter_list.h>
-#include <sqlpp11/column_types.h>
+#include <sqlpp11/data_types.h>
 #include <sqlpp11/in.h>
 #include <sqlpp11/not_in.h>
 #include <sqlpp11/is_null.h>

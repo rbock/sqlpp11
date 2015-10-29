@@ -3,7 +3,7 @@
 #define TEST_ASSERTTABLES_H
 
 #include <sqlpp11/table.h>
-#include <sqlpp11/column_types.h>
+#include <sqlpp11/data_types.h>
 #include <sqlpp11/char_sequence.h>
 
 namespace test

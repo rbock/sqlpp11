@@ -24,28 +24,22 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_NO_VALUE_H
-#define SQLPP_NO_VALUE_H
+#ifndef SQLPP_BOOLEAN_DATA_TYPE_H
+#define SQLPP_BOOLEAN_DATA_TYPE_H
 
-#include <type_traits>
-#include <sqlpp11/value_type_fwd.h>
-#include <sqlpp11/data_types/column_operators.h>
+#include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
-  struct no_value_t
+  struct boolean
   {
-    using _tag = void;
-  };
+    using _traits = make_traits<boolean, tag::is_value_type>;
+    using _tag = tag::is_boolean;
+    using _cpp_value_type = bool;
 
-  template <typename Base>
-  struct expression_operators<Base, no_value_t>
-  {
-  };
-
-  template <typename Base>
-  struct column_operators<Base, no_value_t>
-  {
+    template <typename T>
+    using _is_valid_operand = is_boolean_t<T>;
   };
 }
+
 #endif
