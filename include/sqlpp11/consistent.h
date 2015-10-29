@@ -24,14 +24,20 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_COLUMN_TYPES_H
-#define SQLPP_COLUMN_TYPES_H
+#ifndef SQLPP_CONSISTENT_H
+#define SQLPP_CONSISTENT_H
 
-#include <sqlpp11/boolean.h>
-#include <sqlpp11/day_point.h>
-#include <sqlpp11/time_point.h>
-#include <sqlpp11/integral.h>
-#include <sqlpp11/floating_point.h>
-#include <sqlpp11/text.h>
+#include <type_traits>
+
+namespace sqlpp
+{
+  struct consistent_t
+  {
+    static constexpr bool value = true;
+    using type = std::true_type;
+
+    static void _(){};
+  };
+}
 
 #endif

@@ -30,4 +30,6 @@ endfunction()
 
 test_compile(aggregates)
 test_compile(insert)
+test_compile(date)
+test_compile(date_time)
 

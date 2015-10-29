@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2015-2015, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,14 +24,23 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_COLUMN_TYPES_H
-#define SQLPP_COLUMN_TYPES_H
+#ifndef SQLPP_DATE_FWD_H
+#define SQLPP_DATE_FWD_H
 
-#include <sqlpp11/boolean.h>
-#include <sqlpp11/day_point.h>
-#include <sqlpp11/time_point.h>
-#include <sqlpp11/integral.h>
-#include <sqlpp11/floating_point.h>
-#include <sqlpp11/text.h>
+#include <chrono>
+
+namespace sqlpp
+{
+  namespace chrono
+  {
+    using days = std::chrono::duration<int, std::ratio_multiply<std::ratio<24>, std::chrono::hours::period>>;
+
+    using day_point = std::chrono::time_point<std::chrono::system_clock, days>;
+    using mus_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>;
+  }
+
+  struct day_point;
+  struct time_point;
+}
 
 #endif

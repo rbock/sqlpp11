@@ -29,7 +29,14 @@ enable_testing()
 
 add_library(sqlpp11 INTERFACE)
 
+set(DATE_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../date" CACHE FILEPATH "Path to Howard Hinnant's date library")
+
+if(NOT EXISTS ${DATE_INCLUDE_DIR}/date.h)
+  message(SEND_ERROR "Can't find date.h in ${DATE_INCLUDE_DIR}")
+endif()
+
 target_include_directories(sqlpp11 INTERFACE
+  $<BUILD_INTERFACE:${DATE_INCLUDE_DIR}>
   $<BUILD_INTERFACE:${sqlpp11_SOURCE_DIR}/include>
   )
 

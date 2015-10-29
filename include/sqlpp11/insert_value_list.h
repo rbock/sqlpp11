@@ -28,6 +28,7 @@
 #define SQLPP_INSERT_VALUE_LIST_H
 
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/portable_static_assert.h>
 #include <sqlpp11/logic.h>
 #include <sqlpp11/column_fwd.h>
 #include <sqlpp11/assignment.h>
@@ -126,64 +127,6 @@ namespace sqlpp
     interpretable_list_t<Database> _dynamic_columns;
     interpretable_list_t<Database> _dynamic_values;
   };
-
-#define SQLPP_PORTABLE_STATIC_ASSERT(name, message) \
-  struct name                                       \
-  {                                                 \
-    static constexpr bool value = false;            \
-    using type = std::false_type;                   \
-                                                    \
-    template <typename T = void>                    \
-    static void _()                                 \
-    {                                               \
-      static_assert(wrong_t<T>::value, message);    \
-    }                                               \
-  }
-
-  namespace detail
-  {
-    template <bool Consistent, typename Assert>
-    struct static_check_impl
-    {
-      using type = Assert;
-    };
-
-    template <typename Assert>
-    struct static_check_impl<true, Assert>
-    {
-      using type = consistent_t;
-    };
-  }
-
-  template <bool Consistent, typename Assert>
-  using static_check_t = typename detail::static_check_impl<Consistent, Assert>::type;
-
-  namespace detail
-  {
-    template <typename... Asserts>
-    struct static_combined_check_impl;
-
-    template <typename Assert, typename... Rest>
-    struct static_combined_check_impl<Assert, Rest...>
-    {
-      using type = Assert;
-    };
-
-    template <typename... Rest>
-    struct static_combined_check_impl<consistent_t, Rest...>
-    {
-      using type = typename static_combined_check_impl<Rest...>::type;
-    };
-
-    template <>
-    struct static_combined_check_impl<>
-    {
-      using type = consistent_t;
-    };
-  }
-
-  template <typename... Asserts>
-  using static_combined_check_t = typename detail::static_combined_check_impl<Asserts...>::type;
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_set_assignments_t, "at least one argument is not an assignment in set()");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_set_no_duplicates_t, "at least one duplicate column detected in set()");

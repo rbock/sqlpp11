@@ -32,6 +32,7 @@ endif ()
 set(test_names
   BooleanExpression
   CustomQuery
+	DateTime
   Interpret
   Insert
   Remove

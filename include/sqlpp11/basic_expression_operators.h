@@ -28,6 +28,9 @@
 #define SQLPP_DETAIL_BASIC_EXPRESSION_OPERATORS_H
 
 #include <sqlpp11/value_type_fwd.h>
+#include <sqlpp11/bad_statement.h>
+#include <sqlpp11/portable_static_assert.h>
+#include <sqlpp11/consistent.h>
 #include <sqlpp11/alias.h>
 #include <sqlpp11/sort_order.h>
 #include <sqlpp11/expression_fwd.h>
@@ -38,72 +41,145 @@
 
 namespace sqlpp
 {
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_valid_rhs_comparison_operand_t, "invalid rhs operand in comparison");
+
+  template <typename LhsValueType, typename RhsType>
+  using check_rhs_comparison_operand_t =
+      static_check_t<(is_expression_t<sqlpp::wrap_operand_t<RhsType>>::value  // expressions are OK
+                      or
+                      is_multi_expression_t<sqlpp::wrap_operand_t<RhsType>>::value)  // multi-expressions like ANY are
+                                                                                     // OK for comparisons, too
+                         and
+                         LhsValueType::template _is_valid_operand<
+                             sqlpp::wrap_operand_t<RhsType>>::value,  // the correct value type is required, of course
+                     assert_valid_rhs_comparison_operand_t>;
+
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_valid_in_arguments_t, "at least one operand of in() is not valid");
+
+  template <typename LhsValueType, typename... InTypes>
+  using check_rhs_in_arguments_t =
+      static_check_t<logic::all_t<check_rhs_comparison_operand_t<LhsValueType, InTypes>::value...>::value,
+                     assert_valid_in_arguments_t>;
+
+  namespace detail
+  {
+    template <bool Enable, template <typename Lhs> class Expr, typename Lhs>
+    struct new_unary_expression_impl
+    {
+      using type = bad_statement;
+    };
+
+    template <template <typename Lhs> class Expr, typename Lhs>
+    struct new_unary_expression_impl<true, Expr, Lhs>
+    {
+      using type = Expr<Lhs>;
+    };
+  }
+  template <typename Check, template <typename Lhs> class Expr, typename Lhs>
+  using new_unary_expression_t = typename detail::new_unary_expression_impl<Check::value, Expr, Lhs>::type;
+
+  namespace detail
+  {
+    template <bool Enable, template <typename Lhs, typename Rhs> class Expr, typename Lhs, typename Rhs>
+    struct new_binary_expression_impl
+    {
+      using type = bad_statement;
+    };
+
+    template <template <typename Lhs, typename Rhs> class Expr, typename Lhs, typename Rhs>
+    struct new_binary_expression_impl<true, Expr, Lhs, Rhs>
+    {
+      using type = Expr<Lhs, Rhs>;
+    };
+  }
+  template <typename Check, template <typename Lhs, typename Rhs> class Expr, typename Lhs, typename Rhs>
+  using new_binary_expression_t = typename detail::new_binary_expression_impl<Check::value, Expr, Lhs, Rhs>::type;
+
+  namespace detail
+  {
+    template <bool Enable, template <typename Lhs, typename... Rhs> class Expr, typename Lhs, typename... Rhs>
+    struct new_nary_expression_impl
+    {
+      using type = bad_statement;
+    };
+
+    template <template <typename Lhs, typename... Rhs> class Expr, typename Lhs, typename... Rhs>
+    struct new_nary_expression_impl<true, Expr, Lhs, Rhs...>
+    {
+      using type = Expr<Lhs, Rhs...>;
+    };
+  }
+  template <typename Check, template <typename Lhs, typename... Rhs> class Expr, typename Lhs, typename... Rhs>
+  using new_nary_expression_t = typename detail::new_nary_expression_impl<Check::value, Expr, Lhs, Rhs...>::type;
+
   // basic operators
   template <typename Expr, typename ValueType>
   struct basic_expression_operators
   {
-    template <typename T>
-    struct _is_valid_comparison_operand
-    {
-      static constexpr bool value =
-          (is_expression_t<T>::value  // expressions are OK
-           or
-           is_multi_expression_t<T>::value)  // multi-expressions like ANY are OK for comparisons, too
-          and
-          ValueType::template _is_valid_operand<T>::value  // the correct value type is required, of course
-          ;
-    };
+    template <template <typename Lhs, typename Rhs> class NewExpr, typename T>
+    using _new_binary_expression_t =
+        new_binary_expression_t<check_rhs_comparison_operand_t<ValueType, wrap_operand_t<T>>,
+                                NewExpr,
+                                Expr,
+                                wrap_operand_t<T>>;
+
+    template <template <typename Lhs, typename... Rhs> class NewExpr, typename... T>
+    using _new_nary_expression_t =
+        new_nary_expression_t<logic::all_t<check_rhs_comparison_operand_t<ValueType, wrap_operand_t<T>>::value...>,
+                              NewExpr,
+                              Expr,
+                              wrap_operand_t<T>...>;
 
     template <typename T>
-    equal_to_t<Expr, wrap_operand_t<T>> operator==(T t) const
+    _new_binary_expression_t<equal_to_t, T> operator==(T t) const
     {
       using rhs = wrap_operand_t<T>;
-      static_assert(_is_valid_comparison_operand<rhs>::value, "invalid rhs operand in comparison");
+      check_rhs_comparison_operand_t<ValueType, rhs>::_();
 
       return {*static_cast<const Expr*>(this), {rhs{t}}};
     }
 
     template <typename T>
-    not_equal_to_t<Expr, wrap_operand_t<T>> operator!=(T t) const
+    _new_binary_expression_t<not_equal_to_t, T> operator!=(T t) const
     {
       using rhs = wrap_operand_t<T>;
-      static_assert(_is_valid_comparison_operand<rhs>::value, "invalid rhs operand in comparison");
+      check_rhs_comparison_operand_t<ValueType, rhs>::_();
 
       return {*static_cast<const Expr*>(this), {rhs{t}}};
     }
 
     template <typename T>
-    less_than_t<Expr, wrap_operand_t<T>> operator<(T t) const
+    _new_binary_expression_t<less_than_t, T> operator<(T t) const
     {
       using rhs = wrap_operand_t<T>;
-      static_assert(_is_valid_comparison_operand<rhs>::value, "invalid rhs operand in comparison");
+      check_rhs_comparison_operand_t<ValueType, rhs>::_();
 
       return {*static_cast<const Expr*>(this), rhs{t}};
     }
 
     template <typename T>
-    less_equal_t<Expr, wrap_operand_t<T>> operator<=(T t) const
+    _new_binary_expression_t<less_equal_t, T> operator<=(T t) const
     {
       using rhs = wrap_operand_t<T>;
-      static_assert(_is_valid_comparison_operand<rhs>::value, "invalid rhs operand in comparison");
+      check_rhs_comparison_operand_t<ValueType, rhs>::_();
 
       return {*static_cast<const Expr*>(this), rhs{t}};
     }
 
     template <typename T>
-    greater_than_t<Expr, wrap_operand_t<T>> operator>(T t) const
+    _new_binary_expression_t<greater_than_t, T> operator>(T t) const
     {
       using rhs = wrap_operand_t<T>;
-      static_assert(_is_valid_comparison_operand<rhs>::value, "invalid rhs operand in comparison");
+      check_rhs_comparison_operand_t<ValueType, rhs>::_();
 
       return {*static_cast<const Expr*>(this), rhs{t}};
     }
 
     template <typename T>
-    greater_equal_t<Expr, wrap_operand_t<T>> operator>=(T t) const
+    _new_binary_expression_t<greater_equal_t, T> operator>=(T t) const
     {
       using rhs = wrap_operand_t<T>;
-      static_assert(_is_valid_comparison_operand<rhs>::value, "invalid rhs operand in comparison");
+      check_rhs_comparison_operand_t<ValueType, rhs>::_();
 
       return {*static_cast<const Expr*>(this), rhs{t}};
     }
@@ -130,18 +206,16 @@ namespace sqlpp
 
     // Hint: use value_list wrapper for containers...
     template <typename... T>
-    in_t<Expr, wrap_operand_t<T>...> in(T... t) const
+    _new_nary_expression_t<in_t, T...> in(T... t) const
     {
-      static_assert(logic::all_t<_is_valid_comparison_operand<wrap_operand_t<T>>::value...>::value,
-                    "at least one operand of in() is not valid");
+      check_rhs_in_arguments_t<ValueType, wrap_operand_t<T>...>::_();
       return {*static_cast<const Expr*>(this), wrap_operand_t<T>{t}...};
     }
 
     template <typename... T>
-    not_in_t<Expr, wrap_operand_t<T>...> not_in(T... t) const
+    _new_nary_expression_t<not_in_t, T...> not_in(T... t) const
     {
-      static_assert(logic::all_t<_is_valid_comparison_operand<wrap_operand_t<T>>::value...>::value,
-                    "at least one operand of in() is not valid");
+      check_rhs_in_arguments_t<ValueType, wrap_operand_t<T>...>::_();
       return {*static_cast<const Expr*>(this), wrap_operand_t<T>{t}...};
     }
   };
