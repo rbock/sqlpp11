@@ -28,8 +28,8 @@
 #define SQLPP_COLUMN_TYPES_H
 
 #include <sqlpp11/boolean.h>
-#include <sqlpp11/date.h>
-#include <sqlpp11/date_time.h>
+#include <sqlpp11/day_point.h>
+#include <sqlpp11/time_point.h>
 #include <sqlpp11/integral.h>
 #include <sqlpp11/floating_point.h>
 #include <sqlpp11/text.h>

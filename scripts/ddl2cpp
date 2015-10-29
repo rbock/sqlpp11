@@ -101,8 +101,8 @@ types = {
     'boolean': 'boolean',
     'double': 'floating_point',
     'float': 'floating_point',
-    'date' : 'date',
-    'datetime' : 'date_time',
+    'date' : 'day_point',
+    'datetime' : 'time_point',
     }
 
 # PROCESS DDL

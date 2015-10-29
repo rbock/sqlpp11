@@ -39,8 +39,8 @@ namespace sqlpp
     using mus_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>;
   }
 
-  struct date;
-  struct date_time;
+  struct day_point;
+  struct time_point;
 }
 
 #endif

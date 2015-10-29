@@ -46,16 +46,16 @@ namespace
   template <typename Assert, typename Operand>
   void static_check_comparison(const Operand& operand)
   {
-    using CheckResult = sqlpp::check_rhs_comparison_operand_t<decltype(t.someDateTime), Operand>;
+    using CheckResult = sqlpp::check_rhs_comparison_operand_t<decltype(t.someTimePoint), Operand>;
     using ExpectedCheckResult = std::is_same<CheckResult, Assert>;
     static_assert(ExpectedCheckResult::value, "Unexpected check result");
     print_type_on_error<CheckResult>(ExpectedCheckResult{});
 
     using ReturnType = sqlpp::detail::make_type_set_t<
-        decltype(t.someDateTime < operand), decltype(t.someDateTime <= operand), decltype(t.someDateTime == operand),
-        decltype(t.someDateTime != operand), decltype(t.someDateTime >= operand), decltype(t.someDateTime > operand),
-        decltype(t.someDateTime.in(operand)), decltype(t.someDateTime.in(operand, operand)),
-        decltype(t.someDateTime.not_in(operand)), decltype(t.someDateTime.not_in(operand, operand))>;
+        decltype(t.someTimePoint < operand), decltype(t.someTimePoint <= operand), decltype(t.someTimePoint == operand),
+        decltype(t.someTimePoint != operand), decltype(t.someTimePoint >= operand), decltype(t.someTimePoint > operand),
+        decltype(t.someTimePoint.in(operand)), decltype(t.someTimePoint.in(operand, operand)),
+        decltype(t.someTimePoint.not_in(operand)), decltype(t.someTimePoint.not_in(operand, operand))>;
     using ExpectedReturnType =
         sqlpp::logic::all_t<Assert::value xor
                             std::is_same<ReturnType, sqlpp::detail::type_set<sqlpp::bad_statement>>::value>;
@@ -66,8 +66,8 @@ namespace
   void allowed_comparands()
   {
     static_check_comparison<sqlpp::consistent_t>(std::chrono::system_clock::now());
-    static_check_comparison<sqlpp::consistent_t>(t.someDate);
-    static_check_comparison<sqlpp::consistent_t>(t.someDateTime);
+    static_check_comparison<sqlpp::consistent_t>(t.someDayPoint);
+    static_check_comparison<sqlpp::consistent_t>(t.someTimePoint);
   }
 
   void disallowed_comparands()

@@ -85,27 +85,27 @@ namespace sqlpp
     }
   };
 
-  struct date_operand : public alias_operators<date_operand>
+  struct day_point_operand : public alias_operators<day_point_operand>
   {
-    using _traits = make_traits<date, tag::is_expression, tag::is_wrapped_value>;
+    using _traits = make_traits<day_point, tag::is_expression, tag::is_wrapped_value>;
     using _nodes = detail::type_vector<>;
     using _is_aggregate_expression = std::true_type;
 
     using _value_t = ::sqlpp::chrono::day_point;
 
-    date_operand() : _t{}
+    day_point_operand() : _t{}
     {
     }
 
-    date_operand(_value_t t) : _t(t)
+    day_point_operand(_value_t t) : _t(t)
     {
     }
 
-    date_operand(const date_operand&) = default;
-    date_operand(date_operand&&) = default;
-    date_operand& operator=(const date_operand&) = default;
-    date_operand& operator=(date_operand&&) = default;
-    ~date_operand() = default;
+    day_point_operand(const day_point_operand&) = default;
+    day_point_operand(day_point_operand&&) = default;
+    day_point_operand& operator=(const day_point_operand&) = default;
+    day_point_operand& operator=(day_point_operand&&) = default;
+    ~day_point_operand() = default;
 
     bool _is_trivial() const
     {
@@ -116,10 +116,10 @@ namespace sqlpp
   };
 
   template <typename Context>
-  struct serializer_t<Context, date_operand>
+  struct serializer_t<Context, day_point_operand>
   {
     using _serialize_check = consistent_t;
-    using Operand = date_operand;
+    using Operand = day_point_operand;
 
     static Context& _(const Operand& t, Context& context)
     {
@@ -130,27 +130,27 @@ namespace sqlpp
   };
 
   template <typename Period>
-  struct date_time_operand : public alias_operators<date_time_operand<Period>>
+  struct time_point_operand : public alias_operators<time_point_operand<Period>>
   {
-    using _traits = make_traits<date_time, tag::is_expression, tag::is_wrapped_value>;
+    using _traits = make_traits<time_point, tag::is_expression, tag::is_wrapped_value>;
     using _nodes = detail::type_vector<>;
     using _is_aggregate_expression = std::true_type;
 
     using _value_t = std::chrono::time_point<std::chrono::system_clock, Period>;
 
-    date_time_operand() : _t{}
+    time_point_operand() : _t{}
     {
     }
 
-    date_time_operand(_value_t t) : _t(t)
+    time_point_operand(_value_t t) : _t(t)
     {
     }
 
-    date_time_operand(const date_time_operand&) = default;
-    date_time_operand(date_time_operand&&) = default;
-    date_time_operand& operator=(const date_time_operand&) = default;
-    date_time_operand& operator=(date_time_operand&&) = default;
-    ~date_time_operand() = default;
+    time_point_operand(const time_point_operand&) = default;
+    time_point_operand(time_point_operand&&) = default;
+    time_point_operand& operator=(const time_point_operand&) = default;
+    time_point_operand& operator=(time_point_operand&&) = default;
+    ~time_point_operand() = default;
 
     bool _is_trivial() const
     {
@@ -161,10 +161,10 @@ namespace sqlpp
   };
 
   template <typename Context, typename Period>
-  struct serializer_t<Context, date_time_operand<Period>>
+  struct serializer_t<Context, time_point_operand<Period>>
   {
     using _serialize_check = consistent_t;
-    using Operand = date_time_operand<Period>;
+    using Operand = time_point_operand<Period>;
 
     static Context& _(const Operand& t, Context& context)
     {
@@ -320,13 +320,13 @@ namespace sqlpp
   template <typename Period>
   struct wrap_operand<std::chrono::time_point<std::chrono::system_clock, Period>, void>
   {
-    using type = date_time_operand<Period>;
+    using type = time_point_operand<Period>;
   };
 
   template <>
   struct wrap_operand<std::chrono::time_point<std::chrono::system_clock, sqlpp::chrono::days>, void>
   {
-    using type = date_operand;
+    using type = day_point_operand;
   };
 
   template <typename T>

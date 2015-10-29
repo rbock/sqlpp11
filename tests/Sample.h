@@ -215,57 +215,57 @@ namespace test
 
   namespace TabDateTime_
   {
-    struct ColDate
+    struct ColDayPoint
     {
       struct _alias_t
       {
-        static constexpr const char _literal[] = "col_date";
+        static constexpr const char _literal[] = "col_day_point";
         using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
         template <typename T>
         struct _member_t
         {
-          T colDate;
+          T colDayPoint;
           T& operator()()
           {
-            return colDate;
+            return colDayPoint;
           }
           const T& operator()() const
           {
-            return colDate;
+            return colDayPoint;
           }
         };
       };
-      using _traits = sqlpp::make_traits<sqlpp::date, sqlpp::tag::can_be_null>;
+      using _traits = sqlpp::make_traits<sqlpp::day_point, sqlpp::tag::can_be_null>;
     };
-    struct ColDateTime
+    struct ColTimePoint
     {
       struct _alias_t
       {
-        static constexpr const char _literal[] = "col_date_time";
+        static constexpr const char _literal[] = "col_time_point";
         using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
         template <typename T>
         struct _member_t
         {
-          T colDateTime;
+          T colTimePoint;
           T& operator()()
           {
-            return colDateTime;
+            return colTimePoint;
           }
           const T& operator()() const
           {
-            return colDateTime;
+            return colTimePoint;
           }
         };
       };
-      using _traits = sqlpp::make_traits<sqlpp::date_time, sqlpp::tag::can_be_null>;
+      using _traits = sqlpp::make_traits<sqlpp::time_point, sqlpp::tag::can_be_null>;
     };
   }
 
-  struct TabDateTime : sqlpp::table_t<TabDateTime, TabDateTime_::ColDate, TabDateTime_::ColDateTime>
+  struct TabDateTime : sqlpp::table_t<TabDateTime, TabDateTime_::ColDayPoint, TabDateTime_::ColTimePoint>
   {
     struct _alias_t
     {
-      static constexpr const char _literal[] = "tab_date_time";
+      static constexpr const char _literal[] = "tab_time_point";
       using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
       template <typename T>
       struct _member_t

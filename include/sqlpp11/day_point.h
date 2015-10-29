@@ -24,10 +24,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DATE_TIME_H
-#define SQLPP_DATE_TIME_H
+#ifndef SQLPP_DAY_POINT_H
+#define SQLPP_DAY_POINT_H
 
-#include <sqlpp11/date_time_fwd.h>
+#include <date.h>
+#include <sqlpp11/time_point.h>
 #include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/exception.h>
@@ -37,22 +38,24 @@
 
 namespace sqlpp
 {
-  // date_time value type
-  struct date_time
+  // day_point value type
+  struct day_point
   {
-    using _traits = make_traits<date_time, tag::is_value_type>;
-    using _tag = tag::is_date_time;
-    using _cpp_value_type = ::sqlpp::chrono::mus_point;
+    using _traits = make_traits<day_point, tag::is_value_type>;
+    using _tag = tag::is_date;
+    using _cpp_value_type = ::sqlpp::chrono::day_point;
 
     template <typename T>
     using _is_valid_operand = is_time_point_t<T>;
+    template <typename T>
+    using _is_valid_assignment_operand = is_date_t<T>;
   };
 
-  // date_time parameter value
+  // day_point parameter value
   template <>
-  struct parameter_value_t<date_time>
+  struct parameter_value_t<day_point>
   {
-    using _value_type = date_time;
+    using _value_type = day_point;
     using _cpp_value_type = typename _value_type::_cpp_value_type;
 
     parameter_value_t() : _value{}, _is_null(true)
@@ -109,7 +112,7 @@ namespace sqlpp
     template <typename Target>
     void _bind(Target& target, size_t index) const
     {
-      target._bind_date_time_parameter(index, &_value, _is_null);
+      target._bind_date_parameter(index, &_value, _is_null);
     }
 
   private:
@@ -117,29 +120,29 @@ namespace sqlpp
     bool _is_null;
   };
 
-  // date_time expression operators
+  // day_point expression operators
   template <typename Base>
-  struct expression_operators<Base, date_time> : public basic_expression_operators<Base, date_time>
+  struct expression_operators<Base, day_point> : public basic_expression_operators<Base, day_point>
   {
     template <typename T>
-    using _is_valid_operand = is_valid_operand<date_time, T>;
+    using _is_valid_operand = is_valid_operand<day_point, T>;
   };
 
-  // date_time column operators
+  // day_point column operators
   template <typename Base>
-  struct column_operators<Base, date_time>
+  struct column_operators<Base, day_point>
   {
     template <typename T>
-    using _is_valid_operand = is_valid_operand<date_time, T>;
+    using _is_valid_operand = is_valid_operand<day_point, T>;
   };
 
-  // date_time result field
+  // day_point result field
   template <typename Db, typename FieldSpec>
-  struct result_field_t<date_time, Db, FieldSpec>
-      : public result_field_methods_t<result_field_t<date_time, Db, FieldSpec>>
+  struct result_field_t<day_point, Db, FieldSpec>
+      : public result_field_methods_t<result_field_t<day_point, Db, FieldSpec>>
   {
-    static_assert(std::is_same<value_type_of<FieldSpec>, date_time>::value, "field type mismatch");
-    using _cpp_value_type = typename date_time::_cpp_value_type;
+    static_assert(std::is_same<value_type_of<FieldSpec>, day_point>::value, "field type mismatch");
+    using _cpp_value_type = typename sqlpp::day_point::_cpp_value_type;
 
     result_field_t() : _is_valid(false), _is_null(true), _value{}
     {
@@ -194,7 +197,7 @@ namespace sqlpp
     template <typename Target>
     void _bind(Target& target, size_t i)
     {
-      target._bind_date_time_result(i, &_value, &_is_null);
+      target._bind_date_result(i, &_value, &_is_null);
     }
 
   private:
@@ -204,10 +207,10 @@ namespace sqlpp
   };
 
   template <typename Context, typename Db, typename FieldSpec>
-  struct serializer_t<Context, result_field_t<date_time, Db, FieldSpec>>
+  struct serializer_t<Context, result_field_t<day_point, Db, FieldSpec>>
   {
     using _serialize_check = consistent_t;
-    using T = result_field_t<date_time, Db, FieldSpec>;
+    using T = result_field_t<day_point, Db, FieldSpec>;
 
     static Context& _(const T& t, Context& context)
     {
@@ -217,17 +220,15 @@ namespace sqlpp
       }
       else
       {
-        const auto dp = ::date::floor<::date::days>(t.value());
-        const auto time = ::date::make_time(t.value() - dp);
-        const auto ymd = ::date::year_month_day{dp};
-        context << ymd << ' ' << time;
+        const auto ymd = ::date::year_month_day{t.value()};
+        context << ymd;
       }
       return context;
     }
   };
 
   template <typename Db, typename FieldSpec>
-  inline std::ostream& operator<<(std::ostream& os, const result_field_t<date_time, Db, FieldSpec>& e)
+  inline std::ostream& operator<<(std::ostream& os, const result_field_t<day_point, Db, FieldSpec>& e)
   {
     return serialize(e, os);
   }

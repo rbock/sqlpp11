@@ -46,16 +46,16 @@ namespace
   template <typename Assert, typename Operand>
   void static_check_comparison(const Operand& operand)
   {
-    using CheckResult = sqlpp::check_rhs_comparison_operand_t<decltype(t.someDate), Operand>;
+    using CheckResult = sqlpp::check_rhs_comparison_operand_t<decltype(t.someDayPoint), Operand>;
     using ExpectedCheckResult = std::is_same<CheckResult, Assert>;
     static_assert(ExpectedCheckResult::value, "Unexpected check result");
     print_type_on_error<CheckResult>(ExpectedCheckResult{});
 
     using ReturnType = sqlpp::detail::make_type_set_t<
-        decltype(t.someDate < operand), decltype(t.someDate <= operand), decltype(t.someDate == operand),
-        decltype(t.someDate != operand), decltype(t.someDate >= operand), decltype(t.someDate > operand),
-        decltype(t.someDate.in(operand)), decltype(t.someDate.in(operand, operand)),
-        decltype(t.someDate.not_in(operand)), decltype(t.someDate.not_in(operand, operand))>;
+        decltype(t.someDayPoint < operand), decltype(t.someDayPoint <= operand), decltype(t.someDayPoint == operand),
+        decltype(t.someDayPoint != operand), decltype(t.someDayPoint >= operand), decltype(t.someDayPoint > operand),
+        decltype(t.someDayPoint.in(operand)), decltype(t.someDayPoint.in(operand, operand)),
+        decltype(t.someDayPoint.not_in(operand)), decltype(t.someDayPoint.not_in(operand, operand))>;
     using ExpectedReturnType =
         sqlpp::logic::all_t<Assert::value xor
                             std::is_same<ReturnType, sqlpp::detail::type_set<sqlpp::bad_statement>>::value>;
@@ -66,8 +66,8 @@ namespace
   void allowed_comparands()
   {
     static_check_comparison<sqlpp::consistent_t>(std::chrono::system_clock::now());
-    static_check_comparison<sqlpp::consistent_t>(t.someDate);
-    static_check_comparison<sqlpp::consistent_t>(t.someDateTime);
+    static_check_comparison<sqlpp::consistent_t>(t.someDayPoint);
+    static_check_comparison<sqlpp::consistent_t>(t.someTimePoint);
   }
 
   void disallowed_comparands()

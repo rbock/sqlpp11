@@ -98,49 +98,49 @@ namespace test
       };
       using _traits = sqlpp::make_traits<sqlpp::boolean, sqlpp::tag::can_be_null>;
     };
-    struct SomeDate
+    struct SomeDayPoint
     {
       struct _alias_t
       {
-        static constexpr const char _literal[] = "some_date";
+        static constexpr const char _literal[] = "some_day_point";
         using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
         template <typename T>
         struct _member_t
         {
-          T someDate;
+          T someDayPoint;
           T& operator()()
           {
-            return someDate;
+            return someDayPoint;
           }
           const T& operator()() const
           {
-            return someDate;
+            return someDayPoint;
           }
         };
       };
-      using _traits = sqlpp::make_traits<sqlpp::date, sqlpp::tag::can_be_null>;
+      using _traits = sqlpp::make_traits<sqlpp::day_point, sqlpp::tag::can_be_null>;
     };
-    struct SomeDateTime
+    struct SomeTimePoint
     {
       struct _alias_t
       {
-        static constexpr const char _literal[] = "some_date_time";
+        static constexpr const char _literal[] = "some_time_point";
         using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
         template <typename T>
         struct _member_t
         {
-          T someDateTime;
+          T someTimePoint;
           T& operator()()
           {
-            return someDateTime;
+            return someTimePoint;
           }
           const T& operator()() const
           {
-            return someDateTime;
+            return someTimePoint;
           }
         };
       };
-      using _traits = sqlpp::make_traits<sqlpp::date_time, sqlpp::tag::can_be_null>;
+      using _traits = sqlpp::make_traits<sqlpp::time_point, sqlpp::tag::can_be_null>;
     };
     struct OtherInt
     {
@@ -208,49 +208,49 @@ namespace test
       };
       using _traits = sqlpp::make_traits<sqlpp::boolean, sqlpp::tag::can_be_null>;
     };
-    struct OtherDate
+    struct OtherDayPoint
     {
       struct _alias_t
       {
-        static constexpr const char _literal[] = "other_date";
+        static constexpr const char _literal[] = "other_day_point";
         using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
         template <typename T>
         struct _member_t
         {
-          T otherDate;
+          T otherDayPoint;
           T& operator()()
           {
-            return otherDate;
+            return otherDayPoint;
           }
           const T& operator()() const
           {
-            return otherDate;
+            return otherDayPoint;
           }
         };
       };
-      using _traits = sqlpp::make_traits<sqlpp::date, sqlpp::tag::can_be_null>;
+      using _traits = sqlpp::make_traits<sqlpp::day_point, sqlpp::tag::can_be_null>;
     };
-    struct OtherDateTime
+    struct OtherTimePoint
     {
       struct _alias_t
       {
-        static constexpr const char _literal[] = "other_date_time";
+        static constexpr const char _literal[] = "other_time_point";
         using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
         template <typename T>
         struct _member_t
         {
-          T otherDateTime;
+          T otherTimePoint;
           T& operator()()
           {
-            return otherDateTime;
+            return otherTimePoint;
           }
           const T& operator()() const
           {
-            return otherDateTime;
+            return otherTimePoint;
           }
         };
       };
-      using _traits = sqlpp::make_traits<sqlpp::date_time, sqlpp::tag::can_be_null>;
+      using _traits = sqlpp::make_traits<sqlpp::time_point, sqlpp::tag::can_be_null>;
     };
   }
 
@@ -259,13 +259,13 @@ namespace test
                                       TabAllTypes_::SomeInt,
                                       TabAllTypes_::SomeFloat,
                                       TabAllTypes_::SomeBool,
-                                      TabAllTypes_::SomeDate,
-                                      TabAllTypes_::SomeDateTime,
+                                      TabAllTypes_::SomeDayPoint,
+                                      TabAllTypes_::SomeTimePoint,
                                       TabAllTypes_::OtherInt,
                                       TabAllTypes_::OtherFloat,
                                       TabAllTypes_::OtherBool,
-                                      TabAllTypes_::OtherDate,
-                                      TabAllTypes_::OtherDateTime>
+                                      TabAllTypes_::OtherDayPoint,
+                                      TabAllTypes_::OtherTimePoint>
   {
     struct _alias_t
     {
