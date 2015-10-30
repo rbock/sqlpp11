@@ -28,7 +28,8 @@
 #define SQLPP_RESULT_FIELD_H
 
 #include <sqlpp11/wrong.h>
-#include <sqlpp11/result_field_methods.h>
+#include <sqlpp11/wrap_operand.h>
+#include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
@@ -52,7 +53,7 @@ namespace sqlpp
       }
       else
       {
-        context << t.value();
+        serialize(wrap_operand_t<T>{t}, context);
       }
       return context;
     }

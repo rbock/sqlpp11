@@ -24,26 +24,23 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_INTEGRAL_DATA_TYPE_H
-#define SQLPP_INTEGRAL_DATA_TYPE_H
+#ifndef SQLPP_TEXT_WRAP_OPERAND_H
+#define SQLPP_TEXT_WRAP_OPERAND_H
 
+#include <utility>
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/wrap_operand.h>
 
 namespace sqlpp
 {
-  struct integral
+  struct text_operand;
+
+  template <typename T>
+  struct wrap_operand<
+      T,
+      typename std::enable_if<std::is_convertible<T, std::string>::value and not is_result_field_t<T>::value>::type>
   {
-    using _traits = make_traits<integral, tag::is_value_type>;
-    using _tag = tag::is_integral;
-    using _cpp_value_type = int64_t;
-
-    template <typename T>
-    using _is_valid_operand = is_numeric_t<T>;
+    using type = text_operand;
   };
-
-  using tinyint = integral;
-  using smallint = integral;
-  using integer = integral;
-  using bigint = integral;
 }
 #endif

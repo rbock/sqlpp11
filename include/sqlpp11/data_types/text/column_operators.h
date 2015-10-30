@@ -24,26 +24,34 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_INTEGRAL_DATA_TYPE_H
-#define SQLPP_INTEGRAL_DATA_TYPE_H
+#ifndef SQLPP_TEXT_COLUMN_OPERATORS_H
+#define SQLPP_TEXT_COLUMN_OPERATORS_H
 
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/assignment.h>
+#include <sqlpp11/data_types/text/data_type.h>
+#include <sqlpp11/data_types/column_operators.h>
 
 namespace sqlpp
 {
-  struct integral
+  template <typename... Args>
+  struct concat_t;
+
+  template <typename Base>
+  struct column_operators<Base, text>
   {
-    using _traits = make_traits<integral, tag::is_value_type>;
-    using _tag = tag::is_integral;
-    using _cpp_value_type = int64_t;
+    template <typename T>
+    using _is_valid_operand = is_valid_operand<text, T>;
 
     template <typename T>
-    using _is_valid_operand = is_numeric_t<T>;
-  };
+    auto operator+=(T t) const -> assignment_t<Base, concat_t<Base, wrap_operand_t<T>>>
+    {
+      using rhs = wrap_operand_t<T>;
+      static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
 
-  using tinyint = integral;
-  using smallint = integral;
-  using integer = integral;
-  using bigint = integral;
+      return {*static_cast<const Base*>(this),
+              concat_t<Base, wrap_operand_t<T>>{*static_cast<const Base*>(this), rhs{t}}};
+    }
+  };
 }
 #endif

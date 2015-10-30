@@ -24,26 +24,25 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_INTEGRAL_DATA_TYPE_H
-#define SQLPP_INTEGRAL_DATA_TYPE_H
+#ifndef SQLPP_TEXT_DATA_TYPE_H
+#define SQLPP_TEXT_DATA_TYPE_H
 
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
-  struct integral
+  struct text
   {
-    using _traits = make_traits<integral, tag::is_value_type>;
-    using _tag = tag::is_integral;
-    using _cpp_value_type = int64_t;
+    using _traits = make_traits<text, tag::is_value_type>;
+    using _tag = tag::is_text;
+    using _cpp_value_type = std::string;
 
     template <typename T>
-    using _is_valid_operand = is_numeric_t<T>;
+    using _is_valid_operand = is_text_t<T>;
   };
 
-  using tinyint = integral;
-  using smallint = integral;
-  using integer = integral;
-  using bigint = integral;
+  using blob = text;
+  using varchar = text;
+  using char_ = text;
 }
 #endif

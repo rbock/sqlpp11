@@ -24,26 +24,44 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_INTEGRAL_DATA_TYPE_H
-#define SQLPP_INTEGRAL_DATA_TYPE_H
+#ifndef SQLPP_TEXT_OPERAND_H
+#define SQLPP_TEXT_OPERAND_H
 
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/alias_operators.h>
 
 namespace sqlpp
 {
-  struct integral
+  struct text;
+
+  struct text_operand : public alias_operators<text_operand>
   {
-    using _traits = make_traits<integral, tag::is_value_type>;
-    using _tag = tag::is_integral;
-    using _cpp_value_type = int64_t;
+    using _traits = make_traits<text, tag::is_expression, tag::is_wrapped_value>;
+    using _nodes = detail::type_vector<>;
+    using _is_aggregate_expression = std::true_type;
 
-    template <typename T>
-    using _is_valid_operand = is_numeric_t<T>;
+    using _value_t = std::string;
+
+    text_operand() : _t{}
+    {
+    }
+
+    text_operand(_value_t t) : _t(t)
+    {
+    }
+
+    text_operand(const text_operand&) = default;
+    text_operand(text_operand&&) = default;
+    text_operand& operator=(const text_operand&) = default;
+    text_operand& operator=(text_operand&&) = default;
+    ~text_operand() = default;
+
+    bool _is_trivial() const
+    {
+      return _t.empty();
+    }
+
+    _value_t _t;
   };
-
-  using tinyint = integral;
-  using smallint = integral;
-  using integer = integral;
-  using bigint = integral;
 }
 #endif

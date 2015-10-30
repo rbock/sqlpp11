@@ -24,26 +24,39 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_INTEGRAL_DATA_TYPE_H
-#define SQLPP_INTEGRAL_DATA_TYPE_H
+#ifndef SQLPP_TEXT_SERIALIZE_H
+#define SQLPP_TEXT_SERIALIZE_H
 
-#include <sqlpp11/type_traits.h>
+#include <sqlpp11/result_field.h>
+#include <sqlpp11/data_types/text/operand.h>
+#include <ostream>
 
 namespace sqlpp
 {
-  struct integral
+  template <typename Context>
+  struct serializer_t<Context, text_operand>
   {
-    using _traits = make_traits<integral, tag::is_value_type>;
-    using _tag = tag::is_integral;
-    using _cpp_value_type = int64_t;
+    using _serialize_check = consistent_t;
+    using Operand = text_operand;
 
-    template <typename T>
-    using _is_valid_operand = is_numeric_t<T>;
+    static Context& _(const Operand& t, Context& context)
+    {
+      context << '\'' << context.escape(t._t) << '\'';
+      return context;
+    }
   };
 
-  using tinyint = integral;
-  using smallint = integral;
-  using integer = integral;
-  using bigint = integral;
+  template <typename Db, typename FieldSpec>
+  inline std::ostream& operator<<(std::ostream& os, const result_field_t<text, Db, FieldSpec>& e)
+  {
+    if (e.is_null() and not null_is_trivial_value_t<FieldSpec>::value)
+    {
+      return os << "NULL";
+    }
+    else
+    {
+      return os << e.value();
+    }
+  }
 }
 #endif

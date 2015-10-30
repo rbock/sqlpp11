@@ -24,26 +24,45 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_INTEGRAL_DATA_TYPE_H
-#define SQLPP_INTEGRAL_DATA_TYPE_H
+#ifndef SQLPP_TEXT_EXPRESSION_OPERATORS_H
+#define SQLPP_TEXT_EXPRESSION_OPERATORS_H
 
+#include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/data_types/text/data_type.h>
+#include <sqlpp11/assignment.h>
 
 namespace sqlpp
 {
-  struct integral
+  template <typename... Args>
+  struct concat_t;
+
+  template <typename Operand, typename Pattern>
+  struct like_t;
+
+  template <typename Base>
+  struct expression_operators<Base, text> : public basic_expression_operators<Base, text>
   {
-    using _traits = make_traits<integral, tag::is_value_type>;
-    using _tag = tag::is_integral;
-    using _cpp_value_type = int64_t;
+    template <typename T>
+    using _is_valid_operand = is_valid_operand<text, T>;
 
     template <typename T>
-    using _is_valid_operand = is_numeric_t<T>;
-  };
+    concat_t<Base, wrap_operand_t<T>> operator+(T t) const
+    {
+      using rhs = wrap_operand_t<T>;
+      static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
 
-  using tinyint = integral;
-  using smallint = integral;
-  using integer = integral;
-  using bigint = integral;
+      return {*static_cast<const Base*>(this), {t}};
+    }
+
+    template <typename T>
+    like_t<Base, wrap_operand_t<T>> like(T t) const
+    {
+      using rhs = wrap_operand_t<T>;
+      static_assert(_is_valid_operand<rhs>::value, "invalid argument for like()");
+
+      return {*static_cast<const Base*>(this), {t}};
+    }
+  };
 }
 #endif

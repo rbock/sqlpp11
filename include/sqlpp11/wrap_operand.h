@@ -50,7 +50,6 @@ namespace sqlpp
 namespace sqlpp
 {
   struct integral;
-  struct text;
 
   struct day_point_operand : public alias_operators<day_point_operand>
   {
@@ -143,49 +142,6 @@ namespace sqlpp
     }
   };
 
-  struct text_operand : public alias_operators<text_operand>
-  {
-    using _traits = make_traits<text, tag::is_expression, tag::is_wrapped_value>;
-    using _nodes = detail::type_vector<>;
-    using _is_aggregate_expression = std::true_type;
-
-    using _value_t = std::string;
-
-    text_operand() : _t{}
-    {
-    }
-
-    text_operand(_value_t t) : _t(t)
-    {
-    }
-
-    text_operand(const text_operand&) = default;
-    text_operand(text_operand&&) = default;
-    text_operand& operator=(const text_operand&) = default;
-    text_operand& operator=(text_operand&&) = default;
-    ~text_operand() = default;
-
-    bool _is_trivial() const
-    {
-      return _t.empty();
-    }
-
-    _value_t _t;
-  };
-
-  template <typename Context>
-  struct serializer_t<Context, text_operand>
-  {
-    using _serialize_check = consistent_t;
-    using Operand = text_operand;
-
-    static Context& _(const Operand& t, Context& context)
-    {
-      context << '\'' << context.escape(t._t) << '\'';
-      return context;
-    }
-  };
-
   template <typename Period>
   struct wrap_operand<std::chrono::time_point<std::chrono::system_clock, Period>, void>
   {
@@ -196,14 +152,6 @@ namespace sqlpp
   struct wrap_operand<std::chrono::time_point<std::chrono::system_clock, sqlpp::chrono::days>, void>
   {
     using type = day_point_operand;
-  };
-
-  template <typename T>
-  struct wrap_operand<
-      T,
-      typename std::enable_if<std::is_convertible<T, std::string>::value and not is_result_field_t<T>::value>::type>
-  {
-    using type = text_operand;
   };
 }
 

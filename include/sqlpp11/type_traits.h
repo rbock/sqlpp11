@@ -229,6 +229,15 @@ namespace sqlpp
   SQLPP_RECURSIVE_TRAIT_GENERATOR(can_be_null)
   SQLPP_RECURSIVE_TRAIT_GENERATOR(contains_aggregate_function)
 
+  template <typename ValueType, typename T>
+  struct is_valid_operand
+  {
+    static constexpr bool value =
+        is_expression_t<T>::value                            // expressions are OK
+        and ValueType::template _is_valid_operand<T>::value  // the correct value type is required, of course
+        ;
+  };
+
   namespace detail
   {
     template <typename KnownAggregates, typename T, typename Leaf = void>

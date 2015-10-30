@@ -28,6 +28,7 @@
 #define SQLPP_FLOATING_POINT_COLUMN_OPERATORS_H
 
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/assignment.h>
 #include <sqlpp11/data_types/floating_point/data_type.h>
 #include <sqlpp11/data_types/column_operators.h>
 
