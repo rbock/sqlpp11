@@ -28,6 +28,7 @@
 #define SQLPP_TEXT_PARAMETER_TYPE_H
 
 #include <sqlpp11/data_types/parameter_value.h>
+#include <sqlpp11/data_types/parameter_value_base.h>
 #include <sqlpp11/data_types/text/data_type.h>
 #include <sqlpp11/data_types/text/wrap_operand.h>
 #include <sqlpp11/data_types/text/operand.h>
@@ -36,72 +37,17 @@
 namespace sqlpp
 {
   template <>
-  struct parameter_value_t<text>
+  struct parameter_value_t<text> : public base_parameter_value<text>
   {
-    using _value_type = text;
-    using _cpp_value_type = typename _value_type::_cpp_value_type;
-
-    parameter_value_t() : _value(""), _is_null(true)
-    {
-    }
-
-    parameter_value_t(const _cpp_value_type& val) : _value(val), _is_null(false)
-    {
-    }
-
-    parameter_value_t& operator=(const _cpp_value_type& val)
-    {
-      _value = val;
-      _is_null = false;
-      return *this;
-    }
-
-    parameter_value_t& operator=(const tvin_t<wrap_operand_t<_cpp_value_type>>& t)
-    {
-      if (t._is_trivial())
-      {
-        _value = "";
-        _is_null = true;
-      }
-      else
-      {
-        _value = t._value._t;
-        _is_null = false;
-      }
-      return *this;
-    }
-
-    parameter_value_t& operator=(const std::nullptr_t&)
-    {
-      _value = "";
-      _is_null = true;
-      return *this;
-    }
-
-    bool is_null() const
-    {
-      return _is_null;
-    }
-
-    _cpp_value_type value() const
-    {
-      return _value;
-    }
-
-    operator _cpp_value_type() const
-    {
-      return value();
-    }
+    using base = base_parameter_value<text>;
+    using base::base;
+    using base::operator=;
 
     template <typename Target>
     void _bind(Target& target, size_t index) const
     {
       target._bind_text_parameter(index, &_value, _is_null);
     }
-
-  private:
-    _cpp_value_type _value;
-    bool _is_null;
   };
 }
 #endif

@@ -38,7 +38,7 @@ namespace sqlpp
     using _value_type = DataType;
     using _cpp_value_type = typename _value_type::_cpp_value_type;
 
-    base_parameter_value() : _value(0), _is_null(true)
+    base_parameter_value() : _value{}, _is_null{true}
     {
     }
 
@@ -57,7 +57,7 @@ namespace sqlpp
     {
       if (t._is_trivial())
       {
-        _value = 0;
+        _value = {};
         _is_null = true;
       }
       else
@@ -70,7 +70,7 @@ namespace sqlpp
 
     void set_null()
     {
-      _value = 0;
+      _value = {};
       _is_null = true;
     }
 

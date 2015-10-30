@@ -28,6 +28,7 @@
 #define SQLPP_TIME_POINT_PARAMETER_TYPE_H
 
 #include <sqlpp11/data_types/parameter_value.h>
+#include <sqlpp11/data_types/parameter_value_base.h>
 #include <sqlpp11/data_types/time_point/data_type.h>
 #include <sqlpp11/data_types/time_point/wrap_operand.h>
 #include <sqlpp11/data_types/time_point/operand.h>
@@ -35,73 +36,18 @@
 
 namespace sqlpp
 {
-  // time_point parameter value
   template <>
-  struct parameter_value_t<time_point>
+  struct parameter_value_t<time_point> : public base_parameter_value<time_point>
   {
-    using _value_type = time_point;
-    using _cpp_value_type = typename _value_type::_cpp_value_type;
-
-    parameter_value_t() : _value{}, _is_null(true)
-    {
-    }
-
-    explicit parameter_value_t(const _cpp_value_type& val) : _value(val), _is_null(false)
-    {
-    }
-
-    parameter_value_t& operator=(const _cpp_value_type& val)
-    {
-      _value = val;
-      _is_null = false;
-      return *this;
-    }
-
-    parameter_value_t& operator=(const tvin_t<wrap_operand_t<_cpp_value_type>>& t)
-    {
-      if (t._is_trivial())
-      {
-        _value = _cpp_value_type{};
-        _is_null = true;
-      }
-      else
-      {
-        _value = t._value._t;
-        _is_null = false;
-      }
-      return *this;
-    }
-
-    void set_null()
-    {
-      _value = _cpp_value_type{};
-      _is_null = true;
-    }
-
-    bool is_null() const
-    {
-      return _is_null;
-    }
-
-    const _cpp_value_type& value() const
-    {
-      return _value;
-    }
-
-    operator _cpp_value_type() const
-    {
-      return _value;
-    }
+    using base = base_parameter_value<time_point>;
+    using base::base;
+    using base::operator=;
 
     template <typename Target>
     void _bind(Target& target, size_t index) const
     {
       target._bind_date_time_parameter(index, &_value, _is_null);
     }
-
-  private:
-    _cpp_value_type _value;
-    bool _is_null;
   };
 }
 #endif
