@@ -28,12 +28,12 @@
 #define SQLPP_INTEGRAL_H
 
 #include <sqlpp11/data_types/integral/data_type.h>
+#include <sqlpp11/data_types/integral/operand.h>
+#include <sqlpp11/data_types/integral/wrap_operand.h>
 #include <sqlpp11/data_types/integral/expression_operators.h>
 #include <sqlpp11/data_types/integral/column_operators.h>
 #include <sqlpp11/data_types/integral/parameter_type.h>
 #include <sqlpp11/data_types/integral/result_field.h>
-#include <sqlpp11/data_types/integral/operand.h>
-#include <sqlpp11/data_types/integral/wrap_operand.h>
 #include <sqlpp11/data_types/integral/serialize.h>
 
 #endif

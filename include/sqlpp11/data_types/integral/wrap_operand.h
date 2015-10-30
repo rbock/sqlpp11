@@ -35,7 +35,7 @@ namespace sqlpp
   struct integral_operand;
 
   template <typename T>
-  struct wrap_operand<T, typename std::enable_if<std::is_integral<T>::value>::type>
+  struct wrap_operand<T, typename std::enable_if<std::is_integral<T>::value and not std::is_same<bool, T>::value>::type>
   {
     using type = integral_operand;
   };

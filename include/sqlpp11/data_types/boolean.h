@@ -28,12 +28,12 @@
 #define SQLPP_BOOLEAN_H
 
 #include <sqlpp11/data_types/boolean/data_type.h>
+#include <sqlpp11/data_types/boolean/operand.h>
+#include <sqlpp11/data_types/boolean/wrap_operand.h>
 #include <sqlpp11/data_types/boolean/expression_operators.h>
 #include <sqlpp11/data_types/boolean/column_operators.h>
 #include <sqlpp11/data_types/boolean/parameter_type.h>
 #include <sqlpp11/data_types/boolean/result_field.h>
-#include <sqlpp11/data_types/boolean/operand.h>
-#include <sqlpp11/data_types/boolean/wrap_operand.h>
 #include <sqlpp11/data_types/boolean/serialize.h>
 
 #endif

@@ -28,79 +28,24 @@
 #define SQLPP_INTEGRAL_PARAMETER_TYPE_H
 
 #include <sqlpp11/data_types/parameter_value.h>
+#include <sqlpp11/data_types/parameter_value_base.h>
 #include <sqlpp11/data_types/integral/data_type.h>
-#include <sqlpp11/data_types/integral/wrap_operand.h>
-#include <sqlpp11/data_types/integral/operand.h>
 #include <sqlpp11/tvin.h>
 
 namespace sqlpp
 {
   template <>
-  struct parameter_value_t<integral>
+  struct parameter_value_t<integral> : public base_parameter_value<integral>
   {
-    using _value_type = integral;
-    using _cpp_value_type = typename _value_type::_cpp_value_type;
-
-    parameter_value_t() : _value(0), _is_null(true)
-    {
-    }
-
-    explicit parameter_value_t(const _cpp_value_type& val) : _value(val), _is_null(false)
-    {
-    }
-
-    parameter_value_t& operator=(const _cpp_value_type& val)
-    {
-      _value = val;
-      _is_null = false;
-      return *this;
-    }
-
-    parameter_value_t& operator=(const tvin_t<wrap_operand_t<_cpp_value_type>>& t)
-    {
-      if (t._is_trivial())
-      {
-        _value = 0;
-        _is_null = true;
-      }
-      else
-      {
-        _value = t._value._t;
-        _is_null = false;
-      }
-      return *this;
-    }
-
-    void set_null()
-    {
-      _value = 0;
-      _is_null = true;
-    }
-
-    bool is_null() const
-    {
-      return _is_null;
-    }
-
-    const _cpp_value_type& value() const
-    {
-      return _value;
-    }
-
-    operator _cpp_value_type() const
-    {
-      return _value;
-    }
+    using base = base_parameter_value<integral>;
+    using base::base;
+    using base::operator=;
 
     template <typename Target>
     void _bind(Target& target, size_t index) const
     {
       target._bind_integral_parameter(index, &_value, _is_null);
     }
-
-  private:
-    _cpp_value_type _value;
-    bool _is_null;
   };
 }
 #endif

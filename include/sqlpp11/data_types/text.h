@@ -28,12 +28,12 @@
 #define SQLPP_TEXT_H
 
 #include <sqlpp11/data_types/text/data_type.h>
+#include <sqlpp11/data_types/text/operand.h>
+#include <sqlpp11/data_types/text/wrap_operand.h>
 #include <sqlpp11/data_types/text/expression_operators.h>
 #include <sqlpp11/data_types/text/column_operators.h>
 #include <sqlpp11/data_types/text/parameter_type.h>
 #include <sqlpp11/data_types/text/result_field.h>
-#include <sqlpp11/data_types/text/operand.h>
-#include <sqlpp11/data_types/text/wrap_operand.h>
 #include <sqlpp11/data_types/text/serialize.h>
 
 // text specific functions

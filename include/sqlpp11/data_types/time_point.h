@@ -28,12 +28,12 @@
 #define SQLPP_TIME_POINT_H
 
 #include <sqlpp11/data_types/time_point/data_type.h>
+#include <sqlpp11/data_types/time_point/operand.h>
+#include <sqlpp11/data_types/time_point/wrap_operand.h>
 #include <sqlpp11/data_types/time_point/expression_operators.h>
 #include <sqlpp11/data_types/time_point/column_operators.h>
 #include <sqlpp11/data_types/time_point/parameter_type.h>
 #include <sqlpp11/data_types/time_point/result_field.h>
-#include <sqlpp11/data_types/time_point/operand.h>
-#include <sqlpp11/data_types/time_point/wrap_operand.h>
 #include <sqlpp11/data_types/time_point/serialize.h>
 
 #endif

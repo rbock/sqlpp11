@@ -28,12 +28,12 @@
 #define SQLPP_FLOATING_POINT_H
 
 #include <sqlpp11/data_types/floating_point/data_type.h>
+#include <sqlpp11/data_types/floating_point/operand.h>
+#include <sqlpp11/data_types/floating_point/wrap_operand.h>
 #include <sqlpp11/data_types/floating_point/expression_operators.h>
 #include <sqlpp11/data_types/floating_point/column_operators.h>
 #include <sqlpp11/data_types/floating_point/parameter_type.h>
 #include <sqlpp11/data_types/floating_point/result_field.h>
-#include <sqlpp11/data_types/floating_point/operand.h>
-#include <sqlpp11/data_types/floating_point/wrap_operand.h>
 #include <sqlpp11/data_types/floating_point/serialize.h>
 
 #endif
