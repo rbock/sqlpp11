@@ -27,13 +27,15 @@
 #ifndef SQLPP_LIKE_H
 #define SQLPP_LIKE_H
 
-#include <sqlpp11/data_types/boolean.h>
+#include <sqlpp11/expression_operators.h>
+#include <sqlpp11/alias_operators.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/char_sequence.h>
-#include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
 {
+  struct boolean;
+
   template <typename Operand, typename Pattern>
   struct like_t : public expression_operators<like_t<Operand, Pattern>, boolean>,
                   public alias_operators<like_t<Operand, Pattern>>

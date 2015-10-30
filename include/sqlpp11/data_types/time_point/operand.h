@@ -24,16 +24,46 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DAY_POINT_H
-#define SQLPP_DAY_POINT_H
+#ifndef SQLPP_TIME_POINT_OPERAND_H
+#define SQLPP_TIME_POINT_OPERAND_H
 
-#include <sqlpp11/data_types/day_point/data_type.h>
-#include <sqlpp11/data_types/day_point/expression_operators.h>
-#include <sqlpp11/data_types/day_point/column_operators.h>
-#include <sqlpp11/data_types/day_point/parameter_type.h>
-#include <sqlpp11/data_types/day_point/result_field.h>
-#include <sqlpp11/data_types/day_point/operand.h>
-#include <sqlpp11/data_types/day_point/wrap_operand.h>
-#include <sqlpp11/data_types/day_point/serialize.h>
+#include <sqlpp11/chrono.h>
+#include <sqlpp11/type_traits.h>
+#include <sqlpp11/alias_operators.h>
 
+namespace sqlpp
+{
+  struct time_point;
+
+  template <typename Period>
+  struct time_point_operand : public alias_operators<time_point_operand<Period>>
+  {
+    using _traits = make_traits<time_point, tag::is_expression, tag::is_wrapped_value>;
+    using _nodes = detail::type_vector<>;
+    using _is_aggregate_expression = std::true_type;
+
+    using _value_t = std::chrono::time_point<std::chrono::system_clock, Period>;
+
+    time_point_operand() : _t{}
+    {
+    }
+
+    time_point_operand(_value_t t) : _t(t)
+    {
+    }
+
+    time_point_operand(const time_point_operand&) = default;
+    time_point_operand(time_point_operand&&) = default;
+    time_point_operand& operator=(const time_point_operand&) = default;
+    time_point_operand& operator=(time_point_operand&&) = default;
+    ~time_point_operand() = default;
+
+    bool _is_trivial() const
+    {
+      return _t == _value_t{};
+    }
+
+    _value_t _t;
+  };
+}
 #endif

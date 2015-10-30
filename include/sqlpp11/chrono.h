@@ -24,16 +24,20 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DAY_POINT_H
-#define SQLPP_DAY_POINT_H
+#ifndef SQLPP_CHRONO_H
+#define SQLPP_CHRONO_H
 
-#include <sqlpp11/data_types/day_point/data_type.h>
-#include <sqlpp11/data_types/day_point/expression_operators.h>
-#include <sqlpp11/data_types/day_point/column_operators.h>
-#include <sqlpp11/data_types/day_point/parameter_type.h>
-#include <sqlpp11/data_types/day_point/result_field.h>
-#include <sqlpp11/data_types/day_point/operand.h>
-#include <sqlpp11/data_types/day_point/wrap_operand.h>
-#include <sqlpp11/data_types/day_point/serialize.h>
+#include <chrono>
+
+namespace sqlpp
+{
+  namespace chrono
+  {
+    using days = std::chrono::duration<int, std::ratio_multiply<std::ratio<24>, std::chrono::hours::period>>;
+
+    using day_point = std::chrono::time_point<std::chrono::system_clock, days>;
+    using mus_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>;
+  }
+}
 
 #endif

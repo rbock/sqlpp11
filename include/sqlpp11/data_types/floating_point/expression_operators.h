@@ -27,10 +27,10 @@
 #ifndef SQLPP_FLOATING_POINT_EXPRESSION_OPERATORS_H
 #define SQLPP_FLOATING_POINT_EXPRESSION_OPERATORS_H
 
+#include <sqlpp11/expression_operators.h>
 #include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/data_types/floating_point/data_type.h>
-#include <sqlpp11/assignment.h>
 
 namespace sqlpp
 {

@@ -27,17 +27,10 @@
 #ifndef SQLPP_VALUE_TYPE_FWD_H
 #define SQLPP_VALUE_TYPE_FWD_H
 
-#include <sqlpp11/wrong.h>
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
-  template <typename Expr, typename ValueType>
-  struct expression_operators
-  {
-    static_assert(wrong_t<expression_operators>::value, "Missing expression operators for ValueType");
-  };
-
   template <typename ValueType, typename T, typename Enable = void>
   struct is_valid_assignment_operand
   {

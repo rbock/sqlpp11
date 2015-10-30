@@ -24,23 +24,18 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DATE_FWD_H
-#define SQLPP_DATE_FWD_H
+#ifndef SQLPP_TIME_POINT_WRAP_OPERAND_H
+#define SQLPP_TIME_POINT_WRAP_OPERAND_H
 
-#include <chrono>
+#include <sqlpp11/wrap_operand.h>
+#include <sqlpp11/data_types/time_point/operand.h>
 
 namespace sqlpp
 {
-  namespace chrono
+  template <typename Period>
+  struct wrap_operand<std::chrono::time_point<std::chrono::system_clock, Period>, void>
   {
-    using days = std::chrono::duration<int, std::ratio_multiply<std::ratio<24>, std::chrono::hours::period>>;
-
-    using day_point = std::chrono::time_point<std::chrono::system_clock, days>;
-    using mus_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>;
-  }
-
-  struct day_point;
-  struct time_point;
+    using type = time_point_operand<Period>;
+  };
 }
-
 #endif

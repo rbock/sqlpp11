@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2015, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,16 +24,18 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DAY_POINT_H
-#define SQLPP_DAY_POINT_H
+#ifndef SQLPP_EXPRESSION_OPERATORS_H
+#define SQLPP_EXPRESSION_OPERATORS_H
 
-#include <sqlpp11/data_types/day_point/data_type.h>
-#include <sqlpp11/data_types/day_point/expression_operators.h>
-#include <sqlpp11/data_types/day_point/column_operators.h>
-#include <sqlpp11/data_types/day_point/parameter_type.h>
-#include <sqlpp11/data_types/day_point/result_field.h>
-#include <sqlpp11/data_types/day_point/operand.h>
-#include <sqlpp11/data_types/day_point/wrap_operand.h>
-#include <sqlpp11/data_types/day_point/serialize.h>
+#include <sqlpp11/wrong.h>
+
+namespace sqlpp
+{
+  template <typename Expr, typename ValueType>
+  struct expression_operators
+  {
+    static_assert(wrong_t<expression_operators>::value, "Missing expression operators for ValueType");
+  };
+}
 
 #endif

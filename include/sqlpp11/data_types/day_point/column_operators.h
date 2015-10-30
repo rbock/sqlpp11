@@ -24,16 +24,21 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DAY_POINT_H
-#define SQLPP_DAY_POINT_H
+#ifndef SQLPP_DAY_POINT_COLUMN_OPERATORS_H
+#define SQLPP_DAY_POINT_COLUMN_OPERATORS_H
 
+#include <sqlpp11/type_traits.h>
+#include <sqlpp11/assignment.h>
 #include <sqlpp11/data_types/day_point/data_type.h>
-#include <sqlpp11/data_types/day_point/expression_operators.h>
-#include <sqlpp11/data_types/day_point/column_operators.h>
-#include <sqlpp11/data_types/day_point/parameter_type.h>
-#include <sqlpp11/data_types/day_point/result_field.h>
-#include <sqlpp11/data_types/day_point/operand.h>
-#include <sqlpp11/data_types/day_point/wrap_operand.h>
-#include <sqlpp11/data_types/day_point/serialize.h>
+#include <sqlpp11/data_types/column_operators.h>
 
+namespace sqlpp
+{
+  template <typename Base>
+  struct column_operators<Base, day_point>
+  {
+    template <typename T>
+    using _is_valid_operand = is_valid_operand<day_point, T>;
+  };
+}
 #endif

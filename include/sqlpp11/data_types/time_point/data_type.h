@@ -24,16 +24,22 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DAY_POINT_H
-#define SQLPP_DAY_POINT_H
+#ifndef SQLPP_TIME_POINT_DATA_TYPE_H
+#define SQLPP_TIME_POINT_DATA_TYPE_H
 
-#include <sqlpp11/data_types/day_point/data_type.h>
-#include <sqlpp11/data_types/day_point/expression_operators.h>
-#include <sqlpp11/data_types/day_point/column_operators.h>
-#include <sqlpp11/data_types/day_point/parameter_type.h>
-#include <sqlpp11/data_types/day_point/result_field.h>
-#include <sqlpp11/data_types/day_point/operand.h>
-#include <sqlpp11/data_types/day_point/wrap_operand.h>
-#include <sqlpp11/data_types/day_point/serialize.h>
+#include <sqlpp11/chrono.h>
+#include <sqlpp11/type_traits.h>
 
+namespace sqlpp
+{
+  struct time_point
+  {
+    using _traits = make_traits<time_point, tag::is_value_type>;
+    using _tag = tag::is_date_time;
+    using _cpp_value_type = ::sqlpp::chrono::mus_point;
+
+    template <typename T>
+    using _is_valid_operand = is_time_point_t<T>;
+  };
+}
 #endif

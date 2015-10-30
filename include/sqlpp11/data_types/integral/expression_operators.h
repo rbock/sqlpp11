@@ -27,11 +27,11 @@
 #ifndef SQLPP_INTEGRAL_EXPRESSION_OPERATORS_H
 #define SQLPP_INTEGRAL_EXPRESSION_OPERATORS_H
 
+#include <sqlpp11/expression_operators.h>
 #include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/value_type.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/data_types/integral/data_type.h>
-#include <sqlpp11/assignment.h>
 
 namespace sqlpp
 {

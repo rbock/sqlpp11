@@ -27,6 +27,7 @@
 #ifndef SQLPP_BOOLEAN_EXPRESSION_OPERATORS_H
 #define SQLPP_BOOLEAN_EXPRESSION_OPERATORS_H
 
+#include <sqlpp11/expression_operators.h>
 #include <sqlpp11/basic_expression_operators.h>
 
 namespace sqlpp

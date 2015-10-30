@@ -24,16 +24,22 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DAY_POINT_H
-#define SQLPP_DAY_POINT_H
+#ifndef SQLPP_DAY_POINT_WRAP_OPERAND_H
+#define SQLPP_DAY_POINT_WRAP_OPERAND_H
 
-#include <sqlpp11/data_types/day_point/data_type.h>
-#include <sqlpp11/data_types/day_point/expression_operators.h>
-#include <sqlpp11/data_types/day_point/column_operators.h>
-#include <sqlpp11/data_types/day_point/parameter_type.h>
-#include <sqlpp11/data_types/day_point/result_field.h>
-#include <sqlpp11/data_types/day_point/operand.h>
-#include <sqlpp11/data_types/day_point/wrap_operand.h>
-#include <sqlpp11/data_types/day_point/serialize.h>
+#include <utility>
+#include <sqlpp11/type_traits.h>
+#include <sqlpp11/chrono.h>
+#include <sqlpp11/wrap_operand.h>
 
+namespace sqlpp
+{
+  struct day_point_operand;
+
+  template <>
+  struct wrap_operand<std::chrono::time_point<std::chrono::system_clock, sqlpp::chrono::days>, void>
+  {
+    using type = day_point_operand;
+  };
+}
 #endif

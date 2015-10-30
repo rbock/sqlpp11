@@ -24,16 +24,43 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DAY_POINT_H
-#define SQLPP_DAY_POINT_H
+#ifndef SQLPP_DAY_POINT_SERIALIZE_H
+#define SQLPP_DAY_POINT_SERIALIZE_H
 
-#include <sqlpp11/data_types/day_point/data_type.h>
-#include <sqlpp11/data_types/day_point/expression_operators.h>
-#include <sqlpp11/data_types/day_point/column_operators.h>
-#include <sqlpp11/data_types/day_point/parameter_type.h>
-#include <sqlpp11/data_types/day_point/result_field.h>
+#include <date.h>
+#include <sqlpp11/result_field.h>
 #include <sqlpp11/data_types/day_point/operand.h>
-#include <sqlpp11/data_types/day_point/wrap_operand.h>
-#include <sqlpp11/data_types/day_point/serialize.h>
+#include <ostream>
 
+namespace sqlpp
+{
+  template <typename Context>
+  struct serializer_t<Context, day_point_operand>
+  {
+    using _serialize_check = consistent_t;
+    using Operand = day_point_operand;
+
+    static Context& _(const Operand& t, Context& context)
+    {
+      const auto ymd = ::date::year_month_day{t._t};
+      context << "DATE '" << ymd << "'";
+      return context;
+    }
+  };
+
+  template <typename Db, typename FieldSpec>
+  inline std::ostream& operator<<(std::ostream& os, const result_field_t<day_point, Db, FieldSpec>& e)
+  {
+    if (e.is_null() and not null_is_trivial_value_t<FieldSpec>::value)
+    {
+      os << "NULL";
+    }
+    else
+    {
+      const auto ymd = ::date::year_month_day{e.value()};
+      os << ymd;
+    }
+    return os;
+  }
+}
 #endif

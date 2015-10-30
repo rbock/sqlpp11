@@ -27,6 +27,7 @@
 #ifndef SQLPP_TEXT_OPERAND_H
 #define SQLPP_TEXT_OPERAND_H
 
+#include <string>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/alias_operators.h>
 

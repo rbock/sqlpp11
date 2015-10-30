@@ -24,16 +24,47 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DAY_POINT_H
-#define SQLPP_DAY_POINT_H
+#ifndef SQLPP_TIME_POINT_SERIALIZE_H
+#define SQLPP_TIME_POINT_SERIALIZE_H
 
-#include <sqlpp11/data_types/day_point/data_type.h>
-#include <sqlpp11/data_types/day_point/expression_operators.h>
-#include <sqlpp11/data_types/day_point/column_operators.h>
-#include <sqlpp11/data_types/day_point/parameter_type.h>
-#include <sqlpp11/data_types/day_point/result_field.h>
-#include <sqlpp11/data_types/day_point/operand.h>
-#include <sqlpp11/data_types/day_point/wrap_operand.h>
-#include <sqlpp11/data_types/day_point/serialize.h>
+#include <date.h>
+#include <sqlpp11/result_field.h>
+#include <sqlpp11/data_types/time_point/operand.h>
+#include <ostream>
 
+namespace sqlpp
+{
+  template <typename Context, typename Period>
+  struct serializer_t<Context, time_point_operand<Period>>
+  {
+    using _serialize_check = consistent_t;
+    using Operand = time_point_operand<Period>;
+
+    static Context& _(const Operand& t, Context& context)
+    {
+      const auto dp = ::date::floor<::date::days>(t._t);
+      const auto time = ::date::make_time(t._t - dp);
+      const auto ymd = ::date::year_month_day{dp};
+      context << "TIMESTAMP '" << ymd << ' ' << time << "'";
+      return context;
+    }
+  };
+
+  template <typename Db, typename FieldSpec>
+  inline std::ostream& operator<<(std::ostream& os, const result_field_t<time_point, Db, FieldSpec>& e)
+  {
+    if (e.is_null() and not null_is_trivial_value_t<FieldSpec>::value)
+    {
+      os << "NULL";
+    }
+    else
+    {
+      const auto dp = ::date::floor<::date::days>(e.value());
+      const auto time = ::date::make_time(e.value() - dp);
+      const auto ymd = ::date::year_month_day{dp};
+      os << "TIMESTAMP '" << ymd << ' ' << time << "'";
+    }
+    return os;
+  }
+}
 #endif

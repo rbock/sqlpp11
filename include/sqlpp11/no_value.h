@@ -28,7 +28,7 @@
 #define SQLPP_NO_VALUE_H
 
 #include <type_traits>
-#include <sqlpp11/value_type_fwd.h>
+#include <sqlpp11/expression_operators.h>
 #include <sqlpp11/data_types/column_operators.h>
 
 namespace sqlpp
