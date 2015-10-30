@@ -24,34 +24,32 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_BOOLEAN_SERIALIZE_H
-#define SQLPP_BOOLEAN_SERIALIZE_H
+#ifndef SQLPP_INTEGRAL_DATA_TYPE_H
+#define SQLPP_INTEGRAL_DATA_TYPE_H
 
+#include <cstdlib>
+#include <sqlpp11/basic_expression_operators.h>
+#include <sqlpp11/type_traits.h>
+#include <sqlpp11/exception.h>
+#include <sqlpp11/value_type.h>
+#include <sqlpp11/assignment.h>
 #include <sqlpp11/result_field.h>
-#include <sqlpp11/data_types/boolean/operand.h>
-#include <ostream>
 
 namespace sqlpp
 {
-  struct boolean;
-
-  template <typename Context>
-  struct serializer_t<Context, boolean_operand>
+  struct integral
   {
-    using _serialize_check = consistent_t;
-    using Operand = boolean_operand;
+    using _traits = make_traits<integral, tag::is_value_type>;
+    using _tag = tag::is_integral;
+    using _cpp_value_type = int64_t;
 
-    static Context& _(const Operand& t, Context& context)
-    {
-      context << t._t;
-      return context;
-    }
+    template <typename T>
+    using _is_valid_operand = is_numeric_t<T>;
   };
 
-  template <typename Db, typename FieldSpec>
-  inline std::ostream& operator<<(std::ostream& os, const result_field_t<boolean, Db, FieldSpec>& e)
-  {
-    return serialize(e, os);
-  }
+  using tinyint = integral;
+  using smallint = integral;
+  using integer = integral;
+  using bigint = integral;
 }
 #endif

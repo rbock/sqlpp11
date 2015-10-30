@@ -24,84 +24,83 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_BOOLEAN_RESULT_FIELD_H
-#define SQLPP_BOOLEAN_RESULT_FIELD_H
+#ifndef SQLPP_INTEGRAL_PARAMETER_TYPE_H
+#define SQLPP_INTEGRAL_PARAMETER_TYPE_H
 
-#include <sqlpp11/basic_expression_operators.h>
-#include <sqlpp11/exception.h>
-#include <sqlpp11/result_field.h>
-#include <sqlpp11/result_field_methods.h>
-#include <sqlpp11/type_traits.h>
-#include <sqlpp11/data_types/boolean/data_type.h>
+#include <sqlpp11/data_types/parameter_value.h>
+#include <sqlpp11/data_types/integral/data_type.h>
+#include <sqlpp11/data_types/integral/wrap_operand.h>
+#include <sqlpp11/data_types/integral/operand.h>
+#include <sqlpp11/tvin.h>
 
 namespace sqlpp
 {
-  template <typename Db, typename FieldSpec>
-  struct result_field_t<boolean, Db, FieldSpec> : public result_field_methods_t<result_field_t<boolean, Db, FieldSpec>>
+  template <>
+  struct parameter_value_t<integral>
   {
-    static_assert(std::is_same<value_type_of<FieldSpec>, boolean>::value, "field type mismatch");
-    using _cpp_value_type = typename boolean::_cpp_value_type;
+    using _value_type = integral;
+    using _cpp_value_type = typename _value_type::_cpp_value_type;
 
-    result_field_t() : _is_valid(false), _is_null(true), _value(false)
+    parameter_value_t() : _value(0), _is_null(true)
     {
     }
 
-    void _validate()
+    explicit parameter_value_t(const _cpp_value_type& val) : _value(val), _is_null(false)
     {
-      _is_valid = true;
     }
 
-    void _invalidate()
+    parameter_value_t& operator=(const _cpp_value_type& val)
     {
-      _is_valid = false;
-      _is_null = true;
+      _value = val;
+      _is_null = false;
+      return *this;
+    }
+
+    parameter_value_t& operator=(const tvin_t<wrap_operand_t<_cpp_value_type>>& t)
+    {
+      if (t._is_trivial())
+      {
+        _value = 0;
+        _is_null = true;
+      }
+      else
+      {
+        _value = t._value._t;
+        _is_null = false;
+      }
+      return *this;
+    }
+
+    void set_null()
+    {
       _value = 0;
+      _is_null = true;
     }
 
     bool is_null() const
     {
-      if (not _is_valid)
-        throw exception("accessing is_null in non-existing row");
       return _is_null;
     }
 
-    bool _is_trivial() const
+    const _cpp_value_type& value() const
     {
-      if (not _is_valid)
-        throw exception("accessing is_null in non-existing row");
-
-      return value() == false;
+      return _value;
     }
 
-    _cpp_value_type value() const
+    operator _cpp_value_type() const
     {
-      if (not _is_valid)
-        throw exception("accessing value in non-existing row");
-
-      if (_is_null)
-      {
-        if (enforce_null_result_treatment_t<Db>::value and not null_is_trivial_value_t<FieldSpec>::value)
-        {
-          throw exception("accessing value of NULL field");
-        }
-        else
-        {
-          return false;
-        }
-      }
       return _value;
     }
 
     template <typename Target>
-    void _bind(Target& target, size_t i)
+    void _bind(Target& target, size_t index) const
     {
-      target._bind_boolean_result(i, &_value, &_is_null);
+      target._bind_integral_parameter(index, &_value, _is_null);
     }
 
   private:
-    bool _is_valid;
+    _cpp_value_type _value;
     bool _is_null;
-    signed char _value;
   };
 }
 #endif

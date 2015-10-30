@@ -24,34 +24,45 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_BOOLEAN_SERIALIZE_H
-#define SQLPP_BOOLEAN_SERIALIZE_H
+#ifndef SQLPP_INTEGRAL_OPERAND_H
+#define SQLPP_INTEGRAL_OPERAND_H
 
-#include <sqlpp11/result_field.h>
-#include <sqlpp11/data_types/boolean/operand.h>
-#include <ostream>
+#include <sqlpp11/type_traits.h>
+#include <sqlpp11/alias_operators.h>
 
 namespace sqlpp
 {
-  struct boolean;
+  struct integral;
 
-  template <typename Context>
-  struct serializer_t<Context, boolean_operand>
+  struct integral_operand : public alias_operators<integral_operand>
   {
-    using _serialize_check = consistent_t;
-    using Operand = boolean_operand;
+    using _traits = make_traits<integral, tag::is_expression, tag::is_wrapped_value>;
+    using _nodes = detail::type_vector<>;
+    using _is_aggregate_expression = std::true_type;
 
-    static Context& _(const Operand& t, Context& context)
+    using _value_t = int64_t;
+
+    integral_operand() : _t{}
     {
-      context << t._t;
-      return context;
     }
-  };
 
-  template <typename Db, typename FieldSpec>
-  inline std::ostream& operator<<(std::ostream& os, const result_field_t<boolean, Db, FieldSpec>& e)
-  {
-    return serialize(e, os);
-  }
+    integral_operand(_value_t t) : _t(t)
+    {
+    }
+
+    integral_operand(const integral_operand&) = default;
+    integral_operand(integral_operand&&) = default;
+    integral_operand& operator=(const integral_operand&) = default;
+    integral_operand& operator=(integral_operand&&) = default;
+    ~integral_operand() = default;
+
+    bool _is_trivial() const
+    {
+      return _t == 0;
+    }
+
+    _value_t _t;
+  };
 }
+
 #endif

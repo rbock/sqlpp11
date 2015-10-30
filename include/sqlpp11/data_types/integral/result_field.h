@@ -24,31 +24,27 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_BOOLEAN_RESULT_FIELD_H
-#define SQLPP_BOOLEAN_RESULT_FIELD_H
+#ifndef SQLPP_INTEGRAL_RESULT_FIELD_H
+#define SQLPP_INTEGRAL_RESULT_FIELD_H
 
 #include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/result_field.h>
 #include <sqlpp11/result_field_methods.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/data_types/boolean/data_type.h>
+#include <sqlpp11/data_types/integral/data_type.h>
 
 namespace sqlpp
 {
   template <typename Db, typename FieldSpec>
-  struct result_field_t<boolean, Db, FieldSpec> : public result_field_methods_t<result_field_t<boolean, Db, FieldSpec>>
+  struct result_field_t<integral, Db, FieldSpec>
+      : public result_field_methods_t<result_field_t<integral, Db, FieldSpec>>
   {
-    static_assert(std::is_same<value_type_of<FieldSpec>, boolean>::value, "field type mismatch");
-    using _cpp_value_type = typename boolean::_cpp_value_type;
+    static_assert(std::is_same<value_type_of<FieldSpec>, integral>::value, "field type mismatch");
+    using _cpp_value_type = typename integral::_cpp_value_type;
 
-    result_field_t() : _is_valid(false), _is_null(true), _value(false)
+    result_field_t() : _is_valid(false), _is_null(true), _value(0)
     {
-    }
-
-    void _validate()
-    {
-      _is_valid = true;
     }
 
     void _invalidate()
@@ -56,6 +52,11 @@ namespace sqlpp
       _is_valid = false;
       _is_null = true;
       _value = 0;
+    }
+
+    void _validate()
+    {
+      _is_valid = true;
     }
 
     bool is_null() const
@@ -70,7 +71,7 @@ namespace sqlpp
       if (not _is_valid)
         throw exception("accessing is_null in non-existing row");
 
-      return value() == false;
+      return value() == 0;
     }
 
     _cpp_value_type value() const
@@ -86,7 +87,7 @@ namespace sqlpp
         }
         else
         {
-          return false;
+          return 0;
         }
       }
       return _value;
@@ -95,13 +96,13 @@ namespace sqlpp
     template <typename Target>
     void _bind(Target& target, size_t i)
     {
-      target._bind_boolean_result(i, &_value, &_is_null);
+      target._bind_integral_result(i, &_value, &_is_null);
     }
 
   private:
     bool _is_valid;
     bool _is_null;
-    signed char _value;
+    _cpp_value_type _value;
   };
 }
 #endif

@@ -24,34 +24,20 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_BOOLEAN_SERIALIZE_H
-#define SQLPP_BOOLEAN_SERIALIZE_H
+#ifndef SQLPP_INTEGRAL_WRAP_OPERAND_H
+#define SQLPP_INTEGRAL_WRAP_OPERAND_H
 
-#include <sqlpp11/result_field.h>
-#include <sqlpp11/data_types/boolean/operand.h>
-#include <ostream>
+#include <utility>
+#include <sqlpp11/wrap_operand.h>
 
 namespace sqlpp
 {
-  struct boolean;
+  struct integral_operand;
 
-  template <typename Context>
-  struct serializer_t<Context, boolean_operand>
+  template <typename T>
+  struct wrap_operand<T, typename std::enable_if<std::is_integral<T>::value>::type>
   {
-    using _serialize_check = consistent_t;
-    using Operand = boolean_operand;
-
-    static Context& _(const Operand& t, Context& context)
-    {
-      context << t._t;
-      return context;
-    }
+    using type = integral_operand;
   };
-
-  template <typename Db, typename FieldSpec>
-  inline std::ostream& operator<<(std::ostream& os, const result_field_t<boolean, Db, FieldSpec>& e)
-  {
-    return serialize(e, os);
-  }
 }
 #endif

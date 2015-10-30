@@ -144,49 +144,6 @@ namespace sqlpp
     }
   };
 
-  struct integral_operand : public alias_operators<integral_operand>
-  {
-    using _traits = make_traits<integral, tag::is_expression, tag::is_wrapped_value>;
-    using _nodes = detail::type_vector<>;
-    using _is_aggregate_expression = std::true_type;
-
-    using _value_t = int64_t;
-
-    integral_operand() : _t{}
-    {
-    }
-
-    integral_operand(_value_t t) : _t(t)
-    {
-    }
-
-    integral_operand(const integral_operand&) = default;
-    integral_operand(integral_operand&&) = default;
-    integral_operand& operator=(const integral_operand&) = default;
-    integral_operand& operator=(integral_operand&&) = default;
-    ~integral_operand() = default;
-
-    bool _is_trivial() const
-    {
-      return _t == 0;
-    }
-
-    _value_t _t;
-  };
-
-  template <typename Context>
-  struct serializer_t<Context, integral_operand>
-  {
-    using _serialize_check = consistent_t;
-    using Operand = integral_operand;
-
-    static Context& _(const Operand& t, Context& context)
-    {
-      context << t._t;
-      return context;
-    }
-  };
-
   struct floating_point_operand : public alias_operators<floating_point_operand>
   {
     using _traits = make_traits<floating_point, tag::is_expression, tag::is_wrapped_value>;
@@ -283,12 +240,6 @@ namespace sqlpp
   struct wrap_operand<std::chrono::time_point<std::chrono::system_clock, sqlpp::chrono::days>, void>
   {
     using type = day_point_operand;
-  };
-
-  template <typename T>
-  struct wrap_operand<T, typename std::enable_if<std::is_integral<T>::value>::type>
-  {
-    using type = integral_operand;
   };
 
   template <typename T>
