@@ -24,16 +24,21 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_FLOATING_POINT_H
-#define SQLPP_FLOATING_POINT_H
+#ifndef SQLPP_FLOATING_POINT_DATA_TYPE_H
+#define SQLPP_FLOATING_POINT_DATA_TYPE_H
 
-#include <sqlpp11/data_types/floating_point/data_type.h>
-#include <sqlpp11/data_types/floating_point/expression_operators.h>
-#include <sqlpp11/data_types/floating_point/column_operators.h>
-#include <sqlpp11/data_types/floating_point/parameter_type.h>
-#include <sqlpp11/data_types/floating_point/result_field.h>
-#include <sqlpp11/data_types/floating_point/operand.h>
-#include <sqlpp11/data_types/floating_point/wrap_operand.h>
-#include <sqlpp11/data_types/floating_point/serialize.h>
+#include <sqlpp11/type_traits.h>
 
+namespace sqlpp
+{
+  struct floating_point
+  {
+    using _traits = make_traits<floating_point, tag::is_value_type>;
+    using _tag = tag::is_floating_point;
+    using _cpp_value_type = double;
+
+    template <typename T>
+    using _is_valid_operand = is_numeric_t<T>;
+  };
+}
 #endif

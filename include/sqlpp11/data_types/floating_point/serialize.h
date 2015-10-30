@@ -24,16 +24,32 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_FLOATING_POINT_H
-#define SQLPP_FLOATING_POINT_H
+#ifndef SQLPP_FLOATING_POINT_SERIALIZE_H
+#define SQLPP_FLOATING_POINT_SERIALIZE_H
 
-#include <sqlpp11/data_types/floating_point/data_type.h>
-#include <sqlpp11/data_types/floating_point/expression_operators.h>
-#include <sqlpp11/data_types/floating_point/column_operators.h>
-#include <sqlpp11/data_types/floating_point/parameter_type.h>
-#include <sqlpp11/data_types/floating_point/result_field.h>
-#include <sqlpp11/data_types/floating_point/operand.h>
-#include <sqlpp11/data_types/floating_point/wrap_operand.h>
-#include <sqlpp11/data_types/floating_point/serialize.h>
+#include <sqlpp11/result_field.h>
+#include <sqlpp11/data_types/integral/operand.h>
+#include <ostream>
 
+namespace sqlpp
+{
+  template <typename Context>
+  struct serializer_t<Context, floating_point_operand>
+  {
+    using _serialize_check = consistent_t;
+    using Operand = floating_point_operand;
+
+    static Context& _(const Operand& t, Context& context)
+    {
+      context << t._t;
+      return context;
+    }
+  };
+
+  template <typename Db, typename FieldSpec>
+  inline std::ostream& operator<<(std::ostream& os, const result_field_t<floating_point, Db, FieldSpec>& e)
+  {
+    return serialize(e, os);
+  }
+}
 #endif

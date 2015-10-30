@@ -24,16 +24,20 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_FLOATING_POINT_H
-#define SQLPP_FLOATING_POINT_H
+#ifndef SQLPP_FLOATING_POINT_WRAP_OPERAND_H
+#define SQLPP_FLOATING_POINT_WRAP_OPERAND_H
 
-#include <sqlpp11/data_types/floating_point/data_type.h>
-#include <sqlpp11/data_types/floating_point/expression_operators.h>
-#include <sqlpp11/data_types/floating_point/column_operators.h>
-#include <sqlpp11/data_types/floating_point/parameter_type.h>
-#include <sqlpp11/data_types/floating_point/result_field.h>
-#include <sqlpp11/data_types/floating_point/operand.h>
-#include <sqlpp11/data_types/floating_point/wrap_operand.h>
-#include <sqlpp11/data_types/floating_point/serialize.h>
+#include <utility>
+#include <sqlpp11/wrap_operand.h>
 
+namespace sqlpp
+{
+  struct floating_point_operand;
+
+  template <typename T>
+  struct wrap_operand<T, typename std::enable_if<std::is_floating_point<T>::value>::type>
+  {
+    using type = floating_point_operand;
+  };
+}
 #endif
