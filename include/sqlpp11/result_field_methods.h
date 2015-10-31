@@ -33,58 +33,34 @@
 
 namespace sqlpp
 {
-  namespace detail
-  {
-    template <typename Field>
-    struct get_field_spec_impl
-    {
-      static_assert(wrong_t<get_field_spec_impl>::value, "Invalid argument for get_field_spec");
-    };
-
-    template <template <typename, typename, typename> class Field, typename ValueType, typename Db, typename FieldSpec>
-    struct get_field_spec_impl<Field<ValueType, Db, FieldSpec>>
-    {
-      using type = FieldSpec;
-    };
-
-    template <typename Field>
-    using get_field_spec_t = typename get_field_spec_impl<Field>::type;
-  }
-
-  template <typename Field, typename Enable = void>
-  struct result_field_methods_base_t
-  {
-    using _field_spec_t = detail::get_field_spec_t<Field>;
-    static constexpr bool _null_is_trivial = true;
-    operator cpp_value_type_of<_field_spec_t>() const
-    {
-      return static_cast<const Field&>(*this).value();
-    }
-  };
-
-  template <template <typename, typename, typename> class Field, typename ValueType, typename Db, typename FieldSpec>
-  struct result_field_methods_base_t<Field<ValueType, Db, FieldSpec>,
-                                     typename std::enable_if<enforce_null_result_treatment_t<Db>::value and
-                                                             column_spec_can_be_null_t<FieldSpec>::value and
-                                                             not null_is_trivial_value_t<FieldSpec>::value>::type>
-  {
-    using _field_spec_t = FieldSpec;
-    static constexpr bool _null_is_trivial = false;
-  };
-
   template <typename Field>
-  struct result_field_methods_t : public result_field_methods_base_t<Field>, public alias_operators<Field>
+  struct result_field_methods_t
   {
-    using _base_t = result_field_methods_base_t<Field>;
-    using _field_spec_t = typename _base_t::_field_spec_t;
+    static_assert(wrong_t<result_field_methods_t>::value, "Invalid argument for result_field_base");
+  };
 
+  template <typename ValueType, typename Db, typename FieldSpec>
+  struct result_field_methods_t<result_field_t<ValueType, Db, FieldSpec>>
+  {
+    using _derived_t = result_field_t<ValueType, Db, FieldSpec>;
+    using _field_spec_t = FieldSpec;
+    using _db_t = Db;
+
+    static constexpr bool _null_is_trivial =
+        column_spec_can_be_null_t<_field_spec_t>::value and
+        (null_is_trivial_value_t<_field_spec_t>::value or not enforce_null_result_treatment_t<_db_t>::value);
     using _traits = make_traits<value_type_of<_field_spec_t>,
                                 tag::is_result_field,
                                 tag::is_expression,
-                                tag_if<tag::null_is_trivial_value, _base_t::_null_is_trivial>>;
+                                tag_if<tag::null_is_trivial_value, _null_is_trivial>>;
 
     using _nodes = detail::type_vector<>;
     using _can_be_null = column_spec_can_be_null_t<_field_spec_t>;
+
+    operator cpp_value_type_of<_field_spec_t>() const
+    {
+      return static_cast<const _derived_t&>(*this).value();
+    }
   };
 }
 #endif
