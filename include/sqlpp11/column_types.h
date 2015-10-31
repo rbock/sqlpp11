@@ -27,7 +27,6 @@
 #ifndef SQLPP_COLUMN_TYPES_H
 #define SQLPP_COLUMN_TYPES_H
 
-#warning column_types.h is deprecated, please include data_types.h instead
 #include <sqlpp11/data_types.h>
 
 #endif
