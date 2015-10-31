@@ -30,7 +30,7 @@
 #include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/result_field.h>
-#include <sqlpp11/result_field_methods.h>
+#include <sqlpp11/result_field_base.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/data_types/text/data_type.h>
 #include <ostream>
@@ -38,7 +38,7 @@
 namespace sqlpp
 {
   template <typename Db, typename FieldSpec>
-  struct result_field_t<text, Db, FieldSpec> : public result_field_methods_t<result_field_t<text, Db, FieldSpec>>
+  struct result_field_t<text, Db, FieldSpec> : public result_field_base_t<result_field_t<text, Db, FieldSpec>>
   {
     static_assert(std::is_same<value_type_of<FieldSpec>, text>::value, "field type mismatch");
     using _cpp_value_type = typename text::_cpp_value_type;

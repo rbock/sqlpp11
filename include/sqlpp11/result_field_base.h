@@ -24,23 +24,24 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_RESULT_FIELD_METHODS_H
-#define SQLPP_RESULT_FIELD_METHODS_H
+#ifndef SQLPP_RESULT_FIELD_BASE_H
+#define SQLPP_RESULT_FIELD_BASE_H
 
 #include <utility>
 #include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/alias_operators.h>
+#include <sqlpp11/result_field.h>
 
 namespace sqlpp
 {
   template <typename Field>
-  struct result_field_methods_t
+  struct result_field_base_t
   {
-    static_assert(wrong_t<result_field_methods_t>::value, "Invalid argument for result_field_base");
+    static_assert(wrong_t<result_field_base_t>::value, "Invalid argument for result_field_base");
   };
 
   template <typename ValueType, typename Db, typename FieldSpec>
-  struct result_field_methods_t<result_field_t<ValueType, Db, FieldSpec>>
+  struct result_field_base_t<result_field_t<ValueType, Db, FieldSpec>>
   {
     using _derived_t = result_field_t<ValueType, Db, FieldSpec>;
     using _field_spec_t = FieldSpec;

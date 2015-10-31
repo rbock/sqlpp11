@@ -30,7 +30,7 @@
 #include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/result_field.h>
-#include <sqlpp11/result_field_methods.h>
+#include <sqlpp11/result_field_base.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/data_types/integral/data_type.h>
 #include <ostream>
@@ -38,8 +38,7 @@
 namespace sqlpp
 {
   template <typename Db, typename FieldSpec>
-  struct result_field_t<integral, Db, FieldSpec>
-      : public result_field_methods_t<result_field_t<integral, Db, FieldSpec>>
+  struct result_field_t<integral, Db, FieldSpec> : public result_field_base_t<result_field_t<integral, Db, FieldSpec>>
   {
     static_assert(std::is_same<value_type_of<FieldSpec>, integral>::value, "field type mismatch");
     using _cpp_value_type = typename integral::_cpp_value_type;
