@@ -32,7 +32,7 @@
 #include <sqlpp11/data_types/boolean/wrap_operand.h>
 #include <sqlpp11/data_types/boolean/expression_operators.h>
 #include <sqlpp11/data_types/boolean/column_operators.h>
-#include <sqlpp11/data_types/boolean/parameter_type.h>
+#include <sqlpp11/data_types/boolean/parameter_value.h>
 #include <sqlpp11/data_types/boolean/result_field.h>
 
 #endif

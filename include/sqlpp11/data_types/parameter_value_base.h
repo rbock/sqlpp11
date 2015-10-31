@@ -33,28 +33,28 @@
 namespace sqlpp
 {
   template <typename DataType, typename StorageType = typename DataType::_cpp_value_type>
-  struct base_parameter_value
+  struct parameter_value_base
   {
     using _value_type = DataType;
     using _cpp_value_type = typename _value_type::_cpp_value_type;
     using _cpp_storage_type = StorageType;
 
-    base_parameter_value() : _value{}, _is_null{true}
+    parameter_value_base() : _value{}, _is_null{true}
     {
     }
 
-    explicit base_parameter_value(const _cpp_value_type& val) : _value(val), _is_null(false)
+    explicit parameter_value_base(const _cpp_value_type& val) : _value(val), _is_null(false)
     {
     }
 
-    base_parameter_value& operator=(const _cpp_value_type& val)
+    parameter_value_base& operator=(const _cpp_value_type& val)
     {
       _value = val;
       _is_null = false;
       return *this;
     }
 
-    base_parameter_value& operator=(const tvin_t<wrap_operand_t<_cpp_value_type>>& t)
+    parameter_value_base& operator=(const tvin_t<wrap_operand_t<_cpp_value_type>>& t)
     {
       if (t._is_trivial())
       {

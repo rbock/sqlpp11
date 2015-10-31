@@ -24,30 +24,29 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_TEXT_PARAMETER_TYPE_H
-#define SQLPP_TEXT_PARAMETER_TYPE_H
+#ifndef SQLPP_BOOLEAN_PARAMETER_VALUE_H
+#define SQLPP_BOOLEAN_PARAMETER_VALUE_H
 
 #include <sqlpp11/data_types/parameter_value.h>
 #include <sqlpp11/data_types/parameter_value_base.h>
-#include <sqlpp11/data_types/text/data_type.h>
-#include <sqlpp11/data_types/text/wrap_operand.h>
-#include <sqlpp11/data_types/text/operand.h>
+#include <sqlpp11/data_types/boolean/data_type.h>
 #include <sqlpp11/tvin.h>
 
 namespace sqlpp
 {
   template <>
-  struct parameter_value_t<text> : public base_parameter_value<text>
+  struct parameter_value_t<boolean> : public parameter_value_base<boolean, signed char>
   {
-    using base = base_parameter_value<text>;
+    using base = parameter_value_base<boolean, signed char>;
     using base::base;
     using base::operator=;
 
     template <typename Target>
     void _bind(Target& target, size_t index) const
     {
-      target._bind_text_parameter(index, &_value, _is_null);
+      target._bind_boolean_parameter(index, &_value, _is_null);
     }
   };
 }
+
 #endif

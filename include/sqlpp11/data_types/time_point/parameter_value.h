@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2015-2015, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,29 +24,30 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_BOOLEAN_PARAMETER_TYPE_H
-#define SQLPP_BOOLEAN_PARAMETER_TYPE_H
+#ifndef SQLPP_TIME_POINT_PARAMETER_VALUE_H
+#define SQLPP_TIME_POINT_PARAMETER_VALUE_H
 
 #include <sqlpp11/data_types/parameter_value.h>
 #include <sqlpp11/data_types/parameter_value_base.h>
-#include <sqlpp11/data_types/boolean/data_type.h>
+#include <sqlpp11/data_types/time_point/data_type.h>
+#include <sqlpp11/data_types/time_point/wrap_operand.h>
+#include <sqlpp11/data_types/time_point/operand.h>
 #include <sqlpp11/tvin.h>
 
 namespace sqlpp
 {
   template <>
-  struct parameter_value_t<boolean> : public base_parameter_value<boolean, signed char>
+  struct parameter_value_t<time_point> : public parameter_value_base<time_point>
   {
-    using base = base_parameter_value<boolean, signed char>;
+    using base = parameter_value_base<time_point>;
     using base::base;
     using base::operator=;
 
     template <typename Target>
     void _bind(Target& target, size_t index) const
     {
-      target._bind_boolean_parameter(index, &_value, _is_null);
+      target._bind_date_time_parameter(index, &_value, _is_null);
     }
   };
 }
-
 #endif

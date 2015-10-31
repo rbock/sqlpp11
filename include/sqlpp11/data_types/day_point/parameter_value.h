@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DAY_POINT_PARAMETER_TYPE_H
-#define SQLPP_DAY_POINT_PARAMETER_TYPE_H
+#ifndef SQLPP_DAY_POINT_PARAMETER_VALUE_H
+#define SQLPP_DAY_POINT_PARAMETER_VALUE_H
 
 #include <sqlpp11/data_types/parameter_value.h>
 #include <sqlpp11/data_types/parameter_value_base.h>
@@ -37,9 +37,9 @@
 namespace sqlpp
 {
   template <>
-  struct parameter_value_t<day_point> : public base_parameter_value<day_point>
+  struct parameter_value_t<day_point> : public parameter_value_base<day_point>
   {
-    using base = base_parameter_value<day_point>;
+    using base = parameter_value_base<day_point>;
     using base::base;
     using base::operator=;
 
