@@ -53,7 +53,7 @@ namespace sqlpp
       }
       else
       {
-        serialize(wrap_operand_t<T>{t}, context);
+        serialize(wrap_operand_t<cpp_value_type_of<FieldSpec>>(t.value()), context);
       }
       return context;
     }
