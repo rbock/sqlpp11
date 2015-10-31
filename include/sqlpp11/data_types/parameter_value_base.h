@@ -32,11 +32,12 @@
 
 namespace sqlpp
 {
-  template <typename DataType>
+  template <typename DataType, typename StorageType = typename DataType::_cpp_value_type>
   struct base_parameter_value
   {
     using _value_type = DataType;
     using _cpp_value_type = typename _value_type::_cpp_value_type;
+    using _cpp_storage_type = StorageType;
 
     base_parameter_value() : _value{}, _is_null{true}
     {
@@ -90,7 +91,7 @@ namespace sqlpp
     }
 
   protected:
-    _cpp_value_type _value;
+    _cpp_storage_type _value;
     bool _is_null;
   };
 }

@@ -35,9 +35,9 @@
 namespace sqlpp
 {
   template <>
-  struct parameter_value_t<boolean> : public base_parameter_value<boolean>
+  struct parameter_value_t<boolean> : public base_parameter_value<boolean, signed char>
   {
-    using base = base_parameter_value<boolean>;
+    using base = base_parameter_value<boolean, signed char>;
     using base::base;
     using base::operator=;
 
