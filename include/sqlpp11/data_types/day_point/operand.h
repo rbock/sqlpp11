@@ -27,9 +27,11 @@
 #ifndef SQLPP_DAY_POINT_OPERAND_H
 #define SQLPP_DAY_POINT_OPERAND_H
 
+#include <date.h>
 #include <sqlpp11/chrono.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/alias_operators.h>
+#include <sqlpp11/serializer.h>
 
 namespace sqlpp
 {
@@ -63,6 +65,20 @@ namespace sqlpp
     }
 
     _value_t _t;
+  };
+
+  template <typename Context>
+  struct serializer_t<Context, day_point_operand>
+  {
+    using _serialize_check = consistent_t;
+    using Operand = day_point_operand;
+
+    static Context& _(const Operand& t, Context& context)
+    {
+      const auto ymd = ::date::year_month_day{t._t};
+      context << "DATE '" << ymd << "'";
+      return context;
+    }
   };
 }
 #endif

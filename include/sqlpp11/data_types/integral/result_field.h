@@ -33,6 +33,7 @@
 #include <sqlpp11/result_field_methods.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/data_types/integral/data_type.h>
+#include <ostream>
 
 namespace sqlpp
 {
@@ -104,5 +105,11 @@ namespace sqlpp
     bool _is_null;
     _cpp_value_type _value;
   };
+
+  template <typename Db, typename FieldSpec>
+  inline std::ostream& operator<<(std::ostream& os, const result_field_t<integral, Db, FieldSpec>& e)
+  {
+    return serialize(e, os);
+  }
 }
 #endif

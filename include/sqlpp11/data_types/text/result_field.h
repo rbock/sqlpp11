@@ -33,6 +33,7 @@
 #include <sqlpp11/result_field_methods.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/data_types/text/data_type.h>
+#include <ostream>
 
 namespace sqlpp
 {
@@ -112,5 +113,18 @@ namespace sqlpp
     const char* _value_ptr;
     size_t _len;
   };
+
+  template <typename Db, typename FieldSpec>
+  inline std::ostream& operator<<(std::ostream& os, const result_field_t<text, Db, FieldSpec>& e)
+  {
+    if (e.is_null() and not null_is_trivial_value_t<FieldSpec>::value)
+    {
+      return os << "NULL";
+    }
+    else
+    {
+      return os << e.value();
+    }
+  }
 }
 #endif

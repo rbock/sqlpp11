@@ -34,6 +34,5 @@
 #include <sqlpp11/data_types/boolean/column_operators.h>
 #include <sqlpp11/data_types/boolean/parameter_type.h>
 #include <sqlpp11/data_types/boolean/result_field.h>
-#include <sqlpp11/data_types/boolean/serialize.h>
 
 #endif

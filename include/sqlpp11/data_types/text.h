@@ -34,7 +34,6 @@
 #include <sqlpp11/data_types/text/column_operators.h>
 #include <sqlpp11/data_types/text/parameter_type.h>
 #include <sqlpp11/data_types/text/result_field.h>
-#include <sqlpp11/data_types/text/serialize.h>
 
 // text specific functions
 #include <sqlpp11/data_types/text/like.h>

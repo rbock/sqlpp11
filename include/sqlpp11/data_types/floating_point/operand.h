@@ -29,6 +29,7 @@
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/alias_operators.h>
+#include <sqlpp11/serializer.h>
 
 namespace sqlpp
 {
@@ -60,6 +61,19 @@ namespace sqlpp
     }
 
     _value_t _t;
+  };
+
+  template <typename Context>
+  struct serializer_t<Context, floating_point_operand>
+  {
+    using _serialize_check = consistent_t;
+    using Operand = floating_point_operand;
+
+    static Context& _(const Operand& t, Context& context)
+    {
+      context << t._t;
+      return context;
+    }
   };
 }
 #endif

@@ -34,6 +34,5 @@
 #include <sqlpp11/data_types/integral/column_operators.h>
 #include <sqlpp11/data_types/integral/parameter_type.h>
 #include <sqlpp11/data_types/integral/result_field.h>
-#include <sqlpp11/data_types/integral/serialize.h>
 
 #endif

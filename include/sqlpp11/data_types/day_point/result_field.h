@@ -33,6 +33,7 @@
 #include <sqlpp11/result_field_methods.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/data_types/day_point/data_type.h>
+#include <ostream>
 
 namespace sqlpp
 {
@@ -104,5 +105,20 @@ namespace sqlpp
     bool _is_null;
     _cpp_value_type _value;
   };
+
+  template <typename Db, typename FieldSpec>
+  inline std::ostream& operator<<(std::ostream& os, const result_field_t<day_point, Db, FieldSpec>& e)
+  {
+    if (e.is_null() and not null_is_trivial_value_t<FieldSpec>::value)
+    {
+      os << "NULL";
+    }
+    else
+    {
+      const auto ymd = ::date::year_month_day{e.value()};
+      os << ymd;
+    }
+    return os;
+  }
 }
 #endif
