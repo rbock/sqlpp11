@@ -24,104 +24,80 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_COUNT_H
-#define SQLPP_COUNT_H
+#ifndef SQLPP_MIN_H
+#define SQLPP_MIN_H
 
+#include <sqlpp11/type_traits.h>
 #include <sqlpp11/char_sequence.h>
-#include <sqlpp11/select_flags.h>
-#include <sqlpp11/data_types/integral/data_type.h>
 
 namespace sqlpp
 {
-  struct count_alias_t
+  struct min_alias_t
   {
     struct _alias_t
     {
-      static constexpr const char _literal[] = "count_";
+      static constexpr const char _literal[] = "min_";
       using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
       template <typename T>
       struct _member_t
       {
-        T count;
+        T min;
         T& operator()()
         {
-          return count;
+          return min;
         }
         const T& operator()() const
         {
-          return count;
+          return min;
         }
       };
     };
   };
 
-  template <typename Flag, typename Expr>
-  struct count_t : public expression_operators<count_t<Flag, Expr>, integral>,
-                   public alias_operators<count_t<Flag, Expr>>
+  template <typename Expr>
+  struct min_t : public expression_operators<min_t<Expr>, value_type_of<Expr>>, public alias_operators<min_t<Expr>>
   {
-    using _traits = make_traits<integral, tag::is_expression /*, tag::is_selectable*/>;
-
+    using _traits = make_traits<value_type_of<Expr>, tag::is_expression, tag::is_selectable>;
     using _nodes = detail::type_vector<Expr, aggregate_function>;
+    using _can_be_null = std::true_type;
     using _is_aggregate_expression = std::true_type;
-    using _can_be_null = std::false_type;
 
-    static_assert(is_noop<Flag>::value or std::is_same<distinct_t, Flag>::value,
-                  "count() used with flag other than 'distinct'");
+    using _auto_alias_t = min_alias_t;
 
-    using _auto_alias_t = count_alias_t;
-
-    count_t(const Expr expr) : _expr(expr)
+    min_t(Expr expr) : _expr(expr)
     {
     }
 
-    count_t(const count_t&) = default;
-    count_t(count_t&&) = default;
-    count_t& operator=(const count_t&) = default;
-    count_t& operator=(count_t&&) = default;
-    ~count_t() = default;
+    min_t(const min_t&) = default;
+    min_t(min_t&&) = default;
+    min_t& operator=(const min_t&) = default;
+    min_t& operator=(min_t&&) = default;
+    ~min_t() = default;
 
     Expr _expr;
   };
 
-  template <typename Context, typename Flag, typename Expr>
-  struct serializer_t<Context, count_t<Flag, Expr>>
+  template <typename Context, typename Expr>
+  struct serializer_t<Context, min_t<Expr>>
   {
-    using _serialize_check = serialize_check_of<Context, Flag, Expr>;
-    using T = count_t<Flag, Expr>;
+    using _serialize_check = serialize_check_of<Context, Expr>;
+    using T = min_t<Expr>;
 
     static Context& _(const T& t, Context& context)
     {
-      context << "COUNT(";
-      if (std::is_same<distinct_t, Flag>::value)
-      {
-        serialize(Flag(), context);
-        context << ' ';
-        serialize_operand(t._expr, context);
-      }
-      else
-      {
-        serialize(t._expr, context);
-      }
+      context << "MIN(";
+      serialize(t._expr, context);
       context << ")";
       return context;
     }
   };
 
   template <typename T>
-  auto count(T t) -> count_t<noop, wrap_operand_t<T>>
+  auto min(T t) -> min_t<wrap_operand_t<T>>
   {
     static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value,
-                  "count() cannot be used on an aggregate function");
-    static_assert(is_expression_t<wrap_operand_t<T>>::value, "count() requires an expression as argument");
-    return {t};
-  }
-
-  template <typename T>
-  auto count(const distinct_t&, T t) -> count_t<distinct_t, wrap_operand_t<T>>
-  {
-    static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value,
-                  "count() cannot be used on an aggregate function");
-    static_assert(is_expression_t<wrap_operand_t<T>>::value, "count() requires an expression as argument");
+                  "min() cannot be used on an aggregate function");
+    static_assert(is_expression_t<wrap_operand_t<T>>::value, "min() requires an expression as argument");
     return {t};
   }
 }

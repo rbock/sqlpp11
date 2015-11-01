@@ -24,79 +24,103 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_MAX_H
-#define SQLPP_MAX_H
+#ifndef SQLPP_AVG_H
+#define SQLPP_AVG_H
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/char_sequence.h>
 
 namespace sqlpp
 {
-  struct max_alias_t
+  struct avg_alias_t
   {
     struct _alias_t
     {
-      static constexpr const char _literal[] = "max_";
+      static constexpr const char _literal[] = "avg_";
       using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
       template <typename T>
       struct _member_t
       {
-        T max;
+        T avg;
         T& operator()()
         {
-          return max;
+          return avg;
         }
         const T& operator()() const
         {
-          return max;
+          return avg;
         }
       };
     };
   };
 
-  template <typename Expr>
-  struct max_t : public expression_operators<max_t<Expr>, value_type_of<Expr>>, public alias_operators<max_t<Expr>>
+  template <typename Flag, typename Expr>
+  struct avg_t : public expression_operators<avg_t<Flag, Expr>, floating_point>,
+                 public alias_operators<avg_t<Flag, Expr>>
   {
-    using _traits = make_traits<value_type_of<Expr>, tag::is_expression, tag::is_selectable>;
+    using _traits = make_traits<floating_point, tag::is_expression, tag::is_selectable>;
     using _nodes = detail::type_vector<Expr, aggregate_function>;
+    using _can_be_null = std::true_type;
     using _is_aggregate_expression = std::true_type;
 
-    using _auto_alias_t = max_alias_t;
+    static_assert(is_noop<Flag>::value or std::is_same<distinct_t, Flag>::value,
+                  "avg() used with flag other than 'distinct'");
+    static_assert(is_numeric_t<Expr>::value, "avg() requires a value expression as argument");
 
-    max_t(Expr expr) : _expr(expr)
+    using _auto_alias_t = avg_alias_t;
+
+    avg_t(Expr expr) : _expr(expr)
     {
     }
 
-    max_t(const max_t&) = default;
-    max_t(max_t&&) = default;
-    max_t& operator=(const max_t&) = default;
-    max_t& operator=(max_t&&) = default;
-    ~max_t() = default;
+    avg_t(const avg_t&) = default;
+    avg_t(avg_t&&) = default;
+    avg_t& operator=(const avg_t&) = default;
+    avg_t& operator=(avg_t&&) = default;
+    ~avg_t() = default;
 
     Expr _expr;
   };
 
-  template <typename Context, typename Expr>
-  struct serializer_t<Context, max_t<Expr>>
+  template <typename Context, typename Flag, typename Expr>
+  struct serializer_t<Context, avg_t<Flag, Expr>>
   {
-    using _serialize_check = serialize_check_of<Context, Expr>;
-    using T = max_t<Expr>;
+    using _serialize_check = serialize_check_of<Context, Flag, Expr>;
+    using T = avg_t<Flag, Expr>;
 
     static Context& _(const T& t, Context& context)
     {
-      context << "MAX(";
-      serialize(t._expr, context);
+      context << "AVG(";
+      if (std::is_same<distinct_t, Flag>::value)
+      {
+        serialize(Flag(), context);
+        context << ' ';
+        serialize_operand(t._expr, context);
+      }
+      else
+      {
+        serialize(t._expr, context);
+      }
       context << ")";
       return context;
     }
   };
 
   template <typename T>
-  auto max(T t) -> max_t<wrap_operand_t<T>>
+  auto avg(T t) -> avg_t<noop, wrap_operand_t<T>>
   {
     static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value,
-                  "max() cannot be used on an aggregate function");
-    static_assert(is_expression_t<wrap_operand_t<T>>::value, "max() requires an expression as argument");
+                  "avg() cannot be used on an aggregate function");
+    static_assert(is_numeric_t<wrap_operand_t<T>>::value, "avg() requires a value expression as argument");
+    return {t};
+  }
+
+  template <typename T>
+  auto avg(const distinct_t&, T t) -> avg_t<distinct_t, wrap_operand_t<T>>
+  {
+    static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value,
+                  "avg() cannot be used on an aggregate function");
+    static_assert(is_numeric_t<wrap_operand_t<T>>::value, "avg() requires a value expression as argument");
     return {t};
   }
 }

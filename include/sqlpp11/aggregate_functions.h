@@ -24,49 +24,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_VALUE_OR_NULL_H
-#define SQLPP_VALUE_OR_NULL_H
+#ifndef SQLPP_AGGREGATE_FUNCTIONS_H
+#define SQLPP_AGGREGATE_FUNCTIONS_H
 
-#include <sqlpp11/wrap_operand.h>
-#include <sqlpp11/type_traits.h>
-
-namespace sqlpp
-{
-  template <typename ValueType>
-  struct value_or_null_t
-  {
-    using _cpp_value_type = typename ValueType::_cpp_value_type;
-
-    using _traits = make_traits<ValueType, tag::is_expression>;
-    using _nodes = detail::type_vector<>;
-
-    value_or_null_t(_cpp_value_type value) : _value(value), _is_null(false)
-    {
-    }
-
-    value_or_null_t(const null_t&) : _value(), _is_null(true)
-    {
-    }
-
-    typename ValueType::_cpp_value_type _value;
-    bool _is_null;
-  };
-
-  template <typename T>
-  auto value_or_null(T t) -> value_or_null_t<value_type_of<wrap_operand_t<T>>>
-  {
-    static_assert(is_wrapped_value_t<wrap_operand_t<T>>::value,
-                  "value_or_null() is to be called with non-sql-type like int, or string or null");
-    return {t};
-  }
-
-  template <typename ValueType>
-  auto value_or_null(null_t t) -> value_or_null_t<ValueType>
-  {
-    static_assert(is_value_type_t<ValueType>::value,
-                  "value_or_null() is to be called with non-sql-type like int, or string");
-    return {t};
-  }
-}
+#include <sqlpp11/aggregate_functions/count.h>
+#include <sqlpp11/aggregate_functions/min.h>
+#include <sqlpp11/aggregate_functions/max.h>
+#include <sqlpp11/aggregate_functions/avg.h>
+#include <sqlpp11/aggregate_functions/sum.h>
 
 #endif
