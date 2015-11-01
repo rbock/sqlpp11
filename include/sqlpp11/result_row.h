@@ -30,6 +30,7 @@
 #include <map>
 #include <sqlpp11/result_row_fwd.h>
 #include <sqlpp11/field_spec.h>
+#include <sqlpp11/no_name.h>
 #include <sqlpp11/data_types/text.h>
 #include <sqlpp11/detail/field_index_sequence.h>
 
@@ -182,10 +183,7 @@ namespace sqlpp
   {
     using _field_index_sequence = detail::make_field_index_sequence<0, FieldSpecs...>;
     using _impl = detail::result_row_impl<Db, _field_index_sequence, FieldSpecs...>;
-    struct _no_name
-    {
-    };
-    using _field_type = result_field_t<Db, field_spec_t<_no_name, text, true, true>>;
+    using _field_type = result_field_t<Db, field_spec_t<no_name_t, text, true, true>>;
 
     bool _is_valid;
     std::vector<std::string> _dynamic_field_names;
