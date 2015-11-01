@@ -31,26 +31,19 @@
 #include <sqlpp11/result_field.h>
 #include <sqlpp11/result_field_base.h>
 #include <sqlpp11/data_types/integral/data_type.h>
-#include <ostream>
+#include <sqlpp11/field_spec.h>
 
 namespace sqlpp
 {
-  template <typename Db, typename FieldSpec>
-  struct result_field_t<integral, Db, FieldSpec> : public result_field_base<Db, FieldSpec>
+  template <typename Db, typename NameType, bool CanBeNull, bool NullIsTrivialValue>
+  struct result_field_t<Db, field_spec_t<NameType, integral, CanBeNull, NullIsTrivialValue>>
+      : public result_field_base<Db, field_spec_t<NameType, integral, CanBeNull, NullIsTrivialValue>>
   {
-    static_assert(std::is_same<value_type_of<FieldSpec>, integral>::value, "field type mismatch");
-
     template <typename Target>
     void _bind(Target& target, size_t index)
     {
       target._bind_integral_result(index, &this->_value, &this->_is_null);
     }
   };
-
-  template <typename Db, typename FieldSpec>
-  inline std::ostream& operator<<(std::ostream& os, const result_field_t<integral, Db, FieldSpec>& e)
-  {
-    return serialize(e, os);
-  }
 }
 #endif

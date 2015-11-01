@@ -31,14 +31,15 @@
 #include <sqlpp11/result_field.h>
 #include <sqlpp11/result_field_base.h>
 #include <sqlpp11/data_types/time_point/data_type.h>
+#include <sqlpp11/field_spec.h>
 #include <ostream>
 
 namespace sqlpp
 {
-  template <typename Db, typename FieldSpec>
-  struct result_field_t<time_point, Db, FieldSpec> : public result_field_base<Db, FieldSpec>
+  template <typename Db, typename NameType, bool CanBeNull, bool NullIsTrivialValue>
+  struct result_field_t<Db, field_spec_t<NameType, time_point, CanBeNull, NullIsTrivialValue>>
+      : public result_field_base<Db, field_spec_t<NameType, time_point, CanBeNull, NullIsTrivialValue>>
   {
-    static_assert(std::is_same<value_type_of<FieldSpec>, time_point>::value, "field type mismatch");
     template <typename Target>
     void _bind(Target& target, size_t i)
     {
@@ -46,10 +47,11 @@ namespace sqlpp
     }
   };
 
-  template <typename Db, typename FieldSpec>
-  inline std::ostream& operator<<(std::ostream& os, const result_field_t<time_point, Db, FieldSpec>& e)
+  template <typename Db, typename NameType, bool CanBeNull, bool NullIsTrivialValue>
+  inline std::ostream& operator<<(
+      std::ostream& os, const result_field_t<Db, field_spec_t<NameType, time_point, CanBeNull, NullIsTrivialValue>>& e)
   {
-    if (e.is_null() and not null_is_trivial_value_t<FieldSpec>::value)
+    if (e.is_null() and not NullIsTrivialValue)
     {
       os << "NULL";
     }

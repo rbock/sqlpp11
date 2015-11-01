@@ -31,27 +31,20 @@
 #include <sqlpp11/result_field.h>
 #include <sqlpp11/result_field_base.h>
 #include <sqlpp11/data_types/boolean/data_type.h>
-#include <ostream>
+#include <sqlpp11/field_spec.h>
 
 namespace sqlpp
 {
-  template <typename Db, typename FieldSpec>
-  struct result_field_t<boolean, Db, FieldSpec> : public result_field_base<Db, FieldSpec, signed char>
+  template <typename Db, typename NameType, bool CanBeNull, bool NullIsTrivialValue>
+  struct result_field_t<Db, field_spec_t<NameType, boolean, CanBeNull, NullIsTrivialValue>>
+      : public result_field_base<Db, field_spec_t<NameType, boolean, CanBeNull, NullIsTrivialValue>, signed char>
   {
-#warning : need to get rid of this static assert by removing the boolean parameter from result_field
-    static_assert(std::is_same<value_type_of<FieldSpec>, boolean>::value, "field type mismatch");
-
     template <typename Target>
     void _bind(Target& target, size_t index)
     {
       target._bind_boolean_result(index, &this->_value, &this->_is_null);
     }
   };
-
-  template <typename Db, typename FieldSpec>
-  inline std::ostream& operator<<(std::ostream& os, const result_field_t<boolean, Db, FieldSpec>& e)
-  {
-    return serialize(e, os);
-  }
 }
+
 #endif

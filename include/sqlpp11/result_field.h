@@ -33,18 +33,18 @@
 
 namespace sqlpp
 {
-#warning : The value type IS in the FieldSpec!
-  template <typename ValueType, typename Db, typename FieldSpec>
+  template <typename Db, typename FieldSpec>
   struct result_field_t
   {
+    using X = typename FieldSpec::incorrect;
     static_assert(wrong_t<result_field_t>::value, "Missing specialization for result_field_t");
   };
 
-  template <typename Context, typename ValueType, typename Db, typename FieldSpec>
-  struct serializer_t<Context, result_field_t<ValueType, Db, FieldSpec>>
+  template <typename Context, typename Db, typename FieldSpec>
+  struct serializer_t<Context, result_field_t<Db, FieldSpec>>
   {
     using _serialize_check = consistent_t;
-    using T = result_field_t<ValueType, Db, FieldSpec>;
+    using T = result_field_t<Db, FieldSpec>;
 
     static Context& _(const T& t, Context& context)
     {
@@ -59,5 +59,11 @@ namespace sqlpp
       return context;
     }
   };
+
+  template <typename Db, typename FieldSpec>
+  inline std::ostream& operator<<(std::ostream& os, const result_field_t<Db, FieldSpec>& rf)
+  {
+    return serialize(rf, os);
+  }
 }
 #endif
