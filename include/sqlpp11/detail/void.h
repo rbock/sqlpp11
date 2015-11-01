@@ -31,14 +31,14 @@ namespace sqlpp
 {
   namespace detail
   {
-		template<typename T>
-		struct void_impl
-		{
-			using type = void;
-		};
+    template <typename T>
+    struct void_impl
+    {
+      using type = void;
+    };
 
-		template<typename T>
-			using void_t = typename void_impl<T>::type;
+    template <typename T>
+    using void_t = typename void_impl<T>::type;
   }
 }
 

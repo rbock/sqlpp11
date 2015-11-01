@@ -33,10 +33,60 @@
 #include <sqlpp11/serializer.h>
 #include <sqlpp11/detail/type_vector.h>
 #include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/detail/void.h>
 #include <sqlpp11/detail/get_first.h>
 
 namespace sqlpp
 {
+  namespace detail
+  {
+    template <typename T, typename Enable = void>
+    struct value_type_of_impl
+    {
+      static_assert(wrong_t<value_type_of_impl>::value, "Attempting to optain value type from type without value_type");
+    };
+
+    template <typename T>
+    struct value_type_of_impl<T, detail::void_t<typename T::_traits::_value_type>>
+    {
+      using type = typename T::_traits::_value_type;
+    };
+  }
+  template <typename T>
+  using value_type_of = typename detail::value_type_of_impl<T>::type;
+
+  // data types
+  struct boolean;
+  template <typename T>
+  using is_boolean_t = std::is_same<value_type_of<T>, boolean>;
+
+  struct day_point;
+  template <typename T>
+  using is_day_point_t = std::is_same<value_type_of<T>, day_point>;
+
+  struct floating_point;
+  template <typename T>
+  using is_floating_point_t = std::is_same<value_type_of<T>, floating_point>;
+
+  struct integral;
+  template <typename T>
+  using is_integral_t = std::is_same<value_type_of<T>, integral>;
+
+  struct text;
+  template <typename T>
+  using is_text_t = std::is_same<value_type_of<T>, text>;
+
+  struct time_point;
+  template <typename T>
+  using is_time_point_t = std::is_same<value_type_of<T>, time_point>;
+
+  // joined data type
+  template <typename T>
+  using is_numeric_t = logic::any_t<is_integral_t<T>::value, is_floating_point_t<T>::value>;
+
+  template <typename T>
+  using is_day_or_time_point_t = logic::any_t<is_day_point_t<T>::value, is_time_point_t<T>::value>;
+
   namespace tag
   {
     struct can_be_null
@@ -62,45 +112,10 @@ namespace sqlpp
   template <typename T>
   using column_spec_can_be_null_t = typename detail::column_spec_can_be_null_impl<T>::type;
 
-#define SQLPP_VALUE_TYPE_GENERATOR(name)                                                            \
-  struct name;                                                                                      \
-  namespace detail                                                                                  \
-  {                                                                                                 \
-    template <typename T, typename Enable = void>                                                   \
-    struct is_##name##_impl                                                                         \
-    {                                                                                               \
-      using type = std::false_type;                                                                 \
-    };                                                                                              \
-    template <typename T>                                                                           \
-    struct is_##name##_impl<                                                                        \
-        T,                                                                                          \
-        typename std::enable_if<std::is_same<name, typename T::_traits::_value_type>::value>::type> \
-    {                                                                                               \
-      using type = std::true_type;                                                                  \
-    };                                                                                              \
-  }                                                                                                 \
-  template <typename T>                                                                             \
-  using is_##name##_t = typename detail::is_##name##_impl<T>::type;
-
-  SQLPP_VALUE_TYPE_GENERATOR(boolean)
-  SQLPP_VALUE_TYPE_GENERATOR(day_point)
-  SQLPP_VALUE_TYPE_GENERATOR(time_point)
-  SQLPP_VALUE_TYPE_GENERATOR(integral)
-  SQLPP_VALUE_TYPE_GENERATOR(floating_point)
-  template <typename T>
-  using is_numeric_t = logic::any_t<is_integral_t<T>::value, is_floating_point_t<T>::value>;
-
-  template <typename T>
-  using is_day_or_time_point_t = logic::any_t<is_day_point_t<T>::value, is_time_point_t<T>::value>;
-
-  SQLPP_VALUE_TYPE_GENERATOR(text)
-
 #define SQLPP_VALUE_TRAIT_GENERATOR(name)                                                                   \
   namespace tag                                                                                             \
   {                                                                                                         \
-    struct name                                                                                             \
-    {                                                                                                       \
-    };                                                                                                      \
+    struct name;                                                                                            \
   }                                                                                                         \
   namespace detail                                                                                          \
   {                                                                                                         \
@@ -186,9 +201,6 @@ namespace sqlpp
   template <typename Database>
   using is_database =
       typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
-
-  template <typename T>
-  using value_type_of = typename T::_traits::_value_type;
 
   template <typename T>
   using cpp_value_type_of = typename value_type_of<T>::_cpp_value_type;
