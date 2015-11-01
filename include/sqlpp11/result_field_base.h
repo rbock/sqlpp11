@@ -31,21 +31,18 @@
 #include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/alias_operators.h>
 #include <sqlpp11/result_field.h>
+#include <sqlpp11/exception.h>
+#include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
-  template <typename Field>
-  struct result_field_base_t
+  template <typename Db, typename FieldSpec, typename StorageType = typename value_type_of<FieldSpec>::_cpp_value_type>
+  struct result_field_base
   {
-    static_assert(wrong_t<result_field_base_t>::value, "Invalid argument for result_field_base");
-  };
-
-  template <typename ValueType, typename Db, typename FieldSpec>
-  struct result_field_base_t<result_field_t<ValueType, Db, FieldSpec>>
-  {
-    using _derived_t = result_field_t<ValueType, Db, FieldSpec>;
-    using _field_spec_t = FieldSpec;
     using _db_t = Db;
+    using _field_spec_t = FieldSpec;
+    using _cpp_value_type = typename value_type_of<FieldSpec>::_cpp_value_type;
+    using _cpp_storage_type = StorageType;
 
     static constexpr bool _null_is_trivial =
         column_spec_can_be_null_t<_field_spec_t>::value and
@@ -58,10 +55,74 @@ namespace sqlpp
     using _nodes = detail::type_vector<>;
     using _can_be_null = column_spec_can_be_null_t<_field_spec_t>;
 
-    operator cpp_value_type_of<_field_spec_t>() const
+    result_field_base() : _is_valid{false}, _is_null{true}, _value{}
     {
-      return static_cast<const _derived_t&>(*this).value();
     }
+
+    bool operator==(const _cpp_value_type& rhs) const
+    {
+      return value() == rhs;
+    }
+
+    bool operator!=(const _cpp_value_type& rhs) const
+    {
+      return not operator==(rhs);
+    }
+
+    void _validate()
+    {
+      _is_valid = true;
+    }
+
+    void _invalidate()
+    {
+      _is_valid = false;
+      _is_null = true;
+      _value = {};
+    }
+
+    bool is_null() const
+    {
+      if (not _is_valid)
+        throw exception("accessing is_null in non-existing row");
+      return _is_null;
+    }
+
+    bool _is_trivial() const
+    {
+      if (not _is_valid)
+        throw exception("accessing is_null in non-existing row");
+
+      return value() == _cpp_storage_type{};
+    }
+
+    _cpp_value_type value() const
+    {
+      if (not _is_valid)
+        throw exception("accessing value in non-existing row");
+
+      if (_is_null)
+      {
+        if (not _null_is_trivial)
+        {
+          throw exception("accessing value of NULL field");
+        }
+        else
+        {
+          return {};
+        }
+      }
+      return _value;
+    }
+
+    operator _cpp_value_type() const
+    {
+      return value();
+    }
+
+    bool _is_valid;
+    bool _is_null;
+    _cpp_storage_type _value;
   };
 }
 #endif

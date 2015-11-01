@@ -33,6 +33,7 @@
 
 namespace sqlpp
 {
+#warning : The value type IS in the FieldSpec!
   template <typename ValueType, typename Db, typename FieldSpec>
   struct result_field_t
   {
