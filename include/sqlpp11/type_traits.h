@@ -62,6 +62,39 @@ namespace sqlpp
   template <typename T>
   using column_spec_can_be_null_t = typename detail::column_spec_can_be_null_impl<T>::type;
 
+#define SQLPP_VALUE_TYPE_GENERATOR(name)                                                            \
+  struct name;                                                                                      \
+  namespace detail                                                                                  \
+  {                                                                                                 \
+    template <typename T, typename Enable = void>                                                   \
+    struct is_##name##_impl                                                                         \
+    {                                                                                               \
+      using type = std::false_type;                                                                 \
+    };                                                                                              \
+    template <typename T>                                                                           \
+    struct is_##name##_impl<                                                                        \
+        T,                                                                                          \
+        typename std::enable_if<std::is_same<name, typename T::_traits::_value_type>::value>::type> \
+    {                                                                                               \
+      using type = std::true_type;                                                                  \
+    };                                                                                              \
+  }                                                                                                 \
+  template <typename T>                                                                             \
+  using is_##name##_t = typename detail::is_##name##_impl<T>::type;
+
+  SQLPP_VALUE_TYPE_GENERATOR(boolean)
+  SQLPP_VALUE_TYPE_GENERATOR(day_point)
+  SQLPP_VALUE_TYPE_GENERATOR(time_point)
+  SQLPP_VALUE_TYPE_GENERATOR(integral)
+  SQLPP_VALUE_TYPE_GENERATOR(floating_point)
+  template <typename T>
+  using is_numeric_t = logic::any_t<is_integral_t<T>::value, is_floating_point_t<T>::value>;
+
+  template <typename T>
+  using is_day_or_time_point_t = logic::any_t<is_day_point_t<T>::value, is_time_point_t<T>::value>;
+
+  SQLPP_VALUE_TYPE_GENERATOR(text)
+
 #define SQLPP_VALUE_TRAIT_GENERATOR(name)                                                                   \
   namespace tag                                                                                             \
   {                                                                                                         \
@@ -87,22 +120,8 @@ namespace sqlpp
   template <typename T>                                                                                     \
   using name##_t = typename detail::name##_impl<T>::type;
 
-  SQLPP_VALUE_TRAIT_GENERATOR(is_value_type)
   SQLPP_VALUE_TRAIT_GENERATOR(is_sql_null)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_boolean)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_date)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_date_time)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_integral)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_floating_point)
-  template <typename T>
-  using is_numeric_t = logic::any_t<detail::is_element_of<tag::is_integral, typename T::_traits::_tags>::value,
-                                    detail::is_element_of<tag::is_floating_point, typename T::_traits::_tags>::value>;
-
-  template <typename T>
-  using is_time_point_t = logic::any_t<detail::is_element_of<tag::is_date, typename T::_traits::_tags>::value,
-                                       detail::is_element_of<tag::is_date_time, typename T::_traits::_tags>::value>;
-
-  SQLPP_VALUE_TRAIT_GENERATOR(is_text)
+  SQLPP_VALUE_TRAIT_GENERATOR(is_value_type)
   SQLPP_VALUE_TRAIT_GENERATOR(is_wrapped_value)
   SQLPP_VALUE_TRAIT_GENERATOR(is_selectable)
   SQLPP_VALUE_TRAIT_GENERATOR(is_expression)
@@ -301,7 +320,7 @@ namespace sqlpp
   struct make_traits
   {
     using _value_type = ValueType;
-    using _tags = detail::make_type_set_t<typename ValueType::_tag, Tags...>;
+    using _tags = detail::make_type_set_t<Tags...>;
   };
 
   struct aggregate_function

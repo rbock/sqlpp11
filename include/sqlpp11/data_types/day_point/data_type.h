@@ -34,14 +34,13 @@ namespace sqlpp
 {
   struct day_point
   {
-    using _traits = make_traits<day_point, tag::is_value_type>;
-    using _tag = tag::is_date;
+    using _traits = make_traits<void, tag::is_value_type>;
     using _cpp_value_type = ::sqlpp::chrono::day_point;
 
     template <typename T>
-    using _is_valid_operand = is_time_point_t<T>;
+    using _is_valid_operand = is_day_or_time_point_t<T>;
     template <typename T>
-    using _is_valid_assignment_operand = is_date_t<T>;
+    using _is_valid_assignment_operand = is_day_point_t<T>;
   };
 }
 #endif

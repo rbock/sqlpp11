@@ -33,8 +33,7 @@ namespace sqlpp
 {
   struct text
   {
-    using _traits = make_traits<text, tag::is_value_type>;
-    using _tag = tag::is_text;
+    using _traits = make_traits<void, tag::is_value_type>;
     using _cpp_value_type = std::string;
 
     template <typename T>
