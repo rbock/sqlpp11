@@ -27,39 +27,38 @@
 #ifndef SQLPP_BOOLEAN_EXPRESSION_OPERATORS_H
 #define SQLPP_BOOLEAN_EXPRESSION_OPERATORS_H
 
+#include <sqlpp11/operators.h>
+#include <sqlpp11/expression_return_types.h>
+#include <sqlpp11/operand_check.h>
 #include <sqlpp11/expression_operators.h>
 #include <sqlpp11/basic_expression_operators.h>
 
 namespace sqlpp
 {
-  template <typename Base>
-  struct expression_operators<Base, boolean> : public basic_expression_operators<Base, boolean>
+  template <typename Expression>
+  struct expression_operators<Expression, boolean> : public basic_expression_operators<Expression, boolean>
   {
-    template <typename T>
-    using _is_valid_operand = is_valid_operand<boolean, T>;
+  };
 
-    template <typename T>
-    logical_and_t<Base, wrap_operand_t<T>> operator and(T t) const
-    {
-      using rhs = wrap_operand_t<T>;
-      static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+  template <typename L, typename R>
+  struct return_type_and<L, R, binary_operand_check_t<L, is_boolean_t, R, is_boolean_t>>
+  {
+    using check = consistent_t;
+    using type = logical_and_t<wrap_operand_t<L>, wrap_operand_t<R>>;
+  };
 
-      return {*static_cast<const Base*>(this), rhs{t}};
-    }
+  template <typename L, typename R>
+  struct return_type_or<L, R, binary_operand_check_t<L, is_boolean_t, R, is_boolean_t>>
+  {
+    using check = consistent_t;
+    using type = logical_or_t<wrap_operand_t<L>, wrap_operand_t<R>>;
+  };
 
-    template <typename T>
-    logical_or_t<Base, wrap_operand_t<T>> operator or(T t) const
-    {
-      using rhs = wrap_operand_t<T>;
-      static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
-
-      return {*static_cast<const Base*>(this), rhs{t}};
-    }
-
-    logical_not_t<Base> operator not() const
-    {
-      return {*static_cast<const Base*>(this)};
-    }
+  template <typename T>
+  struct return_type_not<T, unary_operand_check_t<T, is_boolean_t>>
+  {
+    using check = consistent_t;
+    using type = logical_not_t<wrap_operand_t<T>>;
   };
 }
 

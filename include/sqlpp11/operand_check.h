@@ -24,21 +24,49 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_BOOLEAN_DATA_TYPE_H
-#define SQLPP_BOOLEAN_DATA_TYPE_H
+#ifndef SQLPP_OPERAND_CHECK_H
+#define SQLPP_OPERAND_CHECK_H
 
-#include <sqlpp11/type_traits.h>
+#include <sqlpp11/wrap_operand.h>
+#include <sqlpp11/detail/enable_if.h>
 
 namespace sqlpp
 {
-  struct boolean
+  template <typename T, template <typename> class Pred, typename Enable = void>
+  struct unary_operand_check
   {
-    // using _traits = make_traits<void, tag::is_value_type>;
-    using _cpp_value_type = bool;
-
-    template <typename T>
-    using _is_valid_operand = is_boolean_t<T>;
   };
+
+  template <typename T, template <typename> class Pred>
+  struct unary_operand_check<T, Pred, detail::enable_if_t<Pred<wrap_operand_t<T>>::value>>
+  {
+    using type = void;
+  };
+
+  template <typename T, template <typename> class Pred>
+  using unary_operand_check_t = typename unary_operand_check<T, Pred>::type;
+
+  template <typename L,
+            template <typename> class LPred,
+            typename R,
+            template <typename> class RPred,
+            typename Enable = void>
+  struct binary_operand_check
+  {
+  };
+
+  template <typename L, template <typename> class LPred, typename R, template <typename> class RPred>
+  struct binary_operand_check<L,
+                              LPred,
+                              R,
+                              RPred,
+                              detail::enable_if_t<LPred<wrap_operand_t<L>>::value and RPred<wrap_operand_t<R>>::value>>
+  {
+    using type = void;
+  };
+
+  template <typename L, template <typename> class LPred, typename R, template <typename> class RPred>
+  using binary_operand_check_t = typename binary_operand_check<L, LPred, R, RPred>::type;
 }
 
 #endif

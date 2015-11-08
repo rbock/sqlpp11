@@ -24,21 +24,32 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_BOOLEAN_DATA_TYPE_H
-#define SQLPP_BOOLEAN_DATA_TYPE_H
+#ifndef SQLPP_OPERATORS_H
+#define SQLPP_OPERATORS_H
 
-#include <sqlpp11/type_traits.h>
+#include <sqlpp11/wrap_operand.h>
+#include <sqlpp11/expression_return_types.h>
 
 namespace sqlpp
 {
-  struct boolean
+  template <typename L, typename R>
+  auto operator and(const L& l, const R& r) -> return_type_and_t<L, R>
   {
-    // using _traits = make_traits<void, tag::is_value_type>;
-    using _cpp_value_type = bool;
-
-    template <typename T>
-    using _is_valid_operand = is_boolean_t<T>;
-  };
+    return_type_and<L, R>::check::_();
+    return {wrap_operand_t<L>{l}, wrap_operand_t<R>{r}};
+  }
+  template <typename L, typename R>
+  auto operator or(const L& l, const R& r) -> return_type_or_t<L, R>
+  {
+    return_type_or<L, R>::check::_();
+    return {wrap_operand_t<L>{l}, wrap_operand_t<R>{r}};
+  }
+  template <typename T>
+  auto operator not(const T& t) -> return_type_not_t<T>
+  {
+    return_type_not<T>::check::_();
+    return {wrap_operand_t<T>{t}};
+  }
 }
 
 #endif

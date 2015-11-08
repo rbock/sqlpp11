@@ -24,21 +24,42 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_BOOLEAN_DATA_TYPE_H
-#define SQLPP_BOOLEAN_DATA_TYPE_H
+#ifndef SQLPP_EXPRESSION_RETURN_TYPES_H
+#define SQLPP_EXPRESSION_RETURN_TYPES_H
 
-#include <sqlpp11/type_traits.h>
+#include <sqlpp11/bad_expression.h>
 
 namespace sqlpp
 {
-  struct boolean
+  template <typename L, typename R, typename Enable = void>
+  struct return_type_and
   {
-    // using _traits = make_traits<void, tag::is_value_type>;
-    using _cpp_value_type = bool;
-
-    template <typename T>
-    using _is_valid_operand = is_boolean_t<T>;
+    using check = assert_valid_operands;
+    using type = bad_expression<boolean>;
   };
+
+  template <typename L, typename R>
+  using return_type_and_t = typename return_type_and<L, R>::type;
+
+  template <typename L, typename R, typename Enable = void>
+  struct return_type_or
+  {
+    using check = assert_valid_operands;
+    using type = bad_expression<boolean>;
+  };
+
+  template <typename L, typename R>
+  using return_type_or_t = typename return_type_or<L, R>::type;
+
+  template <typename T, typename Enable = void>
+  struct return_type_not
+  {
+    using check = assert_valid_operands;
+    using type = bad_expression<boolean>;
+  };
+
+  template <typename T>
+  using return_type_not_t = typename return_type_not<T>::type;
 }
 
 #endif

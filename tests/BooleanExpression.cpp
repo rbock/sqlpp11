@@ -33,9 +33,9 @@ int BooleanExpression(int, char**)
   MockDb db = {};
   test::TabBar t;
 
-  auto x = boolean_expression(db, t.alpha == 7);
+  auto x = boolean_expression(db, not(t.alpha == 7));
   x = sqlpp::boolean_expression<MockDb>(t.beta.like("%cheesecake"));
-  x = x and boolean_expression(db, t.gamma);
+  x = false or (x and boolean_expression(db, t.gamma));
 
   db(select(t.alpha).from(t).where(x));
 

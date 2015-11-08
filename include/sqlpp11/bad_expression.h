@@ -24,20 +24,34 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_BOOLEAN_DATA_TYPE_H
-#define SQLPP_BOOLEAN_DATA_TYPE_H
+#ifndef SQLPP_BAD_EXPRESSION_H
+#define SQLPP_BAD_EXPRESSION_H
 
+#include <sqlpp11/portable_static_assert.h>
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
-  struct boolean
-  {
-    // using _traits = make_traits<void, tag::is_value_type>;
-    using _cpp_value_type = bool;
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_valid_operands, "Invalid operand(s)");
 
-    template <typename T>
-    using _is_valid_operand = is_boolean_t<T>;
+  template <typename ValueType>
+  struct bad_expression
+  {
+    template <typename... T>
+    bad_expression(T&&...)
+    {
+    }
+    using _traits = make_traits<ValueType, tag::is_expression>;
+    using _nodes = detail::type_vector<>;
+  };
+
+  template <typename Context, typename ValueType>
+  struct serializer_t<Context, bad_expression<ValueType>>
+  {
+    using _serialize_check = assert_valid_operands;
+    using T = bad_expression<ValueType>;
+
+    static Context& _(const T&, Context&);
   };
 }
 
