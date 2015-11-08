@@ -34,7 +34,7 @@ namespace sqlpp
 {
   struct day_point
   {
-    using _traits = make_traits<void, tag::is_value_type>;
+    using _traits = make_traits<day_point, tag::is_value_type>;
     using _cpp_value_type = ::sqlpp::chrono::day_point;
 
     template <typename T>

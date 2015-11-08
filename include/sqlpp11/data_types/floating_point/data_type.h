@@ -33,7 +33,7 @@ namespace sqlpp
 {
   struct floating_point
   {
-    using _traits = make_traits<void, tag::is_value_type>;
+    using _traits = make_traits<floating_point, tag::is_value_type>;
     using _cpp_value_type = double;
 
     template <typename T>

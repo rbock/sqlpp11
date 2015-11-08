@@ -218,6 +218,27 @@ namespace sqlpp
       check_rhs_in_arguments_t<ValueType, wrap_operand_t<T>...>::_();
       return {*static_cast<const Expr*>(this), wrap_operand_t<T>{t}...};
     }
+
+    template <typename Defer = void>
+    auto operator not() const -> return_type_not_t<Expr, Defer>
+    {
+      return_type_not<Expr, Defer>::check::_();
+      return {*static_cast<const Expr*>(this)};
+    }
+
+    template <typename R>
+    auto operator and(const R& r) const -> return_type_and_t<Expr, R>
+    {
+      return_type_and<Expr, R>::check::_();
+      return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
+    }
+
+    template <typename R>
+    auto operator or(const R& r) const -> return_type_or_t<Expr, R>
+    {
+      return_type_or<Expr, R>::check::_();
+      return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
+    }
   };
 }
 

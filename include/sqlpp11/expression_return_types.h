@@ -51,15 +51,15 @@ namespace sqlpp
   template <typename L, typename R>
   using return_type_or_t = typename return_type_or<L, R>::type;
 
-  template <typename T, typename Enable = void>
+  template <typename T, typename Defer, typename Enable = void>
   struct return_type_not
   {
     using check = assert_valid_operands;
     using type = bad_expression<boolean>;
   };
 
-  template <typename T>
-  using return_type_not_t = typename return_type_not<T>::type;
+  template <typename T, typename Defer>
+  using return_type_not_t = typename return_type_not<T, Defer>::type;
 }
 
 #endif

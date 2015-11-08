@@ -27,7 +27,7 @@
 #ifndef SQLPP_BOOLEAN_EXPRESSION_OPERATORS_H
 #define SQLPP_BOOLEAN_EXPRESSION_OPERATORS_H
 
-#include <sqlpp11/operators.h>
+//#include <sqlpp11/operators.h>
 #include <sqlpp11/expression_return_types.h>
 #include <sqlpp11/operand_check.h>
 #include <sqlpp11/expression_operators.h>
@@ -54,8 +54,8 @@ namespace sqlpp
     using type = logical_or_t<wrap_operand_t<L>, wrap_operand_t<R>>;
   };
 
-  template <typename T>
-  struct return_type_not<T, unary_operand_check_t<T, is_boolean_t>>
+  template <typename T, typename Defer>
+  struct return_type_not<T, Defer, unary_operand_check_t<T, is_boolean_t>>
   {
     using check = consistent_t;
     using type = logical_not_t<wrap_operand_t<T>>;
