@@ -239,6 +239,48 @@ namespace sqlpp
       return_type_or<Expr, R>::check::_();
       return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
     }
+
+    template <typename R>
+    auto operator+(const R& r) const -> return_type_plus_t<Expr, R>
+    {
+      return_type_plus<Expr, R>::check::_();
+      return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
+    }
+
+    template <typename R>
+    auto operator-(const R& r) const -> return_type_minus_t<Expr, R>
+    {
+      return_type_minus<Expr, R>::check::_();
+      return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
+    }
+
+    template <typename R>
+    auto operator*(const R& r) const -> return_type_multiplies_t<Expr, R>
+    {
+      return_type_multiplies<Expr, R>::check::_();
+      return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
+    }
+
+    template <typename R>
+    auto operator/(const R& r) const -> return_type_divides_t<Expr, R>
+    {
+      return_type_divides<Expr, R>::check::_();
+      return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
+    }
+
+    template <typename Defer = void>
+    auto operator+() const -> return_type_unary_plus_t<Expr, Defer>
+    {
+      return_type_unary_plus<Expr, Defer>::check::_();
+      return {*static_cast<const Expr*>(this)};
+    }
+
+    template <typename Defer = void>
+    auto operator-() const -> return_type_unary_minus_t<Expr, Defer>
+    {
+      return_type_unary_minus<Expr, Defer>::check::_();
+      return {*static_cast<const Expr*>(this)};
+    }
   };
 }
 

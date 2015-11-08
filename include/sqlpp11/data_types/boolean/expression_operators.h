@@ -27,7 +27,6 @@
 #ifndef SQLPP_BOOLEAN_EXPRESSION_OPERATORS_H
 #define SQLPP_BOOLEAN_EXPRESSION_OPERATORS_H
 
-//#include <sqlpp11/operators.h>
 #include <sqlpp11/expression_return_types.h>
 #include <sqlpp11/operand_check.h>
 #include <sqlpp11/expression_operators.h>

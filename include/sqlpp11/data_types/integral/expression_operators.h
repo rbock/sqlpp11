@@ -27,6 +27,8 @@
 #ifndef SQLPP_INTEGRAL_EXPRESSION_OPERATORS_H
 #define SQLPP_INTEGRAL_EXPRESSION_OPERATORS_H
 
+#include <sqlpp11/expression_return_types.h>
+#include <sqlpp11/operand_check.h>
 #include <sqlpp11/expression_operators.h>
 #include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/value_type.h>
@@ -35,84 +37,80 @@
 
 namespace sqlpp
 {
-  template <typename Base>
-  struct expression_operators<Base, integral> : public basic_expression_operators<Base, integral>
+  template <typename Expression>
+  struct expression_operators<Expression, integral> : public basic_expression_operators<Expression, integral>
   {
     template <typename T>
     using _is_valid_operand = is_valid_operand<integral, T>;
 
     template <typename T>
-    plus_t<Base, value_type_t<T>, wrap_operand_t<T>> operator+(T t) const
+    modulus_t<Expression, wrap_operand_t<T>> operator%(T t) const
     {
       using rhs = wrap_operand_t<T>;
       static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
 
-      return {*static_cast<const Base*>(this), {t}};
+      return {*static_cast<const Expression*>(this), {t}};
     }
 
     template <typename T>
-    minus_t<Base, value_type_t<T>, wrap_operand_t<T>> operator-(T t) const
+    bitwise_and_t<Expression, value_type_t<T>, wrap_operand_t<T>> operator&(T t) const
     {
       using rhs = wrap_operand_t<T>;
       static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
 
-      return {*static_cast<const Base*>(this), {t}};
+      return {*static_cast<const Expression*>(this), {t}};
     }
 
     template <typename T>
-    multiplies_t<Base, value_type_t<T>, wrap_operand_t<T>> operator*(T t) const
+    bitwise_or_t<Expression, value_type_t<T>, wrap_operand_t<T>> operator|(T t) const
     {
       using rhs = wrap_operand_t<T>;
       static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
 
-      return {*static_cast<const Base*>(this), {t}};
+      return {*static_cast<const Expression*>(this), {t}};
     }
+  };
 
-    template <typename T>
-    divides_t<Base, wrap_operand_t<T>> operator/(T t) const
-    {
-      using rhs = wrap_operand_t<T>;
-      static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+  template <typename L, typename R>
+  struct return_type_plus<L, R, binary_operand_check_t<L, is_integral_t, R, is_numeric_t>>
+  {
+    using check = consistent_t;
+    using type = plus_t<wrap_operand_t<L>, value_type_of<wrap_operand_t<R>>, wrap_operand_t<R>>;
+  };
 
-      return {*static_cast<const Base*>(this), {t}};
-    }
+  template <typename L, typename R>
+  struct return_type_minus<L, R, binary_operand_check_t<L, is_integral_t, R, is_numeric_t>>
+  {
+    using check = consistent_t;
+    using type = minus_t<wrap_operand_t<L>, value_type_of<wrap_operand_t<R>>, wrap_operand_t<R>>;
+  };
 
-    template <typename T>
-    modulus_t<Base, wrap_operand_t<T>> operator%(T t) const
-    {
-      using rhs = wrap_operand_t<T>;
-      static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
+  template <typename L, typename R>
+  struct return_type_multiplies<L, R, binary_operand_check_t<L, is_integral_t, R, is_numeric_t>>
+  {
+    using check = consistent_t;
+    using type = multiplies_t<wrap_operand_t<L>, value_type_of<wrap_operand_t<R>>, wrap_operand_t<R>>;
+  };
 
-      return {*static_cast<const Base*>(this), {t}};
-    }
+  template <typename L, typename R>
+  struct return_type_divides<L, R, binary_operand_check_t<L, is_integral_t, R, is_numeric_t>>
+  {
+    using check = consistent_t;
+    using type = divides_t<wrap_operand_t<L>, wrap_operand_t<R>>;
+  };
 
-    unary_plus_t<integral, Base> operator+() const
-    {
-      return {*static_cast<const Base*>(this)};
-    }
+  template <typename T, typename Defer>
+  struct return_type_unary_plus<T, Defer, unary_operand_check_t<T, is_integral_t>>
+  {
+    using check = consistent_t;
+    using type = unary_plus_t<integral, wrap_operand_t<T>>;
+  };
 
-    unary_minus_t<integral, Base> operator-() const
-    {
-      return {*static_cast<const Base*>(this)};
-    }
-
-    template <typename T>
-    bitwise_and_t<Base, value_type_t<T>, wrap_operand_t<T>> operator&(T t) const
-    {
-      using rhs = wrap_operand_t<T>;
-      static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
-
-      return {*static_cast<const Base*>(this), {t}};
-    }
-
-    template <typename T>
-    bitwise_or_t<Base, value_type_t<T>, wrap_operand_t<T>> operator|(T t) const
-    {
-      using rhs = wrap_operand_t<T>;
-      static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
-
-      return {*static_cast<const Base*>(this), {t}};
-    }
+  template <typename T, typename Defer>
+  struct return_type_unary_minus<T, Defer, unary_operand_check_t<T, is_integral_t>>
+  {
+    using check = consistent_t;
+    using type = unary_minus_t<integral, wrap_operand_t<T>>;
   };
 }
 #endif

@@ -60,6 +60,66 @@ namespace sqlpp
 
   template <typename T, typename Defer>
   using return_type_not_t = typename return_type_not<T, Defer>::type;
+
+  template <typename L, typename R, typename Enable = void>
+  struct return_type_plus
+  {
+    using check = assert_valid_operands;
+    using type = bad_expression<boolean>;
+  };
+
+  template <typename L, typename R>
+  using return_type_plus_t = typename return_type_plus<L, R>::type;
+
+  template <typename L, typename R, typename Enable = void>
+  struct return_type_minus
+  {
+    using check = assert_valid_operands;
+    using type = bad_expression<boolean>;
+  };
+
+  template <typename L, typename R>
+  using return_type_minus_t = typename return_type_minus<L, R>::type;
+
+  template <typename L, typename R, typename Enable = void>
+  struct return_type_multiplies
+  {
+    using check = assert_valid_operands;
+    using type = bad_expression<boolean>;
+  };
+
+  template <typename L, typename R>
+  using return_type_multiplies_t = typename return_type_multiplies<L, R>::type;
+
+  template <typename L, typename R, typename Enable = void>
+  struct return_type_divides
+  {
+    using check = assert_valid_operands;
+    using type = bad_expression<boolean>;
+  };
+
+  template <typename L, typename R>
+  using return_type_divides_t = typename return_type_divides<L, R>::type;
+
+  template <typename T, typename Defer, typename Enable = void>
+  struct return_type_unary_plus
+  {
+    using check = assert_valid_operands;
+    using type = bad_expression<boolean>;
+  };
+
+  template <typename T, typename Defer>
+  using return_type_unary_plus_t = typename return_type_unary_plus<T, Defer>::type;
+
+  template <typename T, typename Defer, typename Enable = void>
+  struct return_type_unary_minus
+  {
+    using check = assert_valid_operands;
+    using type = bad_expression<boolean>;
+  };
+
+  template <typename T, typename Defer>
+  using return_type_unary_minus_t = typename return_type_unary_minus<T, Defer>::type;
 }
 
 #endif
