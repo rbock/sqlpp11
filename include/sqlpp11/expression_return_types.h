@@ -37,9 +37,17 @@ namespace sqlpp
     using check = assert_valid_operands;
     using type = bad_expression<boolean>;
   };
-
   template <typename L, typename R>
   using return_type_and_t = typename return_type_and<L, R>::type;
+
+  template <typename L, typename R, typename Enable = void>
+  struct return_type_bitwise_and
+  {
+    using check = assert_valid_operands;
+    using type = bad_expression<boolean>;
+  };
+  template <typename L, typename R>
+  using return_type_bitwise_and_t = typename return_type_bitwise_and<L, R>::type;
 
   template <typename L, typename R, typename Enable = void>
   struct return_type_or
@@ -47,9 +55,17 @@ namespace sqlpp
     using check = assert_valid_operands;
     using type = bad_expression<boolean>;
   };
-
   template <typename L, typename R>
   using return_type_or_t = typename return_type_or<L, R>::type;
+
+  template <typename L, typename R, typename Enable = void>
+  struct return_type_bitwise_or
+  {
+    using check = assert_valid_operands;
+    using type = bad_expression<boolean>;
+  };
+  template <typename L, typename R>
+  using return_type_bitwise_or_t = typename return_type_bitwise_or<L, R>::type;
 
   template <typename T, typename Defer, typename Enable = void>
   struct return_type_not
@@ -57,7 +73,6 @@ namespace sqlpp
     using check = assert_valid_operands;
     using type = bad_expression<boolean>;
   };
-
   template <typename T, typename Defer>
   using return_type_not_t = typename return_type_not<T, Defer>::type;
 
@@ -67,7 +82,6 @@ namespace sqlpp
     using check = assert_valid_operands;
     using type = bad_expression<boolean>;
   };
-
   template <typename L, typename R>
   using return_type_plus_t = typename return_type_plus<L, R>::type;
 
@@ -77,7 +91,6 @@ namespace sqlpp
     using check = assert_valid_operands;
     using type = bad_expression<boolean>;
   };
-
   template <typename L, typename R>
   using return_type_minus_t = typename return_type_minus<L, R>::type;
 
@@ -87,7 +100,6 @@ namespace sqlpp
     using check = assert_valid_operands;
     using type = bad_expression<boolean>;
   };
-
   template <typename L, typename R>
   using return_type_multiplies_t = typename return_type_multiplies<L, R>::type;
 
@@ -97,9 +109,17 @@ namespace sqlpp
     using check = assert_valid_operands;
     using type = bad_expression<boolean>;
   };
-
   template <typename L, typename R>
   using return_type_divides_t = typename return_type_divides<L, R>::type;
+
+  template <typename L, typename R, typename Enable = void>
+  struct return_type_modulus
+  {
+    using check = assert_valid_operands;
+    using type = bad_expression<boolean>;
+  };
+  template <typename L, typename R>
+  using return_type_modulus_t = typename return_type_modulus<L, R>::type;
 
   template <typename T, typename Defer, typename Enable = void>
   struct return_type_unary_plus
@@ -107,7 +127,6 @@ namespace sqlpp
     using check = assert_valid_operands;
     using type = bad_expression<boolean>;
   };
-
   template <typename T, typename Defer>
   using return_type_unary_plus_t = typename return_type_unary_plus<T, Defer>::type;
 
@@ -117,7 +136,6 @@ namespace sqlpp
     using check = assert_valid_operands;
     using type = bad_expression<boolean>;
   };
-
   template <typename T, typename Defer>
   using return_type_unary_minus_t = typename return_type_unary_minus<T, Defer>::type;
 }

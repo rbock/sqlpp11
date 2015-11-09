@@ -234,6 +234,20 @@ namespace sqlpp
     }
 
     template <typename R>
+    auto operator&(const R& r) const -> return_type_bitwise_and_t<Expr, R>
+    {
+      return_type_bitwise_and<Expr, R>::check::_();
+      return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
+    }
+
+    template <typename R>
+    auto operator|(const R& r) const -> return_type_bitwise_or_t<Expr, R>
+    {
+      return_type_bitwise_or<Expr, R>::check::_();
+      return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
+    }
+
+    template <typename R>
     auto operator or(const R& r) const -> return_type_or_t<Expr, R>
     {
       return_type_or<Expr, R>::check::_();
@@ -265,6 +279,13 @@ namespace sqlpp
     auto operator/(const R& r) const -> return_type_divides_t<Expr, R>
     {
       return_type_divides<Expr, R>::check::_();
+      return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
+    }
+
+    template <typename R>
+    auto operator%(const R& r) const -> return_type_modulus_t<Expr, R>
+    {
+      return_type_modulus<Expr, R>::check::_();
       return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
     }
 

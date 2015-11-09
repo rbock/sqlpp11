@@ -40,35 +40,6 @@ namespace sqlpp
   template <typename Expression>
   struct expression_operators<Expression, integral> : public basic_expression_operators<Expression, integral>
   {
-    template <typename T>
-    using _is_valid_operand = is_valid_operand<integral, T>;
-
-    template <typename T>
-    modulus_t<Expression, wrap_operand_t<T>> operator%(T t) const
-    {
-      using rhs = wrap_operand_t<T>;
-      static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
-
-      return {*static_cast<const Expression*>(this), {t}};
-    }
-
-    template <typename T>
-    bitwise_and_t<Expression, value_type_t<T>, wrap_operand_t<T>> operator&(T t) const
-    {
-      using rhs = wrap_operand_t<T>;
-      static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
-
-      return {*static_cast<const Expression*>(this), {t}};
-    }
-
-    template <typename T>
-    bitwise_or_t<Expression, value_type_t<T>, wrap_operand_t<T>> operator|(T t) const
-    {
-      using rhs = wrap_operand_t<T>;
-      static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
-
-      return {*static_cast<const Expression*>(this), {t}};
-    }
   };
 
   template <typename L, typename R>
@@ -99,6 +70,13 @@ namespace sqlpp
     using type = divides_t<wrap_operand_t<L>, wrap_operand_t<R>>;
   };
 
+  template <typename L, typename R>
+  struct return_type_modulus<L, R, binary_operand_check_t<L, is_integral_t, R, is_integral_t>>
+  {
+    using check = consistent_t;
+    using type = modulus_t<wrap_operand_t<L>, wrap_operand_t<R>>;
+  };
+
   template <typename T, typename Defer>
   struct return_type_unary_plus<T, Defer, unary_operand_check_t<T, is_integral_t>>
   {
@@ -111,6 +89,20 @@ namespace sqlpp
   {
     using check = consistent_t;
     using type = unary_minus_t<integral, wrap_operand_t<T>>;
+  };
+
+  template <typename L, typename R>
+  struct return_type_bitwise_and<L, R, binary_operand_check_t<L, is_integral_t, R, is_numeric_t>>
+  {
+    using check = consistent_t;
+    using type = bitwise_and_t<wrap_operand_t<L>, value_type_of<wrap_operand_t<R>>, wrap_operand_t<R>>;
+  };
+
+  template <typename L, typename R>
+  struct return_type_bitwise_or<L, R, binary_operand_check_t<L, is_integral_t, R, is_numeric_t>>
+  {
+    using check = consistent_t;
+    using type = bitwise_or_t<wrap_operand_t<L>, value_type_of<wrap_operand_t<R>>, wrap_operand_t<R>>;
   };
 }
 #endif
