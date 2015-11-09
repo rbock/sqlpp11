@@ -92,17 +92,17 @@ namespace sqlpp
   };
 
   template <typename L, typename R>
-  struct return_type_bitwise_and<L, R, binary_operand_check_t<L, is_integral_t, R, is_numeric_t>>
+  struct return_type_bitwise_and<L, R, binary_operand_check_t<L, is_integral_t, R, is_integral_t>>
   {
     using check = consistent_t;
-    using type = bitwise_and_t<wrap_operand_t<L>, value_type_of<wrap_operand_t<R>>, wrap_operand_t<R>>;
+    using type = bitwise_and_t<wrap_operand_t<L>, integral, wrap_operand_t<R>>;
   };
 
   template <typename L, typename R>
-  struct return_type_bitwise_or<L, R, binary_operand_check_t<L, is_integral_t, R, is_numeric_t>>
+  struct return_type_bitwise_or<L, R, binary_operand_check_t<L, is_integral_t, R, is_integral_t>>
   {
     using check = consistent_t;
-    using type = bitwise_or_t<wrap_operand_t<L>, value_type_of<wrap_operand_t<R>>, wrap_operand_t<R>>;
+    using type = bitwise_or_t<wrap_operand_t<L>, integral, wrap_operand_t<R>>;
   };
 }
 #endif
