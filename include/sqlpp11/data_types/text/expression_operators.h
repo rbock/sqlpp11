@@ -40,29 +40,41 @@ namespace sqlpp
   template <typename Operand, typename Pattern>
   struct like_t;
 
-  template <typename Base>
-  struct expression_operators<Base, text> : public basic_expression_operators<Base, text>
+  template <typename T, typename Defer, typename Enable = void>
+  struct return_type_like
+  {
+    using check = assert_valid_operands;
+    using type = bad_expression<boolean>;
+  };
+  template <typename T, typename Defer>
+  using return_type_like_t = typename return_type_like<T, Defer>::type;
+
+  template <typename L, typename R>
+  struct return_type_like<L, R, binary_operand_check_t<L, is_text_t, R, is_text_t>>
+  {
+    using check = consistent_t;
+    using type = like_t<wrap_operand_t<L>, wrap_operand_t<R>>;
+  };
+
+  template <typename Expression>
+  struct expression_operators<Expression, text> : public basic_expression_operators<Expression, text>
   {
     template <typename T>
     using _is_valid_operand = is_valid_operand<text, T>;
 
-    template <typename T>
-    concat_t<Base, wrap_operand_t<T>> operator+(T t) const
+    template <typename R>
+    auto like(const R& r) const -> return_type_like_t<Expression, R>
     {
-      using rhs = wrap_operand_t<T>;
-      static_assert(_is_valid_operand<rhs>::value, "invalid rhs operand");
-
-      return {*static_cast<const Base*>(this), {t}};
+      return_type_like<Expression, R>::check::_();
+      return {*static_cast<const Expression*>(this), wrap_operand_t<R>{r}};
     }
+  };
 
-    template <typename T>
-    like_t<Base, wrap_operand_t<T>> like(T t) const
-    {
-      using rhs = wrap_operand_t<T>;
-      static_assert(_is_valid_operand<rhs>::value, "invalid argument for like()");
-
-      return {*static_cast<const Base*>(this), {t}};
-    }
+  template <typename L, typename R>
+  struct return_type_plus<L, R, binary_operand_check_t<L, is_text_t, R, is_text_t>>
+  {
+    using check = consistent_t;
+    using type = concat_t<wrap_operand_t<L>, wrap_operand_t<R>>;
   };
 }
 #endif

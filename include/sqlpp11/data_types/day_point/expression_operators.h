@@ -34,11 +34,9 @@
 
 namespace sqlpp
 {
-  template <typename Base>
-  struct expression_operators<Base, day_point> : public basic_expression_operators<Base, day_point>
+  template <typename Expression>
+  struct expression_operators<Expression, day_point> : public basic_expression_operators<Expression, day_point>
   {
-    template <typename T>
-    using _is_valid_operand = is_valid_operand<day_point, T>;
   };
 }
 #endif
