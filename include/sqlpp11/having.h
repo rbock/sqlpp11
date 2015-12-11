@@ -222,7 +222,7 @@ namespace sqlpp
           -> _new_statement_t<std::true_type, having_t<Database, Expressions...>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this),
-                having_data_t<_database_t, Expressions...>{expressions...}};
+                having_data_t<Database, Expressions...>{expressions...}};
       }
     };
   };

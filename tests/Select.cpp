@@ -115,6 +115,23 @@ int Select(int, char**)
                   .having(t.gamma)
                   .limit(7)
                   .offset(19);
+  printer.reset();
+  std::cerr << serialize(stat, printer).str() << std::endl;
+
+  auto s0 = dynamic_select(db)
+                .columns(all_of(t))
+                .flags(sqlpp::all)
+                .from(t)
+                .extra_tables(f, t)
+                .where(t.alpha > 0)
+                .group_by(t.alpha)
+                .order_by(t.gamma.asc())
+                .having(t.gamma)
+                .limit(7)
+                .offset(19);
+
+  printer.reset();
+  std::cerr << serialize(s0, printer).str() << std::endl;
 
   auto s = dynamic_select(db)
                .dynamic_columns(all_of(t))
@@ -144,8 +161,6 @@ int Select(int, char**)
 
   printer.reset();
   std::cerr << serialize(s, printer).str() << std::endl;
-  printer.reset();
-  std::cerr << serialize(stat, printer).str() << std::endl;
 
   select(sqlpp::value(7).as(t.alpha));
 

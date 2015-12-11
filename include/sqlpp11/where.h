@@ -293,7 +293,7 @@ namespace sqlpp
           -> _new_statement_t<std::true_type, where_t<Database, Expressions...>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this),
-                where_data_t<_database_t, Expressions...>{expressions...}};
+                where_data_t<Database, Expressions...>{expressions...}};
       }
     };
   };

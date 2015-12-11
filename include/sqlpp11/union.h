@@ -217,7 +217,7 @@ namespace sqlpp
           -> _new_statement_t<std::true_type, union_t<Database, Flag, derived_statement_t<Policies>, Rhs>>
       {
         return {blank_union_t{},
-                union_data_t<_database_t, Flag, derived_statement_t<Policies>, Rhs>{
+                union_data_t<Database, Flag, derived_statement_t<Policies>, Rhs>{
                     static_cast<const derived_statement_t<Policies>&>(*this), rhs}};
       }
     };

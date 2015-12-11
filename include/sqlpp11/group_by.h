@@ -224,7 +224,7 @@ namespace sqlpp
 
       template <typename Database, typename... Expressions>
       auto _group_by_impl(const std::true_type&, Expressions... expressions) const
-          -> _new_statement_t<std::true_type, group_by_t<_database_t, Expressions...>>
+          -> _new_statement_t<std::true_type, group_by_t<Database, Expressions...>>
       {
         static_assert(not detail::has_duplicates<Expressions...>::value,
                       "at least one duplicate argument detected in group_by()");
