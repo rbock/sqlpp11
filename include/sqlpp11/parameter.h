@@ -29,6 +29,8 @@
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/alias_provider.h>
+#include <sqlpp11/data_types/parameter_value.h>
+#include <sqlpp11/expression_operators.h>
 #include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
