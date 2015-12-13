@@ -28,7 +28,7 @@
 #define SQLPP_EXISTS_H
 
 #include <sqlpp11/char_sequence.h>
-#include <sqlpp11/boolean.h>
+#include <sqlpp11/data_types/boolean.h>
 
 namespace sqlpp
 {

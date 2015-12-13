@@ -36,7 +36,7 @@
 #include <sqlpp11/expression_fwd.h>
 #include <sqlpp11/in_fwd.h>
 #include <sqlpp11/is_null_fwd.h>
-#include <sqlpp11/wrap_operand_fwd.h>
+#include <sqlpp11/wrap_operand.h>
 #include <sqlpp11/logic.h>
 
 namespace sqlpp
@@ -218,16 +218,91 @@ namespace sqlpp
       check_rhs_in_arguments_t<ValueType, wrap_operand_t<T>...>::_();
       return {*static_cast<const Expr*>(this), wrap_operand_t<T>{t}...};
     }
-  };
 
-  template <typename Expr>
-  struct alias_operators
-  {
-    template <typename alias_provider>
-    expression_alias_t<Expr, alias_provider> as(const alias_provider&) const
+    template <typename Defer = void>
+    auto operator not() const -> return_type_not_t<Expr, Defer>
     {
+      return_type_not<Expr, Defer>::check::_();
+      return {*static_cast<const Expr*>(this)};
+    }
+
+    template <typename R>
+    auto operator and(const R& r) const -> return_type_and_t<Expr, R>
+    {
+      return_type_and<Expr, R>::check::_();
+      return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
+    }
+
+    template <typename R>
+    auto operator&(const R& r) const -> return_type_bitwise_and_t<Expr, R>
+    {
+      return_type_bitwise_and<Expr, R>::check::_();
+      return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
+    }
+
+    template <typename R>
+    auto operator|(const R& r) const -> return_type_bitwise_or_t<Expr, R>
+    {
+      return_type_bitwise_or<Expr, R>::check::_();
+      return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
+    }
+
+    template <typename R>
+    auto operator or(const R& r) const -> return_type_or_t<Expr, R>
+    {
+      return_type_or<Expr, R>::check::_();
+      return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
+    }
+
+    template <typename R>
+    auto operator+(const R& r) const -> return_type_plus_t<Expr, R>
+    {
+      return_type_plus<Expr, R>::check::_();
+      return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
+    }
+
+    template <typename R>
+    auto operator-(const R& r) const -> return_type_minus_t<Expr, R>
+    {
+      return_type_minus<Expr, R>::check::_();
+      return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
+    }
+
+    template <typename R>
+    auto operator*(const R& r) const -> return_type_multiplies_t<Expr, R>
+    {
+      return_type_multiplies<Expr, R>::check::_();
+      return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
+    }
+
+    template <typename R>
+    auto operator/(const R& r) const -> return_type_divides_t<Expr, R>
+    {
+      return_type_divides<Expr, R>::check::_();
+      return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
+    }
+
+    template <typename R>
+    auto operator%(const R& r) const -> return_type_modulus_t<Expr, R>
+    {
+      return_type_modulus<Expr, R>::check::_();
+      return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
+    }
+
+    template <typename Defer = void>
+    auto operator+() const -> return_type_unary_plus_t<Expr, Defer>
+    {
+      return_type_unary_plus<Expr, Defer>::check::_();
+      return {*static_cast<const Expr*>(this)};
+    }
+
+    template <typename Defer = void>
+    auto operator-() const -> return_type_unary_minus_t<Expr, Defer>
+    {
+      return_type_unary_minus<Expr, Defer>::check::_();
       return {*static_cast<const Expr*>(this)};
     }
   };
 }
+
 #endif

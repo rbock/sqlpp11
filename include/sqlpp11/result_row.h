@@ -30,7 +30,8 @@
 #include <map>
 #include <sqlpp11/result_row_fwd.h>
 #include <sqlpp11/field_spec.h>
-#include <sqlpp11/text.h>
+#include <sqlpp11/no_name.h>
+#include <sqlpp11/data_types/text.h>
 #include <sqlpp11/detail/field_index_sequence.h>
 
 namespace sqlpp
@@ -41,9 +42,9 @@ namespace sqlpp
     struct result_row_impl;
 
     template <typename Db, std::size_t index, typename FieldSpec>
-    struct result_field : public member_t<FieldSpec, result_field_t<value_type_of<FieldSpec>, Db, FieldSpec>>
+    struct result_field : public member_t<FieldSpec, result_field_t<Db, FieldSpec>>
     {
-      using _field = member_t<FieldSpec, result_field_t<value_type_of<FieldSpec>, Db, FieldSpec>>;
+      using _field = member_t<FieldSpec, result_field_t<Db, FieldSpec>>;
 
       result_field() = default;
 
@@ -182,16 +183,7 @@ namespace sqlpp
   {
     using _field_index_sequence = detail::make_field_index_sequence<0, FieldSpecs...>;
     using _impl = detail::result_row_impl<Db, _field_index_sequence, FieldSpecs...>;
-    struct _field_spec_t
-    {
-      using _traits = make_traits<text, tag::is_noop, tag::can_be_null, tag::null_is_trivial_value>;
-      using _nodes = detail::type_vector<>;
-
-      struct _alias_t
-      {
-      };
-    };
-    using _field_type = result_field_t<text, Db, _field_spec_t>;
+    using _field_type = result_field_t<Db, field_spec_t<no_name_t, text, true, true>>;
 
     bool _is_valid;
     std::vector<std::string> _dynamic_field_names;

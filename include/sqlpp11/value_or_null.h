@@ -27,21 +27,8 @@
 #ifndef SQLPP_VALUE_OR_NULL_H
 #define SQLPP_VALUE_OR_NULL_H
 
-#include <sqlpp11/parameter.h>
-#include <sqlpp11/parameter_list.h>
-#include <sqlpp11/column_types.h>
-#include <sqlpp11/in.h>
-#include <sqlpp11/value_type.h>
-#include <sqlpp11/exists.h>
-#include <sqlpp11/any.h>
-#include <sqlpp11/some.h>
-#include <sqlpp11/count.h>
-#include <sqlpp11/min.h>
-#include <sqlpp11/max.h>
-#include <sqlpp11/avg.h>
-#include <sqlpp11/sum.h>
-#include <sqlpp11/verbatim_table.h>  // Csaba Csoma suggests: unsafe_sql instead of verbatim
-#include <sqlpp11/value_or_null.h>
+#include <sqlpp11/wrap_operand.h>
+#include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {

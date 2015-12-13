@@ -27,7 +27,7 @@
 #ifndef SQLPP_SOME_H
 #define SQLPP_SOME_H
 
-#include <sqlpp11/boolean.h>
+#include <sqlpp11/data_types/boolean.h>
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/char_sequence.h>
 
