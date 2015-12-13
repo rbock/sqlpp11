@@ -37,20 +37,20 @@ namespace sqlpp
   template <typename... Args>
   struct concat_t;
 
-  template <typename Base>
-  struct column_operators<Base, text>
+  template <typename Column>
+  struct column_operators<Column, text>
   {
     template <typename T>
     using _is_valid_operand = is_valid_operand<text, T>;
 
     template <typename T>
-    auto operator+=(T t) const -> assignment_t<Base, concat_t<Base, wrap_operand_t<T>>>
+    auto operator+=(T t) const -> assignment_t<Column, concat_t<Column, wrap_operand_t<T>>>
     {
       using rhs = wrap_operand_t<T>;
       static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
 
-      return {*static_cast<const Base*>(this),
-              concat_t<Base, wrap_operand_t<T>>{*static_cast<const Base*>(this), rhs{t}}};
+      return {*static_cast<const Column*>(this),
+              concat_t<Column, wrap_operand_t<T>>{*static_cast<const Column*>(this), rhs{t}}};
     }
   };
 }

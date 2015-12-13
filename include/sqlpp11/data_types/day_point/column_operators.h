@@ -34,8 +34,8 @@
 
 namespace sqlpp
 {
-  template <typename Base>
-  struct column_operators<Base, day_point>
+  template <typename Column>
+  struct column_operators<Column, day_point>
   {
     template <typename T>
     using _is_valid_operand = is_valid_operand<day_point, T>;

@@ -33,8 +33,8 @@ namespace sqlpp
 {
   struct boolean;
 
-  template <typename Base>
-  struct column_operators<Base, boolean>
+  template <typename Column>
+  struct column_operators<Column, boolean>
   {
   };
 }

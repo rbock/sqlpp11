@@ -61,8 +61,6 @@ namespace sqlpp
     using _alias_t = typename _spec_t::_alias_t;
 
     template <typename T>
-    using _is_valid_operand = is_valid_operand<value_type_of<ColumnSpec>, T>;
-    template <typename T>
     using _is_valid_assignment_operand = is_valid_assignment_operand<value_type_of<ColumnSpec>, T>;
 
     column_t() = default;
