@@ -38,6 +38,9 @@ namespace sqlpp
     using _column_t = Column;
     _column_t _column;
 
+	simple_column_t() = default;
+	simple_column_t(const _column_t &column) : _column{column} {}
+
     using _traits = make_traits<no_value_t, tag::is_noop>;
     using _nodes = detail::type_vector<>;
   };

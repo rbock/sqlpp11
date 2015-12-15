@@ -79,7 +79,10 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
-      template <typename Assignment>
+	  _impl_t() = default;
+	  _impl_t(const _data_t &data) : _data{data}{}
+
+	  template <typename Assignment>
       void add_ntc(Assignment assignment)
       {
         add<Assignment, std::false_type>(assignment);
@@ -123,6 +126,9 @@ namespace sqlpp
     struct _base_t
     {
       using _data_t = update_list_data_t<Database, Assignments...>;
+
+	  template<typename ...Args>
+	  _base_t(Args&& ...args) : assignments{std::forward<Args>(args)...} {}
 
       _impl_t<Policies> assignments;
       _impl_t<Policies>& operator()()
@@ -169,7 +175,10 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
-      _data_t _data;
+	  _impl_t() = default;
+	  _impl_t(const _data_t &data) : _data{data}{}
+
+	  _data_t _data;
     };
 
     // Base template to be inherited by the statement
@@ -177,6 +186,9 @@ namespace sqlpp
     struct _base_t
     {
       using _data_t = no_data_t;
+
+	  template<typename ...Args>
+	  _base_t(Args&& ...args) : no_assignments{std::forward<Args>(args)...} {}
 
       _impl_t<Policies> no_assignments;
       _impl_t<Policies>& operator()()
@@ -197,7 +209,7 @@ namespace sqlpp
       using _database_t = typename Policies::_database_t;
 
       template <typename... T>
-      using _check = logic::all_t<is_assignment_t<T>::value...>;
+	  struct _check : public logic::all_t<is_assignment_t<T>::value...> {};
 
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check::value, Policies, no_update_list_t, T>;

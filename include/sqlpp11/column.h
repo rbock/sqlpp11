@@ -104,11 +104,11 @@ namespace sqlpp
     }
   };
 
-  template <typename Context, typename... Args>
-  struct serializer_t<Context, column_t<Args...>>
+  template <typename Context, typename Args1, typename Args2>
+  struct serializer_t<Context, column_t<Args1, Args2>>
   {
     using _serialize_check = consistent_t;
-    using T = column_t<Args...>;
+    using T = column_t<Args1, Args2>;
 
     static Context& _(const T&, Context& context)
     {

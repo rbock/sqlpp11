@@ -66,7 +66,10 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
-      _data_t _data;
+	  _impl_t() = default;
+	  _impl_t(const _data_t &data) : _data{data}{}
+
+	  _data_t _data;
     };
 
     // Base template to be inherited by the statement
@@ -74,6 +77,9 @@ namespace sqlpp
     struct _base_t
     {
       using _data_t = offset_data_t<Offset>;
+
+	  template<typename ...Args>
+	  _base_t(Args&& ...args) : offset{std::forward<Args>(args)...} {}
 
       _impl_t<Policies> offset;
       _impl_t<Policies>& operator()()
@@ -133,7 +139,10 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
-      template <typename Offset>
+	  _impl_t() = default;
+	  _impl_t(const _data_t &data) : _data{data}{}
+
+	  template <typename Offset>
       void set(Offset value)
       {
         // FIXME: Make sure that Offset does not require external tables? Need to read up on SQL
@@ -153,7 +162,10 @@ namespace sqlpp
     {
       using _data_t = dynamic_offset_data_t<Database>;
 
-      _impl_t<Policies> offset;
+	  template<typename ...Args>
+	  _base_t(Args&& ...args) : offset{std::forward<Args>(args)...} {}
+
+	  _impl_t<Policies> offset;
       _impl_t<Policies>& operator()()
       {
         return offset;
@@ -197,7 +209,10 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
-      _data_t _data;
+	  _impl_t() = default;
+	  _impl_t(const _data_t &data) : _data{data}{}
+
+	  _data_t _data;
     };
 
     // Base template to be inherited by the statement
@@ -205,6 +220,9 @@ namespace sqlpp
     struct _base_t
     {
       using _data_t = no_data_t;
+
+	  template<typename ...Args>
+	  _base_t(Args&& ...args) : no_offset{std::forward<Args>(args)...} {}
 
       _impl_t<Policies> no_offset;
       _impl_t<Policies>& operator()()

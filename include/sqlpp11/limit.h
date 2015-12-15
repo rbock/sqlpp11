@@ -64,7 +64,10 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
-      _data_t _data;
+	  _impl_t() = default;
+	  _impl_t(const _data_t &data) : _data{data}{}
+
+	  _data_t _data;
     };
 
     // Base template to be inherited by the statement
@@ -72,6 +75,9 @@ namespace sqlpp
     struct _base_t
     {
       using _data_t = limit_data_t<Limit>;
+
+	  template<typename ...Args>
+	  _base_t(Args&& ...args) : limit{std::forward<Args>(args)...} {}
 
       _impl_t<Policies> limit;
       _impl_t<Policies>& operator()()
@@ -131,7 +137,10 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
-      template <typename Limit>
+	  _impl_t() = default;
+	  _impl_t(const _data_t &data) : _data{data}{}
+
+	  template <typename Limit>
       void set(Limit value)
       {
         // FIXME: Make sure that Limit does not require external tables? Need to read up on SQL
@@ -151,7 +160,10 @@ namespace sqlpp
     {
       using _data_t = dynamic_limit_data_t<Database>;
 
-      _impl_t<Policies> limit;
+	  template<typename ...Args>
+	  _base_t(Args&& ...args) : limit{std::forward<Args>(args)...} {}
+
+	  _impl_t<Policies> limit;
       _impl_t<Policies>& operator()()
       {
         return limit;
@@ -183,7 +195,10 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
-      _data_t _data;
+	  _impl_t() = default;
+	  _impl_t(const _data_t &data) : _data{data}{}
+
+	  _data_t _data;
     };
 
     // Base template to be inherited by the statement
@@ -191,6 +206,9 @@ namespace sqlpp
     struct _base_t
     {
       using _data_t = no_data_t;
+
+	  template<typename ...Args>
+	  _base_t(Args&& ...args) : no_limit{std::forward<Args>(args)...} {}
 
       _impl_t<Policies> no_limit;
       _impl_t<Policies>& operator()()

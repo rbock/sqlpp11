@@ -69,7 +69,10 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
-      template <typename Table>
+	  _impl_t() = default;
+	  _impl_t(const _data_t &data) : _data{data}{}
+
+	  template <typename Table>
       void add(Table table)
       {
         static_assert(_is_dynamic::value, "add must not be called for static using()");
@@ -101,6 +104,9 @@ namespace sqlpp
     struct _base_t
     {
       using _data_t = using_data_t<Database, Tables...>;
+
+	  template<typename ...Args>
+	  _base_t(Args&& ...args) : using_{std::forward<Args>(args)...} {}
 
       _impl_t<Policies> using_;
       _impl_t<Policies>& operator()()
@@ -136,7 +142,10 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
-      _data_t _data;
+	  _impl_t() = default;
+	  _impl_t(const _data_t &data) : _data{data}{}
+
+	  _data_t _data;
     };
 
     // Base template to be inherited by the statement
@@ -144,6 +153,9 @@ namespace sqlpp
     struct _base_t
     {
       using _data_t = no_data_t;
+
+	  template<typename ...Args>
+	  _base_t(Args&& ...args) : no_using{std::forward<Args>(args)...} {}
 
       _impl_t<Policies> no_using;
       _impl_t<Policies>& operator()()
@@ -164,7 +176,7 @@ namespace sqlpp
       using _database_t = typename Policies::_database_t;
 
       template <typename... T>
-      using _check = logic::all_t<is_table_t<T>::value...>;
+	  struct _check : logic::all_t<is_table_t<T>::value...> {};
 
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check::value, Policies, no_using_t, T>;

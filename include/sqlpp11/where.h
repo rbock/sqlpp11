@@ -84,7 +84,10 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
-      template <typename Expression>
+	  _impl_t() = default;
+	  _impl_t(const _data_t &data) : _data{ data } {}
+
+	  template <typename Expression>
       void add_ntc(Expression expression)
       {
         add<Expression, std::false_type>(expression);
@@ -124,6 +127,9 @@ namespace sqlpp
     struct _base_t
     {
       using _data_t = where_data_t<Database, Expressions...>;
+
+	  template<typename ...Args>
+	  _base_t(Args&& ...args) : where{std::forward<Args>(args)...} {}
 
       _impl_t<Policies> where;
       _impl_t<Policies>& operator()()
@@ -167,7 +173,10 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
-      _data_t _data;
+	  _impl_t() = default;
+	  _impl_t(const _data_t &data) : _data{data}{}
+
+	  _data_t _data;
     };
 
     // Base template to be inherited by the statement
@@ -175,6 +184,9 @@ namespace sqlpp
     struct _base_t
     {
       using _data_t = where_data_t<void, bool>;
+
+	  template<typename ...Args>
+	  _base_t(Args&& ...args) : where{std::forward<Args>(args)...} {}
 
       _impl_t<Policies> where;
       _impl_t<Policies>& operator()()
@@ -221,7 +233,10 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
-      _data_t _data;
+	  _impl_t() = default;
+	  _impl_t(const _data_t &data) : _data{data}{}
+
+	  _data_t _data;
     };
 
     // Base template to be inherited by the statement
@@ -229,6 +244,9 @@ namespace sqlpp
     struct _base_t
     {
       using _data_t = no_data_t;
+
+	  template<typename ...Args>
+	  _base_t(Args&& ...args) : no_where{std::forward<Args>(args)...} {}
 
       _impl_t<Policies> no_where;
       _impl_t<Policies>& operator()()
@@ -249,7 +267,7 @@ namespace sqlpp
       using _database_t = typename Policies::_database_t;
 
       template <typename... T>
-      using _check = logic::all_t<is_expression_t<T>::value...>;
+	  struct _check : logic::all_t<is_expression_t<T>::value...> {};
 
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check::value, Policies, no_where_t, T>;

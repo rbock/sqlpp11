@@ -38,9 +38,22 @@ namespace sqlpp
     struct logic_helper;
 
     // see http://lists.boost.org/Archives/boost/2014/05/212946.php :-)
+	template <bool... B>
+	struct all
+	{
+		using type = std::is_same<logic_helper<B...>, logic_helper<(B or true)...>>;
+	};
+
     template <bool... B>
     using all_t = std::is_same<logic_helper<B...>, logic_helper<(B or true)...>>;
 
+	template <bool... B>
+	struct any
+	{
+		using type =
+			std::integral_constant<bool, not std::is_same<logic_helper<B...>, logic_helper<(B and false)...>>::value>;
+	};
+	
     template <bool... B>
     using any_t =
         std::integral_constant<bool, not std::is_same<logic_helper<B...>, logic_helper<(B and false)...>>::value>;

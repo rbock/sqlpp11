@@ -71,14 +71,17 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
-      template <typename Table>
+	  _impl_t() = default;
+	  _impl_t(const _data_t &data) : _data{data}{}
+
+	  template <typename Table>
       void add(Table table)
       {
         static_assert(_is_dynamic::value, "from::add() must not be called for static from()");
         static_assert(is_table_t<Table>::value, "invalid table argument in from::add()");
         using _known_tables =
             detail::make_joined_set_t<provided_tables_of<Tables>...>;  // Hint: Joins contain more than one table
-        using _known_table_names = detail::transform_set_t<name_of, _known_tables>;
+        using _known_table_names = detail::make_name_of_set_t<_known_tables>;
         static_assert(not detail::is_element_of<typename Table::_alias_t, _known_table_names>::value,
                       "Must not use the same table name twice in from()");
         using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Table>;
@@ -108,6 +111,9 @@ namespace sqlpp
     struct _base_t
     {
       using _data_t = from_data_t<Database, Tables...>;
+
+	  template<typename ...Args>
+	  _base_t(Args&& ...args) : from{std::forward<Args>(args)...} {}
 
       _impl_t<Policies> from;
       _impl_t<Policies>& operator()()
@@ -142,7 +148,10 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
-      _data_t _data;
+	  _impl_t() = default;
+	  _impl_t(const _data_t &data) : _data{data}{}
+
+	  _data_t _data;
     };
 
     // Base template to be inherited by the statement
@@ -150,6 +159,9 @@ namespace sqlpp
     struct _base_t
     {
       using _data_t = no_data_t;
+
+	  template<typename ...Args>
+	  _base_t(Args&& ...args) : no_from{std::forward<Args>(args)...} {}
 
       _impl_t<Policies> no_from;
       _impl_t<Policies>& operator()()
@@ -170,7 +182,7 @@ namespace sqlpp
       using _database_t = typename Policies::_database_t;
 
       template <typename... T>
-      using _check = logic::all_t<is_table_t<T>::value...>;
+	  struct _check : logic::all_t<is_table_t<T>::value...> {};
 
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check::value, Policies, no_from_t, T>;
@@ -208,7 +220,7 @@ namespace sqlpp
 
         static constexpr std::size_t _number_of_tables = detail::sum(provided_tables_of<Tables>::size::value...);
         using _unique_tables = detail::make_joined_set_t<provided_tables_of<Tables>...>;
-        using _unique_table_names = detail::transform_set_t<name_of, _unique_tables>;
+        using _unique_table_names = detail::make_name_of_set_t<_unique_tables>;
         static_assert(_number_of_tables == _unique_tables::size::value,
                       "at least one duplicate table detected in from()");
         static_assert(_number_of_tables == _unique_table_names::size::value,

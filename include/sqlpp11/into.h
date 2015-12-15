@@ -71,7 +71,10 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
-      _data_t _data;
+	  _impl_t() = default;
+	  _impl_t(const _data_t &data) : _data{data}{}
+
+	  _data_t _data;
     };
 
     // Base template to be inherited by the statement
@@ -79,6 +82,9 @@ namespace sqlpp
     struct _base_t
     {
       using _data_t = into_data_t<Database, Table>;
+
+	  template<typename ...Args>
+	  _base_t(Args&& ...args) : into{std::forward<Args>(args)...} {}
 
       _impl_t<Policies> into;
       _impl_t<Policies>& operator()()
