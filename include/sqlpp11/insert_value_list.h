@@ -79,7 +79,7 @@ namespace sqlpp
     struct _impl_t
     {
 	  _impl_t() = default;
-	  _impl_t(const _data_t &data) : _data{data}{}
+	  _impl_t(const _data_t &data) : _data(data){}
 
 	  _data_t _data;
     };
@@ -117,7 +117,7 @@ namespace sqlpp
   struct insert_list_data_t
   {
     insert_list_data_t(Assignments... assignments)
-        : _assignments(assignments...), _columns({assignments._lhs}...), _values(assignments._rhs...)
+        : _assignments(assignments...), _columns(assignments._lhs...), _values(assignments._rhs...)
     {
     }
 
@@ -165,16 +165,27 @@ namespace sqlpp
                      assert_insert_set_one_table_t>>;
 
   template <typename... Assignments>
-  struct check_insert_static_set_t :
-      static_combined_check_t<check_insert_set_t<Assignments...>,
+  struct check_insert_static_set
+  {
+	  using type = static_combined_check_t<check_insert_set_t<Assignments...>,
                               static_check_t<sizeof...(Assignments) != 0, assert_insert_static_set_count_args_t>,
                               static_check_t<detail::have_all_required_columns<typename lhs<Assignments>::type...>::value,
-                                             assert_insert_static_set_all_required_t>>{};
+                                             assert_insert_static_set_all_required_t>>;
+  };
+
+  template <typename... Assignments>
+  using check_insert_static_set_t = typename check_insert_static_set<Assignments...>::type;
 
   template <typename Database, typename... Assignments>
-  struct check_insert_dynamic_set_t : static_combined_check_t<
-      static_check_t<not std::is_same<Database, void>::value, assert_insert_dynamic_set_statement_dynamic_t>,
-      check_insert_set_t<Assignments...>>{};
+  struct check_insert_dynamic_set
+  {
+	  using type = static_combined_check_t <
+		  static_check_t<not std::is_same<Database, void>::value, assert_insert_dynamic_set_statement_dynamic_t>,
+		  check_insert_set_t < Assignments... >>;
+  };
+
+  template <typename Database, typename... Assignments>
+  using check_insert_dynamic_set_t = typename check_insert_dynamic_set<Database, Assignments...>::type;
 
   SQLPP_PORTABLE_STATIC_ASSERT(
       assert_no_unknown_tables_in_insert_assignments_t,
@@ -201,7 +212,7 @@ namespace sqlpp
     struct _impl_t
     {
 	  _impl_t() = default;
-	  _impl_t(const _data_t &data) : _data{data}{}
+	  _impl_t(const _data_t &data) : _data(data){}
 
 	  template <typename Assignment>
       void add_ntc(Assignment assignment)
@@ -320,7 +331,7 @@ namespace sqlpp
     struct _impl_t
     {
 	  _impl_t() = default;
-	  _impl_t(const _data_t &data) : _data{data}{}
+	  _impl_t(const _data_t &data) : _data(data){}
 
 	  template <typename... Assignments>
       void add(Assignments... assignments)
@@ -406,7 +417,7 @@ namespace sqlpp
     struct _impl_t
     {
 	  _impl_t() = default;
-	  _impl_t(const _data_t &data) : _data{data}{}
+	  _impl_t(const _data_t &data) : _data(data){}
 
 	  _data_t _data;
     };

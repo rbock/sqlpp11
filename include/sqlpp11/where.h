@@ -85,7 +85,7 @@ namespace sqlpp
     struct _impl_t
     {
 	  _impl_t() = default;
-	  _impl_t(const _data_t &data) : _data{ data } {}
+	  _impl_t(const _data_t &data) : _data(data) {}
 
 	  template <typename Expression>
       void add_ntc(Expression expression)
@@ -174,7 +174,7 @@ namespace sqlpp
     struct _impl_t
     {
 	  _impl_t() = default;
-	  _impl_t(const _data_t &data) : _data{data}{}
+	  _impl_t(const _data_t &data) : _data(data){}
 
 	  _data_t _data;
     };
@@ -234,7 +234,7 @@ namespace sqlpp
     struct _impl_t
     {
 	  _impl_t() = default;
-	  _impl_t(const _data_t &data) : _data{data}{}
+	  _impl_t(const _data_t &data) : _data(data){}
 
 	  _data_t _data;
     };
