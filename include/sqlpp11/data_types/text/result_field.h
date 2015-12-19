@@ -49,6 +49,16 @@ namespace sqlpp
       this->_value = {text, len};
       this->_is_null = (len == 0);
     }
+
+    template <typename Target>
+    void _post_bind(Target& target, size_t index)
+    {
+      const char* text{nullptr};
+      size_t len{};
+      target._post_bind_text_result(index, &text, &len);
+      this->_value = {text, len};
+      this->_is_null = (len == 0);
+    }
   };
 
   template <typename Db, typename NameType, bool CanBeNull, bool NullIsTrivialValue>

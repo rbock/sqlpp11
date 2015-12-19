@@ -44,6 +44,12 @@ namespace sqlpp
     {
       target._bind_integral_result(index, &this->_value, &this->_is_null);
     }
+
+    template <typename Target>
+    void _post_bind(Target& target, size_t index)
+    {
+      target._post_bind_integral_result(index, &this->_value, &this->_is_null);
+    }
   };
 }
 #endif

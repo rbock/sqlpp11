@@ -45,6 +45,12 @@ namespace sqlpp
     {
       target._bind_date_time_result(i, &this->_value, &this->_is_null);
     }
+
+    template <typename Target>
+    void _post_bind(Target& target, size_t i)
+    {
+      target._post_bind_date_time_result(i, &this->_value, &this->_is_null);
+    }
   };
 
   template <typename Db, typename NameType, bool CanBeNull, bool NullIsTrivialValue>
