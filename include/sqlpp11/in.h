@@ -56,8 +56,6 @@ namespace sqlpp
     using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
     using _nodes = detail::type_vector<Operand, Args...>;
 
-    static_assert(sizeof...(Args) > 0, "in() requires at least one argument");
-
     using _auto_alias_t = in_alias_t;
 
     in_t(Operand operand, Args... args) : _operand(operand), _args(args...)
@@ -93,6 +91,19 @@ namespace sqlpp
     }
   };
 
+  template <typename Context, typename Operand>
+  struct serializer_t<Context, in_t<Operand>>
+  {
+    using _serialize_check = consistent_t;
+    using T = in_t<Operand>;
+
+    static Context& _(const T&, Context& context)
+    {
+      serialize(boolean_operand{false}, context);
+      return context;
+    }
+  };
+
   template <typename Container>
   struct value_list_t;
 
@@ -107,7 +118,7 @@ namespace sqlpp
       const auto& value_list = std::get<0>(t._args);
       if (value_list._container.empty())
       {
-        context << " 'operand in empty list' = 'false' ";
+        serialize(boolean_operand{false}, context);
       }
       else
       {

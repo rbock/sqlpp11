@@ -106,6 +106,7 @@ int Interpret(int, char**)
   serialize(update(t), printer).str();
   serialize(update(t).set(t.gamma = true), printer).str();
   serialize(update(t).set(t.gamma = true).where(t.beta.in("kaesekuchen", "cheesecake")), printer).str();
+  serialize(update(t).set(t.gamma = true).where(t.beta.in()), printer).str();
 
   serialize(remove_from(t), printer).str();
   serialize(remove_from(t).using_(t), printer).str();
@@ -202,6 +203,12 @@ int Interpret(int, char**)
   printer.reset();
   std::cerr << serialize(select(all_of(t)).from(t).where(t.alpha.in(select(f.epsilon).from(f).where(true))), printer)
                    .str() << std::endl;
+
+  printer.reset();
+  std::cerr << serialize(select(all_of(t)).from(t).where(t.alpha.in()), printer).str() << std::endl;
+
+  printer.reset();
+  std::cerr << serialize(select(all_of(t)).from(t).where(t.alpha.not_in()), printer).str() << std::endl;
 
   auto schema = db.attach("lorem");
   auto s = schema_qualified_table(schema, t).as(sqlpp::alias::x);

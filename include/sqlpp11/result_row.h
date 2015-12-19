@@ -63,6 +63,12 @@ namespace sqlpp
       {
         _field::operator()()._bind(target, index);
       }
+
+      template <typename Target>
+      void _post_bind(Target& target)
+      {
+        _field::operator()()._post_bind(target, index);
+      }
     };
 
     template <std::size_t index, typename AliasProvider, typename Db, typename... FieldSpecs>
@@ -91,6 +97,12 @@ namespace sqlpp
       {
         _multi_field::operator()()._bind(target);
       }
+
+      template <typename Target>
+      void _post_bind(Target& target)
+      {
+        _multi_field::operator()()._post_bind(target);
+      }
     };
 
     template <typename Db, std::size_t NextIndex, std::size_t... Is, typename... FieldSpecs>
@@ -116,6 +128,13 @@ namespace sqlpp
       {
         using swallow = int[];
         (void)swallow{(result_field<Db, Is, FieldSpecs>::_bind(target), 0)...};
+      }
+
+      template <typename Target>
+      void _post_bind(Target& target)
+      {
+        using swallow = int[];
+        (void)swallow{(result_field<Db, Is, FieldSpecs>::_post_bind(target), 0)...};
       }
     };
   }
@@ -174,6 +193,12 @@ namespace sqlpp
     void _bind(Target& target)
     {
       _impl::_bind(target);
+    }
+
+    template <typename Target>
+    void _post_bind(Target& target)
+    {
+      _impl::_post_bind(target);
     }
   };
 
@@ -251,6 +276,19 @@ namespace sqlpp
       for (const auto& field_name : _dynamic_field_names)
       {
         _dynamic_fields.at(field_name)._bind(target, index);
+        ++index;
+      }
+    }
+
+    template <typename Target>
+    void _post_bind(Target& target)
+    {
+      _impl::_post_bind(target);
+
+      std::size_t index = _field_index_sequence::_next_index;
+      for (const auto& field_name : _dynamic_field_names)
+      {
+        _dynamic_fields.at(field_name)._post_bind(target, index);
         ++index;
       }
     }
