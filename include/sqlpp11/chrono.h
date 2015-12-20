@@ -36,7 +36,7 @@ namespace sqlpp
     using days = std::chrono::duration<int, std::ratio_multiply<std::ratio<24>, std::chrono::hours::period>>;
 
     using day_point = std::chrono::time_point<std::chrono::system_clock, days>;
-    using mus_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>;
+    using microsecond_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>;
   }
 }
 

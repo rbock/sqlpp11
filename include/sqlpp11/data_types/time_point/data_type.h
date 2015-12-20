@@ -35,7 +35,7 @@ namespace sqlpp
   struct time_point
   {
     using _traits = make_traits<time_point, tag::is_value_type>;
-    using _cpp_value_type = ::sqlpp::chrono::mus_point;
+    using _cpp_value_type = ::sqlpp::chrono::microsecond_point;
 
     template <typename T>
     using _is_valid_operand = is_day_or_time_point_t<T>;
