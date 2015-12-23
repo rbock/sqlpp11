@@ -97,6 +97,8 @@ namespace sqlpp
         static_assert(is_expression_t<Expression>::value, "invalid expression argument in where::add()");
         static_assert(not TableCheckRequired::value or Policies::template _no_unknown_tables<Expression>::value,
                       "expression uses tables unknown to this statement in where::add()");
+        static_assert(not contains_aggregate_function_t<Expression>::value,
+                      "where expression must not contain aggregate functions");
         using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Expression>;
         _serialize_check::_();
 
@@ -270,6 +272,8 @@ namespace sqlpp
       {
         static_assert(_check<Expressions...>::value, "at least one argument is not an expression in where()");
         static_assert(sizeof...(Expressions), "at least one expression argument required in where()");
+        static_assert(logic::all_t<(not contains_aggregate_function_t<Expressions>::value)...>::value,
+                      "where expression must not contain aggregate functions");
 
         return _where_impl<void>(_check<Expressions...>{}, expressions...);
       }
@@ -281,6 +285,8 @@ namespace sqlpp
         static_assert(_check<Expressions...>::value, "at least one argument is not an expression in where()");
         static_assert(not std::is_same<_database_t, void>::value,
                       "dynamic_where must not be called in a static statement");
+        static_assert(logic::all_t<(not contains_aggregate_function_t<Expressions>::value)...>::value,
+                      "where expression must not contain aggregate functions");
         return _where_impl<_database_t>(_check<Expressions...>{}, expressions...);
       }
 
