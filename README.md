@@ -1,14 +1,17 @@
 sqlpp11
 =======
 
-[![Build Status](https://travis-ci.org/rbock/sqlpp11.svg?branch=develop)](https://travis-ci.org/rbock/sqlpp11?branch=develop)
+master: [![Build Status](https://travis-ci.org/rbock/sqlpp11.svg?branch=master)](https://travis-ci.org/rbock/sqlpp11?branch=master)
+[![Coverage Status](https://coveralls.io/repos/rbock/sqlpp11/badge.svg?branch=master)](https://coveralls.io/r/rbock/sqlpp11?branch=master)
+
+develop: [![Build Status](https://travis-ci.org/rbock/sqlpp11.svg?branch=develop)](https://travis-ci.org/rbock/sqlpp11?branch=develop)
 [![Coverage Status](https://coveralls.io/repos/rbock/sqlpp11/badge.svg?branch=develop)](https://coveralls.io/r/rbock/sqlpp11?branch=develop)
 
 A type safe embedded domain specific language for SQL queries and results in C++
 
 Extensive documentation is found in the wiki, https://github.com/rbock/sqlpp11/wiki
 
-Past talks/workshops at 
+Past talks/workshops at
   * CppCast: http://cppcast.com
    * 2015-05-07: http://cppcast.com/2015/05/roland-bock/
   * CppCon (Bellevue, Washington, USA): http://cppcon.org
@@ -17,8 +20,8 @@ Past talks/workshops at
    * 2014-09-12: http://sched.co/Wi8aWM (Workshop Part 2)
   * MeetingC++ (Berlin, Germany): http://meetingcpp.com/index.php/mcpp2014.html
    * 2014-12-05:http://meetingcpp.com/index.php/tv14/items/4.html
-   
-You can contact me 
+
+You can contact me
   * by posting issues at https://github.com/rbock/sqlpp11/issues
   * or via email at rbock at eudoxos dot de
 
@@ -50,7 +53,7 @@ The library is already used in production but it is certainly not complete yet. 
 
 Examples:
 ---------
-For the examples, lets assume you have a table class representing something like 
+For the examples, lets assume you have a table class representing something like
 
 ```SQL
 CREATE TABLE foo (
@@ -121,7 +124,7 @@ sqlpp11 requires a certain api in order to connect with the database, see databa
   * MySQL: https://github.com/rbock/sqlpp11-connector-mysql
   * Sqlite3: https://github.com/rbock/sqlpp11-connector-sqlite3
   * PostgreSQL: https://github.com/matthijs/sqlpp11-connector-postgresql
-  
+
 To demonstrate that sqlpp11 can work with other backends as well, here is an experimental backend for structs in standard containers:
 
   * STL Container: https://github.com/rbock/sqlpp11-connector-stl
