@@ -30,7 +30,7 @@ import sys
 import re
 import os
 
-from pyparsing import CaselessLiteral, SkipTo, restOfLine, oneOf, ZeroOrMore, Optional, \
+from pyparsing import CaselessLiteral, Literal, SkipTo, restOfLine, oneOf, ZeroOrMore, Optional, Combine, \
     WordStart, WordEnd, Word, alphas, alphanums, nums, QuotedString, nestedExpr, MatchFirst, OneOrMore, delimitedList, Or, Group
 
 INCLUDE = 'sqlpp11'
@@ -59,7 +59,8 @@ def ddlWord(string):
     return WordStart(alphanums + "_") + CaselessLiteral(string) + WordEnd(alphanums + "_")
 
 ddlString   = Or([QuotedString("'"), QuotedString("\"", escQuote='""'), QuotedString("`")])
-ddlNum     = Word(nums + ".")
+negativeSign = Literal('-')
+ddlNum     = Combine(Optional(negativeSign) + Word(nums + "."))
 ddlTerm     = Word(alphas, alphanums + "_$")
 ddlArguments = "(" + delimitedList(Or([ddlString, ddlTerm, ddlNum])) + ")"
 ddlNotNull = Group(ddlWord("NOT") + ddlWord("NULL")).setResultsName("notNull")
