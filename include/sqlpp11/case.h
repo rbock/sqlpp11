@@ -83,7 +83,7 @@ namespace sqlpp
     auto _else_impl(const std::true_type&, Else else_) -> case_t<When, Then, Else>
     {
       return {_when, _then, else_};
-    };
+    }
 
     template <typename Else>
     auto _else_impl(const std::false_type&, Else else_) -> void;
@@ -105,7 +105,7 @@ namespace sqlpp
       static_assert(detail::valid_else_t<Then, Else>::value,
                     "arguments of then and else must be expressions of the same type (or null)");
       return _else_impl(detail::valid_else_t<Then, Else>{}, else_);
-    };
+    }
 
   private:
     When _when;
@@ -119,7 +119,7 @@ namespace sqlpp
     auto _then_impl(const std::true_type&, Then t) -> case_then_t<When, wrap_operand_t<Then>>
     {
       return {_when, t};
-    };
+    }
 
     template <typename Then>
     auto _then_impl(const std::false_type&, Then t) -> void;
@@ -140,7 +140,7 @@ namespace sqlpp
     {
       static_assert(detail::valid_then_t<Then>::value, "then argument must be a value expression");
       return _then_impl(detail::valid_then_t<Then>{}, t);
-    };
+    }
 
   private:
     When _when;

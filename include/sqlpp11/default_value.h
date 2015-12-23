@@ -27,7 +27,7 @@
 #ifndef SQLPP_DEFAULT_VALUE_H
 #define SQLPP_DEFAULT_VALUE_H
 
-#include <sqlpp11/no_value.h>
+#include <sqlpp11/data_types/no_value.h>
 
 namespace sqlpp
 {

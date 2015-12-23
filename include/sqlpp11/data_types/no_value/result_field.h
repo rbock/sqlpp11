@@ -24,39 +24,49 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_PREPARED_EXECUTE_H
-#define SQLPP_PREPARED_EXECUTE_H
+#ifndef SQLPP_NO_VALUE_RESULT_FIELD_H
+#define SQLPP_NO_VALUE_RESULT_FIELD_H
 
-#include <sqlpp11/parameter_list.h>
-#include <sqlpp11/result.h>
-#include <sqlpp11/data_types/no_value.h>
+#include <sqlpp11/result_field.h>
+#include <sqlpp11/data_types/no_value/data_type.h>
+#include <sqlpp11/field_spec.h>
 
 namespace sqlpp
 {
-  template <typename Db, typename Statement>
-  struct prepared_execute_t
+  template <typename Db, typename NameType, bool CanBeNull, bool NullIsTrivialValue>
+  struct result_field_t<Db, field_spec_t<NameType, no_value_t, CanBeNull, NullIsTrivialValue>>
   {
-    using _traits = make_traits<no_value_t, tag::is_prepared_statement>;
-    using _nodes = detail::type_vector<>;
-
-    using _parameter_list_t = make_parameter_list_t<Statement>;
-    using _prepared_statement_t = typename Db::_prepared_statement_t;
-
-    using _run_check = consistent_t;
-
-    auto _run(Db& db) const -> size_t
+    template <typename Target>
+    void _bind(Target&, size_t)
     {
-      return db.run_prepared_execute(*this);
     }
 
-    void _bind_params() const
+    template <typename Target>
+    void _post_bind(Target&, size_t)
     {
-      params._bind(_prepared_statement);
     }
 
-    _parameter_list_t params;
-    mutable _prepared_statement_t _prepared_statement;
+    void _validate() const
+    {
+    }
+
+    void _invalidate() const
+    {
+    }
+
+    constexpr bool is_null() const
+    {
+      return true;
+    }
   };
+
+  template <typename Db, typename NameType, bool CanBeNull, bool NullIsTrivialValue>
+  inline std::ostream& operator<<(
+      std::ostream& os, const result_field_t<Db, field_spec_t<NameType, no_value_t, CanBeNull, NullIsTrivialValue>>&)
+  {
+    os << "NULL";
+    return os;
+  }
 }
 
 #endif

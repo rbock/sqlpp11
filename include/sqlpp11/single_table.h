@@ -28,7 +28,7 @@
 #define SQLPP_SINGLE_TABLE_H
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/no_value.h>
+#include <sqlpp11/data_types/no_value.h>
 #include <sqlpp11/no_data.h>
 #include <sqlpp11/serializer.h>
 #include <sqlpp11/prepared_insert.h>

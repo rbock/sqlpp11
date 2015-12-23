@@ -30,7 +30,7 @@
 #include <tuple>
 #include <sqlpp11/result_row.h>
 #include <sqlpp11/table.h>
-#include <sqlpp11/no_value.h>
+#include <sqlpp11/data_types/no_value.h>
 #include <sqlpp11/field_spec.h>
 #include <sqlpp11/expression_fwd.h>
 #include <sqlpp11/select_pseudo_table.h>

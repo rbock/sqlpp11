@@ -27,7 +27,7 @@
 #ifndef SQLPP_VERBATIM_TABLE_H
 #define SQLPP_VERBATIM_TABLE_H
 
-#include <sqlpp11/no_value.h>
+#include <sqlpp11/data_types/no_value.h>
 
 namespace sqlpp
 {

@@ -24,39 +24,18 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_PREPARED_EXECUTE_H
-#define SQLPP_PREPARED_EXECUTE_H
+#ifndef SQLPP_NO_VALUE_COLUMN_OPERATORS_H
+#define SQLPP_NO_VALUE_COLUMN_OPERATORS_H
 
-#include <sqlpp11/parameter_list.h>
-#include <sqlpp11/result.h>
-#include <sqlpp11/data_types/no_value.h>
+#include <sqlpp11/data_types/column_operators.h>
 
 namespace sqlpp
 {
-  template <typename Db, typename Statement>
-  struct prepared_execute_t
+  struct no_value_t;
+
+  template <typename Base>
+  struct column_operators<Base, no_value_t>
   {
-    using _traits = make_traits<no_value_t, tag::is_prepared_statement>;
-    using _nodes = detail::type_vector<>;
-
-    using _parameter_list_t = make_parameter_list_t<Statement>;
-    using _prepared_statement_t = typename Db::_prepared_statement_t;
-
-    using _run_check = consistent_t;
-
-    auto _run(Db& db) const -> size_t
-    {
-      return db.run_prepared_execute(*this);
-    }
-
-    void _bind_params() const
-    {
-      params._bind(_prepared_statement);
-    }
-
-    _parameter_list_t params;
-    mutable _prepared_statement_t _prepared_statement;
   };
 }
-
 #endif

@@ -164,5 +164,11 @@ int Select(int, char**)
 
   select(sqlpp::value(7).as(t.alpha));
 
+  for (const auto& row :
+       db(select(sqlpp::case_when(true).then(sqlpp::null).else_(sqlpp::null).as(t.beta)).from(t).where(true)))
+  {
+    std::cerr << row.beta << std::endl;
+  }
+
   return 0;
 }

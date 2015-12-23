@@ -33,5 +33,6 @@
 #include <sqlpp11/data_types/text.h>
 #include <sqlpp11/data_types/day_point.h>
 #include <sqlpp11/data_types/time_point.h>
+#include <sqlpp11/data_types/no_value.h>
 
 #endif
