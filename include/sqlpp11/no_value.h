@@ -35,7 +35,8 @@ namespace sqlpp
 {
   struct no_value_t
   {
-    using _traits = make_traits<void>;
+    using _traits = make_traits<no_value_t>;
+    using _cpp_value_type = void;
   };
 
   template <typename Base>

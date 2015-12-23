@@ -55,7 +55,7 @@ namespace sqlpp
   struct case_t
       : public expression_operators<
             case_t<When, Then, Else>,
-            typename std::conditional<is_sql_null_t<Then>::value, value_type_of<When>, value_type_of<Then>>::type>,
+            typename std::conditional<is_sql_null_t<Then>::value, value_type_of<Else>, value_type_of<Then>>::type>,
         public alias_operators<case_t<When, Then, Else>>
   {
     using _traits = make_traits<value_type_of<Then>, tag::is_expression>;

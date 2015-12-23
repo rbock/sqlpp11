@@ -38,12 +38,13 @@
 
 namespace sqlpp
 {
+  struct no_value_t;
   namespace detail
   {
     template <typename T, typename Enable = void>
     struct value_type_of_impl
     {
-      static_assert(wrong_t<value_type_of_impl>::value, "Attempting to obtain value type from type without value_type");
+      using type = no_value_t;
     };
 
     template <typename T>
