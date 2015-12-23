@@ -216,5 +216,9 @@ int Interpret(int, char**)
   printer.reset();
   std::cerr << serialize(select(all_of(s)).from(s).where(true), printer).str() << std::endl;
 
+  printer.reset();
+  std::cerr << serialize(sqlpp::case_when(true).then(t.alpha).else_(t.alpha + 1).as(t.beta), printer).str()
+            << std::endl;
+
   return 0;
 }

@@ -27,7 +27,6 @@
 #ifndef SQLPP_MULTI_COLUMN_H
 #define SQLPP_MULTI_COLUMN_H
 
-#include <sqlpp11/no_value.h>
 #include <sqlpp11/logic.h>
 #include <sqlpp11/detail/type_set.h>
 
@@ -35,6 +34,8 @@
 
 namespace sqlpp
 {
+  struct no_value_t;
+
   template <typename AliasProvider, typename... Columns>
   struct multi_column_alias_t;
 

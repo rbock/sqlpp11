@@ -24,28 +24,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_NO_VALUE_H
-#define SQLPP_NO_VALUE_H
-
-#include <type_traits>
-#include <sqlpp11/expression_operators.h>
-#include <sqlpp11/data_types/column_operators.h>
+#ifndef SQLPP_NO_VALUE_PARAMETER_VALUE_H
+#define SQLPP_NO_VALUE_PARAMETER_VALUE_H
 
 namespace sqlpp
 {
-  struct no_value_t
-  {
-    using _traits = make_traits<void>;
-  };
-
-  template <typename Base>
-  struct expression_operators<Base, no_value_t>
-  {
-  };
-
-  template <typename Base>
-  struct column_operators<Base, no_value_t>
-  {
-  };
+  // There is no no_value parameter
 }
+
 #endif

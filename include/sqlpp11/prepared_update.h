@@ -29,7 +29,7 @@
 
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/result.h>
-#include <sqlpp11/no_value.h>
+#include <sqlpp11/data_types/no_value.h>
 
 namespace sqlpp
 {
