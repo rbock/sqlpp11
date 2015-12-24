@@ -120,10 +120,10 @@ struct MockDbT : public sqlpp::connection
   auto _run(const T& t, const std::false_type&) -> void;
 
   template <typename T>
-  auto operator()(const T& t) -> decltype(this->_run(t, typename sqlpp::run_check_t<_serializer_context_t, T>::type{}))
+  auto operator()(const T& t) -> decltype(this->_run(t, sqlpp::run_check_t<_serializer_context_t, T>{}))
   {
     sqlpp::run_check_t<_serializer_context_t, T>::_();
-    return _run(t, typename sqlpp::run_check_t<_serializer_context_t, T>::type{});
+    return _run(t, sqlpp::run_check_t<_serializer_context_t, T>{});
   }
 
   size_t execute(const std::string&)
@@ -191,11 +191,10 @@ struct MockDbT : public sqlpp::connection
   auto _prepare(const T& t, const std::false_type&) -> void;
 
   template <typename T>
-  auto prepare(const T& t)
-      -> decltype(this->_prepare(t, typename sqlpp::prepare_check_t<_serializer_context_t, T>::type{}))
+  auto prepare(const T& t) -> decltype(this->_prepare(t, sqlpp::prepare_check_t<_serializer_context_t, T>{}))
   {
     sqlpp::prepare_check_t<_serializer_context_t, T>::_();
-    return _prepare(t, typename sqlpp::prepare_check_t<_serializer_context_t, T>::type{});
+    return _prepare(t, sqlpp::prepare_check_t<_serializer_context_t, T>{});
   }
 
   template <typename Statement>

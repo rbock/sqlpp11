@@ -60,7 +60,7 @@ namespace
   }
 
   template <typename Assert, typename... Expressions>
-  void set_dynamic_check(const Expressions&... expressions)
+  void where_dynamic_check(const Expressions&... expressions)
   {
     static auto db = MockDb{};
     using CheckResult = sqlpp::check_where_dynamic_t<decltype(db), Expressions...>;
@@ -95,35 +95,40 @@ namespace
     where_static_check<sqlpp::assert_where_expressions_t>(17);
     where_static_check<sqlpp::assert_where_expressions_t>('c');
     where_static_check<sqlpp::assert_where_expressions_t>(nullptr);
+    where_static_check<sqlpp::assert_where_expressions_t>(t.alpha.as(t.beta));
 
     // Try using aggregate functions in where
     where_static_check<sqlpp::assert_where_no_aggregate_functions_t>(count(t.alpha) > 0);
     where_static_check<sqlpp::assert_where_no_aggregate_functions_t>(t.gamma and count(t.alpha) > 0);
+    where_static_check<sqlpp::assert_where_no_aggregate_functions_t>(
+        case_when(count(t.alpha) > 0).then(t.gamma).else_(not t.gamma));
   }
 
-  // column alpha is not allowed, column gamma is required
   void dynamic_where()
   {
     // OK
-    set_dynamic_check<sqlpp::consistent_t>();
-    where_static_check<sqlpp::consistent_t>(t.gamma);
-    where_static_check<sqlpp::consistent_t>(t.gamma == true);
+    where_dynamic_check<sqlpp::consistent_t>();
+    where_dynamic_check<sqlpp::consistent_t>(t.gamma);
+    where_dynamic_check<sqlpp::consistent_t>(t.gamma == true);
 
     // Try assignment as condition
-    where_static_check<sqlpp::assert_where_expressions_t>(t.gamma = true);
+    where_dynamic_check<sqlpp::assert_where_expressions_t>(t.gamma = true);
 
     // Try non-boolean expression
-    where_static_check<sqlpp::assert_where_boolean_t>(t.alpha);
+    where_dynamic_check<sqlpp::assert_where_boolean_t>(t.alpha);
 
     // Try some other types as expressions
-    where_static_check<sqlpp::assert_where_expressions_t>("true");
-    where_static_check<sqlpp::assert_where_expressions_t>(17);
-    where_static_check<sqlpp::assert_where_expressions_t>('c');
-    where_static_check<sqlpp::assert_where_expressions_t>(nullptr);
+    where_dynamic_check<sqlpp::assert_where_expressions_t>("true");
+    where_dynamic_check<sqlpp::assert_where_expressions_t>(17);
+    where_dynamic_check<sqlpp::assert_where_expressions_t>('c');
+    where_dynamic_check<sqlpp::assert_where_expressions_t>(nullptr);
+    where_dynamic_check<sqlpp::assert_where_expressions_t>(t.alpha.as(t.beta));
 
     // Try using aggregate functions in where
-    where_static_check<sqlpp::assert_where_no_aggregate_functions_t>(count(t.alpha) > 0);
-    where_static_check<sqlpp::assert_where_no_aggregate_functions_t>(t.gamma and count(t.alpha) > 0);
+    where_dynamic_check<sqlpp::assert_where_no_aggregate_functions_t>(count(t.alpha) > 0);
+    where_dynamic_check<sqlpp::assert_where_no_aggregate_functions_t>(t.gamma and count(t.alpha) > 0);
+    where_dynamic_check<sqlpp::assert_where_no_aggregate_functions_t>(
+        case_when(count(t.alpha) > 0).then(t.gamma).else_(not t.gamma));
 
     // Try dynamic_where on a non-dynamic remove
     using CheckResult = sqlpp::check_where_dynamic_t<void>;

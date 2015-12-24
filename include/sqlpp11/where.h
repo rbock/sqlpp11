@@ -296,7 +296,7 @@ namespace sqlpp
         using Check = check_where_static_t<Expressions...>;
         Check{}._();
 
-        return _where_impl<void>(typename Check::type{}, expressions...);
+        return _where_impl<void>(Check{}, expressions...);
       }
 
       template <typename... Expressions>
@@ -306,7 +306,7 @@ namespace sqlpp
         using Check = check_where_dynamic_t<_database_t, Expressions...>;
         Check{}._();
 
-        return _where_impl<_database_t>(typename Check::type{}, expressions...);
+        return _where_impl<_database_t>(Check{}, expressions...);
       }
 
     private:

@@ -438,7 +438,7 @@ namespace sqlpp
         using Check = check_insert_static_set_t<Assignments...>;
         Check{}._();
 
-        return _set_impl<void>(typename Check::type{}, assignments...);
+        return _set_impl<void>(Check{}, assignments...);
       }
 
       template <typename... Assignments>
@@ -449,7 +449,7 @@ namespace sqlpp
         using Check = check_insert_dynamic_set_t<_database_t, Assignments...>;
         Check{}._();
 
-        return _set_impl<_database_t>(typename Check::type{}, assignments...);
+        return _set_impl<_database_t>(Check{}, assignments...);
       }
 
     private:

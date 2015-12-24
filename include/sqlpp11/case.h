@@ -34,22 +34,29 @@
 
 namespace sqlpp
 {
-  namespace detail
-  {
-    template <typename When>
-    using valid_when_t =
-        logic::all_t<is_boolean_t<wrap_operand_t<When>>::value, is_expression_t<wrap_operand_t<When>>::value>;
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_case_else_expression_t, "argument is not a value expression in else()");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_case_then_else_same_type_t,
+                               "argument of then() and else() are not of the same type");
 
-    template <typename Then>
-    using valid_then_t = is_expression_t<wrap_operand_t<Then>>;
+  template <typename Then, typename Else>
+  using check_case_else_t = static_combined_check_t<
+      static_check_t<is_expression_t<wrap_operand_t<Else>>::value, assert_case_else_expression_t>,
+      static_check_t<logic::any_t<is_sql_null_t<Then>::value,
+                                  is_sql_null_t<wrap_operand_t<Else>>::value,
+                                  std::is_same<value_type_of<Then>, value_type_of<wrap_operand_t<Else>>>::value>::value,
+                     assert_case_then_else_same_type_t>>;
 
-    template <typename Then, typename Else>
-    using valid_else_t = logic::all_t<
-        is_expression_t<wrap_operand_t<Else>>::value,
-        logic::any_t<is_sql_null_t<Then>::value,
-                     is_sql_null_t<wrap_operand_t<Else>>::value,
-                     std::is_same<value_type_of<Then>, value_type_of<wrap_operand_t<Else>>>::value>::value>;
-  }
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_case_then_expression_t, "argument is not a value expression in then()");
+  template <typename Then>
+  using check_case_then_t =
+      static_check_t<logic::all_t<is_expression_t<wrap_operand_t<Then>>::value>::value, assert_case_then_expression_t>;
+
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_case_when_boolean_expression_t,
+                               "argument is not a boolean expression in case_when()");
+  template <typename When>
+  using check_case_when_t = static_check_t<
+      logic::all_t<is_boolean_t<wrap_operand_t<When>>::value, is_expression_t<wrap_operand_t<When>>::value>::value,
+      assert_case_when_boolean_expression_t>;
 
   template <typename When, typename Then, typename Else>
   struct case_t
@@ -100,11 +107,10 @@ namespace sqlpp
     ~case_then_t() = default;
 
     template <typename Else>
-    auto else_(Else else_) -> decltype(this->_else_impl(detail::valid_else_t<Then, Else>{}, else_))
+    auto else_(Else else_) -> decltype(this->_else_impl(check_case_else_t<Then, Else>{}, else_))
     {
-      static_assert(detail::valid_else_t<Then, Else>::value,
-                    "arguments of then and else must be expressions of the same type (or null)");
-      return _else_impl(detail::valid_else_t<Then, Else>{}, else_);
+      check_case_else_t<Then, Else>::_();
+      return _else_impl(check_case_else_t<Then, Else>{}, else_);
     }
 
   private:
@@ -136,10 +142,10 @@ namespace sqlpp
     ~case_when_t() = default;
 
     template <typename Then>
-    auto then(Then t) -> decltype(this->_then_impl(detail::valid_then_t<Then>{}, t))
+    auto then(Then t) -> decltype(this->_then_impl(check_case_then_t<Then>{}, t))
     {
-      static_assert(detail::valid_then_t<Then>::value, "then argument must be a value expression");
-      return _then_impl(detail::valid_then_t<Then>{}, t);
+      check_case_then_t<Then>::_();
+      return _then_impl(check_case_then_t<Then>{}, t);
     }
 
   private:
@@ -178,11 +184,11 @@ namespace sqlpp
   }
 
   template <typename When>
-  auto case_when(When when) -> decltype(detail::case_when_impl(detail::valid_when_t<When>{}, when))
+  auto case_when(When when) -> decltype(detail::case_when_impl(check_case_when_t<When>{}, when))
   {
-    static_assert(detail::valid_when_t<When>::value, "case_when condition must be a boolean expression");
+    check_case_when_t<When>::_();
 
-    return detail::case_when_impl(detail::valid_when_t<When>{}, when);
+    return detail::case_when_impl(typename check_case_when_t<When>::type{}, when);
   }
 }
 

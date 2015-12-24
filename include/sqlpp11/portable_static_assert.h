@@ -30,9 +30,8 @@
 namespace sqlpp
 {
 #define SQLPP_PORTABLE_STATIC_ASSERT(name, message) \
-  struct name                                       \
+  struct name : std::false_type                     \
   {                                                 \
-    static constexpr bool value = false;            \
     using type = std::false_type;                   \
                                                     \
     template <typename T = void>                    \
