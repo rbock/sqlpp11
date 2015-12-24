@@ -49,14 +49,14 @@ namespace
   {
     using CheckResult = sqlpp::check_insert_static_set_t<Assignments...>;
     using ExpectedCheckResult = std::is_same<CheckResult, Assert>;
-    static_assert(ExpectedCheckResult::value, "Unexpected check result");
     print_type_on_error<CheckResult>(ExpectedCheckResult{});
+    static_assert(ExpectedCheckResult::value, "Unexpected check result");
 
     using ReturnType = decltype(insert_into(t).set(assignments...));
     using ExpectedReturnType =
         sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, sqlpp::bad_statement>::value>;
-    static_assert(ExpectedReturnType::value, "Unexpected return type");
     print_type_on_error<ReturnType>(ExpectedReturnType{});
+    static_assert(ExpectedReturnType::value, "Unexpected return type");
   }
 
   template <typename Assert, typename... Assignments>

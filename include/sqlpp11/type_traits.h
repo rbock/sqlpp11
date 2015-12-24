@@ -206,26 +206,43 @@ namespace sqlpp
   template <typename T>
   using cpp_value_type_of = typename value_type_of<T>::_cpp_value_type;
 
-#define SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(trait)                                                       \
-  namespace detail                                                                                       \
-  {                                                                                                      \
-    template <typename T, typename Leaf = void>                                                          \
-    struct trait##_of_impl                                                                               \
-    {                                                                                                    \
-      using type = typename trait##_of_impl<typename T::_nodes>::type;                                   \
-    };                                                                                                   \
-    template <typename T>                                                                                \
-    struct trait##_of_impl<T, typename std::enable_if<std::is_class<typename T::_##trait>::value>::type> \
-    {                                                                                                    \
-      using type = typename T::_##trait;                                                                 \
-    };                                                                                                   \
-    template <typename... Nodes>                                                                         \
-    struct trait##_of_impl<type_vector<Nodes...>, void>                                                  \
-    {                                                                                                    \
-      using type = detail::make_joined_set_t<typename trait##_of_impl<Nodes>::type...>;                  \
-    };                                                                                                   \
-  }                                                                                                      \
-  template <typename T>                                                                                  \
+  namespace detail
+  {
+    template <typename T, typename HasNodes = void>
+    struct nodes_of_impl
+    {
+      using type = type_vector<>;
+    };
+
+    template <typename T>
+    struct nodes_of_impl<T, detail::void_t<typename T::_nodes>>
+    {
+      using type = typename T::_nodes;
+    };
+  }
+  template <typename T>
+  using nodes_of = typename detail::nodes_of_impl<T>::type;
+
+#define SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(trait)                                      \
+  namespace detail                                                                      \
+  {                                                                                     \
+    template <typename T, typename Leaf = void>                                         \
+    struct trait##_of_impl                                                              \
+    {                                                                                   \
+      using type = typename trait##_of_impl<nodes_of<T>>::type;                         \
+    };                                                                                  \
+    template <typename T>                                                               \
+    struct trait##_of_impl<T, detail::void_t<typename T::_##trait>>                     \
+    {                                                                                   \
+      using type = typename T::_##trait;                                                \
+    };                                                                                  \
+    template <typename... Nodes>                                                        \
+    struct trait##_of_impl<type_vector<Nodes...>, void>                                 \
+    {                                                                                   \
+      using type = detail::make_joined_set_t<typename trait##_of_impl<Nodes>::type...>; \
+    };                                                                                  \
+  }                                                                                     \
+  template <typename T>                                                                 \
   using trait##_of = typename detail::trait##_of_impl<T>::type;
 
   SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(required_ctes)
@@ -236,26 +253,26 @@ namespace sqlpp
   SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(extra_tables)
   SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(provided_aggregates)
 
-#define SQLPP_RECURSIVE_TRAIT_GENERATOR(trait)                                                        \
-  namespace detail                                                                                    \
-  {                                                                                                   \
-    template <typename T, typename Leaf = void>                                                       \
-    struct trait##_impl                                                                               \
-    {                                                                                                 \
-      using type = typename trait##_impl<typename T::_nodes>::type;                                   \
-    };                                                                                                \
-    template <typename T>                                                                             \
-    struct trait##_impl<T, typename std::enable_if<std::is_class<typename T::_##trait>::value>::type> \
-    {                                                                                                 \
-      using type = typename T::_##trait;                                                              \
-    };                                                                                                \
-    template <typename... Nodes>                                                                      \
-    struct trait##_impl<type_vector<Nodes...>, void>                                                  \
-    {                                                                                                 \
-      using type = logic::any_t<trait##_impl<Nodes>::type::value...>;                                 \
-    };                                                                                                \
-  }                                                                                                   \
-  template <typename T>                                                                               \
+#define SQLPP_RECURSIVE_TRAIT_GENERATOR(trait)                        \
+  namespace detail                                                    \
+  {                                                                   \
+    template <typename T, typename Leaf = void>                       \
+    struct trait##_impl                                               \
+    {                                                                 \
+      using type = typename trait##_impl<nodes_of<T>>::type;          \
+    };                                                                \
+    template <typename T>                                             \
+    struct trait##_impl<T, detail::void_t<typename T::_##trait>>      \
+    {                                                                 \
+      using type = typename T::_##trait;                              \
+    };                                                                \
+    template <typename... Nodes>                                      \
+    struct trait##_impl<type_vector<Nodes...>, void>                  \
+    {                                                                 \
+      using type = logic::any_t<trait##_impl<Nodes>::type::value...>; \
+    };                                                                \
+  }                                                                   \
+  template <typename T>                                               \
   using trait##_t = typename detail::trait##_impl<T>::type;
 
   SQLPP_RECURSIVE_TRAIT_GENERATOR(can_be_null)
@@ -275,7 +292,7 @@ namespace sqlpp
     template <typename KnownAggregates, typename T, typename Leaf = void>
     struct is_aggregate_expression_impl
     {
-      using type = typename is_aggregate_expression_impl<KnownAggregates, typename T::_nodes>::type;
+      using type = typename is_aggregate_expression_impl<KnownAggregates, nodes_of<T>>::type;
     };
     template <typename KnownAggregates, typename T>
     struct is_aggregate_expression_impl<
@@ -307,7 +324,7 @@ namespace sqlpp
     template <typename T, typename Leaf = void>
     struct parameters_of_impl
     {
-      using type = typename parameters_of_impl<typename T::_nodes>::type;
+      using type = typename parameters_of_impl<nodes_of<T>>::type;
     };
     template <typename T>
     struct parameters_of_impl<T, typename std::enable_if<std::is_class<typename T::_parameters>::value>::type>

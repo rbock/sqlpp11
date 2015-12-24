@@ -29,6 +29,7 @@ function(test_compile name)
 endfunction()
 
 test_compile(aggregates)
+test_compile(where)
 test_compile(insert)
 test_compile(date)
 test_compile(date_time)

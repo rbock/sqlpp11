@@ -209,6 +209,32 @@ namespace sqlpp
     }
   };
 
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_expressions_t,
+                               "at least one argument is not a boolean expression in where()");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_boolean_t, "at least one argument is not a boolean expression in where()");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_no_aggregate_functions_t,
+                               "at least one aggregate function used in where()");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_static_count_args_t, "missing argument in where()");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_dynamic_statement_dynamic_t,
+                               "dynamic_where() must not be called in a static statement");
+
+  template <typename... Expressions>
+  using check_where_t = static_combined_check_t<
+      static_check_t<logic::all_t<is_expression_t<Expressions>::value...>::value, assert_where_expressions_t>,
+      static_check_t<logic::all_t<is_boolean_t<Expressions>::value...>::value, assert_where_boolean_t>,
+      static_check_t<logic::all_t<(not contains_aggregate_function_t<Expressions>::value)...>::value,
+                     assert_where_no_aggregate_functions_t>>;
+
+  template <typename... Expressions>
+  using check_where_static_t =
+      static_combined_check_t<check_where_t<Expressions...>,
+                              static_check_t<sizeof...(Expressions) != 0, assert_where_static_count_args_t>>;
+
+  template <typename Database, typename... Expressions>
+  using check_where_dynamic_t = static_combined_check_t<
+      static_check_t<not std::is_same<Database, void>::value, assert_where_dynamic_statement_dynamic_t>,
+      check_where_t<Expressions...>>;
+
   // NO WHERE YET
   template <bool WhereRequired>
   struct no_where_t
@@ -250,9 +276,6 @@ namespace sqlpp
 
       using _database_t = typename Policies::_database_t;
 
-      template <typename... T>
-      using _check = logic::all_t<is_expression_t<T>::value...>;
-
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check::value, Policies, no_where_t, T>;
 
@@ -268,26 +291,22 @@ namespace sqlpp
 
       template <typename... Expressions>
       auto where(Expressions... expressions) const
-          -> _new_statement_t<_check<Expressions...>, where_t<void, Expressions...>>
+          -> _new_statement_t<check_where_static_t<Expressions...>, where_t<void, Expressions...>>
       {
-        static_assert(_check<Expressions...>::value, "at least one argument is not an expression in where()");
-        static_assert(sizeof...(Expressions), "at least one expression argument required in where()");
-        static_assert(logic::all_t<(not contains_aggregate_function_t<Expressions>::value)...>::value,
-                      "where expression must not contain aggregate functions");
+        using Check = check_where_static_t<Expressions...>;
+        Check{}._();
 
-        return _where_impl<void>(_check<Expressions...>{}, expressions...);
+        return _where_impl<void>(typename Check::type{}, expressions...);
       }
 
       template <typename... Expressions>
       auto dynamic_where(Expressions... expressions) const
-          -> _new_statement_t<_check<Expressions...>, where_t<_database_t, Expressions...>>
+          -> _new_statement_t<check_where_dynamic_t<_database_t, Expressions...>, where_t<_database_t, Expressions...>>
       {
-        static_assert(_check<Expressions...>::value, "at least one argument is not an expression in where()");
-        static_assert(not std::is_same<_database_t, void>::value,
-                      "dynamic_where must not be called in a static statement");
-        static_assert(logic::all_t<(not contains_aggregate_function_t<Expressions>::value)...>::value,
-                      "where expression must not contain aggregate functions");
-        return _where_impl<_database_t>(_check<Expressions...>{}, expressions...);
+        using Check = check_where_dynamic_t<_database_t, Expressions...>;
+        Check{}._();
+
+        return _where_impl<_database_t>(typename Check::type{}, expressions...);
       }
 
     private:

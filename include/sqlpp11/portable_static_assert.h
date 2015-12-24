@@ -62,13 +62,13 @@ namespace sqlpp
 
   namespace detail
   {
-    template <typename... Asserts>
+    template <typename... StaticChecks>
     struct static_combined_check_impl;
 
-    template <typename Assert, typename... Rest>
-    struct static_combined_check_impl<Assert, Rest...>
+    template <typename StaticCheck, typename... Rest>
+    struct static_combined_check_impl<StaticCheck, Rest...>
     {
-      using type = Assert;
+      using type = StaticCheck;
     };
 
     template <typename... Rest>
@@ -84,8 +84,8 @@ namespace sqlpp
     };
   }
 
-  template <typename... Asserts>
-  using static_combined_check_t = typename detail::static_combined_check_impl<Asserts...>::type;
+  template <typename... StaticChecks>
+  using static_combined_check_t = typename detail::static_combined_check_impl<StaticChecks...>::type;
 }
 
 #endif
