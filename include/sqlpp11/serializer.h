@@ -28,19 +28,11 @@
 #define SQLPP_SERIALIZER_H
 
 #include <sqlpp11/wrong.h>
+#include <sqlpp11/portable_static_assert.h>
 
 namespace sqlpp
 {
-  struct assert_serializer_specialization_t
-  {
-    using type = std::false_type;
-
-    template <typename T = void>
-    static void _()
-    {
-      static_assert(wrong_t<T>::value, "missing serializer specialization");
-    }
-  };
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_serializer_specialization_t, "missing serializer specialization");
 
   template <typename Context, typename T, typename Enable = void>
   struct serializer_t

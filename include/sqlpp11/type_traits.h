@@ -373,28 +373,10 @@ namespace sqlpp
   using serialize_check_of =
       detail::get_first_if<is_inconsistent_t, consistent_t, typename serializer_t<Context, T>::_serialize_check...>;
 
-  struct assert_run_statement_or_prepared_t
-  {
-    using type = std::false_type;
-
-    template <typename T = void>
-    static void _()
-    {
-      static_assert(wrong_t<T>::value,
-                    "connection cannot run something that is neither statement nor prepared statement");
-    }
-  };
-
-  struct assert_prepare_statement_t
-  {
-    using type = std::false_type;
-
-    template <typename T = void>
-    static void _()
-    {
-      static_assert(wrong_t<T>::value, "connection cannot prepare something that is not a statement");
-    }
-  };
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_run_statement_or_prepared_t,
+                               "connection cannot run something that is neither statement nor prepared statement");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_prepare_statement_t,
+                               "connection cannot prepare something that is not a statement");
 
   template <typename T, typename Enable = void>
   struct consistency_check

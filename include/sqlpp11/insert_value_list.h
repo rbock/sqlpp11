@@ -274,17 +274,8 @@ namespace sqlpp
     std::vector<_value_tuple_t> _insert_values;
   };
 
-  struct assert_no_unknown_tables_in_column_list_t
-  {
-    using type = std::false_type;
-
-    template <typename T = void>
-    static void _()
-    {
-      static_assert(wrong_t<T>::value,
-                    "at least one column requires a table which is otherwise not known in the statement");
-    }
-  };
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_no_unknown_tables_in_column_list_t,
+                               "at least one column requires a table which is otherwise not known in the statement");
 
   template <typename... Columns>
   struct column_list_t
@@ -357,16 +348,7 @@ namespace sqlpp
     };
   };
 
-  struct assert_insert_values_t
-  {
-    using type = std::false_type;
-
-    template <typename T = void>
-    static void _()
-    {
-      static_assert(wrong_t<T>::value, "insert values required, e.g. set(...) or default_values()");
-    }
-  };
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_values_t, "insert values required, e.g. set(...) or default_values()");
 
   // NO INSERT COLUMNS/VALUES YET
   struct no_insert_value_list_t

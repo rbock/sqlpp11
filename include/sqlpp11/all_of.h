@@ -30,6 +30,7 @@
 #include <sqlpp11/interpret.h>
 #include <sqlpp11/alias.h>
 #include <sqlpp11/multi_column.h>
+#include <sqlpp11/portable_static_assert.h>
 
 namespace sqlpp
 {
@@ -51,16 +52,7 @@ namespace sqlpp
     return {};
   }
 
-  struct assert_no_stand_alone_all_of_t
-  {
-    using type = std::false_type;
-
-    template <typename T = void>
-    static void _()
-    {
-      static_assert(wrong_t<T>::value, "all_of(table) seems to be used outside of select");
-    }
-  };
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_no_stand_alone_all_of_t, "all_of(table) seems to be used outside of select");
 
   template <typename Context, typename Table>
   struct serializer_t<Context, all_of_t<Table>>

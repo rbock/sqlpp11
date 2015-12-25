@@ -44,39 +44,13 @@ namespace sqlpp
   template <typename Db, typename... Policies>
   struct statement_t;
 
-  struct assert_no_unknown_ctes_t
-  {
-    using type = std::false_type;
-
-    template <typename T = void>
-    static void _()
-    {
-      static_assert(wrong_t<T>::value,
-                    "one clause requires common table expressions which are otherwise not known in the statement");
-    }
-  };
-
-  struct assert_no_unknown_tables_t
-  {
-    using type = std::false_type;
-
-    template <typename T = void>
-    static void _()
-    {
-      static_assert(wrong_t<T>::value, "one clause requires tables which are otherwise not known in the statement");
-    }
-  };
-
-  struct assert_no_parameters_t
-  {
-    using type = std::false_type;
-
-    template <typename T = void>
-    static void _()
-    {
-      static_assert(wrong_t<T>::value, "cannot run statements with parameters directly, use prepare instead");
-    }
-  };
+  SQLPP_PORTABLE_STATIC_ASSERT(
+      assert_no_unknown_ctes_t,
+      "one clause requires common table expressions which are otherwise not known in the statement");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_no_unknown_tables_t,
+                               "one clause requires tables which are otherwise not known in the statement");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_no_parameters_t,
+                               "cannot run statements with parameters directly, use prepare instead");
 
   namespace detail
   {

@@ -55,18 +55,9 @@ namespace sqlpp
     interpretable_list_t<Database> _dynamic_expressions;
   };
 
-  struct assert_no_unknown_tables_in_where_t
-  {
-    using type = std::false_type;
-
-    template <typename T = void>
-    static void _()
-    {
-      static_assert(
-          wrong_t<T>::value,
-          "at least one expression in where() requires a table which is otherwise not known in the statement");
-    }
-  };
+  SQLPP_PORTABLE_STATIC_ASSERT(
+      assert_no_unknown_tables_in_where_t,
+      "at least one expression in where() requires a table which is otherwise not known in the statement");
 
   // WHERE(EXPR)
   template <typename Database, typename... Expressions>
@@ -198,16 +189,7 @@ namespace sqlpp
     };
   };
 
-  struct assert_where_t
-  {
-    using type = std::false_type;
-
-    template <typename T = void>
-    static void _()
-    {
-      static_assert(wrong_t<T>::value, "where expression required, e.g. where(true)");
-    }
-  };
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_t, "where expression required, e.g. where(true)");
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_where_expressions_t,
                                "at least one argument is not a boolean expression in where()");

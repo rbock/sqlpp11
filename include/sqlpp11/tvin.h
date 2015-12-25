@@ -56,16 +56,8 @@ namespace sqlpp
     _operand_t _value;
   };
 
-  struct assert_tvin_with_correct_operator_t
-  {
-    using type = std::false_type;
-
-    template <typename T = void>
-    static void _()
-    {
-      static_assert(wrong_t<T>::value, "tvin may only be used with operators =, == and !=");
-    }
-  };
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_tvin_with_correct_operator_t,
+                               "tvin may only be used with operators =, == and !=");
 
   template <typename Context, typename Operand>
   struct serializer_t<Context, tvin_arg_t<Operand>>

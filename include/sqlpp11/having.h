@@ -54,17 +54,9 @@ namespace sqlpp
     interpretable_list_t<Database> _dynamic_expressions;
   };
 
-  struct assert_no_unknown_tables_in_having_t
-  {
-    using type = std::false_type;
-
-    template <typename T = void>
-    static void _()
-    {
-      static_assert(wrong_t<T>::value,
-                    "at least one having-expression requires a table which is otherwise not known in the statement");
-    }
-  };
+  SQLPP_PORTABLE_STATIC_ASSERT(
+      assert_no_unknown_tables_in_having_t,
+      "at least one having-expression requires a table which is otherwise not known in the statement");
 
   // HAVING
   template <typename Database, typename... Expressions>

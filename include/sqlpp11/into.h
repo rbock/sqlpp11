@@ -100,16 +100,7 @@ namespace sqlpp
     };
   };
 
-  struct assert_into_t
-  {
-    using type = std::false_type;
-
-    template <typename T = void>
-    static void _()
-    {
-      static_assert(wrong_t<T>::value, "into() required");
-    }
-  };
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_into_t, "into() required");
 
   // NO INTO YET
   struct no_into_t

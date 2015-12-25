@@ -27,6 +27,8 @@
 #ifndef SQLPP_PORTABLE_STATIC_ASSERT_H
 #define SQLPP_PORTABLE_STATIC_ASSERT_H
 
+#include <sqlpp11/consistent.h>
+
 namespace sqlpp
 {
 #define SQLPP_PORTABLE_STATIC_ASSERT(name, message) \

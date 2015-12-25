@@ -55,17 +55,9 @@ namespace sqlpp
     interpretable_list_t<Database> _dynamic_expressions;
   };
 
-  struct assert_no_unknown_tables_in_group_by_t
-  {
-    using type = std::false_type;
-
-    template <typename T = void>
-    static void _()
-    {
-      static_assert(wrong_t<T>::value,
-                    "at least one group-by expression requires a table which is otherwise not known in the statement");
-    }
-  };
+  SQLPP_PORTABLE_STATIC_ASSERT(
+      assert_no_unknown_tables_in_group_by_t,
+      "at least one group-by expression requires a table which is otherwise not known in the statement");
 
   // GROUP BY
   template <typename Database, typename... Expressions>

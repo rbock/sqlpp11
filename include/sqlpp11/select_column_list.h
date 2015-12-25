@@ -156,28 +156,11 @@ namespace sqlpp
     dynamic_select_column_list<Database> _dynamic_columns;
   };
 
-  struct assert_no_unknown_tables_in_selected_columns_t
-  {
-    using type = std::false_type;
-
-    template <typename T = void>
-    static void _()
-    {
-      static_assert(wrong_t<T>::value,
-                    "at least one selected column requires a table which is otherwise not known in the statement");
-    }
-  };
-
-  struct assert_aggregates_t
-  {
-    using type = std::false_type;
-
-    template <typename T = void>
-    static void _()
-    {
-      static_assert(wrong_t<T>::value, "not all columns are made of aggregates, despite group_by or similar");
-    }
-  };
+  SQLPP_PORTABLE_STATIC_ASSERT(
+      assert_no_unknown_tables_in_selected_columns_t,
+      "at least one selected column requires a table which is otherwise not known in the statement");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_aggregates_t,
+                               "not all columns are made of aggregates, despite group_by or similar");
 
   // SELECTED COLUMNS
   template <typename Database, typename... Columns>
