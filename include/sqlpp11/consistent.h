@@ -33,9 +33,6 @@ namespace sqlpp
 {
   struct consistent_t : std::true_type
   {
-    static constexpr bool value = true;
-    using type = std::true_type;
-
     static void _(){};
   };
 }
