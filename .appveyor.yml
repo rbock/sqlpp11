@@ -19,7 +19,7 @@ build_script:
   - CD
   - echo %configuration%
   - mkdir build
-  - pushd .
+  #- pushd .
   - cd build
   - cmake --version
   - cmake ..
