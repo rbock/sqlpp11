@@ -33,8 +33,8 @@ SQLPP_ALIAS_PROVIDER(now)
 int DateTime(int, char**)
 {
   MockDb db = {};
-  MockDb::_serializer_context_t printer;
-  test::TabDateTime t;
+  MockDb::_serializer_context_t printer = {};
+  const auto t = test::TabDateTime{};
 
   for (const auto& row : db(select(::sqlpp::value(std::chrono::system_clock::now()).as(now))))
   {

@@ -32,10 +32,10 @@
 int Interpret(int, char**)
 {
   MockDb db = {};
-  MockDb::_serializer_context_t printer;
+  MockDb::_serializer_context_t printer = {};
 
-  test::TabFoo f;
-  test::TabBar t;
+  const auto f = test::TabFoo{};
+  const auto t = test::TabBar{};
   select(t.alpha.as(t.beta));
 
   serialize(insert_into(t).columns(t.beta, t.gamma), printer).str();

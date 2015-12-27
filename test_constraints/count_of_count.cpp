@@ -32,7 +32,7 @@ MockDb db;
 
 int main()
 {
-  test::TabBar t;
+  const auto t = test::TabBar{};
 
   count(count(t.alpha));
 }

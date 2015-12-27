@@ -32,7 +32,7 @@
 int With(int, char**)
 {
   MockDb db;
-  MockDb::_serializer_context_t printer;
+  MockDb::_serializer_context_t printer = {};
 
   const auto t = test::TabBar{};
 

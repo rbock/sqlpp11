@@ -32,10 +32,10 @@
 int CustomQuery(int, char**)
 {
   MockDb db = {};
-  MockDb::_serializer_context_t printer;
+  MockDb::_serializer_context_t printer = {};
 
-  test::TabFoo f;
-  test::TabBar t;
+  const auto f = test::TabFoo{};
+  const auto t = test::TabBar{};
 
   // A void custom query
   printer.reset();

@@ -45,10 +45,10 @@ int64_t getColumn(Db&& db, const Column& column)
 int Select(int, char**)
 {
   MockDb db = {};
-  MockDb::_serializer_context_t printer;
+  MockDb::_serializer_context_t printer = {};
 
-  test::TabFoo f;
-  test::TabBar t;
+  const auto f = test::TabFoo{};
+  const auto t = test::TabBar{};
   const auto tab_a = f.as(sqlpp::alias::a);
 
   getColumn(db, t.alpha);

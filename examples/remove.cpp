@@ -29,10 +29,10 @@
 
 int remove(int, char**)
 {
-  MockDb db;
+  MockDb db{};
 
-  test::TabPerson p;
-  test::TabFeature q;
+  const auto p = test::TabPerson{};
+  const auto q = test::TabFeature{};
 
   db(remove_from(p).using_(p, q).where(p.feature == q.id and q.fatal == true));
   return 0;

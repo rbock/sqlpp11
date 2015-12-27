@@ -43,14 +43,14 @@ namespace alias
 int SelectType(int, char**)
 {
   MockDb db = {};
-  MockDb::_serializer_context_t printer;
+  MockDb::_serializer_context_t printer = {};
 
-  test::TabFoo f;
-  test::TabBar t;
+  const auto f = test::TabFoo{};
+  const auto t = test::TabBar{};
 
   // Test a table
   {
-    using T = decltype(t);
+    using T = typename std::decay<decltype(t)>::type;
     static_assert(not sqlpp::is_numeric_t<T>::value, "type requirement");
     static_assert(not sqlpp::is_integral_t<T>::value, "type requirement");
     static_assert(not sqlpp::is_floating_point_t<T>::value, "type requirement");

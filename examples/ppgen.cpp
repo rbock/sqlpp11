@@ -65,9 +65,9 @@ SQLPP_DECLARE_TABLE(
 
 int ppgen(int, char**)
 {
-  MockDb db;
-  tab_person::tab_person p;
-  tab_feature::tab_feature f;
+  MockDb db{};
+  const auto p = tab_person::tab_person{};
+  const auto f = tab_feature::tab_feature{};
 
   db(insert_into(f).set(f.name = "loves c++", f.fatal = false));
 

@@ -29,10 +29,10 @@
 
 int insert(int, char**)
 {
-  MockDb db;
+  MockDb db{};
 
-  test::TabPerson p;
-  test::TabFeature f;
+  const auto p = test::TabPerson{};
+  const auto f = test::TabFeature{};
 
   db(insert_into(f).set(f.name = "loves c++", f.fatal = false));
 

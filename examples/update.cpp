@@ -29,10 +29,9 @@
 
 int update(int, char**)
 {
-  MockDb db;
+  MockDb db{};
 
-  test::TabPerson p;
-  // test::TabFeature q;
+  const auto p = test::TabPerson{};
 
   db(update(p).set(p.feature = 7).where(p.id == 23));
   return 0;

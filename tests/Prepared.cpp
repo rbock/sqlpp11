@@ -33,7 +33,7 @@ int Prepared(int, char**)
 {
   MockDb db = {};
   // test::TabFoo f;
-  test::TabBar t;
+  const auto t = test::TabBar{};
 
   // empty parameter lists
   {
