@@ -123,6 +123,13 @@ namespace sqlpp
                                 Expr,
                                 wrap_operand_t<T>>;
 
+// workaround for msvs bug 
+//	template <template <typename Lhs, typename... Rhs> class NewExpr, typename... T>
+//    using _new_nary_expression_t =
+//        new_nary_expression_t<logic::all_t<check_rhs_comparison_operand_t<ValueType, wrap_operand_t<T>>::value...>,
+//                              NewExpr,
+//                              Expr,
+//                              wrap_operand_t<T>...>;
     template <template <typename Lhs, typename... Rhs> class NewExpr, typename... T>
     struct _new_nary_expression
 	{
@@ -208,6 +215,13 @@ namespace sqlpp
     }
 
     // Hint: use value_list wrapper for containers...
+// workaround for msvs bug 
+//	template <typename... T>
+//	_new_nary_expression_t<in_t, T...> in(T... t) const
+//	{
+//		check_rhs_in_arguments_t<ValueType, wrap_operand_t<T>...>::_();
+//		return {*static_cast<const Expr*>(this), wrap_operand_t<T>{t}...};
+//	}
     template <typename... T>
 	typename _new_nary_expression<in_t, T...>::type in(T... t) const
     {
@@ -215,6 +229,13 @@ namespace sqlpp
       return {*static_cast<const Expr*>(this), typename wrap_operand<T>::type{t}...};
     }
 
+// workaround for msvs bug 
+//	template <typename... T>
+//	_new_nary_expression_t<not_in_t, T...> not_in(T... t) const
+//	{
+//		check_rhs_in_arguments_t<ValueType, wrap_operand_t<T>...>::_();
+//		return {*static_cast<const Expr*>(this), wrap_operand_t<T>{t}...};
+//	}
     template <typename... T>
 	typename _new_nary_expression<not_in_t, T...>::type not_in(T... t) const
     {

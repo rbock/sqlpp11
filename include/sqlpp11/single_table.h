@@ -73,6 +73,7 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
+// workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
 	  _impl_t() = default;
 	  _impl_t(const _data_t &data) : _data(data){}
 
@@ -85,6 +86,7 @@ namespace sqlpp
     {
       using _data_t = single_table_data_t<Database, Table>;
 
+// workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
 	  template<typename ...Args>
 	  _base_t(Args&& ...args) : from{std::forward<Args>(args)...} {}
 

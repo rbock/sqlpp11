@@ -38,6 +38,7 @@ namespace sqlpp
     using _column_t = Column;
     _column_t _column;
 
+// workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
 	simple_column_t() = default;
 	simple_column_t(const _column_t &column) : _column{column} {}
 

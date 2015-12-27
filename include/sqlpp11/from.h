@@ -71,6 +71,7 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
+// workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
 	  _impl_t() = default;
 	  _impl_t(const _data_t &data) : _data(data){}
 
@@ -81,6 +82,8 @@ namespace sqlpp
         static_assert(is_table_t<Table>::value, "invalid table argument in from::add()");
         using _known_tables =
             detail::make_joined_set_t<provided_tables_of<Tables>...>;  // Hint: Joins contain more than one table
+// workaround for msvc bug https://connect.microsoft.com/VisualStudio/feedback/details/2173198
+//		using _known_table_names = detail::transform_set_t<name_of, _known_tables>;
         using _known_table_names = detail::make_name_of_set_t<_known_tables>;
         static_assert(not detail::is_element_of<typename Table::_alias_t, _known_table_names>::value,
                       "Must not use the same table name twice in from()");
@@ -112,6 +115,7 @@ namespace sqlpp
     {
       using _data_t = from_data_t<Database, Tables...>;
 
+// workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
 	  template<typename ...Args>
 	  _base_t(Args&& ...args) : from{std::forward<Args>(args)...} {}
 
@@ -148,6 +152,7 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
+// workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
 	  _impl_t() = default;
 	  _impl_t(const _data_t &data) : _data(data){}
 
@@ -160,6 +165,7 @@ namespace sqlpp
     {
       using _data_t = no_data_t;
 
+// workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
 	  template<typename ...Args>
 	  _base_t(Args&& ...args) : no_from{std::forward<Args>(args)...} {}
 
@@ -181,6 +187,9 @@ namespace sqlpp
 
       using _database_t = typename Policies::_database_t;
 
+// workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
+//	  template <typename... T>
+//	  using _check = logic::all_t<is_table_t<T>::value...>;
       template <typename... T>
 	  struct _check : logic::all_t<is_table_t<T>::value...> {};
 

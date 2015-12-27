@@ -35,6 +35,9 @@
 
 namespace sqlpp
 {
+// workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173198
+//  template <typename AliasProvider, typename Table, typename... ColumnSpec>
+//  struct table_alias_t : public member_t<ColumnSpec, column_t<AliasProvider, ColumnSpec>>...
   template <typename AliasProvider, typename Table, typename... ColumnSpec>
   struct table_alias_t : public ColumnSpec::_alias_t::template _member_t<column_t<AliasProvider, ColumnSpec>>...
   {

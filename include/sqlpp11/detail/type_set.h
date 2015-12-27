@@ -247,6 +247,7 @@ namespace sqlpp
     template <template <typename> class Transformation, typename T>
     using transform_set_t = typename transform_set<Transformation, T>::type;
 	
+// workaround for msvc bug https://connect.microsoft.com/VisualStudio/feedback/details/2173198
 	template <typename T>
 	struct make_name_of_set
 	{

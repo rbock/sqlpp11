@@ -104,6 +104,19 @@ namespace sqlpp
     }
   };
 
+// workaround for msvs bug https://connect.microsoft.com/VisualStudio/feedback/details/2173053
+//  template <typename Context, typename... Args>
+//  struct serializer_t<Context, column_t<Args...>>
+//  {
+//	  using _serialize_check = consistent_t;
+//	  using T = column_t<Args...>;
+//
+//	  static Context& _(const T&, Context& context)
+//	  {
+//		  context << name_of<typename T::_table>::char_ptr() << '.' << name_of<T>::char_ptr();
+//		  return context;
+//	  }
+//  };
   template <typename Context, typename Args1, typename Args2>
   struct serializer_t<Context, column_t<Args1, Args2>>
   {

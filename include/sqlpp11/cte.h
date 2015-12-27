@@ -123,6 +123,10 @@ namespace sqlpp
   template <typename AliasProvider, typename Statement>
   using make_cte_t = typename make_cte_impl<AliasProvider, Statement, get_result_row_t<Statement>>::type;
 
+// workaround for msvc unknown internal error
+//  template <typename AliasProvider, typename Statement, typename... FieldSpecs>
+//  struct cte_t
+//	  : public member_t<cte_column_spec_t<FieldSpecs>, column_t<AliasProvider, cte_column_spec_t<FieldSpecs>>>...
   template <typename AliasProvider, typename FieldSpec>
   struct cte_base
   {
@@ -143,6 +147,9 @@ namespace sqlpp
 
     using _column_tuple_t = std::tuple<column_t<AliasProvider, cte_column_spec_t<FieldSpecs>>...>;
 
+// workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2086629
+//	template <typename... T>
+//	using _check = logic::all_t<is_statement_t<T>::value...>;
     template <typename... T>
 	struct _check : logic::all_t<is_statement_t<T>::value...>{};
 

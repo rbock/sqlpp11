@@ -38,6 +38,8 @@ namespace sqlpp
     struct logic_helper;
 
     // see http://lists.boost.org/Archives/boost/2014/05/212946.php :-)
+
+// workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2086629
 	template <bool... B>
 	struct all
 	{
@@ -47,6 +49,7 @@ namespace sqlpp
     template <bool... B>
     using all_t = std::is_same<logic_helper<B...>, logic_helper<(B or true)...>>;
 
+// workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2086629
 	template <bool... B>
 	struct any
 	{
