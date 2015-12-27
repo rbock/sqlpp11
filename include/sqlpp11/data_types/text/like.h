@@ -45,7 +45,9 @@ namespace sqlpp
 
     struct _alias_t
     {
-      static constexpr const char _literal[] = "like_";
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2100550
+      //      static constexpr const char _literal[] = "like_";
+      static constexpr const char _literal[6] = "like_";
       using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
       template <typename T>
       struct _member_t

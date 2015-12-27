@@ -69,6 +69,12 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
+      _impl_t() = default;
+      _impl_t(const _data_t& data) : _data(data)
+      {
+      }
+
       template <typename Table>
       void add(Table table)
       {
@@ -101,6 +107,13 @@ namespace sqlpp
     struct _base_t
     {
       using _data_t = using_data_t<Database, Tables...>;
+
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
+      template <typename... Args>
+      _base_t(Args&&... args)
+          : using_{std::forward<Args>(args)...}
+      {
+      }
 
       _impl_t<Policies> using_;
       _impl_t<Policies>& operator()()
@@ -136,6 +149,12 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
+      _impl_t() = default;
+      _impl_t(const _data_t& data) : _data(data)
+      {
+      }
+
       _data_t _data;
     };
 
@@ -144,6 +163,13 @@ namespace sqlpp
     struct _base_t
     {
       using _data_t = no_data_t;
+
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
+      template <typename... Args>
+      _base_t(Args&&... args)
+          : no_using{std::forward<Args>(args)...}
+      {
+      }
 
       _impl_t<Policies> no_using;
       _impl_t<Policies>& operator()()
@@ -163,8 +189,13 @@ namespace sqlpp
 
       using _database_t = typename Policies::_database_t;
 
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
+      //	  template <typename... T>
+      //	  using _check = logic::all_t<is_table_t<T>::value...>;
       template <typename... T>
-      using _check = logic::all_t<is_table_t<T>::value...>;
+      struct _check : logic::all_t<is_table_t<T>::value...>
+      {
+      };
 
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check::value, Policies, no_using_t, T>;

@@ -78,7 +78,12 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
-    public:
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
+      _impl_t() = default;
+      _impl_t(const _data_t& data) : _data(data)
+      {
+      }
+
       _data_t _data;
     };
 
@@ -87,6 +92,13 @@ namespace sqlpp
     struct _base_t
     {
       using _data_t = union_data_t<Database, Flag, Lhs, Rhs>;
+
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
+      template <typename... Args>
+      _base_t(Args&&... args)
+          : union_{std::forward<Args>(args)...}
+      {
+      }
 
       _impl_t<Policies> union_;
       _impl_t<Policies>& operator()()
@@ -137,6 +149,12 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
+      _impl_t() = default;
+      _impl_t(const _data_t& data) : _data(data)
+      {
+      }
+
       _data_t _data;
     };
 
@@ -145,6 +163,13 @@ namespace sqlpp
     struct _base_t
     {
       using _data_t = no_data_t;
+
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
+      template <typename... Args>
+      _base_t(Args&&... args)
+          : no_union{std::forward<Args>(args)...}
+      {
+      }
 
       _impl_t<Policies> no_union;
       _impl_t<Policies>& operator()()
@@ -164,8 +189,11 @@ namespace sqlpp
 
       using _database_t = typename Policies::_database_t;
 
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
+      //	  template <typename... T>
+      //	  using _check = logic::all_t<is_statement_t<T>::value...>;
       template <typename... T>
-      using _check = logic::all_t<is_statement_t<T>::value...>;
+      using _check = typename logic::all<is_statement_t<T>::value...>::type;
 
       template <typename Check, typename T>
       using _new_statement_t = union_statement_t<Check::value, T>;

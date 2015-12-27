@@ -64,6 +64,12 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
+      _impl_t() = default;
+      _impl_t(const _data_t& data) : _data(data)
+      {
+      }
+
       _data_t _data;
     };
 
@@ -72,6 +78,13 @@ namespace sqlpp
     struct _base_t
     {
       using _data_t = limit_data_t<Limit>;
+
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
+      template <typename... Args>
+      _base_t(Args&&... args)
+          : limit{std::forward<Args>(args)...}
+      {
+      }
 
       _impl_t<Policies> limit;
       _impl_t<Policies>& operator()()
@@ -131,6 +144,12 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
+      _impl_t() = default;
+      _impl_t(const _data_t& data) : _data(data)
+      {
+      }
+
       template <typename Limit>
       void set(Limit value)
       {
@@ -150,6 +169,13 @@ namespace sqlpp
     struct _base_t
     {
       using _data_t = dynamic_limit_data_t<Database>;
+
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
+      template <typename... Args>
+      _base_t(Args&&... args)
+          : limit{std::forward<Args>(args)...}
+      {
+      }
 
       _impl_t<Policies> limit;
       _impl_t<Policies>& operator()()
@@ -183,6 +209,12 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
+      _impl_t() = default;
+      _impl_t(const _data_t& data) : _data(data)
+      {
+      }
+
       _data_t _data;
     };
 
@@ -191,6 +223,13 @@ namespace sqlpp
     struct _base_t
     {
       using _data_t = no_data_t;
+
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
+      template <typename... Args>
+      _base_t(Args&&... args)
+          : no_limit{std::forward<Args>(args)...}
+      {
+      }
 
       _impl_t<Policies> no_limit;
       _impl_t<Policies>& operator()()
