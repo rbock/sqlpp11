@@ -1,0 +1,28 @@
+os: Visual Studio 2015
+
+platform:
+  - x64
+
+configuration:
+  - Debug
+  - Release
+
+matrix:
+  fast_finish: true
+
+build_script:
+  - CD
+  - pushd ..
+  - CD
+  - git clone https://github.com/HowardHinnant/date
+  - popd
+  - CD
+  - echo %configuration%
+  - mkdir build
+  - pushd .
+  - cd build
+  - cmake --version
+  - cmake ..
+  - cmake --build . --config %configuration%
+  - ctest . --build-config %configuration%
+
