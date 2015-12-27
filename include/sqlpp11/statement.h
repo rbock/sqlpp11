@@ -84,10 +84,17 @@ namespace sqlpp
       template <typename Expression>
       using _no_unknown_tables = detail::is_subset_of<required_tables_of<Expression>, _known_tables>;
 
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2086629
+      //	  template <typename... Expressions>
+      //      using _no_unknown_aggregates =
+      //          logic::any_t<_all_provided_aggregates::size::value == 0,
+      //                       logic::all_t<is_aggregate_expression_t<_all_provided_aggregates,
+      //                       Expressions>::value...>::value>;
       template <typename... Expressions>
       using _no_unknown_aggregates =
           logic::any_t<_all_provided_aggregates::size::value == 0,
-                       logic::all_t<is_aggregate_expression_t<_all_provided_aggregates, Expressions>::value...>::value>;
+                       logic::all_t<detail::is_aggregate_expression_impl<_all_provided_aggregates,
+                                                                         Expressions>::type::value...>::value>;
 
       template <template <typename> class Predicate>
       using any_t = logic::any_t<Predicate<Policies>::value...>;
@@ -193,10 +200,17 @@ namespace sqlpp
     {
     }
 
+    // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
+    //	template <typename Statement, typename Term>
+    //	statement_t(Statement statement, Term term)
+    //		: Policies::template _base_t<_policies_t>{typename Policies::template _impl_t<_policies_t>{
+    //		detail::pick_arg<typename Policies::template _base_t<_policies_t>>(statement, term)}}...
+    //	{
+    //	}
     template <typename Statement, typename Term>
     statement_t(Statement statement, Term term)
-        : Policies::template _base_t<_policies_t>{typename Policies::template _impl_t<_policies_t>{
-              detail::pick_arg<typename Policies::template _base_t<_policies_t>>(statement, term)}}...
+        : Policies::template _base_t<_policies_t>(typename Policies::template _impl_t<_policies_t>(
+              detail::pick_arg<typename Policies::template _base_t<_policies_t>>(statement, term)))...
     {
     }
 
@@ -265,6 +279,12 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
+      _impl_t() = default;
+      _impl_t(const _data_t& data) : _data(data)
+      {
+      }
+
       _data_t _data;
     };
 
@@ -273,6 +293,13 @@ namespace sqlpp
     struct _base_t
     {
       using _data_t = NameData;
+
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
+      template <typename... Args>
+      _base_t(Args&&... args)
+          : statement_name{std::forward<Args>(args)...}
+      {
+      }
 
       _impl_t<Policies> statement_name;
       _impl_t<Policies>& operator()()

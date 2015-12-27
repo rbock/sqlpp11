@@ -71,6 +71,12 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
+      _impl_t() = default;
+      _impl_t(const _data_t& data) : _data(data)
+      {
+      }
+
       template <typename Flag>
       void add_ntc(Flag flag)
       {
@@ -112,6 +118,13 @@ namespace sqlpp
     {
       using _data_t = select_flag_list_data_t<Database, Flags...>;
 
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
+      template <typename... Args>
+      _base_t(Args&&... args)
+          : select_flags{std::forward<Args>(args)...}
+      {
+      }
+
       _impl_t<Policies> select_flags;
       _impl_t<Policies>& operator()()
       {
@@ -144,6 +157,12 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
+      _impl_t() = default;
+      _impl_t(const _data_t& data) : _data(data)
+      {
+      }
+
       _data_t _data;
     };
 
@@ -152,6 +171,13 @@ namespace sqlpp
     struct _base_t
     {
       using _data_t = no_data_t;
+
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
+      template <typename... Args>
+      _base_t(Args&&... args)
+          : no_select_flags{std::forward<Args>(args)...}
+      {
+      }
 
       _impl_t<Policies> no_select_flags;
       _impl_t<Policies>& operator()()
@@ -171,8 +197,13 @@ namespace sqlpp
 
       using _database_t = typename Policies::_database_t;
 
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
+      //	  template <typename... T>
+      //	  using _check = logic::all_t<is_select_flag_t<T>::value...>;
       template <typename... T>
-      using _check = logic::all_t<is_select_flag_t<T>::value...>;
+      struct _check : logic::all_t<detail::is_select_flag_impl<T>::type::value...>
+      {
+      };
 
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check::value, Policies, no_select_flag_list_t, T>;

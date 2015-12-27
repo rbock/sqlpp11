@@ -41,8 +41,11 @@ namespace sqlpp
   {
   };
 
+  // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173198
+  //  template <typename Table, typename... ColumnSpec>
+  //  struct table_t : public table_base_t, public member_t<ColumnSpec, column_t<Table, ColumnSpec>>...
   template <typename Table, typename... ColumnSpec>
-  struct table_t : public table_base_t, public member_t<ColumnSpec, column_t<Table, ColumnSpec>>...
+  struct table_t : public table_base_t, public ColumnSpec::_alias_t::template _member_t<column_t<Table, ColumnSpec>>...
   {
     using _traits = make_traits<no_value_t, tag::is_raw_table, tag::is_table>;
 

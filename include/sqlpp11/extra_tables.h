@@ -63,6 +63,12 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
+      _impl_t() = default;
+      _impl_t(const _data_t& data) : _data(data)
+      {
+      }
+
       _data_t _data;
     };
 
@@ -71,6 +77,13 @@ namespace sqlpp
     struct _base_t
     {
       using _data_t = extra_tables_data_t<Tables...>;
+
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
+      template <typename... Args>
+      _base_t(Args&&... args)
+          : extra_tables{std::forward<Args>(args)...}
+      {
+      }
 
       _impl_t<Policies> extra_tables;
       _impl_t<Policies>& operator()()
@@ -105,6 +118,12 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
+      _impl_t() = default;
+      _impl_t(const _data_t& data) : _data(data)
+      {
+      }
+
       _data_t _data;
     };
 
@@ -113,6 +132,13 @@ namespace sqlpp
     struct _base_t
     {
       using _data_t = no_data_t;
+
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
+      template <typename... Args>
+      _base_t(Args&&... args)
+          : no_extra_tables{std::forward<Args>(args)...}
+      {
+      }
 
       _impl_t<Policies> no_extra_tables;
       _impl_t<Policies>& operator()()
@@ -133,8 +159,13 @@ namespace sqlpp
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check::value, Policies, no_extra_tables_t, T>;
 
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
+      //	  template <typename... T>
+      //	  using _check = logic::all_t<is_table_t<T>::value...>;
       template <typename... T>
-      using _check = logic::all_t<is_table_t<T>::value...>;
+      struct _check : logic::all_t<is_table_t<T>::value...>
+      {
+      };
 
       using _consistency_check = consistent_t;
 
@@ -159,7 +190,9 @@ namespace sqlpp
 
         static constexpr std::size_t _number_of_tables = detail::sum(provided_tables_of<Tables>::size::value...);
         using _unique_tables = detail::make_joined_set_t<provided_tables_of<Tables>...>;
-        using _unique_table_names = detail::transform_set_t<name_of, _unique_tables>;
+        // workaround for msvc bug https://connect.microsoft.com/VisualStudio/feedback/details/2173198
+        //		using _unique_table_names = detail::transform_set_t<name_of, _unique_tables>;
+        using _unique_table_names = detail::make_name_of_set_t<_unique_tables>;
         static_assert(_number_of_tables == _unique_tables::size::value,
                       "at least one duplicate table detected in extra_tables()");
         static_assert(_number_of_tables == _unique_table_names::size::value,

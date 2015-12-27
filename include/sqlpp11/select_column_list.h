@@ -184,6 +184,12 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
+      _impl_t() = default;
+      _impl_t(const _data_t& data) : _data(data)
+      {
+      }
+
       template <typename NamedExpression>
       void add_ntc(NamedExpression namedExpression)
       {
@@ -230,6 +236,13 @@ namespace sqlpp
     struct _base_t
     {
       using _data_t = select_column_list_data_t<Database, Columns...>;
+
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
+      template <typename... Args>
+      _base_t(Args&&... args)
+          : selected_columns{std::forward<Args>(args)...}
+      {
+      }
 
       _impl_t<Policies> selected_columns;
       _impl_t<Policies>& operator()()
@@ -380,6 +393,12 @@ namespace sqlpp
     template <typename Policies>
     struct _impl_t
     {
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
+      _impl_t() = default;
+      _impl_t(const _data_t& data) : _data(data)
+      {
+      }
+
       _data_t _data;
     };
 
@@ -388,6 +407,13 @@ namespace sqlpp
     struct _base_t
     {
       using _data_t = no_data_t;
+
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
+      template <typename... Args>
+      _base_t(Args&&... args)
+          : no_selected_columns{std::forward<Args>(args)...}
+      {
+      }
 
       _impl_t<Policies> no_selected_columns;
       _impl_t<Policies>& operator()()
@@ -407,8 +433,13 @@ namespace sqlpp
 
       using _database_t = typename Policies::_database_t;
 
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
+      //	  template <typename... T>
+      //	  using _check = logic::all_t<(is_selectable_t<T>::value or is_multi_column_t<T>::value)...>;
       template <typename... T>
-      using _check = logic::all_t<(is_selectable_t<T>::value or is_multi_column_t<T>::value)...>;
+      struct _check : logic::all_t<(is_selectable_t<T>::value or is_multi_column_t<T>::value)...>
+      {
+      };
 
       template <typename... T>
       static constexpr auto _check_tuple(std::tuple<T...>) -> _check<T...>

@@ -123,9 +123,18 @@ namespace sqlpp
   template <typename AliasProvider, typename Statement>
   using make_cte_t = typename make_cte_impl<AliasProvider, Statement, get_result_row_t<Statement>>::type;
 
+  // workaround for msvc unknown internal error
+  //  template <typename AliasProvider, typename Statement, typename... FieldSpecs>
+  //  struct cte_t
+  //	  : public member_t<cte_column_spec_t<FieldSpecs>, column_t<AliasProvider, cte_column_spec_t<FieldSpecs>>>...
+  template <typename AliasProvider, typename FieldSpec>
+  struct cte_base
+  {
+    using type = member_t<cte_column_spec_t<FieldSpec>, column_t<AliasProvider, cte_column_spec_t<FieldSpec>>>;
+  };
+
   template <typename AliasProvider, typename Statement, typename... FieldSpecs>
-  struct cte_t
-      : public member_t<cte_column_spec_t<FieldSpecs>, column_t<AliasProvider, cte_column_spec_t<FieldSpecs>>>...
+  struct cte_t : public cte_base<AliasProvider, FieldSpecs>::type...
   {
     using _traits = make_traits<no_value_t, tag::is_cte, tag::is_table>;  // FIXME: is table? really?
     using _nodes = detail::type_vector<>;
@@ -137,8 +146,13 @@ namespace sqlpp
 
     using _column_tuple_t = std::tuple<column_t<AliasProvider, cte_column_spec_t<FieldSpecs>>...>;
 
+    // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2086629
+    //	template <typename... T>
+    //	using _check = logic::all_t<is_statement_t<T>::value...>;
     template <typename... T>
-    using _check = logic::all_t<is_statement_t<T>::value...>;
+    struct _check : logic::all_t<is_statement_t<T>::value...>
+    {
+    };
 
     using _result_row_t = result_row_t<void, FieldSpecs...>;
 
