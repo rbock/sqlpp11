@@ -12,14 +12,13 @@ matrix:
 
 build_script:
   - CD
-  - pushd ..
+  - cd ..
   - CD
   - git clone https://github.com/HowardHinnant/date
-  - popd
+  - cd sqlpp11
   - CD
   - echo %configuration%
   - mkdir build
-  #- pushd .
   - cd build
   - cmake --version
   - cmake ..
