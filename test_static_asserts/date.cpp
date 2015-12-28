@@ -83,7 +83,7 @@ namespace
   }
 }
 
-int main(int, char**)
+int main(int, char*[])
 {
   allowed_comparands();
   disallowed_comparands();

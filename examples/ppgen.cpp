@@ -63,7 +63,7 @@ SQLPP_DECLARE_TABLE(
 )
 // clang-format on
 
-int ppgen(int, char**)
+int ppgen(int, char*[])
 {
   MockDb db{};
   const auto p = tab_person::tab_person{};

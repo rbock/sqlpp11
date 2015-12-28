@@ -29,7 +29,7 @@
 #include "MockDb.h"
 #include "is_regular.h"
 
-int Remove(int, char**)
+int Remove(int, char*[])
 {
   MockDb db = {};
   MockDb::_serializer_context_t printer = {};

@@ -31,7 +31,7 @@
 static_assert(not sqlpp::enforce_null_result_treatment_t<MockDb>::value, "MockDb interprets NULL as trivial");
 static_assert(sqlpp::enforce_null_result_treatment_t<EnforceDb>::value, "MockDb does not interpret NULL as trivial");
 
-int Result(int, char**)
+int Result(int, char*[])
 {
   MockDb db = {};
   EnforceDb edb{};

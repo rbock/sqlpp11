@@ -35,7 +35,7 @@
 
 SQLPP_ALIAS_PROVIDER(kaesekuchen)
 
-int Function(int, char**)
+int Function(int, char*[])
 {
   MockDb db = {};
   const auto f = test::TabFoo{};
