@@ -339,6 +339,7 @@ namespace sqlpp
         return _where_impl<_database_t>(Check{});
       }
 
+      // MSVC does not comprehend this, and must therefore have a separate function with no arguments.
       template <typename... Expressions>
       auto dynamic_where(Expressions... expressions) const
           -> _new_statement_t<check_where_dynamic_t<_database_t, Expressions...>, where_t<_database_t, Expressions...>>
