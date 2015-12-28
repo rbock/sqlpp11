@@ -331,6 +331,14 @@ namespace sqlpp
         return _where_impl<void>(Check{}, expressions...);
       }
 
+      auto dynamic_where() const -> _new_statement_t<check_where_dynamic_t<_database_t>, where_t<_database_t>>
+      {
+        using Check = check_where_dynamic_t<_database_t>;
+        Check{}._();
+
+        return _where_impl<_database_t>(Check{});
+      }
+
       template <typename... Expressions>
       auto dynamic_where(Expressions... expressions) const
           -> _new_statement_t<check_where_dynamic_t<_database_t, Expressions...>, where_t<_database_t, Expressions...>>
