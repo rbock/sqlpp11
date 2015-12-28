@@ -33,6 +33,8 @@ function(test_constraint name pattern)
   set_property(TEST ${test} PROPERTY PASS_REGULAR_EXPRESSION ${pattern})
 endfunction()
 
+add_executable(see_what_happens no_conversion_operator_if_null_not_trivial.cpp)
+target_link_libraries(see_what_happens PRIVATE sqlpp11 sqlpp11_testing)
 test_constraint(count_of_count "count\\(\\) cannot be used on an aggregate function")
 test_constraint(max_of_max "max\\(\\) cannot be used on an aggregate function")
 test_constraint(no_conversion_operator_if_null_not_trivial "int i = row.alpha")

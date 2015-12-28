@@ -33,6 +33,7 @@
 #include <sqlpp11/result_field.h>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/bad_statement.h>
 
 namespace sqlpp
 {
@@ -115,7 +116,9 @@ namespace sqlpp
       return _value;
     }
 
-    operator _cpp_value_type() const
+    operator typename std::conditional<_null_is_trivial or (not _can_be_null::value),
+                                       _cpp_value_type,
+                                       bad_statement>::type() const
     {
       return value();
     }

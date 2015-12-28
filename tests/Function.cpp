@@ -35,7 +35,7 @@
 
 SQLPP_ALIAS_PROVIDER(kaesekuchen)
 
-int Function(int, char*[])
+int Function(int, char* [])
 {
   MockDb db = {};
   const auto f = test::TabFoo{};
@@ -286,7 +286,7 @@ int Function(int, char*[])
     static_assert(sqlpp::is_integral_t<TT>::value, "type requirement");
     static_assert(not sqlpp::is_floating_point_t<TT>::value, "type requirement");
 
-    if (false and db(select(count(t.alpha)).from(t).where(true)).front().count)
+    if (false and db(select(count(t.alpha)).from(t).where(true)).front().count > 0)
     { /* do something */
     }
   }
@@ -446,11 +446,14 @@ int Function(int, char*[])
 
     for (const auto& row : db(select(all_of(t)).from(t).where(true)))
     {
-      static_assert(std::is_same<decltype(sqlpp::tvin(row.alpha)), sqlpp::tvin_arg_t<typename std::remove_const<decltype(row.alpha)>::type>>::value,
+      static_assert(std::is_same<decltype(sqlpp::tvin(row.alpha)),
+                                 sqlpp::tvin_arg_t<typename std::remove_const<decltype(row.alpha)>::type>>::value,
                     "result fields are accepted and not wrapped");
-      static_assert(std::is_same<decltype(sqlpp::tvin(row.beta)), sqlpp::tvin_arg_t<typename std::remove_const<decltype(row.beta)>::type>>::value,
+      static_assert(std::is_same<decltype(sqlpp::tvin(row.beta)),
+                                 sqlpp::tvin_arg_t<typename std::remove_const<decltype(row.beta)>::type>>::value,
                     "result fields are accepted and not wrapped");
-      static_assert(std::is_same<decltype(sqlpp::tvin(row.gamma)), sqlpp::tvin_arg_t<typename std::remove_const<decltype(row.gamma)>::type>>::value,
+      static_assert(std::is_same<decltype(sqlpp::tvin(row.gamma)),
+                                 sqlpp::tvin_arg_t<typename std::remove_const<decltype(row.gamma)>::type>>::value,
                     "result fields are accepted and not wrapped");
     }
   }
