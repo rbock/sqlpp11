@@ -21,7 +21,7 @@ build_script:
   - mkdir build
   - cd build
   - cmake --version
-  - cmake .. -DCMAKE_CXX_FLAGS="/wd4503"
+  - cmake .. -DCMAKE_CXX_FLAGS="/EHsc /wd4503"
   - cmake --build . --config %configuration%
   - ctest . --build-config %configuration%
 
