@@ -228,7 +228,8 @@ namespace sqlpp
 
   template <typename... Expressions>
   using check_where_t = static_combined_check_t<
-      static_check_t<logic::all_t<is_expression_t<Expressions>::value...>::value, assert_where_expressions_t>,
+      static_check_t<logic::all_t<detail::is_expression_impl<Expressions>::type::value...>::value,
+                     assert_where_expressions_t>,
       static_check_t<logic::all_t<is_boolean_t<Expressions>::value...>::value, assert_where_boolean_t>,
       static_check_t<logic::all_t<(not contains_aggregate_function_t<Expressions>::value)...>::value,
                      assert_where_no_aggregate_functions_t>>;
