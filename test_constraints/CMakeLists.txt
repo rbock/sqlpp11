@@ -35,7 +35,7 @@ endfunction()
 
 test_constraint(count_of_count "count\\(\\) cannot be used on an aggregate function")
 test_constraint(max_of_max "max\\(\\) cannot be used on an aggregate function")
-test_constraint(no_conversion_operator_if_null_not_trivial "int i = row.alpha")
+test_constraint(no_conversion_operator_if_null_not_trivial "cannot convert|no viable conversion")
 test_constraint(require_insert "required column is missing")
 test_constraint(must_not_insert "one assignment is prohibited")
 test_constraint(must_not_update "one assignment is prohibited")

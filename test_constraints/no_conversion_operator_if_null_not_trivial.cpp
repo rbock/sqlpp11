@@ -31,7 +31,7 @@ EnforceDb edb{};
 
 int main()
 {
-  test::TabBar t;
+  const auto t = test::TabBar{};
 
   static_assert(sqlpp::can_be_null_t<decltype(t.alpha)>::value, "t.alpha can be null");
   static_assert(not sqlpp::null_is_trivial_value_t<decltype(t.alpha)>::value, "t.alpha does not say null_is_trivial");

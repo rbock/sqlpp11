@@ -45,14 +45,16 @@ namespace sqlpp
 
     static constexpr bool value =
         true
+#if !defined _MSC_VER
 #if defined SQLPP_TEST_NO_THROW_MOVE_CONSTRUCTIBLE
         and std::is_nothrow_move_constructible<T>::value
 #endif
         and std::is_move_assignable<T>::value  // containers and strings are not noexcept_assignable
         and std::is_copy_constructible<T>::value and std::is_copy_assignable<T>::value
-        // default constructor makes no sense
-        // (not) equals would be possible
-        // not sure about less
+// default constructor makes no sense
+// (not) equals would be possible
+// not sure about less
+#endif
         ;
   };
 }

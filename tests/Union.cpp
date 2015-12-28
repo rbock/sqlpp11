@@ -29,13 +29,13 @@
 #include <sqlpp11/alias_provider.h>
 #include <iostream>
 
-int Union(int, char**)
+int Union(int, char*[])
 {
   MockDb db;
-  MockDb::_serializer_context_t printer;
+  MockDb::_serializer_context_t printer = {};
 
-  test::TabBar t;
-  test::TabFoo f;
+  const auto t = test::TabBar{};
+  const auto f = test::TabFoo{};
 
   db(select(t.alpha).from(t).where(true).union_distinct(select(f.epsilon.as(t.alpha)).from(f).where(true)));
   db(select(t.alpha).from(t).where(true).union_all(select(f.epsilon.as(t.alpha)).from(f).where(true)));

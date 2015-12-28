@@ -29,12 +29,12 @@
 #include "MockDb.h"
 #include "is_regular.h"
 
-int Remove(int, char**)
+int Remove(int, char*[])
 {
-  MockDb db;
-  MockDb::_serializer_context_t printer;
+  MockDb db = {};
+  MockDb::_serializer_context_t printer = {};
 
-  test::TabBar t;
+  const auto t = test::TabBar{};
 
   {
     using T = decltype(remove_from(t));

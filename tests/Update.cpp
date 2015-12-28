@@ -29,13 +29,12 @@
 #include "MockDb.h"
 #include "is_regular.h"
 
-int Update(int, char**)
+int Update(int, char*[])
 {
   MockDb db;
-  MockDb::_serializer_context_t printer;
+  MockDb::_serializer_context_t printer = {};
 
-  test::TabBar t;
-  // test::TabFoo f;
+  const auto t = test::TabBar{};
 
   {
     using T = decltype(update(t));

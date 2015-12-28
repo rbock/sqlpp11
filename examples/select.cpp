@@ -36,15 +36,17 @@
 
 SQLPP_ALIAS_PROVIDER(cheesecake)
 
-int select(int, char**)
+int select(int, char*[])
 {
   static constexpr bool some_condition = true;
   static constexpr bool some_other_condition = false;
 
-  MockDb db;
+  MockDb db{};
 
-  test::TabPerson p;
-  test::TabFeature f;
+  const auto p = test::TabPerson{};
+#if 0
+  const auto f = test::TabFeature{};
+#endif
 
   for (const auto& row : db(select(all_of(p)).from(p).where(p.id > 7)))
   {

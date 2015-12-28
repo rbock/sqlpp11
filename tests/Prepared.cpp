@@ -29,11 +29,11 @@
 #include <sqlpp11/functions.h>
 #include <sqlpp11/select.h>
 
-int Prepared(int, char**)
+int Prepared(int, char*[])
 {
   MockDb db = {};
   // test::TabFoo f;
-  test::TabBar t;
+  const auto t = test::TabBar{};
 
   // empty parameter lists
   {
