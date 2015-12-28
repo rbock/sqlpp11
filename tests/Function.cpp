@@ -446,11 +446,11 @@ int Function(int, char**)
 
     for (const auto& row : db(select(all_of(t)).from(t).where(true)))
     {
-      static_assert(std::is_same<decltype(sqlpp::tvin(row.alpha)), sqlpp::tvin_arg_t<decltype(row.alpha)>>::value,
+      static_assert(std::is_same<decltype(sqlpp::tvin(row.alpha)), sqlpp::tvin_arg_t<typename std::remove_const<decltype(row.alpha)>::type>>::value,
                     "result fields are accepted and not wrapped");
-      static_assert(std::is_same<decltype(sqlpp::tvin(row.beta)), sqlpp::tvin_arg_t<decltype(row.beta)>>::value,
+      static_assert(std::is_same<decltype(sqlpp::tvin(row.beta)), sqlpp::tvin_arg_t<typename std::remove_const<decltype(row.beta)>::type>>::value,
                     "result fields are accepted and not wrapped");
-      static_assert(std::is_same<decltype(sqlpp::tvin(row.gamma)), sqlpp::tvin_arg_t<decltype(row.gamma)>>::value,
+      static_assert(std::is_same<decltype(sqlpp::tvin(row.gamma)), sqlpp::tvin_arg_t<typename std::remove_const<decltype(row.gamma)>::type>>::value,
                     "result fields are accepted and not wrapped");
     }
   }
