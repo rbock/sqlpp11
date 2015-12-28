@@ -226,15 +226,25 @@ namespace sqlpp
   SQLPP_PORTABLE_STATIC_ASSERT(assert_where_dynamic_statement_dynamic_t,
                                "dynamic_where() must not be called in a static statement");
 
+// workaround for msvc bugs https://connect.microsoft.com/VisualStudio/Feedback/Details/2086629 & https://connect.microsoft.com/VisualStudio/feedback/details/2173198
+//  template <typename... Expressions>
+//  using check_where_t = static_combined_check_t<
+//      static_check_t<logic::all_t<is_expression_t<Expressions>::value...>::value, assert_where_expressions_t>,
+//      static_check_t<logic::all_t<is_boolean_t<Expressions>::value...>::value, assert_where_boolean_t>,
+//      static_check_t<logic::all_t<(not contains_aggregate_function_t<Expressions>::value)...>::value,
+//                     assert_where_no_aggregate_functions_t>>;
   template <typename... Expressions>
-  using check_where_t = static_combined_check_t<
-      static_check_t<logic::all_t<detail::is_expression_impl<Expressions>::type::value...>::value,
-                     assert_where_expressions_t>,
-      static_check_t<
-          logic::all_t<std::is_same<typename detail::value_type_of_impl<Expressions>::type, boolean>::value...>::value,
-          assert_where_boolean_t>,
-      static_check_t<logic::all_t<(not detail::contains_aggregate_function_impl<Expressions>::type::value)...>::value,
-                     assert_where_no_aggregate_functions_t>>;
+  struct check_where
+  {
+	  using type = static_combined_check_t<
+		  static_check_t<logic::all_t<detail::is_expression_impl<Expressions>::type::value...>::value, assert_where_expressions_t>,
+		  static_check_t<logic::all_t<is_boolean_t<Expressions>::value...>::value, assert_where_boolean_t>,
+		  static_check_t<logic::all_t<(not detail::contains_aggregate_function_impl<Expressions>::type::value)...>::value,
+						 assert_where_no_aggregate_functions_t>>;
+  };
+
+  template <typename... Expressions>
+  using check_where_t = typename check_where<Expressions...>::type;
 
   template <typename... Expressions>
   using check_where_static_t =
@@ -331,15 +341,6 @@ namespace sqlpp
         return _where_impl<void>(Check{}, expressions...);
       }
 
-      auto dynamic_where() const -> _new_statement_t<check_where_dynamic_t<_database_t>, where_t<_database_t>>
-      {
-        using Check = check_where_dynamic_t<_database_t>;
-        Check{}._();
-
-        return _where_impl<_database_t>(Check{});
-      }
-
-      // MSVC does not comprehend this, and must therefore have a separate function with no arguments.
       template <typename... Expressions>
       auto dynamic_where(Expressions... expressions) const
           -> _new_statement_t<check_where_dynamic_t<_database_t, Expressions...>, where_t<_database_t, Expressions...>>
