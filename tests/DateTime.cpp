@@ -30,7 +30,7 @@
 
 SQLPP_ALIAS_PROVIDER(now)
 
-int DateTime(int, char*[])
+int DateTime(int, char* [])
 {
   MockDb db = {};
   MockDb::_serializer_context_t printer = {};

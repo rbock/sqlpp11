@@ -27,9 +27,7 @@
 #ifndef _sqlpp__ppgen__colops__not_null_h
 #define _sqlpp__ppgen__colops__not_null_h
 
-#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_NOT_NULL \
-	PROC_SQLPP_NOT_NULL
-#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_NOT_NULL(...) \
-	::sqlpp::tag::require_insert
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_NOT_NULL PROC_SQLPP_NOT_NULL
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_NOT_NULL(...) ::sqlpp::tag::require_insert
 
-#endif // _sqlpp__ppgen__colops__not_null_h
+#endif  // _sqlpp__ppgen__colops__not_null_h

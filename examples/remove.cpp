@@ -27,7 +27,7 @@
 #include "MockDb.h"
 #include <sqlpp11/sqlpp11.h>
 
-int remove(int, char*[])
+int remove(int, char* [])
 {
   MockDb db{};
 

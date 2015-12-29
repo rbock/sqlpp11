@@ -29,7 +29,7 @@
 
 #include <iostream>
 
-int Interpret(int, char*[])
+int Interpret(int, char* [])
 {
   MockDb db = {};
   MockDb::_serializer_context_t printer = {};

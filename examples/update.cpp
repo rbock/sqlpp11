@@ -27,7 +27,7 @@
 #include "MockDb.h"
 #include <sqlpp11/sqlpp11.h>
 
-int update(int, char*[])
+int update(int, char* [])
 {
   MockDb db{};
 

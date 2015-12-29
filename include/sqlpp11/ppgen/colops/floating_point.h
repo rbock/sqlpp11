@@ -27,14 +27,10 @@
 #ifndef _sqlpp__ppgen__colops__floating_point_h
 #define _sqlpp__ppgen__colops__floating_point_h
 
-#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_float \
-	PROC_float
-#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_float(...) \
-	::sqlpp::floating_point
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_float PROC_float
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_float(...) ::sqlpp::floating_point
 
-#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_double \
-	PROC_double
-#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_double(...) \
-	::sqlpp::floating_point
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_double PROC_double
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_double(...) ::sqlpp::floating_point
 
-#endif // _sqlpp__ppgen__colops__floating_point_h
+#endif  // _sqlpp__ppgen__colops__floating_point_h

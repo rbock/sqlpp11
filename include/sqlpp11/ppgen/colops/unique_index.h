@@ -27,9 +27,8 @@
 #ifndef _sqlpp__ppgen__colops__unique_index_h
 #define _sqlpp__ppgen__colops__unique_index_h
 
-#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_UNIQUE_INDEX \
-	PROC_SQLPP_UNIQUE_INDEX
-#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_UNIQUE_INDEX(indexname, tblname, /* cols */ ...) \
-	[UNIQUE INDEX is not implemented]
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_UNIQUE_INDEX PROC_SQLPP_UNIQUE_INDEX
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_UNIQUE_INDEX(indexname, tblname, /* cols */...) \
+  [UNIQUE INDEX is not implemented]
 
-#endif // _sqlpp__ppgen__colops__unique_index_h
+#endif  // _sqlpp__ppgen__colops__unique_index_h

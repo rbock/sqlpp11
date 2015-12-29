@@ -29,7 +29,7 @@
 #include <sqlpp11/functions.h>
 #include <sqlpp11/select.h>
 
-int Prepared(int, char*[])
+int Prepared(int, char* [])
 {
   MockDb db = {};
   // test::TabFoo f;

@@ -168,7 +168,7 @@ namespace
   }
 }
 
-int main(int, char*[])
+int main(int, char* [])
 {
   static_set();
   dynamic_set();

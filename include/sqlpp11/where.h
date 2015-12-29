@@ -226,21 +226,23 @@ namespace sqlpp
   SQLPP_PORTABLE_STATIC_ASSERT(assert_where_dynamic_statement_dynamic_t,
                                "dynamic_where() must not be called in a static statement");
 
-// workaround for msvc bugs https://connect.microsoft.com/VisualStudio/Feedback/Details/2086629 & https://connect.microsoft.com/VisualStudio/feedback/details/2173198
-//  template <typename... Expressions>
-//  using check_where_t = static_combined_check_t<
-//      static_check_t<logic::all_t<is_expression_t<Expressions>::value...>::value, assert_where_expressions_t>,
-//      static_check_t<logic::all_t<is_boolean_t<Expressions>::value...>::value, assert_where_boolean_t>,
-//      static_check_t<logic::all_t<(not contains_aggregate_function_t<Expressions>::value)...>::value,
-//                     assert_where_no_aggregate_functions_t>>;
+  // workaround for msvc bugs https://connect.microsoft.com/VisualStudio/Feedback/Details/2086629 &
+  // https://connect.microsoft.com/VisualStudio/feedback/details/2173198
+  //  template <typename... Expressions>
+  //  using check_where_t = static_combined_check_t<
+  //      static_check_t<logic::all_t<is_expression_t<Expressions>::value...>::value, assert_where_expressions_t>,
+  //      static_check_t<logic::all_t<is_boolean_t<Expressions>::value...>::value, assert_where_boolean_t>,
+  //      static_check_t<logic::all_t<(not contains_aggregate_function_t<Expressions>::value)...>::value,
+  //                     assert_where_no_aggregate_functions_t>>;
   template <typename... Expressions>
   struct check_where
   {
-	  using type = static_combined_check_t<
-		  static_check_t<logic::all_t<detail::is_expression_impl<Expressions>::type::value...>::value, assert_where_expressions_t>,
-		  static_check_t<logic::all_t<is_boolean_t<Expressions>::value...>::value, assert_where_boolean_t>,
-		  static_check_t<logic::all_t<(not detail::contains_aggregate_function_impl<Expressions>::type::value)...>::value,
-						 assert_where_no_aggregate_functions_t>>;
+    using type = static_combined_check_t<
+        static_check_t<logic::all_t<detail::is_expression_impl<Expressions>::type::value...>::value,
+                       assert_where_expressions_t>,
+        static_check_t<logic::all_t<is_boolean_t<Expressions>::value...>::value, assert_where_boolean_t>,
+        static_check_t<logic::all_t<(not detail::contains_aggregate_function_impl<Expressions>::type::value)...>::value,
+                       assert_where_no_aggregate_functions_t>>;
   };
 
   template <typename... Expressions>

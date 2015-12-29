@@ -44,13 +44,7 @@ This results in several benefits, e.g.
 
 The library supports both static and dynamic queries. The former offers greater benefit in terms of type and consistency checking. The latter makes it easier to construct queries on the flight.
 
-sqlpp11 is vendor-neutral. Specific traits of databases (e.g. unsupported or non-standard features) are are handled by connector libraries. Connector libraries can inform the developer of missing features at compile time. They also interpret expressions specifically where needed. For example, the connector could use the operator|| or the concat method for string concatenation without the developer being required to change the statement.
-
-
-Your help is needed:
---------------------
-The library is already used in production but it is certainly not complete yet. Feature requests, bug reports, contributions to code or documentation are most welcome.
-
+sqlpp11 is vendor-neutral. Specific traits of databases (e.g. unsupported or non-standard features) are handled by connector libraries. Connector libraries can inform the developer of missing features at compile time. They also interpret expressions specifically where needed. For example, the connector could use the operator|| or the concat method for string concatenation without the developer being required to change the statement.
 
 Examples:
 ---------
@@ -107,6 +101,11 @@ db(update(foo).set(foo.hasFun = not foo.hasFun).where(foo.name != "nobody"));
 // A sample delete
 db(remove_from(foo).where(not foo.hasFun));
 ```
+
+Your help is needed:
+--------------------
+The library is already used in production but it is certainly not complete yet. Feature requests, bug reports, contributions to code or documentation are most welcome.
+
 
 Requirements:
 -------------

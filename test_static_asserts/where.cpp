@@ -143,7 +143,7 @@ namespace
   }
 }
 
-int main(int, char*[])
+int main(int, char* [])
 {
   static_where();
   dynamic_where();

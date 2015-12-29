@@ -123,7 +123,7 @@ namespace
   }
 }
 
-int main(int, char*[])
+int main(int, char* [])
 {
   no_group_by();
   dynamic_group_by();

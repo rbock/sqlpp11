@@ -30,7 +30,7 @@
 #include <sqlpp11/functions.h>
 #include <iostream>
 
-int Insert(int, char*[])
+int Insert(int, char* [])
 {
   MockDb db = {};
   MockDb::_serializer_context_t printer = {};

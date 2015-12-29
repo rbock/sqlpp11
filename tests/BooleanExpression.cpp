@@ -28,7 +28,7 @@
 #include "MockDb.h"
 #include <sqlpp11/sqlpp11.h>
 
-int BooleanExpression(int, char*[])
+int BooleanExpression(int, char* [])
 {
   MockDb db = {};
   const auto t = test::TabBar{};
