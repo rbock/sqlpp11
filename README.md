@@ -1,20 +1,28 @@
 sqlpp11
 =======
 
+Branch / Compiler | clang-3.4,  gcc-4.9, Xcode-7   |  MSVC 2015  | Test Coverage 
+------------------| -------------------------------|-------------|---------------
+master | [![Build Status](https://travis-ci.org/rbock/sqlpp11.svg?branch=master)](https://travis-ci.org/rbock/sqlpp11?branch=master) | [![Build status](https://ci.appveyor.com/api/projects/status/eid7mwqgavo0h61h/branch/master?svg=true)](https://ci.appveyor.com/project/rbock/sqlpp11/branch/master) | [![Coverage Status](https://coveralls.io/repos/rbock/sqlpp11/badge.svg?branch=master)](https://coveralls.io/r/rbock/sqlpp11?branch=master)
+develop | [![Build Status](https://travis-ci.org/rbock/sqlpp11.svg?branch=develop)](https://travis-ci.org/rbock/sqlpp11?branch=develop) | [![Build status](https://ci.appveyor.com/api/projects/status/eid7mwqgavo0h61h/branch/develop?svg=true)](https://ci.appveyor.com/project/rbock/sqlpp11/branch/develop) | [![Coverage Status](https://coveralls.io/repos/rbock/sqlpp11/badge.svg?branch=develop)](https://coveralls.io/r/rbock/sqlpp11?branch=develop)
+
 A type safe embedded domain specific language for SQL queries and results in C++
 
-Extensive documentation is found in the wiki, https://github.com/rbock/sqlpp11/wiki
+Documentation is found in the wiki, https://github.com/rbock/sqlpp11/wiki
 
-Talks/workshops 
-  * MeetingC++ (Berlin, Germany): http://meetingcpp.com/index.php/mcpp2014.html
-   * 2014-12-05: http://meetingcpp.com/index.php/tv14/items/4.html
-  * CppCon (Bellevue, Washington, USA): http://cppcon.org
-   * 2014-09-08: http://sched.co/1qhngYK (Workshop Part 1)
-   * 2014-09-11: http://sched.co/1r4lue3 (Talk)
-   * 2014-09-12: http://sched.co/Wi8aWM (Workshop Part 2)
+Past talks about sqlpp11 and some coding concepts used within the library:
 
-   
-You can contact me 
+  * [CppCast:](http://cppcast.com)
+   * 2015-05-07: http://cppcast.com/2015/05/roland-bock/
+  * [CppCon:](http://cppcon.org)
+   * 2015-09-24: [Pruning Error Messages From Your C++ Template Code](https://www.youtube.com/watch?v=2ISqFW9fRws), with examples from sqlpp11
+   * 2014-09-11: [sqlpp11, An SQL Library Worthy Of Modern C++](https://www.youtube.com/watch?v=cJPAjhBm-HQ)
+  * [Meeting C++:](http://meetingcpp.com)
+   * 2014-12-05: [sqlpp11, An EDSL For Type-Safe SQL In C++11](https://www.youtube.com/watch?v=9Hjfg9IfzhU)
+  * [MUC++:](http://www.meetup.com/MUCplusplus/)
+   * 2014-02-27: [Selected C++11 Template Toffees From sqlpp11, Part1](https://www.youtube.com/watch?v=hXnGFYNbmXg), [Part2](https://www.youtube.com/watch?v=WPCV6dvxZ_U), [Part 3](https://www.youtube.com/watch?v=eB7hd_KjTig), [Part 4](https://www.youtube.com/watch?v=NBfqzcN0_EQ)
+
+You can contact me
   * by posting issues at https://github.com/rbock/sqlpp11/issues
   * or via email at rbock at eudoxos dot de
 
@@ -40,7 +48,7 @@ sqlpp11 is vendor-neutral. Specific traits of databases (e.g. unsupported or non
 
 Examples:
 ---------
-For the examples, lets assume you have a table class representing something like 
+For the examples, lets assume you have a table class representing something like
 
 ```SQL
 CREATE TABLE foo (
@@ -104,11 +112,12 @@ Requirements:
 __Compiler:__
 sqlpp11 makes heavy use of C++11 and requires a recent compiler and STL. The following compilers are known to compile the test programs:
 
-  * clang-3.2 on Ubuntu-12.4
-  * clang-3.4 on Ubuntu-12.4
-  * g++-4.8 on Ubuntu-12.4
-  * g++-4.8 on cygwin 64bit
-  * g++-4.9 on Debian Unstable
+  * clang-3.4+ on Ubuntu-12.4
+  * g++-4.8+ on Ubuntu-12.4
+  * g++-4.8+ on cygwin 64bit
+  * g++-4.9+ on Debian Unstable
+  * Xcode-7 on OS X
+  * MSVC 2015 Update 1 on Windows Server 2012
 
 __Database Connector:__
 sqlpp11 requires a certain api in order to connect with the database, see database/api.h.
@@ -116,7 +125,10 @@ sqlpp11 requires a certain api in order to connect with the database, see databa
   * MySQL: https://github.com/rbock/sqlpp11-connector-mysql
   * Sqlite3: https://github.com/rbock/sqlpp11-connector-sqlite3
   * PostgreSQL: https://github.com/matthijs/sqlpp11-connector-postgresql
-  
+
+__Date Library:__
+sqlpp11 requires [Howard Hinnant's date library](https://github.com/HowardHinnant/date) for `date` and `date_time` data types.
+
 To demonstrate that sqlpp11 can work with other backends as well, here is an experimental backend for structs in standard containers:
 
   * STL Container: https://github.com/rbock/sqlpp11-connector-stl

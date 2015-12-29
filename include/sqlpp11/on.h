@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -34,63 +34,62 @@
 
 namespace sqlpp
 {
-	template<typename Database, typename... Expressions>
-		struct on_t
-		{
-			using _traits = make_traits<no_value_t, tag::is_on>;
-			using _nodes = detail::type_vector<Expressions...>;
+  template <typename Database, typename... Expressions>
+  struct on_t
+  {
+    using _traits = make_traits<no_value_t, tag::is_on>;
+    using _nodes = detail::type_vector<Expressions...>;
 
-			using _is_dynamic = is_database<Database>;
+    using _is_dynamic = is_database<Database>;
 
-			static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression argument required in on()");
+    static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression argument required in on()");
 
-			template<typename Expr>
-				void add(Expr expr)
-				{
-					static_assert(_is_dynamic::value, "on::add() must not be called for static on()");
-					static_assert(is_expression_t<Expr>::value, "invalid expression argument in on::add()");
-					using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Expr>;
-					_serialize_check::_();
+    template <typename Expr>
+    void add(Expr expr)
+    {
+      static_assert(_is_dynamic::value, "on::add() must not be called for static on()");
+      static_assert(is_expression_t<Expr>::value, "invalid expression argument in on::add()");
+      using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Expr>;
+      _serialize_check::_();
 
-					using ok = logic::all_t<_is_dynamic::value, is_expression_t<Expr>::value, _serialize_check::type::value>;
+      using ok = logic::all_t<_is_dynamic::value, is_expression_t<Expr>::value, _serialize_check::type::value>;
 
-					_add_impl(expr, ok()); // dispatch to prevent compile messages after the static_assert
-				}
+      _add_impl(expr, ok());  // dispatch to prevent compile messages after the static_assert
+    }
 
-		private:
-			template<typename Expr>
-				void _add_impl(Expr expr, const std::true_type&)
-				{
-					return _dynamic_expressions.emplace_back(expr);
-				}
+  private:
+    template <typename Expr>
+    void _add_impl(Expr expr, const std::true_type&)
+    {
+      return _dynamic_expressions.emplace_back(expr);
+    }
 
-			template<typename Expr>
-				void _add_impl(Expr expr, const std::false_type&);
+    template <typename Expr>
+    void _add_impl(Expr expr, const std::false_type&);
 
-		public:
-			std::tuple<Expressions...> _expressions;
-			interpretable_list_t<Database> _dynamic_expressions;
-		};
+  public:
+    std::tuple<Expressions...> _expressions;
+    interpretable_list_t<Database> _dynamic_expressions;
+  };
 
-	template<typename Context, typename Database, typename... Expressions>
-		struct serializer_t<Context, on_t<Database, Expressions...>>
-		{
-			using _serialize_check = serialize_check_of<Context, Expressions...>;
-			using T = on_t<Database, Expressions...>;
+  template <typename Context, typename Database, typename... Expressions>
+  struct serializer_t<Context, on_t<Database, Expressions...>>
+  {
+    using _serialize_check = serialize_check_of<Context, Expressions...>;
+    using T = on_t<Database, Expressions...>;
 
-			static Context& _(const T& t, Context& context)
-			{
-				if (sizeof...(Expressions) == 0 and t._dynamic_expressions.empty())
-					return context;
-				context << " ON ";
-				interpret_tuple(t._expressions, " AND ", context);
-				if (sizeof...(Expressions) and not t._dynamic_expressions.empty())
-					context << " AND ";
-				interpret_list(t._dynamic_expressions, " AND ", context);
-				return context;
-			}
-		};
-
+    static Context& _(const T& t, Context& context)
+    {
+      if (sizeof...(Expressions) == 0 and t._dynamic_expressions.empty())
+        return context;
+      context << " ON ";
+      interpret_tuple(t._expressions, " AND ", context);
+      if (sizeof...(Expressions) and not t._dynamic_expressions.empty())
+        context << " AND ";
+      interpret_list(t._dynamic_expressions, " AND ", context);
+      return context;
+    }
+  };
 }
 
 #endif

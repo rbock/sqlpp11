@@ -27,9 +27,7 @@
 #ifndef _sqlpp__ppgen__tblops__engine_h
 #define _sqlpp__ppgen__tblops__engine_h
 
-#define SQLPP_DECLARE_TABLE_GET_PROC_LAZY_SQLPP_ENGINE(str) \
-	PROC_SQLPP_ENGINE
-#define SQLPP_DECLARE_TABLE_GEN_PROC_SQLPP_ENGINE(str) \
-	[ENGINE is not implemented]
+#define SQLPP_DECLARE_TABLE_GET_PROC_LAZY_SQLPP_ENGINE PROC_SQLPP_ENGINE
+#define SQLPP_DECLARE_TABLE_GEN_PROC_SQLPP_ENGINE(str) [ENGINE is not implemented]
 
-#endif // _sqlpp__ppgen__tblops__engine_h
+#endif  // _sqlpp__ppgen__tblops__engine_h

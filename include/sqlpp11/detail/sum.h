@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -29,34 +29,32 @@
 
 namespace sqlpp
 {
-	namespace detail
-	{
+  namespace detail
+  {
+    /** a non-recursive C++14 version
+      template<typename... Args>
+      constexpr std::size_t sum(Args... args)
+      {
+      std::size_t result = 0;
 
-		/** a non-recursive C++14 version
-			template<typename... Args>
-			constexpr std::size_t sum(Args... args)
-			{
-			std::size_t result = 0;
+        using swallow = int[];
+        (void) swallow{(result += args, 0)...};
 
-				using swallow = int[];
-				(void) swallow{(result += args, 0)...};
+        return result;
+      }
+      */
 
-				return result;
-			}
-			*/
+    constexpr std::size_t sum()
+    {
+      return 0;
+    }
 
-		constexpr std::size_t sum()
-		{
-			return 0;
-		}
-
-		template<typename Arg, typename... Rest>
-			constexpr std::size_t sum(Arg arg, Rest... rest)
-			{
-				return arg + sum(rest...);
-			}
-	}
+    template <typename Arg, typename... Rest>
+    constexpr std::size_t sum(Arg arg, Rest... rest)
+    {
+      return arg + sum(rest...);
+    }
+  }
 }
 
 #endif
-

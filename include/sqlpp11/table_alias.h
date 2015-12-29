@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -35,48 +35,51 @@
 
 namespace sqlpp
 {
-	template<typename AliasProvider, typename Table, typename... ColumnSpec>
-		struct table_alias_t:
-			public member_t<ColumnSpec, column_t<AliasProvider, ColumnSpec>>...
-	{
-		//FIXME: Need to add join functionality
-		using _traits = make_traits<value_type_of<Table>, tag::is_table, tag::is_alias, tag_if<tag::is_selectable, is_expression_t<Table>::value>>;
+  // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173198
+  //  template <typename AliasProvider, typename Table, typename... ColumnSpec>
+  //  struct table_alias_t : public member_t<ColumnSpec, column_t<AliasProvider, ColumnSpec>>...
+  template <typename AliasProvider, typename Table, typename... ColumnSpec>
+  struct table_alias_t : public ColumnSpec::_alias_t::template _member_t<column_t<AliasProvider, ColumnSpec>>...
+  {
+    // FIXME: Need to add join functionality
+    using _traits = make_traits<value_type_of<Table>,
+                                tag::is_table,
+                                tag::is_alias,
+                                tag_if<tag::is_selectable, is_expression_t<Table>::value>>;
 
-		using _nodes = detail::type_vector<>;
-		using _required_ctes = required_ctes_of<Table>;
-		using _provided_tables = detail::type_set<AliasProvider>;
+    using _nodes = detail::type_vector<>;
+    using _required_ctes = required_ctes_of<Table>;
+    using _provided_tables = detail::type_set<AliasProvider>;
 
-		static_assert(required_tables_of<Table>::size::value == 0, "table aliases must not depend on external tables");
+    static_assert(required_tables_of<Table>::size::value == 0, "table aliases must not depend on external tables");
 
-		using _alias_t = typename AliasProvider::_alias_t;
-		using _column_tuple_t = std::tuple<column_t<AliasProvider, ColumnSpec>...>;
+    using _alias_t = typename AliasProvider::_alias_t;
+    using _column_tuple_t = std::tuple<column_t<AliasProvider, ColumnSpec>...>;
 
-		table_alias_t(Table table):
-			_table(table)
-		{}
+    table_alias_t(Table table) : _table(table)
+    {
+    }
 
-		Table _table;
-	};
+    Table _table;
+  };
 
-	template<typename Context, typename AliasProvider, typename Table, typename... ColumnSpec>
-		struct serializer_t<Context, table_alias_t<AliasProvider, Table, ColumnSpec...>>
-		{
-			using _serialize_check = serialize_check_of<Context, Table>;
-			using T = table_alias_t<AliasProvider, Table, ColumnSpec...>;
+  template <typename Context, typename AliasProvider, typename Table, typename... ColumnSpec>
+  struct serializer_t<Context, table_alias_t<AliasProvider, Table, ColumnSpec...>>
+  {
+    using _serialize_check = serialize_check_of<Context, Table>;
+    using T = table_alias_t<AliasProvider, Table, ColumnSpec...>;
 
-			static Context& _(const T& t, Context& context)
-			{
-				if (requires_braces_t<T>::value)
-					context << "(";
-				serialize(t._table, context);
-				if (requires_braces_t<T>::value)
-					context << ")";
-				context << " AS " << name_of<T>::char_ptr();
-				return context;
-			}
-		};
-
+    static Context& _(const T& t, Context& context)
+    {
+      if (requires_braces_t<T>::value)
+        context << "(";
+      serialize(t._table, context);
+      if (requires_braces_t<T>::value)
+        context << ")";
+      context << " AS " << name_of<T>::char_ptr();
+      return context;
+    }
+  };
 }
 
 #endif
-

@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -32,28 +32,26 @@
 
 namespace sqlpp
 {
-	template<typename T, typename Context>
-		auto serialize(const T& t, Context& context)
-		-> decltype(serializer_t<Context, T>::_(t, context))
-		{
-			return serializer_t<Context, T>::_(t, context);
-		}
+  template <typename T, typename Context>
+  auto serialize(const T& t, Context& context) -> decltype(serializer_t<Context, T>::_(t, context))
+  {
+    return serializer_t<Context, T>::_(t, context);
+  }
 
-	template<typename T, typename Context>
-		auto serialize_operand(const T& t, Context& context)
-		-> decltype(serializer_t<Context, T>::_(t, context))
-		{
-			if (requires_braces_t<T>::value)
-			{
-				context << '(';
-				serializer_t<Context, T>::_(t, context);
-				context << ')';
-			}
-			else
-				serializer_t<Context, T>::_(t, context);
+  template <typename T, typename Context>
+  auto serialize_operand(const T& t, Context& context) -> decltype(serializer_t<Context, T>::_(t, context))
+  {
+    if (requires_braces_t<T>::value)
+    {
+      context << '(';
+      serializer_t<Context, T>::_(t, context);
+      context << ')';
+    }
+    else
+      serializer_t<Context, T>::_(t, context);
 
-			return context;
-		}
+    return context;
+  }
 }
 
 #endif

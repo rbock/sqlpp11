@@ -31,9 +31,22 @@
 
 // enable the Clang support
 #if defined(__clang__) && !BOOST_PP_VARIADICS
-#	undef BOOST_PP_VARIADICS
-#	define BOOST_PP_VARIADICS 1
-#endif // defined(__clang__)
+#undef BOOST_PP_VARIADICS
+#define BOOST_PP_VARIADICS 1
+#endif  // defined(__clang__)
+
+// boost.preprocessor
+#include <boost/preprocessor/cat.hpp>
+#include <boost/preprocessor/facilities/expand.hpp>
+#include <boost/preprocessor/punctuation/comma_if.hpp>
+#include <boost/preprocessor/comparison/less.hpp>
+#include <boost/preprocessor/arithmetic/add.hpp>
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/seq/for_each_i.hpp>
+#include <boost/preprocessor/stringize.hpp>
+#include <boost/preprocessor/tuple/elem.hpp>
+#include <boost/preprocessor/tuple/size.hpp>
+#include <boost/preprocessor/tuple/to_seq.hpp>
 
 // tools
 #include <sqlpp11/ppgen/tools/wrap_seq.h>
@@ -51,6 +64,7 @@
 #include <sqlpp11/ppgen/colops/datetime.h>
 #include <sqlpp11/ppgen/colops/default.h>
 #include <sqlpp11/ppgen/colops/floating_point.h>
+#include <sqlpp11/ppgen/colops/foreign_key.h>
 #include <sqlpp11/ppgen/colops/index.h>
 #include <sqlpp11/ppgen/colops/integer.h>
 #include <sqlpp11/ppgen/colops/not_null.h>
@@ -58,149 +72,118 @@
 #include <sqlpp11/ppgen/colops/primary_key.h>
 #include <sqlpp11/ppgen/colops/text.h>
 #include <sqlpp11/ppgen/colops/timestamp.h>
-#include <sqlpp11/ppgen/colops/unique.h>
+#include <sqlpp11/ppgen/colops/unique_index.h>
 #include <sqlpp11/ppgen/colops/varchar.h>
-
-// boost.preprocessor
-#include <boost/preprocessor/cat.hpp>
-#include <boost/preprocessor/facilities/expand.hpp>
-#include <boost/preprocessor/punctuation/comma_if.hpp>
-#include <boost/preprocessor/comparison/less.hpp>
-#include <boost/preprocessor/arithmetic/add.hpp>
-#include <boost/preprocessor/seq/for_each.hpp>
-#include <boost/preprocessor/seq/for_each_i.hpp>
-#include <boost/preprocessor/stringize.hpp>
-#include <boost/preprocessor/tuple/elem.hpp>
-#include <boost/preprocessor/tuple/size.hpp>
-#include <boost/preprocessor/tuple/to_seq.hpp>
 
 /***************************************************************************/
 // tools
 
-#define SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table) \
-	BOOST_PP_TUPLE_ELEM(0, BOOST_PP_EXPAND table)
+#define SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table) BOOST_PP_TUPLE_ELEM(0, BOOST_PP_EXPAND table)
 
-#define SQLPP_DECLARE_TABLE_GET_TABLE_PROPS(table) \
-	SQLPP_BOOST_PP_TUPLE_POP_FRONT(BOOST_PP_EXPAND table)
+#define SQLPP_DECLARE_TABLE_GET_TABLE_PROPS(table) SQLPP_BOOST_PP_TUPLE_POP_FRONT(BOOST_PP_EXPAND table)
 
-#define SQLPP_DECLARE_COLUMN_GET_COLUMN_NAME(col) \
-	BOOST_PP_TUPLE_ELEM(0, col)
+#define SQLPP_DECLARE_COLUMN_GET_COLUMN_NAME(col) BOOST_PP_TUPLE_ELEM(0, col)
 
-#define SQLPP_DECLARE_TABLE_ENUM_COLUMNS(unused, table, elem) \
-	,table::SQLPP_DECLARE_COLUMN_GET_COLUMN_NAME(elem)
+#define SQLPP_DECLARE_TABLE_ENUM_COLUMNS(unused, table, elem) , table::SQLPP_DECLARE_COLUMN_GET_COLUMN_NAME(elem)
 
 /***************************************************************************/
 // columns
 
-#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_AUX(unused, size, idx, elem) \
-	BOOST_PP_CAT( \
-		 SQLPP_DECLARE_COLUMN_GEN_TRAITS_ \
-		,BOOST_PP_CAT(SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_, elem) \
-	)(elem) \
-	BOOST_PP_COMMA_IF(BOOST_PP_LESS(BOOST_PP_ADD(idx, 1), size))
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_AUX(unused, size, idx, elem)                                              \
+  BOOST_PP_CAT(SQLPP_DECLARE_COLUMN_GEN_TRAITS_, BOOST_PP_CAT(SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_, elem))(elem) \
+      BOOST_PP_COMMA_IF(BOOST_PP_LESS(BOOST_PP_ADD(idx, 1), size))
 
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS(props) \
-	BOOST_PP_SEQ_FOR_EACH_I( \
-		 SQLPP_DECLARE_COLUMN_GEN_TRAITS_AUX \
-		,BOOST_PP_TUPLE_SIZE(props) \
-		,BOOST_PP_TUPLE_TO_SEQ(props) \
-	)
+  BOOST_PP_SEQ_FOR_EACH_I(SQLPP_DECLARE_COLUMN_GEN_TRAITS_AUX, BOOST_PP_TUPLE_SIZE(props), BOOST_PP_TUPLE_TO_SEQ(props))
 
-#define SQLPP_DECLARE_COLUMN(unused, data, elem) \
-	struct SQLPP_DECLARE_COLUMN_GET_COLUMN_NAME(elem) { \
-		struct _alias_t { \
-			static constexpr const char _literal[] = \
-				BOOST_PP_STRINGIZE(SQLPP_DECLARE_COLUMN_GET_COLUMN_NAME(elem)); \
-			using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>; \
-			\
-			template<typename T> \
-			struct _member_t { \
-				T SQLPP_DECLARE_COLUMN_GET_COLUMN_NAME(elem); \
-				\
-				T& operator()() { return SQLPP_DECLARE_COLUMN_GET_COLUMN_NAME(elem); } \
-				const T& operator()() const { return SQLPP_DECLARE_COLUMN_GET_COLUMN_NAME(elem); } \
-			}; /* struct _member_t */ \
-		}; /* struct _alias_t */ \
-		\
-		using _traits = sqlpp::make_traits< \
-			SQLPP_DECLARE_COLUMN_GEN_TRAITS(SQLPP_BOOST_PP_TUPLE_POP_FRONT(elem)) \
-		>; \
-		\
-	}; /* struct SQLPP_DECLARE_COLUMN_GET_COLUMN_NAME(elem) */
+#define SQLPP_DECLARE_COLUMN(unused, data, elem)                                                               \
+  struct SQLPP_DECLARE_COLUMN_GET_COLUMN_NAME(elem)                                                            \
+  {                                                                                                            \
+    struct _alias_t                                                                                            \
+    {                                                                                                          \
+      static constexpr const char _literal[] = BOOST_PP_STRINGIZE(SQLPP_DECLARE_COLUMN_GET_COLUMN_NAME(elem)); \
+      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;                                   \
+                                                                                                               \
+      template <typename T>                                                                                    \
+      struct _member_t                                                                                         \
+      {                                                                                                        \
+        T SQLPP_DECLARE_COLUMN_GET_COLUMN_NAME(elem);                                                          \
+                                                                                                               \
+        T& operator()()                                                                                        \
+        {                                                                                                      \
+          return SQLPP_DECLARE_COLUMN_GET_COLUMN_NAME(elem);                                                   \
+        }                                                                                                      \
+        const T& operator()() const                                                                            \
+        {                                                                                                      \
+          return SQLPP_DECLARE_COLUMN_GET_COLUMN_NAME(elem);                                                   \
+        }                                                                                                      \
+      }; /* struct _member_t */                                                                                \
+    };   /* struct _alias_t */                                                                                 \
+                                                                                                               \
+    using _traits = sqlpp::make_traits<SQLPP_DECLARE_COLUMN_GEN_TRAITS(SQLPP_BOOST_PP_TUPLE_POP_FRONT(elem))>; \
+                                                                                                               \
+  }; /* struct SQLPP_DECLARE_COLUMN_GET_COLUMN_NAME(elem) */
 
 /***************************************************************************/
 // table props
 
 #define SQLPP_DECLARE_TABLE_GEN_PROPS_AUX(unused1, unused2, elem) \
-	BOOST_PP_CAT( \
-		 SQLPP_DECLARE_TABLE_GEN_ \
-		,BOOST_PP_CAT(SQLPP_DECLARE_TABLE_GET_PROC_LAZY_, elem) \
-	)(elem)
+  BOOST_PP_CAT(SQLPP_DECLARE_TABLE_GEN_, BOOST_PP_CAT(SQLPP_DECLARE_TABLE_GET_PROC_LAZY_, elem))(elem)
 
-#define SQLPP_DECLARE_TABLE_GEN_PROPS(table) \
-	BOOST_PP_SEQ_FOR_EACH( \
-		 SQLPP_DECLARE_TABLE_GEN_PROPS_AUX \
-		,~ \
-		,BOOST_PP_TUPLE_TO_SEQ(SQLPP_BOOST_PP_TUPLE_POP_FRONT(table)) \
-	)
+#define SQLPP_DECLARE_TABLE_GEN_PROPS(table)                  \
+  BOOST_PP_SEQ_FOR_EACH(SQLPP_DECLARE_TABLE_GEN_PROPS_AUX, ~, \
+                        BOOST_PP_TUPLE_TO_SEQ(SQLPP_BOOST_PP_TUPLE_POP_FRONT(table)))
 
 /***************************************************************************/
 // main
 
-#define SQLPP_DECLARE_TABLE_IMPL(table, cols) \
-	namespace SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table) { \
-		namespace BOOST_PP_CAT(SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table), _) { \
-			BOOST_PP_SEQ_FOR_EACH( \
-				 SQLPP_DECLARE_COLUMN \
-				,~ \
-				,cols \
-			) \
-		} /* namespace BOOST_PP_CAT(SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table), _) */ \
-		\
-		struct SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table) \
-			: sqlpp::table_t< \
-				SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table) \
-				BOOST_PP_SEQ_FOR_EACH( \
-					 SQLPP_DECLARE_TABLE_ENUM_COLUMNS \
-					,BOOST_PP_CAT(SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table), _) \
-					,cols \
-				) \
-			> \
-		{ \
-			BOOST_PP_IF( \
-				 BOOST_PP_LESS(BOOST_PP_TUPLE_SIZE(table), 2) \
-				,BOOST_PP_TUPLE_EAT() \
-				,SQLPP_DECLARE_TABLE_GEN_PROPS \
-			)(BOOST_PP_EXPAND table) \
-		\
-			struct _alias_t { \
-				static constexpr const char _literal[] = \
-					BOOST_PP_STRINGIZE(SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table)); \
-				using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>; \
-				\
-				template<typename T> \
-				struct _member_t { \
-					T SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table); \
-					\
-					T& operator()() { return SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table); } \
-					const T& operator()() const { return SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table); } \
-					\
-				}; /* struct _member_t */ \
-				\
-			}; /* struct _alias_t */ \
-			\
-		}; /* struct SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table) */ \
-	\
-	}
+#define SQLPP_DECLARE_TABLE_IMPL(table, cols)                                                                      \
+  namespace SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table)                                                              \
+  {                                                                                                                \
+    namespace BOOST_PP_CAT(SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table), _)                                           \
+    {                                                                                                              \
+      BOOST_PP_SEQ_FOR_EACH(SQLPP_DECLARE_COLUMN, ~, cols)                                                         \
+    } /* namespace BOOST_PP_CAT(SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table), _) */                                   \
+                                                                                                                   \
+    struct SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table)                                                               \
+        : sqlpp::table_t<SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table) BOOST_PP_SEQ_FOR_EACH(                          \
+              SQLPP_DECLARE_TABLE_ENUM_COLUMNS, BOOST_PP_CAT(SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table), _), cols)> \
+    {                                                                                                              \
+      BOOST_PP_IF(BOOST_PP_LESS(BOOST_PP_TUPLE_SIZE(table), 2),                                                    \
+                  BOOST_PP_TUPLE_EAT(),                                                                            \
+                  SQLPP_DECLARE_TABLE_GEN_PROPS)(BOOST_PP_EXPAND table)                                            \
+                                                                                                                   \
+          struct _alias_t                                                                                          \
+      {                                                                                                            \
+        static constexpr const char _literal[] = BOOST_PP_STRINGIZE(SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table));    \
+        using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;                                     \
+                                                                                                                   \
+        template <typename T>                                                                                      \
+        struct _member_t                                                                                           \
+        {                                                                                                          \
+          T SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table);                                                             \
+                                                                                                                   \
+          T& operator()()                                                                                          \
+          {                                                                                                        \
+            return SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table);                                                      \
+          }                                                                                                        \
+          const T& operator()() const                                                                              \
+          {                                                                                                        \
+            return SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table);                                                      \
+          }                                                                                                        \
+                                                                                                                   \
+        }; /* struct _member_t */                                                                                  \
+                                                                                                                   \
+      }; /* struct _alias_t */                                                                                     \
+                                                                                                                   \
+    }; /* struct SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table) */                                                      \
+  }
 
 /***************************************************************************/
 
 #define SQLPP_DECLARE_TABLE(table, cols) \
-	SQLPP_DECLARE_TABLE_IMPL( \
-		 BOOST_PP_CAT(SQLPP_WRAP_SEQUENCE_X table, 0) \
-		,BOOST_PP_CAT(SQLPP_WRAP_SEQUENCE_X cols, 0) \
-	)
+  SQLPP_DECLARE_TABLE_IMPL(BOOST_PP_CAT(SQLPP_WRAP_SEQUENCE_X table, 0), BOOST_PP_CAT(SQLPP_WRAP_SEQUENCE_X cols, 0))
 
 /***************************************************************************/
 
-#endif // _sqlpp__ppgen_h
+#endif  // _sqlpp__ppgen_h

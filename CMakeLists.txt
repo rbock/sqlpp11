@@ -1,16 +1,16 @@
 # Copyright (c) 2013-2015, Roland Bock
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
-# 
+#
 #   Redistributions of source code must retain the above copyright notice, this
 #   list of conditions and the following disclaimer.
-# 
+#
 #   Redistributions in binary form must reproduce the above copyright notice, this
 #   list of conditions and the following disclaimer in the documentation and/or
 #   other materials provided with the distribution.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 # ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -22,26 +22,50 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
+project(sqlpp11 VERSION 0.1 LANGUAGES CXX)
 
-# Cygwin does not define WIN32 and warn if not use with this flag
-set(CMAKE_LEGACY_CYGWIN_WIN32 0) # Remove when CMake >= 2.8.4 is required
-
-project (sqlpp11)
 enable_testing()
 
-message(STATUS "Using ${CMAKE_CXX_COMPILER} (compiler id: ${CMAKE_CXX_COMPILER_ID})")
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-	set(CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++ -Wall ${CMAKE_CXX_FLAGS}")
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-	set(CMAKE_CXX_FLAGS "-std=c++11 -Wall ${CMAKE_CXX_FLAGS}")
-endif ()
-set(CMAKE_CXX_FLAGS "-Wconversion -Wpedantic -Wshadow ${CMAKE_CXX_FLAGS}")
+add_library(sqlpp11 INTERFACE)
 
-set(include_dir "${PROJECT_SOURCE_DIR}/include")
-file(GLOB_RECURSE sqlpp_headers "${include_dir}/*.h")
-include_directories("${include_dir}")
+set(DATE_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../date" CACHE FILEPATH "Path to Howard Hinnant's date library")
+
+if(NOT EXISTS ${DATE_INCLUDE_DIR}/date.h)
+  message(SEND_ERROR "Can't find date.h in ${DATE_INCLUDE_DIR}")
+endif()
+
+target_include_directories(sqlpp11 INTERFACE
+  $<BUILD_INTERFACE:${DATE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${sqlpp11_SOURCE_DIR}/include>
+  )
+
+if (NOT MSVC)
+target_compile_features(sqlpp11 INTERFACE
+	cxx_alias_templates
+	cxx_auto_type
+	cxx_constexpr
+	cxx_decltype
+	cxx_defaulted_functions
+	cxx_defaulted_move_initializers
+	cxx_deleted_functions
+	cxx_explicit_conversions
+	cxx_lambdas
+	cxx_noexcept
+	cxx_nullptr
+	cxx_range_for
+	cxx_right_angle_brackets
+	cxx_rvalue_references
+	cxx_static_assert
+	cxx_trailing_return_types
+	cxx_uniform_initialization
+	cxx_template_template_parameters
+  cxx_variadic_templates
+  )
+endif ()
+
 add_subdirectory(tests)
+add_subdirectory(test_static_asserts)
 add_subdirectory(test_constraints)
 add_subdirectory(examples)
 

@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -31,26 +31,28 @@
 
 namespace sqlpp
 {
-	template<char... Cs> struct char_sequence
-	{
-		static const char* char_ptr()
-		{
-			static char s[] = {Cs...};
-			return s;
-		};
-	};
+  template <char... Cs>
+  struct char_sequence
+  {
+    static const char* char_ptr()
+    {
+      static char s[] = {Cs...};
+      return s;
+    };
+  };
 
-	template<std::size_t N, const char (&s) [N], typename T>
-		struct make_char_sequence_impl;
+  template <std::size_t N, const char(&s)[N], typename T>
+  struct make_char_sequence_impl;
 
-	template<std::size_t N, const char (&s) [N], std::size_t... i>
-		struct make_char_sequence_impl<N, s, sqlpp::detail::index_sequence<i...>>
-		{
-			using type = char_sequence<s[i]...>;
-		};
+  template <std::size_t N, const char(&s)[N], std::size_t... i>
+  struct make_char_sequence_impl<N, s, sqlpp::detail::index_sequence<i...>>
+  {
+    using type = char_sequence<s[i]...>;
+  };
 
-	template<std::size_t N, const char (&Input) [N]>
-		using make_char_sequence = typename make_char_sequence_impl<sizeof(Input), Input, sqlpp::detail::make_index_sequence<sizeof(Input)>>::type;
+  template <std::size_t N, const char(&Input)[N]>
+  using make_char_sequence =
+      typename make_char_sequence_impl<sizeof(Input), Input, sqlpp::detail::make_index_sequence<sizeof(Input)>>::type;
 }
 
 #endif

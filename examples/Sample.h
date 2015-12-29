@@ -2,9 +2,10 @@
 #define TEST_SAMPLE_H
 
 #include <sqlpp11/table.h>
-#include <sqlpp11/column_types.h>
+#include <sqlpp11/data_types.h>
 #include <sqlpp11/char_sequence.h>
 
+// clang-format off
 namespace test
 {
   namespace TabPerson_

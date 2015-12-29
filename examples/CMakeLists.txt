@@ -1,28 +1,55 @@
+# Copyright (c) 2013-2015, Roland Bock
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without modification,
+# are permitted provided that the following conditions are met:
+#
+#   Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+#
+#   Redistributions in binary form must reproduce the above copyright notice, this
+#   list of conditions and the following disclaimer in the documentation and/or
+#   other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+# ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-macro (build arg)
-	# Add headers to sources to enable file browsing in IDEs
-	include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../tests")
-	add_executable("Sqlpp11Example${arg}" "${arg}.cpp" ${sqlpp_headers} "${CMAKE_CURRENT_SOURCE_DIR}/../tests/MockDb.h" "${CMAKE_CURRENT_LIST_DIR}/Sample.h")
-	add_test("${arg}" "Sqlpp11Example${arg}")
-endmacro ()
+set(example_names
+  #sample
+  insert
+  update
+  remove
+  select
+  )
 
-#build(sample)
-build(insert)
-build(update)
-build(remove)
-build(select)
 find_package(Boost 1.50)
 if(Boost_FOUND)
-  MESSAGE(${Boost_INCLUDE_DIRS})
   include_directories(${Boost_INCLUDE_DIRS})
-  build(ppgen)
+  list(APPEND example_names ppgen)
 endif()
 
+create_test_sourcelist(example_sources example_main.cpp ${example_names})
+add_executable(sqlpp11_examples ${example_sources})
+target_link_libraries(sqlpp11_examples PRIVATE sqlpp11 sqlpp11_testing)
+
+foreach(example IN LISTS example_names)
+  add_test(NAME sqlpp11.examples.${example}
+    COMMAND sqlpp11_examples ${example}
+    )
+endforeach()
 
 #find_package(PythonInterp REQUIRED)
 
 #add_custom_command(
-#	OUTPUT ${CMAKE_CURRENT_LIST_DIR}/Sample.h 
+#	OUTPUT ${CMAKE_CURRENT_LIST_DIR}/Sample.h
 #	COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/scripts/ddl2cpp ${CMAKE_CURRENT_LIST_DIR}/sample.sql Sample test
 #	DEPENDS ${CMAKE_CURRENT_LIST_DIR}/sample.sql
 #	)

@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,234 +33,285 @@
 
 namespace sqlpp
 {
-	// LIMIT DATA
-	template<typename Limit>
-		struct limit_data_t
-		{
-			limit_data_t(Limit value):
-				_value(value)
-			{}
+  // LIMIT DATA
+  template <typename Limit>
+  struct limit_data_t
+  {
+    limit_data_t(Limit value) : _value(value)
+    {
+    }
 
-			limit_data_t(const limit_data_t&) = default;
-			limit_data_t(limit_data_t&&) = default;
-			limit_data_t& operator=(const limit_data_t&) = default;
-			limit_data_t& operator=(limit_data_t&&) = default;
-			~limit_data_t() = default;
+    limit_data_t(const limit_data_t&) = default;
+    limit_data_t(limit_data_t&&) = default;
+    limit_data_t& operator=(const limit_data_t&) = default;
+    limit_data_t& operator=(limit_data_t&&) = default;
+    ~limit_data_t() = default;
 
-			Limit _value;
-		};
+    Limit _value;
+  };
 
-	// LIMIT
-	template<typename Limit>
-		struct limit_t
-		{
-			using _traits = make_traits<no_value_t, tag::is_limit>;
-			using _nodes = detail::type_vector<Limit>;
+  // LIMIT
+  template <typename Limit>
+  struct limit_t
+  {
+    using _traits = make_traits<no_value_t, tag::is_limit>;
+    using _nodes = detail::type_vector<Limit>;
 
-			// Data
-			using _data_t = limit_data_t<Limit>;
+    // Data
+    using _data_t = limit_data_t<Limit>;
 
-			// Member implementation with data and methods
-			template <typename Policies>
-				struct _impl_t
-				{
-					_data_t _data;
-				};
+    // Member implementation with data and methods
+    template <typename Policies>
+    struct _impl_t
+    {
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
+      _impl_t() = default;
+      _impl_t(const _data_t& data) : _data(data)
+      {
+      }
 
-			// Base template to be inherited by the statement
-			template<typename Policies>
-				struct _base_t
-				{
-					using _data_t = limit_data_t<Limit>;
+      _data_t _data;
+    };
 
-					_impl_t<Policies> limit;
-					_impl_t<Policies>& operator()() { return limit; }
-					const _impl_t<Policies>& operator()() const { return limit; }
+    // Base template to be inherited by the statement
+    template <typename Policies>
+    struct _base_t
+    {
+      using _data_t = limit_data_t<Limit>;
 
-					template<typename T>
-						static auto _get_member(T t) -> decltype(t.limit)
-						{
-							return t.limit;
-						}
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
+      template <typename... Args>
+      _base_t(Args&&... args)
+          : limit{std::forward<Args>(args)...}
+      {
+      }
 
-					using _consistency_check = consistent_t;
-				};
-		};
+      _impl_t<Policies> limit;
+      _impl_t<Policies>& operator()()
+      {
+        return limit;
+      }
+      const _impl_t<Policies>& operator()() const
+      {
+        return limit;
+      }
 
-	// DYNAMIC LIMIT DATA
-	template<typename Database>
-		struct dynamic_limit_data_t
-		{
-			dynamic_limit_data_t():
-				_value(noop())
-			{
-			}
+      template <typename T>
+      static auto _get_member(T t) -> decltype(t.limit)
+      {
+        return t.limit;
+      }
 
-			template<typename Limit>
-				dynamic_limit_data_t(Limit value):
-					_initialized(true),
-					_value(wrap_operand_t<Limit>(value))
-			{
-			}
+      using _consistency_check = consistent_t;
+    };
+  };
 
-			dynamic_limit_data_t(const dynamic_limit_data_t&) = default;
-			dynamic_limit_data_t(dynamic_limit_data_t&&) = default;
-			dynamic_limit_data_t& operator=(const dynamic_limit_data_t&) = default;
-			dynamic_limit_data_t& operator=(dynamic_limit_data_t&&) = default;
-			~dynamic_limit_data_t() = default;
+  // DYNAMIC LIMIT DATA
+  template <typename Database>
+  struct dynamic_limit_data_t
+  {
+    dynamic_limit_data_t() : _value(noop())
+    {
+    }
 
-			bool _initialized = false;
-			interpretable_t<Database> _value;
-		};
+    template <typename Limit>
+    dynamic_limit_data_t(Limit value)
+        : _initialized(true), _value(wrap_operand_t<Limit>(value))
+    {
+    }
 
-	// DYNAMIC LIMIT
-	template<typename Database>
-		struct dynamic_limit_t
-		{
-			using _traits = make_traits<no_value_t, tag::is_limit>;
-			using _nodes = detail::type_vector<>;
+    dynamic_limit_data_t(const dynamic_limit_data_t&) = default;
+    dynamic_limit_data_t(dynamic_limit_data_t&&) = default;
+    dynamic_limit_data_t& operator=(const dynamic_limit_data_t&) = default;
+    dynamic_limit_data_t& operator=(dynamic_limit_data_t&&) = default;
+    ~dynamic_limit_data_t() = default;
 
-			// Data
-			using _data_t = dynamic_limit_data_t<Database>;
+    bool _initialized = false;
+    interpretable_t<Database> _value;
+  };
 
-			// Member implementation with data and methods
-			template <typename Policies>
-				struct _impl_t
-				{
-					template<typename Limit>
-						void set(Limit value)
-						{
-							// FIXME: Make sure that Limit does not require external tables? Need to read up on SQL
-							using arg_t = wrap_operand_t<Limit>;
-							static_assert(is_integral_t<arg_t>::value, "limit requires an integral value or integral parameter");
-							_data._value = arg_t{value};
-							_data._initialized = true;
-						}
-				public:
-					_data_t _data;
-				};
+  // DYNAMIC LIMIT
+  template <typename Database>
+  struct dynamic_limit_t
+  {
+    using _traits = make_traits<no_value_t, tag::is_limit>;
+    using _nodes = detail::type_vector<>;
 
-			// Base template to be inherited by the statement
-			template<typename Policies>
-				struct _base_t
-				{
-					using _data_t = dynamic_limit_data_t<Database>;
+    // Data
+    using _data_t = dynamic_limit_data_t<Database>;
 
-					_impl_t<Policies> limit;
-					_impl_t<Policies>& operator()() { return limit; }
-					const _impl_t<Policies>& operator()() const { return limit; }
+    // Member implementation with data and methods
+    template <typename Policies>
+    struct _impl_t
+    {
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
+      _impl_t() = default;
+      _impl_t(const _data_t& data) : _data(data)
+      {
+      }
 
-					template<typename T>
-						static auto _get_member(T t) -> decltype(t.limit)
-						{
-							return t.limit;
-						}
+      template <typename Limit>
+      void set(Limit value)
+      {
+        // FIXME: Make sure that Limit does not require external tables? Need to read up on SQL
+        using arg_t = wrap_operand_t<Limit>;
+        static_assert(is_integral_t<arg_t>::value, "limit requires an integral value or integral parameter");
+        _data._value = arg_t{value};
+        _data._initialized = true;
+      }
 
-					using _consistency_check = consistent_t;
-				};
-		};
+    public:
+      _data_t _data;
+    };
 
-	struct no_limit_t
-	{
-		using _traits = make_traits<no_value_t, tag::is_noop>;
-		using _nodes = detail::type_vector<>;
+    // Base template to be inherited by the statement
+    template <typename Policies>
+    struct _base_t
+    {
+      using _data_t = dynamic_limit_data_t<Database>;
 
-		// Data
-		using _data_t = no_data_t;
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
+      template <typename... Args>
+      _base_t(Args&&... args)
+          : limit{std::forward<Args>(args)...}
+      {
+      }
 
-		// Member implementation with data and methods
-		template<typename Policies>
-			struct _impl_t
-			{
-				_data_t _data;
-			};
+      _impl_t<Policies> limit;
+      _impl_t<Policies>& operator()()
+      {
+        return limit;
+      }
+      const _impl_t<Policies>& operator()() const
+      {
+        return limit;
+      }
 
-		// Base template to be inherited by the statement
-		template<typename Policies>
-			struct _base_t
-			{
-				using _data_t = no_data_t;
+      template <typename T>
+      static auto _get_member(T t) -> decltype(t.limit)
+      {
+        return t.limit;
+      }
 
-				_impl_t<Policies> no_limit;
-				_impl_t<Policies>& operator()() { return no_limit; }
-				const _impl_t<Policies>& operator()() const { return no_limit; }
+      using _consistency_check = consistent_t;
+    };
+  };
 
-				template<typename T>
-					static auto _get_member(T t) -> decltype(t.no_limit)
-					{
-						return t.no_limit;
-					}
+  struct no_limit_t
+  {
+    using _traits = make_traits<no_value_t, tag::is_noop>;
+    using _nodes = detail::type_vector<>;
 
-				using _database_t = typename Policies::_database_t;
+    // Data
+    using _data_t = no_data_t;
 
-				template<typename T>
-					using _check = is_integral_t<wrap_operand_t<T>>;
+    // Member implementation with data and methods
+    template <typename Policies>
+    struct _impl_t
+    {
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
+      _impl_t() = default;
+      _impl_t(const _data_t& data) : _data(data)
+      {
+      }
 
-				template<typename Check, typename T>
-					using _new_statement_t = new_statement_t<Check::value, Policies, no_limit_t, T>;
+      _data_t _data;
+    };
 
-				using _consistency_check = consistent_t;
+    // Base template to be inherited by the statement
+    template <typename Policies>
+    struct _base_t
+    {
+      using _data_t = no_data_t;
 
-				template<typename Arg>
-					auto limit(Arg arg) const
-					-> _new_statement_t<_check<Arg>, limit_t<wrap_operand_t<Arg>>>
-					{
-						static_assert(_check<Arg>::value, "limit requires an integral value or integral parameter");
-						return _limit_impl(_check<Arg>{}, wrap_operand_t<Arg>{arg});
-					}
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
+      template <typename... Args>
+      _base_t(Args&&... args)
+          : no_limit{std::forward<Args>(args)...}
+      {
+      }
 
-				auto dynamic_limit() const
-					-> _new_statement_t<std::true_type, dynamic_limit_t<_database_t>>
-					{
-						return { static_cast<const derived_statement_t<Policies>&>(*this), dynamic_limit_data_t<_database_t>{} };
-					}
+      _impl_t<Policies> no_limit;
+      _impl_t<Policies>& operator()()
+      {
+        return no_limit;
+      }
+      const _impl_t<Policies>& operator()() const
+      {
+        return no_limit;
+      }
 
-			private:
-				template<typename Arg>
-					auto _limit_impl(const std::false_type&, Arg arg) const
-					-> bad_statement;
+      template <typename T>
+      static auto _get_member(T t) -> decltype(t.no_limit)
+      {
+        return t.no_limit;
+      }
 
-				template<typename Arg>
-					auto _limit_impl(const std::true_type&, Arg arg) const
-					-> _new_statement_t<std::true_type, limit_t<Arg>>
-					{
-						return { static_cast<const derived_statement_t<Policies>&>(*this), limit_data_t<Arg>{arg} };
-					}
+      using _database_t = typename Policies::_database_t;
 
-			};
-	};
+      template <typename T>
+      using _check = is_integral_t<wrap_operand_t<T>>;
 
-	// Interpreters
-	template<typename Context, typename Database>
-		struct serializer_t<Context, dynamic_limit_data_t<Database>>
-		{
-			using _serialize_check = consistent_t;
-			using T = dynamic_limit_data_t<Database>;
+      template <typename Check, typename T>
+      using _new_statement_t = new_statement_t<Check::value, Policies, no_limit_t, T>;
 
-			static Context& _(const T& t, Context& context)
-			{
-				if (t._initialized)
-				{
-					context << " LIMIT ";
-					serialize(t._value, context);
-				}
-				return context;
-			}
-		};
+      using _consistency_check = consistent_t;
 
-	template<typename Context, typename Limit>
-		struct serializer_t<Context, limit_data_t<Limit>>
-		{
-			using _serialize_check = serialize_check_of<Context, Limit>;
-			using T = limit_data_t<Limit>;
+      template <typename Arg>
+      auto limit(Arg arg) const -> _new_statement_t<_check<Arg>, limit_t<wrap_operand_t<Arg>>>
+      {
+        static_assert(_check<Arg>::value, "limit requires an integral value or integral parameter");
+        return _limit_impl(_check<Arg>{}, wrap_operand_t<Arg>{arg});
+      }
 
-			static Context& _(const T& t, Context& context)
-			{
-				context << " LIMIT ";
-				serialize_operand(t._value, context);
-				return context;
-			}
-		};
+      auto dynamic_limit() const -> _new_statement_t<std::true_type, dynamic_limit_t<_database_t>>
+      {
+        return {static_cast<const derived_statement_t<Policies>&>(*this), dynamic_limit_data_t<_database_t>{}};
+      }
+
+    private:
+      template <typename Arg>
+      auto _limit_impl(const std::false_type&, Arg arg) const -> bad_statement;
+
+      template <typename Arg>
+      auto _limit_impl(const std::true_type&, Arg arg) const -> _new_statement_t<std::true_type, limit_t<Arg>>
+      {
+        return {static_cast<const derived_statement_t<Policies>&>(*this), limit_data_t<Arg>{arg}};
+      }
+    };
+  };
+
+  // Interpreters
+  template <typename Context, typename Database>
+  struct serializer_t<Context, dynamic_limit_data_t<Database>>
+  {
+    using _serialize_check = consistent_t;
+    using T = dynamic_limit_data_t<Database>;
+
+    static Context& _(const T& t, Context& context)
+    {
+      if (t._initialized)
+      {
+        context << " LIMIT ";
+        serialize(t._value, context);
+      }
+      return context;
+    }
+  };
+
+  template <typename Context, typename Limit>
+  struct serializer_t<Context, limit_data_t<Limit>>
+  {
+    using _serialize_check = serialize_check_of<Context, Limit>;
+    using T = limit_data_t<Limit>;
+
+    static Context& _(const T& t, Context& context)
+    {
+      context << " LIMIT ";
+      serialize_operand(t._value, context);
+      return context;
+    }
+  };
 }
 
 #endif

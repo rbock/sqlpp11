@@ -2,39 +2,54 @@ language: cpp
 
 os:
   - linux
+  - osx
+
+osx_image: xcode7
 
 compiler:
-  # - clang # disabled clang due to missing libc++
+  - clang
   - gcc
+
+env:
+  - CONFIG=Release
+  - CONFIG=Debug
 
 notifications:
  email:
    on_success: change
    on_failure: always
 
-before_install:
-  # install boost 1.50 (headers only), travis currently offers 1.46 and 1.48
-  - wget http://sourceforge.net/projects/boost/files/boost/1.50.0/boost_1_50_0.tar.bz2/download -O /tmp/boost.tar.bz2
-  - mkdir -p temp
-  - cd temp
-  - tar jxf /tmp/boost.tar.bz2 boost_1_50_0/boost # extract headers only
-  - sudo mkdir -p /usr/local/include/
-  - sudo ln -s $PWD/boost_1_50_0/boost /usr/local/include
-  - cd ..
-  #install g++-4.8
-  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-  - sudo apt-get update
-  - if [ "$CXX" = "g++" ]; then sudo apt-get install g++-4.8; fi
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
-
 install:
-  - "mkdir -p $TRAVIS_BUILD_DIR/build/scripts"
-  - "cd $TRAVIS_BUILD_DIR/build/scripts"
-  - "cmake $TRAVIS_BUILD_DIR"
+  - CMAKE_VERSION_MM=3.2
+  - CMAKE_VERSION_FULL=$CMAKE_VERSION_MM.2
+  - git clone https://github.com/HowardHinnant/date
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+    sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+      && sudo add-apt-repository -y ppa:apokluda/boost1.53
+      && sudo apt-get update -qq
+      && sudo apt-get install -qq g++-4.8 libboost1.53-dev --no-install-recommends
+      && sudo update-alternatives --quiet --install /usr/bin/gcc gcc /usr/bin/gcc-4.6 60 --slave /usr/bin/g++ g++ /usr/bin/g++-4.6 --slave /usr/bin/gcov gcov /usr/bin/gcov-4.6
+      && sudo update-alternatives --quiet --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 40 --slave /usr/bin/g++ g++ /usr/bin/g++-4.8 --slave /usr/bin/gcov gcov /usr/bin/gcov-4.8
+      && sudo update-alternatives --quiet --set gcc /usr/bin/gcc-4.8
+      && wget --no-check-certificate http://www.cmake.org/files/v${CMAKE_VERSION_MM}/cmake-${CMAKE_VERSION_FULL}-Linux-x86_64.sh
+      && sudo sh cmake-${CMAKE_VERSION_FULL}-Linux-x86_64.sh --prefix=/usr/local --exclude-subdir;
+    fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
+    brew update
+      && ((brew list -1 | grep -q "^$cmake\$") || brew install cmake)
+      && (brew outdated cmake || brew upgrade cmake)
+      && cmake --version;
+    fi
+
+before_script:
+   - mkdir build
+   - cd build
+   - if [[ "$CXX" = "g++" && "$CONFIG" = "Debug" && "$TRAVIS_OS_NAME" = "linux" ]]; then export CXXFLAGS="--coverage"; fi
+   - cmake .. -DCMAKE_BUILD_TYPE=$CONFIG -DDATE_INCLUDE_DIR=$PWD/../date
 
 script:
-  - "cd $TRAVIS_BUILD_DIR/build/scripts"
-  - "make -j3"
-  # test compile-time constraints
-  - "make test_sqlpp_constraints"
+   - cmake --build . --config $CONFIG
+   - ctest --output-on-failure
 
+after_script:
+  - ../coveralls

@@ -1,5 +1,6 @@
 #include <sqlpp11/sqlpp11.h>
 
-int main()
+int Minimalistic(int, char* [])
 {
+  return 0;
 }

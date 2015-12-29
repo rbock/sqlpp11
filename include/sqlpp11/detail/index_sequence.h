@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -31,34 +31,33 @@
 
 namespace sqlpp
 {
-	namespace detail
-	{
-		// Note: This is a minimalistic implementation of index_sequence available in C++14
-		//       It should be replaced once the project is moved to C++14 or beyond
-		template<std::size_t... Ints>
-			struct index_sequence
-			{};
+  namespace detail
+  {
+    // Note: This is a minimalistic implementation of index_sequence available in C++14
+    //       It should be replaced once the project is moved to C++14 or beyond
+    template <std::size_t... Ints>
+    struct index_sequence
+    {
+    };
 
-		template<typename T, std::size_t N>
-			struct make_index_sequence_impl;
+    template <typename T, std::size_t N>
+    struct make_index_sequence_impl;
 
-		template<std::size_t N, std::size_t... Ints>
-			struct make_index_sequence_impl<index_sequence<Ints...>, N>
-			{
-				using type = typename make_index_sequence_impl<index_sequence<Ints..., sizeof...(Ints)>, N - 1>::type;
-			};
+    template <std::size_t N, std::size_t... Ints>
+    struct make_index_sequence_impl<index_sequence<Ints...>, N>
+    {
+      using type = typename make_index_sequence_impl<index_sequence<Ints..., sizeof...(Ints)>, N - 1>::type;
+    };
 
-		template<std::size_t... Ints>
-			struct make_index_sequence_impl<index_sequence<Ints...>, 0>
-			{
-				using type = index_sequence<Ints...>;
-			};
+    template <std::size_t... Ints>
+    struct make_index_sequence_impl<index_sequence<Ints...>, 0>
+    {
+      using type = index_sequence<Ints...>;
+    };
 
-		template<std::size_t N>
-			using make_index_sequence = typename make_index_sequence_impl<index_sequence<>, N>::type;
-
-	}
+    template <std::size_t N>
+    using make_index_sequence = typename make_index_sequence_impl<index_sequence<>, N>::type;
+  }
 }
-
 
 #endif

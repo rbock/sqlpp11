@@ -24,7 +24,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if 0 // syntax example
+#if 0  // syntax example
 SQLPP_DECLARE_TABLE(
 	(table, \
 		 SQLPP_DROP_IF_EXISTS \
@@ -45,56 +45,57 @@ SQLPP_DECLARE_TABLE(
 
 #include "MockDb.h"
 
+// clang-format off
 SQLPP_DECLARE_TABLE(
 	(tab_person)
 	,
-	(id     , int         , SQLPP_AUTO_INCREMENT)
-	(name   , varchar(255), SQLPP_NOT_NULL      )
-	(feature, int         , SQLPP_NOT_NULL      )
+	(id     , int         , SQLPP_PRIMARY_KEY)
+	(name   , varchar(255), SQLPP_NOT_NULL   )
+	(feature, int         , SQLPP_NOT_NULL   )
 )
 
 SQLPP_DECLARE_TABLE(
 	(tab_feature)
 	,
-	(id   , int         , SQLPP_AUTO_INCREMENT)
-	(name , varchar(255), SQLPP_NULL          )
-	(fatal, bool        , SQLPP_NOT_NULL      )
+	(id   , int         , SQLPP_PRIMARY_KEY)
+	(name , varchar(255), SQLPP_NULL       )
+	(fatal, bool        , SQLPP_NOT_NULL   )
 )
+// clang-format on
 
-int main()
+int ppgen(int, char* [])
 {
-	MockDb db;
-	tab_person::tab_person   p;
-	tab_feature::tab_feature f;
+  MockDb db{};
+  const auto p = tab_person::tab_person{};
+  const auto f = tab_feature::tab_feature{};
 
-	db(insert_into(f).set(f.name = "loves c++", f.fatal = false));
+  db(insert_into(f).set(f.name = "loves c++", f.fatal = false));
 
-	//db(insert_into(f).set(f.nahme = "loves c++", f.fatal = false));
+  // db(insert_into(f).set(f.nahme = "loves c++", f.fatal = false));
 
-	//db(insert_into(f).set(f.name == "loves c++", f.fatal = false));
+  // db(insert_into(f).set(f.name == "loves c++", f.fatal = false));
 
-	//db(insert_into(f).set(f.name = "loves c++", f.fatal = "false"));
+  // db(insert_into(f).set(f.name = "loves c++", f.fatal = "false"));
 
-	//db(insert_into(p).set(f.name = "loves c++", f.fatal = false));
+  // db(insert_into(p).set(f.name = "loves c++", f.fatal = false));
 
-	//db(insert_into(f).set(f.name = "loves c++", p.feature = 7));
+  // db(insert_into(f).set(f.name = "loves c++", p.feature = 7));
 
-	//db(insert_into(f).set(f.id = 42, f.name = "loves c++", f.fatal = false));
+  // db(insert_into(f).set(f.id = 42, f.name = "loves c++", f.fatal = false));
 
-	//db(insert_into(f).set(f.name = "loves c++"));
+  // db(insert_into(f).set(f.name = "loves c++"));
 
+  db(insert_into(f).default_values());
 
-	db(insert_into(f).default_values());
+  auto i = insert_into(p).columns(p.name, p.feature);
+  i.values.add(p.name = "Roland", p.feature = 1);
+  i.values.add(p.name = "Zaphod", p.feature = sqlpp::default_value);
+  db(i);
 
-	auto i = insert_into(p).columns(p.name, p.feature);
-	i.values.add(p.name = "Roland", p.feature = 1);
-	i.values.add(p.name = "Zaphod", p.feature = sqlpp::default_value);
-	db(i);
+  auto pi = db.prepare(insert_into(p).set(p.name = parameter(f.name), p.feature = parameter(p.feature)));
+  pi.params.name = "likes java";
+  pi.params.feature = true;
 
-
-	auto pi = db.prepare(insert_into(p).set(p.name = parameter(f.name), p.feature = parameter(p.feature)));
-	pi.params.name = "likes java";
-	pi.params.feature = true;
-
-	db(pi);
+  db(pi);
+  return 0;
 }
