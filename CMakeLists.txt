@@ -38,6 +38,7 @@ endif()
 target_include_directories(sqlpp11 INTERFACE
   $<BUILD_INTERFACE:${DATE_INCLUDE_DIR}>
   $<BUILD_INTERFACE:${sqlpp11_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
   )
 
 if (NOT MSVC)
@@ -64,10 +65,49 @@ target_compile_features(sqlpp11 INTERFACE
   )
 endif ()
 
+install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/sqlpp11"
+        DESTINATION include
+)
+
+install(TARGETS sqlpp11
+        EXPORT Sqlpp11Targets
+)
+
+include(CMakePackageConfigHelpers)
+
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/cmake/Sqlpp11ConfigVersion.cmake"
+  VERSION ${Upstream_VERSION}
+  COMPATIBILITY AnyNewerVersion
+)
+
+export(EXPORT Sqlpp11Targets
+  FILE "${CMAKE_CURRENT_BINARY_DIR}/cmake/Sqlpp11Targets.cmake"
+)
+
+configure_file(cmake/Sqlpp11Config.cmake
+  "${CMAKE_CURRENT_BINARY_DIR}/cmake/Sqlpp11Config.cmake"
+  COPYONLY
+)
+
+set(ConfigPackageLocation lib/cmake/Sqlpp11)
+install(EXPORT Sqlpp11Targets
+  FILE
+    Sqlpp11Targets.cmake
+  DESTINATION
+    ${ConfigPackageLocation}
+)
+
+install(
+  FILES
+    cmake/Sqlpp11Config.cmake
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake/Sqlpp11ConfigVersion.cmake"
+  DESTINATION
+    ${ConfigPackageLocation}
+)
+
+
 add_subdirectory(tests)
 add_subdirectory(test_static_asserts)
 add_subdirectory(test_constraints)
 add_subdirectory(examples)
-
-install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/sqlpp11" DESTINATION include)
-
