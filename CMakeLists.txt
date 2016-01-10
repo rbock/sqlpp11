@@ -77,7 +77,7 @@ include(CMakePackageConfigHelpers)
 
 write_basic_package_version_file(
   "${CMAKE_CURRENT_BINARY_DIR}/cmake/Sqlpp11ConfigVersion.cmake"
-  VERSION ${Upstream_VERSION}
+  VERSION ${PROJECT_VERSION}
   COMPATIBILITY AnyNewerVersion
 )
 
