@@ -29,6 +29,7 @@
 
 #include <tuple>
 #include <sqlpp11/result_row.h>
+#include <sqlpp11/dynamic_select_column_list.h>
 #include <sqlpp11/table.h>
 #include <sqlpp11/data_types/no_value.h>
 #include <sqlpp11/field_spec.h>
@@ -64,44 +65,6 @@ namespace sqlpp
       using _alias_t = typename Column::_alias_t;
     };
   }
-
-  template <typename Db>
-  struct dynamic_select_column_list
-  {
-    using _names_t = std::vector<std::string>;
-    std::vector<named_interpretable_t<Db>> _dynamic_columns;
-    _names_t _dynamic_expression_names;
-
-    template <typename Expr>
-    void emplace_back(Expr expr)
-    {
-      _dynamic_expression_names.push_back(name_of<Expr>::char_ptr());
-      _dynamic_columns.emplace_back(expr);
-    }
-
-    bool empty() const
-    {
-      return _dynamic_columns.empty();
-    }
-  };
-
-  template <>
-  struct dynamic_select_column_list<void>
-  {
-    struct _names_t
-    {
-      static constexpr size_t size()
-      {
-        return 0;
-      }
-    };
-    _names_t _dynamic_expression_names;
-
-    static constexpr bool empty()
-    {
-      return true;
-    }
-  };
 
   template <typename Context, typename Db>
   struct serializer_t<Context, dynamic_select_column_list<Db>>
