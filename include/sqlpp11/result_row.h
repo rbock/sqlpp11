@@ -29,6 +29,7 @@
 
 #include <map>
 #include <sqlpp11/result_row_fwd.h>
+#include <sqlpp11/dynamic_select_column_list.h>
 #include <sqlpp11/field_spec.h>
 #include <sqlpp11/no_name.h>
 #include <sqlpp11/data_types/text.h>
@@ -151,9 +152,7 @@ namespace sqlpp
     {
     }
 
-    template <typename DynamicNames>
-    result_row_t(const DynamicNames&)
-        : _impl(), _is_valid(false)
+    result_row_t(const typename dynamic_select_column_list<void>::_names_t&) : _impl(), _is_valid(false)
     {
     }
 
