@@ -66,37 +66,6 @@ namespace sqlpp
     };
   }
 
-  template <typename Context, typename Db>
-  struct serializer_t<Context, dynamic_select_column_list<Db>>
-  {
-    using T = dynamic_select_column_list<Db>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      bool first = true;
-      for (const auto column : t._dynamic_columns)
-      {
-        if (first)
-          first = false;
-        else
-          context << ',';
-        serialize(column, context);
-      }
-      return context;
-    }
-  };
-
-  template <typename Context>
-  struct serializer_t<Context, dynamic_select_column_list<void>>
-  {
-    using T = dynamic_select_column_list<void>;
-
-    static Context& _(const T&, Context& context)
-    {
-      return context;
-    }
-  };
-
   // SELECTED COLUMNS DATA
   template <typename Database, typename... Columns>
   struct select_column_list_data_t
