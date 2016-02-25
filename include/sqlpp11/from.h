@@ -35,9 +35,16 @@
 #include <sqlpp11/logic.h>
 #include <sqlpp11/detail/sum.h>
 #include <sqlpp11/policy_update.h>
+#include <sqlpp11/dynamic_join.h>
 
 namespace sqlpp
 {
+#ifdef SQLPP_ALLOW_UNCONDITIONAL_JOIN
+  constexpr bool allow_unconditional_from = 1;
+#else
+  constexpr bool allow_unconditional_from = 0;
+#endif
+
   // FROM DATA
   template <typename Database, typename... Tables>
   struct from_data_t
@@ -77,35 +84,40 @@ namespace sqlpp
       {
       }
 
-      template <typename Table>
-      void add(Table table)
+      template <typename DynamicJoin>
+      void add(DynamicJoin dynamicJoin)
       {
         static_assert(_is_dynamic::value, "from::add() must not be called for static from()");
-        static_assert(is_table_t<Table>::value, "invalid table argument in from::add()");
+        static_assert(
+            is_dynamic_join_t<DynamicJoin>::value or (allow_unconditional_from and is_table_t<DynamicJoin>::value),
+            "invalid argument in from::add(), or #define ALLOW_UNCONDITIONAL_JOIN "
+            "for a grace period of using tables here");
         using _known_tables =
             detail::make_joined_set_t<provided_tables_of<Tables>...>;  // Hint: Joins contain more than one table
         // workaround for msvc bug https://connect.microsoft.com/VisualStudio/feedback/details/2173198
         //		using _known_table_names = detail::transform_set_t<name_of, _known_tables>;
         using _known_table_names = detail::make_name_of_set_t<_known_tables>;
-        static_assert(not detail::is_element_of<typename Table::_alias_t, _known_table_names>::value,
+        using _joined_tables = provided_tables_of<DynamicJoin>;
+        using _joined_table_names = detail::make_name_of_set_t<_joined_tables>;
+        static_assert(detail::is_disjunct_from<_joined_table_names, _known_table_names>::value,
                       "Must not use the same table name twice in from()");
-        using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Table>;
+        using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, DynamicJoin>;
         _serialize_check::_();
 
-        using ok = logic::all_t<_is_dynamic::value, is_table_t<Table>::value, _serialize_check::type::value>;
+        using ok = logic::all_t<_is_dynamic::value, is_table_t<DynamicJoin>::value, _serialize_check::type::value>;
 
-        _add_impl(table, ok());  // dispatch to prevent compile messages after the static_assert
+        _add_impl(dynamicJoin, ok());  // dispatch to prevent compile messages after the static_assert
       }
 
     private:
-      template <typename Table>
-      void _add_impl(Table table, const std::true_type&)
+      template <typename DynamicJoin>
+      void _add_impl(DynamicJoin dynamicJoin, const std::true_type&)
       {
-        return _data._dynamic_tables.emplace_back(from_table(table));
+        return _data._dynamic_tables.emplace_back(from_table(dynamicJoin));
       }
 
-      template <typename Table>
-      void _add_impl(Table table, const std::false_type&);
+      template <typename DynamicJoin>
+      void _add_impl(DynamicJoin dynamicJoin, const std::false_type&);
 
     public:
       _data_t _data;
@@ -210,12 +222,15 @@ namespace sqlpp
 
       using _consistency_check = consistent_t;
 
-      template <typename... Tables>
-      auto from(Tables... tables) const -> _new_statement_t<_check<Tables...>, from_t<void, from_table_t<Tables>...>>
+      template <typename Table, typename... Tables>
+      auto from(Table table, Tables... tables) const
+          -> _new_statement_t<_check<Table, Tables...>, from_t<void, from_table_t<Table>, from_table_t<Tables>...>>
       {
-        static_assert(_check<Tables...>::value, "at least one argument is not a table or join in from()");
-        static_assert(sizeof...(Tables), "at least one table or join argument required in from()");
-        return _from_impl<void>(_check<Tables...>{}, tables...);
+        static_assert(_check<Table, Tables...>::value, "at least one argument is not a table or join in from()");
+        static_assert(sizeof...(Tables) == 0 or ::sqlpp::allow_unconditional_from,
+                      "unconditional join is deprecated, please use explicit joins or #define ALLOW_UNCONDITIONAL_JOIN "
+                      "for a grace period");
+        return _from_impl<void>(_check<Table, Tables...>{}, table, tables...);
       }
 
       template <typename... Tables>
@@ -225,6 +240,10 @@ namespace sqlpp
         static_assert(not std::is_same<_database_t, void>::value,
                       "dynamic_from must not be called in a static statement");
         static_assert(_check<Tables...>::value, "at least one argument is not a table or join in from()");
+        static_assert(
+            sizeof...(Tables) == 1 or ::sqlpp::allow_unconditional_from,
+            "unconditional join is deprecated, please use explicit joins or #define SQLPP_ALLOW_UNCONDITIONAL_JOIN "
+            "for a grace period");
         return _from_impl<_database_t>(_check<Tables...>{}, tables...);
       }
 

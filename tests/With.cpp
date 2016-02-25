@@ -38,16 +38,16 @@ int With(int, char* [])
 
   auto x = sqlpp::cte(sqlpp::alias::x).as(select(all_of(t)).from(t));
 
-  db(with(x)(select(x.alpha).from(x).where(true)));
+  db(with(x)(select(x.alpha).from(x).unconditionally()));
 
   auto y0 = sqlpp::cte(sqlpp::alias::y).as(select(all_of(t)).from(t));
-  auto y = y0.union_all(select(all_of(y0)).from(y0).where(false));
+  auto y = y0.union_all(select(all_of(y0)).from(y0).unconditionally());
 
   std::cout << serialize(y, printer).str() << std::endl;
   printer.reset();
   std::cout << serialize(from_table(y), printer).str() << std::endl;
 
-  db(with(y)(select(y.alpha).from(y).where(true)));
+  db(with(y)(select(y.alpha).from(y).unconditionally()));
 
   return 0;
 }

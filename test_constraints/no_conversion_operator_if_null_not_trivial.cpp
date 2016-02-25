@@ -36,7 +36,7 @@ int main()
   static_assert(sqlpp::can_be_null_t<decltype(t.alpha)>::value, "t.alpha can be null");
   static_assert(not sqlpp::null_is_trivial_value_t<decltype(t.alpha)>::value, "t.alpha does not say null_is_trivial");
 
-  for (const auto& row : edb(select(all_of(t)).from(t).where(true)))
+  for (const auto& row : edb(select(all_of(t)).from(t).unconditionally()))
   {
     static_assert(sqlpp::can_be_null_t<decltype(row.alpha)>::value, "row.alpha can be null");
     static_assert(not sqlpp::null_is_trivial_value_t<decltype(row.alpha)>::value,

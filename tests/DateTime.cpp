@@ -40,7 +40,7 @@ int DateTime(int, char* [])
   {
     std::cout << row.now;
   }
-  for (const auto& row : db(select(all_of(t)).from(t).where(true)))
+  for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
   {
     std::cout << row.colDayPoint;
     std::cout << row.colTimePoint;

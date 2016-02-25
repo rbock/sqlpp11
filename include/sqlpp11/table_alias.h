@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -30,6 +30,7 @@
 #include <sqlpp11/column_fwd.h>
 #include <sqlpp11/interpret.h>
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/join.h>
 #include <sqlpp11/alias.h>
 #include <sqlpp11/detail/type_set.h>
 
@@ -41,7 +42,6 @@ namespace sqlpp
   template <typename AliasProvider, typename Table, typename... ColumnSpec>
   struct table_alias_t : public ColumnSpec::_alias_t::template _member_t<column_t<AliasProvider, ColumnSpec>>...
   {
-    // FIXME: Need to add join functionality
     using _traits = make_traits<value_type_of<Table>,
                                 tag::is_table,
                                 tag::is_alias,
@@ -58,6 +58,36 @@ namespace sqlpp
 
     table_alias_t(Table table) : _table(table)
     {
+    }
+
+    template <typename T>
+    join_t<inner_join_t, table_alias_t, T> join(T t) const
+    {
+      return {*this, t, {}};
+    }
+
+    template <typename T>
+    join_t<inner_join_t, table_alias_t, T> inner_join(T t) const
+    {
+      return {*this, t, {}};
+    }
+
+    template <typename T>
+    join_t<outer_join_t, table_alias_t, T> outer_join(T t) const
+    {
+      return {*this, t, {}};
+    }
+
+    template <typename T>
+    join_t<left_outer_join_t, table_alias_t, T> left_outer_join(T t) const
+    {
+      return {*this, t, {}};
+    }
+
+    template <typename T>
+    join_t<right_outer_join_t, table_alias_t, T> right_outer_join(T t) const
+    {
+      return {*this, t, {}};
     }
 
     Table _table;

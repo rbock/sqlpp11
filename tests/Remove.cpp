@@ -60,7 +60,7 @@ int Remove(int, char* [])
   printer.reset();
   std::cerr << serialize(r, printer).str() << std::endl;
   printer.reset();
-  std::cerr << serialize(remove_from(t).where(true), printer).str() << std::endl;
+  std::cerr << serialize(remove_from(t).unconditionally(), printer).str() << std::endl;
 
   db(r);
 
