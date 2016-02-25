@@ -33,6 +33,7 @@
 #include <sqlpp11/expression.h>
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/interpretable_list.h>
+#include <sqlpp11/unconditional.h>
 #include <sqlpp11/logic.h>
 
 namespace sqlpp
@@ -153,6 +154,7 @@ namespace sqlpp
     };
   };
 
+#ifdef SQLPP_ALLOW_NAKED_BOOL_EXPRESSION
   template <>
   struct where_data_t<void, bool>
   {
@@ -214,8 +216,70 @@ namespace sqlpp
       using _consistency_check = consistent_t;
     };
   };
+#endif
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_t, "where expression required, e.g. where(true)");
+  template <>
+  struct where_data_t<void, unconditional_t>
+  {
+  };
+
+  // WHERE() UNCONDITIONALLY
+  template <>
+  struct where_t<void, unconditional_t>
+  {
+    using _traits = make_traits<no_value_t, tag::is_where>;
+    using _nodes = detail::type_vector<>;
+
+    // Data
+    using _data_t = where_data_t<void, unconditional_t>;
+
+    // Member implementation with data and methods
+    template <typename Policies>
+    struct _impl_t
+    {
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
+      _impl_t() = default;
+      _impl_t(const _data_t& data) : _data(data)
+      {
+      }
+
+      _data_t _data;
+    };
+
+    // Base template to be inherited by the statement
+    template <typename Policies>
+    struct _base_t
+    {
+      using _data_t = where_data_t<void, unconditional_t>;
+
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
+      template <typename... Args>
+      _base_t(Args&&... args)
+          : where{std::forward<Args>(args)...}
+      {
+      }
+
+      _impl_t<Policies> where;
+      _impl_t<Policies>& operator()()
+      {
+        return where;
+      }
+      const _impl_t<Policies>& operator()() const
+      {
+        return where;
+      }
+
+      template <typename T>
+      static auto _get_member(T t) -> decltype(t.where)
+      {
+        return t.where;
+      }
+
+      using _consistency_check = consistent_t;
+    };
+  };
+
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_t, "calling where() or uncontionally() required");
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_where_expressions_t,
                                "at least one argument is not a boolean expression in where()");
@@ -328,9 +392,27 @@ namespace sqlpp
                                     assert_where_t,
                                     consistent_t>::type;
 
+#ifdef SQLPP_ALLOW_NAKED_BOOL_EXPRESSION
+      template <typename T = void>
       auto where(bool b) const -> _new_statement_t<std::true_type, where_t<void, bool>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this), where_data_t<void, bool>{b}};
+      }
+#else
+      template <typename T = void>
+      auto where(bool b) const -> bad_statement
+      {
+        static_assert(
+            wrong_t<T>::value,
+            "where(bool) is deprecated, please use unconditionally() or #define SQLPP_ALLOW_NAKED_BOOL_EXPRESSION "
+            "for a grace period");
+        return {static_cast<const derived_statement_t<Policies>&>(*this), where_data_t<void, bool>{b}};
+      }
+#endif
+
+      auto unconditionally() const -> _new_statement_t<std::true_type, where_t<void, unconditional_t>>
+      {
+        return {static_cast<const derived_statement_t<Policies>&>(*this), where_data_t<void, unconditional_t>{}};
       }
 
       template <typename... Expressions>
@@ -387,6 +469,7 @@ namespace sqlpp
     }
   };
 
+#ifdef SQLPP_ALLOW_NAKED_BOOL_EXPRESSION
   template <typename Context>
   struct serializer_t<Context, where_data_t<void, bool>>
   {
@@ -397,6 +480,19 @@ namespace sqlpp
     {
       if (not t._condition)
         context << " WHERE NULL";
+      return context;
+    }
+  };
+#endif
+
+  template <typename Context>
+  struct serializer_t<Context, where_data_t<void, unconditional_t>>
+  {
+    using _serialize_check = consistent_t;
+    using T = where_data_t<void, unconditional_t>;
+
+    static Context& _(const T&, Context& context)
+    {
       return context;
     }
   };

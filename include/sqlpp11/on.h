@@ -30,6 +30,7 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/interpretable_list.h>
+#include <sqlpp11/unconditional.h>
 #include <sqlpp11/logic.h>
 
 namespace sqlpp
@@ -72,6 +73,25 @@ namespace sqlpp
     interpretable_list_t<Database> _dynamic_expressions;
   };
 
+  template <>
+  struct on_t<void, unconditional_t>
+  {
+    using _traits = make_traits<no_value_t, tag::is_on>;
+    using _nodes = detail::type_vector<>;
+  };
+
+  template <typename Context>
+  struct serializer_t<Context, on_t<void, unconditional_t>>
+  {
+    using _serialize_check = consistent_t;
+    using T = on_t<void, unconditional_t>;
+
+    static Context& _(const T&, Context& context)
+    {
+      return context;
+    }
+  };
+
   template <typename Context, typename Database, typename... Expressions>
   struct serializer_t<Context, on_t<Database, Expressions...>>
   {
@@ -82,11 +102,12 @@ namespace sqlpp
     {
       if (sizeof...(Expressions) == 0 and t._dynamic_expressions.empty())
         return context;
-      context << " ON ";
+      context << " ON (";
       interpret_tuple(t._expressions, " AND ", context);
       if (sizeof...(Expressions) and not t._dynamic_expressions.empty())
         context << " AND ";
       interpret_list(t._dynamic_expressions, " AND ", context);
+      context << " )";
       return context;
     }
   };

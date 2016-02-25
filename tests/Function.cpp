@@ -197,7 +197,7 @@ int Function(int, char* [])
     static_assert(not sqlpp::is_numeric_t<TT>::value, "type requirement");
     static_assert(not sqlpp::is_text_t<TT>::value, "type requirement");
 
-    if (false and db(select(exists(select(t.alpha).from(t).where(true)))).front().exists)
+    if (false and db(select(exists(select(t.alpha).from(t).unconditionally()))).front().exists)
     { /* do something */
     }
   }
@@ -286,7 +286,7 @@ int Function(int, char* [])
     static_assert(sqlpp::is_integral_t<TT>::value, "type requirement");
     static_assert(not sqlpp::is_floating_point_t<TT>::value, "type requirement");
 
-    if (false and db(select(count(t.alpha)).from(t).where(true)).front().count > 0)
+    if (false and db(select(count(t.alpha)).from(t).unconditionally()).front().count > 0)
     { /* do something */
     }
   }
@@ -444,7 +444,7 @@ int Function(int, char* [])
     static_assert(std::is_same<decltype(sqlpp::tvin("test")), sqlpp::tvin_arg_t<sqlpp::text_operand>>::value,
                   "text values are accepted and wrapped");
 
-    for (const auto& row : db(select(all_of(t)).from(t).where(true)))
+    for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
     {
       static_assert(std::is_same<decltype(sqlpp::tvin(row.alpha)),
                                  sqlpp::tvin_arg_t<typename std::remove_const<decltype(row.alpha)>::type>>::value,

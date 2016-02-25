@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_JOIN_H
-#define SQLPP_JOIN_H
+#ifndef SQLPP_DYNAMIC_JOIN_H
+#define SQLPP_DYNAMIC_JOIN_H
 
 #include <sqlpp11/join_types.h>
 #include <sqlpp11/on.h>
@@ -33,25 +33,22 @@
 
 namespace sqlpp
 {
-  template <typename JoinType, typename Lhs, typename Rhs, typename On = noop>
-  struct join_t
+  template <typename JoinType, typename Rhs, typename On = noop>
+  struct dynamic_join_t
   {
-    using _traits = make_traits<no_value_t, tag::is_table, tag::is_join>;
-    using _nodes = detail::type_vector<Lhs, Rhs>;
+    using _traits = make_traits<no_value_t, tag::is_table, tag::is_dynamic_join>;
+    using _nodes = detail::type_vector<Rhs>;
     using _can_be_null = std::false_type;
 
-    static_assert(is_table_t<Lhs>::value, "lhs argument for join() has to be a table or join");
     static_assert(is_table_t<Rhs>::value, "rhs argument for join() has to be a table");
     static_assert(not is_join_t<Rhs>::value, "rhs argument for join must not be a join");
     static_assert(is_noop<On>::value or is_on_t<On>::value, "invalid on expression in join().on()");
 
-    static_assert(detail::is_disjunct_from<provided_tables_of<Lhs>, provided_tables_of<Rhs>>::value,
-                  "joined tables must not be identical");
-
-    static_assert(required_tables_of<join_t>::size::value == 0, "joined tables must not depend on other tables");
+    static_assert(required_tables_of<dynamic_join_t>::size::value == 0,
+                  "joined tables must not depend on other tables");
 
     template <typename OnT>
-    using set_on_t = join_t<JoinType, Lhs, Rhs, OnT>;
+    using set_on_t = dynamic_join_t<JoinType, Rhs, OnT>;
 
     template <typename... Expr>
     auto on(Expr... expr) -> set_on_t<on_t<void, Expr...>>
@@ -60,71 +57,64 @@ namespace sqlpp
       static_assert(logic::all_t<is_expression_t<Expr>::value...>::value,
                     "at least one argument is not an expression in on()");
 
-      return {_lhs, _rhs, {std::tuple<Expr...>{expr...}, {}}};
+      return {_rhs, {std::tuple<Expr...>{expr...}, {}}};
     }
 
     auto unconditionally() -> set_on_t<on_t<void, unconditional_t>>
     {
-      return {_lhs, _rhs, {}};
+      static_assert(is_noop<On>::value, "cannot call on() twice for a single join()");
+      return {_rhs, {}};
     }
 
-    template <typename T>
-    join_t<inner_join_t, join_t, T> join(T t)
-    {
-      static_assert(not is_noop<On>::value, "join type requires on()");
-      return {*this, t, {}};
-    }
-
-    template <typename T>
-    join_t<inner_join_t, join_t, T> inner_join(T t)
-    {
-      static_assert(not is_noop<On>::value, "join type requires on()");
-      return {*this, t, {}};
-    }
-
-    template <typename T>
-    join_t<outer_join_t, join_t, T> outer_join(T t)
-    {
-      static_assert(not is_noop<On>::value, "join type requires on()");
-      return {*this, t, {}};
-    }
-
-    template <typename T>
-    join_t<left_outer_join_t, join_t, T> left_outer_join(T t)
-    {
-      static_assert(not is_noop<On>::value, "join type requires on()");
-      return {*this, t, {}};
-    }
-
-    template <typename T>
-    join_t<right_outer_join_t, join_t, T> right_outer_join(T t)
-    {
-      static_assert(not is_noop<On>::value, "join type requires on()");
-      return {*this, t, {}};
-    }
-
-    Lhs _lhs;
     Rhs _rhs;
     On _on;
   };
 
-  template <typename Context, typename JoinType, typename Lhs, typename Rhs, typename On>
-  struct serializer_t<Context, join_t<JoinType, Lhs, Rhs, On>>
+  template <typename Context, typename JoinType, typename Rhs, typename On>
+  struct serializer_t<Context, dynamic_join_t<JoinType, Rhs, On>>
   {
-    using _serialize_check = serialize_check_of<Context, Lhs, Rhs, On>;
-    using T = join_t<JoinType, Lhs, Rhs, On>;
+    using _serialize_check = serialize_check_of<Context, Rhs, On>;
+    using T = dynamic_join_t<JoinType, Rhs, On>;
 
     static Context& _(const T& t, Context& context)
     {
       static_assert(not is_noop<On>::value, "joined tables require on()");
-      serialize(t._lhs, context);
-      context << JoinType::_name;
       context << " JOIN ";
       serialize(t._rhs, context);
       serialize(t._on, context);
       return context;
     }
   };
+
+  template <typename Table>
+  dynamic_join_t<inner_join_t, Table> dynamic_join(Table table)
+  {
+    return {table, {}};
+  }
+
+  template <typename Table>
+  dynamic_join_t<inner_join_t, Table> dynamic_inner_join(Table table)
+  {
+    return {table, {}};
+  }
+
+  template <typename Table>
+  dynamic_join_t<outer_join_t, Table> outer_join(Table table)
+  {
+    return {table, {}};
+  }
+
+  template <typename Table>
+  dynamic_join_t<left_outer_join_t, Table> left_outer_join(Table table)
+  {
+    return {table, {}};
+  }
+
+  template <typename Table>
+  dynamic_join_t<right_outer_join_t, Table> right_outer_join(Table table)
+  {
+    return {table, {}};
+  }
 }
 
 #endif

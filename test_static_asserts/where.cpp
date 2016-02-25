@@ -31,7 +31,6 @@
 namespace
 {
   constexpr auto t = test::TabBar{};
-  constexpr auto f = test::TabFoo{};
 
   template <typename T>
   void print_type_on_error(std::true_type)

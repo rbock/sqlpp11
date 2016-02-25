@@ -24,41 +24,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_BOOLEAN_EXPRESSION_OPERATORS_H
-#define SQLPP_BOOLEAN_EXPRESSION_OPERATORS_H
-
-#include <sqlpp11/expression_return_types.h>
-#include <sqlpp11/operand_check.h>
-#include <sqlpp11/expression_operators.h>
-#include <sqlpp11/basic_expression_operators.h>
+#ifndef SQLPP_UNCONDITIONAL_H
+#define SQLPP_UNCONDITIONAL_H
 
 namespace sqlpp
 {
-  template <typename Expression>
-  struct expression_operators<Expression, boolean> : public basic_expression_operators<Expression, boolean>
+  struct unconditional_t
   {
-  };
-
-  template <typename L, typename R>
-  struct return_type_and<L, R, unwrapped_binary_operand_check_t<L, is_boolean_t, R, is_boolean_t>>
-  {
-    using check = consistent_t;
-    using type = logical_and_t<wrap_operand_t<L>, wrap_operand_t<R>>;
-  };
-
-  template <typename L, typename R>
-  struct return_type_or<L, R, unwrapped_binary_operand_check_t<L, is_boolean_t, R, is_boolean_t>>
-  {
-    using check = consistent_t;
-    using type = logical_or_t<wrap_operand_t<L>, wrap_operand_t<R>>;
-  };
-
-  template <typename T, typename Defer>
-  struct return_type_not<T, Defer, unwrapped_unary_operand_check_t<T, is_boolean_t>>
-  {
-    using check = consistent_t;
-    using type = logical_not_t<wrap_operand_t<T>>;
   };
 }
-
 #endif
