@@ -39,17 +39,11 @@
 
 namespace sqlpp
 {
-#ifdef SQLPP_ALLOW_UNCONDITIONAL_JOIN
-  constexpr bool allow_unconditional_from = 1;
-#else
-  constexpr bool allow_unconditional_from = 0;
-#endif
-
   // FROM DATA
-  template <typename Database, typename... Tables>
+  template <typename Database, typename Table>
   struct from_data_t
   {
-    from_data_t(Tables... tables) : _tables(tables...)
+    from_data_t(Table table) : _table(table)
     {
     }
 
@@ -59,20 +53,20 @@ namespace sqlpp
     from_data_t& operator=(from_data_t&&) = default;
     ~from_data_t() = default;
 
-    std::tuple<Tables...> _tables;
+    Table _table;
     interpretable_list_t<Database> _dynamic_tables;
   };
 
   // FROM
-  template <typename Database, typename... Tables>
+  template <typename Database, typename Table>
   struct from_t
   {
     using _traits = make_traits<no_value_t, tag::is_from>;
-    using _nodes = detail::type_vector<Tables...>;
+    using _nodes = detail::type_vector<Table>;
     using _is_dynamic = is_database<Database>;
 
     // Data
-    using _data_t = from_data_t<Database, Tables...>;
+    using _data_t = from_data_t<Database, Table>;
 
     // Member implementation with data and methods
     template <typename Policies>
@@ -88,12 +82,8 @@ namespace sqlpp
       void add(DynamicJoin dynamicJoin)
       {
         static_assert(_is_dynamic::value, "from::add() must not be called for static from()");
-        static_assert(
-            is_dynamic_join_t<DynamicJoin>::value or (allow_unconditional_from and is_table_t<DynamicJoin>::value),
-            "invalid argument in from::add(), or #define ALLOW_UNCONDITIONAL_JOIN "
-            "for a grace period of using tables here");
-        using _known_tables =
-            detail::make_joined_set_t<provided_tables_of<Tables>...>;  // Hint: Joins contain more than one table
+        static_assert(is_dynamic_join_t<DynamicJoin>::value, "invalid argument in from::add(), expected dynamic_join");
+        using _known_tables = provided_tables_of<Table>;  // Hint: Joins contain more than one table
         // workaround for msvc bug https://connect.microsoft.com/VisualStudio/feedback/details/2173198
         //		using _known_table_names = detail::transform_set_t<name_of, _known_tables>;
         using _known_table_names = detail::make_name_of_set_t<_known_tables>;
@@ -127,7 +117,7 @@ namespace sqlpp
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = from_data_t<Database, Tables...>;
+      using _data_t = from_data_t<Database, Table>;
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
       template <typename... Args>
@@ -222,44 +212,35 @@ namespace sqlpp
 
       using _consistency_check = consistent_t;
 
-      template <typename Table, typename... Tables>
-      auto from(Table table, Tables... tables) const
-          -> _new_statement_t<_check<Table, Tables...>, from_t<void, from_table_t<Table>, from_table_t<Tables>...>>
+      template <typename Table>
+      auto from(Table table) const -> _new_statement_t<_check<Table>, from_t<void, from_table_t<Table>>>
       {
-        static_assert(_check<Table, Tables...>::value, "at least one argument is not a table or join in from()");
-        static_assert(sizeof...(Tables) == 0 or ::sqlpp::allow_unconditional_from,
-                      "unconditional join is deprecated, please use explicit joins or #define ALLOW_UNCONDITIONAL_JOIN "
-                      "for a grace period");
-        return _from_impl<void>(_check<Table, Tables...>{}, table, tables...);
+        static_assert(_check<Table>::value, "argument is not a table or join in from()");
+        return _from_impl<void>(_check<Table>{}, table);
       }
 
-      template <typename... Tables>
-      auto dynamic_from(Tables... tables) const
-          -> _new_statement_t<_check<Tables...>, from_t<_database_t, from_table_t<Tables>...>>
+      template <typename Table>
+      auto dynamic_from(Table table) const -> _new_statement_t<_check<Table>, from_t<_database_t, from_table_t<Table>>>
       {
         static_assert(not std::is_same<_database_t, void>::value,
                       "dynamic_from must not be called in a static statement");
-        static_assert(_check<Tables...>::value, "at least one argument is not a table or join in from()");
-        static_assert(
-            sizeof...(Tables) == 1 or ::sqlpp::allow_unconditional_from,
-            "unconditional join is deprecated, please use explicit joins or #define SQLPP_ALLOW_UNCONDITIONAL_JOIN "
-            "for a grace period");
-        return _from_impl<_database_t>(_check<Tables...>{}, tables...);
+        static_assert(_check<Table>::value, "argument is not a table or join in from()");
+        return _from_impl<_database_t>(_check<Table>{}, table);
       }
 
     private:
-      template <typename Database, typename... Tables>
-      auto _from_impl(const std::false_type&, Tables... tables) const -> bad_statement;
+      template <typename Database, typename Table>
+      auto _from_impl(const std::false_type&, Table table) const -> bad_statement;
 
-      template <typename Database, typename... Tables>
-      auto _from_impl(const std::true_type&, Tables... tables) const
-          -> _new_statement_t<std::true_type, from_t<Database, from_table_t<Tables>...>>
+      template <typename Database, typename Table>
+      auto _from_impl(const std::true_type&, Table table) const
+          -> _new_statement_t<std::true_type, from_t<Database, from_table_t<Table>>>
       {
-        static_assert(required_tables_of<from_t<Database, Tables...>>::size::value == 0,
+        static_assert(required_tables_of<from_t<Database, Table>>::size::value == 0,
                       "at least one table depends on another table in from()");
 
-        static constexpr std::size_t _number_of_tables = detail::sum(provided_tables_of<Tables>::size::value...);
-        using _unique_tables = detail::make_joined_set_t<provided_tables_of<Tables>...>;
+        static constexpr std::size_t _number_of_tables = detail::sum(provided_tables_of<Table>::size::value);
+        using _unique_tables = provided_tables_of<Table>;
         using _unique_table_names = detail::make_name_of_set_t<_unique_tables>;
         static_assert(_number_of_tables == _unique_tables::size::value,
                       "at least one duplicate table detected in from()");
@@ -267,35 +248,35 @@ namespace sqlpp
                       "at least one duplicate table name detected in from()");
 
         return {static_cast<const derived_statement_t<Policies>&>(*this),
-                from_data_t<Database, from_table_t<Tables>...>{from_table(tables)...}};
+                from_data_t<Database, from_table_t<Table>>{from_table(table)}};
       }
     };
   };
 
   // Interpreters
-  template <typename Context, typename Database, typename... Tables>
-  struct serializer_t<Context, from_data_t<Database, Tables...>>
+  template <typename Context, typename Database, typename Table>
+  struct serializer_t<Context, from_data_t<Database, Table>>
   {
-    using _serialize_check = serialize_check_of<Context, Tables...>;
-    using T = from_data_t<Database, Tables...>;
+    using _serialize_check = serialize_check_of<Context, Table>;
+    using T = from_data_t<Database, Table>;
 
     static Context& _(const T& t, Context& context)
     {
-      if (sizeof...(Tables) == 0 and t._dynamic_tables.empty())
-        return context;
       context << " FROM ";
-      interpret_tuple(t._tables, ',', context);
-      if (sizeof...(Tables) and not t._dynamic_tables.empty())
-        context << ',';
-      interpret_list(t._dynamic_tables, ',', context);
+      serialize(t._table, context);
+      if (not t._dynamic_tables.empty())
+      {
+        context << ' ';
+        interpret_list(t._dynamic_tables, ' ', context);
+      }
       return context;
     }
   };
 
-  template <typename... T>
-  auto from(T&&... t) -> decltype(statement_t<void, no_from_t>().from(std::forward<T>(t)...))
+  template <typename T>
+  auto from(T&& t) -> decltype(statement_t<void, no_from_t>().from(std::forward<T>(t)))
   {
-    return statement_t<void, no_from_t>().from(std::forward<T>(t)...);
+    return statement_t<void, no_from_t>().from(std::forward<T>(t));
   }
 }
 
