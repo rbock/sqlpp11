@@ -217,9 +217,9 @@ namespace sqlpp
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_where_t, "calling where() or uncontionally() required");
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_expressions_t,
-                               "at least one argument is not a boolean expression in where()");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_boolean_t, "at least one argument is not a boolean expression in where()");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_boolean_expression_t,
+                               "at least one argument is not a sqlpp::boolean expression in where(). Please use "
+                               ".unconditionally() instead of .where(true), or sqlpp::value(bool)");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_where_no_aggregate_functions_t,
                                "at least one aggregate function used in where()");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_where_static_count_args_t, "missing argument in where()");
@@ -230,8 +230,9 @@ namespace sqlpp
   // https://connect.microsoft.com/VisualStudio/feedback/details/2173198
   //  template <typename... Expressions>
   //  using check_where_t = static_combined_check_t<
-  //      static_check_t<logic::all_t<is_expression_t<Expressions>::value...>::value, assert_where_expressions_t>,
-  //      static_check_t<logic::all_t<is_boolean_t<Expressions>::value...>::value, assert_where_boolean_t>,
+  //      static_check_t<logic::all_t<is_expression_t<Expressions>::value...>::value,
+  //      assert_where_boolean_expressions_t>,
+  //      static_check_t<logic::all_t<is_boolean_t<Expressions>::value...>::value, assert_where_boolean_expression_t>,
   //      static_check_t<logic::all_t<(not contains_aggregate_function_t<Expressions>::value)...>::value,
   //                     assert_where_no_aggregate_functions_t>>;
   template <typename... Expressions>
@@ -239,8 +240,8 @@ namespace sqlpp
   {
     using type = static_combined_check_t<
         static_check_t<logic::all_t<detail::is_expression_impl<Expressions>::type::value...>::value,
-                       assert_where_expressions_t>,
-        static_check_t<logic::all_t<is_boolean_t<Expressions>::value...>::value, assert_where_boolean_t>,
+                       assert_where_boolean_expression_t>,
+        static_check_t<logic::all_t<is_boolean_t<Expressions>::value...>::value, assert_where_boolean_expression_t>,
         static_check_t<logic::all_t<(not detail::contains_aggregate_function_impl<Expressions>::type::value)...>::value,
                        assert_where_no_aggregate_functions_t>>;
   };
@@ -327,15 +328,6 @@ namespace sqlpp
           typename std::conditional<WhereRequired and (Policies::_all_provided_tables::size::value > 0),
                                     assert_where_t,
                                     consistent_t>::type;
-
-      template <typename T = void>
-      auto where(bool) const -> bad_statement
-      {
-        static_assert(wrong_t<T>::value,
-                      ".where(bool) is not allowed any more. Please use unconditionally() to replace "
-                      ".where(true). Use sqlpp::value(bool) if you really want to use a bool here");
-        return {};
-      }
 
       auto unconditionally() const -> _new_statement_t<std::true_type, where_t<void, unconditional_t>>
       {
