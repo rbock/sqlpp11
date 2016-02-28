@@ -50,14 +50,14 @@ namespace sqlpp
     template <typename OnT>
     using set_on_t = dynamic_join_t<JoinType, Rhs, OnT>;
 
-    template <typename... Expr>
-    auto on(Expr... expr) -> set_on_t<on_t<void, Expr...>>
+    template <typename Expr>
+    auto on(Expr expr) -> set_on_t<on_t<void, Expr>>
     {
       static_assert(is_noop<On>::value, "cannot call on() twice for a single join()");
-      static_assert(logic::all_t<is_expression_t<Expr>::value...>::value,
-                    "at least one argument is not an expression in on()");
+      static_assert(is_expression_t<Expr>::value, "argument is not a boolean expression in on()");
+      static_assert(is_boolean_t<Expr>::value, "argument is not a boolean expression in on()");
 
-      return {_rhs, {std::tuple<Expr...>{expr...}, {}}};
+      return {_rhs, {expr, {}}};
     }
 
     auto unconditionally() -> set_on_t<on_t<void, unconditional_t>>

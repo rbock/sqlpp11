@@ -147,6 +147,39 @@ namespace sqlpp
     };
   };
 
+  SQLPP_PORTABLE_STATIC_ASSERT(
+      assert_from_not_cross_join_t,
+      "from() argument is a cross join, please use an explicit on() condition or unconditionally()");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_from_table_t, "from() argument has to be a table or join expression");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_from_dependency_free_t, "at least one table depends on another table in from()");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_from_no_duplicates_t, "at least one duplicate table name detected in from()");
+
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_from_dynamic_statement_dynamic_t,
+                               "dynamic_from must not be called in a static statement");
+
+  template <typename Table>
+  struct check_from
+  {
+    using type = static_combined_check_t<
+        static_check_t<not is_cross_join_t<Table>::value, assert_from_not_cross_join_t>,
+        static_check_t<is_table_t<Table>::value, assert_from_table_t>,
+        static_check_t<required_tables_of<Table>::size::value == 0, assert_from_dependency_free_t>,
+        static_check_t<provided_tables_of<Table>::size::value ==
+                           detail::make_name_of_set_t<provided_tables_of<Table>>::size::value,
+                       assert_from_no_duplicates_t>>;
+  };
+
+  template <typename Table>
+  using check_from_t = typename check_from<Table>::type;
+
+  template <typename Table>
+  using check_from_static_t = check_from_t<Table>;
+
+  template <typename Database, typename Table>
+  using check_from_dynamic_t = static_combined_check_t<
+      static_check_t<not std::is_same<Database, void>::value, assert_from_dynamic_statement_dynamic_t>,
+      check_from_t<Table>>;
+
   struct no_from_t
   {
     using _traits = make_traits<no_value_t, tag::is_noop>;
@@ -199,33 +232,26 @@ namespace sqlpp
 
       using _database_t = typename Policies::_database_t;
 
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      //	  template <typename... T>
-      //	  using _check = logic::all_t<is_table_t<T>::value...>;
-      template <typename... T>
-      struct _check : logic::all_t<is_table_t<T>::value...>
-      {
-      };
-
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check::value, Policies, no_from_t, T>;
 
       using _consistency_check = consistent_t;
 
       template <typename Table>
-      auto from(Table table) const -> _new_statement_t<_check<Table>, from_t<void, from_table_t<Table>>>
+      auto from(Table table) const -> _new_statement_t<check_from_static_t<Table>, from_t<void, from_table_t<Table>>>
       {
-        static_assert(_check<Table>::value, "argument is not a table or join in from()");
-        return _from_impl<void>(_check<Table>{}, table);
+        using Check = check_from_static_t<Table>;
+        Check{}._();
+        return _from_impl<void>(Check{}, table);
       }
 
       template <typename Table>
-      auto dynamic_from(Table table) const -> _new_statement_t<_check<Table>, from_t<_database_t, from_table_t<Table>>>
+      auto dynamic_from(Table table) const
+          -> _new_statement_t<check_from_dynamic_t<_database_t, Table>, from_t<_database_t, from_table_t<Table>>>
       {
-        static_assert(not std::is_same<_database_t, void>::value,
-                      "dynamic_from must not be called in a static statement");
-        static_assert(_check<Table>::value, "argument is not a table or join in from()");
-        return _from_impl<_database_t>(_check<Table>{}, table);
+        using Check = check_from_dynamic_t<_database_t, Table>;
+        Check{}._();
+        return _from_impl<_database_t>(Check{}, table);
       }
 
     private:
@@ -236,17 +262,6 @@ namespace sqlpp
       auto _from_impl(const std::true_type&, Table table) const
           -> _new_statement_t<std::true_type, from_t<Database, from_table_t<Table>>>
       {
-        static_assert(required_tables_of<from_t<Database, Table>>::size::value == 0,
-                      "at least one table depends on another table in from()");
-
-        static constexpr std::size_t _number_of_tables = detail::sum(provided_tables_of<Table>::size::value);
-        using _unique_tables = provided_tables_of<Table>;
-        using _unique_table_names = detail::make_name_of_set_t<_unique_tables>;
-        static_assert(_number_of_tables == _unique_tables::size::value,
-                      "at least one duplicate table detected in from()");
-        static_assert(_number_of_tables == _unique_table_names::size::value,
-                      "at least one duplicate table name detected in from()");
-
         return {static_cast<const derived_statement_t<Policies>&>(*this),
                 from_data_t<Database, from_table_t<Table>>{from_table(table)}};
       }

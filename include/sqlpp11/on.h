@@ -28,22 +28,19 @@
 #define SQLPP_ON_H
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/interpretable_list.h>
 #include <sqlpp11/unconditional.h>
 #include <sqlpp11/logic.h>
 
 namespace sqlpp
 {
-  template <typename Database, typename... Expressions>
+  template <typename Database, typename Expression>
   struct on_t
   {
     using _traits = make_traits<no_value_t, tag::is_on>;
-    using _nodes = detail::type_vector<Expressions...>;
+    using _nodes = detail::type_vector<Expression>;
 
     using _is_dynamic = is_database<Database>;
-
-    static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression argument required in on()");
 
     template <typename Expr>
     void add(Expr expr)
@@ -69,7 +66,7 @@ namespace sqlpp
     void _add_impl(Expr expr, const std::false_type&);
 
   public:
-    std::tuple<Expressions...> _expressions;
+    Expression _expression;
     interpretable_list_t<Database> _dynamic_expressions;
   };
 
@@ -103,8 +100,8 @@ namespace sqlpp
       if (sizeof...(Expressions) == 0 and t._dynamic_expressions.empty())
         return context;
       context << " ON (";
-      interpret_tuple(t._expressions, " AND ", context);
-      if (sizeof...(Expressions) and not t._dynamic_expressions.empty())
+      serialize(t._expression, context);
+      if (not t._dynamic_expressions.empty())
         context << " AND ";
       interpret_list(t._dynamic_expressions, " AND ", context);
       context << " )";
