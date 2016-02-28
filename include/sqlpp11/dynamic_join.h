@@ -27,94 +27,40 @@
 #ifndef SQLPP_DYNAMIC_JOIN_H
 #define SQLPP_DYNAMIC_JOIN_H
 
-#include <sqlpp11/join_types.h>
-#include <sqlpp11/on.h>
-#include <sqlpp11/noop.h>
+#include <sqlpp11/dynamic_cross_join.h>
 
 namespace sqlpp
 {
-  template <typename JoinType, typename Rhs, typename On = noop>
+  template <typename CrossJoin, typename On>
   struct dynamic_join_t
   {
     using _traits = make_traits<no_value_t, tag::is_table, tag::is_dynamic_join>;
-    using _nodes = detail::type_vector<Rhs>;
+    using _nodes = detail::type_vector<CrossJoin, On>;
     using _can_be_null = std::false_type;
+    using _provided_tables = provided_tables_of<CrossJoin>;
+    using _required_tables = detail::type_set<>;
 
-    static_assert(is_table_t<Rhs>::value, "rhs argument for join() has to be a table");
-    static_assert(not is_join_t<Rhs>::value, "rhs argument for join must not be a join");
-    static_assert(is_noop<On>::value or is_on_t<On>::value, "invalid on expression in join().on()");
+    static_assert(is_dynamic_cross_join_t<CrossJoin>::value, "lhs argument for on() has to be a cross join");
+    static_assert(required_tables_of<CrossJoin>::size::value == 0, "joined tables must not depend on other tables");
+    static_assert(is_on_t<On>::value, "invalid on expression in join().on()");
 
-    static_assert(required_tables_of<dynamic_join_t>::size::value == 0,
-                  "joined tables must not depend on other tables");
-
-    template <typename OnT>
-    using set_on_t = dynamic_join_t<JoinType, Rhs, OnT>;
-
-    template <typename Expr>
-    auto on(Expr expr) -> set_on_t<on_t<void, Expr>>
-    {
-      static_assert(is_noop<On>::value, "cannot call on() twice for a single join()");
-      static_assert(is_expression_t<Expr>::value, "argument is not a boolean expression in on()");
-      static_assert(is_boolean_t<Expr>::value, "argument is not a boolean expression in on()");
-
-      return {_rhs, {expr, {}}};
-    }
-
-    auto unconditionally() -> set_on_t<on_t<void, unconditional_t>>
-    {
-      static_assert(is_noop<On>::value, "cannot call on() twice for a single join()");
-      return {_rhs, {}};
-    }
-
-    Rhs _rhs;
+    CrossJoin _cross_join;
     On _on;
   };
 
-  template <typename Context, typename JoinType, typename Rhs, typename On>
-  struct serializer_t<Context, dynamic_join_t<JoinType, Rhs, On>>
+  template <typename Context, typename CrossJoin, typename On>
+  struct serializer_t<Context, dynamic_join_t<CrossJoin, On>>
   {
-    using _serialize_check = serialize_check_of<Context, Rhs, On>;
-    using T = dynamic_join_t<JoinType, Rhs, On>;
+    using _serialize_check = serialize_check_of<Context, CrossJoin, On>;
+    using T = dynamic_join_t<CrossJoin, On>;
 
     static Context& _(const T& t, Context& context)
     {
-      static_assert(not is_noop<On>::value, "joined tables require on()");
-      context << " JOIN ";
-      serialize(t._rhs, context);
+      serialize(t._cross_join, context);
       serialize(t._on, context);
       return context;
     }
   };
-
-  template <typename Table>
-  dynamic_join_t<inner_join_t, Table> dynamic_join(Table table)
-  {
-    return {table, {}};
-  }
-
-  template <typename Table>
-  dynamic_join_t<inner_join_t, Table> dynamic_inner_join(Table table)
-  {
-    return {table, {}};
-  }
-
-  template <typename Table>
-  dynamic_join_t<outer_join_t, Table> outer_join(Table table)
-  {
-    return {table, {}};
-  }
-
-  template <typename Table>
-  dynamic_join_t<left_outer_join_t, Table> left_outer_join(Table table)
-  {
-    return {table, {}};
-  }
-
-  template <typename Table>
-  dynamic_join_t<right_outer_join_t, Table> right_outer_join(Table table)
-  {
-    return {table, {}};
-  }
 }
 
 #endif
