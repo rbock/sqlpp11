@@ -93,6 +93,7 @@ namespace sqlpp
       {
         static_assert(_is_dynamic::value, "where::add() can only be called for dynamic_where");
         static_assert(is_expression_t<Expression>::value, "invalid expression argument in where::add()");
+        static_assert(is_boolean_t<Expression>::value, "invalid expression argument in where::add()");
         static_assert(not TableCheckRequired::value or Policies::template _no_unknown_tables<Expression>::value,
                       "expression uses tables unknown to this statement in where::add()");
         static_assert(not contains_aggregate_function_t<Expression>::value,
@@ -217,9 +218,11 @@ namespace sqlpp
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_where_t, "calling where() or uncontionally() required");
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_boolean_expression_t,
-                               "at least one argument is not a sqlpp::boolean expression in where(). Please use "
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_not_cpp_bool_t,
+                               "where() argument has to be an sqlpp boolean expression. Please use "
                                ".unconditionally() instead of .where(true), or sqlpp::value(bool)");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_boolean_expression_t,
+                               "where() argument has to be an sqlpp boolean expression.");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_where_no_aggregate_functions_t,
                                "at least one aggregate function used in where()");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_where_static_count_args_t, "missing argument in where()");
@@ -230,6 +233,8 @@ namespace sqlpp
   // https://connect.microsoft.com/VisualStudio/feedback/details/2173198
   //  template <typename... Expressions>
   //  using check_where_t = static_combined_check_t<
+  //      static_check_t<logic::all_t<is_not_cpp_bool_t<Expressions>::value...>::value,
+  //      assert_where_not_cpp_bool_t>,
   //      static_check_t<logic::all_t<is_expression_t<Expressions>::value...>::value,
   //      assert_where_boolean_expressions_t>,
   //      static_check_t<logic::all_t<is_boolean_t<Expressions>::value...>::value, assert_where_boolean_expression_t>,
@@ -239,6 +244,7 @@ namespace sqlpp
   struct check_where
   {
     using type = static_combined_check_t<
+        static_check_t<logic::all_t<is_not_cpp_bool_t<Expressions>::value...>::value, assert_where_not_cpp_bool_t>,
         static_check_t<logic::all_t<detail::is_expression_impl<Expressions>::type::value...>::value,
                        assert_where_boolean_expression_t>,
         static_check_t<logic::all_t<is_boolean_t<Expressions>::value...>::value, assert_where_boolean_expression_t>,
@@ -312,14 +318,6 @@ namespace sqlpp
       }
 
       using _database_t = typename Policies::_database_t;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      //	  template <typename... T>
-      //	  using _check = logic::all_t<is_expression_t<T>::value...>;
-      template <typename... T>
-      struct _check : logic::all_t<is_expression_t<T>::value...>
-      {
-      };
 
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check::value, Policies, no_where_t, T>;

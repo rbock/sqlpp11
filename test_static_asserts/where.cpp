@@ -89,6 +89,10 @@ namespace
     // Try non-boolean expression
     where_static_check<sqlpp::assert_where_boolean_expression_t>(t.alpha);
 
+    // Try builtin bool
+    where_static_check<sqlpp::assert_where_not_cpp_bool_t>(true);
+    where_static_check<sqlpp::assert_where_not_cpp_bool_t>(17 > 3);
+
     // Try some other types as expressions
     where_static_check<sqlpp::assert_where_boolean_expression_t>("true");
     where_static_check<sqlpp::assert_where_boolean_expression_t>(17);
@@ -115,6 +119,10 @@ namespace
 
     // Try non-boolean expression
     where_dynamic_check<sqlpp::assert_where_boolean_expression_t>(t.alpha);
+
+    // Try builtin bool
+    where_dynamic_check<sqlpp::assert_where_not_cpp_bool_t>(true);
+    where_dynamic_check<sqlpp::assert_where_not_cpp_bool_t>(17 > 3);
 
     // Try some other types as expressions
     where_dynamic_check<sqlpp::assert_where_boolean_expression_t>("true");
