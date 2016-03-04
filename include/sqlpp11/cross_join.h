@@ -33,6 +33,26 @@
 
 namespace sqlpp
 {
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_cross_join_lhs_table_t, "lhs argument of join() has to be a table or a join");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_cross_join_rhs_table_t, "rhs argument of join() has to be a table");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_cross_join_rhs_no_join_t, "rhs argument of join() must not be a table");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_cross_join_unique_names_t, "joined table names have to be unique");
+
+  template <typename Lhs, typename Rhs>
+  struct check_cross_join
+  {
+    using type = static_combined_check_t<
+        static_check_t<is_table_t<Lhs>::value, assert_cross_join_lhs_table_t>,
+        static_check_t<is_table_t<Rhs>::value, assert_cross_join_rhs_table_t>,
+        static_check_t<not is_join_t<Rhs>::value, assert_cross_join_rhs_no_join_t>,
+        static_check_t<detail::is_disjunct_from<detail::make_name_of_set_t<provided_tables_of<Lhs>>,
+                                                detail::make_name_of_set_t<provided_tables_of<Rhs>>>::value,
+                       assert_cross_join_unique_names_t>>;
+  };
+
+  template <typename Lhs, typename Rhs>
+  using check_cross_join_t = typename check_cross_join<Lhs, Rhs>::type;
+
   template <typename CrossJoin, typename On>
   struct join_t;
 
@@ -86,6 +106,56 @@ namespace sqlpp
       return context;
     }
   };
+
+  template <typename Lhs, typename Rhs>
+  auto join(Lhs lhs, Rhs rhs) -> typename std::conditional<check_cross_join_t<Lhs, Rhs>::value,
+                                                           cross_join_t<inner_join_t, Lhs, Rhs>,
+                                                           bad_statement>::type
+  {
+    check_cross_join_t<Lhs, Rhs>::_();
+
+    return {lhs, rhs};
+  }
+
+  template <typename Lhs, typename Rhs>
+  auto inner_join(Lhs lhs, Rhs rhs) -> typename std::conditional<check_cross_join_t<Lhs, Rhs>::value,
+                                                                 cross_join_t<inner_join_t, Lhs, Rhs>,
+                                                                 bad_statement>::type
+  {
+    check_cross_join_t<Lhs, Rhs>::_();
+
+    return {lhs, rhs};
+  }
+
+  template <typename Lhs, typename Rhs>
+  auto left_outer_join(Lhs lhs, Rhs rhs) -> typename std::conditional<check_cross_join_t<Lhs, Rhs>::value,
+                                                                      cross_join_t<left_outer_join_t, Lhs, Rhs>,
+                                                                      bad_statement>::type
+  {
+    check_cross_join_t<Lhs, Rhs>::_();
+
+    return {lhs, rhs};
+  }
+
+  template <typename Lhs, typename Rhs>
+  auto right_outer_join(Lhs lhs, Rhs rhs) -> typename std::conditional<check_cross_join_t<Lhs, Rhs>::value,
+                                                                       cross_join_t<right_outer_join_t, Lhs, Rhs>,
+                                                                       bad_statement>::type
+  {
+    check_cross_join_t<Lhs, Rhs>::_();
+
+    return {lhs, rhs};
+  }
+
+  template <typename Lhs, typename Rhs>
+  auto outer_join(Lhs lhs, Rhs rhs) -> typename std::conditional<check_cross_join_t<Lhs, Rhs>::value,
+                                                                 cross_join_t<right_outer_join_t, Lhs, Rhs>,
+                                                                 bad_statement>::type
+  {
+    check_cross_join_t<Lhs, Rhs>::_();
+
+    return {lhs, rhs};
+  }
 }
 
 #endif

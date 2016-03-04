@@ -326,7 +326,6 @@ int SelectType(int, char* [])
 
   {
     auto s = dynamic_select(db, all_of(t)).dynamic_from(t).dynamic_where().dynamic_limit().dynamic_offset();
-#warning : Need to test the deprecated stuff
     s.from.add(dynamic_join(f).on(f.omega > t.alpha));
     s.where.add_ntc(t.alpha > 7 and t.alpha == any(select(t.alpha).from(t).where(t.alpha < 3)));
     s.limit.set(30);

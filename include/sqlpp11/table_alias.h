@@ -61,33 +61,33 @@ namespace sqlpp
     }
 
     template <typename T>
-    cross_join_t<inner_join_t, table_alias_t, T> join(T t) const
+    auto join(T t) const -> decltype(::sqlpp::join(*this, t))
     {
-      return {*this, t};
+      return ::sqlpp::join(*this, t);
     }
 
     template <typename T>
-    cross_join_t<inner_join_t, table_alias_t, T> inner_join(T t) const
+    auto inner_join(T t) const -> decltype(::sqlpp::inner_join(*this, t))
     {
-      return {*this, t};
+      return ::sqlpp::inner_join(*this, t);
     }
 
     template <typename T>
-    cross_join_t<outer_join_t, table_alias_t, T> outer_join(T t) const
+    auto left_outer_join(T t) const -> decltype(::sqlpp::left_outer_join(*this, t))
     {
-      return {*this, t};
+      return ::sqlpp::left_outer_join(*this, t);
     }
 
     template <typename T>
-    cross_join_t<left_outer_join_t, table_alias_t, T> left_outer_join(T t) const
+    auto right_outer_join(T t) const -> decltype(::sqlpp::right_outer_join(*this, t))
     {
-      return {*this, t};
+      return ::sqlpp::right_outer_join(*this, t);
     }
 
     template <typename T>
-    cross_join_t<right_outer_join_t, table_alias_t, T> right_outer_join(T t) const
+    auto outer_join(T t) const -> decltype(::sqlpp::outer_join(*this, t))
     {
-      return {*this, t};
+      return ::sqlpp::outer_join(*this, t);
     }
 
     Table _table;
