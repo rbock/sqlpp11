@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -50,33 +50,33 @@ namespace sqlpp
                   "on() condition must not depend on other tables");
 
     template <typename T>
-    cross_join_t<inner_join_t, join_t, T> join(T t)
+    auto join(T t) const -> decltype(::sqlpp::join(*this, t))
     {
-      return {*this, t};
+      return ::sqlpp::join(*this, t);
     }
 
     template <typename T>
-    cross_join_t<inner_join_t, join_t, T> inner_join(T t)
+    auto inner_join(T t) const -> decltype(::sqlpp::inner_join(*this, t))
     {
-      return {*this, t};
+      return ::sqlpp::inner_join(*this, t);
     }
 
     template <typename T>
-    cross_join_t<outer_join_t, join_t, T> outer_join(T t)
+    auto left_outer_join(T t) const -> decltype(::sqlpp::left_outer_join(*this, t))
     {
-      return {*this, t};
+      return ::sqlpp::left_outer_join(*this, t);
     }
 
     template <typename T>
-    cross_join_t<left_outer_join_t, join_t, T> left_outer_join(T t)
+    auto right_outer_join(T t) const -> decltype(::sqlpp::right_outer_join(*this, t))
     {
-      return {*this, t};
+      return ::sqlpp::right_outer_join(*this, t);
     }
 
     template <typename T>
-    cross_join_t<right_outer_join_t, join_t, T> right_outer_join(T t)
+    auto outer_join(T t) const -> decltype(::sqlpp::outer_join(*this, t))
     {
-      return {*this, t};
+      return ::sqlpp::outer_join(*this, t);
     }
 
     CrossJoin _cross_join;
