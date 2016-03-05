@@ -32,6 +32,20 @@
 
 namespace sqlpp
 {
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_dynamic_cross_join_table_t, "argument of dynamic_join() has to be a table");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_dynamic_cross_join_no_join_t, "argument of dynamic_join() must not be a table");
+
+  template <typename Table>
+  struct check_dynamic_cross_join
+  {
+    using type =
+        static_combined_check_t<static_check_t<is_table_t<Table>::value, assert_dynamic_cross_join_table_t>,
+                                static_check_t<not is_join_t<Table>::value, assert_dynamic_cross_join_no_join_t>>;
+  };
+
+  template <typename Table>
+  using check_dynamic_cross_join_t = typename check_dynamic_cross_join<Table>::type;
+
   SQLPP_PORTABLE_STATIC_ASSERT(assert_dynamic_join_consist_of_cross_join_and_on_t,
                                "dynamic join has to consist of a dynamic cross_join and a join condition");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_dynamic_join_no_table_dependencies_t,
@@ -75,9 +89,9 @@ namespace sqlpp
                   "joined tables must not depend on other tables");
 
     template <typename Expr>
-    auto on(Expr expr) -> typename std::conditional<check_dynamic_join_on_t<dynamic_cross_join_t, Expr>::value,
-                                                    dynamic_join_t<dynamic_cross_join_t, on_t<Expr>>,
-                                                    bad_statement>::type
+    auto on(Expr expr) const -> typename std::conditional<check_dynamic_join_on_t<dynamic_cross_join_t, Expr>::value,
+                                                          dynamic_join_t<dynamic_cross_join_t, on_t<Expr>>,
+                                                          bad_statement>::type
     {
       check_dynamic_join_on_t<dynamic_cross_join_t, Expr>::_();
 
@@ -106,33 +120,43 @@ namespace sqlpp
     }
   };
 
+  template <typename JoinType, typename Table>
+  using make_dynamic_cross_join_t = typename std::conditional<check_dynamic_cross_join_t<Table>::value,
+                                                              dynamic_cross_join_t<JoinType, Table>,
+                                                              bad_statement>::type;
+
   template <typename Table>
-  dynamic_cross_join_t<inner_join_t, Table> dynamic_join(Table table)
+  auto dynamic_join(Table table) -> make_dynamic_cross_join_t<inner_join_t, Table>
   {
+    check_dynamic_cross_join_t<Table>::_();
     return {table};
   }
 
   template <typename Table>
-  dynamic_cross_join_t<inner_join_t, Table> dynamic_inner_join(Table table)
+  auto dynamic_inner_join(Table table) -> make_dynamic_cross_join_t<inner_join_t, Table>
   {
+    check_dynamic_cross_join_t<Table>::_();
     return {table};
   }
 
   template <typename Table>
-  dynamic_cross_join_t<outer_join_t, Table> outer_join(Table table)
+  auto dynamic_left_outer_join(Table table) -> make_dynamic_cross_join_t<left_outer_join_t, Table>
   {
+    check_dynamic_cross_join_t<Table>::_();
     return {table};
   }
 
   template <typename Table>
-  dynamic_cross_join_t<left_outer_join_t, Table> left_outer_join(Table table)
+  auto dynamic_right_outer_join(Table table) -> make_dynamic_cross_join_t<right_outer_join_t, Table>
   {
+    check_dynamic_cross_join_t<Table>::_();
     return {table};
   }
 
   template <typename Table>
-  dynamic_cross_join_t<right_outer_join_t, Table> right_outer_join(Table table)
+  auto dynamic_outer_join(Table table) -> make_dynamic_cross_join_t<outer_join_t, Table>
   {
+    check_dynamic_cross_join_t<Table>::_();
     return {table};
   }
 }

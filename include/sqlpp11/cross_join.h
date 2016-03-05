@@ -35,7 +35,7 @@ namespace sqlpp
 {
   SQLPP_PORTABLE_STATIC_ASSERT(assert_cross_join_lhs_table_t, "lhs argument of join() has to be a table or a join");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_cross_join_rhs_table_t, "rhs argument of join() has to be a table");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_cross_join_rhs_no_join_t, "rhs argument of join() must not be a table");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_cross_join_rhs_no_join_t, "rhs argument of join() must not be a join");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_cross_join_unique_names_t, "joined table names have to be unique");
 
   template <typename Lhs, typename Rhs>
@@ -102,9 +102,9 @@ namespace sqlpp
     static_assert(required_tables_of<cross_join_t>::size::value == 0, "joined tables must not depend on other tables");
 
     template <typename Expr>
-    auto on(Expr expr) -> typename std::conditional<check_join_on_t<cross_join_t, Expr>::value,
-                                                    join_t<cross_join_t, on_t<Expr>>,
-                                                    bad_statement>::type
+    auto on(Expr expr) const -> typename std::conditional<check_join_on_t<cross_join_t, Expr>::value,
+                                                          join_t<cross_join_t, on_t<Expr>>,
+                                                          bad_statement>::type
     {
       check_join_on_t<cross_join_t, Expr>::_();
 
