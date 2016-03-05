@@ -53,6 +53,35 @@ namespace sqlpp
   template <typename Lhs, typename Rhs>
   using check_cross_join_t = typename check_cross_join<Lhs, Rhs>::type;
 
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_join_consist_of_cross_join_and_on_t,
+                               "join has to consist of a cross_join and a join condition");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_join_no_table_dependencies_t, "joined tables must not depend on other tables");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_join_on_no_foreign_table_dependencies_t,
+                               "on() condition must not depend on other tables");
+
+  template <typename CrossJoin, typename On>
+  struct check_join
+  {
+    using type = static_combined_check_t<
+        static_check_t<is_cross_join_t<CrossJoin>::value, assert_join_consist_of_cross_join_and_on_t>,
+        static_check_t<is_on_t<On>::value, assert_join_consist_of_cross_join_and_on_t>,
+        static_check_t<required_tables_of<CrossJoin>::size::value == 0, assert_join_no_table_dependencies_t>,
+        static_check_t<detail::is_subset_of<required_tables_of<On>, provided_tables_of<CrossJoin>>::value,
+                       assert_join_on_no_foreign_table_dependencies_t>>;
+  };
+
+  template <typename CrossJoin, typename On>
+  using check_join_t = typename check_join<CrossJoin, On>::type;
+
+  template <typename CrossJoin, typename Expr>
+  struct check_join_on
+  {
+    using type = static_combined_check_t<check_on_t<Expr>, check_join_t<CrossJoin, on_t<Expr>>>;
+  };
+
+  template <typename CrossJoin, typename Expr>
+  using check_join_on_t = typename check_join_on<CrossJoin, Expr>::type;
+
   template <typename CrossJoin, typename On>
   struct join_t;
 
@@ -73,16 +102,16 @@ namespace sqlpp
     static_assert(required_tables_of<cross_join_t>::size::value == 0, "joined tables must not depend on other tables");
 
     template <typename Expr>
-    auto on(Expr expr) -> join_t<cross_join_t, on_t<void, Expr>>
+    auto on(Expr expr) -> typename std::conditional<check_join_on_t<cross_join_t, Expr>::value,
+                                                    join_t<cross_join_t, on_t<Expr>>,
+                                                    bad_statement>::type
     {
-      static_assert(is_expression_t<Expr>::value, "argument is not an expression in on()");
+      check_join_on_t<cross_join_t, Expr>::_();
 
-      static_assert(is_boolean_t<Expr>::value, "argument is not a boolean expression in on()");
-
-      return {*this, {expr, {}}};
+      return {*this, {expr}};
     }
 
-    auto unconditionally() -> join_t<cross_join_t, on_t<void, unconditional_t>>
+    auto unconditionally() -> join_t<cross_join_t, on_t<unconditional_t>>
     {
       return {*this, {}};
     }

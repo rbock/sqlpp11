@@ -42,13 +42,6 @@ namespace sqlpp
     using _provided_tables = provided_tables_of<CrossJoin>;
     using _required_tables = detail::make_difference_set_t<required_tables_of<On>, _provided_tables>;
 
-    static_assert(is_cross_join_t<CrossJoin>::value, "lhs argument for join() has to be a table or join");
-    static_assert(is_on_t<On>::value, "invalid on expression in join().on()");
-
-    static_assert(required_tables_of<CrossJoin>::size::value == 0, "joined tables must not depend on other tables");
-    static_assert(detail::is_subset_of<required_tables_of<On>, provided_tables_of<CrossJoin>>::value,
-                  "on() condition must not depend on other tables");
-
     template <typename T>
     auto join(T t) const -> decltype(::sqlpp::join(*this, t))
     {
