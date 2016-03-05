@@ -132,3 +132,7 @@ sqlpp11 requires [Howard Hinnant's date library](https://github.com/HowardHinnan
 To demonstrate that sqlpp11 can work with other backends as well, here is an experimental backend for structs in standard containers:
 
   * STL Container: https://github.com/rbock/sqlpp11-connector-stl
+
+__License:__
+
+sqlpp11 is distributed under the [BSD license](https://github.com/rbock/sqlpp11/blob/master/LICENSE).
