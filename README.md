@@ -135,4 +135,4 @@ To demonstrate that sqlpp11 can work with other backends as well, here is an exp
 
 __License:__
 
-sqlpp11 is distributed under the [BSD license](https://github.com/rbock/sqlpp11/blob/master/LICENSE).
+sqlpp11 is distributed under the [BSD 2-Clause License](https://github.com/rbock/sqlpp11/blob/master/LICENSE).
