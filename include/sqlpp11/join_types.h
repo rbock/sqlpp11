@@ -60,6 +60,14 @@ namespace sqlpp
 
     static constexpr const char* _name = " RIGHT OUTER ";
   };
+  struct cross_join_t
+  {
+    template <typename Lhs, typename Rhs>
+    using _provided_outer_tables =
+        detail::make_joined_set_t<provided_outer_tables_of<Lhs>, provided_outer_tables_of<Rhs>>;
+
+    static constexpr const char* _name = " CROSS ";
+  };
 }
 
 #endif
