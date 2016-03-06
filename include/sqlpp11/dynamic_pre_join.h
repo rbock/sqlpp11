@@ -109,6 +109,7 @@ namespace sqlpp
 
     static Context& _(const T& t, Context& context)
     {
+      context << JoinType::_name;
       context << " JOIN ";
       serialize(t._rhs, context);
       return context;

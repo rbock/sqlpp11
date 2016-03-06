@@ -83,9 +83,8 @@ namespace sqlpp
 
     static Context& _(const T& t, Context& context)
     {
-      context << " ON (";
+      context << " ON ";
       serialize(t._expression, context);
-      context << " )";
       return context;
     }
   };

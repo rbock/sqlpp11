@@ -37,28 +37,28 @@ namespace sqlpp
     using _provided_outer_tables =
         detail::make_joined_set_t<provided_outer_tables_of<Lhs>, provided_outer_tables_of<Rhs>>;
 
-    static constexpr const char* _name = " INNER ";
+    static constexpr const char* _name = " INNER";
   };
   struct outer_join_t
   {
     template <typename Lhs, typename Rhs>
     using _provided_outer_tables = detail::make_joined_set_t<provided_tables_of<Lhs>, provided_tables_of<Rhs>>;
 
-    static constexpr const char* _name = " OUTER ";
+    static constexpr const char* _name = " OUTER";
   };
   struct left_outer_join_t
   {
     template <typename Lhs, typename Rhs>
     using _provided_outer_tables = detail::make_joined_set_t<provided_tables_of<Lhs>, provided_outer_tables_of<Rhs>>;
 
-    static constexpr const char* _name = " LEFT OUTER ";
+    static constexpr const char* _name = " LEFT OUTER";
   };
   struct right_outer_join_t
   {
     template <typename Lhs, typename Rhs>
     using _provided_outer_tables = detail::make_joined_set_t<provided_outer_tables_of<Lhs>, provided_tables_of<Rhs>>;
 
-    static constexpr const char* _name = " RIGHT OUTER ";
+    static constexpr const char* _name = " RIGHT OUTER";
   };
   struct cross_join_t
   {
@@ -66,7 +66,7 @@ namespace sqlpp
     using _provided_outer_tables =
         detail::make_joined_set_t<provided_outer_tables_of<Lhs>, provided_outer_tables_of<Rhs>>;
 
-    static constexpr const char* _name = " CROSS ";
+    static constexpr const char* _name = " CROSS";
   };
 }
 
