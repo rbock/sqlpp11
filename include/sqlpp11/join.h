@@ -28,18 +28,18 @@
 #define SQLPP_JOIN_H
 
 #include <sqlpp11/join_types.h>
-#include <sqlpp11/cross_join.h>
+#include <sqlpp11/pre_join.h>
 #include <sqlpp11/on.h>
 
 namespace sqlpp
 {
-  template <typename CrossJoin, typename On>
+  template <typename PreJoin, typename On>
   struct join_t
   {
     using _traits = make_traits<no_value_t, tag::is_table, tag::is_join>;
-    using _nodes = detail::type_vector<CrossJoin, On>;
+    using _nodes = detail::type_vector<PreJoin, On>;
     using _can_be_null = std::false_type;
-    using _provided_tables = provided_tables_of<CrossJoin>;
+    using _provided_tables = provided_tables_of<PreJoin>;
     using _required_tables = detail::make_difference_set_t<required_tables_of<On>, _provided_tables>;
 
     template <typename T>
@@ -72,19 +72,25 @@ namespace sqlpp
       return ::sqlpp::outer_join(*this, t);
     }
 
-    CrossJoin _cross_join;
+    template <typename T>
+    auto cross_join(T t) const -> decltype(::sqlpp::cross_join(*this, t))
+    {
+      return ::sqlpp::cross_join(*this, t);
+    }
+
+    PreJoin _pre_join;
     On _on;
   };
 
-  template <typename Context, typename CrossJoin, typename On>
-  struct serializer_t<Context, join_t<CrossJoin, On>>
+  template <typename Context, typename PreJoin, typename On>
+  struct serializer_t<Context, join_t<PreJoin, On>>
   {
-    using _serialize_check = serialize_check_of<Context, CrossJoin, On>;
-    using T = join_t<CrossJoin, On>;
+    using _serialize_check = serialize_check_of<Context, PreJoin, On>;
+    using T = join_t<PreJoin, On>;
 
     static Context& _(const T& t, Context& context)
     {
-      serialize(t._cross_join, context);
+      serialize(t._pre_join, context);
       serialize(t._on, context);
       return context;
     }

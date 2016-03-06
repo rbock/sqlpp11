@@ -97,6 +97,12 @@ namespace sqlpp
       return {*static_cast<const Table*>(this)};
     }
 
+    template <typename T>
+    auto cross_join(T t) const -> decltype(::sqlpp::cross_join(std::declval<Table>(), t))
+    {
+      return ::sqlpp::cross_join(*static_cast<const Table*>(this), t);
+    }
+
     const Table& ref() const
     {
       return *static_cast<const Table*>(this);

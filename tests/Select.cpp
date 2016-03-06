@@ -146,7 +146,7 @@ int Select(int, char* [])
                .dynamic_offset();
   s.select_flags.add(sqlpp::distinct);
   s.selected_columns.add(f.omega);
-  s.from.add(dynamic_join(f).unconditionally());
+  s.from.add(dynamic_cross_join(f));
   s.where.add(t.alpha > 7);
   s.having.add(t.alpha > 7);
   s.limit.set(3);

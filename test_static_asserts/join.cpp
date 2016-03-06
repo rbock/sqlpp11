@@ -47,7 +47,7 @@ namespace
   template <typename Assert, typename Lhs, typename Rhs>
   void join_static_check(const Lhs& lhs, const Rhs& rhs)
   {
-    using CheckResult = sqlpp::check_cross_join_t<Lhs, Rhs>;
+    using CheckResult = sqlpp::check_pre_join_t<Lhs, Rhs>;
     using ExpectedCheckResult = std::is_same<CheckResult, Assert>;
     print_type_on_error<CheckResult>(ExpectedCheckResult{});
     static_assert(ExpectedCheckResult::value, "Unexpected check result");
@@ -57,20 +57,23 @@ namespace
     using LeftOuterJoinType = decltype(sqlpp::left_outer_join(lhs, rhs));
     using RightOuterJoinType = decltype(sqlpp::right_outer_join(lhs, rhs));
     using OuterJoinType = decltype(sqlpp::outer_join(lhs, rhs));
+    using CrossJoinType = decltype(sqlpp::cross_join(lhs, rhs));
     using ExpectedReturnType = sqlpp::logic::all_t<
-        (Assert::value and sqlpp::is_cross_join_t<JoinType>::value and sqlpp::is_cross_join_t<InnerJoinType>::value and
-         sqlpp::is_cross_join_t<LeftOuterJoinType>::value and sqlpp::is_cross_join_t<RightOuterJoinType>::value and
-         sqlpp::is_cross_join_t<OuterJoinType>::value) xor
+        (Assert::value and sqlpp::is_pre_join_t<JoinType>::value and sqlpp::is_pre_join_t<InnerJoinType>::value and
+         sqlpp::is_pre_join_t<LeftOuterJoinType>::value and sqlpp::is_pre_join_t<RightOuterJoinType>::value and
+         sqlpp::is_pre_join_t<OuterJoinType>::value and sqlpp::is_join_t<CrossJoinType>::value) xor
         (std::is_same<JoinType, sqlpp::bad_statement>::value and
          std::is_same<InnerJoinType, sqlpp::bad_statement>::value and
          std::is_same<LeftOuterJoinType, sqlpp::bad_statement>::value and
          std::is_same<RightOuterJoinType, sqlpp::bad_statement>::value and
-         std::is_same<OuterJoinType, sqlpp::bad_statement>::value)>;
+         std::is_same<OuterJoinType, sqlpp::bad_statement>::value and
+         std::is_same<CrossJoinType, sqlpp::bad_statement>::value)>;
     print_type_on_error<JoinType>(ExpectedReturnType{});
     print_type_on_error<InnerJoinType>(ExpectedReturnType{});
     print_type_on_error<LeftOuterJoinType>(ExpectedReturnType{});
     print_type_on_error<RightOuterJoinType>(ExpectedReturnType{});
     print_type_on_error<OuterJoinType>(ExpectedReturnType{});
+    print_type_on_error<CrossJoinType>(ExpectedReturnType{});
     static_assert(ExpectedReturnType::value, "Unexpected return type");
   }
 
@@ -108,7 +111,7 @@ namespace
     join_static_check<sqlpp::consistent_t>(ta, t);
 
     // Prepare a join for tests:
-    const auto j = join(ta, tb).unconditionally();
+    const auto j = cross_join(ta, tb);
 
     // OK: Add a third table
     join_static_check<sqlpp::consistent_t>(j, f);
@@ -116,35 +119,35 @@ namespace
     join_static_check<sqlpp::consistent_t>(j, t);
 
     // Try a bunch of non-tables
-    join_static_check<sqlpp::assert_cross_join_rhs_table_t>(t, 7);
-    join_static_check<sqlpp::assert_cross_join_rhs_table_t>(t, t.alpha);
-    join_static_check<sqlpp::assert_cross_join_rhs_table_t>(t, t.beta);
-    join_static_check<sqlpp::assert_cross_join_rhs_table_t>(t, t.gamma);
-    join_static_check<sqlpp::assert_cross_join_rhs_table_t>(t, t.delta);
+    join_static_check<sqlpp::assert_pre_join_rhs_table_t>(t, 7);
+    join_static_check<sqlpp::assert_pre_join_rhs_table_t>(t, t.alpha);
+    join_static_check<sqlpp::assert_pre_join_rhs_table_t>(t, t.beta);
+    join_static_check<sqlpp::assert_pre_join_rhs_table_t>(t, t.gamma);
+    join_static_check<sqlpp::assert_pre_join_rhs_table_t>(t, t.delta);
 
-    join_static_check<sqlpp::assert_cross_join_lhs_table_t>(7, t);
-    join_static_check<sqlpp::assert_cross_join_lhs_table_t>(t.alpha, t);
-    join_static_check<sqlpp::assert_cross_join_lhs_table_t>(t.beta, t);
-    join_static_check<sqlpp::assert_cross_join_lhs_table_t>(t.gamma, t);
-    join_static_check<sqlpp::assert_cross_join_lhs_table_t>(t.delta, t);
+    join_static_check<sqlpp::assert_pre_join_lhs_table_t>(7, t);
+    join_static_check<sqlpp::assert_pre_join_lhs_table_t>(t.alpha, t);
+    join_static_check<sqlpp::assert_pre_join_lhs_table_t>(t.beta, t);
+    join_static_check<sqlpp::assert_pre_join_lhs_table_t>(t.gamma, t);
+    join_static_check<sqlpp::assert_pre_join_lhs_table_t>(t.delta, t);
 
     // Try to join with join (rhs)
-    join_static_check<sqlpp::assert_cross_join_rhs_no_join_t>(t, j);
-    join_static_check<sqlpp::assert_cross_join_rhs_no_join_t>(f, j);
-    join_static_check<sqlpp::assert_cross_join_rhs_no_join_t>(t.as(sqlpp::alias::left), j);
+    join_static_check<sqlpp::assert_pre_join_rhs_no_join_t>(t, j);
+    join_static_check<sqlpp::assert_pre_join_rhs_no_join_t>(f, j);
+    join_static_check<sqlpp::assert_pre_join_rhs_no_join_t>(t.as(sqlpp::alias::left), j);
 
     // Try to join identical table names
-    join_static_check<sqlpp::assert_cross_join_unique_names_t>(t, t);
-    join_static_check<sqlpp::assert_cross_join_unique_names_t>(f, f);
-    join_static_check<sqlpp::assert_cross_join_unique_names_t>(t.as(f), f);
-    join_static_check<sqlpp::assert_cross_join_unique_names_t>(t, f.as(t));
-    join_static_check<sqlpp::assert_cross_join_unique_names_t>(ta, fa);
-    join_static_check<sqlpp::assert_cross_join_unique_names_t>(j, fa);
-    join_static_check<sqlpp::assert_cross_join_unique_names_t>(j, fb);
-    join_static_check<sqlpp::assert_cross_join_unique_names_t>(j, ta);
-    join_static_check<sqlpp::assert_cross_join_unique_names_t>(j, tb);
+    join_static_check<sqlpp::assert_pre_join_unique_names_t>(t, t);
+    join_static_check<sqlpp::assert_pre_join_unique_names_t>(f, f);
+    join_static_check<sqlpp::assert_pre_join_unique_names_t>(t.as(f), f);
+    join_static_check<sqlpp::assert_pre_join_unique_names_t>(t, f.as(t));
+    join_static_check<sqlpp::assert_pre_join_unique_names_t>(ta, fa);
+    join_static_check<sqlpp::assert_pre_join_unique_names_t>(j, fa);
+    join_static_check<sqlpp::assert_pre_join_unique_names_t>(j, fb);
+    join_static_check<sqlpp::assert_pre_join_unique_names_t>(j, ta);
+    join_static_check<sqlpp::assert_pre_join_unique_names_t>(j, tb);
 
-    // Prepare a cross_joins for tests:
+    // Prepare a pre_joins for tests:
     const auto t_f = join(t, f);
     const auto f_t = join(f, t);
     const auto t_t = join(ta, tb);
@@ -176,7 +179,7 @@ namespace
   template <typename Assert, typename Table>
   void join_dynamic_check(const Table& table)
   {
-    using CheckResult = sqlpp::check_dynamic_cross_join_t<Table>;
+    using CheckResult = sqlpp::check_dynamic_pre_join_t<Table>;
     using ExpectedCheckResult = std::is_same<CheckResult, Assert>;
     print_type_on_error<CheckResult>(ExpectedCheckResult{});
     static_assert(ExpectedCheckResult::value, "Unexpected check result");
@@ -186,22 +189,25 @@ namespace
     using LeftOuterJoinType = decltype(sqlpp::dynamic_left_outer_join(table));
     using RightOuterJoinType = decltype(sqlpp::dynamic_right_outer_join(table));
     using OuterJoinType = decltype(sqlpp::dynamic_outer_join(table));
-    using ExpectedReturnType =
-        sqlpp::logic::all_t<(Assert::value and sqlpp::is_dynamic_cross_join_t<JoinType>::value and
-                             sqlpp::is_dynamic_cross_join_t<InnerJoinType>::value and
-                             sqlpp::is_dynamic_cross_join_t<LeftOuterJoinType>::value and
-                             sqlpp::is_dynamic_cross_join_t<RightOuterJoinType>::value and
-                             sqlpp::is_dynamic_cross_join_t<OuterJoinType>::value) xor
-                            (std::is_same<JoinType, sqlpp::bad_statement>::value and
-                             std::is_same<InnerJoinType, sqlpp::bad_statement>::value and
-                             std::is_same<LeftOuterJoinType, sqlpp::bad_statement>::value and
-                             std::is_same<RightOuterJoinType, sqlpp::bad_statement>::value and
-                             std::is_same<OuterJoinType, sqlpp::bad_statement>::value)>;
+    using CrossJoinType = decltype(sqlpp::dynamic_cross_join(table));
+    using ExpectedReturnType = sqlpp::logic::all_t<(Assert::value and sqlpp::is_dynamic_pre_join_t<JoinType>::value and
+                                                    sqlpp::is_dynamic_pre_join_t<InnerJoinType>::value and
+                                                    sqlpp::is_dynamic_pre_join_t<LeftOuterJoinType>::value and
+                                                    sqlpp::is_dynamic_pre_join_t<RightOuterJoinType>::value and
+                                                    sqlpp::is_dynamic_pre_join_t<OuterJoinType>::value and
+                                                    sqlpp::is_dynamic_join_t<CrossJoinType>::value) xor
+                                                   (std::is_same<JoinType, sqlpp::bad_statement>::value and
+                                                    std::is_same<InnerJoinType, sqlpp::bad_statement>::value and
+                                                    std::is_same<LeftOuterJoinType, sqlpp::bad_statement>::value and
+                                                    std::is_same<RightOuterJoinType, sqlpp::bad_statement>::value and
+                                                    std::is_same<OuterJoinType, sqlpp::bad_statement>::value and
+                                                    std::is_same<CrossJoinType, sqlpp::bad_statement>::value)>;
     print_type_on_error<JoinType>(ExpectedReturnType{});
     print_type_on_error<InnerJoinType>(ExpectedReturnType{});
     print_type_on_error<LeftOuterJoinType>(ExpectedReturnType{});
     print_type_on_error<RightOuterJoinType>(ExpectedReturnType{});
     print_type_on_error<OuterJoinType>(ExpectedReturnType{});
+    print_type_on_error<CrossJoinType>(ExpectedReturnType{});
     static_assert(ExpectedReturnType::value, "Unexpected return type");
   }
 
@@ -233,17 +239,17 @@ namespace
     join_dynamic_check<sqlpp::consistent_t>(fa);
 
     // Try a bunch of non-tables
-    join_dynamic_check<sqlpp::assert_dynamic_cross_join_table_t>(7);
-    join_dynamic_check<sqlpp::assert_dynamic_cross_join_table_t>(t.alpha);
-    join_dynamic_check<sqlpp::assert_dynamic_cross_join_table_t>(t.beta);
-    join_dynamic_check<sqlpp::assert_dynamic_cross_join_table_t>(t.gamma);
-    join_dynamic_check<sqlpp::assert_dynamic_cross_join_table_t>(t.delta);
+    join_dynamic_check<sqlpp::assert_dynamic_pre_join_table_t>(7);
+    join_dynamic_check<sqlpp::assert_dynamic_pre_join_table_t>(t.alpha);
+    join_dynamic_check<sqlpp::assert_dynamic_pre_join_table_t>(t.beta);
+    join_dynamic_check<sqlpp::assert_dynamic_pre_join_table_t>(t.gamma);
+    join_dynamic_check<sqlpp::assert_dynamic_pre_join_table_t>(t.delta);
 
-    // Try (cross) joins
-    join_dynamic_check<sqlpp::assert_dynamic_cross_join_table_t>(t.join(f));
-    join_dynamic_check<sqlpp::assert_dynamic_cross_join_no_join_t>(t.join(f).unconditionally());
+    // Try (pre) joins
+    join_dynamic_check<sqlpp::assert_dynamic_pre_join_table_t>(t.join(f));
+    join_dynamic_check<sqlpp::assert_dynamic_pre_join_no_join_t>(t.cross_join(f));
 
-    // Prepare a dynamic_cross_joins for tests:
+    // Prepare a dynamic_pre_joins for tests:
     const auto tj = dynamic_join(t);
     const auto fj = dynamic_join(f);
 

@@ -79,7 +79,7 @@ namespace
   {
     // OK
     from_static_check<sqlpp::consistent_t>(t);
-    from_static_check<sqlpp::consistent_t>(t.join(f).unconditionally());
+    from_static_check<sqlpp::consistent_t>(t.cross_join(f));
     from_static_check<sqlpp::consistent_t>(t.join(f).on(t.alpha > f.omega));
 
     // Try a bunch of non-tables
@@ -90,14 +90,14 @@ namespace
     from_static_check<sqlpp::assert_from_table_t>(t.delta);
 
     // Try cross joins (missing condition)
-    from_static_check<sqlpp::assert_from_not_cross_join_t>(t.join(f));
+    from_static_check<sqlpp::assert_from_not_pre_join_t>(t.join(f));
   }
 
   void dynamic_from()
   {
     // OK
     from_dynamic_check<sqlpp::consistent_t>(t);
-    from_dynamic_check<sqlpp::consistent_t>(t.join(f).unconditionally());
+    from_dynamic_check<sqlpp::consistent_t>(t.cross_join(f));
     from_dynamic_check<sqlpp::consistent_t>(t.join(f).on(t.alpha > f.omega));
 
     // Try a bunch of non-tables
@@ -108,7 +108,7 @@ namespace
     from_dynamic_check<sqlpp::assert_from_table_t>(t.delta);
 
     // Try cross joins (missing condition)
-    from_dynamic_check<sqlpp::assert_from_not_cross_join_t>(t.join(f));
+    from_dynamic_check<sqlpp::assert_from_not_pre_join_t>(t.join(f));
   }
 }
 

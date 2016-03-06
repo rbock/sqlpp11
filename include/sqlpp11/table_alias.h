@@ -90,6 +90,12 @@ namespace sqlpp
       return ::sqlpp::outer_join(*this, t);
     }
 
+    template <typename T>
+    auto cross_join(T t) const -> decltype(::sqlpp::cross_join(*this, t))
+    {
+      return ::sqlpp::cross_join(*this, t);
+    }
+
     Table _table;
   };
 
