@@ -101,13 +101,13 @@ namespace sqlpp
 
     private:
       template <typename DynamicJoin>
-      void _add_impl(DynamicJoin dynamicJoin, const std::true_type&)
+      auto _add_impl(DynamicJoin dynamicJoin, const std::true_type&) -> void
       {
-        return _data._dynamic_tables.emplace_back(from_table(dynamicJoin));
+        _data._dynamic_tables.emplace_back(from_table(dynamicJoin));
       }
 
       template <typename DynamicJoin>
-      void _add_impl(DynamicJoin dynamicJoin, const std::false_type&);
+      auto _add_impl(DynamicJoin dynamicJoin, const std::false_type&) -> void;
 
     public:
       _data_t _data;
@@ -281,8 +281,7 @@ namespace sqlpp
       serialize(t._table, context);
       if (not t._dynamic_tables.empty())
       {
-        context << ' ';
-        interpret_list(t._dynamic_tables, ' ', context);
+        interpret_list(t._dynamic_tables, "", context);
       }
       return context;
     }
@@ -292,6 +291,13 @@ namespace sqlpp
   auto from(T&& t) -> decltype(statement_t<void, no_from_t>().from(std::forward<T>(t)))
   {
     return statement_t<void, no_from_t>().from(std::forward<T>(t));
+  }
+
+  template <typename Database, typename T>
+  auto dynamic_from(const Database&, T&& t)
+      -> decltype(statement_t<Database, no_from_t>().dynamic_from(std::forward<T>(t)))
+  {
+    return statement_t<Database, no_from_t>().dynamic_from(std::forward<T>(t));
   }
 }
 

@@ -106,11 +106,23 @@ namespace sqlpp
                                                           join_t<pre_join_t, on_t<Expr>>,
                                                           bad_statement>::type
     {
-      check_join_on_t<pre_join_t, Expr>::_();
+      using Check = check_join_on_t<pre_join_t, Expr>;
+      Check::_();
 
+      return on_impl(Check{}, expr);
+    }
+
+  private:
+    template <typename Expr>
+    auto on_impl(const std::false_type&, const Expr&) const -> bad_statement;
+
+    template <typename Expr>
+    auto on_impl(const std::true_type&, const Expr& expr) const -> join_t<pre_join_t, on_t<Expr>>
+    {
       return {*this, {expr}};
     }
 
+  public:
     Lhs _lhs;
     Rhs _rhs;
   };
