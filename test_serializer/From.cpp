@@ -23,30 +23,13 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "compare.h"
 #include "Sample.h"
-#include "MockDb.h"
 #include <sqlpp11/sqlpp11.h>
-
-#include <iostream>
 
 namespace
 {
   MockDb db = {};
-
-  template <typename Expression>
-  void compare(int lineNo, const Expression& expr, const std::string& expected)
-  {
-    MockDb::_serializer_context_t printer = {};
-
-    const auto result = serialize(expr, printer).str();
-
-    if (result != expected)
-    {
-      std::cerr << __FILE__ << " " << lineNo << '\n' << "Expected: -->|" << expected << "|<--\n"
-                << "Received: -->|" << result << "|<--\n";
-      throw std::runtime_error("unexpected serialization result");
-    }
-  }
 }
 
 int From(int, char* [])
