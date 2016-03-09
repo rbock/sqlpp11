@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2016-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -50,7 +50,7 @@ int In(int, char* [])
           "tab_foo.omega IN(tab_foo.omega,tab_bar.alpha,17)");
 
   // Lists
-  compare(__LINE__, foo.omega.in(sqlpp::value_list(std::vector<float>{1.7, 2.5, 17., 0.})),
+  compare(__LINE__, foo.omega.in(sqlpp::value_list(std::vector<float>{1.7f, 2.5f, 17.f, 0.f})),
           "tab_foo.omega IN(1.7,2.5,17,0)");
 
   // Sub select
