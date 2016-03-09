@@ -25,6 +25,7 @@
 set(test_serializer_names
   From
   In
+  Where
   )
 
 create_test_sourcelist(test_serializer_sources test_serializer_main.cpp ${test_serializer_names})
