@@ -63,11 +63,11 @@ int Update(int, char* [])
 
   db(u);
 
-  db(update(t).set(t.delta = sqlpp::verbatim<sqlpp::integer>("17+4")).where(true));
-  db(update(t).set(t.delta = sqlpp::null).where(true));
-  db(update(t).set(t.delta = sqlpp::default_value).where(true));
+  db(update(t).set(t.delta = sqlpp::verbatim<sqlpp::integer>("17+4")).unconditionally());
+  db(update(t).set(t.delta = sqlpp::null).unconditionally());
+  db(update(t).set(t.delta = sqlpp::default_value).unconditionally());
 
-  db(update(t).set(t.delta += t.alpha * 2, t.beta += " and cake").where(true));
+  db(update(t).set(t.delta += t.alpha * 2, t.beta += " and cake").unconditionally());
 
   return 0;
 }

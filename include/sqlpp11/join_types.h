@@ -24,40 +24,49 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_BOOLEAN_EXPRESSION_OPERATORS_H
-#define SQLPP_BOOLEAN_EXPRESSION_OPERATORS_H
+#ifndef SQLPP_JOIN_TYPES_H
+#define SQLPP_JOIN_TYPES_H
 
-#include <sqlpp11/expression_return_types.h>
-#include <sqlpp11/operand_check.h>
-#include <sqlpp11/expression_operators.h>
-#include <sqlpp11/basic_expression_operators.h>
+#include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
-  template <typename Expression>
-  struct expression_operators<Expression, boolean> : public basic_expression_operators<Expression, boolean>
+  struct inner_join_t
   {
-  };
+    template <typename Lhs, typename Rhs>
+    using _provided_outer_tables =
+        detail::make_joined_set_t<provided_outer_tables_of<Lhs>, provided_outer_tables_of<Rhs>>;
 
-  template <typename L, typename R>
-  struct return_type_and<L, R, unwrapped_binary_operand_check_t<L, is_boolean_t, R, is_boolean_t>>
-  {
-    using check = consistent_t;
-    using type = logical_and_t<wrap_operand_t<L>, wrap_operand_t<R>>;
+    static constexpr const char* _name = " INNER";
   };
-
-  template <typename L, typename R>
-  struct return_type_or<L, R, unwrapped_binary_operand_check_t<L, is_boolean_t, R, is_boolean_t>>
+  struct outer_join_t
   {
-    using check = consistent_t;
-    using type = logical_or_t<wrap_operand_t<L>, wrap_operand_t<R>>;
+    template <typename Lhs, typename Rhs>
+    using _provided_outer_tables = detail::make_joined_set_t<provided_tables_of<Lhs>, provided_tables_of<Rhs>>;
+
+    static constexpr const char* _name = " OUTER";
   };
-
-  template <typename T, typename Defer>
-  struct return_type_not<T, Defer, unwrapped_unary_operand_check_t<T, is_boolean_t>>
+  struct left_outer_join_t
   {
-    using check = consistent_t;
-    using type = logical_not_t<wrap_operand_t<T>>;
+    template <typename Lhs, typename Rhs>
+    using _provided_outer_tables = detail::make_joined_set_t<provided_tables_of<Lhs>, provided_outer_tables_of<Rhs>>;
+
+    static constexpr const char* _name = " LEFT OUTER";
+  };
+  struct right_outer_join_t
+  {
+    template <typename Lhs, typename Rhs>
+    using _provided_outer_tables = detail::make_joined_set_t<provided_outer_tables_of<Lhs>, provided_tables_of<Rhs>>;
+
+    static constexpr const char* _name = " RIGHT OUTER";
+  };
+  struct cross_join_t
+  {
+    template <typename Lhs, typename Rhs>
+    using _provided_outer_tables =
+        detail::make_joined_set_t<provided_outer_tables_of<Lhs>, provided_outer_tables_of<Rhs>>;
+
+    static constexpr const char* _name = " CROSS";
   };
 }
 

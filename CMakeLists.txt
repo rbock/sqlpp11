@@ -65,6 +65,7 @@ target_compile_features(sqlpp11 INTERFACE
 endif ()
 
 add_subdirectory(tests)
+add_subdirectory(test_serializer)
 add_subdirectory(test_static_asserts)
 add_subdirectory(test_constraints)
 add_subdirectory(examples)

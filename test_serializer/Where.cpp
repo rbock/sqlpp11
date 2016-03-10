@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2016-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -23,31 +23,45 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "compare.h"
 #include "Sample.h"
-#include "MockDb.h"
-#include <sqlpp11/select.h>
-#include <sqlpp11/alias_provider.h>
+#include <sqlpp11/sqlpp11.h>
+
 #include <iostream>
 
-int With(int, char* [])
+namespace
 {
-  MockDb db;
-  MockDb::_serializer_context_t printer = {};
+  auto getTrue() -> std::string
+  {
+    MockDb::_serializer_context_t printer = {};
+    return serialize(sqlpp::value(true), printer).str();
+  }
 
-  const auto t = test::TabBar{};
+  auto getFalse() -> std::string
+  {
+    MockDb::_serializer_context_t printer = {};
+    return serialize(sqlpp::value(false), printer).str();
+  }
+}
 
-  auto x = sqlpp::cte(sqlpp::alias::x).as(select(all_of(t)).from(t));
+int Where(int, char* [])
+{
+  const auto foo = test::TabFoo{};
+  const auto bar = test::TabBar{};
 
-  db(with(x)(select(x.alpha).from(x).unconditionally()));
+  // Unconditionally
+  compare(__LINE__, select(foo.omega).from(foo).unconditionally(), "SELECT tab_foo.omega FROM tab_foo");
+  compare(__LINE__, remove_from(foo).unconditionally(), "DELETE FROM tab_foo");
+  compare(__LINE__, update(foo).set(foo.omega = 42).unconditionally(), "UPDATE tab_foo SET omega=42");
+  compare(__LINE__, where(sqlpp::value(true)), " WHERE " + getTrue());
 
-  auto y0 = sqlpp::cte(sqlpp::alias::y).as(select(all_of(t)).from(t));
-  auto y = y0.union_all(select(all_of(y0)).from(y0).unconditionally());
+  // Never
+  compare(__LINE__, where(sqlpp::value(false)), " WHERE " + getFalse());
 
-  std::cout << serialize(y, printer).str() << std::endl;
-  printer.reset();
-  std::cout << serialize(from_table(y), printer).str() << std::endl;
-
-  db(with(y)(select(y.alpha).from(y).unconditionally()));
+  // Sometimes
+  compare(__LINE__, where(bar.gamma), " WHERE tab_bar.gamma");
+  compare(__LINE__, where(bar.gamma == false), " WHERE (tab_bar.gamma=" + getFalse() + ")");
+  compare(__LINE__, where(bar.beta == "SQL"), " WHERE (tab_bar.beta='SQL')");
 
   return 0;
 }

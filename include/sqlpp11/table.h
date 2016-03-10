@@ -62,39 +62,45 @@ namespace sqlpp
     using _alias_t = table_alias_t<AliasProvider, Table, ColumnSpec...>;
 
     template <typename T>
-    join_t<inner_join_t, Table, T> join(T t) const
+    auto join(T t) const -> decltype(::sqlpp::join(std::declval<Table>(), t))
     {
-      return {*static_cast<const Table*>(this), t, {}};
+      return ::sqlpp::join(*static_cast<const Table*>(this), t);
     }
 
     template <typename T>
-    join_t<inner_join_t, Table, T> inner_join(T t) const
+    auto inner_join(T t) const -> decltype(::sqlpp::inner_join(std::declval<Table>(), t))
     {
-      return {*static_cast<const Table*>(this), t, {}};
+      return ::sqlpp::inner_join(*static_cast<const Table*>(this), t);
     }
 
     template <typename T>
-    join_t<outer_join_t, Table, T> outer_join(T t) const
+    auto left_outer_join(T t) const -> decltype(::sqlpp::left_outer_join(std::declval<Table>(), t))
     {
-      return {*static_cast<const Table*>(this), t, {}};
+      return ::sqlpp::left_outer_join(*static_cast<const Table*>(this), t);
     }
 
     template <typename T>
-    join_t<left_outer_join_t, Table, T> left_outer_join(T t) const
+    auto right_outer_join(T t) const -> decltype(::sqlpp::right_outer_join(std::declval<Table>(), t))
     {
-      return {*static_cast<const Table*>(this), t, {}};
+      return ::sqlpp::right_outer_join(*static_cast<const Table*>(this), t);
     }
 
     template <typename T>
-    join_t<right_outer_join_t, Table, T> right_outer_join(T t) const
+    auto outer_join(T t) const -> decltype(::sqlpp::outer_join(std::declval<Table>(), t))
     {
-      return {*static_cast<const Table*>(this), t, {}};
+      return ::sqlpp::outer_join(*static_cast<const Table*>(this), t);
     }
 
     template <typename AliasProvider>
     _alias_t<AliasProvider> as(const AliasProvider&) const
     {
       return {*static_cast<const Table*>(this)};
+    }
+
+    template <typename T>
+    auto cross_join(T t) const -> decltype(::sqlpp::cross_join(std::declval<Table>(), t))
+    {
+      return ::sqlpp::cross_join(*static_cast<const Table*>(this), t);
     }
 
     const Table& ref() const

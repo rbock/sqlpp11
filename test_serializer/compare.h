@@ -23,31 +23,28 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Sample.h"
+#ifndef SQLPP_TEST_SERIALIZER_H
+#define SQLPP_TEST_SERIALIZER_H
+
 #include "MockDb.h"
-#include <sqlpp11/select.h>
-#include <sqlpp11/alias_provider.h>
 #include <iostream>
 
-int With(int, char* [])
+namespace
 {
-  MockDb db;
-  MockDb::_serializer_context_t printer = {};
+  template <typename Expression>
+  void compare(int lineNo, const Expression& expr, const std::string& expected)
+  {
+    MockDb::_serializer_context_t printer = {};
 
-  const auto t = test::TabBar{};
+    const auto result = serialize(expr, printer).str();
 
-  auto x = sqlpp::cte(sqlpp::alias::x).as(select(all_of(t)).from(t));
-
-  db(with(x)(select(x.alpha).from(x).unconditionally()));
-
-  auto y0 = sqlpp::cte(sqlpp::alias::y).as(select(all_of(t)).from(t));
-  auto y = y0.union_all(select(all_of(y0)).from(y0).unconditionally());
-
-  std::cout << serialize(y, printer).str() << std::endl;
-  printer.reset();
-  std::cout << serialize(from_table(y), printer).str() << std::endl;
-
-  db(with(y)(select(y.alpha).from(y).unconditionally()));
-
-  return 0;
+    if (result != expected)
+    {
+      std::cerr << __FILE__ << " " << lineNo << '\n' << "Expected: -->|" << expected << "|<--\n"
+                << "Received: -->|" << result << "|<--\n";
+      throw std::runtime_error("unexpected serialization result");
+    }
+  }
 }
+
+#endif

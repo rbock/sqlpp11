@@ -33,6 +33,7 @@
 #include <sqlpp11/expression.h>
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/interpretable_list.h>
+#include <sqlpp11/unconditional.h>
 #include <sqlpp11/logic.h>
 
 namespace sqlpp
@@ -92,6 +93,7 @@ namespace sqlpp
       {
         static_assert(_is_dynamic::value, "where::add() can only be called for dynamic_where");
         static_assert(is_expression_t<Expression>::value, "invalid expression argument in where::add()");
+        static_assert(is_boolean_t<Expression>::value, "invalid expression argument in where::add()");
         static_assert(not TableCheckRequired::value or Policies::template _no_unknown_tables<Expression>::value,
                       "expression uses tables unknown to this statement in where::add()");
         static_assert(not contains_aggregate_function_t<Expression>::value,
@@ -154,20 +156,19 @@ namespace sqlpp
   };
 
   template <>
-  struct where_data_t<void, bool>
+  struct where_data_t<void, unconditional_t>
   {
-    bool _condition;
   };
 
-  // WHERE(BOOL)
+  // WHERE() UNCONDITIONALLY
   template <>
-  struct where_t<void, bool>
+  struct where_t<void, unconditional_t>
   {
     using _traits = make_traits<no_value_t, tag::is_where>;
     using _nodes = detail::type_vector<>;
 
     // Data
-    using _data_t = where_data_t<void, bool>;
+    using _data_t = where_data_t<void, unconditional_t>;
 
     // Member implementation with data and methods
     template <typename Policies>
@@ -186,7 +187,7 @@ namespace sqlpp
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = where_data_t<void, bool>;
+      using _data_t = where_data_t<void, unconditional_t>;
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
       template <typename... Args>
@@ -215,11 +216,13 @@ namespace sqlpp
     };
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_t, "where expression required, e.g. where(true)");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_t, "calling where() or uncontionally() required");
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_expressions_t,
-                               "at least one argument is not a boolean expression in where()");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_boolean_t, "at least one argument is not a boolean expression in where()");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_not_cpp_bool_t,
+                               "where() argument has to be an sqlpp boolean expression. Please use "
+                               ".unconditionally() instead of .where(true), or sqlpp::value(bool)");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_boolean_expression_t,
+                               "where() argument has to be an sqlpp boolean expression.");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_where_no_aggregate_functions_t,
                                "at least one aggregate function used in where()");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_where_static_count_args_t, "missing argument in where()");
@@ -230,17 +233,21 @@ namespace sqlpp
   // https://connect.microsoft.com/VisualStudio/feedback/details/2173198
   //  template <typename... Expressions>
   //  using check_where_t = static_combined_check_t<
-  //      static_check_t<logic::all_t<is_expression_t<Expressions>::value...>::value, assert_where_expressions_t>,
-  //      static_check_t<logic::all_t<is_boolean_t<Expressions>::value...>::value, assert_where_boolean_t>,
+  //      static_check_t<logic::all_t<is_not_cpp_bool_t<Expressions>::value...>::value,
+  //      assert_where_not_cpp_bool_t>,
+  //      static_check_t<logic::all_t<is_expression_t<Expressions>::value...>::value,
+  //      assert_where_boolean_expressions_t>,
+  //      static_check_t<logic::all_t<is_boolean_t<Expressions>::value...>::value, assert_where_boolean_expression_t>,
   //      static_check_t<logic::all_t<(not contains_aggregate_function_t<Expressions>::value)...>::value,
   //                     assert_where_no_aggregate_functions_t>>;
   template <typename... Expressions>
   struct check_where
   {
     using type = static_combined_check_t<
+        static_check_t<logic::all_t<is_not_cpp_bool_t<Expressions>::value...>::value, assert_where_not_cpp_bool_t>,
         static_check_t<logic::all_t<detail::is_expression_impl<Expressions>::type::value...>::value,
-                       assert_where_expressions_t>,
-        static_check_t<logic::all_t<is_boolean_t<Expressions>::value...>::value, assert_where_boolean_t>,
+                       assert_where_boolean_expression_t>,
+        static_check_t<logic::all_t<is_boolean_t<Expressions>::value...>::value, assert_where_boolean_expression_t>,
         static_check_t<logic::all_t<(not detail::contains_aggregate_function_impl<Expressions>::type::value)...>::value,
                        assert_where_no_aggregate_functions_t>>;
   };
@@ -312,14 +319,6 @@ namespace sqlpp
 
       using _database_t = typename Policies::_database_t;
 
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      //	  template <typename... T>
-      //	  using _check = logic::all_t<is_expression_t<T>::value...>;
-      template <typename... T>
-      struct _check : logic::all_t<is_expression_t<T>::value...>
-      {
-      };
-
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check::value, Policies, no_where_t, T>;
 
@@ -328,9 +327,9 @@ namespace sqlpp
                                     assert_where_t,
                                     consistent_t>::type;
 
-      auto where(bool b) const -> _new_statement_t<std::true_type, where_t<void, bool>>
+      auto unconditionally() const -> _new_statement_t<std::true_type, where_t<void, unconditional_t>>
       {
-        return {static_cast<const derived_statement_t<Policies>&>(*this), where_data_t<void, bool>{b}};
+        return {static_cast<const derived_statement_t<Policies>&>(*this), where_data_t<void, unconditional_t>{}};
       }
 
       template <typename... Expressions>
@@ -388,15 +387,13 @@ namespace sqlpp
   };
 
   template <typename Context>
-  struct serializer_t<Context, where_data_t<void, bool>>
+  struct serializer_t<Context, where_data_t<void, unconditional_t>>
   {
     using _serialize_check = consistent_t;
-    using T = where_data_t<void, bool>;
+    using T = where_data_t<void, unconditional_t>;
 
-    static Context& _(const T& t, Context& context)
+    static Context& _(const T&, Context& context)
     {
-      if (not t._condition)
-        context << " WHERE NULL";
       return context;
     }
   };

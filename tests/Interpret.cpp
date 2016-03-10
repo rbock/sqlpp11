@@ -178,10 +178,9 @@ int Interpret(int, char* [])
   serialize(avg(sqlpp::distinct, t.alpha - 7), printer).str();
   serialize(sum(sqlpp::distinct, t.alpha + 7), printer).str();
 
-  serialize(select(all_of(t)).from(t).where(true), printer).str();
-  serialize(select(all_of(t)).from(t).where(false), printer).str();
+  serialize(select(all_of(t)).from(t).unconditionally(), printer).str();
 
-  for (const auto& row : db(select(all_of(t)).from(t).where(true)))
+  for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
   {
     serialize(row.alpha, printer);
     serialize(row.beta, printer);
@@ -201,8 +200,8 @@ int Interpret(int, char* [])
   std::cerr << serialize(x, printer).str() << std::endl;
 
   printer.reset();
-  std::cerr << serialize(select(all_of(t)).from(t).where(t.alpha.in(select(f.epsilon).from(f).where(true))), printer)
-                   .str() << std::endl;
+  std::cerr << serialize(select(all_of(t)).from(t).where(t.alpha.in(select(f.epsilon).from(f).unconditionally())),
+                         printer).str() << std::endl;
 
   printer.reset();
   std::cerr << serialize(select(all_of(t)).from(t).where(t.alpha.in()), printer).str() << std::endl;
@@ -214,7 +213,7 @@ int Interpret(int, char* [])
   auto s = schema_qualified_table(schema, t).as(sqlpp::alias::x);
 
   printer.reset();
-  std::cerr << serialize(select(all_of(s)).from(s).where(true), printer).str() << std::endl;
+  std::cerr << serialize(select(all_of(s)).from(s).unconditionally(), printer).str() << std::endl;
 
   printer.reset();
   std::cerr << serialize(sqlpp::case_when(true).then(t.alpha).else_(t.alpha + 1).as(t.beta), printer).str()

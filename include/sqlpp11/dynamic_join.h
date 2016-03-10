@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, Roland Bock
+ * Copyright (c) 2016-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,69 +24,35 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_JOIN_H
-#define SQLPP_JOIN_H
+#ifndef SQLPP_DYNAMIC_JOIN_H
+#define SQLPP_DYNAMIC_JOIN_H
 
-#include <sqlpp11/join_types.h>
-#include <sqlpp11/pre_join.h>
-#include <sqlpp11/on.h>
+#include <sqlpp11/dynamic_pre_join.h>
 
 namespace sqlpp
 {
   template <typename PreJoin, typename On>
-  struct join_t
+  struct dynamic_join_t
   {
-    using _traits = make_traits<no_value_t, tag::is_table, tag::is_join>;
+    using _traits = make_traits<no_value_t, tag::is_table, tag::is_dynamic_join>;
     using _nodes = detail::type_vector<PreJoin, On>;
     using _can_be_null = std::false_type;
     using _provided_tables = provided_tables_of<PreJoin>;
-    using _required_tables = detail::make_difference_set_t<required_tables_of<On>, _provided_tables>;
+    using _required_tables = detail::type_set<>;
 
-    template <typename T>
-    auto join(T t) const -> decltype(::sqlpp::join(*this, t))
-    {
-      return ::sqlpp::join(*this, t);
-    }
-
-    template <typename T>
-    auto inner_join(T t) const -> decltype(::sqlpp::inner_join(*this, t))
-    {
-      return ::sqlpp::inner_join(*this, t);
-    }
-
-    template <typename T>
-    auto left_outer_join(T t) const -> decltype(::sqlpp::left_outer_join(*this, t))
-    {
-      return ::sqlpp::left_outer_join(*this, t);
-    }
-
-    template <typename T>
-    auto right_outer_join(T t) const -> decltype(::sqlpp::right_outer_join(*this, t))
-    {
-      return ::sqlpp::right_outer_join(*this, t);
-    }
-
-    template <typename T>
-    auto outer_join(T t) const -> decltype(::sqlpp::outer_join(*this, t))
-    {
-      return ::sqlpp::outer_join(*this, t);
-    }
-
-    template <typename T>
-    auto cross_join(T t) const -> decltype(::sqlpp::cross_join(*this, t))
-    {
-      return ::sqlpp::cross_join(*this, t);
-    }
+    static_assert(is_dynamic_pre_join_t<PreJoin>::value, "lhs argument for on() has to be a pre join");
+    static_assert(required_tables_of<PreJoin>::size::value == 0, "joined tables must not depend on other tables");
+    static_assert(is_on_t<On>::value, "invalid on expression in join().on()");
 
     PreJoin _pre_join;
     On _on;
   };
 
   template <typename Context, typename PreJoin, typename On>
-  struct serializer_t<Context, join_t<PreJoin, On>>
+  struct serializer_t<Context, dynamic_join_t<PreJoin, On>>
   {
     using _serialize_check = serialize_check_of<Context, PreJoin, On>;
-    using T = join_t<PreJoin, On>;
+    using T = dynamic_join_t<PreJoin, On>;
 
     static Context& _(const T& t, Context& context)
     {

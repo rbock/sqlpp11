@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2016-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -23,31 +23,43 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "compare.h"
 #include "Sample.h"
-#include "MockDb.h"
-#include <sqlpp11/select.h>
-#include <sqlpp11/alias_provider.h>
+#include <sqlpp11/sqlpp11.h>
+
 #include <iostream>
 
-int With(int, char* [])
+namespace
 {
-  MockDb db;
-  MockDb::_serializer_context_t printer = {};
+  auto getFalse() -> std::string
+  {
+    MockDb::_serializer_context_t printer = {};
+    return serialize(sqlpp::value(false), printer).str();
+  }
+}
 
-  const auto t = test::TabBar{};
+int In(int, char* [])
+{
+  const auto foo = test::TabFoo{};
+  const auto bar = test::TabBar{};
 
-  auto x = sqlpp::cte(sqlpp::alias::x).as(select(all_of(t)).from(t));
+  // Individual values
+  compare(__LINE__, foo.omega.in(foo.omega), "tab_foo.omega IN(tab_foo.omega)");
+  compare(__LINE__, foo.omega.in(foo.omega, bar.alpha), "tab_foo.omega IN(tab_foo.omega,tab_bar.alpha)");
+  compare(__LINE__, foo.omega.in(foo.omega, bar.alpha, sqlpp::value(17)),
+          "tab_foo.omega IN(tab_foo.omega,tab_bar.alpha,17)");
 
-  db(with(x)(select(x.alpha).from(x).unconditionally()));
+  // Lists
+  compare(__LINE__, foo.omega.in(sqlpp::value_list(std::vector<float>{1.7f, 2.5f, 17.f, 0.f})),
+          "tab_foo.omega IN(1.7,2.5,17,0)");
 
-  auto y0 = sqlpp::cte(sqlpp::alias::y).as(select(all_of(t)).from(t));
-  auto y = y0.union_all(select(all_of(y0)).from(y0).unconditionally());
+  // Sub select
+  compare(__LINE__, foo.omega.in(select(bar.alpha).from(bar).unconditionally()),
+          "tab_foo.omega IN(SELECT tab_bar.alpha FROM tab_bar)");
 
-  std::cout << serialize(y, printer).str() << std::endl;
-  printer.reset();
-  std::cout << serialize(from_table(y), printer).str() << std::endl;
-
-  db(with(y)(select(y.alpha).from(y).unconditionally()));
+  // Empty lists (not normally covered by SQL)
+  compare(__LINE__, foo.omega.in(), getFalse());
+  compare(__LINE__, foo.omega.in(sqlpp::value_list(std::vector<int>{})), getFalse());
 
   return 0;
 }

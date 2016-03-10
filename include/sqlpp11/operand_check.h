@@ -38,13 +38,16 @@ namespace sqlpp
   };
 
   template <typename T, template <typename> class Pred>
-  struct unary_operand_check<T, Pred, detail::enable_if_t<Pred<wrap_operand_t<T>>::value>>
+  struct unary_operand_check<T, Pred, detail::enable_if_t<Pred<T>::value>>
   {
     using type = void;
   };
 
   template <typename T, template <typename> class Pred>
-  using unary_operand_check_t = typename unary_operand_check<T, Pred>::type;
+  using unary_operand_check_t = typename unary_operand_check<wrap_operand_t<T>, Pred>::type;
+
+  template <typename T, template <typename> class Pred>
+  using unwrapped_unary_operand_check_t = typename unary_operand_check<T, Pred>::type;
 
   template <typename L,
             template <typename> class LPred,
@@ -56,17 +59,17 @@ namespace sqlpp
   };
 
   template <typename L, template <typename> class LPred, typename R, template <typename> class RPred>
-  struct binary_operand_check<L,
-                              LPred,
-                              R,
-                              RPred,
-                              detail::enable_if_t<LPred<wrap_operand_t<L>>::value and RPred<wrap_operand_t<R>>::value>>
+  struct binary_operand_check<L, LPred, R, RPred, detail::enable_if_t<LPred<L>::value and RPred<R>::value>>
   {
     using type = void;
   };
 
   template <typename L, template <typename> class LPred, typename R, template <typename> class RPred>
-  using binary_operand_check_t = typename binary_operand_check<L, LPred, R, RPred>::type;
+  using binary_operand_check_t =
+      typename binary_operand_check<wrap_operand_t<L>, LPred, wrap_operand_t<L>, RPred>::type;
+
+  template <typename L, template <typename> class LPred, typename R, template <typename> class RPred>
+  using unwrapped_binary_operand_check_t = typename binary_operand_check<L, LPred, R, RPred>::type;
 }
 
 #endif

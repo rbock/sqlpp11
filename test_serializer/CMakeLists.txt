@@ -1,4 +1,4 @@
-# Copyright (c) 2013-2015, Roland Bock
+# Copyright (c) 2013-2016, Roland Bock
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -22,19 +22,19 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-function(test_compile name)
-  set(target sqlpp11_${name})
-  add_executable(${target} ${name}.cpp)
-  target_link_libraries(${target} PRIVATE sqlpp11 sqlpp11_testing)
-endfunction()
+set(test_serializer_names
+  From
+  In
+  Where
+  )
 
-test_compile(aggregates)
-test_compile(case)
-test_compile(from)
-test_compile(join)
-test_compile(where)
-test_compile(insert)
-test_compile(date)
-test_compile(date_time)
-test_compile(unwrapped_bool)
+create_test_sourcelist(test_serializer_sources test_serializer_main.cpp ${test_serializer_names})
+add_executable(sqlpp11_test_serializer ${test_serializer_sources})
+target_link_libraries(sqlpp11_test_serializer PRIVATE sqlpp11 sqlpp11_testing)
+
+foreach(test_serializer IN LISTS test_serializer_names)
+  add_test(NAME sqlpp11.test_serializer.${test_serializer}
+    COMMAND sqlpp11_test_serializer ${test_serializer}
+    )
+endforeach()
 
