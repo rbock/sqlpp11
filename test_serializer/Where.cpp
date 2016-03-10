@@ -51,6 +51,8 @@ int Where(int, char* [])
 
   // Unconditionally
   compare(__LINE__, select(foo.omega).from(foo).unconditionally(), "SELECT tab_foo.omega FROM tab_foo");
+  compare(__LINE__, remove_from(foo).unconditionally(), "DELETE FROM tab_foo");
+  compare(__LINE__, update(foo).set(foo.omega = 42).unconditionally(), "UPDATE tab_foo SET omega=42");
   compare(__LINE__, where(sqlpp::value(true)), " WHERE " + getTrue());
 
   // Never
