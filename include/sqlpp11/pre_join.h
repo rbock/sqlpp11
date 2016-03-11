@@ -91,6 +91,7 @@ namespace sqlpp
     using _traits = make_traits<no_value_t, tag::is_pre_join>;
     using _nodes = detail::type_vector<Lhs, Rhs>;
     using _can_be_null = std::false_type;
+    using _provided_outer_tables = typename JoinType::template _provided_outer_tables<Lhs, Rhs>;
 
     static_assert(is_table_t<Lhs>::value, "lhs argument for join() has to be a table or join");
     static_assert(is_table_t<Rhs>::value, "rhs argument for join() has to be a table");
@@ -185,7 +186,7 @@ namespace sqlpp
 
   template <typename Lhs, typename Rhs>
   auto outer_join(Lhs lhs, Rhs rhs) -> typename std::conditional<check_pre_join_t<Lhs, Rhs>::value,
-                                                                 pre_join_t<right_outer_join_t, Lhs, Rhs>,
+                                                                 pre_join_t<outer_join_t, Lhs, Rhs>,
                                                                  bad_statement>::type
   {
     check_pre_join_t<Lhs, Rhs>::_();
