@@ -48,6 +48,14 @@ int From(int, char* [])
   compare(__LINE__, from(foo.cross_join(bar)), " FROM tab_foo CROSS JOIN tab_bar");
   compare(__LINE__, from(foo.join(bar).on(foo.omega > bar.alpha)),
           " FROM tab_foo INNER JOIN tab_bar ON (tab_foo.omega>tab_bar.alpha)");
+  compare(__LINE__, from(foo.inner_join(bar).on(foo.omega > bar.alpha)),
+          " FROM tab_foo INNER JOIN tab_bar ON (tab_foo.omega>tab_bar.alpha)");
+  compare(__LINE__, from(foo.outer_join(bar).on(foo.omega > bar.alpha)),
+          " FROM tab_foo OUTER JOIN tab_bar ON (tab_foo.omega>tab_bar.alpha)");
+  compare(__LINE__, from(foo.left_outer_join(bar).on(foo.omega > bar.alpha)),
+          " FROM tab_foo LEFT OUTER JOIN tab_bar ON (tab_foo.omega>tab_bar.alpha)");
+  compare(__LINE__, from(foo.right_outer_join(bar).on(foo.omega > bar.alpha)),
+          " FROM tab_foo RIGHT OUTER JOIN tab_bar ON (tab_foo.omega>tab_bar.alpha)");
   compare(__LINE__, from(aFoo.join(bFoo).on(aFoo.omega > bFoo.omega)),
           " FROM tab_foo AS a INNER JOIN tab_foo AS b ON (a.omega>b.omega)");
   compare(
@@ -64,8 +72,28 @@ int From(int, char* [])
   }
   {
     auto dfa = df;
+    dfa.from.add(dynamic_join(bar).on(bar.alpha > foo.omega));
+    compare(__LINE__, dfa, " FROM tab_foo INNER JOIN tab_bar ON (tab_bar.alpha>tab_foo.omega)");
+  }
+  {
+    auto dfa = df;
     dfa.from.add(dynamic_inner_join(bar).on(bar.alpha > foo.omega));
     compare(__LINE__, dfa, " FROM tab_foo INNER JOIN tab_bar ON (tab_bar.alpha>tab_foo.omega)");
+  }
+  {
+    auto dfa = df;
+    dfa.from.add(dynamic_outer_join(bar).on(bar.alpha > foo.omega));
+    compare(__LINE__, dfa, " FROM tab_foo OUTER JOIN tab_bar ON (tab_bar.alpha>tab_foo.omega)");
+  }
+  {
+    auto dfa = df;
+    dfa.from.add(dynamic_left_outer_join(bar).on(bar.alpha > foo.omega));
+    compare(__LINE__, dfa, " FROM tab_foo LEFT OUTER JOIN tab_bar ON (tab_bar.alpha>tab_foo.omega)");
+  }
+  {
+    auto dfa = df;
+    dfa.from.add(dynamic_right_outer_join(bar).on(bar.alpha > foo.omega));
+    compare(__LINE__, dfa, " FROM tab_foo RIGHT OUTER JOIN tab_bar ON (tab_bar.alpha>tab_foo.omega)");
   }
   {
     auto dfa = df;
