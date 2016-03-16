@@ -43,31 +43,31 @@ namespace
     T::_print_me_;
   }
 
-  template <typename Assert, typename... Expressions>
-  void where_static_check(const Expressions&... expressions)
+  template <typename Assert, typename Expression>
+  void where_static_check(const Expression& expression)
   {
-    using CheckResult = sqlpp::check_where_static_t<Expressions...>;
+    using CheckResult = sqlpp::check_where_static_t<Expression>;
     using ExpectedCheckResult = std::is_same<CheckResult, Assert>;
     print_type_on_error<CheckResult>(ExpectedCheckResult{});
     static_assert(ExpectedCheckResult::value, "Unexpected check result");
 
-    using ReturnType = decltype(remove_from(t).where(expressions...));
+    using ReturnType = decltype(remove_from(t).where(expression));
     using ExpectedReturnType =
         sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, sqlpp::bad_statement>::value>;
     print_type_on_error<ReturnType>(ExpectedReturnType{});
     static_assert(ExpectedReturnType::value, "Unexpected return type");
   }
 
-  template <typename Assert, typename... Expressions>
-  void where_dynamic_check(const Expressions&... expressions)
+  template <typename Assert, typename Expression>
+  void where_dynamic_check(const Expression& expression)
   {
     static auto db = MockDb{};
-    using CheckResult = sqlpp::check_where_dynamic_t<decltype(db), Expressions...>;
+    using CheckResult = sqlpp::check_where_dynamic_t<decltype(db), Expression>;
     using ExpectedCheckResult = std::is_same<CheckResult, Assert>;
     print_type_on_error<CheckResult>(ExpectedCheckResult{});
     static_assert(ExpectedCheckResult::value, "Unexpected check result");
 
-    using ReturnType = decltype(dynamic_remove_from(db, t).dynamic_where(expressions...));
+    using ReturnType = decltype(dynamic_remove_from(db, t).dynamic_where(expression));
     using ExpectedReturnType =
         sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, sqlpp::bad_statement>::value>;
     print_type_on_error<ReturnType>(ExpectedReturnType{});
@@ -79,9 +79,6 @@ namespace
     // OK
     where_static_check<sqlpp::consistent_t>(t.gamma);
     where_static_check<sqlpp::consistent_t>(t.gamma == true);
-
-    // Try no expression
-    where_static_check<sqlpp::assert_where_static_count_args_t>();
 
     // Try assignment as condition
     where_static_check<sqlpp::assert_where_boolean_expression_t>(t.gamma = true);
@@ -110,7 +107,6 @@ namespace
   void dynamic_where()
   {
     // OK
-    where_dynamic_check<sqlpp::consistent_t>();
     where_dynamic_check<sqlpp::consistent_t>(t.gamma);
     where_dynamic_check<sqlpp::consistent_t>(t.gamma == true);
 
@@ -138,7 +134,7 @@ namespace
         case_when(count(t.alpha) > 0).then(t.gamma).else_(not t.gamma));
 
     // Try dynamic_where on a non-dynamic remove
-    using CheckResult = sqlpp::check_where_dynamic_t<void>;
+    using CheckResult = sqlpp::check_where_dynamic_t<void, sqlpp::boolean_operand>;
     using ExpectedCheckResult = std::is_same<CheckResult, sqlpp::assert_where_dynamic_statement_dynamic_t>;
     print_type_on_error<CheckResult>(ExpectedCheckResult{});
     static_assert(ExpectedCheckResult::value, "Unexpected check result");

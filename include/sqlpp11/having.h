@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -28,6 +28,7 @@
 #define SQLPP_HAVING_H
 
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/value.h>
 #include <sqlpp11/expression.h>
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/interpretable_list.h>
@@ -232,6 +233,11 @@ namespace sqlpp
         static_assert(not std::is_same<_database_t, void>::value,
                       "dynamic_having must not be called in a static statement");
         return _having_impl<_database_t>(_check<Expression>{}, expression);
+      }
+
+      auto dynamic_having() const -> _new_statement_t<_check<boolean_operand>, having_t<_database_t, boolean_operand>>
+      {
+        return dynamic_having(::sqlpp::value(true));
       }
 
     private:
