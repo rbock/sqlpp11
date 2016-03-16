@@ -82,17 +82,11 @@ namespace sqlpp
       }
 
       template <typename Expr>
-      void add_ntc(Expr expression)
-      {
-        add<Expr, std::false_type>(expression);
-      }
-
-      template <typename Expr, typename TableCheckRequired = std::true_type>
       void add(Expr expression)
       {
         static_assert(_is_dynamic::value, "having::add() can only be called for dynamic_having");
         static_assert(is_expression_t<Expr>::value, "invalid expression argument in having::add()");
-        static_assert(not TableCheckRequired::value or Policies::template _no_unknown_tables<Expr>::value,
+        static_assert(Policies::template _no_unknown_tables<Expr>::value,
                       "expression uses tables unknown to this statement in having::add()");
         using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Expr>;
         _serialize_check::_();
