@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -82,17 +82,11 @@ namespace sqlpp
       }
 
       template <typename Expression>
-      void add_ntc(Expression expression)
-      {
-        add<Expression, std::false_type>(expression);
-      }
-
-      template <typename Expression, typename TableCheckRequired = std::true_type>
       void add(Expression expression)
       {
         static_assert(_is_dynamic::value, "add() must not be called for static order_by");
         static_assert(is_sort_order_t<Expression>::value, "invalid expression argument in order_by::add()");
-        static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Expression>::value,
+        static_assert(Policies::template _no_unknown_tables<Expression>::value,
                       "expression uses tables unknown to this statement in order_by::add()");
         using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Expression>;
         _serialize_check::_();

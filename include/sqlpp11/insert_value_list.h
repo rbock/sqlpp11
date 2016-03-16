@@ -252,12 +252,6 @@ namespace sqlpp
       }
 
       template <typename Assignment>
-      void add_ntc(Assignment assignment)
-      {
-        add<Assignment, std::false_type>(assignment);
-      }
-
-      template <typename Assignment, typename TableCheckRequired = std::true_type>
       void add(Assignment assignment)
       {
         static_assert(_is_dynamic::value, "add must not be called for static from()");
@@ -266,7 +260,7 @@ namespace sqlpp
         static_assert(not detail::is_element_of<lhs_t<Assignment>, _assigned_columns>::value,
                       "Must not assign value to column twice");
         static_assert(not must_not_insert_t<lhs_t<Assignment>>::value, "add() argument must not be used in insert");
-        static_assert(not TableCheckRequired::value or Policies::template _no_unknown_tables<Assignment>::value,
+        static_assert(Policies::template _no_unknown_tables<Assignment>::value,
                       "add() contains a column from a foreign table");
         using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Assignment>;
         _serialize_check::_();

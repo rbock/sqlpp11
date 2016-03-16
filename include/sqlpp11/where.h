@@ -84,18 +84,12 @@ namespace sqlpp
       }
 
       template <typename Expr>
-      void add_ntc(Expr expression)
-      {
-        add<Expr, std::false_type>(expression);
-      }
-
-      template <typename Expr, typename TableCheckRequired = std::true_type>
       void add(Expr expression)
       {
         static_assert(_is_dynamic::value, "where::add() can only be called for dynamic_where");
         static_assert(is_expression_t<Expr>::value, "invalid expression argument in where::add()");
         static_assert(is_boolean_t<Expr>::value, "invalid expression argument in where::add()");
-        static_assert(not TableCheckRequired::value or Policies::template _no_unknown_tables<Expr>::value,
+        static_assert(Policies::template _no_unknown_tables<Expr>::value,
                       "expression uses tables unknown to this statement in where::add()");
         static_assert(not contains_aggregate_function_t<Expr>::value,
                       "where expression must not contain aggregate functions");
