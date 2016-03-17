@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -31,6 +31,7 @@
 #include <sqlpp11/select.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/connection.h>
+#include <sqlpp11/without_table_check.h>
 
 namespace alias
 {
@@ -327,7 +328,7 @@ int SelectType(int, char* [])
   {
     auto s = dynamic_select(db, all_of(t)).dynamic_from(t).dynamic_where().dynamic_limit().dynamic_offset();
     s.from.add(dynamic_join(f).on(f.omega > t.alpha));
-    s.where.add_ntc(t.alpha > 7 and t.alpha == any(select(t.alpha).from(t).where(t.alpha < 3)));
+    s.where.add(without_table_check(f.omega > 7 and t.alpha == any(select(t.alpha).from(t).where(t.alpha < 3))));
     s.limit.set(30);
     s.limit.set(3);
     std::cerr << "------------------------\n";
@@ -339,8 +340,8 @@ int SelectType(int, char* [])
 
   // Test that select can be called with zero columns if it is used with dynamic columns.
   {
-    auto s = dynamic_select(db).dynamic_columns().extra_tables(t);
-    s.selected_columns.add(t.alpha);
+    auto s = dynamic_select(db).dynamic_columns();
+    s.selected_columns.add(without_table_check(t.alpha));
     serialize(s, printer).str();
   }
 

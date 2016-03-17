@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, Roland Bock
+ * Copyright (c) 2016-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,19 +24,44 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_H
-#define SQLPP_H
+#ifndef SQLPP_WITHOUT_TABLE_CHECK_H
+#define SQLPP_ALIAS_H
 
-#include <sqlpp11/alias_provider.h>
-#include <sqlpp11/data_types.h>
-#include <sqlpp11/insert.h>
-#include <sqlpp11/remove.h>
-#include <sqlpp11/update.h>
-#include <sqlpp11/select.h>
-#include <sqlpp11/functions.h>
-#include <sqlpp11/transaction.h>
-#include <sqlpp11/boolean_expression.h>
-#include <sqlpp11/without_table_check.h>
-#include <sqlpp11/schema_qualified_table.h>
+#include <sqlpp11/type_traits.h>
+#include <sqlpp11/serializer.h>
+
+namespace sqlpp
+{
+  template <typename Expression>
+  struct without_table_check_t : Expression
+  {
+    using _required_tables = detail::type_set<>;
+
+    without_table_check_t(Expression expression) : Expression(expression)
+    {
+    }
+  };
+
+  template <typename Context, typename Expression>
+  struct serializer_t<Context, without_table_check_t<Expression>>
+  {
+    using _serialize_check = serialize_check_of<Context, Expression>;
+    using T = without_table_check_t<Expression>;
+
+    static Context& _(const T& t, Context& context)
+    {
+      serialize<Expression>(t, context);
+      return context;
+    }
+  };
+
+  template <typename Expression>
+  auto without_table_check(Expression expr) -> without_table_check_t<Expression>
+  {
+    static_assert(is_expression_t<Expression>::value, "invalid argument (expression expected)");
+
+    return {expr};
+  }
+}
 
 #endif
