@@ -340,8 +340,8 @@ int SelectType(int, char* [])
 
   // Test that select can be called with zero columns if it is used with dynamic columns.
   {
-    auto s = dynamic_select(db).dynamic_columns().extra_tables(t);
-    s.selected_columns.add(t.alpha);
+    auto s = dynamic_select(db).dynamic_columns();
+    s.selected_columns.add(without_table_check(t.alpha));
     serialize(s, printer).str();
   }
 
