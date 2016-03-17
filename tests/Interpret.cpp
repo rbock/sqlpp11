@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -163,13 +163,11 @@ int Interpret(int, char* [])
     serialize(s, printer).str();
   }
   {
-    auto s = dynamic_select(db)
-                 .dynamic_flags(sqlpp::distinct)
-                 .dynamic_columns(t.alpha)
-                 .extra_tables(t);  // Would fail to run()
+    // Behold, dynamically constructed queries might compile but be illegal SQL
+    auto s = dynamic_select(db).dynamic_flags(sqlpp::distinct).dynamic_columns(t.alpha);
     s.select_flags.add(sqlpp::all);
-    s.selected_columns.add(t.beta);
-    s.selected_columns.add(t.gamma);
+    s.selected_columns.add(without_table_check(t.beta));
+    s.selected_columns.add(without_table_check(t.gamma));
     serialize(s, printer).str();
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -31,6 +31,7 @@
 #include <sqlpp11/select.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/connection.h>
+#include <sqlpp11/without_table_check.h>
 
 template <typename Db, typename Column>
 int64_t getColumn(Db&& db, const Column& column)
@@ -108,7 +109,6 @@ int Select(int, char* [])
                   .columns(all_of(t))
                   .flags(sqlpp::all)
                   .from(t)
-                  .extra_tables(f, t)
                   .where(t.alpha > 0)
                   .group_by(t.alpha)
                   .order_by(t.gamma.asc())
@@ -122,7 +122,6 @@ int Select(int, char* [])
                 .columns(all_of(t))
                 .flags(sqlpp::all)
                 .from(t)
-                .extra_tables(f, t)
                 .where(t.alpha > 0)
                 .group_by(t.alpha)
                 .order_by(t.gamma.asc())
@@ -137,7 +136,6 @@ int Select(int, char* [])
                .dynamic_columns(all_of(t))
                .dynamic_flags()
                .dynamic_from(t)
-               .extra_tables(f, t)
                .dynamic_where()
                .dynamic_group_by(t.alpha)
                .dynamic_order_by()
@@ -145,7 +143,7 @@ int Select(int, char* [])
                .dynamic_limit()
                .dynamic_offset();
   s.select_flags.add(sqlpp::distinct);
-  s.selected_columns.add(f.omega);
+  s.selected_columns.add(without_table_check(f.omega));
   s.from.add(dynamic_cross_join(f));
   s.where.add(t.alpha > 7);
   s.having.add(t.alpha > 7);

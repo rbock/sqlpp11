@@ -33,23 +33,13 @@
 namespace sqlpp
 {
   template <typename Expression>
-  struct without_table_check_t
+  struct without_table_check_t : Expression
   {
-    using _traits = typename Expression::_traits;
-    using _nodes = detail::type_vector<Expression>;
     using _required_tables = detail::type_set<>;
 
-    without_table_check_t(Expression expression) : _expression(expression)
+    without_table_check_t(Expression expression) : Expression(expression)
     {
     }
-
-    without_table_check_t(const without_table_check_t&) = default;
-    without_table_check_t(without_table_check_t&&) = default;
-    without_table_check_t& operator=(const without_table_check_t&) = default;
-    without_table_check_t& operator=(without_table_check_t&&) = default;
-    ~without_table_check_t() = default;
-
-    Expression _expression;
   };
 
   template <typename Context, typename Expression>
@@ -60,7 +50,7 @@ namespace sqlpp
 
     static Context& _(const T& t, Context& context)
     {
-      serialize(t._expression, context);
+      serialize<Expression>(t, context);
       return context;
     }
   };
