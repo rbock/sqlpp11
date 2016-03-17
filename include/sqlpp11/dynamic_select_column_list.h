@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,6 +29,7 @@
 
 #include <vector>
 #include <string>
+#include <sqlpp11/no_name.h>
 #include <sqlpp11/named_interpretable.h>
 
 namespace sqlpp
@@ -56,13 +57,7 @@ namespace sqlpp
   template <>
   struct dynamic_select_column_list<void>
   {
-    struct _names_t
-    {
-      static constexpr size_t size()
-      {
-        return 0;
-      }
-    };
+    using _names_t = no_name_t;
     _names_t _dynamic_expression_names;
 
     static constexpr bool empty()
