@@ -93,6 +93,10 @@ namespace sqlpp
                        logic::all_t<detail::is_aggregate_expression_impl<_all_provided_aggregates,
                                                                          Expressions>::type::value...>::value>;
 
+      template <typename... Expressions>
+      using _no_non_aggregates = logic::any_t<logic::all_t<
+          detail::is_aggregate_expression_impl<_all_provided_aggregates, Expressions>::type::value...>::value>;
+
       template <template <typename> class Predicate>
       using any_t = logic::any_t<Predicate<Policies>::value...>;
 

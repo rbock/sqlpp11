@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2015, Roland Bock
+ * Copyright (c) 2015-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -117,10 +117,10 @@ namespace
   // Failures with static group_by and selected non-aggregates or incorrect aggregates
   void static_group_by_nok()
   {
-    run_check<sqlpp::assert_aggregates_t>(select(t.beta).from(t).unconditionally().group_by(t.alpha));
-    run_check<sqlpp::assert_aggregates_t>(
+    run_check<sqlpp::assert_no_unknown_aggregates_t>(select(t.beta).from(t).unconditionally().group_by(t.alpha));
+    run_check<sqlpp::assert_no_unknown_aggregates_t>(
         select((t.alpha + t.delta).as(whatever)).from(t).unconditionally().group_by(t.alpha));
-    run_check<sqlpp::assert_aggregates_t>(
+    run_check<sqlpp::assert_no_unknown_aggregates_t>(
         select((t.alpha + t.delta).as(whatever)).from(t).unconditionally().group_by(t.alpha, t.alpha + t.delta * 17));
   }
 }

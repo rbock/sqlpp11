@@ -139,7 +139,7 @@ int Select(int, char* [])
                .dynamic_where()
                .dynamic_group_by(t.alpha)
                .dynamic_order_by()
-               .dynamic_having(t.gamma)
+               .dynamic_having(sum(t.alpha) > 17)
                .dynamic_limit()
                .dynamic_offset();
   s.select_flags.add(sqlpp::distinct);
