@@ -129,6 +129,16 @@ sqlpp11 requires a certain api in order to connect with the database, see databa
 __Date Library:__
 sqlpp11 requires [Howard Hinnant's date library](https://github.com/HowardHinnant/date) for `date` and `date_time` data types.
 
+__Linux install:__
+git clone date library, needed connectors, cmake and make install them.
+
+__Basic usage:__
+create DDL files (mysql: 'show create table MyTable'), create headers for them with provided python script:
+```
+%sqlpp11_dir%/scripts/ddl2cpp ~/temp/MyTable.ddl  ~/temp/MyTable %DatabaseNamespaceForExample%
+```
+include generated header (MyTable.h), that's all
+
 To demonstrate that sqlpp11 can work with other backends as well, here is an experimental backend for structs in standard containers:
 
   * STL Container: https://github.com/rbock/sqlpp11-connector-stl
