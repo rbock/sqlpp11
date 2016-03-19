@@ -126,6 +126,10 @@ sqlpp11 requires a certain api in order to connect with the database, see databa
   * Sqlite3: https://github.com/rbock/sqlpp11-connector-sqlite3
   * PostgreSQL: https://github.com/matthijs/sqlpp11-connector-postgresql
 
+To demonstrate that sqlpp11 can work with other backends as well, here is an experimental backend for structs in standard containers:
+
+  * STL Container: https://github.com/rbock/sqlpp11-connector-stl
+
 __Date Library:__
 sqlpp11 requires [Howard Hinnant's date library](https://github.com/HowardHinnant/date) for `date` and `date_time` data types.
 
@@ -140,9 +144,7 @@ create DDL files (like mysql: 'show create table MyDatabase.MyTable', but remove
 ```
 include generated header (MyTable.h), that's all
 
-To demonstrate that sqlpp11 can work with other backends as well, here is an experimental backend for structs in standard containers:
 
-  * STL Container: https://github.com/rbock/sqlpp11-connector-stl
 
 __License:__
 
