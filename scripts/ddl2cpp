@@ -31,7 +31,7 @@ import re
 import os
 import pprint
 
-from pyparsing import CaselessLiteral, Literal, SkipTo, restOfLine, oneOf, ZeroOrMore, Optional, Combine, \
+from pyparsing import CaselessLiteral, Literal, SkipTo, restOfLine, oneOf, ZeroOrMore, Optional, Combine, Suppress, \
     WordStart, WordEnd, Word, alphas, alphanums, nums, QuotedString, nestedExpr, MatchFirst, OneOrMore, delimitedList, Or, Group
 
 INCLUDE = 'sqlpp11'
@@ -80,7 +80,7 @@ ddlColumn   = Group(Optional(ddlConstraint).setResultsName("isConstraint") + One
 createTable = Group(ddlWord("CREATE") + ddlWord("TABLE") + ddlTerm.setResultsName("tableName") + "(" + Group(delimitedList(ddlColumn)).setResultsName("columns") + ")").setResultsName("create")
 
 
-ddl = ZeroOrMore(SkipTo(createTable, include=True))
+ddl = ZeroOrMore(Suppress(SkipTo(createTable, False)) + createTable)
 
 ddlComment = oneOf(["--", "#"]) + restOfLine
 ddl.ignore(ddlComment)
@@ -131,16 +131,7 @@ print('{', file=header)
 
 tableCreations = ddl.parseFile(pathToDdl)
 
-for tableCreation in tableCreations:
-    # get the actual table parse result depending on the version of pyparsing
-    if isinstance(tableCreation, basestring): # Since  pyparsing-2.10
-        continue
-    create = None
-    if tableCreation.create:
-        create = tableCreation.create         # Before pyparsing-2.10
-    elif tableCreation.tableName:
-        create = tableCreation                # Since  pyparsing-2.10
-
+for create in tableCreations:
     sqlTableName = create.tableName
     tableClass = toClassName(sqlTableName)
     tableMember = toMemberName(sqlTableName)
