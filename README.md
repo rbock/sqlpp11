@@ -145,7 +145,6 @@ create DDL files (like mysql: 'show create table MyDatabase.MyTable', but remove
 include generated header (MyTable.h), that's all
 
 
-
-__License:__
-
+License:
+-------------
 sqlpp11 is distributed under the [BSD 2-Clause License](https://github.com/rbock/sqlpp11/blob/master/LICENSE).
