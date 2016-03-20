@@ -138,7 +138,7 @@ Basic usage:
 __Linux install:__
 git clone date library, needed connectors, cmake and make install them.
 
-create DDL files (like mysql: 'show create table MyDatabase.MyTable', but remove backticks), create headers for them with provided python script:
+create DDL files (like mysql: 'show create table MyDatabase.MyTable'), create headers for them with provided python script:
 ```
 %sqlpp11_dir%/scripts/ddl2cpp ~/temp/MyTable.ddl  ~/temp/MyTable %DatabaseNamespaceForExample%
 ```
