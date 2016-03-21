@@ -62,6 +62,20 @@ int From(int, char* [])
       __LINE__, from(aFoo.join(bFoo).on(aFoo.omega > bFoo.omega).join(cFoo).on(bFoo.omega > cFoo.omega)),
       " FROM tab_foo AS a INNER JOIN tab_foo AS b ON (a.omega>b.omega) INNER JOIN tab_foo AS c ON (b.omega>c.omega)");
 
+  // Static joins involving verbatim tables
+  compare(__LINE__, from(aFoo.join(sqlpp::verbatim_table("unknown_table"))
+                             .on(aFoo.omega > sqlpp::verbatim<sqlpp::floating_point>("unknown_table.column_x"))),
+          " FROM tab_foo AS a INNER JOIN unknown_table ON (a.omega>unknown_table.column_x)");
+  compare(__LINE__, from(sqlpp::verbatim_table("unknown_table")
+                             .join(aFoo)
+                             .on(aFoo.omega > sqlpp::verbatim<sqlpp::floating_point>("unknown_table.column_x"))),
+          " FROM unknown_table INNER JOIN tab_foo AS a ON (a.omega>unknown_table.column_x)");
+  compare(__LINE__, from(sqlpp::verbatim_table("unknown_table")
+                             .as(sqlpp::alias::a)
+                             .join(sqlpp::verbatim_table("another_table"))
+                             .on(sqlpp::verbatim<sqlpp::boolean>("a.column_x>another_table.x"))),
+          " FROM unknown_table AS a INNER JOIN another_table ON a.column_x>another_table.x");
+
   // Dynamic joins
   const auto df = dynamic_from(db, foo);
   compare(__LINE__, df, " FROM tab_foo");
@@ -101,6 +115,14 @@ int From(int, char* [])
     dfa.from.add(dynamic_outer_join(aFoo).on(bar.alpha > aFoo.omega));
     compare(__LINE__, dfa, " FROM tab_foo INNER JOIN tab_bar ON (tab_bar.alpha>tab_foo.omega) OUTER JOIN tab_foo AS a "
                            "ON (tab_bar.alpha>a.omega)");
+  }
+
+  // Dynamic joins involving verbatim table
+  {
+    auto dfa = df;
+    dfa.from.add(dynamic_inner_join(sqlpp::verbatim_table("unknown_table"))
+                     .on(bar.alpha > sqlpp::verbatim<sqlpp::floating_point>("unknown_table.column_x")));
+    compare(__LINE__, dfa, " FROM tab_foo INNER JOIN unknown_table ON (tab_bar.alpha>unknown_table.column_x)");
   }
 
   return 0;
