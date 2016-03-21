@@ -127,7 +127,7 @@ types = {
     'float': 'floating_point',
     'date' : 'day_point',
     'datetime' : 'time_point',
-    'timestamp' : 'time_point',
+    #'timestamp' : 'time_point',
     }
 
 
@@ -154,6 +154,7 @@ for create in tableCreations:
     tableTemplateParameters = tableClass
     print('  namespace ' + tableNamespace, file=header)
     print('  {', file=header)
+    DataTypeError = False;
     for column in create.columns:
         if column.isConstraint:
             continue
@@ -185,6 +186,7 @@ for create in tableCreations:
             traitslist = [NAMESPACE + '::' + types[sqlColumnType]];
         except KeyError as e:
             print ('Error: datatype "'  + sqlColumnType + '"" is not supported. Implement it (examples: sqlpp11/data_types) or raise an issue on github')
+            DataTypeError = True
         requireInsert = True
         if column.hasAutoValue:
             traitslist.append(NAMESPACE + '::tag::must_not_insert');
@@ -220,4 +222,6 @@ for create in tableCreations:
 
 print('}', file=header)
 print('#endif', file=header)
-
+if (DataTypeError):
+    print("Error: unsupported datatypes." )
+    sys.exit(10) #return non-zero error code, we might need it for automation
