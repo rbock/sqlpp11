@@ -127,7 +127,7 @@ types = {
     'float': 'floating_point',
     'date' : 'day_point',
     'datetime' : 'time_point',
-    #'timestamp' : 'time_point',
+    'timestamp' : 'time_point',
     }
 
 
