@@ -181,7 +181,10 @@ for create in tableCreations:
         print('            const T& operator()() const { return ' + columnMember + '; }', file=header)
         print('          };', file=header)
         print('      };', file=header)
-        traitslist = [NAMESPACE + '::' + types[sqlColumnType]];
+        try:
+            traitslist = [NAMESPACE + '::' + types[sqlColumnType]];
+        except KeyError as e:
+            print ('Error: datatype "'  + sqlColumnType + '"" is not supported. Implement it (examples: sqlpp11/data_types) or raise an issue on github')
         requireInsert = True
         if column.hasAutoValue:
             traitslist.append(NAMESPACE + '::tag::must_not_insert');
