@@ -141,8 +141,8 @@ git clone date library, needed connectors, cmake and make install them.
 
 __Create DDL files__:
 ``` 
-mysql: 'show create table MyDatabase.MyTable'
-mysqldump --no-data MyDatabase > MyDatabase.sql ca
+mysql: 'show create table MyDatabase.MyTable' #or
+mysqldump --no-data MyDatabase > MyDatabase.sql
 
 ```
 Create headers for them with provided python script:
