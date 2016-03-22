@@ -121,4 +121,5 @@ int main(int, char* [])
 {
   static_from();
   dynamic_from();
+  dynamic_from_add();
 }
