@@ -156,6 +156,7 @@ for create in tableCreations:
     tableTemplateParameters = tableClass
     print('  namespace ' + tableNamespace, file=header)
     print('  {', file=header)
+    DataTypeError = False;
     for column in create.columns:
         if column.isConstraint:
             continue
@@ -183,7 +184,11 @@ for create in tableCreations:
         print('            const T& operator()() const { return ' + columnMember + '; }', file=header)
         print('          };', file=header)
         print('      };', file=header)
-        traitslist = [NAMESPACE + '::' + types[sqlColumnType]];
+        try:
+            traitslist = [NAMESPACE + '::' + types[sqlColumnType]];
+        except KeyError as e:
+            print ('Error: datatype "'  + sqlColumnType + '"" is not supported.')
+            DataTypeError = True
         requireInsert = True
         if column.hasAutoValue:
             traitslist.append(NAMESPACE + '::tag::must_not_insert');
@@ -219,4 +224,10 @@ for create in tableCreations:
 
 print('}', file=header)
 print('#endif', file=header)
-
+if (DataTypeError):
+    print("Error: unsupported datatypes." )
+    print("Possible solutions:")
+    print("A) Implement this datatype (examples: sqlpp11/data_types)" )
+    print("B) Extend/upgrade ddl2cpp (edit types map)" )
+    print("C) Raise an issue on github" )
+    sys.exit(10) #return non-zero error code, we might need it for automation
