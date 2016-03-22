@@ -237,6 +237,8 @@ namespace
     join_dynamic_check<sqlpp::consistent_t>(f);
     join_dynamic_check<sqlpp::consistent_t>(ta);
     join_dynamic_check<sqlpp::consistent_t>(fa);
+    join_dynamic_check<sqlpp::consistent_t>(sqlpp::verbatim_table("tab_sample"));
+    join_dynamic_check<sqlpp::consistent_t>(sqlpp::verbatim_table("tab_sample").as(sqlpp::alias::a));
 
     // Try a bunch of non-tables
     join_dynamic_check<sqlpp::assert_dynamic_pre_join_table_t>(7);
@@ -252,6 +254,7 @@ namespace
     // Prepare a dynamic_pre_joins for tests:
     const auto tj = dynamic_join(t);
     const auto fj = dynamic_join(f);
+    const auto vj = dynamic_join(sqlpp::verbatim_table("tab_sample"));
 
     // OK dynamic_join.on()
     on_dynamic_check<sqlpp::consistent_t>(tj, t.alpha > f.omega);
@@ -271,6 +274,7 @@ namespace
     on_dynamic_check<sqlpp::consistent_t>(tj, ta.alpha != 0);
     on_dynamic_check<sqlpp::consistent_t>(tj, t.gamma);
     on_dynamic_check<sqlpp::consistent_t>(tj, f.omega > fa.omega);
+    on_dynamic_check<sqlpp::consistent_t>(vj, t.alpha < f.omega);
   }
 }
 

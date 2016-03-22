@@ -38,7 +38,7 @@ namespace sqlpp
     using _nodes = detail::type_vector<PreJoin, On>;
     using _can_be_null = std::false_type;
     using _provided_tables = provided_tables_of<PreJoin>;
-    using _required_tables = detail::type_set<>;
+    using _required_tables = detail::make_difference_set_t<required_tables_of<On>, _provided_tables>;
 
     static_assert(is_dynamic_pre_join_t<PreJoin>::value, "lhs argument for on() has to be a pre join");
     static_assert(required_tables_of<PreJoin>::size::value == 0, "joined tables must not depend on other tables");

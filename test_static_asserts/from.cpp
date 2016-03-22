@@ -110,6 +110,11 @@ namespace
     // Try cross joins (missing condition)
     from_dynamic_check<sqlpp::assert_from_not_pre_join_t>(t.join(f));
   }
+
+  void dynamic_from()
+  {
+#warning : need to add tests for dynamic_from(xxx).add(yyy)
+  }
 }
 
 int main(int, char* [])

@@ -91,6 +91,10 @@ namespace sqlpp
         using _joined_table_names = detail::make_name_of_set_t<_joined_tables>;
         static_assert(detail::is_disjunct_from<_joined_table_names, _known_table_names>::value,
                       "Must not use the same table name twice in from()");
+        using _required_tables = required_tables_of<DynamicJoin>;
+        static_assert(detail::is_subset_of<_required_tables, _known_tables>::value,
+                      "dynamic join condition depends on tables not statically known, use without_table_check() to "
+                      "express the intent");
         using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, DynamicJoin>;
         _serialize_check::_();
 
