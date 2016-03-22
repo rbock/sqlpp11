@@ -111,7 +111,7 @@ namespace
     from_dynamic_check<sqlpp::assert_from_not_pre_join_t>(t.join(f));
   }
 
-  void dynamic_from()
+  void dynamic_from_add()
   {
 #warning : need to add tests for dynamic_from(xxx).add(yyy)
   }
