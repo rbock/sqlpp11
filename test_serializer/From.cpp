@@ -112,7 +112,7 @@ int From(int, char* [])
   {
     auto dfa = df;
     dfa.from.add(dynamic_inner_join(bar).on(bar.alpha > foo.omega));
-    dfa.from.add(dynamic_outer_join(aFoo).on(bar.alpha > aFoo.omega));
+    dfa.from.add(dynamic_outer_join(aFoo).on(without_table_check(bar.alpha > aFoo.omega)));
     compare(__LINE__, dfa, " FROM tab_foo INNER JOIN tab_bar ON (tab_bar.alpha>tab_foo.omega) OUTER JOIN tab_foo AS a "
                            "ON (tab_bar.alpha>a.omega)");
   }
@@ -120,8 +120,9 @@ int From(int, char* [])
   // Dynamic joins involving verbatim table
   {
     auto dfa = df;
-    dfa.from.add(dynamic_inner_join(sqlpp::verbatim_table("unknown_table"))
-                     .on(bar.alpha > sqlpp::verbatim<sqlpp::floating_point>("unknown_table.column_x")));
+    dfa.from.add(
+        dynamic_inner_join(sqlpp::verbatim_table("unknown_table"))
+            .on(without_table_check(bar.alpha > sqlpp::verbatim<sqlpp::floating_point>("unknown_table.column_x"))));
     compare(__LINE__, dfa, " FROM tab_foo INNER JOIN unknown_table ON (tab_bar.alpha>unknown_table.column_x)");
   }
 
