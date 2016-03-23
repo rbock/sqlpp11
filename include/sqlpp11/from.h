@@ -57,6 +57,15 @@ namespace sqlpp
     interpretable_list_t<Database> _dynamic_tables;
   };
 
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_from_add_dynamic, "from::add() requires a dynamic_from");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_from_add_dynamic_join, "from::add(X) requires X to be a dynamic join");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_from_add_unique_names,
+                               "from::add() must not add table names already used in from");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_from_add_no_required_tables,
+                               "from::add():dynamic join condition depends on "
+                               "tables not statically known, use "
+                               "without_table_check() to express the intent");
+
   // FROM
   template <typename Database, typename Table>
   struct from_t
@@ -67,6 +76,29 @@ namespace sqlpp
 
     // Data
     using _data_t = from_data_t<Database, Table>;
+
+    template <typename DynamicJoin>
+    struct check_add
+    {
+      using _known_tables = provided_tables_of<Table>;  // Hint: Joins contain more than one table
+      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/feedback/details/2173198
+      //		using _known_table_names = detail::transform_set_t<name_of, _known_tables>;
+      using _known_table_names = detail::make_name_of_set_t<_known_tables>;
+      using _joined_tables = provided_tables_of<DynamicJoin>;
+      using _joined_table_names = detail::make_name_of_set_t<_joined_tables>;
+      using _required_tables = required_tables_of<DynamicJoin>;
+      using type = static_combined_check_t<
+          static_check_t<_is_dynamic::value, assert_from_add_dynamic>,
+          static_check_t<is_dynamic_join_t<DynamicJoin>::value, assert_from_add_dynamic_join>,
+          static_check_t<detail::is_disjunct_from<_joined_table_names, _known_table_names>::value,
+                         assert_from_add_unique_names>,
+          static_check_t<detail::is_subset_of<_required_tables, _known_tables>::value,
+                         assert_from_add_no_required_tables>,
+          sqlpp::serialize_check_t<typename Database::_serializer_context_t, DynamicJoin>>;
+    };
+
+    template <typename DynamicJoin>
+    using check_add_t = typename check_add<DynamicJoin>::type;
 
     // Member implementation with data and methods
     template <typename Policies>
@@ -79,28 +111,12 @@ namespace sqlpp
       }
 
       template <typename DynamicJoin>
-      void add(DynamicJoin dynamicJoin)
+      auto add(DynamicJoin dynamicJoin) ->
+          typename std::conditional<check_add_t<DynamicJoin>::value, void, bad_statement>::type
       {
-        static_assert(_is_dynamic::value, "from::add() must not be called for static from()");
-        static_assert(is_dynamic_join_t<DynamicJoin>::value, "invalid argument in from::add(), expected dynamic_join");
-        using _known_tables = provided_tables_of<Table>;  // Hint: Joins contain more than one table
-        // workaround for msvc bug https://connect.microsoft.com/VisualStudio/feedback/details/2173198
-        //		using _known_table_names = detail::transform_set_t<name_of, _known_tables>;
-        using _known_table_names = detail::make_name_of_set_t<_known_tables>;
-        using _joined_tables = provided_tables_of<DynamicJoin>;
-        using _joined_table_names = detail::make_name_of_set_t<_joined_tables>;
-        static_assert(detail::is_disjunct_from<_joined_table_names, _known_table_names>::value,
-                      "Must not use the same table name twice in from()");
-        using _required_tables = required_tables_of<DynamicJoin>;
-        static_assert(detail::is_subset_of<_required_tables, _known_tables>::value,
-                      "dynamic join condition depends on tables not statically known, use without_table_check() to "
-                      "express the intent");
-        using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, DynamicJoin>;
-        _serialize_check::_();
-
-        using ok = logic::all_t<_is_dynamic::value, is_table_t<DynamicJoin>::value, _serialize_check::type::value>;
-
-        _add_impl(dynamicJoin, ok());  // dispatch to prevent compile messages after the static_assert
+        using Check = check_add_t<DynamicJoin>;
+        Check::_();
+        return _add_impl(dynamicJoin, Check{});
       }
 
     private:
@@ -111,7 +127,7 @@ namespace sqlpp
       }
 
       template <typename DynamicJoin>
-      auto _add_impl(DynamicJoin dynamicJoin, const std::false_type&) -> void;
+      auto _add_impl(DynamicJoin dynamicJoin, const std::false_type&) -> bad_statement;
 
     public:
       _data_t _data;
