@@ -502,6 +502,24 @@ namespace sqlpp
 
   template <typename Statement, template <typename> class Predicate>
   using has_policy_t = typename has_policy_impl<Statement, Predicate>::type;
+
+  struct no_context_t
+  {
+  };
+  template <typename Db, typename = void>
+  struct serializer_context_of_impl
+  {
+    using type = no_context_t;
+  };
+
+  template <typename Db>
+  struct serializer_context_of_impl<Db, detail::void_t<typename Db::_serializer_context_t>>
+  {
+    using type = typename Db::_serializer_context_t;
+  };
+
+  template <typename Db>
+  using serializer_context_of = typename serializer_context_of_impl<Db>::type;
 }
 
 #endif
