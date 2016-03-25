@@ -27,8 +27,9 @@
 #ifndef _sqlpp__ppgen__colops__primary_key_h
 #define _sqlpp__ppgen__colops__primary_key_h
 
-#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_PRIMARY_KEY PROC_SQLPP_PRIMARY_KEY
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_PRIMARY_KEY \
+	PROC_SQLPP_PRIMARY_KEY
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_PRIMARY_KEY(...) \
-  ::sqlpp::tag::must_not_insert, ::sqlpp::tag::must_not_update
+  ::sqlpp::tag::must_not_update
 
 #endif  // _sqlpp__ppgen__colops__primary_key_h
