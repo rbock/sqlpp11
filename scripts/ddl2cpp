@@ -147,7 +147,7 @@ print('#include <' + INCLUDE + '/char_sequence.h>', file=header)
 print('', file=header)
 print('namespace ' + namespace, file=header)
 print('{', file=header)
-
+DataTypeError = False;
 for create in tableCreations:
     sqlTableName = create.tableName
     tableClass = toClassName(sqlTableName)
@@ -156,7 +156,6 @@ for create in tableCreations:
     tableTemplateParameters = tableClass
     print('  namespace ' + tableNamespace, file=header)
     print('  {', file=header)
-    DataTypeError = False;
     for column in create.columns:
         if column.isConstraint:
             continue
