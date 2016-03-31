@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -635,6 +635,20 @@ namespace sqlpp
       return context;
     }
   };
+
+  template <typename... Assignments>
+  auto insert_set(Assignments... assignments)
+      -> decltype(statement_t<void, no_insert_value_list_t>().set(assignments...))
+  {
+    return statement_t<void, no_insert_value_list_t>().set(assignments...);
+  }
+
+  template <typename Database, typename... Assignments>
+  auto dynamic_insert_set(Assignments... assignments)
+      -> decltype(statement_t<Database, no_insert_value_list_t>().dynamic_set(assignments...))
+  {
+    return statement_t<Database, no_insert_value_list_t>().dynamic_set(assignments...);
+  }
 }
 
 #endif
