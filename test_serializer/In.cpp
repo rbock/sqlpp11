@@ -44,10 +44,9 @@ int In(int, char* [])
   const auto bar = test::TabBar{};
 
   // Individual values
-  compare(__LINE__, foo.omega.in(foo.omega), "tab_foo.omega IN(tab_foo.omega)");
-  compare(__LINE__, foo.omega.in(foo.omega, bar.alpha), "tab_foo.omega IN(tab_foo.omega,tab_bar.alpha)");
-  compare(__LINE__, foo.omega.in(foo.omega, bar.alpha, sqlpp::value(17)),
-          "tab_foo.omega IN(tab_foo.omega,tab_bar.alpha,17)");
+  compare(__LINE__, foo.omega.in(17), "tab_foo.omega IN(17)");
+  compare(__LINE__, foo.omega.in(17, bar.alpha), "tab_foo.omega IN(17,tab_bar.alpha)");
+  compare(__LINE__, foo.omega.in(17, bar.alpha, sqlpp::value(19)), "tab_foo.omega IN(17,tab_bar.alpha,19)");
 
   // Lists
   compare(__LINE__, foo.omega.in(sqlpp::value_list(std::vector<float>{1.7f, 2.5f, 17.f, 0.f})),

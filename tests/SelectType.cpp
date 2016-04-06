@@ -358,7 +358,8 @@ int SelectType(int, char* [])
   static_assert(sqlpp::is_numeric_t<T>::value, "T has to be numeric");
   static_assert(sqlpp::is_numeric_t<decltype(t.alpha)>::value, "TabBar.alpha has to be a numeric");
   ((t.alpha + 7) + 4).asc();
-  static_assert(sqlpp::is_boolean_t<decltype(t.gamma == t.gamma)>::value, "Comparison expression have to be boolean");
+  static_assert(sqlpp::is_boolean_t<decltype(t.gamma != not(t.gamma))>::value,
+                "Comparison expression have to be boolean");
   !t.gamma;
   serialize(t.beta < "kaesekuchen", printer).str();
   serialize(t.beta + "hallenhalma", printer).str();

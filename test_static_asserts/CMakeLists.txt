@@ -36,5 +36,7 @@ test_compile(where)
 test_compile(insert)
 test_compile(date)
 test_compile(date_time)
+test_compile(text)
+test_compile(no_self_compare)
 test_compile(unwrapped_bool)
 
