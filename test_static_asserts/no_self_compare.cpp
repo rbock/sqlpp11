@@ -44,7 +44,7 @@ namespace
   }
 
   template <typename Assert, typename Operand>
-  void static_check_comparison(const Operand& operand)
+  void static_check_self_compare(const Operand& operand)
   {
     using CheckResult = sqlpp::check_rhs_comparison_operand_t<Operand, Operand>;
     using ExpectedCheckResult = std::is_same<CheckResult, Assert>;
@@ -63,12 +63,23 @@ namespace
 
   void disallowed_self_comparison()
   {
-    // static_check_comparison<sqlpp::assert_comparison_valid_rhs_operand_t>(t.someString);
+    static_check_self_compare<sqlpp::assert_comparison_lhs_rhs_differ_t>(t.someString);
+    static_check_self_compare<sqlpp::assert_comparison_lhs_rhs_differ_t>(t.someInt);
+    static_check_self_compare<sqlpp::assert_comparison_lhs_rhs_differ_t>(t.someFloat);
+    static_check_self_compare<sqlpp::assert_comparison_lhs_rhs_differ_t>(t.someBool);
+    static_check_self_compare<sqlpp::assert_comparison_lhs_rhs_differ_t>(t.someDayPoint);
+    static_check_self_compare<sqlpp::assert_comparison_lhs_rhs_differ_t>(t.someTimePoint);
+    static_check_self_compare<sqlpp::assert_comparison_lhs_rhs_differ_t>(t.otherString);
+    static_check_self_compare<sqlpp::assert_comparison_lhs_rhs_differ_t>(t.otherInt);
+    static_check_self_compare<sqlpp::assert_comparison_lhs_rhs_differ_t>(t.otherFloat);
+    static_check_self_compare<sqlpp::assert_comparison_lhs_rhs_differ_t>(t.otherBool);
+    static_check_self_compare<sqlpp::assert_comparison_lhs_rhs_differ_t>(t.otherDayPoint);
+    static_check_self_compare<sqlpp::assert_comparison_lhs_rhs_differ_t>(t.otherTimePoint);
   }
 }
 
 int main(int, char* [])
 {
-  t.someString == t.someString;
-  // disallowed_self_comparison();
+  // t.someString == t.someString;
+  disallowed_self_comparison();
 }

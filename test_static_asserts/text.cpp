@@ -66,9 +66,9 @@ namespace
   void allowed_comparands()
   {
     static_check_comparison<sqlpp::consistent_t>("");
-    static_check_comparison<sqlpp::consistent_t>('d');
+    // static_check_comparison<sqlpp::consistent_t>('d'); // not today
     static_check_comparison<sqlpp::consistent_t>(std::string(""));
-    static_check_comparison<sqlpp::consistent_t>(t.otherText);
+    static_check_comparison<sqlpp::consistent_t>(t.otherString);
   }
 
   void disallowed_comparands()
@@ -82,12 +82,32 @@ namespace
     static_check_comparison<sqlpp::assert_comparison_valid_rhs_operand_t>(t.someDayPoint);
     static_check_comparison<sqlpp::assert_comparison_valid_rhs_operand_t>(t.someTimePoint);
   }
+
+  template <typename Expected, typename Expression>
+  void static_check_type()
+  {
+    static_assert(std::is_same<Expected, Expression>::value, "Unexpected check result");
+  }
+
+  auto check_expressions() -> void
+  {
+    static_check_type<sqlpp::bad_expression<sqlpp::text>, decltype(t.someString + 1)>();
+    static_check_type<sqlpp::bad_expression<sqlpp::text>, decltype(t.someString - 1)>();
+    static_check_type<sqlpp::bad_expression<sqlpp::text>, decltype(t.someString - "")>();
+    static_check_type<sqlpp::bad_expression<sqlpp::text>, decltype(t.someString * 1)>();
+    static_check_type<sqlpp::bad_expression<sqlpp::text>, decltype(t.someString * "")>();
+    static_check_type<sqlpp::bad_expression<sqlpp::text>, decltype(t.someString / 1)>();
+    static_check_type<sqlpp::bad_expression<sqlpp::text>, decltype(t.someString / "")>();
+    static_check_type<sqlpp::bad_expression<sqlpp::text>, decltype(t.someString % 1)>();
+    static_check_type<sqlpp::bad_expression<sqlpp::text>, decltype(t.someString % "")>();
+    static_check_type<sqlpp::bad_expression<sqlpp::text>, decltype(-t.someString)>();
+    static_check_type<sqlpp::bad_expression<sqlpp::text>, decltype(+t.someString)>();
+  }
 }
 
 int main(int, char* [])
 {
-#error : This must fail:
-  t.someString + 1;
   allowed_comparands();
   disallowed_comparands();
+  check_expressions();
 }

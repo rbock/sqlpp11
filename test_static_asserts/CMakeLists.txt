@@ -23,7 +23,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 function(test_compile name)
-  set(target sqlpp11_${name})
+  set(target sqlpp11_assert_${name})
   add_executable(${target} ${name}.cpp)
   target_link_libraries(${target} PRIVATE sqlpp11 sqlpp11_testing)
 endfunction()
