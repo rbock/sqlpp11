@@ -211,7 +211,7 @@ namespace sqlpp
     template <typename... T>
     typename _new_nary_expression<in_t, T...>::type in(T... t) const
     {
-      check_rhs_in_arguments_t<Expr, wrap_operand_t<T>...>::_();
+      static_combined_check_t<check_rhs_comparison_operand_t<Expr, T>...>::_();
       return {*static_cast<const Expr*>(this), typename wrap_operand<T>::type{t}...};
     }
 
@@ -225,7 +225,7 @@ namespace sqlpp
     template <typename... T>
     typename _new_nary_expression<not_in_t, T...>::type not_in(T... t) const
     {
-      check_rhs_in_arguments_t<Expr, wrap_operand_t<T>...>::_();
+      static_combined_check_t<check_rhs_comparison_operand_t<Expr, T>...>::_();
       return {*static_cast<const Expr*>(this), typename wrap_operand<T>::type{t}...};
     }
 
