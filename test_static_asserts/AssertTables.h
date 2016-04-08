@@ -142,6 +142,28 @@ namespace test
       };
       using _traits = sqlpp::make_traits<sqlpp::time_point, sqlpp::tag::can_be_null>;
     };
+    struct OtherString
+    {
+      struct _alias_t
+      {
+        static constexpr const char _literal[] = "other_string";
+        using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+        template <typename T>
+        struct _member_t
+        {
+          T otherString;
+          T& operator()()
+          {
+            return otherString;
+          }
+          const T& operator()() const
+          {
+            return otherString;
+          }
+        };
+      };
+      using _traits = sqlpp::make_traits<sqlpp::varchar, sqlpp::tag::can_be_null>;
+    };
     struct OtherInt
     {
       struct _alias_t
@@ -261,6 +283,7 @@ namespace test
                                       TabAllTypes_::SomeBool,
                                       TabAllTypes_::SomeDayPoint,
                                       TabAllTypes_::SomeTimePoint,
+                                      TabAllTypes_::OtherString,
                                       TabAllTypes_::OtherInt,
                                       TabAllTypes_::OtherFloat,
                                       TabAllTypes_::OtherBool,

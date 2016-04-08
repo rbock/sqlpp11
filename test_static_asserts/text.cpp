@@ -46,16 +46,16 @@ namespace
   template <typename Assert, typename Operand>
   void static_check_comparison(const Operand& operand)
   {
-    using CheckResult = sqlpp::check_rhs_comparison_operand_t<decltype(t.someTimePoint), Operand>;
+    using CheckResult = sqlpp::check_rhs_comparison_operand_t<decltype(t.someString), Operand>;
     using ExpectedCheckResult = std::is_same<CheckResult, Assert>;
     static_assert(ExpectedCheckResult::value, "Unexpected check result");
     print_type_on_error<CheckResult>(ExpectedCheckResult{});
 
     using ReturnType = sqlpp::detail::make_type_set_t<
-        decltype(t.someTimePoint < operand), decltype(t.someTimePoint <= operand), decltype(t.someTimePoint == operand),
-        decltype(t.someTimePoint != operand), decltype(t.someTimePoint >= operand), decltype(t.someTimePoint > operand),
-        decltype(t.someTimePoint.in(operand)), decltype(t.someTimePoint.in(operand, operand)),
-        decltype(t.someTimePoint.not_in(operand)), decltype(t.someTimePoint.not_in(operand, operand))>;
+        decltype(t.someString < operand), decltype(t.someString <= operand), decltype(t.someString == operand),
+        decltype(t.someString != operand), decltype(t.someString >= operand), decltype(t.someString > operand),
+        decltype(t.someString.in(operand)), decltype(t.someString.in(operand, operand)),
+        decltype(t.someString.not_in(operand)), decltype(t.someString.not_in(operand, operand))>;
     using ExpectedReturnType =
         sqlpp::logic::all_t<Assert::value xor
                             std::is_same<ReturnType, sqlpp::detail::type_set<sqlpp::bad_statement>>::value>;
@@ -65,22 +65,43 @@ namespace
 
   void allowed_comparands()
   {
-    static_check_comparison<sqlpp::consistent_t>(std::chrono::system_clock::now());
-    static_check_comparison<sqlpp::consistent_t>(t.someDayPoint);
-    static_check_comparison<sqlpp::consistent_t>(t.otherDayPoint);
-    static_check_comparison<sqlpp::consistent_t>(t.otherTimePoint);
+    static_check_comparison<sqlpp::consistent_t>("");
+    // static_check_comparison<sqlpp::consistent_t>('d'); // not today
+    static_check_comparison<sqlpp::consistent_t>(std::string(""));
+    static_check_comparison<sqlpp::consistent_t>(t.otherString);
   }
 
   void disallowed_comparands()
   {
     static_check_comparison<sqlpp::assert_comparison_valid_rhs_operand_t>(17);
-    static_check_comparison<sqlpp::assert_comparison_valid_rhs_operand_t>('a');
-    static_check_comparison<sqlpp::assert_comparison_valid_rhs_operand_t>(std::string("a"));
+    static_check_comparison<sqlpp::assert_comparison_valid_rhs_operand_t>(17.4);
     static_check_comparison<sqlpp::assert_comparison_valid_rhs_operand_t>(t);
     static_check_comparison<sqlpp::assert_comparison_valid_rhs_operand_t>(t.someBool);
     static_check_comparison<sqlpp::assert_comparison_valid_rhs_operand_t>(t.someFloat);
     static_check_comparison<sqlpp::assert_comparison_valid_rhs_operand_t>(t.someInt);
-    static_check_comparison<sqlpp::assert_comparison_valid_rhs_operand_t>(t.someString);
+    static_check_comparison<sqlpp::assert_comparison_valid_rhs_operand_t>(t.someDayPoint);
+    static_check_comparison<sqlpp::assert_comparison_valid_rhs_operand_t>(t.someTimePoint);
+  }
+
+  template <typename Expected, typename Expression>
+  void static_check_type()
+  {
+    static_assert(std::is_same<Expected, Expression>::value, "Unexpected check result");
+  }
+
+  auto check_expressions() -> void
+  {
+    static_check_type<sqlpp::bad_expression<sqlpp::text>, decltype(t.someString + 1)>();
+    static_check_type<sqlpp::bad_expression<sqlpp::text>, decltype(t.someString - 1)>();
+    static_check_type<sqlpp::bad_expression<sqlpp::text>, decltype(t.someString - "")>();
+    static_check_type<sqlpp::bad_expression<sqlpp::text>, decltype(t.someString * 1)>();
+    static_check_type<sqlpp::bad_expression<sqlpp::text>, decltype(t.someString * "")>();
+    static_check_type<sqlpp::bad_expression<sqlpp::text>, decltype(t.someString / 1)>();
+    static_check_type<sqlpp::bad_expression<sqlpp::text>, decltype(t.someString / "")>();
+    static_check_type<sqlpp::bad_expression<sqlpp::text>, decltype(t.someString % 1)>();
+    static_check_type<sqlpp::bad_expression<sqlpp::text>, decltype(t.someString % "")>();
+    static_check_type<sqlpp::bad_expression<sqlpp::text>, decltype(-t.someString)>();
+    static_check_type<sqlpp::bad_expression<sqlpp::text>, decltype(+t.someString)>();
   }
 }
 
@@ -88,4 +109,5 @@ int main(int, char* [])
 {
   allowed_comparands();
   disallowed_comparands();
+  check_expressions();
 }
