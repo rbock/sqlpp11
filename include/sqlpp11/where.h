@@ -392,10 +392,10 @@ namespace sqlpp
     }
   };
 
-  template <typename... T>
-  auto where(T&&... t) -> decltype(statement_t<void, no_where_t<false>>().where(std::forward<T>(t)...))
+  template <typename T>
+  auto where(T&& t) -> decltype(statement_t<void, no_where_t<false>>().where(std::forward<T>(t)))
   {
-    return statement_t<void, no_where_t<false>>().where(std::forward<T>(t)...);
+    return statement_t<void, no_where_t<false>>().where(std::forward<T>(t));
   }
 }
 

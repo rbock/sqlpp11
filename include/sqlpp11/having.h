@@ -56,10 +56,11 @@ namespace sqlpp
   };
 
   SQLPP_PORTABLE_STATIC_ASSERT(
-      assert_no_unknown_tables_in_having_t,
+      assert_having_no_unknown_tables_t,
       "at least one having-expression requires a table which is otherwise not known in the statement");
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_no_non_aggregates_t, "having expression not built out of aggregate expressions");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_having_no_non_aggregates_t,
+                               "having expression not built out of aggregate expressions");
 
   // HAVING
   template <typename Database, typename Expression>
@@ -143,15 +144,43 @@ namespace sqlpp
 
       using _table_check = typename std::conditional<Policies::template _no_unknown_tables<having_t>::value,
                                                      consistent_t,
-                                                     assert_no_unknown_tables_in_having_t>::type;
+                                                     assert_having_no_unknown_tables_t>::type;
 
       using _aggregate_check = typename std::conditional<Policies::template _no_non_aggregates<Expression>::value,
                                                          consistent_t,
-                                                         assert_no_non_aggregates_t>::type;
+                                                         assert_having_no_non_aggregates_t>::type;
 
       using _consistency_check = detail::get_first_if<is_inconsistent_t, consistent_t, _table_check, _aggregate_check>;
     };
   };
+
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_having_not_cpp_bool_t,
+                               "having() argument has to be an sqlpp boolean expression. Please use "
+                               "sqlpp::value(bool_expresson) if you really want to use a bool value here");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_having_boolean_expression_t,
+                               "having() argument has to be an sqlpp boolean expression.");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_having_dynamic_statement_dynamic_t,
+                               "dynamic_having() must not be called in a static statement");
+
+  template <typename Expression>
+  struct check_having
+  {
+    using type =
+        static_combined_check_t<static_check_t<is_not_cpp_bool_t<Expression>::value, assert_having_not_cpp_bool_t>,
+                                static_check_t<is_expression_t<Expression>::value, assert_having_boolean_expression_t>,
+                                static_check_t<is_boolean_t<Expression>::value, assert_having_boolean_expression_t>>;
+  };
+
+  template <typename Expression>
+  using check_having_t = typename check_having<Expression>::type;
+
+  template <typename Expression>
+  using check_having_static_t = check_having_t<Expression>;
+
+  template <typename Database, typename Expression>
+  using check_having_dynamic_t = static_combined_check_t<
+      static_check_t<not std::is_same<Database, void>::value, assert_having_dynamic_statement_dynamic_t>,
+      check_having_t<Expression>>;
 
   // NO HAVING YET
   struct no_having_t
@@ -220,24 +249,27 @@ namespace sqlpp
       using _consistency_check = consistent_t;
 
       template <typename Expression>
-      auto having(Expression expression) const -> _new_statement_t<_check<Expression>, having_t<void, Expression>>
+      auto having(Expression expression) const
+          -> _new_statement_t<check_having_static_t<Expression>, having_t<void, Expression>>
       {
-        static_assert(_check<Expression>::value, "at least one argument is not an expression in having()");
+        using Check = check_having_static_t<Expression>;
+        Check{}._();
 
-        return _having_impl<void>(_check<Expression>{}, expression);
+        return _having_impl<void>(Check{}, expression);
       }
 
       template <typename Expression>
       auto dynamic_having(Expression expression) const
-          -> _new_statement_t<_check<Expression>, having_t<_database_t, Expression>>
+          -> _new_statement_t<check_having_dynamic_t<_database_t, Expression>, having_t<_database_t, Expression>>
       {
-        static_assert(_check<Expression>::value, "at least one argument is not an expression in having()");
-        static_assert(not std::is_same<_database_t, void>::value,
-                      "dynamic_having must not be called in a static statement");
-        return _having_impl<_database_t>(_check<Expression>{}, expression);
+        using Check = check_having_dynamic_t<_database_t, Expression>;
+        Check{}._();
+
+        return _having_impl<_database_t>(Check{}, expression);
       }
 
-      auto dynamic_having() const -> _new_statement_t<_check<boolean_operand>, having_t<_database_t, boolean_operand>>
+      auto dynamic_having() const -> _new_statement_t<check_where_dynamic_t<_database_t, boolean_operand>,
+                                                      having_t<_database_t, boolean_operand>>
       {
         return dynamic_having(::sqlpp::value(true));
       }
@@ -273,6 +305,12 @@ namespace sqlpp
       return context;
     }
   };
+
+  template <typename T>
+  auto having(T&& t) -> decltype(statement_t<void, no_having_t>().having(std::forward<T>(t)))
+  {
+    return statement_t<void, no_having_t>().having(std::forward<T>(t));
+  }
 }
 
 #endif
