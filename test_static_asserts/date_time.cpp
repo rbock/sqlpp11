@@ -46,7 +46,7 @@ namespace
   template <typename Assert, typename Operand>
   void static_check_comparison(const Operand& operand)
   {
-    using CheckResult = sqlpp::check_rhs_comparison_operand_t<decltype(t.someTimePoint), Operand>;
+    using CheckResult = sqlpp::check_comparison_t<decltype(t.someTimePoint), Operand>;
     using ExpectedCheckResult = std::is_same<CheckResult, Assert>;
     static_assert(ExpectedCheckResult::value, "Unexpected check result");
     print_type_on_error<CheckResult>(ExpectedCheckResult{});
@@ -73,14 +73,14 @@ namespace
 
   void disallowed_comparands()
   {
-    static_check_comparison<sqlpp::assert_comparison_valid_rhs_operand_t>(17);
-    static_check_comparison<sqlpp::assert_comparison_valid_rhs_operand_t>('a');
-    static_check_comparison<sqlpp::assert_comparison_valid_rhs_operand_t>(std::string("a"));
-    static_check_comparison<sqlpp::assert_comparison_valid_rhs_operand_t>(t);
-    static_check_comparison<sqlpp::assert_comparison_valid_rhs_operand_t>(t.someBool);
-    static_check_comparison<sqlpp::assert_comparison_valid_rhs_operand_t>(t.someFloat);
-    static_check_comparison<sqlpp::assert_comparison_valid_rhs_operand_t>(t.someInt);
-    static_check_comparison<sqlpp::assert_comparison_valid_rhs_operand_t>(t.someString);
+    static_check_comparison<sqlpp::assert_comparison_rhs_is_valid_operand_t>(17);
+    static_check_comparison<sqlpp::assert_comparison_rhs_is_valid_operand_t>('a');
+    static_check_comparison<sqlpp::assert_comparison_rhs_is_valid_operand_t>(std::string("a"));
+    static_check_comparison<sqlpp::assert_comparison_rhs_is_expression_t>(t);
+    static_check_comparison<sqlpp::assert_comparison_rhs_is_valid_operand_t>(t.someBool);
+    static_check_comparison<sqlpp::assert_comparison_rhs_is_valid_operand_t>(t.someFloat);
+    static_check_comparison<sqlpp::assert_comparison_rhs_is_valid_operand_t>(t.someInt);
+    static_check_comparison<sqlpp::assert_comparison_rhs_is_valid_operand_t>(t.someString);
   }
 }
 
