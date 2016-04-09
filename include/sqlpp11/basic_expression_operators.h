@@ -42,7 +42,7 @@
 namespace sqlpp
 {
   SQLPP_PORTABLE_STATIC_ASSERT(assert_comparison_valid_rhs_operand_t, "invalid rhs operand in comparison");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_comparison_lhs_rhs_differ_t, "identical lhs and rhs operand types in comparison");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_comparison_lhs_rhs_differ_t, "identical lhs and rhs operands in comparison");
 
   template <typename LhsType, typename RhsType>
   using check_rhs_comparison_operand_t = static_combined_check_t<
@@ -56,8 +56,10 @@ namespace sqlpp
                      assert_comparison_valid_rhs_operand_t>,
       static_check_t<not std::is_same<LhsType, RhsType>::value, assert_comparison_lhs_rhs_differ_t>>;
 
-  template <typename LhsType, typename... InTypes>
-  using check_rhs_in_arguments_t = static_combined_check_t<check_rhs_comparison_operand_t<LhsType, InTypes>...>;
+  template <typename LhsType, typename... RhsType>
+  using check_rhs_in_operands_t = static_combined_check_t<
+      static_combined_check_t<static_check_t<is_expression_t<sqlpp::wrap_operand_t<RhsType>>::value,
+                                             assert_comparison_valid_rhs_operand_t>...>>;
 
   namespace detail
   {
@@ -211,7 +213,7 @@ namespace sqlpp
     template <typename... T>
     typename _new_nary_expression<in_t, T...>::type in(T... t) const
     {
-      static_combined_check_t<check_rhs_comparison_operand_t<Expr, T>...>::_();
+      check_rhs_in_operands_t<Expr, T...>::_();
       return {*static_cast<const Expr*>(this), typename wrap_operand<T>::type{t}...};
     }
 
@@ -225,7 +227,7 @@ namespace sqlpp
     template <typename... T>
     typename _new_nary_expression<not_in_t, T...>::type not_in(T... t) const
     {
-      static_combined_check_t<check_rhs_comparison_operand_t<Expr, T>...>::_();
+      check_rhs_in_operands_t<Expr, T...>::_();
       return {*static_cast<const Expr*>(this), typename wrap_operand<T>::type{t}...};
     }
 
