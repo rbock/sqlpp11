@@ -46,7 +46,7 @@ namespace
   template <typename Assert, typename Operand>
   void static_check_self_compare(const Operand& operand)
   {
-    using CheckResult = sqlpp::check_rhs_comparison_operand_t<Operand, Operand>;
+    using CheckResult = sqlpp::check_comparison_t<Operand, Operand>;
     using ExpectedCheckResult = std::is_same<CheckResult, Assert>;
     static_assert(ExpectedCheckResult::value, "Unexpected check result");
     print_type_on_error<CheckResult>(ExpectedCheckResult{});

@@ -41,23 +41,28 @@
 
 namespace sqlpp
 {
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_comparison_valid_rhs_operand_t, "invalid rhs operand in comparison");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_comparison_lhs_rhs_differ_t, "identical lhs and rhs operand types in comparison");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_comparison_rhs_is_expression_t, "rhs operand in comparison is not an expression");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_comparison_rhs_is_valid_operand_t, "invalid rhs operand in comparison");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_comparison_lhs_rhs_differ_t, "identical lhs and rhs operands in comparison");
 
   template <typename LhsType, typename RhsType>
-  using check_rhs_comparison_operand_t = static_combined_check_t<
-      static_check_t<(is_expression_t<sqlpp::wrap_operand_t<RhsType>>::value  // expressions are OK
-                      or
-                      is_multi_expression_t<sqlpp::wrap_operand_t<RhsType>>::value)  // multi-expressions like ANY are
-                                                                                     // OK for comparisons, too
-                         and
-                         value_type_of<LhsType>::template _is_valid_operand<
-                             sqlpp::wrap_operand_t<RhsType>>::value,  // the correct value type is required, of course
-                     assert_comparison_valid_rhs_operand_t>,
+  using check_comparison_t = static_combined_check_t<
+      static_check_t<logic::any_t<is_expression_t<sqlpp::wrap_operand_t<RhsType>>::value,
+                                  is_multi_expression_t<sqlpp::wrap_operand_t<RhsType>>::value>::value,
+                     assert_comparison_rhs_is_expression_t>,
+      static_check_t<value_type_of<LhsType>::template _is_valid_operand<sqlpp::wrap_operand_t<RhsType>>::value,
+                     assert_comparison_rhs_is_valid_operand_t>,
       static_check_t<not std::is_same<LhsType, RhsType>::value, assert_comparison_lhs_rhs_differ_t>>;
 
-  template <typename LhsType, typename... InTypes>
-  using check_rhs_in_arguments_t = static_combined_check_t<check_rhs_comparison_operand_t<LhsType, InTypes>...>;
+  template <typename LhsType, typename... RhsType>
+  using check_in_t = static_combined_check_t<
+      static_check_t<logic::all_t<is_expression_t<sqlpp::wrap_operand_t<RhsType>>::value...>::value,
+                     assert_comparison_rhs_is_expression_t>,
+      static_check_t<logic::all_t<value_type_of<LhsType>::template _is_valid_operand<
+                         sqlpp::wrap_operand_t<RhsType>>::value...>::value,
+                     assert_comparison_rhs_is_valid_operand_t>,
+      static_check_t<logic::none_t<std::is_same<LhsType, RhsType>::value...>::value,
+                     assert_comparison_lhs_rhs_differ_t>>;
 
   namespace detail
   {
@@ -100,10 +105,8 @@ namespace sqlpp
     template <template <typename Lhs, typename Rhs> class NewExpr, typename T>
     struct _new_binary_expression
     {
-      using type = new_binary_expression_t<check_rhs_comparison_operand_t<Expr, wrap_operand_t<T>>,
-                                           NewExpr,
-                                           Expr,
-                                           wrap_operand_t<T>>;
+      using type =
+          new_binary_expression_t<check_comparison_t<Expr, wrap_operand_t<T>>, NewExpr, Expr, wrap_operand_t<T>>;
     };
     template <template <typename Lhs, typename Rhs> class NewExpr, typename T>
     using _new_binary_expression_t = typename _new_binary_expression<NewExpr, T>::type;
@@ -111,7 +114,7 @@ namespace sqlpp
     // workaround for msvs bug
     //	template <template <typename Lhs, typename... Rhs> class NewExpr, typename... T>
     //    using _new_nary_expression_t =
-    //        new_nary_expression_t<logic::all_t<check_rhs_comparison_operand_t<
+    //        new_nary_expression_t<logic::all_t<check_comparison_t<
     //                              wrap_operand_t<T>>::value...>,
     //                              NewExpr,
     //                              Expr,
@@ -119,18 +122,17 @@ namespace sqlpp
     template <template <typename Lhs, typename... Rhs> class NewExpr, typename... T>
     struct _new_nary_expression
     {
-      using type =
-          new_nary_expression_t<logic::all_t<check_rhs_comparison_operand_t<Expr, wrap_operand_t<T>>::value...>,
-                                NewExpr,
-                                Expr,
-                                wrap_operand_t<T>...>;
+      using type = new_nary_expression_t<logic::all_t<check_comparison_t<Expr, wrap_operand_t<T>>::value...>,
+                                         NewExpr,
+                                         Expr,
+                                         wrap_operand_t<T>...>;
     };
 
     template <typename T>
     _new_binary_expression_t<equal_to_t, T> operator==(T t) const
     {
       using rhs = wrap_operand_t<T>;
-      check_rhs_comparison_operand_t<Expr, rhs>::_();
+      check_comparison_t<Expr, rhs>::_();
 
       return {*static_cast<const Expr*>(this), rhs{t}};
     }
@@ -139,7 +141,7 @@ namespace sqlpp
     _new_binary_expression_t<not_equal_to_t, T> operator!=(T t) const
     {
       using rhs = wrap_operand_t<T>;
-      check_rhs_comparison_operand_t<Expr, rhs>::_();
+      check_comparison_t<Expr, rhs>::_();
 
       return {*static_cast<const Expr*>(this), rhs{t}};
     }
@@ -148,7 +150,7 @@ namespace sqlpp
     _new_binary_expression_t<less_than_t, T> operator<(T t) const
     {
       using rhs = wrap_operand_t<T>;
-      check_rhs_comparison_operand_t<Expr, rhs>::_();
+      check_comparison_t<Expr, rhs>::_();
 
       return {*static_cast<const Expr*>(this), rhs{t}};
     }
@@ -157,7 +159,7 @@ namespace sqlpp
     _new_binary_expression_t<less_equal_t, T> operator<=(T t) const
     {
       using rhs = wrap_operand_t<T>;
-      check_rhs_comparison_operand_t<Expr, rhs>::_();
+      check_comparison_t<Expr, rhs>::_();
 
       return {*static_cast<const Expr*>(this), rhs{t}};
     }
@@ -166,7 +168,7 @@ namespace sqlpp
     _new_binary_expression_t<greater_than_t, T> operator>(T t) const
     {
       using rhs = wrap_operand_t<T>;
-      check_rhs_comparison_operand_t<Expr, rhs>::_();
+      check_comparison_t<Expr, rhs>::_();
 
       return {*static_cast<const Expr*>(this), rhs{t}};
     }
@@ -175,7 +177,7 @@ namespace sqlpp
     _new_binary_expression_t<greater_equal_t, T> operator>=(T t) const
     {
       using rhs = wrap_operand_t<T>;
-      check_rhs_comparison_operand_t<Expr, rhs>::_();
+      check_comparison_t<Expr, rhs>::_();
 
       return {*static_cast<const Expr*>(this), rhs{t}};
     }
@@ -211,7 +213,7 @@ namespace sqlpp
     template <typename... T>
     typename _new_nary_expression<in_t, T...>::type in(T... t) const
     {
-      static_combined_check_t<check_rhs_comparison_operand_t<Expr, T>...>::_();
+      check_in_t<Expr, T...>::_();
       return {*static_cast<const Expr*>(this), typename wrap_operand<T>::type{t}...};
     }
 
@@ -225,7 +227,7 @@ namespace sqlpp
     template <typename... T>
     typename _new_nary_expression<not_in_t, T...>::type not_in(T... t) const
     {
-      static_combined_check_t<check_rhs_comparison_operand_t<Expr, T>...>::_();
+      check_in_t<Expr, T...>::_();
       return {*static_cast<const Expr*>(this), typename wrap_operand<T>::type{t}...};
     }
 
