@@ -58,8 +58,8 @@ namespace sqlpp
 
   template <typename LhsType, typename... RhsType>
   using check_rhs_in_operands_t = static_combined_check_t<
-      static_combined_check_t<static_check_t<is_expression_t<sqlpp::wrap_operand_t<RhsType>>::value,
-                                             assert_comparison_valid_rhs_operand_t>...>>;
+      static_check_t<logic::all_t<is_expression_t<sqlpp::wrap_operand_t<RhsType>>::value...>::value,
+                     assert_comparison_valid_rhs_operand_t>>;
 
   namespace detail
   {
