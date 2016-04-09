@@ -56,9 +56,9 @@ namespace
         decltype(t.someTimePoint != operand), decltype(t.someTimePoint >= operand), decltype(t.someTimePoint > operand),
         decltype(t.someTimePoint.in(operand)), decltype(t.someTimePoint.in(operand, operand)),
         decltype(t.someTimePoint.not_in(operand)), decltype(t.someTimePoint.not_in(operand, operand))>;
-    using ExpectedReturnType =
-        sqlpp::logic::all_t<Assert::value xor
-                            std::is_same<ReturnType, sqlpp::detail::type_set<sqlpp::bad_statement>>::value>;
+    using ExpectedReturnType = sqlpp::logic::all_t<
+        Assert::value xor
+        std::is_same<ReturnType, sqlpp::detail::type_set<sqlpp::bad_expression<sqlpp::boolean>>>::value>;
     static_assert(ExpectedReturnType::value, "Unexpected return type");
     print_type_on_error<ReturnType>(ExpectedReturnType{});
   }

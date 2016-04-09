@@ -28,7 +28,7 @@
 #define SQLPP_DETAIL_BASIC_EXPRESSION_OPERATORS_H
 
 #include <sqlpp11/value_type_fwd.h>
-#include <sqlpp11/bad_statement.h>
+#include <sqlpp11/bad_expression.h>
 #include <sqlpp11/portable_static_assert.h>
 #include <sqlpp11/consistent.h>
 #include <sqlpp11/alias.h>
@@ -69,7 +69,7 @@ namespace sqlpp
     template <bool Enable, template <typename Lhs, typename Rhs> class Expr, typename Lhs, typename Rhs>
     struct new_binary_expression_impl
     {
-      using type = bad_statement;
+      using type = bad_expression<boolean>;
     };
 
     template <template <typename Lhs, typename Rhs> class Expr, typename Lhs, typename Rhs>
@@ -86,7 +86,7 @@ namespace sqlpp
     template <bool Enable, template <typename Lhs, typename... Rhs> class Expr, typename Lhs, typename... Rhs>
     struct new_nary_expression_impl
     {
-      using type = bad_statement;
+      using type = bad_expression<boolean>;
     };
 
     template <template <typename Lhs, typename... Rhs> class Expr, typename Lhs, typename... Rhs>
@@ -111,21 +111,10 @@ namespace sqlpp
     template <template <typename Lhs, typename Rhs> class NewExpr, typename T>
     using _new_binary_expression_t = typename _new_binary_expression<NewExpr, T>::type;
 
-    // workaround for msvs bug
-    //	template <template <typename Lhs, typename... Rhs> class NewExpr, typename... T>
-    //    using _new_nary_expression_t =
-    //        new_nary_expression_t<logic::all_t<check_comparison_t<
-    //                              wrap_operand_t<T>>::value...>,
-    //                              NewExpr,
-    //                              Expr,
-    //                              wrap_operand_t<T>...>;
     template <template <typename Lhs, typename... Rhs> class NewExpr, typename... T>
     struct _new_nary_expression
     {
-      using type = new_nary_expression_t<logic::all_t<check_comparison_t<Expr, wrap_operand_t<T>>::value...>,
-                                         NewExpr,
-                                         Expr,
-                                         wrap_operand_t<T>...>;
+      using type = new_nary_expression_t<check_in_t<Expr, wrap_operand_t<T>...>, NewExpr, Expr, wrap_operand_t<T>...>;
     };
 
     template <typename T>
@@ -202,14 +191,6 @@ namespace sqlpp
       return {*static_cast<const Expr*>(this)};
     }
 
-    // Hint: use value_list wrapper for containers...
-    // workaround for msvs bug
-    //	template <typename... T>
-    //	_new_nary_expression_t<in_t, T...> in(T... t) const
-    //	{
-    //		check_rhs_in_arguments_t<Expr, wrap_operand_t<T>...>::_();
-    //		return {*static_cast<const Expr*>(this), wrap_operand_t<T>{t}...};
-    //	}
     template <typename... T>
     typename _new_nary_expression<in_t, T...>::type in(T... t) const
     {
@@ -217,13 +198,6 @@ namespace sqlpp
       return {*static_cast<const Expr*>(this), typename wrap_operand<T>::type{t}...};
     }
 
-    // workaround for msvs bug
-    //	template <typename... T>
-    //	_new_nary_expression_t<not_in_t, T...> not_in(T... t) const
-    //	{
-    //		check_rhs_in_arguments_t<Expr, wrap_operand_t<T>...>::_();
-    //		return {*static_cast<const Expr*>(this), wrap_operand_t<T>{t}...};
-    //	}
     template <typename... T>
     typename _new_nary_expression<not_in_t, T...>::type not_in(T... t) const
     {
