@@ -57,7 +57,7 @@ namespace sqlpp
   };
 
   template <typename Expression>
-  struct expression_operators<Expression, text> : public basic_expression_operators<Expression, text>
+  struct expression_operators<Expression, text> : public basic_expression_operators<Expression>
   {
     template <typename T>
     using _is_valid_operand = is_valid_operand<text, T>;
