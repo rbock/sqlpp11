@@ -108,8 +108,8 @@ namespace sqlpp
     template <template <typename Lhs, typename Rhs> class NewExpr, typename T>
     struct _new_binary_expression
     {
-      using type =
-          comparison_expression_t<check_comparison_t<Expr, wrap_operand_t<T>>, NewExpr, Expr, wrap_operand_t<T>>;
+      using _check = check_comparison_t<Expr, T>;
+      using type = comparison_expression_t<_check, NewExpr, Expr, wrap_operand_t<T>>;
     };
     template <template <typename Lhs, typename Rhs> class NewExpr, typename T>
     using _new_binary_expression_t = typename _new_binary_expression<NewExpr, T>::type;
@@ -117,7 +117,8 @@ namespace sqlpp
     template <template <typename Lhs, typename... Rhs> class NewExpr, typename... T>
     struct _new_nary_expression
     {
-      using type = in_expression_t<check_in_t<Expr, wrap_operand_t<T>...>, NewExpr, Expr, wrap_operand_t<T>...>;
+      using _check = check_in_t<Expr, T...>;
+      using type = in_expression_t<_check, NewExpr, Expr, wrap_operand_t<T>...>;
     };
 
     template <typename T>
