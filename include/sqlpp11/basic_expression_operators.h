@@ -78,11 +78,12 @@ namespace sqlpp
     template <template <typename Lhs, typename Rhs> class Expr, typename Lhs, typename Rhs>
     struct comparison_expression_impl<true, Expr, Lhs, Rhs>
     {
-      using type = Expr<Lhs, Rhs>;
+      using type = Expr<wrap_operand_t<Lhs>, wrap_operand_t<Rhs>>;
     };
   }
-  template <typename Check, template <typename Lhs, typename Rhs> class Expr, typename Lhs, typename Rhs>
-  using comparison_expression_t = typename detail::comparison_expression_impl<Check::value, Expr, Lhs, Rhs>::type;
+  template <template <typename Lhs, typename Rhs> class Expr, typename Lhs, typename Rhs>
+  using comparison_expression_t =
+      typename detail::comparison_expression_impl<check_comparison_t<Lhs, Rhs>::value, Expr, Lhs, Rhs>::type;
 
   namespace detail
   {
@@ -108,8 +109,7 @@ namespace sqlpp
     template <template <typename Lhs, typename Rhs> class NewExpr, typename T>
     struct _new_binary_expression
     {
-      using _check = check_comparison_t<Expr, T>;
-      using type = comparison_expression_t<_check, NewExpr, Expr, wrap_operand_t<T>>;
+      using type = comparison_expression_t<NewExpr, Expr, T>;
     };
     template <template <typename Lhs, typename Rhs> class NewExpr, typename T>
     using _new_binary_expression_t = typename _new_binary_expression<NewExpr, T>::type;
@@ -122,7 +122,7 @@ namespace sqlpp
     };
 
     template <typename T>
-    _new_binary_expression_t<equal_to_t, T> operator==(T t) const
+    auto operator==(T t) const -> _new_binary_expression_t<equal_to_t, T>
     {
       using rhs = wrap_operand_t<T>;
       check_comparison_t<Expr, rhs>::_();
@@ -131,7 +131,7 @@ namespace sqlpp
     }
 
     template <typename T>
-    _new_binary_expression_t<not_equal_to_t, T> operator!=(T t) const
+    auto operator!=(T t) const -> _new_binary_expression_t<not_equal_to_t, T>
     {
       using rhs = wrap_operand_t<T>;
       check_comparison_t<Expr, rhs>::_();
@@ -140,7 +140,7 @@ namespace sqlpp
     }
 
     template <typename T>
-    _new_binary_expression_t<less_than_t, T> operator<(T t) const
+    auto operator<(T t) const -> _new_binary_expression_t<less_than_t, T>
     {
       using rhs = wrap_operand_t<T>;
       check_comparison_t<Expr, rhs>::_();
@@ -149,7 +149,7 @@ namespace sqlpp
     }
 
     template <typename T>
-    _new_binary_expression_t<less_equal_t, T> operator<=(T t) const
+    auto operator<=(T t) const -> _new_binary_expression_t<less_equal_t, T>
     {
       using rhs = wrap_operand_t<T>;
       check_comparison_t<Expr, rhs>::_();
@@ -158,7 +158,7 @@ namespace sqlpp
     }
 
     template <typename T>
-    _new_binary_expression_t<greater_than_t, T> operator>(T t) const
+    auto operator>(T t) const -> _new_binary_expression_t<greater_than_t, T>
     {
       using rhs = wrap_operand_t<T>;
       check_comparison_t<Expr, rhs>::_();
@@ -167,7 +167,7 @@ namespace sqlpp
     }
 
     template <typename T>
-    _new_binary_expression_t<greater_equal_t, T> operator>=(T t) const
+    auto operator>=(T t) const -> _new_binary_expression_t<greater_equal_t, T>
     {
       using rhs = wrap_operand_t<T>;
       check_comparison_t<Expr, rhs>::_();
@@ -175,35 +175,35 @@ namespace sqlpp
       return {*static_cast<const Expr*>(this), rhs{t}};
     }
 
-    is_null_t<Expr> is_null() const
+    auto is_null() const -> is_null_t<Expr>
     {
       return {*static_cast<const Expr*>(this)};
     }
 
-    is_not_null_t<Expr> is_not_null() const
+    auto is_not_null() const -> is_not_null_t<Expr>
     {
       return {*static_cast<const Expr*>(this)};
     }
 
-    sort_order_t<Expr, sort_type::asc> asc() const
+    auto asc() const -> sort_order_t<Expr, sort_type::asc>
     {
       return {*static_cast<const Expr*>(this)};
     }
 
-    sort_order_t<Expr, sort_type::desc> desc() const
+    auto desc() const -> sort_order_t<Expr, sort_type::desc>
     {
       return {*static_cast<const Expr*>(this)};
     }
 
     template <typename... T>
-    typename _new_nary_expression<in_t, T...>::type in(T... t) const
+    auto in(T... t) const -> typename _new_nary_expression<in_t, T...>::type
     {
       check_in_t<Expr, wrap_operand_t<T>...>::_();
       return {*static_cast<const Expr*>(this), typename wrap_operand<T>::type{t}...};
     }
 
     template <typename... T>
-    typename _new_nary_expression<not_in_t, T...>::type not_in(T... t) const
+    auto not_in(T... t) const -> typename _new_nary_expression<not_in_t, T...>::type
     {
       check_in_t<Expr, wrap_operand_t<T>...>::_();
       return {*static_cast<const Expr*>(this), typename wrap_operand<T>::type{t}...};
