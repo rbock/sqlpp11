@@ -65,7 +65,7 @@ namespace sqlpp
                      assert_comparison_lhs_rhs_differ_t>>;
 
   template <typename LhsType, typename... RhsType>
-  using check_in_t = check_in_impl<LhsType, wrap_operand_t<RhsType>...>;
+  using check_in_t = check_in_impl<LhsType, typename wrap_operand<RhsType>::type...>;
 
   namespace detail
   {
