@@ -1,4 +1,4 @@
-# Copyright (c) 2013-2015, Roland Bock
+# Copyright (c) 2013-2016, Roland Bock
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -32,13 +32,19 @@ add_library(sqlpp11 INTERFACE)
 set(DATE_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../date" CACHE FILEPATH "Path to Howard Hinnant's date library")
 
 if(NOT EXISTS ${DATE_INCLUDE_DIR}/date.h)
-  message(SEND_ERROR "Can't find date.h in ${DATE_INCLUDE_DIR}")
+	message(SEND_ERROR "Can't find file date.h and cannot compile date_test/date_test.cpp")
+	message("Can't find date.h in ${DATE_INCLUDE_DIR} ")
+	message("Please either")
+	message("  - git clone https://github.com/howardhinnant/date ${DATE_INCLUDE_DIR}")
+	message("  - download and unzip a current version from https://github.com/howardhinnant/date to ${DATE_INCLUDE_DIR}")
+	message("  - set DATE_INCLUDE_DIR to point to the dir containing date.h from the date library")
+	message("")
+else()
+	target_include_directories(sqlpp11 INTERFACE
+		$<BUILD_INTERFACE:${DATE_INCLUDE_DIR}>
+		$<BUILD_INTERFACE:${sqlpp11_SOURCE_DIR}/include>
+		)
 endif()
-
-target_include_directories(sqlpp11 INTERFACE
-  $<BUILD_INTERFACE:${DATE_INCLUDE_DIR}>
-  $<BUILD_INTERFACE:${sqlpp11_SOURCE_DIR}/include>
-  )
 
 if (NOT MSVC)
 target_compile_features(sqlpp11 INTERFACE
