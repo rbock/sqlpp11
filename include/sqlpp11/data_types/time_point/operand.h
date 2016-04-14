@@ -62,7 +62,7 @@ namespace sqlpp
 
     bool _is_trivial() const
     {
-      return _t == _value_t{};
+      return std::chrono::operator==(_t, _value_t{});
     }
 
     _value_t _t;
