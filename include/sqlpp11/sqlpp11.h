@@ -38,5 +38,6 @@
 #include <sqlpp11/boolean_expression.h>
 #include <sqlpp11/without_table_check.h>
 #include <sqlpp11/schema_qualified_table.h>
+#include <sqlpp11/custom_query.h>
 
 #endif

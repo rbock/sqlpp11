@@ -397,6 +397,18 @@ namespace sqlpp
   {
     return statement_t<void, no_where_t<false>>().where(std::forward<T>(t));
   }
+
+  template <typename Database, typename T>
+  auto dynamic_where(const Database&, T&& t)
+      -> decltype(statement_t<Database, no_where_t<false>>().dynamic_where(std::forward<T>(t)))
+  {
+    return statement_t<Database, no_where_t<false>>().dynamic_where(std::forward<T>(t));
+  }
+
+  inline auto unconditionally() -> decltype(statement_t<void, no_where_t<false>>().unconditionally())
+  {
+    return statement_t<void, no_where_t<false>>().unconditionally();
+  }
 }
 
 #endif

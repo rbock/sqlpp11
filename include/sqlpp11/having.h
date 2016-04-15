@@ -311,6 +311,13 @@ namespace sqlpp
   {
     return statement_t<void, no_having_t>().having(std::forward<T>(t));
   }
+
+  template <typename Database, typename T>
+  auto dynamic_having(const Database&, T&& t)
+      -> decltype(statement_t<void, no_having_t>().dynamic_having(std::forward<T>(t)))
+  {
+    return statement_t<void, no_having_t>().dynamic_having(std::forward<T>(t));
+  }
 }
 
 #endif
