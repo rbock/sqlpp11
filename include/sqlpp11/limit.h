@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -312,6 +312,18 @@ namespace sqlpp
       return context;
     }
   };
+
+  template <typename T>
+  auto limit(T&& t) -> decltype(statement_t<void, no_limit_t>().limit(std::forward<T>(t)))
+  {
+    return statement_t<void, no_limit_t>().limit(std::forward<T>(t));
+  }
+
+  template <typename Database>
+  auto dynamic_limit(const Database&) -> decltype(statement_t<Database, no_limit_t>().dynamic_limit())
+  {
+    return statement_t<Database, no_limit_t>().dynamic_limit();
+  }
 }
 
 #endif

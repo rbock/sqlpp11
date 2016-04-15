@@ -271,6 +271,19 @@ namespace sqlpp
       return context;
     }
   };
+
+  template <typename... T>
+  auto group_by(T&&... t) -> decltype(statement_t<void, no_group_by_t>().group_by(std::forward<T>(t)...))
+  {
+    return statement_t<void, no_group_by_t>().group_by(std::forward<T>(t)...);
+  }
+
+  template <typename Database, typename... T>
+  auto dynamic_group_by(const Database&, T&&... t)
+      -> decltype(statement_t<Database, no_group_by_t>().dynamic_group_by(std::forward<T>(t)...))
+  {
+    return statement_t<Database, no_group_by_t>().dynamic_group_by(std::forward<T>(t)...);
+  }
 }
 
 #endif

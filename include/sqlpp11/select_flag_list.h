@@ -258,6 +258,19 @@ namespace sqlpp
       return context;
     }
   };
+
+  template <typename T>
+  auto select_flags(T&& t) -> decltype(statement_t<void, no_select_flag_list_t>().flags(std::forward<T>(t)))
+  {
+    return statement_t<void, no_select_flag_list_t>().flags(std::forward<T>(t));
+  }
+
+  template <typename Database, typename T>
+  auto dynamic_select_flags(const Database&, T&& t)
+      -> decltype(statement_t<Database, no_select_flag_list_t>().dynamic_flags(std::forward<T>(t)))
+  {
+    return statement_t<Database, no_select_flag_list_t>().dynamic_flags(std::forward<T>(t));
+  }
 }
 
 #endif

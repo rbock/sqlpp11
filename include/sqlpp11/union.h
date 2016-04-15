@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -250,6 +250,18 @@ namespace sqlpp
       }
     };
   };
+
+  template <typename T>
+  auto union_all(T&& t) -> decltype(statement_t<void, no_union_t>().union_all(std::forward<T>(t)))
+  {
+    return statement_t<void, no_union_t>().union_all(std::forward<T>(t));
+  }
+
+  template <typename T>
+  auto union_distinct(T&& t) -> decltype(statement_t<void, no_union_t>().union_distinct(std::forward<T>(t)))
+  {
+    return statement_t<void, no_union_t>().union_distinct(std::forward<T>(t));
+  }
 }
 
 #endif

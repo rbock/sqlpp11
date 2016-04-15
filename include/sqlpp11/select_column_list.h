@@ -446,6 +446,13 @@ namespace sqlpp
   {
     return statement_t<void, no_select_column_list_t>().columns(std::forward<T>(t)...);
   }
+
+  template <typename Database, typename... T>
+  auto dynamic_select_columns(const Database&, T&&... t)
+      -> decltype(statement_t<void, no_select_column_list_t>().dynamic_columns(std::forward<T>(t)...))
+  {
+    return statement_t<Database, no_select_column_list_t>().dynamic_columns(std::forward<T>(t)...);
+  }
 }
 
 #endif

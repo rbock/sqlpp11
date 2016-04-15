@@ -268,6 +268,19 @@ namespace sqlpp
       return context;
     }
   };
+
+  template <typename... T>
+  auto order_by(T&&... t) -> decltype(statement_t<void, no_order_by_t>().order_by(std::forward<T>(t)...))
+  {
+    return statement_t<void, no_order_by_t>().order_by(std::forward<T>(t)...);
+  }
+
+  template <typename Database, typename... T>
+  auto dynamic_order_by(const Database&, T&&... t)
+      -> decltype(statement_t<Database, no_order_by_t>().dynamic_order_by(std::forward<T>(t)...))
+  {
+    return statement_t<Database, no_order_by_t>().dynamic_order_by(std::forward<T>(t)...);
+  }
 }
 
 #endif
