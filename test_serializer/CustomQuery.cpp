@@ -33,6 +33,7 @@ int CustomQuery(int, char* [])
 {
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
+  auto db = MockDb{};
 
   // Unconditionally
   compare(__LINE__, custom_query(sqlpp::select(), select_flags(sqlpp::distinct), select_columns(foo.omega), from(foo),
@@ -47,6 +48,16 @@ int CustomQuery(int, char* [])
           "SELECT  DISTINCT  tab_foo.omega  FROM tab_foo INNER JOIN tab_bar ON (tab_foo.omega=tab_bar.alpha)  WHERE "
           "(tab_bar.alpha>17)  GROUP BY tab_foo.omega  HAVING (AVG(tab_bar.alpha)>19)  ORDER BY tab_foo.omega ASC  "
           "LIMIT 10  OFFSET 100");
+
+  // A full select statement made individual clauses
+  compare(
+      __LINE__,
+      custom_query(sqlpp::select(), dynamic_select_flags(db, sqlpp::distinct), dynamic_select_columns(db, foo.omega),
+                   dynamic_from(db, foo.join(bar).on(foo.omega == bar.alpha)), dynamic_where(db, bar.alpha > 17),
+                   dynamic_group_by(db, foo.omega), dynamic_having(db, avg(bar.alpha) > 19),
+                   dynamic_order_by(db, foo.omega.asc()), sqlpp::dynamic_limit(db), sqlpp::dynamic_offset(db)),
+      "SELECT  DISTINCT  tab_foo.omega  FROM tab_foo INNER JOIN tab_bar ON (tab_foo.omega=tab_bar.alpha)  WHERE "
+      "(tab_bar.alpha>17)  GROUP BY tab_foo.omega  HAVING (AVG(tab_bar.alpha)>19)  ORDER BY tab_foo.omega ASC  ");
 
   return 0;
 }
