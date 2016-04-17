@@ -1,30 +1,21 @@
 sqlpp11
 =======
+A type safe embedded domain specific language for SQL queries and results in C++
 
-Branch / Compiler | clang-3.4,  gcc-4.9, Xcode-7   |  MSVC 2015  | Test Coverage 
+Documentation is found in the [wiki](https://github.com/rbock/sqlpp11/wiki)
+
+
+Breaking changes in 0.36:
+-------------------------
+See [Changes](ChangeLog.md)
+
+Status:
+-------
+
+Branch / Compiler | clang-3.4,  gcc-4.9, Xcode-7   |  MSVC 2015  | Test Coverage
 ------------------| -------------------------------|-------------|---------------
 master | [![Build Status](https://travis-ci.org/rbock/sqlpp11.svg?branch=master)](https://travis-ci.org/rbock/sqlpp11?branch=master) | [![Build status](https://ci.appveyor.com/api/projects/status/eid7mwqgavo0h61h/branch/master?svg=true)](https://ci.appveyor.com/project/rbock/sqlpp11/branch/master) | [![Coverage Status](https://coveralls.io/repos/rbock/sqlpp11/badge.svg?branch=master)](https://coveralls.io/r/rbock/sqlpp11?branch=master)
 develop | [![Build Status](https://travis-ci.org/rbock/sqlpp11.svg?branch=develop)](https://travis-ci.org/rbock/sqlpp11?branch=develop) | [![Build status](https://ci.appveyor.com/api/projects/status/eid7mwqgavo0h61h/branch/develop?svg=true)](https://ci.appveyor.com/project/rbock/sqlpp11/branch/develop) | [![Coverage Status](https://coveralls.io/repos/rbock/sqlpp11/badge.svg?branch=develop)](https://coveralls.io/r/rbock/sqlpp11?branch=develop)
-
-A type safe embedded domain specific language for SQL queries and results in C++
-
-Documentation is found in the wiki, https://github.com/rbock/sqlpp11/wiki
-
-Past talks about sqlpp11 and some coding concepts used within the library:
-
-  * [CppCast:](http://cppcast.com)
-   * 2015-05-07: http://cppcast.com/2015/05/roland-bock/
-  * [CppCon:](http://cppcon.org)
-   * 2015-09-24: [Pruning Error Messages From Your C++ Template Code](https://www.youtube.com/watch?v=2ISqFW9fRws), with examples from sqlpp11
-   * 2014-09-11: [sqlpp11, An SQL Library Worthy Of Modern C++](https://www.youtube.com/watch?v=cJPAjhBm-HQ)
-  * [Meeting C++:](http://meetingcpp.com)
-   * 2014-12-05: [sqlpp11, An EDSL For Type-Safe SQL In C++11](https://www.youtube.com/watch?v=9Hjfg9IfzhU)
-  * [MUC++:](http://www.meetup.com/MUCplusplus/)
-   * 2014-02-27: [Selected C++11 Template Toffees From sqlpp11, Part1](https://www.youtube.com/watch?v=hXnGFYNbmXg), [Part2](https://www.youtube.com/watch?v=WPCV6dvxZ_U), [Part 3](https://www.youtube.com/watch?v=eB7hd_KjTig), [Part 4](https://www.youtube.com/watch?v=NBfqzcN0_EQ)
-
-You can contact me
-  * by posting issues at https://github.com/rbock/sqlpp11/issues
-  * or via email at rbock at eudoxos dot de
 
 Motivation:
 -----------
@@ -45,6 +36,8 @@ This results in several benefits, e.g.
 The library supports both static and dynamic queries. The former offers greater benefit in terms of type and consistency checking. The latter makes it easier to construct queries on the flight.
 
 sqlpp11 is vendor-neutral. Specific traits of databases (e.g. unsupported or non-standard features) are handled by connector libraries. Connector libraries can inform the developer of missing features at compile time. They also interpret expressions specifically where needed. For example, the connector could use the operator|| or the concat method for string concatenation without the developer being required to change the statement.
+
+The library is already used in production but it is certainly not complete yet. Feature requests, bug reports, contributions to code or documentation are most welcome.
 
 Examples:
 ---------
@@ -102,9 +95,23 @@ db(update(foo).set(foo.hasFun = not foo.hasFun).where(foo.name != "nobody"));
 db(remove_from(foo).where(not foo.hasFun));
 ```
 
-Your help is needed:
---------------------
-The library is already used in production but it is certainly not complete yet. Feature requests, bug reports, contributions to code or documentation are most welcome.
+Additional information available:
+---------------------------------
+Past talks about sqlpp11 and some coding concepts used within the library:
+
+  * [CppCast:](http://cppcast.com)
+   * 2015-05-07: http://cppcast.com/2015/05/roland-bock/
+  * [CppCon:](http://cppcon.org)
+   * 2015-09-24: [Pruning Error Messages From Your C++ Template Code](https://www.youtube.com/watch?v=2ISqFW9fRws), with examples from sqlpp11
+   * 2014-09-11: [sqlpp11, An SQL Library Worthy Of Modern C++](https://www.youtube.com/watch?v=cJPAjhBm-HQ)
+  * [Meeting C++:](http://meetingcpp.com)
+   * 2014-12-05: [sqlpp11, An EDSL For Type-Safe SQL In C++11](https://www.youtube.com/watch?v=9Hjfg9IfzhU)
+  * [MUC++:](http://www.meetup.com/MUCplusplus/)
+   * 2014-02-27: [Selected C++11 Template Toffees From sqlpp11, Part1](https://www.youtube.com/watch?v=hXnGFYNbmXg), [Part2](https://www.youtube.com/watch?v=WPCV6dvxZ_U), [Part 3](https://www.youtube.com/watch?v=eB7hd_KjTig), [Part 4](https://www.youtube.com/watch?v=NBfqzcN0_EQ)
+
+You can contact me
+  * by posting issues at https://github.com/rbock/sqlpp11/issues
+  * or via email at rbock at eudoxos dot de
 
 
 Requirements:
@@ -159,3 +166,4 @@ Include generated header (MyTable.h), that's all
 License:
 -------------
 sqlpp11 is distributed under the [BSD 2-Clause License](https://github.com/rbock/sqlpp11/blob/master/LICENSE).
+

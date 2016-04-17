@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -60,7 +60,7 @@ int Remove(int, char* [])
   printer.reset();
   std::cerr << serialize(r, printer).str() << std::endl;
   printer.reset();
-  std::cerr << serialize(remove_from(t).where(true), printer).str() << std::endl;
+  std::cerr << serialize(remove_from(t).unconditionally(), printer).str() << std::endl;
 
   db(r);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -31,6 +31,7 @@
 #include <sqlpp11/select.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/connection.h>
+#include <sqlpp11/without_table_check.h>
 
 namespace alias
 {
@@ -298,7 +299,7 @@ int SelectType(int, char* [])
                                    t.alpha.as(alias::a)                       // index 12
                                    )
                                 .from(t)
-                                .where(true));  // next index is 13
+                                .unconditionally());  // next index is 13
     using ResultRow = typename Select::_result_methods_t<Select>::template _result_row_t<MockDb>;
     using IndexSequence = ResultRow::_field_index_sequence;
     static_assert(std::is_same<IndexSequence, sqlpp::detail::field_index_sequence<13, 0, 1, 2, 3, 4, 8, 12>>::value,
@@ -318,16 +319,16 @@ int SelectType(int, char* [])
                   "select with identical columns(name/value_type) need to have identical result_types");
   }
 
-  for (const auto& row : db(select(all_of(t)).from(t).where(true)))
+  for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
   {
     int64_t a = row.alpha;
     std::cout << a << std::endl;
   }
 
   {
-    auto s = dynamic_select(db, all_of(t)).dynamic_from().dynamic_where().dynamic_limit().dynamic_offset();
-    s.from.add(t);
-    s.where.add_ntc(t.alpha > 7 and t.alpha == any(select(t.alpha).from(t).where(t.alpha < 3)));
+    auto s = dynamic_select(db, all_of(t)).dynamic_from(t).dynamic_where().dynamic_limit().dynamic_offset();
+    s.from.add(dynamic_join(f).on(f.omega > t.alpha));
+    s.where.add(without_table_check(f.omega > 7 and t.alpha == any(select(t.alpha).from(t).where(t.alpha < 3))));
     s.limit.set(30);
     s.limit.set(3);
     std::cerr << "------------------------\n";
@@ -339,8 +340,8 @@ int SelectType(int, char* [])
 
   // Test that select can be called with zero columns if it is used with dynamic columns.
   {
-    auto s = dynamic_select(db).dynamic_columns().extra_tables(t);
-    s.selected_columns.add(t.alpha);
+    auto s = dynamic_select(db).dynamic_columns();
+    s.selected_columns.add(without_table_check(t.alpha));
     serialize(s, printer).str();
   }
 
@@ -357,7 +358,8 @@ int SelectType(int, char* [])
   static_assert(sqlpp::is_numeric_t<T>::value, "T has to be numeric");
   static_assert(sqlpp::is_numeric_t<decltype(t.alpha)>::value, "TabBar.alpha has to be a numeric");
   ((t.alpha + 7) + 4).asc();
-  static_assert(sqlpp::is_boolean_t<decltype(t.gamma == t.gamma)>::value, "Comparison expression have to be boolean");
+  static_assert(sqlpp::is_boolean_t<decltype(t.gamma != not(t.gamma))>::value,
+                "Comparison expression have to be boolean");
   !t.gamma;
   serialize(t.beta < "kaesekuchen", printer).str();
   serialize(t.beta + "hallenhalma", printer).str();
@@ -376,7 +378,7 @@ int SelectType(int, char* [])
   auto s1 = sqlpp::select()
                 .flags(sqlpp::distinct, sqlpp::straight_join)
                 .columns(l.gamma, r.a)
-                .from(r, t, l)
+                .from(r.cross_join(t).cross_join(l))
                 .where(t.beta == "hello world" and select(t.gamma).from(t))  // .as(alias::right))
                 .group_by(l.gamma, r.a)
                 .having(r.a != true)

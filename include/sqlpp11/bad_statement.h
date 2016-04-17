@@ -31,6 +31,8 @@ namespace sqlpp
 {
   struct bad_statement
   {
+    static constexpr bool value = false;
+
     template <typename... T>
     bad_statement(T&&...)
     {

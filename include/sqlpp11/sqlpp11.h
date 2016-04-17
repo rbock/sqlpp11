@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -36,6 +36,8 @@
 #include <sqlpp11/functions.h>
 #include <sqlpp11/transaction.h>
 #include <sqlpp11/boolean_expression.h>
+#include <sqlpp11/without_table_check.h>
 #include <sqlpp11/schema_qualified_table.h>
+#include <sqlpp11/custom_query.h>
 
 #endif

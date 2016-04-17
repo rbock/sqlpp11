@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,31 +24,19 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_OPERATORS_H
-#define SQLPP_OPERATORS_H
+#ifndef SQLPP_VALUE_H
+#define SQLPP_VALUE_H
 
-#include <sqlpp11/wrap_operand.h>
-#include <sqlpp11/expression_return_types.h>
+#include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
-  template <typename L, typename R>
-  auto operator and(const L& l, const R& r) -> return_type_and_t<L, R>
-  {
-    return_type_and<L, R>::check::_();
-    return {wrap_operand_t<L>{l}, wrap_operand_t<R>{r}};
-  }
-  template <typename L, typename R>
-  auto operator or(const L& l, const R& r) -> return_type_or_t<L, R>
-  {
-    return_type_or<L, R>::check::_();
-    return {wrap_operand_t<L>{l}, wrap_operand_t<R>{r}};
-  }
   template <typename T>
-  auto operator not(const T& t) -> return_type_not_t<T>
+  auto value(T t) -> wrap_operand_t<T>
   {
-    return_type_not<T>::check::_();
-    return {wrap_operand_t<T>{t}};
+    static_assert(is_wrapped_value_t<wrap_operand_t<T>>::value,
+                  "value() is to be called with non-sql-type like int, or string");
+    return {t};
   }
 }
 

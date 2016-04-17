@@ -35,7 +35,6 @@
 #include <sqlpp11/select_flag_list.h>
 #include <sqlpp11/select_column_list.h>
 #include <sqlpp11/from.h>
-#include <sqlpp11/extra_tables.h>
 #include <sqlpp11/where.h>
 #include <sqlpp11/group_by.h>
 #include <sqlpp11/having.h>
@@ -77,7 +76,6 @@ namespace sqlpp
                                      no_select_flag_list_t,
                                      no_select_column_list_t,
                                      no_from_t,
-                                     no_extra_tables_t,
                                      no_where_t<true>,
                                      no_group_by_t,
                                      no_having_t,

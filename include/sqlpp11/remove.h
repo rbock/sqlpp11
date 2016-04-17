@@ -34,7 +34,6 @@
 #include <sqlpp11/prepared_remove.h>
 #include <sqlpp11/noop.h>
 #include <sqlpp11/from.h>
-#include <sqlpp11/extra_tables.h>
 #include <sqlpp11/using.h>
 #include <sqlpp11/where.h>
 
@@ -103,7 +102,7 @@ namespace sqlpp
   };
 
   template <typename Database>
-  using blank_remove_t = statement_t<Database, remove_t, no_from_t, no_using_t, no_extra_tables_t, no_where_t<true>>;
+  using blank_remove_t = statement_t<Database, remove_t, no_from_t, no_using_t, no_where_t<true>>;
 
   inline auto remove() -> blank_remove_t<void>
   {

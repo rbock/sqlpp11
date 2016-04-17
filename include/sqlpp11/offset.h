@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -328,6 +328,18 @@ namespace sqlpp
       return context;
     }
   };
+
+  template <typename T>
+  auto offset(T&& t) -> decltype(statement_t<void, no_offset_t>().offset(std::forward<T>(t)))
+  {
+    return statement_t<void, no_offset_t>().offset(std::forward<T>(t));
+  }
+
+  template <typename Database>
+  auto dynamic_offset(const Database&) -> decltype(statement_t<Database, no_offset_t>().dynamic_offset())
+  {
+    return statement_t<Database, no_offset_t>().dynamic_offset();
+  }
 }
 
 #endif

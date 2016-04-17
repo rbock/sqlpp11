@@ -57,6 +57,10 @@ int CustomQuery(int, char* [])
     std::cerr << row.alpha << std::endl;
   }
 
+  // Create a custom "insert or ignore"
+  db(custom_query(sqlpp::insert(), sqlpp::verbatim(" OR IGNORE"), into(t),
+                  insert_set(t.beta = "sample", t.gamma = true)));
+
   // A custom (select ... into) with adjusted return type
   // The first argument with a return type is the select, but the custom query is really an insert. Thus, we tell it so.
   printer.reset();

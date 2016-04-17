@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -66,37 +66,6 @@ namespace sqlpp
     };
   }
 
-  template <typename Context, typename Db>
-  struct serializer_t<Context, dynamic_select_column_list<Db>>
-  {
-    using T = dynamic_select_column_list<Db>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      bool first = true;
-      for (const auto column : t._dynamic_columns)
-      {
-        if (first)
-          first = false;
-        else
-          context << ',';
-        serialize(column, context);
-      }
-      return context;
-    }
-  };
-
-  template <typename Context>
-  struct serializer_t<Context, dynamic_select_column_list<void>>
-  {
-    using T = dynamic_select_column_list<void>;
-
-    static Context& _(const T&, Context& context)
-    {
-      return context;
-    }
-  };
-
   // SELECTED COLUMNS DATA
   template <typename Database, typename... Columns>
   struct select_column_list_data_t
@@ -122,7 +91,7 @@ namespace sqlpp
   SQLPP_PORTABLE_STATIC_ASSERT(
       assert_no_unknown_tables_in_selected_columns_t,
       "at least one selected column requires a table which is otherwise not known in the statement");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_aggregates_t,
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_no_unknown_aggregates_t,
                                "not all columns are made of aggregates, despite group_by or similar");
 
   // SELECTED COLUMNS
@@ -154,19 +123,13 @@ namespace sqlpp
       }
 
       template <typename NamedExpression>
-      void add_ntc(NamedExpression namedExpression)
-      {
-        add<NamedExpression, std::false_type>(namedExpression);
-      }
-
-      template <typename NamedExpression, typename TableCheckRequired = std::true_type>
       void add(NamedExpression namedExpression)
       {
         using named_expression = auto_alias_t<NamedExpression>;
         static_assert(_is_dynamic::value, "selected_columns::add() can only be called for dynamic_column");
         static_assert(is_selectable_t<named_expression>::value,
                       "invalid named expression argument in selected_columns::add()");
-        static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<named_expression>::value,
+        static_assert(Policies::template _no_unknown_tables<named_expression>::value,
                       "named expression uses tables unknown to this statement in selected_columns::add()");
         using column_names = detail::make_type_set_t<typename Columns::_alias_t...>;
         static_assert(not detail::is_element_of<typename named_expression::_alias_t, column_names>::value,
@@ -232,16 +195,15 @@ namespace sqlpp
         return t.selected_columns;
       }
 
-      using _column_check =
-          typename std::conditional<Policies::template _no_unknown_tables<select_column_list_t>::value,
-                                    consistent_t,
-                                    assert_no_unknown_tables_in_selected_columns_t>::type;
+      using _table_check = typename std::conditional<Policies::template _no_unknown_tables<select_column_list_t>::value,
+                                                     consistent_t,
+                                                     assert_no_unknown_tables_in_selected_columns_t>::type;
 
       using _aggregate_check = typename std::conditional<Policies::template _no_unknown_aggregates<Columns...>::value,
                                                          consistent_t,
-                                                         assert_aggregates_t>::type;
+                                                         assert_no_unknown_aggregates_t>::type;
 
-      using _consistency_check = detail::get_first_if<is_inconsistent_t, consistent_t, _column_check, _aggregate_check>;
+      using _consistency_check = detail::get_first_if<is_inconsistent_t, consistent_t, _table_check, _aggregate_check>;
     };
 
     // Result methods
@@ -483,6 +445,13 @@ namespace sqlpp
   auto select_columns(T&&... t) -> decltype(statement_t<void, no_select_column_list_t>().columns(std::forward<T>(t)...))
   {
     return statement_t<void, no_select_column_list_t>().columns(std::forward<T>(t)...);
+  }
+
+  template <typename Database, typename... T>
+  auto dynamic_select_columns(const Database&, T&&... t)
+      -> decltype(statement_t<Database, no_select_column_list_t>().dynamic_columns(std::forward<T>(t)...))
+  {
+    return statement_t<Database, no_select_column_list_t>().dynamic_columns(std::forward<T>(t)...);
   }
 }
 

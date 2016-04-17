@@ -48,7 +48,7 @@ namespace sqlpp
     using _rhs_t = rhs_wrap_t<allow_tvin_t<Rhs>, trivial_value_is_null_t<_lhs_t>::value>;
     using _nodes = detail::type_vector<_lhs_t, _rhs_t>;
 
-    binary_expression_t(_lhs_t lhs, _rhs_t rhs) : _lhs(lhs), _rhs(rhs)
+    binary_expression_t(Lhs lhs, Rhs rhs) : _lhs(lhs), _rhs(rhs)
     {
     }
 
@@ -96,7 +96,7 @@ namespace sqlpp
     using _rhs_t = rhs_wrap_t<allow_tvin_t<Rhs>, trivial_value_is_null_t<_lhs_t>::value>;
     using _nodes = detail::type_vector<_lhs_t, _rhs_t>;
 
-    binary_expression_t(Lhs lhs, _rhs_t rhs) : _lhs(lhs), _rhs(rhs)
+    binary_expression_t(Lhs lhs, Rhs rhs) : _lhs(lhs), _rhs(rhs)
     {
     }
 

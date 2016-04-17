@@ -42,7 +42,7 @@ int Result(int, char* [])
   static_assert(not sqlpp::null_is_trivial_value_t<decltype(t.alpha)>::value, "t.alpha does not say null_is_trivial");
 
   // Using a non-enforcing db
-  for (const auto& row : db(select(all_of(t), t.beta.like("")).from(t).where(true)))
+  for (const auto& row : db(select(all_of(t), t.beta.like("")).from(t).unconditionally()))
   {
     static_assert(sqlpp::can_be_null_t<decltype(row.alpha)>::value, "row.alpha can be null");
     static_assert(sqlpp::null_is_trivial_value_t<decltype(row.alpha)>::value, "row.alpha interprets null_is_trivial");
@@ -64,14 +64,14 @@ int Result(int, char* [])
   }
 
   sqlpp::select((t.alpha + 1).as(t.alpha)).flags(sqlpp::all).from(t);
-  for (const auto& row : db(select(all_of(t)).from(t).where(true)))
+  for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
   {
     static_assert(sqlpp::can_be_null_t<decltype(row.alpha)>::value, "row.alpha can be null");
     static_assert(sqlpp::null_is_trivial_value_t<decltype(row.alpha)>::value, "row.alpha interprets null_is_trivial");
   }
 
   // Using a non-enforcing db
-  for (const auto& row : edb(select(all_of(t)).from(t).where(true)))
+  for (const auto& row : edb(select(all_of(t)).from(t).unconditionally()))
   {
     static_assert(sqlpp::can_be_null_t<decltype(row.alpha)>::value, "row.alpha can be null");
     static_assert(not sqlpp::null_is_trivial_value_t<decltype(row.alpha)>::value,
@@ -79,7 +79,7 @@ int Result(int, char* [])
   }
 
   sqlpp::select((t.alpha + 1).as(t.alpha)).flags(sqlpp::all).from(t);
-  for (const auto& row : edb(select(all_of(t)).from(t).where(true)))
+  for (const auto& row : edb(select(all_of(t)).from(t).unconditionally()))
   {
     static_assert(sqlpp::can_be_null_t<decltype(row.alpha)>::value, "row.alpha can be null");
     static_assert(not sqlpp::null_is_trivial_value_t<decltype(row.alpha)>::value,

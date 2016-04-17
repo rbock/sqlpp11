@@ -29,7 +29,7 @@ namespace test
           }
         };
       };
-      using _traits = sqlpp::make_traits<sqlpp::varchar, sqlpp::tag::can_be_null>;
+      using _traits = sqlpp::make_traits<sqlpp::varchar>;
     };
     struct Epsilon
     {

@@ -28,65 +28,63 @@
 #define SQLPP_ON_H
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/interpretable_list.h>
+#include <sqlpp11/unconditional.h>
 #include <sqlpp11/logic.h>
 
 namespace sqlpp
 {
-  template <typename Database, typename... Expressions>
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_on_is_expression_t, "argument is not an expression in on()");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_on_is_boolean_expression_t, "argument is not a boolean expression in on()");
+
+  template <typename Expr>
+  struct check_on
+  {
+    using type = static_combined_check_t<static_check_t<is_expression_t<Expr>::value, assert_on_is_expression_t>,
+                                         static_check_t<is_boolean_t<Expr>::value, assert_on_is_boolean_expression_t>>;
+  };
+
+  template <typename Expr>
+  using check_on_t = typename check_on<Expr>::type;
+
+  template <typename Expression>
   struct on_t
   {
     using _traits = make_traits<no_value_t, tag::is_on>;
-    using _nodes = detail::type_vector<Expressions...>;
+    using _nodes = detail::type_vector<Expression>;
 
-    using _is_dynamic = is_database<Database>;
-
-    static_assert(_is_dynamic::value or sizeof...(Expressions), "at least one expression argument required in on()");
-
-    template <typename Expr>
-    void add(Expr expr)
-    {
-      static_assert(_is_dynamic::value, "on::add() must not be called for static on()");
-      static_assert(is_expression_t<Expr>::value, "invalid expression argument in on::add()");
-      using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Expr>;
-      _serialize_check::_();
-
-      using ok = logic::all_t<_is_dynamic::value, is_expression_t<Expr>::value, _serialize_check::type::value>;
-
-      _add_impl(expr, ok());  // dispatch to prevent compile messages after the static_assert
-    }
-
-  private:
-    template <typename Expr>
-    void _add_impl(Expr expr, const std::true_type&)
-    {
-      return _dynamic_expressions.emplace_back(expr);
-    }
-
-    template <typename Expr>
-    void _add_impl(Expr expr, const std::false_type&);
-
-  public:
-    std::tuple<Expressions...> _expressions;
-    interpretable_list_t<Database> _dynamic_expressions;
+    Expression _expression;
   };
 
-  template <typename Context, typename Database, typename... Expressions>
-  struct serializer_t<Context, on_t<Database, Expressions...>>
+  template <>
+  struct on_t<unconditional_t>
   {
-    using _serialize_check = serialize_check_of<Context, Expressions...>;
-    using T = on_t<Database, Expressions...>;
+    using _traits = make_traits<no_value_t, tag::is_on>;
+    using _nodes = detail::type_vector<>;
+  };
+
+  template <typename Context>
+  struct serializer_t<Context, on_t<unconditional_t>>
+  {
+    using _serialize_check = consistent_t;
+    using T = on_t<unconditional_t>;
+
+    static Context& _(const T&, Context& context)
+    {
+      return context;
+    }
+  };
+
+  template <typename Context, typename Expression>
+  struct serializer_t<Context, on_t<Expression>>
+  {
+    using _serialize_check = serialize_check_of<Context, Expression>;
+    using T = on_t<Expression>;
 
     static Context& _(const T& t, Context& context)
     {
-      if (sizeof...(Expressions) == 0 and t._dynamic_expressions.empty())
-        return context;
       context << " ON ";
-      interpret_tuple(t._expressions, " AND ", context);
-      if (sizeof...(Expressions) and not t._dynamic_expressions.empty())
-        context << " AND ";
-      interpret_list(t._dynamic_expressions, " AND ", context);
+      serialize(t._expression, context);
       return context;
     }
   };

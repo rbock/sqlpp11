@@ -80,7 +80,7 @@ namespace sqlpp
   struct return_type_plus
   {
     using check = assert_valid_operands;
-    using type = bad_expression<boolean>;
+    using type = bad_expression<value_type_of<L>>;
   };
   template <typename L, typename R>
   using return_type_plus_t = typename return_type_plus<L, R>::type;
@@ -89,7 +89,7 @@ namespace sqlpp
   struct return_type_minus
   {
     using check = assert_valid_operands;
-    using type = bad_expression<boolean>;
+    using type = bad_expression<value_type_of<L>>;
   };
   template <typename L, typename R>
   using return_type_minus_t = typename return_type_minus<L, R>::type;
@@ -98,7 +98,7 @@ namespace sqlpp
   struct return_type_multiplies
   {
     using check = assert_valid_operands;
-    using type = bad_expression<boolean>;
+    using type = bad_expression<value_type_of<L>>;
   };
   template <typename L, typename R>
   using return_type_multiplies_t = typename return_type_multiplies<L, R>::type;
@@ -107,7 +107,7 @@ namespace sqlpp
   struct return_type_divides
   {
     using check = assert_valid_operands;
-    using type = bad_expression<boolean>;
+    using type = bad_expression<value_type_of<L>>;
   };
   template <typename L, typename R>
   using return_type_divides_t = typename return_type_divides<L, R>::type;
@@ -116,7 +116,7 @@ namespace sqlpp
   struct return_type_modulus
   {
     using check = assert_valid_operands;
-    using type = bad_expression<boolean>;
+    using type = bad_expression<value_type_of<L>>;
   };
   template <typename L, typename R>
   using return_type_modulus_t = typename return_type_modulus<L, R>::type;
@@ -125,7 +125,7 @@ namespace sqlpp
   struct return_type_unary_plus
   {
     using check = assert_valid_operands;
-    using type = bad_expression<boolean>;
+    using type = bad_expression<value_type_of<T>>;
   };
   template <typename T, typename Defer>
   using return_type_unary_plus_t = typename return_type_unary_plus<T, Defer>::type;
@@ -134,7 +134,7 @@ namespace sqlpp
   struct return_type_unary_minus
   {
     using check = assert_valid_operands;
-    using type = bad_expression<boolean>;
+    using type = bad_expression<value_type_of<T>>;
   };
   template <typename T, typename Defer>
   using return_type_unary_minus_t = typename return_type_unary_minus<T, Defer>::type;

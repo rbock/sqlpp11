@@ -30,6 +30,13 @@
 
 SQLPP_ALIAS_PROVIDER(now)
 
+#if _MSC_FULL_VER >= 190023918
+// MSVC Update 2 provides floor, ceil, round, abs in chrono (which is C++17 only...)
+using ::std::chrono::floor;
+#else
+using ::date::floor;
+#endif
+
 int DateTime(int, char* [])
 {
   MockDb db = {};
@@ -40,7 +47,7 @@ int DateTime(int, char* [])
   {
     std::cout << row.now;
   }
-  for (const auto& row : db(select(all_of(t)).from(t).where(true)))
+  for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
   {
     std::cout << row.colDayPoint;
     std::cout << row.colTimePoint;
@@ -48,23 +55,23 @@ int DateTime(int, char* [])
   printer.reset();
   std::cerr << serialize(::sqlpp::value(std::chrono::system_clock::now()), printer).str() << std::endl;
 
-  db(insert_into(t).set(t.colDayPoint = ::date::floor<::sqlpp::chrono::days>(std::chrono::system_clock::now())));
-  db(insert_into(t).set(t.colTimePoint = ::date::floor<::sqlpp::chrono::days>(std::chrono::system_clock::now())));
+  db(insert_into(t).set(t.colDayPoint = floor<::sqlpp::chrono::days>(std::chrono::system_clock::now())));
+  db(insert_into(t).set(t.colTimePoint = floor<::sqlpp::chrono::days>(std::chrono::system_clock::now())));
   db(insert_into(t).set(t.colTimePoint = std::chrono::system_clock::now()));
 
   db(update(t)
-         .set(t.colDayPoint = ::date::floor<::sqlpp::chrono::days>(std::chrono::system_clock::now()))
+         .set(t.colDayPoint = floor<::sqlpp::chrono::days>(std::chrono::system_clock::now()))
          .where(t.colDayPoint < std::chrono::system_clock::now()));
   db(update(t)
-         .set(t.colTimePoint = ::date::floor<::sqlpp::chrono::days>(std::chrono::system_clock::now()))
+         .set(t.colTimePoint = floor<::sqlpp::chrono::days>(std::chrono::system_clock::now()))
          .where(t.colDayPoint < std::chrono::system_clock::now()));
   db(update(t)
          .set(t.colTimePoint = std::chrono::system_clock::now())
          .where(t.colDayPoint < std::chrono::system_clock::now()));
 
-  db(remove_from(t).where(t.colDayPoint == ::date::floor<::sqlpp::chrono::days>(std::chrono::system_clock::now())));
+  db(remove_from(t).where(t.colDayPoint == floor<::sqlpp::chrono::days>(std::chrono::system_clock::now())));
   db(remove_from(t).where(t.colDayPoint == std::chrono::system_clock::now()));
-  db(remove_from(t).where(t.colTimePoint == ::date::floor<::sqlpp::chrono::days>(std::chrono::system_clock::now())));
+  db(remove_from(t).where(t.colTimePoint == floor<::sqlpp::chrono::days>(std::chrono::system_clock::now())));
   db(remove_from(t).where(t.colTimePoint == std::chrono::system_clock::now()));
 
   return 0;

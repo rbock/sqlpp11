@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -42,19 +42,12 @@
 #include <sqlpp11/value_type.h>
 #include <sqlpp11/verbatim.h>  // Csaba Csoma suggests: unsafe_sql instead of verbatim
 #include <sqlpp11/verbatim_table.h>
+#include <sqlpp11/value.h>
 #include <sqlpp11/value_or_null.h>
 #include <sqlpp11/eval.h>
 
 namespace sqlpp
 {
-  template <typename T>
-  auto value(T t) -> wrap_operand_t<T>
-  {
-    static_assert(is_wrapped_value_t<wrap_operand_t<T>>::value,
-                  "value() is to be called with non-sql-type like int, or string");
-    return {t};
-  }
-
   template <typename Expression, typename Db>
   auto flatten(const Expression& exp, Db& db) -> verbatim_t<value_type_of<Expression>>
   {

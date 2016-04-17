@@ -35,7 +35,7 @@
 namespace sqlpp
 {
   template <typename Expression>
-  struct expression_operators<Expression, day_point> : public basic_expression_operators<Expression, day_point>
+  struct expression_operators<Expression, day_point> : public basic_expression_operators<Expression>
   {
   };
 }

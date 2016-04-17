@@ -54,7 +54,7 @@ int Update(int, char* [])
   serialize(update(t), printer).str();
   serialize(update(t).set(t.gamma = false), printer).str();
   serialize(update(t).set(t.gamma = false).where(t.beta != "transparent"), printer).str();
-  serialize(update(t).set(t.beta = "opaque").where(t.beta != t.beta), printer).str();
+  serialize(update(t).set(t.beta = "opaque").where(t.beta != t.beta + "this is nonsense"), printer).str();
   auto u = dynamic_update(db, t).dynamic_set(t.gamma = false).dynamic_where();
   u.assignments.add(t.beta = "cannot update gamma a second time");
   u.where.add(t.gamma != false);
@@ -63,11 +63,11 @@ int Update(int, char* [])
 
   db(u);
 
-  db(update(t).set(t.delta = sqlpp::verbatim<sqlpp::integer>("17+4")).where(true));
-  db(update(t).set(t.delta = sqlpp::null).where(true));
-  db(update(t).set(t.delta = sqlpp::default_value).where(true));
+  db(update(t).set(t.delta = sqlpp::verbatim<sqlpp::integer>("17+4")).unconditionally());
+  db(update(t).set(t.delta = sqlpp::null).unconditionally());
+  db(update(t).set(t.delta = sqlpp::default_value).unconditionally());
 
-  db(update(t).set(t.delta += t.alpha * 2, t.beta += " and cake").where(true));
+  db(update(t).set(t.delta += t.alpha * 2, t.beta += " and cake").unconditionally());
 
   return 0;
 }
