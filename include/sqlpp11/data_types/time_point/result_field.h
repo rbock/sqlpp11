@@ -27,6 +27,7 @@
 #ifndef SQLPP_TIME_POINT_RESULT_FIELD_H
 #define SQLPP_TIME_POINT_RESULT_FIELD_H
 
+#include <sqlpp11/chrono.h>
 #include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/result_field.h>
 #include <sqlpp11/result_field_base.h>
@@ -63,7 +64,7 @@ namespace sqlpp
     }
     else
     {
-      const auto dp = ::date::floor<::date::days>(e.value());
+      const auto dp = ::sqlpp::chrono::floor<::date::days>(e.value());
       const auto time = ::date::make_time(e.value() - dp);
       const auto ymd = ::date::year_month_day{dp};
       os << ymd << 'T' << time;

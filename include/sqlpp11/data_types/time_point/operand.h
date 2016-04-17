@@ -27,7 +27,6 @@
 #ifndef SQLPP_TIME_POINT_OPERAND_H
 #define SQLPP_TIME_POINT_OPERAND_H
 
-#include <date.h>
 #include <sqlpp11/chrono.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/alias_operators.h>
@@ -76,7 +75,7 @@ namespace sqlpp
 
     static Context& _(const Operand& t, Context& context)
     {
-      const auto dp = ::date::floor<::date::days>(t._t);
+      const auto dp = ::sqlpp::chrono::floor<::date::days>(t._t);
       const auto time = ::date::make_time(t._t - dp);
       const auto ymd = ::date::year_month_day{dp};
       context << "TIMESTAMP '" << ymd << ' ' << time << "'";
