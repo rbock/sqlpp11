@@ -27,7 +27,7 @@
 #ifndef SQLPP_CHRONO_H
 #define SQLPP_CHRONO_H
 
-#include <chrono>
+#include <date.h>
 
 namespace sqlpp
 {
@@ -37,6 +37,13 @@ namespace sqlpp
 
     using day_point = std::chrono::time_point<std::chrono::system_clock, days>;
     using microsecond_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>;
+
+#if _MSC_FULL_VER >= 190023918
+    // MSVC Update 2 provides floor, ceil, round, abs in chrono (which is C++17 only...)
+    using ::std::chrono::floor;
+#else
+    using ::date::floor;
+#endif
   }
 }
 
