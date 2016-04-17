@@ -145,11 +145,22 @@ Basic usage:
 __Linux install:__
 git clone date library, needed connectors, cmake and make install them.
 
-create DDL files (like mysql: 'show create table MyDatabase.MyTable', but remove backticks), create headers for them with provided python script:
+
+__Create DDL files__:
+``` 
+mysql: 'show create table MyDatabase.MyTable' #or
+mysqldump --no-data MyDatabase > MyDatabase.sql
+
+```
+Create headers for them with provided python script:
 ```
 %sqlpp11_dir%/scripts/ddl2cpp ~/temp/MyTable.ddl  ~/temp/MyTable %DatabaseNamespaceForExample%
 ```
-include generated header (MyTable.h), that's all
+(In case you're getting notes about unsupported column type take a look at the other datatypes in sqlpp11/data_types. They are not hard to implement.)
+
+Include generated header (MyTable.h), that's all
+
+
 
 
 License:
