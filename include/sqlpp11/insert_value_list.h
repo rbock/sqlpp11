@@ -39,6 +39,7 @@
 #include <sqlpp11/simple_column.h>
 #include <sqlpp11/no_data.h>
 #include <sqlpp11/policy_update.h>
+#include <sqlpp11/statement.h>
 
 namespace sqlpp
 {

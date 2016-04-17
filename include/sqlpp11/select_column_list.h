@@ -264,7 +264,7 @@ namespace sqlpp
 
       size_t get_no_of_result_columns() const
       {
-        return sizeof...(Columns) + get_dynamic_names().size();
+        return sizeof...(Columns) + _get_statement().get_selected_columns()._data._dynamic_columns.size();
       }
 
       // Execute

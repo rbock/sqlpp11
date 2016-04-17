@@ -52,6 +52,11 @@ namespace sqlpp
     {
       return _dynamic_columns.empty();
     }
+
+    auto size() -> size_t
+    {
+      return _dynamic_columns.size();
+    }
   };
 
   template <>
@@ -63,6 +68,11 @@ namespace sqlpp
     static constexpr bool empty()
     {
       return true;
+    }
+
+    static constexpr auto size() -> size_t
+    {
+      return {};
     }
   };
 
