@@ -47,7 +47,7 @@ target_include_directories(sqlpp11 INTERFACE
   $<INSTALL_INTERFACE:include>
   )
 
-if (NOT MSVC)
+if (NOT DEFINED MSVC)
 target_compile_features(sqlpp11 INTERFACE
 	cxx_alias_templates
 	cxx_auto_type
