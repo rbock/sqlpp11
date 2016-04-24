@@ -130,6 +130,12 @@ int Prepared(int, char* [])
     std::cerr << x.alpha << std::endl;
   }
 
+  // Can we prepare a query without parameters?
+  {
+    auto ps = db.prepare(select(all_of(t)).from(t).where((t.beta.like("%"))));
+    auto res = db(ps);
+  }
+
   // Check that a prepared select is default-constructable
   {
     auto s = select(all_of(t)).from(t).where((t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha)) or
