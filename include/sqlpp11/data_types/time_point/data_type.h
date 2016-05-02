@@ -40,5 +40,9 @@ namespace sqlpp
     template <typename T>
     using _is_valid_operand = is_day_or_time_point_t<T>;
   };
+
+  using datetime = time_point;
+  using timestamp = time_point;
+  using time = time_point;
 }
 #endif
