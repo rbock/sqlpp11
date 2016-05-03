@@ -34,10 +34,12 @@ import pprint
 from pyparsing import CaselessLiteral, Literal, SkipTo, restOfLine, oneOf, ZeroOrMore, Optional, Combine, Suppress, \
     WordStart, WordEnd, Word, alphas, alphanums, nums, QuotedString, nestedExpr, MatchFirst, OneOrMore, delimitedList, Or, Group
 
-def usage():
-    print('Usage: ddl2cpp [-no-timestamp-warning] <path to ddl> <path to target (without extension, e.g. /tmp/MyTable)> <namespace>')
 
-if len(sys.argv) not in (4,5):
+def usage():
+    print('Usage: ddl2cpp [-no-timestamp-warning] <path to ddl> \
+<path to target (without extension, e.g. /tmp/MyTable)> <namespace>')
+
+if len(sys.argv) not in (4, 5):
   usage()
   sys.exit(1)
 
@@ -63,16 +65,19 @@ def get_include_guard_name(namespace, inputfile):
   val = re.sub("[^A-Za-z]+", "_", namespace + '_' + os.path.basename(inputfile))
   return val.upper()
 
+
 def repl_func(m):
-  if (m.group(1) == '_'):
+  if m.group(1) == '_':
     return m.group(2).upper()
   else:
     return m.group(1) + m.group(2).upper()
 
-def toClassName(s):
+
+def to_class_name(s):
   return re.sub("(^|\s|[_0-9])(\S)", repl_func, s)
 
-def toMemberName(s):
+
+def to_member_name(s):
   return re.sub("(\s|_|[0-9])(\S)", repl_func, s)
 
 
@@ -80,16 +85,19 @@ def toMemberName(s):
 def ddlWord(string):
     return WordStart(alphanums + "_") + CaselessLiteral(string) + WordEnd(alphanums + "_")
 
-ddlString   = Or([QuotedString("'"), QuotedString("\"", escQuote='""'), QuotedString("`")])
+def ddlFunctionWord(string):
+    return CaselessLiteral(string) + OneOrMore("(") + ZeroOrMore(" ") + OneOrMore(")")
+
+ddlString = Or([QuotedString("'"), QuotedString("\"", escQuote='""'), QuotedString("`")])
 negativeSign = Literal('-')
-ddlNum     = Combine(Optional(negativeSign) + Word(nums + "."))
-ddlTerm     = Word(alphas, alphanums + "_$")
-ddlName     = Or([ddlTerm, ddlString])
+ddlNum = Combine(Optional(negativeSign) + Word(nums + "."))
+ddlTerm = Word(alphas, alphanums + "_$")
+ddlName = Or([ddlTerm, ddlString])
 ddlArguments = "(" + delimitedList(Or([ddlString, ddlTerm, ddlNum])) + ")"
 ddlNotNull = Group(ddlWord("NOT") + ddlWord("NULL")).setResultsName("notNull")
-ddlDefaultValue = ddlWord("DEFAULT").setResultsName("hasDefaultValue");
-ddlAutoValue = ddlWord("AUTO_INCREMENT").setResultsName("hasAutoValue");
-ddlColumnComment  = Group(ddlWord("COMMENT") + ddlString).setResultsName("comment")
+ddlDefaultValue = ddlWord("DEFAULT").setResultsName("hasDefaultValue")
+ddlAutoValue = ddlWord("AUTO_INCREMENT").setResultsName("hasAutoValue")
+ddlColumnComment = Group(ddlWord("COMMENT") + ddlString).setResultsName("comment")
 ddlConstraint = Or([
         ddlWord("CONSTRAINT"),
         ddlWord("PRIMARY"),
@@ -98,7 +106,9 @@ ddlConstraint = Or([
         ddlWord("INDEX"),
         ddlWord("UNIQUE"),
         ])
-ddlColumn   = Group(Optional(ddlConstraint).setResultsName("isConstraint") + OneOrMore(MatchFirst([ddlNotNull, ddlAutoValue, ddlDefaultValue, ddlTerm, ddlNum, ddlColumnComment, ddlString, ddlArguments])))
+ddlColumn = Group(Optional(ddlConstraint).setResultsName("isConstraint") + OneOrMore(MatchFirst(
+    [ddlNotNull, ddlAutoValue, ddlDefaultValue, ddlFunctionWord("NOW"), ddlTerm, ddlNum, ddlColumnComment, ddlString,
+     ddlArguments])))
 createTable = Group(ddlWord("CREATE") + ddlWord("TABLE") + ddlName.setResultsName("tableName") + "(" + Group(delimitedList(ddlColumn)).setResultsName("columns") + ")").setResultsName("create")
 
 
@@ -125,12 +135,12 @@ types = {
     'boolean': 'boolean',
     'double': 'floating_point',
     'float': 'floating_point',
-    'date' : 'day_point',
-    'datetime' : 'time_point',
-    'timestamp' : 'time_point',
-    'enum' : 'text', # MYSQL
-    'set' : 'text',  # MYSQL
-    }
+    'date': 'day_point',
+    'datetime': 'time_point',
+    'timestamp': 'time_point',
+    'enum': 'text',  # MYSQL
+    'set': 'text',  # MYSQL
+}
 
 
 # PROCESS DDL
@@ -147,11 +157,11 @@ print('#include <' + INCLUDE + '/char_sequence.h>', file=header)
 print('', file=header)
 print('namespace ' + namespace, file=header)
 print('{', file=header)
-DataTypeError = False;
+DataTypeError = False
 for create in tableCreations:
     sqlTableName = create.tableName
-    tableClass = toClassName(sqlTableName)
-    tableMember = toMemberName(sqlTableName)
+    tableClass = to_class_name(sqlTableName)
+    tableMember = to_member_name(sqlTableName)
     tableNamespace = tableClass + '_'
     tableTemplateParameters = tableClass
     print('  namespace ' + tableNamespace, file=header)
@@ -160,9 +170,9 @@ for create in tableCreations:
         if column.isConstraint:
             continue
         sqlColumnName = column[0]
-        columnClass = toClassName(sqlColumnName)
+        columnClass = to_class_name(sqlColumnName)
         tableTemplateParameters += ',\n               ' + tableNamespace + '::' + columnClass
-        columnMember = toMemberName(sqlColumnName)
+        columnMember = to_member_name(sqlColumnName)
         sqlColumnType = column[1].lower()
         if sqlColumnType == 'timestamp' and timestampWarning:
             print("Warning: timestamp is mapped to sqlpp::time_point like datetime")
@@ -184,22 +194,22 @@ for create in tableCreations:
         print('          };', file=header)
         print('      };', file=header)
         try:
-            traitslist = [NAMESPACE + '::' + types[sqlColumnType]];
+            traitslist = [NAMESPACE + '::' + types[sqlColumnType]]
         except KeyError as e:
             print ('Error: datatype "'  + sqlColumnType + '"" is not supported.')
             DataTypeError = True
         requireInsert = True
         if column.hasAutoValue:
-            traitslist.append(NAMESPACE + '::tag::must_not_insert');
-            traitslist.append(NAMESPACE + '::tag::must_not_update');
+            traitslist.append(NAMESPACE + '::tag::must_not_insert')
+            traitslist.append(NAMESPACE + '::tag::must_not_update')
             requireInsert = False
         if not column.notNull:
-            traitslist.append(NAMESPACE + '::tag::can_be_null');
+            traitslist.append(NAMESPACE + '::tag::can_be_null')
             requireInsert = False
         if column.hasDefaultValue:
             requireInsert = False
         if requireInsert:
-            traitslist.append(NAMESPACE + '::tag::require_insert');
+            traitslist.append(NAMESPACE + '::tag::require_insert')
         print('      using _traits = ' + NAMESPACE + '::make_traits<' + ', '.join(traitslist) + '>;', file=header)
         print('    };', file=header)
     print('  }', file=header)
@@ -223,10 +233,11 @@ for create in tableCreations:
 
 print('}', file=header)
 print('#endif', file=header)
-if (DataTypeError):
+if DataTypeError:
     print("Error: unsupported datatypes." )
     print("Possible solutions:")
-    print("A) Implement this datatype (examples: sqlpp11/data_types)" )
-    print("B) Extend/upgrade ddl2cpp (edit types map)" )
+    print("A) Implement this datatype (examples: sqlpp11/data_types)")
+    print("B) Extend/upgrade ddl2cpp (edit types map)")
     print("C) Raise an issue on github" )
-    sys.exit(10) #return non-zero error code, we might need it for automation
+    sys.exit(10)  # return non-zero error code, we might need it for automation
+
