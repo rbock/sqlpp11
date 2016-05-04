@@ -80,6 +80,8 @@ def toMemberName(s):
 def ddlWord(string):
     return WordStart(alphanums + "_") + CaselessLiteral(string) + WordEnd(alphanums + "_")
 
+# This function should be refactored if we find some database function which needs parameters
+# Right now it works only for something like NOW() in MySQL default field value
 def ddlFunctionWord(string):
     return CaselessLiteral(string) + OneOrMore("(") + ZeroOrMore(" ") + OneOrMore(")")
 
