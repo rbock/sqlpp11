@@ -21,6 +21,6 @@ build_script:
   - mkdir build
   - cd build
   - cmake --version
-  - cmake .. -DCMAKE_CXX_FLAGS="/EHsc /wd4503" -DCMAKE_PREFIX_PATH=../../date
+  - cmake .. -DCMAKE_CXX_FLAGS="/EHsc /wd4503" -DCMAKE_PREFIX_PATH=../../../date
   - cmake --build . --config %configuration%
   - ctest . --build-config %configuration%
