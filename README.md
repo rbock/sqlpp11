@@ -132,6 +132,7 @@ sqlpp11 requires a certain api in order to connect with the database, see databa
   * MySQL: https://github.com/rbock/sqlpp11-connector-mysql
   * Sqlite3: https://github.com/rbock/sqlpp11-connector-sqlite3
   * PostgreSQL: https://github.com/matthijs/sqlpp11-connector-postgresql
+  * ODBC: https://github.com/Erroneous1/sqlpp11-connector-odbc (experimental)
 
 To demonstrate that sqlpp11 can work with other backends as well, here is an experimental backend for structs in standard containers:
 
