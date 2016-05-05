@@ -32,8 +32,10 @@ import os
 import pprint
 
 # error codes, we should refactor this later
+ERROR_BAD_ARGS = 1
 ERROR_DATA_TYPE = 10
 ERROR_STRANGE_PARSING = 20
+
 
 from pyparsing import CaselessLiteral, Literal, SkipTo, restOfLine, oneOf, ZeroOrMore, Optional, Combine, Suppress, \
     WordStart, WordEnd, Word, alphas, alphanums, nums, QuotedString, nestedExpr, MatchFirst, OneOrMore, delimitedList, Or, Group, ParseException
@@ -71,54 +73,52 @@ def setArgumentBool(s, bool_value):
     globals()[var_name] = bool_value
 
 
-def usage():
-    print('Usage: ddl2cpp [-no-timestamp-warning] <path to ddl> <path to target (without extension, e.g. /tmp/MyTable)> <namespace>')
+def usage(optionalArgs = []):
+    argString = ''
+    for arg in optionalArgs:
+        argString = argString + '[-[no-]'+arg+'] '
+    print('Usage: ddl2cpp '+ argString +' <path to ddl> <path to target (without extension, e.g. /tmp/MyTable)> <namespace>')
+
+optionalArgs = [
+    # if  -some-key is present, it will set variable someKey to True
+    # if  -no-some-key is present, it will set variable someKey to False
+    '-timestamp-warning',  # timeStampWarning = True
+    # '-no-time-stamp-warning'  # timeStampWarning = False
+    '-fail-on-parse',  # failOnParse = True
+    '-warn-on-parse'  # warnOnParse = True
+]
 
 # ARGUMENT PARSING
 if len(sys.argv) < (4):
-  usage()
-  sys.exit(20)
+  usage(optionalArgs)
+  sys.exit(ERROR_BAD_ARGS)
 
 firstPositional = 1
 timestampWarning = True
 failOnParse = False
-warnOnParse = True
-parseError = "parsing error, possible reason: can't parse default value for a field"
-optionalArgs = {
-    # if  -some-key is present, it will set variable someKey to True
-    # if  -no-some-key is present, it will set variable someKey to False
-    'timestamp-warning',  # timeStampWarning = True
-    # '-no-time-stamp-warning'  # timeStampWarning = False
-    'fail-on-parse'  # failOnParse = True
-    'warn-on-parse'  # warnOnParse = True
+warnOnParse = False
+parseError = "Parsing error, possible reason: can't parse default value for a field"
 
-}
 
 if len(sys.argv) >= 4:
-
     for arg in sys.argv:
-        noArg = arg.replace('-no-', '')
-        print (noArg)
+        #print(arg)
+        noArg = arg.replace('-no-', '-')
+        print(noArg)
         if arg in optionalArgs:
-            print ("AAAA")
-            print (noArg)
             setArgumentBool(arg, True)
             firstPositional += 1
         elif noArg in optionalArgs:
-            print ("BBBB")
             setArgumentBool(noArg, False)
             firstPositional += 1
         else:
-            print ("abcd")
-            print(arg)
-
-
+            pass
 
 pathToDdl = sys.argv[firstPositional]
+
 pathToHeader = sys.argv[firstPositional + 1] + '.h'
 namespace = sys.argv[firstPositional + 2]
-print (pathToDdl)
-sys.exit(0)
+
 
 INCLUDE = 'sqlpp11'
 NAMESPACE = 'sqlpp'
@@ -183,16 +183,15 @@ if failOnParse:
     try:
         tableCreations = ddl.parseFile(pathToDdl)
     except ParseException as e:
-        print(parseError)
-        sys.exit()
+        print(parseError + '. Exiting [-no-fail-on-parse]')
+        sys.exit(ERROR_STRANGE_PARSING)
 else:
     ddl = ZeroOrMore(Suppress(SkipTo(createTable, False)) + createTable)
     ddl.ignore(ddlComment)
     tableCreations = ddl.parseFile(pathToDdl)
 
-
 if warnOnParse:
-    print(parseError)
+    print(parseError + '. Continuing [-no-warn-on-parse]')
 
 
 # PROCESS DDL
