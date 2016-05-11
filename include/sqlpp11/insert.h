@@ -96,7 +96,7 @@ namespace sqlpp
 
     static Context& _(const T&, Context& context)
     {
-      context << "INSERT ";
+      context << "INSERT";
 
       return context;
     }
