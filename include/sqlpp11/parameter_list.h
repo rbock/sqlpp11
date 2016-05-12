@@ -61,7 +61,7 @@ namespace sqlpp
     void _bind_impl(Target& target, const detail::index_sequence<Is...>&) const
     {
       using swallow = int[];  // see interpret_tuple.h
-      (void)swallow{(std::tuple_element<Is, _member_tuple_t>::type::operator()()._bind(target, Is), 0)...};
+      (void)swallow{0, (std::tuple_element<Is, _member_tuple_t>::type::operator()()._bind(target, Is), 0)...};
     }
   };
 

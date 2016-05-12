@@ -257,7 +257,8 @@ namespace sqlpp
     static Context& _(const T& t, Context& context)
     {
       using swallow = int[];
-      (void)swallow{(serialize(static_cast<const typename Policies::template _base_t<P>&>(t)()._data, context), 0)...};
+      (void)swallow{0,
+                    (serialize(static_cast<const typename Policies::template _base_t<P>&>(t)()._data, context), 0)...};
 
       return context;
     }
