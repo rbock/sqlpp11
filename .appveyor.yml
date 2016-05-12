@@ -14,14 +14,13 @@ build_script:
   - CD
   - cd ..
   - CD
-  - git clone https://github.com/HowardHinnant/date
+  - git clone --branch v1.0.0 --depth 1 https://github.com/HowardHinnant/date
   - cd sqlpp11
   - CD
   - echo %configuration%
   - mkdir build
   - cd build
   - cmake --version
-  - cmake .. -DCMAKE_CXX_FLAGS="/EHsc /wd4503"
+  - cmake .. -DCMAKE_CXX_FLAGS="/EHsc /wd4503" -DCMAKE_PREFIX_PATH="C:\projects\date"
   - cmake --build . --config %configuration%
   - ctest . --build-config %configuration%
-

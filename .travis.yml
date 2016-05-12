@@ -48,7 +48,7 @@ before_script:
    - mkdir build
    - cd build
    - if [[ "$CXX" = "g++" && "$CONFIG" = "Debug" && "$TRAVIS_OS_NAME" = "linux" ]]; then export CXXFLAGS="--coverage"; fi
-   - cmake .. -DCMAKE_BUILD_TYPE=$CONFIG -DDATE_INCLUDE_DIR=$PWD/../date
+   - cmake .. -DCMAKE_BUILD_TYPE=$CONFIG -DCMAKE_PREFIX_PATH=$PWD/../date
 
 script:
    - cmake --build . --config $CONFIG
