@@ -200,7 +200,7 @@ types = {
     'set': 'text',  # MYSQL
     }
 
-ddlColumn = Group(Optional(ddlConstraint).setResultsName("isConstraint") + OneOrMore(MatchFirst([ddlNotNull, ddlAutoValue, ddlDefaultValue, ddlTerm, ddlNum, ddlColumnComment, ddlString, ddlArguments])))
+ddlColumn = Group(Optional(ddlConstraint).setResultsName("isConstraint") + OneOrMore(MatchFirst([ddlNotNull, ddlAutoValue, ddlDefaultValue, ddlFunctionWord("NOW"), ddlTerm, ddlNum, ddlColumnComment, ddlString, ddlArguments])))
 createTable = Group(ddlWord("CREATE") + ddlWord("TABLE") + ddlName.setResultsName("tableName") + "(" + Group(delimitedList(ddlColumn)).setResultsName("columns") + ")").setResultsName("create")
 ddlComment = oneOf(["--", "#"]) + restOfLine
 
