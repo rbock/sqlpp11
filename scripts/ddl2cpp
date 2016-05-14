@@ -29,7 +29,7 @@ from __future__ import print_function
 import sys
 import re
 import os
-import pprint
+
 
 # error codes, we should refactor this later
 ERROR_BAD_ARGS = 1
@@ -73,21 +73,32 @@ def setArgumentBool(s, bool_value):
     globals()[var_name] = bool_value
 
 
-def usage(optionalArgs = []):
-    argString = ''
-    for arg in optionalArgs:
-        argString = argString + '[-[no-]'+arg+'] '
-    print('Usage: ddl2cpp '+ argString +' <path to ddl> <path to target (without extension, e.g. /tmp/MyTable)> <namespace>')
+def usage(optionalArgs = {}):
+    print('\
+    Usage: ddl2cpp <path to ddl> <path to target (without extension, e.g. /tmp/MyTable)> <namespace>\n\
+           ddl2cpp -help')
 
-optionalArgs = [
+def help():
+    argString = '\n'
+    for arg in list(optionalArgs.keys()):
+        if arg == '-help':
+            continue
+        argString = argString + ' [-[no-]'+arg+'] ' + optionalArgs[arg] + '\n'
+    print('Usage: ddl2cpp [-help] ' + argString + ' <path to ddl> <path to target (without extension, e.g. /tmp/MyTable)> <namespace>')
+    sys.exit(0)
+
+optionalArgs = {
     # if  -some-key is present, it will set variable someKey to True
     # if  -no-some-key is present, it will set variable someKey to False
-    '-timestamp-warning',  # timeStampWarning = True
+    '-timestamp-warning': "show warning about mysql timestamp data type",  # timeStampWarning = True
     # '-no-time-stamp-warning'  # timeStampWarning = False
-    '-fail-on-parse',  # failOnParse = True
-    '-warn-on-parse'  # warnOnParse = True
-]
+    '-fail-on-parse': "abort instead of silent genereation of unusable headers",  # failOnParse = True
+    '-warn-on-parse': "warn about unusable headers, but continue",  # warnOnParse = True
+    '-help': "show this help"
+}
 
+if ('-help') in sys.argv:
+    help()
 # ARGUMENT PARSING
 if len(sys.argv) < (4):
   usage(optionalArgs)
@@ -102,10 +113,8 @@ parseError = "Parsing error, possible reason: can't parse default value for a fi
 
 if len(sys.argv) >= 4:
     for arg in sys.argv:
-        #print(arg)
         noArg = arg.replace('-no-', '-')
-        print(noArg)
-        if arg in optionalArgs:
+        if arg in list(optionalArgs.keys()):
             setArgumentBool(arg, True)
             firstPositional += 1
         elif noArg in optionalArgs:
