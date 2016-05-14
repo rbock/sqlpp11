@@ -78,13 +78,14 @@ def usage(optionalArgs = {}):
     Usage: ddl2cpp <path to ddl> <path to target (without extension, e.g. /tmp/MyTable)> <namespace>\n\
            ddl2cpp -help')
 
-def help():
-    argString = '\n'
-    for arg in list(optionalArgs.keys()):
-        if arg == '-help':
+
+def help_message():
+    arg_string = '\n'
+    for argument in list(optionalArgs.keys()):
+        if argument == '-help':
             continue
-        argString = argString + ' [-[no]'+arg+'] ' + optionalArgs[arg] + '\n'
-    print('Usage: ddl2cpp [-help] ' + argString + ' <path to ddl> <path to target (without extension, e.g. /tmp/MyTable)> <namespace>')
+        arg_string = arg_string + ' [-[no]'+argument+'] ' + optionalArgs[argument] + '\n'
+    print('Usage: ddl2cpp [-help] ' + arg_string + ' <path to ddl> <path to target (without extension, e.g. /tmp/MyTable)> <namespace>')
     sys.exit(0)
 
 optionalArgs = {
@@ -97,8 +98,8 @@ optionalArgs = {
     '-help': "show this help"
 }
 
-if ('-help') in sys.argv:
-    help()
+if '-help' in sys.argv:
+    help_message()
 # ARGUMENT PARSING
 if len(sys.argv) < (4):
   usage(optionalArgs)
