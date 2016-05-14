@@ -84,12 +84,25 @@ def usage(optionalArgs = {}):
 
 def help_message():
     arg_string = '\n'
+    pad = 0
+    padding = 0
+    for argument in list(optionalArgs.keys()):
+        if len(argument) > pad:
+            pad = len(argument)
     for argument in list(optionalArgs.keys()):
         if argument == '-help':
             continue
-        arg_string = arg_string + ' [-[no]'+argument+'] ' + optionalArgs[argument] + '\n'
-    print('Usage: ddl2cpp [-help] ' + arg_string +
-          ' <path to ddl> <path to target (without extension, e.g. /tmp/MyTable)> <namespace>')
+        if len(argument) < pad:
+            padding = " " * (pad - len(argument))
+        else:
+            padding = ''
+        arg_string = arg_string + ' [-[no]'+argument+']:  ' + padding + optionalArgs[argument] + '\n'
+    print('Usage: ddl2cpp [-help]\n\n OPTIONAL ARUMENTS:\n' + arg_string +' \n \
+   <path to ddl> <path to target> <namespace>\n\
+\n\
+ <path to ddl>    path to your SQL database/table definitions (SHOW CREATE TABLE SomeTable) \n\
+ <path to target> path to a generated C++ header file. Without extension (no *.h). \n\
+ <namespace>      namespace you want. Usually a project/database name\n')
     sys.exit(0)
 
 optionalArgs = {
