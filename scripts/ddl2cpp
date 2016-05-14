@@ -83,7 +83,7 @@ def help():
     for arg in list(optionalArgs.keys()):
         if arg == '-help':
             continue
-        argString = argString + ' [-[no-]'+arg+'] ' + optionalArgs[arg] + '\n'
+        argString = argString + ' [-[no]'+arg+'] ' + optionalArgs[arg] + '\n'
     print('Usage: ddl2cpp [-help] ' + argString + ' <path to ddl> <path to target (without extension, e.g. /tmp/MyTable)> <namespace>')
     sys.exit(0)
 
