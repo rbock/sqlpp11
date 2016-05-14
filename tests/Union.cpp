@@ -37,23 +37,23 @@ int Union(int, char* [])
   const auto t = test::TabBar{};
   const auto f = test::TabFoo{};
 
-  db(select(t.alpha).from(t).where(true).union_distinct(select(f.epsilon.as(t.alpha)).from(f).where(true)));
-  db(select(t.alpha).from(t).where(true).union_all(select(f.epsilon.as(t.alpha)).from(f).where(true)));
+  db(select(t.alpha).from(t).unconditionally().union_distinct(select(f.epsilon.as(t.alpha)).from(f).unconditionally()));
+  db(select(t.alpha).from(t).unconditionally().union_all(select(f.epsilon.as(t.alpha)).from(f).unconditionally()));
 
   auto u = select(t.alpha)
                .from(t)
-               .where(true)
-               .union_all(select(f.epsilon.as(t.alpha)).from(f).where(true))
+               .unconditionally()
+               .union_all(select(f.epsilon.as(t.alpha)).from(f).unconditionally())
                .as(sqlpp::alias::u);
 
-  db(select(all_of(u)).from(u).where(true).union_all(select(t.delta.as(t.alpha)).from(t).where(true)));
-  db(select(u.alpha).from(u).where(true).union_all(select(t.delta.as(t.alpha)).from(t).where(true)));
+  db(select(all_of(u)).from(u).unconditionally().union_all(select(t.delta.as(t.alpha)).from(t).unconditionally()));
+  db(select(u.alpha).from(u).unconditionally().union_all(select(t.delta.as(t.alpha)).from(t).unconditionally()));
 
   db(select(t.alpha)
          .from(t)
-         .where(true)
-         .union_all(select(t.alpha).from(t).where(true))
-         .union_all(select(t.alpha).from(t).where(true)));
+         .unconditionally()
+         .union_all(select(t.alpha).from(t).unconditionally())
+         .union_all(select(t.alpha).from(t).unconditionally()));
 
   return 0;
 }

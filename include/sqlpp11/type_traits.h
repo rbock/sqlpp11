@@ -56,6 +56,12 @@ namespace sqlpp
   template <typename T>
   using value_type_of = typename detail::value_type_of_impl<T>::type;
 
+  template <typename T>
+  struct is_not_cpp_bool_t
+  {
+    static constexpr bool value = not std::is_same<T, bool>::value;
+  };
+
   // data types
   struct boolean;
   template <typename T>
@@ -163,7 +169,10 @@ namespace sqlpp
   SQLPP_VALUE_TRAIT_GENERATOR(is_return_value)
   SQLPP_VALUE_TRAIT_GENERATOR(is_table)
   SQLPP_VALUE_TRAIT_GENERATOR(is_raw_table)
+  SQLPP_VALUE_TRAIT_GENERATOR(is_pre_join)
   SQLPP_VALUE_TRAIT_GENERATOR(is_join)
+  SQLPP_VALUE_TRAIT_GENERATOR(is_dynamic_pre_join)
+  SQLPP_VALUE_TRAIT_GENERATOR(is_dynamic_join)
   SQLPP_VALUE_TRAIT_GENERATOR(is_pseudo_table)
   SQLPP_VALUE_TRAIT_GENERATOR(is_column)
   SQLPP_VALUE_TRAIT_GENERATOR(is_select)
@@ -172,7 +181,6 @@ namespace sqlpp
   SQLPP_VALUE_TRAIT_GENERATOR(is_from)
   SQLPP_VALUE_TRAIT_GENERATOR(is_single_table)
   SQLPP_VALUE_TRAIT_GENERATOR(is_into)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_extra_tables)
   SQLPP_VALUE_TRAIT_GENERATOR(is_on)
   SQLPP_VALUE_TRAIT_GENERATOR(is_where)
   SQLPP_VALUE_TRAIT_GENERATOR(is_group_by)
@@ -250,7 +258,6 @@ namespace sqlpp
   SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(required_tables)
   SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(provided_tables)
   SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(provided_outer_tables)
-  SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(extra_tables)
   SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(provided_aggregates)
 
 #define SQLPP_RECURSIVE_TRAIT_GENERATOR(trait)                        \
@@ -373,6 +380,7 @@ namespace sqlpp
   using serialize_check_of =
       detail::get_first_if<is_inconsistent_t, consistent_t, typename serializer_t<Context, T>::_serialize_check...>;
 
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_sqlpp_type_t, "expression is not an sqlpp type, consistency cannot be verified");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_run_statement_or_prepared_t,
                                "connection cannot run something that is neither statement nor prepared statement");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_prepare_statement_t,
@@ -381,12 +389,11 @@ namespace sqlpp
   template <typename T, typename Enable = void>
   struct consistency_check
   {
-    using type = assert_run_statement_or_prepared_t;
+    using type = assert_sqlpp_type_t;
   };
 
   template <typename T>
-  struct consistency_check<T,
-                           typename std::enable_if<is_statement_t<T>::value or is_prepared_statement_t<T>::value>::type>
+  struct consistency_check<T, detail::void_t<typename T::_consistency_check>>
   {
     using type = typename T::_consistency_check;
   };
@@ -495,6 +502,24 @@ namespace sqlpp
 
   template <typename Statement, template <typename> class Predicate>
   using has_policy_t = typename has_policy_impl<Statement, Predicate>::type;
+
+  struct no_context_t
+  {
+  };
+  template <typename Db, typename = void>
+  struct serializer_context_of_impl
+  {
+    using type = no_context_t;
+  };
+
+  template <typename Db>
+  struct serializer_context_of_impl<Db, detail::void_t<typename Db::_serializer_context_t>>
+  {
+    using type = typename Db::_serializer_context_t;
+  };
+
+  template <typename Db>
+  using serializer_context_of = typename serializer_context_of_impl<Db>::type;
 }
 
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -31,11 +31,12 @@
 #include <sqlpp11/select.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/connection.h>
+#include <sqlpp11/without_table_check.h>
 
 template <typename Db, typename Column>
 int64_t getColumn(Db&& db, const Column& column)
 {
-  auto result = db(select(column.as(sqlpp::alias::a)).from(column.table()).where(true));
+  auto result = db(select(column.as(sqlpp::alias::a)).from(column.table()).unconditionally());
   if (not result.empty())
     return result.front().a;
   else
@@ -59,14 +60,14 @@ int Select(int, char* [])
     std::cout << row.a << std::endl;
   }
 
-  for (const auto& row : db(select(all_of(t)).from(t).where(true)))
+  for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
   {
     int64_t a = row.alpha;
     const std::string b = row.beta;
     std::cout << a << ", " << b << std::endl;
   }
 
-  for (const auto& row : db(select(all_of(t).as(t)).from(t).where(true)))
+  for (const auto& row : db(select(all_of(t).as(t)).from(t).unconditionally()))
   {
     int64_t a = row.tabBar.alpha;
     const std::string b = row.tabBar.beta;
@@ -82,19 +83,19 @@ int Select(int, char* [])
   }
 
   for (const auto& row :
-       db(select(all_of(t), all_of(f)).from(t.join(f).on(t.alpha > f.omega and not t.gamma)).where(true)))
+       db(select(all_of(t), all_of(f)).from(t.join(f).on(t.alpha > f.omega and not t.gamma)).unconditionally()))
   {
     std::cout << row.alpha << std::endl;
   }
 
   for (const auto& row : db(select(all_of(t), all_of(f))
                                 .from(t.join(f).on(t.alpha > f.omega).join(tab_a).on(t.alpha == tab_a.omega))
-                                .where(true)))
+                                .unconditionally()))
   {
     std::cout << row.alpha << std::endl;
   }
 
-  for (const auto& row : db(select(count(t.alpha), avg(t.alpha)).from(t).where(true)))
+  for (const auto& row : db(select(count(t.alpha), avg(t.alpha)).from(t).unconditionally()))
   {
     std::cout << row.count << std::endl;
   }
@@ -108,7 +109,6 @@ int Select(int, char* [])
                   .columns(all_of(t))
                   .flags(sqlpp::all)
                   .from(t)
-                  .extra_tables(f, t)
                   .where(t.alpha > 0)
                   .group_by(t.alpha)
                   .order_by(t.gamma.asc())
@@ -122,7 +122,6 @@ int Select(int, char* [])
                 .columns(all_of(t))
                 .flags(sqlpp::all)
                 .from(t)
-                .extra_tables(f, t)
                 .where(t.alpha > 0)
                 .group_by(t.alpha)
                 .order_by(t.gamma.asc())
@@ -137,16 +136,15 @@ int Select(int, char* [])
                .dynamic_columns(all_of(t))
                .dynamic_flags()
                .dynamic_from(t)
-               .extra_tables(f, t)
                .dynamic_where()
                .dynamic_group_by(t.alpha)
                .dynamic_order_by()
-               .dynamic_having(t.gamma)
+               .dynamic_having(sum(t.alpha) > 17)
                .dynamic_limit()
                .dynamic_offset();
   s.select_flags.add(sqlpp::distinct);
-  s.selected_columns.add(f.omega);
-  s.from.add(f);
+  s.selected_columns.add(without_table_check(f.omega));
+  s.from.add(dynamic_cross_join(f));
   s.where.add(t.alpha > 7);
   s.having.add(t.alpha > 7);
   s.limit.set(3);
@@ -165,7 +163,7 @@ int Select(int, char* [])
   select(sqlpp::value(7).as(t.alpha));
 
   for (const auto& row :
-       db(select(sqlpp::case_when(true).then(sqlpp::null).else_(sqlpp::null).as(t.beta)).from(t).where(true)))
+       db(select(sqlpp::case_when(true).then(sqlpp::null).else_(sqlpp::null).as(t.beta)).from(t).unconditionally()))
   {
     std::cerr << row.beta << std::endl;
   }

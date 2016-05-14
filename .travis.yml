@@ -23,6 +23,9 @@ install:
   - CMAKE_VERSION_MM=3.2
   - CMAKE_VERSION_FULL=$CMAKE_VERSION_MM.2
   - git clone https://github.com/HowardHinnant/date
+  - cd date
+  - git checkout tags/v1.0.0
+  - cd ..
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
       && sudo add-apt-repository -y ppa:apokluda/boost1.53

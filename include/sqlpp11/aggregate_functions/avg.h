@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -111,7 +111,7 @@ namespace sqlpp
   {
     static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value,
                   "avg() cannot be used on an aggregate function");
-    static_assert(is_numeric_t<wrap_operand_t<T>>::value, "avg() requires a value expression as argument");
+    static_assert(is_numeric_t<wrap_operand_t<T>>::value, "avg() requires a numeric value expression as argument");
     return {t};
   }
 
@@ -120,7 +120,7 @@ namespace sqlpp
   {
     static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value,
                   "avg() cannot be used on an aggregate function");
-    static_assert(is_numeric_t<wrap_operand_t<T>>::value, "avg() requires a value expression as argument");
+    static_assert(is_numeric_t<wrap_operand_t<T>>::value, "avg() requires a numeric value expression as argument");
     return {t};
   }
 }

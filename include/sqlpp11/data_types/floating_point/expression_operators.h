@@ -37,7 +37,7 @@
 namespace sqlpp
 {
   template <typename Expr>
-  struct expression_operators<Expr, floating_point> : public basic_expression_operators<Expr, floating_point>
+  struct expression_operators<Expr, floating_point> : public basic_expression_operators<Expr>
   {
   };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -78,17 +78,11 @@ namespace sqlpp
       }
 
       template <typename Flag>
-      void add_ntc(Flag flag)
-      {
-        add<Flag, std::false_type>(flag);
-      }
-
-      template <typename Flag, typename TableCheckRequired = std::true_type>
       void add(Flag flag)
       {
         static_assert(_is_dynamic::value, "select_flags::add() must not be called for static select flags");
         static_assert(is_select_flag_t<Flag>::value, "invalid select flag argument in select_flags::add()");
-        static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<Flag>::value,
+        static_assert(Policies::template _no_unknown_tables<Flag>::value,
                       "flag uses tables unknown to this statement in select_flags::add()");
         using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Flag>;
         _serialize_check::_();
@@ -264,6 +258,19 @@ namespace sqlpp
       return context;
     }
   };
+
+  template <typename T>
+  auto select_flags(T&& t) -> decltype(statement_t<void, no_select_flag_list_t>().flags(std::forward<T>(t)))
+  {
+    return statement_t<void, no_select_flag_list_t>().flags(std::forward<T>(t));
+  }
+
+  template <typename Database, typename T>
+  auto dynamic_select_flags(const Database&, T&& t)
+      -> decltype(statement_t<Database, no_select_flag_list_t>().dynamic_flags(std::forward<T>(t)))
+  {
+    return statement_t<Database, no_select_flag_list_t>().dynamic_flags(std::forward<T>(t));
+  }
 }
 
 #endif

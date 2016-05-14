@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -28,7 +28,7 @@
 #define SQLPP_DETAIL_BASIC_EXPRESSION_OPERATORS_H
 
 #include <sqlpp11/value_type_fwd.h>
-#include <sqlpp11/bad_statement.h>
+#include <sqlpp11/bad_expression.h>
 #include <sqlpp11/portable_static_assert.h>
 #include <sqlpp11/consistent.h>
 #include <sqlpp11/alias.h>
@@ -41,206 +41,171 @@
 
 namespace sqlpp
 {
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_valid_rhs_comparison_operand_t, "invalid rhs operand in comparison");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_comparison_rhs_is_expression_t, "rhs operand in comparison is not an expression");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_comparison_rhs_is_valid_operand_t, "invalid rhs operand in comparison");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_comparison_lhs_rhs_differ_t, "identical lhs and rhs operands in comparison");
 
-  template <typename LhsValueType, typename RhsType>
-  using check_rhs_comparison_operand_t =
-      static_check_t<(is_expression_t<sqlpp::wrap_operand_t<RhsType>>::value  // expressions are OK
-                      or
-                      is_multi_expression_t<sqlpp::wrap_operand_t<RhsType>>::value)  // multi-expressions like ANY are
-                                                                                     // OK for comparisons, too
-                         and
-                         LhsValueType::template _is_valid_operand<
-                             sqlpp::wrap_operand_t<RhsType>>::value,  // the correct value type is required, of course
-                     assert_valid_rhs_comparison_operand_t>;
+  template <typename LhsType, typename RhsType>
+  using check_comparison_impl = static_combined_check_t<
+      static_check_t<logic::any_t<is_expression_t<RhsType>::value, is_multi_expression_t<RhsType>::value>::value,
+                     assert_comparison_rhs_is_expression_t>,
+      static_check_t<value_type_of<LhsType>::template _is_valid_operand<RhsType>::value,
+                     assert_comparison_rhs_is_valid_operand_t>,
+      static_check_t<not std::is_same<LhsType, RhsType>::value, assert_comparison_lhs_rhs_differ_t>>;
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_valid_in_arguments_t, "at least one operand of in() is not valid");
+  template <typename LhsType, typename RhsType>
+  using check_comparison_t = check_comparison_impl<LhsType, wrap_operand_t<RhsType>>;
 
-  template <typename LhsValueType, typename... InTypes>
-  using check_rhs_in_arguments_t =
-      static_check_t<logic::all_t<check_rhs_comparison_operand_t<LhsValueType, InTypes>::value...>::value,
-                     assert_valid_in_arguments_t>;
+  template <typename LhsType, typename... RhsType>
+  using check_in_impl = static_combined_check_t<
+      static_check_t<logic::all_t<is_expression_t<RhsType>::value...>::value, assert_comparison_rhs_is_expression_t>,
+      static_check_t<logic::all_t<value_type_of<LhsType>::template _is_valid_operand<RhsType>::value...>::value,
+                     assert_comparison_rhs_is_valid_operand_t>,
+      static_check_t<logic::none_t<std::is_same<LhsType, RhsType>::value...>::value,
+                     assert_comparison_lhs_rhs_differ_t>>;
 
-  namespace detail
-  {
-    template <bool Enable, template <typename Lhs> class Expr, typename Lhs>
-    struct new_unary_expression_impl
-    {
-      using type = bad_statement;
-    };
-
-    template <template <typename Lhs> class Expr, typename Lhs>
-    struct new_unary_expression_impl<true, Expr, Lhs>
-    {
-      using type = Expr<Lhs>;
-    };
-  }
-  template <typename Check, template <typename Lhs> class Expr, typename Lhs>
-  using new_unary_expression_t = typename detail::new_unary_expression_impl<Check::value, Expr, Lhs>::type;
+  template <typename LhsType, typename... RhsType>
+  using check_in_t = check_in_impl<LhsType, typename wrap_operand<RhsType>::type...>;
 
   namespace detail
   {
     template <bool Enable, template <typename Lhs, typename Rhs> class Expr, typename Lhs, typename Rhs>
-    struct new_binary_expression_impl
+    struct comparison_expression_impl
     {
-      using type = bad_statement;
+      using type = bad_expression<boolean>;
     };
 
     template <template <typename Lhs, typename Rhs> class Expr, typename Lhs, typename Rhs>
-    struct new_binary_expression_impl<true, Expr, Lhs, Rhs>
+    struct comparison_expression_impl<true, Expr, Lhs, Rhs>
     {
-      using type = Expr<Lhs, Rhs>;
+      using type = Expr<wrap_operand_t<Lhs>, wrap_operand_t<Rhs>>;
     };
   }
-  template <typename Check, template <typename Lhs, typename Rhs> class Expr, typename Lhs, typename Rhs>
-  using new_binary_expression_t = typename detail::new_binary_expression_impl<Check::value, Expr, Lhs, Rhs>::type;
+  template <template <typename Lhs, typename Rhs> class Expr, typename Lhs, typename Rhs>
+  using comparison_expression_t =
+      typename detail::comparison_expression_impl<check_comparison_t<Lhs, Rhs>::value, Expr, Lhs, Rhs>::type;
 
   namespace detail
   {
     template <bool Enable, template <typename Lhs, typename... Rhs> class Expr, typename Lhs, typename... Rhs>
-    struct new_nary_expression_impl
+    struct in_expression_impl
     {
-      using type = bad_statement;
+      using type = bad_expression<boolean>;
     };
 
     template <template <typename Lhs, typename... Rhs> class Expr, typename Lhs, typename... Rhs>
-    struct new_nary_expression_impl<true, Expr, Lhs, Rhs...>
+    struct in_expression_impl<true, Expr, Lhs, Rhs...>
     {
       using type = Expr<Lhs, Rhs...>;
     };
   }
   template <typename Check, template <typename Lhs, typename... Rhs> class Expr, typename Lhs, typename... Rhs>
-  using new_nary_expression_t = typename detail::new_nary_expression_impl<Check::value, Expr, Lhs, Rhs...>::type;
+  using in_expression_t = typename detail::in_expression_impl<Check::value, Expr, Lhs, Rhs...>::type;
 
   // basic operators
-  template <typename Expr, typename ValueType>
+  template <typename Expr>
   struct basic_expression_operators
   {
     template <template <typename Lhs, typename Rhs> class NewExpr, typename T>
-    using _new_binary_expression_t =
-        new_binary_expression_t<check_rhs_comparison_operand_t<ValueType, wrap_operand_t<T>>,
-                                NewExpr,
-                                Expr,
-                                wrap_operand_t<T>>;
+    struct _new_binary_expression
+    {
+      using type = comparison_expression_t<NewExpr, Expr, T>;
+    };
+    template <template <typename Lhs, typename Rhs> class NewExpr, typename T>
+    using _new_binary_expression_t = typename _new_binary_expression<NewExpr, T>::type;
 
-    // workaround for msvs bug
-    //	template <template <typename Lhs, typename... Rhs> class NewExpr, typename... T>
-    //    using _new_nary_expression_t =
-    //        new_nary_expression_t<logic::all_t<check_rhs_comparison_operand_t<ValueType,
-    //        wrap_operand_t<T>>::value...>,
-    //                              NewExpr,
-    //                              Expr,
-    //                              wrap_operand_t<T>...>;
     template <template <typename Lhs, typename... Rhs> class NewExpr, typename... T>
     struct _new_nary_expression
     {
-      using type =
-          new_nary_expression_t<logic::all_t<check_rhs_comparison_operand_t<ValueType, wrap_operand_t<T>>::value...>,
-                                NewExpr,
-                                Expr,
-                                wrap_operand_t<T>...>;
+      using _check = check_in_t<Expr, T...>;
+      using type = in_expression_t<_check, NewExpr, Expr, wrap_operand_t<T>...>;
     };
 
     template <typename T>
-    _new_binary_expression_t<equal_to_t, T> operator==(T t) const
+    auto operator==(T t) const -> _new_binary_expression_t<equal_to_t, T>
     {
       using rhs = wrap_operand_t<T>;
-      check_rhs_comparison_operand_t<ValueType, rhs>::_();
-
-      return {*static_cast<const Expr*>(this), {rhs{t}}};
-    }
-
-    template <typename T>
-    _new_binary_expression_t<not_equal_to_t, T> operator!=(T t) const
-    {
-      using rhs = wrap_operand_t<T>;
-      check_rhs_comparison_operand_t<ValueType, rhs>::_();
-
-      return {*static_cast<const Expr*>(this), {rhs{t}}};
-    }
-
-    template <typename T>
-    _new_binary_expression_t<less_than_t, T> operator<(T t) const
-    {
-      using rhs = wrap_operand_t<T>;
-      check_rhs_comparison_operand_t<ValueType, rhs>::_();
+      check_comparison_t<Expr, rhs>::_();
 
       return {*static_cast<const Expr*>(this), rhs{t}};
     }
 
     template <typename T>
-    _new_binary_expression_t<less_equal_t, T> operator<=(T t) const
+    auto operator!=(T t) const -> _new_binary_expression_t<not_equal_to_t, T>
     {
       using rhs = wrap_operand_t<T>;
-      check_rhs_comparison_operand_t<ValueType, rhs>::_();
+      check_comparison_t<Expr, rhs>::_();
 
       return {*static_cast<const Expr*>(this), rhs{t}};
     }
 
     template <typename T>
-    _new_binary_expression_t<greater_than_t, T> operator>(T t) const
+    auto operator<(T t) const -> _new_binary_expression_t<less_than_t, T>
     {
       using rhs = wrap_operand_t<T>;
-      check_rhs_comparison_operand_t<ValueType, rhs>::_();
+      check_comparison_t<Expr, rhs>::_();
 
       return {*static_cast<const Expr*>(this), rhs{t}};
     }
 
     template <typename T>
-    _new_binary_expression_t<greater_equal_t, T> operator>=(T t) const
+    auto operator<=(T t) const -> _new_binary_expression_t<less_equal_t, T>
     {
       using rhs = wrap_operand_t<T>;
-      check_rhs_comparison_operand_t<ValueType, rhs>::_();
+      check_comparison_t<Expr, rhs>::_();
 
       return {*static_cast<const Expr*>(this), rhs{t}};
     }
 
-    is_null_t<Expr> is_null() const
+    template <typename T>
+    auto operator>(T t) const -> _new_binary_expression_t<greater_than_t, T>
+    {
+      using rhs = wrap_operand_t<T>;
+      check_comparison_t<Expr, rhs>::_();
+
+      return {*static_cast<const Expr*>(this), rhs{t}};
+    }
+
+    template <typename T>
+    auto operator>=(T t) const -> _new_binary_expression_t<greater_equal_t, T>
+    {
+      using rhs = wrap_operand_t<T>;
+      check_comparison_t<Expr, rhs>::_();
+
+      return {*static_cast<const Expr*>(this), rhs{t}};
+    }
+
+    auto is_null() const -> is_null_t<Expr>
     {
       return {*static_cast<const Expr*>(this)};
     }
 
-    is_not_null_t<Expr> is_not_null() const
+    auto is_not_null() const -> is_not_null_t<Expr>
     {
       return {*static_cast<const Expr*>(this)};
     }
 
-    sort_order_t<Expr, sort_type::asc> asc() const
+    auto asc() const -> sort_order_t<Expr, sort_type::asc>
     {
       return {*static_cast<const Expr*>(this)};
     }
 
-    sort_order_t<Expr, sort_type::desc> desc() const
+    auto desc() const -> sort_order_t<Expr, sort_type::desc>
     {
       return {*static_cast<const Expr*>(this)};
     }
 
-    // Hint: use value_list wrapper for containers...
-    // workaround for msvs bug
-    //	template <typename... T>
-    //	_new_nary_expression_t<in_t, T...> in(T... t) const
-    //	{
-    //		check_rhs_in_arguments_t<ValueType, wrap_operand_t<T>...>::_();
-    //		return {*static_cast<const Expr*>(this), wrap_operand_t<T>{t}...};
-    //	}
     template <typename... T>
-    typename _new_nary_expression<in_t, T...>::type in(T... t) const
+    auto in(T... t) const -> typename _new_nary_expression<in_t, T...>::type
     {
-      check_rhs_in_arguments_t<ValueType, wrap_operand_t<T>...>::_();
+      check_in_t<Expr, wrap_operand_t<T>...>::_();
       return {*static_cast<const Expr*>(this), typename wrap_operand<T>::type{t}...};
     }
 
-    // workaround for msvs bug
-    //	template <typename... T>
-    //	_new_nary_expression_t<not_in_t, T...> not_in(T... t) const
-    //	{
-    //		check_rhs_in_arguments_t<ValueType, wrap_operand_t<T>...>::_();
-    //		return {*static_cast<const Expr*>(this), wrap_operand_t<T>{t}...};
-    //	}
     template <typename... T>
-    typename _new_nary_expression<not_in_t, T...>::type not_in(T... t) const
+    auto not_in(T... t) const -> typename _new_nary_expression<not_in_t, T...>::type
     {
-      check_rhs_in_arguments_t<ValueType, wrap_operand_t<T>...>::_();
+      check_in_t<Expr, wrap_operand_t<T>...>::_();
       return {*static_cast<const Expr*>(this), typename wrap_operand<T>::type{t}...};
     }
 

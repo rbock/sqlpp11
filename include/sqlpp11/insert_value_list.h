@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -39,6 +39,7 @@
 #include <sqlpp11/simple_column.h>
 #include <sqlpp11/no_data.h>
 #include <sqlpp11/policy_update.h>
+#include <sqlpp11/statement.h>
 
 namespace sqlpp
 {
@@ -252,12 +253,6 @@ namespace sqlpp
       }
 
       template <typename Assignment>
-      void add_ntc(Assignment assignment)
-      {
-        add<Assignment, std::false_type>(assignment);
-      }
-
-      template <typename Assignment, typename TableCheckRequired = std::true_type>
       void add(Assignment assignment)
       {
         static_assert(_is_dynamic::value, "add must not be called for static from()");
@@ -266,7 +261,7 @@ namespace sqlpp
         static_assert(not detail::is_element_of<lhs_t<Assignment>, _assigned_columns>::value,
                       "Must not assign value to column twice");
         static_assert(not must_not_insert_t<lhs_t<Assignment>>::value, "add() argument must not be used in insert");
-        static_assert(not TableCheckRequired::value or Policies::template _no_unknown_tables<Assignment>::value,
+        static_assert(Policies::template _no_unknown_tables<Assignment>::value,
                       "add() contains a column from a foreign table");
         using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Assignment>;
         _serialize_check::_();
@@ -641,6 +636,20 @@ namespace sqlpp
       return context;
     }
   };
+
+  template <typename... Assignments>
+  auto insert_set(Assignments... assignments)
+      -> decltype(statement_t<void, no_insert_value_list_t>().set(assignments...))
+  {
+    return statement_t<void, no_insert_value_list_t>().set(assignments...);
+  }
+
+  template <typename Database, typename... Assignments>
+  auto dynamic_insert_set(Assignments... assignments)
+      -> decltype(statement_t<Database, no_insert_value_list_t>().dynamic_set(assignments...))
+  {
+    return statement_t<Database, no_insert_value_list_t>().dynamic_set(assignments...);
+  }
 }
 
 #endif
