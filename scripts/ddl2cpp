@@ -97,7 +97,7 @@ def help_message():
         else:
             padding = ''
         arg_string = arg_string + ' [-[no]'+argument+']:  ' + padding + optionalArgs[argument] + '\n'
-    print('Usage: ddl2cpp [-help]\n\n OPTIONAL ARUMENTS:\n' + arg_string +' \n \
+    print('Usage: ddl2cpp [-help]\n\n OPTIONAL ARGUMENTS:\n' + arg_string +' \n \
    <path to ddl> <path to target> <namespace>\n\
 \n\
  <path to ddl>    path to your SQL database/table definitions (SHOW CREATE TABLE SomeTable) \n\
