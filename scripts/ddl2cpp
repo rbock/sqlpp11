@@ -29,42 +29,35 @@ from __future__ import print_function
 import sys
 import re
 import os
-import pprint
+
+
+# error codes, we should refactor this later
+ERROR_BAD_ARGS = 1
+ERROR_DATA_TYPE = 10
+ERROR_STRANGE_PARSING = 20
+
 
 from pyparsing import CaselessLiteral, Literal, SkipTo, restOfLine, oneOf, ZeroOrMore, Optional, Combine, Suppress, \
-    WordStart, WordEnd, Word, alphas, alphanums, nums, QuotedString, nestedExpr, MatchFirst, OneOrMore, delimitedList, Or, Group
+    WordStart, WordEnd, Word, alphas, alphanums, nums, QuotedString, nestedExpr, MatchFirst, OneOrMore, delimitedList, \
+    Or, Group, ParseException
 
-def usage():
-    print('Usage: ddl2cpp [-no-timestamp-warning] <path to ddl> <path to target (without extension, e.g. /tmp/MyTable)> <namespace>')
-
-if len(sys.argv) not in (4,5):
-  usage()
-  sys.exit(1)
-
-firstPositional = 1
-timestampWarning = True
-if len(sys.argv) == 5:
-    if sys.argv[1] == '-no-timestamp-warning':
-        firstPositional += 1
-        timestampWarning = False
-    else:
-        usage()
-        sys.exit(1)
-
-pathToDdl = sys.argv[firstPositional]
-pathToHeader = sys.argv[firstPositional + 1] + '.h'
-namespace = sys.argv[firstPositional + 2]
-
-INCLUDE = 'sqlpp11'
-NAMESPACE = 'sqlpp'
 
 # HELPERS
+
 def get_include_guard_name(namespace, inputfile):
   val = re.sub("[^A-Za-z]+", "_", namespace + '_' + os.path.basename(inputfile))
   return val.upper()
 
+
 def repl_func(m):
-  if (m.group(1) == '_'):
+  if m.group(1) == '_':
+    return m.group(2).upper()
+  else:
+    return m.group(1) + m.group(2).upper()
+
+
+def repl_func_for_args(m):
+  if m.group(1) == '-':
     return m.group(2).upper()
   else:
     return m.group(1) + m.group(2).upper()
@@ -72,13 +65,101 @@ def repl_func(m):
 def toClassName(s):
   return re.sub("(^|\s|[_0-9])(\S)", repl_func, s)
 
+
 def toMemberName(s):
   return re.sub("(\s|_|[0-9])(\S)", repl_func, s)
+
+
+def setArgumentBool(s, bool_value):
+    first_lower = lambda s: s[:1].lower() + s[1:] if s else ''  # http://stackoverflow.com/a/3847369/5006740
+    var_name = first_lower(re.sub("(\s|-|[0-9])(\S)", repl_func_for_args, s))
+    globals()[var_name] = bool_value
+
+
+def usage(optionalArgs = {}):
+    print('\
+    Usage: ddl2cpp <path to ddl> <path to target (without extension, e.g. /tmp/MyTable)> <namespace>\n\
+           ddl2cpp -help')
+
+
+def help_message():
+    arg_string = '\n'
+    pad = 0
+    padding = 0
+    for argument in list(optionalArgs.keys()):
+        if len(argument) > pad:
+            pad = len(argument)
+    for argument in list(optionalArgs.keys()):
+        if argument == '-help':
+            continue
+        if len(argument) < pad:
+            padding = " " * (pad - len(argument))
+        else:
+            padding = ''
+        arg_string = arg_string + ' [-[no]'+argument+']:  ' + padding + optionalArgs[argument] + '\n'
+    print('Usage: ddl2cpp [-help]\n\n OPTIONAL ARGUMENTS:\n' + arg_string +' \n \
+   <path to ddl> <path to target> <namespace>\n\
+\n\
+ <path to ddl>    path to your SQL database/table definitions (SHOW CREATE TABLE SomeTable) \n\
+ <path to target> path to a generated C++ header file. Without extension (no *.h). \n\
+ <namespace>      namespace you want. Usually a project/database name\n')
+    sys.exit(0)
+
+optionalArgs = {
+    # if  -some-key is present, it will set variable someKey to True
+    # if  -no-some-key is present, it will set variable someKey to False
+    '-timestamp-warning': "show warning about mysql timestamp data type",  # timeStampWarning = True
+    # '-no-time-stamp-warning'  # timeStampWarning = False
+    '-fail-on-parse': "abort instead of silent genereation of unusable headers",  # failOnParse = True
+    '-warn-on-parse': "warn about unusable headers, but continue",  # warnOnParse = True
+    '-help': "show this help"
+}
+
+if '-help' in sys.argv:
+    help_message()
+# ARGUMENT PARSING
+if len(sys.argv) < (4):
+  usage(optionalArgs)
+  sys.exit(ERROR_BAD_ARGS)
+
+firstPositional = 1
+timestampWarning = True
+failOnParse = False
+warnOnParse = False
+parseError = "Parsing error, possible reason: can't parse default value for a field"
+
+
+if len(sys.argv) >= 4:
+    for arg in sys.argv:
+        noArg = arg.replace('-no-', '-')
+        if arg in list(optionalArgs.keys()):
+            setArgumentBool(arg, True)
+            firstPositional += 1
+        elif noArg in optionalArgs:
+            setArgumentBool(noArg, False)
+            firstPositional += 1
+        else:
+            pass
+
+pathToDdl = sys.argv[firstPositional]
+
+pathToHeader = sys.argv[firstPositional + 1] + '.h'
+namespace = sys.argv[firstPositional + 2]
+
+
+INCLUDE = 'sqlpp11'
+NAMESPACE = 'sqlpp'
+
 
 
 # PARSER
 def ddlWord(string):
     return WordStart(alphanums + "_") + CaselessLiteral(string) + WordEnd(alphanums + "_")
+
+# This function should be refactored if we find some database function which needs parameters
+# Right now it works only for something like NOW() in MySQL default field value
+def ddlFunctionWord(string):
+    return CaselessLiteral(string) + OneOrMore("(") + ZeroOrMore(" ") + OneOrMore(")")
 
 ddlString   = Or([QuotedString("'"), QuotedString("\"", escQuote='""'), QuotedString("`")])
 negativeSign = Literal('-')
@@ -87,8 +168,8 @@ ddlTerm     = Word(alphas, alphanums + "_$")
 ddlName     = Or([ddlTerm, ddlString])
 ddlArguments = "(" + delimitedList(Or([ddlString, ddlTerm, ddlNum])) + ")"
 ddlNotNull = Group(ddlWord("NOT") + ddlWord("NULL")).setResultsName("notNull")
-ddlDefaultValue = ddlWord("DEFAULT").setResultsName("hasDefaultValue");
-ddlAutoValue = ddlWord("AUTO_INCREMENT").setResultsName("hasAutoValue");
+ddlDefaultValue = ddlWord("DEFAULT").setResultsName("hasDefaultValue")
+ddlAutoValue = ddlWord("AUTO_INCREMENT").setResultsName("hasAutoValue")
 ddlColumnComment  = Group(ddlWord("COMMENT") + ddlString).setResultsName("comment")
 ddlConstraint = Or([
         ddlWord("CONSTRAINT"),
@@ -98,7 +179,7 @@ ddlConstraint = Or([
         ddlWord("INDEX"),
         ddlWord("UNIQUE"),
         ])
-ddlColumn   = Group(Optional(ddlConstraint).setResultsName("isConstraint") + OneOrMore(MatchFirst([ddlNotNull, ddlAutoValue, ddlDefaultValue, ddlTerm, ddlNum, ddlColumnComment, ddlString, ddlArguments])))
+ddlColumn   = Group(Optional(ddlConstraint).setResultsName("isConstraint") + OneOrMore(MatchFirst([ddlNotNull, ddlAutoValue, ddlDefaultValue, ddlFunctionWord("NOW"), ddlTerm, ddlNum, ddlColumnComment, ddlString, ddlArguments])))
 createTable = Group(ddlWord("CREATE") + ddlWord("TABLE") + ddlName.setResultsName("tableName") + "(" + Group(delimitedList(ddlColumn)).setResultsName("columns") + ")").setResultsName("create")
 
 
@@ -125,12 +206,32 @@ types = {
     'boolean': 'boolean',
     'double': 'floating_point',
     'float': 'floating_point',
-    'date' : 'day_point',
-    'datetime' : 'time_point',
-    'timestamp' : 'time_point',
-    'enum' : 'text', # MYSQL
-    'set' : 'text',  # MYSQL
+    'date': 'day_point',
+    'datetime': 'time_point',
+    'timestamp': 'time_point',
+    'enum': 'text',  # MYSQL
+    'set': 'text',  # MYSQL
     }
+
+ddlColumn = Group(Optional(ddlConstraint).setResultsName("isConstraint") + OneOrMore(MatchFirst([ddlNotNull, ddlAutoValue, ddlDefaultValue, ddlFunctionWord("NOW"), ddlTerm, ddlNum, ddlColumnComment, ddlString, ddlArguments])))
+createTable = Group(ddlWord("CREATE") + ddlWord("TABLE") + ddlName.setResultsName("tableName") + "(" + Group(delimitedList(ddlColumn)).setResultsName("columns") + ")").setResultsName("create")
+ddlComment = oneOf(["--", "#"]) + restOfLine
+
+if failOnParse:
+    ddl = OneOrMore(Suppress(SkipTo(createTable, False)) + createTable)
+    ddl.ignore(ddlComment)
+    try:
+        tableCreations = ddl.parseFile(pathToDdl)
+    except ParseException as e:
+        print(parseError + '. Exiting [-no-fail-on-parse]')
+        sys.exit(ERROR_STRANGE_PARSING)
+else:
+    ddl = ZeroOrMore(Suppress(SkipTo(createTable, False)) + createTable)
+    ddl.ignore(ddlComment)
+    tableCreations = ddl.parseFile(pathToDdl)
+
+if warnOnParse:
+    print(parseError + '. Continuing [-no-warn-on-parse]')
 
 
 # PROCESS DDL
@@ -147,7 +248,7 @@ print('#include <' + INCLUDE + '/char_sequence.h>', file=header)
 print('', file=header)
 print('namespace ' + namespace, file=header)
 print('{', file=header)
-DataTypeError = False;
+DataTypeError = False
 for create in tableCreations:
     sqlTableName = create.tableName
     tableClass = toClassName(sqlTableName)
@@ -184,22 +285,22 @@ for create in tableCreations:
         print('          };', file=header)
         print('      };', file=header)
         try:
-            traitslist = [NAMESPACE + '::' + types[sqlColumnType]];
+            traitslist = [NAMESPACE + '::' + types[sqlColumnType]]
         except KeyError as e:
             print ('Error: datatype "'  + sqlColumnType + '"" is not supported.')
             DataTypeError = True
         requireInsert = True
         if column.hasAutoValue:
-            traitslist.append(NAMESPACE + '::tag::must_not_insert');
-            traitslist.append(NAMESPACE + '::tag::must_not_update');
+            traitslist.append(NAMESPACE + '::tag::must_not_insert')
+            traitslist.append(NAMESPACE + '::tag::must_not_update')
             requireInsert = False
         if not column.notNull:
-            traitslist.append(NAMESPACE + '::tag::can_be_null');
+            traitslist.append(NAMESPACE + '::tag::can_be_null')
             requireInsert = False
         if column.hasDefaultValue:
             requireInsert = False
         if requireInsert:
-            traitslist.append(NAMESPACE + '::tag::require_insert');
+            traitslist.append(NAMESPACE + '::tag::require_insert')
         print('      using _traits = ' + NAMESPACE + '::make_traits<' + ', '.join(traitslist) + '>;', file=header)
         print('    };', file=header)
     print('  }', file=header)
