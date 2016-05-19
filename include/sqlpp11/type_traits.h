@@ -83,6 +83,10 @@ namespace sqlpp
   template <typename T>
   using is_text_t = std::is_same<value_type_of<T>, text>;
 
+  struct time_of_day;
+  template <typename T>
+  using is_time_of_day_t = std::is_same<value_type_of<T>, time_of_day>;
+
   struct time_point;
   template <typename T>
   using is_time_point_t = std::is_same<value_type_of<T>, time_point>;
