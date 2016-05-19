@@ -24,20 +24,25 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_INTEGRAL_WRAP_OPERAND_H
-#define SQLPP_INTEGRAL_WRAP_OPERAND_H
+#ifndef SQLPP_UNSIGNED_INTEGRAL_DATA_TYPE_H
+#define SQLPP_UNSIGNED_INTEGRAL_DATA_TYPE_H
 
-#include <utility>
-#include <sqlpp11/wrap_operand.h>
+#include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
-  struct integral_operand;
-
-  template <typename T>
-  struct wrap_operand<T, typename std::enable_if<std::is_integral<T>::value and not std::is_same<bool, T>::value and not std::is_unsigned<T>::value>::type>
+  struct unsigned_integral
   {
-    using type = integral_operand;
+    using _traits = make_traits<unsigned_integral, tag::is_value_type>;
+    using _cpp_value_type = uint64_t;
+
+    template <typename T>
+    using _is_valid_operand = is_numeric_t<T>;
   };
+
+  using tinyint_unsigned = unsigned_integral;
+  using smallint_unsigned = unsigned_integral;
+  using integer_unsigned = unsigned_integral;
+  using bigint_unsigned = unsigned_integral;
 }
 #endif

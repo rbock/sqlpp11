@@ -75,9 +75,31 @@ namespace test
       };
       using _traits = sqlpp::make_traits<sqlpp::floating_point, sqlpp::tag::can_be_null>;
     };
+    struct Psi
+    {
+      struct _alias_t
+      {
+        static constexpr const char _literal[] = "psi";
+        using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+        template <typename T>
+        struct _member_t
+        {
+          T psi;
+          T& operator()()
+          {
+            return psi;
+          }
+          const T& operator()() const
+          {
+            return psi;
+          }
+        };
+      };
+      using _traits = sqlpp::make_traits<sqlpp::bigint_unsigned, sqlpp::tag::can_be_null>;
+    };
   }
 
-  struct TabFoo : sqlpp::table_t<TabFoo, TabFoo_::Delta, TabFoo_::Epsilon, TabFoo_::Omega>
+  struct TabFoo : sqlpp::table_t<TabFoo, TabFoo_::Delta, TabFoo_::Epsilon, TabFoo_::Omega, TabFoo_::Psi>
   {
     struct _alias_t
     {

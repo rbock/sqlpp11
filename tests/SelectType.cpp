@@ -108,12 +108,30 @@ int SelectType(int, char* [])
     using T = decltype(t.alpha);
     static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
     static_assert(sqlpp::is_integral_t<T>::value, "type requirement");
+    static_assert(not sqlpp::is_unsigned_integral_t<T>::value, "type requirement");
     static_assert(not sqlpp::is_floating_point_t<T>::value, "type requirement");
     static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
     static_assert(sqlpp::is_selectable_t<T>::value, "type requirement");
     static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
     static_assert(sqlpp::must_not_insert_t<T>::value, "type requirement");
     static_assert(sqlpp::must_not_update_t<T>::value, "type requirement");
+    static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
+    static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
+    static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
+    static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
+    static_assert(sqlpp::is_regular<T>::value, "type requirement");
+  }
+
+  // Test an unsigned integral table column
+  {
+    using T = decltype(f.psi);
+    static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
+    static_assert(not sqlpp::is_integral_t<T>::value, "type requirement");
+    static_assert(sqlpp::is_unsigned_integral_t<T>::value, "type requirement");
+    static_assert(not sqlpp::is_floating_point_t<T>::value, "type requirement");
+    static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
+    static_assert(sqlpp::is_selectable_t<T>::value, "type requirement");
+    static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
     static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
     static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
     static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");

@@ -79,6 +79,10 @@ namespace sqlpp
   template <typename T>
   using is_integral_t = std::is_same<value_type_of<T>, integral>;
 
+  struct unsigned_integral;
+  template <typename T>
+  using is_unsigned_integral_t = std::is_same<value_type_of<T>, unsigned_integral>;
+
   struct text;
   template <typename T>
   using is_text_t = std::is_same<value_type_of<T>, text>;
@@ -93,7 +97,7 @@ namespace sqlpp
 
   // joined data type
   template <typename T>
-  using is_numeric_t = logic::any_t<is_integral_t<T>::value, is_floating_point_t<T>::value>;
+  using is_numeric_t = logic::any_t<is_integral_t<T>::value, is_unsigned_integral_t<T>::value, is_floating_point_t<T>::value>;
 
   template <typename T>
   using is_day_or_time_point_t = logic::any_t<is_day_point_t<T>::value, is_time_point_t<T>::value>;
