@@ -64,8 +64,7 @@ namespace sqlpp
     }
     else
     {
-      const auto time = ::date::make_time(::sqlpp::chrono::floor<::date::days>(e.value() % std::chrono::duration<std::chrono::hours>(24)));
-      os << time;
+      os << ::date::make_time(e.value());
     }
     return os;
   }
