@@ -43,6 +43,5 @@ namespace sqlpp
 
   using datetime = time_point;
   using timestamp = time_point;
-  using time = time_point;
 }
 #endif
