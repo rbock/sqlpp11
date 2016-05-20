@@ -28,7 +28,8 @@ CREATE TABLE tab_foo
 (
 	delta varchar(255),
 	epsilon bigint,
-	omega double
+	omega double,
+	psi bigint UNSIGNED
 );
 
 CREATE TABLE tab_bar

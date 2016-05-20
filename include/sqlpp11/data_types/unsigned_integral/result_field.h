@@ -24,20 +24,32 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_INTEGRAL_WRAP_OPERAND_H
-#define SQLPP_INTEGRAL_WRAP_OPERAND_H
+#ifndef SQLPP_UNSIGNED_INTEGRAL_RESULT_FIELD_H
+#define SQLPP_UNSIGNED_INTEGRAL_RESULT_FIELD_H
 
-#include <utility>
-#include <sqlpp11/wrap_operand.h>
+#include <sqlpp11/basic_expression_operators.h>
+#include <sqlpp11/result_field.h>
+#include <sqlpp11/result_field_base.h>
+#include <sqlpp11/data_types/unsigned_integral/data_type.h>
+#include <sqlpp11/field_spec.h>
 
 namespace sqlpp
 {
-  struct integral_operand;
-
-  template <typename T>
-  struct wrap_operand<T, typename std::enable_if<std::is_integral<T>::value and not std::is_same<bool, T>::value and not std::is_unsigned<T>::value>::type>
+  template <typename Db, typename NameType, bool CanBeNull, bool NullIsTrivialValue>
+  struct result_field_t<Db, field_spec_t<NameType, unsigned_integral, CanBeNull, NullIsTrivialValue>>
+      : public result_field_base<Db, field_spec_t<NameType, unsigned_integral, CanBeNull, NullIsTrivialValue>>
   {
-    using type = integral_operand;
+    template <typename Target>
+    void _bind(Target& target, size_t index)
+    {
+      target._bind_unsigned_integral_result(index, &this->_value, &this->_is_null);
+    }
+
+    template <typename Target>
+    void _post_bind(Target& target, size_t index)
+    {
+      target._post_bind_unsigned_integral_result(index, &this->_value, &this->_is_null);
+    }
   };
 }
 #endif

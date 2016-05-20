@@ -24,20 +24,59 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_INTEGRAL_WRAP_OPERAND_H
-#define SQLPP_INTEGRAL_WRAP_OPERAND_H
+#ifndef SQLPP_UNSIGNED_INTEGRAL_OPERAND_H
+#define SQLPP_UNSIGNED_INTEGRAL_OPERAND_H
 
-#include <utility>
-#include <sqlpp11/wrap_operand.h>
+#include <sqlpp11/type_traits.h>
+#include <sqlpp11/alias_operators.h>
+#include <sqlpp11/serializer.h>
 
 namespace sqlpp
 {
-  struct integral_operand;
+  struct unsigned_integral;
 
-  template <typename T>
-  struct wrap_operand<T, typename std::enable_if<std::is_integral<T>::value and not std::is_same<bool, T>::value and not std::is_unsigned<T>::value>::type>
+  struct unsigned_integral_operand : public alias_operators<unsigned_integral_operand>
   {
-    using type = integral_operand;
+    using _traits = make_traits<unsigned_integral, tag::is_expression, tag::is_wrapped_value>;
+    using _nodes = detail::type_vector<>;
+    using _is_aggregate_expression = std::true_type;
+
+    using _value_t = uint64_t;
+
+    unsigned_integral_operand() : _t{}
+    {
+    }
+
+    unsigned_integral_operand(_value_t t) : _t(t)
+    {
+    }
+
+    unsigned_integral_operand(const unsigned_integral_operand&) = default;
+    unsigned_integral_operand(unsigned_integral_operand&&) = default;
+    unsigned_integral_operand& operator=(const unsigned_integral_operand&) = default;
+    unsigned_integral_operand& operator=(unsigned_integral_operand&&) = default;
+    ~unsigned_integral_operand() = default;
+
+    bool _is_trivial() const
+    {
+      return _t == 0;
+    }
+
+    _value_t _t;
+  };
+
+  template <typename Context>
+  struct serializer_t<Context, unsigned_integral_operand>
+  {
+    using _serialize_check = consistent_t;
+    using Operand = unsigned_integral_operand;
+
+    static Context& _(const Operand& t, Context& context)
+    {
+      context << t._t;
+      return context;
+    }
   };
 }
+
 #endif

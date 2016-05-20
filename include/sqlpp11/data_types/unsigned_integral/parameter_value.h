@@ -24,20 +24,28 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_INTEGRAL_WRAP_OPERAND_H
-#define SQLPP_INTEGRAL_WRAP_OPERAND_H
+#ifndef SQLPP_UNSIGNED_INTEGRAL_PARAMETER_VALUE_H
+#define SQLPP_UNSIGNED_INTEGRAL_PARAMETER_VALUE_H
 
-#include <utility>
-#include <sqlpp11/wrap_operand.h>
+#include <sqlpp11/data_types/parameter_value.h>
+#include <sqlpp11/data_types/parameter_value_base.h>
+#include <sqlpp11/data_types/unsigned_integral/data_type.h>
+#include <sqlpp11/tvin.h>
 
 namespace sqlpp
 {
-  struct integral_operand;
-
-  template <typename T>
-  struct wrap_operand<T, typename std::enable_if<std::is_integral<T>::value and not std::is_same<bool, T>::value and not std::is_unsigned<T>::value>::type>
+  template <>
+  struct parameter_value_t<unsigned_integral> : public parameter_value_base<unsigned_integral>
   {
-    using type = integral_operand;
+    using base = parameter_value_base<unsigned_integral>;
+    using base::base;
+    using base::operator=;
+
+    template <typename Target>
+    void _bind(Target& target, size_t index) const
+    {
+      target._bind_unsigned_integral_parameter(index, &_value, _is_null);
+    }
   };
 }
 #endif
