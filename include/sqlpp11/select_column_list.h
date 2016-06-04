@@ -92,7 +92,7 @@ namespace sqlpp
       assert_no_unknown_tables_in_selected_columns_t,
       "at least one selected column requires a table which is otherwise not known in the statement");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_no_unknown_aggregates_t,
-                               "not all columns are made of aggregates, despite group_by or similar");
+                               "not all selected columns are made of aggregates, despite group_by or similar");
 
   // SELECTED COLUMNS
   template <typename Database, typename... Columns>

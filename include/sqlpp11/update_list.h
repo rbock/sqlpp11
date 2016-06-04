@@ -147,6 +147,47 @@ namespace sqlpp
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_update_assignments_t, "update assignments required, i.e. set(...)");
 
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_update_set_assignments_t, "at least one argument is not an assignment in set()");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_update_set_no_duplicates_t, "at least one duplicate column detected in set()");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_update_set_allowed_t,
+                               "at least one assignment is prohibited by its column definition in set()");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_update_set_single_table_t,
+                               "set() contains assignments for columns from more than one table");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_update_set_count_args_t, "at least one assignment expression required in set()");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_update_dynamic_set_statement_dynamic_t,
+                               "dynamic_set() must not be called in a static statement");
+  template <typename... Assignments>
+  using check_update_set_t = static_combined_check_t<
+      static_check_t<logic::all_t<is_assignment_t<Assignments>::value...>::value, assert_update_set_assignments_t>,
+      static_check_t<not detail::has_duplicates<typename lhs<Assignments>::type...>::value,
+                     assert_update_set_no_duplicates_t>,
+      static_check_t<logic::none_t<must_not_update_t<Assignments>::value...>::value, assert_update_set_allowed_t>,
+      static_check_t<
+          sizeof...(Assignments) == 0 or
+              detail::make_joined_set_t<required_tables_of<typename lhs<Assignments>::type>...>::size::value == 1,
+          assert_update_set_single_table_t>>;
+
+  template <typename... Assignments>
+  struct check_update_static_set
+  {
+    using type = static_combined_check_t<check_update_set_t<Assignments...>,
+                                         static_check_t<sizeof...(Assignments) != 0, assert_update_set_count_args_t>>;
+  };
+
+  template <typename... Assignments>
+  using check_update_static_set_t = typename check_update_static_set<Assignments...>::type;
+
+  template <typename Database, typename... Assignments>
+  struct check_update_dynamic_set
+  {
+    using type = static_combined_check_t<
+        static_check_t<not std::is_same<Database, void>::value, assert_update_dynamic_set_statement_dynamic_t>,
+        check_update_set_t<Assignments...>>;
+  };
+
+  template <typename... Assignments>
+  using check_update_dynamic_set_t = typename check_update_dynamic_set<Assignments...>::type;
+
   struct no_update_list_t
   {
     using _traits = make_traits<no_value_t, tag::is_where>;
@@ -199,14 +240,6 @@ namespace sqlpp
 
       using _database_t = typename Policies::_database_t;
 
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      //	  template <typename... T>
-      //	  using _check = logic::all_t<is_assignment_t<T>::value...>;
-      template <typename... T>
-      struct _check : public logic::all_t<is_assignment_t<T>::value...>
-      {
-      };
-
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check::value, Policies, no_update_list_t, T>;
 
@@ -214,23 +247,22 @@ namespace sqlpp
 
       template <typename... Assignments>
       auto set(Assignments... assignments) const
-          -> _new_statement_t<_check<Assignments...>, update_list_t<void, Assignments...>>
+          -> _new_statement_t<check_update_static_set_t<Assignments...>, update_list_t<void, Assignments...>>
       {
-        static_assert(sizeof...(Assignments), "at least one assignment expression required in set()");
-        static_assert(_check<Assignments...>::value, "at least one argument is not an assignment in set()");
+        using Check = check_update_static_set_t<Assignments...>;
+        Check{}._();
 
-        return _set_impl<void>(_check<Assignments...>{}, assignments...);
+        return _set_impl<void>(Check{}, assignments...);
       }
 
       template <typename... Assignments>
       auto dynamic_set(Assignments... assignments) const
-          -> _new_statement_t<_check<Assignments...>, update_list_t<_database_t, Assignments...>>
+          -> _new_statement_t<check_update_dynamic_set_t<Assignments...>, update_list_t<_database_t, Assignments...>>
       {
-        static_assert(not std::is_same<_database_t, void>::value,
-                      "dynamic_set() must not be called in a static statement");
-        static_assert(_check<Assignments...>::value, "at least one argument is not an assignment in set()");
+        using Check = check_update_dynamic_set_t<Assignments...>;
+        Check{}._();
 
-        return _set_impl<_database_t>(_check<Assignments...>{}, assignments...);
+        return _set_impl<_database_t>(Check{}, assignments...);
       }
 
     private:
@@ -241,15 +273,6 @@ namespace sqlpp
       auto _set_impl(const std::true_type&, Assignments... assignments) const
           -> _new_statement_t<std::true_type, update_list_t<Database, Assignments...>>
       {
-        static_assert(not detail::has_duplicates<lhs_t<Assignments>...>::value,
-                      "at least one duplicate column detected in set()");
-        static_assert(logic::none_t<must_not_update_t<lhs_t<Assignments>>::value...>::value,
-                      "at least one assignment is prohibited by its column definition in set()");
-
-        using _column_required_tables = detail::make_joined_set_t<required_tables_of<lhs_t<Assignments>>...>;
-        static_assert(sizeof...(Assignments) ? (_column_required_tables::size::value == 1) : true,
-                      "set() contains assignments for columns from more than one table");
-
         return {static_cast<const derived_statement_t<Policies>&>(*this),
                 update_list_data_t<Database, Assignments...>{assignments...}};
       }

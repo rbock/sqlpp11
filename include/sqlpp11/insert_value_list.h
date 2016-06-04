@@ -145,9 +145,9 @@ namespace sqlpp
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_set_assignments_t, "at least one argument is not an assignment in set()");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_set_no_duplicates_t, "at least one duplicate column detected in set()");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_set_prohibited_t,
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_set_allowed_t,
                                "at least one assignment is prohibited by its column definition in set()");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_set_one_table_t,
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_set_single_table_t,
                                "set() arguments contain assignments from more than one table");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_static_set_count_args_t,
                                "at least one assignment expression required in set()");
@@ -163,10 +163,10 @@ namespace sqlpp
   //      static_check_t<logic::all_t<is_assignment_t<Assignments>::value...>::value, assert_insert_set_assignments_t>,
   //      static_check_t<not detail::has_duplicates<lhs_t<Assignments>...>::value, assert_insert_set_no_duplicates_t>,
   //      static_check_t<logic::none_t<must_not_insert_t<lhs_t<Assignments>>::value...>::value,
-  //                     assert_insert_set_prohibited_t>,
+  //                     assert_insert_set_allowed_t>,
   //      static_check_t<sizeof...(Assignments) == 0 or
   //                         detail::make_joined_set_t<required_tables_of<lhs_t<Assignments>>...>::size::value == 1,
-  //                     assert_insert_set_one_table_t>>;
+  //                     assert_insert_set_single_table_t>>;
 
   template <typename Expr>
   struct must_not_insert
@@ -180,11 +180,11 @@ namespace sqlpp
                      assert_insert_set_assignments_t>,
       static_check_t<not detail::has_duplicates<typename lhs<Assignments>::type...>::value,
                      assert_insert_set_no_duplicates_t>,
-      static_check_t<logic::none_t<must_not_insert<Assignments>::value...>::value, assert_insert_set_prohibited_t>,
+      static_check_t<logic::none_t<must_not_insert<Assignments>::value...>::value, assert_insert_set_allowed_t>,
       static_check_t<
           sizeof...(Assignments) == 0 or
               detail::make_joined_set_t<required_tables_of<typename lhs<Assignments>::type>...>::size::value == 1,
-          assert_insert_set_one_table_t>>;
+          assert_insert_set_single_table_t>>;
 
   // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
   //  template <typename... Assignments>
