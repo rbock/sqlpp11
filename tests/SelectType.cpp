@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock, Aaron Bishop
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -108,6 +108,7 @@ int SelectType(int, char* [])
     using T = decltype(t.alpha);
     static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
     static_assert(sqlpp::is_integral_t<T>::value, "type requirement");
+    static_assert(not sqlpp::is_unsigned_integral_t<T>::value, "type requirement");
     static_assert(not sqlpp::is_floating_point_t<T>::value, "type requirement");
     static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
     static_assert(sqlpp::is_selectable_t<T>::value, "type requirement");
@@ -119,6 +120,46 @@ int SelectType(int, char* [])
     static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
     static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
     static_assert(sqlpp::is_regular<T>::value, "type requirement");
+  }
+
+  // Test an unsigned integral table column
+  {
+    using T = decltype(f.psi);
+    static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
+    static_assert(not sqlpp::is_integral_t<T>::value, "type requirement");
+    static_assert(sqlpp::is_unsigned_integral_t<T>::value, "type requirement");
+    static_assert(not sqlpp::is_floating_point_t<T>::value, "type requirement");
+    static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
+    static_assert(sqlpp::is_selectable_t<T>::value, "type requirement");
+    static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
+    static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
+    static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
+    static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
+    static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
+    static_assert(sqlpp::is_regular<T>::value, "type requirement");
+    //subtraction on unsigned makes it signed
+    static_assert(sqlpp::is_integral_t<sqlpp::return_type_minus_t<T,T>>::value, "type requirement");
+    static_assert(sqlpp::is_integral_t<sqlpp::return_type_unary_minus_t<T,T>>::value, "type requirement");
+    //any operation on float makes it float
+    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_minus_t<T,sqlpp::floating_point>>::value, "type requirement");
+    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_plus_t<T,sqlpp::floating_point>>::value, "type requirement");
+    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_multiplies_t<T,sqlpp::floating_point>>::value, "type requirement");
+    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_divides_t<T,sqlpp::floating_point>>::value, "type requirement");
+    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_minus_t<sqlpp::floating_point,T>>::value, "type requirement");
+    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_plus_t<sqlpp::floating_point,T>>::value, "type requirement");
+    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_multiplies_t<sqlpp::floating_point,T>>::value, "type requirement");
+    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_divides_t<sqlpp::floating_point,T>>::value, "type requirement");
+    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_modulus_t<sqlpp::floating_point,T>>::value, "type requirement");
+    //signed operation on unsigned makes it signed
+    static_assert(sqlpp::is_integral_t<sqlpp::return_type_minus_t<T,sqlpp::integral>>::value, "type requirement");
+    static_assert(sqlpp::is_integral_t<sqlpp::return_type_plus_t<T,sqlpp::integral>>::value, "type requirement");
+    static_assert(sqlpp::is_integral_t<sqlpp::return_type_multiplies_t<T,sqlpp::integral>>::value, "type requirement");
+    static_assert(sqlpp::is_integral_t<sqlpp::return_type_divides_t<T,sqlpp::integral>>::value, "type requirement");
+    static_assert(sqlpp::is_integral_t<sqlpp::return_type_minus_t<sqlpp::integral,T>>::value, "type requirement");
+    static_assert(sqlpp::is_integral_t<sqlpp::return_type_plus_t<sqlpp::integral,T>>::value, "type requirement");
+    static_assert(sqlpp::is_integral_t<sqlpp::return_type_multiplies_t<sqlpp::integral,T>>::value, "type requirement");
+    static_assert(sqlpp::is_integral_t<sqlpp::return_type_divides_t<sqlpp::integral,T>>::value, "type requirement");
+    static_assert(sqlpp::is_integral_t<sqlpp::return_type_modulus_t<sqlpp::integral,T>>::value, "type requirement");
   }
 
   // Test a floating point table column

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock, Aaron Bishop
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -28,7 +28,8 @@ CREATE TABLE tab_foo
 (
 	delta varchar(255),
 	epsilon bigint,
-	omega double
+	omega double,
+	psi bigint UNSIGNED
 );
 
 CREATE TABLE tab_bar

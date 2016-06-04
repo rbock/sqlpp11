@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, Roland Bock, Aaron Bishop
+ * Copyright (c) 2013-2016, Roland Bock, Aaron Bishop
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,35 +24,20 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_CHRONO_H
-#define SQLPP_CHRONO_H
+#ifndef SQLPP_UNSIGNED_INTEGRAL_WRAP_OPERAND_H
+#define SQLPP_UNSIGNED_INTEGRAL_WRAP_OPERAND_H
 
-#include <date.h>
+#include <utility>
+#include <sqlpp11/wrap_operand.h>
 
 namespace sqlpp
 {
-  namespace chrono
+  struct unsigned_integral_operand;
+
+  template <typename T>
+  struct wrap_operand<T, typename std::enable_if<std::is_integral<T>::value and not std::is_same<bool, T>::value and std::is_unsigned<T>::value>::type>
   {
-    using days = std::chrono::duration<int, std::ratio_multiply<std::ratio<24>, std::chrono::hours::period>>;
-
-    using day_point = std::chrono::time_point<std::chrono::system_clock, days>;
-    using microsecond_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>;
-
-#if _MSC_FULL_VER >= 190023918
-    // MSVC Update 2 provides floor, ceil, round, abs in chrono (which is C++17 only...)
-    using ::std::chrono::floor;
-#else
-    using ::date::floor;
-#endif
-
-
-    template<typename T>
-    std::chrono::microseconds time_of_day(T t)
-    {
-      const auto dp = floor<days>(t);
-      return std::chrono::duration_cast<std::chrono::microseconds>(::date::make_time(t - dp).to_duration());
-    }
-  }
+    using type = unsigned_integral_operand;
+  };
 }
-
 #endif
