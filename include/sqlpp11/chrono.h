@@ -45,7 +45,7 @@ namespace sqlpp
     using ::date::floor;
 #endif
 
-    template<typename T>
+    template <typename T>
     std::chrono::microseconds time_of_day(T t)
     {
       const auto dp = floor<days>(t);

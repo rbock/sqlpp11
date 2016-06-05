@@ -96,7 +96,7 @@ namespace test
         };
       };
       using _traits = sqlpp::make_traits<sqlpp::bigint_unsigned, sqlpp::tag::can_be_null>;
-   };
+    };
   }
 
   struct TabFoo : sqlpp::table_t<TabFoo, TabFoo_::Delta, TabFoo_::Epsilon, TabFoo_::Omega, TabFoo_::Psi>
@@ -306,7 +306,8 @@ namespace test
     };
   }
 
-  struct TabDateTime : sqlpp::table_t<TabDateTime, TabDateTime_::ColDayPoint, TabDateTime_::ColTimePoint, TabDateTime_::ColTimeOfDay>
+  struct TabDateTime
+      : sqlpp::table_t<TabDateTime, TabDateTime_::ColDayPoint, TabDateTime_::ColTimePoint, TabDateTime_::ColTimeOfDay>
   {
     struct _alias_t
     {

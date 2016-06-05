@@ -97,10 +97,12 @@ namespace sqlpp
 
   // joined data type
   template <typename T>
-  using is_numeric_t = logic::any_t<is_integral_t<T>::value, is_unsigned_integral_t<T>::value, is_floating_point_t<T>::value>;
+  using is_numeric_t =
+      logic::any_t<is_integral_t<T>::value, is_unsigned_integral_t<T>::value, is_floating_point_t<T>::value>;
 
   template <typename T>
-  using is_numeric_not_unsigned_t = logic::any_t<is_integral_t<T>::value, not is_unsigned_integral_t<T>::value, is_floating_point_t<T>::value>;
+  using is_numeric_not_unsigned_t =
+      logic::any_t<is_integral_t<T>::value, not is_unsigned_integral_t<T>::value, is_floating_point_t<T>::value>;
 
   template <typename T>
   using is_day_or_time_point_t = logic::any_t<is_day_point_t<T>::value, is_time_point_t<T>::value>;
