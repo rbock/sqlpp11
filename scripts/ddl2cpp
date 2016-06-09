@@ -164,7 +164,7 @@ def ddlFunctionWord(string):
 ddlString = Or([QuotedString("'"), QuotedString("\"", escQuote='""'), QuotedString("`")])
 negativeSign = Literal('-')
 ddlNum = Combine(Optional(negativeSign) + Word(nums + "."))
-ddlTerm = Word(alphas, alphanums + "_$")
+ddlTerm = Word(alphanums + "_$")
 ddlName = Or([ddlTerm, ddlString])
 ddlArguments = "(" + delimitedList(Or([ddlString, ddlTerm, ddlNum])) + ")"
 ddlNotNull = Group(ddlWord("NOT") + ddlWord("NULL")).setResultsName("notNull")
@@ -181,7 +181,7 @@ ddlConstraint = Or([
         ])
 ddlColumn = Group(Optional(ddlConstraint).setResultsName("isConstraint") + OneOrMore(MatchFirst([ddlNotNull, ddlAutoValue, ddlDefaultValue, ddlFunctionWord("NOW"), ddlTerm, ddlNum, ddlColumnComment, ddlString, ddlArguments])))
 createTable = Group(ddlWord("CREATE") + ddlWord("TABLE") + ddlName.setResultsName("tableName") + "(" + Group(delimitedList(ddlColumn)).setResultsName("columns") + ")").setResultsName("create")
-
+#ddlString.setDebug(True) #uncomment to debug pyparsing
 
 ddl = ZeroOrMore(Suppress(SkipTo(createTable, False)) + createTable)
 
