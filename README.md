@@ -139,7 +139,7 @@ To demonstrate that sqlpp11 can work with other backends as well, here is an exp
   * STL Container: https://github.com/rbock/sqlpp11-connector-stl
 
 __Date Library:__
-sqlpp11 requires [Howard Hinnant's date library](https://github.com/HowardHinnant/date) for `date` and `date_time` data types. Sqlpp11 includes CMake search module for this, but if you didn't install this library system-wide, you should modify CMakeLists.txt or add this flags to compile sqlpp11:
+sqlpp11 requires [Howard Hinnant's date library](https://github.com/HowardHinnant/date) for `date` and `date_time` data types. Sqlpp11 includes CMake search module for this, but if you didn't install this library system-wide, you should modify CMakeLists.txt or add some flags to compile sqlpp11:
 
 ```
 cmake -DHinnantDate_ROOT_DIR=/%PATH_TO_HinnantDate_SOURCE%/ -DHinnantDate_INCLUDE_DIR=/%PATH_TO_HinnantDate_SOURCE%/
