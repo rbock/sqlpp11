@@ -43,5 +43,7 @@ namespace sqlpp
   using blob = text;
   using varchar = text;
   using char_ = text;
+  using binary = text;
+  using varbinary = text;
 }
 #endif

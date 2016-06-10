@@ -39,6 +39,8 @@ namespace sqlpp
     template <typename T>
     using _is_valid_operand = is_boolean_t<T>;
   };
+
+  using bit = sqlpp::boolean;
 }
 
 #endif
