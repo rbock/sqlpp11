@@ -42,5 +42,7 @@ namespace sqlpp
     template <typename T>
     using _is_valid_assignment_operand = is_day_point_t<T>;
   };
+
+  using date = day_point;
 }
 #endif
