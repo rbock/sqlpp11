@@ -1,4 +1,4 @@
-# Copyright (c) 2013-2015, Roland Bock
+# Copyright (c) 2013-2016, Roland Bock, Alexey Elymanov
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -22,45 +22,40 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-add_library(sqlpp11_testing INTERFACE)
-target_include_directories(sqlpp11_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
-if (NOT MSVC)
-target_compile_options(sqlpp11_testing INTERFACE -Wall -Wextra -pedantic)
-endif ()
+include(FindPythonInterp)
+if (${PYTHONINTERP_FOUND})
+  message( STATUS "Python found: " ${PYTHON_EXECUTABLE} )
 
-set(test_names
-  BooleanExpression
-  CustomQuery
-  DateTime
-  Interpret
-  Insert
-  Remove
-  Update
-  Select
-  SelectType
-  Function
-  Prepared
-  Minimalistic
-  Result
-  Union
-  With
+  execute_process(
+          COMMAND ${PYTHON_EXECUTABLE} -c "import pyparsing"
+          RESULT_VARIABLE PythonRESULT
+          OUTPUT_VARIABLE PythonOUTPUT
+          ERROR_VARIABLE PythonERROR
   )
+  if (${PythonRESULT})
+    message( STATUS "Pyparsing is not installed." ${PythonRESULT} )
+  else()
+    message( STATUS "Pyparsing is installed." )
+    message( STATUS "Enabling sql2ddl tests.")
+    set(test_scripts_names ddl2cpp)
 
-create_test_sourcelist(test_sources test_main.cpp ${test_names})
-add_executable(sqlpp11_tests ${test_sources})
-target_link_libraries(sqlpp11_tests PRIVATE sqlpp11 sqlpp11_testing)
 
-foreach(test IN LISTS test_names)
-  add_test(NAME sqlpp11.tests.${test}
-    COMMAND sqlpp11_tests ${test}
-    )
-endforeach()
+    create_test_sourcelist(test_scripts_sources test_scripts_main.cpp ${test_scripts_names})
+    add_executable(sqlpp11_test_scripts ${test_scripts_sources})
+    target_link_libraries(sqlpp11_test_scripts PRIVATE sqlpp11 sqlpp11_testing)
 
-# if you want to use the generator, you can do something like this:
-#find_package(PythonInterp REQUIRED)
-#add_custom_command(
-#	OUTPUT "${CMAKE_CURRENT_LIST_DIR}/Sample.h"
-#	COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_SOURCE_DIR}/scripts/ddl2cpp" "${CMAKE_CURRENT_LIST_DIR}/sample.sql" Sample test
-#	DEPENDS "${CMAKE_CURRENT_LIST_DIR}/sample.sql"
-#	VERBATIM)
+    foreach(test_scripts IN LISTS test_scripts_names)
+      add_test(NAME sqlpp11.test_scripts.${test_scripts}
+              COMMAND sqlpp11_test_scripts ${test_scripts}
+              )
+    endforeach()
+
+  endif()
+  #MESSAGE( STATUS "Python found:" ${PythonRESULT} )
+  #MESSAGE( STATUS "Python found:" ${PythonOUTPUT} )
+  #MESSAGE( STATUS "Python found:" ${PythonERROR} )
+ENDIF()
+
+
+
