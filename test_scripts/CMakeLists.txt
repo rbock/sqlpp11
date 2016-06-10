@@ -39,7 +39,8 @@ if (${PYTHONINTERP_FOUND})
 
     set(test_scripts_names ddl2cpp)
     file(WRITE ddl2cpp_test.h "
-auto test_scripts_pythonPath = \"${PYTHON_EXECUTABLE}\";
+#include <string>
+std::string test_scripts_pythonPath = \"${PYTHON_EXECUTABLE}\";
 " )
 
 
