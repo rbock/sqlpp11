@@ -32,7 +32,7 @@ endif ()
 set(test_names
   BooleanExpression
   CustomQuery
-	DateTime
+  DateTime
   Interpret
   Insert
   Remove
@@ -46,6 +46,32 @@ set(test_names
   Union
   With
   )
+
+include(FindPythonInterp)
+if (${PYTHONINTERP_FOUND})
+    message( STATUS "Python found: " ${PYTHON_EXECUTABLE} )
+
+    execute_process(
+        COMMAND ${PYTHON_EXECUTABLE} -c "import pyparsing"
+        RESULT_VARIABLE PythonRESULT
+        OUTPUT_VARIABLE PythonOUTPUT
+        ERROR_VARIABLE PythonERROR
+    )
+    if (${PythonRESULT})
+        message( STATUS "Pyparsing is not installed." ${PythonRESULT} )
+    else()
+        message( STATUS "Pyparsing is installed." )
+        message( STATUS "Enabling sql2ddl tests.")
+        set(test_names
+        ${test_names}
+                ddl2cpp
+        )
+    endif()
+    #MESSAGE( STATUS "Python found:" ${PythonRESULT} )
+    #MESSAGE( STATUS "Python found:" ${PythonOUTPUT} )
+    #MESSAGE( STATUS "Python found:" ${PythonERROR} )
+ENDIF()
+
 
 create_test_sourcelist(test_sources test_main.cpp ${test_names})
 add_executable(sqlpp11_tests ${test_sources})
