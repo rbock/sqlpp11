@@ -1,3 +1,4 @@
+
 # Copyright (c) 2013-2016, Roland Bock, Alexey Elymanov
 # All rights reserved.
 #
@@ -25,8 +26,6 @@
 
 include(FindPythonInterp)
 if (${PYTHONINTERP_FOUND})
-  message( STATUS "Python found: " ${PYTHON_EXECUTABLE} )
-
   execute_process(
           COMMAND ${PYTHON_EXECUTABLE} -c "import pyparsing"
           RESULT_VARIABLE PythonRESULT
@@ -36,9 +35,12 @@ if (${PYTHONINTERP_FOUND})
   if (${PythonRESULT})
     message( STATUS "Pyparsing is not installed." ${PythonRESULT} )
   else()
-    message( STATUS "Pyparsing is installed." )
-    message( STATUS "Enabling sql2ddl tests.")
+    message( STATUS "Pyparsing is installed: Enabling sql2ddl tests." )
+
     set(test_scripts_names ddl2cpp)
+    file(WRITE ddl2cpp_test.h "
+auto test_scripts_pythonPath = \"${PYTHON_EXECUTABLE}\";
+" )
 
 
     create_test_sourcelist(test_scripts_sources test_scripts_main.cpp ${test_scripts_names})
