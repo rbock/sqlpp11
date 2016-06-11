@@ -14,7 +14,7 @@ int testSqlFile(const std::string pathToSqlFile ){
 #else
   std::string nullOutput = " > /dev/null 2>&1";
 #endif
-  nullOutput = "";
+
   std::string ddlHeaderPath = "../test_scripts/ddl2cpp_test_result_header";
 
   std::string args =
