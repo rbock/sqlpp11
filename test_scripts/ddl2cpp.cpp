@@ -1,15 +1,40 @@
 #include <sqlpp11/sqlpp11.h>
+#include <cassert>
 //#include "MockDb.h" //todo 1
 #include "ddl2cpp_test.h"
 #include <iostream>
 #include <string>
+#include <fstream>
+
+
+int testSqlFile(const int expectedResult , const std::string pathToSqlFile ){
+  std::string ddlHeaderPath = "test_scripts/ddl2cpp_test_result_header";
+
+  std::string args =
+" scripts/ddl2cpp  -fail-on-parse " +
+pathToSqlFile + " " +
+ddlHeaderPath +
+"  ddlcpp2_test_namespace";
+
+  auto python_args = test_scripts_pythonPath + args.c_str();
+  return system(python_args.c_str());
+}
+
+
 int ddl2cpp(int, char* [])
 {
-  std::cout << test_scripts_pythonPath; //included from cmake-generated header if python is found
-  std::string args = " scripts/ddl2cpp  -fail-on-parse sample_ddl2cpp.sql";
-  auto python_args = test_scripts_pythonPath + args.c_str();
-  system(python_args.c_str());
-  /* maybe todo 1: test compile / db_mock, for now we're just testing that ddl2cpp generates header without errors
+  std::ifstream file("scripts/ddl2cpp");
+  if (!file)
+  {
+    std::cout << "script tests should be started from the top level sqlpp11 directory. Where scripts/ dir is found\n";
+    exit(1);
+  }
+
+
+  assert(testSqlFile (0, "test_scripts/ddl2cpp_sample_good.sql") == 0);
+  assert(testSqlFile (0, "test_scripts/ddl2cpp_sample_bad.sql") > 0);
+
+  /* maybe todo 1: test compile / use db_mock, for now we're just checking that ddl2cpp generates header without errors
    */
   /*
   MockDb db = {};

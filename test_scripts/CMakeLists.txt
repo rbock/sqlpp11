@@ -38,6 +38,7 @@ if (${PYTHONINTERP_FOUND})
     message( STATUS "Pyparsing is installed: Enabling sql2ddl tests." )
 
     set(test_scripts_names ddl2cpp)
+    #create header for inclusion, we don't want to depend on shell scripts
     file(WRITE ddl2cpp_test.h "
 #include <string>
 std::string test_scripts_pythonPath = \"${PYTHON_EXECUTABLE}\";
