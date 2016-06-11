@@ -7,18 +7,18 @@
 #include <fstream>
 
 
-int testSqlFile(const int expectedResult , const std::string pathToSqlFile ){
+int testSqlFile(const std::string pathToSqlFile ){
 
 #if defined _WIN64 || defined _WIN32
   std::string nullOutput = " > nul 2>&1";
 #else
   std::string nullOutput = " > /dev/null 2>&1";
 #endif
-
-  std::string ddlHeaderPath = "test_scripts/ddl2cpp_test_result_header";
+  nullOutput = "";
+  std::string ddlHeaderPath = "../test_scripts/ddl2cpp_test_result_header";
 
   std::string args =
-    " scripts/ddl2cpp  -fail-on-parse " +
+    " ../scripts/ddl2cpp  -fail-on-parse " +
     pathToSqlFile + " " +
     ddlHeaderPath +
     "  ddlcpp2_test_namespace "+
@@ -31,15 +31,15 @@ int testSqlFile(const int expectedResult , const std::string pathToSqlFile ){
 
 int ddl2cpp(int, char* [])
 {
-  std::ifstream file("scripts/ddl2cpp");
+  std::ifstream file("../scripts/ddl2cpp");
   if (!file)
   {
-    std::cout << "script tests should be started from the top level sqlpp11 directory. Where scripts/ dir is found\n";
+    std::cout << "script tests should be started from the test_scripts directory.\n";
     exit(1);
   }
 
-  assert(testSqlFile (0, "test_scripts/ddl2cpp_sample_good.sql") == 0);
-  assert(testSqlFile (0, "test_scripts/ddl2cpp_sample_bad.sql") > 0);
+  assert(0 == testSqlFile ("../test_scripts/ddl2cpp_sample_good.sql"));
+  assert(0 < testSqlFile ("../test_scripts/ddl2cpp_sample_bad.sql"));
 
   /* maybe todo 1: test compile / use db_mock, for now we're just checking that ddl2cpp generates header without errors
    */
