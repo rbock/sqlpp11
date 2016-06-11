@@ -8,18 +8,26 @@
 
 
 int testSqlFile(const int expectedResult , const std::string pathToSqlFile ){
+
+#if defined _WIN64 || defined _WIN32
+  std::string nullOutput = " > nul 2>&1";
+#else
+  std::string nullOutput = " > /dev/null 2>&1";
+#endif
+
   std::string ddlHeaderPath = "test_scripts/ddl2cpp_test_result_header";
 
   std::string args =
-" scripts/ddl2cpp  -fail-on-parse " +
-pathToSqlFile + " " +
-ddlHeaderPath +
-"  ddlcpp2_test_namespace";
+    " scripts/ddl2cpp  -fail-on-parse " +
+    pathToSqlFile + " " +
+    ddlHeaderPath +
+    "  ddlcpp2_test_namespace "+
+    nullOutput
+    ;
 
   auto python_args = test_scripts_pythonPath + args.c_str();
   return system(python_args.c_str());
 }
-
 
 int ddl2cpp(int, char* [])
 {
@@ -29,7 +37,6 @@ int ddl2cpp(int, char* [])
     std::cout << "script tests should be started from the top level sqlpp11 directory. Where scripts/ dir is found\n";
     exit(1);
   }
-
 
   assert(testSqlFile (0, "test_scripts/ddl2cpp_sample_good.sql") == 0);
   assert(testSqlFile (0, "test_scripts/ddl2cpp_sample_bad.sql") > 0);
