@@ -58,7 +58,7 @@ std::string test_scripts_pythonPath = \"${PYTHON_EXECUTABLE}\";
   #MESSAGE( STATUS "Python found:" ${PythonRESULT} )
   #MESSAGE( STATUS "Python found:" ${PythonOUTPUT} )
   #MESSAGE( STATUS "Python found:" ${PythonERROR} )
-ENDIF()
+endif()
 
 
 
