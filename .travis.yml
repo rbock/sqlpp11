@@ -47,6 +47,11 @@ install:
 before_script:
    - mkdir build
    - cd build
+   - if [[ "$CONFIG" = "Debug" && "$TRAVIS_OS_NAME" = "linux" ]]; then
+         cp -r ../scripts/ . &&
+         cp -r ../test_scripts/ . &&
+         sudo apt-get install python-pyparsing;
+     fi
    - if [[ "$CXX" = "g++" && "$CONFIG" = "Debug" && "$TRAVIS_OS_NAME" = "linux" ]]; then export CXXFLAGS="--coverage"; fi
    - cmake .. -DCMAKE_BUILD_TYPE=$CONFIG -DCMAKE_PREFIX_PATH=$PWD/../date
 
