@@ -40,10 +40,17 @@ if (${PYTHONINTERP_FOUND})
     set(test_scripts_names ddl2cpp)
     #create header for inclusion, we don't want to depend on shell scripts
     file(WRITE ddl2cpp_test.h "
+#ifndef SQLPP_TEST_DDL2CPP_TEST_H
+#define SQLPP_TEST_DDL2CPP_TEST
 #include <string>
-std::string test_scripts_pythonPath = \"${PYTHON_EXECUTABLE}\";
+std::string test_scripts_python_path = \"${PYTHON_EXECUTABLE}\";
 " )
-
+#some other definitions goes here
+#...
+#close header
+    file(APPEND ddl2cpp_test.h "
+#endif
+" )
 
     create_test_sourcelist(test_scripts_sources test_scripts_main.cpp ${test_scripts_names})
     add_executable(sqlpp11_test_scripts ${test_scripts_sources})

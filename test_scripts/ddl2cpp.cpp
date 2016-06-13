@@ -1,35 +1,4 @@
-#include <sqlpp11/sqlpp11.h>
-#include <cassert>
-//#include "MockDb.h" //todo 1
-#include "ddl2cpp_test.h"
-#include <iostream>
-#include <string>
-#include <fstream>
-
-
-int testSqlFile(const std::string pathToSqlFile ){
-
-#if defined _WIN64 || defined _WIN32
-  std::string nullOutput = " > nul 2>&1";
-#else
-  std::string nullOutput = " > /dev/null 2>&1";
-#endif
-
-nullOutput ="";
-
-  std::string ddlHeaderPath = "../test_scripts/ddl2cpp_test_result_header";
-
-  std::string args =
-    " ../scripts/ddl2cpp  -fail-on-parse " +
-    pathToSqlFile + " " +
-    ddlHeaderPath +
-    "  ddlcpp2_test_namespace "+
-    nullOutput
-    ;
-
-  auto python_args = test_scripts_pythonPath + args.c_str();
-  return system(python_args.c_str());
-}
+#include "ddl2cpp_util.h"
 
 int ddl2cpp(int, char* [])
 {
