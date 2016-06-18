@@ -158,11 +158,13 @@ namespace sqlpp
                                "dynamic_set() must not be called in a static statement");
   template <typename... Assignments>
   using check_update_set_t = static_combined_check_t<
-      static_check_t<logic::all_t<is_assignment_t<Assignments>::value...>::value, assert_update_set_assignments_t>,
+      static_check_t<logic::all_t<detail::is_assignment_impl<Assignments>::type::value...>::value,
+                     assert_update_set_assignments_t>,
       static_check_t<not detail::has_duplicates<typename lhs<Assignments>::type...>::value,
                      assert_update_set_no_duplicates_t>,
-      static_check_t<logic::none_t<must_not_update_t<typename lhs<Assignments>::type>::value...>::value,
-                     assert_update_set_allowed_t>,
+      static_check_t<
+          logic::none_t<detail::must_not_update_impl<typename lhs<Assignments>::type>::type::value...>::value,
+          assert_update_set_allowed_t>,
       static_check_t<
           sizeof...(Assignments) == 0 or
               detail::make_joined_set_t<required_tables_of<typename lhs<Assignments>::type>...>::size::value == 1,
