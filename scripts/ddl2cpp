@@ -161,16 +161,16 @@ def ddlWord(string):
 def ddlFunctionWord(string):
     return CaselessLiteral(string) + OneOrMore("(") + ZeroOrMore(" ") + OneOrMore(")")
 
-ddlString   = Or([QuotedString("'"), QuotedString("\"", escQuote='""'), QuotedString("`")])
+ddlString = Or([QuotedString("'"), QuotedString("\"", escQuote='""'), QuotedString("`")])
 negativeSign = Literal('-')
-ddlNum     = Combine(Optional(negativeSign) + Word(nums + "."))
-ddlTerm     = Word(alphas, alphanums + "_$")
-ddlName     = Or([ddlTerm, ddlString])
+ddlNum = Combine(Optional(negativeSign) + Word(nums + "."))
+ddlTerm = Word(alphanums + "_$")
+ddlName = Or([ddlTerm, ddlString])
 ddlArguments = "(" + delimitedList(Or([ddlString, ddlTerm, ddlNum])) + ")"
 ddlNotNull = Group(ddlWord("NOT") + ddlWord("NULL")).setResultsName("notNull")
 ddlDefaultValue = ddlWord("DEFAULT").setResultsName("hasDefaultValue")
 ddlAutoValue = ddlWord("AUTO_INCREMENT").setResultsName("hasAutoValue")
-ddlColumnComment  = Group(ddlWord("COMMENT") + ddlString).setResultsName("comment")
+ddlColumnComment = Group(ddlWord("COMMENT") + ddlString).setResultsName("comment")
 ddlConstraint = Or([
         ddlWord("CONSTRAINT"),
         ddlWord("PRIMARY"),
@@ -179,9 +179,9 @@ ddlConstraint = Or([
         ddlWord("INDEX"),
         ddlWord("UNIQUE"),
         ])
-ddlColumn   = Group(Optional(ddlConstraint).setResultsName("isConstraint") + OneOrMore(MatchFirst([ddlNotNull, ddlAutoValue, ddlDefaultValue, ddlFunctionWord("NOW"), ddlTerm, ddlNum, ddlColumnComment, ddlString, ddlArguments])))
+ddlColumn = Group(Optional(ddlConstraint).setResultsName("isConstraint") + OneOrMore(MatchFirst([ddlNotNull, ddlAutoValue, ddlDefaultValue, ddlFunctionWord("NOW"), ddlTerm, ddlNum, ddlColumnComment, ddlString, ddlArguments])))
 createTable = Group(ddlWord("CREATE") + ddlWord("TABLE") + ddlName.setResultsName("tableName") + "(" + Group(delimitedList(ddlColumn)).setResultsName("columns") + ")").setResultsName("create")
-
+#ddlString.setDebug(True) #uncomment to debug pyparsing
 
 ddl = ZeroOrMore(Suppress(SkipTo(createTable, False)) + createTable)
 
