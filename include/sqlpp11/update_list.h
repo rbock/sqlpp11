@@ -268,9 +268,10 @@ namespace sqlpp
 
       template <typename... Assignments>
       auto dynamic_set(Assignments... assignments) const
-          -> _new_statement_t<check_update_dynamic_set_t<Assignments...>, update_list_t<_database_t, Assignments...>>
+          -> _new_statement_t<check_update_dynamic_set_t<_database_t, Assignments...>,
+                              update_list_t<_database_t, Assignments...>>
       {
-        using Check = check_update_dynamic_set_t<Assignments...>;
+        using Check = check_update_dynamic_set_t<_database_t, Assignments...>;
         Check{}._();
 
         return _set_impl<_database_t>(Check{}, assignments...);
