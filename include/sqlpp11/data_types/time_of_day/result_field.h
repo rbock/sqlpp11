@@ -24,25 +24,49 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DAY_POINT_DATA_TYPE_H
-#define SQLPP_DAY_POINT_DATA_TYPE_H
+#ifndef SQLPP_TIME_OF_DAY_RESULT_FIELD_H
+#define SQLPP_TIME_OF_DAY_RESULT_FIELD_H
 
 #include <sqlpp11/chrono.h>
-#include <sqlpp11/type_traits.h>
+#include <sqlpp11/basic_expression_operators.h>
+#include <sqlpp11/result_field.h>
+#include <sqlpp11/result_field_base.h>
+#include <sqlpp11/data_types/time_of_day/data_type.h>
+#include <sqlpp11/field_spec.h>
+#include <ostream>
 
 namespace sqlpp
 {
-  struct day_point
+  template <typename Db, typename NameType, bool CanBeNull, bool NullIsTrivialValue>
+  struct result_field_t<Db, field_spec_t<NameType, time_of_day, CanBeNull, NullIsTrivialValue>>
+      : public result_field_base<Db, field_spec_t<NameType, time_of_day, CanBeNull, NullIsTrivialValue>>
   {
-    using _traits = make_traits<day_point, tag::is_value_type>;
-    using _cpp_value_type = ::sqlpp::chrono::day_point;
+    template <typename Target>
+    void _bind(Target& target, size_t i)
+    {
+      target._bind_time_of_day_result(i, &this->_value, &this->_is_null);
+    }
 
-    template <typename T>
-    using _is_valid_operand = is_day_or_time_point_t<T>;
-    template <typename T>
-    using _is_valid_assignment_operand = is_day_point_t<T>;
+    template <typename Target>
+    void _post_bind(Target& target, size_t i)
+    {
+      target._post_bind_time_of_day_result(i, &this->_value, &this->_is_null);
+    }
   };
 
-  using date = day_point;
+  template <typename Db, typename NameType, bool CanBeNull, bool NullIsTrivialValue>
+  inline std::ostream& operator<<(
+      std::ostream& os, const result_field_t<Db, field_spec_t<NameType, time_of_day, CanBeNull, NullIsTrivialValue>>& e)
+  {
+    if (e.is_null() and not NullIsTrivialValue)
+    {
+      os << "NULL";
+    }
+    else
+    {
+      os << ::date::make_time(e.value());
+    }
+    return os;
+  }
 }
 #endif

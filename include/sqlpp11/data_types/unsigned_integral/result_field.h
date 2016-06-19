@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, Roland Bock, Aaron Bishop
+ * Copyright (c) 2013-2016, Roland Bock, Aaron Bishop
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,34 +24,32 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_CHRONO_H
-#define SQLPP_CHRONO_H
+#ifndef SQLPP_UNSIGNED_INTEGRAL_RESULT_FIELD_H
+#define SQLPP_UNSIGNED_INTEGRAL_RESULT_FIELD_H
 
-#include <date.h>
+#include <sqlpp11/basic_expression_operators.h>
+#include <sqlpp11/result_field.h>
+#include <sqlpp11/result_field_base.h>
+#include <sqlpp11/data_types/unsigned_integral/data_type.h>
+#include <sqlpp11/field_spec.h>
 
 namespace sqlpp
 {
-  namespace chrono
+  template <typename Db, typename NameType, bool CanBeNull, bool NullIsTrivialValue>
+  struct result_field_t<Db, field_spec_t<NameType, unsigned_integral, CanBeNull, NullIsTrivialValue>>
+      : public result_field_base<Db, field_spec_t<NameType, unsigned_integral, CanBeNull, NullIsTrivialValue>>
   {
-    using days = std::chrono::duration<int, std::ratio_multiply<std::ratio<24>, std::chrono::hours::period>>;
-
-    using day_point = std::chrono::time_point<std::chrono::system_clock, days>;
-    using microsecond_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>;
-
-#if _MSC_FULL_VER >= 190023918
-    // MSVC Update 2 provides floor, ceil, round, abs in chrono (which is C++17 only...)
-    using ::std::chrono::floor;
-#else
-    using ::date::floor;
-#endif
-
-    template <typename T>
-    std::chrono::microseconds time_of_day(T t)
+    template <typename Target>
+    void _bind(Target& target, size_t index)
     {
-      const auto dp = floor<days>(t);
-      return std::chrono::duration_cast<std::chrono::microseconds>(::date::make_time(t - dp).to_duration());
+      target._bind_unsigned_integral_result(index, &this->_value, &this->_is_null);
     }
-  }
-}
 
+    template <typename Target>
+    void _post_bind(Target& target, size_t index)
+    {
+      target._post_bind_unsigned_integral_result(index, &this->_value, &this->_is_null);
+    }
+  };
+}
 #endif

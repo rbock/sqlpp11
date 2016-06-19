@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock, Aaron Bishop
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -79,9 +79,17 @@ namespace sqlpp
   template <typename T>
   using is_integral_t = std::is_same<value_type_of<T>, integral>;
 
+  struct unsigned_integral;
+  template <typename T>
+  using is_unsigned_integral_t = std::is_same<value_type_of<T>, unsigned_integral>;
+
   struct text;
   template <typename T>
   using is_text_t = std::is_same<value_type_of<T>, text>;
+
+  struct time_of_day;
+  template <typename T>
+  using is_time_of_day_t = std::is_same<value_type_of<T>, time_of_day>;
 
   struct time_point;
   template <typename T>
@@ -89,7 +97,12 @@ namespace sqlpp
 
   // joined data type
   template <typename T>
-  using is_numeric_t = logic::any_t<is_integral_t<T>::value, is_floating_point_t<T>::value>;
+  using is_numeric_t =
+      logic::any_t<is_integral_t<T>::value, is_unsigned_integral_t<T>::value, is_floating_point_t<T>::value>;
+
+  template <typename T>
+  using is_numeric_not_unsigned_t =
+      logic::any_t<is_integral_t<T>::value, not is_unsigned_integral_t<T>::value, is_floating_point_t<T>::value>;
 
   template <typename T>
   using is_day_or_time_point_t = logic::any_t<is_day_point_t<T>::value, is_time_point_t<T>::value>;

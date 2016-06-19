@@ -24,25 +24,60 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DAY_POINT_DATA_TYPE_H
-#define SQLPP_DAY_POINT_DATA_TYPE_H
+#ifndef SQLPP_TIME_OF_DAY_OPERAND_H
+#define SQLPP_TIME_OF_DAY_OPERAND_H
 
 #include <sqlpp11/chrono.h>
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/alias_operators.h>
+#include <sqlpp11/serializer.h>
 
 namespace sqlpp
 {
-  struct day_point
-  {
-    using _traits = make_traits<day_point, tag::is_value_type>;
-    using _cpp_value_type = ::sqlpp::chrono::day_point;
+  struct time_of_day;
 
-    template <typename T>
-    using _is_valid_operand = is_day_or_time_point_t<T>;
-    template <typename T>
-    using _is_valid_assignment_operand = is_day_point_t<T>;
+  template <typename Period>
+  struct time_of_day_operand : public alias_operators<time_of_day_operand<Period>>
+  {
+    using _traits = make_traits<time_of_day, tag::is_expression, tag::is_wrapped_value>;
+    using _nodes = detail::type_vector<>;
+    using _is_aggregate_expression = std::true_type;
+
+    using _value_t = std::chrono::microseconds;
+
+    time_of_day_operand() : _t{}
+    {
+    }
+
+    time_of_day_operand(_value_t t) : _t(t)
+    {
+    }
+
+    time_of_day_operand(const time_of_day_operand&) = default;
+    time_of_day_operand(time_of_day_operand&&) = default;
+    time_of_day_operand& operator=(const time_of_day_operand&) = default;
+    time_of_day_operand& operator=(time_of_day_operand&&) = default;
+    ~time_of_day_operand() = default;
+
+    bool _is_trivial() const
+    {
+      return std::chrono::operator==(_t, _value_t{});
+    }
+
+    _value_t _t;
   };
 
-  using date = day_point;
+  template <typename Context, typename Period>
+  struct serializer_t<Context, time_of_day_operand<Period>>
+  {
+    using _serialize_check = consistent_t;
+    using Operand = time_of_day_operand<Period>;
+
+    static Context& _(const Operand& t, Context& context)
+    {
+      context << '\'' << ::date::make_time(t._t) << '\'';
+      return context;
+    }
+  };
 }
 #endif

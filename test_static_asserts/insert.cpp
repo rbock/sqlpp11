@@ -87,8 +87,8 @@ namespace
     set_static_check<sqlpp::consistent_t>(t.gamma = true, t.delta = 42, t.beta = "fortytwo");
 
     // Try setting alpha
-    set_static_check<sqlpp::assert_insert_set_prohibited_t>(t.alpha = 17, t.beta = "whatever");
-    set_static_check<sqlpp::assert_insert_set_prohibited_t>(t.beta = "whatever", t.alpha = 17);
+    set_static_check<sqlpp::assert_insert_set_allowed_t>(t.alpha = 17, t.beta = "whatever");
+    set_static_check<sqlpp::assert_insert_set_allowed_t>(t.beta = "whatever", t.alpha = 17);
 
     // Try omitting gamma
     set_static_check<sqlpp::assert_insert_static_set_all_required_t>(t.delta = 42);
@@ -112,7 +112,7 @@ namespace
                                                                t.gamma = true);
 
     // Try multiple tables
-    set_static_check<sqlpp::assert_insert_set_one_table_t>(f.omega = 41, t.gamma = true);
+    set_static_check<sqlpp::assert_insert_set_single_table_t>(f.omega = 41, t.gamma = true);
   }
 
   // column alpha is not allowed, column gamma is required
@@ -127,8 +127,8 @@ namespace
     set_dynamic_check<sqlpp::consistent_t>(t.gamma = true, t.delta = 42, t.beta = "fortytwo");
 
     // Try setting alpha
-    set_dynamic_check<sqlpp::assert_insert_set_prohibited_t>(t.alpha = 17, t.beta = "whatever");
-    set_dynamic_check<sqlpp::assert_insert_set_prohibited_t>(t.beta = "whatever", t.alpha = 17);
+    set_dynamic_check<sqlpp::assert_insert_set_allowed_t>(t.alpha = 17, t.beta = "whatever");
+    set_dynamic_check<sqlpp::assert_insert_set_allowed_t>(t.beta = "whatever", t.alpha = 17);
 
     // Omitting gamma is OK in the dynamic case, since we have to assume that it gets added later
     set_dynamic_check<sqlpp::consistent_t>(t.delta = 42);
@@ -153,7 +153,7 @@ namespace
                                                                 t.gamma = true);
 
     // Try multiple tables
-    set_dynamic_check<sqlpp::assert_insert_set_one_table_t>(f.omega = 41, t.gamma = true);
+    set_dynamic_check<sqlpp::assert_insert_set_single_table_t>(f.omega = 41, t.gamma = true);
 
     // Try dynamic_set on a non-dynamic insert
     using CheckResult = sqlpp::check_insert_dynamic_set_t<void>;

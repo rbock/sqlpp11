@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, Roland Bock, Aaron Bishop
+ * Copyright (c) 2013-2016, Roland Bock, Aaron Bishop
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,34 +24,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_CHRONO_H
-#define SQLPP_CHRONO_H
+#ifndef SQLPP_UNSIGNED_INTEGRAL_H
+#define SQLPP_UNSIGNED_INTEGRAL_H
 
-#include <date.h>
-
-namespace sqlpp
-{
-  namespace chrono
-  {
-    using days = std::chrono::duration<int, std::ratio_multiply<std::ratio<24>, std::chrono::hours::period>>;
-
-    using day_point = std::chrono::time_point<std::chrono::system_clock, days>;
-    using microsecond_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>;
-
-#if _MSC_FULL_VER >= 190023918
-    // MSVC Update 2 provides floor, ceil, round, abs in chrono (which is C++17 only...)
-    using ::std::chrono::floor;
-#else
-    using ::date::floor;
-#endif
-
-    template <typename T>
-    std::chrono::microseconds time_of_day(T t)
-    {
-      const auto dp = floor<days>(t);
-      return std::chrono::duration_cast<std::chrono::microseconds>(::date::make_time(t - dp).to_duration());
-    }
-  }
-}
+#include <sqlpp11/data_types/unsigned_integral/data_type.h>
+#include <sqlpp11/data_types/unsigned_integral/operand.h>
+#include <sqlpp11/data_types/unsigned_integral/wrap_operand.h>
+#include <sqlpp11/data_types/unsigned_integral/expression_operators.h>
+#include <sqlpp11/data_types/unsigned_integral/column_operators.h>
+#include <sqlpp11/data_types/unsigned_integral/parameter_value.h>
+#include <sqlpp11/data_types/unsigned_integral/result_field.h>
 
 #endif

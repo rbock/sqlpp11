@@ -58,21 +58,25 @@ int DateTime(int, char* [])
   db(insert_into(t).set(t.colDayPoint = floor<::sqlpp::chrono::days>(std::chrono::system_clock::now())));
   db(insert_into(t).set(t.colTimePoint = floor<::sqlpp::chrono::days>(std::chrono::system_clock::now())));
   db(insert_into(t).set(t.colTimePoint = std::chrono::system_clock::now()));
+  db(insert_into(t).set(t.colTimeOfDay = ::sqlpp::chrono::time_of_day(std::chrono::system_clock::now())));
 
   db(update(t)
          .set(t.colDayPoint = floor<::sqlpp::chrono::days>(std::chrono::system_clock::now()))
          .where(t.colDayPoint < std::chrono::system_clock::now()));
   db(update(t)
-         .set(t.colTimePoint = floor<::sqlpp::chrono::days>(std::chrono::system_clock::now()))
+         .set(t.colTimePoint = floor<::sqlpp::chrono::days>(std::chrono::system_clock::now()),
+              t.colTimeOfDay = ::sqlpp::chrono::time_of_day(std::chrono::system_clock::now()))
          .where(t.colDayPoint < std::chrono::system_clock::now()));
   db(update(t)
-         .set(t.colTimePoint = std::chrono::system_clock::now())
+         .set(t.colTimePoint = std::chrono::system_clock::now(),
+              t.colTimeOfDay = ::sqlpp::chrono::time_of_day(std::chrono::system_clock::now()))
          .where(t.colDayPoint < std::chrono::system_clock::now()));
 
   db(remove_from(t).where(t.colDayPoint == floor<::sqlpp::chrono::days>(std::chrono::system_clock::now())));
   db(remove_from(t).where(t.colDayPoint == std::chrono::system_clock::now()));
   db(remove_from(t).where(t.colTimePoint == floor<::sqlpp::chrono::days>(std::chrono::system_clock::now())));
   db(remove_from(t).where(t.colTimePoint == std::chrono::system_clock::now()));
+  db(remove_from(t).where(t.colTimeOfDay == ::sqlpp::chrono::time_of_day(std::chrono::system_clock::now())));
 
   return 0;
 }

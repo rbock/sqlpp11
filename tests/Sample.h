@@ -75,9 +75,31 @@ namespace test
       };
       using _traits = sqlpp::make_traits<sqlpp::floating_point, sqlpp::tag::can_be_null>;
     };
+    struct Psi
+    {
+      struct _alias_t
+      {
+        static constexpr const char _literal[] = "psi";
+        using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+        template <typename T>
+        struct _member_t
+        {
+          T psi;
+          T& operator()()
+          {
+            return psi;
+          }
+          const T& operator()() const
+          {
+            return psi;
+          }
+        };
+      };
+      using _traits = sqlpp::make_traits<sqlpp::bigint_unsigned, sqlpp::tag::can_be_null>;
+    };
   }
 
-  struct TabFoo : sqlpp::table_t<TabFoo, TabFoo_::Delta, TabFoo_::Epsilon, TabFoo_::Omega>
+  struct TabFoo : sqlpp::table_t<TabFoo, TabFoo_::Delta, TabFoo_::Epsilon, TabFoo_::Omega, TabFoo_::Psi>
   {
     struct _alias_t
     {
@@ -259,9 +281,33 @@ namespace test
       };
       using _traits = sqlpp::make_traits<sqlpp::time_point, sqlpp::tag::can_be_null>;
     };
+
+    struct ColTimeOfDay
+    {
+      struct _alias_t
+      {
+        static constexpr const char _literal[] = "col_time_of_day";
+        using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+        template <typename T>
+        struct _member_t
+        {
+          T colTimeOfDay;
+          T& operator()()
+          {
+            return colTimeOfDay;
+          }
+          const T& operator()() const
+          {
+            return colTimeOfDay;
+          }
+        };
+      };
+      using _traits = sqlpp::make_traits<sqlpp::time_of_day, sqlpp::tag::can_be_null>;
+    };
   }
 
-  struct TabDateTime : sqlpp::table_t<TabDateTime, TabDateTime_::ColDayPoint, TabDateTime_::ColTimePoint>
+  struct TabDateTime
+      : sqlpp::table_t<TabDateTime, TabDateTime_::ColDayPoint, TabDateTime_::ColTimePoint, TabDateTime_::ColTimeOfDay>
   {
     struct _alias_t
     {
