@@ -28,9 +28,10 @@
 #define SQLPP_CUSTOM_QUERY_H
 
 #include <sqlpp11/connection.h>
-#include <sqlpp11/interpret_tuple.h>
-#include <sqlpp11/hidden.h>
 #include <sqlpp11/detail/get_first.h>
+#include <sqlpp11/hidden.h>
+#include <sqlpp11/interpret_tuple.h>
+#include <sqlpp11/statement.h>
 
 namespace sqlpp
 {
