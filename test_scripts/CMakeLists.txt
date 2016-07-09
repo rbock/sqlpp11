@@ -1,4 +1,3 @@
-
 # Copyright (c) 2013-2016, Roland Bock, Alexey Elymanov
 # All rights reserved.
 #
@@ -23,50 +22,53 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 include(FindPythonInterp)
+
 if (${PYTHONINTERP_FOUND})
   execute_process(
           COMMAND ${PYTHON_EXECUTABLE} -c "import pyparsing"
-          RESULT_VARIABLE PythonRESULT
-          OUTPUT_VARIABLE PythonOUTPUT
+	                RESULT_VARIABLE PythonRESULT
+									OUTPUT_VARIABLE PythonOUTPUT
           ERROR_VARIABLE PythonERROR
   )
-  if (${PythonRESULT})
-    message( STATUS "Pyparsing is not installed." ${PythonRESULT} )
-  else()
-    message( STATUS "Pyparsing is installed: Enabling sql2ddl tests." )
 
-    set(test_scripts_names ddl2cpp)
-    #create header for inclusion, we don't want to depend on shell scripts
-    file(WRITE ddl2cpp_test.h "
-#ifndef SQLPP_TEST_DDL2CPP_TEST_H
-#define SQLPP_TEST_DDL2CPP_TEST
-#include <string>
-std::string test_scripts_python_path = \"${PYTHON_EXECUTABLE}\";
-" )
-#some other definitions goes here
-#...
-#close header
-    file(APPEND ddl2cpp_test.h "
-#endif
-" )
+	if (${PythonRESULT})
+    message(WARNING "Pyparsing is not installed. Disabling ddl2cpp tests")
 
-    create_test_sourcelist(test_scripts_sources test_scripts_main.cpp ${test_scripts_names})
-    add_executable(sqlpp11_test_scripts ${test_scripts_sources})
-    target_link_libraries(sqlpp11_test_scripts PRIVATE sqlpp11 sqlpp11_testing)
+	else()
+    message(STATUS "Pyparsing is installed: Enabling ddl2cpp tests.")
 
-    foreach(test_scripts IN LISTS test_scripts_names)
-      add_test(NAME sqlpp11.test_scripts.${test_scripts}
-              COMMAND sqlpp11_test_scripts ${test_scripts}
-              )
-    endforeach()
+		add_test(NAME sqlpp11.test.ddl2cpp.bad_will_fail
+		         COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../scripts/ddl2cpp" -fail-on-parse
+						         "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_bad.sql"
+										 "${CMAKE_CURRENT_BINARY_DIR}/fail"
+										 test)
+		set_tests_properties(sqlpp11.test.ddl2cpp.bad_will_fail PROPERTIES WILL_FAIL 1)
+
+		add_test(NAME sqlpp11.test.ddl2cpp.bad_has_parse_error
+		         COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../scripts/ddl2cpp" -fail-on-parse
+						         "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_bad.sql"
+										 "${CMAKE_CURRENT_BINARY_DIR}/fail"
+										 test)
+		set_tests_properties(sqlpp11.test.ddl2cpp.bad_has_parse_error PROPERTIES PASS_REGULAR_EXPRESSION "Parsing error,.*")
+
+		add_test(NAME sqlpp11.test.ddl2cpp.good_succeeds
+		         COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../scripts/ddl2cpp" -fail-on-parse
+						         "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
+										 "${CMAKE_CURRENT_BINARY_DIR}/fail"
+										 test)
+
+		set(sqlpp.test.generated.sample "${CMAKE_CURRENT_BINARY_DIR}/Sample")
+		include_directories(${CMAKE_CURRENT_BINARY_DIR})
+		add_custom_command(
+				OUTPUT "${sqlpp.test.generated.sample}.h"
+				COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../scripts/ddl2cpp" "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql" "${sqlpp.test.generated.sample}" test
+				DEPENDS "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
+				VERBATIM)
+
+		add_executable(sqlpp.test.compiled.sample sample.cpp "${sqlpp.test.generated.sample}.h")
+		target_link_libraries(sqlpp.test.compiled.sample PRIVATE sqlpp11)
 
   endif()
-  #MESSAGE( STATUS "Python found:" ${PythonRESULT} )
-  #MESSAGE( STATUS "Python found:" ${PythonOUTPUT} )
-  #MESSAGE( STATUS "Python found:" ${PythonERROR} )
 endif()
-
-
 
