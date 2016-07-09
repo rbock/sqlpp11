@@ -58,6 +58,17 @@ if (${PYTHONINTERP_FOUND})
 										 "${CMAKE_CURRENT_BINARY_DIR}/fail"
 										 test)
 
+		set(sqlpp.test.generated.sample "${CMAKE_CURRENT_BINARY_DIR}/Sample")
+		include_directories(${CMAKE_CURRENT_BINARY_DIR})
+		add_custom_command(
+				OUTPUT "${sqlpp.test.generated.sample}.h"
+				COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../scripts/ddl2cpp" "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql" "${sqlpp.test.generated.sample}" test
+				DEPENDS "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
+				VERBATIM)
+
+		add_executable(sqlpp.test.compiled.sample sample.cpp "${sqlpp.test.generated.sample}.h")
+		target_link_libraries(sqlpp.test.compiled.sample PRIVATE sqlpp11)
+
   endif()
 endif()
 
