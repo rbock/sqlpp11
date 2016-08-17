@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,13 +27,13 @@
 #ifndef SQLPP_RESULT_FIELD_BASE_H
 #define SQLPP_RESULT_FIELD_BASE_H
 
-#include <utility>
-#include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/alias_operators.h>
-#include <sqlpp11/result_field.h>
-#include <sqlpp11/exception.h>
-#include <sqlpp11/type_traits.h>
 #include <sqlpp11/bad_statement.h>
+#include <sqlpp11/basic_expression_operators.h>
+#include <sqlpp11/exception.h>
+#include <sqlpp11/result_field.h>
+#include <sqlpp11/type_traits.h>
+#include <utility>
 
 namespace sqlpp
 {
@@ -42,6 +42,7 @@ namespace sqlpp
   {
     using _db_t = Db;
     using _field_spec_t = FieldSpec;
+    using _alias_t = typename FieldSpec::_alias_t;
     using _cpp_value_type = typename value_type_of<FieldSpec>::_cpp_value_type;
     using _cpp_storage_type = StorageType;
 
@@ -116,9 +117,8 @@ namespace sqlpp
       return _value;
     }
 
-    operator typename std::conditional<_null_is_trivial or (not _can_be_null::value),
-                                       _cpp_value_type,
-                                       bad_statement>::type() const
+    operator typename std::conditional<_null_is_trivial or (not _can_be_null::value), _cpp_value_type, bad_statement>::
+        type() const
     {
       return value();
     }
