@@ -29,10 +29,10 @@
 
 namespace sqlpp
 {
-  template <typename Part>
-  struct hidden_t : public Part
+  template <typename Clause>
+  struct hidden_t : Clause
   {
-    hidden_t(Part part) : Part(part)
+    hidden_t(Clause clause) : Clause(clause)
     {
     }
 
@@ -43,11 +43,11 @@ namespace sqlpp
     ~hidden_t() = default;
   };
 
-  template <typename Context, typename Part>
-  struct serializer_t<Context, hidden_t<Part>>
+  template <typename Context, typename Clause>
+  struct serializer_t<Context, hidden_t<Clause>>
   {
     using _serialize_check = consistent_t;
-    using T = hidden_t<Part>;
+    using T = hidden_t<Clause>;
 
     static Context& _(const T&, Context& context)
     {
@@ -55,8 +55,8 @@ namespace sqlpp
     }
   };
 
-  template <typename Part>
-  auto hidden(Part part) -> hidden_t<Part>
+  template <typename Clause>
+  auto hidden(Clause part) -> hidden_t<Clause>
   {
     return {part};
   }

@@ -23,11 +23,13 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "compare.h"
 #include "Sample.h"
+#include "compare.h"
 #include <sqlpp11/sqlpp11.h>
 
 #include <iostream>
+
+SQLPP_ALIAS_PROVIDER(pragma);
 
 int CustomQuery(int, char* [])
 {
@@ -58,6 +60,11 @@ int CustomQuery(int, char* [])
                    dynamic_order_by(db, foo.omega.asc()), sqlpp::dynamic_limit(db), sqlpp::dynamic_offset(db)),
       "SELECT  DISTINCT  tab_foo.omega  FROM tab_foo INNER JOIN tab_bar ON (tab_foo.omega=tab_bar.alpha)  WHERE "
       "(tab_bar.alpha>17)  GROUP BY tab_foo.omega  HAVING (AVG(tab_bar.alpha)>19)  ORDER BY tab_foo.omega ASC  ");
+
+  // A pragma query for sqlite
+  compare(__LINE__,
+          custom_query(sqlpp::verbatim("PRAGMA user_version")).with_result_type_of(select(sqlpp::value(1).as(pragma))),
+          " PRAGMA user_version");
 
   return 0;
 }
