@@ -102,9 +102,9 @@ namespace sqlpp
     }
 
     template <typename Part>
-    auto with_result_type_of(Part part) -> custom_query_t<Database, Part, Parts...>
+    auto with_result_type_of(Part part) -> custom_query_t<Database, hidden_t<Part>, Parts...>
     {
-      return {tuple_cat(std::make_tuple(part), _parts)};
+      return {tuple_cat(std::make_tuple(hidden(part)), _parts)};
     }
 
     std::tuple<Parts...> _parts;
