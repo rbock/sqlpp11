@@ -40,11 +40,23 @@ namespace sqlpp
 
   namespace detail
   {
+    template <typename T>
+    struct unhide
+    {
+      using type = T;
+    };
+    template <typename Clause>
+    struct unhide<hidden_t<Clause>>
+    {
+      using type = Clause;
+    };
+
     template <typename Db, typename... Parts>
     struct custom_parts_t
     {
       using _custom_query_t = custom_query_t<Db, Parts...>;
-      using _result_type_provider = detail::get_first_if<is_return_value_t, noop, Parts...>;
+      using _maybe_hidden_result_type_provider = detail::get_first_if<is_return_value_t, noop, Parts...>;
+      using _result_type_provider = typename unhide<_maybe_hidden_result_type_provider>::type;
       using _result_methods_t = typename _result_type_provider::template _result_methods_t<_result_type_provider>;
     };
   }
@@ -102,9 +114,9 @@ namespace sqlpp
     }
 
     template <typename Part>
-    auto with_result_type_of(Part part) -> custom_query_t<Database, Part, Parts...>
+    auto with_result_type_of(Part part) -> custom_query_t<Database, hidden_t<Part>, Parts...>
     {
-      return {tuple_cat(std::make_tuple(part), _parts)};
+      return {tuple_cat(std::make_tuple(hidden(part)), _parts)};
     }
 
     std::tuple<Parts...> _parts;

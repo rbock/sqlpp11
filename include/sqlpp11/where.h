@@ -27,15 +27,15 @@
 #ifndef SQLPP_WHERE_H
 #define SQLPP_WHERE_H
 
-#include <sqlpp11/statement_fwd.h>
-#include <sqlpp11/type_traits.h>
-#include <sqlpp11/value.h>
-#include <sqlpp11/parameter_list.h>
 #include <sqlpp11/expression.h>
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/interpretable_list.h>
-#include <sqlpp11/unconditional.h>
 #include <sqlpp11/logic.h>
+#include <sqlpp11/parameter_list.h>
+#include <sqlpp11/statement_fwd.h>
+#include <sqlpp11/type_traits.h>
+#include <sqlpp11/unconditional.h>
+#include <sqlpp11/value.h>
 
 namespace sqlpp
 {
@@ -123,8 +123,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
       template <typename... Args>
-      _base_t(Args&&... args)
-          : where{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : where{std::forward<Args>(args)...}
       {
       }
 
@@ -186,8 +185,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
       template <typename... Args>
-      _base_t(Args&&... args)
-          : where{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : where{std::forward<Args>(args)...}
       {
       }
 
@@ -211,7 +209,7 @@ namespace sqlpp
     };
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_t, "calling where() or uncontionally() required");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_t, "calling where() or unconditionally() required");
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_where_not_cpp_bool_t,
                                "where() argument has to be an sqlpp boolean expression. Please use "
@@ -286,8 +284,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
       template <typename... Args>
-      _base_t(Args&&... args)
-          : no_where{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : no_where{std::forward<Args>(args)...}
       {
       }
 

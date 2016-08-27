@@ -23,14 +23,14 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
-#include "Sample.h"
 #include "MockDb.h"
+#include "Sample.h"
 #include "is_regular.h"
+#include <iostream>
 #include <sqlpp11/alias_provider.h>
-#include <sqlpp11/select.h>
-#include <sqlpp11/functions.h>
 #include <sqlpp11/connection.h>
+#include <sqlpp11/functions.h>
+#include <sqlpp11/select.h>
 #include <sqlpp11/without_table_check.h>
 
 template <typename Db, typename Column>
@@ -42,6 +42,15 @@ int64_t getColumn(Db&& db, const Column& column)
   else
     return 0;
 }
+
+struct to_cerr
+{
+  template <typename Field>
+  auto operator()(const Field& field) const -> void
+  {
+    std::cerr << get_sql_name(field) << " = " << field << std::endl;
+  }
+};
 
 int Select(int, char* [])
 {
@@ -166,6 +175,11 @@ int Select(int, char* [])
        db(select(sqlpp::case_when(true).then(sqlpp::null).else_(sqlpp::null).as(t.beta)).from(t).unconditionally()))
   {
     std::cerr << row.beta << std::endl;
+  }
+
+  for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
+  {
+    for_each_field(row, to_cerr{});
   }
 
   return 0;

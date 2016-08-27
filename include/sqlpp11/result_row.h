@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -28,12 +28,12 @@
 #define SQLPP_RESULT_ROW_H
 
 #include <map>
-#include <sqlpp11/result_row_fwd.h>
+#include <sqlpp11/data_types/text.h>
+#include <sqlpp11/detail/field_index_sequence.h>
 #include <sqlpp11/dynamic_select_column_list.h>
 #include <sqlpp11/field_spec.h>
 #include <sqlpp11/no_name.h>
-#include <sqlpp11/data_types/text.h>
-#include <sqlpp11/detail/field_index_sequence.h>
+#include <sqlpp11/result_row_fwd.h>
 
 namespace sqlpp
 {
@@ -70,6 +70,18 @@ namespace sqlpp
       {
         _field::operator()()._post_bind(target, index);
       }
+
+      template <typename Callable>
+      void _apply(Callable& callable) const
+      {
+        callable(_field::operator()());
+      }
+
+      template <typename Callable>
+      void _apply(const Callable& callable) const
+      {
+        callable(_field::operator()());
+      }
     };
 
     template <std::size_t index, typename AliasProvider, typename Db, typename... FieldSpecs>
@@ -104,6 +116,18 @@ namespace sqlpp
       {
         _multi_field::operator()()._post_bind(target);
       }
+
+      template <typename Callable>
+      void _apply(Callable& callable) const
+      {
+        _multi_field::operator()()._apply(callable);
+      }
+
+      template <typename Callable>
+      void _apply(const Callable& callable) const
+      {
+        _multi_field::operator()()._apply(callable);
+      }
     };
 
     template <typename Db, std::size_t NextIndex, std::size_t... Is, typename... FieldSpecs>
@@ -136,6 +160,20 @@ namespace sqlpp
       {
         using swallow = int[];
         (void)swallow{(result_field<Db, Is, FieldSpecs>::_post_bind(target), 0)...};
+      }
+
+      template <typename Callable>
+      void _apply(Callable& callable) const
+      {
+        using swallow = int[];
+        (void)swallow{(result_field<Db, Is, FieldSpecs>::_apply(callable), 0)...};
+      }
+
+      template <typename Callable>
+      void _apply(const Callable& callable) const
+      {
+        using swallow = int[];
+        (void)swallow{(result_field<Db, Is, FieldSpecs>::_apply(callable), 0)...};
       }
     };
   }
@@ -198,6 +236,18 @@ namespace sqlpp
     void _post_bind(Target& target)
     {
       _impl::_post_bind(target);
+    }
+
+    template <typename Callable>
+    void _apply(Callable& callable) const
+    {
+      _impl::_apply(callable);
+    }
+
+    template <typename Callable>
+    void _apply(const Callable& callable) const
+    {
+      _impl::_apply(callable);
     }
   };
 
@@ -291,6 +341,32 @@ namespace sqlpp
         ++index;
       }
     }
+
+    template <typename Callable>
+    void _apply(Callable& callable) const
+    {
+      _impl::_apply(callable);
+
+      std::size_t index = _field_index_sequence::_next_index;
+      for (const auto& field_name : _dynamic_field_names)
+      {
+        _dynamic_fields.at(field_name)._apply(callable);
+        ++index;
+      }
+    }
+
+    template <typename Callable>
+    void _apply(const Callable& callable) const
+    {
+      _impl::_apply(callable);
+
+      std::size_t index = _field_index_sequence::_next_index;
+      for (const auto& field_name : _dynamic_field_names)
+      {
+        _dynamic_fields.at(field_name)._apply(callable);
+        ++index;
+      }
+    }
   };
 
   template <typename T>
@@ -307,6 +383,18 @@ namespace sqlpp
 
   template <typename T>
   using is_static_result_row_t = typename is_static_result_row_impl<T>::type;
+
+  template <typename Row, typename Callable>
+  void for_each_field(const Row& row, const Callable& callable)
+  {
+    row._apply(callable);
+  }
+
+  template <typename Row, typename Callable>
+  void for_each_field(const Row& row, Callable& callable)
+  {
+    row._apply(callable);
+  }
 }
 
 #endif
