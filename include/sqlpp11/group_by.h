@@ -27,13 +27,13 @@
 #ifndef SQLPP_GROUP_BY_H
 #define SQLPP_GROUP_BY_H
 
-#include <tuple>
-#include <sqlpp11/type_traits.h>
 #include <sqlpp11/expression.h>
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/interpretable_list.h>
-#include <sqlpp11/policy_update.h>
 #include <sqlpp11/logic.h>
+#include <sqlpp11/policy_update.h>
+#include <sqlpp11/type_traits.h>
+#include <tuple>
 
 namespace sqlpp
 {
@@ -67,9 +67,8 @@ namespace sqlpp
     using _nodes = detail::type_vector<Expressions...>;
 
     using _is_dynamic = is_database<Database>;
-    using _provided_aggregates = typename std::conditional<_is_dynamic::value,
-                                                           detail::type_set<>,
-                                                           detail::make_type_set_t<Expressions...>>::type;
+    using _provided_aggregates = typename std::
+        conditional<_is_dynamic::value, detail::type_set<>, detail::make_type_set_t<Expressions...>>::type;
 
     // Data
     using _data_t = group_by_data_t<Database, Expressions...>;
@@ -92,7 +91,7 @@ namespace sqlpp
         static_assert(Policies::template _no_unknown_tables<Expression>::value,
                       "expression uses tables unknown to this statement in group_by::add()");
         using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Expression>;
-        _serialize_check::_();
+        _serialize_check{};
 
         using ok = logic::all_t<_is_dynamic::value, is_expression_t<Expression>::value, _serialize_check::type::value>;
 
@@ -121,8 +120,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
       template <typename... Args>
-      _base_t(Args&&... args)
-          : group_by{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : group_by{std::forward<Args>(args)...}
       {
       }
 
@@ -147,6 +145,17 @@ namespace sqlpp
                                                            assert_no_unknown_tables_in_group_by_t>::type;
     };
   };
+
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_group_by_args_are_expressions_t,
+                               "arguments for group_by() must be valid expressions");
+  template <typename... Exprs>
+  struct check_group_by
+  {
+    using type = static_combined_check_t<
+        static_check_t<logic::all_t<is_expression_t<Exprs>::value...>::value, assert_group_by_args_are_expressions_t>>;
+  };
+  template <typename... Exprs>
+  using check_group_by_t = typename check_group_by<Exprs...>::type;
 
   // NO GROUP BY YET
   struct no_group_by_t
@@ -178,8 +187,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
       template <typename... Args>
-      _base_t(Args&&... args)
-          : no_group_by{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : no_group_by{std::forward<Args>(args)...}
       {
       }
 
@@ -201,47 +209,37 @@ namespace sqlpp
 
       using _database_t = typename Policies::_database_t;
 
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      //	  template <typename... T>
-      //	  using _check = logic::all_t<is_expression_t<T>::value...>;
-      template <typename... T>
-      struct _check : logic::all_t<is_expression_t<T>::value...>
-      {
-      };
-
       template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check::value, Policies, no_group_by_t, T>;
+      using _new_statement_t = new_statement_t<Check, Policies, no_group_by_t, T>;
 
       using _consistency_check = consistent_t;
 
       template <typename... Expressions>
       auto group_by(Expressions... expressions) const
-          -> _new_statement_t<_check<Expressions...>, group_by_t<void, Expressions...>>
+          -> _new_statement_t<check_group_by_t<Expressions...>, group_by_t<void, Expressions...>>
       {
         static_assert(sizeof...(Expressions), "at least one expression (e.g. a column) required in group_by()");
-        static_assert(_check<Expressions...>::value, "at least one argument is not an expression in group_by()");
 
-        return _group_by_impl<void>(_check<Expressions...>{}, expressions...);
+        return _group_by_impl<void>(check_group_by_t<Expressions...>{}, expressions...);
       }
 
       template <typename... Expressions>
       auto dynamic_group_by(Expressions... expressions) const
-          -> _new_statement_t<_check<Expressions...>, group_by_t<_database_t, Expressions...>>
+          -> _new_statement_t<check_group_by_t<Expressions...>, group_by_t<_database_t, Expressions...>>
       {
         static_assert(not std::is_same<_database_t, void>::value,
                       "dynamic_group_by must not be called in a static statement");
-        static_assert(_check<Expressions...>::value, "at least one argument is not an expression in group_by()");
 
-        return _group_by_impl<_database_t>(_check<Expressions...>{}, expressions...);
+        return _group_by_impl<_database_t>(check_group_by_t<Expressions...>{}, expressions...);
       }
 
     private:
-      template <typename Database, typename... Expressions>
-      auto _group_by_impl(const std::false_type&, Expressions... expressions) const -> bad_statement;
+      template <typename Database, typename Check, typename... Expressions>
+      auto _group_by_impl(Check, Expressions... expressions) const -> Check;
 
       template <typename Database, typename... Expressions>
-      auto _group_by_impl(const std::true_type&, Expressions... expressions) const
-          -> _new_statement_t<std::true_type, group_by_t<Database, Expressions...>>
+      auto _group_by_impl(consistent_t, Expressions... expressions) const
+          -> _new_statement_t<consistent_t, group_by_t<Database, Expressions...>>
       {
         static_assert(not detail::has_duplicates<Expressions...>::value,
                       "at least one duplicate argument detected in group_by()");

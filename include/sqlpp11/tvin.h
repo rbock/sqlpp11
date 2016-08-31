@@ -29,9 +29,9 @@
 
 // TVIN: Trivial value is NULL
 
-#include <sqlpp11/type_traits.h>
 #include <sqlpp11/serialize.h>
 #include <sqlpp11/serializer.h>
+#include <sqlpp11/type_traits.h>
 #include <sqlpp11/wrap_operand.h>
 
 namespace sqlpp
@@ -67,7 +67,7 @@ namespace sqlpp
 
     static Context& _(const T&, Context&)
     {
-      _serialize_check::_();
+      _serialize_check{};
     }
   };
 

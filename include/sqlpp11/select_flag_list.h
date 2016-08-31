@@ -27,13 +27,13 @@
 #ifndef SQLPP_SELECT_FLAG_LIST_H
 #define SQLPP_SELECT_FLAG_LIST_H
 
-#include <tuple>
-#include <sqlpp11/type_traits.h>
-#include <sqlpp11/no_data.h>
-#include <sqlpp11/select_flags.h>
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/interpret_tuple.h>
+#include <sqlpp11/no_data.h>
 #include <sqlpp11/policy_update.h>
+#include <sqlpp11/select_flags.h>
+#include <sqlpp11/type_traits.h>
+#include <tuple>
 
 namespace sqlpp
 {
@@ -85,7 +85,7 @@ namespace sqlpp
         static_assert(Policies::template _no_unknown_tables<Flag>::value,
                       "flag uses tables unknown to this statement in select_flags::add()");
         using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Flag>;
-        _serialize_check::_();
+        _serialize_check{};
 
         using ok = logic::all_t<_is_dynamic::value, is_select_flag_t<Flag>::value, _serialize_check::type::value>;
 
@@ -114,8 +114,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
       template <typename... Args>
-      _base_t(Args&&... args)
-          : select_flags{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : select_flags{std::forward<Args>(args)...}
       {
       }
 
@@ -138,6 +137,16 @@ namespace sqlpp
       using _consistency_check = consistent_t;
     };
   };
+
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_select_flags_are_flags_t, "arguments for flags() must be known select flags");
+  template <typename... Flags>
+  struct check_select_flags
+  {
+    using type = static_combined_check_t<
+        static_check_t<logic::all_t<is_select_flag_t<Flags>::value...>::value, assert_select_flags_are_flags_t>>;
+  };
+  template <typename... Flags>
+  using check_select_flags_t = typename check_select_flags<Flags...>::type;
 
   struct no_select_flag_list_t
   {
@@ -168,8 +177,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
       template <typename... Args>
-      _base_t(Args&&... args)
-          : no_select_flags{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : no_select_flags{std::forward<Args>(args)...}
       {
       }
 
@@ -191,45 +199,35 @@ namespace sqlpp
 
       using _database_t = typename Policies::_database_t;
 
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      //	  template <typename... T>
-      //	  using _check = logic::all_t<is_select_flag_t<T>::value...>;
-      template <typename... T>
-      struct _check : logic::all_t<detail::is_select_flag_impl<T>::type::value...>
-      {
-      };
-
       template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check::value, Policies, no_select_flag_list_t, T>;
+      using _new_statement_t = new_statement_t<Check, Policies, no_select_flag_list_t, T>;
 
       using _consistency_check = consistent_t;
 
       template <typename... Flags>
-      auto flags(Flags... flgs) const -> _new_statement_t<_check<Flags...>, select_flag_list_t<void, Flags...>>
+      auto flags(Flags... flgs) const
+          -> _new_statement_t<check_select_flags_t<Flags...>, select_flag_list_t<void, Flags...>>
       {
-        static_assert(_check<Flags...>::value, "at least one argument is not a select flag in select flag list");
-
-        return _flags_impl<void>(_check<Flags...>{}, flgs...);
+        return _flags_impl<void>(check_select_flags_t<Flags...>{}, flgs...);
       }
 
       template <typename... Flags>
       auto dynamic_flags(Flags... flgs) const
-          -> _new_statement_t<_check<Flags...>, select_flag_list_t<_database_t, Flags...>>
+          -> _new_statement_t<check_select_flags_t<Flags...>, select_flag_list_t<_database_t, Flags...>>
       {
         static_assert(not std::is_same<_database_t, void>::value,
                       "dynamic_flags must not be called in a static statement");
-        static_assert(_check<Flags...>::value, "at least one argument is not a select flag in select flag list");
 
-        return _flags_impl<_database_t>(_check<Flags...>{}, flgs...);
+        return _flags_impl<_database_t>(check_select_flags_t<Flags...>{}, flgs...);
       }
 
     private:
-      template <typename Database, typename... Flags>
-      auto _flags_impl(const std::false_type&, Flags... flgs) const -> bad_statement;
+      template <typename Database, typename Check, typename... Flags>
+      auto _flags_impl(Check, Flags... flgs) const -> Check;
 
       template <typename Database, typename... Flags>
-      auto _flags_impl(const std::true_type&, Flags... flgs) const
-          -> _new_statement_t<std::true_type, select_flag_list_t<Database, Flags...>>
+      auto _flags_impl(consistent_t, Flags... flgs) const
+          -> _new_statement_t<consistent_t, select_flag_list_t<Database, Flags...>>
       {
         static_assert(not detail::has_duplicates<Flags...>::value,
                       "at least one duplicate argument detected in select flag list");

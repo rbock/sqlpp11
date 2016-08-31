@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,15 +29,15 @@
 
 #include <sqlpp11/assignment.h>
 #include <sqlpp11/column_fwd.h>
-#include <sqlpp11/statement_fwd.h>
-#include <sqlpp11/type_traits.h>
-#include <sqlpp11/no_data.h>
-#include <sqlpp11/policy_update.h>
-#include <sqlpp11/parameter_list.h>
 #include <sqlpp11/expression.h>
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/interpretable_list.h>
 #include <sqlpp11/logic.h>
+#include <sqlpp11/no_data.h>
+#include <sqlpp11/parameter_list.h>
+#include <sqlpp11/policy_update.h>
+#include <sqlpp11/statement_fwd.h>
+#include <sqlpp11/type_traits.h>
 
 #include <sqlpp11/cte.h>
 
@@ -96,8 +96,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
       template <typename... Args>
-      _base_t(Args&&... args)
-          : with{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : with{std::forward<Args>(args)...}
       {
       }
 
@@ -151,8 +150,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
       template <typename... Args>
-      _base_t(Args&&... args)
-          : no_with{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : no_with{std::forward<Args>(args)...}
       {
       }
 
@@ -183,7 +181,7 @@ namespace sqlpp
 
     template <typename Statement>
     auto operator()(Statement statement)
-        -> new_statement_t<true, typename Statement::_policies_t, no_with_t, with_t<Database, Expressions...>>
+        -> new_statement_t<consistent_t, typename Statement::_policies_t, no_with_t, with_t<Database, Expressions...>>
     {
       // FIXME need checks here
       //       check that no cte refers to any of the ctes to the right

@@ -27,9 +27,9 @@
 #ifndef SQLPP_LIMIT_H
 #define SQLPP_LIMIT_H
 
-#include <sqlpp11/type_traits.h>
-#include <sqlpp11/policy_update.h>
 #include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/policy_update.h>
+#include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
@@ -81,8 +81,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
       template <typename... Args>
-      _base_t(Args&&... args)
-          : limit{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : limit{std::forward<Args>(args)...}
       {
       }
 
@@ -115,8 +114,7 @@ namespace sqlpp
     }
 
     template <typename Limit>
-    dynamic_limit_data_t(Limit value)
-        : _initialized(true), _value(wrap_operand_t<Limit>(value))
+    dynamic_limit_data_t(Limit value) : _initialized(true), _value(wrap_operand_t<Limit>(value))
     {
     }
 
@@ -172,8 +170,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
       template <typename... Args>
-      _base_t(Args&&... args)
-          : limit{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : limit{std::forward<Args>(args)...}
       {
       }
 
@@ -196,6 +193,15 @@ namespace sqlpp
       using _consistency_check = consistent_t;
     };
   };
+
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_limit_is_integral, "argument for limit() must be an integral expressions");
+  template <typename T>
+  struct check_limit
+  {
+    using type = static_combined_check_t<static_check_t<is_integral_t<T>::value, assert_limit_is_integral>>;
+  };
+  template <typename T>
+  using check_limit_t = typename check_limit<wrap_operand_t<T>>::type;
 
   struct no_limit_t
   {
@@ -226,8 +232,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
       template <typename... Args>
-      _base_t(Args&&... args)
-          : no_limit{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : no_limit{std::forward<Args>(args)...}
       {
       }
 
@@ -249,32 +254,28 @@ namespace sqlpp
 
       using _database_t = typename Policies::_database_t;
 
-      template <typename T>
-      using _check = is_integral_t<wrap_operand_t<T>>;
-
       template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check::value, Policies, no_limit_t, T>;
+      using _new_statement_t = new_statement_t<Check, Policies, no_limit_t, T>;
 
       using _consistency_check = consistent_t;
 
       template <typename Arg>
-      auto limit(Arg arg) const -> _new_statement_t<_check<Arg>, limit_t<wrap_operand_t<Arg>>>
+      auto limit(Arg arg) const -> _new_statement_t<check_limit_t<Arg>, limit_t<wrap_operand_t<Arg>>>
       {
-        static_assert(_check<Arg>::value, "limit requires an integral value or integral parameter");
-        return _limit_impl(_check<Arg>{}, wrap_operand_t<Arg>{arg});
+        return _limit_impl(check_limit_t<Arg>{}, wrap_operand_t<Arg>{arg});
       }
 
-      auto dynamic_limit() const -> _new_statement_t<std::true_type, dynamic_limit_t<_database_t>>
+      auto dynamic_limit() const -> _new_statement_t<consistent_t, dynamic_limit_t<_database_t>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this), dynamic_limit_data_t<_database_t>{}};
       }
 
     private:
-      template <typename Arg>
-      auto _limit_impl(const std::false_type&, Arg arg) const -> bad_statement;
+      template <typename Check, typename Arg>
+      auto _limit_impl(Check, Arg arg) const -> Check;
 
       template <typename Arg>
-      auto _limit_impl(const std::true_type&, Arg arg) const -> _new_statement_t<std::true_type, limit_t<Arg>>
+      auto _limit_impl(consistent_t, Arg arg) const -> _new_statement_t<consistent_t, limit_t<Arg>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this), limit_data_t<Arg>{arg}};
       }

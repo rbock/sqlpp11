@@ -27,8 +27,8 @@
 #ifndef SQLPP_ALL_OF_H
 #define SQLPP_ALL_OF_H
 
-#include <sqlpp11/interpret.h>
 #include <sqlpp11/alias.h>
+#include <sqlpp11/interpret.h>
 #include <sqlpp11/multi_column.h>
 #include <sqlpp11/portable_static_assert.h>
 
@@ -62,7 +62,7 @@ namespace sqlpp
 
     static Context& _(const T&, const Context&)
     {
-      _serialize_check::_();
+      _serialize_check{};
     }
   };
 }

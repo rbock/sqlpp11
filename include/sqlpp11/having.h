@@ -27,13 +27,13 @@
 #ifndef SQLPP_HAVING_H
 #define SQLPP_HAVING_H
 
-#include <sqlpp11/type_traits.h>
-#include <sqlpp11/value.h>
 #include <sqlpp11/expression.h>
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/interpretable_list.h>
-#include <sqlpp11/policy_update.h>
 #include <sqlpp11/logic.h>
+#include <sqlpp11/policy_update.h>
+#include <sqlpp11/type_traits.h>
+#include <sqlpp11/value.h>
 
 namespace sqlpp
 {
@@ -92,7 +92,7 @@ namespace sqlpp
         static_assert(Policies::template _no_unknown_tables<Expr>::value,
                       "expression uses tables unknown to this statement in having::add()");
         using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Expr>;
-        _serialize_check::_();
+        _serialize_check{};
 
         using ok = logic::all_t<_is_dynamic::value, is_expression_t<Expr>::value, _serialize_check::type::value>;
 
@@ -121,8 +121,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
       template <typename... Args>
-      _base_t(Args&&... args)
-          : having{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : having{std::forward<Args>(args)...}
       {
       }
 
@@ -212,8 +211,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
       template <typename... Args>
-      _base_t(Args&&... args)
-          : no_having{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : no_having{std::forward<Args>(args)...}
       {
       }
 
@@ -244,7 +242,7 @@ namespace sqlpp
       };
 
       template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check::value, Policies, no_having_t, T>;
+      using _new_statement_t = new_statement_t<Check, Policies, no_having_t, T>;
 
       using _consistency_check = consistent_t;
 
@@ -253,7 +251,6 @@ namespace sqlpp
           -> _new_statement_t<check_having_static_t<Expression>, having_t<void, Expression>>
       {
         using Check = check_having_static_t<Expression>;
-        Check{}._();
 
         return _having_impl<void>(Check{}, expression);
       }
@@ -263,7 +260,6 @@ namespace sqlpp
           -> _new_statement_t<check_having_dynamic_t<_database_t, Expression>, having_t<_database_t, Expression>>
       {
         using Check = check_having_dynamic_t<_database_t, Expression>;
-        Check{}._();
 
         return _having_impl<_database_t>(Check{}, expression);
       }
@@ -275,12 +271,12 @@ namespace sqlpp
       }
 
     private:
-      template <typename Database, typename Expression>
-      auto _having_impl(const std::false_type&, Expression expression) const -> bad_statement;
+      template <typename Database, typename Check, typename Expression>
+      auto _having_impl(Check, Expression expression) const -> Check;
 
       template <typename Database, typename Expression>
-      auto _having_impl(const std::true_type&, Expression expression) const
-          -> _new_statement_t<std::true_type, having_t<Database, Expression>>
+      auto _having_impl(consistent_t, Expression expression) const
+          -> _new_statement_t<consistent_t, having_t<Database, Expression>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this),
                 having_data_t<Database, Expression>{expression}};

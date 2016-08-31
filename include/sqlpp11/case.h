@@ -27,10 +27,10 @@
 #ifndef SQLPP_CASE_H
 #define SQLPP_CASE_H
 
-#include <sqlpp11/type_traits.h>
 #include <sqlpp11/char_sequence.h>
 #include <sqlpp11/data_types/boolean.h>
 #include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
@@ -87,13 +87,13 @@ namespace sqlpp
   class case_then_t
   {
     template <typename Else>
-    auto _else_impl(const std::true_type&, Else else_) -> case_t<When, Then, Else>
+    auto _else_impl(consistent_t, Else else_) -> case_t<When, Then, Else>
     {
       return {_when, _then, else_};
     }
 
-    template <typename Else>
-    auto _else_impl(const std::false_type&, Else else_) -> void;
+    template <typename Check, typename Else>
+    auto _else_impl(Check, Else else_) -> Check;
 
   public:
     case_then_t(When when, Then then) : _when(when), _then(then)
@@ -109,7 +109,6 @@ namespace sqlpp
     template <typename Else>
     auto else_(Else else_) -> decltype(this->_else_impl(check_case_else_t<Then, Else>{}, else_))
     {
-      check_case_else_t<Then, Else>::_();
       return _else_impl(check_case_else_t<Then, Else>{}, else_);
     }
 
@@ -122,13 +121,13 @@ namespace sqlpp
   class case_when_t
   {
     template <typename Then>
-    auto _then_impl(const std::true_type&, Then t) -> case_then_t<When, wrap_operand_t<Then>>
+    auto _then_impl(consistent_t, Then t) -> case_then_t<When, wrap_operand_t<Then>>
     {
       return {_when, t};
     }
 
-    template <typename Then>
-    auto _then_impl(const std::false_type&, Then t) -> void;
+    template <typename Check, typename Then>
+    auto _then_impl(Check, Then t) -> Check;
 
   public:
     case_when_t(When when) : _when(when)
@@ -144,7 +143,6 @@ namespace sqlpp
     template <typename Then>
     auto then(Then t) -> decltype(this->_then_impl(check_case_then_t<Then>{}, t))
     {
-      check_case_then_t<Then>::_();
       return _then_impl(check_case_then_t<Then>{}, t);
     }
 
@@ -174,21 +172,19 @@ namespace sqlpp
   namespace detail
   {
     template <typename When>
-    auto case_when_impl(const std::true_type&, When when) -> case_when_t<wrap_operand_t<When>>
+    auto case_when_impl(consistent_t, When when) -> case_when_t<wrap_operand_t<When>>
     {
       return {when};
     }
 
-    template <typename When>
-    auto case_when_impl(const std::false_type&, When when) -> void;
+    template <typename Check, typename When>
+    auto case_when_impl(Check, When when) -> Check;
   }
 
   template <typename When>
   auto case_when(When when) -> decltype(detail::case_when_impl(check_case_when_t<When>{}, when))
   {
-    check_case_when_t<When>::_();
-
-    return detail::case_when_impl(typename check_case_when_t<When>::type{}, when);
+    return detail::case_when_impl(check_case_when_t<When>{}, when);
   }
 }
 

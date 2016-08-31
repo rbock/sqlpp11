@@ -26,13 +26,13 @@
 #ifndef SQLPP_MOCK_DB_H
 #define SQLPP_MOCK_DB_H
 
-#include <sstream>
 #include <iostream>
-#include <sqlpp11/schema.h>
+#include <sqlpp11/connection.h>
 #include <sqlpp11/data_types/no_value.h>
+#include <sqlpp11/schema.h>
 #include <sqlpp11/serialize.h>
 #include <sqlpp11/serializer_context.h>
-#include <sqlpp11/connection.h>
+#include <sstream>
 
 template <bool enforceNullResultTreatment>
 struct MockDbT : public sqlpp::connection
@@ -111,18 +111,17 @@ struct MockDbT : public sqlpp::connection
 
   // Directly executed statements start here
   template <typename T>
-  auto _run(const T& t, const std::true_type&) -> decltype(t._run(*this))
+  auto _run(const T& t, ::sqlpp::consistent_t) -> decltype(t._run(*this))
   {
     return t._run(*this);
   }
 
-  template <typename T>
-  auto _run(const T& t, const std::false_type&) -> void;
+  template <typename Check, typename T>
+  auto _run(const T& t, Check) -> Check;
 
   template <typename T>
   auto operator()(const T& t) -> decltype(this->_run(t, sqlpp::run_check_t<_serializer_context_t, T>{}))
   {
-    sqlpp::run_check_t<_serializer_context_t, T>::_();
     return _run(t, sqlpp::run_check_t<_serializer_context_t, T>{});
   }
 
@@ -182,18 +181,17 @@ struct MockDbT : public sqlpp::connection
   using _prepared_statement_t = std::nullptr_t;
 
   template <typename T>
-  auto _prepare(const T& t, const std::true_type&) -> decltype(t._prepare(*this))
+  auto _prepare(const T& t, ::sqlpp::consistent_t) -> decltype(t._prepare(*this))
   {
     return t._prepare(*this);
   }
 
-  template <typename T>
-  auto _prepare(const T& t, const std::false_type&) -> void;
+  template <typename Check, typename T>
+  auto _prepare(const T& t, Check) -> Check;
 
   template <typename T>
   auto prepare(const T& t) -> decltype(this->_prepare(t, sqlpp::prepare_check_t<_serializer_context_t, T>{}))
   {
-    sqlpp::prepare_check_t<_serializer_context_t, T>::_();
     return _prepare(t, sqlpp::prepare_check_t<_serializer_context_t, T>{});
   }
 

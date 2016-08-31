@@ -27,10 +27,10 @@
 #ifndef SQLPP_UPDATE_LIST_H
 #define SQLPP_UPDATE_LIST_H
 
-#include <sqlpp11/type_traits.h>
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/interpretable_list.h>
+#include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
@@ -89,7 +89,7 @@ namespace sqlpp
         static_assert(Policies::template _no_unknown_tables<Assignment>::value,
                       "assignment uses tables unknown to this statement in add()");
         using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Assignment>;
-        _serialize_check::_();
+        _serialize_check{};
 
         using ok = logic::all_t<_is_dynamic::value, is_assignment_t<Assignment>::value, _serialize_check::type::value>;
 
@@ -118,8 +118,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
       template <typename... Args>
-      _base_t(Args&&... args)
-          : assignments{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : assignments{std::forward<Args>(args)...}
       {
       }
 
@@ -228,8 +227,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
       template <typename... Args>
-      _base_t(Args&&... args)
-          : no_assignments{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : no_assignments{std::forward<Args>(args)...}
       {
       }
 

@@ -27,9 +27,9 @@
 #ifndef SQLPP_OFFSET_H
 #define SQLPP_OFFSET_H
 
-#include <sqlpp11/type_traits.h>
-#include <sqlpp11/policy_update.h>
 #include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/policy_update.h>
+#include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
@@ -83,8 +83,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
       template <typename... Args>
-      _base_t(Args&&... args)
-          : offset{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : offset{std::forward<Args>(args)...}
       {
       }
 
@@ -117,8 +116,7 @@ namespace sqlpp
     }
 
     template <typename Offset>
-    dynamic_offset_data_t(Offset value)
-        : _initialized(true), _value(wrap_operand_t<Offset>(value))
+    dynamic_offset_data_t(Offset value) : _initialized(true), _value(wrap_operand_t<Offset>(value))
     {
     }
 
@@ -174,8 +172,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
       template <typename... Args>
-      _base_t(Args&&... args)
-          : offset{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : offset{std::forward<Args>(args)...}
       {
       }
 
@@ -211,6 +208,15 @@ namespace sqlpp
     interpretable_t<Database> _value;
   };
 
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_offset_is_integral, "argument for offset() must be an integral expressions");
+  template <typename T>
+  struct check_offset
+  {
+    using type = static_combined_check_t<static_check_t<is_integral_t<T>::value, assert_offset_is_integral>>;
+  };
+  template <typename T>
+  using check_offset_t = typename check_offset<wrap_operand_t<T>>::type;
+
   struct no_offset_t
   {
     using _traits = make_traits<no_value_t, tag::is_noop>;
@@ -240,8 +246,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
       template <typename... Args>
-      _base_t(Args&&... args)
-          : no_offset{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : no_offset{std::forward<Args>(args)...}
       {
       }
 
@@ -263,22 +268,18 @@ namespace sqlpp
 
       using _database_t = typename Policies::_database_t;
 
-      template <typename T>
-      using _check = is_integral_t<wrap_operand_t<T>>;
-
       template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check::value, Policies, no_offset_t, T>;
+      using _new_statement_t = new_statement_t<Check, Policies, no_offset_t, T>;
 
       using _consistency_check = consistent_t;
 
       template <typename Arg>
-      auto offset(Arg arg) const -> _new_statement_t<_check<Arg>, offset_t<wrap_operand_t<Arg>>>
+      auto offset(Arg arg) const -> _new_statement_t<check_offset_t<Arg>, offset_t<wrap_operand_t<Arg>>>
       {
-        static_assert(_check<Arg>::value, "offset requires an integral value or integral parameter");
-        return _offset_impl(_check<Arg>{}, wrap_operand_t<Arg>{arg});
+        return _offset_impl(check_offset_t<Arg>{}, wrap_operand_t<Arg>{arg});
       }
 
-      auto dynamic_offset() const -> _new_statement_t<std::true_type, dynamic_offset_t<_database_t>>
+      auto dynamic_offset() const -> _new_statement_t<consistent_t, dynamic_offset_t<_database_t>>
       {
         static_assert(not std::is_same<_database_t, void>::value,
                       "dynamic_offset must not be called in a static statement");
@@ -286,11 +287,11 @@ namespace sqlpp
       }
 
     private:
-      template <typename Arg>
-      auto _offset_impl(const std::false_type&, Arg arg) const -> bad_statement;
+      template <typename Check, typename Arg>
+      auto _offset_impl(Check, Arg arg) const -> Check;
 
       template <typename Arg>
-      auto _offset_impl(const std::true_type&, Arg arg) const -> _new_statement_t<std::true_type, offset_t<Arg>>
+      auto _offset_impl(consistent_t, Arg arg) const -> _new_statement_t<consistent_t, offset_t<Arg>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this), offset_data_t<Arg>{arg}};
       }

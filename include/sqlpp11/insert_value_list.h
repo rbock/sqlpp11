@@ -27,19 +27,19 @@
 #ifndef SQLPP_INSERT_VALUE_LIST_H
 #define SQLPP_INSERT_VALUE_LIST_H
 
-#include <sqlpp11/type_traits.h>
-#include <sqlpp11/portable_static_assert.h>
-#include <sqlpp11/logic.h>
+#include <sqlpp11/assignment.h>
 #include <sqlpp11/column_fwd.h>
 #include <sqlpp11/expression_fwd.h>
-#include <sqlpp11/assignment.h>
-#include <sqlpp11/interpretable_list.h>
-#include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/insert_value.h>
-#include <sqlpp11/simple_column.h>
+#include <sqlpp11/interpret_tuple.h>
+#include <sqlpp11/interpretable_list.h>
+#include <sqlpp11/logic.h>
 #include <sqlpp11/no_data.h>
 #include <sqlpp11/policy_update.h>
+#include <sqlpp11/portable_static_assert.h>
+#include <sqlpp11/simple_column.h>
 #include <sqlpp11/statement.h>
+#include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
@@ -96,8 +96,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
       template <typename... Args>
-      _base_t(Args&&... args)
-          : default_values{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : default_values{std::forward<Args>(args)...}
       {
       }
 
@@ -264,7 +263,7 @@ namespace sqlpp
         static_assert(Policies::template _no_unknown_tables<Assignment>::value,
                       "add() contains a column from a foreign table");
         using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Assignment>;
-        _serialize_check::_();
+        _serialize_check{};
 
         using ok = logic::all_t<_is_dynamic::value, is_assignment_t<Assignment>::value, _serialize_check::type::value>;
 
@@ -294,8 +293,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
       template <typename... Args>
-      _base_t(Args&&... args)
-          : insert_list{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : insert_list{std::forward<Args>(args)...}
       {
       }
 
@@ -400,8 +398,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
       template <typename... Args>
-      _base_t(Args&&... args)
-          : values{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : values{std::forward<Args>(args)...}
       {
       }
 
@@ -459,8 +456,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
       template <typename... Args>
-      _base_t(Args&&... args)
-          : no_insert_values{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : no_insert_values{std::forward<Args>(args)...}
       {
       }
 

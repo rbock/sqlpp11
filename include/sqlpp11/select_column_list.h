@@ -27,19 +27,19 @@
 #ifndef SQLPP_SELECT_COLUMN_LIST_H
 #define SQLPP_SELECT_COLUMN_LIST_H
 
-#include <tuple>
-#include <sqlpp11/result_row.h>
-#include <sqlpp11/dynamic_select_column_list.h>
-#include <sqlpp11/table.h>
 #include <sqlpp11/data_types/no_value.h>
-#include <sqlpp11/field_spec.h>
-#include <sqlpp11/expression_fwd.h>
-#include <sqlpp11/select_pseudo_table.h>
-#include <sqlpp11/named_interpretable.h>
-#include <sqlpp11/interpret_tuple.h>
-#include <sqlpp11/policy_update.h>
-#include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/detail/copy_tuple_args.h>
+#include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/dynamic_select_column_list.h>
+#include <sqlpp11/expression_fwd.h>
+#include <sqlpp11/field_spec.h>
+#include <sqlpp11/interpret_tuple.h>
+#include <sqlpp11/named_interpretable.h>
+#include <sqlpp11/policy_update.h>
+#include <sqlpp11/result_row.h>
+#include <sqlpp11/select_pseudo_table.h>
+#include <sqlpp11/table.h>
+#include <tuple>
 
 namespace sqlpp
 {
@@ -135,7 +135,7 @@ namespace sqlpp
         static_assert(not detail::is_element_of<typename named_expression::_alias_t, column_names>::value,
                       "a column of this name is present in the select already");
         using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, named_expression>;
-        _serialize_check::_();
+        _serialize_check{};
 
         using ok =
             logic::all_t<_is_dynamic::value, is_selectable_t<named_expression>::value, _serialize_check::type::value>;
@@ -165,8 +165,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
       template <typename... Args>
-      _base_t(Args&&... args)
-          : selected_columns{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : selected_columns{std::forward<Args>(args)...}
       {
       }
 
@@ -249,7 +248,7 @@ namespace sqlpp
       template <typename AliasProvider>
       _alias_t<AliasProvider> as(const AliasProvider& aliasProvider) const
       {
-        consistency_check_t<_statement_t>::_();
+        consistency_check_t<_statement_t>{};
         static_assert(_statement_t::_can_be_used_as_table(),
                       "statement cannot be used as table, e.g. due to missing tables");
         static_assert(logic::none_t<is_multi_column_t<Columns>::value...>::value,
@@ -302,6 +301,17 @@ namespace sqlpp
         copy_tuple_args_t<select_column_list_t, Database, decltype(column_tuple_merge(std::declval<Columns>()...))>;
   }
 
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_selected_colums_are_selectable_t, "selected columns must be selectable");
+  template <typename... T>
+  struct check_selected_columns
+  {
+    using type = static_combined_check_t<
+        static_check_t<logic::all_t<(is_selectable_t<T>::value or is_multi_column_t<T>::value)...>::value,
+                       assert_selected_colums_are_selectable_t>>;
+  };
+  template <typename... T>
+  using check_selected_columns_t = typename check_selected_columns<T...>::type;
+
   struct no_select_column_list_t
   {
     using _traits = make_traits<no_value_t, tag::is_noop, tag::is_missing>;
@@ -335,8 +345,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
       template <typename... Args>
-      _base_t(Args&&... args)
-          : no_selected_columns{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : no_selected_columns{std::forward<Args>(args)...}
       {
       }
 
@@ -358,16 +367,8 @@ namespace sqlpp
 
       using _database_t = typename Policies::_database_t;
 
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      //	  template <typename... T>
-      //	  using _check = logic::all_t<(is_selectable_t<T>::value or is_multi_column_t<T>::value)...>;
       template <typename... T>
-      struct _check : logic::all_t<(is_selectable_t<T>::value or is_multi_column_t<T>::value)...>
-      {
-      };
-
-      template <typename... T>
-      static constexpr auto _check_tuple(std::tuple<T...>) -> _check<T...>
+      static constexpr auto _check_tuple(std::tuple<T...>) -> check_selected_columns_t<T...>
       {
         return {};
       }
@@ -375,11 +376,11 @@ namespace sqlpp
       template <typename... T>
       static constexpr auto _check_args(T... args) -> decltype(_check_tuple(detail::column_tuple_merge(args...)))
       {
-        return _check_tuple(detail::column_tuple_merge(args...));
+        return {};
       }
 
       template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check::value, Policies, no_select_column_list_t, T>;
+      using _new_statement_t = new_statement_t<Check, Policies, no_select_column_list_t, T>;
 
       using _consistency_check = consistent_t;
 
@@ -391,7 +392,7 @@ namespace sqlpp
         static_assert(decltype(_check_args(args...))::value,
                       "at least one argument is not a selectable expression in columns()");
 
-        return _columns_impl<void>(_check_args(args...), detail::column_tuple_merge(args...));
+        return _columns_impl<void>(decltype(_check_args(args...)){}, detail::column_tuple_merge(args...));
       }
 
       template <typename... Args>
@@ -403,16 +404,16 @@ namespace sqlpp
         static_assert(decltype(_check_args(args...))::value,
                       "at least one argument is not a selectable expression in columns()");
 
-        return _columns_impl<_database_t>(_check_args(args...), detail::column_tuple_merge(args...));
+        return _columns_impl<_database_t>(decltype(_check_args(args...)){}, detail::column_tuple_merge(args...));
       }
 
     private:
-      template <typename Database, typename... Args>
-      auto _columns_impl(const std::false_type&, std::tuple<Args...> args) const -> bad_statement;
+      template <typename Database, typename Check, typename... Args>
+      auto _columns_impl(Check, std::tuple<Args...> args) const -> Check;
 
       template <typename Database, typename... Args>
-      auto _columns_impl(const std::true_type&, std::tuple<Args...> args) const
-          -> _new_statement_t<_check<Args...>, select_column_list_t<Database, Args...>>
+      auto _columns_impl(consistent_t, std::tuple<Args...> args) const
+          -> _new_statement_t<consistent_t, select_column_list_t<Database, Args...>>
       {
         static_assert(not detail::has_duplicates<Args...>::value, "at least one duplicate argument detected");
         static_assert(not detail::has_duplicates<typename Args::_alias_t...>::value,

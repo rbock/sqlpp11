@@ -27,8 +27,8 @@
 #ifndef SQLPP_INTERPRETABLE_LIST_H
 #define SQLPP_INTERPRETABLE_LIST_H
 
-#include <vector>
 #include <sqlpp11/interpretable.h>
+#include <vector>
 
 namespace sqlpp
 {

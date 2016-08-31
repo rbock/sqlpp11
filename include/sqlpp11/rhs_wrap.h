@@ -27,9 +27,9 @@
 #ifndef SQLPP_RHS_WRAP_H
 #define SQLPP_RHS_WRAP_H
 
-#include <sqlpp11/tvin.h>
 #include <sqlpp11/default_value.h>
 #include <sqlpp11/null.h>
+#include <sqlpp11/tvin.h>
 
 namespace sqlpp
 {
