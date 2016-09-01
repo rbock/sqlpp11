@@ -1,4 +1,4 @@
-# Copyright (c) 2013-2015, Roland Bock
+# Copyright (c) 2013-2016, Roland Bock
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -30,21 +30,21 @@ target_compile_options(sqlpp11_testing INTERFACE -Wall -Wextra -pedantic)
 endif ()
 
 set(test_names
-  #BooleanExpression
-  #CustomQuery
-  #DateTime
-  #Interpret
-  #Insert
-  #Remove
-  #Update
-  #Select
-  #SelectType
-  #Function
-  #Prepared
-  #Minimalistic
-  #Result
+  BooleanExpression
+  CustomQuery
+  DateTime
+  Interpret
+  Insert
+  Remove
+  Update
+  Select
+  SelectType
+  Function
+  Prepared
+  Minimalistic
+  Result
   Union
-  #With
+  With
   )
 
 create_test_sourcelist(test_sources test_main.cpp ${test_names})

@@ -135,6 +135,16 @@ namespace sqlpp
     using _result_methods_t = typename Lhs::template _result_methods_t<Statement>;
   };
 
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_union_args_are_statements_t, "arguments for union() must be statements");
+  template <typename... T>
+  struct check_union
+  {
+    using type = static_combined_check_t<
+        static_check_t<logic::all_t<is_statement_t<T>::value...>::value, assert_union_args_are_statements_t>>;
+  };
+  template <typename... T>
+  using check_union_t = typename check_union<T...>::type;
+
   // NO UNION YET
   struct no_union_t
   {
@@ -187,12 +197,6 @@ namespace sqlpp
 
       using _database_t = typename Policies::_database_t;
 
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      //	  template <typename... T>
-      //	  using _check = logic::all_t<is_statement_t<T>::value...>;
-      template <typename... T>
-      using _check = typename logic::all<is_statement_t<T>::value...>::type;
-
       template <typename Check, typename T>
       using _new_statement_t = union_statement_t<Check, T>;
 
@@ -200,7 +204,8 @@ namespace sqlpp
 
       template <typename Rhs>
       auto union_distinct(Rhs rhs) const
-          -> _new_statement_t<_check<Rhs>, union_t<void, union_distinct_t, derived_statement_t<Policies>, Rhs>>
+          -> _new_statement_t<check_union_t<derived_statement_t<Policies>, Rhs>,
+                              union_t<void, union_distinct_t, derived_statement_t<Policies>, Rhs>>
       {
         static_assert(is_statement_t<Rhs>::value, "argument of union call has to be a statement");
         static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
@@ -213,12 +218,12 @@ namespace sqlpp
                       "both arguments in a union have to have the same result columns (type and name)");
         static_assert(is_static_result_row_t<_result_row_t>::value, "unions must not have dynamically added columns");
 
-        return _union_impl<void, union_distinct_t>(_check<derived_statement_t<Policies>, Rhs>{}, rhs);
+        return _union_impl<void, union_distinct_t>(check_union_t<derived_statement_t<Policies>, Rhs>{}, rhs);
       }
 
       template <typename Rhs>
-      auto union_all(Rhs rhs) const
-          -> _new_statement_t<_check<Rhs>, union_t<void, union_all_t, derived_statement_t<Policies>, Rhs>>
+      auto union_all(Rhs rhs) const -> _new_statement_t<check_union_t<derived_statement_t<Policies>, Rhs>,
+                                                        union_t<void, union_all_t, derived_statement_t<Policies>, Rhs>>
       {
         static_assert(is_statement_t<Rhs>::value, "argument of union call has to be a statement");
         static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
@@ -231,11 +236,11 @@ namespace sqlpp
                       "both arguments in a union have to have the same result columns (type and name)");
         static_assert(is_static_result_row_t<_result_row_t>::value, "unions must not have dynamically added columns");
 
-        return _union_impl<void, union_all_t>(_check<derived_statement_t<Policies>, Rhs>{}, rhs);
+        return _union_impl<void, union_all_t>(check_union_t<derived_statement_t<Policies>, Rhs>{}, rhs);
       }
 
     private:
-      template <typename Database, typename Check, typename Flag, typename Rhs>
+      template <typename Database, typename Flag, typename Check, typename Rhs>
       auto _union_impl(Check, Rhs rhs) const -> Check;
 
       template <typename Database, typename Flag, typename Rhs>
