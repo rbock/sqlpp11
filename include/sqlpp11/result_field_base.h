@@ -28,7 +28,6 @@
 #define SQLPP_RESULT_FIELD_BASE_H
 
 #include <sqlpp11/alias_operators.h>
-#include <sqlpp11/bad_statement.h>
 #include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/result_field.h>
@@ -37,6 +36,8 @@
 
 namespace sqlpp
 {
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_result_field_value_is_safe_t, "result field value needs to be checked for NULL");
+
   template <typename Db, typename FieldSpec, typename StorageType = typename value_type_of<FieldSpec>::_cpp_value_type>
   struct result_field_base
   {
@@ -117,8 +118,9 @@ namespace sqlpp
       return _value;
     }
 
-    operator typename std::conditional<_null_is_trivial or (not _can_be_null::value), _cpp_value_type, bad_statement>::
-        type() const
+    operator typename std::conditional<_null_is_trivial or (not _can_be_null::value),
+                                       _cpp_value_type,
+                                       assert_result_field_value_is_safe_t>::type() const
     {
       return value();
     }
