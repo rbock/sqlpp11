@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,12 +27,12 @@
 #ifndef SQLPP_SINGLE_TABLE_H
 #define SQLPP_SINGLE_TABLE_H
 
-#include <sqlpp11/type_traits.h>
 #include <sqlpp11/data_types/no_value.h>
-#include <sqlpp11/no_data.h>
-#include <sqlpp11/serializer.h>
-#include <sqlpp11/prepared_insert.h>
 #include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/no_data.h>
+#include <sqlpp11/prepared_insert.h>
+#include <sqlpp11/serializer.h>
+#include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
@@ -90,8 +90,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
       template <typename... Args>
-      _base_t(Args&&... args)
-          : from{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : from{std::forward<Args>(args)...}
       {
       }
 
@@ -115,7 +114,16 @@ namespace sqlpp
     };
   };
 
-  // NO INTO YET
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_update_table_arg_is_table_t, "argument for update() must be a table");
+  template <typename Table>
+  struct check_update_table
+  {
+    using type = static_combined_check_t<static_check_t<is_table_t<Table>::value, assert_update_table_arg_is_table_t>>;
+  };
+  template <typename Table>
+  using check_update_table_t = typename check_update_table<Table>::type;
+
+  // NO TABLE YET
   struct no_single_table_t
   {
     using _traits = make_traits<no_value_t, tag::is_noop>;
@@ -154,28 +162,25 @@ namespace sqlpp
       }
 
       using _database_t = typename Policies::_database_t;
-      template <typename T>
-      using _check = logic::all_t<is_table_t<T>::value>;
 
       template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check::value, Policies, no_single_table_t, T>;
+      using _new_statement_t = new_statement_t<Check, Policies, no_single_table_t, T>;
 
       using _consistency_check = consistent_t;
 
       template <typename Table>
-      auto single_table(Table table) const -> _new_statement_t<_check<Table>, single_table_t<void, Table>>
+      auto single_table(Table table) const -> _new_statement_t<check_update_table_t<Table>, single_table_t<void, Table>>
       {
-        static_assert(_check<Table>::value, "argument is not a table in single_table()");
-        return _single_table_impl<void>(_check<Table>{}, table);
+        return _single_table_impl<void>(check_update_table_t<Table>{}, table);
       }
 
     private:
-      template <typename Database, typename Table>
-      auto _single_table_impl(const std::false_type&, Table table) const -> bad_statement;
+      template <typename Database, typename Check, typename Table>
+      auto _single_table_impl(Check, Table table) const -> Check;
 
       template <typename Database, typename Table>
-      auto _single_table_impl(const std::true_type&, Table table) const
-          -> _new_statement_t<std::true_type, single_table_t<Database, Table>>
+      auto _single_table_impl(consistent_t, Table table) const
+          -> _new_statement_t<consistent_t, single_table_t<Database, Table>>
       {
         static_assert(required_tables_of<single_table_t<Database, Table>>::size::value == 0,
                       "argument depends on another table in single_table()");

@@ -250,7 +250,7 @@ namespace sqlpp
       using _database_t = typename Policies::_database_t;
 
       template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check::value, Policies, no_update_list_t, T>;
+      using _new_statement_t = new_statement_t<Check, Policies, no_update_list_t, T>;
 
       using _consistency_check = assert_update_assignments_t;
 
@@ -259,8 +259,6 @@ namespace sqlpp
           -> _new_statement_t<check_update_static_set_t<Assignments...>, update_list_t<void, Assignments...>>
       {
         using Check = check_update_static_set_t<Assignments...>;
-        Check{}._();
-
         return _set_impl<void>(Check{}, assignments...);
       }
 
@@ -270,18 +268,16 @@ namespace sqlpp
                               update_list_t<_database_t, Assignments...>>
       {
         using Check = check_update_dynamic_set_t<_database_t, Assignments...>;
-        Check{}._();
-
         return _set_impl<_database_t>(Check{}, assignments...);
       }
 
     private:
-      template <typename Database, typename... Assignments>
-      auto _set_impl(const std::false_type&, Assignments... assignments) const -> bad_statement;
+      template <typename Database, typename Check, typename... Assignments>
+      auto _set_impl(Check, Assignments... assignments) const -> Check;
 
       template <typename Database, typename... Assignments>
-      auto _set_impl(const std::true_type&, Assignments... assignments) const
-          -> _new_statement_t<std::true_type, update_list_t<Database, Assignments...>>
+      auto _set_impl(consistent_t, Assignments... assignments) const
+          -> _new_statement_t<consistent_t, update_list_t<Database, Assignments...>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this),
                 update_list_data_t<Database, Assignments...>{assignments...}};
