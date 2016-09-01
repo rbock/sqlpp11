@@ -23,9 +23,9 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
 #include "MockDb.h"
 #include "Sample.h"
+#include <iostream>
 #include <sqlpp11/sqlpp11.h>
 
 namespace
@@ -53,8 +53,7 @@ namespace
     static_assert(ExpectedCheckResult::value, "Unexpected check result");
 
     using ReturnType = decltype(select(t.alpha).from(expression));
-    using ExpectedReturnType =
-        sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, sqlpp::bad_statement>::value>;
+    using ExpectedReturnType = sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, Assert>::value>;
     print_type_on_error<ReturnType>(ExpectedReturnType{});
     static_assert(ExpectedReturnType::value, "Unexpected return type");
   }
@@ -69,8 +68,7 @@ namespace
     static_assert(ExpectedCheckResult::value, "Unexpected check result");
 
     using ReturnType = decltype(dynamic_select(db, t.alpha).dynamic_from(expression));
-    using ExpectedReturnType =
-        sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, sqlpp::bad_statement>::value>;
+    using ExpectedReturnType = sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, Assert>::value>;
     print_type_on_error<ReturnType>(ExpectedReturnType{});
     static_assert(ExpectedReturnType::value, "Unexpected return type");
   }
@@ -120,8 +118,7 @@ namespace
     static_assert(ExpectedCheckResult::value, "Unexpected check result");
 
     using ReturnType = decltype(from.add(expression));
-    using ExpectedReturnType =
-        sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, sqlpp::bad_statement>::value>;
+    using ExpectedReturnType = sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, Assert>::value>;
     print_type_on_error<ReturnType>(ExpectedReturnType{});
     static_assert(ExpectedReturnType::value, "Unexpected return type");
   }

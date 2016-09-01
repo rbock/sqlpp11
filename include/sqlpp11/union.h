@@ -27,16 +27,16 @@
 #ifndef SQLPP_UNION_H
 #define SQLPP_UNION_H
 
-#include <sqlpp11/union_data.h>
-#include <sqlpp11/union_flags.h>
-#include <sqlpp11/statement_fwd.h>
-#include <sqlpp11/type_traits.h>
-#include <sqlpp11/parameter_list.h>
 #include <sqlpp11/expression.h>
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/interpretable_list.h>
-#include <sqlpp11/result_row.h>
 #include <sqlpp11/logic.h>
+#include <sqlpp11/parameter_list.h>
+#include <sqlpp11/result_row.h>
+#include <sqlpp11/statement_fwd.h>
+#include <sqlpp11/type_traits.h>
+#include <sqlpp11/union_data.h>
+#include <sqlpp11/union_flags.h>
 
 namespace sqlpp
 {
@@ -45,19 +45,19 @@ namespace sqlpp
   using blank_union_t = statement_t<void, no_union_t>;
   // There is no order by or limit or offset in union, use it as a pseudo table to do that.
 
-  template <bool, typename Union>
+  template <typename Check, typename Union>
   struct union_statement_impl
+  {
+    using type = Check;
+  };
+
+  template <typename Union>
+  struct union_statement_impl<consistent_t, Union>
   {
     using type = statement_t<void, Union, no_union_t>;
   };
 
-  template <typename Union>
-  struct union_statement_impl<false, Union>
-  {
-    using type = bad_statement;
-  };
-
-  template <bool Check, typename Union>
+  template <typename Check, typename Union>
   using union_statement_t = typename union_statement_impl<Check, Union>::type;
 
   // UNION(EXPR)
@@ -95,8 +95,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
       template <typename... Args>
-      _base_t(Args&&... args)
-          : union_{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : union_{std::forward<Args>(args)...}
       {
       }
 
@@ -166,8 +165,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
       template <typename... Args>
-      _base_t(Args&&... args)
-          : no_union{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : no_union{std::forward<Args>(args)...}
       {
       }
 
@@ -196,7 +194,7 @@ namespace sqlpp
       using _check = typename logic::all<is_statement_t<T>::value...>::type;
 
       template <typename Check, typename T>
-      using _new_statement_t = union_statement_t<Check::value, T>;
+      using _new_statement_t = union_statement_t<Check, T>;
 
       using _consistency_check = consistent_t;
 
@@ -237,16 +235,15 @@ namespace sqlpp
       }
 
     private:
-      template <typename Database, typename Flag, typename Rhs>
-      auto _union_impl(const std::false_type&, Rhs rhs) const -> bad_statement;
+      template <typename Database, typename Check, typename Flag, typename Rhs>
+      auto _union_impl(Check, Rhs rhs) const -> Check;
 
       template <typename Database, typename Flag, typename Rhs>
-      auto _union_impl(const std::true_type&, Rhs rhs) const
-          -> _new_statement_t<std::true_type, union_t<Database, Flag, derived_statement_t<Policies>, Rhs>>
+      auto _union_impl(consistent_t, Rhs rhs) const
+          -> _new_statement_t<consistent_t, union_t<Database, Flag, derived_statement_t<Policies>, Rhs>>
       {
-        return {blank_union_t{},
-                union_data_t<Database, Flag, derived_statement_t<Policies>, Rhs>{
-                    static_cast<const derived_statement_t<Policies>&>(*this), rhs}};
+        return {blank_union_t{}, union_data_t<Database, Flag, derived_statement_t<Policies>, Rhs>{
+                                     static_cast<const derived_statement_t<Policies>&>(*this), rhs}};
       }
     };
   };

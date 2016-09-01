@@ -23,9 +23,9 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
 #include "MockDb.h"
 #include "Sample.h"
+#include <iostream>
 #include <sqlpp11/sqlpp11.h>
 
 namespace
@@ -62,12 +62,9 @@ namespace
         (Assert::value and sqlpp::is_pre_join_t<JoinType>::value and sqlpp::is_pre_join_t<InnerJoinType>::value and
          sqlpp::is_pre_join_t<LeftOuterJoinType>::value and sqlpp::is_pre_join_t<RightOuterJoinType>::value and
          sqlpp::is_pre_join_t<OuterJoinType>::value and sqlpp::is_join_t<CrossJoinType>::value) xor
-        (std::is_same<JoinType, sqlpp::bad_statement>::value and
-         std::is_same<InnerJoinType, sqlpp::bad_statement>::value and
-         std::is_same<LeftOuterJoinType, sqlpp::bad_statement>::value and
-         std::is_same<RightOuterJoinType, sqlpp::bad_statement>::value and
-         std::is_same<OuterJoinType, sqlpp::bad_statement>::value and
-         std::is_same<CrossJoinType, sqlpp::bad_statement>::value)>;
+        (std::is_same<JoinType, Assert>::value and std::is_same<InnerJoinType, Assert>::value and
+         std::is_same<LeftOuterJoinType, Assert>::value and std::is_same<RightOuterJoinType, Assert>::value and
+         std::is_same<OuterJoinType, Assert>::value and std::is_same<CrossJoinType, Assert>::value)>;
     print_type_on_error<JoinType>(ExpectedReturnType{});
     print_type_on_error<InnerJoinType>(ExpectedReturnType{});
     print_type_on_error<LeftOuterJoinType>(ExpectedReturnType{});
@@ -87,7 +84,7 @@ namespace
 
     using ResultType = decltype(lhs.on(rhs));
     using ExpectedReturnType = sqlpp::logic::all_t<(Assert::value and sqlpp::is_join_t<ResultType>::value) xor
-                                                   std::is_same<ResultType, sqlpp::bad_statement>::value>;
+                                                   std::is_same<ResultType, Assert>::value>;
     print_type_on_error<ResultType>(ExpectedReturnType{});
     static_assert(ExpectedReturnType::value, "Unexpected return type");
   }
@@ -190,18 +187,15 @@ namespace
     using RightOuterJoinType = decltype(sqlpp::dynamic_right_outer_join(table));
     using OuterJoinType = decltype(sqlpp::dynamic_outer_join(table));
     using CrossJoinType = decltype(sqlpp::dynamic_cross_join(table));
-    using ExpectedReturnType = sqlpp::logic::all_t<(Assert::value and sqlpp::is_dynamic_pre_join_t<JoinType>::value and
-                                                    sqlpp::is_dynamic_pre_join_t<InnerJoinType>::value and
-                                                    sqlpp::is_dynamic_pre_join_t<LeftOuterJoinType>::value and
-                                                    sqlpp::is_dynamic_pre_join_t<RightOuterJoinType>::value and
-                                                    sqlpp::is_dynamic_pre_join_t<OuterJoinType>::value and
-                                                    sqlpp::is_dynamic_join_t<CrossJoinType>::value) xor
-                                                   (std::is_same<JoinType, sqlpp::bad_statement>::value and
-                                                    std::is_same<InnerJoinType, sqlpp::bad_statement>::value and
-                                                    std::is_same<LeftOuterJoinType, sqlpp::bad_statement>::value and
-                                                    std::is_same<RightOuterJoinType, sqlpp::bad_statement>::value and
-                                                    std::is_same<OuterJoinType, sqlpp::bad_statement>::value and
-                                                    std::is_same<CrossJoinType, sqlpp::bad_statement>::value)>;
+    using ExpectedReturnType = sqlpp::logic::all_t<
+        (Assert::value and sqlpp::is_dynamic_pre_join_t<JoinType>::value and
+         sqlpp::is_dynamic_pre_join_t<InnerJoinType>::value and
+         sqlpp::is_dynamic_pre_join_t<LeftOuterJoinType>::value and
+         sqlpp::is_dynamic_pre_join_t<RightOuterJoinType>::value and
+         sqlpp::is_dynamic_pre_join_t<OuterJoinType>::value and sqlpp::is_dynamic_join_t<CrossJoinType>::value) xor
+        (std::is_same<JoinType, Assert>::value and std::is_same<InnerJoinType, Assert>::value and
+         std::is_same<LeftOuterJoinType, Assert>::value and std::is_same<RightOuterJoinType, Assert>::value and
+         std::is_same<OuterJoinType, Assert>::value and std::is_same<CrossJoinType, Assert>::value)>;
     print_type_on_error<JoinType>(ExpectedReturnType{});
     print_type_on_error<InnerJoinType>(ExpectedReturnType{});
     print_type_on_error<LeftOuterJoinType>(ExpectedReturnType{});
@@ -221,7 +215,7 @@ namespace
 
     using ResultType = decltype(lhs.on(rhs));
     using ExpectedReturnType = sqlpp::logic::all_t<(Assert::value and sqlpp::is_dynamic_join_t<ResultType>::value) xor
-                                                   std::is_same<ResultType, sqlpp::bad_statement>::value>;
+                                                   std::is_same<ResultType, Assert>::value>;
     print_type_on_error<ResultType>(ExpectedReturnType{});
     static_assert(ExpectedReturnType::value, "Unexpected return type");
   }

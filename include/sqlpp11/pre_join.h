@@ -27,7 +27,6 @@
 #ifndef SQLPP_PRE_JOIN_H
 #define SQLPP_PRE_JOIN_H
 
-#include <sqlpp11/bad_statement.h>
 #include <sqlpp11/join_types.h>
 #include <sqlpp11/noop.h>
 #include <sqlpp11/on.h>
@@ -144,18 +143,38 @@ namespace sqlpp
     }
   };
 
-  template <typename Lhs, typename Rhs>
-  auto join(Lhs lhs, Rhs rhs) -> typename std::
-      conditional<check_pre_join_t<Lhs, Rhs>::value, pre_join_t<inner_join_t, Lhs, Rhs>, bad_statement>::type
+  namespace detail
   {
-    check_pre_join_t<Lhs, Rhs>{};  // FIXME: Failure return type?
+    template <typename JoinType, typename Check, typename Lhs, typename Rhs>
+    auto join_impl(Check, Lhs lhs, Rhs rhs) -> Check;
 
+    template <typename JoinType, typename Lhs, typename Rhs>
+    auto join_impl(consistent_t, Lhs lhs, Rhs rhs) -> pre_join_t<JoinType, Lhs, Rhs>;
+
+    template <typename JoinType, typename Lhs, typename Rhs>
+    auto join_impl(Lhs lhs, Rhs rhs) -> decltype(join_impl<JoinType>(check_pre_join_t<Lhs, Rhs>{}, lhs, rhs));
+  }
+
+  template <typename Lhs, typename Rhs>
+  auto join(Lhs lhs, Rhs rhs) -> decltype(detail::join_impl<inner_join_t>(lhs, rhs))
+  {
     return {lhs, rhs};
   }
 
   template <typename Lhs, typename Rhs>
-  auto inner_join(Lhs lhs, Rhs rhs) -> typename std::
-      conditional<check_pre_join_t<Lhs, Rhs>::value, pre_join_t<inner_join_t, Lhs, Rhs>, bad_statement>::type
+  auto inner_join(Lhs lhs, Rhs rhs) -> decltype(detail::join_impl<inner_join_t>(lhs, rhs))
+  {
+    return {lhs, rhs};
+  }
+
+  template <typename Lhs, typename Rhs>
+  auto left_outer_join(Lhs lhs, Rhs rhs) -> decltype(detail::join_impl<left_outer_join_t>(lhs, rhs))
+  {
+    return {lhs, rhs};
+  }
+
+  template <typename Lhs, typename Rhs>
+  auto right_outer_join(Lhs lhs, Rhs rhs) -> decltype(detail::join_impl<right_outer_join_t>(lhs, rhs))
   {
     check_pre_join_t<Lhs, Rhs>{};
 
@@ -163,40 +182,27 @@ namespace sqlpp
   }
 
   template <typename Lhs, typename Rhs>
-  auto left_outer_join(Lhs lhs, Rhs rhs) -> typename std::
-      conditional<check_pre_join_t<Lhs, Rhs>::value, pre_join_t<left_outer_join_t, Lhs, Rhs>, bad_statement>::type
+  auto outer_join(Lhs lhs, Rhs rhs) -> decltype(detail::join_impl<outer_join_t>(lhs, rhs))
   {
-    check_pre_join_t<Lhs, Rhs>{};
-
     return {lhs, rhs};
   }
 
-  template <typename Lhs, typename Rhs>
-  auto right_outer_join(Lhs lhs, Rhs rhs) -> typename std::
-      conditional<check_pre_join_t<Lhs, Rhs>::value, pre_join_t<right_outer_join_t, Lhs, Rhs>, bad_statement>::type
+  namespace detail
   {
-    check_pre_join_t<Lhs, Rhs>{};
+    template <typename Check, typename Lhs, typename Rhs>
+    auto cross_join_impl(Check, Lhs lhs, Rhs rhs) -> Check;
 
-    return {lhs, rhs};
+    template <typename Lhs, typename Rhs>
+    auto cross_join_impl(consistent_t, Lhs lhs, Rhs rhs)
+        -> join_t<pre_join_t<cross_join_t, Lhs, Rhs>, on_t<unconditional_t>>;
+
+    template <typename Lhs, typename Rhs>
+    auto cross_join_impl(Lhs lhs, Rhs rhs) -> decltype(cross_join_impl(check_pre_join_t<Lhs, Rhs>{}, lhs, rhs));
   }
 
   template <typename Lhs, typename Rhs>
-  auto outer_join(Lhs lhs, Rhs rhs) -> typename std::
-      conditional<check_pre_join_t<Lhs, Rhs>::value, pre_join_t<outer_join_t, Lhs, Rhs>, bad_statement>::type
+  auto cross_join(Lhs lhs, Rhs rhs) -> decltype(detail::cross_join_impl(lhs, rhs))
   {
-    check_pre_join_t<Lhs, Rhs>{};
-
-    return {lhs, rhs};
-  }
-
-  template <typename Lhs, typename Rhs>
-  auto cross_join(Lhs lhs, Rhs rhs) ->
-      typename std::conditional<check_pre_join_t<Lhs, Rhs>::value,
-                                join_t<pre_join_t<cross_join_t, Lhs, Rhs>, on_t<unconditional_t>>,
-                                bad_statement>::type
-  {
-    check_pre_join_t<Lhs, Rhs>{};
-
     return {pre_join_t<cross_join_t, Lhs, Rhs>{lhs, rhs}, {}};
   }
 }

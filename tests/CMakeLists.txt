@@ -36,14 +36,14 @@ set(test_names
   #Interpret
   #Insert
   #Remove
-  Update
+  #Update
   #Select
   #SelectType
   #Function
   #Prepared
   #Minimalistic
   #Result
-  #Union
+  Union
   #With
   )
 

@@ -27,7 +27,6 @@
 #ifndef SQLPP_POLICY_UPDATE_H
 #define SQLPP_POLICY_UPDATE_H
 
-#include <sqlpp11/bad_statement.h>
 #include <sqlpp11/wrong.h>
 
 namespace sqlpp
