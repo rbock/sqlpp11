@@ -23,12 +23,12 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Sample.h"
 #include "MockDb.h"
+#include "Sample.h"
 #include "is_regular.h"
-#include <sqlpp11/insert.h>
-#include <sqlpp11/functions.h>
 #include <iostream>
+#include <sqlpp11/functions.h>
+#include <sqlpp11/insert.h>
 
 int Insert(int, char* [])
 {

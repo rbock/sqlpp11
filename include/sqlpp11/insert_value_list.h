@@ -426,6 +426,16 @@ namespace sqlpp
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_values_t, "insert values required, e.g. set(...) or default_values()");
 
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_columns_are_columns, "arguments for columns() must be table columns");
+  template <typename... Columns>
+  struct check_insert_columns
+  {
+    using type = static_combined_check_t<
+        static_check_t<logic::all_t<is_column_t<Columns>::value...>::value, assert_insert_columns_are_columns>>;
+  };
+  template <typename... Columns>
+  using check_insert_columns_t = typename check_insert_columns<Columns...>::type;
+
   // NO INSERT COLUMNS/VALUES YET
   struct no_insert_value_list_t
   {
@@ -478,32 +488,23 @@ namespace sqlpp
 
       using _database_t = typename Policies::_database_t;
 
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      //	  template <typename... T>
-      //	  using _column_check = logic::all_t<is_column_t<T>::value...>;
-      template <typename... T>
-      struct _column_check : logic::all_t<is_column_t<T>::value...>
-      {
-      };
-
       template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check::value, Policies, no_insert_value_list_t, T>;
+      using _new_statement_t = new_statement_t<Check, Policies, no_insert_value_list_t, T>;
 
       using _consistency_check = assert_insert_values_t;
 
-      auto default_values() const -> _new_statement_t<std::true_type, insert_default_values_t>
+      auto default_values() const -> _new_statement_t<consistent_t, insert_default_values_t>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this), insert_default_values_data_t{}};
       }
 
       template <typename... Columns>
-      auto columns(Columns... cols) const -> _new_statement_t<_column_check<Columns...>, column_list_t<Columns...>>
+      auto columns(Columns... cols) const
+          -> _new_statement_t<check_insert_columns_t<Columns...>, column_list_t<Columns...>>
       {
-        static_assert(logic::all_t<is_column_t<Columns>::value...>::value,
-                      "at least one argument is not a column in columns()");
         static_assert(sizeof...(Columns), "at least one column required in columns()");
 
-        return _columns_impl(_column_check<Columns...>{}, cols...);
+        return _columns_impl(check_insert_columns_t<Columns...>{}, cols...);
       }
 
       template <typename... Assignments>
@@ -511,8 +512,6 @@ namespace sqlpp
           -> _new_statement_t<check_insert_static_set_t<Assignments...>, insert_list_t<void, Assignments...>>
       {
         using Check = check_insert_static_set_t<Assignments...>;
-        Check{}._();
-
         return _set_impl<void>(Check{}, assignments...);
       }
 
@@ -522,18 +521,16 @@ namespace sqlpp
                               insert_list_t<_database_t, Assignments...>>
       {
         using Check = check_insert_dynamic_set_t<_database_t, Assignments...>;
-        Check{}._();
-
         return _set_impl<_database_t>(Check{}, assignments...);
       }
 
     private:
-      template <typename... Columns>
-      auto _columns_impl(const std::false_type&, Columns... cols) const -> bad_statement;
+      template <typename Check, typename... Columns>
+      auto _columns_impl(Check, Columns... cols) const -> Check;
 
       template <typename... Columns>
-      auto _columns_impl(const std::true_type&, Columns... cols) const
-          -> _new_statement_t<std::true_type, column_list_t<Columns...>>
+      auto _columns_impl(consistent_t, Columns... cols) const
+          -> _new_statement_t<consistent_t, column_list_t<Columns...>>
       {
         static_assert(not detail::has_duplicates<Columns...>::value,
                       "at least one duplicate argument detected in columns()");
@@ -548,12 +545,12 @@ namespace sqlpp
         return {static_cast<const derived_statement_t<Policies>&>(*this), column_list_data_t<Columns...>{cols...}};
       }
 
-      template <typename Database, typename... Assignments>
-      auto _set_impl(std::false_type, Assignments... assignments) const -> bad_statement;
+      template <typename Database, typename Check, typename... Assignments>
+      auto _set_impl(Check, Assignments... assignments) const -> Check;
 
       template <typename Database, typename... Assignments>
-      auto _set_impl(std::true_type, Assignments... assignments) const
-          -> _new_statement_t<std::true_type, insert_list_t<Database, Assignments...>>
+      auto _set_impl(consistent_t, Assignments... assignments) const
+          -> _new_statement_t<consistent_t, insert_list_t<Database, Assignments...>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this),
                 insert_list_data_t<Database, Assignments...>{assignments...}};

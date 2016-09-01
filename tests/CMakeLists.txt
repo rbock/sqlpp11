@@ -34,10 +34,10 @@ set(test_names
   #CustomQuery
   #DateTime
   #Interpret
-  #Insert
+  Insert
   #Remove
   #Update
-  Select
+  #Select
   #SelectType
   #Function
   #Prepared

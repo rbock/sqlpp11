@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,13 +27,13 @@
 #ifndef SQLPP_INTO_H
 #define SQLPP_INTO_H
 
-#include <sqlpp11/statement_fwd.h>
-#include <sqlpp11/type_traits.h>
 #include <sqlpp11/data_types/no_value.h>
+#include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/no_data.h>
 #include <sqlpp11/prepared_insert.h>
 #include <sqlpp11/serializer.h>
-#include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/statement_fwd.h>
+#include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
@@ -88,8 +88,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
       template <typename... Args>
-      _base_t(Args&&... args)
-          : into{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : into{std::forward<Args>(args)...}
       {
       }
 
@@ -114,6 +113,15 @@ namespace sqlpp
   };
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_into_t, "into() required");
+
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_into_arg_is_table, "argument for into() must be a table");
+  template <typename T>
+  struct check_into
+  {
+    using type = static_combined_check_t<static_check_t<is_raw_table_t<T>::value, assert_into_arg_is_table>>;
+  };
+  template <typename T>
+  using check_into_t = typename check_into<wrap_operand_t<T>>::type;
 
   // NO INTO YET
   struct no_into_t
@@ -155,28 +163,23 @@ namespace sqlpp
 
       using _database_t = typename Policies::_database_t;
 
-      template <typename T>
-      using _check = logic::all_t<is_raw_table_t<T>::value>;
-
       template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check::value, Policies, no_into_t, T>;
+      using _new_statement_t = new_statement_t<Check, Policies, no_into_t, T>;
 
       using _consistency_check = assert_into_t;
 
       template <typename Table>
-      auto into(Table table) const -> _new_statement_t<_check<Table>, into_t<void, Table>>
+      auto into(Table table) const -> _new_statement_t<check_into_t<Table>, into_t<void, Table>>
       {
-        static_assert(_check<Table>::value, "argument is not a raw table in into()");
-        return _into_impl<void>(_check<Table>{}, table);
+        return _into_impl<void>(check_into_t<Table>{}, table);
       }
 
     private:
-      template <typename Database, typename Table>
-      auto _into_impl(const std::false_type&, Table table) const -> bad_statement;
+      template <typename Database, typename Check, typename Table>
+      auto _into_impl(Check, Table table) const -> Check;
 
       template <typename Database, typename Table>
-      auto _into_impl(const std::true_type&, Table table) const
-          -> _new_statement_t<std::true_type, into_t<Database, Table>>
+      auto _into_impl(consistent_t, Table table) const -> _new_statement_t<consistent_t, into_t<Database, Table>>
       {
         static_assert(required_tables_of<into_t<Database, Table>>::size::value == 0,
                       "argument depends on another table in into()");
