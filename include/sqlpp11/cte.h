@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,16 +27,16 @@
 #ifndef SQLPP_CTE_H
 #define SQLPP_CTE_H
 
-#include <sqlpp11/table_ref.h>
-#include <sqlpp11/select_flags.h>
-#include <sqlpp11/result_row.h>
-#include <sqlpp11/statement_fwd.h>
-#include <sqlpp11/type_traits.h>
-#include <sqlpp11/parameter_list.h>
 #include <sqlpp11/expression.h>
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/interpretable_list.h>
 #include <sqlpp11/logic.h>
+#include <sqlpp11/parameter_list.h>
+#include <sqlpp11/result_row.h>
+#include <sqlpp11/select_flags.h>
+#include <sqlpp11/statement_fwd.h>
+#include <sqlpp11/table_ref.h>
+#include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
@@ -133,6 +133,31 @@ namespace sqlpp
     using type = member_t<cte_column_spec_t<FieldSpec>, column_t<AliasProvider, cte_column_spec_t<FieldSpec>>>;
   };
 
+  template <typename Check, typename Union>
+  struct union_cte_impl
+  {
+    using type = Check;
+  };
+
+  template <typename Union>
+  struct union_cte_impl<consistent_t, Union>
+  {
+    using type = Union;
+  };
+
+  template <typename Check, typename Union>
+  using union_cte_impl_t = typename union_cte_impl<Check, Union>::type;
+
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_cte_union_args_are_statements_t, "argument for union() must be a statement");
+  template <typename... T>
+  struct check_cte_union
+  {
+    using type = static_combined_check_t<
+        static_check_t<logic::all_t<is_statement_t<T>::value...>::value, assert_cte_union_args_are_statements_t>>;
+  };
+  template <typename... T>
+  using check_cte_union_t = typename check_cte_union<T...>::type;
+
   template <typename AliasProvider, typename Statement, typename... FieldSpecs>
   struct cte_t : public cte_base<AliasProvider, FieldSpecs>::type...
   {
@@ -146,21 +171,12 @@ namespace sqlpp
 
     using _column_tuple_t = std::tuple<column_t<AliasProvider, cte_column_spec_t<FieldSpecs>>...>;
 
-    // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2086629
-    //	template <typename... T>
-    //	using _check = logic::all_t<is_statement_t<T>::value...>;
-    template <typename... T>
-    struct _check : logic::all_t<is_statement_t<T>::value...>
-    {
-    };
-
     using _result_row_t = result_row_t<void, FieldSpecs...>;
 
     template <typename Rhs>
-    auto union_distinct(Rhs rhs) const ->
-        typename std::conditional<_check<Rhs>::value,
-                                  cte_t<AliasProvider, cte_union_t<distinct_t, Statement, Rhs>, FieldSpecs...>,
-                                  bad_statement>::type
+    auto union_distinct(Rhs rhs) const
+        -> union_cte_impl_t<check_cte_union_t<Rhs>,
+                            cte_t<AliasProvider, cte_union_t<distinct_t, Statement, Rhs>, FieldSpecs...>>
     {
       static_assert(is_statement_t<Rhs>::value, "argument of union call has to be a statement");
       static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
@@ -169,14 +185,13 @@ namespace sqlpp
       static_assert(std::is_same<_result_row_t, get_result_row_t<Rhs>>::value,
                     "both select statements in a union have to have the same result columns (type and name)");
 
-      return _union_impl<void, distinct_t>(_check<Rhs>{}, rhs);
+      return _union_impl<void, distinct_t>(check_cte_union_t<Rhs>{}, rhs);
     }
 
     template <typename Rhs>
-    auto union_all(Rhs rhs) const ->
-        typename std::conditional<_check<Rhs>::value,
-                                  cte_t<AliasProvider, cte_union_t<all_t, Statement, Rhs>, FieldSpecs...>,
-                                  bad_statement>::type
+    auto union_all(Rhs rhs) const
+        -> union_cte_impl_t<check_cte_union_t<Rhs>,
+                            cte_t<AliasProvider, cte_union_t<all_t, Statement, Rhs>, FieldSpecs...>>
     {
       static_assert(is_statement_t<Rhs>::value, "argument of union call has to be a statement");
       static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
@@ -185,15 +200,15 @@ namespace sqlpp
       static_assert(std::is_same<_result_row_t, get_result_row_t<Rhs>>::value,
                     "both select statements in a union have to have the same result columns (type and name)");
 
-      return _union_impl<all_t>(_check<Rhs>{}, rhs);
+      return _union_impl<all_t>(check_cte_union_t<Rhs>{}, rhs);
     }
 
   private:
-    template <typename Flag, typename Rhs>
-    auto _union_impl(const std::false_type&, Rhs rhs) const -> bad_statement;
+    template <typename Flag, typename Check, typename Rhs>
+    auto _union_impl(Check, Rhs rhs) const -> Check;
 
     template <typename Flag, typename Rhs>
-    auto _union_impl(const std::true_type&, Rhs rhs) const
+    auto _union_impl(consistent_t, Rhs rhs) const
         -> cte_t<AliasProvider, cte_union_t<Flag, Statement, Rhs>, FieldSpecs...>
     {
       return cte_union_t<Flag, Statement, Rhs>{_statement, rhs};
