@@ -223,7 +223,7 @@ namespace sqlpp
 
     private:
       template <typename Database, typename Check, typename... Flags>
-      auto _flags_impl(Check, Flags... flgs) const -> Check;
+      auto _flags_impl(inconsistent<Check>, Flags... flgs) const -> Check;
 
       template <typename Database, typename... Flags>
       auto _flags_impl(consistent_t, Flags... flgs) const

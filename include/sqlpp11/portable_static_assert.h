@@ -28,6 +28,7 @@
 #define SQLPP_PORTABLE_STATIC_ASSERT_H
 
 #include <sqlpp11/consistent.h>
+#include <sqlpp11/inconsistent.h>
 
 namespace sqlpp
 {
