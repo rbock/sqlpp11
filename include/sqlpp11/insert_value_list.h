@@ -526,7 +526,7 @@ namespace sqlpp
 
     private:
       template <typename Check, typename... Columns>
-      auto _columns_impl(inconsistent<Check>, Columns... cols) const -> Check;
+      auto _columns_impl(Check, Columns... cols) const -> inconsistent<Check>;
 
       template <typename... Columns>
       auto _columns_impl(consistent_t, Columns... cols) const
@@ -546,7 +546,7 @@ namespace sqlpp
       }
 
       template <typename Database, typename Check, typename... Assignments>
-      auto _set_impl(inconsistent<Check>, Assignments... assignments) const -> Check;
+      auto _set_impl(Check, Assignments... assignments) const -> inconsistent<Check>;
 
       template <typename Database, typename... Assignments>
       auto _set_impl(consistent_t, Assignments... assignments) const

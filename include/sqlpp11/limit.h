@@ -272,7 +272,7 @@ namespace sqlpp
 
     private:
       template <typename Check, typename Arg>
-      auto _limit_impl(Check, Arg arg) const -> Check;
+      auto _limit_impl(Check, Arg arg) const -> inconsistent<Check>;
 
       template <typename Arg>
       auto _limit_impl(consistent_t, Arg arg) const -> _new_statement_t<consistent_t, limit_t<Arg>>

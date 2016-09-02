@@ -409,7 +409,7 @@ namespace sqlpp
 
     private:
       template <typename Database, typename Check, typename... Args>
-      auto _columns_impl(Check, std::tuple<Args...> args) const -> Check;
+      auto _columns_impl(Check, std::tuple<Args...> args) const -> inconsistent<Check>;
 
       template <typename Database, typename... Args>
       auto _columns_impl(consistent_t, std::tuple<Args...> args) const

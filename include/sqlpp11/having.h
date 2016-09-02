@@ -272,7 +272,7 @@ namespace sqlpp
 
     private:
       template <typename Database, typename Check, typename Expression>
-      auto _having_impl(Check, Expression expression) const -> Check;
+      auto _having_impl(Check, Expression expression) const -> inconsistent<Check>;
 
       template <typename Database, typename Expression>
       auto _having_impl(consistent_t, Expression expression) const

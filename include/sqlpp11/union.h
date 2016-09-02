@@ -241,7 +241,7 @@ namespace sqlpp
 
     private:
       template <typename Database, typename Flag, typename Check, typename Rhs>
-      auto _union_impl(Check, Rhs rhs) const -> Check;
+      auto _union_impl(Check, Rhs rhs) const -> inconsistent<Check>;
 
       template <typename Database, typename Flag, typename Rhs>
       auto _union_impl(consistent_t, Rhs rhs) const

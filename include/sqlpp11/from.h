@@ -131,7 +131,7 @@ namespace sqlpp
       }
 
       template <typename Check, typename DynamicJoin>
-      auto _add_impl(DynamicJoin dynamicJoin, Check) -> Check;
+      auto _add_impl(DynamicJoin dynamicJoin, Check) -> inconsistent<Check>;
 
     public:
       _data_t _data;
@@ -276,7 +276,7 @@ namespace sqlpp
 
     private:
       template <typename Database, typename Check, typename Table>
-      auto _from_impl(Check, Table table) const -> Check;
+      auto _from_impl(Check, Table table) const -> inconsistent<Check>;
 
       template <typename Database, typename Table>
       auto _from_impl(consistent_t, Table table) const

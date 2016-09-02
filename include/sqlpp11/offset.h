@@ -288,7 +288,7 @@ namespace sqlpp
 
     private:
       template <typename Check, typename Arg>
-      auto _offset_impl(Check, Arg arg) const -> Check;
+      auto _offset_impl(Check, Arg arg) const -> inconsistent<Check>;
 
       template <typename Arg>
       auto _offset_impl(consistent_t, Arg arg) const -> _new_statement_t<consistent_t, offset_t<Arg>>

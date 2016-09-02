@@ -27,22 +27,19 @@
 #ifndef SQLPP_INCONSISTENT_H
 #define SQLPP_INCONSISTENT_H
 
+#include <utility>
+
 namespace sqlpp
 {
+#if defined(__clang__) || defined(_MSC_VER)
   template <typename Check>
-  struct inconsistent
-  {
-    inconsistent(Check)
-    {
-    }
-  };
-
-  // This specialization circumvents an ambiguity problem with gcc
+  using inconsistent = Check;
+#else
+  // This version circumvents an ambiguity problem with gcc
   // See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=77449
-  template <>
-  struct inconsistent<consistent_t>
-  {
-  };
+  template <typename Check>
+  using inconsistent = typename std::enable_if<not std::is_same<consistent_t, Check>::value, Check>::type;
+#endif
 }
 
 #endif

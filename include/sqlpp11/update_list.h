@@ -273,7 +273,7 @@ namespace sqlpp
 
     private:
       template <typename Database, typename Check, typename... Assignments>
-      auto _set_impl(inconsistent<Check>, Assignments... assignments) const -> Check;
+      auto _set_impl(Check, Assignments... assignments) const -> inconsistent<Check>;
 
       template <typename Database, typename... Assignments>
       auto _set_impl(consistent_t, Assignments... assignments) const

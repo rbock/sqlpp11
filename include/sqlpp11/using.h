@@ -224,7 +224,7 @@ namespace sqlpp
 
     private:
       template <typename Database, typename Check, typename... Tables>
-      auto _using_impl(inconsistent<Check>, Tables... tables) const -> Check;
+      auto _using_impl(Check, Tables... tables) const -> inconsistent<Check>;
 
       template <typename Database, typename... Tables>
       auto _using_impl(consistent_t, Tables... tables) const

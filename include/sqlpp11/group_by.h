@@ -235,7 +235,7 @@ namespace sqlpp
 
     private:
       template <typename Database, typename Check, typename... Expressions>
-      auto _group_by_impl(inconsistent<Check>, Expressions... expressions) const -> Check;
+      auto _group_by_impl(Check, Expressions... expressions) const -> inconsistent<Check>;
 
       template <typename Database, typename... Expressions>
       auto _group_by_impl(consistent_t, Expressions... expressions) const

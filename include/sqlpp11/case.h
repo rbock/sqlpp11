@@ -93,7 +93,7 @@ namespace sqlpp
     }
 
     template <typename Check, typename Else>
-    auto _else_impl(Check, Else else_) -> Check;
+    auto _else_impl(Check, Else else_) -> inconsistent<Check>;
 
   public:
     case_then_t(When when, Then then) : _when(when), _then(then)
@@ -127,7 +127,7 @@ namespace sqlpp
     }
 
     template <typename Check, typename Then>
-    auto _then_impl(Check, Then t) -> Check;
+    auto _then_impl(Check, Then t) -> inconsistent<Check>;
 
   public:
     case_when_t(When when) : _when(when)
@@ -178,7 +178,7 @@ namespace sqlpp
     }
 
     template <typename Check, typename When>
-    auto case_when_impl(Check, When when) -> Check;
+    auto case_when_impl(Check, When when) -> inconsistent<Check>;
   }
 
   template <typename When>

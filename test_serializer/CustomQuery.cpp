@@ -29,7 +29,7 @@
 
 #include <iostream>
 
-SQLPP_ALIAS_PROVIDER(pragma);
+SQLPP_ALIAS_PROVIDER(pragma)
 
 int CustomQuery(int, char* [])
 {

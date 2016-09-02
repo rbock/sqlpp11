@@ -176,7 +176,7 @@ namespace sqlpp
 
     private:
       template <typename Database, typename Check, typename Table>
-      auto _into_impl(Check, Table table) const -> Check;
+      auto _into_impl(Check, Table table) const -> inconsistent<Check>;
 
       template <typename Database, typename Table>
       auto _into_impl(consistent_t, Table table) const -> _new_statement_t<consistent_t, into_t<Database, Table>>

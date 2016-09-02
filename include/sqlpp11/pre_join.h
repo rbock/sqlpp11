@@ -114,7 +114,7 @@ namespace sqlpp
 
   private:
     template <typename Check, typename Expr>
-    auto on_impl(Check, const Expr&) const -> Check;
+    auto on_impl(Check, const Expr&) const -> inconsistent<Check>;
 
     template <typename Expr>
     auto on_impl(consistent_t, const Expr& expr) const -> join_t<pre_join_t, on_t<Expr>>
@@ -146,7 +146,7 @@ namespace sqlpp
   namespace detail
   {
     template <typename JoinType, typename Check, typename Lhs, typename Rhs>
-    auto join_impl(Check, Lhs lhs, Rhs rhs) -> Check;
+    auto join_impl(Check, Lhs lhs, Rhs rhs) -> inconsistent<Check>;
 
     template <typename JoinType, typename Lhs, typename Rhs>
     auto join_impl(consistent_t, Lhs lhs, Rhs rhs) -> pre_join_t<JoinType, Lhs, Rhs>;
@@ -190,7 +190,7 @@ namespace sqlpp
   namespace detail
   {
     template <typename Check, typename Lhs, typename Rhs>
-    auto cross_join_impl(Check, Lhs lhs, Rhs rhs) -> Check;
+    auto cross_join_impl(Check, Lhs lhs, Rhs rhs) -> inconsistent<Check>;
 
     template <typename Lhs, typename Rhs>
     auto cross_join_impl(consistent_t, Lhs lhs, Rhs rhs)

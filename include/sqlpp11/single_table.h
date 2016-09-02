@@ -176,7 +176,7 @@ namespace sqlpp
 
     private:
       template <typename Database, typename Check, typename Table>
-      auto _single_table_impl(Check, Table table) const -> Check;
+      auto _single_table_impl(Check, Table table) const -> inconsistent<Check>;
 
       template <typename Database, typename Table>
       auto _single_table_impl(consistent_t, Table table) const
