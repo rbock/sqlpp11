@@ -161,16 +161,15 @@ mysql: 'show create table MyDatabase.MyTable' #or
 mysqldump --no-data MyDatabase > MyDatabase.sql
 
 ```
-Create headers for them with provided python script:
+Create headers for them with provided Python script:
 ```
 %sqlpp11_dir%/scripts/ddl2cpp ~/temp/MyTable.ddl  ~/temp/MyTable %DatabaseNamespaceForExample%
 ```
 (In case you're getting notes about unsupported column type take a look at the other datatypes in sqlpp11/data_types. They are not hard to implement.)
 
-Include generated header (MyTable.h), that's all
+Include generated header (MyTable.h), that's all.
 
-
-
+If you prefer Ruby over Python, you might want to take a look at https://github.com/douyw/sqlpp11gen
 
 License:
 -------------

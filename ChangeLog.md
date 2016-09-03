@@ -19,7 +19,7 @@ Up until sqlpp11-0.35 you could write something like
 ```
 auto result = db(select(all_of(a), all_of(b))
                  .from(a,b)
-                 .where(true));
+                 .where(someCondition));
 ```
 
 Using this syntax in `from()`, it was expected to have the join condition implicitly in the `where()` call.
@@ -32,7 +32,7 @@ In order to prevent this in the future, sqlpp11 now requires you to join table e
 ```
 auto result = db(select(all_of(a), all_of(b))
                  .from(a.join(b).on(a.b == b.id))
-                 .where(true));
+                 .where(someCondition));
 ```
 
 Most joins, (`join`/`inner_join`, `left_outer_join`, `right_outer_join` and `outer_join`) require a join condition to given via `on()`.
@@ -43,7 +43,7 @@ In those rare cases, when you really need a cross join, you can also use `cross_
 ```
 auto result = db(select(all_of(a), all_of(b))
                  .from(a.cross_join(b))
-                 .where(true));
+                 .where(someCondition));
 ```
 
 __Use `.unconditionally()`__
