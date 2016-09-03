@@ -4,6 +4,12 @@ A type safe embedded domain specific language for SQL queries and results in C++
 
 Documentation is found in the [wiki](https://github.com/rbock/sqlpp11/wiki)
 
+Contact:
+--------
+  * Meet me at [CppCon 2016](https://cppcon2016.sched.org/event/7nKk)
+  * Issues at https://github.com/rbock/sqlpp11/issues
+  * email at rbock at eudoxos dot de
+  * [![Join the chat at https://gitter.im/sqlpp11/Lobby](https://badges.gitter.im/sqlpp11/Lobby.svg)](https://gitter.im/sqlpp11/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Breaking changes in 0.36:
 -------------------------
@@ -109,9 +115,7 @@ Past talks about sqlpp11 and some coding concepts used within the library:
   * [MUC++:](http://www.meetup.com/MUCplusplus/)
    * 2014-02-27: [Selected C++11 Template Toffees From sqlpp11, Part1](https://www.youtube.com/watch?v=hXnGFYNbmXg), [Part2](https://www.youtube.com/watch?v=WPCV6dvxZ_U), [Part 3](https://www.youtube.com/watch?v=eB7hd_KjTig), [Part 4](https://www.youtube.com/watch?v=NBfqzcN0_EQ)
 
-You can contact me
-  * by posting issues at https://github.com/rbock/sqlpp11/issues
-  * or via email at rbock at eudoxos dot de
+
 
 
 Requirements:
