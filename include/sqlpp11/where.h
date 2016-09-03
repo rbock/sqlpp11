@@ -94,7 +94,7 @@ namespace sqlpp
         static_assert(not contains_aggregate_function_t<Expr>::value,
                       "where expression must not contain aggregate functions");
         using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Expr>;
-        _serialize_check::_();
+        _serialize_check{};
 
         using ok = logic::all_t<_is_dynamic::value, is_expression_t<Expr>::value, _serialize_check::type::value>;
 
@@ -307,14 +307,14 @@ namespace sqlpp
       using _database_t = typename Policies::_database_t;
 
       template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check::value, Policies, no_where_t, T>;
+      using _new_statement_t = new_statement_t<Check, Policies, no_where_t, T>;
 
       using _consistency_check =
           typename std::conditional<WhereRequired and (Policies::_all_provided_tables::size::value > 0),
                                     assert_where_t,
                                     consistent_t>::type;
 
-      auto unconditionally() const -> _new_statement_t<std::true_type, where_t<void, unconditional_t>>
+      auto unconditionally() const -> _new_statement_t<consistent_t, where_t<void, unconditional_t>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this), where_data_t<void, unconditional_t>{}};
       }
@@ -324,8 +324,6 @@ namespace sqlpp
           -> _new_statement_t<check_where_static_t<Expression>, where_t<void, Expression>>
       {
         using Check = check_where_static_t<Expression>;
-        Check{}._();
-
         return _where_impl<void>(Check{}, expression);
       }
 
@@ -334,8 +332,6 @@ namespace sqlpp
           -> _new_statement_t<check_where_dynamic_t<_database_t, Expression>, where_t<_database_t, Expression>>
       {
         using Check = check_where_dynamic_t<_database_t, Expression>;
-        Check{}._();
-
         return _where_impl<_database_t>(Check{}, expression);
       }
 
@@ -346,12 +342,12 @@ namespace sqlpp
       }
 
     private:
-      template <typename Database, typename Expression>
-      auto _where_impl(const std::false_type&, Expression expression) const -> bad_statement;
+      template <typename Database, typename Check, typename Expression>
+      auto _where_impl(Check, Expression expression) const -> inconsistent<Check>;
 
       template <typename Database, typename Expression>
-      auto _where_impl(const std::true_type&, Expression expression) const
-          -> _new_statement_t<std::true_type, where_t<Database, Expression>>
+      auto _where_impl(consistent_t, Expression expression) const
+          -> _new_statement_t<consistent_t, where_t<Database, Expression>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this),
                 where_data_t<Database, Expression>{expression}};

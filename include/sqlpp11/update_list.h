@@ -27,10 +27,10 @@
 #ifndef SQLPP_UPDATE_LIST_H
 #define SQLPP_UPDATE_LIST_H
 
-#include <sqlpp11/type_traits.h>
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/interpretable_list.h>
+#include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
@@ -89,7 +89,7 @@ namespace sqlpp
         static_assert(Policies::template _no_unknown_tables<Assignment>::value,
                       "assignment uses tables unknown to this statement in add()");
         using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Assignment>;
-        _serialize_check::_();
+        _serialize_check{};
 
         using ok = logic::all_t<_is_dynamic::value, is_assignment_t<Assignment>::value, _serialize_check::type::value>;
 
@@ -118,8 +118,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
       template <typename... Args>
-      _base_t(Args&&... args)
-          : assignments{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : assignments{std::forward<Args>(args)...}
       {
       }
 
@@ -228,8 +227,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
       template <typename... Args>
-      _base_t(Args&&... args)
-          : no_assignments{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : no_assignments{std::forward<Args>(args)...}
       {
       }
 
@@ -252,7 +250,7 @@ namespace sqlpp
       using _database_t = typename Policies::_database_t;
 
       template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check::value, Policies, no_update_list_t, T>;
+      using _new_statement_t = new_statement_t<Check, Policies, no_update_list_t, T>;
 
       using _consistency_check = assert_update_assignments_t;
 
@@ -261,8 +259,6 @@ namespace sqlpp
           -> _new_statement_t<check_update_static_set_t<Assignments...>, update_list_t<void, Assignments...>>
       {
         using Check = check_update_static_set_t<Assignments...>;
-        Check{}._();
-
         return _set_impl<void>(Check{}, assignments...);
       }
 
@@ -272,18 +268,16 @@ namespace sqlpp
                               update_list_t<_database_t, Assignments...>>
       {
         using Check = check_update_dynamic_set_t<_database_t, Assignments...>;
-        Check{}._();
-
         return _set_impl<_database_t>(Check{}, assignments...);
       }
 
     private:
-      template <typename Database, typename... Assignments>
-      auto _set_impl(const std::false_type&, Assignments... assignments) const -> bad_statement;
+      template <typename Database, typename Check, typename... Assignments>
+      auto _set_impl(Check, Assignments... assignments) const -> inconsistent<Check>;
 
       template <typename Database, typename... Assignments>
-      auto _set_impl(const std::true_type&, Assignments... assignments) const
-          -> _new_statement_t<std::true_type, update_list_t<Database, Assignments...>>
+      auto _set_impl(consistent_t, Assignments... assignments) const
+          -> _new_statement_t<consistent_t, update_list_t<Database, Assignments...>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this),
                 update_list_data_t<Database, Assignments...>{assignments...}};

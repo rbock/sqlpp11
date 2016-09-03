@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2015, Roland Bock
+ * Copyright (c) 2015-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -23,9 +23,9 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
 #include "MockDb.h"
 #include "Sample.h"
+#include <iostream>
 #include <sqlpp11/sqlpp11.h>
 
 namespace
@@ -52,7 +52,7 @@ namespace
     static_assert(ExpectedCheckResult::value, "Unexpected check result");
 
     using ReturnType = decltype(sqlpp::case_when(when));
-    using ExpectedReturnType = sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, void>::value>;
+    using ExpectedReturnType = sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, Assert>::value>;
     print_type_on_error<ReturnType>(ExpectedReturnType{});
     static_assert(ExpectedReturnType::value, "Unexpected return type");
   }
@@ -66,7 +66,7 @@ namespace
     static_assert(ExpectedCheckResult::value, "Unexpected check result");
 
     using ReturnType = decltype(sqlpp::case_when(when).then(then));
-    using ExpectedReturnType = sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, void>::value>;
+    using ExpectedReturnType = sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, Assert>::value>;
     print_type_on_error<ReturnType>(ExpectedReturnType{});
     static_assert(ExpectedReturnType::value, "Unexpected return type");
   }
@@ -80,7 +80,7 @@ namespace
     static_assert(ExpectedCheckResult::value, "Unexpected check result");
 
     using ReturnType = decltype(sqlpp::case_when(when).then(then).else_(else_));
-    using ExpectedReturnType = sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, void>::value>;
+    using ExpectedReturnType = sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, Assert>::value>;
     print_type_on_error<ReturnType>(ExpectedReturnType{});
     static_assert(ExpectedReturnType::value, "Unexpected return type");
   }

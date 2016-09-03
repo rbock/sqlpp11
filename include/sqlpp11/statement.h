@@ -27,12 +27,12 @@
 #ifndef SQLPP_STATEMENT_H
 #define SQLPP_STATEMENT_H
 
-#include <sqlpp11/result.h>
-#include <sqlpp11/parameter_list.h>
-#include <sqlpp11/prepared_select.h>
-#include <sqlpp11/serialize.h>
 #include <sqlpp11/noop.h>
+#include <sqlpp11/parameter_list.h>
 #include <sqlpp11/policy_update.h>
+#include <sqlpp11/prepared_select.h>
+#include <sqlpp11/result.h>
+#include <sqlpp11/serialize.h>
 #include <sqlpp11/serializer.h>
 
 #include <sqlpp11/detail/get_first.h>
@@ -142,9 +142,8 @@ namespace sqlpp
           typename std::conditional<_required_ctes::size::value == 0, consistent_t, assert_no_unknown_ctes_t>::type;
       using _table_check =
           typename std::conditional<_required_tables::size::value == 0, consistent_t, assert_no_unknown_tables_t>::type;
-      using _parameter_check = typename std::conditional<detail::type_vector_size<_parameters>::value == 0,
-                                                         consistent_t,
-                                                         assert_no_parameters_t>::type;
+      using _parameter_check = typename std::
+          conditional<detail::type_vector_size<_parameters>::value == 0, consistent_t, assert_no_parameters_t>::type;
     };
   }
 
@@ -235,14 +234,14 @@ namespace sqlpp
     template <typename Database>
     auto _run(Database& db) const -> decltype(std::declval<_result_methods_t<statement_t>>()._run(db))
     {
-      _run_check::_();
+      _run_check{};  // FIXME: Dispatch?
       return _result_methods_t<statement_t>::_run(db);
     }
 
     template <typename Database>
     auto _prepare(Database& db) const -> decltype(std::declval<_result_methods_t<statement_t>>()._prepare(db))
     {
-      _prepare_check::_();
+      _prepare_check{};  // FIXME: Dispatch?
       return _result_methods_t<statement_t>::_prepare(db);
     }
   };
@@ -294,8 +293,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
       template <typename... Args>
-      _base_t(Args&&... args)
-          : statement_name{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : statement_name{std::forward<Args>(args)...}
       {
       }
 

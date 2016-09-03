@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2016-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,20 +24,22 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_BAD_STATEMENT_H
-#define SQLPP_BAD_STATEMENT_H
+#ifndef SQLPP_INCONSISTENT_H
+#define SQLPP_INCONSISTENT_H
+
+#include <utility>
 
 namespace sqlpp
 {
-  struct bad_statement
-  {
-    static constexpr bool value = false;
-
-    template <typename... T>
-    bad_statement(T&&...)
-    {
-    }
-  };
+#if defined(__clang__) || defined(_MSC_VER)
+  template <typename Check>
+  using inconsistent = Check;
+#else
+  // This version circumvents an ambiguity problem with gcc
+  // See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=77449
+  template <typename Check>
+  using inconsistent = typename std::enable_if<not std::is_same<consistent_t, Check>::value, Check>::type;
+#endif
 }
 
 #endif
