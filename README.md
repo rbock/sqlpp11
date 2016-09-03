@@ -1,5 +1,7 @@
 sqlpp11
 =======
+
+[![Join the chat at https://gitter.im/sqlpp11/Lobby](https://badges.gitter.im/sqlpp11/Lobby.svg)](https://gitter.im/sqlpp11/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 A type safe embedded domain specific language for SQL queries and results in C++
 
 Documentation is found in the [wiki](https://github.com/rbock/sqlpp11/wiki)
