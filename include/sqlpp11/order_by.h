@@ -27,13 +27,13 @@
 #ifndef SQLPP_ORDER_BY_H
 #define SQLPP_ORDER_BY_H
 
-#include <tuple>
-#include <sqlpp11/type_traits.h>
+#include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/interpretable.h>
-#include <sqlpp11/policy_update.h>
 #include <sqlpp11/logic.h>
-#include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/policy_update.h>
+#include <sqlpp11/type_traits.h>
+#include <tuple>
 
 namespace sqlpp
 {
@@ -89,7 +89,7 @@ namespace sqlpp
         static_assert(Policies::template _no_unknown_tables<Expression>::value,
                       "expression uses tables unknown to this statement in order_by::add()");
         using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Expression>;
-        _serialize_check::_();
+        _serialize_check{};
 
         using ok = logic::all_t<_is_dynamic::value, is_sort_order_t<Expression>::value, _serialize_check::type::value>;
 
@@ -118,8 +118,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
       template <typename... Args>
-      _base_t(Args&&... args)
-          : order_by{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : order_by{std::forward<Args>(args)...}
       {
       }
 
@@ -144,6 +143,17 @@ namespace sqlpp
                                                            assert_no_unknown_tables_in_order_by_t>::type;
     };
   };
+
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_order_by_args_are_sort_order_expressions_t,
+                               "arguments for order_by() must be sort order expressions");
+  template <typename... Exprs>
+  struct check_order_by
+  {
+    using type = static_combined_check_t<static_check_t<logic::all_t<is_sort_order_t<Exprs>::value...>::value,
+                                                        assert_order_by_args_are_sort_order_expressions_t>>;
+  };
+  template <typename... Exprs>
+  using check_order_by_t = typename check_order_by<Exprs...>::type;
 
   // NO ORDER BY YET
   struct no_order_by_t
@@ -175,8 +185,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
       template <typename... Args>
-      _base_t(Args&&... args)
-          : no_order_by{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : no_order_by{std::forward<Args>(args)...}
       {
       }
 
@@ -198,47 +207,37 @@ namespace sqlpp
 
       using _database_t = typename Policies::_database_t;
 
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      //	  template <typename... T>
-      //	  using _check = logic::all_t<is_sort_order_t<T>::value...>;
-      template <typename... T>
-      struct _check : logic::all_t<is_sort_order_t<T>::value...>
-      {
-      };
-
       template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check::value, Policies, no_order_by_t, T>;
+      using _new_statement_t = new_statement_t<Check, Policies, no_order_by_t, T>;
 
       using _consistency_check = consistent_t;
 
       template <typename... Expressions>
       auto order_by(Expressions... expressions) const
-          -> _new_statement_t<_check<Expressions...>, order_by_t<void, Expressions...>>
+          -> _new_statement_t<check_order_by_t<Expressions...>, order_by_t<void, Expressions...>>
       {
         static_assert(sizeof...(Expressions), "at least one expression (e.g. a column) required in order_by()");
-        static_assert(_check<Expressions...>::value, "at least one argument is not a sort order in order_by()");
 
-        return _order_by_impl<void>(_check<Expressions...>{}, expressions...);
+        return _order_by_impl<void>(check_order_by_t<Expressions...>{}, expressions...);
       }
 
       template <typename... Expressions>
       auto dynamic_order_by(Expressions... expressions) const
-          -> _new_statement_t<_check<Expressions...>, order_by_t<_database_t, Expressions...>>
+          -> _new_statement_t<check_order_by_t<Expressions...>, order_by_t<_database_t, Expressions...>>
       {
         static_assert(not std::is_same<_database_t, void>::value,
                       "dynamic_order_by must not be called in a static statement");
-        static_assert(_check<Expressions...>::value, "at least one argument is not a sort order in order_by()");
 
-        return _order_by_impl<_database_t>(_check<Expressions...>{}, expressions...);
+        return _order_by_impl<_database_t>(check_order_by_t<Expressions...>{}, expressions...);
       }
 
     private:
-      template <typename Database, typename... Expressions>
-      auto _order_by_impl(const std::false_type&, Expressions... expressions) const -> bad_statement;
+      template <typename Database, typename Check, typename... Expressions>
+      auto _order_by_impl(Check, Expressions... expressions) const -> inconsistent<Check>;
 
       template <typename Database, typename... Expressions>
-      auto _order_by_impl(const std::true_type&, Expressions... expressions) const
-          -> _new_statement_t<std::true_type, order_by_t<Database, Expressions...>>
+      auto _order_by_impl(consistent_t, Expressions... expressions) const
+          -> _new_statement_t<consistent_t, order_by_t<Database, Expressions...>>
       {
         static_assert(not detail::has_duplicates<Expressions...>::value,
                       "at least one duplicate argument detected in order_by()");

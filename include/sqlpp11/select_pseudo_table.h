@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -28,6 +28,7 @@
 #define SQLPP_SELECT_PSEUDO_TABLE_H
 
 #include <sqlpp11/data_types/no_value.h>
+#include <sqlpp11/table.h>
 
 namespace sqlpp
 {

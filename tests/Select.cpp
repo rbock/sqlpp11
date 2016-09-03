@@ -122,8 +122,8 @@ int Select(int, char* [])
                   .group_by(t.alpha)
                   .order_by(t.gamma.asc())
                   .having(t.gamma)
-                  .limit(7)
-                  .offset(19);
+                  .offset(19)
+                  .limit(7);
   printer.reset();
   std::cerr << serialize(stat, printer).str() << std::endl;
 

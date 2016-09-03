@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2015, Roland Bock
+ * Copyright (c) 2015-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -28,17 +28,20 @@
 #define SQLPP_PORTABLE_STATIC_ASSERT_H
 
 #include <sqlpp11/consistent.h>
+#include <sqlpp11/inconsistent.h>
 
 namespace sqlpp
 {
 #define SQLPP_PORTABLE_STATIC_ASSERT(name, message) \
   struct name : std::false_type                     \
   {                                                 \
-    template <typename T = void>                    \
-    static void _()                                 \
+    template <typename... T>                        \
+    name(T&&...)                                    \
     {                                               \
-      static_assert(wrong_t<T>::value, message);    \
+      static_assert(wrong_t<T...>::value, message); \
     }                                               \
+    auto begin() const -> void;                     \
+    auto end() const -> void;                       \
   }
 
   namespace detail

@@ -23,9 +23,9 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
 #include "MockDb.h"
 #include "Sample.h"
+#include <iostream>
 #include <sqlpp11/sqlpp11.h>
 
 namespace
@@ -82,8 +82,7 @@ namespace
   void where_check(const Condition& condition)
   {
     using ReturnType = decltype(sqlpp::where(condition));
-    using ExpectedReturnType =
-        sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, sqlpp::bad_statement>::value>;
+    using ExpectedReturnType = sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, Assert>::value>;
     print_type_on_error<ReturnType>(ExpectedReturnType{});
     static_assert(ExpectedReturnType::value, "Unexpected return type");
   }
@@ -104,7 +103,7 @@ namespace
   void where()
   {
     where_check<sqlpp::consistent_t>(t.gamma);
-    where_check<sqlpp::bad_statement>(true);
+    where_check<sqlpp::assert_where_not_cpp_bool_t>(true);
   }
 }
 

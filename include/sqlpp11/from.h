@@ -27,15 +27,15 @@
 #ifndef SQLPP_FROM_H
 #define SQLPP_FROM_H
 
+#include <sqlpp11/detail/sum.h>
+#include <sqlpp11/dynamic_join.h>
+#include <sqlpp11/interpret_tuple.h>
+#include <sqlpp11/interpretable_list.h>
+#include <sqlpp11/logic.h>
+#include <sqlpp11/no_data.h>
+#include <sqlpp11/policy_update.h>
 #include <sqlpp11/table_ref.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/no_data.h>
-#include <sqlpp11/interpretable_list.h>
-#include <sqlpp11/interpret_tuple.h>
-#include <sqlpp11/logic.h>
-#include <sqlpp11/detail/sum.h>
-#include <sqlpp11/policy_update.h>
-#include <sqlpp11/dynamic_join.h>
 
 namespace sqlpp
 {
@@ -116,23 +116,22 @@ namespace sqlpp
       }
 
       template <typename DynamicJoin>
-      auto add(DynamicJoin dynamicJoin) ->
-          typename std::conditional<check_from_add_t<_impl_t, DynamicJoin>::value, void, bad_statement>::type
+      auto add(DynamicJoin dynamicJoin) -> typename std::
+          conditional<check_from_add_t<_impl_t, DynamicJoin>::value, void, check_from_add_t<_impl_t, DynamicJoin>>::type
       {
         using Check = check_from_add_t<_impl_t, DynamicJoin>;
-        Check::_();
         return _add_impl(dynamicJoin, Check{});
       }
 
     private:
       template <typename DynamicJoin>
-      auto _add_impl(DynamicJoin dynamicJoin, const std::true_type&) -> void
+      auto _add_impl(DynamicJoin dynamicJoin, consistent_t) -> void
       {
         _data._dynamic_tables.emplace_back(from_table(dynamicJoin));
       }
 
-      template <typename DynamicJoin>
-      auto _add_impl(DynamicJoin dynamicJoin, const std::false_type&) -> bad_statement;
+      template <typename Check, typename DynamicJoin>
+      auto _add_impl(DynamicJoin dynamicJoin, Check) -> inconsistent<Check>;
 
     public:
       _data_t _data;
@@ -146,8 +145,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
       template <typename... Args>
-      _base_t(Args&&... args)
-          : from{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : from{std::forward<Args>(args)...}
       {
       }
 
@@ -234,8 +232,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
       template <typename... Args>
-      _base_t(Args&&... args)
-          : no_from{std::forward<Args>(args)...}
+      _base_t(Args&&... args) : no_from{std::forward<Args>(args)...}
       {
       }
 
@@ -258,7 +255,7 @@ namespace sqlpp
       using _database_t = typename Policies::_database_t;
 
       template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check::value, Policies, no_from_t, T>;
+      using _new_statement_t = new_statement_t<Check, Policies, no_from_t, T>;
 
       using _consistency_check = consistent_t;
 
@@ -266,7 +263,6 @@ namespace sqlpp
       auto from(Table table) const -> _new_statement_t<check_from_static_t<Table>, from_t<void, from_table_t<Table>>>
       {
         using Check = check_from_static_t<Table>;
-        Check{}._();
         return _from_impl<void>(Check{}, table);
       }
 
@@ -275,17 +271,16 @@ namespace sqlpp
           -> _new_statement_t<check_from_dynamic_t<_database_t, Table>, from_t<_database_t, from_table_t<Table>>>
       {
         using Check = check_from_dynamic_t<_database_t, Table>;
-        Check{}._();
         return _from_impl<_database_t>(Check{}, table);
       }
 
     private:
-      template <typename Database, typename Table>
-      auto _from_impl(const std::false_type&, Table table) const -> bad_statement;
+      template <typename Database, typename Check, typename Table>
+      auto _from_impl(Check, Table table) const -> inconsistent<Check>;
 
       template <typename Database, typename Table>
-      auto _from_impl(const std::true_type&, Table table) const
-          -> _new_statement_t<std::true_type, from_t<Database, from_table_t<Table>>>
+      auto _from_impl(consistent_t, Table table) const
+          -> _new_statement_t<consistent_t, from_t<Database, from_table_t<Table>>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this),
                 from_data_t<Database, from_table_t<Table>>{from_table(table)}};

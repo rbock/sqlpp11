@@ -91,10 +91,8 @@ namespace sqlpp
     template <typename Expr>
     auto on(Expr expr) const -> typename std::conditional<check_dynamic_join_on_t<dynamic_pre_join_t, Expr>::value,
                                                           dynamic_join_t<dynamic_pre_join_t, on_t<Expr>>,
-                                                          bad_statement>::type
+                                                          check_dynamic_join_on_t<dynamic_pre_join_t, Expr>>::type
     {
-      check_dynamic_join_on_t<dynamic_pre_join_t, Expr>::_();
-
       return {*this, {expr}};
     }
 
@@ -119,40 +117,40 @@ namespace sqlpp
   template <typename JoinType, typename Table>
   using make_dynamic_pre_join_t = typename std::conditional<check_dynamic_pre_join_t<Table>::value,
                                                             dynamic_pre_join_t<JoinType, Table>,
-                                                            bad_statement>::type;
+                                                            check_dynamic_pre_join_t<Table>>::type;
 
   template <typename Table>
   auto dynamic_join(Table table) -> make_dynamic_pre_join_t<inner_join_t, Table>
   {
-    check_dynamic_pre_join_t<Table>::_();
+    check_dynamic_pre_join_t<Table>{};  // FIXME: Failure return type?
     return {table};
   }
 
   template <typename Table>
   auto dynamic_inner_join(Table table) -> make_dynamic_pre_join_t<inner_join_t, Table>
   {
-    check_dynamic_pre_join_t<Table>::_();
+    check_dynamic_pre_join_t<Table>{};
     return {table};
   }
 
   template <typename Table>
   auto dynamic_left_outer_join(Table table) -> make_dynamic_pre_join_t<left_outer_join_t, Table>
   {
-    check_dynamic_pre_join_t<Table>::_();
+    check_dynamic_pre_join_t<Table>{};
     return {table};
   }
 
   template <typename Table>
   auto dynamic_right_outer_join(Table table) -> make_dynamic_pre_join_t<right_outer_join_t, Table>
   {
-    check_dynamic_pre_join_t<Table>::_();
+    check_dynamic_pre_join_t<Table>{};
     return {table};
   }
 
   template <typename Table>
   auto dynamic_outer_join(Table table) -> make_dynamic_pre_join_t<outer_join_t, Table>
   {
-    check_dynamic_pre_join_t<Table>::_();
+    check_dynamic_pre_join_t<Table>{};
     return {table};
   }
 
@@ -160,9 +158,8 @@ namespace sqlpp
   auto dynamic_cross_join(Table table) ->
       typename std::conditional<check_dynamic_pre_join_t<Table>::value,
                                 dynamic_join_t<dynamic_pre_join_t<cross_join_t, Table>, on_t<unconditional_t>>,
-                                bad_statement>::type
+                                check_dynamic_pre_join_t<Table>>::type
   {
-    check_dynamic_pre_join_t<Table>::_();
     return {dynamic_pre_join_t<cross_join_t, Table>{table}, {}};
   }
 }

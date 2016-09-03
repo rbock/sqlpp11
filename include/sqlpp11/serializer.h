@@ -27,8 +27,8 @@
 #ifndef SQLPP_SERIALIZER_H
 #define SQLPP_SERIALIZER_H
 
-#include <sqlpp11/wrong.h>
 #include <sqlpp11/portable_static_assert.h>
+#include <sqlpp11/wrong.h>
 
 namespace sqlpp
 {
@@ -41,7 +41,7 @@ namespace sqlpp
 
     static void _(const T&, Context&)
     {
-      _serialize_check::_();
+      _serialize_check{};
     }
   };
 }
