@@ -40,6 +40,8 @@ namespace sqlpp
     {                                               \
       static_assert(wrong_t<T...>::value, message); \
     }                                               \
+    auto begin() const -> void;                     \
+    auto end() const -> void;                       \
   }
 
   namespace detail
