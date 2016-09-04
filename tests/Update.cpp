@@ -23,11 +23,11 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "MockDb.h"
+#include "Sample.h"
+#include "is_regular.h"
 #include <iostream>
 #include <sqlpp11/sqlpp11.h>
-#include "Sample.h"
-#include "MockDb.h"
-#include "is_regular.h"
 
 int Update(int, char* [])
 {

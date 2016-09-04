@@ -103,7 +103,7 @@ namespace
   void where()
   {
     where_check<sqlpp::consistent_t>(t.gamma);
-    where_check<sqlpp::assert_where_not_cpp_bool_t>(true);
+    where_check<sqlpp::assert_where_arg_is_not_cpp_bool_t>(true);
   }
 }
 

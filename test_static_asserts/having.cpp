@@ -138,7 +138,7 @@ namespace
     static_assert(ExpectedCheckResult::value, "Unexpected check result");
 
     using ReturnType = decltype(select(all_of(t)).from(t).dynamic_having());
-    using ExpectedReturnType = std::is_same<ReturnType, sqlpp::assert_where_dynamic_statement_dynamic_t>;
+    using ExpectedReturnType = std::is_same<ReturnType, sqlpp::assert_having_dynamic_statement_dynamic_t>;
     print_type_on_error<ReturnType>(ExpectedReturnType{});
     static_assert(ExpectedReturnType::value, "Unexpected return type");
   }
