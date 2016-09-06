@@ -122,8 +122,8 @@ int Select(int, char* [])
                   .group_by(t.alpha)
                   .order_by(t.gamma.asc())
                   .having(t.gamma)
-                  .offset(19)
-                  .limit(7);
+                  .offset(19u)
+                  .limit(7u);
   printer.reset();
   std::cerr << serialize(stat, printer).str() << std::endl;
 
@@ -135,8 +135,8 @@ int Select(int, char* [])
                 .group_by(t.alpha)
                 .order_by(t.gamma.asc())
                 .having(t.gamma)
-                .limit(7)
-                .offset(19);
+                .limit(7u)
+                .offset(19u);
 
   printer.reset();
   std::cerr << serialize(s0, printer).str() << std::endl;
@@ -156,8 +156,8 @@ int Select(int, char* [])
   s.from.add(dynamic_cross_join(f));
   s.where.add(t.alpha > 7);
   s.having.add(t.alpha > 7);
-  s.limit.set(3);
-  s.offset.set(3);
+  s.limit.set(3u);
+  s.offset.set(3u);
   s.group_by.add(t.beta);
   s.order_by.add(t.beta.asc());
   for (const auto& row : db(s))

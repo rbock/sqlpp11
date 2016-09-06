@@ -153,7 +153,8 @@ namespace sqlpp
       {
         // FIXME: Make sure that Limit does not require external tables? Need to read up on SQL
         using arg_t = wrap_operand_t<Limit>;
-        static_assert(is_integral_t<arg_t>::value, "limit requires an integral value or integral parameter");
+        static_assert(is_unsigned_integral_t<arg_t>::value,
+                      "limit requires an unsigned integral value or unsigned integral parameter");
         _data._value = arg_t{value};
         _data._initialized = true;
       }
@@ -194,11 +195,13 @@ namespace sqlpp
     };
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_limit_is_integral, "argument for limit() must be an integral expressions");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_limit_is_unsigned_integral,
+                               "argument for limit() must be an unsigned integral expressions");
   template <typename T>
   struct check_limit
   {
-    using type = static_combined_check_t<static_check_t<is_integral_t<T>::value, assert_limit_is_integral>>;
+    using type =
+        static_combined_check_t<static_check_t<is_unsigned_integral_t<T>::value, assert_limit_is_unsigned_integral>>;
   };
   template <typename T>
   using check_limit_t = typename check_limit<wrap_operand_t<T>>::type;
