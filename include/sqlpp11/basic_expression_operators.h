@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2013-2016, Roland Bock
+ * Copyright (c) 2016, Aaron Bishop
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -38,6 +39,7 @@
 #include <sqlpp11/is_null_fwd.h>
 #include <sqlpp11/wrap_operand.h>
 #include <sqlpp11/logic.h>
+#include <sqlpp11/expression_return_types.h>
 
 namespace sqlpp
 {
