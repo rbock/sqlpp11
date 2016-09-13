@@ -23,8 +23,8 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "compare.h"
 #include "Sample.h"
+#include "compare.h"
 #include <sqlpp11/sqlpp11.h>
 
 namespace
@@ -61,6 +61,7 @@ int From(int, char* [])
   compare(
       __LINE__, from(aFoo.join(bFoo).on(aFoo.omega > bFoo.omega).join(cFoo).on(bFoo.omega > cFoo.omega)),
       " FROM tab_foo AS a INNER JOIN tab_foo AS b ON (a.omega>b.omega) INNER JOIN tab_foo AS c ON (b.omega>c.omega)");
+  compare(__LINE__, from(foo.join(bar).unconditionally()), " FROM tab_foo INNER JOIN tab_bar");
 
   // Static joins involving verbatim tables
   compare(__LINE__, from(aFoo.join(sqlpp::verbatim_table("unknown_table"))
@@ -108,6 +109,11 @@ int From(int, char* [])
     auto dfa = df;
     dfa.from.add(dynamic_right_outer_join(bar).on(bar.alpha > foo.omega));
     compare(__LINE__, dfa, " FROM tab_foo RIGHT OUTER JOIN tab_bar ON (tab_bar.alpha>tab_foo.omega)");
+  }
+  {
+    auto dfa = df;
+    dfa.from.add(dynamic_join(bar).unconditionally());
+    compare(__LINE__, dfa, " FROM tab_foo INNER JOIN tab_bar");
   }
   {
     auto dfa = df;

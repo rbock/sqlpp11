@@ -23,14 +23,14 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
-#include "Sample.h"
 #include "MockDb.h"
+#include "Sample.h"
 #include "is_regular.h"
+#include <iostream>
 #include <sqlpp11/alias_provider.h>
-#include <sqlpp11/select.h>
-#include <sqlpp11/functions.h>
 #include <sqlpp11/connection.h>
+#include <sqlpp11/functions.h>
+#include <sqlpp11/select.h>
 #include <sqlpp11/without_table_check.h>
 
 namespace alias
@@ -137,29 +137,38 @@ int SelectType(int, char* [])
     static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
     static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
     static_assert(sqlpp::is_regular<T>::value, "type requirement");
-    //subtraction on unsigned makes it signed
-    static_assert(sqlpp::is_integral_t<sqlpp::return_type_minus_t<T,T>>::value, "type requirement");
-    static_assert(sqlpp::is_integral_t<sqlpp::return_type_unary_minus_t<T,T>>::value, "type requirement");
-    //any operation on float makes it float
-    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_minus_t<T,sqlpp::floating_point>>::value, "type requirement");
-    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_plus_t<T,sqlpp::floating_point>>::value, "type requirement");
-    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_multiplies_t<T,sqlpp::floating_point>>::value, "type requirement");
-    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_divides_t<T,sqlpp::floating_point>>::value, "type requirement");
-    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_minus_t<sqlpp::floating_point,T>>::value, "type requirement");
-    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_plus_t<sqlpp::floating_point,T>>::value, "type requirement");
-    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_multiplies_t<sqlpp::floating_point,T>>::value, "type requirement");
-    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_divides_t<sqlpp::floating_point,T>>::value, "type requirement");
-    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_modulus_t<sqlpp::floating_point,T>>::value, "type requirement");
-    //signed operation on unsigned makes it signed
-    static_assert(sqlpp::is_integral_t<sqlpp::return_type_minus_t<T,sqlpp::integral>>::value, "type requirement");
-    static_assert(sqlpp::is_integral_t<sqlpp::return_type_plus_t<T,sqlpp::integral>>::value, "type requirement");
-    static_assert(sqlpp::is_integral_t<sqlpp::return_type_multiplies_t<T,sqlpp::integral>>::value, "type requirement");
-    static_assert(sqlpp::is_integral_t<sqlpp::return_type_divides_t<T,sqlpp::integral>>::value, "type requirement");
-    static_assert(sqlpp::is_integral_t<sqlpp::return_type_minus_t<sqlpp::integral,T>>::value, "type requirement");
-    static_assert(sqlpp::is_integral_t<sqlpp::return_type_plus_t<sqlpp::integral,T>>::value, "type requirement");
-    static_assert(sqlpp::is_integral_t<sqlpp::return_type_multiplies_t<sqlpp::integral,T>>::value, "type requirement");
-    static_assert(sqlpp::is_integral_t<sqlpp::return_type_divides_t<sqlpp::integral,T>>::value, "type requirement");
-    static_assert(sqlpp::is_integral_t<sqlpp::return_type_modulus_t<sqlpp::integral,T>>::value, "type requirement");
+    // subtraction on unsigned makes it signed
+    static_assert(sqlpp::is_integral_t<sqlpp::return_type_minus_t<T, T>>::value, "type requirement");
+    static_assert(sqlpp::is_integral_t<sqlpp::return_type_unary_minus_t<T, T>>::value, "type requirement");
+    // any operation on float makes it float
+    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_minus_t<T, sqlpp::floating_point>>::value,
+                  "type requirement");
+    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_plus_t<T, sqlpp::floating_point>>::value,
+                  "type requirement");
+    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_multiplies_t<T, sqlpp::floating_point>>::value,
+                  "type requirement");
+    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_divides_t<T, sqlpp::floating_point>>::value,
+                  "type requirement");
+    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_minus_t<sqlpp::floating_point, T>>::value,
+                  "type requirement");
+    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_plus_t<sqlpp::floating_point, T>>::value,
+                  "type requirement");
+    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_multiplies_t<sqlpp::floating_point, T>>::value,
+                  "type requirement");
+    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_divides_t<sqlpp::floating_point, T>>::value,
+                  "type requirement");
+    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_modulus_t<sqlpp::floating_point, T>>::value,
+                  "type requirement");
+    // signed operation on unsigned makes it signed
+    static_assert(sqlpp::is_integral_t<sqlpp::return_type_minus_t<T, sqlpp::integral>>::value, "type requirement");
+    static_assert(sqlpp::is_integral_t<sqlpp::return_type_plus_t<T, sqlpp::integral>>::value, "type requirement");
+    static_assert(sqlpp::is_integral_t<sqlpp::return_type_multiplies_t<T, sqlpp::integral>>::value, "type requirement");
+    static_assert(sqlpp::is_integral_t<sqlpp::return_type_divides_t<T, sqlpp::integral>>::value, "type requirement");
+    static_assert(sqlpp::is_integral_t<sqlpp::return_type_minus_t<sqlpp::integral, T>>::value, "type requirement");
+    static_assert(sqlpp::is_integral_t<sqlpp::return_type_plus_t<sqlpp::integral, T>>::value, "type requirement");
+    static_assert(sqlpp::is_integral_t<sqlpp::return_type_multiplies_t<sqlpp::integral, T>>::value, "type requirement");
+    static_assert(sqlpp::is_integral_t<sqlpp::return_type_divides_t<sqlpp::integral, T>>::value, "type requirement");
+    static_assert(sqlpp::is_integral_t<sqlpp::return_type_modulus_t<sqlpp::integral, T>>::value, "type requirement");
   }
 
   // Test a floating point table column
@@ -370,8 +379,8 @@ int SelectType(int, char* [])
     auto s = dynamic_select(db, all_of(t)).dynamic_from(t).dynamic_where().dynamic_limit().dynamic_offset();
     s.from.add(dynamic_join(f).on(f.omega > t.alpha));
     s.where.add(without_table_check(f.omega > 7 and t.alpha == any(select(t.alpha).from(t).where(t.alpha < 3))));
-    s.limit.set(30);
-    s.limit.set(3);
+    s.limit.set(30u);
+    s.limit.set(3u);
     std::cerr << "------------------------\n";
     serialize(s, printer).str();
     std::cerr << "------------------------\n";
@@ -424,8 +433,8 @@ int SelectType(int, char* [])
                 .group_by(l.gamma, r.a)
                 .having(r.a != true)
                 .order_by(l.beta.asc())
-                .limit(17)
-                .offset(3)
+                .limit(17u)
+                .offset(3u)
                 .as(alias::a);
 
   return 0;

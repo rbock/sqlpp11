@@ -57,8 +57,6 @@ namespace sqlpp
     using _traits = make_traits<no_value_t, tag::is_offset>;
     using _nodes = detail::type_vector<Offset>;
 
-    static_assert(is_integral_t<Offset>::value, "offset requires an integral value or integral parameter");
-
     // Data
     using _data_t = offset_data_t<Offset>;
 
@@ -155,7 +153,8 @@ namespace sqlpp
       {
         // FIXME: Make sure that Offset does not require external tables? Need to read up on SQL
         using arg_t = wrap_operand_t<Offset>;
-        static_assert(is_integral_t<arg_t>::value, "offset requires an integral value or integral parameter");
+        static_assert(is_unsigned_integral_t<arg_t>::value,
+                      "offset requires an unsigned integral value or unsigned integral parameter");
         _data._value = arg_t{value};
         _data._initialized = true;
       }
@@ -208,11 +207,13 @@ namespace sqlpp
     interpretable_t<Database> _value;
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_offset_is_integral, "argument for offset() must be an integral expressions");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_offset_is_unsigned_integral,
+                               "argument for offset() must be an integral expressions");
   template <typename T>
   struct check_offset
   {
-    using type = static_combined_check_t<static_check_t<is_integral_t<T>::value, assert_offset_is_integral>>;
+    using type =
+        static_combined_check_t<static_check_t<is_unsigned_integral_t<T>::value, assert_offset_is_unsigned_integral>>;
   };
   template <typename T>
   using check_offset_t = typename check_offset<wrap_operand_t<T>>::type;

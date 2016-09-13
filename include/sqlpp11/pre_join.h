@@ -102,6 +102,11 @@ namespace sqlpp
 
     static_assert(required_tables_of<pre_join_t>::size::value == 0, "joined tables must not depend on other tables");
 
+    auto unconditionally() -> join_t<pre_join_t, on_t<unconditional_t>>
+    {
+      return {*this, {}};
+    }
+
     template <typename Expr>
     auto on(Expr expr) const -> typename std::conditional<check_join_on_t<pre_join_t, Expr>::value,
                                                           join_t<pre_join_t, on_t<Expr>>,

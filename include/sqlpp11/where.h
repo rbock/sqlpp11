@@ -209,16 +209,17 @@ namespace sqlpp
     };
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_t, "calling where() or unconditionally() required");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_or_unconditionally_called_t,
+                               "calling where() or unconditionally() required");
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_not_cpp_bool_t,
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_arg_is_not_cpp_bool_t,
                                "where() argument has to be an sqlpp boolean expression. Please use "
                                ".unconditionally() instead of .where(true), or sqlpp::value(bool)");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_boolean_expression_t,
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_arg_is_boolean_expression_t,
                                "where() argument has to be an sqlpp boolean expression.");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_no_aggregate_functions_t,
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_arg_contains_no_aggregate_functions_t,
                                "at least one aggregate function used in where()");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_dynamic_statement_dynamic_t,
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_dynamic_used_with_dynamic_statement_t,
                                "dynamic_where() must not be called in a static statement");
 
   // workaround for msvc bugs https://connect.microsoft.com/VisualStudio/Feedback/Details/2086629 &
@@ -226,20 +227,22 @@ namespace sqlpp
   //  template <typename... Expressions>
   //  using check_where_t = static_combined_check_t<
   //      static_check_t<logic::all_t<is_not_cpp_bool_t<Expressions>::value...>::value,
-  //      assert_where_not_cpp_bool_t>,
+  //      assert_where_arg_is_not_cpp_bool_t>,
   //      static_check_t<logic::all_t<is_expression_t<Expressions>::value...>::value,
   //      assert_where_boolean_expressions_t>,
-  //      static_check_t<logic::all_t<is_boolean_t<Expressions>::value...>::value, assert_where_boolean_expression_t>,
+  //      static_check_t<logic::all_t<is_boolean_t<Expressions>::value...>::value,
+  //      assert_where_arg_is_boolean_expression_t>,
   //      static_check_t<logic::all_t<(not contains_aggregate_function_t<Expressions>::value)...>::value,
-  //                     assert_where_no_aggregate_functions_t>>;
+  //                     assert_where_arg_contains_no_aggregate_functions_t>>;
   template <typename Expression>
   struct check_where
   {
     using type = static_combined_check_t<
-        static_check_t<is_not_cpp_bool_t<Expression>::value, assert_where_not_cpp_bool_t>,
-        static_check_t<is_expression_t<Expression>::value, assert_where_boolean_expression_t>,
-        static_check_t<is_boolean_t<Expression>::value, assert_where_boolean_expression_t>,
-        static_check_t<not contains_aggregate_function_t<Expression>::value, assert_where_no_aggregate_functions_t>>;
+        static_check_t<is_not_cpp_bool_t<Expression>::value, assert_where_arg_is_not_cpp_bool_t>,
+        static_check_t<is_expression_t<Expression>::value, assert_where_arg_is_boolean_expression_t>,
+        static_check_t<is_boolean_t<Expression>::value, assert_where_arg_is_boolean_expression_t>,
+        static_check_t<not contains_aggregate_function_t<Expression>::value,
+                       assert_where_arg_contains_no_aggregate_functions_t>>;
   };
 
   template <typename Expression>
@@ -250,7 +253,7 @@ namespace sqlpp
 
   template <typename Database, typename Expression>
   using check_where_dynamic_t = static_combined_check_t<
-      static_check_t<not std::is_same<Database, void>::value, assert_where_dynamic_statement_dynamic_t>,
+      static_check_t<not std::is_same<Database, void>::value, assert_where_dynamic_used_with_dynamic_statement_t>,
       check_where_t<Expression>>;
 
   // NO WHERE YET
@@ -311,7 +314,7 @@ namespace sqlpp
 
       using _consistency_check =
           typename std::conditional<WhereRequired and (Policies::_all_provided_tables::size::value > 0),
-                                    assert_where_t,
+                                    assert_where_or_unconditionally_called_t,
                                     consistent_t>::type;
 
       auto unconditionally() const -> _new_statement_t<consistent_t, where_t<void, unconditional_t>>

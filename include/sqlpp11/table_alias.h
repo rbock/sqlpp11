@@ -27,12 +27,12 @@
 #ifndef SQLPP_TABLE_ALIAS_H
 #define SQLPP_TABLE_ALIAS_H
 
-#include <sqlpp11/column_fwd.h>
-#include <sqlpp11/interpret.h>
-#include <sqlpp11/type_traits.h>
-#include <sqlpp11/join.h>
 #include <sqlpp11/alias.h>
+#include <sqlpp11/column_fwd.h>
 #include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/interpret.h>
+#include <sqlpp11/join.h>
+#include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
@@ -107,10 +107,10 @@ namespace sqlpp
 
     static Context& _(const T& t, Context& context)
     {
-      if (requires_braces_t<T>::value)
+      if (requires_braces_t<Table>::value)
         context << "(";
       serialize(t._table, context);
-      if (requires_braces_t<T>::value)
+      if (requires_braces_t<Table>::value)
         context << ")";
       context << " AS " << name_of<T>::char_ptr();
       return context;

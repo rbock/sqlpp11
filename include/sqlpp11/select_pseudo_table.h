@@ -55,7 +55,10 @@ namespace sqlpp
   struct select_pseudo_table_t
       : public table_t<select_pseudo_table_t<Select, NamedExpr...>, select_column_spec_t<Select, NamedExpr>...>
   {
-    using _traits = make_traits<no_value_t, tag::is_table, tag::is_pseudo_table>;
+    using _traits = make_traits<no_value_t,
+                                tag::is_table,
+                                tag::is_pseudo_table,
+                                tag_if<tag::requires_braces, requires_braces_t<Select>::value>>;
     using _nodes = detail::type_vector<>;
 
     select_pseudo_table_t(Select select) : _select(select)

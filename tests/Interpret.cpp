@@ -23,8 +23,8 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Sample.h"
 #include "MockDb.h"
+#include "Sample.h"
 #include <sqlpp11/sqlpp11.h>
 
 #include <iostream>
@@ -74,23 +74,26 @@ int Interpret(int, char* [])
   serialize(select(t.alpha, t.beta).from(t).where(t.alpha == 3), printer).str();
   serialize(select(t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma), printer).str();
   serialize(select(t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma).having(t.beta.like("%kuchen")),
-            printer).str();
+            printer)
+      .str();
   serialize(select(t.alpha, t.beta)
                 .from(t)
                 .where(t.alpha == 3)
                 .group_by(t.gamma)
                 .having(t.beta.like("%kuchen"))
                 .order_by(t.beta.asc()),
-            printer).str();
+            printer)
+      .str();
   serialize(select(t.alpha, t.beta)
                 .from(t)
                 .where(t.alpha == 3)
                 .group_by(t.gamma)
                 .having(t.beta.like("%kuchen"))
                 .order_by(t.beta.asc())
-                .limit(17)
-                .offset(3),
-            printer).str();
+                .limit(17u)
+                .offset(3u),
+            printer)
+      .str();
 
   serialize(parameter(sqlpp::bigint(), t.alpha), printer).str();
   serialize(parameter(t.alpha), printer).str();
@@ -199,7 +202,9 @@ int Interpret(int, char* [])
 
   printer.reset();
   std::cerr << serialize(select(all_of(t)).from(t).where(t.alpha.in(select(f.epsilon).from(f).unconditionally())),
-                         printer).str() << std::endl;
+                         printer)
+                   .str()
+            << std::endl;
 
   printer.reset();
   std::cerr << serialize(select(all_of(t)).from(t).where(t.alpha.in()), printer).str() << std::endl;

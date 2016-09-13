@@ -46,7 +46,7 @@ int CustomQuery(int, char* [])
   compare(__LINE__,
           custom_query(sqlpp::select(), select_flags(sqlpp::distinct), select_columns(foo.omega),
                        from(foo.join(bar).on(foo.omega == bar.alpha)), where(bar.alpha > 17), group_by(foo.omega),
-                       having(avg(bar.alpha) > 19), order_by(foo.omega.asc()), sqlpp::limit(10), sqlpp::offset(100)),
+                       having(avg(bar.alpha) > 19), order_by(foo.omega.asc()), sqlpp::limit(10u), sqlpp::offset(100u)),
           "SELECT  DISTINCT  tab_foo.omega  FROM tab_foo INNER JOIN tab_bar ON (tab_foo.omega=tab_bar.alpha)  WHERE "
           "(tab_bar.alpha>17)  GROUP BY tab_foo.omega  HAVING (AVG(tab_bar.alpha)>19)  ORDER BY tab_foo.omega ASC  "
           "LIMIT 10  OFFSET 100");

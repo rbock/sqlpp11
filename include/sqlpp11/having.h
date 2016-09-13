@@ -264,7 +264,7 @@ namespace sqlpp
         return _having_impl<_database_t>(Check{}, expression);
       }
 
-      auto dynamic_having() const -> _new_statement_t<check_where_dynamic_t<_database_t, boolean_operand>,
+      auto dynamic_having() const -> _new_statement_t<check_having_dynamic_t<_database_t, boolean_operand>,
                                                       having_t<_database_t, boolean_operand>>
       {
         return dynamic_having(::sqlpp::value(true));
