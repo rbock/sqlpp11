@@ -29,11 +29,11 @@
 
 #include <sqlpp11/alias.h>
 #include <sqlpp11/data_types/boolean.h>
-#include <sqlpp11/tvin.h>
-#include <sqlpp11/rhs_wrap.h>
-#include <sqlpp11/noop.h>
 #include <sqlpp11/expression_fwd.h>
+#include <sqlpp11/noop.h>
+#include <sqlpp11/rhs_wrap.h>
 #include <sqlpp11/serializer.h>
+#include <sqlpp11/tvin.h>
 #include <sqlpp11/wrap_operand.h>
 
 namespace sqlpp
@@ -126,7 +126,7 @@ namespace sqlpp
       }
       else
       {
-        context << "!=";
+        context << "<>";
         serialize_operand(t._rhs, context);
       }
       context << ")";
