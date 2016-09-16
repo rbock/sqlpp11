@@ -160,6 +160,7 @@ int Select(int, char* [])
   s.offset.set(3u);
   s.group_by.add(t.beta);
   s.order_by.add(t.beta.asc());
+  s.order_by.add(t.delta.order(sqlpp::sort_type::desc));
   for (const auto& row : db(s))
   {
     int64_t a = row.alpha;

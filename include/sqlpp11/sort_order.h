@@ -39,25 +39,26 @@ namespace sqlpp
     desc
   };
 
-  template <typename Expression, sort_type SortType>
+  template <typename Expression>
   struct sort_order_t
   {
     using _traits = make_traits<no_value_t, tag::is_sort_order>;
     using _nodes = detail::type_vector<Expression>;
 
     Expression _expression;
+    sort_type _sort_type;
   };
 
-  template <typename Context, typename Expression, sort_type SortType>
-  struct serializer_t<Context, sort_order_t<Expression, SortType>>
+  template <typename Context, typename Expression>
+  struct serializer_t<Context, sort_order_t<Expression>>
   {
     using _serialize_check = serialize_check_of<Context, Expression>;
-    using T = sort_order_t<Expression, SortType>;
+    using T = sort_order_t<Expression>;
 
     static Context& _(const T& t, Context& context)
     {
       serialize_operand(t._expression, context);
-      switch (SortType)
+      switch (t._sort_type)
       {
         case sort_type::asc:
           context << " ASC";
