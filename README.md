@@ -86,7 +86,7 @@ if (const auto& row = db(select(foo.name.as(cheese)).from(foo).where(foo.id == 1
 }
 
 // selecting a single row with a single result:
-return db(select(count(foo.id)).from(foo).where(true)).front().count;
+return db(select(count(foo.id)).from(foo).unconditionally()).front().count;
 
 Of course there are joins and subqueries, more functions, order_by, group_by etc.
 These will be documented soon.
