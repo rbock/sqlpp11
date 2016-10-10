@@ -186,6 +186,19 @@ namespace sqlpp
     using _impl = detail::result_row_impl<Db, _field_index_sequence, FieldSpecs...>;
     bool _is_valid;
 
+    template <typename D, typename... Fs>
+    static constexpr auto is_compatible(detail::type_vector<result_row_t<D, Fs...>>) ->
+        typename std::enable_if<sizeof...(Fs) == sizeof...(FieldSpecs), bool>::type
+    {
+      return logic::all_t<FieldSpecs::is_compatible(Fs{})...>::value;
+    }
+
+    template <typename D, typename... Fs>
+    static constexpr auto is_compatible(detail::type_vector<result_row_t<D, Fs...>>) ->
+        typename std::enable_if<sizeof...(Fs) != sizeof...(FieldSpecs), bool>::type
+    {
+      return false;
+    }
     result_row_t() : _impl(), _is_valid(false)
     {
     }

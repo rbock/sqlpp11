@@ -41,11 +41,39 @@ namespace sqlpp
     using _nodes = detail::type_vector<>;
 
     using _alias_t = NameType;
+
+    template <typename N, typename V, bool C, bool T>
+    static constexpr auto is_compatible(field_spec_t<N, V, C, T>) -> bool
+    {
+      using rhs = field_spec_t<N, V, C, T>;
+      return std::is_same<_traits, typename rhs::_traits>::value and
+             std::is_same<typename _alias_t::_name_t, typename rhs::_alias_t::_name_t>::value;
+    }
   };
 
   template <typename AliasProvider, typename FieldSpecTuple>
   struct multi_field_spec_t
   {
+    static_assert(wrong_t<AliasProvider, FieldSpecTuple>::value,
+                  "multi_field_spec_t needs to be specialized with a tuple");
+  };
+
+  template <typename AliasProvider, typename... FieldSpecs>
+  struct multi_field_spec_t<AliasProvider, std::tuple<FieldSpecs...>>
+  {
+    template <typename A, typename... Fs>
+    static constexpr auto is_compatible(multi_field_spec_t<A, Fs...>) ->
+        typename std::enable_if<sizeof...(Fs) == sizeof...(FieldSpecs), bool>::type
+    {
+      return logic::all_t<FieldSpecs::is_compatible(Fs{})...>::value;
+    }
+
+    template <typename A, typename... Fs>
+    static constexpr auto is_compatible(multi_field_spec_t<A, Fs...>) ->
+        typename std::enable_if<sizeof...(Fs) != sizeof...(FieldSpecs), bool>::type
+    {
+      return false;
+    }
   };
 
   namespace detail
