@@ -46,7 +46,10 @@ namespace sqlpp
     static constexpr auto is_compatible(field_spec_t<N, V, C, T>) -> bool
     {
       using rhs = field_spec_t<N, V, C, T>;
-      return std::is_same<_traits, typename rhs::_traits>::value and
+      return std::is_same<ValueType, V>::value and  // We might need to know that float can hold int, too
+             (CanBeNull or CanBeNull == C) and  // The left hand side determines the result row and therefore must allow
+                                                // NULL if the right hand side allows it
+             (NullIsTrivialValue or NullIsTrivialValue == T) and
              std::is_same<typename _alias_t::_name_t, typename rhs::_alias_t::_name_t>::value;
     }
   };
