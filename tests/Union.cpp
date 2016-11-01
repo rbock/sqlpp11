@@ -29,6 +29,12 @@
 #include <sqlpp11/alias_provider.h>
 #include <iostream>
 
+namespace greek
+{
+  SQLPP_ALIAS_PROVIDER(alpha)
+  SQLPP_ALIAS_PROVIDER(beta)
+}
+
 int Union(int, char* [])
 {
   MockDb db;
@@ -39,6 +45,15 @@ int Union(int, char* [])
 
   db(select(t.alpha).from(t).unconditionally().union_distinct(select(f.epsilon.as(t.alpha)).from(f).unconditionally()));
   db(select(t.alpha).from(t).unconditionally().union_all(select(f.epsilon.as(t.alpha)).from(f).unconditionally()));
+
+  // t.alpha can be null, a given value cannot
+  db(select(t.alpha).from(t).unconditionally().union_all(select(sqlpp::value(1).as(t.alpha))));
+  db(select(t.alpha).from(t).unconditionally().union_all(select(sqlpp::value(1).as(greek::alpha))));
+
+  // t.beta can be null, f.delta cannot
+  static_assert(sqlpp::can_be_null_t<decltype(t.beta)>::value, "");
+  static_assert(!sqlpp::can_be_null_t<decltype(f.delta)>::value, "");
+  db(select(t.beta).from(t).unconditionally().union_all(select(f.delta.as(greek::beta)).from(f).unconditionally()));
 
   auto u = select(t.alpha)
                .from(t)
