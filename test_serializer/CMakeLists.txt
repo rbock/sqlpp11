@@ -24,6 +24,7 @@
 
 set(test_serializer_names
 	CustomQuery
+	As
   From
   In
   Insert
