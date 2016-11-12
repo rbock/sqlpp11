@@ -38,7 +38,7 @@
 namespace sqlpp
 {
   struct integral;
-  
+
   template <typename Expression>
   struct expression_operators<Expression, unsigned_integral> : public basic_expression_operators<Expression>
   {

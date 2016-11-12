@@ -39,8 +39,10 @@ int As(int, char* [])
   compare(__LINE__, foo.omega.as(cheese), "tab_foo.omega AS cheese");
   compare(__LINE__, (foo.omega + 17).as(cheese), "(tab_foo.omega+17) AS cheese");
   compare(__LINE__, (foo.omega - 17).as(cheese), "(tab_foo.omega-17) AS cheese");
+  compare(__LINE__, (foo.omega - uint32_t(17)).as(cheese), "(tab_foo.omega-17) AS cheese");
   compare(__LINE__, (foo.omega - bar.alpha).as(cheese), "(tab_foo.omega-tab_bar.alpha) AS cheese");
   compare(__LINE__, (count(foo.omega) - bar.alpha).as(cheese), "(COUNT(tab_foo.omega)-tab_bar.alpha) AS cheese");
+  compare(__LINE__, (count(foo.omega) - uint32_t(17)).as(cheese), "(COUNT(tab_foo.omega)-17) AS cheese");
 
   return 0;
 }
