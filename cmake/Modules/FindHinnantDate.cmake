@@ -53,7 +53,7 @@ set(HinnantDate_NOT_FOUND_MESSAGE "Could NOT find HinnantDate.
 Maybe you need to adjust the search paths or HinnantDate_ROOT_DIR.")
 
 find_file(HinnantDate_INCLUDE_FILE
-    date.h
+    date.h date/date.h
     HINTS ${HinnantDate_ROOT_DIR}
 )
 mark_as_advanced(HinnantDate_INCLUDE_FILE)

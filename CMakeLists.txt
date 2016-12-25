@@ -28,6 +28,8 @@ project(sqlpp11 VERSION 0.1 LANGUAGES CXX)
 
 enable_testing()
 
+option(ENABLE_TESTS "Build unit tests" On)
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
 find_package(HinnantDate REQUIRED)
 
@@ -104,10 +106,11 @@ install(
     ${ConfigPackageLocation}
 )
 
-add_subdirectory(tests)
-add_subdirectory(test_types)
-add_subdirectory(test_serializer)
-add_subdirectory(test_static_asserts)
-add_subdirectory(test_constraints)
-add_subdirectory(test_scripts)
-add_subdirectory(examples)
+if(ENABLE_TESTS)
+  add_subdirectory(tests)
+  add_subdirectory(test_types)
+  add_subdirectory(test_serializer)
+  add_subdirectory(test_static_asserts)
+  add_subdirectory(test_constraints)
+  add_subdirectory(test_scripts)
+endif()
