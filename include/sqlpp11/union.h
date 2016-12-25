@@ -253,6 +253,7 @@ namespace sqlpp
     };
   };
 
+  /*
   template <typename T>
   auto union_all(T&& t) -> decltype(statement_t<void, no_union_t>().union_all(std::forward<T>(t)))
   {
@@ -264,6 +265,7 @@ namespace sqlpp
   {
     return statement_t<void, no_union_t>().union_distinct(std::forward<T>(t));
   }
+  */
 }
 
 #endif

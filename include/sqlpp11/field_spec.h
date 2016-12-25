@@ -41,17 +41,6 @@ namespace sqlpp
     using _nodes = detail::type_vector<>;
 
     using _alias_t = NameType;
-
-    template <typename N, typename V, bool C, bool T>
-    static constexpr auto is_compatible(field_spec_t<N, V, C, T>) -> bool
-    {
-      using rhs = field_spec_t<N, V, C, T>;
-      return std::is_same<ValueType, V>::value and  // We might need to know that float can hold int, too
-             (CanBeNull or CanBeNull == C) and  // The left hand side determines the result row and therefore must allow
-                                                // NULL if the right hand side allows it
-             (NullIsTrivialValue or NullIsTrivialValue == T) and
-             std::is_same<typename _alias_t::_name_t, typename rhs::_alias_t::_name_t>::value;
-    }
   };
 
   template <typename AliasProvider, typename FieldSpecTuple>
@@ -64,19 +53,39 @@ namespace sqlpp
   template <typename AliasProvider, typename... FieldSpecs>
   struct multi_field_spec_t<AliasProvider, std::tuple<FieldSpecs...>>
   {
-    template <typename A, typename... Fs>
-    static constexpr auto is_compatible(multi_field_spec_t<A, Fs...>) ->
-        typename std::enable_if<sizeof...(Fs) == sizeof...(FieldSpecs), bool>::type
-    {
-      return logic::all_t<FieldSpecs::is_compatible(Fs{})...>::value;
-    }
+  };
 
-    template <typename A, typename... Fs>
-    static constexpr auto is_compatible(multi_field_spec_t<A, Fs...>) ->
-        typename std::enable_if<sizeof...(Fs) != sizeof...(FieldSpecs), bool>::type
-    {
-      return false;
-    }
+  template <typename Left, typename Right, typename Enable = void>
+  struct is_field_compatible
+  {
+    static constexpr auto value = false;
+  };
+
+  template <typename LeftName,
+            typename LeftValue,
+            bool LeftCanBeNull,
+            bool LeftNullIsTrivial,
+            typename RightName,
+            typename RightValue,
+            bool RightCanBeNull,
+            bool RightNullIsTrivial>
+  struct is_field_compatible<field_spec_t<LeftName, LeftValue, LeftCanBeNull, LeftNullIsTrivial>,
+                             field_spec_t<RightName, RightValue, RightCanBeNull, RightNullIsTrivial>>
+  {
+    static constexpr auto value =
+        std::is_same<typename LeftName::_name_t, typename RightName::_name_t>::value and
+        std::is_same<LeftValue, RightValue>::value and  // Same value type
+        (LeftCanBeNull or !RightCanBeNull) and  // The left hand side determines the result row and therefore must allow
+                                                // NULL if the right hand side allows it
+        (LeftNullIsTrivial or !RightNullIsTrivial);  // as above
+  };
+
+  template <typename LeftAlias, typename... LeftFields, typename RightAlias, typename... RightFields>
+  struct is_field_compatible<multi_field_spec_t<LeftAlias, std::tuple<LeftFields...>>,
+                             multi_field_spec_t<RightAlias, std::tuple<RightFields...>>,
+                             typename std::enable_if<sizeof...(LeftFields) == sizeof...(RightFields)>::type>
+  {
+    static constexpr auto value = logic::all_t<is_field_compatible<LeftFields, RightFields>::value...>::value;
   };
 
   namespace detail
