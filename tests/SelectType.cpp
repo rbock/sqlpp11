@@ -167,7 +167,8 @@ int SelectType(int, char* [])
     static_assert(sqlpp::is_integral_t<sqlpp::return_type_minus_t<sqlpp::integral, T>>::value, "type requirement");
     static_assert(sqlpp::is_integral_t<sqlpp::return_type_plus_t<sqlpp::integral, T>>::value, "type requirement");
     static_assert(sqlpp::is_integral_t<sqlpp::return_type_multiplies_t<sqlpp::integral, T>>::value, "type requirement");
-    static_assert(sqlpp::is_integral_t<sqlpp::return_type_divides_t<sqlpp::integral, T>>::value, "type requirement");
+    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_divides_t<sqlpp::integral, T>>::value,
+                  "type requirement");
     static_assert(sqlpp::is_integral_t<sqlpp::return_type_modulus_t<sqlpp::integral, T>>::value, "type requirement");
   }
 

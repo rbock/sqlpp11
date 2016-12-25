@@ -187,14 +187,19 @@ namespace sqlpp
       return {*static_cast<const Expr*>(this)};
     }
 
-    auto asc() const -> sort_order_t<Expr, sort_type::asc>
+    auto asc() const -> sort_order_t<Expr>
     {
-      return {*static_cast<const Expr*>(this)};
+      return {*static_cast<const Expr*>(this), sort_type::asc};
     }
 
-    auto desc() const -> sort_order_t<Expr, sort_type::desc>
+    auto desc() const -> sort_order_t<Expr>
     {
-      return {*static_cast<const Expr*>(this)};
+      return {*static_cast<const Expr*>(this), sort_type::desc};
+    }
+
+    auto order(sort_type s) const -> sort_order_t<Expr>
+    {
+      return {*static_cast<const Expr*>(this), s};
     }
 
     template <typename... T>

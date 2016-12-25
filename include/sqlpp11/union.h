@@ -213,10 +213,10 @@ namespace sqlpp
         static_assert(has_result_row_t<derived_statement_t<Policies>>::value,
                       "left hand side argument of a union has to be a complete select statement or union");
 
-        using _result_row_t = get_result_row_t<Rhs>;
-        static_assert(std::is_same<get_result_row_t<derived_statement_t<Policies>>, _result_row_t>::value,
+        using lhs_result_row_t = get_result_row_t<derived_statement_t<Policies>>;
+        using rhs_result_row_t = get_result_row_t<Rhs>;
+        static_assert(is_result_compatible<lhs_result_row_t, rhs_result_row_t>::value,
                       "both arguments in a union have to have the same result columns (type and name)");
-        static_assert(is_static_result_row_t<_result_row_t>::value, "unions must not have dynamically added columns");
 
         return _union_impl<void, union_distinct_t>(check_union_t<derived_statement_t<Policies>, Rhs>{}, rhs);
       }
@@ -231,10 +231,10 @@ namespace sqlpp
         static_assert(has_result_row_t<derived_statement_t<Policies>>::value,
                       "left hand side argument of a union has to be a (complete) select statement");
 
-        using _result_row_t = get_result_row_t<Rhs>;
-        static_assert(std::is_same<get_result_row_t<derived_statement_t<Policies>>, _result_row_t>::value,
+        using lhs_result_row_t = get_result_row_t<derived_statement_t<Policies>>;
+        using rhs_result_row_t = get_result_row_t<Rhs>;
+        static_assert(is_result_compatible<lhs_result_row_t, rhs_result_row_t>::value,
                       "both arguments in a union have to have the same result columns (type and name)");
-        static_assert(is_static_result_row_t<_result_row_t>::value, "unions must not have dynamically added columns");
 
         return _union_impl<void, union_all_t>(check_union_t<derived_statement_t<Policies>, Rhs>{}, rhs);
       }
@@ -253,6 +253,7 @@ namespace sqlpp
     };
   };
 
+  /*
   template <typename T>
   auto union_all(T&& t) -> decltype(statement_t<void, no_union_t>().union_all(std::forward<T>(t)))
   {
@@ -264,6 +265,7 @@ namespace sqlpp
   {
     return statement_t<void, no_union_t>().union_distinct(std::forward<T>(t));
   }
+  */
 }
 
 #endif

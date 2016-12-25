@@ -24,11 +24,12 @@
 
 set(test_serializer_names
 	CustomQuery
+	As
   From
   In
   Insert
-  Where
 	TableAlias
+  Where
   )
 
 create_test_sourcelist(test_serializer_sources test_serializer_main.cpp ${test_serializer_names})

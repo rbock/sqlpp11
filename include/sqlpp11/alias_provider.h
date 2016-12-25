@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -89,6 +89,7 @@ namespace sqlpp
     SQLPP_ALIAS_PROVIDER(o)
     SQLPP_ALIAS_PROVIDER(p)
     SQLPP_ALIAS_PROVIDER(q)
+    SQLPP_ALIAS_PROVIDER(r)
     SQLPP_ALIAS_PROVIDER(s)
     SQLPP_ALIAS_PROVIDER(t)
     SQLPP_ALIAS_PROVIDER(u)

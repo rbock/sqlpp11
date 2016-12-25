@@ -251,6 +251,20 @@ namespace sqlpp
     }
   };
 
+  template <typename Lhs, typename Rhs, typename Enable = void>
+  struct is_result_compatible
+  {
+    static constexpr auto value = false;
+  };
+
+  template <typename LDb, typename... LFields, typename RDb, typename... RFields>
+  struct is_result_compatible<result_row_t<LDb, LFields...>,
+                              result_row_t<RDb, RFields...>,
+                              typename std::enable_if<sizeof...(LFields) == sizeof...(RFields)>::type>
+  {
+    static constexpr auto value = logic::all_t<is_field_compatible<LFields, RFields>::value...>::value;
+  };
+
   template <typename Db, typename... FieldSpecs>
   struct dynamic_result_row_t
       : public detail::result_row_impl<Db, detail::make_field_index_sequence<0, FieldSpecs...>, FieldSpecs...>
