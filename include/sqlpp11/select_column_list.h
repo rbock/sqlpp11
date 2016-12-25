@@ -376,7 +376,7 @@ namespace sqlpp
       template <typename... T>
       static constexpr auto _check_args(T... args) -> decltype(_check_tuple(detail::column_tuple_merge(args...)))
       {
-        return {};
+        return _check_tuple(detail::column_tuple_merge(args...));
       }
 
       template <typename Check, typename T>
