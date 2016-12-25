@@ -44,7 +44,7 @@ namespace sqlpp
       template <typename T>
       struct _member_t
       {
-        T in;
+        T not_in;
       };
     };
   };
