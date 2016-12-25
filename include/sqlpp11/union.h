@@ -215,8 +215,7 @@ namespace sqlpp
 
         using lhs_result_row_t = get_result_row_t<derived_statement_t<Policies>>;
         using rhs_result_row_t = get_result_row_t<Rhs>;
-        constexpr auto vec_rhs = detail::type_vector<rhs_result_row_t>{};
-        static_assert(lhs_result_row_t::is_compatible(vec_rhs),
+        static_assert(is_result_compatible<lhs_result_row_t, rhs_result_row_t>::value,
                       "both arguments in a union have to have the same result columns (type and name)");
 
         return _union_impl<void, union_distinct_t>(check_union_t<derived_statement_t<Policies>, Rhs>{}, rhs);
@@ -234,8 +233,7 @@ namespace sqlpp
 
         using lhs_result_row_t = get_result_row_t<derived_statement_t<Policies>>;
         using rhs_result_row_t = get_result_row_t<Rhs>;
-        constexpr auto vec_rhs = detail::type_vector<rhs_result_row_t>{};
-        static_assert(lhs_result_row_t::is_compatible(vec_rhs),
+        static_assert(is_result_compatible<lhs_result_row_t, rhs_result_row_t>::value,
                       "both arguments in a union have to have the same result columns (type and name)");
 
         return _union_impl<void, union_all_t>(check_union_t<derived_statement_t<Policies>, Rhs>{}, rhs);
