@@ -233,6 +233,7 @@ else:
 if warnOnParse:
     print(parseError + '. Continuing [-no-warn-on-parse]')
 
+nsList = namespace.split('::')
 
 # PROCESS DDL
 tableCreations = ddl.parseFile(pathToDdl)
@@ -246,8 +247,9 @@ print('#include <' + INCLUDE + '/table.h>', file=header)
 print('#include <' + INCLUDE + '/data_types.h>', file=header)
 print('#include <' + INCLUDE + '/char_sequence.h>', file=header)
 print('', file=header)
-print('namespace ' + namespace, file=header)
-print('{', file=header)
+for ns in nsList:
+    print('namespace ' + ns, file=header)
+    print('{', file=header)
 DataTypeError = False
 for create in tableCreations:
     sqlTableName = create.tableName
@@ -322,7 +324,8 @@ for create in tableCreations:
     print('    };', file=header)
     print('  };', file=header)
 
-print('}', file=header)
+for ns in nsList:
+    print('} // namespace ' + ns, file=header)
 print('#endif', file=header)
 if (DataTypeError):
     print("Error: unsupported datatypes." )
