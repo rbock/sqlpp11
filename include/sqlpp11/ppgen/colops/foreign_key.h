@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, niXman (i dot nixman dog gmail dot com)
+ * Copyright (c) 2014-2017, niXman (i dot nixman dog gmail dot com)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,7 +27,8 @@
 #ifndef _sqlpp__ppgen__colops__foreign_key_h
 #define _sqlpp__ppgen__colops__foreign_key_h
 
-#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_FOREIGN_KEY PROC_SQLPP_FOREIGN_KEY
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_FOREIGN_KEY \
+  PROC_SQLPP_FOREIGN_KEY
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_FOREIGN_KEY(keyname, tblname, colname) \
   [FOREIGN KEY is not implemented]
 

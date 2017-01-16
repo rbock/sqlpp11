@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, niXman (i dot nixman dog gmail dot com)
+ * Copyright (c) 2014-2017, niXman (i dot nixman dog gmail dot com)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -28,8 +28,8 @@
 #define _sqlpp__ppgen__colops__timestamp_h
 
 #define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_timestamp \
-	PROC_timestamp
+  PROC_timestamp
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_timestamp(...) \
-	[timestamp is not implemented]
+  [timestamp is not implemented]
 
 #endif // _sqlpp__ppgen__colops__timestamp_h

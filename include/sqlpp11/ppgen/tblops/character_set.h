@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, niXman (i dot nixman dog gmail dot com)
+ * Copyright (c) 2014-2017, niXman (i dot nixman dog gmail dot com)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,7 +27,9 @@
 #ifndef _sqlpp__ppgen__tblops__character_set_h
 #define _sqlpp__ppgen__tblops__character_set_h
 
-#define SQLPP_DECLARE_TABLE_GET_PROC_LAZY_SQLPP_CHARACTER_SET PROC_SQLPP_CHARACTER_SET
-#define SQLPP_DECLARE_TABLE_GEN_PROC_SQLPP_CHARACTER_SET(str) [CHARACTER_SET is not implemented]
+#define SQLPP_DECLARE_TABLE_GET_PROC_LAZY_SQLPP_CHARACTER_SET \
+  PROC_SQLPP_CHARACTER_SET
+#define SQLPP_DECLARE_TABLE_GEN_PROC_SQLPP_CHARACTER_SET(str) \
+  [CHARACTER_SET is not implemented]
 
 #endif  // _sqlpp__ppgen__tblops__character_set_h
