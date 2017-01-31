@@ -24,6 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+// clang-format off
+
 #ifndef _sqlpp__ppgen__colops__not_null_h
 #define _sqlpp__ppgen__colops__not_null_h
 
