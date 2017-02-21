@@ -237,7 +237,7 @@ namespace sqlpp
       //	  template <typename... T>
       //	  using _check = logic::all_t<is_expression_t<T>::value...>;
       template <typename... T>
-      struct _check : logic::all_t<is_expression_t<T>::value...>
+      struct _check : logic::all_t<is_expression_t<T>::value...>...
       {
       };
 

@@ -121,8 +121,12 @@ namespace sqlpp
                _required_ctes::size::value == 0;
       }
 
+	  // work around for msvc bug:
+	  // error C3520 : 'Policies' : parameter pack must be expanded in this context
+	  using is_missing_policies_t_1 = logic::logic_helper<is_missing_t<Policies>::value...>;
+	  using is_missing_policies_t_2 = logic::logic_helper<(is_missing_t<Policies>::value && false)...>;
       using _value_type =
-          typename std::conditional<logic::none_t<is_missing_t<Policies>::value...>::value,
+          typename std::conditional<std::is_same<is_missing_policies_t_1, is_missing_policies_t_2>::value,
                                     value_type_of<_result_type_provider>,
                                     no_value_t  // if a required statement part is missing (e.g. columns in a select),
                                                 // then the statement cannot be used as a value
