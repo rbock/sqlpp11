@@ -26,6 +26,7 @@
 #include "MockDb.h"
 #include "Sample.h"
 #include "is_regular.h"
+#include <algorithm>
 #include <iostream>
 #include <sqlpp11/alias_provider.h>
 #include <sqlpp11/connection.h>
@@ -52,6 +53,14 @@ struct to_cerr
   }
 };
 
+template <typename Row>
+void print_row(Row const& row)
+{
+  int64_t a = row.alpha;
+  const std::string b = row.beta;
+  std::cout << a << ", " << b << std::endl;
+}
+
 int Select(int, char* [])
 {
   MockDb db = {};
@@ -67,6 +76,13 @@ int Select(int, char* [])
   for (const auto& row : db(select(sqlpp::value(false).as(sqlpp::alias::a))))
   {
     std::cout << row.a << std::endl;
+  }
+
+  {
+    // using stl algorithms
+    auto rows = db(select(all_of(t)).from(t).unconditionally());
+    // nicer in C++14
+    std::for_each(rows.begin(), rows.end(), &print_row<decltype(*rows.begin())>);
   }
 
   for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))

@@ -27,9 +27,17 @@
 #ifndef SQLPP_RESULT_H
 #define SQLPP_RESULT_H
 
-// FIXME: include for move?
+#include <iterator>
+#include <utility>
+
 namespace sqlpp
 {
+  template <typename>
+  struct iterator_category
+  {
+    using type = std::input_iterator_tag;
+  };
+
   template <typename DbResult, typename ResultRow>
   class result_t
   {
@@ -60,16 +68,22 @@ namespace sqlpp
     class iterator
     {
     public:
+      using iterator_category = typename iterator_category<DbResult>::type;
+      using value_type = result_row_t;
+      using pointer = const result_row_t*;
+      using reference = const result_row_t&;
+      using difference_type = std::ptrdiff_t;
+
       iterator(db_result_t& result, result_row_t& result_row) : _result(result), _result_row(result_row)
       {
       }
 
-      const result_row_t& operator*() const
+      reference operator*() const
       {
         return _result_row;
       }
 
-      const result_row_t* operator->() const
+      pointer operator->() const
       {
         return &_result_row;
       }
@@ -84,9 +98,17 @@ namespace sqlpp
         return not(operator==(rhs));
       }
 
-      void operator++()
+      iterator& operator++()
       {
         _result.next(_result_row);
+        return *this;
+      }
+
+      iterator operator++(int)
+      {
+        auto previous_it = *this;
+        _result.next(_result_row);
+        return previous_it;
       }
 
       db_result_t& _result;
