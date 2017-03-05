@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, niXman (i dot nixman dog gmail dot com)
+ * Copyright (c) 2014-2017, niXman (i dot nixman dog gmail dot com)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,12 +24,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+// clang-format off
+
 #ifndef _sqlpp__ppgen__colops__datetime_h
 #define _sqlpp__ppgen__colops__datetime_h
 
 #define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_datetime \
-	PROC_datetime
+  PROC_datetime
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_datetime(...) \
-	[datetime is not implemented]
+  [datetime is not implemented]
 
 #endif // _sqlpp__ppgen__colops__datetime_h
