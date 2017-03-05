@@ -24,7 +24,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-CREATE TABLE tab_foo
+CREATE TABLE IF NOT EXISTS tab_foo
 (
 	delta varchar(255),
 	epsilon bigint,
