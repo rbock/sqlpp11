@@ -46,7 +46,10 @@ namespace sqlpp
       const char* text{nullptr};
       size_t len{};
       target._bind_text_result(index, &text, &len);
-      this->_value = {text, len};
+      if (text)
+        this->_value = {text, len};
+      else
+        this->value = {};
       this->_is_null = (text == nullptr);
     }
 
@@ -56,7 +59,10 @@ namespace sqlpp
       const char* text{nullptr};
       size_t len{};
       target._post_bind_text_result(index, &text, &len);
-      this->_value = {text, len};
+      if (text)
+        this->_value = {text, len};
+      else
+        this->value = {};
       this->_is_null = (text == nullptr);
     }
   };
