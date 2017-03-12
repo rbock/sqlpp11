@@ -47,9 +47,9 @@ namespace sqlpp
       size_t len{};
       target._bind_text_result(index, &text, &len);
       if (text)
-        this->_value = {text, len};
+        this->_value.assign(text, len);
       else
-        this->value = {};
+        this->_value.assign("", 0);
       this->_is_null = (text == nullptr);
     }
 
@@ -60,9 +60,9 @@ namespace sqlpp
       size_t len{};
       target._post_bind_text_result(index, &text, &len);
       if (text)
-        this->_value = {text, len};
+        this->_value.assign(text, len);
       else
-        this->value = {};
+        this->_value.assign("", 0);
       this->_is_null = (text == nullptr);
     }
   };
