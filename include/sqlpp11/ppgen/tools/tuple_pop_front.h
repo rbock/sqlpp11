@@ -9,6 +9,8 @@
 
 /* See http://www.boost.org for most recent version. */
 
+// clang-format off
+
 # ifndef SQLPP_BOOST_PREPROCESSOR_TUPLE_POP_FRONT_HPP
 # define SQLPP_BOOST_PREPROCESSOR_TUPLE_POP_FRONT_HPP
 

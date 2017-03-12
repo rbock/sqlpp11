@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, niXman (i dot nixman dog gmail dot com)
+ * Copyright (c) 2014-2017, niXman (i dot nixman dog gmail dot com)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,13 +24,19 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+// clang-format off
+
 #ifndef _sqlpp__ppgen__colops__floating_point_h
 #define _sqlpp__ppgen__colops__floating_point_h
 
-#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_float PROC_float
-#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_float(...) ::sqlpp::floating_point
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_float \
+  PROC_float
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_float(...) \
+  ::sqlpp::floating_point
 
-#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_double PROC_double
-#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_double(...) ::sqlpp::floating_point
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_double \
+  PROC_double
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_double(...) \
+  ::sqlpp::floating_point
 
 #endif  // _sqlpp__ppgen__colops__floating_point_h

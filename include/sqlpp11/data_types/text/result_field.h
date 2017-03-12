@@ -40,23 +40,28 @@ namespace sqlpp
   struct result_field_t<Db, field_spec_t<NameType, text, CanBeNull, NullIsTrivialValue>>
       : public result_field_base<Db, field_spec_t<NameType, text, CanBeNull, NullIsTrivialValue>>
   {
+    const char* text{nullptr};  // Non-owning
+    size_t len{};
+
     template <typename Target>
     void _bind(Target& target, size_t index)
     {
-      const char* text{nullptr};
-      size_t len{};
       target._bind_text_result(index, &text, &len);
-      this->_value = {text, len};
+      if (text)
+        this->_value.assign(text, len);
+      else
+        this->_value.assign("", 0);
       this->_is_null = (text == nullptr);
     }
 
     template <typename Target>
     void _post_bind(Target& target, size_t index)
     {
-      const char* text{nullptr};
-      size_t len{};
       target._post_bind_text_result(index, &text, &len);
-      this->_value = {text, len};
+      if (text)
+        this->_value.assign(text, len);
+      else
+        this->_value.assign("", 0);
       this->_is_null = (text == nullptr);
     }
   };

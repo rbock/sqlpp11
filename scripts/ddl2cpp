@@ -169,7 +169,12 @@ ddlName = Or([ddlTerm, ddlString])
 ddlArguments = "(" + delimitedList(Or([ddlString, ddlTerm, ddlNum])) + ")"
 ddlNotNull = Group(ddlWord("NOT") + ddlWord("NULL")).setResultsName("notNull")
 ddlDefaultValue = ddlWord("DEFAULT").setResultsName("hasDefaultValue")
-ddlAutoValue = ddlWord("AUTO_INCREMENT").setResultsName("hasAutoValue")
+ddlAutoValue = Or([
+    ddlWord("AUTO_INCREMENT"),
+    ddlWord("SMALLSERIAL"),
+    ddlWord("SERIAL"),
+    ddlWord("BIGSERIAL"),
+    ]).setResultsName("hasAutoValue")
 ddlColumnComment = Group(ddlWord("COMMENT") + ddlString).setResultsName("comment")
 ddlConstraint = Or([
         ddlWord("CONSTRAINT"),
@@ -180,7 +185,8 @@ ddlConstraint = Or([
         ddlWord("UNIQUE"),
         ])
 ddlColumn = Group(Optional(ddlConstraint).setResultsName("isConstraint") + OneOrMore(MatchFirst([ddlNotNull, ddlAutoValue, ddlDefaultValue, ddlFunctionWord("NOW"), ddlTerm, ddlNum, ddlColumnComment, ddlString, ddlArguments])))
-createTable = Group(ddlWord("CREATE") + ddlWord("TABLE") + ddlName.setResultsName("tableName") + "(" + Group(delimitedList(ddlColumn)).setResultsName("columns") + ")").setResultsName("create")
+ddlIfNotExists = Optional(Group(ddlWord("IF") + ddlWord("NOT") + ddlWord("EXISTS")).setResultsName("ifNotExists"))
+createTable = Group(ddlWord("CREATE") + ddlWord("TABLE") + ddlIfNotExists + ddlName.setResultsName("tableName") + "(" + Group(delimitedList(ddlColumn)).setResultsName("columns") + ")").setResultsName("create")
 #ddlString.setDebug(True) #uncomment to debug pyparsing
 
 ddl = ZeroOrMore(Suppress(SkipTo(createTable, False)) + createTable)
@@ -192,9 +198,12 @@ ddl.ignore(ddlComment)
 types = {
     'tinyint': 'tinyint',
     'smallint': 'smallint',
+    'smallserial': 'smallint', # PostgreSQL
     'integer': 'integer',
     'int': 'integer',
+    'serial': 'integer', # PostgreSQL
     'bigint': 'bigint',
+    'bigserial': 'bigint', # PostgreSQL
     'char': 'char_',
     'varchar': 'varchar',
     'text': 'text',
@@ -214,7 +223,7 @@ types = {
     }
 
 ddlColumn = Group(Optional(ddlConstraint).setResultsName("isConstraint") + OneOrMore(MatchFirst([ddlNotNull, ddlAutoValue, ddlDefaultValue, ddlFunctionWord("NOW"), ddlTerm, ddlNum, ddlColumnComment, ddlString, ddlArguments])))
-createTable = Group(ddlWord("CREATE") + ddlWord("TABLE") + ddlName.setResultsName("tableName") + "(" + Group(delimitedList(ddlColumn)).setResultsName("columns") + ")").setResultsName("create")
+createTable = Group(ddlWord("CREATE") + ddlWord("TABLE") + ddlIfNotExists + ddlName.setResultsName("tableName") + "(" + Group(delimitedList(ddlColumn)).setResultsName("columns") + ")").setResultsName("create")
 ddlComment = oneOf(["--", "#"]) + restOfLine
 
 if failOnParse:
