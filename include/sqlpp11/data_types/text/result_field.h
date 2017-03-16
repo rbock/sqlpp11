@@ -50,7 +50,7 @@ namespace sqlpp
       if (text)
         this->_value.assign(text, len);
       else
-        this->_value.assign("", 0);
+        this->_value.assign("");
       this->_is_null = (text == nullptr);
     }
 
@@ -61,7 +61,7 @@ namespace sqlpp
       if (text)
         this->_value.assign(text, len);
       else
-        this->_value.assign("", 0);
+        this->_value.assign("");
       this->_is_null = (text == nullptr);
     }
   };
