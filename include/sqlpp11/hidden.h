@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2017, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -26,6 +26,8 @@
 
 #ifndef SQLPP_HIDDEN_H
 #define SQLPP_HIDDEN_H
+
+#include <sqlpp11/serializer.h>
 
 namespace sqlpp
 {
