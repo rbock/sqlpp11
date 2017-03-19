@@ -56,7 +56,7 @@ namespace sqlpp
 
     static Context& _(const T&, Context& context)
     {
-      context << name_of<typename T::_column_t>::char_ptr();
+      context << '"' << name_of<typename T::_column_t>::char_ptr() << '"';
       return context;
     }
   };
