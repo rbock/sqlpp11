@@ -41,86 +41,86 @@ int From(int, char* [])
   const auto cFoo = foo.as(sqlpp::alias::c);
 
   // Single table
-  compare(__LINE__, from(foo), " FROM tab_foo");
-  compare(__LINE__, from(bar), " FROM tab_bar");
+  compare(__LINE__, from(foo), " FROM \"tab_foo\"");
+  compare(__LINE__, from(bar), " FROM \"tab_bar\"");
 
   // Static joins
-  compare(__LINE__, from(foo.cross_join(bar)), " FROM tab_foo CROSS JOIN tab_bar");
+  compare(__LINE__, from(foo.cross_join(bar)), " FROM \"tab_foo\" CROSS JOIN \"tab_bar\"");
   compare(__LINE__, from(foo.join(bar).on(foo.omega > bar.alpha)),
-          " FROM tab_foo INNER JOIN tab_bar ON (tab_foo.omega>tab_bar.alpha)");
+          " FROM \"tab_foo\" INNER JOIN \"tab_bar\" ON (\"tab_foo\".\"omega\">\"tab_bar\".\"alpha\")");
   compare(__LINE__, from(foo.inner_join(bar).on(foo.omega > bar.alpha)),
-          " FROM tab_foo INNER JOIN tab_bar ON (tab_foo.omega>tab_bar.alpha)");
+          " FROM \"tab_foo\" INNER JOIN \"tab_bar\" ON (\"tab_foo\".\"omega\">\"tab_bar\".\"alpha\")");
   compare(__LINE__, from(foo.outer_join(bar).on(foo.omega > bar.alpha)),
-          " FROM tab_foo OUTER JOIN tab_bar ON (tab_foo.omega>tab_bar.alpha)");
+          " FROM \"tab_foo\" OUTER JOIN \"tab_bar\" ON (\"tab_foo\".\"omega\">\"tab_bar\".\"alpha\")");
   compare(__LINE__, from(foo.left_outer_join(bar).on(foo.omega > bar.alpha)),
-          " FROM tab_foo LEFT OUTER JOIN tab_bar ON (tab_foo.omega>tab_bar.alpha)");
+          " FROM \"tab_foo\" LEFT OUTER JOIN \"tab_bar\" ON (\"tab_foo\".\"omega\">\"tab_bar\".\"alpha\")");
   compare(__LINE__, from(foo.right_outer_join(bar).on(foo.omega > bar.alpha)),
-          " FROM tab_foo RIGHT OUTER JOIN tab_bar ON (tab_foo.omega>tab_bar.alpha)");
+          " FROM \"tab_foo\" RIGHT OUTER JOIN \"tab_bar\" ON (\"tab_foo\".\"omega\">\"tab_bar\".\"alpha\")");
   compare(__LINE__, from(aFoo.join(bFoo).on(aFoo.omega > bFoo.omega)),
-          " FROM tab_foo AS a INNER JOIN tab_foo AS b ON (a.omega>b.omega)");
+          " FROM \"tab_foo\" AS \"a\" INNER JOIN \"tab_foo\" AS \"b\" ON (\"a\".\"omega\">\"b\".\"omega\")");
   compare(
       __LINE__, from(aFoo.join(bFoo).on(aFoo.omega > bFoo.omega).join(cFoo).on(bFoo.omega > cFoo.omega)),
-      " FROM tab_foo AS a INNER JOIN tab_foo AS b ON (a.omega>b.omega) INNER JOIN tab_foo AS c ON (b.omega>c.omega)");
-  compare(__LINE__, from(foo.join(bar).unconditionally()), " FROM tab_foo INNER JOIN tab_bar");
+      " FROM \"tab_foo\" AS \"a\" INNER JOIN \"tab_foo\" AS \"b\" ON (\"a\".\"omega\">\"b\".\"omega\") INNER JOIN \"tab_foo\" AS \"c\" ON (\"b\".\"omega\">\"c\".\"omega\")");
+  compare(__LINE__, from(foo.join(bar).unconditionally()), " FROM \"tab_foo\" INNER JOIN \"tab_bar\"");
 
   // Static joins involving verbatim tables
   compare(__LINE__, from(aFoo.join(sqlpp::verbatim_table("unknown_table"))
                              .on(aFoo.omega > sqlpp::verbatim<sqlpp::floating_point>("unknown_table.column_x"))),
-          " FROM tab_foo AS a INNER JOIN unknown_table ON (a.omega>unknown_table.column_x)");
+          " FROM \"tab_foo\" AS \"a\" INNER JOIN unknown_table ON (\"a\".\"omega\">unknown_table.column_x)");
   compare(__LINE__, from(sqlpp::verbatim_table("unknown_table")
                              .join(aFoo)
                              .on(aFoo.omega > sqlpp::verbatim<sqlpp::floating_point>("unknown_table.column_x"))),
-          " FROM unknown_table INNER JOIN tab_foo AS a ON (a.omega>unknown_table.column_x)");
+          " FROM unknown_table INNER JOIN \"tab_foo\" AS \"a\" ON (\"a\".\"omega\">unknown_table.column_x)");
   compare(__LINE__, from(sqlpp::verbatim_table("unknown_table")
                              .as(sqlpp::alias::a)
                              .join(sqlpp::verbatim_table("another_table"))
                              .on(sqlpp::verbatim<sqlpp::boolean>("a.column_x>another_table.x"))),
-          " FROM unknown_table AS a INNER JOIN another_table ON a.column_x>another_table.x");
+          " FROM unknown_table AS \"a\" INNER JOIN another_table ON a.column_x>another_table.x");
 
   // Dynamic joins
   const auto df = dynamic_from(db, foo);
-  compare(__LINE__, df, " FROM tab_foo");
+  compare(__LINE__, df, " FROM \"tab_foo\"");
   {
     auto dfa = df;
     dfa.from.add(dynamic_cross_join(bar));
-    compare(__LINE__, dfa, " FROM tab_foo CROSS JOIN tab_bar");
+    compare(__LINE__, dfa, " FROM \"tab_foo\" CROSS JOIN \"tab_bar\"");
   }
   {
     auto dfa = df;
     dfa.from.add(dynamic_join(bar).on(bar.alpha > foo.omega));
-    compare(__LINE__, dfa, " FROM tab_foo INNER JOIN tab_bar ON (tab_bar.alpha>tab_foo.omega)");
+    compare(__LINE__, dfa, " FROM \"tab_foo\" INNER JOIN \"tab_bar\" ON (\"tab_bar\".\"alpha\">\"tab_foo\".\"omega\")");
   }
   {
     auto dfa = df;
     dfa.from.add(dynamic_inner_join(bar).on(bar.alpha > foo.omega));
-    compare(__LINE__, dfa, " FROM tab_foo INNER JOIN tab_bar ON (tab_bar.alpha>tab_foo.omega)");
+    compare(__LINE__, dfa, " FROM \"tab_foo\" INNER JOIN \"tab_bar\" ON (\"tab_bar\".\"alpha\">\"tab_foo\".\"omega\")");
   }
   {
     auto dfa = df;
     dfa.from.add(dynamic_outer_join(bar).on(bar.alpha > foo.omega));
-    compare(__LINE__, dfa, " FROM tab_foo OUTER JOIN tab_bar ON (tab_bar.alpha>tab_foo.omega)");
+    compare(__LINE__, dfa, " FROM \"tab_foo\" OUTER JOIN \"tab_bar\" ON (\"tab_bar\".\"alpha\">\"tab_foo\".\"omega\")");
   }
   {
     auto dfa = df;
     dfa.from.add(dynamic_left_outer_join(bar).on(bar.alpha > foo.omega));
-    compare(__LINE__, dfa, " FROM tab_foo LEFT OUTER JOIN tab_bar ON (tab_bar.alpha>tab_foo.omega)");
+    compare(__LINE__, dfa, " FROM \"tab_foo\" LEFT OUTER JOIN \"tab_bar\" ON (\"tab_bar\".\"alpha\">\"tab_foo\".\"omega\")");
   }
   {
     auto dfa = df;
     dfa.from.add(dynamic_right_outer_join(bar).on(bar.alpha > foo.omega));
-    compare(__LINE__, dfa, " FROM tab_foo RIGHT OUTER JOIN tab_bar ON (tab_bar.alpha>tab_foo.omega)");
+    compare(__LINE__, dfa, " FROM \"tab_foo\" RIGHT OUTER JOIN \"tab_bar\" ON (\"tab_bar\".\"alpha\">\"tab_foo\".\"omega\")");
   }
   {
     auto dfa = df;
     dfa.from.add(dynamic_join(bar).unconditionally());
-    compare(__LINE__, dfa, " FROM tab_foo INNER JOIN tab_bar");
+    compare(__LINE__, dfa, " FROM \"tab_foo\" INNER JOIN \"tab_bar\"");
   }
   {
     auto dfa = df;
     dfa.from.add(dynamic_inner_join(bar).on(bar.alpha > foo.omega));
     dfa.from.add(dynamic_outer_join(aFoo).on(without_table_check(bar.alpha > aFoo.omega)));
-    compare(__LINE__, dfa, " FROM tab_foo INNER JOIN tab_bar ON (tab_bar.alpha>tab_foo.omega) OUTER JOIN tab_foo AS a "
-                           "ON (tab_bar.alpha>a.omega)");
+    compare(__LINE__, dfa, " FROM \"tab_foo\" INNER JOIN \"tab_bar\" ON (\"tab_bar\".\"alpha\">\"tab_foo\".\"omega\") OUTER JOIN \"tab_foo\" AS \"a\" "
+                           "ON (\"tab_bar\".\"alpha\">\"a\".\"omega\")");
   }
 
   // Dynamic joins involving verbatim table
@@ -129,7 +129,7 @@ int From(int, char* [])
     dfa.from.add(
         dynamic_inner_join(sqlpp::verbatim_table("unknown_table"))
             .on(without_table_check(bar.alpha > sqlpp::verbatim<sqlpp::floating_point>("unknown_table.column_x"))));
-    compare(__LINE__, dfa, " FROM tab_foo INNER JOIN unknown_table ON (tab_bar.alpha>unknown_table.column_x)");
+    compare(__LINE__, dfa, " FROM \"tab_foo\" INNER JOIN unknown_table ON (\"tab_bar\".\"alpha\">unknown_table.column_x)");
   }
 
   return 0;

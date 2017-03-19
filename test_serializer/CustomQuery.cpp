@@ -40,15 +40,15 @@ int CustomQuery(int, char* [])
   // Unconditionally
   compare(__LINE__, custom_query(sqlpp::select(), select_flags(sqlpp::distinct), select_columns(foo.omega), from(foo),
                                  sqlpp::unconditionally()),
-          "SELECT  DISTINCT  tab_foo.omega  FROM tab_foo ");
+          "SELECT  DISTINCT  \"tab_foo\".\"omega\"  FROM \"tab_foo\" ");
 
   // A full select statement made individual clauses
   compare(__LINE__,
           custom_query(sqlpp::select(), select_flags(sqlpp::distinct), select_columns(foo.omega),
                        from(foo.join(bar).on(foo.omega == bar.alpha)), where(bar.alpha > 17), group_by(foo.omega),
                        having(avg(bar.alpha) > 19), order_by(foo.omega.asc()), sqlpp::limit(10u), sqlpp::offset(100u)),
-          "SELECT  DISTINCT  tab_foo.omega  FROM tab_foo INNER JOIN tab_bar ON (tab_foo.omega=tab_bar.alpha)  WHERE "
-          "(tab_bar.alpha>17)  GROUP BY tab_foo.omega  HAVING (AVG(tab_bar.alpha)>19)  ORDER BY tab_foo.omega ASC  "
+          "SELECT  DISTINCT  \"tab_foo\".\"omega\"  FROM \"tab_foo\" INNER JOIN \"tab_bar\" ON (\"tab_foo\".\"omega\"=\"tab_bar\".\"alpha\")  WHERE "
+          "(\"tab_bar\".\"alpha\">17)  GROUP BY \"tab_foo\".\"omega\"  HAVING (AVG(\"tab_bar\".\"alpha\")>19)  ORDER BY \"tab_foo\".\"omega\" ASC  "
           "LIMIT 10  OFFSET 100");
 
   // A full select statement made individual clauses
@@ -59,9 +59,9 @@ int CustomQuery(int, char* [])
                    dynamic_group_by(db, foo.omega), dynamic_having(db, avg(bar.alpha) > 19),
                    dynamic_order_by(db, foo.omega.asc(), foo.psi.order(sqlpp::sort_type::desc)),
                    sqlpp::dynamic_limit(db), sqlpp::dynamic_offset(db)),
-      "SELECT  DISTINCT  tab_foo.omega  FROM tab_foo INNER JOIN tab_bar ON (tab_foo.omega=tab_bar.alpha)  WHERE "
-      "(tab_bar.alpha>17)  GROUP BY tab_foo.omega  HAVING (AVG(tab_bar.alpha)>19)  ORDER BY tab_foo.omega "
-      "ASC,tab_foo.psi DESC  ");
+      "SELECT  DISTINCT  \"tab_foo\".\"omega\"  FROM \"tab_foo\" INNER JOIN \"tab_bar\" ON (\"tab_foo\".\"omega\"=\"tab_bar\".\"alpha\")  WHERE "
+      "(\"tab_bar\".\"alpha\">17)  GROUP BY \"tab_foo\".\"omega\"  HAVING (AVG(\"tab_bar\".\"alpha\")>19)  ORDER BY \"tab_foo\".\"omega\" "
+      "ASC,\"tab_foo\".\"psi\" DESC  ");
 
   // A pragma query for sqlite
   compare(__LINE__,

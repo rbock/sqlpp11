@@ -42,9 +42,9 @@ int Insert(int, char* [])
 {
   const auto bar = test::TabBar{};
 
-  compare(__LINE__, insert_into(bar).default_values(), "INSERT INTO tab_bar DEFAULT VALUES");
+  compare(__LINE__, insert_into(bar).default_values(), "INSERT INTO \"tab_bar\" DEFAULT VALUES");
   compare(__LINE__, insert_into(bar).set(bar.beta = "cheesecake", bar.gamma = true),
-          "INSERT INTO tab_bar (beta,gamma) VALUES('cheesecake'," + getTrue() + ")");
+          "INSERT INTO \"tab_bar\" (\"beta\",\"gamma\") VALUES('cheesecake'," + getTrue() + ")");
 
   return 0;
 }

@@ -36,20 +36,20 @@ int As(int, char* [])
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 
-  compare(__LINE__, foo.omega.as(cheese), "tab_foo.omega AS cheese");
-  compare(__LINE__, (foo.omega + 17).as(cheese), "(tab_foo.omega+17) AS cheese");
-  compare(__LINE__, (foo.omega - 17).as(cheese), "(tab_foo.omega-17) AS cheese");
-  compare(__LINE__, (foo.omega - uint32_t(17)).as(cheese), "(tab_foo.omega-17) AS cheese");
-  compare(__LINE__, (foo.omega - bar.alpha).as(cheese), "(tab_foo.omega-tab_bar.alpha) AS cheese");
-  compare(__LINE__, (count(foo.omega) - bar.alpha).as(cheese), "(COUNT(tab_foo.omega)-tab_bar.alpha) AS cheese");
-  compare(__LINE__, (count(foo.omega) - uint32_t(17)).as(cheese), "(COUNT(tab_foo.omega)-17) AS cheese");
+  compare(__LINE__, foo.omega.as(cheese), "\"tab_foo\".\"omega\" AS \"cheese\"");
+  compare(__LINE__, (foo.omega + 17).as(cheese), "(\"tab_foo\".\"omega\"+17) AS \"cheese\"");
+  compare(__LINE__, (foo.omega - 17).as(cheese), "(\"tab_foo\".\"omega\"-17) AS \"cheese\"");
+  compare(__LINE__, (foo.omega - uint32_t(17)).as(cheese), "(\"tab_foo\".\"omega\"-17) AS \"cheese\"");
+  compare(__LINE__, (foo.omega - bar.alpha).as(cheese), "(\"tab_foo\".\"omega\"-\"tab_bar\".\"alpha\") AS \"cheese\"");
+  compare(__LINE__, (count(foo.omega) - bar.alpha).as(cheese), "(COUNT(\"tab_foo\".\"omega\")-\"tab_bar\".\"alpha\") AS \"cheese\"");
+  compare(__LINE__, (count(foo.omega) - uint32_t(17)).as(cheese), "(COUNT(\"tab_foo\".\"omega\")-17) AS \"cheese\"");
 
   // Auto alias
-  compare(__LINE__, select(max(bar.alpha)), "SELECT MAX(tab_bar.alpha) AS max_");
-  compare(__LINE__, select(max(bar.alpha).as(cheese)), "SELECT MAX(tab_bar.alpha) AS cheese");
+  compare(__LINE__, select(max(bar.alpha)), "SELECT MAX(\"tab_bar\".\"alpha\") AS \"max_\"");
+  compare(__LINE__, select(max(bar.alpha).as(cheese)), "SELECT MAX(\"tab_bar\".\"alpha\") AS \"cheese\"");
   compare(__LINE__, select(max(bar.alpha)).from(bar).unconditionally().as(cheese),
-          "(SELECT MAX(tab_bar.alpha) AS max_ FROM tab_bar) AS cheese");
-  compare(__LINE__, select(max(bar.alpha)).from(bar).unconditionally().as(cheese).max, "cheese.max_");
+          "(SELECT MAX(\"tab_bar\".\"alpha\") AS \"max_\" FROM \"tab_bar\") AS \"cheese\"");
+  compare(__LINE__, select(max(bar.alpha)).from(bar).unconditionally().as(cheese).max, "\"cheese\".\"max_\"");
 
   return 0;
 }

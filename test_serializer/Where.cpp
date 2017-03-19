@@ -50,18 +50,18 @@ int Where(int, char* [])
   const auto bar = test::TabBar{};
 
   // Unconditionally
-  compare(__LINE__, select(foo.omega).from(foo).unconditionally(), "SELECT tab_foo.omega FROM tab_foo");
-  compare(__LINE__, remove_from(foo).unconditionally(), "DELETE FROM tab_foo");
-  compare(__LINE__, update(foo).set(foo.omega = 42).unconditionally(), "UPDATE tab_foo SET omega=42");
+  compare(__LINE__, select(foo.omega).from(foo).unconditionally(), "SELECT \"tab_foo\".\"omega\" FROM \"tab_foo\"");
+  compare(__LINE__, remove_from(foo).unconditionally(), "DELETE FROM \"tab_foo\"");
+  compare(__LINE__, update(foo).set(foo.omega = 42).unconditionally(), "UPDATE \"tab_foo\" SET \"omega\"=42");
   compare(__LINE__, where(sqlpp::value(true)), " WHERE " + getTrue());
 
   // Never
   compare(__LINE__, where(sqlpp::value(false)), " WHERE " + getFalse());
 
   // Sometimes
-  compare(__LINE__, where(bar.gamma), " WHERE tab_bar.gamma");
-  compare(__LINE__, where(bar.gamma == false), " WHERE (tab_bar.gamma=" + getFalse() + ")");
-  compare(__LINE__, where(bar.beta == "SQL"), " WHERE (tab_bar.beta='SQL')");
+  compare(__LINE__, where(bar.gamma), " WHERE \"tab_bar\".\"gamma\"");
+  compare(__LINE__, where(bar.gamma == false), " WHERE (\"tab_bar\".\"gamma\"=" + getFalse() + ")");
+  compare(__LINE__, where(bar.beta == "SQL"), " WHERE (\"tab_bar\".\"beta\"='SQL')");
 
   return 0;
 }
