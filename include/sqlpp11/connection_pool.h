@@ -44,6 +44,8 @@ namespace sqlpp
 		unsigned int maximum_pool_size = 0;
 		std::stack<std::unique_ptr<Connection>> free_connections;
 
+		bool is_connection_compatible(const std::unique_ptr<Connection>& connection) {
+			return connection->get_config().get() == this->config.get();
 		}
 
 	public:
@@ -105,6 +107,7 @@ namespace sqlpp
 			{
 				if (connection.get())
 				{
+					if (is_connection_compatible(connection))
 					{
 						free_connections.push(std::move(connection));
 					}
