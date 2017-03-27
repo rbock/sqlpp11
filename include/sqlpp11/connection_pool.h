@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2013 - 2016, Roland Bock
+* Copyright (c) 2013 - 2017, Roland Bock, Frank Park
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification,
@@ -30,6 +30,8 @@
 #include <mutex>
 #include <stack>
 #include <memory>
+#include <iostream>
+#include <sqlpp11/exception.h>
 
 namespace sqlpp
 {
@@ -39,12 +41,14 @@ namespace sqlpp
 	private:
 		std::mutex connection_pool_mutex;
 		const std::shared_ptr<Connection_config> config;
-		unsigned int default_pool_size = 0;
+		unsigned int maximum_pool_size = 0;
 		std::stack<std::unique_ptr<Connection>> free_connections;
+
+		}
 
 	public:
 		connection_pool(const std::shared_ptr<Connection_config>& config, unsigned int pool_size)
-			: config(config), default_pool_size(pool_size)
+			: config(config), maximum_pool_size(pool_size)
 		{
 			std::lock_guard<std::mutex> lock(connection_pool_mutex);
 			try
@@ -56,8 +60,8 @@ namespace sqlpp
 			}
 			catch (const sqlpp::exception& e)
 			{
-				std::cerr << "Failed to spawn new connection." << std::endl;
-				std::cerr << e.what() << std::endl;
+				std::cerr << "Failed to spawn a new connection." << std::endl;
+				throw;
 			}
 		}
 		~connection_pool() = default;
@@ -83,9 +87,8 @@ namespace sqlpp
 			}
 			catch (const sqlpp::exception& e)
 			{
-				std::cerr << "Failed to spawn new connection." << std::endl;
-				std::cerr << e.what() << std::endl;
-				return std::unique_ptr<Connection>();
+				std::cerr << "Failed to spawn a new connection." << std::endl;
+				throw;
 			}
 		}
 		
@@ -94,7 +97,7 @@ namespace sqlpp
 		void free_connection(std::unique_ptr<Connection> connection)
 		{
 			std::lock_guard<std::mutex> lock(connection_pool_mutex);
-			if (free_connections.size() >= default_pool_size)
+			if (free_connections.size() >= maximum_pool_size)
 			{
 				// Exceeds default size, do nothing and let unique_ptr self destroy.
 			}
@@ -102,7 +105,13 @@ namespace sqlpp
 			{
 				if (connection.get())
 				{
-					free_connections.push(std::move(connection));
+					{
+						free_connections.push(std::move(connection));
+					}
+					else
+					{
+						throw sqlpp::exception("Trying to free a connection with incompatible config.");
+					}
 				}
 				else
 				{
