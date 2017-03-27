@@ -51,21 +51,7 @@ namespace sqlpp
 	public:
 		connection_pool(const std::shared_ptr<Connection_config>& config, unsigned int pool_size)
 			: config(config), maximum_pool_size(pool_size)
-		{
-			std::lock_guard<std::mutex> lock(connection_pool_mutex);
-			try
-			{
-				for (int i = 0; i < pool_size; i++)
-				{
-					free_connections.push(std::make_unique<Connection>(config));
-				}
-			}
-			catch (const sqlpp::exception& e)
-			{
-				std::cerr << "Failed to spawn a new connection." << std::endl;
-				throw;
-			}
-		}
+		{}
 		~connection_pool() = default;
 		connection_pool(const connection_pool&) = delete;
 		connection_pool(connection_pool&&) = delete;
