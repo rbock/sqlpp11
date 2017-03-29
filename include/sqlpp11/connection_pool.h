@@ -79,11 +79,6 @@ namespace sqlpp
 			async_connection& operator=(async_connection&&) = delete;
 		};
 
-		bool is_connection_compatible(const async_connection& connection)
-		{
-			return connection._impl->get_config().get() == this->config.get();
-		}
-
 		void free_connection(std::unique_ptr<Connection>& connection)
 		{
 			std::lock_guard<std::mutex> lock(connection_pool_mutex);
