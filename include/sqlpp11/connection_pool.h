@@ -44,86 +44,60 @@ namespace sqlpp
 		unsigned int maximum_pool_size = 0;
 		std::stack<std::unique_ptr<Connection>> free_connections;
 
-		struct async_connection : public Connection
+		struct async_connection
 		{
 			friend class connection_pool;
 
 		private:
+			std::unique_ptr<Connection> _impl;
 			connection_pool* origin;
 
 		public:
 			async_connection(std::unique_ptr<Connection>& connection, connection_pool* origin) :
-				Connection(std::move(*connection.get())), origin(origin) {}
+				_impl(std::move(connection)), origin(origin) {}
 
 			~async_connection()
 			{
-				// is_valid() checks if the Connection object has a valid SQL handle
-				// to sure we are not moving an empty connection back to the pool
-				if (this->is_valid())
-				{
-					origin->free_connection(std::make_unique<async_connection>(std::move(*this)));
-				}
+				origin->free_connection(_impl);
+			}
+
+			template<typename... Args>
+			auto operator()(Args&&... args) -> decltype(_impl->args(std::forward<Args>(args)...))
+			{
+				return _impl->args(std::forward<Args>(args)...);
+			}
+
+			Connection* operator->()
+			{
+				return &_impl;
 			}
 
 			async_connection(const async_connection&) = delete;
 			async_connection(async_connection&& other)
-				: Connection(std::move(other)), origin(other.origin) {}
+				: _impl(std::move(other._impl)), origin(other.origin) {}
 			async_connection& operator=(const async_connection&) = delete;
 			async_connection& operator=(async_connection&&) = delete;
 		};
 
-		bool is_connection_compatible(const std::unique_ptr<async_connection>& connection)
+		bool is_connection_compatible(const async_connection& connection)
 		{
-			return connection.get()->get_config().get() == this->config.get();
-		}
-	public:
-		connection_pool(const std::shared_ptr<Connection_config>& config, unsigned int pool_size)
-			: config(config), maximum_pool_size(pool_size)
-		{}
-		~connection_pool() = default;
-		connection_pool(const connection_pool&) = delete;
-		connection_pool(connection_pool&&) = delete;
-		connection_pool& operator=(const connection_pool&) = delete;
-		connection_pool& operator=(connection_pool&&) = delete;
-
-		std::unique_ptr<async_connection> get_connection()
-		{
-			std::lock_guard<std::mutex> lock(connection_pool_mutex);
-			if (!free_connections.empty())
-			{
-				auto connection = std::move(free_connections.top());
-				free_connections.pop();
-				return std::make_unique<async_connection>(connection, this);
-			}
-
-			try
-			{
-				return std::make_unique<async_connection>(std::move(std::make_unique<Connection>(config)), this);
-			}
-			catch (const sqlpp::exception& e)
-			{
-				std::cerr << "Failed to spawn a new connection." << std::endl;
-				std::cerr << e.what() << std::endl;
-				throw;
-			}
+			return connection._impl->get_config().get() == this->config.get();
 		}
 
 		// Caller is responsible for making sure the connection being
 		// returned has the same configuration as the connection pool.
-		void free_connection(std::unique_ptr<async_connection> connection)
+		void free_connection(std::unique_ptr<Connection>& connection)
 		{
 			std::lock_guard<std::mutex> lock(connection_pool_mutex);
 			if (free_connections.size() >= maximum_pool_size)
 			{
-				// Exceeds default size, empty the async_connection object
-				// so that it doesn't trigger RAII
-				Connection destructor = std::move(*connection.get());
+				// Exceeds default size, do nothign and let connection self destroy.
 			}
 			else
 			{
 				if (connection.get())
 				{
-					if (is_connection_compatible(connection))
+					if (connection->is_valid())
 					{
 						free_connections.push(std::move(connection));
 					}
@@ -136,6 +110,38 @@ namespace sqlpp
 				{
 					throw sqlpp::exception("Trying to free an empty connection.");
 				}
+			}
+		}
+
+	public:
+		connection_pool(const std::shared_ptr<Connection_config>& config, unsigned int pool_size)
+			: config(config), maximum_pool_size(pool_size)
+		{}
+		~connection_pool() = default;
+		connection_pool(const connection_pool&) = delete;
+		connection_pool(connection_pool&&) = delete;
+		connection_pool& operator=(const connection_pool&) = delete;
+		connection_pool& operator=(connection_pool&&) = delete;
+
+		async_connection get_connection()
+		{
+			std::lock_guard<std::mutex> lock(connection_pool_mutex);
+			if (!free_connections.empty())
+			{
+				auto connection = std::move(free_connections.top());
+				free_connections.pop();
+				return async_connection(connection, this);
+			}
+
+			try
+			{
+				return async_connection(std::move(std::make_unique<Connection>(config)), this);
+			}
+			catch (const sqlpp::exception& e)
+			{
+				std::cerr << "Failed to spawn a new connection." << std::endl;
+				std::cerr << e.what() << std::endl;
+				throw;
 			}
 		}
 	};
