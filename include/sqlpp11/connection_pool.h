@@ -84,8 +84,6 @@ namespace sqlpp
 			return connection._impl->get_config().get() == this->config.get();
 		}
 
-		// Caller is responsible for making sure the connection being
-		// returned has the same configuration as the connection pool.
 		void free_connection(std::unique_ptr<Connection>& connection)
 		{
 			std::lock_guard<std::mutex> lock(connection_pool_mutex);
