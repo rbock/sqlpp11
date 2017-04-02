@@ -104,11 +104,11 @@ namespace sqlpp
 	}
 
 	template <typename Connection_config,
-		typename Connection = typename std::enable_if<std::is_class<Connection_config::connection>::value, Connection_config::connection>::type,
-		typename Reconnect_policy = reconnect_policy::auto_reconnect>
+		typename Reconnect_policy = reconnect_policy::auto_reconnect,
+		typename Connection = typename std::enable_if<std::is_class<Connection_config::connection>::value, Connection_config::connection>::type>
 	class connection_pool
 	{
-		friend pool_connection<Connection, Connection_config, Reconnect_policy>;
+		friend pool_connection<Connection_config, Reconnect_policy, Connection>;
 
 	private:
 		std::mutex connection_pool_mutex;
@@ -145,9 +145,8 @@ namespace sqlpp
 		}
 
 	public:
-		connection_pool(const std::shared_ptr<Connection_config>& config, size_t pool_size,
-			Reconnect_policy reconnect_policy = sqlpp::reconnect_policy::auto_reconnect())
-			: config(config), maximum_pool_size(pool_size), reconnect_policy(reconnect_policy) {}
+		connection_pool(const std::shared_ptr<Connection_config>& config, size_t pool_size)
+			: config(config), maximum_pool_size(pool_size), reconnect_policy(Reconnect_policy()) {}
 		~connection_pool() = default;
 		connection_pool(const connection_pool&) = delete;
 		connection_pool(connection_pool&& other)
@@ -156,19 +155,19 @@ namespace sqlpp
 		connection_pool& operator=(const connection_pool&) = delete;
 		connection_pool& operator=(connection_pool&&) = delete;
 
-		pool_connection<Connection, Connection_config, Reconnect_policy> get_connection()
+		pool_connection<Connection_config, Reconnect_policy, Connection> get_connection()
 		{
 			std::lock_guard<std::mutex> lock(connection_pool_mutex);
 			if (!free_connections.empty())
 			{
 				auto connection = std::move(free_connections.top());
 				free_connections.pop();
-				return pool_connection<Connection, Connection_config, Reconnect_policy>(connection, this);
+				return pool_connection<Connection_config, Reconnect_policy, Connection>(connection, this);
 			}
 
 			try
 			{
-				return pool_connection<Connection, Connection_config, Reconnect_policy>(std::move(std::make_unique<Connection>(config)), this);
+				return pool_connection<Connection_config, Reconnect_policy, Connection>(std::move(std::make_unique<Connection>(config)), this);
 			}
 			catch (const sqlpp::exception& e)
 			{
@@ -180,15 +179,13 @@ namespace sqlpp
 	};
 
 	template<typename Connection_config,
-		typename Connection = typename std::enable_if<std::is_class<Connection_config::connection>::value, Connection_config::connection>::type,
-		typename Reconnect_policy = reconnect_policy::auto_reconnect>
-	connection_pool<Connection_config, Connection, Reconnect_policy> make_connection_pool(
+		typename Reconnect_policy = reconnect_policy::auto_reconnect,
+		typename Connection = typename std::enable_if<std::is_class<Connection_config::connection>::value,Connection_config::connection>::type>
+	connection_pool<Connection_config, Reconnect_policy, Connection> make_connection_pool(
 		const std::shared_ptr<Connection_config>& config,
-		size_t max_pool_size,
-		Reconnect_policy reconnect_policy = reconnect_policy::auto_reconnect()
-	)
+		size_t max_pool_size)
 	{
-		return connection_pool<Connection_config, Connection, Reconnect_policy>(config, max_pool_size, reconnect_policy);
+		return connection_pool<Connection_config, Reconnect_policy, Connection>(config, max_pool_size);
 	}
 }
 

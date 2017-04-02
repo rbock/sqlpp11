@@ -31,8 +31,8 @@
 
 namespace sqlpp
 {
-	template <typename Connection, typename Connection_config, typename Reconnect_policy,
-		typename Connection_pool = connection_pool<Connection_config, Connection, Reconnect_policy>>
+	template <typename Connection_config, typename Reconnect_policy, typename Connection,
+		typename Connection_pool = connection_pool<Connection_config, Reconnect_policy, Connection>>
 	struct pool_connection
 	{
 	private:
