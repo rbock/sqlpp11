@@ -29,55 +29,93 @@
 
 #include <mutex>
 #include <stack>
+#include <unordered_map>
 #include <memory>
 #include <iostream>
+#include <chrono>
+#include <type_traits>
 #include <sqlpp11/exception.h>
+#include <sqlpp11/pool_connection.h>
 
 namespace sqlpp
 {
-	template <typename Connection, typename Connection_config>
+	namespace reconnect_policy
+	{
+		struct auto_reconnect {
+			template<typename Connection>
+			void operator()(Connection* connection)
+			{
+				if(!connection->is_valid())
+					connection->reconnect()
+			}
+			template<typename Connection>
+			void clean(Connection* connection) {}
+		};
+
+		using namespace std::chrono_literals;
+		class periodic_reconnect
+		{
+		private:
+			std::chrono::seconds revalidate_after;
+			std::unordered_map<void*,std::chrono::time_point<std::chrono::system_clock> > last_checked;
+
+		public:
+			periodic_reconnect(const std::chrono::seconds r = 28800s) //default wait_timeout in MySQL
+				: revalidate_after(r), last_checked() {}
+
+			template<typename Connection>
+			void operator()(Connection* con)
+			{
+				auto last = last_checked.find(con);
+				auto now = std::chrono::system_clock::now();
+				if(last == last_checked.end())
+				{
+					if (!con->is_valid())
+					{
+						con->reconnect();
+					}
+					last_checked.emplace_hint(last, con, now);
+				}
+				else if(now - last->second > revalidate_after)
+				{
+					if (!con->is_valid())
+					{
+						con->reconnect();
+					}
+					last = now;
+				}
+			}
+			template<typename Connection>
+			void clean(Connection* con) {
+				auto itr = last_checked.find(con);
+				if(itr != last_checked.end())
+				{
+					last_checked.erase(itr);
+				}
+			}
+		};
+
+		struct never_reconnect {
+			template<typename Connection>
+			void operator()(Connection*) {}
+			template<typename Connection>
+			void clean(Connection*) {}
+		};
+	}
+
+	template <typename Connection_config,
+		typename Connection = typename std::enable_if<std::is_class<Connection_config::connection>::value, Connection_config::connection>::type,
+		typename Reconnect_policy = reconnect_policy::auto_reconnect>
 	class connection_pool
 	{
+		friend pool_connection<Connection, Connection_config, Reconnect_policy>;
+
 	private:
 		std::mutex connection_pool_mutex;
 		const std::shared_ptr<Connection_config> config;
-		unsigned int maximum_pool_size = 0;
+		size_t maximum_pool_size = 0;
 		std::stack<std::unique_ptr<Connection>> free_connections;
-
-		struct async_connection
-		{
-			friend class connection_pool;
-
-		private:
-			std::unique_ptr<Connection> _impl;
-			connection_pool* origin;
-
-		public:
-			async_connection(std::unique_ptr<Connection>& connection, connection_pool* origin) :
-				_impl(std::move(connection)), origin(origin) {}
-
-			~async_connection()
-			{
-				origin->free_connection(_impl);
-			}
-
-			template<typename... Args>
-			auto operator()(Args&&... args) -> decltype(_impl->args(std::forward<Args>(args)...))
-			{
-				return _impl->args(std::forward<Args>(args)...);
-			}
-
-			Connection* operator->()
-			{
-				return &_impl;
-			}
-
-			async_connection(const async_connection&) = delete;
-			async_connection(async_connection&& other)
-				: _impl(std::move(other._impl)), origin(other.origin) {}
-			async_connection& operator=(const async_connection&) = delete;
-			async_connection& operator=(async_connection&&) = delete;
-		};
+		Reconnect_policy reconnect_policy;
 
 		void free_connection(std::unique_ptr<Connection>& connection)
 		{
@@ -107,28 +145,30 @@ namespace sqlpp
 		}
 
 	public:
-		connection_pool(const std::shared_ptr<Connection_config>& config, unsigned int pool_size)
-			: config(config), maximum_pool_size(pool_size)
-		{}
+		connection_pool(const std::shared_ptr<Connection_config>& config, size_t pool_size,
+			Reconnect_policy reconnect_policy = sqlpp::reconnect_policy::auto_reconnect())
+			: config(config), maximum_pool_size(pool_size), reconnect_policy(reconnect_policy) {}
 		~connection_pool() = default;
 		connection_pool(const connection_pool&) = delete;
-		connection_pool(connection_pool&&) = delete;
+		connection_pool(connection_pool&& other)
+			: config(std::move(other.config)), maximum_pool_size(std::move(other.maximum_pool_size)),
+			reconnect_policy(std::move(other.reconnect_policy)) {}
 		connection_pool& operator=(const connection_pool&) = delete;
 		connection_pool& operator=(connection_pool&&) = delete;
 
-		async_connection get_connection()
+		pool_connection<Connection, Connection_config, Reconnect_policy> get_connection()
 		{
 			std::lock_guard<std::mutex> lock(connection_pool_mutex);
 			if (!free_connections.empty())
 			{
 				auto connection = std::move(free_connections.top());
 				free_connections.pop();
-				return async_connection(connection, this);
+				return pool_connection<Connection, Connection_config, Reconnect_policy>(connection, this);
 			}
 
 			try
 			{
-				return async_connection(std::move(std::make_unique<Connection>(config)), this);
+				return pool_connection<Connection, Connection_config, Reconnect_policy>(std::move(std::make_unique<Connection>(config)), this);
 			}
 			catch (const sqlpp::exception& e)
 			{
@@ -138,6 +178,18 @@ namespace sqlpp
 			}
 		}
 	};
+
+	template<typename Connection_config,
+		typename Connection = typename std::enable_if<std::is_class<Connection_config::connection>::value, Connection_config::connection>::type,
+		typename Reconnect_policy = reconnect_policy::auto_reconnect>
+	connection_pool<Connection_config, Connection, Reconnect_policy> make_connection_pool(
+		const std::shared_ptr<Connection_config>& config,
+		size_t max_pool_size,
+		Reconnect_policy reconnect_policy = reconnect_policy::auto_reconnect()
+	)
+	{
+		return connection_pool<Connection_config, Connection, Reconnect_policy>(config, max_pool_size, reconnect_policy);
+	}
 }
 
 #endif
