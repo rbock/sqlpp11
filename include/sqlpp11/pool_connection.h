@@ -31,8 +31,8 @@
 
 namespace sqlpp
 {
-	template <typename Connection_config, typename Reconnect_policy, typename Connection,
-		typename Connection_pool = connection_pool<Connection_config, Reconnect_policy, Connection>>
+	template <typename Connection_config, typename Connection_validator, typename Connection,
+		typename Connection_pool = connection_pool<Connection_config, Connection_validator, Connection>>
 	struct pool_connection
 	{
 	private:
@@ -58,6 +58,18 @@ namespace sqlpp
 		auto operator()(const T& t) -> decltype(_impl->run(t))
 		{
 			return _impl->run(t);
+		}
+
+		template <typename T>
+		auto execute(const T& t) -> decltype(_impl->execute(t))
+		{
+			return _impl->execute(t);
+		}
+
+		template <typename T>
+		auto prepare(const T& t) -> decltype(_impl->prepare(t))
+		{
+			return _impl->prepare(t);
 		}
 
 		Connection* operator->()
