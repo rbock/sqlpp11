@@ -104,7 +104,7 @@ namespace sqlpp
 				[&]()
 			{
 				auto async_connection = connection_pool.get_connection();
-				callback(std::move(async_connection(query)));
+				callback(std::move(async_connection), std::move(async_connection(query)));
 			}
 			);
 		}
