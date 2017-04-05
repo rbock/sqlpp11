@@ -42,22 +42,37 @@
 #include <vector>
 #include <iostream>
 #include <thread>
+#include <future>
+#include <chrono>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/connection_pool.h>
 
 namespace sqlpp
 {
+	using namespace std::chrono_literals;
 	struct async_query_service
 	{
 	private:
 		struct async_io_service
 		{
+		private:
 			std::vector<std::thread> io_threads;
 			SQLPP_ASIO::io_service& _impl;
+			std::unique_ptr<SQLPP_ASIO::steady_timer> timer;
 
+			void timer_loop()
+			{
+				timer->expires_from_now(std::chrono::seconds(10));
+				timer->async_wait(std::bind(&async_io_service::timer_loop, this));
+			}
+
+		public:
 			async_io_service(SQLPP_ASIO::io_service& io_service, unsigned int thread_count)
 				: _impl(io_service)
 			{
+				timer = std::make_unique<SQLPP_ASIO::steady_timer>(_impl);
+				timer_loop(); // Keeps the io_service threads from returning
+
 				for (unsigned i = 0; i < thread_count; i++)
 				{
 					try
@@ -86,15 +101,14 @@ namespace sqlpp
 		async_query_service(SQLPP_ASIO::io_service& io_service, unsigned int thread_count)
 			: _io_service(io_service, thread_count) {}
 
-		template<typename Connection, typename Connection_config, typename Reconnect_policy, typename Query, typename Bind>
-		void post(connection_pool<Connection, Connection_config, Reconnect_policy>& connection_pool, Query query, Bind callback)
+		template<typename Connection, typename Connection_config, typename Connection_validator, typename Query, typename Bind>
+		void async_query(connection_pool<Connection, Connection_config, Connection_validator>& connection_pool, Query query, Bind callback)
 		{
 			_io_service._impl.post(
 				[&]()
 			{
 				auto async_connection = connection_pool.get_connection();
-				async_connection(query);
-				_io_service._impl.post(callback);
+				callback(async_connection(query));
 			}
 			);
 		}
