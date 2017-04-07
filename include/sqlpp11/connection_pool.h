@@ -44,7 +44,7 @@ namespace sqlpp
 		struct automatic
 		{
 			template<typename Connection>
-			bool validate(Connection* connection)
+			void validate(Connection* connection)
 			{
 				if (!connection->is_valid())
 				{
@@ -52,7 +52,7 @@ namespace sqlpp
 					{
 						connection->reconnect();
 					}
-					catch (const sqlpp::exception& e)
+					catch (const sqlpp::exception&)
 					{
 						throw sqlpp::exception("Failed to reconnect to database.");
 					}
@@ -191,7 +191,7 @@ namespace sqlpp
 						break;
 					}
 				}
-				catch (const sqlpp::exception& e)
+				catch (const sqlpp::exception&)
 				{
 					throw sqlpp::exception("Failed to retrieve a valid connection.");
 				}
@@ -201,7 +201,7 @@ namespace sqlpp
 			{
 				return pool_connection<Connection_config, Connection_validator, Connection>(std::move(std::make_unique<Connection>(config)), this);
 			}
-			catch (const sqlpp::exception& e)
+			catch (const sqlpp::exception&)
 			{
 				throw sqlpp::exception("Failed to spawn a new connection.");
 			}

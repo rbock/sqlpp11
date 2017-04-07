@@ -45,7 +45,10 @@ namespace sqlpp
 
 		~pool_connection()
 		{
-			origin->free_connection(_impl);
+			if (_impl.get())
+			{
+				origin->free_connection(_impl);
+			}
 		}
 
 		template<typename... Args>
@@ -81,7 +84,10 @@ namespace sqlpp
 		pool_connection(pool_connection&& other)
 			: _impl(std::move(other._impl)), origin(other.origin) {}
 		pool_connection& operator=(const pool_connection&) = delete;
-		pool_connection& operator=(pool_connection&&) = delete;
+		pool_connection& operator=(pool_connection&& other)
+		{
+			_impl(std::move(other._impl)), origin(other.origin);
+		}
 	};
 }
 
