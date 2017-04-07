@@ -50,6 +50,89 @@
 
 namespace sqlpp
 {
+	namespace async
+	{
+		enum
+		{
+			ok = 0,
+			error = 1
+		};
+	}
+	template<typename Connection_pool, typename Query, typename Lambda>
+	class query_poster
+	{
+	private:
+		using Async_connection = decltype((*((Connection_pool*)0)).get_connection());
+		using Result = decltype((*((Async_connection*)0))(Query()));
+
+		template<class F, class...Args>
+		struct is_callable
+		{
+			template<class U> static auto test(U* p) -> decltype((*p)(std::declval<Args>()...), void(), std::true_type());
+			template<class U> static auto test(...) -> decltype(std::false_type());
+
+			typedef decltype(test<F>(0)) type;
+			static constexpr bool value = decltype(test<F>(0))::value;
+		};
+
+	public:
+		query_poster(Connection_pool& p, Query& q, Lambda& cb) : pool(p), query(q), callback(cb) {}
+
+		void operator()()
+		{
+			auto connection = pool.get_connection();
+			auto error_code = std::error_code(sqlpp::async::ok, std::generic_category());
+			Result result;
+			try
+			{
+				result = std::move(connection(query));
+			}
+			catch (const sqlpp::exception&)
+			{
+				error_code.assign(sqlpp::async::error, std::generic_category());
+			}
+
+			impl(error_code, std::move(connection), std::move(result), callback);
+		}
+
+		template<typename Lambda, typename std::enable_if<!is_callable<Lambda>::value &&
+			!is_callable<Lambda, std::error_code>::value &&
+			!is_callable<Lambda, std::error_code, Result>::value &&
+			!is_callable<Lambda, std::error_code, Result, Async_connection>::value, int>::type = 0>
+		void impl(std::error_code error, Async_connection connection, Result result, Lambda callback)
+		{
+			static_assert(false, "Callback signature is incompatible. Refer to the wiki for further instructions.");
+		}
+
+		template<typename Lambda, typename std::enable_if<is_callable<Lambda>::value, int>::type = 0>
+		void impl(std::error_code error_code, Async_connection connection, Result result, Lambda callback)
+		{
+			callback();
+		}
+
+		template<typename Lambda, typename std::enable_if<is_callable<Lambda, bool>::value, int>::type = 0>
+		void impl(std::error_code error_code, Async_connection connection, Result result, Lambda callback)
+		{
+			callback(error_code);
+		}
+
+		template<typename Lambda, typename std::enable_if<is_callable<Lambda, bool, Result>::value, int>::type = 0>
+		void impl(std::error_code error_code, Async_connection connection, Result result, Lambda callback)
+		{
+			callback(error_code, std::move(result));
+		}
+
+		template<typename Lambda, typename std::enable_if<is_callable<Lambda, bool, Result, Async_connection>::value, int>::type = 0>
+		void impl(std::error_code error_code, Async_connection connection, Result result, Lambda callback)
+		{
+			callback(error_code, std::move(result), std::move(connection));
+		}
+
+		Connection_pool& pool;
+		Query query;
+		Lambda& callback;
+	};
+
 	using namespace std::chrono_literals;
 	struct asio_query_service
 	{
@@ -91,58 +174,12 @@ namespace sqlpp
 			}
 		}
 
-		template<class F, class...Args>
-		struct is_callable
+		template<typename Connection_pool, typename Query, typename Lambda>
+		void async_query(Connection_pool& pool, Query& query, Lambda& callback)
 		{
-			template<class U> static auto test(U* p) -> decltype((*p)(std::declval<Args>()...), void(), std::true_type());
-			template<class U> static auto test(...) -> decltype(std::false_type());
-
-			typedef decltype(test<F>(0)) type;
-			static constexpr bool value = decltype(test<F>(0))::value;
-		};
-
-		template<typename Result, typename Connection, typename Connection_pool, typename Query, typename Lambda,
-			typename std::enable_if<!is_callable<Lambda>::value &&
-			!is_callable<Lambda, Result>::value &&
-			!is_callable<Lambda, Result, Connection>::value, int>::type = 0>
-			void try_query(Connection_pool& pool, Query query, Lambda callback)
-		{
-			static_assert(false, "Callback signature is incompatible. Refer to the wiki for further instructions.");
+			_impl.post(query_poster<Connection_pool, Query, Lambda>(pool, query, callback));
 		}
 
-		template<typename Result, typename Connection, typename Connection_pool, typename Query, typename Lambda,
-			typename std::enable_if<is_callable<Lambda>::value, int>::type = 0>
-			void try_query(Connection_pool& pool, Query query, Lambda callback)
-		{
-			_impl.post([&]()
-			{
-				auto connection = pool.get_connection();
-				callback();
-			});
-		}
-
-		template<typename Result, typename Connection, typename Connection_pool, typename Query, typename Lambda,
-			typename std::enable_if<is_callable<Lambda, Result>::value, int>::type = 0>
-			void try_query(Connection_pool& pool, Query query, Lambda callback)
-		{
-			_impl.post([&]()
-			{
-				auto connection = pool.get_connection();
-				callback(connection(query));
-			});
-		}
-
-		template<typename Result, typename Connection, typename Connection_pool, typename Query, typename Lambda,
-			typename std::enable_if<is_callable<Lambda, Result, Connection>::value, int>::type = 0>
-			void try_query(Connection_pool& pool, Query query, Lambda callback)
-		{
-			_impl.post([&]()
-			{
-				auto connection = pool.get_connection();
-				auto result = connection(query);
-				callback(std::move(result), std::move(connection));
-			});
-		}
 	};
 
 	template <typename Io_service>
@@ -157,11 +194,9 @@ namespace sqlpp
 			: _io_service(io_service, thread_count) {}
 
 		template<typename Connection, typename Connection_config, typename Connection_validator, typename Query, typename Lambda>
-		void async_query(connection_pool<Connection_config, Connection_validator, Connection>& pool, Query query, Lambda callback)
+		void async_query(connection_pool<Connection_config, Connection_validator, Connection>& pool, Query& query, Lambda& callback)
 		{
-			using Pool = decltype(pool.get_connection()(query));
-			using Async_Connection = decltype(pool.get_connection());
-			_io_service.try_query<Pool, Async_Connection>(pool, query, callback);
+			_io_service.async_query(pool, query, callback);
 		}
 	};
 }
