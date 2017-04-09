@@ -24,6 +24,8 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#pragma once
+
 #ifndef SQLPP_CONNECTION_POOL_H
 #define SQLPP_CONNECTION_POOL_H
 
@@ -36,6 +38,7 @@
 #include <type_traits>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/pool_connection.h>
+#include <sqlpp11/query_task.h>
 
 namespace sqlpp
 {
@@ -205,6 +208,12 @@ namespace sqlpp
 			{
 				throw sqlpp::exception("Failed to spawn a new connection.");
 			}
+		}
+
+		template<typename Query, typename Lambda>
+		void operator()(Query query, Lambda callback)
+		{
+			query_task<connection_pool, Query, Lambda>(*this, query, callback)();
 		}
 	};
 
