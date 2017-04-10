@@ -40,6 +40,7 @@
 #include <sqlpp11/having.h>
 #include <sqlpp11/order_by.h>
 #include <sqlpp11/limit.h>
+#include <sqlpp11/for_update.h>
 #include <sqlpp11/offset.h>
 #include <sqlpp11/union.h>
 #include <sqlpp11/expression.h>
@@ -82,7 +83,8 @@ namespace sqlpp
                                      no_order_by_t,
                                      no_limit_t,
                                      no_offset_t,
-                                     no_union_t>;
+                                     no_union_t,
+                                     no_for_update_t>;
 
   inline blank_select_t<void> select()  // FIXME: These should be constexpr
   {
