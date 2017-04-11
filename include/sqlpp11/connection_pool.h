@@ -215,6 +215,12 @@ namespace sqlpp
 		{
 			query_task<connection_pool, Query, Lambda>(*this, query, callback)();
 		}
+
+		template<typename Query>
+		void operator()(Query query)
+		{
+			operator()(query, [](){});
+		}
 	};
 
 	template<typename Connection_config,
