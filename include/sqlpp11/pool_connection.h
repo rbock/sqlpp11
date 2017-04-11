@@ -32,63 +32,67 @@
 
 namespace sqlpp
 {
-	template <typename Connection_config, typename Connection_validator, typename Connection,
-		typename Connection_pool = connection_pool<Connection_config, Connection_validator, Connection>>
-	struct pool_connection : public sqlpp::connection
-	{
-	private:
-		std::unique_ptr<Connection> _impl;
-		Connection_pool* origin;
+  template <typename Connection_config, typename Connection_validator, typename Connection,
+    typename Connection_pool = connection_pool<Connection_config, Connection_validator, Connection>>
+  struct pool_connection : public sqlpp::connection
+  {
+  private:
+    std::unique_ptr<Connection> _impl;
+    Connection_pool* origin;
 
-	public:
-		pool_connection() : _impl(nullptr), origin(nullptr) {}
+  public:
+    pool_connection() : _impl(nullptr), origin(nullptr)
+    {
+    }
 
-		pool_connection(std::unique_ptr<Connection>& connection, Connection_pool* origin)
-			: _impl(std::move(connection)), origin(origin) {}
+    pool_connection(std::unique_ptr<Connection>& connection, Connection_pool* origin) : _impl(std::move(connection)), origin(origin)
+    {
+    }
 
-		~pool_connection()
-		{
-			if (_impl.get())
-			{
-				origin->free_connection(_impl);
-			}
-		}
+    ~pool_connection()
+    {
+      if (_impl.get())
+      {
+        origin->free_connection(_impl);
+      }
+    }
 
-		template<typename... Args>
-		auto operator()(Args&&... args) -> decltype(_impl->args(std::forward<Args>(args)...))
-		{
-			return _impl->args(std::forward<Args>(args)...);
-		}
+    template<typename... Args>
+    auto operator()(Args&&... args) -> decltype(_impl->args(std::forward<Args>(args)...))
+    {
+      return _impl->args(std::forward<Args>(args)...);
+    }
 
-		template <typename T>
-		auto operator()(const T& t) -> decltype(_impl->run(t))
-		{
-			return _impl->run(t);
-		}
+    template <typename T>
+    auto operator()(const T& t) -> decltype(_impl->run(t))
+    {
+      return _impl->run(t);
+    }
 
-		template <typename T>
-		auto execute(const T& t) -> decltype(_impl->execute(t))
-		{
-			return _impl->execute(t);
-		}
+    template <typename T>
+    auto execute(const T& t) -> decltype(_impl->execute(t))
+    {
+      return _impl->execute(t);
+    }
 
-		template <typename T>
-		auto prepare(const T& t) -> decltype(_impl->prepare(t))
-		{
-			return _impl->prepare(t);
-		}
+    template <typename T>
+    auto prepare(const T& t) -> decltype(_impl->prepare(t))
+    {
+      return _impl->prepare(t);
+    }
 
-		pool_connection(const pool_connection&) = delete;
-		pool_connection(pool_connection&& other)
-			: _impl(std::move(other._impl)), origin(other.origin) {}
-		pool_connection& operator=(const pool_connection&) = delete;
-		pool_connection& operator=(pool_connection&& other)
-		{
-			_impl = std::move(other._impl);
-			origin = other.origin;
-			return *this;
-		}
-	};
+    pool_connection(const pool_connection&) = delete;
+    pool_connection(pool_connection&& other) : _impl(std::move(other._impl)), origin(other.origin)
+    {
+    }
+    pool_connection& operator=(const pool_connection&) = delete;
+    pool_connection& operator=(pool_connection&& other)
+    {
+      _impl = std::move(other._impl);
+      origin = other.origin;
+      return *this;
+    }
+  };
 }
 
 #endif

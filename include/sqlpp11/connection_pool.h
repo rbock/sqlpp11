@@ -42,196 +42,196 @@
 
 namespace sqlpp
 {
-	namespace connection_validator
-	{
-		struct automatic
-		{
-			template<typename Connection>
-			void validate(Connection* connection)
-			{
-				if (!connection->is_valid())
-				{
-					try
-					{
-						connection->reconnect();
-					}
-					catch (const sqlpp::exception&)
-					{
-						throw sqlpp::exception("Failed to reconnect to database.");
-					}
-				}
-			}
+  namespace connection_validator
+  {
+    struct automatic
+    {
+      template<typename Connection>
+      void validate(Connection* connection)
+      {
+        if (!connection->is_valid())
+        {
+          try
+          {
+            connection->reconnect();
+          }
+          catch (const sqlpp::exception&)
+          {
+            throw sqlpp::exception("Failed to reconnect to database.");
+          }
+        }
+      }
 
-			template<typename Connection>
-			void deregister(Connection* connection) {}
-		};
+      template<typename Connection>
+      void deregister(Connection* connection) {}
+    };
 
-		using namespace std::chrono_literals;
-		class periodic
-		{
-		private:
-			std::chrono::seconds revalidate_interval;
-			std::unordered_map<void*,std::chrono::time_point<std::chrono::system_clock>> last_checked;
+    using namespace std::chrono_literals;
+    class periodic
+    {
+    private:
+      std::chrono::seconds revalidate_interval;
+      std::unordered_map<void*, std::chrono::time_point<std::chrono::system_clock>> last_checked;
 
-		public:
-			periodic(const std::chrono::seconds r = 28800s) //default wait_timeout in MySQL
-				: revalidate_interval(r), last_checked() {}
+    public:
+      periodic(const std::chrono::seconds r = 28800s) //default wait_timeout in MySQL
+        : revalidate_interval(r), last_checked() {}
 
-			template<typename Connection>
-			void validate(Connection* connection)
-			{
-				auto last = last_checked.find(connection);
-				auto now = std::chrono::system_clock::now();
-				if (last == last_checked.end())
-				{
-					last_checked.emplace_hint(last, connection, now);
-				}
+      template<typename Connection>
+      void validate(Connection* connection)
+      {
+        auto last = last_checked.find(connection);
+        auto now = std::chrono::system_clock::now();
+        if (last == last_checked.end())
+        {
+          last_checked.emplace_hint(last, connection, now);
+        }
 
-				if (now - last->second < revalidate_interval)
-				{
-					return;
-				}
-				
-				if (!connection->is_valid())
-				{
-					try
-					{
-						connection->reconnect();
-					}
-					catch (const sqlpp::exception& e)
-					{
-						throw sqlpp::exception("Failed to reconnect to database.");
-					}
-				}
+        if (now - last->second < revalidate_interval)
+        {
+          return;
+        }
 
-				last = now;
-			}
+        if (!connection->is_valid())
+        {
+          try
+          {
+            connection->reconnect();
+          }
+          catch (const sqlpp::exception& e)
+          {
+            throw sqlpp::exception("Failed to reconnect to database.");
+          }
+        }
 
-			template<typename Connection>
-			void deregister(Connection* con)
-			{
-				auto itr = last_checked.find(con);
-				if(itr != last_checked.end())
-				{
-					last_checked.erase(itr);
-				}
-			}
-		};
+        last = now;
+      }
 
-		struct none
-		{
-			template<typename Connection>
-			void validate(Connection*) {}
+      template<typename Connection>
+      void deregister(Connection* con)
+      {
+        auto itr = last_checked.find(con);
+        if (itr != last_checked.end())
+        {
+          last_checked.erase(itr);
+        }
+      }
+    };
 
-			template<typename Connection>
-			void deregister(Connection*) {}
-		};
-	}
+    struct none
+    {
+      template<typename Connection>
+      void validate(Connection*) {}
 
-	template <typename Connection_config,
-		typename Connection_validator = connection_validator::automatic,
-		typename Connection = typename std::enable_if<std::is_class<Connection_config::connection>::value, Connection_config::connection>::type>
-	class connection_pool
-	{
-		friend pool_connection<Connection_config, Connection_validator, Connection>;
+      template<typename Connection>
+      void deregister(Connection*) {}
+    };
+  }
 
-	private:
-		std::mutex connection_pool_mutex;
-		const std::shared_ptr<Connection_config> config;
-		size_t maximum_pool_size = 0;
-		std::stack<std::unique_ptr<Connection>> free_connections;
-		Connection_validator connection_validator;
+  template <typename Connection_config,
+    typename Connection_validator = connection_validator::automatic,
+    typename Connection = typename std::enable_if<std::is_class<Connection_config::connection>::value, Connection_config::connection>::type>
+  class connection_pool
+  {
+    friend pool_connection<Connection_config, Connection_validator, Connection>;
 
-		void free_connection(std::unique_ptr<Connection>& connection)
-		{
-			std::lock_guard<std::mutex> lock(connection_pool_mutex);
-			if (free_connections.size() >= maximum_pool_size)
-			{
-				// Exceeds default size, deregister left over info in the connection_validator and let connection self destroy.
-				connection_validator.deregister(connection.get());
-			}
-			else
-			{
-				if (connection.get())
-				{
-					free_connections.push(std::move(connection));
-				}
-				else
-				{
-					throw sqlpp::exception("Trying to free an empty connection.");
-				}
-			}
-		}
+  private:
+    std::mutex connection_pool_mutex;
+    const std::shared_ptr<Connection_config> config;
+    size_t maximum_pool_size = 0;
+    std::stack<std::unique_ptr<Connection>> free_connections;
+    Connection_validator connection_validator;
 
-	public:
-		connection_pool(const std::shared_ptr<Connection_config>& config, size_t pool_size)
-			: config(config), maximum_pool_size(pool_size), connection_validator(Connection_validator()) {}
-		~connection_pool() = default;
-		connection_pool(const connection_pool&) = delete;
-		connection_pool(connection_pool&& other)
-			: config(std::move(other.config)), maximum_pool_size(std::move(other.maximum_pool_size)),
-			connection_validator(std::move(other.connection_validator)) {}
-		connection_pool& operator=(const connection_pool&) = delete;
-		connection_pool& operator=(connection_pool&&) = delete;
+    void free_connection(std::unique_ptr<Connection>& connection)
+    {
+      std::lock_guard<std::mutex> lock(connection_pool_mutex);
+      if (free_connections.size() >= maximum_pool_size)
+      {
+        // Exceeds default size, deregister left over info in the connection_validator and let connection self destroy.
+        connection_validator.deregister(connection.get());
+      }
+      else
+      {
+        if (connection.get())
+        {
+          free_connections.push(std::move(connection));
+        }
+        else
+        {
+          throw sqlpp::exception("Trying to free an empty connection.");
+        }
+      }
+    }
 
-		pool_connection<Connection_config, Connection_validator, Connection> get_connection()
-		{
-			std::lock_guard<std::mutex> lock(connection_pool_mutex);
-			while (true)
-			{
-				try
-				{
-					if (!free_connections.empty())
-					{
-						auto connection = std::move(free_connections.top());
-						free_connections.pop();
-						connection_validator.validate(connection.get());
+  public:
+    connection_pool(const std::shared_ptr<Connection_config>& config, size_t pool_size)
+      : config(config), maximum_pool_size(pool_size), connection_validator(Connection_validator()) {}
+    ~connection_pool() = default;
+    connection_pool(const connection_pool&) = delete;
+    connection_pool(connection_pool&& other)
+      : config(std::move(other.config)), maximum_pool_size(std::move(other.maximum_pool_size)),
+      connection_validator(std::move(other.connection_validator)) {}
+    connection_pool& operator=(const connection_pool&) = delete;
+    connection_pool& operator=(connection_pool&&) = delete;
 
-						return pool_connection<Connection_config, Connection_validator, Connection>(std::move(connection), this);
-					}
-					else
-					{
-						break;
-					}
-				}
-				catch (const sqlpp::exception&)
-				{
-					throw sqlpp::exception("Failed to retrieve a valid connection.");
-				}
-			}
+    auto get_connection()
+      -> pool_connection<Connection_config, Connection_validator, Connection> 
+    {
+      std::lock_guard<std::mutex> lock(connection_pool_mutex);
+      while (true)
+      {
+        try
+        {
+          if (!free_connections.empty())
+          {
+            auto connection = std::move(free_connections.top());
+            free_connections.pop();
+            connection_validator.validate(connection.get());
 
-			try
-			{
-				return pool_connection<Connection_config, Connection_validator, Connection>(std::move(std::make_unique<Connection>(config)), this);
-			}
-			catch (const sqlpp::exception&)
-			{
-				throw sqlpp::exception("Failed to spawn a new connection.");
-			}
-		}
+            return pool_connection<Connection_config, Connection_validator, Connection>(std::move(connection), this);
+          }
+          else
+          {
+            break;
+          }
+        }
+        catch (const sqlpp::exception&)
+        {
+          throw sqlpp::exception("Failed to retrieve a valid connection.");
+        }
+      }
 
-		template<typename Query, typename Lambda>
-		void operator()(Query query, Lambda callback)
-		{
-			query_task<connection_pool, Query, Lambda>(*this, query, callback)();
-		}
+      try
+      {
+        return pool_connection<Connection_config, Connection_validator, Connection>(std::move(std::make_unique<Connection>(config)), this);
+      }
+      catch (const sqlpp::exception&)
+      {
+        throw sqlpp::exception("Failed to spawn a new connection.");
+      }
+    }
 
-		template<typename Query>
-		void operator()(Query query)
-		{
-			operator()(query, [](){});
-		}
-	};
+    template<typename Query, typename Lambda>
+    void operator()(Query query, Lambda callback)
+    {
+      query_task<connection_pool, Query, Lambda>(*this, query, callback)();
+    }
 
-	template<typename Connection_config,
-		typename Connection_validator = connection_validator::automatic,
-		typename Connection = typename std::enable_if<std::is_class<Connection_config::connection>::value,Connection_config::connection>::type>
-	connection_pool<Connection_config, Connection_validator, Connection> make_connection_pool(
-		const std::shared_ptr<Connection_config>& config,
-		size_t max_pool_size)
-	{
-		return connection_pool<Connection_config, Connection_validator, Connection>(config, max_pool_size);
-	}
+    template<typename Query>
+    void operator()(Query query)
+    {
+      operator()(query, []() {});
+    }
+  };
+
+  template<typename Connection_config,
+    typename Connection_validator = connection_validator::automatic,
+    typename Connection = typename std::enable_if<std::is_class<Connection_config::connection>::value, Connection_config::connection>::type>
+  auto make_connection_pool(const std::shared_ptr<Connection_config>& config, size_t max_pool_size)
+    -> connection_pool<Connection_config, Connection_validator, Connection>
+  {
+    return connection_pool<Connection_config, Connection_validator, Connection>(config, max_pool_size);
+  }
 }
 
 #endif
