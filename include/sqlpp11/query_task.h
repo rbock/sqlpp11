@@ -37,104 +37,93 @@
 #include <type_traits>
 #include <system_error>
 
-#include <sqlpp11/error.h>
+#include <sqlpp11/type_traits.h>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/connection_pool.h>
 
 namespace sqlpp
 {
 
-	template<typename Connection_pool, typename Query, typename Lambda>
-	class query_task
-	{
-	private:
-		using Pool_connection = decltype((*((Connection_pool*)0)).get_connection());
-		using Result = decltype((*((Pool_connection*)0))(Query()));
+  template<typename Connection_pool, typename Query, typename Lambda>
+  class query_task
+  {
+    using Pool_connection = decltype((*((Connection_pool*)0)).get_connection());
+    using Result = decltype((*((Pool_connection*)0))(Query()));
 
-		template<class F, class...Args>
-		struct is_callable
-		{
-			template<class U> static auto test(U* p) -> decltype((*p)(std::declval<Args>()...), void(), std::true_type());
-			template<class U> static auto test(...) -> decltype(std::false_type());
+  public:
+    query_task(Connection_pool& p, Query& q, Lambda& cb) : pool(p), query(q), callback(cb) {}
 
-			typedef decltype(test<F>(0)) type;
-			static constexpr bool value = decltype(test<F>(0))::value;
-		};
+    void operator()()
+    {
+      Pool_connection connection;
+      try
+      {
+        connection = std::move(pool.get_connection());
+      }
+      catch (const sqlpp::exception& e)
+      {
+        impl(sqlpp::exception(sqlpp::exception::connection_error, e.what()), std::move(connection), Result(), callback);
+      }
 
-	public:
-		query_task(Connection_pool& p, Query& q, Lambda& cb) : pool(p), query(q), callback(cb) {}
+      try
+      {
+        impl(sqlpp::exception(sqlpp::exception::ok), std::move(connection), std::move(connection(query)), callback);
+      }
+      catch (const std::exception& e)
+      {
+        impl(sqlpp::exception(sqlpp::exception::query_error, e.what()), std::move(connection), Result(), callback);
+      }
+    }
 
-		void operator()()
-		{
-			Pool_connection connection;
-			try
-			{
-				connection = std::move(pool.get_connection());
-			}
-			catch (const sqlpp::exception& e)
-			{
-				impl(sqlpp::error(sqlpp::error::connection_error, e.what()), std::move(connection), Result(), callback);
-			}
+    template<typename Lambda, typename std::enable_if<!is_invocable<Lambda>::value &&
+      !is_invocable<Lambda, sqlpp::exception>::value &&
+      !is_invocable<Lambda, sqlpp::exception, Result>::value &&
+      !is_invocable<Lambda, sqlpp::exception, Result, Pool_connection>::value, int>::type = 0>
+    void impl(sqlpp::exception exception, Pool_connection connection, Result result, Lambda& callback)
+    {
+      static_assert(false, "Callback signature is incompatible. Refer to the wiki for further instructions.");
+    }
 
-			try
-			{
-				impl(sqlpp::error(sqlpp::error::ok), std::move(connection), std::move(connection(query)), callback);
-			}
-			catch (const std::exception& e)
-			{
-				impl(sqlpp::error(sqlpp::error::query_error, e.what()), std::move(connection), Result(), callback);
-			}
-		}
+    template<typename Lambda, typename std::enable_if<is_invocable<Lambda>::value, int>::type = 0>
+    void impl(sqlpp::exception exception, Pool_connection connection, Result result, Lambda& callback)
+    {
+      callback();
+    }
 
-		template<typename Lambda, typename std::enable_if<!is_callable<Lambda>::value &&
-			!is_callable<Lambda, sqlpp::error>::value &&
-			!is_callable<Lambda, sqlpp::error, Result>::value &&
-			!is_callable<Lambda, sqlpp::error, Result, Pool_connection>::value, int>::type = 0>
-			void impl(sqlpp::error error, Pool_connection connection, Result result, Lambda& callback)
-		{
-			static_assert(false, "Callback signature is incompatible. Refer to the wiki for further instructions.");
-		}
+    template<typename Lambda, typename std::enable_if<is_invocable<Lambda, sqlpp::exception>::value, int>::type = 0>
+    void impl(sqlpp::exception exception, Pool_connection connection, Result result, Lambda& callback)
+    {
+      callback(std::move(exception));
+    }
 
-		template<typename Lambda, typename std::enable_if<is_callable<Lambda>::value, int>::type = 0>
-		void impl(sqlpp::error error, Pool_connection connection, Result result, Lambda& callback)
-		{
-			callback();
-		}
+    template<typename Lambda, typename std::enable_if<is_invocable<Lambda, sqlpp::exception, Result>::value, int>::type = 0>
+    void impl(sqlpp::exception exception, Pool_connection connection, Result result, Lambda& callback)
+    {
+      callback(std::move(exception), std::move(result));
+    }
 
-		template<typename Lambda, typename std::enable_if<is_callable<Lambda, sqlpp::error>::value, int>::type = 0>
-		void impl(sqlpp::error error, Pool_connection connection, Result result, Lambda& callback)
-		{
-			callback(std::move(error));
-		}
+    template<typename Lambda, typename std::enable_if<is_invocable<Lambda, sqlpp::exception, Result, Pool_connection>::value, int>::type = 0>
+    void impl(sqlpp::exception exception, Pool_connection connection, Result result, Lambda& callback)
+    {
+      callback(std::move(exception), std::move(result), std::move(connection));
+    }
 
-		template<typename Lambda, typename std::enable_if<is_callable<Lambda, sqlpp::error, Result>::value, int>::type = 0>
-		void impl(sqlpp::error error, Pool_connection connection, Result result, Lambda& callback)
-		{
-			callback(std::move(error), std::move(result));
-		}
+    Connection_pool& pool;
+    Query query;
+    Lambda callback;
+  };
 
-		template<typename Lambda, typename std::enable_if<is_callable<Lambda, sqlpp::error, Result, Pool_connection>::value, int>::type = 0>
-		void impl(sqlpp::error error, Pool_connection connection, Result result, Lambda& callback)
-		{
-			callback(std::move(error), std::move(result), std::move(connection));
-		}
+  template<typename Connection_pool, typename Query, typename Lambda>
+  query_task<Connection_pool, Query, Lambda> make_query_task(Connection_pool& pool, Query& query, Lambda& lambda)
+  {
+    return query_task<Connection_pool, Query, Lambda>(pool, query, lambda);
+  }
 
-		Connection_pool& pool;
-		Query query;
-		Lambda callback;
-	};
-
-	template<typename Connection_pool, typename Query, typename Lambda>
-	query_task<Connection_pool, Query, Lambda> make_query_task(Connection_pool& pool, Query& query, Lambda& lambda)
-	{
-		return query_task<Connection_pool, Query, Lambda>(pool, query, lambda);
-	}
-
-	template<typename Connection_pool, typename Query, typename Lambda>
-	void async(Connection_pool& pool, Query& query, Lambda& callback)
-	{
-		std::async(std::launch::async, std::ref(pool), query, std::ref(callback));
-	}
+  template<typename Connection_pool, typename Query, typename Lambda>
+  void async(Connection_pool& pool, Query& query, Lambda& callback)
+  {
+    std::async(std::launch::async, std::ref(pool), query, std::ref(callback));
+  }
 }
 
 #endif
