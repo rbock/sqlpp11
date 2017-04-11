@@ -27,13 +27,14 @@
 #ifndef SQLPP_POOL_CONNECTION_H
 #define SQLPP_POOL_CONNECTION_H
 
+#include <sqlpp11/connection.h>
 #include <memory>
 
 namespace sqlpp
 {
 	template <typename Connection_config, typename Connection_validator, typename Connection,
 		typename Connection_pool = connection_pool<Connection_config, Connection_validator, Connection>>
-	struct pool_connection
+	struct pool_connection : public sqlpp::connection
 	{
 	private:
 		std::unique_ptr<Connection> _impl;
