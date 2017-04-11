@@ -45,6 +45,8 @@
 #include <sqlpp11/expression.h>
 #include <sqlpp11/wrong.h>
 
+#include <sqlpp11/type_traits.h>
+
 namespace sqlpp
 {
   struct select_name_t
@@ -95,18 +97,59 @@ namespace sqlpp
     return blank_select_t<void>().columns(columns...);
   }
 
-  template <typename Database>
-  blank_select_t<Database> dynamic_select(const Database&)
+  template <typename... Args>
+  blank_select_t<void> dynamic_select(Args& ...)
   {
-    static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
+    static_assert(false, "Invalid database parameter");
     return {};
   }
 
-  template <typename Database, typename... Columns>
-  auto dynamic_select(const Database&, Columns... columns) -> decltype(blank_select_t<Database>().columns(columns...))
+  template <template <typename, typename, typename, typename> typename Pool_connection, 
+    typename Connection_config, typename Connection_validator, typename Connection, typename Connection_pool, 
+    typename std::enable_if<std::is_class<Connection>::value, int>::type = 0>
+  blank_select_t<Connection> dynamic_select(const Pool_connection<Connection_config, Connection_validator, Connection, Connection_pool>&)
   {
-    static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
+    return {};
+  }
+
+  template <template <typename, typename, typename> typename Connection_pool, 
+    typename Connection_config, typename Connection_validator, typename Connection,
+    typename std::enable_if<std::is_class<Connection>::value, int>::type = 0>
+  blank_select_t<Connection> dynamic_select(const Connection_pool<Connection_config, Connection_validator, Connection>&)
+  {
+    return {};
+  }
+
+  template <typename Database>
+  blank_select_t<Database> dynamic_select(const Database&, typename std::enable_if<std::is_base_of<connection, Database>::value, int>::type = 0)
+  {
+    return {};
+  }
+
+  template <template <typename, typename, typename, typename> typename Pool_connection, typename... Columns,
+    typename Connection_config, typename Connection_validator, typename Connection, typename Connection_pool, 
+    typename std::enable_if<std::is_class<Connection>::value, int>::type = 0>
+  auto dynamic_select(const Pool_connection<Connection_config, Connection_validator, Connection, Connection_pool>&, Columns... columns)
+    -> decltype(blank_select_t<Connection>().columns(columns...))
+  {
     return blank_select_t<Database>().columns(columns...);
+  }
+
+  template <template <typename, typename, typename> typename Connection_pool, typename... Columns,
+    typename Connection_config, typename Connection_validator, typename Connection,
+    typename std::enable_if<std::is_class<Connection>::value, int>::type = 0>
+  auto dynamic_select(const Connection_pool<Connection_config, Connection_validator, Connection>&, Columns... columns)
+    -> decltype(blank_select_t<Connection>().columns(columns...))
+  {
+    return {};
+  }
+
+  template <typename Connection, typename... Columns>
+  auto dynamic_select(const Connection&, Columns... columns,
+    typename std::enable_if<std::is_base_of<connection, Connection>::value, int>::type = 0)
+    -> decltype(blank_select_t<Connection>().columns(columns...))
+  {
+    return {};
   }
 }
 #endif
