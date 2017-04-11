@@ -57,6 +57,18 @@ namespace sqlpp
       }
     }
 
+    pool_connection(const pool_connection&) = delete;
+    pool_connection(pool_connection&& other) : _impl(std::move(other._impl)), origin(other.origin)
+    {
+    }
+    pool_connection& operator=(const pool_connection&) = delete;
+    pool_connection& operator=(pool_connection&& other)
+    {
+      _impl = std::move(other._impl);
+      origin = other.origin;
+      return *this;
+    }
+
     template<typename... Args>
     auto operator()(Args&&... args) -> decltype(_impl->args(std::forward<Args>(args)...))
     {
@@ -81,16 +93,10 @@ namespace sqlpp
       return _impl->prepare(t);
     }
 
-    pool_connection(const pool_connection&) = delete;
-    pool_connection(pool_connection&& other) : _impl(std::move(other._impl)), origin(other.origin)
+    template<typename Query, typename Lambda>
+    void operator()(Query query, Lambda callback)
     {
-    }
-    pool_connection& operator=(const pool_connection&) = delete;
-    pool_connection& operator=(pool_connection&& other)
-    {
-      _impl = std::move(other._impl);
-      origin = other.origin;
-      return *this;
+      query_task<Connection_pool, Query, Lambda>(*origin, query, callback)();
     }
   };
 }
