@@ -38,7 +38,7 @@
 #include <type_traits>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/pool_connection.h>
-#include <sqlpp11/query_task.h>
+#include <sqlpp11/bind.h>
 
 namespace sqlpp
 {
@@ -131,7 +131,7 @@ namespace sqlpp
   template <typename Connection_config,
     typename Connection_validator = connection_validator::automatic,
     typename Connection = typename std::enable_if<std::is_class<Connection_config::connection>::value, Connection_config::connection>::type>
-  class connection_pool
+  class connection_pool_t
   {
     friend pool_connection<Connection_config, Connection_validator, Connection>;
 
@@ -164,15 +164,15 @@ namespace sqlpp
     }
 
   public:
-    connection_pool(const std::shared_ptr<Connection_config>& config, size_t pool_size)
+    connection_pool_t(const std::shared_ptr<Connection_config>& config, size_t pool_size)
       : config(config), maximum_pool_size(pool_size), connection_validator(Connection_validator()) {}
-    ~connection_pool() = default;
-    connection_pool(const connection_pool&) = delete;
-    connection_pool(connection_pool&& other)
+    ~connection_pool_t() = default;
+    connection_pool_t(const connection_pool_t&) = delete;
+    connection_pool_t(connection_pool_t&& other)
       : config(std::move(other.config)), maximum_pool_size(std::move(other.maximum_pool_size)),
       connection_validator(std::move(other.connection_validator)) {}
-    connection_pool& operator=(const connection_pool&) = delete;
-    connection_pool& operator=(connection_pool&&) = delete;
+    connection_pool_t& operator=(const connection_pool_t&) = delete;
+    connection_pool_t& operator=(connection_pool_t&&) = delete;
 
     auto get_connection()
       -> pool_connection<Connection_config, Connection_validator, Connection> 
@@ -214,7 +214,7 @@ namespace sqlpp
     template<typename Query, typename Lambda>
     void operator()(Query query, Lambda callback)
     {
-      query_task<connection_pool, Query, Lambda>(*this, query, callback)();
+      sqlpp::bind(*this, query, callback)();
     }
 
     template<typename Query>
@@ -227,10 +227,10 @@ namespace sqlpp
   template<typename Connection_config,
     typename Connection_validator = connection_validator::automatic,
     typename Connection = typename std::enable_if<std::is_class<Connection_config::connection>::value, Connection_config::connection>::type>
-  auto make_connection_pool(const std::shared_ptr<Connection_config>& config, size_t max_pool_size)
-    -> connection_pool<Connection_config, Connection_validator, Connection>
+  auto connection_pool(const std::shared_ptr<Connection_config>& config, size_t max_pool_size)
+    -> connection_pool_t<Connection_config, Connection_validator, Connection>
   {
-    return connection_pool<Connection_config, Connection_validator, Connection>(config, max_pool_size);
+    return connection_pool_t<Connection_config, Connection_validator, Connection>(config, max_pool_size);
   }
 }
 

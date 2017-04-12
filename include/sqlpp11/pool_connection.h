@@ -28,12 +28,13 @@
 #define SQLPP_POOL_CONNECTION_H
 
 #include <sqlpp11/connection.h>
+#include <sqlpp11/connection_pool.h>
 #include <memory>
 
 namespace sqlpp
 {
   template <typename Connection_config, typename Connection_validator, typename Connection,
-    typename Connection_pool = connection_pool<Connection_config, Connection_validator, Connection>>
+    typename Connection_pool = connection_pool_t<Connection_config, Connection_validator, Connection>>
   struct pool_connection : public sqlpp::connection
   {
   private:
@@ -57,6 +58,13 @@ namespace sqlpp
       }
     }
 
+    pool_connection(const pool_connection&) = delete;
+    pool_connection(pool_connection&& other) : _impl(std::move(other._impl)), origin(other.origin)
+    {
+    }
+    pool_connection& operator=(const pool_connection&) = delete;
+    pool_connection& operator=(pool_connection&& other) = default;
+
     template<typename... Args>
     auto operator()(Args&&... args) -> decltype(_impl->args(std::forward<Args>(args)...))
     {
@@ -79,18 +87,6 @@ namespace sqlpp
     auto prepare(const T& t) -> decltype(_impl->prepare(t))
     {
       return _impl->prepare(t);
-    }
-
-    pool_connection(const pool_connection&) = delete;
-    pool_connection(pool_connection&& other) : _impl(std::move(other._impl)), origin(other.origin)
-    {
-    }
-    pool_connection& operator=(const pool_connection&) = delete;
-    pool_connection& operator=(pool_connection&& other)
-    {
-      _impl = std::move(other._impl);
-      origin = other.origin;
-      return *this;
     }
   };
 }
