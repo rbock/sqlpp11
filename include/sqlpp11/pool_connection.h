@@ -29,6 +29,7 @@
 
 #include <sqlpp11/connection.h>
 #include <sqlpp11/connection_pool.h>
+#include <sqlpp11/type_traits.h>
 #include <memory>
 
 namespace sqlpp
@@ -87,6 +88,30 @@ namespace sqlpp
     auto prepare(const T& t) -> decltype(_impl->prepare(t))
     {
       return _impl->prepare(t);
+    }
+
+    template<typename Query, typename Lambda,
+      typename std::enable_if<is_invocable<Lambda>::value ||
+      is_invocable<Lambda, sqlpp::exception>::value ||
+      is_invocable<Lambda, sqlpp::exception, decltype(pool_connection()(Query()))>::value &&
+      !is_invocable<Lambda, sqlpp::exception, decltype(pool_connection()(Query())), pool_connection>::value, int>::type = 0>
+    void operator()(Query query, Lambda callback)
+    {
+        try
+      {
+        invoke_callback(sqlpp::exception(sqlpp::exception::ok), pool_connection(), std::move(operator()(query)), callback);
+      }
+      catch (const std::exception& e)
+      {
+        invoke_callback(sqlpp::exception(sqlpp::exception::query_error, e.what()), pool_connection(), decltype(pool_connection()(Query()))(), callback);
+      }
+    }
+
+    template<typename Query, typename Lambda,
+      typename std::enable_if<is_invocable<Lambda, sqlpp::exception, decltype(pool_connection()(Query())), pool_connection>::value, int>::type = 0>
+      void operator()(Query query, Lambda callback)
+    {
+      static_assert(false, "Direct query with pool connection forbids callback with parameter of type connection.");
     }
   };
 }
