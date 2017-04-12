@@ -44,7 +44,8 @@
 namespace sqlpp
 {
 
-  template<typename Pool_connection, typename Result, typename Lambda, typename std::enable_if<!is_invocable<Lambda>::value &&
+  template<typename Pool_connection, typename Result, typename Lambda,
+    typename std::enable_if<!is_invocable<Lambda>::value &&
     !is_invocable<Lambda, sqlpp::exception>::value &&
     !is_invocable<Lambda, sqlpp::exception, Result>::value &&
     !is_invocable<Lambda, sqlpp::exception, Result, Pool_connection>::value, int>::type = 0>
@@ -53,31 +54,36 @@ namespace sqlpp
     static_assert(false, "Callback signature is incompatible. Refer to the wiki for further instructions.");
   }
 
-  template<typename Pool_connection, typename Result, typename Lambda, typename std::enable_if<is_invocable<Lambda>::value, int>::type = 0>
+  template<typename Pool_connection, typename Result, typename Lambda,
+    typename std::enable_if<is_invocable<Lambda>::value, int>::type = 0>
   void invoke_callback(sqlpp::exception exception, Pool_connection connection, Result result, Lambda& callback)
   {
     callback();
   }
 
-  template<typename Pool_connection, typename Result, typename Lambda, typename std::enable_if<is_invocable<Lambda, sqlpp::exception>::value, int>::type = 0>
+  template<typename Pool_connection, typename Result, typename Lambda,
+    typename std::enable_if<is_invocable<Lambda, sqlpp::exception>::value, int>::type = 0>
   void invoke_callback(sqlpp::exception exception, Pool_connection connection, Result result, Lambda& callback)
   {
     callback(std::move(exception));
   }
 
-  template<typename Pool_connection, typename Result, typename Lambda, typename std::enable_if<is_invocable<Lambda, sqlpp::exception, Result>::value, int>::type = 0>
+  template<typename Pool_connection, typename Result, typename Lambda,
+    typename std::enable_if<is_invocable<Lambda, sqlpp::exception, Result>::value, int>::type = 0>
   void invoke_callback(sqlpp::exception exception, Pool_connection connection, Result result, Lambda& callback)
   {
     callback(std::move(exception), std::move(result));
   }
 
-  template<typename Pool_connection, typename Result, typename Lambda, typename std::enable_if<is_invocable<Lambda, sqlpp::exception, Result, Pool_connection>::value, int>::type = 0>
+  template<typename Pool_connection, typename Result, typename Lambda,
+    typename std::enable_if<is_invocable<Lambda, sqlpp::exception, Result, Pool_connection>::value, int>::type = 0>
   void invoke_callback(sqlpp::exception exception, Pool_connection connection, Result result, Lambda& callback)
   {
     callback(std::move(exception), std::move(result), std::move(connection));
   }
 
-  template<typename Database, typename Query, typename Lambda, typename std::enable_if<std::is_base_of<connection, Database>::value, int>::type = 0>
+  template<typename Database, typename Query, typename Lambda,
+    typename std::enable_if<std::is_base_of<connection, Database>::value, int>::type = 0>
   class bind_t_move
   {
   private:
@@ -90,7 +96,8 @@ namespace sqlpp
     {
     }
 
-    template<typename Database = Database, typename std::enable_if<std::is_base_of<connection, Database>::value, int>::type = 0>
+    template<typename Database = Database,
+      typename std::enable_if<std::is_base_of<connection, Database>::value, int>::type = 0>
     void operator()()
     {
       using Pool_connection = Database;
@@ -107,7 +114,8 @@ namespace sqlpp
     }
   };
 
-  template<typename Database, typename Query, typename Lambda, typename std::enable_if<!std::is_base_of<connection, Database>::value, int>::type = 0>
+  template<typename Database, typename Query, typename Lambda,
+    typename std::enable_if<!std::is_base_of<connection, Database>::value, int>::type = 0>
   class bind_t_ref
   {
   private:
