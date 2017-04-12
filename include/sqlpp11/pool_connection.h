@@ -34,8 +34,7 @@
 
 namespace sqlpp
 {
-  template <typename Connection_config, typename Connection_validator, typename Connection,
-    typename Connection_pool = connection_pool_t<Connection_config, Connection_validator, Connection>>
+  template <typename Connection_config, typename Connection_validator, typename Connection, typename Connection_pool>
   struct pool_connection : public sqlpp::connection
   {
   private:
@@ -90,11 +89,11 @@ namespace sqlpp
       return _impl->prepare(t);
     }
 
-    template<typename Query, typename Lambda,
+    template<typename Query, typename Lambda, typename Result = decltype(pool_connection()(Query())),
       typename std::enable_if<is_invocable<Lambda>::value ||
       is_invocable<Lambda, sqlpp::exception>::value ||
-      is_invocable<Lambda, sqlpp::exception, decltype(pool_connection()(Query()))>::value &&
-      !is_invocable<Lambda, sqlpp::exception, decltype(pool_connection()(Query())), pool_connection>::value, int>::type = 0>
+      is_invocable<Lambda, sqlpp::exception, Result>::value &&
+      !is_invocable<Lambda, sqlpp::exception, Result, pool_connection>::value, int>::type = 0>
     void operator()(Query query, Lambda callback)
     {
         try
@@ -103,12 +102,12 @@ namespace sqlpp
       }
       catch (const std::exception& e)
       {
-        invoke_callback(sqlpp::exception(sqlpp::exception::query_error, e.what()), pool_connection(), decltype(pool_connection()(Query()))(), callback);
+        invoke_callback(sqlpp::exception(sqlpp::exception::query_error, e.what()), pool_connection(), Result(), callback);
       }
     }
 
-    template<typename Query, typename Lambda,
-      typename std::enable_if<is_invocable<Lambda, sqlpp::exception, decltype(pool_connection()(Query())), pool_connection>::value, int>::type = 0>
+    template<typename Query, typename Lambda, typename Result = decltype(pool_connection()(Query())),
+      typename std::enable_if<is_invocable<Lambda, sqlpp::exception, Result, pool_connection>::value, int>::type = 0>
       void operator()(Query query, Lambda callback)
     {
       static_assert(false, "Direct query with pool connection forbids callback with parameter of type connection.");

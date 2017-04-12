@@ -133,8 +133,6 @@ namespace sqlpp
     typename Connection = typename std::enable_if<std::is_class<Connection_config::connection>::value, Connection_config::connection>::type>
   class connection_pool_t
   {
-    friend pool_connection<Connection_config, Connection_validator, Connection>;
-
   private:
     std::mutex connection_pool_mutex;
     const std::shared_ptr<Connection_config> config;
@@ -142,6 +140,55 @@ namespace sqlpp
     std::stack<std::unique_ptr<Connection>> free_connections;
     Connection_validator connection_validator;
 
+  public:
+    connection_pool_t(const std::shared_ptr<Connection_config>& config, size_t pool_size)
+      : config(config), maximum_pool_size(pool_size), connection_validator(Connection_validator()) {}
+    ~connection_pool_t() = default;
+    connection_pool_t(const connection_pool_t&) = delete;
+    connection_pool_t(connection_pool_t&& other)
+      : config(std::move(other.config)), maximum_pool_size(std::move(other.maximum_pool_size)),
+      connection_validator(std::move(other.connection_validator)) {}
+    connection_pool_t& operator=(const connection_pool_t&) = delete;
+    connection_pool_t& operator=(connection_pool_t&&) = delete;
+
+    template <typename Pool_connection = pool_connection<Connection_config, Connection_validator, Connection, connection_pool_t>>
+    auto get_connection()
+      -> Pool_connection
+    {
+      std::lock_guard<std::mutex> lock(connection_pool_mutex);
+      while (true)
+      {
+        try
+        {
+          if (!free_connections.empty())
+          {
+            auto connection = std::move(free_connections.top());
+            free_connections.pop();
+            connection_validator.validate(connection.get());
+
+            return Pool_connection(std::move(connection), this);
+          }
+          else
+          {
+            break;
+          }
+        }
+        catch (const sqlpp::exception&)
+        {
+          throw sqlpp::exception("Failed to retrieve a valid connection.");
+        }
+      }
+
+      try
+      {
+        return Pool_connection(std::move(std::make_unique<Connection>(config)), this);
+      }
+      catch (const sqlpp::exception&)
+      {
+        throw sqlpp::exception("Failed to spawn a new connection.");
+      }
+    }
+    
     void free_connection(std::unique_ptr<Connection>& connection)
     {
       std::lock_guard<std::mutex> lock(connection_pool_mutex);
@@ -160,54 +207,6 @@ namespace sqlpp
         {
           throw sqlpp::exception("Trying to free an empty connection.");
         }
-      }
-    }
-
-  public:
-    connection_pool_t(const std::shared_ptr<Connection_config>& config, size_t pool_size)
-      : config(config), maximum_pool_size(pool_size), connection_validator(Connection_validator()) {}
-    ~connection_pool_t() = default;
-    connection_pool_t(const connection_pool_t&) = delete;
-    connection_pool_t(connection_pool_t&& other)
-      : config(std::move(other.config)), maximum_pool_size(std::move(other.maximum_pool_size)),
-      connection_validator(std::move(other.connection_validator)) {}
-    connection_pool_t& operator=(const connection_pool_t&) = delete;
-    connection_pool_t& operator=(connection_pool_t&&) = delete;
-
-    auto get_connection()
-      -> pool_connection<Connection_config, Connection_validator, Connection> 
-    {
-      std::lock_guard<std::mutex> lock(connection_pool_mutex);
-      while (true)
-      {
-        try
-        {
-          if (!free_connections.empty())
-          {
-            auto connection = std::move(free_connections.top());
-            free_connections.pop();
-            connection_validator.validate(connection.get());
-
-            return pool_connection<Connection_config, Connection_validator, Connection>(std::move(connection), this);
-          }
-          else
-          {
-            break;
-          }
-        }
-        catch (const sqlpp::exception&)
-        {
-          throw sqlpp::exception("Failed to retrieve a valid connection.");
-        }
-      }
-
-      try
-      {
-        return pool_connection<Connection_config, Connection_validator, Connection>(std::move(std::make_unique<Connection>(config)), this);
-      }
-      catch (const sqlpp::exception&)
-      {
-        throw sqlpp::exception("Failed to spawn a new connection.");
       }
     }
 
