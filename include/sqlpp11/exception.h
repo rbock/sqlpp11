@@ -27,18 +27,64 @@
 #ifndef SQLPP_EXCEPTION_H
 #define SQLPP_EXCEPTION_H
 
-#include <stdexcept>
+#include <system_error>
 
 namespace sqlpp
 {
   class exception : public std::runtime_error
   {
+  private:
+    int code;
   public:
-    exception(const std::string& what_arg) : std::runtime_error(what_arg)
+    enum
+    {
+      ok = 0,
+      failed,
+      unknown,
+      connection_error,
+      query_error
+    };
+
+    exception() : std::runtime_error("No error"), code(sqlpp::exception::unknown)
     {
     }
-    exception(const char* what_arg) : std::runtime_error(what_arg)
+    exception(int code) : std::runtime_error("No error"), code(code)
     {
+    }
+    exception(int code, const std::string& what_arg) : std::runtime_error(what_arg), code(code)
+    {
+    }
+    exception(int code, const char* what_arg) : std::runtime_error(what_arg), code(code)
+    {
+    }
+    exception(const std::string& what_arg) : std::runtime_error(what_arg), code(sqlpp::exception::unknown)
+    {
+    }
+    exception(const char* what_arg) : std::runtime_error(what_arg), code(sqlpp::exception::unknown)
+    {
+    }
+    exception(const exception& other) : std::runtime_error(other), code(other.code)
+    {
+    }
+
+    operator bool() const
+    {
+      return code != 0;
+    }
+
+    bool operator!() const
+    {
+      return code == 0;
+    }
+
+    bool operator==(const exception& other) const
+    {
+      return code == other.code;
+    }
+
+    bool operator!=(const exception& other) const
+    {
+      return !operator==(other);
     }
   };
 }
