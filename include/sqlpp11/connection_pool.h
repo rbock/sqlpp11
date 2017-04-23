@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2013 - 2017, Roland Bock, Frank Park
+* Copyright (c) 2013 - 2017, Roland Bock, Frank Park, Aaron Bishop
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without modification,
@@ -35,10 +35,12 @@
 #include <memory>
 #include <iostream>
 #include <chrono>
+#include <exception>
+#include <future>
 #include <type_traits>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/pool_connection.h>
-#include <sqlpp11/bind.h>
+#include <sqlpp11/future.h>
 
 namespace sqlpp
 {
@@ -63,10 +65,9 @@ namespace sqlpp
       }
 
       template<typename Connection>
-      void deregister(Connection* connection) {}
+      void deregister(Connection*) {}
     };
 
-    using namespace std::chrono_literals;
     class periodic
     {
     private:
@@ -74,7 +75,7 @@ namespace sqlpp
       std::unordered_map<void*, std::chrono::time_point<std::chrono::system_clock>> last_checked;
 
     public:
-      periodic(const std::chrono::seconds r = 28800s) //default wait_timeout in MySQL
+      periodic(const std::chrono::seconds r = std::chrono::seconds(28800)) //default wait_timeout in MySQL
         : revalidate_interval(r), last_checked() {}
 
       template<typename Connection>
@@ -128,10 +129,18 @@ namespace sqlpp
     };
   }
 
-  template <typename Connection_config,
+  template<typename Connection_config, typename Connection_validator = connection_validator::automatic,
+    typename Connection = typename std::enable_if<std::is_class<typename Connection_config::connection>::value, typename Connection_config::connection>::type,
+    typename Connection_pool = connection_pool<Connection, Connection_validator, Connection_config>>
+  Connection_pool make_connection_pool(const std::shared_ptr<Connection_config>& config, size_t max_pool_size)
+  {
+    return Connection_pool(config, max_pool_size);
+  }
+
+  template <typename Connection,
     typename Connection_validator = connection_validator::automatic,
-    typename Connection = typename std::enable_if<std::is_class<Connection_config::connection>::value, Connection_config::connection>::type>
-  class connection_pool_t
+    typename Connection_config = typename std::enable_if<std::is_class<typename Connection::connection_config>::value, typename Connection::connection_config>::type>
+  class connection_pool
   {
   private:
     std::mutex connection_pool_mutex;
@@ -141,19 +150,18 @@ namespace sqlpp
     Connection_validator connection_validator;
 
   public:
-    connection_pool_t(const std::shared_ptr<Connection_config>& config, size_t pool_size)
+    connection_pool(const std::shared_ptr<Connection_config>& config, size_t pool_size)
       : config(config), maximum_pool_size(pool_size), connection_validator(Connection_validator()) {}
-    ~connection_pool_t() = default;
-    connection_pool_t(const connection_pool_t&) = delete;
-    connection_pool_t(connection_pool_t&& other)
+    ~connection_pool() = default;
+    connection_pool(const connection_pool&) = delete;
+    connection_pool(connection_pool&& other)
       : config(std::move(other.config)), maximum_pool_size(std::move(other.maximum_pool_size)),
       connection_validator(std::move(other.connection_validator)) {}
-    connection_pool_t& operator=(const connection_pool_t&) = delete;
-    connection_pool_t& operator=(connection_pool_t&&) = delete;
+    connection_pool& operator=(const connection_pool&) = delete;
+    connection_pool& operator=(connection_pool&&) = delete;
 
-    template <typename Pool_connection = pool_connection<Connection_config, Connection_validator, Connection, connection_pool_t>>
-    auto get_connection()
-      -> Pool_connection
+    template <typename Pool_connection = pool_connection<Connection_config, Connection_validator, Connection, connection_pool>>
+    Pool_connection get_connection()
     {
       std::lock_guard<std::mutex> lock(connection_pool_mutex);
       while (true)
@@ -209,28 +217,7 @@ namespace sqlpp
         }
       }
     }
-
-    template<typename Query, typename Lambda>
-    void operator()(Query query, Lambda callback)
-    {
-      sqlpp::bind(*this, query, callback)();
-    }
-
-    template<typename Query>
-    void operator()(Query query)
-    {
-      operator()(query, []() {});
-    }
   };
-
-  template<typename Connection_config,
-    typename Connection_validator = connection_validator::automatic,
-    typename Connection = typename std::enable_if<std::is_class<Connection_config::connection>::value, Connection_config::connection>::type>
-  auto connection_pool(const std::shared_ptr<Connection_config>& config, size_t max_pool_size)
-    -> connection_pool_t<Connection_config, Connection_validator, Connection>
-  {
-    return connection_pool_t<Connection_config, Connection_validator, Connection>(config, max_pool_size);
-  }
 }
 
 #endif

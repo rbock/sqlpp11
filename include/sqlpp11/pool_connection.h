@@ -27,14 +27,16 @@
 #ifndef SQLPP_POOL_CONNECTION_H
 #define SQLPP_POOL_CONNECTION_H
 
-#include <sqlpp11/connection.h>
-#include <sqlpp11/connection_pool.h>
 #include <sqlpp11/type_traits.h>
 #include <memory>
 
 namespace sqlpp
 {
-  template <typename Connection_config, typename Connection_validator, typename Connection, typename Connection_pool>
+  template <typename Connection_config, typename Connection_validator, typename Connection>
+  class connection_pool;
+
+  template <typename Connection_config, typename Connection_validator, typename Connection,
+    typename Connection_pool = connection_pool<Connection_config, Connection_validator, Connection>>
   struct pool_connection : public sqlpp::connection
   {
   private:
@@ -42,24 +44,25 @@ namespace sqlpp
     Connection_pool* origin;
 
   public:
+
     pool_connection() : _impl(nullptr), origin(nullptr)
     {
     }
 
-    pool_connection(std::unique_ptr<Connection>& connection, Connection_pool* origin) : _impl(std::move(connection)), origin(origin)
+    pool_connection(std::unique_ptr<Connection>&& connection, Connection_pool* origin) : _impl(std::move(connection)), origin(origin)
     {
     }
 
     ~pool_connection()
     {
-      if (_impl.get())
+      if (_impl.get() && origin)
       {
         origin->free_connection(_impl);
       }
     }
 
     pool_connection(const pool_connection&) = delete;
-    pool_connection(pool_connection&& other) : _impl(std::move(other._impl)), origin(other.origin)
+    pool_connection(pool_connection&& other) : _impl(std::move(other._impl)), origin(std::move(other.origin))
     {
     }
     pool_connection& operator=(const pool_connection&) = delete;
@@ -68,13 +71,13 @@ namespace sqlpp
     template<typename... Args>
     auto operator()(Args&&... args) -> decltype(_impl->args(std::forward<Args>(args)...))
     {
-      return _impl->args(std::forward<Args>(args)...);
+      return (*_impl)(std::forward<Args>(args)...);
     }
 
     template <typename T>
-    auto operator()(const T& t) -> decltype(_impl->run(t))
+    auto operator()(const T& t) -> decltype((*_impl)(t))
     {
-      return _impl->run(t);
+      return (*_impl)(t);
     }
 
     template <typename T>
@@ -87,30 +90,6 @@ namespace sqlpp
     auto prepare(const T& t) -> decltype(_impl->prepare(t))
     {
       return _impl->prepare(t);
-    }
-
-    template<typename Query, typename Lambda, typename Result = decltype(pool_connection()(Query())),
-      typename std::enable_if<is_invocable<Lambda>::value ||
-      is_invocable<Lambda, sqlpp::exception>::value ||
-      is_invocable<Lambda, sqlpp::exception, Result>::value &&
-      !is_invocable<Lambda, sqlpp::exception, Result, pool_connection>::value, int>::type = 0>
-    void operator()(Query query, Lambda callback)
-    {
-        try
-      {
-        invoke_callback(sqlpp::exception(sqlpp::exception::ok), pool_connection(), std::move(operator()(query)), callback);
-      }
-      catch (const std::exception& e)
-      {
-        invoke_callback(sqlpp::exception(sqlpp::exception::query_error, e.what()), pool_connection(), Result(), callback);
-      }
-    }
-
-    template<typename Query, typename Lambda, typename Result = decltype(pool_connection()(Query())),
-      typename std::enable_if<is_invocable<Lambda, sqlpp::exception, Result, pool_connection>::value, int>::type = 0>
-      void operator()(Query query, Lambda callback)
-    {
-      static_assert(false, "Direct query with pool connection forbids callback with parameter of type connection.");
     }
   };
 }
