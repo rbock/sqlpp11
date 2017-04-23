@@ -545,7 +545,7 @@ namespace sqlpp
   };
 
   template<typename F, typename... Args>
-  constexpr bool is_invocable_v = typename is_invocable<F, Args...>::value;
+  constexpr bool is_invocable_v = is_invocable<F, Args...>::value;
 }
 
 #endif
