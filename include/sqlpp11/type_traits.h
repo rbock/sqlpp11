@@ -543,9 +543,6 @@ namespace sqlpp
     typedef decltype(test<F>(0)) type;
     static constexpr bool value = decltype(test<F>(0))::value;
   };
-
-  template<typename F, typename... Args>
-  constexpr bool is_invocable_v = is_invocable<F, Args...>::value;
 }
 
 #endif

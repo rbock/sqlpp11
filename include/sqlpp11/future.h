@@ -145,22 +145,22 @@ namespace sqlpp
     std::future<Result> result_future;
 
     template<typename Callback, typename Future,
-      typename std::enable_if<!is_invocable_v<Callback> &&
-      !is_invocable_v<Callback, Future>, int>::type = 0>
+      typename std::enable_if<!is_invocable<Callback>::value &&
+      !is_invocable<Callback, Future>::value, int>::type = 0>
       void invoke_callback(Callback& cb, Future&& f)
     {
       static_assert(false, "Callback signature is incompatible. Refer to the wiki for further instructions.");
     }
 
     template<typename Callback, typename Future,
-      typename std::enable_if<is_invocable_v<Callback>, int>::type = 0>
+      typename std::enable_if<is_invocable<Callback>::value, int>::type = 0>
       void invoke_callback(Callback& cb, Future&& f)
     {
       callback();
     }
 
     template<typename Callback, typename Future,
-      typename std::enable_if<is_invocable_v<Callback, Future>, int>::type = 0>
+      typename std::enable_if<is_invocable<Callback, Future>::value, int>::type = 0>
       void invoke_callback(Callback& cb, Future&& f)
     {
       callback(std::move(f));
