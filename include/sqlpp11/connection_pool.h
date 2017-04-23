@@ -40,7 +40,6 @@
 #include <type_traits>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/pool_connection.h>
-#include <sqlpp11/future.h>
 
 namespace sqlpp
 {
