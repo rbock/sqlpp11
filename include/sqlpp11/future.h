@@ -207,12 +207,7 @@ namespace sqlpp
     using Task = sqlpp::async_query_task<Connection_pool, Query, decltype(lambda)>;
     auto async_query_task = std::make_shared<Task>(pool, query, lambda);
 
-    auto execute_task = [=](auto task)
-    {
-      task->operator()();
-    };
-
-    sqlpp::impl::thread_pool.enqueue(execute_task, async_query_task);
+    sqlpp::impl::thread_pool.emplace(async_query_task);
 
     return async_query_task->get_future();
   }
@@ -223,12 +218,7 @@ namespace sqlpp
     using Task = sqlpp::async_query_task<Connection_pool, Query, Callback>;
     auto async_query_task = std::make_shared<Task>(pool, query, callback);
 
-    auto execute_task = [=](auto task)
-    {
-      task->operator()();
-    };
-
-    sqlpp::impl::thread_pool.enqueue(execute_task, async_query_task);
+    sqlpp::impl::thread_pool.emplace(async_query_task);
     
     return async_query_task->get_future();
   }

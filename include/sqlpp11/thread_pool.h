@@ -40,6 +40,8 @@
 #include <stdexcept>
 #include <atomic>
 
+#include <sqlpp11/future.h>
+
 namespace sqlpp
 {
   class thread_pool
@@ -49,11 +51,15 @@ namespace sqlpp
     thread_pool(size_t);
     ~thread_pool();
 
-    void spawn_thread(size_t count);
+    void spawn_worker_thread(size_t count);
 
     template<class F, class... Args>
     auto enqueue(F&& f, Args&&... args)
-      ->std::future<typename std::result_of<F(Args...)>::type>;
+      -> std::future<typename std::result_of<F(Args...)>::type>;
+
+    template<class Task>
+    void thread_pool::emplace(std::shared_ptr<Task> task);
+
   private:
     std::vector<std::thread> workers;
     std::queue<std::function<void()>> tasks;
@@ -72,7 +78,7 @@ namespace sqlpp
   inline thread_pool::thread_pool() : stop(false), free_worker_count(0) {}
   inline thread_pool::thread_pool(size_t thread_count) : stop(false), free_worker_count(0)
   {
-    spawn_thread(thread_count);
+    spawn_worker_thread(thread_count);
   }
 
   // the destructor joins all threads
@@ -89,7 +95,7 @@ namespace sqlpp
     }
   }
 
-  void thread_pool::spawn_thread(size_t thread_count = 1)
+  void thread_pool::spawn_worker_thread(size_t thread_count = 1)
   {
     for (size_t i = 0; i < thread_count; ++i)
     {
@@ -137,7 +143,7 @@ namespace sqlpp
 
     if (free_worker_count.load() == 0)
     {
-      spawn_thread();
+      spawn_worker_thread(1);
     }
 
     {
@@ -153,6 +159,31 @@ namespace sqlpp
 
     condition.notify_one();
     return result;
+  }
+
+  // add pre-allocated task item to the pool
+  template<class Task>
+  void thread_pool::emplace(std::shared_ptr<Task> task)
+  {
+    using return_type = typename std::result_of<Task()>::type;
+
+    if (free_worker_count.load() == 0)
+    {
+      spawn_worker_thread(1);
+    }
+
+    {
+      std::unique_lock<std::mutex> lock(queue_mutex);
+
+      if (stop)
+      {
+        throw std::runtime_error("cannot enqueue on a stopped thread_pool");
+      }
+
+      tasks.emplace([task]() { (*task)(); });
+    }
+
+    condition.notify_one();
   }
 }
 
