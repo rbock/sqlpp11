@@ -36,7 +36,6 @@
 
 namespace sqlpp
 {
-
   template<typename Connection_pool, typename Query, typename Callback>
   struct async_query_task;
 
@@ -51,8 +50,9 @@ namespace sqlpp
 
     std::shared_ptr<Task> async_query_task;
 
-    std::future<Pool_connection>& connection_future;
-    std::future<Result>& result_future;
+    Pool_connection& connection;
+    Result& result;
+    std::future<void>& future;
 
     template<typename T>
     bool is_ready(std::future<T> const& f)
@@ -63,42 +63,34 @@ namespace sqlpp
   public:
     async_query_future(std::shared_ptr<Task>&& task)
       : async_query_task(std::move(task)),
-      connection_future(async_query_task->connection_future),
-      result_future(async_query_task->result_future)
+      connection(async_query_task->connection),
+      result(async_query_task->result),
+      future(async_query_task->future)
     {
     }
 
     async_query_future(async_query_future&& other)
       : async_query_task(std::move(other.async_query_task)),
-      connection_future(std::move(other.connection_future)),
-      result_future(std::move(other.result_future))
-    {
+      connection(std::move(other.connection)),
+      result(std::move(other.result)),
+      future(std::move(other.future))
+      {
     }
 
     ~async_query_future()
     {
     }
 
-    auto get_connection_future()
+    auto& get_connection()
     {
-      return connection_future;
-    }
-
-    auto get_result_future()
-    {
-      return result_future;
-    }
-
-    auto get_connection()
-    {
-      if (!connection_future.valid())
+      if (!future.valid())
       {
         throw sqlpp::exception("Invalid connection_future or result has already been retrieved.");
       }
 
-      if (is_ready(connection_future))
+      if (is_ready(future))
       {
-        return connection_future.get();
+        return connection;
       }
       else
       {
@@ -106,16 +98,16 @@ namespace sqlpp
       }
     }
 
-    auto get_result()
+    auto& get_result()
     {
-      if (!result_future.valid())
+      if (!future.valid())
       {
         throw sqlpp::exception("Invalid result_future or result has already been retrieved.");
       }
 
-      if (is_ready(result_future))
+      if (is_ready(future))
       {
-        return result_future.get();
+        return result;
       }
       else
       {
@@ -138,11 +130,11 @@ namespace sqlpp
     Query query;
     Callback callback;
 
-    std::promise<Pool_connection> connection_promise;
-    std::promise<Result> result_promise;
+    Pool_connection connection;
+    Result result;
 
-    std::future<Pool_connection> connection_future;
-    std::future<Result> result_future;
+    std::promise<void> promise;
+    std::future<void> future;
 
     template<typename Callback, typename Future,
       typename std::enable_if<!is_invocable<Callback>::value &&
@@ -166,10 +158,8 @@ namespace sqlpp
       callback(std::move(f));
     }
   public:
-    async_query_task(Connection_pool&& pool, Query&& query, Callback& callback)
-      : pool(pool), query(query), callback(callback),
-      connection_future(connection_promise.get_future()),
-      result_future(result_promise.get_future())
+    async_query_task(Connection_pool& pool, Query&& query, Callback&& callback)
+      : pool(pool), query(query), callback(callback), future(promise.get_future())
     {
     }
 
@@ -186,26 +176,24 @@ namespace sqlpp
     {
       try
       {
-        auto connection = pool.get_connection();
-        auto result = connection(query);
-        connection_promise.set_value(std::move(connection));
-        result_promise.set_value(std::move(result));
+        connection = pool.get_connection();
+        result = connection(query);
+        promise.set_value();
         invoke_callback(callback, get_future());
       }
       catch (sqlpp::exception e)
       {
-        connection_promise.set_exception(std::current_exception());
-        result_promise.set_exception(std::current_exception());
+        promise.set_exception(std::current_exception());
       }
     }
   };
 
   template<typename Connection_pool, typename Query>
-  auto async(Connection_pool&& pool, Query&& query)
+  auto async(Connection_pool& pool, Query&& query)
   {
     auto lambda = [] {};
     using Task = sqlpp::async_query_task<Connection_pool, Query, decltype(lambda)>;
-    auto async_query_task = std::make_shared<Task>(pool, query, lambda);
+    auto async_query_task = std::make_shared<Task>(pool, query, std::move(lambda));
 
     sqlpp::impl::thread_pool.emplace(async_query_task);
 
@@ -213,7 +201,7 @@ namespace sqlpp
   }
 
   template<typename Connection_pool, typename Query, typename Callback>
-  auto async(Connection_pool&& pool, Query&& query, Callback& callback)
+  auto async(Connection_pool& pool, Query&& query, Callback&& callback)
   {
     using Task = sqlpp::async_query_task<Connection_pool, Query, Callback>;
     auto async_query_task = std::make_shared<Task>(pool, query, callback);
@@ -224,16 +212,16 @@ namespace sqlpp
   }
 
   template<typename Connection_pool, typename Query>
-  auto deferred(Connection_pool&& pool, Query&& query)
+  auto deferred(Connection_pool& pool, Query&& query)
   {
     auto lambda = [] {};
     using Task = sqlpp::async_query_task<Connection_pool, Query, decltype(lambda)>;
-    auto async_query_task = std::make_shared<Task>(pool, query, lambda);
+    auto async_query_task = std::make_shared<Task>(pool, query, std::move(lambda));
     return async_query_task->get_future();
   }
 
   template<typename Connection_pool, typename Query, typename Callback>
-  auto deferred(Connection_pool&& pool, Query&& query, Callback& callback)
+  auto deferred(Connection_pool& pool, Query&& query, Callback&& callback)
   {
     using Task = sqlpp::async_query_task<Connection_pool, Query, Callback>;
     auto async_query_task = std::make_shared<Task>(pool, query, callback);
