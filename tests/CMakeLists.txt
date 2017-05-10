@@ -47,6 +47,13 @@ set(test_names
   With
   )
 
+find_package(Boost 1.50)
+if(Boost_FOUND)
+  include_directories(${Boost_INCLUDE_DIRS})
+  list(APPEND test_names Ppgen)
+endif()
+
+
 create_test_sourcelist(test_sources test_main.cpp ${test_names})
 add_executable(sqlpp11_tests ${test_sources})
 target_link_libraries(sqlpp11_tests PRIVATE sqlpp11 sqlpp11_testing)
