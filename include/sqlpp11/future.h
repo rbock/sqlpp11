@@ -171,8 +171,7 @@ namespace sqlpp
   template<typename Connection_pool, typename Query>
   auto async(Connection_pool& pool, Query&& query)
   {
-    auto lambda = []
-    {};
+    auto lambda = [] {};
     using Task = sqlpp::async_query_task<Connection_pool, Query, decltype(lambda)>;
     auto async_query_task = std::make_shared<Task>(pool, query, std::move(lambda));
 
@@ -195,18 +194,9 @@ namespace sqlpp
   template<typename Connection_pool, typename Query>
   auto deferred(Connection_pool& pool, Query&& query)
   {
-    auto lambda = []
-    {};
+    auto lambda = [] {};
     using Task = sqlpp::async_query_task<Connection_pool, Query, decltype(lambda)>;
     auto async_query_task = std::make_shared<Task>(pool, query, std::move(lambda));
-    return async_query_task->get_future();
-  }
-
-  template<typename Connection_pool, typename Query, typename Callback>
-  auto deferred(Connection_pool& pool, Query&& query, Callback&& callback)
-  {
-    using Task = sqlpp::async_query_task<Connection_pool, Query, Callback>;
-    auto async_query_task = std::make_shared<Task>(pool, query, callback);
     return async_query_task->get_future();
   }
 }
