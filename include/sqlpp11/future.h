@@ -159,12 +159,13 @@ namespace sqlpp
         connection = pool.get_connection();
         result = connection(query);
         query_exception_ptr = nullptr;
-        invoke_callback(callback, get_future());
       }
       catch (sqlpp::exception e)
       {
         query_exception_ptr = std::current_exception();
       }
+
+      invoke_callback(callback, get_future());
     }
   };
 

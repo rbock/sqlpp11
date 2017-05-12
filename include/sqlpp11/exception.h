@@ -1,92 +1,46 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- *
- *   Redistributions of source code must retain the above copyright notice, this
- *   list of conditions and the following disclaimer.
- *
- *   Redistributions in binary form must reproduce the above copyright notice, this
- *   list of conditions and the following disclaimer in the documentation and/or
- *   other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+* Copyright (c) 2013-2015, Roland Bock
+* All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without modification,
+* are permitted provided that the following conditions are met:
+*
+*   Redistributions of source code must retain the above copyright notice, this
+*   list of conditions and the following disclaimer.
+*
+*   Redistributions in binary form must reproduce the above copyright notice, this
+*   list of conditions and the following disclaimer in the documentation and/or
+*   other materials provided with the distribution.
+*
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+* ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 
 #ifndef SQLPP_EXCEPTION_H
 #define SQLPP_EXCEPTION_H
 
-#include <system_error>
+#include <stdexcept>
 
 namespace sqlpp
 {
-  class exception : public std::runtime_error
-  {
-  private:
-    int code;
-  public:
-    enum
-    {
-      ok = 0,
-      failed,
-      unknown,
-      connection_error,
-      query_error
-    };
-
-    exception() : std::runtime_error("No error"), code(sqlpp::exception::unknown)
-    {
-    }
-    exception(int code) : std::runtime_error("No error"), code(code)
-    {
-    }
-    exception(int code, const std::string& what_arg) : std::runtime_error(what_arg), code(code)
-    {
-    }
-    exception(int code, const char* what_arg) : std::runtime_error(what_arg), code(code)
-    {
-    }
-    exception(const std::string& what_arg) : std::runtime_error(what_arg), code(sqlpp::exception::unknown)
-    {
-    }
-    exception(const char* what_arg) : std::runtime_error(what_arg), code(sqlpp::exception::unknown)
-    {
-    }
-    exception(const exception& other) : std::runtime_error(other), code(other.code)
-    {
-    }
-
-    operator bool() const
-    {
-      return code != 0;
-    }
-
-    bool operator!() const
-    {
-      return code == 0;
-    }
-
-    bool operator==(const exception& other) const
-    {
-      return code == other.code;
-    }
-
-    bool operator!=(const exception& other) const
-    {
-      return !operator==(other);
-    }
-  };
+	class exception : public std::runtime_error
+	{
+	public:
+		exception(const std::string& what_arg) : std::runtime_error(what_arg)
+		{
+		}
+		exception(const char* what_arg) : std::runtime_error(what_arg)
+		{
+		}
+	};
 }
 
 #endif
