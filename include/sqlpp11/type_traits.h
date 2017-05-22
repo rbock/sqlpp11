@@ -543,6 +543,20 @@ namespace sqlpp
     typedef decltype(test<F>(0)) type;
     static constexpr bool value = decltype(test<F>(0))::value;
   };
+
+  template<class F, class... ArgTypes>
+#if __cplusplus > 201402L
+  using invoke_result = std::invoke_result<F, ArgTypes...>;
+#else
+  using invoke_result = std::result_of<F(ArgTypes...)>;
+#endif
+
+  template<class F, class... ArgTypes>
+  using invoke_result_t = typename invoke_result<F,ArgTypes...>::type;
+
+  template<class F, class... ArgTypes>
+  using invoke_result_t = typename invoke_result<F,ArgTypes...>::type;
+  
 }
 
 #endif
