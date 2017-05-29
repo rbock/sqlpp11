@@ -29,6 +29,7 @@
 
 #include <string>
 #include <sqlpp11/connection.h>
+#include <sqlpp11/transaction.h>
 #include <sqlpp11/database/char_result.h>  // You may use char result or bind result or both
 #include <sqlpp11/database/bind_result.h>  // to represent results of select and prepared select
 
@@ -130,7 +131,7 @@ namespace sqlpp
       }
 
       //! start transaction
-      void start_transaction();
+      void start_transaction(isolation_level isolation = isolation_level::undefined);
 
       //! commit transaction (or throw transaction if the transaction has been finished already)
       void commit_transaction();

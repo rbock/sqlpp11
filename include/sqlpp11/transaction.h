@@ -34,6 +34,14 @@ namespace sqlpp
   static constexpr bool quiet_auto_rollback = false;
   static constexpr bool report_auto_rollback = true;
 
+  enum class isolation_level {
+      undefined,            // use the current database default
+      serializable,         // highest level, stronguest guarantee
+      repeatable_read,      // DBMS holds read and write locks
+      read_committed,       // DMBS holds read locks, non-repeatable reads can occur
+      read_uncommitted      // lowest isolation level, dirty reads may occur
+  };
+
   template <typename Db>
   class transaction_t
   {
@@ -46,6 +54,12 @@ namespace sqlpp
         : _db(db), _report_unfinished_transaction(report_unfinished_transaction)
     {
       _db.start_transaction();
+    }
+
+    transaction_t(Db& db, bool report_unfinished_transaction, isolation_level isolation)
+        : _db(db), _report_unfinished_transaction(report_unfinished_transaction)
+    {
+      _db.start_transaction(isolation);
     }
 
     transaction_t(const transaction_t&) = delete;
@@ -86,9 +100,22 @@ namespace sqlpp
   };
 
   template <typename Db>
-  transaction_t<Db> start_transaction(Db& db, bool report_unfinished_transaction = report_auto_rollback)
+  transaction_t<Db> start_transaction(Db& db, bool report_unfinished_transaction)
   {
-    return {db, report_unfinished_transaction};
+      return {db, report_unfinished_transaction};
+  }
+
+  template <typename Db>
+  transaction_t<Db> start_transaction(Db& db, bool report_unfinished_transaction = report_auto_rollback,
+                                      isolation_level isolation = isolation_level::undefined)
+  {
+    return {db, report_unfinished_transaction, isolation};
+  }
+
+  template <typename Db>
+  transaction_t<Db> start_transaction(Db& db, isolation_level isolation, bool report_unfinished_transaction = report_auto_rollback)
+  {
+    return {db, report_unfinished_transaction, isolation};
   }
 }
 
