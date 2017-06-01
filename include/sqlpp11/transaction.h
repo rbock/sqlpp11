@@ -28,6 +28,7 @@
 #define SQLPP_TRANSACTION_H
 
 #include <stdexcept>
+#include <ciso646>
 
 namespace sqlpp
 {
@@ -69,7 +70,7 @@ namespace sqlpp
 
     ~transaction_t()
     {
-      if (!_finished)
+      if (not _finished)
       {
         try
         {
