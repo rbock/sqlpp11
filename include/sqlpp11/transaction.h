@@ -69,7 +69,7 @@ namespace sqlpp
 
     ~transaction_t()
     {
-      if (not _finished)
+      if (!_finished)
       {
         try
         {
