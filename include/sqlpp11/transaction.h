@@ -100,16 +100,9 @@ namespace sqlpp
   };
 
   template <typename Db>
-  transaction_t<Db> start_transaction(Db& db, bool report_unfinished_transaction)
+  transaction_t<Db> start_transaction(Db& db, bool report_unfinished_transaction = report_auto_rollback)
   {
       return {db, report_unfinished_transaction};
-  }
-
-  template <typename Db>
-  transaction_t<Db> start_transaction(Db& db, bool report_unfinished_transaction = report_auto_rollback,
-                                      isolation_level isolation = isolation_level::undefined)
-  {
-    return {db, report_unfinished_transaction, isolation};
   }
 
   template <typename Db>

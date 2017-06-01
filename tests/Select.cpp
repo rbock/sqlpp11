@@ -183,7 +183,7 @@ int Select(int, char* [])
     for_each_field(row, to_cerr{});
   }
 
-  auto transaction = start_transaction(db, sqlpp::report_auto_rollback, sqlpp::isolation_level::read_committed);
+  auto transaction = start_transaction(db, sqlpp::isolation_level::read_committed);
   std::cout << (db._current_isolation_level == sqlpp::isolation_level::read_committed) << std::endl;
   
   return 0;
