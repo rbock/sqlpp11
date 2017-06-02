@@ -112,6 +112,7 @@ optionalArgs = {
     # '-no-time-stamp-warning'  # timeStampWarning = False
     '-fail-on-parse': "abort instead of silent genereation of unusable headers",  # failOnParse = True
     '-warn-on-parse': "warn about unusable headers, but continue",  # warnOnParse = True
+    '-auto-id': "Assume column 'id' to have an automatic value as if AUTO_INCREMENT was specified (e.g. implicit for SQLite ROWID)",  # autoId = True
     '-help': "show this help"
 }
 
@@ -127,6 +128,7 @@ timestampWarning = True
 failOnParse = False
 warnOnParse = False
 parseError = "Parsing error, possible reason: can't parse default value for a field"
+autoId = False
 
 
 if len(sys.argv) >= 4:
@@ -301,6 +303,7 @@ for create in tableCreations:
             print ('Error: datatype "'  + sqlColumnType + '"" is not supported.')
             DataTypeError = True
         requireInsert = True
+        column.hasAutoValue = column.hasAutoValue or (autoId and sqlColumnName == 'id')
         if column.hasAutoValue:
             traitslist.append(NAMESPACE + '::tag::must_not_insert')
             traitslist.append(NAMESPACE + '::tag::must_not_update')
