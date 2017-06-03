@@ -35,6 +35,11 @@
 #include <sqlpp11/serializer_context.h>
 #include <sstream>
 
+// an object to store internal Mock flags and values to validate in tests
+struct InternalMockData {
+    sqlpp::isolation_level _last_isolation_level;
+};
+
 template <bool enforceNullResultTreatment>
 struct MockDbT : public sqlpp::connection
 {
@@ -248,7 +253,8 @@ struct MockDbT : public sqlpp::connection
 
   void start_transaction(sqlpp::isolation_level level)
   {
-    _current_isolation_level = level;
+    // store temporarily to verify the expected level was used in testcases
+    _mock_data._last_isolation_level = level;
   }
 
   void rollback_transaction(bool)
@@ -260,7 +266,7 @@ struct MockDbT : public sqlpp::connection
   void report_rollback_failure(std::string)
   {}
 
-  sqlpp::isolation_level _current_isolation_level;
+  InternalMockData _mock_data;
 };
 
 using MockDb = MockDbT<false>;

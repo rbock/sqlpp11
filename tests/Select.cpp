@@ -184,7 +184,7 @@ int Select(int, char* [])
   }
 
   auto transaction = start_transaction(db, sqlpp::isolation_level::read_committed);
-  std::cout << (db._current_isolation_level == sqlpp::isolation_level::read_committed) << std::endl;
+  std::cout << (db._mock_data._last_isolation_level == sqlpp::isolation_level::read_committed) << std::endl;
   
   return 0;
 }
