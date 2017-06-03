@@ -28,11 +28,17 @@
 
 #include <iostream>
 #include <sqlpp11/connection.h>
+#include <sqlpp11/transaction.h>
 #include <sqlpp11/data_types/no_value.h>
 #include <sqlpp11/schema.h>
 #include <sqlpp11/serialize.h>
 #include <sqlpp11/serializer_context.h>
 #include <sstream>
+
+// an object to store internal Mock flags and values to validate in tests
+struct InternalMockData {
+    sqlpp::isolation_level _last_isolation_level;
+};
 
 template <bool enforceNullResultTreatment>
 struct MockDbT : public sqlpp::connection
@@ -244,6 +250,23 @@ struct MockDbT : public sqlpp::connection
   {
     return {name};
   }
+
+  void start_transaction(sqlpp::isolation_level level)
+  {
+    // store temporarily to verify the expected level was used in testcases
+    _mock_data._last_isolation_level = level;
+  }
+
+  void rollback_transaction(bool)
+  {}
+
+  void commit_transaction()
+  {}
+
+  void report_rollback_failure(std::string)
+  {}
+
+  InternalMockData _mock_data;
 };
 
 using MockDb = MockDbT<false>;

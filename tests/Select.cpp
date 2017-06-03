@@ -207,5 +207,8 @@ int Select(int, char* [])
     for_each_field(row, to_cerr{});
   }
 
+  auto transaction = start_transaction(db, sqlpp::isolation_level::read_committed);
+  std::cout << (db._mock_data._last_isolation_level == sqlpp::isolation_level::read_committed) << std::endl;
+  
   return 0;
 }
