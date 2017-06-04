@@ -183,8 +183,22 @@ int Select(int, char* [])
     for_each_field(row, to_cerr{});
   }
 
-  auto transaction = start_transaction(db, sqlpp::isolation_level::read_committed);
-  std::cout << (db._mock_data._last_isolation_level == sqlpp::isolation_level::read_committed) << std::endl;
-  
+  {
+      auto transaction = start_transaction(db, sqlpp::isolation_level::read_committed);
+      if (db._mock_data._last_isolation_level != sqlpp::isolation_level::read_committed)
+      {
+          std::cout << "Error: transaction isolation level does not match expacted level" << std::endl;
+      }
+
+  }
+  db.set_default_isolation_level(sqlpp::isolation_level::read_uncommitted);
+  {
+      auto transaction = start_transaction(db);
+      if (db._mock_data._last_isolation_level != sqlpp::isolation_level::read_uncommitted)
+      {
+          std::cout << "Error: transaction isolation level does not match default level" << std::endl;
+      }
+  }
+
   return 0;
 }

@@ -130,8 +130,19 @@ namespace sqlpp
         return t._prepare(*this);
       }
 
+
+      //! set the transaction isolation level for the current connection
+      /// time of effect is connector-specific, for most is will only affect new transactions
+      void set_default_isolation_level(sqlpp::isolation_level);
+
+      //! read the default transaction isolation level for the current connection
+      sqlpp::isolation_level get_default_isolation_level();
+
       //! start transaction
-      void start_transaction(isolation_level isolation = isolation_level::undefined);
+      void start_transaction();
+
+      //! start transaction with defined isolation level (optional only for connectors that support it)
+      void start_transaction(isolation_level isolation /* = isolation_level::undefined */);
 
       //! commit transaction (or throw transaction if the transaction has been finished already)
       void commit_transaction();
