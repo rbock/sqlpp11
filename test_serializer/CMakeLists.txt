@@ -30,6 +30,7 @@ set(test_serializer_names
   Insert
 	TableAlias
   Where
+  ForUpdate
   )
 
 create_test_sourcelist(test_serializer_sources test_serializer_main.cpp ${test_serializer_names})

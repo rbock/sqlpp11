@@ -107,6 +107,14 @@ int Select(int, char* [])
     std::cout << a << ", " << b << ", " << g << std::endl;
   }
 
+  for (const auto& row : db(select(all_of(t).as(t), t.gamma).from(t).where(t.alpha > 7).for_update()))
+  {
+    int64_t a = row.tabBar.alpha;
+    const std::string b = row.tabBar.beta;
+    const bool g = row.gamma;
+    std::cout << a << ", " << b << ", " << g << std::endl;
+  }
+
   for (const auto& row :
        db(select(all_of(t), all_of(f)).from(t.join(f).on(t.alpha > f.omega and not t.gamma)).unconditionally()))
   {
@@ -197,6 +205,23 @@ int Select(int, char* [])
   for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
   {
     for_each_field(row, to_cerr{});
+  }
+
+  {
+      auto transaction = start_transaction(db, sqlpp::isolation_level::read_committed);
+      if (db._mock_data._last_isolation_level != sqlpp::isolation_level::read_committed)
+      {
+          std::cout << "Error: transaction isolation level does not match expected level" << std::endl;
+      }
+
+  }
+  db.set_default_isolation_level(sqlpp::isolation_level::read_uncommitted);
+  {
+      auto transaction = start_transaction(db);
+      if (db._mock_data._last_isolation_level != sqlpp::isolation_level::read_uncommitted)
+      {
+          std::cout << "Error: transaction isolation level does not match default level" << std::endl;
+      }
   }
 
   return 0;
