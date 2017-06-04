@@ -187,7 +187,7 @@ int Select(int, char* [])
       auto transaction = start_transaction(db, sqlpp::isolation_level::read_committed);
       if (db._mock_data._last_isolation_level != sqlpp::isolation_level::read_committed)
       {
-          std::cout << "Error: transaction isolation level does not match expacted level" << std::endl;
+          std::cout << "Error: transaction isolation level does not match expected level" << std::endl;
       }
 
   }
