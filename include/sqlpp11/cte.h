@@ -235,7 +235,7 @@ namespace sqlpp
 
     static Context& _(const T& t, Context& context)
     {
-      context << name_of<T>::char_ptr() << " AS (";
+      context << '"' << name_of<T>::char_ptr() << '"' << " AS (";
       serialize(t._statement, context);
       context << ")";
       return context;
@@ -279,7 +279,7 @@ namespace sqlpp
 
     static Context& _(const T&, Context& context)
     {
-      context << name_of<T>::char_ptr();
+      context << '"' << name_of<T>::char_ptr() << '"';
       return context;
     }
   };

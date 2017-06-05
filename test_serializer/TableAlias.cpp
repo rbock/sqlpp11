@@ -35,9 +35,9 @@ int TableAlias(int, char* [])
   const auto bar = test::TabBar{};
 
   // Individual values
-  compare(__LINE__, foo.as(bar), "tab_foo AS tab_bar");
+  compare(__LINE__, foo.as(bar), "\"tab_foo\" AS \"tab_bar\"");
   compare(__LINE__, select(foo.omega).from(foo).unconditionally().as(bar),
-          "(SELECT tab_foo.omega FROM tab_foo) AS tab_bar");
+          "(SELECT \"tab_foo\".\"omega\" FROM \"tab_foo\") AS \"tab_bar\"");
 
   return 0;
 }

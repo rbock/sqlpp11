@@ -112,7 +112,7 @@ namespace sqlpp
       serialize(t._table, context);
       if (requires_braces_t<Table>::value)
         context << ")";
-      context << " AS " << name_of<T>::char_ptr();
+      context << " AS " << '"' << name_of<T>::char_ptr() << '"';
       return context;
     }
   };
