@@ -44,7 +44,7 @@ namespace sqlpp
 
     static std::string escape(std::string arg)
     {
-      if (arg.find('\''))
+      if (arg.find('\'') != std::string::npos)
       {
         std::string retVal;
         for (const auto c : arg)
