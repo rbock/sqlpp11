@@ -54,6 +54,12 @@ namespace sqlpp
 
   namespace detail
   {
+    template <typename... Policies>
+    constexpr auto is_any_policy_missing() -> bool
+    {
+      return logic::any_t<is_missing_t<Policies>::value...>::value;
+    }
+
     template <typename Db = void, typename... Policies>
     struct statement_policies_t
     {
@@ -122,11 +128,10 @@ namespace sqlpp
       }
 
       using _value_type =
-          typename std::conditional<logic::none_t<is_missing_t<Policies>::value...>::value,
-                                    value_type_of<_result_type_provider>,
-                                    no_value_t  // if a required statement part is missing (e.g. columns in a select),
-                                                // then the statement cannot be used as a value
-                                    >::type;
+          typename std::conditional<is_any_policy_missing<Policies...>(),
+                                    no_value_t,  // if a required statement part is missing (e.g. columns in a select),
+                                                 // then the statement cannot be used as a value
+                                    value_type_of<_result_type_provider>>::type;
 
       using _traits =
           make_traits<_value_type, tag_if<tag::is_expression, not std::is_same<_value_type, no_value_t>::value>>;

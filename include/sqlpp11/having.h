@@ -181,6 +181,12 @@ namespace sqlpp
       static_check_t<not std::is_same<Database, void>::value, assert_having_dynamic_statement_dynamic_t>,
       check_having_t<Expression>>;
 
+  template <typename... Exprs>
+  constexpr auto are_all_parameters_expressions() -> bool
+  {
+    return logic::all_t<is_expression_t<Exprs>::value...>::value;
+  }
+
   // NO HAVING YET
   struct no_having_t
   {
@@ -237,7 +243,7 @@ namespace sqlpp
       //	  template <typename... T>
       //	  using _check = logic::all_t<is_expression_t<T>::value...>;
       template <typename... T>
-      struct _check : logic::all_t<is_expression_t<T>::value...>
+      struct _check : std::integral_constant<bool, are_all_parameters_expressions<T...>()>
       {
       };
 

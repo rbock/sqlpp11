@@ -17,7 +17,7 @@ See [Changes](ChangeLog.md)
 Status:
 -------
 
-Branch / Compiler | clang-3.4,  gcc-4.9, Xcode-7   |  MSVC 2015  | Test Coverage
+Branch / Compiler | clang-3.4,  gcc-4.9, Xcode-7   |  MSVC 2015/2017  | Test Coverage
 ------------------| -------------------------------|-------------|---------------
 master | [![Build Status](https://travis-ci.org/rbock/sqlpp11.svg?branch=master)](https://travis-ci.org/rbock/sqlpp11?branch=master) | [![Build status](https://ci.appveyor.com/api/projects/status/eid7mwqgavo0h61h/branch/master?svg=true)](https://ci.appveyor.com/project/rbock/sqlpp11/branch/master) | [![Coverage Status](https://coveralls.io/repos/rbock/sqlpp11/badge.svg?branch=master)](https://coveralls.io/r/rbock/sqlpp11?branch=master)
 develop | [![Build Status](https://travis-ci.org/rbock/sqlpp11.svg?branch=develop)](https://travis-ci.org/rbock/sqlpp11?branch=develop) | [![Build status](https://ci.appveyor.com/api/projects/status/eid7mwqgavo0h61h/branch/develop?svg=true)](https://ci.appveyor.com/project/rbock/sqlpp11/branch/develop) | [![Coverage Status](https://coveralls.io/repos/rbock/sqlpp11/badge.svg?branch=develop)](https://coveralls.io/r/rbock/sqlpp11?branch=develop)
