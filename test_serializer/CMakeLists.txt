@@ -1,4 +1,4 @@
-# Copyright (c) 2013-2016, Roland Bock
+# Copyright (c) 2013-2017, Roland Bock
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -23,14 +23,15 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 set(test_serializer_names
-	CustomQuery
 	As
+	Blob
+	CustomQuery
+  ForUpdate
   From
   In
   Insert
 	TableAlias
   Where
-  ForUpdate
   )
 
 create_test_sourcelist(test_serializer_sources test_serializer_main.cpp ${test_serializer_names})

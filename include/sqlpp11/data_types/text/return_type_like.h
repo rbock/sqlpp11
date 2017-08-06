@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, Roland Bock, Aaron Bishop
+ * Copyright (c) 2013-2017, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,18 +24,21 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DATA_TYPES_H
-#define SQLPP_DATA_TYPES_H
+#ifndef SQLPP_RETURN_TYPE_LIKE_H
+#define SQLPP_RETURN_TYPE_LIKE_H
 
-#include <sqlpp11/data_types/blob.h>
-#include <sqlpp11/data_types/boolean.h>
-#include <sqlpp11/data_types/integral.h>
-#include <sqlpp11/data_types/unsigned_integral.h>
-#include <sqlpp11/data_types/floating_point.h>
-#include <sqlpp11/data_types/text.h>
-#include <sqlpp11/data_types/day_point.h>
-#include <sqlpp11/data_types/time_of_day.h>
-#include <sqlpp11/data_types/time_point.h>
-#include <sqlpp11/data_types/no_value.h>
+#include <sqlpp11/bad_expression.h>
+
+namespace sqlpp
+{
+  template <typename T, typename Defer, typename Enable = void>
+  struct return_type_like
+  {
+    using check = assert_valid_operands;
+    using type = bad_expression<boolean>;
+  };
+  template <typename T, typename Defer>
+  using return_type_like_t = typename return_type_like<T, Defer>::type;
+}
 
 #endif

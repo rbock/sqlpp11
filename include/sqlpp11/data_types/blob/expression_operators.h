@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, Roland Bock, Aaron Bishop
+ * Copyright (c) 2013-2017, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,18 +24,40 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DATA_TYPES_H
-#define SQLPP_DATA_TYPES_H
+#ifndef SQLPP_BLOB_EXPRESSION_OPERATORS_H
+#define SQLPP_BLOB_EXPRESSION_OPERATORS_H
 
-#include <sqlpp11/data_types/blob.h>
-#include <sqlpp11/data_types/boolean.h>
-#include <sqlpp11/data_types/integral.h>
-#include <sqlpp11/data_types/unsigned_integral.h>
-#include <sqlpp11/data_types/floating_point.h>
-#include <sqlpp11/data_types/text.h>
-#include <sqlpp11/data_types/day_point.h>
-#include <sqlpp11/data_types/time_of_day.h>
-#include <sqlpp11/data_types/time_point.h>
-#include <sqlpp11/data_types/no_value.h>
+#include <sqlpp11/operand_check.h>
+#include <sqlpp11/expression_operators.h>
+#include <sqlpp11/basic_expression_operators.h>
+#include <sqlpp11/type_traits.h>
+#include <sqlpp11/data_types/blob/data_type.h>
+#include <sqlpp11/data_types/text/return_type_like.h>
 
+namespace sqlpp
+{
+  template <typename Operand, typename Pattern>
+  struct like_t;
+
+  template <typename L, typename R>
+  struct return_type_like<L, R, binary_operand_check_t<L, is_blob_t, R, is_blob_t>>
+  {
+    using check = consistent_t;
+    using type = like_t<wrap_operand_t<L>, wrap_operand_t<R>>;
+  };
+
+  template <typename Expression>
+  struct expression_operators<Expression, blob> : public basic_expression_operators<Expression>
+  {
+    template <typename T>
+    using _is_valid_operand = is_valid_operand<blob, T>;
+
+    template <typename R>
+    auto like(const R& r) const -> return_type_like_t<Expression, R>
+    {
+      return_type_like<Expression, R>::check::_();
+      return {*static_cast<const Expression*>(this), wrap_operand_t<R>{r}};
+    }
+  };
+}
 #endif
