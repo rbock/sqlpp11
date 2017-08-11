@@ -27,6 +27,8 @@
 #ifndef SQLPP_SCHEMA_H
 #define SQLPP_SCHEMA_H
 
+#include <string>
+
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/serializer.h>
 
