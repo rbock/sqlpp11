@@ -28,7 +28,9 @@
 #define SQLPP_BLOB_DATA_TYPE_H
 
 #include <vector>
+
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/logic.h>
 
 namespace sqlpp
 {
@@ -38,7 +40,7 @@ namespace sqlpp
     using _cpp_value_type = std::vector<std::uint8_t>;
 
     template <typename T>
-    using _is_valid_operand = is_blob_t<T>;
+    using _is_valid_operand = ::sqlpp::logic::any_t<is_blob_t<T>::value, is_text_t<T>::value>;
   };
 
   using blob = blob;
