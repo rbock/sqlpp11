@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_TVIN_H
-#define SQLPP_TVIN_H
+#ifndef SQLPP11_TVIN_H
+#define SQLPP11_TVIN_H
 
 // TVIN: Trivial value is NULL
 

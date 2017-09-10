@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_NO_VALUE_RESULT_FIELD_H
-#define SQLPP_NO_VALUE_RESULT_FIELD_H
+#ifndef SQLPP11_DATA_TYPES_NO_VALUE_RESULT_FIELD_H
+#define SQLPP11_DATA_TYPES_NO_VALUE_RESULT_FIELD_H
 
 #include <sqlpp11/result_field.h>
 #include <sqlpp11/data_types/no_value/data_type.h>

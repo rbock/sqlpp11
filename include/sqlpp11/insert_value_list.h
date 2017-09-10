@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_INSERT_VALUE_LIST_H
-#define SQLPP_INSERT_VALUE_LIST_H
+#ifndef SQLPP11_INSERT_VALUE_LIST_H
+#define SQLPP11_INSERT_VALUE_LIST_H
 
 #include <sqlpp11/assignment.h>
 #include <sqlpp11/column_fwd.h>
@@ -180,10 +180,9 @@ namespace sqlpp
       static_check_t<not detail::has_duplicates<typename lhs<Assignments>::type...>::value,
                      assert_insert_set_no_duplicates_t>,
       static_check_t<logic::none_t<must_not_insert<Assignments>::value...>::value, assert_insert_set_allowed_t>,
-      static_check_t<
-          sizeof...(Assignments) == 0 or
-              detail::make_joined_set_t<required_tables_of<typename lhs<Assignments>::type>...>::size::value == 1,
-          assert_insert_set_single_table_t>>;
+      static_check_t<sizeof...(Assignments) == 0 or detail::make_joined_set_t<required_tables_of<
+                                                        typename lhs<Assignments>::type>...>::size::value == 1,
+                     assert_insert_set_single_table_t>>;
 
   // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
   //  template <typename... Assignments>

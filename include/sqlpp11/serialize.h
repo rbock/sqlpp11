@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SERIALIZE_H
-#define SQLPP_SERIALIZE_H
+#ifndef SQLPP11_SERIALIZE_H
+#define SQLPP11_SERIALIZE_H
 
 #include <sqlpp11/serializer.h>
 #include <sqlpp11/type_traits.h>

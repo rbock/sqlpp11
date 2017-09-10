@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_INTO_H
-#define SQLPP_INTO_H
+#ifndef SQLPP11_INTO_H
+#define SQLPP11_INTO_H
 
 #include <sqlpp11/data_types/no_value.h>
 #include <sqlpp11/detail/type_set.h>

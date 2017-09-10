@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_CUSTOM_QUERY_H
-#define SQLPP_CUSTOM_QUERY_H
+#ifndef SQLPP11_CUSTOM_QUERY_H
+#define SQLPP11_CUSTOM_QUERY_H
 
 #include <sqlpp11/connection.h>
 #include <sqlpp11/detail/get_first.h>

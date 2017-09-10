@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_RHS_WRAP_H
-#define SQLPP_RHS_WRAP_H
+#ifndef SQLPP11_RHS_WRAP_H
+#define SQLPP11_RHS_WRAP_H
 
 #include <sqlpp11/default_value.h>
 #include <sqlpp11/null.h>

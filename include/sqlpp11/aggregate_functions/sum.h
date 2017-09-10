@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SUM_H
-#define SQLPP_SUM_H
+#ifndef SQLPP11_AGGREGATE_FUNCTIONS_SUM_H
+#define SQLPP11_AGGREGATE_FUNCTIONS_SUM_H
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/char_sequence.h>

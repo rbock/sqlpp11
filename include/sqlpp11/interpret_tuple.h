@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_INTERPRET_TUPLE_H
-#define SQLPP_INTERPRET_TUPLE_H
+#ifndef SQLPP11_INTERPRET_TUPLE_H
+#define SQLPP11_INTERPRET_TUPLE_H
 
 #include <tuple>
 #include <sqlpp11/type_traits.h>
@@ -51,7 +51,7 @@ namespace sqlpp
                             const Separator& separator,
                             Context& context,
                             const UseBraces& useBraces,
-                            const detail::index_sequence<Is...>&) -> Context &
+                            const detail::index_sequence<Is...>&) -> Context&
   {
     // Note: A braced-init-list does guarantee the order of evaluation according to 12.6.1 [class.explicit.init]
     // paragraph 2 and 8.5.4 [dcl.init.list] paragraph 4.
@@ -66,14 +66,14 @@ namespace sqlpp
   }
 
   template <typename Tuple, typename Separator, typename Context>
-  auto interpret_tuple(const Tuple& t, const Separator& separator, Context& context) -> Context &
+  auto interpret_tuple(const Tuple& t, const Separator& separator, Context& context) -> Context&
   {
     return interpret_tuple_impl(t, separator, context, std::true_type{},
                                 detail::make_index_sequence<std::tuple_size<Tuple>::value>{});
   }
 
   template <typename Tuple, typename Separator, typename Context>
-  auto interpret_tuple_without_braces(const Tuple& t, const Separator& separator, Context& context) -> Context &
+  auto interpret_tuple_without_braces(const Tuple& t, const Separator& separator, Context& context) -> Context&
   {
     return interpret_tuple_impl(t, separator, context, std::false_type{},
                                 detail::make_index_sequence<std::tuple_size<Tuple>::value>{});

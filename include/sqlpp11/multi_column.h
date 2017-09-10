@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_MULTI_COLUMN_H
-#define SQLPP_MULTI_COLUMN_H
+#ifndef SQLPP11_MULTI_COLUMN_H
+#define SQLPP11_MULTI_COLUMN_H
 
 #include <sqlpp11/logic.h>
 #include <sqlpp11/detail/type_set.h>

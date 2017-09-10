@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_TABLE_ALIAS_H
-#define SQLPP_TABLE_ALIAS_H
+#ifndef SQLPP11_TABLE_ALIAS_H
+#define SQLPP11_TABLE_ALIAS_H
 
 #include <sqlpp11/alias.h>
 #include <sqlpp11/column_fwd.h>

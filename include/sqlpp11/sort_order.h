@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SORT_ORDER_H
-#define SQLPP_SORT_ORDER_H
+#ifndef SQLPP11_SORT_ORDER_H
+#define SQLPP11_SORT_ORDER_H
 
 #include <sqlpp11/detail/type_set.h>
 

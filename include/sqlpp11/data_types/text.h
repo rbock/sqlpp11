@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_TEXT_H
-#define SQLPP_TEXT_H
+#ifndef SQLPP11_DATA_TYPES_TEXT_H
+#define SQLPP11_DATA_TYPES_TEXT_H
 
 #include <sqlpp11/data_types/text/data_type.h>
 #include <sqlpp11/data_types/text/operand.h>

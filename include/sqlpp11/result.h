@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_RESULT_H
-#define SQLPP_RESULT_H
+#ifndef SQLPP11_RESULT_H
+#define SQLPP11_RESULT_H
 
 #include <iterator>
 #include <utility>

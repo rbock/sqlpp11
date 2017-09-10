@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_RESULT_ROW_H
-#define SQLPP_RESULT_ROW_H
+#ifndef SQLPP11_RESULT_ROW_H
+#define SQLPP11_RESULT_ROW_H
 
 #include <map>
 #include <sqlpp11/data_types/text.h>

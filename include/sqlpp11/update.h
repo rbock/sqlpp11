@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_UPDATE_H
-#define SQLPP_UPDATE_H
+#ifndef SQLPP11_UPDATE_H
+#define SQLPP11_UPDATE_H
 
 #include <sqlpp11/statement.h>
 #include <sqlpp11/connection.h>

@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_OFFSET_H
-#define SQLPP_OFFSET_H
+#ifndef SQLPP11_OFFSET_H
+#define SQLPP11_OFFSET_H
 
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/policy_update.h>

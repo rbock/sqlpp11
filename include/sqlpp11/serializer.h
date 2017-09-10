@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SERIALIZER_H
-#define SQLPP_SERIALIZER_H
+#ifndef SQLPP11_SERIALIZER_H
+#define SQLPP11_SERIALIZER_H
 
 #include <sqlpp11/portable_static_assert.h>
 #include <sqlpp11/wrong.h>

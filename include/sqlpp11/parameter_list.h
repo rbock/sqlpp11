@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_PARAMETER_LIST_H
-#define SQLPP_PARAMETER_LIST_H
+#ifndef SQLPP11_PARAMETER_LIST_H
+#define SQLPP11_PARAMETER_LIST_H
 
 #include <tuple>
 #include <sqlpp11/type_traits.h>

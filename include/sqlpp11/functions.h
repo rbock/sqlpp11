@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_FUNCTIONS_H
-#define SQLPP_FUNCTIONS_H
+#ifndef SQLPP11_FUNCTIONS_H
+#define SQLPP11_FUNCTIONS_H
 
 #include <sqlpp11/parameter.h>
 #include <sqlpp11/parameter_list.h>

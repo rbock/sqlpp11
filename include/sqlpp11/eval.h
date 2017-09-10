@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_EVAL_H
-#define SQLPP_EVAL_H
+#ifndef SQLPP11_EVAL_H
+#define SQLPP11_EVAL_H
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/field_spec.h>

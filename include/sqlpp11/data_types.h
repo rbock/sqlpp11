@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DATA_TYPES_H
-#define SQLPP_DATA_TYPES_H
+#ifndef SQLPP11_DATA_TYPES_H
+#define SQLPP11_DATA_TYPES_H
 
 #include <sqlpp11/data_types/boolean.h>
 #include <sqlpp11/data_types/integral.h>

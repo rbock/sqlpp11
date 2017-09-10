@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_STATEMENT_H
-#define SQLPP_STATEMENT_H
+#ifndef SQLPP11_STATEMENT_H
+#define SQLPP11_STATEMENT_H
 
 #include <sqlpp11/noop.h>
 #include <sqlpp11/parameter_list.h>

@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SINGLE_TABLE_H
-#define SQLPP_SINGLE_TABLE_H
+#ifndef SQLPP11_SINGLE_TABLE_H
+#define SQLPP11_SINGLE_TABLE_H
 
 #include <sqlpp11/data_types/no_value.h>
 #include <sqlpp11/detail/type_set.h>

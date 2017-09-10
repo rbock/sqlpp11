@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SELECT_FLAG_LIST_H
-#define SQLPP_SELECT_FLAG_LIST_H
+#ifndef SQLPP11_SELECT_FLAG_LIST_H
+#define SQLPP11_SELECT_FLAG_LIST_H
 
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/interpret_tuple.h>

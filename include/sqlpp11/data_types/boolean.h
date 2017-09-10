@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_BOOLEAN_H
-#define SQLPP_BOOLEAN_H
+#ifndef SQLPP11_DATA_TYPES_BOOLEAN_H
+#define SQLPP11_DATA_TYPES_BOOLEAN_H
 
 #include <sqlpp11/data_types/boolean/data_type.h>
 #include <sqlpp11/data_types/boolean/operand.h>

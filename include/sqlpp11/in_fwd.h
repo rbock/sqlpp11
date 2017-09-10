@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_IN_FWD_H
-#define SQLPP_IN_FWD_H
+#ifndef SQLPP11_IN_FWD_H
+#define SQLPP11_IN_FWD_H
 
 namespace sqlpp
 {

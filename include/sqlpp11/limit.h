@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_LIMIT_H
-#define SQLPP_LIMIT_H
+#ifndef SQLPP11_LIMIT_H
+#define SQLPP11_LIMIT_H
 
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/policy_update.h>

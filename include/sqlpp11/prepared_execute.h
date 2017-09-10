@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_PREPARED_EXECUTE_H
-#define SQLPP_PREPARED_EXECUTE_H
+#ifndef SQLPP11_PREPARED_EXECUTE_H
+#define SQLPP11_PREPARED_EXECUTE_H
 
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/result.h>

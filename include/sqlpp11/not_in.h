@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_NOT_IN_H
-#define SQLPP_NOT_IN_H
+#ifndef SQLPP11_NOT_IN_H
+#define SQLPP11_NOT_IN_H
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/char_sequence.h>

@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_FIELD_SPEC_H
-#define SQLPP_FIELD_SPEC_H
+#ifndef SQLPP11_FIELD_SPEC_H
+#define SQLPP11_FIELD_SPEC_H
 
 #include <sqlpp11/multi_column.h>
 

@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_VERBATIM_H
-#define SQLPP_VERBATIM_H
+#ifndef SQLPP11_VERBATIM_H
+#define SQLPP11_VERBATIM_H
 
 #include <sqlpp11/data_types/no_value.h>
 #include <sqlpp11/type_traits.h>

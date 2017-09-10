@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_ALIAS_PROVIDER_H
-#define SQLPP_ALIAS_PROVIDER_H
+#ifndef SQLPP11_ALIAS_PROVIDER_H
+#define SQLPP11_ALIAS_PROVIDER_H
 
 #include <type_traits>
 #include <sqlpp11/char_sequence.h>

@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_UPDATE_LIST_H
-#define SQLPP_UPDATE_LIST_H
+#ifndef SQLPP11_UPDATE_LIST_H
+#define SQLPP11_UPDATE_LIST_H
 
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/interpret_tuple.h>
@@ -172,10 +172,9 @@ namespace sqlpp
                      assert_update_set_no_duplicates_t>,
       static_check_t<logic::none_t<detail::lhs_must_not_update<Assignments>::value...>::value,
                      assert_update_set_allowed_t>,
-      static_check_t<
-          sizeof...(Assignments) == 0 or
-              detail::make_joined_set_t<required_tables_of<typename lhs<Assignments>::type>...>::size::value == 1,
-          assert_update_set_single_table_t>>;
+      static_check_t<sizeof...(Assignments) == 0 or detail::make_joined_set_t<required_tables_of<
+                                                        typename lhs<Assignments>::type>...>::size::value == 1,
+                     assert_update_set_single_table_t>>;
 
   template <typename... Assignments>
   struct check_update_static_set

@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_NO_DATA_H
-#define SQLPP_NO_DATA_H
+#ifndef SQLPP11_NO_DATA_H
+#define SQLPP11_NO_DATA_H
 
 #include <type_traits>
 #include <sqlpp11/serializer.h>

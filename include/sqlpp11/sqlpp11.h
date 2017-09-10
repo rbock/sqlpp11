@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_H
-#define SQLPP_H
+#ifndef SQLPP11_SQLPP11_H
+#define SQLPP11_SQLPP11_H
 
 #include <sqlpp11/alias_provider.h>
 #include <sqlpp11/data_types.h>

@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SELECT_H
-#define SQLPP_SELECT_H
+#ifndef SQLPP11_SELECT_H
+#define SQLPP11_SELECT_H
 
 #include <sqlpp11/statement.h>
 

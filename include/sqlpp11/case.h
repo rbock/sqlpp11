@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_CASE_H
-#define SQLPP_CASE_H
+#ifndef SQLPP11_CASE_H
+#define SQLPP11_CASE_H
 
 #include <sqlpp11/char_sequence.h>
 #include <sqlpp11/data_types/boolean.h>

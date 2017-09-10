@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_WITH_H
-#define SQLPP_WITH_H
+#ifndef SQLPP11_WITH_H
+#define SQLPP11_WITH_H
 
 #include <sqlpp11/assignment.h>
 #include <sqlpp11/column_fwd.h>

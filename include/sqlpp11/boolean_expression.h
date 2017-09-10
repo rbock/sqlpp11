@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_BOOLEAN_EXPRESSION_H
-#define SQLPP_BOOLEAN_EXPRESSION_H
+#ifndef SQLPP11_BOOLEAN_EXPRESSION_H
+#define SQLPP11_BOOLEAN_EXPRESSION_H
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/interpretable.h>
@@ -39,8 +39,7 @@ namespace sqlpp
     using _nodes = detail::type_vector<>;
 
     template <typename Expr>
-    boolean_expression_t(Expr expr)
-        : _expr(expr)
+    boolean_expression_t(Expr expr) : _expr(expr)
     {
       static_assert(is_expression_t<Expr>::value, "boolean_expression requires a boolean expression argument");
       static_assert(is_boolean_t<Expr>::value, "boolean_expression requires a boolean expression argument");

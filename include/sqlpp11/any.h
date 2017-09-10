@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_ANY_H
-#define SQLPP_ANY_H
+#ifndef SQLPP11_ANY_H
+#define SQLPP11_ANY_H
 
 #include <sqlpp11/data_types/boolean.h>
 #include <sqlpp11/char_sequence.h>

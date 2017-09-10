@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_OPERAND_CHECK_H
-#define SQLPP_OPERAND_CHECK_H
+#ifndef SQLPP11_OPERAND_CHECK_H
+#define SQLPP11_OPERAND_CHECK_H
 
 #include <sqlpp11/wrap_operand.h>
 #include <sqlpp11/detail/enable_if.h>

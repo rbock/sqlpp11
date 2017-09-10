@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_JOIN_TYPES_H
-#define SQLPP_JOIN_TYPES_H
+#ifndef SQLPP11_JOIN_TYPES_H
+#define SQLPP11_JOIN_TYPES_H
 
 #include <sqlpp11/type_traits.h>
 

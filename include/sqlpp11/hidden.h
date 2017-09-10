@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_HIDDEN_H
-#define SQLPP_HIDDEN_H
+#ifndef SQLPP11_HIDDEN_H
+#define SQLPP11_HIDDEN_H
 
 #include <sqlpp11/serializer.h>
 

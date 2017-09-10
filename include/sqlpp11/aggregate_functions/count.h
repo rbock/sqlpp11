@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_COUNT_H
-#define SQLPP_COUNT_H
+#ifndef SQLPP11_AGGREGATE_FUNCTIONS_COUNT_H
+#define SQLPP11_AGGREGATE_FUNCTIONS_COUNT_H
 
 #include <sqlpp11/char_sequence.h>
 #include <sqlpp11/select_flags.h>

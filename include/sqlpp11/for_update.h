@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_FOR_UPDATE_H
-#define SQLPP_FOR_UPDATE_H
+#ifndef SQLPP11_FOR_UPDATE_H
+#define SQLPP11_FOR_UPDATE_H
 
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/policy_update.h>

@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SELECT_COLUMN_LIST_H
-#define SQLPP_SELECT_COLUMN_LIST_H
+#ifndef SQLPP11_SELECT_COLUMN_LIST_H
+#define SQLPP11_SELECT_COLUMN_LIST_H
 
 #include <sqlpp11/data_types/no_value.h>
 #include <sqlpp11/detail/copy_tuple_args.h>

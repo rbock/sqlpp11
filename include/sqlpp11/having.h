@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_HAVING_H
-#define SQLPP_HAVING_H
+#ifndef SQLPP11_HAVING_H
+#define SQLPP11_HAVING_H
 
 #include <sqlpp11/expression.h>
 #include <sqlpp11/interpret_tuple.h>

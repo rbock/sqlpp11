@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_TYPE_TRAITS_H
-#define SQLPP_TYPE_TRAITS_H
+#ifndef SQLPP11_TYPE_TRAITS_H
+#define SQLPP11_TYPE_TRAITS_H
 
 #include <type_traits>
 #include <tuple>

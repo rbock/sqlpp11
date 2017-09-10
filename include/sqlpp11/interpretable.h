@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_INTERPRETABLE_H
-#define SQLPP_INTERPRETABLE_H
+#ifndef SQLPP11_INTERPRETABLE_H
+#define SQLPP11_INTERPRETABLE_H
 
 #include <memory>
 #include <sqlpp11/serializer_context.h>

@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_VALUE_OR_NULL_H
-#define SQLPP_VALUE_OR_NULL_H
+#ifndef SQLPP11_VALUE_OR_NULL_H
+#define SQLPP11_VALUE_OR_NULL_H
 
 #include <sqlpp11/wrap_operand.h>
 #include <sqlpp11/type_traits.h>

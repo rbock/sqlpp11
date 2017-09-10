@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_MAX_H
-#define SQLPP_MAX_H
+#ifndef SQLPP11_AGGREGATE_FUNCTIONS_MAX_H
+#define SQLPP11_AGGREGATE_FUNCTIONS_MAX_H
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/char_sequence.h>

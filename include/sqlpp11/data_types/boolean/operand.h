@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_BOOLEAN_OPERAND_H
-#define SQLPP_BOOLEAN_OPERAND_H
+#ifndef SQLPP11_DATA_TYPES_BOOLEAN_OPERAND_H
+#define SQLPP11_DATA_TYPES_BOOLEAN_OPERAND_H
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/alias_operators.h>

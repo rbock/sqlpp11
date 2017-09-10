@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_AGGREGATE_FUNCTIONS_H
-#define SQLPP_AGGREGATE_FUNCTIONS_H
+#ifndef SQLPP11_AGGREGATE_FUNCTIONS_H
+#define SQLPP11_AGGREGATE_FUNCTIONS_H
 
 #include <sqlpp11/aggregate_functions/count.h>
 #include <sqlpp11/aggregate_functions/min.h>

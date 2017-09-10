@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_NOOP_H
-#define SQLPP_NOOP_H
+#ifndef SQLPP11_NOOP_H
+#define SQLPP11_NOOP_H
 
 #include <type_traits>
 #include <sqlpp11/data_types/no_value.h>

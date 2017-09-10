@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_INSERT_VALUE_H
-#define SQLPP_INSERT_VALUE_H
+#ifndef SQLPP11_INSERT_VALUE_H
+#define SQLPP11_INSERT_VALUE_H
 
 #include <sqlpp11/default_value.h>
 #include <sqlpp11/null.h>

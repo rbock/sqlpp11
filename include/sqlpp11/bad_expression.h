@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_BAD_EXPRESSION_H
-#define SQLPP_BAD_EXPRESSION_H
+#ifndef SQLPP11_BAD_EXPRESSION_H
+#define SQLPP11_BAD_EXPRESSION_H
 
 #include <sqlpp11/portable_static_assert.h>
 #include <sqlpp11/type_traits.h>

@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_WRONG_H
-#define SQLPP_WRONG_H
+#ifndef SQLPP11_WRONG_H
+#define SQLPP11_WRONG_H
 
 #include <type_traits>
 

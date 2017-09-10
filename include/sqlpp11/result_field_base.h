@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_RESULT_FIELD_BASE_H
-#define SQLPP_RESULT_FIELD_BASE_H
+#ifndef SQLPP11_RESULT_FIELD_BASE_H
+#define SQLPP11_RESULT_FIELD_BASE_H
 
 #include <sqlpp11/alias_operators.h>
 #include <sqlpp11/basic_expression_operators.h>

@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_NO_NAME_H
-#define SQLPP_NO_NAME_H
+#ifndef SQLPP11_NO_NAME_H
+#define SQLPP11_NO_NAME_H
 
 namespace sqlpp
 {
