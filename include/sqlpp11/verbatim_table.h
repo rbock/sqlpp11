@@ -90,7 +90,7 @@ namespace sqlpp
 
   inline verbatim_table_t verbatim_table(std::string name)
   {
-    return {name};
+    return {std::move(name)};
   }
 }  // namespace sqlpp
 

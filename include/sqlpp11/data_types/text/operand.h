@@ -45,9 +45,7 @@ namespace sqlpp
 
     using _value_t = std::string;
 
-    text_operand()
-    {
-    }
+    text_operand() = default;
 
     text_operand(_value_t t) : _t(std::move(t))
     {
