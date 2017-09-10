@@ -50,13 +50,17 @@ namespace sqlpp
         for (const auto c : arg)
         {
           if (c == '\'')
+          {
             retVal.push_back(c);
+          }
           retVal.push_back(c);
         }
         return retVal;
       }
       else
+      {
         return arg;
+      }
     }
 
     std::ostream& _os;

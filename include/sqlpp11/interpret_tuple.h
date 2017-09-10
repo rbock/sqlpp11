@@ -39,11 +39,17 @@ namespace sqlpp
       const Element& element, const Separator& separator, Context& context, const UseBraces& /*unused*/, size_t index)
   {
     if (index)
+    {
       context << separator;
+    }
     if (UseBraces::value)
+    {
       serialize_operand(element, context);
+    }
     else
+    {
       serialize(element, context);
+    }
   }
 
   template <typename Tuple, typename Separator, typename Context, typename UseBraces, size_t... Is>

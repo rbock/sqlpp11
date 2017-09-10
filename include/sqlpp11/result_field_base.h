@@ -87,14 +87,18 @@ namespace sqlpp
     bool is_null() const
     {
       if (not _is_valid)
+      {
         throw exception("accessing is_null in non-existing row");
+      }
       return _is_null;
     }
 
     bool _is_trivial() const
     {
       if (not _is_valid)
+      {
         throw exception("accessing is_null in non-existing row");
+      }
 
       return value() == _cpp_storage_type{};
     }
@@ -102,7 +106,9 @@ namespace sqlpp
     _cpp_value_type value() const
     {
       if (not _is_valid)
+      {
         throw exception("accessing value in non-existing row");
+      }
 
       if (_is_null)
       {

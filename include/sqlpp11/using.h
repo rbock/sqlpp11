@@ -248,11 +248,15 @@ namespace sqlpp
     static Context& _(const T& t, Context& context)
     {
       if (sizeof...(Tables) == 0 and t._dynamic_tables.empty())
+      {
         return context;
+      }
       context << " USING ";
       interpret_tuple(t._tables, ',', context);
       if (sizeof...(Tables) and not t._dynamic_tables.empty())
+      {
         context << ',';
+      }
       interpret_list(t._dynamic_tables, ',', context);
       return context;
     }

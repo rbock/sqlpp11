@@ -296,7 +296,9 @@ namespace sqlpp
       context << " SET ";
       interpret_tuple(t._assignments, ",", context);
       if (sizeof...(Assignments) and not t._dynamic_assignments.empty())
+      {
         context << ',';
+      }
       interpret_list(t._dynamic_assignments, ',', context);
       return context;
     }

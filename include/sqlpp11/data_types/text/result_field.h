@@ -48,9 +48,13 @@ namespace sqlpp
     {
       target._bind_text_result(index, &text, &len);
       if (text)
+      {
         this->_value.assign(text, len);
+      }
       else
+      {
         this->_value.assign("");
+      }
       this->_is_null = (text == nullptr);
     }
 
@@ -59,9 +63,13 @@ namespace sqlpp
     {
       target._post_bind_text_result(index, &text, &len);
       if (text)
+      {
         this->_value.assign(text, len);
+      }
       else
+      {
         this->_value.assign("");
+      }
       this->_is_null = (text == nullptr);
     }
   };

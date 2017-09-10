@@ -48,7 +48,9 @@ namespace sqlpp
       context << ')';
     }
     else
+    {
       serializer_t<Context, T>::_(t, context);
+    }
 
     return context;
   }

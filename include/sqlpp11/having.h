@@ -302,7 +302,9 @@ namespace sqlpp
       context << " HAVING ";
       serialize(t._expression, context);
       if (not t._dynamic_expressions.empty())
+      {
         context << " AND ";
+      }
       interpret_list(t._dynamic_expressions, " AND ", context);
       return context;
     }

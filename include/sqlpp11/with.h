@@ -201,7 +201,9 @@ namespace sqlpp
       // FIXME: If there is a recursive CTE, add a "RECURSIVE" here
       context << " WITH ";
       if (T::_is_recursive::value)
+      {
         context << "RECURSIVE ";
+      }
       interpret_tuple(t._expressions, ',', context);
       context << ' ';
       return context;

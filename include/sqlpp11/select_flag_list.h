@@ -249,10 +249,14 @@ namespace sqlpp
     {
       interpret_tuple(t._flags, ' ', context);
       if (sizeof...(Flags))
+      {
         context << ' ';
+      }
       interpret_list(t._dynamic_flags, ',', context);
       if (not t._dynamic_flags.empty())
+      {
         context << ' ';
+      }
       return context;
     }
   };

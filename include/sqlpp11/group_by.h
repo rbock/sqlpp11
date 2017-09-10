@@ -260,11 +260,15 @@ namespace sqlpp
     static Context& _(const T& t, Context& context)
     {
       if (sizeof...(Expressions) == 0 and t._dynamic_expressions.empty())
+      {
         return context;
+      }
       context << " GROUP BY ";
       interpret_tuple(t._expressions, ',', context);
       if (sizeof...(Expressions) and not t._dynamic_expressions.empty())
+      {
         context << ',';
+      }
       interpret_list(t._dynamic_expressions, ',', context);
       return context;
     }

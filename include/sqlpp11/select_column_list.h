@@ -436,7 +436,9 @@ namespace sqlpp
     {
       interpret_tuple(t._columns, ',', context);
       if (sizeof...(Columns) and not t._dynamic_columns.empty())
+      {
         context << ',';
+      }
       serialize(t._dynamic_columns, context);
       return context;
     }

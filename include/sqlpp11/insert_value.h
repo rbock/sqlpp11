@@ -109,9 +109,13 @@ namespace sqlpp
         context << "NULL";
       }
       else if (t._is_default)
+      {
         context << "DEFAULT";
+      }
       else
+      {
         serialize_operand(t._value, context);
+      }
       return context;
     }
   };

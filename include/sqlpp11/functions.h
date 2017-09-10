@@ -108,9 +108,13 @@ namespace sqlpp
       for (const auto& entry : t._container)
       {
         if (first)
+        {
           first = false;
+        }
         else
+        {
           context << ',';
+        }
 
         serialize_operand(value(entry), context);
       }

@@ -140,7 +140,9 @@ namespace sqlpp
         context << ')';
       }
       else
+      {
         t.serialize(context);
+      }
 
       return context;
     }

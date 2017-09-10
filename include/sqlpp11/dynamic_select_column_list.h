@@ -87,9 +87,13 @@ namespace sqlpp
       for (const auto column : t._dynamic_columns)
       {
         if (first)
+        {
           first = false;
+        }
         else
+        {
           context << ',';
+        }
         serialize(column, context);
       }
       return context;
