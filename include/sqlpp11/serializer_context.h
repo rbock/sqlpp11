@@ -57,10 +57,8 @@ namespace sqlpp
         }
         return retVal;
       }
-      else
-      {
-        return arg;
-      }
+
+      return arg;
     }
 
     std::ostream& _os;

@@ -82,10 +82,8 @@ namespace sqlpp
     {
       return os << "NULL";
     }
-    else
-    {
-      return os << e.value();
-    }
+
+    return os << e.value();
   }
 }  // namespace sqlpp
 #endif

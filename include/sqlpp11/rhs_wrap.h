@@ -71,17 +71,13 @@ namespace sqlpp
         {
           return t.is_null();
         }
-        else
+
+        if (t.is_null())
         {
-          if (t.is_null())
-          {
-            return false;
-          }
-          else
-          {
-            return t._is_trivial();
-          }
+          return false;
         }
+
+        return t._is_trivial();
       }
     };
 
