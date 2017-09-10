@@ -27,6 +27,8 @@
 #ifndef SQLPP11_DATA_TYPES_BOOLEAN_OPERAND_H
 #define SQLPP11_DATA_TYPES_BOOLEAN_OPERAND_H
 
+#include <ciso646>  // Required for some compilers to use aliases for boolean operators
+
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/alias_operators.h>
 #include <sqlpp11/serializer.h>
@@ -59,7 +61,7 @@ namespace sqlpp
 
     bool _is_trivial() const
     {
-      return _t == false;
+      return not _t;
     }
 
     _value_t _t;

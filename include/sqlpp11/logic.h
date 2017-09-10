@@ -43,26 +43,26 @@ namespace sqlpp
     template <bool... B>
     struct all
     {
-      using type = std::is_same<logic_helper<B...>, logic_helper<(B or true)...>>;
+      using type = std::is_same<logic_helper<B...>, logic_helper<(B, true)...>>;
     };
 
     template <bool... B>
-    using all_t = std::is_same<logic_helper<B...>, logic_helper<(B or true)...>>;
+    using all_t = std::is_same<logic_helper<B...>, logic_helper<(B, true)...>>;
 
     // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2086629
     template <bool... B>
     struct any
     {
       using type =
-          std::integral_constant<bool, not std::is_same<logic_helper<B...>, logic_helper<(B and false)...>>::value>;
+          std::integral_constant<bool, not std::is_same<logic_helper<B...>, logic_helper<(B, false)...>>::value>;
     };
 
     template <bool... B>
     using any_t =
-        std::integral_constant<bool, not std::is_same<logic_helper<B...>, logic_helper<(B and false)...>>::value>;
+        std::integral_constant<bool, not std::is_same<logic_helper<B...>, logic_helper<(B, false)...>>::value>;
 
     template <bool... B>
-    using none_t = std::is_same<logic_helper<B...>, logic_helper<(B and false)...>>;
+    using none_t = std::is_same<logic_helper<B...>, logic_helper<(B, false)...>>;
 
     template <bool>
     struct not_impl;
