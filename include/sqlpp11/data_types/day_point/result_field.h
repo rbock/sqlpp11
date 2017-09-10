@@ -68,5 +68,5 @@ namespace sqlpp
     }
     return os;
   }
-}
+}  // namespace sqlpp
 #endif

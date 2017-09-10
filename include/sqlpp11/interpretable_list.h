@@ -108,6 +108,6 @@ namespace sqlpp
   {
     return serializable_list_interpreter_t<Context, T>::_(t, separator, context);
   }
-}
+}  // namespace sqlpp
 
 #endif

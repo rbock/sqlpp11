@@ -60,6 +60,6 @@ namespace sqlpp
     _dynamic_names_t _dynamic_names;
     mutable _prepared_statement_t _prepared_statement;
   };
-}
+}  // namespace sqlpp
 
 #endif

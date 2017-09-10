@@ -262,7 +262,7 @@ namespace sqlpp
 
     template <typename T>
     using make_name_of_set_t = typename make_name_of_set<T>::type;
-  }
-}
+  }  // namespace detail
+}  // namespace sqlpp
 
 #endif

@@ -110,5 +110,5 @@ namespace sqlpp
     static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
     return blank_select_t<Database>().columns(columns...);
   }
-}
+}  // namespace sqlpp
 #endif

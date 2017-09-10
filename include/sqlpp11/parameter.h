@@ -84,6 +84,6 @@ namespace sqlpp
     static_assert(is_alias_provider_t<AliasProvider>::value, "second argument is not an alias provider");
     return {};
   }
-}
+}  // namespace sqlpp
 
 #endif

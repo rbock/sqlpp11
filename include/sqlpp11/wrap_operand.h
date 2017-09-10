@@ -37,6 +37,6 @@ namespace sqlpp
 
   template <typename T>
   using wrap_operand_t = typename wrap_operand<T>::type;
-}
+}  // namespace sqlpp
 
 #endif

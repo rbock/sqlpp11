@@ -42,5 +42,5 @@ namespace sqlpp
   {
     using type = text_operand;
   };
-}
+}  // namespace sqlpp
 #endif

@@ -39,6 +39,6 @@ namespace sqlpp
       static_assert(wrong_t<interpreter_t>::value, "missing interpreter specialization");
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

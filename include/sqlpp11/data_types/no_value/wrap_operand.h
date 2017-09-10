@@ -27,9 +27,4 @@
 #ifndef SQLPP11_DATA_TYPES_NO_VALUE_WRAP_OPERAND_H
 #define SQLPP11_DATA_TYPES_NO_VALUE_WRAP_OPERAND_H
 
-namespace sqlpp
-{
-  // There is no no_value operand
-}
-
 #endif

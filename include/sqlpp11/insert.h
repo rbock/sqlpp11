@@ -129,6 +129,6 @@ namespace sqlpp
     static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
     return {blank_insert_t<Database>().into(table)};
   }
-}
+}  // namespace sqlpp
 
 #endif

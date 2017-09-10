@@ -53,6 +53,6 @@ namespace sqlpp
 
     static Context& _(const T&, Context&);
   };
-}
+}  // namespace sqlpp
 
 #endif

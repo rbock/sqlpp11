@@ -48,7 +48,7 @@ namespace sqlpp
       };
       using _traits = make_traits<no_value_t>;
     };
-  }
+  }  // namespace detail
 
   struct verbatim_table_t : public table_t<verbatim_table_t, detail::unusable_pseudo_column_t>
   {
@@ -90,6 +90,6 @@ namespace sqlpp
   {
     return {name};
   }
-}
+}  // namespace sqlpp
 
 #endif

@@ -57,6 +57,6 @@ namespace sqlpp
     _parameter_list_t params;
     mutable _prepared_statement_t _prepared_statement;
   };
-}
+}  // namespace sqlpp
 
 #endif

@@ -53,7 +53,7 @@ namespace sqlpp
         using _nodes = detail::type_vector<>;
       };
     };
-  }
+  }  // namespace detail
 
   template <typename Column>
   struct insert_value_t
@@ -114,6 +114,6 @@ namespace sqlpp
       return context;
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

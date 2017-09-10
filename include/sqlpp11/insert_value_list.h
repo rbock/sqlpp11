@@ -60,7 +60,7 @@ namespace sqlpp
       using set_columns = detail::make_type_set_t<First, Columns...>;
       static constexpr bool value = detail::is_subset_of<required_columns, set_columns>::value;
     };
-  }
+  }  // namespace detail
 
   struct insert_default_values_data_t
   {
@@ -642,6 +642,6 @@ namespace sqlpp
   {
     return statement_t<Database, no_insert_value_list_t>().dynamic_set(assignments...);
   }
-}
+}  // namespace sqlpp
 
 #endif

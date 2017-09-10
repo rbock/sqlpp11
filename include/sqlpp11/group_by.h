@@ -282,6 +282,6 @@ namespace sqlpp
   {
     return statement_t<Database, no_group_by_t>().dynamic_group_by(std::forward<T>(t)...);
   }
-}
+}  // namespace sqlpp
 
 #endif

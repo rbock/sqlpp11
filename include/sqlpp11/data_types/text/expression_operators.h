@@ -76,5 +76,5 @@ namespace sqlpp
     using check = consistent_t;
     using type = concat_t<wrap_operand_t<L>, wrap_operand_t<R>>;
   };
-}
+}  // namespace sqlpp
 #endif

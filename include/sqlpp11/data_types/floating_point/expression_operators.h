@@ -82,5 +82,5 @@ namespace sqlpp
     using check = consistent_t;
     using type = unary_minus_t<floating_point, wrap_operand_t<T>>;
   };
-}
+}  // namespace sqlpp
 #endif

@@ -37,5 +37,5 @@ namespace sqlpp
   {
     using type = time_of_day_operand<std::chrono::duration<Rep, Period>>;
   };
-}
+}  // namespace sqlpp
 #endif

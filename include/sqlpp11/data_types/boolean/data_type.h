@@ -41,6 +41,6 @@ namespace sqlpp
   };
 
   using bit = sqlpp::boolean;
-}
+}  // namespace sqlpp
 
 #endif

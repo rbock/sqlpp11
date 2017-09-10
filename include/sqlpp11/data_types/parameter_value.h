@@ -36,6 +36,6 @@ namespace sqlpp
   {
     static_assert(wrong_t<parameter_value_t>::value, "Missing parameter value type for ValueType");
   };
-}
+}  // namespace sqlpp
 
 #endif

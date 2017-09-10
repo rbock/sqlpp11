@@ -34,5 +34,5 @@ namespace sqlpp
 {
   template <typename T>
   using value_type_t = value_type_of<wrap_operand_t<T>>;
-}
+}  // namespace sqlpp
 #endif

@@ -79,5 +79,5 @@ namespace sqlpp
       return os << e.value();
     }
   }
-}
+}  // namespace sqlpp
 #endif

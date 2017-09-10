@@ -61,6 +61,6 @@ namespace sqlpp
 
     std::ostream& _os;
   };
-}
+}  // namespace sqlpp
 
 #endif

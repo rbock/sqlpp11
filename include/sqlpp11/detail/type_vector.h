@@ -83,7 +83,7 @@ namespace sqlpp
     {
       static constexpr std::size_t value = sizeof...(T);
     };
-  }
-}
+  }  // namespace detail
+}  // namespace sqlpp
 
 #endif

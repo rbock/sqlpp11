@@ -39,7 +39,7 @@ namespace sqlpp
 
     template <typename T>
     using void_t = typename void_impl<T>::type;
-  }
-}
+  }  // namespace detail
+}  // namespace sqlpp
 
 #endif

@@ -33,6 +33,6 @@ namespace sqlpp
   struct is_null_t;
   template <typename Operand>
   struct is_not_null_t;
-}
+}  // namespace sqlpp
 
 #endif

@@ -67,6 +67,6 @@ namespace sqlpp
 
   template <typename Check, typename Policies, typename Needle, typename Replacement>
   using new_statement_t = typename new_statement_impl<Check, Policies, Needle, Replacement>::type;
-}
+}  // namespace sqlpp
 
 #endif

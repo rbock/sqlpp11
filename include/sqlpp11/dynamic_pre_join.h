@@ -167,6 +167,6 @@ namespace sqlpp
   {
     return {dynamic_pre_join_t<cross_join_t, Table>{table}, {}};
   }
-}
+}  // namespace sqlpp
 
 #endif

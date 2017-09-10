@@ -123,6 +123,6 @@ namespace sqlpp
     static_assert(is_numeric_t<wrap_operand_t<T>>::value, "avg() requires a numeric value expression as argument");
     return {t};
   }
-}
+}  // namespace sqlpp
 
 #endif

@@ -32,5 +32,5 @@ namespace sqlpp
   struct no_name_t
   {
   };
-}
+}  // namespace sqlpp
 #endif

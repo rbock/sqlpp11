@@ -52,5 +52,5 @@ namespace sqlpp
       target._post_bind_floating_point_result(index, &this->_value, &this->_is_null);
     }
   };
-}
+}  // namespace sqlpp
 #endif

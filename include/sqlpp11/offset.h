@@ -342,6 +342,6 @@ namespace sqlpp
   {
     return statement_t<Database, no_offset_t>().dynamic_offset();
   }
-}
+}  // namespace sqlpp
 
 #endif

@@ -86,7 +86,7 @@ namespace sqlpp
     {
       using type = tvin_t<T>;
     };
-  }
+  }  // namespace detail
   template <typename T>
   using allow_tvin_t = typename detail::allow_tvin_impl<T>::type;
 
@@ -132,7 +132,7 @@ namespace sqlpp
     {
       using type = std::true_type;
     };
-  }
+  }  // namespace detail
   template <typename T>
   using is_tvin_t = typename detail::is_tvin_impl<T>::type;
 
@@ -164,6 +164,6 @@ namespace sqlpp
                   "tvin() used with invalid type (only string and primitive types allowed)");
     return {{operand}};
   }
-}
+}  // namespace sqlpp
 
 #endif

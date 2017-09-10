@@ -56,10 +56,10 @@ namespace sqlpp
     {
       using type = expression_alias_t<T, typename T::_auto_alias_t>;
     };
-  }
+  }  // namespace detail
 
   template <typename T>
   using auto_alias_t = typename detail::auto_alias_impl<T>::type;
-}
+}  // namespace sqlpp
 
 #endif

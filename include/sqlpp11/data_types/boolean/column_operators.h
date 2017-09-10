@@ -37,5 +37,5 @@ namespace sqlpp
   struct column_operators<Column, boolean>
   {
   };
-}
+}  // namespace sqlpp
 #endif

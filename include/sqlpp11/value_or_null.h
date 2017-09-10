@@ -67,6 +67,6 @@ namespace sqlpp
                   "value_or_null() is to be called with non-sql-type like int, or string");
     return {t};
   }
-}
+}  // namespace sqlpp
 
 #endif

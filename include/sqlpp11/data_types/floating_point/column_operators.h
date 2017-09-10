@@ -76,5 +76,5 @@ namespace sqlpp
       return {*static_cast<const Column*>(this), {*static_cast<const Column*>(this), rhs{t}}};
     }
   };
-}
+}  // namespace sqlpp
 #endif

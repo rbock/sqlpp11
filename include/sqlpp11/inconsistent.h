@@ -40,6 +40,6 @@ namespace sqlpp
   template <typename Check>
   using inconsistent = typename std::enable_if<not std::is_same<consistent_t, Check>::value, Check>::type;
 #endif
-}
+}  // namespace sqlpp
 
 #endif

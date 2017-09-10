@@ -57,7 +57,7 @@ namespace sqlpp
     {
       using type = consistent_t;
     };
-  }
+  }  // namespace detail
 
   template <bool Consistent, typename Assert>
   using static_check_t = typename detail::static_check_impl<Consistent, Assert>::type;
@@ -84,10 +84,10 @@ namespace sqlpp
     {
       using type = consistent_t;
     };
-  }
+  }  // namespace detail
 
   template <typename... StaticChecks>
   using static_combined_check_t = typename detail::static_combined_check_impl<StaticChecks...>::type;
-}
+}  // namespace sqlpp
 
 #endif

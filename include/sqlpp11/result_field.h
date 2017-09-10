@@ -66,5 +66,5 @@ namespace sqlpp
   {
     return serialize(rf, os);
   }
-}
+}  // namespace sqlpp
 #endif

@@ -118,6 +118,6 @@ namespace sqlpp
     static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
     return {blank_update_t<Database>().single_table(table)};
   }
-}
+}  // namespace sqlpp
 
 #endif

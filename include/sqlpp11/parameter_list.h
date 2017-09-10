@@ -67,6 +67,6 @@ namespace sqlpp
 
   template <typename Exp>
   using make_parameter_list_t = parameter_list_t<parameters_of<Exp>>;
-}
+}  // namespace sqlpp
 
 #endif

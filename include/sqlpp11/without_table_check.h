@@ -65,7 +65,7 @@ namespace sqlpp
 
     return {expr};
   }
-}
+}  // namespace sqlpp
 
 #endif
 

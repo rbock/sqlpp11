@@ -61,6 +61,6 @@ namespace sqlpp
   {
     return eval(db, verbatim<ValueType>(sql_code));
   }
-}
+}  // namespace sqlpp
 
 #endif

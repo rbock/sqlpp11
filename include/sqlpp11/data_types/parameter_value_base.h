@@ -94,5 +94,5 @@ namespace sqlpp
     _cpp_storage_type _value;
     bool _is_null;
   };
-}
+}  // namespace sqlpp
 #endif

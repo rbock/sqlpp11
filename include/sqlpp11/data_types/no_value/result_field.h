@@ -67,6 +67,6 @@ namespace sqlpp
     os << "NULL";
     return os;
   }
-}
+}  // namespace sqlpp
 
 #endif

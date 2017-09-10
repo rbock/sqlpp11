@@ -76,6 +76,6 @@ namespace sqlpp
                   "some() requires a single column select expression as argument");
     return {t};
   }
-}
+}  // namespace sqlpp
 
 #endif

@@ -65,6 +65,6 @@ namespace sqlpp
       _serialize_check{};
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

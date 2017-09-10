@@ -51,5 +51,5 @@ namespace sqlpp
       target._post_bind_unsigned_integral_result(index, &this->_value, &this->_is_null);
     }
   };
-}
+}  // namespace sqlpp
 #endif

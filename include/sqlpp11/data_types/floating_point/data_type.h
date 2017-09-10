@@ -39,5 +39,5 @@ namespace sqlpp
     template <typename T>
     using _is_valid_operand = is_numeric_t<T>;
   };
-}
+}  // namespace sqlpp
 #endif

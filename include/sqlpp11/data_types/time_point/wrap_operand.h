@@ -37,5 +37,5 @@ namespace sqlpp
   {
     using type = time_point_operand<Period>;
   };
-}
+}  // namespace sqlpp
 #endif

@@ -174,6 +174,6 @@ namespace sqlpp
   {
     return statement_t<void, no_for_update_t>().for_update(std::forward<T>(t));
   }
-}
+}  // namespace sqlpp
 
 #endif

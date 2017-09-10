@@ -140,6 +140,6 @@ namespace sqlpp
       _result.next(_result_row);
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

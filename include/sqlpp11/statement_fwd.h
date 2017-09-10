@@ -31,6 +31,6 @@ namespace sqlpp
 {
   template <typename Db, typename... Policies>
   struct statement_t;
-}
+}  // namespace sqlpp
 
 #endif

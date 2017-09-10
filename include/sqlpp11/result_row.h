@@ -176,7 +176,7 @@ namespace sqlpp
         (void)swallow{(result_field<Db, Is, FieldSpecs>::_apply(callable), 0)...};
       }
     };
-  }
+  }  // namespace detail
 
   template <typename Db, typename... FieldSpecs>
   struct result_row_t
@@ -409,6 +409,6 @@ namespace sqlpp
   {
     row._apply(callable);
   }
-}
+}  // namespace sqlpp
 
 #endif

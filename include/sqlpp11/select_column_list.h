@@ -64,7 +64,7 @@ namespace sqlpp
                                   tag::is_selectable>;
       using _alias_t = typename Column::_alias_t;
     };
-  }
+  }  // namespace detail
 
   // SELECTED COLUMNS DATA
   template <typename Database, typename... Columns>
@@ -299,7 +299,7 @@ namespace sqlpp
     template <typename Database, typename... Columns>
     using make_select_column_list_t =
         copy_tuple_args_t<select_column_list_t, Database, decltype(column_tuple_merge(std::declval<Columns>()...))>;
-  }
+  }  // namespace detail
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_selected_colums_are_selectable_t, "selected columns must be selectable");
   template <typename... T>
@@ -454,6 +454,6 @@ namespace sqlpp
   {
     return statement_t<Database, no_select_column_list_t>().dynamic_columns(std::forward<T>(t)...);
   }
-}
+}  // namespace sqlpp
 
 #endif

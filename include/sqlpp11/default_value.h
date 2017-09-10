@@ -56,6 +56,6 @@ namespace sqlpp
   };
 
   constexpr default_value_t default_value = {};
-}
+}  // namespace sqlpp
 
 #endif

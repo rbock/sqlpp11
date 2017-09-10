@@ -38,6 +38,6 @@ namespace sqlpp
   {
     using type = boolean_operand;
   };
-}
+}  // namespace sqlpp
 
 #endif

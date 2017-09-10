@@ -209,6 +209,6 @@ namespace sqlpp
   {
     return statement_t<void, no_into_t>().into(std::forward<T>(t));
   }
-}
+}  // namespace sqlpp
 
 #endif

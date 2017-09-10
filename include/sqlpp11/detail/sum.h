@@ -54,7 +54,7 @@ namespace sqlpp
     {
       return arg + sum(rest...);
     }
-  }
-}
+  }  // namespace detail
+}  // namespace sqlpp
 
 #endif

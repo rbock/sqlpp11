@@ -217,6 +217,6 @@ namespace sqlpp
                   "at least one expression in with is an incomplete common table expression");
     return {{cte...}};
   }
-}
+}  // namespace sqlpp
 
 #endif

@@ -76,6 +76,6 @@ namespace sqlpp
     // FIXME: can we accept non-values like NULL here?
     return {t};
   }
-}
+}  // namespace sqlpp
 
 #endif

@@ -133,13 +133,13 @@ namespace sqlpp
     template <typename... Columns>
     using make_multi_column_t =
         copy_tuple_args_t<multi_column_t, void, decltype(column_tuple_merge(std::declval<Columns>()...))>;
-  }
+  }  // namespace detail
 
   template <typename... Columns>
   auto multi_column(Columns... columns) -> detail::make_multi_column_t<Columns...>
   {
     return detail::make_multi_column_t<Columns...>(std::tuple_cat(detail::as_column_tuple<Columns>::_(columns)...));
   }
-}
+}  // namespace sqlpp
 
 #endif

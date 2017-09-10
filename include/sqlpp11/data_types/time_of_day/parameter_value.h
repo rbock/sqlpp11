@@ -49,5 +49,5 @@ namespace sqlpp
       target._bind_time_of_day_parameter(index, &_value, _is_null);
     }
   };
-}
+}  // namespace sqlpp
 #endif

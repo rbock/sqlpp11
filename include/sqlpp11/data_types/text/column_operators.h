@@ -53,5 +53,5 @@ namespace sqlpp
               concat_t<Column, wrap_operand_t<T>>{*static_cast<const Column*>(this), rhs{t}}};
     }
   };
-}
+}  // namespace sqlpp
 #endif

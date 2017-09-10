@@ -37,6 +37,6 @@ namespace sqlpp
   struct expression_operators<Expression, no_value_t> : public basic_expression_operators<Expression>
   {
   };
-}
+}  // namespace sqlpp
 
 #endif

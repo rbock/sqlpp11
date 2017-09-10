@@ -289,6 +289,6 @@ namespace sqlpp
   {
     return {};
   }
-}
+}  // namespace sqlpp
 
 #endif

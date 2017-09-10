@@ -319,6 +319,6 @@ namespace sqlpp
   {
     return statement_t<Database, no_from_t>().dynamic_from(std::forward<T>(t));
   }
-}
+}  // namespace sqlpp
 
 #endif

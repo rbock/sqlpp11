@@ -51,7 +51,7 @@ namespace sqlpp
       const auto dp = floor<days>(t);
       return std::chrono::duration_cast<std::chrono::microseconds>(::date::make_time(t - dp).to_duration());
     }
-  }
-}
+  }  // namespace chrono
+}  // namespace sqlpp
 
 #endif

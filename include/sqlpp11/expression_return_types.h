@@ -138,6 +138,6 @@ namespace sqlpp
   };
   template <typename T, typename Defer>
   using return_type_unary_minus_t = typename return_type_unary_minus<T, Defer>::type;
-}
+}  // namespace sqlpp
 
 #endif

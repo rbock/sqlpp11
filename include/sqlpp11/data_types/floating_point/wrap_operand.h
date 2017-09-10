@@ -39,5 +39,5 @@ namespace sqlpp
   {
     using type = floating_point_operand;
   };
-}
+}  // namespace sqlpp
 #endif

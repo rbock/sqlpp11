@@ -41,5 +41,5 @@ namespace sqlpp
   {
     using type = day_point_operand;
   };
-}
+}  // namespace sqlpp
 #endif

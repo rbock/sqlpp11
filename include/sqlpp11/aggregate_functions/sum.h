@@ -122,6 +122,6 @@ namespace sqlpp
     static_assert(is_numeric_t<wrap_operand_t<T>>::value, "sum() requires a numeric expression as argument");
     return {t};
   }
-}
+}  // namespace sqlpp
 
 #endif

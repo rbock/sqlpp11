@@ -80,7 +80,7 @@ namespace sqlpp
     template <std::size_t StartIndex, typename... Fields>
     using make_field_index_sequence =
         typename make_field_index_sequence_impl<field_index_sequence<StartIndex>, Fields...>::type;
-  }
-}
+  }  // namespace detail
+}  // namespace sqlpp
 
 #endif

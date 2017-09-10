@@ -147,7 +147,7 @@ namespace sqlpp
       using _traits = make_traits<ValueType>;
       static constexpr const char* _name = "|";
     };
-  }
+  }  // namespace op
 
   template <typename Lhs, typename O, typename Rhs>
   struct binary_expression_t;
@@ -234,7 +234,7 @@ namespace sqlpp
     {
       using type = typename Expr::_rhs_t;
     };
-  }
+  }  // namespace detail
 
   // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2086629
   template <typename Expr>
@@ -249,6 +249,6 @@ namespace sqlpp
 
   template <typename Expr>
   using rhs_t = typename detail::rhs_impl<Expr>::type;
-}
+}  // namespace sqlpp
 
 #endif

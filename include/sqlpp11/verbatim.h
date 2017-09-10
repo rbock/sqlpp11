@@ -77,6 +77,6 @@ namespace sqlpp
   {
     return {s};
   }
-}
+}  // namespace sqlpp
 
 #endif

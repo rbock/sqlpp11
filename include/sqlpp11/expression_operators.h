@@ -36,6 +36,6 @@ namespace sqlpp
   {
     static_assert(wrong_t<expression_operators>::value, "Missing expression operators for ValueType");
   };
-}
+}  // namespace sqlpp
 
 #endif

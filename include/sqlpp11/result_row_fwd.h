@@ -34,6 +34,6 @@ namespace sqlpp
 
   template <typename Db, typename... FieldSpecs>
   struct dynamic_result_row_t;
-}
+}  // namespace sqlpp
 
 #endif

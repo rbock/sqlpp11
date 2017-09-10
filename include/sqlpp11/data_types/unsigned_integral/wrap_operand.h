@@ -41,5 +41,5 @@ namespace sqlpp
   {
     using type = unsigned_integral_operand;
   };
-}
+}  // namespace sqlpp
 #endif

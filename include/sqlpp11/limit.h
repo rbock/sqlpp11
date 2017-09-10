@@ -328,6 +328,6 @@ namespace sqlpp
   {
     return statement_t<Database, no_limit_t>().dynamic_limit();
   }
-}
+}  // namespace sqlpp
 
 #endif

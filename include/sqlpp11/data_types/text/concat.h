@@ -98,6 +98,6 @@ namespace sqlpp
 
     return {args...};
   }
-}
+}  // namespace sqlpp
 
 #endif

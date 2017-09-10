@@ -405,6 +405,6 @@ namespace sqlpp
   {
     return statement_t<void, no_where_t<false>>().unconditionally();
   }
-}
+}  // namespace sqlpp
 
 #endif

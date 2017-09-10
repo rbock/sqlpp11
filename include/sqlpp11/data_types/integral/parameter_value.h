@@ -47,5 +47,5 @@ namespace sqlpp
       target._bind_integral_parameter(index, &_value, _is_null);
     }
   };
-}
+}  // namespace sqlpp
 #endif

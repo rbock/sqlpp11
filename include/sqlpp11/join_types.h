@@ -68,6 +68,6 @@ namespace sqlpp
 
     static constexpr const char* _name = " CROSS";
   };
-}
+}  // namespace sqlpp
 
 #endif

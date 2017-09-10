@@ -114,6 +114,6 @@ namespace sqlpp
   {
     return {db, report_unfinished_transaction, isolation};
   }
-}
+}  // namespace sqlpp
 
 #endif

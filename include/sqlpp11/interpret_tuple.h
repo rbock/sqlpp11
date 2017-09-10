@@ -78,6 +78,6 @@ namespace sqlpp
     return interpret_tuple_impl(t, separator, context, std::false_type{},
                                 detail::make_index_sequence<std::tuple_size<Tuple>::value>{});
   }
-}
+}  // namespace sqlpp
 
 #endif

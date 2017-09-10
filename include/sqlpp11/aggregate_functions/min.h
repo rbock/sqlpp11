@@ -100,6 +100,6 @@ namespace sqlpp
     static_assert(is_expression_t<wrap_operand_t<T>>::value, "min() requires an expression as argument");
     return {t};
   }
-}
+}  // namespace sqlpp
 
 #endif

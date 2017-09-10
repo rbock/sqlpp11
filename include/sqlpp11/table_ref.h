@@ -50,6 +50,6 @@ namespace sqlpp
   {
     return t;
   }
-}
+}  // namespace sqlpp
 
 #endif

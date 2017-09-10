@@ -53,6 +53,6 @@ namespace sqlpp
   template <std::size_t N, const char (&Input)[N]>
   using make_char_sequence =
       typename make_char_sequence_impl<sizeof(Input), Input, sqlpp::detail::make_index_sequence<sizeof(Input)>>::type;
-}
+}  // namespace sqlpp
 
 #endif

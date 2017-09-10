@@ -33,6 +33,6 @@ namespace sqlpp
   struct in_t;
   template <typename Operand, typename... Args>
   struct not_in_t;
-}
+}  // namespace sqlpp
 
 #endif

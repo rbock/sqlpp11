@@ -179,13 +179,13 @@ namespace sqlpp
 
     template <typename Check, typename When>
     auto case_when_impl(Check, When when) -> inconsistent<Check>;
-  }
+  }  // namespace detail
 
   template <typename When>
   auto case_when(When when) -> decltype(detail::case_when_impl(check_case_when_t<When>{}, when))
   {
     return detail::case_when_impl(check_case_when_t<When>{}, when);
   }
-}
+}  // namespace sqlpp
 
 #endif

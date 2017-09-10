@@ -51,6 +51,6 @@ namespace sqlpp
   };
 
   constexpr null_t null = {};
-}
+}  // namespace sqlpp
 
 #endif

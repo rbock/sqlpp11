@@ -35,6 +35,6 @@ namespace sqlpp
   {
     static void _(){};
   };
-}
+}  // namespace sqlpp
 
 #endif

@@ -150,7 +150,7 @@ namespace sqlpp
       using _parameter_check = typename std::
           conditional<detail::type_vector_size<_parameters>::value == 0, consistent_t, assert_no_parameters_t>::type;
     };
-  }
+  }  // namespace detail
 
   template <typename Db, typename... Policies>
   struct statement_t : public Policies::template _base_t<detail::statement_policies_t<Db, Policies...>>...,
@@ -321,6 +321,6 @@ namespace sqlpp
       using _consistency_check = consistent_t;
     };
   };
-}
+}  // namespace sqlpp
 
 #endif

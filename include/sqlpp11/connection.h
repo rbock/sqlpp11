@@ -32,6 +32,6 @@ namespace sqlpp
   struct connection
   {
   };
-}
+}  // namespace sqlpp
 
 #endif

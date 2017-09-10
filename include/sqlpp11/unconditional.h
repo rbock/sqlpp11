@@ -32,5 +32,5 @@ namespace sqlpp
   struct unconditional_t
   {
   };
-}
+}  // namespace sqlpp
 #endif

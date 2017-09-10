@@ -51,6 +51,6 @@ namespace sqlpp
         and ValueType::template _is_valid_assignment_operand<T>::value  // the correct value type is required, of course
         ;
   };
-}
+}  // namespace sqlpp
 
 #endif

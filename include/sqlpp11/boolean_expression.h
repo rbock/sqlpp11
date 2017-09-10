@@ -78,6 +78,6 @@ namespace sqlpp
       return serialize(t._expr, context);
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

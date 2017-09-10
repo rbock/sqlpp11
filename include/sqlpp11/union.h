@@ -266,6 +266,6 @@ namespace sqlpp
     return statement_t<void, no_union_t>().union_distinct(std::forward<T>(t));
   }
   */
-}
+}  // namespace sqlpp
 
 #endif

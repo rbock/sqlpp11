@@ -38,6 +38,6 @@ namespace sqlpp
                   "value() is to be called with non-sql-type like int, or string");
     return {t};
   }
-}
+}  // namespace sqlpp
 
 #endif

@@ -51,7 +51,7 @@ namespace sqlpp
     {
       return pick_arg_impl<Target>(statement, term, std::is_same<typename Target::_data_t, Term>());
     }
-  }
-}
+  }  // namespace detail
+}  // namespace sqlpp
 
 #endif

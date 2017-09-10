@@ -44,5 +44,5 @@ namespace sqlpp
   using smallint = integral;
   using integer = integral;
   using bigint = integral;
-}
+}  // namespace sqlpp
 #endif

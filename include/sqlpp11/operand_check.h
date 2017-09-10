@@ -70,6 +70,6 @@ namespace sqlpp
 
   template <typename L, template <typename> class LPred, typename R, template <typename> class RPred>
   using unwrapped_binary_operand_check_t = typename binary_operand_check<L, LPred, R, RPred>::type;
-}
+}  // namespace sqlpp
 
 #endif

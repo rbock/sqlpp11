@@ -111,7 +111,7 @@ namespace sqlpp
         return t.is_null();
       }
     };
-  }
+  }  // namespace detail
 
   template <typename Expr, bool TrivialValueIsNull>
   struct rhs_wrap_t
@@ -165,6 +165,6 @@ namespace sqlpp
       return context;
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

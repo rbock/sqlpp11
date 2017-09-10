@@ -45,5 +45,5 @@ namespace sqlpp
   using char_ = text;
   using binary = text;
   using varbinary = text;
-}
+}  // namespace sqlpp
 #endif

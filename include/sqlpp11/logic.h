@@ -84,7 +84,7 @@ namespace sqlpp
 
     template <typename T>
     using identity_t = T;
-  }
-}
+  }  // namespace logic
+}  // namespace sqlpp
 
 #endif

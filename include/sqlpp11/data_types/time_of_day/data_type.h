@@ -40,5 +40,5 @@ namespace sqlpp
     template <typename T>
     using _is_valid_operand = is_time_of_day_t<T>;
   };
-}
+}  // namespace sqlpp
 #endif

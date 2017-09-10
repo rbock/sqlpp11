@@ -162,7 +162,7 @@ namespace sqlpp
     {
       static constexpr auto value = detail::must_not_update_impl<typename lhs<Assignment>::type>::type::value;
     };
-  }
+  }  // namespace detail
 
   template <typename... Assignments>
   using check_update_set_t = static_combined_check_t<
@@ -301,6 +301,6 @@ namespace sqlpp
       return context;
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

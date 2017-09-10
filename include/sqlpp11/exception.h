@@ -41,6 +41,6 @@ namespace sqlpp
     {
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

@@ -100,7 +100,7 @@ namespace sqlpp
     SQLPP_ALIAS_PROVIDER(z)
     SQLPP_ALIAS_PROVIDER(left)
     SQLPP_ALIAS_PROVIDER(right)
-  }
-}
+  }  // namespace alias
+}  // namespace sqlpp
 
 #endif

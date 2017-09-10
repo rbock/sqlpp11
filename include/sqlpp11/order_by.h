@@ -280,6 +280,6 @@ namespace sqlpp
   {
     return statement_t<Database, no_order_by_t>().dynamic_order_by(std::forward<T>(t)...);
   }
-}
+}  // namespace sqlpp
 
 #endif

@@ -113,5 +113,5 @@ namespace sqlpp
     using check = consistent_t;
     using type = bitwise_or_t<wrap_operand_t<L>, unsigned_integral, wrap_operand_t<R>>;
   };
-}
+}  // namespace sqlpp
 #endif

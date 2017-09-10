@@ -59,7 +59,7 @@ namespace sqlpp
       using _result_type_provider = typename unhide<_maybe_hidden_result_type_provider>::type;
       using _result_methods_t = typename _result_type_provider::template _result_methods_t<_result_type_provider>;
     };
-  }
+  }  // namespace detail
 
   template <typename Database, typename... Parts>
   struct custom_query_t : private detail::custom_parts_t<Database, Parts...>::_result_methods_t
@@ -150,5 +150,5 @@ namespace sqlpp
 
     return custom_query_t<Database, wrap_operand_t<Parts>...>(parts...);
   }
-}
+}  // namespace sqlpp
 #endif

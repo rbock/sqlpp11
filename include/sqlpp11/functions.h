@@ -132,6 +132,6 @@ namespace sqlpp
   {
     return name_of<T>::char_ptr();
   }
-}
+}  // namespace sqlpp
 
 #endif

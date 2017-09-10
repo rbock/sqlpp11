@@ -97,5 +97,5 @@ namespace sqlpp
   struct is_noop : std::is_same<T, noop>
   {
   };
-}
+}  // namespace sqlpp
 #endif

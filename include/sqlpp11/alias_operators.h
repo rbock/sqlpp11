@@ -40,5 +40,5 @@ namespace sqlpp
       return {*static_cast<const Expr*>(this)};
     }
   };
-}
+}  // namespace sqlpp
 #endif

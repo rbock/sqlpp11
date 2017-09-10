@@ -84,7 +84,7 @@ namespace sqlpp
     {
       return std::tuple_cat(as_column_tuple<Columns>::_(columns)...);
     }
-  }
-}
+  }  // namespace detail
+}  // namespace sqlpp
 
 #endif

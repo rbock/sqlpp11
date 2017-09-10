@@ -37,5 +37,5 @@ namespace sqlpp
   struct column_operators<Base, no_value_t>
   {
   };
-}
+}  // namespace sqlpp
 #endif

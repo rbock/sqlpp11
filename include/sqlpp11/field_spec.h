@@ -110,10 +110,10 @@ namespace sqlpp
       using type =
           multi_field_spec_t<AliasProvider, std::tuple<typename make_field_spec_impl<Select, NamedExprs>::type...>>;
     };
-  }
+  }  // namespace detail
 
   template <typename Select, typename NamedExpr>
   using make_field_spec_t = typename detail::make_field_spec_impl<Select, NamedExpr>::type;
-}
+}  // namespace sqlpp
 
 #endif

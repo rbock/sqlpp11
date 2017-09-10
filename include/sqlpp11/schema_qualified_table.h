@@ -87,6 +87,6 @@ namespace sqlpp
 
     return {schema, table};
   }
-}
+}  // namespace sqlpp
 
 #endif

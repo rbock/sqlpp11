@@ -36,6 +36,6 @@ namespace sqlpp
   {
     return interpreter_t<Context, T>::_(t, context);
   }
-}
+}  // namespace sqlpp
 
 #endif

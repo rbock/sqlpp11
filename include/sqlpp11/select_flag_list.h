@@ -269,6 +269,6 @@ namespace sqlpp
   {
     return statement_t<Database, no_select_flag_list_t>().dynamic_flags(std::forward<T>(t));
   }
-}
+}  // namespace sqlpp
 
 #endif

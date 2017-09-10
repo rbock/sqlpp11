@@ -59,6 +59,6 @@ namespace sqlpp
     using check = consistent_t;
     using type = logical_not_t<wrap_operand_t<T>>;
   };
-}
+}  // namespace sqlpp
 
 #endif

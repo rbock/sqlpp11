@@ -158,7 +158,7 @@ namespace sqlpp
 
     template <typename JoinType, typename Lhs, typename Rhs>
     auto join_impl(Lhs lhs, Rhs rhs) -> decltype(join_impl<JoinType>(check_pre_join_t<Lhs, Rhs>{}, lhs, rhs));
-  }
+  }  // namespace detail
 
   template <typename Lhs, typename Rhs>
   auto join(Lhs lhs, Rhs rhs) -> decltype(detail::join_impl<inner_join_t>(lhs, rhs))
@@ -203,13 +203,13 @@ namespace sqlpp
 
     template <typename Lhs, typename Rhs>
     auto cross_join_impl(Lhs lhs, Rhs rhs) -> decltype(cross_join_impl(check_pre_join_t<Lhs, Rhs>{}, lhs, rhs));
-  }
+  }  // namespace detail
 
   template <typename Lhs, typename Rhs>
   auto cross_join(Lhs lhs, Rhs rhs) -> decltype(detail::cross_join_impl(lhs, rhs))
   {
     return {pre_join_t<cross_join_t, Lhs, Rhs>{lhs, rhs}, {}};
   }
-}
+}  // namespace sqlpp
 
 #endif

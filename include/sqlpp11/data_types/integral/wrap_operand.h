@@ -41,5 +41,5 @@ namespace sqlpp
   {
     using type = integral_operand;
   };
-}
+}  // namespace sqlpp
 #endif

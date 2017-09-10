@@ -98,6 +98,6 @@ namespace sqlpp
     static_assert(is_select_t<wrap_operand_t<T>>::value, "exists() requires a select expression as argument");
     return {t};
   }
-}
+}  // namespace sqlpp
 
 #endif

@@ -27,9 +27,4 @@
 #ifndef SQLPP11_DATA_TYPES_NO_VALUE_PARAMETER_VALUE_H
 #define SQLPP11_DATA_TYPES_NO_VALUE_PARAMETER_VALUE_H
 
-namespace sqlpp
-{
-  // There is no no_value parameter
-}
-
 #endif

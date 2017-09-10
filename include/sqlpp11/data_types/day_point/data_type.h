@@ -44,5 +44,5 @@ namespace sqlpp
   };
 
   using date = day_point;
-}
+}  // namespace sqlpp
 #endif

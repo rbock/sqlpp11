@@ -44,5 +44,5 @@ namespace sqlpp
   using smallint_unsigned = unsigned_integral;
   using integer_unsigned = unsigned_integral;
   using bigint_unsigned = unsigned_integral;
-}
+}  // namespace sqlpp
 #endif

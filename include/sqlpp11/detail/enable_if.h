@@ -35,7 +35,7 @@ namespace sqlpp
   {
     template <bool B, typename T = void>
     using enable_if_t = typename std::enable_if<B, T>::type;
-  }
-}
+  }  // namespace detail
+}  // namespace sqlpp
 
 #endif

@@ -38,5 +38,5 @@ namespace sqlpp
   struct expression_operators<Expression, day_point> : public basic_expression_operators<Expression>
   {
   };
-}
+}  // namespace sqlpp
 #endif

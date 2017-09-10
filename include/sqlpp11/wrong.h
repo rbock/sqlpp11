@@ -41,8 +41,8 @@ namespace sqlpp
     {
       using type = std::false_type;
     };
-  }
+  }  // namespace detail
   template <typename... T>
   using wrong_t = typename detail::wrong<T...>::type;
-}
+}  // namespace sqlpp
 #endif
