@@ -41,8 +41,7 @@ namespace sqlpp
     using _interpreter_context_t = typename Db::_interpreter_context_t;
 
     template <typename T>
-    named_interpretable_t(T t)
-        : _requires_braces(requires_braces_t<T>::value), _impl(std::make_shared<_impl_t<T>>(t))
+    named_interpretable_t(T t) : _requires_braces(requires_braces_t<T>::value), _impl(std::make_shared<_impl_t<T>>(t))
     {
     }
 
@@ -82,6 +81,7 @@ namespace sqlpp
   private:
     struct _impl_base
     {
+      virtual ~_impl_base() = default;
       virtual serializer_context_t& serialize(serializer_context_t& context) const = 0;
       virtual _serializer_context_t& db_serialize(_serializer_context_t& context) const = 0;
       virtual _interpreter_context_t& interpret(_interpreter_context_t& context) const = 0;
