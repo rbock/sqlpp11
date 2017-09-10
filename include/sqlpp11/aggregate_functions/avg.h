@@ -116,7 +116,7 @@ namespace sqlpp
   }
 
   template <typename T>
-  auto avg(const distinct_t&, T t) -> avg_t<distinct_t, wrap_operand_t<T>>
+  auto avg(const distinct_t& /*unused*/, T t) -> avg_t<distinct_t, wrap_operand_t<T>>
   {
     static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value,
                   "avg() cannot be used on an aggregate function");

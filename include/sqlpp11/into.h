@@ -179,7 +179,8 @@ namespace sqlpp
       auto _into_impl(Check, Table table) const -> inconsistent<Check>;
 
       template <typename Database, typename Table>
-      auto _into_impl(consistent_t, Table table) const -> _new_statement_t<consistent_t, into_t<Database, Table>>
+      auto _into_impl(consistent_t /*unused*/, Table table) const
+          -> _new_statement_t<consistent_t, into_t<Database, Table>>
       {
         static_assert(required_tables_of<into_t<Database, Table>>::size::value == 0,
                       "argument depends on another table in into()");

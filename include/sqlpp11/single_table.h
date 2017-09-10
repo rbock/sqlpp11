@@ -179,7 +179,7 @@ namespace sqlpp
       auto _single_table_impl(Check, Table table) const -> inconsistent<Check>;
 
       template <typename Database, typename Table>
-      auto _single_table_impl(consistent_t, Table table) const
+      auto _single_table_impl(consistent_t /*unused*/, Table table) const
           -> _new_statement_t<consistent_t, single_table_t<Database, Table>>
       {
         static_assert(required_tables_of<single_table_t<Database, Table>>::size::value == 0,

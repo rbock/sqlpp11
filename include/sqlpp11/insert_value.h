@@ -75,11 +75,12 @@ namespace sqlpp
     {
     }
 
-    insert_value_t(const rhs_wrap_t<null_t, _trivial_value_is_null>&) : _is_null(true), _is_default(false), _value{}
+    insert_value_t(const rhs_wrap_t<null_t, _trivial_value_is_null>& /*unused*/)
+        : _is_null(true), _is_default(false), _value{}
     {
     }
 
-    insert_value_t(const rhs_wrap_t<default_value_t, _trivial_value_is_null>&)
+    insert_value_t(const rhs_wrap_t<default_value_t, _trivial_value_is_null>& /*unused*/)
         : _is_null(false), _is_default(true), _value{}
     {
     }

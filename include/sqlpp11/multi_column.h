@@ -63,7 +63,7 @@ namespace sqlpp
     ~multi_column_t() = default;
 
     template <typename AliasProvider>
-    multi_column_alias_t<AliasProvider, Columns...> as(const AliasProvider&)
+    multi_column_alias_t<AliasProvider, Columns...> as(const AliasProvider& /*unused*/)
     {
       return {*this};
     }
@@ -109,7 +109,7 @@ namespace sqlpp
     using _serialize_check = serialize_check_of<Context, Columns...>;
     using T = multi_column_t<void, Columns...>;
 
-    static void _(const T&, Context&)
+    static void _(const T& /*unused*/, Context& /*unused*/)
     {
       static_assert(wrong_t<serializer_t>::value, "multi_column must be used with an alias");
     }

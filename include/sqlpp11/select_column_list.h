@@ -145,7 +145,7 @@ namespace sqlpp
 
       // private:
       template <typename NamedExpression>
-      void _add_impl(NamedExpression namedExpression, const std::true_type&)
+      void _add_impl(NamedExpression namedExpression, const std::true_type& /*unused*/)
       {
         return _data._dynamic_columns.emplace_back(auto_alias_t<NamedExpression>{namedExpression});
       }
@@ -368,7 +368,7 @@ namespace sqlpp
       using _database_t = typename Policies::_database_t;
 
       template <typename... T>
-      static constexpr auto _check_tuple(std::tuple<T...>) -> check_selected_columns_t<T...>
+      static constexpr auto _check_tuple(std::tuple<T...> /*unused*/) -> check_selected_columns_t<T...>
       {
         return {};
       }
@@ -412,7 +412,7 @@ namespace sqlpp
       auto _columns_impl(Check, std::tuple<Args...> args) const -> inconsistent<Check>;
 
       template <typename Database, typename... Args>
-      auto _columns_impl(consistent_t, std::tuple<Args...> args) const
+      auto _columns_impl(consistent_t /*unused*/, std::tuple<Args...> args) const
           -> _new_statement_t<consistent_t, select_column_list_t<Database, Args...>>
       {
         static_assert(not detail::has_duplicates<Args...>::value, "at least one duplicate argument detected");
@@ -449,7 +449,7 @@ namespace sqlpp
   }
 
   template <typename Database, typename... T>
-  auto dynamic_select_columns(const Database&, T&&... t)
+  auto dynamic_select_columns(const Database& /*unused*/, T&&... t)
       -> decltype(statement_t<Database, no_select_column_list_t>().dynamic_columns(std::forward<T>(t)...))
   {
     return statement_t<Database, no_select_column_list_t>().dynamic_columns(std::forward<T>(t)...);

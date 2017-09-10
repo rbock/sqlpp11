@@ -92,7 +92,7 @@ namespace sqlpp
     }
 
     template <typename AliasProvider>
-    _alias_t<AliasProvider> as(const AliasProvider&) const
+    _alias_t<AliasProvider> as(const AliasProvider& /*unused*/) const
     {
       return {*static_cast<const Table*>(this)};
     }
@@ -118,7 +118,7 @@ namespace sqlpp
     using _serialize_check = consistent_t;
     using T = X;
 
-    static Context& _(const T&, Context& context)
+    static Context& _(const T& /*unused*/, Context& context)
     {
       context << name_of<T>::char_ptr();
       return context;

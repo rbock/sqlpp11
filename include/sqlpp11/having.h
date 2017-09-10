@@ -101,7 +101,7 @@ namespace sqlpp
 
     private:
       template <typename Expr>
-      void _add_impl(Expr expression, const std::true_type&)
+      void _add_impl(Expr expression, const std::true_type& /*unused*/)
       {
         return _data._dynamic_expressions.emplace_back(expression);
       }
@@ -281,7 +281,7 @@ namespace sqlpp
       auto _having_impl(Check, Expression expression) const -> inconsistent<Check>;
 
       template <typename Database, typename Expression>
-      auto _having_impl(consistent_t, Expression expression) const
+      auto _having_impl(consistent_t /*unused*/, Expression expression) const
           -> _new_statement_t<consistent_t, having_t<Database, Expression>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this),
@@ -315,7 +315,7 @@ namespace sqlpp
   }
 
   template <typename Database, typename T>
-  auto dynamic_having(const Database&, T&& t)
+  auto dynamic_having(const Database& /*unused*/, T&& t)
       -> decltype(statement_t<Database, no_having_t>().dynamic_having(std::forward<T>(t)))
   {
     return statement_t<Database, no_having_t>().dynamic_having(std::forward<T>(t));

@@ -100,7 +100,7 @@ namespace sqlpp
 
     private:
       template <typename Expression>
-      void _add_impl(Expression expression, const std::true_type&)
+      void _add_impl(Expression expression, const std::true_type& /*unused*/)
       {
         return _data._dynamic_expressions.emplace_back(expression);
       }
@@ -238,7 +238,7 @@ namespace sqlpp
       auto _group_by_impl(Check, Expressions... expressions) const -> inconsistent<Check>;
 
       template <typename Database, typename... Expressions>
-      auto _group_by_impl(consistent_t, Expressions... expressions) const
+      auto _group_by_impl(consistent_t /*unused*/, Expressions... expressions) const
           -> _new_statement_t<consistent_t, group_by_t<Database, Expressions...>>
       {
         static_assert(not detail::has_duplicates<Expressions...>::value,
@@ -277,7 +277,7 @@ namespace sqlpp
   }
 
   template <typename Database, typename... T>
-  auto dynamic_group_by(const Database&, T&&... t)
+  auto dynamic_group_by(const Database& /*unused*/, T&&... t)
       -> decltype(statement_t<Database, no_group_by_t>().dynamic_group_by(std::forward<T>(t)...))
   {
     return statement_t<Database, no_group_by_t>().dynamic_group_by(std::forward<T>(t)...);

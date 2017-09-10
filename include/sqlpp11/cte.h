@@ -86,7 +86,7 @@ namespace sqlpp
   struct cte_ref_t;
 
   template <typename AliasProvider, typename Statement, typename... FieldSpecs>
-  auto from_table(cte_t<AliasProvider, Statement, FieldSpecs...>) -> cte_ref_t<AliasProvider>
+  auto from_table(cte_t<AliasProvider, Statement, FieldSpecs...> /*unused*/) -> cte_ref_t<AliasProvider>
   {
     return cte_ref_t<AliasProvider>{};
   }
@@ -208,7 +208,7 @@ namespace sqlpp
     auto _union_impl(Check, Rhs rhs) const -> inconsistent<Check>;
 
     template <typename Flag, typename Rhs>
-    auto _union_impl(consistent_t, Rhs rhs) const
+    auto _union_impl(consistent_t /*unused*/, Rhs rhs) const
         -> cte_t<AliasProvider, cte_union_t<Flag, Statement, Rhs>, FieldSpecs...>
     {
       return cte_union_t<Flag, Statement, Rhs>{_statement, rhs};
@@ -277,7 +277,7 @@ namespace sqlpp
     using _serialize_check = consistent_t;
     using T = cte_ref_t<AliasProvider>;
 
-    static Context& _(const T&, Context& context)
+    static Context& _(const T& /*unused*/, Context& context)
     {
       context << name_of<T>::char_ptr();
       return context;
@@ -285,7 +285,7 @@ namespace sqlpp
   };
 
   template <typename AliasProvider>
-  auto cte(const AliasProvider&) -> cte_ref_t<AliasProvider>
+  auto cte(const AliasProvider & /*unused*/) -> cte_ref_t<AliasProvider>
   {
     return {};
   }

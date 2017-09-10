@@ -94,7 +94,7 @@ namespace sqlpp
 
     private:
       template <typename Flag>
-      void _add_impl(Flag flag, const std::true_type&)
+      void _add_impl(Flag flag, const std::true_type& /*unused*/)
       {
         return _data._dynamic_flags.emplace_back(flag);
       }
@@ -226,7 +226,7 @@ namespace sqlpp
       auto _flags_impl(Check, Flags... flgs) const -> inconsistent<Check>;
 
       template <typename Database, typename... Flags>
-      auto _flags_impl(consistent_t, Flags... flgs) const
+      auto _flags_impl(consistent_t /*unused*/, Flags... flgs) const
           -> _new_statement_t<consistent_t, select_flag_list_t<Database, Flags...>>
       {
         static_assert(not detail::has_duplicates<Flags...>::value,
@@ -264,7 +264,7 @@ namespace sqlpp
   }
 
   template <typename Database, typename T>
-  auto dynamic_select_flags(const Database&, T&& t)
+  auto dynamic_select_flags(const Database& /*unused*/, T&& t)
       -> decltype(statement_t<Database, no_select_flag_list_t>().dynamic_flags(std::forward<T>(t)))
   {
     return statement_t<Database, no_select_flag_list_t>().dynamic_flags(std::forward<T>(t));

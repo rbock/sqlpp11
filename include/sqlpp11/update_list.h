@@ -98,7 +98,7 @@ namespace sqlpp
 
     private:
       template <typename Assignment>
-      void _add_impl(Assignment assignment, const std::true_type&)
+      void _add_impl(Assignment assignment, const std::true_type& /*unused*/)
       {
         return _data._dynamic_assignments.emplace_back(assignment);
       }
@@ -275,7 +275,7 @@ namespace sqlpp
       auto _set_impl(Check, Assignments... assignments) const -> inconsistent<Check>;
 
       template <typename Database, typename... Assignments>
-      auto _set_impl(consistent_t, Assignments... assignments) const
+      auto _set_impl(consistent_t /*unused*/, Assignments... assignments) const
           -> _new_statement_t<consistent_t, update_list_t<Database, Assignments...>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this),

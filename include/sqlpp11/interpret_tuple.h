@@ -36,7 +36,7 @@ namespace sqlpp
 {
   template <typename Element, typename Separator, typename Context, typename UseBraces>
   static void interpret_tuple_element(
-      const Element& element, const Separator& separator, Context& context, const UseBraces&, size_t index)
+      const Element& element, const Separator& separator, Context& context, const UseBraces& /*unused*/, size_t index)
   {
     if (index)
       context << separator;
@@ -51,7 +51,8 @@ namespace sqlpp
                             const Separator& separator,
                             Context& context,
                             const UseBraces& useBraces,
-                            const detail::index_sequence<Is...>&) -> Context&
+                            const detail::index_sequence<Is...> &
+                            /*unused*/) -> Context&
   {
     // Note: A braced-init-list does guarantee the order of evaluation according to 12.6.1 [class.explicit.init]
     // paragraph 2 and 8.5.4 [dcl.init.list] paragraph 4.

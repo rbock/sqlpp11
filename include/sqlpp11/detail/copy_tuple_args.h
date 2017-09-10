@@ -49,7 +49,7 @@ namespace sqlpp
     template <typename T>
     struct as_column_tuple<all_of_t<T>>
     {
-      static typename all_of_t<T>::_column_tuple_t _(all_of_t<T>)
+      static typename all_of_t<T>::_column_tuple_t _(all_of_t<T> /*unused*/)
       {
         return {};
       }

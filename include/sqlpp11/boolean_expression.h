@@ -62,7 +62,7 @@ namespace sqlpp
   }
 
   template <typename Database, typename T>
-  boolean_expression_t<Database> boolean_expression(const Database&, T t)
+  boolean_expression_t<Database> boolean_expression(const Database& /*unused*/, T t)
   {
     return boolean_expression<Database>(t);
   }

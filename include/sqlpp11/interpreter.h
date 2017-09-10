@@ -34,7 +34,7 @@ namespace sqlpp
   template <typename Context, typename T, typename Enable = void>
   struct interpreter_t
   {
-    static void _(const T&, Context&)
+    static void _(const T& /*unused*/, Context& /*unused*/)
     {
       static_assert(wrong_t<interpreter_t>::value, "missing interpreter specialization");
     }

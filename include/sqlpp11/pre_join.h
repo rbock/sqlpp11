@@ -122,7 +122,7 @@ namespace sqlpp
     auto on_impl(Check, const Expr&) const -> inconsistent<Check>;
 
     template <typename Expr>
-    auto on_impl(consistent_t, const Expr& expr) const -> join_t<pre_join_t, on_t<Expr>>
+    auto on_impl(consistent_t /*unused*/, const Expr& expr) const -> join_t<pre_join_t, on_t<Expr>>
     {
       return {*this, {expr}};
     }

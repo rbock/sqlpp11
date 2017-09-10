@@ -143,7 +143,8 @@ namespace sqlpp
   }
 
   template <typename Database, typename... Parts>
-  auto dynamic_custom_query(const Database&, Parts... parts) -> custom_query_t<Database, wrap_operand_t<Parts>...>
+  auto dynamic_custom_query(const Database& /*unused*/, Parts... parts)
+      -> custom_query_t<Database, wrap_operand_t<Parts>...>
   {
     static_assert(sizeof...(Parts) > 0, "custom query requires at least one query argument");
     static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");

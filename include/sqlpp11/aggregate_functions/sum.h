@@ -115,7 +115,7 @@ namespace sqlpp
   }
 
   template <typename T>
-  auto sum(const distinct_t&, T t) -> sum_t<distinct_t, wrap_operand_t<T>>
+  auto sum(const distinct_t& /*unused*/, T t) -> sum_t<distinct_t, wrap_operand_t<T>>
   {
     static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value,
                   "sum() cannot be used on an aggregate function");

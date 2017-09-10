@@ -190,7 +190,7 @@ namespace sqlpp
     {
     }
 
-    result_row_t(const typename dynamic_select_column_list<void>::_names_t&) : _impl(), _is_valid(false)
+    result_row_t(const typename dynamic_select_column_list<void>::_names_t& /*unused*/) : _impl(), _is_valid(false)
     {
     }
 

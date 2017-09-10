@@ -38,7 +38,7 @@ namespace sqlpp
   struct bad_expression
   {
     template <typename... T>
-    bad_expression(T&&...)
+    bad_expression(T&&... /*unused*/)
     {
     }
     using _traits = make_traits<ValueType, tag::is_expression>;

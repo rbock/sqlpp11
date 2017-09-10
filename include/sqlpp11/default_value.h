@@ -48,7 +48,7 @@ namespace sqlpp
     using _serialize_check = consistent_t;
     using Operand = default_value_t;
 
-    static Context& _(const Operand&, Context& context)
+    static Context& _(const Operand& /*unused*/, Context& context)
     {
       context << "DEFAULT";
       return context;

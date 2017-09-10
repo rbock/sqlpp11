@@ -292,7 +292,7 @@ namespace sqlpp
       auto _offset_impl(Check, Arg arg) const -> inconsistent<Check>;
 
       template <typename Arg>
-      auto _offset_impl(consistent_t, Arg arg) const -> _new_statement_t<consistent_t, offset_t<Arg>>
+      auto _offset_impl(consistent_t /*unused*/, Arg arg) const -> _new_statement_t<consistent_t, offset_t<Arg>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this), offset_data_t<Arg>{arg}};
       }
@@ -338,7 +338,7 @@ namespace sqlpp
   }
 
   template <typename Database>
-  auto dynamic_offset(const Database&) -> decltype(statement_t<Database, no_offset_t>().dynamic_offset())
+  auto dynamic_offset(const Database & /*unused*/) -> decltype(statement_t<Database, no_offset_t>().dynamic_offset())
   {
     return statement_t<Database, no_offset_t>().dynamic_offset();
   }

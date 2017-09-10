@@ -97,7 +97,7 @@ namespace sqlpp
     using _serialize_check = consistent_t;
     using T = not_in_t<Operand>;
 
-    static Context& _(const T&, Context& context)
+    static Context& _(const T& /*unused*/, Context& context)
     {
       serialize(boolean_operand{true}, context);
       return context;

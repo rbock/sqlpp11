@@ -62,7 +62,7 @@ namespace sqlpp
     using _serialize_check = consistent_t;
     using T = select_name_t;
 
-    static Context& _(const T&, Context& context)
+    static Context& _(const T& /*unused*/, Context& context)
     {
       context << "SELECT ";
 
@@ -98,14 +98,15 @@ namespace sqlpp
   }
 
   template <typename Database>
-  blank_select_t<Database> dynamic_select(const Database&)
+  blank_select_t<Database> dynamic_select(const Database& /*unused*/)
   {
     static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
     return {};
   }
 
   template <typename Database, typename... Columns>
-  auto dynamic_select(const Database&, Columns... columns) -> decltype(blank_select_t<Database>().columns(columns...))
+  auto dynamic_select(const Database& /*unused*/, Columns... columns)
+      -> decltype(blank_select_t<Database>().columns(columns...))
   {
     static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
     return blank_select_t<Database>().columns(columns...);

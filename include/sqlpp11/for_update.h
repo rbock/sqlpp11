@@ -162,7 +162,7 @@ namespace sqlpp
     using _serialize_check = serialize_check_of<Context>;
     using T = for_update_data_t;
 
-    static Context& _(const T&, Context& context)
+    static Context& _(const T& /*unused*/, Context& context)
     {
       context << " FOR UPDATE ";
       return context;

@@ -90,7 +90,7 @@ namespace sqlpp
 
     private:
       template <typename Table>
-      void _add_impl(Table table, const std::true_type&)
+      void _add_impl(Table table, const std::true_type& /*unused*/)
       {
         return _data._dynamic_tables.emplace_back(table);
       }
@@ -227,7 +227,7 @@ namespace sqlpp
       auto _using_impl(Check, Tables... tables) const -> inconsistent<Check>;
 
       template <typename Database, typename... Tables>
-      auto _using_impl(consistent_t, Tables... tables) const
+      auto _using_impl(consistent_t /*unused*/, Tables... tables) const
           -> _new_statement_t<consistent_t, using_t<_database_t, Tables...>>
       {
         static_assert(not detail::has_duplicates<Tables...>::value,

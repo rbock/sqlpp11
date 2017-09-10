@@ -103,7 +103,7 @@ namespace sqlpp
 
     private:
       template <typename Expr>
-      void _add_impl(Expr expression, const std::true_type&)
+      void _add_impl(Expr expression, const std::true_type& /*unused*/)
       {
         return _data._dynamic_expressions.emplace_back(expression);
       }
@@ -349,7 +349,7 @@ namespace sqlpp
       auto _where_impl(Check, Expression expression) const -> inconsistent<Check>;
 
       template <typename Database, typename Expression>
-      auto _where_impl(consistent_t, Expression expression) const
+      auto _where_impl(consistent_t /*unused*/, Expression expression) const
           -> _new_statement_t<consistent_t, where_t<Database, Expression>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this),
@@ -382,7 +382,7 @@ namespace sqlpp
     using _serialize_check = consistent_t;
     using T = where_data_t<void, unconditional_t>;
 
-    static Context& _(const T&, Context& context)
+    static Context& _(const T& /*unused*/, Context& context)
     {
       return context;
     }
@@ -395,7 +395,7 @@ namespace sqlpp
   }
 
   template <typename Database, typename T>
-  auto dynamic_where(const Database&, T&& t)
+  auto dynamic_where(const Database& /*unused*/, T&& t)
       -> decltype(statement_t<Database, no_where_t<false>>().dynamic_where(std::forward<T>(t)))
   {
     return statement_t<Database, no_where_t<false>>().dynamic_where(std::forward<T>(t));

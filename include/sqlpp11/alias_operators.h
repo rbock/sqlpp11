@@ -35,7 +35,7 @@ namespace sqlpp
   struct alias_operators
   {
     template <typename alias_provider>
-    expression_alias_t<Expr, alias_provider> as(const alias_provider&) const
+    expression_alias_t<Expr, alias_provider> as(const alias_provider& /*unused*/) const
     {
       return {*static_cast<const Expr*>(this)};
     }

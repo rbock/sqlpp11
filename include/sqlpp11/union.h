@@ -244,7 +244,7 @@ namespace sqlpp
       auto _union_impl(Check, Rhs rhs) const -> inconsistent<Check>;
 
       template <typename Database, typename Flag, typename Rhs>
-      auto _union_impl(consistent_t, Rhs rhs) const
+      auto _union_impl(consistent_t /*unused*/, Rhs rhs) const
           -> _new_statement_t<consistent_t, union_t<Database, Flag, derived_statement_t<Policies>, Rhs>>
       {
         return {blank_union_t{}, union_data_t<Database, Flag, derived_statement_t<Policies>, Rhs>{

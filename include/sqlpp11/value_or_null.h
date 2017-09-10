@@ -44,7 +44,7 @@ namespace sqlpp
     {
     }
 
-    value_or_null_t(const null_t&) : _value(), _is_null(true)
+    value_or_null_t(const null_t& /*unused*/) : _value(), _is_null(true)
     {
     }
 

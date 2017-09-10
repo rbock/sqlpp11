@@ -51,7 +51,7 @@ namespace sqlpp
     using _serialize_check = consistent_t;
     using T = hidden_t<Clause>;
 
-    static Context& _(const T&, Context& context)
+    static Context& _(const T& /*unused*/, Context& context)
     {
       return context;
     }

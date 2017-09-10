@@ -51,7 +51,7 @@ namespace sqlpp
 
     template <typename AliasProvider>
     typename Table::template _foreign_table_alias_t<AliasProvider, schema_qualified_table_t> as(
-        const AliasProvider&) const
+        const AliasProvider& /*unused*/) const
     {
       return {*this};
     }

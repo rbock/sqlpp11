@@ -47,7 +47,7 @@ namespace sqlpp
   {
     using _serialize_check = consistent_t;
 
-    static Context& _(const all_t&, Context& context)
+    static Context& _(const all_t& /*unused*/, Context& context)
     {
       context << "ALL";
       return context;
@@ -66,7 +66,7 @@ namespace sqlpp
   {
     using _serialize_check = consistent_t;
 
-    static Context& _(const distinct_t&, Context& context)
+    static Context& _(const distinct_t& /*unused*/, Context& context)
     {
       context << "DISTINCT";
       return context;
@@ -85,7 +85,7 @@ namespace sqlpp
   {
     using _serialize_check = consistent_t;
 
-    static Context& _(const straight_join_t&, Context& context)
+    static Context& _(const straight_join_t& /*unused*/, Context& context)
     {
       context << "STRAIGHT_JOIN";
       return context;

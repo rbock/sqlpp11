@@ -94,7 +94,7 @@ namespace sqlpp
     using _serialize_check = consistent_t;
     using T = update_name_t;
 
-    static Context& _(const T&, Context& context)
+    static Context& _(const T& /*unused*/, Context& context)
     {
       context << "UPDATE ";
 
@@ -112,7 +112,7 @@ namespace sqlpp
   }
 
   template <typename Database, typename Table>
-  constexpr auto dynamic_update(const Database&, Table table)
+  constexpr auto dynamic_update(const Database& /*unused*/, Table table)
       -> decltype(blank_update_t<Database>().single_table(table))
   {
     static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");

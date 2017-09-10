@@ -69,7 +69,7 @@ namespace sqlpp
     using _serialize_check = consistent_t;
     using T = on_t<unconditional_t>;
 
-    static Context& _(const T&, Context& context)
+    static Context& _(const T& /*unused*/, Context& context)
     {
       return context;
     }

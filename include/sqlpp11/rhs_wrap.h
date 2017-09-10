@@ -38,7 +38,7 @@ namespace sqlpp
     template <typename Expr, typename Enable = void>
     struct rhs_is_trivial_t
     {
-      static constexpr bool _(const Expr&)
+      static constexpr bool _(const Expr& /*unused*/)
       {
         return false;
       }
@@ -88,7 +88,7 @@ namespace sqlpp
     template <typename Expr, typename Enable = void>
     struct rhs_is_null_t
     {
-      static constexpr bool _(const Expr&)
+      static constexpr bool _(const Expr& /*unused*/)
       {
         return false;
       }

@@ -278,7 +278,7 @@ namespace sqlpp
       auto _limit_impl(Check, Arg arg) const -> inconsistent<Check>;
 
       template <typename Arg>
-      auto _limit_impl(consistent_t, Arg arg) const -> _new_statement_t<consistent_t, limit_t<Arg>>
+      auto _limit_impl(consistent_t /*unused*/, Arg arg) const -> _new_statement_t<consistent_t, limit_t<Arg>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this), limit_data_t<Arg>{arg}};
       }
@@ -324,7 +324,7 @@ namespace sqlpp
   }
 
   template <typename Database>
-  auto dynamic_limit(const Database&) -> decltype(statement_t<Database, no_limit_t>().dynamic_limit())
+  auto dynamic_limit(const Database & /*unused*/) -> decltype(statement_t<Database, no_limit_t>().dynamic_limit())
   {
     return statement_t<Database, no_limit_t>().dynamic_limit();
   }

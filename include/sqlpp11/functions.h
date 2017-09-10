@@ -128,7 +128,7 @@ namespace sqlpp
   }
 
   template <typename T>
-  constexpr const char* get_sql_name(const T&)
+  constexpr const char* get_sql_name(const T& /*unused*/)
   {
     return name_of<T>::char_ptr();
   }

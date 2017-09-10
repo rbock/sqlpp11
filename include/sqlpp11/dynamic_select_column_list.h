@@ -101,7 +101,7 @@ namespace sqlpp
   {
     using T = dynamic_select_column_list<void>;
 
-    static Context& _(const T&, Context& context)
+    static Context& _(const T& /*unused*/, Context& context)
     {
       return context;
     }

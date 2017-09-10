@@ -54,7 +54,7 @@ namespace sqlpp
     using _serialize_check = serialize_check_of<Context, Column>;
     using T = simple_column_t<Column>;
 
-    static Context& _(const T&, Context& context)
+    static Context& _(const T& /*unused*/, Context& context)
     {
       context << name_of<typename T::_column_t>::char_ptr();
       return context;
