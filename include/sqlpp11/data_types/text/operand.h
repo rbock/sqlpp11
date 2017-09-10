@@ -45,7 +45,7 @@ namespace sqlpp
 
     using _value_t = std::string;
 
-    text_operand() : _t{}
+    text_operand()
     {
     }
 

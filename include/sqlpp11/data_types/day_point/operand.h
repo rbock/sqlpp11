@@ -45,7 +45,7 @@ namespace sqlpp
 
     using _value_t = ::sqlpp::chrono::day_point;
 
-    day_point_operand() : _t{}
+    day_point_operand()
     {
     }
 

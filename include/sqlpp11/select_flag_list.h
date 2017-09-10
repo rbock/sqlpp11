@@ -248,7 +248,7 @@ namespace sqlpp
     static Context& _(const T& t, Context& context)
     {
       interpret_tuple(t._flags, ' ', context);
-      if (sizeof...(Flags))
+      if (sizeof...(Flags) != 0u)
       {
         context << ' ';
       }
