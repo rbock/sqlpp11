@@ -106,7 +106,7 @@ namespace sqlpp
 
   inline auto remove() -> blank_remove_t<void>
   {
-    return {blank_remove_t<void>()};
+    return {};
   }
 
   template <typename Table>

@@ -31,6 +31,8 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/serialize.h>
 
+#include <utility>
+
 namespace sqlpp
 {
   template <typename ValueType>  // Csaba Csoma suggests: unsafe_sql instead of verbatim
@@ -42,7 +44,7 @@ namespace sqlpp
     using _can_be_null =
         std::true_type;  // since we do not know what's going on inside the verbatim, we assume it can be null
 
-    verbatim_t(std::string verbatim) : _verbatim(verbatim)
+    verbatim_t(std::string verbatim) : _verbatim(std::move(verbatim))
     {
     }
     verbatim_t(const verbatim_t&) = default;

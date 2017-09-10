@@ -46,9 +46,7 @@ namespace sqlpp
 
     using _instance_t = member_t<NameType, parameter_value_t<ValueType>>;
 
-    parameter_t()
-    {
-    }
+    parameter_t() = default;
 
     parameter_t(const parameter_t&) = default;
     parameter_t(parameter_t&&) = default;

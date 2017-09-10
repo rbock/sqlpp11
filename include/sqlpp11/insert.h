@@ -107,7 +107,7 @@ namespace sqlpp
 
   inline auto insert() -> blank_insert_t<void>
   {
-    return {blank_insert_t<void>()};
+    return {};
   }
 
   template <typename Table>

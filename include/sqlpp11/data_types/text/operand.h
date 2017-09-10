@@ -28,6 +28,7 @@
 #define SQLPP11_DATA_TYPES_TEXT_OPERAND_H
 
 #include <string>
+#include <utility>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/alias_operators.h>
 #include <sqlpp11/serializer.h>
@@ -48,7 +49,7 @@ namespace sqlpp
     {
     }
 
-    text_operand(_value_t t) : _t(t)
+    text_operand(_value_t t) : _t(std::move(t))
     {
     }
 

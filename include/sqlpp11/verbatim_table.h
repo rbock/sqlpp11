@@ -31,6 +31,8 @@
 #include <sqlpp11/char_sequence.h>
 #include <sqlpp11/data_types/no_value.h>
 
+#include <utility>
+
 namespace sqlpp
 {
   namespace detail
@@ -60,7 +62,7 @@ namespace sqlpp
       using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
     };
 
-    verbatim_table_t(std::string representation) : _representation(representation)
+    verbatim_table_t(std::string representation) : _representation(std::move(representation))
     {
     }
 

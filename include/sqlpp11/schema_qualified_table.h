@@ -34,6 +34,8 @@
 #include <sqlpp11/table_alias.h>
 #include <sqlpp11/detail/type_set.h>
 
+#include <utility>
+
 namespace sqlpp
 {
   template <typename Table>
@@ -45,7 +47,7 @@ namespace sqlpp
     using _required_ctes = detail::type_set<>;
     using _provided_tables = detail::type_set<>;
 
-    schema_qualified_table_t(schema_t schema, Table table) : _schema(schema), _table(table)
+    schema_qualified_table_t(schema_t schema, Table table) : _schema(std::move(schema)), _table(table)
     {
     }
 

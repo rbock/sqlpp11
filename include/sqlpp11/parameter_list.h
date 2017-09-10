@@ -46,9 +46,7 @@ namespace sqlpp
     using _member_tuple_t = std::tuple<typename Parameter::_instance_t...>;
     using size = std::integral_constant<std::size_t, sizeof...(Parameter)>;
 
-    parameter_list_t()
-    {
-    }
+    parameter_list_t() = default;
 
     template <typename Target>
     void _bind(Target& target) const

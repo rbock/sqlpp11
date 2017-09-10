@@ -197,9 +197,7 @@ namespace sqlpp
     using _alias_t = typename _result_type_provider::_alias_t;
 
     // Constructors
-    statement_t()
-    {
-    }
+    statement_t() = default;
 
     // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
     //	template <typename Statement, typename Term>
