@@ -60,6 +60,9 @@ SQLPP_DECLARE_TABLE(
 	(id   , int         , SQLPP_PRIMARY_KEY)
 	(name , varchar(255), SQLPP_NULL       )
 	(fatal, bool        , SQLPP_NOT_NULL   )
+	(date0, date        , SQLPP_NULL   )
+	(date1, datetime    , SQLPP_NULL   )
+	(date2, timestamp   , SQLPP_NULL   )
 )
 // clang-format on
 
