@@ -32,6 +32,6 @@
 #define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_timestamp \
   PROC_timestamp
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_timestamp(...) \
-  [timestamp is not implemented]
+  ::sqlpp::time_point
 
 #endif // _sqlpp__ppgen__colops__timestamp_h
