@@ -125,7 +125,8 @@ namespace sqlpp
 
     static Context& _(const T& /*unused*/, Context& context)
     {
-      context << name_of<typename T::_table>::char_ptr() << '.' << name_of<T>::char_ptr();
+      /* surround table name and column names with quotes (` `) in case they have the same name with SQL keywords  */
+      context << '`' << name_of<typename T::_table>::char_ptr() << '`' << '.' << '`' << name_of<T>::char_ptr() << '`';
       return context;
     }
   };
