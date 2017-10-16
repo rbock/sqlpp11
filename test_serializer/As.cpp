@@ -29,7 +29,7 @@
 
 #include <iostream>
 
-SQLPP_ALIAS_PROVIDER(cheese);
+SQLPP_ALIAS_PROVIDER(cheese)
 
 int As(int, char* [])
 {
