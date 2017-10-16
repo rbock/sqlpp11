@@ -27,9 +27,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_WITHOUT_TABLE_CHECK_H
-#define SQLPP_ALIAS_H
-
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/serializer.h>
 
@@ -61,12 +58,11 @@ namespace sqlpp
   template <typename Expression>
   auto without_table_check(Expression expr) -> without_table_check_t<Expression>
   {
-    static_assert(is_expression_t<Expression>::value, "invalid argument (expression expected)");
+    static_assert(is_expression_t<Expression>::value or is_alias_t<Expression>::value,
+                  "invalid argument (expression or alias expression expected)");
 
     return {expr};
   }
 }  // namespace sqlpp
-
-#endif
 
 #endif
