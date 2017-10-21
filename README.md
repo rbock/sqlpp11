@@ -4,10 +4,6 @@ A type safe embedded domain specific language for SQL queries and results in C++
 
 Documentation is found in the [wiki](https://github.com/rbock/sqlpp11/wiki)
 
-CppCon 2017:
-------------
-Meet me at CppCon 2017: https://cppcon2017.sched.com/event/BgsV
-
 So what is this about?
 ----------------------
 SQL and C++ are both strongly typed languages. Still, most C/C++ interfaces to SQL are based on constructing queries as strings and on interpreting arrays or maps of strings as results.
