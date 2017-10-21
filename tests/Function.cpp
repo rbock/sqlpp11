@@ -403,11 +403,14 @@ int Function(int, char* [])
   // test verbatim
   {
     using TB = decltype(sqlpp::verbatim<sqlpp::boolean>("1"));
+    using TBS = decltype(sqlpp::verbatim<sqlpp::boolean>("1").as(kaesekuchen));
     using TI = decltype(sqlpp::verbatim<sqlpp::bigint>("42"));
     using TF = decltype(sqlpp::verbatim<sqlpp::floating_point>("1.5"));
     using TT = decltype(sqlpp::verbatim<sqlpp::text>("cheesecake"));
     static_assert(not sqlpp::is_selectable_t<TB>::value, "type requirement");
     static_assert(sqlpp::is_boolean_t<TB>::value, "type requirement");
+    static_assert(sqlpp::is_selectable_t<TBS>::value, "type requirement");
+    static_assert(sqlpp::is_boolean_t<TBS>::value, "type requirement");
     static_assert(not sqlpp::is_selectable_t<TB>::value, "type requirement");
     static_assert(sqlpp::is_integral_t<TI>::value, "type requirement");
     static_assert(not sqlpp::is_selectable_t<TI>::value, "type requirement");
