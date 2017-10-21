@@ -29,9 +29,14 @@
 #ifndef _sqlpp__ppgen__colops__datetime_h
 #define _sqlpp__ppgen__colops__datetime_h
 
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_date \
+  PROC_date
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_date(...) \
+  ::sqlpp::day_point
+
 #define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_datetime \
   PROC_datetime
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_datetime(...) \
-  [datetime is not implemented]
+  ::sqlpp::time_point
 
 #endif // _sqlpp__ppgen__colops__datetime_h

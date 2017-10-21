@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_INTERPRET_H
-#define SQLPP_INTERPRET_H
+#ifndef SQLPP11_INTERPRET_H
+#define SQLPP11_INTERPRET_H
 
 #include <sqlpp11/interpreter.h>
 
@@ -36,6 +36,6 @@ namespace sqlpp
   {
     return interpreter_t<Context, T>::_(t, context);
   }
-}
+}  // namespace sqlpp
 
 #endif

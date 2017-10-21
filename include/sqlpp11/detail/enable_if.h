@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DETAIL_ENABLE_IF_H
-#define SQLPP_DETAIL_ENABLE_IF_H
+#ifndef SQLPP11_DETAIL_ENABLE_IF_H
+#define SQLPP11_DETAIL_ENABLE_IF_H
 
 #include <utility>
 
@@ -35,7 +35,7 @@ namespace sqlpp
   {
     template <bool B, typename T = void>
     using enable_if_t = typename std::enable_if<B, T>::type;
-  }
-}
+  }  // namespace detail
+}  // namespace sqlpp
 
 #endif

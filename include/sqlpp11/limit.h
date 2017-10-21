@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_LIMIT_H
-#define SQLPP_LIMIT_H
+#ifndef SQLPP11_LIMIT_H
+#define SQLPP11_LIMIT_H
 
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/policy_update.h>
@@ -278,7 +278,7 @@ namespace sqlpp
       auto _limit_impl(Check, Arg arg) const -> inconsistent<Check>;
 
       template <typename Arg>
-      auto _limit_impl(consistent_t, Arg arg) const -> _new_statement_t<consistent_t, limit_t<Arg>>
+      auto _limit_impl(consistent_t /*unused*/, Arg arg) const -> _new_statement_t<consistent_t, limit_t<Arg>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this), limit_data_t<Arg>{arg}};
       }
@@ -324,10 +324,10 @@ namespace sqlpp
   }
 
   template <typename Database>
-  auto dynamic_limit(const Database&) -> decltype(statement_t<Database, no_limit_t>().dynamic_limit())
+  auto dynamic_limit(const Database & /*unused*/) -> decltype(statement_t<Database, no_limit_t>().dynamic_limit())
   {
     return statement_t<Database, no_limit_t>().dynamic_limit();
   }
-}
+}  // namespace sqlpp
 
 #endif

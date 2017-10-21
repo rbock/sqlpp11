@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SELECT_COLUMN_LIST_FWD_H
-#define SQLPP_SELECT_COLUMN_LIST_FWD_H
+#ifndef SQLPP11_DYNAMIC_SELECT_COLUMN_LIST_H
+#define SQLPP11_DYNAMIC_SELECT_COLUMN_LIST_H
 
 #include <vector>
 #include <string>
@@ -87,9 +87,13 @@ namespace sqlpp
       for (const auto column : t._dynamic_columns)
       {
         if (first)
+        {
           first = false;
+        }
         else
+        {
           context << ',';
+        }
         serialize(column, context);
       }
       return context;
@@ -101,11 +105,11 @@ namespace sqlpp
   {
     using T = dynamic_select_column_list<void>;
 
-    static Context& _(const T&, Context& context)
+    static Context& _(const T& /*unused*/, Context& context)
     {
       return context;
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

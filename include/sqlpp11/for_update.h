@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_FOR_UPDATE_H
-#define SQLPP_FOR_UPDATE_H
+#ifndef SQLPP11_FOR_UPDATE_H
+#define SQLPP11_FOR_UPDATE_H
 
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/policy_update.h>
@@ -162,7 +162,7 @@ namespace sqlpp
     using _serialize_check = serialize_check_of<Context>;
     using T = for_update_data_t;
 
-    static Context& _(const T&, Context& context)
+    static Context& _(const T& /*unused*/, Context& context)
     {
       context << " FOR UPDATE ";
       return context;
@@ -174,6 +174,6 @@ namespace sqlpp
   {
     return statement_t<void, no_for_update_t>().for_update(std::forward<T>(t));
   }
-}
+}  // namespace sqlpp
 
 #endif

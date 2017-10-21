@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_OPERAND_CHECK_H
-#define SQLPP_OPERAND_CHECK_H
+#ifndef SQLPP11_OPERAND_CHECK_H
+#define SQLPP11_OPERAND_CHECK_H
 
 #include <sqlpp11/wrap_operand.h>
 #include <sqlpp11/detail/enable_if.h>
@@ -70,6 +70,6 @@ namespace sqlpp
 
   template <typename L, template <typename> class LPred, typename R, template <typename> class RPred>
   using unwrapped_binary_operand_check_t = typename binary_operand_check<L, LPred, R, RPred>::type;
-}
+}  // namespace sqlpp
 
 #endif

@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_RESULT_FIELD_H
-#define SQLPP_RESULT_FIELD_H
+#ifndef SQLPP11_RESULT_FIELD_H
+#define SQLPP11_RESULT_FIELD_H
 
 #include <ostream>
 #include <sqlpp11/wrong.h>
@@ -66,5 +66,5 @@ namespace sqlpp
   {
     return serialize(rf, os);
   }
-}
+}  // namespace sqlpp
 #endif

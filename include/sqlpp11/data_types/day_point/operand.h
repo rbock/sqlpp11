@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DAY_POINT_OPERAND_H
-#define SQLPP_DAY_POINT_OPERAND_H
+#ifndef SQLPP11_DATA_TYPES_DAY_POINT_OPERAND_H
+#define SQLPP11_DATA_TYPES_DAY_POINT_OPERAND_H
 
 #include <date.h>
 #include <sqlpp11/chrono.h>
@@ -45,9 +45,7 @@ namespace sqlpp
 
     using _value_t = ::sqlpp::chrono::day_point;
 
-    day_point_operand() : _t{}
-    {
-    }
+    day_point_operand() = default;
 
     day_point_operand(_value_t t) : _t(t)
     {
@@ -80,5 +78,5 @@ namespace sqlpp
       return context;
     }
   };
-}
+}  // namespace sqlpp
 #endif

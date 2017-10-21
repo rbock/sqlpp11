@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SIMPLE_COLUMN_H
-#define SQLPP_SIMPLE_COLUMN_H
+#ifndef SQLPP11_SIMPLE_COLUMN_H
+#define SQLPP11_SIMPLE_COLUMN_H
 
 #include <sqlpp11/serializer.h>
 #include <sqlpp11/type_traits.h>
@@ -54,7 +54,7 @@ namespace sqlpp
     using _serialize_check = serialize_check_of<Context, Column>;
     using T = simple_column_t<Column>;
 
-    static Context& _(const T&, Context& context)
+    static Context& _(const T& /*unused*/, Context& context)
     {
       context << name_of<typename T::_column_t>::char_ptr();
       return context;
@@ -66,6 +66,6 @@ namespace sqlpp
   {
     return {c};
   }
-}
+}  // namespace sqlpp
 
 #endif

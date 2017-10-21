@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_VALUE_TYPE_H
-#define SQLPP_VALUE_TYPE_H
+#ifndef SQLPP11_VALUE_TYPE_H
+#define SQLPP11_VALUE_TYPE_H
 
 #include <type_traits>
 #include <sqlpp11/wrap_operand.h>
@@ -34,5 +34,5 @@ namespace sqlpp
 {
   template <typename T>
   using value_type_t = value_type_of<wrap_operand_t<T>>;
-}
+}  // namespace sqlpp
 #endif

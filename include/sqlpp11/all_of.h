@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_ALL_OF_H
-#define SQLPP_ALL_OF_H
+#ifndef SQLPP11_ALL_OF_H
+#define SQLPP11_ALL_OF_H
 
 #include <sqlpp11/alias.h>
 #include <sqlpp11/interpret.h>
@@ -47,7 +47,7 @@ namespace sqlpp
   };
 
   template <typename Table>
-  auto all_of(Table) -> all_of_t<Table>
+  auto all_of(Table /*unused*/) -> all_of_t<Table>
   {
     return {};
   }
@@ -60,11 +60,11 @@ namespace sqlpp
     using _serialize_check = assert_no_stand_alone_all_of_t;
     using T = all_of_t<Table>;
 
-    static Context& _(const T&, const Context&)
+    static Context& _(const T& /*unused*/, const Context& /*unused*/)
     {
       _serialize_check{};
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

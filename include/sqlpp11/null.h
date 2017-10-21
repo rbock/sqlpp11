@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_NULL_H
-#define SQLPP_NULL_H
+#ifndef SQLPP11_NULL_H
+#define SQLPP11_NULL_H
 
 #include <sqlpp11/data_types/no_value.h>
 
@@ -43,7 +43,7 @@ namespace sqlpp
     using _serialize_check = consistent_t;
     using Operand = null_t;
 
-    static Context& _(const Operand&, Context& context)
+    static Context& _(const Operand& /*unused*/, Context& context)
     {
       context << "NULL";
       return context;
@@ -51,6 +51,6 @@ namespace sqlpp
   };
 
   constexpr null_t null = {};
-}
+}  // namespace sqlpp
 
 #endif

@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_IS_NULL_FWD_H
-#define SQLPP_IS_NULL_FWD_H
+#ifndef SQLPP11_IS_NULL_FWD_H
+#define SQLPP11_IS_NULL_FWD_H
 
 namespace sqlpp
 {
@@ -33,6 +33,6 @@ namespace sqlpp
   struct is_null_t;
   template <typename Operand>
   struct is_not_null_t;
-}
+}  // namespace sqlpp
 
 #endif

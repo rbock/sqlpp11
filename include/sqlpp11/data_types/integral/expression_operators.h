@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_INTEGRAL_EXPRESSION_OPERATORS_H
-#define SQLPP_INTEGRAL_EXPRESSION_OPERATORS_H
+#ifndef SQLPP11_DATA_TYPES_INTEGRAL_EXPRESSION_OPERATORS_H
+#define SQLPP11_DATA_TYPES_INTEGRAL_EXPRESSION_OPERATORS_H
 
 #include <sqlpp11/expression_return_types.h>
 #include <sqlpp11/operand_check.h>
@@ -132,5 +132,5 @@ namespace sqlpp
     using check = consistent_t;
     using type = bitwise_or_t<wrap_operand_t<L>, integral, wrap_operand_t<R>>;
   };
-}
+}  // namespace sqlpp
 #endif

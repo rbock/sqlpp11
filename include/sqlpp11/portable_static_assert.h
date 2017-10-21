@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_PORTABLE_STATIC_ASSERT_H
-#define SQLPP_PORTABLE_STATIC_ASSERT_H
+#ifndef SQLPP11_PORTABLE_STATIC_ASSERT_H
+#define SQLPP11_PORTABLE_STATIC_ASSERT_H
 
 #include <sqlpp11/consistent.h>
 #include <sqlpp11/inconsistent.h>
@@ -36,7 +36,7 @@ namespace sqlpp
   struct name : std::false_type                     \
   {                                                 \
     template <typename... T>                        \
-    name(T&&...)                                    \
+    explicit name(T&&...)                           \
     {                                               \
       static_assert(wrong_t<T...>::value, message); \
     }                                               \
@@ -57,7 +57,7 @@ namespace sqlpp
     {
       using type = consistent_t;
     };
-  }
+  }  // namespace detail
 
   template <bool Consistent, typename Assert>
   using static_check_t = typename detail::static_check_impl<Consistent, Assert>::type;
@@ -84,10 +84,10 @@ namespace sqlpp
     {
       using type = consistent_t;
     };
-  }
+  }  // namespace detail
 
   template <typename... StaticChecks>
   using static_combined_check_t = typename detail::static_combined_check_impl<StaticChecks...>::type;
-}
+}  // namespace sqlpp
 
 #endif

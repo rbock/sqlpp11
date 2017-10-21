@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_INSERT_VALUE_H
-#define SQLPP_INSERT_VALUE_H
+#ifndef SQLPP11_INSERT_VALUE_H
+#define SQLPP11_INSERT_VALUE_H
 
 #include <sqlpp11/default_value.h>
 #include <sqlpp11/null.h>
@@ -53,7 +53,7 @@ namespace sqlpp
         using _nodes = detail::type_vector<>;
       };
     };
-  }
+  }  // namespace detail
 
   template <typename Column>
   struct insert_value_t
@@ -75,11 +75,12 @@ namespace sqlpp
     {
     }
 
-    insert_value_t(const rhs_wrap_t<null_t, _trivial_value_is_null>&) : _is_null(true), _is_default(false), _value{}
+    insert_value_t(const rhs_wrap_t<null_t, _trivial_value_is_null>& /*unused*/)
+        : _is_null(true), _is_default(false), _value{}
     {
     }
 
-    insert_value_t(const rhs_wrap_t<default_value_t, _trivial_value_is_null>&)
+    insert_value_t(const rhs_wrap_t<default_value_t, _trivial_value_is_null>& /*unused*/)
         : _is_null(false), _is_default(true), _value{}
     {
     }
@@ -108,12 +109,16 @@ namespace sqlpp
         context << "NULL";
       }
       else if (t._is_default)
+      {
         context << "DEFAULT";
+      }
       else
+      {
         serialize_operand(t._value, context);
+      }
       return context;
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

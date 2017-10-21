@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_TIME_POINT_PARAMETER_VALUE_H
-#define SQLPP_TIME_POINT_PARAMETER_VALUE_H
+#ifndef SQLPP11_DATA_TYPES_TIME_POINT_PARAMETER_VALUE_H
+#define SQLPP11_DATA_TYPES_TIME_POINT_PARAMETER_VALUE_H
 
 #include <sqlpp11/data_types/parameter_value.h>
 #include <sqlpp11/data_types/parameter_value_base.h>
@@ -49,5 +49,5 @@ namespace sqlpp
       target._bind_date_time_parameter(index, &_value, _is_null);
     }
   };
-}
+}  // namespace sqlpp
 #endif

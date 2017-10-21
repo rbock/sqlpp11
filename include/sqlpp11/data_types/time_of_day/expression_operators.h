@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_TIME_OF_DAY_EXPRESSION_OPERATORS_H
-#define SQLPP_TIME_OF_DAY_EXPRESSION_OPERATORS_H
+#ifndef SQLPP11_DATA_TYPES_TIME_OF_DAY_EXPRESSION_OPERATORS_H
+#define SQLPP11_DATA_TYPES_TIME_OF_DAY_EXPRESSION_OPERATORS_H
 
 #include <sqlpp11/expression_operators.h>
 #include <sqlpp11/basic_expression_operators.h>
@@ -39,5 +39,5 @@ namespace sqlpp
   struct expression_operators<Expression, time_of_day> : public basic_expression_operators<Expression>
   {
   };
-}
+}  // namespace sqlpp
 #endif

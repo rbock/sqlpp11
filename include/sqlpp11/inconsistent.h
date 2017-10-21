@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_INCONSISTENT_H
-#define SQLPP_INCONSISTENT_H
+#ifndef SQLPP11_INCONSISTENT_H
+#define SQLPP11_INCONSISTENT_H
 
 #include <utility>
 
@@ -40,6 +40,6 @@ namespace sqlpp
   template <typename Check>
   using inconsistent = typename std::enable_if<not std::is_same<consistent_t, Check>::value, Check>::type;
 #endif
-}
+}  // namespace sqlpp
 
 #endif

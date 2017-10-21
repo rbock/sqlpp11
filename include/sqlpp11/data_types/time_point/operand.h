@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_TIME_POINT_OPERAND_H
-#define SQLPP_TIME_POINT_OPERAND_H
+#ifndef SQLPP11_DATA_TYPES_TIME_POINT_OPERAND_H
+#define SQLPP11_DATA_TYPES_TIME_POINT_OPERAND_H
 
 #include <sqlpp11/chrono.h>
 #include <sqlpp11/type_traits.h>
@@ -82,5 +82,5 @@ namespace sqlpp
       return context;
     }
   };
-}
+}  // namespace sqlpp
 #endif

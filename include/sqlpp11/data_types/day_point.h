@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DAY_POINT_H
-#define SQLPP_DAY_POINT_H
+#ifndef SQLPP11_DATA_TYPES_DAY_POINT_H
+#define SQLPP11_DATA_TYPES_DAY_POINT_H
 
 #include <sqlpp11/data_types/day_point/data_type.h>
 #include <sqlpp11/data_types/day_point/operand.h>

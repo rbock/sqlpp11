@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_UNION_FLAGS_H
-#define SQLPP_UNION_FLAGS_H
+#ifndef SQLPP11_UNION_FLAGS_H
+#define SQLPP11_UNION_FLAGS_H
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/detail/type_set.h>
@@ -46,7 +46,7 @@ namespace sqlpp
   {
     using _serialize_check = consistent_t;
 
-    static Context& _(const union_all_t&, Context& context)
+    static Context& _(const union_all_t& /*unused*/, Context& context)
     {
       context << "ALL";
       return context;
@@ -64,11 +64,11 @@ namespace sqlpp
   {
     using _serialize_check = consistent_t;
 
-    static Context& _(const union_distinct_t&, Context& context)
+    static Context& _(const union_distinct_t& /*unused*/, Context& context)
     {
       return context;
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

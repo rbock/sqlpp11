@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_NO_VALUE_EXPRESSION_OPERATORS_H
-#define SQLPP_NO_VALUE_EXPRESSION_OPERATORS_H
+#ifndef SQLPP11_DATA_TYPES_NO_VALUE_EXPRESSION_OPERATORS_H
+#define SQLPP11_DATA_TYPES_NO_VALUE_EXPRESSION_OPERATORS_H
 
 #include <sqlpp11/expression_return_types.h>
 #include <sqlpp11/expression_operators.h>
@@ -37,6 +37,6 @@ namespace sqlpp
   struct expression_operators<Expression, no_value_t> : public basic_expression_operators<Expression>
   {
   };
-}
+}  // namespace sqlpp
 
 #endif

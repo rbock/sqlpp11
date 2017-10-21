@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_COUNT_H
-#define SQLPP_COUNT_H
+#ifndef SQLPP11_AGGREGATE_FUNCTIONS_COUNT_H
+#define SQLPP11_AGGREGATE_FUNCTIONS_COUNT_H
 
 #include <sqlpp11/char_sequence.h>
 #include <sqlpp11/select_flags.h>
@@ -117,13 +117,13 @@ namespace sqlpp
   }
 
   template <typename T>
-  auto count(const distinct_t&, T t) -> count_t<distinct_t, wrap_operand_t<T>>
+  auto count(const distinct_t& /*unused*/, T t) -> count_t<distinct_t, wrap_operand_t<T>>
   {
     static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value,
                   "count() cannot be used on an aggregate function");
     static_assert(is_expression_t<wrap_operand_t<T>>::value, "count() requires an expression as argument");
     return {t};
   }
-}
+}  // namespace sqlpp
 
 #endif

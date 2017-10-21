@@ -396,6 +396,12 @@ int SelectType(int, char* [])
     serialize(s, printer).str();
   }
 
+  {
+    auto find_query = sqlpp::dynamic_select(db).dynamic_columns(t.alpha.as(alias::a)).dynamic_from(t).unconditionally();
+    find_query.from.add(sqlpp::dynamic_join(f).on(t.alpha == f.omega));
+    find_query.selected_columns.add(sqlpp::without_table_check(f.omega.as(alias::b)));
+  }
+
   // Test that verbatim_table compiles
   {
     auto s = select(t.alpha).from(sqlpp::verbatim_table("my_unknown_table"));

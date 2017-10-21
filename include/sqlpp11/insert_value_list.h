@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_INSERT_VALUE_LIST_H
-#define SQLPP_INSERT_VALUE_LIST_H
+#ifndef SQLPP11_INSERT_VALUE_LIST_H
+#define SQLPP11_INSERT_VALUE_LIST_H
 
 #include <sqlpp11/assignment.h>
 #include <sqlpp11/column_fwd.h>
@@ -60,7 +60,7 @@ namespace sqlpp
       using set_columns = detail::make_type_set_t<First, Columns...>;
       static constexpr bool value = detail::is_subset_of<required_columns, set_columns>::value;
     };
-  }
+  }  // namespace detail
 
   struct insert_default_values_data_t
   {
@@ -180,10 +180,9 @@ namespace sqlpp
       static_check_t<not detail::has_duplicates<typename lhs<Assignments>::type...>::value,
                      assert_insert_set_no_duplicates_t>,
       static_check_t<logic::none_t<must_not_insert<Assignments>::value...>::value, assert_insert_set_allowed_t>,
-      static_check_t<
-          sizeof...(Assignments) == 0 or
-              detail::make_joined_set_t<required_tables_of<typename lhs<Assignments>::type>...>::size::value == 1,
-          assert_insert_set_single_table_t>>;
+      static_check_t<sizeof...(Assignments) == 0 or detail::make_joined_set_t<required_tables_of<
+                                                        typename lhs<Assignments>::type>...>::size::value == 1,
+                     assert_insert_set_single_table_t>>;
 
   // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
   //  template <typename... Assignments>
@@ -272,7 +271,7 @@ namespace sqlpp
 
     private:
       template <typename Assignment>
-      void _add_impl(Assignment assignment, const std::true_type&)
+      void _add_impl(Assignment assignment, const std::true_type& /*unused*/)
       {
         _data._dynamic_columns.emplace_back(simple_column_t<lhs_t<Assignment>>{assignment._lhs});
         _data._dynamic_values.emplace_back(assignment._rhs);
@@ -378,7 +377,7 @@ namespace sqlpp
 
     private:
       template <typename... Assignments>
-      void _add_impl(const std::true_type&, Assignments... assignments)
+      void _add_impl(const std::true_type& /*unused*/, Assignments... assignments)
       {
         return _data._insert_values.emplace_back(insert_value_t<lhs_t<Assignments>>{assignments._rhs}...);
       }
@@ -529,7 +528,7 @@ namespace sqlpp
       auto _columns_impl(Check, Columns... cols) const -> inconsistent<Check>;
 
       template <typename... Columns>
-      auto _columns_impl(consistent_t, Columns... cols) const
+      auto _columns_impl(consistent_t /*unused*/, Columns... cols) const
           -> _new_statement_t<consistent_t, column_list_t<Columns...>>
       {
         static_assert(not detail::has_duplicates<Columns...>::value,
@@ -549,7 +548,7 @@ namespace sqlpp
       auto _set_impl(Check, Assignments... assignments) const -> inconsistent<Check>;
 
       template <typename Database, typename... Assignments>
-      auto _set_impl(consistent_t, Assignments... assignments) const
+      auto _set_impl(consistent_t /*unused*/, Assignments... assignments) const
           -> _new_statement_t<consistent_t, insert_list_t<Database, Assignments...>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this),
@@ -565,7 +564,7 @@ namespace sqlpp
     using _serialize_check = consistent_t;
     using T = insert_default_values_data_t;
 
-    static Context& _(const T&, Context& context)
+    static Context& _(const T& /*unused*/, Context& context)
     {
       context << " DEFAULT VALUES";
       return context;
@@ -588,9 +587,13 @@ namespace sqlpp
       for (const auto& row : t._insert_values)
       {
         if (not first)
+        {
           context << ',';
+        }
         else
+        {
           first = false;
+        }
         context << '(';
         interpret_tuple(row, ",", context);
         context << ')';
@@ -617,12 +620,16 @@ namespace sqlpp
         context << " (";
         interpret_tuple(t._columns, ",", context);
         if (sizeof...(Assignments) and not t._dynamic_columns.empty())
+        {
           context << ',';
+        }
         interpret_list(t._dynamic_columns, ',', context);
         context << ") VALUES(";
         interpret_tuple(t._values, ",", context);
         if (sizeof...(Assignments) and not t._dynamic_values.empty())
+        {
           context << ',';
+        }
         interpret_list(t._dynamic_values, ',', context);
         context << ")";
       }
@@ -643,6 +650,6 @@ namespace sqlpp
   {
     return statement_t<Database, no_insert_value_list_t>().dynamic_set(assignments...);
   }
-}
+}  // namespace sqlpp
 
 #endif

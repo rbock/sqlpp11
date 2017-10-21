@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_PRE_JOIN_H
-#define SQLPP_PRE_JOIN_H
+#ifndef SQLPP11_PRE_JOIN_H
+#define SQLPP11_PRE_JOIN_H
 
 #include <sqlpp11/join_types.h>
 #include <sqlpp11/noop.h>
@@ -122,7 +122,7 @@ namespace sqlpp
     auto on_impl(Check, const Expr&) const -> inconsistent<Check>;
 
     template <typename Expr>
-    auto on_impl(consistent_t, const Expr& expr) const -> join_t<pre_join_t, on_t<Expr>>
+    auto on_impl(consistent_t /*unused*/, const Expr& expr) const -> join_t<pre_join_t, on_t<Expr>>
     {
       return {*this, {expr}};
     }
@@ -158,7 +158,7 @@ namespace sqlpp
 
     template <typename JoinType, typename Lhs, typename Rhs>
     auto join_impl(Lhs lhs, Rhs rhs) -> decltype(join_impl<JoinType>(check_pre_join_t<Lhs, Rhs>{}, lhs, rhs));
-  }
+  }  // namespace detail
 
   template <typename Lhs, typename Rhs>
   auto join(Lhs lhs, Rhs rhs) -> decltype(detail::join_impl<inner_join_t>(lhs, rhs))
@@ -203,13 +203,13 @@ namespace sqlpp
 
     template <typename Lhs, typename Rhs>
     auto cross_join_impl(Lhs lhs, Rhs rhs) -> decltype(cross_join_impl(check_pre_join_t<Lhs, Rhs>{}, lhs, rhs));
-  }
+  }  // namespace detail
 
   template <typename Lhs, typename Rhs>
   auto cross_join(Lhs lhs, Rhs rhs) -> decltype(detail::cross_join_impl(lhs, rhs))
   {
     return {pre_join_t<cross_join_t, Lhs, Rhs>{lhs, rhs}, {}};
   }
-}
+}  // namespace sqlpp
 
 #endif

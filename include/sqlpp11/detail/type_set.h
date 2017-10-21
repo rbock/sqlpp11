@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DETAIL_TYPE_SET_H
-#define SQLPP_DETAIL_TYPE_SET_H
+#ifndef SQLPP11_DETAIL_TYPE_SET_H
+#define SQLPP11_DETAIL_TYPE_SET_H
 
 #include <type_traits>
 #include <sqlpp11/wrong.h>
@@ -262,7 +262,7 @@ namespace sqlpp
 
     template <typename T>
     using make_name_of_set_t = typename make_name_of_set<T>::type;
-  }
-}
+  }  // namespace detail
+}  // namespace sqlpp
 
 #endif

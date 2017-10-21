@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_BOOLEAN_RESULT_FIELD_H
-#define SQLPP_BOOLEAN_RESULT_FIELD_H
+#ifndef SQLPP11_DATA_TYPES_BOOLEAN_RESULT_FIELD_H
+#define SQLPP11_DATA_TYPES_BOOLEAN_RESULT_FIELD_H
 
 #include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/result_field.h>
@@ -51,6 +51,6 @@ namespace sqlpp
       target._post_bind_boolean_result(index, &this->_value, &this->_is_null);
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

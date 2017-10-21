@@ -24,10 +24,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_RESULT_ROW_H
-#define SQLPP_RESULT_ROW_H
+#ifndef SQLPP11_RESULT_ROW_H
+#define SQLPP11_RESULT_ROW_H
 
 #include <map>
+#include <utility>
 #include <sqlpp11/data_types/text.h>
 #include <sqlpp11/detail/field_index_sequence.h>
 #include <sqlpp11/dynamic_select_column_list.h>
@@ -176,7 +177,7 @@ namespace sqlpp
         (void)swallow{(result_field<Db, Is, FieldSpecs>::_apply(callable), 0)...};
       }
     };
-  }
+  }  // namespace detail
 
   template <typename Db, typename... FieldSpecs>
   struct result_row_t
@@ -184,13 +185,13 @@ namespace sqlpp
   {
     using _field_index_sequence = detail::make_field_index_sequence<0, FieldSpecs...>;
     using _impl = detail::result_row_impl<Db, _field_index_sequence, FieldSpecs...>;
-    bool _is_valid;
+    bool _is_valid{false};
 
-    result_row_t() : _impl(), _is_valid(false)
+    result_row_t() : _impl()
     {
     }
 
-    result_row_t(const typename dynamic_select_column_list<void>::_names_t&) : _impl(), _is_valid(false)
+    result_row_t(const typename dynamic_select_column_list<void>::_names_t& /*unused*/) : _impl()
     {
     }
 
@@ -273,16 +274,16 @@ namespace sqlpp
     using _impl = detail::result_row_impl<Db, _field_index_sequence, FieldSpecs...>;
     using _field_type = result_field_t<Db, field_spec_t<no_name_t, text, true, true>>;
 
-    bool _is_valid;
+    bool _is_valid{false};
     std::vector<std::string> _dynamic_field_names;
     std::map<std::string, _field_type> _dynamic_fields;
 
-    dynamic_result_row_t() : _impl(), _is_valid(false)
+    dynamic_result_row_t() : _impl()
     {
     }
 
-    dynamic_result_row_t(const std::vector<std::string>& dynamic_field_names)
-        : _impl(), _is_valid(false), _dynamic_field_names(dynamic_field_names)
+    dynamic_result_row_t(std::vector<std::string> dynamic_field_names)
+        : _impl(), _dynamic_field_names(std::move(dynamic_field_names))
     {
       for (auto field_name : _dynamic_field_names)
       {
@@ -409,6 +410,6 @@ namespace sqlpp
   {
     row._apply(callable);
   }
-}
+}  // namespace sqlpp
 
 #endif

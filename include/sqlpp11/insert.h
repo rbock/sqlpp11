@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_INSERT_H
-#define SQLPP_INSERT_H
+#ifndef SQLPP11_INSERT_H
+#define SQLPP11_INSERT_H
 
 #include <sqlpp11/statement.h>
 #include <sqlpp11/connection.h>
@@ -94,7 +94,7 @@ namespace sqlpp
     using _serialize_check = consistent_t;
     using T = insert_name_t;
 
-    static Context& _(const T&, Context& context)
+    static Context& _(const T& /*unused*/, Context& context)
     {
       context << "INSERT";
 
@@ -107,7 +107,7 @@ namespace sqlpp
 
   inline auto insert() -> blank_insert_t<void>
   {
-    return {blank_insert_t<void>()};
+    return {};
   }
 
   template <typename Table>
@@ -117,18 +117,19 @@ namespace sqlpp
   }
 
   template <typename Database>
-  constexpr auto dynamic_insert(const Database&) -> decltype(blank_insert_t<Database>())
+  constexpr auto dynamic_insert(const Database & /*unused*/) -> decltype(blank_insert_t<Database>())
   {
     static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
     return {blank_insert_t<Database>()};
   }
 
   template <typename Database, typename Table>
-  constexpr auto dynamic_insert_into(const Database&, Table table) -> decltype(blank_insert_t<Database>().into(table))
+  constexpr auto dynamic_insert_into(const Database& /*unused*/, Table table)
+      -> decltype(blank_insert_t<Database>().into(table))
   {
     static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
     return {blank_insert_t<Database>().into(table)};
   }
-}
+}  // namespace sqlpp
 
 #endif

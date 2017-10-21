@@ -24,10 +24,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_TEXT_OPERAND_H
-#define SQLPP_TEXT_OPERAND_H
+#ifndef SQLPP11_DATA_TYPES_TEXT_OPERAND_H
+#define SQLPP11_DATA_TYPES_TEXT_OPERAND_H
 
 #include <string>
+#include <utility>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/alias_operators.h>
 #include <sqlpp11/serializer.h>
@@ -44,11 +45,9 @@ namespace sqlpp
 
     using _value_t = std::string;
 
-    text_operand() : _t{}
-    {
-    }
+    text_operand() = default;
 
-    text_operand(_value_t t) : _t(t)
+    text_operand(_value_t t) : _t(std::move(t))
     {
     }
 
@@ -78,5 +77,5 @@ namespace sqlpp
       return context;
     }
   };
-}
+}  // namespace sqlpp
 #endif

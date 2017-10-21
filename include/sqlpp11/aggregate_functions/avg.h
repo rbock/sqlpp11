@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_AVG_H
-#define SQLPP_AVG_H
+#ifndef SQLPP11_AGGREGATE_FUNCTIONS_AVG_H
+#define SQLPP11_AGGREGATE_FUNCTIONS_AVG_H
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/char_sequence.h>
@@ -116,13 +116,13 @@ namespace sqlpp
   }
 
   template <typename T>
-  auto avg(const distinct_t&, T t) -> avg_t<distinct_t, wrap_operand_t<T>>
+  auto avg(const distinct_t& /*unused*/, T t) -> avg_t<distinct_t, wrap_operand_t<T>>
   {
     static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value,
                   "avg() cannot be used on an aggregate function");
     static_assert(is_numeric_t<wrap_operand_t<T>>::value, "avg() requires a numeric value expression as argument");
     return {t};
   }
-}
+}  // namespace sqlpp
 
 #endif

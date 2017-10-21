@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_TEXT_WRAP_OPERAND_H
-#define SQLPP_TEXT_WRAP_OPERAND_H
+#ifndef SQLPP11_DATA_TYPES_TEXT_WRAP_OPERAND_H
+#define SQLPP11_DATA_TYPES_TEXT_WRAP_OPERAND_H
 
 #include <utility>
 #include <sqlpp11/type_traits.h>
@@ -42,5 +42,5 @@ namespace sqlpp
   {
     using type = text_operand;
   };
-}
+}  // namespace sqlpp
 #endif

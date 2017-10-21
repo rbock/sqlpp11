@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_INTEGRAL_OPERAND_H
-#define SQLPP_INTEGRAL_OPERAND_H
+#ifndef SQLPP11_DATA_TYPES_INTEGRAL_OPERAND_H
+#define SQLPP11_DATA_TYPES_INTEGRAL_OPERAND_H
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/alias_operators.h>
@@ -77,6 +77,6 @@ namespace sqlpp
       return context;
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

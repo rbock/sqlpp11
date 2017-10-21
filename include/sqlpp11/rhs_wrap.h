@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_RHS_WRAP_H
-#define SQLPP_RHS_WRAP_H
+#ifndef SQLPP11_RHS_WRAP_H
+#define SQLPP11_RHS_WRAP_H
 
 #include <sqlpp11/default_value.h>
 #include <sqlpp11/null.h>
@@ -38,7 +38,7 @@ namespace sqlpp
     template <typename Expr, typename Enable = void>
     struct rhs_is_trivial_t
     {
-      static constexpr bool _(const Expr&)
+      static constexpr bool _(const Expr& /*unused*/)
       {
         return false;
       }
@@ -71,24 +71,20 @@ namespace sqlpp
         {
           return t.is_null();
         }
-        else
+
+        if (t.is_null())
         {
-          if (t.is_null())
-          {
-            return false;
-          }
-          else
-          {
-            return t._is_trivial();
-          }
+          return false;
         }
+
+        return t._is_trivial();
       }
     };
 
     template <typename Expr, typename Enable = void>
     struct rhs_is_null_t
     {
-      static constexpr bool _(const Expr&)
+      static constexpr bool _(const Expr& /*unused*/)
       {
         return false;
       }
@@ -111,7 +107,7 @@ namespace sqlpp
         return t.is_null();
       }
     };
-  }
+  }  // namespace detail
 
   template <typename Expr, bool TrivialValueIsNull>
   struct rhs_wrap_t
@@ -165,6 +161,6 @@ namespace sqlpp
       return context;
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

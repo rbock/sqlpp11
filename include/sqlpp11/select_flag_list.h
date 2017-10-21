@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SELECT_FLAG_LIST_H
-#define SQLPP_SELECT_FLAG_LIST_H
+#ifndef SQLPP11_SELECT_FLAG_LIST_H
+#define SQLPP11_SELECT_FLAG_LIST_H
 
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/interpret_tuple.h>
@@ -94,7 +94,7 @@ namespace sqlpp
 
     private:
       template <typename Flag>
-      void _add_impl(Flag flag, const std::true_type&)
+      void _add_impl(Flag flag, const std::true_type& /*unused*/)
       {
         return _data._dynamic_flags.emplace_back(flag);
       }
@@ -226,7 +226,7 @@ namespace sqlpp
       auto _flags_impl(Check, Flags... flgs) const -> inconsistent<Check>;
 
       template <typename Database, typename... Flags>
-      auto _flags_impl(consistent_t, Flags... flgs) const
+      auto _flags_impl(consistent_t /*unused*/, Flags... flgs) const
           -> _new_statement_t<consistent_t, select_flag_list_t<Database, Flags...>>
       {
         static_assert(not detail::has_duplicates<Flags...>::value,
@@ -248,11 +248,15 @@ namespace sqlpp
     static Context& _(const T& t, Context& context)
     {
       interpret_tuple(t._flags, ' ', context);
-      if (sizeof...(Flags))
+      if (sizeof...(Flags) != 0u)
+      {
         context << ' ';
+      }
       interpret_list(t._dynamic_flags, ',', context);
       if (not t._dynamic_flags.empty())
+      {
         context << ' ';
+      }
       return context;
     }
   };
@@ -264,11 +268,11 @@ namespace sqlpp
   }
 
   template <typename Database, typename T>
-  auto dynamic_select_flags(const Database&, T&& t)
+  auto dynamic_select_flags(const Database& /*unused*/, T&& t)
       -> decltype(statement_t<Database, no_select_flag_list_t>().dynamic_flags(std::forward<T>(t)))
   {
     return statement_t<Database, no_select_flag_list_t>().dynamic_flags(std::forward<T>(t));
   }
-}
+}  // namespace sqlpp
 
 #endif

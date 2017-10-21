@@ -24,13 +24,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_COLUMN_FWD_H
-#define SQLPP_COLUMN_FWD_H
+#ifndef SQLPP11_COLUMN_FWD_H
+#define SQLPP11_COLUMN_FWD_H
 
 namespace sqlpp
 {
   template <typename Table, typename ColumnSpec>
   struct column_t;
-}
+}  // namespace sqlpp
 
 #endif

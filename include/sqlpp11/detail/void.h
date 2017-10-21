@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DETAIL_VOID_H
-#define SQLPP_DETAIL_VOID_H
+#ifndef SQLPP11_DETAIL_VOID_H
+#define SQLPP11_DETAIL_VOID_H
 
 namespace sqlpp
 {
@@ -39,7 +39,7 @@ namespace sqlpp
 
     template <typename T>
     using void_t = typename void_impl<T>::type;
-  }
-}
+  }  // namespace detail
+}  // namespace sqlpp
 
 #endif

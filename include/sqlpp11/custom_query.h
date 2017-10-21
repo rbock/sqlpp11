@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_CUSTOM_QUERY_H
-#define SQLPP_CUSTOM_QUERY_H
+#ifndef SQLPP11_CUSTOM_QUERY_H
+#define SQLPP11_CUSTOM_QUERY_H
 
 #include <sqlpp11/connection.h>
 #include <sqlpp11/detail/get_first.h>
@@ -59,7 +59,7 @@ namespace sqlpp
       using _result_type_provider = typename unhide<_maybe_hidden_result_type_provider>::type;
       using _result_methods_t = typename _result_type_provider::template _result_methods_t<_result_type_provider>;
     };
-  }
+  }  // namespace detail
 
   template <typename Database, typename... Parts>
   struct custom_query_t : private detail::custom_parts_t<Database, Parts...>::_result_methods_t
@@ -143,12 +143,13 @@ namespace sqlpp
   }
 
   template <typename Database, typename... Parts>
-  auto dynamic_custom_query(const Database&, Parts... parts) -> custom_query_t<Database, wrap_operand_t<Parts>...>
+  auto dynamic_custom_query(const Database& /*unused*/, Parts... parts)
+      -> custom_query_t<Database, wrap_operand_t<Parts>...>
   {
     static_assert(sizeof...(Parts) > 0, "custom query requires at least one query argument");
     static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
 
     return custom_query_t<Database, wrap_operand_t<Parts>...>(parts...);
   }
-}
+}  // namespace sqlpp
 #endif

@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SELECT_COLUMN_LIST_H
-#define SQLPP_SELECT_COLUMN_LIST_H
+#ifndef SQLPP11_SELECT_COLUMN_LIST_H
+#define SQLPP11_SELECT_COLUMN_LIST_H
 
 #include <sqlpp11/data_types/no_value.h>
 #include <sqlpp11/detail/copy_tuple_args.h>
@@ -64,7 +64,7 @@ namespace sqlpp
                                   tag::is_selectable>;
       using _alias_t = typename Column::_alias_t;
     };
-  }
+  }  // namespace detail
 
   // SELECTED COLUMNS DATA
   template <typename Database, typename... Columns>
@@ -145,7 +145,7 @@ namespace sqlpp
 
       // private:
       template <typename NamedExpression>
-      void _add_impl(NamedExpression namedExpression, const std::true_type&)
+      void _add_impl(NamedExpression namedExpression, const std::true_type& /*unused*/)
       {
         return _data._dynamic_columns.emplace_back(auto_alias_t<NamedExpression>{namedExpression});
       }
@@ -299,7 +299,7 @@ namespace sqlpp
     template <typename Database, typename... Columns>
     using make_select_column_list_t =
         copy_tuple_args_t<select_column_list_t, Database, decltype(column_tuple_merge(std::declval<Columns>()...))>;
-  }
+  }  // namespace detail
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_selected_colums_are_selectable_t, "selected columns must be selectable");
   template <typename... T>
@@ -368,7 +368,7 @@ namespace sqlpp
       using _database_t = typename Policies::_database_t;
 
       template <typename... T>
-      static constexpr auto _check_tuple(std::tuple<T...>) -> check_selected_columns_t<T...>
+      static constexpr auto _check_tuple(std::tuple<T...> /*unused*/) -> check_selected_columns_t<T...>
       {
         return {};
       }
@@ -412,7 +412,7 @@ namespace sqlpp
       auto _columns_impl(Check, std::tuple<Args...> args) const -> inconsistent<Check>;
 
       template <typename Database, typename... Args>
-      auto _columns_impl(consistent_t, std::tuple<Args...> args) const
+      auto _columns_impl(consistent_t /*unused*/, std::tuple<Args...> args) const
           -> _new_statement_t<consistent_t, select_column_list_t<Database, Args...>>
       {
         static_assert(not detail::has_duplicates<Args...>::value, "at least one duplicate argument detected");
@@ -436,7 +436,9 @@ namespace sqlpp
     {
       interpret_tuple(t._columns, ',', context);
       if (sizeof...(Columns) and not t._dynamic_columns.empty())
+      {
         context << ',';
+      }
       serialize(t._dynamic_columns, context);
       return context;
     }
@@ -449,11 +451,11 @@ namespace sqlpp
   }
 
   template <typename Database, typename... T>
-  auto dynamic_select_columns(const Database&, T&&... t)
+  auto dynamic_select_columns(const Database& /*unused*/, T&&... t)
       -> decltype(statement_t<Database, no_select_column_list_t>().dynamic_columns(std::forward<T>(t)...))
   {
     return statement_t<Database, no_select_column_list_t>().dynamic_columns(std::forward<T>(t)...);
   }
-}
+}  // namespace sqlpp
 
 #endif

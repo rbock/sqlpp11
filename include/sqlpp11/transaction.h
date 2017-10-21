@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_TRANSACTION_H
-#define SQLPP_TRANSACTION_H
+#ifndef SQLPP11_TRANSACTION_H
+#define SQLPP11_TRANSACTION_H
 
 #include <stdexcept>
 #include <ciso646>
@@ -35,12 +35,13 @@ namespace sqlpp
   static constexpr bool quiet_auto_rollback = false;
   static constexpr bool report_auto_rollback = true;
 
-  enum class isolation_level {
-      undefined,            // use the current database default
-      serializable,         // highest level, stronguest guarantee
-      repeatable_read,      // DBMS holds read and write locks
-      read_committed,       // DMBS holds read locks, non-repeatable reads can occur
-      read_uncommitted      // lowest isolation level, dirty reads may occur
+  enum class isolation_level
+  {
+    undefined,        // use the current database default
+    serializable,     // highest level, stronguest guarantee
+    repeatable_read,  // DBMS holds read and write locks
+    read_committed,   // DMBS holds read locks, non-repeatable reads can occur
+    read_uncommitted  // lowest isolation level, dirty reads may occur
   };
 
   template <typename Db>
@@ -103,14 +104,16 @@ namespace sqlpp
   template <typename Db>
   transaction_t<Db> start_transaction(Db& db, bool report_unfinished_transaction = report_auto_rollback)
   {
-      return {db, report_unfinished_transaction};
+    return {db, report_unfinished_transaction};
   }
 
   template <typename Db>
-  transaction_t<Db> start_transaction(Db& db, isolation_level isolation, bool report_unfinished_transaction = report_auto_rollback)
+  transaction_t<Db> start_transaction(Db& db,
+                                      isolation_level isolation,
+                                      bool report_unfinished_transaction = report_auto_rollback)
   {
     return {db, report_unfinished_transaction, isolation};
   }
-}
+}  // namespace sqlpp
 
 #endif

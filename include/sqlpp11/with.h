@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_WITH_H
-#define SQLPP_WITH_H
+#ifndef SQLPP11_WITH_H
+#define SQLPP11_WITH_H
 
 #include <sqlpp11/assignment.h>
 #include <sqlpp11/column_fwd.h>
@@ -201,7 +201,9 @@ namespace sqlpp
       // FIXME: If there is a recursive CTE, add a "RECURSIVE" here
       context << " WITH ";
       if (T::_is_recursive::value)
+      {
         context << "RECURSIVE ";
+      }
       interpret_tuple(t._expressions, ',', context);
       context << ' ';
       return context;
@@ -217,6 +219,6 @@ namespace sqlpp
                   "at least one expression in with is an incomplete common table expression");
     return {{cte...}};
   }
-}
+}  // namespace sqlpp
 
 #endif

@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_ON_H
-#define SQLPP_ON_H
+#ifndef SQLPP11_ON_H
+#define SQLPP11_ON_H
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/interpretable_list.h>
@@ -69,7 +69,7 @@ namespace sqlpp
     using _serialize_check = consistent_t;
     using T = on_t<unconditional_t>;
 
-    static Context& _(const T&, Context& context)
+    static Context& _(const T& /*unused*/, Context& context)
     {
       return context;
     }
@@ -88,6 +88,6 @@ namespace sqlpp
       return context;
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

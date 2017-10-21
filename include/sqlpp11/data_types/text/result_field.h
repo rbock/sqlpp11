@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_TEXT_RESULT_FIELD_H
-#define SQLPP_TEXT_RESULT_FIELD_H
+#ifndef SQLPP11_DATA_TYPES_TEXT_RESULT_FIELD_H
+#define SQLPP11_DATA_TYPES_TEXT_RESULT_FIELD_H
 
 #include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/result_field.h>
@@ -48,9 +48,13 @@ namespace sqlpp
     {
       target._bind_text_result(index, &text, &len);
       if (text)
+      {
         this->_value.assign(text, len);
+      }
       else
+      {
         this->_value.assign("");
+      }
       this->_is_null = (text == nullptr);
     }
 
@@ -59,9 +63,13 @@ namespace sqlpp
     {
       target._post_bind_text_result(index, &text, &len);
       if (text)
+      {
         this->_value.assign(text, len);
+      }
       else
+      {
         this->_value.assign("");
+      }
       this->_is_null = (text == nullptr);
     }
   };
@@ -74,10 +82,8 @@ namespace sqlpp
     {
       return os << "NULL";
     }
-    else
-    {
-      return os << e.value();
-    }
+
+    return os << e.value();
   }
-}
+}  // namespace sqlpp
 #endif

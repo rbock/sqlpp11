@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_ALIAS_H
-#define SQLPP_ALIAS_H
+#ifndef SQLPP11_ALIAS_H
+#define SQLPP11_ALIAS_H
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/serializer.h>
@@ -70,6 +70,6 @@ namespace sqlpp
       return context;
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

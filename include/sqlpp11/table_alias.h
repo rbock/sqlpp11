@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_TABLE_ALIAS_H
-#define SQLPP_TABLE_ALIAS_H
+#ifndef SQLPP11_TABLE_ALIAS_H
+#define SQLPP11_TABLE_ALIAS_H
 
 #include <sqlpp11/alias.h>
 #include <sqlpp11/column_fwd.h>
@@ -108,14 +108,18 @@ namespace sqlpp
     static Context& _(const T& t, Context& context)
     {
       if (requires_braces_t<Table>::value)
+      {
         context << "(";
+      }
       serialize(t._table, context);
       if (requires_braces_t<Table>::value)
+      {
         context << ")";
+      }
       context << " AS " << name_of<T>::char_ptr();
       return context;
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

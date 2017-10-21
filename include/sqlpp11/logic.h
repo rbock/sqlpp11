@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DETAIL_LOGIC_H
-#define SQLPP_DETAIL_LOGIC_H
+#ifndef SQLPP11_LOGIC_H
+#define SQLPP11_LOGIC_H
 
 #include <ciso646>  // Required for some compilers to use aliases for boolean operators
 #include <type_traits>
@@ -84,7 +84,7 @@ namespace sqlpp
 
     template <typename T>
     using identity_t = T;
-  }
-}
+  }  // namespace logic
+}  // namespace sqlpp
 
 #endif

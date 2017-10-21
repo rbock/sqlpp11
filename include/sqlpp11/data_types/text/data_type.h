@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_TEXT_DATA_TYPE_H
-#define SQLPP_TEXT_DATA_TYPE_H
+#ifndef SQLPP11_DATA_TYPES_TEXT_DATA_TYPE_H
+#define SQLPP11_DATA_TYPES_TEXT_DATA_TYPE_H
 
 #include <sqlpp11/type_traits.h>
 
@@ -45,5 +45,5 @@ namespace sqlpp
   using char_ = text;
   using binary = text;
   using varbinary = text;
-}
+}  // namespace sqlpp
 #endif

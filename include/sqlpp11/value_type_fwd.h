@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_VALUE_TYPE_FWD_H
-#define SQLPP_VALUE_TYPE_FWD_H
+#ifndef SQLPP11_VALUE_TYPE_FWD_H
+#define SQLPP11_VALUE_TYPE_FWD_H
 
 #include <sqlpp11/type_traits.h>
 
@@ -51,6 +51,6 @@ namespace sqlpp
         and ValueType::template _is_valid_assignment_operand<T>::value  // the correct value type is required, of course
         ;
   };
-}
+}  // namespace sqlpp
 
 #endif

@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_FUNCTIONS_H
-#define SQLPP_FUNCTIONS_H
+#ifndef SQLPP11_FUNCTIONS_H
+#define SQLPP11_FUNCTIONS_H
 
 #include <sqlpp11/parameter.h>
 #include <sqlpp11/parameter_list.h>
@@ -108,9 +108,13 @@ namespace sqlpp
       for (const auto& entry : t._container)
       {
         if (first)
+        {
           first = false;
+        }
         else
+        {
           context << ',';
+        }
 
         serialize_operand(value(entry), context);
       }
@@ -128,10 +132,10 @@ namespace sqlpp
   }
 
   template <typename T>
-  constexpr const char* get_sql_name(const T&)
+  constexpr const char* get_sql_name(const T& /*unused*/)
   {
     return name_of<T>::char_ptr();
   }
-}
+}  // namespace sqlpp
 
 #endif

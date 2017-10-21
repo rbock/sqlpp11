@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SCHEMA_QUALIFIED_TABLE_H
-#define SQLPP_SCHEMA_QUALIFIED_TABLE_H
+#ifndef SQLPP11_SCHEMA_QUALIFIED_TABLE_H
+#define SQLPP11_SCHEMA_QUALIFIED_TABLE_H
 
 #include <sqlpp11/column_fwd.h>
 #include <sqlpp11/interpret.h>
@@ -33,6 +33,8 @@
 #include <sqlpp11/schema.h>
 #include <sqlpp11/table_alias.h>
 #include <sqlpp11/detail/type_set.h>
+
+#include <utility>
 
 namespace sqlpp
 {
@@ -45,13 +47,13 @@ namespace sqlpp
     using _required_ctes = detail::type_set<>;
     using _provided_tables = detail::type_set<>;
 
-    schema_qualified_table_t(schema_t schema, Table table) : _schema(schema), _table(table)
+    schema_qualified_table_t(schema_t schema, Table table) : _schema(std::move(schema)), _table(table)
     {
     }
 
     template <typename AliasProvider>
     typename Table::template _foreign_table_alias_t<AliasProvider, schema_qualified_table_t> as(
-        const AliasProvider&) const
+        const AliasProvider& /*unused*/) const
     {
       return {*this};
     }
@@ -87,6 +89,6 @@ namespace sqlpp
 
     return {schema, table};
   }
-}
+}  // namespace sqlpp
 
 #endif

@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DETAIL_SUM_H
-#define SQLPP_DETAIL_SUM_H
+#ifndef SQLPP11_DETAIL_SUM_H
+#define SQLPP11_DETAIL_SUM_H
 
 namespace sqlpp
 {
@@ -54,7 +54,7 @@ namespace sqlpp
     {
       return arg + sum(rest...);
     }
-  }
-}
+  }  // namespace detail
+}  // namespace sqlpp
 
 #endif

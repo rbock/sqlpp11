@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_USING_H
-#define SQLPP_USING_H
+#ifndef SQLPP11_USING_H
+#define SQLPP11_USING_H
 
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/interpret_tuple.h>
@@ -90,7 +90,7 @@ namespace sqlpp
 
     private:
       template <typename Table>
-      void _add_impl(Table table, const std::true_type&)
+      void _add_impl(Table table, const std::true_type& /*unused*/)
       {
         return _data._dynamic_tables.emplace_back(table);
       }
@@ -227,7 +227,7 @@ namespace sqlpp
       auto _using_impl(Check, Tables... tables) const -> inconsistent<Check>;
 
       template <typename Database, typename... Tables>
-      auto _using_impl(consistent_t, Tables... tables) const
+      auto _using_impl(consistent_t /*unused*/, Tables... tables) const
           -> _new_statement_t<consistent_t, using_t<_database_t, Tables...>>
       {
         static_assert(not detail::has_duplicates<Tables...>::value,
@@ -248,15 +248,19 @@ namespace sqlpp
     static Context& _(const T& t, Context& context)
     {
       if (sizeof...(Tables) == 0 and t._dynamic_tables.empty())
+      {
         return context;
+      }
       context << " USING ";
       interpret_tuple(t._tables, ',', context);
       if (sizeof...(Tables) and not t._dynamic_tables.empty())
+      {
         context << ',';
+      }
       interpret_list(t._dynamic_tables, ',', context);
       return context;
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

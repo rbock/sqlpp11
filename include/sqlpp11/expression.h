@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_EXPRESSION_H
-#define SQLPP_EXPRESSION_H
+#ifndef SQLPP11_EXPRESSION_H
+#define SQLPP11_EXPRESSION_H
 
 #include <sqlpp11/alias.h>
 #include <sqlpp11/data_types/boolean.h>
@@ -253,6 +253,6 @@ namespace sqlpp
       return context;
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

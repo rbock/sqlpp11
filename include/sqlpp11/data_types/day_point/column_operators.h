@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DAY_POINT_COLUMN_OPERATORS_H
-#define SQLPP_DAY_POINT_COLUMN_OPERATORS_H
+#ifndef SQLPP11_DATA_TYPES_DAY_POINT_COLUMN_OPERATORS_H
+#define SQLPP11_DATA_TYPES_DAY_POINT_COLUMN_OPERATORS_H
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/assignment.h>
@@ -40,5 +40,5 @@ namespace sqlpp
     template <typename T>
     using _is_valid_operand = is_valid_operand<day_point, T>;
   };
-}
+}  // namespace sqlpp
 #endif

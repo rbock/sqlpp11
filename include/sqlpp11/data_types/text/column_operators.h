@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_TEXT_COLUMN_OPERATORS_H
-#define SQLPP_TEXT_COLUMN_OPERATORS_H
+#ifndef SQLPP11_DATA_TYPES_TEXT_COLUMN_OPERATORS_H
+#define SQLPP11_DATA_TYPES_TEXT_COLUMN_OPERATORS_H
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/assignment.h>
@@ -53,5 +53,5 @@ namespace sqlpp
               concat_t<Column, wrap_operand_t<T>>{*static_cast<const Column*>(this), rhs{t}}};
     }
   };
-}
+}  // namespace sqlpp
 #endif

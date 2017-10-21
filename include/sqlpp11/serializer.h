@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SERIALIZER_H
-#define SQLPP_SERIALIZER_H
+#ifndef SQLPP11_SERIALIZER_H
+#define SQLPP11_SERIALIZER_H
 
 #include <sqlpp11/portable_static_assert.h>
 #include <sqlpp11/wrong.h>
@@ -39,11 +39,11 @@ namespace sqlpp
   {
     using _serialize_check = assert_serializer_specialization_t;
 
-    static void _(const T&, Context&)
+    static void _(const T& /*unused*/, Context& /*unused*/)
     {
       _serialize_check{};
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_STATEMENT_H
-#define SQLPP_STATEMENT_H
+#ifndef SQLPP11_STATEMENT_H
+#define SQLPP11_STATEMENT_H
 
 #include <sqlpp11/noop.h>
 #include <sqlpp11/parameter_list.h>
@@ -150,7 +150,7 @@ namespace sqlpp
       using _parameter_check = typename std::
           conditional<detail::type_vector_size<_parameters>::value == 0, consistent_t, assert_no_parameters_t>::type;
     };
-  }
+  }  // namespace detail
 
   template <typename Db, typename... Policies>
   struct statement_t : public Policies::template _base_t<detail::statement_policies_t<Db, Policies...>>...,
@@ -197,9 +197,7 @@ namespace sqlpp
     using _alias_t = typename _result_type_provider::_alias_t;
 
     // Constructors
-    statement_t()
-    {
-    }
+    statement_t() = default;
 
     // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
     //	template <typename Statement, typename Term>
@@ -321,6 +319,6 @@ namespace sqlpp
       using _consistency_check = consistent_t;
     };
   };
-}
+}  // namespace sqlpp
 
 #endif

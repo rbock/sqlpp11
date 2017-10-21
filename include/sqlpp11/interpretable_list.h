@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_INTERPRETABLE_LIST_H
-#define SQLPP_INTERPRETABLE_LIST_H
+#ifndef SQLPP11_INTERPRETABLE_LIST_H
+#define SQLPP11_INTERPRETABLE_LIST_H
 
 #include <sqlpp11/interpretable.h>
 #include <vector>
@@ -96,7 +96,7 @@ namespace sqlpp
     using T = interpretable_list_t<void>;
 
     template <typename Separator>
-    static Context& _(const T&, const Separator& /* separator */, Context& context)
+    static Context& _(const T& /*unused*/, const Separator& /* separator */, Context& context)
     {
       return context;
     }
@@ -108,6 +108,6 @@ namespace sqlpp
   {
     return serializable_list_interpreter_t<Context, T>::_(t, separator, context);
   }
-}
+}  // namespace sqlpp
 
 #endif

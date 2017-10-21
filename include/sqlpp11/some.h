@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SOME_H
-#define SQLPP_SOME_H
+#ifndef SQLPP11_SOME_H
+#define SQLPP11_SOME_H
 
 #include <sqlpp11/data_types/boolean.h>
 #include <sqlpp11/detail/type_set.h>
@@ -76,6 +76,6 @@ namespace sqlpp
                   "some() requires a single column select expression as argument");
     return {t};
   }
-}
+}  // namespace sqlpp
 
 #endif

@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_UNION_DATA_H
-#define SQLPP_UNION_DATA_H
+#ifndef SQLPP11_UNION_DATA_H
+#define SQLPP11_UNION_DATA_H
 
 #include <sqlpp11/serializer.h>
 
@@ -65,6 +65,6 @@ namespace sqlpp
       return context;
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

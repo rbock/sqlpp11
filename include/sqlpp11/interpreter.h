@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_INTERPRETER_H
-#define SQLPP_INTERPRETER_H
+#ifndef SQLPP11_INTERPRETER_H
+#define SQLPP11_INTERPRETER_H
 
 #include <sqlpp11/wrong.h>
 
@@ -34,11 +34,11 @@ namespace sqlpp
   template <typename Context, typename T, typename Enable = void>
   struct interpreter_t
   {
-    static void _(const T&, Context&)
+    static void _(const T& /*unused*/, Context& /*unused*/)
     {
       static_assert(wrong_t<interpreter_t>::value, "missing interpreter specialization");
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

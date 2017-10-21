@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_NO_VALUE_COLUMN_OPERATORS_H
-#define SQLPP_NO_VALUE_COLUMN_OPERATORS_H
+#ifndef SQLPP11_DATA_TYPES_NO_VALUE_COLUMN_OPERATORS_H
+#define SQLPP11_DATA_TYPES_NO_VALUE_COLUMN_OPERATORS_H
 
 #include <sqlpp11/data_types/column_operators.h>
 
@@ -37,5 +37,5 @@ namespace sqlpp
   struct column_operators<Base, no_value_t>
   {
   };
-}
+}  // namespace sqlpp
 #endif

@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_CHRONO_H
-#define SQLPP_CHRONO_H
+#ifndef SQLPP11_CHRONO_H
+#define SQLPP11_CHRONO_H
 
 #include <date.h>
 
@@ -51,7 +51,7 @@ namespace sqlpp
       const auto dp = floor<days>(t);
       return std::chrono::duration_cast<std::chrono::microseconds>(::date::make_time(t - dp).to_duration());
     }
-  }
-}
+  }  // namespace chrono
+}  // namespace sqlpp
 
 #endif

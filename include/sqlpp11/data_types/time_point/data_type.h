@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_TIME_POINT_DATA_TYPE_H
-#define SQLPP_TIME_POINT_DATA_TYPE_H
+#ifndef SQLPP11_DATA_TYPES_TIME_POINT_DATA_TYPE_H
+#define SQLPP11_DATA_TYPES_TIME_POINT_DATA_TYPE_H
 
 #include <sqlpp11/chrono.h>
 #include <sqlpp11/type_traits.h>
@@ -40,5 +40,5 @@ namespace sqlpp
     template <typename T>
     using _is_valid_operand = is_day_or_time_point_t<T>;
   };
-}
+}  // namespace sqlpp
 #endif

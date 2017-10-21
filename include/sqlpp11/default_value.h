@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DEFAULT_VALUE_H
-#define SQLPP_DEFAULT_VALUE_H
+#ifndef SQLPP11_DEFAULT_VALUE_H
+#define SQLPP11_DEFAULT_VALUE_H
 
 #include <sqlpp11/data_types/no_value.h>
 
@@ -48,7 +48,7 @@ namespace sqlpp
     using _serialize_check = consistent_t;
     using Operand = default_value_t;
 
-    static Context& _(const Operand&, Context& context)
+    static Context& _(const Operand& /*unused*/, Context& context)
     {
       context << "DEFAULT";
       return context;
@@ -56,6 +56,6 @@ namespace sqlpp
   };
 
   constexpr default_value_t default_value = {};
-}
+}  // namespace sqlpp
 
 #endif

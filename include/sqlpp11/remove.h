@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_REMOVE_H
-#define SQLPP_REMOVE_H
+#ifndef SQLPP11_REMOVE_H
+#define SQLPP11_REMOVE_H
 
 #include <sqlpp11/statement.h>
 #include <sqlpp11/connection.h>
@@ -93,7 +93,7 @@ namespace sqlpp
     using _serialize_check = consistent_t;
     using T = remove_name_t;
 
-    static Context& _(const T&, Context& context)
+    static Context& _(const T& /*unused*/, Context& context)
     {
       context << "DELETE";
 
@@ -106,7 +106,7 @@ namespace sqlpp
 
   inline auto remove() -> blank_remove_t<void>
   {
-    return {blank_remove_t<void>()};
+    return {};
   }
 
   template <typename Table>
@@ -116,18 +116,18 @@ namespace sqlpp
   }
 
   template <typename Database>
-  auto dynamic_remove(const Database&) -> decltype(blank_remove_t<Database>())
+  auto dynamic_remove(const Database & /*unused*/) -> decltype(blank_remove_t<Database>())
   {
     static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
     return {blank_remove_t<Database>()};
   }
 
   template <typename Database, typename Table>
-  auto dynamic_remove_from(const Database&, Table table) -> decltype(blank_remove_t<Database>().from(table))
+  auto dynamic_remove_from(const Database& /*unused*/, Table table) -> decltype(blank_remove_t<Database>().from(table))
   {
     static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
     return {blank_remove_t<Database>().from(table)};
   }
-}
+}  // namespace sqlpp
 
 #endif

@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_PARAMETER_H
-#define SQLPP_PARAMETER_H
+#ifndef SQLPP11_PARAMETER_H
+#define SQLPP11_PARAMETER_H
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/alias_provider.h>
@@ -46,9 +46,7 @@ namespace sqlpp
 
     using _instance_t = member_t<NameType, parameter_value_t<ValueType>>;
 
-    parameter_t()
-    {
-    }
+    parameter_t() = default;
 
     parameter_t(const parameter_t&) = default;
     parameter_t(parameter_t&&) = default;
@@ -63,7 +61,7 @@ namespace sqlpp
     using _serialize_check = consistent_t;
     using T = parameter_t<ValueType, NameType>;
 
-    static Context& _(const T&, Context& context)
+    static Context& _(const T& /*unused*/, Context& context)
     {
       context << "?";
       return context;
@@ -71,19 +69,20 @@ namespace sqlpp
   };
 
   template <typename NamedExpr>
-  auto parameter(const NamedExpr&) -> parameter_t<value_type_of<NamedExpr>, NamedExpr>
+  auto parameter(const NamedExpr & /*unused*/) -> parameter_t<value_type_of<NamedExpr>, NamedExpr>
   {
     static_assert(is_selectable_t<NamedExpr>::value, "not a named expression");
     return {};
   }
 
   template <typename ValueType, typename AliasProvider>
-  auto parameter(const ValueType&, const AliasProvider&) -> parameter_t<wrap_operand_t<ValueType>, AliasProvider>
+  auto parameter(const ValueType& /*unused*/, const AliasProvider & /*unused*/)
+      -> parameter_t<wrap_operand_t<ValueType>, AliasProvider>
   {
     static_assert(is_value_type_t<ValueType>::value, "first argument is not a value type");
     static_assert(is_alias_provider_t<AliasProvider>::value, "second argument is not an alias provider");
     return {};
   }
-}
+}  // namespace sqlpp
 
 #endif

@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_TVIN_H
-#define SQLPP_TVIN_H
+#ifndef SQLPP11_TVIN_H
+#define SQLPP11_TVIN_H
 
 // TVIN: Trivial value is NULL
 
@@ -65,7 +65,7 @@ namespace sqlpp
     using _serialize_check = assert_tvin_with_correct_operator_t;
     using T = tvin_arg_t<Operand>;
 
-    static Context& _(const T&, Context&)
+    static Context& _(const T& /*unused*/, Context& /*unused*/)
     {
       _serialize_check{};
     }
@@ -86,7 +86,7 @@ namespace sqlpp
     {
       using type = tvin_t<T>;
     };
-  }
+  }  // namespace detail
   template <typename T>
   using allow_tvin_t = typename detail::allow_tvin_impl<T>::type;
 
@@ -132,7 +132,7 @@ namespace sqlpp
     {
       using type = std::true_type;
     };
-  }
+  }  // namespace detail
   template <typename T>
   using is_tvin_t = typename detail::is_tvin_impl<T>::type;
 
@@ -164,6 +164,6 @@ namespace sqlpp
                   "tvin() used with invalid type (only string and primitive types allowed)");
     return {{operand}};
   }
-}
+}  // namespace sqlpp
 
 #endif

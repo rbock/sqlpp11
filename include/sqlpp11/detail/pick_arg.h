@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DETAIL_PICK_ARG_H
-#define SQLPP_DETAIL_PICK_ARG_H
+#ifndef SQLPP11_DETAIL_PICK_ARG_H
+#define SQLPP11_DETAIL_PICK_ARG_H
 
 #include <type_traits>
 
@@ -34,13 +34,13 @@ namespace sqlpp
   namespace detail
   {
     template <typename Target, typename Statement, typename Term>
-    typename Target::_data_t pick_arg_impl(Statement /* statement */, Term term, const std::true_type&)
+    typename Target::_data_t pick_arg_impl(Statement /* statement */, Term term, const std::true_type& /*unused*/)
     {
       return term;
     }
 
     template <typename Target, typename Statement, typename Term>
-    typename Target::_data_t pick_arg_impl(Statement statement, Term /* term */, const std::false_type&)
+    typename Target::_data_t pick_arg_impl(Statement statement, Term /* term */, const std::false_type& /*unused*/)
     {
       return Target::_get_member(statement)._data;
     }
@@ -51,7 +51,7 @@ namespace sqlpp
     {
       return pick_arg_impl<Target>(statement, term, std::is_same<typename Target::_data_t, Term>());
     }
-  }
-}
+  }  // namespace detail
+}  // namespace sqlpp
 
 #endif

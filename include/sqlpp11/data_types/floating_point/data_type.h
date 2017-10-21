@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_FLOATING_POINT_DATA_TYPE_H
-#define SQLPP_FLOATING_POINT_DATA_TYPE_H
+#ifndef SQLPP11_DATA_TYPES_FLOATING_POINT_DATA_TYPE_H
+#define SQLPP11_DATA_TYPES_FLOATING_POINT_DATA_TYPE_H
 
 #include <sqlpp11/type_traits.h>
 
@@ -39,5 +39,5 @@ namespace sqlpp
     template <typename T>
     using _is_valid_operand = is_numeric_t<T>;
   };
-}
+}  // namespace sqlpp
 #endif

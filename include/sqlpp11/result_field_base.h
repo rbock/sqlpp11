@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_RESULT_FIELD_BASE_H
-#define SQLPP_RESULT_FIELD_BASE_H
+#ifndef SQLPP11_RESULT_FIELD_BASE_H
+#define SQLPP11_RESULT_FIELD_BASE_H
 
 #include <sqlpp11/alias_operators.h>
 #include <sqlpp11/basic_expression_operators.h>
@@ -87,14 +87,18 @@ namespace sqlpp
     bool is_null() const
     {
       if (not _is_valid)
+      {
         throw exception("accessing is_null in non-existing row");
+      }
       return _is_null;
     }
 
     bool _is_trivial() const
     {
       if (not _is_valid)
+      {
         throw exception("accessing is_null in non-existing row");
+      }
 
       return value() == _cpp_storage_type{};
     }
@@ -102,7 +106,9 @@ namespace sqlpp
     _cpp_value_type value() const
     {
       if (not _is_valid)
+      {
         throw exception("accessing value in non-existing row");
+      }
 
       if (_is_null)
       {
@@ -129,5 +135,5 @@ namespace sqlpp
     bool _is_null;
     _cpp_storage_type _value;
   };
-}
+}  // namespace sqlpp
 #endif

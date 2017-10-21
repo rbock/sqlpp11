@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_RESULT_ROW_FWD_H
-#define SQLPP_RESULT_ROW_FWD_H
+#ifndef SQLPP11_RESULT_ROW_FWD_H
+#define SQLPP11_RESULT_ROW_FWD_H
 
 namespace sqlpp
 {
@@ -34,6 +34,6 @@ namespace sqlpp
 
   template <typename Db, typename... FieldSpecs>
   struct dynamic_result_row_t;
-}
+}  // namespace sqlpp
 
 #endif

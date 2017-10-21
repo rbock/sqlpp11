@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_MULTI_COLUMN_H
-#define SQLPP_MULTI_COLUMN_H
+#ifndef SQLPP11_MULTI_COLUMN_H
+#define SQLPP11_MULTI_COLUMN_H
 
 #include <sqlpp11/logic.h>
 #include <sqlpp11/detail/type_set.h>
@@ -63,7 +63,7 @@ namespace sqlpp
     ~multi_column_t() = default;
 
     template <typename AliasProvider>
-    multi_column_alias_t<AliasProvider, Columns...> as(const AliasProvider&)
+    multi_column_alias_t<AliasProvider, Columns...> as(const AliasProvider& /*unused*/)
     {
       return {*this};
     }
@@ -109,7 +109,7 @@ namespace sqlpp
     using _serialize_check = serialize_check_of<Context, Columns...>;
     using T = multi_column_t<void, Columns...>;
 
-    static void _(const T&, Context&)
+    static void _(const T& /*unused*/, Context& /*unused*/)
     {
       static_assert(wrong_t<serializer_t>::value, "multi_column must be used with an alias");
     }
@@ -133,13 +133,13 @@ namespace sqlpp
     template <typename... Columns>
     using make_multi_column_t =
         copy_tuple_args_t<multi_column_t, void, decltype(column_tuple_merge(std::declval<Columns>()...))>;
-  }
+  }  // namespace detail
 
   template <typename... Columns>
   auto multi_column(Columns... columns) -> detail::make_multi_column_t<Columns...>
   {
     return detail::make_multi_column_t<Columns...>(std::tuple_cat(detail::as_column_tuple<Columns>::_(columns)...));
   }
-}
+}  // namespace sqlpp
 
 #endif

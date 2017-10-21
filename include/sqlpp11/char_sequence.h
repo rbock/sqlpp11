@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_CHAR_SEQUENCE_H
-#define SQLPP_CHAR_SEQUENCE_H
+#ifndef SQLPP11_CHAR_SEQUENCE_H
+#define SQLPP11_CHAR_SEQUENCE_H
 
 #include <sqlpp11/detail/index_sequence.h>
 
@@ -41,18 +41,18 @@ namespace sqlpp
     };
   };
 
-  template <std::size_t N, const char(&s)[N], typename T>
+  template <std::size_t N, const char (&s)[N], typename T>
   struct make_char_sequence_impl;
 
-  template <std::size_t N, const char(&s)[N], std::size_t... i>
+  template <std::size_t N, const char (&s)[N], std::size_t... i>
   struct make_char_sequence_impl<N, s, sqlpp::detail::index_sequence<i...>>
   {
     using type = char_sequence<s[i]...>;
   };
 
-  template <std::size_t N, const char(&Input)[N]>
+  template <std::size_t N, const char (&Input)[N]>
   using make_char_sequence =
       typename make_char_sequence_impl<sizeof(Input), Input, sqlpp::detail::make_index_sequence<sizeof(Input)>>::type;
-}
+}  // namespace sqlpp
 
 #endif

@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_NOT_IN_H
-#define SQLPP_NOT_IN_H
+#ifndef SQLPP11_NOT_IN_H
+#define SQLPP11_NOT_IN_H
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/char_sequence.h>
@@ -83,9 +83,13 @@ namespace sqlpp
       serialize_operand(t._operand, context);
       context << " NOT IN(";
       if (sizeof...(Args) == 1)
+      {
         serialize(std::get<0>(t._args), context);
+      }
       else
+      {
         interpret_tuple(t._args, ',', context);
+      }
       context << ')';
       return context;
     }
@@ -97,7 +101,7 @@ namespace sqlpp
     using _serialize_check = consistent_t;
     using T = not_in_t<Operand>;
 
-    static Context& _(const T&, Context& context)
+    static Context& _(const T& /*unused*/, Context& context)
     {
       serialize(boolean_operand{true}, context);
       return context;
@@ -130,6 +134,6 @@ namespace sqlpp
       return context;
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

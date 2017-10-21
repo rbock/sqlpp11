@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_JOIN_H
-#define SQLPP_JOIN_H
+#ifndef SQLPP11_JOIN_H
+#define SQLPP11_JOIN_H
 
 #include <sqlpp11/join_types.h>
 #include <sqlpp11/pre_join.h>
@@ -95,6 +95,6 @@ namespace sqlpp
       return context;
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

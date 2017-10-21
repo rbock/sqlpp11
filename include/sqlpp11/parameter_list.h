@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_PARAMETER_LIST_H
-#define SQLPP_PARAMETER_LIST_H
+#ifndef SQLPP11_PARAMETER_LIST_H
+#define SQLPP11_PARAMETER_LIST_H
 
 #include <tuple>
 #include <sqlpp11/type_traits.h>
@@ -46,9 +46,7 @@ namespace sqlpp
     using _member_tuple_t = std::tuple<typename Parameter::_instance_t...>;
     using size = std::integral_constant<std::size_t, sizeof...(Parameter)>;
 
-    parameter_list_t()
-    {
-    }
+    parameter_list_t() = default;
 
     template <typename Target>
     void _bind(Target& target) const
@@ -58,7 +56,7 @@ namespace sqlpp
 
   private:
     template <typename Target, size_t... Is>
-    void _bind_impl(Target& target, const detail::index_sequence<Is...>&) const
+    void _bind_impl(Target& target, const detail::index_sequence<Is...>& /*unused*/) const
     {
       using swallow = int[];  // see interpret_tuple.h
       (void)swallow{0, (std::tuple_element<Is, _member_tuple_t>::type::operator()()._bind(target, Is), 0)...};
@@ -67,6 +65,6 @@ namespace sqlpp
 
   template <typename Exp>
   using make_parameter_list_t = parameter_list_t<parameters_of<Exp>>;
-}
+}  // namespace sqlpp
 
 #endif

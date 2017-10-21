@@ -24,12 +24,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_VERBATIM_TABLE_H
-#define SQLPP_VERBATIM_TABLE_H
+#ifndef SQLPP11_VERBATIM_TABLE_H
+#define SQLPP11_VERBATIM_TABLE_H
 
 #include <sqlpp11/table.h>
 #include <sqlpp11/char_sequence.h>
 #include <sqlpp11/data_types/no_value.h>
+
+#include <utility>
 
 namespace sqlpp
 {
@@ -48,7 +50,7 @@ namespace sqlpp
       };
       using _traits = make_traits<no_value_t>;
     };
-  }
+  }  // namespace detail
 
   struct verbatim_table_t : public table_t<verbatim_table_t, detail::unusable_pseudo_column_t>
   {
@@ -60,7 +62,7 @@ namespace sqlpp
       using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
     };
 
-    verbatim_table_t(std::string representation) : _representation(representation)
+    verbatim_table_t(std::string representation) : _representation(std::move(representation))
     {
     }
 
@@ -88,8 +90,8 @@ namespace sqlpp
 
   inline verbatim_table_t verbatim_table(std::string name)
   {
-    return {name};
+    return {std::move(name)};
   }
-}
+}  // namespace sqlpp
 
 #endif

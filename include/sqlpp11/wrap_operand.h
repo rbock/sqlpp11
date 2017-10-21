@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DETAIL_WRAP_OPERAND_H
-#define SQLPP_DETAIL_WRAP_OPERAND_H
+#ifndef SQLPP11_WRAP_OPERAND_H
+#define SQLPP11_WRAP_OPERAND_H
 
 namespace sqlpp
 {
@@ -37,6 +37,6 @@ namespace sqlpp
 
   template <typename T>
   using wrap_operand_t = typename wrap_operand<T>::type;
-}
+}  // namespace sqlpp
 
 #endif

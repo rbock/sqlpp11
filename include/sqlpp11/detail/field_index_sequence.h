@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DETAIL_FIELD_INDEX_SEQUENCE_H
-#define SQLPP_DETAIL_FIELD_INDEX_SEQUENCE_H
+#ifndef SQLPP11_DETAIL_FIELD_INDEX_SEQUENCE_H
+#define SQLPP11_DETAIL_FIELD_INDEX_SEQUENCE_H
 
 #include <type_traits>
 #include <sqlpp11/field_spec.h>
@@ -80,7 +80,7 @@ namespace sqlpp
     template <std::size_t StartIndex, typename... Fields>
     using make_field_index_sequence =
         typename make_field_index_sequence_impl<field_index_sequence<StartIndex>, Fields...>::type;
-  }
-}
+  }  // namespace detail
+}  // namespace sqlpp
 
 #endif

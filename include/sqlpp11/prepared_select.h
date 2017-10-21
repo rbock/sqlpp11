@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_PREPARED_SELECT_H
-#define SQLPP_PREPARED_SELECT_H
+#ifndef SQLPP11_PREPARED_SELECT_H
+#define SQLPP11_PREPARED_SELECT_H
 
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/result.h>
@@ -60,6 +60,6 @@ namespace sqlpp
     _dynamic_names_t _dynamic_names;
     mutable _prepared_statement_t _prepared_statement;
   };
-}
+}  // namespace sqlpp
 
 #endif

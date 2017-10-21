@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_FROM_H
-#define SQLPP_FROM_H
+#ifndef SQLPP11_FROM_H
+#define SQLPP11_FROM_H
 
 #include <sqlpp11/detail/sum.h>
 #include <sqlpp11/dynamic_join.h>
@@ -125,7 +125,7 @@ namespace sqlpp
 
     private:
       template <typename DynamicJoin>
-      auto _add_impl(DynamicJoin dynamicJoin, consistent_t) -> void
+      auto _add_impl(DynamicJoin dynamicJoin, consistent_t /*unused*/) -> void
       {
         _data._dynamic_tables.emplace_back(from_table(dynamicJoin));
       }
@@ -279,7 +279,7 @@ namespace sqlpp
       auto _from_impl(Check, Table table) const -> inconsistent<Check>;
 
       template <typename Database, typename Table>
-      auto _from_impl(consistent_t, Table table) const
+      auto _from_impl(consistent_t /*unused*/, Table table) const
           -> _new_statement_t<consistent_t, from_t<Database, from_table_t<Table>>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this),
@@ -314,11 +314,11 @@ namespace sqlpp
   }
 
   template <typename Database, typename T>
-  auto dynamic_from(const Database&, T&& t)
+  auto dynamic_from(const Database& /*unused*/, T&& t)
       -> decltype(statement_t<Database, no_from_t>().dynamic_from(std::forward<T>(t)))
   {
     return statement_t<Database, no_from_t>().dynamic_from(std::forward<T>(t));
   }
-}
+}  // namespace sqlpp
 
 #endif

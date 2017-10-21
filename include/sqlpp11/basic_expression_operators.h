@@ -25,8 +25,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DETAIL_BASIC_EXPRESSION_OPERATORS_H
-#define SQLPP_DETAIL_BASIC_EXPRESSION_OPERATORS_H
+#ifndef SQLPP11_BASIC_EXPRESSION_OPERATORS_H
+#define SQLPP11_BASIC_EXPRESSION_OPERATORS_H
 
 #include <sqlpp11/value_type_fwd.h>
 #include <sqlpp11/bad_expression.h>
@@ -82,7 +82,7 @@ namespace sqlpp
     {
       using type = Expr<wrap_operand_t<Lhs>, wrap_operand_t<Rhs>>;
     };
-  }
+  }  // namespace detail
   template <template <typename Lhs, typename Rhs> class Expr, typename Lhs, typename Rhs>
   using comparison_expression_t =
       typename detail::comparison_expression_impl<check_comparison_t<Lhs, Rhs>::value, Expr, Lhs, Rhs>::type;
@@ -100,7 +100,7 @@ namespace sqlpp
     {
       using type = Expr<Lhs, Rhs...>;
     };
-  }
+  }  // namespace detail
   template <typename Check, template <typename Lhs, typename... Rhs> class Expr, typename Lhs, typename... Rhs>
   using in_expression_t = typename detail::in_expression_impl<Check::value, Expr, Lhs, Rhs...>::type;
 
@@ -300,6 +300,6 @@ namespace sqlpp
       return {*static_cast<const Expr*>(this)};
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

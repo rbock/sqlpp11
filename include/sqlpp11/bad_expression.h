@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_BAD_EXPRESSION_H
-#define SQLPP_BAD_EXPRESSION_H
+#ifndef SQLPP11_BAD_EXPRESSION_H
+#define SQLPP11_BAD_EXPRESSION_H
 
 #include <sqlpp11/portable_static_assert.h>
 #include <sqlpp11/type_traits.h>
@@ -38,7 +38,7 @@ namespace sqlpp
   struct bad_expression
   {
     template <typename... T>
-    bad_expression(T&&...)
+    bad_expression(T&&... /*unused*/)
     {
     }
     using _traits = make_traits<ValueType, tag::is_expression>;
@@ -53,6 +53,6 @@ namespace sqlpp
 
     static Context& _(const T&, Context&);
   };
-}
+}  // namespace sqlpp
 
 #endif

@@ -23,8 +23,8 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SERIALIZER_CONTEXT_H
-#define SQLPP_SERIALIZER_CONTEXT_H
+#ifndef SQLPP11_SERIALIZER_CONTEXT_H
+#define SQLPP11_SERIALIZER_CONTEXT_H
 
 #include <ostream>
 
@@ -50,17 +50,19 @@ namespace sqlpp
         for (const auto c : arg)
         {
           if (c == '\'')
+          {
             retVal.push_back(c);
+          }
           retVal.push_back(c);
         }
         return retVal;
       }
-      else
-        return arg;
+
+      return arg;
     }
 
     std::ostream& _os;
   };
-}
+}  // namespace sqlpp
 
 #endif

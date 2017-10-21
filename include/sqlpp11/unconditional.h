@@ -24,13 +24,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_UNCONDITIONAL_H
-#define SQLPP_UNCONDITIONAL_H
+#ifndef SQLPP11_UNCONDITIONAL_H
+#define SQLPP11_UNCONDITIONAL_H
 
 namespace sqlpp
 {
   struct unconditional_t
   {
   };
-}
+}  // namespace sqlpp
 #endif

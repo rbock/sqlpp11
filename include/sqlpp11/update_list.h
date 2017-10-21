@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_UPDATE_LIST_H
-#define SQLPP_UPDATE_LIST_H
+#ifndef SQLPP11_UPDATE_LIST_H
+#define SQLPP11_UPDATE_LIST_H
 
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/interpret_tuple.h>
@@ -98,7 +98,7 @@ namespace sqlpp
 
     private:
       template <typename Assignment>
-      void _add_impl(Assignment assignment, const std::true_type&)
+      void _add_impl(Assignment assignment, const std::true_type& /*unused*/)
       {
         return _data._dynamic_assignments.emplace_back(assignment);
       }
@@ -162,7 +162,7 @@ namespace sqlpp
     {
       static constexpr auto value = detail::must_not_update_impl<typename lhs<Assignment>::type>::type::value;
     };
-  }
+  }  // namespace detail
 
   template <typename... Assignments>
   using check_update_set_t = static_combined_check_t<
@@ -172,10 +172,9 @@ namespace sqlpp
                      assert_update_set_no_duplicates_t>,
       static_check_t<logic::none_t<detail::lhs_must_not_update<Assignments>::value...>::value,
                      assert_update_set_allowed_t>,
-      static_check_t<
-          sizeof...(Assignments) == 0 or
-              detail::make_joined_set_t<required_tables_of<typename lhs<Assignments>::type>...>::size::value == 1,
-          assert_update_set_single_table_t>>;
+      static_check_t<sizeof...(Assignments) == 0 or detail::make_joined_set_t<required_tables_of<
+                                                        typename lhs<Assignments>::type>...>::size::value == 1,
+                     assert_update_set_single_table_t>>;
 
   template <typename... Assignments>
   struct check_update_static_set
@@ -276,7 +275,7 @@ namespace sqlpp
       auto _set_impl(Check, Assignments... assignments) const -> inconsistent<Check>;
 
       template <typename Database, typename... Assignments>
-      auto _set_impl(consistent_t, Assignments... assignments) const
+      auto _set_impl(consistent_t /*unused*/, Assignments... assignments) const
           -> _new_statement_t<consistent_t, update_list_t<Database, Assignments...>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this),
@@ -297,11 +296,13 @@ namespace sqlpp
       context << " SET ";
       interpret_tuple(t._assignments, ",", context);
       if (sizeof...(Assignments) and not t._dynamic_assignments.empty())
+      {
         context << ',';
+      }
       interpret_list(t._dynamic_assignments, ',', context);
       return context;
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

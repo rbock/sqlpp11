@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_POLICY_UPDATE_H
-#define SQLPP_POLICY_UPDATE_H
+#ifndef SQLPP11_POLICY_UPDATE_H
+#define SQLPP11_POLICY_UPDATE_H
 
 #include <sqlpp11/wrong.h>
 
@@ -67,6 +67,6 @@ namespace sqlpp
 
   template <typename Check, typename Policies, typename Needle, typename Replacement>
   using new_statement_t = typename new_statement_impl<Check, Policies, Needle, Replacement>::type;
-}
+}  // namespace sqlpp
 
 #endif

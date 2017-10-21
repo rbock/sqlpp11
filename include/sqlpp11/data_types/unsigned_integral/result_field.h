@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_UNSIGNED_INTEGRAL_RESULT_FIELD_H
-#define SQLPP_UNSIGNED_INTEGRAL_RESULT_FIELD_H
+#ifndef SQLPP11_DATA_TYPES_UNSIGNED_INTEGRAL_RESULT_FIELD_H
+#define SQLPP11_DATA_TYPES_UNSIGNED_INTEGRAL_RESULT_FIELD_H
 
 #include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/result_field.h>
@@ -51,5 +51,5 @@ namespace sqlpp
       target._post_bind_unsigned_integral_result(index, &this->_value, &this->_is_null);
     }
   };
-}
+}  // namespace sqlpp
 #endif

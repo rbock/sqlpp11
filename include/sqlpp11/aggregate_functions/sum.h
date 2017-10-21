@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SUM_H
-#define SQLPP_SUM_H
+#ifndef SQLPP11_AGGREGATE_FUNCTIONS_SUM_H
+#define SQLPP11_AGGREGATE_FUNCTIONS_SUM_H
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/char_sequence.h>
@@ -98,7 +98,9 @@ namespace sqlpp
         serialize_operand(t._expr, context);
       }
       else
+      {
         serialize(t._expr, context);
+      }
 
       context << ")";
       return context;
@@ -115,13 +117,13 @@ namespace sqlpp
   }
 
   template <typename T>
-  auto sum(const distinct_t&, T t) -> sum_t<distinct_t, wrap_operand_t<T>>
+  auto sum(const distinct_t& /*unused*/, T t) -> sum_t<distinct_t, wrap_operand_t<T>>
   {
     static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value,
                   "sum() cannot be used on an aggregate function");
     static_assert(is_numeric_t<wrap_operand_t<T>>::value, "sum() requires a numeric expression as argument");
     return {t};
   }
-}
+}  // namespace sqlpp
 
 #endif

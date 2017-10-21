@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DETAIL_COPY_TUPLE_ARGS_H
-#define SQLPP_DETAIL_COPY_TUPLE_ARGS_H
+#ifndef SQLPP11_DETAIL_COPY_TUPLE_ARGS_H
+#define SQLPP11_DETAIL_COPY_TUPLE_ARGS_H
 
 #include <tuple>
 #include <sqlpp11/auto_alias.h>
@@ -49,7 +49,7 @@ namespace sqlpp
     template <typename T>
     struct as_column_tuple<all_of_t<T>>
     {
-      static typename all_of_t<T>::_column_tuple_t _(all_of_t<T>)
+      static typename all_of_t<T>::_column_tuple_t _(all_of_t<T> /*unused*/)
       {
         return {};
       }
@@ -84,7 +84,7 @@ namespace sqlpp
     {
       return std::tuple_cat(as_column_tuple<Columns>::_(columns)...);
     }
-  }
-}
+  }  // namespace detail
+}  // namespace sqlpp
 
 #endif

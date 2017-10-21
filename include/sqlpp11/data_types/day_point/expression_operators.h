@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DAY_POINT_EXPRESSION_OPERATORS_H
-#define SQLPP_DAY_POINT_EXPRESSION_OPERATORS_H
+#ifndef SQLPP11_DATA_TYPES_DAY_POINT_EXPRESSION_OPERATORS_H
+#define SQLPP11_DATA_TYPES_DAY_POINT_EXPRESSION_OPERATORS_H
 
 #include <sqlpp11/expression_operators.h>
 #include <sqlpp11/basic_expression_operators.h>
@@ -38,5 +38,5 @@ namespace sqlpp
   struct expression_operators<Expression, day_point> : public basic_expression_operators<Expression>
   {
   };
-}
+}  // namespace sqlpp
 #endif

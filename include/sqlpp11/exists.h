@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_EXISTS_H
-#define SQLPP_EXISTS_H
+#ifndef SQLPP11_EXISTS_H
+#define SQLPP11_EXISTS_H
 
 #include <sqlpp11/char_sequence.h>
 #include <sqlpp11/data_types/boolean.h>
@@ -98,6 +98,6 @@ namespace sqlpp
     static_assert(is_select_t<wrap_operand_t<T>>::value, "exists() requires a select expression as argument");
     return {t};
   }
-}
+}  // namespace sqlpp
 
 #endif

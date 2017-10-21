@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_CASE_H
-#define SQLPP_CASE_H
+#ifndef SQLPP11_CASE_H
+#define SQLPP11_CASE_H
 
 #include <sqlpp11/char_sequence.h>
 #include <sqlpp11/data_types/boolean.h>
@@ -87,7 +87,7 @@ namespace sqlpp
   class case_then_t
   {
     template <typename Else>
-    auto _else_impl(consistent_t, Else else_) -> case_t<When, Then, Else>
+    auto _else_impl(consistent_t /*unused*/, Else else_) -> case_t<When, Then, Else>
     {
       return {_when, _then, else_};
     }
@@ -121,7 +121,7 @@ namespace sqlpp
   class case_when_t
   {
     template <typename Then>
-    auto _then_impl(consistent_t, Then t) -> case_then_t<When, wrap_operand_t<Then>>
+    auto _then_impl(consistent_t /*unused*/, Then t) -> case_then_t<When, wrap_operand_t<Then>>
     {
       return {_when, t};
     }
@@ -172,20 +172,20 @@ namespace sqlpp
   namespace detail
   {
     template <typename When>
-    auto case_when_impl(consistent_t, When when) -> case_when_t<wrap_operand_t<When>>
+    auto case_when_impl(consistent_t /*unused*/, When when) -> case_when_t<wrap_operand_t<When>>
     {
       return {when};
     }
 
     template <typename Check, typename When>
     auto case_when_impl(Check, When when) -> inconsistent<Check>;
-  }
+  }  // namespace detail
 
   template <typename When>
   auto case_when(When when) -> decltype(detail::case_when_impl(check_case_when_t<When>{}, when))
   {
     return detail::case_when_impl(check_case_when_t<When>{}, when);
   }
-}
+}  // namespace sqlpp
 
 #endif

@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_INTEGRAL_H
-#define SQLPP_INTEGRAL_H
+#ifndef SQLPP11_DATA_TYPES_INTEGRAL_H
+#define SQLPP11_DATA_TYPES_INTEGRAL_H
 
 #include <sqlpp11/data_types/integral/data_type.h>
 #include <sqlpp11/data_types/integral/operand.h>

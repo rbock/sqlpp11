@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_TYPE_TRAITS_H
-#define SQLPP_TYPE_TRAITS_H
+#ifndef SQLPP11_TYPE_TRAITS_H
+#define SQLPP11_TYPE_TRAITS_H
 
 #include <type_traits>
 #include <tuple>
@@ -52,7 +52,7 @@ namespace sqlpp
     {
       using type = typename T::_traits::_value_type;
     };
-  }
+  }  // namespace detail
   template <typename T>
   using value_type_of = typename detail::value_type_of_impl<T>::type;
 
@@ -112,7 +112,7 @@ namespace sqlpp
     struct can_be_null
     {
     };
-  }
+  }  // namespace tag
 
   namespace detail
   {
@@ -128,7 +128,7 @@ namespace sqlpp
     {
       using type = std::true_type;
     };
-  }
+  }  // namespace detail
   template <typename T>
   using column_spec_can_be_null_t = typename detail::column_spec_can_be_null_impl<T>::type;
 
@@ -241,7 +241,7 @@ namespace sqlpp
     {
       using type = typename T::_nodes;
     };
-  }
+  }  // namespace detail
   template <typename T>
   using nodes_of = typename detail::nodes_of_impl<T>::type;
 
@@ -336,7 +336,7 @@ namespace sqlpp
       using type =
           logic::all_t<sizeof...(Nodes) != 0, is_aggregate_expression_impl<KnownAggregates, Nodes>::type::value...>;
     };
-  }
+  }  // namespace detail
   template <typename KnownAggregates, typename T>
   using is_aggregate_expression_t = typename detail::is_aggregate_expression_impl<KnownAggregates, T>::type;
 
@@ -357,7 +357,7 @@ namespace sqlpp
     {
       using type = detail::type_vector_cat_t<typename parameters_of_impl<Nodes>::type...>;
     };
-  }
+  }  // namespace detail
   template <typename T>
   using parameters_of = typename detail::parameters_of_impl<T>::type;
 
@@ -534,6 +534,6 @@ namespace sqlpp
 
   template <typename Db>
   using serializer_context_of = typename serializer_context_of_impl<Db>::type;
-}
+}  // namespace sqlpp
 
 #endif

@@ -24,14 +24,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_CONNECTION_H
-#define SQLPP_CONNECTION_H
+#ifndef SQLPP11_CONNECTION_H
+#define SQLPP11_CONNECTION_H
 
 namespace sqlpp
 {
   struct connection
   {
   };
-}
+}  // namespace sqlpp
 
 #endif

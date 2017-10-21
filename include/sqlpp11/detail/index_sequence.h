@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DETAIL_INDEX_SEQUENCE_H
-#define SQLPP_DETAIL_INDEX_SEQUENCE_H
+#ifndef SQLPP11_DETAIL_INDEX_SEQUENCE_H
+#define SQLPP11_DETAIL_INDEX_SEQUENCE_H
 
 #include <type_traits>
 
@@ -57,7 +57,7 @@ namespace sqlpp
 
     template <std::size_t N>
     using make_index_sequence = typename make_index_sequence_impl<index_sequence<>, N>::type;
-  }
-}
+  }  // namespace detail
+}  // namespace sqlpp
 
 #endif

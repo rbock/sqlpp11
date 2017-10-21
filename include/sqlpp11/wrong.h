@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_WRONG_H
-#define SQLPP_WRONG_H
+#ifndef SQLPP11_WRONG_H
+#define SQLPP11_WRONG_H
 
 #include <type_traits>
 
@@ -41,8 +41,8 @@ namespace sqlpp
     {
       using type = std::false_type;
     };
-  }
+  }  // namespace detail
   template <typename... T>
   using wrong_t = typename detail::wrong<T...>::type;
-}
+}  // namespace sqlpp
 #endif

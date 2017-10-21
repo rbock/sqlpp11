@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_INTO_H
-#define SQLPP_INTO_H
+#ifndef SQLPP11_INTO_H
+#define SQLPP11_INTO_H
 
 #include <sqlpp11/data_types/no_value.h>
 #include <sqlpp11/detail/type_set.h>
@@ -179,7 +179,8 @@ namespace sqlpp
       auto _into_impl(Check, Table table) const -> inconsistent<Check>;
 
       template <typename Database, typename Table>
-      auto _into_impl(consistent_t, Table table) const -> _new_statement_t<consistent_t, into_t<Database, Table>>
+      auto _into_impl(consistent_t /*unused*/, Table table) const
+          -> _new_statement_t<consistent_t, into_t<Database, Table>>
       {
         static_assert(required_tables_of<into_t<Database, Table>>::size::value == 0,
                       "argument depends on another table in into()");
@@ -209,6 +210,6 @@ namespace sqlpp
   {
     return statement_t<void, no_into_t>().into(std::forward<T>(t));
   }
-}
+}  // namespace sqlpp
 
 #endif

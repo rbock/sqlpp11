@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DAY_POINT_WRAP_OPERAND_H
-#define SQLPP_DAY_POINT_WRAP_OPERAND_H
+#ifndef SQLPP11_DATA_TYPES_DAY_POINT_WRAP_OPERAND_H
+#define SQLPP11_DATA_TYPES_DAY_POINT_WRAP_OPERAND_H
 
 #include <utility>
 #include <sqlpp11/type_traits.h>
@@ -41,5 +41,5 @@ namespace sqlpp
   {
     using type = day_point_operand;
   };
-}
+}  // namespace sqlpp
 #endif

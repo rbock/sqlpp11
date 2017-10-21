@@ -24,13 +24,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_STATEMENT_FWD_H
-#define SQLPP_STATEMENT_FWD_H
+#ifndef SQLPP11_STATEMENT_FWD_H
+#define SQLPP11_STATEMENT_FWD_H
 
 namespace sqlpp
 {
   template <typename Db, typename... Policies>
   struct statement_t;
-}
+}  // namespace sqlpp
 
 #endif

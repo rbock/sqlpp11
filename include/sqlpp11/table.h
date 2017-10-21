@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_TABLE_H
-#define SQLPP_TABLE_H
+#ifndef SQLPP11_TABLE_H
+#define SQLPP11_TABLE_H
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/table_alias.h>
@@ -92,7 +92,7 @@ namespace sqlpp
     }
 
     template <typename AliasProvider>
-    _alias_t<AliasProvider> as(const AliasProvider&) const
+    _alias_t<AliasProvider> as(const AliasProvider& /*unused*/) const
     {
       return {*static_cast<const Table*>(this)};
     }
@@ -118,12 +118,12 @@ namespace sqlpp
     using _serialize_check = consistent_t;
     using T = X;
 
-    static Context& _(const T&, Context& context)
+    static Context& _(const T& /*unused*/, Context& context)
     {
       context << name_of<T>::char_ptr();
       return context;
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

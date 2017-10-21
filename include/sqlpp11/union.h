@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_UNION_H
-#define SQLPP_UNION_H
+#ifndef SQLPP11_UNION_H
+#define SQLPP11_UNION_H
 
 #include <sqlpp11/expression.h>
 #include <sqlpp11/interpret_tuple.h>
@@ -244,7 +244,7 @@ namespace sqlpp
       auto _union_impl(Check, Rhs rhs) const -> inconsistent<Check>;
 
       template <typename Database, typename Flag, typename Rhs>
-      auto _union_impl(consistent_t, Rhs rhs) const
+      auto _union_impl(consistent_t /*unused*/, Rhs rhs) const
           -> _new_statement_t<consistent_t, union_t<Database, Flag, derived_statement_t<Policies>, Rhs>>
       {
         return {blank_union_t{}, union_data_t<Database, Flag, derived_statement_t<Policies>, Rhs>{
@@ -266,6 +266,6 @@ namespace sqlpp
     return statement_t<void, no_union_t>().union_distinct(std::forward<T>(t));
   }
   */
-}
+}  // namespace sqlpp
 
 #endif

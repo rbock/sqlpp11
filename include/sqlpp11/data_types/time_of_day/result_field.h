@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_TIME_OF_DAY_RESULT_FIELD_H
-#define SQLPP_TIME_OF_DAY_RESULT_FIELD_H
+#ifndef SQLPP11_DATA_TYPES_TIME_OF_DAY_RESULT_FIELD_H
+#define SQLPP11_DATA_TYPES_TIME_OF_DAY_RESULT_FIELD_H
 
 #include <sqlpp11/chrono.h>
 #include <sqlpp11/basic_expression_operators.h>
@@ -68,5 +68,5 @@ namespace sqlpp
     }
     return os;
   }
-}
+}  // namespace sqlpp
 #endif

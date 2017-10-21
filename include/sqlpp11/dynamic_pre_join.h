@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DYNAMIC_PRE_JOIN_H
-#define SQLPP_DYNAMIC_PRE_JOIN_H
+#ifndef SQLPP11_DYNAMIC_PRE_JOIN_H
+#define SQLPP11_DYNAMIC_PRE_JOIN_H
 
 #include <sqlpp11/join_types.h>
 #include <sqlpp11/on.h>
@@ -167,6 +167,6 @@ namespace sqlpp
   {
     return {dynamic_pre_join_t<cross_join_t, Table>{table}, {}};
   }
-}
+}  // namespace sqlpp
 
 #endif

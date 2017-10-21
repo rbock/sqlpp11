@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_DETAIL_TYPE_VECTOR_H
-#define SQLPP_DETAIL_TYPE_VECTOR_H
+#ifndef SQLPP11_DETAIL_TYPE_VECTOR_H
+#define SQLPP11_DETAIL_TYPE_VECTOR_H
 
 #include <sqlpp11/wrong.h>
 
@@ -83,7 +83,7 @@ namespace sqlpp
     {
       static constexpr std::size_t value = sizeof...(T);
     };
-  }
-}
+  }  // namespace detail
+}  // namespace sqlpp
 
 #endif

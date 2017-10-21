@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_ASSIGNMENT_H
-#define SQLPP_ASSIGNMENT_H
+#ifndef SQLPP11_ASSIGNMENT_H
+#define SQLPP11_ASSIGNMENT_H
 
 #include <sqlpp11/default_value.h>
 #include <sqlpp11/null.h>
@@ -77,6 +77,6 @@ namespace sqlpp
       return context;
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

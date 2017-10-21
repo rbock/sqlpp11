@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_COLUMN_H
-#define SQLPP_COLUMN_H
+#ifndef SQLPP11_COLUMN_H
+#define SQLPP11_COLUMN_H
 
 #include <sqlpp11/alias.h>
 #include <sqlpp11/column_fwd.h>
@@ -78,7 +78,7 @@ namespace sqlpp
     }
 
     template <typename alias_provider>
-    expression_alias_t<column_t, alias_provider> as(const alias_provider&) const
+    expression_alias_t<column_t, alias_provider> as(const alias_provider& /*unused*/) const
     {
       return {*this};
     }
@@ -92,13 +92,13 @@ namespace sqlpp
       return {*this, {rhs{t}}};
     }
 
-    auto operator=(null_t) const -> assignment_t<column_t, null_t>
+    auto operator=(null_t /*unused*/) const -> assignment_t<column_t, null_t>
     {
       static_assert(can_be_null_t<column_t>::value, "column cannot be null");
       return {*this, null_t{}};
     }
 
-    auto operator=(default_value_t) const -> assignment_t<column_t, default_value_t>
+    auto operator=(default_value_t /*unused*/) const -> assignment_t<column_t, default_value_t>
     {
       return {*this, default_value_t{}};
     }
@@ -123,12 +123,12 @@ namespace sqlpp
     using _serialize_check = consistent_t;
     using T = column_t<Args1, Args2>;
 
-    static Context& _(const T&, Context& context)
+    static Context& _(const T& /*unused*/, Context& context)
     {
       context << name_of<typename T::_table>::char_ptr() << '.' << name_of<T>::char_ptr();
       return context;
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

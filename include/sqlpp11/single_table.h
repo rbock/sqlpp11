@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_SINGLE_TABLE_H
-#define SQLPP_SINGLE_TABLE_H
+#ifndef SQLPP11_SINGLE_TABLE_H
+#define SQLPP11_SINGLE_TABLE_H
 
 #include <sqlpp11/data_types/no_value.h>
 #include <sqlpp11/detail/type_set.h>
@@ -179,7 +179,7 @@ namespace sqlpp
       auto _single_table_impl(Check, Table table) const -> inconsistent<Check>;
 
       template <typename Database, typename Table>
-      auto _single_table_impl(consistent_t, Table table) const
+      auto _single_table_impl(consistent_t /*unused*/, Table table) const
           -> _new_statement_t<consistent_t, single_table_t<Database, Table>>
       {
         static_assert(required_tables_of<single_table_t<Database, Table>>::size::value == 0,
@@ -203,6 +203,6 @@ namespace sqlpp
       return context;
     }
   };
-}
+}  // namespace sqlpp
 
 #endif

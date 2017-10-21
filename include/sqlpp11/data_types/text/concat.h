@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_CONCAT_H
-#define SQLPP_CONCAT_H
+#ifndef SQLPP11_DATA_TYPES_TEXT_CONCAT_H
+#define SQLPP11_DATA_TYPES_TEXT_CONCAT_H
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/char_sequence.h>
@@ -98,6 +98,6 @@ namespace sqlpp
 
     return {args...};
   }
-}
+}  // namespace sqlpp
 
 #endif
