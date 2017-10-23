@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2017, Roland Bock, Aaron Bishop
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -40,27 +40,21 @@ namespace sqlpp
 
   namespace detail
   {
-	template<class DbResult, class = void>
-	struct result_has_size : std::false_type {};
+    template<class DbResult, class = void>
+    struct result_has_size : std::false_type {};
 
-	template<class DbResult>
-	struct result_has_size<DbResult, void_t<decltype(std::declval<DbResult>().size())>>
-	  : std::true_type {};
+    template<class DbResult>
+    struct result_has_size<DbResult, void_t<decltype(std::declval<DbResult>().size())>>
+      : std::true_type {};
 
-	template<class DbResult>
-	constexpr bool result_has_size_v = result_has_size<DbResult>::value;
+    template<class DbResult, class = void>
+    struct result_size_type { using type = void; };
 
-	template<class DbResult, class = void>
-	struct result_size_type { using type = void; };
-
-	template<class DbResult>
-	struct result_size_type<DbResult, void_t<decltype(std::declval<DbResult>().size())>>
-	{
-	  using type = decltype(std::declval<DbResult>().size());
-	};
-
-	template<class DbResult>
-	using result_size_type_t = typename result_size_type<DbResult>::type;
+    template<class DbResult>
+    struct result_size_type<DbResult, void_t<decltype(std::declval<DbResult>().size())>>
+    {
+      using type = decltype(std::declval<DbResult>().size());
+    };
   }
 
   template <typename DbResult, typename ResultRow>
@@ -165,12 +159,12 @@ namespace sqlpp
       _result.next(_result_row);
     }
 
-	template<class Size = detail::result_size_type_t<DbResult>>
-	Size size() const
-	{
-	  static_assert(detail::result_has_size_v<DbResult>, "Underlying connector does not support size()");
-	  return _result.size();
-	}
+    template<class Size = typename detail::result_size_type<DbResult>::type>
+    Size size() const
+    {
+      static_assert(detail::result_has_size<DbResult>::value, "Underlying connector does not support size()");
+      return _result.size();
+    }
   };
 }  // namespace sqlpp
 
