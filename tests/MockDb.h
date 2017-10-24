@@ -114,8 +114,6 @@ struct MockDbT : public sqlpp::connection
     {
       result_row._invalidate();
     }
-
-	size_t size() const { return 0; }
   };
 
   // Directly executed statements start here
