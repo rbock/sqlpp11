@@ -73,14 +73,14 @@ namespace
       static_assert(not sqlpp::can_be_null_t<decltype(x.delta)>::value, "right side of (inner) join cannot be null");
       static_assert(not sqlpp::can_be_null_t<decltype(x.s)>::value, "constant non-null value can not be null");
     }
-	{
-      MockSizeDB db2;
-	  auto&& result = db2(select(bar.alpha, foo.delta, bar.gamma, seven)
+    {
+      MockSizeDb db2;
+      auto&& result = db2(select(bar.alpha, foo.delta, bar.gamma, seven)
                              .from(bar.join(foo).on(foo.omega > bar.alpha))
                              .unconditionally());
-	  result.size();
-	  static_assert(std::is_same<size_t, decltype(result.size())>::value, "MockSizeDb size() isn't size_t");
-	}
+      result.size();
+      static_assert(std::is_same<size_t, decltype(result.size())>::value, "MockSizeDb size() isn't size_t");
+    }
 
     // Inner join
     {
