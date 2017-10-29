@@ -45,29 +45,41 @@ namespace sqlpp
     template <typename E, typename SET>
     struct is_element_of;
 
+    template <typename T>
+    struct _base
+    {
+    };
+
     // A type set
     template <typename... Elements>
     struct type_set
     {
+    private:
+      struct _impl : _base<Elements>...
+      {
+      };
+
+    public:
       using size = std::integral_constant<size_t, sizeof...(Elements)>;
       using _is_type_set = std::true_type;
 
-      static_assert(std::is_same<type_set, make_type_set_t<Elements...>>::value,
-                    "use make_type_set to construct a typeset");
+      template <typename T>
+      static constexpr bool count()
+      {
+        return std::is_base_of<_base<T>, _impl>::value;
+      }
 
       template <typename T>
       struct insert
       {
-        using type =
-            typename std::conditional<not is_element_of<T, type_set>::value, type_set<T, Elements...>, type_set>::type;
+        using type = typename std::conditional<count<T>(), type_set, type_set<T, Elements...>>::type;
       };
 
       template <template <typename A> class Predicate, typename T>
       struct insert_if
       {
-        using type = typename std::conditional<Predicate<T>::value and not is_element_of<T, type_set>::value,
-                                               type_set<Elements..., T>,
-                                               type_set>::type;
+        using type =
+            typename std::conditional<Predicate<T>::value and not count<T>(), type_set<Elements..., T>, type_set>::type;
       };
     };
 
@@ -80,7 +92,7 @@ namespace sqlpp
     template <typename E, typename... Elements>
     struct is_element_of<E, type_set<Elements...>>
     {
-      static constexpr bool value = ::sqlpp::logic::any_t<std::is_same<E, Elements>::value...>::value;
+      static constexpr bool value = type_set<Elements...>::template count<E>();
     };
 
     template <typename L, typename R>
@@ -224,8 +236,8 @@ namespace sqlpp
     struct make_intersect_set<type_set<LhsElements...>, type_set<RhsElements...>>
     {
       template <typename E>
-      using is_in_both = ::sqlpp::logic::all_t<is_element_of<E, type_set<LhsElements...>>::value,
-                                               is_element_of<E, type_set<RhsElements...>>::value>;
+      using is_in_both = ::sqlpp::logic::all_t<type_set<LhsElements...>::template count<E>(),
+                                               type_set<RhsElements...>::template count<E>()>;
       using type = make_type_set_if_t<is_in_both, LhsElements...>;
     };
 

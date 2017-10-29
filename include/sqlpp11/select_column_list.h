@@ -132,7 +132,7 @@ namespace sqlpp
         static_assert(Policies::template _no_unknown_tables<named_expression>::value,
                       "named expression uses tables unknown to this statement in selected_columns::add()");
         using column_names = detail::make_type_set_t<typename Columns::_alias_t...>;
-        static_assert(not detail::is_element_of<typename named_expression::_alias_t, column_names>::value,
+        static_assert(not column_names::template count<typename named_expression::_alias_t>(),
                       "a column of this name is present in the select already");
         using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, named_expression>;
         _serialize_check{};
