@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2017, Roland Bock, Aaron Bishop
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -37,6 +37,25 @@ namespace sqlpp
   {
     using type = std::input_iterator_tag;
   };
+
+  namespace detail
+  {
+    template<class DbResult, class = void>
+    struct result_has_size : std::false_type {};
+
+    template<class DbResult>
+    struct result_has_size<DbResult, void_t<decltype(std::declval<DbResult>().size())>>
+      : std::true_type {};
+
+    template<class DbResult, class = void>
+    struct result_size_type { using type = void; };
+
+    template<class DbResult>
+    struct result_size_type<DbResult, void_t<decltype(std::declval<DbResult>().size())>>
+    {
+      using type = decltype(std::declval<DbResult>().size());
+    };
+  }
 
   template <typename DbResult, typename ResultRow>
   class result_t
@@ -138,6 +157,13 @@ namespace sqlpp
     void pop_front()
     {
       _result.next(_result_row);
+    }
+
+    template<class Size = typename detail::result_size_type<DbResult>::type>
+    Size size() const
+    {
+      static_assert(detail::result_has_size<DbResult>::value, "Underlying connector does not support size()");
+      return _result.size();
     }
   };
 }  // namespace sqlpp
