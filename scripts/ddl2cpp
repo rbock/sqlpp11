@@ -278,7 +278,6 @@ for create in tableCreations:
     print('  namespace ' + tableNamespace, file=header)
     print('  {', file=header)
     for column in create.columns:
-        print(column);
         if column.isConstraint:
             continue
         sqlColumnName = column[0]
