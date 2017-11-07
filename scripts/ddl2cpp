@@ -231,10 +231,6 @@ types = {
     'bigint unsigned': 'bigint_unsigned', #MYSQL
     }
 
-# ddlColumn = Group(Optional(ddlConstraint).setResultsName("isConstraint") + OneOrMore(MatchFirst([ddlUnsigned, ddlNotNull, ddlAutoValue, ddlDefaultValue, ddlFunctionWord("NOW"), ddlTerm, ddlNum, ddlColumnComment, ddlString, ddlArguments])))
-#createTable = Group(ddlWord("CREATE") + ddlWord("TABLE") + ddlIfNotExists + ddlName.setResultsName("tableName") + "(" + Group(delimitedList(ddlColumn)).setResultsName("columns") + ")").setResultsName("create")
-#ddlComment = oneOf(["--", "#"]) + restOfLine
-
 if failOnParse:
     ddl = OneOrMore(Suppress(SkipTo(createTable, False)) + createTable)
     ddl.ignore(ddlComment)
