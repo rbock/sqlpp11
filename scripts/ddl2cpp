@@ -48,6 +48,16 @@ def get_include_guard_name(namespace, inputfile):
   val = re.sub("[^A-Za-z]+", "_", namespace + '_' + os.path.basename(inputfile))
   return val.upper()
 
+def escape_if_reserved(name):
+    reserved_names = [
+        'GROUP',
+        'ORDER'
+    ]
+
+    if name.upper() in reserved_names:
+        return '\\"{}\\"'.format(name)
+
+    return name
 
 def repl_func(m):
   if m.group(1) == '_':
@@ -288,7 +298,7 @@ for create in tableCreations:
         print('    {', file=header)
         print('      struct _alias_t', file=header)
         print('      {', file=header)
-        print('        static constexpr const char _literal[] =  "' + sqlColumnName + '";', file=header)
+        print('        static constexpr const char _literal[] =  "' + escape_if_reserved(sqlColumnName) + '";', file=header)
         print('        using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;', file=header)
         print('        template<typename T>', file=header)
         print('        struct _member_t', file=header)
