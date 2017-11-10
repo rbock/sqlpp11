@@ -54,7 +54,9 @@ Maybe you need to adjust the search paths or HinnantDate_ROOT_DIR.")
 
 find_file(HinnantDate_INCLUDE_FILE
     date.h date/date.h
-    HINTS ${HinnantDate_ROOT_DIR}
+    HINTS
+      ${HinnantDate_ROOT_DIR}
+      ${HinnantDate_ROOT_DIR}/include
 )
 mark_as_advanced(HinnantDate_INCLUDE_FILE)
 
