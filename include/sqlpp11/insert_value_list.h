@@ -379,7 +379,7 @@ namespace sqlpp
       template <typename... Assignments>
       void _add_impl(const std::true_type& /*unused*/, Assignments... assignments)
       {
-        return _data._insert_values.emplace_back(insert_value_t<lhs_t<Assignments>>{assignments._rhs}...);
+        _data._insert_values.emplace_back(insert_value_t<lhs_t<Assignments>>{assignments._rhs}...);
       }
 
       template <typename... Assignments>
