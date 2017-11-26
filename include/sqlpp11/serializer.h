@@ -34,6 +34,12 @@ namespace sqlpp
 {
   SQLPP_PORTABLE_STATIC_ASSERT(assert_serializer_specialization_t, "missing serializer specialization");
 
+  template <typename Context>
+  std::integral_constant<char, '"'> get_quote_left(const Context&);
+
+  template <typename Context>
+  std::integral_constant<char, '"'> get_quote_right(const Context&);
+
   template <typename Context, typename T, typename Enable = void>
   struct serializer_t
   {

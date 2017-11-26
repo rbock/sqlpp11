@@ -66,7 +66,7 @@ namespace sqlpp
     {
       serialize_operand(t._expression, context);
       context << " AS ";
-      context << name_of<T>::char_ptr();
+      context << name_of<T>::template char_ptr<Context>();
       return context;
     }
   };

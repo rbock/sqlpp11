@@ -125,7 +125,8 @@ namespace sqlpp
 
     static Context& _(const T& /*unused*/, Context& context)
     {
-      context << name_of<typename T::_table>::char_ptr() << '.' << name_of<T>::char_ptr();
+      context << name_of<typename T::_table>::template char_ptr<Context>() << '.'
+              << name_of<T>::template char_ptr<Context>();
       return context;
     }
   };

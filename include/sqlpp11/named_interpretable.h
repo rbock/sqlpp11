@@ -116,7 +116,7 @@ namespace sqlpp
 
       std::string _get_name() const
       {
-        return name_of<T>::char_ptr();
+        return name_of<T>::template char_ptr<_interpreter_context_t>();
       }
 
       T _t;

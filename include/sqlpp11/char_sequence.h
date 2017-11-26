@@ -34,11 +34,24 @@ namespace sqlpp
   template <char... Cs>
   struct char_sequence
   {
+    template <typename Context>
     static const char* char_ptr()
     {
-      static char s[] = {Cs...};
+      static char s[] = {Cs..., '\0'};
       return s;
-    };
+    }
+  };
+
+  template <char... Cs>
+  struct char_sequence<'!', Cs...>
+  {
+    template <typename Context>
+    static const char* char_ptr()
+    {
+      static char s[] = {decltype(get_quote_left(std::declval<Context>()))::value, Cs...,
+                         decltype(get_quote_right(std::declval<Context>()))::value, '\0'};
+      return s;
+    }
   };
 
   template <std::size_t N, const char (&s)[N], typename T>
@@ -52,7 +65,7 @@ namespace sqlpp
 
   template <std::size_t N, const char (&Input)[N]>
   using make_char_sequence =
-      typename make_char_sequence_impl<sizeof(Input), Input, sqlpp::detail::make_index_sequence<sizeof(Input)>>::type;
+      typename make_char_sequence_impl<N, Input, sqlpp::detail::make_index_sequence<N - 1>>::type;
 }  // namespace sqlpp
 
 #endif
