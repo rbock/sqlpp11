@@ -32,5 +32,6 @@
 #include <sqlpp11/aggregate_functions/max.h>
 #include <sqlpp11/aggregate_functions/avg.h>
 #include <sqlpp11/aggregate_functions/sum.h>
+#include <sqlpp11/aggregate_functions/trim.h>
 
 #endif
