@@ -69,7 +69,7 @@ namespace sqlpp
       template <typename Needle, typename Replacement>
       struct _policies_update_t
       {
-        static_assert(detail::is_element_of<Needle, make_type_set_t<Policies...>>::value,
+        static_assert(make_type_set_t<Policies...>::template count<Needle>(),
                       "policies update for non-policy class detected");
         using type = statement_t<Db, policy_update_t<Policies, Needle, Replacement>...>;
       };

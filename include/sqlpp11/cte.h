@@ -167,7 +167,7 @@ namespace sqlpp
     using _parameters = parameters_of<Statement>;
 
     using _alias_t = typename AliasProvider::_alias_t;
-    constexpr static bool _is_recursive = detail::is_element_of<AliasProvider, required_ctes_of<Statement>>::value;
+    constexpr static bool _is_recursive = required_ctes_of<Statement>::template count<AliasProvider>();
 
     using _column_tuple_t = std::tuple<column_t<AliasProvider, cte_column_spec_t<FieldSpecs>>...>;
 
@@ -235,7 +235,7 @@ namespace sqlpp
 
     static Context& _(const T& t, Context& context)
     {
-      context << name_of<T>::char_ptr() << " AS (";
+      context << name_of<T>::template char_ptr<Context>() << " AS (";
       serialize(t._statement, context);
       context << ")";
       return context;
@@ -261,7 +261,7 @@ namespace sqlpp
     {
       static_assert(required_tables_of<Statement>::size::value == 0,
                     "common table expression must not use unknown tables");
-      static_assert(not detail::is_element_of<AliasProvider, required_ctes_of<Statement>>::value,
+      static_assert(not required_ctes_of<Statement>::template count<AliasProvider>(),
                     "common table expression must not self-reference in the first part, use union_all/union_distinct "
                     "for recursion");
       static_assert(is_static_result_row_t<get_result_row_t<Statement>>::value,
@@ -279,7 +279,7 @@ namespace sqlpp
 
     static Context& _(const T& /*unused*/, Context& context)
     {
-      context << name_of<T>::char_ptr();
+      context << name_of<T>::template char_ptr<Context>();
       return context;
     }
   };

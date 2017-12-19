@@ -116,7 +116,7 @@ namespace sqlpp
       {
         context << ")";
       }
-      context << " AS " << name_of<T>::char_ptr();
+      context << " AS " << name_of<T>::template char_ptr<Context>();
       return context;
     }
   };

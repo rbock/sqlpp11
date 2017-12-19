@@ -83,7 +83,7 @@ namespace sqlpp
         static_assert(_is_dynamic::value, "add must not be called for static from()");
         static_assert(is_assignment_t<Assignment>::value, "invalid assignment argument in add()");
         using _assigned_columns = detail::make_type_set_t<lhs_t<Assignments>...>;
-        static_assert(not detail::is_element_of<lhs_t<Assignment>, _assigned_columns>::value,
+        static_assert(not _assigned_columns::template count<lhs_t<Assignment>>(),
                       "Must not assign value to column twice");
         static_assert(logic::not_t<must_not_update_t, lhs_t<Assignment>>::value, "add() argument must not be updated");
         static_assert(Policies::template _no_unknown_tables<Assignment>::value,

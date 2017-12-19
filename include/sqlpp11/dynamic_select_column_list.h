@@ -44,7 +44,7 @@ namespace sqlpp
     template <typename Expr>
     void emplace_back(Expr expr)
     {
-      _dynamic_expression_names.push_back(name_of<Expr>::char_ptr());
+      _dynamic_expression_names.push_back(name_of<Expr>::template char_ptr<typename Db::_serializer_context_t>());
       _dynamic_columns.emplace_back(expr);
     }
 

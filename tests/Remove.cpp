@@ -35,6 +35,7 @@ int Remove(int, char* [])
   MockDb::_serializer_context_t printer = {};
 
   const auto t = test::TabBar{};
+  const auto f = test::TabFoo{};
 
   {
     using T = decltype(remove_from(t));
@@ -54,6 +55,7 @@ int Remove(int, char* [])
   serialize(remove_from(t), printer).str();
   serialize(remove_from(t).where(t.beta != "transparent"), printer).str();
   serialize(remove_from(t).using_(t), printer).str();
+  serialize(remove_from(t).using_(f), printer).str();
   auto r = dynamic_remove_from(db, t).dynamic_using().dynamic_where();
   r.using_.add(t);
   r.where.add(t.beta != "transparent");

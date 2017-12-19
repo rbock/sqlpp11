@@ -28,6 +28,7 @@
 #define SQLPP11_TRANSACTION_H
 
 #include <stdexcept>
+#include <string>
 #include <ciso646>
 
 namespace sqlpp

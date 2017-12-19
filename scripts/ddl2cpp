@@ -169,6 +169,7 @@ ddlNum = Combine(Optional(negativeSign) + Word(nums + "."))
 ddlTerm = Word(alphanums + "_$")
 ddlName = Or([ddlTerm, ddlString])
 ddlArguments = "(" + delimitedList(Or([ddlString, ddlTerm, ddlNum])) + ")"
+ddlUnsigned = ddlWord("unsigned").setResultsName("isUnsigned")
 ddlNotNull = Group(ddlWord("NOT") + ddlWord("NULL")).setResultsName("notNull")
 ddlDefaultValue = ddlWord("DEFAULT").setResultsName("hasDefaultValue")
 ddlAutoValue = Or([
@@ -186,7 +187,7 @@ ddlConstraint = Or([
         ddlWord("INDEX"),
         ddlWord("UNIQUE"),
         ])
-ddlColumn = Group(Optional(ddlConstraint).setResultsName("isConstraint") + OneOrMore(MatchFirst([ddlNotNull, ddlAutoValue, ddlDefaultValue, ddlFunctionWord("NOW"), ddlTerm, ddlNum, ddlColumnComment, ddlString, ddlArguments])))
+ddlColumn = Group(Optional(ddlConstraint).setResultsName("isConstraint") + OneOrMore(MatchFirst([ddlUnsigned, ddlNotNull, ddlAutoValue, ddlDefaultValue, ddlFunctionWord("NOW"), ddlTerm, ddlNum, ddlColumnComment, ddlString, ddlArguments])))
 ddlIfNotExists = Optional(Group(ddlWord("IF") + ddlWord("NOT") + ddlWord("EXISTS")).setResultsName("ifNotExists"))
 createTable = Group(ddlWord("CREATE") + ddlWord("TABLE") + ddlIfNotExists + ddlName.setResultsName("tableName") + "(" + Group(delimitedList(ddlColumn)).setResultsName("columns") + ")").setResultsName("create")
 #ddlString.setDebug(True) #uncomment to debug pyparsing
@@ -222,12 +223,13 @@ types = {
     'datetime': 'time_point',
     'timestamp': 'time_point',
     'enum': 'text',  # MYSQL
-    'set': 'text',  # MYSQL
+    'set': 'text',  # MYSQL,
+    'tinyint unsigned': 'tinyint_unsigned', #MYSQL
+    'smallint unsigned': 'smallint_unsigned', #MYSQL
+    'integer unsigned': 'integer_unsigned', #MYSQL
+    'int unsigned': 'integer_unsigned', #MYSQL
+    'bigint unsigned': 'bigint_unsigned', #MYSQL
     }
-
-ddlColumn = Group(Optional(ddlConstraint).setResultsName("isConstraint") + OneOrMore(MatchFirst([ddlNotNull, ddlAutoValue, ddlDefaultValue, ddlFunctionWord("NOW"), ddlTerm, ddlNum, ddlColumnComment, ddlString, ddlArguments])))
-createTable = Group(ddlWord("CREATE") + ddlWord("TABLE") + ddlIfNotExists + ddlName.setResultsName("tableName") + "(" + Group(delimitedList(ddlColumn)).setResultsName("columns") + ")").setResultsName("create")
-ddlComment = oneOf(["--", "#"]) + restOfLine
 
 if failOnParse:
     ddl = OneOrMore(Suppress(SkipTo(createTable, False)) + createTable)
@@ -246,6 +248,16 @@ if warnOnParse:
     print(parseError + '. Continuing [-no-warn-on-parse]')
 
 nsList = namespace.split('::')
+
+def escape_if_reserved(name):
+     reserved_names = [
+         'GROUP',
+         'ORDER',
+     ]
+     if name.upper() in reserved_names:
+         return '!{}'.format(name)
+     return name
+
 
 # PROCESS DDL
 tableCreations = ddl.parseFile(pathToDdl)
@@ -279,6 +291,8 @@ for create in tableCreations:
         tableTemplateParameters += ',\n               ' + tableNamespace + '::' + columnClass
         columnMember = toMemberName(sqlColumnName)
         sqlColumnType = column[1].lower()
+        if column.isUnsigned:
+          sqlColumnType = sqlColumnType + ' unsigned';
         if sqlColumnType == 'timestamp' and timestampWarning:
             print("Warning: timestamp is mapped to sqlpp::time_point like datetime")
             print("Warning: You have to take care of timezones yourself")
@@ -288,7 +302,7 @@ for create in tableCreations:
         print('    {', file=header)
         print('      struct _alias_t', file=header)
         print('      {', file=header)
-        print('        static constexpr const char _literal[] =  "' + sqlColumnName + '";', file=header)
+        print('        static constexpr const char _literal[] =  "' + escape_if_reserved(sqlColumnName) + '";', file=header)
         print('        using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;', file=header)
         print('        template<typename T>', file=header)
         print('        struct _member_t', file=header)

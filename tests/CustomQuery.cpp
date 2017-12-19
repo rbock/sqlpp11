@@ -69,5 +69,11 @@ int CustomQuery(int, char* [])
   auto i = db(c);
   static_assert(std::is_integral<decltype(i)>::value, "insert yields an integral value");
 
+  for (const auto& row :
+       db(custom_query(sqlpp::verbatim("PRAGMA user_version")).with_result_type_of(select(all_of(t)))))
+  {
+    (void)row.alpha;
+  }
+
   return 0;
 }

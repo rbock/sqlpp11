@@ -256,7 +256,7 @@ namespace sqlpp
         static_assert(_is_dynamic::value, "add must not be called for static from()");
         static_assert(is_assignment_t<Assignment>::value, "add() arguments require to be assigments");
         using _assigned_columns = detail::make_type_set_t<lhs_t<Assignments>...>;
-        static_assert(not detail::is_element_of<lhs_t<Assignment>, _assigned_columns>::value,
+        static_assert(not _assigned_columns::template count<lhs_t<Assignment>>(),
                       "Must not assign value to column twice");
         static_assert(not must_not_insert_t<lhs_t<Assignment>>::value, "add() argument must not be used in insert");
         static_assert(Policies::template _no_unknown_tables<Assignment>::value,
@@ -379,7 +379,7 @@ namespace sqlpp
       template <typename... Assignments>
       void _add_impl(const std::true_type& /*unused*/, Assignments... assignments)
       {
-        return _data._insert_values.emplace_back(insert_value_t<lhs_t<Assignments>>{assignments._rhs}...);
+        _data._insert_values.emplace_back(insert_value_t<lhs_t<Assignments>>{assignments._rhs}...);
       }
 
       template <typename... Assignments>
