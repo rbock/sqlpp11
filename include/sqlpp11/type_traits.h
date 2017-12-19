@@ -124,7 +124,7 @@ namespace sqlpp
     template <typename T>
     struct column_spec_can_be_null_impl<
         T,
-        typename std::enable_if<T::_traits::_tags::template count<tag::can_be_null>()>::type>
+        typename std::enable_if<detail::is_element_of<tag::can_be_null, typename T::_traits::_tags>::value>::type>
     {
       using type = std::true_type;
     };
@@ -132,25 +132,27 @@ namespace sqlpp
   template <typename T>
   using column_spec_can_be_null_t = typename detail::column_spec_can_be_null_impl<T>::type;
 
-#define SQLPP_VALUE_TRAIT_GENERATOR(name)                                                                \
-  namespace tag                                                                                          \
-  {                                                                                                      \
-    struct name;                                                                                         \
-  }                                                                                                      \
-  namespace detail                                                                                       \
-  {                                                                                                      \
-    template <typename T, typename Enable = void>                                                        \
-    struct name##_impl                                                                                   \
-    {                                                                                                    \
-      using type = std::false_type;                                                                      \
-    };                                                                                                   \
-    template <typename T>                                                                                \
-    struct name##_impl<T, typename std::enable_if<T::_traits::_tags::template count<tag::name>()>::type> \
-    {                                                                                                    \
-      using type = std::true_type;                                                                       \
-    };                                                                                                   \
-  }                                                                                                      \
-  template <typename T>                                                                                  \
+#define SQLPP_VALUE_TRAIT_GENERATOR(name)                                                                   \
+  namespace tag                                                                                             \
+  {                                                                                                         \
+    struct name;                                                                                            \
+  }                                                                                                         \
+  namespace detail                                                                                          \
+  {                                                                                                         \
+    template <typename T, typename Enable = void>                                                           \
+    struct name##_impl                                                                                      \
+    {                                                                                                       \
+      using type = std::false_type;                                                                         \
+    };                                                                                                      \
+    template <typename T>                                                                                   \
+    struct name##_impl<                                                                                     \
+        T,                                                                                                  \
+        typename std::enable_if<detail::is_element_of<tag::name, typename T::_traits::_tags>::value>::type> \
+    {                                                                                                       \
+      using type = std::true_type;                                                                          \
+    };                                                                                                      \
+  }                                                                                                         \
+  template <typename T>                                                                                     \
   using name##_t = typename detail::name##_impl<T>::type;
 
   SQLPP_VALUE_TRAIT_GENERATOR(is_sql_null)
@@ -324,7 +326,7 @@ namespace sqlpp
     template <typename KnownAggregates, typename T>
     struct is_aggregate_expression_impl<KnownAggregates,
                                         T,
-                                        typename std::enable_if<KnownAggregates::template count<T>()>::type>
+                                        typename std::enable_if<detail::is_element_of<T, KnownAggregates>::value>::type>
     {
       using type = std::true_type;
     };
