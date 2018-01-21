@@ -79,8 +79,8 @@ namespace sqlpp
       using type = std::true_type;
     };
 
-    template <template <typename> class Predicate, typename... T>
-    using not_t = typename not_impl<Predicate<T>::value...>::type;
+    template <template <typename> class Predicate, typename T>
+    using not_t = typename not_impl<Predicate<T>::value>::type;
 
     template <typename T>
     using identity_t = T;
