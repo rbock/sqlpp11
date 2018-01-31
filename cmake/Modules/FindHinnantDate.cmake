@@ -72,10 +72,8 @@ if (HinnantDate_INCLUDE_FILE)
         unset(HinnantDate_INCLUDE_FILE CACHE)
     else()
         # Check succeeded, create target
-        # remove filename
-        get_filename_component(HinnantDate_INCLUDE_DIR "${HinnantDate_INCLUDE_FILE}" DIRECTORY)
-        # remove date dir
-        get_filename_component(HinnantDate_INCLUDE_DIR "${HinnantDate_INCLUDE_DIR}" DIRECTORY)
+        get_filename_component(HinnantDate_INCLUDE_DIR "${HinnantDate_INCLUDE_FILE}" DIRECTORY) # remove filename
+        get_filename_component(HinnantDate_INCLUDE_DIR "${HinnantDate_INCLUDE_DIR}" DIRECTORY) # remove date dir
         mark_as_advanced(HinnantDate_INCLUDE_DIR)
         set(HinnantDate_ROOT_DIR "${HinnantDate_INCLUDE_DIR}")
         unset(HinnantDate_NOT_FOUND_MESSAGE)
