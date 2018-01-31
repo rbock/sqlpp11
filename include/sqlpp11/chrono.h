@@ -27,7 +27,7 @@
 #ifndef SQLPP11_CHRONO_H
 #define SQLPP11_CHRONO_H
 
-#include <date.h>
+#include <date/date.h>
 
 namespace sqlpp
 {

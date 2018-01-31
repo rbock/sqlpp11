@@ -263,7 +263,7 @@ namespace sqlpp
     template <typename T>
     struct make_name_of_set
     {
-      static_assert(wrong_t<make_name_of_set>::value, "invalid argument for transform_set");
+      static_assert(wrong_t<make_name_of_set>::value, "invalid argument for make_name_of_set");
     };
 
     template <typename... E>
