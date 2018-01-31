@@ -27,7 +27,7 @@
 #ifndef SQLPP11_DATA_TYPES_DAY_POINT_OPERAND_H
 #define SQLPP11_DATA_TYPES_DAY_POINT_OPERAND_H
 
-#include <date.h>
+#include <date/date.h>
 #include <sqlpp11/chrono.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/alias_operators.h>
