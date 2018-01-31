@@ -16,7 +16,10 @@ build_script:
   - CD
   - cd ..
   - CD
-  - git clone --branch v1.0.0 --depth 1 https://github.com/HowardHinnant/date
+  - git clone https://github.com/HowardHinnant/date
+  - cd date
+  - git checkout tags/v2.4
+  - cd ..
   - cd sqlpp11
   - CD
   - echo %configuration%
