@@ -72,6 +72,11 @@ install(TARGETS sqlpp11
         EXPORT Sqlpp11Targets
 )
 
+install(PROGRAMS "${PROJECT_SOURCE_DIR}/scripts/ddl2cpp"
+        RENAME sqlpp11-ddl2cpp
+        DESTINATION bin
+)
+
 include(CMakePackageConfigHelpers)
 
 write_basic_package_version_file(
