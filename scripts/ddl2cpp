@@ -48,27 +48,31 @@ def get_include_guard_name(namespace, inputfile):
   val = re.sub("[^A-Za-z]+", "_", namespace + '_' + os.path.basename(inputfile))
   return val.upper()
 
+def identity_naming_func(s):
+  return s
 
-def repl_func(m):
+def repl_camel_case_func(m):
   if m.group(1) == '_':
     return m.group(2).upper()
   else:
     return m.group(1) + m.group(2).upper()
 
 
+def class_name_naming_func(s):
+  return re.sub("(^|\s|[_0-9])(\S)", repl_camel_case_func, s)
+
+
+def member_name_naming_func(s):
+  return re.sub("(\s|_|[0-9])(\S)", repl_camel_case_func, s)
+
+toClassName = class_name_naming_func
+toMemberName = member_name_naming_func
+
 def repl_func_for_args(m):
   if m.group(1) == '-':
     return m.group(2).upper()
   else:
     return m.group(1) + m.group(2).upper()
-
-def toClassName(s):
-  return re.sub("(^|\s|[_0-9])(\S)", repl_func, s)
-
-
-def toMemberName(s):
-  return re.sub("(\s|_|[0-9])(\S)", repl_func, s)
-
 
 def setArgumentBool(s, bool_value):
     first_lower = lambda s: s[:1].lower() + s[1:] if s else ''  # http://stackoverflow.com/a/3847369/5006740
@@ -113,6 +117,7 @@ optionalArgs = {
     '-fail-on-parse': "abort instead of silent genereation of unusable headers",  # failOnParse = True
     '-warn-on-parse': "warn about unusable headers, but continue",  # warnOnParse = True
     '-auto-id': "Assume column 'id' to have an automatic value as if AUTO_INCREMENT was specified (e.g. implicit for SQLite ROWID)",  # autoId = True
+    '-identity-naming': "Use table and column names from the ddl (defaults to UpperCamelCase for tables and lowerCamelCase for columns",  # identityNaming = True
     '-help': "show this help"
 }
 
@@ -129,6 +134,7 @@ failOnParse = False
 warnOnParse = False
 parseError = "Parsing error, possible reason: can't parse default value for a field"
 autoId = False
+identityNaming = False
 
 
 if len(sys.argv) >= 4:
@@ -142,6 +148,10 @@ if len(sys.argv) >= 4:
             firstPositional += 1
         else:
             pass
+
+if identityNaming:
+    toClassName = identity_naming_func
+    toMemberName = identity_naming_func
 
 pathToDdl = sys.argv[firstPositional]
 

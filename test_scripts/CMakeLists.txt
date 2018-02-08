@@ -58,16 +58,26 @@ if (${PYTHONINTERP_FOUND})
 										 "${CMAKE_CURRENT_BINARY_DIR}/fail"
 										 test)
 
-		set(sqlpp.test.generated.sample "${CMAKE_CURRENT_BINARY_DIR}/Sample")
-		include_directories(${CMAKE_CURRENT_BINARY_DIR})
-		add_custom_command(
-				OUTPUT "${sqlpp.test.generated.sample}.h"
-				COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../scripts/ddl2cpp" "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql" "${sqlpp.test.generated.sample}" test
-				DEPENDS "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
-				VERBATIM)
+    foreach(sample_name sample sample_identity_naming)
+      set(sqlpp.test.generated.sample.include "${CMAKE_CURRENT_BINARY_DIR}/${sample_name}")
+      include_directories(${CMAKE_CURRENT_BINARY_DIR})
+      set(use_identity_naming)
+      if(sample_name STREQUAL "sample_identity_naming")
+        set(use_identity_naming -identity-naming)
+      endif()
+      add_custom_command(
+          OUTPUT "${sqlpp.test.generated.sample.include}.h"
+          COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../scripts/ddl2cpp"
+                  ${use_identity_naming}
+                  "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
+                  "${sqlpp.test.generated.sample.include}"
+                  test
+          DEPENDS "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
+          VERBATIM)
 
-		add_executable(sqlpp.test.compiled.sample sample.cpp "${sqlpp.test.generated.sample}.h")
-		target_link_libraries(sqlpp.test.compiled.sample PRIVATE sqlpp11)
+      add_executable(sqlpp.test.compiled.${sample_name} ${sample_name}.cpp "${sqlpp.test.generated.sample.include}.h")
+      target_link_libraries(sqlpp.test.compiled.${sample_name} PRIVATE sqlpp11)
+    endforeach()
 
   endif()
 endif()
