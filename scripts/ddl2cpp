@@ -45,7 +45,7 @@ from pyparsing import CaselessLiteral, Literal, SkipTo, restOfLine, oneOf, ZeroO
 # HELPERS
 
 def get_include_guard_name(namespace, inputfile):
-  val = re.sub("[^A-Za-z]+", "_", namespace + '_' + os.path.basename(inputfile))
+  val = re.sub("[^A-Za-z0-9]+", "_", namespace + '_' + os.path.basename(inputfile))
   return val.upper()
 
 def identity_naming_func(s):
