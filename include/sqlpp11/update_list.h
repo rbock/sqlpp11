@@ -38,7 +38,7 @@ namespace sqlpp
   template <typename Database, typename... Assignments>
   struct update_list_data_t
   {
-    update_list_data_t(Assignments... assignments) : _assignments(assignments...)
+    update_list_data_t(std::tuple<Assignments ...> assignments ) : _assignments(assignments)
     {
     }
 
@@ -262,6 +262,14 @@ namespace sqlpp
       }
 
       template <typename... Assignments>
+      auto set(std::tuple<Assignments...> assignments) const
+          -> _new_statement_t<check_update_static_set_t<Assignments...>, update_list_t<void, Assignments...>>
+      {
+        using Check = check_update_static_set_t<Assignments...>;
+        return _set_impl<void>(Check{}, assignments);
+      }
+
+      template <typename... Assignments>
       auto dynamic_set(Assignments... assignments) const
           -> _new_statement_t<check_update_dynamic_set_t<_database_t, Assignments...>,
                               update_list_t<_database_t, Assignments...>>
@@ -279,7 +287,15 @@ namespace sqlpp
           -> _new_statement_t<consistent_t, update_list_t<Database, Assignments...>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this),
-                update_list_data_t<Database, Assignments...>{assignments...}};
+                update_list_data_t<Database, Assignments...>{std::forward_as_tuple(assignments...)}};
+      }
+
+      template <typename Database, typename... Assignments>
+      auto _set_impl(consistent_t /*unused*/, std::tuple<Assignments...> assignments) const
+          -> _new_statement_t<consistent_t, update_list_t<Database, Assignments...>>
+      {
+        return {static_cast<const derived_statement_t<Policies>&>(*this),
+                update_list_data_t<Database, Assignments...>{assignments}};
       }
     };
   };

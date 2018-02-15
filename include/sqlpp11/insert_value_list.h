@@ -128,6 +128,11 @@ namespace sqlpp
     {
     }
 
+    insert_list_data_t(std::tuple<Assignments...> assignments)
+        : _assignments(assignments), _columns( columns_from_tuple(assignments) ), _values( values_from_tuple(assignments) )
+    {
+    }
+
     insert_list_data_t(const insert_list_data_t&) = default;
     insert_list_data_t(insert_list_data_t&&) = default;
     insert_list_data_t& operator=(const insert_list_data_t&) = default;
@@ -140,6 +145,29 @@ namespace sqlpp
     std::tuple<rhs_t<Assignments>...> _values;
     interpretable_list_t<Database> _dynamic_columns;
     interpretable_list_t<Database> _dynamic_values;
+  private:
+    template< size_t... Indexes >
+    auto columns_from_tuple( detail::index_sequence<Indexes... >, std::tuple<Assignments ...> t ) -> decltype (_columns)
+    {
+        return decltype(_columns)(std::get<Indexes>(t)._lhs...);
+    }
+
+    auto columns_from_tuple(std::tuple<Assignments ...> assignments) -> decltype (_columns) {
+        const auto seq = detail::make_index_sequence<sizeof... (Assignments)>{};
+        return columns_from_tuple(seq, assignments);
+    }
+
+    template< size_t... Indexes >
+    auto values_from_tuple( detail::index_sequence<Indexes... >, std::tuple<Assignments ...> assignments ) -> decltype(_values)
+    {
+        return decltype(_values)(std::get<Indexes>(assignments)._rhs...);
+    }
+
+    auto values_from_tuple( std::tuple<Assignments ...> assignments ) -> decltype(_values)
+    {
+        const auto seq = detail::make_index_sequence<sizeof... (Assignments)>{};
+        return values_from_tuple(seq, assignments);
+    }
   };
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_set_assignments_t, "at least one argument is not an assignment in set()");
@@ -515,12 +543,28 @@ namespace sqlpp
       }
 
       template <typename... Assignments>
+      auto set(std::tuple<Assignments...> assignments) const
+          -> _new_statement_t<check_insert_static_set_t<Assignments...>, insert_list_t<void, Assignments...>>
+      {
+        using Check = check_insert_static_set_t<Assignments...>;
+        return _set_impl<void>(Check{}, assignments);
+      }
+      template <typename... Assignments>
       auto dynamic_set(Assignments... assignments) const
           -> _new_statement_t<check_insert_dynamic_set_t<_database_t, Assignments...>,
                               insert_list_t<_database_t, Assignments...>>
       {
         using Check = check_insert_dynamic_set_t<_database_t, Assignments...>;
         return _set_impl<_database_t>(Check{}, assignments...);
+      }
+
+      template <typename... Assignments>
+      auto dynamic_set(std::tuple<Assignments...> assignments) const
+          -> _new_statement_t<check_insert_dynamic_set_t<_database_t, Assignments...>,
+                              insert_list_t<_database_t, Assignments...>>
+      {
+        using Check = check_insert_dynamic_set_t<_database_t, Assignments...>;
+        return _set_impl<_database_t>(Check{}, assignments);
       }
 
     private:
@@ -553,6 +597,14 @@ namespace sqlpp
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this),
                 insert_list_data_t<Database, Assignments...>{assignments...}};
+      }
+
+      template <typename Database, typename... Assignments>
+      auto _set_impl(consistent_t /*unused*/,std::tuple<Assignments...> assignments) const
+          -> _new_statement_t<consistent_t, insert_list_t<Database, Assignments...>>
+      {
+        return {static_cast<const derived_statement_t<Policies>&>(*this),
+                insert_list_data_t<Database, Assignments...>{assignments}};
       }
     };
   };
