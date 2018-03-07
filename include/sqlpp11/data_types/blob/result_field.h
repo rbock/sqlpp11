@@ -40,7 +40,7 @@ namespace sqlpp
   struct result_field_t<Db, field_spec_t<NameType, blob, CanBeNull, NullIsTrivialValue>>
       : public result_field_base<Db, field_spec_t<NameType, blob, CanBeNull, NullIsTrivialValue>>
   {
-    const char* blob{nullptr};  // Non-owning
+    const uint8_t* blob{nullptr};  // Non-owning
     size_t len{};
 
     template <typename Target>
@@ -48,9 +48,9 @@ namespace sqlpp
     {
       target._bind_blob_result(index, &blob, &len);
       if (blob)
-        this->_value.assign(blob, len);
+        this->_value.assign(blob, blob+len);
       else
-        this->_value.assign("");
+        this->_value.clear();
       this->_is_null = (blob == nullptr);
     }
 
@@ -59,9 +59,9 @@ namespace sqlpp
     {
       target._post_bind_blob_result(index, &blob, &len);
       if (blob)
-        this->_value.assign(blob, len);
+        this->_value.assign(blob, blob+len);
       else
-        this->_value.assign("");
+        this->_value.clear();
       this->_is_null = (blob == nullptr);
     }
   };
