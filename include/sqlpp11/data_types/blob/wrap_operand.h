@@ -41,5 +41,11 @@ namespace sqlpp
   {
     using type = blob_operand;
   };
+
+  template <std::size_t N>
+  struct wrap_operand<std::array<std::uint8_t, N>, void>
+  {
+    using type = blob_operand;
+  };
 }
 #endif

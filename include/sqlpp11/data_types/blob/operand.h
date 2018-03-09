@@ -52,6 +52,11 @@ namespace sqlpp
     {
     }
 
+    template <std::size_t N>
+    blob_operand(const std::array<uint8_t, N>& t) : _t(t.begin(), t.end())
+    {
+    }
+
     blob_operand(const blob_operand&) = default;
     blob_operand(blob_operand&&) = default;
     blob_operand& operator=(const blob_operand&) = default;
