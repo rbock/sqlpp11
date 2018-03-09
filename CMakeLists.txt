@@ -98,6 +98,7 @@ set(ConfigPackageLocation lib/cmake/Sqlpp11)
 install(EXPORT Sqlpp11Targets
   FILE
     Sqlpp11Targets.cmake
+  NAMESPACE sqlpp11::
   DESTINATION
     ${ConfigPackageLocation}
 )
