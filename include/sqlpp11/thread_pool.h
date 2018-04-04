@@ -121,7 +121,7 @@ namespace sqlpp
     std::vector<std::thread>           workers;
     std::vector<std::thread::id>       finished_threads;
     std::queue<std::function<void()> > tasks;
-    ssize_t                            waiting_threads;
+    size_t                             waiting_threads;
     std::mutex                         task_mutex;
     std::mutex                         holder_mutex;
     std::condition_variable            task_condition;
