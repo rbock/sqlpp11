@@ -35,9 +35,13 @@ set(test_names
   DateTime
   Interpret
   Insert
+  InsertAsync
   Remove
+  RemoveAsync
   Update
+  UpdateAsync
   Select
+  SelectAsync
   SelectType
   ThreadPool
   Function
