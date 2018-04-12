@@ -34,6 +34,11 @@
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_float(...) \
   ::sqlpp::floating_point
 
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_real \
+  PROC_real
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_real(...) \
+  ::sqlpp::floating_point
+
 #define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_double \
   PROC_double
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_double(...) \
