@@ -219,6 +219,7 @@ types = {
     'boolean': 'boolean',
     'double': 'floating_point',
     'float': 'floating_point',
+    'real': 'floating_point',
     'date': 'day_point',
     'datetime': 'time_point',
     'timestamp': 'time_point',
