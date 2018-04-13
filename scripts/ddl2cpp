@@ -212,14 +212,18 @@ types = {
     'tinyint': 'tinyint',
     'smallint': 'smallint',
     'smallserial': 'smallint', # PostgreSQL
+    'int2': 'smallint', #PostgreSQL
     'integer': 'integer',
     'int': 'integer',
     'serial': 'integer', # PostgreSQL
+    'int4': 'integer', #PostgreSQL
     'mediumint' : 'integer',
     'bigint': 'bigint',
     'bigserial': 'bigint', # PostgreSQL
+    'int8': 'bigint', #PostgreSQL
     'char': 'char_',
     'varchar': 'varchar',
+    'character varying': 'varchar', #PostgreSQL
     'text': 'text',
     'clob': 'text',
     'tinyblob': 'blob',
@@ -229,12 +233,22 @@ types = {
     'bool': 'boolean',
     'boolean': 'boolean',
     'double': 'floating_point',
+    'float8': 'floating_point', # PostgreSQL
     'float': 'floating_point',
+    'float4': 'floating_point', # PostgreSQL
+    'numeric': 'floating_point', # PostgreSQL
     'date': 'day_point',
     'datetime': 'time_point',
+    'time without time zone': 'time_point', # PostgreSQL
+    'time with time zone': 'time_point', # PostgreSQL
     'timestamp': 'time_point',
+    'timestamp without time zone': 'time_point', # PostgreSQL
+    'timestamp with time zone': 'time_point', # PostgreSQL
+    'timestamptz': 'time_point', # PostgreSQL
     'enum': 'text',  # MYSQL
     'set': 'text',  # MYSQL,
+    'json' : 'text', # PostgreSQL
+    'jsonb' : 'text', # PostgreSQL
     'tinyint unsigned': 'tinyint_unsigned', #MYSQL
     'smallint unsigned': 'smallint_unsigned', #MYSQL
     'integer unsigned': 'integer_unsigned', #MYSQL
