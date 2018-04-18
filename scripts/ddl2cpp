@@ -178,7 +178,16 @@ negativeSign = Literal('-')
 ddlNum = Combine(Optional(negativeSign) + Word(nums + "."))
 ddlTerm = Word(alphanums + "_$")
 ddlName = Or([ddlTerm, ddlString])
+ddlMathOp = Word("+><=-")
+ddlBoolean = Or([ddlWord("AND"), ddlWord("OR"), ddlWord("NOT")])
 ddlArguments = "(" + delimitedList(Or([ddlString, ddlTerm, ddlNum])) + ")"
+ddlMathCond = "(" + delimitedList(
+    Or([
+        Group(ddlName + ddlMathOp + ddlName),
+        Group(ddlName + ddlWord("NOT") + ddlWord("NULL")),
+    ]),
+    delim=ddlBoolean) + ")"
+
 ddlUnsigned = ddlWord("unsigned").setResultsName("isUnsigned")
 ddlNotNull = Group(ddlWord("NOT") + ddlWord("NULL")).setResultsName("notNull")
 ddlDefaultValue = ddlWord("DEFAULT").setResultsName("hasDefaultValue")
@@ -196,8 +205,9 @@ ddlConstraint = Or([
         ddlWord("KEY"),
         ddlWord("INDEX"),
         ddlWord("UNIQUE"),
+        ddlWord("CHECK")
         ])
-ddlColumn = Group(Optional(ddlConstraint).setResultsName("isConstraint") + OneOrMore(MatchFirst([ddlUnsigned, ddlNotNull, ddlAutoValue, ddlDefaultValue, ddlFunctionWord("NOW"), ddlTerm, ddlNum, ddlColumnComment, ddlString, ddlArguments])))
+ddlColumn = Group(Optional(ddlConstraint).setResultsName("isConstraint") + OneOrMore(MatchFirst([ddlUnsigned, ddlNotNull, ddlAutoValue, ddlDefaultValue, ddlFunctionWord("NOW"), ddlTerm, ddlNum, ddlColumnComment, ddlString, ddlArguments, ddlMathCond])))
 ddlIfNotExists = Optional(Group(ddlWord("IF") + ddlWord("NOT") + ddlWord("EXISTS")).setResultsName("ifNotExists"))
 createTable = Group(ddlWord("CREATE") + ddlWord("TABLE") + ddlIfNotExists + ddlName.setResultsName("tableName") + "(" + Group(delimitedList(ddlColumn)).setResultsName("columns") + ")").setResultsName("create")
 #ddlString.setDebug(True) #uncomment to debug pyparsing
