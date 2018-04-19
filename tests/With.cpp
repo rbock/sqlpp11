@@ -49,5 +49,11 @@ int With(int, char* [])
 
   db(with(y)(select(y.alpha).from(y).unconditionally()));
 
+  using ::sqlpp::alias::a;
+  using ::sqlpp::alias::b;
+  const auto c =
+      sqlpp::cte(b).as(select(t.alpha.as(a)).from(t).unconditionally().union_all(select(sqlpp::value(123).as(a))));
+  db(with(c)(select(all_of(c)).from(c).unconditionally()));
+
   return 0;
 }
