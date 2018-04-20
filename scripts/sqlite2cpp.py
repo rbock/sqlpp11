@@ -137,7 +137,6 @@ def main():
             print('      using _traits = ' + NAMESPACE + '::make_traits<' + ', '.join(traitslist) + '>;', file=header)
             print('    };', file=header)
 
-
         print('  } // namespace ' + tableNamespace, file=header)
         print('', file=header)
 
