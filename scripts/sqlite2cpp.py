@@ -44,7 +44,7 @@ types = {
 }
 
 def main():
-    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser = argparse.ArgumentParser(description='sqlpp11 cpp schema generator')
     parser.add_argument('ddl', help='path to ddl')
     parser.add_argument('target', help='path to target')
     parser.add_argument('namespace', help='namespace')
