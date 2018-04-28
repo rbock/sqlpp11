@@ -33,7 +33,6 @@ namespace sqlpp
 {
   struct consistent_t : std::true_type
   {
-    static void _(){};
   };
 }  // namespace sqlpp
 

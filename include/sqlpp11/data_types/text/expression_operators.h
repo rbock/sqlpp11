@@ -57,7 +57,7 @@ namespace sqlpp
     template <typename R>
     auto like(const R& r) const -> return_type_like_t<Expression, R>
     {
-      return_type_like<Expression, R>::check::_();
+      typename return_type_like<Expression, R>::check{};
       return {*static_cast<const Expression*>(this), wrap_operand_t<R>{r}};
     }
   };
