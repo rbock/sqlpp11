@@ -69,6 +69,7 @@
 #include <sqlpp11/ppgen/colops/foreign_key.h>
 #include <sqlpp11/ppgen/colops/index.h>
 #include <sqlpp11/ppgen/colops/integer.h>
+#include <sqlpp11/ppgen/colops/unsigned_integer.h>
 #include <sqlpp11/ppgen/colops/not_null.h>
 #include <sqlpp11/ppgen/colops/null.h>
 #include <sqlpp11/ppgen/colops/primary_key.h>
