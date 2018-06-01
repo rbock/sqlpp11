@@ -29,7 +29,7 @@
 #include <iostream>
 #include <sqlpp11/sqlpp11.h>
 
-int Update(int, char* [])
+int Update(int, char*[])
 {
   MockDb db;
   MockDb::_serializer_context_t printer = {};
@@ -63,9 +63,7 @@ int Update(int, char* [])
 
   db(u);
 
-  auto values=[&t](){
-    return std::make_tuple(t.delta += t.alpha, t.beta = "no cake this time");
-  };
+  auto values = [&t]() { return std::make_tuple(t.delta += t.alpha, t.beta = "no cake this time"); };
 
   db(update(t).set(t.delta = sqlpp::verbatim<sqlpp::integer>("17+4")).unconditionally());
   db(update(t).set(t.delta = sqlpp::null).unconditionally());

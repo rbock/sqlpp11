@@ -119,7 +119,7 @@ namespace test
       };
       using _traits = sqlpp::make_traits<sqlpp::blob, sqlpp::tag::can_be_null>;
     };
-  }
+  }  // namespace TabFoo_
 
   struct TabFoo : sqlpp::table_t<TabFoo, TabFoo_::Delta, TabFoo_::Epsilon, TabFoo_::Omega, TabFoo_::Psi, TabFoo_::Book>
   {
@@ -233,7 +233,7 @@ namespace test
       };
       using _traits = sqlpp::make_traits<sqlpp::integer, sqlpp::tag::can_be_null>;
     };
-  }
+  }  // namespace TabBar_
 
   struct TabBar : sqlpp::table_t<TabBar, TabBar_::Alpha, TabBar_::Beta, TabBar_::Gamma, TabBar_::Delta>
   {
@@ -326,7 +326,7 @@ namespace test
       };
       using _traits = sqlpp::make_traits<sqlpp::time_of_day, sqlpp::tag::can_be_null>;
     };
-  }
+  }  // namespace TabDateTime_
 
   struct TabDateTime
       : sqlpp::table_t<TabDateTime, TabDateTime_::ColDayPoint, TabDateTime_::ColTimePoint, TabDateTime_::ColTimeOfDay>
@@ -350,5 +350,5 @@ namespace test
       };
     };
   };
-}
+}  // namespace test
 #endif

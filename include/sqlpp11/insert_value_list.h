@@ -124,7 +124,7 @@ namespace sqlpp
   struct insert_list_data_t
   {
     insert_list_data_t(std::tuple<Assignments...> assignments)
-        : _assignments(assignments), _columns( columns_from_tuple(assignments) ), _values( values_from_tuple(assignments) )
+        : _assignments(assignments), _columns(columns_from_tuple(assignments)), _values(values_from_tuple(assignments))
     {
     }
 
@@ -140,30 +140,34 @@ namespace sqlpp
     std::tuple<rhs_t<Assignments>...> _values;
     interpretable_list_t<Database> _dynamic_columns;
     interpretable_list_t<Database> _dynamic_values;
+
   private:
-    template< size_t... Indexes >
-    auto columns_from_tuple( detail::index_sequence<Indexes... >, std::tuple<Assignments ...> assignments ) -> decltype (_columns)
+    template <size_t... Indexes>
+    auto columns_from_tuple(detail::index_sequence<Indexes...>, std::tuple<Assignments...> assignments)
+        -> decltype(_columns)
     {
-        (void) assignments;
-        return decltype(_columns)(std::get<Indexes>(assignments)._lhs...);
+      (void)assignments;
+      return decltype(_columns)(std::get<Indexes>(assignments)._lhs...);
     }
 
-    auto columns_from_tuple(std::tuple<Assignments ...> assignments) -> decltype (_columns) {
-        const auto seq = detail::make_index_sequence<sizeof... (Assignments)>{};
-        return columns_from_tuple(seq, assignments);
+    auto columns_from_tuple(std::tuple<Assignments...> assignments) -> decltype(_columns)
+    {
+      const auto seq = detail::make_index_sequence<sizeof...(Assignments)>{};
+      return columns_from_tuple(seq, assignments);
     }
 
-    template< size_t... Indexes >
-    auto values_from_tuple( detail::index_sequence<Indexes... >, std::tuple<Assignments ...> assignments ) -> decltype(_values)
+    template <size_t... Indexes>
+    auto values_from_tuple(detail::index_sequence<Indexes...>, std::tuple<Assignments...> assignments)
+        -> decltype(_values)
     {
-      (void) assignments;
+      (void)assignments;
       return decltype(_values)(std::get<Indexes>(assignments)._rhs...);
     }
 
-    auto values_from_tuple( std::tuple<Assignments ...> assignments ) -> decltype(_values)
+    auto values_from_tuple(std::tuple<Assignments...> assignments) -> decltype(_values)
     {
-        const auto seq = detail::make_index_sequence<sizeof... (Assignments)>{};
-        return values_from_tuple(seq, assignments);
+      const auto seq = detail::make_index_sequence<sizeof...(Assignments)>{};
+      return values_from_tuple(seq, assignments);
     }
   };
 
@@ -589,7 +593,7 @@ namespace sqlpp
       auto _set_impl(Check, Assignments... assignments) const -> inconsistent<Check>;
 
       template <typename Database, typename... Assignments>
-      auto _set_impl(consistent_t /*unused*/,std::tuple<Assignments...> assignments) const
+      auto _set_impl(consistent_t /*unused*/, std::tuple<Assignments...> assignments) const
           -> _new_statement_t<consistent_t, insert_list_t<Database, Assignments...>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this),

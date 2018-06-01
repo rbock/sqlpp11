@@ -48,7 +48,7 @@ namespace sqlpp
     {
       target._bind_blob_result(index, &blob, &len);
       if (blob)
-        this->_value.assign(blob, blob+len);
+        this->_value.assign(blob, blob + len);
       else
         this->_value.clear();
       this->_is_null = (blob == nullptr);
@@ -59,7 +59,7 @@ namespace sqlpp
     {
       target._post_bind_blob_result(index, &blob, &len);
       if (blob)
-        this->_value.assign(blob, blob+len);
+        this->_value.assign(blob, blob + len);
       else
         this->_value.clear();
       this->_is_null = (blob == nullptr);
@@ -79,5 +79,5 @@ namespace sqlpp
       return os << e.value();
     }
   }
-}
+}  // namespace sqlpp
 #endif

@@ -292,7 +292,6 @@ struct MockDbT : public sqlpp::connection
 using MockDb = MockDbT<false>;
 using EnforceDb = MockDbT<true>;
 
-
 struct MockSizeDb : public sqlpp::connection
 {
   using _traits = MockDb::_traits;
@@ -323,7 +322,10 @@ struct MockSizeDb : public sqlpp::connection
   class result_t : public MockDb::result_t
   {
   public:
-    size_t size() const { return 0; }
+    size_t size() const
+    {
+      return 0;
+    }
   };
 
   // Directly executed statements start here
@@ -464,7 +466,7 @@ struct MockSizeDb : public sqlpp::connection
 
   void start_transaction()
   {
-      _mock_data._last_isolation_level = _mock_data._default_isolation_level;
+    _mock_data._last_isolation_level = _mock_data._default_isolation_level;
   }
 
   void start_transaction(sqlpp::isolation_level level)

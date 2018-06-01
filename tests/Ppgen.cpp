@@ -68,7 +68,7 @@ SQLPP_DECLARE_TABLE(
 )
 // clang-format on
 
-int Ppgen(int, char* [])
+int Ppgen(int, char*[])
 {
   MockDb db{};
   const auto p = tab_person::tab_person{};
@@ -79,24 +79,13 @@ int Ppgen(int, char* [])
   db(insert_into(f).default_values());
 
   auto i = insert_into(p).columns(p.name, p.feature, p.age, p.level);
-  i.values.add(p.name = "Roland"
-               , p.feature = 1
-               , p.age = static_cast<unsigned int>(32)
-               , p.level = 3.14);
-  i.values.add(p.name = "Zaphod"
-               , p.feature = sqlpp::default_value
-               , p.age = static_cast<unsigned int>(16)
-               , p.level = 3.14*2);
+  i.values.add(p.name = "Roland", p.feature = 1, p.age = static_cast<unsigned int>(32), p.level = 3.14);
+  i.values.add(p.name = "Zaphod", p.feature = sqlpp::default_value, p.age = static_cast<unsigned int>(16),
+               p.level = 3.14 * 2);
   db(i);
 
-  auto pi = db.prepare(
-    insert_into(p).set(
-       p.name = parameter(f.name)
-      ,p.feature = parameter(p.feature)
-      ,p.age = parameter(p.age)
-      ,p.level = parameter(p.level)
-    )
-  );
+  auto pi = db.prepare(insert_into(p).set(p.name = parameter(f.name), p.feature = parameter(p.feature),
+                                          p.age = parameter(p.age), p.level = parameter(p.level)));
   pi.params.name = "likes java";
   pi.params.feature = 2;
   pi.params.age = 21;

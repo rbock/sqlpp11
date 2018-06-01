@@ -39,6 +39,6 @@ namespace sqlpp
   };
   template <typename T, typename Defer>
   using return_type_like_t = typename return_type_like<T, Defer>::type;
-}
+}  // namespace sqlpp
 
 #endif

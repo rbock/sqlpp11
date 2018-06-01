@@ -30,7 +30,7 @@
 #include <sqlpp11/functions.h>
 #include <sqlpp11/insert.h>
 
-int Insert(int, char* [])
+int Insert(int, char*[])
 {
   MockDb db = {};
   MockDb::_serializer_context_t printer = {};
@@ -71,9 +71,7 @@ int Insert(int, char* [])
 
   db(multi_insert);
 
-  auto values=[&t](){
-    return std::make_tuple(t.gamma = true, t.delta = sqlpp::tvin(0));
-  };
+  auto values = [&t]() { return std::make_tuple(t.gamma = true, t.delta = sqlpp::tvin(0)); };
 
   db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::verbatim<sqlpp::integer>("17+4")));
   db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::null));

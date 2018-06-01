@@ -38,7 +38,7 @@ namespace sqlpp
   template <typename Database, typename... Assignments>
   struct update_list_data_t
   {
-    update_list_data_t(std::tuple<Assignments ...> assignments ) : _assignments(assignments)
+    update_list_data_t(std::tuple<Assignments...> assignments) : _assignments(assignments)
     {
     }
 
