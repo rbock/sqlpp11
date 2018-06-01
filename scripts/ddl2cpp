@@ -74,14 +74,6 @@ def repl_func_for_args(m):
   else:
     return m.group(1) + m.group(2).upper()
 
-def toClassName(s):
-  return re.sub("(^|\s|[_0-9])(\S)", repl_func, s)
-
-
-def toMemberName(s):
-  return re.sub("(\s|_|[0-9])(\S)", repl_func, s)
-
-
 def setArgumentBool(s, bool_value):
     first_lower = lambda s: s[:1].lower() + s[1:] if s else ''  # http://stackoverflow.com/a/3847369/5006740
     var_name = first_lower(re.sub("(\s|-|[0-9])(\S)", repl_func_for_args, s))
