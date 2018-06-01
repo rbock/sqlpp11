@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2017, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,16 +24,28 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_CONSISTENT_H
-#define SQLPP11_CONSISTENT_H
+#ifndef SQLPP_BLOB_WRAP_OPERAND_H
+#define SQLPP_BLOB_WRAP_OPERAND_H
 
-#include <type_traits>
+#include <utility>
+#include <vector>
+#include <sqlpp11/type_traits.h>
+#include <sqlpp11/wrap_operand.h>
 
 namespace sqlpp
 {
-  struct consistent_t : std::true_type
-  {
-  };
-}  // namespace sqlpp
+  struct blob_operand;
 
+  template <>
+  struct wrap_operand<std::vector<std::uint8_t>, void>
+  {
+    using type = blob_operand;
+  };
+
+  template <std::size_t N>
+  struct wrap_operand<std::array<std::uint8_t, N>, void>
+  {
+    using type = blob_operand;
+  };
+}
 #endif

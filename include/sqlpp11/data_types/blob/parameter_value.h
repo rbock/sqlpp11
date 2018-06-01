@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2017, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,16 +24,30 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_CONSISTENT_H
-#define SQLPP11_CONSISTENT_H
+#ifndef SQLPP_BLOB_PARAMETER_VALUE_H
+#define SQLPP_BLOB_PARAMETER_VALUE_H
 
-#include <type_traits>
+#include <sqlpp11/data_types/parameter_value.h>
+#include <sqlpp11/data_types/parameter_value_base.h>
+#include <sqlpp11/data_types/blob/data_type.h>
+#include <sqlpp11/data_types/blob/wrap_operand.h>
+#include <sqlpp11/data_types/blob/operand.h>
+#include <sqlpp11/tvin.h>
 
 namespace sqlpp
 {
-  struct consistent_t : std::true_type
+  template <>
+  struct parameter_value_t<blob> : public parameter_value_base<blob>
   {
-  };
-}  // namespace sqlpp
+    using base = parameter_value_base<blob>;
+    using base::base;
+    using base::operator=;
 
+    template <typename Target>
+    void _bind(Target& target, size_t index) const
+    {
+      target._bind_blob_parameter(index, &_value, _is_null);
+    }
+  };
+}
 #endif

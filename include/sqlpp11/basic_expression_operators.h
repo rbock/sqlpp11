@@ -127,7 +127,7 @@ namespace sqlpp
     auto operator==(T t) const -> _new_binary_expression_t<equal_to_t, T>
     {
       using rhs = wrap_operand_t<T>;
-      check_comparison_t<Expr, rhs>::_();
+      check_comparison_t<Expr, rhs>{};
 
       return {*static_cast<const Expr*>(this), rhs{t}};
     }
@@ -136,7 +136,7 @@ namespace sqlpp
     auto operator!=(T t) const -> _new_binary_expression_t<not_equal_to_t, T>
     {
       using rhs = wrap_operand_t<T>;
-      check_comparison_t<Expr, rhs>::_();
+      check_comparison_t<Expr, rhs>{};
 
       return {*static_cast<const Expr*>(this), rhs{t}};
     }
@@ -145,7 +145,7 @@ namespace sqlpp
     auto operator<(T t) const -> _new_binary_expression_t<less_than_t, T>
     {
       using rhs = wrap_operand_t<T>;
-      check_comparison_t<Expr, rhs>::_();
+      check_comparison_t<Expr, rhs>{};
 
       return {*static_cast<const Expr*>(this), rhs{t}};
     }
@@ -154,7 +154,7 @@ namespace sqlpp
     auto operator<=(T t) const -> _new_binary_expression_t<less_equal_t, T>
     {
       using rhs = wrap_operand_t<T>;
-      check_comparison_t<Expr, rhs>::_();
+      check_comparison_t<Expr, rhs>{};
 
       return {*static_cast<const Expr*>(this), rhs{t}};
     }
@@ -163,7 +163,7 @@ namespace sqlpp
     auto operator>(T t) const -> _new_binary_expression_t<greater_than_t, T>
     {
       using rhs = wrap_operand_t<T>;
-      check_comparison_t<Expr, rhs>::_();
+      check_comparison_t<Expr, rhs>{};
 
       return {*static_cast<const Expr*>(this), rhs{t}};
     }
@@ -172,7 +172,7 @@ namespace sqlpp
     auto operator>=(T t) const -> _new_binary_expression_t<greater_equal_t, T>
     {
       using rhs = wrap_operand_t<T>;
-      check_comparison_t<Expr, rhs>::_();
+      check_comparison_t<Expr, rhs>{};
 
       return {*static_cast<const Expr*>(this), rhs{t}};
     }
@@ -205,98 +205,98 @@ namespace sqlpp
     template <typename... T>
     auto in(T... t) const -> typename _new_nary_expression<in_t, T...>::type
     {
-      check_in_t<Expr, wrap_operand_t<T>...>::_();
+      check_in_t<Expr, wrap_operand_t<T>...>{};
       return {*static_cast<const Expr*>(this), typename wrap_operand<T>::type{t}...};
     }
 
     template <typename... T>
     auto not_in(T... t) const -> typename _new_nary_expression<not_in_t, T...>::type
     {
-      check_in_t<Expr, wrap_operand_t<T>...>::_();
+      check_in_t<Expr, wrap_operand_t<T>...>{};
       return {*static_cast<const Expr*>(this), typename wrap_operand<T>::type{t}...};
     }
 
     template <typename Defer = void>
     auto operator not() const -> return_type_not_t<Expr, Defer>
     {
-      return_type_not<Expr, Defer>::check::_();
+      typename return_type_not<Expr, Defer>::check{};
       return {*static_cast<const Expr*>(this)};
     }
 
     template <typename R>
     auto operator and(const R& r) const -> return_type_and_t<Expr, R>
     {
-      return_type_and<Expr, R>::check::_();
+      typename return_type_and<Expr, R>::check{};
       return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
     }
 
     template <typename R>
     auto operator&(const R& r) const -> return_type_bitwise_and_t<Expr, R>
     {
-      return_type_bitwise_and<Expr, R>::check::_();
+      typename return_type_bitwise_and<Expr, R>::check{};
       return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
     }
 
     template <typename R>
     auto operator|(const R& r) const -> return_type_bitwise_or_t<Expr, R>
     {
-      return_type_bitwise_or<Expr, R>::check::_();
+      typename return_type_bitwise_or<Expr, R>::check{};
       return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
     }
 
     template <typename R>
     auto operator or(const R& r) const -> return_type_or_t<Expr, R>
     {
-      return_type_or<Expr, R>::check::_();
+      typename return_type_or<Expr, R>::check{};
       return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
     }
 
     template <typename R>
     auto operator+(const R& r) const -> return_type_plus_t<Expr, R>
     {
-      return_type_plus<Expr, R>::check::_();
+      typename return_type_plus<Expr, R>::check{};
       return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
     }
 
     template <typename R>
     auto operator-(const R& r) const -> return_type_minus_t<Expr, R>
     {
-      return_type_minus<Expr, R>::check::_();
+      typename return_type_minus<Expr, R>::check{};
       return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
     }
 
     template <typename R>
     auto operator*(const R& r) const -> return_type_multiplies_t<Expr, R>
     {
-      return_type_multiplies<Expr, R>::check::_();
+      typename return_type_multiplies<Expr, R>::check{};
       return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
     }
 
     template <typename R>
     auto operator/(const R& r) const -> return_type_divides_t<Expr, R>
     {
-      return_type_divides<Expr, R>::check::_();
+      typename return_type_divides<Expr, R>::check{};
       return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
     }
 
     template <typename R>
     auto operator%(const R& r) const -> return_type_modulus_t<Expr, R>
     {
-      return_type_modulus<Expr, R>::check::_();
+      typename return_type_modulus<Expr, R>::check{};
       return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
     }
 
     template <typename Defer = void>
     auto operator+() const -> return_type_unary_plus_t<Expr, Defer>
     {
-      return_type_unary_plus<Expr, Defer>::check::_();
+      typename return_type_unary_plus<Expr, Defer>::check{};
       return {*static_cast<const Expr*>(this)};
     }
 
     template <typename Defer = void>
     auto operator-() const -> return_type_unary_minus_t<Expr, Defer>
     {
-      return_type_unary_minus<Expr, Defer>::check::_();
+      typename return_type_unary_minus<Expr, Defer>::check{};
       return {*static_cast<const Expr*>(this)};
     }
   };

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2014-2017, Damien COJAN
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,16 +24,29 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_CONSISTENT_H
-#define SQLPP11_CONSISTENT_H
+// clang-format off
 
-#include <type_traits>
+#ifndef _sqlpp__ppgen__colops__unsigned_integer_h
+#define _sqlpp__ppgen__colops__unsigned_integer_h
 
-namespace sqlpp
-{
-  struct consistent_t : std::true_type
-  {
-  };
-}  // namespace sqlpp
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_tinyint_unsigned \
+  PROC_tinyint_unsigned
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_tinyint_unsigned(...) \
+  ::sqlpp::tinyint_unsigned
 
-#endif
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_smallint_unsigned \
+  PROC_smallint_unsigned
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_smallint_unsigned(...) \
+  ::sqlpp::smallint_unsigned
+
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_int_unsigned \
+  PROC_int_unsigned
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_int_unsigned(...) \
+  ::sqlpp::integer_unsigned
+
+#define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_bigint_unsigned \
+  PROC_bigint_unsigned
+#define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_bigint_unsigned(...) \
+  ::sqlpp::bigint_unsigned
+
+#endif  // _sqlpp__ppgen__colops__unsigned_integer_h

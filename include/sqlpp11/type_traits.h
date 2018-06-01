@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, Roland Bock, Aaron Bishop
+ * Copyright (c) 2013-2017, Roland Bock, Aaron Bishop
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -63,6 +63,10 @@ namespace sqlpp
   };
 
   // data types
+  struct blob;
+  template <typename T>
+  using is_blob_t = std::is_same<value_type_of<T>, blob>;
+
   struct boolean;
   template <typename T>
   using is_boolean_t = std::is_same<value_type_of<T>, boolean>;

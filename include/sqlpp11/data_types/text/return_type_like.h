@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2017, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,16 +24,21 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_CONSISTENT_H
-#define SQLPP11_CONSISTENT_H
+#ifndef SQLPP_RETURN_TYPE_LIKE_H
+#define SQLPP_RETURN_TYPE_LIKE_H
 
-#include <type_traits>
+#include <sqlpp11/bad_expression.h>
 
 namespace sqlpp
 {
-  struct consistent_t : std::true_type
+  template <typename T, typename Defer, typename Enable = void>
+  struct return_type_like
   {
+    using check = assert_valid_operands;
+    using type = bad_expression<boolean>;
   };
-}  // namespace sqlpp
+  template <typename T, typename Defer>
+  using return_type_like_t = typename return_type_like<T, Defer>::type;
+}
 
 #endif

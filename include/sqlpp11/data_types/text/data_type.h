@@ -40,7 +40,6 @@ namespace sqlpp
     using _is_valid_operand = is_text_t<T>;
   };
 
-  using blob = text;
   using varchar = text;
   using char_ = text;
   using binary = text;

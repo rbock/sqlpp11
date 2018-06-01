@@ -63,11 +63,15 @@ int Update(int, char* [])
 
   db(u);
 
+  auto values=[&t](){
+    return std::make_tuple(t.delta += t.alpha, t.beta = "no cake this time");
+  };
+
   db(update(t).set(t.delta = sqlpp::verbatim<sqlpp::integer>("17+4")).unconditionally());
   db(update(t).set(t.delta = sqlpp::null).unconditionally());
   db(update(t).set(t.delta = sqlpp::default_value).unconditionally());
 
   db(update(t).set(t.delta += t.alpha * 2, t.beta += " and cake").unconditionally());
-
+  db(update(t).set(values()).unconditionally());
   return 0;
 }

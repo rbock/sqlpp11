@@ -52,6 +52,8 @@ SQLPP_DECLARE_TABLE(
 	(id     , int         , SQLPP_PRIMARY_KEY)
 	(name   , varchar(255), SQLPP_NOT_NULL   )
 	(feature, int         , SQLPP_NOT_NULL   )
+	(age    , int_unsigned, SQLPP_NOT_NULL   )
+	(level  , real        , SQLPP_NOT_NULL   )
 )
 
 SQLPP_DECLARE_TABLE(
@@ -76,14 +78,29 @@ int Ppgen(int, char* [])
 
   db(insert_into(f).default_values());
 
-  auto i = insert_into(p).columns(p.name, p.feature);
-  i.values.add(p.name = "Roland", p.feature = 1);
-  i.values.add(p.name = "Zaphod", p.feature = sqlpp::default_value);
+  auto i = insert_into(p).columns(p.name, p.feature, p.age, p.level);
+  i.values.add(p.name = "Roland"
+               , p.feature = 1
+               , p.age = static_cast<unsigned int>(32)
+               , p.level = 3.14);
+  i.values.add(p.name = "Zaphod"
+               , p.feature = sqlpp::default_value
+               , p.age = static_cast<unsigned int>(16)
+               , p.level = 3.14*2);
   db(i);
 
-  auto pi = db.prepare(insert_into(p).set(p.name = parameter(f.name), p.feature = parameter(p.feature)));
+  auto pi = db.prepare(
+    insert_into(p).set(
+       p.name = parameter(f.name)
+      ,p.feature = parameter(p.feature)
+      ,p.age = parameter(p.age)
+      ,p.level = parameter(p.level)
+    )
+  );
   pi.params.name = "likes java";
-  pi.params.feature = true;
+  pi.params.feature = 2;
+  pi.params.age = 21;
+  pi.params.level = 3.14;
 
   db(pi);
   return 0;

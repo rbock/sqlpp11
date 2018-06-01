@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2017, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -23,37 +23,50 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "compare.h"
 #include "Sample.h"
-#include "MockDb.h"
-#include <sqlpp11/select.h>
-#include <sqlpp11/alias_provider.h>
+#include <sqlpp11/sqlpp11.h>
+
 #include <iostream>
+#include <array>
 
-int With(int, char* [])
+namespace
 {
-  MockDb db;
-  MockDb::_serializer_context_t printer = {};
+  /*
+  auto getTrue() -> std::string
+  {
+    MockDb::_serializer_context_t printer = {};
+    return serialize(sqlpp::value(true), printer).str();
+  }
+  */
 
-  const auto t = test::TabBar{};
+  auto getFalse() -> std::string
+  {
+    MockDb::_serializer_context_t printer = {};
+    return serialize(sqlpp::value(false), printer).str();
+  }
 
-  auto x = sqlpp::cte(sqlpp::alias::x).as(select(all_of(t)).from(t));
+  auto toByteVector(const std::string& s) -> std::vector<std::uint8_t>
+  {
+    return std::vector<std::uint8_t>(s.begin(), s.end());
+  }
+}
 
-  db(with(x)(select(x.alpha).from(x).unconditionally()));
+int Blob(int, char* [])
+{
+  const auto foo = test::TabFoo{};
+  // const auto bar = test::TabBar{};
 
-  auto y0 = sqlpp::cte(sqlpp::alias::y).as(select(all_of(t)).from(t));
-  auto y = y0.union_all(select(all_of(y0)).from(y0).unconditionally());
+  // Unconditionally
+  compare(__LINE__, select(foo.book).from(foo).where(foo.book == toByteVector("john doe")),
+          "SELECT tab_foo.book FROM tab_foo WHERE (tab_foo.book=x'6A6F686E20646F65')");
 
-  std::cout << serialize(y, printer).str() << std::endl;
-  printer.reset();
-  std::cout << serialize(from_table(y), printer).str() << std::endl;
+  std::array<uint8_t, 8> arr{{'j', 'o', 'h', 'n', ' ', 'd', 'o', 'e'}};
+  compare(__LINE__, select(foo.book).from(foo).where(foo.book == arr),
+          "SELECT tab_foo.book FROM tab_foo WHERE (tab_foo.book=x'6A6F686E20646F65')");
 
-  db(with(y)(select(y.alpha).from(y).unconditionally()));
-
-  using ::sqlpp::alias::a;
-  using ::sqlpp::alias::b;
-  const auto c =
-      sqlpp::cte(b).as(select(t.alpha.as(a)).from(t).unconditionally().union_all(select(sqlpp::value(123).as(a))));
-  db(with(c)(select(all_of(c)).from(c).unconditionally()));
+  // Never
+  compare(__LINE__, where(sqlpp::value(false)), " WHERE " + getFalse());
 
   return 0;
 }

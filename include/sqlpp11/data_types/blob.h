@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2017, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,16 +24,19 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_CONSISTENT_H
-#define SQLPP11_CONSISTENT_H
+#ifndef SQLPP_BLOB_H
+#define SQLPP_BLOB_H
 
-#include <type_traits>
+#include <sqlpp11/data_types/blob/data_type.h>
+#include <sqlpp11/data_types/blob/operand.h>
+#include <sqlpp11/data_types/blob/wrap_operand.h>
+#include <sqlpp11/data_types/blob/expression_operators.h>
+#include <sqlpp11/data_types/blob/column_operators.h>
+#include <sqlpp11/data_types/blob/parameter_value.h>
+#include <sqlpp11/data_types/blob/result_field.h>
 
-namespace sqlpp
-{
-  struct consistent_t : std::true_type
-  {
-  };
-}  // namespace sqlpp
+// blob specific functions
+#include <sqlpp11/data_types/text/like.h>
+#include <sqlpp11/data_types/text/concat.h>
 
 #endif

@@ -36,9 +36,10 @@
 #include <sstream>
 
 // an object to store internal Mock flags and values to validate in tests
-struct InternalMockData {
-    sqlpp::isolation_level _last_isolation_level;
-    sqlpp::isolation_level _default_isolation_level;
+struct InternalMockData
+{
+  sqlpp::isolation_level _last_isolation_level;
+  sqlpp::isolation_level _default_isolation_level;
 };
 
 template <bool enforceNullResultTreatment>
@@ -254,7 +255,7 @@ struct MockDbT : public sqlpp::connection
 
   void start_transaction()
   {
-      _mock_data._last_isolation_level = _mock_data._default_isolation_level;
+    _mock_data._last_isolation_level = _mock_data._default_isolation_level;
   }
 
   void start_transaction(sqlpp::isolation_level level)
@@ -264,22 +265,25 @@ struct MockDbT : public sqlpp::connection
 
   void set_default_isolation_level(sqlpp::isolation_level level)
   {
-      _mock_data._default_isolation_level = level;
+    _mock_data._default_isolation_level = level;
   }
 
   sqlpp::isolation_level get_default_isolation_level()
   {
-      return _mock_data._default_isolation_level;
+    return _mock_data._default_isolation_level;
   }
 
   void rollback_transaction(bool)
-  {}
+  {
+  }
 
   void commit_transaction()
-  {}
+  {
+  }
 
   void report_rollback_failure(std::string)
-  {}
+  {
+  }
 
   // temporary data store to verify the expected results were produced
   InternalMockData _mock_data;
@@ -470,24 +474,31 @@ struct MockSizeDb : public sqlpp::connection
 
   void set_default_isolation_level(sqlpp::isolation_level level)
   {
-      _mock_data._default_isolation_level = level;
+    _mock_data._default_isolation_level = level;
   }
 
   sqlpp::isolation_level get_default_isolation_level()
   {
-      return _mock_data._default_isolation_level;
+    return _mock_data._default_isolation_level;
   }
 
   void rollback_transaction(bool)
-  {}
+  {
+  }
 
   void commit_transaction()
-  {}
+  {
+  }
 
   void report_rollback_failure(std::string)
-  {}
+  {
+  }
 
   // temporary data store to verify the expected results were produced
   InternalMockData _mock_data;
 };
+
+using MockDb = MockDbT<false>;
+using EnforceDb = MockDbT<true>;
+
 #endif

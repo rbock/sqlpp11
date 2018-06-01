@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2017, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,16 +24,34 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_CONSISTENT_H
-#define SQLPP11_CONSISTENT_H
+#ifndef SQLPP_BLOB_COLUMN_OPERATORS_H
+#define SQLPP_BLOB_COLUMN_OPERATORS_H
 
-#include <type_traits>
+#include <sqlpp11/type_traits.h>
+#include <sqlpp11/assignment.h>
+#include <sqlpp11/data_types/blob/data_type.h>
+#include <sqlpp11/data_types/column_operators.h>
 
 namespace sqlpp
 {
-  struct consistent_t : std::true_type
-  {
-  };
-}  // namespace sqlpp
+  template <typename... Args>
+  struct concat_t;
 
+  template <typename Column>
+  struct column_operators<Column, blob>
+  {
+    template <typename T>
+    using _is_valid_operand = is_valid_operand<blob, T>;
+
+    template <typename T>
+    auto operator+=(T t) const -> assignment_t<Column, concat_t<Column, wrap_operand_t<T>>>
+    {
+      using rhs = wrap_operand_t<T>;
+      static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
+
+      return {*static_cast<const Column*>(this),
+              concat_t<Column, wrap_operand_t<T>>{*static_cast<const Column*>(this), rhs{t}}};
+    }
+  };
+}
 #endif

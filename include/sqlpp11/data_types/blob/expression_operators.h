@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2017, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,35 +24,40 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_DATA_TYPES_TEXT_EXPRESSION_OPERATORS_H
-#define SQLPP11_DATA_TYPES_TEXT_EXPRESSION_OPERATORS_H
+#ifndef SQLPP_BLOB_EXPRESSION_OPERATORS_H
+#define SQLPP_BLOB_EXPRESSION_OPERATORS_H
 
+#include <sqlpp11/operand_check.h>
 #include <sqlpp11/expression_operators.h>
 #include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/data_types/text/data_type.h>
+#include <sqlpp11/data_types/blob/data_type.h>
 #include <sqlpp11/data_types/text/return_type_like.h>
 
 namespace sqlpp
 {
-  template <typename... Args>
-  struct concat_t;
-
   template <typename Operand, typename Pattern>
   struct like_t;
 
   template <typename L, typename R>
-  struct return_type_like<L, R, binary_operand_check_t<L, is_text_t, R, is_text_t>>
+  struct return_type_like<L, R, binary_operand_check_t<L, is_blob_t, R, is_blob_t>>
+  {
+    using check = consistent_t;
+    using type = like_t<wrap_operand_t<L>, wrap_operand_t<R>>;
+  };
+
+  template <typename L, typename R>
+  struct return_type_like<L, R, binary_operand_check_t<L, is_blob_t, R, is_text_t>>
   {
     using check = consistent_t;
     using type = like_t<wrap_operand_t<L>, wrap_operand_t<R>>;
   };
 
   template <typename Expression>
-  struct expression_operators<Expression, text> : public basic_expression_operators<Expression>
+  struct expression_operators<Expression, blob> : public basic_expression_operators<Expression>
   {
     template <typename T>
-    using _is_valid_operand = is_valid_operand<text, T>;
+    using _is_valid_operand = is_valid_operand<blob, T>;
 
     template <typename R>
     auto like(const R& r) const -> return_type_like_t<Expression, R>
@@ -60,13 +65,6 @@ namespace sqlpp
       typename return_type_like<Expression, R>::check{};
       return {*static_cast<const Expression*>(this), wrap_operand_t<R>{r}};
     }
-  };
-
-  template <typename L, typename R>
-  struct return_type_plus<L, R, binary_operand_check_t<L, is_text_t, R, is_text_t>>
-  {
-    using check = consistent_t;
-    using type = concat_t<wrap_operand_t<L>, wrap_operand_t<R>>;
   };
 }  // namespace sqlpp
 #endif

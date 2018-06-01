@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2017, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,16 +24,26 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_CONSISTENT_H
-#define SQLPP11_CONSISTENT_H
+#ifndef SQLPP_BLOB_DATA_TYPE_H
+#define SQLPP_BLOB_DATA_TYPE_H
 
-#include <type_traits>
+#include <vector>
+
+#include <sqlpp11/type_traits.h>
+#include <sqlpp11/logic.h>
 
 namespace sqlpp
 {
-  struct consistent_t : std::true_type
+  struct blob
   {
-  };
-}  // namespace sqlpp
+    using _traits = make_traits<blob, tag::is_value_type>;
+    using _cpp_value_type = std::vector<std::uint8_t>;
 
+    template <typename T>
+    using _is_valid_operand = ::sqlpp::logic::any_t<is_blob_t<T>::value, is_text_t<T>::value>;
+  };
+
+  using blob = blob;
+  using mediumblob = blob;
+}
 #endif

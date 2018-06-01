@@ -45,16 +45,28 @@ from pyparsing import CaselessLiteral, Literal, SkipTo, restOfLine, oneOf, ZeroO
 # HELPERS
 
 def get_include_guard_name(namespace, inputfile):
-  val = re.sub("[^A-Za-z]+", "_", namespace + '_' + os.path.basename(inputfile))
+  val = re.sub("[^A-Za-z0-9]+", "_", namespace + '_' + os.path.basename(inputfile))
   return val.upper()
 
+def identity_naming_func(s):
+  return s
 
-def repl_func(m):
+def repl_camel_case_func(m):
   if m.group(1) == '_':
     return m.group(2).upper()
   else:
     return m.group(1) + m.group(2).upper()
 
+
+def class_name_naming_func(s):
+  return re.sub("(^|\s|[_0-9])(\S)", repl_camel_case_func, s)
+
+
+def member_name_naming_func(s):
+  return re.sub("(\s|_|[0-9])(\S)", repl_camel_case_func, s)
+
+toClassName = class_name_naming_func
+toMemberName = member_name_naming_func
 
 def repl_func_for_args(m):
   if m.group(1) == '-':
@@ -113,6 +125,7 @@ optionalArgs = {
     '-fail-on-parse': "abort instead of silent genereation of unusable headers",  # failOnParse = True
     '-warn-on-parse': "warn about unusable headers, but continue",  # warnOnParse = True
     '-auto-id': "Assume column 'id' to have an automatic value as if AUTO_INCREMENT was specified (e.g. implicit for SQLite ROWID)",  # autoId = True
+    '-identity-naming': "Use table and column names from the ddl (defaults to UpperCamelCase for tables and lowerCamelCase for columns",  # identityNaming = True
     '-help': "show this help"
 }
 
@@ -129,6 +142,7 @@ failOnParse = False
 warnOnParse = False
 parseError = "Parsing error, possible reason: can't parse default value for a field"
 autoId = False
+identityNaming = False
 
 
 if len(sys.argv) >= 4:
@@ -142,6 +156,10 @@ if len(sys.argv) >= 4:
             firstPositional += 1
         else:
             pass
+
+if identityNaming:
+    toClassName = identity_naming_func
+    toMemberName = identity_naming_func
 
 pathToDdl = sys.argv[firstPositional]
 
@@ -168,7 +186,16 @@ negativeSign = Literal('-')
 ddlNum = Combine(Optional(negativeSign) + Word(nums + "."))
 ddlTerm = Word(alphanums + "_$")
 ddlName = Or([ddlTerm, ddlString])
+ddlMathOp = Word("+><=-")
+ddlBoolean = Or([ddlWord("AND"), ddlWord("OR"), ddlWord("NOT")])
 ddlArguments = "(" + delimitedList(Or([ddlString, ddlTerm, ddlNum])) + ")"
+ddlMathCond = "(" + delimitedList(
+    Or([
+        Group(ddlName + ddlMathOp + ddlName),
+        Group(ddlName + ddlWord("NOT") + ddlWord("NULL")),
+    ]),
+    delim=ddlBoolean) + ")"
+
 ddlUnsigned = ddlWord("unsigned").setResultsName("isUnsigned")
 ddlNotNull = Group(ddlWord("NOT") + ddlWord("NULL")).setResultsName("notNull")
 ddlDefaultValue = ddlWord("DEFAULT").setResultsName("hasDefaultValue")
@@ -186,8 +213,9 @@ ddlConstraint = Or([
         ddlWord("KEY"),
         ddlWord("INDEX"),
         ddlWord("UNIQUE"),
+        ddlWord("CHECK")
         ])
-ddlColumn = Group(Optional(ddlConstraint).setResultsName("isConstraint") + OneOrMore(MatchFirst([ddlUnsigned, ddlNotNull, ddlAutoValue, ddlDefaultValue, ddlFunctionWord("NOW"), ddlTerm, ddlNum, ddlColumnComment, ddlString, ddlArguments])))
+ddlColumn = Group(Optional(ddlConstraint).setResultsName("isConstraint") + OneOrMore(MatchFirst([ddlUnsigned, ddlNotNull, ddlAutoValue, ddlDefaultValue, ddlFunctionWord("NOW"), ddlTerm, ddlNum, ddlColumnComment, ddlString, ddlArguments, ddlMathCond])))
 ddlIfNotExists = Optional(Group(ddlWord("IF") + ddlWord("NOT") + ddlWord("EXISTS")).setResultsName("ifNotExists"))
 createTable = Group(ddlWord("CREATE") + ddlWord("TABLE") + ddlIfNotExists + ddlName.setResultsName("tableName") + "(" + Group(delimitedList(ddlColumn)).setResultsName("columns") + ")").setResultsName("create")
 #ddlString.setDebug(True) #uncomment to debug pyparsing
@@ -202,15 +230,20 @@ types = {
     'tinyint': 'tinyint',
     'smallint': 'smallint',
     'smallserial': 'smallint', # PostgreSQL
+    'int2': 'smallint', #PostgreSQL
     'integer': 'integer',
     'int': 'integer',
     'serial': 'integer', # PostgreSQL
+    'int4': 'integer', #PostgreSQL
     'mediumint' : 'integer',
     'bigint': 'bigint',
     'bigserial': 'bigint', # PostgreSQL
+    'int8': 'bigint', #PostgreSQL
     'char': 'char_',
     'varchar': 'varchar',
+    'character varying': 'varchar', #PostgreSQL
     'text': 'text',
+    'clob': 'text',
     'tinyblob': 'blob',
     'blob': 'blob',
     'mediumblob': 'blob',
@@ -218,13 +251,22 @@ types = {
     'bool': 'boolean',
     'boolean': 'boolean',
     'double': 'floating_point',
+    'float8': 'floating_point', # PostgreSQL
     'float': 'floating_point',
-    'real': 'floating_point',
+    'float4': 'floating_point', # PostgreSQL
+    'numeric': 'floating_point', # PostgreSQL
     'date': 'day_point',
     'datetime': 'time_point',
+    'time without time zone': 'time_point', # PostgreSQL
+    'time with time zone': 'time_point', # PostgreSQL
     'timestamp': 'time_point',
+    'timestamp without time zone': 'time_point', # PostgreSQL
+    'timestamp with time zone': 'time_point', # PostgreSQL
+    'timestamptz': 'time_point', # PostgreSQL
     'enum': 'text',  # MYSQL
     'set': 'text',  # MYSQL,
+    'json' : 'text', # PostgreSQL
+    'jsonb' : 'text', # PostgreSQL
     'tinyint unsigned': 'tinyint_unsigned', #MYSQL
     'smallint unsigned': 'smallint_unsigned', #MYSQL
     'integer unsigned': 'integer_unsigned', #MYSQL

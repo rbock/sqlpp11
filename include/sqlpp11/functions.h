@@ -27,6 +27,7 @@
 #ifndef SQLPP11_FUNCTIONS_H
 #define SQLPP11_FUNCTIONS_H
 
+#include <sqlpp11/noop.h>
 #include <sqlpp11/parameter.h>
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/data_types.h>
