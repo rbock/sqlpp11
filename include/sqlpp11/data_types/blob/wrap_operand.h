@@ -47,5 +47,5 @@ namespace sqlpp
   {
     using type = blob_operand;
   };
-}
+}  // namespace sqlpp
 #endif

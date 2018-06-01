@@ -50,9 +50,9 @@ namespace
   {
     return std::vector<std::uint8_t>(s.begin(), s.end());
   }
-}
+}  // namespace
 
-int Blob(int, char* [])
+int Blob(int, char*[])
 {
   const auto foo = test::TabFoo{};
   // const auto bar = test::TabBar{};

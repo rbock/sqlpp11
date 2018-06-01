@@ -45,5 +45,5 @@ namespace sqlpp
 
   using blob = blob;
   using mediumblob = blob;
-}
+}  // namespace sqlpp
 #endif
