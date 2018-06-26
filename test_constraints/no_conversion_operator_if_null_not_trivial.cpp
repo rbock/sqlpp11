@@ -23,6 +23,11 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/*
+ * NOTE:
+ * This code must not compile (it is used to test the absence of a conversion operator)
+ */
+
 #include "Sample.h"
 #include "MockDb.h"
 #include <sqlpp11/sqlpp11.h>

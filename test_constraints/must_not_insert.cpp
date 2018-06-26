@@ -23,6 +23,11 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/*
+ * NOTE:
+ * This code must not compile (it is used to test a static_assert)
+ */
+
 #include "Sample.h"
 #include "MockDb.h"
 #include <sqlpp11/insert.h>
