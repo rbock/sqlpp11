@@ -66,7 +66,12 @@ namespace sqlpp
     }
 
     transaction_t(const transaction_t&) = delete;
-    transaction_t(transaction_t&&) = default;
+    transaction_t(transaction_t&& other)
+        : _db(other._db), _report_unfinished_transaction(other._report_unfinished_transaction), _finished(other._finished)
+    {
+        other._finished = true;
+    }
+
     transaction_t& operator=(const transaction_t&) = delete;
     transaction_t& operator=(transaction_t&&) = delete;
 
