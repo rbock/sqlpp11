@@ -29,9 +29,10 @@
 
 #include <type_traits>
 #include <sqlpp11/char_sequence.h>
+#include <sqlpp11/basic_expression_operators.h>
 
 #define SQLPP_ALIAS_PROVIDER(name)                                           \
-  struct name##_t                                                            \
+  struct name##_t : basic_expression_operators<name##_t>                     \
   {                                                                          \
     struct _alias_t                                                          \
     {                                                                        \
