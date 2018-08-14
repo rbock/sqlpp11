@@ -352,9 +352,9 @@ int Function(int, char* [])
     using TT = decltype(sqlpp::value("cheesecake"));
     static_assert(not sqlpp::is_selectable_t<TB>::value, "type requirement");
     static_assert(sqlpp::is_boolean_t<TB>::value, "type requirement");
-    static_assert(not sqlpp::is_selectable_t<TB>::value, "type requirement");
-    static_assert(sqlpp::is_integral_t<TI>::value, "type requirement");
     static_assert(not sqlpp::is_selectable_t<TI>::value, "type requirement");
+    static_assert(sqlpp::is_integral_t<TI>::value, "type requirement");
+    static_assert(not sqlpp::is_selectable_t<TF>::value, "type requirement");
     static_assert(sqlpp::is_floating_point_t<TF>::value, "type requirement");
     static_assert(not sqlpp::is_selectable_t<TT>::value, "type requirement");
     static_assert(sqlpp::is_text_t<TT>::value, "type requirement");
@@ -368,9 +368,9 @@ int Function(int, char* [])
     using TT = decltype(flatten(t.beta, db));
     static_assert(not sqlpp::is_selectable_t<TB>::value, "type requirement");
     static_assert(sqlpp::is_boolean_t<TB>::value, "type requirement");
-    static_assert(not sqlpp::is_selectable_t<TB>::value, "type requirement");
-    static_assert(sqlpp::is_integral_t<TI>::value, "type requirement");
     static_assert(not sqlpp::is_selectable_t<TI>::value, "type requirement");
+    static_assert(sqlpp::is_integral_t<TI>::value, "type requirement");
+    static_assert(not sqlpp::is_selectable_t<TF>::value, "type requirement");
     static_assert(sqlpp::is_floating_point_t<TF>::value, "type requirement");
     static_assert(not sqlpp::is_selectable_t<TT>::value, "type requirement");
     static_assert(sqlpp::is_text_t<TT>::value, "type requirement");
@@ -392,9 +392,9 @@ int Function(int, char* [])
     static_assert(std::is_same<TT, TTN>::value, "type_requirement");
     static_assert(not sqlpp::is_selectable_t<TB>::value, "type requirement");
     static_assert(sqlpp::is_boolean_t<TB>::value, "type requirement");
-    static_assert(not sqlpp::is_selectable_t<TB>::value, "type requirement");
-    static_assert(sqlpp::is_integral_t<TI>::value, "type requirement");
     static_assert(not sqlpp::is_selectable_t<TI>::value, "type requirement");
+    static_assert(sqlpp::is_integral_t<TI>::value, "type requirement");
+    static_assert(not sqlpp::is_selectable_t<TF>::value, "type requirement");
     static_assert(sqlpp::is_floating_point_t<TF>::value, "type requirement");
     static_assert(not sqlpp::is_selectable_t<TT>::value, "type requirement");
     static_assert(sqlpp::is_text_t<TT>::value, "type requirement");
@@ -411,9 +411,9 @@ int Function(int, char* [])
     static_assert(sqlpp::is_boolean_t<TB>::value, "type requirement");
     static_assert(sqlpp::is_selectable_t<TBS>::value, "type requirement");
     static_assert(sqlpp::is_boolean_t<TBS>::value, "type requirement");
-    static_assert(not sqlpp::is_selectable_t<TB>::value, "type requirement");
-    static_assert(sqlpp::is_integral_t<TI>::value, "type requirement");
     static_assert(not sqlpp::is_selectable_t<TI>::value, "type requirement");
+    static_assert(sqlpp::is_integral_t<TI>::value, "type requirement");
+    static_assert(not sqlpp::is_selectable_t<TF>::value, "type requirement");
     static_assert(sqlpp::is_floating_point_t<TF>::value, "type requirement");
     static_assert(not sqlpp::is_selectable_t<TT>::value, "type requirement");
     static_assert(sqlpp::is_text_t<TT>::value, "type requirement");
