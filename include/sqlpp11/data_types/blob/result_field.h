@@ -33,6 +33,7 @@
 #include <sqlpp11/data_types/blob/data_type.h>
 #include <sqlpp11/field_spec.h>
 #include <ostream>
+#include <string>
 
 namespace sqlpp
 {
@@ -76,7 +77,9 @@ namespace sqlpp
     }
     else
     {
-      return os << e.value();
+      std::vector<uint8_t> value = e.value();
+      std::string value_str(value.begin(), value.end());
+      return os << value_str;
     }
   }
 }  // namespace sqlpp
