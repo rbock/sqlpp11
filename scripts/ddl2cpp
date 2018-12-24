@@ -268,6 +268,7 @@ types = {
     'float8': 'floating_point', # PostgreSQL
     'float': 'floating_point',
     'float4': 'floating_point', # PostgreSQL
+    'real': 'floating_point',
     'numeric': 'floating_point', # PostgreSQL
     'date': 'day_point',
     'datetime': 'time_point',
