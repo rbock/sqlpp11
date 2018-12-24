@@ -29,7 +29,35 @@
 #include <sqlpp11/sqlpp11.h>
 #include <sqlpp11/custom_query.h>
 
-int CustomQuery(int, char* [])
+namespace
+{
+  struct on_duplicate_key_update
+  {
+    std::string _serialized;
+
+    template <typename Db, typename Assignment>
+    on_duplicate_key_update(Db&, Assignment assignment)
+    {
+      typename Db::_serializer_context_t context;
+      _serialized = " ON DUPLICATE KEY UPDATE " + serialize(assignment, context).str();
+    }
+
+    template <typename Db, typename Assignment>
+    auto operator()(Db&, Assignment assignment) -> on_duplicate_key_update&
+    {
+      typename Db::_serializer_context_t context;
+      _serialized += ", " + serialize(assignment, context).str();
+      return *this;
+    }
+
+    auto get() const -> sqlpp::verbatim_t<::sqlpp::no_value_t>
+    {
+      return ::sqlpp::verbatim(_serialized);
+    }
+  };
+}  // namespace
+
+int CustomQuery(int, char*[])
 {
   MockDb db = {};
   MockDb::_serializer_context_t printer = {};
@@ -60,6 +88,10 @@ int CustomQuery(int, char* [])
   // Create a custom "insert or ignore"
   db(custom_query(sqlpp::insert(), sqlpp::verbatim(" OR IGNORE"), into(t),
                   insert_set(t.beta = "sample", t.gamma = true)));
+
+  // Create a MYSQL style custom "insert on duplicate update"
+  db(custom_query(sqlpp::insert_into(t).set(t.beta = "sample", t.gamma = true),
+                  on_duplicate_key_update(db, t.beta = "sample")(db, t.gamma = false).get()));
 
   // A custom (select ... into) with adjusted return type
   // The first argument with a return type is the select, but the custom query is really an insert. Thus, we tell it so.
