@@ -101,6 +101,10 @@ int CustomQuery(int, char*[])
   auto i = db(c);
   static_assert(std::is_integral<decltype(i)>::value, "insert yields an integral value");
 
+  auto d = custom_query(sqlpp::verbatim("INSERT INTO tab_sample VALUES()")).with_result_type_of(sqlpp::insert());
+  auto j = db(d);
+  static_assert(std::is_integral<decltype(j)>::value, "insert yields an integral value");
+
   for (const auto& row :
        db(custom_query(sqlpp::verbatim("PRAGMA user_version")).with_result_type_of(select(all_of(t)))))
   {
