@@ -29,6 +29,9 @@
 
 #include <string>
 #include <utility>
+#if __cplusplus >= 201703L
+#include <string_view>
+#endif
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/alias_operators.h>
 #include <sqlpp11/serializer.h>
@@ -50,6 +53,16 @@ namespace sqlpp
     text_operand(_value_t t) : _t(std::move(t))
     {
     }
+#if __cplusplus >= 201703L
+    // allow construction from an std::string_view
+    text_operand(std::string_view t) : _t(t)
+    {
+    }
+    // additional const char* overload, required to disambiguate
+    text_operand(const char* t) : _t(t)
+    {
+    }
+#endif
 
     text_operand(const text_operand&) = default;
     text_operand(text_operand&&) = default;
