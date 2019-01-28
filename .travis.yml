@@ -41,10 +41,8 @@ before_script:
    - cmake .. -DCMAKE_BUILD_TYPE=$CONFIG -DCMAKE_PREFIX_PATH=$PWD/../date
 
 script:
-   - if [[ -n "$TESTS_CXX_STD" ]]; then
-         ARGS="-DSQLPP11_TESTS_CXX_STD=$TESTS_CXX_STD"
-     fi
-   - cmake --build . --config $CONFIG $ARGS
+   - if [[ -n "${TESTS_CXX_STD:-}" ]]; then ARGS="-DSQLPP11_TESTS_CXX_STD=$TESTS_CXX_STD"; fi
+   - cmake --build . --config $CONFIG ${ARGS:-}
    - ctest --output-on-failure
 
 after_script:
