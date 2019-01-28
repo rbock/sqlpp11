@@ -62,6 +62,11 @@ int Where(int, char* [])
   compare(__LINE__, where(bar.gamma), " WHERE tab_bar.gamma");
   compare(__LINE__, where(bar.gamma == false), " WHERE (tab_bar.gamma=" + getFalse() + ")");
   compare(__LINE__, where(bar.beta == "SQL"), " WHERE (tab_bar.beta='SQL')");
+#if __cplusplus >= 201703L
+  // string_view argument
+  std::string_view sqlString = "SQL";
+  compare(__LINE__, where(bar.beta == sqlString), " WHERE (tab_bar.beta='SQL')");
+#endif
 
   return 0;
 }
