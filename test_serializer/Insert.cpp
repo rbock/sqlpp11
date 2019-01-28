@@ -45,6 +45,12 @@ int Insert(int, char* [])
   compare(__LINE__, insert_into(bar).default_values(), "INSERT INTO tab_bar DEFAULT VALUES");
   compare(__LINE__, insert_into(bar).set(bar.beta = "cheesecake", bar.gamma = true),
           "INSERT INTO tab_bar (beta,gamma) VALUES('cheesecake'," + getTrue() + ")");
+#if __cplusplus >= 201703L
+  // string_view argument
+  std::string_view cheeseCake = "cheesecake";
+  compare(__LINE__, insert_into(bar).set(bar.beta = cheeseCake, bar.gamma = true),
+          "INSERT INTO tab_bar (beta,gamma) VALUES('cheesecake'," + getTrue() + ")");
+#endif
 
   return 0;
 }
