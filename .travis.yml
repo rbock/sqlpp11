@@ -38,12 +38,11 @@ before_script:
          sudo apt-get install python-pyparsing;
      fi
    - if [[ "$CXX" = "g++" && "$CONFIG" = "Debug" && "$TRAVIS_OS_NAME" = "linux" ]]; then export CXXFLAGS="--coverage"; fi
-   - cmake .. -DCMAKE_BUILD_TYPE=$CONFIG -DCMAKE_PREFIX_PATH=$PWD/../date
+   - if [[ -n "${TESTS_CXX_STD:-}" ]]; then ADD_OPTS="-DSQLPP11_TESTS_CXX_STD=$TESTS_CXX_STD"; fi
+   - cmake .. -DCMAKE_BUILD_TYPE=$CONFIG -DCMAKE_PREFIX_PATH=$PWD/../date $ADD_OPTS
 
 script:
-   - ARGS="--config $CONFIG"
-   - if [[ -n "${TESTS_CXX_STD:-}" ]]; then ARGS="$ARGS -DSQLPP11_TESTS_CXX_STD=$TESTS_CXX_STD"; fi
-   - cmake --build . $ARGS
+   - cmake --build . --config $CONFIG
    - ctest --output-on-failure
 
 after_script:
