@@ -96,7 +96,7 @@ namespace sqlpp
       template <typename Flag>
       void _add_impl(Flag flag, const std::true_type& /*unused*/)
       {
-        return _data._dynamic_flags.emplace_back(flag);
+        _data._dynamic_flags.emplace_back(flag);
       }
 
       template <typename Flag>

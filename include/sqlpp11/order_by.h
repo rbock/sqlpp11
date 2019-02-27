@@ -100,7 +100,7 @@ namespace sqlpp
       template <typename Expression>
       void _add_impl(Expression expression, const std::true_type& /*unused*/)
       {
-        return _data._dynamic_expressions.emplace_back(expression);
+        _data._dynamic_expressions.emplace_back(expression);
       }
 
       template <typename Expression>
