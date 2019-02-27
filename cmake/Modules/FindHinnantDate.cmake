@@ -75,7 +75,6 @@ if (HinnantDate_INCLUDE_FILE)
         get_filename_component(HinnantDate_INCLUDE_DIR "${HinnantDate_INCLUDE_FILE}" DIRECTORY) # remove filename
         get_filename_component(HinnantDate_INCLUDE_DIR "${HinnantDate_INCLUDE_DIR}" DIRECTORY) # remove date dir
         mark_as_advanced(HinnantDate_INCLUDE_DIR)
-        set(HinnantDate_ROOT_DIR "${HinnantDate_INCLUDE_DIR}")
         unset(HinnantDate_NOT_FOUND_MESSAGE)
 
         if(NOT TARGET HinnantDate::Date)
