@@ -137,7 +137,7 @@ optionalArgs = {
     '-fail-on-parse': "abort instead of silent genereation of unusable headers",  # failOnParse = True
     '-warn-on-parse': "warn about unusable headers, but continue",  # warnOnParse = True
     '-auto-id': "Assume column 'id' to have an automatic value as if AUTO_INCREMENT was specified (e.g. implicit for SQLite ROWID)",  # autoId = True
-    '-identity-naming': "Use table and column names from the ddl (defaults to UpperCamelCase for tables and lowerCamelCase for columns",  # identityNaming = True
+    '-identity-naming': "Use table and column names from the ddl (defaults to UpperCamelCase for tables and lowerCamelCase for columns)",  # identityNaming = True
     '-split-tables': "Make a header for each table name, using target as a directory",  # splitTables = True
     '-help': "show this help"
 }
@@ -215,6 +215,7 @@ ddlNotNull = Group(ddlWord("NOT") + ddlWord("NULL")).setResultsName("notNull")
 ddlDefaultValue = ddlWord("DEFAULT").setResultsName("hasDefaultValue")
 ddlAutoValue = Or([
     ddlWord("AUTO_INCREMENT"),
+    ddlWord("AUTOINCREMENT"),
     ddlWord("SMALLSERIAL"),
     ddlWord("SERIAL"),
     ddlWord("BIGSERIAL"),
