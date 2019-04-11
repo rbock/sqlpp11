@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016, Roland Bock
+ * Copyright (c) 2016-2019, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -31,15 +31,16 @@
 
 SQLPP_ALIAS_PROVIDER(pragma)
 
-int CustomQuery(int, char* [])
+int CustomQuery(int, char*[])
 {
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
   auto db = MockDb{};
 
   // Unconditionally
-  compare(__LINE__, custom_query(sqlpp::select(), select_flags(sqlpp::distinct), select_columns(foo.omega), from(foo),
-                                 sqlpp::unconditionally()),
+  compare(__LINE__,
+          custom_query(sqlpp::select(), select_flags(sqlpp::distinct), select_columns(foo.omega), from(foo),
+                       sqlpp::unconditionally()),
           "SELECT  DISTINCT  tab_foo.omega  FROM tab_foo ");
 
   // A full select statement made individual clauses
@@ -67,6 +68,17 @@ int CustomQuery(int, char* [])
   compare(__LINE__,
           custom_query(sqlpp::verbatim("PRAGMA user_version")).with_result_type_of(select(sqlpp::value(1).as(pragma))),
           " PRAGMA user_version");
+
+  // An insert from select for postgresql
+  const auto x = 17;
+  compare(__LINE__,
+          custom_query(insert_into(foo).columns(foo.omega),
+                       select(sqlpp::value(x).as(foo.omega))
+                           .from(foo)
+                           .where(not exists(select(foo.omega).from(foo).where(foo.omega == x)))),
+          "INSERT INTO tab_foo (omega) "
+          "SELECT 17 AS omega FROM tab_foo "
+          "WHERE (NOT EXISTS(SELECT tab_foo.omega FROM tab_foo WHERE (tab_foo.omega=17)))");
 
   return 0;
 }
