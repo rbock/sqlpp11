@@ -288,6 +288,7 @@ types = {
     'integer unsigned': 'integer_unsigned', #MYSQL
     'int unsigned': 'integer_unsigned', #MYSQL
     'bigint unsigned': 'bigint_unsigned', #MYSQL
+    'mediumint unsigned' : 'integer', #MYSQL
     }
 
 if failOnParse:
