@@ -37,7 +37,7 @@ using ::std::chrono::floor;
 using ::date::floor;
 #endif
 
-int DateTime(int, char* [])
+int DateTime(int, char*[])
 {
   MockDb db = {};
   MockDb::_serializer_context_t printer = {};
@@ -51,6 +51,8 @@ int DateTime(int, char* [])
   {
     std::cout << row.colDayPoint;
     std::cout << row.colTimePoint;
+    const auto tp = std::chrono::system_clock::time_point{row.colTimePoint.value()};
+    std::cout << std::chrono::system_clock::to_time_t(tp);
   }
   printer.reset();
   std::cerr << serialize(::sqlpp::value(std::chrono::system_clock::now()), printer).str() << std::endl;
