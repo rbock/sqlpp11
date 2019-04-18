@@ -54,18 +54,19 @@ namespace sqlpp
     }
   };
 
-  template <std::size_t N, const char (&s)[N], typename T>
+  template <std::size_t N, const char* s, typename T>
   struct make_char_sequence_impl;
 
-  template <std::size_t N, const char (&s)[N], std::size_t... i>
+  template <std::size_t N, const char* s, std::size_t... i>
   struct make_char_sequence_impl<N, s, sqlpp::detail::index_sequence<i...>>
   {
     using type = char_sequence<s[i]...>;
   };
 
-  template <std::size_t N, const char (&Input)[N]>
+  template <std::size_t N, const char* Input>
   using make_char_sequence =
       typename make_char_sequence_impl<N, Input, sqlpp::detail::make_index_sequence<N - 1>>::type;
+
 }  // namespace sqlpp
 
 #endif

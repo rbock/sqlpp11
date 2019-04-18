@@ -92,7 +92,7 @@ namespace sqlpp
       template <typename Table>
       void _add_impl(Table table, const std::true_type& /*unused*/)
       {
-        return _data._dynamic_tables.emplace_back(table);
+        _data._dynamic_tables.emplace_back(table);
       }
 
       template <typename Table>

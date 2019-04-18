@@ -103,7 +103,7 @@ namespace sqlpp
       template <typename Expr>
       void _add_impl(Expr expression, const std::true_type& /*unused*/)
       {
-        return _data._dynamic_expressions.emplace_back(expression);
+        _data._dynamic_expressions.emplace_back(expression);
       }
 
       template <typename Expr>

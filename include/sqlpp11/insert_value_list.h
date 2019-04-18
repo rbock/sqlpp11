@@ -627,17 +627,17 @@ namespace sqlpp
       context << " (";
       interpret_tuple(t._columns, ",", context);
       context << ")";
-      context << " VALUES ";
       bool first = true;
       for (const auto& row : t._insert_values)
       {
-        if (not first)
+        if (first)
         {
-          context << ',';
+          context << " VALUES ";
+          first = false;
         }
         else
         {
-          first = false;
+          context << ',';
         }
         context << '(';
         interpret_tuple(row, ",", context);
@@ -669,14 +669,18 @@ namespace sqlpp
           context << ',';
         }
         interpret_list(t._dynamic_columns, ',', context);
-        context << ") VALUES(";
-        interpret_tuple(t._values, ",", context);
-        if (sizeof...(Assignments) and not t._dynamic_values.empty())
-        {
-          context << ',';
-        }
-        interpret_list(t._dynamic_values, ',', context);
         context << ")";
+        if (sizeof...(Assignments) or not t._dynamic_values.empty())
+        {
+          context << " VALUES(";
+          interpret_tuple(t._values, ",", context);
+          if (sizeof...(Assignments) and not t._dynamic_values.empty())
+          {
+            context << ',';
+          }
+          interpret_list(t._dynamic_values, ',', context);
+          context << ")";
+        }
       }
       return context;
     }

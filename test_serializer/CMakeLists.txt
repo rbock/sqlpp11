@@ -38,6 +38,13 @@ create_test_sourcelist(test_serializer_sources test_serializer_main.cpp ${test_s
 add_executable(sqlpp11_test_serializer ${test_serializer_sources})
 target_link_libraries(sqlpp11_test_serializer PRIVATE sqlpp11 sqlpp11_testing)
 
+# conditionally bump to a higher C++ standard to test compatibility
+if (SQLPP11_TESTS_CXX_STD)
+  set_property(TARGET sqlpp11_test_serializer PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})
+  set_property(TARGET sqlpp11_test_serializer PROPERTY CXX_STANDARD_REQUIRED yes)
+  set_property(TARGET sqlpp11_test_serializer PROPERTY CXX_EXTENSIONS no)
+endif()
+  
 foreach(test_serializer IN LISTS test_serializer_names)
   add_test(NAME sqlpp11.test_serializer.${test_serializer}
     COMMAND sqlpp11_test_serializer ${test_serializer}

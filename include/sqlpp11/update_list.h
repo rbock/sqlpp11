@@ -100,7 +100,7 @@ namespace sqlpp
       template <typename Assignment>
       void _add_impl(Assignment assignment, const std::true_type& /*unused*/)
       {
-        return _data._dynamic_assignments.emplace_back(assignment);
+        _data._dynamic_assignments.emplace_back(assignment);
       }
 
       template <typename Assignment>

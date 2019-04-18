@@ -54,6 +54,8 @@ int Insert(int, char*[])
 
   db(insert_into(t).default_values());
   db(insert_into(t).set(t.gamma = true, t.beta = "kirschauflauf"));
+  db(insert_into(t).set(t.gamma = sqlpp::default_value, t.beta = sqlpp::value_or_null("pie"),
+                        t.delta = sqlpp::value_or_null<sqlpp::integer>(sqlpp::null)));
 
   serialize(insert_into(t).default_values(), printer).str();
 
@@ -64,6 +66,11 @@ int Insert(int, char*[])
   multi_insert.values.add(t.gamma = true, t.beta = "cheesecake", t.delta = 1);
   multi_insert.values.add(t.gamma = sqlpp::default_value, t.beta = sqlpp::default_value,
                           t.delta = sqlpp::default_value);
+  multi_insert.values.add(t.gamma = sqlpp::value_or_null(true), t.beta = sqlpp::value_or_null("pie"),
+                          t.delta = sqlpp::value_or_null<sqlpp::integer>(sqlpp::null));
+  printer.reset();
+  std::cerr << serialize(multi_insert, printer).str() << std::endl;
+
   auto i = dynamic_insert_into(db, t).dynamic_set();
   i.insert_list.add(t.beta = "kirschauflauf");
   printer.reset();

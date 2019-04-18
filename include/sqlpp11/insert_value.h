@@ -30,6 +30,7 @@
 #include <sqlpp11/default_value.h>
 #include <sqlpp11/null.h>
 #include <sqlpp11/tvin.h>
+#include <sqlpp11/value_or_null.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/serializer.h>
 #include <sqlpp11/detail/type_set.h>
@@ -64,6 +65,7 @@ namespace sqlpp
     using _pure_value_t = typename value_type_of<Column>::_cpp_value_type;
     using _wrapped_value_t = wrap_operand_t<_pure_value_t>;
     using _tvin_t = tvin_t<_wrapped_value_t>;
+    using _value_or_null_t = value_or_null_t<typename Column::_traits::_value_type>;
 
     insert_value_t(rhs_wrap_t<_wrapped_value_t, _trivial_value_is_null> rhs)
         : _is_null(rhs._is_null()), _is_default(rhs._is_default()), _value(rhs._expr._t)
@@ -82,6 +84,11 @@ namespace sqlpp
 
     insert_value_t(const rhs_wrap_t<default_value_t, _trivial_value_is_null>& /*unused*/)
         : _is_null(false), _is_default(true), _value{}
+    {
+    }
+
+    insert_value_t(const rhs_wrap_t<_value_or_null_t, _trivial_value_is_null>& rhs)
+        : _is_null(rhs._expr._is_null), _is_default(false), _value{rhs._expr._value}
     {
     }
 

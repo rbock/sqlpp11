@@ -28,6 +28,9 @@
 #define SQLPP11_DATA_TYPES_TEXT_WRAP_OPERAND_H
 
 #include <utility>
+#if __cplusplus >= 201703L
+#include <string_view>
+#endif
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/wrap_operand.h>
 
@@ -35,10 +38,16 @@ namespace sqlpp
 {
   struct text_operand;
 
+#if __cplusplus >= 201703L
+  using checked_type = std::string_view;
+#else
+  using checked_type = std::string;
+#endif
+
   template <typename T>
   struct wrap_operand<
       T,
-      typename std::enable_if<std::is_convertible<T, std::string>::value and not is_result_field_t<T>::value>::type>
+      typename std::enable_if<std::is_convertible<T, checked_type>::value and not is_result_field_t<T>::value>::type>
   {
     using type = text_operand;
   };

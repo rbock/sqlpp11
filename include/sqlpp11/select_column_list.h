@@ -147,7 +147,7 @@ namespace sqlpp
       template <typename NamedExpression>
       void _add_impl(NamedExpression namedExpression, const std::true_type& /*unused*/)
       {
-        return _data._dynamic_columns.emplace_back(auto_alias_t<NamedExpression>{namedExpression});
+        _data._dynamic_columns.emplace_back(auto_alias_t<NamedExpression>{namedExpression});
       }
 
       template <typename NamedExpression>
