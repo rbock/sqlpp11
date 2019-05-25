@@ -163,6 +163,7 @@ namespace sqlpp
   {
     using _traits = make_traits<no_value_t, tag::is_cte, tag::is_table>;  // FIXME: is table? really?
     using _nodes = detail::type_vector<>;
+    using _provided_tables = detail::type_set<cte_t>;
     using _required_ctes = detail::make_joined_set_t<required_ctes_of<Statement>, detail::type_set<AliasProvider>>;
     using _parameters = parameters_of<Statement>;
 

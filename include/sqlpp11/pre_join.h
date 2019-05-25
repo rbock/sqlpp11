@@ -30,6 +30,7 @@
 #include <sqlpp11/join_types.h>
 #include <sqlpp11/noop.h>
 #include <sqlpp11/on.h>
+#include <sqlpp11/table_ref.h>
 
 namespace sqlpp
 {
@@ -154,7 +155,7 @@ namespace sqlpp
     auto join_impl(Check, Lhs lhs, Rhs rhs) -> inconsistent<Check>;
 
     template <typename JoinType, typename Lhs, typename Rhs>
-    auto join_impl(consistent_t, Lhs lhs, Rhs rhs) -> pre_join_t<JoinType, Lhs, Rhs>;
+    auto join_impl(consistent_t, Lhs lhs, Rhs rhs) -> pre_join_t<JoinType, from_table_t<Lhs>, from_table_t<Rhs>>;
 
     template <typename JoinType, typename Lhs, typename Rhs>
     auto join_impl(Lhs lhs, Rhs rhs) -> decltype(join_impl<JoinType>(check_pre_join_t<Lhs, Rhs>{}, lhs, rhs));
@@ -163,19 +164,19 @@ namespace sqlpp
   template <typename Lhs, typename Rhs>
   auto join(Lhs lhs, Rhs rhs) -> decltype(detail::join_impl<inner_join_t>(lhs, rhs))
   {
-    return {lhs, rhs};
+    return {from_table(lhs), from_table(rhs)};
   }
 
   template <typename Lhs, typename Rhs>
   auto inner_join(Lhs lhs, Rhs rhs) -> decltype(detail::join_impl<inner_join_t>(lhs, rhs))
   {
-    return {lhs, rhs};
+    return {from_table(lhs), from_table(rhs)};
   }
 
   template <typename Lhs, typename Rhs>
   auto left_outer_join(Lhs lhs, Rhs rhs) -> decltype(detail::join_impl<left_outer_join_t>(lhs, rhs))
   {
-    return {lhs, rhs};
+    return {from_table(lhs), from_table(rhs)};
   }
 
   template <typename Lhs, typename Rhs>
@@ -183,13 +184,13 @@ namespace sqlpp
   {
     check_pre_join_t<Lhs, Rhs>{};
 
-    return {lhs, rhs};
+    return {from_table(lhs), from_table(rhs)};
   }
 
   template <typename Lhs, typename Rhs>
   auto outer_join(Lhs lhs, Rhs rhs) -> decltype(detail::join_impl<outer_join_t>(lhs, rhs))
   {
-    return {lhs, rhs};
+    return {from_table(lhs), from_table(rhs)};
   }
 
   namespace detail
@@ -202,13 +203,14 @@ namespace sqlpp
         -> join_t<pre_join_t<cross_join_t, Lhs, Rhs>, on_t<unconditional_t>>;
 
     template <typename Lhs, typename Rhs>
-    auto cross_join_impl(Lhs lhs, Rhs rhs) -> decltype(cross_join_impl(check_pre_join_t<Lhs, Rhs>{}, lhs, rhs));
+    auto cross_join_impl(Lhs lhs, Rhs rhs)
+        -> decltype(cross_join_impl(check_pre_join_t<from_table_t<Lhs>, from_table_t<Rhs>>{}, lhs, rhs));
   }  // namespace detail
 
   template <typename Lhs, typename Rhs>
   auto cross_join(Lhs lhs, Rhs rhs) -> decltype(detail::cross_join_impl(lhs, rhs))
   {
-    return {pre_join_t<cross_join_t, Lhs, Rhs>{lhs, rhs}, {}};
+    return {pre_join_t<cross_join_t, from_table_t<Lhs>, from_table_t<Rhs>>{from_table(lhs), from_table(rhs)}, {}};
   }
 }  // namespace sqlpp
 
