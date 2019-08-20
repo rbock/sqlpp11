@@ -26,12 +26,13 @@ set(test_serializer_names
 	As
 	Blob
 	CustomQuery
-  ForUpdate
-  From
-  In
-  Insert
+	DynamicWhere
+	ForUpdate
+	From
+	In
+	Insert
 	TableAlias
-  Where
+	Where
   )
 
 create_test_sourcelist(test_serializer_sources test_serializer_main.cpp ${test_serializer_names})
