@@ -43,13 +43,16 @@ Multi-line insert in prepared statements, see #68
 Instead of sqlpp::value_or_null, std::optional would be nice, see #238
 
 ## Converter to and from SQL to C++ structs, to allow for more ORM like code
-struct A;
-insert_into(tab).set(A{});
-update(tab).set(A{});
-for (const auto& a : db(select(A{}).from(tab).unconditionally()))
+Assuming that you have converter functions from struct to sqlpp11 and back, we could have something like this:
+```C++
+struct Person;
+insert_into(tab).set(Person{});
+update(tab).set(Person{});
+for (const auto& person : db(select(Person{}).from(tab).unconditionally()))
 {
   // ...
 }
+```
 
 # Runtime improvements
 ## Connection pools and caching interface 
