@@ -273,6 +273,7 @@ types = {
     'numeric': 'floating_point', # PostgreSQL
     'date': 'day_point',
     'datetime': 'time_point',
+    'time': 'time_of_day',
     'time without time zone': 'time_point', # PostgreSQL
     'time with time zone': 'time_point', # PostgreSQL
     'timestamp': 'time_point',
