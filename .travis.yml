@@ -23,7 +23,7 @@ notifications:
 
 install:
   - g++ --version
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; brew install cmake; fi
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install cmake; fi
   - cmake --version
   - git clone https://github.com/HowardHinnant/date
   - cd date
