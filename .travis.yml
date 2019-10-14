@@ -4,7 +4,7 @@ os:
   - linux
   - osx
 
-dist: trusty
+dist: xenial
 sudo: required
 
 compiler:
@@ -23,6 +23,7 @@ notifications:
 
 install:
   - g++ --version
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew upgrade cmake; fi
   - cmake --version
   - git clone https://github.com/HowardHinnant/date
   - cd date
