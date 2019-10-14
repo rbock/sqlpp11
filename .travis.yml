@@ -25,6 +25,7 @@ install:
   - g++ --version
   - cmake --version
   - which cmake
+  - echo $PATH
   - git clone https://github.com/HowardHinnant/date
   - cd date
   - git checkout tags/v2.4
