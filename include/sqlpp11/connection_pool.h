@@ -183,7 +183,7 @@ namespace sqlpp
 
       try
       {
-        auto c = std::unique_ptr<Connection>(new Connection(*(config.get())));
+        auto c = std::unique_ptr<Connection>(new Connection(config));
         return pool_connection<Connection_config, Reconnect_policy, Connection>(c, this);
       }
       catch (const sqlpp::exception& e)
