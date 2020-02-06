@@ -312,6 +312,8 @@ nsList = namespace.split('::')
 
 def escape_if_reserved(name):
      reserved_names = [
+         'BEGIN',
+         'END',
          'GROUP',
          'ORDER',
      ]
