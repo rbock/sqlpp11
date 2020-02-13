@@ -179,6 +179,10 @@ You can download and install sqlpp11 using the [vcpkg](https://github.com/Micros
     
 The sqlpp11 port in vcpkg is kept up to date by Microsoft team members and community contributors. If the version is out of date, please [create an issue or pull request](https://github.com/Microsoft/vcpkg) on the vcpkg repository.
 
+The connector libraries such as sqlite3 and mysql are come with sqlpp11, which are named as [sqlpp11-connector-sqlite3](https://github.com/microsoft/vcpkg/tree/master/ports/sqlpp11-connector-sqlite3) and [sqlpp11-connector-mysql](https://github.com/microsoft/vcpkg/tree/master/ports/sqlpp11-connector-mysql).
+
+Both of these two ports are maintained as separate packages in vcpkg now.
+
 Basic usage:
 -------------
 
