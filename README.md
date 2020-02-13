@@ -169,15 +169,20 @@ __Build via vcpkg:__
 
 You can download and install sqlpp11 using the [vcpkg](https://github.com/Microsoft/vcpkg) dependency manager:
    
-    ```bash
-    git clone https://github.com/Microsoft/vcpkg.git
-    cd vcpkg
-    ./bootstrap-vcpkg.sh
-    ./vcpkg integrate install
-    vcpkg install sqlpp11
-    ```
+```bash
+git clone https://github.com/Microsoft/vcpkg.git
+cd vcpkg
+./bootstrap-vcpkg.sh
+./vcpkg integrate install
+vcpkg install sqlpp11
+```
     
 The sqlpp11 port in vcpkg is kept up to date by Microsoft team members and community contributors. If the version is out of date, please [create an issue or pull request](https://github.com/Microsoft/vcpkg) on the vcpkg repository.
+
+The following connector libraries for sqlpp11 are maintained as a separate package in vcpkg:
+
+  * [sqlpp11-connector-sqlite3](https://github.com/microsoft/vcpkg/tree/master/ports/sqlpp11-connector-sqlite3) 
+  * [sqlpp11-connector-mysql](https://github.com/microsoft/vcpkg/tree/master/ports/sqlpp11-connector-mysql)
 
 Basic usage:
 -------------
