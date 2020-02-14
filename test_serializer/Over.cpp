@@ -32,12 +32,12 @@ SQLPP_ALIAS_PROVIDER(dueutil)
 int Over(int, char* []) {
   auto const foo = test::TabFoo{};
 
-  // No/auto alias
-  compare(__LINE__, avg(foo.omega).over(), "AVG(tab_foo.omega) OVER() AS avg_");
-  compare(__LINE__, count(foo.omega).over(), "COUNT(tab_foo.omega) OVER() AS count_");
-  compare(__LINE__, max(foo.omega).over(), "MAX(tab_foo.omega) OVER() AS max_");
-  compare(__LINE__, min(foo.omega).over(), "MIN(tab_foo.omega) OVER() AS min_");
-  compare(__LINE__, sum(foo.omega).over(), "SUM(tab_foo.omega) OVER() AS sum_");
+  // no/auto alias (wrapped in select so alias is applied)
+  compare(__LINE__, select(avg(foo.omega).over()), "SELECT AVG(tab_foo.omega) OVER() AS avg_");
+  compare(__LINE__, select(count(foo.omega).over()), "SELECT COUNT(tab_foo.omega) OVER() AS count_");
+  compare(__LINE__, select(max(foo.omega).over()), "SELECT MAX(tab_foo.omega) OVER() AS max_");
+  compare(__LINE__, select(min(foo.omega).over()), "SELECT MIN(tab_foo.omega) OVER() AS min_");
+  compare(__LINE__, select(sum(foo.omega).over()), "SELECT SUM(tab_foo.omega) OVER() AS sum_");
 
   // alias
   compare(__LINE__, avg(foo.omega).over().as(dueutil), "AVG(tab_foo.omega) OVER() AS dueutil");
