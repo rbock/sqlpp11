@@ -45,4 +45,6 @@ int Over(int, char* []) {
   compare(__LINE__, max(foo.omega).over().as(dueutil), "MAX(tab_foo.omega) OVER() AS dueutil");
   compare(__LINE__, min(foo.omega).over().as(dueutil), "MIN(tab_foo.omega) OVER() AS dueutil");
   compare(__LINE__, sum(foo.omega).over().as(dueutil), "SUM(tab_foo.omega) OVER() AS dueutil");
+
+  return 0;
 }
