@@ -42,9 +42,9 @@ namespace
     MockDb::_serializer_context_t printer = {};
     return serialize(sqlpp::value(false), printer).str();
   }
-}
+}  // namespace
 
-int Where(int, char* [])
+int Where(int, char*[])
 {
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
@@ -53,6 +53,8 @@ int Where(int, char* [])
   compare(__LINE__, select(foo.omega).from(foo).unconditionally(), "SELECT tab_foo.omega FROM tab_foo");
   compare(__LINE__, remove_from(foo).unconditionally(), "DELETE FROM tab_foo");
   compare(__LINE__, update(foo).set(foo.omega = 42).unconditionally(), "UPDATE tab_foo SET omega=42");
+  compare(__LINE__, update(foo).set(foo.omega = foo.omega - -1).unconditionally(),
+          "UPDATE tab_foo SET omega=(tab_foo.omega - -1)");
   compare(__LINE__, where(sqlpp::value(true)), " WHERE " + getTrue());
 
   // Never

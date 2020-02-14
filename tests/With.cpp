@@ -55,5 +55,24 @@ int With(int, char*[])
       sqlpp::cte(b).as(select(t.alpha.as(a)).from(t).unconditionally().union_all(select(sqlpp::value(123).as(a))));
   db(with(c)(select(all_of(c)).from(c).unconditionally()));
 
+  // recursive CTE with join
+  {
+    const auto selectBase = select(t.alpha, t.delta).from(t).where(t.alpha > 17);
+    const auto initialCte = ::sqlpp::cte(sqlpp::alias::a).as(selectBase);
+    const auto recursiveCte = initialCte.union_all(
+        select(t.alpha, t.delta).from(t.join(initialCte).on(t.alpha == initialCte.delta)).unconditionally());
+    const auto query = with(recursiveCte)(select(recursiveCte.alpha).from(recursiveCte).unconditionally());
+
+    ::MockDb::_serializer_context_t printer = {};
+    const auto serializedQuery = serialize(query, printer).str();
+    std::cout << serializedQuery << '\n';
+
+    auto db = MockDb{};
+    for (const auto& row : db(query))
+    {
+      std::cout << row.alpha;
+    }
+  }
+
   return 0;
 }

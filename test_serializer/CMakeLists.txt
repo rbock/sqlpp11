@@ -26,6 +26,7 @@ set(test_serializer_names
 	As
 	Blob
 	CustomQuery
+	DynamicWhere
   ForUpdate
   From
   In

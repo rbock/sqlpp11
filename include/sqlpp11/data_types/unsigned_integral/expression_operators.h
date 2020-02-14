@@ -48,14 +48,14 @@ namespace sqlpp
   struct return_type_plus<L, R, binary_operand_check_t<L, is_unsigned_integral_t, R, is_numeric_t>>
   {
     using check = consistent_t;
-    using type = value_type_of<wrap_operand_t<R>>;
+    using type = plus_t<wrap_operand_t<L>, value_type_of<wrap_operand_t<R>>, wrap_operand_t<R>>;
   };
 
   template <typename L, typename R>
   struct return_type_minus<L, R, binary_operand_check_t<L, is_unsigned_integral_t, R, is_numeric_not_unsigned_t>>
   {
     using check = consistent_t;
-    using type = value_type_of<wrap_operand_t<R>>;
+    using type = minus_t<wrap_operand_t<L>, value_type_of<wrap_operand_t<R>>, wrap_operand_t<R>>;
   };
 
   template <typename L, typename R>
@@ -69,14 +69,14 @@ namespace sqlpp
   struct return_type_multiplies<L, R, binary_operand_check_t<L, is_unsigned_integral_t, R, is_numeric_t>>
   {
     using check = consistent_t;
-    using type = value_type_of<wrap_operand_t<R>>;
+    using type = multiplies_t<wrap_operand_t<L>, value_type_of<wrap_operand_t<R>>, wrap_operand_t<R>>;
   };
 
   template <typename L, typename R>
   struct return_type_divides<L, R, binary_operand_check_t<L, is_unsigned_integral_t, R, is_numeric_t>>
   {
     using check = consistent_t;
-    using type = value_type_of<wrap_operand_t<R>>;
+    using type = divides_t<wrap_operand_t<L>, wrap_operand_t<R>>;
   };
 
   template <typename L, typename R>
