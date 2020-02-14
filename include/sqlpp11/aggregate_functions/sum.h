@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2020, Roland Bock, MacDue
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -56,6 +56,7 @@ namespace sqlpp
 
   template <typename Flag, typename Expr>
   struct sum_t : public expression_operators<sum_t<Flag, Expr>, value_type_of<Expr>>,
+                 public aggregate_function_operators<sum_t<Flag, Expr>>,
                  public alias_operators<sum_t<Flag, Expr>>
   {
     using _traits = make_traits<value_type_of<Expr>, tag::is_expression, tag::is_selectable>;
