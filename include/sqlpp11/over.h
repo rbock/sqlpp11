@@ -39,7 +39,7 @@ namespace sqlpp
     using _traits = make_traits<integral, tag::is_expression>;
     using _nodes = detail::type_vector<AggregateExpr, aggregate_function>;
 
-    using _auto_alias_t = AggregateExpr::_auto_alias_t;
+    using _auto_alias_t = typename AggregateExpr::_auto_alias_t;
 
     over_t(AggregateExpr aggregate_expression)
       : _aggregate_expression(aggregate_expression)
