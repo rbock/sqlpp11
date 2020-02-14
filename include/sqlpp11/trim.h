@@ -57,12 +57,11 @@ namespace sqlpp
   };
 
   template <typename Flag, typename Expr>
-  struct trim_t : public expression_operators<trim_t<Flag, Expr>, text>,
-                   public alias_operators<trim_t<Flag, Expr>>
+  struct trim_t : public expression_operators<trim_t<Flag, Expr>, text>, public alias_operators<trim_t<Flag, Expr>>
   {
     using _traits = make_traits<text, tag::is_expression, tag::is_selectable>;
 
-    using _nodes = detail::type_vector<Expr, aggregate_function>;
+    using _nodes = detail::type_vector<Expr>;
     using _can_be_null = can_be_null_t<Expr>;
     using _is_aggregate_expression = std::false_type;
 
@@ -94,7 +93,6 @@ namespace sqlpp
       context << ")";
       return context;
     }
-
   };
 
   template <typename T>

@@ -256,7 +256,6 @@ namespace test
       };
     };
   };
-
   namespace TabDateTime_
   {
     struct ColDayPoint
@@ -303,7 +302,6 @@ namespace test
       };
       using _traits = sqlpp::make_traits<sqlpp::time_point, sqlpp::tag::can_be_null>;
     };
-
     struct ColTimeOfDay
     {
       struct _alias_t
@@ -333,7 +331,7 @@ namespace test
   {
     struct _alias_t
     {
-      static constexpr const char _literal[] = "tab_time_point";
+      static constexpr const char _literal[] = "tab_date_time";
       using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
       template <typename T>
       struct _member_t

@@ -61,7 +61,7 @@ void print_row(Row const& row)
   std::cout << a << ", " << b << std::endl;
 }
 
-int Select(int, char* [])
+int Select(int, char*[])
 {
   MockDb db = {};
   MockDb::_serializer_context_t printer = {};
@@ -107,11 +107,12 @@ int Select(int, char* [])
     std::cout << a << ", " << b << ", " << g << std::endl;
   }
 
-  for (const auto& row : db(select(all_of(t).as(t), t.gamma).from(t).where(t.alpha > 7).for_update()))
+  for (const auto& row :
+       db(select(all_of(t), t.gamma.as(t)).from(t).where(t.alpha > 7 and trim(t.beta) == "test").for_update()))
   {
-    int64_t a = row.tabBar.alpha;
-    const std::string b = row.tabBar.beta;
-    const bool g = row.gamma;
+    int64_t a = row.alpha;
+    const std::string b = row.beta;
+    const bool g = row.tabBar;
     std::cout << a << ", " << b << ", " << g << std::endl;
   }
 
@@ -208,20 +209,19 @@ int Select(int, char* [])
   }
 
   {
-      auto transaction = start_transaction(db, sqlpp::isolation_level::read_committed);
-      if (db._mock_data._last_isolation_level != sqlpp::isolation_level::read_committed)
-      {
-          std::cout << "Error: transaction isolation level does not match expected level" << std::endl;
-      }
-
+    auto transaction = start_transaction(db, sqlpp::isolation_level::read_committed);
+    if (db._mock_data._last_isolation_level != sqlpp::isolation_level::read_committed)
+    {
+      std::cout << "Error: transaction isolation level does not match expected level" << std::endl;
+    }
   }
   db.set_default_isolation_level(sqlpp::isolation_level::read_uncommitted);
   {
-      auto transaction = start_transaction(db);
-      if (db._mock_data._last_isolation_level != sqlpp::isolation_level::read_uncommitted)
-      {
-          std::cout << "Error: transaction isolation level does not match default level" << std::endl;
-      }
+    auto transaction = start_transaction(db);
+    if (db._mock_data._last_isolation_level != sqlpp::isolation_level::read_uncommitted)
+    {
+      std::cout << "Error: transaction isolation level does not match default level" << std::endl;
+    }
   }
 
   return 0;

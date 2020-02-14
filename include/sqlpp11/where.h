@@ -256,6 +256,10 @@ namespace sqlpp
       static_check_t<not std::is_same<Database, void>::value, assert_where_dynamic_used_with_dynamic_statement_t>,
       check_where_t<Expression>>;
 
+  template <typename Database>
+  using check_where_empty_dynamic_t = static_combined_check_t<
+      static_check_t<not std::is_same<Database, void>::value, assert_where_dynamic_used_with_dynamic_statement_t>>;
+
   // NO WHERE YET
   template <bool WhereRequired>
   struct no_where_t
@@ -338,10 +342,11 @@ namespace sqlpp
         return _where_impl<_database_t>(Check{}, expression);
       }
 
-      auto dynamic_where() const -> _new_statement_t<check_where_dynamic_t<_database_t, boolean_operand>,
-                                                     where_t<_database_t, boolean_operand>>
+      auto dynamic_where() const
+          -> _new_statement_t<check_where_empty_dynamic_t<_database_t>, where_t<_database_t, unconditional_t>>
       {
-        return dynamic_where(::sqlpp::value(true));
+        return {static_cast<const derived_statement_t<Policies>&>(*this),
+                where_data_t<_database_t, unconditional_t>{unconditional_t{}}};
       }
 
     private:
@@ -378,6 +383,24 @@ namespace sqlpp
     }
   };
 
+  template <typename Context, typename Database>
+  struct serializer_t<Context, where_data_t<Database, unconditional_t>>
+  {
+    using _serialize_check = consistent_t;
+    using T = where_data_t<Database, unconditional_t>;
+
+    static Context& _(const T& t, Context& context)
+    {
+      if (t._dynamic_expressions.empty())
+      {
+        return context;
+      }
+      context << " WHERE ";
+      interpret_list(t._dynamic_expressions, " AND ", context);
+      return context;
+    }
+  };
+
   template <typename Context>
   struct serializer_t<Context, where_data_t<void, unconditional_t>>
   {
@@ -401,6 +424,13 @@ namespace sqlpp
       -> decltype(statement_t<Database, no_where_t<false>>().dynamic_where(std::forward<T>(t)))
   {
     return statement_t<Database, no_where_t<false>>().dynamic_where(std::forward<T>(t));
+  }
+
+  template <typename Database>
+  auto dynamic_where(const Database & /*unused*/)
+      -> decltype(statement_t<Database, no_where_t<false>>().dynamic_where())
+  {
+    return statement_t<Database, no_where_t<false>>().dynamic_where();
   }
 
   inline auto unconditionally() -> decltype(statement_t<void, no_where_t<false>>().unconditionally())

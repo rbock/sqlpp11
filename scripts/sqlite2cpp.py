@@ -48,6 +48,11 @@ def main():
     parser.add_argument('ddl', help='path to ddl')
     parser.add_argument('target', help='path to target')
     parser.add_argument('namespace', help='namespace')
+    parser.add_argument('-identity-naming',
+                        help='Use table and column names from the ddl '
+                        '(defaults to UpperCamelCase for tables and '
+                        'lowerCamelCase for columns)',
+                        action='store_true')
     args = parser.parse_args()
 
     pathToHeader = args.target + '.h'
@@ -57,8 +62,8 @@ def main():
     conn.executescript(open(args.ddl).read())
 
     # set vars
-    toClassName = class_name_naming_func
-    toMemberName = member_name_naming_func
+    toClassName = identity_naming_func if args.identity_naming else class_name_naming_func
+    toMemberName = identity_naming_func if args.identity_naming else member_name_naming_func
     DataTypeError = False
 
     header = open(pathToHeader, 'w')
@@ -172,6 +177,9 @@ def main():
 def get_include_guard_name(namespace, inputfile):
   val = re.sub("[^A-Za-z0-9]+", "_", namespace + '_' + os.path.basename(inputfile))
   return val.upper()
+
+def identity_naming_func(s):
+    return s
 
 def repl_camel_case_func(m):
     if m.group(1) == '_':

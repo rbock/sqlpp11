@@ -26,10 +26,11 @@
 
 CREATE TABLE IF NOT EXISTS tab_foo
 (
-	delta varchar(255),
+	delta varchar(255) NOT NULL DEFAULT "",
 	epsilon bigint,
 	omega double,
-	psi bigint UNSIGNED
+	psi bigint UNSIGNED,
+	book BLOB
 );
 
 CREATE TABLE tab_bar
@@ -38,5 +39,12 @@ CREATE TABLE tab_bar
 	beta varchar(255) NULL DEFAULT "",
 	gamma bool NOT NULL,
 	delta int
+);
+
+CREATE TABLE tab_date_time
+(
+	col_day_point date,
+	col_time_point datetime,
+	col_time_of_day time
 );
 
