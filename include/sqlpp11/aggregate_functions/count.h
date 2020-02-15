@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2020, Roland Bock, MacDue
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,8 +27,10 @@
 #ifndef SQLPP11_AGGREGATE_FUNCTIONS_COUNT_H
 #define SQLPP11_AGGREGATE_FUNCTIONS_COUNT_H
 
+#include <sqlpp11/over.h>
 #include <sqlpp11/char_sequence.h>
 #include <sqlpp11/select_flags.h>
+#include <sqlpp11/aggregate_function_operators.h>
 #include <sqlpp11/data_types/integral/data_type.h>
 
 namespace sqlpp
@@ -57,6 +59,7 @@ namespace sqlpp
 
   template <typename Flag, typename Expr>
   struct count_t : public expression_operators<count_t<Flag, Expr>, integral>,
+                   public aggregate_function_operators<count_t<Flag, Expr>>,
                    public alias_operators<count_t<Flag, Expr>>
   {
     using _traits = make_traits<integral, tag::is_expression /*, tag::is_selectable*/>;

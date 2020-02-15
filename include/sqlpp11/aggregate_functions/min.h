@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2020, Roland Bock, MacDue
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -55,7 +55,9 @@ namespace sqlpp
   };
 
   template <typename Expr>
-  struct min_t : public expression_operators<min_t<Expr>, value_type_of<Expr>>, public alias_operators<min_t<Expr>>
+  struct min_t : public expression_operators<min_t<Expr>, value_type_of<Expr>>,
+                 public aggregate_function_operators<min_t<Expr>>,
+                 public alias_operators<min_t<Expr>>
   {
     using _traits = make_traits<value_type_of<Expr>, tag::is_expression, tag::is_selectable>;
     using _nodes = detail::type_vector<Expr, aggregate_function>;

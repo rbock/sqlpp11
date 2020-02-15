@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, Roland Bock
+ * Copyright (c) 2013-2020, Roland Bock, MacDue
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -56,6 +56,7 @@ namespace sqlpp
 
   template <typename Flag, typename Expr>
   struct avg_t : public expression_operators<avg_t<Flag, Expr>, floating_point>,
+                 public aggregate_function_operators<avg_t<Flag, Expr>>,
                  public alias_operators<avg_t<Flag, Expr>>
   {
     using _traits = make_traits<floating_point, tag::is_expression, tag::is_selectable>;
