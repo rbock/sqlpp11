@@ -28,6 +28,7 @@
 #define SQLPP_BLOB_DATA_TYPE_H
 
 #include <vector>
+#include <cstdint>
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/logic.h>
