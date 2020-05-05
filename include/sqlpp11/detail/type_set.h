@@ -60,7 +60,7 @@ namespace sqlpp
       };
 
     public:
-      using size = std::integral_constant<size_t, sizeof...(Elements)>;
+      using size = std::integral_constant<std::size_t, sizeof...(Elements)>;
       using _is_type_set = std::true_type;
 
       template <typename T>
