@@ -28,6 +28,7 @@
 #define SQLPP11_DETAIL_TYPE_SET_H
 
 #include <type_traits>
+#include <cstddef>
 #include <sqlpp11/wrong.h>
 #include <sqlpp11/logic.h>
 
@@ -60,7 +61,7 @@ namespace sqlpp
       };
 
     public:
-      using size = std::integral_constant<std::size_t, sizeof...(Elements)>;
+      using size = std::integral_constant<size_t, sizeof...(Elements)>;
       using _is_type_set = std::true_type;
 
       template <typename T>
