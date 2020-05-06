@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016, Roland Bock
+ * Copyright (c) 2016-2019, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,27 +29,25 @@
 
 #include <iostream>
 
-SQLPP_ALIAS_PROVIDER(cheese)
-
-int As(int, char*[])
+int DynamicWhere(int, char*[])
 {
-  const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
+  auto db = MockDb{};
 
-  compare(__LINE__, foo.omega.as(cheese), "tab_foo.omega AS cheese");
-  compare(__LINE__, (foo.omega + 17).as(cheese), "(tab_foo.omega+17) AS cheese");
-  compare(__LINE__, (foo.omega - 17).as(cheese), "(tab_foo.omega - 17) AS cheese");
-  compare(__LINE__, (foo.omega - uint32_t(17)).as(cheese), "(tab_foo.omega - 17) AS cheese");
-  compare(__LINE__, (foo.omega - bar.alpha).as(cheese), "(tab_foo.omega - tab_bar.alpha) AS cheese");
-  compare(__LINE__, (count(foo.omega) - bar.alpha).as(cheese), "(COUNT(tab_foo.omega) - tab_bar.alpha) AS cheese");
-  compare(__LINE__, (count(foo.omega) - uint32_t(17)).as(cheese), "(COUNT(tab_foo.omega) - 17) AS cheese");
+  compare(__LINE__, dynamic_where(db), "");
+  compare(__LINE__, dynamic_where(db, bar.gamma), " WHERE tab_bar.gamma");
 
-  // Auto alias
-  compare(__LINE__, select(max(bar.alpha)), "SELECT MAX(tab_bar.alpha) AS max_");
-  compare(__LINE__, select(max(bar.alpha).as(cheese)), "SELECT MAX(tab_bar.alpha) AS cheese");
-  compare(__LINE__, select(max(bar.alpha)).from(bar).unconditionally().as(cheese),
-          "(SELECT MAX(tab_bar.alpha) AS max_ FROM tab_bar) AS cheese");
-  compare(__LINE__, select(max(bar.alpha)).from(bar).unconditionally().as(cheese).max, "cheese.max_");
+  {
+    auto statement = sqlpp::dynamic_where(db);
+    statement.where.add(without_table_check(bar.gamma));
+    compare(__LINE__, statement, " WHERE tab_bar.gamma");
+  }
+
+  {
+    auto statement = dynamic_where(db, bar.gamma);
+    statement.where.add(without_table_check(bar.gamma));
+    compare(__LINE__, statement, " WHERE tab_bar.gamma AND tab_bar.gamma");
+  }
 
   return 0;
 }

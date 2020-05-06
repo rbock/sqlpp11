@@ -98,7 +98,17 @@ namespace sqlpp
     struct minus
     {
       using _traits = make_traits<ValueType>;
-      static constexpr const char* _name = "-";
+      // The trailing space is necessary to prevent
+      // ```
+      // t.id - -1
+      // ```
+      // from turning into
+      // ```
+      // tab_sample.id--1
+      // ```
+      // (-- starts a comment in SQL)
+      // See https://github.com/rbock/sqlpp11/issues/294
+      static constexpr const char* _name = " - ";
     };
 
     template <typename ValueType>

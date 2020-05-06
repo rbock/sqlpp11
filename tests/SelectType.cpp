@@ -39,9 +39,9 @@ namespace alias
   SQLPP_ALIAS_PROVIDER(b)
   SQLPP_ALIAS_PROVIDER(left)
   SQLPP_ALIAS_PROVIDER(right)
-}
+}  // namespace alias
 
-int SelectType(int, char* [])
+int SelectType(int, char*[])
 {
   MockDb db = {};
   MockDb::_serializer_context_t printer = {};
@@ -163,7 +163,8 @@ int SelectType(int, char* [])
     static_assert(sqlpp::is_integral_t<sqlpp::return_type_minus_t<T, sqlpp::integral>>::value, "type requirement");
     static_assert(sqlpp::is_integral_t<sqlpp::return_type_plus_t<T, sqlpp::integral>>::value, "type requirement");
     static_assert(sqlpp::is_integral_t<sqlpp::return_type_multiplies_t<T, sqlpp::integral>>::value, "type requirement");
-    static_assert(sqlpp::is_integral_t<sqlpp::return_type_divides_t<T, sqlpp::integral>>::value, "type requirement");
+    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_divides_t<T, sqlpp::integral>>::value,
+                  "type requirement");
     static_assert(sqlpp::is_integral_t<sqlpp::return_type_minus_t<sqlpp::integral, T>>::value, "type requirement");
     static_assert(sqlpp::is_integral_t<sqlpp::return_type_plus_t<sqlpp::integral, T>>::value, "type requirement");
     static_assert(sqlpp::is_integral_t<sqlpp::return_type_multiplies_t<sqlpp::integral, T>>::value, "type requirement");

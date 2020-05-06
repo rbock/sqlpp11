@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, Roland Bock
+ * Copyright (c) 2013-2020, Roland Bock, MacDue
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,27 +24,50 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_BLOB_DATA_TYPE_H
-#define SQLPP_BLOB_DATA_TYPE_H
-
-#include <vector>
-#include <cstdint>
+#ifndef SQLPP11_OVER_H
+#define SQLPP11_OVER_H
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/logic.h>
+#include <sqlpp11/serializer.h>
 
 namespace sqlpp
 {
-  struct blob
+  template <typename AggregateExpr>
+  struct over_t : public expression_operators<over_t<AggregateExpr>, integral>,
+                  public alias_operators<over_t<AggregateExpr>>
   {
-    using _traits = make_traits<blob, tag::is_value_type>;
-    using _cpp_value_type = std::vector<std::uint8_t>;
+    using _traits = make_traits<integral, tag::is_expression>;
+    using _nodes = detail::type_vector<AggregateExpr, aggregate_function>;
 
-    template <typename T>
-    using _is_valid_operand = ::sqlpp::logic::any_t<is_blob_t<T>::value, is_text_t<T>::value>;
+    using _auto_alias_t = typename AggregateExpr::_auto_alias_t;
+
+    over_t(AggregateExpr aggregate_expression)
+      : _aggregate_expression(aggregate_expression)
+    {
+    }
+
+    over_t(const over_t&) = default;
+    over_t(over_t&&) = default;
+    over_t& operator=(const over_t&) = default;
+    over_t& operator=(over_t&&) = default;
+    ~over_t() = default;
+
+    AggregateExpr _aggregate_expression;
   };
 
-  using blob = blob;
-  using mediumblob = blob;
+  template <typename Context, typename AggregateExpr>
+  struct serializer_t<Context, over_t<AggregateExpr>>
+  {
+    using _serialize_check = serialize_check_of<Context, AggregateExpr>;
+    using T = over_t<AggregateExpr>;
+
+    static Context& _(const T& t, Context& context)
+    {
+      serialize_operand(t._aggregate_expression, context);
+      context << " OVER()";
+      return context;
+    }
+  };
 }  // namespace sqlpp
+
 #endif

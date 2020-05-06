@@ -22,11 +22,11 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-include(FindPythonInterp)
+include(FindPython3)
 
-if (${PYTHONINTERP_FOUND})
+if (${Python3_Interpreter_FOUND})
   execute_process(
-          COMMAND ${PYTHON_EXECUTABLE} -c "import pyparsing"
+          COMMAND ${Python3_EXECUTABLE} -c "import pyparsing"
 	                RESULT_VARIABLE PythonRESULT
 									OUTPUT_VARIABLE PythonOUTPUT
           ERROR_VARIABLE PythonERROR
@@ -39,21 +39,21 @@ if (${PYTHONINTERP_FOUND})
     message(STATUS "Pyparsing is installed: Enabling ddl2cpp tests.")
 
 		add_test(NAME sqlpp11.test.ddl2cpp.bad_will_fail
-		         COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../scripts/ddl2cpp" -fail-on-parse
+		         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../scripts/ddl2cpp" -fail-on-parse
 						         "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_bad.sql"
 										 "${CMAKE_CURRENT_BINARY_DIR}/fail"
 										 test)
 		set_tests_properties(sqlpp11.test.ddl2cpp.bad_will_fail PROPERTIES WILL_FAIL 1)
 
 		add_test(NAME sqlpp11.test.ddl2cpp.bad_has_parse_error
-		         COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../scripts/ddl2cpp" -fail-on-parse
+		         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../scripts/ddl2cpp" -fail-on-parse
 						         "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_bad.sql"
 										 "${CMAKE_CURRENT_BINARY_DIR}/fail"
 										 test)
 		set_tests_properties(sqlpp11.test.ddl2cpp.bad_has_parse_error PROPERTIES PASS_REGULAR_EXPRESSION "Parsing error,.*")
 
 		add_test(NAME sqlpp11.test.ddl2cpp.good_succeeds
-		         COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../scripts/ddl2cpp" -fail-on-parse
+		         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../scripts/ddl2cpp" -fail-on-parse
 						         "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
 										 "${CMAKE_CURRENT_BINARY_DIR}/fail"
 										 test)
@@ -67,7 +67,7 @@ if (${PYTHONINTERP_FOUND})
       endif()
       add_custom_command(
           OUTPUT "${sqlpp.test.generated.sample.include}.h"
-          COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../scripts/ddl2cpp"
+          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../scripts/ddl2cpp"
                   ${use_identity_naming}
                   "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
                   "${sqlpp.test.generated.sample.include}"

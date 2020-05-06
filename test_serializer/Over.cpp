@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016, Roland Bock
+ * Copyright (c) 2016-2020, Roland Bock, MacDue
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -23,33 +23,28 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "compare.h"
 #include "Sample.h"
+#include "compare.h"
 #include <sqlpp11/sqlpp11.h>
 
-#include <iostream>
+SQLPP_ALIAS_PROVIDER(dueutil)
 
-SQLPP_ALIAS_PROVIDER(cheese)
+int Over(int, char* []) {
+  auto const foo = test::TabFoo{};
 
-int As(int, char*[])
-{
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  // no/auto alias (wrapped in select so alias is applied)
+  compare(__LINE__, select(avg(foo.omega).over()), "SELECT AVG(tab_foo.omega) OVER() AS avg_");
+  compare(__LINE__, select(count(foo.omega).over()), "SELECT COUNT(tab_foo.omega) OVER() AS count_");
+  compare(__LINE__, select(max(foo.omega).over()), "SELECT MAX(tab_foo.omega) OVER() AS max_");
+  compare(__LINE__, select(min(foo.omega).over()), "SELECT MIN(tab_foo.omega) OVER() AS min_");
+  compare(__LINE__, select(sum(foo.omega).over()), "SELECT SUM(tab_foo.omega) OVER() AS sum_");
 
-  compare(__LINE__, foo.omega.as(cheese), "tab_foo.omega AS cheese");
-  compare(__LINE__, (foo.omega + 17).as(cheese), "(tab_foo.omega+17) AS cheese");
-  compare(__LINE__, (foo.omega - 17).as(cheese), "(tab_foo.omega - 17) AS cheese");
-  compare(__LINE__, (foo.omega - uint32_t(17)).as(cheese), "(tab_foo.omega - 17) AS cheese");
-  compare(__LINE__, (foo.omega - bar.alpha).as(cheese), "(tab_foo.omega - tab_bar.alpha) AS cheese");
-  compare(__LINE__, (count(foo.omega) - bar.alpha).as(cheese), "(COUNT(tab_foo.omega) - tab_bar.alpha) AS cheese");
-  compare(__LINE__, (count(foo.omega) - uint32_t(17)).as(cheese), "(COUNT(tab_foo.omega) - 17) AS cheese");
-
-  // Auto alias
-  compare(__LINE__, select(max(bar.alpha)), "SELECT MAX(tab_bar.alpha) AS max_");
-  compare(__LINE__, select(max(bar.alpha).as(cheese)), "SELECT MAX(tab_bar.alpha) AS cheese");
-  compare(__LINE__, select(max(bar.alpha)).from(bar).unconditionally().as(cheese),
-          "(SELECT MAX(tab_bar.alpha) AS max_ FROM tab_bar) AS cheese");
-  compare(__LINE__, select(max(bar.alpha)).from(bar).unconditionally().as(cheese).max, "cheese.max_");
+  // alias
+  compare(__LINE__, avg(foo.omega).over().as(dueutil), "AVG(tab_foo.omega) OVER() AS dueutil");
+  compare(__LINE__, count(foo.omega).over().as(dueutil), "COUNT(tab_foo.omega) OVER() AS dueutil");
+  compare(__LINE__, max(foo.omega).over().as(dueutil), "MAX(tab_foo.omega) OVER() AS dueutil");
+  compare(__LINE__, min(foo.omega).over().as(dueutil), "MIN(tab_foo.omega) OVER() AS dueutil");
+  compare(__LINE__, sum(foo.omega).over().as(dueutil), "SUM(tab_foo.omega) OVER() AS dueutil");
 
   return 0;
 }
