@@ -49,5 +49,18 @@ int DynamicWhere(int, char*[])
     compare(__LINE__, statement, " WHERE tab_bar.gamma AND tab_bar.gamma");
   }
 
+  {
+    auto statement = dynamic_where(db, bar.gamma, sqlpp::where_comp_operation::OR);
+    statement.where.add(without_table_check(bar.gamma));
+    compare(__LINE__, statement, " WHERE tab_bar.gamma OR tab_bar.gamma");
+  }
+
+  {
+    auto statement = dynamic_where(db, bar.gamma);
+    statement.where.add(without_table_check(bar.gamma));
+    statement.where.add(without_table_check(bar.gamma), sqlpp::where_comp_operation::OR);
+    compare(__LINE__, statement, " WHERE tab_bar.gamma AND tab_bar.gamma OR tab_bar.gamma");
+  }
+
   return 0;
 }

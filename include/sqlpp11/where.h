@@ -29,7 +29,7 @@
 
 #include <sqlpp11/expression.h>
 #include <sqlpp11/interpret_tuple.h>
-#include <sqlpp11/interpretable_list.h>
+#include <sqlpp11/interpretable_list_with_string.h>
 #include <sqlpp11/logic.h>
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/statement_fwd.h>
@@ -39,11 +39,20 @@
 
 namespace sqlpp
 {
+  enum where_comp_operation {
+    AND,
+    OR
+  };
+
+  inline std::string _comp_op_from_enum(where_comp_operation op) {
+    return op == where_comp_operation::AND ? " AND " : " OR ";
+  }
+
   // WHERE DATA
   template <typename Database, typename Expression>
   struct where_data_t
   {
-    where_data_t(Expression expression) : _expression(expression)
+    where_data_t(Expression expression, const where_comp_operation op = where_comp_operation::AND) : _expression(expression), _op(op)
     {
     }
 
@@ -53,8 +62,9 @@ namespace sqlpp
     where_data_t& operator=(where_data_t&&) = default;
     ~where_data_t() = default;
 
+    where_comp_operation _op;
     Expression _expression;
-    interpretable_list_t<Database> _dynamic_expressions;
+    interpretable_list_with_string_t<Database> _dynamic_expressions;
   };
 
   SQLPP_PORTABLE_STATIC_ASSERT(
@@ -84,7 +94,7 @@ namespace sqlpp
       }
 
       template <typename Expr>
-      void add(Expr expression)
+      void add(Expr expression, const where_comp_operation op = where_comp_operation::AND)
       {
         static_assert(_is_dynamic::value, "where::add() can only be called for dynamic_where");
         static_assert(is_expression_t<Expr>::value, "invalid expression argument in where::add()");
@@ -98,14 +108,14 @@ namespace sqlpp
 
         using ok = logic::all_t<_is_dynamic::value, is_expression_t<Expr>::value, _serialize_check::type::value>;
 
-        _add_impl(expression, ok());  // dispatch to prevent compile messages after the static_assert
+        _add_impl(expression, ok(), op);  // dispatch to prevent compile messages after the static_assert
       }
 
     private:
       template <typename Expr>
-      void _add_impl(Expr expression, const std::true_type& /*unused*/)
+      void _add_impl(Expr expression, const std::true_type& /*unused*/, const where_comp_operation op)
       {
-        _data._dynamic_expressions.emplace_back(expression);
+        _data._dynamic_expressions.emplace_back(expression, _comp_op_from_enum(op));
       }
 
       template <typename Expr>
@@ -335,18 +345,18 @@ namespace sqlpp
       }
 
       template <typename Expression>
-      auto dynamic_where(Expression expression) const
+      auto dynamic_where(Expression expression, const where_comp_operation op = where_comp_operation::AND) const
           -> _new_statement_t<check_where_dynamic_t<_database_t, Expression>, where_t<_database_t, Expression>>
       {
         using Check = check_where_dynamic_t<_database_t, Expression>;
-        return _where_impl<_database_t>(Check{}, expression);
+        return _where_impl<_database_t>(Check{}, expression, op);
       }
 
-      auto dynamic_where() const
+      auto dynamic_where(const where_comp_operation op = where_comp_operation::AND) const
           -> _new_statement_t<check_where_empty_dynamic_t<_database_t>, where_t<_database_t, unconditional_t>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this),
-                where_data_t<_database_t, unconditional_t>{unconditional_t{}}};
+                where_data_t<_database_t, unconditional_t>{unconditional_t{}, op}};
       }
 
     private:
@@ -354,11 +364,11 @@ namespace sqlpp
       auto _where_impl(Check, Expression expression) const -> inconsistent<Check>;
 
       template <typename Database, typename Expression>
-      auto _where_impl(consistent_t /*unused*/, Expression expression) const
+      auto _where_impl(consistent_t /*unused*/, Expression expression, const where_comp_operation op = where_comp_operation::AND) const
           -> _new_statement_t<consistent_t, where_t<Database, Expression>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this),
-                where_data_t<Database, Expression>{expression}};
+                where_data_t<Database, Expression>{expression, op}};
       }
     };
   };
@@ -376,9 +386,9 @@ namespace sqlpp
       serialize(t._expression, context);
       if (not t._dynamic_expressions.empty())
       {
-        context << " AND ";
+        context << _comp_op_from_enum(t._op);
       }
-      interpret_list(t._dynamic_expressions, " AND ", context);
+      interpret_list_with_string(t._dynamic_expressions, context);
       return context;
     }
   };
@@ -396,7 +406,7 @@ namespace sqlpp
         return context;
       }
       context << " WHERE ";
-      interpret_list(t._dynamic_expressions, " AND ", context);
+      interpret_list_with_string(t._dynamic_expressions, context);
       return context;
     }
   };
@@ -420,17 +430,17 @@ namespace sqlpp
   }
 
   template <typename Database, typename T>
-  auto dynamic_where(const Database& /*unused*/, T&& t)
+  auto dynamic_where(const Database& /*unused*/, T&& t, const where_comp_operation op = where_comp_operation::AND)
       -> decltype(statement_t<Database, no_where_t<false>>().dynamic_where(std::forward<T>(t)))
   {
-    return statement_t<Database, no_where_t<false>>().dynamic_where(std::forward<T>(t));
+    return statement_t<Database, no_where_t<false>>().dynamic_where(std::forward<T>(t), op);
   }
 
   template <typename Database>
-  auto dynamic_where(const Database & /*unused*/)
+  auto dynamic_where(const Database & /*unused*/, const where_comp_operation op = where_comp_operation::AND)
       -> decltype(statement_t<Database, no_where_t<false>>().dynamic_where())
   {
-    return statement_t<Database, no_where_t<false>>().dynamic_where();
+    return statement_t<Database, no_where_t<false>>().dynamic_where(op);
   }
 
   inline auto unconditionally() -> decltype(statement_t<void, no_where_t<false>>().unconditionally())
