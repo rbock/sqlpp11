@@ -271,6 +271,7 @@ types = {
     'float4': 'floating_point', # PostgreSQL
     'real': 'floating_point',
     'numeric': 'floating_point', # PostgreSQL
+    'decimal' : 'floating_point', # MYSQL
     'date': 'day_point',
     'datetime': 'time_point',
     'time': 'time_of_day',
@@ -282,6 +283,7 @@ types = {
     'timestamptz': 'time_point', # PostgreSQL
     'enum': 'text',  # MYSQL
     'set': 'text',  # MYSQL,
+    'longtext' : 'text', #MYSQL
     'json' : 'text', # PostgreSQL
     'jsonb' : 'text', # PostgreSQL
     'tinyint unsigned': 'tinyint_unsigned', #MYSQL
