@@ -29,6 +29,8 @@
 
 #include <iostream>
 
+SQLPP_ALIAS_PROVIDER(quester_player_level);
+
 int ParameterizedVerbatim(int, char* [])
 {
   // An example thing that needs parameterized verbatim (as it's database specific)
