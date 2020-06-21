@@ -28,6 +28,7 @@
 #define SQLPP11_DETAIL_TYPE_SET_H
 
 #include <type_traits>
+#include <stddef.h>
 #include <sqlpp11/wrong.h>
 #include <sqlpp11/logic.h>
 

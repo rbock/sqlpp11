@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, Roland Bock
+ * Copyright (c) 2013-2020, Roland Bock, MacDue
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -23,28 +23,20 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP_BLOB_DATA_TYPE_H
-#define SQLPP_BLOB_DATA_TYPE_H
-
-#include <vector>
-#include <cstdint>
-
-#include <sqlpp11/type_traits.h>
-#include <sqlpp11/logic.h>
+#ifndef SQLPP11_AGGREGATE_FUNCTION_OPERATORS_H
+#define SQLPP11_AGGREGATE_FUNCTION_OPERATORS_H
 
 namespace sqlpp
 {
-  struct blob
+  template <typename Expr>
+  struct aggregate_function_operators
   {
-    using _traits = make_traits<blob, tag::is_value_type>;
-    using _cpp_value_type = std::vector<std::uint8_t>;
-
-    template <typename T>
-    using _is_valid_operand = ::sqlpp::logic::any_t<is_blob_t<T>::value, is_text_t<T>::value>;
+    over_t<Expr> over() const
+    {
+      return {*static_cast<const Expr*>(this)};
+    }
   };
-
-  using blob = blob;
-  using mediumblob = blob;
 }  // namespace sqlpp
+
 #endif
+
