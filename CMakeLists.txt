@@ -23,19 +23,23 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
+### Preamble
+cmake_minimum_required(VERSION 3.14)
 project(sqlpp11 VERSION 0.1 LANGUAGES CXX)
 
-enable_testing()
-
-option(ENABLE_TESTS "Build unit tests" On)
-
+### Project Wide Setup
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
-find_package(HinnantDate REQUIRED)
 
+include(CTest)
+
+
+### Dependencies 
+add_subdirectory(dependencies)
+
+### Main targets
 add_library(sqlpp11 INTERFACE)
 
-target_link_libraries(sqlpp11 INTERFACE HinnantDate::Date)
+target_link_libraries(sqlpp11 INTERFACE date::date)
 
 target_include_directories(sqlpp11 INTERFACE
   $<BUILD_INTERFACE:${sqlpp11_SOURCE_DIR}/include>
@@ -64,6 +68,7 @@ target_compile_features(sqlpp11 INTERFACE
   cxx_variadic_templates
   )
 
+### Packaging
 install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/sqlpp11"
         DESTINATION include
 )
@@ -111,7 +116,8 @@ install(
     ${ConfigPackageLocation}
 )
 
-if(ENABLE_TESTS)
+### Tests
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
   add_subdirectory(tests)
   add_subdirectory(test_types)
   add_subdirectory(test_serializer)
