@@ -28,7 +28,7 @@ cmake_minimum_required(VERSION 3.14)
 project(sqlpp11 VERSION 0.1 LANGUAGES CXX)
 
 ### Project Wide Setup
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 
 include(CTest)
 
