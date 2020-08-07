@@ -1,7 +1,8 @@
-#include <sqlpp11/functions.h>
-#include <sqlpp11/insert.h>
+#include <sqlpp11/select.h>
+#include <sqlpp11/alias_provider.h>
 
 int main()
 {
-  return 1;
+  select(sqlpp::value(false).as(sqlpp::alias::a));
+  return 0;
 }
