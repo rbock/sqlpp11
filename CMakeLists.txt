@@ -102,8 +102,7 @@ configure_file(cmake/Sqlpp11Config.cmake
 
 set(ConfigPackageLocation lib/cmake/Sqlpp11)
 install(EXPORT Sqlpp11Targets
-  FILE
-    Sqlpp11Targets.cmake
+  NAMESPACE sqlpp11::
   DESTINATION
     ${ConfigPackageLocation}
 )
@@ -112,7 +111,6 @@ install(
   FILES
     "cmake/Sqlpp11Config.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/cmake/Sqlpp11ConfigVersion.cmake"
-    "cmake/Modules/FindHinnantDate.cmake"
   DESTINATION
     ${ConfigPackageLocation}
 )
