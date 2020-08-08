@@ -135,27 +135,23 @@ To demonstrate that sqlpp11 can work with other backends as well, here is an exp
   * STL Container: https://github.com/rbock/sqlpp11-connector-stl
 
 __Date Library:__
-sqlpp11 requires [Howard Hinnant's date library](https://github.com/HowardHinnant/date) for `date` and `date_time` data types. Sqlpp11 includes CMake search module for this, but if you didn't install this library system-wide, you need to point cmake to it:
-
-```
-cmake -DHinnantDate_ROOT_DIR=/%PATH_TO_HinnantDate_SOURCE%/
-```
+sqlpp11 requires [Howard Hinnant's date library](https://github.com/HowardHinnant/date) for `date` and `date_time` data types. Sqlpp11 uses FetchContent to pull the library automatically in the project.
 
 Build and Install
 -----------------
+
+**Note**: Depending on how you use the lib, you might not need to install it (see Basic Usage)
+
 __Build from Source:__
 
 Download and unpack the latest release from https://github.com/rbock/sqlpp11/releases or clone the repository. Inside the directory run the following commands:
 
 ```bash
-mkdir build
-cd build
-cmake ..
-make
-make install
+cmake -B build
+cmake --build build --target install
 ```
 
-The last step will install the library system wide.
+The last step will build the library and install it system wide, therefore it might need admins right.
 
 __Install via Homebrew (MacOS):__
 
@@ -186,6 +182,12 @@ The following connector libraries for sqlpp11 are maintained as a separate packa
 
 Basic usage:
 -------------
+__Use with cmake__:
+The library officially supports two ways how it can be used with cmake. 
+You can find examples for both methods in the example folder. 
+
+1. Fetch content (Recommend, no installation required)
+1. Find package (installation required, see above)
 
 __Create DDL files__:
 ``` 

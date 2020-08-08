@@ -26,7 +26,7 @@
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
 
 include(CMakeFindDependencyMacro)
-find_dependency(HinnantDate REQUIRED)
+find_dependency(date REQUIRED)
 
 include("${CMAKE_CURRENT_LIST_DIR}/Sqlpp11Targets.cmake")
 

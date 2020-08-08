@@ -4,7 +4,7 @@ os:
   - linux
   - osx
 
-dist: xenial
+dist: bionic
 sudo: required
 
 compiler:
@@ -23,12 +23,15 @@ notifications:
 
 install:
   - g++ --version
-  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew upgrade cmake; fi
-  - cmake --version
-  - git clone https://github.com/HowardHinnant/date
-  - cd date
-  - git checkout tags/v2.4
-  - cd ..
+  - 'if [ "$TRAVIS_OS_NAME" = "osx" ]; then 
+      brew upgrade cmake; 
+    else 
+      wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null &&
+      sudo apt-add-repository -y "deb https://apt.kitware.com/ubuntu/ bionic main" &&
+      sudo apt-get update -qq -y &&
+      sudo apt-get install -y cmake &&
+      sudo rm -r /usr/local/cmake-3.12.4/;
+    fi'
 
 before_script:
    - mkdir build
