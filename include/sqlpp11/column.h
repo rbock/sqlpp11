@@ -63,6 +63,11 @@ namespace sqlpp
     template <typename T>
     using _is_valid_assignment_operand = is_valid_assignment_operand<value_type_of<ColumnSpec>, T>;
 
+    // disambiguation for C++20 / clang
+    // (see https://bugs.llvm.org/show_bug.cgi?id=46508)
+    using expression_operators<column_t<Table, ColumnSpec>, value_type_of<ColumnSpec>>::operator==;
+    using expression_operators<column_t<Table, ColumnSpec>, value_type_of<ColumnSpec>>::operator!=;
+
     column_t() = default;
     column_t(const column_t&) = default;
     column_t(column_t&&) = default;
