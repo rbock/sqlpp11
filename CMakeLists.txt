@@ -23,19 +23,24 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
+### Preamble
+cmake_minimum_required(VERSION 3.14)
 project(sqlpp11 VERSION 0.1 LANGUAGES CXX)
 
-enable_testing()
+### Project Wide Setup
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 
-option(ENABLE_TESTS "Build unit tests" On)
+include(CTest)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
-find_package(HinnantDate REQUIRED)
 
+### Dependencies 
+add_subdirectory(dependencies)
+
+### Main targets
 add_library(sqlpp11 INTERFACE)
+add_library(sqlpp11::sqlpp11 ALIAS sqlpp11)
 
-target_link_libraries(sqlpp11 INTERFACE HinnantDate::Date)
+target_link_libraries(sqlpp11 INTERFACE date::date)
 
 target_include_directories(sqlpp11 INTERFACE
   $<BUILD_INTERFACE:${sqlpp11_SOURCE_DIR}/include>
@@ -64,6 +69,7 @@ target_compile_features(sqlpp11 INTERFACE
   cxx_variadic_templates
   )
 
+### Packaging
 install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/sqlpp11"
         DESTINATION include
 )
@@ -96,8 +102,7 @@ configure_file(cmake/Sqlpp11Config.cmake
 
 set(ConfigPackageLocation lib/cmake/Sqlpp11)
 install(EXPORT Sqlpp11Targets
-  FILE
-    Sqlpp11Targets.cmake
+  NAMESPACE sqlpp11::
   DESTINATION
     ${ConfigPackageLocation}
 )
@@ -106,12 +111,12 @@ install(
   FILES
     "cmake/Sqlpp11Config.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/cmake/Sqlpp11ConfigVersion.cmake"
-    "cmake/Modules/FindHinnantDate.cmake"
   DESTINATION
     ${ConfigPackageLocation}
 )
 
-if(ENABLE_TESTS)
+### Tests
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
   add_subdirectory(tests)
   add_subdirectory(test_types)
   add_subdirectory(test_serializer)
