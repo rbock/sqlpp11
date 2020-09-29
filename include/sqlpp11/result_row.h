@@ -272,7 +272,7 @@ namespace sqlpp
   {
     using _field_index_sequence = detail::make_field_index_sequence<0, FieldSpecs...>;
     using _impl = detail::result_row_impl<Db, _field_index_sequence, FieldSpecs...>;
-    using _field_type = result_field_t<Db, field_spec_t<no_name_t, text, true, true>>;
+    using _field_type = result_field_t<Db, field_spec_t<no_name_t, text, true>>;
 
     bool _is_valid{false};
     std::vector<std::string> _dynamic_field_names;

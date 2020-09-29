@@ -42,7 +42,7 @@ namespace sqlpp
   {
     using _traits = make_traits<no_value_t, tag::is_assignment>;
     using _lhs_t = Lhs;
-    using _rhs_t = rhs_wrap_t<allow_tvin_t<Rhs>, trivial_value_is_null_t<_lhs_t>::value>;
+    using _rhs_t = rhs_wrap_t<allow_tvin_t<Rhs>>;
     using _nodes = detail::type_vector<_lhs_t, _rhs_t>;
 
     static_assert(can_be_null_t<_lhs_t>::value ? true

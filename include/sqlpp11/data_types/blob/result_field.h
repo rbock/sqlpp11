@@ -37,9 +37,9 @@
 
 namespace sqlpp
 {
-  template <typename Db, typename NameType, bool CanBeNull, bool NullIsTrivialValue>
-  struct result_field_t<Db, field_spec_t<NameType, blob, CanBeNull, NullIsTrivialValue>>
-      : public result_field_base<Db, field_spec_t<NameType, blob, CanBeNull, NullIsTrivialValue>>
+  template <typename Db, typename NameType, bool CanBeNull>
+  struct result_field_t<Db, field_spec_t<NameType, blob, CanBeNull>>
+      : public result_field_base<Db, field_spec_t<NameType, blob, CanBeNull>>
   {
     const uint8_t* blob{nullptr};  // Non-owning
     size_t len{};
@@ -67,11 +67,11 @@ namespace sqlpp
     }
   };
 
-  template <typename Db, typename NameType, bool CanBeNull, bool NullIsTrivialValue>
+  template <typename Db, typename NameType, bool CanBeNull>
   inline std::ostream& operator<<(
-      std::ostream& os, const result_field_t<Db, field_spec_t<NameType, blob, CanBeNull, NullIsTrivialValue>>& e)
+      std::ostream& os, const result_field_t<Db, field_spec_t<NameType, blob, CanBeNull>>& e)
   {
-    if (e.is_null() and not NullIsTrivialValue)
+    if (e.is_null())
     {
       return os << "NULL";
     }

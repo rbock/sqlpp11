@@ -28,24 +28,18 @@
 #include "MockDb.h"
 #include <sqlpp11/sqlpp11.h>
 
-static_assert(not sqlpp::enforce_null_result_treatment_t<MockDb>::value, "MockDb interprets NULL as trivial");
-static_assert(sqlpp::enforce_null_result_treatment_t<EnforceDb>::value, "MockDb does not interpret NULL as trivial");
-
 int Result(int, char* [])
 {
   MockDb db = {};
-  EnforceDb edb{};
 
   const auto t = test::TabBar{};
 
   static_assert(sqlpp::can_be_null_t<decltype(t.alpha)>::value, "t.alpha can be null");
-  static_assert(not sqlpp::null_is_trivial_value_t<decltype(t.alpha)>::value, "t.alpha does not say null_is_trivial");
 
   // Using a non-enforcing db
   for (const auto& row : db(select(all_of(t), t.beta.like("")).from(t).unconditionally()))
   {
     static_assert(sqlpp::can_be_null_t<decltype(row.alpha)>::value, "row.alpha can be null");
-    static_assert(sqlpp::null_is_trivial_value_t<decltype(row.alpha)>::value, "row.alpha interprets null_is_trivial");
     static_assert(std::is_same<bool, decltype(row.alpha.is_null())>::value, "Yikes");
     using T = sqlpp::wrap_operand_t<decltype(row.alpha)>;
     static_assert(sqlpp::can_be_null_t<T>::value, "row.alpha can be null");
@@ -67,24 +61,14 @@ int Result(int, char* [])
   for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
   {
     static_assert(sqlpp::can_be_null_t<decltype(row.alpha)>::value, "row.alpha can be null");
-    static_assert(sqlpp::null_is_trivial_value_t<decltype(row.alpha)>::value, "row.alpha interprets null_is_trivial");
   }
 
-  // Using a non-enforcing db
-  for (const auto& row : edb(select(all_of(t)).from(t).unconditionally()))
+  for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
   {
     static_assert(sqlpp::can_be_null_t<decltype(row.alpha)>::value, "row.alpha can be null");
-    static_assert(not sqlpp::null_is_trivial_value_t<decltype(row.alpha)>::value,
-                  "row.alpha interprets null_is_trivial");
   }
 
   sqlpp::select((t.alpha + 1).as(t.alpha)).flags(sqlpp::all).from(t);
-  for (const auto& row : edb(select(all_of(t)).from(t).unconditionally()))
-  {
-    static_assert(sqlpp::can_be_null_t<decltype(row.alpha)>::value, "row.alpha can be null");
-    static_assert(not sqlpp::null_is_trivial_value_t<decltype(row.alpha)>::value,
-                  "row.alpha interprets null_is_trivial");
-  }
 
   return 0;
 }

@@ -42,12 +42,10 @@ struct InternalMockData
   sqlpp::isolation_level _default_isolation_level;
 };
 
-template <bool enforceNullResultTreatment>
-struct MockDbT : public sqlpp::connection
+struct MockDb : public sqlpp::connection
 {
   using _traits =
-      ::sqlpp::make_traits<::sqlpp::no_value_t,
-                           ::sqlpp::tag_if<::sqlpp::tag::enforce_null_result_treatment, enforceNullResultTreatment>>;
+      ::sqlpp::make_traits<::sqlpp::no_value_t>;
 
   struct _serializer_context_t
   {
@@ -289,9 +287,6 @@ struct MockDbT : public sqlpp::connection
   InternalMockData _mock_data;
 };
 
-using MockDb = MockDbT<false>;
-using EnforceDb = MockDbT<true>;
-
 struct MockSizeDb : public sqlpp::connection
 {
   using _traits = MockDb::_traits;
@@ -499,8 +494,5 @@ struct MockSizeDb : public sqlpp::connection
   // temporary data store to verify the expected results were produced
   InternalMockData _mock_data;
 };
-
-using MockDb = MockDbT<false>;
-using EnforceDb = MockDbT<true>;
 
 #endif

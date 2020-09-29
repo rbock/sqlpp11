@@ -67,11 +67,6 @@ namespace sqlpp
     {
       static bool _(const Expr& t)
       {
-        if (null_is_trivial_value_t<Expr>::value)
-        {
-          return t.is_null();
-        }
-
         if (t.is_null())
         {
           return false;
@@ -109,7 +104,7 @@ namespace sqlpp
     };
   }  // namespace detail
 
-  template <typename Expr, bool TrivialValueIsNull>
+  template <typename Expr>
   struct rhs_wrap_t
   {
     using _traits = typename Expr::_traits;
@@ -127,7 +122,7 @@ namespace sqlpp
 
     bool _is_null() const
     {
-      return (TrivialValueIsNull and detail::rhs_is_trivial_t<Expr>::_(_expr)) or detail::rhs_is_null_t<Expr>::_(_expr);
+      return detail::rhs_is_null_t<Expr>::_(_expr);
     }
 
     static constexpr bool _is_default()
@@ -138,11 +133,11 @@ namespace sqlpp
     Expr _expr;
   };
 
-  template <typename Context, typename Expr, bool TrivialValueIsNull>
-  struct serializer_t<Context, rhs_wrap_t<Expr, TrivialValueIsNull>>
+  template <typename Context, typename Expr>
+  struct serializer_t<Context, rhs_wrap_t<Expr>>
   {
     using _serialize_check = serialize_check_of<Context, Expr>;
-    using T = rhs_wrap_t<Expr, TrivialValueIsNull>;
+    using T = rhs_wrap_t<Expr>;
 
     static Context& _(const T& t, Context& context)
     {

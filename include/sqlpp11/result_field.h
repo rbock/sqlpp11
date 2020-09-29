@@ -49,7 +49,7 @@ namespace sqlpp
 
     static Context& _(const T& t, Context& context)
     {
-      if (t.is_null() and not null_is_trivial_value_t<T>::value)
+      if (t.is_null())
       {
         context << "NULL";
       }

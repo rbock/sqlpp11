@@ -51,10 +51,9 @@ namespace sqlpp
               typename NameType,
               typename ValueType,
               bool CanBeNull,
-              bool NullIsTrivialValue,
               typename... Rest>
     struct make_field_index_sequence_impl<field_index_sequence<NextIndex, Ints...>,
-                                          field_spec_t<NameType, ValueType, CanBeNull, NullIsTrivialValue>,
+                                          field_spec_t<NameType, ValueType, CanBeNull>,
                                           Rest...>
     {
       using type = typename make_field_index_sequence_impl<field_index_sequence<NextIndex + 1, Ints..., NextIndex>,

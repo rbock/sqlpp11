@@ -45,7 +45,7 @@ namespace sqlpp
   {
     using _traits = make_traits<boolean, tag::is_expression>;
     using _lhs_t = Lhs;
-    using _rhs_t = rhs_wrap_t<allow_tvin_t<Rhs>, trivial_value_is_null_t<_lhs_t>::value>;
+    using _rhs_t = rhs_wrap_t<allow_tvin_t<Rhs>>;
     using _nodes = detail::type_vector<_lhs_t, _rhs_t>;
 
     binary_expression_t(Lhs lhs, Rhs rhs) : _lhs(lhs), _rhs(rhs)
@@ -93,7 +93,7 @@ namespace sqlpp
   {
     using _traits = make_traits<boolean, tag::is_expression>;
     using _lhs_t = Lhs;
-    using _rhs_t = rhs_wrap_t<allow_tvin_t<Rhs>, trivial_value_is_null_t<_lhs_t>::value>;
+    using _rhs_t = rhs_wrap_t<allow_tvin_t<Rhs>>;
     using _nodes = detail::type_vector<_lhs_t, _rhs_t>;
 
     binary_expression_t(Lhs lhs, Rhs rhs) : _lhs(lhs), _rhs(rhs)
@@ -164,16 +164,8 @@ namespace sqlpp
     static Context& _(const T& t, Context& context)
     {
       context << "(";
-      if (trivial_value_is_null_t<Rhs>::value)
-      {
-        serialize_operand(t._rhs, context);
-        context << " IS NULL ";
-      }
-      else
-      {
-        context << "NOT ";
-        serialize_operand(t._rhs, context);
-      }
+      context << "NOT ";
+      serialize_operand(t._rhs, context);
       context << ")";
 
       return context;

@@ -173,8 +173,6 @@ namespace sqlpp
   SQLPP_VALUE_TRAIT_GENERATOR(must_not_insert)
   SQLPP_VALUE_TRAIT_GENERATOR(must_not_update)
   SQLPP_VALUE_TRAIT_GENERATOR(require_insert)
-  SQLPP_VALUE_TRAIT_GENERATOR(trivial_value_is_null)
-  SQLPP_VALUE_TRAIT_GENERATOR(null_is_trivial_value)
 
   SQLPP_VALUE_TRAIT_GENERATOR(is_statement)
   SQLPP_VALUE_TRAIT_GENERATOR(is_prepared_statement)

@@ -35,9 +35,9 @@
 
 namespace sqlpp
 {
-  template <typename Db, typename NameType, bool CanBeNull, bool NullIsTrivialValue>
-  struct result_field_t<Db, field_spec_t<NameType, boolean, CanBeNull, NullIsTrivialValue>>
-      : public result_field_base<Db, field_spec_t<NameType, boolean, CanBeNull, NullIsTrivialValue>, signed char>
+  template <typename Db, typename NameType, bool CanBeNull>
+  struct result_field_t<Db, field_spec_t<NameType, boolean, CanBeNull>>
+      : public result_field_base<Db, field_spec_t<NameType, boolean, CanBeNull>, signed char>
   {
     template <typename Target>
     void _bind(Target& target, size_t index)

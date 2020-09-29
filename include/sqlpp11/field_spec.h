@@ -31,13 +31,12 @@
 
 namespace sqlpp
 {
-  template <typename NameType, typename ValueType, bool CanBeNull, bool NullIsTrivialValue>
+  template <typename NameType, typename ValueType, bool CanBeNull>
   struct field_spec_t
   {
     using _traits = make_traits<ValueType,
                                 tag::is_noop,
-                                tag_if<tag::can_be_null, CanBeNull>,
-                                tag_if<tag::null_is_trivial_value, NullIsTrivialValue>>;
+                                tag_if<tag::can_be_null, CanBeNull>>;
     using _nodes = detail::type_vector<>;
 
     using _alias_t = NameType;
@@ -64,20 +63,17 @@ namespace sqlpp
   template <typename LeftName,
             typename LeftValue,
             bool LeftCanBeNull,
-            bool LeftNullIsTrivial,
             typename RightName,
             typename RightValue,
-            bool RightCanBeNull,
-            bool RightNullIsTrivial>
-  struct is_field_compatible<field_spec_t<LeftName, LeftValue, LeftCanBeNull, LeftNullIsTrivial>,
-                             field_spec_t<RightName, RightValue, RightCanBeNull, RightNullIsTrivial>>
+            bool RightCanBeNull>
+  struct is_field_compatible<field_spec_t<LeftName, LeftValue, LeftCanBeNull>,
+                             field_spec_t<RightName, RightValue, RightCanBeNull>>
   {
     static constexpr auto value =
         std::is_same<typename LeftName::_name_t, typename RightName::_name_t>::value and
         std::is_same<LeftValue, RightValue>::value and  // Same value type
-        (LeftCanBeNull or !RightCanBeNull) and  // The left hand side determines the result row and therefore must allow
-                                                // NULL if the right hand side allows it
-        (LeftNullIsTrivial or !RightNullIsTrivial);  // as above
+        (LeftCanBeNull or !RightCanBeNull);  // The left hand side determines the result row and therefore must allow
+                                             // NULL if the right hand side allows it
   };
 
   template <typename LeftAlias, typename... LeftFields, typename RightAlias, typename... RightFields>
@@ -100,8 +96,7 @@ namespace sqlpp
 
       using type = field_spec_t<typename NamedExpr::_alias_t,
                                 value_type_of<NamedExpr>,
-                                logic::any_t<_can_be_null, _depends_on_outer_table>::value,
-                                null_is_trivial_value_t<NamedExpr>::value>;
+                                logic::any_t<_can_be_null, _depends_on_outer_table>::value>;
     };
 
     template <typename Select, typename AliasProvider, typename... NamedExprs>
