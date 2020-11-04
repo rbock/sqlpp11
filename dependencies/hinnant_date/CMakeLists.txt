@@ -22,4 +22,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-FetchContent_MakeAvailable(date)
+FetchContent_GetProperties(date)
+if (NOT date_POPULATED)
+    FetchContent_Populate(date)
+    add_subdirectory(${date_SOURCE_DIR} ${date_BINARY_DIR})
+endif()
