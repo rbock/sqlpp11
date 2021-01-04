@@ -33,8 +33,8 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 include(CTest)
 
 
-### Dependencies 
-add_subdirectory(dependencies)
+### Third party 
+add_subdirectory(third_party)
 
 ### Main targets
 add_library(sqlpp11 INTERFACE)
