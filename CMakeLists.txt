@@ -32,9 +32,13 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 
 include(CTest)
 
-
-### Dependencies 
-add_subdirectory(dependencies)
+# instructions for install date
+# git clone https://github.com/HowardHinnant/date.git
+# cd date && mkdir build && cd build
+# cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~/usr
+# make install
+find_package(date REQUIRED)
+message(STATUS "Using date " ${date_VERSION})
 
 ### Main targets
 add_library(sqlpp11 INTERFACE)
