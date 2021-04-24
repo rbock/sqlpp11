@@ -173,12 +173,14 @@ namespace sqlpp
 
     pool_connection<Connection_config, Reconnect_policy, Connection> get_connection()
     {
-      std::lock_guard<std::mutex> lock(connection_pool_mutex);
-      if (!free_connections.empty())
       {
-        auto connection = std::move(free_connections.top());
-        free_connections.pop();
-        return pool_connection<Connection_config, Reconnect_policy, Connection>(connection, this);
+        std::lock_guard<std::mutex> lock(connection_pool_mutex);
+        if (!free_connections.empty())
+        {
+          auto connection = std::move(free_connections.top());
+          free_connections.pop();
+          return pool_connection<Connection_config, Reconnect_policy, Connection>(connection, this);
+        }
       }
 
       try
