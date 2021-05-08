@@ -1,5 +1,5 @@
 # Introduction
-_This page explains select statements with a static structure. If you want to learn about constructing select statements at runtime, you should still read this page first and then move on to [dynamic select statements](Dynamic-Select)._
+_This page explains select statements with a static structure. If you want to learn about constructing select statements at runtime, you should still read this page first and then move on to [dynamic select statements](Dynamic-Select.md)._
 
 Lets assume we have a table representing
 
@@ -10,9 +10,9 @@ CREATE TABLE foo (
     hasFun bool
 );
 ```
-(This is SQL for brevity, not C++, see [here](Tables) for details on how to define types representing the tables and columns you want to work with)
+(This is SQL for brevity, not C++, see [here](Tables.md) for details on how to define types representing the tables and columns you want to work with)
 
-Lets also assume we have an object `db` representing a connection to your [database](./Database).
+Lets also assume we have an object `db` representing a connection to your [database](Database.md).
 
 # A Basic example
 This shows how you can select some data from table and iterate over the results:
@@ -49,7 +49,7 @@ Ok, so the variable row is an object that represents a single result row. You re
 ## Select
 The `select` method takes zero or more named expression arguments.
 
-Named expressions are expressions with a name. No surprise there. But what kind of expressions have a name? Table columns, for instance. In our example, that would be `foo.id`, `foo.name` and `foo.hasFun`. Most [function](Functions) calls also result in named expressions, like `count(foo.id)`.
+Named expressions are expressions with a name. No surprise there. But what kind of expressions have a name? Table columns, for instance. In our example, that would be `foo.id`, `foo.name` and `foo.hasFun`. Most [function](Functions.md) calls also result in named expressions, like `count(foo.id)`.
 
 So what about unnamed expressions? Results of binary operators like `(foo.id + 17) * 4` have no name. But you can give them a name using the `as(alias)` method. The easiest way is to use a named expression as alias, for instance `((foo.id + 17) * 4).as(foo.id)`, e.g.
 
@@ -87,7 +87,7 @@ All examples above called the `select()` function with one or more arguments, bu
 sqlpp::select().columns(foo.id, foo.name);
 ```
 
-See also [dynamic select statements](Dynamic-Select).
+See also [dynamic select statements](Dynamic-Select.md).
 
 ### Select Flags
 The following flags are currently supported:

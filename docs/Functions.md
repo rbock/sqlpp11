@@ -1,6 +1,6 @@
 sqlpp11 offers equivalents for quite a few SQL functions. It also has some additional functions to make the developer's life easier, see [Misc Functions](#Misc-Functions).
 
-If functions can be used as select columns, the column's name is the name of the function. You can use `.as()` of course to give it another name, see [Select](Select). There are just a few exceptions like `any()` which cannot be named.
+If functions can be used as select columns, the column's name is the name of the function. You can use `.as()` of course to give it another name, see [Select](Select.md). There are just a few exceptions like `any()` which cannot be named.
 
 # Member Functions
 ## in and not_in
@@ -78,7 +78,7 @@ auto e = (tab.foo == 17);
 if (userWantsBar)
    e = (tab.bar == 17);  // won't compile
 ```
-You can use [dynamic select](Dynamic Select), but there is an alternative, the `flatten()` method, which turns the expression into a more generic expression type (it just "remembers" whether it is a text, boolean etc).
+You can use [dynamic select](Dynamic-Select.md), but there is an alternative, the `flatten()` method, which turns the expression into a more generic expression type (it just "remembers" whether it is a text, boolean etc).
 ```C++
 auto e = flatten(tab.foo == 17);
 if (userWantsBar)

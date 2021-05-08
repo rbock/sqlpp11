@@ -1,5 +1,5 @@
 # Introduction
-_This page explains dynamic select statements. Before studying this page, you should read about [static select statements](Select)._
+_This page explains dynamic select statements. Before studying this page, you should read about [static select statements](Select.md)._
 
 If you know the exact structure of your queries at compile time, statically constructed select statements are perfect. But if the structure depends on runtime information like user input, you will need dynamic select statements. Depending on your needs, you can choose the required dosage.
 

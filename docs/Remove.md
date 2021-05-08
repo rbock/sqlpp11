@@ -1,4 +1,4 @@
-Since `delete` is keyword in C++ that has a different meaning than `delete` in SQL, sqlpp11 calls the method remove. There is no detailed documentation available yet, but here is an example that might help if you have read about [select statements](Select) already:
+Since `delete` is keyword in C++ that has a different meaning than `delete` in SQL, sqlpp11 calls the method remove. There is no detailed documentation available yet, but here is an example that might help if you have read about [select statements](Select.md) already:
 
 ```C++
 db(remove_from(tab).where(tab.alpha == tab.alpha + 3));
