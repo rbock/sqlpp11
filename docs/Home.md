@@ -22,4 +22,3 @@ The following pages will tell you how to use it:
 * [Prepared Statements](Prepared-Statements.md)
 * [NULL](NULL.md)
 * [New Features](New-Features.md)
-* [Planned Features](Planned-Features.md)
