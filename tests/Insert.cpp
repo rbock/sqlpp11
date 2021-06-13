@@ -35,6 +35,7 @@ int Insert(int, char*[])
   MockDb db = {};
   MockDb::_serializer_context_t printer = {};
   const auto t = test::TabBar{};
+  const auto tabDateTime = test::TabDateTime{};
   // test::TabFoo f;
 
   {
@@ -70,6 +71,14 @@ int Insert(int, char*[])
                           t.delta = sqlpp::value_or_null<sqlpp::integer>(sqlpp::null));
   printer.reset();
   std::cerr << serialize(multi_insert, printer).str() << std::endl;
+
+  // Beware, you need exact types for inserted values in multi_insert
+  insert_into(tabDateTime)
+      .set(tabDateTime.colTimePoint = std::chrono::system_clock::now());
+
+  auto multi_time_insert = insert_into(tabDateTime).columns(tabDateTime.colTimePoint);
+  multi_time_insert.values.add(tabDateTime.colTimePoint = std::chrono::time_point_cast<std::chrono::microseconds>(
+                                   std::chrono::system_clock::now()));
 
   auto i = dynamic_insert_into(db, t).dynamic_set();
   i.insert_list.add(t.beta = "kirschauflauf");
