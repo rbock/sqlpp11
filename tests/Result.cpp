@@ -45,11 +45,6 @@ int Result(int, char* [])
     static_assert(sqlpp::can_be_null_t<T>::value, "row.alpha can be null");
     static_assert(sqlpp::is_result_field_t<T>::value, "result_fields are not wrapped");
 
-    bool x = (t.alpha == row.alpha)._rhs._is_null();
-    bool y = (t.alpha == row.alpha)._rhs._is_default();
-    std::cerr << x << std::endl;
-    std::cerr << y << std::endl;
-
     for (const auto& sub : db(select(all_of(t)).from(t).where(t.alpha == row.alpha)))
     {
       std::cerr << sub.alpha << std::endl;

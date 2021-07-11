@@ -31,7 +31,6 @@
 #include <sqlpp11/data_types/boolean.h>
 #include <sqlpp11/expression_fwd.h>
 #include <sqlpp11/noop.h>
-#include <sqlpp11/rhs_wrap.h>
 #include <sqlpp11/serializer.h>
 #include <sqlpp11/wrap_operand.h>
 
@@ -44,7 +43,7 @@ namespace sqlpp
   {
     using _traits = make_traits<boolean, tag::is_expression>;
     using _lhs_t = Lhs;
-    using _rhs_t = rhs_wrap_t<Rhs>;
+    using _rhs_t = Rhs;
     using _nodes = detail::type_vector<_lhs_t, _rhs_t>;
 
     binary_expression_t(Lhs lhs, Rhs rhs) : _lhs(lhs), _rhs(rhs)
@@ -85,7 +84,7 @@ namespace sqlpp
   {
     using _traits = make_traits<boolean, tag::is_expression>;
     using _lhs_t = Lhs;
-    using _rhs_t = rhs_wrap_t<Rhs>;
+    using _rhs_t = Rhs;
     using _nodes = detail::type_vector<_lhs_t, _rhs_t>;
 
     binary_expression_t(Lhs lhs, Rhs rhs) : _lhs(lhs), _rhs(rhs)

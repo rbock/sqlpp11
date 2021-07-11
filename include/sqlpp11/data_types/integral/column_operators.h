@@ -47,7 +47,7 @@ namespace sqlpp
       using rhs = wrap_operand_t<T>;
       static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
 
-      return {*static_cast<const Column*>(this), {{*static_cast<const Column*>(this), rhs{t}}}};
+      return {*static_cast<const Column*>(this), {*static_cast<const Column*>(this), rhs{t}}};
     }
 
     template <typename T>
@@ -56,7 +56,7 @@ namespace sqlpp
       using rhs = wrap_operand_t<T>;
       static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
 
-      return {*static_cast<const Column*>(this), {{*static_cast<const Column*>(this), rhs{t}}}};
+      return {*static_cast<const Column*>(this), {*static_cast<const Column*>(this), rhs{t}}};
     }
 
     template <typename T>
@@ -65,7 +65,7 @@ namespace sqlpp
       using rhs = wrap_operand_t<T>;
       static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
 
-      return {*static_cast<const Column*>(this), {{*static_cast<const Column*>(this), rhs{t}}}};
+      return {*static_cast<const Column*>(this), {*static_cast<const Column*>(this), rhs{t}}};
     }
 
     template <typename T>
@@ -74,7 +74,7 @@ namespace sqlpp
       using rhs = wrap_operand_t<T>;
       static_assert(_is_valid_operand<rhs>::value, "invalid rhs assignment operand");
 
-      return {*static_cast<const Column*>(this), {{*static_cast<const Column*>(this), rhs{t}}}};
+      return {*static_cast<const Column*>(this), {*static_cast<const Column*>(this), rhs{t}}};
     }
   };
 }  // namespace sqlpp

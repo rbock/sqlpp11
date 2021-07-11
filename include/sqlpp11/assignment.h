@@ -29,7 +29,6 @@
 
 #include <sqlpp11/default_value.h>
 #include <sqlpp11/null.h>
-#include <sqlpp11/rhs_wrap.h>
 #include <sqlpp11/serialize.h>
 #include <sqlpp11/serializer.h>
 #include <sqlpp11/simple_column.h>
@@ -41,7 +40,7 @@ namespace sqlpp
   {
     using _traits = make_traits<no_value_t, tag::is_assignment>;
     using _lhs_t = Lhs;
-    using _rhs_t = rhs_wrap_t<Rhs>;
+    using _rhs_t = Rhs;
     using _nodes = detail::type_vector<_lhs_t, _rhs_t>;
 
     static_assert(can_be_null_t<_lhs_t>::value ? true
