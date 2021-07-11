@@ -87,12 +87,12 @@ int Insert(int, char*[])
 
   db(multi_insert);
 
-  auto values = [&t]() { return std::make_tuple(t.gamma = true, t.delta = sqlpp::tvin(0)); };
+  auto values = [&t]() { return std::make_tuple(t.gamma = true, t.beta = sqlpp::null); };
 
   db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::verbatim<sqlpp::integer>("17+4")));
   db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::null));
   db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::default_value));
-  db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::tvin(0)));
+  db(insert_into(t).set(t.gamma = true, t.delta = 0));
   db(insert_into(t).set(values()));
 
   return 0;

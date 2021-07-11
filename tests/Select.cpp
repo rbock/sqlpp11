@@ -134,7 +134,7 @@ int Select(int, char*[])
     std::cout << row.count << std::endl;
   }
 
-  for (const auto& row : db(select(count(t.alpha), avg(t.alpha)).from(t).where(t.alpha == sqlpp::tvin(0))))
+  for (const auto& row : db(select(count(t.alpha), avg(t.alpha)).from(t).where(t.alpha == 0)))
   {
     std::cout << row.count << std::endl;
   }

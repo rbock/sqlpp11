@@ -29,7 +29,6 @@
 
 #include <sqlpp11/default_value.h>
 #include <sqlpp11/null.h>
-#include <sqlpp11/tvin.h>
 #include <sqlpp11/rhs_wrap.h>
 #include <sqlpp11/serialize.h>
 #include <sqlpp11/serializer.h>
@@ -42,11 +41,11 @@ namespace sqlpp
   {
     using _traits = make_traits<no_value_t, tag::is_assignment>;
     using _lhs_t = Lhs;
-    using _rhs_t = rhs_wrap_t<allow_tvin_t<Rhs>>;
+    using _rhs_t = rhs_wrap_t<Rhs>;
     using _nodes = detail::type_vector<_lhs_t, _rhs_t>;
 
     static_assert(can_be_null_t<_lhs_t>::value ? true
-                                               : not(std::is_same<_rhs_t, null_t>::value or is_tvin_t<_rhs_t>::value),
+                                               : not std::is_same<_rhs_t, null_t>::value,
                   "column must not be null");
 
     assignment_t(_lhs_t lhs, _rhs_t rhs) : _lhs(lhs), _rhs(rhs)

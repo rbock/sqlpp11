@@ -45,7 +45,7 @@ int Insert(int, char* [])
   compare(__LINE__, insert_into(bar).default_values(), "INSERT INTO tab_bar DEFAULT VALUES");
   compare(__LINE__, insert_into(bar).set(bar.beta = "cheesecake", bar.gamma = true),
           "INSERT INTO tab_bar (beta,gamma) VALUES('cheesecake'," + getTrue() + ")");
-  compare(__LINE__, insert_into(bar).set(bar.beta = ::sqlpp::tvin(""), bar.gamma = true),
+  compare(__LINE__, insert_into(bar).set(bar.beta = ::sqlpp::null, bar.gamma = true),
           "INSERT INTO tab_bar (beta,gamma) VALUES(NULL," + getTrue() + ")");
 #if __cplusplus >= 201703L
   // string_view argument

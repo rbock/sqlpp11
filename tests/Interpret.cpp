@@ -43,9 +43,6 @@ int Interpret(int, char* [])
     auto i = insert_into(t).columns(t.gamma, t.beta);
     i.values.add(t.gamma = true, t.beta = "cheesecake");
     serialize(i, printer).str();
-    i.values.add(t.gamma = false, t.beta = sqlpp::tvin("coffee"));
-    i.values.add(t.gamma = false, t.beta = sqlpp::tvin(std::string()));
-    serialize(i, printer).str();
     i.values.add(t.gamma = sqlpp::default_value, t.beta = sqlpp::null);
     serialize(i, printer).str();
   }
@@ -57,13 +54,9 @@ int Interpret(int, char* [])
   serialize(+t.alpha, printer).str();
   serialize(-(t.alpha + 7), printer).str();
   serialize(t.alpha = 0, printer).str();
-  serialize(t.alpha = sqlpp::tvin(0), printer).str();
   serialize(t.alpha == 0, printer).str();
-  serialize(t.alpha == sqlpp::tvin(0), printer).str();
   serialize(t.alpha != 0, printer).str();
-  serialize(t.gamma != sqlpp::tvin(false), printer).str();
   serialize(t.alpha == 7, printer).str();
-  serialize(t.delta = sqlpp::tvin(0), printer).str();
   serialize(t.beta + "kaesekuchen", printer).str();
 
   serialize(sqlpp::select(), printer).str();
@@ -103,8 +96,6 @@ int Interpret(int, char* [])
   serialize(insert_into(t), printer).str();
   serialize(insert_into(f).default_values(), printer).str();
   serialize(insert_into(t).set(t.gamma = true), printer).str();
-  // serialize(insert_into(t).set(t.gamma = sqlpp::tvin(false)), printer).str(); cannot test this since gamma cannot be
-  // null and a static assert is thrown
 
   serialize(update(t), printer).str();
   serialize(update(t).set(t.gamma = true), printer).str();
@@ -113,8 +104,6 @@ int Interpret(int, char* [])
 
   serialize(remove_from(t), printer).str();
   serialize(remove_from(t).using_(t), printer).str();
-  serialize(remove_from(t).where(t.alpha == sqlpp::tvin(0)), printer).str();
-  serialize(remove_from(t).using_(t).where(t.alpha == sqlpp::tvin(0)), printer).str();
 
   // functions
   serialize(sqlpp::value(7), printer).str();

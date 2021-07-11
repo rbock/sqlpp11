@@ -63,7 +63,7 @@ int Where(int, char*[])
   // Sometimes
   compare(__LINE__, where(bar.gamma), " WHERE tab_bar.gamma");
   compare(__LINE__, where(bar.gamma == false), " WHERE (tab_bar.gamma=" + getFalse() + ")");
-  compare(__LINE__, where(bar.gamma == ::sqlpp::tvin(false)), " WHERE (tab_bar.gamma IS NULL)");
+  compare(__LINE__, where(bar.beta.is_null()), " WHERE tab_bar.beta IS NULL");
   compare(__LINE__, where(bar.beta == "SQL"), " WHERE (tab_bar.beta='SQL')");
 #if __cplusplus >= 201703L
   // string_view argument

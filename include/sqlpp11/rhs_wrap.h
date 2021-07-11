@@ -29,7 +29,6 @@
 
 #include <sqlpp11/default_value.h>
 #include <sqlpp11/null.h>
-#include <sqlpp11/tvin.h>
 
 namespace sqlpp
 {
@@ -46,15 +45,6 @@ namespace sqlpp
 
     template <typename Expr>
     struct rhs_is_trivial_t<Expr, typename std::enable_if<is_wrapped_value_t<Expr>::value, void>::type>
-    {
-      static bool _(const Expr& t)
-      {
-        return t._is_trivial();
-      }
-    };
-
-    template <typename Expr>
-    struct rhs_is_trivial_t<Expr, typename std::enable_if<is_tvin_t<Expr>::value, void>::type>
     {
       static bool _(const Expr& t)
       {
@@ -82,15 +72,6 @@ namespace sqlpp
       static constexpr bool _(const Expr& /*unused*/)
       {
         return false;
-      }
-    };
-
-    template <typename Expr>
-    struct rhs_is_null_t<Expr, typename std::enable_if<is_tvin_t<Expr>::value, void>::type>
-    {
-      static bool _(const Expr& t)
-      {
-        return t._is_null();
       }
     };
 

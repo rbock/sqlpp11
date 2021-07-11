@@ -33,7 +33,6 @@
 #include <sqlpp11/noop.h>
 #include <sqlpp11/rhs_wrap.h>
 #include <sqlpp11/serializer.h>
-#include <sqlpp11/tvin.h>
 #include <sqlpp11/wrap_operand.h>
 
 namespace sqlpp
@@ -45,7 +44,7 @@ namespace sqlpp
   {
     using _traits = make_traits<boolean, tag::is_expression>;
     using _lhs_t = Lhs;
-    using _rhs_t = rhs_wrap_t<allow_tvin_t<Rhs>>;
+    using _rhs_t = rhs_wrap_t<Rhs>;
     using _nodes = detail::type_vector<_lhs_t, _rhs_t>;
 
     binary_expression_t(Lhs lhs, Rhs rhs) : _lhs(lhs), _rhs(rhs)
@@ -72,15 +71,8 @@ namespace sqlpp
     {
       context << "(";
       serialize_operand(t._lhs, context);
-      if (t._rhs._is_null())
-      {
-        context << " IS NULL";
-      }
-      else
-      {
-        context << "=";
-        serialize_operand(t._rhs, context);
-      }
+      context << "=";
+      serialize_operand(t._rhs, context);
       context << ")";
       return context;
     }
@@ -93,7 +85,7 @@ namespace sqlpp
   {
     using _traits = make_traits<boolean, tag::is_expression>;
     using _lhs_t = Lhs;
-    using _rhs_t = rhs_wrap_t<allow_tvin_t<Rhs>>;
+    using _rhs_t = rhs_wrap_t<Rhs>;
     using _nodes = detail::type_vector<_lhs_t, _rhs_t>;
 
     binary_expression_t(Lhs lhs, Rhs rhs) : _lhs(lhs), _rhs(rhs)
@@ -120,15 +112,8 @@ namespace sqlpp
     {
       context << "(";
       serialize_operand(t._lhs, context);
-      if (t._rhs._is_null())
-      {
-        context << " IS NOT NULL";
-      }
-      else
-      {
-        context << "<>";
-        serialize_operand(t._rhs, context);
-      }
+      context << "<>";
+      serialize_operand(t._rhs, context);
       context << ")";
       return context;
     }

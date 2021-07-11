@@ -108,7 +108,6 @@ int Prepared(int, char* [])
                                              t.gamma != parameter(t.gamma));
     auto p = db.prepare(s);
     p.params.alpha = 7;
-    p.params.alpha = sqlpp::tvin(0);
     using S = decltype(s);
     using P = sqlpp::make_parameter_list_t<S>;
     P npl;
