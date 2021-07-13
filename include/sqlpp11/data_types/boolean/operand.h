@@ -59,11 +59,6 @@ namespace sqlpp
     boolean_operand& operator=(boolean_operand&&) = default;
     ~boolean_operand() = default;
 
-    bool _is_trivial() const
-    {
-      return not _t;
-    }
-
     _value_t _t;
   };
 

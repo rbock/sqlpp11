@@ -57,11 +57,6 @@ namespace sqlpp
     integral_operand& operator=(integral_operand&&) = default;
     ~integral_operand() = default;
 
-    bool _is_trivial() const
-    {
-      return _t == 0;
-    }
-
     _value_t _t;
   };
 

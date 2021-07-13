@@ -57,11 +57,6 @@ namespace sqlpp
     unsigned_integral_operand& operator=(unsigned_integral_operand&&) = default;
     ~unsigned_integral_operand() = default;
 
-    bool _is_trivial() const
-    {
-      return _t == 0;
-    }
-
     _value_t _t;
   };
 

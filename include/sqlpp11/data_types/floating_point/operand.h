@@ -55,11 +55,6 @@ namespace sqlpp
     floating_point_operand& operator=(floating_point_operand&&) = default;
     ~floating_point_operand() = default;
 
-    bool _is_trivial() const
-    {
-      return _t == 0;
-    }
-
     _value_t _t;
   };
 

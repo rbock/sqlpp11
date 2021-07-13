@@ -59,11 +59,6 @@ namespace sqlpp
     time_of_day_operand& operator=(time_of_day_operand&&) = default;
     ~time_of_day_operand() = default;
 
-    bool _is_trivial() const
-    {
-      return std::chrono::operator==(_t, _value_t{});
-    }
-
     _value_t _t;
   };
 

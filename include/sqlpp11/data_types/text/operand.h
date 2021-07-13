@@ -70,11 +70,6 @@ namespace sqlpp
     text_operand& operator=(text_operand&&) = default;
     ~text_operand() = default;
 
-    bool _is_trivial() const
-    {
-      return _t.empty();
-    }
-
     _value_t _t;
   };
 

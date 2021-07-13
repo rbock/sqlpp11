@@ -63,11 +63,6 @@ namespace sqlpp
     blob_operand& operator=(blob_operand&&) = default;
     ~blob_operand() = default;
 
-    bool _is_trivial() const
-    {
-      return _t.empty();
-    }
-
     _value_t _t;
   };
 

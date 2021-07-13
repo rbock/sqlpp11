@@ -35,11 +35,6 @@ namespace sqlpp
   {
     using _traits = make_traits<no_value_t, tag::is_expression>;
     using _nodes = detail::type_vector<>;
-
-    static constexpr bool _is_trivial()
-    {
-      return false;
-    }
   };
 
   template <typename Context>
