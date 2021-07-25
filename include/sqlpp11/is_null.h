@@ -78,8 +78,9 @@ namespace sqlpp
 
     static Context& _(const T& t, Context& context)
     {
+      context << "(";
       serialize_operand(t._operand, context);
-      context << " IS NULL";
+      context << " IS NULL)";
       return context;
     }
   };
