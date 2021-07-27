@@ -24,7 +24,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ### Preamble
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 project(sqlpp11 VERSION 0.1 LANGUAGES CXX)
 
 ### Project Wide Setup
@@ -32,14 +32,12 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 
 include(CTest)
 
-
-### Dependencies 
-add_subdirectory(dependencies)
-
 ### Main targets
 add_library(sqlpp11 INTERFACE)
 add_library(sqlpp11::sqlpp11 ALIAS sqlpp11)
 
+find_package(Threads REQUIRED)
+find_package(date REQUIRED)
 target_link_libraries(sqlpp11 INTERFACE date::date)
 
 target_include_directories(sqlpp11 INTERFACE
