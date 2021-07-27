@@ -18,14 +18,17 @@ build_script:
   - CD
   - git clone https://github.com/HowardHinnant/date
   - cd date
-  - git checkout tags/v2.4
-  - cd ..
+  - git checkout tags/v3.0.1
+  - mkdir build && mkdir prefix && cd build
+  - cmake -DCMAKE_INSTALL_PREFIX="%cd%\..\prefix" -DBUILD_TZ_LIB=OFF ..
+  - cmake --build . --target install
+  - cd ..\..
   - cd sqlpp11
   - CD
   - echo %configuration%
   - mkdir build
   - cd build
   - cmake --version
-  - cmake .. -DCMAKE_CXX_FLAGS="/EHsc /wd4503" -DCMAKE_PREFIX_PATH="C:\projects\date"
+  - cmake .. -DCMAKE_CXX_FLAGS="/EHsc /wd4503" -DCMAKE_PREFIX_PATH="%cd%\..\..\date\prefix"
   - cmake --build . --config %configuration%
   - ctest . --build-config %configuration%

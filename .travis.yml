@@ -21,7 +21,20 @@ notifications:
    on_failure: always
 
 install:
+  - PROJECT_DIR=`pwd`
   - g++ --version
+  - cd ..
+  - git clone https://github.com/HowardHinnant/date
+  - cd date
+  - git checkout tags/v3.0.1
+  - mkdir build && mkdir prefix && cd build
+  - >
+    cmake \
+      -D CMAKE_INSTALL_PREFIX=`pwd`/../prefix \
+      -D BUILD_TZ_LIB=OFF \
+      ..
+  - cmake --build . --target install
+  - cd $PROJECT_DIR
 
 before_script:
    - mkdir build
@@ -32,7 +45,7 @@ before_script:
          sudo apt-get install python-pyparsing;
      fi
    - if [[ "$CXX" = "g++" && "$CONFIG" = "Debug" && "$TRAVIS_OS_NAME" = "linux" ]]; then export CXXFLAGS="--coverage"; fi
-   - cmake .. -DCMAKE_BUILD_TYPE=$CONFIG -DCMAKE_PREFIX_PATH=$PWD/../date $ADD_OPTS
+   - cmake .. -DCMAKE_BUILD_TYPE=$CONFIG -DCMAKE_PREFIX_PATH=`pwd`/../../date/prefix $ADD_OPTS
 
 script:
    - cmake --build . --config $CONFIG
