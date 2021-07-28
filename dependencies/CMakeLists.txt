@@ -23,10 +23,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-if(USE_SYSTEM_DATE)
-    find_package(Threads REQUIRED)
-    find_package(date REQUIRED)
-else()
+if(NOT USE_SYSTEM_DATE)
     include(FetchContent)
 
     FetchContent_Declare(date

@@ -37,6 +37,10 @@ option(USE_SYSTEM_DATE "\
     date library instead of fetching it from github" OFF
 )
 
+if(USE_SYSTEM_DATE)
+    find_package(date REQUIRED)
+endif()
+
 ### Dependencies 
 add_subdirectory(dependencies)
 
