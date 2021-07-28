@@ -32,6 +32,10 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 
 include(CTest)
 
+option(USE_SYSTEM_DATE "\
+    Use find_package to find installed HowardHinnant's \
+    date library instead of fetching it from github" OFF
+)
 
 ### Dependencies 
 add_subdirectory(dependencies)

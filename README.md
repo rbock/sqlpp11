@@ -135,7 +135,7 @@ To demonstrate that sqlpp11 can work with other backends as well, here is an exp
   * STL Container: https://github.com/rbock/sqlpp11-connector-stl
 
 __Date Library:__
-sqlpp11 requires [Howard Hinnant's date library](https://github.com/HowardHinnant/date) for `date` and `date_time` data types. Sqlpp11 uses FetchContent to pull the library automatically in the project.
+sqlpp11 requires [Howard Hinnant's date library](https://github.com/HowardHinnant/date) for `date` and `date_time` data types. By default, sqlpp11 uses FetchContent to pull the library automatically in the project. If you want to use an already installed version of the library with `find_package`, set `USE_SYSTEM_DATE` option to `ON`.
 
 Build and Install
 -----------------
