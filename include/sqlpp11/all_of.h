@@ -28,7 +28,7 @@
 #define SQLPP11_ALL_OF_H
 
 #include <sqlpp11/alias.h>
-#include <sqlpp11/interpret.h>
+#include <sqlpp11/serialize.h>
 #include <sqlpp11/portable_static_assert.h>
 
 namespace sqlpp

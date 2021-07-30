@@ -28,7 +28,7 @@
 #define SQLPP11_SCHEMA_QUALIFIED_TABLE_H
 
 #include <sqlpp11/column_fwd.h>
-#include <sqlpp11/interpret.h>
+#include <sqlpp11/serialize.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/schema.h>
 #include <sqlpp11/table_alias.h>
