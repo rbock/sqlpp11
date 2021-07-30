@@ -251,8 +251,6 @@ namespace sqlpp
         consistency_check_t<_statement_t>{};
         static_assert(_statement_t::_can_be_used_as_table(),
                       "statement cannot be used as table, e.g. due to missing tables");
-        static_assert(logic::none_t<is_multi_column_t<Columns>::value...>::value,
-                      "cannot use multi-columns in sub selects");
         return _table_t<AliasProvider>(_get_statement()).as(aliasProvider);
       }
 
@@ -306,8 +304,7 @@ namespace sqlpp
   struct check_selected_columns
   {
     using type = static_combined_check_t<
-        static_check_t<logic::all_t<(is_selectable_t<T>::value or is_multi_column_t<T>::value)...>::value,
-                       assert_selected_colums_are_selectable_t>>;
+        static_check_t<logic::all_t<is_selectable_t<T>::value...>::value, assert_selected_colums_are_selectable_t>>;
   };
   template <typename... T>
   using check_selected_columns_t = typename check_selected_columns<T...>::type;

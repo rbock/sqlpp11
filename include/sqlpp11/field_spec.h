@@ -27,7 +27,7 @@
 #ifndef SQLPP11_FIELD_SPEC_H
 #define SQLPP11_FIELD_SPEC_H
 
-#include <sqlpp11/multi_column.h>
+#include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
@@ -40,18 +40,6 @@ namespace sqlpp
     using _nodes = detail::type_vector<>;
 
     using _alias_t = NameType;
-  };
-
-  template <typename AliasProvider, typename FieldSpecTuple>
-  struct multi_field_spec_t
-  {
-    static_assert(wrong_t<AliasProvider, FieldSpecTuple>::value,
-                  "multi_field_spec_t needs to be specialized with a tuple");
-  };
-
-  template <typename AliasProvider, typename... FieldSpecs>
-  struct multi_field_spec_t<AliasProvider, std::tuple<FieldSpecs...>>
-  {
   };
 
   template <typename Left, typename Right, typename Enable = void>
@@ -76,14 +64,6 @@ namespace sqlpp
                                              // NULL if the right hand side allows it
   };
 
-  template <typename LeftAlias, typename... LeftFields, typename RightAlias, typename... RightFields>
-  struct is_field_compatible<multi_field_spec_t<LeftAlias, std::tuple<LeftFields...>>,
-                             multi_field_spec_t<RightAlias, std::tuple<RightFields...>>,
-                             typename std::enable_if<sizeof...(LeftFields) == sizeof...(RightFields)>::type>
-  {
-    static constexpr auto value = logic::all_t<is_field_compatible<LeftFields, RightFields>::value...>::value;
-  };
-
   namespace detail
   {
     template <typename Select, typename NamedExpr>
@@ -97,13 +77,6 @@ namespace sqlpp
       using type = field_spec_t<typename NamedExpr::_alias_t,
                                 value_type_of<NamedExpr>,
                                 logic::any_t<_can_be_null, _depends_on_outer_table>::value>;
-    };
-
-    template <typename Select, typename AliasProvider, typename... NamedExprs>
-    struct make_field_spec_impl<Select, multi_column_alias_t<AliasProvider, NamedExprs...>>
-    {
-      using type =
-          multi_field_spec_t<AliasProvider, std::tuple<typename make_field_spec_impl<Select, NamedExprs>::type...>>;
     };
   }  // namespace detail
 

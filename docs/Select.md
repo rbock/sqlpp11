@@ -75,7 +75,7 @@ Using aliases also comes in handy when you join tables and have several columns 
 select(foo.id, bar.id); // compile error
 ```
 
-One of the columns needs an alias (or you use multi-columns as shown below).
+One of the columns needs an alias.
 ```C++
 SQLPP_ALIAS_PROVIDER(barId);
 select(foo.id, bar.id.as(barId));
@@ -129,28 +129,6 @@ Statements like `SELECT * from foo` is used pretty often in SQL. sqlpp11 offers 
 ```C++
 select(all_of(foo));
 ```
-### Multi-Columns
-Sometimes, when you join tables `foo`, `bar` and `baz`, you might want to select several columns of the same name. As shown above, you could use aliases to resolve name clashes. Another option is to group columns together in multi-columns. Here is an example:
-
-```
-SQLPP_ALIAS_PROVIDER_GENERATOR(left);
-for(const auto& row : db(
-          select(foo.id,
-               multi_column(left, foo.id, foo.name, foo.hasFun), 
-               multi_column(foo, all_of(foo)))
-          .from(foo)))
-{
-  std::cerr << "row.left.id: " << row.left.id 
-            << ", row.left.name: " << row.left.name 
-            << ", row.left.hasFun: " << row.left.hasFun <<  std::endl;
-  std::cerr << "row.foo.id: " << row.foo.id 
-            << ", row.foo.name: " << row.foo.name 
-            << ", row.foo.hasFun: " << row.foo.hasFun <<  std::endl;
-};
-```
-That might not be the most creative example in the world, but it shows how to use multi-columns. The first argument is an alias provider. In the cases shown above, the alias provider `left` is created using the `SQLPP_ALIAS_PROVIDER` macro. Tables also have a name and can provide an alias.
-
-In the result rows, the multi-columns are accessed by their name. Their members in turn are accessed by their names.
 
 ## From
 The `from` method expects one argument. The following subsections expand on the types of valid arguments:

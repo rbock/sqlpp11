@@ -330,34 +330,6 @@ int SelectType(int, char*[])
     // static_assert(std::is_same<decltype(b), decltype(c)>::value, "t has to be expanded by select()");
   }
 
-  // Test that all_of(tab) is expanded in multi_column
-  {
-    auto a = multi_column(all_of(t)).as(alias::a);
-    auto b = multi_column(t.alpha, t.beta, t.gamma, t.delta).as(alias::a);
-    static_assert(std::is_same<decltype(a), decltype(b)>::value, "all_of(t) has to be expanded by multi_column");
-  }
-
-  // Test that a multicolumn is not a value
-  {
-    auto m = multi_column(t.alpha, t.beta).as(alias::a);
-    static_assert(not sqlpp::is_expression_t<decltype(m)>::value, "a multi_column is not a value");
-  }
-
-  // Test result field indices
-  {
-    using Select = decltype(select(all_of(t),  // index 0, 1, 2, 3 (alpha, beta, gamma, delta)
-                                   multi_column(all_of(t)).as(alias::left),   // index 4 (including 4, 5, 6, 7)
-                                   multi_column(all_of(t)).as(alias::right),  // index 8 (including 8, 9, 10, 11)
-                                   t.alpha.as(alias::a)                       // index 12
-                                   )
-                                .from(t)
-                                .unconditionally());  // next index is 13
-    using ResultRow = typename Select::_result_methods_t<Select>::template _result_row_t<MockDb>;
-    using IndexSequence = ResultRow::_field_index_sequence;
-    static_assert(std::is_same<IndexSequence, sqlpp::detail::field_index_sequence<13, 0, 1, 2, 3, 4, 8, 12>>::value,
-                  "invalid field sequence");
-  }
-
   // Test that result sets with identical name/value combinations have identical types
   {
     auto a = select(t.alpha);

@@ -30,7 +30,7 @@
 #include <map>
 #include <utility>
 #include <sqlpp11/data_types/text.h>
-#include <sqlpp11/detail/field_index_sequence.h>
+#include <sqlpp11/detail/index_sequence.h>
 #include <sqlpp11/dynamic_select_column_list.h>
 #include <sqlpp11/field_spec.h>
 #include <sqlpp11/no_name.h>
@@ -85,54 +85,8 @@ namespace sqlpp
       }
     };
 
-    template <std::size_t index, typename AliasProvider, typename Db, typename... FieldSpecs>
-    struct result_field<Db, index, multi_field_spec_t<AliasProvider, std::tuple<FieldSpecs...>>>
-        : public member_t<AliasProvider,
-                          result_row_impl<Db, detail::make_field_index_sequence<index, FieldSpecs...>, FieldSpecs...>>
-    {
-      using _multi_field =
-          member_t<AliasProvider,
-                   result_row_impl<Db, detail::make_field_index_sequence<index, FieldSpecs...>, FieldSpecs...>>;
-
-      result_field() = default;
-
-      void _validate()
-      {
-        _multi_field::operator()()._validate();
-      }
-
-      void _invalidate()
-      {
-        _multi_field::operator()()._invalidate();
-      }
-
-      template <typename Target>
-      void _bind(Target& target)
-      {
-        _multi_field::operator()()._bind(target);
-      }
-
-      template <typename Target>
-      void _post_bind(Target& target)
-      {
-        _multi_field::operator()()._post_bind(target);
-      }
-
-      template <typename Callable>
-      void _apply(Callable& callable) const
-      {
-        _multi_field::operator()()._apply(callable);
-      }
-
-      template <typename Callable>
-      void _apply(const Callable& callable) const
-      {
-        _multi_field::operator()()._apply(callable);
-      }
-    };
-
-    template <typename Db, std::size_t NextIndex, std::size_t... Is, typename... FieldSpecs>
-    struct result_row_impl<Db, detail::field_index_sequence<NextIndex, Is...>, FieldSpecs...>
+    template <typename Db, std::size_t... Is, typename... FieldSpecs>
+    struct result_row_impl<Db, detail::index_sequence<Is...>, FieldSpecs...>
         : public result_field<Db, Is, FieldSpecs>...
     {
       result_row_impl() = default;
@@ -181,10 +135,9 @@ namespace sqlpp
 
   template <typename Db, typename... FieldSpecs>
   struct result_row_t
-      : public detail::result_row_impl<Db, detail::make_field_index_sequence<0, FieldSpecs...>, FieldSpecs...>
+      : public detail::result_row_impl<Db, detail::make_index_sequence<sizeof...(FieldSpecs)>, FieldSpecs...>
   {
-    using _field_index_sequence = detail::make_field_index_sequence<0, FieldSpecs...>;
-    using _impl = detail::result_row_impl<Db, _field_index_sequence, FieldSpecs...>;
+    using _impl = detail::result_row_impl<Db, detail::make_index_sequence<sizeof...(FieldSpecs)>, FieldSpecs...>;
     bool _is_valid{false};
 
     result_row_t() : _impl()
@@ -224,7 +177,7 @@ namespace sqlpp
 
     static constexpr size_t static_size()
     {
-      return _field_index_sequence::_next_index;
+      return sizeof...(FieldSpecs);
     }
 
     template <typename Target>
@@ -268,10 +221,9 @@ namespace sqlpp
 
   template <typename Db, typename... FieldSpecs>
   struct dynamic_result_row_t
-      : public detail::result_row_impl<Db, detail::make_field_index_sequence<0, FieldSpecs...>, FieldSpecs...>
+      : public detail::result_row_impl<Db, detail::make_index_sequence<sizeof...(FieldSpecs)>, FieldSpecs...>
   {
-    using _field_index_sequence = detail::make_field_index_sequence<0, FieldSpecs...>;
-    using _impl = detail::result_row_impl<Db, _field_index_sequence, FieldSpecs...>;
+    using _impl = detail::result_row_impl<Db, detail::make_index_sequence<sizeof...(FieldSpecs)>, FieldSpecs...>;
     using _field_type = result_field_t<Db, field_spec_t<no_name_t, text, true>>;
 
     bool _is_valid{false};
@@ -336,7 +288,7 @@ namespace sqlpp
     {
       _impl::_bind(target);
 
-      std::size_t index = _field_index_sequence::_next_index;
+      std::size_t index = sizeof...(FieldSpecs);
       for (const auto& field_name : _dynamic_field_names)
       {
         _dynamic_fields.at(field_name)._bind(target, index);
@@ -349,7 +301,7 @@ namespace sqlpp
     {
       _impl::_post_bind(target);
 
-      std::size_t index = _field_index_sequence::_next_index;
+      std::size_t index = sizeof...(FieldSpecs);
       for (const auto& field_name : _dynamic_field_names)
       {
         _dynamic_fields.at(field_name)._post_bind(target, index);
@@ -362,7 +314,7 @@ namespace sqlpp
     {
       _impl::_apply(callable);
 
-      std::size_t index = _field_index_sequence::_next_index;
+      std::size_t index = sizeof...(FieldSpecs);
       for (const auto& field_name : _dynamic_field_names)
       {
         _dynamic_fields.at(field_name)._apply(callable);
@@ -375,7 +327,7 @@ namespace sqlpp
     {
       _impl::_apply(callable);
 
-      std::size_t index = _field_index_sequence::_next_index;
+      std::size_t index = sizeof...(FieldSpecs);
       for (const auto& field_name : _dynamic_field_names)
       {
         _dynamic_fields.at(field_name)._apply(callable);

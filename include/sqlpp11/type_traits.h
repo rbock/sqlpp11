@@ -206,7 +206,6 @@ namespace sqlpp
   SQLPP_VALUE_TRAIT_GENERATOR(is_offset)
   SQLPP_VALUE_TRAIT_GENERATOR(is_using_)
   SQLPP_VALUE_TRAIT_GENERATOR(is_column_list)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_multi_column)
   SQLPP_VALUE_TRAIT_GENERATOR(is_value_list)
   SQLPP_VALUE_TRAIT_GENERATOR(is_assignment)
   SQLPP_VALUE_TRAIT_GENERATOR(is_update_list)

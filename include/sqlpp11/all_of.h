@@ -29,7 +29,6 @@
 
 #include <sqlpp11/alias.h>
 #include <sqlpp11/interpret.h>
-#include <sqlpp11/multi_column.h>
 #include <sqlpp11/portable_static_assert.h>
 
 namespace sqlpp
@@ -38,12 +37,6 @@ namespace sqlpp
   struct all_of_t
   {
     using _column_tuple_t = typename Table::_column_tuple_t;
-
-    template <typename AliasProvider>
-    detail::copy_tuple_args_t<multi_column_alias_t, AliasProvider, _column_tuple_t> as(const AliasProvider& alias)
-    {
-      return multi_column(_column_tuple_t{}).as(alias);
-    }
   };
 
   template <typename Table>

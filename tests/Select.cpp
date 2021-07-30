@@ -92,21 +92,6 @@ int Select(int, char*[])
     std::cout << a << ", " << b << std::endl;
   }
 
-  for (const auto& row : db(select(all_of(t).as(t)).from(t).unconditionally()))
-  {
-    int64_t a = row.tabBar.alpha;
-    const std::string b = row.tabBar.beta;
-    std::cout << a << ", " << b << std::endl;
-  }
-
-  for (const auto& row : db(select(all_of(t).as(t), t.gamma).from(t).where(t.alpha > 7)))
-  {
-    int64_t a = row.tabBar.alpha;
-    const std::string b = row.tabBar.beta;
-    const bool g = row.gamma;
-    std::cout << a << ", " << b << ", " << g << std::endl;
-  }
-
   for (const auto& row :
        db(select(all_of(t), t.gamma.as(t)).from(t).where(t.alpha > 7 and trim(t.beta) == "test").for_update()))
   {

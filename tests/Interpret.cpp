@@ -135,11 +135,6 @@ int Interpret(int, char* [])
     serialize(select(t.alpha).from(inner), printer).str();
   }
 
-  // multi_column
-  serialize(multi_column(t.alpha, (t.beta + "cake").as(t.gamma)).as(t.alpha), printer).str();
-  serialize(multi_column(all_of(t)).as(t), printer).str();
-  serialize(all_of(t).as(t), printer).str();
-
   // dynamic select
   {
     auto s = dynamic_select(db).dynamic_flags().dynamic_columns().from(t);
