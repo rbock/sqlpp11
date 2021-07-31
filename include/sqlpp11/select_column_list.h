@@ -424,22 +424,16 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Database, typename... Columns>
-  struct serializer_t<Context, select_column_list_data_t<Database, Columns...>>
+  Context& serialize(const select_column_list_data_t<Database, Columns...>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Columns...>;
-    using T = select_column_list_data_t<Database, Columns...>;
-
-    static Context& _(const T& t, Context& context)
+    interpret_tuple(t._columns, ',', context);
+    if (sizeof...(Columns) and not t._dynamic_columns.empty())
     {
-      interpret_tuple(t._columns, ',', context);
-      if (sizeof...(Columns) and not t._dynamic_columns.empty())
-      {
-        context << ',';
-      }
-      serialize(t._dynamic_columns, context);
-      return context;
+      context << ',';
     }
-  };
+    serialize(t._dynamic_columns, context);
+    return context;
+  }
 
   template <typename... T>
   auto select_columns(T&&... t) -> decltype(statement_t<void, no_select_column_list_t>().columns(std::forward<T>(t)...))

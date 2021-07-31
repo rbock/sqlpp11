@@ -134,20 +134,14 @@ namespace sqlpp
   };
 
   template <typename Context, typename JoinType, typename Lhs, typename Rhs>
-  struct serializer_t<Context, pre_join_t<JoinType, Lhs, Rhs>>
+  Context& serialize(const pre_join_t<JoinType, Lhs, Rhs>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Lhs, Rhs>;
-    using T = pre_join_t<JoinType, Lhs, Rhs>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      serialize(t._lhs, context);
-      context << JoinType::_name;
-      context << " JOIN ";
-      serialize(t._rhs, context);
-      return context;
-    }
-  };
+    serialize(t._lhs, context);
+    context << JoinType::_name;
+    context << " JOIN ";
+    serialize(t._rhs, context);
+    return context;
+  }
 
   namespace detail
   {

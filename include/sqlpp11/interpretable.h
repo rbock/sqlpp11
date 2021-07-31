@@ -49,9 +49,9 @@ namespace sqlpp
     interpretable_t& operator=(interpretable_t&&) = default;
     ~interpretable_t() = default;
 
-    _serializer_context_t& serialize(_serializer_context_t& context) const
+    _serializer_context_t& interpret(_serializer_context_t& context) const
     {
-      return _impl->serialize(context);
+      return _impl->interpret(context);
     }
 
     bool _requires_braces;
@@ -60,7 +60,7 @@ namespace sqlpp
     struct _impl_base
     {
       virtual ~_impl_base() = default;
-      virtual _serializer_context_t& serialize(_serializer_context_t& context) const = 0;
+      virtual _serializer_context_t& interpret(_serializer_context_t& context) const = 0;
     };
 
     template <typename T>
@@ -71,9 +71,9 @@ namespace sqlpp
       {
       }
 
-      _serializer_context_t& serialize(_serializer_context_t& context) const
+      _serializer_context_t& interpret(_serializer_context_t& context) const
       {
-        ::sqlpp::serialize(_t, context);
+        serialize(_t, context);
         return context;
       }
 
@@ -84,27 +84,21 @@ namespace sqlpp
   };
 
   template <typename Context, typename Database>
-  struct serializer_t<Context, interpretable_t<Database>>
+  Context& serialize(const interpretable_t<Database>& t, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using T = interpretable_t<Database>;
-
-    static Context& _(const T& t, Context& context)
+    if (t._requires_braces)
     {
-      if (t._requires_braces)
-      {
-        context << '(';
-        t.serialize(context);
-        context << ')';
-      }
-      else
-      {
-        t.serialize(context);
-      }
-
-      return context;
+      context << '(';
+      t.interpret(context);
+      context << ')';
     }
-  };
+    else
+    {
+      t.interpret(context);
+    }
+
+    return context;
+  }
 }  // namespace sqlpp
 
 #endif

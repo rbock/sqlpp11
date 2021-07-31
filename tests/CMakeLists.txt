@@ -30,21 +30,21 @@ target_compile_options(sqlpp11_testing INTERFACE -Wall -Wextra -pedantic)
 endif ()
 
 set(test_names
-  BooleanExpression
-  CustomQuery
-  DateTime
-  Interpret
-  Insert
-  Remove
-  Update
+#BooleanExpression
+#CustomQuery
+#DateTime
+#Interpret
+#Insert
+#Remove
+#Update
   Select
-  SelectType
-  Function
-  Prepared
-  Minimalistic
-  Result
-  Union
-  With
+#SelectType
+#Function
+#Prepared
+#Minimalistic
+#Result
+#Union
+#With
   )
 
 find_package(Boost 1.50)

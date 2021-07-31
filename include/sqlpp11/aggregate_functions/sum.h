@@ -84,29 +84,22 @@ namespace sqlpp
   };
 
   template <typename Context, typename Flag, typename Expr>
-  struct serializer_t<Context, sum_t<Flag, Expr>>
+  Context& serialize(const sum_t<Flag, Expr>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Flag, Expr>;
-    using T = sum_t<Flag, Expr>;
-
-    static Context& _(const T& t, Context& context)
+    context << "SUM(";
+    if (std::is_same<distinct_t, Flag>::value)
     {
-      context << "SUM(";
-      if (std::is_same<distinct_t, Flag>::value)
-      {
-        serialize(Flag(), context);
-        context << ' ';
-        serialize_operand(t._expr, context);
-      }
-      else
-      {
-        serialize(t._expr, context);
-      }
-
-      context << ")";
-      return context;
+      serialize(Flag(), context);
+      context << ' ';
+      serialize_operand(t._expr, context);
     }
-  };
+    else
+    {
+      serialize(t._expr, context);
+    }
+    context << ")";
+    return context;
+  }
 
   template <typename T>
   auto sum(T t) -> sum_t<noop, wrap_operand_t<T>>

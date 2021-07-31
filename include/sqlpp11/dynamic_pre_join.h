@@ -105,19 +105,13 @@ namespace sqlpp
   };
 
   template <typename Context, typename JoinType, typename Rhs>
-  struct serializer_t<Context, dynamic_pre_join_t<JoinType, Rhs>>
+  Context& serialize(const dynamic_pre_join_t<JoinType, Rhs>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Rhs>;
-    using T = dynamic_pre_join_t<JoinType, Rhs>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      context << JoinType::_name;
-      context << " JOIN ";
-      serialize(t._rhs, context);
-      return context;
-    }
-  };
+    context << JoinType::_name;
+    context << " JOIN ";
+    serialize(t._rhs, context);
+    return context;
+  }
 
   template <typename JoinType, typename Table>
   using make_dynamic_pre_join_t = typename std::conditional<check_dynamic_pre_join_t<Table>::value,

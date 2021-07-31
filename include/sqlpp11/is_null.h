@@ -71,19 +71,13 @@ namespace sqlpp
   };
 
   template <typename Context, typename Operand>
-  struct serializer_t<Context, is_null_t<Operand>>
+  Context& serialize(const is_null_t<Operand>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Operand>;
-    using T = is_null_t<Operand>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      context << "(";
-      serialize_operand(t._operand, context);
-      context << " IS NULL)";
-      return context;
-    }
-  };
+    context << "(";
+    serialize_operand(t._operand, context);
+    context << " IS NULL)";
+    return context;
+  }
 }  // namespace sqlpp
 
 #endif

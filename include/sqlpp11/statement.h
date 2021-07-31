@@ -250,21 +250,15 @@ namespace sqlpp
   };
 
   template <typename Context, typename Database, typename... Policies>
-  struct serializer_t<Context, statement_t<Database, Policies...>>
+  Context& serialize(const statement_t<Database, Policies...>& t, Context& context)
   {
     using P = detail::statement_policies_t<Database, Policies...>;
-    using _serialize_check = serialize_check_of<Context, typename Policies::template _base_t<P>::_data_t...>;
-    using T = statement_t<Database, Policies...>;
 
-    static Context& _(const T& t, Context& context)
-    {
-      using swallow = int[];
-      (void)swallow{0,
-                    (serialize(static_cast<const typename Policies::template _base_t<P>&>(t)()._data, context), 0)...};
+    using swallow = int[];
+    (void)swallow{0, (serialize(static_cast<const typename Policies::template _base_t<P>&>(t)()._data, context), 0)...};
 
-      return context;
-    }
-  };
+    return context;
+  }
 
   template <typename NameData, typename Tag = tag::is_noop>
   struct statement_name_t

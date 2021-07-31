@@ -36,6 +36,7 @@ int As(int, char*[])
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 
+  compare(__LINE__, foo, "tab_foo");
   compare(__LINE__, foo.omega.as(cheese), "tab_foo.omega AS cheese");
   compare(__LINE__, (foo.omega + 17).as(cheese), "(tab_foo.omega+17) AS cheese");
   compare(__LINE__, (foo.omega - 17).as(cheese), "(tab_foo.omega - 17) AS cheese");

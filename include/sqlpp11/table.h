@@ -37,15 +37,11 @@
 
 namespace sqlpp
 {
-  struct table_base_t
-  {
-  };
-
   // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173198
   //  template <typename Table, typename... ColumnSpec>
   //  struct table_t : public table_base_t, public member_t<ColumnSpec, column_t<Table, ColumnSpec>>...
   template <typename Table, typename... ColumnSpec>
-  struct table_t : public table_base_t, public ColumnSpec::_alias_t::template _member_t<column_t<Table, ColumnSpec>>...
+  struct table_t : public ColumnSpec::_alias_t::template _member_t<column_t<Table, ColumnSpec>>...
   {
     using _traits = make_traits<no_value_t, tag::is_raw_table, tag::is_table>;
 
@@ -109,21 +105,12 @@ namespace sqlpp
     }
   };
 
-  template <typename Context, typename X>
-  struct serializer_t<
-      Context,
-      X,
-      typename std::enable_if<std::is_base_of<table_base_t, X>::value and not is_pseudo_table_t<X>::value, void>::type>
+  template <typename Context, typename Table, typename... ColumnSpec>
+  Context& serialize(const table_t<Table, ColumnSpec...>& /*unused*/, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using T = X;
-
-    static Context& _(const T& /*unused*/, Context& context)
-    {
-      context << name_of<T>::template char_ptr<Context>();
-      return context;
-    }
-  };
+    context << name_of<Table>::template char_ptr<Context>();
+    return context;
+  }
 }  // namespace sqlpp
 
 #endif

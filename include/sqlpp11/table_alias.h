@@ -100,26 +100,20 @@ namespace sqlpp
   };
 
   template <typename Context, typename AliasProvider, typename Table, typename... ColumnSpec>
-  struct serializer_t<Context, table_alias_t<AliasProvider, Table, ColumnSpec...>>
+  Context& serialize(const table_alias_t<AliasProvider, Table, ColumnSpec...>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Table>;
-    using T = table_alias_t<AliasProvider, Table, ColumnSpec...>;
-
-    static Context& _(const T& t, Context& context)
+    if (requires_braces_t<Table>::value)
     {
-      if (requires_braces_t<Table>::value)
-      {
-        context << "(";
-      }
-      serialize(t._table, context);
-      if (requires_braces_t<Table>::value)
-      {
-        context << ")";
-      }
-      context << " AS " << name_of<T>::template char_ptr<Context>();
-      return context;
+      context << "(";
     }
-  };
+    serialize(t._table, context);
+    if (requires_braces_t<Table>::value)
+    {
+      context << ")";
+    }
+    context << " AS " << name_of<table_alias_t<AliasProvider, Table, ColumnSpec...>>::template char_ptr<Context>();
+    return context;
+  }
 }  // namespace sqlpp
 
 #endif

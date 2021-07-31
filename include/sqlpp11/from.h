@@ -84,8 +84,10 @@ namespace sqlpp
         static_check_t<detail::is_disjunct_from<_joined_table_names, _known_table_names>::value,
                        assert_from_add_unique_names>,
         static_check_t<detail::is_subset_of<_required_tables, _known_tables>::value,
-                       assert_from_add_no_required_tables>,
-        sqlpp::serialize_check_t<serializer_context_of<typename From::_database_t>, DynamicJoin>>;
+                       assert_from_add_no_required_tables>
+        // FIXME: Replace this with consistency check?
+        //              sqlpp::serialize_check_t<serializer_context_of<typename From::_database_t>, DynamicJoin>
+        >;
   };
 
   template <typename From, typename DynamicJoin>
@@ -290,22 +292,16 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Database, typename Table>
-  struct serializer_t<Context, from_data_t<Database, Table>>
+  Context& serialize(const from_data_t<Database, Table>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Table>;
-    using T = from_data_t<Database, Table>;
-
-    static Context& _(const T& t, Context& context)
+    context << " FROM ";
+    serialize(t._table, context);
+    if (not t._dynamic_tables.empty())
     {
-      context << " FROM ";
-      serialize(t._table, context);
-      if (not t._dynamic_tables.empty())
-      {
-        interpret_list(t._dynamic_tables, "", context);
-      }
-      return context;
+      interpret_list(t._dynamic_tables, "", context);
     }
-  };
+    return context;
+  }
 
   template <typename T>
   auto from(T&& t) -> decltype(statement_t<void, no_from_t>().from(std::forward<T>(t)))

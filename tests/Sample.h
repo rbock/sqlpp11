@@ -142,6 +142,11 @@ namespace test
       };
     };
   };
+  template <typename Context>
+  Context& serialize(const TabFoo&, Context& context)
+  {
+    return serialize(sqlpp::table_t<TabFoo, TabFoo_::Delta, TabFoo_::Epsilon, TabFoo_::Omega, TabFoo_::Psi, TabFoo_::Book>{}, context);
+  }
   namespace TabBar_
   {
     struct Alpha
@@ -256,6 +261,11 @@ namespace test
       };
     };
   };
+  template <typename Context>
+  Context& serialize(const TabBar&, Context& context)
+  {
+    return serialize(sqlpp::table_t<TabBar, TabBar_::Alpha, TabBar_::Beta, TabBar_::Gamma, TabBar_::Delta>{}, context);
+  }
   namespace TabDateTime_
   {
     struct ColDayPoint
@@ -348,5 +358,11 @@ namespace test
       };
     };
   };
+
+  template <typename Context>
+  Context& serialize(const TabDateTime&, Context& context)
+  {
+    return serialize(sqlpp::table_t<TabDateTime, TabDateTime_::ColDayPoint, TabDateTime_::ColTimePoint, TabDateTime_::ColTimeOfDay>{}, context);
+  }
 }  // namespace test
 #endif
