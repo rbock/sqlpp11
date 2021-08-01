@@ -1,0 +1,12 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
+
+find_dependency(Sqlpp11 REQUIRED)
+find_dependency(MySQL REQUIRED)
+
+include("${CMAKE_CURRENT_LIST_DIR}/sqlpp-mysql-targets.cmake")
+
+check_required_components(sqlpp-mysql)

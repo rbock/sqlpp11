@@ -27,6 +27,10 @@
 cmake_minimum_required(VERSION 3.14)
 project(sqlpp11 VERSION 0.1 LANGUAGES CXX)
 
+### Project Wide Setup
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
+
+option(MARIADB_CONNECTOR "Build MariaDB Connector" OFF)
 option(MYSQL_CONNECTOR "Build MySQL Connector" OFF)
 option(POSTGRESQL_CONNECTOR "Build PostgreSQL Connector" OFF)
 option(SQLITE3_CONNECTOR "Build SQLite3 Connector" OFF)
@@ -36,6 +40,12 @@ if(MYSQL_CONNECTOR)
   find_package(MySQL REQUIRED)
 else()
   message(STATUS "Not building MYSQL_CONNECTOR")
+endif()
+
+if(MARIADB_CONNECTOR)
+  find_package(MariaDB REQUIRED)
+else()
+  message(STATUS "Not building MARIAB_CONNECTOR")
 endif()
 
 if(POSTGRESQL_CONNECTOR)
@@ -56,9 +66,6 @@ else()
   message(STATUS "Not building SQLCIPHER_CONNECTOR")
 endif()
 
-### Project Wide Setup
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
-
 include(CTest)
 
 option(USE_SYSTEM_DATE "\
@@ -70,7 +77,7 @@ if(USE_SYSTEM_DATE)
     find_package(date REQUIRED)
 endif()
 
-### Dependencies 
+### Dependencies
 add_subdirectory(dependencies)
 
 ### Core targets
