@@ -61,17 +61,11 @@ namespace sqlpp
   };
 
   template <typename Context>
-  struct serializer_t<Context, day_point_operand>
+  Context& serialize(const day_point_operand& t, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using Operand = day_point_operand;
-
-    static Context& _(const Operand& t, Context& context)
-    {
-      const auto ymd = ::date::year_month_day{t._t};
-      context << "DATE '" << ymd << "'";
-      return context;
-    }
-  };
+    const auto ymd = ::date::year_month_day{t._t};
+    context << "DATE '" << ymd << "'";
+    return context;
+  }
 }  // namespace sqlpp
 #endif

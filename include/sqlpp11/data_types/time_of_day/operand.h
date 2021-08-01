@@ -63,16 +63,10 @@ namespace sqlpp
   };
 
   template <typename Context, typename Period>
-  struct serializer_t<Context, time_of_day_operand<Period>>
+  Context& serialize(const time_of_day_operand<Period>& t, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using Operand = time_of_day_operand<Period>;
-
-    static Context& _(const Operand& t, Context& context)
-    {
-      context << '\'' << ::date::make_time(t._t) << '\'';
-      return context;
-    }
-  };
+    context << '\'' << ::date::make_time(t._t) << '\'';
+    return context;
+  }
 }  // namespace sqlpp
 #endif

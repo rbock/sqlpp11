@@ -443,7 +443,7 @@ namespace sqlpp
                    typename std::enable_if<is_statement_t<T>::value or is_prepared_statement_t<T>::value>::type>
   {
     using type =
-        detail::get_first_if<is_inconsistent_t, consistent_t, typename T::_run_check, serialize_check_t<Context, T>>;
+        detail::get_first_if<is_inconsistent_t, consistent_t, typename T::_run_check>;
   };
 
   template <typename Context, typename T>

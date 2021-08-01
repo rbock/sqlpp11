@@ -33,12 +33,6 @@
 namespace sqlpp
 {
   template <typename T, typename Context>
-  auto serialize(const T& t, Context& context) -> Context&
-  {
-    return serializer_t<Context, T>::_(t, context);
-  }
-
-  template <typename T, typename Context>
   auto serialize_operand(const T& t, Context& context) -> Context&
   {
     if (requires_braces_t<T>::value)

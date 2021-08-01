@@ -134,11 +134,8 @@ namespace sqlpp
         using column_names = detail::make_type_set_t<typename Columns::_alias_t...>;
         static_assert(not column_names::template count<typename named_expression::_alias_t>(),
                       "a column of this name is present in the select already");
-        using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, named_expression>;
-        _serialize_check{};
-
         using ok =
-            logic::all_t<_is_dynamic::value, is_selectable_t<named_expression>::value, _serialize_check::type::value>;
+            logic::all_t<_is_dynamic::value, is_selectable_t<named_expression>::value>;
 
         _add_impl(namedExpression, ok());  // dispatch to prevent compile messages after the static_assert
       }

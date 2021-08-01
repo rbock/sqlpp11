@@ -82,16 +82,10 @@ namespace sqlpp
   };
 
   template <typename Context>
-  struct serializer_t<Context, noop>
+  Context& serialize(const noop&, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using T = noop;
-
-    static Context& _(const T& /*unused*/, Context& context)
-    {
-      return context;
-    }
-  };
+    return context;
+  }
 
   template <typename T>
   struct is_noop : std::is_same<T, noop>

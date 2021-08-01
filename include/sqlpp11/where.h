@@ -365,53 +365,35 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Database, typename Expression>
-  struct serializer_t<Context, where_data_t<Database, Expression>>
+  Context& serialize(const where_data_t<Database, Expression>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Expression>;
-    using T = where_data_t<Database, Expression>;
-
-    static Context& _(const T& t, Context& context)
+    context << " WHERE ";
+    serialize(t._expression, context);
+    if (not t._dynamic_expressions.empty())
     {
-      context << " WHERE ";
-      serialize(t._expression, context);
-      if (not t._dynamic_expressions.empty())
-      {
-        context << " AND ";
-      }
-      interpret_list(t._dynamic_expressions, " AND ", context);
-      return context;
+      context << " AND ";
     }
-  };
+    interpret_list(t._dynamic_expressions, " AND ", context);
+    return context;
+  }
 
   template <typename Context, typename Database>
-  struct serializer_t<Context, where_data_t<Database, unconditional_t>>
+  Context& serialize(const where_data_t<Database, unconditional_t>& t, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using T = where_data_t<Database, unconditional_t>;
-
-    static Context& _(const T& t, Context& context)
+    if (t._dynamic_expressions.empty())
     {
-      if (t._dynamic_expressions.empty())
-      {
-        return context;
-      }
-      context << " WHERE ";
-      interpret_list(t._dynamic_expressions, " AND ", context);
       return context;
     }
-  };
+    context << " WHERE ";
+    interpret_list(t._dynamic_expressions, " AND ", context);
+    return context;
+  }
 
   template <typename Context>
-  struct serializer_t<Context, where_data_t<void, unconditional_t>>
+  Context& serialize(const where_data_t<void, unconditional_t>&, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using T = where_data_t<void, unconditional_t>;
-
-    static Context& _(const T& /*unused*/, Context& context)
-    {
-      return context;
-    }
-  };
+    return context;
+  }
 
   template <typename T>
   auto where(T&& t) -> decltype(statement_t<void, no_where_t<false>>().where(std::forward<T>(t)))

@@ -252,27 +252,21 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Database, typename... Expressions>
-  struct serializer_t<Context, group_by_data_t<Database, Expressions...>>
+  Context& serialize(const group_by_data_t<Database, Expressions...>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Expressions...>;
-    using T = group_by_data_t<Database, Expressions...>;
-
-    static Context& _(const T& t, Context& context)
+    if (sizeof...(Expressions) == 0 and t._dynamic_expressions.empty())
     {
-      if (sizeof...(Expressions) == 0 and t._dynamic_expressions.empty())
-      {
-        return context;
-      }
-      context << " GROUP BY ";
-      interpret_tuple(t._expressions, ',', context);
-      if (sizeof...(Expressions) and not t._dynamic_expressions.empty())
-      {
-        context << ',';
-      }
-      interpret_list(t._dynamic_expressions, ',', context);
       return context;
     }
-  };
+    context << " GROUP BY ";
+    interpret_tuple(t._expressions, ',', context);
+    if (sizeof...(Expressions) and not t._dynamic_expressions.empty())
+    {
+      context << ',';
+    }
+    interpret_list(t._dynamic_expressions, ',', context);
+    return context;
+  }
 
   template <typename... T>
   auto group_by(T&&... t) -> decltype(statement_t<void, no_group_by_t>().group_by(std::forward<T>(t)...))

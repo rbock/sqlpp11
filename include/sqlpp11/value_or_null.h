@@ -53,25 +53,19 @@ namespace sqlpp
   };
 
   template <typename Context, typename ValueType>
-  struct serializer_t<Context, value_or_null_t<ValueType>>
+  Context& serialize(const value_or_null_t<ValueType>& t, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using Operand = value_or_null_t<ValueType>;
-
-    static Context& _(const Operand& t, Context& context)
+    if (t._is_null)
     {
-      if (t._is_null)
-      {
-        context << "NULL";
-      }
-      else
-      {
-        serialize(wrap_operand_t<typename ValueType::_cpp_value_type>{t._value}, context);
-      }
-
-      return context;
+      context << "NULL";
     }
-  };
+    else
+    {
+      serialize(wrap_operand_t<typename ValueType::_cpp_value_type>{t._value}, context);
+    }
+
+    return context;
+  }
 
   template <typename T>
   auto value_or_null(T t) -> value_or_null_t<value_type_of<wrap_operand_t<T>>>

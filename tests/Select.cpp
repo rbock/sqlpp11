@@ -73,6 +73,8 @@ int Select(int, char*[])
   getColumn(db, t.alpha);
   select(count(t.alpha));
 
+  std::cerr << serialize(select(sqlpp::value(false).as(sqlpp::alias::a)), printer).str() << std::endl;
+  /*
   for (const auto& row : db(select(sqlpp::value(false).as(sqlpp::alias::a))))
   {
     std::cout << row.a << std::endl;
@@ -208,6 +210,7 @@ int Select(int, char*[])
       std::cout << "Error: transaction isolation level does not match default level" << std::endl;
     }
   }
+  */
 
   return 0;
 }

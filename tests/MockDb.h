@@ -89,14 +89,14 @@ struct MockDb : public sqlpp::connection
   template <typename T>
   static _serializer_context_t& _serialize_interpretable(const T& t, _serializer_context_t& context)
   {
-    sqlpp::serialize(t, context);
+    serialize(t, context);
     return context;
   }
 
   template <typename T>
   static _serializer_context_t& _interpret_interpretable(const T& t, _interpreter_context_t& context)
   {
-    sqlpp::serialize(t, context);
+    serialize(t, context);
     return context;
   }
 
@@ -142,7 +142,7 @@ struct MockDb : public sqlpp::connection
   size_t execute(const Statement& x)
   {
     _serializer_context_t context;
-    ::sqlpp::serialize(x, context);
+    serialize(x, context);
     std::cout << "Running execute call with\n" << context.str() << std::endl;
     return execute(context.str());
   }
@@ -151,7 +151,7 @@ struct MockDb : public sqlpp::connection
   size_t insert(const Insert& x)
   {
     _serializer_context_t context;
-    ::sqlpp::serialize(x, context);
+    serialize(x, context);
     std::cout << "Running insert call with\n" << context.str() << std::endl;
     return 0;
   }
@@ -160,7 +160,7 @@ struct MockDb : public sqlpp::connection
   size_t update(const Update& x)
   {
     _serializer_context_t context;
-    ::sqlpp::serialize(x, context);
+    serialize(x, context);
     std::cout << "Running update call with\n" << context.str() << std::endl;
     return 0;
   }
@@ -169,7 +169,7 @@ struct MockDb : public sqlpp::connection
   size_t remove(const Remove& x)
   {
     _serializer_context_t context;
-    ::sqlpp::serialize(x, context);
+    serialize(x, context);
     std::cout << "Running remove call with\n" << context.str() << std::endl;
     return 0;
   }
@@ -178,7 +178,7 @@ struct MockDb : public sqlpp::connection
   result_t select(const Select& x)
   {
     _serializer_context_t context;
-    ::sqlpp::serialize(x, context);
+    serialize(x, context);
     std::cout << "Running select call with\n" << context.str() << std::endl;
     return {};
   }
@@ -205,7 +205,7 @@ struct MockDb : public sqlpp::connection
   _prepared_statement_t prepare_execute(Statement& x)
   {
     _serializer_context_t context;
-    ::sqlpp::serialize(x, context);
+    serialize(x, context);
     std::cout << "Running prepare execute call with\n" << context.str() << std::endl;
     return nullptr;
   }
@@ -214,7 +214,7 @@ struct MockDb : public sqlpp::connection
   _prepared_statement_t prepare_insert(Insert& x)
   {
     _serializer_context_t context;
-    ::sqlpp::serialize(x, context);
+    serialize(x, context);
     std::cout << "Running prepare insert call with\n" << context.str() << std::endl;
     return nullptr;
   }
@@ -235,7 +235,7 @@ struct MockDb : public sqlpp::connection
   _prepared_statement_t prepare_select(Select& x)
   {
     _serializer_context_t context;
-    ::sqlpp::serialize(x, context);
+    serialize(x, context);
     std::cout << "Running prepare select call with\n" << context.str() << std::endl;
     return nullptr;
   }
@@ -303,14 +303,14 @@ struct MockSizeDb : public sqlpp::connection
   template <typename T>
   static _serializer_context_t& _serialize_interpretable(const T& t, _serializer_context_t& context)
   {
-    sqlpp::serialize(t, context);
+    serialize(t, context);
     return context;
   }
 
   template <typename T>
   static _serializer_context_t& _interpret_interpretable(const T& t, _interpreter_context_t& context)
   {
-    sqlpp::serialize(t, context);
+    serialize(t, context);
     return context;
   }
 
@@ -350,7 +350,7 @@ struct MockSizeDb : public sqlpp::connection
   size_t execute(const Statement& x)
   {
     _serializer_context_t context;
-    ::sqlpp::serialize(x, context);
+    serialize(x, context);
     std::cout << "Running execute call with\n" << context.str() << std::endl;
     return execute(context.str());
   }
@@ -359,7 +359,7 @@ struct MockSizeDb : public sqlpp::connection
   size_t insert(const Insert& x)
   {
     _serializer_context_t context;
-    ::sqlpp::serialize(x, context);
+    serialize(x, context);
     std::cout << "Running insert call with\n" << context.str() << std::endl;
     return 0;
   }
@@ -368,7 +368,7 @@ struct MockSizeDb : public sqlpp::connection
   size_t update(const Update& x)
   {
     _serializer_context_t context;
-    ::sqlpp::serialize(x, context);
+    serialize(x, context);
     std::cout << "Running update call with\n" << context.str() << std::endl;
     return 0;
   }
@@ -377,7 +377,7 @@ struct MockSizeDb : public sqlpp::connection
   size_t remove(const Remove& x)
   {
     _serializer_context_t context;
-    ::sqlpp::serialize(x, context);
+    serialize(x, context);
     std::cout << "Running remove call with\n" << context.str() << std::endl;
     return 0;
   }
@@ -386,7 +386,7 @@ struct MockSizeDb : public sqlpp::connection
   result_t select(const Select& x)
   {
     _serializer_context_t context;
-    ::sqlpp::serialize(x, context);
+    serialize(x, context);
     std::cout << "Running select call with\n" << context.str() << std::endl;
     return {};
   }
@@ -413,7 +413,7 @@ struct MockSizeDb : public sqlpp::connection
   _prepared_statement_t prepare_execute(Statement& x)
   {
     _serializer_context_t context;
-    ::sqlpp::serialize(x, context);
+    serialize(x, context);
     std::cout << "Running prepare execute call with\n" << context.str() << std::endl;
     return nullptr;
   }
@@ -422,7 +422,7 @@ struct MockSizeDb : public sqlpp::connection
   _prepared_statement_t prepare_insert(Insert& x)
   {
     _serializer_context_t context;
-    ::sqlpp::serialize(x, context);
+    serialize(x, context);
     std::cout << "Running prepare insert call with\n" << context.str() << std::endl;
     return nullptr;
   }
@@ -443,7 +443,7 @@ struct MockSizeDb : public sqlpp::connection
   _prepared_statement_t prepare_select(Select& x)
   {
     _serializer_context_t context;
-    ::sqlpp::serialize(x, context);
+    serialize(x, context);
     std::cout << "Running prepare select call with\n" << context.str() << std::endl;
     return nullptr;
   }

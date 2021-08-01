@@ -75,19 +75,13 @@ namespace sqlpp
   };
 
   template <typename Context, typename... Args>
-  struct serializer_t<Context, concat_t<Args...>>
+  Context& serialize(const concat_t<Args...>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Args...>;
-    using T = concat_t<Args...>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      context << "(";
-      interpret_tuple(t._args, "||", context);
-      context << ")";
-      return context;
-    }
-  };
+    context << "(";
+    interpret_tuple(t._args, "||", context);
+    context << ")";
+    return context;
+  }
 
   template <typename... Args>
   auto concat(Args... args) -> concat_t<Args...>

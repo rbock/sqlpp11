@@ -59,16 +59,10 @@ namespace sqlpp
   };
 
   template <typename Context>
-  struct serializer_t<Context, floating_point_operand>
+  Context& serialize(const floating_point_operand& t, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using Operand = floating_point_operand;
-
-    static Context& _(const Operand& t, Context& context)
-    {
-      context << t._t;
-      return context;
-    }
-  };
+    context << t._t;
+    return context;
+  }
 }  // namespace sqlpp
 #endif

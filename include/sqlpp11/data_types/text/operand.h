@@ -74,16 +74,10 @@ namespace sqlpp
   };
 
   template <typename Context>
-  struct serializer_t<Context, text_operand>
+  Context& serialize(const text_operand& t, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using Operand = text_operand;
-
-    static Context& _(const Operand& t, Context& context)
-    {
-      context << '\'' << context.escape(t._t) << '\'';
-      return context;
-    }
-  };
+    context << '\'' << context.escape(t._t) << '\'';
+    return context;
+  }
 }  // namespace sqlpp
 #endif

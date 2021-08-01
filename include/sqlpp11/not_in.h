@@ -73,67 +73,49 @@ namespace sqlpp
   };
 
   template <typename Context, typename Operand, typename... Args>
-  struct serializer_t<Context, not_in_t<Operand, Args...>>
+  Context& serialize(const not_in_t<Operand, Args...>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Args...>;
-    using T = not_in_t<Operand, Args...>;
-
-    static Context& _(const T& t, Context& context)
+    serialize_operand(t._operand, context);
+    context << " NOT IN(";
+    if (sizeof...(Args) == 1)
     {
-      serialize_operand(t._operand, context);
-      context << " NOT IN(";
-      if (sizeof...(Args) == 1)
-      {
-        serialize(std::get<0>(t._args), context);
-      }
-      else
-      {
-        interpret_tuple(t._args, ',', context);
-      }
-      context << ')';
-      return context;
+      serialize(std::get<0>(t._args), context);
     }
-  };
+    else
+    {
+      interpret_tuple(t._args, ',', context);
+    }
+    context << ')';
+    return context;
+  }
 
   template <typename Context, typename Operand>
-  struct serializer_t<Context, not_in_t<Operand>>
+  Context& serialize(const not_in_t<Operand>&, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using T = not_in_t<Operand>;
-
-    static Context& _(const T& /*unused*/, Context& context)
-    {
-      serialize(boolean_operand{true}, context);
-      return context;
-    }
-  };
+    serialize(boolean_operand{true}, context);
+    return context;
+  }
 
   template <typename Container>
   struct value_list_t;
 
   template <typename Context, typename Operand, typename Container>
-  struct serializer_t<Context, not_in_t<Operand, value_list_t<Container>>>
+  Context& serialize(const not_in_t<Operand, value_list_t<Container>>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, value_list_t<Container>>;
-    using T = not_in_t<Operand, value_list_t<Container>>;
-
-    static Context& _(const T& t, Context& context)
+    const auto& value_list = std::get<0>(t._args);
+    if (value_list._container.empty())
     {
-      const auto& value_list = std::get<0>(t._args);
-      if (value_list._container.empty())
-      {
-        serialize(boolean_operand{true}, context);
-      }
-      else
-      {
-        serialize(t._operand, context);
-        context << " NOT IN(";
-        serialize(value_list, context);
-        context << ')';
-      }
-      return context;
+      serialize(boolean_operand{true}, context);
     }
-  };
+    else
+    {
+      serialize(t._operand, context);
+      context << " NOT IN(";
+      serialize(value_list, context);
+      context << ')';
+    }
+    return context;
+  }
 }  // namespace sqlpp
 
 #endif

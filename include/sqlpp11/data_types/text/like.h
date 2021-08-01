@@ -79,20 +79,14 @@ namespace sqlpp
   };
 
   template <typename Context, typename Operand, typename Pattern>
-  struct serializer_t<Context, like_t<Operand, Pattern>>
+  Context& serialize(const like_t<Operand, Pattern>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Operand, Pattern>;
-    using T = like_t<Operand, Pattern>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      serialize_operand(t._operand, context);
-      context << " LIKE(";
-      serialize(t._pattern, context);
-      context << ")";
-      return context;
-    }
-  };
+    serialize_operand(t._operand, context);
+    context << " LIKE(";
+    serialize(t._pattern, context);
+    context << ")";
+    return context;
+  }
 }  // namespace sqlpp
 
 #endif

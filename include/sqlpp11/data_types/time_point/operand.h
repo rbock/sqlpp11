@@ -63,19 +63,13 @@ namespace sqlpp
   };
 
   template <typename Context, typename Period>
-  struct serializer_t<Context, time_point_operand<Period>>
+  Context& serialize(const time_point_operand<Period>& t, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using Operand = time_point_operand<Period>;
-
-    static Context& _(const Operand& t, Context& context)
-    {
-      const auto dp = ::sqlpp::chrono::floor<::date::days>(t._t);
-      const auto time = ::date::make_time(t._t - dp);
-      const auto ymd = ::date::year_month_day{dp};
-      context << "TIMESTAMP '" << ymd << ' ' << time << "'";
-      return context;
-    }
-  };
+    const auto dp = ::sqlpp::chrono::floor<::date::days>(t._t);
+    const auto time = ::date::make_time(t._t - dp);
+    const auto ymd = ::date::year_month_day{dp};
+    context << "TIMESTAMP '" << ymd << ' ' << time << "'";
+    return context;
+  }
 }  // namespace sqlpp
 #endif

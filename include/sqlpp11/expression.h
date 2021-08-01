@@ -61,21 +61,15 @@ namespace sqlpp
   };
 
   template <typename Context, typename Lhs, typename Rhs>
-  struct serializer_t<Context, binary_expression_t<Lhs, op::equal_to, Rhs>>
+  Context& serialize(const binary_expression_t<Lhs, op::equal_to, Rhs>& t, Context& context)
   {
-    using T = binary_expression_t<Lhs, op::equal_to, Rhs>;
-    using _serialize_check = serialize_check_of<Context, typename T::_lhs_t, typename T::_rhs_t>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      context << "(";
-      serialize_operand(t._lhs, context);
-      context << "=";
-      serialize_operand(t._rhs, context);
-      context << ")";
-      return context;
-    }
-  };
+    context << "(";
+    serialize_operand(t._lhs, context);
+    context << "=";
+    serialize_operand(t._rhs, context);
+    context << ")";
+    return context;
+  }
 
   template <typename Lhs, typename Rhs>
   struct binary_expression_t<Lhs, op::not_equal_to, Rhs>
@@ -102,21 +96,15 @@ namespace sqlpp
   };
 
   template <typename Context, typename Lhs, typename Rhs>
-  struct serializer_t<Context, binary_expression_t<Lhs, op::not_equal_to, Rhs>>
+  Context& serialize(const binary_expression_t<Lhs, op::not_equal_to, Rhs>& t, Context& context)
   {
-    using T = binary_expression_t<Lhs, op::not_equal_to, Rhs>;
-    using _serialize_check = serialize_check_of<Context, typename T::_lhs_t, typename T::_rhs_t>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      context << "(";
-      serialize_operand(t._lhs, context);
-      context << "<>";
-      serialize_operand(t._rhs, context);
-      context << ")";
-      return context;
-    }
-  };
+    context << "(";
+    serialize_operand(t._lhs, context);
+    context << "<>";
+    serialize_operand(t._rhs, context);
+    context << ")";
+    return context;
+  }
 
   template <typename Rhs>
   struct unary_expression_t<op::logical_not, Rhs>
@@ -140,21 +128,15 @@ namespace sqlpp
   };
 
   template <typename Context, typename Rhs>
-  struct serializer_t<Context, unary_expression_t<op::logical_not, Rhs>>
+  Context& serialize(const unary_expression_t<op::logical_not, Rhs>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Rhs>;
-    using T = unary_expression_t<op::logical_not, Rhs>;
+    context << "(";
+    context << "NOT ";
+    serialize_operand(t._rhs, context);
+    context << ")";
 
-    static Context& _(const T& t, Context& context)
-    {
-      context << "(";
-      context << "NOT ";
-      serialize_operand(t._rhs, context);
-      context << ")";
-
-      return context;
-    }
-  };
+    return context;
+  }
 
   template <typename Lhs, typename O, typename Rhs>
   struct binary_expression_t : public expression_operators<binary_expression_t<Lhs, O, Rhs>, value_type_of<O>>,
@@ -178,21 +160,15 @@ namespace sqlpp
   };
 
   template <typename Context, typename Lhs, typename O, typename Rhs>
-  struct serializer_t<Context, binary_expression_t<Lhs, O, Rhs>>
+  Context& serialize(const binary_expression_t<Lhs, O, Rhs>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Lhs, Rhs>;
-    using T = binary_expression_t<Lhs, O, Rhs>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      context << "(";
-      serialize_operand(t._lhs, context);
-      context << O::_name;
-      serialize_operand(t._rhs, context);
-      context << ")";
-      return context;
-    }
-  };
+    context << "(";
+    serialize_operand(t._lhs, context);
+    context << O::_name;
+    serialize_operand(t._rhs, context);
+    context << ")";
+    return context;
+  }
 
   template <typename O, typename Rhs>
   struct unary_expression_t : public expression_operators<unary_expression_t<O, Rhs>, value_type_of<O>>,
@@ -215,20 +191,14 @@ namespace sqlpp
   };
 
   template <typename Context, typename O, typename Rhs>
-  struct serializer_t<Context, unary_expression_t<O, Rhs>>
+  Context& serialize(const unary_expression_t<O, Rhs>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Rhs>;
-    using T = unary_expression_t<O, Rhs>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      context << "(";
-      context << O::_name;
-      serialize_operand(t._rhs, context);
-      context << ")";
-      return context;
-    }
-  };
+    context << "(";
+    context << O::_name;
+    serialize_operand(t._rhs, context);
+    context << ")";
+    return context;
+  }
 }  // namespace sqlpp
 
 #endif

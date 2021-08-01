@@ -61,17 +61,11 @@ namespace sqlpp
   };
 
   template <typename Context>
-  struct serializer_t<Context, integral_operand>
+  Context& serialize(const integral_operand& t, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using Operand = integral_operand;
-
-    static Context& _(const Operand& t, Context& context)
-    {
-      context << t._t;
-      return context;
-    }
-  };
+    context << t._t;
+    return context;
+  }
 }  // namespace sqlpp
 
 #endif
