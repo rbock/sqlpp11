@@ -36,7 +36,12 @@ namespace sqlpp
   struct name : std::false_type                     \
   {                                                 \
     template <typename... T>                        \
-    explicit name(T&&...)                           \
+    constexpr explicit name(T&&...)                 \
+    {                                               \
+      static_assert(wrong_t<T...>::value, message); \
+    }                                               \
+    template <typename... T>                        \
+    static constexpr void verify(T&&...)                 \
     {                                               \
       static_assert(wrong_t<T...>::value, message); \
     }                                               \

@@ -27,9 +27,6 @@
 #ifndef SQLPP11_NO_DATA_H
 #define SQLPP11_NO_DATA_H
 
-#include <type_traits>
-#include <sqlpp11/serializer.h>
-
 namespace sqlpp
 {
   struct no_data_t

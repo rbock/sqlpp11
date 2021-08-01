@@ -33,7 +33,6 @@
 #include <sqlpp11/prepared_select.h>
 #include <sqlpp11/result.h>
 #include <sqlpp11/serialize.h>
-#include <sqlpp11/serializer.h>
 
 #include <sqlpp11/detail/get_first.h>
 #include <sqlpp11/detail/get_last.h>
@@ -237,14 +236,14 @@ namespace sqlpp
     template <typename Database>
     auto _run(Database& db) const -> decltype(std::declval<_result_methods_t<statement_t>>()._run(db))
     {
-      _run_check{};  // FIXME: Dispatch?
+      _run_check::verify();
       return _result_methods_t<statement_t>::_run(db);
     }
 
     template <typename Database>
     auto _prepare(Database& db) const -> decltype(std::declval<_result_methods_t<statement_t>>()._prepare(db))
     {
-      _prepare_check{};  // FIXME: Dispatch?
+      _prepare_check::verify();
       return _result_methods_t<statement_t>::_prepare(db);
     }
   };

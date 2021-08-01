@@ -30,7 +30,6 @@
 #include <sqlpp11/chrono.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/alias_operators.h>
-#include <sqlpp11/serializer.h>
 
 namespace sqlpp
 {

@@ -245,7 +245,7 @@ namespace sqlpp
       template <typename AliasProvider>
       _alias_t<AliasProvider> as(const AliasProvider& aliasProvider) const
       {
-        consistency_check_t<_statement_t>{};
+        consistency_check_t<_statement_t>::verify();
         static_assert(_statement_t::_can_be_used_as_table(),
                       "statement cannot be used as table, e.g. due to missing tables");
         return _table_t<AliasProvider>(_get_statement()).as(aliasProvider);

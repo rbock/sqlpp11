@@ -31,7 +31,6 @@
 #include <tuple>
 #include <sqlpp11/consistent.h>
 #include <sqlpp11/portable_static_assert.h>
-#include <sqlpp11/serializer.h>
 #include <sqlpp11/detail/type_vector.h>
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/detail/void.h>

@@ -27,8 +27,6 @@
 #ifndef SQLPP11_HIDDEN_H
 #define SQLPP11_HIDDEN_H
 
-#include <sqlpp11/serializer.h>
-
 namespace sqlpp
 {
   template <typename Clause>

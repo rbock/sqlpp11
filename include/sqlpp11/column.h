@@ -35,7 +35,6 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/assignment.h>
 #include <sqlpp11/expression.h>
-#include <sqlpp11/serializer.h>
 #include <sqlpp11/wrong.h>
 #include <sqlpp11/detail/type_set.h>
 

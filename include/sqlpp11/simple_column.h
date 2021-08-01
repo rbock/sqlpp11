@@ -27,7 +27,6 @@
 #ifndef SQLPP11_SIMPLE_COLUMN_H
 #define SQLPP11_SIMPLE_COLUMN_H
 
-#include <sqlpp11/serializer.h>
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp

@@ -72,12 +72,12 @@ namespace sqlpp
     std::tuple<Args...> _args;
   };
 
-  template <typename Context, typename Operand, typename... Args>
-  Context& serialize(const in_t<Operand, Args...>& t, Context& context)
+  template <typename Context, typename Operand, typename Arg, typename... Args>
+  Context& serialize(const in_t<Operand, Arg, Args...>& t, Context& context)
   {
     serialize(t._operand, context);
     context << " IN(";
-    if (sizeof...(Args) == 1)
+    if (sizeof...(Args) == 0)
     {
       serialize(std::get<0>(t._args), context);
     }

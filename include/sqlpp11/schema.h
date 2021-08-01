@@ -29,9 +29,6 @@
 
 #include <string>
 
-#include <sqlpp11/type_traits.h>
-#include <sqlpp11/serializer.h>
-
 namespace sqlpp
 {
   struct schema_t

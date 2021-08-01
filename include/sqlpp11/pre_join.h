@@ -176,7 +176,7 @@ namespace sqlpp
   template <typename Lhs, typename Rhs>
   auto right_outer_join(Lhs lhs, Rhs rhs) -> decltype(detail::join_impl<right_outer_join_t>(lhs, rhs))
   {
-    check_pre_join_t<Lhs, Rhs>{};
+    check_pre_join_t<Lhs, Rhs>::verify();
 
     return {from_table(lhs), from_table(rhs)};
   }

@@ -31,7 +31,6 @@
 #include <sqlpp11/data_types/boolean.h>
 #include <sqlpp11/expression_fwd.h>
 #include <sqlpp11/noop.h>
-#include <sqlpp11/serializer.h>
 #include <sqlpp11/wrap_operand.h>
 
 namespace sqlpp

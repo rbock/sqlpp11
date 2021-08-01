@@ -31,7 +31,6 @@
 #include <sqlpp11/null.h>
 #include <sqlpp11/value_or_null.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/serializer.h>
 #include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp

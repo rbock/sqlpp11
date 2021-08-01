@@ -27,8 +27,6 @@
 #ifndef SQLPP11_UNION_DATA_H
 #define SQLPP11_UNION_DATA_H
 
-#include <sqlpp11/serializer.h>
-
 namespace sqlpp
 {
   template <typename Database, typename Flag, typename Lhs, typename Rhs>

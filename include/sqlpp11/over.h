@@ -28,7 +28,6 @@
 #define SQLPP11_OVER_H
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/serializer.h>
 
 namespace sqlpp
 {

@@ -30,7 +30,6 @@
 #include <sqlpp11/default_value.h>
 #include <sqlpp11/null.h>
 #include <sqlpp11/serialize.h>
-#include <sqlpp11/serializer.h>
 #include <sqlpp11/simple_column.h>
 
 namespace sqlpp
