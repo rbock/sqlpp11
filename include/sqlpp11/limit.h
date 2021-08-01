@@ -287,35 +287,23 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Database>
-  struct serializer_t<Context, dynamic_limit_data_t<Database>>
+  Context& serialize(const dynamic_limit_data_t<Database>& t, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using T = dynamic_limit_data_t<Database>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      if (t._initialized)
-      {
-        context << " LIMIT ";
-        serialize(t._value, context);
-      }
-      return context;
-    }
-  };
-
-  template <typename Context, typename Limit>
-  struct serializer_t<Context, limit_data_t<Limit>>
-  {
-    using _serialize_check = serialize_check_of<Context, Limit>;
-    using T = limit_data_t<Limit>;
-
-    static Context& _(const T& t, Context& context)
+    if (t._initialized)
     {
       context << " LIMIT ";
-      serialize_operand(t._value, context);
-      return context;
+      serialize(t._value, context);
     }
-  };
+    return context;
+  }
+
+  template <typename Context, typename Limit>
+  Context& serialize(const limit_data_t<Limit>& t, Context& context)
+  {
+    context << " LIMIT ";
+    serialize_operand(t._value, context);
+    return context;
+  }
 
   template <typename T>
   auto limit(T&& t) -> decltype(statement_t<void, no_limit_t>().limit(std::forward<T>(t)))

@@ -63,19 +63,13 @@ namespace sqlpp
   };
 
   template <typename Context, typename Table>
-  struct serializer_t<Context, schema_qualified_table_t<Table>>
+  Context& serialize(const schema_qualified_table_t<Table>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Table>;
-    using T = schema_qualified_table_t<Table>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      serialize(t._schema, context);
-      context << '.';
-      serialize(t._table, context);
-      return context;
-    }
-  };
+    serialize(t._schema, context);
+    context << '.';
+    serialize(t._table, context);
+    return context;
+  }
 
   template <typename Table>
   auto schema_qualified_table(schema_t schema, Table table) -> schema_qualified_table_t<Table>

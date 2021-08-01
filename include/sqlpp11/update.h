@@ -89,18 +89,11 @@ namespace sqlpp
   };
 
   template <typename Context>
-  struct serializer_t<Context, update_name_t>
+  Context& serialize(const update_name_t&, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using T = update_name_t;
-
-    static Context& _(const T& /*unused*/, Context& context)
-    {
-      context << "UPDATE ";
-
-      return context;
-    }
-  };
+    context << "UPDATE ";
+    return context;
+  }
 
   template <typename Database>
   using blank_update_t = statement_t<Database, update_t, no_single_table_t, no_update_list_t, no_where_t<true>>;

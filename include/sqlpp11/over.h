@@ -56,18 +56,12 @@ namespace sqlpp
   };
 
   template <typename Context, typename AggregateExpr>
-  struct serializer_t<Context, over_t<AggregateExpr>>
+  Context& serialize(const over_t<AggregateExpr>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, AggregateExpr>;
-    using T = over_t<AggregateExpr>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      serialize_operand(t._aggregate_expression, context);
-      context << " OVER()";
-      return context;
-    }
-  };
+    serialize_operand(t._aggregate_expression, context);
+    context << " OVER()";
+    return context;
+  }
 }  // namespace sqlpp
 
 #endif

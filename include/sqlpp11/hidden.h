@@ -46,16 +46,10 @@ namespace sqlpp
   };
 
   template <typename Context, typename Clause>
-  struct serializer_t<Context, hidden_t<Clause>>
+  Context& serialize(const hidden_t<Clause>&, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using T = hidden_t<Clause>;
-
-    static Context& _(const T& /*unused*/, Context& context)
-    {
-      return context;
-    }
-  };
+    return context;
+  }
 
   template <typename Clause>
   auto hidden(Clause part) -> hidden_t<Clause>

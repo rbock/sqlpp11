@@ -54,21 +54,15 @@ namespace sqlpp
   };
 
   template <typename Context, typename Expr, typename ValueType>
-  struct serializer_t<Context, is_equal_to_or_null_t<Expr, ValueType>>
+  Context& serialize(const is_equal_to_or_null_t<Expr, ValueType>& t, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using Operand = is_equal_to_or_null_t<Expr, ValueType>;
+    if (t._value._is_null)
+      serialize(t._expr.is_null(), context);
+    else
+      serialize(t._expr == t._value, context);
 
-    static Context& _(const Operand& t, Context& context)
-    {
-      if (t._value._is_null)
-        serialize(t._expr.is_null(), context);
-      else
-        serialize(t._expr == t._value, context);
-
-      return context;
-    }
-  };
+    return context;
+  }
 
   template <typename Expr, typename ValueType>
   auto is_equal_to_or_null(Expr expr, value_or_null_t<ValueType> value) -> is_equal_to_or_null_t<Expr, ValueType>

@@ -93,10 +93,7 @@ namespace sqlpp
                       "expression uses tables unknown to this statement in where::add()");
         static_assert(not contains_aggregate_function_t<Expr>::value,
                       "where expression must not contain aggregate functions");
-        using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Expr>;
-        _serialize_check{};
-
-        using ok = logic::all_t<_is_dynamic::value, is_expression_t<Expr>::value, _serialize_check::type::value>;
+        using ok = logic::all_t<_is_dynamic::value, is_expression_t<Expr>::value>;
 
         _add_impl(expression, ok());  // dispatch to prevent compile messages after the static_assert
       }

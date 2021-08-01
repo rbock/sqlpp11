@@ -62,19 +62,13 @@ namespace sqlpp
   };
 
   template <typename Context, typename Lhs, typename Rhs>
-  struct serializer_t<Context, assignment_t<Lhs, Rhs>>
+  Context& serialize(const assignment_t<Lhs, Rhs>& t, Context& context)
   {
-    using T = assignment_t<Lhs, Rhs>;
-    using _serialize_check = serialize_check_of<Context, typename T::_lhs_t, typename T::_rhs_t>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      serialize(simple_column(t._lhs), context);
-      context << "=";
-      serialize_operand(t._rhs, context);
-      return context;
-    }
-  };
+    serialize(simple_column(t._lhs), context);
+    context << "=";
+    serialize_operand(t._rhs, context);
+    return context;
+  }
 }  // namespace sqlpp
 
 #endif

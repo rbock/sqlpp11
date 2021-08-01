@@ -157,17 +157,11 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context>
-  struct serializer_t<Context, for_update_data_t>
+  Context& serialize(const for_update_data_t&, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context>;
-    using T = for_update_data_t;
-
-    static Context& _(const T& /*unused*/, Context& context)
-    {
-      context << " FOR UPDATE ";
-      return context;
-    }
-  };
+    context << " FOR UPDATE ";
+    return context;
+  }
 
   template <typename T>
   auto for_update(T&& t) -> decltype(statement_t<void, no_for_update_t>().for_update(std::forward<T>(t)))

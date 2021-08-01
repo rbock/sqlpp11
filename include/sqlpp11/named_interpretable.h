@@ -79,7 +79,7 @@ namespace sqlpp
 
       _serializer_context_t& interpret(_serializer_context_t& context) const
       {
-        interpret(_t, context);
+        serialize(_t, context);
         return context;
       }
 

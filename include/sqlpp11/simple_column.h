@@ -49,17 +49,11 @@ namespace sqlpp
   };
 
   template <typename Context, typename Column>
-  struct serializer_t<Context, simple_column_t<Column>>
+  Context& serialize(const simple_column_t<Column>&, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Column>;
-    using T = simple_column_t<Column>;
-
-    static Context& _(const T& /*unused*/, Context& context)
-    {
-      context << name_of<typename T::_column_t>::template char_ptr<Context>();
-      return context;
-    }
-  };
+    context << name_of<typename simple_column_t<Column>::_column_t>::template char_ptr<Context>();
+    return context;
+  }
 
   template <typename Column>
   simple_column_t<Column> simple_column(Column c)

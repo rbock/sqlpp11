@@ -47,17 +47,9 @@ namespace sqlpp
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_no_stand_alone_all_of_t, "all_of(table) seems to be used outside of select");
 
+  // FIXME: Do we need this?
   template <typename Context, typename Table>
-  struct serializer_t<Context, all_of_t<Table>>
-  {
-    using _serialize_check = assert_no_stand_alone_all_of_t;
-    using T = all_of_t<Table>;
-
-    static Context& _(const T& /*unused*/, const Context& /*unused*/)
-    {
-      _serialize_check{};
-    }
-  };
+  Context& serialize(const all_of_t<Table>& t, Context& context);
 }  // namespace sqlpp
 
 #endif

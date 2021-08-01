@@ -42,24 +42,18 @@ namespace sqlpp
   };
 
   template <typename Context, typename Db, typename FieldSpec>
-  struct serializer_t<Context, result_field_t<Db, FieldSpec>>
+  Context& serialize(const result_field_t<Db, FieldSpec>& t, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using T = result_field_t<Db, FieldSpec>;
-
-    static Context& _(const T& t, Context& context)
+    if (t.is_null())
     {
-      if (t.is_null())
-      {
-        context << "NULL";
-      }
-      else
-      {
-        serialize(wrap_operand_t<cpp_value_type_of<FieldSpec>>(t.value()), context);
-      }
-      return context;
+      context << "NULL";
     }
-  };
+    else
+    {
+      serialize(wrap_operand_t<cpp_value_type_of<FieldSpec>>(t.value()), context);
+    }
+    return context;
+  }
 
   template <typename Db, typename FieldSpec>
   inline std::ostream& operator<<(std::ostream& os, const result_field_t<Db, FieldSpec>& rf)

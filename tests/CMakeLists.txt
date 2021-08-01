@@ -30,21 +30,21 @@ target_compile_options(sqlpp11_testing INTERFACE -Wall -Wextra -pedantic)
 endif ()
 
 set(test_names
-#BooleanExpression
-#CustomQuery
-#DateTime
-#Interpret
-#Insert
-#Remove
-#Update
+  BooleanExpression
+  CustomQuery
+  DateTime
+  Interpret
+  Insert
+  Remove
+  Update
   Select
-#SelectType
-#Function
-#Prepared
-#Minimalistic
-#Result
-#Union
-#With
+  SelectType
+  Function
+  Prepared
+  Minimalistic
+  Result
+  Union
+  With
   )
 
 find_package(Boost 1.50)
@@ -62,7 +62,7 @@ if (SQLPP11_TESTS_CXX_STD)
   set_property(TARGET sqlpp11_tests PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})
   set_property(TARGET sqlpp11_tests PROPERTY CXX_STANDARD_REQUIRED yes)
   set_property(TARGET sqlpp11_tests PROPERTY CXX_EXTENSIONS no)
-endif()  
+endif()
 
 foreach(test IN LISTS test_names)
   add_test(NAME sqlpp11.tests.${test}

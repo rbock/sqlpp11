@@ -301,35 +301,23 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Offset>
-  struct serializer_t<Context, offset_data_t<Offset>>
+  Context& serialize(const offset_data_t<Offset>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Offset>;
-    using T = offset_data_t<Offset>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      context << " OFFSET ";
-      serialize_operand(t._value, context);
-      return context;
-    }
-  };
+    context << " OFFSET ";
+    serialize_operand(t._value, context);
+    return context;
+  }
 
   template <typename Context, typename Database>
-  struct serializer_t<Context, dynamic_offset_data_t<Database>>
+  Context& serialize(const dynamic_offset_data_t<Database>& t, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using T = dynamic_offset_data_t<Database>;
-
-    static Context& _(const T& t, Context& context)
+    if (t._initialized)
     {
-      if (t._initialized)
-      {
-        context << " OFFSET ";
-        serialize(t._value, context);
-      }
-      return context;
+      context << " OFFSET ";
+      serialize(t._value, context);
     }
-  };
+    return context;
+  }
 
   template <typename T>
   auto offset(T&& t) -> decltype(statement_t<void, no_offset_t>().offset(std::forward<T>(t)))

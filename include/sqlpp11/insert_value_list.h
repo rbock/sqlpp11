@@ -290,10 +290,7 @@ namespace sqlpp
         static_assert(not must_not_insert_t<lhs_t<Assignment>>::value, "add() argument must not be used in insert");
         static_assert(Policies::template _no_unknown_tables<Assignment>::value,
                       "add() contains a column from a foreign table");
-        using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Assignment>;
-        _serialize_check{};
-
-        using ok = logic::all_t<_is_dynamic::value, is_assignment_t<Assignment>::value, _serialize_check::type::value>;
+        using ok = logic::all_t<_is_dynamic::value, is_assignment_t<Assignment>::value>;
 
         _add_impl(assignment, ok());  // dispatch to prevent compile messages after the static_assert
       }
@@ -604,87 +601,70 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context>
-  struct serializer_t<Context, insert_default_values_data_t>
+  Context& serialize(const insert_default_values_data_t&, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using T = insert_default_values_data_t;
+    context << " DEFAULT VALUES";
+    return context;
+  }
 
-    static Context& _(const T& /*unused*/, Context& context)
-    {
-      context << " DEFAULT VALUES";
-      return context;
-    }
-  };
 
   template <typename Context, typename... Columns>
-  struct serializer_t<Context, column_list_data_t<Columns...>>
+  Context& serialize(const column_list_data_t<Columns...>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Columns...>;
-    using T = column_list_data_t<Columns...>;
-
-    static Context& _(const T& t, Context& context)
+    context << " (";
+    interpret_tuple(t._columns, ",", context);
+    context << ")";
+    bool first = true;
+    for (const auto& row : t._insert_values)
     {
-      context << " (";
-      interpret_tuple(t._columns, ",", context);
-      context << ")";
-      bool first = true;
-      for (const auto& row : t._insert_values)
+      if (first)
       {
-        if (first)
-        {
-          context << " VALUES ";
-          first = false;
-        }
-        else
-        {
-          context << ',';
-        }
-        context << '(';
-        interpret_tuple(row, ",", context);
-        context << ')';
-      }
-
-      return context;
-    }
-  };
-
-  template <typename Context, typename Database, typename... Assignments>
-  struct serializer_t<Context, insert_list_data_t<Database, Assignments...>>
-  {
-    using _serialize_check = serialize_check_of<Context, Assignments...>;
-    using T = insert_list_data_t<Database, Assignments...>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      if (sizeof...(Assignments) + t._dynamic_columns.size() == 0)
-      {
-        serialize(insert_default_values_data_t(), context);
+        context << " VALUES ";
+        first = false;
       }
       else
       {
-        context << " (";
-        interpret_tuple(t._columns, ",", context);
-        if (sizeof...(Assignments) and not t._dynamic_columns.empty())
+        context << ',';
+      }
+      context << '(';
+      interpret_tuple(row, ",", context);
+      context << ')';
+    }
+
+    return context;
+  }
+
+  template <typename Context, typename Database, typename... Assignments>
+  Context& serialize(const insert_list_data_t<Database, Assignments...>& t, Context& context)
+  {
+    if (sizeof...(Assignments) + t._dynamic_columns.size() == 0)
+    {
+      serialize(insert_default_values_data_t(), context);
+    }
+    else
+    {
+      context << " (";
+      interpret_tuple(t._columns, ",", context);
+      if (sizeof...(Assignments) and not t._dynamic_columns.empty())
+      {
+        context << ',';
+      }
+      interpret_list(t._dynamic_columns, ',', context);
+      context << ")";
+      if (sizeof...(Assignments) or not t._dynamic_values.empty())
+      {
+        context << " VALUES(";
+        interpret_tuple(t._values, ",", context);
+        if (sizeof...(Assignments) and not t._dynamic_values.empty())
         {
           context << ',';
         }
-        interpret_list(t._dynamic_columns, ',', context);
+        interpret_list(t._dynamic_values, ',', context);
         context << ")";
-        if (sizeof...(Assignments) or not t._dynamic_values.empty())
-        {
-          context << " VALUES(";
-          interpret_tuple(t._values, ",", context);
-          if (sizeof...(Assignments) and not t._dynamic_values.empty())
-          {
-            context << ',';
-          }
-          interpret_list(t._dynamic_values, ',', context);
-          context << ")";
-        }
       }
-      return context;
     }
-  };
+    return context;
+    }
 
   template <typename... Assignments>
   auto insert_set(Assignments... assignments)

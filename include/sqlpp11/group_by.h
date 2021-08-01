@@ -90,10 +90,7 @@ namespace sqlpp
         static_assert(is_expression_t<Expression>::value, "invalid expression argument in group_by::add()");
         static_assert(Policies::template _no_unknown_tables<Expression>::value,
                       "expression uses tables unknown to this statement in group_by::add()");
-        using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Expression>;
-        _serialize_check{};
-
-        using ok = logic::all_t<_is_dynamic::value, is_expression_t<Expression>::value, _serialize_check::type::value>;
+        using ok = logic::all_t<_is_dynamic::value, is_expression_t<Expression>::value>;
 
         _add_impl(expression, ok());  // dispatch to prevent compile messages after the static_assert
       }

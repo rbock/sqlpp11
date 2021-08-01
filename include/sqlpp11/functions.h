@@ -96,35 +96,29 @@ namespace sqlpp
   };
 
   template <typename Context, typename Container>
-  struct serializer_t<Context, value_list_t<Container>>
+  Context& serialize(const value_list_t<Container>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, wrap_operand_t<typename Container::value_type>>;
-    using T = value_list_t<Container>;
-
-    static Context& _(const T& t, Context& context)
+    if (t._container.size() == 1)
     {
-      if (t._container.size() == 1)
-      {
-        return serialize(value(*begin(t._container)), context);
-      }
-
-      bool first = true;
-      for (const auto& entry : t._container)
-      {
-        if (first)
-        {
-          first = false;
-        }
-        else
-        {
-          context << ',';
-        }
-
-        serialize_operand(value(entry), context);
-      }
-      return context;
+      return serialize(value(*begin(t._container)), context);
     }
-  };
+
+    bool first = true;
+    for (const auto& entry : t._container)
+    {
+      if (first)
+      {
+        first = false;
+      }
+      else
+      {
+        context << ',';
+      }
+
+      serialize_operand(value(entry), context);
+    }
+    return context;
+  }
 
   template <typename Container>
   auto value_list(Container c) -> value_list_t<Container>

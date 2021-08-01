@@ -53,19 +53,13 @@ namespace sqlpp
   };
 
   template <typename Context, typename Select>
-  struct serializer_t<Context, any_t<Select>>
+  Context& serialize(const any_t<Select>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Select>;
-    using T = any_t<Select>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      context << "ANY(";
-      serialize(t._select, context);
-      context << ")";
-      return context;
-    }
-  };
+    context << "ANY(";
+    serialize(t._select, context);
+    context << ")";
+    return context;
+  }
 
   template <typename T>
   auto any(T t) -> any_t<wrap_operand_t<T>>

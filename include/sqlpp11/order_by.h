@@ -88,10 +88,7 @@ namespace sqlpp
         static_assert(is_sort_order_t<Expression>::value, "invalid expression argument in order_by::add()");
         static_assert(Policies::template _no_unknown_tables<Expression>::value,
                       "expression uses tables unknown to this statement in order_by::add()");
-        using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Expression>;
-        _serialize_check{};
-
-        using ok = logic::all_t<_is_dynamic::value, is_sort_order_t<Expression>::value, _serialize_check::type::value>;
+        using ok = logic::all_t<_is_dynamic::value, is_sort_order_t<Expression>::value>;
 
         _add_impl(expression, ok());  // dispatch to prevent compile messages after the static_assert
       }
@@ -250,27 +247,21 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Database, typename... Expressions>
-  struct serializer_t<Context, order_by_data_t<Database, Expressions...>>
+  Context& serialize(const order_by_data_t<Database, Expressions...>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Expressions...>;
-    using T = order_by_data_t<Database, Expressions...>;
-
-    static Context& _(const T& t, Context& context)
+    if (sizeof...(Expressions) == 0 and t._dynamic_expressions.empty())
     {
-      if (sizeof...(Expressions) == 0 and t._dynamic_expressions.empty())
-      {
-        return context;
-      }
-      context << " ORDER BY ";
-      interpret_tuple(t._expressions, ',', context);
-      if (sizeof...(Expressions) and not t._dynamic_expressions.empty())
-      {
-        context << ',';
-      }
-      interpret_list(t._dynamic_expressions, ',', context);
       return context;
     }
-  };
+    context << " ORDER BY ";
+    interpret_tuple(t._expressions, ',', context);
+    if (sizeof...(Expressions) and not t._dynamic_expressions.empty())
+    {
+      context << ',';
+    }
+    interpret_list(t._dynamic_expressions, ',', context);
+    return context;
+  }
 
   template <typename... T>
   auto order_by(T&&... t) -> decltype(statement_t<void, no_order_by_t>().order_by(std::forward<T>(t)...))

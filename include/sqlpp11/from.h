@@ -85,8 +85,6 @@ namespace sqlpp
                        assert_from_add_unique_names>,
         static_check_t<detail::is_subset_of<_required_tables, _known_tables>::value,
                        assert_from_add_no_required_tables>
-        // FIXME: Replace this with consistency check?
-        //              sqlpp::serialize_check_t<serializer_context_of<typename From::_database_t>, DynamicJoin>
         >;
   };
 

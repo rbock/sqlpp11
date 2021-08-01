@@ -63,21 +63,15 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Flag, typename Lhs, typename Rhs>
-  struct serializer_t<Context, cte_union_t<Flag, Lhs, Rhs>>
+  Context& serialize(const cte_union_t<Flag, Lhs, Rhs>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Lhs, Rhs>;
-    using T = cte_union_t<Flag, Lhs, Rhs>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      serialize(t._lhs, context);
-      context << " UNION ";
-      serialize(Flag{}, context);
-      context << " ";
-      serialize(t._rhs, context);
-      return context;
-    }
-  };
+    serialize(t._lhs, context);
+    context << " UNION ";
+    serialize(Flag{}, context);
+    context << " ";
+    serialize(t._rhs, context);
+    return context;
+  }
 
   template <typename AliasProvider, typename Statement, typename... FieldSpecs>
   struct cte_t;
@@ -229,19 +223,14 @@ namespace sqlpp
   };
 
   template <typename Context, typename AliasProvider, typename Statement, typename... ColumnSpecs>
-  struct serializer_t<Context, cte_t<AliasProvider, Statement, ColumnSpecs...>>
+  Context& serialize(const cte_t<AliasProvider, Statement, ColumnSpecs...>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Statement>;
     using T = cte_t<AliasProvider, Statement, ColumnSpecs...>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      context << name_of<T>::template char_ptr<Context>() << " AS (";
-      serialize(t._statement, context);
-      context << ")";
-      return context;
-    }
-  };
+    context << name_of<T>::template char_ptr<Context>() << " AS (";
+    serialize(t._statement, context);
+    context << ")";
+    return context;
+  }
 
   // The cte_t is displayed as AliasProviderName except within the with:
   //    - the with needs the
@@ -273,17 +262,11 @@ namespace sqlpp
   };
 
   template <typename Context, typename AliasProvider>
-  struct serializer_t<Context, cte_ref_t<AliasProvider>>
+  Context& serialize(const cte_ref_t<AliasProvider>&, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using T = cte_ref_t<AliasProvider>;
-
-    static Context& _(const T& /*unused*/, Context& context)
-    {
-      context << name_of<T>::template char_ptr<Context>();
-      return context;
-    }
-  };
+    context << name_of<cte_ref_t<AliasProvider>>::template char_ptr<Context>();
+    return context;
+  }
 
   template <typename AliasProvider>
   auto cte(const AliasProvider & /*unused*/) -> cte_ref_t<AliasProvider>

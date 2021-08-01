@@ -50,21 +50,15 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Database, typename Flag, typename Lhs, typename Rhs>
-  struct serializer_t<Context, union_data_t<Database, Flag, Lhs, Rhs>>
+  Context& serialize(const union_data_t<Database, Flag, Lhs, Rhs>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Lhs, Rhs>;
-    using T = union_data_t<Database, Flag, Lhs, Rhs>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      serialize(t._lhs, context);
-      context << " UNION ";
-      serialize(Flag{}, context);
-      context << " ";
-      serialize(t._rhs, context);
-      return context;
-    }
-  };
+    serialize(t._lhs, context);
+    context << " UNION ";
+    serialize(Flag{}, context);
+    context << " ";
+    serialize(t._rhs, context);
+    return context;
+  }
 }  // namespace sqlpp
 
 #endif

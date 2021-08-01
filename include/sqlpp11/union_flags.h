@@ -42,16 +42,11 @@ namespace sqlpp
   };
 
   template <typename Context>
-  struct serializer_t<Context, union_all_t>
+  Context& serialize(const union_all_t&, Context& context)
   {
-    using _serialize_check = consistent_t;
-
-    static Context& _(const union_all_t& /*unused*/, Context& context)
-    {
-      context << "ALL";
-      return context;
-    }
-  };
+    context << "ALL";
+    return context;
+  }
 
   struct union_distinct_t
   {
@@ -60,15 +55,10 @@ namespace sqlpp
   };
 
   template <typename Context>
-  struct serializer_t<Context, union_distinct_t>
+  Context& serialize(const union_distinct_t&, Context& context)
   {
-    using _serialize_check = consistent_t;
-
-    static Context& _(const union_distinct_t& /*unused*/, Context& context)
-    {
-      return context;
-    }
-  };
+    return context;
+  }
 }  // namespace sqlpp
 
 #endif

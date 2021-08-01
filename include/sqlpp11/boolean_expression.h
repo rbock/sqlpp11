@@ -68,16 +68,10 @@ namespace sqlpp
   }
 
   template <typename Context, typename Database>
-  struct serializer_t<Context, boolean_expression_t<Database>>
+  Context& serialize(const boolean_expression_t<Database>& t, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using T = boolean_expression_t<Database>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      return serialize(t._expr, context);
-    }
-  };
+    return serialize(t._expr, context);
+  }
 }  // namespace sqlpp
 
 #endif

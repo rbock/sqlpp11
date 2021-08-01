@@ -27,29 +27,16 @@
 #ifndef SQLPP11_SERIALIZER_H
 #define SQLPP11_SERIALIZER_H
 
-#include <sqlpp11/portable_static_assert.h>
-#include <sqlpp11/wrong.h>
+#include <type_traits>
 
 namespace sqlpp
 {
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_serializer_specialization_t, "missing serializer specialization");
-
+  // FIXME: Move to type_traits.h, for instance
   template <typename Context>
   std::integral_constant<char, '"'> get_quote_left(const Context&);
 
   template <typename Context>
   std::integral_constant<char, '"'> get_quote_right(const Context&);
-
-  template <typename Context, typename T, typename Enable = void>
-  struct serializer_t
-  {
-    using _serialize_check = assert_serializer_specialization_t;
-
-    static void _(const T& t, Context& /*unused*/)
-    {
-      _serialize_check{t};
-    }
-  };
 }  // namespace sqlpp
 
 #endif

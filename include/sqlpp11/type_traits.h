@@ -30,6 +30,7 @@
 #include <type_traits>
 #include <tuple>
 #include <sqlpp11/consistent.h>
+#include <sqlpp11/portable_static_assert.h>
 #include <sqlpp11/serializer.h>
 #include <sqlpp11/detail/type_vector.h>
 #include <sqlpp11/detail/type_set.h>
@@ -391,10 +392,6 @@ namespace sqlpp
   using is_inconsistent_t =
       typename std::conditional<std::is_same<consistent_t, T>::value, std::false_type, std::true_type>::type;
 
-  template <typename Context, typename... T>
-  using serialize_check_of =
-      detail::get_first_if<is_inconsistent_t, consistent_t, typename serializer_t<Context, T>::_serialize_check...>;
-
   SQLPP_PORTABLE_STATIC_ASSERT(assert_sqlpp_type_t, "expression is not an sqlpp type, consistency cannot be verified");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_run_statement_or_prepared_t,
                                "connection cannot run something that is neither statement nor prepared statement");
@@ -415,21 +412,6 @@ namespace sqlpp
 
   template <typename T>
   using consistency_check_t = typename consistency_check<T>::type;
-
-  template <typename Context, typename T, typename Enable = void>
-  struct serialize_check
-  {
-    using type = serialize_check_of<Context, T>;
-  };
-
-  template <typename Context, typename T>
-  struct serialize_check<Context, T, typename std::enable_if<is_prepared_statement_t<T>::value>::type>
-  {
-    using type = consistent_t;  // this is already serialized
-  };
-
-  template <typename Context, typename T>
-  using serialize_check_t = typename serialize_check<Context, T>::type;
 
   template <typename Context, typename T, typename Enable = void>
   struct run_check
@@ -459,7 +441,7 @@ namespace sqlpp
   struct prepare_check<Context, T, typename std::enable_if<is_statement_t<T>::value>::type>
   {
     using type = detail::
-        get_first_if<is_inconsistent_t, consistent_t, typename T::_prepare_check, serialize_check_t<Context, T>>;
+        get_first_if<is_inconsistent_t, consistent_t, typename T::_prepare_check>;
   };
 
   template <typename Context, typename T>

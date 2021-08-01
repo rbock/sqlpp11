@@ -38,17 +38,11 @@ namespace sqlpp
   };
 
   template <typename Context>
-  struct serializer_t<Context, null_t>
+  Context& serialize(const null_t&, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using Operand = null_t;
-
-    static Context& _(const Operand& /*unused*/, Context& context)
-    {
-      context << "NULL";
-      return context;
-    }
-  };
+    context << "NULL";
+    return context;
+  }
 
   constexpr null_t null = {};
 }  // namespace sqlpp

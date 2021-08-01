@@ -151,23 +151,17 @@ namespace sqlpp
   };
 
   template <typename Context, typename When, typename Then, typename Else>
-  struct serializer_t<Context, case_t<When, Then, Else>>
+  Context& serialize(const case_t<When, Then, Else>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<When, Then, Else>;
-    using T = case_t<When, Then, Else>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      context << "(CASE WHEN ";
-      serialize(t._when, context);
-      context << " THEN ";
-      serialize(t._then, context);
-      context << " ELSE ";
-      serialize(t._else, context);
-      context << " END)";
-      return context;
-    }
-  };
+    context << "(CASE WHEN ";
+    serialize(t._when, context);
+    context << " THEN ";
+    serialize(t._then, context);
+    context << " ELSE ";
+    serialize(t._else, context);
+    context << " END)";
+    return context;
+  }
 
   namespace detail
   {
