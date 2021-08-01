@@ -1,4 +1,4 @@
-# Copyright (c) 2013-2016, Roland Bock
+# Copyright (c) 2013-2021, Roland Bock
 # Copyright (c) 2016 Christian Dávid
 # All rights reserved.
 #
@@ -27,6 +27,35 @@
 cmake_minimum_required(VERSION 3.14)
 project(sqlpp11 VERSION 0.1 LANGUAGES CXX)
 
+option(MYSQL_CONNECTOR "Build MySQL Connector" OFF)
+option(POSTGRESQL_CONNECTOR "Build PostgreSQL Connector" OFF)
+option(SQLITE3_CONNECTOR "Build SQLite3 Connector" OFF)
+option(SQLCIPHER_CONNECTOR "Build SQLite3 Connector with SQLCipher" OFF)
+
+if(MYSQL_CONNECTOR)
+  find_package(MySQL REQUIRED)
+else()
+  message(STATUS "Not building MYSQL_CONNECTOR")
+endif()
+
+if(POSTGRESQL_CONNECTOR)
+  find_package(PostgreSQL REQUIRED)
+else()
+  message(STATUS "Not building POSTGRESQL_CONNECTOR")
+endif()
+
+if(SQLITE3_CONNECTOR)
+  find_package(SQLite3 REQUIRED)
+else()
+  message(STATUS "Not building SQLITE3_CONNECTOR")
+endif()
+
+if(SQLCIPHER_CONNECTOR)
+  find_package(SQLCipher REQUIRED)
+else()
+  message(STATUS "Not building SQLCIPHER_CONNECTOR")
+endif()
+
 ### Project Wide Setup
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 
@@ -44,9 +73,12 @@ endif()
 ### Dependencies 
 add_subdirectory(dependencies)
 
-### Main targets
+### Core targets
 add_library(sqlpp11 INTERFACE)
 add_library(sqlpp11::sqlpp11 ALIAS sqlpp11)
+
+# Connector targets
+add_subdirectory(src)
 
 target_link_libraries(sqlpp11 INTERFACE date::date)
 
@@ -127,8 +159,5 @@ install(
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
   add_subdirectory(tests)
   add_subdirectory(test_types)
-  add_subdirectory(test_serializer)
-  add_subdirectory(test_static_asserts)
-  add_subdirectory(test_constraints)
   add_subdirectory(test_scripts)
 endif()

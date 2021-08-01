@@ -21,17 +21,9 @@
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-add_subdirectory(core/)
+add_subdirectory(usage)
+add_subdirectory(serialize)
+add_subdirectory(constraints)
+add_subdirectory(static_asserts)
 
-if(MYSQL_CONNECTOR)
-    add_subdirectory(mysql)
-endif()
-
-if(POSTGRESQL_CONNECTOR)
-    add_subdirectory(postgresql)
-endif()
-
-if(SQLITE3_CONNECTOR OR SQLCIPHER_CONNECTOR)
-    add_subdirectory(sqlite3)
-endif()
 
