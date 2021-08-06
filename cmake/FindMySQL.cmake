@@ -24,7 +24,11 @@ else()
             NAMES mysql_version.h
             PATH_SUFFIXES mysql
         )
-        find_library(MySQL_LIBRARY NAMES mysqlclient mysqlclient_r)
+        find_library(MySQL_LIBRARY
+            NAMES mysqlclient mysqlclient_r
+            PATH_SUFFIXES mysql  # for CentOS 7
+        )
+
 endif()
 
 include(FindPackageHandleStandardArgs)
