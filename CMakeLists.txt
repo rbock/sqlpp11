@@ -48,12 +48,6 @@ else()
   message(STATUS "Not building MARIAB_CONNECTOR")
 endif()
 
-if(POSTGRESQL_CONNECTOR)
-  find_package(PostgreSQL REQUIRED)
-else()
-  message(STATUS "Not building POSTGRESQL_CONNECTOR")
-endif()
-
 if(SQLITE3_CONNECTOR)
   find_package(SQLite3 REQUIRED)
 else()

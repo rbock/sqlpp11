@@ -20,9 +20,15 @@ This results in several benefits, e.g.
   * the compiler reports many kinds of errors long before the code enters unit testing or production,
   * the library hides the gory details of string construction for queries and interpreting results returned by select calls.
 
-The library supports both static and dynamic queries. The former offers greater benefit in terms of type and consistency checking. The latter makes it easier to construct queries on the flight.
+The library supports both static and dynamic queries. The former offers greater benefit in terms of type and consistency checking. The latter makes it easier to construct queries in flight.
 
-sqlpp11 is vendor-neutral. Specific traits of databases (e.g. unsupported or non-standard features) are handled by connector libraries. Connector libraries can inform the developer of missing features at compile time. They also interpret expressions specifically where needed. For example, the connector could use the operator|| or the concat method for string concatenation without the developer being required to change the statement.
+sqlpp11's core is vendor-neutral.
+Specific traits of databases (e.g. unsupported or non-standard features) are handled by connector libraries.
+Connector libraries can inform the developer of missing features at compile time.
+They also interpret expressions specifically where needed.
+For example, the connector could use the operator|| or the concat method for string concatenation without the developer being required to change the statement.
+
+Connectors for MySQL, MariaDB, sqlite3, sqlcipher are included in this repository.
 
 The library is already used in production but it is certainly not complete yet. Feature requests, bug reports, contributions to code or documentation are most welcome.
 
@@ -108,8 +114,6 @@ Past talks about sqlpp11 and some coding concepts used within the library:
    * 2014-02-27: [Selected C++11 Template Toffees From sqlpp11, Part1](https://www.youtube.com/watch?v=hXnGFYNbmXg), [Part2](https://www.youtube.com/watch?v=WPCV6dvxZ_U), [Part 3](https://www.youtube.com/watch?v=eB7hd_KjTig), [Part 4](https://www.youtube.com/watch?v=NBfqzcN0_EQ)
 
 
-
-
 Requirements:
 -------------
 __Compiler:__
@@ -125,14 +129,19 @@ sqlpp11 makes heavy use of C++11 and requires a recent compiler and STL. The fol
 __Database Connector:__
 sqlpp11 requires a certain api in order to connect with the database, see database/api.h.
 
-  * MySQL: https://github.com/rbock/sqlpp11-connector-mysql
-  * Sqlite3: https://github.com/rbock/sqlpp11-connector-sqlite3
+Connectors for MySQL, MariaDB, sqlite3, sqlcipher are included in this repository. You can configure to use them via cmake options, i.e.
+
+```
+-DMYSQL_CONNECTOR
+-DMARIADB_CONNECTOR
+-DSQLITE3_CONNECTOR
+-DSQLCIPHER_CONNECTOR
+```
+
+Other connectors can be found here:
+
   * PostgreSQL: https://github.com/matthijs/sqlpp11-connector-postgresql
   * ODBC: https://github.com/Erroneous1/sqlpp11-connector-odbc (experimental)
-
-To demonstrate that sqlpp11 can work with other backends as well, here is an experimental backend for structs in standard containers:
-
-  * STL Container: https://github.com/rbock/sqlpp11-connector-stl
 
 __Date Library:__
 sqlpp11 requires [Howard Hinnant's date library](https://github.com/HowardHinnant/date) for `date` and `date_time` data types. By default, sqlpp11 uses FetchContent to pull the library automatically in the project. If you want to use an already installed version of the library with `find_package`, set `USE_SYSTEM_DATE` option to `ON`.
