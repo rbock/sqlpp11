@@ -32,6 +32,8 @@
 #include <sqlpp11/mysql/char_result.h>
 #include <sqlpp11/mysql/connection_config.h>
 #include <sqlpp11/mysql/prepared_statement.h>
+#include <sqlpp11/mysql/remove.h>
+#include <sqlpp11/mysql/update.h>
 #include <sqlpp11/serialize.h>
 #include <sstream>
 #include <string>
