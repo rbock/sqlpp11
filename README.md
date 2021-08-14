@@ -132,10 +132,10 @@ sqlpp11 requires a certain api in order to connect with the database, see databa
 Connectors for MySQL, MariaDB, sqlite3, sqlcipher are included in this repository. You can configure to use them via cmake options, i.e.
 
 ```
--DMYSQL_CONNECTOR
--DMARIADB_CONNECTOR
--DSQLITE3_CONNECTOR
--DSQLCIPHER_CONNECTOR
+-DMYSQL_CONNECTOR=ON
+-DMARIADB_CONNECTOR=ON
+-DSQLITE3_CONNECTOR=ON
+-DSQLCIPHER_CONNECTOR=ON
 ```
 
 Other connectors can be found here:
