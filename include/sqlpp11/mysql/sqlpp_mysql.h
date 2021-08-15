@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 - 2015, Roland Bock
+ * Copyright (c) 2018 - 2018, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,18 +24,19 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <ciso646>
-#include <iostream>
-#include "detail/connection_handle.h"
-#include "detail/prepared_statement_handle.h"
-#include "detail/result_handle.h"
-#include <sqlpp11/exception.h>
-#include <sqlpp11/mysql/connection.h>
+#ifndef SQLPP_MYSQL_MYSQL_H
+#define SQLPP_MYSQL_MYSQL_H
+
+#include <mysql.h>
 
 namespace sqlpp
 {
   namespace mysql
   {
-
+#if LIBMYSQL_VERSION_ID >= 80000
+    using my_bool = bool;
+#endif
   }
 }
+
+#endif

@@ -37,7 +37,7 @@ SQLPP_ALIAS_PROVIDER(right)
 namespace mysql = sqlpp::mysql;
 int main()
 {
-  mysql::global_library_init();
+  sqlpp::mysql::global_library_init();
 
   auto config = std::make_shared<mysql::connection_config>();
   config->user = "root";

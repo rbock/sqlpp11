@@ -1,9 +1,11 @@
 find_package(Threads REQUIRED)
 
 macro(build_and_run arg)
-	add_executable(Sqlpp11MySQL${arg} ${arg}.cpp)
-    target_link_libraries(Sqlpp11MySQL${arg} PRIVATE sqlpp-mysql)
+    add_executable(Sqlpp11MySQL${arg} ${arg}.cpp)
     target_link_libraries(Sqlpp11MySQL${arg} PRIVATE Threads::Threads)
+    target_link_libraries(Sqlpp11MySQL${arg} PRIVATE sqlpp11::sqlpp11)
+    target_link_libraries(Sqlpp11MySQL${arg} PRIVATE MySQL::MySQL)
+    target_link_libraries(Sqlpp11MySQL${arg} PRIVATE date::date)
     if(${arg} STREQUAL "JsonTest")
         target_link_libraries(Sqlpp11MySQL${arg} PRIVATE MySQL::MySQL)
     endif()

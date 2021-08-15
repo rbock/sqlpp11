@@ -33,9 +33,11 @@
 
 namespace sqlpp
 {
-  namespace mysql{
+  namespace mysql
+  {
     template <typename Database>
-    using blank_remove_t = statement_t<Database, remove_t, no_from_t, no_using_t, no_where_t<true>, no_order_by_t, no_limit_t>;
+    using blank_remove_t =
+        statement_t<Database, remove_t, no_from_t, no_using_t, no_where_t<true>, no_order_by_t, no_limit_t>;
 
     inline auto remove() -> blank_remove_t<void>
     {
@@ -49,19 +51,20 @@ namespace sqlpp
     }
 
     template <typename Database>
-    auto dynamic_remove(const Database & /*unused*/) -> decltype(blank_remove_t<Database>())
+    auto dynamic_remove(const Database& /*unused*/) -> decltype(blank_remove_t<Database>())
     {
       static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
       return {blank_remove_t<Database>()};
     }
 
     template <typename Database, typename Table>
-    auto dynamic_remove_from(const Database& /*unused*/, Table table) -> decltype(blank_remove_t<Database>().from(table))
+    auto dynamic_remove_from(const Database& /*unused*/, Table table)
+        -> decltype(blank_remove_t<Database>().from(table))
     {
       static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
       return {blank_remove_t<Database>().from(table)};
     }
-  }  //namespace mysql
+  }  // namespace mysql
 
 }  // namespace sqlpp
 
