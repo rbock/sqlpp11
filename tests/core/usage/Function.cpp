@@ -382,14 +382,17 @@ int Function(int, char* [])
     using TI = decltype(sqlpp::value_or_null(7));
     using TF = decltype(sqlpp::value_or_null(5.6));
     using TT = decltype(sqlpp::value_or_null("hallo"));
+    using TD = decltype(sqlpp::value_or_null(std::chrono::system_clock::now()));
     using TBN = decltype(sqlpp::value_or_null<sqlpp::boolean>(sqlpp::null));
     using TIN = decltype(sqlpp::value_or_null<sqlpp::integral>(sqlpp::null));
     using TFN = decltype(sqlpp::value_or_null<sqlpp::floating_point>(sqlpp::null));
     using TTN = decltype(sqlpp::value_or_null<sqlpp::text>(sqlpp::null));
+    using TDN = decltype(sqlpp::value_or_null<sqlpp::time_point>(sqlpp::null));
     static_assert(std::is_same<TB, TBN>::value, "type_requirement");
     static_assert(std::is_same<TI, TIN>::value, "type_requirement");
     static_assert(std::is_same<TF, TFN>::value, "type_requirement");
     static_assert(std::is_same<TT, TTN>::value, "type_requirement");
+    static_assert(std::is_same<TD, TDN>::value, "type_requirement");
     static_assert(not sqlpp::is_selectable_t<TB>::value, "type requirement");
     static_assert(sqlpp::is_boolean_t<TB>::value, "type requirement");
     static_assert(not sqlpp::is_selectable_t<TI>::value, "type requirement");
