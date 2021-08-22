@@ -6,6 +6,16 @@ os:
 dist: focal
 sudo: required
 
+services:
+  - mysql
+
+addons:
+  apt:
+    packages:
+    - sqlite3
+    - libboost-dev
+    - python-pyparsing
+
 compiler:
   - clang
   - gcc
@@ -20,19 +30,15 @@ notifications:
    on_success: change
    on_failure: always
 
-install:
-  - g++ --version
-
 before_script:
+   - mysql --version
+   - (while !  mysqladmin -u root status ; do sleep 1; done) # wait for mysql to start
+   - mysqladmin -u root create sqlpp_mysql
    - mkdir build
    - cd build
-   - if [[ "$CONFIG" = "Debug" && "$TRAVIS_OS_NAME" = "linux" ]]; then
-         cp -r ../scripts/ . &&
-         cp -r ../test_scripts/ . &&
-         sudo apt-get install python-pyparsing;
-     fi
    - if [[ "$CXX" = "g++" && "$CONFIG" = "Debug" && "$TRAVIS_OS_NAME" = "linux" ]]; then export CXXFLAGS="--coverage"; fi
-   - cmake .. -DCMAKE_BUILD_TYPE=$CONFIG -DCMAKE_PREFIX_PATH=$PWD/../date $ADD_OPTS
+   - ls ..
+   - cmake .. -DCMAKE_BUILD_TYPE=$CONFIG -DMYSQL_CONNECTOR=ON -DSQLITE3_CONNECTOR=ON
 
 script:
    - cmake --build . --config $CONFIG
