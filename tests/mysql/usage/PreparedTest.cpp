@@ -49,12 +49,11 @@ void testPreparedStatementResult (sql::connection& db)
     auto preparedSelectAll = db.prepare(sqlpp::select(count(tab.alpha)).from(tab).unconditionally());
     auto preparedUpdateAll = db.prepare(sqlpp::update(tab).set(tab.gamma = false).unconditionally());
 
-    uint32_t count = 0;
     {
         // explicit result scope
         // if results are released update should execute without exception
         auto result = db(preparedSelectAll);
-        count = result.front().count;
+        std::ignore = result.front().count;
     }
 
     db(preparedUpdateAll);
