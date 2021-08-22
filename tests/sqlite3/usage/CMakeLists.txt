@@ -28,11 +28,18 @@ macro (build_and_run arg)
 	# Add headers to sources to enable file browsing in IDEs
     add_executable(Sqlpp11Sqlite3${arg} ${arg}.cpp)
 
-	target_link_libraries(Sqlpp11Sqlite3${arg} PRIVATE sqlpp11-connector-sqlite3)
-	if (NOT MSVC)
-		target_compile_options(Sqlpp11Sqlite3${arg} INTERFACE -Wall -Wextra -pedantic)
-	endif ()
-	add_test(NAME Sqlpp11Sqlite3${arg} COMMAND Sqlpp11Sqlite3${arg})
+    target_link_libraries(Sqlpp11Sqlite3${arg} PRIVATE sqlpp11::sqlpp11)
+    if (SQLCIPHER)
+        target_compile_definitions(Sqlpp11Sqlite3${arg} PRIVATE SQLPP_USE_SQLCIPHER)
+        target_link_libraries(Sqlpp11Sqlite3${arg} PRIVATE SQLCipher::SQLCipher)
+        if (SQLPP_DYNAMIC_LOADING)
+            target_include_directories(Sqlpp11Sqlite3${arg} PRIVATE ${SQLCIPHER_INCLUDE_DIRS})
+        endif()
+    else()
+        target_link_libraries(Sqlpp11Sqlite3${arg} PRIVATE SQLite::SQLite3)
+    endif()
+  
+    add_test(NAME Sqlpp11Sqlite3${arg} COMMAND Sqlpp11Sqlite3${arg})
 endmacro ()
 
 build_and_run(DateTimeTest)

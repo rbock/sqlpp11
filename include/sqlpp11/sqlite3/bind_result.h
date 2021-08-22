@@ -28,8 +28,11 @@
 #define SQLPP_SQLITE3_BIND_RESULT_H
 
 #include <memory>
+#include <iostream>
 #include <sqlpp11/chrono.h>
+#include <sqlpp11/exception.h>
 #include <sqlpp11/sqlite3/export.h>
+#include <sqlpp11/sqlite3/prepared_statement_handle.h>
 
 #ifdef _MSC_VER
 #pragma warning(push)
@@ -42,8 +45,33 @@ namespace sqlpp
   {
     namespace detail
     {
-      struct prepared_statement_handle_t;
-    }
+      const auto date_digits = std::vector<char>{1, 1, 1, 1, 0, 1, 1, 0, 1, 1};  // 2015-10-28
+      const auto time_digits = std::vector<char>{0, 1, 1, 0, 1, 1, 0, 1, 1};     // T23:00:12
+      const auto ms_digits = std::vector<char>{0, 1, 1, 1};                      // .123
+
+      auto check_digits(const char* text, const std::vector<char>& digitFlags) -> bool
+      {
+        for (const auto digitFlag : digitFlags)
+        {
+          if (digitFlag)
+          {
+            if (not std::isdigit(*text))
+            {
+              return false;
+            }
+          }
+          else
+          {
+            if (std::isdigit(*text) or *text == '\0')
+            {
+              return false;
+            }
+          }
+          ++text;
+        }
+        return true;
+      }
+    }  // namespace detail
 
     class SQLPP11_SQLITE3_EXPORT bind_result_t
     {
@@ -51,7 +79,12 @@ namespace sqlpp
 
     public:
       bind_result_t() = default;
-      bind_result_t(const std::shared_ptr<detail::prepared_statement_handle_t>& handle);
+    bind_result_t(const std::shared_ptr<detail::prepared_statement_handle_t>& handle) : _handle(handle)
+    {
+      if (_handle and _handle->debug)
+        std::cerr << "Sqlite3 debug: Constructing bind result, using handle at " << _handle.get() << std::endl;
+    }
+
       bind_result_t(const bind_result_t&) = delete;
       bind_result_t(bind_result_t&& rhs) = default;
       bind_result_t& operator=(const bind_result_t&) = delete;
@@ -87,17 +120,172 @@ namespace sqlpp
         }
       }
 
-      void _bind_boolean_result(size_t index, signed char* value, bool* is_null);
-      void _bind_floating_point_result(size_t index, double* value, bool* is_null);
-      void _bind_integral_result(size_t index, int64_t* value, bool* is_null);
-      void _bind_unsigned_integral_result(size_t index, uint64_t* value, bool* is_null);
-      void _bind_text_result(size_t index, const char** text, size_t* len);
-      void _bind_blob_result(size_t index, const uint8_t** text, size_t* len);
-      void _bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null);
-      void _bind_date_time_result(size_t index, ::sqlpp::chrono::microsecond_point* value, bool* is_null);
+    void _bind_boolean_result(size_t index, signed char* value, bool* is_null)
+    {
+      if (_handle->debug)
+        std::cerr << "Sqlite3 debug: binding boolean result " << *value << " at index: " << index << std::endl;
+
+      *value = static_cast<signed char>(sqlite3_column_int(_handle->sqlite_statement, static_cast<int>(index)));
+      *is_null = sqlite3_column_type(_handle->sqlite_statement, static_cast<int>(index)) == SQLITE_NULL;
+    }
+
+    void _bind_floating_point_result(size_t index, double* value, bool* is_null)
+    {
+      if (_handle->debug)
+        std::cerr << "Sqlite3 debug: binding floating_point result " << *value << " at index: " << index << std::endl;
+
+      switch (sqlite3_column_type(_handle->sqlite_statement, static_cast<int>(index)))
+      {
+        case (SQLITE3_TEXT):
+          *value = atof(
+              reinterpret_cast<const char*>(sqlite3_column_text(_handle->sqlite_statement, static_cast<int>(index))));
+          break;
+        default:
+          *value = sqlite3_column_double(_handle->sqlite_statement, static_cast<int>(index));
+      }
+      *is_null = sqlite3_column_type(_handle->sqlite_statement, static_cast<int>(index)) == SQLITE_NULL;
+    }
+
+    void _bind_integral_result(size_t index, int64_t* value, bool* is_null)
+    {
+      if (_handle->debug)
+        std::cerr << "Sqlite3 debug: binding integral result " << *value << " at index: " << index << std::endl;
+
+      *value = sqlite3_column_int64(_handle->sqlite_statement, static_cast<int>(index));
+      *is_null = sqlite3_column_type(_handle->sqlite_statement, static_cast<int>(index)) == SQLITE_NULL;
+    }
+
+    void _bind_unsigned_integral_result(size_t index, uint64_t* value, bool* is_null)
+    {
+      if (_handle->debug)
+        std::cerr << "Sqlite3 debug: binding unsigned integral result " << *value << " at index: " << index
+                  << std::endl;
+
+      *value = static_cast<uint64_t>(sqlite3_column_int64(_handle->sqlite_statement, static_cast<int>(index)));
+      *is_null = sqlite3_column_type(_handle->sqlite_statement, static_cast<int>(index)) == SQLITE_NULL;
+    }
+
+    void _bind_text_result(size_t index, const char** value, size_t* len)
+    {
+      if (_handle->debug)
+        std::cerr << "Sqlite3 debug: binding text result at index: " << index << std::endl;
+
+      *value = (reinterpret_cast<const char*>(sqlite3_column_text(_handle->sqlite_statement, static_cast<int>(index))));
+      *len = sqlite3_column_bytes(_handle->sqlite_statement, static_cast<int>(index));
+    }
+
+    void _bind_blob_result(size_t index, const uint8_t** value, size_t* len)
+    {
+      if (_handle->debug)
+        std::cerr << "Sqlite3 debug: binding text result at index: " << index << std::endl;
+
+      *value =
+          (reinterpret_cast<const uint8_t*>(sqlite3_column_blob(_handle->sqlite_statement, static_cast<int>(index))));
+      *len = sqlite3_column_bytes(_handle->sqlite_statement, static_cast<int>(index));
+    }
+
+
+    void _bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null)
+    {
+      if (_handle->debug)
+        std::cerr << "Sqlite3 debug: binding date result at index: " << index << std::endl;
+
+      *is_null = sqlite3_column_type(_handle->sqlite_statement, static_cast<int>(index)) == SQLITE_NULL;
+      if (*is_null)
+      {
+        *value = {};
+        return;
+      }
+
+      const auto date_string =
+          reinterpret_cast<const char*>(sqlite3_column_text(_handle->sqlite_statement, static_cast<int>(index)));
+      if (_handle->debug)
+        std::cerr << "Sqlite3 debug: date string: " << date_string << std::endl;
+
+      if (detail::check_digits(date_string, detail::date_digits))
+      {
+        const auto ymd = ::date::year(std::atoi(date_string)) / atoi(date_string + 5) / atoi(date_string + 8);
+        *value = ::sqlpp::chrono::day_point(ymd);
+      }
+      else
+      {
+        if (_handle->debug)
+          std::cerr << "Sqlite3 debug: invalid date result: " << date_string << std::endl;
+        *value = {};
+      }
+    }
+
+    void _bind_date_time_result(size_t index, ::sqlpp::chrono::microsecond_point* value, bool* is_null)
+    {
+      if (_handle->debug)
+        std::cerr << "Sqlite3 debug: binding date result at index: " << index << std::endl;
+
+      *is_null = sqlite3_column_type(_handle->sqlite_statement, static_cast<int>(index)) == SQLITE_NULL;
+      if (*is_null)
+      {
+        *value = {};
+        return;
+      }
+
+      const auto date_time_string =
+          reinterpret_cast<const char*>(sqlite3_column_text(_handle->sqlite_statement, static_cast<int>(index)));
+      if (_handle->debug)
+        std::cerr << "Sqlite3 debug: date_time string: " << date_time_string << std::endl;
+
+      if (detail::check_digits(date_time_string, detail::date_digits))
+      {
+        const auto ymd =
+            ::date::year(std::atoi(date_time_string)) / atoi(date_time_string + 5) / atoi(date_time_string + 8);
+        *value = ::sqlpp::chrono::day_point(ymd);
+      }
+      else
+      {
+        if (_handle->debug)
+          std::cerr << "Sqlite3 debug: invalid date_time result: " << date_time_string << std::endl;
+        *value = {};
+
+        return;
+      }
+
+      const auto time_string = date_time_string + 10;
+      if (detail::check_digits(time_string, detail::time_digits))
+      {
+        *value += ::std::chrono::hours(std::atoi(time_string + 1)) + std::chrono::minutes(std::atoi(time_string + 4)) +
+                  std::chrono::seconds(std::atoi(time_string + 7));
+      }
+      else
+      {
+        return;
+      }
+      const auto ms_string = time_string + 9;
+      if (detail::check_digits(ms_string, detail::ms_digits) and ms_string[4] == '\0')
+      {
+        *value += ::std::chrono::milliseconds(std::atoi(ms_string + 1));
+      }
+      else
+      {
+        return;
+      }
+    }
 
     private:
-      bool next_impl();
+    bool next_impl()
+    {
+      if (_handle->debug)
+        std::cerr << "Sqlite3 debug: Accessing next row of handle at " << _handle.get() << std::endl;
+
+      auto rc = sqlite3_step(_handle->sqlite_statement);
+
+      switch (rc)
+      {
+        case SQLITE_ROW:
+          return true;
+        case SQLITE_DONE:
+          return false;
+        default:
+          throw sqlpp::exception("Sqlite3 error: Unexpected return value for sqlite3_step()");
+      }
+    }
     };
   }  // namespace sqlite3
 }  // namespace sqlpp

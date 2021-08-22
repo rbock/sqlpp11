@@ -78,9 +78,6 @@ add_subdirectory(dependencies)
 add_library(sqlpp11 INTERFACE)
 add_library(sqlpp11::sqlpp11 ALIAS sqlpp11)
 
-# Connector targets
-add_subdirectory(src)
-
 target_link_libraries(sqlpp11 INTERFACE date::date)
 
 target_include_directories(sqlpp11 INTERFACE
