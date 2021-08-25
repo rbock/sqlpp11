@@ -27,7 +27,6 @@
 #ifndef SQLPP11_FROM_H
 #define SQLPP11_FROM_H
 
-#include <sqlpp11/detail/sum.h>
 #include <sqlpp11/dynamic_join.h>
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/interpretable_list.h>
