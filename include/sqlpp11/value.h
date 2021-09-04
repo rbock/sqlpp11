@@ -32,7 +32,13 @@
 namespace sqlpp
 {
   template <typename T>
-  auto value(T t) -> wrap_operand_t<T>
+  struct value_t : public wrap_operand_t<T>, public expression_operators<value_t<T>, value_type_of<wrap_operand_t<T>>>
+  {
+    using _base_t = wrap_operand_t<T>;
+    using _base_t::_base_t;
+  };
+  template <typename T>
+  auto value(T t) -> value_t<T>
   {
     static_assert(is_wrapped_value_t<wrap_operand_t<T>>::value,
                   "value() is to be called with non-sql-type like int, or string");

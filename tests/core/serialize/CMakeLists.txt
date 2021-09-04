@@ -31,7 +31,8 @@ set(test_serializer_names
 	From
 	In
 	Insert
-  Over
+        Operator
+        Over
 	TableAlias
 	Where
 	ParameterizedVerbatim
