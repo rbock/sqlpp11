@@ -32,9 +32,6 @@
 
 namespace sqlpp
 {
-  template <typename Table>
-  struct all_of_t;
-
   namespace detail
   {
     template <typename T>
@@ -43,15 +40,6 @@ namespace sqlpp
       static std::tuple<auto_alias_t<T>> _(T t)
       {
         return std::tuple<auto_alias_t<T>>(auto_alias_t<T>{t});
-      }
-    };
-
-    template <typename T>
-    struct as_column_tuple<all_of_t<T>>
-    {
-      static typename all_of_t<T>::_column_tuple_t _(all_of_t<T> /*unused*/)
-      {
-        return {};
       }
     };
 

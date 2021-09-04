@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2021, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,29 +27,13 @@
 #ifndef SQLPP11_ALL_OF_H
 #define SQLPP11_ALL_OF_H
 
-#include <sqlpp11/alias.h>
-#include <sqlpp11/serialize.h>
-#include <sqlpp11/portable_static_assert.h>
-
 namespace sqlpp
 {
   template <typename Table>
-  struct all_of_t
-  {
-    using _column_tuple_t = typename Table::_column_tuple_t;
-  };
-
-  template <typename Table>
-  auto all_of(Table /*unused*/) -> all_of_t<Table>
+  auto all_of(Table /*unused*/) -> typename Table::_column_tuple_t
   {
     return {};
   }
-
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_no_stand_alone_all_of_t, "all_of(table) seems to be used outside of select");
-
-  // FIXME: Do we need this?
-  template <typename Context, typename Table>
-  Context& serialize(const all_of_t<Table>& t, Context& context);
 }  // namespace sqlpp
 
 #endif
