@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016, Roland Bock
+ * Copyright (c) 2016-2021, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,6 +29,8 @@
 
 #include <iostream>
 
+SQLPP_ALIAS_PROVIDER(sample)
+
 int TableAlias(int, char* [])
 {
   const auto foo = test::TabFoo{};
@@ -38,6 +40,11 @@ int TableAlias(int, char* [])
   compare(__LINE__, foo.as(bar), "tab_foo AS tab_bar");
   compare(__LINE__, select(foo.omega).from(foo).unconditionally().as(bar),
           "(SELECT tab_foo.omega FROM tab_foo) AS tab_bar");
+
+  // Table alias
+  const auto tab = foo.as(sample);
+  compare(__LINE__, select(tab.omega).from(tab).unconditionally(),
+          "SELECT sample.omega FROM tab_foo AS sample");
 
   return 0;
 }
