@@ -28,7 +28,7 @@
 #define SQLPP11_SELECT_COLUMN_LIST_H
 
 #include <sqlpp11/data_types/no_value.h>
-#include <sqlpp11/detail/copy_tuple_args.h>
+#include <sqlpp11/auto_alias.h>
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/dynamic_select_column_list.h>
 #include <sqlpp11/expression_fwd.h>
@@ -291,9 +291,26 @@ namespace sqlpp
 
   namespace detail
   {
+    template <typename T>
+    std::tuple<auto_alias_t<T>> as_column_tuple(T t)
+    {
+      return std::tuple<auto_alias_t<T>>(auto_alias_t<T>{t});
+    }
+
+    template <typename... Args>
+    std::tuple<auto_alias_t<Args>...> as_column_tuple(std::tuple<Args...> t)
+    {
+      return t;
+    }
+
+    template <typename... Columns>
+    auto column_tuple_merge(Columns... columns) -> decltype(std::tuple_cat(as_column_tuple(columns)...))
+    {
+      return std::tuple_cat(as_column_tuple(columns)...);
+    }
+
     template <typename Database, typename... Columns>
-    using make_select_column_list_t =
-        copy_tuple_args_t<select_column_list_t, Database, decltype(column_tuple_merge(std::declval<Columns>()...))>;
+    select_column_list_t<Database, Columns...> make_column_list(std::tuple<Columns...> columns);
   }  // namespace detail
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_selected_colums_are_selectable_t, "selected columns must be selectable");
@@ -362,15 +379,9 @@ namespace sqlpp
       using _database_t = typename Policies::_database_t;
 
       template <typename... T>
-      static constexpr auto _check_tuple(std::tuple<T...> /*unused*/) -> check_selected_columns_t<T...>
+      static constexpr auto _check_args(std::tuple<T...> args) -> check_selected_columns_t<T...>
       {
         return {};
-      }
-
-      template <typename... T>
-      static constexpr auto _check_args(T... args) -> decltype(_check_tuple(detail::column_tuple_merge(args...)))
-      {
-        return _check_tuple(detail::column_tuple_merge(args...));
       }
 
       template <typename Check, typename T>
@@ -380,25 +391,29 @@ namespace sqlpp
 
       template <typename... Args>
       auto columns(Args... args) const
-          -> _new_statement_t<decltype(_check_args(args...)), detail::make_select_column_list_t<void, Args...>>
+          -> _new_statement_t<decltype(_check_args(detail::column_tuple_merge(args...))),
+                              decltype(detail::make_column_list<void>(detail::column_tuple_merge(args...)))>
       {
         static_assert(sizeof...(Args), "at least one selectable expression (e.g. a column) required in columns()");
-        static_assert(decltype(_check_args(args...))::value,
+        using check = decltype(_check_args(detail::column_tuple_merge(args...)));
+        static_assert(check::value,
                       "at least one argument is not a selectable expression in columns()");
 
-        return _columns_impl<void>(decltype(_check_args(args...)){}, detail::column_tuple_merge(args...));
+        return _columns_impl<void>(check{}, detail::column_tuple_merge(args...));
       }
 
       template <typename... Args>
       auto dynamic_columns(Args... args) const
-          -> _new_statement_t<decltype(_check_args(args...)), detail::make_select_column_list_t<_database_t, Args...>>
+          -> _new_statement_t<decltype(_check_args(detail::column_tuple_merge(args...))),
+                              decltype(detail::make_column_list<_database_t>(detail::column_tuple_merge(args...)))>
       {
         static_assert(not std::is_same<_database_t, void>::value,
                       "dynamic_columns must not be called in a static statement");
-        static_assert(decltype(_check_args(args...))::value,
+        using check = decltype(_check_args(detail::column_tuple_merge(args...)));
+        static_assert(check::value,
                       "at least one argument is not a selectable expression in columns()");
 
-        return _columns_impl<_database_t>(decltype(_check_args(args...)){}, detail::column_tuple_merge(args...));
+        return _columns_impl<_database_t>(check{}, detail::column_tuple_merge(args...));
       }
 
     private:
