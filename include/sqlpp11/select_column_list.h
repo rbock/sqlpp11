@@ -424,10 +424,6 @@ namespace sqlpp
       auto _columns_impl(consistent_t /*unused*/, std::tuple<Args...> args) const
           -> _new_statement_t<consistent_t, select_column_list_t<Database, Args...>>
       {
-        static_assert(not detail::has_duplicates<Args...>::value, "at least one duplicate argument detected");
-        static_assert(not detail::has_duplicates<typename Args::_alias_t...>::value,
-                      "at least one duplicate name detected");
-
         return {static_cast<const derived_statement_t<Policies>&>(*this),
                 typename select_column_list_t<Database, Args...>::_data_t{args}};
       }
