@@ -85,18 +85,18 @@ namespace sqlpp
   {
     static_assert(wrong_t<Lhs, Rhs>::value, "Sqlite3: No support for outer join");
     return context;
-  };
+  }
 
   template <typename Lhs, typename Rhs>
   sqlite3::serializer_t& serialize(const pre_join_t<right_outer_join_t, Lhs, Rhs>&, sqlite3::serializer_t& context)
   {
     static_assert(wrong_t<Lhs, Rhs>::value, "Sqlite3: No support for right_outer join");
     return context;
-  };
+  }
 
   // Some special treatment of data types
   template <typename Period>
-  sqlite3::serializer_t& serialize(const time_point_operand<Period>& t, sqlite3::serializer_t&  context)
+  sqlite3::serializer_t& serialize(const time_point_operand<Period>& t, sqlite3::serializer_t& context)
   {
     const auto dp = ::sqlpp::chrono::floor<::date::days>(t._t);
     const auto time = ::date::make_time(t._t - dp);
@@ -105,14 +105,14 @@ namespace sqlpp
     return context;
   }
 
-  inline sqlite3::serializer_t& serialize(const day_point_operand& t, sqlite3::serializer_t&  context)
+  inline sqlite3::serializer_t& serialize(const day_point_operand& t, sqlite3::serializer_t& context)
   {
     const auto ymd = ::date::year_month_day{t._t};
     context << "DATE('" << ymd << "')";
     return context;
   }
 
-  inline sqlite3::serializer_t& serialize(const floating_point_operand& t, sqlite3::serializer_t&  context)
+  inline sqlite3::serializer_t& serialize(const floating_point_operand& t, sqlite3::serializer_t& context)
   {
     if (std::isnan(t._t))
       context << "'NaN'";
@@ -130,11 +130,11 @@ namespace sqlpp
 
   // sqlite3 accepts only signed integers,
   // so we MUST perform a conversion from unsigned to signed
-  inline sqlite3::serializer_t& serialize(const unsigned_integral_operand& t, sqlite3::serializer_t&  context)
+  inline sqlite3::serializer_t& serialize(const unsigned_integral_operand& t, sqlite3::serializer_t& context)
   {
     context << static_cast<typename integral_operand::_value_t>(t._t);
     return context;
   }
-}
+}  // namespace sqlpp
 
 #endif

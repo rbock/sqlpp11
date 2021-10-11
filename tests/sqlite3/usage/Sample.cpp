@@ -42,7 +42,7 @@ SQLPP_ALIAS_PROVIDER(pragma)
 SQLPP_ALIAS_PROVIDER(sub)
 
 namespace sql = sqlpp::sqlite3;
-int main()
+int Sample(int, char*[])
 {
   sql::connection_config config;
   config.path_to_database = ":memory:";

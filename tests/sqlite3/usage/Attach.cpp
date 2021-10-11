@@ -38,7 +38,7 @@
 
 namespace sql = sqlpp::sqlite3;
 
-int main()
+int Attach(int, char*[])
 {
   sql::connection_config config;
   config.path_to_database = ":memory:";

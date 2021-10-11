@@ -54,7 +54,7 @@ void verify_blob(sql::connection& db, const std::vector<uint8_t>& data, uint64_t
   }
 }
 
-int main()
+int Blob(int, char*[])
 {
   sql::connection_config config;
   config.path_to_database = ":memory:";

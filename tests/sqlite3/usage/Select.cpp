@@ -89,7 +89,7 @@ namespace string_util
   }
 }
 
-int main()
+int Select(int, char*[])
 {
   sql::connection db({":memory:", SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, "", true});
   db.execute(R"(CREATE TABLE tab_sample (

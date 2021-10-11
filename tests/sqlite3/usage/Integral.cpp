@@ -52,7 +52,7 @@ auto require_equal(int line, const L& l, const R& r) -> void
   }
 }
 
-int main()
+int Integral(int, char*[])
 {
   sql::connection_config config;
   config.path_to_database = ":memory:";
@@ -107,7 +107,7 @@ int main()
   require_equal(__LINE__, rows.front().unsignedValue.value(), uint64_t_value_unsupported);
   rows.pop_front();
 
-  require_equal(__LINE__, rows.front().signedValue.value(), size_t_value_min);
+  require_equal(__LINE__, rows.front().signedValue.value(), int64_t_value_min);
   require_equal(__LINE__, rows.front().unsignedValue.value(), size_t_value_max);
   rows.pop_front();
 

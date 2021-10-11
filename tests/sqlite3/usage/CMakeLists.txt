@@ -1,4 +1,4 @@
-# Copyright (c) 2013 - 2016, Roland Bock
+# Copyright (c) 2013 - 2021, Roland Bock
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -22,38 +22,50 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
+add_library(sqlpp11_sqlite3_testing INTERFACE)
+target_include_directories(sqlpp11_sqlite3_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
-macro (build_and_run arg)
-	# Add headers to sources to enable file browsing in IDEs
-    add_executable(Sqlpp11Sqlite3${arg} ${arg}.cpp)
+set(test_names
+  DateTime
+  Sample
+  Select
+  Union
+  With
+  Attach
+  DynamicSelect
+  AutoIncrement
+  Transaction
+  FloatingPoint
+  Integral
+  Blob
+  )
 
-    target_link_libraries(Sqlpp11Sqlite3${arg} PRIVATE sqlpp11::sqlpp11)
-    if (SQLCIPHER)
-        target_compile_definitions(Sqlpp11Sqlite3${arg} PRIVATE SQLPP_USE_SQLCIPHER)
-        target_link_libraries(Sqlpp11Sqlite3${arg} PRIVATE SQLCipher::SQLCipher)
-        if (SQLPP_DYNAMIC_LOADING)
-            target_include_directories(Sqlpp11Sqlite3${arg} PRIVATE ${SQLCIPHER_INCLUDE_DIRS})
-        endif()
-    else()
-        target_link_libraries(Sqlpp11Sqlite3${arg} PRIVATE SQLite::SQLite3)
+create_test_sourcelist(test_sources test_main.cpp ${test_names})
+add_executable(sqlpp11_sqlite3_tests ${test_sources})
+target_link_libraries(sqlpp11_sqlite3_tests PRIVATE sqlpp11 sqlpp11_testing sqlpp11_sqlite3_testing)
+target_link_libraries(sqlpp11_sqlite3_tests PRIVATE sqlpp11::sqlpp11)
+if (SQLCIPHER)
+    target_compile_definitions(sqlpp11_sqlite3_tests PRIVATE SQLPP_USE_SQLCIPHER)
+    target_link_libraries(sqlpp11_sqlite3_tests PRIVATE SQLCipher::SQLCipher)
+    if (SQLPP_DYNAMIC_LOADING)
+        target_include_directories(sqlpp11_sqlite3_tests PRIVATE ${SQLCIPHER_INCLUDE_DIRS})
     endif()
-  
-    add_test(NAME Sqlpp11Sqlite3${arg} COMMAND Sqlpp11Sqlite3${arg})
-endmacro ()
+else()
+    target_link_libraries(sqlpp11_sqlite3_tests PRIVATE SQLite::SQLite3)
+endif()
 
-build_and_run(DateTimeTest)
-build_and_run(SampleTest)
-build_and_run(SelectTest)
-build_and_run(UnionTest)
-build_and_run(WithTest)
-build_and_run(AttachTest)
-build_and_run(DynamicSelectTest)
-build_and_run(AutoIncrementTest)
-build_and_run(TransactionTest)
-build_and_run(FloatingPointTest)
-build_and_run(IntegralTest)
-build_and_run(BlobTest)
+# conditionally bump to a higher C++ standard to test compatibility
+if (SQLPP11_TESTS_CXX_STD)
+  set_property(TARGET sqlpp11_sqlite3_tests PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})
+  set_property(TARGET sqlpp11_sqlite3_tests PROPERTY CXX_STANDARD_REQUIRED yes)
+  set_property(TARGET sqlpp11_sqlite3_tests PROPERTY CXX_EXTENSIONS no)
+endif()
+
+foreach(test IN LISTS test_names)
+  add_test(NAME sqlpp11.sqlite3.tests.${test}
+    COMMAND sqlpp11_sqlite3_tests ${test}
+    )
+endforeach()
 
 # the dynamic loading test needs the extra option "SQLPP_DYNAMIC_LOADING" and does NOT link the sqlite libs
 if (SQLPP_DYNAMIC_LOADING)

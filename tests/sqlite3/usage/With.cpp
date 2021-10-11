@@ -39,7 +39,7 @@
 namespace sql = sqlpp::sqlite3;
 const auto tab = TabSample{};
 
-int main()
+int With(int, char*[])
 {
 #if SQLITE_VERSION_NUMBER >= 3008003
   sql::connection_config config;

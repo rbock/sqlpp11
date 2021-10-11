@@ -38,7 +38,7 @@
 #include <set>
 
 namespace sql = sqlpp::sqlite3;
-int main()
+int AutoIncrement(int, char*[])
 {
   sql::connection_config config;
   config.path_to_database = ":memory:";

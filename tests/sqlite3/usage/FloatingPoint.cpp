@@ -61,7 +61,7 @@ static auto require(int line, bool condition) -> void
   }
 }
 
-int main()
+int FloatingPoint(int, char*[])
 {
   sql::connection_config config;
   config.path_to_database = ":memory:";

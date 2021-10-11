@@ -58,7 +58,7 @@ namespace
 }  // namespace
 
 namespace sql = sqlpp::sqlite3;
-int main()
+int DateTime(int, char*[])
 {
   try
   {

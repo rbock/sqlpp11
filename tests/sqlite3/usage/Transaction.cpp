@@ -47,7 +47,7 @@ namespace sql = sqlpp::sqlite3;
 
 SQLPP_ALIAS_PROVIDER(pragma)
 
-int main()
+int Transaction(int, char*[])
 {
   sql::connection db({":memory:", SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, "", true});
 
