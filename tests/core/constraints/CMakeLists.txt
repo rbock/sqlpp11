@@ -23,7 +23,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 function(test_constraint name pattern)
-  set(test sqlpp11.test_constraints.${name})
+  set(test sqlpp11.core.constraints.${name})
   set(target sqlpp11_${name})
   add_executable(${target} EXCLUDE_FROM_ALL ${name}.cpp)
   target_link_libraries(${target} PRIVATE sqlpp11 sqlpp11_testing)
@@ -36,7 +36,7 @@ function(test_constraint name pattern)
     set_property(TARGET ${target} PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})
     set_property(TARGET ${target} PROPERTY CXX_STANDARD_REQUIRED yes)
     set_property(TARGET ${target} PROPERTY CXX_EXTENSIONS no)
-  endif()  
+  endif()
 endfunction()
 
 # Compiling these is required to fail (testing some static_assert)

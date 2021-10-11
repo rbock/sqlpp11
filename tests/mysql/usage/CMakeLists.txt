@@ -61,7 +61,7 @@ set_property(TARGET sqlpp11_mysql_tests PROPERTY CXX_STANDARD_REQUIRED yes)
 endif()
 
 foreach(test IN LISTS test_names)
-  add_test(NAME sqlpp11.mysql.tests.${test}
+  add_test(NAME sqlpp11.mysql.usage.${test}
     COMMAND sqlpp11_mysql_tests ${test}
     )
 endforeach()

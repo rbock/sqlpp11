@@ -55,18 +55,18 @@ endif()
 
 
 create_test_sourcelist(test_sources test_main.cpp ${test_names})
-add_executable(sqlpp11_tests ${test_sources})
-target_link_libraries(sqlpp11_tests PRIVATE sqlpp11 sqlpp11_testing)
+add_executable(sqlpp11_core_tests ${test_sources})
+target_link_libraries(sqlpp11_core_tests PRIVATE sqlpp11 sqlpp11_testing)
 # conditionally bump to a higher C++ standard to test compatibility
 if (SQLPP11_TESTS_CXX_STD)
-  set_property(TARGET sqlpp11_tests PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})
-  set_property(TARGET sqlpp11_tests PROPERTY CXX_STANDARD_REQUIRED yes)
-  set_property(TARGET sqlpp11_tests PROPERTY CXX_EXTENSIONS no)
+  set_property(TARGET sqlpp11_core_tests PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})
+  set_property(TARGET sqlpp11_core_tests PROPERTY CXX_STANDARD_REQUIRED yes)
+  set_property(TARGET sqlpp11_core_tests PROPERTY CXX_EXTENSIONS no)
 endif()
 
 foreach(test IN LISTS test_names)
-  add_test(NAME sqlpp11.tests.${test}
-    COMMAND sqlpp11_tests ${test}
+  add_test(NAME sqlpp11.core.usage.${test}
+    COMMAND sqlpp11_core_tests ${test}
     )
 endforeach()
 

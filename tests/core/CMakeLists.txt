@@ -25,5 +25,6 @@ add_subdirectory(usage)
 add_subdirectory(serialize)
 add_subdirectory(constraints)
 add_subdirectory(static_asserts)
+add_subdirectory(types)
 
 

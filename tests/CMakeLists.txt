@@ -35,3 +35,4 @@ if(SQLITE3_CONNECTOR OR SQLCIPHER_CONNECTOR)
     add_subdirectory(sqlite3)
 endif()
 
+add_subdirectory(scripts)

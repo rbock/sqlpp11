@@ -62,7 +62,7 @@ if (SQLPP11_TESTS_CXX_STD)
 endif()
 
 foreach(test IN LISTS test_names)
-  add_test(NAME sqlpp11.sqlite3.tests.${test}
+  add_test(NAME sqlpp11.sqlite3.usage.${test}
     COMMAND sqlpp11_sqlite3_tests ${test}
     )
 endforeach()

@@ -31,7 +31,7 @@ function(test_compile name)
     set_property(TARGET sqlpp11_${name} PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})
     set_property(TARGET sqlpp11_${name} PROPERTY CXX_STANDARD_REQUIRED yes)
     set_property(TARGET sqlpp11_${name} PROPERTY CXX_EXTENSIONS no)
-  endif()  
+  endif()
 endfunction()
 
 test_compile(result_row)

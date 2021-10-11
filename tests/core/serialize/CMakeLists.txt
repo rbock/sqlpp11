@@ -1,4 +1,4 @@
-# Copyright (c) 2013-2017, Roland Bock
+# Copyright (c) 2013-2021, Roland Bock
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -22,7 +22,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-set(test_serializer_names
+set(test_names
 	As
 	Blob
 	CustomQuery
@@ -38,9 +38,9 @@ set(test_serializer_names
 	ParameterizedVerbatim
   )
 
-create_test_sourcelist(test_serializer_sources test_serializer_main.cpp ${test_serializer_names})
-add_executable(sqlpp11_test_serializer ${test_serializer_sources})
-target_link_libraries(sqlpp11_test_serializer PRIVATE sqlpp11 sqlpp11_testing)
+create_test_sourcelist(test_sources test_serializer_main.cpp ${test_names})
+add_executable(sqlpp11_core_serialize ${test_sources})
+target_link_libraries(sqlpp11_core_serialize PRIVATE sqlpp11 sqlpp11_testing)
 
 # conditionally bump to a higher C++ standard to test compatibility
 if (SQLPP11_TESTS_CXX_STD)
@@ -49,9 +49,9 @@ if (SQLPP11_TESTS_CXX_STD)
   set_property(TARGET sqlpp11_test_serializer PROPERTY CXX_EXTENSIONS no)
 endif()
 
-foreach(test_serializer IN LISTS test_serializer_names)
-  add_test(NAME sqlpp11.test_serializer.${test_serializer}
-    COMMAND sqlpp11_test_serializer ${test_serializer}
+foreach(test IN LISTS test_names)
+  add_test(NAME sqlpp11.core.serialize.${test}
+    COMMAND sqlpp11_core_serialize ${test}
     )
 endforeach()
 
