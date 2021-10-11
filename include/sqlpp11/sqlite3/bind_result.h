@@ -45,28 +45,53 @@ namespace sqlpp
   {
     namespace detail
     {
-      const auto date_digits = std::vector<char>{1, 1, 1, 1, 0, 1, 1, 0, 1, 1};  // 2015-10-28
-      const auto time_digits = std::vector<char>{0, 1, 1, 0, 1, 1, 0, 1, 1};     // T23:00:12
-      const auto ms_digits = std::vector<char>{0, 1, 1, 1};                      // .123
-
-      inline auto check_digits(const char* text, const std::vector<char>& digitFlags) -> bool
+      inline auto check_first_digit(const char* text, bool digitFlag) -> bool
       {
-        for (const auto digitFlag : digitFlags)
+        if (digitFlag)
         {
-          if (digitFlag)
+          if (not std::isdigit(*text))
           {
-            if (not std::isdigit(*text))
-            {
-              return false;
-            }
+            return false;
           }
-          else
+        }
+        else
+        {
+          if (std::isdigit(*text) or *text == '\0')
           {
-            if (std::isdigit(*text) or *text == '\0')
-            {
-              return false;
-            }
+            return false;
           }
+        }
+        return true;
+      }
+
+      inline auto check_date_digits(const char* text) -> bool
+      {
+        for (const auto digitFlag : {true, true, true, true, false, true, true, false, true, true})  // YYYY-MM-DD
+        {
+          if (not check_first_digit(text, digitFlag))
+            return false;
+          ++text;
+        }
+        return true;
+      }
+
+      inline auto check_time_digits(const char* text) -> bool
+      {
+        for (const auto digitFlag : {true, true, false, true, true, false, true, true}) // hh:mm:ss
+        {
+          if (not check_first_digit(text, digitFlag))
+            return false;
+          ++text;
+        }
+        return true;
+      }
+
+      inline auto check_ms_digits(const char* text) -> bool
+      {
+        for (const auto digitFlag : {true, true, true})
+        {
+          if (not check_first_digit(text, digitFlag))
+            return false;
           ++text;
         }
         return true;
@@ -202,7 +227,7 @@ namespace sqlpp
         if (_handle->debug)
           std::cerr << "Sqlite3 debug: date string: " << date_string << std::endl;
 
-        if (detail::check_digits(date_string, detail::date_digits))
+        if (detail::check_date_digits(date_string))
         {
           const auto ymd = ::date::year(std::atoi(date_string)) / atoi(date_string + 5) / atoi(date_string + 8);
           *value = ::sqlpp::chrono::day_point(ymd);
@@ -232,7 +257,7 @@ namespace sqlpp
         if (_handle->debug)
           std::cerr << "Sqlite3 debug: date_time string: " << date_time_string << std::endl;
 
-        if (detail::check_digits(date_time_string, detail::date_digits))
+        if (detail::check_date_digits(date_time_string))
         {
           const auto ymd =
               ::date::year(std::atoi(date_time_string)) / atoi(date_time_string + 5) / atoi(date_time_string + 8);
@@ -247,20 +272,20 @@ namespace sqlpp
           return;
         }
 
-        const auto time_string = date_time_string + 10;
-        if (detail::check_digits(time_string, detail::time_digits))
+        const auto time_string = date_time_string + 11; // YYYY-MM-DDT
+        if (detail::check_time_digits(time_string))
         {
-          *value += ::std::chrono::hours(std::atoi(time_string + 1)) +
-                    std::chrono::minutes(std::atoi(time_string + 4)) + std::chrono::seconds(std::atoi(time_string + 7));
+          *value += ::std::chrono::hours(std::atoi(time_string + 0)) +
+                    std::chrono::minutes(std::atoi(time_string + 3)) + std::chrono::seconds(std::atoi(time_string + 6));
         }
         else
         {
           return;
         }
-        const auto ms_string = time_string + 9;
-        if (detail::check_digits(ms_string, detail::ms_digits) and ms_string[4] == '\0')
+        const auto ms_string = time_string + 9; // hh:mm:ss.
+        if (detail::check_ms_digits(ms_string) and ms_string[4] == '\0')
         {
-          *value += ::std::chrono::milliseconds(std::atoi(ms_string + 1));
+          *value += ::std::chrono::milliseconds(std::atoi(ms_string));
         }
         else
         {
