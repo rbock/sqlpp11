@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 - 2016, Roland Bock
+ * Copyright (c) 2021 - 2021, Roland Bock, ZerQAQ
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,31 +24,22 @@
  */
 
 #include "TabSample.h"
-#include <cassert>
-#include <sqlpp11/alias_provider.h>
-#include <sqlpp11/functions.h>
-#include <sqlpp11/insert.h>
-#include <sqlpp11/mysql/connection.h>
-#include <sqlpp11/remove.h>
-#include <sqlpp11/select.h>
-#include <sqlpp11/transaction.h>
-#include <sqlpp11/update.h>
+#include <sqlpp11/mysql/mysql.h>
+#include <sqlpp11/sqlpp11.h>
 
 #include <iostream>
 #include <vector>
 
-const auto library_raii = sqlpp::mysql::scoped_library_initializer_t{0, nullptr, nullptr};
-
-namespace sql = sqlpp::mysql;
 const auto tab = TabSample{};
 
-int main()
+namespace sql = sqlpp::mysql;
+
+int Update(int, char*[])
 {
   auto config = std::make_shared<sql::connection_config>();
   config->user = "root";
   config->database = "sqlpp_mysql";
   config->debug = true;
-  config->charset = "utf8";
   try
   {
     sql::connection db(config);
@@ -69,35 +60,14 @@ int main()
 			gamma bool DEFAULT NULL,
 			PRIMARY KEY (alpha)
 			))");
-    db.execute(R"(DROP TABLE IF EXISTS tab_foo)");
-    db.execute(R"(CREATE TABLE tab_foo (
-		omega bigint(20) DEFAULT NULL
-			))");
 
-    db(insert_into(tab).set(tab.gamma = true, tab.beta = "cheese"));
-    db(insert_into(tab).set(tab.gamma = true, tab.beta = "cheesecake"));
+    db(insert_into(tab).set(tab.beta = "1", tab.gamma = false));
+    db(insert_into(tab).set(tab.beta = "2", tab.gamma = false));
+    db(insert_into(tab).set(tab.beta = "3", tab.gamma = false));
 
-    {
-      for (const auto& row : db(db.prepare(sqlpp::select(all_of(tab)).from(tab).unconditionally())))
-      {
-        std::cerr << ">>> row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma << std::endl;
-      }
-    }
-
-    {
-      auto result = db(db.prepare(sqlpp::select(all_of(tab)).from(tab).where(tab.alpha == 1).limit(1u)));
-      auto& row = result.front();
-
-      std::cerr << ">>> row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma << std::endl;
-      assert(row.beta == "cheese");
-    }
-
-    {
-      auto result = db(db.prepare(sqlpp::select(all_of(tab)).from(tab).where(tab.alpha == 2).limit(1u)));
-      auto& row = result.front();
-
-      std::cerr << ">>> row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma << std::endl;
-      assert(row.beta == "cheesecake");
+    db(sql::update(tab).set(tab.gamma = true).unconditionally().order_by(tab.alpha.desc()).limit(1u));
+    for(const auto &row : db(sqlpp::select(tab.gamma).from(tab).where(tab.beta == "3"))){
+      assert(row.gamma);
     }
   }
   catch (const std::exception& e)
@@ -105,4 +75,6 @@ int main()
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
   }
+  return 0;
 }
+

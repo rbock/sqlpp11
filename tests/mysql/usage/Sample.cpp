@@ -35,7 +35,7 @@ SQLPP_ALIAS_PROVIDER(left)
 SQLPP_ALIAS_PROVIDER(right)
 
 namespace mysql = sqlpp::mysql;
-int main()
+int Sample(int, char*[])
 {
   sqlpp::mysql::global_library_init();
 
@@ -209,4 +209,5 @@ int main()
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
   }
+  return 0;
 }

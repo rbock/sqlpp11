@@ -63,12 +63,12 @@ namespace sqlpp
         }
       };
 
-      void thread_init()
+      inline void thread_init()
       {
         thread_local MySqlThreadInitializer threadInitializer;
       }
 
-      void connect(MYSQL* mysql, const connection_config& config)
+      inline void connect(MYSQL* mysql, const connection_config& config)
       {
         if (!mysql_real_connect(mysql, config.host.empty() ? nullptr : config.host.c_str(),
                                 config.user.empty() ? nullptr : config.user.c_str(),
@@ -89,7 +89,7 @@ namespace sqlpp
         }
       }
 
-      void handle_cleanup(MYSQL* mysql)
+      inline void handle_cleanup(MYSQL* mysql)
       {
         mysql_close(mysql);
       }
@@ -136,7 +136,7 @@ namespace sqlpp
         }
       };
 
-      void execute_statement(detail::connection_handle_t& handle, const std::string& statement)
+      inline void execute_statement(detail::connection_handle_t& handle, const std::string& statement)
       {
         thread_init();
 
@@ -151,7 +151,7 @@ namespace sqlpp
         }
       }
 
-      void execute_prepared_statement(detail::prepared_statement_handle_t& prepared_statement)
+      inline void execute_prepared_statement(detail::prepared_statement_handle_t& prepared_statement)
       {
         thread_init();
 
@@ -171,7 +171,7 @@ namespace sqlpp
         }
       }
 
-      std::shared_ptr<detail::prepared_statement_handle_t> prepare_statement(detail::connection_handle_t& handle,
+      inline std::shared_ptr<detail::prepared_statement_handle_t> prepare_statement(detail::connection_handle_t& handle,
                                                                              const std::string& statement,
                                                                              size_t no_of_parameters,
                                                                              size_t no_of_columns)
@@ -213,7 +213,7 @@ namespace sqlpp
     };
 
     // This will also cleanup when the program shuts down
-    void global_library_init(int argc = 0, char** argv = nullptr, char** groups = nullptr)
+    inline void global_library_init(int argc = 0, char** argv = nullptr, char** groups = nullptr)
     {
       static const auto global_init_and_end = scoped_library_initializer_t(argc, argv, groups);
     }

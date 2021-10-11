@@ -69,7 +69,7 @@ namespace
 }
 
 namespace mysql = sqlpp::mysql;
-int main()
+int DateTime(int, char*[])
 {
   auto config = std::make_shared<mysql::connection_config>();
   config->user = "root";
@@ -164,4 +164,5 @@ int main()
   {
     std::cerr << "Unkown exception" << std::endl;
   }
+  return 0;
 }

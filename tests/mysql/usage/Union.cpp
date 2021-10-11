@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 - 2021, Roland Bock, ZerQAQ
+ * Copyright (c) 2013 - 2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,17 +24,17 @@
  */
 
 #include "TabSample.h"
-#include <sqlpp11/mysql/mysql.h>
+#include <sqlpp11/mysql/connection.h>
 #include <sqlpp11/sqlpp11.h>
 
 #include <iostream>
-#include <vector>
 
-const auto tab = TabSample{};
+const auto library_raii = sqlpp::mysql::scoped_library_initializer_t{0, nullptr, nullptr};
 
 namespace sql = sqlpp::mysql;
+const auto tab = TabSample{};
 
-int main()
+int Union(int, char*[])
 {
   auto config = std::make_shared<sql::connection_config>();
   config->user = "root";
@@ -56,18 +56,21 @@ int main()
     db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
     db.execute(R"(CREATE TABLE tab_sample (
 		alpha bigint(20) AUTO_INCREMENT,
-			beta varchar(255) DEFAULT NULL,
-			gamma bool DEFAULT NULL,
+			beta bool DEFAULT NULL,
+			gamma varchar(255) DEFAULT NULL,
 			PRIMARY KEY (alpha)
 			))");
 
-    db(insert_into(tab).set(tab.beta = "1", tab.gamma = false));
-    db(insert_into(tab).set(tab.beta = "2", tab.gamma = false));
-    db(insert_into(tab).set(tab.beta = "3", tab.gamma = false));
+    auto u = select(all_of(tab)).from(tab).unconditionally().union_all(select(all_of(tab)).from(tab).unconditionally());
 
-    db(sql::remove_from(tab).unconditionally().order_by(tab.alpha.desc()).limit(1u));
-    for(const auto &row : db(sqlpp::select(tab.beta).from(tab).unconditionally().order_by(tab.alpha.desc()).limit(1u))){
-      assert(row.beta == "2");
+    for (const auto& row : db(u))
+    {
+      std::cout << row.alpha << row.beta << row.gamma << std::endl;
+    }
+
+    for (const auto& row : db(u.union_distinct(select(all_of(tab)).from(tab).unconditionally())))
+    {
+      std::cout << row.alpha << row.beta << row.gamma << std::endl;
     }
   }
   catch (const std::exception& e)
@@ -75,5 +78,5 @@ int main()
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
   }
+  return 0;
 }
-

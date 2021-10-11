@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2021, Roland Bock
+ * Copyright (c) 2019 - 2019, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -23,46 +23,37 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <mysql.h>
 #include <iostream>
-#include "TabSample.h"
-#include <sqlpp11/sqlpp11.h>
-#include <sqlpp11/custom_query.h>
-#include <sqlpp11/mysql/mysql.h>
 
-SQLPP_ALIAS_PROVIDER(left)
-SQLPP_ALIAS_PROVIDER(right)
-namespace
+// JSON support only in MYSQL 5.7.8 and later
+#if !USE_MARIADB && (LIBMYSQL_VERSION_ID < 50708)
+int Json(int, char*[])
 {
-  struct on_duplicate_key_update
-  {
-    std::string _serialized;
+  std::cerr << "Warning: not testing Json, because the MySQL version id is less than 50708" << std::endl;
+  return 0;
+}
+#else
+// JSON support only in MariaDB 10.2.7 and later
+#if USE_MARIADB && (MARIADB_VERSION_ID < 100207)
+int Json(int, char*[])
+{
+  std::cerr << "Warning: not testing Json, because the MariaDB version id is less than 100207" << std::endl;
+  return 0;
+}
+#else
 
-    template <typename Db, typename Assignment>
-    on_duplicate_key_update(Db& db, Assignment assignment)
-    {
-      typename Db::_serializer_context_t context{db};
-      _serialized = " ON DUPLICATE KEY UPDATE " + serialize(assignment, context).str();
-    }
+#include "TabJson.h"
+#include <sqlpp11/mysql/mysql.h>
+#include <sqlpp11/sqlpp11.h>
 
-    template <typename Db, typename Assignment>
-    auto operator()(Db& db, Assignment assignment) -> on_duplicate_key_update&
-    {
-      typename Db::_serializer_context_t context{db};
-      _serialized += ", " + serialize(assignment, context).str();
-      return *this;
-    }
-
-    auto get() const -> sqlpp::verbatim_t<::sqlpp::no_value_t>
-    {
-      return ::sqlpp::verbatim(_serialized);
-    }
-  };
-}  // namespace
-
-const auto tab = TabSample{};
+namespace test
+{
+  SQLPP_ALIAS_PROVIDER(value)
+}
 
 namespace mysql = sqlpp::mysql;
-int CustomQuery(int, char*[])
+int Json(int, char*[])
 {
   mysql::global_library_init();
 
@@ -83,21 +74,27 @@ int CustomQuery(int, char*[])
   try
   {
     mysql::connection db(config);
-    db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
-    db.execute(R"(CREATE TABLE tab_sample (
-			alpha bigint(20) AUTO_INCREMENT,
-			beta varchar(255) DEFAULT NULL,
-			gamma bool DEFAULT NULL,
-			PRIMARY KEY (alpha)
-			))");
-    db.execute(R"(DROP TABLE IF EXISTS tab_foo)");
-    db.execute(R"(CREATE TABLE tab_foo (
-		omega bigint(20) DEFAULT NULL
-			))");
+    db.execute(R"(DROP TABLE IF EXISTS tab_json)");
+    db.execute(R"(CREATE TABLE tab_json (
+			  data JSON NOT NULL
+		  ))");
 
-     // Create a MYSQL style custom "insert on duplicate update"
-    db(custom_query(sqlpp::insert_into(tab).set(tab.beta = "sample", tab.gamma = true),
-                    on_duplicate_key_update(db, tab.beta = "sample")(db, tab.gamma = false).get()));
+    const auto tab = test::TabJson{};
+    db(insert_into(tab).set(tab.data = R"--({"key" : "value"})--"));
+
+    const auto query =
+        select(sqlpp::verbatim<sqlpp::text>(R"--(JSON_UNQUOTE(JSON_EXTRACT(data, "$.key")))--").as(test::value))
+            .from(tab)
+            .unconditionally();
+
+    auto result = db(query);
+    if (result.empty())
+      throw std::runtime_error{"selection result is empty"};
+
+    const std::string value = result.front().value;
+
+    if (value != "value")
+      throw std::runtime_error{std::string{"unexpected value: "} + value};
   }
   catch (const std::exception& e)
   {
@@ -106,3 +103,5 @@ int CustomQuery(int, char*[])
   }
   return 0;
 }
+#endif
+#endif

@@ -71,7 +71,7 @@ namespace sqlpp
       const auto date_digits = std::vector<char>{1, 1, 1, 1, 0, 1, 1, 0, 1, 1};  // 2015-10-28
       const auto time_digits = std::vector<char>{0, 1, 1, 0, 1, 1, 0, 1, 1};     // T23:00:12
 
-      auto check_digits(const char* text, const std::vector<char>& digitFlags) -> bool
+      inline auto check_digits(const char* text, const std::vector<char>& digitFlags) -> bool
       {
         for (const auto digitFlag : digitFlags)
         {

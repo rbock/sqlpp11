@@ -83,7 +83,7 @@ void testSelectAll(sql::connection& db, int expectedRowCount)
   std::cerr << "--------------------------------------" << std::endl;
 }
 
-int main()
+int Select(int, char*[])
 {
   auto config = std::make_shared<sql::connection_config>();
   config->user = "root";
@@ -171,4 +171,5 @@ int main()
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
   }
+  return 0;
 }

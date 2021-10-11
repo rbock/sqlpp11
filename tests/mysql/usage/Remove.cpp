@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 - 2015, Roland Bock
+ * Copyright (c) 2021 - 2021, Roland Bock, ZerQAQ
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,31 +24,25 @@
  */
 
 #include "TabSample.h"
-#include <sqlpp11/alias_provider.h>
-#include <sqlpp11/functions.h>
-#include <sqlpp11/insert.h>
-#include <sqlpp11/mysql/connection.h>
-#include <sqlpp11/remove.h>
-#include <sqlpp11/select.h>
-#include <sqlpp11/transaction.h>
-#include <sqlpp11/update.h>
+#include <sqlpp11/mysql/mysql.h>
+#include <sqlpp11/sqlpp11.h>
 
-#include <cassert>
 #include <iostream>
 #include <vector>
 
-namespace mysql = sqlpp::mysql;
-int main()
-{
-  mysql::global_library_init();
+const auto tab = TabSample{};
 
-  auto config = std::make_shared<mysql::connection_config>();
+namespace sql = sqlpp::mysql;
+
+int Remove(int, char*[])
+{
+  auto config = std::make_shared<sql::connection_config>();
   config->user = "root";
   config->database = "sqlpp_mysql";
   config->debug = true;
   try
   {
-    mysql::connection db(config);
+    sql::connection db(config);
   }
   catch (const sqlpp::exception& e)
   {
@@ -58,39 +52,29 @@ int main()
   }
   try
   {
-    std::vector<sqlpp::mysql::connection> connections;
-    connections.emplace_back(sqlpp::mysql::connection(config));
-
-    connections.at(0).execute(R"(DROP TABLE IF EXISTS tab_sample)");
-    connections.at(0).execute(R"(CREATE TABLE tab_sample (
-		alpha bigint(20) DEFAULT NULL,
+    sql::connection db(config);
+    db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
+    db.execute(R"(CREATE TABLE tab_sample (
+		alpha bigint(20) AUTO_INCREMENT,
 			beta varchar(255) DEFAULT NULL,
-			gamma bool DEFAULT NULL
+			gamma bool DEFAULT NULL,
+			PRIMARY KEY (alpha)
 			))");
 
-    connections.at(0).start_transaction();
-    auto db = std::move(connections.at(0));
-    assert(db.is_transaction_active());
-    const auto tab = TabSample{};
-    db(insert_into(tab).set(tab.gamma = true));
-    auto i = insert_into(tab).columns(tab.beta, tab.gamma);
-    i.values.add(tab.beta = "rhabarbertorte", tab.gamma = false);
-    i.values.add(tab.beta = "cheesecake", tab.gamma = false);
-    i.values.add(tab.beta = "kaesekuchen", tab.gamma = true);
-    db(i);
+    db(insert_into(tab).set(tab.beta = "1", tab.gamma = false));
+    db(insert_into(tab).set(tab.beta = "2", tab.gamma = false));
+    db(insert_into(tab).set(tab.beta = "3", tab.gamma = false));
 
-    auto s = dynamic_select(db).dynamic_columns(tab.alpha).from(tab).unconditionally();
-    s.selected_columns.add(tab.beta);
-
-    for (const auto& row : db(s))
-    {
-      std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.at("beta") << std::endl;
-    };
-    db.commit_transaction();
+    db(sql::remove_from(tab).unconditionally().order_by(tab.alpha.desc()).limit(1u));
+    for(const auto &row : db(sqlpp::select(tab.beta).from(tab).unconditionally().order_by(tab.alpha.desc()).limit(1u))){
+      assert(row.beta == "2");
+    }
   }
   catch (const std::exception& e)
   {
     std::cerr << "Exception: " << e.what() << std::endl;
     return 1;
   }
+  return 0;
 }
+
