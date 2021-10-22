@@ -93,7 +93,9 @@ namespace sqlpp
       using reference = const result_row_t&;
       using difference_type = std::ptrdiff_t;
 
-      iterator(db_result_t& result, result_row_t& result_row) : _result(result), _result_row(result_row)
+      iterator(std::reference_wrapper<db_result_t> result,
+               std::reference_wrapper<result_row_t> result_row) :
+          _result(std::move(result)), _result_row(std::move(result_row))
       {
       }
 
@@ -104,12 +106,12 @@ namespace sqlpp
 
       pointer operator->() const
       {
-        return &_result_row;
+        return &_result_row.get();
       }
 
       bool operator==(const iterator& rhs) const
       {
-        return _result_row == rhs._result_row;
+        return _result_row.get() == rhs._result_row.get();
       }
 
       bool operator!=(const iterator& rhs) const
@@ -119,29 +121,29 @@ namespace sqlpp
 
       iterator& operator++()
       {
-        _result.next(_result_row);
+        _result.get().next(_result_row.get());
         return *this;
       }
 
       iterator operator++(int)
       {
         auto previous_it = *this;
-        _result.next(_result_row);
+        _result.next(_result_row.get());
         return previous_it;
       }
 
-      db_result_t& _result;
-      result_row_t& _result_row;
+      std::reference_wrapper<db_result_t> _result;
+      std::reference_wrapper<result_row_t> _result_row;
     };
 
     iterator begin()
     {
-      return iterator(_result, _result_row);
+      return iterator(std::ref(_result), std::ref(_result_row));
     }
 
     iterator end()
     {
-      return iterator(_end, _end_row);
+      return iterator(std::ref(_end), std::ref(_end_row));
     }
 
     const result_row_t& front() const
