@@ -2,7 +2,7 @@ sqlpp11
 =======
 A type safe embedded domain specific language for SQL queries and results in C++
 
-Documentation is found in the [wiki](https://github.com/rbock/sqlpp11/wiki)
+Documentation is found in [docs](docs/Home.md).
 
 So what is this about?
 ----------------------
