@@ -98,11 +98,6 @@ namespace sqlpp
     {
       return ::sqlpp::cross_join(*static_cast<const Table*>(this), t);
     }
-
-    const Table& ref() const
-    {
-      return *static_cast<const Table*>(this);
-    }
   };
 
   template <typename Context, typename Table, typename... ColumnSpec>
