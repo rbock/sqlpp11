@@ -72,15 +72,15 @@ namespace sqlpp
   auto interpret_list(const interpretable_list_t<Db>& t, const Separator& separator, Context& context)
       -> Context&
   {
-         bool first = true;
-      for (const auto entry : t._serializables)
+    bool first = true;
+    for (const auto& entry : t._serializables)
+    {
+      if (not first)
       {
-        if (not first)
-        {
-          context << separator;
-        }
-        first = false;
-        serialize(entry, context);
+        context << separator;
+      }
+      first = false;
+      serialize(entry, context);
       }
       return context;
   }

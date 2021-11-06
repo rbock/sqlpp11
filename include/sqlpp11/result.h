@@ -27,6 +27,7 @@
 #ifndef SQLPP11_RESULT_H
 #define SQLPP11_RESULT_H
 
+#include <functional>
 #include <iterator>
 #include <utility>
 

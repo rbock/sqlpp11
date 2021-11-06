@@ -80,7 +80,7 @@ namespace sqlpp
   Context& serialize(const dynamic_select_column_list<Db>& t, Context& context)
   {
     bool first = true;
-    for (const auto column : t._dynamic_columns)
+    for (const auto& column : t._dynamic_columns)
     {
       if (first)
       {
