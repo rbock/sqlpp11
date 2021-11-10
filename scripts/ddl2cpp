@@ -376,8 +376,8 @@ for create in tableCreations:
             print ('Error: datatype "'  + sqlColumnType + '"" is not supported.')
             DataTypeError = True
         requireInsert = True
-        column.hasAutoValue = column.hasAutoValue or (autoId and sqlColumnName == 'id')
-        if column.hasAutoValue:
+        hasAutoValue = column.hasAutoValue or (autoId and sqlColumnName == 'id')
+        if hasAutoValue:
             traitslist.append(NAMESPACE + '::tag::must_not_insert')
             traitslist.append(NAMESPACE + '::tag::must_not_update')
             requireInsert = False
