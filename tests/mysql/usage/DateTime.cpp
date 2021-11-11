@@ -56,7 +56,7 @@ namespace
   template <typename L, typename R>
   auto require_close(int line, const L& l, const R& r) -> void
   {
-    if (std::chrono::abs(l - r) > std::chrono::seconds{1})
+    if (date::abs(l - r) > std::chrono::seconds{1})
     {
       std::cerr << line << ": abs(";
       serialize(::sqlpp::wrap_operand_t<L>{l}, std::cerr);
