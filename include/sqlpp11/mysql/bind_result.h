@@ -29,7 +29,9 @@
 
 #include <iostream>
 #include <memory>
+#include <vector>
 #include <sqlpp11/chrono.h>
+#include <sqlpp11/exception.h>
 #include <sqlpp11/mysql/sqlpp_mysql.h>
 
 namespace sqlpp
