@@ -29,6 +29,7 @@
 
 #include <sqlpp11/data_types/no_value.h>
 #include <sqlpp11/auto_alias.h>
+#include <sqlpp11/detail/column_tuple_merge.h>
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/dynamic_select_column_list.h>
 #include <sqlpp11/expression_fwd.h>
@@ -291,24 +292,6 @@ namespace sqlpp
 
   namespace detail
   {
-    template <typename T>
-    std::tuple<auto_alias_t<T>> as_column_tuple(T t)
-    {
-      return std::tuple<auto_alias_t<T>>(auto_alias_t<T>{t});
-    }
-
-    template <typename... Args>
-    std::tuple<auto_alias_t<Args>...> as_column_tuple(std::tuple<Args...> t)
-    {
-      return t;
-    }
-
-    template <typename... Columns>
-    auto column_tuple_merge(Columns... columns) -> decltype(std::tuple_cat(as_column_tuple(columns)...))
-    {
-      return std::tuple_cat(as_column_tuple(columns)...);
-    }
-
     template <typename Database, typename... Columns>
     select_column_list_t<Database, Columns...> make_column_list(std::tuple<Columns...> columns);
   }  // namespace detail
