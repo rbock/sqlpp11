@@ -259,6 +259,7 @@ types = {
     'character varying': 'varchar', #PostgreSQL
     'text': 'text',
     'clob': 'text',
+    'bytea': 'blob',
     'tinyblob': 'blob',
     'blob': 'blob',
     'mediumblob': 'blob',

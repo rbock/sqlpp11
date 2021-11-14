@@ -1,5 +1,6 @@
 /**
  * Copyright © 2014-2015, Matthijs Möhlmann
+ * Copyright © 2021-2021, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,6 +79,7 @@ namespace sqlpp
       void _bind_text_parameter(size_t index, const std::string* value, bool is_null);
       void _bind_date_parameter(size_t index, const ::sqlpp::chrono::day_point* value, bool is_null);
       void _bind_date_time_parameter(size_t index, const ::sqlpp::chrono::microsecond_point* value, bool is_null);
+      void _bind_blob_parameter(size_t index, const std::vector<unsigned char>* value, bool is_null);
     };
 
     // ctor
@@ -207,6 +209,34 @@ namespace sqlpp
         if (_handle->debug())
         {
           std::cerr << "PostgreSQL debug: binding date_time parameter string: " << _handle->paramValues[index] << std::endl;
+        }
+      }
+    }
+
+    inline void prepared_statement_t::_bind_blob_parameter(size_t index, const std::vector<unsigned char>* value, bool is_null)
+    {
+      if (_handle->debug())
+      {
+        std::cerr << "PostgreSQL debug: binding blob parameter at index "
+          << index << ", being " << (is_null ? "" : "not ") << "null" << std::endl;
+      }
+      _handle->nullValues[index] = is_null;
+      if (not is_null)
+      {
+        constexpr char hexChars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+        auto param = std::string(value->size() * 2 + 2, '\0');
+        param[0] = '\\';
+        param[1] = 'x';
+        auto i = size_t{1};
+        for (const auto c : *value)
+        {
+          param[++i] = hexChars[c >> 4];
+          param[++i] = hexChars[c & 0x0F];
+        }
+        _handle->paramValues[index] = std::move(param);
+        if (_handle->debug())
+        {
+          std::cerr << "PostgreSQL debug: binding blob parameter string (up to 100 chars): " << _handle->paramValues[index].substr(0, 100) << std::endl;
         }
       }
     }

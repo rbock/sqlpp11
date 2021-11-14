@@ -103,6 +103,7 @@ namespace sqlpp
       void _bind_text_result(size_t index, const char** value, size_t* len);
       void _bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null);
       void _bind_date_time_result(size_t index, ::sqlpp::chrono::microsecond_point* value, bool* is_null);
+      void _bind_blob_result(size_t index, const uint8_t** value, size_t* len);
 
       int size() const;
     };
@@ -384,6 +385,27 @@ namespace sqlpp
             usec *= 10;
         }
         *value += ::std::chrono::microseconds(usec);
+      }
+    }
+
+    inline void bind_result_t::_bind_blob_result(size_t _index, const uint8_t** value, size_t* len)
+    {
+
+      auto index = static_cast<int>(_index);
+      if (_handle->debug())
+      {
+        std::cerr << "PostgreSQL debug: binding blob result at index: " << index << std::endl;
+      }
+
+      if (_handle->result.isNull(_handle->count, index))
+      {
+        *value = nullptr;
+        *len = 0;
+      }
+      else
+      {
+        *value = _handle->result.getValue<const uint8_t*>(_handle->count, index);
+        *len   = _handle->result.length(_handle->count, index);
       }
     }
 

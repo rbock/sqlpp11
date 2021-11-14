@@ -132,6 +132,13 @@ namespace sqlpp
       return const_cast<const char*>(val);
     }
 
+
+    template <>
+    inline const uint8_t* Result::getValue<const uint8_t*>(int record, int field) const
+    {
+      return reinterpret_cast<const uint8_t*>(getValue<const char*>(record, field));
+    }
+
     inline Result::Result() : m_result(nullptr)
     {
     }
