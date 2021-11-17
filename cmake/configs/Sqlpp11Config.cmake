@@ -23,12 +23,31 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
-
 include(CMakeFindDependencyMacro)
+find_dependency(Threads)
 find_dependency(date REQUIRED)
 
-include("${CMAKE_CURRENT_LIST_DIR}/Sqlpp11Targets.cmake")
+# Work out the set of components to load
+if(${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS)
+    set(${CMAKE_FIND_PACKAGE_NAME}_comps ${${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS})
+endif()
+
+# Check all required components are available before trying to load any
+foreach(comp IN LISTS ${CMAKE_FIND_PACKAGE_NAME}_comps)
+    if(${CMAKE_FIND_PACKAGE_NAME}_FIND_REQUIRED_${comp} AND NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/Sqlpp17${comp}Config.cmake)
+        set(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE "Sqlpp17 missing required component: ${comp}")
+        set(${CMAKE_FIND_PACKAGE_NAME}_FOUND FALSE)
+        return()
+    endif()
+endforeach()
+
+# Add the target file
+include(${CMAKE_CURRENT_LIST_DIR}/Sqlpp17Targets.cmake)
+
+# Load any optional components 
+foreach(comp IN LISTS ${CMAKE_FIND_PACKAGE_NAME}_comps)
+    include(${CMAKE_CURRENT_LIST_DIR}/Sqlpp17${comp}Config.cmake OPTIONAL)
+endforeach()
 
 # Import "ddl2cpp" script
 if(NOT TARGET sqlpp11::ddl2cpp)

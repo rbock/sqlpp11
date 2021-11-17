@@ -22,4 +22,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+set_directory_properties(PROPERTIES EXCLUDE_FROM_ALL YES)
 FetchContent_MakeAvailable(date)
+
+# Make date a system library (no warnings for date headers when compiling)
+get_property(date_include_dirs TARGET date PROPERTY INTERFACE_INCLUDE_DIRECTORIES)
+set_property(TARGET date PROPERTY INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${date_include_dirs}")
