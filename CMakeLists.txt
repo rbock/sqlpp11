@@ -152,6 +152,10 @@ if(POSTGRESQL_CONNECTOR)
   install_component(NAME Sqlpp11PostgreSQL TARGETS sqlpp11_postgresql DIRECTORY postgresql)
 endif()
 
+# if(not USE_SYSTEM_DATE)
+#     find_package(date REQUIRED)
+# endif()
+
 ### Tests
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
   add_subdirectory(tests)
