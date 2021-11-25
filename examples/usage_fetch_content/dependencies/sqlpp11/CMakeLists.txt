@@ -22,5 +22,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Configure before sqlpp11
+# Configure the project here as needed
+# set(USE_SYSTEM_DATE ON)
+
 FetchContent_MakeAvailable(sqlpp11)

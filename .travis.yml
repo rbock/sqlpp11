@@ -38,7 +38,7 @@ before_script:
    - cd build
    - if [[ "$CXX" = "g++" && "$CONFIG" = "Debug" && "$TRAVIS_OS_NAME" = "linux" ]]; then export CXXFLAGS="--coverage"; fi
    - ls ..
-   - cmake .. -DCMAKE_BUILD_TYPE=$CONFIG -DMYSQL_CONNECTOR=ON -DSQLITE3_CONNECTOR=ON
+   - cmake .. -DCMAKE_BUILD_TYPE=$CONFIG -DBUILD_MYSQL_CONNECTOR_TESTS=ON -DBUILD_SQLITE3_CONNECTOR_TESTS=ON
 
 script:
    - cmake --build . --config $CONFIG

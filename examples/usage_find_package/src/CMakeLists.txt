@@ -23,8 +23,16 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 add_executable(Test)
-target_link_libraries(Test PRIVATE sqlpp11::sqlpp11)
-
+target_link_libraries(Test 
+    PRIVATE 
+    sqlpp11::sqlpp11
+    # Corresponding targets for the Components specified in the find_package call
+    # sqlpp11::sqlite3
+    # sqlpp11::sqlcipher
+    # sqlpp11::mysql
+    # sqlpp11::mariadb
+    # sqlpp11::postgresql
+)
 target_sources(Test 
     PRIVATE 
         main.cpp 

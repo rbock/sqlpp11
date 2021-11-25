@@ -33,11 +33,11 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 include(GNUInstallDirs)
 include(CTest)
 
-option(MARIADB_CONNECTOR "Build MariaDB Connector" OFF)
-option(MYSQL_CONNECTOR "Build MySQL Connector" OFF)
-option(POSTGRESQL_CONNECTOR "Build PostgreSQL Connector" OFF)
-option(SQLITE3_CONNECTOR "Build SQLite3 Connector" OFF)
-option(SQLCIPHER_CONNECTOR "Build SQLite3 Connector with SQLCipher" OFF)
+option(BUILD_MYSQL_CONNECTOR_TESTS "Build MySQL Connector" OFF)
+option(BUILD_MARIADB_CONNECTOR_TESTS "Build MariaDB Connector tests" OFF)
+option(BUILD_POSTGRESQL_CONNECTOR_TESTS "Build PostgreSQL Connector" OFF)
+option(BUILD_SQLITE3_CONNECTOR_TESTS "Build SQLite3 Connector" OFF)
+option(BUILD_SQLCIPHER_CONNECTOR_TESTS "Build SQLite3 Connector with SQLCipher" OFF)
 
 option(USE_SYSTEM_DATE "\
     Use find_package to find installed HowardHinnant's \
@@ -47,31 +47,31 @@ option(USE_SYSTEM_DATE "\
 set(SQLPP11_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Sqlpp11 CACHE STRING "Path to sqlpp11 cmake files")
 
 ### Dependencies
-if(MYSQL_CONNECTOR)
+if(BUILD_MYSQL_CONNECTOR_TESTS)
   find_package(MySQL REQUIRED)
 else()
   message(STATUS "Not building tests for MYSQL_CONNECTOR")
 endif()
 
-if(MARIADB_CONNECTOR)
+if(BUILD_MARIADB_CONNECTOR_TESTS)
   find_package(MariaDB REQUIRED)
 else()
   message(STATUS "Not building tests for MARIAB_CONNECTOR")
 endif()
 
-if(POSTGRESQL_CONNECTOR)
+if(BUILD_POSTGRESQL_CONNECTOR_TESTS)
   find_package(PostgreSQL REQUIRED)
 else()
   message(STATUS "Not building tests for POSTGRESQL_CONNECTOR")
 endif()
 
-if(SQLITE3_CONNECTOR)
+if(BUILD_SQLITE3_CONNECTOR_TESTS)
   find_package(SQLite3 REQUIRED)
 else()
   message(STATUS "Not building tests for SQLITE3_CONNECTOR")
 endif()
 
-if(SQLCIPHER_CONNECTOR)
+if(BUILD_SQLCIPHER_CONNECTOR_TESTS)
   find_package(SQLCipher REQUIRED)
 else()
   message(STATUS "Not building tests for SQLCIPHER_CONNECTOR")
@@ -120,7 +120,7 @@ install_component(NAME Sqlpp11 TARGETS sqlpp11 DIRECTORY)
 install_component(NAME Sqlpp11SQLite3 TARGETS sqlpp11_sqlite3 DIRECTORY sqlite3)
 install_component(NAME Sqlpp11SQLCipher TARGETS sqlpp11_sqlcipher DIRECTORY sqlite3)
 install_component(NAME Sqlpp11MySQL TARGETS sqlpp11_mysql DIRECTORY mysql)
-install_component(NAME Sqlpp11MySQL TARGETS sqlpp11_mariadb DIRECTORY mysql)
+install_component(NAME Sqlpp11MariaDB TARGETS sqlpp11_mariadb DIRECTORY mysql)
 install_component(NAME Sqlpp11PostgreSQL TARGETS sqlpp11_postgresql DIRECTORY postgresql)
 
 
