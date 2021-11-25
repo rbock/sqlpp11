@@ -100,6 +100,7 @@ namespace sqlpp
       void _bind_boolean_result(size_t index, signed char* value, bool* is_null);
       void _bind_floating_point_result(size_t index, double* value, bool* is_null);
       void _bind_integral_result(size_t index, int64_t* value, bool* is_null);
+      void _bind_unsigned_integral_result(size_t index, uint64_t* value, bool* is_null);
       void _bind_text_result(size_t index, const char** value, size_t* len);
       void _bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null);
       void _bind_date_time_result(size_t index, ::sqlpp::chrono::microsecond_point* value, bool* is_null);
@@ -184,6 +185,18 @@ namespace sqlpp
       if (_handle->debug())
       {
         std::cerr << "PostgreSQL debug: binding integral result at index: " << index << std::endl;
+      }
+
+      *is_null = _handle->result.isNull(_handle->count, index);
+      *value = _handle->result.getValue<unsigned long long>(_handle->count, index);
+    }
+
+    inline void bind_result_t::_bind_unsigned_integral_result(size_t _index, uint64_t* value, bool* is_null)
+    {
+      auto index = static_cast<int>(_index);
+      if (_handle->debug())
+      {
+        std::cerr << "PostgreSQL debug: binding unsigned integral result at index: " << index << std::endl;
       }
 
       *is_null = _handle->result.isNull(_handle->count, index);
