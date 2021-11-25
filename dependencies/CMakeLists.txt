@@ -23,7 +23,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-if(NOT USE_SYSTEM_DATE)
+if(NOT USE_SYSTEM_DATE AND NOT TARGET date::date)
     include(FetchContent)
 
     FetchContent_Declare(date
