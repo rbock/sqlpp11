@@ -28,7 +28,7 @@ target_include_directories(sqlpp11_postgresql_testing INTERFACE ${CMAKE_CURRENT_
 
 set(test_names
 	Basic
-        Blob
+    Blob
 	Constructor
 	Date
 	DateTime
@@ -38,28 +38,25 @@ set(test_names
 	Select
 	Transaction
 	Type
-	)
+)
 
 create_test_sourcelist(test_sources test_main.cpp ${test_names})
 add_executable(sqlpp11_postgresql_tests ${test_sources})
-target_link_libraries(sqlpp11_postgresql_tests PRIVATE sqlpp11 sqlpp11_testing sqlpp11_postgresql_testing)
-target_link_libraries(sqlpp11_postgresql_tests PRIVATE sqlpp11::sqlpp11)
-target_link_libraries(sqlpp11_postgresql_tests PRIVATE PostgreSQL::PostgreSQL)
-target_link_libraries(sqlpp11_postgresql_tests PRIVATE date::date)
+target_link_libraries(sqlpp11_postgresql_tests PRIVATE sqlpp11::postgresql sqlpp11_testing sqlpp11_postgresql_testing)
 if(NOT MSVC)
     target_compile_options(sqlpp11_postgresql_tests PRIVATE -Wall -Wextra -pedantic)
 endif()
 
 # conditionally bump to a higher C++ standard to test compatibility
 if (SQLPP11_TESTS_CXX_STD)
-set_property(TARGET sqlpp11_postgresql_tests PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})
-set_property(TARGET sqlpp11_postgresql_tests PROPERTY CXX_STANDARD_REQUIRED yes)
+  set_property(TARGET sqlpp11_postgresql_tests PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})
+  set_property(TARGET sqlpp11_postgresql_tests PROPERTY CXX_STANDARD_REQUIRED yes)
   set_property(TARGET sqlpp11_postgresql_tests PROPERTY CXX_EXTENSIONS no)
 endif()
 
 foreach(test IN LISTS test_names)
   add_test(NAME sqlpp11.postgresql.usage.${test}
     COMMAND sqlpp11_postgresql_tests ${test}
-    )
+  )
 endforeach()
 

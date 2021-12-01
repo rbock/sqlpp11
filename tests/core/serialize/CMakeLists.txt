@@ -40,7 +40,7 @@ set(test_names
 
 create_test_sourcelist(test_sources test_serializer_main.cpp ${test_names})
 add_executable(sqlpp11_core_serialize ${test_sources})
-target_link_libraries(sqlpp11_core_serialize PRIVATE sqlpp11 sqlpp11_testing)
+target_link_libraries(sqlpp11_core_serialize PRIVATE sqlpp11::sqlpp11 sqlpp11_testing)
 
 # conditionally bump to a higher C++ standard to test compatibility
 if (SQLPP11_TESTS_CXX_STD)

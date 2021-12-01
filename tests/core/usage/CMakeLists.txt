@@ -26,7 +26,7 @@ add_library(sqlpp11_testing INTERFACE)
 target_include_directories(sqlpp11_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 if (NOT MSVC)
-target_compile_options(sqlpp11_testing INTERFACE -Wall -Wextra -pedantic)
+  target_compile_options(sqlpp11_testing INTERFACE -Wall -Wextra -pedantic)
 endif ()
 
 set(test_names
@@ -56,7 +56,7 @@ endif()
 
 create_test_sourcelist(test_sources test_main.cpp ${test_names})
 add_executable(sqlpp11_core_tests ${test_sources})
-target_link_libraries(sqlpp11_core_tests PRIVATE sqlpp11 sqlpp11_testing)
+target_link_libraries(sqlpp11_core_tests PRIVATE sqlpp11::sqlpp11 sqlpp11_testing)
 # conditionally bump to a higher C++ standard to test compatibility
 if (SQLPP11_TESTS_CXX_STD)
   set_property(TARGET sqlpp11_core_tests PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})

@@ -28,41 +28,38 @@ add_library(sqlpp11_mysql_testing INTERFACE)
 target_include_directories(sqlpp11_mysql_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(test_names
-Json
-CustomQuery
-DateTime
-Sample
-Select
-Union
-DynamicSelect
-MoveConstructor
-Prepared
-Truncated
-Update
-Remove
-  )
+  Json
+  CustomQuery
+  DateTime
+  Sample
+  Select
+  Union
+  DynamicSelect
+  MoveConstructor
+  Prepared
+  Truncated
+  Update
+  Remove
+)
 
 create_test_sourcelist(test_sources test_main.cpp ${test_names})
 add_executable(sqlpp11_mysql_tests ${test_sources})
-target_link_libraries(sqlpp11_mysql_tests PRIVATE sqlpp11 sqlpp11_testing sqlpp11_mysql_testing)
-target_link_libraries(sqlpp11_mysql_tests PRIVATE sqlpp11::sqlpp11)
+target_link_libraries(sqlpp11_mysql_tests PRIVATE sqlpp11::mysql sqlpp11_testing sqlpp11_mysql_testing)
 target_link_libraries(sqlpp11_mysql_tests PRIVATE Threads::Threads)
-target_link_libraries(sqlpp11_mysql_tests PRIVATE MySQL::MySQL)
-target_link_libraries(sqlpp11_mysql_tests PRIVATE date::date)
 if(NOT MSVC)
     target_compile_options(sqlpp11_mysql_tests PRIVATE -Wall -Wextra -pedantic)
 endif()
 
 # conditionally bump to a higher C++ standard to test compatibility
 if (SQLPP11_TESTS_CXX_STD)
-set_property(TARGET sqlpp11_mysql_tests PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})
-set_property(TARGET sqlpp11_mysql_tests PROPERTY CXX_STANDARD_REQUIRED yes)
+  set_property(TARGET sqlpp11_mysql_tests PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})
+  set_property(TARGET sqlpp11_mysql_tests PROPERTY CXX_STANDARD_REQUIRED yes)
   set_property(TARGET sqlpp11_mysql_tests PROPERTY CXX_EXTENSIONS no)
 endif()
 
 foreach(test IN LISTS test_names)
   add_test(NAME sqlpp11.mysql.usage.${test}
     COMMAND sqlpp11_mysql_tests ${test}
-    )
+  )
 endforeach()
 

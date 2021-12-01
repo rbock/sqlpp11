@@ -26,11 +26,10 @@ function(test_constraint name pattern)
   set(test sqlpp11.postgresql.constraints.${name})
   set(target sqlpp11_postgresql_${name})
   add_executable(${target} EXCLUDE_FROM_ALL ${name}.cpp)
-  target_link_libraries(${target} PRIVATE sqlpp11 sqlpp11_testing)
-  target_link_libraries(${target} PRIVATE PostgreSQL::PostgreSQL)
+  target_link_libraries(${target} PRIVATE sqlpp11::postgresql sqlpp11_testing)
   add_test(NAME ${test}
     COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target ${target}
-    )
+  )
   set_property(TEST ${test} PROPERTY PASS_REGULAR_EXPRESSION ${pattern})
   # conditionally bump to a higher C++ standard to test compatibility
   if (SQLPP11_TESTS_CXX_STD)

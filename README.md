@@ -160,6 +160,23 @@ cmake --build build --target install
 
 The last step will build the library and install it system wide, therefore it might need admins rights.
 
+By default only the core library will be installed. To also install connectors set the appropriate variable to `ON`: 
+
+* `BUILD_MYSQL_CONNECTOR`
+* `BUILD_MARIADB_CONNECTOR`
+* `BUILD_POSTGRESQL_CONNECTOR`
+* `BUILD_SQLITE3_CONNECTOR`
+* `BUILD_SQLCIPHER_CONNECTOR`
+
+The library will check if all required dependencies are installed on the system. If connectors should be installed even if the dependencies are not yet available on the system, set `DEPENDENCY_CHECK` to `OFF`. 
+
+Example: Install the core library, sqlite3 connector and postgresql connector. Don’t check if the dependencies such as Sqlite3 are installed and don’t build any tests:
+
+```bash
+cmake -B build -DBUILD_POSTGRESQL_CONNECTOR=ON -DBUILD_SQLITE3_CONNECTOR=ON -DDEPENDENCY_CHECK=OFF -DBUILD_TESTING=OFF
+cmake --build build --target install
+```
+
 __Install via Homebrew (MacOS):__
 
 ```bash

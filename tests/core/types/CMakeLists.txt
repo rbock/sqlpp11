@@ -25,7 +25,7 @@
 function(test_compile name)
   set(target sqlpp11_${name})
   add_executable(${target} ${name}.cpp)
-  target_link_libraries(${target} PRIVATE sqlpp11 sqlpp11_testing)
+  target_link_libraries(${target} PRIVATE sqlpp11::sqlpp11 sqlpp11_testing)
   # conditionally bump to a higher C++ standard to test compatibility
   if (SQLPP11_TESTS_CXX_STD)
     set_property(TARGET sqlpp11_${name} PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})
