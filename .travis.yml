@@ -34,11 +34,8 @@ before_script:
    - mysql --version
    - (while !  mysqladmin -u root status ; do sleep 1; done) # wait for mysql to start
    - mysqladmin -u root create sqlpp_mysql
-   - mkdir build
-   - cd build
    - if [[ "$CXX" = "g++" && "$CONFIG" = "Debug" && "$TRAVIS_OS_NAME" = "linux" ]]; then export CXXFLAGS="--coverage"; fi
-   - ls ..
-   - cmake .. -DCMAKE_BUILD_TYPE=$CONFIG -DBUILD_MYSQL_CONNECTOR_TESTS=ON -DBUILD_SQLITE3_CONNECTOR_TESTS=ON
+   - cmake -B build -DCMAKE_BUILD_TYPE=$CONFIG -DBUILD_MYSQL_CONNECTOR=ON -DBUILD_SQLITE3_CONNECTOR=ON
 
 script:
    - cmake --build . --config $CONFIG
