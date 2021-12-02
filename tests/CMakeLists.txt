@@ -23,15 +23,15 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 add_subdirectory(core/)
 
-if(MYSQL_CONNECTOR)
+if(BUILD_MYSQL_CONNECTOR)
     add_subdirectory(mysql)
 endif()
 
-if(POSTGRESQL_CONNECTOR)
+if(BUILD_POSTGRESQL_CONNECTOR)
     add_subdirectory(postgresql)
 endif()
 
-if(SQLITE3_CONNECTOR OR SQLCIPHER_CONNECTOR)
+if(BUILD_SQLITE3_CONNECTOR OR BUILD_SQLCIPHER_CONNECTOR)
     add_subdirectory(sqlite3)
 endif()
 

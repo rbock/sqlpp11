@@ -41,30 +41,29 @@ set(test_names
   )
 
 create_test_sourcelist(test_sources test_main.cpp ${test_names})
+
 add_executable(sqlpp11_sqlite3_tests ${test_sources})
-target_link_libraries(sqlpp11_sqlite3_tests PRIVATE sqlpp11 sqlpp11_testing sqlpp11_sqlite3_testing)
-target_link_libraries(sqlpp11_sqlite3_tests PRIVATE sqlpp11::sqlpp11)
-if (SQLCIPHER)
-    target_compile_definitions(sqlpp11_sqlite3_tests PRIVATE SQLPP_USE_SQLCIPHER)
-    target_link_libraries(sqlpp11_sqlite3_tests PRIVATE SQLCipher::SQLCipher)
+target_link_libraries(sqlpp11_sqlite3_tests PRIVATE sqlpp11_testing sqlpp11_sqlite3_testing)
+if (BUILD_SQLCIPHER_CONNECTOR)
+    target_link_libraries(sqlpp11_sqlite3_tests PRIVATE sqlpp11::sqlcipher)
     if (SQLPP_DYNAMIC_LOADING)
         target_include_directories(sqlpp11_sqlite3_tests PRIVATE ${SQLCIPHER_INCLUDE_DIRS})
     endif()
 else()
-    target_link_libraries(sqlpp11_sqlite3_tests PRIVATE SQLite::SQLite3)
+    target_link_libraries(sqlpp11_sqlite3_tests PRIVATE sqlpp11::sqlite3)
 endif()
 
 # conditionally bump to a higher C++ standard to test compatibility
 if (SQLPP11_TESTS_CXX_STD)
   set_property(TARGET sqlpp11_sqlite3_tests PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})
-  set_property(TARGET sqlpp11_sqlite3_tests PROPERTY CXX_STANDARD_REQUIRED yes)
-  set_property(TARGET sqlpp11_sqlite3_tests PROPERTY CXX_EXTENSIONS no)
+  set_property(TARGET sqlpp11_sqlite3_tests PROPERTY CXX_STANDARD_REQUIRED ON)
+  set_property(TARGET sqlpp11_sqlite3_tests PROPERTY CXX_EXTENSIONS OFF)
 endif()
 
 foreach(test IN LISTS test_names)
   add_test(NAME sqlpp11.sqlite3.usage.${test}
     COMMAND sqlpp11_sqlite3_tests ${test}
-    )
+  )
 endforeach()
 
 # the dynamic loading test needs the extra option "SQLPP_DYNAMIC_LOADING" and does NOT link the sqlite libs

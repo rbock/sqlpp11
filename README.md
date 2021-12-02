@@ -22,7 +22,7 @@ This results in several benefits, e.g.
 
 The library supports both static and dynamic queries. The former offers greater benefit in terms of type and consistency checking. The latter makes it easier to construct queries in flight.
 
-sqlpp11's core is vendor-neutral.
+sqlpp11’s core is vendor-neutral.
 Specific traits of databases (e.g. unsupported or non-standard features) are handled by connector libraries.
 Connector libraries can inform the developer of missing features at compile time.
 They also interpret expressions specifically where needed.
@@ -129,22 +129,20 @@ sqlpp11 makes heavy use of C++11 and requires a recent compiler and STL. The fol
 __Database Connector:__
 sqlpp11 requires a certain api in order to connect with the database, see database/api.h.
 
-Connectors for MySQL, MariaDB, sqlite3, sqlcipher are included in this repository. You can configure to use them via cmake options, i.e.
+This repository includes the following connectors:
 
-```
--DMYSQL_CONNECTOR=ON
--DMARIADB_CONNECTOR=ON
--DSQLITE3_CONNECTOR=ON
--DSQLCIPHER_CONNECTOR=ON
-```
+* MySQL
+* MariaDB
+* SQLite3
+* SQLCipher
+* PostgreSQL
 
 Other connectors can be found here:
 
-  * PostgreSQL: https://github.com/matthijs/sqlpp11-connector-postgresql
   * ODBC: https://github.com/Erroneous1/sqlpp11-connector-odbc (experimental)
 
 __Date Library:__
-sqlpp11 requires [Howard Hinnant's date library](https://github.com/HowardHinnant/date) for `date` and `date_time` data types. By default, sqlpp11 uses FetchContent to pull the library automatically in the project. If you want to use an already installed version of the library with `find_package`, set `USE_SYSTEM_DATE` option to `ON`.
+sqlpp11 requires [Howard Hinnant’s date library](https://github.com/HowardHinnant/date) for `date` and `date_time` data types. By default, sqlpp11 uses FetchContent to pull the library automatically in the project. If you want to use an already installed version of the library with `find_package`, set `USE_SYSTEM_DATE` option to `ON`.
 
 Build and Install
 -----------------
@@ -160,7 +158,24 @@ cmake -B build
 cmake --build build --target install
 ```
 
-The last step will build the library and install it system wide, therefore it might need admins right.
+The last step will build the library and install it system wide, therefore it might need admins rights.
+
+By default only the core library will be installed. To also install connectors set the appropriate variable to `ON`: 
+
+* `BUILD_MYSQL_CONNECTOR`
+* `BUILD_MARIADB_CONNECTOR`
+* `BUILD_POSTGRESQL_CONNECTOR`
+* `BUILD_SQLITE3_CONNECTOR`
+* `BUILD_SQLCIPHER_CONNECTOR`
+
+The library will check if all required dependencies are installed on the system. If connectors should be installed even if the dependencies are not yet available on the system, set `DEPENDENCY_CHECK` to `OFF`. 
+
+Example: Install the core library, sqlite3 connector and postgresql connector. Don’t check if the dependencies such as Sqlite3 are installed and don’t build any tests:
+
+```bash
+cmake -B build -DBUILD_POSTGRESQL_CONNECTOR=ON -DBUILD_SQLITE3_CONNECTOR=ON -DDEPENDENCY_CHECK=OFF -DBUILD_TESTING=OFF
+cmake --build build --target install
+```
 
 __Install via Homebrew (MacOS):__
 
@@ -193,10 +208,20 @@ Basic usage:
 -------------
 __Use with cmake__:
 The library officially supports two ways how it can be used with cmake. 
-You can find examples for both methods in the example folder. 
+You can find examples for both methods in the examples folder. 
 
-1. Fetch content (Recommend, no installation required)
-1. Find package (installation required, see above)
+1. FetchContent (Recommended, no installation required)
+1. FindPackage (installation required, see above)
+
+Both methods will provide the `sqlpp11::sqlpp11` target as well as targets for each connector: 
+
+* sqlpp11::mysql
+* sqlpp11::mariadb
+* sqlpp11::sqlite3
+* sqlpp11::sqlcipher
+* sqlpp11::postgresql
+
+These targets will make sure all required dependencies are available and correctly linked and include directories are set correctly.
 
 __Create DDL files__:
 ``` 
@@ -208,9 +233,9 @@ Create headers for them with provided Python script:
 ```
 %sqlpp11_dir%/scripts/ddl2cpp ~/temp/MyTable.ddl  ~/temp/MyTable %DatabaseNamespaceForExample%
 ```
-(In case you're getting notes about unsupported column type take a look at the other datatypes in sqlpp11/data_types. They are not hard to implement.)
+(In case you’re getting notes about unsupported column type take a look at the other datatypes in sqlpp11/data_types. They are not hard to implement.)
 
-Include generated header (MyTable.h), that's all.
+Include generated header (MyTable.h), that’s all.
 
 If you prefer Ruby over Python, you might want to take a look at https://github.com/douyw/sqlpp11gen
 

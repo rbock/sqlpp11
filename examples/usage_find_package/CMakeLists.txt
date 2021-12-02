@@ -32,7 +32,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 ### Dependencies ###
-find_package(Sqlpp11 REQUIRED)
+find_package(Sqlpp11 
+    # Optionally specify connectors needed to get corresponding targets. Only possible if connectors have been installed on the system as documented in the README
+    # COMPONENTS SQLite3 SQLCipher MySQL MariaDB PostgreSQL
+    REQUIRED
+)
 
 ### Main Targets ###
 add_subdirectory(src)

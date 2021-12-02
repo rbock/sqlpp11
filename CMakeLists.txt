@@ -30,134 +30,122 @@ project(sqlpp11 VERSION 0.1 LANGUAGES CXX)
 ### Project Wide Setup
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 
-option(MARIADB_CONNECTOR "Build MariaDB Connector" OFF)
-option(MYSQL_CONNECTOR "Build MySQL Connector" OFF)
-option(POSTGRESQL_CONNECTOR "Build PostgreSQL Connector" OFF)
-option(SQLITE3_CONNECTOR "Build SQLite3 Connector" OFF)
-option(SQLCIPHER_CONNECTOR "Build SQLite3 Connector with SQLCipher" OFF)
-
-if(MYSQL_CONNECTOR)
-  find_package(MySQL REQUIRED)
-else()
-  message(STATUS "Not building tests for MYSQL_CONNECTOR")
-endif()
-
-if(MARIADB_CONNECTOR)
-  find_package(MariaDB REQUIRED)
-else()
-  message(STATUS "Not building tests for MARIAB_CONNECTOR")
-endif()
-
-if(POSTGRESQL_CONNECTOR)
-  find_package(PostgreSQL REQUIRED)
-else()
-  message(STATUS "Not building tests for POSTGRESQL_CONNECTOR")
-endif()
-
-if(SQLITE3_CONNECTOR)
-  find_package(SQLite3 REQUIRED)
-else()
-  message(STATUS "Not building tests for SQLITE3_CONNECTOR")
-endif()
-
-if(SQLCIPHER_CONNECTOR)
-  find_package(SQLCipher REQUIRED)
-else()
-  message(STATUS "Not building tests for SQLCIPHER_CONNECTOR")
-endif()
-
+include(GNUInstallDirs)
 include(CTest)
+
+option(BUILD_MYSQL_CONNECTOR "Build MySQL Connector" OFF)
+option(BUILD_MARIADB_CONNECTOR "Build MariaDB Connector" OFF)
+option(BUILD_POSTGRESQL_CONNECTOR "Build PostgreSQL Connector" OFF)
+option(BUILD_SQLITE3_CONNECTOR "Build SQLite3 Connector" OFF)
+option(BUILD_SQLCIPHER_CONNECTOR "Build SQLite3 Connector with SQLCipher" OFF)
+
+option(DEPENDENCY_CHECK "Check for dependencies of connector and the library" ON)
 
 option(USE_SYSTEM_DATE "\
     Use find_package to find installed HowardHinnant's \
     date library instead of fetching it from github" OFF
 )
 
-if(USE_SYSTEM_DATE)
+set(SQLPP11_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Sqlpp11 CACHE STRING "Path to sqlpp11 cmake files")
+
+### Dependencies
+if(DEPENDENCY_CHECK AND BUILD_MYSQL_CONNECTOR)
+  find_package(MySQL REQUIRED)
+endif()
+
+if(DEPENDENCY_CHECK AND BUILD_MARIADB_CONNECTOR)
+  find_package(MariaDB REQUIRED)
+endif()
+
+if(DEPENDENCY_CHECK AND BUILD_POSTGRESQL_CONNECTOR)
+  find_package(PostgreSQL REQUIRED)
+endif()
+
+if(DEPENDENCY_CHECK AND BUILD_SQLITE3_CONNECTOR)
+  find_package(SQLite3 REQUIRED)
+endif()
+
+if(DEPENDENCY_CHECK AND BUILD_SQLCIPHER_CONNECTOR)
+  find_package(SQLCipher REQUIRED)
+endif()
+
+if(DEPENDENCY_CHECK AND USE_SYSTEM_DATE)
     find_package(date REQUIRED)
 endif()
 
-### Dependencies
 add_subdirectory(dependencies)
 
 ### Core targets
+include(Sqlpp11TargetHelper)
+
 add_library(sqlpp11 INTERFACE)
 add_library(sqlpp11::sqlpp11 ALIAS sqlpp11)
 
 target_link_libraries(sqlpp11 INTERFACE date::date)
-
 target_include_directories(sqlpp11 INTERFACE
-  $<BUILD_INTERFACE:${sqlpp11_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>
-  )
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+)
+target_compile_features(sqlpp11 INTERFACE cxx_std_11)
 
-target_compile_features(sqlpp11 INTERFACE
-	cxx_alias_templates
-	cxx_auto_type
-	cxx_constexpr
-	cxx_decltype
-	cxx_defaulted_functions
-	cxx_defaulted_move_initializers
-	cxx_deleted_functions
-	cxx_explicit_conversions
-	cxx_lambdas
-	cxx_noexcept
-	cxx_nullptr
-	cxx_range_for
-	cxx_right_angle_brackets
-	cxx_rvalue_references
-	cxx_static_assert
-	cxx_trailing_return_types
-	cxx_uniform_initialization
-	cxx_template_template_parameters
-  cxx_variadic_templates
-  )
+
+if(BUILD_SQLITE3_CONNECTOR)
+  add_component(NAME sqlite3 DEPENDENCIES SQLite::SQLite3)
+endif()
+
+if(BUILD_SQLCIPHER_CONNECTOR)
+  add_component(NAME sqlcipher DEPENDENCIES SQLite::SQLCipher)
+  target_compile_definitions(sqlpp11_sqlcipher INTERFACE SQLPP_USE_SQLCIPHER)
+endif()
+
+if(BUILD_MYSQL_CONNECTOR)
+  add_component(NAME mysql DEPENDENCIES MySQL::MySQL)
+endif()
+
+if(BUILD_MARIADB_CONNECTOR)
+  add_component(NAME mariadb DEPENDENCIES MariaDB::MariaDB)
+endif()
+
+if(BUILD_POSTGRESQL_CONNECTOR)
+  add_component(NAME postgresql DEPENDENCIES PostgreSQL::PostgreSQL)
+endif()
 
 ### Packaging
-install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/sqlpp11"
-        DESTINATION include
-)
-
-install(TARGETS sqlpp11
-        EXPORT Sqlpp11Targets
-)
-
-install(PROGRAMS "${PROJECT_SOURCE_DIR}/scripts/ddl2cpp"
+install(PROGRAMS ${PROJECT_SOURCE_DIR}/scripts/ddl2cpp
         RENAME sqlpp11-ddl2cpp
-        DESTINATION bin
+        DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-include(CMakePackageConfigHelpers)
-
-write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/cmake/Sqlpp11ConfigVersion.cmake"
-  VERSION ${PROJECT_VERSION}
-  COMPATIBILITY AnyNewerVersion
+write_basic_package_version_file(Sqlpp11ConfigVersion.cmake 
+  COMPATIBILITY SameMajorVersion
+  ARCH_INDEPENDENT
 )
 
-export(EXPORT Sqlpp11Targets
-  FILE "${CMAKE_CURRENT_BINARY_DIR}/cmake/Sqlpp11Targets.cmake"
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Sqlpp11ConfigVersion.cmake
+  DESTINATION ${SQLPP11_INSTALL_CMAKEDIR}
 )
 
-configure_file(cmake/Sqlpp11Config.cmake
-  "${CMAKE_CURRENT_BINARY_DIR}/cmake/Sqlpp11Config.cmake"
-  COPYONLY
-)
+install_component(NAME Sqlpp11 TARGETS sqlpp11 DIRECTORY)
 
-set(ConfigPackageLocation lib/cmake/Sqlpp11)
-install(EXPORT Sqlpp11Targets
-  NAMESPACE sqlpp11::
-  DESTINATION
-    ${ConfigPackageLocation}
-)
+if(BUILD_SQLITE3_CONNECTOR)
+  install_component(NAME Sqlpp11SQLite3 TARGETS sqlpp11_sqlite3 DIRECTORY sqlite3)
+endif()
 
-install(
-  FILES
-    "cmake/Sqlpp11Config.cmake"
-    "${CMAKE_CURRENT_BINARY_DIR}/cmake/Sqlpp11ConfigVersion.cmake"
-  DESTINATION
-    ${ConfigPackageLocation}
-)
+if(BUILD_SQLCIPHER_CONNECTOR)
+  install_component(NAME Sqlpp11SQLCipher TARGETS sqlpp11_sqlcipher DIRECTORY sqlite3)
+endif()
+
+if(BUILD_MYSQL_CONNECTOR)
+  install_component(NAME Sqlpp11MySQL TARGETS sqlpp11_mysql DIRECTORY mysql)
+endif()
+
+if(BUILD_MARIADB_CONNECTOR)
+  install_component(NAME Sqlpp11MariaDB TARGETS sqlpp11_mariadb DIRECTORY mysql)
+endif()
+
+if(BUILD_POSTGRESQL_CONNECTOR)
+  install_component(NAME Sqlpp11PostgreSQL TARGETS sqlpp11_postgresql DIRECTORY postgresql)
+endif()
+
 
 ### Tests
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
