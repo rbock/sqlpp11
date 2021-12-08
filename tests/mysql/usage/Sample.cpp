@@ -43,6 +43,7 @@ int Sample(int, char*[])
   config->user = "root";
   config->database = "sqlpp_mysql";
   config->debug = true;
+  config->connect_timeout_seconds = 5;
   try
   {
     mysql::connection db(config);

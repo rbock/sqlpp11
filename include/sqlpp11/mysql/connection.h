@@ -71,6 +71,12 @@ namespace sqlpp
 
       inline void connect(MYSQL* mysql, const connection_config& config)
       {
+        if (config.connect_timeout_seconds != 0 &&
+            mysql_options(mysql, MYSQL_OPT_CONNECT_TIMEOUT, &config.connect_timeout_seconds))
+        {
+          throw sqlpp::exception("MySQL: could not set option MYSQL_OPT_CONNECT_TIMEOUT");
+        }
+
         if (!mysql_real_connect(mysql, config.host.empty() ? nullptr : config.host.c_str(),
                                 config.user.empty() ? nullptr : config.user.c_str(),
                                 config.password.empty() ? nullptr : config.password.c_str(), nullptr, config.port,
