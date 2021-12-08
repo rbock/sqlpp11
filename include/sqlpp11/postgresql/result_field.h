@@ -28,6 +28,7 @@
 #define SQLPP_POSTGRESQL_BLOB_RESULT_FIELD_H
 
 #include <sqlpp11/basic_expression_operators.h>
+#include <sqlpp11/exception.h>
 #include <sqlpp11/result_field.h>
 #include <sqlpp11/result_field_base.h>
 #include <sqlpp11/data_types/blob/data_type.h>
