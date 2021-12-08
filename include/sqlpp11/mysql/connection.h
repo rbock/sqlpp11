@@ -28,6 +28,7 @@
 #define SQLPP_MYSQL_CONNECTION_H
 
 #include <sqlpp11/connection.h>
+#include <sqlpp11/exception.h>
 #include <sqlpp11/mysql/bind_result.h>
 #include <sqlpp11/mysql/char_result.h>
 #include <sqlpp11/mysql/connection_config.h>
