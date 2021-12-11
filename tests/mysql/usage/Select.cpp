@@ -39,8 +39,6 @@
 
 const auto library_raii = sqlpp::mysql::scoped_library_initializer_t{0, nullptr, nullptr};
 
-SQLPP_ALIAS_PROVIDER(left)
-
 namespace sql = sqlpp::mysql;
 const auto tab = TabSample{};
 
@@ -149,22 +147,27 @@ int Select(int, char*[])
     db(update(tab).set(tab.gamma = false).where(tab.alpha.in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
 
     // remove
+    {
     db(remove_from(tab).where(tab.alpha == tab.alpha + 3));
 
     auto result = db(select(all_of(tab)).from(tab).unconditionally());
     std::cerr << "Accessing a field directly from the result (using the current row): " << result.begin()->alpha
               << std::endl;
     std::cerr << "Can do that again, no problem: " << result.begin()->alpha << std::endl;
-
-    auto tx = start_transaction(db);
-    if (const auto& row =
-            *db(select(all_of(tab), select(max(tab.alpha)).from(tab)).from(tab).unconditionally()).begin())
-    {
-      int a = row.alpha;
-      int m = row.max;
-      std::cerr << "-----------------------------" << a << ", " << m << std::endl;
     }
-    tx.commit();
+
+    // transaction
+    {
+      auto tx = start_transaction(db);
+      auto result = db(select(all_of(tab), select(max(tab.alpha)).from(tab)).from(tab).unconditionally());
+      if (const auto& row = *result.begin())
+      {
+        long a = row.alpha;
+        long m = row.max;
+        std::cerr << "-----------------------------" << a << ", " << m << std::endl;
+      }
+      tx.commit();
+    }
   }
   catch (const std::exception& e)
   {

@@ -31,9 +31,6 @@
 #include <iostream>
 #include <vector>
 
-SQLPP_ALIAS_PROVIDER(left)
-SQLPP_ALIAS_PROVIDER(right)
-
 namespace mysql = sqlpp::mysql;
 int Sample(int, char*[])
 {
@@ -118,29 +115,34 @@ int Sample(int, char*[])
     db(dynin);
 
     // remove
-    db(remove_from(tab).where(tab.alpha == tab.alpha + 3));
-
-    std::cerr << "+++++++++++++++++++++++++++" << std::endl;
-    for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
-      std::cerr << __LINE__ << " row.beta: " << row.beta << std::endl;
-    }
-    std::cerr << "+++++++++++++++++++++++++++" << std::endl;
-    decltype(db(select(all_of(tab)).from(tab).unconditionally())) result;
-    result = db(select(all_of(tab)).from(tab).unconditionally());
-    std::cerr << "Accessing a field directly from the result (using the current row): " << result.begin()->alpha
-              << std::endl;
-    std::cerr << "Can do that again, no problem: " << result.begin()->alpha << std::endl;
+      db(remove_from(tab).where(tab.alpha == tab.alpha + 3));
 
-    auto tx = start_transaction(db);
-    if (const auto& row =
-            *db(select(all_of(tab), select(max(tab.alpha)).from(tab)).from(tab).unconditionally()).begin())
-    {
-      int a = row.alpha;
-      int m = row.max;
-      std::cerr << __LINE__ << " row.alpha: " << a << ", row.max: " << m << std::endl;
+      std::cerr << "+++++++++++++++++++++++++++" << std::endl;
+      for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
+      {
+        std::cerr << __LINE__ << " row.beta: " << row.beta << std::endl;
+      }
+      std::cerr << "+++++++++++++++++++++++++++" << std::endl;
+      decltype(db(select(all_of(tab)).from(tab).unconditionally())) result;
+      result = db(select(all_of(tab)).from(tab).unconditionally());
+      std::cerr << "Accessing a field directly from the result (using the current row): " << result.begin()->alpha
+                << std::endl;
+      std::cerr << "Can do that again, no problem: " << result.begin()->alpha << std::endl;
     }
-    tx.commit();
+
+    // transaction
+    {
+      auto tx = start_transaction(db);
+      auto result = db(select(all_of(tab), select(max(tab.alpha)).from(tab)).from(tab).unconditionally());
+      if (const auto& row = *result.begin())
+      {
+        long a = row.alpha;
+        long m = row.max;
+        std::cerr << __LINE__ << " row.alpha: " << a << ", row.max: " << m << std::endl;
+      }
+      tx.commit();
+    }
 
     TabFoo foo;
     for (const auto& row : db(select(tab.alpha).from(tab.join(foo).on(tab.alpha == foo.omega)).unconditionally()))
@@ -169,7 +171,7 @@ int Sample(int, char*[])
     }
 
     std::cerr << "--------" << std::endl;
-    ps.params.gamma = "false";
+    ps.params.gamma = false;
     for (const auto& row : db(ps))
     {
       std::cerr << "bound result: alpha: " << row.alpha << std::endl;
