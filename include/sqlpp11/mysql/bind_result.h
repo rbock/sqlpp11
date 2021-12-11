@@ -372,8 +372,10 @@ namespace sqlpp
         {
           const auto& dt =
               *reinterpret_cast<const MYSQL_TIME*>(_handle->result_param_meta_data[index].bound_text_buffer.data());
+          if (dt.year > std::numeric_limits<int>::max())
+            throw sqlpp::exception("cannot read year from db: " + std::to_string(dt.year));
           *is_null = false;
-          *value = ::date::year(dt.year) / ::date::month(dt.month) / ::date::day(dt.day);
+          *value = ::date::year(static_cast<int>(dt.year)) / ::date::month(dt.month) / ::date::day(dt.day);
         }
       }
 
@@ -387,8 +389,10 @@ namespace sqlpp
         {
           const auto& dt =
               *reinterpret_cast<const MYSQL_TIME*>(_handle->result_param_meta_data[index].bound_text_buffer.data());
+          if (dt.year > std::numeric_limits<int>::max())
+            throw sqlpp::exception("cannot read year from db: " + std::to_string(dt.year));
           *is_null = false;
-          *value = ::sqlpp::chrono::day_point(::date::year(dt.year) / ::date::month(dt.month) / ::date::day(dt.day)) +
+          *value = ::sqlpp::chrono::day_point(::date::year(static_cast<int>(dt.year)) / ::date::month(dt.month) / ::date::day(dt.day)) +
                    std::chrono::hours(dt.hour) + std::chrono::minutes(dt.minute) + std::chrono::seconds(dt.second) +
                    std::chrono::microseconds(dt.second_part);
         }
@@ -442,7 +446,8 @@ namespace sqlpp
                     param.buffer = r.bound_text_buffer.data();
                     param.buffer_length = r.bound_text_buffer.size();
 
-                    auto err = mysql_stmt_fetch_column(_handle->mysql_stmt, &param, r.index, 0);
+                    auto err =
+                        mysql_stmt_fetch_column(_handle->mysql_stmt, &param, static_cast<unsigned int>(r.index), 0);
                     if (err)
                       throw sqlpp::exception(std::string("MySQL: Fetch column after reallocate failed: ") +
                                              "error-code: " + std::to_string(err) +

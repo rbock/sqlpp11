@@ -29,8 +29,6 @@
 
 #include <iostream>
 
-SQLPP_ALIAS_PROVIDER(sample)
-
 int Operator(int, char* [])
 {
   const auto foo = test::TabFoo{};

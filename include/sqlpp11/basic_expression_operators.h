@@ -303,14 +303,14 @@ namespace sqlpp
     template <typename R>
     auto operator<<(const R& r) const -> return_type_shift_left_t<Expr, R>
     {
-      typename return_type_shift_left<Expr, R>::check{};
+      return_type_shift_left<Expr, R>::check::verify();
       return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
     }
 
     template <typename R>
     auto operator>>(const R& r) const -> return_type_shift_right_t<Expr, R>
     {
-      typename return_type_shift_right<Expr, R>::check{};
+      return_type_shift_right<Expr, R>::check::verify();
       return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
     }
   };

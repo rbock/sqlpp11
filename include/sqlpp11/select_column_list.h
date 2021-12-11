@@ -362,7 +362,7 @@ namespace sqlpp
       using _database_t = typename Policies::_database_t;
 
       template <typename... T>
-      static constexpr auto _check_args(std::tuple<T...> args) -> check_selected_columns_t<T...>
+      static constexpr auto _check_args(std::tuple<T...> /*args*/) -> check_selected_columns_t<T...>
       {
         return {};
       }

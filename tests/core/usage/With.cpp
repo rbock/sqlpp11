@@ -63,11 +63,10 @@ int With(int, char*[])
         select(t.alpha, t.delta).from(t.join(initialCte).on(t.alpha == initialCte.delta)).unconditionally());
     const auto query = with(recursiveCte)(select(recursiveCte.alpha).from(recursiveCte).unconditionally());
 
-    ::MockDb::_serializer_context_t printer = {};
+    printer.reset();
     const auto serializedQuery = serialize(query, printer).str();
     std::cout << serializedQuery << '\n';
 
-    auto db = MockDb{};
     for (const auto& row : db(query))
     {
       std::cout << row.alpha;

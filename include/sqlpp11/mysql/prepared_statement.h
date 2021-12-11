@@ -159,9 +159,13 @@ namespace sqlpp
         if (not is_null)
         {
           const auto ymd = ::date::year_month_day{*value};
-          bound_time.year = static_cast<int>(ymd.year());
+          bound_time.year = static_cast<unsigned>(std::abs(static_cast<int>(ymd.year())));
           bound_time.month = static_cast<unsigned>(ymd.month());
           bound_time.day = static_cast<unsigned>(ymd.day());
+          bound_time.hour = 0u;
+          bound_time.minute = 0u;
+          bound_time.second = 0u;
+          bound_time.second_part = 0u;
           if (_handle->debug)
             std::cerr << "bound values: " << bound_time.year << '-' << bound_time.month << '-' << bound_time.day << 'T'
                       << bound_time.hour << ':' << bound_time.minute << ':' << bound_time.second << std::endl;
@@ -190,13 +194,13 @@ namespace sqlpp
           const auto dp = ::sqlpp::chrono::floor<::date::days>(*value);
           const auto time = ::date::make_time(*value - dp);
           const auto ymd = ::date::year_month_day{dp};
-          bound_time.year = static_cast<int>(ymd.year());
+          bound_time.year = static_cast<unsigned>(std::abs(static_cast<int>(ymd.year())));
           bound_time.month = static_cast<unsigned>(ymd.month());
           bound_time.day = static_cast<unsigned>(ymd.day());
-          bound_time.hour = time.hours().count();
-          bound_time.minute = time.minutes().count();
-          bound_time.second = time.seconds().count();
-          bound_time.second_part = time.subseconds().count();
+          bound_time.hour = static_cast<unsigned>(time.hours().count());
+          bound_time.minute = static_cast<unsigned>(time.minutes().count());
+          bound_time.second = static_cast<unsigned>(time.seconds().count());
+          bound_time.second_part = static_cast<unsigned long>(time.subseconds().count());
           if (_handle->debug)
             std::cerr << "bound values: " << bound_time.year << '-' << bound_time.month << '-' << bound_time.day << 'T'
                       << bound_time.hour << ':' << bound_time.minute << ':' << bound_time.second << std::endl;

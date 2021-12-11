@@ -29,8 +29,6 @@
 #include <sqlpp11/custom_query.h>
 #include <sqlpp11/mysql/mysql.h>
 
-SQLPP_ALIAS_PROVIDER(left)
-SQLPP_ALIAS_PROVIDER(right)
 namespace
 {
   struct on_duplicate_key_update
