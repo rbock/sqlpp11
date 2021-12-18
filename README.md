@@ -1,6 +1,12 @@
 sqlpp11
 =======
-A type safe embedded domain specific language for SQL queries and results in C++
+A type safe embedded domain specific language for SQL queries and results in C++.
+
+```diff
+!If you are a tenured user of sqlpp11, please note that
+!  - with 0.61 the connector libraries for mysql/sqlite/postgresql got merged into the main repo.
+!  - master has been renamed to main and is now the default branch
+```
 
 Documentation is found in [docs](docs/Home.md).
 
