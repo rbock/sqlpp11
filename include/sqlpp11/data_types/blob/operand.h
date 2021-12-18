@@ -30,7 +30,6 @@
 #include <vector>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/alias_operators.h>
-#include <sqlpp11/serializer.h>
 
 namespace sqlpp
 {
@@ -63,32 +62,21 @@ namespace sqlpp
     blob_operand& operator=(blob_operand&&) = default;
     ~blob_operand() = default;
 
-    bool _is_trivial() const
-    {
-      return _t.empty();
-    }
-
     _value_t _t;
   };
 
   template <typename Context>
-  struct serializer_t<Context, blob_operand>
+  Context& serialize(const blob_operand& t, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using Operand = blob_operand;
-
-    static Context& _(const Operand& t, Context& context)
+    constexpr char hexChars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+    context << "x'";
+    for (const auto c : t._t)
     {
-      constexpr char hexChars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-      context << "x'";
-      for (const auto c : t._t)
-      {
-        context << hexChars[c >> 4] << hexChars[c & 0x0F];
-      }
-      context << '\'';
-
-      return context;
+      context << hexChars[c >> 4] << hexChars[c & 0x0F];
     }
-  };
+    context << '\'';
+
+    return context;
+  }
 }  // namespace sqlpp
 #endif

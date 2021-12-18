@@ -50,26 +50,20 @@ namespace sqlpp
   };
 
   template <typename Context, typename Expression>
-  struct serializer_t<Context, sort_order_t<Expression>>
+  Context& serialize(const sort_order_t<Expression>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Expression>;
-    using T = sort_order_t<Expression>;
-
-    static Context& _(const T& t, Context& context)
+    serialize_operand(t._expression, context);
+    switch (t._sort_type)
     {
-      serialize_operand(t._expression, context);
-      switch (t._sort_type)
-      {
-        case sort_type::asc:
-          context << " ASC";
-          break;
-        default:
-          context << " DESC";
-          break;
-      }
-      return context;
+      case sort_type::asc:
+        context << " ASC";
+        break;
+      default:
+        context << " DESC";
+        break;
     }
-  };
+    return context;
+  }
 }  // namespace sqlpp
 
 #endif

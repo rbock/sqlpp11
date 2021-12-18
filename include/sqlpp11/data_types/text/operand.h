@@ -34,7 +34,6 @@
 #endif
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/alias_operators.h>
-#include <sqlpp11/serializer.h>
 
 namespace sqlpp
 {
@@ -70,25 +69,14 @@ namespace sqlpp
     text_operand& operator=(text_operand&&) = default;
     ~text_operand() = default;
 
-    bool _is_trivial() const
-    {
-      return _t.empty();
-    }
-
     _value_t _t;
   };
 
   template <typename Context>
-  struct serializer_t<Context, text_operand>
+  Context& serialize(const text_operand& t, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using Operand = text_operand;
-
-    static Context& _(const Operand& t, Context& context)
-    {
-      context << '\'' << context.escape(t._t) << '\'';
-      return context;
-    }
-  };
+    context << '\'' << context.escape(t._t) << '\'';
+    return context;
+  }
 }  // namespace sqlpp
 #endif

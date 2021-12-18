@@ -57,18 +57,12 @@ namespace sqlpp
   };
 
   template <typename Context>
-  struct serializer_t<Context, select_name_t>
+  Context& serialize(const select_name_t&, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using T = select_name_t;
+    context << "SELECT ";
 
-    static Context& _(const T& /*unused*/, Context& context)
-    {
-      context << "SELECT ";
-
-      return context;
-    }
-  };
+    return context;
+  }
 
   template <typename Database>
   using blank_select_t = statement_t<Database,

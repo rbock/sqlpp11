@@ -31,7 +31,6 @@
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/no_data.h>
 #include <sqlpp11/prepared_insert.h>
-#include <sqlpp11/serializer.h>
 #include <sqlpp11/statement_fwd.h>
 #include <sqlpp11/type_traits.h>
 
@@ -192,18 +191,12 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Database, typename Table>
-  struct serializer_t<Context, into_data_t<Database, Table>>
+  Context& serialize(const into_data_t<Database, Table>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Table>;
-    using T = into_data_t<Database, Table>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      context << " INTO ";
-      serialize(t._table, context);
-      return context;
-    }
-  };
+    context << " INTO ";
+    serialize(t._table, context);
+    return context;
+  }
 
   template <typename T>
   auto into(T&& t) -> decltype(statement_t<void, no_into_t>().into(std::forward<T>(t)))

@@ -113,5 +113,19 @@ namespace sqlpp
     using check = consistent_t;
     using type = bitwise_or_t<wrap_operand_t<L>, unsigned_integral, wrap_operand_t<R>>;
   };
+
+  template <typename L, typename R>
+  struct return_type_shift_left<L, R, binary_operand_check_t<L, is_unsigned_integral_t, R, is_unsigned_integral_t>>
+  {
+    using check = consistent_t;
+    using type = shift_left_t<wrap_operand_t<L>, unsigned_integral, wrap_operand_t<R>>;
+  };
+
+  template <typename L, typename R>
+  struct return_type_shift_right<L, R, binary_operand_check_t<L, is_unsigned_integral_t, R, is_unsigned_integral_t>>
+  {
+    using check = consistent_t;
+    using type = shift_right_t<wrap_operand_t<L>, unsigned_integral, wrap_operand_t<R>>;
+  };
 }  // namespace sqlpp
 #endif

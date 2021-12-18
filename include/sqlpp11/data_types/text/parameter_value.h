@@ -32,7 +32,6 @@
 #include <sqlpp11/data_types/text/data_type.h>
 #include <sqlpp11/data_types/text/wrap_operand.h>
 #include <sqlpp11/data_types/text/operand.h>
-#include <sqlpp11/tvin.h>
 
 namespace sqlpp
 {

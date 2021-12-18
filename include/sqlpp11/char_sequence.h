@@ -27,10 +27,17 @@
 #ifndef SQLPP11_CHAR_SEQUENCE_H
 #define SQLPP11_CHAR_SEQUENCE_H
 
+#include <type_traits>
 #include <sqlpp11/detail/index_sequence.h>
 
 namespace sqlpp
 {
+  template <typename Context>
+  std::integral_constant<char, '"'> get_quote_left(const Context&);
+
+  template <typename Context>
+  std::integral_constant<char, '"'> get_quote_right(const Context&);
+
   template <char... Cs>
   struct char_sequence
   {

@@ -46,13 +46,7 @@ namespace sqlpp
   };
 
   template <typename Context, typename ValueType>
-  struct serializer_t<Context, bad_expression<ValueType>>
-  {
-    using _serialize_check = assert_valid_operands;
-    using T = bad_expression<ValueType>;
-
-    static Context& _(const T&, Context&);
-  };
+  Context serialize(const bad_expression<ValueType>& t, Context& context);
 }  // namespace sqlpp
 
 #endif

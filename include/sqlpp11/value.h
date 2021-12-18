@@ -36,13 +36,7 @@ namespace sqlpp
   {
     using _base_t = wrap_operand_t<T>;
     using _base_t::_base_t;
-
-    const _base_t& get_base() const
-    {
-      return *this;
-    }
   };
-
   template <typename T>
   auto value(T t) -> value_t<T>
   {
@@ -50,20 +44,6 @@ namespace sqlpp
                   "value() is to be called with non-sql-type like int, or string");
     return {t};
   }
-
-  template <typename Context, typename T>
-  struct serializer_t<Context, value_t<T>>
-  {
-    using _serialize_check = consistent_t;
-    using Operand = value_t<T>;
-
-    static Context& _(const Operand& t, Context& context)
-    {
-      serialize(t.get_base(), context);
-      return context;
-    }
-  };
-
 }  // namespace sqlpp
 
 #endif

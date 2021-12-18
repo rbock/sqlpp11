@@ -57,17 +57,11 @@ namespace sqlpp
   };
 
   template <typename Context, typename ValueType>
-  struct serializer_t<Context, verbatim_t<ValueType>>
+  Context& serialize(const verbatim_t<ValueType>& t, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using T = verbatim_t<ValueType>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      context << t._verbatim;
-      return context;
-    }
-  };
+    context << t._verbatim;
+    return context;
+  }
 
   template <typename ValueType, typename StringType>
   auto verbatim(StringType s) -> verbatim_t<ValueType>

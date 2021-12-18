@@ -27,29 +27,22 @@
 #ifndef SQLPP11_SERIALIZE_H
 #define SQLPP11_SERIALIZE_H
 
-#include <sqlpp11/serializer.h>
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
   template <typename T, typename Context>
-  auto serialize(const T& t, Context& context) -> decltype(serializer_t<Context, T>::_(t, context))
-  {
-    return serializer_t<Context, T>::_(t, context);
-  }
-
-  template <typename T, typename Context>
-  auto serialize_operand(const T& t, Context& context) -> decltype(serializer_t<Context, T>::_(t, context))
+  auto serialize_operand(const T& t, Context& context) -> Context&
   {
     if (requires_braces_t<T>::value)
     {
       context << '(';
-      serializer_t<Context, T>::_(t, context);
+      serialize(t, context);
       context << ')';
     }
     else
     {
-      serializer_t<Context, T>::_(t, context);
+      serialize(t, context);
     }
 
     return context;

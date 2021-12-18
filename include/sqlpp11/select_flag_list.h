@@ -84,10 +84,7 @@ namespace sqlpp
         static_assert(is_select_flag_t<Flag>::value, "invalid select flag argument in select_flags::add()");
         static_assert(Policies::template _no_unknown_tables<Flag>::value,
                       "flag uses tables unknown to this statement in select_flags::add()");
-        using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Flag>;
-        _serialize_check{};
-
-        using ok = logic::all_t<_is_dynamic::value, is_select_flag_t<Flag>::value, _serialize_check::type::value>;
+        using ok = logic::all_t<_is_dynamic::value, is_select_flag_t<Flag>::value>;
 
         _add_impl(flag, ok());  // dispatch to prevent compile messages after the static_assert
       }
@@ -240,26 +237,20 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Database, typename... Flags>
-  struct serializer_t<Context, select_flag_list_data_t<Database, Flags...>>
+  Context& serialize(const select_flag_list_data_t<Database, Flags...>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Flags...>;
-    using T = select_flag_list_data_t<Database, Flags...>;
-
-    static Context& _(const T& t, Context& context)
+    interpret_tuple(t._flags, ' ', context);
+    if (sizeof...(Flags) != 0u)
     {
-      interpret_tuple(t._flags, ' ', context);
-      if (sizeof...(Flags) != 0u)
-      {
-        context << ' ';
-      }
-      interpret_list(t._dynamic_flags, ',', context);
-      if (not t._dynamic_flags.empty())
-      {
-        context << ' ';
-      }
-      return context;
+      context << ' ';
     }
-  };
+    interpret_list(t._dynamic_flags, ',', context);
+    if (not t._dynamic_flags.empty())
+    {
+      context << ' ';
+    }
+    return context;
+  }
 
   template <typename T>
   auto select_flags(T&& t) -> decltype(statement_t<void, no_select_flag_list_t>().flags(std::forward<T>(t)))

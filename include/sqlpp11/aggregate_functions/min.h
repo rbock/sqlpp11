@@ -80,19 +80,13 @@ namespace sqlpp
   };
 
   template <typename Context, typename Expr>
-  struct serializer_t<Context, min_t<Expr>>
+  Context& serialize(const min_t<Expr>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Expr>;
-    using T = min_t<Expr>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      context << "MIN(";
-      serialize(t._expr, context);
-      context << ")";
-      return context;
-    }
-  };
+    context << "MIN(";
+    serialize(t._expr, context);
+    context << ")";
+    return context;
+  }
 
   template <typename T>
   auto min(T t) -> min_t<wrap_operand_t<T>>

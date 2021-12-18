@@ -33,7 +33,6 @@
 #include <sqlpp11/prepared_select.h>
 #include <sqlpp11/result.h>
 #include <sqlpp11/serialize.h>
-#include <sqlpp11/serializer.h>
 
 #include <sqlpp11/detail/get_first.h>
 #include <sqlpp11/detail/get_last.h>
@@ -237,34 +236,28 @@ namespace sqlpp
     template <typename Database>
     auto _run(Database& db) const -> decltype(std::declval<_result_methods_t<statement_t>>()._run(db))
     {
-      _run_check{};  // FIXME: Dispatch?
+      _run_check::verify();
       return _result_methods_t<statement_t>::_run(db);
     }
 
     template <typename Database>
     auto _prepare(Database& db) const -> decltype(std::declval<_result_methods_t<statement_t>>()._prepare(db))
     {
-      _prepare_check{};  // FIXME: Dispatch?
+      _prepare_check::verify();
       return _result_methods_t<statement_t>::_prepare(db);
     }
   };
 
   template <typename Context, typename Database, typename... Policies>
-  struct serializer_t<Context, statement_t<Database, Policies...>>
+  Context& serialize(const statement_t<Database, Policies...>& t, Context& context)
   {
     using P = detail::statement_policies_t<Database, Policies...>;
-    using _serialize_check = serialize_check_of<Context, typename Policies::template _base_t<P>::_data_t...>;
-    using T = statement_t<Database, Policies...>;
 
-    static Context& _(const T& t, Context& context)
-    {
-      using swallow = int[];
-      (void)swallow{0,
-                    (serialize(static_cast<const typename Policies::template _base_t<P>&>(t)()._data, context), 0)...};
+    using swallow = int[];
+    (void)swallow{0, (serialize(static_cast<const typename Policies::template _base_t<P>&>(t)()._data, context), 0)...};
 
-      return context;
-    }
-  };
+    return context;
+  }
 
   template <typename NameData, typename Tag = tag::is_noop>
   struct statement_name_t

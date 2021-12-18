@@ -29,10 +29,7 @@
 
 #include <sqlpp11/default_value.h>
 #include <sqlpp11/null.h>
-#include <sqlpp11/tvin.h>
-#include <sqlpp11/rhs_wrap.h>
 #include <sqlpp11/serialize.h>
-#include <sqlpp11/serializer.h>
 #include <sqlpp11/simple_column.h>
 
 namespace sqlpp
@@ -42,11 +39,11 @@ namespace sqlpp
   {
     using _traits = make_traits<no_value_t, tag::is_assignment>;
     using _lhs_t = Lhs;
-    using _rhs_t = rhs_wrap_t<allow_tvin_t<Rhs>, trivial_value_is_null_t<_lhs_t>::value>;
+    using _rhs_t = Rhs;
     using _nodes = detail::type_vector<_lhs_t, _rhs_t>;
 
     static_assert(can_be_null_t<_lhs_t>::value ? true
-                                               : not(std::is_same<_rhs_t, null_t>::value or is_tvin_t<_rhs_t>::value),
+                                               : not std::is_same<_rhs_t, null_t>::value,
                   "column must not be null");
 
     assignment_t(_lhs_t lhs, _rhs_t rhs) : _lhs(lhs), _rhs(rhs)
@@ -64,19 +61,13 @@ namespace sqlpp
   };
 
   template <typename Context, typename Lhs, typename Rhs>
-  struct serializer_t<Context, assignment_t<Lhs, Rhs>>
+  Context& serialize(const assignment_t<Lhs, Rhs>& t, Context& context)
   {
-    using T = assignment_t<Lhs, Rhs>;
-    using _serialize_check = serialize_check_of<Context, typename T::_lhs_t, typename T::_rhs_t>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      serialize(simple_column(t._lhs), context);
-      context << "=";
-      serialize_operand(t._rhs, context);
-      return context;
-    }
-  };
+    serialize(simple_column(t._lhs), context);
+    context << "=";
+    serialize_operand(t._rhs, context);
+    return context;
+  }
 }  // namespace sqlpp
 
 #endif

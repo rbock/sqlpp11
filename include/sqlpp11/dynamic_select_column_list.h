@@ -77,39 +77,29 @@ namespace sqlpp
   };
 
   template <typename Context, typename Db>
-  struct serializer_t<Context, dynamic_select_column_list<Db>>
+  Context& serialize(const dynamic_select_column_list<Db>& t, Context& context)
   {
-    using T = dynamic_select_column_list<Db>;
-
-    static Context& _(const T& t, Context& context)
+    bool first = true;
+    for (const auto& column : t._dynamic_columns)
     {
-      bool first = true;
-      for (const auto column : t._dynamic_columns)
+      if (first)
       {
-        if (first)
-        {
-          first = false;
-        }
-        else
-        {
-          context << ',';
-        }
-        serialize(column, context);
+        first = false;
       }
-      return context;
+      else
+      {
+        context << ',';
+      }
+      serialize(column, context);
     }
-  };
+    return context;
+  }
 
   template <typename Context>
-  struct serializer_t<Context, dynamic_select_column_list<void>>
+  Context& serialize(const dynamic_select_column_list<void>&, Context& context)
   {
-    using T = dynamic_select_column_list<void>;
-
-    static Context& _(const T& /*unused*/, Context& context)
-    {
-      return context;
-    }
-  };
+    return context;
+  }
 }  // namespace sqlpp
 
 #endif

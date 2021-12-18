@@ -29,10 +29,8 @@
 
 #include <sqlpp11/default_value.h>
 #include <sqlpp11/null.h>
-#include <sqlpp11/tvin.h>
 #include <sqlpp11/value_or_null.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/serializer.h>
 #include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
@@ -61,34 +59,27 @@ namespace sqlpp
   {
     using _is_insert_value = std::true_type;
     using _column_t = Column;
-    static constexpr bool _trivial_value_is_null = trivial_value_is_null_t<Column>::value;
     using _pure_value_t = typename value_type_of<Column>::_cpp_value_type;
     using _wrapped_value_t = wrap_operand_t<_pure_value_t>;
-    using _tvin_t = tvin_t<_wrapped_value_t>;
     using _value_or_null_t = value_or_null_t<typename Column::_traits::_value_type>;
 
-    insert_value_t(rhs_wrap_t<_wrapped_value_t, _trivial_value_is_null> rhs)
-        : _is_null(rhs._is_null()), _is_default(rhs._is_default()), _value(rhs._expr._t)
+    insert_value_t(_wrapped_value_t rhs)
+        : _is_null(false), _is_default(false), _value(rhs._t)
     {
     }
 
-    insert_value_t(rhs_wrap_t<_tvin_t, _trivial_value_is_null> rhs)
-        : _is_null(rhs._is_null()), _is_default(rhs._is_default()), _value(rhs._expr._value)
-    {
-    }
-
-    insert_value_t(const rhs_wrap_t<null_t, _trivial_value_is_null>& /*unused*/)
+    insert_value_t(const null_t& /*unused*/)
         : _is_null(true), _is_default(false), _value{}
     {
     }
 
-    insert_value_t(const rhs_wrap_t<default_value_t, _trivial_value_is_null>& /*unused*/)
+    insert_value_t(const default_value_t& /*unused*/)
         : _is_null(false), _is_default(true), _value{}
     {
     }
 
-    insert_value_t(const rhs_wrap_t<_value_or_null_t, _trivial_value_is_null>& rhs)
-        : _is_null(rhs._expr._is_null), _is_default(false), _value{rhs._expr._value}
+    insert_value_t(const _value_or_null_t& rhs)
+        : _is_null(rhs._is_null), _is_default(false), _value{rhs._value}
     {
     }
 
@@ -104,28 +95,22 @@ namespace sqlpp
   };
 
   template <typename Context, typename ValueType>
-  struct serializer_t<Context, insert_value_t<ValueType>>
+  Context& serialize(const insert_value_t<ValueType>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, ValueType>;
-    using T = insert_value_t<ValueType>;
-
-    static Context& _(const T& t, Context& context)
+    if (t._is_null)
     {
-      if ((trivial_value_is_null_t<typename T::_column_t>::value and t._value._is_trivial()) or t._is_null)
-      {
-        context << "NULL";
-      }
-      else if (t._is_default)
-      {
-        context << "DEFAULT";
-      }
-      else
-      {
-        serialize_operand(t._value, context);
-      }
-      return context;
+      context << "NULL";
     }
-  };
+    else if (t._is_default)
+    {
+      context << "DEFAULT";
+    }
+    else
+    {
+      serialize_operand(t._value, context);
+    }
+    return context;
+  }
 }  // namespace sqlpp
 
 #endif

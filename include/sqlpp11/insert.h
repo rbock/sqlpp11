@@ -89,18 +89,12 @@ namespace sqlpp
   };
 
   template <typename Context>
-  struct serializer_t<Context, insert_name_t>
+  Context& serialize(const insert_name_t&, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using T = insert_name_t;
+    context << "INSERT";
 
-    static Context& _(const T& /*unused*/, Context& context)
-    {
-      context << "INSERT";
-
-      return context;
-    }
-  };
+    return context;
+  }
 
   template <typename Database>
   using blank_insert_t = statement_t<Database, insert_t, no_into_t, no_insert_value_list_t>;

@@ -30,7 +30,7 @@
 #include <type_traits>
 #include <tuple>
 #include <sqlpp11/consistent.h>
-#include <sqlpp11/serializer.h>
+#include <sqlpp11/portable_static_assert.h>
 #include <sqlpp11/detail/type_vector.h>
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/detail/void.h>
@@ -173,8 +173,6 @@ namespace sqlpp
   SQLPP_VALUE_TRAIT_GENERATOR(must_not_insert)
   SQLPP_VALUE_TRAIT_GENERATOR(must_not_update)
   SQLPP_VALUE_TRAIT_GENERATOR(require_insert)
-  SQLPP_VALUE_TRAIT_GENERATOR(trivial_value_is_null)
-  SQLPP_VALUE_TRAIT_GENERATOR(null_is_trivial_value)
 
   SQLPP_VALUE_TRAIT_GENERATOR(is_statement)
   SQLPP_VALUE_TRAIT_GENERATOR(is_prepared_statement)
@@ -208,7 +206,6 @@ namespace sqlpp
   SQLPP_VALUE_TRAIT_GENERATOR(is_offset)
   SQLPP_VALUE_TRAIT_GENERATOR(is_using_)
   SQLPP_VALUE_TRAIT_GENERATOR(is_column_list)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_multi_column)
   SQLPP_VALUE_TRAIT_GENERATOR(is_value_list)
   SQLPP_VALUE_TRAIT_GENERATOR(is_assignment)
   SQLPP_VALUE_TRAIT_GENERATOR(is_update_list)
@@ -394,10 +391,6 @@ namespace sqlpp
   using is_inconsistent_t =
       typename std::conditional<std::is_same<consistent_t, T>::value, std::false_type, std::true_type>::type;
 
-  template <typename Context, typename... T>
-  using serialize_check_of =
-      detail::get_first_if<is_inconsistent_t, consistent_t, typename serializer_t<Context, T>::_serialize_check...>;
-
   SQLPP_PORTABLE_STATIC_ASSERT(assert_sqlpp_type_t, "expression is not an sqlpp type, consistency cannot be verified");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_run_statement_or_prepared_t,
                                "connection cannot run something that is neither statement nor prepared statement");
@@ -420,21 +413,6 @@ namespace sqlpp
   using consistency_check_t = typename consistency_check<T>::type;
 
   template <typename Context, typename T, typename Enable = void>
-  struct serialize_check
-  {
-    using type = serialize_check_of<Context, T>;
-  };
-
-  template <typename Context, typename T>
-  struct serialize_check<Context, T, typename std::enable_if<is_prepared_statement_t<T>::value>::type>
-  {
-    using type = consistent_t;  // this is already serialized
-  };
-
-  template <typename Context, typename T>
-  using serialize_check_t = typename serialize_check<Context, T>::type;
-
-  template <typename Context, typename T, typename Enable = void>
   struct run_check
   {
     using type = assert_run_statement_or_prepared_t;
@@ -446,7 +424,7 @@ namespace sqlpp
                    typename std::enable_if<is_statement_t<T>::value or is_prepared_statement_t<T>::value>::type>
   {
     using type =
-        detail::get_first_if<is_inconsistent_t, consistent_t, typename T::_run_check, serialize_check_t<Context, T>>;
+        detail::get_first_if<is_inconsistent_t, consistent_t, typename T::_run_check>;
   };
 
   template <typename Context, typename T>
@@ -462,7 +440,7 @@ namespace sqlpp
   struct prepare_check<Context, T, typename std::enable_if<is_statement_t<T>::value>::type>
   {
     using type = detail::
-        get_first_if<is_inconsistent_t, consistent_t, typename T::_prepare_check, serialize_check_t<Context, T>>;
+        get_first_if<is_inconsistent_t, consistent_t, typename T::_prepare_check>;
   };
 
   template <typename Context, typename T>

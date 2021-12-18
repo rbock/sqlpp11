@@ -31,9 +31,6 @@
 #include <sqlpp11/data_types/boolean.h>
 #include <sqlpp11/expression_fwd.h>
 #include <sqlpp11/noop.h>
-#include <sqlpp11/rhs_wrap.h>
-#include <sqlpp11/serializer.h>
-#include <sqlpp11/tvin.h>
 #include <sqlpp11/wrap_operand.h>
 
 namespace sqlpp
@@ -45,7 +42,7 @@ namespace sqlpp
   {
     using _traits = make_traits<boolean, tag::is_expression>;
     using _lhs_t = Lhs;
-    using _rhs_t = rhs_wrap_t<allow_tvin_t<Rhs>, trivial_value_is_null_t<_lhs_t>::value>;
+    using _rhs_t = Rhs;
     using _nodes = detail::type_vector<_lhs_t, _rhs_t>;
 
     binary_expression_t(Lhs lhs, Rhs rhs) : _lhs(lhs), _rhs(rhs)
@@ -63,28 +60,15 @@ namespace sqlpp
   };
 
   template <typename Context, typename Lhs, typename Rhs>
-  struct serializer_t<Context, binary_expression_t<Lhs, op::equal_to, Rhs>>
+  Context& serialize(const binary_expression_t<Lhs, op::equal_to, Rhs>& t, Context& context)
   {
-    using T = binary_expression_t<Lhs, op::equal_to, Rhs>;
-    using _serialize_check = serialize_check_of<Context, typename T::_lhs_t, typename T::_rhs_t>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      context << "(";
-      serialize_operand(t._lhs, context);
-      if (t._rhs._is_null())
-      {
-        context << " IS NULL";
-      }
-      else
-      {
-        context << "=";
-        serialize_operand(t._rhs, context);
-      }
-      context << ")";
-      return context;
-    }
-  };
+    context << "(";
+    serialize_operand(t._lhs, context);
+    context << "=";
+    serialize_operand(t._rhs, context);
+    context << ")";
+    return context;
+  }
 
   template <typename Lhs, typename Rhs>
   struct binary_expression_t<Lhs, op::not_equal_to, Rhs>
@@ -93,7 +77,7 @@ namespace sqlpp
   {
     using _traits = make_traits<boolean, tag::is_expression>;
     using _lhs_t = Lhs;
-    using _rhs_t = rhs_wrap_t<allow_tvin_t<Rhs>, trivial_value_is_null_t<_lhs_t>::value>;
+    using _rhs_t = Rhs;
     using _nodes = detail::type_vector<_lhs_t, _rhs_t>;
 
     binary_expression_t(Lhs lhs, Rhs rhs) : _lhs(lhs), _rhs(rhs)
@@ -111,28 +95,15 @@ namespace sqlpp
   };
 
   template <typename Context, typename Lhs, typename Rhs>
-  struct serializer_t<Context, binary_expression_t<Lhs, op::not_equal_to, Rhs>>
+  Context& serialize(const binary_expression_t<Lhs, op::not_equal_to, Rhs>& t, Context& context)
   {
-    using T = binary_expression_t<Lhs, op::not_equal_to, Rhs>;
-    using _serialize_check = serialize_check_of<Context, typename T::_lhs_t, typename T::_rhs_t>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      context << "(";
-      serialize_operand(t._lhs, context);
-      if (t._rhs._is_null())
-      {
-        context << " IS NOT NULL";
-      }
-      else
-      {
-        context << "<>";
-        serialize_operand(t._rhs, context);
-      }
-      context << ")";
-      return context;
-    }
-  };
+    context << "(";
+    serialize_operand(t._lhs, context);
+    context << "<>";
+    serialize_operand(t._rhs, context);
+    context << ")";
+    return context;
+  }
 
   template <typename Rhs>
   struct unary_expression_t<op::logical_not, Rhs>
@@ -156,29 +127,15 @@ namespace sqlpp
   };
 
   template <typename Context, typename Rhs>
-  struct serializer_t<Context, unary_expression_t<op::logical_not, Rhs>>
+  Context& serialize(const unary_expression_t<op::logical_not, Rhs>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Rhs>;
-    using T = unary_expression_t<op::logical_not, Rhs>;
+    context << "(";
+    context << "NOT ";
+    serialize_operand(t._rhs, context);
+    context << ")";
 
-    static Context& _(const T& t, Context& context)
-    {
-      context << "(";
-      if (trivial_value_is_null_t<Rhs>::value)
-      {
-        serialize_operand(t._rhs, context);
-        context << " IS NULL ";
-      }
-      else
-      {
-        context << "NOT ";
-        serialize_operand(t._rhs, context);
-      }
-      context << ")";
-
-      return context;
-    }
-  };
+    return context;
+  }
 
   template <typename Lhs, typename O, typename Rhs>
   struct binary_expression_t : public expression_operators<binary_expression_t<Lhs, O, Rhs>, value_type_of<O>>,
@@ -202,21 +159,15 @@ namespace sqlpp
   };
 
   template <typename Context, typename Lhs, typename O, typename Rhs>
-  struct serializer_t<Context, binary_expression_t<Lhs, O, Rhs>>
+  Context& serialize(const binary_expression_t<Lhs, O, Rhs>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Lhs, Rhs>;
-    using T = binary_expression_t<Lhs, O, Rhs>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      context << "(";
-      serialize_operand(t._lhs, context);
-      context << O::_name;
-      serialize_operand(t._rhs, context);
-      context << ")";
-      return context;
-    }
-  };
+    context << "(";
+    serialize_operand(t._lhs, context);
+    context << O::_name;
+    serialize_operand(t._rhs, context);
+    context << ")";
+    return context;
+  }
 
   template <typename O, typename Rhs>
   struct unary_expression_t : public expression_operators<unary_expression_t<O, Rhs>, value_type_of<O>>,
@@ -239,20 +190,14 @@ namespace sqlpp
   };
 
   template <typename Context, typename O, typename Rhs>
-  struct serializer_t<Context, unary_expression_t<O, Rhs>>
+  Context& serialize(const unary_expression_t<O, Rhs>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Rhs>;
-    using T = unary_expression_t<O, Rhs>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      context << "(";
-      context << O::_name;
-      serialize_operand(t._rhs, context);
-      context << ")";
-      return context;
-    }
-  };
+    context << "(";
+    context << O::_name;
+    serialize_operand(t._rhs, context);
+    context << ")";
+    return context;
+  }
 }  // namespace sqlpp
 
 #endif

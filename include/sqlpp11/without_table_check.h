@@ -28,32 +28,27 @@
  */
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/serializer.h>
 
 namespace sqlpp
 {
   template <typename Expression>
-  struct without_table_check_t : Expression
+  struct without_table_check_t: public Expression
   {
     using _required_tables = detail::type_set<>;
 
     without_table_check_t(Expression expression) : Expression(expression)
     {
     }
+
+    const Expression& expr() const { return *this; }
   };
 
   template <typename Context, typename Expression>
-  struct serializer_t<Context, without_table_check_t<Expression>>
+  Context& serialize(const without_table_check_t<Expression>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Expression>;
-    using T = without_table_check_t<Expression>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      serialize<Expression>(t, context);
-      return context;
-    }
-  };
+    serialize(t.expr(), context);
+    return context;
+  }
 
   template <typename Expression>
   auto without_table_check(Expression expr) -> without_table_check_t<Expression>

@@ -59,19 +59,13 @@ namespace sqlpp
   };
 
   template <typename Context, typename ValueType, typename Expr>
-  struct serializer_t<Context, parameterized_verbatim_t<ValueType, Expr>>
+  Context& serialize(const parameterized_verbatim_t<ValueType, Expr>& t, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using T = parameterized_verbatim_t<ValueType, Expr>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      context << t._verbatim_lhs;
-        serialize(t._expr, context);
-      context << t._verbatim_rhs;
-      return context;
-    }
-  };
+    context << t._verbatim_lhs;
+    serialize(t._expr, context);
+    context << t._verbatim_rhs;
+    return context;
+  }
 
   template <typename ValueType, typename Expr>
   auto parameterized_verbatim(std::string lhs, Expr expr, std::string rhs)

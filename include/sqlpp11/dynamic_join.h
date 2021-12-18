@@ -49,18 +49,12 @@ namespace sqlpp
   };
 
   template <typename Context, typename PreJoin, typename On>
-  struct serializer_t<Context, dynamic_join_t<PreJoin, On>>
+  Context& serialize(const dynamic_join_t<PreJoin, On>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, PreJoin, On>;
-    using T = dynamic_join_t<PreJoin, On>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      serialize(t._pre_join, context);
-      serialize(t._on, context);
-      return context;
-    }
-  };
+    serialize(t._pre_join, context);
+    serialize(t._on, context);
+    return context;
+  }
 }  // namespace sqlpp
 
 #endif

@@ -30,7 +30,6 @@
 #include <sqlpp11/data_types/parameter_value.h>
 #include <sqlpp11/data_types/parameter_value_base.h>
 #include <sqlpp11/data_types/boolean/data_type.h>
-#include <sqlpp11/tvin.h>
 
 namespace sqlpp
 {

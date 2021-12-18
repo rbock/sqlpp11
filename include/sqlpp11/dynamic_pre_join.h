@@ -105,19 +105,13 @@ namespace sqlpp
   };
 
   template <typename Context, typename JoinType, typename Rhs>
-  struct serializer_t<Context, dynamic_pre_join_t<JoinType, Rhs>>
+  Context& serialize(const dynamic_pre_join_t<JoinType, Rhs>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Rhs>;
-    using T = dynamic_pre_join_t<JoinType, Rhs>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      context << JoinType::_name;
-      context << " JOIN ";
-      serialize(t._rhs, context);
-      return context;
-    }
-  };
+    context << JoinType::_name;
+    context << " JOIN ";
+    serialize(t._rhs, context);
+    return context;
+  }
 
   template <typename JoinType, typename Table>
   using make_dynamic_pre_join_t = typename std::conditional<check_dynamic_pre_join_t<Table>::value,
@@ -127,35 +121,35 @@ namespace sqlpp
   template <typename Table>
   auto dynamic_join(Table table) -> make_dynamic_pre_join_t<inner_join_t, Table>
   {
-    check_dynamic_pre_join_t<Table>{};  // FIXME: Failure return type?
+    check_dynamic_pre_join_t<Table>::verify();  // FIXME: Failure return type?
     return {table};
   }
 
   template <typename Table>
   auto dynamic_inner_join(Table table) -> make_dynamic_pre_join_t<inner_join_t, Table>
   {
-    check_dynamic_pre_join_t<Table>{};
+    check_dynamic_pre_join_t<Table>::verify();
     return {table};
   }
 
   template <typename Table>
   auto dynamic_left_outer_join(Table table) -> make_dynamic_pre_join_t<left_outer_join_t, Table>
   {
-    check_dynamic_pre_join_t<Table>{};
+    check_dynamic_pre_join_t<Table>::verify();
     return {table};
   }
 
   template <typename Table>
   auto dynamic_right_outer_join(Table table) -> make_dynamic_pre_join_t<right_outer_join_t, Table>
   {
-    check_dynamic_pre_join_t<Table>{};
+    check_dynamic_pre_join_t<Table>::verify();
     return {table};
   }
 
   template <typename Table>
   auto dynamic_outer_join(Table table) -> make_dynamic_pre_join_t<outer_join_t, Table>
   {
-    check_dynamic_pre_join_t<Table>{};
+    check_dynamic_pre_join_t<Table>::verify();
     return {table};
   }
 

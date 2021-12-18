@@ -64,30 +64,18 @@ namespace sqlpp
   };
 
   template <typename Context>
-  struct serializer_t<Context, on_t<unconditional_t>>
+  Context& serialize(const on_t<unconditional_t>&, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using T = on_t<unconditional_t>;
-
-    static Context& _(const T& /*unused*/, Context& context)
-    {
-      return context;
-    }
-  };
+    return context;
+  }
 
   template <typename Context, typename Expression>
-  struct serializer_t<Context, on_t<Expression>>
+  Context& serialize(const on_t<Expression>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Expression>;
-    using T = on_t<Expression>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      context << " ON ";
-      serialize(t._expression, context);
-      return context;
-    }
-  };
+    context << " ON ";
+    serialize(t._expression, context);
+    return context;
+  }
 }  // namespace sqlpp
 
 #endif

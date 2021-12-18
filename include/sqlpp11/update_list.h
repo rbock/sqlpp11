@@ -88,10 +88,7 @@ namespace sqlpp
         static_assert(logic::not_t<must_not_update_t, lhs_t<Assignment>>::value, "add() argument must not be updated");
         static_assert(Policies::template _no_unknown_tables<Assignment>::value,
                       "assignment uses tables unknown to this statement in add()");
-        using _serialize_check = sqlpp::serialize_check_t<typename Database::_serializer_context_t, Assignment>;
-        _serialize_check{};
-
-        using ok = logic::all_t<_is_dynamic::value, is_assignment_t<Assignment>::value, _serialize_check::type::value>;
+        using ok = logic::all_t<_is_dynamic::value, is_assignment_t<Assignment>::value>;
 
         _add_impl(assignment, ok());  // dispatch to prevent compile messages after the static_assert
       }
@@ -294,23 +291,17 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Database, typename... Assignments>
-  struct serializer_t<Context, update_list_data_t<Database, Assignments...>>
+  Context& serialize(const update_list_data_t<Database, Assignments...>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Assignments...>;
-    using T = update_list_data_t<Database, Assignments...>;
-
-    static Context& _(const T& t, Context& context)
+    context << " SET ";
+    interpret_tuple(t._assignments, ",", context);
+    if (sizeof...(Assignments) and not t._dynamic_assignments.empty())
     {
-      context << " SET ";
-      interpret_tuple(t._assignments, ",", context);
-      if (sizeof...(Assignments) and not t._dynamic_assignments.empty())
-      {
-        context << ',';
-      }
-      interpret_list(t._dynamic_assignments, ',', context);
-      return context;
+      context << ',';
     }
-  };
+    interpret_list(t._dynamic_assignments, ',', context);
+    return context;
+  }
 }  // namespace sqlpp
 
 #endif

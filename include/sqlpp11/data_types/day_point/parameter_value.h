@@ -32,7 +32,6 @@
 #include <sqlpp11/data_types/day_point/data_type.h>
 #include <sqlpp11/data_types/day_point/wrap_operand.h>
 #include <sqlpp11/data_types/day_point/operand.h>
-#include <sqlpp11/tvin.h>
 
 namespace sqlpp
 {

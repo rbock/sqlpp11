@@ -50,6 +50,24 @@ namespace sqlpp
   using return_type_bitwise_and_t = typename return_type_bitwise_and<L, R>::type;
 
   template <typename L, typename R, typename Enable = void>
+  struct return_type_shift_left
+  {
+    using check = assert_valid_operands;
+    using type = bad_expression<boolean>;
+  };
+  template <typename L, typename R>
+  using return_type_shift_left_t = typename return_type_shift_left<L, R>::type;
+
+  template <typename L, typename R, typename Enable = void>
+  struct return_type_shift_right
+  {
+    using check = assert_valid_operands;
+    using type = bad_expression<boolean>;
+  };
+  template <typename L, typename R>
+  using return_type_shift_right_t = typename return_type_shift_right<L, R>::type;
+
+  template <typename L, typename R, typename Enable = void>
   struct return_type_or
   {
     using check = assert_valid_operands;

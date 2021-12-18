@@ -22,11 +22,14 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-include(FetchContent)
 
-FetchContent_Declare(date
-    GIT_REPOSITORY https://github.com/HowardHinnant/date.git
-    GIT_TAG        v3.0.0
-) 
+if(NOT USE_SYSTEM_DATE AND NOT TARGET date::date)
+    include(FetchContent)
 
-add_subdirectory(hinnant_date)
+    FetchContent_Declare(date
+        GIT_REPOSITORY https://github.com/HowardHinnant/date.git
+        GIT_TAG        v3.0.0
+    )
+
+    add_subdirectory(hinnant_date)
+endif()

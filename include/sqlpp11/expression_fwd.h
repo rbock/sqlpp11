@@ -157,6 +157,20 @@ namespace sqlpp
       using _traits = make_traits<ValueType>;
       static constexpr const char* _name = "|";
     };
+
+    template <typename ValueType>
+    struct shift_left
+    {
+      using _traits = make_traits<ValueType>;
+      static constexpr const char* _name = "<<";
+    };
+
+    template <typename ValueType>
+    struct shift_right
+    {
+      using _traits = make_traits<ValueType>;
+      static constexpr const char* _name = ">>";
+    };
   }  // namespace op
 
   template <typename Lhs, typename O, typename Rhs>
@@ -218,6 +232,12 @@ namespace sqlpp
 
   template <typename Lhs, typename ValueType, typename Rhs>
   using bitwise_or_t = binary_expression_t<Lhs, op::bitwise_or<ValueType>, Rhs>;
+
+  template <typename Lhs, typename ValueType, typename Rhs>
+  using shift_left_t = binary_expression_t<Lhs, op::shift_left<ValueType>, Rhs>;
+
+  template <typename Lhs, typename ValueType, typename Rhs>
+  using shift_right_t = binary_expression_t<Lhs, op::shift_right<ValueType>, Rhs>;
 
   namespace detail
   {

@@ -88,18 +88,12 @@ namespace sqlpp
   };
 
   template <typename Context>
-  struct serializer_t<Context, remove_name_t>
+  Context& serialize(const remove_name_t&, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using T = remove_name_t;
+    context << "DELETE";
 
-    static Context& _(const T& /*unused*/, Context& context)
-    {
-      context << "DELETE";
-
-      return context;
-    }
-  };
+    return context;
+  }
 
   template <typename Database>
   using blank_remove_t = statement_t<Database, remove_t, no_from_t, no_using_t, no_where_t<true>>;

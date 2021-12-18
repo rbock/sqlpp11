@@ -47,13 +47,9 @@ namespace sqlpp
     using _cpp_value_type = typename value_type_of<FieldSpec>::_cpp_value_type;
     using _cpp_storage_type = StorageType;
 
-    static constexpr bool _null_is_trivial =
-        column_spec_can_be_null_t<_field_spec_t>::value and
-        (null_is_trivial_value_t<_field_spec_t>::value or not enforce_null_result_treatment_t<_db_t>::value);
     using _traits = make_traits<value_type_of<_field_spec_t>,
                                 tag::is_result_field,
-                                tag::is_expression,
-                                tag_if<tag::null_is_trivial_value, _null_is_trivial>>;
+                                tag::is_expression>;
 
     using _nodes = detail::type_vector<>;
     using _can_be_null = column_spec_can_be_null_t<_field_spec_t>;
@@ -93,16 +89,6 @@ namespace sqlpp
       return _is_null;
     }
 
-    bool _is_trivial() const
-    {
-      if (not _is_valid)
-      {
-        throw exception("accessing is_null in non-existing row");
-      }
-
-      return value() == _cpp_storage_type{};
-    }
-
     _cpp_value_type value() const
     {
       if (not _is_valid)
@@ -112,21 +98,12 @@ namespace sqlpp
 
       if (_is_null)
       {
-        if (not _null_is_trivial)
-        {
-          throw exception("accessing value of NULL field");
-        }
-        else
-        {
           return {};
-        }
       }
       return _value;
     }
 
-    operator typename std::conditional<_null_is_trivial or (not _can_be_null::value),
-                                       _cpp_value_type,
-                                       assert_result_field_value_is_safe_t>::type() const
+    operator _cpp_value_type() const
     {
       return value();
     }

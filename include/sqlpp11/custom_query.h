@@ -92,14 +92,14 @@ namespace sqlpp
     template <typename Db>
     auto _run(Db& db) const -> decltype(std::declval<_methods_t>()._run(db, *this))
     {
-      _run_check{};  // FIXME: dispatch here?
+      _run_check::verify();
       return _methods_t::_run(db, *this);
     }
 
     template <typename Db>
     auto _prepare(Db& db) const -> decltype(std::declval<_methods_t>()._prepare(db, *this))
     {
-      _prepare_check{};  // FIXME: dispatch here?
+      _prepare_check::verify();
       return _methods_t::_prepare(db, *this);
     }
 
@@ -123,17 +123,11 @@ namespace sqlpp
   };
 
   template <typename Context, typename Database, typename... Parts>
-  struct serializer_t<Context, custom_query_t<Database, Parts...>>
+  Context& serialize(const custom_query_t<Database, Parts...>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Parts...>;
-    using T = custom_query_t<Database, Parts...>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      interpret_tuple_without_braces(t._parts, " ", context);
-      return context;
-    }
-  };
+    interpret_tuple_without_braces(t._parts, " ", context);
+    return context;
+  }
 
   template <typename... Parts>
   auto custom_query(Parts... parts) -> custom_query_t<void, wrap_operand_t<Parts>...>

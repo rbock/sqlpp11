@@ -29,9 +29,6 @@
 
 #include <string>
 
-#include <sqlpp11/type_traits.h>
-#include <sqlpp11/serializer.h>
-
 namespace sqlpp
 {
   struct schema_t
@@ -40,17 +37,11 @@ namespace sqlpp
   };
 
   template <typename Context>
-  struct serializer_t<Context, schema_t>
+  Context& serialize(const schema_t& t, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using T = schema_t;
-
-    static Context& _(const T& t, Context& context)
-    {
-      context << t._name;
-      return context;
-    }
-  };
+    context << t._name;
+    return context;
+  }
 }  // namespace sqlpp
 
 #endif

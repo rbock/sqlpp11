@@ -30,7 +30,6 @@
 #include <sqlpp11/chrono.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/alias_operators.h>
-#include <sqlpp11/serializer.h>
 
 namespace sqlpp
 {
@@ -59,25 +58,14 @@ namespace sqlpp
     time_of_day_operand& operator=(time_of_day_operand&&) = default;
     ~time_of_day_operand() = default;
 
-    bool _is_trivial() const
-    {
-      return std::chrono::operator==(_t, _value_t{});
-    }
-
     _value_t _t;
   };
 
   template <typename Context, typename Period>
-  struct serializer_t<Context, time_of_day_operand<Period>>
+  Context& serialize(const time_of_day_operand<Period>& t, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using Operand = time_of_day_operand<Period>;
-
-    static Context& _(const Operand& t, Context& context)
-    {
-      context << '\'' << ::date::make_time(t._t) << '\'';
-      return context;
-    }
-  };
+    context << '\'' << ::date::make_time(t._t) << '\'';
+    return context;
+  }
 }  // namespace sqlpp
 #endif

@@ -35,25 +35,14 @@ namespace sqlpp
   {
     using _traits = make_traits<no_value_t, tag::is_expression>;
     using _nodes = detail::type_vector<>;
-
-    static constexpr bool _is_trivial()
-    {
-      return false;
-    }
   };
 
   template <typename Context>
-  struct serializer_t<Context, default_value_t>
+  Context& serialize(const default_value_t&, Context& context)
   {
-    using _serialize_check = consistent_t;
-    using Operand = default_value_t;
-
-    static Context& _(const Operand& /*unused*/, Context& context)
-    {
-      context << "DEFAULT";
-      return context;
-    }
-  };
+    context << "DEFAULT";
+    return context;
+  }
 
   constexpr default_value_t default_value = {};
 }  // namespace sqlpp

@@ -191,24 +191,19 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Database, typename... Expressions>
-  struct serializer_t<Context, with_data_t<Database, Expressions...>>
+  Context& serialize(const with_data_t<Database, Expressions...>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Expressions...>;
     using T = with_data_t<Database, Expressions...>;
-
-    static Context& _(const T& t, Context& context)
+    // FIXME: If there is a recursive CTE, add a "RECURSIVE" here
+    context << " WITH ";
+    if (T::_is_recursive::value)
     {
-      // FIXME: If there is a recursive CTE, add a "RECURSIVE" here
-      context << " WITH ";
-      if (T::_is_recursive::value)
-      {
-        context << "RECURSIVE ";
-      }
-      interpret_tuple(t._expressions, ',', context);
-      context << ' ';
-      return context;
+      context << "RECURSIVE ";
     }
-  };
+    interpret_tuple(t._expressions, ',', context);
+    context << ' ';
+    return context;
+  }
 
   template <typename... Expressions>
   auto with(Expressions... cte) -> blank_with_t<void, Expressions...>

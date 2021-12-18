@@ -33,8 +33,8 @@
 
 namespace sqlpp
 {
-  template <typename Db, typename NameType, bool CanBeNull, bool NullIsTrivialValue>
-  struct result_field_t<Db, field_spec_t<NameType, no_value_t, CanBeNull, NullIsTrivialValue>>
+  template <typename Db, typename NameType, bool CanBeNull>
+  struct result_field_t<Db, field_spec_t<NameType, no_value_t, CanBeNull>>
   {
     template <typename Target>
     void _bind(Target& /*unused*/, size_t /*unused*/)
@@ -60,10 +60,10 @@ namespace sqlpp
     }
   };
 
-  template <typename Db, typename NameType, bool CanBeNull, bool NullIsTrivialValue>
+  template <typename Db, typename NameType, bool CanBeNull>
   inline std::ostream& operator<<(
       std::ostream& os,
-      const result_field_t<Db, field_spec_t<NameType, no_value_t, CanBeNull, NullIsTrivialValue>>& /*unused*/)
+      const result_field_t<Db, field_spec_t<NameType, no_value_t, CanBeNull>>& /*unused*/)
   {
     os << "NULL";
     return os;

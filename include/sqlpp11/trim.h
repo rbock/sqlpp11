@@ -81,19 +81,13 @@ namespace sqlpp
   };
 
   template <typename Context, typename Flag, typename Expr>
-  struct serializer_t<Context, trim_t<Flag, Expr>>
+  Context& serialize(const trim_t<Flag, Expr>& t, Context& context)
   {
-    using _serialize_check = serialize_check_of<Context, Flag, Expr>;
-    using T = trim_t<Flag, Expr>;
-
-    static Context& _(const T& t, Context& context)
-    {
-      context << "TRIM(";
-      serialize(t._expr, context);
-      context << ")";
-      return context;
-    }
-  };
+    context << "TRIM(";
+    serialize(t._expr, context);
+    context << ")";
+    return context;
+  }
 
   template <typename T>
   auto trim(T t) -> trim_t<noop, wrap_operand_t<T>>
