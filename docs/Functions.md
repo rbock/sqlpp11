@@ -35,6 +35,11 @@ for (const auto& row : db(select(tab.name, avg(tab.value))
 }
 ```
 
+Use `count(1)` for simply query row count:
+```C++
+unsigned long n = db(select(count(1)).from(tab).unconditionally()).front().count;
+```
+
 # Text Functions
 ## concat
 Just use the + operator :-)
