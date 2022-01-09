@@ -103,7 +103,7 @@ namespace sqlpp
 
       struct connection_handle_t
       {
-        const std::shared_ptr<connection_config> config;
+        std::shared_ptr<connection_config> config;
         std::unique_ptr<MYSQL, void (*)(MYSQL*)> mysql;
 
         connection_handle_t(const std::shared_ptr<connection_config>& conf)
@@ -128,9 +128,9 @@ namespace sqlpp
 
         ~connection_handle_t() noexcept = default;
         connection_handle_t(const connection_handle_t&) = delete;
-        connection_handle_t(connection_handle_t&&) = delete;
+        connection_handle_t(connection_handle_t&&) = default;
         connection_handle_t& operator=(const connection_handle_t&) = delete;
-        connection_handle_t& operator=(connection_handle_t&&) = delete;
+        connection_handle_t& operator=(connection_handle_t&&) = default;
 
         bool is_valid()
         {
@@ -256,19 +256,19 @@ namespace sqlpp
 
     class connection : public sqlpp::connection
     {
-      std::unique_ptr<detail::connection_handle_t> _handle;
+      detail::connection_handle_t _handle;
       bool _transaction_active = false;
 
       // direct execution
       char_result_t select_impl(const std::string& statement)
       {
-        execute_statement(*_handle, statement);
+        execute_statement(_handle, statement);
         std::unique_ptr<detail::result_handle> result_handle(
-            new detail::result_handle(mysql_store_result(_handle->mysql.get()), _handle->config->debug));
+            new detail::result_handle(mysql_store_result(_handle.mysql.get()), _handle.config->debug));
         if (!*result_handle)
         {
           throw sqlpp::exception("MySQL error: Could not store result set: " +
-                                 std::string(mysql_error(_handle->mysql.get())));
+                                 std::string(mysql_error(_handle.mysql.get())));
         }
 
         return {std::move(result_handle)};
@@ -276,27 +276,27 @@ namespace sqlpp
 
       size_t insert_impl(const std::string& statement)
       {
-        execute_statement(*_handle, statement);
+        execute_statement(_handle, statement);
 
-        return mysql_insert_id(_handle->mysql.get());
+        return mysql_insert_id(_handle.mysql.get());
       }
 
       size_t update_impl(const std::string& statement)
       {
-        execute_statement(*_handle, statement);
-        return mysql_affected_rows(_handle->mysql.get());
+        execute_statement(_handle, statement);
+        return mysql_affected_rows(_handle.mysql.get());
       }
 
       size_t remove_impl(const std::string& statement)
       {
-        execute_statement(*_handle, statement);
-        return mysql_affected_rows(_handle->mysql.get());
+        execute_statement(_handle, statement);
+        return mysql_affected_rows(_handle.mysql.get());
       }
 
       // prepared execution
       prepared_statement_t prepare_impl(const std::string& statement, size_t no_of_parameters, size_t no_of_columns)
       {
-        return prepare_statement(*_handle, statement, no_of_parameters, no_of_columns);
+        return prepare_statement(_handle, statement, no_of_parameters, no_of_columns);
       }
 
       bind_result_t run_prepared_select_impl(prepared_statement_t& prepared_statement)
@@ -346,7 +346,7 @@ namespace sqlpp
         return serialize(t, context);
       }
 
-      connection(const std::shared_ptr<connection_config>& config) : _handle(new detail::connection_handle_t(config))
+      connection(const std::shared_ptr<connection_config>& config) : _handle{config}
       {
       }
 
@@ -355,25 +355,21 @@ namespace sqlpp
       connection(const connection&) = delete;
       connection& operator=(const connection&) = delete;
       connection& operator=(connection&&) = default;
-      connection(connection&& other)
-      {
-        this->_transaction_active = other._transaction_active;
-        this->_handle = std::move(other._handle);
-      }
+      connection(connection&& other) = default;
 
       bool is_valid()
       {
-        return _handle->is_valid();
+        return _handle.is_valid();
       }
 
       void reconnect()
       {
-        return _handle->reconnect();
+        return _handle.reconnect();
       }
 
-      const std::shared_ptr<connection_config> get_config()
+      const std::shared_ptr<connection_config>& get_config()
       {
-        return _handle->config;
+        return _handle.config;
       }
 
       bool is_transaction_active()
@@ -479,14 +475,14 @@ namespace sqlpp
       //! execute arbitrary command (e.g. create a table)
       void execute(const std::string& command)
       {
-        execute_statement(*_handle, command);
+        execute_statement(_handle, command);
       }
 
       //! escape given string (does not quote, though)
       std::string escape(const std::string& s) const
       {
         std::unique_ptr<char[]> dest(new char[s.size() * 2 + 1]);
-        mysql_real_escape_string(_handle->mysql.get(), dest.get(), s.c_str(), s.size());
+        mysql_real_escape_string(_handle.mysql.get(), dest.get(), s.c_str(), s.size());
         return dest.get();
       }
 
@@ -536,7 +532,7 @@ namespace sqlpp
         {
           throw sqlpp::exception("MySQL: Cannot have more than one open transaction per connection");
         }
-        execute_statement(*_handle, "START TRANSACTION");
+        execute_statement(_handle, "START TRANSACTION");
         _transaction_active = true;
       }
 
@@ -548,7 +544,7 @@ namespace sqlpp
           throw sqlpp::exception("MySQL: Cannot commit a finished or failed transaction");
         }
         _transaction_active = false;
-        execute_statement(*_handle, "COMMIT");
+        execute_statement(_handle, "COMMIT");
       }
 
       //! rollback transaction (or throw if the transaction has been finished already)
@@ -563,7 +559,7 @@ namespace sqlpp
           std::cerr << "MySQL warning: Rolling back unfinished transaction" << std::endl;
         }
         _transaction_active = false;
-        execute_statement(*_handle, "ROLLBACK");
+        execute_statement(_handle, "ROLLBACK");
       }
 
       //! report a rollback failure (will be called by transactions in case of a rollback failure in the destructor)
@@ -574,7 +570,7 @@ namespace sqlpp
 
       MYSQL* get_handle()
       {
-        return _handle->mysql.get();
+        return _handle.mysql.get();
       }
     };
 
