@@ -64,51 +64,53 @@ namespace sqlpp
 
     namespace detail
     {
+      inline void handle_cleanup(::sqlite3* sqlite)
+      {
+        sqlite3_close(sqlite);
+      }
+
       struct connection_handle
       {
         connection_config config;
-        ::sqlite3* sqlite;
+        std::unique_ptr<::sqlite3, void (*)(::sqlite3*)> sqlite;
 
-        connection_handle(connection_config conf) : config(conf), sqlite(nullptr)
+        connection_handle(connection_config conf) : config(conf), sqlite(nullptr, handle_cleanup)
         {
 #ifdef SQLPP_DYNAMIC_LOADING
           init_sqlite("");
 #endif
 
-          auto rc = sqlite3_open_v2(conf.path_to_database.c_str(), &sqlite, conf.flags,
+          ::sqlite3* sqlite_ptr;
+          const auto rc = sqlite3_open_v2(conf.path_to_database.c_str(), &sqlite_ptr, conf.flags,
                                     conf.vfs.empty() ? nullptr : conf.vfs.c_str());
           if (rc != SQLITE_OK)
           {
-            const std::string msg = sqlite3_errmsg(sqlite);
-            sqlite3_close(sqlite);
+            const std::string msg = sqlite3_errmsg(sqlite_ptr);
+            sqlite3_close(sqlite_ptr);
             throw sqlpp::exception("Sqlite3 error: Can't open database: " + msg);
           }
+
+          sqlite.reset(sqlite_ptr);
+
 #ifdef SQLITE_HAS_CODEC
           if (conf.password.size() > 0)
           {
-            int ret = sqlite3_key(sqlite, conf.password.data(), conf.password.size());
+            int ret = sqlite3_key(sqlite.get(), conf.password.data(), conf.password.size());
             if (ret != SQLITE_OK)
             {
-              const std::string msg = sqlite3_errmsg(sqlite);
-              sqlite3_close(sqlite);
+              const std::string msg = sqlite3_errmsg(sqlite.get());
+              sqlite3_close(sqlite.get());
               throw sqlpp::exception("Sqlite3 error: Can't set password to database: " + msg);
             }
           }
 #endif
         }
 
-        connection_handle()
-        {
-          auto rc = sqlite3_close(sqlite);
-          if (rc != SQLITE_OK)
-          {
-            std::cerr << "Sqlite3 error: Can't close database: " << sqlite3_errmsg(sqlite) << std::endl;
-          }
-        }
         connection_handle(const connection_handle&) = delete;
-        connection_handle(connection_handle&&) = delete;
+        connection_handle(connection_handle&&) = default;
         connection_handle& operator=(const connection_handle&) = delete;
-        connection_handle& operator=(connection_handle&&) = delete;
+        connection_handle& operator=(connection_handle&&) = default;
+        ~connection_handle() = default;
       };
 
       inline detail::prepared_statement_handle_t prepare_statement(detail::connection_handle& handle,
@@ -119,13 +121,13 @@ namespace sqlpp
 
         detail::prepared_statement_handle_t result(nullptr, handle.config.debug);
 
-        auto rc = sqlite3_prepare_v2(handle.sqlite, statement.c_str(), static_cast<int>(statement.size()),
+        auto rc = sqlite3_prepare_v2(handle.sqlite.get(), statement.c_str(), static_cast<int>(statement.size()),
                                      &result.sqlite_statement, nullptr);
 
         if (rc != SQLITE_OK)
         {
           throw sqlpp::exception(
-              "Sqlite3 error: Could not prepare statement: " + std::string(sqlite3_errmsg(handle.sqlite)) +
+              "Sqlite3 error: Could not prepare statement: " + std::string(sqlite3_errmsg(handle.sqlite.get())) +
               " (statement was >>" + (rc == SQLITE_TOOBIG ? statement.substr(0, 128) + "..." : statement) + "<<\n");
         }
 
@@ -145,7 +147,7 @@ namespace sqlpp
             if (handle.config.debug)
               std::cerr << "Sqlite3 debug: sqlite3_step return code: " << rc << std::endl;
             throw sqlpp::exception("Sqlite3 error: Could not execute statement: " +
-                                   std::string(sqlite3_errmsg(handle.sqlite)));
+                                   std::string(sqlite3_errmsg(handle.sqlite.get())));
         }
       }
     }  // namespace detail
@@ -188,7 +190,7 @@ namespace sqlpp
 
     class SQLPP11_SQLITE3_EXPORT connection : public sqlpp::connection
     {
-      std::unique_ptr<detail::connection_handle> _handle;
+      detail::connection_handle _handle;
       enum class transaction_status_type
       {
         none,
@@ -202,7 +204,7 @@ namespace sqlpp
       bind_result_t select_impl(const std::string& statement)
       {
         std::unique_ptr<detail::prepared_statement_handle_t> prepared(
-            new detail::prepared_statement_handle_t(prepare_statement(*_handle, statement)));
+            new detail::prepared_statement_handle_t(prepare_statement(_handle, statement)));
         if (!prepared)
         {
           throw sqlpp::exception("Sqlite3 error: Could not store result set");
@@ -213,31 +215,31 @@ namespace sqlpp
 
       size_t insert_impl(const std::string& statement)
       {
-        auto prepared = prepare_statement(*_handle, statement);
-        execute_statement(*_handle, prepared);
+        auto prepared = prepare_statement(_handle, statement);
+        execute_statement(_handle, prepared);
 
-        return sqlite3_last_insert_rowid(_handle->sqlite);
+        return static_cast<size_t>(sqlite3_last_insert_rowid(_handle.sqlite.get()));
       }
 
       size_t update_impl(const std::string& statement)
       {
-        auto prepared = prepare_statement(*_handle, statement);
-        execute_statement(*_handle, prepared);
-        return sqlite3_changes(_handle->sqlite);
+        auto prepared = prepare_statement(_handle, statement);
+        execute_statement(_handle, prepared);
+        return static_cast<size_t>(sqlite3_changes(_handle.sqlite.get()));
       }
 
       size_t remove_impl(const std::string& statement)
       {
-        auto prepared = prepare_statement(*_handle, statement);
-        execute_statement(*_handle, prepared);
-        return sqlite3_changes(_handle->sqlite);
+        auto prepared = prepare_statement(_handle, statement);
+        execute_statement(_handle, prepared);
+        return static_cast<size_t>(sqlite3_changes(_handle.sqlite.get()));
       }
 
       // prepared execution
       prepared_statement_t prepare_impl(const std::string& statement)
       {
         return {std::unique_ptr<detail::prepared_statement_handle_t>(
-            new detail::prepared_statement_handle_t(prepare_statement(*_handle, statement)))};
+            new detail::prepared_statement_handle_t(prepare_statement(_handle, statement)))};
       }
 
       bind_result_t run_prepared_select_impl(prepared_statement_t& prepared_statement)
@@ -247,30 +249,30 @@ namespace sqlpp
 
       size_t run_prepared_insert_impl(prepared_statement_t& prepared_statement)
       {
-        execute_statement(*_handle, *prepared_statement._handle.get());
+        execute_statement(_handle, *prepared_statement._handle.get());
 
-        return sqlite3_last_insert_rowid(_handle->sqlite);
+        return static_cast<size_t>(sqlite3_last_insert_rowid(_handle.sqlite.get()));
       }
 
       size_t run_prepared_update_impl(prepared_statement_t& prepared_statement)
       {
-        execute_statement(*_handle, *prepared_statement._handle.get());
+        execute_statement(_handle, *prepared_statement._handle.get());
 
-        return sqlite3_changes(_handle->sqlite);
+        return static_cast<size_t>(sqlite3_changes(_handle.sqlite.get()));
       }
 
       size_t run_prepared_remove_impl(prepared_statement_t& prepared_statement)
       {
-        execute_statement(*_handle, *prepared_statement._handle.get());
+        execute_statement(_handle, *prepared_statement._handle.get());
 
-        return sqlite3_changes(_handle->sqlite);
+        return static_cast<size_t>(sqlite3_changes(_handle.sqlite.get()));
       }
 
       size_t run_prepared_execute_impl(prepared_statement_t& prepared_statement)
       {
-        execute_statement(*_handle, *prepared_statement._handle.get());
+        execute_statement(_handle, *prepared_statement._handle.get());
 
-        return sqlite3_changes(_handle->sqlite);
+        return static_cast<size_t>(sqlite3_changes(_handle.sqlite.get()));
       }
 
     public:
@@ -296,7 +298,7 @@ namespace sqlpp
         return ::sqlpp::serialize(t, context);
       }
 
-      connection(connection_config config) : _handle(new detail::connection_handle(std::move(config)))
+      connection(connection_config config) : _handle(std::move(config))
       {
       }
 
@@ -411,9 +413,9 @@ namespace sqlpp
       //! execute arbitrary command (e.g. create a table)
       size_t execute(const std::string& statement)
       {
-        auto prepared = prepare_statement(*_handle, statement);
-        execute_statement(*_handle, prepared);
-        return sqlite3_changes(_handle->sqlite);
+        auto prepared = prepare_statement(_handle, statement);
+        execute_statement(_handle, prepared);
+        return static_cast<size_t>(sqlite3_changes(_handle.sqlite.get()));
       }
 
       template <
@@ -488,7 +490,7 @@ namespace sqlpp
       auto prepare(const T& t)
           -> decltype(this->_prepare(t, typename sqlpp::prepare_check_t<_serializer_context_t, T>::type{}))
       {
-        sqlpp::prepare_check_t<_serializer_context_t, T>{};
+        (void) sqlpp::prepare_check_t<_serializer_context_t, T>{};
         return _prepare(t, sqlpp::prepare_check_t<_serializer_context_t, T>{});
       }
 
@@ -508,8 +510,8 @@ namespace sqlpp
       //! get the currently active transaction isolation level
       sqlpp::isolation_level get_default_isolation_level()
       {
-        auto stmt = prepare_statement(*_handle, "pragma read_uncommitted");
-        execute_statement(*_handle, stmt);
+        auto stmt = prepare_statement(_handle, "pragma read_uncommitted");
+        execute_statement(_handle, stmt);
 
         int level = sqlite3_column_int(stmt.sqlite_statement, 0);
 
@@ -525,8 +527,8 @@ namespace sqlpp
         }
 
         _transaction_status = transaction_status_type::maybe;
-        auto prepared = prepare_statement(*_handle, "BEGIN");
-        execute_statement(*_handle, prepared);
+        auto prepared = prepare_statement(_handle, "BEGIN");
+        execute_statement(_handle, prepared);
         _transaction_status = transaction_status_type::active;
       }
 
@@ -538,8 +540,8 @@ namespace sqlpp
           throw sqlpp::exception("Sqlite3 error: Cannot commit a finished or failed transaction");
         }
         _transaction_status = transaction_status_type::maybe;
-        auto prepared = prepare_statement(*_handle, "COMMIT");
-        execute_statement(*_handle, prepared);
+        auto prepared = prepare_statement(_handle, "COMMIT");
+        execute_statement(_handle, prepared);
         _transaction_status = transaction_status_type::none;
       }
 
@@ -556,8 +558,8 @@ namespace sqlpp
           std::cerr << "Sqlite3 warning: Rolling back unfinished transaction" << std::endl;
         }
         _transaction_status = transaction_status_type::maybe;
-        auto prepared = prepare_statement(*_handle, "ROLLBACK");
-        execute_statement(*_handle, prepared);
+        auto prepared = prepare_statement(_handle, "ROLLBACK");
+        execute_statement(_handle, prepared);
         _transaction_status = transaction_status_type::none;
       }
 
@@ -570,19 +572,19 @@ namespace sqlpp
       //! get the last inserted id
       uint64_t last_insert_id() noexcept
       {
-        return sqlite3_last_insert_rowid(_handle->sqlite);
+        return static_cast<size_t>(sqlite3_last_insert_rowid(_handle.sqlite.get()));
       }
 
       ::sqlite3* native_handle()
       {
-        return _handle->sqlite;
+        return _handle.sqlite.get();
       }
 
       schema_t attach(const connection_config& config, const std::string name)
       {
         auto prepared =
-            prepare_statement(*_handle, "ATTACH '" + escape(config.path_to_database) + "' AS " + escape(name));
-        execute_statement(*_handle, prepared);
+            prepare_statement(_handle, "ATTACH '" + escape(config.path_to_database) + "' AS " + escape(name));
+        execute_statement(_handle, prepared);
 
         return {name};
       }

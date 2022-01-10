@@ -197,7 +197,7 @@ namespace sqlpp
 
         *value =
             (reinterpret_cast<const char*>(sqlite3_column_text(_handle->sqlite_statement, static_cast<int>(index))));
-        *len = sqlite3_column_bytes(_handle->sqlite_statement, static_cast<int>(index));
+        *len = static_cast<size_t>(sqlite3_column_bytes(_handle->sqlite_statement, static_cast<int>(index)));
       }
 
       void _bind_blob_result(size_t index, const uint8_t** value, size_t* len)
@@ -207,7 +207,7 @@ namespace sqlpp
 
         *value =
             (reinterpret_cast<const uint8_t*>(sqlite3_column_blob(_handle->sqlite_statement, static_cast<int>(index))));
-        *len = sqlite3_column_bytes(_handle->sqlite_statement, static_cast<int>(index));
+        *len = static_cast<size_t>(sqlite3_column_bytes(_handle->sqlite_statement, static_cast<int>(index)));
       }
 
       void _bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null)

@@ -57,7 +57,7 @@ int Transaction(int, char*[])
   std::cout << "Expecting default isolation level = 1, is " << static_cast<int>(current_level) << std::endl;
   assert(current_level == sqlpp::isolation_level::serializable);
 
-  int pragmaValue = db(custom_query(sqlpp::verbatim("PRAGMA read_uncommitted"))
+  int64_t pragmaValue = db(custom_query(sqlpp::verbatim("PRAGMA read_uncommitted"))
                            .with_result_type_of(select(sqlpp::value(1).as(pragma))))
                         .front()
                         .pragma;

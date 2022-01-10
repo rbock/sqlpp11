@@ -37,7 +37,6 @@
 #include <iostream>
 #include <vector>
 
-SQLPP_ALIAS_PROVIDER(left)
 SQLPP_ALIAS_PROVIDER(pragma)
 SQLPP_ALIAS_PROVIDER(sub)
 
@@ -103,8 +102,8 @@ int Sample(int, char*[])
                                 .from(tab)
                                 .unconditionally()))
   {
-    int x = row.alpha;
-    int a = row.max;
+    int64_t x = row.alpha;
+    int64_t a = row.max;
     std::cout << x << ", " << a << std::endl;
   }
   tx.commit();
@@ -136,7 +135,7 @@ int Sample(int, char*[])
 
   std::cerr << "--------" << std::endl;
   ps.params.alpha = sqlpp::eval<sqlpp::integer>(db, "last_insert_rowid()");
-  ps.params.gamma = "false";
+  ps.params.gamma = false;
   for (const auto& row : db(ps))
   {
     std::cerr << "bound result: alpha: " << row.alpha << std::endl;
@@ -188,7 +187,7 @@ int Sample(int, char*[])
 
   auto x = custom_query(sqlpp::verbatim("PRAGMA user_version = "), 1);
   db(x);
-  int pragmaValue =
+  const int64_t pragmaValue =
       db(custom_query(sqlpp::verbatim("PRAGMA user_version")).with_result_type_of(select(sqlpp::value(1).as(pragma))))
           .front()
           .pragma;

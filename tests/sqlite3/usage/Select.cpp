@@ -38,8 +38,6 @@
 #include <iostream>
 #include <vector>
 
-SQLPP_ALIAS_PROVIDER(left)
-
 namespace sql = sqlpp::sqlite3;
 const auto tab = TabSample{};
 
@@ -143,8 +141,8 @@ int Select(int, char*[])
   auto tx = start_transaction(db);
   for (const auto& row : db(select(all_of(tab), select(max(tab.alpha)).from(tab)).from(tab).unconditionally()))
   {
-    int x = row.alpha;
-    int a = row.max;
+    const int64_t x = row.alpha;
+    const int64_t a = row.max;
     std::cout << ">>>" << x << ", " << a << std::endl;
   }
   for (const auto& row :
@@ -161,8 +159,8 @@ int Select(int, char*[])
 
   for (const auto& row : db(select(all_of(tab), select(trim(tab.beta)).from(tab)).from(tab).unconditionally()))
   {
-    int x = row.alpha;
-    std::string a = row.trim;
+    const int64_t x = row.alpha;
+    const std::string a = row.trim;
     std::cout << ">>>" << x << ", " << a << std::endl;
   }
 
