@@ -1,3 +1,8 @@
+# Introduction
+_This page explains insert statements with a static structure. If you want to learn about constructing insert statements at runtime, you should still read this page first and then move on to [dynamic insert statements](Dynamic-Insert.md)._
+
+# A Basic example
+
 Haven't found the time to document this in any detail, yet, but this is an example:
 
 ```C++
@@ -33,3 +38,5 @@ time point.
 ```
 
 Similar for other data types.
+
+See also [dynamic insert statements](Dynamic-Insert.md).
