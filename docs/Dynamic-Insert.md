@@ -12,7 +12,7 @@ auto s = dynamic_insert_into(db, foo).dynamic_set(
 s.insert_list.add(foo.id = runtimeStatement.id);
 s.insert_list.add(foo.hasFun = runtimeStatement.hasFun);
 ```
-Admittedly, a rather lame example (please suggest nicer ones), but anyway, this is what's happening:
+Admittedly, a rather simplistic example (please suggest nicer ones), but anyway, this is what's happening:
 ```C++
 dynamic_insert_into(db, table) 
 ```
