@@ -40,7 +40,7 @@ namespace sqlpp
 {
   namespace postgresql
   {
-    struct connection;
+    class connection;
   }
 
   namespace detail

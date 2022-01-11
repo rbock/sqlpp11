@@ -76,10 +76,10 @@ namespace sqlpp
         T t(0);
         auto txt = std::string(getPqValue(m_result, record, field));
         if(txt != "")
-
         {
           t = std::stold(txt);
         }
+
         return t;
       }
 
@@ -87,6 +87,7 @@ namespace sqlpp
       {
         return m_query;
       }
+
       std::string& query()
       {
         return m_query;

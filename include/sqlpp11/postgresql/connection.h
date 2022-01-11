@@ -443,17 +443,17 @@ namespace sqlpp
 
     inline size_t connection::insert_impl(const std::string& stmt)
     {
-      return execute(stmt)->result.affected_rows();
+      return static_cast<size_t>(execute(stmt)->result.affected_rows());
     }
 
     inline size_t connection::update_impl(const std::string& stmt)
     {
-      return execute(stmt)->result.affected_rows();
+      return static_cast<size_t>(execute(stmt)->result.affected_rows());
     }
 
     inline size_t connection::remove_impl(const std::string& stmt)
     {
-      return execute(stmt)->result.affected_rows();
+      return static_cast<size_t>(execute(stmt)->result.affected_rows());
     }
 
     // prepared execution
@@ -474,28 +474,28 @@ namespace sqlpp
     {
       validate_connection_handle();
       execute_prepared_statement(*_handle, *prep._handle.get());
-      return prep._handle->result.affected_rows();
+      return static_cast<size_t>(prep._handle->result.affected_rows());
     }
 
     inline size_t connection::run_prepared_insert_impl(prepared_statement_t& prep)
     {
       validate_connection_handle();
       execute_prepared_statement(*_handle, *prep._handle.get());
-      return prep._handle->result.affected_rows();
+      return static_cast<size_t>(prep._handle->result.affected_rows());
     }
 
     inline size_t connection::run_prepared_update_impl(prepared_statement_t& prep)
     {
       validate_connection_handle();
       execute_prepared_statement(*_handle, *prep._handle.get());
-      return prep._handle->result.affected_rows();
+      return static_cast<size_t>(prep._handle->result.affected_rows());
     }
 
     inline size_t connection::run_prepared_remove_impl(prepared_statement_t& prep)
     {
       validate_connection_handle();
       execute_prepared_statement(*_handle, *prep._handle.get());
-      return prep._handle->result.affected_rows();
+      return static_cast<size_t>(prep._handle->result.affected_rows());
     }
 
     inline void connection::set_default_isolation_level(isolation_level level)
@@ -561,7 +561,7 @@ namespace sqlpp
       result.resize((s.size() * 2) + 1);
 
       int err;
-      size_t length = PQescapeStringConn(_handle->postgres, &result[0], s.c_str(), s.size(), &err);
+      size_t length = PQescapeStringConn(_handle->native(), &result[0], s.c_str(), s.size(), &err);
       result.resize(length);
       return result;
     }
@@ -662,7 +662,7 @@ namespace sqlpp
     inline uint64_t connection::last_insert_id(const std::string& table, const std::string& fieldname)
     {
       std::string sql = "SELECT currval('" + table + "_" + fieldname + "_seq')";
-      PGresult* res = PQexec(_handle->postgres, sql.c_str());
+      PGresult* res = PQexec(_handle->native(), sql.c_str());
       if (PQresultStatus(res) != PGRES_TUPLES_OK)
       {
         std::string err{PQresultErrorMessage(res)};
@@ -673,12 +673,12 @@ namespace sqlpp
       // Parse the number and return.
       std::string in{PQgetvalue(res, 0, 0)};
       PQclear(res);
-      return std::stoi(in);
+      return std::stoul(in);
     }
 
     inline ::PGconn* connection::native_handle()
     {
-      return _handle->postgres;
+      return _handle->native();
     }
 
     inline std::string context_t::escape(const std::string& arg)

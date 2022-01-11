@@ -53,28 +53,34 @@ namespace sqlpp
 
     namespace detail
     {
+      inline void handle_cleanup(PGconn* postgres)
+      {
+        PQfinish(postgres);
+      }
+
       struct DLL_LOCAL connection_handle
       {
-        const std::shared_ptr<connection_config> config;
-        PGconn* postgres{nullptr};
-		std::set<std::string> prepared_statement_names;
+        std::shared_ptr<connection_config> config;
+        std::unique_ptr<PGconn, void(*)(PGconn*)>  postgres;
+        std::set<std::string> prepared_statement_names;
 
         connection_handle(const std::shared_ptr<connection_config>& config);
-        ~connection_handle();
         connection_handle(const connection_handle&) = delete;
-        connection_handle(connection_handle&&) = delete;
+        connection_handle(connection_handle&&) = default;
         connection_handle& operator=(const connection_handle&) = delete;
-        connection_handle& operator=(connection_handle&&) = delete;
+        connection_handle& operator=(connection_handle&&) = default;
+        ~connection_handle();
 
         PGconn* native() const
         {
-          return postgres;
+          return postgres.get();
         }
 
         void deallocate_prepared_statement(const std::string& name);
       };
 
-      inline connection_handle::connection_handle(const std::shared_ptr<connection_config>& conf) : config(conf)
+      inline connection_handle::connection_handle(const std::shared_ptr<connection_config>& conf)
+          : config(conf), postgres{nullptr, handle_cleanup}
       {
 #ifdef SQLPP_DYNAMIC_LOADING
         init_pg("");
@@ -194,18 +200,15 @@ namespace sqlpp
         {
           conninfo.append(" service=" + config->service);
         }
-        if (this->postgres)
-          return;
 
-        this->postgres = PQconnectdb(conninfo.c_str());
+        postgres.reset(PQconnectdb(conninfo.c_str()));
 
-        if (!this->postgres)
+        if (!postgres)
           throw std::bad_alloc();
 
-        if (PQstatus(this->postgres) != CONNECTION_OK)
+        if (PQstatus(postgres.get()) != CONNECTION_OK)
         {
-          std::string msg(PQerrorMessage(this->postgres));
-          PQfinish(this->postgres);
+          std::string msg(PQerrorMessage(postgres.get()));
           throw broken_connection(std::move(msg));
         }
       }
@@ -217,18 +220,12 @@ namespace sqlpp
         {
           std::cerr << "PostgreSQL debug: closing database connection." << std::endl;
         }
-
-        // Close connection
-        if (this->postgres)
-        {
-          PQfinish(this->postgres);
-        }
       }
 
       inline void connection_handle::deallocate_prepared_statement(const std::string& name)
       {
          std::string cmd = "DEALLOCATE \"" + name + "\"";
-         PGresult* result = PQexec(postgres, cmd.c_str());
+         PGresult* result = PQexec(postgres.get(), cmd.c_str());
          PQclear(result);
          prepared_statement_names.erase(name);
       }

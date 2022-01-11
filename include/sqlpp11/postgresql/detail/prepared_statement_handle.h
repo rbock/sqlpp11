@@ -65,9 +65,9 @@ namespace sqlpp
         // ctor
         statement_handle_t(detail::connection_handle& _connection);
         statement_handle_t(const statement_handle_t&) = delete;
-        statement_handle_t(statement_handle_t&&) = default;
+        statement_handle_t(statement_handle_t&&) = delete;
         statement_handle_t& operator=(const statement_handle_t&) = delete;
-        statement_handle_t& operator=(statement_handle_t&&) = default;
+        statement_handle_t& operator=(statement_handle_t&&) = delete;
 
         virtual ~statement_handle_t();
         bool operator!() const;
@@ -89,9 +89,9 @@ namespace sqlpp
         // ctor
         prepared_statement_handle_t(detail::connection_handle& _connection, std::string stmt, const size_t& paramCount);
         prepared_statement_handle_t(const prepared_statement_handle_t&) = delete;
-        prepared_statement_handle_t(prepared_statement_handle_t&&) = default;
+        prepared_statement_handle_t(prepared_statement_handle_t&&) = delete;
         prepared_statement_handle_t& operator=(const prepared_statement_handle_t&) = delete;
-        prepared_statement_handle_t& operator=(prepared_statement_handle_t&&) = default;
+        prepared_statement_handle_t& operator=(prepared_statement_handle_t&&) = delete;
 
         virtual ~prepared_statement_handle_t();
 
@@ -153,10 +153,10 @@ namespace sqlpp
 
       inline void prepared_statement_handle_t::execute()
       {
-        int size = static_cast<int>(paramValues.size());
+        const size_t size = paramValues.size();
 
         std::vector<const char*> values;
-        for (int i = 0; i < size; i++)
+        for (size_t i = 0u; i < size; i++)
           values.push_back(nullValues[i] ? nullptr : const_cast<char*>(paramValues[i].c_str()));
 
         // Execute prepared statement with the parameters.
@@ -164,7 +164,7 @@ namespace sqlpp
         valid = false;
         count = 0;
         totalCount = 0;
-        result = PQexecPrepared(connection.postgres, _name.data(), size, values.data(), nullptr, nullptr, 0);
+        result = PQexecPrepared(connection.native(), _name.data(), static_cast<int>(size), values.data(), nullptr, nullptr, 0);
 		/// @todo validate result? is it really valid
         valid = true;
       }
@@ -188,7 +188,7 @@ namespace sqlpp
       inline void prepared_statement_handle_t::prepare(std::string stmt)
       {
         // Create the prepared statement
-        result = PQprepare(connection.postgres, _name.c_str(), stmt.c_str(), 0, nullptr);
+        result = PQprepare(connection.native(), _name.c_str(), stmt.c_str(), 0, nullptr);
         valid = true;
       }
     }
