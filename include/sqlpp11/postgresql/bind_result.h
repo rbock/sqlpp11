@@ -164,7 +164,7 @@ namespace sqlpp
       }
 
       *is_null = _handle->result.isNull(_handle->count, index);
-      *value = _handle->result.getValue<bool>(_handle->count, index);
+      *value = _handle->result.getBoolValue(_handle->count, index);
     }
 
     inline void bind_result_t::_bind_floating_point_result(size_t _index, double* value, bool* is_null)
@@ -176,7 +176,7 @@ namespace sqlpp
       }
 
       *is_null = _handle->result.isNull(_handle->count, index);
-      *value = _handle->result.getValue<double>(_handle->count, index);
+      *value = _handle->result.getDoubleValue(_handle->count, index);
     }
 
     inline void bind_result_t::_bind_integral_result(size_t _index, int64_t* value, bool* is_null)
@@ -188,7 +188,7 @@ namespace sqlpp
       }
 
       *is_null = _handle->result.isNull(_handle->count, index);
-      *value = _handle->result.getValue<unsigned long long>(_handle->count, index);
+      *value = _handle->result.getInt64Value(_handle->count, index);
     }
 
     inline void bind_result_t::_bind_unsigned_integral_result(size_t _index, uint64_t* value, bool* is_null)
@@ -200,7 +200,7 @@ namespace sqlpp
       }
 
       *is_null = _handle->result.isNull(_handle->count, index);
-      *value = _handle->result.getValue<unsigned long long>(_handle->count, index);
+      *value = _handle->result.getUInt64Value(_handle->count, index);
     }
 
     inline void bind_result_t::_bind_text_result(size_t _index, const char** value, size_t* len)
@@ -218,8 +218,8 @@ namespace sqlpp
       }
       else
       {
-        *value = _handle->result.getValue<const char*>(_handle->count, index);
-        *len = _handle->result.length(_handle->count, index);
+        *value = _handle->result.getCharPtrValue(_handle->count, index);
+        *len = static_cast<size_t>(_handle->result.length(_handle->count, index));
       }
     }
 
@@ -311,7 +311,7 @@ namespace sqlpp
 
       if (!(*is_null))
       {
-        const auto date_string = _handle->result.getValue<const char*>(_handle->count, index);
+        const auto date_string = _handle->result.getCharPtrValue(_handle->count, index);
 
         if (_handle->debug())
         {
@@ -350,7 +350,7 @@ namespace sqlpp
 
       if (!(*is_null))
       {
-        const auto date_string = _handle->result.getValue(_handle->count, index);
+        const auto date_string = _handle->result.getCharPtrValue(_handle->count, index);
 
         if (_handle->debug())
         {
@@ -386,8 +386,8 @@ namespace sqlpp
         if (std::strlen(time_string) <= 9)
           return;
         auto us_string = time_string + 9;  // hh:mm:ss.
-        unsigned usec = 0;
-        for (int i = 0; i < 6; ++i)
+        int usec = 0;
+        for (size_t i = 0u; i < 6u; ++i)
         {
           if (std::isdigit(us_string[0]))
           {
@@ -417,8 +417,8 @@ namespace sqlpp
       }
       else
       {
-        *value = _handle->result.getValue<const uint8_t*>(_handle->count, index);
-        *len   = _handle->result.length(_handle->count, index);
+        *value = _handle->result.getBlobValue(_handle->count, index);
+        *len   = static_cast<size_t>(_handle->result.length(_handle->count, index));
       }
     }
 

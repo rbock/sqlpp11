@@ -75,7 +75,7 @@ namespace sqlpp
         case 'F':
           return c + 10 - 'A';
       }
-      throw sqlpp::exception(std::string("Unexpected hex char: ") += c);
+      throw sqlpp::exception(std::string("Unexpected hex char: ") + static_cast<char>(c));
     }
 
     inline void hex_assign(std::vector<unsigned char>& value, const uint8_t* blob, size_t len)
@@ -85,7 +85,7 @@ namespace sqlpp
       size_t blob_index = 2;
       while (blob_index < len)
       {
-        value[val_index] = (unhex(blob[blob_index]) << 4) + unhex(blob[blob_index + 1]);
+        value[val_index] = static_cast<unsigned char>(unhex(blob[blob_index]) << 4) + unhex(blob[blob_index + 1]);
         ++val_index;
         blob_index += 2;
       }

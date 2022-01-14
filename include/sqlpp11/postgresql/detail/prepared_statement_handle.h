@@ -57,10 +57,10 @@ namespace sqlpp
       {
         detail::connection_handle& connection;
         Result result;
-        bool valid{false};
-        uint32_t count{0};
-        uint32_t totalCount = {0};
-        uint32_t fields = {0};
+        bool valid = false;
+        int count = 0;
+        int totalCount = 0;
+        int fields = 0;
 
         // ctor
         statement_handle_t(detail::connection_handle& _connection);

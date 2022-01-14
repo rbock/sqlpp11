@@ -33,8 +33,6 @@
 #include "TabFoo.h"
 #include "make_test_connection.h"
 
-SQLPP_ALIAS_PROVIDER(left);
-
 namespace sql = sqlpp::postgresql;
 model::TabFoo tab = {};
 
@@ -126,13 +124,14 @@ int Select(int, char*[])
   // remove
   db(remove_from(tab).where(tab.alpha == tab.alpha + 3));
 
-  auto result = db(select(all_of(tab)).from(tab).unconditionally());
-  std::cerr << "Accessing a field directly from the result (using the current row): " << result.begin()->alpha
+  auto result1 = db(select(all_of(tab)).from(tab).unconditionally());
+  std::cerr << "Accessing a field directly from the result (using the current row): " << result1.begin()->alpha
             << std::endl;
-  std::cerr << "Can do that again, no problem: " << result.begin()->alpha << std::endl;
+  std::cerr << "Can do that again, no problem: " << result1.begin()->alpha << std::endl;
 
   auto tx = start_transaction(db);
-  if (const auto& row = *db(select(all_of(tab), select(max(tab.alpha)).from(tab)).from(tab).unconditionally()).begin())
+  auto result2 = db(select(all_of(tab), select(max(tab.alpha)).from(tab)).from(tab).unconditionally());
+  if (const auto& row = *result2.begin())
   {
     auto a = row.alpha;
     auto m = row.max;

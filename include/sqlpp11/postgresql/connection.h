@@ -532,7 +532,7 @@ namespace sqlpp
         throw sqlpp::exception("PostgreSQL error: could not read default_transaction_isolation");
       }
 
-      auto in = res->result.getValue<std::string>(0, 0);
+      auto in = res->result.getStringValue(0, 0);
       if (in == "read committed")
       {
         return isolation_level::read_committed;
