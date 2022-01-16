@@ -226,11 +226,12 @@ ddlConstraint = Or([
         ddlWord("PRIMARY"),
         ddlWord("FOREIGN"),
         ddlWord("KEY"),
+        ddlWord("FULLTEXT"),
         ddlWord("INDEX"),
         ddlWord("UNIQUE"),
         ddlWord("CHECK")
         ])
-ddlColumn = Group(Optional(ddlConstraint).setResultsName("isConstraint") + OneOrMore(MatchFirst([ddlUnsigned, ddlNotNull, ddlAutoValue, ddlDefaultValue, ddlFunctionWord("NOW"), ddlTerm, ddlNum, ddlColumnComment, ddlString, ddlArguments, ddlMathCond])))
+ddlColumn = Group(Optional(ddlConstraint).setResultsName("isConstraint") + OneOrMore(MatchFirst([ddlUnsigned, ddlNotNull, ddlAutoValue, ddlDefaultValue, ddlFunctionWord("NOW"), ddlFunctionWord("current_timestamp"), ddlTerm, ddlNum, ddlColumnComment, ddlString, ddlArguments, ddlMathCond])))
 ddlIfNotExists = Optional(Group(ddlWord("IF") + ddlWord("NOT") + ddlWord("EXISTS")).setResultsName("ifNotExists"))
 createTable = Group(ddlWord("CREATE") + ddlWord("TABLE") + ddlIfNotExists + ddlName.setResultsName("tableName") + "(" + Group(delimitedList(ddlColumn)).setResultsName("columns") + ")").setResultsName("create")
 #ddlString.setDebug(True) #uncomment to debug pyparsing
@@ -293,6 +294,10 @@ types = {
     'int unsigned': 'integer_unsigned', #MYSQL
     'bigint unsigned': 'bigint_unsigned', #MYSQL
     'mediumint unsigned' : 'integer', #MYSQL
+    'tinytext' : 'text', #MYSQL
+    'binary' : 'blob', #MYSQL
+    'varbinary' : 'blob', #MYSQL
+    'float unsigned' : 'floating_point', #MYSQL
     }
 
 if failOnParse:
