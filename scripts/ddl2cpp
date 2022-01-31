@@ -59,10 +59,12 @@ def repl_camel_case_func(m):
 
 
 def class_name_naming_func(s):
+  s = s.replace('.', '_')
   return re.sub("(^|\s|[_0-9])(\S)", repl_camel_case_func, s)
 
 
 def member_name_naming_func(s):
+  s = s.replace('.', '_')
   return re.sub("(\s|_|[0-9])(\S)", repl_camel_case_func, s)
 
 toClassName = class_name_naming_func
@@ -199,7 +201,7 @@ ddlString = Or([QuotedString("'"), QuotedString("\"", escQuote='""'), QuotedStri
 negativeSign = Literal('-')
 ddlNum = Combine(Optional(negativeSign) + Word(nums + "."))
 ddlTerm = Word(alphanums + "_$")
-ddlName = Or([ddlTerm, ddlString])
+ddlName = Or([ddlTerm, ddlString, Combine(ddlString + "." + ddlString)])
 ddlMathOp = Word("+><=-")
 ddlBoolean = Or([ddlWord("AND"), ddlWord("OR"), ddlWord("NOT")])
 ddlArguments = "(" + delimitedList(Or([ddlString, ddlTerm, ddlNum])) + ")"
