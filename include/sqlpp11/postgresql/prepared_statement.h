@@ -78,6 +78,7 @@ namespace sqlpp
       void _bind_integral_parameter(size_t index, const int64_t* value, bool is_null);
       void _bind_text_parameter(size_t index, const std::string* value, bool is_null);
       void _bind_date_parameter(size_t index, const ::sqlpp::chrono::day_point* value, bool is_null);
+      void _bind_time_of_day_parameter(size_t index, const ::std::chrono::microseconds* value, bool is_null);
       void _bind_date_time_parameter(size_t index, const ::sqlpp::chrono::microsecond_point* value, bool is_null);
       void _bind_blob_parameter(size_t index, const std::vector<unsigned char>* value, bool is_null);
     };
@@ -186,6 +187,30 @@ namespace sqlpp
         }
       }
     }
+
+    inline void prepared_statement_t::_bind_time_of_day_parameter(size_t index, const ::std::chrono::microseconds* value, bool is_null)
+    {
+      if (_handle->debug())
+      {
+        std::cerr << "PostgreSQL debug: binding time parameter at index "
+                  << index << ", being " << (is_null ? "" : "not ") << "null" <<  std::endl;
+      }
+      _handle->nullValues[index] = is_null;
+      if (not is_null)
+      {
+        const auto time = ::date::make_time(*value) ;
+
+        // Timezone handling - always treat the value as UTC.
+        // It is assumed that the database timezone is set to UTC, too.
+        std::ostringstream os;
+        os << time;
+        _handle->paramValues[index] = os.str();
+        if (_handle->debug())
+        {
+          std::cerr << "PostgreSQL debug: binding time parameter string: " << _handle->paramValues[index] << std::endl;
+        }
+      }
+     }
 
     inline void prepared_statement_t::_bind_date_time_parameter(size_t index, const ::sqlpp::chrono::microsecond_point* value, bool is_null)
     {

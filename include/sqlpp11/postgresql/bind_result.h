@@ -104,6 +104,7 @@ namespace sqlpp
       void _bind_text_result(size_t index, const char** value, size_t* len);
       void _bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null);
       void _bind_date_time_result(size_t index, ::sqlpp::chrono::microsecond_point* value, bool* is_null);
+      void _bind_time_of_day_result(size_t index, ::std::chrono::microseconds* value, bool* is_null);
       void _bind_blob_result(size_t index, const uint8_t** value, size_t* len);
 
       int size() const;
@@ -399,6 +400,54 @@ namespace sqlpp
         }
         *value += ::std::chrono::microseconds(usec);
       }
+    }
+
+    // always returns local time for time with time zone
+    inline void bind_result_t::_bind_time_of_day_result(size_t _index, ::std::chrono::microseconds* value, bool* is_null)
+    {
+        auto index = static_cast<int>(_index);
+        if (_handle->debug())
+        {
+            std::cerr << "PostgreSQL debug: binding time result at index: " << index << std::endl;
+        }
+
+        *is_null = _handle->result.isNull(_handle->count, index);
+
+        if (!(*is_null))
+        {
+            const auto time_string = _handle->result.getCharPtrValue(_handle->count, index);
+
+            if (_handle->debug())
+            {
+                std::cerr << "PostgreSQL debug: got time string: " << time_string << std::endl;
+            }
+
+            if (detail::check_time_digits(time_string))
+            {
+                *value += std::chrono::hours(std::atoi(time_string)) + std::chrono::minutes(std::atoi(time_string + 3)) +
+                          std::chrono::seconds(std::atoi(time_string + 6));
+            }
+            else
+            {
+                return;
+            }
+
+            if (std::strlen(time_string) <= 9)
+                return;
+            auto us_string = time_string + 9;  // hh:mm:ss.
+            int usec = 0;
+            for (size_t i = 0u; i < 6u; ++i)
+            {
+                if (std::isdigit(us_string[0]))
+                {
+                    usec = 10 * usec + (us_string[0] - '0');
+                    ++us_string;
+                }
+                else
+                    usec *= 10;
+            }
+            *value += ::std::chrono::microseconds(usec);
+        }
     }
 
     inline void bind_result_t::_bind_blob_result(size_t _index, const uint8_t** value, size_t* len)

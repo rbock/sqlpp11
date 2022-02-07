@@ -31,7 +31,7 @@
 #include <sqlpp11/postgresql/postgresql.h>
 #include <sqlpp11/sqlpp11.h>
 
-#include "TabFoo.h"
+#include "TabDateTime.h"
 #include "make_test_connection.h"
 
 namespace
@@ -39,6 +39,7 @@ namespace
   const auto now = ::date::floor<::std::chrono::microseconds>(std::chrono::system_clock::now());
   const auto today = ::date::floor<::sqlpp::chrono::days>(now);
   const auto yesterday = today - ::sqlpp::chrono::days{1};
+  const auto current = now - today;
 
   template <typename L, typename R>
   auto require_equal(int line, const L& l, const R& r) -> void
@@ -60,18 +61,15 @@ int DateTime(int, char*[])
 
   sql::connection db = sql::make_test_connection();
 
-  db.execute(R"(DROP TABLE IF EXISTS tabfoo;)");
-  db.execute(R"(CREATE TABLE tabfoo
+  db.execute(R"(DROP TABLE IF EXISTS tabdatetime;)");
+  db.execute(R"(CREATE TABLE tabdatetime
                (
-                 alpha bigserial NOT NULL,
-                 beta smallint,
-                 gamma text,
-                 c_bool boolean,
                  c_timepoint timestamp with time zone,
+                 c_time time with time zone,
                  c_day date
                ))");
 
-  model::TabFoo tab = {};
+  model::TabDateTime tab = {};
   try
   {
     db(insert_into(tab).default_values());
@@ -79,15 +77,18 @@ int DateTime(int, char*[])
     {
       require_equal(__LINE__, row.c_day.is_null(), true);
       require_equal(__LINE__, row.c_day.value(), ::sqlpp::chrono::day_point{});
+      require_equal(__LINE__, row.c_time.is_null(), true);
+      require_equal(__LINE__, row.c_time.value(), ::std::chrono::microseconds{});
       require_equal(__LINE__, row.c_timepoint.is_null(), true);
       require_equal(__LINE__, row.c_timepoint.value(), ::sqlpp::chrono::microsecond_point{});
     }
 
-    db(update(tab).set(tab.c_day = today, tab.c_timepoint = now).unconditionally());
+    db(update(tab).set(tab.c_day = today, tab.c_time = current, tab.c_timepoint = now).unconditionally());
 
     for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
       require_equal(__LINE__, row.c_day.value(), today);
+      require_equal(__LINE__, row.c_time.value(), current);
       require_equal(__LINE__, row.c_timepoint.value(), now);
     }
 
@@ -96,14 +97,17 @@ int DateTime(int, char*[])
     for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
       require_equal(__LINE__, row.c_day.value(), yesterday);
+      require_equal(__LINE__, row.c_time.value(), current);
       require_equal(__LINE__, row.c_timepoint.value(), today);
     }
 
-    auto prepared_update =
-        db.prepare(update(tab)
-                       .set(tab.c_day = parameter(tab.c_day), tab.c_timepoint = parameter(tab.c_timepoint))
-                       .unconditionally());
+    auto prepared_update = db.prepare(update(tab)
+                                          .set(tab.c_day = parameter(tab.c_day),
+                                               tab.c_time = parameter(tab.c_time),
+                                               tab.c_timepoint = parameter(tab.c_timepoint))
+                                          .unconditionally());
     prepared_update.params.c_day = today;
+    prepared_update.params.c_time = current;
     prepared_update.params.c_timepoint = now;
     std::cout << "---- running prepared update ----" << std::endl;
     db(prepared_update);
@@ -111,6 +115,7 @@ int DateTime(int, char*[])
     for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
       require_equal(__LINE__, row.c_day.value(), today);
+      require_equal(__LINE__, row.c_time.value(), current);
       require_equal(__LINE__, row.c_timepoint.value(), now);
     }
   }
