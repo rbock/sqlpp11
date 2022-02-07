@@ -27,17 +27,17 @@ add_library(sqlpp11_postgresql_testing INTERFACE)
 target_include_directories(sqlpp11_postgresql_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(test_names
-	Basic
-    Blob
-	Constructor
-	Date
-	DateTime
-	Exceptions
-	InsertOnConflict
-	Returning
-	Select
-	Transaction
-	Type
+  Basic
+  Blob
+  Constructor
+  Date
+  DateTime
+  Exceptions
+  InsertOnConflict
+  Returning
+  Select
+  Transaction
+  Type
 )
 
 create_test_sourcelist(test_sources test_main.cpp ${test_names})
