@@ -127,6 +127,7 @@ ddlTextTypes = [
     "jsonb",  # PostgreSQL
     "json",  # PostgreSQL
     "tinytext",  # MYSQL
+    "mediumtext",  # MYSQL
 ]
 
 ddlText = pp.Or(
