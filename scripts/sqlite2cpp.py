@@ -162,7 +162,7 @@ def main():
         print('  };', file=header)
 
 
-    for ns in nsList:
+    for ns in reversed(nsList):
         print('} // namespace ' + ns, file=header)
     print('#endif', file=header)
 

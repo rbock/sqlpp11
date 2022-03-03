@@ -460,7 +460,7 @@ def beginHeader(pathToHeader, namespace, nsList):
 
 
 def endHeader(header, nsList):
-    for ns in nsList:
+    for ns in reversed(nsList):
         print("} // namespace " + ns, file=header)
     print("#endif", file=header)
     header.close()
