@@ -38,7 +38,7 @@
 
 #include "detail/prepared_statement_handle.h"
 
-#if defined(_WIN32) || defined(_WIN64)
+#ifdef _MSC_VER
 #pragma warning(disable : 4800)  // int to bool
 #endif
 namespace sqlpp

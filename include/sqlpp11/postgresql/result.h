@@ -33,6 +33,7 @@
 #include <string>
 #include <cstring>
 
+#include <pg_config.h>
 #include <libpq-fe.h>
 
 #include <sqlpp11/postgresql/visibility.h>
@@ -299,8 +300,15 @@ namespace sqlpp
         case PGRES_FATAL_ERROR:
           Err = PQresultErrorMessage(m_result);
           break;
+#if PG_MAJORVERSION_NUM >= 13
         case PGRES_COPY_BOTH:
         case PGRES_SINGLE_TUPLE:
+#endif
+#if PG_MAJORVERSION_NUM >= 14
+        case PGRES_PIPELINE_SYNC:
+        case PGRES_PIPELINE_ABORTED:
+#endif
+        default:
           throw sqlpp::exception("pqxx::result: Unrecognized response code " +
                                  std::to_string(PQresultStatus(m_result)));
       }
