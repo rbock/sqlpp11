@@ -273,6 +273,9 @@ namespace sqlpp
             if (strcmp(code, "P0003") == 0)
               throw plpgsql_too_many_rows(Err, Query);
             throw plpgsql_error(Err, Query);
+            break;
+          default:
+            throw sql_user_error(Err, Query, code);
         }
       throw sql_error(Err, Query);
     }
