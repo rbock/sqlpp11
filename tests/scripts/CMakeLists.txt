@@ -39,21 +39,21 @@ if (${Python3_Interpreter_FOUND})
     message(STATUS "Pyparsing is installed: Enabling ddl2cpp tests.")
 
     add_test(NAME sqlpp11.scripts.ddl2cpp.bad_will_fail
-             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp" -fail-on-parse
+             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
                      "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_bad.sql"
                      "${CMAKE_CURRENT_BINARY_DIR}/fail"
                      test)
     set_tests_properties(sqlpp11.scripts.ddl2cpp.bad_will_fail PROPERTIES WILL_FAIL 1)
 
     add_test(NAME sqlpp11.scripts.ddl2cpp.bad_has_parse_error
-             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp" -fail-on-parse
+             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
                      "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_bad.sql"
                      "${CMAKE_CURRENT_BINARY_DIR}/fail"
                      test)
-    set_tests_properties(sqlpp11.scripts.ddl2cpp.bad_has_parse_error PROPERTIES PASS_REGULAR_EXPRESSION "Parsing error,.*")
+    set_tests_properties(sqlpp11.scripts.ddl2cpp.bad_has_parse_error PROPERTIES PASS_REGULAR_EXPRESSION "ERROR: Could not parse.*")
 
     add_test(NAME sqlpp11.scripts.ddl2cpp.good_succeeds
-             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp" -fail-on-parse
+             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
                      "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
                      "${CMAKE_CURRENT_BINARY_DIR}/fail"
                      test)
