@@ -24,13 +24,18 @@
  */
 
 #include <sqlpp11/exception.h>
+#include <sqlpp11/custom_query.h>
 #include <sqlpp11/postgresql/postgresql.h>
+#include <sqlpp11/verbatim.h>
+#include <sqlpp11/alias_provider.h>
 
 #include "assertThrow.h"
 
 #include "TabBar.h"
 #include "TabFoo.h"
 #include "make_test_connection.h"
+
+SQLPP_ALIAS_PROVIDER(returnVal)
 
 namespace sql = sqlpp::postgresql;
 int Exceptions(int, char*[])
@@ -57,12 +62,29 @@ int Exceptions(int, char*[])
                    c_timepoint timestamp with time zone DEFAULT now(),
                    c_day date
                    ))");
+    db.execute(R"(create or replace function cause_error() returns int as $$
+                    begin
+                      raise exception 'User error' USING ERRCODE='ZX123'; 
+                    end;
+                  $$ language plpgsql
+                  )");
 
     assert_throw(db(insert_into(foo).set(foo.beta = std::numeric_limits<int16_t>::max() + 1)), sql::data_exception);
     assert_throw(db(insert_into(foo).set(foo.gamma = "123456")), sql::check_violation);
     db(insert_into(foo).set(foo.beta = 5));
     assert_throw(db(insert_into(foo).set(foo.beta = 5)), sql::integrity_constraint_violation);
-    assert_throw(db.last_insert_id("tabfoo", "no_such_column"), sqlpp::postgresql::undefined_table);
+    assert_throw(db.last_insert_id("tabfoo", "no_such_column"), sqlpp::postgresql::undefined_table);    
+    
+    try 
+    {
+      db.execute("select cause_error();");
+    } 
+    catch( const sql::sql_user_error& e)
+    {
+      std::cout << e.code();
+      assert( e.code() == "ZX123");
+    }
+
   }
   catch (const sql::failure& e)
   {

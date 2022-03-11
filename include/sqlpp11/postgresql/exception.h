@@ -125,6 +125,30 @@ namespace sqlpp
       }
     };
 
+    /** Any error not covered by standard errors. 
+     * For example custom error code from a user
+     * defined pl/pgsql function
+     * 
+     */
+    class DLL_PUBLIC sql_user_error : public sql_error
+    {
+      std::string m_Code;
+    
+    public:
+      sql_user_error(std::string whatarg, std::string code) : sql_error(std::move(whatarg)), m_Code(std::move(code))
+      {        
+      }
+      sql_user_error(std::string whatarg, std::string query, std::string code) : sql_error(std::move(whatarg),std::move(query)), m_Code(std::move(code))
+      {        
+      }
+
+      /// The code so the code raised
+      const std::string& code() const noexcept
+      {
+        return m_Code;
+      }
+    };
+
     // TODO: should this be called statement_completion_unknown!?
     /// "Help, I don't know whether transaction was committed successfully!"
     /** Exception that might be thrown in rare cases where the connection to the
