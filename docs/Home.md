@@ -1,5 +1,5 @@
 # Introduction
-Lets see: 
+Let's see: 
 * You know C++?
 * You know some SQL?
 * You want to use SQL in your C++ program?
