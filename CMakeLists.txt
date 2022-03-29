@@ -28,7 +28,7 @@ cmake_minimum_required(VERSION 3.14)
 project(sqlpp11 VERSION 0.1 LANGUAGES CXX)
 
 ### Project Wide Setup
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/)
 
 include(GNUInstallDirs)
 include(CTest)
@@ -136,10 +136,18 @@ endif()
 
 if(BUILD_MYSQL_CONNECTOR)
   install_component(NAME Sqlpp11MySQL TARGETS sqlpp11_mysql DIRECTORY mysql)
+
+  install(FILES ${PROJECT_SOURCE_DIR}/cmake/FindMySQL.cmake
+    DESTINATION ${SQLPP11_INSTALL_CMAKEDIR}
+  )
 endif()
 
 if(BUILD_MARIADB_CONNECTOR)
   install_component(NAME Sqlpp11MariaDB TARGETS sqlpp11_mariadb DIRECTORY mysql)
+
+  install(FILES ${PROJECT_SOURCE_DIR}/cmake/FindMariaDB.cmake
+    DESTINATION ${SQLPP11_INSTALL_CMAKEDIR}
+  )
 endif()
 
 if(BUILD_POSTGRESQL_CONNECTOR)

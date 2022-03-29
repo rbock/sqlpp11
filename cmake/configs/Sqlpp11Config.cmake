@@ -23,6 +23,10 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+# Temporarly prepend CMAKE_MODULE_PATH with current directory to find helper scripts such as FindPackage scripts
+set(CMAKE_MODULE_PATH_save ${CMAKE_MODULE_PATH})
+list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
+
 include(CMakeFindDependencyMacro)
 find_dependency(Threads)
 find_dependency(date REQUIRED)
@@ -61,3 +65,7 @@ if(NOT TARGET sqlpp11::ddl2cpp)
   )
   unset(sqlpp11_ddl2cpp_location)
 endif()
+
+# Resture module path 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH_save})
+unset(CMAKE_MODULE_PATH_save)
