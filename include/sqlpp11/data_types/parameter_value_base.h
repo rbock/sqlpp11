@@ -28,6 +28,7 @@
 #define SQLPP11_DATA_TYPES_PARAMETER_VALUE_BASE_H
 
 #include <sqlpp11/data_types/parameter_value.h>
+#include <sqlpp11/value_or_null.h>
 
 namespace sqlpp
 {
@@ -51,6 +52,16 @@ namespace sqlpp
       _value = val;
       _is_null = false;
       return *this;
+    }
+
+    parameter_value_base& operator=(const value_or_null_t<DataType>& val)
+    {
+      if (val._is_null)
+      {
+        set_null();
+        return *this;
+      }
+      return operator=(val._value);
     }
 
     void set_null()

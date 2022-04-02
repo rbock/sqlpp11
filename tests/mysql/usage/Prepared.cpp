@@ -44,6 +44,16 @@ const auto tab = TabSample{};
 
 void testPreparedStatementResult(sql::connection& db)
 {
+  auto preparedInsert = db.prepare(insert_into(tab).set(tab.beta = parameter(tab.beta)));
+  preparedInsert.params.beta = sqlpp::null;
+  db(preparedInsert);
+  preparedInsert.params.beta = "17";
+  db(preparedInsert);
+  preparedInsert.params.beta = sqlpp::value_or_null<sqlpp::text>(sqlpp::null);
+  db(preparedInsert);
+  preparedInsert.params.beta = sqlpp::value_or_null("17");
+  db(preparedInsert);
+
   auto preparedSelectAll = db.prepare(sqlpp::select(count(tab.alpha)).from(tab).unconditionally());
   auto preparedUpdateAll = db.prepare(sqlpp::update(tab).set(tab.gamma = false).unconditionally());
 

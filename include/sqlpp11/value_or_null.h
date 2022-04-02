@@ -27,8 +27,9 @@
 #ifndef SQLPP11_VALUE_OR_NULL_H
 #define SQLPP11_VALUE_OR_NULL_H
 
-#include <sqlpp11/wrap_operand.h>
+#include <sqlpp11/null.h>
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/wrap_operand.h>
 
 namespace sqlpp
 {

@@ -95,5 +95,13 @@ int Insert(int, char*[])
   db(insert_into(t).set(t.gamma = true, t.delta = 0));
   db(insert_into(t).set(values()));
 
+  auto prepared_insert = db.prepare(insert_into(t).set(t.gamma = parameter(t.gamma), t.delta = parameter(t.delta)));
+  prepared_insert.params.gamma = true;
+  prepared_insert.params.delta = sqlpp::null;
+  prepared_insert.params.delta = 17;
+  prepared_insert.params.delta = sqlpp::value_or_null<sqlpp::integer>(sqlpp::null);
+  prepared_insert.params.delta = sqlpp::value_or_null(17);
+  db(prepared_insert);
+
   return 0;
 }
