@@ -259,7 +259,7 @@ ddlCreateTable = pp.Group(
     + pp.Suppress(pp.Optional(ddlIfNotExists))
     + ddlName.setResultsName("tableName")
     + ddlLeft
-    + pp.Group(pp.delimitedList(ddlColumn | pp.Suppress(ddlConstraint))).setResultsName(
+    + pp.Group(pp.delimitedList(pp.Suppress(ddlConstraint) | ddlColumn)).setResultsName(
         "columns"
     )
     + ddlRight
