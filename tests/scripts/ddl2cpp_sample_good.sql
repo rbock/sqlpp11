@@ -29,6 +29,7 @@ CREATE TABLE tab_foo
 	delta varchar(255),
 	_epsilon bigint,
 	`omega` double,
+        some_number NUMERIC(314,15),
         CONSTRAINT uc_delta UNIQUE (delta, _epsilon)
 );
 
@@ -39,4 +40,3 @@ CREATE TABLE tab_bar
 	gamma bool NOT NULL,
 	delta int
 );
-
