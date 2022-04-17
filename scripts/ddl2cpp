@@ -198,7 +198,8 @@ ddlType = (
 )
 
 ddlUnsigned = pp.CaselessLiteral("UNSIGNED").setResultsName("isUnsigned")
-ddlWidth = ddlLeft + pp.Word(pp.nums) + ddlRight
+ddlDigits = "," + pp.Word(pp.nums)
+ddlWidth = ddlLeft + pp.Word(pp.nums) + pp.Optional(ddlDigits) + ddlRight
 ddlTimezone = (
     (pp.CaselessLiteral("with") | pp.CaselessLiteral("without"))
     + pp.CaselessLiteral("time")
@@ -363,6 +364,7 @@ def testTable():
     text = """
   CREATE TABLE "public"."dk" (
   "id" int8 NOT NULL DEFAULT nextval('dk_id_seq'::regclass),
+  "strange" NUMERIC(314, 15),
   "last_update" timestamp(6) DEFAULT now(),
    PRIMARY KEY (id)
 )
