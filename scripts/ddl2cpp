@@ -217,6 +217,7 @@ ddlAutoKeywords = [
     "SMALLSERIAL",
     "SERIAL",
     "BIGSERIAL",
+    "GENERATED",
 ]
 ddlAutoValue = pp.Or(map(pp.CaselessLiteral, sorted(ddlAutoKeywords, reverse=True)))
 
@@ -244,6 +245,7 @@ ddlConstraintKeywords = [
     "INDEX",
     "UNIQUE",
     "CHECK",
+    "PERIOD",
 ]
 ddlConstraint = pp.Group(
     pp.Or(map(pp.CaselessLiteral, sorted(ddlConstraintKeywords, reverse=True)))
