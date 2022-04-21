@@ -30,8 +30,13 @@ CREATE TABLE tab_foo
 	_epsilon bigint,
 	`omega` double,
         some_number NUMERIC(314,15),
-        CONSTRAINT uc_delta UNIQUE (delta, _epsilon)
-);
+        CONSTRAINT uc_delta UNIQUE (delta, _epsilon),
+	
+	-- explicit column definition for System-Versioned table
+	rowStart TIMESTAMP(6) GENERATED ALWAYS AS ROW START,
+	rowEnd TIMESTAMP(6) GENERATED ALWAYS AS ROW END,
+	PERIOD FOR SYSTEM_TIME(rowStart, rowEnd)
+) WITH SYSTEM VERSIONING; -- enable System-Versioning for this table
 
 CREATE TABLE tab_bar
 (
@@ -39,4 +44,6 @@ CREATE TABLE tab_bar
 	beta varchar(255) NULL DEFAULT "",
 	gamma bool NOT NULL,
 	delta int
-);
+	
+	-- implicit column definition for System-Versioned table
+)WITH SYSTEM VERSIONING; -- enable System-Versioning  for this table
