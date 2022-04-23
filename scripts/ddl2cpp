@@ -256,8 +256,12 @@ ddlConstraint = pp.Group(
 ddlIfNotExists = pp.Group(
     pp.CaselessLiteral("IF") + pp.CaselessLiteral("NOT") + pp.CaselessLiteral("EXISTS")
 ).setResultsName("ifNotExists")
+ddlOrReplace = pp.Group(
+    pp.CaselessLiteral("OR") + pp.CaselessLiteral("REPLACE")
+).setResultsName("orReplace")
 ddlCreateTable = pp.Group(
     pp.CaselessLiteral("CREATE")
+    + pp.Suppress(pp.Optional(ddlOrReplace))
     + pp.CaselessLiteral("TABLE")
     + pp.Suppress(pp.Optional(ddlIfNotExists))
     + ddlName.setResultsName("tableName")
