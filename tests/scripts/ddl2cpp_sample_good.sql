@@ -33,7 +33,7 @@ CREATE TABLE tab_foo
         CONSTRAINT uc_delta UNIQUE (delta, _epsilon)
 );
 
-CREATE TABLE tab_bar
+CREATE OR REPLACE TABLE tab_bar
 (
 	alpha bigint AUTO_INCREMENT RRIMARY_KEY,
 	beta varchar(255) NULL DEFAULT "",
