@@ -38,7 +38,7 @@ CREATE TABLE tab_foo
 	PERIOD FOR SYSTEM_TIME(rowStart, rowEnd)
 ) WITH SYSTEM VERSIONING; -- enable System-Versioning for this table
 
-CREATE TABLE tab_bar
+CREATE OR REPLACE TABLE tab_bar
 (
 	alpha bigint AUTO_INCREMENT RRIMARY_KEY,
 	beta varchar(255) NULL DEFAULT "",
