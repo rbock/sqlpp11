@@ -63,7 +63,6 @@ namespace sqlpp
 
     using _nodes = detail::type_vector<Expr>;
     using _can_be_null = can_be_null_t<Expr>;
-    using _is_aggregate_expression = std::false_type;
 
     using _auto_alias_t = trim_alias_t;
 

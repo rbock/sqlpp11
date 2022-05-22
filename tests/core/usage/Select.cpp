@@ -159,7 +159,7 @@ int Select(int, char*[])
                .dynamic_where()
                .dynamic_group_by(t.alpha)
                .dynamic_order_by()
-               .dynamic_having(sum(t.alpha) > 17)
+               .dynamic_having(sum(t.alpha) > parameter(t.delta))
                .dynamic_limit()
                .dynamic_offset();
   s.select_flags.add(sqlpp::distinct);
@@ -172,7 +172,7 @@ int Select(int, char*[])
   s.group_by.add(t.beta);
   s.order_by.add(t.beta.asc());
   s.order_by.add(t.delta.order(sqlpp::sort_type::desc));
-  for (const auto& row : db(s))
+  for (const auto& row : db(db.prepare(s)))
   {
     int64_t a = row.alpha;
     std::cout << a << std::endl;

@@ -35,8 +35,6 @@
 #include "TabFoo.h"
 #include "make_test_connection.h"
 
-SQLPP_ALIAS_PROVIDER(returnVal)
-
 namespace sql = sqlpp::postgresql;
 int Exceptions(int, char*[])
 {

@@ -59,7 +59,7 @@ namespace sqlpp
       assert_having_no_unknown_tables_t,
       "at least one having-expression requires a table which is otherwise not known in the statement");
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_having_no_non_aggregates_t,
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_having_all_aggregates_t,
                                "having expression not built out of aggregate expressions");
 
   // HAVING
@@ -142,9 +142,9 @@ namespace sqlpp
                                                      consistent_t,
                                                      assert_having_no_unknown_tables_t>::type;
 
-      using _aggregate_check = typename std::conditional<Policies::template _no_non_aggregates<Expression>::value,
+      using _aggregate_check = typename std::conditional<Policies::template _all_aggregates<Expression>::value,
                                                          consistent_t,
-                                                         assert_having_no_non_aggregates_t>::type;
+                                                         assert_having_all_aggregates_t>::type;
 
       using _consistency_check = detail::get_first_if<is_inconsistent_t, consistent_t, _table_check, _aggregate_check>;
     };

@@ -44,6 +44,7 @@ namespace sqlpp
     using _nodes = detail::type_vector<>;
     using _parameters = detail::type_vector<parameter_t>;
     using _can_be_null = std::true_type;
+    using _is_literal_expression = std::true_type;
 
     using _instance_t = member_t<NameType, parameter_value_t<ValueType>>;
 

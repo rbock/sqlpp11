@@ -109,9 +109,13 @@ namespace
   void static_group_by_nok()
   {
     static_run_check<sqlpp::assert_no_unknown_aggregates_t>(select(t.beta).from(t).unconditionally().group_by(t.alpha));
-    static_run_check<sqlpp::assert_no_unknown_aggregates_t>(
+    static_run_check<sqlpp::assert_no_aggregate_mix_t>(
+        select(t.alpha, t.delta).from(t).unconditionally().group_by(t.alpha));
+    static_run_check<sqlpp::assert_no_aggregate_mix_t>(
+        select(t.alpha, t.beta).from(t).unconditionally().group_by(t.alpha));
+    static_run_check<sqlpp::assert_no_aggregate_mix_t>(
         select((t.alpha + t.delta).as(whatever)).from(t).unconditionally().group_by(t.alpha));
-    static_run_check<sqlpp::assert_no_unknown_aggregates_t>(
+    static_run_check<sqlpp::assert_no_aggregate_mix_t>(
         select((t.alpha + t.delta).as(whatever)).from(t).unconditionally().group_by(t.alpha, t.alpha + t.delta * 17));
   }
 }

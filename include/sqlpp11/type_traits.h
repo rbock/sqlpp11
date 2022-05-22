@@ -320,9 +320,17 @@ namespace sqlpp
     struct is_aggregate_expression_impl<
         KnownAggregates,
         T,
-        typename std::enable_if<std::is_class<typename T::_is_aggregate_expression>::value>::type>
+        typename std::enable_if<T::_is_aggregate_expression::value>::type>
     {
-      using type = typename T::_is_aggregate_expression;
+      using type = std::true_type;
+    };
+    template <typename KnownAggregates, typename T>
+    struct is_aggregate_expression_impl<
+        KnownAggregates,
+        T,
+        typename std::enable_if<T::_is_literal_expression::value>::type>
+    {
+      using type = std::true_type;
     };
     template <typename KnownAggregates, typename T>
     struct is_aggregate_expression_impl<KnownAggregates,
@@ -340,6 +348,48 @@ namespace sqlpp
   }  // namespace detail
   template <typename KnownAggregates, typename T>
   using is_aggregate_expression_t = typename detail::is_aggregate_expression_impl<KnownAggregates, T>::type;
+
+  namespace detail
+  {
+    template <typename KnownAggregates, typename T, typename Leaf = void>
+    struct is_non_aggregate_expression_impl
+    {
+      using type = typename is_non_aggregate_expression_impl<KnownAggregates, nodes_of<T>>::type;
+    };
+    template <typename KnownAggregates, typename T>
+    struct is_non_aggregate_expression_impl<
+        KnownAggregates,
+        T,
+        typename std::enable_if<T::_is_aggregate_expression::value>::type>
+    {
+      using type = std::false_type;
+    };
+    template <typename KnownAggregates, typename T>
+    struct is_non_aggregate_expression_impl<
+        KnownAggregates,
+        T,
+        typename std::enable_if<T::_is_literal_expression::value>::type>
+    {
+      using type = std::true_type;
+    };
+    template <typename KnownAggregates, typename T>
+    struct is_non_aggregate_expression_impl<KnownAggregates,
+                                        T,
+                                        typename std::enable_if<detail::is_element_of<T, KnownAggregates>::value>::type>
+    {
+      using type = std::false_type;
+    };
+    template <typename KnownAggregates, typename... Nodes>
+    struct is_non_aggregate_expression_impl<KnownAggregates, type_vector<Nodes...>, void>
+    {
+      using type =
+          logic::any_t<sizeof...(Nodes) == 0,
+                       logic::all_t<sizeof...(Nodes) != 0,
+                                    is_non_aggregate_expression_impl<KnownAggregates, Nodes>::type::value...>::value>;
+    };
+  }  // namespace detail
+  template <typename KnownAggregates, typename T>
+  using is_non_aggregate_expression_t = typename detail::is_non_aggregate_expression_impl<KnownAggregates, T>::type;
 
   namespace detail
   {

@@ -158,11 +158,12 @@ namespace
 
     // OK
     static_consistency_check<sqlpp::consistent_t>(select_without_group_by, avg(t.alpha) > 17);
+    static_consistency_check<sqlpp::consistent_t>(select_without_group_by, avg(t.alpha) > parameter(t.alpha));
 
     // Try non aggregate
-    static_consistency_check<sqlpp::assert_having_no_non_aggregates_t>(select_without_group_by, t.alpha > 17);
-    static_consistency_check<sqlpp::assert_having_no_non_aggregates_t>(select_without_group_by,
-                                                                       count(t.alpha) > 3 and t.alpha > 17);
+    static_consistency_check<sqlpp::assert_having_all_aggregates_t>(select_without_group_by, t.alpha > 17);
+    static_consistency_check<sqlpp::assert_having_all_aggregates_t>(select_without_group_by,
+                                                                    count(t.alpha) > 3 and t.alpha > 17);
 
     // Try foreign table
     static_consistency_check<sqlpp::assert_having_no_unknown_tables_t>(select_without_group_by, f.omega > 17);
@@ -175,8 +176,8 @@ namespace
     static_consistency_check<sqlpp::consistent_t>(select_with_group_by, count(t.alpha) > 3 and t.alpha > 17);
 
     // Try non aggregate
-    static_consistency_check<sqlpp::assert_having_no_non_aggregates_t>(select_with_group_by, t.beta > "17");
-    static_consistency_check<sqlpp::assert_having_no_non_aggregates_t>(select_with_group_by,
+    static_consistency_check<sqlpp::assert_having_all_aggregates_t>(select_with_group_by, t.beta > "17");
+    static_consistency_check<sqlpp::assert_having_all_aggregates_t>(select_with_group_by,
                                                                        count(t.beta) > 3 and t.beta > "17");
 
     // Try foreign table

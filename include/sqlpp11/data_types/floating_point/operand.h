@@ -36,7 +36,7 @@ namespace sqlpp
   {
     using _traits = make_traits<floating_point, tag::is_expression, tag::is_wrapped_value>;
     using _nodes = detail::type_vector<>;
-    using _is_aggregate_expression = std::true_type;
+    using _is_literal_expression = std::true_type;
 
     using _value_t = double;
 

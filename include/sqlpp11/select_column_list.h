@@ -92,6 +92,9 @@ namespace sqlpp
   SQLPP_PORTABLE_STATIC_ASSERT(
       assert_no_unknown_tables_in_selected_columns_t,
       "at least one selected column requires a table which is otherwise not known in the statement");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_no_aggregate_mix_t,
+                               "selected columns contain a mix of aggregates and non-aggregates");
+
   SQLPP_PORTABLE_STATIC_ASSERT(assert_no_unknown_aggregates_t,
                                "not all selected columns are made of aggregates, despite group_by or similar");
 
@@ -196,11 +199,19 @@ namespace sqlpp
                                                      consistent_t,
                                                      assert_no_unknown_tables_in_selected_columns_t>::type;
 
-      using _aggregate_check = typename std::conditional<Policies::template _no_unknown_aggregates<Columns...>::value,
-                                                         consistent_t,
-                                                         assert_no_unknown_aggregates_t>::type;
+      using _unknown_aggregate_check =
+          typename std::conditional<Policies::template _no_unknown_aggregates<Columns...>::value,
+                                    consistent_t,
+                                    assert_no_unknown_aggregates_t>::type;
 
-      using _consistency_check = detail::get_first_if<is_inconsistent_t, consistent_t, _table_check, _aggregate_check>;
+      using _no_aggregate_mix_check =
+          typename std::conditional<Policies::template _all_aggregates<Columns...>::value ||
+                                        Policies::template _no_aggregates<Columns...>::value,
+                                    consistent_t,
+                                    assert_no_aggregate_mix_t>::type;
+
+      using _consistency_check = detail::
+          get_first_if<is_inconsistent_t, consistent_t, _table_check, _no_aggregate_mix_check, _unknown_aggregate_check>;
     };
 
     // Result methods
