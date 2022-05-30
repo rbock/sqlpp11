@@ -50,10 +50,12 @@ ddlOperator = pp.Or(
 
 ddlBracedExpression = pp.Forward()
 ddlFunctionCall = pp.Forward()
-ddlCast = ddlString + "::" + ddlTerm
+ddlCastEnd = "::" + ddlTerm
+ddlCast = ddlString + ddlCastEnd
 ddlExpression = pp.OneOrMore(
     ddlBracedExpression
     | ddlFunctionCall
+    | ddlCastEnd
     | ddlCast
     | ddlOperator
     | ddlString
@@ -128,6 +130,7 @@ ddlTextTypes = [
     "json",  # PostgreSQL
     "tinytext",  # MYSQL
     "mediumtext",  # MYSQL
+    "rational", # PostgreSQL pg_rationale extension
 ]
 
 ddlText = pp.Or(
@@ -366,6 +369,17 @@ def testConstraint():
         assert result.isConstraint
 
 
+def testRational():
+    for text in [
+        "pos RATIONAL NOT NULL DEFAULT nextval('rational_seq')::integer",
+     ]:
+        result = ddlColumn.parseString(text, parseAll=True)
+        column = result[0]
+        assert column.name == "pos"
+        assert column.type == "text"
+        assert column.notNull
+
+
 def testTable():
     text = """
   CREATE TABLE "public"."dk" (
@@ -391,6 +405,7 @@ def testParser():
     testDateTime()
     testColumn()
     testConstraint()
+    testRational()
     testTable()
 
 
