@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, Roland Bock
+ * Copyright (c) 2016-2022, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -79,6 +79,13 @@ int CustomQuery(int, char*[])
           "INSERT INTO tab_foo (omega) "
           "SELECT 17 AS omega FROM tab_foo "
           "WHERE (NOT EXISTS(SELECT tab_foo.omega FROM tab_foo WHERE (tab_foo.omega=17)))");
+
+  // A multi-row "insert or ignore"
+  auto batch = insert_columns(bar.beta, bar.gamma);
+  batch.values.add(bar.beta = "sample", bar.gamma = true);
+  batch.values.add(bar.beta = "ample", bar.gamma = false);
+  compare(__LINE__, custom_query(sqlpp::insert(), sqlpp::verbatim(" OR IGNORE"), into(bar), batch),
+          "INSERT  OR IGNORE  INTO tab_bar  (beta,gamma) VALUES ('sample',1),('ample',0)");
 
   return 0;
 }

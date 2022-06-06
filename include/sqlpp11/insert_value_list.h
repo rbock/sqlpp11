@@ -679,6 +679,13 @@ namespace sqlpp
   {
     return statement_t<Database, no_insert_value_list_t>().dynamic_set(assignments...);
   }
+
+  template <typename... Columns>
+  auto insert_columns(Columns... cols)
+      -> decltype(statement_t<void, no_insert_value_list_t>().columns(cols...))
+  {
+    return statement_t<void, no_insert_value_list_t>().columns(cols...);
+  }
 }  // namespace sqlpp
 
 #endif

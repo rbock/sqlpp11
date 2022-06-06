@@ -89,6 +89,12 @@ int CustomQuery(int, char*[])
   db(custom_query(sqlpp::insert(), sqlpp::verbatim(" OR IGNORE"), into(t),
                   insert_set(t.beta = "sample", t.gamma = true)));
 
+  // Create a custom mulit-row "insert or ignore"
+  auto batch = insert_columns(t.beta, t.gamma);
+  batch.values.add(t.beta = "sample", t.gamma = true);
+  batch.values.add(t.beta = "ample", t.gamma = false);
+  db(custom_query(sqlpp::insert(), sqlpp::verbatim(" OR IGNORE"), into(t), batch));
+
   // Create a MYSQL style custom "insert on duplicate update"
   db(custom_query(sqlpp::insert_into(t).set(t.beta = "sample", t.gamma = true),
                   on_duplicate_key_update(db, t.beta = "sample")(db, t.gamma = false).get()));
