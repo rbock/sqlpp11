@@ -26,21 +26,21 @@
 add_library(sqlpp11_postgresql_testing INTERFACE)
 target_include_directories(sqlpp11_postgresql_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
-set(test_names
-  Basic
-  Blob
-  Constructor
-  Date
-  DateTime
-  Exceptions
-  InsertOnConflict
-  Returning
-  Select
-  Transaction
-  Type
+set(test_files
+  Basic.cpp
+  Blob.cpp
+  Constructor.cpp
+  Date.cpp
+  DateTime.cpp
+  Exceptions.cpp
+  InsertOnConflict.cpp
+  Returning.cpp
+  Select.cpp
+  Transaction.cpp
+  Type.cpp
 )
 
-create_test_sourcelist(test_sources test_main.cpp ${test_names})
+create_test_sourcelist(test_sources test_main.cpp ${test_files})
 add_executable(sqlpp11_postgresql_tests ${test_sources})
 target_link_libraries(sqlpp11_postgresql_tests PRIVATE sqlpp11::postgresql sqlpp11_testing sqlpp11_postgresql_testing)
 if(NOT MSVC)
@@ -54,7 +54,8 @@ if (SQLPP11_TESTS_CXX_STD)
   set_property(TARGET sqlpp11_postgresql_tests PROPERTY CXX_EXTENSIONS no)
 endif()
 
-foreach(test IN LISTS test_names)
+foreach(test_file IN LISTS test_files)
+  get_filename_component(test ${test_file} NAME_WLE)
   add_test(NAME sqlpp11.postgresql.usage.${test}
     COMMAND sqlpp11_postgresql_tests ${test}
   )

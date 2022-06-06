@@ -27,22 +27,22 @@ find_package(Threads REQUIRED)
 add_library(sqlpp11_mysql_testing INTERFACE)
 target_include_directories(sqlpp11_mysql_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
-set(test_names
-  Json
-  CustomQuery
-  DateTime
-  Sample
-  Select
-  Union
-  DynamicSelect
-  MoveConstructor
-  Prepared
-  Truncated
-  Update
-  Remove
+set(test_files
+  Json.cpp
+  CustomQuery.cpp
+  DateTime.cpp
+  Sample.cpp
+  Select.cpp
+  Union.cpp
+  DynamicSelect.cpp
+  MoveConstructor.cpp
+  Prepared.cpp
+  Truncated.cpp
+  Update.cpp
+  Remove.cpp
 )
 
-create_test_sourcelist(test_sources test_main.cpp ${test_names})
+create_test_sourcelist(test_sources test_main.cpp ${test_files})
 add_executable(sqlpp11_mysql_tests ${test_sources})
 target_link_libraries(sqlpp11_mysql_tests PRIVATE sqlpp11::mysql sqlpp11_testing sqlpp11_mysql_testing)
 target_link_libraries(sqlpp11_mysql_tests PRIVATE Threads::Threads)
@@ -57,7 +57,8 @@ if (SQLPP11_TESTS_CXX_STD)
   set_property(TARGET sqlpp11_mysql_tests PROPERTY CXX_EXTENSIONS no)
 endif()
 
-foreach(test IN LISTS test_names)
+foreach(test_file IN LISTS test_files)
+  get_filename_component(test ${test_file} NAME_WLE)
   add_test(NAME sqlpp11.mysql.usage.${test}
     COMMAND sqlpp11_mysql_tests ${test}
   )

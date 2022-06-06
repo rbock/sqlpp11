@@ -25,22 +25,22 @@
 add_library(sqlpp11_sqlite3_testing INTERFACE)
 target_include_directories(sqlpp11_sqlite3_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
-set(test_names
-  DateTime
-  Sample
-  Select
-  Union
-  With
-  Attach
-  DynamicSelect
-  AutoIncrement
-  Transaction
-  FloatingPoint
-  Integral
-  Blob
+set(test_files
+  DateTime.cpp
+  Sample.cpp
+  Select.cpp
+  Union.cpp
+  With.cpp
+  Attach.cpp
+  DynamicSelect.cpp
+  AutoIncrement.cpp
+  Transaction.cpp
+  FloatingPoint.cpp
+  Integral.cpp
+  Blob.cpp
   )
 
-create_test_sourcelist(test_sources test_main.cpp ${test_names})
+create_test_sourcelist(test_sources test_main.cpp ${test_files})
 
 add_executable(sqlpp11_sqlite3_tests ${test_sources})
 target_link_libraries(sqlpp11_sqlite3_tests PRIVATE sqlpp11_testing sqlpp11_sqlite3_testing)
@@ -60,7 +60,8 @@ if (SQLPP11_TESTS_CXX_STD)
   set_property(TARGET sqlpp11_sqlite3_tests PROPERTY CXX_EXTENSIONS OFF)
 endif()
 
-foreach(test IN LISTS test_names)
+foreach(test_file IN LISTS test_files)
+  get_filename_component(test ${test_file} NAME_WLE)
   add_test(NAME sqlpp11.sqlite3.usage.${test}
     COMMAND sqlpp11_sqlite3_tests ${test}
   )

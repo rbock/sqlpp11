@@ -29,32 +29,32 @@ if (NOT MSVC)
   target_compile_options(sqlpp11_testing INTERFACE -Wall -Wextra -pedantic)
 endif ()
 
-set(test_names
-  BooleanExpression
-  CustomQuery
-  DateTime
-  Interpret
-  Insert
-  Remove
-  Update
-  Select
-  SelectType
-  Function
-  Prepared
-  Minimalistic
-  Result
-  Union
-  With
+set(test_files
+  BooleanExpression.cpp
+  CustomQuery.cpp
+  DateTime.cpp
+  Interpret.cpp
+  Insert.cpp
+  Remove.cpp
+  Update.cpp
+  Select.cpp
+  SelectType.cpp
+  Function.cpp
+  Prepared.cpp
+  Minimalistic.cpp
+  Result.cpp
+  Union.cpp
+  With.cpp
   )
 
 find_package(Boost 1.50)
 if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
-  list(APPEND test_names Ppgen)
+  list(APPEND test_files Ppgen.cpp)
 endif()
 
 
-create_test_sourcelist(test_sources test_main.cpp ${test_names})
+create_test_sourcelist(test_sources test_main.cpp ${test_files})
 add_executable(sqlpp11_core_tests ${test_sources})
 target_link_libraries(sqlpp11_core_tests PRIVATE sqlpp11::sqlpp11 sqlpp11_testing)
 # conditionally bump to a higher C++ standard to test compatibility
@@ -64,7 +64,8 @@ if (SQLPP11_TESTS_CXX_STD)
   set_property(TARGET sqlpp11_core_tests PROPERTY CXX_EXTENSIONS no)
 endif()
 
-foreach(test IN LISTS test_names)
+foreach(test_file IN LISTS test_files)
+  get_filename_component(test ${test_file} NAME_WLE)
   add_test(NAME sqlpp11.core.usage.${test}
     COMMAND sqlpp11_core_tests ${test}
     )
