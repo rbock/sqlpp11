@@ -38,6 +38,11 @@ if (${Python3_Interpreter_FOUND})
   else()
     message(STATUS "Pyparsing is installed: Enabling ddl2cpp tests.")
 
+    add_test(NAME sqlpp11.scripts.ddl2cpp.parser
+             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
+                     "--test"
+                     test)
+
     add_test(NAME sqlpp11.scripts.ddl2cpp.bad_will_fail
              COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
                      "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_bad.sql"
@@ -81,4 +86,3 @@ if (${Python3_Interpreter_FOUND})
 
   endif()
 endif()
-
