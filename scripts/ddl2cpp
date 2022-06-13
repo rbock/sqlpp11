@@ -364,6 +364,7 @@ def testConstraint():
     for text in [
         "CONSTRAINT unique_person UNIQUE (first_name, last_name)",
         "UNIQUE (id)",
+        "UNIQUE (first_name,last_name)"
     ]:
         result = ddlConstraint.parseString(text, parseAll=True)
         assert result.isConstraint
