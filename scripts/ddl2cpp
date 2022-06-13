@@ -52,6 +52,7 @@ ddlBracedExpression = pp.Forward()
 ddlFunctionCall = pp.Forward()
 ddlCastEnd = "::" + ddlTerm
 ddlCast = ddlString + ddlCastEnd
+ddlBracedArguments = pp.Forward()
 ddlExpression = pp.OneOrMore(
     ddlBracedExpression
     | ddlFunctionCall
@@ -61,8 +62,10 @@ ddlExpression = pp.OneOrMore(
     | ddlString
     | ddlTerm
     | ddlNumber
+    | ddlBracedArguments
 )
 
+ddlBracedArguments << ddlLeft + pp.delimitedList(ddlExpression) + ddlRight
 ddlBracedExpression << ddlLeft + ddlExpression + ddlRight
 
 ddlArguments = pp.Suppress(pp.Group(pp.delimitedList(ddlExpression)))
