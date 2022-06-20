@@ -24,7 +24,7 @@
  */
 
 #include <iostream>
-#include <sqlpp11/remove.h>
+#include <sqlpp11/sqlpp11.h>
 #include "Sample.h"
 #include "MockDb.h"
 #include "is_regular.h"
@@ -65,6 +65,8 @@ int Remove(int, char* [])
   std::cerr << serialize(remove_from(t).unconditionally(), printer).str() << std::endl;
 
   db(r);
+
+  remove_from(t).where(t.beta.in(select(f.delta).from(f).unconditionally()));
 
   return 0;
 }
