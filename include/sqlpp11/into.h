@@ -114,10 +114,14 @@ namespace sqlpp
   SQLPP_PORTABLE_STATIC_ASSERT(assert_into_t, "into() required");
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_into_arg_is_table, "argument for into() must be a table");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_into_arg_is_not_a_view, "argument for into() must not be a view");
   template <typename T>
   struct check_into
   {
-    using type = static_combined_check_t<static_check_t<is_raw_table_t<T>::value, assert_into_arg_is_table>>;
+    using type = static_combined_check_t<
+      static_check_t<is_raw_table_t<T>::value, assert_into_arg_is_table>,
+      static_check_t<not is_view_t<T>::value, assert_into_arg_is_not_a_view>
+      >;
   };
   template <typename T>
   using check_into_t = typename check_into<wrap_operand_t<T>>::type;

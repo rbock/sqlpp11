@@ -68,6 +68,7 @@ int Select(int, char*[])
 
   const auto f = test::TabFoo{};
   const auto t = test::TabBar{};
+  const auto vf = test::ViewFoo{};
   const auto tab_a = f.as(sqlpp::alias::a);
 
   getColumn(db, t.alpha);
@@ -106,6 +107,12 @@ int Select(int, char*[])
        db(select(all_of(t), all_of(f)).from(t.join(f).on(t.alpha > f.omega and not t.gamma)).unconditionally()))
   {
     std::cout << row.alpha << std::endl;
+  }
+
+  for (const auto& row :
+       db(select(all_of(vf)).from(vf).where(vf.book == "sql")))
+  {
+    std::cout << row.book << std::endl;
   }
 
   for (const auto& row : db(select(all_of(t), all_of(f))

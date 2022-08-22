@@ -142,6 +142,32 @@ namespace test
       };
     };
   };
+  struct ViewFoo_
+  {
+    struct _alias_t
+    {
+      static constexpr const char _literal[] = "view_foo";
+      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+      template <typename T>
+      struct _member_t
+      {
+        T tabFoo;
+        T& operator()()
+        {
+          return tabFoo;
+        }
+        const T& operator()() const
+        {
+          return tabFoo;
+        }
+      };
+    };
+    using _traits = sqlpp::make_traits<sqlpp::no_value_t, sqlpp::tag::is_view>;
+  };
+  struct ViewFoo : sqlpp::table_t<ViewFoo_, TabFoo_::Delta, TabFoo_::Epsilon, TabFoo_::Omega, TabFoo_::Psi, TabFoo_::Book>
+  {
+  };
+
   namespace TabBar_
   {
     struct Alpha

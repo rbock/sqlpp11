@@ -60,6 +60,7 @@ namespace sqlpp
     using _nodes = detail::type_vector<Table>;
 
     static_assert(is_table_t<Table>::value, "argument has to be a table");
+    static_assert(not is_view_t<Table>::value, "argument must not be a view");
     static_assert(required_tables_of<Table>::size::value == 0, "table depends on another table");
 
     using _data_t = single_table_data_t<Database, Table>;
@@ -113,11 +114,15 @@ namespace sqlpp
     };
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_update_table_arg_is_table_t, "argument for update() must be a table");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_update_table_arg_is_table, "argument for update() must be a table");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_update_table_arg_is_no_a_view, "argument for update() must not be a view");
   template <typename Table>
   struct check_update_table
   {
-    using type = static_combined_check_t<static_check_t<is_table_t<Table>::value, assert_update_table_arg_is_table_t>>;
+    using type = static_combined_check_t<
+      static_check_t<is_table_t<Table>::value, assert_update_table_arg_is_table>,
+      static_check_t<not is_view_t<Table>::value, assert_update_table_arg_is_no_a_view>
+      >;
   };
   template <typename Table>
   using check_update_table_t = typename check_update_table<Table>::type;
