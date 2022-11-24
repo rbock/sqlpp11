@@ -24,20 +24,20 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 if(DEFINED MSVC)
-        find_path(MariaDB_INCLUDE_DIR
-            NAMES mariadb_version.h
-            PATH_SUFFIXES include
-        )
-        find_library(MariaDB_LIBRARY
-            NAMES libmariadb
-            PATH_SUFFIXES lib
-        )
+    find_path(MariaDB_INCLUDE_DIR
+        NAMES mariadb_version.h
+        PATH_SUFFIXES include
+    )
+    find_library(MariaDB_LIBRARY
+        NAMES libmariadb
+        PATH_SUFFIXES lib
+    )
 else()
-        find_path(MariaDB_INCLUDE_DIR
-            NAMES mariadb_version.h
-            PATH_SUFFIXES mariadb mysql
-        )
-        find_library(MariaDB_LIBRARY NAMES mariadb)
+    find_path(MariaDB_INCLUDE_DIR
+        NAMES mariadb_version.h
+        PATH_SUFFIXES mariadb mysql
+    )
+    find_library(MariaDB_LIBRARY NAMES mariadb)
 endif()
 
 include(FindPackageHandleStandardArgs)
