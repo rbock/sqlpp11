@@ -23,15 +23,15 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 function(test_compile name)
-  set(target sqlpp11_assert_${name})
-  add_executable(${target} ${name}.cpp)
-  target_link_libraries(${target} PRIVATE sqlpp11::sqlpp11 sqlpp11_testing)
-  # conditionally bump to a higher C++ standard to test compatibility
-  if (SQLPP11_TESTS_CXX_STD)
-    set_property(TARGET sqlpp11_assert_${name} PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})
-    set_property(TARGET sqlpp11_assert_${name} PROPERTY CXX_STANDARD_REQUIRED yes)
-    set_property(TARGET sqlpp11_assert_${name} PROPERTY CXX_EXTENSIONS no)
-  endif()  
+    set(target sqlpp11_assert_${name})
+    add_executable(${target} ${name}.cpp)
+    target_link_libraries(${target} PRIVATE sqlpp11::sqlpp11 sqlpp11_testing)
+    # conditionally bump to a higher C++ standard to test compatibility
+    if (SQLPP11_TESTS_CXX_STD)
+        set_property(TARGET sqlpp11_assert_${name} PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})
+        set_property(TARGET sqlpp11_assert_${name} PROPERTY CXX_STANDARD_REQUIRED yes)
+        set_property(TARGET sqlpp11_assert_${name} PROPERTY CXX_EXTENSIONS no)
+    endif()  
 endfunction()
 
 test_compile(aggregates)
@@ -48,4 +48,3 @@ test_compile(date_time)
 test_compile(text)
 test_compile(no_self_compare)
 test_compile(unwrapped_bool)
-

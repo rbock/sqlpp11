@@ -23,20 +23,20 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 set(test_files
-	As.cpp
-	Blob.cpp
-	CustomQuery.cpp
-	DynamicWhere.cpp
-	ForUpdate.cpp
-	From.cpp
-	In.cpp
-	Insert.cpp
-        Operator.cpp
-        Over.cpp
-	TableAlias.cpp
-	Where.cpp
-	ParameterizedVerbatim.cpp
-  )
+    As.cpp
+    Blob.cpp
+    CustomQuery.cpp
+    DynamicWhere.cpp
+    ForUpdate.cpp
+    From.cpp
+    In.cpp
+    Insert.cpp
+    Operator.cpp
+    Over.cpp
+    TableAlias.cpp
+    Where.cpp
+    ParameterizedVerbatim.cpp
+)
 
 create_test_sourcelist(test_sources test_serializer_main.cpp ${test_files})
 add_executable(sqlpp11_core_serialize ${test_sources})
@@ -44,15 +44,14 @@ target_link_libraries(sqlpp11_core_serialize PRIVATE sqlpp11::sqlpp11 sqlpp11_te
 
 # conditionally bump to a higher C++ standard to test compatibility
 if (SQLPP11_TESTS_CXX_STD)
-  set_property(TARGET sqlpp11_test_serializer PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})
-  set_property(TARGET sqlpp11_test_serializer PROPERTY CXX_STANDARD_REQUIRED yes)
-  set_property(TARGET sqlpp11_test_serializer PROPERTY CXX_EXTENSIONS no)
+    set_property(TARGET sqlpp11_test_serializer PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})
+    set_property(TARGET sqlpp11_test_serializer PROPERTY CXX_STANDARD_REQUIRED yes)
+    set_property(TARGET sqlpp11_test_serializer PROPERTY CXX_EXTENSIONS no)
 endif()
 
 foreach(test_file IN LISTS test_files)
-  get_filename_component(test ${test_file} NAME_WLE)
-  add_test(NAME sqlpp11.core.serialize.${test}
-    COMMAND sqlpp11_core_serialize ${test}
+    get_filename_component(test ${test_file} NAME_WLE)
+    add_test(NAME sqlpp11.core.serialize.${test}
+        COMMAND sqlpp11_core_serialize ${test}
     )
 endforeach()
-

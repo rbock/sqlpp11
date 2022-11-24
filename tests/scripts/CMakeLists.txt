@@ -25,64 +25,64 @@
 include(FindPython3)
 
 if (${Python3_Interpreter_FOUND})
-  execute_process(
-          COMMAND ${Python3_EXECUTABLE} -c "import pyparsing"
-          RESULT_VARIABLE PythonRESULT
-          OUTPUT_VARIABLE PythonOUTPUT
-          ERROR_VARIABLE PythonERROR
-  )
+    execute_process(
+        COMMAND ${Python3_EXECUTABLE} -c "import pyparsing"
+        RESULT_VARIABLE PythonRESULT
+        OUTPUT_VARIABLE PythonOUTPUT
+        ERROR_VARIABLE PythonERROR
+    )
 
-  if (${PythonRESULT})
-    message(WARNING "Pyparsing is not installed. Disabling ddl2cpp tests")
+    if (${PythonRESULT})
+        message(WARNING "Pyparsing is not installed. Disabling ddl2cpp tests")
+    else()
+        message(STATUS "Pyparsing is installed: Enabling ddl2cpp tests.")
 
-  else()
-    message(STATUS "Pyparsing is installed: Enabling ddl2cpp tests.")
+        add_test(NAME sqlpp11.scripts.ddl2cpp.parser
+            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
+                    "--test"
+                    test)
 
-    add_test(NAME sqlpp11.scripts.ddl2cpp.parser
-             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
-                     "--test"
-                     test)
+        add_test(NAME sqlpp11.scripts.ddl2cpp.bad_will_fail
+            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
+                    "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_bad.sql"
+                    "${CMAKE_CURRENT_BINARY_DIR}/fail"
+                    test)
+        set_tests_properties(sqlpp11.scripts.ddl2cpp.bad_will_fail PROPERTIES WILL_FAIL 1)
 
-    add_test(NAME sqlpp11.scripts.ddl2cpp.bad_will_fail
-             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
-                     "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_bad.sql"
-                     "${CMAKE_CURRENT_BINARY_DIR}/fail"
-                     test)
-    set_tests_properties(sqlpp11.scripts.ddl2cpp.bad_will_fail PROPERTIES WILL_FAIL 1)
+        add_test(NAME sqlpp11.scripts.ddl2cpp.bad_has_parse_error
+            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
+                    "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_bad.sql"
+                    "${CMAKE_CURRENT_BINARY_DIR}/fail"
+                    test)
+        set_tests_properties(sqlpp11.scripts.ddl2cpp.bad_has_parse_error PROPERTIES 
+            PASS_REGULAR_EXPRESSION "ERROR: Could not parse.*")
 
-    add_test(NAME sqlpp11.scripts.ddl2cpp.bad_has_parse_error
-             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
-                     "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_bad.sql"
-                     "${CMAKE_CURRENT_BINARY_DIR}/fail"
-                     test)
-    set_tests_properties(sqlpp11.scripts.ddl2cpp.bad_has_parse_error PROPERTIES PASS_REGULAR_EXPRESSION "ERROR: Could not parse.*")
+        add_test(NAME sqlpp11.scripts.ddl2cpp.good_succeeds
+            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
+                    "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
+                    "${CMAKE_CURRENT_BINARY_DIR}/fail"
+                    test)
 
-    add_test(NAME sqlpp11.scripts.ddl2cpp.good_succeeds
-             COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
-                     "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
-                     "${CMAKE_CURRENT_BINARY_DIR}/fail"
-                     test)
+        foreach(sample_name sample sample_identity_naming)
+            set(sqlpp.scripts.generated.sample.include "${CMAKE_CURRENT_BINARY_DIR}/${sample_name}")
+            include_directories(${CMAKE_CURRENT_BINARY_DIR})
+            set(use_identity_naming)
+            if(sample_name STREQUAL "sample_identity_naming")
+                set(use_identity_naming -identity-naming)
+            endif()
+            add_custom_command(
+                OUTPUT "${sqlpp.scripts.generated.sample.include}.h"
+                COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
+                        ${use_identity_naming}
+                        "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
+                        "${sqlpp.scripts.generated.sample.include}"
+                        test
+                DEPENDS "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
+                VERBATIM)
 
-    foreach(sample_name sample sample_identity_naming)
-      set(sqlpp.scripts.generated.sample.include "${CMAKE_CURRENT_BINARY_DIR}/${sample_name}")
-      include_directories(${CMAKE_CURRENT_BINARY_DIR})
-      set(use_identity_naming)
-      if(sample_name STREQUAL "sample_identity_naming")
-        set(use_identity_naming -identity-naming)
-      endif()
-      add_custom_command(
-          OUTPUT "${sqlpp.scripts.generated.sample.include}.h"
-          COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
-                  ${use_identity_naming}
-                  "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
-                  "${sqlpp.scripts.generated.sample.include}"
-                  test
-          DEPENDS "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
-          VERBATIM)
-
-      add_executable(sqlpp.scripts.compiled.${sample_name} ${sample_name}.cpp "${sqlpp.scripts.generated.sample.include}.h")
-      target_link_libraries(sqlpp.scripts.compiled.${sample_name} PRIVATE sqlpp11)
-    endforeach()
-
-  endif()
+            add_executable(sqlpp.scripts.compiled.${sample_name} ${sample_name}.cpp 
+                "${sqlpp.scripts.generated.sample.include}.h")
+            target_link_libraries(sqlpp.scripts.compiled.${sample_name} PRIVATE sqlpp11)
+        endforeach()
+    endif()
 endif()

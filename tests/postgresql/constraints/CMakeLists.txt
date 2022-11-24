@@ -23,20 +23,20 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 function(test_constraint name pattern)
-  set(test sqlpp11.postgresql.constraints.${name})
-  set(target sqlpp11_postgresql_${name})
-  add_executable(${target} EXCLUDE_FROM_ALL ${name}.cpp)
-  target_link_libraries(${target} PRIVATE sqlpp11::postgresql sqlpp11_testing)
-  add_test(NAME ${test}
-    COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target ${target}
-  )
-  set_property(TEST ${test} PROPERTY PASS_REGULAR_EXPRESSION ${pattern})
-  # conditionally bump to a higher C++ standard to test compatibility
-  if (SQLPP11_TESTS_CXX_STD)
-    set_property(TARGET ${target} PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})
-    set_property(TARGET ${target} PROPERTY CXX_STANDARD_REQUIRED yes)
-    set_property(TARGET ${target} PROPERTY CXX_EXTENSIONS no)
-  endif()
+    set(test sqlpp11.postgresql.constraints.${name})
+    set(target sqlpp11_postgresql_${name})
+    add_executable(${target} EXCLUDE_FROM_ALL ${name}.cpp)
+    target_link_libraries(${target} PRIVATE sqlpp11::postgresql sqlpp11_testing)
+    add_test(NAME ${test}
+        COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target ${target}
+    )
+    set_property(TEST ${test} PROPERTY PASS_REGULAR_EXPRESSION ${pattern})
+    # conditionally bump to a higher C++ standard to test compatibility
+    if (SQLPP11_TESTS_CXX_STD)
+        set_property(TARGET ${target} PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})
+        set_property(TARGET ${target} PROPERTY CXX_STANDARD_REQUIRED yes)
+        set_property(TARGET ${target} PROPERTY CXX_EXTENSIONS no)
+    endif()
 endfunction()
 
 # Compiling these is required to fail (testing some static_assert)
@@ -49,4 +49,3 @@ test_constraint(OnConflictMissingAssignmentsDoUpdate "conflict_target specificat
 test_constraint(OnConflictMissingParameterDoUpdate "conflict_target specification is required with do_update")
 test_constraint(ReturningEmptyAssert "at least one returnable expression")
 test_constraint(ReturningInvalidArgument "at least one returning column requires a table which is otherwise not known in the statement")
-

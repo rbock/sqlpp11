@@ -50,23 +50,23 @@ set(SQLPP11_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Sqlpp11 CACHE STRING 
 
 ### Dependencies
 if(DEPENDENCY_CHECK AND BUILD_MYSQL_CONNECTOR)
-  find_package(MySQL REQUIRED)
+    find_package(MySQL REQUIRED)
 endif()
 
 if(DEPENDENCY_CHECK AND BUILD_MARIADB_CONNECTOR)
-  find_package(MariaDB REQUIRED)
+    find_package(MariaDB REQUIRED)
 endif()
 
 if(DEPENDENCY_CHECK AND BUILD_POSTGRESQL_CONNECTOR)
-  find_package(PostgreSQL REQUIRED)
+    find_package(PostgreSQL REQUIRED)
 endif()
 
 if(DEPENDENCY_CHECK AND BUILD_SQLITE3_CONNECTOR)
-  find_package(SQLite3 REQUIRED)
+    find_package(SQLite3 REQUIRED)
 endif()
 
 if(DEPENDENCY_CHECK AND BUILD_SQLCIPHER_CONNECTOR)
-  find_package(SQLCipher REQUIRED)
+    find_package(SQLCipher REQUIRED)
 endif()
 
 if(DEPENDENCY_CHECK AND USE_SYSTEM_DATE)
@@ -83,79 +83,79 @@ add_library(sqlpp11::sqlpp11 ALIAS sqlpp11)
 
 target_link_libraries(sqlpp11 INTERFACE date::date)
 target_include_directories(sqlpp11 INTERFACE
-  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 )
 target_compile_features(sqlpp11 INTERFACE cxx_std_11)
 
 
 if(BUILD_SQLITE3_CONNECTOR)
-  add_component(NAME sqlite3 DEPENDENCIES SQLite::SQLite3)
+    add_component(NAME sqlite3 DEPENDENCIES SQLite::SQLite3)
 endif()
 
 if(BUILD_SQLCIPHER_CONNECTOR)
-  add_component(NAME sqlcipher DEPENDENCIES SQLite::SQLCipher)
-  target_compile_definitions(sqlpp11_sqlcipher INTERFACE SQLPP_USE_SQLCIPHER)
+    add_component(NAME sqlcipher DEPENDENCIES SQLite::SQLCipher)
+    target_compile_definitions(sqlpp11_sqlcipher INTERFACE SQLPP_USE_SQLCIPHER)
 endif()
 
 if(BUILD_MYSQL_CONNECTOR)
-  add_component(NAME mysql DEPENDENCIES MySQL::MySQL)
+    add_component(NAME mysql DEPENDENCIES MySQL::MySQL)
 endif()
 
 if(BUILD_MARIADB_CONNECTOR)
-  add_component(NAME mariadb DEPENDENCIES MariaDB::MariaDB)
+    add_component(NAME mariadb DEPENDENCIES MariaDB::MariaDB)
 endif()
 
 if(BUILD_POSTGRESQL_CONNECTOR)
-  add_component(NAME postgresql DEPENDENCIES PostgreSQL::PostgreSQL)
+    add_component(NAME postgresql DEPENDENCIES PostgreSQL::PostgreSQL)
 endif()
 
 ### Packaging
 install(PROGRAMS ${PROJECT_SOURCE_DIR}/scripts/ddl2cpp
-        RENAME sqlpp11-ddl2cpp
-        DESTINATION ${CMAKE_INSTALL_BINDIR}
+    RENAME sqlpp11-ddl2cpp
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
 write_basic_package_version_file(Sqlpp11ConfigVersion.cmake 
-  COMPATIBILITY SameMajorVersion
-  ARCH_INDEPENDENT
+    COMPATIBILITY SameMajorVersion
+    ARCH_INDEPENDENT
 )
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Sqlpp11ConfigVersion.cmake
-  DESTINATION ${SQLPP11_INSTALL_CMAKEDIR}
+    DESTINATION ${SQLPP11_INSTALL_CMAKEDIR}
 )
 
 install_component(NAME Sqlpp11 TARGETS sqlpp11 DIRECTORY)
 
 if(BUILD_SQLITE3_CONNECTOR)
-  install_component(NAME Sqlpp11SQLite3 TARGETS sqlpp11_sqlite3 DIRECTORY sqlite3)
+    install_component(NAME Sqlpp11SQLite3 TARGETS sqlpp11_sqlite3 DIRECTORY sqlite3)
 endif()
 
 if(BUILD_SQLCIPHER_CONNECTOR)
-  install_component(NAME Sqlpp11SQLCipher TARGETS sqlpp11_sqlcipher DIRECTORY sqlite3)
+    install_component(NAME Sqlpp11SQLCipher TARGETS sqlpp11_sqlcipher DIRECTORY sqlite3)
 endif()
 
 if(BUILD_MYSQL_CONNECTOR)
-  install_component(NAME Sqlpp11MySQL TARGETS sqlpp11_mysql DIRECTORY mysql)
+    install_component(NAME Sqlpp11MySQL TARGETS sqlpp11_mysql DIRECTORY mysql)
 
-  install(FILES ${PROJECT_SOURCE_DIR}/cmake/FindMySQL.cmake
-    DESTINATION ${SQLPP11_INSTALL_CMAKEDIR}
-  )
+    install(FILES ${PROJECT_SOURCE_DIR}/cmake/FindMySQL.cmake
+        DESTINATION ${SQLPP11_INSTALL_CMAKEDIR}
+    )
 endif()
 
 if(BUILD_MARIADB_CONNECTOR)
-  install_component(NAME Sqlpp11MariaDB TARGETS sqlpp11_mariadb DIRECTORY mysql)
+    install_component(NAME Sqlpp11MariaDB TARGETS sqlpp11_mariadb DIRECTORY mysql)
 
-  install(FILES ${PROJECT_SOURCE_DIR}/cmake/FindMariaDB.cmake
-    DESTINATION ${SQLPP11_INSTALL_CMAKEDIR}
-  )
+    install(FILES ${PROJECT_SOURCE_DIR}/cmake/FindMariaDB.cmake
+        DESTINATION ${SQLPP11_INSTALL_CMAKEDIR}
+    )
 endif()
 
 if(BUILD_POSTGRESQL_CONNECTOR)
-  install_component(NAME Sqlpp11PostgreSQL TARGETS sqlpp11_postgresql DIRECTORY postgresql)
+    install_component(NAME Sqlpp11PostgreSQL TARGETS sqlpp11_postgresql DIRECTORY postgresql)
 endif()
 
 
 ### Tests
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
-  add_subdirectory(tests)
+    add_subdirectory(tests)
 endif()

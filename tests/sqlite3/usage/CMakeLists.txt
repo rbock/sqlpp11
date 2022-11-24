@@ -26,19 +26,19 @@ add_library(sqlpp11_sqlite3_testing INTERFACE)
 target_include_directories(sqlpp11_sqlite3_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(test_files
-  DateTime.cpp
-  Sample.cpp
-  Select.cpp
-  Union.cpp
-  With.cpp
-  Attach.cpp
-  DynamicSelect.cpp
-  AutoIncrement.cpp
-  Transaction.cpp
-  FloatingPoint.cpp
-  Integral.cpp
-  Blob.cpp
-  )
+    DateTime.cpp
+    Sample.cpp
+    Select.cpp
+    Union.cpp
+    With.cpp
+    Attach.cpp
+    DynamicSelect.cpp
+    AutoIncrement.cpp
+    Transaction.cpp
+    FloatingPoint.cpp
+    Integral.cpp
+    Blob.cpp
+)
 
 create_test_sourcelist(test_sources test_main.cpp ${test_files})
 
@@ -55,16 +55,16 @@ endif()
 
 # conditionally bump to a higher C++ standard to test compatibility
 if (SQLPP11_TESTS_CXX_STD)
-  set_property(TARGET sqlpp11_sqlite3_tests PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})
-  set_property(TARGET sqlpp11_sqlite3_tests PROPERTY CXX_STANDARD_REQUIRED ON)
-  set_property(TARGET sqlpp11_sqlite3_tests PROPERTY CXX_EXTENSIONS OFF)
+    set_property(TARGET sqlpp11_sqlite3_tests PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})
+    set_property(TARGET sqlpp11_sqlite3_tests PROPERTY CXX_STANDARD_REQUIRED ON)
+    set_property(TARGET sqlpp11_sqlite3_tests PROPERTY CXX_EXTENSIONS OFF)
 endif()
 
 foreach(test_file IN LISTS test_files)
-  get_filename_component(test ${test_file} NAME_WLE)
-  add_test(NAME sqlpp11.sqlite3.usage.${test}
-    COMMAND sqlpp11_sqlite3_tests ${test}
-  )
+    get_filename_component(test ${test_file} NAME_WLE)
+    add_test(NAME sqlpp11.sqlite3.usage.${test}
+        COMMAND sqlpp11_sqlite3_tests ${test}
+    )
 endforeach()
 
 # the dynamic loading test needs the extra option "SQLPP_DYNAMIC_LOADING" and does NOT link the sqlite libs

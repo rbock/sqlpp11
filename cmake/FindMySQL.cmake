@@ -24,34 +24,33 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 if(DEFINED MSVC)
-        set(SEARCH_PATHS
-            "$ENV{ProgramFiles}/MySQL/MySQL Server 8.0"
-            "$ENV{ProgramFiles}/MySQL/MySQL Server 5.7"
-            "$ENV{ProgramFiles}/MySQL/MySQL Server 5.6"
-            "$ENV{ProgramFiles\(x86\)}/MySQL/MySQL Server 8.0"
-            "$ENV{ProgramFiles\(x86\)}/MySQL/MySQL Server 5.7"
-            "$ENV{ProgramFiles\(x86\)}/MySQL/MySQL Server 5.6"
-        )
-        find_path(MySQL_INCLUDE_DIR
-            NAMES mysql_version.h
-            PATHS ${SEARCH_PATHS}
-            PATH_SUFFIXES include
-        )
-        find_library(MySQL_LIBRARY
-            NAMES libmysql
-            PATHS ${SEARCH_PATHS}
-            PATH_SUFFIXES lib
-        )
+    set(SEARCH_PATHS
+        "$ENV{ProgramFiles}/MySQL/MySQL Server 8.0"
+        "$ENV{ProgramFiles}/MySQL/MySQL Server 5.7"
+        "$ENV{ProgramFiles}/MySQL/MySQL Server 5.6"
+        "$ENV{ProgramFiles\(x86\)}/MySQL/MySQL Server 8.0"
+        "$ENV{ProgramFiles\(x86\)}/MySQL/MySQL Server 5.7"
+        "$ENV{ProgramFiles\(x86\)}/MySQL/MySQL Server 5.6"
+    )
+    find_path(MySQL_INCLUDE_DIR
+        NAMES mysql_version.h
+        PATHS ${SEARCH_PATHS}
+        PATH_SUFFIXES include
+    )
+    find_library(MySQL_LIBRARY
+        NAMES libmysql
+        PATHS ${SEARCH_PATHS}
+        PATH_SUFFIXES lib
+    )
 else()
-        find_path(MySQL_INCLUDE_DIR
-            NAMES mysql_version.h
-            PATH_SUFFIXES mysql
-        )
-        find_library(MySQL_LIBRARY
-            NAMES mysqlclient mysqlclient_r
-            PATH_SUFFIXES mysql  # for CentOS 7
-        )
-
+    find_path(MySQL_INCLUDE_DIR
+        NAMES mysql_version.h
+        PATH_SUFFIXES mysql
+    )
+    find_library(MySQL_LIBRARY
+        NAMES mysqlclient mysqlclient_r
+        PATH_SUFFIXES mysql  # for CentOS 7
+    )
 endif()
 
 include(FindPackageHandleStandardArgs)
