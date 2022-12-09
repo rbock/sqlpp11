@@ -34,6 +34,10 @@
 #include <sqlpp11/exception.h>
 #include <sqlpp11/mysql/sqlpp_mysql.h>
 
+#ifdef _MSC_VER
+#include <iso646.h>
+#endif
+
 namespace sqlpp
 {
   namespace mysql

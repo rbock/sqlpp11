@@ -35,6 +35,7 @@
 #include <sqlpp11/sqlite3/prepared_statement_handle.h>
 
 #ifdef _MSC_VER
+#include <iso646.h>
 #pragma warning(push)
 #pragma warning(disable : 4251)
 #endif
