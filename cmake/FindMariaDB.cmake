@@ -24,12 +24,18 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 if(DEFINED MSVC)
+    set(SEARCH_PATHS
+        "$ENV{ProgramFiles}/MariaDB/*"
+        "$ENV{ProgramFiles\(x86\)}/MariaDB/*"
+    )
     find_path(MariaDB_INCLUDE_DIR
         NAMES mariadb_version.h
+        PATHS ${SEARCH_PATHS}
         PATH_SUFFIXES include
     )
     find_library(MariaDB_LIBRARY
         NAMES libmariadb
+        PATHS ${SEARCH_PATHS}
         PATH_SUFFIXES lib
     )
 else()
