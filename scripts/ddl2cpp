@@ -481,7 +481,7 @@ def beginHeader(pathToHeader, namespace, nsList):
     print("#include <sqlpp11/char_sequence.h>", file=header)
     print("", file=header)
     for ns in nsList:
-        print("namespace " + namespace, file=header)
+        print("namespace " + ns, file=header)
         print("{", file=header)
     return header
 
