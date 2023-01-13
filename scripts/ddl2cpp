@@ -45,7 +45,7 @@ ddlString = (
 ddlTerm = pp.Word(pp.alphas + "_", pp.alphanums + "_.$")
 ddlName = pp.Or([ddlTerm, ddlString, pp.Combine(ddlString + "." + ddlString)])
 ddlOperator = pp.Or(
-    map(pp.CaselessLiteral, ["+", "-", "*", "/", "<", "<=", ">", ">=", "=", "%"])
+    map(pp.CaselessLiteral, ["+", "-", "*", "/", "<", "<=", ">", ">=", "=", "%", "DIV"])
 )
 
 ddlBracedExpression = pp.Forward()
@@ -372,6 +372,14 @@ def testConstraint():
         result = ddlConstraint.parseString(text, parseAll=True)
         assert result.isConstraint
 
+def testMathExpression():
+        text = "2 DIV 2"
+        result = ddlExpression.parseString(text, parseAll=True)
+        assert len(result) == 3
+        assert result[0] == "2"
+        assert result[1] == "DIV"
+        assert result[2] == "2"
+
 
 def testRational():
     for text in [
@@ -409,6 +417,7 @@ def testParser():
     testDateTime()
     testColumn()
     testConstraint()
+    testMathExpression()
     testRational()
     testTable()
 
