@@ -43,7 +43,7 @@ ddlString = (
     pp.QuotedString("'") | pp.QuotedString('"', escQuote='""') | pp.QuotedString("`")
 )
 ddlTerm = pp.Word(pp.alphas + "_", pp.alphanums + "_.$")
-ddlName = pp.Or([ddlTerm, ddlString, pp.Combine(ddlString + "." + ddlString)])
+ddlName = pp.Or([ddlTerm, ddlString, pp.Combine(ddlString + "." + ddlString), pp.Combine(ddlTerm + ddlString)])
 ddlOperator = pp.Or(
     map(pp.CaselessLiteral, ["+", "-", "*", "/", "<", "<=", ">", ">=", "=", "%", "DIV"])
 )
