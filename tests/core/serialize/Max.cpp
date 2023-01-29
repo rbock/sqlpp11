@@ -27,22 +27,22 @@
 #include "compare.h"
 #include <sqlpp11/sqlpp11.h>
 
-int Sum(int, char* [])
+int Max(int, char* [])
 {
   const auto bar = test::TabBar{};
 
   // Single column.
-  compare(__LINE__, sum(bar.alpha), "SUM(tab_bar.alpha)");
-  compare(__LINE__, sum(sqlpp::distinct, bar.alpha), "SUM(DISTINCT tab_bar.alpha)");
+  compare(__LINE__, max(bar.alpha), "MAX(tab_bar.alpha)");
+  compare(__LINE__, max(sqlpp::distinct, bar.alpha), "MAX(DISTINCT tab_bar.alpha)");
 
   // Expression.
   // Note that the inner parens aren't necessary.
-  compare(__LINE__, sum(bar.alpha + 7), "SUM((tab_bar.alpha+7))");
-  compare(__LINE__, sum(sqlpp::distinct, bar.alpha + 7), "SUM(DISTINCT (tab_bar.alpha+7))");
+  compare(__LINE__, max(bar.alpha + 7), "MAX((tab_bar.alpha+7))");
+  compare(__LINE__, max(sqlpp::distinct, bar.alpha + 7), "MAX(DISTINCT (tab_bar.alpha+7))");
 
   // With sub select.
-  compare(__LINE__, sum(select(sqlpp::value(7).as(sqlpp::alias::a))), "SUM((SELECT 7 AS a))");
-  compare(__LINE__, sum(sqlpp::distinct, select(sqlpp::value(7).as(sqlpp::alias::a))), "SUM(DISTINCT (SELECT 7 AS a))");
+  compare(__LINE__, max(select(sqlpp::value(7).as(sqlpp::alias::a))), "MAX((SELECT 7 AS a))");
+  compare(__LINE__, max(sqlpp::distinct, select(sqlpp::value(7).as(sqlpp::alias::a))), "MAX(DISTINCT (SELECT 7 AS a))");
 
   return 0;
 }

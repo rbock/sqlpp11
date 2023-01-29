@@ -27,22 +27,22 @@
 #include "compare.h"
 #include <sqlpp11/sqlpp11.h>
 
-int Sum(int, char* [])
+int Min(int, char* [])
 {
   const auto bar = test::TabBar{};
 
   // Single column.
-  compare(__LINE__, sum(bar.alpha), "SUM(tab_bar.alpha)");
-  compare(__LINE__, sum(sqlpp::distinct, bar.alpha), "SUM(DISTINCT tab_bar.alpha)");
+  compare(__LINE__, min(bar.alpha), "MIN(tab_bar.alpha)");
+  compare(__LINE__, min(sqlpp::distinct, bar.alpha), "MIN(DISTINCT tab_bar.alpha)");
 
   // Expression.
   // Note that the inner parens aren't necessary.
-  compare(__LINE__, sum(bar.alpha + 7), "SUM((tab_bar.alpha+7))");
-  compare(__LINE__, sum(sqlpp::distinct, bar.alpha + 7), "SUM(DISTINCT (tab_bar.alpha+7))");
+  compare(__LINE__, min(bar.alpha + 7), "MIN((tab_bar.alpha+7))");
+  compare(__LINE__, min(sqlpp::distinct, bar.alpha + 7), "MIN(DISTINCT (tab_bar.alpha+7))");
 
   // With sub select.
-  compare(__LINE__, sum(select(sqlpp::value(7).as(sqlpp::alias::a))), "SUM((SELECT 7 AS a))");
-  compare(__LINE__, sum(sqlpp::distinct, select(sqlpp::value(7).as(sqlpp::alias::a))), "SUM(DISTINCT (SELECT 7 AS a))");
+  compare(__LINE__, min(select(sqlpp::value(7).as(sqlpp::alias::a))), "MIN((SELECT 7 AS a))");
+  compare(__LINE__, min(sqlpp::distinct, select(sqlpp::value(7).as(sqlpp::alias::a))), "MIN(DISTINCT (SELECT 7 AS a))");
 
   return 0;
 }

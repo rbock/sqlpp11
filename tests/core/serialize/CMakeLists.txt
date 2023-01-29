@@ -24,13 +24,17 @@
 
 set(test_files
     As.cpp
+    Avg.cpp
     Blob.cpp
+    Count.cpp
     CustomQuery.cpp
     DynamicWhere.cpp
     ForUpdate.cpp
     From.cpp
     In.cpp
     Insert.cpp
+    Max.cpp
+    Min.cpp
     Operator.cpp
     Over.cpp
     Sum.cpp

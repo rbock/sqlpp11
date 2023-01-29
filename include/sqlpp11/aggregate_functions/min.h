@@ -54,10 +54,10 @@ namespace sqlpp
     };
   };
 
-  template <typename Expr>
-  struct min_t : public expression_operators<min_t<Expr>, value_type_of<Expr>>,
-                 public aggregate_function_operators<min_t<Expr>>,
-                 public alias_operators<min_t<Expr>>
+  template <typename Flag, typename Expr>
+  struct min_t : public expression_operators<min_t<Flag, Expr>, value_type_of<Expr>>,
+                 public aggregate_function_operators<min_t<Flag, Expr>>,
+                 public alias_operators<min_t<Flag, Expr>>
   {
     using _traits = make_traits<value_type_of<Expr>, tag::is_expression, tag::is_selectable>;
     using _nodes = detail::type_vector<Expr, aggregate_function>;
@@ -79,17 +79,31 @@ namespace sqlpp
     Expr _expr;
   };
 
-  template <typename Context, typename Expr>
-  Context& serialize(const min_t<Expr>& t, Context& context)
+  template <typename Context, typename Flag, typename Expr>
+  Context& serialize(const min_t<Flag, Expr>& t, Context& context)
   {
     context << "MIN(";
-    serialize(t._expr, context);
+    if (std::is_same<distinct_t, Flag>::value)
+    {
+      serialize(Flag(), context);
+      context << ' ';
+    }
+    serialize_operand(t._expr, context);
     context << ")";
     return context;
   }
 
   template <typename T>
-  auto min(T t) -> min_t<wrap_operand_t<T>>
+  auto min(T t) -> min_t<noop, wrap_operand_t<T>>
+  {
+    static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value,
+                  "min() cannot be used on an aggregate function");
+    static_assert(is_expression_t<wrap_operand_t<T>>::value, "min() requires an expression as argument");
+    return {t};
+  }
+
+  template <typename T>
+  auto min(const distinct_t& /*unused*/, T t) -> min_t<distinct_t, wrap_operand_t<T>>
   {
     static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value,
                   "min() cannot be used on an aggregate function");
