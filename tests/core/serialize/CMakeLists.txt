@@ -33,6 +33,7 @@ set(test_files
     Insert.cpp
     Operator.cpp
     Over.cpp
+    Sum.cpp
     TableAlias.cpp
     Where.cpp
     ParameterizedVerbatim.cpp

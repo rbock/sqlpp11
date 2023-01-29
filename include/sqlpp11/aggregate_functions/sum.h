@@ -91,12 +91,8 @@ namespace sqlpp
     {
       serialize(Flag(), context);
       context << ' ';
-      serialize_operand(t._expr, context);
     }
-    else
-    {
-      serialize(t._expr, context);
-    }
+    serialize_operand(t._expr, context);
     context << ")";
     return context;
   }
