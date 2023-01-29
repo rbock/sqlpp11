@@ -58,7 +58,7 @@ namespace sqlpp
     using _traits = make_traits<no_value_t,
                                 tag::is_table,
                                 tag::is_pseudo_table,
-                                tag_if<tag::requires_braces, requires_braces_t<Select>::value>>;
+                                tag_if<tag::requires_parens, requires_parens_t<Select>::value>>;
     using _nodes = detail::type_vector<>;
 
     select_pseudo_table_t(Select select) : _select(select)

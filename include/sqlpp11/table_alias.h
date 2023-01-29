@@ -102,12 +102,12 @@ namespace sqlpp
   template <typename Context, typename AliasProvider, typename Table, typename... ColumnSpec>
   Context& serialize(const table_alias_t<AliasProvider, Table, ColumnSpec...>& t, Context& context)
   {
-    if (requires_braces_t<Table>::value)
+    if (requires_parens_t<Table>::value)
     {
       context << "(";
     }
     serialize(t._table, context);
-    if (requires_braces_t<Table>::value)
+    if (requires_parens_t<Table>::value)
     {
       context << ")";
     }

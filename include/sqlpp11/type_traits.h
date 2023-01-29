@@ -215,7 +215,7 @@ namespace sqlpp
   SQLPP_VALUE_TRAIT_GENERATOR(is_sort_order)
   SQLPP_VALUE_TRAIT_GENERATOR(is_parameter)
 
-  SQLPP_VALUE_TRAIT_GENERATOR(requires_braces)
+  SQLPP_VALUE_TRAIT_GENERATOR(requires_parens)
 
   SQLPP_VALUE_TRAIT_GENERATOR(enforce_null_result_treatment)
 

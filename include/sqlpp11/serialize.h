@@ -34,7 +34,7 @@ namespace sqlpp
   template <typename T, typename Context>
   auto serialize_operand(const T& t, Context& context) -> Context&
   {
-    if (requires_braces_t<T>::value)
+    if (requires_parens_t<T>::value)
     {
       context << '(';
       serialize(t, context);

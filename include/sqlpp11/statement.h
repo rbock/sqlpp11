@@ -193,7 +193,7 @@ namespace sqlpp
                     tag_if<tag::is_expression, is_expression_t<_policies_t>::value>,
                     tag_if<tag::is_selectable, is_expression_t<_policies_t>::value>,
                     tag_if<tag::is_return_value, logic::none_t<is_noop_t<_result_type_provider>::value>::value>,
-                    tag::requires_braces>;
+                    tag::requires_parens>;
     using _nodes = detail::type_vector<_policies_t>;
     using _used_outer_tables = typename _policies_t::_all_provided_outer_tables;
 
