@@ -227,21 +227,6 @@ ddlAutoKeywords = [
 ]
 ddlAutoValue = pp.Or(map(pp.CaselessLiteral, sorted(ddlAutoKeywords, reverse=True)))
 
-ddlColumn = pp.Group(
-    ddlName("name")
-    + ddlType("type")
-    + pp.Suppress(pp.Optional(ddlWidth))
-    + pp.Suppress(pp.Optional(ddlTimezone))
-    + pp.ZeroOrMore(
-        ddlUnsigned("isUnsigned")
-        | ddlNotNull("notNull")
-        | pp.CaselessLiteral("null")
-        | ddlAutoValue("hasAutoValue")
-        | ddlDefaultValue("hasDefaultValue")
-        | pp.Suppress(ddlExpression)
-    )
-)
-
 ddlConstraintKeywords = [
     "CONSTRAINT",
     "PRIMARY",
@@ -257,6 +242,22 @@ ddlConstraint = pp.Group(
     pp.Or(map(pp.CaselessLiteral, sorted(ddlConstraintKeywords, reverse=True)))
     + ddlExpression
 ).setResultsName("isConstraint")
+
+ddlColumn = pp.Group(
+    ddlName("name")
+    + ddlType("type")
+    + pp.Suppress(pp.Optional(ddlWidth))
+    + pp.Suppress(pp.Optional(ddlTimezone))
+    + pp.ZeroOrMore(
+        ddlUnsigned("isUnsigned")
+        | ddlNotNull("notNull")
+        | pp.CaselessLiteral("null")
+        | ddlAutoValue("hasAutoValue")
+        | ddlDefaultValue("hasDefaultValue")
+        | pp.Suppress(pp.OneOrMore(pp.Or(map(pp.CaselessLiteral, sorted(ddlConstraintKeywords, reverse=True)))))
+        | pp.Suppress(ddlExpression)
+    )
+)
 
 # CREATE TABLE parser
 ddlIfNotExists = pp.Group(
@@ -403,6 +404,23 @@ def testTable():
 """
     result = ddlCreateTable.parseString(text, parseAll=True)
 
+def testPrimaryKeyAutoIncrement():
+    for text in [
+        "CREATE TABLE tab (col INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY)", # mysql
+        "CREATE TABLE tab (col INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT)", # mysql
+        "CREATE TABLE tab (col INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT)", # sqlite
+    ]:
+        result = ddlCreateTable.parseString(text, parseAll=True)
+        assert len(result) == 1
+        table = result[0]
+        assert table.tableName == "tab"
+        assert len(table.columns) == 1
+        column = table.columns[0]
+        assert not column.isConstraint
+        assert column.name == "col"
+        assert column.type == "integer"
+        assert column.notNull
+        assert column.hasAutoValue
 
 def testParser():
     testBoolean()
@@ -420,6 +438,7 @@ def testParser():
     testMathExpression()
     testRational()
     testTable()
+    testPrimaryKeyAutoIncrement()
 
 
 # CODE GENERATOR
