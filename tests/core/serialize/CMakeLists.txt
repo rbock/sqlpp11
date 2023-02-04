@@ -33,12 +33,14 @@ set(test_files
     From.cpp
     In.cpp
     Insert.cpp
+    Lower.cpp
     Max.cpp
     Min.cpp
     Operator.cpp
     Over.cpp
     Sum.cpp
     TableAlias.cpp
+    Upper.cpp
     Where.cpp
     ParameterizedVerbatim.cpp
 )

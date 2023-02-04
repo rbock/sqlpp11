@@ -34,6 +34,8 @@
 #include <sqlpp11/aggregate_functions.h>
 #include <sqlpp11/trim.h>
 #include <sqlpp11/case.h>
+#include <sqlpp11/lower.h>
+#include <sqlpp11/upper.h>
 #include <sqlpp11/in.h>
 #include <sqlpp11/not_in.h>
 #include <sqlpp11/is_null.h>
