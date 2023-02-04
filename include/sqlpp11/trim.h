@@ -83,7 +83,7 @@ namespace sqlpp
   Context& serialize(const trim_t<Flag, Expr>& t, Context& context)
   {
     context << "TRIM(";
-    serialize(t._expr, context);
+    serialize_operand(t._expr, context);
     context << ")";
     return context;
   }

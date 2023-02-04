@@ -40,6 +40,7 @@ set(test_files
     Over.cpp
     Sum.cpp
     TableAlias.cpp
+    Trim.cpp
     Upper.cpp
     Where.cpp
     ParameterizedVerbatim.cpp
