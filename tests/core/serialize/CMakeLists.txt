@@ -33,6 +33,8 @@ set(test_files
     From.cpp
     In.cpp
     Insert.cpp
+    IsNotNull.cpp
+    IsNull.cpp
     Lower.cpp
     Max.cpp
     Min.cpp

@@ -63,11 +63,11 @@ int Where(int, char*[])
   // Sometimes
   compare(__LINE__, where(bar.gamma), " WHERE tab_bar.gamma");
   compare(__LINE__, where(bar.gamma == false), " WHERE (tab_bar.gamma=" + getFalse() + ")");
-  compare(__LINE__, where(bar.beta.is_null()), " WHERE (tab_bar.beta IS NULL)");
+  compare(__LINE__, where(bar.beta.is_null()), " WHERE tab_bar.beta IS NULL");
   compare(__LINE__, where(bar.beta == "SQL"), " WHERE (tab_bar.beta='SQL')");
   compare(__LINE__, where(is_equal_to_or_null(bar.beta, ::sqlpp::value_or_null("SQL"))), " WHERE (tab_bar.beta='SQL')");
   compare(__LINE__, where(is_equal_to_or_null(bar.beta, ::sqlpp::value_or_null<sqlpp::text>(::sqlpp::null))),
-          " WHERE (tab_bar.beta IS NULL)");
+          " WHERE tab_bar.beta IS NULL");
 #if __cplusplus >= 201703L
   // string_view argument
   std::string_view sqlString = "SQL";

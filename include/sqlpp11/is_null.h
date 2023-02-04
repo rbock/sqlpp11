@@ -52,7 +52,7 @@ namespace sqlpp
   struct is_null_t : public expression_operators<is_null_t<Operand>, boolean>,
                      public alias_operators<is_null_t<Operand>>
   {
-    using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
+    using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable, tag::requires_parens>;
     using _nodes = detail::type_vector<Operand>;
 
     using _auto_alias_t = is_null_alias_t;
@@ -73,9 +73,8 @@ namespace sqlpp
   template <typename Context, typename Operand>
   Context& serialize(const is_null_t<Operand>& t, Context& context)
   {
-    context << "(";
     serialize_operand(t._operand, context);
-    context << " IS NULL)";
+    context << " IS NULL";
     return context;
   }
 }  // namespace sqlpp
