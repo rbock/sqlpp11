@@ -29,6 +29,7 @@ set(test_files
     Count.cpp
     CustomQuery.cpp
     DynamicWhere.cpp
+    Exists.cpp
     ForUpdate.cpp
     From.cpp
     In.cpp
