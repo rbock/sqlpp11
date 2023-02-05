@@ -55,9 +55,8 @@ namespace sqlpp
   template <typename Context, typename Select>
   Context& serialize(const some_t<Select>& t, Context& context)
   {
-    context << "SOME(";
-    serialize(t._select, context);
-    context << ")";
+    context << "SOME";
+    serialize_operand(t._select, context);
     return context;
   }
 

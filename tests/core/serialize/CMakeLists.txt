@@ -23,6 +23,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 set(test_files
+    Any.cpp
     As.cpp
     Avg.cpp
     Blob.cpp
@@ -41,6 +42,7 @@ set(test_files
     Min.cpp
     Operator.cpp
     Over.cpp
+    Some.cpp
     Sum.cpp
     TableAlias.cpp
     Trim.cpp
