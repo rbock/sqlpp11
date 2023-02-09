@@ -128,7 +128,7 @@ namespace sqlpp
       if (!is_null)
       {
         std::ostringstream out;
-        out.precision(std::numeric_limits<double>::digits10);
+        out.precision(std::numeric_limits<double>::max_digits10);
         out << std::fixed << *value;
         _handle->paramValues[index] = out.str();
       }
