@@ -32,7 +32,7 @@
 #include <memory>
 #include <string>
 #include <sqlpp11/chrono.h>
-
+#include <sqlpp11/detail/float_safe_ostringstream.h>
 #include <sqlpp11/postgresql/exception.h>
 
 namespace sqlpp
@@ -127,9 +127,8 @@ namespace sqlpp
       _handle->nullValues[index] = is_null;
       if (!is_null)
       {
-        std::ostringstream out;
-        out.precision(std::numeric_limits<double>::max_digits10);
-        out << std::fixed << *value;
+        sqlpp::detail::float_safe_ostringstream out;
+        out << *value;
         _handle->paramValues[index] = out.str();
       }
     }

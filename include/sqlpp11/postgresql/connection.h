@@ -33,6 +33,7 @@
 #include <sstream>
 
 #include <sqlpp11/connection.h>
+#include <sqlpp11/detail/float_safe_ostringstream.h>
 #include <sqlpp11/postgresql/bind_result.h>
 #include <sqlpp11/postgresql/result_field.h>
 #include <sqlpp11/postgresql/connection_config.h>
@@ -125,7 +126,7 @@ namespace sqlpp
       }
 
       const connection& _db;
-      std::ostringstream _os;
+      sqlpp::detail::float_safe_ostringstream _os;
       size_t _count{1};
     };
 

@@ -28,6 +28,7 @@
 #define SQLPP_MYSQL_CONNECTION_H
 
 #include <sqlpp11/connection.h>
+#include <sqlpp11/detail/float_safe_ostringstream.h>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/mysql/bind_result.h>
 #include <sqlpp11/mysql/char_result.h>
@@ -247,7 +248,7 @@ namespace sqlpp
       }
 
       const connection& _db;
-      std::ostringstream _os;
+      sqlpp::detail::float_safe_ostringstream _os;
     };
 
     std::integral_constant<char, '`'> get_quote_left(const serializer_t&);

@@ -49,8 +49,8 @@ int In(int, char* [])
   compare(__LINE__, foo.omega.in(17, bar.alpha, sqlpp::value(19)), "tab_foo.omega IN(17,tab_bar.alpha,19)");
 
   // Lists
-  compare(__LINE__, foo.omega.in(sqlpp::value_list(std::vector<float>{1.7f, 2.5f, 17.f, 0.f})),
-          "tab_foo.omega IN(1.7,2.5,17,0)");
+  compare(__LINE__, foo.omega.in(sqlpp::value_list(std::vector<float>{1.75f, 2.5f, 17.f, 0.f})),
+          "tab_foo.omega IN(1.75,2.5,17,0)");
 
   // Sub select
   compare(__LINE__, foo.omega.in(select(bar.alpha).from(bar).unconditionally()),
