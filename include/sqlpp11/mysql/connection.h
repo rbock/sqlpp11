@@ -247,7 +247,7 @@ namespace sqlpp
       }
 
       const connection& _db;
-      std::stringstream _os;
+      std::ostringstream _os;
     };
 
     std::integral_constant<char, '`'> get_quote_left(const serializer_t&);

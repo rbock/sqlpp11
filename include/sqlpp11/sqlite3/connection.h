@@ -184,7 +184,7 @@ namespace sqlpp
       }
 
       const connection& _db;
-      std::stringstream _os;
+      std::ostringstream _os;
       size_t _count;
     };
 
