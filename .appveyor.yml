@@ -28,4 +28,4 @@ build_script:
   - cmake --version
   - cmake .. -DCMAKE_CXX_FLAGS="/EHsc /wd4503" -DCMAKE_PREFIX_PATH="C:\projects\date"
   - cmake --build . --config %configuration%
-  - ctest . --build-config %configuration%
+  - ctest . --build-config %configuration% --output-on-failure
