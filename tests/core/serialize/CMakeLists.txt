@@ -31,6 +31,7 @@ set(test_files
     CustomQuery.cpp
     DynamicWhere.cpp
     Exists.cpp
+    Float.cpp
     ForUpdate.cpp
     From.cpp
     In.cpp
