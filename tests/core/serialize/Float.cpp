@@ -25,9 +25,6 @@
 
 #include <sqlpp11/data_types/floating_point.h>
 #include <sqlpp11/detail/float_safe_ostringstream.h>
-// #include <sqlpp11/mysql/connection.h>
-// #include <sqlpp11/postgresql/connection.h>
-// #include <sqlpp11/sqlite3/connection.h>
 #include <sqlpp11/value.h>
 
 #include "compare.h"
@@ -51,15 +48,6 @@ namespace
     T deserialized;
     is >> deserialized;
     assert_equal(line, deserialized, value);
-  }
-
-  template <typename Serializer, typename Expression>
-  void given_serializer_serializes_expr_as(int lineNo,
-                                           Serializer& serializer,
-                                           const Expression& expr,
-                                           const std::string& expected)
-  {
-    assert_equal(lineNo, serialize(expr, serializer).str(), expected);
   }
 
   template <typename T>
@@ -89,37 +77,7 @@ int Float(int, char*[])
   float_safe_ostringstream_serializes_in_deserializable_format(__LINE__, 10.0000086);
   float_safe_ostringstream_serializes_in_deserializable_format(__LINE__, 10.0000086l);
 
-  {
-    auto const value{sqlpp::value(10.0000114)};
-    auto const expected{"10.0000114"};
-    {
-      MockDb::_serializer_context_t serializer;
-      given_serializer_serializes_expr_as(__LINE__, serializer, value, expected);
-    }
-
-    // The following should also work, but require dependencies. The assumption is that
-    // since they use float_safe_ostringstream it is fine.
-
-    // {
-    //   sqlpp::sqlite3::connection_config config;
-    //   sqlpp::sqlite3::connection connection {config};
-    //   sqlpp::sqlite3::serializer_t serializer {connection};
-    //   given_serializer_serializes_expr_as(__LINE__, serializer, value, expected);
-    // }
-
-    // {
-    //   auto config {std::make_shared<sqlpp::mysql::connection_config>()};
-    //   sqlpp::mysql::connection connection {config};
-    //   sqlpp::mysql::serializer_t serializer {connection};
-    //   given_serializer_serializes_expr_as(__LINE__, serializer, value, expected);
-    // }
-
-    // {
-    //     sqlpp::postgresql::connection connection;
-    //     sqlpp::postgresql::context_t serializer {connection};
-    //     given_serializer_serializes_expr_as(__LINE__, serializer, value, expected);
-    // }
-  }
+  compare(__LINE__, sqlpp::value(10.0000114), "10.0000114");
 
   return 0;
 }
