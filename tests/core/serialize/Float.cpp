@@ -35,7 +35,7 @@
 namespace
 {
   template <typename T>
-  void wrapper_serializes_value_as(int line, T value, std::string expected)
+  void float_safe_ostringstream_serializes_value_as(int line, T value, std::string expected)
   {
     sqlpp::detail::float_safe_ostringstream os;
     os << value;
@@ -43,7 +43,7 @@ namespace
   }
 
   template <typename T>
-  void wrapper_serializes_in_deserializable_format(int line, T value)
+  void float_safe_ostringstream_serializes_in_deserializable_format(int line, T value)
   {
     sqlpp::detail::float_safe_ostringstream os;
     os << value;
@@ -81,13 +81,13 @@ namespace
 
 int Float(int, char*[])
 {
-  wrapper_serializes_value_as(__LINE__, 10.0000086f, string_for_10_0000086<float>());
-  wrapper_serializes_value_as(__LINE__, 10.0000086, string_for_10_0000086<double>());
-  wrapper_serializes_value_as(__LINE__, 10.0000086l, string_for_10_0000086<long double>());
+  float_safe_ostringstream_serializes_value_as(__LINE__, 10.0000086f, string_for_10_0000086<float>());
+  float_safe_ostringstream_serializes_value_as(__LINE__, 10.0000086, string_for_10_0000086<double>());
+  float_safe_ostringstream_serializes_value_as(__LINE__, 10.0000086l, string_for_10_0000086<long double>());
 
-  wrapper_serializes_in_deserializable_format(__LINE__, 10.0000086f);
-  wrapper_serializes_in_deserializable_format(__LINE__, 10.0000086);
-  wrapper_serializes_in_deserializable_format(__LINE__, 10.0000086l);
+  float_safe_ostringstream_serializes_in_deserializable_format(__LINE__, 10.0000086f);
+  float_safe_ostringstream_serializes_in_deserializable_format(__LINE__, 10.0000086);
+  float_safe_ostringstream_serializes_in_deserializable_format(__LINE__, 10.0000086l);
 
   {
     auto const value{sqlpp::value(10.0000114)};
@@ -98,7 +98,7 @@ int Float(int, char*[])
     }
 
     // The following should also work, but require dependencies. The assumption is that
-    // since they use the wrapper it is fine.
+    // since they use float_safe_ostringstream it is fine.
 
     // {
     //   sqlpp::sqlite3::connection_config config;
