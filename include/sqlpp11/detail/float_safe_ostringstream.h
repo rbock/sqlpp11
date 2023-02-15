@@ -39,34 +39,34 @@ namespace sqlpp
 {
   namespace detail
   {
-    template<typename T, typename = void>
+    template <typename T, typename = void>
     struct float_safe_ostringstream_implementation
     {
-      template<typename U>
-      void operator() (std::ostringstream& os, U&& x) const
+      template <typename U>
+      void operator()(std::ostringstream& os, U&& x) const
       {
-        os << std::forward<U> (x);
+        os << std::forward<U>(x);
       }
     };
 
-    template<typename T>
+    template <typename T>
     struct float_safe_ostringstream_implementation<T, enable_if_t<std::is_floating_point<T>::value>>
     {
-      template<typename U>
-      void operator() (std::ostringstream& os, U&& x) const
+      template <typename U>
+      void operator()(std::ostringstream& os, U&& x) const
       {
-        auto const old_precision {os.precision (std::numeric_limits<T>::max_digits10)};
-        os << std::forward<U> (x);
-        os.precision (old_precision);
+        auto const old_precision{os.precision(std::numeric_limits<T>::max_digits10)};
+        os << std::forward<U>(x);
+        os.precision(old_precision);
       }
     };
 
     struct float_safe_ostringstream : std::ostringstream
     {
-      template<typename T>
-      friend float_safe_ostringstream& operator<< (float_safe_ostringstream& os, T&& x)
+      template <typename T>
+      friend float_safe_ostringstream& operator<<(float_safe_ostringstream& os, T&& x)
       {
-        float_safe_ostringstream_implementation<remove_cvref_t<T>>{} (os, x);
+        float_safe_ostringstream_implementation<remove_cvref_t<T>>{}(os, x);
         return os;
       }
     };

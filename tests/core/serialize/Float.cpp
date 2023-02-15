@@ -34,49 +34,52 @@
 
 namespace
 {
-  template<typename T>
-  void wrapper_serializes_value_as (int line, T value, std::string expected)
+  template <typename T>
+  void wrapper_serializes_value_as(int line, T value, std::string expected)
   {
-      sqlpp::detail::float_safe_ostringstream os;
-      os << value;
-      assert_equal(line, os.str(), expected);
+    sqlpp::detail::float_safe_ostringstream os;
+    os << value;
+    assert_equal(line, os.str(), expected);
   }
 
-  template<typename T>
-  void wrapper_serializes_in_deserializable_format (int line, T value)
+  template <typename T>
+  void wrapper_serializes_in_deserializable_format(int line, T value)
   {
-      sqlpp::detail::float_safe_ostringstream os;
-      os << value;
-      std::istringstream is {os.str()};
-      T deserialized;
-      is >> deserialized;
-      assert_equal(line, deserialized, value);
+    sqlpp::detail::float_safe_ostringstream os;
+    os << value;
+    std::istringstream is{os.str()};
+    T deserialized;
+    is >> deserialized;
+    assert_equal(line, deserialized, value);
   }
 
-  template<typename Serializer, typename Expression>
-  void given_serializer_serializes_expr_as(int lineNo, Serializer& serializer, const Expression& expr, const std::string& expected)
+  template <typename Serializer, typename Expression>
+  void given_serializer_serializes_expr_as(int lineNo,
+                                           Serializer& serializer,
+                                           const Expression& expr,
+                                           const std::string& expected)
   {
     assert_equal(lineNo, serialize(expr, serializer).str(), expected);
   }
 
-  template<typename T>
+  template <typename T>
   std::string string_for_10_0000086()
   {
-      switch (std::numeric_limits<T>::max_digits10)
-      {
+    switch (std::numeric_limits<T>::max_digits10)
+    {
       case 9:
-          return "10.0000086";
+        return "10.0000086";
       case 17:
-          return "10.000008599999999";
+        return "10.000008599999999";
       case 21:
-          return "10.0000086000000000001";
+        return "10.0000086000000000001";
       default:
-          throw std::logic_error ("Unknown floating point digit count");
-      }
+        throw std::logic_error("Unknown floating point digit count");
+    }
   }
-}
+}  // namespace
 
-int Float(int, char* [])
+int Float(int, char*[])
 {
   wrapper_serializes_value_as(__LINE__, 10.0000086f, string_for_10_0000086<float>());
   wrapper_serializes_value_as(__LINE__, 10.0000086, string_for_10_0000086<double>());
@@ -87,8 +90,8 @@ int Float(int, char* [])
   wrapper_serializes_in_deserializable_format(__LINE__, 10.0000086l);
 
   {
-    auto const value {sqlpp::value(10.0000114)};
-    auto const expected {"10.0000114"};
+    auto const value{sqlpp::value(10.0000114)};
+    auto const expected{"10.0000114"};
     {
       MockDb::_serializer_context_t serializer;
       given_serializer_serializes_expr_as(__LINE__, serializer, value, expected);

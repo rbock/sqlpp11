@@ -31,7 +31,7 @@
 
 namespace
 {
-  template<typename Result, typename Expected>
+  template <typename Result, typename Expected>
   void assert_equal(int lineNo, const Result& result, const Expected& expected)
   {
     if (result != expected)

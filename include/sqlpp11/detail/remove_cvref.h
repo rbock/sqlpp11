@@ -33,31 +33,31 @@ namespace sqlpp
 {
   namespace detail
   {
-    template<typename T>
+    template <typename T>
     using remove_reference_t = typename std::remove_reference<T>::type;
-    template<typename T>
+    template <typename T>
     using remove_cv_t = typename std::remove_cv<T>::type;
-    template<typename T>
+    template <typename T>
     using remove_cvref_t = remove_cv_t<remove_reference_t<T>>;
 
-    static_assert (std::is_same<remove_reference_t<int const&>, int const>{}, "");
-    static_assert (std::is_same<remove_reference_t<int&&>, int>{}, "");
-    static_assert (std::is_same<remove_reference_t<int&>, int>{}, "");
-    static_assert (std::is_same<remove_reference_t<int>, int>{}, "");
+    static_assert(std::is_same<remove_reference_t<int const&>, int const>{}, "");
+    static_assert(std::is_same<remove_reference_t<int&&>, int>{}, "");
+    static_assert(std::is_same<remove_reference_t<int&>, int>{}, "");
+    static_assert(std::is_same<remove_reference_t<int>, int>{}, "");
 
-    static_assert (std::is_same<remove_cv_t<int const>, int>{}, "");
-    static_assert (std::is_same<remove_cv_t<int volatile>, int>{}, "");
-    static_assert (std::is_same<remove_cv_t<int* const>, int*>{}, "");
-    static_assert (std::is_same<remove_cv_t<int>, int>{}, "");
+    static_assert(std::is_same<remove_cv_t<int const>, int>{}, "");
+    static_assert(std::is_same<remove_cv_t<int volatile>, int>{}, "");
+    static_assert(std::is_same<remove_cv_t<int* const>, int*>{}, "");
+    static_assert(std::is_same<remove_cv_t<int>, int>{}, "");
 
-    static_assert (std::is_same<remove_cvref_t<int const&&>, int>{}, "");
-    static_assert (std::is_same<remove_cvref_t<int const&>, int>{}, "");
-    static_assert (std::is_same<remove_cvref_t<int volatile&>, int>{}, "");
-    static_assert (std::is_same<remove_cvref_t<int&&>, int>{}, "");
-    static_assert (std::is_same<remove_cvref_t<int&>, int>{}, "");
-    static_assert (std::is_same<remove_cvref_t<int* const&&>, int*>{}, "");
-    static_assert (std::is_same<remove_cvref_t<int* const&>, int*>{}, "");
-    static_assert (std::is_same<remove_cvref_t<int>, int>{}, "");
+    static_assert(std::is_same<remove_cvref_t<int const&&>, int>{}, "");
+    static_assert(std::is_same<remove_cvref_t<int const&>, int>{}, "");
+    static_assert(std::is_same<remove_cvref_t<int volatile&>, int>{}, "");
+    static_assert(std::is_same<remove_cvref_t<int&&>, int>{}, "");
+    static_assert(std::is_same<remove_cvref_t<int&>, int>{}, "");
+    static_assert(std::is_same<remove_cvref_t<int* const&&>, int*>{}, "");
+    static_assert(std::is_same<remove_cvref_t<int* const&>, int*>{}, "");
+    static_assert(std::is_same<remove_cvref_t<int>, int>{}, "");
   }  // namespace detail
 }  // namespace sqlpp
 
