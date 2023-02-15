@@ -33,7 +33,6 @@
 #include <utility>
 
 #include <sqlpp11/detail/enable_if.h>
-#include <sqlpp11/detail/remove_cvref.h>
 
 namespace sqlpp
 {
@@ -63,6 +62,18 @@ namespace sqlpp
 
     struct float_safe_ostringstream : std::ostringstream
     {
+      template <typename T>
+      using remove_cvref_t = typename std::remove_cv<typename std::remove_reference<T>::type>::type;
+
+      static_assert(std::is_same<remove_cvref_t<int const&&>, int>{}, "");
+      static_assert(std::is_same<remove_cvref_t<int const&>, int>{}, "");
+      static_assert(std::is_same<remove_cvref_t<int volatile&>, int>{}, "");
+      static_assert(std::is_same<remove_cvref_t<int&&>, int>{}, "");
+      static_assert(std::is_same<remove_cvref_t<int&>, int>{}, "");
+      static_assert(std::is_same<remove_cvref_t<int* const&&>, int*>{}, "");
+      static_assert(std::is_same<remove_cvref_t<int* const&>, int*>{}, "");
+      static_assert(std::is_same<remove_cvref_t<int>, int>{}, "");
+
       template <typename T>
       friend float_safe_ostringstream& operator<<(float_safe_ostringstream& os, T&& x)
       {
