@@ -28,6 +28,7 @@
 
 #include <iostream>
 #include <sqlpp11/connection.h>
+#include <sqlpp11/detail/float_safe_ostringstream.h>
 #include <sqlpp11/transaction.h>
 #include <sqlpp11/data_types/no_value.h>
 #include <sqlpp11/schema.h>
@@ -49,7 +50,7 @@ struct MockDb : public sqlpp::connection
 
   struct _serializer_context_t
   {
-    std::ostringstream _os;
+    ::sqlpp::detail::float_safe_ostringstream _os;
 
     _serializer_context_t() = default;
     _serializer_context_t(const _serializer_context_t& rhs)
@@ -68,7 +69,7 @@ struct MockDb : public sqlpp::connection
     }
 
     template <typename T>
-    std::ostream& operator<<(T t)
+    ::sqlpp::detail::float_safe_ostringstream& operator<<(T t)
     {
       return _os << t;
     }

@@ -1,4 +1,4 @@
-# Copyright (c) 2013-2021, Roland Bock
+# Copyright (c) 2023, Roland Bock
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -22,50 +22,30 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+find_package(Threads REQUIRED)
+
 set(test_files
-    Any.cpp
-    As.cpp
-    Avg.cpp
-    Blob.cpp
-    Count.cpp
-    CustomQuery.cpp
-    DynamicWhere.cpp
-    Exists.cpp
     Float.cpp
-    ForUpdate.cpp
-    From.cpp
-    In.cpp
-    Insert.cpp
-    IsNotNull.cpp
-    IsNull.cpp
-    Lower.cpp
-    Max.cpp
-    Min.cpp
-    Operator.cpp
-    Over.cpp
-    Some.cpp
-    Sum.cpp
-    TableAlias.cpp
-    Trim.cpp
-    Upper.cpp
-    Where.cpp
-    ParameterizedVerbatim.cpp
 )
 
-create_test_sourcelist(test_sources test_serializer_main.cpp ${test_files})
-add_executable(sqlpp11_core_serialize ${test_sources})
-target_link_libraries(sqlpp11_core_serialize PRIVATE sqlpp11::sqlpp11 sqlpp11_testing)
+create_test_sourcelist(test_sources test_main.cpp ${test_files})
+add_executable(sqlpp11_mysql_serialize_tests ${test_sources})
+target_link_libraries(sqlpp11_mysql_serialize_tests PRIVATE sqlpp11::mysql sqlpp11_testing sqlpp11_mysql_testing)
+target_link_libraries(sqlpp11_mysql_serialize_tests PRIVATE Threads::Threads)
+if(NOT MSVC)
+    target_compile_options(sqlpp11_mysql_serialize_tests PRIVATE -Wall -Wextra -pedantic)
+endif()
 
 # conditionally bump to a higher C++ standard to test compatibility
 if (SQLPP11_TESTS_CXX_STD)
-    set_property(TARGET sqlpp11_test_serializer PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})
-    set_property(TARGET sqlpp11_test_serializer PROPERTY CXX_STANDARD_REQUIRED yes)
-    set_property(TARGET sqlpp11_test_serializer PROPERTY CXX_EXTENSIONS no)
+    set_property(TARGET sqlpp11_mysql_serialize_tests PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})
+    set_property(TARGET sqlpp11_mysql_serialize_tests PROPERTY CXX_STANDARD_REQUIRED yes)
+    set_property(TARGET sqlpp11_mysql_serialize_tests PROPERTY CXX_EXTENSIONS no)
 endif()
 
 foreach(test_file IN LISTS test_files)
     get_filename_component(test ${test_file} NAME_WLE)
-    add_test(NAME sqlpp11.core.serialize.${test}
-        COMMAND sqlpp11_core_serialize ${test}
+    add_test(NAME sqlpp11.mysql.serialize.${test}
+        COMMAND sqlpp11_mysql_serialize_tests ${test}
     )
 endforeach()

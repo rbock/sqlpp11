@@ -33,6 +33,7 @@
 #include <sqlite3.h>
 #endif
 #include <sqlpp11/connection.h>
+#include <sqlpp11/detail/float_safe_ostringstream.h>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/schema.h>
 #include <sqlpp11/serialize.h>
@@ -184,7 +185,7 @@ namespace sqlpp
       }
 
       const connection& _db;
-      std::stringstream _os;
+      sqlpp::detail::float_safe_ostringstream _os;
       size_t _count;
     };
 

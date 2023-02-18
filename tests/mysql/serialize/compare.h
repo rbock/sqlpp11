@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -23,42 +23,50 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "compare.h"
-#include "Sample.h"
-#include <sqlpp11/sqlpp11.h>
+#ifndef SQLPP_TESTS_MYSQL_COMPARE_H
+#define SQLPP_TESTS_MYSQL_COMPARE_H
 
+#include <sqlpp11/mysql/connection.h>
 #include <iostream>
 
 namespace
 {
-  auto getFalse() -> std::string
+  template <typename Result, typename Expected>
+  void assert_equal(int lineNo, const Result& result, const Expected& expected)
   {
-    MockDb::_serializer_context_t printer = {};
-    return serialize(sqlpp::value(false), printer).str();
+    if (result != expected)
+    {
+      std::cerr << __FILE__ << " " << lineNo << '\n'
+                << "Expected: -->|" << expected << "|<--\n"
+                << "Received: -->|" << result << "|<--\n";
+      throw std::runtime_error("unexpected result");
+    }
   }
-}
 
-int In(int, char* [])
-{
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  template <typename Expression>
+  void compare(int lineNo, const Expression& expr, const std::string& expected)
+  {
+    auto config{std::make_shared<sqlpp::mysql::connection_config>()};
+    config->user = "root";
+    config->database = "sqlpp_mysql";
+    config->debug = true;
+    try
+    {
+      sqlpp::mysql::connection db(config);
+    }
+    catch (const sqlpp::exception& e)
+    {
+      std::cerr << e.what() << std::endl;
+      throw std::logic_error("For testing, you'll need to create a database sqlpp_mysql for user root (no password)");
+    }
 
-  // Individual values
-  compare(__LINE__, foo.omega.in(17), "tab_foo.omega IN(17)");
-  compare(__LINE__, foo.omega.in(17, bar.alpha), "tab_foo.omega IN(17,tab_bar.alpha)");
-  compare(__LINE__, foo.omega.in(17, bar.alpha, sqlpp::value(19)), "tab_foo.omega IN(17,tab_bar.alpha,19)");
+    sqlpp::mysql::connection connection{config};
+    sqlpp::mysql::serializer_t printer{connection};
 
-  // Lists
-  compare(__LINE__, foo.omega.in(sqlpp::value_list(std::vector<float>{1.75f, 2.5f, 17.f, 0.f})),
-          "tab_foo.omega IN(1.75,2.5,17,0)");
+    const auto result = serialize(expr, printer).str();
 
-  // Sub select
-  compare(__LINE__, foo.omega.in(select(bar.alpha).from(bar).unconditionally()),
-          "tab_foo.omega IN(SELECT tab_bar.alpha FROM tab_bar)");
+    assert_equal(lineNo, result, expected);
+  }
+}  // namespace
 
-  // Empty lists (not normally covered by SQL)
-  compare(__LINE__, foo.omega.in(), getFalse());
-  compare(__LINE__, foo.omega.in(sqlpp::value_list(std::vector<int>{})), getFalse());
-
-  return 0;
-}
+#endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, Roland Bock
+ * Copyright (c) 2023, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,28 +24,52 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_VALUE_H
-#define SQLPP11_VALUE_H
+#ifndef SQLPP11_COLUMN_TUPLE_FLOAT_SAFE_OSTRINGSTREAM_H
+#define SQLPP11_COLUMN_TUPLE_FLOAT_SAFE_OSTRINGSTREAM_H
 
-#include <sqlpp11/expression_operators.h>
-#include <sqlpp11/type_traits.h>
-#include <sqlpp11/wrap_operand.h>
+#include <limits>
+#include <sstream>
+#include <type_traits>
+#include <utility>
+
+#include <sqlpp11/detail/enable_if.h>
 
 namespace sqlpp
 {
-  template <typename T>
-  struct value_t : public wrap_operand_t<T>, public expression_operators<value_t<T>, value_type_of<wrap_operand_t<T>>>
+  namespace detail
   {
-    using _base_t = wrap_operand_t<T>;
-    using _base_t::_base_t;
-  };
-  template <typename T>
-  auto value(T t) -> value_t<T>
-  {
-    static_assert(is_wrapped_value_t<wrap_operand_t<T>>::value,
-                  "value() is to be called with non-sql-type like int, or string");
-    return {t};
-  }
+    template <typename T, typename = void>
+    struct float_safe_ostringstream_implementation
+    {
+      template <typename U>
+      void operator()(std::ostringstream& os, U&& x) const
+      {
+        os << std::forward<U>(x);
+      }
+    };
+
+    template <typename T>
+    struct float_safe_ostringstream_implementation<T, enable_if_t<std::is_floating_point<T>::value>>
+    {
+      template <typename U>
+      void operator()(std::ostringstream& os, U&& x) const
+      {
+        auto const old_precision{os.precision(std::numeric_limits<T>::max_digits10)};
+        os << std::forward<U>(x);
+        os.precision(old_precision);
+      }
+    };
+
+    struct float_safe_ostringstream : std::ostringstream
+    {
+      template <typename T>
+      friend float_safe_ostringstream& operator<<(float_safe_ostringstream& os, T&& x)
+      {
+        float_safe_ostringstream_implementation<typename std::decay<T>::type>{}(os, x);
+        return os;
+      }
+    };
+  }  // namespace detail
 }  // namespace sqlpp
 
 #endif
