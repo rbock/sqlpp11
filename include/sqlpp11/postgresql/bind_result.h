@@ -34,6 +34,7 @@
 
 #include <iomanip>
 #include <iostream>
+#include <regex>
 #include <sstream>
 
 #include "detail/prepared_statement_handle.h"
@@ -225,7 +226,6 @@ namespace sqlpp
       }
     }
 
-    // same parsing logic as SQLite connector
     // PostgreSQL will return one of those (using the default ISO client):
     //
     // 2010-10-11 01:02:03 - ISO timestamp without timezone
@@ -234,71 +234,6 @@ namespace sqlpp
     // 1992-10-10 01:02:03-06:30 - for some timezones with non-hour offset
     // 1900-01-01 - date only
     // we do not support time-only values !
-    namespace detail
-    {
-      inline auto check_first_digit(const char* text, bool digitFlag) -> bool
-      {
-        if (digitFlag)
-        {
-          if (not std::isdigit(*text))
-          {
-            return false;
-          }
-        }
-        else
-        {
-          if (std::isdigit(*text) or *text == '\0')
-          {
-            return false;
-          }
-        }
-        return true;
-      }
-
-      inline auto check_date_digits(const char* text) -> bool
-      {
-        for (const auto digitFlag : {true, true, true, true, false, true, true, false, true, true})  // YYYY-MM-DD
-        {
-          if (not check_first_digit(text, digitFlag))
-            return false;
-          ++text;
-        }
-        return true;
-      }
-
-      inline auto check_time_digits(const char* text) -> bool
-      {
-        for (const auto digitFlag : {true, true, false, true, true, false, true, true}) // hh:mm:ss
-        {
-          if (not check_first_digit(text, digitFlag))
-            return false;
-          ++text;
-        }
-        return true;
-      }
-
-      inline auto check_us_digits(const char* text) -> bool
-      {
-        for (const auto digitFlag : {true, true, true, true, true, true})
-        {
-          if (not check_first_digit(text, digitFlag))
-            return false;
-          ++text;
-        }
-        return true;
-      }
-
-      inline auto check_tz_digits(const char* text) -> bool
-      {
-        for (const auto digitFlag : {false, true, true, false, true, true})
-        {
-          if (not check_first_digit(text, digitFlag))
-            return false;
-          ++text;
-        }
-        return true;
-      }
-    }  // namespace
 
     inline void bind_result_t::_bind_date_result(size_t _index, ::sqlpp::chrono::day_point* value, bool* is_null)
     {
@@ -320,16 +255,19 @@ namespace sqlpp
           std::cerr << "PostgreSQL debug: date string: " << date_string << std::endl;
         }
 
-        if (detail::check_date_digits(date_string))
-        {
-          const auto ymd =
-              ::date::year(std::atoi(date_string)) / std::atoi(date_string + 5) / std::atoi(date_string + 8);
-          *value = ::sqlpp::chrono::day_point(ymd);
-        }
-        else
-        {
-          if (_handle->debug())
+        static const std::regex rx {"(\\d{4})-(\\d{2})-(\\d{2})"};
+        std::cmatch mr;
+        if (std::regex_match (date_string, mr, rx)) {
+          *value =
+            ::sqlpp::chrono::day_point{
+              ::date::year{std::atoi(date_string + mr.position(1))} / // Year
+              std::atoi(date_string + mr.position(2)) /               // Month
+              std::atoi(date_string + mr.position(3))                 // Day of month
+            };
+        } else {
+          if (_handle->debug()) {
             std::cerr << "PostgreSQL debug: got invalid date '" << date_string << "'" << std::endl;
+          }
           *value = {};
         }
       }
@@ -339,7 +277,7 @@ namespace sqlpp
       }
     }
 
-    // always returns local time for timestamp with time zone
+    // always returns UTC time for timestamp with time zone
     inline void bind_result_t::_bind_date_time_result(size_t _index, ::sqlpp::chrono::microsecond_point* value, bool* is_null)
     {
       auto index = static_cast<int>(_index);
@@ -358,97 +296,91 @@ namespace sqlpp
         {
           std::cerr << "PostgreSQL debug: got date_time string: " << date_string << std::endl;
         }
-        if (detail::check_date_digits(date_string))
-        {
-          const auto ymd =
-              ::date::year(std::atoi(date_string)) / std::atoi(date_string + 5) / std::atoi(date_string + 8);
-          *value = ::sqlpp::chrono::day_point(ymd);
-        }
-        else
-        {
-          if (_handle->debug())
-            std::cerr << "PostgreSQL debug: got invalid date_time" << std::endl;
-          *value = {};
-          return;
-        }
 
-        if (std::strlen(date_string) <= 11)
-          return;
-        const auto time_string = date_string + 11; // YYYY-MM-DDT
-        if (detail::check_time_digits(time_string))
-        {
-          *value += std::chrono::hours(std::atoi(time_string)) + std::chrono::minutes(std::atoi(time_string + 3)) +
-                    std::chrono::seconds(std::atoi(time_string + 6));
-        }
-        else
-        {
-          return;
-        }
-
-        if (std::strlen(time_string) <= 9)
-          return;
-        auto us_string = time_string + 9;  // hh:mm:ss.
-        int usec = 0;
-        for (size_t i = 0u; i < 6u; ++i)
-        {
-          if (std::isdigit(us_string[0]))
-          {
-            usec = 10 * usec + (us_string[0] - '0');
-            ++us_string;
+        static const std::regex rx {
+          "(\\d{4})-(\\d{2})-(\\d{2}) "
+          "(\\d{2}):(\\d{2}):(\\d{2})(?:\\.(\\d{1,6}))?"
+          "(?:([+-])(\\d{2})(?::(\\d{2})(?::(\\d{2}))?)?)?"
+        };
+        std::cmatch mr;
+        if (std::regex_match (date_string, mr, rx)) {
+          *value =
+            ::sqlpp::chrono::day_point{
+              ::date::year{std::atoi(date_string + mr.position(1))} / // Year
+              std::atoi(date_string + mr.position(2)) /               // Month
+              std::atoi(date_string + mr.position(3))                 // Day of month
+            } +
+            std::chrono::hours{std::atoi(date_string + mr.position(4))} +     // Hour
+            std::chrono::minutes{std::atoi(date_string + mr.position(5))} +   // Minute
+            std::chrono::seconds{std::atoi(date_string + mr.position(6))} +   // Second
+            ::std::chrono::microseconds{                                      // Microsecond
+              mr[7].matched ? std::stoi((mr[7].str() + "000000").substr(0, 6)) : 0
+            };
+            if (mr[8].matched) {
+              const auto tz_sign = (date_string[mr.position(8)] == '+') ? 1 : -1;
+              const auto tz_offset =
+                std::chrono::hours{std::atoi(date_string + mr.position(9))} +
+                std::chrono::minutes{mr[10].matched ? std::atoi(date_string + mr.position(10)) : 0} +
+                std::chrono::seconds{mr[11].matched ? std::atoi(date_string + mr.position(11)) : 0};
+              *value -= tz_sign * tz_offset;
+            }
+        } else {
+          if (_handle->debug()) {
+            std::cerr << "PostgreSQL debug: got invalid date_time '" << date_string << "'" << std::endl;
           }
-          else
-            usec *= 10;
+          *value = {};
         }
-        *value += ::std::chrono::microseconds(usec);
       }
     }
 
-    // always returns local time for time with time zone
+    // always returns UTC time for time with time zone
     inline void bind_result_t::_bind_time_of_day_result(size_t _index, ::std::chrono::microseconds* value, bool* is_null)
     {
-        auto index = static_cast<int>(_index);
+      auto index = static_cast<int>(_index);
+      if (_handle->debug())
+      {
+        std::cerr << "PostgreSQL debug: binding time result at index: " << index << std::endl;
+      }
+
+      *is_null = _handle->result.isNull(_handle->count, index);
+
+      if (!(*is_null))
+      {
+        const auto time_string = _handle->result.getCharPtrValue(_handle->count, index);
+
         if (_handle->debug())
         {
-            std::cerr << "PostgreSQL debug: binding time result at index: " << index << std::endl;
+          std::cerr << "PostgreSQL debug: got time string: " << time_string << std::endl;
         }
 
-        *is_null = _handle->result.isNull(_handle->count, index);
-
-        if (!(*is_null))
-        {
-            const auto time_string = _handle->result.getCharPtrValue(_handle->count, index);
-
-            if (_handle->debug())
-            {
-                std::cerr << "PostgreSQL debug: got time string: " << time_string << std::endl;
+        static const std::regex rx {
+          "(\\d{2}):(\\d{2}):(\\d{2})(?:\\.(\\d{1,6}))?"
+          "(?:([+-])(\\d{2})(?::(\\d{2})(?::(\\d{2}))?)?)?"
+        };
+        std::cmatch mr;
+        if (std::regex_match (time_string, mr, rx)) {
+          *value =
+            std::chrono::hours{std::atoi(time_string + mr.position(1))} +     // Hour
+            std::chrono::minutes{std::atoi(time_string + mr.position(2))} +   // Minute
+            std::chrono::seconds{std::atoi(time_string + mr.position(3))} +   // Second
+            ::std::chrono::microseconds{                                      // Microsecond
+              mr[4].matched ? std::stoi((mr[4].str() + "000000").substr(0, 6)) : 0
+            };
+            if (mr[5].matched) {
+              const auto tz_sign = (time_string[mr.position(5)] == '+') ? 1 : -1;
+              const auto tz_offset =
+                std::chrono::hours{std::atoi(time_string + mr.position(6))} +
+                std::chrono::minutes{mr[7].matched ? std::atoi(time_string + mr.position(7)) : 0} +
+                std::chrono::seconds{mr[8].matched ? std::atoi(time_string + mr.position(8)) : 0};
+              *value -= tz_sign * tz_offset;
             }
-
-            if (detail::check_time_digits(time_string))
-            {
-                *value += std::chrono::hours(std::atoi(time_string)) + std::chrono::minutes(std::atoi(time_string + 3)) +
-                          std::chrono::seconds(std::atoi(time_string + 6));
-            }
-            else
-            {
-                return;
-            }
-
-            if (std::strlen(time_string) <= 9)
-                return;
-            auto us_string = time_string + 9;  // hh:mm:ss.
-            int usec = 0;
-            for (size_t i = 0u; i < 6u; ++i)
-            {
-                if (std::isdigit(us_string[0]))
-                {
-                    usec = 10 * usec + (us_string[0] - '0');
-                    ++us_string;
-                }
-                else
-                    usec *= 10;
-            }
-            *value += ::std::chrono::microseconds(usec);
+        } else {
+          if (_handle->debug()) {
+            std::cerr << "PostgreSQL debug: got invalid time '" << time_string << "'" << std::endl;
+          }
+          *value = {};
         }
+      }
     }
 
     inline void bind_result_t::_bind_blob_result(size_t _index, const uint8_t** value, size_t* len)
