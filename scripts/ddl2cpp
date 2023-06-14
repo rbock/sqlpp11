@@ -71,15 +71,11 @@ ddlBracedExpression << ddlLeft + ddlExpression + ddlRight
 ddlArguments = pp.Suppress(pp.Group(pp.delimitedList(ddlExpression)))
 ddlFunctionCall << ddlName + ddlLeft + pp.Optional(ddlArguments) + ddlRight
 
-# Column and constraint parsers
+# Data types
 ddlBooleanTypes = [
     "bool",
     "boolean",
 ]
-
-ddlBoolean = pp.Or(
-    map(pp.CaselessLiteral, sorted(ddlBooleanTypes, reverse=True))
-).setParseAction(pp.replaceWith("boolean"))
 
 ddlIntegerTypes = [
     "bigint",
@@ -92,20 +88,12 @@ ddlIntegerTypes = [
     "smallint",
     "tinyint",
 ]
-ddlInteger = pp.Or(
-    map(pp.CaselessLiteral, sorted(ddlIntegerTypes, reverse=True))
-).setParseAction(pp.replaceWith("integer"))
 
 ddlSerialTypes = [
     "bigserial",  # PostgreSQL
     "serial",  # PostgreSQL
     "smallserial",  # PostgreSQL
 ]
-ddlSerial = (
-    pp.Or(map(pp.CaselessLiteral, sorted(ddlSerialTypes, reverse=True)))
-    .setParseAction(pp.replaceWith("integer"))
-    .setResultsName("hasAutoValue")
-)
 
 ddlFloatingPointTypes = [
     "decimal",  # MYSQL
@@ -116,9 +104,6 @@ ddlFloatingPointTypes = [
     "numeric",  # PostgreSQL
     "real",
 ]
-ddlFloatingPoint = pp.Or(
-    map(pp.CaselessLiteral, sorted(ddlFloatingPointTypes, reverse=True))
-).setParseAction(pp.replaceWith("floating_point"))
 
 ddlTextTypes = [
     "char",
@@ -136,10 +121,6 @@ ddlTextTypes = [
     "rational", # PostgreSQL pg_rationale extension
 ]
 
-ddlText = pp.Or(
-    map(pp.CaselessLiteral, sorted(ddlTextTypes, reverse=True))
-).setParseAction(pp.replaceWith("text"))
-
 ddlBlobTypes = [
     "bytea",
     "tinyblob",
@@ -150,20 +131,9 @@ ddlBlobTypes = [
     "varbinary",  # MYSQL
 ]
 
-ddlBlob = pp.Or(
-    map(pp.CaselessLiteral, sorted(ddlBlobTypes, reverse=True))
-).setParseAction(pp.replaceWith("blob"))
-
-
 ddlDateTypes = [
     "date",
 ]
-
-ddlDate = (
-    pp.Or(map(pp.CaselessLiteral, sorted(ddlDateTypes, reverse=True)))
-    .setParseAction(pp.replaceWith("day_point"))
-    .setResultsName("warnTimezone")
-)
 
 ddlDateTimeTypes = [
     "datetime",
@@ -173,118 +143,158 @@ ddlDateTimeTypes = [
     "timestamptz",  # PostgreSQL
 ]
 
-ddlDateTime = pp.Or(
-    map(pp.CaselessLiteral, sorted(ddlDateTimeTypes, reverse=True))
-).setParseAction(pp.replaceWith("time_point"))
-
 ddlTimeTypes = [
     "time",
     "time without time zone",  # PostgreSQL
     "time with time zone",  # PostgreSQL
 ]
 
-ddlTime = pp.Or(
-    map(pp.CaselessLiteral, sorted(ddlTimeTypes, reverse=True))
-).setParseAction(pp.replaceWith("time_of_day"))
+# Init the DLL parser
+def initDllParser():
+    global ddl
+    global ddlType
+    global ddlColumn
+    global ddlConstraint
+    global ddlCreateTable
+    # Column and constraint parsers
 
+    ddlBoolean = pp.Or(
+        map(pp.CaselessLiteral, sorted(ddlBooleanTypes, reverse=True))
+    ).setParseAction(pp.replaceWith("boolean"))
 
-ddlUnknown = pp.Word(pp.alphanums).setParseAction(pp.replaceWith("UNKNOWN"))
+    ddlInteger = pp.Or(
+        map(pp.CaselessLiteral, sorted(ddlIntegerTypes, reverse=True))
+    ).setParseAction(pp.replaceWith("integer"))
 
-ddlType = (
-    ddlBoolean
-    | ddlInteger
-    | ddlSerial
-    | ddlFloatingPoint
-    | ddlText
-    | ddlBlob
-    | ddlDateTime
-    | ddlDate
-    | ddlTime
-    | ddlUnknown
-)
-
-ddlUnsigned = pp.CaselessLiteral("UNSIGNED").setResultsName("isUnsigned")
-ddlDigits = "," + pp.Word(pp.nums)
-ddlWidth = ddlLeft + pp.Word(pp.nums) + pp.Optional(ddlDigits) + ddlRight
-ddlTimezone = (
-    (pp.CaselessLiteral("with") | pp.CaselessLiteral("without"))
-    + pp.CaselessLiteral("time")
-    + pp.CaselessLiteral("zone")
-)
-
-ddlNotNull = pp.Group(
-    pp.CaselessLiteral("NOT") + pp.CaselessLiteral("NULL")
-).setResultsName("notNull")
-ddlDefaultValue = pp.CaselessLiteral("DEFAULT").setResultsName("hasDefaultValue")
-
-ddlAutoKeywords = [
-    "AUTO_INCREMENT",
-    "AUTOINCREMENT",
-    "SMALLSERIAL",
-    "SERIAL",
-    "BIGSERIAL",
-    "GENERATED",
-]
-ddlAutoValue = pp.Or(map(pp.CaselessLiteral, sorted(ddlAutoKeywords, reverse=True)))
-
-ddlConstraintKeywords = [
-    "CONSTRAINT",
-    "PRIMARY",
-    "FOREIGN",
-    "KEY",
-    "FULLTEXT",
-    "INDEX",
-    "UNIQUE",
-    "CHECK",
-    "PERIOD",
-]
-ddlConstraint = pp.Group(
-    pp.Or(map(pp.CaselessLiteral, sorted(ddlConstraintKeywords, reverse=True)))
-    + ddlExpression
-).setResultsName("isConstraint")
-
-ddlColumn = pp.Group(
-    ddlName("name")
-    + ddlType("type")
-    + pp.Suppress(pp.Optional(ddlWidth))
-    + pp.Suppress(pp.Optional(ddlTimezone))
-    + pp.ZeroOrMore(
-        ddlUnsigned("isUnsigned")
-        | ddlNotNull("notNull")
-        | pp.CaselessLiteral("null")
-        | ddlAutoValue("hasAutoValue")
-        | ddlDefaultValue("hasDefaultValue")
-        | pp.Suppress(pp.OneOrMore(pp.Or(map(pp.CaselessLiteral, sorted(ddlConstraintKeywords, reverse=True)))))
-        | pp.Suppress(ddlExpression)
+    ddlSerial = (
+        pp.Or(map(pp.CaselessLiteral, sorted(ddlSerialTypes, reverse=True)))
+        .setParseAction(pp.replaceWith("integer"))
+        .setResultsName("hasAutoValue")
     )
-)
 
-# CREATE TABLE parser
-ddlIfNotExists = pp.Group(
-    pp.CaselessLiteral("IF") + pp.CaselessLiteral("NOT") + pp.CaselessLiteral("EXISTS")
-).setResultsName("ifNotExists")
-ddlOrReplace = pp.Group(
-    pp.CaselessLiteral("OR") + pp.CaselessLiteral("REPLACE")
-).setResultsName("orReplace")
-ddlCreateTable = pp.Group(
-    pp.CaselessLiteral("CREATE")
-    + pp.Suppress(pp.Optional(ddlOrReplace))
-    + pp.CaselessLiteral("TABLE")
-    + pp.Suppress(pp.Optional(ddlIfNotExists))
-    + ddlName.setResultsName("tableName")
-    + ddlLeft
-    + pp.Group(pp.delimitedList(pp.Suppress(ddlConstraint) | ddlColumn)).setResultsName(
-        "columns"
+    ddlFloatingPoint = pp.Or(
+        map(pp.CaselessLiteral, sorted(ddlFloatingPointTypes, reverse=True))
+    ).setParseAction(pp.replaceWith("floating_point"))
+
+    ddlText = pp.Or(
+        map(pp.CaselessLiteral, sorted(ddlTextTypes, reverse=True))
+    ).setParseAction(pp.replaceWith("text"))
+
+
+    ddlBlob = pp.Or(
+        map(pp.CaselessLiteral, sorted(ddlBlobTypes, reverse=True))
+    ).setParseAction(pp.replaceWith("blob"))
+
+    ddlDate = (
+        pp.Or(map(pp.CaselessLiteral, sorted(ddlDateTypes, reverse=True)))
+        .setParseAction(pp.replaceWith("day_point"))
+        .setResultsName("warnTimezone")
     )
-    + ddlRight
-).setResultsName("create")
-# ddlString.setDebug(True) #uncomment to debug pyparsing
 
-ddl = pp.OneOrMore(pp.Suppress(pp.SkipTo(ddlCreateTable, False)) + ddlCreateTable)
+    ddlDateTime = pp.Or(
+        map(pp.CaselessLiteral, sorted(ddlDateTimeTypes, reverse=True))
+    ).setParseAction(pp.replaceWith("time_point"))
 
-ddlComment = pp.oneOf(["--", "#"]) + pp.restOfLine
-ddl.ignore(ddlComment)
+    ddlTime = pp.Or(
+        map(pp.CaselessLiteral, sorted(ddlTimeTypes, reverse=True))
+    ).setParseAction(pp.replaceWith("time_of_day"))
 
+    ddlUnknown = pp.Word(pp.alphanums).setParseAction(pp.replaceWith("UNKNOWN"))
+
+    ddlType = (
+        ddlBoolean
+        | ddlInteger
+        | ddlSerial
+        | ddlFloatingPoint
+        | ddlText
+        | ddlBlob
+        | ddlDateTime
+        | ddlDate
+        | ddlTime
+        | ddlUnknown
+    )
+
+    ddlUnsigned = pp.CaselessLiteral("UNSIGNED").setResultsName("isUnsigned")
+    ddlDigits = "," + pp.Word(pp.nums)
+    ddlWidth = ddlLeft + pp.Word(pp.nums) + pp.Optional(ddlDigits) + ddlRight
+    ddlTimezone = (
+        (pp.CaselessLiteral("with") | pp.CaselessLiteral("without"))
+        + pp.CaselessLiteral("time")
+        + pp.CaselessLiteral("zone")
+    )
+
+    ddlNotNull = pp.Group(
+        pp.CaselessLiteral("NOT") + pp.CaselessLiteral("NULL")
+    ).setResultsName("notNull")
+    ddlDefaultValue = pp.CaselessLiteral("DEFAULT").setResultsName("hasDefaultValue")
+
+    ddlAutoKeywords = [
+        "AUTO_INCREMENT",
+        "AUTOINCREMENT",
+        "SMALLSERIAL",
+        "SERIAL",
+        "BIGSERIAL",
+        "GENERATED",
+    ]
+    ddlAutoValue = pp.Or(map(pp.CaselessLiteral, sorted(ddlAutoKeywords, reverse=True)))
+
+    ddlConstraintKeywords = [
+        "CONSTRAINT",
+        "PRIMARY",
+        "FOREIGN",
+        "KEY",
+        "FULLTEXT",
+        "INDEX",
+        "UNIQUE",
+        "CHECK",
+        "PERIOD",
+    ]
+    ddlConstraint = pp.Group(
+        pp.Or(map(pp.CaselessLiteral, sorted(ddlConstraintKeywords, reverse=True)))
+        + ddlExpression
+    ).setResultsName("isConstraint")
+
+    ddlColumn = pp.Group(
+        ddlName("name")
+        + ddlType("type")
+        + pp.Suppress(pp.Optional(ddlWidth))
+        + pp.Suppress(pp.Optional(ddlTimezone))
+        + pp.ZeroOrMore(
+            ddlUnsigned("isUnsigned")
+            | ddlNotNull("notNull")
+            | pp.CaselessLiteral("null")
+            | ddlAutoValue("hasAutoValue")
+            | ddlDefaultValue("hasDefaultValue")
+            | pp.Suppress(pp.OneOrMore(pp.Or(map(pp.CaselessLiteral, sorted(ddlConstraintKeywords, reverse=True)))))
+            | pp.Suppress(ddlExpression)
+        )
+    )
+
+    # CREATE TABLE parser
+    ddlIfNotExists = pp.Group(
+        pp.CaselessLiteral("IF") + pp.CaselessLiteral("NOT") + pp.CaselessLiteral("EXISTS")
+    ).setResultsName("ifNotExists")
+    ddlOrReplace = pp.Group(
+        pp.CaselessLiteral("OR") + pp.CaselessLiteral("REPLACE")
+    ).setResultsName("orReplace")
+    ddlCreateTable = pp.Group(
+        pp.CaselessLiteral("CREATE")
+        + pp.Suppress(pp.Optional(ddlOrReplace))
+        + pp.CaselessLiteral("TABLE")
+        + pp.Suppress(pp.Optional(ddlIfNotExists))
+        + ddlName.setResultsName("tableName")
+        + ddlLeft
+        + pp.Group(pp.delimitedList(pp.Suppress(ddlConstraint) | ddlColumn)).setResultsName(
+            "columns"
+        )
+        + ddlRight
+    ).setResultsName("create")
+    # ddlString.setDebug(True) #uncomment to debug pyparsing
+
+    ddl = pp.OneOrMore(pp.Suppress(pp.SkipTo(ddlCreateTable, False)) + ddlCreateTable)
+
+    ddlComment = pp.oneOf(["--", "#"]) + pp.restOfLine
+    ddl.ignore(ddlComment)
 
 def testBoolean():
     for t in ddlBooleanTypes:
@@ -423,6 +433,7 @@ def testPrimaryKeyAutoIncrement():
         assert column.hasAutoValue
 
 def testParser():
+    initDllParser()
     testBoolean()
     testInteger()
     testSerial()
@@ -441,10 +452,8 @@ def testParser():
     testPrimaryKeyAutoIncrement()
 
 
-# CODE GENERATOR
+
 # HELPERS
-
-
 def get_include_guard_name(namespace, inputfile):
     val = re.sub("[^A-Za-z0-9]+", "_", namespace + "_" + os.path.basename(inputfile))
     return val.upper()
@@ -485,6 +494,15 @@ def setArgumentBool(s, bool_value):
     var_name = first_lower(re.sub("(\s|-|[0-9])(\S)", repl_func_for_args, s))
     globals()[var_name] = bool_value
 
+def loadExtendedTypesFile(filename):
+    import csv
+    with open(filename, newline='') as csvfile:
+        reader = csv.DictReader(csvfile, fieldnames=["baseType"], restkey="extendedTypes", delimiter=',')
+        for row in reader:
+            var_values = [clean_val for value in row['extendedTypes'] if (clean_val := value.strip(" \"'"))]
+            if var_values:
+                var_name = f"ddl{row['baseType']}Types"
+                globals()[var_name].extend(var_values)
 
 def escape_if_reserved(name):
     reserved_names = [
@@ -524,6 +542,10 @@ def endHeader(header, nsList):
 def help_message():
     arg_string = ""
     pad = 0
+
+    # The dataTypeFileArg is handled differently from the normal optionalArgs
+    # and only added to the list here to make use of the formatting of the help.
+    optionalArgs[dataTypeFileArg] = f"path to a csv that contains custom datatype mappings. The format is '{dataTypeFileArg}=path/to/file.csv' (See the README)."
     for argument in list(optionalArgs.keys()):
         if len(argument) > pad:
             pad = len(argument)
@@ -560,7 +582,7 @@ noTimestampWarning = False
 autoId = False
 identityNaming = False
 splitTables = False
-
+dataTypeFileArg = "--datatype-file"
 
 def createHeader():
     global noTimestampWarning
@@ -574,6 +596,9 @@ def createHeader():
         for arg in sys.argv:
             if arg in list(optionalArgs.keys()):
                 setArgumentBool(arg, True)
+                firstPositional += 1
+            if dataTypeFileArg in arg:
+                loadExtendedTypesFile(arg.split('=')[1])
                 firstPositional += 1
             else:
                 pass
@@ -589,6 +614,8 @@ def createHeader():
 
     pathToHeader = sys.argv[firstPositional + 1] + ("/" if splitTables else ".h")
     namespace = sys.argv[firstPositional + 2]
+
+    initDllParser()
 
     try:
         tableCreations = ddl.parseFile(pathToDdl)
@@ -738,8 +765,9 @@ def createHeader():
         print("Error: unsupported datatypes.")
         print("Possible solutions:")
         print("A) Implement this datatype (examples: sqlpp11/data_types)")
-        print("B) Extend/upgrade ddl2cpp (edit types map)")
-        print("C) Raise an issue on github")
+        print(f"B) Use the '{dataTypeFileArg}' command line argument to map the type to a known type (example: README)")
+        print("C) Extend/upgrade ddl2cpp (edit types map)")
+        print("D) Raise an issue on github")
         sys.exit(10)  # return non-zero error code, we might need it for automation
 
 
