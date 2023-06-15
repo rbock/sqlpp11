@@ -84,22 +84,27 @@ namespace
   {
     model::TabDateTime tab {};
 
-    // Check if the date/time values are saved using the UTC time zone
     const auto &rows_1 = dbc(
       select(
+        // c_timepoint as microseconds from the start of the UNIX epoch (1970-01-01 00:00:00 UTC)
         sqlpp::verbatim<sqlpp::integer>("floor(extract(epoch from c_timepoint)*1000000)::int8").as(sqlpp::alias::a),
+        // c_time as microseconds from the start of the day (00:00:00 UTC)
         sqlpp::verbatim<sqlpp::integer>("floor(extract(epoch from c_time)*1000000)::int8").as(sqlpp::alias::b),
+        // c_day as days from 1970-01-01 (timezone is not applicable to date fields)
         sqlpp::verbatim<sqlpp::integer>("floor(extract(epoch from c_day)/86400)::int8").as(sqlpp::alias::c)
       )
       .from(tab)
       .unconditionally()
     );
+    // Check if the internal values of our C++ time variables match the internal values of the PostgreSQL date/time fields.
+    // This tests the conversion of date/time types from C++ to PostgreSQL while skipping the conversion from C++ to PostgreSQL.
     const auto &row_1 = rows_1.front();
     require_equal(__LINE__, row_1.a.value(), tp.time_since_epoch().count());
     require_equal(__LINE__, row_1.b.value(), tod.count());
     require_equal(__LINE__, row_1.c.value(), dp.time_since_epoch().count());
 
-    // Check read values are preserved when converted to the corresponding data types
+    // Check if saving date/time variables from C++ to PostgreSQL and then reading them back yields the same values.
+    // This tests the conversion of date/time types from C++ to PostgreSQL and then back from PostgreSQL to C++.
     const auto rows_2 = dbc(select(all_of(tab)).from(tab).unconditionally());
     const auto &row_2 = rows_2.front();
     require_equal(__LINE__, row_2.c_timepoint.value(), tp);
