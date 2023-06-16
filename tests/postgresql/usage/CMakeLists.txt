@@ -36,6 +36,7 @@ set(test_files
     InsertOnConflict.cpp
     Returning.cpp
     Select.cpp
+    TimeZone.cpp
     Transaction.cpp
     Type.cpp
 )

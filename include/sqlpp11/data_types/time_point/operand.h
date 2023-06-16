@@ -67,7 +67,7 @@ namespace sqlpp
     const auto dp = ::sqlpp::chrono::floor<::date::days>(t._t);
     const auto time = ::date::make_time(t._t - dp);
     const auto ymd = ::date::year_month_day{dp};
-    context << "TIMESTAMP '" << ymd << ' ' << time << "'";
+    context << "TIMESTAMP WITH TIME ZONE '" << ymd << ' ' << time << "+00'";
     return context;
   }
 }  // namespace sqlpp
