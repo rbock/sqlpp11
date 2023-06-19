@@ -1,0 +1,9 @@
+Boolean, CustomBooleanType
+Integer, CustomIntegerType
+Serial, CustomSerialType
+FloatingPoint, CustomFloatingPointType
+Text, CustomTextType, strings[]
+Blob, CustomBlobType
+Date, CustomDateType
+DateTime, CustomDateTimeType
+Time, CustomTimeType

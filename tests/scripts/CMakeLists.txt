@@ -63,6 +63,13 @@ if (${Python3_Interpreter_FOUND})
                     "${CMAKE_CURRENT_BINARY_DIR}/fail"
                     test)
 
+        add_test(NAME sqlpp11.scripts.ddl2cpp.good_custom_types
+            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
+                    "--datatype-file=${CMAKE_CURRENT_LIST_DIR}/custom_types.csv"
+                    "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
+                    "${CMAKE_CURRENT_BINARY_DIR}/fail"
+                    test)
+
         foreach(sample_name sample sample_identity_naming)
             set(sqlpp.scripts.generated.sample.include "${CMAKE_CURRENT_BINARY_DIR}/${sample_name}")
             include_directories(${CMAKE_CURRENT_BINARY_DIR})
