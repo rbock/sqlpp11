@@ -63,13 +63,6 @@ if (${Python3_Interpreter_FOUND})
                     "${CMAKE_CURRENT_BINARY_DIR}/fail"
                     test)
 
-        add_test(NAME sqlpp11.scripts.ddl2cpp.good_custom_types
-            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
-                    "--datatype-file=${CMAKE_CURRENT_LIST_DIR}/custom_types.csv"
-                    "${CMAKE_CURRENT_LIST_DIR}/ddl2cpp_sample_good.sql"
-                    "${CMAKE_CURRENT_BINARY_DIR}/fail"
-                    test)
-
         foreach(sample_name sample sample_identity_naming)
             set(sqlpp.scripts.generated.sample.include "${CMAKE_CURRENT_BINARY_DIR}/${sample_name}")
             include_directories(${CMAKE_CURRENT_BINARY_DIR})
@@ -91,5 +84,30 @@ if (${Python3_Interpreter_FOUND})
                 "${sqlpp.scripts.generated.sample.include}.h")
             target_link_libraries(sqlpp.scripts.compiled.${sample_name} PRIVATE sqlpp11)
         endforeach()
+
+        set(custom_type_sql "ddl2cpp_sample_good_custom_type")
+        include_directories(${CMAKE_CURRENT_BINARY_DIR})
+        add_test(NAME sqlpp11.scripts.ddl2cpp.bad_custom_types
+            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
+                    "${CMAKE_CURRENT_LIST_DIR}/${custom_type_sql}.sql"
+                    "${CMAKE_CURRENT_BINARY_DIR}/fail"
+                    test)
+        set_tests_properties(sqlpp11.scripts.ddl2cpp.bad_custom_types PROPERTIES
+            PASS_REGULAR_EXPRESSION "Error: unsupported datatypes.")
+
+        set(sqlpp.scripts.generated.custom_type_sql.include "${CMAKE_CURRENT_BINARY_DIR}/${custom_type_sql}")
+        add_custom_command(
+            OUTPUT "${sqlpp.scripts.generated.custom_type_sql.include}.h"
+            COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_LIST_DIR}/../../scripts/ddl2cpp"
+                    "--datatype-file=${CMAKE_CURRENT_LIST_DIR}/custom_types.csv"
+                    "${CMAKE_CURRENT_LIST_DIR}/${custom_type_sql}.sql"
+                    "${sqlpp.scripts.generated.custom_type_sql.include}"
+                    test
+            DEPENDS "${CMAKE_CURRENT_LIST_DIR}/${custom_type_sql}.sql"
+            VERBATIM)
+
+        add_executable(sqlpp.scripts.compiled.${custom_type_sql} ${custom_type_sql}.cpp
+            "${sqlpp.scripts.generated.custom_type_sql.include}.h")
+        target_link_libraries(sqlpp.scripts.compiled.${custom_type_sql} PRIVATE sqlpp11)
     endif()
 endif()

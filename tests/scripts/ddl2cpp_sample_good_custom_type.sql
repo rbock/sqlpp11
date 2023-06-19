@@ -26,9 +26,6 @@
 
 CREATE TABLE tab_foo
 (
-	delta varchar(255),
-	_epsilon bigint,
-	`omega` double,
 	myBoolean CustomBooleanType,
 	myInteger CustomIntegerType,
 	mySerial CustomSerialType,
@@ -37,8 +34,7 @@ CREATE TABLE tab_foo
 	myBlob CustomBlobType,
 	myDate CustomDateType,
 	myDateTime CustomDateTimeType,
-	myTime CustomTimeType,
-	myArray strings[],
+	myTime CustomTimeType
 
 	-- explicit column definition for System-Versioned table
 	rowStart TIMESTAMP(6) GENERATED ALWAYS AS ROW START,
