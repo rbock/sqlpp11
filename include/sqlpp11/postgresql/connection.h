@@ -182,7 +182,7 @@ namespace sqlpp
 
       // ctor / dtor
       connection();
-      connection(const std::shared_ptr<connection_config>& config);
+      connection(const std::shared_ptr<const connection_config>& config);
       ~connection();
       connection(const connection&) = delete;
       connection(connection&&);
@@ -190,7 +190,7 @@ namespace sqlpp
       connection& operator=(connection&&);
 
       // creates a connection handle and connects to database
-      void connectUsing(const std::shared_ptr<connection_config>& config) noexcept(false);
+      void connectUsing(const std::shared_ptr<const connection_config>& config) noexcept(false);
 
       // Select stmt (returns a result)
       template <typename Select>
@@ -391,7 +391,7 @@ namespace sqlpp
     {
     }
 
-    inline connection::connection(const std::shared_ptr<connection_config>& config)
+    inline connection::connection(const std::shared_ptr<const connection_config>& config)
         : _handle(new detail::connection_handle(config))
     {
     }
@@ -417,7 +417,7 @@ namespace sqlpp
       return *this;
     }
 
-    inline void connection::connectUsing(const std::shared_ptr<connection_config>& config) noexcept(false)
+    inline void connection::connectUsing(const std::shared_ptr<const connection_config>& config) noexcept(false)
     {
       this->_handle.reset(new detail::connection_handle(config));
     }

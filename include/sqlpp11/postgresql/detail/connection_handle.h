@@ -60,11 +60,11 @@ namespace sqlpp
 
       struct DLL_LOCAL connection_handle
       {
-        std::shared_ptr<connection_config> config;
+        std::shared_ptr<const connection_config> config;
         std::unique_ptr<PGconn, void(*)(PGconn*)>  postgres;
         std::set<std::string> prepared_statement_names;
 
-        connection_handle(const std::shared_ptr<connection_config>& config);
+        connection_handle(const std::shared_ptr<const connection_config>& config);
         connection_handle(const connection_handle&) = delete;
         connection_handle(connection_handle&&) = default;
         connection_handle& operator=(const connection_handle&) = delete;
@@ -79,7 +79,7 @@ namespace sqlpp
         void deallocate_prepared_statement(const std::string& name);
       };
 
-      inline connection_handle::connection_handle(const std::shared_ptr<connection_config>& conf)
+      inline connection_handle::connection_handle(const std::shared_ptr<const connection_config>& conf)
           : config(conf), postgres{nullptr, handle_cleanup}
       {
 #ifdef SQLPP_DYNAMIC_LOADING
