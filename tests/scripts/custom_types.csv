@@ -1,8 +1,8 @@
 Boolean, CustomBooleanType
-Integer, CustomIntegerType
+Integer, CustomIntegerType, SPECIAL INT
 Serial, CustomSerialType
 FloatingPoint, CustomFloatingPointType
-Text, CustomTextType, strings[]
+Text, CustomTextType, another_text_type
 Blob, CustomBlobType
 Date, CustomDateType
 DateTime, CustomDateTimeType

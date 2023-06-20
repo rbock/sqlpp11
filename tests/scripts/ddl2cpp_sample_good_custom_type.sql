@@ -34,10 +34,21 @@ CREATE TABLE tab_foo
 	myBlob CustomBlobType,
 	myDate CustomDateType,
 	myDateTime CustomDateTimeType,
-	myTime CustomTimeType
+	myTime CustomTimeType,
+	-- Some more special cases
+	mySecondText another_text_type,
+	myTypeWithSpaces SPECIAL INT,
+	-- Checking capitalisation of types
+	capBoolean CUSTOMBOOLEANTYPE,
+	-- Ensuring built in types still function
+	builtinBoolean BOOLEAN,
+	builtinInteger INTEGER,
+	builtinSerial SERIAL,
+	builtinFloatingPoint NUMERIC,
+	builtinText TEXT,
+	builtinBlob BINARY,
+	builtinDate DATE,
+	builtinDateTime TIMESTAMPTZ,
+	builtinTime TIME WITH TIME ZONE
 
-	-- explicit column definition for System-Versioned table
-	rowStart TIMESTAMP(6) GENERATED ALWAYS AS ROW START,
-	rowEnd TIMESTAMP(6) GENERATED ALWAYS AS ROW END,
-	PERIOD FOR SYSTEM_TIME(rowStart, rowEnd)
 ) WITH SYSTEM VERSIONING; -- enable System-Versioning for this table
