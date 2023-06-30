@@ -54,7 +54,7 @@ namespace sqlpp
       template <typename U>
       void operator()(std::ostringstream& os, U&& x) const
       {
-        auto const old_precision{os.precision(std::numeric_limits<T>::max_digits10)};
+        auto const old_precision = os.precision(std::numeric_limits<T>::max_digits10);
         os << std::forward<U>(x);
         os.precision(old_precision);
       }
