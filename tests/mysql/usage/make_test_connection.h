@@ -1,5 +1,7 @@
+#pragma once
+
 /*
- * Copyright (c) 2013 - 2016, Roland Bock
+Copyright (c) 2023, Vesselin Atanasov
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -23,48 +25,41 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "make_test_connection.h"
-#include "TabSample.h"
-#include <sqlpp11/mysql/connection.h>
-#include <sqlpp11/sqlpp11.h>
 
-#include <iostream>
+#include <sqlpp11/mysql/mysql.h>
 
-const auto library_raii = sqlpp::mysql::scoped_library_initializer_t{0, nullptr, nullptr};
-
-namespace sql = sqlpp::mysql;
-const auto tab = TabSample{};
-
-int Union(int, char*[])
+namespace sqlpp
 {
-  sql::global_library_init();
-  try
+  namespace mysql
   {
-    auto db = sql::make_test_connection();
-    db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
-    db.execute(R"(CREATE TABLE tab_sample (
-		alpha bigint(20) AUTO_INCREMENT,
-			beta bool DEFAULT NULL,
-			gamma varchar(255) DEFAULT NULL,
-			PRIMARY KEY (alpha)
-			))");
-
-    auto u = select(all_of(tab)).from(tab).unconditionally().union_all(select(all_of(tab)).from(tab).unconditionally());
-
-    for (const auto& row : db(u))
+    // Get configuration for test connection
+    inline std::shared_ptr<sqlpp::mysql::connection_config> make_test_config()
     {
-      std::cout << row.alpha << row.beta << row.gamma << std::endl;
+      auto config = std::make_shared<sqlpp::mysql::connection_config>();
+      config->user = "root";
+      config->database = "sqlpp_mysql";
+      config->debug = true;
+      return config;
     }
 
-    for (const auto& row : db(u.union_distinct(select(all_of(tab)).from(tab).unconditionally())))
+    // Starts a connection
+    inline ::sqlpp::mysql::connection make_test_connection()
     {
-      std::cout << row.alpha << row.beta << row.gamma << std::endl;
+      namespace sql = sqlpp::mysql;
+
+      auto config = make_test_config();
+      sql::connection db;
+      try
+      {
+        db.connectUsing(config);
+      }
+      catch (const sqlpp::exception&)
+      {
+        std::cerr << "For testing, you'll need to create a database called '" << config->database
+                  << "', accessible by user '" << config->user << "' without a password." << std::endl;
+        throw;
+      }
+      return db;
     }
-  }
-  catch (const std::exception& e)
-  {
-    std::cerr << "Exception: " << e.what() << std::endl;
-    return 1;
-  }
-  return 0;
-}
+  }  // namespace mysql
+}  // namespace sqlpp

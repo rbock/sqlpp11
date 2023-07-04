@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2013 - 2017, Roland Bock
+ * Copyright (c) 2023, Vesselin Atanasov
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -104,11 +105,12 @@ namespace sqlpp
 
       struct connection_handle_t
       {
-        std::shared_ptr<connection_config> config;
+        std::shared_ptr<const connection_config> config;
         std::unique_ptr<MYSQL, void (*)(MYSQL*)> mysql;
 
-        connection_handle_t(const std::shared_ptr<connection_config>& conf)
-            : config(conf), mysql(mysql_init(nullptr), handle_cleanup)
+        connection_handle_t(const std::shared_ptr<const connection_config>& conf) :
+          config(conf),
+          mysql(mysql_init(nullptr), handle_cleanup)
         {
           if (not mysql)
           {
@@ -118,43 +120,48 @@ namespace sqlpp
           if (config->auto_reconnect)
           {
             my_bool my_true = true;
-            if (mysql_options(mysql.get(), MYSQL_OPT_RECONNECT, &my_true))
+            if (mysql_options(native_handle(), MYSQL_OPT_RECONNECT, &my_true))
             {
               throw sqlpp::exception("MySQL: could not set option MYSQL_OPT_RECONNECT");
             }
           }
 
-          connect(mysql.get(), *config);
+          connect(native_handle(), *config);
         }
 
-        ~connection_handle_t() noexcept = default;
         connection_handle_t(const connection_handle_t&) = delete;
         connection_handle_t(connection_handle_t&&) = default;
         connection_handle_t& operator=(const connection_handle_t&) = delete;
         connection_handle_t& operator=(connection_handle_t&&) = default;
 
-        bool is_valid()
+        MYSQL* native_handle() const
         {
-          return mysql_ping(mysql.get()) == 0;
+          return mysql.get();
+        }
+
+        bool check_connection() const
+        {
+          auto nh = native_handle();
+          return nh && (mysql_ping(nh) == 0);
         }
 
         void reconnect()
         {
-          connect(mysql.get(), *config);
+          connect(native_handle(), *config);
         }
       };
 
-      inline void execute_statement(detail::connection_handle_t& handle, const std::string& statement)
+      inline void execute_statement(std::unique_ptr<connection_handle_t>& handle, const std::string& statement)
       {
         thread_init();
 
-        if (handle.config->debug)
+        if (handle->config->debug)
           std::cerr << "MySQL debug: Executing: '" << statement << "'" << std::endl;
 
-        if (mysql_query(handle.mysql.get(), statement.c_str()))
+        if (mysql_query(handle->native_handle(), statement.c_str()))
         {
           throw sqlpp::exception(
-              "MySQL error: Could not execute MySQL-statement: " + std::string(mysql_error(handle.mysql.get())) +
+              "MySQL error: Could not execute MySQL-statement: " + std::string(mysql_error(handle->native_handle())) +
               " (statement was >>" + statement + "<<\n");
         }
       }
@@ -179,18 +186,18 @@ namespace sqlpp
         }
       }
 
-      inline std::shared_ptr<detail::prepared_statement_handle_t> prepare_statement(detail::connection_handle_t& handle,
+      inline std::shared_ptr<detail::prepared_statement_handle_t> prepare_statement(std::unique_ptr<connection_handle_t>& handle,
                                                                              const std::string& statement,
                                                                              size_t no_of_parameters,
                                                                              size_t no_of_columns)
       {
         thread_init();
 
-        if (handle.config->debug)
+        if (handle->config->debug)
           std::cerr << "MySQL debug: Preparing: '" << statement << "'" << std::endl;
 
         auto prepared_statement = std::make_shared<detail::prepared_statement_handle_t>(
-            mysql_stmt_init(handle.mysql.get()), no_of_parameters, no_of_columns, handle.config->debug);
+            mysql_stmt_init(handle->native_handle()), no_of_parameters, no_of_columns, handle->config->debug);
         if (not prepared_statement)
         {
           throw sqlpp::exception("MySQL error: Could not allocate prepared statement\n");
@@ -198,7 +205,7 @@ namespace sqlpp
         if (mysql_stmt_prepare(prepared_statement->mysql_stmt, statement.data(), statement.size()))
         {
           throw sqlpp::exception(
-              "MySQL error: Could not prepare statement: " + std::string(mysql_error(handle.mysql.get())) +
+              "MySQL error: Could not prepare statement: " + std::string(mysql_error(handle->native_handle())) +
               " (statement was >>" + statement + "<<\n");
         }
 
@@ -226,13 +233,15 @@ namespace sqlpp
       static const auto global_init_and_end = scoped_library_initializer_t(argc, argv, groups);
     }
 
-    class connection;
+    // Forward declaration
+    class conn_base;
 
     struct serializer_t
     {
-      serializer_t(const connection& db) : _db(db)
+      serializer_t(const conn_base& db) : _db(db)
       {
       }
+      serializer_t(const conn_base&&) = delete;
 
       template <typename T>
       std::ostream& operator<<(T t)
@@ -247,7 +256,7 @@ namespace sqlpp
         return _os.str();
       }
 
-      const connection& _db;
+      const conn_base& _db;
       sqlpp::detail::float_safe_ostringstream _os;
     };
 
@@ -255,76 +264,15 @@ namespace sqlpp
 
     std::integral_constant<char, '`'> get_quote_right(const serializer_t&);
 
-    class connection : public sqlpp::connection
+    class conn_base : public sqlpp::connection
     {
-      detail::connection_handle_t _handle;
-      bool _transaction_active = false;
-
-      // direct execution
-      char_result_t select_impl(const std::string& statement)
-      {
-        execute_statement(_handle, statement);
-        std::unique_ptr<detail::result_handle> result_handle(
-            new detail::result_handle(mysql_store_result(_handle.mysql.get()), _handle.config->debug));
-        if (!*result_handle)
-        {
-          throw sqlpp::exception("MySQL error: Could not store result set: " +
-                                 std::string(mysql_error(_handle.mysql.get())));
-        }
-
-        return {std::move(result_handle)};
-      }
-
-      size_t insert_impl(const std::string& statement)
-      {
-        execute_statement(_handle, statement);
-
-        return mysql_insert_id(_handle.mysql.get());
-      }
-
-      size_t update_impl(const std::string& statement)
-      {
-        execute_statement(_handle, statement);
-        return mysql_affected_rows(_handle.mysql.get());
-      }
-
-      size_t remove_impl(const std::string& statement)
-      {
-        execute_statement(_handle, statement);
-        return mysql_affected_rows(_handle.mysql.get());
-      }
-
-      // prepared execution
-      prepared_statement_t prepare_impl(const std::string& statement, size_t no_of_parameters, size_t no_of_columns)
-      {
-        return prepare_statement(_handle, statement, no_of_parameters, no_of_columns);
-      }
-
-      bind_result_t run_prepared_select_impl(prepared_statement_t& prepared_statement)
-      {
-        execute_prepared_statement(*prepared_statement._handle);
-        return prepared_statement._handle;
-      }
-
-      size_t run_prepared_insert_impl(prepared_statement_t& prepared_statement)
-      {
-        execute_prepared_statement(*prepared_statement._handle);
-        return mysql_stmt_insert_id(prepared_statement._handle->mysql_stmt);
-      }
-
-      size_t run_prepared_update_impl(prepared_statement_t& prepared_statement)
-      {
-        execute_prepared_statement(*prepared_statement._handle);
-        return mysql_stmt_affected_rows(prepared_statement._handle->mysql_stmt);
-      }
-
-      size_t run_prepared_remove_impl(prepared_statement_t& prepared_statement)
-      {
-        execute_prepared_statement(*prepared_statement._handle);
-        return mysql_stmt_affected_rows(prepared_statement._handle->mysql_stmt);
-      }
-
     public:
+      using _conn_base_t = conn_base;
+      using _config_t = connection_config;
+      using _config_ptr_t = std::shared_ptr<const _config_t>;
+      using _handle_t = detail::connection_handle_t;
+      using _handle_ptr_t = std::unique_ptr<_handle_t>;
+
       using _prepared_statement_t = ::sqlpp::mysql::prepared_statement_t;
       using _context_t = serializer_t;
       using _serializer_context_t = _context_t;
@@ -347,30 +295,19 @@ namespace sqlpp
         return serialize(t, context);
       }
 
-      connection(const std::shared_ptr<connection_config>& config) : _handle{config}
+      bool is_valid() const
       {
-      }
-
-      ~connection() = default;
-
-      connection(const connection&) = delete;
-      connection& operator=(const connection&) = delete;
-      connection& operator=(connection&&) = default;
-      connection(connection&& other) = default;
-
-      bool is_valid()
-      {
-        return _handle.is_valid();
+        return _handle->check_connection();
       }
 
       void reconnect()
       {
-        return _handle.reconnect();
+        return _handle->reconnect();
       }
 
-      const std::shared_ptr<connection_config>& get_config()
+      const std::shared_ptr<const connection_config>& get_config()
       {
-        return _handle.config;
+        return _handle->config;
       }
 
       bool is_transaction_active()
@@ -483,7 +420,7 @@ namespace sqlpp
       std::string escape(const std::string& s) const
       {
         std::unique_ptr<char[]> dest(new char[s.size() * 2 + 1]);
-        mysql_real_escape_string(_handle.mysql.get(), dest.get(), s.c_str(), s.size());
+        mysql_real_escape_string(_handle->native_handle(), dest.get(), s.c_str(), s.size());
         return dest.get();
       }
 
@@ -569,16 +506,102 @@ namespace sqlpp
         std::cerr << "MySQL message:" << message << std::endl;
       }
 
+      MYSQL* native_handle()
+      {
+        return _handle->native_handle();
+      }
+
+      // Kept for compatibility with old code
       MYSQL* get_handle()
       {
-        return _handle.mysql.get();
+        return native_handle();
+      }
+
+    protected:
+      _handle_ptr_t _handle;
+
+      // Constructors
+      conn_base() = default;
+      conn_base(_handle_ptr_t&& handle) : _handle{std::move(handle)}
+      {
+      }
+
+    private:
+      bool _transaction_active = false;
+
+      // direct execution
+      char_result_t select_impl(const std::string& statement)
+      {
+        execute_statement(_handle, statement);
+        std::unique_ptr<detail::result_handle> result_handle(
+            new detail::result_handle(mysql_store_result(_handle->native_handle()), _handle->config->debug));
+        if (!*result_handle)
+        {
+          throw sqlpp::exception("MySQL error: Could not store result set: " +
+                                 std::string(mysql_error(_handle->native_handle())));
+        }
+
+        return {std::move(result_handle)};
+      }
+
+      size_t insert_impl(const std::string& statement)
+      {
+        execute_statement(_handle, statement);
+
+        return mysql_insert_id(_handle->native_handle());
+      }
+
+      size_t update_impl(const std::string& statement)
+      {
+        execute_statement(_handle, statement);
+        return mysql_affected_rows(_handle->native_handle());
+      }
+
+      size_t remove_impl(const std::string& statement)
+      {
+        execute_statement(_handle, statement);
+        return mysql_affected_rows(_handle->native_handle());
+      }
+
+      // prepared execution
+      prepared_statement_t prepare_impl(const std::string& statement, size_t no_of_parameters, size_t no_of_columns)
+      {
+        return prepare_statement(_handle, statement, no_of_parameters, no_of_columns);
+      }
+
+      bind_result_t run_prepared_select_impl(prepared_statement_t& prepared_statement)
+      {
+        execute_prepared_statement(*prepared_statement._handle);
+        return prepared_statement._handle;
+      }
+
+      size_t run_prepared_insert_impl(prepared_statement_t& prepared_statement)
+      {
+        execute_prepared_statement(*prepared_statement._handle);
+        return mysql_stmt_insert_id(prepared_statement._handle->mysql_stmt);
+      }
+
+      size_t run_prepared_update_impl(prepared_statement_t& prepared_statement)
+      {
+        execute_prepared_statement(*prepared_statement._handle);
+        return mysql_stmt_affected_rows(prepared_statement._handle->mysql_stmt);
+      }
+
+      size_t run_prepared_remove_impl(prepared_statement_t& prepared_statement)
+      {
+        execute_prepared_statement(*prepared_statement._handle);
+        return mysql_stmt_affected_rows(prepared_statement._handle->mysql_stmt);
       }
     };
 
+    // Method definition moved outside of class because it needs conn_base
     inline std::string serializer_t::escape(std::string arg)
     {
       return _db.escape(arg);
     }
+
+    using connection = sqlpp::conn_normal<conn_base>;
+    using conn_pooled = sqlpp::conn_pooled<conn_base>;
   }  // namespace mysql
 }  // namespace sqlpp
 

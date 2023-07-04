@@ -23,6 +23,8 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "make_test_connection.h"
+
 #include <mysql.h>
 #include <iostream>
 
@@ -52,28 +54,13 @@ namespace test
   SQLPP_ALIAS_PROVIDER(value)
 }
 
-namespace mysql = sqlpp::mysql;
+namespace sql = sqlpp::mysql;
 int Json(int, char*[])
 {
-  mysql::global_library_init();
-
-  auto config = std::make_shared<mysql::connection_config>();
-  config->user = "root";
-  config->database = "sqlpp_mysql";
-  config->debug = true;
+  sql::global_library_init();
   try
   {
-    mysql::connection db(config);
-  }
-  catch (const sqlpp::exception& e)
-  {
-    std::cerr << "For testing, you'll need to create a database sqlpp_mysql for user root (no password)" << std::endl;
-    std::cerr << e.what() << std::endl;
-    return 1;
-  }
-  try
-  {
-    mysql::connection db(config);
+    auto db = sql::make_test_connection();
     db.execute(R"(DROP TABLE IF EXISTS tab_json)");
     db.execute(R"(CREATE TABLE tab_json (
 			  data JSON NOT NULL

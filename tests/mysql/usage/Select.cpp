@@ -23,6 +23,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "make_test_connection.h"
 #include "TabSample.h"
 #include <cassert>
 #include <sqlpp11/alias_provider.h>
@@ -83,23 +84,9 @@ void testSelectAll(sql::connection& db, int expectedRowCount)
 
 int Select(int, char*[])
 {
-  auto config = std::make_shared<sql::connection_config>();
-  config->user = "root";
-  config->database = "sqlpp_mysql";
-  config->debug = true;
   try
   {
-    sql::connection db(config);
-  }
-  catch (const sqlpp::exception& e)
-  {
-    std::cerr << "For testing, you'll need to create a database sqlpp_mysql for user root (no password)" << std::endl;
-    std::cerr << e.what() << std::endl;
-    return 1;
-  }
-  try
-  {
-    sql::connection db(config);
+    auto db = sql::make_test_connection();
     db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
     db.execute(R"(CREATE TABLE tab_sample (
 		alpha bigint(20) AUTO_INCREMENT,
