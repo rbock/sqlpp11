@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2023, Vesselin Atanasov
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -37,6 +38,44 @@ namespace sqlpp
 {
   namespace database
   {
+    // Connection configuration that is used to create new database connections
+    struct connection_config
+    {
+      // Put the configuration properties here, e.g.
+      //
+      // std::string host;
+      // unsigned port;
+      // std::string username;
+      // std::string password;
+      // std::string db_name;
+    };
+
+    // The connection handle is a low-level representation of a database connection.
+    // Pre-connected handles are stored in the connection pool and are used to create
+    // full connection objects on request.
+    class connection_handle
+    {
+    public:
+      // Connection handles can be created from connection configurations
+      connection_handle(const std::shared_ptr<const connection_config>& config);
+
+      // Connection handles cannot be copied
+      connection_handle(const connection_handle&) = delete;
+      connection_handle& operator=(const connection_handle&) = delete;
+
+      // Connection handles can be moved
+      connection_handle(connection_handle&&);
+      connection_handle& operator=(connection_handle&&);
+
+      // Used by the connection pool to check if the connection handle is still
+      // connected to the database server
+      bool check_connection();
+
+      // Optional method that returns a native (low-level) database handle.
+      // Used by the test code to test the connection pool
+      native_db_handle native_handle();
+    };
+
     // The context is not a requirement, but if the database requires
     // any deviations from the SQL standard, you should use your own
     // context in order to specialize the behaviour, see also interpreter.h
@@ -48,9 +87,25 @@ namespace sqlpp
       std::string escape(std::string arg);
     };
 
-    class connection : public sqlpp::connection  // this inheritance helps with ADL for dynamic_select, for instance
+    // The base database-specific connection class. Non-pooled and pooled connection classes derive from it
+    class conn_base : public sqlpp::connection  // this inheritance helps with ADL for dynamic_select, for instance
     {
     public:
+      // Base configuration
+      using _conn_base_t = conn_base;
+
+      // Type of configuration instances
+      using _config_t = connection_config;
+
+      // Shared pointer wrapping a configuration instance
+      using _config_ptr_t = std::shared_ptr<const _config_t>;
+
+      // Type of connection handles
+      using _handle_t = connection_handle;
+
+      // Unique pointer wrapping a connection handle
+      using _handle_ptr_t = std::unique_ptr<_handle_t>;
+
       using _traits = ::sqlpp::make_traits<
           ::sqlpp::no_value_t,
           ::sqlpp::tag::enforce_null_result_treatment  // If that is what you really want, leave it out otherwise
@@ -62,13 +117,6 @@ namespace sqlpp
           ;
       // serializer and interpreter are typically the same for string based connectors
       // the types are required for dynamic statement components, see sqlpp11/interpretable.h
-
-      connection(...);
-      ~connection();
-      connection(const connection&) = delete;
-      connection(connection&&) = delete;
-      connection& operator=(const connection&) = delete;
-      connection& operator=(connection&&) = delete;
 
       //! "direct" select
       template <typename Select>
@@ -153,9 +201,26 @@ namespace sqlpp
 
       //! report a rollback failure (will be called by transactions in case of a rollback failure in the destructor)
       void report_rollback_failure(const std::string message) noexcept;
+
+    protected:
+      // Low-level connection handle
+      _handle_ptr_t _handle;
+
+      // The constructors are private because the base class instances are never created directly,
+      // The constructors are called from the constructors of the derived classes
+      conn_base() = default;
+      conn_base(_handle_ptr_t&& handle) : _handle{std::move(handle)}
+      {
+      }
     };
-  }
-}
+
+    // Normal non-pooled connections.
+    using connection = sqlpp::conn_normal<conn_base>;
+
+    // Pooled connections that are created by the thread pool
+    using conn_pooled = sqlpp::conn_pooled<conn_base>;
+  }  // namespace database
+}  // namespace sqlpp
 
 #include <sqlpp11/database/interpreter.h>
 

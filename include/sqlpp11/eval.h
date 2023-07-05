@@ -51,7 +51,7 @@ namespace sqlpp
   template <typename Db,
             typename Expr,
             typename std::enable_if<not std::is_convertible<Expr, std::string>::value, int>::type = 0>
-  auto eval(Db& db, Expr expr) -> typename eval_t<Db, Expr>::type
+  auto eval(Db& db, Expr expr) -> typename eval_t<typename Db::_conn_base_t, Expr>::type
   {
     return db(select(expr.as(alias::a))).front().a;
   }
