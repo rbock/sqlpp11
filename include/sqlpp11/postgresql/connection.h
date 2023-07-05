@@ -1,5 +1,6 @@
 /**
  * Copyright © 2014-2015, Matthijs Möhlmann
+ * Copyright (c) 2023, Vesselin Atanasov
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,39 +64,39 @@ namespace sqlpp
     namespace detail
     {
       // Forward declaration
-      inline std::unique_ptr<detail::prepared_statement_handle_t> prepare_statement(detail::connection_handle& handle,
+      inline std::unique_ptr<detail::prepared_statement_handle_t> prepare_statement(std::unique_ptr<connection_handle>& handle,
                                                                              const std::string& stmt,
                                                                              const size_t& paramCount)
       {
-        if (handle.config->debug)
+        if (handle->config->debug)
         {
           std::cerr << "PostgreSQL debug: preparing: " << stmt << std::endl;
         }
 
-        return std::unique_ptr<detail::prepared_statement_handle_t>(new detail::prepared_statement_handle_t 
-                                                                    (handle, stmt, paramCount));
+        return std::unique_ptr<detail::prepared_statement_handle_t>(new detail::prepared_statement_handle_t
+                                                                    (*handle, stmt, paramCount));
       }
 
-      inline void execute_prepared_statement(detail::connection_handle& handle, detail::prepared_statement_handle_t& prepared)
+      inline void execute_prepared_statement(std::unique_ptr<connection_handle>& handle, std::shared_ptr<detail::prepared_statement_handle_t>& prepared)
       {
-        if (handle.config->debug)
+        if (handle->config->debug)
         {
-          std::cerr << "PostgreSQL debug: executing: " << prepared.name() << std::endl;
+          std::cerr << "PostgreSQL debug: executing: " << prepared->name() << std::endl;
         }
-        prepared.execute();
+        prepared->execute();
       }
     }
 
     // Forward declaration
-    class connection;
+    class conn_base;
 
     // Context
     struct context_t
     {
-      context_t(const connection& db) : _db(db)
+      context_t(const conn_base& db) : _db(db)
       {
       }
-      context_t(const connection&&) = delete;
+      context_t(const conn_base&&) = delete;
 
       template <typename T>
       std::ostream& operator<<(T t)
@@ -108,7 +109,7 @@ namespace sqlpp
         return _os << (t ? "TRUE" : "FALSE");
       }
 
-      std::string escape(const std::string& arg);
+      std::string escape(const std::string& arg) const;
 
       std::string str() const
       {
@@ -125,39 +126,21 @@ namespace sqlpp
         ++_count;
       }
 
-      const connection& _db;
+      const conn_base& _db;
       sqlpp::detail::float_safe_ostringstream _os;
       size_t _count{1};
     };
 
-    // Connection
-    class connection : public sqlpp::connection
+    // Base connection class
+    class conn_base : public sqlpp::connection
     {
-    private:
-      std::unique_ptr<detail::connection_handle> _handle;
-      bool _transaction_active{false};
-
-      void validate_connection_handle() const
-      {
-        if (!_handle)
-          throw std::logic_error("connection handle used, but not initialized");
-      }
-
-      // direct execution
-      bind_result_t select_impl(const std::string& stmt);
-      size_t insert_impl(const std::string& stmt);
-      size_t update_impl(const std::string& stmt);
-      size_t remove_impl(const std::string& stmt);
-
-      // prepared execution
-      prepared_statement_t prepare_impl(const std::string& stmt, const size_t& paramCount);
-      bind_result_t run_prepared_select_impl(prepared_statement_t& prep);
-      size_t run_prepared_execute_impl(prepared_statement_t& prep);
-      size_t run_prepared_insert_impl(prepared_statement_t& prep);
-      size_t run_prepared_update_impl(prepared_statement_t& prep);
-      size_t run_prepared_remove_impl(prepared_statement_t& prep);
-
     public:
+      using _conn_base_t = conn_base;
+      using _config_t = connection_config;
+      using _config_ptr_t = std::shared_ptr<const _config_t>;
+      using _handle_t = detail::connection_handle;
+      using _handle_ptr_t = std::unique_ptr<_handle_t>;
+
       using _prepared_statement_t = prepared_statement_t;
       using _context_t = context_t;
       using _serializer_context_t = _context_t;
@@ -180,23 +163,11 @@ namespace sqlpp
         return ::sqlpp::serialize(t, context);
       }
 
-      // ctor / dtor
-      connection();
-      connection(const std::shared_ptr<const connection_config>& config);
-      ~connection();
-      connection(const connection&) = delete;
-      connection(connection&&);
-      connection& operator=(const connection&) = delete;
-      connection& operator=(connection&&);
-
-      // creates a connection handle and connects to database
-      void connectUsing(const std::shared_ptr<const connection_config>& config) noexcept(false);
-
       // Select stmt (returns a result)
       template <typename Select>
       bind_result_t select(const Select& s)
       {
-        _context_t ctx(*this);
+        _context_t ctx{*this};
         serialize(s, ctx);
         return select_impl(ctx.str());
       }
@@ -205,7 +176,7 @@ namespace sqlpp
       template <typename Select>
       _prepared_statement_t prepare_select(Select& s)
       {
-        _context_t ctx(*this);
+        _context_t ctx{*this};
         serialize(s, ctx);
         return prepare_impl(ctx.str(), ctx.count() - 1);
       }
@@ -221,7 +192,7 @@ namespace sqlpp
       template <typename Insert>
       size_t insert(const Insert& i)
       {
-        _context_t ctx(*this);
+        _context_t ctx{*this};
         serialize(i, ctx);
         return insert_impl(ctx.str());
       }
@@ -229,7 +200,7 @@ namespace sqlpp
       template <typename Insert>
       prepared_statement_t prepare_insert(Insert& i)
       {
-        _context_t ctx(*this);
+        _context_t ctx{*this};
         serialize(i, ctx);
         return prepare_impl(ctx.str(), ctx.count() - 1);
       }
@@ -245,7 +216,7 @@ namespace sqlpp
       template <typename Update>
       size_t update(const Update& u)
       {
-        _context_t ctx(*this);
+        _context_t ctx{*this};
         serialize(u, ctx);
         return update_impl(ctx.str());
       }
@@ -253,7 +224,7 @@ namespace sqlpp
       template <typename Update>
       prepared_statement_t prepare_update(Update& u)
       {
-        _context_t ctx(*this);
+        _context_t ctx{*this};
         serialize(u, ctx);
         return prepare_impl(ctx.str(), ctx.count() - 1);
       }
@@ -269,7 +240,7 @@ namespace sqlpp
       template <typename Remove>
       size_t remove(const Remove& r)
       {
-        _context_t ctx(*this);
+        _context_t ctx{*this};
         serialize(r, ctx);
         return remove_impl(ctx.str());
       }
@@ -277,7 +248,7 @@ namespace sqlpp
       template <typename Remove>
       prepared_statement_t prepare_remove(Remove& r)
       {
-        _context_t ctx(*this);
+        _context_t ctx{*this};
         serialize(r, ctx);
         return prepare_impl(ctx.str(), ctx.count() - 1);
       }
@@ -290,14 +261,27 @@ namespace sqlpp
       }
 
       // Execute
-      std::shared_ptr<detail::statement_handle_t> execute(const std::string& command);
+      std::shared_ptr<detail::statement_handle_t> execute(const std::string& stmt)
+      {
+        validate_connection_handle();
+        if (_handle->config->debug)
+        {
+          std::cerr << "PostgreSQL debug: executing: " << stmt << std::endl;
+        }
+
+        auto result = std::make_shared<detail::statement_handle_t>(*_handle);
+        result->result = PQexec(native_handle(), stmt.c_str());
+        result->valid = true;
+
+        return result;
+      }
 
       template <
           typename Execute,
           typename Enable = typename std::enable_if<not std::is_convertible<Execute, std::string>::value, void>::type>
       std::shared_ptr<detail::statement_handle_t> execute(const Execute& x)
       {
-        _context_t ctx(*this);
+        _context_t ctx{*this};
         serialize(x, ctx);
         return execute(ctx.str());
       }
@@ -305,7 +289,7 @@ namespace sqlpp
       template <typename Execute>
       _prepared_statement_t prepare_execute(Execute& x)
       {
-        _context_t ctx(*this);
+        _context_t ctx{*this};
         serialize(x, ctx);
         return prepare_impl(ctx.str(), ctx.count() - 1);
       }
@@ -319,7 +303,19 @@ namespace sqlpp
       }
 
       // escape argument
-      std::string escape(const std::string& s) const;
+      // TODO: Fix escaping. Does it really need fixing?
+      std::string escape(const std::string& s) const
+      {
+        validate_connection_handle();
+        // Escape strings
+        std::string result;
+        result.resize((s.size() * 2) + 1);
+
+        int err;
+        size_t length = PQescapeStringConn(native_handle(), &result[0], s.c_str(), s.size(), &err);
+        result.resize(length);
+        return result;
+      }
 
       //! call run on the argument
       template <typename T>
@@ -354,340 +350,270 @@ namespace sqlpp
       }
 
       //! set the default transaction isolation level to use for new transactions
-      void set_default_isolation_level(isolation_level level);
+      void set_default_isolation_level(isolation_level level)
+      {
+        std::string level_str = "read uncommmitted";
+        switch (level)
+        {
+          /// @todo what about undefined ?
+          case isolation_level::read_committed:
+            level_str = "read committed";
+            break;
+          case isolation_level::read_uncommitted:
+            level_str = "read uncommitted";
+            break;
+          case isolation_level::repeatable_read:
+            level_str = "repeatable read";
+            break;
+          case isolation_level::serializable:
+            level_str = "serializable";
+            break;
+          default:
+            throw sqlpp::exception("Invalid isolation level");
+        }
+        std::string cmd = "SET default_transaction_isolation to '" + level_str + "'";
+        execute(cmd);
+      }
 
       //! get the currently set default transaction isolation level
-      isolation_level get_default_isolation_level();
+      isolation_level get_default_isolation_level()
+      {
+        auto res = execute("SHOW default_transaction_isolation;");
+        auto status = res->result.status();
+        if ((status != PGRES_TUPLES_OK) && (status != PGRES_COMMAND_OK))
+        {
+          throw sqlpp::exception("PostgreSQL error: could not read default_transaction_isolation");
+        }
+
+        auto in = res->result.getStringValue(0, 0);
+        if (in == "read committed")
+        {
+          return isolation_level::read_committed;
+        }
+        else if (in == "read uncommitted")
+        {
+          return isolation_level::read_uncommitted;
+        }
+        else if (in == "repeatable read")
+        {
+          return isolation_level::repeatable_read;
+        }
+        else if (in == "serializable")
+        {
+          return isolation_level::serializable;
+        }
+        return isolation_level::undefined;
+      }
 
       //! create savepoint
-      void savepoint(const std::string& name);
+      void savepoint(const std::string& name)
+      {
+        /// NOTE prevent from sql injection?
+        execute("SAVEPOINT " + name);
+      }
 
       //! ROLLBACK TO SAVEPOINT
-      void rollback_to_savepoint(const std::string& name);
+      void rollback_to_savepoint(const std::string& name)
+      {
+        /// NOTE prevent from sql injection?
+        execute("ROLLBACK TO SAVEPOINT " + name);
+      }
 
       //! release_savepoint
-      void release_savepoint(const std::string& name);
+      void release_savepoint(const std::string& name)
+      {
+        /// NOTE prevent from sql injection?
+        execute("RELEASE SAVEPOINT " + name);
+      }
 
       //! start transaction
-      void start_transaction(isolation_level level = isolation_level::undefined);
+      void start_transaction(isolation_level level = isolation_level::undefined)
+      {
+        if (_transaction_active)
+        {
+          throw sqlpp::exception("PostgreSQL error: transaction already open");
+        }
+        switch (level)
+        {
+          case isolation_level::serializable:
+          {
+            execute("BEGIN ISOLATION LEVEL SERIALIZABLE");
+            break;
+          }
+          case isolation_level::repeatable_read:
+          {
+            execute("BEGIN ISOLATION LEVEL REPEATABLE READ");
+            break;
+          }
+          case isolation_level::read_committed:
+          {
+            execute("BEGIN ISOLATION LEVEL READ COMMITTED");
+            break;
+          }
+          case isolation_level::read_uncommitted:
+          {
+            execute("BEGIN ISOLATION LEVEL READ UNCOMMITTED");
+            break;
+          }
+          case isolation_level::undefined:
+          {
+            execute("BEGIN");
+            break;
+          }
+        }
+        _transaction_active = true;
+      }
 
-      //! commit transaction (or throw transaction if transaction has
-      // finished already)
-      void commit_transaction();
+      //! commit transaction (or throw transaction if transaction has finished already)
+      void commit_transaction()
+      {
+        if (!_transaction_active)
+        {
+          throw sqlpp::exception("PostgreSQL error: transaction failed or finished.");
+        }
+
+        _transaction_active = false;
+        execute("COMMIT");
+      }
 
       //! rollback transaction
-      void rollback_transaction(bool report);
+      void rollback_transaction(bool report)
+      {
+        if (!_transaction_active)
+        {
+          throw sqlpp::exception("PostgreSQL error: transaction failed or finished.");
+        }
+        execute("ROLLBACK");
+        if (report)
+        {
+          std::cerr << "PostgreSQL warning: rolling back unfinished transaction" << std::endl;
+        }
+
+        _transaction_active = false;
+      }
 
       //! report rollback failure
-      void report_rollback_failure(const std::string& message) noexcept;
+      void report_rollback_failure(const std::string& message) noexcept
+      {
+        std::cerr << "PostgreSQL error: " << message << std::endl;
+      }
 
       //! get the last inserted id for a certain table
-      uint64_t last_insert_id(const std::string& table, const std::string& fieldname);
+      uint64_t last_insert_id(const std::string& table, const std::string& fieldname)
+      {
+        std::string sql = "SELECT currval('" + table + "_" + fieldname + "_seq')";
+        PGresult* res = PQexec(native_handle(), sql.c_str());
+        if (PQresultStatus(res) != PGRES_TUPLES_OK)
+        {
+          std::string err{PQresultErrorMessage(res)};
+          PQclear(res);
+          throw sqlpp::postgresql::undefined_table(err, sql);
+        }
 
-      ::PGconn* native_handle();
+        // Parse the number and return.
+        std::string in{PQgetvalue(res, 0, 0)};
+        PQclear(res);
+        return std::stoul(in);
+      }
+
+      ::PGconn* native_handle() const
+      {
+        return _handle->native_handle();
+      }
+
+    protected:
+      _handle_ptr_t _handle;
+
+      // Constructors
+      conn_base() = default;
+      conn_base(_handle_ptr_t&& handle) : _handle{std::move(handle)}
+      {
+      }
+
+    private:
+      bool _transaction_active{false};
+
+      void validate_connection_handle() const
+      {
+        if (!_handle) {
+          throw std::logic_error("connection handle used, but not initialized");
+        }
+      }
+
+      // direct execution
+      bind_result_t select_impl(const std::string& stmt)
+      {
+        return execute(stmt);
+      }
+
+      size_t insert_impl(const std::string& stmt)
+      {
+        return static_cast<size_t>(execute(stmt)->result.affected_rows());
+      }
+
+      size_t update_impl(const std::string& stmt)
+      {
+        return static_cast<size_t>(execute(stmt)->result.affected_rows());
+      }
+
+      size_t remove_impl(const std::string& stmt)
+      {
+        return static_cast<size_t>(execute(stmt)->result.affected_rows());
+      }
+
+      // prepared execution
+      prepared_statement_t prepare_impl(const std::string& stmt, const size_t& paramCount)
+      {
+        validate_connection_handle();
+        return {prepare_statement(_handle, stmt, paramCount)};
+      }
+
+      bind_result_t run_prepared_select_impl(prepared_statement_t& prep)
+      {
+        validate_connection_handle();
+        execute_prepared_statement(_handle, prep._handle);
+        return {prep._handle};
+      }
+
+      size_t run_prepared_execute_impl(prepared_statement_t& prep)
+      {
+        validate_connection_handle();
+        execute_prepared_statement(_handle, prep._handle);
+        return static_cast<size_t>(prep._handle->result.affected_rows());
+      }
+
+      size_t run_prepared_insert_impl(prepared_statement_t& prep)
+      {
+        validate_connection_handle();
+        execute_prepared_statement(_handle, prep._handle);
+        return static_cast<size_t>(prep._handle->result.affected_rows());
+      }
+
+      size_t run_prepared_update_impl(prepared_statement_t& prep)
+      {
+        validate_connection_handle();
+        execute_prepared_statement(_handle, prep._handle);
+        return static_cast<size_t>(prep._handle->result.affected_rows());
+      }
+
+      size_t run_prepared_remove_impl(prepared_statement_t& prep)
+      {
+        validate_connection_handle();
+        execute_prepared_statement(_handle, prep._handle);
+        return static_cast<size_t>(prep._handle->result.affected_rows());
+      }
     };
 
-    inline connection::connection() : _handle()
-    {
-    }
-
-    inline connection::connection(const std::shared_ptr<const connection_config>& config)
-        : _handle(new detail::connection_handle(config))
-    {
-    }
-
-    inline connection::~connection()
-    {
-    }
-
-    inline connection::connection(connection&& other)
-    {
-      this->_transaction_active = other._transaction_active;
-      this->_handle = std::move(other._handle);
-    }
-
-    inline connection& connection::operator=(connection&& other)
-    {
-      if (this != &other)
-      {
-        // TODO: check this logic
-        this->_transaction_active = other._transaction_active;
-        this->_handle = std::move(other._handle);
-      }
-      return *this;
-    }
-
-    inline void connection::connectUsing(const std::shared_ptr<const connection_config>& config) noexcept(false)
-    {
-      this->_handle.reset(new detail::connection_handle(config));
-    }
-
-    inline std::shared_ptr<detail::statement_handle_t> connection::execute(const std::string& stmt)
-    {
-      validate_connection_handle();
-      if (_handle->config->debug)
-      {
-        std::cerr << "PostgreSQL debug: executing: " << stmt << std::endl;
-      }
-
-      auto result = std::make_shared<detail::statement_handle_t>(*_handle);
-      result->result = PQexec(_handle->native(), stmt.c_str());
-      result->valid = true;
-
-      return result;
-    }
-    // direct execution
-    inline bind_result_t connection::select_impl(const std::string& stmt)
-    {
-      return execute(stmt);
-    }
-
-    inline size_t connection::insert_impl(const std::string& stmt)
-    {
-      return static_cast<size_t>(execute(stmt)->result.affected_rows());
-    }
-
-    inline size_t connection::update_impl(const std::string& stmt)
-    {
-      return static_cast<size_t>(execute(stmt)->result.affected_rows());
-    }
-
-    inline size_t connection::remove_impl(const std::string& stmt)
-    {
-      return static_cast<size_t>(execute(stmt)->result.affected_rows());
-    }
-
-    // prepared execution
-    inline prepared_statement_t connection::prepare_impl(const std::string& stmt, const size_t& paramCount)
-    {
-      validate_connection_handle();
-      return {prepare_statement(*_handle, stmt, paramCount)};
-    }
-
-    inline bind_result_t connection::run_prepared_select_impl(prepared_statement_t& prep)
-    {
-      validate_connection_handle();
-      execute_prepared_statement(*_handle, *prep._handle.get());
-      return {prep._handle};
-    }
-
-    inline size_t connection::run_prepared_execute_impl(prepared_statement_t& prep)
-    {
-      validate_connection_handle();
-      execute_prepared_statement(*_handle, *prep._handle.get());
-      return static_cast<size_t>(prep._handle->result.affected_rows());
-    }
-
-    inline size_t connection::run_prepared_insert_impl(prepared_statement_t& prep)
-    {
-      validate_connection_handle();
-      execute_prepared_statement(*_handle, *prep._handle.get());
-      return static_cast<size_t>(prep._handle->result.affected_rows());
-    }
-
-    inline size_t connection::run_prepared_update_impl(prepared_statement_t& prep)
-    {
-      validate_connection_handle();
-      execute_prepared_statement(*_handle, *prep._handle.get());
-      return static_cast<size_t>(prep._handle->result.affected_rows());
-    }
-
-    inline size_t connection::run_prepared_remove_impl(prepared_statement_t& prep)
-    {
-      validate_connection_handle();
-      execute_prepared_statement(*_handle, *prep._handle.get());
-      return static_cast<size_t>(prep._handle->result.affected_rows());
-    }
-
-    inline void connection::set_default_isolation_level(isolation_level level)
-    {
-      std::string level_str = "read uncommmitted";
-      switch (level)
-      {
-        /// @todo what about undefined ?
-        case isolation_level::read_committed:
-          level_str = "read committed";
-          break;
-        case isolation_level::read_uncommitted:
-          level_str = "read uncommitted";
-          break;
-        case isolation_level::repeatable_read:
-          level_str = "repeatable read";
-          break;
-        case isolation_level::serializable:
-          level_str = "serializable";
-          break;
-        default:
-          throw sqlpp::exception("Invalid isolation level");
-      }
-      std::string cmd = "SET default_transaction_isolation to '" + level_str + "'";
-      execute(cmd);
-    }
-
-    inline isolation_level connection::get_default_isolation_level()
-    {
-      auto res = execute("SHOW default_transaction_isolation;");
-      auto status = res->result.status();
-      if ((status != PGRES_TUPLES_OK) && (status != PGRES_COMMAND_OK))
-      {
-        throw sqlpp::exception("PostgreSQL error: could not read default_transaction_isolation");
-      }
-
-      auto in = res->result.getStringValue(0, 0);
-      if (in == "read committed")
-      {
-        return isolation_level::read_committed;
-      }
-      else if (in == "read uncommitted")
-      {
-        return isolation_level::read_uncommitted;
-      }
-      else if (in == "repeatable read")
-      {
-        return isolation_level::repeatable_read;
-      }
-      else if (in == "serializable")
-      {
-        return isolation_level::serializable;
-      }
-      return isolation_level::undefined;
-    }
-
-    // TODO: Fix escaping.
-    inline std::string connection::escape(const std::string& s) const
-    {
-      validate_connection_handle();
-      // Escape strings
-      std::string result;
-      result.resize((s.size() * 2) + 1);
-
-      int err;
-      size_t length = PQescapeStringConn(_handle->native(), &result[0], s.c_str(), s.size(), &err);
-      result.resize(length);
-      return result;
-    }
-
-    //! start transaction
-    inline void connection::start_transaction(sqlpp::isolation_level level)
-    {
-      if (_transaction_active)
-      {
-        throw sqlpp::exception("PostgreSQL error: transaction already open");
-      }
-      switch (level)
-      {
-        case isolation_level::serializable:
-        {
-          execute("BEGIN ISOLATION LEVEL SERIALIZABLE");
-          break;
-        }
-        case isolation_level::repeatable_read:
-        {
-          execute("BEGIN ISOLATION LEVEL REPEATABLE READ");
-          break;
-        }
-        case isolation_level::read_committed:
-        {
-          execute("BEGIN ISOLATION LEVEL READ COMMITTED");
-          break;
-        }
-        case isolation_level::read_uncommitted:
-        {
-          execute("BEGIN ISOLATION LEVEL READ UNCOMMITTED");
-          break;
-        }
-        case isolation_level::undefined:
-        {
-          execute("BEGIN");
-          break;
-        }
-      }
-      _transaction_active = true;
-    }
-
-    //! create savepoint
-    inline void connection::savepoint(const std::string& name)
-    {
-      /// NOTE prevent from sql injection?
-      execute("SAVEPOINT " + name);
-    }
-
-    //! ROLLBACK TO SAVEPOINT
-    inline void connection::rollback_to_savepoint(const std::string& name)
-    {
-      /// NOTE prevent from sql injection?
-      execute("ROLLBACK TO SAVEPOINT " + name);
-    }
-
-    //! release_savepoint
-    inline void connection::release_savepoint(const std::string& name)
-    {
-      /// NOTE prevent from sql injection?
-      execute("RELEASE SAVEPOINT " + name);
-    }
-
-    //! commit transaction (or throw transaction if transaction has finished already)
-    inline void connection::commit_transaction()
-    {
-      if (!_transaction_active)
-      {
-        throw sqlpp::exception("PostgreSQL error: transaction failed or finished.");
-      }
-
-      _transaction_active = false;
-      execute("COMMIT");
-    }
-
-    //! rollback transaction
-    inline void connection::rollback_transaction(bool report)
-    {
-      if (!_transaction_active)
-      {
-        throw sqlpp::exception("PostgreSQL error: transaction failed or finished.");
-      }
-      execute("ROLLBACK");
-      if (report)
-      {
-        std::cerr << "PostgreSQL warning: rolling back unfinished transaction" << std::endl;
-      }
-
-      _transaction_active = false;
-    }
-
-    //! report rollback failure
-    inline void connection::report_rollback_failure(const std::string& message) noexcept
-    {
-      std::cerr << "PostgreSQL error: " << message << std::endl;
-    }
-
-    inline uint64_t connection::last_insert_id(const std::string& table, const std::string& fieldname)
-    {
-      std::string sql = "SELECT currval('" + table + "_" + fieldname + "_seq')";
-      PGresult* res = PQexec(_handle->native(), sql.c_str());
-      if (PQresultStatus(res) != PGRES_TUPLES_OK)
-      {
-        std::string err{PQresultErrorMessage(res)};
-        PQclear(res);
-        throw sqlpp::postgresql::undefined_table(err, sql);
-      }
-
-      // Parse the number and return.
-      std::string in{PQgetvalue(res, 0, 0)};
-      PQclear(res);
-      return std::stoul(in);
-    }
-
-    inline ::PGconn* connection::native_handle()
-    {
-      return _handle->native();
-    }
-
-    inline std::string context_t::escape(const std::string& arg)
+    // Method definition moved outside of class because it needs conn_base
+    inline std::string context_t::escape(const std::string& arg) const
     {
       return _db.escape(arg);
     }
-  }
-}
+
+    using connection = sqlpp::conn_normal<conn_base>;
+    using conn_pooled = sqlpp::conn_pooled<conn_base>;
+  }  // namespace postgresql
+}  // namespace sqlpp
 
 #include <sqlpp11/postgresql/serializer.h>
 

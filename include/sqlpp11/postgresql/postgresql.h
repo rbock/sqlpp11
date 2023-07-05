@@ -1,5 +1,6 @@
 /**
  * Copyright © 2014-2015, Matthijs Möhlmann
+ * Copyright (c) 2023, Vesselin Atanasov
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,6 +30,7 @@
 #define SQLPP_POSTGRESQL_H
 
 #include <sqlpp11/postgresql/connection.h>
+#include <sqlpp11/postgresql/connection_pool.h>
 #include <sqlpp11/postgresql/exception.h>
 #include <sqlpp11/postgresql/insert.h>
 #include <sqlpp11/postgresql/update.h>
