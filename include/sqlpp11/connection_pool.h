@@ -33,13 +33,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace sqlpp
 {
-  template<typename ConnBase>
+  template<typename ConnectionBase>
   class connection_pool
   {
   public:
-    using _config_ptr_t = typename ConnBase::_config_ptr_t;
-    using _handle_ptr_t = typename ConnBase::_handle_ptr_t;
-    using _conn_pooled_t = sqlpp::conn_pooled<ConnBase>;
+    using _config_ptr_t = typename ConnectionBase::_config_ptr_t;
+    using _handle_ptr_t = typename ConnectionBase::_handle_ptr_t;
+    using _connection_pooled_t = sqlpp::connection_pooled<ConnectionBase>;
 
     class pool_core : public std::enable_shared_from_this<pool_core>
     {
@@ -52,7 +52,7 @@ namespace sqlpp
       pool_core& operator=(const pool_core&) = delete;
       pool_core& operator=(pool_core&&) = delete;
 
-      _conn_pooled_t get();
+      _connection_pooled_t get();
       void put(_handle_ptr_t& handle);
       // Returns number of connections available in the pool. Only used in tests.
       std::size_t available();
@@ -72,7 +72,7 @@ namespace sqlpp
     connection_pool& operator=(connection_pool&&) = default;
 
     void initialize(const _config_ptr_t& connection_config, std::size_t capacity);
-    _conn_pooled_t get();
+    _connection_pooled_t get();
     // Returns number of connections available in the pool. Only used in tests.
     std::size_t available();
 
@@ -80,20 +80,20 @@ namespace sqlpp
     std::shared_ptr<pool_core> _core;
   };
 
-  template<typename ConnBase>
-  connection_pool<ConnBase>::pool_core::pool_core(const _config_ptr_t& connection_config, std::size_t capacity) :
+  template<typename ConnectionBase>
+  connection_pool<ConnectionBase>::pool_core::pool_core(const _config_ptr_t& connection_config, std::size_t capacity) :
     _connection_config{connection_config},
     _handles{capacity}
   {
   }
 
-  template<typename ConnBase>
-  typename connection_pool<ConnBase>::_conn_pooled_t connection_pool<ConnBase>::pool_core::get()
+  template<typename ConnectionBase>
+  typename connection_pool<ConnectionBase>::_connection_pooled_t connection_pool<ConnectionBase>::pool_core::get()
   {
     std::unique_lock lock{_mutex};
     if (_handles.empty()) {
       lock.unlock();
-      return _conn_pooled_t{_connection_config, this->shared_from_this()};
+      return _connection_pooled_t{_connection_config, this->shared_from_this()};
     }
     auto handle = std::move(_handles.front());
     _handles.pop_front();
@@ -101,12 +101,12 @@ namespace sqlpp
     // If the fetched connection is dead, drop it and create a new one on the fly
     return
       handle->check_connection() ?
-      _conn_pooled_t{std::move(handle), this->shared_from_this()} :
-      _conn_pooled_t{_connection_config, this->shared_from_this()};
+      _connection_pooled_t{std::move(handle), this->shared_from_this()} :
+      _connection_pooled_t{_connection_config, this->shared_from_this()};
   }
 
-  template<typename ConnBase>
-  void connection_pool<ConnBase>::pool_core::put(_handle_ptr_t& handle)
+  template<typename ConnectionBase>
+  void connection_pool<ConnectionBase>::pool_core::put(_handle_ptr_t& handle)
   {
     std::unique_lock lock{_mutex};
     if (_handles.full ()) {
@@ -115,21 +115,21 @@ namespace sqlpp
     _handles.push_back(std::move(handle));
   }
 
-  template<typename ConnBase>
-  std::size_t connection_pool<ConnBase>::pool_core::available()
+  template<typename ConnectionBase>
+  std::size_t connection_pool<ConnectionBase>::pool_core::available()
   {
     std::unique_lock lock{_mutex};
     return _handles.size();
   }
 
-  template<typename ConnBase>
-  connection_pool<ConnBase>::connection_pool(const _config_ptr_t& connection_config, std::size_t capacity) :
+  template<typename ConnectionBase>
+  connection_pool<ConnectionBase>::connection_pool(const _config_ptr_t& connection_config, std::size_t capacity) :
     _core{std::make_shared<pool_core>(connection_config, capacity)}
   {
   }
 
-  template<typename ConnBase>
-  void connection_pool<ConnBase>::initialize(const _config_ptr_t& connection_config, std::size_t capacity)
+  template<typename ConnectionBase>
+  void connection_pool<ConnectionBase>::initialize(const _config_ptr_t& connection_config, std::size_t capacity)
   {
     if (_core) {
       throw std::runtime_error{"Connection pool already initialized"};
@@ -137,14 +137,14 @@ namespace sqlpp
     _core = std::make_shared<pool_core>(connection_config, capacity);
   }
 
-  template<typename ConnBase>
-  typename connection_pool<ConnBase>::_conn_pooled_t connection_pool<ConnBase>::get()
+  template<typename ConnectionBase>
+  typename connection_pool<ConnectionBase>::_connection_pooled_t connection_pool<ConnectionBase>::get()
   {
     return _core->get();
   }
 
-  template<typename ConnBase>
-  std::size_t connection_pool<ConnBase>::available()
+  template<typename ConnectionBase>
+  std::size_t connection_pool<ConnectionBase>::available()
   {
     return _core->available();
   }

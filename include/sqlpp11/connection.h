@@ -38,120 +38,120 @@ namespace sqlpp
   };
 
   // Normal (non-pooled) connection
-  template<typename ConnBase>
-  class conn_normal : public ConnBase
+  template<typename ConnectionBase>
+  class connection_normal : public ConnectionBase
   {
   public:
-    using _config_t = typename ConnBase::_config_t;
-    using _config_ptr_t = typename ConnBase::_config_ptr_t;
+    using _config_t = typename ConnectionBase::_config_t;
+    using _config_ptr_t = typename ConnectionBase::_config_ptr_t;
 
     // Constructors
-    conn_normal() = default;
-    conn_normal(const _config_t& config);
-    conn_normal(const _config_ptr_t& config);
-    conn_normal(const conn_normal&) = delete;
-    conn_normal(conn_normal&&) = default;
+    connection_normal() = default;
+    connection_normal(const _config_t& config);
+    connection_normal(const _config_ptr_t& config);
+    connection_normal(const connection_normal&) = delete;
+    connection_normal(connection_normal&&) = default;
 
     // Assigment operators
-    conn_normal& operator=(const conn_normal&) = delete;
-    conn_normal& operator=(conn_normal&&) = default;
+    connection_normal& operator=(const connection_normal&) = delete;
+    connection_normal& operator=(connection_normal&&) = default;
 
     // creates a connection handle and connects to database
     void connectUsing(const _config_ptr_t& config) noexcept(false);
 
   private:
-    using _handle_t = typename ConnBase::_handle_t;
+    using _handle_t = typename ConnectionBase::_handle_t;
   };
 
-  template<typename ConnBase>
-  conn_normal<ConnBase>::conn_normal(const _config_t& config) :
-    conn_normal{std::make_shared<_config_t>(config)}
+  template<typename ConnectionBase>
+  connection_normal<ConnectionBase>::connection_normal(const _config_t& config) :
+    connection_normal{std::make_shared<_config_t>(config)}
   {
   }
 
-  template<typename ConnBase>
-  conn_normal<ConnBase>::conn_normal(const _config_ptr_t& config) :
-    ConnBase{std::make_unique<_handle_t>(config)}
+  template<typename ConnectionBase>
+  connection_normal<ConnectionBase>::connection_normal(const _config_ptr_t& config) :
+    ConnectionBase{std::make_unique<_handle_t>(config)}
   {
   }
 
-  template<typename ConnBase>
-  void conn_normal<ConnBase>::connectUsing(const _config_ptr_t& config) noexcept(false)
+  template<typename ConnectionBase>
+  void connection_normal<ConnectionBase>::connectUsing(const _config_ptr_t& config) noexcept(false)
   {
-    ConnBase::_handle = std::make_unique<_handle_t>(config);
+    ConnectionBase::_handle = std::make_unique<_handle_t>(config);
   }
 
   // Forward declaration
-  template<typename ConnBase>
+  template<typename ConnectionBase>
   class connection_pool;
 
   // Pooled connection
-  template<typename ConnBase>
-  class conn_pooled : public ConnBase
+  template<typename ConnectionBase>
+  class connection_pooled : public ConnectionBase
   {
-    friend class connection_pool<ConnBase>::pool_core;
+    friend class connection_pool<ConnectionBase>::pool_core;
 
   public:
-    using _config_ptr_t = typename ConnBase::_config_ptr_t;
-    using _handle_t = typename ConnBase::_handle_t;
-    using _handle_ptr_t = typename ConnBase::_handle_ptr_t;
-    using _pool_core_ptr_t = std::shared_ptr<typename connection_pool<ConnBase>::pool_core>;
+    using _config_ptr_t = typename ConnectionBase::_config_ptr_t;
+    using _handle_t = typename ConnectionBase::_handle_t;
+    using _handle_ptr_t = typename ConnectionBase::_handle_ptr_t;
+    using _pool_core_ptr_t = std::shared_ptr<typename connection_pool<ConnectionBase>::pool_core>;
 
     // Copy/Move constructors
-    conn_pooled(const conn_pooled&) = delete;
-    conn_pooled(conn_pooled&& other) = default;
-    ~conn_pooled();
+    connection_pooled(const connection_pooled&) = delete;
+    connection_pooled(connection_pooled&& other) = default;
+    ~connection_pooled();
 
     // Assigment operators
-    conn_pooled& operator=(const conn_pooled&) = delete;
-    conn_pooled& operator=(conn_pooled&& other);
+    connection_pooled& operator=(const connection_pooled&) = delete;
+    connection_pooled& operator=(connection_pooled&& other);
 
   private:
     _pool_core_ptr_t _pool_core;
 
     // Constructors used by the connection pool
-    conn_pooled(_handle_ptr_t&& handle, _pool_core_ptr_t pool_core);
-    conn_pooled(const _config_ptr_t& config, _pool_core_ptr_t pool_core);
+    connection_pooled(_handle_ptr_t&& handle, _pool_core_ptr_t pool_core);
+    connection_pooled(const _config_ptr_t& config, _pool_core_ptr_t pool_core);
 
     void conn_release();
   };
 
-  template<typename ConnBase>
-  conn_pooled<ConnBase>::~conn_pooled()
+  template<typename ConnectionBase>
+  connection_pooled<ConnectionBase>::~connection_pooled()
   {
     conn_release();
   }
 
-  template<typename ConnBase>
-  conn_pooled<ConnBase>& conn_pooled<ConnBase>::operator=(conn_pooled&& other)
+  template<typename ConnectionBase>
+  connection_pooled<ConnectionBase>& connection_pooled<ConnectionBase>::operator=(connection_pooled&& other)
   {
     if (this != &other) {
       conn_release();
-      static_cast<ConnBase&>(*this) = std::move(static_cast<ConnBase&>(other));
+      static_cast<ConnectionBase&>(*this) = std::move(static_cast<ConnectionBase&>(other));
       _pool_core = std::move(other._pool_core);
     }
     return *this;
   }
 
-  template<typename ConnBase>
-  conn_pooled<ConnBase>::conn_pooled(_handle_ptr_t&& handle, _pool_core_ptr_t pool_core) :
-    ConnBase{std::move(handle)},
+  template<typename ConnectionBase>
+  connection_pooled<ConnectionBase>::connection_pooled(_handle_ptr_t&& handle, _pool_core_ptr_t pool_core) :
+    ConnectionBase{std::move(handle)},
     _pool_core{pool_core}
   {
   }
 
-  template<typename ConnBase>
-  conn_pooled<ConnBase>::conn_pooled(const _config_ptr_t& config, _pool_core_ptr_t pool_core) :
-    ConnBase{std::make_unique<_handle_t>(config)},
+  template<typename ConnectionBase>
+  connection_pooled<ConnectionBase>::connection_pooled(const _config_ptr_t& config, _pool_core_ptr_t pool_core) :
+    ConnectionBase{std::make_unique<_handle_t>(config)},
     _pool_core{pool_core}
   {
   }
 
-  template<typename ConnBase>
-  void conn_pooled<ConnBase>::conn_release()
+  template<typename ConnectionBase>
+  void connection_pooled<ConnectionBase>::conn_release()
   {
     if (_pool_core) {
-      _pool_core->put(ConnBase::_handle);
+      _pool_core->put(ConnectionBase::_handle);
       _pool_core = nullptr;
     }
   }

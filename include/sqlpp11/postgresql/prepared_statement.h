@@ -44,7 +44,7 @@ namespace sqlpp
 #endif
 
     // Forward declaration
-    class conn_base;
+    class connection_base;
 
     // Detail namespace
     namespace detail
@@ -55,7 +55,7 @@ namespace sqlpp
     class prepared_statement_t
     {
     private:
-      friend class sqlpp::postgresql::conn_base;
+      friend class sqlpp::postgresql::connection_base;
 
       std::shared_ptr<detail::prepared_statement_handle_t> _handle;
 

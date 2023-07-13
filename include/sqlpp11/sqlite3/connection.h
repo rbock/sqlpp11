@@ -166,11 +166,11 @@ namespace sqlpp
     }  // namespace detail
 
     // Forward declaration
-    class conn_base;
+    class connection_base;
 
     struct serializer_t
     {
-      serializer_t(const conn_base& db) : _db(db), _count(1)
+      serializer_t(const connection_base& db) : _db(db), _count(1)
       {
       }
 
@@ -197,16 +197,16 @@ namespace sqlpp
         ++_count;
       }
 
-      const conn_base& _db;
+      const connection_base& _db;
       sqlpp::detail::float_safe_ostringstream _os;
       size_t _count;
     };
 
     // Base connection class
-    class SQLPP11_SQLITE3_EXPORT conn_base : public sqlpp::connection
+    class SQLPP11_SQLITE3_EXPORT connection_base : public sqlpp::connection
     {
     public:
-      using _conn_base_t = conn_base;
+      using _connection_base_t = connection_base;
       using _config_t = connection_config;
       using _config_ptr_t = std::shared_ptr<const connection_config>;
       using _handle_t = detail::connection_handle;
@@ -517,8 +517,8 @@ namespace sqlpp
       _handle_ptr_t _handle;
 
       // Constructors
-      conn_base() = default;
-      conn_base(_handle_ptr_t&& handle) : _handle{std::move(handle)}
+      connection_base() = default;
+      connection_base(_handle_ptr_t&& handle) : _handle{std::move(handle)}
       {
       }
 
@@ -608,14 +608,14 @@ namespace sqlpp
       }
     };
 
-    // Method definition moved outside of class because it needs conn_base
+    // Method definition moved outside of class because it needs connection_base
     inline std::string serializer_t::escape(std::string arg)
     {
       return _db.escape(arg);
     }
 
-    using connection = sqlpp::conn_normal<conn_base>;
-    using conn_pooled = sqlpp::conn_pooled<conn_base>;
+    using connection = sqlpp::connection_normal<connection_base>;
+    using connection_pooled = sqlpp::connection_pooled<connection_base>;
   }  // namespace sqlite3
 }  // namespace sqlpp
 

@@ -88,11 +88,11 @@ namespace sqlpp
     };
 
     // The base database-specific connection class. Non-pooled and pooled connection classes derive from it
-    class conn_base : public sqlpp::connection  // this inheritance helps with ADL for dynamic_select, for instance
+    class connection_base : public sqlpp::connection  // this inheritance helps with ADL for dynamic_select, for instance
     {
     public:
       // Base configuration
-      using _conn_base_t = conn_base;
+      using _connection_base_t = connection_base;
 
       // Type of configuration instances
       using _config_t = connection_config;
@@ -208,17 +208,17 @@ namespace sqlpp
 
       // The constructors are private because the base class instances are never created directly,
       // The constructors are called from the constructors of the derived classes
-      conn_base() = default;
-      conn_base(_handle_ptr_t&& handle) : _handle{std::move(handle)}
+      connection_base() = default;
+      connection_base(_handle_ptr_t&& handle) : _handle{std::move(handle)}
       {
       }
     };
 
     // Normal non-pooled connections.
-    using connection = sqlpp::conn_normal<conn_base>;
+    using connection = sqlpp::connection_normal<connection_base>;
 
     // Pooled connections that are created by the thread pool
-    using conn_pooled = sqlpp::conn_pooled<conn_base>;
+    using connection_pooled = sqlpp::connection_pooled<connection_base>;
   }  // namespace database
 }  // namespace sqlpp
 

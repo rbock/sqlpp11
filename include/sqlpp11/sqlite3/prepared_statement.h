@@ -50,7 +50,7 @@ namespace sqlpp
   namespace sqlite3
   {
     // Forward declaration
-    class conn_base;
+    class connection_base;
 
     namespace detail
     {
@@ -75,7 +75,7 @@ namespace sqlpp
 
     class SQLPP11_SQLITE3_EXPORT prepared_statement_t
     {
-      friend class ::sqlpp::sqlite3::conn_base;
+      friend class ::sqlpp::sqlite3::connection_base;
       std::shared_ptr<detail::prepared_statement_handle_t> _handle;
 
     public:

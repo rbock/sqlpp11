@@ -34,6 +34,6 @@ namespace sqlpp
 {
   namespace postgresql
   {
-    using connection_pool = sqlpp::connection_pool<conn_base>;
+    using connection_pool = sqlpp::connection_pool<connection_base>;
   }  // namespace postgresql
 } // namespace sqlpp

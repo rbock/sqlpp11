@@ -234,14 +234,14 @@ namespace sqlpp
     }
 
     // Forward declaration
-    class conn_base;
+    class connection_base;
 
     struct serializer_t
     {
-      serializer_t(const conn_base& db) : _db(db)
+      serializer_t(const connection_base& db) : _db(db)
       {
       }
-      serializer_t(const conn_base&&) = delete;
+      serializer_t(const connection_base&&) = delete;
 
       template <typename T>
       std::ostream& operator<<(T t)
@@ -256,7 +256,7 @@ namespace sqlpp
         return _os.str();
       }
 
-      const conn_base& _db;
+      const connection_base& _db;
       sqlpp::detail::float_safe_ostringstream _os;
     };
 
@@ -264,10 +264,10 @@ namespace sqlpp
 
     std::integral_constant<char, '`'> get_quote_right(const serializer_t&);
 
-    class conn_base : public sqlpp::connection
+    class connection_base : public sqlpp::connection
     {
     public:
-      using _conn_base_t = conn_base;
+      using _connection_base_t = connection_base;
       using _config_t = connection_config;
       using _config_ptr_t = std::shared_ptr<const _config_t>;
       using _handle_t = detail::connection_handle_t;
@@ -521,8 +521,8 @@ namespace sqlpp
       _handle_ptr_t _handle;
 
       // Constructors
-      conn_base() = default;
-      conn_base(_handle_ptr_t&& handle) : _handle{std::move(handle)}
+      connection_base() = default;
+      connection_base(_handle_ptr_t&& handle) : _handle{std::move(handle)}
       {
       }
 
@@ -594,14 +594,14 @@ namespace sqlpp
       }
     };
 
-    // Method definition moved outside of class because it needs conn_base
+    // Method definition moved outside of class because it needs connection_base
     inline std::string serializer_t::escape(std::string arg)
     {
       return _db.escape(arg);
     }
 
-    using connection = sqlpp::conn_normal<conn_base>;
-    using conn_pooled = sqlpp::conn_pooled<conn_base>;
+    using connection = sqlpp::connection_normal<connection_base>;
+    using connection_pooled = sqlpp::connection_pooled<connection_base>;
   }  // namespace mysql
 }  // namespace sqlpp
 

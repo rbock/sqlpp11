@@ -34,6 +34,6 @@ namespace sqlpp
 {
   namespace database
   {
-    using connection_pool = sqlpp::connection_pool<conn_pooled>;
+    using connection_pool = sqlpp::connection_pool<connection_pooled>;
   }  // namespace database
 } // namespace sqlpp
