@@ -39,7 +39,7 @@ namespace sqlpp
   public:
     using _config_ptr_t = typename ConnectionBase::_config_ptr_t;
     using _handle_ptr_t = typename ConnectionBase::_handle_ptr_t;
-    using _connection_pooled_t = sqlpp::connection_pooled<ConnectionBase>;
+    using _pooled_connection_t = sqlpp::pooled_connection<ConnectionBase>;
 
     class pool_core : public std::enable_shared_from_this<pool_core>
     {
@@ -52,7 +52,7 @@ namespace sqlpp
       pool_core& operator=(const pool_core&) = delete;
       pool_core& operator=(pool_core&&) = delete;
 
-      _connection_pooled_t get();
+      _pooled_connection_t get();
       void put(_handle_ptr_t& handle);
       // Returns number of connections available in the pool. Only used in tests.
       std::size_t available();
@@ -72,7 +72,7 @@ namespace sqlpp
     connection_pool& operator=(connection_pool&&) = default;
 
     void initialize(const _config_ptr_t& connection_config, std::size_t capacity);
-    _connection_pooled_t get();
+    _pooled_connection_t get();
     // Returns number of connections available in the pool. Only used in tests.
     std::size_t available();
 
@@ -88,12 +88,12 @@ namespace sqlpp
   }
 
   template<typename ConnectionBase>
-  typename connection_pool<ConnectionBase>::_connection_pooled_t connection_pool<ConnectionBase>::pool_core::get()
+  typename connection_pool<ConnectionBase>::_pooled_connection_t connection_pool<ConnectionBase>::pool_core::get()
   {
     std::unique_lock lock{_mutex};
     if (_handles.empty()) {
       lock.unlock();
-      return _connection_pooled_t{_connection_config, this->shared_from_this()};
+      return _pooled_connection_t{_connection_config, this->shared_from_this()};
     }
     auto handle = std::move(_handles.front());
     _handles.pop_front();
@@ -101,8 +101,8 @@ namespace sqlpp
     // If the fetched connection is dead, drop it and create a new one on the fly
     return
       handle->check_connection() ?
-      _connection_pooled_t{std::move(handle), this->shared_from_this()} :
-      _connection_pooled_t{_connection_config, this->shared_from_this()};
+      _pooled_connection_t{std::move(handle), this->shared_from_this()} :
+      _pooled_connection_t{_connection_config, this->shared_from_this()};
   }
 
   template<typename ConnectionBase>
@@ -138,7 +138,7 @@ namespace sqlpp
   }
 
   template<typename ConnectionBase>
-  typename connection_pool<ConnectionBase>::_connection_pooled_t connection_pool<ConnectionBase>::get()
+  typename connection_pool<ConnectionBase>::_pooled_connection_t connection_pool<ConnectionBase>::get()
   {
     return _core->get();
   }

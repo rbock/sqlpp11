@@ -600,8 +600,8 @@ namespace sqlpp
       return _db.escape(arg);
     }
 
-    using connection = sqlpp::connection_normal<connection_base>;
-    using connection_pooled = sqlpp::connection_pooled<connection_base>;
+    using connection = sqlpp::normal_connection<connection_base>;
+    using pooled_connection = sqlpp::pooled_connection<connection_base>;
   }  // namespace mysql
 }  // namespace sqlpp
 

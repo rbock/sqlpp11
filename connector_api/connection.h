@@ -215,10 +215,10 @@ namespace sqlpp
     };
 
     // Normal non-pooled connections.
-    using connection = sqlpp::connection_normal<connection_base>;
+    using connection = sqlpp::normal_connection<connection_base>;
 
     // Pooled connections that are created by the thread pool
-    using connection_pooled = sqlpp::connection_pooled<connection_base>;
+    using pooled_connection = sqlpp::pooled_connection<connection_base>;
   }  // namespace database
 }  // namespace sqlpp
 

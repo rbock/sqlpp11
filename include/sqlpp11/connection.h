@@ -39,22 +39,22 @@ namespace sqlpp
 
   // Normal (non-pooled) connection
   template<typename ConnectionBase>
-  class connection_normal : public ConnectionBase
+  class normal_connection : public ConnectionBase
   {
   public:
     using _config_t = typename ConnectionBase::_config_t;
     using _config_ptr_t = typename ConnectionBase::_config_ptr_t;
 
     // Constructors
-    connection_normal() = default;
-    connection_normal(const _config_t& config);
-    connection_normal(const _config_ptr_t& config);
-    connection_normal(const connection_normal&) = delete;
-    connection_normal(connection_normal&&) = default;
+    normal_connection() = default;
+    normal_connection(const _config_t& config);
+    normal_connection(const _config_ptr_t& config);
+    normal_connection(const normal_connection&) = delete;
+    normal_connection(normal_connection&&) = default;
 
     // Assigment operators
-    connection_normal& operator=(const connection_normal&) = delete;
-    connection_normal& operator=(connection_normal&&) = default;
+    normal_connection& operator=(const normal_connection&) = delete;
+    normal_connection& operator=(normal_connection&&) = default;
 
     // creates a connection handle and connects to database
     void connectUsing(const _config_ptr_t& config) noexcept(false);
@@ -64,19 +64,19 @@ namespace sqlpp
   };
 
   template<typename ConnectionBase>
-  connection_normal<ConnectionBase>::connection_normal(const _config_t& config) :
-    connection_normal{std::make_shared<_config_t>(config)}
+  normal_connection<ConnectionBase>::normal_connection(const _config_t& config) :
+    normal_connection{std::make_shared<_config_t>(config)}
   {
   }
 
   template<typename ConnectionBase>
-  connection_normal<ConnectionBase>::connection_normal(const _config_ptr_t& config) :
+  normal_connection<ConnectionBase>::normal_connection(const _config_ptr_t& config) :
     ConnectionBase{std::make_unique<_handle_t>(config)}
   {
   }
 
   template<typename ConnectionBase>
-  void connection_normal<ConnectionBase>::connectUsing(const _config_ptr_t& config) noexcept(false)
+  void normal_connection<ConnectionBase>::connectUsing(const _config_ptr_t& config) noexcept(false)
   {
     ConnectionBase::_handle = std::make_unique<_handle_t>(config);
   }
@@ -87,7 +87,7 @@ namespace sqlpp
 
   // Pooled connection
   template<typename ConnectionBase>
-  class connection_pooled : public ConnectionBase
+  class pooled_connection : public ConnectionBase
   {
     friend class connection_pool<ConnectionBase>::pool_core;
 
@@ -98,32 +98,32 @@ namespace sqlpp
     using _pool_core_ptr_t = std::shared_ptr<typename connection_pool<ConnectionBase>::pool_core>;
 
     // Copy/Move constructors
-    connection_pooled(const connection_pooled&) = delete;
-    connection_pooled(connection_pooled&& other) = default;
-    ~connection_pooled();
+    pooled_connection(const pooled_connection&) = delete;
+    pooled_connection(pooled_connection&& other) = default;
+    ~pooled_connection();
 
     // Assigment operators
-    connection_pooled& operator=(const connection_pooled&) = delete;
-    connection_pooled& operator=(connection_pooled&& other);
+    pooled_connection& operator=(const pooled_connection&) = delete;
+    pooled_connection& operator=(pooled_connection&& other);
 
   private:
     _pool_core_ptr_t _pool_core;
 
     // Constructors used by the connection pool
-    connection_pooled(_handle_ptr_t&& handle, _pool_core_ptr_t pool_core);
-    connection_pooled(const _config_ptr_t& config, _pool_core_ptr_t pool_core);
+    pooled_connection(_handle_ptr_t&& handle, _pool_core_ptr_t pool_core);
+    pooled_connection(const _config_ptr_t& config, _pool_core_ptr_t pool_core);
 
     void conn_release();
   };
 
   template<typename ConnectionBase>
-  connection_pooled<ConnectionBase>::~connection_pooled()
+  pooled_connection<ConnectionBase>::~pooled_connection()
   {
     conn_release();
   }
 
   template<typename ConnectionBase>
-  connection_pooled<ConnectionBase>& connection_pooled<ConnectionBase>::operator=(connection_pooled&& other)
+  pooled_connection<ConnectionBase>& pooled_connection<ConnectionBase>::operator=(pooled_connection&& other)
   {
     if (this != &other) {
       conn_release();
@@ -134,21 +134,21 @@ namespace sqlpp
   }
 
   template<typename ConnectionBase>
-  connection_pooled<ConnectionBase>::connection_pooled(_handle_ptr_t&& handle, _pool_core_ptr_t pool_core) :
+  pooled_connection<ConnectionBase>::pooled_connection(_handle_ptr_t&& handle, _pool_core_ptr_t pool_core) :
     ConnectionBase{std::move(handle)},
     _pool_core{pool_core}
   {
   }
 
   template<typename ConnectionBase>
-  connection_pooled<ConnectionBase>::connection_pooled(const _config_ptr_t& config, _pool_core_ptr_t pool_core) :
+  pooled_connection<ConnectionBase>::pooled_connection(const _config_ptr_t& config, _pool_core_ptr_t pool_core) :
     ConnectionBase{std::make_unique<_handle_t>(config)},
     _pool_core{pool_core}
   {
   }
 
   template<typename ConnectionBase>
-  void connection_pooled<ConnectionBase>::conn_release()
+  void pooled_connection<ConnectionBase>::conn_release()
   {
     if (_pool_core) {
       _pool_core->put(ConnectionBase::_handle);
