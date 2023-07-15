@@ -205,6 +205,91 @@ namespace sqlpp
     // Base connection class
     class SQLPP11_SQLITE3_EXPORT connection_base : public sqlpp::connection
     {
+    private:
+      enum class transaction_status_type
+      {
+        none,
+        maybe,
+        active
+      };
+
+      transaction_status_type _transaction_status = transaction_status_type::none;
+
+      // direct execution
+      bind_result_t select_impl(const std::string& statement)
+      {
+        std::unique_ptr<detail::prepared_statement_handle_t> prepared(
+            new detail::prepared_statement_handle_t(prepare_statement(_handle, statement)));
+        if (!prepared)
+        {
+          throw sqlpp::exception("Sqlite3 error: Could not store result set");
+        }
+
+        return {std::move(prepared)};
+      }
+
+      size_t insert_impl(const std::string& statement)
+      {
+        auto prepared = prepare_statement(_handle, statement);
+        execute_statement(_handle, prepared);
+
+        return static_cast<size_t>(sqlite3_last_insert_rowid(native_handle()));
+      }
+
+      size_t update_impl(const std::string& statement)
+      {
+        auto prepared = prepare_statement(_handle, statement);
+        execute_statement(_handle, prepared);
+        return static_cast<size_t>(sqlite3_changes(native_handle()));
+      }
+
+      size_t remove_impl(const std::string& statement)
+      {
+        auto prepared = prepare_statement(_handle, statement);
+        execute_statement(_handle, prepared);
+        return static_cast<size_t>(sqlite3_changes(native_handle()));
+      }
+
+      // prepared execution
+      prepared_statement_t prepare_impl(const std::string& statement)
+      {
+        return {std::unique_ptr<detail::prepared_statement_handle_t>(
+            new detail::prepared_statement_handle_t(prepare_statement(_handle, statement)))};
+      }
+
+      bind_result_t run_prepared_select_impl(prepared_statement_t& prepared_statement)
+      {
+        return {prepared_statement._handle};
+      }
+
+      size_t run_prepared_insert_impl(prepared_statement_t& prepared_statement)
+      {
+        execute_statement(_handle, *prepared_statement._handle.get());
+
+        return static_cast<size_t>(sqlite3_last_insert_rowid(native_handle()));
+      }
+
+      size_t run_prepared_update_impl(prepared_statement_t& prepared_statement)
+      {
+        execute_statement(_handle, *prepared_statement._handle.get());
+
+        return static_cast<size_t>(sqlite3_changes(native_handle()));
+      }
+
+      size_t run_prepared_remove_impl(prepared_statement_t& prepared_statement)
+      {
+        execute_statement(_handle, *prepared_statement._handle.get());
+
+        return static_cast<size_t>(sqlite3_changes(native_handle()));
+      }
+
+      size_t run_prepared_execute_impl(prepared_statement_t& prepared_statement)
+      {
+        execute_statement(_handle, *prepared_statement._handle.get());
+
+        return static_cast<size_t>(sqlite3_changes(native_handle()));
+      }
+
     public:
       using _connection_base_t = connection_base;
       using _config_t = connection_config;
@@ -520,91 +605,6 @@ namespace sqlpp
       connection_base() = default;
       connection_base(_handle_ptr_t&& handle) : _handle{std::move(handle)}
       {
-      }
-
-    private:
-      enum class transaction_status_type
-      {
-        none,
-        maybe,
-        active
-      };
-
-      transaction_status_type _transaction_status = transaction_status_type::none;
-
-      // direct execution
-      bind_result_t select_impl(const std::string& statement)
-      {
-        std::unique_ptr<detail::prepared_statement_handle_t> prepared(
-            new detail::prepared_statement_handle_t(prepare_statement(_handle, statement)));
-        if (!prepared)
-        {
-          throw sqlpp::exception("Sqlite3 error: Could not store result set");
-        }
-
-        return {std::move(prepared)};
-      }
-
-      size_t insert_impl(const std::string& statement)
-      {
-        auto prepared = prepare_statement(_handle, statement);
-        execute_statement(_handle, prepared);
-
-        return static_cast<size_t>(sqlite3_last_insert_rowid(native_handle()));
-      }
-
-      size_t update_impl(const std::string& statement)
-      {
-        auto prepared = prepare_statement(_handle, statement);
-        execute_statement(_handle, prepared);
-        return static_cast<size_t>(sqlite3_changes(native_handle()));
-      }
-
-      size_t remove_impl(const std::string& statement)
-      {
-        auto prepared = prepare_statement(_handle, statement);
-        execute_statement(_handle, prepared);
-        return static_cast<size_t>(sqlite3_changes(native_handle()));
-      }
-
-      // prepared execution
-      prepared_statement_t prepare_impl(const std::string& statement)
-      {
-        return {std::unique_ptr<detail::prepared_statement_handle_t>(
-            new detail::prepared_statement_handle_t(prepare_statement(_handle, statement)))};
-      }
-
-      bind_result_t run_prepared_select_impl(prepared_statement_t& prepared_statement)
-      {
-        return {prepared_statement._handle};
-      }
-
-      size_t run_prepared_insert_impl(prepared_statement_t& prepared_statement)
-      {
-        execute_statement(_handle, *prepared_statement._handle.get());
-
-        return static_cast<size_t>(sqlite3_last_insert_rowid(native_handle()));
-      }
-
-      size_t run_prepared_update_impl(prepared_statement_t& prepared_statement)
-      {
-        execute_statement(_handle, *prepared_statement._handle.get());
-
-        return static_cast<size_t>(sqlite3_changes(native_handle()));
-      }
-
-      size_t run_prepared_remove_impl(prepared_statement_t& prepared_statement)
-      {
-        execute_statement(_handle, *prepared_statement._handle.get());
-
-        return static_cast<size_t>(sqlite3_changes(native_handle()));
-      }
-
-      size_t run_prepared_execute_impl(prepared_statement_t& prepared_statement)
-      {
-        execute_statement(_handle, *prepared_statement._handle.get());
-
-        return static_cast<size_t>(sqlite3_changes(native_handle()));
       }
     };
 
