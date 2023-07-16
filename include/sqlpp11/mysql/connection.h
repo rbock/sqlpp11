@@ -266,6 +266,73 @@ namespace sqlpp
 
     class connection_base : public sqlpp::connection
     {
+    private:
+      bool _transaction_active = false;
+
+      // direct execution
+      char_result_t select_impl(const std::string& statement)
+      {
+        execute_statement(_handle, statement);
+        std::unique_ptr<detail::result_handle> result_handle(
+            new detail::result_handle(mysql_store_result(_handle->native_handle()), _handle->config->debug));
+        if (!*result_handle)
+        {
+          throw sqlpp::exception("MySQL error: Could not store result set: " +
+                                 std::string(mysql_error(_handle->native_handle())));
+        }
+
+        return {std::move(result_handle)};
+      }
+
+      size_t insert_impl(const std::string& statement)
+      {
+        execute_statement(_handle, statement);
+
+        return mysql_insert_id(_handle->native_handle());
+      }
+
+      size_t update_impl(const std::string& statement)
+      {
+        execute_statement(_handle, statement);
+        return mysql_affected_rows(_handle->native_handle());
+      }
+
+      size_t remove_impl(const std::string& statement)
+      {
+        execute_statement(_handle, statement);
+        return mysql_affected_rows(_handle->native_handle());
+      }
+
+      // prepared execution
+      prepared_statement_t prepare_impl(const std::string& statement, size_t no_of_parameters, size_t no_of_columns)
+      {
+        return prepare_statement(_handle, statement, no_of_parameters, no_of_columns);
+      }
+
+      bind_result_t run_prepared_select_impl(prepared_statement_t& prepared_statement)
+      {
+        execute_prepared_statement(*prepared_statement._handle);
+        return prepared_statement._handle;
+      }
+
+      size_t run_prepared_insert_impl(prepared_statement_t& prepared_statement)
+      {
+        execute_prepared_statement(*prepared_statement._handle);
+        return mysql_stmt_insert_id(prepared_statement._handle->mysql_stmt);
+      }
+
+      size_t run_prepared_update_impl(prepared_statement_t& prepared_statement)
+      {
+        execute_prepared_statement(*prepared_statement._handle);
+        return mysql_stmt_affected_rows(prepared_statement._handle->mysql_stmt);
+      }
+
+      size_t run_prepared_remove_impl(prepared_statement_t& prepared_statement)
+      {
+        execute_prepared_statement(*prepared_statement._handle);
+        return mysql_stmt_affected_rows(prepared_statement._handle->mysql_stmt);
+      }
+
     public:
       using _connection_base_t = connection_base;
       using _config_t = connection_config;
@@ -524,73 +591,6 @@ namespace sqlpp
       connection_base() = default;
       connection_base(_handle_ptr_t&& handle) : _handle{std::move(handle)}
       {
-      }
-
-    private:
-      bool _transaction_active = false;
-
-      // direct execution
-      char_result_t select_impl(const std::string& statement)
-      {
-        execute_statement(_handle, statement);
-        std::unique_ptr<detail::result_handle> result_handle(
-            new detail::result_handle(mysql_store_result(_handle->native_handle()), _handle->config->debug));
-        if (!*result_handle)
-        {
-          throw sqlpp::exception("MySQL error: Could not store result set: " +
-                                 std::string(mysql_error(_handle->native_handle())));
-        }
-
-        return {std::move(result_handle)};
-      }
-
-      size_t insert_impl(const std::string& statement)
-      {
-        execute_statement(_handle, statement);
-
-        return mysql_insert_id(_handle->native_handle());
-      }
-
-      size_t update_impl(const std::string& statement)
-      {
-        execute_statement(_handle, statement);
-        return mysql_affected_rows(_handle->native_handle());
-      }
-
-      size_t remove_impl(const std::string& statement)
-      {
-        execute_statement(_handle, statement);
-        return mysql_affected_rows(_handle->native_handle());
-      }
-
-      // prepared execution
-      prepared_statement_t prepare_impl(const std::string& statement, size_t no_of_parameters, size_t no_of_columns)
-      {
-        return prepare_statement(_handle, statement, no_of_parameters, no_of_columns);
-      }
-
-      bind_result_t run_prepared_select_impl(prepared_statement_t& prepared_statement)
-      {
-        execute_prepared_statement(*prepared_statement._handle);
-        return prepared_statement._handle;
-      }
-
-      size_t run_prepared_insert_impl(prepared_statement_t& prepared_statement)
-      {
-        execute_prepared_statement(*prepared_statement._handle);
-        return mysql_stmt_insert_id(prepared_statement._handle->mysql_stmt);
-      }
-
-      size_t run_prepared_update_impl(prepared_statement_t& prepared_statement)
-      {
-        execute_prepared_statement(*prepared_statement._handle);
-        return mysql_stmt_affected_rows(prepared_statement._handle->mysql_stmt);
-      }
-
-      size_t run_prepared_remove_impl(prepared_statement_t& prepared_statement)
-      {
-        execute_prepared_statement(*prepared_statement._handle);
-        return mysql_stmt_affected_rows(prepared_statement._handle->mysql_stmt);
       }
     };
 
