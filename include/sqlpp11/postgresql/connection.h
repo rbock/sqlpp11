@@ -191,7 +191,7 @@ namespace sqlpp
       template <typename Select>
       bind_result_t select(const Select& s)
       {
-        _context_t ctx{*this};
+        _context_t ctx(*this);
         serialize(s, ctx);
         return select_impl(ctx.str());
       }
@@ -200,7 +200,7 @@ namespace sqlpp
       template <typename Select>
       _prepared_statement_t prepare_select(Select& s)
       {
-        _context_t ctx{*this};
+        _context_t ctx(*this);
         serialize(s, ctx);
         return prepare_impl(ctx.str(), ctx.count() - 1);
       }
@@ -216,7 +216,7 @@ namespace sqlpp
       template <typename Insert>
       size_t insert(const Insert& i)
       {
-        _context_t ctx{*this};
+        _context_t ctx(*this);
         serialize(i, ctx);
         return insert_impl(ctx.str());
       }
@@ -224,7 +224,7 @@ namespace sqlpp
       template <typename Insert>
       prepared_statement_t prepare_insert(Insert& i)
       {
-        _context_t ctx{*this};
+        _context_t ctx(*this);
         serialize(i, ctx);
         return prepare_impl(ctx.str(), ctx.count() - 1);
       }
@@ -240,7 +240,7 @@ namespace sqlpp
       template <typename Update>
       size_t update(const Update& u)
       {
-        _context_t ctx{*this};
+        _context_t ctx(*this);
         serialize(u, ctx);
         return update_impl(ctx.str());
       }
@@ -248,7 +248,7 @@ namespace sqlpp
       template <typename Update>
       prepared_statement_t prepare_update(Update& u)
       {
-        _context_t ctx{*this};
+        _context_t ctx(*this);
         serialize(u, ctx);
         return prepare_impl(ctx.str(), ctx.count() - 1);
       }
@@ -264,7 +264,7 @@ namespace sqlpp
       template <typename Remove>
       size_t remove(const Remove& r)
       {
-        _context_t ctx{*this};
+        _context_t ctx(*this);
         serialize(r, ctx);
         return remove_impl(ctx.str());
       }
@@ -272,7 +272,7 @@ namespace sqlpp
       template <typename Remove>
       prepared_statement_t prepare_remove(Remove& r)
       {
-        _context_t ctx{*this};
+        _context_t ctx(*this);
         serialize(r, ctx);
         return prepare_impl(ctx.str(), ctx.count() - 1);
       }
@@ -292,7 +292,7 @@ namespace sqlpp
           typename Enable = typename std::enable_if<not std::is_convertible<Execute, std::string>::value, void>::type>
       std::shared_ptr<detail::statement_handle_t> execute(const Execute& x)
       {
-        _context_t ctx{*this};
+        _context_t ctx(*this);
         serialize(x, ctx);
         return execute(ctx.str());
       }
@@ -300,7 +300,7 @@ namespace sqlpp
       template <typename Execute>
       _prepared_statement_t prepare_execute(Execute& x)
       {
-        _context_t ctx{*this};
+        _context_t ctx(*this);
         serialize(x, ctx);
         return prepare_impl(ctx.str(), ctx.count() - 1);
       }
