@@ -134,6 +134,79 @@ namespace sqlpp
     // Base connection class
     class connection_base : public sqlpp::connection
     {
+    private:
+      bool _transaction_active{false};
+
+      void validate_connection_handle() const
+      {
+        if (!_handle) {
+          throw std::logic_error("connection handle used, but not initialized");
+        }
+      }
+
+      // direct execution
+      bind_result_t select_impl(const std::string& stmt)
+      {
+        return execute(stmt);
+      }
+
+      size_t insert_impl(const std::string& stmt)
+      {
+        return static_cast<size_t>(execute(stmt)->result.affected_rows());
+      }
+
+      size_t update_impl(const std::string& stmt)
+      {
+        return static_cast<size_t>(execute(stmt)->result.affected_rows());
+      }
+
+      size_t remove_impl(const std::string& stmt)
+      {
+        return static_cast<size_t>(execute(stmt)->result.affected_rows());
+      }
+
+      // prepared execution
+      prepared_statement_t prepare_impl(const std::string& stmt, const size_t& paramCount)
+      {
+        validate_connection_handle();
+        return {prepare_statement(_handle, stmt, paramCount)};
+      }
+
+      bind_result_t run_prepared_select_impl(prepared_statement_t& prep)
+      {
+        validate_connection_handle();
+        execute_prepared_statement(_handle, prep._handle);
+        return {prep._handle};
+      }
+
+      size_t run_prepared_execute_impl(prepared_statement_t& prep)
+      {
+        validate_connection_handle();
+        execute_prepared_statement(_handle, prep._handle);
+        return static_cast<size_t>(prep._handle->result.affected_rows());
+      }
+
+      size_t run_prepared_insert_impl(prepared_statement_t& prep)
+      {
+        validate_connection_handle();
+        execute_prepared_statement(_handle, prep._handle);
+        return static_cast<size_t>(prep._handle->result.affected_rows());
+      }
+
+      size_t run_prepared_update_impl(prepared_statement_t& prep)
+      {
+        validate_connection_handle();
+        execute_prepared_statement(_handle, prep._handle);
+        return static_cast<size_t>(prep._handle->result.affected_rows());
+      }
+
+      size_t run_prepared_remove_impl(prepared_statement_t& prep)
+      {
+        validate_connection_handle();
+        execute_prepared_statement(_handle, prep._handle);
+        return static_cast<size_t>(prep._handle->result.affected_rows());
+      }
+
     public:
       using _connection_base_t = connection_base;
       using _config_t = connection_config;
@@ -528,79 +601,6 @@ namespace sqlpp
       connection_base() = default;
       connection_base(_handle_ptr_t&& handle) : _handle{std::move(handle)}
       {
-      }
-
-    private:
-      bool _transaction_active{false};
-
-      void validate_connection_handle() const
-      {
-        if (!_handle) {
-          throw std::logic_error("connection handle used, but not initialized");
-        }
-      }
-
-      // direct execution
-      bind_result_t select_impl(const std::string& stmt)
-      {
-        return execute(stmt);
-      }
-
-      size_t insert_impl(const std::string& stmt)
-      {
-        return static_cast<size_t>(execute(stmt)->result.affected_rows());
-      }
-
-      size_t update_impl(const std::string& stmt)
-      {
-        return static_cast<size_t>(execute(stmt)->result.affected_rows());
-      }
-
-      size_t remove_impl(const std::string& stmt)
-      {
-        return static_cast<size_t>(execute(stmt)->result.affected_rows());
-      }
-
-      // prepared execution
-      prepared_statement_t prepare_impl(const std::string& stmt, const size_t& paramCount)
-      {
-        validate_connection_handle();
-        return {prepare_statement(_handle, stmt, paramCount)};
-      }
-
-      bind_result_t run_prepared_select_impl(prepared_statement_t& prep)
-      {
-        validate_connection_handle();
-        execute_prepared_statement(_handle, prep._handle);
-        return {prep._handle};
-      }
-
-      size_t run_prepared_execute_impl(prepared_statement_t& prep)
-      {
-        validate_connection_handle();
-        execute_prepared_statement(_handle, prep._handle);
-        return static_cast<size_t>(prep._handle->result.affected_rows());
-      }
-
-      size_t run_prepared_insert_impl(prepared_statement_t& prep)
-      {
-        validate_connection_handle();
-        execute_prepared_statement(_handle, prep._handle);
-        return static_cast<size_t>(prep._handle->result.affected_rows());
-      }
-
-      size_t run_prepared_update_impl(prepared_statement_t& prep)
-      {
-        validate_connection_handle();
-        execute_prepared_statement(_handle, prep._handle);
-        return static_cast<size_t>(prep._handle->result.affected_rows());
-      }
-
-      size_t run_prepared_remove_impl(prepared_statement_t& prep)
-      {
-        validate_connection_handle();
-        execute_prepared_statement(_handle, prep._handle);
-        return static_cast<size_t>(prep._handle->result.affected_rows());
       }
     };
 
