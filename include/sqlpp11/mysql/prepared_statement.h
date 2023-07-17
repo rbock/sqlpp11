@@ -41,11 +41,11 @@ namespace sqlpp
 {
   namespace mysql
   {
-    class connection;
+    class connection_base;
 
     class prepared_statement_t
     {
-      friend ::sqlpp::mysql::connection;
+      friend ::sqlpp::mysql::connection_base;
       std::shared_ptr<detail::prepared_statement_handle_t> _handle;
 
     public:

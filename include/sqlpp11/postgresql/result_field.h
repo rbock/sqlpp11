@@ -40,7 +40,8 @@ namespace sqlpp
 {
   namespace postgresql
   {
-    class connection;
+    // Forward declaration
+    class connection_base;
   }
 
   namespace detail
@@ -93,8 +94,8 @@ namespace sqlpp
   }  // namespace detail
 
   template <typename NameType, bool CanBeNull>
-  struct result_field_t<postgresql::connection, field_spec_t<NameType, blob, CanBeNull>>
-      : public result_field_base<postgresql::connection, field_spec_t<NameType, blob, CanBeNull>>
+  struct result_field_t<postgresql::connection_base, field_spec_t<NameType, blob, CanBeNull>>
+      : public result_field_base<postgresql::connection_base, field_spec_t<NameType, blob, CanBeNull>>
   {
   private:
     const uint8_t* _blob{nullptr};  // Non-owning

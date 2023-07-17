@@ -164,7 +164,7 @@ namespace sqlpp
         valid = false;
         count = 0;
         totalCount = 0;
-        result = PQexecPrepared(connection.native(), _name.data(), static_cast<int>(size), values.data(), nullptr, nullptr, 0);
+        result = PQexecPrepared(connection.native_handle(), _name.data(), static_cast<int>(size), values.data(), nullptr, nullptr, 0);
 		/// @todo validate result? is it really valid
         valid = true;
       }
@@ -188,7 +188,7 @@ namespace sqlpp
       inline void prepared_statement_handle_t::prepare(std::string stmt)
       {
         // Create the prepared statement
-        result = PQprepare(connection.native(), _name.c_str(), stmt.c_str(), 0, nullptr);
+        result = PQprepare(connection.native_handle(), _name.c_str(), stmt.c_str(), 0, nullptr);
         valid = true;
       }
     }

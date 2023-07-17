@@ -24,6 +24,7 @@
  */
 
 #include <iostream>
+#include "make_test_connection.h"
 #include "TabSample.h"
 #include <sqlpp11/sqlpp11.h>
 #include <sqlpp11/custom_query.h>
@@ -59,28 +60,13 @@ namespace
 
 const auto tab = TabSample{};
 
-namespace mysql = sqlpp::mysql;
+namespace sql = sqlpp::mysql;
 int CustomQuery(int, char*[])
 {
-  mysql::global_library_init();
-
-  auto config = std::make_shared<mysql::connection_config>();
-  config->user = "root";
-  config->database = "sqlpp_mysql";
-  config->debug = true;
+  sql::global_library_init();
   try
   {
-    mysql::connection db(config);
-  }
-  catch (const sqlpp::exception& e)
-  {
-    std::cerr << "For testing, you'll need to create a database sqlpp_mysql for user root (no password)" << std::endl;
-    std::cerr << e.what() << std::endl;
-    return 1;
-  }
-  try
-  {
-    mysql::connection db(config);
+    auto db = sql::make_test_connection();
     db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
     db.execute(R"(CREATE TABLE tab_sample (
 			alpha bigint(20) AUTO_INCREMENT,

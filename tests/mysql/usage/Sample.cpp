@@ -23,6 +23,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "make_test_connection.h"
 #include "TabSample.h"
 #include <sqlpp11/mysql/mysql.h>
 #include <sqlpp11/sqlpp11.h>
@@ -31,29 +32,13 @@
 #include <iostream>
 #include <vector>
 
-namespace mysql = sqlpp::mysql;
+namespace sql = sqlpp::mysql;
 int Sample(int, char*[])
 {
-  sqlpp::mysql::global_library_init();
-
-  auto config = std::make_shared<mysql::connection_config>();
-  config->user = "root";
-  config->database = "sqlpp_mysql";
-  config->debug = true;
-  config->connect_timeout_seconds = 5;
+  sql::global_library_init();
   try
   {
-    mysql::connection db(config);
-  }
-  catch (const sqlpp::exception& e)
-  {
-    std::cerr << "For testing, you'll need to create a database sqlpp_mysql for user root (no password)" << std::endl;
-    std::cerr << e.what() << std::endl;
-    return 1;
-  }
-  try
-  {
-    mysql::connection db(config);
+    auto db = sql::make_test_connection();
     db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
     db.execute(R"(CREATE TABLE tab_sample (
 			alpha bigint(20) AUTO_INCREMENT,

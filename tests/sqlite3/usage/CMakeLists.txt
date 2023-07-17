@@ -38,6 +38,7 @@ set(test_files
     FloatingPoint.cpp
     Integral.cpp
     Blob.cpp
+    ConnectionPool.cpp
 )
 
 create_test_sourcelist(test_sources test_main.cpp ${test_files})

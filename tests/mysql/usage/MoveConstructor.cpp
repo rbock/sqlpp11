@@ -23,6 +23,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "make_test_connection.h"
 #include "TabSample.h"
 #include <sqlpp11/alias_provider.h>
 #include <sqlpp11/functions.h>
@@ -37,29 +38,15 @@
 #include <iostream>
 #include <vector>
 
-namespace mysql = sqlpp::mysql;
+namespace sql = sqlpp::mysql;
 int MoveConstructor(int, char*[])
 {
-  mysql::global_library_init();
-
-  auto config = std::make_shared<mysql::connection_config>();
-  config->user = "root";
-  config->database = "sqlpp_mysql";
-  config->debug = true;
+  sql::global_library_init();
+  auto config = sql::make_test_config();
   try
   {
-    mysql::connection db(config);
-  }
-  catch (const sqlpp::exception& e)
-  {
-    std::cerr << "For testing, you'll need to create a database sqlpp_mysql for user root (no password)" << std::endl;
-    std::cerr << e.what() << std::endl;
-    return 1;
-  }
-  try
-  {
-    std::vector<sqlpp::mysql::connection> connections;
-    connections.emplace_back(sqlpp::mysql::connection(config));
+    std::vector<sql::connection> connections;
+    connections.emplace_back(sql::connection(config));
 
     connections.at(0).execute(R"(DROP TABLE IF EXISTS tab_sample)");
     connections.at(0).execute(R"(CREATE TABLE tab_sample (

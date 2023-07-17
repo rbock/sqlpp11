@@ -35,12 +35,8 @@ namespace sqlpp
 {
   namespace postgresql
   {
-    class connection;
     struct DLL_PUBLIC connection_config
     {
-      // Needed for the connection pool
-      typedef ::sqlpp::postgresql::connection connection;
-
       enum class sslmode_t
       {
         disable,

@@ -67,16 +67,13 @@ namespace sqlpp
         connection_handle(const std::shared_ptr<const connection_config>& config);
         connection_handle(const connection_handle&) = delete;
         connection_handle(connection_handle&&) = default;
+        ~connection_handle();
         connection_handle& operator=(const connection_handle&) = delete;
         connection_handle& operator=(connection_handle&&) = default;
-        ~connection_handle();
-
-        PGconn* native() const
-        {
-          return postgres.get();
-        }
 
         void deallocate_prepared_statement(const std::string& name);
+        PGconn* native_handle() const;
+        bool check_connection() const;
       };
 
       inline connection_handle::connection_handle(const std::shared_ptr<const connection_config>& conf)
@@ -206,9 +203,9 @@ namespace sqlpp
         if (!postgres)
           throw std::bad_alloc();
 
-        if (PQstatus(postgres.get()) != CONNECTION_OK)
+        if (check_connection() == false)
         {
-          std::string msg(PQerrorMessage(postgres.get()));
+          std::string msg(PQerrorMessage(native_handle()));
           throw broken_connection(std::move(msg));
         }
       }
@@ -225,9 +222,20 @@ namespace sqlpp
       inline void connection_handle::deallocate_prepared_statement(const std::string& name)
       {
          std::string cmd = "DEALLOCATE \"" + name + "\"";
-         PGresult* result = PQexec(postgres.get(), cmd.c_str());
+         PGresult* result = PQexec(native_handle(), cmd.c_str());
          PQclear(result);
          prepared_statement_names.erase(name);
+      }
+
+      inline PGconn* connection_handle::native_handle() const
+      {
+        return postgres.get();
+      }
+
+      inline bool connection_handle::check_connection() const
+      {
+        auto nh = native_handle();
+        return nh && (PQstatus(nh) == CONNECTION_OK);
       }
     }
   }

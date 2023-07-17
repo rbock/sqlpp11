@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2013 - 2015, Roland Bock
+ * Copyright (c) 2023, Vesselin Atanasov
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -28,6 +29,7 @@
 #define SQLPP_MYSQL_H
 
 #include <sqlpp11/mysql/connection.h>
+#include <sqlpp11/mysql/connection_pool.h>
 #include <sqlpp11/mysql/char_result.h>
 
 #endif

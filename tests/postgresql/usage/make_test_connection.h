@@ -33,12 +33,10 @@ namespace sqlpp
 {
   namespace postgresql
   {
-    // Starts a connection and sets the time zone to UTC
-    inline ::sqlpp::postgresql::connection make_test_connection()
+    // Get configuration for test connection
+    inline std::shared_ptr<sqlpp::postgresql::connection_config> make_test_config()
     {
-      namespace sql = sqlpp::postgresql;
-
-      auto config = std::make_shared<sql::connection_config>();
+      auto config = std::make_shared<sqlpp::postgresql::connection_config>();
 
 #ifdef WIN32
       config->dbname = "test";
@@ -49,6 +47,15 @@ namespace sqlpp
       config->dbname = "sqlpp_postgresql";
       config->debug = true;
 #endif
+      return config;
+    }
+
+    // Starts a connection and sets the time zone to UTC
+    inline ::sqlpp::postgresql::connection make_test_connection()
+    {
+      namespace sql = sqlpp::postgresql;
+
+      auto config = make_test_config();
 
       sql::connection db;
       try

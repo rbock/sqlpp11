@@ -40,6 +40,7 @@ set(test_files
     Truncated.cpp
     Update.cpp
     Remove.cpp
+    ConnectionPool.cpp
 )
 
 create_test_sourcelist(test_sources test_main.cpp ${test_files})

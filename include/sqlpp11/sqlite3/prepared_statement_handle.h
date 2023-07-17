@@ -42,8 +42,6 @@ namespace sqlpp
 {
   namespace sqlite3
   {
-    class connection;
-
     namespace detail
     {
       struct prepared_statement_handle_t
