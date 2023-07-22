@@ -65,6 +65,13 @@ namespace sqlpp
     context << "TIMESTAMP WITH TIME ZONE '" << ymd << ' ' << time << "+00'";
     return context;
   }
+
+  template <typename Period>
+  postgresql::context_t& serialize(const time_of_day_operand<Period>& t, postgresql::context_t& context)
+  {
+    context << "TIME WITH TIME ZONE '" << ::date::make_time(t._t) << "+00'";
+    return context;
+  }
 }
 
 #endif
