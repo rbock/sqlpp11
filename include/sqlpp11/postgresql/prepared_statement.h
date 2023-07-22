@@ -199,10 +199,9 @@ namespace sqlpp
       {
         const auto time = ::date::make_time(*value) ;
 
-        // Timezone handling - always treat the value as UTC.
-        // It is assumed that the database timezone is set to UTC, too.
+        // Timezone handling - always treat the local value as UTC.
         std::ostringstream os;
-        os << time;
+        os << time << "+00";
         _handle->paramValues[index] = os.str();
         if (_handle->debug())
         {
@@ -225,10 +224,9 @@ namespace sqlpp
         const auto time = ::date::make_time(::sqlpp::chrono::floor<::std::chrono::microseconds>(*value - dp));
         const auto ymd = ::date::year_month_day{dp};
 
-        // Timezone handling - always treat the value as UTC.
-        // It is assumed that the database timezone is set to UTC, too.
+        // Timezone handling - always treat the local value as UTC.
         std::ostringstream os;
-        os << ymd << ' ' << time;
+        os << ymd << ' ' << time << "+00";
         _handle->paramValues[index] = os.str();
         if (_handle->debug())
         {
