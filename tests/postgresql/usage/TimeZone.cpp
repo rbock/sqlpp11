@@ -131,7 +131,8 @@ int TimeZone(int, char*[])
 {
   namespace sql = sqlpp::postgresql;
 
-  auto dbc = sql::make_test_connection();
+  // We use a time zone with non-zero offset from UTC in order to catch serialization/parsing bugs
+  auto dbc = sql::make_test_connection("+1");
 
   dbc.execute("DROP TABLE IF EXISTS tabdatetime;");
   dbc.execute(

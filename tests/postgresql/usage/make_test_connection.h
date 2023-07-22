@@ -51,7 +51,7 @@ namespace sqlpp
     }
 
     // Starts a connection and sets the time zone to UTC
-    inline ::sqlpp::postgresql::connection make_test_connection()
+    inline ::sqlpp::postgresql::connection make_test_connection(const std::string &tz = "UTC")
     {
       namespace sql = sqlpp::postgresql;
 
@@ -69,7 +69,7 @@ namespace sqlpp
         throw;
       }
 
-      db.execute(R"(SET TIME ZONE 'UTC';)");
+      db.execute("SET TIME ZONE " + tz + ";");
 
       return db;
     }
