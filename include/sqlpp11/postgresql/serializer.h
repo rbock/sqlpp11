@@ -28,6 +28,7 @@
 #ifndef SQLPP_POSTGRESQL_SERIALIZER_H
 #define SQLPP_POSTGRESQL_SERIALIZER_H
 
+#include <sqlpp11/chrono.h>
 #include <sqlpp11/parameter.h>
 #include <sqlpp11/wrap_operand.h>
 
@@ -52,6 +53,16 @@ namespace sqlpp
     }
     context << '\'';
 
+    return context;
+  }
+
+  template <typename Period>
+  postgresql::context_t& serialize(const time_point_operand<Period>& t, postgresql::context_t& context)
+  {
+    const auto dp = ::sqlpp::chrono::floor<::date::days>(t._t);
+    const auto time = ::date::make_time(t._t - dp);
+    const auto ymd = ::date::year_month_day{dp};
+    context << "TIMESTAMP WITH TIME ZONE '" << ymd << ' ' << time << "+00'";
     return context;
   }
 }
