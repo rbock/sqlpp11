@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2016, Roland Bock, Aaron Bishop
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_DATA_TYPES_UNSIGNED_INTEGRAL_PARAMETER_VALUE_H
-#define SQLPP11_DATA_TYPES_UNSIGNED_INTEGRAL_PARAMETER_VALUE_H
-
 #include <sqlpp11/data_types/parameter_value.h>
 #include <sqlpp11/data_types/parameter_value_base.h>
 #include <sqlpp11/data_types/unsigned_integral/data_type.h>
@@ -47,4 +46,3 @@ namespace sqlpp
     }
   };
 }  // namespace sqlpp
-#endif

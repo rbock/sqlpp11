@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013 - 2015, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP_SQLITE3_BIND_RESULT_H
-#define SQLPP_SQLITE3_BIND_RESULT_H
 
 #include <memory>
 #include <iostream>
@@ -318,6 +317,4 @@ namespace sqlpp
 
 #ifdef _MSC_VER
 #pragma warning(pop)
-#endif
-
 #endif

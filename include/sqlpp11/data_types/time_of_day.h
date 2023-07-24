@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2015-2015, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_DATA_TYPES_TIME_OF_DAY_H
-#define SQLPP11_DATA_TYPES_TIME_OF_DAY_H
-
 #include <sqlpp11/data_types/time_of_day/data_type.h>
 #include <sqlpp11/data_types/time_of_day/operand.h>
 #include <sqlpp11/data_types/time_of_day/wrap_operand.h>
@@ -34,5 +33,3 @@
 #include <sqlpp11/data_types/time_of_day/column_operators.h>
 #include <sqlpp11/data_types/time_of_day/parameter_value.h>
 #include <sqlpp11/data_types/time_of_day/result_field.h>
-
-#endif

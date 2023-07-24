@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_HAVING_H
-#define SQLPP11_HAVING_H
 
 #include <sqlpp11/expression.h>
 #include <sqlpp11/interpret_tuple.h>
@@ -314,5 +313,3 @@ namespace sqlpp
     return statement_t<Database, no_having_t>().dynamic_having(std::forward<T>(t));
   }
 }  // namespace sqlpp
-
-#endif

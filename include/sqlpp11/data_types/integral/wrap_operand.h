@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2016, Roland Bock, Aaron Bishop
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_DATA_TYPES_INTEGRAL_WRAP_OPERAND_H
-#define SQLPP11_DATA_TYPES_INTEGRAL_WRAP_OPERAND_H
-
 #include <utility>
 #include <sqlpp11/wrap_operand.h>
 
@@ -42,4 +41,3 @@ namespace sqlpp
     using type = integral_operand;
   };
 }  // namespace sqlpp
-#endif

@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_DATA_TYPES_BOOLEAN_RESULT_FIELD_H
-#define SQLPP11_DATA_TYPES_BOOLEAN_RESULT_FIELD_H
-
 #include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/result_field.h>
 #include <sqlpp11/result_field_base.h>
@@ -52,5 +51,3 @@ namespace sqlpp
     }
   };
 }  // namespace sqlpp
-
-#endif

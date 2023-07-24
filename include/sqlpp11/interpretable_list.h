@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_INTERPRETABLE_LIST_H
-#define SQLPP11_INTERPRETABLE_LIST_H
 
 #include <sqlpp11/interpretable.h>
 #include <vector>
@@ -92,5 +91,3 @@ namespace sqlpp
       return context;
   }
 }  // namespace sqlpp
-
-#endif

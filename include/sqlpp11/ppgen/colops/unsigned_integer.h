@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2014-2017, Damien COJAN
  * All rights reserved.
@@ -26,9 +28,6 @@
 
 // clang-format off
 
-#ifndef _sqlpp__ppgen__colops__unsigned_integer_h
-#define _sqlpp__ppgen__colops__unsigned_integer_h
-
 #define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_tinyint_unsigned \
   PROC_tinyint_unsigned
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_tinyint_unsigned(...) \
@@ -48,5 +47,3 @@
   PROC_bigint_unsigned
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_bigint_unsigned(...) \
   ::sqlpp::bigint_unsigned
-
-#endif  // _sqlpp__ppgen__colops__unsigned_integer_h

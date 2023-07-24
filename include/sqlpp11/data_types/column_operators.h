@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_DATA_TYPES_COLUMN_OPERATORS_H
-#define SQLPP11_DATA_TYPES_COLUMN_OPERATORS_H
-
 #include <sqlpp11/wrong.h>
 
 namespace sqlpp
@@ -37,5 +36,3 @@ namespace sqlpp
     static_assert(wrong_t<column_operators>::value, "Missing column operators for ValueType");
   };
 }  // namespace sqlpp
-
-#endif

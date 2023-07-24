@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2021, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_IS_EQUAL_TO_OR_NULL_H
-#define SQLPP11_IS_EQUAL_TO_OR_NULL_H
 
 #include <sqlpp11/value_or_null.h>
 
@@ -75,5 +74,3 @@ namespace sqlpp
   }
 
 }  // namespace sqlpp
-
-#endif

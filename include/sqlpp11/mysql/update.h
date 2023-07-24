@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2021-2021, Roland Bock, ZerQAQ
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_MYSQL_UPDATE_H
-#define SQLPP11_MYSQL_UPDATE_H
 
 #include <sqlpp11/update.h>
 #include <sqlpp11/limit.h>
@@ -59,6 +58,3 @@ namespace sqlpp
     }
   }  // namespace mysql
 }  // namespace sqlpp
-
-#endif
-

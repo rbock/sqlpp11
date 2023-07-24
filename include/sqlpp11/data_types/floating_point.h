@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_DATA_TYPES_FLOATING_POINT_H
-#define SQLPP11_DATA_TYPES_FLOATING_POINT_H
-
 #include <sqlpp11/data_types/floating_point/data_type.h>
 #include <sqlpp11/data_types/floating_point/operand.h>
 #include <sqlpp11/data_types/floating_point/wrap_operand.h>
@@ -34,5 +33,3 @@
 #include <sqlpp11/data_types/floating_point/column_operators.h>
 #include <sqlpp11/data_types/floating_point/parameter_value.h>
 #include <sqlpp11/data_types/floating_point/result_field.h>
-
-#endif

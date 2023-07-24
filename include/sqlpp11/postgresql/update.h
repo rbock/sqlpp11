@@ -1,3 +1,5 @@
+#pragma once
+
 /**
  * Copyright (c) 2016, Bartoszek
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP_POSTGRESQL_UPDATE_H
-#define SQLPP_POSTGRESQL_UPDATE_H
 
 #include <sqlpp11/update.h>
 #include <sqlpp11/postgresql/returning.h>
@@ -53,5 +52,3 @@ namespace sqlpp
     }
   }
 }
-
-#endif

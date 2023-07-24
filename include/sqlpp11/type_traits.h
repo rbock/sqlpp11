@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2017, Roland Bock, Aaron Bishop
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_TYPE_TRAITS_H
-#define SQLPP11_TYPE_TRAITS_H
 
 #include <type_traits>
 #include <tuple>
@@ -567,5 +566,3 @@ namespace sqlpp
   template <typename Db>
   using serializer_context_of = typename serializer_context_of_impl<Db>::type;
 }  // namespace sqlpp
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef MODEL_TABFOO_H
-#define MODEL_TABFOO_H
+#pragma once
 
 #include <sqlpp11/table.h>
 #include <sqlpp11/char_sequence.h>
@@ -183,5 +182,3 @@ namespace model
     };
   };
 }
-
-#endif

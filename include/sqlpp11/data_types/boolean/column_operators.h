@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_DATA_TYPES_BOOLEAN_COLUMN_OPERATORS_H
-#define SQLPP11_DATA_TYPES_BOOLEAN_COLUMN_OPERATORS_H
-
 #include <sqlpp11/data_types/column_operators.h>
 
 namespace sqlpp
@@ -38,4 +37,3 @@ namespace sqlpp
   {
   };
 }  // namespace sqlpp
-#endif

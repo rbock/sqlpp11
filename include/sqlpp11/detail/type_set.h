@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_DETAIL_TYPE_SET_H
-#define SQLPP11_DETAIL_TYPE_SET_H
 
 #include <type_traits>
 #include <stddef.h>
@@ -277,5 +276,3 @@ namespace sqlpp
     using make_name_of_set_t = typename make_name_of_set<T>::type;
   }  // namespace detail
 }  // namespace sqlpp
-
-#endif

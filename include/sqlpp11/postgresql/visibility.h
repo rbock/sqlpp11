@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2015 cszawisza <cszawisza@gmail.com>
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_POSTGRESQL_VISIBILITY_H
-#define SQLPP11_POSTGRESQL_VISIBILITY_H
 
 #ifdef SQLPP_DYNAMIC_LOADING
 #if defined _WIN32 || defined __CYGWIN__
@@ -55,6 +54,4 @@
 #else
 #define DLL_PUBLIC
 #define DLL_LOCAL
-#endif
-
 #endif

@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2021-2021, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_COLUMN_TUPLE_MERGE_H
-#define SQLPP11_COLUMN_TUPLE_MERGE_H
 
 #include <tuple>
 
@@ -54,5 +53,3 @@ namespace sqlpp
     }
   }
 }  // namespace sqlpp
-
-#endif

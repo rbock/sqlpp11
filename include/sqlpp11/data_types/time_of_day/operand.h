@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2015-2015, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_DATA_TYPES_TIME_OF_DAY_OPERAND_H
-#define SQLPP11_DATA_TYPES_TIME_OF_DAY_OPERAND_H
 
 #include <sqlpp11/chrono.h>
 #include <sqlpp11/type_traits.h>
@@ -68,4 +67,3 @@ namespace sqlpp
     return context;
   }
 }  // namespace sqlpp
-#endif

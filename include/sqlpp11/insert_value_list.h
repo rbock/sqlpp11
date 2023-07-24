@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_INSERT_VALUE_LIST_H
-#define SQLPP11_INSERT_VALUE_LIST_H
 
 #include <sqlpp11/assignment.h>
 #include <sqlpp11/column_fwd.h>
@@ -687,5 +686,3 @@ namespace sqlpp
     return statement_t<void, no_insert_value_list_t>().columns(cols...);
   }
 }  // namespace sqlpp
-
-#endif

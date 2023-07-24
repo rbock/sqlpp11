@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2017, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_BLOB_H
-#define SQLPP_BLOB_H
-
 #include <sqlpp11/data_types/blob/data_type.h>
 #include <sqlpp11/data_types/blob/operand.h>
 #include <sqlpp11/data_types/blob/wrap_operand.h>
@@ -38,5 +37,3 @@
 // blob specific functions
 #include <sqlpp11/data_types/text/like.h>
 #include <sqlpp11/data_types/text/concat.h>
-
-#endif

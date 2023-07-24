@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_POLICY_UPDATE_H
-#define SQLPP11_POLICY_UPDATE_H
 
 #include <sqlpp11/wrong.h>
 
@@ -68,5 +67,3 @@ namespace sqlpp
   template <typename Check, typename Policies, typename Needle, typename Replacement>
   using new_statement_t = typename new_statement_impl<Check, Policies, Needle, Replacement>::type;
 }  // namespace sqlpp
-
-#endif

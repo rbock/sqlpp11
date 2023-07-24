@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_NULL_H
-#define SQLPP11_NULL_H
-
 #include <sqlpp11/data_types/no_value.h>
 
 namespace sqlpp
@@ -46,5 +45,3 @@ namespace sqlpp
 
   constexpr null_t null = {};
 }  // namespace sqlpp
-
-#endif

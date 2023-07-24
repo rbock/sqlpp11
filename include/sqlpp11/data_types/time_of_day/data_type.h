@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2015-2015, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_DATA_TYPES_TIME_OF_DAY_DATA_TYPE_H
-#define SQLPP11_DATA_TYPES_TIME_OF_DAY_DATA_TYPE_H
-
 #include <sqlpp11/chrono.h>
 #include <sqlpp11/type_traits.h>
 
@@ -41,4 +40,3 @@ namespace sqlpp
     using _is_valid_operand = is_time_of_day_t<T>;
   };
 }  // namespace sqlpp
-#endif

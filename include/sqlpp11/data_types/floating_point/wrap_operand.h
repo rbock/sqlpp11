@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_DATA_TYPES_FLOATING_POINT_WRAP_OPERAND_H
-#define SQLPP11_DATA_TYPES_FLOATING_POINT_WRAP_OPERAND_H
-
 #include <utility>
 #include <sqlpp11/wrap_operand.h>
 
@@ -40,4 +39,3 @@ namespace sqlpp
     using type = floating_point_operand;
   };
 }  // namespace sqlpp
-#endif

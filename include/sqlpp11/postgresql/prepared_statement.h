@@ -1,3 +1,5 @@
+#pragma once
+
 /**
  * Copyright © 2014-2015, Matthijs Möhlmann
  * Copyright © 2021-2021, Roland Bock
@@ -25,9 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP_POSTGRESQL_PREPARED_STATEMENT_H
-#define SQLPP_POSTGRESQL_PREPARED_STATEMENT_H
 
 #include <memory>
 #include <string>
@@ -264,5 +263,3 @@ namespace sqlpp
     }
   }
 }
-
-#endif

@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_SCHEMA_QUALIFIED_TABLE_H
-#define SQLPP11_SCHEMA_QUALIFIED_TABLE_H
 
 #include <sqlpp11/column_fwd.h>
 #include <sqlpp11/serialize.h>
@@ -84,5 +83,3 @@ namespace sqlpp
     return {schema, table};
   }
 }  // namespace sqlpp
-
-#endif

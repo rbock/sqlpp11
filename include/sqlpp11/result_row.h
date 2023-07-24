@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_RESULT_ROW_H
-#define SQLPP11_RESULT_ROW_H
 
 #include <map>
 #include <utility>
@@ -363,5 +362,3 @@ namespace sqlpp
     row._apply(callable);
   }
 }  // namespace sqlpp
-
-#endif

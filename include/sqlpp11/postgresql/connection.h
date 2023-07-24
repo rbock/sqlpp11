@@ -1,3 +1,5 @@
+#pragma once
+
 /**
  * Copyright © 2014-2015, Matthijs Möhlmann
  * Copyright (c) 2023, Vesselin Atanasov
@@ -25,9 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP_POSTGRESQL_CONNECTION_H
-#define SQLPP_POSTGRESQL_CONNECTION_H
 
 #include <algorithm>
 #include <iostream>
@@ -664,5 +663,3 @@ namespace sqlpp
 }  // namespace sqlpp
 
 #include <sqlpp11/postgresql/serializer.h>
-
-#endif

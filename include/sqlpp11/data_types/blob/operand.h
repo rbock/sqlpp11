@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2017, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP_BLOB_OPERAND_H
-#define SQLPP_BLOB_OPERAND_H
 
 #include <vector>
 #include <sqlpp11/type_traits.h>
@@ -79,4 +78,3 @@ namespace sqlpp
     return context;
   }
 }  // namespace sqlpp
-#endif

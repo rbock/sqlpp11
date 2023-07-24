@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_DATA_TYPES_PARAMETER_VALUE_BASE_H
-#define SQLPP11_DATA_TYPES_PARAMETER_VALUE_BASE_H
 
 #include <sqlpp11/data_types/parameter_value.h>
 #include <sqlpp11/value_or_null.h>
@@ -90,4 +89,3 @@ namespace sqlpp
     bool _is_null;
   };
 }  // namespace sqlpp
-#endif

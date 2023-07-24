@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2016, Roland Bock, Aaron Bishop
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_DATA_TYPES_UNSIGNED_INTEGRAL_DATA_TYPE_H
-#define SQLPP11_DATA_TYPES_UNSIGNED_INTEGRAL_DATA_TYPE_H
-
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp
@@ -45,4 +44,3 @@ namespace sqlpp
   using integer_unsigned = unsigned_integral;
   using bigint_unsigned = unsigned_integral;
 }  // namespace sqlpp
-#endif

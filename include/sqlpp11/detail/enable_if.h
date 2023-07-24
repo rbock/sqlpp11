@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_DETAIL_ENABLE_IF_H
-#define SQLPP11_DETAIL_ENABLE_IF_H
-
 #include <utility>
 
 namespace sqlpp
@@ -37,5 +36,3 @@ namespace sqlpp
     using enable_if_t = typename std::enable_if<B, T>::type;
   }  // namespace detail
 }  // namespace sqlpp
-
-#endif

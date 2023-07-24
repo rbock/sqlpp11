@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2015-2015, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_DATA_TYPES_DAY_POINT_DATA_TYPE_H
-#define SQLPP11_DATA_TYPES_DAY_POINT_DATA_TYPE_H
-
 #include <sqlpp11/chrono.h>
 #include <sqlpp11/type_traits.h>
 
@@ -45,4 +44,3 @@ namespace sqlpp
 
   using date = day_point;
 }  // namespace sqlpp
-#endif

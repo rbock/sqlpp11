@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2017, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_HIDDEN_H
-#define SQLPP11_HIDDEN_H
 
 namespace sqlpp
 {
@@ -55,4 +54,3 @@ namespace sqlpp
     return {part};
   }
 }  // namespace sqlpp
-#endif

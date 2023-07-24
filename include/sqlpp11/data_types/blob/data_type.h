@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2017, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_BLOB_DATA_TYPE_H
-#define SQLPP_BLOB_DATA_TYPE_H
-
 #include <vector>
 #include <cstdint>
 
@@ -47,4 +46,3 @@ namespace sqlpp
   using blob = blob;
   using mediumblob = blob;
 }  // namespace sqlpp
-#endif

@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_DATA_TYPES_TEXT_H
-#define SQLPP11_DATA_TYPES_TEXT_H
-
 #include <sqlpp11/data_types/text/data_type.h>
 #include <sqlpp11/data_types/text/operand.h>
 #include <sqlpp11/data_types/text/wrap_operand.h>
@@ -38,5 +37,3 @@
 // text specific functions
 #include <sqlpp11/data_types/text/like.h>
 #include <sqlpp11/data_types/text/concat.h>
-
-#endif

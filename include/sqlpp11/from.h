@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_FROM_H
-#define SQLPP11_FROM_H
 
 #include <sqlpp11/dynamic_join.h>
 #include <sqlpp11/interpret_tuple.h>
@@ -313,5 +312,3 @@ namespace sqlpp
     return statement_t<Database, no_from_t>().dynamic_from(std::forward<T>(t));
   }
 }  // namespace sqlpp
-
-#endif

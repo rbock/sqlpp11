@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2023, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_UPPER_H
-#define SQLPP11_UPPER_H
 
 #include <sqlpp11/char_sequence.h>
 #include <sqlpp11/data_types/integral/data_type.h>
@@ -95,5 +94,3 @@ namespace sqlpp
   }
 
 }  // namespace sqlpp
-
-#endif

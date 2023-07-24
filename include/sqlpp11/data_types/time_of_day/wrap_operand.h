@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2015-2015, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_DATA_TYPES_TIME_OF_DAY_WRAP_OPERAND_H
-#define SQLPP11_DATA_TYPES_TIME_OF_DAY_WRAP_OPERAND_H
-
 #include <sqlpp11/wrap_operand.h>
 #include <sqlpp11/data_types/time_of_day/operand.h>
 
@@ -38,4 +37,3 @@ namespace sqlpp
     using type = time_of_day_operand<std::chrono::duration<Rep, Period>>;
   };
 }  // namespace sqlpp
-#endif

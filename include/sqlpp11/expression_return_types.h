@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_EXPRESSION_RETURN_TYPES_H
-#define SQLPP11_EXPRESSION_RETURN_TYPES_H
 
 #include <sqlpp11/bad_expression.h>
 
@@ -157,5 +156,3 @@ namespace sqlpp
   template <typename T, typename Defer>
   using return_type_unary_minus_t = typename return_type_unary_minus<T, Defer>::type;
 }  // namespace sqlpp
-
-#endif

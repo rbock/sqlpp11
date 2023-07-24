@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_EXPRESSION_OPERATORS_H
-#define SQLPP11_EXPRESSION_OPERATORS_H
-
 #include <sqlpp11/wrong.h>
 
 namespace sqlpp
@@ -37,5 +36,3 @@ namespace sqlpp
     static_assert(wrong_t<expression_operators>::value, "Missing expression operators for ValueType");
   };
 }  // namespace sqlpp
-
-#endif

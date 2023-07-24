@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_SQLPP11_H
-#define SQLPP11_SQLPP11_H
-
 #include <sqlpp11/alias_provider.h>
 #include <sqlpp11/data_types.h>
 #include <sqlpp11/insert.h>
@@ -39,5 +38,3 @@
 #include <sqlpp11/without_table_check.h>
 #include <sqlpp11/schema_qualified_table.h>
 #include <sqlpp11/custom_query.h>
-
-#endif

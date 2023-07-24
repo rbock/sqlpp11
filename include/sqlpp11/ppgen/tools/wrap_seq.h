@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2014-2017, niXman (i dot nixman dog gmail dot com)
  * All rights reserved.
@@ -26,9 +28,6 @@
 
 // clang-format off
 
-#ifndef _sqlpp__ppgen__tools__wrap_seq_h
-#define _sqlpp__ppgen__tools__wrap_seq_h
-
 #define SQLPP_WRAP_SEQUENCE_X(...) \
   ((__VA_ARGS__)) SQLPP_WRAP_SEQUENCE_Y
 #define SQLPP_WRAP_SEQUENCE_Y(...) \
@@ -36,5 +35,3 @@
 
 #define SQLPP_WRAP_SEQUENCE_X0
 #define SQLPP_WRAP_SEQUENCE_Y0
-
-#endif // _sqlpp__ppgen__tools__wrap_seq_h

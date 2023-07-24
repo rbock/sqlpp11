@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -22,9 +24,6 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP_MOCK_DB_H
-#define SQLPP_MOCK_DB_H
 
 #include <iostream>
 #include <sqlpp11/connection.h>
@@ -495,5 +494,3 @@ struct MockSizeDb : public sqlpp::connection
   // temporary data store to verify the expected results were produced
   InternalMockData _mock_data;
 };
-
-#endif

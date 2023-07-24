@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_ALIAS_PROVIDER_H
-#define SQLPP11_ALIAS_PROVIDER_H
 
 #include <type_traits>
 #include <sqlpp11/char_sequence.h>
@@ -126,5 +125,3 @@ namespace sqlpp
     SQLPP_ALIAS_PROVIDER(right)
   }  // namespace alias
 }  // namespace sqlpp
-
-#endif

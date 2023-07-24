@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2016, Roland Bock, Aaron Bishop
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_DATA_TYPES_INTEGRAL_EXPRESSION_OPERATORS_H
-#define SQLPP11_DATA_TYPES_INTEGRAL_EXPRESSION_OPERATORS_H
 
 #include <sqlpp11/expression_return_types.h>
 #include <sqlpp11/operand_check.h>
@@ -147,4 +146,3 @@ namespace sqlpp
     using type = shift_right_t<wrap_operand_t<L>, integral, wrap_operand_t<R>>;
   };
 }  // namespace sqlpp
-#endif

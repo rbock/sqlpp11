@@ -1,3 +1,5 @@
+#pragma once
+
 /**
  * Copyright © 2014-2015, Matthijs Möhlmann
  * Copyright © 2015-2016, Bartosz Wieczorek
@@ -25,9 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP_POSTGRESQL_PREPARED_STATEMENT_HANDLE_H
-#define SQLPP_POSTGRESQL_PREPARED_STATEMENT_HANDLE_H
 
 #include <iostream>
 #include <random>
@@ -194,5 +193,3 @@ namespace sqlpp
     }
   }
 }
-
-#endif

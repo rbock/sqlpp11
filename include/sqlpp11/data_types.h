@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2017, Roland Bock, Aaron Bishop
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_DATA_TYPES_H
-#define SQLPP11_DATA_TYPES_H
-
 #include <sqlpp11/data_types/blob.h>
 #include <sqlpp11/data_types/boolean.h>
 #include <sqlpp11/data_types/integral.h>
@@ -37,5 +36,3 @@
 #include <sqlpp11/data_types/time_of_day.h>
 #include <sqlpp11/data_types/time_point.h>
 #include <sqlpp11/data_types/no_value.h>
-
-#endif

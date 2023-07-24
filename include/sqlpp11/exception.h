@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_EXCEPTION_H
-#define SQLPP11_EXCEPTION_H
-
 #include <stdexcept>
 
 namespace sqlpp
@@ -42,5 +41,3 @@ namespace sqlpp
     }
   };
 }  // namespace sqlpp
-
-#endif

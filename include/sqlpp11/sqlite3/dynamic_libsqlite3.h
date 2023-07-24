@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2017, Volker Aßmann
  * All rights reserved.
@@ -23,8 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef DYNAMIC_LIBSQLITE3_H
-#define DYNAMIC_LIBSQLITE3_H
 
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
@@ -234,4 +234,3 @@ namespace sqlpp
 #undef DYNDEFINE
 
 #endif
-#endif  // DYNAMIC_LIBSQLITE3_H

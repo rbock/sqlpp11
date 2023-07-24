@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_DYNAMIC_SELECT_COLUMN_LIST_H
-#define SQLPP11_DYNAMIC_SELECT_COLUMN_LIST_H
 
 #include <vector>
 #include <string>
@@ -101,5 +100,3 @@ namespace sqlpp
     return context;
   }
 }  // namespace sqlpp
-
-#endif

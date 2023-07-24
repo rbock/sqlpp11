@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * Copyright (c) 2023, Vesselin Atanasov
@@ -24,9 +26,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_CONNECTION_H
-#define SQLPP11_CONNECTION_H
 
 #include <functional>
 #include <memory>
@@ -156,5 +155,3 @@ namespace sqlpp
     }
   }
 }  // namespace sqlpp
-
-#endif

@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_IN_FWD_H
-#define SQLPP11_IN_FWD_H
-
 namespace sqlpp
 {
   template <typename Operand, typename... Args>
@@ -34,5 +33,3 @@ namespace sqlpp
   template <typename Operand, typename... Args>
   struct not_in_t;
 }  // namespace sqlpp
-
-#endif

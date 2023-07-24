@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2021, Roland Bock
  * All rights reserved.
@@ -22,10 +24,6 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_TEST_POSTGRESQL_USAGE_CONNECT_H
-#define SQLPP11_TEST_POSTGRESQL_USAGE_CONNECT_H
-
 
 #include <sqlpp11/postgresql/postgresql.h>
 
@@ -75,5 +73,3 @@ namespace sqlpp
     }
   }  // namespace postgresql
 }  // namespace sqlpp
-
-#endif

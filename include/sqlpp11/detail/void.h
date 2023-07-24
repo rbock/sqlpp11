@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_DETAIL_VOID_H
-#define SQLPP11_DETAIL_VOID_H
-
 namespace sqlpp
 {
   namespace detail
@@ -41,5 +40,3 @@ namespace sqlpp
     using void_t = typename void_impl<T>::type;
   }  // namespace detail
 }  // namespace sqlpp
-
-#endif

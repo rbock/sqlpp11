@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_DATA_TYPES_NO_VALUE_EXPRESSION_OPERATORS_H
-#define SQLPP11_DATA_TYPES_NO_VALUE_EXPRESSION_OPERATORS_H
-
 #include <sqlpp11/expression_return_types.h>
 #include <sqlpp11/expression_operators.h>
 #include <sqlpp11/basic_expression_operators.h>
@@ -38,5 +37,3 @@ namespace sqlpp
   {
   };
 }  // namespace sqlpp
-
-#endif

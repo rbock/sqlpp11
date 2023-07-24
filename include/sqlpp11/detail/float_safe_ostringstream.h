@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2023, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_COLUMN_TUPLE_FLOAT_SAFE_OSTRINGSTREAM_H
-#define SQLPP11_COLUMN_TUPLE_FLOAT_SAFE_OSTRINGSTREAM_H
 
 #include <limits>
 #include <sstream>
@@ -71,5 +70,3 @@ namespace sqlpp
     };
   }  // namespace detail
 }  // namespace sqlpp
-
-#endif
