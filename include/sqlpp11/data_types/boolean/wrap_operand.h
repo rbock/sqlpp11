@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_DATA_TYPES_BOOLEAN_WRAP_OPERAND_H
-#define SQLPP11_DATA_TYPES_BOOLEAN_WRAP_OPERAND_H
-
 #include <sqlpp11/wrap_operand.h>
 
 namespace sqlpp
@@ -39,5 +38,3 @@ namespace sqlpp
     using type = boolean_operand;
   };
 }  // namespace sqlpp
-
-#endif

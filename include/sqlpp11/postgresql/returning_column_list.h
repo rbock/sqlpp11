@@ -1,3 +1,5 @@
+#pragma once
+
 /**
  * Copyright © 2014-2015, Matthijs Möhlmann
  * All rights reserved.
@@ -24,9 +26,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP_POSTGRESQL_RETURNING_COLUMN_LIST_H
-#define SQLPP_POSTGRESQL_RETURNING_COLUMN_LIST_H
 
 #include <sqlpp11/data_types/no_value.h>
 #include <sqlpp11/detail/column_tuple_merge.h>
@@ -492,5 +491,3 @@ namespace sqlpp
     }
   }
 }  // namespace sqlpp
-
-#endif

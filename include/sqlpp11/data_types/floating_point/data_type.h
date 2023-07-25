@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_DATA_TYPES_FLOATING_POINT_DATA_TYPE_H
-#define SQLPP11_DATA_TYPES_FLOATING_POINT_DATA_TYPE_H
-
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp
@@ -40,4 +39,3 @@ namespace sqlpp
     using _is_valid_operand = is_numeric_t<T>;
   };
 }  // namespace sqlpp
-#endif

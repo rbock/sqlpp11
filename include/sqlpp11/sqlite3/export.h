@@ -1,5 +1,4 @@
-#ifndef SQLPP_SQLITE3_EXPORT_H
-#define SQLPP_SQLITE3_EXPORT_H
+#pragma once
 
 #ifdef _WIN32
   #ifdef SQLPP11_SHARED
@@ -13,6 +12,4 @@
   #endif
 #else
   #define SQLPP11_SQLITE3_EXPORT
-#endif
-
 #endif

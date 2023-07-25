@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_BAD_EXPRESSION_H
-#define SQLPP11_BAD_EXPRESSION_H
-
 #include <sqlpp11/portable_static_assert.h>
 #include <sqlpp11/type_traits.h>
 
@@ -48,5 +47,3 @@ namespace sqlpp
   template <typename Context, typename ValueType>
   Context serialize(const bad_expression<ValueType>& t, Context& context);
 }  // namespace sqlpp
-
-#endif

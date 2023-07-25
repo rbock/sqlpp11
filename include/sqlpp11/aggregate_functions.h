@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -24,13 +26,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_AGGREGATE_FUNCTIONS_H
-#define SQLPP11_AGGREGATE_FUNCTIONS_H
-
 #include <sqlpp11/aggregate_functions/count.h>
 #include <sqlpp11/aggregate_functions/min.h>
 #include <sqlpp11/aggregate_functions/max.h>
 #include <sqlpp11/aggregate_functions/avg.h>
 #include <sqlpp11/aggregate_functions/sum.h>
-
-#endif

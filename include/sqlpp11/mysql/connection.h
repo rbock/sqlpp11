@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013 - 2017, Roland Bock
  * Copyright (c) 2023, Vesselin Atanasov
@@ -24,9 +26,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP_MYSQL_CONNECTION_H
-#define SQLPP_MYSQL_CONNECTION_H
 
 #include <sqlpp11/connection.h>
 #include <sqlpp11/detail/float_safe_ostringstream.h>
@@ -606,5 +605,3 @@ namespace sqlpp
 }  // namespace sqlpp
 
 #include <sqlpp11/mysql/serializer.h>
-
-#endif

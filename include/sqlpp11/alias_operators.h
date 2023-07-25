@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_ALIAS_OPERATORS_H
-#define SQLPP11_ALIAS_OPERATORS_H
-
 #include <sqlpp11/alias.h>
 
 namespace sqlpp
@@ -41,4 +40,3 @@ namespace sqlpp
     }
   };
 }  // namespace sqlpp
-#endif

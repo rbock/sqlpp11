@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_CUSTOM_QUERY_H
-#define SQLPP11_CUSTOM_QUERY_H
 
 #include <sqlpp11/connection.h>
 #include <sqlpp11/detail/get_first.h>
@@ -146,4 +145,3 @@ namespace sqlpp
     return custom_query_t<Database, wrap_operand_t<Parts>...>(parts...);
   }
 }  // namespace sqlpp
-#endif

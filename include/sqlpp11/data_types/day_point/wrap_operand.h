@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2015-2015, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_DATA_TYPES_DAY_POINT_WRAP_OPERAND_H
-#define SQLPP11_DATA_TYPES_DAY_POINT_WRAP_OPERAND_H
-
 #include <utility>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/chrono.h>
@@ -42,4 +41,3 @@ namespace sqlpp
     using type = day_point_operand;
   };
 }  // namespace sqlpp
-#endif

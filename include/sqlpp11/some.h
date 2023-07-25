@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_SOME_H
-#define SQLPP11_SOME_H
 
 #include <sqlpp11/data_types/boolean.h>
 #include <sqlpp11/detail/type_set.h>
@@ -70,5 +69,3 @@ namespace sqlpp
     return {t};
   }
 }  // namespace sqlpp
-
-#endif

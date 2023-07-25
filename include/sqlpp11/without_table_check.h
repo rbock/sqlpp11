@@ -1,5 +1,4 @@
-#ifndef SQLPP11_WITHOUT_TABLE_CHECK_H
-#define SQLPP11_WITHOUT_TABLE_CHECK_H
+#pragma once
 
 /*
  * Copyright (c) 2016-2016, Roland Bock
@@ -59,5 +58,3 @@ namespace sqlpp
     return {expr};
   }
 }  // namespace sqlpp
-
-#endif

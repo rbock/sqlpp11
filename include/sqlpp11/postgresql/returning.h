@@ -1,3 +1,5 @@
+#pragma once
+
 /**
  * Copyright © 2014-2018, Matthijs Möhlmann
  * All rights reserved.
@@ -24,9 +26,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP_POSTGRESQL_RETURNING_H
-#define SQLPP_POSTGRESQL_RETURNING_H
 
 #include <sqlpp11/postgresql/returning_column_list.h>
 #include <sqlpp11/select_column_list.h>
@@ -172,5 +171,3 @@ namespace sqlpp
     };
   }  // namespace postgresql
 }  // namespace sqlpp
-
-#endif

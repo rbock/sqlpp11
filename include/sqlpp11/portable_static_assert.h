@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2015-2016, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_PORTABLE_STATIC_ASSERT_H
-#define SQLPP11_PORTABLE_STATIC_ASSERT_H
 
 #include <sqlpp11/consistent.h>
 #include <sqlpp11/inconsistent.h>
@@ -94,5 +93,3 @@ namespace sqlpp
   template <typename... StaticChecks>
   using static_combined_check_t = typename detail::static_combined_check_impl<StaticChecks...>::type;
 }  // namespace sqlpp
-
-#endif

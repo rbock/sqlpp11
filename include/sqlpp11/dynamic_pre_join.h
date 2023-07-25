@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2016-2016, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_DYNAMIC_PRE_JOIN_H
-#define SQLPP11_DYNAMIC_PRE_JOIN_H
 
 #include <sqlpp11/join_types.h>
 #include <sqlpp11/on.h>
@@ -162,5 +161,3 @@ namespace sqlpp
     return {dynamic_pre_join_t<cross_join_t, Table>{table}, {}};
   }
 }  // namespace sqlpp
-
-#endif

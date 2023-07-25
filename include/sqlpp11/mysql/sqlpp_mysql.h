@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2018 - 2018, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_MYSQL_MYSQL_H
-#define SQLPP_MYSQL_MYSQL_H
-
 #include <mysql.h>
 
 namespace sqlpp
@@ -38,5 +37,3 @@ namespace sqlpp
 #endif
   }
 }
-
-#endif

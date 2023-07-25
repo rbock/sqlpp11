@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2014-2017, niXman (i dot nixman dog gmail dot com)
  * All rights reserved.
@@ -26,9 +28,6 @@
 
 // clang-format off
 
-#ifndef _sqlpp__ppgen__colops__blob_h
-#define _sqlpp__ppgen__colops__blob_h
-
 #define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_tinyblob \
   PROC_tinyblob
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_tinyblob(...) \
@@ -48,5 +47,3 @@
   PROC_longblob
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_longblob(...) \
   ::sqlpp::blob
-
-#endif  // _sqlpp__ppgen__colops__blob_h

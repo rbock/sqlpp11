@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_PARAMETER_H
-#define SQLPP11_PARAMETER_H
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/alias_provider.h>
@@ -80,5 +79,3 @@ namespace sqlpp
     return {};
   }
 }  // namespace sqlpp
-
-#endif

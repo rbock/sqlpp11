@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_PARAMETER_LIST_H
-#define SQLPP11_PARAMETER_LIST_H
 
 #include <tuple>
 #include <sqlpp11/type_traits.h>
@@ -66,5 +65,3 @@ namespace sqlpp
   template <typename Exp>
   using make_parameter_list_t = parameter_list_t<parameters_of<Exp>>;
 }  // namespace sqlpp
-
-#endif

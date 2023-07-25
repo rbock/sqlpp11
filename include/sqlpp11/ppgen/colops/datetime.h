@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2014-2017, niXman (i dot nixman dog gmail dot com)
  * All rights reserved.
@@ -26,9 +28,6 @@
 
 // clang-format off
 
-#ifndef _sqlpp__ppgen__colops__datetime_h
-#define _sqlpp__ppgen__colops__datetime_h
-
 #define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_date \
   PROC_date
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_date(...) \
@@ -38,5 +37,3 @@
   PROC_datetime
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_datetime(...) \
   ::sqlpp::time_point
-
-#endif // _sqlpp__ppgen__colops__datetime_h

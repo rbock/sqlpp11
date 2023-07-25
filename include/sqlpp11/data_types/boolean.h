@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_DATA_TYPES_BOOLEAN_H
-#define SQLPP11_DATA_TYPES_BOOLEAN_H
-
 #include <sqlpp11/data_types/boolean/data_type.h>
 #include <sqlpp11/data_types/boolean/operand.h>
 #include <sqlpp11/data_types/boolean/wrap_operand.h>
@@ -34,5 +33,3 @@
 #include <sqlpp11/data_types/boolean/column_operators.h>
 #include <sqlpp11/data_types/boolean/parameter_value.h>
 #include <sqlpp11/data_types/boolean/result_field.h>
-
-#endif

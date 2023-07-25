@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_DATA_TYPES_BOOLEAN_PARAMETER_VALUE_H
-#define SQLPP11_DATA_TYPES_BOOLEAN_PARAMETER_VALUE_H
-
 #include <sqlpp11/data_types/parameter_value.h>
 #include <sqlpp11/data_types/parameter_value_base.h>
 #include <sqlpp11/data_types/boolean/data_type.h>
@@ -47,5 +46,3 @@ namespace sqlpp
     }
   };
 }  // namespace sqlpp
-
-#endif

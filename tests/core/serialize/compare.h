@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -22,9 +24,6 @@
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP_TEST_SERIALIZER_H
-#define SQLPP_TEST_SERIALIZER_H
 
 #include "MockDb.h"
 #include <iostream>
@@ -52,5 +51,3 @@ namespace
     assert_equal(lineNo, result, expected);
   }
 }
-
-#endif

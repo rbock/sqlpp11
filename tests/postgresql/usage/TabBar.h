@@ -1,5 +1,4 @@
-#ifndef MODEL_TABBAR_H
-#define MODEL_TABBAR_H
+#pragma once
 
 #include <sqlpp11/table.h>
 #include <sqlpp11/char_sequence.h>
@@ -57,5 +56,3 @@ namespace model
     };
   };
 }
-
-#endif

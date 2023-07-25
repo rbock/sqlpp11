@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2014-2017, niXman (i dot nixman dog gmail dot com)
  * All rights reserved.
@@ -26,12 +28,7 @@
 
 // clang-format off
 
-#ifndef _sqlpp__ppgen__colops__auto_increment_h
-#define _sqlpp__ppgen__colops__auto_increment_h
-
 #define SQLPP_DECLARE_COLUMN_GET_TRAITS_LAZY_SQLPP_AUTO_INCREMENT \
   PROC_SQLPP_AUTO_INCREMENT
 #define SQLPP_DECLARE_COLUMN_GEN_TRAITS_PROC_SQLPP_AUTO_INCREMENT(...) \
   ::sqlpp::tag::must_not_insert, ::sqlpp::tag::must_not_update
-
-#endif  // _sqlpp__ppgen__colops__auto_increment_h

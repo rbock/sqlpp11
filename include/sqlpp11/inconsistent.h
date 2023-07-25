@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2016-2016, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_INCONSISTENT_H
-#define SQLPP11_INCONSISTENT_H
-
 #include <utility>
 
 namespace sqlpp
@@ -41,5 +40,3 @@ namespace sqlpp
   using inconsistent = typename std::enable_if<not std::is_same<consistent_t, Check>::value, Check>::type;
 #endif
 }  // namespace sqlpp
-
-#endif

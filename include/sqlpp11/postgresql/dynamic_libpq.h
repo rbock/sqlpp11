@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2015, Volker Assmann
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef DYNAMIC_LIBPQ_H
-#define DYNAMIC_LIBPQ_H
 
 #include <stdexcept>
 
@@ -150,5 +149,3 @@ void init_pg(std::string libname);
 }
 }
 }
-#endif // DYNAMIC_LIBPQ_H
-

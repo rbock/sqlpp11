@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_DATA_TYPES_FLOATING_POINT_EXPRESSION_OPERATORS_H
-#define SQLPP11_DATA_TYPES_FLOATING_POINT_EXPRESSION_OPERATORS_H
 
 #include <sqlpp11/expression_return_types.h>
 #include <sqlpp11/operand_check.h>
@@ -83,4 +82,3 @@ namespace sqlpp
     using type = unary_minus_t<floating_point, wrap_operand_t<T>>;
   };
 }  // namespace sqlpp
-#endif

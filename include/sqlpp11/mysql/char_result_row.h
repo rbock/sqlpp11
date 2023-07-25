@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_MYSQL_CHAR_RESULT_ROW_H
-#define SQLPP_MYSQL_CHAR_RESULT_ROW_H
-
 namespace sqlpp
 {
   namespace mysql
@@ -43,5 +42,3 @@ namespace sqlpp
     };
   }
 }
-
-#endif

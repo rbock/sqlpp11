@@ -1,5 +1,4 @@
-#ifndef ASSERT_THROW_H
-#define ASSERT_THROW_H
+#pragma once
 
 #define assert_throw(code, exception) \
   {                                   \
@@ -14,5 +13,3 @@
     }                                 \
     assert(exceptionThrown);          \
   }
-
-#endif

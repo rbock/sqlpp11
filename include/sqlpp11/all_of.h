@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2021, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_ALL_OF_H
-#define SQLPP11_ALL_OF_H
-
 namespace sqlpp
 {
   template <typename Table>
@@ -35,5 +34,3 @@ namespace sqlpp
     return {};
   }
 }  // namespace sqlpp
-
-#endif

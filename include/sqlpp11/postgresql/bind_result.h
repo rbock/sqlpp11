@@ -1,3 +1,5 @@
+#pragma once
+
 /**
  * Copyright © 2014-2020, Matthijs Möhlmann
  * All rights reserved.
@@ -24,9 +26,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP_POSTGRESQL_BIND_RESULT_H
-#define SQLPP_POSTGRESQL_BIND_RESULT_H
 
 #include <memory>
 #include <sqlpp11/chrono.h>
@@ -410,5 +409,3 @@ namespace sqlpp
     }
   }  // namespace postgresql
 }  // namespace sqlpp
-
-#endif

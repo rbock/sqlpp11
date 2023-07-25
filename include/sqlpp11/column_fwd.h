@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -24,13 +26,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_COLUMN_FWD_H
-#define SQLPP11_COLUMN_FWD_H
-
 namespace sqlpp
 {
   template <typename Table, typename ColumnSpec>
   struct column_t;
 }  // namespace sqlpp
-
-#endif

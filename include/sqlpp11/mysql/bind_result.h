@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013 - 2015, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP_MYSQL_BIND_RESULT_H
-#define SQLPP_MYSQL_BIND_RESULT_H
 
 #include <iostream>
 #include <memory>
@@ -485,4 +484,3 @@ namespace sqlpp
     };
   }  // namespace mysql
 }  // namespace sqlpp
-#endif

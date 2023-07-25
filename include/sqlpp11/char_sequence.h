@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_CHAR_SEQUENCE_H
-#define SQLPP11_CHAR_SEQUENCE_H
 
 #include <type_traits>
 #include <sqlpp11/detail/index_sequence.h>
@@ -75,5 +74,3 @@ namespace sqlpp
       typename make_char_sequence_impl<N, Input, sqlpp::detail::make_index_sequence<N - 1>>::type;
 
 }  // namespace sqlpp
-
-#endif

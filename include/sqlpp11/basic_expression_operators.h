@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2016, Roland Bock
  * Copyright (c) 2016, Aaron Bishop
@@ -24,9 +26,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_BASIC_EXPRESSION_OPERATORS_H
-#define SQLPP11_BASIC_EXPRESSION_OPERATORS_H
 
 #include <sqlpp11/value_type_fwd.h>
 #include <sqlpp11/bad_expression.h>
@@ -315,5 +314,3 @@ namespace sqlpp
     }
   };
 }  // namespace sqlpp
-
-#endif

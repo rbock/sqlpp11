@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_DATA_TYPES_TEXT_WRAP_OPERAND_H
-#define SQLPP11_DATA_TYPES_TEXT_WRAP_OPERAND_H
-
 #include <utility>
 #if __cplusplus >= 201703L
 #include <string_view>
@@ -52,4 +51,3 @@ namespace sqlpp
     using type = text_operand;
   };
 }  // namespace sqlpp
-#endif

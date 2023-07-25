@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2017, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP_RETURN_TYPE_LIKE_H
-#define SQLPP_RETURN_TYPE_LIKE_H
-
 #include <sqlpp11/bad_expression.h>
 
 namespace sqlpp
@@ -40,5 +39,3 @@ namespace sqlpp
   template <typename T, typename Defer>
   using return_type_like_t = typename return_type_like<T, Defer>::type;
 }  // namespace sqlpp
-
-#endif

@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2015-2015, Roland Bock
  * All rights reserved.
@@ -24,9 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SQLPP11_DATA_TYPES_DAY_POINT_COLUMN_OPERATORS_H
-#define SQLPP11_DATA_TYPES_DAY_POINT_COLUMN_OPERATORS_H
-
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/assignment.h>
 #include <sqlpp11/data_types/day_point/data_type.h>
@@ -41,4 +40,3 @@ namespace sqlpp
     using _is_valid_operand = is_valid_operand<day_point, T>;
   };
 }  // namespace sqlpp
-#endif

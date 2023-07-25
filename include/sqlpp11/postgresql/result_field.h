@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2021-2021, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP_POSTGRESQL_BLOB_RESULT_FIELD_H
-#define SQLPP_POSTGRESQL_BLOB_RESULT_FIELD_H
 
 #include <sqlpp11/basic_expression_operators.h>
 #include <sqlpp11/exception.h>
@@ -119,4 +118,3 @@ namespace sqlpp
 
   };
 }  // namespace sqlpp
-#endif

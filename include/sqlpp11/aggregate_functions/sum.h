@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013-2020, Roland Bock, MacDue
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_AGGREGATE_FUNCTIONS_SUM_H
-#define SQLPP11_AGGREGATE_FUNCTIONS_SUM_H
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/char_sequence.h>
@@ -115,5 +114,3 @@ namespace sqlpp
     return {t};
   }
 }  // namespace sqlpp
-
-#endif

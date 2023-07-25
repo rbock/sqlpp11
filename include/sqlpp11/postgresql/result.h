@@ -1,3 +1,5 @@
+#pragma once
+
 /**
  * Copyright © 2015-2016, Bartosz Wieczorek
  * All rights reserved.
@@ -24,9 +26,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP_POSTGRESQL_RESULT_H
-#define SQLPP_POSTGRESQL_RESULT_H
 
 #include <iostream>
 #include <sstream>
@@ -381,5 +380,3 @@ namespace sqlpp
     }
   }
 }
-
-#endif

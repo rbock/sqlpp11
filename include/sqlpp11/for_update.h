@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2017, Serge Robyns
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP11_FOR_UPDATE_H
-#define SQLPP11_FOR_UPDATE_H
 
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/policy_update.h>
@@ -169,5 +168,3 @@ namespace sqlpp
     return statement_t<void, no_for_update_t>().for_update(std::forward<T>(t));
   }
 }  // namespace sqlpp
-
-#endif

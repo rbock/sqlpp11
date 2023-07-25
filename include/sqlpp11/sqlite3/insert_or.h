@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013 - 2015, Roland Bock
  * All rights reserved.
@@ -23,9 +25,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP_SQLITE3_INSERT_OR_H
-#define SQLPP_SQLITE3_INSERT_OR_H
 
 #include <sqlpp11/default_value.h>
 #include <sqlpp11/insert_value_list.h>
@@ -150,5 +149,3 @@ namespace sqlpp
     }
   }
 }
-
-#endif

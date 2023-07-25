@@ -1,5 +1,4 @@
-#ifndef TEST_SAMPLE_H
-#define TEST_SAMPLE_H
+#pragma once
 
 #include <sqlpp11/table.h>
 #include <sqlpp11/data_types.h>
@@ -349,4 +348,3 @@ namespace test
     };
   };
 }  // namespace test
-#endif

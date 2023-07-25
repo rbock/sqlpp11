@@ -1,3 +1,5 @@
+#pragma once
+
 /**
  * Copyright © 2014-2019, Matthijs Möhlmann
  * All rights reserved.
@@ -24,9 +26,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP_POSTGRESQL_NO_CONFLICT_H
-#define SQLPP_POSTGRESQL_NO_CONFLICT_H
 
 #include <sqlpp11/postgresql/on_conflict_do_nothing.h>
 #include <sqlpp11/postgresql/on_conflict_do_update.h>
@@ -260,5 +259,3 @@ namespace sqlpp
     }
   }  // namespace postgresql
 }  // namespace sqlpp
-
-#endif

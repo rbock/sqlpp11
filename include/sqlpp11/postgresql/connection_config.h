@@ -1,3 +1,5 @@
+#pragma once
+
 /**
  * Copyright © 2014-2015, Matthijs Möhlmann
  * All rights reserved.
@@ -24,9 +26,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP_POSTGRESQL_CONNECTION_CONFIG_H
-#define SQLPP_POSTGRESQL_CONNECTION_CONFIG_H
 
 #include <sqlpp11/postgresql/visibility.h>
 #include <string>
@@ -92,5 +91,3 @@ namespace sqlpp
     };
   }
 }
-
-#endif

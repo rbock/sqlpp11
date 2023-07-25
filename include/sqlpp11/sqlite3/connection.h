@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2013 - 2016, Roland Bock
  * Copyright (c) 2023, Vesselin Atanasov
@@ -24,9 +26,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef SQLPP_SQLITE3_CONNECTION_H
-#define SQLPP_SQLITE3_CONNECTION_H
 
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
@@ -624,5 +623,3 @@ namespace sqlpp
 #endif
 
 #include <sqlpp11/sqlite3/serializer.h>
-
-#endif
