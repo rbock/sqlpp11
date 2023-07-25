@@ -7,7 +7,7 @@ Using sqlpp11 requires of three logical parts:
 
 Three connector libraries are included in this repository:
 
-  * MySQL / MariaBD
+  * MySQL / MariaDB
   * sqlite3 / SQLCipher
   * PostgreSQL
 
