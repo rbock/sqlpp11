@@ -28,7 +28,8 @@ cmake_minimum_required(VERSION 3.14)
 project(sqlpp11 VERSION 0.1 LANGUAGES CXX)
 
 ### Project Wide Setup
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/)
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
 
 include(GNUInstallDirs)
 include(CTest)
@@ -93,7 +94,7 @@ if(BUILD_SQLITE3_CONNECTOR)
 endif()
 
 if(BUILD_SQLCIPHER_CONNECTOR)
-    add_component(NAME sqlcipher DEPENDENCIES SQLite::SQLCipher)
+    add_component(NAME sqlcipher DEPENDENCIES SQLCipher::SQLCipher)
     target_compile_definitions(sqlpp11_sqlcipher INTERFACE SQLPP_USE_SQLCIPHER)
 endif()
 
@@ -115,7 +116,7 @@ install(PROGRAMS ${PROJECT_SOURCE_DIR}/scripts/ddl2cpp
     DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-write_basic_package_version_file(Sqlpp11ConfigVersion.cmake 
+write_basic_package_version_file(Sqlpp11ConfigVersion.cmake
     COMPATIBILITY SameMajorVersion
     ARCH_INDEPENDENT
 )
@@ -132,12 +133,16 @@ endif()
 
 if(BUILD_SQLCIPHER_CONNECTOR)
     install_component(NAME Sqlpp11SQLCipher TARGETS sqlpp11_sqlcipher DIRECTORY sqlite3)
+
+    install(FILES ${PROJECT_SOURCE_DIR}/cmake/modules/FindSQLCipher.cmake
+        DESTINATION ${SQLPP11_INSTALL_CMAKEDIR}
+    )
 endif()
 
 if(BUILD_MYSQL_CONNECTOR)
     install_component(NAME Sqlpp11MySQL TARGETS sqlpp11_mysql DIRECTORY mysql)
 
-    install(FILES ${PROJECT_SOURCE_DIR}/cmake/FindMySQL.cmake
+    install(FILES ${PROJECT_SOURCE_DIR}/cmake/modules/FindMySQL.cmake
         DESTINATION ${SQLPP11_INSTALL_CMAKEDIR}
     )
 endif()
@@ -145,7 +150,7 @@ endif()
 if(BUILD_MARIADB_CONNECTOR)
     install_component(NAME Sqlpp11MariaDB TARGETS sqlpp11_mariadb DIRECTORY mysql)
 
-    install(FILES ${PROJECT_SOURCE_DIR}/cmake/FindMariaDB.cmake
+    install(FILES ${PROJECT_SOURCE_DIR}/cmake/modules/FindMariaDB.cmake
         DESTINATION ${SQLPP11_INSTALL_CMAKEDIR}
     )
 endif()
