@@ -70,7 +70,7 @@ namespace sqlpp
         thread_local MySqlThreadInitializer threadInitializer;
       }
 
-      inline void execute_statement(std::unique_ptr<connection_handle_t>& handle, const std::string& statement)
+      inline void execute_statement(std::unique_ptr<connection_handle>& handle, const std::string& statement)
       {
         thread_init();
 
@@ -105,7 +105,7 @@ namespace sqlpp
         }
       }
 
-      inline std::shared_ptr<detail::prepared_statement_handle_t> prepare_statement(std::unique_ptr<connection_handle_t>& handle,
+      inline std::shared_ptr<detail::prepared_statement_handle_t> prepare_statement(std::unique_ptr<connection_handle>& handle,
                                                                              const std::string& statement,
                                                                              size_t no_of_parameters,
                                                                              size_t no_of_columns)
@@ -256,7 +256,7 @@ namespace sqlpp
       using _connection_base_t = connection_base;
       using _config_t = connection_config;
       using _config_ptr_t = std::shared_ptr<const _config_t>;
-      using _handle_t = detail::connection_handle_t;
+      using _handle_t = detail::connection_handle;
       using _handle_ptr_t = std::unique_ptr<_handle_t>;
 
       using _prepared_statement_t = ::sqlpp::mysql::prepared_statement_t;

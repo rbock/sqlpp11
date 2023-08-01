@@ -70,12 +70,12 @@ namespace sqlpp
         mysql_close(mysql);
       }
 
-      struct connection_handle_t
+      struct connection_handle
       {
         std::shared_ptr<const connection_config> config;
         std::unique_ptr<MYSQL, void (*)(MYSQL*)> mysql;
 
-        connection_handle_t(const std::shared_ptr<const connection_config>& conf) :
+        connection_handle(const std::shared_ptr<const connection_config>& conf) :
           config(conf),
           mysql(mysql_init(nullptr), handle_cleanup)
         {
@@ -96,10 +96,10 @@ namespace sqlpp
           connect(native_handle(), *config);
         }
 
-        connection_handle_t(const connection_handle_t&) = delete;
-        connection_handle_t(connection_handle_t&&) = default;
-        connection_handle_t& operator=(const connection_handle_t&) = delete;
-        connection_handle_t& operator=(connection_handle_t&&) = default;
+        connection_handle(const connection_handle&) = delete;
+        connection_handle(connection_handle&&) = default;
+        connection_handle& operator=(const connection_handle&) = delete;
+        connection_handle& operator=(connection_handle&&) = default;
 
         MYSQL* native_handle() const
         {
