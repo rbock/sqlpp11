@@ -155,12 +155,12 @@ namespace sqlpp
     // Forward declaration
     class connection_base;
 
-    struct serializer_t
+    struct context_t
     {
-      serializer_t(const connection_base& db) : _db(db)
+      context_t(const connection_base& db) : _db(db)
       {
       }
-      serializer_t(const connection_base&&) = delete;
+      context_t(const connection_base&&) = delete;
 
       template <typename T>
       std::ostream& operator<<(T t)
@@ -179,9 +179,9 @@ namespace sqlpp
       sqlpp::detail::float_safe_ostringstream _os;
     };
 
-    std::integral_constant<char, '`'> get_quote_left(const serializer_t&);
+    std::integral_constant<char, '`'> get_quote_left(const context_t&);
 
-    std::integral_constant<char, '`'> get_quote_right(const serializer_t&);
+    std::integral_constant<char, '`'> get_quote_right(const context_t&);
 
     class connection_base : public sqlpp::connection
     {
@@ -260,7 +260,7 @@ namespace sqlpp
       using _handle_ptr_t = std::unique_ptr<_handle_t>;
 
       using _prepared_statement_t = ::sqlpp::mysql::prepared_statement_t;
-      using _context_t = serializer_t;
+      using _context_t = context_t;
       using _serializer_context_t = _context_t;
       using _interpreter_context_t = _context_t;
 
@@ -514,7 +514,7 @@ namespace sqlpp
     };
 
     // Method definition moved outside of class because it needs connection_base
-    inline std::string serializer_t::escape(std::string arg)
+    inline std::string context_t::escape(std::string arg)
     {
       return _db.escape(arg);
     }
