@@ -33,11 +33,11 @@
 #include <sqlpp11/mysql/bind_result.h>
 #include <sqlpp11/mysql/char_result.h>
 #include <sqlpp11/mysql/connection_config.h>
+#include <sqlpp11/mysql/detail/connection_handle.h>
 #include <sqlpp11/mysql/prepared_statement.h>
 #include <sqlpp11/mysql/remove.h>
 #include <sqlpp11/mysql/update.h>
 #include <sqlpp11/serialize.h>
-#include <sqlpp11/mysql/sqlpp_mysql.h>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -69,86 +69,6 @@ namespace sqlpp
       {
         thread_local MySqlThreadInitializer threadInitializer;
       }
-
-      inline void connect(MYSQL* mysql, const connection_config& config)
-      {
-        if (config.connect_timeout_seconds != 0 &&
-            mysql_options(mysql, MYSQL_OPT_CONNECT_TIMEOUT, &config.connect_timeout_seconds))
-        {
-          throw sqlpp::exception("MySQL: could not set option MYSQL_OPT_CONNECT_TIMEOUT");
-        }
-
-        if (!mysql_real_connect(mysql, config.host.empty() ? nullptr : config.host.c_str(),
-                                config.user.empty() ? nullptr : config.user.c_str(),
-                                config.password.empty() ? nullptr : config.password.c_str(), nullptr, config.port,
-                                config.unix_socket.empty() ? nullptr : config.unix_socket.c_str(), config.client_flag))
-        {
-          throw sqlpp::exception("MySQL: could not connect to server: " + std::string(mysql_error(mysql)));
-        }
-
-        if (mysql_set_character_set(mysql, config.charset.c_str()))
-        {
-          throw sqlpp::exception("MySQL error: can't set character set " + config.charset);
-        }
-
-        if (not config.database.empty() and mysql_select_db(mysql, config.database.c_str()))
-        {
-          throw sqlpp::exception("MySQL error: can't select database '" + config.database + "'");
-        }
-      }
-
-      inline void handle_cleanup(MYSQL* mysql)
-      {
-        mysql_close(mysql);
-      }
-
-      struct connection_handle_t
-      {
-        std::shared_ptr<const connection_config> config;
-        std::unique_ptr<MYSQL, void (*)(MYSQL*)> mysql;
-
-        connection_handle_t(const std::shared_ptr<const connection_config>& conf) :
-          config(conf),
-          mysql(mysql_init(nullptr), handle_cleanup)
-        {
-          if (not mysql)
-          {
-            throw sqlpp::exception("MySQL: could not init mysql data structure");
-          }
-
-          if (config->auto_reconnect)
-          {
-            my_bool my_true = true;
-            if (mysql_options(native_handle(), MYSQL_OPT_RECONNECT, &my_true))
-            {
-              throw sqlpp::exception("MySQL: could not set option MYSQL_OPT_RECONNECT");
-            }
-          }
-
-          connect(native_handle(), *config);
-        }
-
-        connection_handle_t(const connection_handle_t&) = delete;
-        connection_handle_t(connection_handle_t&&) = default;
-        connection_handle_t& operator=(const connection_handle_t&) = delete;
-        connection_handle_t& operator=(connection_handle_t&&) = default;
-
-        MYSQL* native_handle() const
-        {
-          return mysql.get();
-        }
-
-        bool check_connection() const
-        {
-          auto nh = native_handle();
-          return nh && (mysql_ping(nh) == 0);
-        }
-
-        void reconnect()
-        {
-          connect(native_handle(), *config);
-        }
-      };
 
       inline void execute_statement(std::unique_ptr<connection_handle_t>& handle, const std::string& statement)
       {
