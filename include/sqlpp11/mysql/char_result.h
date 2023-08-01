@@ -32,6 +32,7 @@
 #include <memory>
 #include <sqlpp11/chrono.h>
 #include <sqlpp11/exception.h>
+#include <sqlpp11/mysql/detail/result_handle.h>
 #include <sqlpp11/mysql/sqlpp_mysql.h>
 #include <sqlpp11/mysql/char_result_row.h>
 
@@ -41,32 +42,6 @@ namespace sqlpp
   {
     namespace detail
     {
-      struct result_handle
-      {
-        MYSQL_RES* mysql_res;
-        bool debug;
-
-        result_handle(MYSQL_RES* res, bool debug_) : mysql_res(res), debug(debug_)
-        {
-        }
-
-        result_handle(const result_handle&) = delete;
-        result_handle(result_handle&&) = default;
-        result_handle& operator=(const result_handle&) = delete;
-        result_handle& operator=(result_handle&&) = default;
-
-        ~result_handle()
-        {
-          if (mysql_res)
-            mysql_free_result(mysql_res);
-        }
-
-        bool operator!() const
-        {
-          return !mysql_res;
-        }
-      };
-
       inline auto check_first_digit(const char* text, bool digitFlag) -> bool
       {
         if (digitFlag)
