@@ -37,7 +37,7 @@ namespace sqlpp
         MYSQL_RES* mysql_res;
         bool debug;
 
-        result_handle(MYSQL_RES* res, bool debug_) : mysql_res(res), debug(debug_)
+        result_handle(MYSQL_RES* res, bool debug_) : mysql_res{res}, debug{debug_}
         {
         }
 

@@ -54,7 +54,7 @@ namespace sqlpp
         {
           if (!mysql_thread_safe())
           {
-            throw sqlpp::exception("MySQL error: Operating on a non-threadsafe client");
+            throw sqlpp::exception{"MySQL error: Operating on a non-threadsafe client"};
           }
           mysql_thread_init();
         }
@@ -79,9 +79,9 @@ namespace sqlpp
 
         if (mysql_query(handle->native_handle(), statement.c_str()))
         {
-          throw sqlpp::exception(
-              "MySQL error: Could not execute MySQL-statement: " + std::string(mysql_error(handle->native_handle())) +
-              " (statement was >>" + statement + "<<\n");
+          throw sqlpp::exception{
+              "MySQL error: Could not execute MySQL-statement: " + std::string{mysql_error(handle->native_handle())} +
+              " (statement was >>" + statement + "<<\n"};
         }
       }
 
@@ -94,14 +94,14 @@ namespace sqlpp
 
         if (mysql_stmt_bind_param(prepared_statement.mysql_stmt, prepared_statement.stmt_params.data()))
         {
-          throw sqlpp::exception(std::string("MySQL error: Could not bind parameters to statement") +
-                                 mysql_stmt_error(prepared_statement.mysql_stmt));
+          throw sqlpp::exception{std::string{"MySQL error: Could not bind parameters to statement"} +
+                                 mysql_stmt_error(prepared_statement.mysql_stmt)};
         }
 
         if (mysql_stmt_execute(prepared_statement.mysql_stmt))
         {
-          throw sqlpp::exception(std::string("MySQL error: Could not execute prepared statement: ") +
-                                 mysql_stmt_error(prepared_statement.mysql_stmt));
+          throw sqlpp::exception{std::string{"MySQL error: Could not execute prepared statement: "} +
+                                 mysql_stmt_error(prepared_statement.mysql_stmt)};
         }
       }
 
@@ -119,13 +119,13 @@ namespace sqlpp
             mysql_stmt_init(handle->native_handle()), no_of_parameters, no_of_columns, handle->config->debug);
         if (not prepared_statement)
         {
-          throw sqlpp::exception("MySQL error: Could not allocate prepared statement\n");
+          throw sqlpp::exception{"MySQL error: Could not allocate prepared statement\n"};
         }
         if (mysql_stmt_prepare(prepared_statement->mysql_stmt, statement.data(), statement.size()))
         {
-          throw sqlpp::exception(
-              "MySQL error: Could not prepare statement: " + std::string(mysql_error(handle->native_handle())) +
-              " (statement was >>" + statement + "<<\n");
+          throw sqlpp::exception{
+              "MySQL error: Could not prepare statement: " + std::string{mysql_error(handle->native_handle())} +
+              " (statement was >>" + statement + "<<\n"};
         }
 
         return prepared_statement;
@@ -157,7 +157,7 @@ namespace sqlpp
 
     struct context_t
     {
-      context_t(const connection_base& db) : _db(db)
+      context_t(const connection_base& db) : _db{db}
       {
       }
       context_t(const connection_base&&) = delete;
@@ -186,7 +186,7 @@ namespace sqlpp
     class connection_base : public sqlpp::connection
     {
     private:
-      bool _transaction_active = false;
+      bool _transaction_active{false};
 
       // direct execution
       char_result_t select_impl(const std::string& statement)
@@ -196,8 +196,8 @@ namespace sqlpp
             new detail::result_handle(mysql_store_result(_handle->native_handle()), _handle->config->debug));
         if (!*result_handle)
         {
-          throw sqlpp::exception("MySQL error: Could not store result set: " +
-                                 std::string(mysql_error(_handle->native_handle())));
+          throw sqlpp::exception{"MySQL error: Could not store result set: " +
+                                 std::string{mysql_error(_handle->native_handle())}};
         }
 
         return {std::move(result_handle)};
@@ -304,7 +304,7 @@ namespace sqlpp
       template <typename Select>
       char_result_t select(const Select& s)
       {
-        _context_t context(*this);
+        _context_t context{*this};
         serialize(s, context);
         return select_impl(context.str());
       }
@@ -312,7 +312,7 @@ namespace sqlpp
       template <typename Select>
       _prepared_statement_t prepare_select(Select& s)
       {
-        _context_t context(*this);
+        _context_t context{*this};
         serialize(s, context);
         return prepare_impl(context.str(), s._get_no_of_parameters(), s.get_no_of_result_columns());
       }
@@ -328,7 +328,7 @@ namespace sqlpp
       template <typename Insert>
       size_t insert(const Insert& i)
       {
-        _context_t context(*this);
+        _context_t context{*this};
         serialize(i, context);
         return insert_impl(context.str());
       }
@@ -336,7 +336,7 @@ namespace sqlpp
       template <typename Insert>
       _prepared_statement_t prepare_insert(Insert& i)
       {
-        _context_t context(*this);
+        _context_t context{*this};
         serialize(i, context);
         return prepare_impl(context.str(), i._get_no_of_parameters(), 0);
       }
@@ -352,7 +352,7 @@ namespace sqlpp
       template <typename Update>
       size_t update(const Update& u)
       {
-        _context_t context(*this);
+        _context_t context{*this};
         serialize(u, context);
         return update_impl(context.str());
       }
@@ -360,7 +360,7 @@ namespace sqlpp
       template <typename Update>
       _prepared_statement_t prepare_update(Update& u)
       {
-        _context_t context(*this);
+        _context_t context{*this};
         serialize(u, context);
         return prepare_impl(context.str(), u._get_no_of_parameters(), 0);
       }
@@ -376,7 +376,7 @@ namespace sqlpp
       template <typename Remove>
       size_t remove(const Remove& r)
       {
-        _context_t context(*this);
+        _context_t context{*this};
         serialize(r, context);
         return remove_impl(context.str());
       }
@@ -384,7 +384,7 @@ namespace sqlpp
       template <typename Remove>
       _prepared_statement_t prepare_remove(Remove& r)
       {
-        _context_t context(*this);
+        _context_t context{*this};
         serialize(r, context);
         return prepare_impl(context.str(), r._get_no_of_parameters(), 0);
       }
@@ -454,7 +454,7 @@ namespace sqlpp
       {
         if (_transaction_active)
         {
-          throw sqlpp::exception("MySQL: Cannot have more than one open transaction per connection");
+          throw sqlpp::exception{"MySQL: Cannot have more than one open transaction per connection"};
         }
         execute_statement(_handle, "START TRANSACTION");
         _transaction_active = true;
@@ -465,7 +465,7 @@ namespace sqlpp
       {
         if (not _transaction_active)
         {
-          throw sqlpp::exception("MySQL: Cannot commit a finished or failed transaction");
+          throw sqlpp::exception{"MySQL: Cannot commit a finished or failed transaction"};
         }
         _transaction_active = false;
         execute_statement(_handle, "COMMIT");
@@ -476,7 +476,7 @@ namespace sqlpp
       {
         if (not _transaction_active)
         {
-          throw sqlpp::exception("MySQL: Cannot rollback a finished or failed transaction");
+          throw sqlpp::exception{"MySQL: Cannot rollback a finished or failed transaction"};
         }
         if (report)
         {

@@ -54,10 +54,10 @@ namespace sqlpp
         {
           my_bool value;
 
-          wrapped_bool() : value(false)
+          wrapped_bool() : value{false}
           {
           }
-          wrapped_bool(bool v) : value(v)
+          wrapped_bool(bool v) : value{v}
           {
           }
           wrapped_bool(const wrapped_bool&) = default;
@@ -77,12 +77,12 @@ namespace sqlpp
 
         prepared_statement_handle_t(MYSQL_STMT* stmt, size_t no_of_parameters, size_t no_of_columns, bool debug_)
             : mysql_stmt(stmt),
-              stmt_params(no_of_parameters, MYSQL_BIND{}),
-              stmt_date_time_param_buffer(no_of_parameters, MYSQL_TIME{}),
-              stmt_param_is_null(no_of_parameters, false),
-              result_params(no_of_columns, MYSQL_BIND{}),
-              result_param_meta_data(no_of_columns, result_meta_data_t{}),
-              debug(debug_)
+              stmt_params(no_of_parameters, MYSQL_BIND{}),                  // ()-init for correct constructor
+              stmt_date_time_param_buffer(no_of_parameters, MYSQL_TIME{}),  // ()-init for correct constructor
+              stmt_param_is_null(no_of_parameters, false),                  // ()-init for correct constructor
+              result_params(no_of_columns, MYSQL_BIND{}),                   // ()-init for correct constructor
+              result_param_meta_data(no_of_columns, result_meta_data_t{}),  // ()-init for correct constructor
+              debug{debug_}
         {
         }
 
