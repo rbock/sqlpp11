@@ -62,17 +62,37 @@ namespace sqlpp
         int fields = 0;
 
         // ctor
-        statement_handle_t(detail::connection_handle& _connection);
+        statement_handle_t(connection_handle& _connection) : connection(_connection)
+        {
+        }
+
         statement_handle_t(const statement_handle_t&) = delete;
         statement_handle_t(statement_handle_t&&) = delete;
         statement_handle_t& operator=(const statement_handle_t&) = delete;
         statement_handle_t& operator=(statement_handle_t&&) = delete;
 
-        virtual ~statement_handle_t();
-        bool operator!() const;
-        void clearResult();
+        virtual ~statement_handle_t()
+        {
+          clearResult();
+        }
 
-        bool debug() const;
+        bool operator!() const
+        {
+          return !valid;
+        }
+
+        void clearResult()
+        {
+          if (result)
+          {
+            result.clear();
+          }
+        }
+
+        bool debug() const
+        {
+          return connection.config->debug;
+        }
       };
 
       struct prepared_statement_handle_t : public statement_handle_t
@@ -105,33 +125,6 @@ namespace sqlpp
         void generate_name();
         void prepare(std::string stmt);
       };
-
-      inline statement_handle_t::statement_handle_t(connection_handle& _connection) : connection(_connection)
-      {
-      }
-
-      inline statement_handle_t::~statement_handle_t()
-      {
-        clearResult();
-      }
-
-      inline bool statement_handle_t::operator!() const
-      {
-        return !valid;
-      }
-
-      inline void statement_handle_t::clearResult()
-      {
-        if (result)
-        {
-          result.clear();
-        }
-      }
-
-      inline bool statement_handle_t::debug() const
-      {
-        return connection.config->debug;
-      }
 
       inline prepared_statement_handle_t::prepared_statement_handle_t(connection_handle& _connection,
                                                                std::string stmt,
