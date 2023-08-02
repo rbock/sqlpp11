@@ -106,7 +106,7 @@ namespace sqlpp
         std::vector<std::string> paramValues;
 
         // ctor
-        prepared_statement_handle_t(connection_handle& _connection, std::string stmt, const size_t& paramCount)
+        prepared_statement_handle_t(connection_handle& _connection, const std::string& stmt, const size_t& paramCount)
           : statement_handle_t(_connection), nullValues(paramCount), paramValues(paramCount)
         {
           generate_name();
@@ -166,7 +166,7 @@ namespace sqlpp
           connection.prepared_statement_names.insert(_name);
         }
 
-        void prepare(std::string stmt)
+        void prepare(const std::string& stmt)
         {
           // Create the prepared statement
           result = PQprepare(connection.native_handle(), _name.c_str(), stmt.c_str(), 0, nullptr);
