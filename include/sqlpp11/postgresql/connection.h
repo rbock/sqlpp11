@@ -64,7 +64,7 @@ namespace sqlpp
     {
       inline std::unique_ptr<detail::prepared_statement_handle_t> prepare_statement(std::unique_ptr<connection_handle>& handle,
                                                                              const std::string& stmt,
-                                                                             const size_t& paramCount)
+                                                                             const size_t& param_count)
       {
         if (handle->config->debug)
         {
@@ -72,7 +72,7 @@ namespace sqlpp
         }
 
         return std::unique_ptr<detail::prepared_statement_handle_t>(new detail::prepared_statement_handle_t
-                                                                    (*handle, stmt, paramCount));
+                                                                    (*handle, stmt, param_count));
       }
 
       inline void execute_prepared_statement(std::unique_ptr<connection_handle>& handle, std::shared_ptr<detail::prepared_statement_handle_t>& prepared)
@@ -164,10 +164,10 @@ namespace sqlpp
       }
 
       // prepared execution
-      prepared_statement_t prepare_impl(const std::string& stmt, const size_t& paramCount)
+      prepared_statement_t prepare_impl(const std::string& stmt, const size_t& param_count)
       {
         validate_connection_handle();
-        return {prepare_statement(_handle, stmt, paramCount)};
+        return {prepare_statement(_handle, stmt, param_count)};
       }
 
       bind_result_t run_prepared_select_impl(prepared_statement_t& prep)
@@ -456,7 +456,7 @@ namespace sqlpp
           throw sqlpp::exception("PostgreSQL error: could not read default_transaction_isolation");
         }
 
-        auto in = res->result.getStringValue(0, 0);
+        auto in = res->result.get_string_value(0, 0);
         if (in == "read committed")
         {
           return isolation_level::read_committed;

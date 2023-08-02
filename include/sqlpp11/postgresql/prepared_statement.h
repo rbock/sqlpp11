@@ -91,16 +91,16 @@ namespace sqlpp
                     << " at index: " << index << ", being " << (is_null ? "" : "not ") << "null" << std::endl;
         }
 
-        _handle->nullValues[index] = is_null;
+        _handle->null_values[index] = is_null;
         if (!is_null)
         {
           if (*value)
           {
-            _handle->paramValues[index] = "TRUE";
+            _handle->param_values[index] = "TRUE";
           }
           else
           {
-            _handle->paramValues[index] = "FALSE";
+            _handle->param_values[index] = "FALSE";
           }
         }
       }
@@ -113,12 +113,12 @@ namespace sqlpp
                     << ", being " << (is_null ? "" : "not ") << "null" << std::endl;
         }
 
-        _handle->nullValues[index] = is_null;
+        _handle->null_values[index] = is_null;
         if (!is_null)
         {
           sqlpp::detail::float_safe_ostringstream out;
           out << *value;
-          _handle->paramValues[index] = out.str();
+          _handle->param_values[index] = out.str();
         }
       }
 
@@ -131,10 +131,10 @@ namespace sqlpp
         }
 
         // Assign values
-        _handle->nullValues[index] = is_null;
+        _handle->null_values[index] = is_null;
         if (!is_null)
         {
-          _handle->paramValues[index] = std::to_string(*value);
+          _handle->param_values[index] = std::to_string(*value);
         }
       }
 
@@ -147,10 +147,10 @@ namespace sqlpp
         }
 
         // Assign values
-        _handle->nullValues[index] = is_null;
+        _handle->null_values[index] = is_null;
         if (!is_null)
         {
-          _handle->paramValues[index] = *value;
+          _handle->param_values[index] = *value;
         }
       }
 
@@ -161,17 +161,17 @@ namespace sqlpp
           std::cerr << "PostgreSQL debug: binding date parameter at index "
                     << index << ", being " << (is_null ? "" : "not ") << "null" <<  std::endl;
         }
-        _handle->nullValues[index] = is_null;
+        _handle->null_values[index] = is_null;
         if (not is_null)
         {
           const auto ymd = ::date::year_month_day{*value};
           std::ostringstream os;
           os << ymd;
-          _handle->paramValues[index] = os.str();
+          _handle->param_values[index] = os.str();
 
           if (_handle->debug())
           {
-            std::cerr << "PostgreSQL debug: binding date parameter string: " << _handle->paramValues[index] << std::endl;
+            std::cerr << "PostgreSQL debug: binding date parameter string: " << _handle->param_values[index] << std::endl;
           }
         }
       }
@@ -183,7 +183,7 @@ namespace sqlpp
           std::cerr << "PostgreSQL debug: binding time parameter at index "
                     << index << ", being " << (is_null ? "" : "not ") << "null" <<  std::endl;
         }
-        _handle->nullValues[index] = is_null;
+        _handle->null_values[index] = is_null;
         if (not is_null)
         {
           const auto time = ::date::make_time(*value) ;
@@ -191,10 +191,10 @@ namespace sqlpp
           // Timezone handling - always treat the local value as UTC.
           std::ostringstream os;
           os << time << "+00";
-          _handle->paramValues[index] = os.str();
+          _handle->param_values[index] = os.str();
           if (_handle->debug())
           {
-            std::cerr << "PostgreSQL debug: binding time parameter string: " << _handle->paramValues[index] << std::endl;
+            std::cerr << "PostgreSQL debug: binding time parameter string: " << _handle->param_values[index] << std::endl;
           }
         }
       }
@@ -206,7 +206,7 @@ namespace sqlpp
           std::cerr << "PostgreSQL debug: binding date_time parameter at index "
             << index << ", being " << (is_null ? "" : "not ") << "null" << std::endl;
         }
-        _handle->nullValues[index] = is_null;
+        _handle->null_values[index] = is_null;
         if (not is_null)
         {
           const auto dp = ::sqlpp::chrono::floor<::date::days>(*value);
@@ -216,10 +216,10 @@ namespace sqlpp
           // Timezone handling - always treat the local value as UTC.
           std::ostringstream os;
           os << ymd << ' ' << time << "+00";
-          _handle->paramValues[index] = os.str();
+          _handle->param_values[index] = os.str();
           if (_handle->debug())
           {
-            std::cerr << "PostgreSQL debug: binding date_time parameter string: " << _handle->paramValues[index] << std::endl;
+            std::cerr << "PostgreSQL debug: binding date_time parameter string: " << _handle->param_values[index] << std::endl;
           }
         }
       }
@@ -231,23 +231,23 @@ namespace sqlpp
           std::cerr << "PostgreSQL debug: binding blob parameter at index "
             << index << ", being " << (is_null ? "" : "not ") << "null" << std::endl;
         }
-        _handle->nullValues[index] = is_null;
+        _handle->null_values[index] = is_null;
         if (not is_null)
         {
-          constexpr char hexChars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+          constexpr char hex_chars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
           auto param = std::string(value->size() * 2 + 2, '\0');
           param[0] = '\\';
           param[1] = 'x';
           auto i = size_t{1};
           for (const auto c : *value)
           {
-            param[++i] = hexChars[c >> 4];
-            param[++i] = hexChars[c & 0x0F];
+            param[++i] = hex_chars[c >> 4];
+            param[++i] = hex_chars[c & 0x0F];
           }
-          _handle->paramValues[index] = std::move(param);
+          _handle->param_values[index] = std::move(param);
           if (_handle->debug())
           {
-            std::cerr << "PostgreSQL debug: binding blob parameter string (up to 100 chars): " << _handle->paramValues[index].substr(0, 100) << std::endl;
+            std::cerr << "PostgreSQL debug: binding blob parameter string (up to 100 chars): " << _handle->param_values[index].substr(0, 100) << std::endl;
           }
         }
       }

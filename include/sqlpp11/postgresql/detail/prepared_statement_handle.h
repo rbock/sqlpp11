@@ -58,7 +58,7 @@ namespace sqlpp
         Result result;
         bool valid = false;
         int count = 0;
-        int totalCount = 0;
+        int total_count = 0;
         int fields = 0;
 
         // ctor
@@ -73,7 +73,7 @@ namespace sqlpp
 
         virtual ~statement_handle_t()
         {
-          clearResult();
+          clear_result();
         }
 
         bool operator!() const
@@ -81,7 +81,7 @@ namespace sqlpp
           return !valid;
         }
 
-        void clearResult()
+        void clear_result()
         {
           if (result)
           {
@@ -102,12 +102,12 @@ namespace sqlpp
 
       public:
         // Store prepared statement arguments
-        std::vector<bool> nullValues;
-        std::vector<std::string> paramValues;
+        std::vector<bool> null_values;
+        std::vector<std::string> param_values;
 
         // ctor
-        prepared_statement_handle_t(connection_handle& _connection, const std::string& stmt, const size_t& paramCount)
-          : statement_handle_t(_connection), nullValues(paramCount), paramValues(paramCount)
+        prepared_statement_handle_t(connection_handle& _connection, const std::string& stmt, const size_t& param_count)
+          : statement_handle_t(_connection), null_values(param_count), param_values(param_count)
         {
           generate_name();
           prepare(std::move(stmt));
@@ -128,17 +128,17 @@ namespace sqlpp
 
         void execute()
         {
-          const size_t size = paramValues.size();
+          const size_t size = param_values.size();
 
           std::vector<const char*> values;
           for (size_t i = 0u; i < size; i++)
-            values.push_back(nullValues[i] ? nullptr : const_cast<char*>(paramValues[i].c_str()));
+            values.push_back(null_values[i] ? nullptr : const_cast<char*>(param_values[i].c_str()));
 
           // Execute prepared statement with the parameters.
-          clearResult();
+          clear_result();
           valid = false;
           count = 0;
-          totalCount = 0;
+          total_count = 0;
           result = PQexecPrepared(connection.native_handle(), _name.data(), static_cast<int>(size), values.data(), nullptr, nullptr, 0);
                   /// @todo validate result? is it really valid
           valid = true;

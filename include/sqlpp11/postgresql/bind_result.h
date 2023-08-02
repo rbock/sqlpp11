@@ -64,16 +64,16 @@ namespace sqlpp
         }
 
         // Fetch total amount
-        if (_handle->totalCount == 0U)
+        if (_handle->total_count == 0U)
         {
-          _handle->totalCount = _handle->result.records_size();
-          if (_handle->totalCount == 0U)
+          _handle->total_count = _handle->result.records_size();
+          if (_handle->total_count == 0U)
             return false;
         }
         else
         {
           // Next row
-          if (_handle->count < (_handle->totalCount - 1))
+          if (_handle->count < (_handle->total_count - 1))
           {
             _handle->count++;
           }
@@ -150,8 +150,8 @@ namespace sqlpp
           std::cerr << "PostgreSQL debug: binding boolean result at index: " << index << std::endl;
         }
 
-        *is_null = _handle->result.isNull(_handle->count, index);
-        *value = _handle->result.getBoolValue(_handle->count, index);
+        *is_null = _handle->result.is_null(_handle->count, index);
+        *value = _handle->result.get_bool_value(_handle->count, index);
       }
 
       void _bind_floating_point_result(size_t _index, double* value, bool* is_null)
@@ -162,8 +162,8 @@ namespace sqlpp
           std::cerr << "PostgreSQL debug: binding floating_point result at index: " << index << std::endl;
         }
 
-        *is_null = _handle->result.isNull(_handle->count, index);
-        *value = _handle->result.getDoubleValue(_handle->count, index);
+        *is_null = _handle->result.is_null(_handle->count, index);
+        *value = _handle->result.get_double_value(_handle->count, index);
       }
 
       void _bind_integral_result(size_t _index, int64_t* value, bool* is_null)
@@ -174,8 +174,8 @@ namespace sqlpp
           std::cerr << "PostgreSQL debug: binding integral result at index: " << index << std::endl;
         }
 
-        *is_null = _handle->result.isNull(_handle->count, index);
-        *value = _handle->result.getInt64Value(_handle->count, index);
+        *is_null = _handle->result.is_null(_handle->count, index);
+        *value = _handle->result.get_int64_value(_handle->count, index);
       }
 
       void _bind_unsigned_integral_result(size_t _index, uint64_t* value, bool* is_null)
@@ -186,8 +186,8 @@ namespace sqlpp
           std::cerr << "PostgreSQL debug: binding unsigned integral result at index: " << index << std::endl;
         }
 
-        *is_null = _handle->result.isNull(_handle->count, index);
-        *value = _handle->result.getUInt64Value(_handle->count, index);
+        *is_null = _handle->result.is_null(_handle->count, index);
+        *value = _handle->result.get_uint64_value(_handle->count, index);
       }
 
       void _bind_text_result(size_t _index, const char** value, size_t* len)
@@ -198,14 +198,14 @@ namespace sqlpp
           std::cerr << "PostgreSQL debug: binding text result at index: " << index << std::endl;
         }
 
-        if (_handle->result.isNull(_handle->count, index))
+        if (_handle->result.is_null(_handle->count, index))
         {
           *value = nullptr;
           *len = 0;
         }
         else
         {
-          *value = _handle->result.getCharPtrValue(_handle->count, index);
+          *value = _handle->result.get_char_ptr_value(_handle->count, index);
           *len = static_cast<size_t>(_handle->result.length(_handle->count, index));
         }
       }
@@ -227,11 +227,11 @@ namespace sqlpp
           std::cerr << "PostgreSQL debug: binding date result at index: " << index << std::endl;
         }
 
-        *is_null = _handle->result.isNull(_handle->count, index);
+        *is_null = _handle->result.is_null(_handle->count, index);
 
         if (!(*is_null))
         {
-          const auto date_string = _handle->result.getCharPtrValue(_handle->count, index);
+          const auto date_string = _handle->result.get_char_ptr_value(_handle->count, index);
 
           if (_handle->debug())
           {
@@ -269,11 +269,11 @@ namespace sqlpp
           std::cerr << "PostgreSQL debug: binding date_time result at index: " << index << std::endl;
         }
 
-        *is_null = _handle->result.isNull(_handle->count, index);
+        *is_null = _handle->result.is_null(_handle->count, index);
 
         if (!(*is_null))
         {
-          const auto date_string = _handle->result.getCharPtrValue(_handle->count, index);
+          const auto date_string = _handle->result.get_char_ptr_value(_handle->count, index);
 
           if (_handle->debug())
           {
@@ -325,11 +325,11 @@ namespace sqlpp
           std::cerr << "PostgreSQL debug: binding time result at index: " << index << std::endl;
         }
 
-        *is_null = _handle->result.isNull(_handle->count, index);
+        *is_null = _handle->result.is_null(_handle->count, index);
 
         if (!(*is_null))
         {
-          const auto time_string = _handle->result.getCharPtrValue(_handle->count, index);
+          const auto time_string = _handle->result.get_char_ptr_value(_handle->count, index);
 
           if (_handle->debug())
           {
@@ -374,14 +374,14 @@ namespace sqlpp
           std::cerr << "PostgreSQL debug: binding blob result at index: " << index << std::endl;
         }
 
-        if (_handle->result.isNull(_handle->count, index))
+        if (_handle->result.is_null(_handle->count, index))
         {
           *value = nullptr;
           *len = 0;
         }
         else
         {
-          *value = _handle->result.getBlobValue(_handle->count, index);
+          *value = _handle->result.get_blob_value(_handle->count, index);
           *len   = static_cast<size_t>(_handle->result.length(_handle->count, index));
         }
       }

@@ -44,11 +44,11 @@ namespace sqlpp
 
   inline postgresql::context_t& serialize(const blob_operand& t, postgresql::context_t& context)
   {
-    constexpr char hexChars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+    constexpr char hex_chars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
     context << "'\\x";
     for (const auto c : t._t)
     {
-      context << hexChars[c >> 4] << hexChars[c & 0x0F];
+      context << hex_chars[c >> 4] << hex_chars[c & 0x0F];
     }
     context << '\'';
 
