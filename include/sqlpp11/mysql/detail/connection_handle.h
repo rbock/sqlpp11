@@ -65,11 +65,6 @@ namespace sqlpp
         }
       }
 
-      inline void handle_cleanup(MYSQL* mysql)
-      {
-        mysql_close(mysql);
-      }
-
       struct connection_handle
       {
         std::shared_ptr<const connection_config> config;
@@ -77,7 +72,7 @@ namespace sqlpp
 
         connection_handle(const std::shared_ptr<const connection_config>& conf) :
           config(conf),
-          mysql(mysql_init(nullptr), handle_cleanup)
+          mysql(mysql_init(nullptr), mysql_close)
         {
           if (not mysql)
           {
