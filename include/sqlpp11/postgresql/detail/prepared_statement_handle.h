@@ -54,7 +54,7 @@ namespace sqlpp
     {
       struct DLL_PUBLIC statement_handle_t
       {
-        detail::connection_handle& connection;
+        connection_handle& connection;
         Result result;
         bool valid = false;
         int count = 0;
