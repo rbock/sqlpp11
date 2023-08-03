@@ -113,7 +113,7 @@ namespace sqlpp
         return m_result != 0;
       }
 
-      inline int64_t getInt64Value(int record, int field) const
+      int64_t getInt64Value(int record, int field) const
       {
         checkIndex(record, field);
         auto t = int64_t{};
@@ -126,7 +126,7 @@ namespace sqlpp
         return t;
       }
 
-      inline uint64_t getUInt64Value(int record, int field) const
+      uint64_t getUInt64Value(int record, int field) const
       {
         checkIndex(record, field);
         auto t = uint64_t{};
@@ -139,7 +139,7 @@ namespace sqlpp
         return t;
       }
 
-      inline double getDoubleValue(int record, int field) const
+      double getDoubleValue(int record, int field) const
       {
         checkIndex(record, field);
         auto t = double{};
@@ -152,22 +152,22 @@ namespace sqlpp
         return t;
       }
 
-      inline const char* getCharPtrValue(int record, int field) const
+      const char* getCharPtrValue(int record, int field) const
       {
         return const_cast<const char*>(getPqValue(m_result, record, field));
       }
 
-      inline std::string getStringValue(int record, int field) const
+      std::string getStringValue(int record, int field) const
       {
         return {getCharPtrValue(record, field)};
       }
 
-      inline const uint8_t* getBlobValue(int record, int field) const
+      const uint8_t* getBlobValue(int record, int field) const
       {
         return reinterpret_cast<const uint8_t*>(getPqValue(m_result, record, field));
       }
 
-      inline bool getBoolValue(int record, int field) const
+      bool getBoolValue(int record, int field) const
       {
         checkIndex(record, field);
         auto val = getPqValue(m_result, record, field);
