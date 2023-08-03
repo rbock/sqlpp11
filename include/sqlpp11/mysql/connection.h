@@ -48,9 +48,9 @@ namespace sqlpp
   {
     namespace detail
     {
-      struct MySqlThreadInitializer
+      struct mysql_thread_initializer
       {
-        MySqlThreadInitializer()
+        mysql_thread_initializer()
         {
           if (!mysql_thread_safe())
           {
@@ -59,7 +59,7 @@ namespace sqlpp
           mysql_thread_init();
         }
 
-        ~MySqlThreadInitializer()
+        ~mysql_thread_initializer()
         {
           mysql_thread_end();
         }
@@ -67,7 +67,7 @@ namespace sqlpp
 
       inline void thread_init()
       {
-        thread_local MySqlThreadInitializer threadInitializer;
+        thread_local mysql_thread_initializer thread_initializer;
       }
 
       inline void execute_statement(std::unique_ptr<connection_handle>& handle, const std::string& statement)
