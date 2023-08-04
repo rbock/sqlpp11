@@ -106,8 +106,10 @@ namespace sqlpp
         std::vector<std::string> param_values;
 
         // ctor
-        prepared_statement_handle_t(connection_handle& _connection, const std::string& stmt, const size_t& param_count)
-          : statement_handle_t(_connection), null_values(param_count), param_values(param_count)
+        prepared_statement_handle_t(connection_handle& _connection, const std::string& stmt, const size_t& param_count) :
+          statement_handle_t{_connection},
+          null_values(param_count), // ()-init for correct constructor
+          param_values(param_count) // ()-init for correct constructor
         {
           generate_name();
           prepare(std::move(stmt));

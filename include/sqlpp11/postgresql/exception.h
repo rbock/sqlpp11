@@ -64,7 +64,7 @@ namespace sqlpp
       }
 
     public:
-      explicit failure(std::string whatarg) : sqlpp::exception(std::move(whatarg))
+      explicit failure(std::string whatarg) : sqlpp::exception{std::move(whatarg)}
       {
       }
     };
@@ -91,11 +91,11 @@ namespace sqlpp
     class DLL_PUBLIC broken_connection : public failure
     {
     public:
-      broken_connection() : failure("Connection to database failed")
+      broken_connection() : failure{"Connection to database failed"}
       {
       }
 
-      explicit broken_connection(std::string whatarg) : failure(std::move(whatarg))
+      explicit broken_connection(std::string whatarg) : failure{std::move(whatarg)}
       {
       }
     };
@@ -107,13 +107,13 @@ namespace sqlpp
       std::string m_Q;
 
     public:
-      sql_error() : failure("Failed query"), m_Q()
+      sql_error() : failure{"Failed query"}, m_Q{}
       {
       }
-      explicit sql_error(std::string whatarg) : failure(std::move(whatarg)), m_Q()
+      explicit sql_error(std::string whatarg) : failure{std::move(whatarg)}, m_Q{}
       {
       }
-      sql_error(std::string whatarg, std::string Q) : failure(std::move(whatarg)), m_Q(std::move(Q))
+      sql_error(std::string whatarg, std::string Q) : failure{std::move(whatarg)}, m_Q{std::move(Q)}
       {
       }
 
@@ -134,10 +134,10 @@ namespace sqlpp
       std::string m_Code;
 
     public:
-      sql_user_error(std::string whatarg, std::string code) : sql_error(std::move(whatarg)), m_Code(std::move(code))
+      sql_user_error(std::string whatarg, std::string code) : sql_error{std::move(whatarg)}, m_Code{std::move(code)}
       {
       }
-      sql_user_error(std::string whatarg, std::string query, std::string code) : sql_error(std::move(whatarg),std::move(query)), m_Code(std::move(code))
+      sql_user_error(std::string whatarg, std::string query, std::string code) : sql_error{std::move(whatarg),std::move(query)}, m_Code{std::move(code)}
       {
       }
 
@@ -159,7 +159,7 @@ namespace sqlpp
     class DLL_PUBLIC in_doubt_error : public failure
     {
     public:
-      explicit in_doubt_error(std::string whatarg) : failure(std::move(whatarg))
+      explicit in_doubt_error(std::string whatarg) : failure{std::move(whatarg)}
       {
       }
     };
@@ -168,10 +168,10 @@ namespace sqlpp
     class DLL_PUBLIC feature_not_supported : public sql_error
     {
     public:
-      explicit feature_not_supported(std::string err) : sql_error(std::move(err))
+      explicit feature_not_supported(std::string err) : sql_error{std::move(err)}
       {
       }
-      feature_not_supported(std::string err, std::string Q) : sql_error(std::move(err), std::move(Q))
+      feature_not_supported(std::string err, std::string Q) : sql_error{std::move(err), std::move(Q)}
       {
       }
     };
@@ -180,10 +180,10 @@ namespace sqlpp
     class DLL_PUBLIC data_exception : public sql_error
     {
     public:
-      explicit data_exception(std::string err) : sql_error(std::move(err))
+      explicit data_exception(std::string err) : sql_error{std::move(err)}
       {
       }
-      data_exception(std::string err, std::string Q) : sql_error(std::move(err), std::move(Q))
+      data_exception(std::string err, std::string Q) : sql_error{std::move(err), std::move(Q)}
       {
       }
     };
@@ -191,10 +191,10 @@ namespace sqlpp
     class DLL_PUBLIC integrity_constraint_violation : public sql_error
     {
     public:
-      explicit integrity_constraint_violation(std::string err) : sql_error(std::move(err))
+      explicit integrity_constraint_violation(std::string err) : sql_error{std::move(err)}
       {
       }
-      integrity_constraint_violation(std::string err, std::string Q) : sql_error(std::move(err), std::move(Q))
+      integrity_constraint_violation(std::string err, std::string Q) : sql_error{std::move(err), std::move(Q)}
       {
       }
     };
@@ -258,10 +258,10 @@ namespace sqlpp
     class DLL_PUBLIC invalid_cursor_state : public sql_error
     {
     public:
-      explicit invalid_cursor_state(std::string err) : sql_error(std::move(err))
+      explicit invalid_cursor_state(std::string err) : sql_error{std::move(err)}
       {
       }
-      invalid_cursor_state(std::string err, std::string Q) : sql_error(std::move(err), std::move(Q))
+      invalid_cursor_state(std::string err, std::string Q) : sql_error{std::move(err), std::move(Q)}
       {
       }
     };
@@ -269,10 +269,10 @@ namespace sqlpp
     class DLL_PUBLIC invalid_sql_statement_name : public sql_error
     {
     public:
-      explicit invalid_sql_statement_name(std::string err) : sql_error(std::move(err))
+      explicit invalid_sql_statement_name(std::string err) : sql_error{std::move(err)}
       {
       }
-      invalid_sql_statement_name(std::string err, std::string Q) : sql_error(std::move(err), std::move(Q))
+      invalid_sql_statement_name(std::string err, std::string Q) : sql_error{std::move(err), std::move(Q)}
       {
       }
     };
@@ -280,10 +280,10 @@ namespace sqlpp
     class DLL_PUBLIC invalid_cursor_name : public sql_error
     {
     public:
-      explicit invalid_cursor_name(std::string err) : sql_error(std::move(err))
+      explicit invalid_cursor_name(std::string err) : sql_error{std::move(err)}
       {
       }
-      invalid_cursor_name(std::string err, std::string Q) : sql_error(std::move(err), std::move(Q))
+      invalid_cursor_name(std::string err, std::string Q) : sql_error{std::move(err), std::move(Q)}
       {
       }
     };
@@ -294,10 +294,10 @@ namespace sqlpp
       /// Approximate position in string where error occurred, or -1 if unknown.
       const int error_position;
 
-      explicit syntax_error(std::string err, int pos = -1) : sql_error(std::move(err)), error_position(pos)
+      explicit syntax_error(std::string err, int pos = -1) : sql_error{std::move(err)}, error_position{pos}
       {
       }
-      syntax_error(std::string err, std::string Q, int pos = -1) : sql_error(std::move(err), std::move(Q)), error_position(pos)
+      syntax_error(std::string err, std::string Q, int pos = -1) : sql_error{std::move(err), std::move(Q)}, error_position{pos}
       {
       }
     };
@@ -305,10 +305,10 @@ namespace sqlpp
     class DLL_PUBLIC undefined_column : public syntax_error
     {
     public:
-      explicit undefined_column(std::string err) : syntax_error(std::move(err))
+      explicit undefined_column(std::string err) : syntax_error{std::move(err)}
       {
       }
-      undefined_column(std::string err, std::string Q) : syntax_error(std::move(err), std::move(Q))
+      undefined_column(std::string err, std::string Q) : syntax_error{std::move(err), std::move(Q)}
       {
       }
     };
@@ -316,10 +316,10 @@ namespace sqlpp
     class DLL_PUBLIC undefined_function : public syntax_error
     {
     public:
-      explicit undefined_function(std::string err) : syntax_error(std::move(err))
+      explicit undefined_function(std::string err) : syntax_error{std::move(err)}
       {
       }
-      undefined_function(std::string err, std::string Q) : syntax_error(std::move(err), std::move(Q))
+      undefined_function(std::string err, std::string Q) : syntax_error{std::move(err), std::move(Q)}
       {
       }
     };
@@ -327,10 +327,10 @@ namespace sqlpp
     class DLL_PUBLIC undefined_table : public syntax_error
     {
     public:
-      explicit undefined_table(std::string err) : syntax_error(std::move(err))
+      explicit undefined_table(std::string err) : syntax_error{std::move(err)}
       {
       }
-      undefined_table(std::string err, std::string Q) : syntax_error(std::move(err), std::move(Q))
+      undefined_table(std::string err, std::string Q) : syntax_error{std::move(err), std::move(Q)}
       {
       }
     };
@@ -338,10 +338,10 @@ namespace sqlpp
     class DLL_PUBLIC insufficient_privilege : public sql_error
     {
     public:
-      explicit insufficient_privilege(std::string err) : sql_error(std::move(err))
+      explicit insufficient_privilege(std::string err) : sql_error{std::move(err)}
       {
       }
-      insufficient_privilege(std::string err, std::string Q) : sql_error(std::move(err), std::move(Q))
+      insufficient_privilege(std::string err, std::string Q) : sql_error{std::move(err), std::move(Q)}
       {
       }
     };
@@ -350,10 +350,10 @@ namespace sqlpp
     class DLL_PUBLIC insufficient_resources : public sql_error
     {
     public:
-      explicit insufficient_resources(std::string err) : sql_error(std::move(err))
+      explicit insufficient_resources(std::string err) : sql_error{std::move(err)}
       {
       }
-      insufficient_resources(std::string err, std::string Q) : sql_error(std::move(err), std::move(Q))
+      insufficient_resources(std::string err, std::string Q) : sql_error{std::move(err), std::move(Q)}
       {
       }
     };
@@ -361,10 +361,10 @@ namespace sqlpp
     class DLL_PUBLIC disk_full : public insufficient_resources
     {
     public:
-      explicit disk_full(std::string err) : insufficient_resources(std::move(err))
+      explicit disk_full(std::string err) : insufficient_resources{std::move(err)}
       {
       }
-      disk_full(std::string err, std::string Q) : insufficient_resources(std::move(err), std::move(Q))
+      disk_full(std::string err, std::string Q) : insufficient_resources{std::move(err), std::move(Q)}
       {
       }
     };
@@ -372,10 +372,10 @@ namespace sqlpp
     class DLL_PUBLIC out_of_memory : public insufficient_resources
     {
     public:
-      explicit out_of_memory(std::string err) : insufficient_resources(std::move(err))
+      explicit out_of_memory(std::string err) : insufficient_resources{std::move(err)}
       {
       }
-      out_of_memory(std::string err, std::string Q) : insufficient_resources(std::move(err), std::move(Q))
+      out_of_memory(std::string err, std::string Q) : insufficient_resources{std::move(err), std::move(Q)}
       {
       }
     };
@@ -383,7 +383,7 @@ namespace sqlpp
     class DLL_PUBLIC too_many_connections : public broken_connection
     {
     public:
-      explicit too_many_connections(std::string err) : broken_connection(std::move(err))
+      explicit too_many_connections(std::string err) : broken_connection{std::move(err)}
       {
       }
     };
@@ -393,10 +393,10 @@ namespace sqlpp
     class DLL_PUBLIC plpgsql_error : public sql_error
     {
     public:
-      explicit plpgsql_error(std::string err) : sql_error(std::move(err))
+      explicit plpgsql_error(std::string err) : sql_error{std::move(err)}
       {
       }
-      plpgsql_error(std::string err, std::string Q) : sql_error(std::move(err), std::move(Q))
+      plpgsql_error(std::string err, std::string Q) : sql_error{std::move(err), std::move(Q)}
       {
       }
     };
@@ -405,10 +405,10 @@ namespace sqlpp
     class DLL_PUBLIC plpgsql_raise : public plpgsql_error
     {
     public:
-      explicit plpgsql_raise(std::string err) : plpgsql_error(std::move(err))
+      explicit plpgsql_raise(std::string err) : plpgsql_error{std::move(err)}
       {
       }
-      plpgsql_raise(std::string err, std::string Q) : plpgsql_error(std::move(err), std::move(Q))
+      plpgsql_raise(std::string err, std::string Q) : plpgsql_error{std::move(err), std::move(Q)}
       {
       }
     };
@@ -416,10 +416,10 @@ namespace sqlpp
     class DLL_PUBLIC plpgsql_no_data_found : public plpgsql_error
     {
     public:
-      explicit plpgsql_no_data_found(std::string err) : plpgsql_error(std::move(err))
+      explicit plpgsql_no_data_found(std::string err) : plpgsql_error{std::move(err)}
       {
       }
-      plpgsql_no_data_found(std::string err, std::string Q) : plpgsql_error(std::move(err), std::move(Q))
+      plpgsql_no_data_found(std::string err, std::string Q) : plpgsql_error{std::move(err), std::move(Q)}
       {
       }
     };
@@ -427,10 +427,10 @@ namespace sqlpp
     class DLL_PUBLIC plpgsql_too_many_rows : public plpgsql_error
     {
     public:
-      explicit plpgsql_too_many_rows(std::string err) : plpgsql_error(std::move(err))
+      explicit plpgsql_too_many_rows(std::string err) : plpgsql_error{std::move(err)}
       {
       }
-      plpgsql_too_many_rows(std::string err, std::string Q) : plpgsql_error(std::move(err), std::move(Q))
+      plpgsql_too_many_rows(std::string err, std::string Q) : plpgsql_error{std::move(err), std::move(Q)}
       {
       }
     };
