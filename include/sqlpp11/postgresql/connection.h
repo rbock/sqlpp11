@@ -62,7 +62,6 @@ namespace sqlpp
 
     namespace detail
     {
-      // Forward declaration
       inline std::unique_ptr<detail::prepared_statement_handle_t> prepare_statement(std::unique_ptr<connection_handle>& handle,
                                                                              const std::string& stmt,
                                                                              const size_t& paramCount)
