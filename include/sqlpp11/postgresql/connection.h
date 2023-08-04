@@ -603,6 +603,7 @@ namespace sqlpp
       }
     };
 
+    // Method definition moved outside of class because it needs connection_base
     inline std::string context_t::escape(const std::string& arg) const
     {
       return _db.escape(arg);
