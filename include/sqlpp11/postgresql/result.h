@@ -337,8 +337,6 @@ namespace sqlpp
         return pos;
       }
 
-      bool hasError();
-
       void checkIndex(int record, int field) const noexcept(false)
       {
         if (record > records_size() || field > field_count())
