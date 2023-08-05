@@ -26,23 +26,37 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/data_types/text/concat.h>
-#include <sqlpp11/insert_value_list.h>
-
 namespace sqlpp
 {
-  template <typename First, typename... Args>
-  mysql::context_t& serialize(const concat_t<First, Args...>& t, mysql::context_t& ctx)
+  namespace mysql
   {
-    ctx << "CONCAT(";
-    interpret_tuple(t._args, ',', ctx);
-    ctx << ')';
-    return ctx;
-  }
+    namespace detail
+    {
+      struct result_handle
+      {
+        MYSQL_RES* mysql_res;
+        bool debug;
 
-  inline mysql::context_t& serialize(const insert_default_values_data_t&, mysql::context_t& ctx)
-  {
-    ctx << " () VALUES()";
-    return ctx;
-  }
-}
+        result_handle(MYSQL_RES* res, bool debug_) : mysql_res(res), debug(debug_)
+        {
+        }
+
+        result_handle(const result_handle&) = delete;
+        result_handle(result_handle&&) = default;
+        result_handle& operator=(const result_handle&) = delete;
+        result_handle& operator=(result_handle&&) = default;
+
+        ~result_handle()
+        {
+          if (mysql_res)
+            mysql_free_result(mysql_res);
+        }
+
+        bool operator!() const
+        {
+          return !mysql_res;
+        }
+      };
+    }  // namespace detail
+  }  // namespace mysql
+}  // namespace sqlpp

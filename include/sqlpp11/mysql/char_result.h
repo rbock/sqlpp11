@@ -32,6 +32,7 @@
 #include <memory>
 #include <sqlpp11/chrono.h>
 #include <sqlpp11/exception.h>
+#include <sqlpp11/mysql/detail/result_handle.h>
 #include <sqlpp11/mysql/sqlpp_mysql.h>
 #include <sqlpp11/mysql/char_result_row.h>
 
@@ -41,35 +42,9 @@ namespace sqlpp
   {
     namespace detail
     {
-      struct result_handle
+      inline auto check_first_digit(const char* text, bool digit_flag) -> bool
       {
-        MYSQL_RES* mysql_res;
-        bool debug;
-
-        result_handle(MYSQL_RES* res, bool debug_) : mysql_res(res), debug(debug_)
-        {
-        }
-
-        result_handle(const result_handle&) = delete;
-        result_handle(result_handle&&) = default;
-        result_handle& operator=(const result_handle&) = delete;
-        result_handle& operator=(result_handle&&) = default;
-
-        ~result_handle()
-        {
-          if (mysql_res)
-            mysql_free_result(mysql_res);
-        }
-
-        bool operator!() const
-        {
-          return !mysql_res;
-        }
-      };
-
-      inline auto check_first_digit(const char* text, bool digitFlag) -> bool
-      {
-        if (digitFlag)
+        if (digit_flag)
         {
           if (not std::isdigit(*text))
           {
@@ -88,9 +63,9 @@ namespace sqlpp
 
       inline auto check_date_digits(const char* text) -> bool
       {
-        for (const auto digitFlag : {true, true, true, true, false, true, true, false, true, true})  // YYYY-MM-DD
+        for (const auto digit_flag : {true, true, true, true, false, true, true, false, true, true})  // YYYY-MM-DD
         {
-          if (not check_first_digit(text, digitFlag))
+          if (not check_first_digit(text, digit_flag))
             return false;
           ++text;
         }
@@ -99,9 +74,9 @@ namespace sqlpp
 
       inline auto check_time_digits(const char* text) -> bool
       {
-        for (const auto digitFlag : {true, true, false, true, true, false, true, true}) // hh:mm:ss
+        for (const auto digit_flag : {true, true, false, true, true, false, true, true}) // hh:mm:ss
         {
-          if (not check_first_digit(text, digitFlag))
+          if (not check_first_digit(text, digit_flag))
             return false;
           ++text;
         }

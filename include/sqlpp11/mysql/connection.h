@@ -33,11 +33,11 @@
 #include <sqlpp11/mysql/bind_result.h>
 #include <sqlpp11/mysql/char_result.h>
 #include <sqlpp11/mysql/connection_config.h>
+#include <sqlpp11/mysql/detail/connection_handle.h>
 #include <sqlpp11/mysql/prepared_statement.h>
 #include <sqlpp11/mysql/remove.h>
 #include <sqlpp11/mysql/update.h>
 #include <sqlpp11/serialize.h>
-#include <sqlpp11/mysql/sqlpp_mysql.h>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -48,9 +48,9 @@ namespace sqlpp
   {
     namespace detail
     {
-      struct MySqlThreadInitializer
+      struct mysql_thread_initializer
       {
-        MySqlThreadInitializer()
+        mysql_thread_initializer()
         {
           if (!mysql_thread_safe())
           {
@@ -59,7 +59,7 @@ namespace sqlpp
           mysql_thread_init();
         }
 
-        ~MySqlThreadInitializer()
+        ~mysql_thread_initializer()
         {
           mysql_thread_end();
         }
@@ -67,90 +67,10 @@ namespace sqlpp
 
       inline void thread_init()
       {
-        thread_local MySqlThreadInitializer threadInitializer;
+        thread_local mysql_thread_initializer thread_initializer;
       }
 
-      inline void connect(MYSQL* mysql, const connection_config& config)
-      {
-        if (config.connect_timeout_seconds != 0 &&
-            mysql_options(mysql, MYSQL_OPT_CONNECT_TIMEOUT, &config.connect_timeout_seconds))
-        {
-          throw sqlpp::exception("MySQL: could not set option MYSQL_OPT_CONNECT_TIMEOUT");
-        }
-
-        if (!mysql_real_connect(mysql, config.host.empty() ? nullptr : config.host.c_str(),
-                                config.user.empty() ? nullptr : config.user.c_str(),
-                                config.password.empty() ? nullptr : config.password.c_str(), nullptr, config.port,
-                                config.unix_socket.empty() ? nullptr : config.unix_socket.c_str(), config.client_flag))
-        {
-          throw sqlpp::exception("MySQL: could not connect to server: " + std::string(mysql_error(mysql)));
-        }
-
-        if (mysql_set_character_set(mysql, config.charset.c_str()))
-        {
-          throw sqlpp::exception("MySQL error: can't set character set " + config.charset);
-        }
-
-        if (not config.database.empty() and mysql_select_db(mysql, config.database.c_str()))
-        {
-          throw sqlpp::exception("MySQL error: can't select database '" + config.database + "'");
-        }
-      }
-
-      inline void handle_cleanup(MYSQL* mysql)
-      {
-        mysql_close(mysql);
-      }
-
-      struct connection_handle_t
-      {
-        std::shared_ptr<const connection_config> config;
-        std::unique_ptr<MYSQL, void (*)(MYSQL*)> mysql;
-
-        connection_handle_t(const std::shared_ptr<const connection_config>& conf) :
-          config(conf),
-          mysql(mysql_init(nullptr), handle_cleanup)
-        {
-          if (not mysql)
-          {
-            throw sqlpp::exception("MySQL: could not init mysql data structure");
-          }
-
-          if (config->auto_reconnect)
-          {
-            my_bool my_true = true;
-            if (mysql_options(native_handle(), MYSQL_OPT_RECONNECT, &my_true))
-            {
-              throw sqlpp::exception("MySQL: could not set option MYSQL_OPT_RECONNECT");
-            }
-          }
-
-          connect(native_handle(), *config);
-        }
-
-        connection_handle_t(const connection_handle_t&) = delete;
-        connection_handle_t(connection_handle_t&&) = default;
-        connection_handle_t& operator=(const connection_handle_t&) = delete;
-        connection_handle_t& operator=(connection_handle_t&&) = default;
-
-        MYSQL* native_handle() const
-        {
-          return mysql.get();
-        }
-
-        bool check_connection() const
-        {
-          auto nh = native_handle();
-          return nh && (mysql_ping(nh) == 0);
-        }
-
-        void reconnect()
-        {
-          connect(native_handle(), *config);
-        }
-      };
-
-      inline void execute_statement(std::unique_ptr<connection_handle_t>& handle, const std::string& statement)
+      inline void execute_statement(std::unique_ptr<connection_handle>& handle, const std::string& statement)
       {
         thread_init();
 
@@ -185,7 +105,7 @@ namespace sqlpp
         }
       }
 
-      inline std::shared_ptr<detail::prepared_statement_handle_t> prepare_statement(std::unique_ptr<connection_handle_t>& handle,
+      inline std::shared_ptr<detail::prepared_statement_handle_t> prepare_statement(std::unique_ptr<connection_handle>& handle,
                                                                              const std::string& statement,
                                                                              size_t no_of_parameters,
                                                                              size_t no_of_columns)
@@ -235,12 +155,12 @@ namespace sqlpp
     // Forward declaration
     class connection_base;
 
-    struct serializer_t
+    struct context_t
     {
-      serializer_t(const connection_base& db) : _db(db)
+      context_t(const connection_base& db) : _db(db)
       {
       }
-      serializer_t(const connection_base&&) = delete;
+      context_t(const connection_base&&) = delete;
 
       template <typename T>
       std::ostream& operator<<(T t)
@@ -248,7 +168,7 @@ namespace sqlpp
         return _os << t;
       }
 
-      std::string escape(std::string arg);
+      std::string escape(const std::string& arg) const;
 
       std::string str() const
       {
@@ -259,9 +179,9 @@ namespace sqlpp
       sqlpp::detail::float_safe_ostringstream _os;
     };
 
-    std::integral_constant<char, '`'> get_quote_left(const serializer_t&);
+    std::integral_constant<char, '`'> get_quote_left(const context_t&);
 
-    std::integral_constant<char, '`'> get_quote_right(const serializer_t&);
+    std::integral_constant<char, '`'> get_quote_right(const context_t&);
 
     class connection_base : public sqlpp::connection
     {
@@ -336,11 +256,11 @@ namespace sqlpp
       using _connection_base_t = connection_base;
       using _config_t = connection_config;
       using _config_ptr_t = std::shared_ptr<const _config_t>;
-      using _handle_t = detail::connection_handle_t;
+      using _handle_t = detail::connection_handle;
       using _handle_ptr_t = std::unique_ptr<_handle_t>;
 
       using _prepared_statement_t = ::sqlpp::mysql::prepared_statement_t;
-      using _context_t = serializer_t;
+      using _context_t = context_t;
       using _serializer_context_t = _context_t;
       using _interpreter_context_t = _context_t;
 
@@ -594,7 +514,7 @@ namespace sqlpp
     };
 
     // Method definition moved outside of class because it needs connection_base
-    inline std::string serializer_t::escape(std::string arg)
+    inline std::string context_t::escape(const std::string& arg) const
     {
       return _db.escape(arg);
     }

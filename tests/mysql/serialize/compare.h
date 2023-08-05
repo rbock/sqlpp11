@@ -60,7 +60,7 @@ namespace
     }
 
     sqlpp::mysql::connection connection{config};
-    sqlpp::mysql::serializer_t printer{connection};
+    sqlpp::mysql::context_t printer{connection};
 
     const auto result = serialize(expr, printer).str();
 
