@@ -90,7 +90,7 @@ namespace sqlpp
   template<typename ConnectionBase>
   typename connection_pool<ConnectionBase>::_pooled_connection_t connection_pool<ConnectionBase>::pool_core::get()
   {
-    std::unique_lock lock{_mutex};
+    std::unique_lock<std::mutex> lock{_mutex};
     if (_handles.empty()) {
       lock.unlock();
       return _pooled_connection_t{_connection_config, this->shared_from_this()};
@@ -108,7 +108,7 @@ namespace sqlpp
   template<typename ConnectionBase>
   void connection_pool<ConnectionBase>::pool_core::put(_handle_ptr_t& handle)
   {
-    std::unique_lock lock{_mutex};
+    std::unique_lock<std::mutex> lock{_mutex};
     if (_handles.full ()) {
             _handles.set_capacity (_handles.capacity () + 5);
     }
@@ -118,7 +118,7 @@ namespace sqlpp
   template<typename ConnectionBase>
   std::size_t connection_pool<ConnectionBase>::pool_core::available()
   {
-    std::unique_lock lock{_mutex};
+    std::unique_lock<std::mutex> lock{_mutex};
     return _handles.size();
   }
 
