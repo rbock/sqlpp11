@@ -91,10 +91,10 @@ namespace sqlpp
 
     public:
       char_result_t() = default;
-      char_result_t(std::unique_ptr<detail::result_handle>&& handle) : _handle(std::move(handle))
+      char_result_t(std::unique_ptr<detail::result_handle>&& handle) : _handle{std::move(handle)}
       {
         if (_invalid())
-          throw sqlpp::exception("MySQL: Constructing char_result without valid handle");
+          throw sqlpp::exception{"MySQL: Constructing char_result without valid handle"};
 
         if (_handle->debug)
           std::cerr << "MySQL debug: Constructing result, using handle at " << _handle.get() << std::endl;
@@ -167,14 +167,14 @@ namespace sqlpp
 
       void _bind_blob_result(size_t index, const uint8_t** value, size_t* len)
       {
-        bool is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
+        bool is_null{_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr};
         *value = (uint8_t*)(is_null ? nullptr : _char_result_row.data[index]);
         *len = (is_null ? 0 : _char_result_row.len[index]);
       }
 
       void _bind_text_result(size_t index, const char** value, size_t* len)
       {
-        bool is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
+        bool is_null{_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr};
         *value = (is_null ? nullptr : _char_result_row.data[index]);
         *len = (is_null ? 0 : _char_result_row.len[index]);
       }

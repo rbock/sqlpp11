@@ -34,17 +34,17 @@ namespace sqlpp
   {
     struct connection_config
     {
-      std::string host = "localhost";
+      std::string host{"localhost"};
       std::string user;
       std::string password;
       std::string database;
-      unsigned int port = 0;
+      unsigned int port{0};
       std::string unix_socket;
-      unsigned long client_flag = 0;
-      std::string charset = "utf8";
-      bool auto_reconnect = true;
-      bool debug = false;
-      unsigned int connect_timeout_seconds = 0;  // 0 = do not override MySQL library default
+      unsigned long client_flag{0};
+      std::string charset{"utf8"};
+      bool auto_reconnect{true};
+      bool debug{false};
+      unsigned int connect_timeout_seconds{0};  // 0 = do not override MySQL library default
 
       bool operator==(const connection_config& other) const
       {

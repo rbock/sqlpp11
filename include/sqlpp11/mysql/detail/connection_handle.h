@@ -43,7 +43,7 @@ namespace sqlpp
         if (config.connect_timeout_seconds != 0 &&
             mysql_options(mysql, MYSQL_OPT_CONNECT_TIMEOUT, &config.connect_timeout_seconds))
         {
-          throw sqlpp::exception("MySQL: could not set option MYSQL_OPT_CONNECT_TIMEOUT");
+          throw sqlpp::exception{"MySQL: could not set option MYSQL_OPT_CONNECT_TIMEOUT"};
         }
 
         if (!mysql_real_connect(mysql, config.host.empty() ? nullptr : config.host.c_str(),
@@ -51,17 +51,17 @@ namespace sqlpp
                                 config.password.empty() ? nullptr : config.password.c_str(), nullptr, config.port,
                                 config.unix_socket.empty() ? nullptr : config.unix_socket.c_str(), config.client_flag))
         {
-          throw sqlpp::exception("MySQL: could not connect to server: " + std::string(mysql_error(mysql)));
+          throw sqlpp::exception{"MySQL: could not connect to server: " + std::string{mysql_error(mysql)}};
         }
 
         if (mysql_set_character_set(mysql, config.charset.c_str()))
         {
-          throw sqlpp::exception("MySQL error: can't set character set " + config.charset);
+          throw sqlpp::exception{"MySQL error: can't set character set " + config.charset};
         }
 
         if (not config.database.empty() and mysql_select_db(mysql, config.database.c_str()))
         {
-          throw sqlpp::exception("MySQL error: can't select database '" + config.database + "'");
+          throw sqlpp::exception{"MySQL error: can't select database '" + config.database + "'"};
         }
       }
 
@@ -71,20 +71,20 @@ namespace sqlpp
         std::unique_ptr<MYSQL, void (*)(MYSQL*)> mysql;
 
         connection_handle(const std::shared_ptr<const connection_config>& conf) :
-          config(conf),
-          mysql(mysql_init(nullptr), mysql_close)
+          config{conf},
+          mysql{mysql_init(nullptr), mysql_close}
         {
           if (not mysql)
           {
-            throw sqlpp::exception("MySQL: could not init mysql data structure");
+            throw sqlpp::exception{"MySQL: could not init mysql data structure"};
           }
 
           if (config->auto_reconnect)
           {
-            my_bool my_true = true;
+            my_bool my_true{true};
             if (mysql_options(native_handle(), MYSQL_OPT_RECONNECT, &my_true))
             {
-              throw sqlpp::exception("MySQL: could not set option MYSQL_OPT_RECONNECT");
+              throw sqlpp::exception{"MySQL: could not set option MYSQL_OPT_RECONNECT"};
             }
           }
 
