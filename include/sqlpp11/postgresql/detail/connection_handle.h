@@ -52,11 +52,6 @@ namespace sqlpp
 
     namespace detail
     {
-      inline void handle_cleanup(PGconn* postgres)
-      {
-        PQfinish(postgres);
-      }
-
       struct DLL_LOCAL connection_handle
       {
         std::shared_ptr<const connection_config> config;
@@ -76,7 +71,7 @@ namespace sqlpp
       };
 
       inline connection_handle::connection_handle(const std::shared_ptr<const connection_config>& conf)
-          : config(conf), postgres{nullptr, handle_cleanup}
+          : config(conf), postgres{nullptr, PQfinish}
       {
 #ifdef SQLPP_DYNAMIC_LOADING
         init_pg("");
