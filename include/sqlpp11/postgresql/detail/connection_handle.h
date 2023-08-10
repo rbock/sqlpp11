@@ -195,12 +195,12 @@ namespace sqlpp
         postgres.reset(PQconnectdb(conninfo.c_str()));
 
         if (!postgres)
-          throw std::bad_alloc();
+          throw std::bad_alloc{};
 
         if (check_connection() == false)
         {
-          std::string msg(PQerrorMessage(native_handle()));
-          throw broken_connection(std::move(msg));
+          std::string msg{PQerrorMessage(native_handle())};
+          throw broken_connection{std::move(msg)};
         }
       }
 

@@ -235,7 +235,7 @@ namespace sqlpp
         if (not is_null)
         {
           constexpr char hex_chars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-          auto param = std::string(value->size() * 2 + 2, '\0');
+          auto param = std::string(value->size() * 2 + 2, '\0');  // ()-init for correct constructor
           param[0] = '\\';
           param[1] = 'x';
           auto i = size_t{1};

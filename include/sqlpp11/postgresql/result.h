@@ -77,7 +77,7 @@ namespace sqlpp
       int affected_rows()
       {
         const char* const rows_str = PQcmdTuples(m_result);
-        return rows_str[0] ? std::stoi(std::string(rows_str)) : 0;
+        return rows_str[0] ? std::stoi(std::string{rows_str}) : 0;
       }
 
       int records_size() const
@@ -117,7 +117,7 @@ namespace sqlpp
       {
         check_index(record, field);
         auto t = int64_t{};
-        const auto txt = std::string(get_pq_value(m_result, record, field));
+        const auto txt = std::string{get_pq_value(m_result, record, field)};
         if(txt != "")
         {
           t = std::stoll(txt);
@@ -130,7 +130,7 @@ namespace sqlpp
       {
         check_index(record, field);
         auto t = uint64_t{};
-        const auto txt = std::string(get_pq_value(m_result, record, field));
+        const auto txt = std::string{get_pq_value(m_result, record, field)};
         if(txt != "")
         {
           t = std::stoull(txt);
@@ -143,7 +143,7 @@ namespace sqlpp
       {
         check_index(record, field);
         auto t = double{};
-        auto txt = std::string(get_pq_value(m_result, record, field));
+        auto txt = std::string{get_pq_value(m_result, record, field)};
         if(txt != "")
         {
           t = std::stod(txt);
@@ -207,39 +207,39 @@ namespace sqlpp
               switch (code[1])
               {
                 case '8':
-                  throw broken_connection(err);
+                  throw broken_connection{err};
                 case 'A':
-                  throw feature_not_supported(err, query);
+                  throw feature_not_supported{err, query};
               }
               break;
             case '2':
               switch (code[1])
               {
                 case '2':
-                  throw data_exception(err, query);
+                  throw data_exception{err, query};
                 case '3':
                   if (strcmp(code, "23001") == 0)
-                    throw restrict_violation(err, query);
+                    throw restrict_violation{err, query};
                   if (strcmp(code, "23502") == 0)
-                    throw not_null_violation(err, query);
+                    throw not_null_violation{err, query};
                   if (strcmp(code, "23503") == 0)
-                    throw foreign_key_violation(err, query);
+                    throw foreign_key_violation{err, query};
                   if (strcmp(code, "23505") == 0)
-                    throw unique_violation(err, query);
+                    throw unique_violation{err, query};
                   if (strcmp(code, "23514") == 0)
-                    throw check_violation(err, query);
-                  throw integrity_constraint_violation(err, query);
+                    throw check_violation{err, query};
+                  throw integrity_constraint_violation{err, query};
                 case '4':
-                  throw invalid_cursor_state(err, query);
+                  throw invalid_cursor_state{err, query};
                 case '6':
-                  throw invalid_sql_statement_name(err, query);
+                  throw invalid_sql_statement_name{err, query};
               }
               break;
             case '3':
               switch (code[1])
               {
                 case '4':
-                  throw invalid_cursor_name(err, query);
+                  throw invalid_cursor_name{err, query};
               }
               break;
             case '4':
@@ -247,15 +247,15 @@ namespace sqlpp
               {
                 case '2':
                   if (strcmp(code, "42501") == 0)
-                    throw insufficient_privilege(err, query);
+                    throw insufficient_privilege{err, query};
                   if (strcmp(code, "42601") == 0)
-                    throw syntax_error(err, query, error_position());
+                    throw syntax_error{err, query, error_position()};
                   if (strcmp(code, "42703") == 0)
-                    throw undefined_column(err, query);
+                    throw undefined_column{err, query};
                   if (strcmp(code, "42883") == 0)
-                    throw undefined_function(err, query);
+                    throw undefined_function{err, query};
                   if (strcmp(code, "42P01") == 0)
-                    throw undefined_table(err, query);
+                    throw undefined_table{err, query};
               }
               break;
             case '5':
@@ -263,34 +263,34 @@ namespace sqlpp
               {
                 case '3':
                   if (strcmp(code, "53100") == 0)
-                    throw disk_full(err, query);
+                    throw disk_full{err, query};
                   if (strcmp(code, "53200") == 0)
-                    throw out_of_memory(err, query);
+                    throw out_of_memory{err, query};
                   if (strcmp(code, "53300") == 0)
-                    throw too_many_connections(err);
-                  throw insufficient_resources(err, query);
+                    throw too_many_connections{err};
+                  throw insufficient_resources{err, query};
               }
               break;
 
             case 'P':
               if (strcmp(code, "P0001") == 0)
-                throw plpgsql_raise(err, query);
+                throw plpgsql_raise{err, query};
               if (strcmp(code, "P0002") == 0)
-                throw plpgsql_no_data_found(err, query);
+                throw plpgsql_no_data_found{err, query};
               if (strcmp(code, "P0003") == 0)
-                throw plpgsql_too_many_rows(err, query);
-              throw plpgsql_error(err, query);
+                throw plpgsql_too_many_rows{err, query};
+              throw plpgsql_error{err, query};
               break;
             default:
-              throw sql_user_error(err, query, code);
+              throw sql_user_error{err, query, code};
           }
-        throw sql_error(err, query);
+        throw sql_error{err, query};
       }
 
       std::string status_error() const
       {
         if (!m_result)
-          throw failure("No result set given");
+          throw failure{"No result set given"};
 
         std::string err;
 
@@ -319,8 +319,8 @@ namespace sqlpp
           case PGRES_PIPELINE_ABORTED:
   #endif
           default:
-            throw sqlpp::exception("pqxx::result: Unrecognized response code " +
-                                  std::to_string(PQresultStatus(m_result)));
+            throw sqlpp::exception{"pqxx::result: Unrecognized response code " +
+                                  std::to_string(PQresultStatus(m_result))};
         }
         return err;
       }
@@ -332,7 +332,7 @@ namespace sqlpp
         {
           const char* p = PQresultErrorField(m_result, PG_DIAG_STATEMENT_POSITION);
           if (p)
-            pos = std::stoi(std::string(p));
+            pos = std::stoi(std::string{p});
         }
         return pos;
       }
@@ -340,7 +340,7 @@ namespace sqlpp
       void check_index(int record, int field) const noexcept(false)
       {
         if (record > records_size() || field > field_count())
-          throw std::out_of_range("PostgreSQL error: index out of range");
+          throw std::out_of_range{"PostgreSQL error: index out of range"};
       }
 
       // move PQgetvalue to implementation so we don't depend on the libpq in the
