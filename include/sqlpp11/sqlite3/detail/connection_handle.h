@@ -47,19 +47,14 @@ namespace sqlpp
 
     namespace detail
     {
-      inline void handle_cleanup(::sqlite3* sqlite)
-      {
-        sqlite3_close(sqlite);
-      }
-
       struct connection_handle
       {
         std::shared_ptr<const connection_config> config;
-        std::unique_ptr<::sqlite3, void (*)(::sqlite3*)> sqlite;
+        std::unique_ptr<::sqlite3, int (*)(::sqlite3*)> sqlite;
 
         connection_handle(const std::shared_ptr<const connection_config>& conf) :
           config(conf),
-          sqlite(nullptr, handle_cleanup)
+          sqlite(nullptr, sqlite3_close)
         {
 #ifdef SQLPP_DYNAMIC_LOADING
           init_sqlite("");
