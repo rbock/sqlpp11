@@ -39,6 +39,7 @@
 #include <sqlpp11/serialize.h>
 #include <sqlpp11/sqlite3/bind_result.h>
 #include <sqlpp11/sqlite3/connection_config.h>
+#include <sqlpp11/sqlite3/detail/connection_handle.h>
 #include <sqlpp11/sqlite3/prepared_statement.h>
 #include <sqlpp11/sqlite3/export.h>
 #include <sqlpp11/transaction.h>
@@ -65,66 +66,6 @@ namespace sqlpp
 
     namespace detail
     {
-      inline void handle_cleanup(::sqlite3* sqlite)
-      {
-        sqlite3_close(sqlite);
-      }
-
-      struct connection_handle
-      {
-        std::shared_ptr<const connection_config> config;
-        std::unique_ptr<::sqlite3, void (*)(::sqlite3*)> sqlite;
-
-        connection_handle(const std::shared_ptr<const connection_config>& conf) :
-          config(conf),
-          sqlite(nullptr, handle_cleanup)
-        {
-#ifdef SQLPP_DYNAMIC_LOADING
-          init_sqlite("");
-#endif
-
-          ::sqlite3* sqlite_ptr;
-          const auto rc = sqlite3_open_v2(conf->path_to_database.c_str(), &sqlite_ptr, conf->flags,
-                                    conf->vfs.empty() ? nullptr : conf->vfs.c_str());
-          if (rc != SQLITE_OK)
-          {
-            const std::string msg = sqlite3_errmsg(sqlite_ptr);
-            sqlite3_close(sqlite_ptr);
-            throw sqlpp::exception("Sqlite3 error: Can't open database: " + msg);
-          }
-
-          sqlite.reset(sqlite_ptr);
-
-#ifdef SQLITE_HAS_CODEC
-          if (conf->password.size() > 0)
-          {
-            int ret = sqlite3_key(native_handle(), conf->password.data(), conf->password.size());
-            if (ret != SQLITE_OK)
-            {
-              const std::string msg = sqlite3_errmsg(native_handle());
-              sqlite3_close(native_handle());
-              throw sqlpp::exception("Sqlite3 error: Can't set password to database: " + msg);
-            }
-          }
-#endif
-        }
-
-        connection_handle(const connection_handle&) = delete;
-        connection_handle(connection_handle&&) = default;
-        connection_handle& operator=(const connection_handle&) = delete;
-        connection_handle& operator=(connection_handle&&) = default;
-
-        ::sqlite3* native_handle() const
-        {
-          return sqlite.get();
-        }
-
-        bool check_connection() const
-        {
-          return native_handle() != nullptr;
-        }
-      };
-
       inline detail::prepared_statement_handle_t prepare_statement(std::unique_ptr<connection_handle>& handle,
                                                                    const std::string& statement)
       {
