@@ -108,9 +108,9 @@ namespace sqlpp
     // Forward declaration
     class connection_base;
 
-    struct serializer_t
+    struct context_t
     {
-      serializer_t(const connection_base& db) : _db(db), _count(1)
+      context_t(const connection_base& db) : _db(db), _count(1)
       {
       }
 
@@ -238,7 +238,7 @@ namespace sqlpp
       using _handle_ptr_t = std::unique_ptr<_handle_t>;
 
       using _prepared_statement_t = prepared_statement_t;
-      using _context_t = serializer_t;
+      using _context_t = context_t;
       using _serializer_context_t = _context_t;
       using _interpreter_context_t = _context_t;
 
@@ -549,7 +549,7 @@ namespace sqlpp
     };
 
     // Method definition moved outside of class because it needs connection_base
-    inline std::string serializer_t::escape(std::string arg)
+    inline std::string context_t::escape(std::string arg)
     {
       return _db.escape(arg);
     }
