@@ -87,7 +87,6 @@ namespace sqlpp
         }
       };
     }
-
   }  // namespace sqlite3
 }  // namespace sqlpp
 
