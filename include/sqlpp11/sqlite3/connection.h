@@ -120,7 +120,7 @@ namespace sqlpp
         return _os << t;
       }
 
-      std::string escape(std::string arg);
+      std::string escape(const std::string& arg) const;
 
       std::string str() const
       {
@@ -549,7 +549,7 @@ namespace sqlpp
     };
 
     // Method definition moved outside of class because it needs connection_base
-    inline std::string context_t::escape(std::string arg)
+    inline std::string context_t::escape(const std::string& arg) const
     {
       return _db.escape(arg);
     }
