@@ -513,7 +513,7 @@ namespace sqlpp
       }
 
       //! report a rollback failure (will be called by transactions in case of a rollback failure in the destructor)
-      void report_rollback_failure(const std::string message) noexcept
+      void report_rollback_failure(const std::string& message) noexcept
       {
         std::cerr << "Sqlite3 message:" << message << std::endl;
       }
@@ -529,7 +529,7 @@ namespace sqlpp
         return _handle->native_handle();
       }
 
-      schema_t attach(const connection_config& config, const std::string name)
+      schema_t attach(const connection_config& config, const std::string& name)
       {
         auto prepared =
             prepare_statement(_handle, "ATTACH '" + escape(config.path_to_database) + "' AS " + escape(name));
