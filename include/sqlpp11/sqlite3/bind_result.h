@@ -30,8 +30,8 @@
 #include <iostream>
 #include <sqlpp11/chrono.h>
 #include <sqlpp11/exception.h>
+#include <sqlpp11/sqlite3/detail/prepared_statement_handle.h>
 #include <sqlpp11/sqlite3/export.h>
-#include <sqlpp11/sqlite3/prepared_statement_handle.h>
 
 #ifdef _MSC_VER
 #include <iso646.h>
