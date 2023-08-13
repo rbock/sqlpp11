@@ -487,7 +487,7 @@ namespace sqlpp
       }
 
       //! report a rollback failure (will be called by transactions in case of a rollback failure in the destructor)
-      void report_rollback_failure(const std::string message) noexcept
+      void report_rollback_failure(const std::string& message) noexcept
       {
         std::cerr << "MySQL message:" << message << std::endl;
       }
