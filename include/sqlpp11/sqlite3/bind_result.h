@@ -45,9 +45,9 @@ namespace sqlpp
   {
     namespace detail
     {
-      inline auto check_first_digit(const char* text, bool digitFlag) -> bool
+      inline auto check_first_digit(const char* text, bool digit_flag) -> bool
       {
-        if (digitFlag)
+        if (digit_flag)
         {
           if (not std::isdigit(*text))
           {
@@ -66,9 +66,9 @@ namespace sqlpp
 
       inline auto check_date_digits(const char* text) -> bool
       {
-        for (const auto digitFlag : {true, true, true, true, false, true, true, false, true, true})  // YYYY-MM-DD
+        for (const auto digit_flag : {true, true, true, true, false, true, true, false, true, true})  // YYYY-MM-DD
         {
-          if (not check_first_digit(text, digitFlag))
+          if (not check_first_digit(text, digit_flag))
             return false;
           ++text;
         }
@@ -77,9 +77,9 @@ namespace sqlpp
 
       inline auto check_time_digits(const char* text) -> bool
       {
-        for (const auto digitFlag : {true, true, false, true, true, false, true, true}) // hh:mm:ss
+        for (const auto digit_flag : {true, true, false, true, true, false, true, true}) // hh:mm:ss
         {
-          if (not check_first_digit(text, digitFlag))
+          if (not check_first_digit(text, digit_flag))
             return false;
           ++text;
         }
@@ -88,9 +88,9 @@ namespace sqlpp
 
       inline auto check_ms_digits(const char* text) -> bool
       {
-        for (const auto digitFlag : {true, true, true})
+        for (const auto digit_flag : {true, true, true})
         {
-          if (not check_first_digit(text, digitFlag))
+          if (not check_first_digit(text, digit_flag))
             return false;
           ++text;
         }
