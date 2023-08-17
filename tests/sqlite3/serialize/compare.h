@@ -51,7 +51,7 @@ namespace
     config.flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
     config.debug = true;
     sqlpp::sqlite3::connection connection{config};
-    sqlpp::sqlite3::serializer_t printer{connection};
+    sqlpp::sqlite3::context_t printer{connection};
 
     const auto result = serialize(expr, printer).str();
 

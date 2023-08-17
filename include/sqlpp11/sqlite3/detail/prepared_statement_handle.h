@@ -53,12 +53,11 @@ namespace sqlpp
         }
 
         prepared_statement_handle_t(const prepared_statement_handle_t&) = delete;
-        prepared_statement_handle_t(prepared_statement_handle_t&& rhs)
+        prepared_statement_handle_t(prepared_statement_handle_t&& rhs) :
+          sqlite_statement(rhs.sqlite_statement),
+          debug(rhs.debug)
         {
-          sqlite_statement = rhs.sqlite_statement;
           rhs.sqlite_statement = nullptr;
-
-          debug = rhs.debug;
         }
         prepared_statement_handle_t& operator=(const prepared_statement_handle_t&) = delete;
         prepared_statement_handle_t& operator=(prepared_statement_handle_t&& rhs)
@@ -87,7 +86,6 @@ namespace sqlpp
         }
       };
     }
-
   }  // namespace sqlite3
 }  // namespace sqlpp
 
