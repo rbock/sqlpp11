@@ -53,8 +53,8 @@ namespace sqlpp
         std::unique_ptr<::sqlite3, int (*)(::sqlite3*)> sqlite;
 
         connection_handle(const std::shared_ptr<const connection_config>& conf) :
-          config(conf),
-          sqlite(nullptr, sqlite3_close)
+          config{conf},
+          sqlite{nullptr, sqlite3_close}
         {
 #ifdef SQLPP_DYNAMIC_LOADING
           init_sqlite("");
@@ -67,7 +67,7 @@ namespace sqlpp
           {
             const std::string msg = sqlite3_errmsg(sqlite_ptr);
             sqlite3_close(sqlite_ptr);
-            throw sqlpp::exception("Sqlite3 error: Can't open database: " + msg);
+            throw sqlpp::exception{"Sqlite3 error: Can't open database: " + msg};
           }
 
           sqlite.reset(sqlite_ptr);
@@ -80,7 +80,7 @@ namespace sqlpp
             {
               const std::string msg = sqlite3_errmsg(native_handle());
               sqlite3_close(native_handle());
-              throw sqlpp::exception("Sqlite3 error: Can't set password to database: " + msg);
+              throw sqlpp::exception{"Sqlite3 error: Can't set password to database: " + msg};
             }
           }
 #endif

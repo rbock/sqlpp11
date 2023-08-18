@@ -48,14 +48,14 @@ namespace sqlpp
         sqlite3_stmt* sqlite_statement;
         bool debug;
 
-        prepared_statement_handle_t(sqlite3_stmt* statement, bool debug_) : sqlite_statement(statement), debug(debug_)
+        prepared_statement_handle_t(sqlite3_stmt* statement, bool debug_) : sqlite_statement{statement}, debug{debug_}
         {
         }
 
         prepared_statement_handle_t(const prepared_statement_handle_t&) = delete;
         prepared_statement_handle_t(prepared_statement_handle_t&& rhs) :
-          sqlite_statement(rhs.sqlite_statement),
-          debug(rhs.debug)
+          sqlite_statement{rhs.sqlite_statement},
+          debug{rhs.debug}
         {
           rhs.sqlite_statement = nullptr;
         }

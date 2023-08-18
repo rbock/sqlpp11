@@ -104,7 +104,7 @@ namespace sqlpp
 
     public:
       bind_result_t() = default;
-      bind_result_t(const std::shared_ptr<detail::prepared_statement_handle_t>& handle) : _handle(handle)
+      bind_result_t(const std::shared_ptr<detail::prepared_statement_handle_t>& handle) : _handle{handle}
       {
         if (_handle and _handle->debug)
           std::cerr << "Sqlite3 debug: Constructing bind result, using handle at " << _handle.get() << std::endl;
@@ -230,7 +230,7 @@ namespace sqlpp
         if (detail::check_date_digits(date_string))
         {
           const auto ymd = ::date::year(std::atoi(date_string)) / atoi(date_string + 5) / atoi(date_string + 8);
-          *value = ::sqlpp::chrono::day_point(ymd);
+          *value = ::sqlpp::chrono::day_point{ymd};
         }
         else
         {
@@ -261,7 +261,7 @@ namespace sqlpp
         {
           const auto ymd =
               ::date::year(std::atoi(date_time_string)) / atoi(date_time_string + 5) / atoi(date_time_string + 8);
-          *value = ::sqlpp::chrono::day_point(ymd);
+          *value = ::sqlpp::chrono::day_point{ymd};
         }
         else
         {
@@ -275,8 +275,8 @@ namespace sqlpp
         const auto time_string = date_time_string + 11; // YYYY-MM-DDT
         if (detail::check_time_digits(time_string))
         {
-          *value += ::std::chrono::hours(std::atoi(time_string + 0)) +
-                    std::chrono::minutes(std::atoi(time_string + 3)) + std::chrono::seconds(std::atoi(time_string + 6));
+          *value += ::std::chrono::hours{std::atoi(time_string + 0)} +
+                    std::chrono::minutes{std::atoi(time_string + 3)} + std::chrono::seconds{std::atoi(time_string + 6)};
         }
         else
         {
@@ -285,7 +285,7 @@ namespace sqlpp
         const auto ms_string = time_string + 9; // hh:mm:ss.
         if (detail::check_ms_digits(ms_string) and ms_string[4] == '\0')
         {
-          *value += ::std::chrono::milliseconds(std::atoi(ms_string));
+          *value += ::std::chrono::milliseconds{std::atoi(ms_string)};
         }
         else
         {
@@ -308,7 +308,7 @@ namespace sqlpp
           case SQLITE_DONE:
             return false;
           default:
-            throw sqlpp::exception("Sqlite3 error: Unexpected return value for sqlite3_step()");
+            throw sqlpp::exception{"Sqlite3 error: Unexpected return value for sqlite3_step()"};
         }
       }
     };
