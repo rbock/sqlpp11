@@ -72,16 +72,16 @@ namespace sqlpp
         if (handle->config->debug)
           std::cerr << "Sqlite3 debug: Preparing: '" << statement << "'" << std::endl;
 
-        detail::prepared_statement_handle_t result(nullptr, handle->config->debug);
+        detail::prepared_statement_handle_t result{nullptr, handle->config->debug};
 
         auto rc = sqlite3_prepare_v2(handle->native_handle(), statement.c_str(), static_cast<int>(statement.size()),
                                      &result.sqlite_statement, nullptr);
 
         if (rc != SQLITE_OK)
         {
-          throw sqlpp::exception(
+          throw sqlpp::exception{
               "Sqlite3 error: Could not prepare statement: " + std::string(sqlite3_errmsg(handle->native_handle())) +
-              " (statement was >>" + (rc == SQLITE_TOOBIG ? statement.substr(0, 128) + "..." : statement) + "<<\n");
+              " (statement was >>" + (rc == SQLITE_TOOBIG ? statement.substr(0, 128) + "..." : statement) + "<<\n"};
         }
 
         return result;
@@ -99,8 +99,8 @@ namespace sqlpp
           default:
             if (handle->config->debug)
               std::cerr << "Sqlite3 debug: sqlite3_step return code: " << rc << std::endl;
-            throw sqlpp::exception("Sqlite3 error: Could not execute statement: " +
-                                   std::string(sqlite3_errmsg(handle->native_handle())));
+            throw sqlpp::exception{"Sqlite3 error: Could not execute statement: " +
+                                   std::string(sqlite3_errmsg(handle->native_handle()))};
         }
       }
     }  // namespace detail
@@ -110,7 +110,7 @@ namespace sqlpp
 
     struct context_t
     {
-      context_t(const connection_base& db) : _db(db), _count(1)
+      context_t(const connection_base& db) : _db{db}, _count{1}
       {
       }
 
@@ -153,16 +153,16 @@ namespace sqlpp
         active
       };
 
-      transaction_status_type _transaction_status = transaction_status_type::none;
+      transaction_status_type _transaction_status{transaction_status_type::none};
 
       // direct execution
       bind_result_t select_impl(const std::string& statement)
       {
-        std::unique_ptr<detail::prepared_statement_handle_t> prepared(
-            new detail::prepared_statement_handle_t(prepare_statement(_handle, statement)));
+        std::unique_ptr<detail::prepared_statement_handle_t> prepared{
+            new detail::prepared_statement_handle_t(prepare_statement(_handle, statement))};
         if (!prepared)
         {
-          throw sqlpp::exception("Sqlite3 error: Could not store result set");
+          throw sqlpp::exception{"Sqlite3 error: Could not store result set"};
         }
 
         return {std::move(prepared)};
@@ -193,8 +193,8 @@ namespace sqlpp
       // prepared execution
       prepared_statement_t prepare_impl(const std::string& statement)
       {
-        return {std::unique_ptr<detail::prepared_statement_handle_t>(
-            new detail::prepared_statement_handle_t(prepare_statement(_handle, statement)))};
+        return {std::unique_ptr<detail::prepared_statement_handle_t>{
+            new detail::prepared_statement_handle_t(prepare_statement(_handle, statement))}};
       }
 
       bind_result_t run_prepared_select_impl(prepared_statement_t& prepared_statement)
@@ -263,7 +263,7 @@ namespace sqlpp
       template <typename Select>
       bind_result_t select(const Select& s)
       {
-        _context_t context(*this);
+        _context_t context{*this};
         serialize(s, context);
         return select_impl(context.str());
       }
@@ -271,7 +271,7 @@ namespace sqlpp
       template <typename Select>
       _prepared_statement_t prepare_select(Select& s)
       {
-        _context_t context(*this);
+        _context_t context{*this};
         serialize(s, context);
         return prepare_impl(context.str());
       }
@@ -288,7 +288,7 @@ namespace sqlpp
       template <typename Insert>
       size_t insert(const Insert& i)
       {
-        _context_t context(*this);
+        _context_t context{*this};
         serialize(i, context);
         return insert_impl(context.str());
       }
@@ -296,7 +296,7 @@ namespace sqlpp
       template <typename Insert>
       _prepared_statement_t prepare_insert(Insert& i)
       {
-        _context_t context(*this);
+        _context_t context{*this};
         serialize(i, context);
         return prepare_impl(context.str());
       }
@@ -313,7 +313,7 @@ namespace sqlpp
       template <typename Update>
       size_t update(const Update& u)
       {
-        _context_t context(*this);
+        _context_t context{*this};
         serialize(u, context);
         return update_impl(context.str());
       }
@@ -321,7 +321,7 @@ namespace sqlpp
       template <typename Update>
       _prepared_statement_t prepare_update(Update& u)
       {
-        _context_t context(*this);
+        _context_t context{*this};
         serialize(u, context);
         return prepare_impl(context.str());
       }
@@ -338,7 +338,7 @@ namespace sqlpp
       template <typename Remove>
       size_t remove(const Remove& r)
       {
-        _context_t context(*this);
+        _context_t context{*this};
         serialize(r, context);
         return remove_impl(context.str());
       }
@@ -346,7 +346,7 @@ namespace sqlpp
       template <typename Remove>
       _prepared_statement_t prepare_remove(Remove& r)
       {
-        _context_t context(*this);
+        _context_t context{*this};
         serialize(r, context);
         return prepare_impl(context.str());
       }
@@ -372,7 +372,7 @@ namespace sqlpp
           typename Enable = typename std::enable_if<not std::is_convertible<Execute, std::string>::value, void>::type>
       size_t execute(const Execute& x)
       {
-        _context_t context(*this);
+        _context_t context{*this};
         serialize(x, context);
         return execute(context.str());
       }
@@ -380,7 +380,7 @@ namespace sqlpp
       template <typename Execute>
       _prepared_statement_t prepare_execute(Execute& x)
       {
-        _context_t context(*this);
+        _context_t context{*this};
         serialize(x, context);
         return prepare_impl(context.str());
       }
@@ -472,7 +472,7 @@ namespace sqlpp
       {
         if (_transaction_status == transaction_status_type::active)
         {
-          throw sqlpp::exception("Sqlite3 error: Cannot have more than one open transaction per connection");
+          throw sqlpp::exception{"Sqlite3 error: Cannot have more than one open transaction per connection"};
         }
 
         _transaction_status = transaction_status_type::maybe;
@@ -486,7 +486,7 @@ namespace sqlpp
       {
         if (_transaction_status == transaction_status_type::none)
         {
-          throw sqlpp::exception("Sqlite3 error: Cannot commit a finished or failed transaction");
+          throw sqlpp::exception{"Sqlite3 error: Cannot commit a finished or failed transaction"};
         }
         _transaction_status = transaction_status_type::maybe;
         auto prepared = prepare_statement(_handle, "COMMIT");
@@ -500,7 +500,7 @@ namespace sqlpp
       {
         if (_transaction_status == transaction_status_type::none)
         {
-          throw sqlpp::exception("Sqlite3 error: Cannot rollback a finished or failed transaction");
+          throw sqlpp::exception{"Sqlite3 error: Cannot rollback a finished or failed transaction"};
         }
         if (report)
         {

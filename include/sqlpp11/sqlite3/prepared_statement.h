@@ -60,14 +60,14 @@ namespace sqlpp
           case SQLITE_OK:
             return;
           case SQLITE_RANGE:
-            throw sqlpp::exception("Sqlite3 error: " + std::string(type) + " bind value out of range");
+            throw sqlpp::exception{"Sqlite3 error: " + std::string(type) + " bind value out of range"};
           case SQLITE_NOMEM:
-            throw sqlpp::exception("Sqlite3 error: " + std::string(type) + " bind out of memory");
+            throw sqlpp::exception{"Sqlite3 error: " + std::string(type) + " bind out of memory"};
           case SQLITE_TOOBIG:
-            throw sqlpp::exception("Sqlite3 error: " + std::string(type) + " bind too big");
+            throw sqlpp::exception{"Sqlite3 error: " + std::string(type) + " bind too big"};
           default:
-            throw sqlpp::exception("Sqlite3 error: " + std::string(type) +
-                                   " bind returned unexpected value: " + std::to_string(result));
+            throw sqlpp::exception{"Sqlite3 error: " + std::string(type) +
+                                   " bind returned unexpected value: " + std::to_string(result)};
         }
       }
     }  // namespace detail
