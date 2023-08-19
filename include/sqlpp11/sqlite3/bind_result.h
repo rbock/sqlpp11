@@ -26,12 +26,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <memory>
-#include <iostream>
 #include <sqlpp11/chrono.h>
+#include <sqlpp11/detail/parse_date_time.h>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/sqlite3/detail/prepared_statement_handle.h>
 #include <sqlpp11/sqlite3/export.h>
+
+#include <iostream>
+#include <memory>
+#include <regex>
 
 #ifdef _MSC_VER
 #include <iso646.h>
@@ -45,54 +48,33 @@ namespace sqlpp
   {
     namespace detail
     {
-      inline auto check_first_digit(const char* text, bool digit_flag) -> bool
+      // Parse a date string formatted as YYYY-MM-DD[ HH:MM:SS[.US]]
+      //
+      inline bool parse_string_date_opt_time(::sqlpp::chrono::microsecond_point& value, const char* date_time_string)
       {
-        if (digit_flag)
+        static const std::regex rx{
+          "(\\d{4})-(\\d{2})-(\\d{2})"
+          "(?: (\\d{2}):(\\d{2}):(\\d{2})(?:\\.(\\d{1,6}))?)?"
+        };
+        std::cmatch mr;
+        if (std::regex_match(date_time_string, mr, rx) == false)
         {
-          if (not std::isdigit(*text))
-          {
-            return false;
-          }
+          return false;
         }
-        else
+        value = ::sqlpp::chrono::day_point{
+          ::date::year{std::atoi(date_time_string + mr.position(1))} / // Year
+          std::atoi(date_time_string + mr.position(2)) /               // Month
+          std::atoi(date_time_string + mr.position(3))                 // Day of month
+        };
+        if (mr[4].matched)
         {
-          if (std::isdigit(*text) or *text == '\0')
-          {
-            return false;
-          }
-        }
-        return true;
-      }
-
-      inline auto check_date_digits(const char* text) -> bool
-      {
-        for (const auto digit_flag : {true, true, true, true, false, true, true, false, true, true})  // YYYY-MM-DD
-        {
-          if (not check_first_digit(text, digit_flag))
-            return false;
-          ++text;
-        }
-        return true;
-      }
-
-      inline auto check_time_digits(const char* text) -> bool
-      {
-        for (const auto digit_flag : {true, true, false, true, true, false, true, true}) // hh:mm:ss
-        {
-          if (not check_first_digit(text, digit_flag))
-            return false;
-          ++text;
-        }
-        return true;
-      }
-
-      inline auto check_ms_digits(const char* text) -> bool
-      {
-        for (const auto digit_flag : {true, true, true})
-        {
-          if (not check_first_digit(text, digit_flag))
-            return false;
-          ++text;
+          value +=
+            std::chrono::hours{std::atoi(date_time_string + mr.position(4))} +     // Hour
+            std::chrono::minutes{std::atoi(date_time_string + mr.position(5))} +   // Minute
+            std::chrono::seconds{std::atoi(date_time_string + mr.position(6))} +   // Second
+            ::std::chrono::microseconds{                                           // Second fraction
+              mr[7].matched ? std::stoi((mr[7].str() + "000000").substr(0, 6)) : 0
+            };
         }
         return true;
       }
@@ -215,10 +197,10 @@ namespace sqlpp
         if (_handle->debug)
           std::cerr << "Sqlite3 debug: binding date result at index: " << index << std::endl;
 
+        *value = {};
         *is_null = sqlite3_column_type(_handle->sqlite_statement, static_cast<int>(index)) == SQLITE_NULL;
         if (*is_null)
         {
-          *value = {};
           return;
         }
 
@@ -226,17 +208,10 @@ namespace sqlpp
             reinterpret_cast<const char*>(sqlite3_column_text(_handle->sqlite_statement, static_cast<int>(index)));
         if (_handle->debug)
           std::cerr << "Sqlite3 debug: date string: " << date_string << std::endl;
-
-        if (detail::check_date_digits(date_string))
-        {
-          const auto ymd = ::date::year(std::atoi(date_string)) / atoi(date_string + 5) / atoi(date_string + 8);
-          *value = ::sqlpp::chrono::day_point{ymd};
-        }
-        else
+        if (::sqlpp::detail::parse_string_date(*value, date_string) == false)
         {
           if (_handle->debug)
             std::cerr << "Sqlite3 debug: invalid date result: " << date_string << std::endl;
-          *value = {};
         }
       }
 
@@ -245,10 +220,10 @@ namespace sqlpp
         if (_handle->debug)
           std::cerr << "Sqlite3 debug: binding date result at index: " << index << std::endl;
 
+        *value = {};
         *is_null = sqlite3_column_type(_handle->sqlite_statement, static_cast<int>(index)) == SQLITE_NULL;
         if (*is_null)
         {
-          *value = {};
           return;
         }
 
@@ -256,40 +231,11 @@ namespace sqlpp
             reinterpret_cast<const char*>(sqlite3_column_text(_handle->sqlite_statement, static_cast<int>(index)));
         if (_handle->debug)
           std::cerr << "Sqlite3 debug: date_time string: " << date_time_string << std::endl;
-
-        if (detail::check_date_digits(date_time_string))
-        {
-          const auto ymd =
-              ::date::year(std::atoi(date_time_string)) / atoi(date_time_string + 5) / atoi(date_time_string + 8);
-          *value = ::sqlpp::chrono::day_point{ymd};
-        }
-        else
+        // We treat DATETIME fields as containing either date+time or just date.
+        if (detail::parse_string_date_opt_time(*value, date_time_string) == false)
         {
           if (_handle->debug)
             std::cerr << "Sqlite3 debug: invalid date_time result: " << date_time_string << std::endl;
-          *value = {};
-
-          return;
-        }
-
-        const auto time_string = date_time_string + 11; // YYYY-MM-DDT
-        if (detail::check_time_digits(time_string))
-        {
-          *value += ::std::chrono::hours{std::atoi(time_string + 0)} +
-                    std::chrono::minutes{std::atoi(time_string + 3)} + std::chrono::seconds{std::atoi(time_string + 6)};
-        }
-        else
-        {
-          return;
-        }
-        const auto ms_string = time_string + 9; // hh:mm:ss.
-        if (detail::check_ms_digits(ms_string) and ms_string[4] == '\0')
-        {
-          *value += ::std::chrono::milliseconds{std::atoi(ms_string)};
-        }
-        else
-        {
-          return;
         }
       }
 
