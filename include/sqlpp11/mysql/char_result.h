@@ -31,6 +31,7 @@
 #include <iostream>
 #include <memory>
 #include <sqlpp11/chrono.h>
+#include <sqlpp11/detail/parse_date_time.h>
 #include <sqlpp11/exception.h>
 #include <sqlpp11/mysql/detail/result_handle.h>
 #include <sqlpp11/mysql/sqlpp_mysql.h>
@@ -40,50 +41,6 @@ namespace sqlpp
 {
   namespace mysql
   {
-    namespace detail
-    {
-      inline auto check_first_digit(const char* text, bool digit_flag) -> bool
-      {
-        if (digit_flag)
-        {
-          if (not std::isdigit(*text))
-          {
-            return false;
-          }
-        }
-        else
-        {
-          if (std::isdigit(*text) or *text == '\0')
-          {
-            return false;
-          }
-        }
-        return true;
-      }
-
-      inline auto check_date_digits(const char* text) -> bool
-      {
-        for (const auto digit_flag : {true, true, true, true, false, true, true, false, true, true})  // YYYY-MM-DD
-        {
-          if (not check_first_digit(text, digit_flag))
-            return false;
-          ++text;
-        }
-        return true;
-      }
-
-      inline auto check_time_digits(const char* text) -> bool
-      {
-        for (const auto digit_flag : {true, true, false, true, true, false, true, true}) // hh:mm:ss
-        {
-          if (not check_first_digit(text, digit_flag))
-            return false;
-          ++text;
-        }
-        return true;
-      }
-    }  // namespace detail
-
     class char_result_t
     {
       std::unique_ptr<detail::result_handle> _handle;
@@ -184,10 +141,10 @@ namespace sqlpp
         if (_handle->debug)
           std::cerr << "MySQL debug: parsing date result at index: " << index << std::endl;
 
+        *value = {};
         *is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
         if (*is_null)
         {
-          *value = {};
           return;
         }
 
@@ -195,16 +152,10 @@ namespace sqlpp
         if (_handle->debug)
           std::cerr << "MySQL debug: date string: " << date_string << std::endl;
 
-        if (detail::check_date_digits(date_string))
-        {
-          const auto ymd = ::date::year(std::atoi(date_string)) / atoi(date_string + 5) / atoi(date_string + 8);
-          *value = ::sqlpp::chrono::day_point(ymd);
-        }
-        else
+        if (::sqlpp::detail::parse_string_date(*value, date_string) == false)
         {
           if (_handle->debug)
             std::cerr << "MySQL debug: invalid date result: " << date_string << std::endl;
-          *value = {};
         }
       }
 
@@ -213,10 +164,10 @@ namespace sqlpp
         if (_handle->debug)
           std::cerr << "MySQL debug: parsing date result at index: " << index << std::endl;
 
+        *value = {};
         *is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
         if (*is_null)
         {
-          *value = {};
           return;
         }
 
@@ -224,41 +175,10 @@ namespace sqlpp
         if (_handle->debug)
           std::cerr << "MySQL debug: date_time string: " << date_time_string << std::endl;
 
-        if (detail::check_date_digits(date_time_string))
-        {
-          const auto ymd =
-              ::date::year(std::atoi(date_time_string)) / atoi(date_time_string + 5) / atoi(date_time_string + 8);
-          *value = ::sqlpp::chrono::day_point(ymd);
-        }
-        else
+        if (::sqlpp::detail::parse_string_date_time(*value, date_time_string) == false)
         {
           if (_handle->debug)
             std::cerr << "MySQL debug: invalid date_time result: " << date_time_string << std::endl;
-          *value = {};
-
-          return;
-        }
-
-        const auto time_string = date_time_string + 11; // YYYY-MM-DDT
-        if (detail::check_time_digits(time_string))
-        {
-          *value += ::std::chrono::hours(std::atoi(time_string + 0)) +
-                    std::chrono::minutes(std::atoi(time_string + 3)) + std::chrono::seconds(std::atoi(time_string + 6));
-        }
-        else
-        {
-          return;
-        }
-
-        const auto mu_string = time_string + 8; // hh:mm:ss
-        if (mu_string[0] == '\0')
-        {
-          return;
-        }
-        auto factor = 100 * 1000;
-        for (auto i = 1u; i <= 6u and std::isdigit(mu_string[i]); ++i, factor /= 10)
-        {
-          *value += ::std::chrono::microseconds(factor * (mu_string[i] - '0'));
         }
       }
 

@@ -27,13 +27,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <memory>
 #include <sqlpp11/chrono.h>
 #include <sqlpp11/data_types.h>
+#include <sqlpp11/detail/parse_date_time.h>
 
 #include <iomanip>
 #include <iostream>
-#include <regex>
+#include <memory>
 #include <sstream>
 
 #include "detail/prepared_statement_handle.h"
@@ -227,36 +227,24 @@ namespace sqlpp
           std::cerr << "PostgreSQL debug: binding date result at index: " << index << std::endl;
         }
 
+        *value = {};
         *is_null = _handle->result.is_null(_handle->count, index);
-
-        if (!(*is_null))
+        if (*is_null)
         {
-          const auto date_string = _handle->result.get_char_ptr_value(_handle->count, index);
+          return;
+        }
 
+        const auto date_string = _handle->result.get_char_ptr_value(_handle->count, index);
+        if (_handle->debug())
+        {
+          std::cerr << "PostgreSQL debug: date string: " << date_string << std::endl;
+        }
+        if (::sqlpp::detail::parse_string_date(*value, date_string) == false)
+        {
           if (_handle->debug())
           {
-            std::cerr << "PostgreSQL debug: date string: " << date_string << std::endl;
+            std::cerr << "PostgreSQL debug: got invalid date '" << date_string << "'" << std::endl;
           }
-
-          static const std::regex rx {"(\\d{4})-(\\d{2})-(\\d{2})"};
-          std::cmatch mr;
-          if (std::regex_match (date_string, mr, rx)) {
-            *value =
-              ::sqlpp::chrono::day_point{
-                ::date::year{std::atoi(date_string + mr.position(1))} / // Year
-                std::atoi(date_string + mr.position(2)) /               // Month
-                std::atoi(date_string + mr.position(3))                 // Day of month
-              };
-          } else {
-            if (_handle->debug()) {
-              std::cerr << "PostgreSQL debug: got invalid date '" << date_string << "'" << std::endl;
-            }
-            *value = {};
-          }
-        }
-        else
-        {
-          *value = {};
         }
       }
 
@@ -269,49 +257,23 @@ namespace sqlpp
           std::cerr << "PostgreSQL debug: binding date_time result at index: " << index << std::endl;
         }
 
+        *value = {};
         *is_null = _handle->result.is_null(_handle->count, index);
-
-        if (!(*is_null))
+        if (*is_null)
         {
-          const auto date_string = _handle->result.get_char_ptr_value(_handle->count, index);
+          return;
+        }
 
+        const auto date_string = _handle->result.get_char_ptr_value(_handle->count, index);
+        if (_handle->debug())
+        {
+          std::cerr << "PostgreSQL debug: got date_time string: " << date_string << std::endl;
+        }
+        if (::sqlpp::detail::parse_string_date_time(*value, date_string) == false)
+        {
           if (_handle->debug())
           {
-            std::cerr << "PostgreSQL debug: got date_time string: " << date_string << std::endl;
-          }
-
-          static const std::regex rx {
-            "(\\d{4})-(\\d{2})-(\\d{2}) "
-            "(\\d{2}):(\\d{2}):(\\d{2})(?:\\.(\\d{1,6}))?"
-            "(?:([+-])(\\d{2})(?::(\\d{2})(?::(\\d{2}))?)?)?"
-          };
-          std::cmatch mr;
-          if (std::regex_match (date_string, mr, rx)) {
-            *value =
-              ::sqlpp::chrono::day_point{
-                ::date::year{std::atoi(date_string + mr.position(1))} / // Year
-                std::atoi(date_string + mr.position(2)) /               // Month
-                std::atoi(date_string + mr.position(3))                 // Day of month
-              } +
-              std::chrono::hours{std::atoi(date_string + mr.position(4))} +     // Hour
-              std::chrono::minutes{std::atoi(date_string + mr.position(5))} +   // Minute
-              std::chrono::seconds{std::atoi(date_string + mr.position(6))} +   // Second
-              ::std::chrono::microseconds{                                      // Microsecond
-                mr[7].matched ? std::stoi((mr[7].str() + "000000").substr(0, 6)) : 0
-              };
-              if (mr[8].matched) {
-                const auto tz_sign = (date_string[mr.position(8)] == '+') ? 1 : -1;
-                const auto tz_offset =
-                  std::chrono::hours{std::atoi(date_string + mr.position(9))} +
-                  std::chrono::minutes{mr[10].matched ? std::atoi(date_string + mr.position(10)) : 0} +
-                  std::chrono::seconds{mr[11].matched ? std::atoi(date_string + mr.position(11)) : 0};
-                *value -= tz_sign * tz_offset;
-              }
-          } else {
-            if (_handle->debug()) {
-              std::cerr << "PostgreSQL debug: got invalid date_time '" << date_string << "'" << std::endl;
-            }
-            *value = {};
+            std::cerr << "PostgreSQL debug: got invalid date_time '" << date_string << "'" << std::endl;
           }
         }
       }
@@ -325,43 +287,24 @@ namespace sqlpp
           std::cerr << "PostgreSQL debug: binding time result at index: " << index << std::endl;
         }
 
+        *value = {};
         *is_null = _handle->result.is_null(_handle->count, index);
-
-        if (!(*is_null))
+        if (*is_null)
         {
-          const auto time_string = _handle->result.get_char_ptr_value(_handle->count, index);
+          return;
+        }
 
-          if (_handle->debug())
-          {
-            std::cerr << "PostgreSQL debug: got time string: " << time_string << std::endl;
-          }
+        const auto time_string = _handle->result.get_char_ptr_value(_handle->count, index);
 
-          static const std::regex rx {
-            "(\\d{2}):(\\d{2}):(\\d{2})(?:\\.(\\d{1,6}))?"
-            "(?:([+-])(\\d{2})(?::(\\d{2})(?::(\\d{2}))?)?)?"
-          };
-          std::cmatch mr;
-          if (std::regex_match (time_string, mr, rx)) {
-            *value =
-              std::chrono::hours{std::atoi(time_string + mr.position(1))} +     // Hour
-              std::chrono::minutes{std::atoi(time_string + mr.position(2))} +   // Minute
-              std::chrono::seconds{std::atoi(time_string + mr.position(3))} +   // Second
-              ::std::chrono::microseconds{                                      // Microsecond
-                mr[4].matched ? std::stoi((mr[4].str() + "000000").substr(0, 6)) : 0
-              };
-              if (mr[5].matched) {
-                const auto tz_sign = (time_string[mr.position(5)] == '+') ? 1 : -1;
-                const auto tz_offset =
-                  std::chrono::hours{std::atoi(time_string + mr.position(6))} +
-                  std::chrono::minutes{mr[7].matched ? std::atoi(time_string + mr.position(7)) : 0} +
-                  std::chrono::seconds{mr[8].matched ? std::atoi(time_string + mr.position(8)) : 0};
-                *value -= tz_sign * tz_offset;
-              }
-          } else {
-            if (_handle->debug()) {
-              std::cerr << "PostgreSQL debug: got invalid time '" << time_string << "'" << std::endl;
-            }
-            *value = {};
+        if (_handle->debug())
+        {
+          std::cerr << "PostgreSQL debug: got time string: " << time_string << std::endl;
+        }
+
+        if (::sqlpp::detail::parse_string_time_of_day(*value, time_string) == false)
+        {
+          if (_handle->debug()) {
+            std::cerr << "PostgreSQL debug: got invalid time '" << time_string << "'" << std::endl;
           }
         }
       }
