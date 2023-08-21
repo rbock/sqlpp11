@@ -283,7 +283,7 @@ namespace sqlpp
 
       bool is_valid() const
       {
-        return _handle->check_connection();
+        return _handle->ping_server();
       }
 
       void reconnect()

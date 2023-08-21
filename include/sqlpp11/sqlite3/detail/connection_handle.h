@@ -96,9 +96,22 @@ namespace sqlpp
           return sqlite.get();
         }
 
-        bool check_connection() const
+        bool is_connected() const
         {
-          return native_handle() != nullptr;
+          // The connection is established in the constructor and the SQLite3 client
+          // library doesn't seem to have a way to check passively if the connection
+          // is still valid
+          return true;
+        }
+
+        bool ping_server() const
+        {
+          // Loosely based on the implementation of PHP's pg_ping()
+          if (sqlite3_exec(native_handle(), "SELECT 1", nullptr, nullptr, nullptr) != SQLITE_OK)
+          {
+            return false;
+          }
+          return true;
         }
       };
     }  // namespace detail

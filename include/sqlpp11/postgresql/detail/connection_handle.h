@@ -185,7 +185,7 @@ namespace sqlpp
           if (!postgres)
             throw std::bad_alloc{};
 
-          if (check_connection() == false)
+          if (is_connected() == false)
           {
             std::string msg{PQerrorMessage(native_handle())};
             throw broken_connection{std::move(msg)};
@@ -220,10 +220,23 @@ namespace sqlpp
           return postgres.get();
         }
 
-        bool check_connection() const
+        bool is_connected() const
         {
           auto nh = native_handle();
           return nh && (PQstatus(nh) == CONNECTION_OK);
+        }
+
+        bool ping_server() const
+        {
+          // Loosely based on the implementation of PHP's pg_ping()
+          if (is_connected() == false)
+          {
+            return false;
+          }
+          auto exec_res = PQexec(native_handle(), "SELECT 1");
+          auto exec_ok = PQresultStatus(exec_res) == PGRES_TUPLES_OK;
+          PQclear(exec_res);
+          return exec_ok;
         }
       };
     }

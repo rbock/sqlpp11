@@ -68,8 +68,8 @@ namespace sqlpp
         _handles.pop_front();
         lock.unlock();
         // If the fetched connection is dead, drop it and create a new one on the fly
-        return handle->check_connection() ? _pooled_connection_t{std::move(handle), this->shared_from_this()}
-                                          : _pooled_connection_t{_connection_config, this->shared_from_this()};
+        return handle->is_connected() ? _pooled_connection_t{std::move(handle), this->shared_from_this()}
+                                      : _pooled_connection_t{_connection_config, this->shared_from_this()};
       }
 
       void put(_handle_ptr_t& handle)
