@@ -71,7 +71,7 @@ namespace sqlpp
       };
 
       inline connection_handle::connection_handle(const std::shared_ptr<const connection_config>& conf)
-          : config(conf), postgres{nullptr, PQfinish}
+          : config{conf}, postgres{nullptr, PQfinish}
       {
 #ifdef SQLPP_DYNAMIC_LOADING
         init_pg("");
