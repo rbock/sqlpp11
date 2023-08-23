@@ -92,14 +92,14 @@ int DateTime(int, char*[])
       require_equal(__LINE__, row.colDayPoint.value(), ::sqlpp::chrono::day_point{});
       require_equal(__LINE__, row.colTimePoint.is_null(), true);
       require_equal(__LINE__, row.colTimePoint.value(), ::sqlpp::chrono::microsecond_point{});
-      require_close(__LINE__, row.colDateTimePoint.value(), std::chrono::system_clock::now());
+      require_close(__LINE__, row.colDateTimePoint.value(), sqlpp::chrono::floor<std::chrono::seconds>(std::chrono::system_clock::now()));
     }
 
     auto statement = db.prepare(select(tab.colDateTimePoint).from(tab).unconditionally());
     for (const auto& row : db(statement))
     {
       require_equal(__LINE__, row.colDateTimePoint.is_null(), false);
-      require_close(__LINE__, row.colDateTimePoint.value(), std::chrono::system_clock::now());
+      require_close(__LINE__, row.colDateTimePoint.value(), sqlpp::chrono::floor<std::chrono::seconds>(std::chrono::system_clock::now()));
     }
 
     db(update(tab).set(tab.colDayPoint = today, tab.colTimePoint = now).unconditionally());
