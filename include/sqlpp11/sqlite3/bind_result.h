@@ -34,7 +34,6 @@
 
 #include <iostream>
 #include <memory>
-#include <regex>
 
 #ifdef _MSC_VER
 #include <iso646.h>
@@ -46,40 +45,6 @@ namespace sqlpp
 {
   namespace sqlite3
   {
-    namespace detail
-    {
-      // Parse a date string formatted as YYYY-MM-DD[ HH:MM:SS[.US]]
-      //
-      inline bool parse_string_date_opt_time(::sqlpp::chrono::microsecond_point& value, const char* date_time_string)
-      {
-        static const std::regex rx{
-          "(\\d{4})-(\\d{2})-(\\d{2})"
-          "(?: (\\d{2}):(\\d{2}):(\\d{2})(?:\\.(\\d{1,6}))?)?"
-        };
-        std::cmatch mr;
-        if (std::regex_match(date_time_string, mr, rx) == false)
-        {
-          return false;
-        }
-        value = ::sqlpp::chrono::day_point{
-          ::date::year{std::atoi(date_time_string + mr.position(1))} / // Year
-          std::atoi(date_time_string + mr.position(2)) /               // Month
-          std::atoi(date_time_string + mr.position(3))                 // Day of month
-        };
-        if (mr[4].matched)
-        {
-          value +=
-            std::chrono::hours{std::atoi(date_time_string + mr.position(4))} +     // Hour
-            std::chrono::minutes{std::atoi(date_time_string + mr.position(5))} +   // Minute
-            std::chrono::seconds{std::atoi(date_time_string + mr.position(6))} +   // Second
-            ::std::chrono::microseconds{                                           // Second fraction
-              mr[7].matched ? std::stoi((mr[7].str() + "000000").substr(0, 6)) : 0
-            };
-        }
-        return true;
-      }
-    }  // namespace detail
-
     class SQLPP11_SQLITE3_EXPORT bind_result_t
     {
       std::shared_ptr<detail::prepared_statement_handle_t> _handle;
@@ -208,7 +173,7 @@ namespace sqlpp
             reinterpret_cast<const char*>(sqlite3_column_text(_handle->sqlite_statement, static_cast<int>(index)));
         if (_handle->debug)
           std::cerr << "Sqlite3 debug: date string: " << date_string << std::endl;
-        if (::sqlpp::detail::parse_string_date(*value, date_string) == false)
+        if (::sqlpp::detail::parse_date(*value, date_string) == false)
         {
           if (_handle->debug)
             std::cerr << "Sqlite3 debug: invalid date result: " << date_string << std::endl;
@@ -232,7 +197,7 @@ namespace sqlpp
         if (_handle->debug)
           std::cerr << "Sqlite3 debug: date_time string: " << date_time_string << std::endl;
         // We treat DATETIME fields as containing either date+time or just date.
-        if (detail::parse_string_date_opt_time(*value, date_time_string) == false)
+        if (::sqlpp::detail::parse_date_or_timestamp(*value, date_time_string) == false)
         {
           if (_handle->debug)
             std::cerr << "Sqlite3 debug: invalid date_time result: " << date_time_string << std::endl;
