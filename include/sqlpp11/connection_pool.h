@@ -99,46 +99,39 @@ namespace sqlpp
     };
 
     connection_pool() = default;
-    connection_pool(const _config_ptr_t& connection_config, std::size_t capacity);
+
+    connection_pool(const _config_ptr_t& connection_config, std::size_t capacity) :
+      _core{std::make_shared<pool_core>(connection_config, capacity)}
+    {
+    }
+
     connection_pool(const connection_pool&) = delete;
     connection_pool(connection_pool&&) = default;
 
     connection_pool& operator=(const connection_pool&) = delete;
     connection_pool& operator=(connection_pool&&) = default;
 
-    void initialize(const _config_ptr_t& connection_config, std::size_t capacity);
-    _pooled_connection_t get();
+    void initialize(const _config_ptr_t& connection_config, std::size_t capacity)
+    {
+      if (_core)
+      {
+        throw std::runtime_error{"Connection pool already initialized"};
+      }
+      _core = std::make_shared<pool_core>(connection_config, capacity);
+    }
+
+    _pooled_connection_t get()
+    {
+      return _core->get();
+    }
+
     // Returns number of connections available in the pool. Only used in tests.
-    std::size_t available();
+    std::size_t available()
+    {
+      return _core->available();
+    }
 
   private:
     std::shared_ptr<pool_core> _core;
   };
-
-  template<typename ConnectionBase>
-  connection_pool<ConnectionBase>::connection_pool(const _config_ptr_t& connection_config, std::size_t capacity) :
-    _core{std::make_shared<pool_core>(connection_config, capacity)}
-  {
-  }
-
-  template<typename ConnectionBase>
-  void connection_pool<ConnectionBase>::initialize(const _config_ptr_t& connection_config, std::size_t capacity)
-  {
-    if (_core) {
-      throw std::runtime_error{"Connection pool already initialized"};
-    }
-    _core = std::make_shared<pool_core>(connection_config, capacity);
-  }
-
-  template<typename ConnectionBase>
-  typename connection_pool<ConnectionBase>::_pooled_connection_t connection_pool<ConnectionBase>::get()
-  {
-    return _core->get();
-  }
-
-  template<typename ConnectionBase>
-  std::size_t connection_pool<ConnectionBase>::available()
-  {
-    return _core->available();
-  }
 } // namespace sqlpp
