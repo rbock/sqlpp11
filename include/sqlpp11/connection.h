@@ -93,59 +93,49 @@ namespace sqlpp
     // Copy/Move constructors
     pooled_connection(const pooled_connection&) = delete;
     pooled_connection(pooled_connection&& other) = default;
-    ~pooled_connection();
+
+    ~pooled_connection()
+    {
+      conn_release();
+    }
 
     // Assigment operators
     pooled_connection& operator=(const pooled_connection&) = delete;
-    pooled_connection& operator=(pooled_connection&& other);
+
+    pooled_connection& operator=(pooled_connection&& other)
+    {
+      if (this != &other)
+      {
+        conn_release();
+        static_cast<ConnectionBase&>(*this) = std::move(static_cast<ConnectionBase&>(other));
+        _pool_core = std::move(other._pool_core);
+      }
+      return *this;
+    }
 
   private:
     _pool_core_ptr_t _pool_core;
 
     // Constructors used by the connection pool
-    pooled_connection(_handle_ptr_t&& handle, _pool_core_ptr_t pool_core);
-    pooled_connection(const _config_ptr_t& config, _pool_core_ptr_t pool_core);
+    pooled_connection(_handle_ptr_t&& handle, _pool_core_ptr_t pool_core) :
+      ConnectionBase{std::move(handle)},
+      _pool_core{pool_core}
+    {
+    }
 
-    void conn_release();
+    pooled_connection(const _config_ptr_t& config, _pool_core_ptr_t pool_core) :
+      ConnectionBase{std::make_unique<_handle_t>(config)},
+      _pool_core{pool_core}
+    {
+    }
+
+    void conn_release()
+    {
+      if (_pool_core)
+      {
+        _pool_core->put(ConnectionBase::_handle);
+        _pool_core = nullptr;
+      }
+    }
   };
-
-  template<typename ConnectionBase>
-  pooled_connection<ConnectionBase>::~pooled_connection()
-  {
-    conn_release();
-  }
-
-  template<typename ConnectionBase>
-  pooled_connection<ConnectionBase>& pooled_connection<ConnectionBase>::operator=(pooled_connection&& other)
-  {
-    if (this != &other) {
-      conn_release();
-      static_cast<ConnectionBase&>(*this) = std::move(static_cast<ConnectionBase&>(other));
-      _pool_core = std::move(other._pool_core);
-    }
-    return *this;
-  }
-
-  template<typename ConnectionBase>
-  pooled_connection<ConnectionBase>::pooled_connection(_handle_ptr_t&& handle, _pool_core_ptr_t pool_core) :
-    ConnectionBase{std::move(handle)},
-    _pool_core{pool_core}
-  {
-  }
-
-  template<typename ConnectionBase>
-  pooled_connection<ConnectionBase>::pooled_connection(const _config_ptr_t& config, _pool_core_ptr_t pool_core) :
-    ConnectionBase{std::make_unique<_handle_t>(config)},
-    _pool_core{pool_core}
-  {
-  }
-
-  template<typename ConnectionBase>
-  void pooled_connection<ConnectionBase>::conn_release()
-  {
-    if (_pool_core) {
-      _pool_core->put(ConnectionBase::_handle);
-      _pool_core = nullptr;
-    }
-  }
 }  // namespace sqlpp
