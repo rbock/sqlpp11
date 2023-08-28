@@ -46,8 +46,17 @@ namespace sqlpp
 
     // Constructors
     normal_connection() = default;
-    normal_connection(const _config_t& config);
-    normal_connection(const _config_ptr_t& config);
+
+    normal_connection(const _config_t& config) :
+      normal_connection{std::make_shared<_config_t>(config)}
+    {
+    }
+
+    normal_connection(const _config_ptr_t& config) :
+      ConnectionBase{std::make_unique<_handle_t>(config)}
+    {
+    }
+
     normal_connection(const normal_connection&) = delete;
     normal_connection(normal_connection&&) = default;
 
@@ -56,29 +65,14 @@ namespace sqlpp
     normal_connection& operator=(normal_connection&&) = default;
 
     // creates a connection handle and connects to database
-    void connectUsing(const _config_ptr_t& config) noexcept(false);
+    void connectUsing(const _config_ptr_t& config) noexcept(false)
+    {
+      ConnectionBase::_handle = std::make_unique<_handle_t>(config);
+    }
 
   private:
     using _handle_t = typename ConnectionBase::_handle_t;
   };
-
-  template<typename ConnectionBase>
-  normal_connection<ConnectionBase>::normal_connection(const _config_t& config) :
-    normal_connection{std::make_shared<_config_t>(config)}
-  {
-  }
-
-  template<typename ConnectionBase>
-  normal_connection<ConnectionBase>::normal_connection(const _config_ptr_t& config) :
-    ConnectionBase{std::make_unique<_handle_t>(config)}
-  {
-  }
-
-  template<typename ConnectionBase>
-  void normal_connection<ConnectionBase>::connectUsing(const _config_ptr_t& config) noexcept(false)
-  {
-    ConnectionBase::_handle = std::make_unique<_handle_t>(config);
-  }
 
   // Forward declaration
   template<typename ConnectionBase>
