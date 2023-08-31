@@ -33,7 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace sqlpp
 {
-  template<typename ConnectionBase>
+  template <typename ConnectionBase>
   class connection_pool
   {
   public:
@@ -44,15 +44,14 @@ namespace sqlpp
     class pool_core : public std::enable_shared_from_this<pool_core>
     {
     public:
-      pool_core(const _config_ptr_t& connection_config, std::size_t capacity) :
-        _connection_config{connection_config},
-        _handles{capacity}
+      pool_core(const _config_ptr_t& connection_config, std::size_t capacity)
+          : _connection_config{connection_config}, _handles{capacity}
       {
       }
 
       pool_core() = delete;
-      pool_core(const pool_core &) = delete;
-      pool_core(pool_core &&) = delete;
+      pool_core(const pool_core&) = delete;
+      pool_core(pool_core&&) = delete;
 
       pool_core& operator=(const pool_core&) = delete;
       pool_core& operator=(pool_core&&) = delete;
@@ -69,18 +68,16 @@ namespace sqlpp
         _handles.pop_front();
         lock.unlock();
         // If the fetched connection is dead, drop it and create a new one on the fly
-        return
-          handle->check_connection() ?
-          _pooled_connection_t{std::move(handle), this->shared_from_this()} :
-          _pooled_connection_t{_connection_config, this->shared_from_this()};
+        return handle->check_connection() ? _pooled_connection_t{std::move(handle), this->shared_from_this()}
+                                          : _pooled_connection_t{_connection_config, this->shared_from_this()};
       }
 
       void put(_handle_ptr_t& handle)
       {
         std::unique_lock<std::mutex> lock{_mutex};
-        if (_handles.full ())
+        if (_handles.full())
         {
-                _handles.set_capacity (_handles.capacity () + 5);
+          _handles.set_capacity(_handles.capacity() + 5);
         }
         _handles.push_back(std::move(handle));
       }
@@ -100,8 +97,8 @@ namespace sqlpp
 
     connection_pool() = default;
 
-    connection_pool(const _config_ptr_t& connection_config, std::size_t capacity) :
-      _core{std::make_shared<pool_core>(connection_config, capacity)}
+    connection_pool(const _config_ptr_t& connection_config, std::size_t capacity)
+        : _core{std::make_shared<pool_core>(connection_config, capacity)}
     {
     }
 
@@ -134,4 +131,4 @@ namespace sqlpp
   private:
     std::shared_ptr<pool_core> _core;
   };
-} // namespace sqlpp
+}  // namespace sqlpp
