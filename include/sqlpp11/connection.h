@@ -37,7 +37,7 @@ namespace sqlpp
   };
 
   // Normal (non-pooled) connection
-  template<typename ConnectionBase>
+  template <typename ConnectionBase>
   class normal_connection : public ConnectionBase
   {
   public:
@@ -47,13 +47,11 @@ namespace sqlpp
     // Constructors
     normal_connection() = default;
 
-    normal_connection(const _config_t& config) :
-      normal_connection{std::make_shared<_config_t>(config)}
+    normal_connection(const _config_t& config) : normal_connection{std::make_shared<_config_t>(config)}
     {
     }
 
-    normal_connection(const _config_ptr_t& config) :
-      ConnectionBase{std::make_unique<_handle_t>(config)}
+    normal_connection(const _config_ptr_t& config) : ConnectionBase{std::make_unique<_handle_t>(config)}
     {
     }
 
@@ -75,11 +73,11 @@ namespace sqlpp
   };
 
   // Forward declaration
-  template<typename ConnectionBase>
+  template <typename ConnectionBase>
   class connection_pool;
 
   // Pooled connection
-  template<typename ConnectionBase>
+  template <typename ConnectionBase>
   class pooled_connection : public ConnectionBase
   {
     friend class connection_pool<ConnectionBase>::pool_core;
@@ -117,15 +115,13 @@ namespace sqlpp
     _pool_core_ptr_t _pool_core;
 
     // Constructors used by the connection pool
-    pooled_connection(_handle_ptr_t&& handle, _pool_core_ptr_t pool_core) :
-      ConnectionBase{std::move(handle)},
-      _pool_core{pool_core}
+    pooled_connection(_handle_ptr_t&& handle, _pool_core_ptr_t pool_core)
+        : ConnectionBase{std::move(handle)}, _pool_core{pool_core}
     {
     }
 
-    pooled_connection(const _config_ptr_t& config, _pool_core_ptr_t pool_core) :
-      ConnectionBase{std::make_unique<_handle_t>(config)},
-      _pool_core{pool_core}
+    pooled_connection(const _config_ptr_t& config, _pool_core_ptr_t pool_core)
+        : ConnectionBase{std::make_unique<_handle_t>(config)}, _pool_core{pool_core}
     {
     }
 
