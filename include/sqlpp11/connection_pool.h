@@ -27,12 +27,20 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <mutex>
-
 #include <sqlpp11/detail/circular_buffer.h>
+
+#include <mutex>
+#include <stdexcept>
 
 namespace sqlpp
 {
+  enum class connection_check
+  {
+    none,
+    passive,
+    ping
+  };
+
   template <typename ConnectionBase>
   class connection_pool
   {
@@ -56,7 +64,7 @@ namespace sqlpp
       pool_core& operator=(const pool_core&) = delete;
       pool_core& operator=(pool_core&&) = delete;
 
-      _pooled_connection_t get()
+      _pooled_connection_t get(connection_check check)
       {
         std::unique_lock<std::mutex> lock{_mutex};
         if (_handles.empty())
@@ -68,8 +76,10 @@ namespace sqlpp
         _handles.pop_front();
         lock.unlock();
         // If the fetched connection is dead, drop it and create a new one on the fly
-        return handle->is_connected() ? _pooled_connection_t{std::move(handle), this->shared_from_this()}
-                                      : _pooled_connection_t{_connection_config, this->shared_from_this()};
+        return
+          check_connection(handle, check) ?
+          _pooled_connection_t{std::move(handle), this->shared_from_this()} :
+          _pooled_connection_t{_connection_config, this->shared_from_this()};
       }
 
       void put(_handle_ptr_t& handle)
@@ -90,6 +100,21 @@ namespace sqlpp
       }
 
     private:
+      inline bool check_connection(_handle_ptr_t& handle, connection_check check)
+      {
+        switch (check)
+        {
+          case connection_check::none:
+            return true;
+          case connection_check::passive:
+            return handle->is_connected();
+          case connection_check::ping:
+            return handle->ping_server();
+          default:
+            throw std::invalid_argument{"Invalid connection check value"};
+        }
+      }
+
       _config_ptr_t _connection_config;
       sqlpp::detail::circular_buffer<_handle_ptr_t> _handles;
       std::mutex _mutex;
@@ -117,9 +142,9 @@ namespace sqlpp
       _core = std::make_shared<pool_core>(connection_config, capacity);
     }
 
-    _pooled_connection_t get()
+    _pooled_connection_t get(connection_check check = connection_check::passive)
     {
-      return _core->get();
+      return _core->get(check);
     }
 
     // Returns number of connections available in the pool. Only used in tests.
