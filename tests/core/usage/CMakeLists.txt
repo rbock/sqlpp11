@@ -33,6 +33,7 @@ set(test_files
     BooleanExpression.cpp
     CustomQuery.cpp
     DateTime.cpp
+    DateTimeParser.cpp
     Interpret.cpp
     Insert.cpp
     Remove.cpp

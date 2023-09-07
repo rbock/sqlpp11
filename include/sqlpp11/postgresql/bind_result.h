@@ -239,7 +239,7 @@ namespace sqlpp
         {
           std::cerr << "PostgreSQL debug: date string: " << date_string << std::endl;
         }
-        if (::sqlpp::detail::parse_string_date(*value, date_string) == false)
+        if (::sqlpp::detail::parse_date(*value, date_string) == false)
         {
           if (_handle->debug())
           {
@@ -269,7 +269,7 @@ namespace sqlpp
         {
           std::cerr << "PostgreSQL debug: got date_time string: " << date_string << std::endl;
         }
-        if (::sqlpp::detail::parse_string_date_time(*value, date_string) == false)
+        if (::sqlpp::detail::parse_timestamp(*value, date_string) == false)
         {
           if (_handle->debug())
           {
@@ -301,7 +301,7 @@ namespace sqlpp
           std::cerr << "PostgreSQL debug: got time string: " << time_string << std::endl;
         }
 
-        if (::sqlpp::detail::parse_string_time_of_day(*value, time_string) == false)
+        if (::sqlpp::detail::parse_time_of_day(*value, time_string) == false)
         {
           if (_handle->debug()) {
             std::cerr << "PostgreSQL debug: got invalid time '" << time_string << "'" << std::endl;

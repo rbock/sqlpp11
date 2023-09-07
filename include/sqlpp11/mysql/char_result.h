@@ -152,7 +152,7 @@ namespace sqlpp
         if (_handle->debug)
           std::cerr << "MySQL debug: date string: " << date_string << std::endl;
 
-        if (::sqlpp::detail::parse_string_date(*value, date_string) == false)
+        if (::sqlpp::detail::parse_date(*value, date_string) == false)
         {
           if (_handle->debug)
             std::cerr << "MySQL debug: invalid date result: " << date_string << std::endl;
@@ -175,7 +175,7 @@ namespace sqlpp
         if (_handle->debug)
           std::cerr << "MySQL debug: date_time string: " << date_time_string << std::endl;
 
-        if (::sqlpp::detail::parse_string_date_time(*value, date_time_string) == false)
+        if (::sqlpp::detail::parse_timestamp(*value, date_time_string) == false)
         {
           if (_handle->debug)
             std::cerr << "MySQL debug: invalid date_time result: " << date_time_string << std::endl;
