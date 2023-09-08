@@ -29,8 +29,8 @@
 
 #include <sqlpp11/compat/make_unique.h>
 
-#include <functional>
 #include <memory>
+#include <utility>
 
 namespace sqlpp
 {
