@@ -281,7 +281,7 @@ namespace sqlpp
         return serialize(t, context);
       }
 
-      bool is_valid() const
+      [[deprecated("Use ping_server() instead")]] bool is_valid() const
       {
         return _handle->ping_server();
       }
