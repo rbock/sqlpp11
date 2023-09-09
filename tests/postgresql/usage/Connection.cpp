@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2017, Serge Robyns
+ * Copyright (c) 2023, Vesselin Atanasov
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -23,13 +24,17 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "../../include/ConnectionTests.h"
+#include "make_test_connection.h"
+
 #include <sqlpp11/postgresql/connection.h>
 #include <sqlpp11/sqlpp11.h>
 
-namespace sql = sqlpp::postgresql;
-
-int Constructor(int, char*[])
+int Connection(int, char*[])
 {
-  sql::connection db;
+  namespace sql = sqlpp::postgresql;
+  namespace test = sqlpp::test;
+
+  test::test_normal_connection<sql::connection>(sql::make_test_config());
   return 0;
 }

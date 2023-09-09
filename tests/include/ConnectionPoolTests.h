@@ -117,6 +117,24 @@ namespace sqlpp
       }
 
       template <typename Pool>
+      void test_conn_check(Pool& pool)
+      {
+        auto check_db = [] (typename Pool::_pooled_connection_t db) {
+          if (db.is_connected() == false)
+          {
+            throw std::runtime_error{"is_connected() returned false"};
+          }
+          if (db.ping_server() == false)
+          {
+            throw std::runtime_error{"ping_server() returned false"};
+          }
+        };
+        check_db(pool.get(connection_check::none));
+        check_db(pool.get(connection_check::passive));
+        check_db(pool.get(connection_check::ping));
+      }
+
+      template <typename Pool>
       void test_basic(Pool& pool, const std::string& create_table)
       {
         try
@@ -250,15 +268,16 @@ namespace sqlpp
     void test_connection_pool (typename Pool::_config_ptr_t config, const std::string& create_table, bool test_mt)
     {
       auto pool = Pool {config, 5};
-      sqlpp::test::test_conn_move(pool);
-      sqlpp::test::test_basic(pool, create_table);
-      sqlpp::test::test_single_connection(pool);
-      sqlpp::test::test_multiple_connections(pool);
+      test_conn_move(pool);
+      test_basic(pool, create_table);
+      test_conn_check(pool);
+      test_single_connection(pool);
+      test_multiple_connections(pool);
       if (test_mt)
       {
-        sqlpp::test::test_multithreaded(pool);
+        test_multithreaded(pool);
       }
-      sqlpp::test::test_destruction_order<Pool>(config);
+      test_destruction_order<Pool>(config);
     }
   }  // namespace test
 }  // namespace sqlpp

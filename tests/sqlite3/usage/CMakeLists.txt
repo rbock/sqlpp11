@@ -38,6 +38,7 @@ set(test_files
     FloatingPoint.cpp
     Integral.cpp
     Blob.cpp
+    Connection.cpp
     ConnectionPool.cpp
 )
 

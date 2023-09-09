@@ -40,6 +40,7 @@ set(test_files
     Truncated.cpp
     Update.cpp
     Remove.cpp
+    Connection.cpp
     ConnectionPool.cpp
 )
 
