@@ -51,7 +51,7 @@ namespace sqlpp
     {
     }
 
-    normal_connection(const _config_ptr_t& config) : ConnectionBase{std::make_unique<_handle_t>(config)}
+    normal_connection(const _config_ptr_t& config) : ConnectionBase{std::unique_ptr<_handle_t>{new _handle_t{config}}}
     {
     }
 
@@ -65,7 +65,7 @@ namespace sqlpp
     // creates a connection handle and connects to database
     void connectUsing(const _config_ptr_t& config) noexcept(false)
     {
-      ConnectionBase::_handle = std::make_unique<_handle_t>(config);
+      ConnectionBase::_handle = std::unique_ptr<_handle_t>{new _handle_t{config}};
     }
 
   private:
@@ -121,7 +121,7 @@ namespace sqlpp
     }
 
     pooled_connection(const _config_ptr_t& config, _pool_core_ptr_t pool_core)
-        : ConnectionBase{std::make_unique<_handle_t>(config)}, _pool_core{pool_core}
+        : ConnectionBase{std::unique_ptr<_handle_t>{new _handle_t{config}}}, _pool_core{pool_core}
     {
     }
 

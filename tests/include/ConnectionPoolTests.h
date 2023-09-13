@@ -236,7 +236,7 @@ namespace sqlpp
       void test_destruction_order(typename Pool::_config_ptr_t config)
       {
         // Create a pool, get a connection from it and then destroy the pool before the connection
-        auto pool = std::make_unique<Pool>(config, 5);
+        auto pool = std::unique_ptr<Pool>{new Pool{config, 5}};
         auto conn = pool->get();
         pool = nullptr;
       }
