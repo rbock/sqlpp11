@@ -27,6 +27,8 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <sqlpp11/compat/make_unique.h>
+
 #include <random>
 #include <set>
 #include <thread>
@@ -238,7 +240,7 @@ namespace sqlpp
       void test_destruction_order(typename Pool::_config_ptr_t config)
       {
         // Create a pool, get a connection from it and then destroy the pool before the connection
-        auto pool = std::make_unique<Pool>(config, 5);
+        auto pool = sqlpp::compat::make_unique<Pool>(config, 5);
         auto conn = pool->get();
         pool = nullptr;
       }
