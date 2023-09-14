@@ -58,9 +58,9 @@ target_link_libraries(sqlpp11_core_serialize PRIVATE sqlpp11::sqlpp11 sqlpp11_te
 
 # conditionally bump to a higher C++ standard to test compatibility
 if (SQLPP11_TESTS_CXX_STD)
-    set_property(TARGET sqlpp11_test_serializer PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})
-    set_property(TARGET sqlpp11_test_serializer PROPERTY CXX_STANDARD_REQUIRED yes)
-    set_property(TARGET sqlpp11_test_serializer PROPERTY CXX_EXTENSIONS no)
+    set_property(TARGET sqlpp11_core_serialize PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})
+    set_property(TARGET sqlpp11_core_serialize PROPERTY CXX_STANDARD_REQUIRED yes)
+    set_property(TARGET sqlpp11_core_serialize PROPERTY CXX_EXTENSIONS no)
 endif()
 
 foreach(test_file IN LISTS test_files)
