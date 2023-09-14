@@ -41,13 +41,13 @@ namespace sqlpp
     namespace
     {
       template<typename Pool>
-      using native_type = std::decay_t<decltype(std::declval<Pool>().get().native_handle())>;
+      using native_type = typename std::decay<decltype(std::declval<Pool>().get().native_handle())>::type;
 
       template<typename Pool>
       using native_set = std::unordered_set<native_type<Pool>>;
 
       template<typename Pool>
-      using pool_conn_type = std::decay_t<decltype(std::declval<Pool>().get())>;
+      using pool_conn_type = typename std::decay<decltype(std::declval<Pool>().get())>::type;
 
       template<typename Pool>
       native_set<Pool> get_native_handles(Pool& pool)
@@ -166,7 +166,7 @@ namespace sqlpp
         try
         {
           model::TabDepartment tabDept = {};
-          auto connections = std::vector<std::decay_t<decltype(pool.get())>>{};
+          auto connections = std::vector<typename std::decay<decltype(pool.get())>::type>{};
           auto pointers = std::set<void*>{};
           for (auto i = 0; i < 50; ++i)
           {
@@ -204,7 +204,9 @@ namespace sqlpp
 
           for (auto i = 0; i < thread_count; ++i)
           {
-            threads.push_back(std::thread([func = __func__, call_count = uniform_dist(random_engine), &pool, &tabDept]() {
+            auto func = __func__;
+            auto call_count = uniform_dist(random_engine);
+            threads.push_back(std::thread([&]() {
               try
               {
                 for (auto k = 0; k < call_count; ++k)
