@@ -32,6 +32,7 @@
 #include <iostream>
 #include <sstream>
 
+#include <sqlpp11/compat/make_unique.h>
 #include <sqlpp11/connection.h>
 #include <sqlpp11/detail/float_safe_ostringstream.h>
 #include <sqlpp11/postgresql/bind_result.h>
@@ -71,8 +72,7 @@ namespace sqlpp
           std::cerr << "PostgreSQL debug: preparing: " << stmt << std::endl;
         }
 
-        return std::unique_ptr<detail::prepared_statement_handle_t>(new detail::prepared_statement_handle_t
-                                                                    (*handle, stmt, param_count));
+        return sqlpp::compat::make_unique<detail::prepared_statement_handle_t>(*handle, stmt, param_count);
       }
 
       inline void execute_prepared_statement(std::unique_ptr<connection_handle>& handle, std::shared_ptr<detail::prepared_statement_handle_t>& prepared)
