@@ -30,8 +30,8 @@ set(test_files
     Basic.cpp
     BasicConstConfig.cpp
     Blob.cpp
+    Connection.cpp
     ConnectionPool.cpp
-    Constructor.cpp
     Date.cpp
     DateTime.cpp
     Exceptions.cpp

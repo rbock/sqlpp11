@@ -29,8 +29,8 @@
 
 #include <sqlpp11/compat/make_unique.h>
 
-#include <functional>
 #include <memory>
+#include <utility>
 
 namespace sqlpp
 {
@@ -38,9 +38,27 @@ namespace sqlpp
   {
   };
 
+  template <typename ConnectionBase>
+  class common_connection : public ConnectionBase
+  {
+  public:
+    bool is_connected() const
+    {
+      return ConnectionBase::_handle ? ConnectionBase::_handle->is_connected() : false;
+    }
+
+    bool ping_server() const
+    {
+      return ConnectionBase::_handle ? ConnectionBase::_handle->ping_server() : false;
+    }
+
+  protected:
+    using ConnectionBase::ConnectionBase;
+  };
+
   // Normal (non-pooled) connection
   template <typename ConnectionBase>
-  class normal_connection : public ConnectionBase
+  class normal_connection : public common_connection<ConnectionBase>
   {
   public:
     using _config_t = typename ConnectionBase::_config_t;
@@ -53,7 +71,8 @@ namespace sqlpp
     {
     }
 
-    normal_connection(const _config_ptr_t& config) : ConnectionBase{compat::make_unique<_handle_t>(config)}
+    normal_connection(const _config_ptr_t& config)
+        : common_connection<ConnectionBase>{compat::make_unique<_handle_t>(config)}
     {
     }
 
@@ -80,7 +99,7 @@ namespace sqlpp
 
   // Pooled connection
   template <typename ConnectionBase>
-  class pooled_connection : public ConnectionBase
+  class pooled_connection : public common_connection<ConnectionBase>
   {
     friend class connection_pool<ConnectionBase>::pool_core;
 
@@ -118,12 +137,12 @@ namespace sqlpp
 
     // Constructors used by the connection pool
     pooled_connection(_handle_ptr_t&& handle, _pool_core_ptr_t pool_core)
-        : ConnectionBase{std::move(handle)}, _pool_core{pool_core}
+        : common_connection<ConnectionBase>{std::move(handle)}, _pool_core{pool_core}
     {
     }
 
     pooled_connection(const _config_ptr_t& config, _pool_core_ptr_t pool_core)
-        : ConnectionBase{compat::make_unique<_handle_t>(config)}, _pool_core{pool_core}
+        : common_connection<ConnectionBase>{compat::make_unique<_handle_t>(config)}, _pool_core{pool_core}
     {
     }
 

@@ -101,10 +101,17 @@ namespace sqlpp
           return mysql.get();
         }
 
-        bool check_connection() const
+        bool is_connected() const
         {
-          auto nh = native_handle();
-          return nh && (mysql_ping(nh) == 0);
+          // The connection is established in the constructor and the MySQL client
+          // library doesn't seem to have a way to check passively if the connection
+          // is still valid
+          return true;
+        }
+
+        bool ping_server() const
+        {
+          return mysql_ping(native_handle()) == 0;
         }
 
         void reconnect()

@@ -67,8 +67,11 @@ namespace sqlpp
       connection_handle& operator=(connection_handle&&);
 
       // Used by the connection pool to check if the connection handle is still
-      // connected to the database server
-      bool check_connection();
+      // connected to the database server.
+      bool is_connected();
+
+      // Send a dummy request to the server to check if the connection is still alive
+      bool ping_server();
 
       // Optional method that returns a native (low-level) database handle.
       // Used by the test code to test the connection pool
