@@ -79,14 +79,7 @@ namespace sqlpp
             throw sqlpp::exception{"MySQL: could not init mysql data structure"};
           }
 
-          if (config->auto_reconnect)
-          {
-            my_bool my_true{true};
-            if (mysql_options(native_handle(), MYSQL_OPT_RECONNECT, &my_true))
-            {
-              throw sqlpp::exception{"MySQL: could not set option MYSQL_OPT_RECONNECT"};
-            }
-          }
+          mysql->reconnect = config->auto_reconnect
 
           connect(native_handle(), *config);
         }
