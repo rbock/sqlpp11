@@ -42,7 +42,7 @@ namespace sqlpp
       std::string unix_socket;
       unsigned long client_flag{0};
       std::string charset{"utf8"};
-      bool auto_reconnect{true};
+      [[deprecated]] bool auto_reconnect{true};
       bool debug{false};
       unsigned int connect_timeout_seconds{0};  // 0 = do not override MySQL library default
 
