@@ -88,7 +88,6 @@ namespace sqlpp
               throw sqlpp::exception{"MySQL: could not set option MYSQL_OPT_RECONNECT"};
             }
           }
-#endif
 #else
           mysql->reconnect = config->auto_reconnect
 #endif
