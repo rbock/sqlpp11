@@ -1,5 +1,5 @@
 # Introduction
-Let's see: 
+Let's see:
 * You know C++?
 * You know some SQL?
 * You want to use SQL in your C++ program?
@@ -23,4 +23,5 @@ The following pages will tell you how to use it:
 * [Transactions](Transactions.md)
 * [Thread Safety](Threads.md)
 * [NULL](NULL.md)
+* [Connection Pools](Connection-Pools.md)
 * [New Features](New-Features.md)
