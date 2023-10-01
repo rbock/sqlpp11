@@ -172,7 +172,7 @@ namespace sqlpp
       // Pushing back does not change the front.
       for (int i = 0; i < capacity; ++i)
       {
-        cb.push_back(int{i});
+        cb.push_back(std::move(i));
         assert_equal(__LINE__, cb.front(), 0);
       }
 
@@ -201,14 +201,14 @@ namespace sqlpp
         int current_front = 0;
         for (int i = 0; i < old_size; ++i)
         {
-          cb.push_back(int{current_back});
+          cb.push_back(std::move(current_back));
           ++current_back;
         }
 
         // Move through the buffer.
         for (int i = 0; i < iterations; ++i)
         {
-          cb.push_back(int{current_back});
+          cb.push_back(std::move(current_back));
           assert_equal(__LINE__, cb.front(), current_front);
           cb.pop_front();
           ++current_back;
@@ -226,7 +226,7 @@ namespace sqlpp
           assert_equal(__LINE__, cb.front(), current_front);
           cb.pop_front();
           ++current_front;
-          cb.push_back(int{current_back});
+          cb.push_back(std::move(current_back));
           ++current_back;
         }
       }
@@ -246,14 +246,14 @@ namespace sqlpp
         int current_front = 0;
         for (int i = 0; i < old_size; ++i)
         {
-          cb.push_back(int{current_back});
+          cb.push_back(std::move(current_back));
           ++current_back;
         }
 
         // Move through the buffer.
         for (int i = 0; i < iterations; ++i)
         {
-          cb.push_back(int{current_back});
+          cb.push_back(std::move(current_back));
           assert_equal(__LINE__, cb.front(), current_front);
           cb.pop_front();
           ++current_back;
@@ -272,7 +272,7 @@ namespace sqlpp
           assert_equal(__LINE__, cb.front(), current_front);
           cb.pop_front();
           ++current_front;
-          cb.push_back(int{current_back});
+          cb.push_back(std::move(current_back));
           ++current_back;
         }
 
@@ -296,14 +296,14 @@ namespace sqlpp
         int current_front = 0;
         for (int i = 0; i < old_size; ++i)
         {
-          cb.push_back(int{current_back});
+          cb.push_back(std::move(current_back));
           ++current_back;
         }
 
         // Move through the buffer.
         for (int i = 0; i < iterations; ++i)
         {
-          cb.push_back(int{current_back});
+          cb.push_back(std::move(current_back));
           assert_equal(__LINE__, cb.front(), current_front);
           cb.pop_front();
           ++current_back;
@@ -321,7 +321,7 @@ namespace sqlpp
           assert_equal(__LINE__, cb.front(), current_front);
           cb.pop_front();
           ++current_front;
-          cb.push_back(int{current_back});
+          cb.push_back(std::move(current_back));
           ++current_back;
         }
       }
