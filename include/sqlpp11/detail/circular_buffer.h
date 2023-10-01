@@ -54,15 +54,15 @@ namespace sqlpp
       std::vector<T> _data;
       std::size_t _capacity;
       std::size_t _size;
-      std::size_t _head;
-      std::size_t _tail;
+      std::size_t _back;
+      std::size_t _front;
 
       void increment(std::size_t& pos);
     };
 
     template <typename T>
     circular_buffer<T>::circular_buffer(std::size_t capacity)
-        : _data(capacity), _capacity{capacity}, _size{0}, _head{0}, _tail{0}
+        : _data(capacity), _capacity{capacity}, _size{0}, _back{0}, _front{0}
     {
     }
 
@@ -80,10 +80,10 @@ namespace sqlpp
         return;
       }
       // Reduce the number of cases by rotating `front()` to `_data.begin()`.
-      std::rotate(_data.begin(), _data.begin() + _tail, _data.end());
+      std::rotate(_data.begin(), _data.begin() + static_cast<ptrdiff_t>(_front), _data.end());
 
-      _tail = 0;
-      _head = (new_capacity > _size) ? _size : 0;
+      _front = 0;
+      _back = (new_capacity > _size) ? _size : 0;
       _data.resize(new_capacity);
       _capacity = new_capacity;
       _size = std::min(_size, new_capacity);
@@ -114,7 +114,7 @@ namespace sqlpp
       {
         throw std::runtime_error{"circular_buffer::front() called on empty buffer"};
       }
-      return _data[_tail];
+      return _data[_front];
     }
 
     template <typename T>
@@ -124,8 +124,8 @@ namespace sqlpp
       {
         throw std::runtime_error{"circular_buffer::pop_front() called on empty buffer"};
       }
-      _data[_tail] = {};
-      increment(_tail);
+      _data[_front] = {};
+      increment(_front);
       --_size;
     }
 
@@ -136,8 +136,8 @@ namespace sqlpp
       {
         throw std::runtime_error{"circular_buffer::push_back() called on full buffer"};
       }
-      _data[_head] = std::move(t);
-      increment(_head);
+      _data[_back] = std::move(t);
+      increment(_back);
       ++_size;
     }
 
