@@ -73,40 +73,20 @@ namespace sqlpp
     }
 
     template <typename T>
-    void circular_buffer<T>::set_capacity(std::size_t capacity)
+    void circular_buffer<T>::set_capacity(std::size_t new_capacity)
     {
-      if (capacity == _capacity)
+      if (new_capacity == _capacity)
       {
         return;
       }
-      if (_tail >= _head)
-      {
-        if (empty() == false)
-        {
-          std::rotate(_data.begin(), _data.begin() + _tail, _data.end());
-        }
-        _head = (capacity > _size) ? _size : 0;
-        _tail = 0;
-      }
-      else
-      {
-        if (capacity < _head)
-        {
-          std::rotate(_data.begin(), _data.begin() + _tail, _data.begin() + _head);
-          _head = (capacity > _size) ? _size : 0;
-          _tail = 0;
-        }
-        else if (capacity == _head)
-        {
-          _head = 0;
-        }
-      }
-      _data.resize(capacity);
-      _capacity = capacity;
-      if (_size > capacity)
-      {
-        _size = capacity;
-      }
+      // Reduce the number of cases by rotating `front()` to `_data.begin()`.
+      std::rotate(_data.begin(), _data.begin() + _tail, _data.end());
+
+      _tail = 0;
+      _head = (new_capacity > _size) ? _size : 0;
+      _data.resize(new_capacity);
+      _capacity = new_capacity;
+      _size = std::min(_size, new_capacity);
     }
 
     template <typename T>
