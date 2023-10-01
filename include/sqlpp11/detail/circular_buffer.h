@@ -61,12 +61,8 @@ namespace sqlpp
     };
 
     template <typename T>
-    circular_buffer<T>::circular_buffer(std::size_t capacity) :
-      _data(capacity),
-      _capacity{capacity},
-      _size{0},
-      _head{0},
-      _tail{0}
+    circular_buffer<T>::circular_buffer(std::size_t capacity)
+        : _data(capacity), _capacity{capacity}, _size{0}, _head{0}, _tail{0}
     {
     }
 
@@ -79,27 +75,36 @@ namespace sqlpp
     template <typename T>
     void circular_buffer<T>::set_capacity(std::size_t capacity)
     {
-      if (capacity == _capacity) {
+      if (capacity == _capacity)
+      {
         return;
       }
-      if (_tail >= _head) {
-        if (empty () == false) {
-          std::rotate(_data.begin(), _data.begin()+_tail, _data.end());
+      if (_tail >= _head)
+      {
+        if (empty() == false)
+        {
+          std::rotate(_data.begin(), _data.begin() + _tail, _data.end());
         }
         _head = (capacity > _size) ? _size : 0;
         _tail = 0;
-      } else {
-        if (capacity < _head) {
-          std::rotate(_data.begin(), _data.begin()+_tail, _data.begin()+_head);
+      }
+      else
+      {
+        if (capacity < _head)
+        {
+          std::rotate(_data.begin(), _data.begin() + _tail, _data.begin() + _head);
           _head = (capacity > _size) ? _size : 0;
           _tail = 0;
-        } else if (capacity == _head) {
+        }
+        else if (capacity == _head)
+        {
           _head = 0;
         }
       }
       _data.resize(capacity);
       _capacity = capacity;
-      if (_size > capacity) {
+      if (_size > capacity)
+      {
         _size = capacity;
       }
     }
@@ -125,7 +130,8 @@ namespace sqlpp
     template <typename T>
     T& circular_buffer<T>::front()
     {
-      if (empty()) {
+      if (empty())
+      {
         throw std::runtime_error{"circular_buffer::front() called on empty buffer"};
       }
       return _data[_tail];
@@ -134,7 +140,8 @@ namespace sqlpp
     template <typename T>
     void circular_buffer<T>::pop_front()
     {
-      if (empty()) {
+      if (empty())
+      {
         throw std::runtime_error{"circular_buffer::pop_front() called on empty buffer"};
       }
       _data[_tail] = {};
@@ -145,7 +152,8 @@ namespace sqlpp
     template <typename T>
     void circular_buffer<T>::push_back(T&& t)
     {
-      if (full()) {
+      if (full())
+      {
         throw std::runtime_error{"circular_buffer::push_back() called on full buffer"};
       }
       _data[_head] = std::move(t);
