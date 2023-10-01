@@ -70,6 +70,7 @@ namespace sqlpp
       template <typename Pool>
       void test_conn_move(Pool& pool)
       {
+        std::clog << __func__ << '\n';
         auto nh_all = get_native_handles(pool);
         {
           // Get one connection from the pool
@@ -119,6 +120,7 @@ namespace sqlpp
       template <typename Pool>
       void test_conn_check(Pool& pool)
       {
+        std::clog << __func__ << '\n';
         auto check_db = [] (typename Pool::_pooled_connection_t db) {
           if (db.is_connected() == false)
           {
@@ -137,6 +139,7 @@ namespace sqlpp
       template <typename Pool>
       void test_basic(Pool& pool, const std::string& create_table)
       {
+        std::clog << __func__ << '\n';
         try
         {
           auto db = pool.get();
@@ -155,6 +158,7 @@ namespace sqlpp
       template <typename Pool>
       void test_single_connection(Pool& pool)
       {
+        std::clog << __func__ << '\n';
         try
         {
           auto* handle = [&pool]() {
@@ -183,6 +187,7 @@ namespace sqlpp
       template <typename Pool>
       void test_multiple_connections(Pool& pool)
       {
+        std::clog << __func__ << '\n';
         try
         {
           model::TabDepartment tabDept = {};
@@ -209,6 +214,7 @@ namespace sqlpp
       template <typename Pool>
       void test_multithreaded(Pool& pool)
       {
+        std::clog << __func__ << '\n';
         std::random_device r;
         std::default_random_engine random_engine(r());
         std::uniform_int_distribution<int> uniform_dist(1, 20);
@@ -218,7 +224,6 @@ namespace sqlpp
 
         try
         {
-          model::TabDepartment tabDept = {};
           auto threads = std::vector<std::thread>{};
           const auto thread_count = uniform_dist(random_engine);
 
@@ -226,7 +231,8 @@ namespace sqlpp
           {
             auto func = __func__;
             auto call_count = uniform_dist(random_engine);
-            threads.push_back(std::thread([&]() {
+            threads.push_back(std::thread([call_count, &func, &pool]() {
+              constexpr model::TabDepartment tabDept = {};
               try
               {
                 for (auto k = 0; k < call_count; ++k)
@@ -257,6 +263,7 @@ namespace sqlpp
       template <typename Pool>
       void test_destruction_order(typename Pool::_config_ptr_t config)
       {
+        std::clog << __func__ << '\n';
         // Create a pool, get a connection from it and then destroy the pool before the connection
         auto pool = sqlpp::compat::make_unique<Pool>(config, 5);
         auto conn = pool->get();
