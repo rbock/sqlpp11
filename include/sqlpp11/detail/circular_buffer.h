@@ -35,7 +35,7 @@ namespace sqlpp
 {
   namespace detail
   {
-    // This class is modelled after boost::circular_buffer
+    // This class is modeled after boost::circular_buffer
     template <typename T>
     class circular_buffer
     {
