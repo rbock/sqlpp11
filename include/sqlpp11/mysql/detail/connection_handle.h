@@ -79,6 +79,7 @@ namespace sqlpp
             throw sqlpp::exception{"MySQL: could not init mysql data structure"};
           }
 
+#if MYSQL_VERSION_ID < 80034
           if (config->auto_reconnect)
           {
             my_bool my_true{true};
@@ -87,6 +88,9 @@ namespace sqlpp
               throw sqlpp::exception{"MySQL: could not set option MYSQL_OPT_RECONNECT"};
             }
           }
+#else
+          mysql->reconnect = config->auto_reconnect
+#endif
 
           connect(native_handle(), *config);
         }
