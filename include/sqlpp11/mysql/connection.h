@@ -286,11 +286,6 @@ namespace sqlpp
         return _handle->ping_server();
       }
 
-      void reconnect()
-      {
-        return _handle->reconnect();
-      }
-
       const std::shared_ptr<const connection_config>& get_config()
       {
         return _handle->config;
