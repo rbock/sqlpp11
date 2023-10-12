@@ -171,7 +171,7 @@ namespace sqlpp
     auto operator>=(T t) const -> _new_binary_expression_t<greater_equal_t, T>
     {
       using rhs = wrap_operand_t<T>;
-      check_comparison_t<Expr, rhs>{};
+      check_comparison_t<Expr, rhs>::verify();
 
       return {*static_cast<const Expr*>(this), rhs{t}};
     }
