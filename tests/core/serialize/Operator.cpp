@@ -46,5 +46,13 @@ int Operator(int, char* [])
   compare(__LINE__, sqlpp::value(3) >> foo.psi, "(3>>tab_foo.psi)");
   compare(__LINE__, bar.alpha >> 3u, "(tab_bar.alpha>>3)");
 
+  // Comparison
+  compare(__LINE__, bar.alpha < 3u, "(tab_bar.alpha<3)");
+  compare(__LINE__, bar.alpha <= 3u, "(tab_bar.alpha<=3)");
+  compare(__LINE__, bar.alpha == 3u, "(tab_bar.alpha=3)");
+  compare(__LINE__, bar.alpha != 3u, "(tab_bar.alpha<>3)");
+  compare(__LINE__, bar.alpha >= 3u, "(tab_bar.alpha>=3)");
+  compare(__LINE__, bar.alpha > 3u, "(tab_bar.alpha>3)");
+
   return 0;
 }
