@@ -45,6 +45,11 @@ int Returning(int, char*[])
     for (const auto& row : updated)
       std::cout << "Gamma: " << row.gamma << " Beta: " << row.beta << std::endl;
 
+    auto removed =
+        db(sqlpp::postgresql::remove_from(foo).where(foo.beta == 0).returning(foo.gamma, foo.beta));
+    for (const auto& row : removed)
+      std::cout << "Gamma: " << row.gamma << " Beta: " << row.beta << std::endl;
+
     auto multi_insert = sqlpp::postgresql::insert_into(foo).columns(foo.beta).returning(foo.alpha, foo.beta);
     multi_insert.values.add(foo.beta = 1);
     multi_insert.values.add(foo.beta = 2);
