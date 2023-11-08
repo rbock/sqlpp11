@@ -68,7 +68,7 @@ namespace sqlpp
       struct connection_handle
       {
         std::shared_ptr<const connection_config> config;
-        std::unique_ptr<MYSQL, void (*)(MYSQL*)> mysql;
+        std::unique_ptr<MYSQL, void (STDCALL*)(MYSQL*)> mysql;
 
         connection_handle(const std::shared_ptr<const connection_config>& conf) :
           config{conf},

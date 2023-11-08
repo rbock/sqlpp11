@@ -203,20 +203,20 @@ namespace sqlpp
         return {std::move(result_handle)};
       }
 
-      size_t insert_impl(const std::string& statement)
+      uint64_t insert_impl(const std::string& statement)
       {
         execute_statement(_handle, statement);
 
         return mysql_insert_id(_handle->native_handle());
       }
 
-      size_t update_impl(const std::string& statement)
+      uint64_t update_impl(const std::string& statement)
       {
         execute_statement(_handle, statement);
         return mysql_affected_rows(_handle->native_handle());
       }
 
-      size_t remove_impl(const std::string& statement)
+      uint64_t remove_impl(const std::string& statement)
       {
         execute_statement(_handle, statement);
         return mysql_affected_rows(_handle->native_handle());
@@ -234,19 +234,19 @@ namespace sqlpp
         return prepared_statement._handle;
       }
 
-      size_t run_prepared_insert_impl(prepared_statement_t& prepared_statement)
+      uint64_t run_prepared_insert_impl(prepared_statement_t& prepared_statement)
       {
         execute_prepared_statement(*prepared_statement._handle);
         return mysql_stmt_insert_id(prepared_statement._handle->mysql_stmt);
       }
 
-      size_t run_prepared_update_impl(prepared_statement_t& prepared_statement)
+      uint64_t run_prepared_update_impl(prepared_statement_t& prepared_statement)
       {
         execute_prepared_statement(*prepared_statement._handle);
         return mysql_stmt_affected_rows(prepared_statement._handle->mysql_stmt);
       }
 
-      size_t run_prepared_remove_impl(prepared_statement_t& prepared_statement)
+      uint64_t run_prepared_remove_impl(prepared_statement_t& prepared_statement)
       {
         execute_prepared_statement(*prepared_statement._handle);
         return mysql_stmt_affected_rows(prepared_statement._handle->mysql_stmt);
