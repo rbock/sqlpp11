@@ -472,12 +472,12 @@ def repl_camel_case_func(m):
 
 def class_name_naming_func(s):
     s = s.replace(".", "_")
-    return re.sub("(^|\s|[_0-9])(\S)", repl_camel_case_func, s)
+    return re.sub(r"(^|\s|[_0-9])(\S)", repl_camel_case_func, s)
 
 
 def member_name_naming_func(s):
     s = s.replace(".", "_")
-    return re.sub("(\s|_|[0-9])(\S)", repl_camel_case_func, s)
+    return re.sub(r"(\s|_|[0-9])(\S)", repl_camel_case_func, s)
 
 
 def repl_func_for_args(m):
@@ -491,7 +491,7 @@ def setArgumentBool(s, bool_value):
     first_lower = (
         lambda s: s[:1].lower() + s[1:] if s else ""
     )  # http://stackoverflow.com/a/3847369/5006740
-    var_name = first_lower(re.sub("(\s|-|[0-9])(\S)", repl_func_for_args, s))
+    var_name = first_lower(re.sub(r"(\s|-|[0-9])(\S)", repl_func_for_args, s))
     globals()[var_name] = bool_value
 
 def loadExtendedTypesFile(filename):
