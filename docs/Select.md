@@ -69,7 +69,7 @@ for (const auto& row : db(select(sum(id).as(total)).as(foo.id)).from(tab)))
    std::cout << row.total << std::endl;
 }
 ```
-Using aliases also comes in handy when you join tables and have several columns of the same name, because no two named expressions in a select must have the same name. So if you want to do something like 
+Using aliases also comes in handy when you join tables and have several columns of the same name, because no two named expressions in a select must have the same name. So if you want to do something like
 
 ```C++
 select(foo.id, bar.id); // compile error
@@ -101,7 +101,7 @@ Flags are added via the `flags()` method:
 sqlpp::select().flags(sqlpp::all).columns(foo.id, foo.name);
 ```
 
-or 
+or
 
 ```C++
 select(foo.id, foo.name).flags(sqlpp::all);
@@ -112,13 +112,17 @@ The latter is shorter than the former, but the former is closer to SQL syntax an
 ### Sub-Select
 A select statement with one column also is named expression. This means you can use one select as a sub-select column of another select. For example:
 ```
+SQLPP_ALIAS_PROVIDER(cheese_cake); // Declared outside of function
+// ...
 for (const auto& row : db(
                select(all_of(foo),
-                      select(sum(bar.value)).from(bar).where(bar.id > foo.id))
+                      select(sum(bar.value)).from(bar).where(bar.id > foo.id)),
+                      select(bar.value.as(cheese_cake)).from(bar).where(bar.id > foo.id))
               .from(foo)))
 {
-    int x = row.id;
-    int a = row.sum;
+    const int x = row.id;
+    const int64_t a = row.sum;
+    const int b = row.cheese_cake;
   }
 ```
 The name of the sub select is the name of the one column. If required, you can rename it using `as()`, as usual.
@@ -144,7 +148,7 @@ select(all_of(foo)).from(foo);
 ```
 
 ### Aliased Tables
-Table aliases are useful in self-joins. 
+Table aliases are useful in self-joins.
 ```C++
 SQLPP_ALIAS_PROVIDER(left);
 SQLPP_ALIAS_PROVIDER(right);
@@ -202,7 +206,7 @@ select(all_of(foo)).from(foo).limit(10u).offset(20u);
 ## For Update
 The `for_update` method modifies the query with a simplified "FOR UPDATE" clause without columns.
 ```C++
-select(all_of(foo)).from(foo).where(foo.id != 17).for_update(); 
+select(all_of(foo)).from(foo).where(foo.id != 17).for_update();
 ```
 
 # Running The Statement
