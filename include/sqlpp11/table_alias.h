@@ -44,6 +44,7 @@ namespace sqlpp
     using _traits = make_traits<value_type_of<Table>,
                                 tag::is_table,
                                 tag::is_alias,
+                                tag_if<tag::can_be_null, can_be_null_t<Table>::value>,
                                 tag_if<tag::is_selectable, is_expression_t<Table>::value>>;
 
     using _nodes = detail::type_vector<>;

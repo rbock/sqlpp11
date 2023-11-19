@@ -50,14 +50,34 @@ namespace sqlpp
                                 tag_if<tag::can_be_null, _can_be_null or _depends_on_outer_table>>;
   };
 
+  template<typename... NamedExpr>
+  struct select_expression_type {
+    using value_t = no_value_t;
+    static constexpr bool _is_expression = false;
+    static constexpr bool _can_be_null = false;
+  };
+
+  template<typename NamedExpr>
+  struct select_expression_type<NamedExpr> {
+    using value_t = value_type_of<NamedExpr>;
+    static constexpr bool _is_expression = true;
+    static constexpr bool _can_be_null = can_be_null_t<NamedExpr>::value;
+  };
+
   template <typename Select, typename... NamedExpr>
   struct select_pseudo_table_t
       : public table_t<select_pseudo_table_t<Select, NamedExpr...>, select_column_spec_t<Select, NamedExpr>...>
   {
-    using _traits = make_traits<no_value_t,
-                                tag::is_table,
-                                tag::is_pseudo_table,
-                                tag_if<tag::requires_parens, requires_parens_t<Select>::value>>;
+    using _expr_t = select_expression_type<NamedExpr...>;
+    using _traits = make_traits<
+        // Usage as named expression
+        typename _expr_t::value_t,
+        tag_if<tag::is_expression, _expr_t::_is_expression>,
+        tag_if<tag::can_be_null, _expr_t::_can_be_null>,
+        // Usage as table
+        tag::is_table,
+        tag::is_pseudo_table,
+        tag_if<tag::requires_parens, requires_parens_t<Select>::value>>;
     using _nodes = detail::type_vector<>;
 
     select_pseudo_table_t(Select select) : _select(select)
