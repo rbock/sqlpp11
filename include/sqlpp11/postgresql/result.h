@@ -245,6 +245,9 @@ namespace sqlpp
             case '4':
               switch (code[1])
               {
+                case '0':
+                  if (strcmp(code, "40001") == 0)
+                    throw serialization_failure{err, query};
                 case '2':
                   if (strcmp(code, "42501") == 0)
                     throw insufficient_privilege{err, query};
