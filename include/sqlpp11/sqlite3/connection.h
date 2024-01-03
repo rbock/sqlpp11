@@ -508,6 +508,12 @@ namespace sqlpp
         std::cerr << "Sqlite3 message:" << message << std::endl;
       }
 
+      //! check if transaction is active
+      bool is_transaction_active()
+      {
+        return _transaction_active;
+      }
+
       //! get the last inserted id
       uint64_t last_insert_id() noexcept
       {
