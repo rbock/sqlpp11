@@ -554,13 +554,12 @@ namespace sqlpp
         {
           throw sqlpp::exception{"PostgreSQL error: transaction failed or finished."};
         }
+        _transaction_active = false;
         execute("ROLLBACK");
         if (report)
         {
           std::cerr << "PostgreSQL warning: rolling back unfinished transaction" << std::endl;
         }
-
-        _transaction_active = false;
       }
 
       //! report rollback failure
