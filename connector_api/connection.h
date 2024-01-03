@@ -180,7 +180,6 @@ namespace sqlpp
         return t._prepare(*this);
       }
 
-
       //! set the transaction isolation level for the current connection
       /// time of effect is connector-specific, for most is will only affect new transactions
       void set_default_isolation_level(sqlpp::isolation_level);
