@@ -569,6 +569,12 @@ namespace sqlpp
         std::cerr << "PostgreSQL error: " << message << std::endl;
       }
 
+      //! check if transaction is active
+      bool is_transaction_active()
+      {
+        return _transaction_active;
+      }
+
       //! get the last inserted id for a certain table
       uint64_t last_insert_id(const std::string& table, const std::string& fieldname)
       {
