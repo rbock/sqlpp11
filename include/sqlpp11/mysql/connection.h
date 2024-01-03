@@ -291,11 +291,6 @@ namespace sqlpp
         return _handle->config;
       }
 
-      bool is_transaction_active()
-      {
-        return _transaction_active;
-      }
-
       template <typename Select>
       char_result_t select(const Select& s)
       {
@@ -485,6 +480,12 @@ namespace sqlpp
       void report_rollback_failure(const std::string& message) noexcept
       {
         std::cerr << "MySQL message:" << message << std::endl;
+      }
+
+      //! check if transaction is active
+      bool is_transaction_active()
+      {
+        return _transaction_active;
       }
 
       MYSQL* native_handle()
