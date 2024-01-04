@@ -457,8 +457,8 @@ namespace sqlpp
         {
           throw sqlpp::exception{"MySQL: Cannot commit a finished or failed transaction"};
         }
-        _transaction_active = false;
         execute_statement(_handle, "COMMIT");
+        _transaction_active = false;
       }
 
       //! rollback transaction (or throw if the transaction has been finished already)
@@ -472,8 +472,8 @@ namespace sqlpp
         {
           std::cerr << "MySQL warning: Rolling back unfinished transaction" << std::endl;
         }
-        _transaction_active = false;
         execute_statement(_handle, "ROLLBACK");
+        _transaction_active = false;
       }
 
       //! report a rollback failure (will be called by transactions in case of a rollback failure in the destructor)

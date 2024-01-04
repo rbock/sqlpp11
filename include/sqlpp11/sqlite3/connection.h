@@ -480,9 +480,9 @@ namespace sqlpp
         {
           throw sqlpp::exception{"Sqlite3 error: Cannot commit a finished or failed transaction"};
         }
-        _transaction_active = false;
         auto prepared = prepare_statement(_handle, "COMMIT");
         execute_statement(_handle, prepared);
+        _transaction_active = false;
       }
 
       //! rollback transaction with or without reporting the rollback (or throw if the transaction has been finished
@@ -497,9 +497,9 @@ namespace sqlpp
         {
           std::cerr << "Sqlite3 warning: Rolling back unfinished transaction" << std::endl;
         }
-        _transaction_active = false;
         auto prepared = prepare_statement(_handle, "ROLLBACK");
         execute_statement(_handle, prepared);
+        _transaction_active = false;
       }
 
       //! report a rollback failure (will be called by transactions in case of a rollback failure in the destructor)
