@@ -288,6 +288,28 @@ namespace sqlpp
       }
     };
 
+    class DLL_PUBLIC serialization_failure : public sql_error
+    {
+    public:
+      explicit serialization_failure(std::string err) : sql_error{std::move(err)}
+      {
+      }
+      serialization_failure(std::string err, std::string Q) : sql_error{std::move(err), std::move(Q)}
+      {
+      }
+    };
+
+    class DLL_PUBLIC deadlock_detected : public sql_error
+    {
+    public:
+      explicit deadlock_detected(std::string err) : sql_error{std::move(err)}
+      {
+      }
+      deadlock_detected(std::string err, std::string Q) : sql_error{std::move(err), std::move(Q)}
+      {
+      }
+    };
+
     class DLL_PUBLIC syntax_error : public sql_error
     {
     public:
