@@ -291,11 +291,6 @@ namespace sqlpp
         return _handle->config;
       }
 
-      bool is_transaction_active()
-      {
-        return _transaction_active;
-      }
-
       template <typename Select>
       char_result_t select(const Select& s)
       {
@@ -462,8 +457,8 @@ namespace sqlpp
         {
           throw sqlpp::exception{"MySQL: Cannot commit a finished or failed transaction"};
         }
-        _transaction_active = false;
         execute_statement(_handle, "COMMIT");
+        _transaction_active = false;
       }
 
       //! rollback transaction (or throw if the transaction has been finished already)
@@ -477,14 +472,20 @@ namespace sqlpp
         {
           std::cerr << "MySQL warning: Rolling back unfinished transaction" << std::endl;
         }
-        _transaction_active = false;
         execute_statement(_handle, "ROLLBACK");
+        _transaction_active = false;
       }
 
       //! report a rollback failure (will be called by transactions in case of a rollback failure in the destructor)
       void report_rollback_failure(const std::string& message) noexcept
       {
         std::cerr << "MySQL message:" << message << std::endl;
+      }
+
+      //! check if transaction is active
+      bool is_transaction_active()
+      {
+        return _transaction_active;
       }
 
       MYSQL* native_handle()

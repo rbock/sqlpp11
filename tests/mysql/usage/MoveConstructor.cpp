@@ -55,6 +55,7 @@ int MoveConstructor(int, char*[])
 			gamma bool DEFAULT NULL
 			))");
 
+    assert(connections.at(0).is_transaction_active() == false);
     connections.at(0).start_transaction();
     auto db = std::move(connections.at(0));
     assert(db.is_transaction_active());
@@ -74,6 +75,7 @@ int MoveConstructor(int, char*[])
       std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.at("beta") << std::endl;
     };
     db.commit_transaction();
+    assert(db.is_transaction_active() == false);
   }
   catch (const std::exception& e)
   {

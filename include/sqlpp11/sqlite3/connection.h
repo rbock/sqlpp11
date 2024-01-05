@@ -146,14 +146,7 @@ namespace sqlpp
     class SQLPP11_SQLITE3_EXPORT connection_base : public sqlpp::connection
     {
     private:
-      enum class transaction_status_type
-      {
-        none,
-        maybe,
-        active
-      };
-
-      transaction_status_type _transaction_status{transaction_status_type::none};
+      bool _transaction_active{false};
 
       // direct execution
       bind_result_t select_impl(const std::string& statement)
@@ -470,35 +463,33 @@ namespace sqlpp
       //! start transaction
       void start_transaction()
       {
-        if (_transaction_status == transaction_status_type::active)
+        if (_transaction_active)
         {
           throw sqlpp::exception{"Sqlite3 error: Cannot have more than one open transaction per connection"};
         }
 
-        _transaction_status = transaction_status_type::maybe;
         auto prepared = prepare_statement(_handle, "BEGIN");
         execute_statement(_handle, prepared);
-        _transaction_status = transaction_status_type::active;
+        _transaction_active = true;
       }
 
       //! commit transaction (or throw if the transaction has been finished already)
       void commit_transaction()
       {
-        if (_transaction_status == transaction_status_type::none)
+        if (!_transaction_active)
         {
           throw sqlpp::exception{"Sqlite3 error: Cannot commit a finished or failed transaction"};
         }
-        _transaction_status = transaction_status_type::maybe;
         auto prepared = prepare_statement(_handle, "COMMIT");
         execute_statement(_handle, prepared);
-        _transaction_status = transaction_status_type::none;
+        _transaction_active = false;
       }
 
       //! rollback transaction with or without reporting the rollback (or throw if the transaction has been finished
       // already)
       void rollback_transaction(bool report)
       {
-        if (_transaction_status == transaction_status_type::none)
+        if (!_transaction_active)
         {
           throw sqlpp::exception{"Sqlite3 error: Cannot rollback a finished or failed transaction"};
         }
@@ -506,16 +497,21 @@ namespace sqlpp
         {
           std::cerr << "Sqlite3 warning: Rolling back unfinished transaction" << std::endl;
         }
-        _transaction_status = transaction_status_type::maybe;
         auto prepared = prepare_statement(_handle, "ROLLBACK");
         execute_statement(_handle, prepared);
-        _transaction_status = transaction_status_type::none;
+        _transaction_active = false;
       }
 
       //! report a rollback failure (will be called by transactions in case of a rollback failure in the destructor)
       void report_rollback_failure(const std::string& message) noexcept
       {
         std::cerr << "Sqlite3 message:" << message << std::endl;
+      }
+
+      //! check if transaction is active
+      bool is_transaction_active()
+      {
+        return _transaction_active;
       }
 
       //! get the last inserted id

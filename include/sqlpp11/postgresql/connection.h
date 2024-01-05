@@ -542,9 +542,8 @@ namespace sqlpp
         {
           throw sqlpp::exception{"PostgreSQL error: transaction failed or finished."};
         }
-
-        _transaction_active = false;
         execute("COMMIT");
+        _transaction_active = false;
       }
 
       //! rollback transaction
@@ -554,12 +553,11 @@ namespace sqlpp
         {
           throw sqlpp::exception{"PostgreSQL error: transaction failed or finished."};
         }
-        execute("ROLLBACK");
         if (report)
         {
           std::cerr << "PostgreSQL warning: rolling back unfinished transaction" << std::endl;
         }
-
+        execute("ROLLBACK");
         _transaction_active = false;
       }
 
@@ -567,6 +565,12 @@ namespace sqlpp
       void report_rollback_failure(const std::string& message) noexcept
       {
         std::cerr << "PostgreSQL error: " << message << std::endl;
+      }
+
+      //! check if transaction is active
+      bool is_transaction_active()
+      {
+        return _transaction_active;
       }
 
       //! get the last inserted id for a certain table

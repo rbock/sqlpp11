@@ -180,7 +180,6 @@ namespace sqlpp
         return t._prepare(*this);
       }
 
-
       //! set the transaction isolation level for the current connection
       /// time of effect is connector-specific, for most is will only affect new transactions
       void set_default_isolation_level(sqlpp::isolation_level);
@@ -203,6 +202,9 @@ namespace sqlpp
 
       //! report a rollback failure (will be called by transactions in case of a rollback failure in the destructor)
       void report_rollback_failure(const std::string message) noexcept;
+
+      //! check if transaction is active
+      bool is_transaction_active();
 
     protected:
       // Low-level connection handle
