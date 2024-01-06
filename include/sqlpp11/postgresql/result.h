@@ -250,6 +250,7 @@ namespace sqlpp
                     throw serialization_failure{err, query};
                   if (strcmp(code, "40P01") == 0)
                     throw deadlock_detected{err, query};
+                  break;
                 case '2':
                   if (strcmp(code, "42501") == 0)
                     throw insufficient_privilege{err, query};
