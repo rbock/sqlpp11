@@ -331,7 +331,9 @@ namespace sqlpp
         return run_prepared_remove_impl(r._prepared_statement);
       }
 
-      // Execute
+      //! Execute a single statement (like creating a table).
+      //! Note that technically, this supports executing multiple statements today, but this is likely to change to
+      //! align with other connectors.
       std::shared_ptr<detail::statement_handle_t> execute(const std::string& stmt)
       {
         validate_connection_handle();

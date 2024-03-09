@@ -386,10 +386,15 @@ namespace sqlpp
         return run_prepared_remove_impl(r._prepared_statement);
       }
 
-      //! execute arbitrary command (e.g. create a table)
-      void execute(const std::string& command)
+      //! Execute arbitrary statement (e.g. create a table).
+      //! Essentially this calls mysql_query, see https://dev.mysql.com/doc/c-api/8.0/en/mysql-query.html
+      //! Note:
+      //!  * This usually only allows a single statement (unless configured otherwise for the connection).
+      //!  * If you are passing a statement with results, like a SELECT, you will need to fetch results before issuing
+      //!    the next statement on the same connection.
+      void execute(const std::string& statement)
       {
-        execute_statement(_handle, command);
+        execute_statement(_handle, statement);
       }
 
       //! escape given string (does not quote, though)

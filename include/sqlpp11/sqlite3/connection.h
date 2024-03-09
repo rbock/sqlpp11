@@ -74,14 +74,20 @@ namespace sqlpp
 
         detail::prepared_statement_handle_t result{nullptr, handle->config->debug};
 
-        auto rc = sqlite3_prepare_v2(handle->native_handle(), statement.c_str(), static_cast<int>(statement.size()),
-                                     &result.sqlite_statement, nullptr);
+        const char* uncompiledTail = nullptr;
+        const auto rc = sqlite3_prepare_v2(handle->native_handle(), statement.c_str(),
+                                           static_cast<int>(statement.size()), &result.sqlite_statement, &uncompiledTail);
 
         if (rc != SQLITE_OK)
         {
           throw sqlpp::exception{
               "Sqlite3 error: Could not prepare statement: " + std::string(sqlite3_errmsg(handle->native_handle())) +
-              " (statement was >>" + (rc == SQLITE_TOOBIG ? statement.substr(0, 128) + "..." : statement) + "<<\n"};
+              " ,statement was >>" + (rc == SQLITE_TOOBIG ? statement.substr(0, 128) + "..." : statement) + "<<\n"};
+        }
+
+        if (uncompiledTail != statement.c_str() + statement.size())
+        {
+          throw sqlpp::exception{"Sqlite3 connector: Cannot execute multi-statements: >>" + statement + "<<\n"};
         }
 
         return result;
@@ -352,7 +358,8 @@ namespace sqlpp
         return run_prepared_remove_impl(r._prepared_statement);
       }
 
-      //! execute arbitrary command (e.g. create a table)
+      //! Execute a single arbitrary statement (e.g. create a table)
+      //! Throws an exception if multiple statements are passed (e.g. separated by semicolon).
       size_t execute(const std::string& statement)
       {
         auto prepared = prepare_statement(_handle, statement);
