@@ -68,6 +68,11 @@ namespace sqlpp
         return _handle == rhs._handle;
       }
 
+      size_t size() const
+      {
+        return _handle ? mysql_num_rows(_handle->mysql_res) : size_t{};
+      }
+
       template <typename ResultRow>
       void next(ResultRow& result_row)
       {

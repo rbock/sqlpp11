@@ -107,6 +107,10 @@ int Select(int, char*[])
     db(insert_into(tab).set(tab.gamma = true, tab.beta = "cheesecake"));
     testSelectAll(db, 3);
 
+    // Test size functionality
+    const auto test_size = db(select(all_of(tab)).from(tab).unconditionally());
+    assert(test_size.size() == 3ull);
+
     // test functions and operators
     db(select(all_of(tab)).from(tab).where(tab.alpha.is_null()));
     db(select(all_of(tab)).from(tab).where(tab.alpha.is_not_null()));
