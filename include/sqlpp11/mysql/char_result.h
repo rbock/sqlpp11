@@ -187,6 +187,29 @@ namespace sqlpp
         }
       }
 
+      void _bind_time_of_day_result(size_t index, ::std::chrono::microseconds* value, bool* is_null)
+      {
+        if (_handle->debug)
+          std::cerr << "MySQL debug: parsing time of day result at index: " << index << std::endl;
+
+        *value = {};
+        *is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
+        if (*is_null)
+        {
+          return;
+        }
+
+        const auto time_string = _char_result_row.data[index];
+        if (_handle->debug)
+          std::cerr << "MySQL debug: time of day string: " << time_string << std::endl;
+
+        if (::sqlpp::detail::parse_time_of_day(*value, time_string) == false)
+        {
+          if (_handle->debug)
+            std::cerr << "MySQL debug: invalid time result: " << time_string << std::endl;
+        }
+      }
+
     private:
       bool next_impl()
       {
