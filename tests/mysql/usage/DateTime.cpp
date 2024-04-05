@@ -83,7 +83,7 @@ int DateTime(int, char*[])
                     col_day_point date,
                     col_time_point datetime(3),
                     col_date_time_point datetime DEFAULT CURRENT_TIMESTAMP,
-                    col_time_of_day time
+                    col_time_of_day time(3)
                   ))");
 
     const auto tab = TabDateTime{};
@@ -130,12 +130,14 @@ int DateTime(int, char*[])
         .set(tab.colDayPoint = parameter(tab.colDayPoint), tab.colTimePoint = parameter(tab.colTimePoint))
         .unconditionally();
 
-    auto prepared_update = db.prepare(
-        update(tab)
-            .set(tab.colDayPoint = parameter(tab.colDayPoint), tab.colTimePoint = parameter(tab.colTimePoint))
-            .unconditionally());
+    auto prepared_update = db.prepare(update(tab)
+                                          .set(tab.colDayPoint = parameter(tab.colDayPoint),
+                                               tab.colTimePoint = parameter(tab.colTimePoint),
+                                               tab.colTimeOfDay = parameter(tab.colTimeOfDay))
+                                          .unconditionally());
     prepared_update.params.colDayPoint = today;
     prepared_update.params.colTimePoint = now;
+    prepared_update.params.colTimeOfDay = current;
     std::cout << "---- running prepared update ----" << std::endl;
     db(prepared_update);
     std::cout << "---- finished prepared update ----" << std::endl;
@@ -143,6 +145,7 @@ int DateTime(int, char*[])
     {
       require_equal(__LINE__, row.colDayPoint.value(), today);
       require_equal(__LINE__, row.colTimePoint.value(), now);
+      require_equal(__LINE__, row.colTimeOfDay.value(), current);
     }
   }
   catch (const std::exception& e)

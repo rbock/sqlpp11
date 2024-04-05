@@ -214,6 +214,39 @@ namespace sqlpp
         param.is_unsigned = false;
         param.error = nullptr;
       }
+
+      void _bind_time_of_day_parameter(size_t index, const ::std::chrono::microseconds* value, bool is_null)
+      {
+        if (_handle->debug)
+          std::cerr << "MySQL debug: binding time_of_day parameter "
+                    << " at index: " << index << ", being " << (is_null ? "" : "not ") << "null" << std::endl;
+
+        auto& bound_time = _handle->stmt_date_time_param_buffer[index];
+        if (not is_null)
+        {
+          const auto time = ::date::make_time(*value);
+          bound_time.year = 0u;
+          bound_time.month = 0u;
+          bound_time.day = 0u;
+          bound_time.hour = static_cast<unsigned>(time.hours().count());
+          bound_time.minute = static_cast<unsigned>(time.minutes().count());
+          bound_time.second = static_cast<unsigned>(time.seconds().count());
+          bound_time.second_part = static_cast<unsigned long>(time.subseconds().count());
+          if (_handle->debug)
+            std::cerr << "bound values: " << bound_time.hour << ':' << bound_time.minute << ':' << bound_time.second
+                      << '.' << bound_time.second_part << std::endl;
+        }
+
+        _handle->stmt_param_is_null[index] = is_null;
+        MYSQL_BIND& param{_handle->stmt_params[index]};
+        param.buffer_type = MYSQL_TYPE_TIME;
+        param.buffer = &bound_time;
+        param.buffer_length = sizeof(MYSQL_TIME);
+        param.length = &param.buffer_length;
+        param.is_null = &_handle->stmt_param_is_null[index].value;
+        param.is_unsigned = false;
+        param.error = nullptr;
+      }
     };
   }  // namespace mysql
 }  // namespace sqlpp
