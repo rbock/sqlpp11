@@ -45,6 +45,8 @@ for (const auto& row : ...)
 ```
 Ok, so the variable row is an object that represents a single result row. You really want to use `auto` here, because you don't want to write down the actual type. Trust me. But the wonderful thing about the `row` object is that it has appropriately named and typed members representing the columns you selected. This is one of the utterly cool parts of this library.
 
+Note that a `select` query requires a `where` condition or a call to `.unconditionally()` to express the intent to omit the `where` condition.
+
 # The Select Statement
 ## Select
 The `select` method takes zero or more named expression arguments.
@@ -54,7 +56,7 @@ Named expressions are expressions with a name. No surprise there. But what kind 
 So what about unnamed expressions? Results of binary operators like `(foo.id + 17) * 4` have no name. But you can give them a name using the `as(alias)` method. The easiest way is to use a named expression as alias, for instance `((foo.id + 17) * 4).as(foo.id)`, e.g.
 
 ```C++
-for (const auto& row : db(select(((foo.id + 17) * 4).as(foo.id)).from(tab)))
+for (const auto& row : db(select(((foo.id + 17) * 4).as(foo.id)).from(tab).where(foo.id > 42))
 {
    std::cout << row.id << std::endl;
 }
@@ -144,7 +146,7 @@ The `from` method expects one argument. The following subsections expand on the 
 ### Tables
 This is the most simple case.
 ```C++
-select(all_of(foo)).from(foo);
+select(all_of(foo)).from(foo).where(foo.id == 17);
 ```
 
 ### Aliased Tables
@@ -154,7 +156,7 @@ SQLPP_ALIAS_PROVIDER(left);
 SQLPP_ALIAS_PROVIDER(right);
 auto l = foo.as(left);
 auto r = foo.as(right);
-select(all_of(l)).from(l.join(r).on(l.x == r.y));
+select(all_of(l)).from(l.join(r).on(l.x == r.y)).unconditionally();
 ```
 Aliased tables might also be used to increase the readability of generated SQL code, for instance if you have very long table names.
 
@@ -162,7 +164,7 @@ Aliased tables might also be used to increase the readability of generated SQL c
 A select can be used as a pseudo table in another select. You just have to give it a name.
 ```C++
 SQLPP_ALIAS_PROVIDER(sub);
-auto sub_select = select(all_of(foo)).from(foo).as(sub);
+auto sub_select = select(all_of(foo)).from(foo).where(foo.id == 42).as(sub);
 ```
 The variable `sub_select` can be used as a table now.
 
@@ -175,13 +177,15 @@ If you want to join more tables, you can chain joins.
 ```C++
 foo.join(bar).on(foo.id == bar.foo).left_outer_join(baz).on(bar.id == baz.ref);
 ```
-_Hint_: Omitting the call to `on` will result in mildly horrible error messages...
+_Hint_: Omitting the call to `on` will result in mildly horrible error messages. But if you really want to join without a condition, then you can call `.unconditionally()` to express the intent.
 
 ## Where
 The where condition can be set via the `where` method, which takes a boolean expression argument, for instance:
 ```C++
 select(all_of(foo)).from(foo).where(foo.id != 17 and foo.name.like("%cake"));
 ```
+
+In order to prevent users from accidentally forgetting the `.where()` clause, the library requires a call to `.where()` or `.unconditionally()`. The latter expresses the intent to select all rows unconditionally.
 
 ## Group By
 The method `group_by` takes one or more expression arguments, for instance:
@@ -201,7 +205,7 @@ select(all_of(foo)).from(foo).order_by(foo.name.asc());
 ## Limit And Offset
 The methods `limit` and `offset` take a size_t argument, for instance:
 ```C++
-select(all_of(foo)).from(foo).limit(10u).offset(20u);
+select(all_of(foo)).from(foo).unconditionally().limit(10u).offset(20u);
 ```
 ## For Update
 The `for_update` method modifies the query with a simplified "FOR UPDATE" clause without columns.
@@ -212,12 +216,12 @@ select(all_of(foo)).from(foo).where(foo.id != 17).for_update();
 # Running The Statement
 OK, so now we know how to create a select statement. But the statement does not really do anything unless we hand it over to the database:
 ```C++
-db(select(all_of(foo)).from(foo));
+db(select(all_of(foo)).from(foo).unconditionally());
 ```
 This call returns a result object of a pretty complex type. Thus, you would normally want to use `auto`:
 
 ```C++
-auto result = db(select(all_of(foo)).from(foo));
+auto result = db(select(all_of(foo)).from(foo).unconditionally());
 ```
 
 # Accessing The Results
@@ -226,7 +230,7 @@ The `result` object created by executing a `select` query is a container of resu
 ## Range-based For Loops
 Not surprisingly, you can iterate over the rows using a range-based for-loop like this:
 ```C++
-for (const auto& row : db(select(all_of(foo)).from(foo)))
+for (const auto& row : db(select(all_of(foo)).from(foo)).unconditionally())
 {
    std::cerr << row.id << std::endl;
    std::cerr << row.name << std::endl;
