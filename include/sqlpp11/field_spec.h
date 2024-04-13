@@ -27,6 +27,7 @@
  */
 
 #include <sqlpp11/type_traits.h>
+#include <optional>
 
 namespace sqlpp
 {
@@ -39,6 +40,8 @@ namespace sqlpp
     using _nodes = detail::type_vector<>;
 
     using _alias_t = NameType;
+
+    using cpp_type = std::optional<int64_t>;
   };
 
   template <typename Left, typename Right, typename Enable = void>

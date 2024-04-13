@@ -28,6 +28,7 @@
 
 #include <map>
 #include <utility>
+#include <optional>
 #include <sqlpp11/data_types/text.h>
 #include <sqlpp11/detail/index_sequence.h>
 #include <sqlpp11/dynamic_select_column_list.h>
@@ -43,32 +44,22 @@ namespace sqlpp
     struct result_row_impl;
 
     template <typename Db, std::size_t index, typename FieldSpec>
-    struct result_field : public member_t<FieldSpec, result_field_t<Db, FieldSpec>>
+    struct result_field : public member_t<FieldSpec, typename FieldSpec::cpp_type>
     {
-      using _field = member_t<FieldSpec, result_field_t<Db, FieldSpec>>;
+      using _field = member_t<FieldSpec, typename FieldSpec::cpp_type>;
 
       result_field() = default;
-
-      void _validate()
-      {
-        _field::operator()()._validate();
-      }
-
-      void _invalidate()
-      {
-        _field::operator()()._invalidate();
-      }
 
       template <typename Target>
       void _bind(Target& target)
       {
-        _field::operator()()._bind(target, index);
+        target.bind(_field::operator()(), index);
       }
 
       template <typename Target>
       void _post_bind(Target& target)
       {
-        _field::operator()()._post_bind(target, index);
+        target.post_bind(_field::operator()(), index);
       }
 
       template <typename Callable>
@@ -89,18 +80,6 @@ namespace sqlpp
         : public result_field<Db, Is, FieldSpecs>...
     {
       result_row_impl() = default;
-
-      void _validate()
-      {
-        using swallow = int[];
-        (void)swallow{(result_field<Db, Is, FieldSpecs>::_validate(), 0)...};
-      }
-
-      void _invalidate()
-      {
-        using swallow = int[];
-        (void)swallow{(result_field<Db, Is, FieldSpecs>::_invalidate(), 0)...};
-      }
 
       template <typename Target>
       void _bind(Target& target)
@@ -154,13 +133,11 @@ namespace sqlpp
 
     void _validate()
     {
-      _impl::_validate();
       _is_valid = true;
     }
 
     void _invalidate()
     {
-      _impl::_invalidate();
       _is_valid = false;
     }
 
@@ -261,10 +238,6 @@ namespace sqlpp
     {
       _impl::_invalidate();
       _is_valid = false;
-      for (auto& field : _dynamic_fields)
-      {
-        field.second._invalidate();
-      }
     }
 
     bool operator==(const dynamic_result_row_t& rhs) const

@@ -34,6 +34,7 @@
 
 #include <iostream>
 #include <memory>
+#include <optional>
 
 #ifdef _MSC_VER
 #include <iso646.h>
@@ -116,6 +117,22 @@ namespace sqlpp
             *value = sqlite3_column_double(_handle->sqlite_statement, static_cast<int>(index));
         }
         *is_null = sqlite3_column_type(_handle->sqlite_statement, static_cast<int>(index)) == SQLITE_NULL;
+      }
+
+      void bind(std::optional<int64_t>& value, size_t index) 
+      {
+        if (_handle->debug)
+          std::cerr << "Sqlite3 debug: binding integral result " << *value << " at index: " << index << std::endl;
+
+        bool is_null = sqlite3_column_type(_handle->sqlite_statement, static_cast<int>(index)) == SQLITE_NULL;
+        if (is_null)
+        {
+          value.reset();
+        }
+        else
+        {
+          value = sqlite3_column_int64(_handle->sqlite_statement, static_cast<int>(index));
+        }
       }
 
       void _bind_integral_result(size_t index, int64_t* value, bool* is_null)

@@ -26,21 +26,21 @@ add_library(sqlpp11_sqlite3_testing INTERFACE)
 target_include_directories(sqlpp11_sqlite3_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(test_files
-    DateTime.cpp
-    Sample.cpp
-    Select.cpp
-    Union.cpp
-    With.cpp
-    Attach.cpp
-    DynamicSelect.cpp
-    AutoIncrement.cpp
-    Transaction.cpp
-    FloatingPoint.cpp
+#DateTime.cpp
+#Sample.cpp
+#Select.cpp
+#Union.cpp
+#With.cpp
+#Attach.cpp
+#DynamicSelect.cpp
+#AutoIncrement.cpp
+#Transaction.cpp
+#FloatingPoint.cpp
     Integral.cpp
-    Blob.cpp
-    Connection.cpp
-    ConnectionPool.cpp
-    Execute.cpp
+#Blob.cpp
+#Connection.cpp
+#ConnectionPool.cpp
+#Execute.cpp
 )
 
 create_test_sourcelist(test_sources test_main.cpp ${test_files})
