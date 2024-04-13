@@ -126,7 +126,11 @@ int Interpret(int, char* [])
   // select alias
   serialize(select(t.alpha).from(t).where(t.beta > "kaesekuchen").as(t.gamma), printer).str();
 
+  // Comparison to null
+  static_assert(sqlpp::can_be_null_t<decltype(t.alpha)>::value, "expected alpha can be null");
+  static_assert(not sqlpp::can_be_null_t<decltype(f.delta)>::value, "expected delta cannot be null");
   serialize(t.alpha.is_null(), printer).str();
+  serialize(f.delta.is_null(), printer).str();
 
   // join
   serialize(t.inner_join(t.as(t.alpha)).on(t.beta == t.as(t.alpha).beta), printer).str();
