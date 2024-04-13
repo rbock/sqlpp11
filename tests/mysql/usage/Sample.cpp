@@ -27,6 +27,7 @@
 #include "TabSample.h"
 #include <sqlpp11/mysql/mysql.h>
 #include <sqlpp11/sqlpp11.h>
+#include "../../include/test_helpers.h"
 
 #include <cassert>
 #include <iostream>
@@ -82,9 +83,9 @@ int Sample(int, char*[])
     const auto y = db.prepare(x);
     for (const auto& row : db(db.prepare(select(all_of(tab)).from(tab).unconditionally())))
     {
-      std::cerr << "alpha: " << row.alpha.is_null() << std::endl;
-      std::cerr << "beta: " << row.beta.is_null() << std::endl;
-      std::cerr << "gamma: " << row.gamma.is_null() << std::endl;
+      std::cerr << "alpha: " << row.alpha << std::endl;
+      std::cerr << "beta: " << row.beta << std::endl;
+      std::cerr << "gamma: " << row.gamma << std::endl;
     }
     db(insert_into(tab).set(tab.beta = "kaesekuchen", tab.gamma = true));
     db(insert_into(tab).default_values());
@@ -122,8 +123,8 @@ int Sample(int, char*[])
       auto result = db(select(all_of(tab), select(max(tab.alpha)).from(tab)).from(tab).unconditionally());
       if (const auto& row = *result.begin())
       {
-        long a = row.alpha;
-        long m = row.max;
+        const int64_t a = row.alpha;
+        const sqlpp::optional<long> m = row.max;
         std::cerr << __LINE__ << " row.alpha: " << a << ", row.max: " << m << std::endl;
       }
       tx.commit();

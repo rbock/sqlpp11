@@ -28,6 +28,9 @@
 #include "MockDb.h"
 #include <sqlpp11/sqlpp11.h>
 
+
+#include "../../include/test_helpers.h"
+
 int Result(int, char* [])
 {
   MockDb db = {};
@@ -39,28 +42,24 @@ int Result(int, char* [])
   // Using a non-enforcing db
   for (const auto& row : db(select(all_of(t), t.beta.like("")).from(t).unconditionally()))
   {
-    static_assert(sqlpp::can_be_null_t<decltype(row.alpha)>::value, "row.alpha can be null");
-    static_assert(std::is_same<bool, decltype(row.alpha.is_null())>::value, "Yikes");
-    using T = sqlpp::wrap_operand_t<decltype(row.alpha)>;
-    static_assert(sqlpp::can_be_null_t<T>::value, "row.alpha can be null");
-    static_assert(sqlpp::is_result_field_t<T>::value, "result_fields are not wrapped");
+    static_assert(is_optional<decltype(row.alpha)>::value, "row.alpha can be null");
 
-    for (const auto& sub : db(select(all_of(t)).from(t).where(t.alpha == row.alpha)))
+    for (const auto& sub : db(select(all_of(t)).from(t).where(t.alpha == row.alpha.value())))
     {
       std::cerr << sub.alpha << std::endl;
     }
-    db(insert_into(t).set(t.beta = row.beta, t.gamma = false));
+    db(insert_into(t).set(t.beta = row.beta.value(), t.gamma = false));
   }
 
   sqlpp::select((t.alpha + 1).as(t.alpha)).flags(sqlpp::all).from(t);
   for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
   {
-    static_assert(sqlpp::can_be_null_t<decltype(row.alpha)>::value, "row.alpha can be null");
+    static_assert(is_optional<decltype(row.alpha)>::value, "row.alpha can be null");
   }
 
   for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
   {
-    static_assert(sqlpp::can_be_null_t<decltype(row.alpha)>::value, "row.alpha can be null");
+    static_assert(is_optional<decltype(row.alpha)>::value, "row.alpha can be null");
   }
 
   sqlpp::select((t.alpha + 1).as(t.alpha)).flags(sqlpp::all).from(t);

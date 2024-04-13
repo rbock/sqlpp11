@@ -32,4 +32,3 @@
 #include <sqlpp11/data_types/unsigned_integral/expression_operators.h>
 #include <sqlpp11/data_types/unsigned_integral/column_operators.h>
 #include <sqlpp11/data_types/unsigned_integral/parameter_value.h>
-#include <sqlpp11/data_types/unsigned_integral/result_field.h>

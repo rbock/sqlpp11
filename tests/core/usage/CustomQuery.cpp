@@ -28,6 +28,7 @@
 #include "MockDb.h"
 #include <sqlpp11/sqlpp11.h>
 #include <sqlpp11/custom_query.h>
+#include "../../include/test_helpers.h"
 
 namespace
 {

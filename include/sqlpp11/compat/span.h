@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -26,28 +26,52 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/basic_expression_operators.h>
-#include <sqlpp11/result_field.h>
-#include <sqlpp11/result_field_base.h>
-#include <sqlpp11/data_types/boolean/data_type.h>
-#include <sqlpp11/field_spec.h>
+#ifdef _MSVC_LANG
+#define CXX_STD_VER _MSVC_LANG
+#else
+#define CXX_STD_VER __cplusplus
+#endif
+
+#if CXX_STD_VER >= 202002L
+#include <span>
+namespace sqlpp
+{
+  template<typename T>
+  using span = std::span<T>;
+}  // namespace sqlpp
+
+#else // incomplete backport of std::span
 
 namespace sqlpp
 {
-  template <typename Db, typename NameType, bool CanBeNull>
-  struct result_field_t<Db, field_spec_t<NameType, boolean, CanBeNull>>
-      : public result_field_base<Db, field_spec_t<NameType, boolean, CanBeNull>, signed char>
+  template <typename T>
+  class span
   {
-    template <typename Target>
-    void _bind(Target& target, size_t index)
+    const T* _data = nullptr;
+    size_t _size = 0u;
+  public:
+    constexpr span() = default;
+    constexpr span(const T* data, size_t size) : _data(data), _size(size)
     {
-      target._bind_boolean_result(index, &this->_value, &this->_is_null);
     }
 
-    template <typename Target>
-    void _post_bind(Target& target, size_t index)
+    const char* data() const
     {
-      target._post_bind_boolean_result(index, &this->_value, &this->_is_null);
+      return _data;
     }
+
+    size_t size() const
+    {
+      return _size;
+    }
+
+    const T& operator[](size_t i) const
+    {
+      return *(_data + i);
+    }
+
   };
+
 }  // namespace sqlpp
+
+#endif

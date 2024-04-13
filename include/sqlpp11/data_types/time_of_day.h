@@ -32,4 +32,3 @@
 #include <sqlpp11/data_types/time_of_day/expression_operators.h>
 #include <sqlpp11/data_types/time_of_day/column_operators.h>
 #include <sqlpp11/data_types/time_of_day/parameter_value.h>
-#include <sqlpp11/data_types/time_of_day/result_field.h>

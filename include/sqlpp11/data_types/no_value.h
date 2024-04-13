@@ -32,4 +32,3 @@
 #include <sqlpp11/data_types/no_value/expression_operators.h>
 #include <sqlpp11/data_types/no_value/column_operators.h>
 #include <sqlpp11/data_types/no_value/parameter_value.h>
-#include <sqlpp11/data_types/no_value/result_field.h>

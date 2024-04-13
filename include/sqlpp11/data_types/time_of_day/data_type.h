@@ -35,6 +35,7 @@ namespace sqlpp
   {
     using _traits = make_traits<time_of_day, tag::is_value_type>;
     using _cpp_value_type = std::chrono::microseconds;
+    using _result_type = std::chrono::microseconds;
 
     template <typename T>
     using _is_valid_operand = is_time_of_day_t<T>;

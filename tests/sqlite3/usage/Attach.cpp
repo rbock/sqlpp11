@@ -50,7 +50,7 @@ int Attach(int, char*[])
   db.execute(R"(CREATE TABLE tab_sample (
 		alpha INTEGER PRIMARY KEY,
 			beta varchar(255) DEFAULT NULL,
-			gamma bool DEFAULT NULL
+			gamma bool
 			))");
 
   // Attaching another in-memory database and creating the same table in it
@@ -58,7 +58,7 @@ int Attach(int, char*[])
   db.execute(R"(CREATE TABLE other.tab_sample (
 		alpha INTEGER PRIMARY KEY,
 			beta varchar(255) DEFAULT NULL,
-			gamma bool DEFAULT NULL
+			gamma bool
 			))");
 
   auto left = TabSample{};

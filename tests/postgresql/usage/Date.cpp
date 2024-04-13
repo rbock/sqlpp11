@@ -93,10 +93,8 @@ int Date(int, char*[])
       db(insert_into(tab).default_values());
       for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
       {
-        require_equal(__LINE__, row.colDayPoint.is_null(), true);
-        require_equal(__LINE__, row.colDayPoint.value(), ::sqlpp::chrono::day_point{});
-        require_equal(__LINE__, row.colTimePoint.is_null(), true);
-        require_equal(__LINE__, row.colTimePoint.value(), ::sqlpp::chrono::microsecond_point{});
+        require_equal(__LINE__, row.colDayPoint.has_value(), false);
+        require_equal(__LINE__, row.colTimePoint.has_value(), false);
       }
 
       db(update(tab).set(tab.colDayPoint = today, tab.colTimePoint = now).unconditionally());

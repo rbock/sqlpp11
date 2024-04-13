@@ -34,6 +34,7 @@ namespace sqlpp
   {
     using _traits = make_traits<boolean, tag::is_value_type>;
     using _cpp_value_type = bool;
+    using _result_type = bool;
 
     template <typename T>
     using _is_valid_operand = is_boolean_t<T>;

@@ -28,6 +28,7 @@
 
 #include <map>
 #include <utility>
+#include <sqlpp11/compat/string_view.h>
 #include <sqlpp11/data_types/text.h>
 #include <sqlpp11/detail/index_sequence.h>
 #include <sqlpp11/dynamic_select_column_list.h>
@@ -43,32 +44,22 @@ namespace sqlpp
     struct result_row_impl;
 
     template <typename Db, std::size_t index, typename FieldSpec>
-    struct result_field : public member_t<FieldSpec, result_field_t<Db, FieldSpec>>
+    struct result_field : public member_t<FieldSpec, typename FieldSpec::cpp_type>
     {
-      using _field = member_t<FieldSpec, result_field_t<Db, FieldSpec>>;
+      using _field = member_t<FieldSpec, typename FieldSpec::cpp_type>;
 
       result_field() = default;
 
-      void _validate()
+      template <typename Target>
+      void _bind_field(Target& target)
       {
-        _field::operator()()._validate();
-      }
-
-      void _invalidate()
-      {
-        _field::operator()()._invalidate();
+        target.bind_field(index, _field::operator()());
       }
 
       template <typename Target>
-      void _bind(Target& target)
+      void _read_field(Target& target)
       {
-        _field::operator()()._bind(target, index);
-      }
-
-      template <typename Target>
-      void _post_bind(Target& target)
-      {
-        _field::operator()()._post_bind(target, index);
+        target.read_field(index, _field::operator()());
       }
 
       template <typename Callable>
@@ -90,30 +81,18 @@ namespace sqlpp
     {
       result_row_impl() = default;
 
-      void _validate()
+      template <typename Target>
+      void _bind_fields(Target& target)
       {
         using swallow = int[];
-        (void)swallow{(result_field<Db, Is, FieldSpecs>::_validate(), 0)...};
-      }
-
-      void _invalidate()
-      {
-        using swallow = int[];
-        (void)swallow{(result_field<Db, Is, FieldSpecs>::_invalidate(), 0)...};
+        (void)swallow{(result_field<Db, Is, FieldSpecs>::_bind_field(target), 0)...};
       }
 
       template <typename Target>
-      void _bind(Target& target)
+      void _read_fields(Target& target)
       {
         using swallow = int[];
-        (void)swallow{(result_field<Db, Is, FieldSpecs>::_bind(target), 0)...};
-      }
-
-      template <typename Target>
-      void _post_bind(Target& target)
-      {
-        using swallow = int[];
-        (void)swallow{(result_field<Db, Is, FieldSpecs>::_post_bind(target), 0)...};
+        (void)swallow{(result_field<Db, Is, FieldSpecs>::_read_field(target), 0)...};
       }
 
       template <typename Callable>
@@ -154,13 +133,11 @@ namespace sqlpp
 
     void _validate()
     {
-      _impl::_validate();
       _is_valid = true;
     }
 
     void _invalidate()
     {
-      _impl::_invalidate();
       _is_valid = false;
     }
 
@@ -180,15 +157,15 @@ namespace sqlpp
     }
 
     template <typename Target>
-    void _bind(Target& target)
+    void _bind_fields(Target& target)
     {
-      _impl::_bind(target);
+      _impl::_bind_fields(target);
     }
 
     template <typename Target>
-    void _post_bind(Target& target)
+    void _read_fields(Target& target)
     {
-      _impl::_post_bind(target);
+      _impl::_read_fields(target);
     }
 
     template <typename Callable>
@@ -223,7 +200,7 @@ namespace sqlpp
       : public detail::result_row_impl<Db, detail::make_index_sequence<sizeof...(FieldSpecs)>, FieldSpecs...>
   {
     using _impl = detail::result_row_impl<Db, detail::make_index_sequence<sizeof...(FieldSpecs)>, FieldSpecs...>;
-    using _field_type = result_field_t<Db, field_spec_t<no_name_t, text, true>>;
+    using _field_type = sqlpp::string_view;
 
     bool _is_valid{false};
     std::vector<std::string> _dynamic_field_names;
@@ -249,22 +226,12 @@ namespace sqlpp
 
     void _validate()
     {
-      _impl::_validate();
       _is_valid = true;
-      for (auto& field : _dynamic_fields)
-      {
-        field.second._validate();
-      }
     }
 
     void _invalidate()
     {
-      _impl::_invalidate();
       _is_valid = false;
-      for (auto& field : _dynamic_fields)
-      {
-        field.second._invalidate();
-      }
     }
 
     bool operator==(const dynamic_result_row_t& rhs) const
@@ -290,7 +257,7 @@ namespace sqlpp
       std::size_t index = sizeof...(FieldSpecs);
       for (const auto& field_name : _dynamic_field_names)
       {
-        _dynamic_fields.at(field_name)._bind(target, index);
+        target.read_field(index, _dynamic_fields.at(field_name));
         ++index;
       }
     }
@@ -303,7 +270,7 @@ namespace sqlpp
       std::size_t index = sizeof...(FieldSpecs);
       for (const auto& field_name : _dynamic_field_names)
       {
-        _dynamic_fields.at(field_name)._post_bind(target, index);
+        target.post_read(index, _dynamic_fields.at(field_name));
         ++index;
       }
     }
@@ -313,11 +280,9 @@ namespace sqlpp
     {
       _impl::_apply(callable);
 
-      std::size_t index = sizeof...(FieldSpecs);
       for (const auto& field_name : _dynamic_field_names)
       {
-        _dynamic_fields.at(field_name)._apply(callable);
-        ++index;
+        callable(_dynamic_fields.at(field_name));
       }
     }
 
@@ -326,11 +291,9 @@ namespace sqlpp
     {
       _impl::_apply(callable);
 
-      std::size_t index = sizeof...(FieldSpecs);
       for (const auto& field_name : _dynamic_field_names)
       {
-        _dynamic_fields.at(field_name)._apply(callable);
-        ++index;
+        callable(_dynamic_fields.at(field_name));
       }
     }
   };

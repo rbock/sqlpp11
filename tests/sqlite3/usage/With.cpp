@@ -39,6 +39,13 @@
 namespace sql = sqlpp::sqlite3;
 const auto tab = TabSample{};
 
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const sqlpp::optional<T>& t) {
+  if (not t)
+    return os << "NULL";
+  return os << t.value();
+}
+
 int With(int, char*[])
 {
 #if SQLITE_VERSION_NUMBER >= 3008003
@@ -51,7 +58,7 @@ int With(int, char*[])
   db.execute(R"(CREATE TABLE tab_sample (
 		alpha INTEGER PRIMARY KEY,
 			beta varchar(255) DEFAULT NULL,
-			gamma bool DEFAULT NULL
+			gamma bool
 			))");
 
   auto a = sqlpp::cte(sqlpp::alias::a).as(select(all_of(tab)).from(tab).where(tab.alpha > 3));

@@ -28,6 +28,8 @@
 #include "MockDb.h"
 #include <sqlpp11/sqlpp11.h>
 
+#include "../../include/test_helpers.h"
+
 SQLPP_ALIAS_PROVIDER(now)
 
 #if _MSC_FULL_VER >= 190023918

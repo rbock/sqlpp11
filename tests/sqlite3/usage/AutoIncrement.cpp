@@ -60,7 +60,8 @@ int AutoIncrement(int, char*[])
   std::set<int64_t> results;
   for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
   {
-    results.insert(row.alpha);
+    if (row.alpha)
+      results.insert(row.alpha.value());
   };
   const auto expected = std::set<int64_t>{1, 2, 3};
   assert(results == expected);

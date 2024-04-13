@@ -33,6 +33,7 @@
 #include "TabBar.h"
 #include "TabFoo.h"
 #include "make_test_connection.h"
+#include "../../include/test_helpers.h"
 
 namespace sql = sqlpp::postgresql;
 

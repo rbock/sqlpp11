@@ -32,6 +32,7 @@
 
 #include "TabFoo.h"
 #include "make_test_connection.h"
+#include "../../include/test_helpers.h"
 
 namespace sql = sqlpp::postgresql;
 model::TabFoo tab = {};
@@ -69,7 +70,7 @@ int Select(int, char*[])
   db.execute(R"(DROP TABLE IF EXISTS tabfoo;)");
   db.execute(R"(CREATE TABLE tabfoo
              (
-               alpha bigserial NOT NULL,
+               alpha bigserial,
                beta smallint,
                gamma text,
                c_bool boolean,
@@ -112,8 +113,8 @@ int Select(int, char*[])
   db(insert_into(tab).set(tab.c_bool = false, tab.gamma = "asdfg"));
 
   assert(db(select(tab.c_bool).from(tab).where(tab.gamma == "asdf")).front().c_bool);
-  assert(not db(select(tab.c_bool).from(tab).where(tab.gamma == "asdfg")).front().c_bool);
-  assert(not db(select(tab.c_bool).from(tab).where(tab.alpha == 1)).front().c_bool);
+  assert(not db(select(tab.c_bool).from(tab).where(tab.gamma == "asdfg")).front().c_bool.value());
+  assert(not db(select(tab.c_bool).from(tab).where(tab.alpha == 1)).front().c_bool.has_value());
 
   // test
 

@@ -41,6 +41,13 @@
 #include <iostream>
 #include <vector>
 
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const sqlpp::optional<T>& t) {
+  if (not t)
+    return os << "NULL";
+  return os << t.value();
+}
+
 SQLPP_ALIAS_PROVIDER(left)
 
 namespace sql = sqlpp::sqlite3;
@@ -55,7 +62,7 @@ int DynamicSelect(int, char*[])
   db.execute("CREATE TABLE tab_sample (\
 		alpha bigint(20) DEFAULT NULL,\
 			beta varchar(255) DEFAULT NULL,\
-			gamma bool DEFAULT NULL\
+			gamma bool\
 			)");
 
   const auto tab = TabSample{};

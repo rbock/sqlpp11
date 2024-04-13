@@ -28,6 +28,10 @@
 
 #include <sqlpp11/type_traits.h>
 
+#include <type_traits>
+
+#include <sqlpp11/compat/optional.h>
+
 namespace sqlpp
 {
   template <typename NameType, typename ValueType, bool CanBeNull>
@@ -39,6 +43,10 @@ namespace sqlpp
     using _nodes = detail::type_vector<>;
 
     using _alias_t = NameType;
+
+    using cpp_type = typename std::conditional<CanBeNull,
+                                               sqlpp::optional<typename ValueType::_result_type>,
+                                               typename ValueType::_result_type>::type;
   };
 
   template <typename Left, typename Right, typename Enable = void>

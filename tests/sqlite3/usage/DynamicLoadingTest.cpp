@@ -57,7 +57,7 @@ int main()
   db.execute("CREATE TABLE tab_sample (\
         alpha bigint(20) DEFAULT NULL,\
             beta varchar(255) DEFAULT NULL,\
-            gamma bool DEFAULT NULL\
+            gamma bool\
             )");
 
   const auto tab = TabSample{};

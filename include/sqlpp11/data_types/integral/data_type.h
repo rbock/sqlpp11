@@ -34,6 +34,7 @@ namespace sqlpp
   {
     using _traits = make_traits<integral, tag::is_value_type>;
     using _cpp_value_type = int64_t;
+    using _result_type = int64_t;
 
     template <typename T>
     using _is_valid_operand = is_numeric_t<T>;

@@ -27,21 +27,14 @@
  */
 
 #include <utility>
-#if __cplusplus >= 201703L
-#include <string_view>
-#endif
+#include <sqlpp11/compat/string_view.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/wrap_operand.h>
 
 namespace sqlpp
 {
   struct text_operand;
-
-#if __cplusplus >= 201703L
-  using checked_type = std::string_view;
-#else
-  using checked_type = std::string;
-#endif
+  using checked_type = sqlpp::string_view;
 
   template <typename T>
   struct wrap_operand<

@@ -34,6 +34,7 @@
 #include <sqlpp11/select.h>
 #include <sqlpp11/transaction.h>
 #include <sqlpp11/update.h>
+#include "../../include/test_helpers.h"
 
 #include <iostream>
 #include <vector>
@@ -91,7 +92,7 @@ int Select(int, char*[])
     db.execute(R"(CREATE TABLE tab_sample (
 		alpha bigint(20) AUTO_INCREMENT,
 			beta varchar(255) DEFAULT NULL,
-			gamma bool DEFAULT NULL,
+			gamma bool NOT NULL DEFAULT 0,
 			PRIMARY KEY (alpha)
 			))");
     db.execute(R"(DROP TABLE IF EXISTS tab_foo)");
@@ -153,8 +154,8 @@ int Select(int, char*[])
       auto result = db(select(all_of(tab), select(max(tab.alpha)).from(tab)).from(tab).unconditionally());
       if (const auto& row = *result.begin())
       {
-        long a = row.alpha;
-        long m = row.max;
+        sqlpp::optional<long> a = row.alpha;
+        sqlpp::optional<long> m = row.max;
         std::cerr << "-----------------------------" << a << ", " << m << std::endl;
       }
       tx.commit();

@@ -34,6 +34,7 @@
 #include <sqlpp11/select.h>
 #include <sqlpp11/transaction.h>
 #include <sqlpp11/update.h>
+#include "../../include/test_helpers.h"
 
 #include <iostream>
 #include <vector>
@@ -51,14 +52,13 @@ int Truncated(int, char*[])
     auto db = sql::make_test_connection();
     db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
     db.execute(R"(CREATE TABLE tab_sample (
-		alpha bigint(20) AUTO_INCREMENT,
+		alpha bigint(20) AUTO_INCREMENT NOT NULL PRIMARY KEY,
 			beta varchar(255) DEFAULT NULL,
-			gamma bool DEFAULT NULL,
-			PRIMARY KEY (alpha)
+			gamma bool NOT NULL DEFAULT 0
 			))");
     db.execute(R"(DROP TABLE IF EXISTS tab_foo)");
     db.execute(R"(CREATE TABLE tab_foo (
-		omega bigint(20) DEFAULT NULL
+		omega bigint(20) NOT NULL
 			))");
 
     db(insert_into(tab).set(tab.gamma = true, tab.beta = "cheese"));

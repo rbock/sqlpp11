@@ -31,6 +31,9 @@
 #include <sqlpp11/exception.h>
 #include <sqlpp11/sqlite3/detail/prepared_statement_handle.h>
 #include <sqlpp11/sqlite3/export.h>
+#include <sqlpp11/compat/optional.h>
+#include <sqlpp11/compat/string_view.h>
+#include <sqlpp11/compat/span.h>
 
 #include <iostream>
 #include <memory>
@@ -83,7 +86,7 @@ namespace sqlpp
           {
             result_row._validate();
           }
-          result_row._bind(*this);
+          result_row._read_fields(*this);
         }
         else
         {
@@ -92,115 +95,116 @@ namespace sqlpp
         }
       }
 
-      void _bind_boolean_result(size_t index, signed char* value, bool* is_null)
+      void read_field(size_t index, bool& value)
       {
         if (_handle->debug)
-          std::cerr << "Sqlite3 debug: binding boolean result " << *value << " at index: " << index << std::endl;
+          std::cerr << "Sqlite3 debug: binding boolean result at index: " << index << std::endl;
 
-        *value = static_cast<signed char>(sqlite3_column_int(_handle->sqlite_statement, static_cast<int>(index)));
-        *is_null = sqlite3_column_type(_handle->sqlite_statement, static_cast<int>(index)) == SQLITE_NULL;
+        value = static_cast<signed char>(sqlite3_column_int(_handle->sqlite_statement, static_cast<int>(index)));
       }
 
-      void _bind_floating_point_result(size_t index, double* value, bool* is_null)
+      void read_field(size_t index, double& value)
       {
         if (_handle->debug)
-          std::cerr << "Sqlite3 debug: binding floating_point result " << *value << " at index: " << index << std::endl;
+          std::cerr << "Sqlite3 debug: binding floating_point result at index: " << index << std::endl;
 
         switch (sqlite3_column_type(_handle->sqlite_statement, static_cast<int>(index)))
         {
           case (SQLITE3_TEXT):
-            *value = atof(
+            value = atof(
                 reinterpret_cast<const char*>(sqlite3_column_text(_handle->sqlite_statement, static_cast<int>(index))));
             break;
           default:
-            *value = sqlite3_column_double(_handle->sqlite_statement, static_cast<int>(index));
+            value = sqlite3_column_double(_handle->sqlite_statement, static_cast<int>(index));
         }
-        *is_null = sqlite3_column_type(_handle->sqlite_statement, static_cast<int>(index)) == SQLITE_NULL;
       }
 
-      void _bind_integral_result(size_t index, int64_t* value, bool* is_null)
+      void read_field(size_t index, int64_t& value)
       {
         if (_handle->debug)
-          std::cerr << "Sqlite3 debug: binding integral result " << *value << " at index: " << index << std::endl;
+          std::cerr << "Sqlite3 debug: reading integral result at index: " << index << std::endl;
 
-        *value = sqlite3_column_int64(_handle->sqlite_statement, static_cast<int>(index));
-        *is_null = sqlite3_column_type(_handle->sqlite_statement, static_cast<int>(index)) == SQLITE_NULL;
+        value = sqlite3_column_int64(_handle->sqlite_statement, static_cast<int>(index));
       }
 
-      void _bind_unsigned_integral_result(size_t index, uint64_t* value, bool* is_null)
+      void read_field(size_t index, uint64_t& value)
       {
         if (_handle->debug)
-          std::cerr << "Sqlite3 debug: binding unsigned integral result " << *value << " at index: " << index
-                    << std::endl;
+          std::cerr << "Sqlite3 debug: binding unsigned integral result at index: " << index << std::endl;
 
-        *value = static_cast<uint64_t>(sqlite3_column_int64(_handle->sqlite_statement, static_cast<int>(index)));
-        *is_null = sqlite3_column_type(_handle->sqlite_statement, static_cast<int>(index)) == SQLITE_NULL;
+        value = static_cast<uint64_t>(sqlite3_column_int64(_handle->sqlite_statement, static_cast<int>(index)));
       }
 
-      void _bind_text_result(size_t index, const char** value, size_t* len)
+      void read_field(size_t index, sqlpp::string_view& value)
       {
         if (_handle->debug)
           std::cerr << "Sqlite3 debug: binding text result at index: " << index << std::endl;
 
-        *value =
-            (reinterpret_cast<const char*>(sqlite3_column_text(_handle->sqlite_statement, static_cast<int>(index))));
-        *len = static_cast<size_t>(sqlite3_column_bytes(_handle->sqlite_statement, static_cast<int>(index)));
+        value = sqlpp::string_view(
+            reinterpret_cast<const char*>(sqlite3_column_text(_handle->sqlite_statement, static_cast<int>(index))),
+            static_cast<size_t>(sqlite3_column_bytes(_handle->sqlite_statement, static_cast<int>(index))));
       }
 
-      void _bind_blob_result(size_t index, const uint8_t** value, size_t* len)
+      void read_field(size_t index, sqlpp::span<uint8_t>& value)
       {
         if (_handle->debug)
-          std::cerr << "Sqlite3 debug: binding text result at index: " << index << std::endl;
+          std::cerr << "Sqlite3 debug: binding blob result at index: " << index << std::endl;
 
-        *value =
-            (reinterpret_cast<const uint8_t*>(sqlite3_column_blob(_handle->sqlite_statement, static_cast<int>(index))));
-        *len = static_cast<size_t>(sqlite3_column_bytes(_handle->sqlite_statement, static_cast<int>(index)));
+        value = sqlpp::span<uint8_t>(
+            reinterpret_cast<const uint8_t*>(sqlite3_column_blob(_handle->sqlite_statement, static_cast<int>(index))),
+            static_cast<size_t>(sqlite3_column_bytes(_handle->sqlite_statement, static_cast<int>(index))));
       }
 
-      void _bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null)
+      void read_field(size_t index, ::sqlpp::chrono::day_point& value)
       {
         if (_handle->debug)
           std::cerr << "Sqlite3 debug: binding date result at index: " << index << std::endl;
-
-        *value = {};
-        *is_null = sqlite3_column_type(_handle->sqlite_statement, static_cast<int>(index)) == SQLITE_NULL;
-        if (*is_null)
-        {
-          return;
-        }
 
         const auto date_string =
             reinterpret_cast<const char*>(sqlite3_column_text(_handle->sqlite_statement, static_cast<int>(index)));
         if (_handle->debug)
           std::cerr << "Sqlite3 debug: date string: " << date_string << std::endl;
-        if (::sqlpp::detail::parse_date(*value, date_string) == false)
+        if (::sqlpp::detail::parse_date(value, date_string) == false)
         {
+          value = {};
           if (_handle->debug)
             std::cerr << "Sqlite3 debug: invalid date result: " << date_string << std::endl;
         }
       }
 
-      void _bind_date_time_result(size_t index, ::sqlpp::chrono::microsecond_point* value, bool* is_null)
+      void read_field(size_t index, ::sqlpp::chrono::microsecond_point& value)
       {
         if (_handle->debug)
           std::cerr << "Sqlite3 debug: binding date result at index: " << index << std::endl;
-
-        *value = {};
-        *is_null = sqlite3_column_type(_handle->sqlite_statement, static_cast<int>(index)) == SQLITE_NULL;
-        if (*is_null)
-        {
-          return;
-        }
 
         const auto date_time_string =
             reinterpret_cast<const char*>(sqlite3_column_text(_handle->sqlite_statement, static_cast<int>(index)));
         if (_handle->debug)
           std::cerr << "Sqlite3 debug: date_time string: " << date_time_string << std::endl;
         // We treat DATETIME fields as containing either date+time or just date.
-        if (::sqlpp::detail::parse_date_or_timestamp(*value, date_time_string) == false)
+        if (::sqlpp::detail::parse_date_or_timestamp(value, date_time_string) == false)
         {
+        value = {};
           if (_handle->debug)
             std::cerr << "Sqlite3 debug: invalid date_time result: " << date_time_string << std::endl;
+        }
+      }
+
+      template <typename T>
+      auto read_field(size_t index, sqlpp::optional<T>& value) -> void
+      {
+        const bool is_null = sqlite3_column_type(_handle->sqlite_statement, static_cast<int>(index)) == SQLITE_NULL;
+        if (is_null)
+        {
+          value.reset();
+        }
+        else
+        {
+          if (not value)
+          {
+            value = T{};
+          }
+          read_field(index, *value);
         }
       }
 

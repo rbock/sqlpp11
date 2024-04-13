@@ -32,6 +32,7 @@
 #include <sqlpp11/functions.h>
 #include <sqlpp11/select.h>
 #include <sqlpp11/without_table_check.h>
+#include "../../include/test_helpers.h"
 
 namespace alias
 {
@@ -345,7 +346,7 @@ int SelectType(int, char*[])
 
   for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
   {
-    int64_t a = row.alpha;
+    const auto a = row.alpha;
     std::cout << a << std::endl;
   }
 

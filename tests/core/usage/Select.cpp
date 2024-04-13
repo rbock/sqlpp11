@@ -33,13 +33,14 @@
 #include <sqlpp11/functions.h>
 #include <sqlpp11/select.h>
 #include <sqlpp11/without_table_check.h>
+#include "../../include/test_helpers.h"
 
 template <typename Db, typename Column>
 int64_t getColumn(Db&& db, const Column& column)
 {
   auto result = db(select(column.as(sqlpp::alias::a)).from(column.table()).unconditionally());
-  if (not result.empty())
-    return result.front().a;
+  if (not result.empty() and result.front().a.has_value())
+    return result.front().a.value();
   else
     return 0;
 }
@@ -49,15 +50,15 @@ struct to_cerr
   template <typename Field>
   auto operator()(const Field& field) const -> void
   {
-    std::cerr << get_sql_name(field) << " = " << field << std::endl;
+    std::cerr << field << std::endl;
   }
 };
 
 template <typename Row>
 void print_row(Row const& row)
 {
-  int64_t a = row.alpha;
-  const std::string b = row.beta;
+  const sqlpp::optional<int64_t> a = row.alpha;
+  const sqlpp::optional<sqlpp::string_view> b = row.beta;
   std::cout << a << ", " << b << std::endl;
 }
 
@@ -90,16 +91,16 @@ int Select(int, char*[])
 
   for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
   {
-    int64_t a = row.alpha;
-    const std::string b = row.beta;
+    const sqlpp::optional<int64_t> a = row.alpha;
+    const sqlpp::optional<sqlpp::string_view> b = row.beta;
     std::cout << a << ", " << b << std::endl;
   }
 
   for (const auto& row :
        db(select(all_of(t), t.gamma.as(t)).from(t).where(t.alpha > 7 and trim(t.beta) == "test").for_update()))
   {
-    int64_t a = row.alpha;
-    const std::string b = row.beta;
+    const sqlpp::optional<int64_t> a = row.alpha;
+    const sqlpp::optional<sqlpp::string_view> b = row.beta;
     const bool g = row.tabBar;
     std::cout << a << ", " << b << ", " << g << std::endl;
   }
@@ -177,7 +178,7 @@ int Select(int, char*[])
   s.order_by.add(t.delta.order(sqlpp::sort_type::desc));
   for (const auto& row : db(db.prepare(s)))
   {
-    int64_t a = row.alpha;
+    const sqlpp::optional<int64_t> a = row.alpha;
     std::cout << a << std::endl;
   }
 
@@ -187,7 +188,7 @@ int Select(int, char*[])
   select(sqlpp::value(7).as(t.alpha));
 
   for (const auto& row :
-       db(select(sqlpp::case_when(true).then(sqlpp::null).else_(sqlpp::null).as(t.beta)).from(t).unconditionally()))
+       db(select(sqlpp::case_when(true).then(t.beta).else_(sqlpp::null).as(t.beta)).from(t).unconditionally()))
   {
     std::cerr << row.beta << std::endl;
   }

@@ -41,35 +41,30 @@ const auto blob = model::BlobSample{};
 constexpr size_t blob_size = 1000 * 1000ul;
 constexpr size_t blob_small_size = 999;
 
-void verify_blob(sql::connection& db, const std::vector<uint8_t>& data, uint64_t id)
+void verify_blob(sql::connection& db, const std::vector<uint8_t>& expected, uint64_t id)
 {
   auto result = db(select(blob.data).from(blob).where(blob.id == id));
   const auto& result_row = result.front();
-  std::cerr << "id: " << id << std::endl;
-  std::cerr << "Insert size: " << data.size() << std::endl;
-  std::cerr << "Select size: " << result_row.data.len << std::endl;
-  if (data.size() != result_row.data.len)
+  if (!result_row.data)
+    throw  std::runtime_error("blob data is unpexpectedly NULL for id " + std::to_string(id));
+  const auto received = *result_row.data;
+
+  if (expected.size() != received.size())
   {
     std::cerr << "Size mismatch" << std::endl;
 
-    throw std::runtime_error("Size mismatch " + std::to_string(data.size()) +
-                             " != " + std::to_string(result_row.data.len));
+    throw std::runtime_error("Size mismatch " + std::to_string(expected.size()) +
+                             " != " + std::to_string(received.size()));
   }
   std::cerr << "Verifying content" << std::endl;
-  const auto result_blob = result_row.data.value();
-  if (data != result_blob)
+  for (size_t i = 0; i < expected.size(); i++)
   {
-    std::cout << "Content mismatch ([row] original -> received)" << std::endl;
-
-    for (size_t i = 0; i < data.size(); i++)
+    if (expected[i] != received[i])
     {
-      if (data[i] != result_row.data.value()[i])
-      {
-        std::cerr << "[" << i << "] " << static_cast<int>(data.at(i)) << " -> " << static_cast<int>(result_blob.at(i))
-                  << std::endl;
-      }
+      std::cerr << "expected[" << i << "] " << static_cast<int>(expected[i]) << " != received " << static_cast<int>(received[i])
+                << std::endl;
+      throw std::runtime_error("Content mismatch");
     }
-    throw std::runtime_error("Content mismatch");
   }
 }
 
@@ -108,12 +103,10 @@ int Blob(int, char*[])
   {
     auto result = db(select(blob.data).from(blob).where(blob.id == null_id));
     const auto& result_row = result.front();
-    std::cerr << "Null blob is_null:\t" << std::boolalpha << result_row.data.is_null() << std::endl;
-    std::cerr << "Null blob len == 0:\t" << std::boolalpha << (result_row.data.len == 0) << std::endl;
-    std::cerr << "Null blob blob == nullptr:\t" << std::boolalpha << (result_row.data.is_null()) << std::endl;
-    if (!result_row.data.is_null() || result_row.data.len != 0)
+    std::cerr << "Null blob is_null:\t" << std::boolalpha << (result_row.data == sqlpp::nullopt) << std::endl;
+    if (result_row.data.has_value())
     {
-      throw std::runtime_error("Null blob has incorrect values");
+      throw std::runtime_error("Expected NULL blob has value");
     }
   }
 

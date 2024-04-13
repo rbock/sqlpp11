@@ -28,6 +28,7 @@
 #include <sqlpp11/select.h>
 #include <sqlpp11/alias_provider.h>
 #include <iostream>
+#include "../../include/test_helpers.h"
 
 int With(int, char*[])
 {

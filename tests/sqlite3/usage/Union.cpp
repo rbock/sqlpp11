@@ -37,6 +37,13 @@
 namespace sql = sqlpp::sqlite3;
 const auto tab = TabSample{};
 
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const sqlpp::optional<T>& t) {
+  if (not t)
+    return os << "NULL";
+  return os << t.value();
+}
+
 int Union(int, char*[])
 {
   sql::connection_config config;
@@ -48,7 +55,7 @@ int Union(int, char*[])
   db.execute(R"(CREATE TABLE tab_sample (
 		alpha INTEGER PRIMARY KEY,
 			beta varchar(255) DEFAULT NULL,
-			gamma bool DEFAULT NULL
+			gamma bool
 			))");
 
   auto u = select(all_of(tab)).from(tab).unconditionally().union_all(select(all_of(tab)).from(tab).unconditionally());
