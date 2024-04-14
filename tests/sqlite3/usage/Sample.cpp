@@ -40,6 +40,13 @@
 SQLPP_ALIAS_PROVIDER(pragma)
 SQLPP_ALIAS_PROVIDER(sub)
 
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const std::optional<T>& t) {
+  if (not t)
+    return os << "NULL";
+  return os << t.value();
+}
+
 namespace sql = sqlpp::sqlite3;
 int Sample(int, char*[])
 {
@@ -52,7 +59,7 @@ int Sample(int, char*[])
   db.execute(R"(CREATE TABLE tab_sample (
 		alpha INTEGER PRIMARY KEY,
 			beta varchar(255) DEFAULT NULL,
-			gamma bool DEFAULT NULL
+			gamma bool
 			))");
   db.execute(R"(CREATE TABLE tab_foo (
 		omega bigint(20) DEFAULT NULL
@@ -102,8 +109,8 @@ int Sample(int, char*[])
                                 .from(tab)
                                 .unconditionally()))
   {
-    int64_t x = row.alpha;
-    int64_t a = row.max;
+    std::optional<int64_t> x = row.alpha;
+    std::optional<int64_t> a = row.max;
     std::cout << x << ", " << a << std::endl;
   }
   tx.commit();

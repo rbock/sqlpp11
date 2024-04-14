@@ -28,12 +28,14 @@
 
 #include <sqlpp11/type_traits.h>
 
+#include <string_view>
+
 namespace sqlpp
 {
   struct text
   {
     using _traits = make_traits<text, tag::is_value_type>;
-    using _cpp_value_type = std::string;
+    using _cpp_value_type = std::string_view;
 
     template <typename T>
     using _is_valid_operand = is_text_t<T>;

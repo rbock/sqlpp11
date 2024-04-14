@@ -53,13 +53,13 @@ namespace sqlpp
       template <typename Target>
       void _bind(Target& target)
       {
-        target.bind(_field::operator()(), index);
+        target.read_field(index, _field::operator()());
       }
 
       template <typename Target>
       void _post_bind(Target& target)
       {
-        target.post_bind(_field::operator()(), index);
+        target.ipost_bind(_field::operator()(), index);
       }
 
       template <typename Callable>
@@ -200,7 +200,7 @@ namespace sqlpp
       : public detail::result_row_impl<Db, detail::make_index_sequence<sizeof...(FieldSpecs)>, FieldSpecs...>
   {
     using _impl = detail::result_row_impl<Db, detail::make_index_sequence<sizeof...(FieldSpecs)>, FieldSpecs...>;
-    using _field_type = result_field_t<Db, field_spec_t<no_name_t, text, true>>;
+    using _field_type = std::string_view;
 
     bool _is_valid{false};
     std::vector<std::string> _dynamic_field_names;
@@ -226,17 +226,11 @@ namespace sqlpp
 
     void _validate()
     {
-      _impl::_validate();
       _is_valid = true;
-      for (auto& field : _dynamic_fields)
-      {
-        field.second._validate();
-      }
     }
 
     void _invalidate()
     {
-      _impl::_invalidate();
       _is_valid = false;
     }
 
@@ -263,7 +257,7 @@ namespace sqlpp
       std::size_t index = sizeof...(FieldSpecs);
       for (const auto& field_name : _dynamic_field_names)
       {
-        _dynamic_fields.at(field_name)._bind(target, index);
+        target.read_field(index, _dynamic_fields.at(field_name));
         ++index;
       }
     }
@@ -276,7 +270,7 @@ namespace sqlpp
       std::size_t index = sizeof...(FieldSpecs);
       for (const auto& field_name : _dynamic_field_names)
       {
-        _dynamic_fields.at(field_name)._post_bind(target, index);
+        target.post_read(index, _dynamic_fields.at(field_name));
         ++index;
       }
     }
@@ -289,7 +283,7 @@ namespace sqlpp
       std::size_t index = sizeof...(FieldSpecs);
       for (const auto& field_name : _dynamic_field_names)
       {
-        _dynamic_fields.at(field_name)._apply(callable);
+        callable(_dynamic_fields.at(field_name));
         ++index;
       }
     }
@@ -302,7 +296,7 @@ namespace sqlpp
       std::size_t index = sizeof...(FieldSpecs);
       for (const auto& field_name : _dynamic_field_names)
       {
-        _dynamic_fields.at(field_name)._apply(callable);
+        callable(_dynamic_fields.at(field_name));
         ++index;
       }
     }

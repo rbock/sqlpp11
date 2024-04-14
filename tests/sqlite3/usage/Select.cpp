@@ -41,6 +41,13 @@
 namespace sql = sqlpp::sqlite3;
 const auto tab = TabSample{};
 
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const std::optional<T>& t) {
+  if (not t)
+    return os << "NULL";
+  return os << t.value();
+}
+
 void testSelectAll(sql::connection& db, size_t expectedRowCount)
 {
   std::cerr << "--------------------------------------" << std::endl;
@@ -50,7 +57,7 @@ void testSelectAll(sql::connection& db, size_t expectedRowCount)
     ++i;
     std::cerr << ">>> row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma
               << std::endl;
-    assert(static_cast<size_t>(row.alpha) == i);
+    assert(row.alpha == static_cast<int64_t>(i));
   };
   assert(i == expectedRowCount);
 
@@ -61,7 +68,7 @@ void testSelectAll(sql::connection& db, size_t expectedRowCount)
     ++i;
     std::cerr << ">>> row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma
               << std::endl;
-    assert(static_cast<size_t>(row.alpha) == i);
+    assert(row.alpha == static_cast<int64_t>(i));
   };
   assert(i == expectedRowCount);
   std::cerr << "--------------------------------------" << std::endl;
@@ -93,7 +100,7 @@ int Select(int, char*[])
   db.execute(R"(CREATE TABLE tab_sample (
 		alpha INTEGER PRIMARY KEY,
 			beta varchar(255) DEFAULT NULL,
-			gamma bool DEFAULT NULL
+			gamma bool
 			))");
 
   testSelectAll(db, 0);
@@ -141,8 +148,8 @@ int Select(int, char*[])
   auto tx = start_transaction(db);
   for (const auto& row : db(select(all_of(tab), select(max(tab.alpha)).from(tab)).from(tab).unconditionally()))
   {
-    const int64_t x = row.alpha;
-    const int64_t a = row.max;
+    const auto x = row.alpha;
+    const auto a = row.max;
     std::cout << ">>>" << x << ", " << a << std::endl;
   }
   for (const auto& row :
@@ -153,14 +160,14 @@ int Select(int, char*[])
     std::cerr << ">>> row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma
               << ", row.trim: '" << row.trim << "'" << std::endl;
     // check trim
-    assert(string_util::trim(row.beta.value()) == row.trim.value());
+    assert(string_util::trim(std::string(row.beta.value())) == row.trim.value());
     // end
   };
 
   for (const auto& row : db(select(all_of(tab), select(trim(tab.beta)).from(tab)).from(tab).unconditionally()))
   {
-    const int64_t x = row.alpha;
-    const std::string a = row.trim;
+    const std::optional<int64_t> x = row.alpha;
+    const std::optional<std::string_view> a = row.trim;
     std::cout << ">>>" << x << ", " << a << std::endl;
   }
 

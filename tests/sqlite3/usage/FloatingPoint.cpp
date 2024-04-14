@@ -39,15 +39,22 @@ namespace sql = sqlpp::sqlite3;
 
 const auto fp = FpSample{};
 
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const std::optional<T>& t) {
+  if (not t)
+    return os << "NULL";
+  return os << t.value();
+}
+
 template <typename L, typename R>
 auto require_equal(int line, const L& l, const R& r) -> void
 {
   if (l != r)
   {
     std::cerr << line << ": ";
-    serialize(::sqlpp::wrap_operand_t<L>{l}, std::cerr);
+    std::cerr << l;
     std::cerr << " != ";
-    serialize(::sqlpp::wrap_operand_t<R>{r}, std::cerr);
+    std::cerr << r;
     throw std::runtime_error("Unexpected result");
   }
 }
