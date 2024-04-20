@@ -28,8 +28,9 @@
 
 #include <sqlpp11/type_traits.h>
 
-#include <optional>
 #include <type_traits>
+
+#include <sqlpp11/compat/optional.h>
 
 namespace sqlpp
 {
@@ -44,7 +45,7 @@ namespace sqlpp
     using _alias_t = NameType;
 
     using cpp_type = typename std::conditional<CanBeNull,
-                                               std::optional<typename ValueType::_cpp_value_type>,
+                                               sqlpp::optional<typename ValueType::_cpp_value_type>,
                                                typename ValueType::_cpp_value_type>::type;
   };
 

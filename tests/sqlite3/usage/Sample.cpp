@@ -41,7 +41,7 @@ SQLPP_ALIAS_PROVIDER(pragma)
 SQLPP_ALIAS_PROVIDER(sub)
 
 template <typename T>
-std::ostream& operator<<(std::ostream& os, const std::optional<T>& t) {
+std::ostream& operator<<(std::ostream& os, const sqlpp::optional<T>& t) {
   if (not t)
     return os << "NULL";
   return os << t.value();
@@ -109,8 +109,8 @@ int Sample(int, char*[])
                                 .from(tab)
                                 .unconditionally()))
   {
-    std::optional<int64_t> x = row.alpha;
-    std::optional<int64_t> a = row.max;
+    sqlpp::optional<int64_t> x = row.alpha;
+    sqlpp::optional<int64_t> a = row.max;
     std::cout << x << ", " << a << std::endl;
   }
   tx.commit();

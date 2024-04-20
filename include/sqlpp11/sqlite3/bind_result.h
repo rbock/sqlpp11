@@ -31,10 +31,10 @@
 #include <sqlpp11/exception.h>
 #include <sqlpp11/sqlite3/detail/prepared_statement_handle.h>
 #include <sqlpp11/sqlite3/export.h>
+#include <sqlpp11/compat/optional.h>
 
 #include <iostream>
 #include <memory>
-#include <optional>
 #include <span>
 
 #ifdef _MSC_VER
@@ -192,7 +192,7 @@ namespace sqlpp
       }
 
       template <typename T>
-      auto read_field(size_t index, std::optional<T>& value) -> void
+      auto read_field(size_t index, sqlpp::optional<T>& value) -> void
       {
         bool is_null = sqlite3_column_type(_handle->sqlite_statement, static_cast<int>(index)) == SQLITE_NULL;
         if (is_null)

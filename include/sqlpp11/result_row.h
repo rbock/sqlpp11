@@ -28,7 +28,6 @@
 
 #include <map>
 #include <utility>
-#include <optional>
 #include <sqlpp11/data_types/text.h>
 #include <sqlpp11/detail/index_sequence.h>
 #include <sqlpp11/dynamic_select_column_list.h>
