@@ -32,9 +32,7 @@
 #include <sqlpp11/data_types/text/wrap_operand.h>
 #include <sqlpp11/data_types/text/operand.h>
 
-#if __cplusplus >= 201703L
-#include <string_view>
-#endif
+#include <sqlpp11/compat/string_view.h>
 
 namespace sqlpp
 {
@@ -51,8 +49,7 @@ namespace sqlpp
       target._bind_text_parameter(index, &_value, _is_null);
     }
 
-#if __cplusplus >= 201703L
-    parameter_value_base& operator=(const std::string_view& val)
+    parameter_value_base& operator=(const sqlpp::string_view& val)
     {
       _value = val;
       _is_null = false;
@@ -65,6 +62,5 @@ namespace sqlpp
       _is_null = false;
       return *this;
     }
-#endif
   };
 }  // namespace sqlpp

@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2015-2015, Roland Bock
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -26,22 +26,52 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/chrono.h>
-#include <sqlpp11/type_traits.h>
+#ifdef _MSVC_LANG
+#define CXX_STD_VER _MSVC_LANG
+#else
+#define CXX_STD_VER __cplusplus
+#endif
+
+#if CXX_STD_VER >= 202002L
+#include <span>
+namespace sqlpp
+{
+  template<typename T>
+  using span = std::span<T>;
+}  // namespace sqlpp
+
+#else // incomplete backport of std::span
 
 namespace sqlpp
 {
-  struct day_point
+  template <typename T>
+  class span
   {
-    using _traits = make_traits<day_point, tag::is_value_type>;
-    using _cpp_value_type = ::sqlpp::chrono::day_point;
-    using _result_type = ::sqlpp::chrono::day_point;
+    const T* _data = nullptr;
+    size_t _size = 0u;
+  public:
+    constexpr span() = default;
+    constexpr span(const T* data, size_t size) : _data(data), _size(size)
+    {
+    }
 
-    template <typename T>
-    using _is_valid_operand = is_day_or_time_point_t<T>;
-    template <typename T>
-    using _is_valid_assignment_operand = is_day_point_t<T>;
+    const char* data() const
+    {
+      return _data;
+    }
+
+    size_t size() const
+    {
+      return _size;
+    }
+
+    const T& operator[](size_t i) const
+    {
+      return *(_data + i);
+    }
+
   };
 
-  using date = day_point;
 }  // namespace sqlpp
+
+#endif

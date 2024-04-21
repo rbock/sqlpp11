@@ -141,7 +141,8 @@ int Sample(int, char*[])
   }
 
   std::cerr << "--------" << std::endl;
-  ps.params.alpha = sqlpp::eval<sqlpp::integer>(db, "last_insert_rowid()");
+  const auto last_id = sqlpp::eval<sqlpp::integer>(db, "last_insert_rowid()");
+  ps.params.alpha = last_id.value();
   ps.params.gamma = false;
   for (const auto& row : db(ps))
   {

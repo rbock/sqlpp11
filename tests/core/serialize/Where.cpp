@@ -68,11 +68,12 @@ int Where(int, char*[])
   compare(__LINE__, where(is_equal_to_or_null(bar.beta, ::sqlpp::value_or_null("SQL"))), " WHERE (tab_bar.beta='SQL')");
   compare(__LINE__, where(is_equal_to_or_null(bar.beta, ::sqlpp::value_or_null<sqlpp::text>(::sqlpp::null))),
           " WHERE tab_bar.beta IS NULL");
-#if __cplusplus >= 201703L
+
+  // string argument
+  compare(__LINE__, where(bar.beta == std::string("SQL")), " WHERE (tab_bar.beta='SQL')");
+
   // string_view argument
-  std::string_view sqlString = "SQL";
-  compare(__LINE__, where(bar.beta == sqlString), " WHERE (tab_bar.beta='SQL')");
-#endif
+  compare(__LINE__, where(bar.beta == std::string_view("SQL")), " WHERE (tab_bar.beta='SQL')");
 
   return 0;
 }

@@ -32,10 +32,11 @@
 #include <sqlpp11/sqlite3/detail/prepared_statement_handle.h>
 #include <sqlpp11/sqlite3/export.h>
 #include <sqlpp11/compat/optional.h>
+#include <sqlpp11/compat/string_view.h>
+#include <sqlpp11/compat/span.h>
 
 #include <iostream>
 #include <memory>
-#include <span>
 
 #ifdef _MSC_VER
 #include <iso646.h>
@@ -134,27 +135,25 @@ namespace sqlpp
         value = static_cast<uint64_t>(sqlite3_column_int64(_handle->sqlite_statement, static_cast<int>(index)));
       }
 
-      void read_field(size_t index, std::string_view& value)
+      void read_field(size_t index, sqlpp::string_view& value)
       {
         if (_handle->debug)
           std::cerr << "Sqlite3 debug: binding text result at index: " << index << std::endl;
 
-        value = std::string_view(
+        value = sqlpp::string_view(
             reinterpret_cast<const char*>(sqlite3_column_text(_handle->sqlite_statement, static_cast<int>(index))),
             static_cast<size_t>(sqlite3_column_bytes(_handle->sqlite_statement, static_cast<int>(index))));
       }
 
-      /*
-      void read_field(size_t index, std::span<uint8_t>& value)
+      void read_field(size_t index, sqlpp::span<uint8_t>& value)
       {
         if (_handle->debug)
           std::cerr << "Sqlite3 debug: binding blob result at index: " << index << std::endl;
 
-        value = std::span<uint8_t>(
+        value = sqlpp::span<uint8_t>(
             reinterpret_cast<const uint8_t*>(sqlite3_column_blob(_handle->sqlite_statement, static_cast<int>(index))),
             static_cast<size_t>(sqlite3_column_bytes(_handle->sqlite_statement, static_cast<int>(index))));
       }
-      */
 
       void read_field(size_t index, ::sqlpp::chrono::day_point& value)
       {

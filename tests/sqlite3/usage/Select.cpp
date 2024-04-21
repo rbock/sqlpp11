@@ -167,7 +167,7 @@ int Select(int, char*[])
   for (const auto& row : db(select(all_of(tab), select(trim(tab.beta)).from(tab)).from(tab).unconditionally()))
   {
     const sqlpp::optional<int64_t> x = row.alpha;
-    const sqlpp::optional<std::string_view> a = row.trim;
+    const sqlpp::optional<sqlpp::string_view> a = row.trim;
     std::cout << ">>>" << x << ", " << a << std::endl;
   }
 

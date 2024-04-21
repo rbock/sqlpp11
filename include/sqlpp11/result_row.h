@@ -28,6 +28,7 @@
 
 #include <map>
 #include <utility>
+#include <sqlpp11/compat/string_view.h>
 #include <sqlpp11/data_types/text.h>
 #include <sqlpp11/detail/index_sequence.h>
 #include <sqlpp11/dynamic_select_column_list.h>
@@ -199,7 +200,7 @@ namespace sqlpp
       : public detail::result_row_impl<Db, detail::make_index_sequence<sizeof...(FieldSpecs)>, FieldSpecs...>
   {
     using _impl = detail::result_row_impl<Db, detail::make_index_sequence<sizeof...(FieldSpecs)>, FieldSpecs...>;
-    using _field_type = std::string_view;
+    using _field_type = sqlpp::string_view;
 
     bool _is_valid{false};
     std::vector<std::string> _dynamic_field_names;

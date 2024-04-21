@@ -34,6 +34,7 @@ namespace sqlpp
   {
     using _traits = make_traits<floating_point, tag::is_value_type>;
     using _cpp_value_type = double;
+    using _result_type = double;
 
     template <typename T>
     using _is_valid_operand = is_numeric_t<T>;

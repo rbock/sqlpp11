@@ -44,7 +44,7 @@ namespace sqlpp
     using _name_type = alias::a_t::_alias_t;
     using _value_type = value_type_of<Expr>;
     using _field_spec = field_spec_t<_name_type, _value_type, true>;
-    using type = result_field_t<Db, _field_spec>;
+    using type = typename _field_spec::cpp_type;
   };
 
   template <typename Db,

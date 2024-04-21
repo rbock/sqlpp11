@@ -30,6 +30,7 @@
 #include <cstdint>
 
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/compat/span.h>
 #include <sqlpp11/logic.h>
 
 namespace sqlpp
@@ -38,6 +39,7 @@ namespace sqlpp
   {
     using _traits = make_traits<blob, tag::is_value_type>;
     using _cpp_value_type = std::vector<std::uint8_t>;
+    using _result_type = sqlpp::span<std::uint8_t>;
 
     template <typename T>
     using _is_valid_operand = ::sqlpp::logic::any_t<is_blob_t<T>::value, is_text_t<T>::value>;

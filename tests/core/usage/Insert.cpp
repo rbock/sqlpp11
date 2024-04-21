@@ -27,9 +27,7 @@
 #include "Sample.h"
 #include "is_regular.h"
 #include <iostream>
-#if __cplusplus >= 201703L
-#include <string_view>
-#endif
+#include <sqlpp11/compat/string_view.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/insert.h>
 #include <sqlpp11/select.h>
@@ -109,14 +107,11 @@ int Insert(int, char*[])
   prepared_insert.params.delta = sqlpp::value_or_null(17);
   db(prepared_insert);
 
-#if __cplusplus >= 201703L
   auto prepared_insert_sv = db.prepare(insert_into(t).set(t.gamma = parameter(t.gamma), t.delta = parameter(t.delta), t.beta = parameter(t.beta)));
   prepared_insert_sv.params.gamma = true;
   prepared_insert_sv.params.delta = 17;
-  std::string_view sv = "string_view";
-  prepared_insert_sv.params.beta = sv;
+  prepared_insert_sv.params.beta = sqlpp::string_view("string_view");;
   db(prepared_insert_sv);
-#endif
 
   return 0;
 }

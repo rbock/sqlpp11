@@ -42,7 +42,7 @@ namespace sqlpp
   using std::nullopt_t;
   using std::nullopt;
 
-  using bad_optional_access;
+  using std::bad_optional_access;
 }  // namespace sqlpp
 
 #else // incomplete backport of std::optional
@@ -55,6 +55,7 @@ namespace sqlpp
   class nullopt_t
   {
   };
+  constexpr nullopt_t nullopt;
 
   class bad_optional_access : public std::exception
   {
@@ -124,22 +125,17 @@ namespace sqlpp
       return _active;
     }
 
-    friend bool operator==(const optional& left, const nullopt_t&)
-    {
-      return !left;
-    }
-
-    friend bool operator==(const nullopt_t& n, const optional& right)
-    {
-      return !right;
-    }
-
     T& operator*()
     {
       return _value;
     }
 
     const T& operator*() const
+    {
+      return _value;
+    }
+
+    const T& operator->() const
     {
       return _value;
     }
@@ -156,6 +152,14 @@ namespace sqlpp
       throw bad_optional_access();
     }
 
+    template<typename U>
+    T value_or(U&& u)
+    {
+      if (_active)
+        return _value;
+      return std::forward<U>(u);
+    }
+
     const T& value() const
     {
       if (_active)
@@ -169,7 +173,70 @@ namespace sqlpp
     }
   };
 
-  constexpr nullopt_t nullopt;
+  template <class L, class R>
+  bool operator==(const optional<L>& left, const optional<R>& right)
+  {
+    if (static_cast<bool>(left) != static_cast<bool>(right))
+      return false;
+    if (!static_cast<bool>(left))
+      return true;
+    return *left == *right;
+  }
+
+  template <class L, class R>
+  bool operator==(const optional<L>& left, const R& right)
+  {
+    if (!static_cast<bool>(left))
+      return false;
+    return *left == right;
+  }
+
+  template <class L, class R>
+  bool operator==(const L& left, const optional<R>& right)
+  {
+    if (!static_cast<bool>(right))
+      return false;
+    return left == *right;
+  }
+
+  template <class L, class R>
+  bool operator!=(const optional<L>& left, const optional<R>& right)
+  {
+    if (static_cast<bool>(left) != static_cast<bool>(right))
+      return true;
+    if (!static_cast<bool>(left))
+      return false;
+    return *left != *right;
+  }
+
+  template <class L, class R>
+  bool operator!=(const optional<L>& left, const R& right)
+  {
+    if (!static_cast<bool>(left))
+      return true;
+    return *left != right;
+  }
+
+  template <class L, class R>
+  bool operator!=(const L& left, const optional<R>& right)
+  {
+    if (!static_cast<bool>(right))
+      return true;
+    return left != *right;
+  }
+
+  template<class T>
+  bool operator==(const optional<T>& left, const nullopt_t&)
+  {
+    return !left;
+  }
+
+  template<class T>
+  bool operator==(const nullopt_t& n, const optional<T>& right)
+  {
+    return !right;
+  }
+
 }  // namespace sqlpp
 
 #endif

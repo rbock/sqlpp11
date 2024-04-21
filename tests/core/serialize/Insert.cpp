@@ -47,12 +47,10 @@ int Insert(int, char* [])
           "INSERT INTO tab_bar (beta,gamma) VALUES('cheesecake'," + getTrue() + ")");
   compare(__LINE__, insert_into(bar).set(bar.beta = ::sqlpp::null, bar.gamma = true),
           "INSERT INTO tab_bar (beta,gamma) VALUES(NULL," + getTrue() + ")");
-#if __cplusplus >= 201703L
-  // string_view argument
-  std::string_view cheeseCake = "cheesecake";
-  compare(__LINE__, insert_into(bar).set(bar.beta = cheeseCake, bar.gamma = true),
+  compare(__LINE__, insert_into(bar).set(bar.beta = std::string(cheeseCake), bar.gamma = true),
           "INSERT INTO tab_bar (beta,gamma) VALUES('cheesecake'," + getTrue() + ")");
-#endif
+  compare(__LINE__, insert_into(bar).set(bar.beta = std::string_view(cheeseCake), bar.gamma = true),
+          "INSERT INTO tab_bar (beta,gamma) VALUES('cheesecake'," + getTrue() + ")");
 
   return 0;
 }
