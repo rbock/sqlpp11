@@ -49,7 +49,7 @@ struct to_cerr
   template <typename Field>
   auto operator()(const Field& field) const -> void
   {
-    std::cerr << get_sql_name(field) << " = " << field << std::endl;
+    std::cerr << field << std::endl;
   }
 };
 
@@ -57,7 +57,7 @@ template <typename Row>
 void print_row(Row const& row)
 {
   int64_t a = row.alpha;
-  const std::string b = row.beta;
+  const sqlpp::optional<sqlpp::string_view> b = row.beta;
   std::cout << a << ", " << b << std::endl;
 }
 
@@ -91,7 +91,7 @@ int Select(int, char*[])
   for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
   {
     int64_t a = row.alpha;
-    const std::string b = row.beta;
+    const sqlpp::optional<sqlpp::string_view> b = row.beta;
     std::cout << a << ", " << b << std::endl;
   }
 
@@ -99,7 +99,7 @@ int Select(int, char*[])
        db(select(all_of(t), t.gamma.as(t)).from(t).where(t.alpha > 7 and trim(t.beta) == "test").for_update()))
   {
     int64_t a = row.alpha;
-    const std::string b = row.beta;
+    const sqlpp::optional<sqlpp::string_view> b = row.beta;
     const bool g = row.tabBar;
     std::cout << a << ", " << b << ", " << g << std::endl;
   }
@@ -187,7 +187,7 @@ int Select(int, char*[])
   select(sqlpp::value(7).as(t.alpha));
 
   for (const auto& row :
-       db(select(sqlpp::case_when(true).then(sqlpp::null).else_(sqlpp::null).as(t.beta)).from(t).unconditionally()))
+       db(select(sqlpp::case_when(true).then(t.beta).else_(sqlpp::null).as(t.beta)).from(t).unconditionally()))
   {
     std::cerr << row.beta << std::endl;
   }

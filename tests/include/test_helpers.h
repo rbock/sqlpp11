@@ -1,5 +1,7 @@
+#pragma once
+
 /*
- * Copyright (c) 2016-2016, Roland Bock
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -23,35 +25,42 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "compare.h"
-#include "Sample.h"
-#include <sqlpp11/sqlpp11.h>
-
 #include <iostream>
 
-namespace
+template <typename Clock, typename Period>
+std::ostream& operator<<(std::ostream& os, const std::chrono::time_point<Clock, Period>& t)
 {
-  auto getTrue() -> std::string
+  const auto dp = ::sqlpp::chrono::floor<::date::days>(t);
+  const auto ymd = ::date::year_month_day{dp};
+  const auto time = ::date::make_time(t - dp);
+  os << "TIMESTAMP '" << ymd << ' ' << time << "'";
+  return os;
+}
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const sqlpp::optional<T>& t)
+{
+  if (not t)
+    return os << "NULL";
+  return os << t.value();
+}
+
+template <typename L, typename R>
+auto require_equal(int line, const L& l, const R& r) -> void
+{
+  if (l != r)
   {
-    MockDb::_serializer_context_t printer = {};
-    return serialize(sqlpp::value(true), printer).str();
+    std::cerr << line << ": ";
+    serialize(::sqlpp::wrap_operand_t<L>{l}, std::cerr);
+    std::cerr << " != ";
+    serialize(::sqlpp::wrap_operand_t<R>{r}, std::cerr);
+    throw std::runtime_error("Unexpected result");
   }
 }
 
-int Insert(int, char* [])
-{
-  const auto bar = test::TabBar{};
+template <typename T>
+struct is_optional : public std::false_type{};
 
-  compare(__LINE__, insert_into(bar).default_values(), "INSERT INTO tab_bar DEFAULT VALUES");
-  compare(__LINE__, insert_into(bar).set(bar.beta = "cheesecake", bar.gamma = true),
-          "INSERT INTO tab_bar (beta,gamma) VALUES('cheesecake'," + getTrue() + ")");
-  compare(__LINE__, insert_into(bar).set(bar.beta = ::sqlpp::null, bar.gamma = true),
-          "INSERT INTO tab_bar (beta,gamma) VALUES(NULL," + getTrue() + ")");
-  sqlpp::string_view cheeseCake = "cheesecake";
-  compare(__LINE__, insert_into(bar).set(bar.beta = std::string(cheeseCake), bar.gamma = true),
-          "INSERT INTO tab_bar (beta,gamma) VALUES('cheesecake'," + getTrue() + ")");
-  compare(__LINE__, insert_into(bar).set(bar.beta = sqlpp::string_view(cheeseCake), bar.gamma = true),
-          "INSERT INTO tab_bar (beta,gamma) VALUES('cheesecake'," + getTrue() + ")");
+template <typename T>
+struct is_optional<sqlpp::optional<T>> : public std::true_type{};
 
-  return 0;
-}

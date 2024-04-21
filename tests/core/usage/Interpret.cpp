@@ -27,7 +27,7 @@
 #include "Sample.h"
 #include <sqlpp11/sqlpp11.h>
 
-#include <iostream>
+#include "../../include/test_helpers.h"
 
 int Interpret(int, char* [])
 {
@@ -171,9 +171,9 @@ int Interpret(int, char* [])
 
   for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
   {
-    serialize(row.alpha, printer);
-    serialize(row.beta, printer);
-    serialize(row.gamma, printer);
+    serialize(t.alpha == row.alpha.value(), printer);
+    serialize(t.beta == row.beta.value(), printer);
+    serialize(t.gamma == row.gamma, printer);
   }
 
   get_sql_name(t);

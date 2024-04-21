@@ -73,7 +73,7 @@ int Where(int, char*[])
   compare(__LINE__, where(bar.beta == std::string("SQL")), " WHERE (tab_bar.beta='SQL')");
 
   // string_view argument
-  compare(__LINE__, where(bar.beta == std::string_view("SQL")), " WHERE (tab_bar.beta='SQL')");
+  compare(__LINE__, where(bar.beta == sqlpp::string_view("SQL")), " WHERE (tab_bar.beta='SQL')");
 
   return 0;
 }
