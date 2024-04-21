@@ -36,6 +36,9 @@
 #include <sqlpp11/mysql/detail/result_handle.h>
 #include <sqlpp11/mysql/sqlpp_mysql.h>
 #include <sqlpp11/mysql/char_result_row.h>
+#include <sqlpp11/compat/optional.h>
+#include <sqlpp11/compat/string_view.h>
+#include <sqlpp11/compat/span.h>
 
 namespace sqlpp
 {
@@ -88,7 +91,7 @@ namespace sqlpp
           {
             result_row._validate();
           }
-          result_row._bind(*this);
+          result_row._read_fields(*this);
         }
         else
         {
@@ -102,111 +105,99 @@ namespace sqlpp
         return !_handle or !*_handle;
       }
 
-      void _bind_boolean_result(size_t index, signed char* value, bool* is_null)
+      void read_field(size_t index, bool& value)
       {
-        *is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
-        *value =
-            (*is_null ? false : (_char_result_row.data[index][0] == 't' or _char_result_row.data[index][0] == '1'));
+        value = (_char_result_row.data[index][0] == 't' or _char_result_row.data[index][0] == '1');
       }
 
-      void _bind_floating_point_result(size_t index, double* value, bool* is_null)
+      void read_field(size_t index, double& value)
       {
-        *is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
-        *value = (*is_null ? 0 : std::strtod(_char_result_row.data[index], nullptr));
+        value = std::strtod(_char_result_row.data[index], nullptr);
       }
 
-      void _bind_integral_result(size_t index, int64_t* value, bool* is_null)
+      void read_field(size_t index, int64_t& value)
       {
-        *is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
-        *value = (*is_null ? 0 : std::strtoll(_char_result_row.data[index], nullptr, 10));
+        value = std::strtoll(_char_result_row.data[index], nullptr, 10);
       }
 
-      void _bind_unsigned_integral_result(size_t index, uint64_t* value, bool* is_null)
+      void read_field(size_t index, uint64_t& value)
       {
-        *is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
-        *value = (*is_null ? 0 : std::strtoull(_char_result_row.data[index], nullptr, 10));
+        value = std::strtoull(_char_result_row.data[index], nullptr, 10);
       }
 
-      void _bind_blob_result(size_t index, const uint8_t** value, size_t* len)
+      void read_field(size_t index, sqlpp::span<uint8_t>& value)
       {
-        bool is_null{_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr};
-        *value = (uint8_t*)(is_null ? nullptr : _char_result_row.data[index]);
-        *len = (is_null ? 0 : _char_result_row.len[index]);
+        value = sqlpp::span<uint8_t>(reinterpret_cast<const uint8_t*>(_char_result_row.data[index]), _char_result_row.len[index]);
       }
 
-      void _bind_text_result(size_t index, const char** value, size_t* len)
+      void read_field(size_t index, sqlpp::string_view& value)
       {
-        bool is_null{_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr};
-        *value = (is_null ? nullptr : _char_result_row.data[index]);
-        *len = (is_null ? 0 : _char_result_row.len[index]);
+        value = sqlpp::string_view(_char_result_row.data[index], _char_result_row.len[index]);
       }
 
-      void _bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null)
+      void read_field(size_t index, ::sqlpp::chrono::day_point& value)
       {
         if (_handle->debug)
           std::cerr << "MySQL debug: parsing date result at index: " << index << std::endl;
-
-        *value = {};
-        *is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
-        if (*is_null)
-        {
-          return;
-        }
 
         const auto date_string = _char_result_row.data[index];
         if (_handle->debug)
           std::cerr << "MySQL debug: date string: " << date_string << std::endl;
 
-        if (::sqlpp::detail::parse_date(*value, date_string) == false)
+        if (::sqlpp::detail::parse_date(value, date_string) == false)
         {
           if (_handle->debug)
             std::cerr << "MySQL debug: invalid date result: " << date_string << std::endl;
         }
       }
 
-      void _bind_date_time_result(size_t index, ::sqlpp::chrono::microsecond_point* value, bool* is_null)
+      void read_field(size_t index, ::sqlpp::chrono::microsecond_point& value)
       {
         if (_handle->debug)
           std::cerr << "MySQL debug: parsing date result at index: " << index << std::endl;
-
-        *value = {};
-        *is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
-        if (*is_null)
-        {
-          return;
-        }
 
         const auto date_time_string = _char_result_row.data[index];
         if (_handle->debug)
           std::cerr << "MySQL debug: date_time string: " << date_time_string << std::endl;
 
-        if (::sqlpp::detail::parse_timestamp(*value, date_time_string) == false)
+        if (::sqlpp::detail::parse_timestamp(value, date_time_string) == false)
         {
           if (_handle->debug)
             std::cerr << "MySQL debug: invalid date_time result: " << date_time_string << std::endl;
         }
       }
 
-      void _bind_time_of_day_result(size_t index, ::std::chrono::microseconds* value, bool* is_null)
+      void read_field(size_t index, ::std::chrono::microseconds& value)
       {
         if (_handle->debug)
           std::cerr << "MySQL debug: parsing time of day result at index: " << index << std::endl;
-
-        *value = {};
-        *is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
-        if (*is_null)
-        {
-          return;
-        }
 
         const auto time_string = _char_result_row.data[index];
         if (_handle->debug)
           std::cerr << "MySQL debug: time of day string: " << time_string << std::endl;
 
-        if (::sqlpp::detail::parse_time_of_day(*value, time_string) == false)
+        if (::sqlpp::detail::parse_time_of_day(value, time_string) == false)
         {
           if (_handle->debug)
             std::cerr << "MySQL debug: invalid time result: " << time_string << std::endl;
+        }
+      }
+
+      template <typename T>
+      auto read_field(size_t index, sqlpp::optional<T>& value) -> void
+      {
+        const bool is_null = _char_result_row.data[index] == nullptr;
+        if (is_null)
+        {
+          value.reset();
+        }
+        else
+        {
+          if (not value)
+          {
+            value = T{};
+          }
+          read_field(index, *value);
         }
       }
 

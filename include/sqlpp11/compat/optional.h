@@ -120,6 +120,11 @@ namespace sqlpp
       destroy();
     }
 
+    bool has_value() const
+    {
+      return _active;
+    }
+
     operator bool() const
     {
       return _active;

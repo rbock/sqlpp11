@@ -51,15 +51,15 @@ namespace sqlpp
       result_field() = default;
 
       template <typename Target>
-      void _bind(Target& target)
+      void _bind_field(Target& target)
       {
-        target.read_field(index, _field::operator()());
+        target.bind_field(index, _field::operator()());
       }
 
       template <typename Target>
-      void _post_bind(Target& target)
+      void _read_field(Target& target)
       {
-        target.ipost_bind(_field::operator()(), index);
+        target.read_field(index, _field::operator()());
       }
 
       template <typename Callable>
@@ -82,17 +82,17 @@ namespace sqlpp
       result_row_impl() = default;
 
       template <typename Target>
-      void _bind(Target& target)
+      void _bind_fields(Target& target)
       {
         using swallow = int[];
-        (void)swallow{(result_field<Db, Is, FieldSpecs>::_bind(target), 0)...};
+        (void)swallow{(result_field<Db, Is, FieldSpecs>::_bind_field(target), 0)...};
       }
 
       template <typename Target>
-      void _post_bind(Target& target)
+      void _read_fields(Target& target)
       {
         using swallow = int[];
-        (void)swallow{(result_field<Db, Is, FieldSpecs>::_post_bind(target), 0)...};
+        (void)swallow{(result_field<Db, Is, FieldSpecs>::_read_field(target), 0)...};
       }
 
       template <typename Callable>
@@ -157,15 +157,15 @@ namespace sqlpp
     }
 
     template <typename Target>
-    void _bind(Target& target)
+    void _bind_fields(Target& target)
     {
-      _impl::_bind(target);
+      _impl::_bind_fields(target);
     }
 
     template <typename Target>
-    void _post_bind(Target& target)
+    void _read_fields(Target& target)
     {
-      _impl::_post_bind(target);
+      _impl::_read_fields(target);
     }
 
     template <typename Callable>

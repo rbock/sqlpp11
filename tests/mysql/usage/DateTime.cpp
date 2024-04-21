@@ -28,6 +28,8 @@
 #include <sqlpp11/mysql/mysql.h>
 #include <sqlpp11/sqlpp11.h>
 
+#include "../../include/test_helpers.h"
+
 #include <cassert>
 #include <iostream>
 #include <vector>
@@ -36,20 +38,6 @@ const auto library_raii = sqlpp::mysql::scoped_library_initializer_t{};
 
 namespace
 {
-  template <typename L, typename R>
-  auto require_equal(int line, const L& l, const R& r) -> void
-  {
-    if (l != r)
-    {
-      std::cerr << line << ": ";
-      serialize(::sqlpp::wrap_operand_t<L>{l}, std::cerr);
-      std::cerr << " != ";
-      serialize(::sqlpp::wrap_operand_t<R>{r}, std::cerr);
-      std::cerr << "\n" ;
-      throw std::runtime_error("Unexpected result");
-    }
-  }
-
   template <typename L, typename R>
   auto require_close(int line, const L& l, const R& r) -> void
   {
@@ -90,12 +78,12 @@ int DateTime(int, char*[])
     db(insert_into(tab).default_values());
     for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
-      require_equal(__LINE__, row.colDayPoint.is_null(), true);
+      require_equal(__LINE__, row.colDayPoint.has_value(), true);
       require_equal(__LINE__, row.colDayPoint.value(), ::sqlpp::chrono::day_point{});
-      require_equal(__LINE__, row.colTimePoint.is_null(), true);
+      require_equal(__LINE__, row.colTimePoint.has_value(), true);
       require_equal(__LINE__, row.colTimePoint.value(), ::sqlpp::chrono::microsecond_point{});
-      require_close(__LINE__, row.colDateTimePoint.value(), now);
-      require_equal(__LINE__, row.colTimeOfDay.is_null(), true);
+      require_close(__LINE__, row.colDateTimePoint, now);
+      require_equal(__LINE__, row.colTimeOfDay.has_value(), true);
       require_equal(__LINE__, row.colTimeOfDay.value(), ::std::chrono::microseconds{});
     }
 
@@ -111,8 +99,7 @@ int DateTime(int, char*[])
     auto statement = db.prepare(select(all_of(tab)).from(tab).unconditionally());
     for (const auto& row : db(statement))
     {
-      require_equal(__LINE__, row.colDateTimePoint.is_null(), false);
-      require_close(__LINE__, row.colDateTimePoint.value(), now);
+      require_close(__LINE__, row.colDateTimePoint, now);
       require_equal(__LINE__, row.colDayPoint.value(), today);
       require_equal(__LINE__, row.colTimePoint.value(), now);
       require_close(__LINE__, row.colTimeOfDay.value(), current);

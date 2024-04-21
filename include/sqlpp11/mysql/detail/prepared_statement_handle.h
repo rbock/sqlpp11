@@ -36,16 +36,20 @@ namespace sqlpp
   {
     namespace detail
     {
-      struct result_meta_data_t
+      struct bind_result_buffer
       {
-        size_t index;
-        unsigned long bound_len;
-        my_bool bound_is_null;
-        my_bool bound_error;
-        std::vector<char> bound_text_buffer;  // also for blobs
-        const char** text_buffer;
-        size_t* len;
-        bool* is_null;
+        unsigned long length;
+        my_bool is_null;
+        my_bool error;
+        union // unnamed union injects members into scope
+        {
+          bool _bool;
+          int64_t _int64;
+          uint64_t _uint64;
+          double _double;
+          MYSQL_TIME _mysql_time;
+        };
+        std::vector<char> var_buffer;  // text and blobs
       };
 
       struct prepared_statement_handle_t
@@ -72,7 +76,7 @@ namespace sqlpp
         std::vector<MYSQL_TIME> stmt_date_time_param_buffer;
         std::vector<wrapped_bool> stmt_param_is_null;  // my_bool is bool after 8.0, and vector<bool> is bad
         std::vector<MYSQL_BIND> result_params;
-        std::vector<result_meta_data_t> result_param_meta_data;
+        std::vector<bind_result_buffer> result_buffers;
         bool debug;
 
         prepared_statement_handle_t(MYSQL_STMT* stmt, size_t no_of_parameters, size_t no_of_columns, bool debug_)
@@ -81,7 +85,7 @@ namespace sqlpp
               stmt_date_time_param_buffer(no_of_parameters, MYSQL_TIME{}),  // ()-init for correct constructor
               stmt_param_is_null(no_of_parameters, false),                  // ()-init for correct constructor
               result_params(no_of_columns, MYSQL_BIND{}),                   // ()-init for correct constructor
-              result_param_meta_data(no_of_columns, result_meta_data_t{}),  // ()-init for correct constructor
+              result_buffers(no_of_columns, bind_result_buffer{}),  // ()-init for correct constructor
               debug{debug_}
         {
         }

@@ -82,9 +82,9 @@ int Sample(int, char*[])
     const auto y = db.prepare(x);
     for (const auto& row : db(db.prepare(select(all_of(tab)).from(tab).unconditionally())))
     {
-      std::cerr << "alpha: " << row.alpha.is_null() << std::endl;
-      std::cerr << "beta: " << row.beta.is_null() << std::endl;
-      std::cerr << "gamma: " << row.gamma.is_null() << std::endl;
+      std::cerr << "alpha: " << row.alpha << std::endl;
+      std::cerr << "beta: " << row.beta << std::endl;
+      std::cerr << "gamma: " << row.gamma << std::endl;
     }
     db(insert_into(tab).set(tab.beta = "kaesekuchen", tab.gamma = true));
     db(insert_into(tab).default_values());

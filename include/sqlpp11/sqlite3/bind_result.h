@@ -86,7 +86,7 @@ namespace sqlpp
           {
             result_row._validate();
           }
-          result_row._bind(*this);
+          result_row._read_fields(*this);
         }
         else
         {
@@ -193,7 +193,7 @@ namespace sqlpp
       template <typename T>
       auto read_field(size_t index, sqlpp::optional<T>& value) -> void
       {
-        bool is_null = sqlite3_column_type(_handle->sqlite_statement, static_cast<int>(index)) == SQLITE_NULL;
+        const bool is_null = sqlite3_column_type(_handle->sqlite_statement, static_cast<int>(index)) == SQLITE_NULL;
         if (is_null)
         {
           value.reset();
@@ -203,8 +203,8 @@ namespace sqlpp
           if (not value)
           {
             value = T{};
-            read_field(index, *value);
           }
+          read_field(index, *value);
         }
       }
 
