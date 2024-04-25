@@ -107,6 +107,7 @@ def main():
             tableTemplateParameters += ',\n               ' + tableNamespace + '::' + columnClass
             columnMember = toMemberName(sqlColumnName)
             sqlColumnType = column[2].lower()
+            sqlCanBeNull = column[3] == 0 or column[3] == '0'
             print('    struct ' + columnClass, file=header)
             print('    {', file=header)
             print('      struct _alias_t', file=header)
@@ -132,7 +133,7 @@ def main():
                 traitslist.append(NAMESPACE + '::tag::must_not_insert')
                 traitslist.append(NAMESPACE + '::tag::must_not_update')
                 requireInsert = False
-            if column[3] == '0':
+            if sqlCanBeNull:
                 traitslist.append(NAMESPACE + '::tag::can_be_null')
                 requireInsert = False
             if column[4]:
