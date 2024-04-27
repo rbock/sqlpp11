@@ -52,10 +52,63 @@ namespace sqlpp
     namespace detail
     {
       struct statement_handle_t;
-    }
+
+      inline unsigned char unhex(unsigned char c)
+      {
+        switch (c)
+        {
+          case '0':
+          case '1':
+          case '2':
+          case '3':
+          case '4':
+          case '5':
+          case '6':
+          case '7':
+          case '8':
+          case '9':
+            return c - '0';
+          case 'a':
+          case 'b':
+          case 'c':
+          case 'd':
+          case 'e':
+          case 'f':
+            return c + 10 - 'a';
+          case 'A':
+          case 'B':
+          case 'C':
+          case 'D':
+          case 'E':
+          case 'F':
+            return c + 10 - 'A';
+        }
+        throw sqlpp::exception{std::string{"Unexpected hex char: "} + static_cast<char>(c)};
+      }
+
+      inline size_t hex_assign(std::vector<uint8_t>& value, const uint8_t* blob, size_t len)
+      {
+        const auto result_size = len / 2 - 1;  // unhex - leading chars
+        if (value.size() < result_size)
+        {
+          value.resize(result_size);  // unhex - leading chars
+        }
+        size_t val_index = 0;
+        size_t blob_index = 2;
+        while (blob_index < len)
+        {
+          value[val_index] = static_cast<unsigned char>(unhex(blob[blob_index]) << 4) + unhex(blob[blob_index + 1]);
+          ++val_index;
+          blob_index += 2;
+        }
+        return result_size;
+      }
+    }  // namespace detail
 
     class bind_result_t
     {
+      // Need to buffer blobs (or switch to PQexecParams with binary results)
+      std::vector<std::vector<uint8_t>> _var_buffers;
     private:
       std::shared_ptr<detail::statement_handle_t> _handle;
 
@@ -100,9 +153,9 @@ namespace sqlpp
 
       bind_result_t(const std::shared_ptr<detail::statement_handle_t>& handle) : _handle(handle)
       {
+        _var_buffers.resize(_handle->result.field_count());
         if (this->_handle && this->_handle->debug())
         {
-          // cerr
           std::cerr << "PostgreSQL debug: constructing bind result, using handle at: " << this->_handle.get()
                     << std::endl;
         }
@@ -150,7 +203,7 @@ namespace sqlpp
         const auto index = static_cast<int>(_index);
         if (_handle->debug())
         {
-          std::cerr << "PostgreSQL debug: binding boolean result at index: " << index << std::endl;
+          std::cerr << "PostgreSQL debug: reading boolean result at index: " << index << std::endl;
         }
 
         value = _handle->result.get_bool_value(_handle->count, index);
@@ -161,7 +214,7 @@ namespace sqlpp
         const auto index = static_cast<int>(_index);
         if (_handle->debug())
         {
-          std::cerr << "PostgreSQL debug: binding floating_point result at index: " << index << std::endl;
+          std::cerr << "PostgreSQL debug: reading floating_point result at index: " << index << std::endl;
         }
 
         value = _handle->result.get_double_value(_handle->count, index);
@@ -172,7 +225,7 @@ namespace sqlpp
         const auto index = static_cast<int>(_index);
         if (_handle->debug())
         {
-          std::cerr << "PostgreSQL debug: binding integral result at index: " << index << std::endl;
+          std::cerr << "PostgreSQL debug: reading integral result at index: " << index << std::endl;
         }
 
         value = _handle->result.get_int64_value(_handle->count, index);
@@ -183,7 +236,7 @@ namespace sqlpp
         const auto index = static_cast<int>(_index);
         if (_handle->debug())
         {
-          std::cerr << "PostgreSQL debug: binding unsigned integral result at index: " << index << std::endl;
+          std::cerr << "PostgreSQL debug: reading unsigned integral result at index: " << index << std::endl;
         }
 
         value = _handle->result.get_uint64_value(_handle->count, index);
@@ -194,7 +247,7 @@ namespace sqlpp
         const auto index = static_cast<int>(_index);
         if (_handle->debug())
         {
-          std::cerr << "PostgreSQL debug: binding text result at index: " << index << std::endl;
+          std::cerr << "PostgreSQL debug: reading text result at index: " << index << std::endl;
         }
 
         value = sqlpp::string_view(_handle->result.get_char_ptr_value(_handle->count, index),
@@ -215,7 +268,7 @@ namespace sqlpp
 
         if (_handle->debug())
         {
-          std::cerr << "PostgreSQL debug: binding date result at index: " << index << std::endl;
+          std::cerr << "PostgreSQL debug: reading date result at index: " << index << std::endl;
         }
 
         const auto date_string = _handle->result.get_char_ptr_value(_handle->count, index);
@@ -238,7 +291,7 @@ namespace sqlpp
         const auto index = static_cast<int>(_index);
         if (_handle->debug())
         {
-          std::cerr << "PostgreSQL debug: binding date_time result at index: " << index << std::endl;
+          std::cerr << "PostgreSQL debug: reading date_time result at index: " << index << std::endl;
         }
 
         const auto date_string = _handle->result.get_char_ptr_value(_handle->count, index);
@@ -261,7 +314,7 @@ namespace sqlpp
         const auto index = static_cast<int>(_index);
         if (_handle->debug())
         {
-          std::cerr << "PostgreSQL debug: binding time result at index: " << index << std::endl;
+          std::cerr << "PostgreSQL debug: reading time result at index: " << index << std::endl;
         }
 
         const auto time_string = _handle->result.get_char_ptr_value(_handle->count, index);
@@ -284,11 +337,17 @@ namespace sqlpp
         const auto index = static_cast<int>(_index);
         if (_handle->debug())
         {
-          std::cerr << "PostgreSQL debug: binding blob result at index: " << index << std::endl;
+          std::cerr << "PostgreSQL debug: reading blob result at index: " << index << std::endl;
         }
 
-        value = sqlpp::span<uint8_t>(_handle->result.get_blob_value(_handle->count, index),
-                                     static_cast<size_t>(_handle->result.length(_handle->count, index)));
+        // Need to decode the hex data.
+        // Using PQexecParams would allow to use binary data.
+        // That's certainly faster, but some effort to determine the correct column types.
+        const auto size =
+            detail::hex_assign(_var_buffers[_index], _handle->result.get_blob_value(_handle->count, index),
+                               static_cast<size_t>(_handle->result.length(_handle->count, index)));
+
+        value = sqlpp::span<uint8_t>(_var_buffers[_index].data(), size);
       }
 
       template <typename T>

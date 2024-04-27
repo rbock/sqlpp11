@@ -78,9 +78,13 @@ namespace sqlpp
       throw sqlpp::exception{std::string{"Unexpected hex char: "} + static_cast<char>(c)};
     }
 
-    inline void hex_assign(std::vector<unsigned char>& value, const uint8_t* blob, size_t len)
+    inline void hex_assign(std::vector<uint8_t>& value, const uint8_t* blob, size_t len)
     {
-      value.resize(len / 2 - 1); // unhex - leading chars
+      const auto result_size = len / 2 - 1;  // unhex - leading chars
+      if (value.size() < result_size)
+      {
+        value.resize(result_size);  // unhex - leading chars
+      }
       size_t val_index = 0;
       size_t blob_index = 2;
       while (blob_index < len)

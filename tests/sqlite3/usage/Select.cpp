@@ -160,7 +160,7 @@ int Select(int, char*[])
     std::cerr << ">>> row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma
               << ", row.trim: '" << row.trim << "'" << std::endl;
     // check trim
-    assert(string_util::trim(std::string(row.beta.value())) == row.trim.value());
+    assert((not row.beta and not row.trim) || string_util::trim(std::string(row.beta.value())) == row.trim.value());
     // end
   };
 

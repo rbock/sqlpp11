@@ -95,10 +95,10 @@ int Transaction(int, char*[])
 
     {
       require_equal(__LINE__, db.is_transaction_active(), false);
-      auto current_level = db(custom_query(sqlpp::verbatim("show transaction_isolation;"))
-                                  .with_result_type_of(select(sqlpp::value("").as(level))))
-                               .front()
-                               .level;
+      std::string current_level = db(custom_query(sqlpp::verbatim("show transaction_isolation;"))
+                                         .with_result_type_of(select(sqlpp::value("").as(level))))
+                                      .front()
+                                      .level;
       require_equal(__LINE__, current_level, "read committed");
       std::cerr << "isolation level outside transaction: " << current_level << "\n";
 

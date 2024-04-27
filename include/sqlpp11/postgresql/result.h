@@ -118,6 +118,7 @@ namespace sqlpp
         check_index(record, field);
         auto t = int64_t{};
         const auto txt = std::string{get_pq_value(m_result, record, field)};
+        std::cerr << "txt: " << txt << ", record: " << record << ", field: " << field << std::endl;
         if(txt != "")
         {
           t = std::stoll(txt);

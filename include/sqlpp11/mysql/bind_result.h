@@ -274,32 +274,47 @@ namespace sqlpp
 
       void read_field(size_t index, bool& value)
       {
+        if (_handle->debug)
+          std::cerr << "MySQL debug: reading bool result at index: " << index
+                    << std::endl;
         value = _handle->result_buffers[index]._bool;
       }
 
       void read_field(size_t index, int64_t& value)
       {
+        if (_handle->debug)
+          std::cerr << "MySQL debug: reading integral result at index: " << index
+                    << std::endl;
         value = _handle->result_buffers[index]._int64;
       }
 
       void read_field(size_t index, uint64_t& value)
       {
+        if (_handle->debug)
+          std::cerr << "MySQL debug: reading unsigned integral result at index: " << index
+                    << std::endl;
         value = _handle->result_buffers[index]._uint64;
       }
 
       void read_field(size_t index, double& value)
       {
+        if (_handle->debug)
+          std::cerr << "MySQL debug: reading floating point result at index: " << index
+                    << std::endl;
         value = _handle->result_buffers[index]._double;
       }
 
       void refetch_if_required(size_t index)
       {
-        auto buffer = _handle->result_buffers[index];
-        auto params = _handle->result_params[index];
+        if (_handle->debug)
+          std::cerr << "MySQL debug: Checking result size at index: " << index
+                    << std::endl;
+        auto& buffer = _handle->result_buffers[index];
+        auto& params = _handle->result_params[index];
         if (*params.length > params.buffer_length)
         {
           if (_handle->debug)
-            std::cerr << "MySQL debug: increasing buffer at: " << index << std::endl;
+            std::cerr << "MySQL debug: increasing buffer at: " << index << " to " << *params.length << std::endl;
           buffer.var_buffer.resize(*params.length);
           params.buffer = buffer.var_buffer.data();
           params.buffer_length = buffer.var_buffer.size();
@@ -314,25 +329,30 @@ namespace sqlpp
 
       void read_field(size_t index, sqlpp::string_view& value)
       {
+        if (_handle->debug)
+          std::cerr << "MySQL debug: reading text result at index: " << index
+                    << std::endl;
         refetch_if_required(index);
-        const auto buffer = _handle->result_buffers[index];
-        const auto params = _handle->result_params[index];
-        value =
-            sqlpp::string_view(buffer.var_buffer.data(), *params.length);
+        const auto& buffer = _handle->result_buffers[index];
+        const auto& params = _handle->result_params[index];
+        value = sqlpp::string_view(buffer.var_buffer.data(), *params.length);
       }
 
       void read_field(size_t index, sqlpp::span<uint8_t>& value)
       {
-        refetch_if_required(index);
-        const auto buffer = _handle->result_buffers[index];
-        const auto params = _handle->result_params[index];
+        if (_handle->debug)
+          std::cerr << "MySQL debug: reading blob result at index: " << index
+                    << std::endl;
+         refetch_if_required(index);
+        const auto& buffer = _handle->result_buffers[index];
+        const auto& params = _handle->result_params[index];
         value = sqlpp::span<uint8_t>(reinterpret_cast<const uint8_t*>(buffer.var_buffer.data()), *params.length);
       }
 
       void read_field(size_t index, ::sqlpp::chrono::day_point& value)
       {
         if (_handle->debug)
-          std::cerr << "MySQL debug: post binding date result at index: " << index
+          std::cerr << "MySQL debug: reading date result at index: " << index
                     << std::endl;
 
         const auto& dt = _handle->result_buffers[index]._mysql_time;
@@ -344,7 +364,7 @@ namespace sqlpp
       void read_field(size_t index, ::sqlpp::chrono::microsecond_point& value)
       {
         if (_handle->debug)
-          std::cerr << "MySQL debug: post binding date time result at index: " << index << std::endl;
+          std::cerr << "MySQL debug: reading date time result at index: " << index << std::endl;
 
         const auto& dt = _handle->result_buffers[index]._mysql_time;
         if (dt.year > std::numeric_limits<int>::max())
@@ -358,7 +378,7 @@ namespace sqlpp
       void read_field(size_t index, ::std::chrono::microseconds& value)
       {
         if (_handle->debug)
-          std::cerr << "MySQL debug: post binding date time result at index: " << index << std::endl;
+          std::cerr << "MySQL debug: reading date time result at index: " << index << std::endl;
 
         const auto& dt = _handle->result_buffers[index]._mysql_time;
         value = std::chrono::hours(dt.hour) + std::chrono::minutes(dt.minute) + std::chrono::seconds(dt.second) +

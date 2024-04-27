@@ -48,9 +48,9 @@ int DynamicSelect(int, char*[])
     auto db = sql::make_test_connection();
     db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
     db.execute(R"(CREATE TABLE tab_sample (
-		alpha bigint(20) DEFAULT NULL,
+		alpha bigint(20) AUTO_INCREMENT NOT NULL PRIMARY KEY,
 			beta varchar(255) DEFAULT NULL,
-			gamma bool DEFAULT NULL
+			gamma bool NOT NULL DEFAULT 0
 			))");
 
     const auto tab = TabSample{};
