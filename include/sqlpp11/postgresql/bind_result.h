@@ -30,6 +30,9 @@
 #include <sqlpp11/chrono.h>
 #include <sqlpp11/data_types.h>
 #include <sqlpp11/detail/parse_date_time.h>
+#include <sqlpp11/compat/optional.h>
+#include <sqlpp11/compat/string_view.h>
+#include <sqlpp11/compat/span.h>
 
 #include <iomanip>
 #include <iostream>
@@ -131,7 +134,7 @@ namespace sqlpp
           {
             result_row._validate();
           }
-          result_row._bind(*this);
+          result_row._read_fields(*this);
         }
         else
         {
@@ -142,72 +145,60 @@ namespace sqlpp
         }
       }
 
-      void _bind_boolean_result(size_t _index, signed char* value, bool* is_null)
+      void read_field(size_t _index, bool& value)
       {
-        auto index = static_cast<int>(_index);
+        const auto index = static_cast<int>(_index);
         if (_handle->debug())
         {
           std::cerr << "PostgreSQL debug: binding boolean result at index: " << index << std::endl;
         }
 
-        *is_null = _handle->result.is_null(_handle->count, index);
-        *value = _handle->result.get_bool_value(_handle->count, index);
+        value = _handle->result.get_bool_value(_handle->count, index);
       }
 
-      void _bind_floating_point_result(size_t _index, double* value, bool* is_null)
+      void read_field(size_t _index, double& value)
       {
-        auto index = static_cast<int>(_index);
+        const auto index = static_cast<int>(_index);
         if (_handle->debug())
         {
           std::cerr << "PostgreSQL debug: binding floating_point result at index: " << index << std::endl;
         }
 
-        *is_null = _handle->result.is_null(_handle->count, index);
-        *value = _handle->result.get_double_value(_handle->count, index);
+        value = _handle->result.get_double_value(_handle->count, index);
       }
 
-      void _bind_integral_result(size_t _index, int64_t* value, bool* is_null)
+      void read_field(size_t _index, int64_t& value)
       {
-        auto index = static_cast<int>(_index);
+        const auto index = static_cast<int>(_index);
         if (_handle->debug())
         {
           std::cerr << "PostgreSQL debug: binding integral result at index: " << index << std::endl;
         }
 
-        *is_null = _handle->result.is_null(_handle->count, index);
-        *value = _handle->result.get_int64_value(_handle->count, index);
+        value = _handle->result.get_int64_value(_handle->count, index);
       }
 
-      void _bind_unsigned_integral_result(size_t _index, uint64_t* value, bool* is_null)
+      void read_field(size_t _index, uint64_t& value)
       {
-        auto index = static_cast<int>(_index);
+        const auto index = static_cast<int>(_index);
         if (_handle->debug())
         {
           std::cerr << "PostgreSQL debug: binding unsigned integral result at index: " << index << std::endl;
         }
 
-        *is_null = _handle->result.is_null(_handle->count, index);
-        *value = _handle->result.get_uint64_value(_handle->count, index);
+        value = _handle->result.get_uint64_value(_handle->count, index);
       }
 
-      void _bind_text_result(size_t _index, const char** value, size_t* len)
+      void read_field(size_t _index, sqlpp::string_view& value)
       {
-        auto index = static_cast<int>(_index);
+        const auto index = static_cast<int>(_index);
         if (_handle->debug())
         {
           std::cerr << "PostgreSQL debug: binding text result at index: " << index << std::endl;
         }
 
-        if (_handle->result.is_null(_handle->count, index))
-        {
-          *value = nullptr;
-          *len = 0;
-        }
-        else
-        {
-          *value = _handle->result.get_char_ptr_value(_handle->count, index);
-          *len = static_cast<size_t>(_handle->result.length(_handle->count, index));
-        }
+        value = sqlpp::string_view(_handle->result.get_char_ptr_value(_handle->count, index),
+                                   static_cast<size_t>(_handle->result.length(_handle->count, index)));
       }
 
       // PostgreSQL will return one of those (using the default ISO client):
@@ -218,20 +209,13 @@ namespace sqlpp
       // 1992-10-10 01:02:03-06:30 - for some timezones with non-hour offset
       // 1900-01-01 - date only
       // we do not support time-only values !
-      void _bind_date_result(size_t _index, ::sqlpp::chrono::day_point* value, bool* is_null)
+      void read_field(size_t _index, ::sqlpp::chrono::day_point& value)
       {
-        auto index = static_cast<int>(_index);
+        const auto index = static_cast<int>(_index);
 
         if (_handle->debug())
         {
           std::cerr << "PostgreSQL debug: binding date result at index: " << index << std::endl;
-        }
-
-        *value = {};
-        *is_null = _handle->result.is_null(_handle->count, index);
-        if (*is_null)
-        {
-          return;
         }
 
         const auto date_string = _handle->result.get_char_ptr_value(_handle->count, index);
@@ -239,7 +223,7 @@ namespace sqlpp
         {
           std::cerr << "PostgreSQL debug: date string: " << date_string << std::endl;
         }
-        if (::sqlpp::detail::parse_date(*value, date_string) == false)
+        if (::sqlpp::detail::parse_date(value, date_string) == false)
         {
           if (_handle->debug())
           {
@@ -249,19 +233,12 @@ namespace sqlpp
       }
 
       // always returns UTC time for timestamp with time zone
-      void _bind_date_time_result(size_t _index, ::sqlpp::chrono::microsecond_point* value, bool* is_null)
+      void read_field(size_t _index, ::sqlpp::chrono::microsecond_point& value)
       {
-        auto index = static_cast<int>(_index);
+        const auto index = static_cast<int>(_index);
         if (_handle->debug())
         {
           std::cerr << "PostgreSQL debug: binding date_time result at index: " << index << std::endl;
-        }
-
-        *value = {};
-        *is_null = _handle->result.is_null(_handle->count, index);
-        if (*is_null)
-        {
-          return;
         }
 
         const auto date_string = _handle->result.get_char_ptr_value(_handle->count, index);
@@ -269,7 +246,7 @@ namespace sqlpp
         {
           std::cerr << "PostgreSQL debug: got date_time string: " << date_string << std::endl;
         }
-        if (::sqlpp::detail::parse_timestamp(*value, date_string) == false)
+        if (::sqlpp::detail::parse_timestamp(value, date_string) == false)
         {
           if (_handle->debug())
           {
@@ -279,19 +256,12 @@ namespace sqlpp
       }
 
       // always returns UTC time for time with time zone
-      void _bind_time_of_day_result(size_t _index, ::std::chrono::microseconds* value, bool* is_null)
+      void read_field(size_t _index, ::std::chrono::microseconds& value)
       {
-        auto index = static_cast<int>(_index);
+        const auto index = static_cast<int>(_index);
         if (_handle->debug())
         {
           std::cerr << "PostgreSQL debug: binding time result at index: " << index << std::endl;
-        }
-
-        *value = {};
-        *is_null = _handle->result.is_null(_handle->count, index);
-        if (*is_null)
-        {
-          return;
         }
 
         const auto time_string = _handle->result.get_char_ptr_value(_handle->count, index);
@@ -301,7 +271,7 @@ namespace sqlpp
           std::cerr << "PostgreSQL debug: got time string: " << time_string << std::endl;
         }
 
-        if (::sqlpp::detail::parse_time_of_day(*value, time_string) == false)
+        if (::sqlpp::detail::parse_time_of_day(value, time_string) == false)
         {
           if (_handle->debug()) {
             std::cerr << "PostgreSQL debug: got invalid time '" << time_string << "'" << std::endl;
@@ -309,23 +279,33 @@ namespace sqlpp
         }
       }
 
-      void _bind_blob_result(size_t _index, const uint8_t** value, size_t* len)
+      void read_field(size_t _index, sqlpp::span<uint8_t>& value)
       {
-        auto index = static_cast<int>(_index);
+        const auto index = static_cast<int>(_index);
         if (_handle->debug())
         {
           std::cerr << "PostgreSQL debug: binding blob result at index: " << index << std::endl;
         }
 
+        value = sqlpp::span<uint8_t>(_handle->result.get_blob_value(_handle->count, index),
+                                     static_cast<size_t>(_handle->result.length(_handle->count, index)));
+      }
+
+      template <typename T>
+      auto read_field(size_t _index, sqlpp::optional<T>& value) -> void
+      {
+        const auto index = static_cast<int>(_index);
         if (_handle->result.is_null(_handle->count, index))
         {
-          *value = nullptr;
-          *len = 0;
+          value.reset();
         }
         else
         {
-          *value = _handle->result.get_blob_value(_handle->count, index);
-          *len   = static_cast<size_t>(_handle->result.length(_handle->count, index));
+          if (not value)
+          {
+            value = T{};
+          }
+          read_field(_index, *value);
         }
       }
 

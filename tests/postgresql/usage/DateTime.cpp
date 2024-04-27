@@ -75,12 +75,9 @@ int DateTime(int, char*[])
     db(insert_into(tab).default_values());
     for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
-      require_equal(__LINE__, row.c_day.is_null(), true);
-      require_equal(__LINE__, row.c_day.value(), ::sqlpp::chrono::day_point{});
-      require_equal(__LINE__, row.c_time.is_null(), true);
-      require_equal(__LINE__, row.c_time.value(), ::std::chrono::microseconds{});
-      require_equal(__LINE__, row.c_timepoint.is_null(), true);
-      require_equal(__LINE__, row.c_timepoint.value(), ::sqlpp::chrono::microsecond_point{});
+      require_equal(__LINE__, row.c_day.has_value(), false);
+      require_equal(__LINE__, row.c_time.has_value(), false);
+      require_equal(__LINE__, row.c_timepoint.has_value(), false);
     }
 
     db(update(tab).set(tab.c_day = today, tab.c_time = current, tab.c_timepoint = now).unconditionally());

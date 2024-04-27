@@ -51,7 +51,7 @@ namespace
   {
     // prepare test with timezone
     db.execute("DROP TABLE IF EXISTS tab_sample");
-    db.execute("CREATE TABLE tab_sample (alpha bigint, beta text, gamma bool)");
+    db.execute("CREATE TABLE tab_sample (alpha bigint, beta text, gamma bool NOT NULL DEFAULT 'f')");
   }
 }
 
@@ -69,24 +69,20 @@ int Type(int, char*[])
     db(insert_into(tab).default_values());
     for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
-      require_equal(__LINE__, row.alpha.is_null(), true);
-      require_equal(__LINE__, row.alpha.value(), 0);
-      require_equal(__LINE__, row.beta.is_null(), true);
-      require_equal(__LINE__, row.beta.value(), "");
-      require_equal(__LINE__, row.gamma.is_null(), true);
-      require_equal(__LINE__, row.gamma.value(), false);
+      require_equal(__LINE__, row.alpha.has_value(), false);
+      require_equal(__LINE__, row.beta.has_value(), false);
+      require_equal(__LINE__, row.gamma, false);
     }
 
     db(update(tab).set(tab.alpha = 10, tab.beta = "Cookies!", tab.gamma = true).unconditionally());
 
     for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
-      require_equal(__LINE__, row.alpha.is_null(), false);
+      require_equal(__LINE__, row.alpha.has_value(), true);
       require_equal(__LINE__, row.alpha.value(), 10);
-      require_equal(__LINE__, row.beta.is_null(), false);
+      require_equal(__LINE__, row.beta.has_value(), true);
       require_equal(__LINE__, row.beta.value(), "Cookies!");
-      require_equal(__LINE__, row.gamma.is_null(), false);
-      require_equal(__LINE__, row.gamma.value(), true);
+      require_equal(__LINE__, row.gamma, true);
     }
 
     db(update(tab).set(tab.alpha = 20, tab.beta = "Monster", tab.gamma = false).unconditionally());
@@ -95,7 +91,7 @@ int Type(int, char*[])
     {
       require_equal(__LINE__, row.alpha.value(), 20);
       require_equal(__LINE__, row.beta.value(), "Monster");
-      require_equal(__LINE__, row.gamma.value(), false);
+      require_equal(__LINE__, row.gamma, false);
     }
 
     auto prepared_update = db.prepare(
@@ -113,7 +109,7 @@ int Type(int, char*[])
     {
       require_equal(__LINE__, row.alpha.value(), 30);
       require_equal(__LINE__, row.beta.value(), "IceCream");
-      require_equal(__LINE__, row.gamma.value(), true);
+      require_equal(__LINE__, row.gamma, true);
     }
   }
   catch (std::exception& e)
