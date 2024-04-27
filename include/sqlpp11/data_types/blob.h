@@ -32,7 +32,6 @@
 #include <sqlpp11/data_types/blob/expression_operators.h>
 #include <sqlpp11/data_types/blob/column_operators.h>
 #include <sqlpp11/data_types/blob/parameter_value.h>
-#include <sqlpp11/data_types/blob/result_field.h>
 
 // blob specific functions
 #include <sqlpp11/data_types/text/like.h>

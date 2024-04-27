@@ -36,7 +36,6 @@
 #include <sqlpp11/connection.h>
 #include <sqlpp11/detail/float_safe_ostringstream.h>
 #include <sqlpp11/postgresql/bind_result.h>
-#include <sqlpp11/postgresql/result_field.h>
 #include <sqlpp11/postgresql/connection_config.h>
 #include <sqlpp11/postgresql/prepared_statement.h>
 #include <sqlpp11/postgresql/exception.h>

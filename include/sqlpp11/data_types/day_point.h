@@ -32,4 +32,3 @@
 #include <sqlpp11/data_types/day_point/expression_operators.h>
 #include <sqlpp11/data_types/day_point/column_operators.h>
 #include <sqlpp11/data_types/day_point/parameter_value.h>
-#include <sqlpp11/data_types/day_point/result_field.h>
