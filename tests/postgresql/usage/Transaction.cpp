@@ -32,55 +32,9 @@
 #include <sqlpp11/postgresql/connection.h>
 #include <sqlpp11/sqlpp11.h>
 #include <sqlpp11/transaction.h>
+#include "../../include/test_helpers.h"
 
 #include "make_test_connection.h"
-
-namespace
-{
-  std::ostream& operator<<(std::ostream& stream, const sqlpp::isolation_level& level)
-  {
-    switch (level)
-    {
-      case sqlpp::isolation_level::serializable:
-      {
-        stream << "SERIALIZABLE";
-        break;
-      }
-      case sqlpp::isolation_level::repeatable_read:
-      {
-        stream << "REPEATABLE READ";
-        break;
-      }
-      case sqlpp::isolation_level::read_committed:
-      {
-        stream << "READ COMMITTED";
-        break;
-      }
-      case sqlpp::isolation_level::read_uncommitted:
-      {
-        stream << "READ UNCOMMITTED";
-        break;
-      }
-      case sqlpp::isolation_level::undefined:
-      {
-        stream << "BEGIN";
-        break;
-      }
-    }
-
-    return stream;
-  }
-
-  template <typename L, typename R>
-  void require_equal(int line, const L& l, const R& r)
-  {
-    if (l != r)
-    {
-      std::cerr << line << ": " << l << " != " << r << std::endl;
-      throw std::runtime_error("Unexpected result");
-    }
-  }
-}
 
 namespace sql = sqlpp::postgresql;
 
@@ -95,10 +49,10 @@ int Transaction(int, char*[])
 
     {
       require_equal(__LINE__, db.is_transaction_active(), false);
-      std::string current_level = db(custom_query(sqlpp::verbatim("show transaction_isolation;"))
-                                         .with_result_type_of(select(sqlpp::value("").as(level))))
-                                      .front()
-                                      .level;
+      auto current_level = std::string(db(custom_query(sqlpp::verbatim("show transaction_isolation;"))
+                                              .with_result_type_of(select(sqlpp::value("").as(level))))
+                                           .front()
+                                           .level);
       require_equal(__LINE__, current_level, "read committed");
       std::cerr << "isolation level outside transaction: " << current_level << "\n";
 

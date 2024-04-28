@@ -34,6 +34,7 @@
 #include <sqlpp11/select.h>
 #include <sqlpp11/transaction.h>
 #include <sqlpp11/update.h>
+#include "../../include/test_helpers.h"
 
 #include <iostream>
 #include <vector>

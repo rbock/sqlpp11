@@ -26,6 +26,7 @@
  */
 
 #include <iostream>
+#include <sqlpp11/sqlpp11.h>
 
 template <typename Clock, typename Period>
 std::ostream& operator<<(std::ostream& os, const std::chrono::time_point<Clock, Period>& t)
@@ -37,6 +38,12 @@ std::ostream& operator<<(std::ostream& os, const std::chrono::time_point<Clock, 
   return os;
 }
 
+template <typename Rep, typename Period>
+std::ostream& operator<<(std::ostream& os, const std::chrono::duration<Rep, Period>& t)
+{
+  return os << '\'' << ::date::make_time(t) << '\'';
+}
+
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const sqlpp::optional<T>& t)
 {
@@ -45,15 +52,46 @@ std::ostream& operator<<(std::ostream& os, const sqlpp::optional<T>& t)
   return os << t.value();
 }
 
+inline std::ostream& operator<<(std::ostream& stream, const sqlpp::isolation_level& level)
+{
+  switch (level)
+  {
+    case sqlpp::isolation_level::serializable:
+    {
+      stream << "SERIALIZABLE";
+      break;
+    }
+    case sqlpp::isolation_level::repeatable_read:
+    {
+      stream << "REPEATABLE READ";
+      break;
+    }
+    case sqlpp::isolation_level::read_committed:
+    {
+      stream << "READ COMMITTED";
+      break;
+    }
+    case sqlpp::isolation_level::read_uncommitted:
+    {
+      stream << "READ UNCOMMITTED";
+      break;
+    }
+    case sqlpp::isolation_level::undefined:
+    {
+      stream << "BEGIN";
+      break;
+    }
+  }
+
+  return stream;
+}
+
 template <typename L, typename R>
 auto require_equal(int line, const L& l, const R& r) -> void
 {
   if (l != r)
   {
-    std::cerr << line << ": ";
-    serialize(::sqlpp::wrap_operand_t<L>{l}, std::cerr);
-    std::cerr << " != ";
-    serialize(::sqlpp::wrap_operand_t<R>{r}, std::cerr);
+    std::cerr << line << ": " << l << " != " << r << std::endl;
     throw std::runtime_error("Unexpected result");
   }
 }

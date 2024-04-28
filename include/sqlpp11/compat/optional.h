@@ -125,7 +125,7 @@ namespace sqlpp
       return _active;
     }
 
-    operator bool() const
+    explicit operator bool() const
     {
       return _active;
     }

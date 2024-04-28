@@ -28,6 +28,7 @@
 #include "is_regular.h"
 #include <sqlpp11/functions.h>
 #include <sqlpp11/select.h>
+#include "../../include/test_helpers.h"
 
 int Prepared(int, char* [])
 {
@@ -132,7 +133,10 @@ int Prepared(int, char* [])
   // Can we prepare a query without parameters?
   {
     auto ps = db.prepare(select(all_of(t)).from(t).where((t.beta.like("%"))));
-    auto res = db(ps);
+    for (const auto& row : db(ps))
+    {
+      std::cerr << row.alpha << std::endl;
+    }
   }
 
   // Check that a prepared select is default-constructable

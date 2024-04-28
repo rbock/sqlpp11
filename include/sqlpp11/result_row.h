@@ -280,11 +280,9 @@ namespace sqlpp
     {
       _impl::_apply(callable);
 
-      std::size_t index = sizeof...(FieldSpecs);
       for (const auto& field_name : _dynamic_field_names)
       {
         callable(_dynamic_fields.at(field_name));
-        ++index;
       }
     }
 
@@ -293,11 +291,9 @@ namespace sqlpp
     {
       _impl::_apply(callable);
 
-      std::size_t index = sizeof...(FieldSpecs);
       for (const auto& field_name : _dynamic_field_names)
       {
         callable(_dynamic_fields.at(field_name));
-        ++index;
       }
     }
   };
