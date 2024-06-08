@@ -58,22 +58,6 @@ namespace
     static_assert(ExpectedReturnType::value, "Unexpected return type");
   }
 
-  template <typename Assert, typename Expression>
-  auto having_dynamic_check(const Expression& expression) -> void
-  {
-    static auto db = MockDb{};
-    using CheckResult = sqlpp::check_having_dynamic_t<decltype(db), Expression>;
-    using ExpectedCheckResult = std::is_same<CheckResult, Assert>;
-    print_type_on_error<CheckResult>(ExpectedCheckResult{});
-    static_assert(ExpectedCheckResult::value, "Unexpected check result");
-
-    using ReturnType =
-        decltype(dynamic_select(db, all_of(t)).from(t).unconditionally().group_by(t.alpha).dynamic_having(expression));
-    using ExpectedReturnType = sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, Assert>::value>;
-    print_type_on_error<ReturnType>(ExpectedReturnType{});
-    static_assert(ExpectedReturnType::value, "Unexpected return type");
-  }
-
   auto static_having() -> void
   {
     // OK
@@ -101,46 +85,6 @@ namespace
     having_static_check<sqlpp::assert_having_boolean_expression_t>('c');
     having_static_check<sqlpp::assert_having_boolean_expression_t>(nullptr);
     having_static_check<sqlpp::assert_having_boolean_expression_t>(t.alpha.as(t.beta));
-  }
-
-  auto dynamic_having() -> void
-  {
-    // OK
-    having_dynamic_check<sqlpp::consistent_t>(t.gamma);
-    having_dynamic_check<sqlpp::consistent_t>(t.gamma == true);
-
-    // OK using aggregate functions in having
-    having_dynamic_check<sqlpp::consistent_t>(count(t.alpha) > 0);
-    having_dynamic_check<sqlpp::consistent_t>(t.gamma and count(t.alpha) > 0);
-    having_dynamic_check<sqlpp::consistent_t>(case_when(count(t.alpha) > 0).then(t.gamma).else_(not t.gamma));
-
-    // Try assignment as condition
-    having_dynamic_check<sqlpp::assert_having_boolean_expression_t>(t.gamma = true);
-
-    // Try non-boolean expression
-    having_dynamic_check<sqlpp::assert_having_boolean_expression_t>(t.alpha);
-
-    // Try builtin bool
-    having_dynamic_check<sqlpp::assert_having_not_cpp_bool_t>(true);
-    having_dynamic_check<sqlpp::assert_having_not_cpp_bool_t>(17 > 3);
-
-    // Try some other types as expressions
-    having_dynamic_check<sqlpp::assert_having_boolean_expression_t>("true");
-    having_dynamic_check<sqlpp::assert_having_boolean_expression_t>(17);
-    having_dynamic_check<sqlpp::assert_having_boolean_expression_t>('c');
-    having_dynamic_check<sqlpp::assert_having_boolean_expression_t>(nullptr);
-    having_dynamic_check<sqlpp::assert_having_boolean_expression_t>(t.alpha.as(t.beta));
-
-    // Try dynamic_having on a non-dynamic select
-    using CheckResult = sqlpp::check_having_dynamic_t<void, sqlpp::boolean_operand>;
-    using ExpectedCheckResult = std::is_same<CheckResult, sqlpp::assert_having_dynamic_statement_dynamic_t>;
-    print_type_on_error<CheckResult>(ExpectedCheckResult{});
-    static_assert(ExpectedCheckResult::value, "Unexpected check result");
-
-    using ReturnType = decltype(select(all_of(t)).from(t).dynamic_having());
-    using ExpectedReturnType = std::is_same<ReturnType, sqlpp::assert_having_dynamic_statement_dynamic_t>;
-    print_type_on_error<ReturnType>(ExpectedReturnType{});
-    static_assert(ExpectedReturnType::value, "Unexpected return type");
   }
 
   template <typename Assert, typename Statement, typename HavingCondition>
@@ -188,6 +132,6 @@ namespace
 int main(int, char* [])
 {
   static_having();
-  dynamic_having();
+#warning: Add tests with optional expressions?
   consistency_check();
 }

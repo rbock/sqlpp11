@@ -44,6 +44,8 @@ set(test_files
     Operator.cpp
     Over.cpp
     SelectAs.cpp
+    SelectColumns.cpp
+    SelectFlags.cpp
     Some.cpp
     Sum.cpp
     TableAlias.cpp

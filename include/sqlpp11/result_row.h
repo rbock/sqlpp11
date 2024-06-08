@@ -31,7 +31,6 @@
 #include <sqlpp11/compat/string_view.h>
 #include <sqlpp11/data_types/text.h>
 #include <sqlpp11/detail/index_sequence.h>
-#include <sqlpp11/dynamic_select_column_list.h>
 #include <sqlpp11/field_spec.h>
 #include <sqlpp11/no_name.h>
 #include <sqlpp11/result_row_fwd.h>
@@ -122,10 +121,6 @@ namespace sqlpp
     {
     }
 
-    result_row_t(const typename dynamic_select_column_list<void>::_names_t& /*unused*/) : _impl()
-    {
-    }
-
     result_row_t(const result_row_t&) = delete;
     result_row_t(result_row_t&&) = default;
     result_row_t& operator=(const result_row_t&) = delete;
@@ -195,108 +190,6 @@ namespace sqlpp
     static constexpr auto value = logic::all_t<is_field_compatible<LFields, RFields>::value...>::value;
   };
 
-  template <typename Db, typename... FieldSpecs>
-  struct dynamic_result_row_t
-      : public detail::result_row_impl<Db, detail::make_index_sequence<sizeof...(FieldSpecs)>, FieldSpecs...>
-  {
-    using _impl = detail::result_row_impl<Db, detail::make_index_sequence<sizeof...(FieldSpecs)>, FieldSpecs...>;
-    using _field_type = sqlpp::string_view;
-
-    bool _is_valid{false};
-    std::vector<std::string> _dynamic_field_names;
-    std::map<std::string, _field_type> _dynamic_fields;
-
-    dynamic_result_row_t() : _impl()
-    {
-    }
-
-    dynamic_result_row_t(std::vector<std::string> dynamic_field_names)
-        : _impl(), _dynamic_field_names(std::move(dynamic_field_names))
-    {
-      for (auto field_name : _dynamic_field_names)
-      {
-        _dynamic_fields.insert({field_name, _field_type{}});
-      }
-    }
-
-    dynamic_result_row_t(const dynamic_result_row_t&) = delete;
-    dynamic_result_row_t(dynamic_result_row_t&&) = default;
-    dynamic_result_row_t& operator=(const dynamic_result_row_t&) = delete;
-    dynamic_result_row_t& operator=(dynamic_result_row_t&&) = default;
-
-    void _validate()
-    {
-      _is_valid = true;
-    }
-
-    void _invalidate()
-    {
-      _is_valid = false;
-    }
-
-    bool operator==(const dynamic_result_row_t& rhs) const
-    {
-      return _is_valid == rhs._is_valid;
-    }
-
-    const _field_type& at(const std::string& field_name) const
-    {
-      return _dynamic_fields.at(field_name);
-    }
-
-    explicit operator bool() const
-    {
-      return _is_valid;
-    }
-
-    template <typename Target>
-    void _bind(Target& target)
-    {
-      _impl::_bind(target);
-
-      std::size_t index = sizeof...(FieldSpecs);
-      for (const auto& field_name : _dynamic_field_names)
-      {
-        target.read_field(index, _dynamic_fields.at(field_name));
-        ++index;
-      }
-    }
-
-    template <typename Target>
-    void _post_bind(Target& target)
-    {
-      _impl::_post_bind(target);
-
-      std::size_t index = sizeof...(FieldSpecs);
-      for (const auto& field_name : _dynamic_field_names)
-      {
-        target.post_read(index, _dynamic_fields.at(field_name));
-        ++index;
-      }
-    }
-
-    template <typename Callable>
-    void _apply(Callable& callable) const
-    {
-      _impl::_apply(callable);
-
-      for (const auto& field_name : _dynamic_field_names)
-      {
-        callable(_dynamic_fields.at(field_name));
-      }
-    }
-
-    template <typename Callable>
-    void _apply(const Callable& callable) const
-    {
-      _impl::_apply(callable);
-
-      for (const auto& field_name : _dynamic_field_names)
-      {
-        callable(_dynamic_fields.at(field_name));
-      }
-    }
-  };
 
   template <typename T>
   struct is_static_result_row_impl

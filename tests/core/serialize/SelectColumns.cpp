@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -23,22 +23,37 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
+#include "compare.h"
 #include "Sample.h"
-#include "MockDb.h"
 #include <sqlpp11/sqlpp11.h>
 
-int BooleanExpression(int, char*[])
+int SelectColumns(int, char*[])
 {
-  MockDb db = {};
-  const auto t = test::TabBar{};
+  const auto foo = test::TabFoo{};
+  const auto bar = test::TabBar{};
 
-  auto x = boolean_expression(db, not(t.alpha == 7));
-  x = sqlpp::boolean_expression(db, true);
-  x = sqlpp::boolean_expression<MockDb>(t.beta.like("%cheesecake"));
-  x = x and boolean_expression(db, t.gamma);
+  // Single column
+  compare(__LINE__, select(foo.omega), "SELECT tab_foo.omega");
 
-  db(select(t.alpha).from(t).where(x));
+  // Two columns
+  compare(__LINE__, select(foo.omega, bar.alpha), "SELECT tab_foo.omega,tab_bar.alpha");
+
+  // All columns of a table
+  compare(__LINE__, select(all_of(foo)), "SELECT tab_foo.delta,tab_foo.epsilon,tab_foo.omega,tab_foo.psi,tab_foo.book");
+
+  // All columns of a table plus one more
+  compare(__LINE__, select(all_of(foo), bar.alpha), "SELECT tab_foo.delta,tab_foo.epsilon,tab_foo.omega,tab_foo.psi,tab_foo.book,tab_bar.alpha");
+
+  // One more, plus all columns of a table
+  compare(__LINE__, select(bar.alpha, all_of(foo)), "SELECT tab_bar.alpha,tab_foo.delta,tab_foo.epsilon,tab_foo.omega,tab_foo.psi,tab_foo.book");
+
+  // Column and aggregate function
+  compare(__LINE__, select(foo.omega, count(bar.alpha)), "SELECT tab_foo.omega,COUNT(tab_bar.alpha) AS count_");
+
+  // Column aliases
+  compare(__LINE__, select(foo.omega.as(sqlpp::alias::o), count(bar.alpha).as(sqlpp::alias::a)), "SELECT tab_foo.omega AS o,COUNT(tab_bar.alpha) AS a");
+
+#warning: add optional column tests
 
   return 0;
 }

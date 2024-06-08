@@ -30,7 +30,6 @@ if (NOT MSVC)
 endif ()
 
 set(test_files
-    BooleanExpression.cpp
     CustomQuery.cpp
     DateTime.cpp
     DateTimeParser.cpp

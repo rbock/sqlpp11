@@ -58,21 +58,6 @@ namespace
     static_assert(ExpectedReturnType::value, "Unexpected return type");
   }
 
-  template <typename Assert, typename Expression>
-  void from_dynamic_check(const Expression& expression)
-  {
-    static auto db = MockDb{};
-    using CheckResult = sqlpp::check_from_dynamic_t<decltype(db), Expression>;
-    using ExpectedCheckResult = std::is_same<CheckResult, Assert>;
-    print_type_on_error<CheckResult>(ExpectedCheckResult{});
-    static_assert(ExpectedCheckResult::value, "Unexpected check result");
-
-    using ReturnType = decltype(dynamic_select(db, t.alpha).dynamic_from(expression));
-    using ExpectedReturnType = sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, Assert>::value>;
-    print_type_on_error<ReturnType>(ExpectedReturnType{});
-    static_assert(ExpectedReturnType::value, "Unexpected return type");
-  }
-
   void static_from()
   {
     // OK
@@ -90,80 +75,10 @@ namespace
     // Try cross joins (missing condition)
     from_static_check<sqlpp::assert_from_not_pre_join_t>(t.join(f));
   }
-
-  void dynamic_from()
-  {
-    // OK
-    from_dynamic_check<sqlpp::consistent_t>(t);
-    from_dynamic_check<sqlpp::consistent_t>(t.cross_join(f));
-    from_dynamic_check<sqlpp::consistent_t>(t.join(f).on(t.alpha > f.omega));
-
-    // Try a bunch of non-tables
-    from_dynamic_check<sqlpp::assert_from_table_t>(7);
-    from_dynamic_check<sqlpp::assert_from_table_t>(t.alpha);
-    from_dynamic_check<sqlpp::assert_from_table_t>(t.beta);
-    from_dynamic_check<sqlpp::assert_from_table_t>(t.gamma);
-    from_dynamic_check<sqlpp::assert_from_table_t>(t.delta);
-
-    // Try cross joins (missing condition)
-    from_dynamic_check<sqlpp::assert_from_not_pre_join_t>(t.join(f));
-  }
-
-  template <typename Assert, typename FromImpl, typename Expression>
-  void dynamic_from_add_check(FromImpl from, const Expression& expression)
-  {
-    using CheckResult = sqlpp::check_from_add_t<FromImpl, Expression>;
-    using ExpectedCheckResult = std::is_same<CheckResult, Assert>;
-    print_type_on_error<CheckResult>(ExpectedCheckResult{});
-    static_assert(ExpectedCheckResult::value, "Unexpected check result");
-
-    using ReturnType = decltype(from.add(expression));
-    using ExpectedReturnType = sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, Assert>::value>;
-    print_type_on_error<ReturnType>(ExpectedReturnType{});
-    static_assert(ExpectedReturnType::value, "Unexpected return type");
-  }
-
-  void dynamic_from_add()
-  {
-    static auto db = MockDb{};
-    auto fromT = dynamic_select(db, t.alpha).dynamic_from(t).from;
-    auto staticFrom = dynamic_select(db, t.alpha).from(t).from;
-    const auto fa = f.as(sqlpp::alias::a);
-
-    // OK
-    dynamic_from_add_check<sqlpp::consistent_t>(fromT, dynamic_join(f).on(t.alpha > f.omega));
-    dynamic_from_add_check<sqlpp::consistent_t>(fromT, dynamic_inner_join(f).on(t.alpha > f.omega));
-    dynamic_from_add_check<sqlpp::consistent_t>(fromT, dynamic_left_outer_join(f).on(t.alpha > f.omega));
-    dynamic_from_add_check<sqlpp::consistent_t>(fromT, dynamic_right_outer_join(f).on(t.alpha > f.omega));
-    dynamic_from_add_check<sqlpp::consistent_t>(fromT, dynamic_outer_join(f).on(t.alpha > f.omega));
-    dynamic_from_add_check<sqlpp::consistent_t>(fromT, dynamic_cross_join(f));
-
-    // Try a bunch of non dynamic joins
-    dynamic_from_add_check<sqlpp::assert_from_add_dynamic>(staticFrom, 7);
-
-    // Try a bunch of non dynamic joins
-    dynamic_from_add_check<sqlpp::assert_from_add_dynamic_join>(fromT, 7);
-    dynamic_from_add_check<sqlpp::assert_from_add_dynamic_join>(fromT, t.gamma);
-    dynamic_from_add_check<sqlpp::assert_from_add_dynamic_join>(fromT, join(f, f.as(sqlpp::alias::a)));
-
-    // Try incomplete dynamic join
-    dynamic_from_add_check<sqlpp::assert_from_add_not_dynamic_pre_join>(fromT, dynamic_join(f));
-
-    // Try joining the same table name
-    dynamic_from_add_check<sqlpp::assert_from_add_unique_names>(fromT, dynamic_cross_join(t));
-    dynamic_from_add_check<sqlpp::assert_from_add_unique_names>(fromT, dynamic_cross_join(f.as(t)));
-
-    // Try joining with a condition that requires other tables
-    dynamic_from_add_check<sqlpp::assert_from_add_no_required_tables>(fromT, dynamic_join(f).on(t.alpha > fa.omega));
-
-    // If you really think you know what you are doing, use without_table_check
-    dynamic_from_add_check<sqlpp::consistent_t>(fromT, dynamic_join(f).on(t.alpha > without_table_check(fa.omega)));
-  }
 }
 
 int main(int, char* [])
 {
   static_from();
-  dynamic_from();
-  dynamic_from_add();
+#warning add tests for optional joins
 }

@@ -28,7 +28,6 @@
 
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/interpret_tuple.h>
-#include <sqlpp11/interpretable_list.h>
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp
@@ -48,7 +47,6 @@ namespace sqlpp
     ~update_list_data_t() = default;
 
     std::tuple<Assignments...> _assignments;
-    interpretable_list_t<Database> _dynamic_assignments;
   };
 
   SQLPP_PORTABLE_STATIC_ASSERT(
@@ -61,7 +59,6 @@ namespace sqlpp
   {
     using _traits = make_traits<no_value_t, tag::is_update_list>;
     using _nodes = detail::type_vector<Assignments...>;
-    using _is_dynamic = is_database<Database>;
 
     // Data
     using _data_t = update_list_data_t<Database, Assignments...>;
@@ -75,32 +72,6 @@ namespace sqlpp
       _impl_t(const _data_t& data) : _data(data)
       {
       }
-
-      template <typename Assignment>
-      void add(Assignment assignment)
-      {
-        static_assert(_is_dynamic::value, "add must not be called for static from()");
-        static_assert(is_assignment_t<Assignment>::value, "invalid assignment argument in add()");
-        using _assigned_columns = detail::make_type_set_t<lhs_t<Assignments>...>;
-        static_assert(not _assigned_columns::template count<lhs_t<Assignment>>(),
-                      "Must not assign value to column twice");
-        static_assert(logic::not_t<must_not_update_t, lhs_t<Assignment>>::value, "add() argument must not be updated");
-        static_assert(Policies::template _no_unknown_tables<Assignment>::value,
-                      "assignment uses tables unknown to this statement in add()");
-        using ok = logic::all_t<_is_dynamic::value, is_assignment_t<Assignment>::value>;
-
-        _add_impl(assignment, ok());  // dispatch to prevent compile messages after the static_assert
-      }
-
-    private:
-      template <typename Assignment>
-      void _add_impl(Assignment assignment, const std::true_type& /*unused*/)
-      {
-        _data._dynamic_assignments.emplace_back(assignment);
-      }
-
-      template <typename Assignment>
-      void _add_impl(Assignment assignment, const std::false_type&);
 
     public:
       _data_t _data;
@@ -149,8 +120,7 @@ namespace sqlpp
   SQLPP_PORTABLE_STATIC_ASSERT(assert_update_set_single_table_t,
                                "set() contains assignments for columns from more than one table");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_update_set_count_args_t, "at least one assignment expression required in set()");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_update_dynamic_set_statement_dynamic_t,
-                               "dynamic_set() must not be called in a static statement");
+
   namespace detail
   {
     template <typename Assignment>
@@ -181,17 +151,6 @@ namespace sqlpp
 
   template <typename... Assignments>
   using check_update_static_set_t = typename check_update_static_set<Assignments...>::type;
-
-  template <typename Database, typename... Assignments>
-  struct check_update_dynamic_set
-  {
-    using type = static_combined_check_t<
-        static_check_t<not std::is_same<Database, void>::value, assert_update_dynamic_set_statement_dynamic_t>,
-        check_update_set_t<Assignments...>>;
-  };
-
-  template <typename... Assignments>
-  using check_update_dynamic_set_t = typename check_update_dynamic_set<Assignments...>::type;
 
   struct no_update_list_t
   {
@@ -265,15 +224,6 @@ namespace sqlpp
         return _set_impl<void>(Check{}, assignments);
       }
 
-      template <typename... Assignments>
-      auto dynamic_set(Assignments... assignments) const
-          -> _new_statement_t<check_update_dynamic_set_t<_database_t, Assignments...>,
-                              update_list_t<_database_t, Assignments...>>
-      {
-        using Check = check_update_dynamic_set_t<_database_t, Assignments...>;
-        return _set_impl<_database_t>(Check{}, std::make_tuple(assignments...));
-      }
-
     private:
       template <typename Database, typename Check, typename... Assignments>
       auto _set_impl(Check, Assignments... assignments) const -> inconsistent<Check>;
@@ -294,11 +244,6 @@ namespace sqlpp
   {
     context << " SET ";
     interpret_tuple(t._assignments, ",", context);
-    if (sizeof...(Assignments) and not t._dynamic_assignments.empty())
-    {
-      context << ',';
-    }
-    interpret_list(t._dynamic_assignments, ',', context);
     return context;
   }
 }  // namespace sqlpp

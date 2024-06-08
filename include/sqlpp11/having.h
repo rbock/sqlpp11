@@ -28,7 +28,6 @@
 
 #include <sqlpp11/expression.h>
 #include <sqlpp11/interpret_tuple.h>
-#include <sqlpp11/interpretable_list.h>
 #include <sqlpp11/logic.h>
 #include <sqlpp11/policy_update.h>
 #include <sqlpp11/type_traits.h>
@@ -51,7 +50,6 @@ namespace sqlpp
     ~having_data_t() = default;
 
     Expression _expression;
-    interpretable_list_t<Database> _dynamic_expressions;
   };
 
   SQLPP_PORTABLE_STATIC_ASSERT(
@@ -68,8 +66,6 @@ namespace sqlpp
     using _traits = make_traits<no_value_t, tag::is_having>;
     using _nodes = detail::type_vector<Expression>;
 
-    using _is_dynamic = is_database<Database>;
-
     // Data
     using _data_t = having_data_t<Database, Expression>;
 
@@ -82,28 +78,6 @@ namespace sqlpp
       _impl_t(const _data_t& data) : _data(data)
       {
       }
-
-      template <typename Expr>
-      void add(Expr expression)
-      {
-        static_assert(_is_dynamic::value, "having::add() can only be called for dynamic_having");
-        static_assert(is_expression_t<Expr>::value, "invalid expression argument in having::add()");
-        static_assert(Policies::template _no_unknown_tables<Expr>::value,
-                      "expression uses tables unknown to this statement in having::add()");
-        using ok = logic::all_t<_is_dynamic::value, is_expression_t<Expr>::value>;
-
-        _add_impl(expression, ok());  // dispatch to prevent compile messages after the static_assert
-      }
-
-    private:
-      template <typename Expr>
-      void _add_impl(Expr expression, const std::true_type& /*unused*/)
-      {
-        _data._dynamic_expressions.emplace_back(expression);
-      }
-
-      template <typename Expr>
-      void _add_impl(Expr expression, const std::false_type&);
 
     public:
       _data_t _data;
@@ -154,8 +128,6 @@ namespace sqlpp
                                "sqlpp::value(bool_expresson) if you really want to use a bool value here");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_having_boolean_expression_t,
                                "having() argument has to be an sqlpp boolean expression.");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_having_dynamic_statement_dynamic_t,
-                               "dynamic_having() must not be called in a static statement");
 
   template <typename Expression>
   struct check_having
@@ -171,11 +143,6 @@ namespace sqlpp
 
   template <typename Expression>
   using check_having_static_t = check_having_t<Expression>;
-
-  template <typename Database, typename Expression>
-  using check_having_dynamic_t = static_combined_check_t<
-      static_check_t<not std::is_same<Database, void>::value, assert_having_dynamic_statement_dynamic_t>,
-      check_having_t<Expression>>;
 
   template <typename... Exprs>
   constexpr auto are_all_parameters_expressions() -> bool
@@ -257,21 +224,6 @@ namespace sqlpp
         return _having_impl<void>(Check{}, expression);
       }
 
-      template <typename Expression>
-      auto dynamic_having(Expression expression) const
-          -> _new_statement_t<check_having_dynamic_t<_database_t, Expression>, having_t<_database_t, Expression>>
-      {
-        using Check = check_having_dynamic_t<_database_t, Expression>;
-
-        return _having_impl<_database_t>(Check{}, expression);
-      }
-
-      auto dynamic_having() const -> _new_statement_t<check_having_dynamic_t<_database_t, boolean_operand>,
-                                                      having_t<_database_t, boolean_operand>>
-      {
-        return dynamic_having(::sqlpp::value(true));
-      }
-
     private:
       template <typename Database, typename Check, typename Expression>
       auto _having_impl(Check, Expression expression) const -> inconsistent<Check>;
@@ -292,11 +244,6 @@ namespace sqlpp
   {
     context << " HAVING ";
     serialize(t._expression, context);
-    if (not t._dynamic_expressions.empty())
-    {
-      context << " AND ";
-    }
-    interpret_list(t._dynamic_expressions, " AND ", context);
     return context;
   }
 
@@ -306,10 +253,4 @@ namespace sqlpp
     return statement_t<void, no_having_t>().having(std::forward<T>(t));
   }
 
-  template <typename Database, typename T>
-  auto dynamic_having(const Database& /*unused*/, T&& t)
-      -> decltype(statement_t<Database, no_having_t>().dynamic_having(std::forward<T>(t)))
-  {
-    return statement_t<Database, no_having_t>().dynamic_having(std::forward<T>(t));
-  }
 }  // namespace sqlpp

@@ -46,24 +46,13 @@ int Update(int, char*[])
     static_assert(sqlpp::is_regular<T>::value, "type requirement");
   }
 
-  {
-    using T = decltype(dynamic_update(db, t).dynamic_set(t.gamma = false).dynamic_where());
-    static_assert(sqlpp::is_regular<T>::value, "type requirement");
-  }
-
   serialize(update(t), printer).str();
   serialize(update(t).set(t.gamma = false), printer).str();
   serialize(update(t).set(t.gamma = false).where(t.beta != "transparent"), printer).str();
   serialize(update(t).set(t.beta = "opaque").where(t.beta != t.beta + "this is nonsense"), printer).str();
-  auto u = dynamic_update(db, t).dynamic_set(t.gamma = false).dynamic_where();
-  u.assignments.add(t.beta = "cannot update gamma a second time");
-  u.where.add(t.gamma != false);
-  printer.reset();
-  std::cerr << serialize(u, printer).str() << std::endl;
-
-  db(u);
-
   auto values = [&t]() { return std::make_tuple(t.delta += t.alpha, t.beta = "no cake this time"); };
+
+#warning add tests with dynamic set and dynamic where
 
   db(update(t).set(t.delta = sqlpp::verbatim<sqlpp::integer>("17+4")).unconditionally());
   db(update(t)

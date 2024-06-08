@@ -33,7 +33,6 @@
 #include <sqlpp11/expression_fwd.h>
 #include <sqlpp11/field_spec.h>
 #include <sqlpp11/interpret_tuple.h>
-#include <sqlpp11/named_interpretable.h>
 #include <sqlpp11/operand_check.h>
 #include <sqlpp11/policy_update.h>
 #include <sqlpp11/result_row.h>
@@ -70,66 +69,6 @@ namespace sqlpp
       };
     }  // namespace detail
 
-    template <typename Db>
-    struct dynamic_returning_column_list
-    {
-      using _names_t = std::vector<std::string>;
-      std::vector<named_interpretable_t<Db>> _dynamic_columns;
-      _names_t _dynamic_expression_names;
-
-      template <typename Expr>
-      void emplace_back(Expr expr)
-      {
-        _dynamic_expression_names.push_back(name_of<Expr>::char_ptr());
-        _dynamic_columns.emplace_back(expr);
-      }
-
-      bool empty() const
-      {
-        return _dynamic_columns.empty();
-      }
-    };
-
-    template <>
-    struct dynamic_returning_column_list<void>
-    {
-      using _names_t = no_name_t;
-      _names_t _dynamic_expression_names;
-
-      static constexpr bool empty()
-      {
-        return true;
-      }
-    };
-
-  template <typename Db>
-    postgresql::context_t& serialize(const postgresql::dynamic_returning_column_list<Db>& t,
-                                     postgresql::context_t& context)
-    {
-      bool first{true};
-      for (const auto& column : t._dynamic_columns)
-      {
-        if (first)
-        {
-          first = false;
-        }
-        else
-        {
-          context << ',';
-        }
-
-        serialize(column, context);
-      }
-
-      return context;
-    }
-
-    inline postgresql::context_t& serialize(const postgresql::dynamic_returning_column_list<void>&,
-                                     postgresql::context_t& context)
-    {
-      return context;
-    }
-
     template <typename Database, typename... Columns>
     struct returning_column_list_data_t
     {
@@ -145,7 +84,6 @@ namespace sqlpp
       returning_column_list_data_t& operator=(returning_column_list_data_t&&) = default;
 
       std::tuple<Columns...> _columns;
-      dynamic_returning_column_list<Database> _dynamic_columns;
     };
 
     // static asserts...
@@ -160,7 +98,6 @@ namespace sqlpp
       using _traits = typename detail::returning_traits<Columns...>::_traits;
       using _nodes = ::sqlpp::detail::type_vector<Columns...>;
       using _alias_t = typename detail::returning_traits<Columns...>::_alias_t;
-      using _is_dynamic = is_database<Database>;
 
       struct _column_type
       {
@@ -178,39 +115,6 @@ namespace sqlpp
         _impl_t(const _data_t& data) : _data(data)
         {
         }
-
-        template <typename NamedExpression>
-        void add_ntc(NamedExpression namedExpression)
-        {
-          add<NamedExpression, std::false_type>(namedExpression);
-        }
-
-        template <typename NamedExpression, typename TableCheckRequired = std::true_type>
-        void add(NamedExpression namedExpression)
-        {
-          using named_expression = auto_alias_t<NamedExpression>;
-          static_assert(_is_dynamic::value, "selected_columns::add() can only be called for dynamic_column");
-          static_assert(is_selectable_t<named_expression>::value,
-                        "invalid named expression argument in selected_columns::add()");
-          static_assert(TableCheckRequired::value or Policies::template _no_unknown_tables<named_expression>::value,
-                        "named expression uses tables unknown to this statement in selected_columns::add()");
-          using column_names = ::sqlpp::detail::make_type_set_t<typename Columns::_alias_t...>;
-          static_assert(not::sqlpp::detail::is_element_of<typename named_expression::_alias_t, column_names>::value,
-                        "a column of this name is present in the select already");
-
-          using ok = logic::all_t<_is_dynamic::value, is_selectable_t<named_expression>::value>;
-
-          _add_impl(namedExpression, ok());
-        }
-
-        template <typename NamedExpression>
-        void _add_impl(NamedExpression namedExpression, const std::true_type&)
-        {
-          return _data._dynamic_columns.emplace_back(auto_alias_t<NamedExpression>{namedExpression});
-        }
-
-        template <typename NamedExpression>
-        void _add_impl(NamedExpression namedExpression, const std::false_type&);
 
         _data_t _data;
       };
@@ -281,12 +185,7 @@ namespace sqlpp
         template <typename Db, typename Column>
         using _field_t = typename _deferred_field_t<Db, Column>::type;
 
-        template <typename Db>
-        using _result_row_t = typename std::conditional<_is_dynamic::value,
-                                                        dynamic_result_row_t<Db, _field_t<Db, Columns>...>,
-                                                        result_row_t<Db, _field_t<Db, Columns>...>>::type;
-
-        using _dynamic_names_t = typename dynamic_returning_column_list<Database>::_names_t;
+        using _result_row_t = result_row_t < Db, _field_t<Db, Columns>... >;
 
         template <typename AliasProvider>
         struct _deferred_table_t
@@ -310,14 +209,9 @@ namespace sqlpp
           return _table_t<AliasProvider>(_get_statement()).as(aliasProvider);
         }
 
-        const _dynamic_names_t& get_dynamic_names() const
-        {
-          return _get_statement().get_selected_columns()._data._dynamic_columns._dynamic_expression_names;
-        }
-
         size_t get_no_of_result_columns() const
         {
-          return sizeof...(Columns) + get_dynamic_names().size();
+          return sizeof...(Columns);
         }
 
         // auto ..
@@ -325,26 +219,26 @@ namespace sqlpp
         auto _run(Db& db, const Composite& composite) const
             -> result_t<decltype(db.select(composite)), _result_row_t<Db>>
         {
-          return {db.select(composite), get_dynamic_names()};
+          return {db.select(composite)};
         }
 
         template <typename Db>
         auto _run(Db& db) const -> result_t<decltype(db.select(std::declval<_statement_t>())), _result_row_t<Db>>
         {
-          return {db.select(_get_statement()), get_dynamic_names()};
+          return {db.select(_get_statement())};
         }
 
         // Prepare
         template <typename Db, typename Composite>
         auto _prepare(Db& db, const Composite& composite) const -> prepared_select_t<Db, _statement_t, Composite>
         {
-          return {make_parameter_list_t<Composite>{}, get_dynamic_names(), db.prepare_select(composite)};
+          return {make_parameter_list_t<Composite>{}, db.prepare_select(composite)};
         }
 
         template <typename Db>
         auto _prepare(Db& db) const -> prepared_select_t<Db, _statement_t>
         {
-          return {make_parameter_list_t<_statement_t>{}, get_dynamic_names(), db.prepare_select(_get_statement())};
+          return {make_parameter_list_t<_statement_t>{}, db.prepare_select(_get_statement())};
         }
       };
     };
@@ -445,20 +339,6 @@ namespace sqlpp
           return _returning_impl<void>(decltype(_check_args(args...)){}, ::sqlpp::detail::column_tuple_merge(args...));
         }
 
-        template <typename... Args>
-        auto dynamic_returning(Args... args) const
-            -> _new_statement_t<decltype(_check_args(args...)),
-            decltype(detail::make_returning_column_list<_database_t>(::sqlpp::detail::column_tuple_merge(args...)))>
-        {
-          static_assert(not std::is_same<_database_t, void>::value,
-                        "dynamic_columns must not be called in a static statement");
-          static_assert(decltype(_check_args(args...))::value,
-                        "at least one argument is not a selectable expression in returning()");
-
-          return _returning_impl<_database_t>(decltype(_check_args(args...)){},
-                                              ::sqlpp::detail::column_tuple_merge(args...));
-        }
-
       private:
         template <typename Database, typename Check, typename... Args>
         auto _returning_impl(const std::false_type&, std::tuple<Args...> args) const -> inconsistent<Check>;
@@ -484,9 +364,6 @@ namespace sqlpp
     {
       context << " RETURNING ";
       interpret_tuple(t._columns, ',', context);
-      if (sizeof...(Columns) and not t._dynamic_columns.empty())
-        context << ',';
-      serialize(t._dynamic_columns, context);
       return context;
     }
   }

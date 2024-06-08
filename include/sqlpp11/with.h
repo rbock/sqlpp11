@@ -30,7 +30,6 @@
 #include <sqlpp11/column_fwd.h>
 #include <sqlpp11/expression.h>
 #include <sqlpp11/interpret_tuple.h>
-#include <sqlpp11/interpretable_list.h>
 #include <sqlpp11/logic.h>
 #include <sqlpp11/no_data.h>
 #include <sqlpp11/parameter_list.h>
@@ -68,8 +67,6 @@ namespace sqlpp
     using _provided_ctes =
         detail::make_joined_set_t<required_ctes_of<Expressions>...>;  // WITH provides common table expressions
     using _parameters = detail::type_vector_cat_t<parameters_of<Expressions>...>;
-
-    using _is_dynamic = is_database<Database>;
 
     // Data
     using _data_t = with_data_t<Database, Expressions...>;

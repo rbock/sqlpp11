@@ -28,7 +28,6 @@
 
 #include <sqlpp11/expression.h>
 #include <sqlpp11/interpret_tuple.h>
-#include <sqlpp11/interpretable_list.h>
 #include <sqlpp11/logic.h>
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/statement_fwd.h>
@@ -53,7 +52,6 @@ namespace sqlpp
     ~where_data_t() = default;
 
     Expression _expression;
-    interpretable_list_t<Database> _dynamic_expressions;
   };
 
   SQLPP_PORTABLE_STATIC_ASSERT(
@@ -67,8 +65,6 @@ namespace sqlpp
     using _traits = make_traits<no_value_t, tag::is_where>;
     using _nodes = detail::type_vector<Expression>;
 
-    using _is_dynamic = is_database<Database>;
-
     // Data
     using _data_t = where_data_t<Database, Expression>;
 
@@ -81,31 +77,6 @@ namespace sqlpp
       _impl_t(const _data_t& data) : _data(data)
       {
       }
-
-      template <typename Expr>
-      void add(Expr expression)
-      {
-        static_assert(_is_dynamic::value, "where::add() can only be called for dynamic_where");
-        static_assert(is_expression_t<Expr>::value, "invalid expression argument in where::add()");
-        static_assert(is_boolean_t<Expr>::value, "invalid expression argument in where::add()");
-        static_assert(Policies::template _no_unknown_tables<Expr>::value,
-                      "expression uses tables unknown to this statement in where::add()");
-        static_assert(not contains_aggregate_function_t<Expr>::value,
-                      "where expression must not contain aggregate functions");
-        using ok = logic::all_t<_is_dynamic::value, is_expression_t<Expr>::value>;
-
-        _add_impl(expression, ok());  // dispatch to prevent compile messages after the static_assert
-      }
-
-    private:
-      template <typename Expr>
-      void _add_impl(Expr expression, const std::true_type& /*unused*/)
-      {
-        _data._dynamic_expressions.emplace_back(expression);
-      }
-
-      template <typename Expr>
-      void _add_impl(Expr expression, const std::false_type&);
 
     public:
       _data_t _data;
@@ -215,8 +186,6 @@ namespace sqlpp
                                "where() argument has to be an sqlpp boolean expression.");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_where_arg_contains_no_aggregate_functions_t,
                                "at least one aggregate function used in where()");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_dynamic_used_with_dynamic_statement_t,
-                               "dynamic_where() must not be called in a static statement");
 
   // workaround for msvc bugs https://connect.microsoft.com/VisualStudio/Feedback/Details/2086629 &
   // https://connect.microsoft.com/VisualStudio/feedback/details/2173198
@@ -246,15 +215,6 @@ namespace sqlpp
 
   template <typename Expression>
   using check_where_static_t = check_where_t<Expression>;
-
-  template <typename Database, typename Expression>
-  using check_where_dynamic_t = static_combined_check_t<
-      static_check_t<not std::is_same<Database, void>::value, assert_where_dynamic_used_with_dynamic_statement_t>,
-      check_where_t<Expression>>;
-
-  template <typename Database>
-  using check_where_empty_dynamic_t = static_combined_check_t<
-      static_check_t<not std::is_same<Database, void>::value, assert_where_dynamic_used_with_dynamic_statement_t>>;
 
   // NO WHERE YET
   template <bool WhereRequired>
@@ -330,21 +290,6 @@ namespace sqlpp
         return _where_impl<void>(Check{}, expression);
       }
 
-      template <typename Expression>
-      auto dynamic_where(Expression expression) const
-          -> _new_statement_t<check_where_dynamic_t<_database_t, Expression>, where_t<_database_t, Expression>>
-      {
-        using Check = check_where_dynamic_t<_database_t, Expression>;
-        return _where_impl<_database_t>(Check{}, expression);
-      }
-
-      auto dynamic_where() const
-          -> _new_statement_t<check_where_empty_dynamic_t<_database_t>, where_t<_database_t, unconditional_t>>
-      {
-        return {static_cast<const derived_statement_t<Policies>&>(*this),
-                where_data_t<_database_t, unconditional_t>{unconditional_t{}}};
-      }
-
     private:
       template <typename Database, typename Check, typename Expression>
       auto _where_impl(Check, Expression expression) const -> inconsistent<Check>;
@@ -365,23 +310,12 @@ namespace sqlpp
   {
     context << " WHERE ";
     serialize(t._expression, context);
-    if (not t._dynamic_expressions.empty())
-    {
-      context << " AND ";
-    }
-    interpret_list(t._dynamic_expressions, " AND ", context);
     return context;
   }
 
   template <typename Context, typename Database>
   Context& serialize(const where_data_t<Database, unconditional_t>& t, Context& context)
   {
-    if (t._dynamic_expressions.empty())
-    {
-      return context;
-    }
-    context << " WHERE ";
-    interpret_list(t._dynamic_expressions, " AND ", context);
     return context;
   }
 
@@ -395,20 +329,6 @@ namespace sqlpp
   auto where(T&& t) -> decltype(statement_t<void, no_where_t<false>>().where(std::forward<T>(t)))
   {
     return statement_t<void, no_where_t<false>>().where(std::forward<T>(t));
-  }
-
-  template <typename Database, typename T>
-  auto dynamic_where(const Database& /*unused*/, T&& t)
-      -> decltype(statement_t<Database, no_where_t<false>>().dynamic_where(std::forward<T>(t)))
-  {
-    return statement_t<Database, no_where_t<false>>().dynamic_where(std::forward<T>(t));
-  }
-
-  template <typename Database>
-  auto dynamic_where(const Database & /*unused*/)
-      -> decltype(statement_t<Database, no_where_t<false>>().dynamic_where())
-  {
-    return statement_t<Database, no_where_t<false>>().dynamic_where();
   }
 
   inline auto unconditionally() -> decltype(statement_t<void, no_where_t<false>>().unconditionally())

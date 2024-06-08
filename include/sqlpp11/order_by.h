@@ -28,7 +28,6 @@
 
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/interpret_tuple.h>
-#include <sqlpp11/interpretable.h>
 #include <sqlpp11/logic.h>
 #include <sqlpp11/policy_update.h>
 #include <sqlpp11/type_traits.h>
@@ -51,7 +50,6 @@ namespace sqlpp
     ~order_by_data_t() = default;
 
     std::tuple<Expressions...> _expressions;
-    interpretable_list_t<Database> _dynamic_expressions;
   };
 
   SQLPP_PORTABLE_STATIC_ASSERT(
@@ -65,8 +63,6 @@ namespace sqlpp
     using _traits = make_traits<no_value_t, tag::is_order_by>;
     using _nodes = detail::type_vector<Expressions...>;
 
-    using _is_dynamic = is_database<Database>;
-
     // Data
     using _data_t = order_by_data_t<Database, Expressions...>;
 
@@ -79,28 +75,6 @@ namespace sqlpp
       _impl_t(const _data_t& data) : _data(data)
       {
       }
-
-      template <typename Expression>
-      void add(Expression expression)
-      {
-        static_assert(_is_dynamic::value, "add() must not be called for static order_by");
-        static_assert(is_sort_order_t<Expression>::value, "invalid expression argument in order_by::add()");
-        static_assert(Policies::template _no_unknown_tables<Expression>::value,
-                      "expression uses tables unknown to this statement in order_by::add()");
-        using ok = logic::all_t<_is_dynamic::value, is_sort_order_t<Expression>::value>;
-
-        _add_impl(expression, ok());  // dispatch to prevent compile messages after the static_assert
-      }
-
-    private:
-      template <typename Expression>
-      void _add_impl(Expression expression, const std::true_type& /*unused*/)
-      {
-        _data._dynamic_expressions.emplace_back(expression);
-      }
-
-      template <typename Expression>
-      void _add_impl(Expression expression, const std::false_type&);
 
     public:
       _data_t _data;
@@ -217,16 +191,6 @@ namespace sqlpp
         return _order_by_impl<void>(check_order_by_t<Expressions...>{}, expressions...);
       }
 
-      template <typename... Expressions>
-      auto dynamic_order_by(Expressions... expressions) const
-          -> _new_statement_t<check_order_by_t<Expressions...>, order_by_t<_database_t, Expressions...>>
-      {
-        static_assert(not std::is_same<_database_t, void>::value,
-                      "dynamic_order_by must not be called in a static statement");
-
-        return _order_by_impl<_database_t>(check_order_by_t<Expressions...>{}, expressions...);
-      }
-
     private:
       template <typename Database, typename Check, typename... Expressions>
       auto _order_by_impl(Check, Expressions... expressions) const -> inconsistent<Check>;
@@ -248,17 +212,8 @@ namespace sqlpp
   template <typename Context, typename Database, typename... Expressions>
   Context& serialize(const order_by_data_t<Database, Expressions...>& t, Context& context)
   {
-    if (sizeof...(Expressions) == 0 and t._dynamic_expressions.empty())
-    {
-      return context;
-    }
     context << " ORDER BY ";
     interpret_tuple(t._expressions, ',', context);
-    if (sizeof...(Expressions) and not t._dynamic_expressions.empty())
-    {
-      context << ',';
-    }
-    interpret_list(t._dynamic_expressions, ',', context);
     return context;
   }
 
@@ -268,10 +223,4 @@ namespace sqlpp
     return statement_t<void, no_order_by_t>().order_by(std::forward<T>(t)...);
   }
 
-  template <typename Database, typename... T>
-  auto dynamic_order_by(const Database& /*unused*/, T&&... t)
-      -> decltype(statement_t<Database, no_order_by_t>().dynamic_order_by(std::forward<T>(t)...))
-  {
-    return statement_t<Database, no_order_by_t>().dynamic_order_by(std::forward<T>(t)...);
-  }
 }  // namespace sqlpp

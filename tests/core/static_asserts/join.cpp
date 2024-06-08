@@ -173,107 +173,10 @@ namespace
     on_static_check<sqlpp::assert_join_on_no_foreign_table_dependencies_t>(f_f, f.omega > fa.omega);
   }
 
-  template <typename Assert, typename Table>
-  void join_dynamic_check(const Table& table)
-  {
-    using CheckResult = sqlpp::check_dynamic_pre_join_t<Table>;
-    using ExpectedCheckResult = std::is_same<CheckResult, Assert>;
-    print_type_on_error<CheckResult>(ExpectedCheckResult{});
-    static_assert(ExpectedCheckResult::value, "Unexpected check result");
-
-    using JoinType = decltype(sqlpp::dynamic_join(table));
-    using InnerJoinType = decltype(sqlpp::dynamic_inner_join(table));
-    using LeftOuterJoinType = decltype(sqlpp::dynamic_left_outer_join(table));
-    using RightOuterJoinType = decltype(sqlpp::dynamic_right_outer_join(table));
-    using OuterJoinType = decltype(sqlpp::dynamic_outer_join(table));
-    using CrossJoinType = decltype(sqlpp::dynamic_cross_join(table));
-    using ExpectedReturnType = sqlpp::logic::all_t<
-        (Assert::value and sqlpp::is_dynamic_pre_join_t<JoinType>::value and
-         sqlpp::is_dynamic_pre_join_t<InnerJoinType>::value and
-         sqlpp::is_dynamic_pre_join_t<LeftOuterJoinType>::value and
-         sqlpp::is_dynamic_pre_join_t<RightOuterJoinType>::value and
-         sqlpp::is_dynamic_pre_join_t<OuterJoinType>::value and sqlpp::is_dynamic_join_t<CrossJoinType>::value) xor
-        (std::is_same<JoinType, Assert>::value and std::is_same<InnerJoinType, Assert>::value and
-         std::is_same<LeftOuterJoinType, Assert>::value and std::is_same<RightOuterJoinType, Assert>::value and
-         std::is_same<OuterJoinType, Assert>::value and std::is_same<CrossJoinType, Assert>::value)>;
-    print_type_on_error<JoinType>(ExpectedReturnType{});
-    print_type_on_error<InnerJoinType>(ExpectedReturnType{});
-    print_type_on_error<LeftOuterJoinType>(ExpectedReturnType{});
-    print_type_on_error<RightOuterJoinType>(ExpectedReturnType{});
-    print_type_on_error<OuterJoinType>(ExpectedReturnType{});
-    print_type_on_error<CrossJoinType>(ExpectedReturnType{});
-    static_assert(ExpectedReturnType::value, "Unexpected return type");
-  }
-
-  template <typename Assert, typename Lhs, typename Rhs>
-  void on_dynamic_check(const Lhs& lhs, const Rhs& rhs)
-  {
-    using CheckResult = sqlpp::check_dynamic_join_on_t<Lhs, Rhs>;
-    using ExpectedCheckResult = std::is_same<CheckResult, Assert>;
-    print_type_on_error<CheckResult>(ExpectedCheckResult{});
-    static_assert(ExpectedCheckResult::value, "Unexpected check result");
-
-    using ResultType = decltype(lhs.on(rhs));
-    using ExpectedReturnType = sqlpp::logic::all_t<(Assert::value and sqlpp::is_dynamic_join_t<ResultType>::value) xor
-                                                   std::is_same<ResultType, Assert>::value>;
-    print_type_on_error<ResultType>(ExpectedReturnType{});
-    static_assert(ExpectedReturnType::value, "Unexpected return type");
-  }
-
-  void dynamic_join()
-  {
-    // Prepare a few table aliases for tests
-    const auto ta = t.as(sqlpp::alias::a);
-    const auto fa = f.as(sqlpp::alias::a);
-
-    // OK
-    join_dynamic_check<sqlpp::consistent_t>(t);
-    join_dynamic_check<sqlpp::consistent_t>(f);
-    join_dynamic_check<sqlpp::consistent_t>(ta);
-    join_dynamic_check<sqlpp::consistent_t>(fa);
-    join_dynamic_check<sqlpp::consistent_t>(sqlpp::verbatim_table("tab_sample"));
-    join_dynamic_check<sqlpp::consistent_t>(sqlpp::verbatim_table("tab_sample").as(sqlpp::alias::a));
-
-    // Try a bunch of non-tables
-    join_dynamic_check<sqlpp::assert_dynamic_pre_join_table_t>(7);
-    join_dynamic_check<sqlpp::assert_dynamic_pre_join_table_t>(t.alpha);
-    join_dynamic_check<sqlpp::assert_dynamic_pre_join_table_t>(t.beta);
-    join_dynamic_check<sqlpp::assert_dynamic_pre_join_table_t>(t.gamma);
-    join_dynamic_check<sqlpp::assert_dynamic_pre_join_table_t>(t.delta);
-
-    // Try (pre) joins
-    join_dynamic_check<sqlpp::assert_dynamic_pre_join_table_t>(t.join(f));
-    join_dynamic_check<sqlpp::assert_dynamic_pre_join_no_join_t>(t.cross_join(f));
-
-    // Prepare a dynamic_pre_joins for tests:
-    const auto tj = dynamic_join(t);
-    const auto fj = dynamic_join(f);
-    const auto vj = dynamic_join(sqlpp::verbatim_table("tab_sample"));
-
-    // OK dynamic_join.on()
-    on_dynamic_check<sqlpp::consistent_t>(tj, t.alpha > f.omega);
-    on_dynamic_check<sqlpp::consistent_t>(fj, t.alpha < f.omega);
-
-    // Try dynamic_join.on(non-expression)
-    on_dynamic_check<sqlpp::assert_on_is_expression_t>(tj, true);
-    on_dynamic_check<sqlpp::assert_on_is_expression_t>(tj, 7);
-    on_dynamic_check<sqlpp::assert_on_is_expression_t>(tj, t);
-
-    // Try dynamic_join.on(non-boolean)
-    on_dynamic_check<sqlpp::assert_on_is_boolean_expression_t>(tj, t.alpha);
-    on_dynamic_check<sqlpp::assert_on_is_boolean_expression_t>(tj, t.beta);
-    on_dynamic_check<sqlpp::assert_on_is_boolean_expression_t>(tj, f.omega);
-
-    // OK dynamic_join.on(foreign-table)
-    on_dynamic_check<sqlpp::consistent_t>(tj, ta.alpha != 0);
-    on_dynamic_check<sqlpp::consistent_t>(tj, t.gamma);
-    on_dynamic_check<sqlpp::consistent_t>(tj, f.omega > fa.omega);
-    on_dynamic_check<sqlpp::consistent_t>(vj, t.alpha < f.omega);
-  }
 }
 
 int main(int, char* [])
 {
   static_join();
-  dynamic_join();
+#warning add tests for optional from
 }

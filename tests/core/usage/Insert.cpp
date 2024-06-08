@@ -50,11 +50,6 @@ int Insert(int, char*[])
     static_assert(sqlpp::is_regular<T>::value, "type requirement");
   }
 
-  {
-    using T = decltype(dynamic_insert_into(db, t).dynamic_set());
-    static_assert(sqlpp::is_regular<T>::value, "type requirement");
-  }
-
   db(insert_into(t).default_values());
   db(insert_into(t).set(t.gamma = true, t.beta = "kirschauflauf"));
   db(insert_into(t).set(t.gamma = sqlpp::default_value, t.beta = sqlpp::value_or_null("pie"),
@@ -82,10 +77,7 @@ int Insert(int, char*[])
   multi_time_insert.values.add(tabDateTime.colTimePoint = std::chrono::time_point_cast<std::chrono::microseconds>(
                                    std::chrono::system_clock::now()));
 
-  auto i = dynamic_insert_into(db, t).dynamic_set();
-  i.insert_list.add(t.beta = "kirschauflauf");
-  printer.reset();
-  std::cerr << serialize(i, printer).str() << std::endl;
+#warning add tests with optional
 
   db(multi_insert);
 

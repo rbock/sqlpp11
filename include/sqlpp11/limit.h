@@ -104,96 +104,6 @@ namespace sqlpp
     };
   };
 
-  // DYNAMIC LIMIT DATA
-  template <typename Database>
-  struct dynamic_limit_data_t
-  {
-    dynamic_limit_data_t() : _value(noop())
-    {
-    }
-
-    template <typename Limit>
-    dynamic_limit_data_t(Limit value) : _initialized(true), _value(wrap_operand_t<Limit>(value))
-    {
-    }
-
-    dynamic_limit_data_t(const dynamic_limit_data_t&) = default;
-    dynamic_limit_data_t(dynamic_limit_data_t&&) = default;
-    dynamic_limit_data_t& operator=(const dynamic_limit_data_t&) = default;
-    dynamic_limit_data_t& operator=(dynamic_limit_data_t&&) = default;
-    ~dynamic_limit_data_t() = default;
-
-    bool _initialized = false;
-    interpretable_t<Database> _value;
-  };
-
-  // DYNAMIC LIMIT
-  template <typename Database>
-  struct dynamic_limit_t
-  {
-    using _traits = make_traits<no_value_t, tag::is_limit>;
-    using _nodes = detail::type_vector<>;
-
-    // Data
-    using _data_t = dynamic_limit_data_t<Database>;
-
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-      template <typename Limit>
-      void set(Limit value)
-      {
-        // FIXME: Make sure that Limit does not require external tables? Need to read up on SQL
-        using arg_t = wrap_operand_t<Limit>;
-        static_assert(is_unsigned_integral_t<arg_t>::value,
-                      "limit requires an unsigned integral value or unsigned integral parameter");
-        _data._value = arg_t{value};
-        _data._initialized = true;
-      }
-
-    public:
-      _data_t _data;
-    };
-
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
-    {
-      using _data_t = dynamic_limit_data_t<Database>;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      template <typename... Args>
-      _base_t(Args&&... args) : limit{std::forward<Args>(args)...}
-      {
-      }
-
-      _impl_t<Policies> limit;
-      _impl_t<Policies>& operator()()
-      {
-        return limit;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return limit;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.limit)
-      {
-        return t.limit;
-      }
-
-      using _consistency_check = consistent_t;
-    };
-  };
-
   SQLPP_PORTABLE_STATIC_ASSERT(assert_limit_is_unsigned_integral,
                                "argument for limit() must be an unsigned integral expressions");
   template <typename T>
@@ -267,11 +177,6 @@ namespace sqlpp
         return _limit_impl(check_limit_t<Arg>{}, wrap_operand_t<Arg>{arg});
       }
 
-      auto dynamic_limit() const -> _new_statement_t<consistent_t, dynamic_limit_t<_database_t>>
-      {
-        return {static_cast<const derived_statement_t<Policies>&>(*this), dynamic_limit_data_t<_database_t>{}};
-      }
-
     private:
       template <typename Check, typename Arg>
       auto _limit_impl(Check, Arg arg) const -> inconsistent<Check>;
@@ -285,17 +190,6 @@ namespace sqlpp
   };
 
   // Interpreters
-  template <typename Context, typename Database>
-  Context& serialize(const dynamic_limit_data_t<Database>& t, Context& context)
-  {
-    if (t._initialized)
-    {
-      context << " LIMIT ";
-      serialize(t._value, context);
-    }
-    return context;
-  }
-
   template <typename Context, typename Limit>
   Context& serialize(const limit_data_t<Limit>& t, Context& context)
   {
@@ -310,9 +204,4 @@ namespace sqlpp
     return statement_t<void, no_limit_t>().limit(std::forward<T>(t));
   }
 
-  template <typename Database>
-  auto dynamic_limit(const Database & /*unused*/) -> decltype(statement_t<Database, no_limit_t>().dynamic_limit())
-  {
-    return statement_t<Database, no_limit_t>().dynamic_limit();
-  }
 }  // namespace sqlpp

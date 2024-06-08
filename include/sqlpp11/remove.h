@@ -108,17 +108,4 @@ namespace sqlpp
     return {blank_remove_t<void>().from(table)};
   }
 
-  template <typename Database>
-  auto dynamic_remove(const Database & /*unused*/) -> decltype(blank_remove_t<Database>())
-  {
-    static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
-    return {blank_remove_t<Database>()};
-  }
-
-  template <typename Database, typename Table>
-  auto dynamic_remove_from(const Database& /*unused*/, Table table) -> decltype(blank_remove_t<Database>().from(table))
-  {
-    static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
-    return {blank_remove_t<Database>().from(table)};
-  }
 }  // namespace sqlpp

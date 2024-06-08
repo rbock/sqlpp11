@@ -90,18 +90,4 @@ namespace sqlpp
     return blank_select_t<void>().columns(columns...);
   }
 
-  template <typename Database>
-  blank_select_t<Database> dynamic_select(const Database& /*unused*/)
-  {
-    static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
-    return {};
-  }
-
-  template <typename Database, typename... Columns>
-  auto dynamic_select(const Database& /*unused*/, Columns... columns)
-      -> decltype(blank_select_t<Database>().columns(columns...))
-  {
-    static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
-    return blank_select_t<Database>().columns(columns...);
-  }
 }  // namespace sqlpp

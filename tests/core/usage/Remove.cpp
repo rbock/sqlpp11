@@ -47,24 +47,13 @@ int Remove(int, char* [])
     static_assert(sqlpp::is_regular<T>::value, "type requirement");
   }
 
-  {
-    using T = decltype(dynamic_remove_from(db, t).dynamic_using().dynamic_where());
-    static_assert(sqlpp::is_regular<T>::value, "type requirement");
-  }
-
   serialize(remove_from(t), printer).str();
   serialize(remove_from(t).where(t.beta != "transparent"), printer).str();
   serialize(remove_from(t).using_(t), printer).str();
   serialize(remove_from(t).using_(f), printer).str();
-  auto r = dynamic_remove_from(db, t).dynamic_using().dynamic_where();
-  r.using_.add(t);
-  r.where.add(t.beta != "transparent");
-  printer.reset();
-  std::cerr << serialize(r, printer).str() << std::endl;
+#warning: add tests with optional using and optional where
   printer.reset();
   std::cerr << serialize(remove_from(t).unconditionally(), printer).str() << std::endl;
-
-  db(r);
 
   remove_from(t).where(t.beta.in(select(f.delta).from(f).unconditionally()));
 

@@ -77,60 +77,6 @@ int From(int, char* [])
                              .on(sqlpp::verbatim<sqlpp::boolean>("a.column_x>another_table.x"))),
           " FROM unknown_table AS a INNER JOIN another_table ON a.column_x>another_table.x");
 
-  // Dynamic joins
-  const auto df = dynamic_from(db, foo);
-  compare(__LINE__, df, " FROM tab_foo");
-  {
-    auto dfa = df;
-    dfa.from.add(dynamic_cross_join(bar));
-    compare(__LINE__, dfa, " FROM tab_foo CROSS JOIN tab_bar");
-  }
-  {
-    auto dfa = df;
-    dfa.from.add(dynamic_join(bar).on(bar.alpha > foo.omega));
-    compare(__LINE__, dfa, " FROM tab_foo INNER JOIN tab_bar ON (tab_bar.alpha>tab_foo.omega)");
-  }
-  {
-    auto dfa = df;
-    dfa.from.add(dynamic_inner_join(bar).on(bar.alpha > foo.omega));
-    compare(__LINE__, dfa, " FROM tab_foo INNER JOIN tab_bar ON (tab_bar.alpha>tab_foo.omega)");
-  }
-  {
-    auto dfa = df;
-    dfa.from.add(dynamic_outer_join(bar).on(bar.alpha > foo.omega));
-    compare(__LINE__, dfa, " FROM tab_foo OUTER JOIN tab_bar ON (tab_bar.alpha>tab_foo.omega)");
-  }
-  {
-    auto dfa = df;
-    dfa.from.add(dynamic_left_outer_join(bar).on(bar.alpha > foo.omega));
-    compare(__LINE__, dfa, " FROM tab_foo LEFT OUTER JOIN tab_bar ON (tab_bar.alpha>tab_foo.omega)");
-  }
-  {
-    auto dfa = df;
-    dfa.from.add(dynamic_right_outer_join(bar).on(bar.alpha > foo.omega));
-    compare(__LINE__, dfa, " FROM tab_foo RIGHT OUTER JOIN tab_bar ON (tab_bar.alpha>tab_foo.omega)");
-  }
-  {
-    auto dfa = df;
-    dfa.from.add(dynamic_join(bar).unconditionally());
-    compare(__LINE__, dfa, " FROM tab_foo INNER JOIN tab_bar");
-  }
-  {
-    auto dfa = df;
-    dfa.from.add(dynamic_inner_join(bar).on(bar.alpha > foo.omega));
-    dfa.from.add(dynamic_outer_join(aFoo).on(without_table_check(bar.alpha > aFoo.omega)));
-    compare(__LINE__, dfa, " FROM tab_foo INNER JOIN tab_bar ON (tab_bar.alpha>tab_foo.omega) OUTER JOIN tab_foo AS a "
-                           "ON (tab_bar.alpha>a.omega)");
-  }
-
-  // Dynamic joins involving verbatim table
-  {
-    auto dfa = df;
-    dfa.from.add(
-        dynamic_inner_join(sqlpp::verbatim_table("unknown_table"))
-            .on(without_table_check(bar.alpha > sqlpp::verbatim<sqlpp::floating_point>("unknown_table.column_x"))));
-    compare(__LINE__, dfa, " FROM tab_foo INNER JOIN unknown_table ON (tab_bar.alpha>unknown_table.column_x)");
-  }
-
+#warning add tests for optional joins
   return 0;
 }

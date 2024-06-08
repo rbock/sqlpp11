@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, Roland Bock
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,16 +27,25 @@
 #include "Sample.h"
 #include <sqlpp11/sqlpp11.h>
 
-#include <iostream>
-
-int DynamicWhere(int, char*[])
+int SelectFlags(int, char*[])
 {
+  const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
-  auto db = MockDb{};
 
-  compare(__LINE__, sqlpp::unconditionally(), "");
-  compare(__LINE__, where(bar.gamma), " WHERE tab_bar.gamma");
+  // No flags
+  compare(__LINE__, select(foo.omega), "SELECT tab_foo.omega");
 
-#warning add tests with optional expressions
+  // No flags
+#warning: This should work
+  //compare(__LINE__, sqlpp::select_flags(), "");
+
+  // No flags
+  compare(__LINE__, select(foo.omega).flags(sqlpp::distinct), "SELECT DISTINCT tab_foo.omega");
+
+  // One flag
+  compare(__LINE__, select_flags(sqlpp::distinct), "DISTINCT ");
+
+#warning: Add tests for dynamic select flags
+
   return 0;
 }

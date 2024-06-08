@@ -139,29 +139,6 @@ int Interpret(int, char* [])
     serialize(select(t.alpha).from(inner), printer).str();
   }
 
-  // dynamic select
-  {
-    auto s = dynamic_select(db).dynamic_flags().dynamic_columns().from(t);
-    s.selected_columns.add(t.beta);
-    s.selected_columns.add(t.gamma);
-    serialize(s, printer).str();
-  }
-  {
-    auto s = dynamic_select(db).dynamic_flags().dynamic_columns().from(t);
-    s.select_flags.add(sqlpp::distinct);
-    s.selected_columns.add(t.beta);
-    s.selected_columns.add(t.gamma);
-    serialize(s, printer).str();
-  }
-  {
-    // Behold, dynamically constructed queries might compile but be illegal SQL
-    auto s = dynamic_select(db).dynamic_flags(sqlpp::distinct).dynamic_columns(t.alpha);
-    s.select_flags.add(sqlpp::all);
-    s.selected_columns.add(without_table_check(t.beta));
-    s.selected_columns.add(without_table_check(t.gamma));
-    serialize(s, printer).str();
-  }
-
   // distinct aggregate
   serialize(count(sqlpp::distinct, t.alpha % 7), printer).str();
   serialize(avg(sqlpp::distinct, t.alpha - 7), printer).str();
@@ -180,13 +157,6 @@ int Interpret(int, char* [])
   get_sql_name(t.alpha);
 
   flatten(t.alpha == 7, db);
-
-  auto x = boolean_expression(db, t.alpha == 7);
-  x = sqlpp::boolean_expression<MockDb>(t.beta.like("%cheesecake"));
-  x = x and boolean_expression(db, t.gamma);
-  std::cerr << "----------------------------" << std::endl;
-  printer.reset();
-  std::cerr << serialize(x, printer).str() << std::endl;
 
   printer.reset();
   std::cerr << serialize(select(all_of(t)).from(t).where(t.alpha.in(select(f.epsilon).from(f).unconditionally())),

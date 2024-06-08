@@ -103,11 +103,4 @@ namespace sqlpp
     return {blank_update_t<void>().single_table(table)};
   }
 
-  template <typename Database, typename Table>
-  constexpr auto dynamic_update(const Database& /*unused*/, Table table)
-      -> decltype(blank_update_t<Database>().single_table(table))
-  {
-    static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
-    return {blank_update_t<Database>().single_table(table)};
-  }
 }  // namespace sqlpp

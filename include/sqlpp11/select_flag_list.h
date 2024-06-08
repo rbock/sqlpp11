@@ -51,7 +51,6 @@ namespace sqlpp
     ~select_flag_list_data_t() = default;
 
     std::tuple<Flags...> _flags;
-    interpretable_list_t<Database> _dynamic_flags;
   };
 
   // SELECT FLAGS
@@ -60,8 +59,6 @@ namespace sqlpp
   {
     using _traits = make_traits<no_value_t, tag::is_select_flag_list>;
     using _nodes = detail::type_vector<Flags...>;
-
-    using _is_dynamic = is_database<Database>;
 
     // Data
     using _data_t = select_flag_list_data_t<Database, Flags...>;
@@ -75,28 +72,6 @@ namespace sqlpp
       _impl_t(const _data_t& data) : _data(data)
       {
       }
-
-      template <typename Flag>
-      void add(Flag flag)
-      {
-        static_assert(_is_dynamic::value, "select_flags::add() must not be called for static select flags");
-        static_assert(is_select_flag_t<Flag>::value, "invalid select flag argument in select_flags::add()");
-        static_assert(Policies::template _no_unknown_tables<Flag>::value,
-                      "flag uses tables unknown to this statement in select_flags::add()");
-        using ok = logic::all_t<_is_dynamic::value, is_select_flag_t<Flag>::value>;
-
-        _add_impl(flag, ok());  // dispatch to prevent compile messages after the static_assert
-      }
-
-    private:
-      template <typename Flag>
-      void _add_impl(Flag flag, const std::true_type& /*unused*/)
-      {
-        _data._dynamic_flags.emplace_back(flag);
-      }
-
-      template <typename Flag>
-      void _add_impl(Flag flag, const std::false_type&);
 
     public:
       _data_t _data;
@@ -207,16 +182,6 @@ namespace sqlpp
         return _flags_impl<void>(check_select_flags_t<Flags...>{}, flgs...);
       }
 
-      template <typename... Flags>
-      auto dynamic_flags(Flags... flgs) const
-          -> _new_statement_t<check_select_flags_t<Flags...>, select_flag_list_t<_database_t, Flags...>>
-      {
-        static_assert(not std::is_same<_database_t, void>::value,
-                      "dynamic_flags must not be called in a static statement");
-
-        return _flags_impl<_database_t>(check_select_flags_t<Flags...>{}, flgs...);
-      }
-
     private:
       template <typename Database, typename Check, typename... Flags>
       auto _flags_impl(Check, Flags... flgs) const -> inconsistent<Check>;
@@ -243,11 +208,6 @@ namespace sqlpp
     {
       context << ' ';
     }
-    interpret_list(t._dynamic_flags, ',', context);
-    if (not t._dynamic_flags.empty())
-    {
-      context << ' ';
-    }
     return context;
   }
 
@@ -257,10 +217,4 @@ namespace sqlpp
     return statement_t<void, no_select_flag_list_t>().flags(std::forward<T>(t));
   }
 
-  template <typename Database, typename T>
-  auto dynamic_select_flags(const Database& /*unused*/, T&& t)
-      -> decltype(statement_t<Database, no_select_flag_list_t>().dynamic_flags(std::forward<T>(t)))
-  {
-    return statement_t<Database, no_select_flag_list_t>().dynamic_flags(std::forward<T>(t));
-  }
 }  // namespace sqlpp

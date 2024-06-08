@@ -28,7 +28,6 @@
 
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/interpret_tuple.h>
-#include <sqlpp11/interpretable_list.h>
 #include <sqlpp11/policy_update.h>
 #include <sqlpp11/type_traits.h>
 
@@ -49,7 +48,6 @@ namespace sqlpp
     ~using_data_t() = default;
 
     std::tuple<Tables...> _tables;
-    interpretable_list_t<Database> _dynamic_tables;
   };
 
   // USING
@@ -58,8 +56,6 @@ namespace sqlpp
   {
     using _traits = make_traits<no_value_t, tag::is_using_>;
     using _nodes = detail::type_vector<Tables...>;
-
-    using _is_dynamic = is_database<Database>;
 
     // Data
     using _data_t = using_data_t<Database, Tables...>;
@@ -73,26 +69,6 @@ namespace sqlpp
       _impl_t(const _data_t& data) : _data(data)
       {
       }
-
-      template <typename Table>
-      void add(Table table)
-      {
-        static_assert(_is_dynamic::value, "add must not be called for static using()");
-        static_assert(is_table_t<Table>::value, "invalid table argument in add()");
-        using ok = logic::all_t<_is_dynamic::value, is_table_t<Table>::value>;
-
-        _add_impl(table, ok());  // dispatch to prevent compile messages after the static_assert
-      }
-
-    private:
-      template <typename Table>
-      void _add_impl(Table table, const std::true_type& /*unused*/)
-      {
-        _data._dynamic_tables.emplace_back(table);
-      }
-
-      template <typename Table>
-      void _add_impl(Table table, const std::false_type&);
 
     public:
       _data_t _data;
@@ -208,16 +184,6 @@ namespace sqlpp
         return {_using_impl<void>(check_using_t<Tables...>{}, tables...)};
       }
 
-      template <typename... Tables>
-      auto dynamic_using(Tables... tables) const
-          -> _new_statement_t<check_using_t<Tables...>, using_t<_database_t, Tables...>>
-      {
-        static_assert(not std::is_same<_database_t, void>::value,
-                      "dynamic_using must not be called in a static statement");
-
-        return {_using_impl<_database_t>(check_using_t<Tables...>{}, tables...)};
-      }
-
     private:
       template <typename Database, typename Check, typename... Tables>
       auto _using_impl(Check, Tables... tables) const -> inconsistent<Check>;
@@ -238,17 +204,8 @@ namespace sqlpp
   template <typename Context, typename Database, typename... Tables>
   Context& serialize(const using_data_t<Database, Tables...>& t, Context& context)
   {
-    if (sizeof...(Tables) == 0 and t._dynamic_tables.empty())
-    {
-      return context;
-    }
     context << " USING ";
     interpret_tuple(t._tables, ',', context);
-    if (sizeof...(Tables) and not t._dynamic_tables.empty())
-    {
-      context << ',';
-    }
-    interpret_list(t._dynamic_tables, ',', context);
     return context;
   }
 }  // namespace sqlpp

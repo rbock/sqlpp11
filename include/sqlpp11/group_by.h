@@ -28,7 +28,6 @@
 
 #include <sqlpp11/expression.h>
 #include <sqlpp11/interpret_tuple.h>
-#include <sqlpp11/interpretable_list.h>
 #include <sqlpp11/logic.h>
 #include <sqlpp11/policy_update.h>
 #include <sqlpp11/type_traits.h>
@@ -51,7 +50,6 @@ namespace sqlpp
     ~group_by_data_t() = default;
 
     std::tuple<Expressions...> _expressions;
-    interpretable_list_t<Database> _dynamic_expressions;
   };
 
   SQLPP_PORTABLE_STATIC_ASSERT(
@@ -65,9 +63,7 @@ namespace sqlpp
     using _traits = make_traits<no_value_t, tag::is_group_by>;
     using _nodes = detail::type_vector<Expressions...>;
 
-    using _is_dynamic = is_database<Database>;
-    using _provided_aggregates = typename std::
-        conditional<_is_dynamic::value, detail::type_set<>, detail::make_type_set_t<Expressions...>>::type;
+    using _provided_aggregates = detail::make_type_set_t<Expressions...>;
 
     // Data
     using _data_t = group_by_data_t<Database, Expressions...>;
@@ -81,28 +77,6 @@ namespace sqlpp
       _impl_t(const _data_t& data) : _data(data)
       {
       }
-
-      template <typename Expression>
-      void add(Expression expression)
-      {
-        static_assert(_is_dynamic::value, "add() must not be called for static group_by");
-        static_assert(is_expression_t<Expression>::value, "invalid expression argument in group_by::add()");
-        static_assert(Policies::template _no_unknown_tables<Expression>::value,
-                      "expression uses tables unknown to this statement in group_by::add()");
-        using ok = logic::all_t<_is_dynamic::value, is_expression_t<Expression>::value>;
-
-        _add_impl(expression, ok());  // dispatch to prevent compile messages after the static_assert
-      }
-
-    private:
-      template <typename Expression>
-      void _add_impl(Expression expression, const std::true_type& /*unused*/)
-      {
-        _data._dynamic_expressions.emplace_back(expression);
-      }
-
-      template <typename Expression>
-      void _add_impl(Expression expression, const std::false_type&);
 
     public:
       _data_t _data;
@@ -219,16 +193,6 @@ namespace sqlpp
         return _group_by_impl<void>(check_group_by_t<Expressions...>{}, expressions...);
       }
 
-      template <typename... Expressions>
-      auto dynamic_group_by(Expressions... expressions) const
-          -> _new_statement_t<check_group_by_t<Expressions...>, group_by_t<_database_t, Expressions...>>
-      {
-        static_assert(not std::is_same<_database_t, void>::value,
-                      "dynamic_group_by must not be called in a static statement");
-
-        return _group_by_impl<_database_t>(check_group_by_t<Expressions...>{}, expressions...);
-      }
-
     private:
       template <typename Database, typename Check, typename... Expressions>
       auto _group_by_impl(Check, Expressions... expressions) const -> inconsistent<Check>;
@@ -250,17 +214,8 @@ namespace sqlpp
   template <typename Context, typename Database, typename... Expressions>
   Context& serialize(const group_by_data_t<Database, Expressions...>& t, Context& context)
   {
-    if (sizeof...(Expressions) == 0 and t._dynamic_expressions.empty())
-    {
-      return context;
-    }
     context << " GROUP BY ";
     interpret_tuple(t._expressions, ',', context);
-    if (sizeof...(Expressions) and not t._dynamic_expressions.empty())
-    {
-      context << ',';
-    }
-    interpret_list(t._dynamic_expressions, ',', context);
     return context;
   }
 
@@ -270,10 +225,4 @@ namespace sqlpp
     return statement_t<void, no_group_by_t>().group_by(std::forward<T>(t)...);
   }
 
-  template <typename Database, typename... T>
-  auto dynamic_group_by(const Database& /*unused*/, T&&... t)
-      -> decltype(statement_t<Database, no_group_by_t>().dynamic_group_by(std::forward<T>(t)...))
-  {
-    return statement_t<Database, no_group_by_t>().dynamic_group_by(std::forward<T>(t)...);
-  }
 }  // namespace sqlpp

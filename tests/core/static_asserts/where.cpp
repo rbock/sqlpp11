@@ -57,22 +57,7 @@ namespace
     static_assert(ExpectedReturnType::value, "Unexpected return type");
   }
 
-  template <typename Assert, typename Expression>
-  void where_dynamic_check(const Expression& expression)
-  {
-    static auto db = MockDb{};
-    using CheckResult = sqlpp::check_where_dynamic_t<decltype(db), Expression>;
-    using ExpectedCheckResult = std::is_same<CheckResult, Assert>;
-    print_type_on_error<CheckResult>(ExpectedCheckResult{});
-    static_assert(ExpectedCheckResult::value, "Unexpected check result");
-
-    using ReturnType = decltype(dynamic_remove_from(db, t).dynamic_where(expression));
-    using ExpectedReturnType = sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, Assert>::value>;
-    print_type_on_error<ReturnType>(ExpectedReturnType{});
-    static_assert(ExpectedReturnType::value, "Unexpected return type");
-  }
-
-  void static_where()
+ void static_where()
   {
     // OK
     where_static_check<sqlpp::consistent_t>(t.gamma);
@@ -102,50 +87,10 @@ namespace
         case_when(count(t.alpha) > 0).then(t.gamma).else_(not t.gamma));
   }
 
-  void dynamic_where()
-  {
-    // OK
-    where_dynamic_check<sqlpp::consistent_t>(t.gamma);
-    where_dynamic_check<sqlpp::consistent_t>(t.gamma == true);
-
-    // Try assignment as condition
-    where_dynamic_check<sqlpp::assert_where_arg_is_boolean_expression_t>(t.gamma = true);
-
-    // Try non-boolean expression
-    where_dynamic_check<sqlpp::assert_where_arg_is_boolean_expression_t>(t.alpha);
-
-    // Try builtin bool
-    where_dynamic_check<sqlpp::assert_where_arg_is_not_cpp_bool_t>(true);
-    where_dynamic_check<sqlpp::assert_where_arg_is_not_cpp_bool_t>(17 > 3);
-
-    // Try some other types as expressions
-    where_dynamic_check<sqlpp::assert_where_arg_is_boolean_expression_t>("true");
-    where_dynamic_check<sqlpp::assert_where_arg_is_boolean_expression_t>(17);
-    where_dynamic_check<sqlpp::assert_where_arg_is_boolean_expression_t>('c');
-    where_dynamic_check<sqlpp::assert_where_arg_is_boolean_expression_t>(nullptr);
-    where_dynamic_check<sqlpp::assert_where_arg_is_boolean_expression_t>(t.alpha.as(t.beta));
-
-    // Try using aggregate functions in where
-    where_dynamic_check<sqlpp::assert_where_arg_contains_no_aggregate_functions_t>(count(t.alpha) > 0);
-    where_dynamic_check<sqlpp::assert_where_arg_contains_no_aggregate_functions_t>(t.gamma and count(t.alpha) > 0);
-    where_dynamic_check<sqlpp::assert_where_arg_contains_no_aggregate_functions_t>(
-        case_when(count(t.alpha) > 0).then(t.gamma).else_(not t.gamma));
-
-    // Try dynamic_where on a non-dynamic remove
-    using CheckResult = sqlpp::check_where_dynamic_t<void, sqlpp::boolean_operand>;
-    using ExpectedCheckResult = std::is_same<CheckResult, sqlpp::assert_where_dynamic_used_with_dynamic_statement_t>;
-    print_type_on_error<CheckResult>(ExpectedCheckResult{});
-    static_assert(ExpectedCheckResult::value, "Unexpected check result");
-
-    using ReturnType = decltype(remove_from(t).dynamic_where());
-    using ExpectedReturnType = std::is_same<ReturnType, sqlpp::assert_where_dynamic_used_with_dynamic_statement_t>;
-    print_type_on_error<ReturnType>(ExpectedReturnType{});
-    static_assert(ExpectedReturnType::value, "Unexpected return type");
-  }
 }
 
 int main(int, char* [])
 {
   static_where();
-  dynamic_where();
+#warning: Add test with optional expressions?
 }

@@ -141,41 +141,17 @@ int Select(int, char*[])
   printer.reset();
   std::cerr << serialize(stat, printer).str() << std::endl;
 
-  auto s0 = dynamic_select(db)
-                .columns(all_of(t))
-                .flags(sqlpp::all)
-                .from(t)
-                .where(t.alpha > 0)
-                .group_by(t.alpha)
-                .order_by(t.gamma.asc())
-                .having(t.gamma)
-                .limit(7u)
-                .offset(19u);
-
-  printer.reset();
-  std::cerr << serialize(s0, printer).str() << std::endl;
-
-  auto s = dynamic_select(db)
-               .dynamic_columns(all_of(t))
-               .dynamic_flags()
-               .dynamic_from(t)
-               .dynamic_where()
-               .dynamic_group_by(t.alpha)
-               .dynamic_order_by()
-               .dynamic_having(sum(t.alpha) > parameter(t.delta))
-               .dynamic_limit()
-               .dynamic_offset();
-  s.select_flags.add(sqlpp::distinct);
-  s.selected_columns.add(without_table_check(f.omega));
-  s.selected_columns.add(select(f.omega).from(f).unconditionally().as(f.delta));
-  s.from.add(dynamic_cross_join(f));
-  s.where.add(t.alpha > 7);
-  s.having.add(t.alpha > 7);
-  s.limit.set(3u);
-  s.offset.set(3u);
-  s.group_by.add(t.beta);
-  s.order_by.add(t.beta.asc());
-  s.order_by.add(t.delta.order(sqlpp::sort_type::desc));
+  auto s = sqlpp::select()
+               .columns(t.alpha)
+               .flags(sqlpp::distinct)
+               .from(t)
+               .where(t.alpha > 3)
+               .group_by(t.alpha)
+               .order_by(t.beta.asc())
+               .having(sum(t.alpha) > parameter(t.delta))
+               .limit(32u)
+               .offset(7u);
+#warning add tests for optional everything
   for (const auto& row : db(db.prepare(s)))
   {
     const sqlpp::optional<int64_t> a = row.alpha;

@@ -28,7 +28,6 @@
 
 #include <sqlpp11/expression.h>
 #include <sqlpp11/interpret_tuple.h>
-#include <sqlpp11/interpretable_list.h>
 #include <sqlpp11/logic.h>
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/result_row.h>
@@ -234,7 +233,6 @@ namespace sqlpp
   // The cte_t is displayed as AliasProviderName except within the with:
   //    - the with needs the
   //      AliasProviderName AS (ColumnNames) (select/union)
-  // The result row of the select should not have dynamic parts
   template <typename AliasProvider>
   struct cte_ref_t
   {
@@ -253,8 +251,6 @@ namespace sqlpp
       static_assert(not required_ctes_of<Statement>::template count<AliasProvider>(),
                     "common table expression must not self-reference in the first part, use union_all/union_distinct "
                     "for recursion");
-      static_assert(is_static_result_row_t<get_result_row_t<Statement>>::value,
-                    "ctes must not have dynamically added columns");
 
       return {statement};
     }

@@ -31,7 +31,6 @@
 #include <sqlpp11/expression_fwd.h>
 #include <sqlpp11/insert_value.h>
 #include <sqlpp11/interpret_tuple.h>
-#include <sqlpp11/interpretable_list.h>
 #include <sqlpp11/logic.h>
 #include <sqlpp11/no_data.h>
 #include <sqlpp11/policy_update.h>
@@ -137,8 +136,6 @@ namespace sqlpp
                                               // (connector-container requires assignments)
     std::tuple<simple_column_t<lhs_t<Assignments>>...> _columns;
     std::tuple<rhs_t<Assignments>...> _values;
-    interpretable_list_t<Database> _dynamic_columns;
-    interpretable_list_t<Database> _dynamic_values;
 
   private:
     template <size_t... Indexes>
@@ -636,47 +633,20 @@ namespace sqlpp
   template <typename Context, typename Database, typename... Assignments>
   Context& serialize(const insert_list_data_t<Database, Assignments...>& t, Context& context)
   {
-    if (sizeof...(Assignments) + t._dynamic_columns.size() == 0)
-    {
-      serialize(insert_default_values_data_t(), context);
-    }
-    else
-    {
-      context << " (";
-      interpret_tuple(t._columns, ",", context);
-      if (sizeof...(Assignments) and not t._dynamic_columns.empty())
-      {
-        context << ',';
-      }
-      interpret_list(t._dynamic_columns, ',', context);
-      context << ")";
-      if (sizeof...(Assignments) or not t._dynamic_values.empty())
-      {
-        context << " VALUES(";
-        interpret_tuple(t._values, ",", context);
-        if (sizeof...(Assignments) and not t._dynamic_values.empty())
-        {
-          context << ',';
-        }
-        interpret_list(t._dynamic_values, ',', context);
-        context << ")";
-      }
-    }
+    context << " (";
+    interpret_tuple(t._columns, ",", context);
+    context << ")";
+    context << " VALUES(";
+    interpret_tuple(t._values, ",", context);
+    context << ")";
     return context;
-    }
+  }
 
   template <typename... Assignments>
   auto insert_set(Assignments... assignments)
       -> decltype(statement_t<void, no_insert_value_list_t>().set(assignments...))
   {
     return statement_t<void, no_insert_value_list_t>().set(assignments...);
-  }
-
-  template <typename Database, typename... Assignments>
-  auto dynamic_insert_set(Assignments... assignments)
-      -> decltype(statement_t<Database, no_insert_value_list_t>().dynamic_set(assignments...))
-  {
-    return statement_t<Database, no_insert_value_list_t>().dynamic_set(assignments...);
   }
 
   template <typename... Columns>

@@ -104,108 +104,6 @@ namespace sqlpp
     };
   };
 
-  // DYNAMIC OFFSET DATA
-  template <typename Database>
-  struct dynamic_offset_data_t
-  {
-    dynamic_offset_data_t() : _value(noop())
-    {
-    }
-
-    template <typename Offset>
-    dynamic_offset_data_t(Offset value) : _initialized(true), _value(wrap_operand_t<Offset>(value))
-    {
-    }
-
-    dynamic_offset_data_t(const dynamic_offset_data_t&) = default;
-    dynamic_offset_data_t(dynamic_offset_data_t&&) = default;
-    dynamic_offset_data_t& operator=(const dynamic_offset_data_t&) = default;
-    dynamic_offset_data_t& operator=(dynamic_offset_data_t&&) = default;
-    ~dynamic_offset_data_t() = default;
-
-    bool _initialized = false;
-    interpretable_t<Database> _value;
-  };
-
-  // DYNAMIC OFFSET
-  template <typename Database>
-  struct dynamic_offset_t
-  {
-    using _traits = make_traits<no_value_t, tag::is_offset>;
-    using _nodes = detail::type_vector<>;
-
-    // Data
-    using _data_t = dynamic_offset_data_t<Database>;
-
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-      template <typename Offset>
-      void set(Offset value)
-      {
-        // FIXME: Make sure that Offset does not require external tables? Need to read up on SQL
-        using arg_t = wrap_operand_t<Offset>;
-        static_assert(is_unsigned_integral_t<arg_t>::value,
-                      "offset requires an unsigned integral value or unsigned integral parameter");
-        _data._value = arg_t{value};
-        _data._initialized = true;
-      }
-
-    public:
-      _data_t _data;
-    };
-
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
-    {
-      using _data_t = dynamic_offset_data_t<Database>;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      template <typename... Args>
-      _base_t(Args&&... args) : offset{std::forward<Args>(args)...}
-      {
-      }
-
-      _impl_t<Policies> offset;
-      _impl_t<Policies>& operator()()
-      {
-        return offset;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return offset;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.offset)
-      {
-        return t.offset;
-      }
-
-      using _consistency_check = consistent_t;
-
-      template <typename Offset>
-      void set_offset(Offset value)
-      {
-        // FIXME: Make sure that Offset does not require external tables? Need to read up on SQL
-        using arg_t = wrap_operand_t<Offset>;
-        static_cast<derived_statement_t<Policies>*>(this)->_offset()._value = arg_t{value};
-        static_cast<derived_statement_t<Policies>*>(this)->_offset()._initialized = true;
-      }
-    };
-
-    bool _initialized = false;
-    interpretable_t<Database> _value;
-  };
-
   SQLPP_PORTABLE_STATIC_ASSERT(assert_offset_is_unsigned_integral,
                                "argument for offset() must be an integral expressions");
   template <typename T>
@@ -279,13 +177,6 @@ namespace sqlpp
         return _offset_impl(check_offset_t<Arg>{}, wrap_operand_t<Arg>{arg});
       }
 
-      auto dynamic_offset() const -> _new_statement_t<consistent_t, dynamic_offset_t<_database_t>>
-      {
-        static_assert(not std::is_same<_database_t, void>::value,
-                      "dynamic_offset must not be called in a static statement");
-        return {static_cast<const derived_statement_t<Policies>&>(*this), dynamic_offset_data_t<_database_t>{}};
-      }
-
     private:
       template <typename Check, typename Arg>
       auto _offset_impl(Check, Arg arg) const -> inconsistent<Check>;
@@ -307,26 +198,10 @@ namespace sqlpp
     return context;
   }
 
-  template <typename Context, typename Database>
-  Context& serialize(const dynamic_offset_data_t<Database>& t, Context& context)
-  {
-    if (t._initialized)
-    {
-      context << " OFFSET ";
-      serialize(t._value, context);
-    }
-    return context;
-  }
-
   template <typename T>
   auto offset(T&& t) -> decltype(statement_t<void, no_offset_t>().offset(std::forward<T>(t)))
   {
     return statement_t<void, no_offset_t>().offset(std::forward<T>(t));
   }
 
-  template <typename Database>
-  auto dynamic_offset(const Database & /*unused*/) -> decltype(statement_t<Database, no_offset_t>().dynamic_offset())
-  {
-    return statement_t<Database, no_offset_t>().dynamic_offset();
-  }
 }  // namespace sqlpp

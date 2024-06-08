@@ -40,14 +40,13 @@ namespace sqlpp
 
     using _result_row_t = typename Statement::template _result_row_t<Database>;
     using _parameter_list_t = make_parameter_list_t<Composite>;
-    using _dynamic_names_t = typename Statement::_dynamic_names_t;
     using _prepared_statement_t = typename Database::_prepared_statement_t;
 
     using _run_check = consistent_t;
 
     auto _run(Database& db) const -> result_t<decltype(db.run_prepared_select(*this)), _result_row_t>
     {
-      return {db.run_prepared_select(*this), _dynamic_names};
+      return {db.run_prepared_select(*this)};
     }
 
     void _bind_params() const
@@ -56,7 +55,6 @@ namespace sqlpp
     }
 
     _parameter_list_t params;
-    _dynamic_names_t _dynamic_names;
     mutable _prepared_statement_t _prepared_statement;
   };
 }  // namespace sqlpp
