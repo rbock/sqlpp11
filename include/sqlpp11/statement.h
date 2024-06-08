@@ -39,7 +39,7 @@
 
 namespace sqlpp
 {
-  template <typename Db, typename... Policies>
+  template <typename... Policies>
   struct statement_t;
 
   SQLPP_PORTABLE_STATIC_ASSERT(
@@ -58,18 +58,17 @@ namespace sqlpp
       return logic::any_t<is_missing_t<Policies>::value...>::value;
     }
 
-    template <typename Db = void, typename... Policies>
+    template <typename... Policies>
     struct statement_policies_t
     {
-      using _database_t = Db;
-      using _statement_t = statement_t<Db, Policies...>;
+      using _statement_t = statement_t<Policies...>;
 
       template <typename Needle, typename Replacement>
       struct _policies_update_t
       {
         static_assert(make_type_set_t<Policies...>::template count<Needle>(),
                       "policies update for non-policy class detected");
-        using type = statement_t<Db, policy_update_t<Policies, Needle, Replacement>...>;
+        using type = statement_t<policy_update_t<Policies, Needle, Replacement>...>;
       };
 
       template <typename Needle, typename Replacement>
@@ -154,13 +153,13 @@ namespace sqlpp
     };
   }  // namespace detail
 
-  template <typename Db, typename... Policies>
-  struct statement_t : public Policies::template _base_t<detail::statement_policies_t<Db, Policies...>>...,
-                       public expression_operators<statement_t<Db, Policies...>,
-                                                   value_type_of<detail::statement_policies_t<Db, Policies...>>>,
-                       public detail::statement_policies_t<Db, Policies...>::_result_methods_t
+  template <typename... Policies>
+  struct statement_t : public Policies::template _base_t<detail::statement_policies_t<Policies...>>...,
+                       public expression_operators<statement_t<Policies...>,
+                                                   value_type_of<detail::statement_policies_t<Policies...>>>,
+                       public detail::statement_policies_t<Policies...>::_result_methods_t
   {
-    using _policies_t = typename detail::statement_policies_t<Db, Policies...>;
+    using _policies_t = typename detail::statement_policies_t<Policies...>;
 
     using _consistency_check =
         detail::get_first_if<is_inconsistent_t,
@@ -210,8 +209,8 @@ namespace sqlpp
     //	}
     template <typename Statement, typename Term>
     statement_t(Statement statement, Term term)
-        : Policies::template _base_t<_policies_t>(typename Policies::template _impl_t<_policies_t>(
-              detail::pick_arg<typename Policies::template _base_t<_policies_t>>(statement, term)))...
+        : Policies::template _base_t<_policies_t>(
+              detail::pick_arg<Policies>(statement, term))...
     {
     }
 
@@ -251,13 +250,13 @@ namespace sqlpp
     }
   };
 
-  template <typename Context, typename Database, typename... Policies>
-  Context& serialize(const statement_t<Database, Policies...>& t, Context& context)
+  template <typename Context, typename... Policies>
+  Context& serialize(const statement_t<Policies...>& t, Context& context)
   {
-    using P = detail::statement_policies_t<Database, Policies...>;
+    using P = detail::statement_policies_t<Policies...>;
 
     using swallow = int[];
-    (void)swallow{0, (serialize(static_cast<const typename Policies::template _base_t<P>&>(t)()._data, context), 0)...};
+    (void)swallow{0, (serialize(static_cast<const typename Policies::template _base_t<P>&>(t)._data, context), 0)...};
 
     return context;
   }
@@ -268,49 +267,18 @@ namespace sqlpp
     using _traits = make_traits<no_value_t, Tag>;
     using _nodes = detail::type_vector<>;
 
-    // Data
     using _data_t = NameData;
-
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-      _data_t _data;
-    };
 
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = NameData;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      template <typename... Args>
-      _base_t(Args&&... args) : statement_name{std::forward<Args>(args)...}
+      _base_t() = default;
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> statement_name;
-      _impl_t<Policies>& operator()()
-      {
-        return statement_name;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return statement_name;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.statement_name)
-      {
-        return t.statement_name;
-      }
+      _data_t _data;
 
       using _consistency_check = consistent_t;
     };

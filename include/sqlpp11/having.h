@@ -36,7 +36,7 @@
 namespace sqlpp
 {
   // HAVING DATA
-  template <typename Database, typename Expression>
+  template <typename Expression>
   struct having_data_t
   {
     having_data_t(Expression expression) : _expression(expression)
@@ -60,56 +60,24 @@ namespace sqlpp
                                "having expression not built out of aggregate expressions");
 
   // HAVING
-  template <typename Database, typename Expression>
+  template <typename Expression>
   struct having_t
   {
     using _traits = make_traits<no_value_t, tag::is_having>;
     using _nodes = detail::type_vector<Expression>;
 
     // Data
-    using _data_t = having_data_t<Database, Expression>;
-
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-    public:
-      _data_t _data;
-    };
+    using _data_t = having_data_t<Expression>;
 
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = having_data_t<Database, Expression>;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      template <typename... Args>
-      _base_t(Args&&... args) : having{std::forward<Args>(args)...}
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> having;
-      _impl_t<Policies>& operator()()
-      {
-        return having;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return having;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.having)
-      {
-        return t.having;
-      }
+      _data_t _data;
 
       using _table_check = typename std::conditional<Policies::template _no_unknown_tables<having_t>::value,
                                                      consistent_t,
@@ -159,48 +127,17 @@ namespace sqlpp
     // Data
     using _data_t = no_data_t;
 
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-      _data_t _data;
-    };
-
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = no_data_t;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      template <typename... Args>
-      _base_t(Args&&... args) : no_having{std::forward<Args>(args)...}
+      _base_t() = default;
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> no_having;
-      _impl_t<Policies>& operator()()
-      {
-        return no_having;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return no_having;
-      }
+      _data_t _data;
 
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.no_having)
-      {
-        return t.no_having;
-      }
-
-      using _database_t = typename Policies::_database_t;
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
       //	  template <typename... T>
@@ -217,30 +154,30 @@ namespace sqlpp
 
       template <typename Expression>
       auto having(Expression expression) const
-          -> _new_statement_t<check_having_static_t<Expression>, having_t<void, Expression>>
+          -> _new_statement_t<check_having_static_t<Expression>, having_t<Expression>>
       {
         using Check = check_having_static_t<Expression>;
 
-        return _having_impl<void>(Check{}, expression);
+        return _having_impl(Check{}, expression);
       }
 
     private:
-      template <typename Database, typename Check, typename Expression>
+      template <typename Check, typename Expression>
       auto _having_impl(Check, Expression expression) const -> inconsistent<Check>;
 
-      template <typename Database, typename Expression>
+      template <typename Expression>
       auto _having_impl(consistent_t /*unused*/, Expression expression) const
-          -> _new_statement_t<consistent_t, having_t<Database, Expression>>
+          -> _new_statement_t<consistent_t, having_t<Expression>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this),
-                having_data_t<Database, Expression>{expression}};
+                having_data_t<Expression>{expression}};
       }
     };
   };
 
   // Interpreters
-  template <typename Context, typename Database, typename Expression>
-  Context& serialize(const having_data_t<Database, Expression>& t, Context& context)
+  template <typename Context, typename Expression>
+  Context& serialize(const having_data_t<Expression>& t, Context& context)
   {
     context << " HAVING ";
     serialize(t._expression, context);
@@ -248,9 +185,9 @@ namespace sqlpp
   }
 
   template <typename T>
-  auto having(T&& t) -> decltype(statement_t<void, no_having_t>().having(std::forward<T>(t)))
+  auto having(T&& t) -> decltype(statement_t<no_having_t>().having(std::forward<T>(t)))
   {
-    return statement_t<void, no_having_t>().having(std::forward<T>(t));
+    return statement_t<no_having_t>().having(std::forward<T>(t));
   }
 
 }  // namespace sqlpp

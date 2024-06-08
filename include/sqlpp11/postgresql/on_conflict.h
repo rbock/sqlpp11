@@ -108,44 +108,15 @@ namespace sqlpp
 
       using _data_t = on_conflict_data_t<ConflictTarget>;
 
+      // Base template to be inherited by the statement
       template <typename Policies>
-      struct _impl_t
+      struct _base_t
       {
-        // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-        _impl_t() = default;
-        _impl_t(const _data_t& data) : _data(data)
+        _base_t(_data_t data) : _data{std::move(data)}
         {
         }
 
         _data_t _data;
-      };
-
-      template <typename Policies>
-      struct _base_t
-      {
-        using _data_t = on_conflict_data_t<ConflictTarget>;
-
-        // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-        template <typename... Args>
-        _base_t(Args&&... args) : on_conflict{std::forward<Args>(args)...}
-        {
-        }
-
-        _impl_t<Policies> on_conflict;
-        _impl_t<Policies>& operator()()
-        {
-          return on_conflict;
-        }
-        const _impl_t<Policies>& operator()() const
-        {
-          return on_conflict;
-        }
-
-        template <typename T>
-        static auto _get_member(T t) -> decltype(t.on_conflict)
-        {
-          return t.on_conflict;
-        }
 
         template <typename Check, typename T>
         using _new_statement_t = new_statement_t<Check, Policies, on_conflict_t, T>;
@@ -156,20 +127,19 @@ namespace sqlpp
         auto do_nothing() const -> _new_statement_t<consistent_t, on_conflict_do_nothing_t<ConflictTarget>>
         {
           return {static_cast<const derived_statement_t<Policies>&>(*this),
-                  on_conflict_do_nothing_data_t<ConflictTarget>{on_conflict._data}};
+                  on_conflict_do_nothing_data_t<ConflictTarget>{_data}};
         }
 
         // DO UPDATE
         template <typename... Assignments>
         auto do_update(Assignments... assignments) const
             -> _new_statement_t<check_on_conflict_do_update_static_set_t<Assignments...>,
-                                on_conflict_do_update_t<void, ConflictTarget, Assignments...>>
+                                on_conflict_do_update_t<ConflictTarget, Assignments...>>
         {
           static_assert(is_column_t<ConflictTarget>::value,
                         "conflict_target specification is required with do_update(...)");
           return {static_cast<const derived_statement_t<Policies>&>(*this),
-                  on_conflict_do_update_data_t<void, ConflictTarget, Assignments...>(on_conflict._data,
-                                                                                     std::make_tuple(assignments...))};
+                  on_conflict_do_update_data_t<ConflictTarget, Assignments...>(_data, std::make_tuple(assignments...))};
         }
       };
     };
@@ -181,46 +151,22 @@ namespace sqlpp
 
       using _data_t = no_data_t;
 
+      // Base template to be inherited by the statement
       template <typename Policies>
-      struct _impl_t
+      struct _base_t
       {
-        // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-        _impl_t() = default;
-        _impl_t(const _data_t& data) : _data(data)
+        _base_t() = default;
+        _base_t(_data_t data) : _data{std::move(data)}
         {
         }
 
         _data_t _data;
-      };
-
-      template <typename Policies>
-      struct _base_t
-      {
-        using _data_t = no_data_t;
-
-        // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-        template <typename... Args>
-        _base_t(Args&&... args) : no_on_conflict{std::forward<Args>(args)...}
-        {
-        }
-
-        _impl_t<Policies> no_on_conflict;
-        _impl_t<Policies>& operator()()
-        {
-          return no_on_conflict;
-        }
-        const _impl_t<Policies>& operator()() const
-        {
-          return no_on_conflict;
-        }
 
         template <typename T>
         static auto _get_member(T t) -> decltype(t.no_on_conflict)
         {
           return t.no_on_conflict;
         }
-
-        using _database_t = typename Policies::_database_t;
 
         template <typename Check, typename T>
         using _new_statement_t = new_statement_t<Check, Policies, no_on_conflict_t, T>;

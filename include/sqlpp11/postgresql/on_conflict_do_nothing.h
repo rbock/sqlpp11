@@ -66,46 +66,15 @@ namespace sqlpp
       // Data
       using _data_t = on_conflict_do_nothing_data_t<ConflictTarget>;
 
-      // Member implementation and methods
-      template <typename Policies>
-      struct _impl_t
-      {
-        // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-        _impl_t() = default;
-        _impl_t(const _data_t& data) : _data(data)
-        {
-        }
-
-        _data_t _data;
-      };
-
       // Base template to be inherited by the statement
       template <typename Policies>
       struct _base_t
       {
-        using _data_t = on_conflict_do_nothing_data_t<ConflictTarget>;
-        // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-
-        template <typename... Args>
-        _base_t(Args&&... args) : column{std::forward<Args>(args)...}
+        _base_t(_data_t data) : _data{std::move(data)}
         {
         }
 
-        _impl_t<Policies> column;
-        _impl_t<Policies>& operator()()
-        {
-          return column;
-        }
-        const _impl_t<Policies>& operator()() const
-        {
-          return column;
-        }
-
-        template <typename T>
-        static auto _get_member(T t) -> decltype(t.column)
-        {
-          return t.column;
-        }
+        _data_t _data;
 
         // No consistency check needed, do nothing is just do nothing.
         using _consistency_check = consistent_t;

@@ -34,7 +34,7 @@
 namespace sqlpp
 {
   // USING DATA
-  template <typename Database, typename... Tables>
+  template <typename... Tables>
   struct using_data_t
   {
     using_data_t(Tables... tables) : _tables(tables...)
@@ -51,56 +51,23 @@ namespace sqlpp
   };
 
   // USING
-  template <typename Database, typename... Tables>
+  template <typename... Tables>
   struct using_t
   {
     using _traits = make_traits<no_value_t, tag::is_using_>;
     using _nodes = detail::type_vector<Tables...>;
 
-    // Data
-    using _data_t = using_data_t<Database, Tables...>;
-
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-    public:
-      _data_t _data;
-    };
+    using _data_t = using_data_t<Tables...>;
 
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = using_data_t<Database, Tables...>;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      template <typename... Args>
-      _base_t(Args&&... args) : using_{std::forward<Args>(args)...}
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> using_;
-      _impl_t<Policies>& operator()()
-      {
-        return using_;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return using_;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.using_)
-      {
-        return t.using_;
-      }
+      _data_t _data;
 
       // FIXME: Maybe check for unused tables, similar to from
       using _consistency_check = consistent_t;
@@ -123,51 +90,18 @@ namespace sqlpp
     using _traits = make_traits<no_value_t, tag::is_where>;
     using _nodes = detail::type_vector<>;
 
-    // Data
     using _data_t = no_data_t;
-
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-      _data_t _data;
-    };
 
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = no_data_t;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      template <typename... Args>
-      _base_t(Args&&... args) : no_using{std::forward<Args>(args)...}
+      _base_t() = default;
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> no_using;
-      _impl_t<Policies>& operator()()
-      {
-        return no_using;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return no_using;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.no_using)
-      {
-        return t.no_using;
-      }
-
-      using _database_t = typename Policies::_database_t;
+      _data_t _data;
 
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check, Policies, no_using_t, T>;
@@ -175,34 +109,34 @@ namespace sqlpp
       using _consistency_check = consistent_t;
 
       template <typename... Tables>
-      auto using_(Tables... tables) const -> _new_statement_t<check_using_t<Tables...>, using_t<void, Tables...>>
+      auto using_(Tables... tables) const -> _new_statement_t<check_using_t<Tables...>, using_t<Tables...>>
       {
         static_assert(not detail::has_duplicates<Tables...>::value,
                       "at least one duplicate argument detected in using()");
         static_assert(sizeof...(Tables), "at least one table required in using()");
 
-        return {_using_impl<void>(check_using_t<Tables...>{}, tables...)};
+        return {_using_impl(check_using_t<Tables...>{}, tables...)};
       }
 
     private:
-      template <typename Database, typename Check, typename... Tables>
+      template <typename Check, typename... Tables>
       auto _using_impl(Check, Tables... tables) const -> inconsistent<Check>;
 
-      template <typename Database, typename... Tables>
+      template <typename... Tables>
       auto _using_impl(consistent_t /*unused*/, Tables... tables) const
-          -> _new_statement_t<consistent_t, using_t<_database_t, Tables...>>
+          -> _new_statement_t<consistent_t, using_t<Tables...>>
       {
         static_assert(not detail::has_duplicates<Tables...>::value,
                       "at least one duplicate argument detected in using()");
 
-        return {static_cast<const derived_statement_t<Policies>&>(*this), using_data_t<Database, Tables...>{tables...}};
+        return {static_cast<const derived_statement_t<Policies>&>(*this), using_data_t<Tables...>{tables...}};
       }
     };
   };
 
   // Interpreters
-  template <typename Context, typename Database, typename... Tables>
-  Context& serialize(const using_data_t<Database, Tables...>& t, Context& context)
+  template <typename Context, typename... Tables>
+  Context& serialize(const using_data_t<Tables...>& t, Context& context)
   {
     context << " USING ";
     interpret_tuple(t._tables, ',', context);

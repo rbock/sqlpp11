@@ -59,46 +59,15 @@ namespace sqlpp
     // Data
     using _data_t = limit_data_t<Limit>;
 
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-      _data_t _data;
-    };
-
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = limit_data_t<Limit>;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      template <typename... Args>
-      _base_t(Args&&... args) : limit{std::forward<Args>(args)...}
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> limit;
-      _impl_t<Policies>& operator()()
-      {
-        return limit;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return limit;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.limit)
-      {
-        return t.limit;
-      }
+      _data_t _data;
 
       using _consistency_check = consistent_t;
     };
@@ -120,51 +89,19 @@ namespace sqlpp
     using _traits = make_traits<no_value_t, tag::is_noop>;
     using _nodes = detail::type_vector<>;
 
-    // Data
     using _data_t = no_data_t;
-
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-      _data_t _data;
-    };
 
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = no_data_t;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      template <typename... Args>
-      _base_t(Args&&... args) : no_limit{std::forward<Args>(args)...}
+      _base_t() = default;
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> no_limit;
-      _impl_t<Policies>& operator()()
-      {
-        return no_limit;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return no_limit;
-      }
+      _data_t _data;
 
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.no_limit)
-      {
-        return t.no_limit;
-      }
-
-      using _database_t = typename Policies::_database_t;
 
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check, Policies, no_limit_t, T>;
@@ -199,9 +136,9 @@ namespace sqlpp
   }
 
   template <typename T>
-  auto limit(T&& t) -> decltype(statement_t<void, no_limit_t>().limit(std::forward<T>(t)))
+  auto limit(T&& t) -> decltype(statement_t<no_limit_t>().limit(std::forward<T>(t)))
   {
-    return statement_t<void, no_limit_t>().limit(std::forward<T>(t));
+    return statement_t<no_limit_t>().limit(std::forward<T>(t));
   }
 
 }  // namespace sqlpp

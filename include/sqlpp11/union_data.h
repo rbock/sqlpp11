@@ -28,7 +28,7 @@
 
 namespace sqlpp
 {
-  template <typename Database, typename Flag, typename Lhs, typename Rhs>
+  template <typename Flag, typename Lhs, typename Rhs>
   struct union_data_t
   {
     union_data_t(Lhs lhs, Rhs rhs) : _lhs(lhs), _rhs(rhs)
@@ -46,8 +46,8 @@ namespace sqlpp
   };
 
   // Interpreters
-  template <typename Context, typename Database, typename Flag, typename Lhs, typename Rhs>
-  Context& serialize(const union_data_t<Database, Flag, Lhs, Rhs>& t, Context& context)
+  template <typename Context, typename Flag, typename Lhs, typename Rhs>
+  Context& serialize(const union_data_t<Flag, Lhs, Rhs>& t, Context& context)
   {
     serialize(t._lhs, context);
     context << " UNION ";

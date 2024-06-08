@@ -36,76 +36,30 @@
 namespace sqlpp
 {
   // FROM DATA
-  template <typename Database, typename Table>
+  template <typename Table>
   struct from_data_t
   {
-    from_data_t(Table table) : _table(table)
-    {
-    }
-
-    from_data_t(const from_data_t&) = default;
-    from_data_t(from_data_t&&) = default;
-    from_data_t& operator=(const from_data_t&) = default;
-    from_data_t& operator=(from_data_t&&) = default;
-    ~from_data_t() = default;
-
     Table _table;
   };
 
   // FROM
-  template <typename Database, typename Table>
+  template <typename Table>
   struct from_t
   {
     using _traits = make_traits<no_value_t, tag::is_from>;
     using _nodes = detail::type_vector<Table>;
 
-    // Data
-    using _data_t = from_data_t<Database, Table>;
-
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      using _database_t = Database;
-      using _table_t = Table;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-    public:
-      _data_t _data;
-    };
+    using _data_t = from_data_t<Table>;
 
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = from_data_t<Database, Table>;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      template <typename... Args>
-      _base_t(Args&&... args) : from{std::forward<Args>(args)...}
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> from;
-      _impl_t<Policies>& operator()()
-      {
-        return from;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return from;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.from)
-      {
-        return t.from;
-      }
+      _data_t _data;
 
       // FIXME: We might want to check if we have too many tables define in the FROM
       using _consistency_check = consistent_t;
@@ -142,51 +96,18 @@ namespace sqlpp
     using _traits = make_traits<no_value_t, tag::is_noop>;
     using _nodes = detail::type_vector<>;
 
-    // Data
     using _data_t = no_data_t;
-
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-      _data_t _data;
-    };
 
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = no_data_t;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      template <typename... Args>
-      _base_t(Args&&... args) : no_from{std::forward<Args>(args)...}
+      _base_t() = default;
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> no_from;
-      _impl_t<Policies>& operator()()
-      {
-        return no_from;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return no_from;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.no_from)
-      {
-        return t.no_from;
-      }
-
-      using _database_t = typename Policies::_database_t;
+      _data_t _data;
 
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check, Policies, no_from_t, T>;
@@ -194,29 +115,29 @@ namespace sqlpp
       using _consistency_check = consistent_t;
 
       template <typename Table>
-      auto from(Table table) const -> _new_statement_t<check_from_static_t<Table>, from_t<void, from_table_t<Table>>>
+      auto from(Table table) const -> _new_statement_t<check_from_static_t<Table>, from_t<from_table_t<Table>>>
       {
         using Check = check_from_static_t<Table>;
-        return _from_impl<void>(Check{}, table);
+        return _from_impl(Check{}, table);
       }
 
     private:
-      template <typename Database, typename Check, typename Table>
+      template <typename Check, typename Table>
       auto _from_impl(Check, Table table) const -> inconsistent<Check>;
 
-      template <typename Database, typename Table>
+      template <typename Table>
       auto _from_impl(consistent_t /*unused*/, Table table) const
-          -> _new_statement_t<consistent_t, from_t<Database, from_table_t<Table>>>
+          -> _new_statement_t<consistent_t, from_t<from_table_t<Table>>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this),
-                from_data_t<Database, from_table_t<Table>>{from_table(table)}};
+                from_data_t<from_table_t<Table>>{from_table(table)}};
       }
     };
   };
 
   // Interpreters
-  template <typename Context, typename Database, typename Table>
-  Context& serialize(const from_data_t<Database, Table>& t, Context& context)
+  template <typename Context, typename Table>
+  Context& serialize(const from_data_t<Table>& t, Context& context)
   {
     context << " FROM ";
     serialize(t._table, context);
@@ -224,9 +145,9 @@ namespace sqlpp
   }
 
   template <typename T>
-  auto from(T&& t) -> decltype(statement_t<void, no_from_t>().from(std::forward<T>(t)))
+  auto from(T&& t) -> decltype(statement_t<no_from_t>().from(std::forward<T>(t)))
   {
-    return statement_t<void, no_from_t>().from(std::forward<T>(t));
+    return statement_t<no_from_t>().from(std::forward<T>(t));
   }
 
 }  // namespace sqlpp

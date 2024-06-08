@@ -61,7 +61,7 @@ int CustomQuery(int, char*[])
                    sqlpp::limit(7u), sqlpp::offset(3u)),
       "SELECT  DISTINCT  tab_foo.omega  FROM tab_foo INNER JOIN tab_bar ON (tab_foo.omega=tab_bar.alpha)  WHERE "
       "(tab_bar.alpha>17)  GROUP BY tab_foo.omega  HAVING (AVG(tab_bar.alpha)>19)  ORDER BY tab_foo.omega "
-      "ASC,tab_foo.psi DESC  ");
+      "ASC,tab_foo.psi DESC  LIMIT 7  OFFSET 3");
 
   // A pragma query for sqlite
   compare(__LINE__,
@@ -81,8 +81,8 @@ int CustomQuery(int, char*[])
 
   // A multi-row "insert or ignore"
   auto batch = insert_columns(bar.beta, bar.gamma);
-  batch.values.add(bar.beta = "sample", bar.gamma = true);
-  batch.values.add(bar.beta = "ample", bar.gamma = false);
+  batch.add_values(bar.beta = "sample", bar.gamma = true);
+  batch.add_values(bar.beta = "ample", bar.gamma = false);
   compare(__LINE__, custom_query(sqlpp::insert(), sqlpp::verbatim(" OR IGNORE"), into(bar), batch),
           "INSERT  OR IGNORE  INTO tab_bar  (beta,gamma) VALUES ('sample',1),('ample',0)");
 

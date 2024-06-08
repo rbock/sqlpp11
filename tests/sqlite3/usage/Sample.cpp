@@ -87,9 +87,7 @@ int Sample(int, char*[])
   std::cout << "Last Insert ID: " << db.last_insert_id() << "\n";
   db(insert_into(tab).set(tab.gamma = true));
   std::cout << "Last Insert ID: " << db.last_insert_id() << "\n";
-  auto di = dynamic_insert_into(db, tab).dynamic_set(tab.gamma = true);
-  di.insert_list.add(tab.beta = "");
-  db(di);
+#warning: add tests for optional insert and insert_or
 
   // update
   db(update(tab).set(tab.gamma = false).where(tab.alpha.in(1)));

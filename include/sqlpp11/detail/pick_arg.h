@@ -32,23 +32,25 @@ namespace sqlpp
 {
   namespace detail
   {
-    template <typename Target, typename Statement, typename Term>
-    typename Target::_data_t pick_arg_impl(Statement /* statement */, Term term, const std::true_type& /*unused*/)
+    template <typename Clause, typename OldStatement, typename NewClauseData>
+    const typename Clause::_data_t& pick_arg_impl(const OldStatement& /* old_statement */, const NewClauseData& new_data, const std::true_type& /*unused*/)
     {
-      return term;
+      return new_data;
     }
 
-    template <typename Target, typename Statement, typename Term>
-    typename Target::_data_t pick_arg_impl(Statement statement, Term /* term */, const std::false_type& /*unused*/)
+    template <typename Clause, typename OldStatement, typename NewClauseData>
+    const typename Clause::_data_t& pick_arg_impl(const OldStatement& old_statement, const NewClauseData& /* new_data */, const std::false_type& /*unused*/)
     {
-      return Target::_get_member(statement)._data;
+      using old_policies_t = typename OldStatement::_policies_t;
+      using old_base_t = typename Clause::_base_t<old_policies_t>;
+      return static_cast<const old_base_t&>(old_statement)._data;
     }
 
-    // Returns a statement's term either by picking the term from the statement or using the new term
-    template <typename Target, typename Statement, typename Term>
-    typename Target::_data_t pick_arg(Statement statement, Term term)
+    // Returns a old_statement's new_data either by picking the new_data from the old_statement or using the new new_data
+    template <typename Clause, typename OldStatement, typename NewClauseData>
+    const typename Clause::_data_t& pick_arg(const OldStatement& old_statement, const NewClauseData& new_data)
     {
-      return pick_arg_impl<Target>(statement, term, std::is_same<typename Target::_data_t, Term>());
+      return pick_arg_impl<Clause>(old_statement, new_data, std::is_same<typename Clause::_data_t, typename std::decay<NewClauseData>::type>());
     }
   }  // namespace detail
 }  // namespace sqlpp

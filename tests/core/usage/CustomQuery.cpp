@@ -32,6 +32,8 @@
 
 namespace
 {
+#warning restore this file!
+#if 0
   struct on_duplicate_key_update
   {
     std::string _serialized;
@@ -56,6 +58,7 @@ namespace
       return ::sqlpp::verbatim(_serialized);
     }
   };
+#endif
 }  // namespace
 
 int CustomQuery(int, char*[])
@@ -68,8 +71,11 @@ int CustomQuery(int, char*[])
 
   // A void custom query
   printer.reset();
-  auto x = custom_query(sqlpp::verbatim("PRAGMA writeable_schema = "), true);
+  auto x =
+      //select(t.alpha).from(t).where(t.alpha > 7).group_by(t.alpha).having(max(t.alpha) > 13).order_by(t.beta.desc());
+    update(t).set(t.beta = "eight", t.gamma = true);
   std::cerr << serialize(x, printer).str() << std::endl;
+#if 0
   db(x);
 
   // Syntactically, it is possible to use this void query as a prepared statement, too, not sure, whether this makes
@@ -92,8 +98,8 @@ int CustomQuery(int, char*[])
 
   // Create a custom mulit-row "insert or ignore"
   auto batch = insert_columns(t.beta, t.gamma);
-  batch.values.add(t.beta = "sample", t.gamma = true);
-  batch.values.add(t.beta = "ample", t.gamma = false);
+  batch.add_values(t.beta = "sample", t.gamma = true);
+  batch.add_values(t.beta = "ample", t.gamma = false);
   db(custom_query(sqlpp::insert(), sqlpp::verbatim(" OR IGNORE"), into(t), batch));
 
   // Create a MYSQL style custom "insert on duplicate update"
@@ -117,6 +123,7 @@ int CustomQuery(int, char*[])
   {
     (void)row.alpha;
   }
+#endif
 
   return 0;
 }

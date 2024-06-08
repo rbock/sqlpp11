@@ -34,7 +34,7 @@
 
 namespace sqlpp
 {
-  template <typename Database, typename... Parts>
+  template <typename... Parts>
   struct custom_query_t;
 
   namespace detail
@@ -50,20 +50,20 @@ namespace sqlpp
       using type = Clause;
     };
 
-    template <typename Db, typename... Parts>
+    template <typename... Parts>
     struct custom_parts_t
     {
-      using _custom_query_t = custom_query_t<Db, Parts...>;
+      using _custom_query_t = custom_query_t<Parts...>;
       using _maybe_hidden_result_type_provider = detail::get_first_if<is_return_value_t, noop, Parts...>;
       using _result_type_provider = typename unhide<_maybe_hidden_result_type_provider>::type;
       using _result_methods_t = typename _result_type_provider::template _result_methods_t<_result_type_provider>;
     };
   }  // namespace detail
 
-  template <typename Database, typename... Parts>
-  struct custom_query_t : private detail::custom_parts_t<Database, Parts...>::_result_methods_t
+  template <typename... Parts>
+  struct custom_query_t : private detail::custom_parts_t<Parts...>::_result_methods_t
   {
-    using _methods_t = typename detail::custom_parts_t<Database, Parts...>::_result_methods_t;
+    using _methods_t = typename detail::custom_parts_t<Parts...>::_result_methods_t;
     using _traits = make_traits<no_value_t, tag::is_statement>;
     using _nodes = detail::type_vector<Parts...>;
 
@@ -113,7 +113,7 @@ namespace sqlpp
     }
 
     template <typename Part>
-    auto with_result_type_of(Part part) -> custom_query_t<Database, hidden_t<Part>, Parts...>
+    auto with_result_type_of(Part part) -> custom_query_t<hidden_t<Part>, Parts...>
     {
       return {tuple_cat(std::make_tuple(hidden(part)), _parts)};
     }
@@ -121,18 +121,18 @@ namespace sqlpp
     std::tuple<Parts...> _parts;
   };
 
-  template <typename Context, typename Database, typename... Parts>
-  Context& serialize(const custom_query_t<Database, Parts...>& t, Context& context)
+  template <typename Context, typename... Parts>
+  Context& serialize(const custom_query_t<Parts...>& t, Context& context)
   {
     interpret_tuple_without_braces(t._parts, " ", context);
     return context;
   }
 
   template <typename... Parts>
-  auto custom_query(Parts... parts) -> custom_query_t<void, wrap_operand_t<Parts>...>
+  auto custom_query(Parts... parts) -> custom_query_t<wrap_operand_t<Parts>...>
   {
     static_assert(sizeof...(Parts) > 0, "custom query requires at least one argument");
-    return custom_query_t<void, wrap_operand_t<Parts>...>(parts...);
+    return custom_query_t<wrap_operand_t<Parts>...>(parts...);
   }
 
 }  // namespace sqlpp

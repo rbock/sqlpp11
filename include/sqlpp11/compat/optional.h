@@ -36,6 +36,7 @@
 #include <optional>
 namespace sqlpp
 {
+#warning move into compat?
   template <class T>
   using optional = std::optional<T>;
 

@@ -56,49 +56,17 @@ namespace sqlpp
     using _traits = make_traits<no_value_t, tag::is_offset>;
     using _nodes = detail::type_vector<Offset>;
 
-    // Data
     using _data_t = offset_data_t<Offset>;
-
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-      _data_t _data;
-    };
 
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = offset_data_t<Offset>;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      template <typename... Args>
-      _base_t(Args&&... args) : offset{std::forward<Args>(args)...}
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> offset;
-      _impl_t<Policies>& operator()()
-      {
-        return offset;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return offset;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.offset)
-      {
-        return t.offset;
-      }
+      _data_t _data;
 
       using _consistency_check = consistent_t;
     };
@@ -140,31 +108,12 @@ namespace sqlpp
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = no_data_t;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      template <typename... Args>
-      _base_t(Args&&... args) : no_offset{std::forward<Args>(args)...}
+      _base_t() = default;
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> no_offset;
-      _impl_t<Policies>& operator()()
-      {
-        return no_offset;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return no_offset;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.no_offset)
-      {
-        return t.no_offset;
-      }
-
-      using _database_t = typename Policies::_database_t;
+      _data_t _data;
 
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check, Policies, no_offset_t, T>;
@@ -199,9 +148,9 @@ namespace sqlpp
   }
 
   template <typename T>
-  auto offset(T&& t) -> decltype(statement_t<void, no_offset_t>().offset(std::forward<T>(t)))
+  auto offset(T&& t) -> decltype(statement_t<no_offset_t>().offset(std::forward<T>(t)))
   {
-    return statement_t<void, no_offset_t>().offset(std::forward<T>(t));
+    return statement_t<no_offset_t>().offset(std::forward<T>(t));
   }
 
 }  // namespace sqlpp

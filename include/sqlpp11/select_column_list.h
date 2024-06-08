@@ -65,7 +65,7 @@ namespace sqlpp
   }  // namespace detail
 
   // SELECTED COLUMNS DATA
-  template <typename Database, typename... Columns>
+  template <typename... Columns>
   struct select_column_list_data_t
   {
     select_column_list_data_t(Columns... columns) : _columns(columns...)
@@ -95,7 +95,7 @@ namespace sqlpp
                                "not all selected columns are made of aggregates, despite group_by or similar");
 
   // SELECTED COLUMNS
-  template <typename Database, typename... Columns>
+  template <typename... Columns>
   struct select_column_list_t
   {
     using _traits = typename detail::select_traits<Columns...>::_traits;
@@ -103,62 +103,25 @@ namespace sqlpp
 
     using _alias_t = typename detail::select_traits<Columns...>::_alias_t;
 
+    using _data_t = select_column_list_data_t<Columns...>;
+
     struct _column_type
     {
-    };
-
-    // Data
-    using _data_t = select_column_list_data_t<Database, Columns...>;
-
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-    public:
-      _data_t _data;
     };
 
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = select_column_list_data_t<Database, Columns...>;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      template <typename... Args>
-      _base_t(Args&&... args) : selected_columns{std::forward<Args>(args)...}
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> selected_columns;
-      _impl_t<Policies>& operator()()
-      {
-        return selected_columns;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return selected_columns;
-      }
+      _data_t _data;
 
-      _impl_t<Policies>& get_selected_columns()
+      const _base_t& get_selected_columns() const
       {
-        return selected_columns;
-      }
-      const _impl_t<Policies>& get_selected_columns() const
-      {
-        return selected_columns;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.selected_columns)
-      {
-        return t.selected_columns;
+        return *this;
       }
 
       using _table_check = typename std::conditional<Policies::template _no_unknown_tables<select_column_list_t>::value,
@@ -260,8 +223,8 @@ namespace sqlpp
 
   namespace detail
   {
-    template <typename Database, typename... Columns>
-    select_column_list_t<Database, Columns...> make_column_list(std::tuple<Columns...> columns);
+    template <typename... Columns>
+    select_column_list_t<Columns...> make_column_list(std::tuple<Columns...> columns);
   }  // namespace detail
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_selected_colums_are_selectable_t, "selected columns must be selectable");
@@ -283,51 +246,18 @@ namespace sqlpp
     {
     };
 
-    // Data
     using _data_t = no_data_t;
-
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-      _data_t _data;
-    };
 
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = no_data_t;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      template <typename... Args>
-      _base_t(Args&&... args) : no_selected_columns{std::forward<Args>(args)...}
+      _base_t() = default;
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> no_selected_columns;
-      _impl_t<Policies>& operator()()
-      {
-        return no_selected_columns;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return no_selected_columns;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.no_selected_columns)
-      {
-        return t.no_selected_columns;
-      }
-
-      using _database_t = typename Policies::_database_t;
+      _data_t _data;
 
       template <typename... T>
       static constexpr auto _check_args(std::tuple<T...> /*args*/) -> check_selected_columns_t<T...>
@@ -343,42 +273,42 @@ namespace sqlpp
       template <typename... Args>
       auto columns(Args... args) const
           -> _new_statement_t<decltype(_check_args(detail::column_tuple_merge(args...))),
-                              decltype(detail::make_column_list<void>(detail::column_tuple_merge(args...)))>
+                              decltype(detail::make_column_list(detail::column_tuple_merge(args...)))>
       {
         static_assert(sizeof...(Args), "at least one selectable expression (e.g. a column) required in columns()");
         using check = decltype(_check_args(detail::column_tuple_merge(args...)));
         static_assert(check::value,
                       "at least one argument is not a selectable expression in columns()");
 
-        return _columns_impl<void>(check{}, detail::column_tuple_merge(args...));
+        return _columns_impl(check{}, detail::column_tuple_merge(args...));
       }
 
     private:
-      template <typename Database, typename Check, typename... Args>
+      template <typename Check, typename... Args>
       auto _columns_impl(Check, std::tuple<Args...> args) const -> inconsistent<Check>;
 
-      template <typename Database, typename... Args>
+      template <typename... Args>
       auto _columns_impl(consistent_t /*unused*/, std::tuple<Args...> args) const
-          -> _new_statement_t<consistent_t, select_column_list_t<Database, Args...>>
+          -> _new_statement_t<consistent_t, select_column_list_t<Args...>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this),
-                typename select_column_list_t<Database, Args...>::_data_t{args}};
+                typename select_column_list_t<Args...>::_data_t{args}};
       }
     };
   };
 
   // Interpreters
-  template <typename Context, typename Database, typename... Columns>
-  Context& serialize(const select_column_list_data_t<Database, Columns...>& t, Context& context)
+  template <typename Context, typename... Columns>
+  Context& serialize(const select_column_list_data_t<Columns...>& t, Context& context)
   {
     interpret_tuple(t._columns, ',', context);
     return context;
   }
 
   template <typename... T>
-  auto select_columns(T&&... t) -> decltype(statement_t<void, no_select_column_list_t>().columns(std::forward<T>(t)...))
+  auto select_columns(T&&... t) -> decltype(statement_t<no_select_column_list_t>().columns(std::forward<T>(t)...))
   {
-    return statement_t<void, no_select_column_list_t>().columns(std::forward<T>(t)...);
+    return statement_t<no_select_column_list_t>().columns(std::forward<T>(t)...);
   }
 
 }  // namespace sqlpp

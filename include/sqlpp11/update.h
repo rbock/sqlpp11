@@ -94,13 +94,12 @@ namespace sqlpp
     return context;
   }
 
-  template <typename Database>
-  using blank_update_t = statement_t<Database, update_t, no_single_table_t, no_update_list_t, no_where_t<true>>;
+  using blank_update_t = statement_t<update_t, no_single_table_t, no_update_list_t, no_where_t<true>>;
 
   template <typename Table>
-  constexpr auto update(Table table) -> decltype(blank_update_t<void>().single_table(table))
+  constexpr auto update(Table table) -> decltype(blank_update_t().single_table(table))
   {
-    return {blank_update_t<void>().single_table(table)};
+    return {blank_update_t().single_table(table)};
   }
 
 }  // namespace sqlpp

@@ -69,7 +69,7 @@ namespace sqlpp
       };
     }  // namespace detail
 
-    template <typename Database, typename... Columns>
+    template <typename... Columns>
     struct returning_column_list_data_t
     {
       returning_column_list_data_t(Columns... columns) : _columns(columns...)
@@ -92,7 +92,7 @@ namespace sqlpp
         "at least one returning column requires a table which is otherwise not known in the statement");
 
     // Columns in returning list
-    template <typename Database, typename... Columns>
+    template <typename... Columns>
     struct returning_column_list_t
     {
       using _traits = typename detail::returning_traits<Columns...>::_traits;
@@ -104,57 +104,17 @@ namespace sqlpp
       };
 
       // Data
-      using _data_t = returning_column_list_data_t<Database, Columns...>;
+      using _data_t = returning_column_list_data_t<Columns...>;
 
-      // Implementation
+      // Base template to be inherited by the statement
       template <typename Policies>
-      struct _impl_t
+      struct _base_t
       {
-        // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-        _impl_t() = default;
-        _impl_t(const _data_t& data) : _data(data)
+        _base_t(_data_t data) : _data{std::move(data)}
         {
         }
 
         _data_t _data;
-      };
-
-      // Base template to be inherited by statement
-      template <typename Policies>
-      struct _base_t
-      {
-        using _data_t = returning_column_list_data_t<Database, Columns...>;
-
-        // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-        template <typename... Args>
-        _base_t(Args&&... args) : returning_columns{std::forward<Args>(args)...}
-        {
-        }
-
-        _impl_t<Policies> returning_columns;
-        _impl_t<Policies>& operator()()
-        {
-          return returning_columns;
-        }
-        const _impl_t<Policies>& operator()() const
-        {
-          return returning_columns;
-        }
-
-        _impl_t<Policies>& get_selected_columns()
-        {
-          return returning_columns;
-        }
-        const _impl_t<Policies>& get_selected_columns() const
-        {
-          return returning_columns;
-        }
-
-        template <typename T>
-        static auto _get_member(T t) -> decltype(t.returning_columms)
-        {
-          return t.returning_columns;
-        }
 
         // Checks
         using _table_check =
@@ -185,7 +145,8 @@ namespace sqlpp
         template <typename Db, typename Column>
         using _field_t = typename _deferred_field_t<Db, Column>::type;
 
-        using _result_row_t = result_row_t < Db, _field_t<Db, Columns>... >;
+        template <typename Db>
+        using _result_row_t = result_row_t<Db, _field_t<Db, Columns>...>;
 
         template <typename AliasProvider>
         struct _deferred_table_t
@@ -245,8 +206,8 @@ namespace sqlpp
 
     namespace detail
     {
-      template <typename Database, typename... Columns>
-      returning_column_list_t<Database, Columns...> make_returning_column_list(std::tuple<Columns...> columns);
+      template <typename... Columns>
+      returning_column_list_t<Columns...> make_returning_column_list(std::tuple<Columns...> columns);
     }
 
     struct no_returning_column_list_t
@@ -261,48 +222,16 @@ namespace sqlpp
       // Data
       using _data_t = no_data_t;
 
-      // Member implementation with data and methods
+      // Base template to be inherited by the statement
       template <typename Policies>
-      struct _impl_t
+      struct _base_t
       {
-        // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-        _impl_t() = default;
-        _impl_t(const _data_t& data) : _data(data)
+        _base_t() = default;
+        _base_t(_data_t data) : _data{std::move(data)}
         {
         }
 
         _data_t _data;
-      };
-
-      // Base template to be inherited
-      template <typename Policies>
-      struct _base_t
-      {
-        using _data_t = no_data_t;
-
-        // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-        template <typename... Args>
-        _base_t(Args&... args) : no_returned_columns{std::forward<Args>(args)...}
-        {
-        }
-
-        _impl_t<Policies> no_returned_columns;
-        _impl_t<Policies>& operator()()
-        {
-          return no_returned_columns;
-        }
-        const _impl_t<Policies>& operator()() const
-        {
-          return no_returned_columns;
-        }
-
-        template <typename T>
-        static auto _get_member(T t) -> decltype(t.no_returned_columns)
-        {
-          return t.no_returned_columns;
-        }
-
-        using _database_t = typename Policies::_database_t;
 
         template <typename... T>
         struct _check : logic::all_t<is_selectable_t<T>::value...>
@@ -330,36 +259,36 @@ namespace sqlpp
         template <typename... Args>
         auto returning(Args... args) const -> _new_statement_t<
             decltype(_check_args(args...)),
-            decltype(detail::make_returning_column_list<void>(::sqlpp::detail::column_tuple_merge(args...)))>
+            decltype(detail::make_returning_column_list(::sqlpp::detail::column_tuple_merge(args...)))>
         {
           static_assert(sizeof...(Args), "at least one selectable expression (e.g. a column) required in returning()");
           static_assert(decltype(_check_args(args...))::value,
                         "at least one argument is not a selectable expression in returning()");
 
-          return _returning_impl<void>(decltype(_check_args(args...)){}, ::sqlpp::detail::column_tuple_merge(args...));
+          return _returning_impl(decltype(_check_args(args...)){}, ::sqlpp::detail::column_tuple_merge(args...));
         }
 
       private:
-        template <typename Database, typename Check, typename... Args>
+        template <typename Check, typename... Args>
         auto _returning_impl(const std::false_type&, std::tuple<Args...> args) const -> inconsistent<Check>;
 
-        template <typename Database, typename... Args>
+        template <typename... Args>
         auto _returning_impl(consistent_t, std::tuple<Args...> args) const
-            -> _new_statement_t<consistent_t, returning_column_list_t<Database, Args...>>
+            -> _new_statement_t<consistent_t, returning_column_list_t<Args...>>
         {
           static_assert(not::sqlpp::detail::has_duplicates<Args...>::value, "at least one duplicate argument detected");
           static_assert(not::sqlpp::detail::has_duplicates<typename Args::_alias_t...>::value,
                         "at least one duplicate name detected");
 
           return {static_cast<const derived_statement_t<Policies>&>(*this),
-                  typename returning_column_list_t<Database, Args...>::_data_t{args}};
+                  typename returning_column_list_t<Args...>::_data_t{args}};
         }
       };
     };
 
     // Serialization
-    template <typename Database, typename... Columns>
-    postgresql::context_t& serialize(const postgresql::returning_column_list_data_t<Database, Columns...>& t,
+    template <typename... Columns>
+    postgresql::context_t& serialize(const postgresql::returning_column_list_data_t<Columns...>& t,
                                      postgresql::context_t& context)
     {
       context << " RETURNING ";

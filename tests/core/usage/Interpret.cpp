@@ -41,9 +41,9 @@ int Interpret(int, char* [])
   serialize(insert_into(t).columns(t.beta, t.gamma), printer).str();
   {
     auto i = insert_into(t).columns(t.gamma, t.beta);
-    i.values.add(t.gamma = true, t.beta = "cheesecake");
+    i.add_values(t.gamma = true, t.beta = "cheesecake");
     serialize(i, printer).str();
-    i.values.add(t.gamma = sqlpp::default_value, t.beta = sqlpp::null);
+    i.add_values(t.gamma = sqlpp::default_value, t.beta = sqlpp::null);
     serialize(i, printer).str();
   }
 

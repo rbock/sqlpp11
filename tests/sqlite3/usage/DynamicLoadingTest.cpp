@@ -63,9 +63,9 @@ int main()
   const auto tab = TabSample{};
 
   auto i = insert_into(tab).columns(tab.beta, tab.gamma);
-  i.values.add(tab.beta = "rhabarbertorte", tab.gamma = false);
-  // i.values.add(tab.beta = "cheesecake", tab.gamma = false)
-  // i.values.add(tab.beta = "kaesekuchen", tab.gamma = true)
+  i.add_values(tab.beta = "rhabarbertorte", tab.gamma = false);
+  // i.add_values(tab.beta = "cheesecake", tab.gamma = false)
+  // i.add_values(tab.beta = "kaesekuchen", tab.gamma = true)
   auto last_insert_rowid = db(i);
 
   std::cerr << "last insert rowid: " << last_insert_rowid << std::endl;

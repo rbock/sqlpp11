@@ -34,27 +34,14 @@ namespace sqlpp
 {
   namespace mysql
   {
-    template <typename Database>
-    using blank_update_t = statement_t<Database,
-                                       update_t,
-                                       no_single_table_t,
-                                       no_update_list_t,
-                                       no_where_t<true>,
-                                       no_order_by_t,
-                                       no_limit_t>;
+    using blank_update_t =
+        statement_t<update_t, no_single_table_t, no_update_list_t, no_where_t<true>, no_order_by_t, no_limit_t>;
 
     template <typename Table>
-    constexpr auto update(Table table) -> decltype(blank_update_t<void>().single_table(table))
+    constexpr auto update(Table table) -> decltype(blank_update_t().single_table(table))
     {
-      return {blank_update_t<void>().single_table(table)};
+      return {blank_update_t().single_table(table)};
     }
 
-    template <typename Database, typename Table>
-    constexpr auto dynamic_update(const Database& /*unused*/, Table table)
-        -> decltype(blank_update_t<Database>().single_table(table))
-    {
-      static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
-      return {blank_update_t<Database>().single_table(table)};
-    }
   }  // namespace mysql
 }  // namespace sqlpp

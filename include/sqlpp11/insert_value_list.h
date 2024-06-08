@@ -73,52 +73,21 @@ namespace sqlpp
     // Data
     using _data_t = insert_default_values_data_t;
 
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-      _data_t _data;
-    };
-
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = insert_default_values_data_t;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      template <typename... Args>
-      _base_t(Args&&... args) : default_values{std::forward<Args>(args)...}
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> default_values;
-      _impl_t<Policies>& operator()()
-      {
-        return default_values;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return default_values;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.default_values)
-      {
-        return t.default_values;
-      }
+      _data_t _data;
 
       using _consistency_check = consistent_t;
     };
   };
 
-  template <typename Database, typename... Assignments>
+  template <typename... Assignments>
   struct insert_list_data_t
   {
     insert_list_data_t(std::tuple<Assignments...> assignments)
@@ -229,33 +198,15 @@ namespace sqlpp
   template <typename... Assignments>
   using check_insert_static_set_t = typename check_insert_static_set<Assignments...>::type;
 
-  // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-  //  template <typename Database, typename... Assignments>
-  //  using check_insert_dynamic_set_t = static_combined_check_t<
-  //      static_check_t<not std::is_same<Database, void>::value, assert_insert_dynamic_set_statement_dynamic_t>,
-  //      check_insert_set_t<Assignments...>>;
-  template <typename Database, typename... Assignments>
-  struct check_insert_dynamic_set
-  {
-    using type = static_combined_check_t<
-        static_check_t<not std::is_same<Database, void>::value, assert_insert_dynamic_set_statement_dynamic_t>,
-        check_insert_set_t<Assignments...>>;
-  };
-
-  template <typename Database, typename... Assignments>
-  using check_insert_dynamic_set_t = typename check_insert_dynamic_set<Database, Assignments...>::type;
-
   SQLPP_PORTABLE_STATIC_ASSERT(
       assert_no_unknown_tables_in_insert_assignments_t,
       "at least one insert assignment requires a table which is otherwise not known in the statement");
 
-  template <typename Database, typename... Assignments>
+  template <typename... Assignments>
   struct insert_list_t
   {
     using _traits = make_traits<no_value_t, tag::is_insert_list>;
     using _nodes = detail::type_vector<lhs_t<Assignments>..., rhs_t<Assignments>...>;
-
-    using _is_dynamic = is_database<Database>;
 
     template <template <typename...> class Target>
     using copy_assignments_t = Target<Assignments...>;  // FIXME: Nice idea to copy variadic template arguments?
@@ -263,76 +214,17 @@ namespace sqlpp
     using copy_wrapped_assignments_t = Target<Wrap<Assignments>...>;
 
     // Data
-    using _data_t = insert_list_data_t<Database, Assignments...>;
-
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-      template <typename Assignment>
-      void add(Assignment assignment)
-      {
-        static_assert(_is_dynamic::value, "add must not be called for static from()");
-        static_assert(is_assignment_t<Assignment>::value, "add() arguments require to be assigments");
-        using _assigned_columns = detail::make_type_set_t<lhs_t<Assignments>...>;
-        static_assert(not _assigned_columns::template count<lhs_t<Assignment>>(),
-                      "Must not assign value to column twice");
-        static_assert(not must_not_insert_t<lhs_t<Assignment>>::value, "add() argument must not be used in insert");
-        static_assert(Policies::template _no_unknown_tables<Assignment>::value,
-                      "add() contains a column from a foreign table");
-        using ok = logic::all_t<_is_dynamic::value, is_assignment_t<Assignment>::value>;
-
-        _add_impl(assignment, ok());  // dispatch to prevent compile messages after the static_assert
-      }
-
-    private:
-      template <typename Assignment>
-      void _add_impl(Assignment assignment, const std::true_type& /*unused*/)
-      {
-        _data._dynamic_columns.emplace_back(simple_column_t<lhs_t<Assignment>>{assignment._lhs});
-        _data._dynamic_values.emplace_back(assignment._rhs);
-      }
-
-      template <typename Assignment>
-      void _add_impl(Assignment assignment, const std::false_type&);
-
-    public:
-      _data_t _data;
-    };
+    using _data_t = insert_list_data_t<Assignments...>;
 
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = insert_list_data_t<Database, Assignments...>;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      template <typename... Args>
-      _base_t(Args&&... args) : insert_list{std::forward<Args>(args)...}
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> insert_list;
-      _impl_t<Policies>& operator()()
-      {
-        return insert_list;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return insert_list;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.insert_list)
-      {
-        return t.insert_list;
-      }
+      _data_t _data;
 
       using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<insert_list_t>::value,
                                                            consistent_t,
@@ -373,18 +265,18 @@ namespace sqlpp
     // Data
     using _data_t = column_list_data_t<Columns...>;
 
-    // Member implementation with data and methods
+    // Base template to be inherited by the statement
     template <typename Policies>
-    struct _impl_t
+    struct _base_t
     {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
+      _data_t _data;
+
       template <typename... Assignments>
-      void add(Assignments... assignments)
+      void add_values(Assignments... assignments)
       {
         static_assert(logic::all_t<is_assignment_t<Assignments>::value...>::value,
                       "add_values() arguments have to be assignments");
@@ -405,40 +297,9 @@ namespace sqlpp
       }
 
       template <typename... Assignments>
-      void _add_impl(const std::false_type&, Assignments... assignments);
+      void _add_impl(const std::false_type& /*unused*/, Assignments... /*unused*/);
 
     public:
-      _data_t _data;
-    };
-
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
-    {
-      using _data_t = column_list_data_t<Columns...>;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      template <typename... Args>
-      _base_t(Args&&... args) : values{std::forward<Args>(args)...}
-      {
-      }
-
-      _impl_t<Policies> values;
-      _impl_t<Policies>& operator()()
-      {
-        return values;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return values;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.values)
-      {
-        return t.values;
-      }
-
       using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<column_list_t>::value,
                                                            consistent_t,
                                                            assert_no_unknown_tables_in_column_list_t>::type;
@@ -463,51 +324,18 @@ namespace sqlpp
     using _traits = make_traits<no_value_t, tag::is_noop>;
     using _nodes = detail::type_vector<>;
 
-    // Data
     using _data_t = no_data_t;
-
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-      _data_t _data;
-    };
 
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = no_data_t;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      template <typename... Args>
-      _base_t(Args&&... args) : no_insert_values{std::forward<Args>(args)...}
+      _base_t() = default;
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> no_insert_values;
-      _impl_t<Policies>& operator()()
-      {
-        return no_insert_values;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return no_insert_values;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.no_insert_values)
-      {
-        return t.no_insert_values;
-      }
-
-      using _database_t = typename Policies::_database_t;
+      _data_t _data;
 
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check, Policies, no_insert_value_list_t, T>;
@@ -530,35 +358,18 @@ namespace sqlpp
 
       template <typename... Assignments>
       auto set(Assignments... assignments) const
-          -> _new_statement_t<check_insert_static_set_t<Assignments...>, insert_list_t<void, Assignments...>>
+          -> _new_statement_t<check_insert_static_set_t<Assignments...>, insert_list_t<Assignments...>>
       {
         using Check = check_insert_static_set_t<Assignments...>;
-        return _set_impl<void>(Check{}, std::make_tuple(assignments...));
+        return _set_impl(Check{}, std::make_tuple(assignments...));
       }
 
       template <typename... Assignments>
       auto set(std::tuple<Assignments...> assignments) const
-          -> _new_statement_t<check_insert_static_set_t<Assignments...>, insert_list_t<void, Assignments...>>
+          -> _new_statement_t<check_insert_static_set_t<Assignments...>, insert_list_t<Assignments...>>
       {
         using Check = check_insert_static_set_t<Assignments...>;
-        return _set_impl<void>(Check{}, assignments);
-      }
-      template <typename... Assignments>
-      auto dynamic_set(Assignments... assignments) const
-          -> _new_statement_t<check_insert_dynamic_set_t<_database_t, Assignments...>,
-                              insert_list_t<_database_t, Assignments...>>
-      {
-        using Check = check_insert_dynamic_set_t<_database_t, Assignments...>;
-        return _set_impl<_database_t>(Check{}, std::make_tuple(assignments...));
-      }
-
-      template <typename... Assignments>
-      auto dynamic_set(std::tuple<Assignments...> assignments) const
-          -> _new_statement_t<check_insert_dynamic_set_t<_database_t, Assignments...>,
-                              insert_list_t<_database_t, Assignments...>>
-      {
-        using Check = check_insert_dynamic_set_t<_database_t, Assignments...>;
-        return _set_impl<_database_t>(Check{}, assignments);
+        return _set_impl(Check{}, assignments);
       }
 
     private:
@@ -582,15 +393,15 @@ namespace sqlpp
         return {static_cast<const derived_statement_t<Policies>&>(*this), column_list_data_t<Columns...>{cols...}};
       }
 
-      template <typename Database, typename Check, typename... Assignments>
+      template <typename Check, typename... Assignments>
       auto _set_impl(Check, Assignments... assignments) const -> inconsistent<Check>;
 
-      template <typename Database, typename... Assignments>
+      template <typename... Assignments>
       auto _set_impl(consistent_t /*unused*/, std::tuple<Assignments...> assignments) const
-          -> _new_statement_t<consistent_t, insert_list_t<Database, Assignments...>>
+          -> _new_statement_t<consistent_t, insert_list_t<Assignments...>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this),
-                insert_list_data_t<Database, Assignments...>{assignments}};
+                insert_list_data_t<Assignments...>{assignments}};
       }
     };
   };
@@ -630,8 +441,8 @@ namespace sqlpp
     return context;
   }
 
-  template <typename Context, typename Database, typename... Assignments>
-  Context& serialize(const insert_list_data_t<Database, Assignments...>& t, Context& context)
+  template <typename Context, typename... Assignments>
+  Context& serialize(const insert_list_data_t<Assignments...>& t, Context& context)
   {
     context << " (";
     interpret_tuple(t._columns, ",", context);
@@ -644,15 +455,15 @@ namespace sqlpp
 
   template <typename... Assignments>
   auto insert_set(Assignments... assignments)
-      -> decltype(statement_t<void, no_insert_value_list_t>().set(assignments...))
+      -> decltype(statement_t<no_insert_value_list_t>().set(assignments...))
   {
-    return statement_t<void, no_insert_value_list_t>().set(assignments...);
+    return statement_t<no_insert_value_list_t>().set(assignments...);
   }
 
   template <typename... Columns>
   auto insert_columns(Columns... cols)
-      -> decltype(statement_t<void, no_insert_value_list_t>().columns(cols...))
+      -> decltype(statement_t<no_insert_value_list_t>().columns(cols...))
   {
-    return statement_t<void, no_insert_value_list_t>().columns(cols...);
+    return statement_t<no_insert_value_list_t>().columns(cols...);
   }
 }  // namespace sqlpp

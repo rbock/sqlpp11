@@ -78,62 +78,34 @@ namespace sqlpp
       };
     };
 
-    template <typename Database, typename InsertOrAlternative>
+    template <typename InsertOrAlternative>
     using blank_insert_or_t =
-        statement_t<Database, insert_or_t<InsertOrAlternative>, no_into_t, no_insert_value_list_t>;
+        statement_t<insert_or_t<InsertOrAlternative>, no_into_t, no_insert_value_list_t>;
 
-    template <typename Database>
-    using blank_insert_or_replace_t = blank_insert_or_t<Database, insert_or_replace_name_t>;
+    using blank_insert_or_replace_t = blank_insert_or_t<insert_or_replace_name_t>;
 
-    template <typename Database>
-    using blank_insert_or_ignore_t = blank_insert_or_t<Database, insert_or_ignore_name_t>;
+    using blank_insert_or_ignore_t = blank_insert_or_t<insert_or_ignore_name_t>;
 
-    inline auto insert_or_replace() -> blank_insert_or_replace_t<void>
+    inline auto insert_or_replace() -> blank_insert_or_replace_t
     {
-      return {blank_insert_or_replace_t<void>()};
+      return {blank_insert_or_replace_t()};
     }
 
     template <typename Table>
-    constexpr auto insert_or_replace_into(Table table) -> decltype(blank_insert_or_replace_t<void>().into(table))
+    constexpr auto insert_or_replace_into(Table table) -> decltype(blank_insert_or_replace_t().into(table))
     {
-      return {blank_insert_or_replace_t<void>().into(table)};
+      return {blank_insert_or_replace_t().into(table)};
     }
 
-    template <typename Database>
-    constexpr auto dynamic_insert_or_replace(const Database&) -> decltype(blank_insert_or_replace_t<Database>())
+    inline auto insert_or_ignore() -> blank_insert_or_ignore_t
     {
-      return {blank_insert_or_replace_t<Database>()};
-    }
-
-    template <typename Database, typename Table>
-    constexpr auto dynamic_insert_or_replace_into(const Database&, Table table)
-        -> decltype(blank_insert_or_replace_t<Database>().into(table))
-    {
-      return {blank_insert_or_replace_t<Database>().into(table)};
-    }
-
-    inline auto insert_or_ignore() -> blank_insert_or_ignore_t<void>
-    {
-      return {blank_insert_or_ignore_t<void>()};
+      return {blank_insert_or_ignore_t()};
     }
 
     template <typename Table>
-    constexpr auto insert_or_ignore_into(Table table) -> decltype(blank_insert_or_ignore_t<void>().into(table))
+    constexpr auto insert_or_ignore_into(Table table) -> decltype(blank_insert_or_ignore_t().into(table))
     {
-      return {blank_insert_or_ignore_t<void>().into(table)};
-    }
-
-    template <typename Database>
-    constexpr auto dynamic_insert_or_ignore(const Database&) -> decltype(blank_insert_or_ignore_t<Database>())
-    {
-      return {blank_insert_or_ignore_t<Database>()};
-    }
-
-    template <typename Database, typename Table>
-    constexpr auto dynamic_insert_or_ignore_into(const Database&, Table table)
-        -> decltype(blank_insert_or_ignore_t<Database>().into(table))
-    {
-      return {blank_insert_or_ignore_t<Database>().into(table)};
+      return {blank_insert_or_ignore_t().into(table)};
     }
 
     inline sqlite3::context_t& serialize(const sqlite3::insert_or_replace_name_t&, sqlite3::context_t& context)

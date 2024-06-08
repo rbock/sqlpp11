@@ -44,6 +44,9 @@ int Remove(int, char* [])
 
   {
     using T = decltype(remove_from(t).where(t.beta != "transparent"));
+    auto x = remove_from(t).where(t.beta != "transparent");
+    T y(x);
+    T z(std::move(x));
     static_assert(sqlpp::is_regular<T>::value, "type requirement");
   }
 

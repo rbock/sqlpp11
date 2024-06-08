@@ -79,8 +79,8 @@ int Ppgen(int, char*[])
   db(insert_into(f).default_values());
 
   auto i = insert_into(p).columns(p.name, p.feature, p.age, p.level);
-  i.values.add(p.name = "Roland", p.feature = 1, p.age = static_cast<unsigned int>(32), p.level = 3.14);
-  i.values.add(p.name = "Zaphod", p.feature = sqlpp::default_value, p.age = static_cast<unsigned int>(16),
+  i.add_values(p.name = "Roland", p.feature = 1, p.age = static_cast<unsigned int>(32), p.level = 3.14);
+  i.add_values(p.name = "Zaphod", p.feature = sqlpp::default_value, p.age = static_cast<unsigned int>(16),
                p.level = 3.14 * 2);
   db(i);
 

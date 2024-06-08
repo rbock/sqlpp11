@@ -68,9 +68,9 @@ int DynamicSelect(int, char*[])
   const auto tab = TabSample{};
 
   auto i = insert_into(tab).columns(tab.beta, tab.gamma);
-  i.values.add(tab.beta = "rhabarbertorte", tab.gamma = false);
-  // i.values.add(tab.beta = "cheesecake", tab.gamma = false)
-  // i.values.add(tab.beta = "kaesekuchen", tab.gamma = true)
+  i.add_values(tab.beta = "rhabarbertorte", tab.gamma = false);
+  // i.add_values(tab.beta = "cheesecake", tab.gamma = false)
+  // i.add_values(tab.beta = "kaesekuchen", tab.gamma = true)
   auto last_insert_rowid = db(i);
 
   std::cerr << "last insert rowid: " << last_insert_rowid << std::endl;
@@ -80,14 +80,6 @@ int DynamicSelect(int, char*[])
             << db(select(sqlpp::verbatim<sqlpp::integer>("last_insert_rowid()").as(tab.alpha))).front().alpha
             << std::endl;
 
-  // select a static (alpha) and a dynamic column (beta)
-  auto s = dynamic_select(db).dynamic_columns(tab.alpha.as(left)).from(tab).unconditionally();
-  s.selected_columns.add(tab.beta);
-  s.selected_columns.add(tab.gamma);
-  for (const auto& row : db(s))
-  {
-    std::cerr << "row.alpha: " << row.left << ", row.beta: " << row.at("beta") << ", row.gamma: " << row.at("gamma")
-              << std::endl;
-  };
+#warning: add tests with optional columns
   return 0;
 }

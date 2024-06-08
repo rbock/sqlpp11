@@ -35,7 +35,7 @@
 namespace sqlpp
 {
   // A SINGLE TABLE DATA
-  template <typename Database, typename Table>
+  template <typename Table>
   struct single_table_data_t
   {
     single_table_data_t(Table table) : _table(table)
@@ -52,7 +52,7 @@ namespace sqlpp
   };
 
   // A SINGLE TABLE
-  template <typename Database, typename Table>
+  template <typename Table>
   struct single_table_t
   {
     using _traits = make_traits<no_value_t, tag::is_single_table>;
@@ -61,52 +61,21 @@ namespace sqlpp
     static_assert(is_table_t<Table>::value, "argument has to be a table");
     static_assert(required_tables_of<Table>::size::value == 0, "table depends on another table");
 
-    using _data_t = single_table_data_t<Database, Table>;
+    using _data_t = single_table_data_t<Table>;
 
     struct _alias_t
     {
-    };
-
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-      _data_t _data;
     };
 
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = single_table_data_t<Database, Table>;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      template <typename... Args>
-      _base_t(Args&&... args) : from{std::forward<Args>(args)...}
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> from;
-      _impl_t<Policies>& operator()()
-      {
-        return from;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return from;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.from)
-      {
-        return t.from;
-      }
+      _data_t _data;
 
       using _consistency_check = consistent_t;
     };
@@ -130,36 +99,16 @@ namespace sqlpp
     // Data
     using _data_t = no_data_t;
 
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      _data_t _data;
-    };
-
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = no_data_t;
-
-      _impl_t<Policies> no_from;
-      _impl_t<Policies>& operator()()
+      _base_t() = default;
+      _base_t(_data_t data) : _data{std::move(data)}
       {
-        return no_from;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return no_from;
       }
 
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.no_from)
-      {
-        return t.no_from;
-      }
-
-      using _database_t = typename Policies::_database_t;
+      _data_t _data;
 
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check, Policies, no_single_table_t, T>;
@@ -167,30 +116,30 @@ namespace sqlpp
       using _consistency_check = consistent_t;
 
       template <typename Table>
-      auto single_table(Table table) const -> _new_statement_t<check_update_table_t<Table>, single_table_t<void, Table>>
+      auto single_table(Table table) const -> _new_statement_t<check_update_table_t<Table>, single_table_t<Table>>
       {
-        return _single_table_impl<void>(check_update_table_t<Table>{}, table);
+        return _single_table_impl(check_update_table_t<Table>{}, table);
       }
 
     private:
-      template <typename Database, typename Check, typename Table>
+      template <typename Check, typename Table>
       auto _single_table_impl(Check, Table table) const -> inconsistent<Check>;
 
-      template <typename Database, typename Table>
+      template <typename Table>
       auto _single_table_impl(consistent_t /*unused*/, Table table) const
-          -> _new_statement_t<consistent_t, single_table_t<Database, Table>>
+          -> _new_statement_t<consistent_t, single_table_t<Table>>
       {
-        static_assert(required_tables_of<single_table_t<Database, Table>>::size::value == 0,
+        static_assert(required_tables_of<single_table_t<Table>>::size::value == 0,
                       "argument depends on another table in single_table()");
 
-        return {static_cast<const derived_statement_t<Policies>&>(*this), single_table_data_t<Database, Table>{table}};
+        return {static_cast<const derived_statement_t<Policies>&>(*this), single_table_data_t<Table>{table}};
       }
     };
   };
 
   // Interpreters
-  template <typename Context, typename Database, typename Table>
-  Context& serialize(const single_table_data_t<Database, Table>& t, Context& context)
+  template <typename Context, typename Table>
+  Context& serialize(const single_table_data_t<Table>& t, Context& context)
   {
     serialize(t._table, context);
     return context;

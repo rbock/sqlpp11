@@ -45,10 +45,9 @@ namespace sqlpp
     {
     };
 
-    template <typename Database>
-    using blank_returning_t = statement_t<Database, returning_t, no_returning_column_list_t>;
+    using blank_returning_t = statement_t<returning_t, no_returning_column_list_t>;
 
-    inline blank_returning_t<void> returning()
+    inline blank_returning_t returning()
     {
       return {};
     }
@@ -60,46 +59,22 @@ namespace sqlpp
 
       using _data_t = no_data_t;
 
+      // Base template to be inherited by the statement
       template <typename Policies>
-      struct _impl_t
+      struct _base_t
       {
-        // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-        _impl_t() = default;
-        _impl_t(const _data_t& data) : _data(data)
+        _base_t() = default;
+        _base_t(_data_t data) : _data{std::move(data)}
         {
         }
 
         _data_t _data;
-      };
-
-      template <typename Policies>
-      struct _base_t
-      {
-        using _data_t = no_data_t;
-
-        // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-        template <typename... Args>
-        _base_t(Args&&... args) : no_returning{std::forward<Args>(args)...}
-        {
-        }
-
-        _impl_t<Policies> no_returning;
-        _impl_t<Policies>& operator()()
-        {
-          return no_returning;
-        }
-        const _impl_t<Policies>& operator()() const
-        {
-          return no_returning;
-        }
 
         template <typename T>
         static auto _get_member(T t) -> decltype(t.no_returning)
         {
           return t.no_returning;
         }
-
-        using _database_t = typename Policies::_database_t;
 
         template <typename... T>
         static constexpr auto _check_tuple(std::tuple<T...>) -> check_selected_columns_t<T...>
@@ -121,51 +96,26 @@ namespace sqlpp
 
         template <typename... Columns>
         auto returning(Columns... columns) const
-            -> _new_statement_t<decltype(_check_args(columns...)), returning_column_list_t<_database_t, Columns...>>
+            -> _new_statement_t<decltype(_check_args(columns...)), returning_column_list_t<Columns...>>
         {
           static_assert(sizeof...(Columns),
                         "at least one returnable expression (e.g. a column) is required in returning");
           static_assert(decltype(_check_args(columns...))::value,
                         "at least one argument is not a returnable expression in returning()");
           return {static_cast<const derived_statement_t<Policies>&>(*this),
-                  typename returning_column_list_t<_database_t, Columns...>::_data_t{columns...}};
+                  typename returning_column_list_t<Columns...>::_data_t{columns...}};
         }
 
         template <typename... Columns>
         auto returning(std::tuple<Columns...> columns) const
-            -> _new_statement_t<decltype(_check_args(columns)), returning_column_list_t<_database_t, Columns...>>
+            -> _new_statement_t<decltype(_check_args(columns)), returning_column_list_t<Columns...>>
         {
           static_assert(sizeof...(Columns),
                         "at least one returnable expression (e.g. a column) is required in returning");
           static_assert(decltype(_check_args(columns))::value,
                         "at least one argument is not a returnable expression in returning()");
           return {static_cast<const derived_statement_t<Policies>&>(*this),
-                  typename returning_column_list_t<_database_t, Columns...>::_data_t{columns}};
-        }
-
-        template <typename... Columns>
-        auto dynamic_returning(Columns... columns) const
-            -> _new_statement_t<void, returning_column_list_t<_database_t, Columns...>>
-        {
-          static_assert(sizeof...(Columns),
-                        "at least one returnable expression (e.g. a column) is required in returning");
-          static_assert(decltype(_check_args(columns...))::value,
-                        "at least one argument is not a returnable expression in returning()");
-          return {static_cast<const derived_statement_t<Policies>&>(*this),
-                  typename returning_column_list_t<_database_t, Columns...>::_data_t{columns...}};
-        }
-
-        template <typename Database, typename... Columns>
-        auto dynamic_returning(const Database&, Columns... columns)
-            -> decltype(blank_returning_t<Database>().columns(columns...))
-        {
-          static_assert(sizeof...(Columns),
-                        "at least one returnable expression (e.g. a column) is required in returning");
-          static_assert(decltype(_check_args(columns...))::value,
-                        "at least one argument is not a returnable expression in returning()");
-          static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
-          return {static_cast<const derived_statement_t<Policies>&>(*this),
-                  typename dynamic_returning_column_list<_database_t>::_data_t{columns...}};
+                  typename returning_column_list_t<Columns...>::_data_t{columns}};
         }
       };
     };

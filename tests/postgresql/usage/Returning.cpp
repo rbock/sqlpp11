@@ -36,10 +36,7 @@ int Returning(int, char*[])
         << db(sqlpp::postgresql::insert_into(foo).set(foo.gamma = "asd").returning(std::make_tuple(foo.c_timepoint))).front().c_timepoint
         << std::endl;
 
-    auto i = sqlpp::postgresql::dynamic_insert_into(db, foo).dynamic_set().returning(foo.c_timepoint);
-    i.insert_list.add(foo.gamma = "blah");
-
-    std::cout << db(i).front().c_timepoint << std::endl;
+#warning need to add optinal insert tests
 
     auto updated =
         db(sqlpp::postgresql::update(foo).set(foo.beta = 0).unconditionally().returning(foo.gamma, foo.beta));
@@ -52,8 +49,8 @@ int Returning(int, char*[])
       std::cout << "Gamma: " << row.gamma << " Beta: " << row.beta << std::endl;
 
     auto multi_insert = sqlpp::postgresql::insert_into(foo).columns(foo.beta).returning(foo.alpha, foo.beta);
-    multi_insert.values.add(foo.beta = 1);
-    multi_insert.values.add(foo.beta = 2);
+    multi_insert.add_values(foo.beta = 1);
+    multi_insert.add_values(foo.beta = 2);
     auto inserted = db(multi_insert);
 
     for (const auto& row : inserted)

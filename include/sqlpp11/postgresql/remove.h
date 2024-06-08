@@ -33,33 +33,18 @@ namespace sqlpp
 {
   namespace postgresql
   {
-    template <typename Database>
-    using blank_remove_t = statement_t<Database, remove_t, no_from_t, no_using_t, no_where_t<true>, no_returning_t>;
+    using blank_remove_t = statement_t<remove_t, no_from_t, no_using_t, no_where_t<true>, no_returning_t>;
 
-    inline auto remove() -> blank_remove_t<void>
+    inline auto remove() -> blank_remove_t
     {
       return {};
     }
 
     template <typename Table>
-    auto remove_from(Table table) -> decltype(blank_remove_t<void>().from(table))
+    auto remove_from(Table table) -> decltype(blank_remove_t().from(table))
     {
-      return {blank_remove_t<void>().from(table)};
+      return {blank_remove_t().from(table)};
     }
 
-    template <typename Database>
-    auto dynamic_remove(const Database& /*unused*/) -> decltype(blank_remove_t<Database>())
-    {
-      static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
-      return {blank_remove_t<Database>()};
-    }
-
-    template <typename Database, typename Table>
-    auto dynamic_remove_from(const Database& /*unused*/, Table table)
-        -> decltype(blank_remove_t<Database>().from(table))
-    {
-      static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
-      return {blank_remove_t<Database>().from(table)};
-    }
   }  // namespace postgresql
 }  // namespace sqlpp

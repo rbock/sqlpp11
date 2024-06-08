@@ -33,7 +33,7 @@
 namespace sqlpp
 {
   // UPDATE ASSIGNMENTS DATA
-  template <typename Database, typename... Assignments>
+  template <typename... Assignments>
   struct update_list_data_t
   {
     update_list_data_t(std::tuple<Assignments...> assignments) : _assignments(assignments)
@@ -54,56 +54,24 @@ namespace sqlpp
       "at least one update assignment requires a table which is otherwise not known in the statement");
 
   // UPDATE ASSIGNMENTS
-  template <typename Database, typename... Assignments>
+  template <typename... Assignments>
   struct update_list_t
   {
     using _traits = make_traits<no_value_t, tag::is_update_list>;
     using _nodes = detail::type_vector<Assignments...>;
 
     // Data
-    using _data_t = update_list_data_t<Database, Assignments...>;
-
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-    public:
-      _data_t _data;
-    };
+    using _data_t = update_list_data_t<Assignments...>;
 
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = update_list_data_t<Database, Assignments...>;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      template <typename... Args>
-      _base_t(Args&&... args) : assignments{std::forward<Args>(args)...}
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> assignments;
-      _impl_t<Policies>& operator()()
-      {
-        return assignments;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return assignments;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.assignments)
-      {
-        return t.assignments;
-      }
+      _data_t _data;
 
       using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<update_list_t>::value,
                                                            consistent_t,
@@ -160,48 +128,16 @@ namespace sqlpp
     // Data
     using _data_t = no_data_t;
 
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-      _data_t _data;
-    };
-
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = no_data_t;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      template <typename... Args>
-      _base_t(Args&&... args) : no_assignments{std::forward<Args>(args)...}
+      _base_t() = default;
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> no_assignments;
-      _impl_t<Policies>& operator()()
-      {
-        return no_assignments;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return no_assignments;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.no_assignments)
-      {
-        return t.no_assignments;
-      }
-
-      using _database_t = typename Policies::_database_t;
+      _data_t _data;
 
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check, Policies, no_update_list_t, T>;
@@ -210,37 +146,37 @@ namespace sqlpp
 
       template <typename... Assignments>
       auto set(Assignments... assignments) const
-          -> _new_statement_t<check_update_static_set_t<Assignments...>, update_list_t<void, Assignments...>>
+          -> _new_statement_t<check_update_static_set_t<Assignments...>, update_list_t<Assignments...>>
       {
         using Check = check_update_static_set_t<Assignments...>;
-        return _set_impl<void>(Check{}, std::make_tuple(assignments...));
+        return _set_impl(Check{}, std::make_tuple(assignments...));
       }
 
       template <typename... Assignments>
       auto set(std::tuple<Assignments...> assignments) const
-          -> _new_statement_t<check_update_static_set_t<Assignments...>, update_list_t<void, Assignments...>>
+          -> _new_statement_t<check_update_static_set_t<Assignments...>, update_list_t<Assignments...>>
       {
         using Check = check_update_static_set_t<Assignments...>;
-        return _set_impl<void>(Check{}, assignments);
+        return _set_impl(Check{}, assignments);
       }
 
     private:
-      template <typename Database, typename Check, typename... Assignments>
+      template <typename Check, typename... Assignments>
       auto _set_impl(Check, Assignments... assignments) const -> inconsistent<Check>;
 
-      template <typename Database, typename... Assignments>
+      template <typename... Assignments>
       auto _set_impl(consistent_t /*unused*/, std::tuple<Assignments...> assignments) const
-          -> _new_statement_t<consistent_t, update_list_t<Database, Assignments...>>
+          -> _new_statement_t<consistent_t, update_list_t<Assignments...>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this),
-                update_list_data_t<Database, Assignments...>{assignments}};
+                update_list_data_t<Assignments...>{assignments}};
       }
     };
   };
 
   // Interpreters
-  template <typename Context, typename Database, typename... Assignments>
-  Context& serialize(const update_list_data_t<Database, Assignments...>& t, Context& context)
+  template <typename Context, typename... Assignments>
+  Context& serialize(const update_list_data_t<Assignments...>& t, Context& context)
   {
     context << " SET ";
     interpret_tuple(t._assignments, ",", context);

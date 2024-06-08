@@ -41,7 +41,7 @@
 
 namespace sqlpp
 {
-  template <typename Database, typename... Expressions>
+  template <typename... Expressions>
   struct with_data_t
   {
     using _is_recursive = logic::any_t<Expressions::_is_recursive...>;
@@ -59,7 +59,7 @@ namespace sqlpp
     std::tuple<Expressions...> _expressions;
   };
 
-  template <typename Database, typename... Expressions>
+  template <typename... Expressions>
   struct with_t
   {
     using _traits = make_traits<no_value_t, tag::is_with>;
@@ -68,49 +68,17 @@ namespace sqlpp
         detail::make_joined_set_t<required_ctes_of<Expressions>...>;  // WITH provides common table expressions
     using _parameters = detail::type_vector_cat_t<parameters_of<Expressions>...>;
 
-    // Data
-    using _data_t = with_data_t<Database, Expressions...>;
-
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-      _data_t _data;
-    };
+    using _data_t = with_data_t<Expressions...>;
 
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = with_data_t<Database, Expressions...>;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      template <typename... Args>
-      _base_t(Args&&... args) : with{std::forward<Args>(args)...}
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> with;
-      _impl_t<Policies>& operator()()
-      {
-        return with;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return with;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.with)
-      {
-        return t.with;
-      }
+      _data_t _data;
 
       // FIXME: Need real checks here
       using _consistency_check = consistent_t;
@@ -125,59 +93,29 @@ namespace sqlpp
     // Data
     using _data_t = no_data_t;
 
-    // Member implementation with data and methods
     template <typename Policies>
-    struct _impl_t
+    struct _base_t
     {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
+      _base_t() = default;
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
       _data_t _data;
-    };
 
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
-    {
-      using _data_t = no_data_t;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      template <typename... Args>
-      _base_t(Args&&... args) : no_with{std::forward<Args>(args)...}
-      {
-      }
-
-      _impl_t<Policies> no_with;
-      _impl_t<Policies>& operator()()
-      {
-        return no_with;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return no_with;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.no_with)
-      {
-        return t.no_with;
-      }
 
       using _consistency_check = consistent_t;
     };
   };
 
-  template <typename Database, typename... Expressions>
+  template <typename... Expressions>
   struct blank_with_t
   {
-    with_data_t<Database, Expressions...> _data;
+    with_data_t<Expressions...> _data;
 
     template <typename Statement>
     auto operator()(Statement statement)
-        -> new_statement_t<consistent_t, typename Statement::_policies_t, no_with_t, with_t<Database, Expressions...>>
+        -> new_statement_t<consistent_t, typename Statement::_policies_t, no_with_t, with_t<Expressions...>>
     {
       // FIXME need checks here
       //       check that no cte refers to any of the ctes to the right
@@ -186,10 +124,10 @@ namespace sqlpp
   };
 
   // Interpreters
-  template <typename Context, typename Database, typename... Expressions>
-  Context& serialize(const with_data_t<Database, Expressions...>& t, Context& context)
+  template <typename Context, typename... Expressions>
+  Context& serialize(const with_data_t<Expressions...>& t, Context& context)
   {
-    using T = with_data_t<Database, Expressions...>;
+    using T = with_data_t<Expressions...>;
     // FIXME: If there is a recursive CTE, add a "RECURSIVE" here
     context << " WITH ";
     if (T::_is_recursive::value)
@@ -202,7 +140,7 @@ namespace sqlpp
   }
 
   template <typename... Expressions>
-  auto with(Expressions... cte) -> blank_with_t<void, Expressions...>
+  auto with(Expressions... cte) -> blank_with_t<Expressions...>
   {
     static_assert(logic::all_t<is_cte_t<Expressions>::value...>::value,
                   "at least one expression in with is not a common table expression");

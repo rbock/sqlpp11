@@ -37,7 +37,7 @@
 namespace sqlpp
 {
   // SELECTED FLAGS DATA
-  template <typename Database, typename... Flags>
+  template <typename... Flags>
   struct select_flag_list_data_t
   {
     select_flag_list_data_t(Flags... flgs) : _flags(flgs...)
@@ -54,56 +54,23 @@ namespace sqlpp
   };
 
   // SELECT FLAGS
-  template <typename Database, typename... Flags>
+  template <typename... Flags>
   struct select_flag_list_t
   {
     using _traits = make_traits<no_value_t, tag::is_select_flag_list>;
     using _nodes = detail::type_vector<Flags...>;
 
-    // Data
-    using _data_t = select_flag_list_data_t<Database, Flags...>;
-
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-    public:
-      _data_t _data;
-    };
+    using _data_t = select_flag_list_data_t<Flags...>;
 
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = select_flag_list_data_t<Database, Flags...>;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      template <typename... Args>
-      _base_t(Args&&... args) : select_flags{std::forward<Args>(args)...}
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> select_flags;
-      _impl_t<Policies>& operator()()
-      {
-        return select_flags;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return select_flags;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.select_flags)
-      {
-        return t.select_flags;
-      }
+      _data_t _data;
 
       using _consistency_check = consistent_t;
     };
@@ -124,51 +91,18 @@ namespace sqlpp
     using _traits = make_traits<no_value_t, tag::is_noop>;
     using _nodes = detail::type_vector<>;
 
-    // Data
     using _data_t = no_data_t;
-
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-      _data_t _data;
-    };
 
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = no_data_t;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      template <typename... Args>
-      _base_t(Args&&... args) : no_select_flags{std::forward<Args>(args)...}
+      _base_t() = default;
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> no_select_flags;
-      _impl_t<Policies>& operator()()
-      {
-        return no_select_flags;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return no_select_flags;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.no_select_flags)
-      {
-        return t.no_select_flags;
-      }
-
-      using _database_t = typename Policies::_database_t;
+      _data_t _data;
 
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check, Policies, no_select_flag_list_t, T>;
@@ -177,31 +111,31 @@ namespace sqlpp
 
       template <typename... Flags>
       auto flags(Flags... flgs) const
-          -> _new_statement_t<check_select_flags_t<Flags...>, select_flag_list_t<void, Flags...>>
+          -> _new_statement_t<check_select_flags_t<Flags...>, select_flag_list_t<Flags...>>
       {
-        return _flags_impl<void>(check_select_flags_t<Flags...>{}, flgs...);
+        return _flags_impl(check_select_flags_t<Flags...>{}, flgs...);
       }
 
     private:
-      template <typename Database, typename Check, typename... Flags>
+      template <typename Check, typename... Flags>
       auto _flags_impl(Check, Flags... flgs) const -> inconsistent<Check>;
 
-      template <typename Database, typename... Flags>
+      template <typename... Flags>
       auto _flags_impl(consistent_t /*unused*/, Flags... flgs) const
-          -> _new_statement_t<consistent_t, select_flag_list_t<Database, Flags...>>
+          -> _new_statement_t<consistent_t, select_flag_list_t<Flags...>>
       {
         static_assert(not detail::has_duplicates<Flags...>::value,
                       "at least one duplicate argument detected in select flag list");
 
         return {static_cast<const derived_statement_t<Policies>&>(*this),
-                select_flag_list_data_t<Database, Flags...>{flgs...}};
+                select_flag_list_data_t<Flags...>{flgs...}};
       }
     };
   };
 
   // Interpreters
-  template <typename Context, typename Database, typename... Flags>
-  Context& serialize(const select_flag_list_data_t<Database, Flags...>& t, Context& context)
+  template <typename Context, typename... Flags>
+  Context& serialize(const select_flag_list_data_t<Flags...>& t, Context& context)
   {
     interpret_tuple(t._flags, ' ', context);
     if (sizeof...(Flags) != 0u)
@@ -212,9 +146,9 @@ namespace sqlpp
   }
 
   template <typename T>
-  auto select_flags(T&& t) -> decltype(statement_t<void, no_select_flag_list_t>().flags(std::forward<T>(t)))
+  auto select_flags(T&& t) -> decltype(statement_t<no_select_flag_list_t>().flags(std::forward<T>(t)))
   {
-    return statement_t<void, no_select_flag_list_t>().flags(std::forward<T>(t));
+    return statement_t<no_select_flag_list_t>().flags(std::forward<T>(t));
   }
 
 }  // namespace sqlpp

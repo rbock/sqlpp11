@@ -43,49 +43,17 @@ namespace sqlpp
     using _traits = make_traits<no_value_t, tag::is_for_update>;
     using _nodes = detail::type_vector<>;
 
-    // Data
     using _data_t = for_update_data_t;
-
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-      _data_t _data;
-    };
 
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = for_update_data_t;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      template <typename... Args>
-      _base_t(Args&&... args) : for_update{std::forward<Args>(args)...}
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> for_update;
-      _impl_t<Policies>& operator()()
-      {
-        return for_update;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return for_update;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.for_update)
-      {
-        return t.for_update;
-      }
+      _data_t _data;
 
       using _consistency_check = consistent_t;
     };
@@ -99,48 +67,16 @@ namespace sqlpp
     // Data
     using _data_t = no_data_t;
 
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-      _data_t _data;
-    };
-
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = no_data_t;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      template <typename... Args>
-      _base_t(Args&&... args) : no_for_update{std::forward<Args>(args)...}
+      _base_t() = default;
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> no_for_update;
-      _impl_t<Policies>& operator()()
-      {
-        return no_for_update;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return no_for_update;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.no_for_update)
-      {
-        return t.no_for_update;
-      }
-
-      using _database_t = typename Policies::_database_t;
+      _data_t _data;
 
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check, Policies, no_for_update_t, T>;
@@ -163,8 +99,8 @@ namespace sqlpp
   }
 
   template <typename T>
-  auto for_update(T&& t) -> decltype(statement_t<void, no_for_update_t>().for_update(std::forward<T>(t)))
+  auto for_update(T&& t) -> decltype(statement_t<no_for_update_t>().for_update(std::forward<T>(t)))
   {
-    return statement_t<void, no_for_update_t>().for_update(std::forward<T>(t));
+    return statement_t<no_for_update_t>().for_update(std::forward<T>(t));
   }
 }  // namespace sqlpp

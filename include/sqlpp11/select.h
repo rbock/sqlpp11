@@ -63,9 +63,7 @@ namespace sqlpp
     return context;
   }
 
-  template <typename Database>
-  using blank_select_t = statement_t<Database,
-                                     no_with_t,
+  using blank_select_t = statement_t<no_with_t,
                                      select_t,
                                      no_select_flag_list_t,
                                      no_select_column_list_t,
@@ -77,17 +75,18 @@ namespace sqlpp
                                      no_limit_t,
                                      no_offset_t,
                                      no_union_t,
-                                     no_for_update_t>;
+                                     no_for_update_t
+                                       >;
 
-  inline blank_select_t<void> select()  // FIXME: These should be constexpr
+  inline blank_select_t select()  // FIXME: These should be constexpr
   {
     return {};
   }
 
   template <typename... Columns>
-  auto select(Columns... columns) -> decltype(blank_select_t<void>().columns(columns...))
+  auto select(Columns... columns) -> decltype(blank_select_t().columns(columns...))
   {
-    return blank_select_t<void>().columns(columns...);
+    return blank_select_t().columns(columns...);
   }
 
 }  // namespace sqlpp

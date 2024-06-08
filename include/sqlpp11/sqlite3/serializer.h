@@ -57,8 +57,8 @@ namespace sqlpp
 
   // disable some stuff that won't work with sqlite3
 #if SQLITE_VERSION_NUMBER < 3008003
-  template <typename Database, typename... Expressions>
-  sqlite3::context_t& serialize(const with_data_t<Database, Expressions...>&, sqlite3::context_t& context)
+  template <typename... Expressions>
+  sqlite3::context_t& serialize(const with_data_t<Expressions...>&, sqlite3::context_t& context)
   {
     static_assert(wrong_t<Expressions...>::value, "Sqlite3: No support for with before version 3.8.3");
     return context;

@@ -38,19 +38,9 @@
 namespace sqlpp
 {
   // WHERE DATA
-  template <typename Database, typename Expression>
+  template <typename Expression>
   struct where_data_t
   {
-    where_data_t(Expression expression) : _expression(expression)
-    {
-    }
-
-    where_data_t(const where_data_t&) = default;
-    where_data_t(where_data_t&&) = default;
-    where_data_t& operator=(const where_data_t&) = default;
-    where_data_t& operator=(where_data_t&&) = default;
-    ~where_data_t() = default;
-
     Expression _expression;
   };
 
@@ -59,56 +49,24 @@ namespace sqlpp
       "at least one expression in where() requires a table which is otherwise not known in the statement");
 
   // WHERE(EXPR)
-  template <typename Database, typename Expression>
+  template <typename Expression>
   struct where_t
   {
     using _traits = make_traits<no_value_t, tag::is_where>;
     using _nodes = detail::type_vector<Expression>;
 
-    // Data
-    using _data_t = where_data_t<Database, Expression>;
-
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-    public:
-      _data_t _data;
-    };
+    using _data_t = where_data_t<Expression>;
 
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = where_data_t<Database, Expression>;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      template <typename... Args>
-      _base_t(Args&&... args) : where{std::forward<Args>(args)...}
+      _base_t(const _base_t&) = default;
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> where;
-      _impl_t<Policies>& operator()()
-      {
-        return where;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return where;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.where)
-      {
-        return t.where;
-      }
+      _data_t _data;
 
       using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<where_t>::value,
                                                            consistent_t,
@@ -117,60 +75,29 @@ namespace sqlpp
   };
 
   template <>
-  struct where_data_t<void, unconditional_t>
+  struct where_data_t<unconditional_t>
   {
   };
 
   // WHERE() UNCONDITIONALLY
   template <>
-  struct where_t<void, unconditional_t>
+  struct where_t<unconditional_t>
   {
     using _traits = make_traits<no_value_t, tag::is_where>;
     using _nodes = detail::type_vector<>;
 
-    // Data
-    using _data_t = where_data_t<void, unconditional_t>;
-
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-      _data_t _data;
-    };
+    using _data_t = where_data_t<unconditional_t>;
 
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = where_data_t<void, unconditional_t>;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      template <typename... Args>
-      _base_t(Args&&... args) : where{std::forward<Args>(args)...}
+      _base_t(const _base_t&) = default;
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> where;
-      _impl_t<Policies>& operator()()
-      {
-        return where;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return where;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.where)
-      {
-        return t.where;
-      }
+      _data_t _data;
 
       using _consistency_check = consistent_t;
     };
@@ -223,51 +150,18 @@ namespace sqlpp
     using _traits = make_traits<no_value_t, tag::is_where>;
     using _nodes = detail::type_vector<>;
 
-    // Data
     using _data_t = no_data_t;
-
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-      _data_t _data;
-    };
 
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = no_data_t;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      template <typename... Args>
-      _base_t(Args&&... args) : no_where{std::forward<Args>(args)...}
+      _base_t() = default;
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> no_where;
-      _impl_t<Policies>& operator()()
-      {
-        return no_where;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return no_where;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.no_where)
-      {
-        return t.no_where;
-      }
-
-      using _database_t = typename Policies::_database_t;
+      _data_t _data;
 
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check, Policies, no_where_t, T>;
@@ -277,62 +171,56 @@ namespace sqlpp
                                     assert_where_or_unconditionally_called_t,
                                     consistent_t>::type;
 
-      auto unconditionally() const -> _new_statement_t<consistent_t, where_t<void, unconditional_t>>
+      auto unconditionally() const -> _new_statement_t<consistent_t, where_t<unconditional_t>>
       {
-        return {static_cast<const derived_statement_t<Policies>&>(*this), where_data_t<void, unconditional_t>{}};
+        return {static_cast<const derived_statement_t<Policies>&>(*this), where_data_t<unconditional_t>{}};
       }
 
       template <typename Expression>
       auto where(Expression expression) const
-          -> _new_statement_t<check_where_static_t<Expression>, where_t<void, Expression>>
+          -> _new_statement_t<check_where_static_t<Expression>, where_t<Expression>>
       {
         using Check = check_where_static_t<Expression>;
-        return _where_impl<void>(Check{}, expression);
+        return _where_impl(Check{}, expression);
       }
 
     private:
-      template <typename Database, typename Check, typename Expression>
+      template <typename Check, typename Expression>
       auto _where_impl(Check, Expression expression) const -> inconsistent<Check>;
 
-      template <typename Database, typename Expression>
+      template <typename Expression>
       auto _where_impl(consistent_t /*unused*/, Expression expression) const
-          -> _new_statement_t<consistent_t, where_t<Database, Expression>>
+          -> _new_statement_t<consistent_t, where_t<Expression>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this),
-                where_data_t<Database, Expression>{expression}};
+                where_data_t<Expression>{expression}};
       }
     };
   };
 
   // Interpreters
-  template <typename Context, typename Database, typename Expression>
-  Context& serialize(const where_data_t<Database, Expression>& t, Context& context)
+  template <typename Context, typename Expression>
+  Context& serialize(const where_data_t<Expression>& t, Context& context)
   {
     context << " WHERE ";
     serialize(t._expression, context);
     return context;
   }
 
-  template <typename Context, typename Database>
-  Context& serialize(const where_data_t<Database, unconditional_t>& t, Context& context)
-  {
-    return context;
-  }
-
   template <typename Context>
-  Context& serialize(const where_data_t<void, unconditional_t>&, Context& context)
+  Context& serialize(const where_data_t<unconditional_t>&, Context& context)
   {
     return context;
   }
 
   template <typename T>
-  auto where(T&& t) -> decltype(statement_t<void, no_where_t<false>>().where(std::forward<T>(t)))
+  auto where(T&& t) -> decltype(statement_t<no_where_t<false>>().where(std::forward<T>(t)))
   {
-    return statement_t<void, no_where_t<false>>().where(std::forward<T>(t));
+    return statement_t<no_where_t<false>>().where(std::forward<T>(t));
   }
 
-  inline auto unconditionally() -> decltype(statement_t<void, no_where_t<false>>().unconditionally())
+  inline auto unconditionally() -> decltype(statement_t<no_where_t<false>>().unconditionally())
   {
-    return statement_t<void, no_where_t<false>>().unconditionally();
+    return statement_t<no_where_t<false>>().unconditionally();
   }
 }  // namespace sqlpp

@@ -36,7 +36,7 @@
 namespace sqlpp
 {
   // ORDER BY DATA
-  template <typename Database, typename... Expressions>
+  template <typename... Expressions>
   struct order_by_data_t
   {
     order_by_data_t(Expressions... expressions) : _expressions(expressions...)
@@ -57,56 +57,23 @@ namespace sqlpp
       "at least one order-by expression requires a table which is otherwise not known in the statement");
 
   // ORDER BY
-  template <typename Database, typename... Expressions>
+  template <typename... Expressions>
   struct order_by_t
   {
     using _traits = make_traits<no_value_t, tag::is_order_by>;
     using _nodes = detail::type_vector<Expressions...>;
 
-    // Data
-    using _data_t = order_by_data_t<Database, Expressions...>;
-
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-    public:
-      _data_t _data;
-    };
+    using _data_t = order_by_data_t<Expressions...>;
 
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = order_by_data_t<Database, Expressions...>;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      template <typename... Args>
-      _base_t(Args&&... args) : order_by{std::forward<Args>(args)...}
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> order_by;
-      _impl_t<Policies>& operator()()
-      {
-        return order_by;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return order_by;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.order_by)
-      {
-        return t.order_by;
-      }
+      _data_t _data;
 
       using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<order_by_t>::value,
                                                            consistent_t,
@@ -134,48 +101,17 @@ namespace sqlpp
     // Data
     using _data_t = no_data_t;
 
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-      _data_t _data;
-    };
-
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = no_data_t;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      template <typename... Args>
-      _base_t(Args&&... args) : no_order_by{std::forward<Args>(args)...}
+      _base_t() = default;
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> no_order_by;
-      _impl_t<Policies>& operator()()
-      {
-        return no_order_by;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return no_order_by;
-      }
+      _data_t _data;
 
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.no_order_by)
-      {
-        return t.no_order_by;
-      }
-
-      using _database_t = typename Policies::_database_t;
 
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check, Policies, no_order_by_t, T>;
@@ -184,33 +120,33 @@ namespace sqlpp
 
       template <typename... Expressions>
       auto order_by(Expressions... expressions) const
-          -> _new_statement_t<check_order_by_t<Expressions...>, order_by_t<void, Expressions...>>
+          -> _new_statement_t<check_order_by_t<Expressions...>, order_by_t<Expressions...>>
       {
         static_assert(sizeof...(Expressions), "at least one expression (e.g. a column) required in order_by()");
 
-        return _order_by_impl<void>(check_order_by_t<Expressions...>{}, expressions...);
+        return _order_by_impl(check_order_by_t<Expressions...>{}, expressions...);
       }
 
     private:
-      template <typename Database, typename Check, typename... Expressions>
+      template <typename Check, typename... Expressions>
       auto _order_by_impl(Check, Expressions... expressions) const -> inconsistent<Check>;
 
-      template <typename Database, typename... Expressions>
+      template <typename... Expressions>
       auto _order_by_impl(consistent_t /*unused*/, Expressions... expressions) const
-          -> _new_statement_t<consistent_t, order_by_t<Database, Expressions...>>
+          -> _new_statement_t<consistent_t, order_by_t<Expressions...>>
       {
         static_assert(not detail::has_duplicates<Expressions...>::value,
                       "at least one duplicate argument detected in order_by()");
 
         return {static_cast<const derived_statement_t<Policies>&>(*this),
-                order_by_data_t<Database, Expressions...>{expressions...}};
+                order_by_data_t<Expressions...>{expressions...}};
       }
     };
   };
 
   // Interpreters
-  template <typename Context, typename Database, typename... Expressions>
-  Context& serialize(const order_by_data_t<Database, Expressions...>& t, Context& context)
+  template <typename Context, typename... Expressions>
+  Context& serialize(const order_by_data_t<Expressions...>& t, Context& context)
   {
     context << " ORDER BY ";
     interpret_tuple(t._expressions, ',', context);
@@ -218,9 +154,9 @@ namespace sqlpp
   }
 
   template <typename... T>
-  auto order_by(T&&... t) -> decltype(statement_t<void, no_order_by_t>().order_by(std::forward<T>(t)...))
+  auto order_by(T&&... t) -> decltype(statement_t<no_order_by_t>().order_by(std::forward<T>(t)...))
   {
-    return statement_t<void, no_order_by_t>().order_by(std::forward<T>(t)...);
+    return statement_t<no_order_by_t>().order_by(std::forward<T>(t)...);
   }
 
 }  // namespace sqlpp

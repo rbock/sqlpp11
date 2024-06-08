@@ -34,33 +34,19 @@ namespace sqlpp
 {
   namespace postgresql
   {
-    template <typename Database>
     using blank_insert_t =
-        statement_t<Database, insert_t, no_into_t, no_insert_value_list_t, no_on_conflict_t, no_returning_t>;
+        statement_t<insert_t, no_into_t, no_insert_value_list_t, no_on_conflict_t, no_returning_t>;
 
-    inline auto insert() -> blank_insert_t<void>
+    inline auto insert() -> blank_insert_t
     {
-      return {blank_insert_t<void>()};
+      return {blank_insert_t()};
     }
 
     template <typename Table>
-    constexpr auto insert_into(Table table) -> decltype(blank_insert_t<void>().into(table))
+    constexpr auto insert_into(Table table) -> decltype(blank_insert_t().into(table))
     {
-      return {blank_insert_t<void>().into(table)};
+      return {blank_insert_t().into(table)};
     }
 
-    template <typename Database>
-    constexpr auto dynamic_insert(const Database&) -> decltype(blank_insert_t<Database>())
-    {
-      static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
-      return {blank_insert_t<Database>()};
-    }
-
-    template <typename Database, typename Table>
-    constexpr auto dynamic_insert_into(const Database&, Table table) -> decltype(blank_insert_t<Database>().into(table))
-    {
-      static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
-      return {blank_insert_t<Database>().into(table)};
-    }
   }  // namespace postgresql
 }  // namespace sqlpp

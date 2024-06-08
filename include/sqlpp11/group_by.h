@@ -36,7 +36,7 @@
 namespace sqlpp
 {
   // GROUP BY DATA
-  template <typename Database, typename... Expressions>
+  template <typename... Expressions>
   struct group_by_data_t
   {
     group_by_data_t(Expressions... expressions) : _expressions(expressions...)
@@ -57,7 +57,7 @@ namespace sqlpp
       "at least one group-by expression requires a table which is otherwise not known in the statement");
 
   // GROUP BY
-  template <typename Database, typename... Expressions>
+  template <typename... Expressions>
   struct group_by_t
   {
     using _traits = make_traits<no_value_t, tag::is_group_by>;
@@ -65,50 +65,17 @@ namespace sqlpp
 
     using _provided_aggregates = detail::make_type_set_t<Expressions...>;
 
-    // Data
-    using _data_t = group_by_data_t<Database, Expressions...>;
-
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-    public:
-      _data_t _data;
-    };
+    using _data_t = group_by_data_t<Expressions...>;
 
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = group_by_data_t<Database, Expressions...>;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      template <typename... Args>
-      _base_t(Args&&... args) : group_by{std::forward<Args>(args)...}
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> group_by;
-      _impl_t<Policies>& operator()()
-      {
-        return group_by;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return group_by;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.group_by)
-      {
-        return t.group_by;
-      }
+      _data_t _data;
 
       using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<group_by_t>::value,
                                                            consistent_t,
@@ -136,48 +103,16 @@ namespace sqlpp
     // Data
     using _data_t = no_data_t;
 
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
-    {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-      _data_t _data;
-    };
-
     // Base template to be inherited by the statement
     template <typename Policies>
     struct _base_t
     {
-      using _data_t = no_data_t;
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      template <typename... Args>
-      _base_t(Args&&... args) : no_group_by{std::forward<Args>(args)...}
+      _base_t() = default;
+      _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
-      _impl_t<Policies> no_group_by;
-      _impl_t<Policies>& operator()()
-      {
-        return no_group_by;
-      }
-      const _impl_t<Policies>& operator()() const
-      {
-        return no_group_by;
-      }
-
-      template <typename T>
-      static auto _get_member(T t) -> decltype(t.no_group_by)
-      {
-        return t.no_group_by;
-      }
-
-      using _database_t = typename Policies::_database_t;
+      _data_t _data;
 
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check, Policies, no_group_by_t, T>;
@@ -186,33 +121,33 @@ namespace sqlpp
 
       template <typename... Expressions>
       auto group_by(Expressions... expressions) const
-          -> _new_statement_t<check_group_by_t<Expressions...>, group_by_t<void, Expressions...>>
+          -> _new_statement_t<check_group_by_t<Expressions...>, group_by_t<Expressions...>>
       {
         static_assert(sizeof...(Expressions), "at least one expression (e.g. a column) required in group_by()");
 
-        return _group_by_impl<void>(check_group_by_t<Expressions...>{}, expressions...);
+        return _group_by_impl(check_group_by_t<Expressions...>{}, expressions...);
       }
 
     private:
-      template <typename Database, typename Check, typename... Expressions>
+      template <typename Check, typename... Expressions>
       auto _group_by_impl(Check, Expressions... expressions) const -> inconsistent<Check>;
 
-      template <typename Database, typename... Expressions>
+      template <typename... Expressions>
       auto _group_by_impl(consistent_t /*unused*/, Expressions... expressions) const
-          -> _new_statement_t<consistent_t, group_by_t<Database, Expressions...>>
+          -> _new_statement_t<consistent_t, group_by_t<Expressions...>>
       {
         static_assert(not detail::has_duplicates<Expressions...>::value,
                       "at least one duplicate argument detected in group_by()");
 
         return {static_cast<const derived_statement_t<Policies>&>(*this),
-                group_by_data_t<Database, Expressions...>{expressions...}};
+                group_by_data_t<Expressions...>{expressions...}};
       }
     };
   };
 
   // Interpreters
-  template <typename Context, typename Database, typename... Expressions>
-  Context& serialize(const group_by_data_t<Database, Expressions...>& t, Context& context)
+  template <typename Context, typename... Expressions>
+  Context& serialize(const group_by_data_t<Expressions...>& t, Context& context)
   {
     context << " GROUP BY ";
     interpret_tuple(t._expressions, ',', context);
@@ -220,9 +155,9 @@ namespace sqlpp
   }
 
   template <typename... T>
-  auto group_by(T&&... t) -> decltype(statement_t<void, no_group_by_t>().group_by(std::forward<T>(t)...))
+  auto group_by(T&&... t) -> decltype(statement_t<no_group_by_t>().group_by(std::forward<T>(t)...))
   {
-    return statement_t<void, no_group_by_t>().group_by(std::forward<T>(t)...);
+    return statement_t<no_group_by_t>().group_by(std::forward<T>(t)...);
   }
 
 }  // namespace sqlpp

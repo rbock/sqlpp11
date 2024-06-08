@@ -61,10 +61,10 @@ int Insert(int, char*[])
   serialize(insert_into(t).set(t.gamma = true, t.beta = "kirschauflauf"), printer).str();
   serialize(insert_into(t).columns(t.gamma, t.beta), printer).str();
   auto multi_insert = insert_into(t).columns(t.gamma, t.beta, t.delta);
-  multi_insert.values.add(t.gamma = true, t.beta = "cheesecake", t.delta = 1);
-  multi_insert.values.add(t.gamma = sqlpp::default_value, t.beta = sqlpp::default_value,
+  multi_insert.add_values(t.gamma = true, t.beta = "cheesecake", t.delta = 1);
+  multi_insert.add_values(t.gamma = sqlpp::default_value, t.beta = sqlpp::default_value,
                           t.delta = sqlpp::default_value);
-  multi_insert.values.add(t.gamma = sqlpp::value_or_null(true), t.beta = sqlpp::value_or_null("pie"),
+  multi_insert.add_values(t.gamma = sqlpp::value_or_null(true), t.beta = sqlpp::value_or_null("pie"),
                           t.delta = sqlpp::value_or_null<sqlpp::integer>(sqlpp::null));
   printer.reset();
   std::cerr << serialize(multi_insert, printer).str() << std::endl;
@@ -74,7 +74,7 @@ int Insert(int, char*[])
       .set(tabDateTime.colTimePoint = std::chrono::system_clock::now());
 
   auto multi_time_insert = insert_into(tabDateTime).columns(tabDateTime.colTimePoint);
-  multi_time_insert.values.add(tabDateTime.colTimePoint = std::chrono::time_point_cast<std::chrono::microseconds>(
+  multi_time_insert.add_values(tabDateTime.colTimePoint = std::chrono::time_point_cast<std::chrono::microseconds>(
                                    std::chrono::system_clock::now()));
 
 #warning add tests with optional

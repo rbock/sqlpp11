@@ -95,10 +95,7 @@ int Sample(int, char*[])
     db(update(tab).set(tab.gamma = false).where(tab.alpha.in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
     db(update(tab).set(tab.gamma = true).where(tab.alpha.in(1)));
 
-    // dynamic insert
-    auto dynin = dynamic_insert_into(db, tab).dynamic_set(tab.gamma = true);
-    dynin.insert_list.add(tab.beta = "cheesecake");
-    db(dynin);
+#warning: Add test with optional insert
 
     // remove
     {
