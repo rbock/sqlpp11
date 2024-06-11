@@ -92,6 +92,9 @@ ddlIntegerTypes = [
 ddlSerialTypes = [
     "bigserial",  # PostgreSQL
     "serial",  # PostgreSQL
+    "serial2",  # PostgreSQL
+    "serial4",  # PostgreSQL
+    "serial8",  # PostgreSQL
     "smallserial",  # PostgreSQL
 ]
 
@@ -233,6 +236,9 @@ def initDllParser():
         "AUTOINCREMENT",
         "SMALLSERIAL",
         "SERIAL",
+        "SERIAL2",
+        "SERIAL4",
+        "SERIAL8",
         "BIGSERIAL",
         "GENERATED",
     ]
