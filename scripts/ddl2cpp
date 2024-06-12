@@ -245,9 +245,12 @@ def initDllParser():
     ]
     ddlAutoValue = pp.Or(map(pp.CaselessKeyword, sorted(ddlAutoKeywords, reverse=True)))
 
-    ddlConstraintKeywords = [
+    ddlPrimaryKey = pp.Group(
+        pp.CaselessKeyword("PRIMARY") + pp.CaselessKeyword("KEY")
+    ).setResultsName("isPrimaryKey")
+
+    ddlIgnoredKeywords = [
         "CONSTRAINT",
-        "PRIMARY",
         "FOREIGN",
         "KEY",
         "FULLTEXT",
@@ -257,7 +260,10 @@ def initDllParser():
         "PERIOD",
     ]
     ddlConstraint = pp.Group(
-        pp.Or(map(pp.CaselessKeyword, sorted(ddlConstraintKeywords, reverse=True)))
+        pp.Or(map(
+            pp.CaselessKeyword,
+            sorted(ddlIgnoredKeywords + ["PRIMARY"], reverse=True)
+        ))
         + ddlExpression
     ).setResultsName("isConstraint")
 
@@ -272,7 +278,8 @@ def initDllParser():
             | pp.CaselessKeyword("null")
             | ddlAutoValue("hasAutoValue")
             | ddlDefaultValue("hasDefaultValue")
-            | pp.Suppress(pp.OneOrMore(pp.Or(map(pp.CaselessKeyword, sorted(ddlConstraintKeywords, reverse=True)))))
+            | ddlPrimaryKey("isPrimaryKey")
+            | pp.Suppress(pp.OneOrMore(pp.Or(map(pp.CaselessKeyword, sorted(ddlIgnoredKeywords, reverse=True)))))
             | pp.Suppress(ddlExpression)
         )
     )
@@ -714,7 +721,7 @@ def createHeader():
                 traitslist.append("sqlpp::tag::must_not_insert")
                 traitslist.append("sqlpp::tag::must_not_update")
                 requireInsert = False
-            if not column.notNull:
+            if not column.notNull and not column.isPrimaryKey:
                 traitslist.append("sqlpp::tag::can_be_null")
                 requireInsert = False
             if column.hasDefaultValue:
