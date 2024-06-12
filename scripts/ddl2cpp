@@ -386,6 +386,7 @@ def testColumn():
     assert column.isUnsigned
     assert column.notNull
     assert not column.hasAutoValue
+    assert not column.isPrimaryKey
 
 
 def testConstraint():
@@ -445,6 +446,7 @@ def testPrimaryKeyAutoIncrement():
         assert column.type == "integer"
         assert column.notNull
         assert column.hasAutoValue
+        assert column.isPrimaryKey
 
 def testParser():
     initDllParser()
