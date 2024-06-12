@@ -49,8 +49,8 @@ namespace sqlpp
     text_operand(_value_t t) : _t(std::move(t))
     {
     }
-    // allow construction from an sqlpp::string_view
-    text_operand(sqlpp::string_view t) : _t(t)
+    // allow construction from an sqlpp::compat::string_view
+    text_operand(sqlpp::compat::string_view t) : _t(t)
     {
     }
     // additional const char* overload, required to disambiguate

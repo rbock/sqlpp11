@@ -78,8 +78,8 @@ int DateTime(int, char*[])
 
     for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
-      require_equal(__LINE__, row.colDayPoint == sqlpp::nullopt, true);
-      require_equal(__LINE__, row.colTimePoint == sqlpp::nullopt, true);
+      require_equal(__LINE__, row.colDayPoint == sqlpp::compat::nullopt, true);
+      require_equal(__LINE__, row.colTimePoint == sqlpp::compat::nullopt, true);
     }
 
     db(update(tab).set(tab.colDayPoint = today, tab.colTimePoint = now).unconditionally());

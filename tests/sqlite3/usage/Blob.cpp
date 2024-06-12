@@ -86,7 +86,7 @@ int Blob(int, char*[])
   {
     auto result = db(select(tab.data).from(tab).where(tab.id == null_id));
     const auto& result_row = result.front();
-    std::cerr << "Null blob is_null:\t" << std::boolalpha << (result_row.data == sqlpp::nullopt) << std::endl;
+    std::cerr << "Null blob is_null:\t" << std::boolalpha << (result_row.data == sqlpp::compat::nullopt) << std::endl;
   }
   return 0;
 }

@@ -36,42 +36,48 @@
 #include <span>
 namespace sqlpp
 {
-  template<typename T>
-  using span = std::span<T>;
+  namespace compat
+  {
+    template <typename T>
+    using span = std::span<T>;
+  }
 }  // namespace sqlpp
 
 #else // incomplete backport of std::span
 
 namespace sqlpp
 {
-  template <typename T>
-  class span
+  namespace compat
   {
-    const T* _data = nullptr;
-    size_t _size = 0u;
-  public:
-    constexpr span() = default;
-    constexpr span(const T* data, size_t size) : _data(data), _size(size)
+    template <typename T>
+    class span
     {
-    }
+      const T* _data = nullptr;
+      size_t _size = 0u;
 
-    const char* data() const
-    {
-      return _data;
-    }
+    public:
+      constexpr span() = default;
+      constexpr span(const T* data, size_t size) : _data(data), _size(size)
+      {
+      }
 
-    size_t size() const
-    {
-      return _size;
-    }
+      const char* data() const
+      {
+        return _data;
+      }
 
-    const T& operator[](size_t i) const
-    {
-      return *(_data + i);
-    }
+      size_t size() const
+      {
+        return _size;
+      }
 
-  };
+      const T& operator[](size_t i) const
+      {
+        return *(_data + i);
+      }
+    };
 
+  }  // namespace compat
 }  // namespace sqlpp
 
 #endif

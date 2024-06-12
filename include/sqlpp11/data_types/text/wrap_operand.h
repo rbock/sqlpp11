@@ -34,7 +34,7 @@
 namespace sqlpp
 {
   struct text_operand;
-  using checked_type = sqlpp::string_view;
+  using checked_type = sqlpp::compat::string_view;
 
   template <typename T>
   struct wrap_operand<

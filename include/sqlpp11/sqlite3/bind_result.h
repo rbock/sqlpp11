@@ -135,22 +135,22 @@ namespace sqlpp
         value = static_cast<uint64_t>(sqlite3_column_int64(_handle->sqlite_statement, static_cast<int>(index)));
       }
 
-      void read_field(size_t index, sqlpp::string_view& value)
+      void read_field(size_t index, sqlpp::compat::string_view& value)
       {
         if (_handle->debug)
           std::cerr << "Sqlite3 debug: binding text result at index: " << index << std::endl;
 
-        value = sqlpp::string_view(
+        value = sqlpp::compat::string_view(
             reinterpret_cast<const char*>(sqlite3_column_text(_handle->sqlite_statement, static_cast<int>(index))),
             static_cast<size_t>(sqlite3_column_bytes(_handle->sqlite_statement, static_cast<int>(index))));
       }
 
-      void read_field(size_t index, sqlpp::span<uint8_t>& value)
+      void read_field(size_t index, sqlpp::compat::span<uint8_t>& value)
       {
         if (_handle->debug)
           std::cerr << "Sqlite3 debug: binding blob result at index: " << index << std::endl;
 
-        value = sqlpp::span<uint8_t>(
+        value = sqlpp::compat::span<uint8_t>(
             reinterpret_cast<const uint8_t*>(sqlite3_column_blob(_handle->sqlite_statement, static_cast<int>(index))),
             static_cast<size_t>(sqlite3_column_bytes(_handle->sqlite_statement, static_cast<int>(index))));
       }
@@ -191,7 +191,7 @@ namespace sqlpp
       }
 
       template <typename T>
-      auto read_field(size_t index, sqlpp::optional<T>& value) -> void
+      auto read_field(size_t index, sqlpp::compat::optional<T>& value) -> void
       {
         const bool is_null = sqlite3_column_type(_handle->sqlite_statement, static_cast<int>(index)) == SQLITE_NULL;
         if (is_null)

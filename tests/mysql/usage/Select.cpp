@@ -154,8 +154,8 @@ int Select(int, char*[])
       auto result = db(select(all_of(tab), select(max(tab.alpha)).from(tab)).from(tab).unconditionally());
       if (const auto& row = *result.begin())
       {
-        sqlpp::optional<long> a = row.alpha;
-        sqlpp::optional<long> m = row.max;
+        sqlpp::compat::optional<long> a = row.alpha;
+        sqlpp::compat::optional<long> m = row.max;
         std::cerr << "-----------------------------" << a << ", " << m << std::endl;
       }
       tx.commit();

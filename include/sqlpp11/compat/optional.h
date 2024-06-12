@@ -36,7 +36,8 @@
 #include <optional>
 namespace sqlpp
 {
-#warning move into compat?
+  namespace compat
+  {
   template <class T>
   using optional = std::optional<T>;
 
@@ -44,6 +45,7 @@ namespace sqlpp
   using std::nullopt;
 
   using std::bad_optional_access;
+  }  // namespace compat
 }  // namespace sqlpp
 
 #else // incomplete backport of std::optional
@@ -53,196 +55,201 @@ namespace sqlpp
 
 namespace sqlpp
 {
-  class nullopt_t
+  namespace compat
   {
-  };
-  constexpr nullopt_t nullopt;
+    class nullopt_t
+    {
+    };
+    constexpr nullopt_t nullopt;
 
-  class bad_optional_access : public std::exception
-  {
+    class bad_optional_access : public std::exception
+    {
     public:
       ~bad_optional_access() override = default;
       const char* what() const noexcept override
       {
         return "bad optional access";
       }
-  };
-
-  template <class T>
-  class optional
-  {
-    // Unnamed union, injecting members into scope.
-    union
-    {
-      char _nothing;
-      T _value;
     };
-    bool _active = false;
 
-    // Placement new
-    template<typename... Args>
-    void create(Args&&... args)
+    template <class T>
+    class optional
     {
-      new ((void*)std::addressof(_value)) T(std::forward<Args>(args)...);
-      _active = true;
-    }
-
-    void destroy()
-    {
-      if (_active)
+      // Unnamed union, injecting members into scope.
+      union
       {
-       _value.~T();
+        char _nothing;
+        T _value;
+      };
+      bool _active = false;
+
+      // Placement new
+      template <typename... Args>
+      void create(Args&&... args)
+      {
+        new ((void*)std::addressof(_value)) T(std::forward<Args>(args)...);
+        _active = true;
       }
-    }
 
-  public:
-    optional() noexcept : _nothing(), _active(false)
-    {
-    }
-    optional(T t) : _active(true)
-    {
-      create(std::move(t));
-    }
+      void destroy()
+      {
+        if (_active)
+        {
+          _value.~T();
+        }
+      }
 
-    optional(const optional&) = default;
-    optional(optional&&) = default;
-    optional(const nullopt_t&) noexcept
-    {
-    }
+    public:
+      optional() noexcept : _nothing(), _active(false)
+      {
+      }
+      optional(T t) : _active(true)
+      {
+        create(std::move(t));
+      }
 
-    optional& operator=(const optional&) = default;
-    optional& operator=(optional&&) = default;
-    optional& operator=(const nullopt_t&) noexcept
-    {
-      destroy();
-    }
+      optional(const optional&) = default;
+      optional(optional&&) = default;
+      optional(const nullopt_t&) noexcept
+      {
+      }
 
-    ~optional() {
-      destroy();
-    }
+      optional& operator=(const optional&) = default;
+      optional& operator=(optional&&) = default;
+      optional& operator=(const nullopt_t&) noexcept
+      {
+        destroy();
+      }
 
-    bool has_value() const
-    {
-      return _active;
-    }
+      ~optional()
+      {
+        destroy();
+      }
 
-    explicit operator bool() const
-    {
-      return _active;
-    }
+      bool has_value() const
+      {
+        return _active;
+      }
 
-    T& operator*()
-    {
-      return _value;
-    }
+      explicit operator bool() const
+      {
+        return _active;
+      }
 
-    const T& operator*() const
-    {
-      return _value;
-    }
-
-    const T& operator->() const
-    {
-      return _value;
-    }
-
-    template<typename... Args>
-    optional& emplace(Args&&... args) {
-      create(std::forward<Args>(args)...);
-    }
-
-    T& value()
-    {
-      if (_active)
+      T& operator*()
+      {
         return _value;
-      throw bad_optional_access();
-    }
+      }
 
-    template<typename U>
-    T value_or(U&& u)
-    {
-      if (_active)
+      const T& operator*() const
+      {
         return _value;
-      return std::forward<U>(u);
-    }
+      }
 
-    const T& value() const
-    {
-      if (_active)
+      const T& operator->() const
+      {
         return _value;
-      throw bad_optional_access();
-    }
+      }
 
-    void reset()
+      template <typename... Args>
+      optional& emplace(Args&&... args)
+      {
+        create(std::forward<Args>(args)...);
+      }
+
+      T& value()
+      {
+        if (_active)
+          return _value;
+        throw bad_optional_access();
+      }
+
+      template <typename U>
+      T value_or(U&& u)
+      {
+        if (_active)
+          return _value;
+        return std::forward<U>(u);
+      }
+
+      const T& value() const
+      {
+        if (_active)
+          return _value;
+        throw bad_optional_access();
+      }
+
+      void reset()
+      {
+        destroy();
+      }
+    };
+
+    template <class L, class R>
+    bool operator==(const optional<L>& left, const optional<R>& right)
     {
-      destroy();
+      if (static_cast<bool>(left) != static_cast<bool>(right))
+        return false;
+      if (!static_cast<bool>(left))
+        return true;
+      return *left == *right;
     }
-  };
 
-  template <class L, class R>
-  bool operator==(const optional<L>& left, const optional<R>& right)
-  {
-    if (static_cast<bool>(left) != static_cast<bool>(right))
-      return false;
-    if (!static_cast<bool>(left))
-      return true;
-    return *left == *right;
-  }
+    template <class L, class R>
+    bool operator==(const optional<L>& left, const R& right)
+    {
+      if (!static_cast<bool>(left))
+        return false;
+      return *left == right;
+    }
 
-  template <class L, class R>
-  bool operator==(const optional<L>& left, const R& right)
-  {
-    if (!static_cast<bool>(left))
-      return false;
-    return *left == right;
-  }
+    template <class L, class R>
+    bool operator==(const L& left, const optional<R>& right)
+    {
+      if (!static_cast<bool>(right))
+        return false;
+      return left == *right;
+    }
 
-  template <class L, class R>
-  bool operator==(const L& left, const optional<R>& right)
-  {
-    if (!static_cast<bool>(right))
-      return false;
-    return left == *right;
-  }
+    template <class L, class R>
+    bool operator!=(const optional<L>& left, const optional<R>& right)
+    {
+      if (static_cast<bool>(left) != static_cast<bool>(right))
+        return true;
+      if (!static_cast<bool>(left))
+        return false;
+      return *left != *right;
+    }
 
-  template <class L, class R>
-  bool operator!=(const optional<L>& left, const optional<R>& right)
-  {
-    if (static_cast<bool>(left) != static_cast<bool>(right))
-      return true;
-    if (!static_cast<bool>(left))
-      return false;
-    return *left != *right;
-  }
+    template <class L, class R>
+    bool operator!=(const optional<L>& left, const R& right)
+    {
+      if (!static_cast<bool>(left))
+        return true;
+      return *left != right;
+    }
 
-  template <class L, class R>
-  bool operator!=(const optional<L>& left, const R& right)
-  {
-    if (!static_cast<bool>(left))
-      return true;
-    return *left != right;
-  }
+    template <class L, class R>
+    bool operator!=(const L& left, const optional<R>& right)
+    {
+      if (!static_cast<bool>(right))
+        return true;
+      return left != *right;
+    }
 
-  template <class L, class R>
-  bool operator!=(const L& left, const optional<R>& right)
-  {
-    if (!static_cast<bool>(right))
-      return true;
-    return left != *right;
-  }
+    template <class T>
+    bool operator==(const optional<T>& left, const nullopt_t&)
+    {
+      return !left;
+    }
 
-  template<class T>
-  bool operator==(const optional<T>& left, const nullopt_t&)
-  {
-    return !left;
-  }
+    template <class T>
+    bool operator==(const nullopt_t& n, const optional<T>& right)
+    {
+      return !right;
+    }
 
-  template<class T>
-  bool operator==(const nullopt_t& n, const optional<T>& right)
-  {
-    return !right;
-  }
-
+  }  // namespace compat
 }  // namespace sqlpp
 
 #endif

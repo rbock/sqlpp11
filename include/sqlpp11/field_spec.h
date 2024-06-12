@@ -45,7 +45,7 @@ namespace sqlpp
     using _alias_t = NameType;
 
     using cpp_type = typename std::conditional<CanBeNull,
-                                               sqlpp::optional<typename ValueType::_result_type>,
+                                               sqlpp::compat::optional<typename ValueType::_result_type>,
                                                typename ValueType::_result_type>::type;
   };
 

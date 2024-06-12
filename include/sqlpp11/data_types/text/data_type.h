@@ -38,7 +38,7 @@ namespace sqlpp
   {
     using _traits = make_traits<text, tag::is_value_type>;
     using _cpp_value_type = std::string;
-    using _result_type = sqlpp::string_view;
+    using _result_type = sqlpp::compat::string_view;
 
     template <typename T>
     using _is_valid_operand = is_text_t<T>;

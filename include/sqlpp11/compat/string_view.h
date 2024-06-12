@@ -36,7 +36,10 @@
 #include <string_view>
 namespace sqlpp
 {
-  using string_view = std::string_view;
+  namespace compat
+  {
+    using string_view = std::string_view;
+  }
 }  // namespace sqlpp
 
 #else // incomplete backport of std::string_view
@@ -47,60 +50,63 @@ namespace sqlpp
 
 namespace sqlpp
 {
-  class string_view
+  namespace compat
   {
-    const char* _data = nullptr;
-    size_t _size = 0u;
-  public:
-    constexpr string_view() = default;
-    string_view(const std::string& source) : _data(source.data()), _size(source.size())
+    class string_view
     {
+      const char* _data = nullptr;
+      size_t _size = 0u;
+
+    public:
+      constexpr string_view() = default;
+      string_view(const std::string& source) : _data(source.data()), _size(source.size())
+      {
+      }
+
+      constexpr string_view(const char* data, size_t size) : _data(data), _size(size)
+      {
+      }
+
+      string_view(const char* data) : _data(data), _size(std::char_traits<char>::length(data))
+      {
+      }
+
+      const char* data() const
+      {
+        return _data;
+      }
+
+      size_t size() const
+      {
+        return _size;
+      }
+
+      operator std::string() const
+      {
+        return std::string(_data, _size);
+      }
+    };
+
+    inline bool operator==(const string_view& left, const string_view& right)
+    {
+      if (left.size() != right.size())
+        return false;
+      return std::char_traits<char>::compare(left.data(), right.data(), left.size()) == 0;
     }
 
-    constexpr string_view(const char* data, size_t size) : _data(data), _size(size)
+    inline bool operator!=(const string_view& left, const string_view& right)
     {
+      if (left.size() != right.size())
+        return true;
+      return std::char_traits<char>::compare(left.data(), right.data(), left.size()) != 0;
     }
 
-    string_view(const char* data) : _data(data), _size(std::char_traits<char>::length(data))
+    inline std::ostream& operator<<(std::ostream& os, const string_view& sv)
     {
+      return os << std::string(sv);
     }
 
-    const char* data() const
-    {
-      return _data;
-    }
-
-    size_t size() const
-    {
-      return _size;
-    }
-
-    operator std::string() const
-    {
-      return std::string(_data, _size);
-    }
-  };
-
-  inline bool operator==(const string_view& left, const string_view& right)
-  {
-    if (left.size() != right.size())
-      return false;
-    return std::char_traits<char>::compare(left.data(), right.data(), left.size()) == 0;
-  }
-
-  inline bool operator!=(const string_view& left, const string_view& right)
-  {
-    if (left.size() != right.size())
-      return true;
-    return std::char_traits<char>::compare(left.data(), right.data(), left.size()) != 0;
-  }
-
-  inline std::ostream& operator<<(std::ostream& os, const string_view& sv)
-  {
-    return os << std::string(sv);
-  }
-
-
+  }  // namespace compat
 }  // namespace sqlpp
 
 #endif

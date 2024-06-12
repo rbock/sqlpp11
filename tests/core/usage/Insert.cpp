@@ -102,7 +102,7 @@ int Insert(int, char*[])
   auto prepared_insert_sv = db.prepare(insert_into(t).set(t.gamma = parameter(t.gamma), t.delta = parameter(t.delta), t.beta = parameter(t.beta)));
   prepared_insert_sv.params.gamma = true;
   prepared_insert_sv.params.delta = 17;
-  prepared_insert_sv.params.beta = sqlpp::string_view("string_view");;
+  prepared_insert_sv.params.beta = sqlpp::compat::string_view("string_view");;
   db(prepared_insert_sv);
 
   return 0;

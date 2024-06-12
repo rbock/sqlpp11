@@ -49,7 +49,7 @@ namespace sqlpp
       target._bind_text_parameter(index, &_value, _is_null);
     }
 
-    parameter_value_base& operator=(const sqlpp::string_view& val)
+    parameter_value_base& operator=(const sqlpp::compat::string_view& val)
     {
       _value = val;
       _is_null = false;
