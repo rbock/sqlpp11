@@ -32,13 +32,13 @@ int Sum(int, char* [])
   const auto bar = test::TabBar{};
 
   // Single column.
-  compare(__LINE__, sum(bar.alpha), "SUM(tab_bar.alpha)");
-  compare(__LINE__, sum(sqlpp::distinct, bar.alpha), "SUM(DISTINCT tab_bar.alpha)");
+  compare(__LINE__, sum(bar.id), "SUM(tab_bar.id)");
+  compare(__LINE__, sum(sqlpp::distinct, bar.id), "SUM(DISTINCT tab_bar.id)");
 
   // Expression.
   // Note that the inner parens aren't necessary.
-  compare(__LINE__, sum(bar.alpha + 7), "SUM((tab_bar.alpha+7))");
-  compare(__LINE__, sum(sqlpp::distinct, bar.alpha + 7), "SUM(DISTINCT (tab_bar.alpha+7))");
+  compare(__LINE__, sum(bar.id + 7), "SUM((tab_bar.id+7))");
+  compare(__LINE__, sum(sqlpp::distinct, bar.id + 7), "SUM(DISTINCT (tab_bar.id+7))");
 
   // With sub select.
   compare(__LINE__, sum(select(sqlpp::value(7).as(sqlpp::alias::a))), "SUM((SELECT 7 AS a))");

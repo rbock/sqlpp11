@@ -46,63 +46,63 @@ int Insert(int, char*[])
   }
 
   {
-    using T = decltype(insert_into(t).set(t.beta = "kirschauflauf"));
+    using T = decltype(insert_into(t).set(t.textN = "kirschauflauf"));
     static_assert(sqlpp::is_regular<T>::value, "type requirement");
   }
 
   db(insert_into(t).default_values());
-  db(insert_into(t).set(t.gamma = true, t.beta = "kirschauflauf"));
-  db(insert_into(t).set(t.gamma = sqlpp::default_value, t.beta = sqlpp::value_or_null("pie"),
-                        t.delta = sqlpp::value_or_null<sqlpp::integer>(sqlpp::null)));
+  db(insert_into(t).set(t.boolNn = true, t.textN = "kirschauflauf"));
+  db(insert_into(t).set(t.boolNn = sqlpp::default_value, t.textN = sqlpp::value_or_null("pie"),
+                        t.intN = sqlpp::value_or_null<sqlpp::integer>(sqlpp::null)));
 
   serialize(insert_into(t).default_values(), printer).str();
 
   serialize(insert_into(t), printer).str();
-  serialize(insert_into(t).set(t.gamma = true, t.beta = "kirschauflauf"), printer).str();
-  serialize(insert_into(t).columns(t.gamma, t.beta), printer).str();
-  auto multi_insert = insert_into(t).columns(t.gamma, t.beta, t.delta);
-  multi_insert.add_values(t.gamma = true, t.beta = "cheesecake", t.delta = 1);
-  multi_insert.add_values(t.gamma = sqlpp::default_value, t.beta = sqlpp::default_value,
-                          t.delta = sqlpp::default_value);
-  multi_insert.add_values(t.gamma = sqlpp::value_or_null(true), t.beta = sqlpp::value_or_null("pie"),
-                          t.delta = sqlpp::value_or_null<sqlpp::integer>(sqlpp::null));
+  serialize(insert_into(t).set(t.boolNn = true, t.textN = "kirschauflauf"), printer).str();
+  serialize(insert_into(t).columns(t.boolNn, t.textN), printer).str();
+  auto multi_insert = insert_into(t).columns(t.boolNn, t.textN, t.intN);
+  multi_insert.add_values(t.boolNn = true, t.textN = "cheesecake", t.intN = 1);
+  multi_insert.add_values(t.boolNn = sqlpp::default_value, t.textN = sqlpp::default_value,
+                          t.intN = sqlpp::default_value);
+  multi_insert.add_values(t.boolNn = sqlpp::value_or_null(true), t.textN = sqlpp::value_or_null("pie"),
+                          t.intN = sqlpp::value_or_null<sqlpp::integer>(sqlpp::null));
   printer.reset();
   std::cerr << serialize(multi_insert, printer).str() << std::endl;
 
   // Beware, you need exact types for inserted values in multi_insert
   insert_into(tabDateTime)
-      .set(tabDateTime.colTimePoint = std::chrono::system_clock::now());
+      .set(tabDateTime.timePointN = std::chrono::system_clock::now());
 
-  auto multi_time_insert = insert_into(tabDateTime).columns(tabDateTime.colTimePoint);
-  multi_time_insert.add_values(tabDateTime.colTimePoint = std::chrono::time_point_cast<std::chrono::microseconds>(
+  auto multi_time_insert = insert_into(tabDateTime).columns(tabDateTime.timePointN);
+  multi_time_insert.add_values(tabDateTime.timePointN = std::chrono::time_point_cast<std::chrono::microseconds>(
                                    std::chrono::system_clock::now()));
 
 #warning add tests with optional
 
   db(multi_insert);
 
-  auto values = [&t]() { return std::make_tuple(t.gamma = true, t.beta = sqlpp::null); };
+  auto values = [&t]() { return std::make_tuple(t.boolNn = true, t.textN = sqlpp::null); };
 
-  db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::verbatim<sqlpp::integer>("17+4")));
-  db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::null));
-  db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::default_value));
-  db(insert_into(t).set(t.gamma = true, t.delta = 0));
+  db(insert_into(t).set(t.boolNn = true, t.intN = sqlpp::verbatim<sqlpp::integer>("17+4")));
+  db(insert_into(t).set(t.boolNn = true, t.intN = sqlpp::null));
+  db(insert_into(t).set(t.boolNn = true, t.intN = sqlpp::default_value));
+  db(insert_into(t).set(t.boolNn = true, t.intN = 0));
   db(insert_into(t).set(values()));
 
-  db(insert_into(t).set(t.gamma = true, t.delta = 0, t.beta = select(u.delta).from(u).unconditionally()));
+  db(insert_into(t).set(t.boolNn = true, t.intN = 0, t.textN = select(u.textNnD).from(u).unconditionally()));
 
-  auto prepared_insert = db.prepare(insert_into(t).set(t.gamma = parameter(t.gamma), t.delta = parameter(t.delta)));
-  prepared_insert.params.gamma = true;
-  prepared_insert.params.delta = sqlpp::null;
-  prepared_insert.params.delta = 17;
-  prepared_insert.params.delta = sqlpp::value_or_null<sqlpp::integer>(sqlpp::null);
-  prepared_insert.params.delta = sqlpp::value_or_null(17);
+  auto prepared_insert = db.prepare(insert_into(t).set(t.boolNn = parameter(t.boolNn), t.intN = parameter(t.intN)));
+  prepared_insert.params.boolNn = true;
+  prepared_insert.params.intN = sqlpp::null;
+  prepared_insert.params.intN = 17;
+  prepared_insert.params.intN = sqlpp::value_or_null<sqlpp::integer>(sqlpp::null);
+  prepared_insert.params.intN = sqlpp::value_or_null(17);
   db(prepared_insert);
 
-  auto prepared_insert_sv = db.prepare(insert_into(t).set(t.gamma = parameter(t.gamma), t.delta = parameter(t.delta), t.beta = parameter(t.beta)));
-  prepared_insert_sv.params.gamma = true;
-  prepared_insert_sv.params.delta = 17;
-  prepared_insert_sv.params.beta = sqlpp::compat::string_view("string_view");;
+  auto prepared_insert_sv = db.prepare(insert_into(t).set(t.boolNn = parameter(t.boolNn), t.intN = parameter(t.intN), t.textN = parameter(t.textN)));
+  prepared_insert_sv.params.boolNn = true;
+  prepared_insert_sv.params.intN = 17;
+  prepared_insert_sv.params.textN = sqlpp::compat::string_view("string_view");;
   db(prepared_insert_sv);
 
   return 0;

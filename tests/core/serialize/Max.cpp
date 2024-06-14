@@ -32,13 +32,13 @@ int Max(int, char* [])
   const auto bar = test::TabBar{};
 
   // Single column.
-  compare(__LINE__, max(bar.alpha), "MAX(tab_bar.alpha)");
-  compare(__LINE__, max(sqlpp::distinct, bar.alpha), "MAX(DISTINCT tab_bar.alpha)");
+  compare(__LINE__, max(bar.id), "MAX(tab_bar.id)");
+  compare(__LINE__, max(sqlpp::distinct, bar.id), "MAX(DISTINCT tab_bar.id)");
 
   // Expression.
   // Note that the inner parens aren't necessary.
-  compare(__LINE__, max(bar.alpha + 7), "MAX((tab_bar.alpha+7))");
-  compare(__LINE__, max(sqlpp::distinct, bar.alpha + 7), "MAX(DISTINCT (tab_bar.alpha+7))");
+  compare(__LINE__, max(bar.id + 7), "MAX((tab_bar.id+7))");
+  compare(__LINE__, max(sqlpp::distinct, bar.id + 7), "MAX(DISTINCT (tab_bar.id+7))");
 
   // With sub select.
   compare(__LINE__, max(select(sqlpp::value(7).as(sqlpp::alias::a))), "MAX((SELECT 7 AS a))");

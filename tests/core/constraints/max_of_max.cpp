@@ -39,5 +39,5 @@ int main()
 {
   const auto t = test::TabBar{};
 
-  max(max(t.alpha));
+  max(max(t.id));
 }

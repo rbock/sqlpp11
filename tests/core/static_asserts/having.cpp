@@ -52,7 +52,7 @@ namespace
     print_type_on_error<CheckResult>(ExpectedCheckResult{});
     static_assert(ExpectedCheckResult::value, "Unexpected check result");
 
-    using ReturnType = decltype(select(all_of(t)).from(t).unconditionally().group_by(t.alpha).having(expression));
+    using ReturnType = decltype(select(all_of(t)).from(t).unconditionally().group_by(t.id).having(expression));
     using ExpectedReturnType = sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, Assert>::value>;
     print_type_on_error<ReturnType>(ExpectedReturnType{});
     static_assert(ExpectedReturnType::value, "Unexpected return type");
@@ -61,19 +61,19 @@ namespace
   auto static_having() -> void
   {
     // OK
-    having_static_check<sqlpp::consistent_t>(t.gamma);
-    having_static_check<sqlpp::consistent_t>(t.gamma == true);
+    having_static_check<sqlpp::consistent_t>(t.boolNn);
+    having_static_check<sqlpp::consistent_t>(t.boolNn == true);
 
     // OK using aggregate functions in having
-    having_static_check<sqlpp::consistent_t>(count(t.alpha) > 0);
-    having_static_check<sqlpp::consistent_t>(t.gamma and count(t.alpha) > 0);
-    having_static_check<sqlpp::consistent_t>(case_when(count(t.alpha) > 0).then(t.gamma).else_(not t.gamma));
+    having_static_check<sqlpp::consistent_t>(count(t.id) > 0);
+    having_static_check<sqlpp::consistent_t>(t.boolNn and count(t.id) > 0);
+    having_static_check<sqlpp::consistent_t>(case_when(count(t.id) > 0).then(t.boolNn).else_(not t.boolNn));
 
     // Try assignment as condition
-    having_static_check<sqlpp::assert_having_boolean_expression_t>(t.gamma = true);
+    having_static_check<sqlpp::assert_having_boolean_expression_t>(t.boolNn = true);
 
     // Try non-boolean expression
-    having_static_check<sqlpp::assert_having_boolean_expression_t>(t.alpha);
+    having_static_check<sqlpp::assert_having_boolean_expression_t>(t.id);
 
     // Try builtin bool
     having_static_check<sqlpp::assert_having_not_cpp_bool_t>(true);
@@ -84,7 +84,7 @@ namespace
     having_static_check<sqlpp::assert_having_boolean_expression_t>(17);
     having_static_check<sqlpp::assert_having_boolean_expression_t>('c');
     having_static_check<sqlpp::assert_having_boolean_expression_t>(nullptr);
-    having_static_check<sqlpp::assert_having_boolean_expression_t>(t.alpha.as(t.beta));
+    having_static_check<sqlpp::assert_having_boolean_expression_t>(t.id.as(t.textN));
   }
 
   template <typename Assert, typename Statement, typename HavingCondition>
@@ -101,31 +101,31 @@ namespace
     const auto select_without_group_by = select(all_of(t)).from(t).unconditionally();
 
     // OK
-    static_consistency_check<sqlpp::consistent_t>(select_without_group_by, avg(t.alpha) > 17);
-    static_consistency_check<sqlpp::consistent_t>(select_without_group_by, avg(t.alpha) > parameter(t.alpha));
+    static_consistency_check<sqlpp::consistent_t>(select_without_group_by, avg(t.id) > 17);
+    static_consistency_check<sqlpp::consistent_t>(select_without_group_by, avg(t.id) > parameter(t.id));
 
     // Try non aggregate
-    static_consistency_check<sqlpp::assert_having_all_aggregates_t>(select_without_group_by, t.alpha > 17);
+    static_consistency_check<sqlpp::assert_having_all_aggregates_t>(select_without_group_by, t.id > 17);
     static_consistency_check<sqlpp::assert_having_all_aggregates_t>(select_without_group_by,
-                                                                    count(t.alpha) > 3 and t.alpha > 17);
+                                                                    count(t.id) > 3 and t.id > 17);
 
     // Try foreign table
-    static_consistency_check<sqlpp::assert_having_no_unknown_tables_t>(select_without_group_by, f.omega > 17);
+    static_consistency_check<sqlpp::assert_having_no_unknown_tables_t>(select_without_group_by, f.doubleN > 17);
 
-    const auto select_with_group_by = select(t.alpha).from(t).unconditionally().group_by(t.alpha);
+    const auto select_with_group_by = select(t.id).from(t).unconditionally().group_by(t.id);
 
     // OK
-    static_consistency_check<sqlpp::consistent_t>(select_with_group_by, avg(t.alpha) > 17);
-    static_consistency_check<sqlpp::consistent_t>(select_with_group_by, t.alpha > 17);
-    static_consistency_check<sqlpp::consistent_t>(select_with_group_by, count(t.alpha) > 3 and t.alpha > 17);
+    static_consistency_check<sqlpp::consistent_t>(select_with_group_by, avg(t.id) > 17);
+    static_consistency_check<sqlpp::consistent_t>(select_with_group_by, t.id > 17);
+    static_consistency_check<sqlpp::consistent_t>(select_with_group_by, count(t.id) > 3 and t.id > 17);
 
     // Try non aggregate
-    static_consistency_check<sqlpp::assert_having_all_aggregates_t>(select_with_group_by, t.beta > "17");
+    static_consistency_check<sqlpp::assert_having_all_aggregates_t>(select_with_group_by, t.textN > "17");
     static_consistency_check<sqlpp::assert_having_all_aggregates_t>(select_with_group_by,
-                                                                       count(t.beta) > 3 and t.beta > "17");
+                                                                       count(t.textN) > 3 and t.textN > "17");
 
     // Try foreign table
-    static_consistency_check<sqlpp::assert_having_no_unknown_tables_t>(select_with_group_by, f.omega > 17);
+    static_consistency_check<sqlpp::assert_having_no_unknown_tables_t>(select_with_group_by, f.doubleN > 17);
   }
 }
 

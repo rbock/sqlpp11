@@ -43,15 +43,15 @@ int Insert(int, char* [])
   const auto bar = test::TabBar{};
 
   compare(__LINE__, insert_into(bar).default_values(), "INSERT INTO tab_bar DEFAULT VALUES");
-  compare(__LINE__, insert_into(bar).set(bar.beta = "cheesecake", bar.gamma = true),
-          "INSERT INTO tab_bar (beta,gamma) VALUES('cheesecake'," + getTrue() + ")");
-  compare(__LINE__, insert_into(bar).set(bar.beta = ::sqlpp::null, bar.gamma = true),
-          "INSERT INTO tab_bar (beta,gamma) VALUES(NULL," + getTrue() + ")");
+  compare(__LINE__, insert_into(bar).set(bar.textN = "cheesecake", bar.boolNn = true),
+          "INSERT INTO tab_bar (text_n,bool_nn) VALUES('cheesecake'," + getTrue() + ")");
+  compare(__LINE__, insert_into(bar).set(bar.textN = ::sqlpp::null, bar.boolNn = true),
+          "INSERT INTO tab_bar (text_n,bool_nn) VALUES(NULL," + getTrue() + ")");
   sqlpp::compat::string_view cheeseCake = "cheesecake";
-  compare(__LINE__, insert_into(bar).set(bar.beta = std::string(cheeseCake), bar.gamma = true),
-          "INSERT INTO tab_bar (beta,gamma) VALUES('cheesecake'," + getTrue() + ")");
-  compare(__LINE__, insert_into(bar).set(bar.beta = sqlpp::compat::string_view(cheeseCake), bar.gamma = true),
-          "INSERT INTO tab_bar (beta,gamma) VALUES('cheesecake'," + getTrue() + ")");
+  compare(__LINE__, insert_into(bar).set(bar.textN = std::string(cheeseCake), bar.boolNn = true),
+          "INSERT INTO tab_bar (text_n,bool_nn) VALUES('cheesecake'," + getTrue() + ")");
+  compare(__LINE__, insert_into(bar).set(bar.textN = sqlpp::compat::string_view(cheeseCake), bar.boolNn = true),
+          "INSERT INTO tab_bar (text_n,bool_nn) VALUES('cheesecake'," + getTrue() + ")");
 
   return 0;
 }

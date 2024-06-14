@@ -32,13 +32,13 @@ int Count(int, char* [])
   const auto bar = test::TabBar{};
 
   // Single column.
-  compare(__LINE__, count(bar.alpha), "COUNT(tab_bar.alpha)");
-  compare(__LINE__, count(sqlpp::distinct, bar.alpha), "COUNT(DISTINCT tab_bar.alpha)");
+  compare(__LINE__, count(bar.id), "COUNT(tab_bar.id)");
+  compare(__LINE__, count(sqlpp::distinct, bar.id), "COUNT(DISTINCT tab_bar.id)");
 
   // Expression.
   // Note that the inner parens aren't necessary.
-  compare(__LINE__, count(bar.alpha + 7), "COUNT((tab_bar.alpha+7))");
-  compare(__LINE__, count(sqlpp::distinct, bar.alpha + 7), "COUNT(DISTINCT (tab_bar.alpha+7))");
+  compare(__LINE__, count(bar.id + 7), "COUNT((tab_bar.id+7))");
+  compare(__LINE__, count(sqlpp::distinct, bar.id + 7), "COUNT(DISTINCT (tab_bar.id+7))");
 
   // With sub select.
   compare(__LINE__, count(select(sqlpp::value(7).as(sqlpp::alias::a))), "COUNT((SELECT 7 AS a))");

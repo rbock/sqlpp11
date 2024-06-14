@@ -38,111 +38,111 @@ int Prepared(int, char* [])
 
   // empty parameter lists
   {
-    using P = sqlpp::make_parameter_list_t<decltype(t.alpha)>;
+    using P = sqlpp::make_parameter_list_t<decltype(t.id)>;
     static_assert(P::size::value == 0, "type requirement");
   }
 
   // single parameter
   {
-    using P = sqlpp::make_parameter_list_t<decltype(parameter(t.alpha))>;
+    using P = sqlpp::make_parameter_list_t<decltype(parameter(t.id))>;
     static_assert(P::size::value == 1, "type requirement");
     auto p = P{};
-    p.alpha = 7;
+    p.id = 7;
   }
 
   // single parameter
   {
-    using P = sqlpp::make_parameter_list_t<decltype(parameter(t.beta))>;
+    using P = sqlpp::make_parameter_list_t<decltype(parameter(t.textN))>;
     static_assert(P::size::value == 1, "type requirement");
     auto p = P{};
-    p.beta = "cheesecake";
+    p.textN = "cheesecake";
   }
 
   // single parameter in expression
   {
-    using P = sqlpp::make_parameter_list_t<decltype(t.alpha == parameter(t.alpha))>;
+    using P = sqlpp::make_parameter_list_t<decltype(t.id == parameter(t.id))>;
     static_assert(P::size::value == 1, "type requirement");
     auto p = P{};
-    p.alpha = 7;
+    p.id = 7;
   }
 
   // single parameter in larger expression
   {
-    using P = sqlpp::make_parameter_list_t<decltype((t.beta.like("%") and t.alpha == parameter(t.alpha)) or
-                                                    t.gamma != false)>;
+    using P = sqlpp::make_parameter_list_t<decltype((t.textN.like("%") and t.id == parameter(t.id)) or
+                                                    t.boolNn != false)>;
     static_assert(P::size::value == 1, "type requirement");
     auto p = P{};
-    p.alpha = 7;
+    p.id = 7;
   }
 
   // three parameters in expression
   {
-    using P = sqlpp::parameters_of<decltype((t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha)) or
-                                            t.gamma != parameter(t.gamma))>;
+    using P = sqlpp::parameters_of<decltype((t.textN.like(parameter(t.textN)) and t.id == parameter(t.id)) or
+                                            t.boolNn != parameter(t.boolNn))>;
     // FIXME: make some test, that does not depend on detail namespace, but still checks the correct order of the
     // parameters
-    static_assert(std::is_same<P, sqlpp::detail::type_vector<decltype(parameter(t.beta)), decltype(parameter(t.alpha)),
-                                                             decltype(parameter(t.gamma))>>::value,
+    static_assert(std::is_same<P, sqlpp::detail::type_vector<decltype(parameter(t.textN)), decltype(parameter(t.id)),
+                                                             decltype(parameter(t.boolNn))>>::value,
                   "type requirement");
   }
 
   // OK, fine, now create a named parameter list from an expression
   {
     using Exp =
-        decltype((t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha)) or t.gamma != parameter(t.gamma));
+        decltype((t.textN.like(parameter(t.textN)) and t.id == parameter(t.id)) or t.boolNn != parameter(t.boolNn));
     using P = sqlpp::make_parameter_list_t<Exp>;
     P npl;
     static_assert(
-        std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.alpha)>>, decltype(npl.alpha)>::value,
+        std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.id)>>, decltype(npl.id)>::value,
         "type requirement");
     static_assert(
-        std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.beta)>>, decltype(npl.beta)>::value,
+        std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.textN)>>, decltype(npl.textN)>::value,
         "type requirement");
     static_assert(
-        std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.gamma)>>, decltype(npl.gamma)>::value,
+        std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.boolNn)>>, decltype(npl.boolNn)>::value,
         "type requirement");
   }
 
   // Wonderful, now take a look at the parameter list of a select
   {
-    auto s = select(all_of(t)).from(t).where((t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha)) or
-                                             t.gamma != parameter(t.gamma));
+    auto s = select(all_of(t)).from(t).where((t.textN.like(parameter(t.textN)) and t.id == parameter(t.id)) or
+                                             t.boolNn != parameter(t.boolNn));
     auto p = db.prepare(s);
-    p.params.alpha = 7;
+    p.params.id = 7;
     using S = decltype(s);
     using P = sqlpp::make_parameter_list_t<S>;
     P npl;
 
     static_assert(
-        std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.alpha)>>, decltype(npl.alpha)>::value,
+        std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.id)>>, decltype(npl.id)>::value,
         "type requirement");
     static_assert(
-        std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.beta)>>, decltype(npl.beta)>::value,
+        std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.textN)>>, decltype(npl.textN)>::value,
         "type requirement");
     static_assert(
-        std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.gamma)>>, decltype(npl.gamma)>::value,
+        std::is_same<sqlpp::parameter_value_t<sqlpp::value_type_of<decltype(t.boolNn)>>, decltype(npl.boolNn)>::value,
         "type requirement");
-    npl.alpha = 7;
+    npl.id = 7;
     auto x = npl;
     x = npl;
-    std::cerr << x.alpha << std::endl;
+    std::cerr << x.id << std::endl;
     x = decltype(npl)();
-    std::cerr << x.alpha << std::endl;
+    std::cerr << x.id << std::endl;
   }
 
   // Can we prepare a query without parameters?
   {
-    auto ps = db.prepare(select(all_of(t)).from(t).where((t.beta.like("%"))));
+    auto ps = db.prepare(select(all_of(t)).from(t).where((t.textN.like("%"))));
     for (const auto& row : db(ps))
     {
-      std::cerr << row.alpha << std::endl;
+      std::cerr << row.id << std::endl;
     }
   }
 
   // Check that a prepared select is default-constructable
   {
-    auto s = select(all_of(t)).from(t).where((t.beta.like(parameter(t.beta)) and t.alpha == parameter(t.alpha)) or
-                                             t.gamma != parameter(t.gamma));
+    auto s = select(all_of(t)).from(t).where((t.textN.like(parameter(t.textN)) and t.id == parameter(t.id)) or
+                                             t.boolNn != parameter(t.boolNn));
     using P = decltype(db.prepare(s));
     P p;
   }

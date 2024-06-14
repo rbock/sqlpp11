@@ -26,25 +26,27 @@
 
 CREATE TABLE IF NOT EXISTS tab_foo
 (
-	delta varchar(255) NOT NULL DEFAULT "",
-	epsilon bigint,
-	omega double,
-	psi bigint UNSIGNED,
-	book BLOB
+	id bigint AUTO_INCREMENT PRIMARY KEY,
+	text_nn_d varchar(255) NOT NULL DEFAULT "",
+	int_n bigint,
+	double_n double,
+	u_int_n bigint UNSIGNED,
+	blob_n BLOB
 );
 
 CREATE TABLE tab_bar
 (
-	alpha bigint AUTO_INCREMENT,
-	beta varchar(255) NULL DEFAULT "",
-	gamma bool NOT NULL,
-	delta int
+	id bigint AUTO_INCREMENT PRIMARY KEY,
+	text_n varchar(255) NULL DEFAULT "",
+	bool_nn bool NOT NULL,
+	int_n int
 );
 
 CREATE TABLE tab_date_time
 (
-	col_day_point date,
-	col_time_point datetime,
-	col_time_of_day time
+	id bigint AUTO_INCREMENT PRIMARY KEY,
+	day_point_n date,
+	time_point_n datetime,
+	time_of_day_n time
 );
 

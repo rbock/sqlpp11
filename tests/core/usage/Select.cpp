@@ -35,16 +35,6 @@
 #include <sqlpp11/without_table_check.h>
 #include "../../include/test_helpers.h"
 
-template <typename Db, typename Column>
-int64_t getColumn(Db&& db, const Column& column)
-{
-  auto result = db(select(column.as(sqlpp::alias::a)).from(column.table()).unconditionally());
-  if (not result.empty() and result.front().a.has_value())
-    return result.front().a.value();
-  else
-    return 0;
-}
-
 struct to_cerr
 {
   template <typename Field>
@@ -57,8 +47,8 @@ struct to_cerr
 template <typename Row>
 void print_row(Row const& row)
 {
-  const sqlpp::compat::optional<int64_t> a = row.alpha;
-  const sqlpp::compat::optional<sqlpp::compat::string_view> b = row.beta;
+  const sqlpp::compat::optional<int64_t> a = row.id;
+  const sqlpp::compat::optional<sqlpp::compat::string_view> b = row.textN;
   std::cout << a << ", " << b << std::endl;
 }
 
@@ -73,8 +63,7 @@ int Select(int, char*[])
   const auto t = test::TabBar{};
   const auto tab_a = f.as(sqlpp::alias::a);
 
-  getColumn(db, t.alpha);
-  select(count(t.alpha));
+  select(count(t.id));
 
   std::cerr << serialize(select(sqlpp::value(false).as(sqlpp::alias::a)), printer).str() << std::endl;
   for (const auto& row : db(select(sqlpp::value(false).as(sqlpp::alias::a))))
@@ -91,39 +80,39 @@ int Select(int, char*[])
 
   for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
   {
-    const sqlpp::compat::optional<int64_t> a = row.alpha;
-    const sqlpp::compat::optional<sqlpp::compat::string_view> b = row.beta;
+    const sqlpp::compat::optional<int64_t> a = row.id;
+    const sqlpp::compat::optional<sqlpp::compat::string_view> b = row.textN;
     std::cout << a << ", " << b << std::endl;
   }
 
   for (const auto& row :
-       db(select(all_of(t), t.gamma.as(t)).from(t).where(t.alpha > 7 and trim(t.beta) == "test").for_update()))
+       db(select(all_of(t), t.boolNn.as(t)).from(t).where(t.id > 7 and trim(t.textN) == "test").for_update()))
   {
-    const sqlpp::compat::optional<int64_t> a = row.alpha;
-    const sqlpp::compat::optional<sqlpp::compat::string_view> b = row.beta;
+    const sqlpp::compat::optional<int64_t> a = row.id;
+    const sqlpp::compat::optional<sqlpp::compat::string_view> b = row.textN;
     const bool g = row.tabBar;
     std::cout << a << ", " << b << ", " << g << std::endl;
   }
 
   for (const auto& row :
-       db(select(all_of(t), all_of(f)).from(t.join(f).on(t.alpha > f.omega and not t.gamma)).unconditionally()))
+       db(select(all_of(t), f.textNnD).from(t.join(f).on(t.id > f.doubleN and not t.boolNn)).unconditionally()))
   {
-    std::cout << row.alpha << std::endl;
+    std::cout << row.id << std::endl;
   }
 
-  for (const auto& row : db(select(all_of(t), all_of(f))
-                                .from(t.join(f).on(t.alpha > f.omega).join(tab_a).on(t.alpha == tab_a.omega))
+  for (const auto& row : db(select(all_of(t), f.textNnD)
+                                .from(t.join(f).on(t.id > f.doubleN).join(tab_a).on(t.id == tab_a.doubleN))
                                 .unconditionally()))
   {
-    std::cout << row.alpha << std::endl;
+    std::cout << row.id << std::endl;
   }
 
-  for (const auto& row : db(select(count(t.alpha), avg(t.alpha)).from(t).unconditionally()))
+  for (const auto& row : db(select(count(t.id), avg(t.id)).from(t).unconditionally()))
   {
     std::cout << row.count << std::endl;
   }
 
-  for (const auto& row : db(select(count(t.alpha), avg(t.alpha)).from(t).where(t.alpha == 0)))
+  for (const auto& row : db(select(count(t.id), avg(t.id)).from(t).where(t.id == 0)))
   {
     std::cout << row.count << std::endl;
   }
@@ -132,41 +121,41 @@ int Select(int, char*[])
                   .columns(all_of(t))
                   .flags(sqlpp::all)
                   .from(t)
-                  .where(t.alpha > 0)
-                  .group_by(t.alpha)
-                  .order_by(t.gamma.asc())
-                  .having(t.gamma)
+                  .where(t.id > 0)
+                  .group_by(t.id)
+                  .order_by(t.boolNn.asc())
+                  .having(t.boolNn)
                   .offset(19u)
                   .limit(7u);
   printer.reset();
   std::cerr << serialize(stat, printer).str() << std::endl;
 
   auto s = sqlpp::select()
-               .columns(t.alpha)
+               .columns(t.id)
                .flags(sqlpp::distinct)
                .from(t)
-               .where(t.alpha > 3)
-               .group_by(t.alpha)
-               .order_by(t.beta.asc())
-               .having(sum(t.alpha) > parameter(t.delta))
+               .where(t.id > 3)
+               .group_by(t.id)
+               .order_by(t.textN.asc())
+               .having(sum(t.id) > parameter(t.intN))
                .limit(32u)
                .offset(7u);
 #warning add tests for optional everything
   for (const auto& row : db(db.prepare(s)))
   {
-    const sqlpp::compat::optional<int64_t> a = row.alpha;
+    const sqlpp::compat::optional<int64_t> a = row.id;
     std::cout << a << std::endl;
   }
 
   printer.reset();
   std::cerr << serialize(s, printer).str() << std::endl;
 
-  select(sqlpp::value(7).as(t.alpha));
+  select(sqlpp::value(7).as(t.id));
 
   for (const auto& row :
-       db(select(sqlpp::case_when(true).then(t.beta).else_(sqlpp::null).as(t.beta)).from(t).unconditionally()))
+       db(select(sqlpp::case_when(true).then(t.textN).else_(sqlpp::null).as(t.textN)).from(t).unconditionally()))
   {
-    std::cerr << row.beta << std::endl;
+    std::cerr << row.textN << std::endl;
   }
 
   for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
@@ -191,9 +180,9 @@ int Select(int, char*[])
   }
 
   for (const auto& row :
-       db(select(f.omega, select(count(t.alpha)).from(t).unconditionally().as(cheese)).from(f).unconditionally()))
+       db(select(f.doubleN, select(count(t.id)).from(t).unconditionally().as(cheese)).from(f).unconditionally()))
   {
-    std::cout << row.omega << " " << row.cheese << std::endl;
+    std::cout << row.doubleN << " " << row.cheese << std::endl;
   }
 
   return 0;

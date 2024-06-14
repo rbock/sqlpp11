@@ -89,20 +89,20 @@ namespace
 
   void boolean()
   {
-    and_check<sqlpp::consistent_t>(t.gamma, t.gamma);
-    and_check<sqlpp::assert_valid_operands>(t.gamma, true);
-    // and_check<sqlpp::assert_valid_operands>(true, t.gamma); // Cannot currently do that
+    and_check<sqlpp::consistent_t>(t.boolNn, t.boolNn);
+    and_check<sqlpp::assert_valid_operands>(t.boolNn, true);
+    // and_check<sqlpp::assert_valid_operands>(true, t.boolNn); // Cannot currently do that
 
-    or_check<sqlpp::consistent_t>(t.gamma, t.gamma);
-    or_check<sqlpp::assert_valid_operands>(t.gamma, true);
-    // or_check<sqlpp::assert_valid_operands>(true, t.gamma); // Cannot currently do that
+    or_check<sqlpp::consistent_t>(t.boolNn, t.boolNn);
+    or_check<sqlpp::assert_valid_operands>(t.boolNn, true);
+    // or_check<sqlpp::assert_valid_operands>(true, t.boolNn); // Cannot currently do that
 
-    not_check<sqlpp::consistent_t>(t.gamma);
+    not_check<sqlpp::consistent_t>(t.boolNn);
   }
 
   void where()
   {
-    where_check<sqlpp::consistent_t>(t.gamma);
+    where_check<sqlpp::consistent_t>(t.boolNn);
     where_check<sqlpp::assert_where_arg_is_not_cpp_bool_t>(true);
   }
 }

@@ -38,30 +38,30 @@ int CustomQuery(int, char*[])
 
   // Unconditionally
   compare(__LINE__,
-          custom_query(sqlpp::select(), select_flags(sqlpp::distinct), select_columns(foo.omega), from(foo),
+          custom_query(sqlpp::select(), select_flags(sqlpp::distinct), select_columns(foo.doubleN), from(foo),
                        sqlpp::unconditionally()),
-          "SELECT  DISTINCT  tab_foo.omega  FROM tab_foo ");
+          "SELECT  DISTINCT  tab_foo.double_n  FROM tab_foo ");
 
   // A full select statement made individual clauses
   compare(__LINE__,
-          custom_query(sqlpp::select(), select_flags(sqlpp::distinct), select_columns(foo.omega),
-                       from(foo.join(bar).on(foo.omega == bar.alpha)), where(bar.alpha > 17), group_by(foo.omega),
-                       having(avg(bar.alpha) > 19), order_by(foo.omega.asc()), sqlpp::limit(10u), sqlpp::offset(100u)),
-          "SELECT  DISTINCT  tab_foo.omega  FROM tab_foo INNER JOIN tab_bar ON (tab_foo.omega=tab_bar.alpha)  WHERE "
-          "(tab_bar.alpha>17)  GROUP BY tab_foo.omega  HAVING (AVG(tab_bar.alpha)>19)  ORDER BY tab_foo.omega ASC  "
+          custom_query(sqlpp::select(), select_flags(sqlpp::distinct), select_columns(foo.doubleN),
+                       from(foo.join(bar).on(foo.doubleN == bar.id)), where(bar.id > 17), group_by(foo.doubleN),
+                       having(avg(bar.id) > 19), order_by(foo.doubleN.asc()), sqlpp::limit(10u), sqlpp::offset(100u)),
+          "SELECT  DISTINCT  tab_foo.double_n  FROM tab_foo INNER JOIN tab_bar ON (tab_foo.double_n=tab_bar.id)  WHERE "
+          "(tab_bar.id>17)  GROUP BY tab_foo.double_n  HAVING (AVG(tab_bar.id)>19)  ORDER BY tab_foo.double_n ASC  "
           "LIMIT 10  OFFSET 100");
 
   // A full select statement made individual clauses
   compare(
       __LINE__,
-      custom_query(sqlpp::select(), select_flags(sqlpp::distinct), select_columns(foo.omega),
-                   from(foo.join(bar).on(foo.omega == bar.alpha)), where(bar.alpha > 17),
-                   group_by(foo.omega), having(avg(bar.alpha) > 19),
-                   order_by(foo.omega.asc(), foo.psi.order(sqlpp::sort_type::desc)),
+      custom_query(sqlpp::select(), select_flags(sqlpp::distinct), select_columns(foo.doubleN),
+                   from(foo.join(bar).on(foo.doubleN == bar.id)), where(bar.id > 17),
+                   group_by(foo.doubleN), having(avg(bar.id) > 19),
+                   order_by(foo.doubleN.asc(), foo.uIntN.order(sqlpp::sort_type::desc)),
                    sqlpp::limit(7u), sqlpp::offset(3u)),
-      "SELECT  DISTINCT  tab_foo.omega  FROM tab_foo INNER JOIN tab_bar ON (tab_foo.omega=tab_bar.alpha)  WHERE "
-      "(tab_bar.alpha>17)  GROUP BY tab_foo.omega  HAVING (AVG(tab_bar.alpha)>19)  ORDER BY tab_foo.omega "
-      "ASC,tab_foo.psi DESC  LIMIT 7  OFFSET 3");
+      "SELECT  DISTINCT  tab_foo.double_n  FROM tab_foo INNER JOIN tab_bar ON (tab_foo.double_n=tab_bar.id)  WHERE "
+      "(tab_bar.id>17)  GROUP BY tab_foo.double_n  HAVING (AVG(tab_bar.id)>19)  ORDER BY tab_foo.double_n "
+      "ASC,tab_foo.u_int_n DESC  LIMIT 7  OFFSET 3");
 
   // A pragma query for sqlite
   compare(__LINE__,
@@ -71,20 +71,20 @@ int CustomQuery(int, char*[])
   // An insert from select for postgresql
   const auto x = 17;
   compare(__LINE__,
-          custom_query(insert_into(foo).columns(foo.omega),
-                       select(sqlpp::value(x).as(foo.omega))
+          custom_query(insert_into(foo).columns(foo.doubleN),
+                       select(sqlpp::value(x).as(foo.doubleN))
                            .from(foo)
-                           .where(not exists(select(foo.omega).from(foo).where(foo.omega == x)))),
-          "INSERT INTO tab_foo (omega) "
-          "SELECT 17 AS omega FROM tab_foo "
-          "WHERE (NOT EXISTS(SELECT tab_foo.omega FROM tab_foo WHERE (tab_foo.omega=17)))");
+                           .where(not exists(select(foo.doubleN).from(foo).where(foo.doubleN == x)))),
+          "INSERT INTO tab_foo (double_n) "
+          "SELECT 17 AS double_n FROM tab_foo "
+          "WHERE (NOT EXISTS(SELECT tab_foo.double_n FROM tab_foo WHERE (tab_foo.double_n=17)))");
 
   // A multi-row "insert or ignore"
-  auto batch = insert_columns(bar.beta, bar.gamma);
-  batch.add_values(bar.beta = "sample", bar.gamma = true);
-  batch.add_values(bar.beta = "ample", bar.gamma = false);
+  auto batch = insert_columns(bar.textN, bar.boolNn);
+  batch.add_values(bar.textN = "sample", bar.boolNn = true);
+  batch.add_values(bar.textN = "ample", bar.boolNn = false);
   compare(__LINE__, custom_query(sqlpp::insert(), sqlpp::verbatim(" OR IGNORE"), into(bar), batch),
-          "INSERT  OR IGNORE  INTO tab_bar  (beta,gamma) VALUES ('sample',1),('ample',0)");
+          "INSERT  OR IGNORE  INTO tab_bar  (text_n,bool_nn) VALUES ('sample',1),('ample',0)");
 
   return 0;
 }

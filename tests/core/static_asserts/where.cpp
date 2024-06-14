@@ -60,14 +60,14 @@ namespace
  void static_where()
   {
     // OK
-    where_static_check<sqlpp::consistent_t>(t.gamma);
-    where_static_check<sqlpp::consistent_t>(t.gamma == true);
+    where_static_check<sqlpp::consistent_t>(t.boolNn);
+    where_static_check<sqlpp::consistent_t>(t.boolNn == true);
 
     // Try assignment as condition
-    where_static_check<sqlpp::assert_where_arg_is_boolean_expression_t>(t.gamma = true);
+    where_static_check<sqlpp::assert_where_arg_is_boolean_expression_t>(t.boolNn = true);
 
     // Try non-boolean expression
-    where_static_check<sqlpp::assert_where_arg_is_boolean_expression_t>(t.alpha);
+    where_static_check<sqlpp::assert_where_arg_is_boolean_expression_t>(t.id);
 
     // Try builtin bool
     where_static_check<sqlpp::assert_where_arg_is_not_cpp_bool_t>(true);
@@ -78,13 +78,13 @@ namespace
     where_static_check<sqlpp::assert_where_arg_is_boolean_expression_t>(17);
     where_static_check<sqlpp::assert_where_arg_is_boolean_expression_t>('c');
     where_static_check<sqlpp::assert_where_arg_is_boolean_expression_t>(nullptr);
-    where_static_check<sqlpp::assert_where_arg_is_boolean_expression_t>(t.alpha.as(t.beta));
+    where_static_check<sqlpp::assert_where_arg_is_boolean_expression_t>(t.id.as(t.textN));
 
     // Try using aggregate functions in where
-    where_static_check<sqlpp::assert_where_arg_contains_no_aggregate_functions_t>(count(t.alpha) > 0);
-    where_static_check<sqlpp::assert_where_arg_contains_no_aggregate_functions_t>(t.gamma and count(t.alpha) > 0);
+    where_static_check<sqlpp::assert_where_arg_contains_no_aggregate_functions_t>(count(t.id) > 0);
+    where_static_check<sqlpp::assert_where_arg_contains_no_aggregate_functions_t>(t.boolNn and count(t.id) > 0);
     where_static_check<sqlpp::assert_where_arg_contains_no_aggregate_functions_t>(
-        case_when(count(t.alpha) > 0).then(t.gamma).else_(not t.gamma));
+        case_when(count(t.id) > 0).then(t.boolNn).else_(not t.boolNn));
   }
 
 }

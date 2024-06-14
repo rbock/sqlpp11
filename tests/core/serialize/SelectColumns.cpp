@@ -33,25 +33,25 @@ int SelectColumns(int, char*[])
   const auto bar = test::TabBar{};
 
   // Single column
-  compare(__LINE__, select(foo.omega), "SELECT tab_foo.omega");
+  compare(__LINE__, select(foo.doubleN), "SELECT tab_foo.double_n");
 
   // Two columns
-  compare(__LINE__, select(foo.omega, bar.alpha), "SELECT tab_foo.omega,tab_bar.alpha");
+  compare(__LINE__, select(foo.doubleN, bar.id), "SELECT tab_foo.double_n,tab_bar.id");
 
   // All columns of a table
-  compare(__LINE__, select(all_of(foo)), "SELECT tab_foo.delta,tab_foo.epsilon,tab_foo.omega,tab_foo.psi,tab_foo.book");
+  compare(__LINE__, select(all_of(foo)), "SELECT tab_foo.id,tab_foo.text_nn_d,tab_foo.int_n,tab_foo.double_n,tab_foo.u_int_n,tab_foo.blob_n");
 
   // All columns of a table plus one more
-  compare(__LINE__, select(all_of(foo), bar.alpha), "SELECT tab_foo.delta,tab_foo.epsilon,tab_foo.omega,tab_foo.psi,tab_foo.book,tab_bar.alpha");
+  compare(__LINE__, select(all_of(foo), bar.id), "SELECT tab_foo.id,tab_foo.text_nn_d,tab_foo.int_n,tab_foo.double_n,tab_foo.u_int_n,tab_foo.blob_n,tab_bar.id");
 
   // One more, plus all columns of a table
-  compare(__LINE__, select(bar.alpha, all_of(foo)), "SELECT tab_bar.alpha,tab_foo.delta,tab_foo.epsilon,tab_foo.omega,tab_foo.psi,tab_foo.book");
+  compare(__LINE__, select(bar.id, all_of(foo)), "SELECT tab_bar.id,tab_foo.id,tab_foo.text_nn_d,tab_foo.int_n,tab_foo.double_n,tab_foo.u_int_n,tab_foo.blob_n");
 
   // Column and aggregate function
-  compare(__LINE__, select(foo.omega, count(bar.alpha)), "SELECT tab_foo.omega,COUNT(tab_bar.alpha) AS count_");
+  compare(__LINE__, select(foo.doubleN, count(bar.id)), "SELECT tab_foo.double_n,COUNT(tab_bar.id) AS count_");
 
   // Column aliases
-  compare(__LINE__, select(foo.omega.as(sqlpp::alias::o), count(bar.alpha).as(sqlpp::alias::a)), "SELECT tab_foo.omega AS o,COUNT(tab_bar.alpha) AS a");
+  compare(__LINE__, select(foo.doubleN.as(sqlpp::alias::o), count(bar.id).as(sqlpp::alias::a)), "SELECT tab_foo.double_n AS o,COUNT(tab_bar.id) AS a");
 
 #warning: add optional column tests
 

@@ -117,16 +117,16 @@ namespace
 
     // Try a bunch of non-tables
     join_static_check<sqlpp::assert_pre_join_rhs_table_t>(t, 7);
-    join_static_check<sqlpp::assert_pre_join_rhs_table_t>(t, t.alpha);
-    join_static_check<sqlpp::assert_pre_join_rhs_table_t>(t, t.beta);
-    join_static_check<sqlpp::assert_pre_join_rhs_table_t>(t, t.gamma);
-    join_static_check<sqlpp::assert_pre_join_rhs_table_t>(t, t.delta);
+    join_static_check<sqlpp::assert_pre_join_rhs_table_t>(t, t.id);
+    join_static_check<sqlpp::assert_pre_join_rhs_table_t>(t, t.textN);
+    join_static_check<sqlpp::assert_pre_join_rhs_table_t>(t, t.boolNn);
+    join_static_check<sqlpp::assert_pre_join_rhs_table_t>(t, t.intN);
 
     join_static_check<sqlpp::assert_pre_join_lhs_table_t>(7, t);
-    join_static_check<sqlpp::assert_pre_join_lhs_table_t>(t.alpha, t);
-    join_static_check<sqlpp::assert_pre_join_lhs_table_t>(t.beta, t);
-    join_static_check<sqlpp::assert_pre_join_lhs_table_t>(t.gamma, t);
-    join_static_check<sqlpp::assert_pre_join_lhs_table_t>(t.delta, t);
+    join_static_check<sqlpp::assert_pre_join_lhs_table_t>(t.id, t);
+    join_static_check<sqlpp::assert_pre_join_lhs_table_t>(t.textN, t);
+    join_static_check<sqlpp::assert_pre_join_lhs_table_t>(t.boolNn, t);
+    join_static_check<sqlpp::assert_pre_join_lhs_table_t>(t.intN, t);
 
     // Try to join with join (rhs)
     join_static_check<sqlpp::assert_pre_join_rhs_no_join_t>(t, j);
@@ -151,11 +151,11 @@ namespace
     const auto f_f = join(fa, fb);
 
     // OK join.on()
-    on_static_check<sqlpp::consistent_t>(t_f, t.alpha > f.omega);
-    on_static_check<sqlpp::consistent_t>(f_t, t.alpha < f.omega);
-    on_static_check<sqlpp::consistent_t>(f_f, fa.omega == fb.omega);
-    on_static_check<sqlpp::consistent_t>(t_t, ta.alpha == tb.alpha);
-    on_static_check<sqlpp::consistent_t>(t_f, t.gamma);
+    on_static_check<sqlpp::consistent_t>(t_f, t.id > f.doubleN);
+    on_static_check<sqlpp::consistent_t>(f_t, t.id < f.doubleN);
+    on_static_check<sqlpp::consistent_t>(f_f, fa.doubleN == fb.doubleN);
+    on_static_check<sqlpp::consistent_t>(t_t, ta.id == tb.id);
+    on_static_check<sqlpp::consistent_t>(t_f, t.boolNn);
 
     // Try join.on(non-expression)
     on_static_check<sqlpp::assert_on_is_expression_t>(t_f, true);
@@ -163,14 +163,14 @@ namespace
     on_static_check<sqlpp::assert_on_is_expression_t>(t_f, t);
 
     // Try join.on(non-boolean)
-    on_static_check<sqlpp::assert_on_is_boolean_expression_t>(t_f, t.alpha);
-    on_static_check<sqlpp::assert_on_is_boolean_expression_t>(t_f, t.beta);
-    on_static_check<sqlpp::assert_on_is_boolean_expression_t>(t_f, f.omega);
+    on_static_check<sqlpp::assert_on_is_boolean_expression_t>(t_f, t.id);
+    on_static_check<sqlpp::assert_on_is_boolean_expression_t>(t_f, t.textN);
+    on_static_check<sqlpp::assert_on_is_boolean_expression_t>(t_f, f.doubleN);
 
     // Try join.on(foreign-table)
-    on_static_check<sqlpp::assert_join_on_no_foreign_table_dependencies_t>(t_f, ta.alpha != 0);
-    on_static_check<sqlpp::assert_join_on_no_foreign_table_dependencies_t>(t_t, t.gamma);
-    on_static_check<sqlpp::assert_join_on_no_foreign_table_dependencies_t>(f_f, f.omega > fa.omega);
+    on_static_check<sqlpp::assert_join_on_no_foreign_table_dependencies_t>(t_f, ta.id != 0);
+    on_static_check<sqlpp::assert_join_on_no_foreign_table_dependencies_t>(t_t, t.boolNn);
+    on_static_check<sqlpp::assert_join_on_no_foreign_table_dependencies_t>(f_f, f.doubleN > fa.doubleN);
   }
 
 }

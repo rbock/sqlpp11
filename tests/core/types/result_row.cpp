@@ -34,10 +34,10 @@ namespace
   constexpr auto bar = test::TabBar{};
   constexpr auto foo = test::TabFoo{};
 
-  static_assert(sqlpp::can_be_null_t<decltype(bar.alpha)>::value, "");
-  static_assert(sqlpp::can_be_null_t<decltype(foo.omega)>::value, "");
-  static_assert(not sqlpp::can_be_null_t<decltype(foo.delta)>::value, "");
-  static_assert(not sqlpp::can_be_null_t<decltype(bar.gamma)>::value, "");
+  static_assert(not sqlpp::can_be_null_t<decltype(bar.id)>::value, "");
+  static_assert(sqlpp::can_be_null_t<decltype(foo.doubleN)>::value, "");
+  static_assert(not sqlpp::can_be_null_t<decltype(foo.textNnD)>::value, "");
+  static_assert(not sqlpp::can_be_null_t<decltype(bar.boolNn)>::value, "");
   const auto seven = sqlpp::value(7).as(sqlpp::alias::s);
   static_assert(not sqlpp::can_be_null_t<decltype(seven)>::value, "");
 
@@ -47,10 +47,10 @@ namespace
   {
     {
       // result fields are as nullable as the expressions they represent
-      const auto rows = db(select(bar.alpha, bar.gamma, seven).from(bar).unconditionally());
+      const auto rows = db(select(bar.id, bar.boolNn, seven).from(bar).unconditionally());
       auto& x = rows.front();
-      static_assert(is_optional<decltype(x.alpha)>::value, "");
-      static_assert(not is_optional<decltype(x.gamma)>::value, "");
+      static_assert(not is_optional<decltype(x.id)>::value, "");
+      static_assert(not is_optional<decltype(x.boolNn)>::value, "");
       static_assert(not is_optional<decltype(x.s)>::value, "");
     }
   }
@@ -59,29 +59,29 @@ namespace
   {
     // Join
     {
-      const auto rows = db(select(bar.alpha, foo.delta, bar.gamma, seven)
-                             .from(foo.join(bar).on(foo.omega > bar.alpha))
+      const auto rows = db(select(bar.id, foo.textNnD, bar.boolNn, seven)
+                             .from(foo.join(bar).on(foo.doubleN > bar.id))
                              .unconditionally());
       auto& x = rows.front();
-      static_assert(is_optional<decltype(x.alpha)>::value, "nullable value can always be null");
-      static_assert(not is_optional<decltype(x.delta)>::value, "left side of (inner) join cannot be null");
-      static_assert(not is_optional<decltype(x.gamma)>::value, "right side of (inner) join cannot be null");
+      static_assert(not is_optional<decltype(x.id)>::value, "nullable value can always be null");
+      static_assert(not is_optional<decltype(x.textNnD)>::value, "left side of (inner) join cannot be null");
+      static_assert(not is_optional<decltype(x.boolNn)>::value, "right side of (inner) join cannot be null");
       static_assert(not is_optional<decltype(x.s)>::value, "constant non-null value can not be null");
     }
     {
-	  const auto& rows = db(select(bar.alpha, foo.delta, bar.gamma, seven)
-                             .from(bar.join(foo).on(foo.omega > bar.alpha))
+	  const auto& rows = db(select(bar.id, foo.textNnD, bar.boolNn, seven)
+                             .from(bar.join(foo).on(foo.doubleN > bar.id))
                              .unconditionally());
           auto& x = rows.front();
-      static_assert(is_optional<decltype(x.alpha)>::value, "nullable value can always be null");
-      static_assert(not is_optional<decltype(x.gamma)>::value, "left side of (inner) join cannot be null");
-      static_assert(not is_optional<decltype(x.delta)>::value, "right side of (inner) join cannot be null");
+      static_assert(not is_optional<decltype(x.id)>::value, "nullable value can always be null");
+      static_assert(not is_optional<decltype(x.boolNn)>::value, "left side of (inner) join cannot be null");
+      static_assert(not is_optional<decltype(x.textNnD)>::value, "right side of (inner) join cannot be null");
       static_assert(not is_optional<decltype(x.s)>::value, "constant non-null value can not be null");
     }
     {
       MockSizeDb db2;
-      auto&& result = db2(select(bar.alpha, foo.delta, bar.gamma, seven)
-                             .from(bar.join(foo).on(foo.omega > bar.alpha))
+      auto&& result = db2(select(bar.id, foo.textNnD, bar.boolNn, seven)
+                             .from(bar.join(foo).on(foo.doubleN > bar.id))
                              .unconditionally());
       result.size();
       static_assert(std::is_same<size_t, decltype(result.size())>::value, "MockSizeDb size() isn't size_t");
@@ -89,111 +89,111 @@ namespace
 
     // Inner join
     {
-      const auto rows = db(select(bar.alpha, foo.delta, bar.gamma, seven)
-                             .from(foo.inner_join(bar).on(foo.omega > bar.alpha))
+      const auto rows = db(select(bar.id, foo.textNnD, bar.boolNn, seven)
+                             .from(foo.inner_join(bar).on(foo.doubleN > bar.id))
                              .unconditionally());
       auto& x = rows.front();
-      static_assert(is_optional<decltype(x.alpha)>::value, "nullable value can always be null");
-      static_assert(not is_optional<decltype(x.delta)>::value, "left side of inner join cannot be null");
-      static_assert(not is_optional<decltype(x.gamma)>::value, "right side of inner join cannot be null");
+      static_assert(not is_optional<decltype(x.id)>::value, "nullable value can always be null");
+      static_assert(not is_optional<decltype(x.textNnD)>::value, "left side of inner join cannot be null");
+      static_assert(not is_optional<decltype(x.boolNn)>::value, "right side of inner join cannot be null");
       static_assert(not is_optional<decltype(x.s)>::value, "constant non-null value can not be null");
     }
     {
-      const auto rows = db(select(bar.alpha, foo.delta, bar.gamma, seven)
-                             .from(bar.inner_join(foo).on(foo.omega > bar.alpha))
+      const auto rows = db(select(bar.id, foo.textNnD, bar.boolNn, seven)
+                             .from(bar.inner_join(foo).on(foo.doubleN > bar.id))
                              .unconditionally());
       auto& x = rows.front();
-      static_assert(is_optional<decltype(x.alpha)>::value, "nullable value can always be null");
-      static_assert(not is_optional<decltype(x.gamma)>::value, "left side of inner join cannot be null");
-      static_assert(not is_optional<decltype(x.delta)>::value, "right side of inner join cannot be null");
+      static_assert(not is_optional<decltype(x.id)>::value, "primary key cannot be null");
+      static_assert(not is_optional<decltype(x.boolNn)>::value, "left side of inner join cannot be null");
+      static_assert(not is_optional<decltype(x.textNnD)>::value, "right side of inner join cannot be null");
       static_assert(not is_optional<decltype(x.s)>::value, "constant non-null value can not be null");
     }
 
     // Left outer join
     {
-      const auto rows = db(select(bar.alpha, foo.delta, bar.gamma, seven)
-                             .from(foo.left_outer_join(bar).on(foo.omega > bar.alpha))
+      const auto rows = db(select(bar.id, foo.textNnD, bar.boolNn, seven)
+                             .from(foo.left_outer_join(bar).on(foo.doubleN > bar.id))
                              .unconditionally());
       auto& x = rows.front();
-      static_assert(is_optional<decltype(x.alpha)>::value, "nullable value can always be null");
-      static_assert(not is_optional<decltype(x.delta)>::value, "left side of left outer join cannot be null");
-      static_assert(is_optional<decltype(x.gamma)>::value, "right side of left outer join can be null");
+      static_assert(is_optional<decltype(x.id)>::value, "outer primary key can be null");
+      static_assert(not is_optional<decltype(x.textNnD)>::value, "left side of left outer join cannot be null");
+      static_assert(is_optional<decltype(x.boolNn)>::value, "right side of left outer join can be null");
       static_assert(not is_optional<decltype(x.s)>::value, "constant non-null value can not be null");
     }
     {
-      const auto rows = db(select(bar.alpha, foo.delta, bar.gamma, seven)
-                             .from(bar.left_outer_join(foo).on(foo.omega > bar.alpha))
+      const auto rows = db(select(bar.id, foo.textNnD, bar.boolNn, seven)
+                             .from(bar.left_outer_join(foo).on(foo.doubleN > bar.id))
                              .unconditionally());
       auto& x = rows.front();
-      static_assert(is_optional<decltype(x.alpha)>::value, "nullable value can always be null");
-      static_assert(not is_optional<decltype(x.gamma)>::value, "left side of left outer join cannot be null");
-      static_assert(is_optional<decltype(x.delta)>::value, "right side of left outer join can be null");
+      static_assert(not is_optional<decltype(x.id)>::value, "primary key cannot be null");
+      static_assert(not is_optional<decltype(x.boolNn)>::value, "left side of left outer join cannot be null");
+      static_assert(is_optional<decltype(x.textNnD)>::value, "right side of left outer join can be null");
       static_assert(not is_optional<decltype(x.s)>::value, "constant non-null value can not be null");
     }
 
     // Right outer join
     {
-      const auto rows = db(select(bar.alpha, foo.delta, bar.gamma, seven)
-                             .from(foo.right_outer_join(bar).on(foo.omega > bar.alpha))
+      const auto rows = db(select(bar.id, foo.textNnD, bar.boolNn, seven)
+                             .from(foo.right_outer_join(bar).on(foo.doubleN > bar.id))
                              .unconditionally());
       auto& x = rows.front();
-      static_assert(is_optional<decltype(x.alpha)>::value, "nullable value can always be null");
-      static_assert(is_optional<decltype(x.delta)>::value, "left side of right outer join can be null");
-      static_assert(not is_optional<decltype(x.gamma)>::value,
+      static_assert(not is_optional<decltype(x.id)>::value, "primary key cannot be null");
+      static_assert(is_optional<decltype(x.textNnD)>::value, "left side of right outer join can be null");
+      static_assert(not is_optional<decltype(x.boolNn)>::value,
                     "right side of right outer join cannot be null");
       static_assert(not is_optional<decltype(x.s)>::value, "constant non-null value can not be null");
     }
     {
-      const auto rows = db(select(bar.alpha, foo.delta, bar.gamma, seven)
-                             .from(bar.right_outer_join(foo).on(foo.omega > bar.alpha))
+      const auto rows = db(select(bar.id, foo.textNnD, bar.boolNn, seven)
+                             .from(bar.right_outer_join(foo).on(foo.doubleN > bar.id))
                              .unconditionally());
       auto& x = rows.front();
-      static_assert(is_optional<decltype(x.alpha)>::value, "nullable value can always be null");
-      static_assert(is_optional<decltype(x.gamma)>::value, "left side of right outer join can be null");
-      static_assert(not is_optional<decltype(x.delta)>::value,
+      static_assert(is_optional<decltype(x.id)>::value, "left side of right outer join can be null");
+      static_assert(is_optional<decltype(x.boolNn)>::value, "left side of right outer join can be null");
+      static_assert(not is_optional<decltype(x.textNnD)>::value,
                     "right side of right outer join cannot be null");
       static_assert(not is_optional<decltype(x.s)>::value, "constant non-null value can not be null");
     }
 
     // Outer join
     {
-      const auto rows = db(select(bar.alpha, foo.delta, bar.gamma, seven)
-                             .from(foo.outer_join(bar).on(foo.omega > bar.alpha))
+      const auto rows = db(select(bar.id, foo.textNnD, bar.boolNn, seven)
+                             .from(foo.outer_join(bar).on(foo.doubleN > bar.id))
                              .unconditionally());
       auto& x = rows.front();
-      static_assert(is_optional<decltype(x.alpha)>::value, "nullable value can always be null");
-      static_assert(is_optional<decltype(x.delta)>::value, "left side of outer join can be null");
-      static_assert(is_optional<decltype(x.gamma)>::value, "right side of outer join can be null");
+      static_assert(is_optional<decltype(x.id)>::value, "left side of outer join can be null");
+      static_assert(is_optional<decltype(x.textNnD)>::value, "left side of outer join can be null");
+      static_assert(is_optional<decltype(x.boolNn)>::value, "right side of outer join can be null");
       static_assert(not is_optional<decltype(x.s)>::value, "constant non-null value can not be null");
     }
     {
-      const auto rows = db(select(bar.alpha, foo.delta, bar.gamma, seven)
-                             .from(bar.outer_join(foo).on(foo.omega > bar.alpha))
+      const auto rows = db(select(bar.id, foo.textNnD, bar.boolNn, seven)
+                             .from(bar.outer_join(foo).on(foo.doubleN > bar.id))
                              .unconditionally());
       auto& x = rows.front();
-      static_assert(is_optional<decltype(x.alpha)>::value, "nullable value can always be null");
-      static_assert(is_optional<decltype(x.gamma)>::value, "left side of outer join can be null");
-      static_assert(is_optional<decltype(x.delta)>::value, "right side of outer join can be null");
+      static_assert(is_optional<decltype(x.id)>::value, "left side of outer join can be null");
+      static_assert(is_optional<decltype(x.boolNn)>::value, "left side of outer join can be null");
+      static_assert(is_optional<decltype(x.textNnD)>::value, "right side of outer join can be null");
       static_assert(not is_optional<decltype(x.s)>::value, "constant non-null value can not be null");
     }
 
     // Cross join
     {
       const auto rows =
-          db(select(bar.alpha, foo.delta, bar.gamma, seven).from(foo.cross_join(bar)).unconditionally());
+          db(select(bar.id, foo.textNnD, bar.boolNn, seven).from(foo.cross_join(bar)).unconditionally());
       auto& x = rows.front();
-      static_assert(is_optional<decltype(x.alpha)>::value, "nullable value can always be null");
-      static_assert(not is_optional<decltype(x.delta)>::value, "left side of cross join cannot be null");
-      static_assert(not is_optional<decltype(x.gamma)>::value, "right side of cross join cannot be null");
+      static_assert(not is_optional<decltype(x.id)>::value, "primary key cannot be null");
+      static_assert(not is_optional<decltype(x.textNnD)>::value, "left side of cross join cannot be null");
+      static_assert(not is_optional<decltype(x.boolNn)>::value, "right side of cross join cannot be null");
       static_assert(not is_optional<decltype(x.s)>::value, "constant non-null value can not be null");
     }
     {
       const auto rows =
-          db(select(bar.alpha, foo.delta, bar.gamma, seven).from(bar.cross_join(foo)).unconditionally());
+          db(select(bar.id, foo.textNnD, bar.boolNn, seven).from(bar.cross_join(foo)).unconditionally());
       auto& x = rows.front();
-      static_assert(is_optional<decltype(x.alpha)>::value, "nullable value can always be null");
-      static_assert(not is_optional<decltype(x.gamma)>::value, "left side of cross join cannot be null");
-      static_assert(not is_optional<decltype(x.delta)>::value, "right side of cross join cannot be null");
+      static_assert(not is_optional<decltype(x.id)>::value, "primary key cannot be null");
+      static_assert(not is_optional<decltype(x.boolNn)>::value, "left side of cross join cannot be null");
+      static_assert(not is_optional<decltype(x.textNnD)>::value, "right side of cross join cannot be null");
       static_assert(not is_optional<decltype(x.s)>::value, "constant non-null value can not be null");
     }
   }
@@ -202,9 +202,10 @@ namespace
   {
     {
       // aggregates of nullable values
-      const auto a = bar.alpha;
-      static_assert(sqlpp::can_be_null_t<decltype(bar.alpha)>::value, "");
-      static_assert(sqlpp::can_be_null_t<decltype(a)>::value, "");
+#warning use a nullable value
+      const auto a = bar.id;
+      static_assert(not sqlpp::can_be_null_t<decltype(bar.id)>::value, "");
+      static_assert(not sqlpp::can_be_null_t<decltype(a)>::value, "");
       const auto rows = db(select(count(a), avg(a), max(a), min(a), sum(a)).from(bar).unconditionally());
       auto& x = rows.front();
       static_assert(not is_optional<decltype(x.count)>::value, "");
@@ -215,8 +216,8 @@ namespace
     }
     {
       // aggregates of nullable values
-      const auto o = foo.omega;
-      static_assert(sqlpp::can_be_null_t<decltype(foo.omega)>::value, "");
+      const auto o = foo.doubleN;
+      static_assert(sqlpp::can_be_null_t<decltype(foo.doubleN)>::value, "");
       static_assert(sqlpp::can_be_null_t<decltype(o)>::value, "");
       const auto rows = db(select(count(o), avg(o), max(o), min(o), sum(o)).from(foo).unconditionally());
       auto& x = rows.front();

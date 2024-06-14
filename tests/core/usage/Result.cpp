@@ -37,32 +37,32 @@ int Result(int, char* [])
 
   const auto t = test::TabBar{};
 
-  static_assert(sqlpp::can_be_null_t<decltype(t.alpha)>::value, "t.alpha can be null");
+  static_assert(not sqlpp::can_be_null_t<decltype(t.id)>::value, "t.id cannot be null");
 
   // Using a non-enforcing db
-  for (const auto& row : db(select(all_of(t), t.beta.like("")).from(t).unconditionally()))
+  for (const auto& row : db(select(all_of(t), t.textN.like("")).from(t).unconditionally()))
   {
-    static_assert(is_optional<decltype(row.alpha)>::value, "row.alpha can be null");
+    static_assert(not is_optional<decltype(row.id)>::value, "row.id cannot be null");
 
-    for (const auto& sub : db(select(all_of(t)).from(t).where(t.alpha == row.alpha.value())))
+    for (const auto& sub : db(select(all_of(t)).from(t).where(t.id == row.id)))
     {
-      std::cerr << sub.alpha << std::endl;
+      std::cerr << sub.id << std::endl;
     }
-    db(insert_into(t).set(t.beta = row.beta.value(), t.gamma = false));
+    db(insert_into(t).set(t.textN = row.textN.value(), t.boolNn = false));
   }
 
-  sqlpp::select((t.alpha + 1).as(t.alpha)).flags(sqlpp::all).from(t);
+  sqlpp::select((t.id + 1).as(t.id)).flags(sqlpp::all).from(t);
   for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
   {
-    static_assert(is_optional<decltype(row.alpha)>::value, "row.alpha can be null");
+    static_assert(not is_optional<decltype(row.id)>::value, "row.id cannot be null");
   }
 
   for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
   {
-    static_assert(is_optional<decltype(row.alpha)>::value, "row.alpha can be null");
+    static_assert(not is_optional<decltype(row.id)>::value, "row.id cannot be null");
   }
 
-  sqlpp::select((t.alpha + 1).as(t.alpha)).flags(sqlpp::all).from(t);
+  sqlpp::select((t.id + 1).as(t.id)).flags(sqlpp::all).from(t);
 
   return 0;
 }

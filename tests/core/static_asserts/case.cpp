@@ -88,15 +88,15 @@ namespace
   void when()
   {
     // OK
-    when_check<sqlpp::consistent_t>(t.gamma);
-    when_check<sqlpp::consistent_t>(t.gamma == true);
-    when_check<sqlpp::consistent_t>(count(t.alpha) > 0);
+    when_check<sqlpp::consistent_t>(t.boolNn);
+    when_check<sqlpp::consistent_t>(t.boolNn == true);
+    when_check<sqlpp::consistent_t>(count(t.id) > 0);
 
     // Try assignment as "when"
-    when_check<sqlpp::assert_case_when_boolean_expression_t>(t.gamma = true);
+    when_check<sqlpp::assert_case_when_boolean_expression_t>(t.boolNn = true);
 
     // Try non-boolean expression as "when"
-    when_check<sqlpp::assert_case_when_boolean_expression_t>(t.alpha);
+    when_check<sqlpp::assert_case_when_boolean_expression_t>(t.id);
 
     // Try some other types as "when"
     when_check<sqlpp::assert_case_when_boolean_expression_t>("true");
@@ -108,46 +108,46 @@ namespace
     when_check<sqlpp::assert_case_when_boolean_expression_t>(t);
 
     // Try to use an alias as "when"
-    when_check<sqlpp::assert_case_when_boolean_expression_t>(t.gamma.as(t.beta));
+    when_check<sqlpp::assert_case_when_boolean_expression_t>(t.boolNn.as(t.textN));
   }
 
   void then()
   {
     // OK
-    then_check<sqlpp::consistent_t>(t.gamma, t.gamma);
-    then_check<sqlpp::consistent_t>(t.gamma, t.gamma == true);
-    then_check<sqlpp::consistent_t>(t.gamma, count(t.alpha) > 0);
-    then_check<sqlpp::consistent_t>(t.gamma, t.alpha);
-    then_check<sqlpp::consistent_t>(t.gamma, "true");
-    then_check<sqlpp::consistent_t>(t.gamma, 42);
-    then_check<sqlpp::consistent_t>(t.gamma, 'c');
-    then_check<sqlpp::consistent_t>(t.gamma, nullptr);
+    then_check<sqlpp::consistent_t>(t.boolNn, t.boolNn);
+    then_check<sqlpp::consistent_t>(t.boolNn, t.boolNn == true);
+    then_check<sqlpp::consistent_t>(t.boolNn, count(t.id) > 0);
+    then_check<sqlpp::consistent_t>(t.boolNn, t.id);
+    then_check<sqlpp::consistent_t>(t.boolNn, "true");
+    then_check<sqlpp::consistent_t>(t.boolNn, 42);
+    then_check<sqlpp::consistent_t>(t.boolNn, 'c');
+    then_check<sqlpp::consistent_t>(t.boolNn, nullptr);
 
     // Try to use an assignment as "then"
-    then_check<sqlpp::assert_case_then_expression_t>(t.gamma, t.gamma = true);
+    then_check<sqlpp::assert_case_then_expression_t>(t.boolNn, t.boolNn = true);
 
     // Try to use a table as "then"
-    then_check<sqlpp::assert_case_then_expression_t>(t.gamma, t);
+    then_check<sqlpp::assert_case_then_expression_t>(t.boolNn, t);
 
     // Try to use an alias as "then"
-    then_check<sqlpp::assert_case_then_expression_t>(t.gamma, t.alpha.as(t.beta));
+    then_check<sqlpp::assert_case_then_expression_t>(t.boolNn, t.id.as(t.textN));
   }
 
   void else_()
   {
     // OK
-    else_check<sqlpp::consistent_t>(t.gamma, t.gamma, t.gamma);
-    else_check<sqlpp::consistent_t>(t.gamma, t.alpha, 42);
-    else_check<sqlpp::consistent_t>(t.gamma, t.beta, "twentyseven");
+    else_check<sqlpp::consistent_t>(t.boolNn, t.boolNn, t.boolNn);
+    else_check<sqlpp::consistent_t>(t.boolNn, t.id, 42);
+    else_check<sqlpp::consistent_t>(t.boolNn, t.textN, "twentyseven");
 
     // Try to use an assignment as "else"
-    else_check<sqlpp::assert_case_else_expression_t>(t.gamma, t.alpha, t.alpha = 7);
+    else_check<sqlpp::assert_case_else_expression_t>(t.boolNn, t.id, t.id = 7);
 
     // Try to use a table as "else"
-    else_check<sqlpp::assert_case_else_expression_t>(t.gamma, t.alpha, t);
+    else_check<sqlpp::assert_case_else_expression_t>(t.boolNn, t.id, t);
 
     // Try to use an alias as "else"
-    else_check<sqlpp::assert_case_else_expression_t>(t.gamma, t.alpha, t.alpha.as(t.beta));
+    else_check<sqlpp::assert_case_else_expression_t>(t.boolNn, t.id, t.id.as(t.textN));
   }
 }
 

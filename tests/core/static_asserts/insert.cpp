@@ -58,44 +58,44 @@ namespace
     static_assert(ExpectedReturnType::value, "Unexpected return type");
   }
 
-  // column alpha is not allowed, column gamma is required
+  // column id is not allowed, column boolNn is required
   void static_set()
   {
     // OK
-    set_static_check<sqlpp::consistent_t>(t.gamma = true);
-    set_static_check<sqlpp::consistent_t>(t.beta = "fortytwo", t.gamma = true);
-    set_static_check<sqlpp::consistent_t>(t.beta = "fortytwo", t.gamma = true, t.delta = 42);
-    set_static_check<sqlpp::consistent_t>(t.delta = 42, t.beta = "fortytwo", t.gamma = true);
-    set_static_check<sqlpp::consistent_t>(t.delta = 42, t.gamma = true, t.beta = "fortytwo");
-    set_static_check<sqlpp::consistent_t>(t.gamma = true, t.delta = 42, t.beta = "fortytwo");
+    set_static_check<sqlpp::consistent_t>(t.boolNn = true);
+    set_static_check<sqlpp::consistent_t>(t.textN = "fortytwo", t.boolNn = true);
+    set_static_check<sqlpp::consistent_t>(t.textN = "fortytwo", t.boolNn = true, t.intN = 42);
+    set_static_check<sqlpp::consistent_t>(t.intN = 42, t.textN = "fortytwo", t.boolNn = true);
+    set_static_check<sqlpp::consistent_t>(t.intN = 42, t.boolNn = true, t.textN = "fortytwo");
+    set_static_check<sqlpp::consistent_t>(t.boolNn = true, t.intN = 42, t.textN = "fortytwo");
 
-    // Try setting alpha
-    set_static_check<sqlpp::assert_insert_set_allowed_t>(t.alpha = 17, t.beta = "whatever");
-    set_static_check<sqlpp::assert_insert_set_allowed_t>(t.beta = "whatever", t.alpha = 17);
+    // Try setting id
+    set_static_check<sqlpp::assert_insert_set_allowed_t>(t.id = 17, t.textN = "whatever");
+    set_static_check<sqlpp::assert_insert_set_allowed_t>(t.textN = "whatever", t.id = 17);
 
-    // Try omitting gamma
-    set_static_check<sqlpp::assert_insert_static_set_all_required_t>(t.delta = 42);
-    set_static_check<sqlpp::assert_insert_static_set_all_required_t>(t.beta = "whatever");
+    // Try omitting boolNn
+    set_static_check<sqlpp::assert_insert_static_set_all_required_t>(t.intN = 42);
+    set_static_check<sqlpp::assert_insert_static_set_all_required_t>(t.textN = "whatever");
 
     // Try no arguments
     set_static_check<sqlpp::assert_insert_static_set_count_args_t>();
 
     // Try none-assignment arguments
-    set_static_check<sqlpp::assert_insert_set_assignments_t>(t.delta == 42, t.delta = 42, t.beta = "fortytwo",
-                                                             t.gamma = true);
-    set_static_check<sqlpp::assert_insert_set_assignments_t>(17, t.delta = 42, t.beta = "fortytwo", t.gamma = true);
-    set_static_check<sqlpp::assert_insert_set_assignments_t>(t.delta = 42, t.beta = "fortytwo", t.gamma = true, "EEEK");
+    set_static_check<sqlpp::assert_insert_set_assignments_t>(t.intN == 42, t.intN = 42, t.textN = "fortytwo",
+                                                             t.boolNn = true);
+    set_static_check<sqlpp::assert_insert_set_assignments_t>(17, t.intN = 42, t.textN = "fortytwo", t.boolNn = true);
+    set_static_check<sqlpp::assert_insert_set_assignments_t>(t.intN = 42, t.textN = "fortytwo", t.boolNn = true, "EEEK");
 
     // Try duplicates
-    set_static_check<sqlpp::assert_insert_set_no_duplicates_t>(t.delta = 41, t.delta = 42, t.beta = "fortytwo",
-                                                               t.gamma = true);
-    set_static_check<sqlpp::assert_insert_set_no_duplicates_t>(t.beta = "fortyone", t.delta = 41, t.beta = "fortytwo",
-                                                               t.gamma = true);
-    set_static_check<sqlpp::assert_insert_set_no_duplicates_t>(t.gamma = false, t.delta = 41, t.beta = "fortytwo",
-                                                               t.gamma = true);
+    set_static_check<sqlpp::assert_insert_set_no_duplicates_t>(t.intN = 41, t.intN = 42, t.textN = "fortytwo",
+                                                               t.boolNn = true);
+    set_static_check<sqlpp::assert_insert_set_no_duplicates_t>(t.textN = "fortyone", t.intN = 41, t.textN = "fortytwo",
+                                                               t.boolNn = true);
+    set_static_check<sqlpp::assert_insert_set_no_duplicates_t>(t.boolNn = false, t.intN = 41, t.textN = "fortytwo",
+                                                               t.boolNn = true);
 
     // Try multiple tables
-    set_static_check<sqlpp::assert_insert_set_single_table_t>(f.omega = 41, t.gamma = true);
+    set_static_check<sqlpp::assert_insert_set_single_table_t>(f.doubleN = 41, t.boolNn = true);
   }
 
 }

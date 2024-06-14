@@ -33,14 +33,14 @@ int SelectFlags(int, char*[])
   const auto bar = test::TabBar{};
 
   // No flags
-  compare(__LINE__, select(foo.omega), "SELECT tab_foo.omega");
+  compare(__LINE__, select(foo.doubleN), "SELECT tab_foo.double_n");
 
   // No flags
 #warning: This should work
   //compare(__LINE__, sqlpp::select_flags(), "");
 
   // No flags
-  compare(__LINE__, select(foo.omega).flags(sqlpp::distinct), "SELECT DISTINCT tab_foo.omega");
+  compare(__LINE__, select(foo.doubleN).flags(sqlpp::distinct), "SELECT DISTINCT tab_foo.double_n");
 
   // One flag
   compare(__LINE__, select_flags(sqlpp::distinct), "DISTINCT ");

@@ -42,26 +42,26 @@ int Update(int, char*[])
   }
 
   {
-    using T = decltype(update(t).set(t.gamma = false).where(t.beta != "transparent"));
+    using T = decltype(update(t).set(t.boolNn = false).where(t.textN != "transparent"));
     static_assert(sqlpp::is_regular<T>::value, "type requirement");
   }
 
   serialize(update(t), printer).str();
-  serialize(update(t).set(t.gamma = false), printer).str();
-  serialize(update(t).set(t.gamma = false).where(t.beta != "transparent"), printer).str();
-  serialize(update(t).set(t.beta = "opaque").where(t.beta != t.beta + "this is nonsense"), printer).str();
-  auto values = [&t]() { return std::make_tuple(t.delta += t.alpha, t.beta = "no cake this time"); };
+  serialize(update(t).set(t.boolNn = false), printer).str();
+  serialize(update(t).set(t.boolNn = false).where(t.textN != "transparent"), printer).str();
+  serialize(update(t).set(t.textN = "opaque").where(t.textN != t.textN + "this is nonsense"), printer).str();
+  auto values = [&t]() { return std::make_tuple(t.intN += t.id, t.textN = "no cake this time"); };
 
 #warning add tests with dynamic set and dynamic where
 
-  db(update(t).set(t.delta = sqlpp::verbatim<sqlpp::integer>("17+4")).unconditionally());
+  db(update(t).set(t.intN = sqlpp::verbatim<sqlpp::integer>("17+4")).unconditionally());
   db(update(t)
-         .set(t.delta = sqlpp::verbatim<sqlpp::integer>("17+4"))
+         .set(t.intN = sqlpp::verbatim<sqlpp::integer>("17+4"))
          .where(sqlpp::verbatim<sqlpp::text>("'hansi'") == "hansi"));
-  db(update(t).set(t.delta = sqlpp::null).unconditionally());
-  db(update(t).set(t.delta = sqlpp::default_value).unconditionally());
+  db(update(t).set(t.intN = sqlpp::null).unconditionally());
+  db(update(t).set(t.intN = sqlpp::default_value).unconditionally());
 
-  db(update(t).set(t.delta += t.alpha * 2, t.beta += " and cake").unconditionally());
+  db(update(t).set(t.intN += t.id * 2, t.textN += " and cake").unconditionally());
   db(update(t).set(values()).unconditionally());
   return 0;
 }

@@ -52,7 +52,7 @@ namespace
     print_type_on_error<CheckResult>(ExpectedCheckResult{});
     static_assert(ExpectedCheckResult::value, "Unexpected check result");
 
-    using ReturnType = decltype(select(t.alpha).from(expression));
+    using ReturnType = decltype(select(t.id).from(expression));
     using ExpectedReturnType = sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, Assert>::value>;
     print_type_on_error<ReturnType>(ExpectedReturnType{});
     static_assert(ExpectedReturnType::value, "Unexpected return type");
@@ -63,14 +63,14 @@ namespace
     // OK
     from_static_check<sqlpp::consistent_t>(t);
     from_static_check<sqlpp::consistent_t>(t.cross_join(f));
-    from_static_check<sqlpp::consistent_t>(t.join(f).on(t.alpha > f.omega));
+    from_static_check<sqlpp::consistent_t>(t.join(f).on(t.id > f.doubleN));
 
     // Try a bunch of non-tables
     from_static_check<sqlpp::assert_from_table_t>(7);
-    from_static_check<sqlpp::assert_from_table_t>(t.alpha);
-    from_static_check<sqlpp::assert_from_table_t>(t.beta);
-    from_static_check<sqlpp::assert_from_table_t>(t.gamma);
-    from_static_check<sqlpp::assert_from_table_t>(t.delta);
+    from_static_check<sqlpp::assert_from_table_t>(t.id);
+    from_static_check<sqlpp::assert_from_table_t>(t.textN);
+    from_static_check<sqlpp::assert_from_table_t>(t.boolNn);
+    from_static_check<sqlpp::assert_from_table_t>(t.intN);
 
     // Try cross joins (missing condition)
     from_static_check<sqlpp::assert_from_not_pre_join_t>(t.join(f));

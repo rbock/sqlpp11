@@ -50,30 +50,30 @@ int Where(int, char*[])
   const auto bar = test::TabBar{};
 
   // Unconditionally
-  compare(__LINE__, select(foo.omega).from(foo).unconditionally(), "SELECT tab_foo.omega FROM tab_foo");
+  compare(__LINE__, select(foo.doubleN).from(foo).unconditionally(), "SELECT tab_foo.double_n FROM tab_foo");
   compare(__LINE__, remove_from(foo).unconditionally(), "DELETE FROM tab_foo");
-  compare(__LINE__, update(foo).set(foo.omega = 42).unconditionally(), "UPDATE tab_foo SET omega=42");
-  compare(__LINE__, update(foo).set(foo.omega = foo.omega - -1).unconditionally(),
-          "UPDATE tab_foo SET omega=(tab_foo.omega - -1)");
+  compare(__LINE__, update(foo).set(foo.doubleN = 42).unconditionally(), "UPDATE tab_foo SET double_n=42");
+  compare(__LINE__, update(foo).set(foo.doubleN = foo.doubleN - -1).unconditionally(),
+          "UPDATE tab_foo SET double_n=(tab_foo.double_n - -1)");
   compare(__LINE__, where(sqlpp::value(true)), " WHERE " + getTrue());
 
   // Never
   compare(__LINE__, where(sqlpp::value(false)), " WHERE " + getFalse());
 
   // Sometimes
-  compare(__LINE__, where(bar.gamma), " WHERE tab_bar.gamma");
-  compare(__LINE__, where(bar.gamma == false), " WHERE (tab_bar.gamma=" + getFalse() + ")");
-  compare(__LINE__, where(bar.beta.is_null()), " WHERE tab_bar.beta IS NULL");
-  compare(__LINE__, where(bar.beta == "SQL"), " WHERE (tab_bar.beta='SQL')");
-  compare(__LINE__, where(is_equal_to_or_null(bar.beta, ::sqlpp::value_or_null("SQL"))), " WHERE (tab_bar.beta='SQL')");
-  compare(__LINE__, where(is_equal_to_or_null(bar.beta, ::sqlpp::value_or_null<sqlpp::text>(::sqlpp::null))),
-          " WHERE tab_bar.beta IS NULL");
+  compare(__LINE__, where(bar.boolNn), " WHERE tab_bar.bool_nn");
+  compare(__LINE__, where(bar.boolNn == false), " WHERE (tab_bar.bool_nn=" + getFalse() + ")");
+  compare(__LINE__, where(bar.textN.is_null()), " WHERE tab_bar.text_n IS NULL");
+  compare(__LINE__, where(bar.textN == "SQL"), " WHERE (tab_bar.text_n='SQL')");
+  compare(__LINE__, where(is_equal_to_or_null(bar.textN, ::sqlpp::value_or_null("SQL"))), " WHERE (tab_bar.text_n='SQL')");
+  compare(__LINE__, where(is_equal_to_or_null(bar.textN, ::sqlpp::value_or_null<sqlpp::text>(::sqlpp::null))),
+          " WHERE tab_bar.text_n IS NULL");
 
   // string argument
-  compare(__LINE__, where(bar.beta == std::string("SQL")), " WHERE (tab_bar.beta='SQL')");
+  compare(__LINE__, where(bar.textN == std::string("SQL")), " WHERE (tab_bar.text_n='SQL')");
 
   // string_view argument
-  compare(__LINE__, where(bar.beta == sqlpp::compat::string_view("SQL")), " WHERE (tab_bar.beta='SQL')");
+  compare(__LINE__, where(bar.textN == sqlpp::compat::string_view("SQL")), " WHERE (tab_bar.text_n='SQL')");
 
   return 0;
 }

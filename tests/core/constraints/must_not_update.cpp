@@ -38,5 +38,5 @@ int main()
 {
   const auto t = test::TabBar{};
 
-  update(t).set(t.alpha = 7, t.gamma = false, t.beta = "alpha must not be set");
+  update(t).set(t.id = 7, t.boolNn = false, t.textN = "id must not be set");
 }

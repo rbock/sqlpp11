@@ -33,18 +33,18 @@ int Over(int, char* []) {
   auto const foo = test::TabFoo{};
 
   // no/auto alias (wrapped in select so alias is applied)
-  compare(__LINE__, select(avg(foo.omega).over()), "SELECT AVG(tab_foo.omega) OVER() AS avg_");
-  compare(__LINE__, select(count(foo.omega).over()), "SELECT COUNT(tab_foo.omega) OVER() AS count_");
-  compare(__LINE__, select(max(foo.omega).over()), "SELECT MAX(tab_foo.omega) OVER() AS max_");
-  compare(__LINE__, select(min(foo.omega).over()), "SELECT MIN(tab_foo.omega) OVER() AS min_");
-  compare(__LINE__, select(sum(foo.omega).over()), "SELECT SUM(tab_foo.omega) OVER() AS sum_");
+  compare(__LINE__, select(avg(foo.doubleN).over()), "SELECT AVG(tab_foo.double_n) OVER() AS avg_");
+  compare(__LINE__, select(count(foo.doubleN).over()), "SELECT COUNT(tab_foo.double_n) OVER() AS count_");
+  compare(__LINE__, select(max(foo.doubleN).over()), "SELECT MAX(tab_foo.double_n) OVER() AS max_");
+  compare(__LINE__, select(min(foo.doubleN).over()), "SELECT MIN(tab_foo.double_n) OVER() AS min_");
+  compare(__LINE__, select(sum(foo.doubleN).over()), "SELECT SUM(tab_foo.double_n) OVER() AS sum_");
 
   // alias
-  compare(__LINE__, avg(foo.omega).over().as(dueutil), "AVG(tab_foo.omega) OVER() AS dueutil");
-  compare(__LINE__, count(foo.omega).over().as(dueutil), "COUNT(tab_foo.omega) OVER() AS dueutil");
-  compare(__LINE__, max(foo.omega).over().as(dueutil), "MAX(tab_foo.omega) OVER() AS dueutil");
-  compare(__LINE__, min(foo.omega).over().as(dueutil), "MIN(tab_foo.omega) OVER() AS dueutil");
-  compare(__LINE__, sum(foo.omega).over().as(dueutil), "SUM(tab_foo.omega) OVER() AS dueutil");
+  compare(__LINE__, avg(foo.doubleN).over().as(dueutil), "AVG(tab_foo.double_n) OVER() AS dueutil");
+  compare(__LINE__, count(foo.doubleN).over().as(dueutil), "COUNT(tab_foo.double_n) OVER() AS dueutil");
+  compare(__LINE__, max(foo.doubleN).over().as(dueutil), "MAX(tab_foo.double_n) OVER() AS dueutil");
+  compare(__LINE__, min(foo.doubleN).over().as(dueutil), "MIN(tab_foo.double_n) OVER() AS dueutil");
+  compare(__LINE__, sum(foo.doubleN).over().as(dueutil), "SUM(tab_foo.double_n) OVER() AS dueutil");
 
   return 0;
 }

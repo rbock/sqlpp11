@@ -39,5 +39,5 @@ int main()
 {
   const auto t = test::TabBar{};
 
-  insert_into(t).set(t.beta = "need also to insert gamma");
+  insert_into(t).set(t.textN = "need also to insert boolNn");
 }

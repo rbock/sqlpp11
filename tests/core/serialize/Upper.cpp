@@ -32,11 +32,11 @@ int Upper(int, char* [])
   const auto bar = test::TabBar{};
 
   // Single column.
-  compare(__LINE__, upper(bar.beta), "UPPER(tab_bar.beta)");
+  compare(__LINE__, upper(bar.textN), "UPPER(tab_bar.text_n)");
 
   // Expression.
   // Note that the inner parens aren't necessary.
-  compare(__LINE__, upper(bar.beta + "suffix"), "UPPER((tab_bar.beta||'suffix'))");
+  compare(__LINE__, upper(bar.textN + "suffix"), "UPPER((tab_bar.text_n||'suffix'))");
 
   // With sub select.
   compare(__LINE__, upper(select(sqlpp::value("something").as(sqlpp::alias::a))), "UPPER((SELECT 'something' AS a))");

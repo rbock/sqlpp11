@@ -35,7 +35,7 @@ int DynamicWhere(int, char*[])
   auto db = MockDb{};
 
   compare(__LINE__, sqlpp::unconditionally(), "");
-  compare(__LINE__, where(bar.gamma), " WHERE tab_bar.gamma");
+  compare(__LINE__, where(bar.boolNn), " WHERE tab_bar.bool_nn");
 
 #warning add tests with optional expressions
   return 0;

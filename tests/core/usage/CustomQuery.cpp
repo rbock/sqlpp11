@@ -72,8 +72,8 @@ int CustomQuery(int, char*[])
   // A void custom query
   printer.reset();
   auto x =
-      //select(t.alpha).from(t).where(t.alpha > 7).group_by(t.alpha).having(max(t.alpha) > 13).order_by(t.beta.desc());
-    update(t).set(t.beta = "eight", t.gamma = true);
+      //select(t.id).from(t).where(t.id > 7).group_by(t.id).having(max(t.id) > 13).order_by(t.textN.desc());
+    update(t).set(t.textN = "eight", t.boolNn = true);
   std::cerr << serialize(x, printer).str() << std::endl;
 #if 0
   db(x);
@@ -85,26 +85,26 @@ int CustomQuery(int, char*[])
   // A prepared custom select
   // The return type of the custom query is determined from the first argument which does have a return type, in this
   // case the select
-  auto p = db.prepare(custom_query(select(all_of(t)).from(t), where(t.alpha > sqlpp::parameter(t.alpha))));
-  p.params.alpha = 8;
+  auto p = db.prepare(custom_query(select(all_of(t)).from(t), where(t.id > sqlpp::parameter(t.id))));
+  p.params.id = 8;
   for (const auto& row : db(p))
   {
-    std::cerr << row.alpha << std::endl;
+    std::cerr << row.id << std::endl;
   }
 
   // Create a custom "insert or ignore"
   db(custom_query(sqlpp::insert(), sqlpp::verbatim(" OR IGNORE"), into(t),
-                  insert_set(t.beta = "sample", t.gamma = true)));
+                  insert_set(t.textN = "sample", t.boolNn = true)));
 
   // Create a custom mulit-row "insert or ignore"
-  auto batch = insert_columns(t.beta, t.gamma);
-  batch.add_values(t.beta = "sample", t.gamma = true);
-  batch.add_values(t.beta = "ample", t.gamma = false);
+  auto batch = insert_columns(t.textN, t.boolNn);
+  batch.add_values(t.textN = "sample", t.boolNn = true);
+  batch.add_values(t.textN = "ample", t.boolNn = false);
   db(custom_query(sqlpp::insert(), sqlpp::verbatim(" OR IGNORE"), into(t), batch));
 
   // Create a MYSQL style custom "insert on duplicate update"
-  db(custom_query(sqlpp::insert_into(t).set(t.beta = "sample", t.gamma = true),
-                  on_duplicate_key_update(db, t.beta = "sample")(db, t.gamma = false).get()));
+  db(custom_query(sqlpp::insert_into(t).set(t.textN = "sample", t.boolNn = true),
+                  on_duplicate_key_update(db, t.textN = "sample")(db, t.boolNn = false).get()));
 
   // A custom (select ... into) with adjusted return type
   // The first argument with a return type is the select, but the custom query is really an insert. Thus, we tell it so.
@@ -121,7 +121,7 @@ int CustomQuery(int, char*[])
   for (const auto& row :
        db(custom_query(sqlpp::verbatim("PRAGMA user_version")).with_result_type_of(select(all_of(t)))))
   {
-    (void)row.alpha;
+    (void)row.id;
   }
 #endif
 

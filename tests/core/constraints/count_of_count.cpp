@@ -39,5 +39,5 @@ int main()
 {
   const auto t = test::TabBar{};
 
-  count(count(t.alpha));
+  count(count(t.id));
 }

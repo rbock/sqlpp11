@@ -32,8 +32,8 @@ int Any(int, char* [])
   const auto bar = test::TabBar{};
 
   // With sub select.
-  compare(__LINE__, any(select(bar.alpha).from(bar).where(bar.alpha > 17)), "ANY(SELECT tab_bar.alpha FROM tab_bar WHERE (tab_bar.alpha>17))");
-  compare(__LINE__, bar.delta == any(select(bar.alpha).from(bar).where(bar.alpha > 17)), "(tab_bar.delta=ANY(SELECT tab_bar.alpha FROM tab_bar WHERE (tab_bar.alpha>17)))");
+  compare(__LINE__, any(select(bar.id).from(bar).where(bar.id > 17)), "ANY(SELECT tab_bar.id FROM tab_bar WHERE (tab_bar.id>17))");
+  compare(__LINE__, bar.intN == any(select(bar.id).from(bar).where(bar.id > 17)), "(tab_bar.int_n=ANY(SELECT tab_bar.id FROM tab_bar WHERE (tab_bar.id>17)))");
 
   return 0;
 }

@@ -36,71 +36,69 @@ int Interpret(int, char* [])
 
   const auto f = test::TabFoo{};
   const auto t = test::TabBar{};
-  select(t.alpha.as(t.beta));
+  select(t.id.as(t.textN));
 
-  serialize(insert_into(t).columns(t.beta, t.gamma), printer).str();
+  serialize(insert_into(t).columns(t.textN, t.boolNn), printer).str();
   {
-    auto i = insert_into(t).columns(t.gamma, t.beta);
-    i.add_values(t.gamma = true, t.beta = "cheesecake");
+    auto i = insert_into(t).columns(t.boolNn, t.textN);
+    i.add_values(t.boolNn = true, t.textN = "cheesecake");
     serialize(i, printer).str();
-    i.add_values(t.gamma = sqlpp::default_value, t.beta = sqlpp::null);
+    i.add_values(t.boolNn = sqlpp::default_value, t.textN = sqlpp::null);
     serialize(i, printer).str();
   }
 
-  serialize(t.alpha = sqlpp::null, printer).str();
-  serialize(t.alpha = sqlpp::default_value, printer).str();
-  serialize(t.alpha, printer).str();
-  serialize(-t.alpha, printer).str();
-  serialize(+t.alpha, printer).str();
-  serialize(-(t.alpha + 7), printer).str();
-  serialize(t.alpha = 0, printer).str();
-  serialize(t.alpha == 0, printer).str();
-  serialize(t.alpha != 0, printer).str();
-  serialize(t.alpha == 7, printer).str();
-  serialize(t.beta + "kaesekuchen", printer).str();
+  serialize(t.id, printer).str();
+  serialize(-t.id, printer).str();
+  serialize(+t.id, printer).str();
+  serialize(-(t.id + 7), printer).str();
+  serialize(t.id = 0, printer).str();
+  serialize(t.id == 0, printer).str();
+  serialize(t.id != 0, printer).str();
+  serialize(t.id == 7, printer).str();
+  serialize(t.textN + "kaesekuchen", printer).str();
 
   serialize(sqlpp::select(), printer).str();
   serialize(sqlpp::select().flags(sqlpp::distinct), printer).str();
-  serialize(select(t.alpha, t.beta).flags(sqlpp::distinct), printer).str();
-  serialize(select(t.alpha, t.beta), printer).str();
-  serialize(select(t.alpha, t.beta).from(t), printer).str();
-  serialize(select(t.alpha, t.beta).from(t).where(t.alpha == 3), printer).str();
-  serialize(select(t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma), printer).str();
-  serialize(select(t.alpha, t.beta).from(t).where(t.alpha == 3).group_by(t.gamma).having(t.beta.like("%kuchen")),
+  serialize(select(t.id, t.textN).flags(sqlpp::distinct), printer).str();
+  serialize(select(t.id, t.textN), printer).str();
+  serialize(select(t.id, t.textN).from(t), printer).str();
+  serialize(select(t.id, t.textN).from(t).where(t.id == 3), printer).str();
+  serialize(select(t.id, t.textN).from(t).where(t.id == 3).group_by(t.boolNn), printer).str();
+  serialize(select(t.id, t.textN).from(t).where(t.id == 3).group_by(t.boolNn).having(t.textN.like("%kuchen")),
             printer)
       .str();
-  serialize(select(t.alpha, t.beta)
+  serialize(select(t.id, t.textN)
                 .from(t)
-                .where(t.alpha == 3)
-                .group_by(t.gamma)
-                .having(t.beta.like("%kuchen"))
-                .order_by(t.beta.asc()),
+                .where(t.id == 3)
+                .group_by(t.boolNn)
+                .having(t.textN.like("%kuchen"))
+                .order_by(t.textN.asc()),
             printer)
       .str();
-  serialize(select(t.alpha, t.beta)
+  serialize(select(t.id, t.textN)
                 .from(t)
-                .where(t.alpha == 3)
-                .group_by(t.gamma)
-                .having(t.beta.like("%kuchen"))
-                .order_by(t.beta.asc())
+                .where(t.id == 3)
+                .group_by(t.boolNn)
+                .having(t.textN.like("%kuchen"))
+                .order_by(t.textN.asc())
                 .limit(17u)
                 .offset(3u),
             printer)
       .str();
 
-  serialize(parameter(sqlpp::bigint(), t.alpha), printer).str();
-  serialize(parameter(t.alpha), printer).str();
-  serialize(t.alpha == parameter(t.alpha), printer).str();
-  serialize(t.alpha == parameter(t.alpha) and (t.beta + "gimmick").like(parameter(t.beta)), printer).str();
+  serialize(parameter(sqlpp::bigint(), t.id), printer).str();
+  serialize(parameter(t.id), printer).str();
+  serialize(t.id == parameter(t.id), printer).str();
+  serialize(t.id == parameter(t.id) and (t.textN + "gimmick").like(parameter(t.textN)), printer).str();
 
   serialize(insert_into(t), printer).str();
   serialize(insert_into(f).default_values(), printer).str();
-  serialize(insert_into(t).set(t.gamma = true), printer).str();
+  serialize(insert_into(t).set(t.boolNn = true), printer).str();
 
   serialize(update(t), printer).str();
-  serialize(update(t).set(t.gamma = true), printer).str();
-  serialize(update(t).set(t.gamma = true).where(t.beta.in("kaesekuchen", "cheesecake")), printer).str();
-  serialize(update(t).set(t.gamma = true).where(t.beta.in()), printer).str();
+  serialize(update(t).set(t.boolNn = true), printer).str();
+  serialize(update(t).set(t.boolNn = true).where(t.textN.in("kaesekuchen", "cheesecake")), printer).str();
+  serialize(update(t).set(t.boolNn = true).where(t.textN.in()), printer).str();
 
   serialize(remove_from(t), printer).str();
   serialize(remove_from(t).using_(t), printer).str();
@@ -109,66 +107,66 @@ int Interpret(int, char* [])
   serialize(sqlpp::value(7), printer).str();
   serialize(sqlpp::verbatim<sqlpp::integral>("irgendwas integrales"), printer).str();
   serialize(sqlpp::value_list(std::vector<int>({1, 2, 3, 4, 5, 6, 8})), printer).str();
-  serialize(exists(select(t.alpha).from(t)), printer).str();
-  serialize(any(select(t.alpha).from(t)), printer).str();
-  serialize(some(select(t.alpha).from(t)), printer).str();
-  serialize(count(t.alpha), printer).str();
-  serialize(min(t.alpha), printer).str();
-  serialize(max(t.alpha), printer).str();
-  serialize(avg(t.alpha), printer).str();
-  serialize(sum(t.alpha), printer).str();
+  serialize(exists(select(t.id).from(t)), printer).str();
+  serialize(any(select(t.id).from(t)), printer).str();
+  serialize(some(select(t.id).from(t)), printer).str();
+  serialize(count(t.id), printer).str();
+  serialize(min(t.id), printer).str();
+  serialize(max(t.id), printer).str();
+  serialize(avg(t.id), printer).str();
+  serialize(sum(t.id), printer).str();
   serialize(sqlpp::verbatim_table("whatever"), printer).str();
 
   // alias
-  serialize(t.as(t.alpha), printer).str();
-  serialize(t.as(t.alpha).beta, printer).str();
+  serialize(t.as(t.id), printer).str();
+  serialize(t.as(t.id).textN, printer).str();
 
   // select alias
-  serialize(select(t.alpha).from(t).where(t.beta > "kaesekuchen").as(t.gamma), printer).str();
+  serialize(select(t.id).from(t).where(t.textN > "kaesekuchen").as(t.boolNn), printer).str();
 
   // Comparison to null
-  static_assert(sqlpp::can_be_null_t<decltype(t.alpha)>::value, "expected alpha can be null");
-  static_assert(not sqlpp::can_be_null_t<decltype(f.delta)>::value, "expected delta cannot be null");
-  serialize(t.alpha.is_null(), printer).str();
-  serialize(f.delta.is_null(), printer).str();
+  static_assert(not sqlpp::can_be_null_t<decltype(t.id)>::value, "expected id cannot be null");
+  static_assert(not sqlpp::can_be_null_t<decltype(f.textNnD)>::value, "expected intN cannot be null");
+  serialize(t.id.is_null(), printer).str();
+  serialize(f.textNnD.is_null(), printer).str();
 
   // join
-  serialize(t.inner_join(t.as(t.alpha)).on(t.beta == t.as(t.alpha).beta), printer).str();
+  serialize(t.inner_join(t.as(t.id)).on(t.textN == t.as(t.id).textN), printer).str();
   {
-    auto inner = t.inner_join(t.as(t.alpha)).on(t.beta == t.as(t.alpha).beta);
-    serialize(select(t.alpha).from(inner), printer).str();
+    auto inner = t.inner_join(t.as(t.id)).on(t.textN == t.as(t.id).textN);
+    serialize(select(t.id).from(inner), printer).str();
   }
 
   // distinct aggregate
-  serialize(count(sqlpp::distinct, t.alpha % 7), printer).str();
-  serialize(avg(sqlpp::distinct, t.alpha - 7), printer).str();
-  serialize(sum(sqlpp::distinct, t.alpha + 7), printer).str();
+  serialize(count(sqlpp::distinct, t.id % 7), printer).str();
+  serialize(avg(sqlpp::distinct, t.id - 7), printer).str();
+  serialize(sum(sqlpp::distinct, t.id + 7), printer).str();
 
   serialize(select(all_of(t)).from(t).unconditionally(), printer).str();
 
   for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
   {
-    serialize(t.alpha == row.alpha.value(), printer);
-    serialize(t.beta == row.beta.value(), printer);
-    serialize(t.gamma == row.gamma, printer);
+    serialize(t.id == row.id, printer);
+    serialize(t.textN == row.textN.value(), printer);
+    serialize(t.boolNn == row.boolNn, printer);
   }
 
   get_sql_name(t);
-  get_sql_name(t.alpha);
+  get_sql_name(t.id);
 
-  flatten(t.alpha == 7, db);
+  flatten(t.id == 7, db);
 
   printer.reset();
-  std::cerr << serialize(select(all_of(t)).from(t).where(t.alpha.in(select(f.epsilon).from(f).unconditionally())),
+  std::cerr << serialize(select(all_of(t)).from(t).where(t.id.in(select(f.intN).from(f).unconditionally())),
                          printer)
                    .str()
             << std::endl;
 
   printer.reset();
-  std::cerr << serialize(select(all_of(t)).from(t).where(t.alpha.in()), printer).str() << std::endl;
+  std::cerr << serialize(select(all_of(t)).from(t).where(t.id.in()), printer).str() << std::endl;
 
   printer.reset();
-  std::cerr << serialize(select(all_of(t)).from(t).where(t.alpha.not_in()), printer).str() << std::endl;
+  std::cerr << serialize(select(all_of(t)).from(t).where(t.id.not_in()), printer).str() << std::endl;
 
   auto schema = db.attach("lorem");
   auto s = schema_qualified_table(schema, t).as(sqlpp::alias::x);
@@ -177,7 +175,7 @@ int Interpret(int, char* [])
   std::cerr << serialize(select(all_of(s)).from(s).unconditionally(), printer).str() << std::endl;
 
   printer.reset();
-  std::cerr << serialize(sqlpp::case_when(true).then(t.alpha).else_(t.alpha + 1).as(t.beta), printer).str()
+  std::cerr << serialize(sqlpp::case_when(true).then(t.id).else_(t.id + 1).as(t.textN), printer).str()
             << std::endl;
 
   return 0;

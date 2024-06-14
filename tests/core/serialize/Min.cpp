@@ -32,13 +32,13 @@ int Min(int, char* [])
   const auto bar = test::TabBar{};
 
   // Single column.
-  compare(__LINE__, min(bar.alpha), "MIN(tab_bar.alpha)");
-  compare(__LINE__, min(sqlpp::distinct, bar.alpha), "MIN(DISTINCT tab_bar.alpha)");
+  compare(__LINE__, min(bar.id), "MIN(tab_bar.id)");
+  compare(__LINE__, min(sqlpp::distinct, bar.id), "MIN(DISTINCT tab_bar.id)");
 
   // Expression.
   // Note that the inner parens aren't necessary.
-  compare(__LINE__, min(bar.alpha + 7), "MIN((tab_bar.alpha+7))");
-  compare(__LINE__, min(sqlpp::distinct, bar.alpha + 7), "MIN(DISTINCT (tab_bar.alpha+7))");
+  compare(__LINE__, min(bar.id + 7), "MIN((tab_bar.id+7))");
+  compare(__LINE__, min(sqlpp::distinct, bar.id + 7), "MIN(DISTINCT (tab_bar.id+7))");
 
   // With sub select.
   compare(__LINE__, min(select(sqlpp::value(7).as(sqlpp::alias::a))), "MIN((SELECT 7 AS a))");

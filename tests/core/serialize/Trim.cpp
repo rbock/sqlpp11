@@ -32,11 +32,11 @@ int Trim(int, char* [])
   const auto bar = test::TabBar{};
 
   // Single column.
-  compare(__LINE__, trim(bar.beta), "TRIM(tab_bar.beta)");
+  compare(__LINE__, trim(bar.textN), "TRIM(tab_bar.text_n)");
 
   // Expression.
   // Note that the inner parens aren't necessary.
-  compare(__LINE__, trim(bar.beta + "suffix"), "TRIM((tab_bar.beta||'suffix'))");
+  compare(__LINE__, trim(bar.textN + "suffix"), "TRIM((tab_bar.text_n||'suffix'))");
 
   // With sub select.
   compare(__LINE__, trim(select(sqlpp::value("something").as(sqlpp::alias::a))), "TRIM((SELECT 'something' AS a))");

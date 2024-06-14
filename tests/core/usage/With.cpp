@@ -39,7 +39,7 @@ int With(int, char*[])
 
   auto x = sqlpp::cte(sqlpp::alias::x).as(select(all_of(t)).from(t));
 
-  db(with(x)(select(x.alpha).from(x).unconditionally()));
+  db(with(x)(select(x.id).from(x).unconditionally()));
 
   auto y0 = sqlpp::cte(sqlpp::alias::y).as(select(all_of(t)).from(t));
   auto y = y0.union_all(select(all_of(y0)).from(y0).unconditionally());
@@ -48,21 +48,21 @@ int With(int, char*[])
   printer.reset();
   std::cout << serialize(from_table(y), printer).str() << std::endl;
 
-  db(with(y)(select(y.alpha).from(y).unconditionally()));
+  db(with(y)(select(y.id).from(y).unconditionally()));
 
   using ::sqlpp::alias::a;
   using ::sqlpp::alias::b;
   const auto c =
-      sqlpp::cte(b).as(select(t.alpha.as(a)).from(t).unconditionally().union_all(select(sqlpp::value(123).as(a))));
+      sqlpp::cte(b).as(select(t.id.as(a)).from(t).unconditionally().union_all(select(sqlpp::value(123).as(a))));
   db(with(c)(select(all_of(c)).from(c).unconditionally()));
 
   // recursive CTE with join
   {
-    const auto selectBase = select(t.alpha, t.delta).from(t).where(t.alpha > 17);
+    const auto selectBase = select(t.id, t.intN).from(t).where(t.id > 17);
     const auto initialCte = ::sqlpp::cte(sqlpp::alias::a).as(selectBase);
     const auto recursiveCte = initialCte.union_all(
-        select(t.alpha, t.delta).from(t.join(initialCte).on(t.alpha == initialCte.delta)).unconditionally());
-    const auto query = with(recursiveCte)(select(recursiveCte.alpha).from(recursiveCte).unconditionally());
+        select(t.id, t.intN).from(t.join(initialCte).on(t.id == initialCte.intN)).unconditionally());
+    const auto query = with(recursiveCte)(select(recursiveCte.id).from(recursiveCte).unconditionally());
 
     printer.reset();
     const auto serializedQuery = serialize(query, printer).str();
@@ -70,7 +70,7 @@ int With(int, char*[])
 
     for (const auto& row : db(query))
     {
-      std::cout << row.alpha;
+      std::cout << row.id;
     }
   }
 

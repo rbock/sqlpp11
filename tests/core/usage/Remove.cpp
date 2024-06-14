@@ -43,22 +43,22 @@ int Remove(int, char* [])
   }
 
   {
-    using T = decltype(remove_from(t).where(t.beta != "transparent"));
-    auto x = remove_from(t).where(t.beta != "transparent");
+    using T = decltype(remove_from(t).where(t.textN != "transparent"));
+    auto x = remove_from(t).where(t.textN != "transparent");
     T y(x);
     T z(std::move(x));
     static_assert(sqlpp::is_regular<T>::value, "type requirement");
   }
 
   serialize(remove_from(t), printer).str();
-  serialize(remove_from(t).where(t.beta != "transparent"), printer).str();
+  serialize(remove_from(t).where(t.textN != "transparent"), printer).str();
   serialize(remove_from(t).using_(t), printer).str();
   serialize(remove_from(t).using_(f), printer).str();
 #warning: add tests with optional using and optional where
   printer.reset();
   std::cerr << serialize(remove_from(t).unconditionally(), printer).str() << std::endl;
 
-  remove_from(t).where(t.beta.in(select(f.delta).from(f).unconditionally()));
+  remove_from(t).where(t.textN.in(select(f.textNnD).from(f).unconditionally()));
 
   return 0;
 }

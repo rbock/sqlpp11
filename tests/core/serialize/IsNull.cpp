@@ -32,17 +32,17 @@ int IsNull(int, char* [])
   const auto bar = test::TabBar{};
 
   // Single column.
-  compare(__LINE__, is_null(bar.beta), "tab_bar.beta IS NULL");
+  compare(__LINE__, is_null(bar.textN), "tab_bar.text_n IS NULL");
 
   // Expression.
-  compare(__LINE__, is_null(bar.beta + "suffix"), "(tab_bar.beta||'suffix') IS NULL");
+  compare(__LINE__, is_null(bar.textN + "suffix"), "(tab_bar.text_n||'suffix') IS NULL");
 
   // With sub select.
   compare(__LINE__, is_null(select(sqlpp::value("something").as(sqlpp::alias::a))), "(SELECT 'something' AS a) IS NULL");
 
   // Requires parens.
-  compare(__LINE__, is_null(bar.beta) or bar.beta == "", "((tab_bar.beta IS NULL) OR (tab_bar.beta=''))");
-  compare(__LINE__, bar.beta == "" or is_null(bar.beta), "((tab_bar.beta='') OR (tab_bar.beta IS NULL))");
+  compare(__LINE__, is_null(bar.textN) or bar.textN == "", "((tab_bar.text_n IS NULL) OR (tab_bar.text_n=''))");
+  compare(__LINE__, bar.textN == "" or is_null(bar.textN), "((tab_bar.text_n='') OR (tab_bar.text_n IS NULL))");
 
   return 0;
 }

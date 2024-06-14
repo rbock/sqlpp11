@@ -37,7 +37,7 @@ int SelectAs(int, char*[])
   const auto bar = test::TabBar{};
 
   // SELECT...AS as selectable column
-  compare(__LINE__, select(foo.omega, select(count(bar.alpha)).from(bar).unconditionally().as(cheese)), "SELECT tab_foo.omega,(SELECT COUNT(tab_bar.alpha) AS count_ FROM tab_bar) AS cheese");
+  compare(__LINE__, select(foo.doubleN, select(count(bar.id)).from(bar).unconditionally().as(cheese)), "SELECT tab_foo.double_n,(SELECT COUNT(tab_bar.id) AS count_ FROM tab_bar) AS cheese");
 
   return 0;
 }

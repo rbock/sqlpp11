@@ -38,13 +38,13 @@ int TableAlias(int, char* [])
 
   // Individual values
   compare(__LINE__, foo.as(bar), "tab_foo AS tab_bar");
-  compare(__LINE__, select(foo.omega).from(foo).unconditionally().as(bar),
-          "(SELECT tab_foo.omega FROM tab_foo) AS tab_bar");
+  compare(__LINE__, select(foo.doubleN).from(foo).unconditionally().as(bar),
+          "(SELECT tab_foo.double_n FROM tab_foo) AS tab_bar");
 
   // Table alias
   const auto tab = foo.as(sample);
-  compare(__LINE__, select(tab.omega).from(tab).unconditionally(),
-          "SELECT sample.omega FROM tab_foo AS sample");
+  compare(__LINE__, select(tab.doubleN).from(tab).unconditionally(),
+          "SELECT sample.double_n FROM tab_foo AS sample");
 
   return 0;
 }

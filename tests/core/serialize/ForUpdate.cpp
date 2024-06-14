@@ -52,8 +52,8 @@ int ForUpdate(int, char* [])
   // const auto bar = test::TabBar{};
 
   // Unconditionally
-  compare(__LINE__, select(foo.omega).from(foo).unconditionally().for_update(),
-          "SELECT tab_foo.omega FROM tab_foo FOR UPDATE ");
+  compare(__LINE__, select(foo.doubleN).from(foo).unconditionally().for_update(),
+          "SELECT tab_foo.double_n FROM tab_foo FOR UPDATE ");
 
   // Never
   compare(__LINE__, where(sqlpp::value(false)), " WHERE " + getFalse());

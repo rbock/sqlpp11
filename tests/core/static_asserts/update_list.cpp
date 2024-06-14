@@ -61,24 +61,24 @@ namespace
   void static_update_set()
   {
     // OK
-    update_set_static_check<sqlpp::consistent_t>(t.gamma = true);
-    update_set_static_check<sqlpp::consistent_t>(t.gamma = true, t.beta = "");
+    update_set_static_check<sqlpp::consistent_t>(t.boolNn = true);
+    update_set_static_check<sqlpp::consistent_t>(t.boolNn = true, t.textN = "");
 
     // Try to update nothing
     update_set_static_check<sqlpp::assert_update_set_count_args_t>();
 
     // Try condition as assignment
-    update_set_static_check<sqlpp::assert_update_set_assignments_t>(t.gamma == true);
+    update_set_static_check<sqlpp::assert_update_set_assignments_t>(t.boolNn == true);
 
     // Try duplicate columns
-    update_set_static_check<sqlpp::assert_update_set_no_duplicates_t>(t.gamma = true, t.gamma = false);
-    update_set_static_check<sqlpp::assert_update_set_no_duplicates_t>(t.gamma = true, t.beta = "", t.gamma = false);
+    update_set_static_check<sqlpp::assert_update_set_no_duplicates_t>(t.boolNn = true, t.boolNn = false);
+    update_set_static_check<sqlpp::assert_update_set_no_duplicates_t>(t.boolNn = true, t.textN = "", t.boolNn = false);
 
     // Try to update prohibited columns
-    update_set_static_check<sqlpp::assert_update_set_allowed_t>(t.alpha = 42);
+    update_set_static_check<sqlpp::assert_update_set_allowed_t>(t.id = 42);
 
     // Try to update multiple tables at once
-    update_set_static_check<sqlpp::assert_update_set_single_table_t>(t.gamma = true, f.omega = 7);
+    update_set_static_check<sqlpp::assert_update_set_single_table_t>(t.boolNn = true, f.doubleN = 7);
   }
 
 }
