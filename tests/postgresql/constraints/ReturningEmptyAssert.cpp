@@ -29,18 +29,16 @@
 #include <sqlpp11/postgresql/postgresql.h>
 #include <sqlpp11/sqlpp11.h>
 
-#include "../usage/TabBar.h"
-#include "../usage/TabFoo.h"
+#include "../usage/Tables.h"
 
 namespace sql = sqlpp::postgresql;
 int main(int, char*[])
 {
   // Tables
-  model::TabFoo foo;
-  model::TabBar bar;
+  test::TabFoo foo;
 
   // Should not compile
-  auto sql = sqlpp::postgresql::insert_into(foo).set(foo.gamma = "bla").returning();
+  auto sql = sqlpp::postgresql::insert_into(foo).set(foo.textNnD = "bla").returning();
   MockDb dummydb;
   const auto res = dummydb(sql);
 

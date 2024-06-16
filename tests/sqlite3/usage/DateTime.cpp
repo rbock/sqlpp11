@@ -23,7 +23,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "TabSample.h"
+#include "Tables.h"
 #include <sqlpp11/custom_query.h>
 #include <sqlpp11/sqlite3/sqlite3.h>
 #include <sqlpp11/sqlpp11.h>
@@ -68,49 +68,46 @@ int DateTime(int, char*[])
     config.debug = true;
 
     sql::connection db(config);
-    db.execute(R"(CREATE TABLE tab_date_time (
-			col_day_point DATE,
-			col_time_point DATETIME
-			))");
+    test::createTabDateTime(db);
 
-    const auto tab = TabDateTime{};
+    const auto tab = test::TabDateTime{};
     db(insert_into(tab).default_values());
 
     for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
-      require_equal(__LINE__, row.colDayPoint == sqlpp::compat::nullopt, true);
-      require_equal(__LINE__, row.colTimePoint == sqlpp::compat::nullopt, true);
+      require_equal(__LINE__, row.dayPointN == sqlpp::compat::nullopt, true);
+      require_equal(__LINE__, row.timePointN == sqlpp::compat::nullopt, true);
     }
 
-    db(update(tab).set(tab.colDayPoint = today, tab.colTimePoint = now).unconditionally());
+    db(update(tab).set(tab.dayPointN = today, tab.timePointN = now).unconditionally());
 
     for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
-      require_equal(__LINE__, row.colDayPoint.value(), today);
-      require_equal(__LINE__, row.colTimePoint.value(), now);
+      require_equal(__LINE__, row.dayPointN.value(), today);
+      require_equal(__LINE__, row.timePointN.value(), now);
     }
 
-    db(update(tab).set(tab.colDayPoint = yesterday, tab.colTimePoint = today).unconditionally());
+    db(update(tab).set(tab.dayPointN = yesterday, tab.timePointN = today).unconditionally());
 
     for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
-      require_equal(__LINE__, row.colDayPoint.value(), yesterday);
-      require_equal(__LINE__, row.colTimePoint.value(), today);
+      require_equal(__LINE__, row.dayPointN.value(), yesterday);
+      require_equal(__LINE__, row.timePointN.value(), today);
     }
 
     auto prepared_update = db.prepare(
         update(tab)
-            .set(tab.colDayPoint = parameter(tab.colDayPoint), tab.colTimePoint = parameter(tab.colTimePoint))
+            .set(tab.dayPointN = parameter(tab.dayPointN), tab.timePointN = parameter(tab.timePointN))
             .unconditionally());
-    prepared_update.params.colDayPoint = today;
-    prepared_update.params.colTimePoint = now;
+    prepared_update.params.dayPointN = today;
+    prepared_update.params.timePointN = now;
     std::cout << "---- running prepared update ----" << std::endl;
     db(prepared_update);
     std::cout << "---- finished prepared update ----" << std::endl;
     for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
-      require_equal(__LINE__, row.colDayPoint.value(), today);
-      require_equal(__LINE__, row.colTimePoint.value(), now);
+      require_equal(__LINE__, row.dayPointN.value(), today);
+      require_equal(__LINE__, row.timePointN.value(), now);
     }
   }
   catch (const std::exception& e)

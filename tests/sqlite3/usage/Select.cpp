@@ -24,7 +24,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "TabSample.h"
+#include "Tables.h"
 #include <cassert>
 #include <sqlpp11/alias_provider.h>
 #include <sqlpp11/functions.h>
@@ -39,7 +39,7 @@
 #include <vector>
 
 namespace sql = sqlpp::sqlite3;
-const auto tab = TabSample{};
+const auto tab = test::TabSample{};
 
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const sqlpp::compat::optional<T>& t) {
@@ -55,9 +55,9 @@ void testSelectAll(sql::connection& db, size_t expectedRowCount)
   for (const auto& row : db(sqlpp::select(all_of(tab)).from(tab).unconditionally()))
   {
     ++i;
-    std::cerr << ">>> row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma
-              << std::endl;
-    assert(row.alpha == static_cast<int64_t>(i));
+    std::cerr << ">>> row.id: " << row.id << ", row.alpha: " << row.alpha << ", row.beta: " << row.beta
+              << ", row.gamma: " << row.gamma << std::endl;
+    assert(row.id == static_cast<int64_t>(i));
   };
   assert(i == expectedRowCount);
 
@@ -66,9 +66,9 @@ void testSelectAll(sql::connection& db, size_t expectedRowCount)
   for (const auto& row : db(preparedSelectAll))
   {
     ++i;
-    std::cerr << ">>> row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma
-              << std::endl;
-    assert(row.alpha == static_cast<int64_t>(i));
+    std::cerr << ">>> row.id: " << row.id << ", row.alpha: " << row.alpha << ", row.beta: " << row.beta
+              << ", row.gamma: " << row.gamma << std::endl;
+    assert(row.id == static_cast<int64_t>(i));
   };
   assert(i == expectedRowCount);
   std::cerr << "--------------------------------------" << std::endl;
@@ -97,11 +97,7 @@ namespace string_util
 int Select(int, char*[])
 {
   sql::connection db({":memory:", SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, "", true});
-  db.execute(R"(CREATE TABLE tab_sample (
-		alpha INTEGER PRIMARY KEY,
-			beta varchar(255) DEFAULT NULL,
-			gamma bool
-			))");
+  test::createTabSample(db);
 
   testSelectAll(db, 0);
   db(insert_into(tab).default_values());

@@ -24,14 +24,14 @@
  */
 
 #include "make_test_connection.h"
-#include "TabSample.h"
+#include "Tables.h"
 #include <sqlpp11/mysql/mysql.h>
 #include <sqlpp11/sqlpp11.h>
 
 #include <iostream>
 #include <vector>
 
-const auto tab = TabSample{};
+const auto tab = test::TabSample{};
 
 namespace sql = sqlpp::mysql;
 
@@ -41,21 +41,15 @@ int Remove(int, char*[])
   try
   {
     auto db = sql::make_test_connection();
-    db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
-    db.execute(R"(CREATE TABLE tab_sample (
-		alpha bigint(20) AUTO_INCREMENT,
-			beta varchar(255) DEFAULT NULL,
-			gamma bool DEFAULT NULL,
-			PRIMARY KEY (alpha)
-			))");
+    test::createTabSample(db);
 
-    db(insert_into(tab).set(tab.beta = "1", tab.gamma = false));
-    db(insert_into(tab).set(tab.beta = "2", tab.gamma = false));
-    db(insert_into(tab).set(tab.beta = "3", tab.gamma = false));
+    db(insert_into(tab).set(tab.textN = "1", tab.boolN = false));
+    db(insert_into(tab).set(tab.textN = "2", tab.boolN = false));
+    db(insert_into(tab).set(tab.textN = "3", tab.boolN = false));
 
-    db(sql::remove_from(tab).unconditionally().order_by(tab.alpha.desc()).limit(1u));
-    for(const auto &row : db(sqlpp::select(tab.beta).from(tab).unconditionally().order_by(tab.alpha.desc()).limit(1u))){
-      assert(row.beta == "2");
+    db(sql::remove_from(tab).unconditionally().order_by(tab.intN.desc()).limit(1u));
+    for(const auto &row : db(sqlpp::select(tab.textN).from(tab).unconditionally().order_by(tab.intN.desc()).limit(1u))){
+      assert(row.textN == "2");
     }
   }
   catch (const std::exception& e)

@@ -23,7 +23,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "TabSample.h"
+#include "Tables.h"
 #include <sqlpp11/alias_provider.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/insert.h>
@@ -59,13 +59,9 @@ int DynamicSelect(int, char*[])
   config.debug = true;
 
   sql::connection db(config);
-  db.execute("CREATE TABLE tab_sample (\
-		alpha bigint(20) DEFAULT NULL,\
-			beta varchar(255) DEFAULT NULL,\
-			gamma bool\
-			)");
+  test::createTabSample(db);
 
-  const auto tab = TabSample{};
+  const auto tab = test::TabSample{};
 
   auto i = insert_into(tab).columns(tab.beta, tab.gamma);
   i.add_values(tab.beta = "rhabarbertorte", tab.gamma = false);

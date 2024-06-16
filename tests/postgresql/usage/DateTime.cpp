@@ -31,7 +31,7 @@
 #include <sqlpp11/postgresql/postgresql.h>
 #include <sqlpp11/sqlpp11.h>
 
-#include "TabDateTime.h"
+#include "Tables.h"
 #include "make_test_connection.h"
 
 namespace
@@ -61,59 +61,53 @@ int DateTime(int, char*[])
 
   sql::connection db = sql::make_test_connection();
 
-  db.execute(R"(DROP TABLE IF EXISTS tabdatetime;)");
-  db.execute(R"(CREATE TABLE tabdatetime
-               (
-                 c_timepoint timestamp with time zone,
-                 c_time time with time zone,
-                 c_day date
-               ))");
+  test::createTabDateTime(db);
 
-  model::TabDateTime tab = {};
+  test::TabDateTime tab = {};
   try
   {
     db(insert_into(tab).default_values());
     for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
-      require_equal(__LINE__, row.c_day.has_value(), false);
-      require_equal(__LINE__, row.c_time.has_value(), false);
-      require_equal(__LINE__, row.c_timepoint.has_value(), false);
+      require_equal(__LINE__, row.dayPointN.has_value(), false);
+      require_equal(__LINE__, row.timeOfDayNTz.has_value(), false);
+      require_equal(__LINE__, row.timePointNTz.has_value(), false);
     }
 
-    db(update(tab).set(tab.c_day = today, tab.c_time = current, tab.c_timepoint = now).unconditionally());
+    db(update(tab).set(tab.dayPointN = today, tab.timeOfDayNTz = current, tab.timePointNTz = now).unconditionally());
 
     for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
-      require_equal(__LINE__, row.c_day.value(), today);
-      require_equal(__LINE__, row.c_time.value(), current);
-      require_equal(__LINE__, row.c_timepoint.value(), now);
+      require_equal(__LINE__, row.dayPointN.value(), today);
+      require_equal(__LINE__, row.timeOfDayNTz.value(), current);
+      require_equal(__LINE__, row.timePointNTz.value(), now);
     }
 
-    db(update(tab).set(tab.c_day = yesterday, tab.c_timepoint = today).unconditionally());
+    db(update(tab).set(tab.dayPointN = yesterday, tab.timePointNTz = today).unconditionally());
 
     for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
-      require_equal(__LINE__, row.c_day.value(), yesterday);
-      require_equal(__LINE__, row.c_time.value(), current);
-      require_equal(__LINE__, row.c_timepoint.value(), today);
+      require_equal(__LINE__, row.dayPointN.value(), yesterday);
+      require_equal(__LINE__, row.timeOfDayNTz.value(), current);
+      require_equal(__LINE__, row.timePointNTz.value(), today);
     }
 
     auto prepared_update = db.prepare(update(tab)
-                                          .set(tab.c_day = parameter(tab.c_day),
-                                               tab.c_time = parameter(tab.c_time),
-                                               tab.c_timepoint = parameter(tab.c_timepoint))
+                                          .set(tab.dayPointN = parameter(tab.dayPointN),
+                                               tab.timeOfDayNTz = parameter(tab.timeOfDayNTz),
+                                               tab.timePointNTz = parameter(tab.timePointNTz))
                                           .unconditionally());
-    prepared_update.params.c_day = today;
-    prepared_update.params.c_time = current;
-    prepared_update.params.c_timepoint = now;
+    prepared_update.params.dayPointN = today;
+    prepared_update.params.timeOfDayNTz = current;
+    prepared_update.params.timePointNTz = now;
     std::cout << "---- running prepared update ----" << std::endl;
     db(prepared_update);
     std::cout << "---- finished prepared update ----" << std::endl;
     for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
-      require_equal(__LINE__, row.c_day.value(), today);
-      require_equal(__LINE__, row.c_time.value(), current);
-      require_equal(__LINE__, row.c_timepoint.value(), now);
+      require_equal(__LINE__, row.dayPointN.value(), today);
+      require_equal(__LINE__, row.timeOfDayNTz.value(), current);
+      require_equal(__LINE__, row.timePointNTz.value(), now);
     }
   }
   catch (const sql::failure& e)

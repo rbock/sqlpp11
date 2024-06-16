@@ -26,7 +26,7 @@
 #include <sqlpp11/sqlite3/connection.h>
 #include <sqlpp11/sqlpp11.h>
 
-#include "FpSample.h"
+#include "Tables.h"
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
 #else
@@ -37,7 +37,7 @@
 
 namespace sql = sqlpp::sqlite3;
 
-const auto fp = FpSample{};
+const auto fp = test::FpSample{};
 
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const sqlpp::compat::optional<T>& t) {
@@ -76,10 +76,7 @@ int FloatingPoint(int, char*[])
   config.debug = true;
 
   sql::connection db(config);
-  db.execute(R"(CREATE TABLE fp_sample (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      fp REAL
-  ))");
+  test::createFpSample(db);
 
   db.execute("INSERT into fp_sample (id, fp) values(NULL, 1.0)");
   db.execute("INSERT into fp_sample (id, fp) values(NULL, 'Inf')");

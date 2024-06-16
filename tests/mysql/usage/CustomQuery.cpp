@@ -25,7 +25,7 @@
 
 #include <iostream>
 #include "make_test_connection.h"
-#include "TabSample.h"
+#include "Tables.h"
 #include <sqlpp11/sqlpp11.h>
 #include <sqlpp11/custom_query.h>
 #include <sqlpp11/mysql/mysql.h>
@@ -58,7 +58,7 @@ namespace
   };
 }  // namespace
 
-const auto tab = TabSample{};
+const auto tab = test::TabSample{};
 
 namespace sql = sqlpp::mysql;
 int CustomQuery(int, char*[])
@@ -67,21 +67,11 @@ int CustomQuery(int, char*[])
   try
   {
     auto db = sql::make_test_connection();
-    db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
-    db.execute(R"(CREATE TABLE tab_sample (
-			alpha bigint(20) AUTO_INCREMENT,
-			beta varchar(255) DEFAULT NULL,
-			gamma bool DEFAULT NULL,
-			PRIMARY KEY (alpha)
-			))");
-    db.execute(R"(DROP TABLE IF EXISTS tab_foo)");
-    db.execute(R"(CREATE TABLE tab_foo (
-		omega bigint(20) DEFAULT NULL
-			))");
+    test::createTabSample(db);
 
      // Create a MYSQL style custom "insert on duplicate update"
-    db(custom_query(sqlpp::insert_into(tab).set(tab.beta = "sample", tab.gamma = true),
-                    on_duplicate_key_update(db, tab.beta = "sample")(db, tab.gamma = false).get()));
+    db(custom_query(sqlpp::insert_into(tab).set(tab.textN = "sample", tab.boolN = true),
+                    on_duplicate_key_update(db, tab.textN = "sample")(db, tab.boolN = false).get()));
   }
   catch (const std::exception& e)
   {

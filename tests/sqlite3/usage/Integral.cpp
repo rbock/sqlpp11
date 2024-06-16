@@ -26,7 +26,7 @@
 #include <sqlpp11/sqlite3/connection.h>
 #include <sqlpp11/sqlpp11.h>
 
-#include "IntegralSample.h"
+#include "Tables.h"
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
 #else
@@ -37,7 +37,7 @@
 
 namespace sql = sqlpp::sqlite3;
 
-const auto intSample = IntegralSample{};
+const auto intSample = test::IntegralSample{};
 
 template <typename L, typename R>
 auto require_equal(int line, const L& l, const R& r) -> void
@@ -60,10 +60,7 @@ int Integral(int, char*[])
   config.debug = true;
 
   sql::connection db(config);
-  db.execute(R"(CREATE TABLE integral_sample (
-      signed_value INTEGER,
-      unsigned_value INTEGER
-  ))");
+  test::createIntegralSample(db);
 
   // The connector supports uint64_t values and will always retrieve the correct value from the database.
   // Sqlite3 stores the values as int64_t internally though, so big uint64_t values will be converted

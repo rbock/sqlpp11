@@ -23,7 +23,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "TabSample.h"
+#include "Tables.h"
 #include <cassert>
 #include <sqlpp11/sqlite3/connection.h>
 #include <sqlpp11/sqlpp11.h>
@@ -37,7 +37,7 @@
 #include <vector>
 
 namespace sql = sqlpp::sqlite3;
-const auto tab = TabSample{};
+const auto tab = test::TabSample{};
 
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const sqlpp::compat::optional<T>& t) {
@@ -55,11 +55,7 @@ int With(int, char*[])
   config.debug = true;
 
   sql::connection db(config);
-  db.execute(R"(CREATE TABLE tab_sample (
-		alpha INTEGER PRIMARY KEY,
-			beta varchar(255) DEFAULT NULL,
-			gamma bool
-			))");
+  test::createTabSample(db);
 
   auto a = sqlpp::cte(sqlpp::alias::a).as(select(all_of(tab)).from(tab).where(tab.alpha > 3));
   for (const auto& row : db(with(a)(select(a.alpha).from(a)).unconditionally()))

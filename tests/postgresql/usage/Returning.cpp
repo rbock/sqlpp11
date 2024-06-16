@@ -4,7 +4,7 @@
 #include <sqlpp11/sqlpp11.h>
 #include "../../include/test_helpers.h"
 
-#include "TabFoo.h"
+#include "Tables.h"
 #include "make_test_connection.h"
 
 int Returning(int, char*[])
@@ -13,48 +13,39 @@ int Returning(int, char*[])
 
   sql::connection db = sql::make_test_connection();
 
-  model::TabFoo foo = {};
+  test::TabFoo foo = {};
 
   try
   {
-    db.execute(R"(DROP TABLE IF EXISTS tabfoo;)");
-    db.execute(R"(CREATE TABLE tabfoo
-                   (
-                   alpha bigserial NOT NULL,
-                   beta smallint,
-                   gamma text,
-                   c_bool boolean,
-                   c_timepoint timestamp with time zone DEFAULT now(),
-                   c_day date
-                   ))");
+    test::createTabFoo(db);
 
     std::cout
-        << db(sqlpp::postgresql::insert_into(foo).set(foo.gamma = "dsa").returning(foo.c_timepoint)).front().c_timepoint
+        << db(sqlpp::postgresql::insert_into(foo).set(foo.textNnD = "dsa").returning(foo.doubleN)).front().doubleN
         << std::endl;
 
     std::cout
-        << db(sqlpp::postgresql::insert_into(foo).set(foo.gamma = "asd").returning(std::make_tuple(foo.c_timepoint))).front().c_timepoint
+        << db(sqlpp::postgresql::insert_into(foo).set(foo.textNnD = "asd").returning(std::make_tuple(foo.doubleN))).front().doubleN
         << std::endl;
 
 #warning need to add optinal insert tests
 
     auto updated =
-        db(sqlpp::postgresql::update(foo).set(foo.beta = 0).unconditionally().returning(foo.gamma, foo.beta));
+        db(sqlpp::postgresql::update(foo).set(foo.intN = 0).unconditionally().returning(foo.textNnD, foo.intN));
     for (const auto& row : updated)
-      std::cout << "Gamma: " << row.gamma << " Beta: " << row.beta << std::endl;
+      std::cout << "Gamma: " << row.textNnD << " Beta: " << row.intN << std::endl;
 
     auto removed =
-        db(sqlpp::postgresql::remove_from(foo).where(foo.beta == 0).returning(foo.gamma, foo.beta));
+        db(sqlpp::postgresql::remove_from(foo).where(foo.intN == 0).returning(foo.textNnD, foo.intN));
     for (const auto& row : removed)
-      std::cout << "Gamma: " << row.gamma << " Beta: " << row.beta << std::endl;
+      std::cout << "Gamma: " << row.textNnD << " Beta: " << row.intN << std::endl;
 
-    auto multi_insert = sqlpp::postgresql::insert_into(foo).columns(foo.beta).returning(foo.alpha, foo.beta);
-    multi_insert.add_values(foo.beta = 1);
-    multi_insert.add_values(foo.beta = 2);
+    auto multi_insert = sqlpp::postgresql::insert_into(foo).columns(foo.intN).returning(foo.id, foo.intN);
+    multi_insert.add_values(foo.intN = 1);
+    multi_insert.add_values(foo.intN = 2);
     auto inserted = db(multi_insert);
 
     for (const auto& row : inserted)
-      std::cout << row.beta << std::endl;
+      std::cout << row.intN << std::endl;
 
 }
 

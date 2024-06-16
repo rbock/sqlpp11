@@ -45,7 +45,7 @@ int Json(int, char*[])
 }
 #else
 
-#include "TabJson.h"
+#include "Tables.h"
 #include <sqlpp11/mysql/mysql.h>
 #include <sqlpp11/sqlpp11.h>
 
@@ -61,10 +61,7 @@ int Json(int, char*[])
   try
   {
     auto db = sql::make_test_connection();
-    db.execute(R"(DROP TABLE IF EXISTS tab_json)");
-    db.execute(R"(CREATE TABLE tab_json (
-			  data JSON NOT NULL
-		  ))");
+    test::createTabJson(db);
 
     const auto tab = test::TabJson{};
     db(insert_into(tab).set(tab.data = R"--({"key" : "value"})--"));

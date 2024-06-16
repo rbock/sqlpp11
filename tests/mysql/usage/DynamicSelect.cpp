@@ -24,7 +24,7 @@
  */
 
 #include "make_test_connection.h"
-#include "TabSample.h"
+#include "Tables.h"
 #include <sqlpp11/alias_provider.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/insert.h>
@@ -46,29 +46,24 @@ int DynamicSelect(int, char*[])
   try
   {
     auto db = sql::make_test_connection();
-    db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
-    db.execute(R"(CREATE TABLE tab_sample (
-		alpha bigint(20) AUTO_INCREMENT NOT NULL PRIMARY KEY,
-			beta varchar(255) DEFAULT NULL,
-			gamma bool NOT NULL DEFAULT 0
-			))");
+    test::createTabSample(db);
 
-    const auto tab = TabSample{};
-    db(insert_into(tab).set(tab.gamma = true));
-    auto i = insert_into(tab).columns(tab.beta, tab.gamma);
-    i.add_values(tab.beta = "rhabarbertorte", tab.gamma = false);
-    i.add_values(tab.beta = "cheesecake", tab.gamma = false);
-    i.add_values(tab.beta = "kaesekuchen", tab.gamma = true);
+    const auto tab = test::TabSample{};
+    db(insert_into(tab).set(tab.boolN = true));
+    auto i = insert_into(tab).columns(tab.textN, tab.boolN);
+    i.add_values(tab.textN = "rhabarbertorte", tab.boolN = false);
+    i.add_values(tab.textN = "cheesecake", tab.boolN = false);
+    i.add_values(tab.textN = "kaesekuchen", tab.boolN = true);
     db(i);
 
 #warning add tests with optional columns
     /*
-    auto s = dynamic_select(db).dynamic_columns(tab.alpha).from(tab).unconditionally();
-    s.selected_columns.add(tab.beta);
+    auto s = dynamic_select(db).dynamic_columns(tab.intN).from(tab).unconditionally();
+    s.selected_columns.add(tab.textN);
 
     for (const auto& row : db(s))
     {
-      std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.at("beta") << std::endl;
+      std::cerr << "row.intN: " << row.intN << ", row.textN: " << row.at("textN") << std::endl;
     };
     */
   }

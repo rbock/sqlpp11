@@ -24,7 +24,7 @@
  */
 
 #include "make_test_connection.h"
-#include "TabSample.h"
+#include "Tables.h"
 #include <sqlpp11/mysql/mysql.h>
 #include <sqlpp11/sqlpp11.h>
 #include "../../include/test_helpers.h"
@@ -40,30 +40,22 @@ int Sample(int, char*[])
   try
   {
     auto db = sql::make_test_connection();
-    db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
-    db.execute(R"(CREATE TABLE tab_sample (
-			alpha bigint(20) AUTO_INCREMENT,
-			beta varchar(255) DEFAULT NULL,
-			gamma bool DEFAULT NULL,
-			PRIMARY KEY (alpha)
-			))");
-    db.execute(R"(DROP TABLE IF EXISTS tab_foo)");
-    db.execute(R"(CREATE TABLE tab_foo (
-		omega bigint(20) DEFAULT NULL
-			))");
+
+    test::createTabSample(db);
+    test::createTabFoo(db);
 
     assert(not db(select(sqlpp::value(false).as(sqlpp::alias::a))).front().a);
 
-    const auto tab = TabSample{};
+    const auto tab = test::TabSample{};
     // clear the table
     db(remove_from(tab).unconditionally());
 
     // Several ways of ensuring that tab is empty
-    assert(not db(select(exists(select(tab.alpha).from(tab).unconditionally())))
+    assert(not db(select(exists(select(tab.intN).from(tab).unconditionally())))
                    .front()
                    .exists);  // this is probably the fastest
-    assert(not db(select(count(tab.alpha)).from(tab).unconditionally()).front().count);
-    assert(db(select(tab.alpha).from(tab).unconditionally()).empty());
+    assert(not db(select(count(tab.intN)).from(tab).unconditionally()).front().count);
+    assert(db(select(tab.intN).from(tab).unconditionally()).empty());
 
     // explicit all_of(tab)
     std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
@@ -74,7 +66,7 @@ int Sample(int, char*[])
     for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
       std::cerr << __FILE__ << ": " << __LINE__ << std::endl;
-      std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma
+      std::cerr << "row.intN: " << row.intN << ", row.textN: " << row.textN << ", row.boolN: " << row.boolN
                 << std::endl;
     };
     // insert
@@ -83,111 +75,111 @@ int Sample(int, char*[])
     const auto y = db.prepare(x);
     for (const auto& row : db(db.prepare(select(all_of(tab)).from(tab).unconditionally())))
     {
-      std::cerr << "alpha: " << row.alpha << std::endl;
-      std::cerr << "beta: " << row.beta << std::endl;
-      std::cerr << "gamma: " << row.gamma << std::endl;
+      std::cerr << "intN: " << row.intN << std::endl;
+      std::cerr << "textN: " << row.textN << std::endl;
+      std::cerr << "boolN: " << row.boolN << std::endl;
     }
-    db(insert_into(tab).set(tab.beta = "kaesekuchen", tab.gamma = true));
+    db(insert_into(tab).set(tab.textN = "kaesekuchen", tab.boolN = true));
     db(insert_into(tab).default_values());
-    db(insert_into(tab).set(tab.beta = "", tab.gamma = true));
+    db(insert_into(tab).set(tab.textN = "", tab.boolN = true));
 
     // update
-    db(update(tab).set(tab.gamma = false).where(tab.alpha.in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
-    db(update(tab).set(tab.gamma = true).where(tab.alpha.in(1)));
+    db(update(tab).set(tab.boolN = false).where(tab.intN.in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
+    db(update(tab).set(tab.boolN = true).where(tab.intN.in(1)));
 
 #warning: Add test with optional insert
 
     // remove
     {
-      db(remove_from(tab).where(tab.alpha == tab.alpha + 3));
+      db(remove_from(tab).where(tab.intN == tab.intN + 3));
 
       std::cerr << "+++++++++++++++++++++++++++" << std::endl;
       for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
       {
-        std::cerr << __LINE__ << " row.beta: " << row.beta << std::endl;
+        std::cerr << __LINE__ << " row.textN: " << row.textN << std::endl;
       }
       std::cerr << "+++++++++++++++++++++++++++" << std::endl;
       decltype(db(select(all_of(tab)).from(tab).unconditionally())) result;
       result = db(select(all_of(tab)).from(tab).unconditionally());
-      std::cerr << "Accessing a field directly from the result (using the current row): " << result.begin()->alpha
+      std::cerr << "Accessing a field directly from the result (using the current row): " << result.begin()->intN
                 << std::endl;
-      std::cerr << "Can do that again, no problem: " << result.begin()->alpha << std::endl;
+      std::cerr << "Can do that again, no problem: " << result.begin()->intN << std::endl;
     }
 
     // transaction
     {
       auto tx = start_transaction(db);
-      auto result = db(select(all_of(tab), select(max(tab.alpha)).from(tab)).from(tab).unconditionally());
+      auto result = db(select(all_of(tab), select(max(tab.intN)).from(tab)).from(tab).unconditionally());
       if (const auto& row = *result.begin())
       {
-        const int64_t a = row.alpha;
+        const int64_t a = row.intN.value_or(0);
         const sqlpp::compat::optional<long> m = row.max;
-        std::cerr << __LINE__ << " row.alpha: " << a << ", row.max: " << m << std::endl;
+        std::cerr << __LINE__ << " row.intN: " << a << ", row.max: " << m << std::endl;
       }
       tx.commit();
     }
 
-    TabFoo foo;
-    for (const auto& row : db(select(tab.alpha).from(tab.join(foo).on(tab.alpha == foo.omega)).unconditionally()))
+    test::TabFoo foo;
+    for (const auto& row : db(select(tab.intN).from(tab.join(foo).on(tab.intN == foo.intN)).unconditionally()))
     {
-      std::cerr << row.alpha << std::endl;
+      std::cerr << row.intN << std::endl;
     }
 
     for (const auto& row :
-         db(select(tab.alpha).from(tab.left_outer_join(foo).on(tab.alpha == foo.omega)).unconditionally()))
+         db(select(tab.intN).from(tab.left_outer_join(foo).on(tab.intN == foo.intN)).unconditionally()))
     {
-      std::cerr << row.alpha << std::endl;
+      std::cerr << row.intN << std::endl;
     }
 
     auto ps = db.prepare(select(all_of(tab))
                              .from(tab)
-                             .where(tab.alpha != parameter(tab.alpha) and tab.beta != parameter(tab.beta) and
-                                    tab.gamma != parameter(tab.gamma)));
-    ps.params.alpha = 7;
-    ps.params.beta = "wurzelbrunft";
-    ps.params.gamma = true;
+                             .where(tab.intN != parameter(tab.intN) and tab.textN != parameter(tab.textN) and
+                                    tab.boolN != parameter(tab.boolN)));
+    ps.params.intN = 7;
+    ps.params.textN = "wurzelbrunft";
+    ps.params.boolN = true;
     for (const auto& row : db(ps))
     {
-      std::cerr << "bound result: alpha: " << row.alpha << std::endl;
-      std::cerr << "bound result: beta: " << row.beta << std::endl;
-      std::cerr << "bound result: gamma: " << row.gamma << std::endl;
+      std::cerr << "bound result: intN: " << row.intN << std::endl;
+      std::cerr << "bound result: textN: " << row.textN << std::endl;
+      std::cerr << "bound result: boolN: " << row.boolN << std::endl;
     }
 
     std::cerr << "--------" << std::endl;
-    ps.params.gamma = false;
+    ps.params.boolN = false;
     for (const auto& row : db(ps))
     {
-      std::cerr << "bound result: alpha: " << row.alpha << std::endl;
-      std::cerr << "bound result: beta: " << row.beta << std::endl;
-      std::cerr << "bound result: gamma: " << row.gamma << std::endl;
+      std::cerr << "bound result: intN: " << row.intN << std::endl;
+      std::cerr << "bound result: textN: " << row.textN << std::endl;
+      std::cerr << "bound result: boolN: " << row.boolN << std::endl;
     }
 
     std::cerr << "--------" << std::endl;
-    ps.params.beta = "kaesekuchen";
+    ps.params.textN = "kaesekuchen";
     for (const auto& row : db(ps))
     {
-      std::cerr << "bound result: alpha: " << row.alpha << std::endl;
-      std::cerr << "bound result: beta: " << row.beta << std::endl;
-      std::cerr << "bound result: gamma: " << row.gamma << std::endl;
+      std::cerr << "bound result: intN: " << row.intN << std::endl;
+      std::cerr << "bound result: textN: " << row.textN << std::endl;
+      std::cerr << "bound result: boolN: " << row.boolN << std::endl;
     }
 
-    auto pi = db.prepare(insert_into(tab).set(tab.beta = parameter(tab.beta), tab.gamma = true));
-    pi.params.beta = "prepared cake";
+    auto pi = db.prepare(insert_into(tab).set(tab.textN = parameter(tab.textN), tab.boolN = true));
+    pi.params.textN = "prepared cake";
     std::cerr << "Inserted: " << db(pi) << std::endl;
 
-    auto pu = db.prepare(update(tab).set(tab.gamma = parameter(tab.gamma)).where(tab.beta == "prepared cake"));
-    pu.params.gamma = false;
+    auto pu = db.prepare(update(tab).set(tab.boolN = parameter(tab.boolN)).where(tab.textN == "prepared cake"));
+    pu.params.boolN = false;
     std::cerr << "Updated: " << db(pu) << std::endl;
 
-    auto pr = db.prepare(remove_from(tab).where(tab.beta != parameter(tab.beta)));
-    pr.params.beta = "prepared cake";
+    auto pr = db.prepare(remove_from(tab).where(tab.textN != parameter(tab.textN)));
+    pr.params.textN = "prepared cake";
     std::cerr << "Deleted lines: " << db(pr) << std::endl;
 
-    for (const auto& row : db(select(case_when(tab.gamma).then(tab.alpha).else_(foo.omega).as(tab.alpha))
+    for (const auto& row : db(select(case_when(tab.boolN).then(tab.intN).else_(foo.intN).as(tab.intN))
                                   .from(tab.cross_join(foo))
                                   .unconditionally()))
     {
-      std::cerr << row.alpha << std::endl;
+      std::cerr << row.intN << std::endl;
     }
   }
   catch (const std::exception& e)

@@ -153,6 +153,12 @@ ddlTimeTypes = [
     "time with time zone",  # PostgreSQL
 ]
 
+parsedContent = ""
+
+def SetContent(text, loc, token) :
+  global parsedContent
+  parsedContent = text
+
 # Init the DLL parser
 def initDllParser():
     global ddl
@@ -160,6 +166,7 @@ def initDllParser():
     global ddlColumn
     global ddlConstraint
     global ddlCreateTable
+    global parsedContent
     # Column and constraint parsers
 
     ddlBoolean = pp.Or(
@@ -305,7 +312,7 @@ def initDllParser():
     ).setResultsName("create")
     # ddlString.setDebug(True) #uncomment to debug pyparsing
 
-    ddl = pp.OneOrMore(pp.Suppress(pp.SkipTo(ddlCreateTable, False)) + ddlCreateTable)
+    ddl = pp.OneOrMore(pp.Group(pp.Suppress(pp.SkipTo(ddlCreateTable, False)) + pp.Located(ddlCreateTable))).setResultsName("tables").setParseAction(SetContent)
 
     ddlComment = pp.oneOf(["--", "#"]) + pp.restOfLine
     ddl.ignore(ddlComment)
@@ -589,6 +596,7 @@ optionalArgs = {
     "-auto-id": "Assume column 'id' to have an automatic value as if AUTO_INCREMENT was specified (e.g. implicit for SQLite ROWID)",  # autoId = True
     "-identity-naming": "Use table and column names from the ddl (defaults to UpperCamelCase for tables and lowerCamelCase for columns)",  # identityNaming = True
     "-split-tables": "Make a header for each table name, using target as a directory",  # splitTables = True
+    "-with-table-creation-helper": "Create a helper function for each table that drops and creates the table", # withTableCreationHelper
     "--help": "show this help",
     "--test": "run parser self-test",
 }
@@ -597,6 +605,7 @@ noTimestampWarning = False
 autoId = False
 identityNaming = False
 splitTables = False
+withTableCreationHelper = False
 dataTypeFileArg = "--datatype-file"
 
 def createHeader():
@@ -648,7 +657,8 @@ def createHeader():
     if not splitTables:
         header = beginHeader(pathToHeader, namespace, nsList)
     DataTypeError = False
-    for create in tableCreations:
+    for table in tableCreations.tables:
+        create = table.value.create
         sqlTableName = create.tableName
         if splitTables:
             header = beginHeader(pathToHeader + sqlTableName + ".h", namespace, nsList)
@@ -656,6 +666,14 @@ def createHeader():
         tableMember = toMemberName(sqlTableName)
         tableNamespace = tableClass + "_"
         tableTemplateParameters = tableClass
+        if withTableCreationHelper:
+          print("  template<typename Db>", file=header)
+          print("  void create" + tableClass + "(Db& db)", file=header)
+          print("  {", file=header)
+          print("    db.execute(R\"+++(DROP TABLE IF EXISTS " + sqlTableName + ")+++\");", file=header)
+          print("    db.execute(R\"+++(" + parsedContent[table.locn_start:table.locn_end] + ")+++\");", file=header)
+          print("  }", file=header)
+          print("", file=header)
         print("  namespace " + tableNamespace, file=header)
         print("  {", file=header)
         for column in create.columns:

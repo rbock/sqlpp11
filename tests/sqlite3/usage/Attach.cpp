@@ -23,7 +23,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "TabSample.h"
+#include "Tables.h"
 #include <cassert>
 #include <sqlpp11/sqlite3/connection.h>
 #include <sqlpp11/sqlpp11.h>
@@ -47,23 +47,20 @@ int Attach(int, char*[])
 
   // Opening a connection to an in-memory database and creating a table in it
   sql::connection db(config);
-  db.execute(R"(CREATE TABLE tab_sample (
-		alpha INTEGER PRIMARY KEY,
-			beta varchar(255) DEFAULT NULL,
-			gamma bool
-			))");
+  test::createTabSample(db);
 
   // Attaching another in-memory database and creating the same table in it
   auto other = db.attach(config, "other");
   db.execute(R"(CREATE TABLE other.tab_sample (
-		alpha INTEGER PRIMARY KEY,
-			beta varchar(255) DEFAULT NULL,
-			gamma bool
-			))");
+  id INTEGER PRIMARY KEY,
+  alpha bigint(20) DEFAULT NULL,
+  beta varchar(255) DEFAULT NULL,
+  gamma boolean
+))");
 
-  auto left = TabSample{};
+  auto left = test::TabSample{};
   auto right =
-      schema_qualified_table(other, TabSample{}).as(sqlpp::alias::right);  // this is a table in the attached database
+      schema_qualified_table(other, test::TabSample{}).as(sqlpp::alias::right);  // this is a table in the attached database
 
   // inserting in one tab_sample
   db(insert_into(left).default_values());

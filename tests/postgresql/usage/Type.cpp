@@ -31,7 +31,7 @@
 #include <sqlpp11/postgresql/postgresql.h>
 #include <sqlpp11/sqlpp11.h>
 
-#include "TabSample.h"
+#include "Tables.h"
 #include "make_test_connection.h"
 
 namespace
@@ -45,14 +45,6 @@ namespace
       throw std::runtime_error("Unexpected result");
     }
   }
-
-  template <class Db>
-  void prepare_table(Db&& db)
-  {
-    // prepare test with timezone
-    db.execute("DROP TABLE IF EXISTS tab_sample");
-    db.execute("CREATE TABLE tab_sample (alpha bigint, beta text, gamma bool NOT NULL DEFAULT 'f')");
-  }
 }
 
 namespace sql = sqlpp::postgresql;
@@ -63,53 +55,54 @@ int Type(int, char*[])
 
   try
   {
-    prepare_table(db);
+    test::createTabFoo(db);
+    test::createTabBar(db);
 
-    const auto tab = TabSample{};
+    const auto tab = test::TabBar{};
     db(insert_into(tab).default_values());
     for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
-      require_equal(__LINE__, row.alpha.has_value(), false);
-      require_equal(__LINE__, row.beta.has_value(), false);
-      require_equal(__LINE__, row.gamma, false);
+      require_equal(__LINE__, row.intN.has_value(), false);
+      require_equal(__LINE__, row.textN.has_value(), false);
+      require_equal(__LINE__, row.boolNn, false);
     }
 
-    db(update(tab).set(tab.alpha = 10, tab.beta = "Cookies!", tab.gamma = true).unconditionally());
+    db(update(tab).set(tab.intN = 10, tab.textN = "Cookies!", tab.boolNn = true).unconditionally());
 
     for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
-      require_equal(__LINE__, row.alpha.has_value(), true);
-      require_equal(__LINE__, row.alpha.value(), 10);
-      require_equal(__LINE__, row.beta.has_value(), true);
-      require_equal(__LINE__, row.beta.value(), "Cookies!");
-      require_equal(__LINE__, row.gamma, true);
+      require_equal(__LINE__, row.intN.has_value(), true);
+      require_equal(__LINE__, row.intN.value(), 10);
+      require_equal(__LINE__, row.textN.has_value(), true);
+      require_equal(__LINE__, row.textN.value(), "Cookies!");
+      require_equal(__LINE__, row.boolNn, true);
     }
 
-    db(update(tab).set(tab.alpha = 20, tab.beta = "Monster", tab.gamma = false).unconditionally());
+    db(update(tab).set(tab.intN = 20, tab.textN = "Monster", tab.boolNn = false).unconditionally());
 
     for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
-      require_equal(__LINE__, row.alpha.value(), 20);
-      require_equal(__LINE__, row.beta.value(), "Monster");
-      require_equal(__LINE__, row.gamma, false);
+      require_equal(__LINE__, row.intN.value(), 20);
+      require_equal(__LINE__, row.textN.value(), "Monster");
+      require_equal(__LINE__, row.boolNn, false);
     }
 
     auto prepared_update = db.prepare(
         update(tab)
-            .set(tab.alpha = parameter(tab.alpha), tab.beta = parameter(tab.beta), tab.gamma = parameter(tab.gamma))
+            .set(tab.intN = parameter(tab.intN), tab.textN = parameter(tab.textN), tab.boolNn = parameter(tab.boolNn))
             .unconditionally());
-    prepared_update.params.alpha = 30;
-    prepared_update.params.beta = "IceCream";
-    prepared_update.params.gamma = true;
+    prepared_update.params.intN = 30;
+    prepared_update.params.textN = "IceCream";
+    prepared_update.params.boolNn = true;
     std::cout << "---- running prepared update ----" << std::endl;
     db(prepared_update);
     std::cout << "---- finished prepared update ----" << std::endl;
 
     for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
-      require_equal(__LINE__, row.alpha.value(), 30);
-      require_equal(__LINE__, row.beta.value(), "IceCream");
-      require_equal(__LINE__, row.gamma, true);
+      require_equal(__LINE__, row.intN.value(), 30);
+      require_equal(__LINE__, row.textN.value(), "IceCream");
+      require_equal(__LINE__, row.boolNn, true);
     }
   }
   catch (std::exception& e)

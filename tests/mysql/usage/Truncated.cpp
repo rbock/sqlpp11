@@ -24,7 +24,7 @@
  */
 
 #include "make_test_connection.h"
-#include "TabSample.h"
+#include "Tables.h"
 #include <cassert>
 #include <sqlpp11/alias_provider.h>
 #include <sqlpp11/functions.h>
@@ -42,7 +42,7 @@
 const auto library_raii = sqlpp::mysql::scoped_library_initializer_t{0, nullptr, nullptr};
 
 namespace sql = sqlpp::mysql;
-const auto tab = TabSample{};
+const auto tab = test::TabSample{};
 
 int Truncated(int, char*[])
 {
@@ -50,41 +50,32 @@ int Truncated(int, char*[])
   try
   {
     auto db = sql::make_test_connection();
-    db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
-    db.execute(R"(CREATE TABLE tab_sample (
-		alpha bigint(20) AUTO_INCREMENT NOT NULL PRIMARY KEY,
-			beta varchar(255) DEFAULT NULL,
-			gamma bool NOT NULL DEFAULT 0
-			))");
-    db.execute(R"(DROP TABLE IF EXISTS tab_foo)");
-    db.execute(R"(CREATE TABLE tab_foo (
-		omega bigint(20) NOT NULL
-			))");
+    test::createTabSample(db);
 
-    db(insert_into(tab).set(tab.gamma = true, tab.beta = "cheese"));
-    db(insert_into(tab).set(tab.gamma = true, tab.beta = "cheesecake"));
+    db(insert_into(tab).set(tab.boolN = true, tab.textN = "cheese"));
+    db(insert_into(tab).set(tab.boolN = true, tab.textN = "cheesecake"));
 
     {
       for (const auto& row : db(db.prepare(sqlpp::select(all_of(tab)).from(tab).unconditionally())))
       {
-        std::cerr << ">>> row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma << std::endl;
+        std::cerr << ">>> row.intN: " << row.intN << ", row.textN: " << row.textN << ", row.boolN: " << row.boolN << std::endl;
       }
     }
 
     {
-      auto result = db(db.prepare(sqlpp::select(all_of(tab)).from(tab).where(tab.alpha == 1).limit(1u)));
+      auto result = db(db.prepare(sqlpp::select(all_of(tab)).from(tab).where(tab.id == 1).limit(1u)));
       auto& row = result.front();
 
-      std::cerr << ">>> row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma << std::endl;
-      assert(row.beta == "cheese");
+      std::cerr << ">>> row.intN: " << row.intN << ", row.textN: " << row.textN << ", row.boolN: " << row.boolN << std::endl;
+      assert(row.textN == "cheese");
     }
 
     {
-      auto result = db(db.prepare(sqlpp::select(all_of(tab)).from(tab).where(tab.alpha == 2).limit(1u)));
+      auto result = db(db.prepare(sqlpp::select(all_of(tab)).from(tab).where(tab.id == 2).limit(1u)));
       auto& row = result.front();
 
-      std::cerr << ">>> row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma << std::endl;
-      assert(row.beta == "cheesecake");
+      std::cerr << ">>> row.intN: " << row.intN << ", row.textN: " << row.textN << ", row.boolN: " << row.boolN << std::endl;
+      assert(row.textN == "cheesecake");
     }
   }
   catch (const std::exception& e)

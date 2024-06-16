@@ -23,7 +23,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "TabSample.h"
+#include "Tables.h"
 #include <sqlpp11/custom_query.h>
 #include <sqlpp11/sqlite3/sqlite3.h>
 #include <sqlpp11/sqlpp11.h>
@@ -56,16 +56,10 @@ int Sample(int, char*[])
   config.debug = true;
 
   sql::connection db(config);
-  db.execute(R"(CREATE TABLE tab_sample (
-		alpha INTEGER PRIMARY KEY,
-			beta varchar(255) DEFAULT NULL,
-			gamma bool
-			))");
-  db.execute(R"(CREATE TABLE tab_foo (
-		omega bigint(20) DEFAULT NULL
-			))");
+  test::createTabSample(db);
+  test::createTabFoo(db);
 
-  const auto tab = TabSample{};
+  const auto tab = test::TabSample{};
 
   // clear the table
   db(remove_from(tab).unconditionally());
@@ -82,7 +76,7 @@ int Sample(int, char*[])
     std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma << std::endl;
   };
   // insert
-  std::cerr << "no of required columns: " << TabSample::_required_insert_columns::size::value << std::endl;
+  std::cerr << "no of required columns: " << test::TabSample::_required_insert_columns::size::value << std::endl;
   db(insert_into(tab).default_values());
   std::cout << "Last Insert ID: " << db.last_insert_id() << "\n";
   db(insert_into(tab).set(tab.gamma = true));
@@ -102,7 +96,7 @@ int Sample(int, char*[])
   std::cerr << "Can do that again, no problem: " << result.begin()->alpha << std::endl;
 
   auto tx = start_transaction(db);
-  TabFoo foo;
+  test::TabFoo foo;
   for (const auto& row : db(select(all_of(tab), select(max(foo.omega)).from(foo).where(foo.omega > tab.alpha))
                                 .from(tab)
                                 .unconditionally()))
@@ -187,7 +181,7 @@ int Sample(int, char*[])
   i = db(sqlpp::sqlite3::insert_or_ignore_into(tab).set(tab.beta = "test", tab.gamma = true));
   std::cerr << i << std::endl;
 
-  assert(db(select(count(tab.alpha)).from(tab).unconditionally()).begin()->count);
+  assert(db(select(count(tab.id)).from(tab).unconditionally()).begin()->count);
   assert(
       db(select(all_of(tab)).from(tab).where(tab.alpha.not_in(select(tab.alpha).from(tab).unconditionally()))).empty());
 
@@ -208,7 +202,7 @@ int Sample(int, char*[])
 
   for (const auto& row : db(select(subQuery.alpha).from(tab.inner_join(subQuery).unconditionally()).unconditionally()))
   {
-    std::cerr << row.alpha;
+    std::cerr << "row.alpha: " << row.alpha << std::endl;
   }
 
   return 0;

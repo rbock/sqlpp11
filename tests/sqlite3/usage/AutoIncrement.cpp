@@ -23,7 +23,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "TabSample.h"
+#include "Tables.h"
 #include <sqlpp11/custom_query.h>
 #include <sqlpp11/sqlite3/sqlite3.h>
 #include <sqlpp11/sqlpp11.h>
@@ -46,13 +46,9 @@ int AutoIncrement(int, char*[])
   config.debug = true;
 
   sql::connection db(config);
-  db.execute(R"(CREATE TABLE tab_sample (
-		alpha INTEGER PRIMARY KEY AUTOINCREMENT,
-			beta bool DEFAULT NULL,
-			gamma varchar(255) DEFAULT NULL
-			))");
+  test::createTabSample(db);
 
-  const auto tab = TabSample{};
+  const auto tab = test::TabSample{};
   db(insert_into(tab).default_values());
   db(insert_into(tab).default_values());
   db(insert_into(tab).default_values());
@@ -60,8 +56,7 @@ int AutoIncrement(int, char*[])
   std::set<int64_t> results;
   for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
   {
-    if (row.alpha)
-      results.insert(row.alpha.value());
+    results.insert(row.id);
   };
   const auto expected = std::set<int64_t>{1, 2, 3};
   assert(results == expected);

@@ -58,6 +58,7 @@ namespace sqlpp
   {
     using _traits = make_traits<boolean, tag::is_expression, tag::is_selectable>;
     using _nodes = detail::type_vector<Select>;
+    using _can_be_null = std::false_type;
 
     static_assert(is_select_t<Select>::value, "exists() requires a select expression as argument");
 

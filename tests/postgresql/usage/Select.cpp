@@ -30,12 +30,12 @@
 #include <sqlpp11/postgresql/postgresql.h>
 #include <sqlpp11/sqlpp11.h>
 
-#include "TabFoo.h"
+#include "Tables.h"
 #include "make_test_connection.h"
 #include "../../include/test_helpers.h"
 
 namespace sql = sqlpp::postgresql;
-model::TabFoo tab = {};
+test::TabFoo tab = {};
 
 void testSelectAll(sql::connection& db, int expectedRowCount)
 {
@@ -44,9 +44,9 @@ void testSelectAll(sql::connection& db, int expectedRowCount)
   for (const auto& row : db(sqlpp::select(all_of(tab)).from(tab).unconditionally()))
   {
     ++i;
-    std::cerr << ">>> row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma
+    std::cerr << ">>> row.id: " << row.id << ", row.intN: " << row.intN << ", row.textNnD: " << row.textNnD
               << std::endl;
-    assert(i == row.alpha);
+    assert(i == row.id);
   };
   assert(i == expectedRowCount);
 
@@ -55,9 +55,9 @@ void testSelectAll(sql::connection& db, int expectedRowCount)
   for (const auto& row : db(preparedSelectAll))
   {
     ++i;
-    std::cerr << ">>> row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma
+    std::cerr << ">>> row.id: " << row.id << ", row.intN: " << row.intN << ", row.textNnD: " << row.textNnD
               << std::endl;
-    assert(i == row.alpha);
+    assert(i == row.id);
   };
   assert(i == expectedRowCount);
   std::cerr << "--------------------------------------" << std::endl;
@@ -67,23 +67,14 @@ int Select(int, char*[])
 {
   sql::connection db = sql::make_test_connection();
 
-  db.execute(R"(DROP TABLE IF EXISTS tabfoo;)");
-  db.execute(R"(CREATE TABLE tabfoo
-             (
-               alpha bigserial,
-               beta smallint,
-               gamma text,
-               c_bool boolean,
-               c_timepoint timestamp with time zone,
-               c_day date
-             ))");
+  test::createTabFoo(db);
 
   testSelectAll(db, 0);
   db(insert_into(tab).default_values());
   testSelectAll(db, 1);
-  db(insert_into(tab).set(tab.c_bool = true, tab.gamma = "cheesecake"));
+  db(insert_into(tab).set(tab.boolN = true, tab.textNnD = "cheesecake"));
   testSelectAll(db, 2);
-  db(insert_into(tab).set(tab.c_bool = true, tab.gamma = "cheesecake"));
+  db(insert_into(tab).set(tab.boolN = true, tab.textNnD = "cheesecake"));
   testSelectAll(db, 3);
 
   // Test size functionality
@@ -91,50 +82,50 @@ int Select(int, char*[])
   assert(test_size.size() == 3);
 
   // test functions and operators
-  db(select(all_of(tab)).from(tab).where(tab.alpha.is_null()));
-  db(select(all_of(tab)).from(tab).where(tab.alpha.is_not_null()));
-  db(select(all_of(tab)).from(tab).where(tab.alpha.in(1, 2, 3)));
-  db(select(all_of(tab)).from(tab).where(tab.alpha.in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
-  db(select(all_of(tab)).from(tab).where(tab.alpha.not_in(1, 2, 3)));
-  db(select(all_of(tab)).from(tab).where(tab.alpha.not_in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
-  db(select(count(tab.alpha)).from(tab).unconditionally());
-  db(select(avg(tab.alpha)).from(tab).unconditionally());
-  db(select(max(tab.alpha)).from(tab).unconditionally());
-  db(select(min(tab.alpha)).from(tab).unconditionally());
-  db(select(exists(select(tab.alpha).from(tab).where(tab.alpha > 7))).from(tab).unconditionally());
-  db(select(all_of(tab)).from(tab).where(tab.alpha == any(select(tab.alpha).from(tab).where(tab.alpha < 3))));
-  db(select(all_of(tab)).from(tab).where(tab.alpha == some(select(tab.alpha).from(tab).where(tab.alpha < 3))));
-  db(select(all_of(tab)).from(tab).where(tab.alpha + tab.alpha > 3));
-  db(select(all_of(tab)).from(tab).where((tab.gamma + tab.gamma) == ""));
-  db(select(all_of(tab)).from(tab).where((tab.gamma + tab.gamma).like("%'\"%")));
+  db(select(all_of(tab)).from(tab).where(tab.id.is_null()));
+  db(select(all_of(tab)).from(tab).where(tab.id.is_not_null()));
+  db(select(all_of(tab)).from(tab).where(tab.id.in(1, 2, 3)));
+  db(select(all_of(tab)).from(tab).where(tab.id.in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
+  db(select(all_of(tab)).from(tab).where(tab.id.not_in(1, 2, 3)));
+  db(select(all_of(tab)).from(tab).where(tab.id.not_in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
+  db(select(count(tab.id)).from(tab).unconditionally());
+  db(select(avg(tab.id)).from(tab).unconditionally());
+  db(select(max(tab.id)).from(tab).unconditionally());
+  db(select(min(tab.id)).from(tab).unconditionally());
+  db(select(exists(select(tab.id).from(tab).where(tab.id > 7))).from(tab).unconditionally());
+  db(select(all_of(tab)).from(tab).where(tab.id == any(select(tab.id).from(tab).where(tab.id < 3))));
+  db(select(all_of(tab)).from(tab).where(tab.id == some(select(tab.id).from(tab).where(tab.id < 3))));
+  db(select(all_of(tab)).from(tab).where(tab.id + tab.id > 3));
+  db(select(all_of(tab)).from(tab).where((tab.textNnD + tab.textNnD) == ""));
+  db(select(all_of(tab)).from(tab).where((tab.textNnD + tab.textNnD).like("%'\"%")));
 
   // test boolean value
-  db(insert_into(tab).set(tab.c_bool = true, tab.gamma = "asdf"));
-  db(insert_into(tab).set(tab.c_bool = false, tab.gamma = "asdfg"));
+  db(insert_into(tab).set(tab.boolN = true, tab.textNnD = "asdf"));
+  db(insert_into(tab).set(tab.boolN = false, tab.textNnD = "asdfg"));
 
-  assert(db(select(tab.c_bool).from(tab).where(tab.gamma == "asdf")).front().c_bool);
-  assert(not db(select(tab.c_bool).from(tab).where(tab.gamma == "asdfg")).front().c_bool.value());
-  assert(not db(select(tab.c_bool).from(tab).where(tab.alpha == 1)).front().c_bool.has_value());
+  assert(db(select(tab.boolN).from(tab).where(tab.textNnD == "asdf")).front().boolN);
+  assert(not db(select(tab.boolN).from(tab).where(tab.textNnD == "asdfg")).front().boolN.value());
+  assert(not db(select(tab.boolN).from(tab).where(tab.id == 1)).front().boolN.has_value());
 
   // test
 
   // update
-  db(update(tab).set(tab.c_bool = false).where(tab.alpha.in(1)));
-  db(update(tab).set(tab.c_bool = false).where(tab.alpha.in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
+  db(update(tab).set(tab.boolN = false).where(tab.id.in(1)));
+  db(update(tab).set(tab.boolN = false).where(tab.id.in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
 
   // remove
-  db(remove_from(tab).where(tab.alpha == tab.alpha + 3));
+  db(remove_from(tab).where(tab.id == tab.id + 3));
 
   auto result1 = db(select(all_of(tab)).from(tab).unconditionally());
-  std::cerr << "Accessing a field directly from the result (using the current row): " << result1.begin()->alpha
+  std::cerr << "Accessing a field directly from the result (using the current row): " << result1.begin()->id
             << std::endl;
-  std::cerr << "Can do that again, no problem: " << result1.begin()->alpha << std::endl;
+  std::cerr << "Can do that again, no problem: " << result1.begin()->id << std::endl;
 
   auto tx = start_transaction(db);
-  auto result2 = db(select(all_of(tab), select(max(tab.alpha)).from(tab)).from(tab).unconditionally());
+  auto result2 = db(select(all_of(tab), select(max(tab.id)).from(tab)).from(tab).unconditionally());
   if (const auto& row = *result2.begin())
   {
-    auto a = row.alpha;
+    auto a = row.id;
     auto m = row.max;
     std::cerr << "-----------------------------" << a << ", " << m << std::endl;
   }

@@ -30,8 +30,7 @@
 #include <sqlpp11/postgresql/postgresql.h>
 #include <sqlpp11/sqlpp11.h>
 
-#include "TabBar.h"
-#include "TabFoo.h"
+#include "Tables.h"
 #include "make_test_connection.h"
 #include "../../include/test_helpers.h"
 
@@ -39,51 +38,42 @@ namespace sql = sqlpp::postgresql;
 
 int InsertOnConflict(int, char*[])
 {
-  model::TabFoo foo = {};
+  test::TabFoo foo = {};
 
   sql::connection db = sql::make_test_connection();
 
-  db.execute(R"(DROP TABLE IF EXISTS tabfoo;)");
-  db.execute(R"(CREATE TABLE tabfoo
-             (
-               alpha bigserial PRIMARY KEY NOT NULL,
-               beta smallint,
-               gamma text,
-               c_bool boolean,
-               c_timepoint timestamp with time zone,
-               c_day date
-             ))");
+  test::createTabFoo(db);
 
 #warning: Need to add serialization tests
   // Test on conflict
   db(sql::insert_into(foo).default_values().on_conflict().do_nothing());
 
   // Test on conflict (with conflict target)
-  db(sql::insert_into(foo).default_values().on_conflict(foo.alpha).do_nothing());
+  db(sql::insert_into(foo).default_values().on_conflict(foo.id).do_nothing());
 
   // Conflict target
-  db(sql::insert_into(foo).default_values().on_conflict(foo.alpha).do_update(
-      foo.beta = 5, foo.gamma = "test bla", foo.c_bool = true));
+  db(sql::insert_into(foo).default_values().on_conflict(foo.id).do_update(
+      foo.intN = 5, foo.textNnD = "test bla", foo.boolN = true));
 
   // With where statement
   for (const auto& row : db(sql::insert_into(foo)
                      .default_values()
-                     .on_conflict(foo.alpha)
-                     .do_update(foo.beta = 5, foo.gamma = "test bla", foo.c_bool = true)
-                     .where(foo.beta == 2)
-                     .returning(foo.gamma)))
+                     .on_conflict(foo.id)
+                     .do_update(foo.intN = 5, foo.textNnD = "test bla", foo.boolN = true)
+                     .where(foo.intN == 2)
+                     .returning(foo.textNnD)))
   {
-    std::cout << row.gamma << std::endl;
+    std::cout << row.textNnD << std::endl;
   }
 
   // Returning
   for (const auto& row : db(sql::insert_into(foo)
                      .default_values()
-                     .on_conflict(foo.alpha)
-                     .do_update(foo.beta = 5, foo.gamma = "test bla", foo.c_bool = true)
-                     .returning(foo.beta)))
+                     .on_conflict(foo.id)
+                     .do_update(foo.intN = 5, foo.textNnD = "test bla", foo.boolN = true)
+                     .returning(foo.intN)))
   {
-    std::cout << row.beta << std::endl;
+    std::cout << row.intN << std::endl;
   }
 
   return 0;

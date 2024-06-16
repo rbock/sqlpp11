@@ -64,6 +64,8 @@ int Select(int, char*[])
   const auto tab_a = f.as(sqlpp::alias::a);
 
   select(count(t.id));
+  select(sqlpp::count(1));
+  select(count(sqlpp::value(1)));
 
   std::cerr << serialize(select(sqlpp::value(false).as(sqlpp::alias::a)), printer).str() << std::endl;
   for (const auto& row : db(select(sqlpp::value(false).as(sqlpp::alias::a))))
@@ -107,7 +109,7 @@ int Select(int, char*[])
     std::cout << row.id << std::endl;
   }
 
-  for (const auto& row : db(select(count(t.id), avg(t.id)).from(t).unconditionally()))
+  for (const auto& row : db(select(sqlpp::count(1), avg(t.id)).from(t).unconditionally()))
   {
     std::cout << row.count << std::endl;
   }

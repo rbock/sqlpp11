@@ -24,7 +24,7 @@
  */
 
 #include "make_test_connection.h"
-#include "TabSample.h"
+#include "Tables.h"
 #include <sqlpp11/mysql/connection.h>
 #include <sqlpp11/sqlpp11.h>
 #include "../../include/test_helpers.h"
@@ -34,7 +34,7 @@
 const auto library_raii = sqlpp::mysql::scoped_library_initializer_t{0, nullptr, nullptr};
 
 namespace sql = sqlpp::mysql;
-const auto tab = TabSample{};
+const auto tab = test::TabSample{};
 
 int Union(int, char*[])
 {
@@ -42,24 +42,18 @@ int Union(int, char*[])
   try
   {
     auto db = sql::make_test_connection();
-    db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
-    db.execute(R"(CREATE TABLE tab_sample (
-		alpha bigint(20) AUTO_INCREMENT,
-			beta bool DEFAULT NULL,
-			gamma varchar(255) DEFAULT NULL,
-			PRIMARY KEY (alpha)
-			))");
+    test::createTabSample(db);
 
     auto u = select(all_of(tab)).from(tab).unconditionally().union_all(select(all_of(tab)).from(tab).unconditionally());
 
     for (const auto& row : db(u))
     {
-      std::cout << row.alpha << row.beta << row.gamma << std::endl;
+      std::cout << row.intN << row.textN << row.boolN << std::endl;
     }
 
     for (const auto& row : db(u.union_distinct(select(all_of(tab)).from(tab).unconditionally())))
     {
-      std::cout << row.alpha << row.beta << row.gamma << std::endl;
+      std::cout << row.intN << row.textN << row.boolN << std::endl;
     }
   }
   catch (const std::exception& e)

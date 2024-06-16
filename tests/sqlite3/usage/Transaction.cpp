@@ -23,7 +23,6 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "TabSample.h"
 #include <cassert>
 #include <sqlpp11/alias_provider.h>
 #include <sqlpp11/custom_query.h>

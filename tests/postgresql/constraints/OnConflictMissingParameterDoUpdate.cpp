@@ -30,19 +30,17 @@
 #include <sqlpp11/postgresql/postgresql.h>
 #include <sqlpp11/sqlpp11.h>
 
-#include "../usage/TabBar.h"
-#include "../usage/TabFoo.h"
+#include "../usage/Tables.h"
 
 namespace sql = sqlpp::postgresql;
 
 int main(int, char*[])
 {
-  model::TabFoo foo = {};
-  // model::TabBar bar = {};
+  test::TabFoo foo = {};
 
   auto insert1 = sql::insert_into(foo)
                      .default_values()
                      .on_conflict()
-                     .do_update(foo.beta = 5, foo.gamma = "test bla", foo.c_bool = true)
-                     .where(foo.beta == 2);
+                     .do_update(foo.intN = 5, foo.textNnD = "test bla", foo.boolN = true)
+                     .where(foo.intN == 2);
 }

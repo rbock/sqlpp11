@@ -24,7 +24,7 @@
  */
 
 #include "make_test_connection.h"
-#include "TabSample.h"
+#include "Tables.h"
 #include <sqlpp11/alias_provider.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/insert.h>
@@ -48,23 +48,18 @@ int MoveConstructor(int, char*[])
     std::vector<sql::connection> connections;
     connections.emplace_back(sql::connection(config));
 
-    connections.at(0).execute(R"(DROP TABLE IF EXISTS tab_sample)");
-    connections.at(0).execute(R"(CREATE TABLE tab_sample (
-		alpha bigint(20) AUTO_INCREMENT NOT NULL PRIMARY KEY,
-			beta varchar(255) DEFAULT NULL,
-			gamma bool NOT NULL DEFAULT 0
-			))");
+    test::createTabSample(connections.at(0));
 
     assert(connections.at(0).is_transaction_active() == false);
     connections.at(0).start_transaction();
     auto db = std::move(connections.at(0));
     assert(db.is_transaction_active());
-    const auto tab = TabSample{};
-    db(insert_into(tab).set(tab.gamma = true));
-    auto i = insert_into(tab).columns(tab.beta, tab.gamma);
-    i.add_values(tab.beta = "rhabarbertorte", tab.gamma = false);
-    i.add_values(tab.beta = "cheesecake", tab.gamma = false);
-    i.add_values(tab.beta = "kaesekuchen", tab.gamma = true);
+    const auto tab = test::TabSample{};
+    db(insert_into(tab).set(tab.boolN = true));
+    auto i = insert_into(tab).columns(tab.textN, tab.boolN);
+    i.add_values(tab.textN = "rhabarbertorte", tab.boolN = false);
+    i.add_values(tab.textN = "cheesecake", tab.boolN = false);
+    i.add_values(tab.textN = "kaesekuchen", tab.boolN = true);
     db(i);
 
     db.commit_transaction();

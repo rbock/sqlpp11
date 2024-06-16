@@ -31,11 +31,11 @@
 #include <iostream>
 #include <random>
 
-#include "BlobSample.h"
+#include "Tables.h"
 #include "make_test_connection.h"
 
 namespace sql = sqlpp::postgresql;
-const auto blob = model::BlobSample{};
+const auto blob = test::BlobSample{};
 
 // This would be a great fuzzing target :-)
 constexpr size_t blob_size = 1000 * 1000ul;
@@ -72,11 +72,8 @@ int Blob(int, char*[])
 {
   sql::connection db = sql::make_test_connection();
 
-  db.execute(R"(DROP TABLE IF EXISTS blob_sample;)");
-  db.execute(R"(CREATE TABLE blob_sample (
-             id bigserial PRIMARY KEY,
-             data bytea
-           ))");
+  test::createBlobSample(db);
+
   std::cerr << "Generating data " << blob_size << std::endl;
   std::vector<uint8_t> data(blob_size);
   std::uniform_int_distribution<unsigned short> distribution(0, 255);

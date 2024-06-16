@@ -31,8 +31,7 @@
 
 #include "assertThrow.h"
 
-#include "TabBar.h"
-#include "TabFoo.h"
+#include "Tables.h"
 #include "make_test_connection.h"
 
 namespace sql = sqlpp::postgresql;
@@ -45,44 +44,35 @@ int Exceptions(int, char*[])
     assert_throw(sql::connection db(config), sql::broken_connection);
   }
 
-  model::TabFoo foo = {};
+  test::TabExcept tab;
   sql::connection db = sql::make_test_connection();
 
   try
   {
-    db.execute(R"(DROP TABLE IF EXISTS tabfoo;)");
-    db.execute(R"(CREATE TABLE tabfoo
-                   (
-                   alpha bigserial NOT NULL,
-                   beta smallint UNIQUE,
-                   gamma text CHECK( length(gamma) < 5 ),
-                   c_bool boolean,
-                   c_timepoint timestamp with time zone DEFAULT now(),
-                   c_day date
-                   ))");
-    db.execute(R"(create or replace function cause_error() returns int as $$
-                    begin
-                      raise exception 'User error' USING ERRCODE='ZX123'; 
-                    end;
-                  $$ language plpgsql
-                  )");
+    test::createTabExcept(db);
+    assert_throw(db(insert_into(tab).set(tab.intSmallNU = std::numeric_limits<int16_t>::max() + 1)), sql::data_exception);
+    assert_throw(db(insert_into(tab).set(tab.textShortN = "123456")), sql::check_violation);
+    db(insert_into(tab).set(tab.intSmallNU = 5));
+    assert_throw(db(insert_into(tab).set(tab.intSmallNU = 5)), sql::integrity_constraint_violation);
+    assert_throw(db.last_insert_id("tabfoo", "no_such_column"), sqlpp::postgresql::undefined_table);
 
-    assert_throw(db(insert_into(foo).set(foo.beta = std::numeric_limits<int16_t>::max() + 1)), sql::data_exception);
-    assert_throw(db(insert_into(foo).set(foo.gamma = "123456")), sql::check_violation);
-    db(insert_into(foo).set(foo.beta = 5));
-    assert_throw(db(insert_into(foo).set(foo.beta = 5)), sql::integrity_constraint_violation);
-    assert_throw(db.last_insert_id("tabfoo", "no_such_column"), sqlpp::postgresql::undefined_table);    
-    
-    try 
+    try
     {
+      // Cause specific error
+      db.execute(R"(create or replace function cause_error() returns int as $$
+                      begin
+                        raise exception 'User error' USING ERRCODE='ZX123';
+                      end;
+                    $$ language plpgsql
+                    )");
+
       db.execute("select cause_error();");
-    } 
-    catch( const sql::sql_user_error& e)
-    {
-      std::cout << e.code();
-      assert( e.code() == "ZX123");
     }
-
+    catch (const sql::sql_user_error& e)
+    {
+      std::cout << "Caught expected error. Code: " << e.code() << '\n';
+      assert(e.code() == "ZX123");
+    }
   }
   catch (const sql::failure& e)
   {

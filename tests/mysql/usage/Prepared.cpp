@@ -24,7 +24,7 @@
  */
 
 #include "make_test_connection.h"
-#include "TabSample.h"
+#include "Tables.h"
 #include <cassert>
 #include <sqlpp11/alias_provider.h>
 #include <sqlpp11/functions.h>
@@ -41,22 +41,22 @@
 const auto library_raii = sqlpp::mysql::scoped_library_initializer_t{0, nullptr, nullptr};
 
 namespace sql = sqlpp::mysql;
-const auto tab = TabSample{};
+const auto tab = test::TabSample{};
 
 void testPreparedStatementResult(sql::connection& db)
 {
-  auto preparedInsert = db.prepare(insert_into(tab).set(tab.beta = parameter(tab.beta)));
-  preparedInsert.params.beta = sqlpp::null;
+  auto preparedInsert = db.prepare(insert_into(tab).set(tab.textN = parameter(tab.textN)));
+  preparedInsert.params.textN = sqlpp::null;
   db(preparedInsert);
-  preparedInsert.params.beta = "17";
+  preparedInsert.params.textN = "17";
   db(preparedInsert);
-  preparedInsert.params.beta = sqlpp::value_or_null<sqlpp::text>(sqlpp::null);
+  preparedInsert.params.textN = sqlpp::value_or_null<sqlpp::text>(sqlpp::null);
   db(preparedInsert);
-  preparedInsert.params.beta = sqlpp::value_or_null("17");
+  preparedInsert.params.textN = sqlpp::value_or_null("17");
   db(preparedInsert);
 
-  auto preparedSelectAll = db.prepare(sqlpp::select(count(tab.alpha)).from(tab).unconditionally());
-  auto preparedUpdateAll = db.prepare(sqlpp::update(tab).set(tab.gamma = false).unconditionally());
+  auto preparedSelectAll = db.prepare(sqlpp::select(count(tab.intN)).from(tab).unconditionally());
+  auto preparedUpdateAll = db.prepare(sqlpp::update(tab).set(tab.boolN = false).unconditionally());
 
   {
     // explicit result scope
@@ -74,17 +74,7 @@ int Prepared(int, char*[])
   try
   {
     auto db = sql::make_test_connection();
-    db.execute(R"(DROP TABLE IF EXISTS tab_sample)");
-    db.execute(R"(CREATE TABLE tab_sample (
-		alpha bigint(20) AUTO_INCREMENT,
-			beta varchar(255) DEFAULT NULL,
-			gamma bool DEFAULT NULL,
-			PRIMARY KEY (alpha)
-			))");
-    db.execute(R"(DROP TABLE IF EXISTS tab_foo)");
-    db.execute(R"(CREATE TABLE tab_foo (
-		omega bigint(20) DEFAULT NULL
-			))");
+    test::createTabSample(db);
 
     testPreparedStatementResult(db);
   }
