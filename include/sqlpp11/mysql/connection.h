@@ -203,20 +203,20 @@ namespace sqlpp
         return {std::move(result_handle)};
       }
 
-      size_t insert_impl(const std::string& statement)
+      uint64_t insert_impl(const std::string& statement)
       {
         execute_statement(_handle, statement);
 
         return mysql_insert_id(_handle->native_handle());
       }
 
-      size_t update_impl(const std::string& statement)
+      uint64_t update_impl(const std::string& statement)
       {
         execute_statement(_handle, statement);
         return mysql_affected_rows(_handle->native_handle());
       }
 
-      size_t remove_impl(const std::string& statement)
+      uint64_t remove_impl(const std::string& statement)
       {
         execute_statement(_handle, statement);
         return mysql_affected_rows(_handle->native_handle());
@@ -234,19 +234,19 @@ namespace sqlpp
         return prepared_statement._handle;
       }
 
-      size_t run_prepared_insert_impl(prepared_statement_t& prepared_statement)
+      uint64_t run_prepared_insert_impl(prepared_statement_t& prepared_statement)
       {
         execute_prepared_statement(*prepared_statement._handle);
         return mysql_stmt_insert_id(prepared_statement._handle->mysql_stmt);
       }
 
-      size_t run_prepared_update_impl(prepared_statement_t& prepared_statement)
+      uint64_t run_prepared_update_impl(prepared_statement_t& prepared_statement)
       {
         execute_prepared_statement(*prepared_statement._handle);
         return mysql_stmt_affected_rows(prepared_statement._handle->mysql_stmt);
       }
 
-      size_t run_prepared_remove_impl(prepared_statement_t& prepared_statement)
+      uint64_t run_prepared_remove_impl(prepared_statement_t& prepared_statement)
       {
         execute_prepared_statement(*prepared_statement._handle);
         return mysql_stmt_affected_rows(prepared_statement._handle->mysql_stmt);
@@ -286,19 +286,9 @@ namespace sqlpp
         return _handle->ping_server();
       }
 
-      void reconnect()
-      {
-        return _handle->reconnect();
-      }
-
       const std::shared_ptr<const connection_config>& get_config()
       {
         return _handle->config;
-      }
-
-      bool is_transaction_active()
-      {
-        return _transaction_active;
       }
 
       template <typename Select>
@@ -396,10 +386,15 @@ namespace sqlpp
         return run_prepared_remove_impl(r._prepared_statement);
       }
 
-      //! execute arbitrary command (e.g. create a table)
-      void execute(const std::string& command)
+      //! Execute arbitrary statement (e.g. create a table).
+      //! Essentially this calls mysql_query, see https://dev.mysql.com/doc/c-api/8.0/en/mysql-query.html
+      //! Note:
+      //!  * This usually only allows a single statement (unless configured otherwise for the connection).
+      //!  * If you are passing a statement with results, like a SELECT, you will need to fetch results before issuing
+      //!    the next statement on the same connection.
+      void execute(const std::string& statement)
       {
-        execute_statement(_handle, command);
+        execute_statement(_handle, statement);
       }
 
       //! escape given string (does not quote, though)
@@ -467,8 +462,8 @@ namespace sqlpp
         {
           throw sqlpp::exception{"MySQL: Cannot commit a finished or failed transaction"};
         }
-        _transaction_active = false;
         execute_statement(_handle, "COMMIT");
+        _transaction_active = false;
       }
 
       //! rollback transaction (or throw if the transaction has been finished already)
@@ -482,14 +477,20 @@ namespace sqlpp
         {
           std::cerr << "MySQL warning: Rolling back unfinished transaction" << std::endl;
         }
-        _transaction_active = false;
         execute_statement(_handle, "ROLLBACK");
+        _transaction_active = false;
       }
 
       //! report a rollback failure (will be called by transactions in case of a rollback failure in the destructor)
       void report_rollback_failure(const std::string& message) noexcept
       {
         std::cerr << "MySQL message:" << message << std::endl;
+      }
+
+      //! check if transaction is active
+      bool is_transaction_active()
+      {
+        return _transaction_active;
       }
 
       MYSQL* native_handle()

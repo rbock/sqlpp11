@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2021, Roland Bock
+ * Copyright (c) 2023, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -23,36 +23,21 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Sample.h"
 #include "compare.h"
+#include "Sample.h"
 #include <sqlpp11/sqlpp11.h>
 
 #include <iostream>
 
-int Operator(int, char* [])
+SQLPP_ALIAS_PROVIDER(cheese)
+
+int SelectAs(int, char*[])
 {
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 
-  // Plus
-  compare(__LINE__, bar.alpha + 3u, "(tab_bar.alpha+3)");
-  compare(__LINE__, sqlpp::value(3) + foo.psi, "(3+tab_foo.psi)");
-
-  // Shift left
-  compare(__LINE__, sqlpp::value(3) << foo.psi, "(3<<tab_foo.psi)");
-  compare(__LINE__, bar.alpha << 3u, "(tab_bar.alpha<<3)");
-
-  // Shift right
-  compare(__LINE__, sqlpp::value(3) >> foo.psi, "(3>>tab_foo.psi)");
-  compare(__LINE__, bar.alpha >> 3u, "(tab_bar.alpha>>3)");
-
-  // Comparison
-  compare(__LINE__, bar.alpha < 3u, "(tab_bar.alpha<3)");
-  compare(__LINE__, bar.alpha <= 3u, "(tab_bar.alpha<=3)");
-  compare(__LINE__, bar.alpha == 3u, "(tab_bar.alpha=3)");
-  compare(__LINE__, bar.alpha != 3u, "(tab_bar.alpha<>3)");
-  compare(__LINE__, bar.alpha >= 3u, "(tab_bar.alpha>=3)");
-  compare(__LINE__, bar.alpha > 3u, "(tab_bar.alpha>3)");
+  // SELECT...AS as selectable column
+  compare(__LINE__, select(foo.omega, select(count(bar.alpha)).from(bar).unconditionally().as(cheese)), "SELECT tab_foo.omega,(SELECT COUNT(tab_bar.alpha) AS count_ FROM tab_bar) AS cheese");
 
   return 0;
 }

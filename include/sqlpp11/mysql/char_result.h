@@ -68,6 +68,11 @@ namespace sqlpp
         return _handle == rhs._handle;
       }
 
+      size_t size() const
+      {
+        return _handle ? mysql_num_rows(_handle->mysql_res) : size_t{};
+      }
+
       template <typename ResultRow>
       void next(ResultRow& result_row)
       {
@@ -179,6 +184,29 @@ namespace sqlpp
         {
           if (_handle->debug)
             std::cerr << "MySQL debug: invalid date_time result: " << date_time_string << std::endl;
+        }
+      }
+
+      void _bind_time_of_day_result(size_t index, ::std::chrono::microseconds* value, bool* is_null)
+      {
+        if (_handle->debug)
+          std::cerr << "MySQL debug: parsing time of day result at index: " << index << std::endl;
+
+        *value = {};
+        *is_null = (_char_result_row.data == nullptr or _char_result_row.data[index] == nullptr);
+        if (*is_null)
+        {
+          return;
+        }
+
+        const auto time_string = _char_result_row.data[index];
+        if (_handle->debug)
+          std::cerr << "MySQL debug: time of day string: " << time_string << std::endl;
+
+        if (::sqlpp::detail::parse_time_of_day(*value, time_string) == false)
+        {
+          if (_handle->debug)
+            std::cerr << "MySQL debug: invalid time result: " << time_string << std::endl;
         }
       }
 

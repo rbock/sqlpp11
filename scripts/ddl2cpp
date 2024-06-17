@@ -45,7 +45,8 @@ ddlString = (
 ddlTerm = pp.Word(pp.alphas + "_", pp.alphanums + "_.$")
 ddlName = pp.Or([ddlTerm, ddlString, pp.Combine(ddlString + "." + ddlString), pp.Combine(ddlTerm + ddlString)])
 ddlOperator = pp.Or(
-    map(pp.CaselessLiteral, ["+", "-", "*", "/", "<", "<=", ">", ">=", "=", "%", "DIV"])
+    map(pp.CaselessLiteral, ["+", "-", "*", "/", "<", "<=", ">", ">=", "=", "%"]),
+    pp.CaselessKeyword("DIV")
 )
 
 ddlBracedExpression = pp.Forward()
@@ -92,6 +93,9 @@ ddlIntegerTypes = [
 ddlSerialTypes = [
     "bigserial",  # PostgreSQL
     "serial",  # PostgreSQL
+    "serial2",  # PostgreSQL
+    "serial4",  # PostgreSQL
+    "serial8",  # PostgreSQL
     "smallserial",  # PostgreSQL
 ]
 
@@ -159,44 +163,44 @@ def initDllParser():
     # Column and constraint parsers
 
     ddlBoolean = pp.Or(
-        map(pp.CaselessLiteral, sorted(ddlBooleanTypes, reverse=True))
+        map(pp.CaselessKeyword, sorted(ddlBooleanTypes, reverse=True))
     ).setParseAction(pp.replaceWith("boolean"))
 
     ddlInteger = pp.Or(
-        map(pp.CaselessLiteral, sorted(ddlIntegerTypes, reverse=True))
+        map(pp.CaselessKeyword, sorted(ddlIntegerTypes, reverse=True))
     ).setParseAction(pp.replaceWith("integer"))
 
     ddlSerial = (
-        pp.Or(map(pp.CaselessLiteral, sorted(ddlSerialTypes, reverse=True)))
+        pp.Or(map(pp.CaselessKeyword, sorted(ddlSerialTypes, reverse=True)))
         .setParseAction(pp.replaceWith("integer"))
         .setResultsName("hasAutoValue")
     )
 
     ddlFloatingPoint = pp.Or(
-        map(pp.CaselessLiteral, sorted(ddlFloatingPointTypes, reverse=True))
+        map(pp.CaselessKeyword, sorted(ddlFloatingPointTypes, reverse=True))
     ).setParseAction(pp.replaceWith("floating_point"))
 
     ddlText = pp.Or(
-        map(pp.CaselessLiteral, sorted(ddlTextTypes, reverse=True))
+        map(pp.CaselessKeyword, sorted(ddlTextTypes, reverse=True))
     ).setParseAction(pp.replaceWith("text"))
 
 
     ddlBlob = pp.Or(
-        map(pp.CaselessLiteral, sorted(ddlBlobTypes, reverse=True))
+        map(pp.CaselessKeyword, sorted(ddlBlobTypes, reverse=True))
     ).setParseAction(pp.replaceWith("blob"))
 
     ddlDate = (
-        pp.Or(map(pp.CaselessLiteral, sorted(ddlDateTypes, reverse=True)))
+        pp.Or(map(pp.CaselessKeyword, sorted(ddlDateTypes, reverse=True)))
         .setParseAction(pp.replaceWith("day_point"))
         .setResultsName("warnTimezone")
     )
 
     ddlDateTime = pp.Or(
-        map(pp.CaselessLiteral, sorted(ddlDateTimeTypes, reverse=True))
+        map(pp.CaselessKeyword, sorted(ddlDateTimeTypes, reverse=True))
     ).setParseAction(pp.replaceWith("time_point"))
 
     ddlTime = pp.Or(
-        map(pp.CaselessLiteral, sorted(ddlTimeTypes, reverse=True))
+        map(pp.CaselessKeyword, sorted(ddlTimeTypes, reverse=True))
     ).setParseAction(pp.replaceWith("time_of_day"))
 
     ddlUnknown = pp.Word(pp.alphanums).setParseAction(pp.replaceWith("UNKNOWN"))
@@ -214,33 +218,39 @@ def initDllParser():
         | ddlUnknown
     )
 
-    ddlUnsigned = pp.CaselessLiteral("UNSIGNED").setResultsName("isUnsigned")
+    ddlUnsigned = pp.CaselessKeyword("UNSIGNED").setResultsName("isUnsigned")
     ddlDigits = "," + pp.Word(pp.nums)
     ddlWidth = ddlLeft + pp.Word(pp.nums) + pp.Optional(ddlDigits) + ddlRight
     ddlTimezone = (
-        (pp.CaselessLiteral("with") | pp.CaselessLiteral("without"))
-        + pp.CaselessLiteral("time")
-        + pp.CaselessLiteral("zone")
+        (pp.CaselessKeyword("with") | pp.CaselessKeyword("without"))
+        + pp.CaselessKeyword("time")
+        + pp.CaselessKeyword("zone")
     )
 
     ddlNotNull = pp.Group(
-        pp.CaselessLiteral("NOT") + pp.CaselessLiteral("NULL")
+        pp.CaselessKeyword("NOT") + pp.CaselessKeyword("NULL")
     ).setResultsName("notNull")
-    ddlDefaultValue = pp.CaselessLiteral("DEFAULT").setResultsName("hasDefaultValue")
+    ddlDefaultValue = pp.CaselessKeyword("DEFAULT").setResultsName("hasDefaultValue")
 
     ddlAutoKeywords = [
         "AUTO_INCREMENT",
         "AUTOINCREMENT",
         "SMALLSERIAL",
         "SERIAL",
+        "SERIAL2",
+        "SERIAL4",
+        "SERIAL8",
         "BIGSERIAL",
         "GENERATED",
     ]
-    ddlAutoValue = pp.Or(map(pp.CaselessLiteral, sorted(ddlAutoKeywords, reverse=True)))
+    ddlAutoValue = pp.Or(map(pp.CaselessKeyword, sorted(ddlAutoKeywords, reverse=True)))
 
-    ddlConstraintKeywords = [
+    ddlPrimaryKey = pp.Group(
+        pp.CaselessKeyword("PRIMARY") + pp.CaselessKeyword("KEY")
+    ).setResultsName("isPrimaryKey")
+
+    ddlIgnoredKeywords = [
         "CONSTRAINT",
-        "PRIMARY",
         "FOREIGN",
         "KEY",
         "FULLTEXT",
@@ -250,7 +260,10 @@ def initDllParser():
         "PERIOD",
     ]
     ddlConstraint = pp.Group(
-        pp.Or(map(pp.CaselessLiteral, sorted(ddlConstraintKeywords, reverse=True)))
+        pp.Or(map(
+            pp.CaselessKeyword,
+            sorted(ddlIgnoredKeywords + ["PRIMARY"], reverse=True)
+        ))
         + ddlExpression
     ).setResultsName("isConstraint")
 
@@ -262,25 +275,26 @@ def initDllParser():
         + pp.ZeroOrMore(
             ddlUnsigned("isUnsigned")
             | ddlNotNull("notNull")
-            | pp.CaselessLiteral("null")
+            | pp.CaselessKeyword("null")
             | ddlAutoValue("hasAutoValue")
             | ddlDefaultValue("hasDefaultValue")
-            | pp.Suppress(pp.OneOrMore(pp.Or(map(pp.CaselessLiteral, sorted(ddlConstraintKeywords, reverse=True)))))
+            | ddlPrimaryKey("isPrimaryKey")
+            | pp.Suppress(pp.OneOrMore(pp.Or(map(pp.CaselessKeyword, sorted(ddlIgnoredKeywords, reverse=True)))))
             | pp.Suppress(ddlExpression)
         )
     )
 
     # CREATE TABLE parser
     ddlIfNotExists = pp.Group(
-        pp.CaselessLiteral("IF") + pp.CaselessLiteral("NOT") + pp.CaselessLiteral("EXISTS")
+        pp.CaselessKeyword("IF") + pp.CaselessKeyword("NOT") + pp.CaselessKeyword("EXISTS")
     ).setResultsName("ifNotExists")
     ddlOrReplace = pp.Group(
-        pp.CaselessLiteral("OR") + pp.CaselessLiteral("REPLACE")
+        pp.CaselessKeyword("OR") + pp.CaselessKeyword("REPLACE")
     ).setResultsName("orReplace")
     ddlCreateTable = pp.Group(
-        pp.CaselessLiteral("CREATE")
+        pp.CaselessKeyword("CREATE")
         + pp.Suppress(pp.Optional(ddlOrReplace))
-        + pp.CaselessLiteral("TABLE")
+        + pp.CaselessKeyword("TABLE")
         + pp.Suppress(pp.Optional(ddlIfNotExists))
         + ddlName.setResultsName("tableName")
         + ddlLeft
@@ -372,6 +386,7 @@ def testColumn():
     assert column.isUnsigned
     assert column.notNull
     assert not column.hasAutoValue
+    assert not column.isPrimaryKey
 
 
 def testConstraint():
@@ -431,6 +446,7 @@ def testPrimaryKeyAutoIncrement():
         assert column.type == "integer"
         assert column.notNull
         assert column.hasAutoValue
+        assert column.isPrimaryKey
 
 def testParser():
     initDllParser()
@@ -472,12 +488,12 @@ def repl_camel_case_func(m):
 
 def class_name_naming_func(s):
     s = s.replace(".", "_")
-    return re.sub("(^|\s|[_0-9])(\S)", repl_camel_case_func, s)
+    return re.sub(r"(^|\s|[_0-9])(\S)", repl_camel_case_func, s)
 
 
 def member_name_naming_func(s):
     s = s.replace(".", "_")
-    return re.sub("(\s|_|[0-9])(\S)", repl_camel_case_func, s)
+    return re.sub(r"(\s|_|[0-9])(\S)", repl_camel_case_func, s)
 
 
 def repl_func_for_args(m):
@@ -491,7 +507,7 @@ def setArgumentBool(s, bool_value):
     first_lower = (
         lambda s: s[:1].lower() + s[1:] if s else ""
     )  # http://stackoverflow.com/a/3847369/5006740
-    var_name = first_lower(re.sub("(\s|-|[0-9])(\S)", repl_func_for_args, s))
+    var_name = first_lower(re.sub(r"(\s|-|[0-9])(\S)", repl_func_for_args, s))
     globals()[var_name] = bool_value
 
 def loadExtendedTypesFile(filename):
@@ -707,7 +723,7 @@ def createHeader():
                 traitslist.append("sqlpp::tag::must_not_insert")
                 traitslist.append("sqlpp::tag::must_not_update")
                 requireInsert = False
-            if not column.notNull:
+            if not column.notNull and not column.isPrimaryKey:
                 traitslist.append("sqlpp::tag::can_be_null")
                 requireInsert = False
             if column.hasDefaultValue:

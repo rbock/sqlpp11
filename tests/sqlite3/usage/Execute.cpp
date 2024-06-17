@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2021, Roland Bock
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -23,36 +23,33 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Sample.h"
-#include "compare.h"
-#include <sqlpp11/sqlpp11.h>
+#include <sqlpp11/sqlite3/connection.h>
 
 #include <iostream>
 
-int Operator(int, char* [])
+namespace sql = sqlpp::sqlite3;
+
+int Execute(int, char*[])
 {
-  const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  sql::connection db({":memory:", SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, "", true});
 
-  // Plus
-  compare(__LINE__, bar.alpha + 3u, "(tab_bar.alpha+3)");
-  compare(__LINE__, sqlpp::value(3) + foo.psi, "(3+tab_foo.psi)");
+  // execute supports single statements.
+  db.execute(R"(SELECT 1)");
 
-  // Shift left
-  compare(__LINE__, sqlpp::value(3) << foo.psi, "(3<<tab_foo.psi)");
-  compare(__LINE__, bar.alpha << 3u, "(tab_bar.alpha<<3)");
-
-  // Shift right
-  compare(__LINE__, sqlpp::value(3) >> foo.psi, "(3>>tab_foo.psi)");
-  compare(__LINE__, bar.alpha >> 3u, "(tab_bar.alpha>>3)");
-
-  // Comparison
-  compare(__LINE__, bar.alpha < 3u, "(tab_bar.alpha<3)");
-  compare(__LINE__, bar.alpha <= 3u, "(tab_bar.alpha<=3)");
-  compare(__LINE__, bar.alpha == 3u, "(tab_bar.alpha=3)");
-  compare(__LINE__, bar.alpha != 3u, "(tab_bar.alpha<>3)");
-  compare(__LINE__, bar.alpha >= 3u, "(tab_bar.alpha>=3)");
-  compare(__LINE__, bar.alpha > 3u, "(tab_bar.alpha>3)");
+  // execute throws an exception if multiple statements are passed in the string.
+  try
+  {
+    db.execute(R"(SELECT 1; SELECT 2)");
+  }
+  catch (const sqlpp::exception& e)
+  {
+    const auto message = std::string(e.what());
+    if (message.find("Cannot execute multi-statements") == message.npos)
+    {
+      std::cerr << "Unexpected exception for multi-statement: " << message;
+      return 1;
+    }
+  }
 
   return 0;
 }

@@ -280,6 +280,29 @@ namespace sqlpp
         param.error = &meta_data.bound_error;
       }
 
+      void _bind_time_of_day_result(size_t index, ::std::chrono::microseconds* value, bool* is_null)
+      {
+        if (_handle->debug)
+          std::cerr << "MySQL debug: binding time of day result " << static_cast<void*>(value) << " at index: " << index
+                    << std::endl;
+
+        detail::result_meta_data_t& meta_data{_handle->result_param_meta_data[index]};
+        meta_data.index = index;
+        meta_data.len = nullptr;
+        meta_data.is_null = is_null;
+        meta_data.text_buffer = nullptr;
+        meta_data.bound_text_buffer.resize(sizeof(MYSQL_TIME));
+
+        MYSQL_BIND& param{_handle->result_params[index]};
+        param.buffer_type = MYSQL_TYPE_TIME;
+        param.buffer = meta_data.bound_text_buffer.data();
+        param.buffer_length = meta_data.bound_text_buffer.size();
+        param.length = &meta_data.bound_len;
+        param.is_null = &meta_data.bound_is_null;
+        param.is_unsigned = false;
+        param.error = &meta_data.bound_error;
+      }
+
       void _post_bind_boolean_result(size_t /* index */, signed char* /* value */, bool* /* is_null */)
       {
       }
@@ -318,7 +341,7 @@ namespace sqlpp
       void _post_bind_date_time_result(size_t index, ::sqlpp::chrono::microsecond_point* value, bool* is_null)
       {
         if (_handle->debug)
-          std::cerr << "MySQL debug: binding date time result " << static_cast<void*>(value) << " at index: " << index
+          std::cerr << "MySQL debug: post binding date time result " << static_cast<void*>(value) << " at index: " << index
                     << std::endl;
 
         if (not *is_null)
@@ -330,6 +353,21 @@ namespace sqlpp
           *is_null = false;
           *value = ::sqlpp::chrono::day_point(::date::year(static_cast<int>(dt.year)) / ::date::month(dt.month) / ::date::day(dt.day)) +
                    std::chrono::hours(dt.hour) + std::chrono::minutes(dt.minute) + std::chrono::seconds(dt.second) +
+                   std::chrono::microseconds(dt.second_part);
+        }
+      }
+
+      void _post_bind_time_of_day_result(size_t index, ::std::chrono::microseconds* value, bool* is_null)
+      {
+        if (_handle->debug)
+          std::cerr << "MySQL debug: post binding date time result " << static_cast<void*>(value) << " at index: " << index
+                    << std::endl;
+
+        if (not *is_null)
+        {
+          const auto& dt =
+              *reinterpret_cast<const MYSQL_TIME*>(_handle->result_param_meta_data[index].bound_text_buffer.data());
+          *value = std::chrono::hours(dt.hour) + std::chrono::minutes(dt.minute) + std::chrono::seconds(dt.second) +
                    std::chrono::microseconds(dt.second_part);
         }
       }

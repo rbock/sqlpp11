@@ -61,6 +61,8 @@ void print_row(Row const& row)
   std::cout << a << ", " << b << std::endl;
 }
 
+SQLPP_ALIAS_PROVIDER(cheese)
+
 int Select(int, char*[])
 {
   MockDb db = {};
@@ -164,6 +166,7 @@ int Select(int, char*[])
                .dynamic_offset();
   s.select_flags.add(sqlpp::distinct);
   s.selected_columns.add(without_table_check(f.omega));
+  s.selected_columns.add(select(f.omega).from(f).unconditionally().as(f.delta));
   s.from.add(dynamic_cross_join(f));
   s.where.add(t.alpha > 7);
   s.having.add(t.alpha > 7);
@@ -208,6 +211,12 @@ int Select(int, char*[])
     {
       std::cout << "Error: transaction isolation level does not match default level" << std::endl;
     }
+  }
+
+  for (const auto& row :
+       db(select(f.omega, select(count(t.alpha)).from(t).unconditionally().as(cheese)).from(f).unconditionally()))
+  {
+    std::cout << row.omega << " " << row.cheese << std::endl;
   }
 
   return 0;

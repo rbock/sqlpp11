@@ -35,12 +35,9 @@
 
 namespace sqlpp
 {
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_result_field_value_is_safe_t, "result field value needs to be checked for NULL");
-
   template <typename Db, typename FieldSpec, typename StorageType = typename value_type_of<FieldSpec>::_cpp_value_type>
   struct result_field_base
   {
-    using _db_t = Db;
     using _field_spec_t = FieldSpec;
     using _alias_t = typename FieldSpec::_alias_t;
     using _cpp_value_type = typename value_type_of<FieldSpec>::_cpp_value_type;

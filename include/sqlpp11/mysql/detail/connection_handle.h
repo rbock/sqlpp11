@@ -98,7 +98,7 @@ namespace sqlpp
       struct connection_handle
       {
         std::shared_ptr<const connection_config> config;
-        std::unique_ptr<MYSQL, void (*)(MYSQL*)> mysql;
+        std::unique_ptr<MYSQL, void (STDCALL*)(MYSQL*)> mysql;
 
         connection_handle(const std::shared_ptr<const connection_config>& conf) :
           config{conf},
@@ -107,15 +107,6 @@ namespace sqlpp
           if (not mysql)
           {
             throw sqlpp::exception{"MySQL: could not init mysql data structure"};
-          }
-
-          if (config->auto_reconnect)
-          {
-            my_bool my_true{true};
-            if (mysql_options(native_handle(), MYSQL_OPT_RECONNECT, &my_true))
-            {
-              throw sqlpp::exception{"MySQL: could not set option MYSQL_OPT_RECONNECT"};
-            }
           }
 
           connect(native_handle(), *config);
@@ -144,10 +135,6 @@ namespace sqlpp
           return mysql_ping(native_handle()) == 0;
         }
 
-        void reconnect()
-        {
-          connect(native_handle(), *config);
-        }
       };
     }  // namespace detail
   }  // namespace mysql

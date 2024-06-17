@@ -1,7 +1,7 @@
 #pragma once
 
-/*
- * Copyright (c) 2013 - 2015, Roland Bock
+/**
+ * Copyright (c) 2023-2023, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -26,42 +26,40 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string>
+#include <sqlpp11/remove.h>
+#include <sqlpp11/postgresql/returning.h>
 
 namespace sqlpp
 {
-  namespace mysql
+  namespace postgresql
   {
-    struct connection_config
+    template <typename Database>
+    using blank_remove_t = statement_t<Database, remove_t, no_from_t, no_using_t, no_where_t<true>, no_returning_t>;
+
+    inline auto remove() -> blank_remove_t<void>
     {
-      std::string host{"localhost"};
-      std::string user;
-      std::string password;
-      std::string database;
-      unsigned int port{0};
-      std::string unix_socket;
-      unsigned long client_flag{0};
-      std::string charset{"utf8"};
-      bool debug{false};
-      unsigned int connect_timeout_seconds{0};  // 0 = do not override MySQL library default
-      bool ssl{false};
-      std::string ssl_key, ssl_cert, ssl_ca, ssl_capath, ssl_cipher;
-      unsigned int read_timeout{0};
+      return {};
+    }
 
-      bool operator==(const connection_config& other) const
-      {
-        return (other.host == host and other.user == user and other.password == password and
-                other.database == database and other.charset == charset and other.debug == debug and
-                other.connect_timeout_seconds == connect_timeout_seconds and other.ssl == ssl and
-                other.ssl_key == ssl_key and other.ssl_cert == ssl_cert and other.ssl_ca == ssl_ca and
-                other.ssl_capath == ssl_capath and other.ssl_cipher == ssl_cipher and
-                other.read_timeout == read_timeout);
-      }
+    template <typename Table>
+    auto remove_from(Table table) -> decltype(blank_remove_t<void>().from(table))
+    {
+      return {blank_remove_t<void>().from(table)};
+    }
 
-      bool operator!=(const connection_config& other) const
-      {
-        return !operator==(other);
-      }
-    };
-  }
-}
+    template <typename Database>
+    auto dynamic_remove(const Database& /*unused*/) -> decltype(blank_remove_t<Database>())
+    {
+      static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
+      return {blank_remove_t<Database>()};
+    }
+
+    template <typename Database, typename Table>
+    auto dynamic_remove_from(const Database& /*unused*/, Table table)
+        -> decltype(blank_remove_t<Database>().from(table))
+    {
+      static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
+      return {blank_remove_t<Database>().from(table)};
+    }
+  }  // namespace postgresql
+}  // namespace sqlpp

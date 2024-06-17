@@ -36,10 +36,6 @@ const auto library_raii = sqlpp::mysql::scoped_library_initializer_t{};
 
 namespace
 {
-  const auto now = ::sqlpp::chrono::floor<::std::chrono::milliseconds>(std::chrono::system_clock::now());
-  const auto today = ::sqlpp::chrono::floor<::sqlpp::chrono::days>(now);
-  const auto yesterday = today - ::sqlpp::chrono::days{1};
-
   template <typename L, typename R>
   auto require_equal(int line, const L& l, const R& r) -> void
   {
@@ -75,14 +71,20 @@ int DateTime(int, char*[])
   sql::global_library_init();
   try
   {
+    const auto now = ::sqlpp::chrono::floor<::std::chrono::milliseconds>(std::chrono::system_clock::now());
+    const auto today = ::sqlpp::chrono::floor<::sqlpp::chrono::days>(now);
+    const auto yesterday = today - ::sqlpp::chrono::days{1};
+    const auto current = now - today;
+
     auto db = sql::make_test_connection();
     db.execute(R"(SET time_zone = '+00:00')"); // To force MySQL's CURRENT_TIMESTAMP into the right timezone
     db.execute(R"(DROP TABLE IF EXISTS tab_date_time)");
     db.execute(R"(CREATE TABLE tab_date_time (
-		col_day_point date,
-			col_time_point datetime(3),
-			col_date_time_point datetime DEFAULT CURRENT_TIMESTAMP
-			))");
+                    col_day_point date,
+                    col_time_point datetime(3),
+                    col_date_time_point datetime DEFAULT CURRENT_TIMESTAMP,
+                    col_time_of_day time(3)
+                  ))");
 
     const auto tab = TabDateTime{};
     db(insert_into(tab).default_values());
@@ -92,22 +94,28 @@ int DateTime(int, char*[])
       require_equal(__LINE__, row.colDayPoint.value(), ::sqlpp::chrono::day_point{});
       require_equal(__LINE__, row.colTimePoint.is_null(), true);
       require_equal(__LINE__, row.colTimePoint.value(), ::sqlpp::chrono::microsecond_point{});
-      require_close(__LINE__, row.colDateTimePoint.value(), sqlpp::chrono::floor<std::chrono::seconds>(std::chrono::system_clock::now()));
+      require_close(__LINE__, row.colDateTimePoint.value(), now);
+      require_equal(__LINE__, row.colTimeOfDay.is_null(), true);
+      require_equal(__LINE__, row.colTimeOfDay.value(), ::std::chrono::microseconds{});
     }
 
-    auto statement = db.prepare(select(tab.colDateTimePoint).from(tab).unconditionally());
-    for (const auto& row : db(statement))
-    {
-      require_equal(__LINE__, row.colDateTimePoint.is_null(), false);
-      require_close(__LINE__, row.colDateTimePoint.value(), sqlpp::chrono::floor<std::chrono::seconds>(std::chrono::system_clock::now()));
-    }
-
-    db(update(tab).set(tab.colDayPoint = today, tab.colTimePoint = now).unconditionally());
+    db(update(tab).set(tab.colDayPoint = today, tab.colTimePoint = now, tab.colTimeOfDay = current).unconditionally());
 
     for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
       require_equal(__LINE__, row.colDayPoint.value(), today);
       require_equal(__LINE__, row.colTimePoint.value(), now);
+      require_close(__LINE__, row.colTimeOfDay.value(), current);
+    }
+
+    auto statement = db.prepare(select(all_of(tab)).from(tab).unconditionally());
+    for (const auto& row : db(statement))
+    {
+      require_equal(__LINE__, row.colDateTimePoint.is_null(), false);
+      require_close(__LINE__, row.colDateTimePoint.value(), now);
+      require_equal(__LINE__, row.colDayPoint.value(), today);
+      require_equal(__LINE__, row.colTimePoint.value(), now);
+      require_close(__LINE__, row.colTimeOfDay.value(), current);
     }
 
     db(update(tab).set(tab.colDayPoint = yesterday, tab.colTimePoint = today).unconditionally());
@@ -122,12 +130,14 @@ int DateTime(int, char*[])
         .set(tab.colDayPoint = parameter(tab.colDayPoint), tab.colTimePoint = parameter(tab.colTimePoint))
         .unconditionally();
 
-    auto prepared_update = db.prepare(
-        update(tab)
-            .set(tab.colDayPoint = parameter(tab.colDayPoint), tab.colTimePoint = parameter(tab.colTimePoint))
-            .unconditionally());
+    auto prepared_update = db.prepare(update(tab)
+                                          .set(tab.colDayPoint = parameter(tab.colDayPoint),
+                                               tab.colTimePoint = parameter(tab.colTimePoint),
+                                               tab.colTimeOfDay = parameter(tab.colTimeOfDay))
+                                          .unconditionally());
     prepared_update.params.colDayPoint = today;
     prepared_update.params.colTimePoint = now;
+    prepared_update.params.colTimeOfDay = current;
     std::cout << "---- running prepared update ----" << std::endl;
     db(prepared_update);
     std::cout << "---- finished prepared update ----" << std::endl;
@@ -135,6 +145,7 @@ int DateTime(int, char*[])
     {
       require_equal(__LINE__, row.colDayPoint.value(), today);
       require_equal(__LINE__, row.colTimePoint.value(), now);
+      require_equal(__LINE__, row.colTimeOfDay.value(), current);
     }
   }
   catch (const std::exception& e)

@@ -43,6 +43,7 @@ set(test_files
     Min.cpp
     Operator.cpp
     Over.cpp
+    SelectAs.cpp
     Some.cpp
     Sum.cpp
     TableAlias.cpp

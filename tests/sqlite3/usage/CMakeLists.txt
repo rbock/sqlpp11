@@ -40,6 +40,7 @@ set(test_files
     Blob.cpp
     Connection.cpp
     ConnectionPool.cpp
+    Execute.cpp
 )
 
 create_test_sourcelist(test_sources test_main.cpp ${test_files})

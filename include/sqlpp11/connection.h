@@ -72,7 +72,7 @@ namespace sqlpp
     }
 
     normal_connection(const _config_ptr_t& config)
-        : common_connection<ConnectionBase>{compat::make_unique<_handle_t>(config)}
+        : common_connection<ConnectionBase>(compat::make_unique<_handle_t>(config))
     {
     }
 
@@ -137,12 +137,12 @@ namespace sqlpp
 
     // Constructors used by the connection pool
     pooled_connection(_handle_ptr_t&& handle, _pool_core_ptr_t pool_core)
-        : common_connection<ConnectionBase>{std::move(handle)}, _pool_core{pool_core}
+        : common_connection<ConnectionBase>(std::move(handle)), _pool_core(pool_core)
     {
     }
 
     pooled_connection(const _config_ptr_t& config, _pool_core_ptr_t pool_core)
-        : common_connection<ConnectionBase>{compat::make_unique<_handle_t>(config)}, _pool_core{pool_core}
+        : common_connection<ConnectionBase>(compat::make_unique<_handle_t>(config)), _pool_core(pool_core)
     {
     }
 

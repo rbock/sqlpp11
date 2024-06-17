@@ -32,6 +32,7 @@
 #endif
 #include <sqlpp11/functions.h>
 #include <sqlpp11/insert.h>
+#include <sqlpp11/select.h>
 
 int Insert(int, char*[])
 {
@@ -39,7 +40,7 @@ int Insert(int, char*[])
   MockDb::_serializer_context_t printer = {};
   const auto t = test::TabBar{};
   const auto tabDateTime = test::TabDateTime{};
-  // test::TabFoo f;
+  const auto u = test::TabFoo{};
 
   {
     using T = decltype(insert_into(t));
@@ -97,6 +98,8 @@ int Insert(int, char*[])
   db(insert_into(t).set(t.gamma = true, t.delta = sqlpp::default_value));
   db(insert_into(t).set(t.gamma = true, t.delta = 0));
   db(insert_into(t).set(values()));
+
+  db(insert_into(t).set(t.gamma = true, t.delta = 0, t.beta = select(u.delta).from(u).unconditionally()));
 
   auto prepared_insert = db.prepare(insert_into(t).set(t.gamma = parameter(t.gamma), t.delta = parameter(t.delta)));
   prepared_insert.params.gamma = true;

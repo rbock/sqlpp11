@@ -94,6 +94,7 @@ int Transaction(int, char*[])
   {
 
     {
+      require_equal(__LINE__, db.is_transaction_active(), false);
       auto current_level = db(custom_query(sqlpp::verbatim("show transaction_isolation;"))
                                   .with_result_type_of(select(sqlpp::value("").as(level))))
                                .front()
@@ -102,14 +103,16 @@ int Transaction(int, char*[])
       std::cerr << "isolation level outside transaction: " << current_level << "\n";
 
       auto tx = start_transaction(db, sqlpp::isolation_level::serializable);
-
+      require_equal(__LINE__, db.is_transaction_active(), true);
       current_level = db(custom_query(sqlpp::verbatim("show transaction_isolation;"))
                              .with_result_type_of(select(sqlpp::value("").as(level))))
                           .front()
                           .level;
       require_equal(__LINE__, current_level, "serializable");
       std::cerr << "isolation level in transaction(serializable) : " << current_level << "\n";
+
       tx.commit();
+      require_equal(__LINE__, db.is_transaction_active(), false);
     }
 
     require_equal(__LINE__, db.get_default_isolation_level(), sqlpp::isolation_level::read_committed);
