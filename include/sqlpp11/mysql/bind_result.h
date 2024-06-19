@@ -210,7 +210,7 @@ namespace sqlpp
         param.is_unsigned = false;
         param.error = &meta_data.bound_error;
       }
-      void _bind_blob_result(size_t index, const char** value, size_t* len)
+      void _bind_blob_result(size_t index, const uint8_t** value, size_t* len)
       {
         if (_handle->debug)
           std::cerr << "MySQL debug: binding text result " << static_cast<const void*>(*value) << " at index: " << index
@@ -220,7 +220,7 @@ namespace sqlpp
         meta_data.index = index;
         meta_data.len = len;
         meta_data.is_null = nullptr;
-        meta_data.text_buffer = value;
+        meta_data.text_buffer = reinterpret_cast<const char **>(value);
         if (meta_data.bound_text_buffer.empty())
           meta_data.bound_text_buffer.resize(8);
 
@@ -316,6 +316,9 @@ namespace sqlpp
       {
       }
       void _post_bind_text_result(size_t /* index */, const char** /* text */, size_t* /* len */)
+      {
+      }
+      void _post_bind_blob_result(size_t /* index */, const uint8_t** /* value */, size_t* /* len */)
       {
       }
       void _post_bind_date_result(size_t index, ::sqlpp::chrono::day_point* value, bool* is_null)
