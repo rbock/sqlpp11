@@ -27,6 +27,7 @@
  */
 
 #include <sqlpp11/type_traits.h>
+#include <cstdint>
 
 namespace sqlpp
 {
