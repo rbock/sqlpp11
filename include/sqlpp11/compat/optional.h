@@ -45,6 +45,8 @@ namespace sqlpp
   using std::nullopt;
 
   using std::bad_optional_access;
+  using std::make_optional;
+
   }  // namespace compat
 }  // namespace sqlpp
 
@@ -247,6 +249,12 @@ namespace sqlpp
     bool operator==(const nullopt_t& n, const optional<T>& right)
     {
       return !right;
+    }
+
+    template <typename T>
+    constexpr optional<typename std::decay<T>::type> make_optional(T&& value)
+    {
+      return optional<typename std::decay<T>::type>(std::forward<T>(value));
     }
 
   }  // namespace compat

@@ -86,6 +86,11 @@ namespace sqlpp
       return {*this};
     }
 
+    sqlpp::compat::optional<column_t> if_(bool condition) const
+    {
+      return condition ? sqlpp::compat::make_optional(*this) : sqlpp::compat::nullopt;
+    }
+
     template <typename T>
     auto operator=(T t) const -> assignment_t<column_t, wrap_operand_t<T>>
     {

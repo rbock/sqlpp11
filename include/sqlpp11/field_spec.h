@@ -76,13 +76,14 @@ namespace sqlpp
     template <typename Select, typename NamedExpr>
     struct make_field_spec_impl
     {
-      static constexpr bool _can_be_null = can_be_null_t<NamedExpr>::value;
+      using RawNamedExpr = remove_optional_t<NamedExpr>;
+      static constexpr bool _can_be_null = is_optional<NamedExpr>::value or can_be_null_t<RawNamedExpr>::value;
       static constexpr bool _depends_on_outer_table =
-          detail::make_intersect_set_t<required_tables_of<NamedExpr>,
+          detail::make_intersect_set_t<required_tables_of<RawNamedExpr>,
                                        typename Select::_used_outer_tables>::size::value > 0;
 
-      using type = field_spec_t<typename NamedExpr::_alias_t,
-                                value_type_of<NamedExpr>,
+      using type = field_spec_t<typename RawNamedExpr::_alias_t,
+                                value_type_of<RawNamedExpr>,
                                 logic::any_t<_can_be_null, _depends_on_outer_table>::value>;
     };
   }  // namespace detail

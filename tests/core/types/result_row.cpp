@@ -55,6 +55,21 @@ namespace
     }
   }
 
+  void optional_columns()
+  {
+    {
+      // result fields are as nullable as the expressions they represent
+#warning: add `if_` to other expressions, too
+#warning: test with nullable columns, too.
+#warning: test with all kinds of functions as well.
+#warning: We should actually test for the exact type!
+      const auto rows = db(select(bar.id.if_(true), bar.boolNn.if_(true)/*, seven*/).from(bar).unconditionally());
+      auto& x = rows.front();
+      static_assert(is_optional<decltype(x.id)>::value, "");
+      static_assert(is_optional<decltype(x.boolNn)>::value, "");
+    }
+  }
+
   void join()
   {
     // Join
@@ -233,6 +248,7 @@ namespace
 int main(int, char* [])
 {
   single_table();
+  optional_columns();
   join();
   aggregates();
 }

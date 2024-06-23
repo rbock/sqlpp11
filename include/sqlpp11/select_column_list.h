@@ -55,35 +55,43 @@ namespace sqlpp
     template <typename Column>
     struct select_traits<Column>
     {
-      using _traits = make_traits<value_type_of<Column>,
+      using _traits = make_traits<value_type_of<remove_optional_t<Column>>,
                                   tag::is_select_column_list,
                                   tag::is_return_value,
                                   tag::is_expression,
                                   tag::is_selectable>;
-      using _alias_t = typename Column::_alias_t;
+      using _alias_t = typename remove_optional_t<Column>::_alias_t;
     };
   }  // namespace detail
 
-  // SELECTED COLUMNS DATA
-  template <typename... Columns>
-  struct select_column_list_data_t
+  template <typename Column>
+  struct select_column_t
   {
-    select_column_list_data_t(Columns... columns) : _columns(columns...)
+    constexpr select_column_t(Column column) : _column(column)
     {
     }
 
-    select_column_list_data_t(std::tuple<Columns...> columns) : _columns(columns)
-    {
-    }
+    constexpr select_column_t(const select_column_t&) = default;
+    constexpr select_column_t(select_column_t&&) = default;
+    select_column_t& operator=(const select_column_t&) = default;
+    select_column_t& operator=(select_column_t&&) = default;
+    ~select_column_t() = default;
 
-    select_column_list_data_t(const select_column_list_data_t&) = default;
-    select_column_list_data_t(select_column_list_data_t&&) = default;
-    select_column_list_data_t& operator=(const select_column_list_data_t&) = default;
-    select_column_list_data_t& operator=(select_column_list_data_t&&) = default;
-    ~select_column_list_data_t() = default;
-
-    std::tuple<Columns...> _columns;
+    Column _column;
   };
+
+  template <typename Context, typename Column>
+  Context& serialize(const select_column_t<Column>& t, Context& context)
+  {
+    if (has_value(t._column))
+    {
+      return serialize(get_value(t._column), context);
+    }
+
+    context << "NULL AS " << name_of<remove_optional_t<Column>>::template char_ptr<Context>();
+    return context;
+  }
+
 
   SQLPP_PORTABLE_STATIC_ASSERT(
       assert_no_unknown_tables_in_selected_columns_t,
@@ -103,7 +111,7 @@ namespace sqlpp
 
     using _alias_t = typename detail::select_traits<Columns...>::_alias_t;
 
-    using _data_t = select_column_list_data_t<Columns...>;
+    using _data_t = std::tuple<select_column_t<Columns>...>;
 
     struct _column_type
     {
@@ -231,8 +239,9 @@ namespace sqlpp
   template <typename... T>
   struct check_selected_columns
   {
-    using type = static_combined_check_t<
-        static_check_t<logic::all_t<is_selectable_t<T>::value...>::value, assert_selected_colums_are_selectable_t>>;
+    using type =
+        static_combined_check_t<static_check_t<logic::all_t<is_selectable_t<remove_optional_t<T>>::value...>::value,
+                                               assert_selected_colums_are_selectable_t>>;
   };
   template <typename... T>
   using check_selected_columns_t = typename check_selected_columns<T...>::type;
@@ -299,9 +308,9 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename... Columns>
-  Context& serialize(const select_column_list_data_t<Columns...>& t, Context& context)
+  Context& serialize(const std::tuple<select_column_t<Columns>...>& t, Context& context)
   {
-    interpret_tuple(t._columns, ',', context);
+    interpret_tuple(t, ',', context);
     return context;
   }
 

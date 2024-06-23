@@ -39,21 +39,37 @@ int SelectColumns(int, char*[])
   compare(__LINE__, select(foo.doubleN, bar.id), "SELECT tab_foo.double_n,tab_bar.id");
 
   // All columns of a table
-  compare(__LINE__, select(all_of(foo)), "SELECT tab_foo.id,tab_foo.text_nn_d,tab_foo.int_n,tab_foo.double_n,tab_foo.u_int_n,tab_foo.blob_n");
+  compare(__LINE__, select(all_of(foo)),
+          "SELECT tab_foo.id,tab_foo.text_nn_d,tab_foo.int_n,tab_foo.double_n,tab_foo.u_int_n,tab_foo.blob_n");
 
   // All columns of a table plus one more
-  compare(__LINE__, select(all_of(foo), bar.id), "SELECT tab_foo.id,tab_foo.text_nn_d,tab_foo.int_n,tab_foo.double_n,tab_foo.u_int_n,tab_foo.blob_n,tab_bar.id");
+  compare(
+      __LINE__, select(all_of(foo), bar.id),
+      "SELECT tab_foo.id,tab_foo.text_nn_d,tab_foo.int_n,tab_foo.double_n,tab_foo.u_int_n,tab_foo.blob_n,tab_bar.id");
 
   // One more, plus all columns of a table
-  compare(__LINE__, select(bar.id, all_of(foo)), "SELECT tab_bar.id,tab_foo.id,tab_foo.text_nn_d,tab_foo.int_n,tab_foo.double_n,tab_foo.u_int_n,tab_foo.blob_n");
+  compare(
+      __LINE__, select(bar.id, all_of(foo)),
+      "SELECT tab_bar.id,tab_foo.id,tab_foo.text_nn_d,tab_foo.int_n,tab_foo.double_n,tab_foo.u_int_n,tab_foo.blob_n");
 
   // Column and aggregate function
   compare(__LINE__, select(foo.doubleN, count(bar.id)), "SELECT tab_foo.double_n,COUNT(tab_bar.id) AS count_");
 
   // Column aliases
-  compare(__LINE__, select(foo.doubleN.as(sqlpp::alias::o), count(bar.id).as(sqlpp::alias::a)), "SELECT tab_foo.double_n AS o,COUNT(tab_bar.id) AS a");
+  compare(__LINE__, select(foo.doubleN.as(sqlpp::alias::o), count(bar.id).as(sqlpp::alias::a)),
+          "SELECT tab_foo.double_n AS o,COUNT(tab_bar.id) AS a");
 
-#warning: add optional column tests
+  // Optional column manually
+  compare(__LINE__, select(sqlpp::compat::make_optional(bar.id)), "SELECT tab_bar.id");
+  auto opt_id = sqlpp::compat::make_optional(bar.id);
+  opt_id.reset();
+  compare(__LINE__, select(opt_id), "SELECT NULL AS id");
+
+  // Optional column using `if_`
+  compare(__LINE__, select(bar.id.if_(true)), "SELECT tab_bar.id");
+  compare(__LINE__, select(bar.id.if_(false)), "SELECT NULL AS id");
+
+#warning: add more optional column tests
 
   return 0;
 }

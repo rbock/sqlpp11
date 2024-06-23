@@ -28,6 +28,8 @@
 
 #include <type_traits>
 #include <tuple>
+
+#include <sqlpp11/compat/optional.h>
 #include <sqlpp11/consistent.h>
 #include <sqlpp11/portable_static_assert.h>
 #include <sqlpp11/detail/type_vector.h>
@@ -37,6 +39,55 @@
 
 namespace sqlpp
 {
+  template <typename T>
+  struct is_optional : public std::false_type
+  {
+  };
+
+  template <typename T>
+  struct is_optional<sqlpp::compat::optional<T>> : public std::true_type
+  {
+  };
+
+  template <typename T>
+  struct remove_optional
+  {
+    using type = T;
+  };
+
+  template <typename T>
+  struct remove_optional<sqlpp::compat::optional<T>>
+  {
+    using type = T;
+  };
+
+  template <typename T>
+  const T& get_value(const T& t)
+  {
+    return t;
+  }
+
+  template <typename T>
+  const T& get_value(const sqlpp::compat::optional<T>& t)
+  {
+    return t.value();
+  }
+
+  template <typename T>
+  auto has_value(const T&) -> bool
+  {
+    return true;
+  }
+
+  template <typename T>
+  auto has_value(const sqlpp::compat::optional<T>& t) -> bool
+  {
+    return t.has_value();
+  }
+
+  template <typename T>
+  using remove_optional_t = typename remove_optional<T>::type;
+
   struct no_value_t;
   namespace detail
   {
