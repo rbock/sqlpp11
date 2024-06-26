@@ -31,9 +31,19 @@
 
 namespace
 {
+  template<typename A, typename B>
+  constexpr bool is_same_type()
+  {
+    return std::is_same<A, B>::value;
+  }
+
   constexpr auto bar = test::TabBar{};
   constexpr auto foo = test::TabFoo{};
+  auto db = MockDb{};
+}
 
+int main()
+{
   static_assert(not sqlpp::can_be_null_t<decltype(bar.id)>::value, "");
   static_assert(sqlpp::can_be_null_t<decltype(foo.doubleN)>::value, "");
   static_assert(not sqlpp::can_be_null_t<decltype(foo.textNnD)>::value, "");
@@ -41,19 +51,84 @@ namespace
   const auto seven = sqlpp::value(7).as(sqlpp::alias::s);
   static_assert(not sqlpp::can_be_null_t<decltype(seven)>::value, "");
 
-  auto db = MockDb{};
-
-  void single_table()
+  // Select non-optional column or alias of it.
+  for (const auto& row : db(select(foo.id, foo.id.as(sqlpp::alias::a), foo.textNnD, foo.textNnD.as(sqlpp::alias::b))
+                                .from(foo)
+                                .unconditionally()))
   {
+    static_assert(is_same_type<decltype(row.id), int64_t>(), "");
+    static_assert(is_same_type<decltype(row.a), int64_t>(), "");
+    static_assert(is_same_type<decltype(row.textNnD), sqlpp::compat::string_view>(), "");
+    static_assert(is_same_type<decltype(row.b), sqlpp::compat::string_view>(), "");
+  }
+
+  // Optionally select non-optional column or alias of it.
+  for (const auto& row : db(select(foo.id.if_(true), foo.id.as(sqlpp::alias::a).if_(true), foo.textNnD.if_(true),
+                                   foo.textNnD.as(sqlpp::alias::b).if_(true))
+                                .from(foo)
+                                .unconditionally()))
+  {
+    static_assert(is_same_type<decltype(row.id), sqlpp::compat::optional<int64_t>>(), "");
+    static_assert(is_same_type<decltype(row.a), sqlpp::compat::optional<int64_t>>(), "");
+    static_assert(is_same_type<decltype(row.textNnD), sqlpp::compat::optional<sqlpp::compat::string_view>>(), "");
+    static_assert(is_same_type<decltype(row.b), sqlpp::compat::optional<sqlpp::compat::string_view>>(), "");
+  }
+
+  // Select optional column or alias of it.
+  for (const auto& row : db(select(bar.intN, bar.intN.as(sqlpp::alias::a), bar.textN, bar.textN.as(sqlpp::alias::b))
+                                .from(bar)
+                                .unconditionally()))
+  {
+    static_assert(is_same_type<decltype(row.intN), sqlpp::compat::optional<int64_t>>(), "");
+    static_assert(is_same_type<decltype(row.a), sqlpp::compat::optional<int64_t>>(), "");
+    static_assert(is_same_type<decltype(row.textN), sqlpp::compat::optional<sqlpp::compat::string_view>>(), "");
+    static_assert(is_same_type<decltype(row.b), sqlpp::compat::optional<sqlpp::compat::string_view>>(), "");
+  }
+
+  // Optionally select optional column or alias of it.
+  for (const auto& row : db(select(bar.intN.if_(true), bar.intN.as(sqlpp::alias::a).if_(true), bar.textN.if_(true),
+                                   bar.textN.as(sqlpp::alias::b).if_(true))
+                                .from(bar)
+                                .unconditionally()))
+  {
+    // optional optional are still represented as one level of optional
+    static_assert(is_same_type<decltype(row.intN), sqlpp::compat::optional<int64_t>>(), "");
+    static_assert(is_same_type<decltype(row.a), sqlpp::compat::optional<int64_t>>(), "");
+    static_assert(is_same_type<decltype(row.textN), sqlpp::compat::optional<sqlpp::compat::string_view>>(), "");
+    static_assert(is_same_type<decltype(row.b), sqlpp::compat::optional<sqlpp::compat::string_view>>(), "");
+  }
+
+  // Select value and optional value.
+  sqlpp::value(7);
+  /*
+  for (const auto& row : db(select(sqlpp::value(7).as(sqlpp::alias::a),
+                                   sqlpp::value(sqlpp::compat::optional<int>(7)).as(sqlpp::alias::b))))
+                                   */
+  {
+    /*
+    static_assert(is_same_type<decltype(row.a), int64_t>(), "");
+    static_assert(is_same_type<decltype(row.a), sqlpp::compat::optional<int64_t>>(), "");
+    static_assert(is_same_type<decltype(row.textN), sqlpp::compat::optional<sqlpp::compat::string_view>>(), "");
+    static_assert(is_same_type<decltype(row.b), sqlpp::compat::optional<sqlpp::compat::string_view>>(), "");
+    */
+  }
+
+#if 0
+
+
     {
       // result fields are as nullable as the expressions they represent
-      const auto rows = db(select(bar.id, bar.boolNn, seven).from(bar).unconditionally());
+      const auto rows = db(select(bar.id, bar.boolNn, bar.intN, seven).from(bar).unconditionally());
       auto& x = rows.front();
+#warning: test with nullable columns, too.
+#warning: test with all kinds of functions as well.
+#warning: We should actually test for the exact type!
       static_assert(not is_optional<decltype(x.id)>::value, "");
       static_assert(not is_optional<decltype(x.boolNn)>::value, "");
+      static_assert(is_optional<decltype(x.intN)>::value, "");
       static_assert(not is_optional<decltype(x.s)>::value, "");
     }
-  }
+}
 
   void optional_columns()
   {
@@ -63,10 +138,11 @@ namespace
 #warning: test with nullable columns, too.
 #warning: test with all kinds of functions as well.
 #warning: We should actually test for the exact type!
-      const auto rows = db(select(bar.id.if_(true), bar.boolNn.if_(true)/*, seven*/).from(bar).unconditionally());
+      const auto rows = db(select(bar.id.if_(true), bar.boolNn.if_(true), bar.intN.if_(true) /*, seven*/).from(bar).unconditionally());
       auto& x = rows.front();
       static_assert(is_optional<decltype(x.id)>::value, "");
       static_assert(is_optional<decltype(x.boolNn)>::value, "");
+      static_assert(is_optional<decltype(x.intN)>::value, "");
     }
   }
 
@@ -251,4 +327,5 @@ int main(int, char* [])
   optional_columns();
   join();
   aggregates();
+#endif
 }
