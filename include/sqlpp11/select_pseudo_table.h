@@ -44,9 +44,8 @@ namespace sqlpp
         detail::make_intersect_set_t<required_tables_of<NamedExpr>, typename Select::_used_outer_tables>::size::value >
         0;
 
-    using _traits = make_traits<value_type_of<NamedExpr>,
-                                tag::must_not_insert,
-                                tag::must_not_update,
+#warning: somehow prevent insert...
+    using _traits = make_traits<value_type_of_t<NamedExpr>,
                                 tag_if<tag::can_be_null, _can_be_null or _depends_on_outer_table>>;
   };
 
@@ -59,7 +58,7 @@ namespace sqlpp
 
   template<typename NamedExpr>
   struct select_expression_type<NamedExpr> {
-    using value_t = value_type_of<NamedExpr>;
+    using value_t = value_type_of_t<NamedExpr>;
     static constexpr bool _is_expression = true;
     static constexpr bool _can_be_null = can_be_null_t<NamedExpr>::value;
   };

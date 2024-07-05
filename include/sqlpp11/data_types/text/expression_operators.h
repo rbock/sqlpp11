@@ -52,13 +52,6 @@ namespace sqlpp
   {
     template <typename T>
     using _is_valid_operand = is_valid_operand<text, T>;
-
-    template <typename R>
-    auto like(const R& r) const -> return_type_like_t<Expression, R>
-    {
-      return_type_like<Expression, R>::check::verify();
-      return {*static_cast<const Expression*>(this), wrap_operand_t<R>{r}};
-    }
   };
 
   template <typename L, typename R>

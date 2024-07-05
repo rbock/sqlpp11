@@ -26,10 +26,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <type_traits>
+#include <cstdint>
 #include <tuple>
+#include <type_traits>
+#include <vector>
 
+#include <sqlpp11/chrono.h>
 #include <sqlpp11/compat/optional.h>
+#include <sqlpp11/compat/string_view.h>
+#include <sqlpp11/compat/span.h>
 #include <sqlpp11/consistent.h>
 #include <sqlpp11/portable_static_assert.h>
 #include <sqlpp11/detail/type_vector.h>
@@ -49,6 +54,11 @@ namespace sqlpp
   {
   };
 
+  template <>
+  struct is_optional<sqlpp::compat::nullopt_t> : public std::true_type
+  {
+  };
+
   template <typename T>
   struct remove_optional
   {
@@ -60,6 +70,9 @@ namespace sqlpp
   {
     using type = T;
   };
+
+  template <typename T>
+  using remove_optional_t = typename remove_optional<T>::type;
 
   template <typename T>
   const T& get_value(const T& t)
@@ -85,26 +98,26 @@ namespace sqlpp
     return t.has_value();
   }
 
-  template <typename T>
-  using remove_optional_t = typename remove_optional<T>::type;
-
   struct no_value_t;
-  namespace detail
-  {
-    template <typename T, typename Enable = void>
-    struct value_type_of_impl
-    {
-      using type = no_value_t;
-    };
 
-    template <typename T>
-    struct value_type_of_impl<T, detail::void_t<typename T::_traits::_value_type>>
-    {
-      using type = typename T::_traits::_value_type;
-    };
-  }  // namespace detail
+  // This requires specializations for anything that has a value, like a column or a boolean expression
   template <typename T>
-  using value_type_of = typename detail::value_type_of_impl<T>::type;
+  struct value_type_of
+  {
+    using type = no_value_t;
+  };
+
+  template <typename T>
+  using value_type_of_t = typename value_type_of<T>::type;
+
+  template<typename T>
+  struct value_type_of<sqlpp::compat::optional<T>>
+  {
+    using type = sqlpp::compat::optional<value_type_of_t<remove_optional_t<T>>>;
+  };
+
+  template <typename T>
+  struct has_value_type : public std::integral_constant<bool, not std::is_same<value_type_of_t<T>, no_value_t>::value> {};
 
   template <typename T>
   struct is_not_cpp_bool_t
@@ -112,42 +125,280 @@ namespace sqlpp
     static constexpr bool value = not std::is_same<T, bool>::value;
   };
 
-  // data types
-  struct blob;
-  template <typename T>
-  using is_blob_t = std::is_same<value_type_of<T>, blob>;
-
+  //
   struct boolean;
-  template <typename T>
-  using is_boolean_t = std::is_same<value_type_of<T>, boolean>;
+  template<>
+  struct value_type_of<bool> { using type = boolean; };
 
-  struct day_point;
-  template <typename T>
-  using is_day_point_t = std::is_same<value_type_of<T>, day_point>;
+  struct integral;
+  template<>
+  struct value_type_of<int8_t> { using type = integral; };
+  template<>
+  struct value_type_of<int16_t> { using type = integral; };
+  template<>
+  struct value_type_of<int32_t> { using type = integral; };
+  template<>
+  struct value_type_of<int64_t> { using type = integral; };
+
+  struct unsigned_integral;
+  template<>
+  struct value_type_of<uint8_t> { using type = unsigned_integral; };
+  template<>
+  struct value_type_of<uint16_t> { using type = unsigned_integral; };
+  template<>
+  struct value_type_of<uint32_t> { using type = unsigned_integral; };
+  template<>
+  struct value_type_of<uint64_t> { using type = unsigned_integral; };
 
   struct floating_point;
+  template<>
+  struct value_type_of<float> { using type = floating_point; };
+  template<>
+  struct value_type_of<double> { using type = floating_point; };
+
+  struct text;
+  template <>
+  struct value_type_of<char> { using type = text; };
+  template <>
+  struct value_type_of<const char*> { using type = text; };
+  template <>
+  struct value_type_of<std::string> { using type = text; };
+  template <>
+  struct value_type_of<sqlpp::compat::string_view> { using type = text; };
+
+  /////////////////
+  struct blob;
+  template <>
+  struct value_type_of<std::vector<std::uint8_t>> { using type = blob; };
+
+  template <>
+  struct value_type_of<sqlpp::compat::span<std::uint8_t>> { using type = blob; };
+
+  struct day_point;
+  template <>
+  struct value_type_of<std::chrono::time_point<std::chrono::system_clock, sqlpp::chrono::days>> { using type = day_point; };
+
+  struct time_of_day;
+  template <typename Rep, typename Period>
+  struct value_type_of<std::chrono::duration<Rep, Period>> { using type = time_of_day; };
+
+  struct time_point;
+  template <typename Period>
+  struct value_type_of<std::chrono::time_point<std::chrono::system_clock, Period>> { using type = time_point; };
+  /////////////////
+
+
+
+
   template <typename T>
-  using is_floating_point_t = std::is_same<value_type_of<T>, floating_point>;
+  struct is_boolean : public std::is_same<T, bool>
+  {
+  };
+
+  template <>
+  struct is_boolean<boolean> : public std::true_type {
+  };
+
+  template <>
+  struct is_boolean<sqlpp::compat::nullopt_t> : public std::true_type {
+  };
+
+  template <typename T>
+  struct has_boolean_value : public std::integral_constant<bool,
+                                                           is_boolean<remove_optional_t<T>>::value or
+                                                               is_boolean<remove_optional_t<value_type_of_t<T>>>::value>
+  {
+  };
 
   struct integral;
   template <typename T>
-  using is_integral_t = std::is_same<value_type_of<T>, integral>;
+  struct is_integral : public std::is_integral<T>{};
 
-  struct unsigned_integral;
+  template <>
+  struct is_integral<char> : public std::false_type  // char is text
+  {
+  };
+
+  template <>
+  struct is_integral<bool> : public std::false_type  // bool is boolean
+  {
+  };
+
+  template <>
+  struct is_integral<sqlpp::compat::nullopt_t> : public std::true_type{};
+
+  template <>
+  struct is_integral<integral> : public std::true_type{};
+
   template <typename T>
-  using is_unsigned_integral_t = std::is_same<value_type_of<T>, unsigned_integral>;
+  struct has_integral_value
+      : public std::integral_constant<bool,
+                                      is_integral<remove_optional_t<T>>::value or
+                                          is_integral<remove_optional_t<value_type_of_t<T>>>::value>
+  {
+  };
+
+  template <typename T>
+  struct is_numeric : public std::integral_constant<bool, is_integral<T>::value or std::is_floating_point<T>::value>{};
+
+  template <>
+  struct is_numeric<sqlpp::compat::nullopt_t> : public std::true_type{};
+
+  template <typename T>
+  struct has_numeric_value : public std::integral_constant<bool,
+      is_numeric<remove_optional_t<T>>::value or is_numeric<remove_optional_t<value_type_of_t<T>>>::value>{};
 
   struct text;
   template <typename T>
-  using is_text_t = std::is_same<value_type_of<T>, text>;
+  struct is_text : public std::false_type {};
+
+  template <>
+  struct is_text<text> : public std::true_type {};
+
+  template <>
+  struct is_text<char> : public std::true_type {};
+
+  template <>
+  struct is_text<const char*> : public std::true_type {};
+
+  template <>
+  struct is_text<std::string> : public std::true_type {};
+
+  template <>
+  struct is_text<sqlpp::compat::string_view> : public std::true_type {};
+
+  template <>
+  struct is_text<sqlpp::compat::nullopt_t> : public std::true_type {};
+
+  template <typename T>
+  struct has_text_value : public std::integral_constant<bool,
+                                                        is_text<remove_optional_t<T>>::value or
+                                                            is_text<remove_optional_t<value_type_of_t<T>>>::value>{};
+
+  struct blob;
+  template <typename T>
+  struct is_blob : public std::false_type {};
+
+  template <>
+  struct is_blob<blob> : public std::true_type {};
+
+  template <>
+  struct is_blob<std::vector<std::uint8_t>> : public std::true_type {};
+
+  template <>
+  struct is_blob<sqlpp::compat::span<std::uint8_t>> : public std::true_type {};
+
+  template <>
+  struct is_blob<sqlpp::compat::nullopt_t> : public std::true_type {};
+
+  template <typename T>
+  struct has_blob_value : public std::integral_constant<bool,
+                                                        is_blob<remove_optional_t<T>>::value or
+                                                            is_blob<remove_optional_t<value_type_of_t<T>>>::value>{};
+
+  struct day_point;
+  template <typename T>
+  struct is_day_point : public std::false_type {};
+
+  template <>
+  struct is_day_point<day_point> : public std::true_type {};
+
+  template <>
+  struct is_day_point<std::chrono::time_point<std::chrono::system_clock, sqlpp::chrono::days>> : public std::true_type {};
+
+  template <>
+  struct is_day_point<sqlpp::compat::nullopt_t> : public std::true_type {};
+
+  template <typename T>
+  struct has_day_point_value : public std::integral_constant<bool,
+                                                        is_day_point<remove_optional_t<T>>::value or
+                                                            is_day_point<remove_optional_t<value_type_of_t<T>>>::value>{};
 
   struct time_of_day;
   template <typename T>
-  using is_time_of_day_t = std::is_same<value_type_of<T>, time_of_day>;
+  struct is_time_of_day : public std::false_type {};
+
+  template <>
+  struct is_time_of_day<time_of_day> : public std::true_type {};
+
+  template <typename Rep, typename Period>
+  struct is_time_of_day<std::chrono::duration<Rep, Period>> : public std::true_type {};
+
+  template <>
+  struct is_time_of_day<sqlpp::compat::nullopt_t> : public std::true_type {};
+
+  template <typename T>
+  struct has_time_of_day_value : public std::integral_constant<bool,
+                                                        is_time_of_day<remove_optional_t<T>>::value or
+                                                            is_time_of_day<remove_optional_t<value_type_of_t<T>>>::value>{};
 
   struct time_point;
   template <typename T>
-  using is_time_point_t = std::is_same<value_type_of<T>, time_point>;
+  struct is_time_point : public std::false_type {};
+
+  template <>
+  struct is_time_point<time_point> : public std::true_type {};
+
+  template <typename Period>
+  struct is_time_point<std::chrono::time_point<std::chrono::system_clock, Period>> : public std::true_type {};
+
+  template <>
+  struct is_time_point<sqlpp::compat::nullopt_t> : public std::true_type {};
+
+  template <typename T>
+  struct has_time_point_value : public std::integral_constant<bool,
+                                                        is_time_point<remove_optional_t<T>>::value or
+                                                            is_time_point<remove_optional_t<value_type_of_t<T>>>::value>{};
+
+#warning: Need to add float and unsigned traits?
+  template <typename L, typename R>
+  struct values_are_comparable
+      : public std::integral_constant<bool,
+                                      (has_blob_value<L>::value and has_blob_value<R>::value) or
+                                          (has_boolean_value<L>::value and has_boolean_value<R>::value) or
+                                          (has_day_point_value<L>::value and has_day_point_value<R>::value) or
+                                          (has_numeric_value<L>::value and has_numeric_value<R>::value) or
+                                          (has_text_value<L>::value and has_text_value<R>::value) or
+                                          (has_time_of_day_value<L>::value and has_time_of_day_value<R>::value) or
+                                          (has_time_point_value<L>::value and has_time_point_value<R>::value)>
+  {
+  };
+
+  // data types
+  struct blob;
+  template <typename T>
+  using is_blob_t = std::is_same<value_type_of_t<T>, blob>;
+
+  template <typename T>
+  using is_boolean_t = std::is_same<value_type_of_t<T>, boolean>;
+
+  struct day_point;
+  template <typename T>
+  using is_day_point_t = std::is_same<value_type_of_t<T>, day_point>;
+
+  struct floating_point;
+  template <typename T>
+  using is_floating_point_t = std::is_same<value_type_of_t<T>, floating_point>;
+
+  struct integral;
+  template <typename T>
+  using is_integral_t = std::is_same<value_type_of_t<T>, integral>;
+
+  struct unsigned_integral;
+  template <typename T>
+  using is_unsigned_integral_t = std::is_same<value_type_of_t<T>, unsigned_integral>;
+
+  struct text;
+  template <typename T>
+  using is_text_t = std::is_same<value_type_of_t<T>, text>;
+
+  struct time_of_day;
+  template <typename T>
+  using is_time_of_day_t = std::is_same<value_type_of_t<T>, time_of_day>;
+
+  struct time_point;
+  template <typename T>
+  using is_time_point_t = std::is_same<value_type_of_t<T>, time_point>;
 
   // joined data type
   template <typename T>
@@ -220,9 +471,8 @@ namespace sqlpp
   SQLPP_VALUE_TRAIT_GENERATOR(is_union_flag)
   SQLPP_VALUE_TRAIT_GENERATOR(is_result_field)
 
-  SQLPP_VALUE_TRAIT_GENERATOR(must_not_insert)
-  SQLPP_VALUE_TRAIT_GENERATOR(must_not_update)
-  SQLPP_VALUE_TRAIT_GENERATOR(require_insert)
+#warning Document loss of must_not_insert/update and require_insert (and new has_default)
+  SQLPP_VALUE_TRAIT_GENERATOR(has_default)
 
   SQLPP_VALUE_TRAIT_GENERATOR(is_statement)
   SQLPP_VALUE_TRAIT_GENERATOR(is_prepared_statement)
@@ -277,7 +527,7 @@ namespace sqlpp
       typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 
   template <typename T>
-  using cpp_value_type_of = typename value_type_of<T>::_cpp_value_type;
+  using cpp_value_type_of_t = typename value_type_of_t<T>::_cpp_value_type;
 
   namespace detail
   {
@@ -467,6 +717,12 @@ namespace sqlpp
 
   template <typename T>
   using name_of = typename T::_alias_t::_name_t;
+
+  template<typename T, typename = void>
+  struct has_name : public std::false_type {};
+
+  template<typename T>
+  struct has_name<T, typename T::_alias_t> : public std::true_type {};
 
   template <typename ValueType, typename... Tags>
   struct make_traits

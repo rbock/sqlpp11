@@ -55,7 +55,7 @@ namespace sqlpp
     template <typename Column>
     struct select_traits<Column>
     {
-      using _traits = make_traits<value_type_of<remove_optional_t<Column>>,
+      using _traits = make_traits<value_type_of_t<remove_optional_t<Column>>,
                                   tag::is_select_column_list,
                                   tag::is_return_value,
                                   tag::is_expression,

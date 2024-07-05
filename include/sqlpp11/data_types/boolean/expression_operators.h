@@ -38,6 +38,7 @@ namespace sqlpp
   {
   };
 
+  /*
   template <typename L, typename R>
   struct return_type_and<L, R, unwrapped_binary_operand_check_t<L, is_boolean_t, R, is_boolean_t>>
   {
@@ -58,4 +59,5 @@ namespace sqlpp
     using check = consistent_t;
     using type = logical_not_t<wrap_operand_t<T>>;
   };
+  */
 }  // namespace sqlpp

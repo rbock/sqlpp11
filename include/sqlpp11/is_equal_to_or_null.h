@@ -68,7 +68,7 @@ namespace sqlpp
   {
     static_assert(is_expression_t<Expr>::value,
                   "is_equal_to_or_null() is to be called an expression (e.g. a column) and a value_or_null expression");
-    static_assert(std::is_same<value_type_of<Expr>, ValueType>::value,
+    static_assert(std::is_same<value_type_of_t<Expr>, ValueType>::value,
                   "is_equal_to_or_null() arguments need to have the same value type");
     return {expr, value};
   }

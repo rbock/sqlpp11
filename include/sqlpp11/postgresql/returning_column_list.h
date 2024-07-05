@@ -60,7 +60,7 @@ namespace sqlpp
       template <typename Column>
       struct returning_traits<Column>
       {
-        using _traits = make_traits<value_type_of<Column>,
+        using _traits = make_traits<value_type_of_t<Column>,
                                     tag::is_returning_column_list,
                                     tag::is_return_value,
                                     tag::is_expression,

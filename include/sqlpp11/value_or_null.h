@@ -68,7 +68,7 @@ namespace sqlpp
   }
 
   template <typename T>
-  auto value_or_null(T t) -> value_or_null_t<value_type_of<wrap_operand_t<T>>>
+  auto value_or_null(T t) -> value_or_null_t<value_type_of_t<wrap_operand_t<T>>>
   {
     static_assert(is_wrapped_value_t<wrap_operand_t<T>>::value,
                   "value_or_null() is to be called with non-sql-type like int, or string or null");

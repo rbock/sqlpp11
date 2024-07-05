@@ -37,11 +37,6 @@ namespace sqlpp
   template <typename NameType, typename ValueType, bool CanBeNull>
   struct field_spec_t
   {
-    using _traits = make_traits<ValueType,
-                                tag::is_noop,
-                                tag_if<tag::can_be_null, CanBeNull>>;
-    using _nodes = detail::type_vector<>;
-
     using _alias_t = NameType;
 
     using cpp_type = typename std::conditional<CanBeNull,
@@ -77,13 +72,14 @@ namespace sqlpp
     struct make_field_spec_impl
     {
       using RawNamedExpr = remove_optional_t<NamedExpr>;
-      static constexpr bool _can_be_null = is_optional<NamedExpr>::value or can_be_null_t<RawNamedExpr>::value;
+      using ValueType = value_type_of_t<RawNamedExpr>;
+      static constexpr bool _can_be_null = is_optional<ValueType>::value or is_optional<NamedExpr>::value;
       static constexpr bool _depends_on_outer_table =
           detail::make_intersect_set_t<required_tables_of<RawNamedExpr>,
                                        typename Select::_used_outer_tables>::size::value > 0;
 
       using type = field_spec_t<typename RawNamedExpr::_alias_t,
-                                value_type_of<RawNamedExpr>,
+                                remove_optional_t<ValueType>,
                                 logic::any_t<_can_be_null, _depends_on_outer_table>::value>;
     };
   }  // namespace detail

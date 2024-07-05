@@ -48,8 +48,6 @@ namespace sqlpp
     using _provided_tables = detail::type_set<Table>;
 
     static_assert(sizeof...(ColumnSpec) > 0, "at least one column required per table");
-    using _required_insert_columns =
-        typename detail::make_type_set_if<require_insert_t, column_t<Table, ColumnSpec>...>::type;
     using _column_tuple_t = std::tuple<column_t<Table, ColumnSpec>...>;
     template <typename AliasProvider, typename T>
     using _foreign_table_alias_t = table_alias_t<AliasProvider, T, ColumnSpec...>;

@@ -132,7 +132,7 @@ namespace sqlpp
           typename std::conditional<is_any_policy_missing<Policies...>(),
                                     no_value_t,  // if a required statement part is missing (e.g. columns in a select),
                                                  // then the statement cannot be used as a value
-                                    value_type_of<_result_type_provider>>::type;
+                                    value_type_of_t<_result_type_provider>>::type;
 
       using _traits =
           make_traits<_value_type, tag_if<tag::is_expression, not std::is_same<_value_type, no_value_t>::value>>;
@@ -151,12 +151,19 @@ namespace sqlpp
       using _parameter_check = typename std::
           conditional<detail::type_vector_size<_parameters>::value == 0, consistent_t, assert_no_parameters_t>::type;
     };
+
   }  // namespace detail
+
+  template <typename... Policies>
+  struct value_type_of<detail::statement_policies_t<Policies...>>
+  {
+    using type = typename detail::statement_policies_t<Policies...>::_value_type;
+  };
 
   template <typename... Policies>
   struct statement_t : public Policies::template _base_t<detail::statement_policies_t<Policies...>>...,
                        public expression_operators<statement_t<Policies...>,
-                                                   value_type_of<detail::statement_policies_t<Policies...>>>,
+                                                   value_type_of_t<detail::statement_policies_t<Policies...>>>,
                        public detail::statement_policies_t<Policies...>::_result_methods_t
   {
     using _policies_t = typename detail::statement_policies_t<Policies...>;
@@ -185,7 +192,7 @@ namespace sqlpp
     using _result_methods_t = typename _result_type_provider::template _result_methods_t<Composite>;
 
     using _traits =
-        make_traits<value_type_of<_policies_t>,
+        make_traits<value_type_of_t<_policies_t>,
                     tag::is_statement,
                     tag_if<tag::is_select, logic::any_t<is_select_t<Policies>::value...>::value>,
                     tag_if<tag::is_expression, is_expression_t<_policies_t>::value>,

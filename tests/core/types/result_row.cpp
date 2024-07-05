@@ -99,19 +99,43 @@ int main()
   }
 
   // Select value and optional value.
-  sqlpp::value(7);
-  /*
   for (const auto& row : db(select(sqlpp::value(7).as(sqlpp::alias::a),
                                    sqlpp::value(sqlpp::compat::optional<int>(7)).as(sqlpp::alias::b))))
-                                   */
   {
-    /*
     static_assert(is_same_type<decltype(row.a), int64_t>(), "");
-    static_assert(is_same_type<decltype(row.a), sqlpp::compat::optional<int64_t>>(), "");
-    static_assert(is_same_type<decltype(row.textN), sqlpp::compat::optional<sqlpp::compat::string_view>>(), "");
-    static_assert(is_same_type<decltype(row.b), sqlpp::compat::optional<sqlpp::compat::string_view>>(), "");
-    */
+    static_assert(is_same_type<decltype(row.b), sqlpp::compat::optional<int64_t>>(), "");
   }
+
+  static_assert(sqlpp::has_boolean_value<bool>::value, "");
+  static_assert(sqlpp::has_boolean_value<decltype(bar.boolNn)>::value, "");
+  static_assert(sqlpp::has_text_value<decltype(bar.textN)>::value, "");
+  static_assert(sqlpp::has_text_value<std::string>::value, "");
+  static_assert(sqlpp::has_numeric_value<int>::value, "");
+  static_assert(sqlpp::has_numeric_value<decltype(bar.intN)>::value, "");
+#warning: Need to implement value_type_of for expressions
+  //static_assert(sqlpp::has_boolean_value<decltype(!bar.boolNn)>::value, "");
+  //static_assert(sqlpp::has_boolean_value<decltype(bar.boolNn and bar.boolNn)>::value, "");
+#if 0
+  !bar.boolNn;
+  (bar.boolNn and bar.boolNn).hansi;
+  like(bar.textN, "hansi").berti;
+
+#endif
+  (bar.textN == "hansi").berti;
+  (-bar.intN).berti;
+  (bar.intN + 7).berti;
+  (bar.intN << 7).berti;
+  assign(bar.intN, sqlpp::compat::nullopt).berti;
+#warning: This is not the real thing yet
+  bar.intN.as(bar.textN).berti;
+
+  in(bar.intN, 7, 8, 9).berti;
+  in(bar.intN, std::vector<int>{7, 8, 9}).berti;
+  max(bar.intN);
+  sqlpp::max(7);
+
+
+#warning: No magic for NULL in operators, e.g. comparison. It might therefore be reasonable to disallow comparison with optoinal values? But then again, columns can also be NULL, failing to compare to anything. In any case, do not translate `a == nullopt` to `a IS NULL`. Same for parameters.
 
 #if 0
 

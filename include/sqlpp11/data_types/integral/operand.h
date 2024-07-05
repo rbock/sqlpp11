@@ -58,10 +58,50 @@ namespace sqlpp
     _value_t _t;
   };
 
+  struct optional_integral_operand : public alias_operators<optional_integral_operand>
+  {
+    using _traits = make_traits<integral, tag::is_expression, tag::is_wrapped_value>;
+    using _nodes = detail::type_vector<>;
+    using _is_literal_expression = std::true_type;
+
+    using _value_t = sqlpp::compat::optional<int64_t>;
+    using _can_be_null = std::true_type;
+
+    optional_integral_operand() : _t{}
+    {
+    }
+
+    optional_integral_operand(_value_t t) : _t(t)
+    {
+    }
+
+    optional_integral_operand(const optional_integral_operand&) = default;
+    optional_integral_operand(optional_integral_operand&&) = default;
+    optional_integral_operand& operator=(const optional_integral_operand&) = default;
+    optional_integral_operand& operator=(optional_integral_operand&&) = default;
+    ~optional_integral_operand() = default;
+
+    _value_t _t;
+  };
+
   template <typename Context>
   Context& serialize(const integral_operand& t, Context& context)
   {
     context << t._t;
+    return context;
+  }
+
+  template <typename Context>
+  Context& serialize(const optional_integral_operand& t, Context& context)
+  {
+    if (t._t.has_value())
+    {
+      context << t._t.value();
+    }
+    else
+    {
+      context << "NULL";
+    }
     return context;
   }
 }  // namespace sqlpp

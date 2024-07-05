@@ -39,7 +39,6 @@
 #include <sqlpp11/not_in.h>
 #include <sqlpp11/is_null.h>
 #include <sqlpp11/is_not_null.h>
-#include <sqlpp11/exists.h>
 #include <sqlpp11/any.h>
 #include <sqlpp11/some.h>
 #include <sqlpp11/value_type.h>
@@ -54,7 +53,7 @@
 namespace sqlpp
 {
   template <typename Expression, typename Db>
-  auto flatten(const Expression& exp, Db& db) -> verbatim_t<value_type_of<Expression>>
+  auto flatten(const Expression& exp, Db& db) -> verbatim_t<value_type_of_t<Expression>>
   {
     static_assert(not make_parameter_list_t<Expression>::size::value,
                   "parameters are not allowed in flattened expressions");

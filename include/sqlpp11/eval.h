@@ -42,7 +42,7 @@ namespace sqlpp
     static_assert(required_tables_of<Expr>::size::value == 0,
                   "Expression cannot be used in eval because it requires tables");
     using _name_type = alias::a_t::_alias_t;
-    using _value_type = value_type_of<Expr>;
+    using _value_type = value_type_of_t<Expr>;
     using _field_spec = field_spec_t<_name_type, _value_type, true>;
     using type = typename _field_spec::cpp_type;
   };

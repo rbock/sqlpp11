@@ -89,23 +89,12 @@ namespace sqlpp
                                "set() contains assignments for columns from more than one table");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_update_set_count_args_t, "at least one assignment expression required in set()");
 
-  namespace detail
-  {
-    template <typename Assignment>
-    struct lhs_must_not_update
-    {
-      static constexpr auto value = detail::must_not_update_impl<typename lhs<Assignment>::type>::type::value;
-    };
-  }  // namespace detail
-
   template <typename... Assignments>
   using check_update_set_t = static_combined_check_t<
       static_check_t<logic::all_t<detail::is_assignment_impl<Assignments>::type::value...>::value,
                      assert_update_set_assignments_t>,
       static_check_t<not detail::has_duplicates<typename lhs<Assignments>::type...>::value,
                      assert_update_set_no_duplicates_t>,
-      static_check_t<logic::none_t<detail::lhs_must_not_update<Assignments>::value...>::value,
-                     assert_update_set_allowed_t>,
       static_check_t<sizeof...(Assignments) == 0 or detail::make_joined_set_t<required_tables_of<
                                                         typename lhs<Assignments>::type>...>::size::value == 1,
                      assert_update_set_single_table_t>>;

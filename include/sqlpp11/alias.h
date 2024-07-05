@@ -33,11 +33,14 @@ namespace sqlpp
   template <typename Expression, typename AliasProvider>
   struct expression_alias_t
   {
-    using _traits = make_traits<value_type_of<Expression>, tag::is_selectable, tag::is_alias>;
+    using _traits = make_traits<value_type_of_t<Expression>, tag::is_selectable, tag::is_alias>;
     using _nodes = detail::type_vector<Expression>;
 
+#warning Maybe make constructor of expressions private to force construction in the respective functions?
+    /*
     static_assert(is_expression_t<Expression>::value, "invalid argument for an expression alias");
     static_assert(not is_alias_t<Expression>::value, "cannot create an alias of an alias");
+    */
 
     using _alias_t = typename AliasProvider::_alias_t;
 
@@ -57,6 +60,12 @@ namespace sqlpp
     ~expression_alias_t() = default;
 
     Expression _expression;
+  };
+
+  template <typename Expression, typename AliasProvider>
+  struct value_type_of<expression_alias_t<Expression, AliasProvider>>
+  {
+    using type = value_type_of_t<Expression>;
   };
 
   template <typename Context, typename Expression, typename AliasProvider>

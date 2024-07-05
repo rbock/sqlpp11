@@ -39,13 +39,14 @@
 
 namespace sqlpp
 {
+#warning: need to reactivate column operators?
   template <typename Table, typename ColumnSpec>
-  struct column_t : public expression_operators<column_t<Table, ColumnSpec>, value_type_of<ColumnSpec>>,
-                    public column_operators<column_t<Table, ColumnSpec>, value_type_of<ColumnSpec>>
+  struct column_t// : public expression_operators<column_t<Table, ColumnSpec>, typename ColumnSpec::value_type>,
+                 //   public column_operators<column_t<Table, ColumnSpec>, typename ColumnSpec::value_type>
   {
     struct _traits
     {
-      using _value_type = value_type_of<ColumnSpec>;
+      using _value_type = typename ColumnSpec::value_type;
       using _tags = detail::make_joined_set_t<detail::type_set<tag::is_column, tag::is_expression, tag::is_selectable>,
                                               typename ColumnSpec::_traits::_tags>;
     };
@@ -59,12 +60,7 @@ namespace sqlpp
     using _alias_t = typename _spec_t::_alias_t;
 
     template <typename T>
-    using _is_valid_assignment_operand = is_valid_assignment_operand<value_type_of<ColumnSpec>, T>;
-
-    // disambiguation for C++20 / clang
-    // (see https://bugs.llvm.org/show_bug.cgi?id=46508)
-    using expression_operators<column_t<Table, ColumnSpec>, value_type_of<ColumnSpec>>::operator==;
-    using expression_operators<column_t<Table, ColumnSpec>, value_type_of<ColumnSpec>>::operator!=;
+    using _is_valid_assignment_operand = is_valid_assignment_operand<typename ColumnSpec::value_type, T>;
 
     column_t() = default;
     column_t(const column_t&) = default;
@@ -110,6 +106,12 @@ namespace sqlpp
     {
       return {*this, default_value_t{}};
     }
+  };
+
+  template<typename Table, typename ColumnSpec>
+  struct value_type_of<column_t<Table, ColumnSpec>>
+  {
+    using type = typename ColumnSpec::value_type;
   };
 
   template <typename Context, typename Table, typename ColumnSpec>

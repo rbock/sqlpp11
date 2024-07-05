@@ -42,7 +42,7 @@ namespace sqlpp
       static_check_t<is_expression_t<wrap_operand_t<Else>>::value, assert_case_else_expression_t>,
       static_check_t<logic::any_t<is_sql_null_t<Then>::value,
                                   is_sql_null_t<wrap_operand_t<Else>>::value,
-                                  std::is_same<value_type_of<Then>, value_type_of<wrap_operand_t<Else>>>::value>::value,
+                                  std::is_same<value_type_of_t<Then>, value_type_of_t<wrap_operand_t<Else>>>::value>::value,
                      assert_case_then_else_same_type_t>>;
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_case_then_expression_t, "argument is not a value expression in then()");
@@ -61,10 +61,10 @@ namespace sqlpp
   struct case_t
       : public expression_operators<
             case_t<When, Then, Else>,
-            typename std::conditional<is_sql_null_t<Then>::value, value_type_of<Else>, value_type_of<Then>>::type>,
+            typename std::conditional<is_sql_null_t<Then>::value, value_type_of_t<Else>, value_type_of_t<Then>>::type>,
         public alias_operators<case_t<When, Then, Else>>
   {
-    using _traits = make_traits<value_type_of<Then>, tag::is_expression>;
+    using _traits = make_traits<value_type_of_t<Then>, tag::is_expression>;
     using _nodes = detail::type_vector<When, Then, Else>;
 
     case_t(When when, Then then, Else else_) : _when(when), _then(then), _else(else_)

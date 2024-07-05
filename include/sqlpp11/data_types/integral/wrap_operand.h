@@ -32,6 +32,7 @@
 namespace sqlpp
 {
   struct integral_operand;
+  struct optional_integral_operand;
 
   template <typename T>
   struct wrap_operand<T,
@@ -39,5 +40,13 @@ namespace sqlpp
                                               not std::is_unsigned<T>::value>::type>
   {
     using type = integral_operand;
+  };
+
+  template <typename T>
+  struct wrap_operand<sqlpp::compat::optional<T>,
+                      typename std::enable_if<std::is_integral<T>::value and not std::is_same<bool, T>::value and
+                                              not std::is_unsigned<T>::value>::type>
+  {
+    using type = optional_integral_operand;
   };
 }  // namespace sqlpp

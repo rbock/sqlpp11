@@ -41,7 +41,7 @@ namespace sqlpp
   template <typename AliasProvider, typename Table, typename... ColumnSpec>
   struct table_alias_t : public ColumnSpec::_alias_t::template _member_t<column_t<AliasProvider, ColumnSpec>>...
   {
-    using _traits = make_traits<value_type_of<Table>,
+    using _traits = make_traits<value_type_of_t<Table>,
                                 tag::is_table,
                                 tag::is_alias,
                                 tag_if<tag::can_be_null, can_be_null_t<Table>::value>,

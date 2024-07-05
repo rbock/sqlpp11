@@ -54,11 +54,11 @@ namespace sqlpp
   };
 
   template <typename Flag, typename Expr>
-  struct sum_t : public expression_operators<sum_t<Flag, Expr>, value_type_of<Expr>>,
+  struct sum_t : public expression_operators<sum_t<Flag, Expr>, value_type_of_t<Expr>>,
                  public aggregate_function_operators<sum_t<Flag, Expr>>,
                  public alias_operators<sum_t<Flag, Expr>>
   {
-    using _traits = make_traits<value_type_of<Expr>, tag::is_expression, tag::is_selectable>;
+    using _traits = make_traits<value_type_of_t<Expr>, tag::is_expression, tag::is_selectable>;
     using _nodes = detail::type_vector<Expr, aggregate_function>;
     using _can_be_null = std::true_type;
     using _is_aggregate_expression = std::true_type;

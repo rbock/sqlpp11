@@ -40,7 +40,7 @@ namespace sqlpp
   template <typename Table>
   struct schema_qualified_table_t
   {
-    using _traits = make_traits<value_type_of<Table>, tag::is_table>;
+    using _traits = make_traits<value_type_of_t<Table>, tag::is_table>;
 
     using _nodes = detail::type_vector<>;
     using _required_ctes = detail::type_set<>;

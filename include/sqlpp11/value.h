@@ -33,16 +33,28 @@
 namespace sqlpp
 {
   template <typename T>
-  struct value_t : public wrap_operand_t<T>, public expression_operators<value_t<T>, value_type_of<wrap_operand_t<T>>>
+  struct value_t
   {
-    using _base_t = wrap_operand_t<T>;
-    using _base_t::_base_t;
+    template <typename alias_provider>
+    expression_alias_t<value_t, alias_provider> as(const alias_provider& /*unused*/) const
+    {
+      return {*this};
+    }
+
+    T _value;
   };
+  template<typename T>
+  struct value_type_of<value_t<T>>
+  {
+    using type = value_type_of_t<T>;
+  };
+
   template <typename T>
+  using check_value_arg = std::enable_if_t<not std::is_same<value_type_of_t<T>, no_value_t>::value and values_are_comparable<T, T>::value>;
+
+  template <typename T, typename = check_value_arg<T>>
   auto value(T t) -> value_t<T>
   {
-    static_assert(is_wrapped_value_t<wrap_operand_t<T>>::value,
-                  "value() is to be called with non-sql-type like int, or string");
-    return {t};
+    return {std::move(t)};
   }
 }  // namespace sqlpp

@@ -138,8 +138,6 @@ namespace sqlpp
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_set_assignments_t, "at least one argument is not an assignment in set()");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_set_no_duplicates_t, "at least one duplicate column detected in set()");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_set_allowed_t,
-                               "at least one assignment is prohibited by its column definition in set()");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_set_single_table_t,
                                "set() arguments contain assignments from more than one table");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_static_set_count_args_t,
@@ -149,31 +147,12 @@ namespace sqlpp
   SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_dynamic_set_statement_dynamic_t,
                                "dynamic_set must not be called in a static statement");
 
-  // workaround for msvc bugs https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269 &
-  // https://connect.microsoft.com/VisualStudio/Feedback/Details/2173198
-  //  template <typename... Assignments>
-  //  using check_insert_set_t = static_combined_check_t<
-  //      static_check_t<logic::all_t<is_assignment_t<Assignments>::value...>::value, assert_insert_set_assignments_t>,
-  //      static_check_t<not detail::has_duplicates<lhs_t<Assignments>...>::value, assert_insert_set_no_duplicates_t>,
-  //      static_check_t<logic::none_t<must_not_insert_t<lhs_t<Assignments>>::value...>::value,
-  //                     assert_insert_set_allowed_t>,
-  //      static_check_t<sizeof...(Assignments) == 0 or
-  //                         detail::make_joined_set_t<required_tables_of<lhs_t<Assignments>>...>::size::value == 1,
-  //                     assert_insert_set_single_table_t>>;
-
-  template <typename Expr>
-  struct must_not_insert
-  {
-    static const bool value = must_not_insert_t<lhs_t<Expr>>::value;
-  };
-
   template <typename... Assignments>
   using check_insert_set_t = static_combined_check_t<
       static_check_t<logic::all_t<detail::is_assignment_impl<Assignments>::type::value...>::value,
                      assert_insert_set_assignments_t>,
       static_check_t<not detail::has_duplicates<typename lhs<Assignments>::type...>::value,
                      assert_insert_set_no_duplicates_t>,
-      static_check_t<logic::none_t<must_not_insert<Assignments>::value...>::value, assert_insert_set_allowed_t>,
       static_check_t<sizeof...(Assignments) == 0 or detail::make_joined_set_t<required_tables_of<
                                                         typename lhs<Assignments>::type>...>::size::value == 1,
                      assert_insert_set_single_table_t>>;
@@ -382,8 +361,6 @@ namespace sqlpp
       {
         static_assert(not detail::has_duplicates<Columns...>::value,
                       "at least one duplicate argument detected in columns()");
-        static_assert(logic::none_t<must_not_insert_t<Columns>::value...>::value,
-                      "at least one column argument has a must_not_insert tag in its definition");
         using _column_required_tables = detail::make_joined_set_t<required_tables_of<Columns>...>;
         static_assert(_column_required_tables::size::value == 1, "columns() contains columns from several tables");
 

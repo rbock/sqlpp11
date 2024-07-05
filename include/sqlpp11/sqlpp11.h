@@ -33,6 +33,7 @@
 #include <sqlpp11/update.h>
 #include <sqlpp11/select.h>
 #include <sqlpp11/functions.h>
+#include <sqlpp11/operator.h>
 #include <sqlpp11/transaction.h>
 #include <sqlpp11/without_table_check.h>
 #include <sqlpp11/schema_qualified_table.h>

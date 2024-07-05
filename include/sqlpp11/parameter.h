@@ -64,7 +64,7 @@ namespace sqlpp
   }
 
   template <typename NamedExpr>
-  auto parameter(const NamedExpr & /*unused*/) -> parameter_t<value_type_of<NamedExpr>, NamedExpr>
+  auto parameter(const NamedExpr & /*unused*/) -> parameter_t<value_type_of_t<NamedExpr>, NamedExpr>
   {
     static_assert(is_selectable_t<NamedExpr>::value, "not a named expression");
     return {};

@@ -35,7 +35,7 @@ namespace sqlpp
   template <typename Select>
   struct any_t
   {
-    using _traits = make_traits<value_type_of<Select>, tag::is_multi_expression>;
+    using _traits = make_traits<value_type_of_t<Select>, tag::is_multi_expression>;
     using _nodes = detail::type_vector<Select>;
 
     any_t(Select select) : _select(select)

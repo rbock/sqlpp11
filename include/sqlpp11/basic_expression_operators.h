@@ -50,7 +50,7 @@ namespace sqlpp
   using check_comparison_impl = static_combined_check_t<
       static_check_t<logic::any_t<is_expression_t<RhsType>::value, is_multi_expression_t<RhsType>::value>::value,
                      assert_comparison_rhs_is_expression_t>,
-      static_check_t<value_type_of<LhsType>::template _is_valid_operand<RhsType>::value,
+      static_check_t<value_type_of_t<LhsType>::template _is_valid_operand<RhsType>::value,
                      assert_comparison_rhs_is_valid_operand_t>,
       static_check_t<not std::is_same<LhsType, RhsType>::value, assert_comparison_lhs_rhs_differ_t>>;
 
@@ -60,7 +60,7 @@ namespace sqlpp
   template <typename LhsType, typename... RhsType>
   using check_in_impl = static_combined_check_t<
       static_check_t<logic::all_t<is_expression_t<RhsType>::value...>::value, assert_comparison_rhs_is_expression_t>,
-      static_check_t<logic::all_t<value_type_of<LhsType>::template _is_valid_operand<RhsType>::value...>::value,
+      static_check_t<logic::all_t<value_type_of_t<LhsType>::template _is_valid_operand<RhsType>::value...>::value,
                      assert_comparison_rhs_is_valid_operand_t>,
       static_check_t<logic::none_t<std::is_same<LhsType, RhsType>::value...>::value,
                      assert_comparison_lhs_rhs_differ_t>>;
@@ -122,6 +122,7 @@ namespace sqlpp
       using type = in_expression_t<_check, NewExpr, Expr, wrap_operand_t<T>...>;
     };
 
+#if 0
     template <typename T>
     auto operator==(T t) const -> _new_binary_expression_t<equal_to_t, T>
     {
@@ -214,7 +215,9 @@ namespace sqlpp
       check_in_t<Expr, wrap_operand_t<T>...>::verify();
       return {*static_cast<const Expr*>(this), typename wrap_operand<T>::type{t}...};
     }
+#endif
 
+    /*
     template <typename Defer = void>
     auto operator not() const -> return_type_not_t<Expr, Defer>
     {
@@ -230,6 +233,16 @@ namespace sqlpp
     }
 
     template <typename R>
+    auto operator or(const R& r) const -> return_type_or_t<Expr, R>
+    {
+      return_type_or<Expr, R>::check::verify();
+      return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
+    }
+
+    */
+
+    /*
+    template <typename R>
     auto operator&(const R& r) const -> return_type_bitwise_and_t<Expr, R>
     {
       return_type_bitwise_and<Expr, R>::check::verify();
@@ -242,14 +255,9 @@ namespace sqlpp
       return_type_bitwise_or<Expr, R>::check::verify();
       return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
     }
+    */
 
-    template <typename R>
-    auto operator or(const R& r) const -> return_type_or_t<Expr, R>
-    {
-      return_type_or<Expr, R>::check::verify();
-      return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
-    }
-
+    /*
     template <typename R>
     auto operator+(const R& r) const -> return_type_plus_t<Expr, R>
     {
@@ -284,6 +292,7 @@ namespace sqlpp
       return_type_modulus<Expr, R>::check::verify();
       return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
     }
+    */
 
     template <typename Defer = void>
     auto operator+() const -> return_type_unary_plus_t<Expr, Defer>
@@ -292,6 +301,7 @@ namespace sqlpp
       return {*static_cast<const Expr*>(this)};
     }
 
+    /*
     template <typename Defer = void>
     auto operator-() const -> return_type_unary_minus_t<Expr, Defer>
     {
@@ -312,5 +322,6 @@ namespace sqlpp
       return_type_shift_right<Expr, R>::check::verify();
       return {*static_cast<const Expr*>(this), wrap_operand_t<R>{r}};
     }
+    */
   };
 }  // namespace sqlpp

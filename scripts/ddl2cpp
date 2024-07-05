@@ -703,8 +703,8 @@ def createHeader():
                 )
                 print("You can disable this warning using -no-timestamp-warning")
                 noTimestampWarning = True
-            traitslist = ["sqlpp::" + columnType]
-            columnCanBeNull = not column.notNull
+            traitslist = ["::sqlpp::" + columnType]
+            columnCanBeNull = not column.notNull and not column.isPrimaryKey
             print("    struct " + columnClass, file=header)
             print("    {", file=header)
             print("      struct _alias_t", file=header)
@@ -716,7 +716,7 @@ def createHeader():
                 file=header,
             )
             print(
-                "        using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;",
+                "        using _name_t = ::sqlpp::make_char_sequence<sizeof(_literal), _literal>;",
                 file=header,
             )
             print("        template<typename T>", file=header)
@@ -735,21 +735,17 @@ def createHeader():
             )
             print("          };", file=header)
             print("      };", file=header)
-            requireInsert = True
             hasAutoValue = column.hasAutoValue or (autoId and sqlColumnName == "id")
-            if hasAutoValue:
-                traitslist.append("sqlpp::tag::must_not_insert")
-                traitslist.append("sqlpp::tag::must_not_update")
-                requireInsert = False
-            if not column.notNull and not column.isPrimaryKey:
-                traitslist.append("sqlpp::tag::can_be_null")
-                requireInsert = False
-            if column.hasDefaultValue:
-                requireInsert = False
-            if requireInsert:
-                traitslist.append("sqlpp::tag::require_insert")
+            if columnCanBeNull:
+                traitslist.append("::sqlpp::tag::can_be_null")
+            if column.hasDefaultValue or hasAutoValue or columnCanBeNull:
+                traitslist.append("::sqlpp::tag::has_default")
+            if columnCanBeNull:
+                print("      using value_type = ::sqlpp::compat::optional<::sqlpp::" + columnType + ">;", file=header)
+            else:
+                print("      using value_type = ::sqlpp::" + columnType + ";", file=header)
             print(
-                "      using _traits = sqlpp::make_traits<"
+                "      using _traits = ::sqlpp::make_traits<"
                 + ", ".join(traitslist)
                 + ">;",
                 file=header,
@@ -761,7 +757,7 @@ def createHeader():
         print(
             "  struct "
             + tableClass
-            + ": sqlpp::table_t<"
+            + ": ::sqlpp::table_t<"
             + tableTemplateParameters
             + ">",
             file=header,
@@ -774,7 +770,7 @@ def createHeader():
             file=header,
         )
         print(
-            "      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;",
+            "      using _name_t = ::sqlpp::make_char_sequence<sizeof(_literal), _literal>;",
             file=header,
         )
         print("      template<typename T>", file=header)

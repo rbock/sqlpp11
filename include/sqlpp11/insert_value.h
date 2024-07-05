@@ -58,7 +58,7 @@ namespace sqlpp
   {
     using _is_insert_value = std::true_type;
     using _column_t = Column;
-    using _pure_value_t = typename value_type_of<Column>::_cpp_value_type;
+    using _pure_value_t = typename value_type_of_t<Column>::_cpp_value_type;
     using _wrapped_value_t = wrap_operand_t<_pure_value_t>;
     using _value_or_null_t = value_or_null_t<typename Column::_traits::_value_type>;
 

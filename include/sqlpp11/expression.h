@@ -137,10 +137,10 @@ namespace sqlpp
   }
 
   template <typename Lhs, typename O, typename Rhs>
-  struct binary_expression_t : public expression_operators<binary_expression_t<Lhs, O, Rhs>, value_type_of<O>>,
+  struct binary_expression_t : public expression_operators<binary_expression_t<Lhs, O, Rhs>, value_type_of_t<O>>,
                                public alias_operators<binary_expression_t<Lhs, O, Rhs>>
   {
-    using _traits = make_traits<value_type_of<O>, tag::is_expression>;
+    using _traits = make_traits<value_type_of_t<O>, tag::is_expression>;
     using _nodes = detail::type_vector<Lhs, Rhs>;
 
     binary_expression_t(Lhs lhs, Rhs rhs) : _lhs(lhs), _rhs(rhs)
@@ -169,10 +169,10 @@ namespace sqlpp
   }
 
   template <typename O, typename Rhs>
-  struct unary_expression_t : public expression_operators<unary_expression_t<O, Rhs>, value_type_of<O>>,
+  struct unary_expression_t : public expression_operators<unary_expression_t<O, Rhs>, value_type_of_t<O>>,
                               public alias_operators<unary_expression_t<O, Rhs>>
   {
-    using _traits = make_traits<value_type_of<O>, tag::is_expression>;
+    using _traits = make_traits<value_type_of_t<O>, tag::is_expression>;
     using _nodes = detail::type_vector<Rhs>;
 
     unary_expression_t(Rhs rhs) : _rhs(rhs)
