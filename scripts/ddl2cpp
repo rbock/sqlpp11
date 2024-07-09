@@ -703,8 +703,6 @@ def createHeader():
                 )
                 print("You can disable this warning using -no-timestamp-warning")
                 noTimestampWarning = True
-            traitslist = ["::sqlpp::" + columnType]
-            columnCanBeNull = not column.notNull and not column.isPrimaryKey
             print("    struct " + columnClass, file=header)
             print("    {", file=header)
             print("      struct _alias_t", file=header)
@@ -735,21 +733,19 @@ def createHeader():
             )
             print("          };", file=header)
             print("      };", file=header)
-            hasAutoValue = column.hasAutoValue or (autoId and sqlColumnName == "id")
-            if columnCanBeNull:
-                traitslist.append("::sqlpp::tag::can_be_null")
-            if column.hasDefaultValue or hasAutoValue or columnCanBeNull:
-                traitslist.append("::sqlpp::tag::has_default")
+            columnCanBeNull = not column.notNull and not column.isPrimaryKey
             if columnCanBeNull:
                 print("      using value_type = ::sqlpp::compat::optional<::sqlpp::" + columnType + ">;", file=header)
             else:
                 print("      using value_type = ::sqlpp::" + columnType + ";", file=header)
-            print(
-                "      using _traits = ::sqlpp::make_traits<"
-                + ", ".join(traitslist)
-                + ">;",
-                file=header,
-            )
+            columnHasDefault = column.hasDefaultValue or \
+                               columnCanBeNull or \
+                               column.hasAutoValue or \
+                               (autoId and sqlColumnName == "id")
+            if columnHasDefault:
+              print("      using has_default_value = std::true_type;", file=header)
+            else:
+              print("      using has_default_value = std::false_type;", file=header)
             print("    };", file=header)
         print("  } // namespace " + tableNamespace, file=header)
         print("", file=header)

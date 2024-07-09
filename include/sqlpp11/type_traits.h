@@ -412,30 +412,8 @@ namespace sqlpp
   template <typename T>
   using is_day_or_time_point_t = logic::any_t<is_day_point_t<T>::value, is_time_point_t<T>::value>;
 
-  namespace tag
-  {
-    struct can_be_null
-    {
-    };
-  }  // namespace tag
-
-  namespace detail
-  {
-    template <typename T, typename Enable = void>
-    struct column_spec_can_be_null_impl
-    {
-      using type = std::false_type;
-    };
-    template <typename T>
-    struct column_spec_can_be_null_impl<
-        T,
-        typename std::enable_if<detail::is_element_of<tag::can_be_null, typename T::_traits::_tags>::value>::type>
-    {
-      using type = std::true_type;
-    };
-  }  // namespace detail
   template <typename T>
-  using column_spec_can_be_null_t = typename detail::column_spec_can_be_null_impl<T>::type;
+  struct can_be_null : public is_optional<value_type_of_t<T>> {};
 
 #define SQLPP_VALUE_TRAIT_GENERATOR(name)                                                                   \
   namespace tag                                                                                             \
@@ -597,7 +575,6 @@ namespace sqlpp
   template <typename T>                                               \
   using trait##_t = typename detail::trait##_impl<T>::type;
 
-  SQLPP_RECURSIVE_TRAIT_GENERATOR(can_be_null)
   SQLPP_RECURSIVE_TRAIT_GENERATOR(contains_aggregate_function)
 
   template <typename ValueType, typename T>

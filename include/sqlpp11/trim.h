@@ -61,7 +61,6 @@ namespace sqlpp
     using _traits = make_traits<text, tag::is_expression, tag::is_selectable>;
 
     using _nodes = detail::type_vector<Expr>;
-    using _can_be_null = can_be_null_t<Expr>;
 
     using _auto_alias_t = trim_alias_t;
 

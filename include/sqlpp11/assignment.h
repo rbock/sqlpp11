@@ -41,7 +41,8 @@ namespace sqlpp
     using _rhs_t = Rhs;
     using _nodes = detail::type_vector<_lhs_t, _rhs_t>;
 
-    static_assert(can_be_null_t<_lhs_t>::value ? true
+#warning: We check this in the factory function
+    static_assert(can_be_null<_lhs_t>::value ? true
                                                : not std::is_same<_rhs_t, null_t>::value,
                   "column must not be null");
 

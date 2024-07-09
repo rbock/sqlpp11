@@ -47,13 +47,11 @@ namespace sqlpp
     struct _traits
     {
       using _value_type = typename ColumnSpec::value_type;
-      using _tags = detail::make_joined_set_t<detail::type_set<tag::is_column, tag::is_expression, tag::is_selectable>,
-                                              typename ColumnSpec::_traits::_tags>;
+      using _tags = detail::make_joined_set_t<detail::type_set<tag::is_column, tag::is_expression, tag::is_selectable>>;
     };
 
     using _nodes = detail::type_vector<>;
     using _required_tables = detail::type_set<Table>;
-    using _can_be_null = column_spec_can_be_null_t<ColumnSpec>;
 
     using _spec_t = ColumnSpec;
     using _table = Table;
@@ -98,7 +96,7 @@ namespace sqlpp
 
     auto operator=(null_t /*unused*/) const -> assignment_t<column_t, null_t>
     {
-      static_assert(can_be_null_t<column_t>::value, "column cannot be null");
+      static_assert(can_be_null<column_t>::value, "column cannot be null");
       return {*this, null_t{}};
     }
 

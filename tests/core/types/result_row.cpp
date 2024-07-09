@@ -44,12 +44,12 @@ namespace
 
 int main()
 {
-  static_assert(not sqlpp::can_be_null_t<decltype(bar.id)>::value, "");
-  static_assert(sqlpp::can_be_null_t<decltype(foo.doubleN)>::value, "");
-  static_assert(not sqlpp::can_be_null_t<decltype(foo.textNnD)>::value, "");
-  static_assert(not sqlpp::can_be_null_t<decltype(bar.boolNn)>::value, "");
+  static_assert(not sqlpp::can_be_null<decltype(bar.id)>::value, "");
+  static_assert(sqlpp::can_be_null<decltype(foo.doubleN)>::value, "");
+  static_assert(not sqlpp::can_be_null<decltype(foo.textNnD)>::value, "");
+  static_assert(not sqlpp::can_be_null<decltype(bar.boolNn)>::value, "");
   const auto seven = sqlpp::value(7).as(sqlpp::alias::s);
-  static_assert(not sqlpp::can_be_null_t<decltype(seven)>::value, "");
+  static_assert(not sqlpp::can_be_null<decltype(seven)>::value, "");
 
   // Select non-optional column or alias of it.
   for (const auto& row : db(select(foo.id, foo.id.as(sqlpp::alias::a), foo.textNnD, foo.textNnD.as(sqlpp::alias::b))
@@ -319,8 +319,8 @@ int main()
       // aggregates of nullable values
 #warning use a nullable value
       const auto a = bar.id;
-      static_assert(not sqlpp::can_be_null_t<decltype(bar.id)>::value, "");
-      static_assert(not sqlpp::can_be_null_t<decltype(a)>::value, "");
+      static_assert(not sqlpp::can_be_null<decltype(bar.id)>::value, "");
+      static_assert(not sqlpp::can_be_null<decltype(a)>::value, "");
       const auto rows = db(select(count(a), avg(a), max(a), min(a), sum(a)).from(bar).unconditionally());
       auto& x = rows.front();
       static_assert(not is_optional<decltype(x.count)>::value, "");
@@ -332,8 +332,8 @@ int main()
     {
       // aggregates of nullable values
       const auto o = foo.doubleN;
-      static_assert(sqlpp::can_be_null_t<decltype(foo.doubleN)>::value, "");
-      static_assert(sqlpp::can_be_null_t<decltype(o)>::value, "");
+      static_assert(sqlpp::can_be_null<decltype(foo.doubleN)>::value, "");
+      static_assert(sqlpp::can_be_null<decltype(o)>::value, "");
       const auto rows = db(select(count(o), avg(o), max(o), min(o), sum(o)).from(foo).unconditionally());
       auto& x = rows.front();
       static_assert(not is_optional<decltype(x.count)>::value, "");

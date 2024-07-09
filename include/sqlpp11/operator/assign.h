@@ -45,7 +45,7 @@ namespace sqlpp
 #warning handle default_t, but only if the column does have a default!
   template <typename L, typename R>
   using check_assign_args = std::enable_if_t<is_column_t<L>::value and values_are_comparable<L, R>::value and
-                                             (can_be_null_t<L>::value or not is_optional<R>::value) and
+                                             (can_be_null<L>::value or not is_optional<R>::value) and
                                              (has_default_t<L>::value or not std::is_same<R, default_value_t>::value)>;
 
   template <typename L, typename R, typename = check_assign_args<L, R>>

@@ -94,8 +94,7 @@ namespace sqlpp
   {
     using _alias_t = typename FieldSpec::_alias_t;
 
-    using _traits = make_traits<value_type_of_t<FieldSpec>,
-                                tag_if<tag::can_be_null, column_spec_can_be_null_t<FieldSpec>::value>>;
+    using _traits = make_traits<value_type_of_t<FieldSpec>>;
   };
 
   template <typename AliasProvider, typename Statement, typename ResultRow>

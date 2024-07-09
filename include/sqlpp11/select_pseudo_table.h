@@ -39,14 +39,14 @@ namespace sqlpp
   {
     using _alias_t = typename NamedExpr::_alias_t;
 
-    static constexpr bool _can_be_null = can_be_null_t<NamedExpr>::value;
     static constexpr bool _depends_on_outer_table =
         detail::make_intersect_set_t<required_tables_of<NamedExpr>, typename Select::_used_outer_tables>::size::value >
         0;
 
 #warning: somehow prevent insert...
-    using _traits = make_traits<value_type_of_t<NamedExpr>,
-                                tag_if<tag::can_be_null, _can_be_null or _depends_on_outer_table>>;
+#warning: may need to make value type optional for outer tables
+    using _traits = make_traits<value_type_of_t<NamedExpr>/*,
+                                tag_if<tag::can_be_null, _depends_on_outer_table>*/>;
   };
 
   template<typename... NamedExpr>
@@ -60,7 +60,6 @@ namespace sqlpp
   struct select_expression_type<NamedExpr> {
     using value_t = value_type_of_t<NamedExpr>;
     static constexpr bool _is_expression = true;
-    static constexpr bool _can_be_null = can_be_null_t<NamedExpr>::value;
   };
 
   template <typename Select, typename... NamedExpr>
@@ -72,7 +71,6 @@ namespace sqlpp
         // Usage as named expression
         typename _expr_t::value_t,
         tag_if<tag::is_expression, _expr_t::_is_expression>,
-        tag_if<tag::can_be_null, _expr_t::_can_be_null>,
         // Usage as table
         tag::is_table,
         tag::is_pseudo_table,

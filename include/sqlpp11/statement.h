@@ -138,9 +138,12 @@ namespace sqlpp
           make_traits<_value_type, tag_if<tag::is_expression, not std::is_same<_value_type, no_value_t>::value>>;
 
       using _nodes = detail::type_vector<>;
+#warning: maybe need to make value type optional
+      /*
       using _can_be_null = logic::any_t<can_be_null_t<_result_type_provider>::value,
                                         detail::make_intersect_set_t<required_tables_of<_result_type_provider>,
                                                                      _all_provided_outer_tables>::size::value != 0>;
+                                        */
       using _parameters = detail::type_vector_cat_t<parameters_of<Policies>...>;
       // required_tables and _required_ctes are defined above
 
