@@ -26,7 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/alias.h>
+#include <sqlpp11/operator/as_expression.h>
 
 namespace sqlpp
 {
@@ -34,7 +34,7 @@ namespace sqlpp
   struct alias_operators
   {
     template <typename alias_provider>
-    expression_alias_t<Expr, alias_provider> as(const alias_provider& /*unused*/) const
+    as_expression<Expr, alias_provider> as(const alias_provider& /*unused*/) const
     {
       return {*static_cast<const Expr*>(this)};
     }

@@ -31,7 +31,7 @@
 #include <sqlpp11/bad_expression.h>
 #include <sqlpp11/portable_static_assert.h>
 #include <sqlpp11/consistent.h>
-#include <sqlpp11/alias.h>
+#include <sqlpp11/operator/as_expression.h>
 #include <sqlpp11/sort_order.h>
 #include <sqlpp11/expression_fwd.h>
 #include <sqlpp11/in_fwd.h>

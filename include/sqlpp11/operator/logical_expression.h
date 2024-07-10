@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <type_traits>
 
-#include <sqlpp11/alias.h>
+#include <sqlpp11/operator/as_expression.h>
 //#include <sqlpp11/bad_expression.h>
 //#include <sqlpp11/embrace.h>
 //#include <sqlpp11/to_sql_string.h>
@@ -51,13 +51,24 @@ namespace sqlpp
     ~logical_expression() = default;
 
     template <typename alias_provider>
-    expression_alias_t<logical_expression, alias_provider> as(const alias_provider& /*unused*/) const
+    as_expression<logical_expression, alias_provider> as(const alias_provider& /*unused*/) const
     {
       return {*this};
     }
 
     L _l;
     R _r;
+  };
+
+  template <typename L, typename R>
+  using check_logical_args = std::enable_if_t<has_boolean_value<L>::value and has_boolean_value<R>::value>;
+
+  template <typename L, typename Operator, typename R>
+  struct value_type_of<logical_expression<L, Operator, R>>
+      : std::conditional<sqlpp::is_optional<value_type_of_t<L>>::value or sqlpp::is_optional<value_type_of_t<R>>::value,
+                         sqlpp::compat::optional<boolean>,
+                         boolean>
+  {
   };
 
   template <typename Operator, typename R>
@@ -74,7 +85,7 @@ namespace sqlpp
     ~unary_logical_expression() = default;
 
     template <typename alias_provider>
-    expression_alias_t<unary_logical_expression, alias_provider> as(const alias_provider& /*unused*/) const
+    as_expression<unary_logical_expression, alias_provider> as(const alias_provider& /*unused*/) const
     {
       return {*this};
     }
@@ -82,8 +93,13 @@ namespace sqlpp
     R _r;
   };
 
-  template <typename L, typename R>
-  using check_logical_args = std::enable_if_t<has_boolean_value<L>::value and has_boolean_value<R>::value>;
+  template <typename Operator, typename R>
+  struct value_type_of<unary_logical_expression<Operator, R>>
+      : std::conditional<sqlpp::is_optional<value_type_of_t<R>>::value,
+                         sqlpp::compat::optional<boolean>,
+                         boolean>
+  {
+  };
 
   /*
   template <typename L, typename Operator, typename R>
@@ -119,5 +135,38 @@ namespace sqlpp
     return to_sql_string(context, t._l) + Operator::symbol + to_sql_string(context, embrace(t._r));
   }
   */
+
+  struct logical_and
+  {
+    static constexpr auto symbol = " AND ";
+  };
+
+  template <typename L, typename R, typename = check_logical_args<L, R>>
+  constexpr auto operator and(L l, R r) -> logical_expression<L, logical_and, R>
+  {
+    return {std::move(l), std::move(r)};
+  }
+
+  struct logical_or
+  {
+    static constexpr auto symbol = " OR ";
+  };
+
+  template <typename L, typename R, typename = check_logical_args<L, R>>
+  constexpr auto operator||(L l, R r) -> logical_expression<L, logical_or, R>
+  {
+    return {std::move(l), std::move(r)};
+  }
+
+  struct logical_not
+  {
+    static constexpr auto symbol = "NOT ";
+  };
+
+  template <typename R, typename = check_logical_args<R, R>>
+  constexpr auto operator!(R r) -> unary_logical_expression<logical_not, R>
+  {
+    return {std::move(r)};
+  }
 
 }  // namespace sqlpp

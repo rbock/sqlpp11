@@ -33,51 +33,24 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    */
 
 // logical
-#include <sqlpp11/operator/logical_and.h>
-#include <sqlpp11/operator/logical_not.h>
-#include <sqlpp11/operator/logical_or.h>
+#include <sqlpp11/operator/logical_expression.h>
 
 // comparison
-#include <sqlpp11/operator/equal_to.h>
-#include <sqlpp11/operator/greater.h>
-#include <sqlpp11/operator/greater_equal.h>
-#include <sqlpp11/operator/less.h>
-#include <sqlpp11/operator/less_equal.h>
-#include <sqlpp11/operator/like.h>
-#include <sqlpp11/operator/not_equal_to.h>
-#include <sqlpp11/operator/is_distinct_from.h>
-#include <sqlpp11/operator/is_not_distinct_from.h>
-#include <sqlpp11/operator/is_not_null.h>
-#include <sqlpp11/operator/is_null.h>
-
+#include <sqlpp11/operator/comparison_expression.h>
+#include <sqlpp11/operator/in_expression.h>
 
 // arithmetic
-#include <sqlpp11/operator/divides.h>
-#include <sqlpp11/operator/minus.h>
-#include <sqlpp11/operator/modulus.h>
-#include <sqlpp11/operator/multiplies.h>
-#include <sqlpp11/operator/negate.h>
-#include <sqlpp11/operator/plus.h>
+#include <sqlpp11/operator/arithmetic_expression.h>
 
 // binary
-#include <sqlpp11/operator/bit_and.h>
-#include <sqlpp11/operator/bit_not.h>
-#include <sqlpp11/operator/bit_or.h>
-#include <sqlpp11/operator/bit_shift_left.h>
-#include <sqlpp11/operator/bit_shift_right.h>
-#include <sqlpp11/operator/bit_xor.h>
+#include <sqlpp11/operator/bit_expression.h>
 
 // assignment
-#include <sqlpp11/operator/assign.h>
+#include <sqlpp11/operator/assign_expression.h>
 
 // misc
-#include <sqlpp11/operator/as.h>
+#include <sqlpp11/operator/as_expression.h>
 
-#include <sqlpp11/operator/asc.h>
-#include <sqlpp11/operator/desc.h>
-#include <sqlpp11/operator/order.h>
+#include <sqlpp11/operator/sort_order_expression.h>
 
-#include <sqlpp11/operator/in.h>
-#include <sqlpp11/operator/not_in.h>
-
-#include <sqlpp11/operator/exists.h>
+#include <sqlpp11/operator/exists_expression.h>

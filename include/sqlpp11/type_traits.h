@@ -75,6 +75,21 @@ namespace sqlpp
   using remove_optional_t = typename remove_optional<T>::type;
 
   template <typename T>
+  struct force_optional
+  {
+    using type = sqlpp::compat::optional<T>;
+  };
+
+  template <typename T>
+  struct force_optional<sqlpp::compat::optional<T>>
+  {
+    using type = sqlpp::compat::optional<T>;
+  };
+
+  template <typename T>
+  using force_optional_t = typename force_optional<T>::type;
+
+  template <typename T>
   const T& get_value(const T& t)
   {
     return t;
@@ -238,8 +253,13 @@ namespace sqlpp
   {
   };
 
+  // A generic numeric type which could be (unsigned) integral or floating point.
+  struct numeric;
   template <typename T>
   struct is_numeric : public std::integral_constant<bool, is_integral<T>::value or std::is_floating_point<T>::value>{};
+
+  template <>
+  struct is_numeric<numeric> : public std::true_type{};
 
   template <>
   struct is_numeric<sqlpp::compat::nullopt_t> : public std::true_type{};

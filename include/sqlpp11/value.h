@@ -36,7 +36,7 @@ namespace sqlpp
   struct value_t
   {
     template <typename alias_provider>
-    expression_alias_t<value_t, alias_provider> as(const alias_provider& /*unused*/) const
+    as_expression<value_t, alias_provider> as(const alias_provider& /*unused*/) const
     {
       return {*this};
     }

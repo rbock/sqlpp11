@@ -26,7 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/alias.h>
+#include <sqlpp11/operator/as_expression.h>
 
 namespace sqlpp
 {
@@ -53,7 +53,7 @@ namespace sqlpp
     template <typename T>
     struct auto_alias_impl<T, typename std::enable_if<has_auto_alias_t<T>::value>::type>
     {
-      using type = expression_alias_t<T, typename T::_auto_alias_t>;
+      using type = as_expression<T, typename T::_auto_alias_t>;
     };
   }  // namespace detail
 

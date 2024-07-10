@@ -26,7 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/alias.h>
+#include <sqlpp11/operator/as_expression.h>
 #include <sqlpp11/column_fwd.h>
 #include <sqlpp11/default_value.h>
 #include <sqlpp11/null.h>
@@ -75,7 +75,7 @@ namespace sqlpp
     }
 
     template <typename alias_provider>
-    expression_alias_t<column_t, alias_provider> as(const alias_provider& /*unused*/) const
+    as_expression<column_t, alias_provider> as(const alias_provider& /*unused*/) const
     {
       return {*this};
     }

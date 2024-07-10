@@ -1,7 +1,7 @@
 #pragma once
 
 /*
-Copyright (c) 2017- 2018, Roland Bock
+Copyright (c) 2017 - 2018, Roland Bock
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -26,19 +26,43 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <sqlpp11/comparison_expression.h>
+#include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
-  struct equal_to
+  template <typename SubSelect>
+  struct exists_t
   {
-    static constexpr auto symbol = " = ";
+    SubSelect sub_select;
   };
 
-  template <typename L, typename R, typename = check_comparison_args<L, R>>
-  constexpr auto operator==(L l, R r) -> comparison_expression<L, equal_to, R>
+  template <typename SubSelect>
+  using check_exists_arg = std::enable_if_t<is_statement_t<SubSelect>::value and has_result_row_t<SubSelect>::value>;
+
+  template <typename SubSelect>
+  struct value_type_of<exists_t<SubSelect>>
   {
-    return {l, r};
+    using type = boolean;
+  };
+
+#warning: Document that functions dont come with their default alias any more
+  template <typename SubSelect, typename = check_exists_arg<SubSelect>>
+  constexpr auto exists(SubSelect sub_select) -> exists_t<SubSelect>
+  {
+    return exists_t<SubSelect>{sub_select};
   }
 
+  /*
+  template <typename SubSelect>
+  struct nodes_of<exists_t<SubSelect>>
+  {
+    using type = type_vector<SubSelect>;
+  };
+
+  template <typename Context, typename SubSelect>
+  [[nodiscard]] auto to_sql_string(Context& context, const exists_t<SubSelect>& t)
+  {
+    return " EXISTS(" + to_sql_string(context, t.sub_select) + ") ";
+  }
+  */
 }  // namespace sqlpp

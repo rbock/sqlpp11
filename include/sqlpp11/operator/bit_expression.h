@@ -65,6 +65,22 @@ namespace sqlpp
     R _r;
   };
 
+  template <typename L, typename Operator, typename R>
+  struct value_type_of<bit_expression<L, Operator, R>>
+        : std::conditional<sqlpp::is_optional<value_type_of_t<L>>::value or sqlpp::is_optional<value_type_of_t<R>>::value,
+                         force_optional_t<value_type_of_t<L>>,
+                         value_type_of_t<L>>
+  {
+  };
+
+  template <typename Operator, typename R>
+  struct value_type_of<unary_bit_expression<Operator, R>>
+        : std::conditional<sqlpp::is_optional<value_type_of_t<R>>::value,
+                         force_optional_t<value_type_of_t<R>>,
+                         value_type_of_t<R>>
+  {
+  };
+
   template <typename L, typename R>
   using check_bit_expression_args = std::enable_if_t<has_integral_value<L>::value and has_integral_value<R>::value>;
 
@@ -96,5 +112,71 @@ namespace sqlpp
     return Operator::symbol + to_sql_string(context, embrace(t._r));
   }
 #endif
+
+  struct bit_and
+  {
+    static constexpr auto symbol = " & ";
+  };
+
+  template <typename L, typename R, typename = check_bit_expression_args<L, R>>
+  constexpr auto operator&(L l, R r) -> bit_expression<L, bit_and, R>
+  {
+    return {std::move(l), std::move(r)};
+  }
+
+  struct bit_or
+  {
+    static constexpr auto symbol = " | ";
+  };
+
+  template <typename L, typename R, typename = check_bit_expression_args<L, R>>
+  constexpr auto operator|(L l, R r) -> bit_expression<L, bit_or, R>
+  {
+    return {std::move(l), std::move(r)};
+  }
+
+  struct bit_xor
+  {
+    static constexpr auto symbol = " ^ ";
+  };
+
+  template <typename L, typename R, typename = check_bit_expression_args<L, R>>
+  constexpr auto operator^(L l, R r) -> bit_expression<L, bit_xor, R>
+  {
+    return {std::move(l), std::move(r)};
+  }
+
+  struct bit_not
+  {
+    static constexpr auto symbol = "~";
+  };
+
+  template <typename R, typename = check_bit_expression_args<R, R>>
+  constexpr auto operator~(R r) -> unary_bit_expression<bit_not, R>
+  {
+    return {std::move(r)};
+  }
+
+  struct bit_shift_left
+  {
+    static constexpr auto symbol = " << ";
+  };
+
+  template <typename L, typename R, typename = check_bit_expression_args<L, R>>
+  constexpr auto operator<<(L l, R r) -> bit_expression<L, bit_shift_left, R>
+  {
+    return {std::move(l), std::move(r)};
+  }
+
+  struct bit_shift_right
+  {
+    static constexpr auto symbol = " >> ";
+  };
+
+  template <typename L, typename R, typename = check_bit_expression_args<L, R>>
+  constexpr auto operator>>(L l, R r) -> bit_expression<L, bit_shift_right, R>
+  {
+    return {std::move(l), std::move(r)};
+  }
 
 }  // namespace sqlpp

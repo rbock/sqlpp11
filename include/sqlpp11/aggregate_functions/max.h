@@ -32,9 +32,7 @@
 namespace sqlpp
 {
   template <typename Flag, typename Expr>
-  struct max_t : public expression_operators<max_t<Flag, Expr>, value_type_of_t<Expr>>,
-                 public aggregate_function_operators<max_t<Flag, Expr>>,
-                 public alias_operators<max_t<Flag, Expr>>
+  struct max_t
   {
     using _traits = make_traits<value_type_of_t<Expr>, tag::is_expression, tag::is_selectable>;
     using _nodes = detail::type_vector<Expr, aggregate_function>;
@@ -52,6 +50,12 @@ namespace sqlpp
     ~max_t() = default;
 
     Expr _expr;
+  };
+
+  template <typename Flag, typename Expr>
+  struct value_type_of<max_t<Flag, Expr>>
+  {
+    using type = sqlpp::force_optional_t<value_type_of_t<Expr>>;
   };
 
   template <typename Context, typename Flag, typename Expr>
