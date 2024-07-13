@@ -106,8 +106,9 @@ int main()
     static_assert(is_same_type<decltype(row.b), sqlpp::compat::optional<int64_t>>(), "");
   }
 
-  static_assert(sqlpp::has_boolean_value<bool>::value, "");
-  static_assert(sqlpp::has_boolean_value<decltype(bar.boolNn)>::value, "");
+#warning: also test with optional
+  static_assert(sqlpp::is_boolean<bool>::value, "");
+  static_assert(sqlpp::is_boolean<decltype(bar.boolNn)>::value, "");
   static_assert(sqlpp::has_text_value<decltype(bar.textN)>::value, "");
   static_assert(sqlpp::has_text_value<std::string>::value, "");
   static_assert(sqlpp::has_numeric_value<int>::value, "");
@@ -257,8 +258,6 @@ int main()
                              sqlpp::numeric>::value,
                 "");
 
-#warning: Is bit-shifting with NULL "legal"? probably.
-#warning: Note that bit-shifting is defined for signed int only
   // Bit shifting combining optional value with non-optional value yields optional boolean.
   static_assert(std::is_same<sqlpp::value_type_of_t<decltype(sqlpp::value(sqlpp::compat::make_optional(7)) << 8)>,
                              sqlpp::compat::optional<sqlpp::integral>>::value,
@@ -293,7 +292,7 @@ int main()
 
   // assignment is no value
   static_assert(std::is_same<sqlpp::value_type_of_t<decltype(assign(bar.intN, sqlpp::compat::nullopt))>, sqlpp::no_value_t>::value, "");
-#warning: This is not the real thing yet
+  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(assign(bar.intN, sqlpp::default_value))>, sqlpp::no_value_t>::value, "");
 
   // as expressions retain the value type of the real thing
   static_assert(std::is_same<sqlpp::value_type_of_t<decltype(bar.intN.as(bar.textN))>, sqlpp::value_type_of_t<decltype(bar.intN)>>::value, "");
@@ -303,8 +302,6 @@ int main()
   static_assert(std::is_same<sqlpp::value_type_of_t<decltype(max(foo.textNnD))>, sqlpp::compat::optional<sqlpp::text>>::value, "");
   static_assert(std::is_same<sqlpp::value_type_of_t<decltype(sqlpp::max(7))>, sqlpp::compat::optional<sqlpp::integral>>::value, "");
 
-
-#warning: No magic for NULL in operators, e.g. comparison. It might therefore be reasonable to disallow comparison with optoinal values? But then again, columns can also be NULL, failing to compare to anything. In any case, do not translate `a == nullopt` to `a IS NULL`. Same for parameters.
 
 #if 0
 

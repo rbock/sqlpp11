@@ -46,4 +46,164 @@ namespace sqlpp
 
     return context;
   }
+
+  template <typename Context>
+  auto serialize(const bool& t, Context& context) -> Context&
+  {
+    context << t;
+    return context;
+  }
+
+  template <typename Context>
+  auto serialize(const int8_t& t, Context& context) -> Context&
+  {
+    context << t;
+    return context;
+  }
+
+  template <typename Context>
+  auto serialize(const int16_t& t, Context& context) -> Context&
+  {
+    context << t;
+    return context;
+  }
+
+  template <typename Context>
+  auto serialize(const int32_t& t, Context& context) -> Context&
+  {
+    context << t;
+    return context;
+  }
+
+  template <typename Context>
+  auto serialize(const int64_t& t, Context& context) -> Context&
+  {
+    context << t;
+    return context;
+  }
+
+  template <typename Context>
+  auto serialize(const uint8_t& t, Context& context) -> Context&
+  {
+    context << t;
+    return context;
+  }
+
+  template <typename Context>
+  auto serialize(const uint16_t& t, Context& context) -> Context&
+  {
+    context << t;
+    return context;
+  }
+
+  template <typename Context>
+  auto serialize(const uint32_t& t, Context& context) -> Context&
+  {
+    context << t;
+    return context;
+  }
+
+  template <typename Context>
+  auto serialize(const uint64_t& t, Context& context) -> Context&
+  {
+    context << t;
+    return context;
+  }
+
+  template <typename Context>
+  auto serialize(const float& t, Context& context) -> Context&
+  {
+    context << t;
+    return context;
+  }
+
+  template <typename Context>
+  auto serialize(const double& t, Context& context) -> Context&
+  {
+#warning: Analyze precision. There was a bug about this...
+    context << t;
+    return context;
+  }
+
+  template <typename Context>
+  auto serialize(const char& t, Context& context) -> Context&
+  {
+    context << t;
+    return context;
+  }
+
+  template <typename Context>
+  auto serialize(const char* t, Context& context) -> Context&
+  {
+    context << t;
+    return context;
+  }
+
+  template <typename Context>
+  auto serialize(const std::string& t, Context& context) -> Context&
+  {
+    context << t;
+    return context;
+  }
+
+  template <typename Context>
+  auto serialize(const sqlpp::compat::string_view& t, Context& context) -> Context&
+  {
+    context << t;
+    return context;
+  }
+
+  template <typename Context>
+  Context& serialize(const std::vector<uint8_t>& t, Context& context)
+  {
+    constexpr char hexChars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+    context << "x'";
+    for (const auto c : t)
+    {
+      context << hexChars[c >> 4] << hexChars[c & 0x0F];
+    }
+    context << '\'';
+
+    return context;
+  }
+
+  template <typename Context>
+  Context& serialize(const ::sqlpp::chrono::day_point& t, Context& context)
+  {
+    const auto ymd = ::date::year_month_day{t};
+    context << "DATE '" << ymd << "'";
+    return context;
+  }
+
+  template <typename Context>
+  Context& serialize(const std::chrono::microseconds& t, Context& context)
+  {
+    context << '\'' << ::date::make_time(t) << '\'';
+    return context;
+  }
+
+  template <typename Period, typename Context>
+  Context& serialize(const std::chrono::time_point<std::chrono::system_clock, Period>& t, Context& context)
+  {
+    const auto dp = ::sqlpp::chrono::floor<::date::days>(t);
+    const auto time = ::date::make_time(t - dp);
+    const auto ymd = ::date::year_month_day{dp};
+    context << "TIMESTAMP '" << ymd << ' ' << time << "'";
+    return context;
+  }
+
+  template <typename T, typename Context>
+  auto serialize(const sqlpp::compat::optional<T>& t, Context& context) -> Context&
+  {
+    if (not t.has_value())
+    {
+      context << "NULL";
+    }
+    else
+    {
+      serialize(*t, context);
+    }
+    return context;
+  }
+
 }  // namespace sqlpp

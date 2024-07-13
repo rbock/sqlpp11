@@ -112,6 +112,11 @@ namespace sqlpp
     using type = typename ColumnSpec::value_type;
   };
 
+  template<typename Table, typename ColumnSpec>
+  struct has_default<column_t<Table, ColumnSpec>> : public ColumnSpec::has_default
+  {
+  };
+
   template <typename Context, typename Table, typename ColumnSpec>
   Context& serialize(const column_t<Table, ColumnSpec>&, Context& context)
   {

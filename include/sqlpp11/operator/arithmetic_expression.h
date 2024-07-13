@@ -177,7 +177,7 @@ namespace sqlpp
   };
 
   template <typename L, typename R>
-  using check_modulus_args = std::enable_if_t<has_integral_value<L>::value and has_integral_value<R>::value>;
+  using check_modulus_args = std::enable_if_t<(is_integral<L>::value or is_unsigned_integral<L>::value) and (is_integral<R>::value or is_unsigned_integral<R>::value)>;
 
   template <typename L, typename R, typename = check_modulus_args<L, R>>
   constexpr auto operator%(L l, R r) -> arithmetic_expression<L, modulus, R>

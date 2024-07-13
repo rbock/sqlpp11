@@ -115,7 +115,6 @@ namespace sqlpp
 
   struct no_value_t;
 
-  // This requires specializations for anything that has a value, like a column or a boolean expression
   template <typename T>
   struct value_type_of
   {
@@ -133,6 +132,11 @@ namespace sqlpp
 
   template <typename T>
   struct has_value_type : public std::integral_constant<bool, not std::is_same<value_type_of_t<T>, no_value_t>::value> {};
+
+  template <typename T>
+  struct has_default : public std::false_type
+  {
+  };
 
   template <typename T>
   struct is_not_cpp_bool_t
@@ -181,7 +185,6 @@ namespace sqlpp
   template <>
   struct value_type_of<sqlpp::compat::string_view> { using type = text; };
 
-  /////////////////
   struct blob;
   template <>
   struct value_type_of<std::vector<std::uint8_t>> { using type = blob; };
@@ -200,18 +203,11 @@ namespace sqlpp
   struct time_point;
   template <typename Period>
   struct value_type_of<std::chrono::time_point<std::chrono::system_clock, Period>> { using type = time_point; };
-  /////////////////
-
-
 
 
   template <typename T>
-  struct is_boolean : public std::is_same<T, bool>
+  struct is_boolean : public std::is_same<remove_optional_t<value_type_of_t<T>>, boolean>
   {
-  };
-
-  template <>
-  struct is_boolean<boolean> : public std::true_type {
   };
 
   template <>
@@ -219,44 +215,27 @@ namespace sqlpp
   };
 
   template <typename T>
-  struct has_boolean_value : public std::integral_constant<bool,
-                                                           is_boolean<remove_optional_t<T>>::value or
-                                                               is_boolean<remove_optional_t<value_type_of_t<T>>>::value>
-  {
-  };
-
-  struct integral;
-  template <typename T>
-  struct is_integral : public std::is_integral<T>{};
-
-  template <>
-  struct is_integral<char> : public std::false_type  // char is text
+  struct is_integral : public std::is_same<remove_optional_t<value_type_of_t<T>>, integral>
   {
   };
 
   template <>
-  struct is_integral<bool> : public std::false_type  // bool is boolean
-  {
+  struct is_integral<sqlpp::compat::nullopt_t> : public std::true_type {
   };
-
-  template <>
-  struct is_integral<sqlpp::compat::nullopt_t> : public std::true_type{};
-
-  template <>
-  struct is_integral<integral> : public std::true_type{};
 
   template <typename T>
-  struct has_integral_value
-      : public std::integral_constant<bool,
-                                      is_integral<remove_optional_t<T>>::value or
-                                          is_integral<remove_optional_t<value_type_of_t<T>>>::value>
+  struct is_unsigned_integral : public std::is_same<remove_optional_t<value_type_of_t<T>>, unsigned_integral>
   {
+  };
+
+  template <>
+  struct is_unsigned_integral<sqlpp::compat::nullopt_t> : public std::true_type {
   };
 
   // A generic numeric type which could be (unsigned) integral or floating point.
   struct numeric;
   template <typename T>
-  struct is_numeric : public std::integral_constant<bool, is_integral<T>::value or std::is_floating_point<T>::value>{};
+  struct is_numeric : public std::integral_constant<bool, is_integral<T>::value or is_unsigned_integral<T>::value or std::is_floating_point<T>::value>{};
 
   template <>
   struct is_numeric<numeric> : public std::true_type{};
@@ -375,7 +354,7 @@ namespace sqlpp
   struct values_are_comparable
       : public std::integral_constant<bool,
                                       (has_blob_value<L>::value and has_blob_value<R>::value) or
-                                          (has_boolean_value<L>::value and has_boolean_value<R>::value) or
+                                          (is_boolean<L>::value and is_boolean<R>::value) or
                                           (has_day_point_value<L>::value and has_day_point_value<R>::value) or
                                           (has_numeric_value<L>::value and has_numeric_value<R>::value) or
                                           (has_text_value<L>::value and has_text_value<R>::value) or
@@ -421,6 +400,7 @@ namespace sqlpp
   using is_time_point_t = std::is_same<value_type_of_t<T>, time_point>;
 
   // joined data type
+#warning: These something_t data type classifiers should be removed
   template <typename T>
   using is_numeric_t =
       logic::any_t<is_integral_t<T>::value, is_unsigned_integral_t<T>::value, is_floating_point_t<T>::value>;
@@ -468,9 +448,6 @@ namespace sqlpp
   SQLPP_VALUE_TRAIT_GENERATOR(is_select_flag)
   SQLPP_VALUE_TRAIT_GENERATOR(is_union_flag)
   SQLPP_VALUE_TRAIT_GENERATOR(is_result_field)
-
-#warning Document loss of must_not_insert/update and require_insert (and new has_default)
-  SQLPP_VALUE_TRAIT_GENERATOR(has_default)
 
   SQLPP_VALUE_TRAIT_GENERATOR(is_statement)
   SQLPP_VALUE_TRAIT_GENERATOR(is_prepared_statement)

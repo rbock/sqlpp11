@@ -743,9 +743,9 @@ def createHeader():
                                column.hasAutoValue or \
                                (autoId and sqlColumnName == "id")
             if columnHasDefault:
-              print("      using has_default_value = std::true_type;", file=header)
+              print("      using has_default = std::true_type;", file=header)
             else:
-              print("      using has_default_value = std::false_type;", file=header)
+              print("      using has_default = std::false_type;", file=header)
             print("    };", file=header)
         print("  } // namespace " + tableNamespace, file=header)
         print("", file=header)

@@ -47,7 +47,6 @@
 #include <sqlpp11/verbatim_table.h>
 #include <sqlpp11/value.h>
 #include <sqlpp11/value_or_null.h>
-#include <sqlpp11/is_equal_to_or_null.h>
 #include <sqlpp11/eval.h>
 
 namespace sqlpp

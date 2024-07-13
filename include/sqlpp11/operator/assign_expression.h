@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <utility>
 
+#include <sqlpp11/column_fwd.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/default_value.h>
 
@@ -40,16 +41,21 @@ namespace sqlpp
     R value;
   };
 
-#warning rename is_column, is_default, values_are_comparable -> values_are_compatible
-#warning document the change that there is no read-only!
-#warning handle default_t, but only if the column does have a default!
   template <typename L, typename R>
-  using check_assign_args = std::enable_if_t<is_column_t<L>::value and values_are_comparable<L, R>::value and
-                                             (can_be_null<L>::value or not is_optional<R>::value) and
-                                             (has_default_t<L>::value or not std::is_same<R, default_value_t>::value)>;
+  using check_assign_args =
+      std::enable_if_t<values_are_comparable<L, R>::value and (can_be_null<L>::value or not is_optional<R>::value)>;
 
-  template <typename L, typename R, typename = check_assign_args<L, R>>
-  constexpr auto assign(L column, R value) -> assign_expression<L, R>
+  template <typename L>
+  using check_assign_default_args = std::enable_if_t<has_default<L>::value>;
+
+  template <typename Table, typename ColumnSpec, typename R, typename = check_assign_args<column_t<Table, ColumnSpec>, R>>
+  constexpr auto assign(column_t<Table, ColumnSpec> column, R value) -> assign_expression<column_t<Table, ColumnSpec>, R>
+  {
+    return {std::move(column), std::move(value)};
+  }
+
+  template <typename Table, typename ColumnSpec, typename = check_assign_default_args<column_t<Table, ColumnSpec>>>
+  constexpr auto assign(column_t<Table, ColumnSpec> column, default_value_t value) -> assign_expression<column_t<Table, ColumnSpec>, default_value_t>
   {
     return {std::move(column), std::move(value)};
   }
@@ -79,4 +85,13 @@ namespace sqlpp
     return to_sql_string(context, t.column) + " = " + to_sql_string(context, embrace(t.value));
   }
   */
+
+  template <typename Context, typename L, typename R>
+  Context& serialize(const assign_expression<L, R>& t, Context& context)
+  {
+    serialize(simple_column(t._lhs), context);
+    context << "=";
+    serialize_operand(t._rhs, context);
+    return context;
+  }
 }  // namespace sqlpp

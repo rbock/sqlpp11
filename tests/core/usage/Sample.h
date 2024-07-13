@@ -25,7 +25,7 @@ namespace test
           };
       };
       using value_type = ::sqlpp::integer;
-      using has_default_value = std::true_type;
+      using has_default = std::true_type;
     };
     struct TextNnD
     {
@@ -42,7 +42,7 @@ namespace test
           };
       };
       using value_type = ::sqlpp::text;
-      using has_default_value = std::true_type;
+      using has_default = std::true_type;
     };
     struct IntN
     {
@@ -59,7 +59,7 @@ namespace test
           };
       };
       using value_type = ::sqlpp::compat::optional<::sqlpp::integer>;
-      using has_default_value = std::true_type;
+      using has_default = std::true_type;
     };
     struct DoubleN
     {
@@ -76,7 +76,7 @@ namespace test
           };
       };
       using value_type = ::sqlpp::compat::optional<::sqlpp::floating_point>;
-      using has_default_value = std::true_type;
+      using has_default = std::true_type;
     };
     struct UIntN
     {
@@ -93,7 +93,7 @@ namespace test
           };
       };
       using value_type = ::sqlpp::compat::optional<::sqlpp::integer_unsigned>;
-      using has_default_value = std::true_type;
+      using has_default = std::true_type;
     };
     struct BlobN
     {
@@ -110,7 +110,7 @@ namespace test
           };
       };
       using value_type = ::sqlpp::compat::optional<::sqlpp::blob>;
-      using has_default_value = std::true_type;
+      using has_default = std::true_type;
     };
   } // namespace TabFoo_
 
@@ -152,7 +152,7 @@ namespace test
           };
       };
       using value_type = ::sqlpp::integer;
-      using has_default_value = std::true_type;
+      using has_default = std::true_type;
     };
     struct TextN
     {
@@ -169,7 +169,7 @@ namespace test
           };
       };
       using value_type = ::sqlpp::compat::optional<::sqlpp::text>;
-      using has_default_value = std::true_type;
+      using has_default = std::true_type;
     };
     struct BoolNn
     {
@@ -186,7 +186,7 @@ namespace test
           };
       };
       using value_type = ::sqlpp::boolean;
-      using has_default_value = std::false_type;
+      using has_default = std::false_type;
     };
     struct IntN
     {
@@ -203,7 +203,7 @@ namespace test
           };
       };
       using value_type = ::sqlpp::compat::optional<::sqlpp::integer>;
-      using has_default_value = std::true_type;
+      using has_default = std::true_type;
     };
   } // namespace TabBar_
 
@@ -243,7 +243,7 @@ namespace test
           };
       };
       using value_type = ::sqlpp::integer;
-      using has_default_value = std::true_type;
+      using has_default = std::true_type;
     };
     struct DayPointN
     {
@@ -260,7 +260,7 @@ namespace test
           };
       };
       using value_type = ::sqlpp::compat::optional<::sqlpp::day_point>;
-      using has_default_value = std::true_type;
+      using has_default = std::true_type;
     };
     struct TimePointN
     {
@@ -277,7 +277,7 @@ namespace test
           };
       };
       using value_type = ::sqlpp::compat::optional<::sqlpp::time_point>;
-      using has_default_value = std::true_type;
+      using has_default = std::true_type;
     };
     struct TimeOfDayN
     {
@@ -294,7 +294,7 @@ namespace test
           };
       };
       using value_type = ::sqlpp::compat::optional<::sqlpp::time_of_day>;
-      using has_default_value = std::true_type;
+      using has_default = std::true_type;
     };
   } // namespace TabDateTime_
 

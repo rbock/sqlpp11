@@ -43,6 +43,7 @@ namespace sqlpp
 
     T _value;
   };
+
   template<typename T>
   struct value_type_of<value_t<T>>
   {
@@ -52,9 +53,19 @@ namespace sqlpp
   template <typename T>
   using check_value_arg = std::enable_if_t<not std::is_same<value_type_of_t<T>, no_value_t>::value and values_are_comparable<T, T>::value>;
 
+  template <typename Context, typename T>
+  Context& serialize(const value_t<T>& t, Context& context)
+  {
+#warning: Untested
+    serialize(t._value, context);
+
+    return context;
+  }
+
   template <typename T, typename = check_value_arg<T>>
   auto value(T t) -> value_t<T>
   {
     return {std::move(t)};
   }
+
 }  // namespace sqlpp

@@ -45,7 +45,6 @@ namespace sqlpp
     using type = boolean;
   };
 
-#warning: Document that functions dont come with their default alias any more
   template <typename SubSelect, typename = check_exists_arg<SubSelect>>
   constexpr auto exists(SubSelect sub_select) -> exists_t<SubSelect>
   {
