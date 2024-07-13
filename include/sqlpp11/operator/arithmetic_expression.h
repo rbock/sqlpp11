@@ -66,7 +66,7 @@ namespace sqlpp
   };
 
   template <typename L, typename R>
-  using check_arithmetic_args = std::enable_if_t<has_numeric_value<L>::value and has_numeric_value<R>::value>;
+  using check_arithmetic_args = std::enable_if_t<is_numeric<L>::value and is_numeric<R>::value>;
 
 #warning: need to document that this is on purpose (not integral, or unsigned integral, or floating_point) because it is difficult to know for the library to know what the actual result type will be (it is difficult to guess in C++ already, and it is probably different from DB vendor to vendor).
   template <typename L, typename Operator, typename R>

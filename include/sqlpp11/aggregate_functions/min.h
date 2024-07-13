@@ -31,39 +31,13 @@
 
 namespace sqlpp
 {
-  struct min_alias_t
-  {
-    struct _alias_t
-    {
-      static constexpr const char _literal[] = "min_";
-      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-      template <typename T>
-      struct _member_t
-      {
-        T min;
-        T& operator()()
-        {
-          return min;
-        }
-        const T& operator()() const
-        {
-          return min;
-        }
-      };
-    };
-  };
-
   template <typename Flag, typename Expr>
-  struct min_t : public expression_operators<min_t<Flag, Expr>, value_type_of_t<Expr>>,
-                 public aggregate_function_operators<min_t<Flag, Expr>>,
-                 public alias_operators<min_t<Flag, Expr>>
+  struct min_t
   {
     using _traits = make_traits<value_type_of_t<Expr>, tag::is_expression, tag::is_selectable>;
     using _nodes = detail::type_vector<Expr, aggregate_function>;
     using _can_be_null = std::true_type;
     using _is_aggregate_expression = std::true_type;
-
-    using _auto_alias_t = min_alias_t;
 
     min_t(Expr expr) : _expr(expr)
     {
@@ -76,6 +50,12 @@ namespace sqlpp
     ~min_t() = default;
 
     Expr _expr;
+  };
+
+  template <typename Flag, typename Expr>
+  struct value_type_of<min_t<Flag, Expr>>
+  {
+    using type = sqlpp::force_optional_t<value_type_of_t<Expr>>;
   };
 
   template <typename Context, typename Flag, typename Expr>
@@ -93,20 +73,18 @@ namespace sqlpp
   }
 
   template <typename T>
-  auto min(T t) -> min_t<noop, wrap_operand_t<T>>
+  using check_min_arg =
+      std::enable_if_t<values_are_comparable<T, T>::value and not contains_aggregate_function_t<T>::value>;
+
+  template <typename T, typename = check_min_arg<T>>
+  auto min(T t) -> min_t<noop, T>
   {
-    static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value,
-                  "min() cannot be used on an aggregate function");
-    static_assert(is_expression_t<wrap_operand_t<T>>::value, "min() requires an expression as argument");
-    return {t};
+    return {std::move(t)};
   }
 
-  template <typename T>
-  auto min(const distinct_t& /*unused*/, T t) -> min_t<distinct_t, wrap_operand_t<T>>
+  template <typename T, typename = check_min_arg<T>>
+  auto min(const distinct_t& /*unused*/, T t) -> min_t<distinct_t, T>
   {
-    static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value,
-                  "min() cannot be used on an aggregate function");
-    static_assert(is_expression_t<wrap_operand_t<T>>::value, "min() requires an expression as argument");
-    return {t};
+    return {std::move(t)};
   }
 }  // namespace sqlpp

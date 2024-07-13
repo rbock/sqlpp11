@@ -42,193 +42,73 @@ namespace
   auto db = MockDb{};
 }
 
+SQLPP_ALIAS_PROVIDER(r_not_null);
+SQLPP_ALIAS_PROVIDER(r_maybe_null);
+SQLPP_ALIAS_PROVIDER(r_opt_not_null);
+SQLPP_ALIAS_PROVIDER(r_opt_maybe_null);
+
+template<typename ResultType, typename Value>
+void test_result_row(Value v)
+{
+  using OptResultType = sqlpp::compat::optional<ResultType>;
+
+  // Selectable values.
+  auto v_not_null = sqlpp::value(v).as(r_not_null);
+  const auto v_maybe_null = sqlpp::value(sqlpp::compat::make_optional(v)).as(r_maybe_null);
+
+  // Optional selectable values.
+  const auto v_opt_not_null = sqlpp::value(v).as(r_opt_not_null).if_(true);
+  const auto v_opt_maybe_null = sqlpp::value(sqlpp::compat::make_optional(v)).as(r_opt_maybe_null).if_(true);
+
+  for (const auto& row : db(select(v_not_null, v_maybe_null, v_opt_not_null, v_opt_maybe_null)))
+  {
+    static_assert(std::is_same<decltype(row.r_not_null), ResultType>::value, "");
+    static_assert(std::is_same<decltype(row.r_maybe_null), OptResultType>::value, "");
+    static_assert(std::is_same<decltype(row.r_opt_not_null), OptResultType>::value, "");
+    static_assert(std::is_same<decltype(row.r_opt_maybe_null), OptResultType>::value, "");
+  }
+}
+
 int main()
 {
-  static_assert(not sqlpp::can_be_null<decltype(bar.id)>::value, "");
-  static_assert(sqlpp::can_be_null<decltype(foo.doubleN)>::value, "");
-  static_assert(not sqlpp::can_be_null<decltype(foo.textNnD)>::value, "");
-  static_assert(not sqlpp::can_be_null<decltype(bar.boolNn)>::value, "");
-  const auto seven = sqlpp::value(7).as(sqlpp::alias::s);
-  static_assert(not sqlpp::can_be_null<decltype(seven)>::value, "");
+  // boolean
+  test_result_row<bool>(bool{true});
 
-  // Select non-optional column or alias of it.
-  for (const auto& row : db(select(foo.id, foo.id.as(sqlpp::alias::a), foo.textNnD, foo.textNnD.as(sqlpp::alias::b))
-                                .from(foo)
-                                .unconditionally()))
-  {
-    static_assert(is_same_type<decltype(row.id), int64_t>(), "");
-    static_assert(is_same_type<decltype(row.a), int64_t>(), "");
-    static_assert(is_same_type<decltype(row.textNnD), sqlpp::compat::string_view>(), "");
-    static_assert(is_same_type<decltype(row.b), sqlpp::compat::string_view>(), "");
-  }
+  // integral
+  test_result_row<int64_t>(int8_t{7});
+  test_result_row<int64_t>(int16_t{7});
+  test_result_row<int64_t>(int32_t{7});
+  test_result_row<int64_t>(int64_t{7});
 
-  // Optionally select non-optional column or alias of it.
-  for (const auto& row : db(select(foo.id.if_(true), foo.id.as(sqlpp::alias::a).if_(true), foo.textNnD.if_(true),
-                                   foo.textNnD.as(sqlpp::alias::b).if_(true))
-                                .from(foo)
-                                .unconditionally()))
-  {
-    static_assert(is_same_type<decltype(row.id), sqlpp::compat::optional<int64_t>>(), "");
-    static_assert(is_same_type<decltype(row.a), sqlpp::compat::optional<int64_t>>(), "");
-    static_assert(is_same_type<decltype(row.textNnD), sqlpp::compat::optional<sqlpp::compat::string_view>>(), "");
-    static_assert(is_same_type<decltype(row.b), sqlpp::compat::optional<sqlpp::compat::string_view>>(), "");
-  }
+  // unsigned integral
+  test_result_row<uint64_t>(uint8_t{7});
+  test_result_row<uint64_t>(uint16_t{7});
+  test_result_row<uint64_t>(uint32_t{7});
+  test_result_row<uint64_t>(uint64_t{7});
 
-  // Select optional column or alias of it.
-  for (const auto& row : db(select(bar.intN, bar.intN.as(sqlpp::alias::a), bar.textN, bar.textN.as(sqlpp::alias::b))
-                                .from(bar)
-                                .unconditionally()))
-  {
-    static_assert(is_same_type<decltype(row.intN), sqlpp::compat::optional<int64_t>>(), "");
-    static_assert(is_same_type<decltype(row.a), sqlpp::compat::optional<int64_t>>(), "");
-    static_assert(is_same_type<decltype(row.textN), sqlpp::compat::optional<sqlpp::compat::string_view>>(), "");
-    static_assert(is_same_type<decltype(row.b), sqlpp::compat::optional<sqlpp::compat::string_view>>(), "");
-  }
+  // floating point
+  test_result_row<double>(float{7.7});
+  test_result_row<double>(double{7.7});
 
-  // Optionally select optional column or alias of it.
-  for (const auto& row : db(select(bar.intN.if_(true), bar.intN.as(sqlpp::alias::a).if_(true), bar.textN.if_(true),
-                                   bar.textN.as(sqlpp::alias::b).if_(true))
-                                .from(bar)
-                                .unconditionally()))
-  {
-    // optional optional are still represented as one level of optional
-    static_assert(is_same_type<decltype(row.intN), sqlpp::compat::optional<int64_t>>(), "");
-    static_assert(is_same_type<decltype(row.a), sqlpp::compat::optional<int64_t>>(), "");
-    static_assert(is_same_type<decltype(row.textN), sqlpp::compat::optional<sqlpp::compat::string_view>>(), "");
-    static_assert(is_same_type<decltype(row.b), sqlpp::compat::optional<sqlpp::compat::string_view>>(), "");
-  }
+  // text
+  test_result_row<sqlpp::compat::string_view>('7');
+  test_result_row<sqlpp::compat::string_view>("seven");
+  test_result_row<sqlpp::compat::string_view>(std::string("seven"));
+  test_result_row<sqlpp::compat::string_view>(sqlpp::compat::string_view("seven"));
 
-  // Select value and optional value.
-  for (const auto& row : db(select(sqlpp::value(7).as(sqlpp::alias::a),
-                                   sqlpp::value(sqlpp::compat::optional<int>(7)).as(sqlpp::alias::b))))
-  {
-    static_assert(is_same_type<decltype(row.a), int64_t>(), "");
-    static_assert(is_same_type<decltype(row.b), sqlpp::compat::optional<int64_t>>(), "");
-  }
+  // blob
+  test_result_row<sqlpp::compat::span<uint8_t>>(std::vector<uint8_t>{});
 
-#warning: also test with optional
-  static_assert(sqlpp::is_boolean<bool>::value, "");
-  static_assert(sqlpp::is_boolean<decltype(bar.boolNn)>::value, "");
-  static_assert(sqlpp::has_text_value<decltype(bar.textN)>::value, "");
-  static_assert(sqlpp::has_text_value<std::string>::value, "");
-  static_assert(sqlpp::has_numeric_value<int>::value, "");
-  static_assert(sqlpp::has_numeric_value<decltype(bar.intN)>::value, "");
+  // date
+  test_result_row<::sqlpp::chrono::day_point>(::sqlpp::chrono::day_point{});
 
-#warning: These should be moved into comparison type requirement tests, etc.
-  // Comparing optional value with non-optional value yields optional boolean.
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(bar.textN < "hansi")>,
-                             sqlpp::compat::optional<sqlpp::boolean>>::value,
-                "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(bar.textN <= "hansi")>,
-                             sqlpp::compat::optional<sqlpp::boolean>>::value,
-                "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(bar.textN == "hansi")>,
-                             sqlpp::compat::optional<sqlpp::boolean>>::value,
-                "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(bar.textN != "hansi")>,
-                             sqlpp::compat::optional<sqlpp::boolean>>::value,
-                "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(bar.textN >= "hansi")>,
-                             sqlpp::compat::optional<sqlpp::boolean>>::value,
-                "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(bar.textN < "hansi")>,
-                             sqlpp::compat::optional<sqlpp::boolean>>::value,
-                "");
+  // timestamp
+  test_result_row<::sqlpp::chrono::microsecond_point>(::sqlpp::chrono::microsecond_point{});
+  using minute_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
+  test_result_row<::sqlpp::chrono::microsecond_point>(minute_point{});
 
-  // Comparing non-optional value with non-optional value yields non-optional boolean.
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(foo.textNnD < "hansi")>,
-                             sqlpp::boolean>::value,
-                "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(foo.textNnD <= "hansi")>,
-                             sqlpp::boolean>::value,
-                "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(foo.textNnD == "hansi")>,
-                             sqlpp::boolean>::value,
-                "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(foo.textNnD != "hansi")>,
-                             sqlpp::boolean>::value,
-                "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(foo.textNnD >= "hansi")>,
-                             sqlpp::boolean>::value,
-                "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(foo.textNnD < "hansi")>,
-                             sqlpp::boolean>::value,
-                "");
-
-  // The first exceptions are the operators is_null and is_not_null which always yield non-optional boolean
-#warning: Still need to implement is_distinct_from as member function
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(is_null(bar.textN))>,
-                             sqlpp::boolean>::value,
-                "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(is_null(foo.textNnD))>,
-                             sqlpp::boolean>::value,
-                "");
-
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(is_not_null(bar.textN))>,
-                             sqlpp::boolean>::value,
-                "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(is_not_null(foo.textNnD))>,
-                             sqlpp::boolean>::value,
-                "");
-
-  // The other exceptions are the operators is_distinct_from and is_not_distinct_from which always yield non-optional boolean
-#warning: Still need to implement is_distinct_from as member function
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(is_distinct_from(bar.textN, "hansi"))>,
-                             sqlpp::boolean>::value,
-                "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(is_distinct_from(foo.textNnD, "hansi"))>,
-                             sqlpp::boolean>::value,
-                "");
-
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(is_not_distinct_from(bar.textN, sqlpp::compat::make_optional("hansi")))>,
-                             sqlpp::boolean>::value,
-                "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(is_not_distinct_from(foo.textNnD, sqlpp::compat::make_optional("hansi")))>,
-                             sqlpp::boolean>::value,
-                "");
-
-
-  // LIKE expressions can be NULL is one of their operands can be NULL.
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(like(bar.textN, "hansi"))>, sqlpp::compat::optional<sqlpp::boolean>>::value, "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(like(foo.textNnD, sqlpp::compat::make_optional("hansi")))>, sqlpp::compat::optional<sqlpp::boolean>>::value, "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(like(foo.textNnD, "hansi"))>, sqlpp::boolean>::value, "");
-
-#warning: These should be moved into logical type requirement tests, etc.
-  // Logically combining optional value with non-optional value yields optional boolean.
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(sqlpp::compat::make_optional(bar.boolNn) and true)>,
-                             sqlpp::compat::optional<sqlpp::boolean>>::value,
-                "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(sqlpp::compat::make_optional(bar.boolNn) or true)>,
-                             sqlpp::compat::optional<sqlpp::boolean>>::value,
-                "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(sqlpp::compat::make_optional(bar.boolNn) and
-                                                             sqlpp::compat::make_optional(true))>,
-                             sqlpp::compat::optional<sqlpp::boolean>>::value,
-                "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(sqlpp::compat::make_optional(bar.boolNn) or
-                                                             sqlpp::compat::make_optional(true))>,
-                             sqlpp::compat::optional<sqlpp::boolean>>::value,
-                "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(bar.boolNn and sqlpp::compat::make_optional(true))>,
-                             sqlpp::compat::optional<sqlpp::boolean>>::value,
-                "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(bar.boolNn or sqlpp::compat::make_optional(true))>,
-                             sqlpp::compat::optional<sqlpp::boolean>>::value,
-                "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(not sqlpp::compat::make_optional(bar.boolNn))>,
-                             sqlpp::compat::optional<sqlpp::boolean>>::value,
-                "");
-
-  // Logically combining non-optional value with non-optional value yields non-optional boolean.
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(bar.boolNn and true)>,
-                             sqlpp::boolean>::value,
-                "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(bar.boolNn or true)>,
-                             sqlpp::boolean>::value,
-                "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(not bar.boolNn)>,
-                             sqlpp::boolean>::value,
-                "");
+  // time_of_day
+  test_result_row<std::chrono::microseconds>(std::chrono::microseconds{});
 
   // Arithmetically combining optional value with non-optional value yields optional boolean.
   static_assert(std::is_same<sqlpp::value_type_of_t<decltype(sqlpp::value(sqlpp::compat::make_optional(7)) + 8)>,
@@ -282,6 +162,7 @@ int main()
                              sqlpp::compat::optional<sqlpp::boolean>>::value,
                 "");
 
+  // in expression
   static_assert(std::is_same<sqlpp::value_type_of_t<decltype(in(sqlpp::value(7), sqlpp::compat::make_optional(7), 8, 9))>,
                              sqlpp::compat::optional<sqlpp::boolean>>::value,
                 "");

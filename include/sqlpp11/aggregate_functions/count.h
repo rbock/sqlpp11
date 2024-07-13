@@ -34,43 +34,14 @@
 
 namespace sqlpp
 {
-  struct count_alias_t
-  {
-    struct _alias_t
-    {
-      static constexpr const char _literal[] = "count_";
-      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-      template <typename T>
-      struct _member_t
-      {
-        T count;
-        T& operator()()
-        {
-          return count;
-        }
-        const T& operator()() const
-        {
-          return count;
-        }
-      };
-    };
-  };
-
   template <typename Flag, typename Expr>
-  struct count_t : public expression_operators<count_t<Flag, Expr>, integral>,
-                   public aggregate_function_operators<count_t<Flag, Expr>>,
-                   public alias_operators<count_t<Flag, Expr>>
+  struct count_t
   {
     using _traits = make_traits<integral, tag::is_expression /*, tag::is_selectable*/>;
 
     using _nodes = detail::type_vector<Expr, aggregate_function>;
     using _can_be_null = std::false_type;
     using _is_aggregate_expression = std::true_type;
-
-    static_assert(is_noop<Flag>::value or std::is_same<distinct_t, Flag>::value,
-                  "count() used with flag other than 'distinct'");
-
-    using _auto_alias_t = count_alias_t;
 
     count_t(const Expr expr) : _expr(expr)
     {
@@ -83,6 +54,12 @@ namespace sqlpp
     ~count_t() = default;
 
     Expr _expr;
+  };
+
+  template <typename Flag, typename Expr>
+  struct value_type_of<count_t<Flag, Expr>>
+  {
+    using type = integral;
   };
 
   template <typename Context, typename Flag, typename Expr>
@@ -100,20 +77,19 @@ namespace sqlpp
   }
 
   template <typename T>
-  auto count(T t) -> count_t<noop, wrap_operand_t<T>>
+  using check_count_arg =
+      std::enable_if_t<values_are_comparable<T, T>::value and not contains_aggregate_function_t<T>::value>;
+
+  template <typename T, typename = check_count_arg<T>>
+  auto count(T t) -> count_t<noop, T>
   {
-    static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value,
-                  "count() cannot be used on an aggregate function");
-    static_assert(is_expression_t<wrap_operand_t<T>>::value, "count() requires an expression as argument");
-    return {t};
+    return {std::move(t)};
   }
 
-  template <typename T>
-  auto count(const distinct_t& /*unused*/, T t) -> count_t<distinct_t, wrap_operand_t<T>>
+  template <typename T, typename = check_count_arg<T>>
+  auto count(const distinct_t& /*unused*/, T t) -> count_t<distinct_t, T>
   {
-    static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value,
-                  "count() cannot be used on an aggregate function");
-    static_assert(is_expression_t<wrap_operand_t<T>>::value, "count() requires an expression as argument");
-    return {t};
+    return {std::move(t)};
   }
+
 }  // namespace sqlpp

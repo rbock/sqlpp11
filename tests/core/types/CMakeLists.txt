@@ -34,4 +34,10 @@ function(test_compile name)
     endif()
 endfunction()
 
+test_compile(aggregate_functions)
+test_compile(comparison_expression)
+test_compile(in_expression)
+test_compile(logical_expression)
 test_compile(result_row)
+test_compile(value)
+
