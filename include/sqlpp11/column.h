@@ -27,13 +27,13 @@
  */
 
 #include <sqlpp11/operator/as_expression.h>
+#include <sqlpp11/operator/assign_expression.h>
 #include <sqlpp11/column_fwd.h>
 #include <sqlpp11/default_value.h>
 #include <sqlpp11/null.h>
 #include <sqlpp11/sort_order.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/assignment.h>
-#include <sqlpp11/expression.h>
 #include <sqlpp11/wrong.h>
 #include <sqlpp11/detail/type_set.h>
 
@@ -74,10 +74,10 @@ namespace sqlpp
       return _table{};
     }
 
-    template <typename alias_provider>
-    as_expression<column_t, alias_provider> as(const alias_provider& /*unused*/) const
+    template <typename AliasProvider>
+    auto as(const AliasProvider& alias_provider) const -> as_expression<column_t, AliasProvider>
     {
-      return {*this};
+      return as(*this, alias_provider);
     }
 
     sqlpp::compat::optional<column_t> if_(bool condition) const
@@ -86,12 +86,9 @@ namespace sqlpp
     }
 
     template <typename T>
-    auto operator=(T t) const -> assignment_t<column_t, wrap_operand_t<T>>
+    auto operator=(T value) const -> assign_expression<column_t, T>
     {
-      using rhs = wrap_operand_t<T>;
-      static_assert(_is_valid_assignment_operand<rhs>::value, "invalid rhs assignment operand");
-
-      return {*this, {rhs{t}}};
+      return assign(*this, std::move(value));
     }
 
     auto operator=(null_t /*unused*/) const -> assignment_t<column_t, null_t>

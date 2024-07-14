@@ -88,7 +88,7 @@ namespace sqlpp
     using type = static_combined_check_t<static_check_t<is_raw_table_t<T>::value, assert_into_arg_is_table>>;
   };
   template <typename T>
-  using check_into_t = typename check_into<wrap_operand_t<T>>::type;
+  using check_into_t = typename check_into<T>::type;
 
   // NO INTO YET
   struct no_into_t

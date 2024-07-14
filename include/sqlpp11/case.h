@@ -39,22 +39,20 @@ namespace sqlpp
 
   template <typename Then, typename Else>
   using check_case_else_t = static_combined_check_t<
-      static_check_t<is_expression_t<wrap_operand_t<Else>>::value, assert_case_else_expression_t>,
-      static_check_t<logic::any_t<is_sql_null_t<Then>::value,
-                                  is_sql_null_t<wrap_operand_t<Else>>::value,
-                                  std::is_same<value_type_of_t<Then>, value_type_of_t<wrap_operand_t<Else>>>::value>::value,
+      static_check_t<is_expression_t<Else>::value, assert_case_else_expression_t>,
+      static_check_t<values_are_comparable<Then, Else>::value,
                      assert_case_then_else_same_type_t>>;
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_case_then_expression_t, "argument is not a value expression in then()");
   template <typename Then>
   using check_case_then_t =
-      static_check_t<logic::all_t<is_expression_t<wrap_operand_t<Then>>::value>::value, assert_case_then_expression_t>;
+      static_check_t<logic::all_t<is_expression_t<Then>::value>::value, assert_case_then_expression_t>;
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_case_when_boolean_expression_t,
                                "argument is not a boolean expression in case_when()");
   template <typename When>
   using check_case_when_t = static_check_t<
-      logic::all_t<is_boolean_t<wrap_operand_t<When>>::value, is_expression_t<wrap_operand_t<When>>::value>::value,
+      logic::all_t<is_boolean<When>::value, is_expression_t<When>::value>::value,
       assert_case_when_boolean_expression_t>;
 
   template <typename When, typename Then, typename Else>
@@ -120,7 +118,7 @@ namespace sqlpp
   class case_when_t
   {
     template <typename Then>
-    auto _then_impl(consistent_t /*unused*/, Then t) -> case_then_t<When, wrap_operand_t<Then>>
+    auto _then_impl(consistent_t /*unused*/, Then t) -> case_then_t<When, Then>
     {
       return {_when, t};
     }
@@ -165,7 +163,7 @@ namespace sqlpp
   namespace detail
   {
     template <typename When>
-    auto case_when_impl(consistent_t /*unused*/, When when) -> case_when_t<wrap_operand_t<When>>
+    auto case_when_impl(consistent_t /*unused*/, When when) -> case_when_t<When>
     {
       return {when};
     }

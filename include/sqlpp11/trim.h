@@ -27,42 +27,17 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/char_sequence.h>
-#include <sqlpp11/data_types/integral/data_type.h>
-#include <sqlpp11/data_types/text/data_type.h>
+#include <sqlpp11/serialize.h>
+#include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
-  struct trim_alias_t
-  {
-    struct _alias_t
-    {
-      static constexpr const char _literal[] = "trim_";
-      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-      template <typename T>
-      struct _member_t
-      {
-        T trim;
-        T& operator()()
-        {
-          return trim;
-        }
-        const T& operator()() const
-        {
-          return trim;
-        }
-      };
-    };
-  };
-
-  template <typename Flag, typename Expr>
-  struct trim_t : public expression_operators<trim_t<Flag, Expr>, text>, public alias_operators<trim_t<Flag, Expr>>
+  template <typename Expr>
+  struct trim_t
   {
     using _traits = make_traits<text, tag::is_expression, tag::is_selectable>;
 
     using _nodes = detail::type_vector<Expr>;
-
-    using _auto_alias_t = trim_alias_t;
 
     trim_t(const Expr expr) : _expr(expr)
     {
@@ -77,8 +52,8 @@ namespace sqlpp
     Expr _expr;
   };
 
-  template <typename Context, typename Flag, typename Expr>
-  Context& serialize(const trim_t<Flag, Expr>& t, Context& context)
+  template <typename Context, typename Expr>
+  Context& serialize(const trim_t<Expr>& t, Context& context)
   {
     context << "TRIM(";
     serialize_operand(t._expr, context);
@@ -86,11 +61,13 @@ namespace sqlpp
     return context;
   }
 
-  template <typename T>
-  auto trim(T t) -> trim_t<noop, wrap_operand_t<T>>
+  template<typename T>
+    using check_trim_args = std::enable_if_t<is_text<T>::value>;
+
+  template <typename T, typename = check_trim_args<T>>
+  auto trim(T t) -> trim_t<T>
   {
-    static_assert(is_expression_t<wrap_operand_t<T>>::value, "trim() requires an expression as argument");
-    return {t};
+    return {std::move(t)};
   }
 
 }  // namespace sqlpp

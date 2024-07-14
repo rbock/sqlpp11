@@ -28,7 +28,6 @@
 
 #include <sqlpp11/expression_operators.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/wrap_operand.h>
 
 namespace sqlpp
 {

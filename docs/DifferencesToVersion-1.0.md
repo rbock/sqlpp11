@@ -37,3 +37,5 @@ SQLPP_ALIAS_PROVIDER(max_price);
     std::cout << row.max_price << '\n';
   }
 ```
+
+

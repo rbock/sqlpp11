@@ -27,7 +27,7 @@
  */
 
 #include <sqlpp11/data_types/parameter_value.h>
-#include <sqlpp11/value_or_null.h>
+#include <sqlpp11/value.h>
 
 namespace sqlpp
 {
@@ -53,7 +53,7 @@ namespace sqlpp
       return *this;
     }
 
-    parameter_value_base& operator=(const value_or_null_t<DataType>& val)
+    parameter_value_base& operator=(const value_t<DataType>& val)
     {
       if (val._is_null)
       {

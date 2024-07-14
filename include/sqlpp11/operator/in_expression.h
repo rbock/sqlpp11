@@ -130,6 +130,54 @@ namespace sqlpp
     static constexpr auto symbol = " NOT IN ";
   };
 
+#if 0 // original serialize implementation
+  template <typename Context, typename Operand, typename Arg, typename... Args>
+  Context& serialize(const in_t<Operand, Arg, Args...>& t, Context& context)
+  {
+    serialize(t._operand, context);
+    context << " IN(";
+    if (sizeof...(Args) == 0)
+    {
+      serialize(std::get<0>(t._args), context);
+    }
+    else
+    {
+      interpret_tuple(t._args, ',', context);
+    }
+    context << ')';
+    return context;
+  }
+
+  template <typename Context, typename Operand>
+  Context& serialize(const in_t<Operand>&, Context& context)
+  {
+    serialize(boolean_operand{false}, context);
+    return context;
+  }
+
+  template <typename Container>
+  struct value_list_t;
+
+  template <typename Context, typename Operand, typename Container>
+  Context& serialize(const in_t<Operand, value_list_t<Container>>& t, Context& context)
+  {
+    const auto& value_list = std::get<0>(t._args);
+    if (value_list._container.empty())
+    {
+      serialize(boolean_operand{false}, context);
+    }
+    else
+    {
+      serialize(t._operand, context);
+      context << " IN(";
+      serialize(value_list, context);
+      context << ')';
+    }
+    return context;
+  }
+
+#endif
+
 #warning: something.not_in(select(...)); should be suppported as is
   template <typename L, typename... Args, typename = check_in_args<L, Args...>>
   constexpr auto not_in(L l, std::tuple<Args...> args) -> in_expression<L, operator_not_in, std::tuple<Args...>>

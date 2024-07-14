@@ -31,43 +31,12 @@
 
 namespace sqlpp
 {
-  struct avg_alias_t
-  {
-    struct _alias_t
-    {
-      static constexpr const char _literal[] = "avg_";
-      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-      template <typename T>
-      struct _member_t
-      {
-        T avg;
-        T& operator()()
-        {
-          return avg;
-        }
-        const T& operator()() const
-        {
-          return avg;
-        }
-      };
-    };
-  };
-
   template <typename Flag, typename Expr>
-  struct avg_t : public expression_operators<avg_t<Flag, Expr>, floating_point>,
-                 public aggregate_function_operators<avg_t<Flag, Expr>>,
-                 public alias_operators<avg_t<Flag, Expr>>
+  struct avg_t
   {
-    using _traits = make_traits<floating_point, tag::is_expression, tag::is_selectable>;
     using _nodes = detail::type_vector<Expr, aggregate_function>;
     using _can_be_null = std::true_type;
     using _is_aggregate_expression = std::true_type;
-
-    static_assert(is_noop<Flag>::value or std::is_same<distinct_t, Flag>::value,
-                  "avg() used with flag other than 'distinct'");
-    static_assert(is_numeric_t<Expr>::value, "avg() requires a value expression as argument");
-
-    using _auto_alias_t = avg_alias_t;
 
     avg_t(Expr expr) : _expr(expr)
     {
@@ -80,6 +49,12 @@ namespace sqlpp
     ~avg_t() = default;
 
     Expr _expr;
+  };
+
+  template <typename Flag, typename Expr>
+  struct value_type_of<avg_t<Flag, Expr>>
+  {
+    using type = sqlpp::force_optional_t<floating_point>;
   };
 
   template <typename Context, typename Flag, typename Expr>
@@ -97,20 +72,18 @@ namespace sqlpp
   }
 
   template <typename T>
-  auto avg(T t) -> avg_t<noop, wrap_operand_t<T>>
+  using check_avg_arg =
+      std::enable_if_t<(is_numeric<T>::value or is_boolean<T>::value) and not contains_aggregate_function_t<T>::value>;
+
+  template <typename T, typename = check_avg_arg<T>>
+  auto avg(T t) -> avg_t<noop, T>
   {
-    static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value,
-                  "avg() cannot be used on an aggregate function");
-    static_assert(is_numeric_t<wrap_operand_t<T>>::value, "avg() requires a numeric value expression as argument");
-    return {t};
+    return {std::move(t)};
   }
 
-  template <typename T>
-  auto avg(const distinct_t& /*unused*/, T t) -> avg_t<distinct_t, wrap_operand_t<T>>
+  template <typename T, typename = check_avg_arg<T>>
+  auto avg(const distinct_t& /*unused*/, T t) -> avg_t<distinct_t, T>
   {
-    static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value,
-                  "avg() cannot be used on an aggregate function");
-    static_assert(is_numeric_t<wrap_operand_t<T>>::value, "avg() requires a numeric value expression as argument");
-    return {t};
+    return {std::move(t)};
   }
 }  // namespace sqlpp

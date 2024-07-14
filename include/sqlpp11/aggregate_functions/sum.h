@@ -31,43 +31,13 @@
 
 namespace sqlpp
 {
-  struct sum_alias_t
-  {
-    struct _alias_t
-    {
-      static constexpr const char _literal[] = "sum_";
-      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-      template <typename T>
-      struct _member_t
-      {
-        T sum;
-        T& operator()()
-        {
-          return sum;
-        }
-        const T& operator()() const
-        {
-          return sum;
-        }
-      };
-    };
-  };
-
   template <typename Flag, typename Expr>
-  struct sum_t : public expression_operators<sum_t<Flag, Expr>, value_type_of_t<Expr>>,
-                 public aggregate_function_operators<sum_t<Flag, Expr>>,
-                 public alias_operators<sum_t<Flag, Expr>>
+  struct sum_t
   {
     using _traits = make_traits<value_type_of_t<Expr>, tag::is_expression, tag::is_selectable>;
     using _nodes = detail::type_vector<Expr, aggregate_function>;
     using _can_be_null = std::true_type;
     using _is_aggregate_expression = std::true_type;
-
-    static_assert(is_noop<Flag>::value or std::is_same<distinct_t, Flag>::value,
-                  "sum() used with flag other than 'distinct'");
-    static_assert(is_numeric_t<Expr>::value, "sum() requires a numeric expression as argument");
-
-    using _auto_alias_t = sum_alias_t;
 
     sum_t(Expr expr) : _expr(expr)
     {
@@ -80,6 +50,13 @@ namespace sqlpp
     ~sum_t() = default;
 
     Expr _expr;
+  };
+
+  template <typename Flag, typename Expr>
+  struct value_type_of<sum_t<Flag, Expr>>
+  {
+    using type = sqlpp::force_optional_t<
+        typename std::conditional<is_boolean<Expr>::value, integral, value_type_of_t<Expr>>::type>;
   };
 
   template <typename Context, typename Flag, typename Expr>
@@ -97,20 +74,18 @@ namespace sqlpp
   }
 
   template <typename T>
-  auto sum(T t) -> sum_t<noop, wrap_operand_t<T>>
+  using check_sum_arg =
+      std::enable_if_t<(is_numeric<T>::value or is_boolean<T>::value) and not contains_aggregate_function_t<T>::value>;
+
+  template <typename T, typename = check_sum_arg<T>>
+  auto sum(T t) -> sum_t<noop, T>
   {
-    static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value,
-                  "sum() cannot be used on an aggregate function");
-    static_assert(is_numeric_t<wrap_operand_t<T>>::value, "sum() requires a numeric expression as argument");
-    return {t};
+    return {std::move(t)};
   }
 
-  template <typename T>
-  auto sum(const distinct_t& /*unused*/, T t) -> sum_t<distinct_t, wrap_operand_t<T>>
+  template <typename T, typename = check_sum_arg<T>>
+  auto sum(const distinct_t& /*unused*/, T t) -> sum_t<distinct_t, T>
   {
-    static_assert(not contains_aggregate_function_t<wrap_operand_t<T>>::value,
-                  "sum() cannot be used on an aggregate function");
-    static_assert(is_numeric_t<wrap_operand_t<T>>::value, "sum() requires a numeric expression as argument");
-    return {t};
+    return {std::move(t)};
   }
 }  // namespace sqlpp

@@ -26,42 +26,17 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/char_sequence.h>
-#include <sqlpp11/data_types/integral/data_type.h>
-#include <sqlpp11/data_types/text/data_type.h>
+#include <sqlpp11/serialize.h>
+#include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
-  struct upper_alias_t
-  {
-    struct _alias_t
-    {
-      static constexpr const char _literal[] = "upper_";
-      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-      template <typename T>
-      struct _member_t
-      {
-        T upper;
-        T& operator()()
-        {
-          return upper;
-        }
-        const T& operator()() const
-        {
-          return upper;
-        }
-      };
-    };
-  };
-
-  template <typename Flag, typename Expr>
-  struct upper_t : public expression_operators<upper_t<Flag, Expr>, text>, public alias_operators<upper_t<Flag, Expr>>
+  template <typename Expr>
+  struct upper_t
   {
     using _traits = make_traits<text, tag::is_expression, tag::is_selectable>;
 
     using _nodes = detail::type_vector<Expr>;
-
-    using _auto_alias_t = upper_alias_t;
 
     upper_t(const Expr expr) : _expr(expr)
     {
@@ -76,8 +51,8 @@ namespace sqlpp
     Expr _expr;
   };
 
-  template <typename Context, typename Flag, typename Expr>
-  Context& serialize(const upper_t<Flag, Expr>& t, Context& context)
+  template <typename Context, typename Expr>
+  Context& serialize(const upper_t<Expr>& t, Context& context)
   {
     context << "UPPER(";
     serialize_operand(t._expr, context);
@@ -85,11 +60,13 @@ namespace sqlpp
     return context;
   }
 
-  template <typename T>
-  auto upper(T t) -> upper_t<noop, wrap_operand_t<T>>
+  template<typename T>
+    using check_upper_args = std::enable_if_t<is_text<T>::value>;
+
+  template <typename T, typename = check_upper_args<T>>
+  auto upper(T t) -> upper_t<T>
   {
-    static_assert(is_text_t<wrap_operand_t<T>>::value, "upper() requires a text expression as argument");
-    return {t};
+    return {std::move(t)};
   }
 
 }  // namespace sqlpp

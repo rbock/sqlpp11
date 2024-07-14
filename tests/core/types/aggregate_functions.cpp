@@ -41,7 +41,6 @@ void test_aggregate_functions(Value v)
   auto v_not_null = sqlpp::value(v);
   auto v_maybe_null = sqlpp::value(sqlpp::compat::make_optional(v));
 
-  using ValueType = sqlpp::value_type_of_t<Value>;
   using OptValueType = sqlpp::value_type_of_t<sqlpp::compat::optional<Value>>;
 
   // Aggregate of non-nullable
@@ -53,13 +52,32 @@ void test_aggregate_functions(Value v)
   static_assert(is_same_type<decltype(count(v_not_null)), sqlpp::integral>::value, "");
   static_assert(is_same_type<decltype(max(v_maybe_null)), OptValueType>::value, "");
   static_assert(is_same_type<decltype(min(v_maybe_null)), OptValueType>::value, "");
+}
 
+template <typename Value>
+void test_numeric_aggregate_functions(Value v)
+{
+  auto v_not_null = sqlpp::value(v);
+  auto v_maybe_null = sqlpp::value(sqlpp::compat::make_optional(v));
+
+  using ValueType = typename std::conditional<std::is_same<Value, bool>::value, int, Value>::type;
+  using OptValueType = sqlpp::value_type_of_t<sqlpp::compat::optional<ValueType>>;
+  using OptFloat = sqlpp::value_type_of_t<sqlpp::compat::optional<float>>;
+
+  // Aggregate of non-nullable
+  static_assert(is_same_type<decltype(sum(v_not_null)), OptValueType>::value, "");
+  static_assert(is_same_type<decltype(avg(v_not_null)), OptFloat>::value, "");
+
+  // Aggregate of nullable
+  static_assert(is_same_type<decltype(sum(v_maybe_null)), OptValueType>::value, "");
+  static_assert(is_same_type<decltype(avg(v_maybe_null)), OptFloat>::value, "");
 }
 
 int main()
 {
   // boolean
   test_aggregate_functions(bool{true});
+  test_numeric_aggregate_functions(bool{true});
 
   // integral
   test_aggregate_functions(int8_t{7});
@@ -67,15 +85,28 @@ int main()
   test_aggregate_functions(int32_t{7});
   test_aggregate_functions(int64_t{7});
 
+  test_numeric_aggregate_functions(int8_t{7});
+  test_numeric_aggregate_functions(int16_t{7});
+  test_numeric_aggregate_functions(int32_t{7});
+  test_numeric_aggregate_functions(int64_t{7});
+
   // unsigned integral
   test_aggregate_functions(uint8_t{7});
   test_aggregate_functions(uint16_t{7});
   test_aggregate_functions(uint32_t{7});
   test_aggregate_functions(uint64_t{7});
 
+  test_numeric_aggregate_functions(uint8_t{7});
+  test_numeric_aggregate_functions(uint16_t{7});
+  test_numeric_aggregate_functions(uint32_t{7});
+  test_numeric_aggregate_functions(uint64_t{7});
+
   // floating point
   test_aggregate_functions(float{7.7});
   test_aggregate_functions(double{7.7});
+
+  test_numeric_aggregate_functions(float{7.7});
+  test_numeric_aggregate_functions(double{7.7});
 
   // text
   test_aggregate_functions('7');

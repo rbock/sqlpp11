@@ -42,7 +42,6 @@
 #include <sqlpp11/for_update.h>
 #include <sqlpp11/offset.h>
 #include <sqlpp11/union.h>
-#include <sqlpp11/expression.h>
 #include <sqlpp11/wrong.h>
 
 namespace sqlpp

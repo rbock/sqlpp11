@@ -79,10 +79,10 @@ namespace sqlpp
   struct check_limit
   {
     using type =
-        static_combined_check_t<static_check_t<is_unsigned_integral_t<T>::value, assert_limit_is_unsigned_integral>>;
+        static_combined_check_t<static_check_t<is_unsigned_integral<T>::value, assert_limit_is_unsigned_integral>>;
   };
   template <typename T>
-  using check_limit_t = typename check_limit<wrap_operand_t<T>>::type;
+  using check_limit_t = typename check_limit<T>::type;
 
   struct no_limit_t
   {
@@ -109,9 +109,9 @@ namespace sqlpp
       using _consistency_check = consistent_t;
 
       template <typename Arg>
-      auto limit(Arg arg) const -> _new_statement_t<check_limit_t<Arg>, limit_t<wrap_operand_t<Arg>>>
+      auto limit(Arg arg) const -> _new_statement_t<check_limit_t<Arg>, limit_t<Arg>>
       {
-        return _limit_impl(check_limit_t<Arg>{}, wrap_operand_t<Arg>{arg});
+        return _limit_impl(check_limit_t<Arg>{}, std::move(arg));
       }
 
     private:
@@ -121,7 +121,7 @@ namespace sqlpp
       template <typename Arg>
       auto _limit_impl(consistent_t /*unused*/, Arg arg) const -> _new_statement_t<consistent_t, limit_t<Arg>>
       {
-        return {static_cast<const derived_statement_t<Policies>&>(*this), limit_data_t<Arg>{arg}};
+        return {static_cast<const derived_statement_t<Policies>&>(*this), limit_data_t<Arg>{std::move(arg)}};
       }
     };
   };

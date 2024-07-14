@@ -41,8 +41,6 @@ namespace
 template <typename Value>
 void test_comparison_expression(Value v)
 {
-  using OptValue = sqlpp::compat::optional<Value>;
-
   auto v_not_null = sqlpp::value(v);
   auto v_maybe_null = sqlpp::value(sqlpp::compat::make_optional(v));
 

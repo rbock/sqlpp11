@@ -35,10 +35,6 @@
 #include <sqlpp11/case.h>
 #include <sqlpp11/lower.h>
 #include <sqlpp11/upper.h>
-#include <sqlpp11/in.h>
-#include <sqlpp11/not_in.h>
-#include <sqlpp11/is_null.h>
-#include <sqlpp11/is_not_null.h>
 #include <sqlpp11/any.h>
 #include <sqlpp11/some.h>
 #include <sqlpp11/value_type.h>
@@ -46,7 +42,6 @@
 #include <sqlpp11/parameterized_verbatim.h>
 #include <sqlpp11/verbatim_table.h>
 #include <sqlpp11/value.h>
-#include <sqlpp11/value_or_null.h>
 #include <sqlpp11/eval.h>
 
 namespace sqlpp
@@ -59,73 +54,6 @@ namespace sqlpp
     auto context = db.get_serializer_context();
     serialize(exp, context);
     return {context.str()};
-  }
-
-  template <typename Expression>
-  auto is_null(Expression e) -> decltype(e.is_null())
-  {
-    return e.is_null();
-  }
-
-  template <typename Expression>
-  auto is_not_null(Expression e) -> decltype(e.is_not_null())
-  {
-    return e.is_not_null();
-  }
-
-  template <typename Container>
-  struct value_list_t  // to be used in .in() method
-  {
-    using _traits = make_traits<value_type_t<typename Container::value_type>, tag::is_expression>;
-    using _nodes = detail::type_vector<>;
-
-    using _container_t = Container;
-
-    value_list_t(_container_t container) : _container(container)
-    {
-    }
-
-    value_list_t(const value_list_t&) = default;
-    value_list_t(value_list_t&&) = default;
-    value_list_t& operator=(const value_list_t&) = default;
-    value_list_t& operator=(value_list_t&&) = default;
-    ~value_list_t() = default;
-
-    _container_t _container;
-  };
-
-  template <typename Context, typename Container>
-  Context& serialize(const value_list_t<Container>& t, Context& context)
-  {
-    if (t._container.size() == 1)
-    {
-      return serialize(value(*begin(t._container)), context);
-    }
-
-    bool first = true;
-    for (const auto& entry : t._container)
-    {
-      if (first)
-      {
-        first = false;
-      }
-      else
-      {
-        context << ',';
-      }
-
-      serialize_operand(value(entry), context);
-    }
-    return context;
-  }
-
-  template <typename Container>
-  auto value_list(Container c) -> value_list_t<Container>
-  {
-    static_assert(
-        is_wrapped_value_t<wrap_operand_t<typename Container::value_type>>::value,
-        "value_list() is to be called with a container of non-sql-type like std::vector<int>, or std::list(string)");
-    return {c};
   }
 
   template <typename T>

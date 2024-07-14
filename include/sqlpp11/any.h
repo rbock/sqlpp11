@@ -26,7 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/data_types/boolean.h>
+#include <sqlpp11/statement_fwd.h>
 #include <sqlpp11/char_sequence.h>
 #include <sqlpp11/detail/type_set.h>
 
@@ -51,6 +51,11 @@ namespace sqlpp
     Select _select;
   };
 
+  template<typename Select>
+  struct value_type_of<any_t<Select>> : value_type_of<Select>
+  {
+  };
+
   template <typename Context, typename Select>
   Context& serialize(const any_t<Select>& t, Context& context)
   {
@@ -59,13 +64,13 @@ namespace sqlpp
     return context;
   }
 
-  template <typename T>
-  auto any(T t) -> any_t<wrap_operand_t<T>>
+#warning: Need tests
+  template <typename Select>
+  using check_any_args = std::enable_if_t<is_statement_t<Select>::value and has_value_type<Select>::value>;
+
+  template <typename ...Policies, typename = check_any_args<statement_t<Policies...>>>
+  auto any(statement_t<Policies...> t) -> any_t<statement_t<Policies...>>
   {
-    static_assert(is_select_t<wrap_operand_t<T>>::value, "any() requires a select expression as argument");
-    static_assert(is_expression_t<wrap_operand_t<T>>::value,
-                  "any() requires a single column select expression as argument");
-    // FIXME: can we accept non-values like NULL here?
-    return {t};
+    return {std::move(t)};
   }
 }  // namespace sqlpp

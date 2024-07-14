@@ -34,6 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace sqlpp
 {
+#warning: Need to add compound assingment as += etc.
   template <typename L, typename R>
   struct assign_expression
   {

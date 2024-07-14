@@ -26,7 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/data_types/boolean.h>
+#include <sqlpp11/statement_fwd.h>
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/char_sequence.h>
 
@@ -51,6 +51,11 @@ namespace sqlpp
     Select _select;
   };
 
+  template<typename Select>
+  struct value_type_of<some_t<Select>> : value_type_of<Select>
+  {
+  };
+
   template <typename Context, typename Select>
   Context& serialize(const some_t<Select>& t, Context& context)
   {
@@ -59,13 +64,13 @@ namespace sqlpp
     return context;
   }
 
-  template <typename T>
-  auto some(T t) -> some_t<wrap_operand_t<T>>
+#warning : Need tests
+  template <typename Select>
+  using check_some_args = std::enable_if_t<has_value_type<Select>::value>;
+
+  template <typename ... Policies, typename = check_some_args<statement_t<Policies...>>>
+  auto some(statement_t<Policies...> t) -> some_t<statement_t<Policies...>>
   {
-    static_assert(is_select_t<wrap_operand_t<T>>::value,
-                  "some() requires a single column select expression as argument");
-    static_assert(is_expression_t<wrap_operand_t<T>>::value,
-                  "some() requires a single column select expression as argument");
-    return {t};
+    return {std::move(t)};
   }
 }  // namespace sqlpp

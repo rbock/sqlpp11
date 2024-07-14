@@ -28,7 +28,6 @@
 
 #include <sqlpp11/assignment.h>
 #include <sqlpp11/column_fwd.h>
-#include <sqlpp11/expression.h>
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/logic.h>
 #include <sqlpp11/no_data.h>

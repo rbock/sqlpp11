@@ -28,7 +28,7 @@
 
 #include <sqlpp11/default_value.h>
 #include <sqlpp11/null.h>
-#include <sqlpp11/value_or_null.h>
+#include <sqlpp11/value.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/detail/type_set.h>
 
@@ -59,10 +59,9 @@ namespace sqlpp
     using _is_insert_value = std::true_type;
     using _column_t = Column;
     using _pure_value_t = typename value_type_of_t<Column>::_cpp_value_type;
-    using _wrapped_value_t = wrap_operand_t<_pure_value_t>;
-    using _value_or_null_t = value_or_null_t<typename Column::_traits::_value_type>;
+    using _value_t = value_t<typename Column::_traits::_value_type>;
 
-    insert_value_t(_wrapped_value_t rhs)
+    insert_value_t(_pure_value_t rhs)
         : _is_null(false), _is_default(false), _value(rhs._t)
     {
     }
@@ -77,7 +76,7 @@ namespace sqlpp
     {
     }
 
-    insert_value_t(const _value_or_null_t& rhs)
+    insert_value_t(const _value_t& rhs)
         : _is_null(rhs._is_null), _is_default(false), _value{rhs._value}
     {
     }
@@ -90,7 +89,7 @@ namespace sqlpp
 
     bool _is_null;
     bool _is_default;
-    _wrapped_value_t _value;
+    _pure_value_t _value;
   };
 
   template <typename Context, typename ValueType>
