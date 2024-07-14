@@ -32,7 +32,6 @@
 #include <sqlpp11/column.h>
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/join.h>
-#include <sqlpp11/data_types/no_value.h>
 
 namespace sqlpp
 {

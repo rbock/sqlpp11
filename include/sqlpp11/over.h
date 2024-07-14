@@ -31,8 +31,8 @@
 namespace sqlpp
 {
   template <typename AggregateExpr>
-  struct over_t : public expression_operators<over_t<AggregateExpr>, integral>,
-                  public alias_operators<over_t<AggregateExpr>>
+  struct over_t /*: public expression_operators<over_t<AggregateExpr>, integral>,
+                  public alias_operators<over_t<AggregateExpr>>*/
   {
     using _traits = make_traits<integral, tag::is_expression>;
     using _nodes = detail::type_vector<AggregateExpr, aggregate_function>;

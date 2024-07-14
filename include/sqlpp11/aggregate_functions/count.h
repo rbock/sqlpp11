@@ -30,7 +30,7 @@
 #include <sqlpp11/char_sequence.h>
 #include <sqlpp11/select_flags.h>
 #include <sqlpp11/aggregate_function_operators.h>
-#include <sqlpp11/data_types/integral/data_type.h>
+#include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {

@@ -32,6 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace sqlpp
 {
+#warning: We need to put concat somewhere (text and blob)
   template <typename L, typename Operator, typename R>
   struct arithmetic_expression
   {

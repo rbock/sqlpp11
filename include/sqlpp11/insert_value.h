@@ -27,7 +27,6 @@
  */
 
 #include <sqlpp11/default_value.h>
-#include <sqlpp11/null.h>
 #include <sqlpp11/value.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/detail/type_set.h>
@@ -63,11 +62,6 @@ namespace sqlpp
 
     insert_value_t(_pure_value_t rhs)
         : _is_null(false), _is_default(false), _value(rhs._t)
-    {
-    }
-
-    insert_value_t(const null_t& /*unused*/)
-        : _is_null(true), _is_default(false), _value{}
     {
     }
 

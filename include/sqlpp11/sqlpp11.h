@@ -27,7 +27,6 @@
  */
 
 #include <sqlpp11/alias_provider.h>
-#include <sqlpp11/data_types.h>
 #include <sqlpp11/insert.h>
 #include <sqlpp11/remove.h>
 #include <sqlpp11/update.h>

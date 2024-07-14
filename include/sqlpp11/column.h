@@ -30,10 +30,8 @@
 #include <sqlpp11/operator/assign_expression.h>
 #include <sqlpp11/column_fwd.h>
 #include <sqlpp11/default_value.h>
-#include <sqlpp11/null.h>
 #include <sqlpp11/sort_order.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/assignment.h>
 #include <sqlpp11/wrong.h>
 #include <sqlpp11/detail/type_set.h>
 
@@ -56,9 +54,6 @@ namespace sqlpp
     using _spec_t = ColumnSpec;
     using _table = Table;
     using _alias_t = typename _spec_t::_alias_t;
-
-    template <typename T>
-    using _is_valid_assignment_operand = is_valid_assignment_operand<typename ColumnSpec::value_type, T>;
 
     column_t() = default;
     column_t(const column_t&) = default;
@@ -89,17 +84,6 @@ namespace sqlpp
     auto operator=(T value) const -> assign_expression<column_t, T>
     {
       return assign(*this, std::move(value));
-    }
-
-    auto operator=(null_t /*unused*/) const -> assignment_t<column_t, null_t>
-    {
-      static_assert(can_be_null<column_t>::value, "column cannot be null");
-      return {*this, null_t{}};
-    }
-
-    auto operator=(default_value_t /*unused*/) const -> assignment_t<column_t, default_value_t>
-    {
-      return {*this, default_value_t{}};
     }
   };
 

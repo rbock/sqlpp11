@@ -33,7 +33,6 @@
 #include <sqlpp11/expression_fwd.h>
 #include <sqlpp11/field_spec.h>
 #include <sqlpp11/interpret_tuple.h>
-#include <sqlpp11/operand_check.h>
 #include <sqlpp11/policy_update.h>
 #include <sqlpp11/result_row.h>
 #include <sqlpp11/select_pseudo_table.h>

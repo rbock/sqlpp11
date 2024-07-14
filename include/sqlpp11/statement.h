@@ -32,6 +32,7 @@
 #include <sqlpp11/prepared_select.h>
 #include <sqlpp11/result.h>
 #include <sqlpp11/serialize.h>
+#include <sqlpp11/statement_fwd.h>
 
 #include <sqlpp11/detail/get_first.h>
 #include <sqlpp11/detail/get_last.h>
@@ -165,8 +166,11 @@ namespace sqlpp
 
   template <typename... Policies>
   struct statement_t : public Policies::template _base_t<detail::statement_policies_t<Policies...>>...,
+#warning: reactivate
+  /*
                        public expression_operators<statement_t<Policies...>,
                                                    value_type_of_t<detail::statement_policies_t<Policies...>>>,
+                                                   */
                        public detail::statement_policies_t<Policies...>::_result_methods_t
   {
     using _policies_t = typename detail::statement_policies_t<Policies...>;

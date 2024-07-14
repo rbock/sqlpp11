@@ -26,7 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/data_types/no_value.h>
+#include <sqlpp11/type_traits.h>
 #include <sqlpp11/table.h>
 
 namespace sqlpp

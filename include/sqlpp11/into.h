@@ -26,7 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/data_types/no_value.h>
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/no_data.h>
 #include <sqlpp11/prepared_insert.h>

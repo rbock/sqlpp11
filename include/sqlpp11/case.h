@@ -27,7 +27,6 @@
  */
 
 #include <sqlpp11/char_sequence.h>
-#include <sqlpp11/data_types/boolean.h>
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/type_traits.h>
 
@@ -57,10 +56,10 @@ namespace sqlpp
 
   template <typename When, typename Then, typename Else>
   struct case_t
-      : public expression_operators<
+      /*: public expression_operators<
             case_t<When, Then, Else>,
             typename std::conditional<is_sql_null_t<Then>::value, value_type_of_t<Else>, value_type_of_t<Then>>::type>,
-        public alias_operators<case_t<When, Then, Else>>
+        public alias_operators<case_t<When, Then, Else>>*/
   {
     using _traits = make_traits<value_type_of_t<Then>, tag::is_expression>;
     using _nodes = detail::type_vector<When, Then, Else>;

@@ -29,7 +29,6 @@
 
 #include <sqlpp11/chrono.h>
 #include <sqlpp11/parameter.h>
-#include <sqlpp11/wrap_operand.h>
 
 namespace sqlpp
 {

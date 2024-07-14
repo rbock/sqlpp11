@@ -26,17 +26,16 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/data_types/no_value.h>
+#include <utility>
+
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/serialize.h>
-
-#include <utility>
 
 namespace sqlpp
 {
   template <typename ValueType, typename Expr>
-  struct parameterized_verbatim_t : public expression_operators<verbatim_t<ValueType>, ValueType>,
-                                    public alias_operators<verbatim_t<ValueType>>
+  struct parameterized_verbatim_t /*: public expression_operators<verbatim_t<ValueType>, ValueType>,
+                                    public alias_operators<verbatim_t<ValueType>>*/
   {
     using _traits = make_traits<ValueType, tag::is_expression>;
     using _nodes = detail::type_vector<Expr>;
@@ -68,9 +67,9 @@ namespace sqlpp
 
   template <typename ValueType, typename Expr>
   auto parameterized_verbatim(std::string lhs, Expr expr, std::string rhs)
-    -> parameterized_verbatim_t<ValueType, wrap_operand_t<Expr>>
+    -> parameterized_verbatim_t<ValueType, Expr>
   {
-    static_assert(is_expression_t<wrap_operand_t<Expr>>::value, "parameterized_verbatim() requires an expression as argument");
+    static_assert(is_expression_t<Expr>::value, "parameterized_verbatim() requires an expression as argument");
     return {expr, lhs, rhs};
   }
 

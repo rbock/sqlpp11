@@ -26,17 +26,17 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/data_types/no_value.h>
+#include <utility>
+
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/serialize.h>
 
-#include <utility>
 
 namespace sqlpp
 {
   template <typename ValueType>  // Csaba Csoma suggests: unsafe_sql instead of verbatim
-  struct verbatim_t : public expression_operators<verbatim_t<ValueType>, ValueType>,
-                      public alias_operators<verbatim_t<ValueType>>
+  struct verbatim_t /*: public expression_operators<verbatim_t<ValueType>, ValueType>,
+                      public alias_operators<verbatim_t<ValueType>>*/
   {
     using _traits = make_traits<ValueType, tag::is_expression>;
     using _nodes = detail::type_vector<>;

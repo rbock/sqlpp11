@@ -129,10 +129,10 @@ namespace sqlpp
   }
 
   template <typename... Parts>
-  auto custom_query(Parts... parts) -> custom_query_t<wrap_operand_t<Parts>...>
+  auto custom_query(Parts... parts) -> custom_query_t<Parts...>
   {
     static_assert(sizeof...(Parts) > 0, "custom query requires at least one argument");
-    return custom_query_t<wrap_operand_t<Parts>...>(parts...);
+    return custom_query_t<Parts...>(parts...);
   }
 
 }  // namespace sqlpp

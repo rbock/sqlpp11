@@ -26,10 +26,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <map>
 #include <utility>
 #include <sqlpp11/compat/string_view.h>
-#include <sqlpp11/data_types/text.h>
 #include <sqlpp11/detail/index_sequence.h>
 #include <sqlpp11/field_spec.h>
 #include <sqlpp11/no_name.h>

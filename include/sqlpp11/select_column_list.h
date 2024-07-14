@@ -26,7 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/data_types/no_value.h>
 #include <sqlpp11/auto_alias.h>
 #include <sqlpp11/detail/column_tuple_merge.h>
 #include <sqlpp11/detail/type_set.h>

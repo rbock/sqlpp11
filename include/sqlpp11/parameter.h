@@ -28,10 +28,8 @@
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/alias_provider.h>
-#include <sqlpp11/data_types/parameter_value.h>
 #include <sqlpp11/expression_operators.h>
 #include <sqlpp11/detail/type_set.h>
-#include <sqlpp11/wrap_operand.h>
 
 namespace sqlpp
 {
@@ -72,7 +70,7 @@ namespace sqlpp
 
   template <typename ValueType, typename AliasProvider>
   auto parameter(const ValueType& /*unused*/, const AliasProvider & /*unused*/)
-      -> parameter_t<wrap_operand_t<ValueType>, AliasProvider>
+      -> parameter_t<ValueType, AliasProvider>
   {
     static_assert(is_value_type_t<ValueType>::value, "first argument is not a value type");
     static_assert(is_alias_provider_t<AliasProvider>::value, "second argument is not an alias provider");

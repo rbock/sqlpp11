@@ -27,7 +27,6 @@
  */
 
 #include <type_traits>
-#include <sqlpp11/data_types/no_value.h>
 #include <sqlpp11/prepared_execute.h>
 
 namespace sqlpp

@@ -29,7 +29,6 @@
 #include <sqlpp11/noop.h>
 #include <sqlpp11/parameter.h>
 #include <sqlpp11/parameter_list.h>
-#include <sqlpp11/data_types.h>
 #include <sqlpp11/aggregate_functions.h>
 #include <sqlpp11/trim.h>
 #include <sqlpp11/case.h>

@@ -28,7 +28,6 @@
  */
 
 #include <sqlpp11/chrono.h>
-#include <sqlpp11/data_types.h>
 #include <sqlpp11/detail/parse_date_time.h>
 #include <sqlpp11/compat/optional.h>
 #include <sqlpp11/compat/string_view.h>

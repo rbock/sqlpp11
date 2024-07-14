@@ -314,6 +314,41 @@ namespace sqlpp
   {
   };
 
+
+  template<typename T>
+    struct parameter_value;
+
+  template<typename T>
+    struct parameter_value<sqlpp::compat::optional<T>>
+    {
+      using type = sqlpp::compat::optional<typename parameter_value<T>::type>;
+    };
+
+  template <typename T>
+    using parameter_value_t = typename parameter_value<T>::type;
+
+  template<>
+    struct parameter_value<blob> { using type = std::vector<uint8_t>; };
+
+  template<>
+    struct parameter_value<boolean> { using type = bool; };
+
+  template<>
+    struct parameter_value<integral> { using type = int64_t; };
+
+  template<>
+    struct parameter_value<unsigned_integral> { using type = uint64_t; };
+
+  template<>
+    struct parameter_value<text> { using type = std::string; };
+
+  template<>
+    struct parameter_value<day_point> { using type = std::chrono::time_point<std::chrono::system_clock, sqlpp::chrono::days>; };
+  template<>
+    struct parameter_value<time_of_day> { using type = std::chrono::microseconds; };
+  template<>
+    struct parameter_value<time_point> { using type = std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>; };
+
 #warning: These something_t data type classifiers should be removed
   // data types
   struct blob;
