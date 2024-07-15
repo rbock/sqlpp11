@@ -26,6 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp11/enable_as.h>
 #include <sqlpp11/operator/as_expression.h>
 #include <sqlpp11/operator/assign_expression.h>
 #include <sqlpp11/column_fwd.h>
@@ -39,7 +40,8 @@ namespace sqlpp
 {
 #warning: need to reactivate column operators?
   template <typename Table, typename ColumnSpec>
-  struct column_t// : public expression_operators<column_t<Table, ColumnSpec>, typename ColumnSpec::value_type>,
+  struct column_t : public enable_as<column_t<Table, ColumnSpec>>
+                    // : public expression_operators<column_t<Table, ColumnSpec>, typename ColumnSpec::value_type>,
                  //   public column_operators<column_t<Table, ColumnSpec>, typename ColumnSpec::value_type>
   {
     struct _traits
@@ -67,12 +69,6 @@ namespace sqlpp
     {
       static_assert(is_table_t<T>::value, "cannot call get_table for columns of a sub-selects or cte");
       return _table{};
-    }
-
-    template <typename AliasProvider>
-    auto as(const AliasProvider& alias_provider) const -> as_expression<column_t, AliasProvider>
-    {
-      return as(*this, alias_provider);
     }
 
     sqlpp::compat::optional<column_t> if_(bool condition) const
