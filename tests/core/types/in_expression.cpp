@@ -46,24 +46,25 @@ void test_in_expression(Value v)
   auto v_not_null = sqlpp::value(v);
   auto v_maybe_null = sqlpp::value(sqlpp::compat::make_optional(v));
 
-#warning : Need to support in with select
-  // in(v_not_null, select(v_not_null.as(sqlpp::alias::a)));
-
   // Compare non-nullable with non-nullable.
   static_assert(is_bool<decltype(in(v_not_null, std::make_tuple(v_not_null, v_not_null)))>::value, "");
   static_assert(is_bool<decltype(in(v_not_null, std::vector<Value>{}))>::value, "");
+  static_assert(is_bool<decltype(in(v_not_null, select(v_not_null.as(sqlpp::alias::a))))>::value, "");
 
   // Compare non-nullable with nullable.
   static_assert(is_maybe_bool<decltype(in(v_not_null, std::make_tuple(v_not_null, v_maybe_null)))>::value, "");
   static_assert(is_maybe_bool<decltype(in(v_not_null, std::vector<OptValue>{}))>::value, "");
+  static_assert(is_maybe_bool<decltype(in(v_not_null, select(v_maybe_null.as(sqlpp::alias::a))))>::value, "");
 
   // Compare nullable with non-nullable.
   static_assert(is_maybe_bool<decltype(in(v_maybe_null, std::make_tuple(v_not_null, v_not_null)))>::value, "");
   static_assert(is_maybe_bool<decltype(in(v_maybe_null, std::vector<Value>{}))>::value, "");
+  static_assert(is_maybe_bool<decltype(in(v_maybe_null, select(v_not_null.as(sqlpp::alias::a))))>::value, "");
 
   // Compare nullable with nullable.
   static_assert(is_maybe_bool<decltype(in(v_maybe_null, std::make_tuple(v_not_null, v_maybe_null)))>::value, "");
   static_assert(is_maybe_bool<decltype(in(v_maybe_null, std::vector<OptValue>{}))>::value, "");
+  static_assert(is_maybe_bool<decltype(in(v_maybe_null, select(v_maybe_null.as(sqlpp::alias::a))))>::value, "");
 }
 
 template<typename Value>

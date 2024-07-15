@@ -264,6 +264,9 @@ namespace sqlpp
     }
   };
 
+  template<typename... Policies>
+    struct value_type_of<statement_t<Policies...>> : value_type_of<typename detail::statement_policies_t<Policies...>> {};
+
   template <typename Context, typename... Policies>
   Context& serialize(const statement_t<Policies...>& t, Context& context)
   {
