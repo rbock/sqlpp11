@@ -139,17 +139,21 @@ namespace sqlpp
   };
 
   template <typename T>
+  struct can_be_null : public is_optional<value_type_of_t<T>> {};
+
+#warning: remove this
+  template <typename T>
   struct is_not_cpp_bool_t
   {
     static constexpr bool value = not std::is_same<T, bool>::value;
   };
 
   //
-  struct boolean;
+  struct boolean{};
   template<>
   struct value_type_of<bool> { using type = boolean; };
 
-  struct integral;
+  struct integral{};
   template<>
   struct value_type_of<int8_t> { using type = integral; };
   template<>
@@ -159,7 +163,7 @@ namespace sqlpp
   template<>
   struct value_type_of<int64_t> { using type = integral; };
 
-  struct unsigned_integral;
+  struct unsigned_integral{};
   template<>
   struct value_type_of<uint8_t> { using type = unsigned_integral; };
   template<>
@@ -169,13 +173,13 @@ namespace sqlpp
   template<>
   struct value_type_of<uint64_t> { using type = unsigned_integral; };
 
-  struct floating_point;
+  struct floating_point{};
   template<>
   struct value_type_of<float> { using type = floating_point; };
   template<>
   struct value_type_of<double> { using type = floating_point; };
 
-  struct text;
+  struct text{};
   template <>
   struct value_type_of<char> { using type = text; };
   template <>
@@ -185,22 +189,22 @@ namespace sqlpp
   template <>
   struct value_type_of<sqlpp::compat::string_view> { using type = text; };
 
-  struct blob;
+  struct blob{};
   template <>
   struct value_type_of<std::vector<std::uint8_t>> { using type = blob; };
 
   template <>
   struct value_type_of<sqlpp::compat::span<std::uint8_t>> { using type = blob; };
 
-  struct day_point;
+  struct day_point{};
   template <>
   struct value_type_of<std::chrono::time_point<std::chrono::system_clock, sqlpp::chrono::days>> { using type = day_point; };
 
-  struct time_of_day;
+  struct time_of_day{};
   template <typename Rep, typename Period>
   struct value_type_of<std::chrono::duration<Rep, Period>> { using type = time_of_day; };
 
-  struct time_point;
+  struct time_point{};
   template <typename Period>
   struct value_type_of<std::chrono::time_point<std::chrono::system_clock, Period>> { using type = time_point; };
 
@@ -316,7 +320,45 @@ namespace sqlpp
 
 
   template<typename T>
-    struct parameter_value;
+    struct result_value {};
+
+  template<typename T>
+    struct result_value<sqlpp::compat::optional<T>>
+    {
+      using type = sqlpp::compat::optional<typename result_value<T>::type>;
+    };
+
+  template <typename T>
+    using result_value_t = typename result_value<T>::type;
+
+  template<>
+    struct result_value<blob> { using type = sqlpp::compat::span<uint8_t>; };
+
+  template<>
+    struct result_value<boolean> { using type = bool; };
+
+  template<>
+    struct result_value<integral> { using type = int64_t; };
+
+  template<>
+    struct result_value<unsigned_integral> { using type = uint64_t; };
+
+  template<>
+    struct result_value<floating_point> { using type = double; };
+
+  template<>
+    struct result_value<text> { using type = sqlpp::compat::string_view; };
+
+  template<>
+    struct result_value<day_point> { using type = std::chrono::time_point<std::chrono::system_clock, sqlpp::chrono::days>; };
+  template<>
+    struct result_value<time_of_day> { using type = std::chrono::microseconds; };
+
+  template<>
+    struct result_value<time_point> { using type = std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>; };
+
+  template<typename T>
+    struct parameter_value {};
 
   template<typename T>
     struct parameter_value<sqlpp::compat::optional<T>>
@@ -340,66 +382,18 @@ namespace sqlpp
     struct parameter_value<unsigned_integral> { using type = uint64_t; };
 
   template<>
+    struct parameter_value<floating_point> { using type = floating_point; };
+
+  template<>
     struct parameter_value<text> { using type = std::string; };
 
   template<>
     struct parameter_value<day_point> { using type = std::chrono::time_point<std::chrono::system_clock, sqlpp::chrono::days>; };
   template<>
     struct parameter_value<time_of_day> { using type = std::chrono::microseconds; };
+
   template<>
     struct parameter_value<time_point> { using type = std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>; };
-
-#warning: These something_t data type classifiers should be removed
-  // data types
-  struct blob;
-  template <typename T>
-  using is_blob_t = std::is_same<value_type_of_t<T>, blob>;
-
-  template <typename T>
-  using is_boolean_t = std::is_same<value_type_of_t<T>, boolean>;
-
-  struct day_point;
-  template <typename T>
-  using is_day_point_t = std::is_same<value_type_of_t<T>, day_point>;
-
-  struct floating_point;
-  template <typename T>
-  using is_floating_point_t = std::is_same<value_type_of_t<T>, floating_point>;
-
-  struct integral;
-  template <typename T>
-  using is_integral_t = std::is_same<value_type_of_t<T>, integral>;
-
-  struct unsigned_integral;
-  template <typename T>
-  using is_unsigned_integral_t = std::is_same<value_type_of_t<T>, unsigned_integral>;
-
-  struct text;
-  template <typename T>
-  using is_text_t = std::is_same<value_type_of_t<T>, text>;
-
-  struct time_of_day;
-  template <typename T>
-  using is_time_of_day_t = std::is_same<value_type_of_t<T>, time_of_day>;
-
-  struct time_point;
-  template <typename T>
-  using is_time_point_t = std::is_same<value_type_of_t<T>, time_point>;
-
-  // joined data type
-  template <typename T>
-  using is_numeric_t =
-      logic::any_t<is_integral_t<T>::value, is_unsigned_integral_t<T>::value, is_floating_point_t<T>::value>;
-
-  template <typename T>
-  using is_numeric_not_unsigned_t =
-      logic::any_t<is_integral_t<T>::value, not is_unsigned_integral_t<T>::value, is_floating_point_t<T>::value>;
-
-  template <typename T>
-  using is_day_or_time_point_t = logic::any_t<is_day_point_t<T>::value, is_time_point_t<T>::value>;
-
-  template <typename T>
-  struct can_be_null : public is_optional<value_type_of_t<T>> {};
 
 #define SQLPP_VALUE_TRAIT_GENERATOR(name)                                                                   \
   namespace tag                                                                                             \
@@ -678,11 +672,8 @@ namespace sqlpp
   template <typename T>
   using name_of = typename T::_alias_t::_name_t;
 
-  template<typename T, typename = void>
-  struct has_name : public std::false_type {};
-
   template<typename T>
-  struct has_name<T, typename T::_alias_t> : public std::true_type {};
+  struct has_name : public std::false_type {};
 
   template <typename ValueType, typename... Tags>
   struct make_traits

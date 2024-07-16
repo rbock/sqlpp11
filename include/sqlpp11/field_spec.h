@@ -34,14 +34,13 @@
 
 namespace sqlpp
 {
-  template <typename NameType, typename ValueType, bool CanBeNull>
+  template <typename NameType, typename ValueType>
   struct field_spec_t
   {
     using _alias_t = NameType;
 
-    using cpp_type = typename std::conditional<CanBeNull,
-                                               sqlpp::compat::optional<typename ValueType::_result_type>,
-                                               typename ValueType::_result_type>::type;
+#warning: Maybe rename result_value in result_value_type?
+    using cpp_type = result_value_t<ValueType>;
   };
 
   template <typename Left, typename Right, typename Enable = void>
@@ -52,18 +51,18 @@ namespace sqlpp
 
   template <typename LeftName,
             typename LeftValue,
-            bool LeftCanBeNull,
             typename RightName,
-            typename RightValue,
-            bool RightCanBeNull>
-  struct is_field_compatible<field_spec_t<LeftName, LeftValue, LeftCanBeNull>,
-                             field_spec_t<RightName, RightValue, RightCanBeNull>>
+            typename RightValue>
+  struct is_field_compatible<field_spec_t<LeftName, LeftValue>,
+                             field_spec_t<RightName, RightValue>>
   {
+    /* TODO reactivate
     static constexpr auto value =
         std::is_same<typename LeftName::_name_t, typename RightName::_name_t>::value and
         std::is_same<LeftValue, RightValue>::value and  // Same value type
         (LeftCanBeNull or !RightCanBeNull);  // The left hand side determines the result row and therefore must allow
                                              // NULL if the right hand side allows it
+                                             */
   };
 
   namespace detail
@@ -71,16 +70,17 @@ namespace sqlpp
     template <typename Select, typename NamedExpr>
     struct make_field_spec_impl
     {
+#warning: required_tables_of and obtaining the alias should handle optional.
       using RawNamedExpr = remove_optional_t<NamedExpr>;
-      using ValueType = value_type_of_t<RawNamedExpr>;
-      static constexpr bool _can_be_null = is_optional<ValueType>::value or is_optional<NamedExpr>::value;
       static constexpr bool _depends_on_outer_table =
           detail::make_intersect_set_t<required_tables_of<RawNamedExpr>,
                                        typename Select::_used_outer_tables>::size::value > 0;
+      using ValueType = typename std::conditional<_depends_on_outer_table,
+                                                  sqlpp::force_optional_t<value_type_of_t<NamedExpr>>,
+                                                  value_type_of_t<NamedExpr>>::type;
 
       using type = field_spec_t<typename RawNamedExpr::_alias_t,
-                                remove_optional_t<ValueType>,
-                                logic::any_t<_can_be_null, _depends_on_outer_table>::value>;
+                                ValueType>;
     };
   }  // namespace detail
 

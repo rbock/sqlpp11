@@ -121,7 +121,7 @@ namespace sqlpp
   //      assert_where_arg_is_not_cpp_bool_t>,
   //      static_check_t<logic::all_t<is_expression_t<Expressions>::value...>::value,
   //      assert_where_boolean_expressions_t>,
-  //      static_check_t<logic::all_t<is_boolean_t<Expressions>::value...>::value,
+  //      static_check_t<logic::all_t<is_boolean<Expressions>::value...>::value,
   //      assert_where_arg_is_boolean_expression_t>,
   //      static_check_t<logic::all_t<(not contains_aggregate_function_t<Expressions>::value)...>::value,
   //                     assert_where_arg_contains_no_aggregate_functions_t>>;
@@ -131,7 +131,7 @@ namespace sqlpp
     using type = static_combined_check_t<
         static_check_t<is_not_cpp_bool_t<Expression>::value, assert_where_arg_is_not_cpp_bool_t>,
         static_check_t<is_expression_t<Expression>::value, assert_where_arg_is_boolean_expression_t>,
-        static_check_t<is_boolean_t<Expression>::value, assert_where_arg_is_boolean_expression_t>,
+        static_check_t<is_boolean<Expression>::value, assert_where_arg_is_boolean_expression_t>,
         static_check_t<not contains_aggregate_function_t<Expression>::value,
                        assert_where_arg_contains_no_aggregate_functions_t>>;
   };

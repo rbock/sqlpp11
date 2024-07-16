@@ -176,13 +176,14 @@ int main()
   static_assert(std::is_same<sqlpp::value_type_of_t<decltype(assign(bar.intN, sqlpp::default_value))>, sqlpp::no_value_t>::value, "");
 
   // as expressions retain the value type of the real thing
+  static_assert(sqlpp::has_name<decltype(bar.intN)>::value, "");
+  sqlpp::as(bar.intN, bar.textN);
   static_assert(std::is_same<sqlpp::value_type_of_t<decltype(bar.intN.as(bar.textN))>, sqlpp::value_type_of_t<decltype(bar.intN)>>::value, "");
 
   // max can yield NULL if there are no results.
   static_assert(std::is_same<sqlpp::value_type_of_t<decltype(max(bar.intN))>, sqlpp::compat::optional<sqlpp::integral>>::value, "");
   static_assert(std::is_same<sqlpp::value_type_of_t<decltype(max(foo.textNnD))>, sqlpp::compat::optional<sqlpp::text>>::value, "");
   static_assert(std::is_same<sqlpp::value_type_of_t<decltype(sqlpp::max(7))>, sqlpp::compat::optional<sqlpp::integral>>::value, "");
-
 
 #if 0
 

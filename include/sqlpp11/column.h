@@ -94,6 +94,11 @@ namespace sqlpp
   {
   };
 
+  template<typename Table, typename ColumnSpec>
+  struct has_name<column_t<Table, ColumnSpec>> : std::true_type
+  {
+  };
+
   template <typename Context, typename Table, typename ColumnSpec>
   Context& serialize(const column_t<Table, ColumnSpec>&, Context& context)
   {

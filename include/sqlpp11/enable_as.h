@@ -35,7 +35,7 @@ namespace sqlpp
   template <typename Expr>
   class enable_as
   {
-    constexpr decltype(auto) derived() const
+    constexpr auto derived() const -> const Expr&
     {
       return static_cast<const Expr&>(*this);
     }

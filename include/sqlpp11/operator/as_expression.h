@@ -71,6 +71,11 @@ namespace sqlpp
     using type = value_type_of_t<Expression>;
   };
 
+  template <typename Expression, typename AliasProvider>
+  struct has_name<as_expression<Expression, AliasProvider>> : std::true_type
+  {
+  };
+
   template <typename Context, typename Expression, typename AliasProvider>
   Context& serialize(const as_expression<Expression, AliasProvider>& t, Context& context)
   {
@@ -81,7 +86,7 @@ namespace sqlpp
   }
   template <typename Expr, typename AliasProvider>
   using check_as_args = std::enable_if_t<
-  is_expression_t<Expr>::value and not is_alias_t<Expr>::value and has_name<AliasProvider>::value
+  has_value_type<Expr>::value and not is_alias_t<Expr>::value and has_name<AliasProvider>::value
   >;
 
   template <typename Expr, typename AliasProvider, typename = check_as_args<Expr, AliasProvider>>

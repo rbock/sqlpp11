@@ -102,7 +102,7 @@ namespace sqlpp
     using type =
         static_combined_check_t<static_check_t<is_not_cpp_bool_t<Expression>::value, assert_having_not_cpp_bool_t>,
                                 static_check_t<is_expression_t<Expression>::value, assert_having_boolean_expression_t>,
-                                static_check_t<is_boolean_t<Expression>::value, assert_having_boolean_expression_t>>;
+                                static_check_t<is_boolean<Expression>::value, assert_having_boolean_expression_t>>;
   };
 
   template <typename Expression>
