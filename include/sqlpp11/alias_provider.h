@@ -26,11 +26,17 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <type_traits>
 #include <sqlpp11/char_sequence.h>
 
+namespace sqlpp
+{
+  struct name_tag
+  {
+  };
+}
+
 #define SQLPP_ALIAS_PROVIDER(name)                                           \
-  struct name##_t                                                            \
+  struct name##_t : public sqlpp::name_tag                                   \
   {                                                                          \
     struct _alias_t                                                          \
     {                                                                        \
@@ -54,7 +60,7 @@
   constexpr name##_t name = {};
 
 #define SQLPP_QUOTED_ALIAS_PROVIDER(name)                                    \
-  struct name##_t                                                            \
+  struct name##_t : public sqlpp::name_tag                                   \
   {                                                                          \
     struct _alias_t                                                          \
     {                                                                        \
@@ -79,20 +85,6 @@
 
 namespace sqlpp
 {
-  template <typename T, typename Enable = void>
-  struct is_alias_provider_t
-  {
-    static constexpr bool value = false;
-  };
-
-  template <typename T>
-  struct is_alias_provider_t<
-      T,
-      typename std::enable_if<std::is_class<typename T::_alias_t::template _member_t<int>>::value, void>::type>
-  {
-    static constexpr bool value = true;
-  };
-
   namespace alias
   {
     SQLPP_ALIAS_PROVIDER(a)

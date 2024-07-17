@@ -51,10 +51,22 @@ namespace sqlpp
     Select _select;
   };
 
-  template<typename Select>
-  struct value_type_of<any_t<Select>> : value_type_of<Select>
+  // No value_type_of defined for any_t, because it is to be used with basic comparison operators, only.
+
+  template <typename T>
+  struct remove_any
   {
+    using type = T;
   };
+
+  template <typename Select>
+  struct remove_any<any_t<Select>>
+  {
+    using type = Select;
+  };
+
+  template <typename T>
+  using remove_any_t = typename remove_any<T>::type;
 
   template <typename Context, typename Select>
   Context& serialize(const any_t<Select>& t, Context& context)
@@ -64,9 +76,8 @@ namespace sqlpp
     return context;
   }
 
-#warning: Need tests
   template <typename Select>
-  using check_any_args = std::enable_if_t<is_statement_t<Select>::value and has_value_type<Select>::value>;
+  using check_any_args = std::enable_if_t<has_value_type<Select>::value>;
 
   template <typename ...Policies, typename = check_any_args<statement_t<Policies...>>>
   auto any(statement_t<Policies...> t) -> any_t<statement_t<Policies...>>

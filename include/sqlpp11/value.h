@@ -26,6 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp11/operator/as_expression.h>
 #include <sqlpp11/expression_operators.h>
 #include <sqlpp11/type_traits.h>
 

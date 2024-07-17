@@ -1,0 +1,96 @@
+/*
+ * Copyright (c) 2016-2016, Roland Bock
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ *  * Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#include <sqlpp11/sqlpp11.h>
+
+SQLPP_ALIAS_PROVIDER(r_not_null);
+SQLPP_ALIAS_PROVIDER(r_maybe_null);
+
+template <typename Value>
+void test_any(Value v)
+{
+  using ValueType = sqlpp::value_type_of_t<Value>;
+  using OptValueType = sqlpp::value_type_of_t<sqlpp::compat::optional<Value>>;
+
+  // Selectable values.
+  auto v_not_null = sqlpp::value(v).as(r_not_null);
+  const auto v_maybe_null = sqlpp::value(sqlpp::compat::make_optional(v)).as(r_maybe_null);
+
+  // ANY expression are not to be in most expressions and therefore have no value defined.
+  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(any(select(v_not_null)))>, sqlpp::no_value_t>::value, "");
+  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(any(select(v_maybe_null)))>, sqlpp::no_value_t>::value,
+                "");
+
+  // ANY expression can be used in basic comparison expressions, which use remove_any_t to look inside.
+  static_assert(
+      std::is_same<sqlpp::value_type_of_t<sqlpp::remove_any_t<decltype(any(select(v_not_null)))>>, ValueType>::value,
+      "");
+  static_assert(std::is_same<sqlpp::value_type_of_t<sqlpp::remove_any_t<decltype(any(select(v_maybe_null)))>>,
+                             OptValueType>::value,
+                "");
+}
+
+int main()
+{
+  // boolean
+  test_any(bool{true});
+
+  // integral
+  test_any(int8_t{7});
+  test_any(int16_t{7});
+  test_any(int32_t{7});
+  test_any(int64_t{7});
+
+  // unsigned integral
+  test_any(uint8_t{7});
+  test_any(uint16_t{7});
+  test_any(uint32_t{7});
+  test_any(uint64_t{7});
+
+  // floating point
+  test_any(float{7.7});
+  test_any(double{7.7});
+
+  // text
+  test_any('7');
+  test_any("seven");
+  test_any(std::string("seven"));
+  test_any(sqlpp::compat::string_view("seven"));
+
+  // blob
+  test_any(std::vector<uint8_t>{});
+
+  // date
+  test_any(::sqlpp::chrono::day_point{});
+
+  // timestamp
+  test_any(::sqlpp::chrono::microsecond_point{});
+  using minute_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
+  test_any(minute_point{});
+
+  // time_of_day
+  test_any(std::chrono::microseconds{});
+}
+

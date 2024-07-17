@@ -71,6 +71,7 @@ namespace sqlpp
       return _table{};
     }
 
+#warning: Let's do if_(condition, expression) -> if_t<Expression>, which can be used exclusively in SELECT, AND, OR, JOIN
     sqlpp::compat::optional<column_t> if_(bool condition) const
     {
       return condition ? sqlpp::compat::make_optional(*this) : sqlpp::compat::nullopt;

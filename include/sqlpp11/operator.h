@@ -36,8 +36,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sqlpp11/operator/logical_expression.h>
 
 // comparison
+#include <sqlpp11/operator/any.h>
 #include <sqlpp11/operator/comparison_expression.h>
 #include <sqlpp11/operator/in_expression.h>
+#include <sqlpp11/operator/between_expression.h>
 
 // arithmetic
 #include <sqlpp11/operator/arithmetic_expression.h>

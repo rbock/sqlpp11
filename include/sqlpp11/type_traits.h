@@ -420,7 +420,6 @@ namespace sqlpp
 
   SQLPP_VALUE_TRAIT_GENERATOR(is_sql_null)
   SQLPP_VALUE_TRAIT_GENERATOR(is_value_type)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_wrapped_value)
   SQLPP_VALUE_TRAIT_GENERATOR(is_selectable)
   SQLPP_VALUE_TRAIT_GENERATOR(is_expression)
   SQLPP_VALUE_TRAIT_GENERATOR(is_multi_expression)
@@ -480,9 +479,6 @@ namespace sqlpp
   template <typename Database>
   using is_database =
       typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
-
-  template <typename T>
-  using cpp_value_type_of_t = typename value_type_of_t<T>::_cpp_value_type;
 
   namespace detail
   {
@@ -667,13 +663,14 @@ namespace sqlpp
   using parameters_of = typename detail::parameters_of_impl<T>::type;
 
   template <typename T>
-  using alias_of = typename T::_alias_t;
-
-  template <typename T>
   using name_of = typename T::_alias_t::_name_t;
 
+  // Used by SQLPP_ALIAS_PROVIDER.
+  struct name_tag;
+
+  // Override this for other classes like columns or tables.
   template<typename T>
-  struct has_name : public std::false_type {};
+  struct has_name : public std::integral_constant<bool, std::is_base_of<name_tag, T>::value> {};
 
   template <typename ValueType, typename... Tags>
   struct make_traits

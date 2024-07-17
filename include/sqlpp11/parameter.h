@@ -73,7 +73,7 @@ namespace sqlpp
       -> parameter_t<ValueType, AliasProvider>
   {
     static_assert(is_value_type_t<ValueType>::value, "first argument is not a value type");
-    static_assert(is_alias_provider_t<AliasProvider>::value, "second argument is not an alias provider");
+    static_assert(has_name<AliasProvider>::value, "second argument does not have a name");
     return {};
   }
 }  // namespace sqlpp

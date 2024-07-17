@@ -34,6 +34,7 @@ function(test_compile name)
     endif()
 endfunction()
 
+test_compile(any)
 test_compile(aggregate_functions)
 test_compile(comparison_expression)
 test_compile(in_expression)

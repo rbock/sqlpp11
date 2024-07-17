@@ -34,8 +34,6 @@
 #include <sqlpp11/case.h>
 #include <sqlpp11/lower.h>
 #include <sqlpp11/upper.h>
-#include <sqlpp11/any.h>
-#include <sqlpp11/some.h>
 #include <sqlpp11/value_type.h>
 #include <sqlpp11/verbatim.h>  // Csaba Csoma suggests: unsafe_sql instead of verbatim
 #include <sqlpp11/parameterized_verbatim.h>

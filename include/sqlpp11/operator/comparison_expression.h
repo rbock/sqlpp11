@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <utility>
 
+#include <sqlpp11/operator/any.h>
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp
@@ -44,7 +45,7 @@ namespace sqlpp
 
   template <typename L, typename Operator, typename R>
   struct value_type_of<comparison_expression<L, Operator, R>>
-      : std::conditional<sqlpp::is_optional<value_type_of_t<L>>::value or sqlpp::is_optional<value_type_of_t<R>>::value,
+      : std::conditional<sqlpp::is_optional<value_type_of_t<L>>::value or sqlpp::is_optional<value_type_of_t<remove_any_t<R>>>::value,
                          sqlpp::compat::optional<boolean>,
                          boolean>
   {
@@ -113,7 +114,9 @@ namespace sqlpp
     static constexpr auto symbol = " < ";
   };
 
-  template <typename L, typename R, typename = check_comparison_args<L, R>>
+  // We are using remove_any_t in the basic comparison operators to allow comparison with ANY-expressions.
+  // Note: any_t does not have a specialization for value_type_of to disallow it from being used in other contexts.
+  template <typename L, typename R, typename = check_comparison_args<L, remove_any_t<R>>>
   constexpr auto operator<(L l, R r) -> comparison_expression<L, less, R>
   {
     return {std::move(l), std::move(r)};
@@ -124,7 +127,7 @@ namespace sqlpp
     static constexpr auto symbol = " <= ";
   };
 
-  template <typename L, typename R, typename = check_comparison_args<L, R>>
+  template <typename L, typename R, typename = check_comparison_args<L, remove_any_t<R>>>
   constexpr auto operator<=(L l, R r) -> comparison_expression<L, less_equal, R>
   {
     return {std::move(l), std::move(r)};
@@ -135,7 +138,7 @@ namespace sqlpp
     static constexpr auto symbol = " = ";
   };
 
-  template <typename L, typename R, typename = check_comparison_args<L, R>>
+  template <typename L, typename R, typename = check_comparison_args<L, remove_any_t<R>>>
   constexpr auto operator==(L l, R r) -> comparison_expression<L, equal_to, R>
   {
     return {l, r};
@@ -146,7 +149,7 @@ namespace sqlpp
     static constexpr auto symbol = " != ";
   };
 
-  template <typename L, typename R, typename = check_comparison_args<L, R>>
+  template <typename L, typename R, typename = check_comparison_args<L, remove_any_t<R>>>
   constexpr auto operator!=(L l, R r) -> comparison_expression<L, not_equal_to, R>
   {
     return {std::move(l), std::move(r)};
@@ -157,7 +160,7 @@ namespace sqlpp
     static constexpr auto symbol = " >= ";
   };
 
-  template <typename L, typename R, typename = check_comparison_args<L, R>>
+  template <typename L, typename R, typename = check_comparison_args<L, remove_any_t<R>>>
   constexpr auto operator>=(L l, R r) -> comparison_expression<L, greater_equal, R>
   {
     return {std::move(l), std::move(r)};
@@ -168,7 +171,7 @@ namespace sqlpp
     static constexpr auto symbol = " > ";
   };
 
-  template <typename L, typename R, typename = check_comparison_args<L, R>>
+  template <typename L, typename R, typename = check_comparison_args<L, remove_any_t<R>>>
   constexpr auto operator>(L l, R r) -> comparison_expression<L, greater, R>
   {
     return {std::move(l), std::move(r)};
