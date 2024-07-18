@@ -69,10 +69,10 @@ namespace sqlpp
   using remove_any_t = typename remove_any<T>::type;
 
   template <typename Context, typename Select>
-  Context& serialize(const any_t<Select>& t, Context& context)
+  Context& serialize(Context& context, const any_t<Select>& t)
   {
     context << "ANY";
-    serialize_operand(t._select, context);
+    serialize_operand(context, t._select);
     return context;
   }
 

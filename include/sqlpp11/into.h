@@ -137,10 +137,10 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Table>
-  Context& serialize(const into_data_t<Table>& t, Context& context)
+  Context& serialize(Context& context, const into_data_t<Table>& t)
   {
     context << " INTO ";
-    serialize(t._table, context);
+    serialize(context, t._table);
     return context;
   }
 

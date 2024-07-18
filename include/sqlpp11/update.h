@@ -88,7 +88,7 @@ namespace sqlpp
   };
 
   template <typename Context>
-  Context& serialize(const update_name_t&, Context& context)
+  Context& serialize(Context& context, const update_name_t&)
   {
     context << "UPDATE ";
     return context;

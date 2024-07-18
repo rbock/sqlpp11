@@ -91,9 +91,9 @@ namespace sqlpp
   };
 
   template <typename Context, typename Select, typename... NamedExpr>
-  Context& serialize(const select_pseudo_table_t<Select, NamedExpr...>& t, Context& context)
+  Context& serialize(Context& context, const select_pseudo_table_t<Select, NamedExpr...>& t)
   {
-    serialize(t._select, context);
+    serialize(context, t._select);
     return context;
   }
 }  // namespace sqlpp

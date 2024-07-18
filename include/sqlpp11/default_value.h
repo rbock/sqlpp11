@@ -37,7 +37,7 @@ namespace sqlpp
   };
 
   template <typename Context>
-  Context& serialize(const default_value_t&, Context& context)
+  Context& serialize(Context& context, const default_value_t&)
   {
     context << "DEFAULT";
     return context;

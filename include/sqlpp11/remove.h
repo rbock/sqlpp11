@@ -87,7 +87,7 @@ namespace sqlpp
   };
 
   template <typename Context>
-  Context& serialize(const remove_name_t&, Context& context)
+  Context& serialize(Context& context, const remove_name_t&)
   {
     context << "DELETE";
 

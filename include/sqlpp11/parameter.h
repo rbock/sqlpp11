@@ -55,7 +55,7 @@ namespace sqlpp
   };
 
   template <typename Context, typename ValueType, typename NameType>
-  Context& serialize(const parameter_t<ValueType, NameType>&, Context& context)
+  Context& serialize(Context& context, const parameter_t<ValueType, NameType>&)
   {
     context << "?";
     return context;

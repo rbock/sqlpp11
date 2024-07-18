@@ -268,12 +268,12 @@ namespace sqlpp
     struct value_type_of<statement_t<Policies...>> : value_type_of<typename detail::statement_policies_t<Policies...>> {};
 
   template <typename Context, typename... Policies>
-  Context& serialize(const statement_t<Policies...>& t, Context& context)
+  Context& serialize(Context& context, const statement_t<Policies...>& t)
   {
     using P = detail::statement_policies_t<Policies...>;
 
     using swallow = int[];
-    (void)swallow{0, (serialize(static_cast<const typename Policies::template _base_t<P>&>(t)._data, context), 0)...};
+    (void)swallow{0, (serialize(context, static_cast<const typename Policies::template _base_t<P>&>(t)._data), 0)...};
 
     return context;
   }

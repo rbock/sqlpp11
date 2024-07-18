@@ -95,7 +95,7 @@ namespace sqlpp
   };
 
   template <typename Context, typename Table, typename ColumnSpec>
-  Context& serialize(const column_t<Table, ColumnSpec>&, Context& context)
+  Context& serialize(Context& context, const column_t<Table, ColumnSpec>&)
   {
     using T = column_t<Table, ColumnSpec>;
 

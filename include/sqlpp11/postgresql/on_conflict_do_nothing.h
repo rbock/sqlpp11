@@ -85,7 +85,7 @@ namespace sqlpp
     postgresql::context_t& serialize(const postgresql::on_conflict_do_nothing_data_t<ConflictTarget>& o,
                                      postgresql::context_t& context)
     {
-      serialize(o._column, context);
+      serialize(context, o._column);
       context << "DO NOTHING";
       return context;
     }

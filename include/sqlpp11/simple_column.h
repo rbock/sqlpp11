@@ -47,7 +47,7 @@ namespace sqlpp
   };
 
   template <typename Context, typename Column>
-  Context& serialize(const simple_column_t<Column>&, Context& context)
+  Context& serialize(Context& context, const simple_column_t<Column>&)
   {
     context << name_of<typename simple_column_t<Column>::_column_t>::template char_ptr<Context>();
     return context;

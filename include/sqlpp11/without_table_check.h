@@ -43,9 +43,9 @@ namespace sqlpp
   };
 
   template <typename Context, typename Expression>
-  Context& serialize(const without_table_check_t<Expression>& t, Context& context)
+  Context& serialize(Context& context, const without_table_check_t<Expression>& t)
   {
-    serialize(t.expr(), context);
+    serialize(context, t.expr());
     return context;
   }
 

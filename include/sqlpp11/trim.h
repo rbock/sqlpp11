@@ -53,10 +53,10 @@ namespace sqlpp
   };
 
   template <typename Context, typename Expr>
-  Context& serialize(const trim_t<Expr>& t, Context& context)
+  Context& serialize(Context& context, const trim_t<Expr>& t)
   {
     context << "TRIM(";
-    serialize_operand(t._expr, context);
+    serialize_operand(context, t._expr);
     context << ")";
     return context;
   }

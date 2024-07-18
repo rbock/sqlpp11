@@ -47,13 +47,13 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Flag, typename Lhs, typename Rhs>
-  Context& serialize(const union_data_t<Flag, Lhs, Rhs>& t, Context& context)
+  Context& serialize(Context& context, const union_data_t<Flag, Lhs, Rhs>& t)
   {
-    serialize(t._lhs, context);
+    serialize(context, t._lhs);
     context << " UNION ";
-    serialize(Flag{}, context);
+    serialize(context, Flag{});
     context << " ";
-    serialize(t._rhs, context);
+    serialize(context, t._rhs);
     return context;
   }
 }  // namespace sqlpp

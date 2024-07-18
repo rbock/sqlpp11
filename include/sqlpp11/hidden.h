@@ -43,7 +43,7 @@ namespace sqlpp
   };
 
   template <typename Context, typename Clause>
-  Context& serialize(const hidden_t<Clause>&, Context& context)
+  Context& serialize(Context& context, const hidden_t<Clause>&)
   {
     return context;
   }

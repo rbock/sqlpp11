@@ -132,13 +132,13 @@ namespace sqlpp
 
 #if 0 // original serialize implementation
   template <typename Context, typename Operand, typename Arg, typename... Args>
-  Context& serialize(const in_t<Operand, Arg, Args...>& t, Context& context)
+  Context& serialize(Context& context, const in_t<Operand, Arg, Args...>& t)
   {
-    serialize(t._operand, context);
+    serialize(context, t._operand);
     context << " IN(";
     if (sizeof...(Args) == 0)
     {
-      serialize(std::get<0>(t._args), context);
+      serialize(context, std::get<0>(t._args));
     }
     else
     {
@@ -149,9 +149,9 @@ namespace sqlpp
   }
 
   template <typename Context, typename Operand>
-  Context& serialize(const in_t<Operand>&, Context& context)
+  Context& serialize(Context& context, const in_t<Operand>&)
   {
-    serialize(boolean_operand{false}, context);
+    serialize(context, boolean_operand{false});
     return context;
   }
 
@@ -159,18 +159,18 @@ namespace sqlpp
   struct value_list_t;
 
   template <typename Context, typename Operand, typename Container>
-  Context& serialize(const in_t<Operand, value_list_t<Container>>& t, Context& context)
+  Context& serialize(Context& context, const in_t<Operand, value_list_t<Container>>& t)
   {
     const auto& value_list = std::get<0>(t._args);
     if (value_list._container.empty())
     {
-      serialize(boolean_operand{false}, context);
+      serialize(context, boolean_operand{false});
     }
     else
     {
-      serialize(t._operand, context);
+      serialize(context, t._operand);
       context << " IN(";
-      serialize(value_list, context);
+      serialize(context, value_list);
       context << ')';
     }
     return context;

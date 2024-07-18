@@ -136,7 +136,7 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename... Tables>
-  Context& serialize(const using_data_t<Tables...>& t, Context& context)
+  Context& serialize(Context& context, const using_data_t<Tables...>& t)
   {
     context << " USING ";
     interpret_tuple(t._tables, ',', context);

@@ -1,7 +1,5 @@
-#pragma once
-
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2021-2021, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -25,29 +23,42 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "MockDb.h"
+#include "Sample.h"
+#include "compare.h"
+#include <sqlpp11/sqlpp11.h>
+
 #include <iostream>
 
-namespace
+int logical_expression(int, char* [])
 {
-  template <typename Result, typename Expected>
-  void assert_equal(int lineNo, const Result& result, const Expected& expected)
-  {
-    if (result != expected)
-    {
-      std::cerr << __FILE__ << " " << lineNo << '\n' << "Expected: -->|" << expected << "|<--\n"
-                << "Received: -->|" << result << "|<--\n";
-      throw std::runtime_error("unexpected result");
-    }
-  }
+  const auto foo = test::TabFoo{};
+  const auto bar = test::TabBar{};
 
-  template <typename Expression>
-  void compare(int lineNo, const Expression& expr, const std::string& expected)
-  {
-    MockDb::_serializer_context_t printer = {};
+  /*
+  // Plus
+  compare(__LINE__, bar.id + 3u, "(tab_bar.id+3)");
+  compare(__LINE__, sqlpp::value(3) + foo.uIntN, "(3+tab_foo.u_int_n)");
 
-    const auto result = serialize(printer, expr).str();
+  // Shift left
+  compare(__LINE__, sqlpp::value(3) << foo.uIntN, "(3<<tab_foo.u_int_n)");
+  compare(__LINE__, bar.id << 3u, "(tab_bar.id<<3)");
 
-    assert_equal(lineNo, result, expected);
-  }
+  // Shift right
+  compare(__LINE__, sqlpp::value(3) >> foo.uIntN, "(3>>tab_foo.u_int_n)");
+  compare(__LINE__, bar.id >> 3u, "(tab_bar.id>>3)");
+
+  // Comparison
+  compare(__LINE__, bar.id < 3u, "(tab_bar.id<3)");
+  compare(__LINE__, bar.id <= 3u, "(tab_bar.id<=3)");
+  compare(__LINE__, bar.id == 3u, "(tab_bar.id=3)");
+  compare(__LINE__, bar.id != 3u, "(tab_bar.id<>3)");
+  compare(__LINE__, bar.id >= 3u, "(tab_bar.id>=3)");
+  compare(__LINE__, bar.id > 3u, "(tab_bar.id>3)");
+  */
+
+#warning: Consider reducing braces a bit as in sqlpp17
+  compare(__LINE__, true and dynamic(true, bar.boolNn), "(1 AND tab_bar.bool_nn)");
+  compare(__LINE__, true and dynamic(false, bar.boolNn), "1");
+
+  return 0;
 }

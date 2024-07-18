@@ -55,7 +55,7 @@ namespace sqlpp
   };
 
   template <typename Context>
-  Context& serialize(const select_name_t&, Context& context)
+  Context& serialize(Context& context, const select_name_t&)
   {
     context << "SELECT ";
 

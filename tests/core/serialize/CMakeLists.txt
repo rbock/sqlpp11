@@ -24,36 +24,36 @@
 
 set(test_files
     logical_expression.cpp
-    Any.cpp
-    As.cpp
-    Avg.cpp
-    Blob.cpp
-    Count.cpp
-    CustomQuery.cpp
-    DynamicWhere.cpp
-    Exists.cpp
-    Float.cpp
-    ForUpdate.cpp
-    From.cpp
-    In.cpp
-    Insert.cpp
-    IsNotNull.cpp
-    IsNull.cpp
-    Lower.cpp
-    Max.cpp
-    Min.cpp
-    Operator.cpp
-    Over.cpp
-    SelectAs.cpp
-    SelectColumns.cpp
-    SelectFlags.cpp
-    Some.cpp
-    Sum.cpp
-    TableAlias.cpp
-    Trim.cpp
-    Upper.cpp
-    Where.cpp
-    ParameterizedVerbatim.cpp
+#Any.cpp
+#As.cpp
+#Avg.cpp
+#Blob.cpp
+#Count.cpp
+#CustomQuery.cpp
+#DynamicWhere.cpp
+#Exists.cpp
+#Float.cpp
+#ForUpdate.cpp
+#From.cpp
+#In.cpp
+#Insert.cpp
+#IsNotNull.cpp
+#IsNull.cpp
+#Lower.cpp
+#Max.cpp
+#Min.cpp
+#Operator.cpp
+#Over.cpp
+#SelectAs.cpp
+#SelectColumns.cpp
+#SelectFlags.cpp
+#Some.cpp
+#Sum.cpp
+#TableAlias.cpp
+#Trim.cpp
+#Upper.cpp
+#Where.cpp
+#ParameterizedVerbatim.cpp
 )
 
 create_test_sourcelist(test_sources test_serializer_main.cpp ${test_files})

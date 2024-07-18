@@ -54,9 +54,9 @@ namespace sqlpp
   };
 
   template <typename Context, typename AggregateExpr>
-  Context& serialize(const over_t<AggregateExpr>& t, Context& context)
+  Context& serialize(Context& context, const over_t<AggregateExpr>& t)
   {
-    serialize_operand(t._aggregate_expression, context);
+    serialize_operand(context, t._aggregate_expression);
     context << " OVER()";
     return context;
   }

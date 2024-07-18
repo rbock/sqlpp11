@@ -41,7 +41,7 @@ namespace sqlpp
   };
 
   template <typename Context>
-  Context& serialize(const union_all_t&, Context& context)
+  Context& serialize(Context& context, const union_all_t&)
   {
     context << "ALL";
     return context;
@@ -54,7 +54,7 @@ namespace sqlpp
   };
 
   template <typename Context>
-  Context& serialize(const union_distinct_t&, Context& context)
+  Context& serialize(Context& context, const union_distinct_t&)
   {
     return context;
   }

@@ -134,6 +134,35 @@ namespace sqlpp
     return to_sql_string(context, t._l) + Operator::symbol + to_sql_string(context, embrace(t._r));
   }
   */
+  template <typename Context, typename L, typename Operator, typename R>
+  auto serialize_impl(Context& context, const logical_expression<L, Operator, R>& t) -> Context&
+  {
+    context << "(";
+    serialize_operand(context, t._l);
+    context << Operator::symbol;
+    serialize_operand(context, t._r);
+    context << ")";
+    return context;
+  }
+  
+  template <typename Context, typename L, typename Operator, typename R>
+  auto serialize(Context& context, const logical_expression<L, Operator, R>& t) -> Context&
+  {
+    serialize_impl(context, t);
+  }
+
+  template <typename Context, typename L, typename Operator, typename R>
+  auto serialize(Context& context, const logical_expression<L, Operator, dynamic_t<R>>& t) -> Context&
+  {
+    if (t._r._condition)
+    {
+      return serialize_impl(context, t);
+    }
+
+    // If the dynamic part is inactive ignore it.
+    serialize(context, t._l);
+    return context;
+  }
 
   struct logical_and
   {

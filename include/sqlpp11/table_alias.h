@@ -99,13 +99,13 @@ namespace sqlpp
   };
 
   template <typename Context, typename AliasProvider, typename Table, typename... ColumnSpec>
-  Context& serialize(const table_alias_t<AliasProvider, Table, ColumnSpec...>& t, Context& context)
+  Context& serialize(Context& context, const table_alias_t<AliasProvider, Table, ColumnSpec...>& t)
   {
     if (requires_parens_t<Table>::value)
     {
       context << "(";
     }
-    serialize(t._table, context);
+    serialize(context, t._table);
     if (requires_parens_t<Table>::value)
     {
       context << ")";

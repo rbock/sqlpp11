@@ -82,10 +82,10 @@ namespace sqlpp
   };
 
   template <typename Context, typename PreJoin, typename On>
-  Context& serialize(const join_t<PreJoin, On>& t, Context& context)
+  Context& serialize(Context& context, const join_t<PreJoin, On>& t)
   {
-    serialize(t._pre_join, context);
-    serialize(t._on, context);
+    serialize(context, t._pre_join);
+    serialize(context, t._on);
     return context;
   }
 }  // namespace sqlpp

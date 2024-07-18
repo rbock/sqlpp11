@@ -87,7 +87,7 @@ namespace sqlpp
   };
 
   template <typename Context, typename ValueType>
-  Context& serialize(const insert_value_t<ValueType>& t, Context& context)
+  Context& serialize(Context& context, const insert_value_t<ValueType>& t)
   {
     if (t._is_null)
     {
@@ -99,7 +99,7 @@ namespace sqlpp
     }
     else
     {
-      serialize_operand(t._value, context);
+      serialize_operand(context, t._value);
     }
     return context;
   }

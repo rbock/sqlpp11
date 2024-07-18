@@ -59,15 +59,15 @@ namespace sqlpp
   };
 
   template <typename Context, typename Flag, typename Expr>
-  Context& serialize(const min_t<Flag, Expr>& t, Context& context)
+  Context& serialize(Context& context, const min_t<Flag, Expr>& t)
   {
     context << "MIN(";
     if (std::is_same<distinct_t, Flag>::value)
     {
-      serialize(Flag(), context);
+      serialize(context, Flag());
       context << ' ';
     }
-    serialize_operand(t._expr, context);
+    serialize_operand(context, t._expr);
     context << ")";
     return context;
   }

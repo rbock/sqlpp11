@@ -224,13 +224,13 @@ namespace sqlpp
       template <typename T>
       static _context_t& _serialize_interpretable(const T& t, _context_t& context)
       {
-        return ::sqlpp::serialize(t, context);
+        return ::sqlpp::serialize(context, t);
       }
 
       template <typename T>
       static _context_t& _interpret_interpretable(const T& t, _context_t& context)
       {
-        return ::sqlpp::serialize(t, context);
+        return ::sqlpp::serialize(context, t);
       }
 
       // Select stmt (returns a result)

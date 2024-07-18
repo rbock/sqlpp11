@@ -385,7 +385,7 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context>
-  Context& serialize(const insert_default_values_data_t&, Context& context)
+  Context& serialize(Context& context, const insert_default_values_data_t&)
   {
     context << " DEFAULT VALUES";
     return context;
@@ -393,7 +393,7 @@ namespace sqlpp
 
 
   template <typename Context, typename... Columns>
-  Context& serialize(const column_list_data_t<Columns...>& t, Context& context)
+  Context& serialize(Context& context, const column_list_data_t<Columns...>& t)
   {
     context << " (";
     interpret_tuple(t._columns, ",", context);
@@ -419,7 +419,7 @@ namespace sqlpp
   }
 
   template <typename Context, typename... Assignments>
-  Context& serialize(const insert_list_data_t<Assignments...>& t, Context& context)
+  Context& serialize(Context& context, const insert_list_data_t<Assignments...>& t)
   {
     context << " (";
     interpret_tuple(t._columns, ",", context);

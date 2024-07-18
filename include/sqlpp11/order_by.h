@@ -146,7 +146,7 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename... Expressions>
-  Context& serialize(const order_by_data_t<Expressions...>& t, Context& context)
+  Context& serialize(Context& context, const order_by_data_t<Expressions...>& t)
   {
     context << " ORDER BY ";
     interpret_tuple(t._expressions, ',', context);

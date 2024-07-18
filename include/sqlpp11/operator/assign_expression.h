@@ -88,11 +88,11 @@ namespace sqlpp
   */
 
   template <typename Context, typename L, typename R>
-  Context& serialize(const assign_expression<L, R>& t, Context& context)
+  Context& serialize(Context& context, const assign_expression<L, R>& t)
   {
-    serialize(simple_column(t._lhs), context);
+    serialize(context, simple_column(t._lhs));
     context << "=";
-    serialize_operand(t._rhs, context);
+    serialize_operand(context, t._rhs);
     return context;
   }
 }  // namespace sqlpp

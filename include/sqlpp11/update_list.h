@@ -165,7 +165,7 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename... Assignments>
-  Context& serialize(const update_list_data_t<Assignments...>& t, Context& context)
+  Context& serialize(Context& context, const update_list_data_t<Assignments...>& t)
   {
     context << " SET ";
     interpret_tuple(t._assignments, ",", context);

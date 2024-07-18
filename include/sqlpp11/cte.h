@@ -60,13 +60,13 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Flag, typename Lhs, typename Rhs>
-  Context& serialize(const cte_union_t<Flag, Lhs, Rhs>& t, Context& context)
+  Context& serialize(Context& context, const cte_union_t<Flag, Lhs, Rhs>& t)
   {
-    serialize(t._lhs, context);
+    serialize(context, t._lhs);
     context << " UNION ";
-    serialize(Flag{}, context);
+    serialize(context, Flag{});
     context << " ";
-    serialize(t._rhs, context);
+    serialize(context, t._rhs);
     return context;
   }
 
@@ -217,11 +217,11 @@ namespace sqlpp
   };
 
   template <typename Context, typename AliasProvider, typename Statement, typename... ColumnSpecs>
-  Context& serialize(const cte_t<AliasProvider, Statement, ColumnSpecs...>& t, Context& context)
+  Context& serialize(Context& context, const cte_t<AliasProvider, Statement, ColumnSpecs...>& t)
   {
     using T = cte_t<AliasProvider, Statement, ColumnSpecs...>;
     context << name_of<T>::template char_ptr<Context>() << " AS (";
-    serialize(t._statement, context);
+    serialize(context, t._statement);
     context << ")";
     return context;
   }
@@ -253,7 +253,7 @@ namespace sqlpp
   };
 
   template <typename Context, typename AliasProvider>
-  Context& serialize(const cte_ref_t<AliasProvider>&, Context& context)
+  Context& serialize(Context& context, const cte_ref_t<AliasProvider>&)
   {
     context << name_of<cte_ref_t<AliasProvider>>::template char_ptr<Context>();
     return context;

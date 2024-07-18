@@ -42,7 +42,7 @@ namespace sqlpp
   static constexpr all_t all = {};
 
   template <typename Context>
-  Context& serialize(const all_t&, Context& context)
+  Context& serialize(Context& context, const all_t&)
   {
     context << "ALL";
     return context;
@@ -56,7 +56,7 @@ namespace sqlpp
   static constexpr distinct_t distinct = {};
 
   template <typename Context>
-  Context& serialize(const distinct_t&, Context& context)
+  Context& serialize(Context& context, const distinct_t&)
   {
     context << "DISTINCT";
     return context;
@@ -70,7 +70,7 @@ namespace sqlpp
   static constexpr straight_join_t straight_join = {};
 
   template <typename Context>
-  Context& serialize(const straight_join_t&, Context& context)
+  Context& serialize(Context& context, const straight_join_t&)
   {
     context << "STRAIGHT_JOIN";
     return context;

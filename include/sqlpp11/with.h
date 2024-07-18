@@ -124,7 +124,7 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename... Expressions>
-  Context& serialize(const with_data_t<Expressions...>& t, Context& context)
+  Context& serialize(Context& context, const with_data_t<Expressions...>& t)
   {
     using T = with_data_t<Expressions...>;
     // FIXME: If there is a recursive CTE, add a "RECURSIVE" here

@@ -143,7 +143,7 @@ namespace sqlpp
         const postgresql::on_conflict_do_update_data_t<ConflictTarget, Assignments...>& o,
         postgresql::context_t& context)
     {
-      serialize(o._conflict_target, context);
+      serialize(context, o._conflict_target);
       context << "DO UPDATE SET ";
       interpret_tuple(o._assignments, ",", context);
       return context;
@@ -154,9 +154,9 @@ namespace sqlpp
         const postgresql::on_conflict_do_update_where_data_t<ConflictTarget, Expression, Assignments...>& o,
         postgresql::context_t& context)
     {
-      serialize(o._assignments, context);
+      serialize(context, o._assignments);
       context << " WHERE ";
-      serialize(o._expression, context);
+      serialize(context, o._expression);
       return context;
     }
   }  // namespace postgresql

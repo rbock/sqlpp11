@@ -36,7 +36,7 @@ namespace sqlpp
   };
 
   template <typename Context>
-  Context& serialize(const schema_t& t, Context& context)
+  Context& serialize(Context& context, const schema_t& t)
   {
     context << t._name;
     return context;

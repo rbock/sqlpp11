@@ -49,9 +49,9 @@ namespace sqlpp
   };
 
   template <typename Context, typename Expression>
-  Context& serialize(const sort_order_t<Expression>& t, Context& context)
+  Context& serialize(Context& context, const sort_order_t<Expression>& t)
   {
-    serialize_operand(t._expression, context);
+    serialize_operand(context, t._expression);
     switch (t._sort_type)
     {
       case sort_type::asc:

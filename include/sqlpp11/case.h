@@ -147,14 +147,14 @@ namespace sqlpp
   };
 
   template <typename Context, typename When, typename Then, typename Else>
-  Context& serialize(const case_t<When, Then, Else>& t, Context& context)
+  Context& serialize(Context& context, const case_t<When, Then, Else>& t)
   {
     context << "(CASE WHEN ";
-    serialize(t._when, context);
+    serialize(context, t._when);
     context << " THEN ";
-    serialize(t._then, context);
+    serialize(context, t._then);
     context << " ELSE ";
-    serialize(t._else, context);
+    serialize(context, t._else);
     context << " END)";
     return context;
   }

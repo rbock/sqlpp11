@@ -72,9 +72,9 @@ namespace sqlpp
   };
 
   template <typename Context, typename Expression, typename AliasProvider>
-  Context& serialize(const as_expression<Expression, AliasProvider>& t, Context& context)
+  Context& serialize(Context& context, const as_expression<Expression, AliasProvider>& t)
   {
-    serialize_operand(t._expression, context);
+    serialize_operand(context, t._expression);
     context << " AS ";
     context << name_of<as_expression<Expression, AliasProvider>>::template char_ptr<Context>();
     return context;

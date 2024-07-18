@@ -43,11 +43,11 @@ namespace sqlpp
     }
     if (UseBraces::value)
     {
-      serialize_operand(element, context);
+      serialize_operand(context, element);
     }
     else
     {
-      serialize(element, context);
+      serialize(context, element);
     }
   }
 

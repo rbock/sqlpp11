@@ -199,15 +199,15 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Expression>
-  Context& serialize(const where_data_t<Expression>& t, Context& context)
+  Context& serialize(Context& context, const where_data_t<Expression>& t)
   {
     context << " WHERE ";
-    serialize(t._expression, context);
+    serialize(context, t._expression);
     return context;
   }
 
   template <typename Context>
-  Context& serialize(const where_data_t<unconditional_t>&, Context& context)
+  Context& serialize(Context& context, const where_data_t<unconditional_t>&)
   {
     return context;
   }

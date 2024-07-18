@@ -176,10 +176,10 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Expression>
-  Context& serialize(const having_data_t<Expression>& t, Context& context)
+  Context& serialize(Context& context, const having_data_t<Expression>& t)
   {
     context << " HAVING ";
-    serialize(t._expression, context);
+    serialize(context, t._expression);
     return context;
   }
 

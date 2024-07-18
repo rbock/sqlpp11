@@ -88,7 +88,7 @@ namespace sqlpp
   };
 
   template <typename Context>
-  Context& serialize(const insert_name_t&, Context& context)
+  Context& serialize(Context& context, const insert_name_t&)
   {
     context << "INSERT";
 

@@ -92,7 +92,7 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context>
-  Context& serialize(const for_update_data_t&, Context& context)
+  Context& serialize(Context& context, const for_update_data_t&)
   {
     context << " FOR UPDATE ";
     return context;

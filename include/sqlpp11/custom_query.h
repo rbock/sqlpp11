@@ -122,7 +122,7 @@ namespace sqlpp
   };
 
   template <typename Context, typename... Parts>
-  Context& serialize(const custom_query_t<Parts...>& t, Context& context)
+  Context& serialize(Context& context, const custom_query_t<Parts...>& t)
   {
     interpret_tuple_without_braces(t._parts, " ", context);
     return context;

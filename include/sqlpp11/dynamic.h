@@ -85,11 +85,11 @@ namespace sqlpp
   using dynamic_to_optional_t = typename dynamic_to_optional<T>::type;
 
   template <typename Context, typename Select>
-  Context& serialize(const dynamic_t<Select>& t, Context& context)
+  Context& serialize(Context& context, const dynamic_t<Select>& t)
   {
     if (t._condition)
     {
-    serialize(t._expr, context);
+    serialize(context, t._expr);
     }
     else
     {

@@ -97,7 +97,7 @@ namespace sqlpp
   };
 
   template <typename Context, typename Table, typename... ColumnSpec>
-  Context& serialize(const table_t<Table, ColumnSpec...>& /*unused*/, Context& context)
+  Context& serialize(Context& context, const table_t<Table, ColumnSpec...>& /*unused*/)
   {
     context << name_of<Table>::template char_ptr<Context>();
     return context;

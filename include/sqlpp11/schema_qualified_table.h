@@ -62,11 +62,11 @@ namespace sqlpp
   };
 
   template <typename Context, typename Table>
-  Context& serialize(const schema_qualified_table_t<Table>& t, Context& context)
+  Context& serialize(Context& context, const schema_qualified_table_t<Table>& t)
   {
-    serialize(t._schema, context);
+    serialize(context, t._schema);
     context << '.';
-    serialize(t._table, context);
+    serialize(context, t._table);
     return context;
   }
 

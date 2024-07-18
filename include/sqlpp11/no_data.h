@@ -33,7 +33,7 @@ namespace sqlpp
   };
 
   template <typename Context>
-  Context& serialize(const no_data_t&, Context& context)
+  Context& serialize(Context& context, const no_data_t&)
   {
     return context;
   }

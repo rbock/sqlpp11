@@ -140,10 +140,10 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Offset>
-  Context& serialize(const offset_data_t<Offset>& t, Context& context)
+  Context& serialize(Context& context, const offset_data_t<Offset>& t)
   {
     context << " OFFSET ";
-    serialize_operand(t._value, context);
+    serialize_operand(context, t._value);
     return context;
   }
 

@@ -52,10 +52,10 @@ namespace sqlpp
   };
 
   template <typename Context, typename Expr>
-  Context& serialize(const upper_t<Expr>& t, Context& context)
+  Context& serialize(Context& context, const upper_t<Expr>& t)
   {
     context << "UPPER(";
-    serialize_operand(t._expr, context);
+    serialize_operand(context, t._expr);
     context << ")";
     return context;
   }

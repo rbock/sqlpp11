@@ -62,16 +62,16 @@ namespace sqlpp
   };
 
   template <typename Context>
-  Context& serialize(const on_t<unconditional_t>&, Context& context)
+  Context& serialize(Context& context, const on_t<unconditional_t>&)
   {
     return context;
   }
 
   template <typename Context, typename Expression>
-  Context& serialize(const on_t<Expression>& t, Context& context)
+  Context& serialize(Context& context, const on_t<Expression>& t)
   {
     context << " ON ";
-    serialize(t._expression, context);
+    serialize(context, t._expression);
     return context;
   }
 }  // namespace sqlpp

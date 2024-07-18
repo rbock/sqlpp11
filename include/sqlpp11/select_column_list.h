@@ -268,7 +268,7 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename... Columns>
-  Context& serialize(const std::tuple<Columns...>& t, Context& context)
+  Context& serialize(Context& context, const std::tuple<Columns...>& t)
   {
     interpret_tuple(t, ',', context);
     return context;

@@ -133,12 +133,12 @@ namespace sqlpp
   };
 
   template <typename Context, typename JoinType, typename Lhs, typename Rhs>
-  Context& serialize(const pre_join_t<JoinType, Lhs, Rhs>& t, Context& context)
+  Context& serialize(Context& context, const pre_join_t<JoinType, Lhs, Rhs>& t)
   {
-    serialize(t._lhs, context);
+    serialize(context, t._lhs);
     context << JoinType::_name;
     context << " JOIN ";
-    serialize(t._rhs, context);
+    serialize(context, t._rhs);
     return context;
   }
 

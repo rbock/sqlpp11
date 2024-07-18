@@ -56,7 +56,7 @@ namespace sqlpp
   };
 
   template <typename Context, typename ValueType>
-  Context& serialize(const verbatim_t<ValueType>& t, Context& context)
+  Context& serialize(Context& context, const verbatim_t<ValueType>& t)
   {
     context << t._verbatim;
     return context;
