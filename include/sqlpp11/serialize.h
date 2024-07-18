@@ -47,6 +47,16 @@ namespace sqlpp
     return context;
   }
 
+#warning: We should switch context and arg to allow for this to have fewer error messages
+  /*
+  template <typename Context, typename X = void>
+  auto serialize(Context& context, ...) -> Context&
+  {
+    static_assert(wrong_t<X>::value, "Missing specialization");
+    return context;
+  }
+  */
+
   template <typename Context>
   auto serialize(const bool& t, Context& context) -> Context&
   {

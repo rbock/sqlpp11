@@ -23,6 +23,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 set(test_files
+    logical_expression.cpp
     Any.cpp
     As.cpp
     Avg.cpp

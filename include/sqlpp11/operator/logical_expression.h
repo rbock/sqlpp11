@@ -29,11 +29,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <type_traits>
 
 #include <sqlpp11/operator/as_expression.h>
-//#include <sqlpp11/bad_expression.h>
+#include <sqlpp11/dynamic.h>
 //#include <sqlpp11/embrace.h>
 //#include <sqlpp11/to_sql_string.h>
 #include <sqlpp11/type_traits.h>
-//#include <sqlpp11/wrapped_static_assert.h>
 
 namespace sqlpp
 {
@@ -65,7 +64,7 @@ namespace sqlpp
 
   template <typename L, typename Operator, typename R>
   struct value_type_of<logical_expression<L, Operator, R>>
-      : std::conditional<sqlpp::is_optional<value_type_of_t<L>>::value or sqlpp::is_optional<value_type_of_t<R>>::value,
+      : std::conditional<sqlpp::is_optional<value_type_of_t<L>>::value or sqlpp::is_optional<value_type_of_t<remove_dynamic_t<R>>>::value,
                          sqlpp::compat::optional<boolean>,
                          boolean>
   {
@@ -141,7 +140,8 @@ namespace sqlpp
     static constexpr auto symbol = " AND ";
   };
 
-  template <typename L, typename R, typename = check_logical_args<L, R>>
+#warning: need tests with dynamic AND/OR
+  template <typename L, typename R, typename = check_logical_args<L, remove_dynamic_t<R>>>
   constexpr auto operator and(L l, R r) -> logical_expression<L, logical_and, R>
   {
     return {std::move(l), std::move(r)};
@@ -152,7 +152,7 @@ namespace sqlpp
     static constexpr auto symbol = " OR ";
   };
 
-  template <typename L, typename R, typename = check_logical_args<L, R>>
+  template <typename L, typename R, typename = check_logical_args<L, remove_dynamic_t<R>>>
   constexpr auto operator||(L l, R r) -> logical_expression<L, logical_or, R>
   {
     return {std::move(l), std::move(r)};

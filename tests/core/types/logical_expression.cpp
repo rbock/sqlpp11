@@ -23,14 +23,10 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "MockDb.h"
-#include "Sample.h"
 #include <sqlpp11/sqlpp11.h>
 
 namespace
 {
-  auto db = MockDb{};
-
   template <typename T>
   using is_bool = std::is_same<sqlpp::value_type_of_t<T>, sqlpp::boolean>;
 
@@ -48,17 +44,29 @@ void test_logical_expression(Value v)
   static_assert(is_bool<decltype(v_not_null and v_not_null)>::value, "");
   static_assert(is_bool<decltype(v_not_null or v_not_null)>::value, "");
 
-  // Compare non-nullable with nullable.
+  static_assert(is_bool<decltype(v_not_null and dynamic(true, v_not_null))>::value, "");
+  static_assert(is_bool<decltype(v_not_null or dynamic(true, v_not_null))>::value, "");
+
+  // Compare nullable with non-nullable.
   static_assert(is_maybe_bool<decltype(v_maybe_null and v_not_null)>::value, "");
   static_assert(is_maybe_bool<decltype(v_maybe_null or v_not_null)>::value, "");
 
-  // Compare nullable with non-nullable.
+  static_assert(is_maybe_bool<decltype(v_maybe_null and dynamic(true, v_not_null))>::value, "");
+  static_assert(is_maybe_bool<decltype(v_maybe_null or dynamic(true, v_not_null))>::value, "");
+
+  // Compare non-nullable with nullable.
   static_assert(is_maybe_bool<decltype(v_not_null and v_maybe_null)>::value, "");
   static_assert(is_maybe_bool<decltype(v_not_null or v_maybe_null)>::value, "");
+
+  static_assert(is_maybe_bool<decltype(v_not_null and dynamic(true, v_maybe_null))>::value, "");
+  static_assert(is_maybe_bool<decltype(v_not_null or dynamic(true, v_maybe_null))>::value, "");
 
   // Compare nullable with nullable.
   static_assert(is_maybe_bool<decltype(v_maybe_null and v_maybe_null)>::value, "");
   static_assert(is_maybe_bool<decltype(v_maybe_null or v_maybe_null)>::value, "");
+
+  static_assert(is_maybe_bool<decltype(v_maybe_null and dynamic(true, v_maybe_null))>::value, "");
+  static_assert(is_maybe_bool<decltype(v_maybe_null or dynamic(true, v_maybe_null))>::value, "");
 
   // not.
   static_assert(is_bool<decltype(not(v_not_null))>::value, "");
