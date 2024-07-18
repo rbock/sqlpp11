@@ -47,11 +47,6 @@ namespace sqlpp
 
     using _alias_t = typename AliasProvider::_alias_t;
 
-    sqlpp::compat::optional<as_expression> if_(bool condition) const
-    {
-      return condition ? sqlpp::compat::make_optional(*this) : sqlpp::compat::nullopt;
-    }
-
     as_expression(Expression expression) : _expression(expression)
     {
     }

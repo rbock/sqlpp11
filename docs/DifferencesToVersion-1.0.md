@@ -38,4 +38,27 @@ SQLPP_ALIAS_PROVIDER(max_price);
   }
 ```
 
+# Dynamic queries
+We don't always have a completely fixed structure for our queries. For instance, there might columns that we only want to select under certain circumstances. In version 1.0, this was handled by dynamic queries. Now we introduce conditional query parts that may or may not be used at runtime:
+
+## Select optional columns
+select(tab.id, dynamic(condition, tab.bigData)).from(tab).where(tab.id == 17);
+
+If `condition == true` then `bigData` will be selected, otherwise `NULL` will be selected.
+
+## Join optional table
+select(tabA.id).from(tabA.cross_join(dynamic(condition, tabB))).where(tab.id == 17);
+
+If `condition == true` then the cross join will be part of the query, otherwise not. Obviously, that means that you need to make sure that query parts that rely on `tabB` in this example also depend on the same condition.
+
+## Optional AND operand
+select(tab.id).from(tab).where(tab.id == 17 and dynamic(condition, tab.desert != "cheesecake"));
+
+If `condition == true`, then the dynamic part will evaluate to `tab.desert != "cheesecake")`. Otherwise it will be treated as `true` (and the AND expression will be collapsed).
+
+## Optional OR operand
+select(tab.id).from(tab).where(tab.id == 17 or dynamic(condition, tab.desert != "cheesecake"));
+
+If `condition == true`, then the dynamic part will evaluate to `tab.desert != "cheesecake")`. Otherwise it will be treated as `false` (and the OR expression will be collapsed).
+
 

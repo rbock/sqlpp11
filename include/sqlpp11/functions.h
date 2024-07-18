@@ -26,6 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp11/dynamic.h>
 #include <sqlpp11/noop.h>
 #include <sqlpp11/parameter.h>
 #include <sqlpp11/parameter_list.h>

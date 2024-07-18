@@ -26,9 +26,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/auto_alias.h>
-#include <sqlpp11/detail/column_tuple_merge.h>
 #include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/dynamic.h>
 #include <sqlpp11/expression_fwd.h>
 #include <sqlpp11/field_spec.h>
 #include <sqlpp11/interpret_tuple.h>
@@ -63,35 +62,6 @@ namespace sqlpp
     };
   }  // namespace detail
 
-  template <typename Column>
-  struct select_column_t
-  {
-    constexpr select_column_t(Column column) : _column(column)
-    {
-    }
-
-    constexpr select_column_t(const select_column_t&) = default;
-    constexpr select_column_t(select_column_t&&) = default;
-    select_column_t& operator=(const select_column_t&) = default;
-    select_column_t& operator=(select_column_t&&) = default;
-    ~select_column_t() = default;
-
-    Column _column;
-  };
-
-  template <typename Context, typename Column>
-  Context& serialize(const select_column_t<Column>& t, Context& context)
-  {
-    if (has_value(t._column))
-    {
-      return serialize(get_value(t._column), context);
-    }
-
-    context << "NULL AS " << name_of<remove_optional_t<Column>>::template char_ptr<Context>();
-    return context;
-  }
-
-
   SQLPP_PORTABLE_STATIC_ASSERT(
       assert_no_unknown_tables_in_selected_columns_t,
       "at least one selected column requires a table which is otherwise not known in the statement");
@@ -110,7 +80,7 @@ namespace sqlpp
 
     using _alias_t = typename detail::select_traits<Columns...>::_alias_t;
 
-    using _data_t = std::tuple<select_column_t<Columns>...>;
+    using _data_t = std::tuple<Columns...>;
 
     struct _column_type
     {
@@ -171,7 +141,7 @@ namespace sqlpp
       using _field_t = typename _deferred_field_t<Db, Column>::type;
 
       template <typename Db>
-      using _result_row_t = result_row_t<Db, _field_t<Db, Columns>...>;
+      using _result_row_t = result_row_t<Db, _field_t<Db, dynamic_to_optional_t<Columns>>...>;
 
       template <typename AliasProvider>
       struct _deferred_table_t
@@ -231,18 +201,12 @@ namespace sqlpp
   template <typename Column>
     struct value_type_of<select_column_list_t<Column>> : public value_type_of<Column> {};
 
-  namespace detail
-  {
-    template <typename... Columns>
-    select_column_list_t<Columns...> make_column_list(std::tuple<Columns...> columns);
-  }  // namespace detail
-
   SQLPP_PORTABLE_STATIC_ASSERT(assert_selected_colums_are_selectable_t, "selected columns must be selectable");
   template <typename... T>
   struct check_selected_columns
   {
     using type =
-        static_combined_check_t<static_check_t<logic::all_t<is_selectable_t<remove_optional_t<T>>::value...>::value,
+        static_combined_check_t<static_check_t<logic::all_t<is_selectable_t<T>::value...>::value,
                                                assert_selected_colums_are_selectable_t>>;
   };
   template <typename... T>
@@ -270,12 +234,6 @@ namespace sqlpp
 
       _data_t _data;
 
-      template <typename... T>
-      static constexpr auto _check_args(std::tuple<T...> /*args*/) -> check_selected_columns_t<T...>
-      {
-        return {};
-      }
-
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check, Policies, no_select_column_list_t, T>;
 
@@ -283,15 +241,15 @@ namespace sqlpp
 
       template <typename... Args>
       auto columns(Args... args) const
-          -> _new_statement_t<decltype(_check_args(detail::column_tuple_merge(args...))),
-                              decltype(detail::make_column_list(detail::column_tuple_merge(args...)))>
+          -> _new_statement_t<check_selected_columns_t<remove_dynamic_t<Args>...>,
+                              select_column_list_t<Args...>>
       {
         static_assert(sizeof...(Args), "at least one selectable expression (e.g. a column) required in columns()");
-        using check = decltype(_check_args(detail::column_tuple_merge(args...)));
+        using check = check_selected_columns_t<remove_dynamic_t<Args>...>;
         static_assert(check::value,
                       "at least one argument is not a selectable expression in columns()");
 
-        return _columns_impl(check{}, detail::column_tuple_merge(args...));
+        return _columns_impl(check{}, std::make_tuple(std::move(args)...));
       }
 
     private:
@@ -303,14 +261,14 @@ namespace sqlpp
           -> _new_statement_t<consistent_t, select_column_list_t<Args...>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this),
-                typename select_column_list_t<Args...>::_data_t{args}};
+                typename select_column_list_t<Args...>::_data_t{std::move(args)}};
       }
     };
   };
 
   // Interpreters
   template <typename Context, typename... Columns>
-  Context& serialize(const std::tuple<select_column_t<Columns>...>& t, Context& context)
+  Context& serialize(const std::tuple<Columns...>& t, Context& context)
   {
     interpret_tuple(t, ',', context);
     return context;
