@@ -29,7 +29,8 @@
 
 #include <iostream>
 
-SQLPP_ALIAS_PROVIDER(cheese)
+SQLPP_ALIAS_PROVIDER(cheese);
+SQLPP_ALIAS_PROVIDER(maxId);
 
 int As(int, char*[])
 {
@@ -38,19 +39,18 @@ int As(int, char*[])
 
   compare(__LINE__, foo, "tab_foo");
   compare(__LINE__, foo.doubleN.as(cheese), "tab_foo.double_n AS cheese");
-  compare(__LINE__, (foo.doubleN + 17).as(cheese), "(tab_foo.double_n+17) AS cheese");
+  compare(__LINE__, (foo.doubleN + 17).as(cheese), "(tab_foo.double_n + 17) AS cheese");
   compare(__LINE__, (foo.doubleN - 17).as(cheese), "(tab_foo.double_n - 17) AS cheese");
   compare(__LINE__, (foo.doubleN - uint32_t(17)).as(cheese), "(tab_foo.double_n - 17) AS cheese");
   compare(__LINE__, (foo.doubleN - bar.id).as(cheese), "(tab_foo.double_n - tab_bar.id) AS cheese");
   compare(__LINE__, (count(foo.doubleN) - bar.id).as(cheese), "(COUNT(tab_foo.double_n) - tab_bar.id) AS cheese");
   compare(__LINE__, (count(foo.doubleN) - uint32_t(17)).as(cheese), "(COUNT(tab_foo.double_n) - 17) AS cheese");
 
-  // Auto alias
-  compare(__LINE__, select(max(bar.id)), "SELECT MAX(tab_bar.id) AS max_");
+  compare(__LINE__, select(max(bar.id).as(maxId)), "SELECT MAX(tab_bar.id) AS maxId");
   compare(__LINE__, select(max(bar.id).as(cheese)), "SELECT MAX(tab_bar.id) AS cheese");
-  compare(__LINE__, select(max(bar.id)).from(bar).unconditionally().as(cheese),
-          "(SELECT MAX(tab_bar.id) AS max_ FROM tab_bar) AS cheese");
-  compare(__LINE__, select(max(bar.id)).from(bar).unconditionally().as(cheese).max, "cheese.max_");
+  compare(__LINE__, select(max(bar.id).as(maxId)).from(bar).unconditionally().as(cheese),
+          "(SELECT MAX(tab_bar.id) AS maxId FROM tab_bar) AS cheese");
+  compare(__LINE__, select(max(bar.id).as(maxId)).from(bar).unconditionally().as(cheese).maxId, "cheese.maxId");
 
   return 0;
 }

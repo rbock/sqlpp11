@@ -54,6 +54,8 @@ namespace sqlpp
     {
       const T* _data = nullptr;
       size_t _size = 0u;
+      using iterator = const T*;
+      using const_iterator = const T*;
 
     public:
       constexpr span() = default;
@@ -74,6 +76,25 @@ namespace sqlpp
       const T& operator[](size_t i) const
       {
         return *(_data + i);
+      }
+
+      iterator begin() noexcept
+      {
+        return &_data[0];
+      }
+      const_iterator begin() const noexcept
+      {
+        return &_data[0];
+      }
+
+      iterator end() noexcept
+      {
+        return &_data[_size];
+      }
+
+      const_iterator end() const noexcept
+      {
+        return &_data[_size];
       }
     };
 

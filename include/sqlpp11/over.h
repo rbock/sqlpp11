@@ -26,21 +26,20 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp11/enable_as.h>
+#include <sqlpp11/enable_comparison.h>
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
-  template <typename AggregateExpr>
-  struct over_t /*: public expression_operators<over_t<AggregateExpr>, integral>,
-                  public alias_operators<over_t<AggregateExpr>>*/
+  template <typename Expr>
+  struct over_t : public enable_as<over_t<Expr>>, public enable_comparison<over_t<Expr>>
   {
     using _traits = make_traits<integral, tag::is_expression>;
-    using _nodes = detail::type_vector<AggregateExpr, aggregate_function>;
+    using _nodes = detail::type_vector<Expr, aggregate_function>;
 
-    using _auto_alias_t = typename AggregateExpr::_auto_alias_t;
-
-    over_t(AggregateExpr aggregate_expression)
-      : _aggregate_expression(aggregate_expression)
+    over_t(Expr expr)
+      : _expr(expr)
     {
     }
 
@@ -50,14 +49,30 @@ namespace sqlpp
     over_t& operator=(over_t&&) = default;
     ~over_t() = default;
 
-    AggregateExpr _aggregate_expression;
+    Expr _expr;
   };
 
-  template <typename Context, typename AggregateExpr>
-  Context& serialize(Context& context, const over_t<AggregateExpr>& t)
+  template<typename Expr>
+  struct value_type_of<over_t<Expr>>: public value_type_of<Expr> {};
+
+  template<typename Expr>
+  struct nodes_of<over_t<Expr>>: public nodes_of<Expr> {};
+
+  template<typename Expr>
+  using check_over_args = std::enable_if_t<contains_aggregate_function_t<Expr>::value>;
+
+  template <typename Context, typename Expr>
+  Context& serialize(Context& context, const over_t<Expr>& t)
   {
-    serialize_operand(context, t._aggregate_expression);
+    serialize_operand(context, t._expr);
     context << " OVER()";
     return context;
   }
+
+  template <typename Expr>
+  auto over(Expr t)  -> over_t<Expr>
+  {
+    return {std::move(t)};
+  }
+
 }  // namespace sqlpp

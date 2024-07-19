@@ -26,8 +26,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/over.h>
-#include <sqlpp11/char_sequence.h>
+#include <sqlpp11/enable_as.h>
+#include <sqlpp11/enable_over.h>
 #include <sqlpp11/select_flags.h>
 #include <sqlpp11/aggregate_function_operators.h>
 #include <sqlpp11/type_traits.h>
@@ -35,7 +35,7 @@
 namespace sqlpp
 {
   template <typename Flag, typename Expr>
-  struct count_t
+  struct count_t : public enable_as<count_t<Flag, Expr>>, public enable_over<count_t<Flag, Expr>>
   {
     using _traits = make_traits<integral, tag::is_expression /*, tag::is_selectable*/>;
 
@@ -43,7 +43,7 @@ namespace sqlpp
     using _can_be_null = std::false_type;
     using _is_aggregate_expression = std::true_type;
 
-    count_t(const Expr expr) : _expr(expr)
+    constexpr count_t(const Expr expr) : _expr(std::move(expr))
     {
     }
 

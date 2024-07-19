@@ -28,6 +28,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <type_traits>
 
+#include <sqlpp11/type_traits.h>
+
 namespace sqlpp
 {
   enum class sort_order
@@ -39,20 +41,29 @@ namespace sqlpp
   template <typename L>
   struct sort_order_expression
   {
-    L l;
-    sort_order order;
+    constexpr sort_order_expression(L l, sort_order r) : _l(std::move(l)), _r(std::move(r))
+    {
+    }
+    sort_order_expression(const sort_order_expression&) = default;
+    sort_order_expression(sort_order_expression&&) = default;
+    sort_order_expression& operator=(const sort_order_expression&) = default;
+    sort_order_expression& operator=(sort_order_expression&&) = default;
+    ~sort_order_expression() = default;
+
+    L _l;
+    sort_order _r;
   };
 
   template <typename L>
   using check_sort_order_args = std::enable_if_t<values_are_comparable<L, L>::value>;
 
-  /*
   template <typename L>
   struct nodes_of<sort_order_t<L>>
   {
-    using type = type_vector<L>;
+    using type = detail::type_vector<L>;
   };
 
+  /*
   template <typename L>
   constexpr auto requires_braces_v<sort_order_t<L>> = false;
 

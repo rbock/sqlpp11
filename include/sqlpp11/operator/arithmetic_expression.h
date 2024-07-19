@@ -28,13 +28,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <utility>
 
+#include <sqlpp11/noop.h>
+#include <sqlpp11/enable_as.h>
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
-#warning: We need to put concat somewhere (text and blob)
+#warning: mysql does not offer operator||, we need to fail compilation, but maybe offer the concat function in addition
   template <typename L, typename Operator, typename R>
-  struct arithmetic_expression
+  struct arithmetic_expression : public enable_as<arithmetic_expression<L, Operator, R>>
   {
     arithmetic_expression() = delete;
     constexpr arithmetic_expression(L l, R r) : _l(l), _r(r)
@@ -50,46 +52,40 @@ namespace sqlpp
     R _r;
   };
 
-  template <typename Operator, typename R>
-  struct unary_arithmetic_expression
-  {
-    unary_arithmetic_expression() = delete;
-    constexpr unary_arithmetic_expression(R r) : _r(r)
-    {
-    }
-    unary_arithmetic_expression(const unary_arithmetic_expression&) = default;
-    unary_arithmetic_expression(unary_arithmetic_expression&&) = default;
-    unary_arithmetic_expression& operator=(const unary_arithmetic_expression&) = default;
-    unary_arithmetic_expression& operator=(unary_arithmetic_expression&&) = default;
-    ~unary_arithmetic_expression() = default;
-
-    R _r;
-  };
-
   template <typename L, typename R>
   using check_arithmetic_args = std::enable_if_t<is_numeric<L>::value and is_numeric<R>::value>;
 
 #warning: need to document that this is on purpose (not integral, or unsigned integral, or floating_point) because it is difficult to know for the library to know what the actual result type will be (it is difficult to guess in C++ already, and it is probably different from DB vendor to vendor).
   template <typename L, typename Operator, typename R>
   struct value_type_of<arithmetic_expression<L, Operator, R>>
-      : std::conditional<sqlpp::is_optional<value_type_of_t<L>>::value or sqlpp::is_optional<value_type_of_t<R>>::value,
-                         sqlpp::compat::optional<numeric>,
-                         numeric> {};
+      : public std::conditional<sqlpp::is_optional<value_type_of_t<L>>::value or
+                                    sqlpp::is_optional<value_type_of_t<R>>::value,
+                                sqlpp::compat::optional<numeric>,
+                                numeric>
+  {
+  };
 
-#warning: As above.
-  template <typename Operator, typename R>
-  struct value_type_of<unary_arithmetic_expression<Operator, R>>
-      : std::conditional<sqlpp::is_optional<value_type_of_t<R>>::value,
-                         sqlpp::compat::optional<numeric>,
-                         numeric> {};
+  struct concatenation
+  {
+    static constexpr auto symbol = " || ";
+  };
 
-#if 0
+  template <typename L, typename R>
+  struct value_type_of<arithmetic_expression<L, concatenation, R>>
+      : public std::conditional<sqlpp::is_optional<value_type_of_t<L>>::value or
+                                    sqlpp::is_optional<value_type_of_t<R>>::value,
+                                sqlpp::compat::optional<text>,
+                                text>
+  {
+  };
 
   template <typename L, typename Operator, typename R>
   struct nodes_of<arithmetic_expression<L, Operator, R>>
   {
-    using type = type_vector<L, R>;
+    using type = detail::type_vector<L, R>;
   };
+
+#if 0
 
   template <typename L, typename Operator, typename R>
   struct value_type_of_t<arithmetic_expression<L, Operator, R>>
@@ -119,6 +115,18 @@ namespace sqlpp
     return to_sql_string(context, t._l) + Operator::symbol + to_sql_string(context, embrace(t._r));
   }
 #endif
+  
+  template <typename Context, typename L, typename Operator, typename R>
+  auto serialize(Context& context, const arithmetic_expression<L, Operator, R>& t) -> Context&
+  {
+    context << "(";
+    serialize_operand(context, t._l);
+    context << Operator::symbol;
+    serialize_operand(context, t._r);
+    context << ")";
+    return context;
+  }
+
   struct plus
   {
     static constexpr auto symbol = " + ";
@@ -129,6 +137,16 @@ namespace sqlpp
   {
     return {std::move(l), std::move(r)};
   }
+
+  template <typename L, typename R>
+  using check_concatenation_args = std::enable_if_t<is_text<L>::value and is_text<R>::value>;
+
+  template <typename L, typename R, typename = check_concatenation_args<L, R>>
+  constexpr auto operator+(L l, R r) -> arithmetic_expression<L, concatenation, R>
+  {
+    return {std::move(l), std::move(r)};
+  }
+
   struct minus
   {
     static constexpr auto symbol = " - ";
@@ -139,6 +157,7 @@ namespace sqlpp
   {
     return {std::move(l), std::move(r)};
   }
+
   struct multiplies
   {
     static constexpr auto symbol = " * ";
@@ -167,7 +186,7 @@ namespace sqlpp
   };
 
   template <typename R, typename = check_arithmetic_args<R, R>>
-  constexpr auto operator-(R r) -> unary_arithmetic_expression<divides, R>
+  constexpr auto operator-(R r) -> arithmetic_expression<noop, divides, R>
   {
     return {std::move(r)};
   }

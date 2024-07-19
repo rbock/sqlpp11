@@ -29,9 +29,11 @@
 #include <cstdint>
 #include <tuple>
 #include <type_traits>
+#include <array>
 #include <vector>
 
 #include <sqlpp11/chrono.h>
+#include <sqlpp11/no_name.h>
 #include <sqlpp11/compat/optional.h>
 #include <sqlpp11/compat/string_view.h>
 #include <sqlpp11/compat/span.h>
@@ -178,6 +180,8 @@ namespace sqlpp
   struct value_type_of<float> { using type = floating_point; };
   template<>
   struct value_type_of<double> { using type = floating_point; };
+  template<>
+  struct value_type_of<long double> { using type = floating_point; };
 
   struct text{};
   template <>
@@ -190,6 +194,9 @@ namespace sqlpp
   struct value_type_of<sqlpp::compat::string_view> { using type = text; };
 
   struct blob{};
+  template <std::size_t N>
+  struct value_type_of<std::array<std::uint8_t, N>> { using type = blob; };
+
   template <>
   struct value_type_of<std::vector<std::uint8_t>> { using type = blob; };
 
@@ -246,16 +253,15 @@ namespace sqlpp
   };
 
   // A generic numeric type which could be (unsigned) integral or floating point.
-  struct numeric;
+  struct numeric{};
   template <typename T>
-  struct is_numeric : public std::integral_constant<bool,
-                                                    is_integral<T>::value or is_unsigned_integral<T>::value or
-                                                        is_floating_point<T>::value>
+  struct is_numeric
+      : public std::integral_constant<bool,
+                                      is_integral<T>::value or is_unsigned_integral<T>::value or
+                                          is_floating_point<T>::value or
+                                          std::is_same<remove_optional_t<value_type_of_t<T>>, numeric>::value>
   {
   };
-
-  template <>
-  struct is_numeric<numeric> : public std::true_type{};
 
   template <>
   struct is_numeric<sqlpp::compat::nullopt_t> : public std::true_type{};
@@ -395,6 +401,10 @@ namespace sqlpp
   template<>
     struct parameter_value<time_point> { using type = std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>; };
 
+  template <typename T>
+  struct is_assignment : public std::false_type
+  {
+  };
 #define SQLPP_VALUE_TRAIT_GENERATOR(name)                                                                   \
   namespace tag                                                                                             \
   {                                                                                                         \
@@ -461,7 +471,6 @@ namespace sqlpp
   SQLPP_VALUE_TRAIT_GENERATOR(is_using_)
   SQLPP_VALUE_TRAIT_GENERATOR(is_column_list)
   SQLPP_VALUE_TRAIT_GENERATOR(is_value_list)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_assignment)
   SQLPP_VALUE_TRAIT_GENERATOR(is_update_list)
   SQLPP_VALUE_TRAIT_GENERATOR(is_insert_list)
   SQLPP_VALUE_TRAIT_GENERATOR(is_insert_value)
@@ -480,22 +489,12 @@ namespace sqlpp
   using is_database =
       typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 
-  namespace detail
-  {
-    template <typename T, typename HasNodes = void>
-    struct nodes_of_impl
-    {
-      using type = type_vector<>;
-    };
-
-    template <typename T>
-    struct nodes_of_impl<T, detail::void_t<typename T::_nodes>>
-    {
-      using type = typename T::_nodes;
-    };
-  }  // namespace detail
   template <typename T>
-  using nodes_of = typename detail::nodes_of_impl<T>::type;
+  struct nodes_of {
+    using type = detail::type_vector<>;
+  };
+  template <typename T>
+  using nodes_of_t = typename nodes_of<T>::type;
 
 #define SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(trait)                                      \
   namespace detail                                                                      \
@@ -503,7 +502,7 @@ namespace sqlpp
     template <typename T, typename Leaf = void>                                         \
     struct trait##_of_impl                                                              \
     {                                                                                   \
-      using type = typename trait##_of_impl<nodes_of<T>>::type;                         \
+      using type = typename trait##_of_impl<nodes_of_t<T>>::type;                       \
     };                                                                                  \
     template <typename T>                                                               \
     struct trait##_of_impl<T, detail::void_t<typename T::_##trait>>                     \
@@ -521,7 +520,6 @@ namespace sqlpp
 
   SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(required_ctes)
   SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(provided_ctes)
-  SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(required_tables)
   SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(provided_tables)
   SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(provided_outer_tables)
   SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(provided_aggregates)
@@ -532,7 +530,7 @@ namespace sqlpp
     template <typename T, typename Leaf = void>                       \
     struct trait##_impl                                               \
     {                                                                 \
-      using type = typename trait##_impl<nodes_of<T>>::type;          \
+      using type = typename trait##_impl<nodes_of_t<T>>::type;        \
     };                                                                \
     template <typename T>                                             \
     struct trait##_impl<T, detail::void_t<typename T::_##trait>>      \
@@ -550,6 +548,42 @@ namespace sqlpp
 
   SQLPP_RECURSIVE_TRAIT_GENERATOR(contains_aggregate_function)
 
+  template <typename T>
+  struct lhs
+  {
+    using type = void;
+  };
+
+  template <typename T>
+  using lhs_t = typename lhs<T>::type;
+
+  template <typename T>
+  struct rhs
+  {
+    using type = void;
+  };
+
+  template <typename T>
+  using rhs_t = typename rhs<T>::type;
+
+  // Anything that directly requires a table (e.g. a column) has to specialize required_tables_of.
+  template<typename T>
+  struct required_tables_of
+  {
+    using type = typename required_tables_of<nodes_of_t<T>>::type;
+  };
+
+  template<typename... T>
+  struct required_tables_of<detail::type_vector<T...>>
+  {
+    using type = detail::make_joined_set_t<typename required_tables_of<T>::type...>;
+  };
+
+  template<typename T>
+    using required_tables_of_t = typename required_tables_of<T>::type;
+
+  static_assert(required_tables_of_t<int>::size::value == 0, "");
+
   template <typename ValueType, typename T>
   struct is_valid_operand
   {
@@ -564,7 +598,7 @@ namespace sqlpp
     template <typename KnownAggregates, typename T, typename Leaf = void>
     struct is_aggregate_expression_impl
     {
-      using type = typename is_aggregate_expression_impl<KnownAggregates, nodes_of<T>>::type;
+      using type = typename is_aggregate_expression_impl<KnownAggregates, nodes_of_t<T>>::type;
     };
     template <typename KnownAggregates, typename T>
     struct is_aggregate_expression_impl<
@@ -604,7 +638,7 @@ namespace sqlpp
     template <typename KnownAggregates, typename T, typename Leaf = void>
     struct is_non_aggregate_expression_impl
     {
-      using type = typename is_non_aggregate_expression_impl<KnownAggregates, nodes_of<T>>::type;
+      using type = typename is_non_aggregate_expression_impl<KnownAggregates, nodes_of_t<T>>::type;
     };
     template <typename KnownAggregates, typename T>
     struct is_non_aggregate_expression_impl<
@@ -646,7 +680,7 @@ namespace sqlpp
     template <typename T, typename Leaf = void>
     struct parameters_of_impl
     {
-      using type = typename parameters_of_impl<nodes_of<T>>::type;
+      using type = typename parameters_of_impl<nodes_of_t<T>>::type;
     };
     template <typename T>
     struct parameters_of_impl<T, typename std::enable_if<std::is_class<typename T::_parameters>::value>::type>
@@ -662,15 +696,22 @@ namespace sqlpp
   template <typename T>
   using parameters_of = typename detail::parameters_of_impl<T>::type;
 
+  struct name_tag_base{}; // Used by SQLPP_ALIAS_PROVIDER and ddl2cpp
   template <typename T>
-  using name_of = typename T::_alias_t::_name_t;
+  struct name_tag_of
+  {
+    using type = typename std::conditional<std::is_base_of<name_tag_base, T>::value,  // if T is a name tag
+                                           typename T::_alias_t,                      // then it is embedded,
+                                           no_name_t                                  // else, there is no default name
+                                           >::type;
+  };
 
-  // Used by SQLPP_ALIAS_PROVIDER.
-  struct name_tag;
+  template <typename T>
+  using name_tag_of_t = typename name_tag_of<T>::type;
 
   // Override this for other classes like columns or tables.
   template<typename T>
-  struct has_name : public std::integral_constant<bool, std::is_base_of<name_tag, T>::value> {};
+  struct has_name : public std::integral_constant<bool, not std::is_same<name_tag_of_t<T>, no_name_t>::value> {};
 
   template <typename ValueType, typename... Tags>
   struct make_traits

@@ -50,9 +50,8 @@ namespace sqlpp
     using _required_ctes = required_ctes_of<Table>;
     using _provided_tables = detail::type_set<AliasProvider>;
 
-    static_assert(required_tables_of<Table>::size::value == 0, "table aliases must not depend on external tables");
+    static_assert(required_tables_of_t<Table>::size::value == 0, "table aliases must not depend on external tables");
 
-    using _alias_t = typename AliasProvider::_alias_t;
     using _column_tuple_t = std::tuple<column_t<AliasProvider, ColumnSpec>...>;
 
     table_alias_t(Table table) : _table(table)
@@ -98,6 +97,9 @@ namespace sqlpp
     Table _table;
   };
 
+  template<typename AliasProvider, typename Table, typename... ColumnSpec>
+    struct name_tag_of<table_alias_t<AliasProvider, Table, ColumnSpec...>> : public name_tag_of<AliasProvider>{};
+
   template <typename Context, typename AliasProvider, typename Table, typename... ColumnSpec>
   Context& serialize(Context& context, const table_alias_t<AliasProvider, Table, ColumnSpec...>& t)
   {
@@ -110,7 +112,7 @@ namespace sqlpp
     {
       context << ")";
     }
-    context << " AS " << name_of<table_alias_t<AliasProvider, Table, ColumnSpec...>>::template char_ptr<Context>();
+    context << " AS " << name_tag_of_t<table_alias_t<AliasProvider, Table, ColumnSpec...>>::_name_t::template char_ptr<Context>();
     return context;
   }
 }  // namespace sqlpp

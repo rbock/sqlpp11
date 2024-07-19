@@ -77,13 +77,13 @@ namespace sqlpp
 
       using _all_required_ctes = detail::make_joined_set_t<required_ctes_of<Policies>...>;
       using _all_provided_ctes = detail::make_joined_set_t<provided_ctes_of<Policies>...>;
-      using _all_required_tables = detail::make_joined_set_t<required_tables_of<Policies>...>;
+      using _all_required_tables = detail::make_joined_set_t<required_tables_of_t<Policies>...>;
       using _all_provided_tables = detail::make_joined_set_t<provided_tables_of<Policies>...>;
       using _all_provided_outer_tables = detail::make_joined_set_t<provided_outer_tables_of<Policies>...>;
       using _all_provided_aggregates = detail::make_joined_set_t<provided_aggregates_of<Policies>...>;
 
       template <typename Expression>
-      using _no_unknown_tables = detail::is_subset_of<required_tables_of<Expression>, _all_provided_tables>;
+      using _no_unknown_tables = detail::is_subset_of<required_tables_of_t<Expression>, _all_provided_tables>;
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2086629
       //	  template <typename... Expressions>
@@ -142,7 +142,7 @@ namespace sqlpp
 #warning: maybe need to make value type optional
       /*
       using _can_be_null = logic::any_t<can_be_null_t<_result_type_provider>::value,
-                                        detail::make_intersect_set_t<required_tables_of<_result_type_provider>,
+                                        detail::make_intersect_set_t<required_tables_of_t<_result_type_provider>,
                                                                      _all_provided_outer_tables>::size::value != 0>;
                                         */
       using _parameters = detail::type_vector_cat_t<parameters_of<Policies>...>;
@@ -206,10 +206,9 @@ namespace sqlpp
                     tag_if<tag::is_selectable, is_expression_t<_policies_t>::value>,
                     tag_if<tag::is_return_value, logic::none_t<is_noop_t<_result_type_provider>::value>::value>,
                     tag::requires_parens>;
+    using _name_tag_of = name_tag_of<_result_type_provider>;
     using _nodes = detail::type_vector<_policies_t>;
     using _used_outer_tables = typename _policies_t::_all_provided_outer_tables;
-
-    using _alias_t = typename _result_type_provider::_alias_t;
 
     // Constructors
     statement_t() = default;
@@ -265,7 +264,10 @@ namespace sqlpp
   };
 
   template<typename... Policies>
-    struct value_type_of<statement_t<Policies...>> : value_type_of<typename detail::statement_policies_t<Policies...>> {};
+    struct value_type_of<statement_t<Policies...>> : public value_type_of<typename detail::statement_policies_t<Policies...>> {};
+  template<typename... Policies>
+    struct name_tag_of<statement_t<Policies...>> : public statement_t<Policies...>::_name_tag_of {};
+
 
   template <typename Context, typename... Policies>
   Context& serialize(Context& context, const statement_t<Policies...>& t)

@@ -27,8 +27,7 @@
  */
 
 #include <sqlpp11/statement_fwd.h>
-#include <sqlpp11/char_sequence.h>
-#include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
@@ -36,12 +35,10 @@ namespace sqlpp
   struct any_t
   {
     using _traits = make_traits<value_type_of_t<Select>, tag::is_multi_expression>;
-    using _nodes = detail::type_vector<Select>;
 
-    any_t(Select select) : _select(select)
+    constexpr any_t(Select select) : _select(std::move(select))
     {
     }
-
     any_t(const any_t&) = default;
     any_t(any_t&&) = default;
     any_t& operator=(const any_t&) = default;
@@ -53,7 +50,13 @@ namespace sqlpp
 
   // No value_type_of defined for any_t, because it is to be used with basic comparison operators, only.
 
-  template <typename T>
+  template <typename Select>
+  struct nodes_of<any_t<Select>>
+  {
+    using type = detail::type_vector<Select>;
+  };
+
+ template <typename T>
   struct remove_any
   {
     using type = T;

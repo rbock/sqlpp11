@@ -35,7 +35,6 @@ namespace sqlpp
   struct dynamic_t
   {
     using _traits = make_traits<value_type_of_t<Expr>, tag::is_multi_expression>;
-    using _nodes = detail::type_vector<Expr>;
 
     dynamic_t(bool condition, Expr expr) : _condition(condition), _expr(expr)
     {
@@ -53,6 +52,16 @@ namespace sqlpp
 
   // No value_type_of defined for dynamic_t, because it is to be used in very specific contexts in which _expr may be
   // used depending on the value of _condition.
+
+  template <typename Expr>
+  struct name_tag_of<dynamic_t<Expr>> : public name_tag_of<Expr>
+  {
+  };
+
+  template <typename Expr>
+  struct nodes_of<dynamic_t<Expr>> : public nodes_of<Expr>
+  {
+  };
 
   template <typename T>
   struct remove_dynamic
@@ -93,7 +102,7 @@ namespace sqlpp
     }
     else
     {
-      context << NULL;
+      serialize(context, sqlpp::compat::nullopt);
     }
     return context;
   }

@@ -34,31 +34,56 @@ int logical_expression(int, char* [])
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 
-  /*
-  // Plus
-  compare(__LINE__, bar.id + 3u, "(tab_bar.id+3)");
-  compare(__LINE__, sqlpp::value(3) + foo.uIntN, "(3+tab_foo.u_int_n)");
+  // Basic logical expression.
+  compare(__LINE__, foo.boolN and bar.boolNn, "(tab_foo.bool_n AND tab_bar.bool_nn)");
+  compare(__LINE__, foo.boolN or bar.boolNn, "(tab_foo.bool_n OR tab_bar.bool_nn)");
+  compare(__LINE__, not foo.boolN, "(NOT tab_foo.bool_n)");
 
-  // Shift left
-  compare(__LINE__, sqlpp::value(3) << foo.uIntN, "(3<<tab_foo.u_int_n)");
-  compare(__LINE__, bar.id << 3u, "(tab_bar.id<<3)");
+  // With dynamic part.
+  compare(__LINE__, foo.boolN and dynamic(true, bar.boolNn), "(tab_foo.bool_n AND tab_bar.bool_nn)");
+  compare(__LINE__, foo.boolN and dynamic(false, bar.boolNn), "tab_foo.bool_n");
 
-  // Shift right
-  compare(__LINE__, sqlpp::value(3) >> foo.uIntN, "(3>>tab_foo.u_int_n)");
-  compare(__LINE__, bar.id >> 3u, "(tab_bar.id>>3)");
+  compare(__LINE__, foo.boolN or dynamic(true, bar.boolNn), "(tab_foo.bool_n OR tab_bar.bool_nn)");
+  compare(__LINE__, foo.boolN or dynamic(false, bar.boolNn), "tab_foo.bool_n");
 
-  // Comparison
-  compare(__LINE__, bar.id < 3u, "(tab_bar.id<3)");
-  compare(__LINE__, bar.id <= 3u, "(tab_bar.id<=3)");
-  compare(__LINE__, bar.id == 3u, "(tab_bar.id=3)");
-  compare(__LINE__, bar.id != 3u, "(tab_bar.id<>3)");
-  compare(__LINE__, bar.id >= 3u, "(tab_bar.id>=3)");
-  compare(__LINE__, bar.id > 3u, "(tab_bar.id>3)");
-  */
+  // Advanced logical expression.
+  compare(__LINE__, not foo.boolN and not bar.boolNn, "((NOT tab_foo.bool_n) AND (NOT tab_bar.bool_nn))");
+  compare(__LINE__, not foo.boolN or not bar.boolNn, "((NOT tab_foo.bool_n) OR (NOT tab_bar.bool_nn))");
+  compare(__LINE__, not (foo.boolN and bar.boolNn), "(NOT (tab_foo.bool_n AND tab_bar.bool_nn))");
+  compare(__LINE__, not (foo.boolN or bar.boolNn), "(NOT (tab_foo.bool_n OR tab_bar.bool_nn))");
+
+  // With dynamic part.
+  compare(__LINE__, not foo.boolN and dynamic(true, not bar.boolNn), "((NOT tab_foo.bool_n) AND (NOT tab_bar.bool_nn))");
+  compare(__LINE__, not foo.boolN and dynamic(false, not bar.boolNn), "(NOT tab_foo.bool_n)");
+
+  compare(__LINE__, not foo.boolN or dynamic(true, not bar.boolNn), "((NOT tab_foo.bool_n) OR (NOT tab_bar.bool_nn))");
+  compare(__LINE__, not foo.boolN or dynamic(false, not bar.boolNn), "(NOT tab_foo.bool_n)");
 
 #warning: Consider reducing braces a bit as in sqlpp17
-  compare(__LINE__, true and dynamic(true, bar.boolNn), "(1 AND tab_bar.bool_nn)");
-  compare(__LINE__, true and dynamic(false, bar.boolNn), "1");
+
+  // Chained expression.
+  compare(__LINE__, foo.boolN and bar.boolNn and (bar.id > 17),
+          "((tab_foo.bool_n AND tab_bar.bool_nn) AND (tab_bar.id > 17))");
+  compare(__LINE__, foo.boolN or bar.boolNn or (bar.id > 17),
+          "((tab_foo.bool_n OR tab_bar.bool_nn) OR (tab_bar.id > 17))");
+
+  compare(__LINE__, foo.boolN and bar.boolNn and dynamic(true, bar.id > 17),
+          "((tab_foo.bool_n AND tab_bar.bool_nn) AND (tab_bar.id > 17))");
+  compare(__LINE__, foo.boolN and bar.boolNn and dynamic(false, bar.id > 17),
+          "(tab_foo.bool_n AND tab_bar.bool_nn)");
+  compare(__LINE__, foo.boolN or bar.boolNn or dynamic(true, bar.id > 17),
+          "((tab_foo.bool_n OR tab_bar.bool_nn) OR (tab_bar.id > 17))");
+  compare(__LINE__, foo.boolN or bar.boolNn or dynamic(false, bar.id > 17),
+          "(tab_foo.bool_n OR tab_bar.bool_nn)");
+
+  compare(__LINE__, foo.boolN and dynamic(true, bar.boolNn and (bar.id > 17)),
+          "(tab_foo.bool_n AND (tab_bar.bool_nn AND (tab_bar.id > 17)))");
+  compare(__LINE__, foo.boolN and dynamic(false, bar.boolNn and (bar.id > 17)),
+          "tab_foo.bool_n");
+  compare(__LINE__, foo.boolN or dynamic(true, bar.boolNn or (bar.id > 17)),
+          "(tab_foo.bool_n OR (tab_bar.bool_nn OR (tab_bar.id > 17)))");
+  compare(__LINE__, foo.boolN or dynamic(false, bar.boolNn or (bar.id > 17)),
+          "tab_foo.bool_n");
 
   return 0;
 }

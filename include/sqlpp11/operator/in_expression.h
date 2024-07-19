@@ -29,23 +29,43 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <tuple>
 #include <vector>
 
+#include <sqlpp11/enable_as.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/logic.h>
+#include <sqlpp11/interpret_tuple.h>
 
 namespace sqlpp
 {
   template<typename L, typename Operator, typename Container>
-  struct in_expression
+  struct in_expression : public enable_as<in_expression<L, Operator, Container>>
   {
-    L l;
-    Container container;
+    constexpr in_expression(L l, Container r) : _l(std::move(l)), _r(std::move(r))
+    {
+    }
+    in_expression(const in_expression&) = default;
+    in_expression(in_expression&&) = default;
+    in_expression& operator=(const in_expression&) = default;
+    in_expression& operator=(in_expression&&) = default;
+    ~in_expression() = default;
+
+    L _l;
+    Container _r;
   };
 
   template <typename L, typename Operator, typename... Args>
-  struct in_expression<L, Operator, std::tuple<Args...>>
+  struct in_expression<L, Operator, std::tuple<Args...>> : public enable_as<in_expression<L, Operator, std::tuple<Args...>>>
   {
-    L l;
-    std::tuple<Args...> args;
+    constexpr in_expression(L l, std::tuple<Args...> r) : _l(std::move(l)), _r(std::move(r))
+    {
+    }
+    in_expression(const in_expression&) = default;
+    in_expression(in_expression&&) = default;
+    in_expression& operator=(const in_expression&) = default;
+    in_expression& operator=(in_expression&&) = default;
+    ~in_expression() = default;
+
+    L _l;
+    std::tuple<Args...> _r;
   };
 
   template <typename L, typename... Args>
@@ -69,41 +89,80 @@ namespace sqlpp
   {
   };
 
-  /*
-
-  template <typename L, typename... Args>
-  struct nodes_of<in_t<L, Args...>>
+  template <typename L, typename Operator, typename R>
+  struct nodes_of<in_expression<L, Operator, std::vector<R>>>
   {
-    using type = type_vector<L, Args...>;
+    using type = detail::type_vector<L, R>;
   };
 
-  template <typename L, typename... Args>
-  constexpr auto in(L l, Args... args)
-      -> std::enable_if_t<((sizeof...(Args) > 0) and ... and values_are_compatible_v<L, Args>), in_t<L, Args...>>
+  template <typename L, typename Operator, typename... Args>
+  struct nodes_of<in_expression<L, Operator, std::tuple<Args...>>>
   {
-    return in_t<L, Args...>{l, std::tuple{args...}};
-  }
+    using type = detail::type_vector<L, Args...>;
+  };
+
+  /*
+
+  template <typename L, typename Operator, typename R>
+  constexpr auto requires_braces_v<in_expression<L, operator, std::vector<R>>> = true;
 
   template <typename L, typename... Args>
-  constexpr auto requires_braces_v<in_t<L, Args...>> = true;
+  constexpr auto requires_braces_v<in_expression<L, std::tuple<Args...>>> = true;
 
-  template <typename Context, typename L, typename... Args>
-  [[nodiscard]] auto to_sql_string(Context& context, const in_t<L, Args...>& t)
+  */
+
+  template <typename Context, typename L, typename Operator, typename... Args>
+  Context& serialize(Context& context, const in_expression<L, Operator, std::tuple<Args...>>& t)
   {
-    if constexpr (sizeof...(Args) == 1)
+    serialize(context, t._l);
+    context << Operator::symbol << "(";
+    if (sizeof...(Args) == 1)
     {
-      return to_sql_string(context, embrace(t.l)) + " IN(" + to_sql_string(context, std::get<0>(t.args)) + ")";
+      serialize(context, std::get<0>(t._r));
     }
     else
     {
-      return to_sql_string(context, embrace(t.l)) + " IN(" + tuple_to_sql_string(context, ", ", t.args) + ")";
+#warning: interpret_tuple arguments should be reverted, too
+      interpret_tuple(t._r, ',', context);
     }
+    context << ')';
+    return context;
   }
-  */
+
+  template <typename Container>
+  struct value_list_t;
+
+  template <typename Context, typename L, typename Operator, typename R>
+  Context& serialize(Context& context, const in_expression<L, Operator, std::vector<R>>& t)
+  {
+    if (t._r.empty())
+    {
+      return serialize(context, false);
+    }
+    serialize(context, t._l);
+    context << Operator::symbol
+            << "(";
+        bool first = true;
+    for (const auto& entry : t._r)
+    {
+      if (first)
+      {
+        first = false;
+      }
+      else
+      {
+        context << ',';
+      }
+
+      serialize(context, entry);
+    }
+    context << ')';
+    return context;
+  }
 
   struct operator_in
   {
-    static constexpr auto symbol = " IN ";
+    static constexpr auto symbol = " IN";
   };
 
 #warning: something.in(select(...)); should be suppported as is, need to test
@@ -127,58 +186,9 @@ namespace sqlpp
 
   struct operator_not_in
   {
-    static constexpr auto symbol = " NOT IN ";
+    static constexpr auto symbol = " NOT IN";
   };
 
-#if 0 // original serialize implementation
-  template <typename Context, typename Operand, typename Arg, typename... Args>
-  Context& serialize(Context& context, const in_t<Operand, Arg, Args...>& t)
-  {
-    serialize(context, t._operand);
-    context << " IN(";
-    if (sizeof...(Args) == 0)
-    {
-      serialize(context, std::get<0>(t._args));
-    }
-    else
-    {
-      interpret_tuple(t._args, ',', context);
-    }
-    context << ')';
-    return context;
-  }
-
-  template <typename Context, typename Operand>
-  Context& serialize(Context& context, const in_t<Operand>&)
-  {
-    serialize(context, boolean_operand{false});
-    return context;
-  }
-
-  template <typename Container>
-  struct value_list_t;
-
-  template <typename Context, typename Operand, typename Container>
-  Context& serialize(Context& context, const in_t<Operand, value_list_t<Container>>& t)
-  {
-    const auto& value_list = std::get<0>(t._args);
-    if (value_list._container.empty())
-    {
-      serialize(context, boolean_operand{false});
-    }
-    else
-    {
-      serialize(context, t._operand);
-      context << " IN(";
-      serialize(context, value_list);
-      context << ')';
-    }
-    return context;
-  }
-
-#endif
-
-#warning: something.not_in(select(...)); should be suppported as is
   template <typename L, typename... Args, typename = check_in_args<L, Args...>>
   constexpr auto not_in(L l, std::tuple<Args...> args) -> in_expression<L, operator_not_in, std::tuple<Args...>>
   {

@@ -35,8 +35,8 @@ int Lower(int, char* [])
   compare(__LINE__, lower(bar.textN), "LOWER(tab_bar.text_n)");
 
   // Expression.
-  // Note that the inner parens aren't necessary.
-  compare(__LINE__, lower(bar.textN + "suffix"), "LOWER((tab_bar.text_n||'suffix'))");
+#warning: Note that the inner parens aren't necessary.
+  compare(__LINE__, lower(bar.textN + "suffix"), "LOWER((tab_bar.text_n || 'suffix'))");
 
   // With sub select.
   compare(__LINE__, lower(select(sqlpp::value("something").as(sqlpp::alias::a))), "LOWER((SELECT 'something' AS a))");

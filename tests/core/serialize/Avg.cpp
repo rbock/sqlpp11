@@ -36,9 +36,9 @@ int Avg(int, char* [])
   compare(__LINE__, avg(sqlpp::distinct, bar.id), "AVG(DISTINCT tab_bar.id)");
 
   // Expression.
-  // Note that the inner parens aren't necessary.
-  compare(__LINE__, avg(bar.id + 7), "AVG((tab_bar.id+7))");
-  compare(__LINE__, avg(sqlpp::distinct, bar.id + 7), "AVG(DISTINCT (tab_bar.id+7))");
+#warning: Note that the inner parens aren't necessary.
+  compare(__LINE__, avg(bar.id + 7), "AVG((tab_bar.id + 7))");
+  compare(__LINE__, avg(sqlpp::distinct, bar.id + 7), "AVG(DISTINCT (tab_bar.id + 7))");
 
   // With sub select.
   compare(__LINE__, avg(select(sqlpp::value(7).as(sqlpp::alias::a))), "AVG((SELECT 7 AS a))");

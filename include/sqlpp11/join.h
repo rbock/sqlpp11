@@ -39,7 +39,7 @@ namespace sqlpp
     using _nodes = detail::type_vector<PreJoin, On>;
     using _can_be_null = std::false_type;
     using _provided_tables = provided_tables_of<PreJoin>;
-    using _required_tables = detail::make_difference_set_t<required_tables_of<On>, _provided_tables>;
+    using _required_tables = detail::make_difference_set_t<required_tables_of_t<On>, _provided_tables>;
 
     template <typename T>
     auto join(T t) const -> decltype(::sqlpp::join(*this, t))

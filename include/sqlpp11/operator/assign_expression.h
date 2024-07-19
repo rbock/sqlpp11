@@ -38,39 +38,46 @@ namespace sqlpp
   template <typename L, typename R>
   struct assign_expression
   {
-    L column;
-    R value;
+    constexpr assign_expression(L l, R r) : _l(std::move(l)), _r(std::move(r)) {}
+    assign_expression(const assign_expression&) = default;
+    assign_expression(assign_expression&&) = default;
+    assign_expression& operator=(const assign_expression&) = default;
+    assign_expression& operator=(assign_expression&&) = default;
+    ~assign_expression() = default;
+
+    L _l;
+    R _r;
   };
 
   template <typename L, typename R>
   using check_assign_args =
-      std::enable_if_t<values_are_comparable<L, R>::value and (can_be_null<L>::value or not is_optional<R>::value)>;
+      std::enable_if_t<values_are_comparable<L, R>::value and (can_be_null<L>::value or not can_be_null<R>::value)>;
 
   template <typename L>
   using check_assign_default_args = std::enable_if_t<has_default<L>::value>;
 
-  template <typename Table, typename ColumnSpec, typename R, typename = check_assign_args<column_t<Table, ColumnSpec>, R>>
-  constexpr auto assign(column_t<Table, ColumnSpec> column, R value) -> assign_expression<column_t<Table, ColumnSpec>, R>
-  {
-    return {std::move(column), std::move(value)};
-  }
-
-  template <typename Table, typename ColumnSpec, typename = check_assign_default_args<column_t<Table, ColumnSpec>>>
-  constexpr auto assign(column_t<Table, ColumnSpec> column, default_value_t value) -> assign_expression<column_t<Table, ColumnSpec>, default_value_t>
-  {
-    return {std::move(column), std::move(value)};
-  }
-
-  /*
   template <typename L, typename R>
-  struct nodes_of<assign_t<L, R>>
+  struct is_assignment<assign_expression<L, R>> : public std::true_type {};
+
+  template <typename L, typename R>
+  struct nodes_of<assign_expression<L, R>>
   {
-    using type = type_vector<L, R>;
+    using type = detail::type_vector<L, R>;
   };
 
   template <typename L, typename R>
-  constexpr auto is_assignment_v<assign_t<L, R>> = true;
+  struct lhs<assign_expression<L, R>>
+  {
+    using type = L;
+  };
 
+  template <typename L, typename R>
+  struct rhs<assign_expression<L, R>>
+  {
+    using type = R;
+  };
+
+  /*
   template <typename L, typename R>
   struct column_of<assign_t<L, R>>
   {
@@ -90,9 +97,22 @@ namespace sqlpp
   template <typename Context, typename L, typename R>
   Context& serialize(Context& context, const assign_expression<L, R>& t)
   {
-    serialize(context, simple_column(t._lhs));
-    context << "=";
-    serialize_operand(context, t._rhs);
+    serialize(context, simple_column(t._l));
+    context << " = ";
+    serialize_operand(context, t._r);
     return context;
   }
+
+  template <typename Table, typename ColumnSpec, typename R, typename = check_assign_args<column_t<Table, ColumnSpec>, R>>
+  constexpr auto assign(column_t<Table, ColumnSpec> column, R value) -> assign_expression<column_t<Table, ColumnSpec>, R>
+  {
+    return {std::move(column), std::move(value)};
+  }
+
+  template <typename Table, typename ColumnSpec, typename = check_assign_default_args<column_t<Table, ColumnSpec>>>
+  constexpr auto assign(column_t<Table, ColumnSpec> column, default_value_t value) -> assign_expression<column_t<Table, ColumnSpec>, default_value_t>
+  {
+    return {std::move(column), std::move(value)};
+  }
+
 }  // namespace sqlpp

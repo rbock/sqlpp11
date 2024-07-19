@@ -23,22 +23,13 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/data_types/floating_point.h>
 #include <sqlpp11/detail/float_safe_ostringstream.h>
-#include <sqlpp11/value.h>
+#include <sqlpp11/sqlpp11.h>
 
 #include "compare.h"
 
 namespace
 {
-  template <typename T>
-  void float_safe_ostringstream_serializes_value_as(int line, T value, std::string expected)
-  {
-    sqlpp::detail::float_safe_ostringstream os;
-    os << value;
-    assert_equal(line, os.str(), expected);
-  }
-
   template <typename T>
   void float_safe_ostringstream_serializes_in_deserializable_format(int line, T value)
   {
@@ -69,15 +60,16 @@ namespace
 
 int Float(int, char*[])
 {
-  float_safe_ostringstream_serializes_value_as(__LINE__, 10.0000086f, string_for_10_0000086<float>());
-  float_safe_ostringstream_serializes_value_as(__LINE__, 10.0000086, string_for_10_0000086<double>());
-  float_safe_ostringstream_serializes_value_as(__LINE__, 10.0000086l, string_for_10_0000086<long double>());
-
+#warning: document that connectors need to use float_safe_ostringstream or similar.
   float_safe_ostringstream_serializes_in_deserializable_format(__LINE__, 10.0000086f);
   float_safe_ostringstream_serializes_in_deserializable_format(__LINE__, 10.0000086);
   float_safe_ostringstream_serializes_in_deserializable_format(__LINE__, 10.0000086l);
 
-  compare(__LINE__, sqlpp::value(10.0000114), "10.0000114");
+  compare(__LINE__, 10.0000114, "10.0000114");
+  compare(__LINE__, 10.0000086f, string_for_10_0000086<float>());
+  compare(__LINE__, 10.0000086, string_for_10_0000086<double>());
+  compare(__LINE__, 10.0000086l, string_for_10_0000086<long double>());
+
 
   return 0;
 }

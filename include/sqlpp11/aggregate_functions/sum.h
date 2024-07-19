@@ -26,20 +26,21 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp11/enable_as.h>
+#include <sqlpp11/enable_over.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/char_sequence.h>
 
 namespace sqlpp
 {
   template <typename Flag, typename Expr>
-  struct sum_t
+  struct sum_t : public enable_as<sum_t<Flag, Expr>>, enable_over<sum_t<Flag, Expr>>
   {
     using _traits = make_traits<value_type_of_t<Expr>, tag::is_expression, tag::is_selectable>;
     using _nodes = detail::type_vector<Expr, aggregate_function>;
     using _can_be_null = std::true_type;
     using _is_aggregate_expression = std::true_type;
 
-    sum_t(Expr expr) : _expr(expr)
+    constexpr sum_t(Expr expr) : _expr(std::move(expr))
     {
     }
 

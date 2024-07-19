@@ -96,10 +96,13 @@ namespace sqlpp
     }
   };
 
+  template <typename Table, typename... ColumnSpec>
+  struct name_tag_of<table_t<Table, ColumnSpec...>>: public name_tag_of<Table> {};
+
   template <typename Context, typename Table, typename... ColumnSpec>
   Context& serialize(Context& context, const table_t<Table, ColumnSpec...>& /*unused*/)
   {
-    context << name_of<Table>::template char_ptr<Context>();
+    context << Table::_alias_t::_name_t::template char_ptr<Context>();
     return context;
   }
 }  // namespace sqlpp

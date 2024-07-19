@@ -35,8 +35,8 @@ int Trim(int, char* [])
   compare(__LINE__, trim(bar.textN), "TRIM(tab_bar.text_n)");
 
   // Expression.
-  // Note that the inner parens aren't necessary.
-  compare(__LINE__, trim(bar.textN + "suffix"), "TRIM((tab_bar.text_n||'suffix'))");
+#warning: Note that the inner parens aren't necessary.
+  compare(__LINE__, trim(bar.textN + "suffix"), "TRIM((tab_bar.text_n || 'suffix'))");
 
   // With sub select.
   compare(__LINE__, trim(select(sqlpp::value("something").as(sqlpp::alias::a))), "TRIM((SELECT 'something' AS a))");

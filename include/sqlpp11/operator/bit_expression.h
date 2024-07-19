@@ -28,15 +28,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <type_traits>
 
+#include <sqlpp11/enable_as.h>
+#include <sqlpp11/noop.h>
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
   template <typename L, typename Operator, typename R>
-  struct bit_expression
+  struct bit_expression : public enable_as<bit_expression<L, Operator, R>>
   {
-    bit_expression() = delete;
-    constexpr bit_expression(L l, R r) : _l(l), _r(r)
+    constexpr bit_expression(L l, R r) : _l(std::move(l)), _r(std::move(r))
     {
     }
     bit_expression(const bit_expression&) = default;
@@ -49,22 +50,6 @@ namespace sqlpp
     R _r;
   };
 
-  template <typename Operator, typename R>
-  struct unary_bit_expression
-  {
-    unary_bit_expression() = delete;
-    explicit constexpr unary_bit_expression(R r) : _r(r)
-    {
-    }
-    unary_bit_expression(const unary_bit_expression&) = default;
-    unary_bit_expression(unary_bit_expression&&) = default;
-    unary_bit_expression& operator=(const unary_bit_expression&) = default;
-    unary_bit_expression& operator=(unary_bit_expression&&) = default;
-    ~unary_bit_expression() = default;
-
-    R _r;
-  };
-
   template <typename L, typename Operator, typename R>
   struct value_type_of<bit_expression<L, Operator, R>>
         : std::conditional<sqlpp::is_optional<value_type_of_t<L>>::value or sqlpp::is_optional<value_type_of_t<R>>::value,
@@ -73,24 +58,16 @@ namespace sqlpp
   {
   };
 
-  template <typename Operator, typename R>
-  struct value_type_of<unary_bit_expression<Operator, R>>
-        : std::conditional<sqlpp::is_optional<value_type_of_t<R>>::value,
-                         force_optional_t<value_type_of_t<R>>,
-                         value_type_of_t<R>>
+  template <typename L, typename Operator, typename R>
+  struct nodes_of<bit_expression<L, Operator, R>>
   {
+    using type = detail::type_vector<L, R>;
   };
 
   template <typename L, typename R>
   using check_bit_expression_args = std::enable_if_t<is_integral<L>::value and (is_integral<R>::value or is_unsigned_integral<R>::value)>;
 
 #if 0
-  template <typename L, typename Operator, typename R>
-  struct nodes_of<binary_t<L, Operator, R>>
-  {
-    using type = type_vector<L, R>;
-  };
-
   template <typename L, typename Operator, typename R>
   struct value_type_of_t<binary_t<L, Operator, R>>
   {
@@ -112,6 +89,17 @@ namespace sqlpp
     return Operator::symbol + to_sql_string(context, embrace(t._r));
   }
 #endif
+
+  template <typename Context, typename L, typename Operator, typename R>
+  auto serialize(Context& context, const bit_expression<L, Operator, R>& t) -> Context&
+  {
+    context << "(";
+    serialize_operand(context, t._l);
+    context << Operator::symbol;
+    serialize_operand(context, t._r);
+    context << ")";
+    return context;
+  }
 
   struct bit_and
   {
@@ -152,7 +140,7 @@ namespace sqlpp
   };
 
   template <typename R, typename = check_bit_expression_args<R, R>>
-  constexpr auto operator~(R r) -> unary_bit_expression<bit_not, R>
+  constexpr auto operator~(R r) -> bit_expression<noop, bit_not, R>
   {
     return {std::move(r)};
   }

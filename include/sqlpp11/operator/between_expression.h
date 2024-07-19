@@ -26,17 +26,25 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <sqlpp11/enable_as.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/logic.h>
 
 namespace sqlpp
 {
   template<typename L, typename R1, typename R2>
-  struct between_expression
+  struct between_expression : public enable_as<between_expression<L, R1, R2>>
   {
-    L l;
-    R1 r1;
-    R2 r2;
+    constexpr between_expression(L l, R1 r1, R2 r2) : _l(std::move(l)), _r1(std::move(r1)), _r2(std::move(r2)) {}
+    between_expression(const between_expression&) = default;
+    between_expression(between_expression&&) = default;
+    between_expression& operator=(const between_expression&) = default;
+    between_expression& operator=(between_expression&&) = default;
+    ~between_expression() = default;
+
+    L _l;
+    R1 _r1;
+    R2 _r2;
   };
 
   template <typename L, typename R1, typename R2>
@@ -52,6 +60,13 @@ namespace sqlpp
                                 boolean>
   {
   };
+
+  template <typename L, typename R1, typename R2>
+  struct nodes_of<between_expression<L, R1, R2>>
+  {
+    using type = detail::type_vector<L, R1, R2>;
+  };
+
 
   /*
 

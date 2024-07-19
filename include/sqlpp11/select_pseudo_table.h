@@ -37,10 +37,10 @@ namespace sqlpp
   template <typename Select, typename NamedExpr>
   struct select_column_spec_t
   {
-    using _alias_t = typename NamedExpr::_alias_t;
+    using _alias_t = name_tag_of_t<NamedExpr>;
 
     static constexpr bool _depends_on_outer_table =
-        detail::make_intersect_set_t<required_tables_of<NamedExpr>, typename Select::_used_outer_tables>::size::value >
+        detail::make_intersect_set_t<required_tables_of_t<NamedExpr>, typename Select::_used_outer_tables>::size::value >
         0;
 
 #warning: somehow prevent insert...

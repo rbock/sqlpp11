@@ -65,8 +65,8 @@ namespace sqlpp
     using type = static_combined_check_t<
         static_check_t<is_pre_join_t<PreJoin>::value, assert_join_consist_of_pre_join_and_on_t>,
         static_check_t<is_on_t<On>::value, assert_join_consist_of_pre_join_and_on_t>,
-        static_check_t<required_tables_of<PreJoin>::size::value == 0, assert_join_no_table_dependencies_t>,
-        static_check_t<detail::is_subset_of<required_tables_of<On>, provided_tables_of<PreJoin>>::value,
+        static_check_t<required_tables_of_t<PreJoin>::size::value == 0, assert_join_no_table_dependencies_t>,
+        static_check_t<detail::is_subset_of<required_tables_of_t<On>, provided_tables_of<PreJoin>>::value,
                        assert_join_on_no_foreign_table_dependencies_t>>;
   };
 
@@ -100,7 +100,7 @@ namespace sqlpp
     static_assert(detail::is_disjunct_from<provided_tables_of<Lhs>, provided_tables_of<Rhs>>::value,
                   "joined tables must not be identical");
 
-    static_assert(required_tables_of<pre_join_t>::size::value == 0, "joined tables must not depend on other tables");
+    static_assert(required_tables_of_t<pre_join_t>::size::value == 0, "joined tables must not depend on other tables");
 
     auto unconditionally() -> join_t<pre_join_t, on_t<unconditional_t>>
     {

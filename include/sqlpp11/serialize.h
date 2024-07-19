@@ -110,7 +110,13 @@ namespace sqlpp
   template <typename Context>
   auto serialize(Context& context, const double& t) -> Context&
   {
-#warning: Analyze precision. There was a bug about this...
+    context << t;
+    return context;
+  }
+
+  template <typename Context>
+  auto serialize(Context& context, const long double& t) -> Context&
+  {
     context << t;
     return context;
   }
@@ -125,26 +131,26 @@ namespace sqlpp
   template <typename Context>
   auto serialize(Context& context, const char* t) -> Context&
   {
-    context << t;
-    return context;
-  }
-
-  template <typename Context>
-  auto serialize(Context& context, const std::string& t) -> Context&
-  {
-    context << t;
+    context << '\'' << context.escape(std::string(t)) << '\'';
     return context;
   }
 
   template <typename Context>
   auto serialize(Context& context, const sqlpp::compat::string_view& t) -> Context&
   {
-    context << t;
+    context << '\'' << context.escape(std::string(t)) << '\'';
     return context;
   }
 
   template <typename Context>
-  Context& serialize(Context& context, const std::vector<uint8_t>& t)
+  auto serialize(Context& context, const std::string& t) -> Context&
+  {
+    context << '\'' << context.escape(t) << '\'';
+    return context;
+  }
+
+  template <typename Context>
+  auto serialize(Context& context, const sqlpp::compat::span<uint8_t>& t) -> Context&
   {
     constexpr char hexChars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
     context << "x'";
@@ -158,7 +164,19 @@ namespace sqlpp
   }
 
   template <typename Context>
-  Context& serialize(Context& context, const ::sqlpp::chrono::day_point& t)
+  auto serialize(Context& context, const std::vector<uint8_t>& t) -> Context&
+  {
+    return serialize(context, sqlpp::compat::span<uint8_t>(t.data(), t.size()));
+  }
+
+  template <typename Context, std::size_t N>
+  auto serialize(Context& context, const std::array<uint8_t, N>& t) -> Context&
+  {
+    return serialize(context, sqlpp::compat::span<uint8_t>(t.data(), t.size()));
+  }
+
+  template <typename Context>
+  auto serialize(Context& context, const ::sqlpp::chrono::day_point& t) -> Context&
   {
     const auto ymd = ::date::year_month_day{t};
     context << "DATE '" << ymd << "'";
@@ -166,14 +184,14 @@ namespace sqlpp
   }
 
   template <typename Context>
-  Context& serialize(Context& context, const std::chrono::microseconds& t)
+  auto serialize(Context& context, const std::chrono::microseconds& t) -> Context&
   {
     context << '\'' << ::date::make_time(t) << '\'';
     return context;
   }
 
   template <typename Period, typename Context>
-  Context& serialize(Context& context, const std::chrono::time_point<std::chrono::system_clock, Period>& t)
+  auto serialize(Context& context, const std::chrono::time_point<std::chrono::system_clock, Period>& t) -> Context&
   {
     const auto dp = ::sqlpp::chrono::floor<::date::days>(t);
     const auto time = ::date::make_time(t - dp);
@@ -182,18 +200,21 @@ namespace sqlpp
     return context;
   }
 
+  template <typename Context>
+  auto serialize(Context& context, const sqlpp::compat::nullopt_t&) -> Context&
+  {
+    context << "NULL";
+    return context;
+  }
+
   template <typename T, typename Context>
   auto serialize(Context& context, const sqlpp::compat::optional<T>& t) -> Context&
   {
     if (not t.has_value())
     {
-      context << "NULL";
+      return serialize(context, sqlpp::compat::nullopt);
     }
-    else
-    {
-      serialize(context, *t);
-    }
-    return context;
+    return serialize(context, *t);
   }
 
   template <typename T, typename Context>

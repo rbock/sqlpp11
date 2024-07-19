@@ -28,8 +28,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <type_traits>
 
-#include <sqlpp11/operator/as_expression.h>
+#include <sqlpp11/enable_as.h>
 #include <sqlpp11/dynamic.h>
+#include <sqlpp11/noop.h>
 //#include <sqlpp11/embrace.h>
 //#include <sqlpp11/to_sql_string.h>
 #include <sqlpp11/type_traits.h>
@@ -37,10 +38,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace sqlpp
 {
   template <typename L, typename Operator, typename R>
-  struct logical_expression
+  struct logical_expression : public enable_as<logical_expression<L, Operator, R>>
   {
     logical_expression() = delete;
-    constexpr logical_expression(L l, R r) : _l(l), _r(r)
+    constexpr logical_expression(L l, R r) : _l(std::move(l)), _r(std::move(r))
     {
     }
     logical_expression(const logical_expression&) = default;
@@ -48,12 +49,6 @@ namespace sqlpp
     logical_expression& operator=(const logical_expression&) = default;
     logical_expression& operator=(logical_expression&&) = default;
     ~logical_expression() = default;
-
-    template <typename alias_provider>
-    as_expression<logical_expression, alias_provider> as(const alias_provider& /*unused*/) const
-    {
-      return {*this};
-    }
 
     L _l;
     R _r;
@@ -70,43 +65,13 @@ namespace sqlpp
   {
   };
 
-  template <typename Operator, typename R>
-  struct unary_logical_expression
+  template <typename L, typename Operator, typename R>
+  struct nodes_of<logical_expression<L, Operator, R>>
   {
-    unary_logical_expression() = delete;
-    constexpr unary_logical_expression(R r) : _r(r)
-    {
-    }
-    unary_logical_expression(const unary_logical_expression&) = default;
-    unary_logical_expression(unary_logical_expression&&) = default;
-    unary_logical_expression& operator=(const unary_logical_expression&) = default;
-    unary_logical_expression& operator=(unary_logical_expression&&) = default;
-    ~unary_logical_expression() = default;
-
-    template <typename alias_provider>
-    as_expression<unary_logical_expression, alias_provider> as(const alias_provider& /*unused*/) const
-    {
-      return {*this};
-    }
-
-    R _r;
-  };
-
-  template <typename Operator, typename R>
-  struct value_type_of<unary_logical_expression<Operator, R>>
-      : std::conditional<sqlpp::is_optional<value_type_of_t<R>>::value,
-                         sqlpp::compat::optional<boolean>,
-                         boolean>
-  {
+    using type = detail::type_vector<L, R>;
   };
 
   /*
-  template <typename L, typename Operator, typename R>
-  struct nodes_of<logical_binary_expression<L, Operator, R>>
-  {
-    using type = type_vector<L, R>;
-  };
-
   template <typename L, typename Operator, typename R>
   struct value_type_of_t<logical_binary_expression<L, Operator, R>>
   {
@@ -148,7 +113,7 @@ namespace sqlpp
   template <typename Context, typename L, typename Operator, typename R>
   auto serialize(Context& context, const logical_expression<L, Operator, R>& t) -> Context&
   {
-    serialize_impl(context, t);
+    return serialize_impl(context, t);
   }
 
   template <typename Context, typename L, typename Operator, typename R>
@@ -160,8 +125,7 @@ namespace sqlpp
     }
 
     // If the dynamic part is inactive ignore it.
-    serialize(context, t._l);
-    return context;
+    return serialize(context, t._l);
   }
 
   struct logical_and
@@ -193,9 +157,9 @@ namespace sqlpp
   };
 
   template <typename R, typename = check_logical_args<R, R>>
-  constexpr auto operator!(R r) -> unary_logical_expression<logical_not, R>
+  constexpr auto operator!(R r) -> logical_expression<noop, logical_not, R>
   {
-    return {std::move(r)};
+    return {{}, std::move(r)};
   }
 
 }  // namespace sqlpp

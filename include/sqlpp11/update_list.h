@@ -91,11 +91,11 @@ namespace sqlpp
 
   template <typename... Assignments>
   using check_update_set_t = static_combined_check_t<
-      static_check_t<logic::all_t<detail::is_assignment_impl<Assignments>::type::value...>::value,
+      static_check_t<logic::all_t<is_assignment<Assignments>::value...>::value,
                      assert_update_set_assignments_t>,
       static_check_t<not detail::has_duplicates<typename lhs<Assignments>::type...>::value,
                      assert_update_set_no_duplicates_t>,
-      static_check_t<sizeof...(Assignments) == 0 or detail::make_joined_set_t<required_tables_of<
+      static_check_t<sizeof...(Assignments) == 0 or detail::make_joined_set_t<required_tables_of_t<
                                                         typename lhs<Assignments>::type>...>::size::value == 1,
                      assert_update_set_single_table_t>>;
 

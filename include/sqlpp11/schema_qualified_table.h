@@ -73,7 +73,7 @@ namespace sqlpp
   template <typename Table>
   auto schema_qualified_table(schema_t schema, Table table) -> schema_qualified_table_t<Table>
   {
-    static_assert(required_tables_of<Table>::size::value == 0,
+    static_assert(required_tables_of_t<Table>::size::value == 0,
                   "schema qualified tables must not depend on other tables");
     static_assert(required_ctes_of<Table>::size::value == 0,
                   "schema qualified tables must not depend on common table expressions");

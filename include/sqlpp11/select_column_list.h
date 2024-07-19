@@ -28,7 +28,6 @@
 
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/dynamic.h>
-#include <sqlpp11/expression_fwd.h>
 #include <sqlpp11/field_spec.h>
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/policy_update.h>
@@ -41,13 +40,31 @@ namespace sqlpp
 {
   namespace detail
   {
+    template<typename T>
+    auto tupelize(T t) -> std::tuple<T>
+    {
+      return std::make_tuple(std::move(t));
+    }
+
+    template<typename... Args>
+    auto tupelize(std::tuple<Args...> t) -> std::tuple<Args...>
+    {
+      return t;
+    }
+
+    template<typename... Args>
+    struct flat_tuple
+    {
+      using type = decltype(std::tuple_cat(tupelize(std::declval<Args>())...));
+    };
+
+    template<typename... Args>
+    using flat_tuple_t = typename flat_tuple<Args...>::type;
+
     template <typename... Columns>
     struct select_traits
     {
       using _traits = make_traits<no_value_t, tag::is_select_column_list, tag::is_return_value>;
-      struct _alias_t
-      {
-      };
     };
 
     template <typename Column>
@@ -58,7 +75,6 @@ namespace sqlpp
                                   tag::is_return_value,
                                   tag::is_expression,
                                   tag::is_selectable>;
-      using _alias_t = typename remove_optional_t<Column>::_alias_t;
     };
   }  // namespace detail
 
@@ -77,8 +93,6 @@ namespace sqlpp
   {
     using _traits = typename detail::select_traits<Columns...>::_traits;
     using _nodes = detail::type_vector<Columns...>;
-
-    using _alias_t = typename detail::select_traits<Columns...>::_alias_t;
 
     using _data_t = std::tuple<Columns...>;
 
@@ -197,20 +211,36 @@ namespace sqlpp
       }
     };
   };
-
   template <typename Column>
     struct value_type_of<select_column_list_t<Column>> : public value_type_of<Column> {};
 
+    template<typename Column>
+      struct name_tag_of<select_column_list_t<Column>> :public name_tag_of<Column>{};
+
+
   SQLPP_PORTABLE_STATIC_ASSERT(assert_selected_colums_are_selectable_t, "selected columns must be selectable");
+
+  template <typename T>
+  struct check_selected_columns;
   template <typename... T>
-  struct check_selected_columns
+  struct check_selected_columns<std::tuple<T...>>
   {
     using type =
-        static_combined_check_t<static_check_t<logic::all_t<is_selectable_t<T>::value...>::value,
+        static_combined_check_t<static_check_t<logic::all_t<is_selectable_t<remove_dynamic_t<T>>::value...>::value,
                                                assert_selected_colums_are_selectable_t>>;
   };
+  template <typename T>
+  using check_selected_columns_t = typename check_selected_columns<T>::type;
+
+  template <typename T>
+  struct make_select_column_list;
   template <typename... T>
-  using check_selected_columns_t = typename check_selected_columns<T...>::type;
+  struct make_select_column_list<std::tuple<T...>>
+  {
+    using type = select_column_list_t<T...>;
+  };
+  template <typename T>
+  using make_select_column_list_t = typename make_select_column_list<T>::type;
 
   struct no_select_column_list_t
   {
@@ -240,16 +270,15 @@ namespace sqlpp
       using _consistency_check = consistent_t;
 
       template <typename... Args>
-      auto columns(Args... args) const
-          -> _new_statement_t<check_selected_columns_t<remove_dynamic_t<Args>...>,
-                              select_column_list_t<Args...>>
+      auto columns(Args... args) const -> _new_statement_t<check_selected_columns_t<detail::flat_tuple_t<Args...>>,
+                                                           make_select_column_list_t<detail::flat_tuple_t<Args...>>>
       {
         static_assert(sizeof...(Args), "at least one selectable expression (e.g. a column) required in columns()");
-        using check = check_selected_columns_t<remove_dynamic_t<Args>...>;
+        using check = check_selected_columns_t<detail::flat_tuple_t<Args...>>;
         static_assert(check::value,
                       "at least one argument is not a selectable expression in columns()");
 
-        return _columns_impl(check{}, std::make_tuple(std::move(args)...));
+        return _columns_impl(check{}, std::tuple_cat(detail::tupelize(std::move(args))...));
       }
 
     private:

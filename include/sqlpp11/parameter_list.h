@@ -27,9 +27,11 @@
  */
 
 #include <tuple>
+
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/wrong.h>
 #include <sqlpp11/detail/index_sequence.h>
+#include <sqlpp11/detail/type_vector.h>
 
 namespace sqlpp
 {

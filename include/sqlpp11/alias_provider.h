@@ -27,16 +27,10 @@
  */
 
 #include <sqlpp11/char_sequence.h>
-
-namespace sqlpp
-{
-  struct name_tag
-  {
-  };
-}
+#include <sqlpp11/type_traits.h>
 
 #define SQLPP_ALIAS_PROVIDER(name)                                           \
-  struct name##_t : public sqlpp::name_tag                                   \
+  struct name##_t : public ::sqlpp::name_tag_base                            \
   {                                                                          \
     struct _alias_t                                                          \
     {                                                                        \
@@ -60,7 +54,7 @@ namespace sqlpp
   constexpr name##_t name = {};
 
 #define SQLPP_QUOTED_ALIAS_PROVIDER(name)                                    \
-  struct name##_t : public sqlpp::name_tag                                   \
+  struct name##_t : public ::sqlpp::name_tag_base                            \
   {                                                                          \
     struct _alias_t                                                          \
     {                                                                        \

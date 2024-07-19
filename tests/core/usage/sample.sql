@@ -33,7 +33,8 @@ CREATE TABLE tab_foo
 	int_n bigint,
 	double_n double,
 	u_int_n bigint UNSIGNED,
-	blob_n BLOB
+	blob_n BLOB,
+        bool_n bool
 );
 
 DROP TABLE IF EXISTS tab_bar;

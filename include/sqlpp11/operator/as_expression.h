@@ -28,7 +28,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <type_traits>
 
-#include <sqlpp11/operator/as_expression.h>
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp
@@ -37,7 +36,6 @@ namespace sqlpp
   struct as_expression
   {
     using _traits = make_traits<value_type_of_t<Expression>, tag::is_selectable, tag::is_alias>;
-    using _nodes = detail::type_vector<Expression>;
 
 #warning Maybe make constructor of expressions private to force construction in the respective functions?
     /*
@@ -45,12 +43,9 @@ namespace sqlpp
     static_assert(not is_alias_t<Expression>::value, "cannot create an alias of an alias");
     */
 
-    using _alias_t = typename AliasProvider::_alias_t;
-
-    as_expression(Expression expression) : _expression(expression)
+    constexpr as_expression(Expression expression) : _expression(std::move(expression))
     {
     }
-
     as_expression(const as_expression&) = default;
     as_expression(as_expression&&) = default;
     as_expression& operator=(const as_expression&) = default;
@@ -67,6 +62,18 @@ namespace sqlpp
   };
 
   template <typename Expression, typename AliasProvider>
+  struct name_tag_of<as_expression<Expression, AliasProvider>>
+  {
+    using type = name_tag_of_t<AliasProvider>;
+  };
+
+  template <typename Expression, typename AliasProvider>
+  struct nodes_of<as_expression<Expression, AliasProvider>>
+  {
+    using type = detail::type_vector<Expression>;
+  };
+
+  template <typename Expression, typename AliasProvider>
   struct has_name<as_expression<Expression, AliasProvider>> : std::true_type
   {
   };
@@ -76,7 +83,7 @@ namespace sqlpp
   {
     serialize_operand(context, t._expression);
     context << " AS ";
-    context << name_of<as_expression<Expression, AliasProvider>>::template char_ptr<Context>();
+    context << name_tag_of_t<as_expression<Expression, AliasProvider>>::_name_t::template char_ptr<Context>();
     return context;
   }
   template <typename Expr, typename AliasProvider>

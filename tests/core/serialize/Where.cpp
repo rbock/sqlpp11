@@ -34,13 +34,13 @@ namespace
   auto getTrue() -> std::string
   {
     MockDb::_serializer_context_t printer = {};
-    return serialize(sqlpp::value(true), printer).str();
+    return serialize(printer, sqlpp::value(true)).str();
   }
 
   auto getFalse() -> std::string
   {
     MockDb::_serializer_context_t printer = {};
-    return serialize(sqlpp::value(false), printer).str();
+    return serialize(printer, sqlpp::value(false)).str();
   }
 }  // namespace
 
@@ -52,9 +52,21 @@ int Where(int, char*[])
   // Unconditionally
   compare(__LINE__, select(foo.doubleN).from(foo).unconditionally(), "SELECT tab_foo.double_n FROM tab_foo");
   compare(__LINE__, remove_from(foo).unconditionally(), "DELETE FROM tab_foo");
-  compare(__LINE__, update(foo).set(foo.doubleN = 42).unconditionally(), "UPDATE tab_foo SET double_n=42");
+  compare(__LINE__, update(foo).set(foo.doubleN = 42).unconditionally(), "UPDATE tab_foo SET double_n = 42");
+  static_assert(
+      sqlpp::is_numeric<decltype(foo.doubleN)>::value,
+      "");
+  static_assert(
+      sqlpp::is_numeric<decltype(foo.doubleN - 1)>::value,
+      "");
+  static_assert(
+      sqlpp::values_are_comparable<decltype(foo.doubleN), decltype(foo.doubleN - -1)>::value,
+      "");
+  static_assert(
+      sqlpp::values_are_comparable<decltype(foo.doubleN), decltype(-1)>::value,
+      "");
   compare(__LINE__, update(foo).set(foo.doubleN = foo.doubleN - -1).unconditionally(),
-          "UPDATE tab_foo SET double_n=(tab_foo.double_n - -1)");
+          "UPDATE tab_foo SET double_n = (tab_foo.double_n - -1)");
   compare(__LINE__, where(sqlpp::value(true)), " WHERE " + getTrue());
 
   // Never
@@ -62,18 +74,23 @@ int Where(int, char*[])
 
   // Sometimes
   compare(__LINE__, where(bar.boolNn), " WHERE tab_bar.bool_nn");
-  compare(__LINE__, where(bar.boolNn == false), " WHERE (tab_bar.bool_nn=" + getFalse() + ")");
-  compare(__LINE__, where(bar.textN.is_null()), " WHERE tab_bar.text_n IS NULL");
-  compare(__LINE__, where(bar.textN == "SQL"), " WHERE (tab_bar.text_n='SQL')");
-  compare(__LINE__, where(is_equal_to_or_null(bar.textN, ::sqlpp::value_or_null("SQL"))), " WHERE (tab_bar.text_n='SQL')");
-  compare(__LINE__, where(is_equal_to_or_null(bar.textN, ::sqlpp::value_or_null<sqlpp::text>(::sqlpp::null))),
-          " WHERE tab_bar.text_n IS NULL");
+  compare(__LINE__, where(bar.boolNn == false), " WHERE (tab_bar.bool_nn = " + getFalse() + ")");
+  compare(__LINE__, where(bar.textN.is_null()), " WHERE (tab_bar.text_n IS NULL)");
+  compare(__LINE__, where(bar.textN == "SQL"), " WHERE (tab_bar.text_n = 'SQL')");
+  compare(__LINE__, where(is_not_distinct_from(bar.textN, sqlpp::compat::make_optional("SQL"))),
+          " WHERE (tab_bar.text_n IS NOT DISTINCT FROM 'SQL')");
+  compare(__LINE__, where(is_not_distinct_from(bar.textN, sqlpp::compat::nullopt)),
+          " WHERE (tab_bar.text_n IS NOT DISTINCT FROM NULL)");
+  compare(__LINE__, where(bar.textN.is_not_distinct_from(sqlpp::compat::make_optional("SQL"))),
+          " WHERE (tab_bar.text_n IS NOT DISTINCT FROM 'SQL')");
+  compare(__LINE__, where(bar.textN.is_not_distinct_from(sqlpp::compat::nullopt)),
+          " WHERE (tab_bar.text_n IS NOT DISTINCT FROM NULL)");
 
   // string argument
-  compare(__LINE__, where(bar.textN == std::string("SQL")), " WHERE (tab_bar.text_n='SQL')");
+  compare(__LINE__, where(bar.textN == std::string("SQL")), " WHERE (tab_bar.text_n = 'SQL')");
 
   // string_view argument
-  compare(__LINE__, where(bar.textN == sqlpp::compat::string_view("SQL")), " WHERE (tab_bar.text_n='SQL')");
+  compare(__LINE__, where(bar.textN == sqlpp::compat::string_view("SQL")), " WHERE (tab_bar.text_n = 'SQL')");
 
   return 0;
 }

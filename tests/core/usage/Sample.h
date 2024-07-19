@@ -10,7 +10,7 @@ namespace test
 {
   namespace TabFoo_
   {
-    struct Id
+    struct Id : public ::sqlpp::name_tag_base
     {
       struct _alias_t
       {
@@ -27,7 +27,7 @@ namespace test
       using value_type = ::sqlpp::integral;
       using has_default = std::true_type;
     };
-    struct TextNnD
+    struct TextNnD : public ::sqlpp::name_tag_base
     {
       struct _alias_t
       {
@@ -44,7 +44,7 @@ namespace test
       using value_type = ::sqlpp::text;
       using has_default = std::true_type;
     };
-    struct IntN
+    struct IntN : public ::sqlpp::name_tag_base
     {
       struct _alias_t
       {
@@ -61,7 +61,7 @@ namespace test
       using value_type = ::sqlpp::compat::optional<::sqlpp::integral>;
       using has_default = std::true_type;
     };
-    struct DoubleN
+    struct DoubleN : public ::sqlpp::name_tag_base
     {
       struct _alias_t
       {
@@ -78,7 +78,7 @@ namespace test
       using value_type = ::sqlpp::compat::optional<::sqlpp::floating_point>;
       using has_default = std::true_type;
     };
-    struct UIntN
+    struct UIntN : public ::sqlpp::name_tag_base
     {
       struct _alias_t
       {
@@ -95,7 +95,7 @@ namespace test
       using value_type = ::sqlpp::compat::optional<::sqlpp::integral>;
       using has_default = std::true_type;
     };
-    struct BlobN
+    struct BlobN : public ::sqlpp::name_tag_base
     {
       struct _alias_t
       {
@@ -112,15 +112,33 @@ namespace test
       using value_type = ::sqlpp::compat::optional<::sqlpp::blob>;
       using has_default = std::true_type;
     };
+    struct BoolN : public ::sqlpp::name_tag_base
+    {
+      struct _alias_t
+      {
+        static constexpr const char _literal[] =  "bool_n";
+        using _name_t = ::sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+        template<typename T>
+        struct _member_t
+          {
+            T boolN;
+            T& operator()() { return boolN; }
+            const T& operator()() const { return boolN; }
+          };
+      };
+      using value_type = ::sqlpp::compat::optional<::sqlpp::boolean>;
+      using has_default = std::true_type;
+    };
   } // namespace TabFoo_
 
-  struct TabFoo: ::sqlpp::table_t<TabFoo,
+  struct TabFoo : public ::sqlpp::name_tag_base, public ::sqlpp::table_t<TabFoo,
                TabFoo_::Id,
                TabFoo_::TextNnD,
                TabFoo_::IntN,
                TabFoo_::DoubleN,
                TabFoo_::UIntN,
-               TabFoo_::BlobN>
+               TabFoo_::BlobN,
+               TabFoo_::BoolN>
   {
     struct _alias_t
     {
@@ -137,7 +155,7 @@ namespace test
   };
   namespace TabBar_
   {
-    struct Id
+    struct Id : public ::sqlpp::name_tag_base
     {
       struct _alias_t
       {
@@ -154,7 +172,7 @@ namespace test
       using value_type = ::sqlpp::integral;
       using has_default = std::true_type;
     };
-    struct TextN
+    struct TextN : public ::sqlpp::name_tag_base
     {
       struct _alias_t
       {
@@ -171,7 +189,7 @@ namespace test
       using value_type = ::sqlpp::compat::optional<::sqlpp::text>;
       using has_default = std::true_type;
     };
-    struct BoolNn
+    struct BoolNn : public ::sqlpp::name_tag_base
     {
       struct _alias_t
       {
@@ -188,7 +206,7 @@ namespace test
       using value_type = ::sqlpp::boolean;
       using has_default = std::false_type;
     };
-    struct IntN
+    struct IntN : public ::sqlpp::name_tag_base
     {
       struct _alias_t
       {
@@ -207,7 +225,7 @@ namespace test
     };
   } // namespace TabBar_
 
-  struct TabBar: ::sqlpp::table_t<TabBar,
+  struct TabBar : public ::sqlpp::name_tag_base, public ::sqlpp::table_t<TabBar,
                TabBar_::Id,
                TabBar_::TextN,
                TabBar_::BoolNn,
@@ -228,7 +246,7 @@ namespace test
   };
   namespace TabDateTime_
   {
-    struct Id
+    struct Id : public ::sqlpp::name_tag_base
     {
       struct _alias_t
       {
@@ -245,7 +263,7 @@ namespace test
       using value_type = ::sqlpp::integral;
       using has_default = std::true_type;
     };
-    struct DayPointN
+    struct DayPointN : public ::sqlpp::name_tag_base
     {
       struct _alias_t
       {
@@ -262,7 +280,7 @@ namespace test
       using value_type = ::sqlpp::compat::optional<::sqlpp::day_point>;
       using has_default = std::true_type;
     };
-    struct TimePointN
+    struct TimePointN : public ::sqlpp::name_tag_base
     {
       struct _alias_t
       {
@@ -279,7 +297,7 @@ namespace test
       using value_type = ::sqlpp::compat::optional<::sqlpp::time_point>;
       using has_default = std::true_type;
     };
-    struct TimeOfDayN
+    struct TimeOfDayN : public ::sqlpp::name_tag_base
     {
       struct _alias_t
       {
@@ -298,7 +316,7 @@ namespace test
     };
   } // namespace TabDateTime_
 
-  struct TabDateTime: ::sqlpp::table_t<TabDateTime,
+  struct TabDateTime : public ::sqlpp::name_tag_base, public ::sqlpp::table_t<TabDateTime,
                TabDateTime_::Id,
                TabDateTime_::DayPointN,
                TabDateTime_::TimePointN,

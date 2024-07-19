@@ -1,7 +1,7 @@
 #pragma once
 
 /*
-Copyright (c) 2017 - 2018, Roland Bock
+Copyright (c) 2024, Roland Bock
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -26,56 +26,25 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <type_traits>
-
+#include <sqlpp11/over.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/enable_as.h>
 
 namespace sqlpp
 {
-  template <typename Select>
-  struct exists_expression : public enable_as<exists_expression<Select>>
+  // To be used as CRTP base for aggregate expressions that should offer the over() member function.
+  template <typename Expr>
+  class enable_over
   {
-    constexpr exists_expression(Select s) : _select(std::move(s))
+    constexpr auto derived() const -> const Expr&
     {
+      return static_cast<const Expr&>(*this);
     }
-    exists_expression(const exists_expression&) = default;
-    exists_expression(exists_expression&&) = default;
-    exists_expression& operator=(const exists_expression&) = default;
-    exists_expression& operator=(exists_expression&&) = default;
-    ~exists_expression() = default;
 
-    Select _select;
+  public:
+    constexpr auto over() const
+    {
+      return ::sqlpp::over(this->derived());
+    }
   };
-
-  template <typename Select>
-  using check_exists_arg = std::enable_if_t<is_statement_t<Select>::value and has_result_row_t<Select>::value>;
-
-  template <typename Select>
-  struct value_type_of<exists_expression<Select>>
-  {
-    using type = boolean;
-  };
-
-  template <typename Select>
-  struct nodes_of<exists_expression<Select>>
-  {
-    using type = detail::type_vector<Select>;
-  };
-
-  template <typename Context, typename Select>
-  auto serialize(Context& context, const exists_expression<Select>& t) -> Context&
-  {
-    context << "EXISTS(";
-    serialize(context, t._select);
-    context << ")";
-    return context;
-  }
-
-  template <typename Select, typename = check_exists_arg<Select>>
-  constexpr auto exists(Select s) -> exists_expression<Select>
-  {
-    return exists_expression<Select>{std::move(s)};
-  }
 
 }  // namespace sqlpp

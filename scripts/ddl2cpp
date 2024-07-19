@@ -703,7 +703,7 @@ def createHeader():
                 )
                 print("You can disable this warning using -no-timestamp-warning")
                 noTimestampWarning = True
-            print("    struct " + columnClass, file=header)
+            print("    struct " + columnClass + " : public ::sqlpp::name_tag_base", file=header)
             print("    {", file=header)
             print("      struct _alias_t", file=header)
             print("      {", file=header)
@@ -752,8 +752,8 @@ def createHeader():
 
         print(
             "  struct "
-            + tableClass
-            + ": ::sqlpp::table_t<"
+            + tableClass + " : public ::sqlpp::name_tag_base"
+            + ", public ::sqlpp::table_t<"
             + tableTemplateParameters
             + ">",
             file=header,

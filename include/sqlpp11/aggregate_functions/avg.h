@@ -26,19 +26,20 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp11/enable_as.h>
+#include <sqlpp11/enable_over.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/char_sequence.h>
 
 namespace sqlpp
 {
   template <typename Flag, typename Expr>
-  struct avg_t
+  struct avg_t : public enable_as<avg_t<Flag, Expr>>, public enable_over<avg_t<Flag, Expr>>
   {
     using _nodes = detail::type_vector<Expr, aggregate_function>;
     using _can_be_null = std::true_type;
     using _is_aggregate_expression = std::true_type;
 
-    avg_t(Expr expr) : _expr(expr)
+    constexpr avg_t(Expr expr) : _expr(std::move(expr))
     {
     }
 

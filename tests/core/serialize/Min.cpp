@@ -37,8 +37,8 @@ int Min(int, char* [])
 
   // Expression.
   // Note that the inner parens aren't necessary.
-  compare(__LINE__, min(bar.id + 7), "MIN((tab_bar.id+7))");
-  compare(__LINE__, min(sqlpp::distinct, bar.id + 7), "MIN(DISTINCT (tab_bar.id+7))");
+  compare(__LINE__, min(bar.id + 7), "MIN((tab_bar.id + 7))");
+  compare(__LINE__, min(sqlpp::distinct, bar.id + 7), "MIN(DISTINCT (tab_bar.id + 7))");
 
   // With sub select.
   compare(__LINE__, min(select(sqlpp::value(7).as(sqlpp::alias::a))), "MIN((SELECT 7 AS a))");

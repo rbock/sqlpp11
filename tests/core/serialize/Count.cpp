@@ -36,9 +36,9 @@ int Count(int, char* [])
   compare(__LINE__, count(sqlpp::distinct, bar.id), "COUNT(DISTINCT tab_bar.id)");
 
   // Expression.
-  // Note that the inner parens aren't necessary.
-  compare(__LINE__, count(bar.id + 7), "COUNT((tab_bar.id+7))");
-  compare(__LINE__, count(sqlpp::distinct, bar.id + 7), "COUNT(DISTINCT (tab_bar.id+7))");
+#warning: Note that the inner parens aren't necessary.
+  compare(__LINE__, count(bar.id + 7), "COUNT((tab_bar.id + 7))");
+  compare(__LINE__, count(sqlpp::distinct, bar.id + 7), "COUNT(DISTINCT (tab_bar.id + 7))");
 
   // With sub select.
   compare(__LINE__, count(select(sqlpp::value(7).as(sqlpp::alias::a))), "COUNT((SELECT 7 AS a))");

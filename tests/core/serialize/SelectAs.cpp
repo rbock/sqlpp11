@@ -29,6 +29,7 @@
 
 #include <iostream>
 
+SQLPP_ALIAS_PROVIDER(id_count)
 SQLPP_ALIAS_PROVIDER(cheese)
 
 int SelectAs(int, char*[])
@@ -37,7 +38,8 @@ int SelectAs(int, char*[])
   const auto bar = test::TabBar{};
 
   // SELECT...AS as selectable column
-  compare(__LINE__, select(foo.doubleN, select(count(bar.id)).from(bar).unconditionally().as(cheese)), "SELECT tab_foo.double_n,(SELECT COUNT(tab_bar.id) AS count_ FROM tab_bar) AS cheese");
+  compare(__LINE__, select(foo.doubleN, select(count(bar.id).as(id_count)).from(bar).unconditionally().as(cheese)),
+          "SELECT tab_foo.double_n,(SELECT COUNT(tab_bar.id) AS id_count FROM tab_bar) AS cheese");
 
   return 0;
 }

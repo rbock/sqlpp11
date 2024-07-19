@@ -46,6 +46,7 @@ namespace
   {
     MockDb::_serializer_context_t printer = {};
 
+    using sqlpp::serialize;
     const auto result = serialize(printer, expr).str();
 
     assert_equal(lineNo, result, expected);

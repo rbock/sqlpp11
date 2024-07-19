@@ -216,11 +216,14 @@ namespace sqlpp
     Statement _statement;
   };
 
+  template<typename AliasProvider, typename Statement, typename... ColumnSpecs>
+    struct name_tag_of<cte_t<AliasProvider, Statement, ColumnSpecs...>> : public name_tag_of<AliasProvider>{};
+
   template <typename Context, typename AliasProvider, typename Statement, typename... ColumnSpecs>
   Context& serialize(Context& context, const cte_t<AliasProvider, Statement, ColumnSpecs...>& t)
   {
     using T = cte_t<AliasProvider, Statement, ColumnSpecs...>;
-    context << name_of<T>::template char_ptr<Context>() << " AS (";
+    context << name_tag_of_t<T>::template char_ptr<Context>() << " AS (";
     serialize(context, t._statement);
     context << ")";
     return context;
@@ -242,7 +245,7 @@ namespace sqlpp
     template <typename Statement>
     auto as(Statement statement) -> make_cte_t<AliasProvider, Statement>
     {
-      static_assert(required_tables_of<Statement>::size::value == 0,
+      static_assert(required_tables_of_t<Statement>::size::value == 0,
                     "common table expression must not use unknown tables");
       static_assert(not required_ctes_of<Statement>::template count<AliasProvider>(),
                     "common table expression must not self-reference in the first part, use union_all/union_distinct "
@@ -252,10 +255,13 @@ namespace sqlpp
     }
   };
 
+  template<typename AliasProvider>
+    struct name_tag_of<cte_ref_t<AliasProvider>> : public name_tag_of<AliasProvider>{};
+
   template <typename Context, typename AliasProvider>
   Context& serialize(Context& context, const cte_ref_t<AliasProvider>&)
   {
-    context << name_of<cte_ref_t<AliasProvider>>::template char_ptr<Context>();
+    context << name_tag_of_t<cte_ref_t<AliasProvider>>::template char_ptr<Context>();
     return context;
   }
 

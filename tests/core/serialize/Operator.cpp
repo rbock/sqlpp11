@@ -35,24 +35,24 @@ int Operator(int, char* [])
   const auto bar = test::TabBar{};
 
   // Plus
-  compare(__LINE__, bar.id + 3u, "(tab_bar.id+3)");
-  compare(__LINE__, sqlpp::value(3) + foo.uIntN, "(3+tab_foo.u_int_n)");
+  compare(__LINE__, bar.id + 3u, "(tab_bar.id + 3)");
+  compare(__LINE__, sqlpp::value(3) + foo.uIntN, "(3 + tab_foo.u_int_n)");
 
   // Shift left
-  compare(__LINE__, sqlpp::value(3) << foo.uIntN, "(3<<tab_foo.u_int_n)");
-  compare(__LINE__, bar.id << 3u, "(tab_bar.id<<3)");
+  compare(__LINE__, sqlpp::value(3) << foo.uIntN, "(3 << tab_foo.u_int_n)");
+  compare(__LINE__, bar.id << 3u, "(tab_bar.id << 3)");
 
   // Shift right
-  compare(__LINE__, sqlpp::value(3) >> foo.uIntN, "(3>>tab_foo.u_int_n)");
-  compare(__LINE__, bar.id >> 3u, "(tab_bar.id>>3)");
+  compare(__LINE__, sqlpp::value(3) >> foo.uIntN, "(3 >> tab_foo.u_int_n)");
+  compare(__LINE__, bar.id >> 3u, "(tab_bar.id >> 3)");
 
   // Comparison
-  compare(__LINE__, bar.id < 3u, "(tab_bar.id<3)");
-  compare(__LINE__, bar.id <= 3u, "(tab_bar.id<=3)");
-  compare(__LINE__, bar.id == 3u, "(tab_bar.id=3)");
-  compare(__LINE__, bar.id != 3u, "(tab_bar.id<>3)");
-  compare(__LINE__, bar.id >= 3u, "(tab_bar.id>=3)");
-  compare(__LINE__, bar.id > 3u, "(tab_bar.id>3)");
+  compare(__LINE__, bar.id < 3u, "(tab_bar.id < 3)");
+  compare(__LINE__, bar.id <= 3u, "(tab_bar.id <= 3)");
+  compare(__LINE__, bar.id == 3u, "(tab_bar.id = 3)");
+  compare(__LINE__, bar.id != 3u, "(tab_bar.id <> 3)");
+  compare(__LINE__, bar.id >= 3u, "(tab_bar.id >= 3)");
+  compare(__LINE__, bar.id > 3u, "(tab_bar.id > 3)");
 
   return 0;
 }

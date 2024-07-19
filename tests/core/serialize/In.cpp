@@ -34,7 +34,7 @@ namespace
   auto getFalse() -> std::string
   {
     MockDb::_serializer_context_t printer = {};
-    return serialize(sqlpp::value(false), printer).str();
+    return serialize(printer, sqlpp::value(false)).str();
   }
 }
 
@@ -49,16 +49,15 @@ int In(int, char* [])
   compare(__LINE__, foo.doubleN.in(17, bar.id, sqlpp::value(19)), "tab_foo.double_n IN(17,tab_bar.id,19)");
 
   // Lists
-  compare(__LINE__, foo.doubleN.in(sqlpp::value_list(std::vector<float>{1.75f, 2.5f, 17.f, 0.f})),
+  compare(__LINE__, foo.doubleN.in(std::vector<float>{1.75f, 2.5f, 17.f, 0.f}),
           "tab_foo.double_n IN(1.75,2.5,17,0)");
 
   // Sub select
   compare(__LINE__, foo.doubleN.in(select(bar.id).from(bar).unconditionally()),
           "tab_foo.double_n IN(SELECT tab_bar.id FROM tab_bar)");
 
-  // Empty lists (not normally covered by SQL)
-  compare(__LINE__, foo.doubleN.in(), getFalse());
-  compare(__LINE__, foo.doubleN.in(sqlpp::value_list(std::vector<int>{})), getFalse());
+  // Empty list (not normally allowed by SQL)
+  compare(__LINE__, foo.doubleN.in(std::vector<int>{}), getFalse());
 
   return 0;
 }

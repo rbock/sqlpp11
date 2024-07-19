@@ -27,6 +27,7 @@
  */
 
 #include <sqlpp11/enable_as.h>
+#include <sqlpp11/enable_comparison.h>
 #include <sqlpp11/operator/as_expression.h>
 #include <sqlpp11/operator/assign_expression.h>
 #include <sqlpp11/column_fwd.h>
@@ -40,7 +41,8 @@ namespace sqlpp
 {
 #warning: need to reactivate column operators?
   template <typename Table, typename ColumnSpec>
-  struct column_t : public enable_as<column_t<Table, ColumnSpec>>
+  struct column_t : public enable_as<column_t<Table, ColumnSpec>>,
+  public enable_comparison<column_t<Table, ColumnSpec>>
                     // : public expression_operators<column_t<Table, ColumnSpec>, typename ColumnSpec::value_type>,
                  //   public column_operators<column_t<Table, ColumnSpec>, typename ColumnSpec::value_type>
   {
@@ -55,7 +57,6 @@ namespace sqlpp
 
     using _spec_t = ColumnSpec;
     using _table = Table;
-    using _alias_t = typename _spec_t::_alias_t;
 
     column_t() = default;
     column_t(const column_t&) = default;
@@ -85,6 +86,12 @@ namespace sqlpp
   };
 
   template<typename Table, typename ColumnSpec>
+  struct name_tag_of<column_t<Table, ColumnSpec>>
+  {
+    using type = typename ColumnSpec::_alias_t;
+  };
+
+  template<typename Table, typename ColumnSpec>
   struct has_default<column_t<Table, ColumnSpec>> : public ColumnSpec::has_default
   {
   };
@@ -94,13 +101,19 @@ namespace sqlpp
   {
   };
 
+  template<typename Table, typename ColumnSpec>
+  struct required_tables_of<column_t<Table, ColumnSpec>>
+  {
+    using type = detail::type_set<Table>;
+  };
+
   template <typename Context, typename Table, typename ColumnSpec>
   Context& serialize(Context& context, const column_t<Table, ColumnSpec>&)
   {
     using T = column_t<Table, ColumnSpec>;
 
-    context << name_of<typename T::_table>::template char_ptr<Context>() << '.'
-            << name_of<T>::template char_ptr<Context>();
+    context << name_tag_of_t<Table>::_name_t::template char_ptr<Context>() << '.'
+            << name_tag_of_t<T>::_name_t::template char_ptr<Context>();
     return context;
   }
 }  // namespace sqlpp

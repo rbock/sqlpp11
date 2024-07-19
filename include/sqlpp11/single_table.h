@@ -58,7 +58,7 @@ namespace sqlpp
     using _nodes = detail::type_vector<Table>;
 
     static_assert(is_table_t<Table>::value, "argument has to be a table");
-    static_assert(required_tables_of<Table>::size::value == 0, "table depends on another table");
+    static_assert(required_tables_of_t<Table>::size::value == 0, "table depends on another table");
 
     using _data_t = single_table_data_t<Table>;
 
@@ -128,7 +128,7 @@ namespace sqlpp
       auto _single_table_impl(consistent_t /*unused*/, Table table) const
           -> _new_statement_t<consistent_t, single_table_t<Table>>
       {
-        static_assert(required_tables_of<single_table_t<Table>>::size::value == 0,
+        static_assert(required_tables_of_t<single_table_t<Table>>::size::value == 0,
                       "argument depends on another table in single_table()");
 
         return {static_cast<const derived_statement_t<Policies>&>(*this), single_table_data_t<Table>{table}};

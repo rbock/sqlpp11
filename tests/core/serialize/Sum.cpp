@@ -37,8 +37,8 @@ int Sum(int, char* [])
 
   // Expression.
   // Note that the inner parens aren't necessary.
-  compare(__LINE__, sum(bar.id + 7), "SUM((tab_bar.id+7))");
-  compare(__LINE__, sum(sqlpp::distinct, bar.id + 7), "SUM(DISTINCT (tab_bar.id+7))");
+  compare(__LINE__, sum(bar.id + 7), "SUM((tab_bar.id + 7))");
+  compare(__LINE__, sum(sqlpp::distinct, bar.id + 7), "SUM(DISTINCT (tab_bar.id + 7))");
 
   // With sub select.
   compare(__LINE__, sum(select(sqlpp::value(7).as(sqlpp::alias::a))), "SUM((SELECT 7 AS a))");

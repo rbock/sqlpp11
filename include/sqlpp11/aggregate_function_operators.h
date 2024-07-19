@@ -26,6 +26,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp11/over.h>
+
 namespace sqlpp
 {
   template <typename Expr>
