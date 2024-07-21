@@ -34,74 +34,77 @@ namespace
 
 SQLPP_ALIAS_PROVIDER(r_not_null);
 SQLPP_ALIAS_PROVIDER(r_maybe_null);
-SQLPP_ALIAS_PROVIDER(r_opt_not_null);
-SQLPP_ALIAS_PROVIDER(r_opt_maybe_null);
 
 template <typename T, typename ValueType>
 using is_value_type = std::is_same<sqlpp::value_type_of_t<T>, ValueType>;
 
 template<typename Value>
-void test_value(Value v)
+void test_dynamic(Value v)
 {
   using ValueType = sqlpp::value_type_of_t<Value>;
   using OptValueType = sqlpp::compat::optional<ValueType>;
 
-  auto v_not_null= sqlpp::value(v);
-  auto v_maybe_null= sqlpp::value(sqlpp::compat::make_optional(v));
-  auto v_not_null_alias = sqlpp::value(v).as(r_not_null);
-  auto v_maybe_null_alias = sqlpp::value(sqlpp::compat::make_optional(v)).as(r_maybe_null);
+  auto v_not_null= dynamic(true, sqlpp::value(v));
+  auto v_maybe_null= dynamic(true, sqlpp::value(sqlpp::compat::make_optional(v)));
+  auto v_not_null_alias = dynamic(true, sqlpp::value(v).as(r_not_null));
+  auto v_maybe_null_alias = dynamic(true, sqlpp::value(sqlpp::compat::make_optional(v)).as(r_maybe_null));
 
-  static_assert(is_value_type<decltype(v_not_null), ValueType>::value, "");
-  static_assert(is_value_type<decltype(v_maybe_null), OptValueType>::value, "");
-  static_assert(is_value_type<decltype(v_not_null_alias), ValueType>::value, "");
-  static_assert(is_value_type<decltype(v_maybe_null_alias), OptValueType>::value, "");
+  static_assert(not sqlpp::has_value_type<decltype(v_not_null)>::value, "");
+  static_assert(not sqlpp::has_value_type<decltype(v_maybe_null)>::value, "");
+  static_assert(not sqlpp::has_value_type<decltype(v_not_null_alias)>::value, "");
+  static_assert(not sqlpp::has_value_type<decltype(v_maybe_null_alias)>::value, "");
 
-  static_assert(not sqlpp::can_be_null<decltype(v_not_null)>::value, "");
-  static_assert(sqlpp::can_be_null<decltype(v_maybe_null)>::value, "");
-  static_assert(not sqlpp::can_be_null<decltype(v_not_null_alias)>::value, "");
-  static_assert(sqlpp::can_be_null<decltype(v_maybe_null_alias)>::value, "");
+  static_assert(not sqlpp::has_name<decltype(v_not_null)>::value, "");
+  static_assert(not sqlpp::has_name<decltype(v_maybe_null)>::value, "");
+  static_assert(sqlpp::has_name<decltype(v_not_null_alias)>::value, "");
+  static_assert(sqlpp::has_name<decltype(v_maybe_null_alias)>::value, "");
+
+  static_assert(is_value_type<sqlpp::remove_dynamic_t<decltype(v_not_null)>, ValueType>::value, "");
+  static_assert(is_value_type<sqlpp::remove_dynamic_t<decltype(v_maybe_null)>, OptValueType>::value, "");
+  static_assert(is_value_type<sqlpp::remove_dynamic_t<decltype(v_not_null_alias)>, ValueType>::value, "");
+  static_assert(is_value_type<sqlpp::remove_dynamic_t<decltype(v_maybe_null_alias)>, OptValueType>::value, "");
 }
 
 int main()
 {
   // boolean
-  test_value(bool{true});
+  test_dynamic(bool{true});
 
   // integral
-  test_value(int8_t{7});
-  test_value(int16_t{7});
-  test_value(int32_t{7});
-  test_value(int64_t{7});
+  test_dynamic(int8_t{7});
+  test_dynamic(int16_t{7});
+  test_dynamic(int32_t{7});
+  test_dynamic(int64_t{7});
 
   // unsigned integral
-  test_value(uint8_t{7});
-  test_value(uint16_t{7});
-  test_value(uint32_t{7});
-  test_value(uint64_t{7});
+  test_dynamic(uint8_t{7});
+  test_dynamic(uint16_t{7});
+  test_dynamic(uint32_t{7});
+  test_dynamic(uint64_t{7});
 
   // floating point
-  test_value(float{7.7});
-  test_value(double{7.7});
+  test_dynamic(float{7.7});
+  test_dynamic(double{7.7});
 
   // text
-  test_value('7');
-  test_value("seven");
-  test_value(std::string("seven"));
-  test_value(sqlpp::compat::string_view("seven"));
+  test_dynamic('7');
+  test_dynamic("seven");
+  test_dynamic(std::string("seven"));
+  test_dynamic(sqlpp::compat::string_view("seven"));
 
   // blob
-  test_value(std::vector<uint8_t>{});
+  test_dynamic(std::vector<uint8_t>{});
 
   // date
-  test_value(::sqlpp::chrono::day_point{});
+  test_dynamic(::sqlpp::chrono::day_point{});
 
   // timestamp
-  test_value(::sqlpp::chrono::microsecond_point{});
+  test_dynamic(::sqlpp::chrono::microsecond_point{});
   using minute_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
-  test_value(minute_point{});
+  test_dynamic(minute_point{});
 
   // time_of_day
-  test_value(std::chrono::microseconds{});
+  test_dynamic(std::chrono::microseconds{});
 
 }
 

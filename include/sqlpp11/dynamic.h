@@ -78,6 +78,7 @@ namespace sqlpp
   template <typename T>
   using remove_dynamic_t = typename remove_dynamic<T>::type;
 
+#warning: Should not turn Expr to into optional, but just the value type
   template <typename T>
   struct dynamic_to_optional
   {

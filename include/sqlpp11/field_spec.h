@@ -44,6 +44,12 @@ namespace sqlpp
     using cpp_type = result_value_t<ValueType>;
   };
 
+  template <typename NameType, typename ValueType>
+  struct name_tag_of<field_spec_t<NameType, ValueType>>
+  {
+    using type = NameType;
+  };
+
   template <typename Left, typename Right, typename Enable = void>
   struct is_field_compatible
   {

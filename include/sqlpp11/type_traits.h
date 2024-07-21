@@ -712,13 +712,21 @@ namespace sqlpp
   using parameters_of = typename detail::parameters_of_impl<T>::type;
 
   struct name_tag_base{}; // Used by SQLPP_ALIAS_PROVIDER and ddl2cpp
+  template <typename T, bool IsNameTag>
+  struct name_tag_of_impl
+  {
+    using type = no_name_t;
+  };
+  template <typename T>
+  struct name_tag_of_impl<T, true>
+  {
+    using type = typename T::_alias_t;
+  };
+
   template <typename T>
   struct name_tag_of
   {
-    using type = typename std::conditional<std::is_base_of<name_tag_base, T>::value,  // if T is a name tag
-                                           typename T::_alias_t,                      // then it is embedded,
-                                           no_name_t                                  // else, there is no default name
-                                           >::type;
+    using type = typename name_tag_of_impl<T, std::is_base_of<name_tag_base, T>::value>::type;
   };
 
   template <typename T>
