@@ -31,12 +31,15 @@
 
 int DynamicWhere(int, char*[])
 {
+  const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
   auto db = MockDb{};
 
   compare(__LINE__, sqlpp::unconditionally(), "");
   compare(__LINE__, where(bar.boolNn), " WHERE tab_bar.bool_nn");
 
-#warning add tests with optional expressions
+  compare(__LINE__, where(bar.boolNn and dynamic(true, foo.boolN)), " WHERE (tab_bar.bool_nn AND tab_foo.bool_n)");
+  compare(__LINE__, where(bar.boolNn and dynamic(false, foo.boolN)), " WHERE tab_bar.bool_nn");
+
   return 0;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Serge Robyns
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,12 +27,15 @@
 #include "Sample.h"
 #include <sqlpp11/sqlpp11.h>
 
-int ForUpdate(int, char* [])
+int Parameter(int, char*[])
 {
   const auto foo = test::TabFoo{};
+  const auto bar = test::TabBar{};
 
-  compare(__LINE__, select(foo.doubleN).from(foo).unconditionally().for_update(),
-          "SELECT tab_foo.double_n FROM tab_foo FOR UPDATE ");
+  compare(__LINE__, parameter(foo.doubleN), "?");
+  compare(__LINE__, bar.id > parameter(foo.doubleN), "(tab_bar.id > ?)");
+
+#warning: Need type tests for parameter, too (do they have the right value type and the right paramter type?)
 
   return 0;
 }

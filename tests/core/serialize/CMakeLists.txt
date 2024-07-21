@@ -30,10 +30,10 @@ set(test_files
     Blob.cpp
     Count.cpp
     #CustomQuery.cpp
-    #DynamicWhere.cpp
+    DynamicWhere.cpp
     Exists.cpp
     Float.cpp
-    #ForUpdate.cpp
+    ForUpdate.cpp
     From.cpp
     In.cpp
     Insert.cpp
@@ -44,6 +44,8 @@ set(test_files
     Min.cpp
     Operator.cpp
     Over.cpp
+    Parameter.cpp
+    ParameterizedVerbatim.cpp
     SelectAs.cpp
     SelectColumns.cpp
     SelectFlags.cpp
@@ -52,7 +54,6 @@ set(test_files
     Trim.cpp
     Upper.cpp
     Where.cpp
-    #ParameterizedVerbatim.cpp
 )
 
 create_test_sourcelist(test_sources test_serializer_main.cpp ${test_files})

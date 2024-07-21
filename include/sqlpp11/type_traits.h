@@ -153,9 +153,13 @@ namespace sqlpp
   //
   struct boolean{};
   template<>
+  struct value_type_of<boolean> { using type = boolean; };
+  template<>
   struct value_type_of<bool> { using type = boolean; };
 
   struct integral{};
+  template<>
+  struct value_type_of<integral> { using type = integral; };
   template<>
   struct value_type_of<int8_t> { using type = integral; };
   template<>
@@ -167,6 +171,8 @@ namespace sqlpp
 
   struct unsigned_integral{};
   template<>
+  struct value_type_of<unsigned_integral> { using type = unsigned_integral; };
+  template<>
   struct value_type_of<uint8_t> { using type = unsigned_integral; };
   template<>
   struct value_type_of<uint16_t> { using type = unsigned_integral; };
@@ -177,6 +183,8 @@ namespace sqlpp
 
   struct floating_point{};
   template<>
+  struct value_type_of<floating_point> { using type = floating_point; };
+  template<>
   struct value_type_of<float> { using type = floating_point; };
   template<>
   struct value_type_of<double> { using type = floating_point; };
@@ -184,6 +192,8 @@ namespace sqlpp
   struct value_type_of<long double> { using type = floating_point; };
 
   struct text{};
+  template <>
+  struct value_type_of<text> { using type = text; };
   template <>
   struct value_type_of<char> { using type = text; };
   template <>
@@ -194,24 +204,30 @@ namespace sqlpp
   struct value_type_of<sqlpp::compat::string_view> { using type = text; };
 
   struct blob{};
+  template <>
+  struct value_type_of<blob> { using type = blob; };
   template <std::size_t N>
   struct value_type_of<std::array<std::uint8_t, N>> { using type = blob; };
-
   template <>
   struct value_type_of<std::vector<std::uint8_t>> { using type = blob; };
-
   template <>
   struct value_type_of<sqlpp::compat::span<std::uint8_t>> { using type = blob; };
 
   struct day_point{};
   template <>
+  struct value_type_of<day_point> { using type = day_point; };
+  template <>
   struct value_type_of<std::chrono::time_point<std::chrono::system_clock, sqlpp::chrono::days>> { using type = day_point; };
 
   struct time_of_day{};
+  template <>
+  struct value_type_of<time_of_day> { using type = time_of_day; };
   template <typename Rep, typename Period>
   struct value_type_of<std::chrono::duration<Rep, Period>> { using type = time_of_day; };
 
   struct time_point{};
+  template <>
+  struct value_type_of<time_point> { using type = time_point; };
   template <typename Period>
   struct value_type_of<std::chrono::time_point<std::chrono::system_clock, Period>> { using type = time_point; };
 
@@ -726,8 +742,8 @@ namespace sqlpp
     using _contains_aggregate_function = std::true_type;
   };
 
-  template <typename NameProvider, typename Member>
-  using member_t = typename NameProvider::_alias_t::template _member_t<Member>;
+  template <typename NameTagProvider, typename Member>
+  using member_t = typename name_tag_of_t<NameTagProvider>::template _member_t<Member>;
 
   template <typename Policies>
   using derived_statement_t = typename Policies::_statement_t;

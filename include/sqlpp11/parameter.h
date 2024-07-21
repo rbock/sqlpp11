@@ -26,21 +26,19 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp11/enable_comparison.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/alias_provider.h>
-#include <sqlpp11/expression_operators.h>
 #include <sqlpp11/detail/type_set.h>
 
 namespace sqlpp
 {
   template <typename ValueType, typename NameType>
-  struct parameter_t : public expression_operators<parameter_t<ValueType, NameType>, ValueType>
+  struct parameter_t : public enable_comparison<parameter_t<ValueType, NameType>>
   {
     using _traits = make_traits<ValueType, tag::is_parameter, tag::is_expression>;
 
-    using _nodes = detail::type_vector<>;
     using _parameters = detail::type_vector<parameter_t>;
-    using _can_be_null = std::true_type;
     using _is_literal_expression = std::true_type;
 
     using _instance_t = member_t<NameType, parameter_value_t<ValueType>>;
@@ -52,6 +50,17 @@ namespace sqlpp
     parameter_t& operator=(const parameter_t&) = default;
     parameter_t& operator=(parameter_t&&) = default;
     ~parameter_t() = default;
+  };
+
+  template<typename ValueType, typename NameType>
+  struct value_type_of<parameter_t<ValueType, NameType>>
+  {
+    using type = ValueType;
+  };
+
+  template <typename ValueType, typename NameType>
+  struct name_tag_of<parameter_t<ValueType, NameType>> : public name_tag_of<NameType>
+  {
   };
 
   template <typename Context, typename ValueType, typename NameType>
@@ -70,9 +79,9 @@ namespace sqlpp
 
   template <typename ValueType, typename AliasProvider>
   auto parameter(const ValueType& /*unused*/, const AliasProvider & /*unused*/)
-      -> parameter_t<ValueType, AliasProvider>
+      -> parameter_t<value_type_of_t<ValueType>, AliasProvider>
   {
-    static_assert(is_value_type_t<ValueType>::value, "first argument is not a value type");
+    static_assert(has_value_type<ValueType>::value, "first argument is not a value type");
     static_assert(has_name<AliasProvider>::value, "second argument does not have a name");
     return {};
   }
