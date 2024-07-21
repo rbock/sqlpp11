@@ -155,7 +155,7 @@ namespace sqlpp
       using _field_t = typename _deferred_field_t<Db, Column>::type;
 
       template <typename Db>
-      using _result_row_t = result_row_t<Db, _field_t<Db, dynamic_to_optional_t<Columns>>...>;
+      using _result_row_t = result_row_t<Db, _field_t<Db, Columns>...>;
 
       template <typename AliasProvider>
       struct _deferred_table_t
@@ -212,25 +212,42 @@ namespace sqlpp
     };
   };
   template <typename Column>
-    struct value_type_of<select_column_list_t<Column>> : public value_type_of<Column> {};
+  struct value_type_of<select_column_list_t<Column>> : public value_type_of<Column>
+  {
+  };
+  template <typename Column>
+  struct value_type_of<select_column_list_t<dynamic_t<Column>>>
+  {
+    using type = force_optional_t<value_type_of_t<Column>>;
+  };
 
-    template<typename Column>
-      struct name_tag_of<select_column_list_t<Column>> :public name_tag_of<Column>{};
-
+  template <typename Column>
+  struct name_tag_of<select_column_list_t<Column>> : public name_tag_of<Column>
+  {
+  };
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_selected_colums_are_selectable_t, "selected columns must be selectable");
 
   template <typename T>
-  struct check_selected_columns;
-  template <typename... T>
-  struct check_selected_columns<std::tuple<T...>>
+  struct check_selected_column : std::integral_constant<bool, has_value_type<T>::value and has_name<T>::value>
   {
-    using type =
-        static_combined_check_t<static_check_t<logic::all_t<is_selectable_t<remove_dynamic_t<T>>::value...>::value,
-                                               assert_selected_colums_are_selectable_t>>;
   };
   template <typename T>
-  using check_selected_columns_t = typename check_selected_columns<T>::type;
+  struct check_selected_column<dynamic_t<T>> : check_selected_column<T>
+  {
+  };
+
+  template <typename T>
+  struct check_selected_tuple;
+  template <typename... T>
+  struct check_selected_tuple<std::tuple<T...>>
+  {
+    using type = static_combined_check_t<
+        static_check_t<logic::all_t<check_selected_column<T>::value...>::value,
+                       assert_selected_colums_are_selectable_t>>;
+  };
+  template <typename T>
+  using check_selected_tuple_t = typename check_selected_tuple<T>::type;
 
   template <typename T>
   struct make_select_column_list;
@@ -270,11 +287,11 @@ namespace sqlpp
       using _consistency_check = consistent_t;
 
       template <typename... Args>
-      auto columns(Args... args) const -> _new_statement_t<check_selected_columns_t<detail::flat_tuple_t<Args...>>,
+      auto columns(Args... args) const -> _new_statement_t<check_selected_tuple_t<detail::flat_tuple_t<Args...>>,
                                                            make_select_column_list_t<detail::flat_tuple_t<Args...>>>
       {
         static_assert(sizeof...(Args), "at least one selectable expression (e.g. a column) required in columns()");
-        using check = check_selected_columns_t<detail::flat_tuple_t<Args...>>;
+        using check = check_selected_tuple_t<detail::flat_tuple_t<Args...>>;
         static_assert(check::value,
                       "at least one argument is not a selectable expression in columns()");
 

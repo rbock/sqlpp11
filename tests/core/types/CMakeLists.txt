@@ -36,6 +36,7 @@ endfunction()
 
 test_compile(any)
 test_compile(aggregate_functions)
+test_compile(arithmetic_expression)
 test_compile(comparison_expression)
 test_compile(dynamic)
 test_compile(in_expression)

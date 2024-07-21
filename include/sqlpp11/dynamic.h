@@ -78,22 +78,6 @@ namespace sqlpp
   template <typename T>
   using remove_dynamic_t = typename remove_dynamic<T>::type;
 
-#warning: Should not turn Expr to into optional, but just the value type
-  template <typename T>
-  struct dynamic_to_optional
-  {
-    using type = T;
-  };
-
-  template <typename Expr>
-  struct dynamic_to_optional<dynamic_t<Expr>>
-  {
-    using type = force_optional_t<Expr>;
-  };
-
-  template <typename T>
-  using dynamic_to_optional_t = typename dynamic_to_optional<T>::type;
-
   template <typename Context, typename Select>
   Context& serialize(Context& context, const dynamic_t<Select>& t)
   {

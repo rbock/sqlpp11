@@ -26,17 +26,16 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/type_traits.h>
-
 #include <type_traits>
 
-#include <sqlpp11/compat/optional.h>
+#include <sqlpp11/type_traits.h>
+#include <sqlpp11/dynamic.h>
 
 namespace sqlpp
 {
 #warning: Do we need this? It should be possible to use name_tag_of_t and value_type_of_t somehow
   template <typename NameType, typename ValueType>
-  struct field_spec_t
+  struct field_spec_t : public name_tag_base
   {
     using _alias_t = NameType;
 
@@ -77,17 +76,22 @@ namespace sqlpp
     template <typename Select, typename NamedExpr>
     struct make_field_spec_impl
     {
-#warning: required_tables_of_t and obtaining the alias should handle optional.
-#warning: remove_optional should not be necessary at all, since we are using dynamic instead
-      using RawNamedExpr = remove_optional_t<NamedExpr>;
+      using ValueType = value_type_of_t<NamedExpr>;
       static constexpr bool _depends_on_outer_table =
-          detail::make_intersect_set_t<required_tables_of_t<RawNamedExpr>,
+          detail::make_intersect_set_t<required_tables_of_t<NamedExpr>,
                                        typename Select::_used_outer_tables>::size::value > 0;
-      using ValueType = typename std::conditional<_depends_on_outer_table,
-                                                  sqlpp::force_optional_t<value_type_of_t<NamedExpr>>,
-                                                  value_type_of_t<NamedExpr>>::type;
 
-      using type = field_spec_t<name_tag_of_t<RawNamedExpr>,
+      using type = field_spec_t<
+          name_tag_of_t<NamedExpr>,
+          typename std::conditional<_depends_on_outer_table, sqlpp::force_optional_t<ValueType>, ValueType>::type>;
+    };
+
+    template <typename Select, typename NamedExpr>
+    struct make_field_spec_impl<Select, dynamic_t<NamedExpr>>
+    {
+      using ValueType = force_optional_t<value_type_of_t<NamedExpr>>;
+
+      using type = field_spec_t<name_tag_of_t<NamedExpr>,
                                 ValueType>;
     };
   }  // namespace detail
