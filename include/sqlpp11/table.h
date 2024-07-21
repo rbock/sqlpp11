@@ -47,6 +47,9 @@ namespace sqlpp
     using _provided_tables = detail::type_set<Table>;
 
     static_assert(sizeof...(ColumnSpec) > 0, "at least one column required per table");
+    template<typename T> struct require_insert : std::integral_constant<bool, not has_default<T>::value>{};
+    using _required_insert_columns =
+        typename detail::make_type_set_if<require_insert, column_t<Table, ColumnSpec>...>::type;
     using _column_tuple_t = std::tuple<column_t<Table, ColumnSpec>...>;
     template <typename AliasProvider, typename T>
     using _foreign_table_alias_t = table_alias_t<AliasProvider, T, ColumnSpec...>;
@@ -102,7 +105,7 @@ namespace sqlpp
   template <typename Context, typename Table, typename... ColumnSpec>
   Context& serialize(Context& context, const table_t<Table, ColumnSpec...>& /*unused*/)
   {
-    context << Table::_alias_t::_name_t::template char_ptr<Context>();
+    context << name_tag_of_t<Table>::_name_t::template char_ptr<Context>();
     return context;
   }
 }  // namespace sqlpp

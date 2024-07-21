@@ -34,6 +34,7 @@
 
 namespace sqlpp
 {
+#warning: Do we need this? It should be possible to use name_tag_of_t and value_type_of_t somehow
   template <typename NameType, typename ValueType>
   struct field_spec_t
   {

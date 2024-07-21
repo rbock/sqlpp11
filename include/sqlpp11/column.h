@@ -86,16 +86,14 @@ namespace sqlpp
   };
 
   template<typename Table, typename ColumnSpec>
-  struct name_tag_of<column_t<Table, ColumnSpec>>
-  {
-    using type = typename ColumnSpec::_alias_t;
-  };
+  struct name_tag_of<column_t<Table, ColumnSpec>> : public name_tag_of<ColumnSpec>{};
 
   template<typename Table, typename ColumnSpec>
   struct has_default<column_t<Table, ColumnSpec>> : public ColumnSpec::has_default
   {
   };
 
+#warning: Do we need this?
   template<typename Table, typename ColumnSpec>
   struct has_name<column_t<Table, ColumnSpec>> : std::true_type
   {

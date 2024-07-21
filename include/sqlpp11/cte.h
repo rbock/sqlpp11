@@ -88,10 +88,11 @@ namespace sqlpp
     using type = cte_ref_t<AliasProvider>;
   };
 
+#warning: Why can't we use FieldSpec directly? If not, does this one need to inherit from name_tag_base?
   template <typename FieldSpec>
   struct cte_column_spec_t
   {
-    using _alias_t = typename FieldSpec::_alias_t;
+    using _alias_t = name_tag_of_t<FieldSpec>;
 
     using _traits = make_traits<value_type_of_t<FieldSpec>>;
   };
@@ -155,7 +156,6 @@ namespace sqlpp
     using _required_ctes = detail::make_joined_set_t<required_ctes_of<Statement>, detail::type_set<AliasProvider>>;
     using _parameters = parameters_of<Statement>;
 
-    using _alias_t = typename AliasProvider::_alias_t;
     constexpr static bool _is_recursive = required_ctes_of<Statement>::template count<AliasProvider>();
 
     using _column_tuple_t = std::tuple<column_t<AliasProvider, cte_column_spec_t<FieldSpecs>>...>;
@@ -239,8 +239,6 @@ namespace sqlpp
     using _nodes = detail::type_vector<>;
     using _required_ctes = detail::make_type_set_t<AliasProvider>;
     using _provided_tables = detail::type_set<AliasProvider>;
-
-    using _alias_t = typename AliasProvider::_alias_t;
 
     template <typename Statement>
     auto as(Statement statement) -> make_cte_t<AliasProvider, Statement>

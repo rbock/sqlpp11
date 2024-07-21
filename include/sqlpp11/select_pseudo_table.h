@@ -35,9 +35,10 @@ namespace sqlpp
   //
   // provide type information for sub-selects that are used as named expressions or tables
   template <typename Select, typename NamedExpr>
-  struct select_column_spec_t
+  struct select_column_spec_t: public name_tag_base
   {
     using _alias_t = name_tag_of_t<NamedExpr>;
+    using has_default = std::false_type;
 
     static constexpr bool _depends_on_outer_table =
         detail::make_intersect_set_t<required_tables_of_t<NamedExpr>, typename Select::_used_outer_tables>::size::value >

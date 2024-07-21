@@ -51,9 +51,6 @@ namespace sqlpp
       struct returning_traits
       {
         using _traits = make_traits<no_value_t, tag::is_returning_column_list, tag::is_return_value>;
-        struct _alias_t
-        {
-        };
       };
 
       template <typename Column>
@@ -64,7 +61,6 @@ namespace sqlpp
                                     tag::is_return_value,
                                     tag::is_expression,
                                     tag::is_selectable>;  // TODO: Is this correct?
-        using _alias_t = typename Column::_alias_t;
       };
     }  // namespace detail
 
@@ -96,7 +92,6 @@ namespace sqlpp
     {
       using _traits = typename detail::returning_traits<Columns...>::_traits;
       using _nodes = ::sqlpp::detail::type_vector<Columns...>;
-      using _alias_t = typename detail::returning_traits<Columns...>::_alias_t;
 
       struct _column_type
       {
@@ -157,6 +152,7 @@ namespace sqlpp
         template <typename AliasProvider>
         using _table_t = typename _deferred_table_t<AliasProvider>::table;
 
+#warning: review all the alias stuff here
         template <typename AliasProvider>
         using _alias_t = typename _deferred_table_t<AliasProvider>::alias;
 
@@ -201,6 +197,16 @@ namespace sqlpp
           return {make_parameter_list_t<_statement_t>{}, db.prepare_select(_get_statement())};
         }
       };
+    };
+
+    template <typename Column>
+    struct value_type_of<returning_column_list_t<Columns...>> : public value_type_of<Column>
+    {
+    };
+
+    template <typename Column>
+    struct name_tag_of<returning_column_list_t<Columns...>> : public name_tag_of<Column>
+    {
     };
 
     namespace detail

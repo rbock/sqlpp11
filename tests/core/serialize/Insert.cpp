@@ -34,7 +34,7 @@ namespace
   auto getTrue() -> std::string
   {
     MockDb::_serializer_context_t printer = {};
-    return serialize(sqlpp::value(true), printer).str();
+    return serialize(printer, sqlpp::value(true)).str();
   }
 }
 
@@ -45,7 +45,7 @@ int Insert(int, char* [])
   compare(__LINE__, insert_into(bar).default_values(), "INSERT INTO tab_bar DEFAULT VALUES");
   compare(__LINE__, insert_into(bar).set(bar.textN = "cheesecake", bar.boolNn = true),
           "INSERT INTO tab_bar (text_n,bool_nn) VALUES('cheesecake'," + getTrue() + ")");
-  compare(__LINE__, insert_into(bar).set(bar.textN = ::sqlpp::null, bar.boolNn = true),
+  compare(__LINE__, insert_into(bar).set(bar.textN = ::sqlpp::compat::nullopt, bar.boolNn = true),
           "INSERT INTO tab_bar (text_n,bool_nn) VALUES(NULL," + getTrue() + ")");
   sqlpp::compat::string_view cheeseCake = "cheesecake";
   compare(__LINE__, insert_into(bar).set(bar.textN = std::string(cheeseCake), bar.boolNn = true),

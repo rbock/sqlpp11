@@ -64,10 +64,6 @@ namespace sqlpp
     using _traits = make_traits<no_value_t, tag::is_union, tag::is_return_value>;
     using _nodes = detail::type_vector<Lhs, Rhs>;
 
-    using _alias_t = struct
-    {
-    };
-
     using _data_t = union_data_t<Flag, Lhs, Rhs>;
 
     // Base template to be inherited by the statement

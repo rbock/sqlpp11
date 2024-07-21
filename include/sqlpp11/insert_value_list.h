@@ -111,7 +111,7 @@ namespace sqlpp
         -> decltype(_columns)
     {
       (void)assignments;
-      return decltype(_columns)(std::get<Indexes>(assignments)._lhs...);
+      return decltype(_columns)(std::get<Indexes>(assignments)._l...);
     }
 
     auto columns_from_tuple(std::tuple<Assignments...> assignments) -> decltype(_columns)
@@ -125,7 +125,7 @@ namespace sqlpp
         -> decltype(_values)
     {
       (void)assignments;
-      return decltype(_values)(std::get<Indexes>(assignments)._rhs...);
+      return decltype(_values)(std::get<Indexes>(assignments)._r...);
     }
 
     auto values_from_tuple(std::tuple<Assignments...> assignments) -> decltype(_values)

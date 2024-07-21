@@ -38,8 +38,7 @@ namespace sqlpp
   template <typename Expr>
   struct check_on
   {
-    using type = static_combined_check_t<static_check_t<is_expression_t<Expr>::value, assert_on_is_expression_t>,
-                                         static_check_t<is_boolean<Expr>::value, assert_on_is_boolean_expression_t>>;
+    using type = static_combined_check_t<static_check_t<is_boolean<Expr>::value, assert_on_is_boolean_expression_t>>;
   };
 
   template <typename Expr>

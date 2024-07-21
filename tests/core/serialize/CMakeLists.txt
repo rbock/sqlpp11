@@ -34,9 +34,9 @@ set(test_files
     Exists.cpp
     Float.cpp
     #ForUpdate.cpp
-    #From.cpp
+    From.cpp
     In.cpp
-    #Insert.cpp
+    Insert.cpp
     IsNotNull.cpp
     IsNull.cpp
     Lower.cpp
@@ -48,7 +48,7 @@ set(test_files
     SelectColumns.cpp
     SelectFlags.cpp
     Sum.cpp
-    #TableAlias.cpp
+    TableAlias.cpp
     Trim.cpp
     Upper.cpp
     Where.cpp

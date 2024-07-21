@@ -55,6 +55,12 @@ namespace sqlpp
     std::string _verbatim;
   };
 
+  template <typename ValueType>
+    struct value_type_of<verbatim_t<ValueType>>
+    {
+      using type = ValueType;
+    };
+
   template <typename Context, typename ValueType>
   Context& serialize(Context& context, const verbatim_t<ValueType>& t)
   {

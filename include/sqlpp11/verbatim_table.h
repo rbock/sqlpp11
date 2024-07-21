@@ -48,6 +48,7 @@ namespace sqlpp
         };
       };
       using _traits = make_traits<no_value_t>;
+      using has_default = std::false_type;
     };
   }  // namespace detail
 
