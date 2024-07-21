@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <sqlpp11/operator/comparison_expression.h>
 #include <sqlpp11/operator/in_expression.h>
+#include <sqlpp11/operator/sort_order_expression.h>
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp
@@ -98,6 +99,21 @@ namespace sqlpp
     constexpr auto is_not_distinct_from(R r) const ->comparison_expression<Expr, op_is_not_distinct_from, R>
     {
       return ::sqlpp::is_not_distinct_from(this->derived(), std::move(r));
+    }
+
+    constexpr auto asc() const ->sort_order_expression<Expr>
+    {
+      return ::sqlpp::asc(this->derived());
+    }
+
+    constexpr auto desc() const ->sort_order_expression<Expr>
+    {
+      return ::sqlpp::desc(this->derived());
+    }
+
+    constexpr auto order(::sqlpp::sort_type t) const ->sort_order_expression<Expr>
+    {
+      return ::sqlpp::order(this->derived(), t);
     }
 
   };

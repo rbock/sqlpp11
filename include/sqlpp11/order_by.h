@@ -86,7 +86,7 @@ namespace sqlpp
   template <typename... Exprs>
   struct check_order_by
   {
-    using type = static_combined_check_t<static_check_t<logic::all_t<is_sort_order_t<Exprs>::value...>::value,
+    using type = static_combined_check_t<static_check_t<logic::all_t<is_sort_order<Exprs>::value...>::value,
                                                         assert_order_by_args_are_sort_order_expressions_t>>;
   };
   template <typename... Exprs>
@@ -124,7 +124,7 @@ namespace sqlpp
       {
         static_assert(sizeof...(Expressions), "at least one expression (e.g. a column) required in order_by()");
 
-        return _order_by_impl(check_order_by_t<Expressions...>{}, expressions...);
+        return _order_by_impl(check_order_by_t<Expressions...>{}, std::move(expressions)...);
       }
 
     private:
@@ -139,7 +139,7 @@ namespace sqlpp
                       "at least one duplicate argument detected in order_by()");
 
         return {static_cast<const derived_statement_t<Policies>&>(*this),
-                order_by_data_t<Expressions...>{expressions...}};
+                order_by_data_t<Expressions...>{std::move(expressions)...}};
       }
     };
   };
@@ -154,9 +154,9 @@ namespace sqlpp
   }
 
   template <typename... T>
-  auto order_by(T&&... t) -> decltype(statement_t<no_order_by_t>().order_by(std::forward<T>(t)...))
+  auto order_by(T... t) -> decltype(statement_t<no_order_by_t>().order_by(std::forward<T>(t)...))
   {
-    return statement_t<no_order_by_t>().order_by(std::forward<T>(t)...);
+    return statement_t<no_order_by_t>().order_by(std::move(t)...);
   }
 
 }  // namespace sqlpp

@@ -29,7 +29,7 @@ set(test_files
     Avg.cpp
     Blob.cpp
     Count.cpp
-    #CustomQuery.cpp
+    CustomQuery.cpp
     DynamicWhere.cpp
     Exists.cpp
     Float.cpp

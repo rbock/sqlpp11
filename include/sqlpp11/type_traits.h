@@ -404,7 +404,7 @@ namespace sqlpp
     struct parameter_value<unsigned_integral> { using type = uint64_t; };
 
   template<>
-    struct parameter_value<floating_point> { using type = floating_point; };
+    struct parameter_value<floating_point> { using type = double; };
 
   template<>
     struct parameter_value<text> { using type = std::string; };
@@ -491,7 +491,6 @@ namespace sqlpp
   SQLPP_VALUE_TRAIT_GENERATOR(is_insert_list)
   SQLPP_VALUE_TRAIT_GENERATOR(is_insert_value)
   SQLPP_VALUE_TRAIT_GENERATOR(is_insert_value_list)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_sort_order)
   SQLPP_VALUE_TRAIT_GENERATOR(is_parameter)
 
   SQLPP_VALUE_TRAIT_GENERATOR(requires_parens)
@@ -874,6 +873,10 @@ namespace sqlpp
   {
     using type = typename Db::_serializer_context_t;
   };
+
+  template <typename T>
+    struct is_sort_order : public std::false_type {};
+
 
   template <typename Db>
   using serializer_context_of = typename serializer_context_of_impl<Db>::type;

@@ -56,22 +56,15 @@ namespace sqlpp
   struct insert_value_t
   {
     using _is_insert_value = std::true_type;
-    using _column_t = Column;
-    using _pure_value_t = typename value_type_of_t<Column>::_cpp_value_type;
-    using _value_t = value_t<typename Column::_traits::_value_type>;
+    using _value_t = parameter_value_t<value_type_of_t<Column>>;
 
-    insert_value_t(_pure_value_t rhs)
-        : _is_null(false), _is_default(false), _value(rhs._t)
+    insert_value_t(_value_t value)
+        : _is_default(false), _value(std::move(value))
     {
     }
 
     insert_value_t(const default_value_t& /*unused*/)
-        : _is_null(false), _is_default(true), _value{}
-    {
-    }
-
-    insert_value_t(const _value_t& rhs)
-        : _is_null(rhs._is_null), _is_default(false), _value{rhs._value}
+        : _is_default(true), _value{}
     {
     }
 
@@ -81,19 +74,14 @@ namespace sqlpp
     insert_value_t& operator=(insert_value_t&&) = default;
     ~insert_value_t() = default;
 
-    bool _is_null;
     bool _is_default;
-    _pure_value_t _value;
+    _value_t _value;
   };
 
   template <typename Context, typename ValueType>
-  Context& serialize(Context& context, const insert_value_t<ValueType>& t)
+  auto serialize(Context& context, const insert_value_t<ValueType>& t) -> Context&
   {
-    if (t._is_null)
-    {
-      context << "NULL";
-    }
-    else if (t._is_default)
+    if (t._is_default)
     {
       context << "DEFAULT";
     }

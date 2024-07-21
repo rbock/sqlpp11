@@ -32,7 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace sqlpp
 {
-  enum class sort_order
+  enum class sort_type
   {
     asc,
     desc,
@@ -41,7 +41,7 @@ namespace sqlpp
   template <typename L>
   struct sort_order_expression
   {
-    constexpr sort_order_expression(L l, sort_order r) : _l(std::move(l)), _r(std::move(r))
+    constexpr sort_order_expression(L l, sort_type r) : _l(std::move(l)), _r(std::move(r))
     {
     }
     sort_order_expression(const sort_order_expression&) = default;
@@ -51,58 +51,76 @@ namespace sqlpp
     ~sort_order_expression() = default;
 
     L _l;
-    sort_order _r;
+    sort_type _r;
   };
 
   template <typename L>
   using check_sort_order_args = std::enable_if_t<values_are_comparable<L, L>::value>;
 
   template <typename L>
-  struct nodes_of<sort_order_t<L>>
+  struct nodes_of<sort_order_expression<L>>
   {
     using type = detail::type_vector<L>;
   };
+
+  template <typename L>
+  struct is_sort_order<sort_order_expression<L>> : std::true_type {};
 
   /*
   template <typename L>
   constexpr auto requires_braces_v<sort_order_t<L>> = false;
 
-  template <typename L>
-  constexpr auto is_sort_order_v<sort_order_t<L>> = true;
-
   template <typename Context>
-  [[nodiscard]] auto to_sql_string(Context& context, const sort_order& t)
+  [[nodiscard]] auto to_sql_string(Context& context, const sort_type& t)
   {
     switch (t)
     {
-      case sort_order::asc:
+      case sort_type::asc:
         return std::string(" ASC");
-      case sort_order::desc:
+      case sort_type::desc:
         return std::string(" DESC");
     }
   }
 
-  template <typename Context, typename L>
-  [[nodiscard]] auto to_sql_string(Context& context, const sort_order_t<L>& t)
-  {
-    return to_sql_string(context, embrace(t.l)) + to_sql_string(context, t.order);
-  }
   */
+
+  template <typename Context>
+  auto serialize(Context& context, const sort_type& t) -> Context&
+  {
+    switch (t)
+    {
+      case sort_type::asc:
+        context << " ASC";
+        break;
+      case sort_type::desc:
+        context << " DESC";
+        break;
+    }
+    return context;
+  }
+
+  template <typename Context, typename L>
+  auto serialize(Context& context, const sort_order_expression<L>& t) -> Context&
+  {
+    serialize_operand(context, t._l);
+    serialize(context, t._r);
+    return context;
+  }
 
   template <typename L, typename = check_sort_order_args<L>>
   constexpr auto asc(L l) -> sort_order_expression<L>
   {
-    return {l, sort_order::asc};
+    return {l, sort_type::asc};
   }
 
   template <typename L, typename = check_sort_order_args<L>>
   constexpr auto desc(L l) -> sort_order_expression<L>
   {
-    return {l, sort_order::desc};
+    return {l, sort_type::desc};
   }
 
   template <typename L, typename = check_sort_order_args<L>>
-  constexpr auto order(L l, sort_order order) -> sort_order_expression<L>
+  constexpr auto order(L l, sort_type order) -> sort_order_expression<L>
   {
     return {l, order};
   }

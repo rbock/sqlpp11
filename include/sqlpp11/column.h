@@ -32,7 +32,6 @@
 #include <sqlpp11/operator/assign_expression.h>
 #include <sqlpp11/column_fwd.h>
 #include <sqlpp11/default_value.h>
-#include <sqlpp11/sort_order.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/wrong.h>
 #include <sqlpp11/detail/type_set.h>

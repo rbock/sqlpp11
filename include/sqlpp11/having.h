@@ -90,9 +90,6 @@ namespace sqlpp
     };
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_having_not_cpp_bool_t,
-                               "having() argument has to be an sqlpp boolean expression. Please use "
-                               "sqlpp::value(bool_expresson) if you really want to use a bool value here");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_having_boolean_expression_t,
                                "having() argument has to be an sqlpp boolean expression.");
 
@@ -100,9 +97,7 @@ namespace sqlpp
   struct check_having
   {
     using type =
-        static_combined_check_t<static_check_t<is_not_cpp_bool_t<Expression>::value, assert_having_not_cpp_bool_t>,
-                                static_check_t<is_expression_t<Expression>::value, assert_having_boolean_expression_t>,
-                                static_check_t<is_boolean<Expression>::value, assert_having_boolean_expression_t>>;
+        static_combined_check_t<static_check_t<is_boolean<Expression>::value, assert_having_boolean_expression_t>>;
   };
 
   template <typename Expression>
