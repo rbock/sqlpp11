@@ -67,7 +67,8 @@ namespace sqlpp
     template <typename T = _table>
     auto table() const -> _table
     {
-      static_assert(is_table_t<T>::value, "cannot call get_table for columns of a sub-selects or cte");
+#warning: subselects use pseudo-columns, cte should do the same, I guess?
+      static_assert(is_table<T>::value, "cannot call get_table for columns of a sub-select or cte");
       return _table{};
     }
 

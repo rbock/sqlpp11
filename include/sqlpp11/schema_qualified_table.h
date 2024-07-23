@@ -40,7 +40,7 @@ namespace sqlpp
   template <typename Table>
   struct schema_qualified_table_t
   {
-    using _traits = make_traits<value_type_of_t<Table>, tag::is_table>;
+    using _traits = make_traits<value_type_of_t<Table>>;
 
     using _nodes = detail::type_vector<>;
     using _required_ctes = detail::type_set<>;
@@ -60,6 +60,9 @@ namespace sqlpp
     schema_t _schema;
     Table _table;
   };
+
+  template<typename Table>
+    struct is_table<schema_qualified_table_t<Table>> : public std::true_type {};
 
   template <typename Context, typename Table>
   Context& serialize(Context& context, const schema_qualified_table_t<Table>& t)

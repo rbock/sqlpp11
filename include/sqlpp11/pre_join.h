@@ -42,8 +42,8 @@ namespace sqlpp
   struct check_pre_join
   {
     using type = static_combined_check_t<
-        static_check_t<is_table_t<Lhs>::value, assert_pre_join_lhs_table_t>,
-        static_check_t<is_table_t<Rhs>::value, assert_pre_join_rhs_table_t>,
+        static_check_t<is_table<Lhs>::value, assert_pre_join_lhs_table_t>,
+        static_check_t<is_table<Rhs>::value, assert_pre_join_rhs_table_t>,
         static_check_t<not is_join_t<Rhs>::value, assert_pre_join_rhs_no_join_t>,
         static_check_t<detail::is_disjunct_from<detail::make_name_of_set_t<provided_tables_of<Lhs>>,
                                                 detail::make_name_of_set_t<provided_tables_of<Rhs>>>::value,
@@ -93,8 +93,8 @@ namespace sqlpp
     using _can_be_null = std::false_type;
     using _provided_outer_tables = typename JoinType::template _provided_outer_tables<Lhs, Rhs>;
 
-    static_assert(is_table_t<Lhs>::value, "lhs argument for join() has to be a table or join");
-    static_assert(is_table_t<Rhs>::value, "rhs argument for join() has to be a table");
+    static_assert(is_table<Lhs>::value, "lhs argument for join() has to be a table or join");
+    static_assert(is_table<Rhs>::value, "rhs argument for join() has to be a table");
     static_assert(not is_join_t<Rhs>::value, "rhs argument for join must not be a join");
 
     static_assert(detail::is_disjunct_from<provided_tables_of<Lhs>, provided_tables_of<Rhs>>::value,

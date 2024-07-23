@@ -31,6 +31,9 @@ int ForUpdate(int, char* [])
 {
   const auto foo = test::TabFoo{};
 
+  compare(__LINE__, sqlpp::for_update(),
+          " FOR UPDATE ");
+
   compare(__LINE__, select(foo.doubleN).from(foo).unconditionally().for_update(),
           "SELECT tab_foo.double_n FROM tab_foo FOR UPDATE ");
 

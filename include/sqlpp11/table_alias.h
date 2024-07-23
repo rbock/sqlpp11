@@ -42,7 +42,6 @@ namespace sqlpp
   struct table_alias_t : public ColumnSpec::_alias_t::template _member_t<column_t<AliasProvider, ColumnSpec>>...
   {
     using _traits = make_traits<value_type_of_t<Table>,
-                                tag::is_table,
                                 tag::is_alias,
                                 tag_if<tag::is_selectable, is_expression_t<Table>::value>>;
 
@@ -96,6 +95,9 @@ namespace sqlpp
 
     Table _table;
   };
+
+  template<typename AliasProvider, typename Table, typename... ColumnSpec>
+    struct is_table<table_alias_t<AliasProvider, Table, ColumnSpec...>> : public std::true_type{};
 
   template<typename AliasProvider, typename Table, typename... ColumnSpec>
     struct name_tag_of<table_alias_t<AliasProvider, Table, ColumnSpec...>> : public name_tag_of<AliasProvider>{};

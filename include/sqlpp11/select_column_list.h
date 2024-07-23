@@ -32,7 +32,7 @@
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/policy_update.h>
 #include <sqlpp11/result_row.h>
-#include <sqlpp11/select_pseudo_table.h>
+#include <sqlpp11/select_as.h>
 #include <sqlpp11/table.h>
 #include <tuple>
 
@@ -77,6 +77,22 @@ namespace sqlpp
                                   tag::is_selectable>;
     };
   }  // namespace detail
+
+  // FIXME: We might use field specs here (same as with cte)
+  //
+  // provide type information for sub-selects that are used as named expressions or tables
+  template <typename Select, typename Column>
+  struct select_column_spec_t: public name_tag_base
+  {
+    using _alias_t = name_tag_of_t<Column>;
+
+#warning: Need to test this!
+    static constexpr bool _depends_on_outer_table =
+        detail::make_intersect_set_t<required_tables_of_t<Column>, typename Select::_used_outer_tables>::size::value >
+        0;
+  };
+  template <typename Select, typename Column>
+    struct value_type_of<select_column_spec_t<Select, Column>> : public value_type_of<Column> {};
 
   SQLPP_PORTABLE_STATIC_ASSERT(
       assert_no_unknown_tables_in_selected_columns_t,
@@ -158,25 +174,12 @@ namespace sqlpp
       using _result_row_t = result_row_t<Db, _field_t<Db, Columns>...>;
 
       template <typename AliasProvider>
-      struct _deferred_table_t
-      {
-        using table = select_pseudo_table_t<_statement_t, Columns...>;
-        using alias = typename table::template _alias_t<AliasProvider>;
-      };
-
-      template <typename AliasProvider>
-      using _table_t = typename _deferred_table_t<AliasProvider>::table;
-
-      template <typename AliasProvider>
-      using _alias_t = typename _deferred_table_t<AliasProvider>::alias;
-
-      template <typename AliasProvider>
-      _alias_t<AliasProvider> as(const AliasProvider& aliasProvider) const
+      auto as(const AliasProvider& aliasProvider) const
+          -> select_as_t<_statement_t, AliasProvider, select_column_spec_t<_statement_t, Columns>...>
       {
         consistency_check_t<_statement_t>::verify();
-        static_assert(_statement_t::_can_be_used_as_table(),
-                      "statement cannot be used as table, e.g. due to missing tables");
-        return _table_t<AliasProvider>(_get_statement()).as(aliasProvider);
+        using table = select_as_t<_statement_t, AliasProvider, select_column_spec_t<_statement_t, Columns>...>;
+        return table(_get_statement());
       }
 
       size_t get_no_of_result_columns() const

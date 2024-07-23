@@ -56,6 +56,15 @@ namespace sqlpp
     std::string _verbatim_lhs, _verbatim_rhs;
   };
 
+  template <typename ValueType, typename Expr>
+  struct value_type_of<parameterized_verbatim_t<ValueType, Expr>>
+  {
+    using type = ValueType;
+  };
+
+  template <typename ValueType, typename Expr>
+  struct nodes_of<parameterized_verbatim_t<ValueType, Expr>> : public nodes_of<Expr>{};
+
   template <typename Context, typename ValueType, typename Expr>
   Context& serialize(Context& context, const parameterized_verbatim_t<ValueType, Expr>& t)
   {

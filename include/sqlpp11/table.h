@@ -41,7 +41,7 @@ namespace sqlpp
   template <typename Table, typename... ColumnSpec>
   struct table_t : public ColumnSpec::_alias_t::template _member_t<column_t<Table, ColumnSpec>>...
   {
-    using _traits = make_traits<no_value_t, tag::is_raw_table, tag::is_table>;
+    using _traits = make_traits<no_value_t, tag::is_raw_table>;
 
     using _nodes = detail::type_vector<>;
     using _provided_tables = detail::type_set<Table>;
@@ -101,6 +101,9 @@ namespace sqlpp
 
   template <typename Table, typename... ColumnSpec>
   struct name_tag_of<table_t<Table, ColumnSpec...>>: public name_tag_of<Table> {};
+
+  template <typename Table, typename... ColumnSpec>
+  struct is_table<table_t<Table, ColumnSpec...>>: public std::true_type {};
 
   template <typename Context, typename Table, typename... ColumnSpec>
   Context& serialize(Context& context, const table_t<Table, ColumnSpec...>& /*unused*/)

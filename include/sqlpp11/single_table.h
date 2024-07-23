@@ -57,7 +57,8 @@ namespace sqlpp
     using _traits = make_traits<no_value_t, tag::is_single_table>;
     using _nodes = detail::type_vector<Table>;
 
-    static_assert(is_table_t<Table>::value, "argument has to be a table");
+#warning: can't we do this with a table_t<> specialization
+    static_assert(is_table<Table>::value, "argument has to be a table");
     static_assert(required_tables_of_t<Table>::size::value == 0, "table depends on another table");
 
     using _data_t = single_table_data_t<Table>;
@@ -84,7 +85,7 @@ namespace sqlpp
   template <typename Table>
   struct check_update_table
   {
-    using type = static_combined_check_t<static_check_t<is_table_t<Table>::value, assert_update_table_arg_is_table_t>>;
+    using type = static_combined_check_t<static_check_t<is_table<Table>::value, assert_update_table_arg_is_table_t>>;
   };
   template <typename Table>
   using check_update_table_t = typename check_update_table<Table>::type;

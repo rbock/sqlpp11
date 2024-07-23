@@ -462,7 +462,6 @@ namespace sqlpp
   SQLPP_VALUE_TRAIT_GENERATOR(is_noop)
   SQLPP_VALUE_TRAIT_GENERATOR(is_missing)
   SQLPP_VALUE_TRAIT_GENERATOR(is_return_value)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_table)
   SQLPP_VALUE_TRAIT_GENERATOR(is_raw_table)
   SQLPP_VALUE_TRAIT_GENERATOR(is_pre_join)
   SQLPP_VALUE_TRAIT_GENERATOR(is_join)
@@ -735,6 +734,9 @@ namespace sqlpp
   // Override this for other classes like columns or tables.
   template<typename T>
   struct has_name : public std::integral_constant<bool, not std::is_same<name_tag_of_t<T>, no_name_t>::value> {};
+
+  template <typename T>
+  struct is_table : public std::false_type{};
 
   template <typename ValueType, typename... Tags>
   struct make_traits

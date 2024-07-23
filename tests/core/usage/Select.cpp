@@ -187,5 +187,12 @@ int Select(int, char*[])
     std::cout << row.doubleN << " " << row.cheese << std::endl;
   }
 
+  // checking #584
+  auto abs = db.prepare(select(t.alpha).from(t).where(sqlpp::parameterized_verbatim<sqlpp::unsigned_integral>(
+                 "ABS(field1 -", sqlpp::parameter(t.alpha), ")") <=
+             sqlpp::parameter(sqlpp::unsigned_integral(), param2)));
+  abs.params.alpha = 7;
+  abs.params.param2 = 7;
+
   return 0;
 }

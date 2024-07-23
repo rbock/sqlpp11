@@ -35,7 +35,7 @@ namespace sqlpp
   template <typename PreJoin, typename On>
   struct join_t
   {
-    using _traits = make_traits<no_value_t, tag::is_table, tag::is_join>;
+    using _traits = make_traits<no_value_t, tag::is_join>;
     using _nodes = detail::type_vector<PreJoin, On>;
     using _can_be_null = std::false_type;
     using _provided_tables = provided_tables_of<PreJoin>;
@@ -80,6 +80,9 @@ namespace sqlpp
     PreJoin _pre_join;
     On _on;
   };
+
+  template<typename PreJoin, typename On>
+    struct is_table<join_t<PreJoin, On>> : public std::true_type{};
 
   template <typename Context, typename PreJoin, typename On>
   Context& serialize(Context& context, const join_t<PreJoin, On>& t)

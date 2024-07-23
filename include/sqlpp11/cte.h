@@ -150,7 +150,7 @@ namespace sqlpp
   template <typename AliasProvider, typename Statement, typename... FieldSpecs>
   struct cte_t : public cte_base<AliasProvider, FieldSpecs>::type...
   {
-    using _traits = make_traits<no_value_t, tag::is_cte, tag::is_table>;  // FIXME: is table? really?
+    using _traits = make_traits<no_value_t, tag::is_cte>;
     using _nodes = detail::type_vector<>;
     using _provided_tables = detail::type_set<cte_t>;
     using _required_ctes = detail::make_joined_set_t<required_ctes_of<Statement>, detail::type_set<AliasProvider>>;
@@ -216,8 +216,16 @@ namespace sqlpp
     Statement _statement;
   };
 
-  template<typename AliasProvider, typename Statement, typename... ColumnSpecs>
-    struct name_tag_of<cte_t<AliasProvider, Statement, ColumnSpecs...>> : public name_tag_of<AliasProvider>{};
+#warning: is table? really?
+  template <typename AliasProvider, typename Statement, typename... ColumnSpecs>
+  struct is_table<cte_t<AliasProvider, Statement, ColumnSpecs...>> : public std::true_type
+  {
+  };
+
+  template <typename AliasProvider, typename Statement, typename... ColumnSpecs>
+  struct name_tag_of<cte_t<AliasProvider, Statement, ColumnSpecs...>> : public name_tag_of<AliasProvider>
+  {
+  };
 
   template <typename Context, typename AliasProvider, typename Statement, typename... ColumnSpecs>
   Context& serialize(Context& context, const cte_t<AliasProvider, Statement, ColumnSpecs...>& t)
@@ -235,7 +243,7 @@ namespace sqlpp
   template <typename AliasProvider>
   struct cte_ref_t
   {
-    using _traits = make_traits<no_value_t, tag::is_alias, tag::is_cte, tag::is_table>;  // FIXME: is table? really?
+    using _traits = make_traits<no_value_t, tag::is_alias, tag::is_cte>;
     using _nodes = detail::type_vector<>;
     using _required_ctes = detail::make_type_set_t<AliasProvider>;
     using _provided_tables = detail::type_set<AliasProvider>;
@@ -253,7 +261,11 @@ namespace sqlpp
     }
   };
 
-  template<typename AliasProvider>
+#warning: is table? really?
+   template<typename AliasProvider>
+    struct is_table<cte_ref_t<AliasProvider>> : public std::true_type{};
+
+   template<typename AliasProvider>
     struct name_tag_of<cte_ref_t<AliasProvider>> : public name_tag_of<AliasProvider>{};
 
   template <typename Context, typename AliasProvider>

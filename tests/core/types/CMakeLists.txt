@@ -42,5 +42,6 @@ test_compile(dynamic)
 test_compile(in_expression)
 test_compile(logical_expression)
 test_compile(result_row)
+test_compile(select_as)
 test_compile(value)
 
