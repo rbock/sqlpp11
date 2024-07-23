@@ -35,7 +35,7 @@
 namespace sqlpp
 {
   template <typename ValueType, typename Expr>
-  struct parameterized_verbatim_t : public expression_operators<verbatim_t<ValueType>, ValueType>,
+  struct parameterized_verbatim_t : public expression_operators<parameterized_verbatim_t<ValueType, Expr>, ValueType>,
                                     public alias_operators<verbatim_t<ValueType>>
   {
     using _traits = make_traits<ValueType, tag::is_expression>;
