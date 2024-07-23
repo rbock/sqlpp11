@@ -162,9 +162,8 @@ namespace sqlpp
     return context;
   }
 
-  template <typename T>
-  auto for_update(T&& t) -> decltype(statement_t<void, no_for_update_t>().for_update(std::forward<T>(t)))
+  inline auto for_update() -> decltype(statement_t<void, no_for_update_t>().for_update())
   {
-    return statement_t<void, no_for_update_t>().for_update(std::forward<T>(t));
+    return statement_t<void, no_for_update_t>().for_update();
   }
 }  // namespace sqlpp
