@@ -81,10 +81,7 @@ void test_select_as(Value v)
   static_assert(is_same_type<decltype(select(v_not_null).as(column).always.as(foo)), ValueType>(), "");
   static_assert(is_same_type<decltype(select(v_maybe_null).as(column).sometimes.as(foo)), OptValueType>(), "");
 
-#warning: implement
-
   // MULTIPLE VALUES
-#warning: write
 
   // A select of multiple values can not be used as a value.
   static_assert(not sqlpp::has_value_type<decltype(select(v_not_null, v_maybe_null))>::value, "");

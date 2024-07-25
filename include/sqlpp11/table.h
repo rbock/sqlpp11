@@ -35,80 +35,76 @@
 
 namespace sqlpp
 {
-  // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173198
-  //  template <typename Table, typename... ColumnSpec>
-  //  struct table_t : public table_base_t, public member_t<ColumnSpec, column_t<Table, ColumnSpec>>...
-  template <typename Table, typename... ColumnSpec>
-  struct table_t : public ColumnSpec::_alias_t::template _member_t<column_t<Table, ColumnSpec>>...
+  template <typename TableSpec>
+  struct table_t : public TableSpec::_table_columns<TableSpec>
   {
     using _traits = make_traits<no_value_t, tag::is_raw_table>;
 
     using _nodes = detail::type_vector<>;
-    using _provided_tables = detail::type_set<Table>;
+    using _provided_tables = detail::type_set<TableSpec>;
 
-    static_assert(sizeof...(ColumnSpec) > 0, "at least one column required per table");
-    template<typename T> struct require_insert : std::integral_constant<bool, not has_default<T>::value>{};
-    using _required_insert_columns =
-        typename detail::make_type_set_if<require_insert, column_t<Table, ColumnSpec>...>::type;
-    using _column_tuple_t = std::tuple<column_t<Table, ColumnSpec>...>;
+    using _required_insert_columns = typename TableSpec::_required_insert_columns;
+#warning: Need to inherit?
+    //using _column_tuple_t = std::tuple<column_t<Table, ColumnSpec>...>;
     template <typename AliasProvider, typename T>
-    using _foreign_table_alias_t = table_alias_t<AliasProvider, T, ColumnSpec...>;
+    using _foreign_table_alias_t = table_alias_t<AliasProvider, T>;
     template <typename AliasProvider>
-    using _alias_t = table_alias_t<AliasProvider, Table, ColumnSpec...>;
+    using _alias_t = table_alias_t<AliasProvider, TableSpec>;
 
     template <typename T>
-    auto join(T t) const -> decltype(::sqlpp::join(std::declval<Table>(), t))
+    auto join(T t) const -> decltype(::sqlpp::join(*this, t))
     {
-      return ::sqlpp::join(*static_cast<const Table*>(this), t);
+      return ::sqlpp::join(*this, t);
     }
 
     template <typename T>
-    auto inner_join(T t) const -> decltype(::sqlpp::inner_join(std::declval<Table>(), t))
+    auto inner_join(T t) const -> decltype(::sqlpp::inner_join(*this, t))
     {
-      return ::sqlpp::inner_join(*static_cast<const Table*>(this), t);
+      return ::sqlpp::inner_join(*this, t);
     }
 
     template <typename T>
-    auto left_outer_join(T t) const -> decltype(::sqlpp::left_outer_join(std::declval<Table>(), t))
+    auto left_outer_join(T t) const -> decltype(::sqlpp::left_outer_join(*this, t))
     {
-      return ::sqlpp::left_outer_join(*static_cast<const Table*>(this), t);
+      return ::sqlpp::left_outer_join(*this, t);
     }
 
     template <typename T>
-    auto right_outer_join(T t) const -> decltype(::sqlpp::right_outer_join(std::declval<Table>(), t))
+    auto right_outer_join(T t) const -> decltype(::sqlpp::right_outer_join(*this, t))
     {
-      return ::sqlpp::right_outer_join(*static_cast<const Table*>(this), t);
+      return ::sqlpp::right_outer_join(*this, t);
     }
 
     template <typename T>
-    auto outer_join(T t) const -> decltype(::sqlpp::outer_join(std::declval<Table>(), t))
+    auto outer_join(T t) const -> decltype(::sqlpp::outer_join(*this, t))
     {
-      return ::sqlpp::outer_join(*static_cast<const Table*>(this), t);
+      return ::sqlpp::outer_join(*this, t);
+    }
+
+    template <typename T>
+    auto cross_join(T t) const -> decltype(::sqlpp::cross_join(*this, t))
+    {
+      return ::sqlpp::cross_join(*this, t);
     }
 
     template <typename AliasProvider>
     _alias_t<AliasProvider> as(const AliasProvider& /*unused*/) const
     {
-      return {*static_cast<const Table*>(this)};
+      return {};
     }
 
-    template <typename T>
-    auto cross_join(T t) const -> decltype(::sqlpp::cross_join(std::declval<Table>(), t))
-    {
-      return ::sqlpp::cross_join(*static_cast<const Table*>(this), t);
-    }
   };
 
-  template <typename Table, typename... ColumnSpec>
-  struct name_tag_of<table_t<Table, ColumnSpec...>>: public name_tag_of<Table> {};
+  template <typename TableSpec>
+  struct name_tag_of<table_t<TableSpec>>: public name_tag_of<TableSpec> {};
 
-  template <typename Table, typename... ColumnSpec>
-  struct is_table<table_t<Table, ColumnSpec...>>: public std::true_type {};
+  template <typename TableSpec>
+  struct is_table<table_t<TableSpec>>: public std::true_type {};
 
-  template <typename Context, typename Table, typename... ColumnSpec>
-  Context& serialize(Context& context, const table_t<Table, ColumnSpec...>& /*unused*/)
+  template <typename Context, typename TableSpec>
+  Context& serialize(Context& context, const table_t<TableSpec>& /*unused*/)
   {
-    context << name_tag_of_t<Table>::_name_t::template char_ptr<Context>();
+    context << name_tag_of_t<TableSpec>::_name_t::template char_ptr<Context>();
     return context;
   }
 }  // namespace sqlpp

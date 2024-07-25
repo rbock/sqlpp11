@@ -34,34 +34,74 @@
 
 namespace sqlpp
 {
-  namespace detail
+  template <typename AliasProvider>
+  struct verbatim_table_alias_t
   {
-    struct unusable_pseudo_column_t
+    verbatim_table_alias_t(std::string representation) : _representation(std::move(representation))
     {
-      struct _alias_t
-      {
-        static constexpr const char _literal[] = "pseudo_column";
-        using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-        template <typename T>
-        struct _member_t
-        {
-        };
-      };
-      using _traits = make_traits<no_value_t>;
-      using has_default = std::false_type;
-    };
-  }  // namespace detail
+    }
 
-  struct verbatim_table_t : public table_t<verbatim_table_t, detail::unusable_pseudo_column_t>
+    verbatim_table_alias_t(const verbatim_table_alias_t& rhs) = default;
+    verbatim_table_alias_t(verbatim_table_alias_t&& rhs) = default;
+    verbatim_table_alias_t& operator=(const verbatim_table_alias_t& rhs) = default;
+    verbatim_table_alias_t& operator=(verbatim_table_alias_t&& rhs) = default;
+    ~verbatim_table_alias_t() = default;
+
+#warning: We should have enable_join CRTP
+
+    template <typename T>
+    auto join(T t) const -> decltype(::sqlpp::join(*this, t))
+    {
+      return ::sqlpp::join(*this, t);
+    }
+
+    template <typename T>
+    auto inner_join(T t) const -> decltype(::sqlpp::inner_join(*this, t))
+    {
+      return ::sqlpp::inner_join(*this, t);
+    }
+
+    template <typename T>
+    auto left_outer_join(T t) const -> decltype(::sqlpp::left_outer_join(*this, t))
+    {
+      return ::sqlpp::left_outer_join(*this, t);
+    }
+
+    template <typename T>
+    auto right_outer_join(T t) const -> decltype(::sqlpp::right_outer_join(*this, t))
+    {
+      return ::sqlpp::right_outer_join(*this, t);
+    }
+
+    template <typename T>
+    auto outer_join(T t) const -> decltype(::sqlpp::outer_join(*this, t))
+    {
+      return ::sqlpp::outer_join(*this, t);
+    }
+
+    template <typename T>
+    auto cross_join(T t) const -> decltype(::sqlpp::cross_join(*this, t))
+    {
+      return ::sqlpp::cross_join(*this, t);
+    }
+    std::string _representation;
+  };
+
+  template <typename AliasProvider>
+  struct is_table<verbatim_table_alias_t<AliasProvider>> : std::true_type
   {
-    using _nodes = detail::type_vector<>;
+  };
 
-    struct _alias_t
-    {
-      static constexpr const char _literal[] = "verbatim_table";  // FIXME need to use alias for verbatim table
-      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-    };
+  template <typename Context, typename AliasProvider>
+  Context& serialize(Context& context, const verbatim_table_alias_t<AliasProvider>& t)
+  {
+    context << t._representation;
+    context << " AS " << name_tag_of_t<AliasProvider>::_name_t::template char_ptr<Context>();
+    return context;
+  }
 
+  struct verbatim_table_t
+  {
     verbatim_table_t(std::string representation) : _representation(std::move(representation))
     {
     }
@@ -72,7 +112,55 @@ namespace sqlpp
     verbatim_table_t& operator=(verbatim_table_t&& rhs) = default;
     ~verbatim_table_t() = default;
 
+    template <typename AliasProvider>
+    verbatim_table_alias_t<AliasProvider> as(const AliasProvider& /*unused*/) const
+    {
+      return {_representation};
+    }
+
+#warning: We should have enable_join CRTP
+
+    template <typename T>
+    auto join(T t) const -> decltype(::sqlpp::join(*this, t))
+    {
+      return ::sqlpp::join(*this, t);
+    }
+
+    template <typename T>
+    auto inner_join(T t) const -> decltype(::sqlpp::inner_join(*this, t))
+    {
+      return ::sqlpp::inner_join(*this, t);
+    }
+
+    template <typename T>
+    auto left_outer_join(T t) const -> decltype(::sqlpp::left_outer_join(*this, t))
+    {
+      return ::sqlpp::left_outer_join(*this, t);
+    }
+
+    template <typename T>
+    auto right_outer_join(T t) const -> decltype(::sqlpp::right_outer_join(*this, t))
+    {
+      return ::sqlpp::right_outer_join(*this, t);
+    }
+
+    template <typename T>
+    auto outer_join(T t) const -> decltype(::sqlpp::outer_join(*this, t))
+    {
+      return ::sqlpp::outer_join(*this, t);
+    }
+
+    template <typename T>
+    auto cross_join(T t) const -> decltype(::sqlpp::cross_join(*this, t))
+    {
+      return ::sqlpp::cross_join(*this, t);
+    }
     std::string _representation;
+  };
+
+  template <>
+  struct is_table<verbatim_table_t> : std::true_type
+  {
   };
 
   template <typename Context>

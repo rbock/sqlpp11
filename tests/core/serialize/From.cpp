@@ -47,35 +47,35 @@ int From(int, char* [])
   // Static joins
   compare(__LINE__, from(foo.cross_join(bar)), " FROM tab_foo CROSS JOIN tab_bar");
   compare(__LINE__, from(foo.join(bar).on(foo.doubleN > bar.id)),
-          " FROM tab_foo INNER JOIN tab_bar ON (tab_foo.double_n>tab_bar.id)");
+          " FROM tab_foo INNER JOIN tab_bar ON (tab_foo.double_n > tab_bar.id)");
   compare(__LINE__, from(foo.inner_join(bar).on(foo.doubleN > bar.id)),
-          " FROM tab_foo INNER JOIN tab_bar ON (tab_foo.double_n>tab_bar.id)");
+          " FROM tab_foo INNER JOIN tab_bar ON (tab_foo.double_n > tab_bar.id)");
   compare(__LINE__, from(foo.outer_join(bar).on(foo.doubleN > bar.id)),
-          " FROM tab_foo OUTER JOIN tab_bar ON (tab_foo.double_n>tab_bar.id)");
+          " FROM tab_foo OUTER JOIN tab_bar ON (tab_foo.double_n > tab_bar.id)");
   compare(__LINE__, from(foo.left_outer_join(bar).on(foo.doubleN > bar.id)),
-          " FROM tab_foo LEFT OUTER JOIN tab_bar ON (tab_foo.double_n>tab_bar.id)");
+          " FROM tab_foo LEFT OUTER JOIN tab_bar ON (tab_foo.double_n > tab_bar.id)");
   compare(__LINE__, from(foo.right_outer_join(bar).on(foo.doubleN > bar.id)),
-          " FROM tab_foo RIGHT OUTER JOIN tab_bar ON (tab_foo.double_n>tab_bar.id)");
+          " FROM tab_foo RIGHT OUTER JOIN tab_bar ON (tab_foo.double_n > tab_bar.id)");
   compare(__LINE__, from(aFoo.join(bFoo).on(aFoo.doubleN > bFoo.doubleN)),
-          " FROM tab_foo AS a INNER JOIN tab_foo AS b ON (a.double_n>b.double_n)");
+          " FROM tab_foo AS a INNER JOIN tab_foo AS b ON (a.double_n > b.double_n)");
   compare(
       __LINE__, from(aFoo.join(bFoo).on(aFoo.doubleN > bFoo.doubleN).join(cFoo).on(bFoo.doubleN > cFoo.doubleN)),
-      " FROM tab_foo AS a INNER JOIN tab_foo AS b ON (a.double_n>b.double_n) INNER JOIN tab_foo AS c ON (b.double_n>c.double_n)");
+      " FROM tab_foo AS a INNER JOIN tab_foo AS b ON (a.double_n > b.double_n) INNER JOIN tab_foo AS c ON (b.double_n > c.double_n)");
   compare(__LINE__, from(foo.join(bar).unconditionally()), " FROM tab_foo INNER JOIN tab_bar");
 
   // Static joins involving verbatim tables
   compare(__LINE__, from(aFoo.join(sqlpp::verbatim_table("unknown_table"))
                              .on(aFoo.doubleN > sqlpp::verbatim<sqlpp::floating_point>("unknown_table.column_x"))),
-          " FROM tab_foo AS a INNER JOIN unknown_table ON (a.double_n>unknown_table.column_x)");
+          " FROM tab_foo AS a INNER JOIN unknown_table ON (a.double_n > unknown_table.column_x)");
   compare(__LINE__, from(sqlpp::verbatim_table("unknown_table")
                              .join(aFoo)
                              .on(aFoo.doubleN > sqlpp::verbatim<sqlpp::floating_point>("unknown_table.column_x"))),
-          " FROM unknown_table INNER JOIN tab_foo AS a ON (a.double_n>unknown_table.column_x)");
+          " FROM unknown_table INNER JOIN tab_foo AS a ON (a.double_n > unknown_table.column_x)");
   compare(__LINE__, from(sqlpp::verbatim_table("unknown_table")
                              .as(sqlpp::alias::a)
                              .join(sqlpp::verbatim_table("another_table"))
-                             .on(sqlpp::verbatim<sqlpp::boolean>("a.column_x>another_table.x"))),
-          " FROM unknown_table AS a INNER JOIN another_table ON a.column_x>another_table.x");
+                             .on(sqlpp::verbatim<sqlpp::boolean>("a.column_x > another_table.x"))),
+          " FROM unknown_table AS a INNER JOIN another_table ON a.column_x > another_table.x");
 
 #warning add tests for optional joins
   return 0;

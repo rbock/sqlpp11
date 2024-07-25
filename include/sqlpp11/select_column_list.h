@@ -174,7 +174,7 @@ namespace sqlpp
       using _result_row_t = result_row_t<Db, _field_t<Db, Columns>...>;
 
       template <typename AliasProvider>
-      auto as(const AliasProvider& aliasProvider) const
+      auto as(const AliasProvider&) const
           -> select_as_t<_statement_t, AliasProvider, select_column_spec_t<_statement_t, Columns>...>
       {
         consistency_check_t<_statement_t>::verify();

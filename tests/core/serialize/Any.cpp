@@ -32,6 +32,7 @@ int Any(int, char* [])
   const auto bar = test::TabBar{};
 
   // With sub select.
+  static_assert(sqlpp::is_table<test::TabBar>::value, "");
   compare(__LINE__, any(select(bar.id).from(bar).where(bar.id > 17)),
           "ANY(SELECT tab_bar.id FROM tab_bar WHERE (tab_bar.id > 17))");
   compare(__LINE__, bar.intN == any(select(bar.id).from(bar).where(bar.id > 17)),

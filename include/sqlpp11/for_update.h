@@ -98,7 +98,7 @@ namespace sqlpp
     return context;
   }
 
-  auto for_update() -> decltype(statement_t<no_for_update_t>().for_update())
+  inline auto for_update() -> decltype(statement_t<no_for_update_t>().for_update())
   {
     return statement_t<no_for_update_t>().for_update();
   }

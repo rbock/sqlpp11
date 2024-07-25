@@ -28,6 +28,7 @@
 
 #include <sqlpp11/operator/as_expression.h>
 #include <sqlpp11/column_fwd.h>
+#include <sqlpp11/table_columns.h>
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/serialize.h>
 #include <sqlpp11/join.h>
@@ -35,27 +36,24 @@
 
 namespace sqlpp
 {
-  // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173198
-  //  template <typename AliasProvider, typename Table, typename... ColumnSpec>
-  //  struct table_alias_t : public member_t<ColumnSpec, column_t<AliasProvider, ColumnSpec>>...
-  template <typename AliasProvider, typename Table, typename... ColumnSpec>
-  struct table_alias_t : public ColumnSpec::_alias_t::template _member_t<column_t<AliasProvider, ColumnSpec>>...
+  template <typename AliasProvider, typename TableSpec>
+  struct table_alias_t : public TableSpec::_table_columns<AliasProvider>
   {
-    using _traits = make_traits<value_type_of_t<Table>,
+#warning: Need to declare this an alias?
+    /*
+    using _traits = make_traits<value_type_of_t<TableSpec>,
                                 tag::is_alias,
-                                tag_if<tag::is_selectable, is_expression_t<Table>::value>>;
+                                tag_if<tag::is_selectable, is_expression_t<TableSpec>::value>>;
+                                */
 
     using _nodes = detail::type_vector<>;
-    using _required_ctes = required_ctes_of<Table>;
+    using _required_ctes = required_ctes_of<TableSpec>;
     using _provided_tables = detail::type_set<AliasProvider>;
 
-    static_assert(required_tables_of_t<Table>::size::value == 0, "table aliases must not depend on external tables");
+    static_assert(required_tables_of_t<TableSpec>::size::value == 0, "table aliases must not depend on external tables");
 
-    using _column_tuple_t = std::tuple<column_t<AliasProvider, ColumnSpec>...>;
-
-    table_alias_t(Table table) : _table(table)
-    {
-    }
+#warning: need to inherit?
+    //using _column_tuple_t = std::tuple<column_t<AliasProvider, ColumnSpec>...>;
 
     template <typename T>
     auto join(T t) const -> decltype(::sqlpp::join(*this, t))
@@ -92,29 +90,19 @@ namespace sqlpp
     {
       return ::sqlpp::cross_join(*this, t);
     }
-
-    Table _table;
   };
 
-  template<typename AliasProvider, typename Table, typename... ColumnSpec>
-    struct is_table<table_alias_t<AliasProvider, Table, ColumnSpec...>> : public std::true_type{};
+  template<typename AliasProvider, typename TableSpec>
+    struct is_table<table_alias_t<AliasProvider, TableSpec>> : public std::true_type{};
 
-  template<typename AliasProvider, typename Table, typename... ColumnSpec>
-    struct name_tag_of<table_alias_t<AliasProvider, Table, ColumnSpec...>> : public name_tag_of<AliasProvider>{};
+  template<typename AliasProvider, typename TableSpec>
+    struct name_tag_of<table_alias_t<AliasProvider, TableSpec>> : public name_tag_of<AliasProvider>{};
 
-  template <typename Context, typename AliasProvider, typename Table, typename... ColumnSpec>
-  Context& serialize(Context& context, const table_alias_t<AliasProvider, Table, ColumnSpec...>& t)
+  template <typename Context, typename AliasProvider, typename TableSpec>
+  Context& serialize(Context& context, const table_alias_t<AliasProvider, TableSpec>&)
   {
-    if (requires_parens_t<Table>::value)
-    {
-      context << "(";
-    }
-    serialize(context, t._table);
-    if (requires_parens_t<Table>::value)
-    {
-      context << ")";
-    }
-    context << " AS " << name_tag_of_t<table_alias_t<AliasProvider, Table, ColumnSpec...>>::_name_t::template char_ptr<Context>();
+    context << name_tag_of_t<TableSpec>::_name_t::template char_ptr<Context>();
+    context << " AS " << name_tag_of_t<AliasProvider>::_name_t::template char_ptr<Context>();
     return context;
   }
 }  // namespace sqlpp

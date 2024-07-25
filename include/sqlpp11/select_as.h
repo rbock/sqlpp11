@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2016, Roland Bock
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -48,6 +48,16 @@ namespace sqlpp
   {
   };
 
+  template <typename Context, typename TableAliasProvider, typename ColumnSpec>
+  auto serialize(Context& context, const pseudo_column_t<TableAliasProvider, ColumnSpec>& t) -> Context&
+  {
+    using T = pseudo_column_t<TableAliasProvider, ColumnSpec>;
+
+    context << name_tag_of_t<TableAliasProvider>::_name_t::template char_ptr<Context>() << '.'
+            << name_tag_of_t<T>::_name_t::template char_ptr<Context>();
+    return context;
+  }
+
   template <typename Select, typename AliasProvider, typename... ColumnSpecs>
   struct select_as_t
       : public ColumnSpecs::_alias_t::template _member_t<pseudo_column_t<AliasProvider, ColumnSpecs>>...
@@ -83,10 +93,10 @@ namespace sqlpp
 
 
   template <typename Context, typename Select, typename AliasProvider, typename... ColumnSpecs>
-  Context& serialize(Context& context, const select_as_t<Select, AliasProvider, ColumnSpecs...>& t)
+  auto serialize(Context& context, const select_as_t<Select, AliasProvider, ColumnSpecs...>& t) -> Context&
   {
-#warning: add AS Alias
-    serialize(context, t._select);
+    serialize_operand(context, t._select);
+    context << " AS " << name_tag_of_t<AliasProvider>::_name_t::template char_ptr<Context>();
     return context;
   }
 }  // namespace sqlpp
