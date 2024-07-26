@@ -53,7 +53,8 @@ int Sample(int, char*[])
 		alpha INTEGER PRIMARY KEY,
 			beta varchar(255) DEFAULT NULL,
 			gamma bool DEFAULT NULL
-			))");
+			)
+  )");
   db.execute(R"(CREATE TABLE tab_foo (
 		omega bigint(20) DEFAULT NULL
 			))");
