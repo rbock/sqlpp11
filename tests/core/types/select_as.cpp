@@ -29,17 +29,15 @@
 
 namespace
 {
-  auto db = MockDb{};
-
   template <typename T, typename V>
   using is_same_type = std::is_same<sqlpp::value_type_of_t<T>, V>;
-}
 
-SQLPP_ALIAS_PROVIDER(always);
-SQLPP_ALIAS_PROVIDER(sometimes);
-SQLPP_ALIAS_PROVIDER(column)
-SQLPP_ALIAS_PROVIDER(table)
-SQLPP_ALIAS_PROVIDER(foo)
+  SQLPP_ALIAS_PROVIDER(always);
+  SQLPP_ALIAS_PROVIDER(sometimes);
+  SQLPP_ALIAS_PROVIDER(column)
+  SQLPP_ALIAS_PROVIDER(table)
+  SQLPP_ALIAS_PROVIDER(foo)
+}
 
 template <typename Value>
 void test_select_as(Value v)
@@ -107,6 +105,10 @@ void test_select_as(Value v)
   static_assert(is_same_type<decltype(select(v_not_null, v_maybe_null).as(table).always.as(foo)), ValueType>(), "");
   static_assert(is_same_type<decltype(select(v_not_null, v_maybe_null).as(table).sometimes.as(foo)), OptValueType>(), "");
 
+
+#warning: test can be aliased
+#warning: test has comparison operators
+#warning: test nodes
 
 }
 

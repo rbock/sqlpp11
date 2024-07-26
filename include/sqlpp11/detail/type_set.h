@@ -30,6 +30,7 @@
 #include <stddef.h>
 #include <sqlpp11/wrong.h>
 #include <sqlpp11/logic.h>
+#include <sqlpp11/name_tag.h>
 
 namespace sqlpp
 {
@@ -269,7 +270,7 @@ namespace sqlpp
     template <typename... E>
     struct make_name_of_set<type_set<E...>>
     {
-      using type = make_type_set_t<typename E::_alias_t::_name_t...>;
+      using type = make_type_set_t<typename sqlpp::name_tag_of_t<E>::_alias_t::_name_t...>;
     };
 
     template <typename T>

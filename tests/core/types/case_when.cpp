@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016, Roland Bock
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -25,11 +25,17 @@
 
 #include <sqlpp11/sqlpp11.h>
 
-SQLPP_ALIAS_PROVIDER(r_not_null);
-SQLPP_ALIAS_PROVIDER(r_maybe_null);
+namespace
+{
+  template <typename T, typename V>
+  using is_same_type = std::is_same<sqlpp::value_type_of_t<T>, V>;
+
+  SQLPP_ALIAS_PROVIDER(r_not_null);
+  SQLPP_ALIAS_PROVIDER(r_maybe_null);
+}
 
 template <typename Value>
-void test_any(Value v)
+void test_case_when(Value v)
 {
   using ValueType = sqlpp::value_type_of_t<Value>;
   using OptValueType = sqlpp::value_type_of_t<sqlpp::compat::optional<Value>>;
@@ -38,18 +44,24 @@ void test_any(Value v)
   auto v_not_null = sqlpp::value(v).as(r_not_null);
   const auto v_maybe_null = sqlpp::value(sqlpp::compat::make_optional(v)).as(r_maybe_null);
 
-  // ANY expression are not to be in most expressions and therefore have no value defined.
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(any(select(v_not_null)))>, sqlpp::no_value_t>::value, "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(any(select(v_maybe_null)))>, sqlpp::no_value_t>::value,
-                "");
+  // No value types for incomplete clauses
+  static_assert(is_same_type<decltype(sqlpp::case_when(true)), sqlpp::no_value_t>::value, "");
+  static_assert(is_same_type<decltype(sqlpp::case_when(true).then(v_not_null)), sqlpp::no_value_t>::value, "");
 
-  // ANY expression can be used in basic comparison expressions, which use remove_any_t to look inside.
-  static_assert(
-      std::is_same<sqlpp::value_type_of_t<sqlpp::remove_any_t<decltype(any(select(v_not_null)))>>, ValueType>::value,
-      "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<sqlpp::remove_any_t<decltype(any(select(v_maybe_null)))>>,
-                             OptValueType>::value,
+  // The value type is optional if either of the of the values is optional
+  static_assert(is_same_type<decltype(sqlpp::case_when(true).then(v_not_null).else_(v_not_null)), ValueType>::value,
                 "");
+  static_assert(
+      is_same_type<decltype(sqlpp::case_when(true).then(v_not_null).else_(v_maybe_null)), OptValueType>::value, "");
+  static_assert(
+      is_same_type<decltype(sqlpp::case_when(true).then(v_maybe_null).else_(v_not_null)), OptValueType>::value, "");
+  static_assert(
+      is_same_type<decltype(sqlpp::case_when(true).then(v_maybe_null).else_(v_maybe_null)), OptValueType>::value, "");
+
+  // The value type is always optional if the condition is optional
+  const auto opt_bool = sqlpp::compat::make_optional(true);
+  static_assert(
+      is_same_type<decltype(sqlpp::case_when(opt_bool).then(v_not_null).else_(v_maybe_null)), OptValueType>::value, "");
 
 #warning: test can be aliased
 #warning: test has comparison operators
@@ -59,42 +71,42 @@ void test_any(Value v)
 int main()
 {
   // boolean
-  test_any(bool{true});
+  test_case_when(bool{true});
 
   // integral
-  test_any(int8_t{7});
-  test_any(int16_t{7});
-  test_any(int32_t{7});
-  test_any(int64_t{7});
+  test_case_when(int8_t{7});
+  test_case_when(int16_t{7});
+  test_case_when(int32_t{7});
+  test_case_when(int64_t{7});
 
   // unsigned integral
-  test_any(uint8_t{7});
-  test_any(uint16_t{7});
-  test_any(uint32_t{7});
-  test_any(uint64_t{7});
+  test_case_when(uint8_t{7});
+  test_case_when(uint16_t{7});
+  test_case_when(uint32_t{7});
+  test_case_when(uint64_t{7});
 
   // floating point
-  test_any(float{7.7});
-  test_any(double{7.7});
+  test_case_when(float{7.7});
+  test_case_when(double{7.7});
 
   // text
-  test_any('7');
-  test_any("seven");
-  test_any(std::string("seven"));
-  test_any(sqlpp::compat::string_view("seven"));
+  test_case_when('7');
+  test_case_when("seven");
+  test_case_when(std::string("seven"));
+  test_case_when(sqlpp::compat::string_view("seven"));
 
   // blob
-  test_any(std::vector<uint8_t>{});
+  test_case_when(std::vector<uint8_t>{});
 
   // date
-  test_any(::sqlpp::chrono::day_point{});
+  test_case_when(::sqlpp::chrono::day_point{});
 
   // timestamp
-  test_any(::sqlpp::chrono::microsecond_point{});
+  test_case_when(::sqlpp::chrono::microsecond_point{});
   using minute_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
-  test_any(minute_point{});
+  test_case_when(minute_point{});
 
   // time_of_day
-  test_any(std::chrono::microseconds{});
+  test_case_when(std::chrono::microseconds{});
 }
 

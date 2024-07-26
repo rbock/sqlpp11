@@ -52,22 +52,22 @@ int Insert(int, char*[])
 
   db(insert_into(t).default_values());
   db(insert_into(t).set(t.boolNn = true, t.textN = "kirschauflauf"));
-  db(insert_into(t).set(t.boolNn = sqlpp::default_value, t.textN = sqlpp::value_or_null("pie"),
-                        t.intN = sqlpp::value_or_null<sqlpp::integer>(sqlpp::null)));
+  db(insert_into(t).set(t.boolNn = false, t.textN = sqlpp::compat::make_optional("pie"),
+                        t.intN = sqlpp::compat::nullopt));
 
-  serialize(insert_into(t).default_values(), printer).str();
+  serialize(printer, insert_into(t).default_values()).str();
 
-  serialize(insert_into(t), printer).str();
-  serialize(insert_into(t).set(t.boolNn = true, t.textN = "kirschauflauf"), printer).str();
-  serialize(insert_into(t).columns(t.boolNn, t.textN), printer).str();
+  serialize(printer, insert_into(t)).str();
+  serialize(printer, insert_into(t).set(t.boolNn = true, t.textN = "kirschauflauf")).str();
+  serialize(printer, insert_into(t).columns(t.boolNn, t.textN)).str();
   auto multi_insert = insert_into(t).columns(t.boolNn, t.textN, t.intN);
   multi_insert.add_values(t.boolNn = true, t.textN = "cheesecake", t.intN = 1);
-  multi_insert.add_values(t.boolNn = sqlpp::default_value, t.textN = sqlpp::default_value,
+  multi_insert.add_values(t.boolNn = false, t.textN = sqlpp::default_value,
                           t.intN = sqlpp::default_value);
-  multi_insert.add_values(t.boolNn = sqlpp::value_or_null(true), t.textN = sqlpp::value_or_null("pie"),
-                          t.intN = sqlpp::value_or_null<sqlpp::integer>(sqlpp::null));
+  multi_insert.add_values(t.boolNn = true, t.textN = sqlpp::compat::make_optional("pie"),
+                          t.intN = sqlpp::compat::nullopt);
   printer.reset();
-  std::cerr << serialize(multi_insert, printer).str() << std::endl;
+  std::cerr << serialize(printer, multi_insert).str() << std::endl;
 
   // Beware, you need exact types for inserted values in multi_insert
   insert_into(tabDateTime)
@@ -81,10 +81,10 @@ int Insert(int, char*[])
 
   db(multi_insert);
 
-  auto values = [&t]() { return std::make_tuple(t.boolNn = true, t.textN = sqlpp::null); };
+  auto values = [&t]() { return std::make_tuple(t.boolNn = true, t.textN = sqlpp::compat::nullopt); };
 
-  db(insert_into(t).set(t.boolNn = true, t.intN = sqlpp::verbatim<sqlpp::integer>("17+4")));
-  db(insert_into(t).set(t.boolNn = true, t.intN = sqlpp::null));
+  db(insert_into(t).set(t.boolNn = true, t.intN = sqlpp::verbatim<sqlpp::integral>("17+4")));
+  db(insert_into(t).set(t.boolNn = true, t.intN = sqlpp::compat::nullopt));
   db(insert_into(t).set(t.boolNn = true, t.intN = sqlpp::default_value));
   db(insert_into(t).set(t.boolNn = true, t.intN = 0));
   db(insert_into(t).set(values()));
@@ -93,10 +93,10 @@ int Insert(int, char*[])
 
   auto prepared_insert = db.prepare(insert_into(t).set(t.boolNn = parameter(t.boolNn), t.intN = parameter(t.intN)));
   prepared_insert.params.boolNn = true;
-  prepared_insert.params.intN = sqlpp::null;
+  prepared_insert.params.intN = sqlpp::compat::nullopt;
   prepared_insert.params.intN = 17;
-  prepared_insert.params.intN = sqlpp::value_or_null<sqlpp::integer>(sqlpp::null);
-  prepared_insert.params.intN = sqlpp::value_or_null(17);
+  prepared_insert.params.intN = sqlpp::compat::nullopt;
+  prepared_insert.params.intN = sqlpp::compat::make_optional(17);
   db(prepared_insert);
 
   auto prepared_insert_sv = db.prepare(insert_into(t).set(t.boolNn = parameter(t.boolNn), t.intN = parameter(t.intN), t.textN = parameter(t.textN)));

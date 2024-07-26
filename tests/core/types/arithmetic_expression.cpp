@@ -79,6 +79,10 @@ void test_arithmetic_expressions(Value v)
   // Same with negate.
   static_assert(is_same_type<sqlpp::value_type_of_t<decltype(-value)>, ValueType>(), "");
   static_assert(is_same_type<sqlpp::value_type_of_t<decltype(-opt_value)>, OptValueType>(), "");
+
+#warning: test can be aliased
+#warning: test has comparison operators
+#warning: test nodes
 }
 
 template<typename Value>

@@ -169,12 +169,14 @@ namespace sqlpp
   template <typename L, typename... Args, typename = check_in_args<L, Args...>>
   constexpr auto in(L l, std::tuple<Args...> args) -> in_expression<L, operator_in, std::tuple<Args...>>
   {
+    static_assert(sizeof...(Args) > 0, "");
     return {std::move(l), std::move(args)};
   }
 
   template <typename L, typename... Args, typename = check_in_args<L, Args...>>
   constexpr auto in(L l, Args... args) -> in_expression<L, operator_in, std::tuple<Args...>>
   {
+    static_assert(sizeof...(Args) > 0, "");
     return {std::move(l), std::make_tuple(std::move(args)...)};
   }
 

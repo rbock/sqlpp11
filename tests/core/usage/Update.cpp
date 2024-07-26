@@ -46,19 +46,19 @@ int Update(int, char*[])
     static_assert(sqlpp::is_regular<T>::value, "type requirement");
   }
 
-  serialize(update(t), printer).str();
-  serialize(update(t).set(t.boolNn = false), printer).str();
-  serialize(update(t).set(t.boolNn = false).where(t.textN != "transparent"), printer).str();
-  serialize(update(t).set(t.textN = "opaque").where(t.textN != t.textN + "this is nonsense"), printer).str();
+  serialize(printer, update(t)).str();
+  serialize(printer, update(t).set(t.boolNn = false)).str();
+  serialize(printer, update(t).set(t.boolNn = false).where(t.textN != "transparent")).str();
+  serialize(printer, update(t).set(t.textN = "opaque").where(t.textN != t.textN + "this is nonsense")).str();
   auto values = [&t]() { return std::make_tuple(t.intN += t.id, t.textN = "no cake this time"); };
 
 #warning add tests with dynamic set and dynamic where
 
-  db(update(t).set(t.intN = sqlpp::verbatim<sqlpp::integer>("17+4")).unconditionally());
+  db(update(t).set(t.intN = sqlpp::verbatim<sqlpp::integral>("17+4")).unconditionally());
   db(update(t)
-         .set(t.intN = sqlpp::verbatim<sqlpp::integer>("17+4"))
+         .set(t.intN = sqlpp::verbatim<sqlpp::integral>("17+4"))
          .where(sqlpp::verbatim<sqlpp::text>("'hansi'") == "hansi"));
-  db(update(t).set(t.intN = sqlpp::null).unconditionally());
+  db(update(t).set(t.intN = sqlpp::compat::nullopt).unconditionally());
   db(update(t).set(t.intN = sqlpp::default_value).unconditionally());
 
   db(update(t).set(t.intN += t.id * 2, t.textN += " and cake").unconditionally());

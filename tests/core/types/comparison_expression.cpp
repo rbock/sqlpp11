@@ -95,6 +95,10 @@ void test_comparison_expression(Value v)
   static_assert(is_bool<decltype(is_null(v_maybe_null))>::value, "");
   static_assert(is_bool<decltype(is_not_null(v_maybe_null))>::value, "");
   static_assert(is_bool<decltype(is_not_null(v_not_null))>::value, "");
+
+#warning: test can be aliased
+#warning: test has comparison operators
+#warning: test nodes
 }
 
 template<typename Value>
@@ -114,6 +118,10 @@ void test_like(Value v)
 
   // Compare nullable with nullable.
   static_assert(is_maybe_bool<decltype(like(v_maybe_null, v_maybe_null))>::value, "");
+
+#warning: test can be aliased
+#warning: test has comparison operators
+#warning: test nodes
 }
 
 int main()

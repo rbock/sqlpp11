@@ -52,6 +52,10 @@ void test_aggregate_functions(Value v)
   static_assert(is_same_type<decltype(count(v_not_null)), sqlpp::integral>::value, "");
   static_assert(is_same_type<decltype(max(v_maybe_null)), OptValueType>::value, "");
   static_assert(is_same_type<decltype(min(v_maybe_null)), OptValueType>::value, "");
+
+#warning: test can be aliased
+#warning: test has comparison operators
+#warning: test nodes
 }
 
 template <typename Value>

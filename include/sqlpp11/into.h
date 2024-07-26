@@ -56,7 +56,6 @@ namespace sqlpp
   struct into_t
   {
     using _traits = make_traits<no_value_t, tag::is_into>;
-    using _nodes = detail::type_vector<Table>;
 
     using _data_t = into_data_t<Table>;
 
@@ -77,6 +76,12 @@ namespace sqlpp
       using _consistency_check = consistent_t;
     };
   };
+
+  template<typename Table>
+    struct nodes_of<into_t<Table>>
+    {
+      using type = detail::type_vector<Table>;
+    };
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_into_t, "into() required");
 

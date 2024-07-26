@@ -71,6 +71,10 @@ void test_logical_expression(Value v)
   // not.
   static_assert(is_bool<decltype(not(v_not_null))>::value, "");
   static_assert(is_maybe_bool<decltype(not(v_maybe_null))>::value, "");
+
+#warning: test can be aliased
+#warning: test has comparison operators
+#warning: test nodes
 }
 
 int main()

@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -31,4 +31,32 @@ namespace sqlpp
   struct no_name_t
   {
   };
+
+  struct name_tag_base{}; // Used by SQLPP_ALIAS_PROVIDER and ddl2cpp
+
+  template <typename T, bool IsNameTag>
+  struct name_tag_of_impl
+  {
+    using type = no_name_t;
+  };
+  template <typename T>
+  struct name_tag_of_impl<T, true>
+  {
+    using type = typename T::_alias_t;
+  };
+
+  template <typename T>
+  struct name_tag_of
+  {
+    using type = typename name_tag_of_impl<T, std::is_base_of<name_tag_base, T>::value>::type;
+  };
+
+  template <typename T>
+  using name_tag_of_t = typename name_tag_of<T>::type;
+
+#warning: rename to has_name_tag
+  // Override this for other classes like columns or tables.
+  template<typename T>
+  struct has_name : public std::integral_constant<bool, not std::is_same<name_tag_of_t<T>, no_name_t>::value> {};
+
 }  // namespace sqlpp

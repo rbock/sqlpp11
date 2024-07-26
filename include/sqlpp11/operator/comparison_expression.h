@@ -252,13 +252,16 @@ namespace sqlpp
     return {l, r};
   }
 
-  struct operator_like
+  struct op_like
   {
     static constexpr auto symbol = " LIKE ";
   };
 
+  template <typename L, typename R>
+  using check_like_args = std::enable_if_t<is_text<L>::value and is_text<R>::value>;
+
   template <typename L, typename R, typename = check_comparison_args<L, R>>
-  constexpr auto like(L l, R r) -> comparison_expression<L, operator_like, R>
+  constexpr auto like(L l, R r) -> comparison_expression<L, op_like, R>
   {
     return {std::move(l), std::move(r)};
   }

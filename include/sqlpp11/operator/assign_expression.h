@@ -35,7 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace sqlpp
 {
 #warning: Need to add compound assingment as += etc.
-  template <typename L, typename R>
+  template <typename L, typename Operator, typename R>
   struct assign_expression
   {
     constexpr assign_expression(L l, R r) : _l(std::move(l)), _r(std::move(r)) {}
@@ -56,23 +56,23 @@ namespace sqlpp
   template <typename L>
   using check_assign_default_args = std::enable_if_t<has_default<L>::value>;
 
-  template <typename L, typename R>
-  struct is_assignment<assign_expression<L, R>> : public std::true_type {};
+  template <typename L, typename Operator, typename R>
+  struct is_assignment<assign_expression<L, Operator, R>> : public std::true_type {};
 
-  template <typename L, typename R>
-  struct nodes_of<assign_expression<L, R>>
+  template <typename L, typename Operator, typename R>
+  struct nodes_of<assign_expression<L, Operator, R>>
   {
     using type = detail::type_vector<L, R>;
   };
 
-  template <typename L, typename R>
-  struct lhs<assign_expression<L, R>>
+  template <typename L, typename Operator, typename R>
+  struct lhs<assign_expression<L, Operator, R>>
   {
     using type = L;
   };
 
-  template <typename L, typename R>
-  struct rhs<assign_expression<L, R>>
+  template <typename L, typename Operator, typename R>
+  struct rhs<assign_expression<L, Operator, R>>
   {
     using type = R;
   };
@@ -94,23 +94,40 @@ namespace sqlpp
   }
   */
 
-  template <typename Context, typename L, typename R>
-  Context& serialize(Context& context, const assign_expression<L, R>& t)
+  template <typename Context, typename L, typename Operator, typename R>
+  Context& serialize(Context& context, const assign_expression<L, Operator, R>& t)
   {
     serialize(context, simple_column(t._l));
-    context << " = ";
+    context << Operator::symbol;
     serialize_operand(context, t._r);
     return context;
   }
 
+  struct op_assign
+  {
+    static constexpr auto symbol = " = ";
+  };
+
   template <typename Table, typename ColumnSpec, typename R, typename = check_assign_args<column_t<Table, ColumnSpec>, R>>
-  constexpr auto assign(column_t<Table, ColumnSpec> column, R value) -> assign_expression<column_t<Table, ColumnSpec>, R>
+  constexpr auto assign(column_t<Table, ColumnSpec> column, R value) -> assign_expression<column_t<Table, ColumnSpec>, op_assign, R>
   {
     return {std::move(column), std::move(value)};
   }
 
   template <typename Table, typename ColumnSpec, typename = check_assign_default_args<column_t<Table, ColumnSpec>>>
-  constexpr auto assign(column_t<Table, ColumnSpec> column, default_value_t value) -> assign_expression<column_t<Table, ColumnSpec>, default_value_t>
+  constexpr auto assign(column_t<Table, ColumnSpec> column, default_value_t value) -> assign_expression<column_t<Table, ColumnSpec>, op_assign, default_value_t>
+  {
+    return {std::move(column), std::move(value)};
+  }
+
+#warning: need to add type tests and serialiaze tests
+  struct op_plus_assign
+  {
+    static constexpr auto symbol = " += ";
+  };
+
+  template <typename Table, typename ColumnSpec, typename R, typename = check_assign_args<column_t<Table, ColumnSpec>, R>>
+  constexpr auto plus_assign(column_t<Table, ColumnSpec> column, R value) -> assign_expression<column_t<Table, ColumnSpec>, op_plus_assign, R>
   {
     return {std::move(column), std::move(value)};
   }

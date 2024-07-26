@@ -60,6 +60,10 @@ void test_value(Value v)
   static_assert(sqlpp::can_be_null<decltype(v_maybe_null)>::value, "");
   static_assert(not sqlpp::can_be_null<decltype(v_not_null_alias)>::value, "");
   static_assert(sqlpp::can_be_null<decltype(v_maybe_null_alias)>::value, "");
+
+#warning: test can be aliased
+#warning: test has comparison operators
+#warning: test nodes
 }
 
 int main()

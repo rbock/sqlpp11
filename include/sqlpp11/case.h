@@ -32,34 +32,28 @@
 
 namespace sqlpp
 {
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_case_else_expression_t, "argument is not a value expression in else()");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_case_then_else_same_type_t,
                                "argument of then() and else() are not of the same type");
 
   template <typename Then, typename Else>
   using check_case_else_t = static_combined_check_t<
-      static_check_t<is_expression_t<Else>::value, assert_case_else_expression_t>,
       static_check_t<values_are_comparable<Then, Else>::value,
                      assert_case_then_else_same_type_t>>;
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_case_then_expression_t, "argument is not a value expression in then()");
   template <typename Then>
   using check_case_then_t =
-      static_check_t<logic::all_t<is_expression_t<Then>::value>::value, assert_case_then_expression_t>;
+      static_check_t<has_value_type<Then>::value, assert_case_then_expression_t>;
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_case_when_boolean_expression_t,
                                "argument is not a boolean expression in case_when()");
   template <typename When>
   using check_case_when_t = static_check_t<
-      logic::all_t<is_boolean<When>::value, is_expression_t<When>::value>::value,
+      is_boolean<When>::value,
       assert_case_when_boolean_expression_t>;
 
   template <typename When, typename Then, typename Else>
-  struct case_t
-      /*: public expression_operators<
-            case_t<When, Then, Else>,
-            typename std::conditional<is_sql_null_t<Then>::value, value_type_of_t<Else>, value_type_of_t<Then>>::type>,
-        public alias_operators<case_t<When, Then, Else>>*/
+  struct case_t : public enable_as<case_t<When, Then, Else>>, public enable_comparison<case_t<When, Then, Else>>
   {
     using _traits = make_traits<value_type_of_t<Then>, tag::is_expression>;
     using _nodes = detail::type_vector<When, Then, Else>;
@@ -78,6 +72,15 @@ namespace sqlpp
     Then _then;
     Else _else;
   };
+
+  template <typename When, typename Then, typename Else>
+    struct value_type_of<case_t<When, Then, Else>>
+    {
+      using type =
+          typename std::conditional<can_be_null<When>::value or can_be_null<Then>::value or can_be_null<Else>::value,
+                                    force_optional_t<value_type_of_t<Then>>,
+                                    value_type_of_t<Then>>::type;
+    };
 
   template <typename When, typename Then>
   class case_then_t

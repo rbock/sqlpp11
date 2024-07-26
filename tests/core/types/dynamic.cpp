@@ -63,6 +63,10 @@ void test_dynamic(Value v)
   static_assert(is_value_type<sqlpp::remove_dynamic_t<decltype(v_maybe_null)>, OptValueType>::value, "");
   static_assert(is_value_type<sqlpp::remove_dynamic_t<decltype(v_not_null_alias)>, ValueType>::value, "");
   static_assert(is_value_type<sqlpp::remove_dynamic_t<decltype(v_maybe_null_alias)>, OptValueType>::value, "");
+
+#warning: test can be aliased
+#warning: test has comparison operators
+#warning: test nodes
 }
 
 int main()

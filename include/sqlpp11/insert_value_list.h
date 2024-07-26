@@ -67,7 +67,6 @@ namespace sqlpp
   struct insert_default_values_t
   {
     using _traits = make_traits<no_value_t>;
-    using _nodes = detail::type_vector<>;
 
     // Data
     using _data_t = insert_default_values_data_t;
@@ -184,7 +183,6 @@ namespace sqlpp
   struct insert_list_t
   {
     using _traits = make_traits<no_value_t, tag::is_insert_list>;
-    using _nodes = detail::type_vector<lhs_t<Assignments>..., rhs_t<Assignments>...>;
 
     template <template <typename...> class Target>
     using copy_assignments_t = Target<Assignments...>;  // FIXME: Nice idea to copy variadic template arguments?
@@ -208,6 +206,13 @@ namespace sqlpp
                                                            consistent_t,
                                                            assert_no_unknown_tables_in_insert_assignments_t>::type;
     };
+  };
+
+#warning: write tests for nodes.
+  template <typename... Assignments>
+  struct nodes_of<insert_list_t<Assignments...>>
+  {
+    using type = detail::type_vector<Assignments...>;
   };
 
   template <typename... Columns>
@@ -236,7 +241,6 @@ namespace sqlpp
   struct column_list_t
   {
     using _traits = make_traits<no_value_t, tag::is_column_list>;
-    using _nodes = detail::type_vector<Columns...>;
 
     using _value_tuple_t = typename column_list_data_t<Columns...>::_value_tuple_t;
 
@@ -284,6 +288,14 @@ namespace sqlpp
     };
   };
 
+#warning: write tests for nodes.
+  template <typename... Columns>
+  struct nodes_of<column_list_t<Columns...>>
+  {
+    using type = detail::type_vector<Columns...>;
+  };
+
+
   SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_values_t, "insert values required, e.g. set(...) or default_values()");
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_columns_are_columns, "arguments for columns() must be table columns");
@@ -300,7 +312,6 @@ namespace sqlpp
   struct no_insert_value_list_t
   {
     using _traits = make_traits<no_value_t, tag::is_noop>;
-    using _nodes = detail::type_vector<>;
 
     using _data_t = no_data_t;
 

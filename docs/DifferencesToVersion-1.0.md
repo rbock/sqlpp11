@@ -61,4 +61,5 @@ select(tab.id).from(tab).where(tab.id == 17 or dynamic(condition, tab.desert != 
 
 If `condition == true`, then the dynamic part will evaluate to `tab.desert != "cheesecake")`. Otherwise it will be treated as `false` (and the OR expression will be collapsed).
 
-
+Dropped features
+Unary operator+()

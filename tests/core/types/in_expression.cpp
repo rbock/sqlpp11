@@ -65,25 +65,10 @@ void test_in_expression(Value v)
   static_assert(is_maybe_bool<decltype(in(v_maybe_null, std::make_tuple(v_not_null, v_maybe_null)))>::value, "");
   static_assert(is_maybe_bool<decltype(in(v_maybe_null, std::vector<OptValue>{}))>::value, "");
   static_assert(is_maybe_bool<decltype(in(v_maybe_null, select(v_maybe_null.as(sqlpp::alias::a))))>::value, "");
-}
 
-template<typename Value>
-void test_like(Value v)
-{
-  auto v_not_null= sqlpp::value(v);
-  auto v_maybe_null= sqlpp::value(sqlpp::compat::make_optional(v));
-
-  // Compare non-nullable with non-nullable.
-  static_assert(is_bool<decltype(like(v_not_null, v_not_null))>::value, "");
-
-  // Compare non-nullable with nullable.
-  static_assert(is_maybe_bool<decltype(like(v_not_null, v_maybe_null))>::value, "");
-
-  // Compare nullable with non-nullable.
-  static_assert(is_maybe_bool<decltype(like(v_maybe_null, v_not_null))>::value, "");
-
-  // Compare nullable with nullable.
-  static_assert(is_maybe_bool<decltype(like(v_maybe_null, v_maybe_null))>::value, "");
+#warning: test can be aliased
+#warning: test has comparison operators
+#warning: test nodes
 }
 
 int main()
@@ -126,12 +111,5 @@ int main()
 
   // time_of_day
   test_in_expression(std::chrono::microseconds{});
-
-  // text
-  test_like('7');
-  test_like("seven");
-  test_like(std::string("seven"));
-  test_like(sqlpp::compat::string_view("seven"));
-
 }
 

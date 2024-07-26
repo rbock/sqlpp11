@@ -74,7 +74,8 @@ int CustomQuery(int, char*[])
   auto x =
       //select(t.id).from(t).where(t.id > 7).group_by(t.id).having(max(t.id) > 13).order_by(t.textN.desc());
     update(t).set(t.textN = "eight", t.boolNn = true);
-  std::cerr << serialize(x, printer).str() << std::endl;
+  std::cerr << serialize(printer, x).str() << std::endl;
+#warning restore this file!
 #if 0
   db(x);
 

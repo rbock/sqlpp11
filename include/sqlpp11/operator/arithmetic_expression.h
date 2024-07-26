@@ -30,13 +30,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <sqlpp11/noop.h>
 #include <sqlpp11/enable_as.h>
+#include <sqlpp11/enable_comparison.h>
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
 #warning: mysql does not offer operator||, we need to fail compilation, but maybe offer the concat function in addition
   template <typename L, typename Operator, typename R>
-  struct arithmetic_expression : public enable_as<arithmetic_expression<L, Operator, R>>
+  struct arithmetic_expression : public enable_as<arithmetic_expression<L, Operator, R>>,
+#warning: need to test AS and comparison for arithmetic expressions
+                                 public enable_comparison<arithmetic_expression<L, Operator, R>>
   {
     arithmetic_expression() = delete;
     constexpr arithmetic_expression(L l, R r) : _l(l), _r(r)
@@ -188,7 +191,7 @@ namespace sqlpp
   template <typename R, typename = check_arithmetic_args<R, R>>
   constexpr auto operator-(R r) -> arithmetic_expression<noop, divides, R>
   {
-    return {std::move(r)};
+    return {{}, std::move(r)};
   }
 
   struct modulus

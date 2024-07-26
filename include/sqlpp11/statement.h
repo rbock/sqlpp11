@@ -268,6 +268,11 @@ namespace sqlpp
   template<typename... Policies>
     struct name_tag_of<statement_t<Policies...>> : public statement_t<Policies...>::_name_tag_of {};
 
+  template <typename... Policies>
+  struct nodes_of<statement_t<Policies...>>
+  {
+    using type = typename detail::type_vector<Policies...>;
+  };
 
   template <typename Context, typename... Policies>
   Context& serialize(Context& context, const statement_t<Policies...>& t)
@@ -284,7 +289,6 @@ namespace sqlpp
   struct statement_name_t
   {
     using _traits = make_traits<no_value_t, Tag>;
-    using _nodes = detail::type_vector<>;
 
     using _data_t = NameData;
 

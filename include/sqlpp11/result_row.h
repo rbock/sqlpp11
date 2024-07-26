@@ -30,7 +30,6 @@
 #include <sqlpp11/compat/string_view.h>
 #include <sqlpp11/detail/index_sequence.h>
 #include <sqlpp11/field_spec.h>
-#include <sqlpp11/no_name.h>
 #include <sqlpp11/result_row_fwd.h>
 
 namespace sqlpp

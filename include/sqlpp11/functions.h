@@ -57,6 +57,6 @@ namespace sqlpp
   template <typename T>
   constexpr const char* get_sql_name(const T& /*unused*/)
   {
-    return name_tag_of_t<T>::template char_ptr<void>();
+    return name_tag_of_t<T>::_name_t::template char_ptr<void>();
   }
 }  // namespace sqlpp

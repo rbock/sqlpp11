@@ -33,7 +33,7 @@
 #include <vector>
 
 #include <sqlpp11/chrono.h>
-#include <sqlpp11/no_name.h>
+#include <sqlpp11/name_tag.h>
 #include <sqlpp11/compat/optional.h>
 #include <sqlpp11/compat/string_view.h>
 #include <sqlpp11/compat/span.h>
@@ -126,6 +126,7 @@ namespace sqlpp
   template <typename T>
   using value_type_of_t = typename value_type_of<T>::type;
 
+#warning: Add partial specialization to handle const?
   template<typename T>
   struct value_type_of<sqlpp::compat::optional<T>>
   {
@@ -319,6 +320,10 @@ namespace sqlpp
   };
 
   template <typename T>
+  struct is_day_or_time_point : public std::integral_constant<bool, is_day_point<T>::value or is_time_point<T>::value> {
+  };
+
+  template <typename T>
   struct is_time_of_day : public std::is_same<remove_optional_t<value_type_of_t<T>>, time_of_day>
   {
   };
@@ -332,11 +337,10 @@ namespace sqlpp
       : public std::integral_constant<bool,
                                       (is_blob<L>::value and is_blob<R>::value) or
                                           (is_boolean<L>::value and is_boolean<R>::value) or
-                                          (is_day_point<L>::value and is_day_point<R>::value) or
                                           (is_numeric<L>::value and is_numeric<R>::value) or
                                           (is_text<L>::value and is_text<R>::value) or
-                                          (is_time_of_day<L>::value and is_time_of_day<R>::value) or
-                                          (is_time_point<L>::value and is_time_point<R>::value)>
+                                          (is_day_or_time_point<L>::value and is_day_or_time_point<R>::value) or
+                                          (is_time_of_day<L>::value and is_time_of_day<R>::value)>
   {
   };
 
@@ -709,31 +713,6 @@ namespace sqlpp
   }  // namespace detail
   template <typename T>
   using parameters_of = typename detail::parameters_of_impl<T>::type;
-
-  struct name_tag_base{}; // Used by SQLPP_ALIAS_PROVIDER and ddl2cpp
-  template <typename T, bool IsNameTag>
-  struct name_tag_of_impl
-  {
-    using type = no_name_t;
-  };
-  template <typename T>
-  struct name_tag_of_impl<T, true>
-  {
-    using type = typename T::_alias_t;
-  };
-
-  template <typename T>
-  struct name_tag_of
-  {
-    using type = typename name_tag_of_impl<T, std::is_base_of<name_tag_base, T>::value>::type;
-  };
-
-  template <typename T>
-  using name_tag_of_t = typename name_tag_of<T>::type;
-
-  // Override this for other classes like columns or tables.
-  template<typename T>
-  struct has_name : public std::integral_constant<bool, not std::is_same<name_tag_of_t<T>, no_name_t>::value> {};
 
   template <typename T>
   struct is_table : public std::false_type{};

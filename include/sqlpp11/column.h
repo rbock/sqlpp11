@@ -73,9 +73,15 @@ namespace sqlpp
     }
 
     template <typename T>
-    auto operator=(T value) const -> assign_expression<column_t, T>
+    auto operator=(T value) const -> assign_expression<column_t, op_assign, T>
     {
       return assign(*this, std::move(value));
+    }
+
+    template <typename T>
+    auto operator+=(T value) const -> decltype(plus_assign(*this, std::declval<T>()))
+    {
+      return plus_assign(*this, std::move(value));
     }
   };
 
