@@ -1,7 +1,7 @@
 #pragma once
 
 /*
-Copyright (c) 2017, Roland Bock
+Copyright (c) 2024, Roland Bock
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -32,6 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace sqlpp
 {
+#warning: need type tests
   template <typename Expression, typename AliasProvider>
   struct as_expression
   {
@@ -55,27 +56,12 @@ namespace sqlpp
     Expression _expression;
   };
 
-  template <typename Expression, typename AliasProvider>
-  struct value_type_of<as_expression<Expression, AliasProvider>>
-  {
-    using type = value_type_of_t<Expression>;
-  };
-
-  template <typename Expression, typename AliasProvider>
-  struct name_tag_of<as_expression<Expression, AliasProvider>>
-  {
-    using type = name_tag_of_t<AliasProvider>;
-  };
+  // No value_type_of or name_tag_of defined for as_expression, to prevent its usage outside of select columns.
 
   template <typename Expression, typename AliasProvider>
   struct nodes_of<as_expression<Expression, AliasProvider>>
   {
     using type = detail::type_vector<Expression>;
-  };
-
-  template <typename Expression, typename AliasProvider>
-  struct has_name<as_expression<Expression, AliasProvider>> : std::true_type
-  {
   };
 
   template <typename Context, typename Expression, typename AliasProvider>
@@ -93,6 +79,14 @@ namespace sqlpp
 
   template <typename Expr, typename AliasProvider, typename = check_as_args<Expr, AliasProvider>>
   constexpr auto as(Expr expr, const AliasProvider&) -> as_expression<Expr, AliasProvider>
+  {
+      return {std::move(expr)};
+  }
+
+  template <typename Expr>
+  struct dynamic_t;
+  template <typename Expr, typename AliasProvider, typename = check_as_args<Expr, AliasProvider>>
+  constexpr auto as(dynamic_t<Expr> expr, const AliasProvider&) -> as_expression<dynamic_t<Expr>, AliasProvider>
   {
       return {std::move(expr)};
   }

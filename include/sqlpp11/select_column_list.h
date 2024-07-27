@@ -27,12 +27,14 @@
  */
 
 #include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/operator/as_expression.h>
 #include <sqlpp11/dynamic.h>
 #include <sqlpp11/field_spec.h>
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/policy_update.h>
 #include <sqlpp11/result_row.h>
 #include <sqlpp11/select_as.h>
+#include <sqlpp11/select_column_traits.h>
 #include <sqlpp11/table.h>
 #include <tuple>
 
@@ -84,7 +86,7 @@ namespace sqlpp
   template <typename Select, typename Column>
   struct select_column_spec_t: public name_tag_base
   {
-    using _alias_t = name_tag_of_t<Column>;
+    using _alias_t = select_column_name_tag_of_t<Column>;
 
 #warning: Need to test this!
     static constexpr bool _depends_on_outer_table =
@@ -92,7 +94,7 @@ namespace sqlpp
         0;
   };
   template <typename Select, typename Column>
-    struct value_type_of<select_column_spec_t<Select, Column>> : public value_type_of<Column> {};
+    struct value_type_of<select_column_spec_t<Select, Column>> : public select_column_value_type_of<Column> {};
 
   SQLPP_PORTABLE_STATIC_ASSERT(
       assert_no_unknown_tables_in_selected_columns_t,
@@ -108,7 +110,6 @@ namespace sqlpp
   struct select_column_list_t
   {
     using _traits = typename detail::select_traits<Columns...>::_traits;
-    using _nodes = detail::type_vector<Columns...>;
 
     using _data_t = std::tuple<Columns...>;
 
@@ -215,13 +216,8 @@ namespace sqlpp
     };
   };
   template <typename Column>
-  struct value_type_of<select_column_list_t<Column>> : public value_type_of<Column>
+  struct value_type_of<select_column_list_t<Column>> : public select_column_value_type_of<Column>
   {
-  };
-  template <typename Column>
-  struct value_type_of<select_column_list_t<dynamic_t<Column>>>
-  {
-    using type = force_optional_t<value_type_of_t<Column>>;
   };
 
   template <typename Column>
@@ -229,16 +225,13 @@ namespace sqlpp
   {
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_selected_colums_are_selectable_t, "selected columns must be selectable");
+  template <typename... Columns>
+  struct nodes_of<select_column_list_t<Columns...>>
+  {
+    using type = detail::type_vector<Columns...>;
+  };
 
-  template <typename T>
-  struct check_selected_column : std::integral_constant<bool, has_value_type<T>::value and has_name<T>::value>
-  {
-  };
-  template <typename T>
-  struct check_selected_column<dynamic_t<T>> : check_selected_column<T>
-  {
-  };
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_selected_colums_are_selectable_t, "selected columns must be selectable");
 
   template <typename T>
   struct check_selected_tuple;
@@ -246,7 +239,7 @@ namespace sqlpp
   struct check_selected_tuple<std::tuple<T...>>
   {
     using type = static_combined_check_t<
-        static_check_t<logic::all_t<check_selected_column<T>::value...>::value,
+        static_check_t<logic::all_t<(select_column_has_value_type<T>::value and select_column_has_name<T>::value)...>::value,
                        assert_selected_colums_are_selectable_t>>;
   };
   template <typename T>
@@ -265,7 +258,6 @@ namespace sqlpp
   struct no_select_column_list_t
   {
     using _traits = make_traits<no_value_t, tag::is_noop, tag::is_missing>;
-    using _nodes = detail::type_vector<>;
 
     struct _alias_t
     {

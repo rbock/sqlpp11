@@ -25,7 +25,6 @@
 
 #include "MockDb.h"
 #include "Sample.h"
-#include "is_regular.h"
 #include <iostream>
 #include <sqlpp11/alias_provider.h>
 #include <sqlpp11/connection.h>
@@ -53,175 +52,85 @@ int SelectType(int, char*[])
   // Test a table
   {
     using T = typename std::decay<decltype(t)>::type;
-    static_assert(not sqlpp::is_numeric_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_integral_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_floating_point_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_selectable_t<T>::value, "type requirement");
-    static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
-    static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
-    static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_table_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_regular<T>::value, "type requirement");
+    static_assert(not sqlpp::is_numeric<T>::value, "type requirement");
+    static_assert(not sqlpp::is_integral<T>::value, "type requirement");
+    static_assert(not sqlpp::is_floating_point<T>::value, "type requirement");
+    static_assert(not sqlpp::is_boolean<T>::value, "type requirement");
+    static_assert(not sqlpp::is_text<T>::value, "type requirement");
+    static_assert(sqlpp::is_table<T>::value, "type requirement");
   }
 
   // Test an alias of table
   {
     using T = decltype(t.as(alias::a));
-    static_assert(not sqlpp::is_numeric_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_integral_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_floating_point_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_selectable_t<T>::value, "type requirement");
-    static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
-    static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
-    static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_alias_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_table_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_regular<T>::value, "type requirement");
+    static_assert(not sqlpp::is_numeric<T>::value, "type requirement");
+    static_assert(not sqlpp::is_integral<T>::value, "type requirement");
+    static_assert(not sqlpp::is_floating_point<T>::value, "type requirement");
+    static_assert(not sqlpp::is_boolean<T>::value, "type requirement");
+    static_assert(not sqlpp::is_text<T>::value, "type requirement");
+    static_assert(sqlpp::is_table<T>::value, "type requirement");
   }
 
   // Test an integral column of an alias of table
   {
     using T = decltype(t.as(alias::a).id);
-    static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_integral_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_floating_point_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_selectable_t<T>::value, "type requirement");
-    static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
-    static_assert(sqlpp::must_not_insert_t<T>::value, "type requirement");
-    static_assert(sqlpp::must_not_update_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_regular<T>::value, "type requirement");
+    static_assert(sqlpp::is_numeric<T>::value, "type requirement");
+    static_assert(sqlpp::is_integral<T>::value, "type requirement");
+    static_assert(not sqlpp::is_floating_point<T>::value, "type requirement");
+    static_assert(not sqlpp::is_boolean<T>::value, "type requirement");
+    static_assert(not sqlpp::is_text<T>::value, "type requirement");
+    static_assert(not sqlpp::is_table<T>::value, "type requirement");
   }
 
   // Test an integral table column
   {
     using T = decltype(t.id);
-    static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_integral_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_unsigned_integral_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_floating_point_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_selectable_t<T>::value, "type requirement");
-    static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
-    static_assert(sqlpp::must_not_insert_t<T>::value, "type requirement");
-    static_assert(sqlpp::must_not_update_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_regular<T>::value, "type requirement");
+    static_assert(sqlpp::is_numeric<T>::value, "type requirement");
+    static_assert(sqlpp::is_integral<T>::value, "type requirement");
+    static_assert(not sqlpp::is_unsigned_integral<T>::value, "type requirement");
+    static_assert(not sqlpp::is_floating_point<T>::value, "type requirement");
+    static_assert(not sqlpp::is_boolean<T>::value, "type requirement");
+    static_assert(not sqlpp::is_text<T>::value, "type requirement");
+    static_assert(not sqlpp::is_table<T>::value, "type requirement");
   }
 
   // Test an unsigned integral table column
   {
     using T = decltype(f.uIntN);
-    static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_integral_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_unsigned_integral_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_floating_point_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_selectable_t<T>::value, "type requirement");
-    static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_regular<T>::value, "type requirement");
-    // subtraction on unsigned makes it signed
-    static_assert(sqlpp::is_integral_t<sqlpp::return_type_minus_t<T, T>>::value, "type requirement");
-    static_assert(sqlpp::is_integral_t<sqlpp::return_type_unary_minus_t<T, T>>::value, "type requirement");
-    // any operation on float makes it float
-    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_minus_t<T, sqlpp::floating_point>>::value,
-                  "type requirement");
-    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_plus_t<T, sqlpp::floating_point>>::value,
-                  "type requirement");
-    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_multiplies_t<T, sqlpp::floating_point>>::value,
-                  "type requirement");
-    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_divides_t<T, sqlpp::floating_point>>::value,
-                  "type requirement");
-    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_minus_t<sqlpp::floating_point, T>>::value,
-                  "type requirement");
-    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_plus_t<sqlpp::floating_point, T>>::value,
-                  "type requirement");
-    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_multiplies_t<sqlpp::floating_point, T>>::value,
-                  "type requirement");
-    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_divides_t<sqlpp::floating_point, T>>::value,
-                  "type requirement");
-    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_modulus_t<sqlpp::floating_point, T>>::value,
-                  "type requirement");
-    // signed operation on unsigned makes it signed
-    static_assert(sqlpp::is_integral_t<sqlpp::return_type_minus_t<T, sqlpp::integral>>::value, "type requirement");
-    static_assert(sqlpp::is_integral_t<sqlpp::return_type_plus_t<T, sqlpp::integral>>::value, "type requirement");
-    static_assert(sqlpp::is_integral_t<sqlpp::return_type_multiplies_t<T, sqlpp::integral>>::value, "type requirement");
-    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_divides_t<T, sqlpp::integral>>::value,
-                  "type requirement");
-    static_assert(sqlpp::is_integral_t<sqlpp::return_type_minus_t<sqlpp::integral, T>>::value, "type requirement");
-    static_assert(sqlpp::is_integral_t<sqlpp::return_type_plus_t<sqlpp::integral, T>>::value, "type requirement");
-    static_assert(sqlpp::is_integral_t<sqlpp::return_type_multiplies_t<sqlpp::integral, T>>::value, "type requirement");
-    static_assert(sqlpp::is_floating_point_t<sqlpp::return_type_divides_t<sqlpp::integral, T>>::value,
-                  "type requirement");
-    static_assert(sqlpp::is_integral_t<sqlpp::return_type_modulus_t<sqlpp::integral, T>>::value, "type requirement");
+    static_assert(sqlpp::is_numeric<T>::value, "type requirement");
+    static_assert(not sqlpp::is_integral<T>::value, "type requirement");
+    static_assert(sqlpp::is_unsigned_integral<T>::value, "type requirement");
+    static_assert(not sqlpp::is_floating_point<T>::value, "type requirement");
+    static_assert(not sqlpp::is_table<T>::value, "type requirement");
   }
 
   // Test a floating point table column
   {
     using T = decltype(f.doubleN);
-    static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_integral_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_floating_point_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_selectable_t<T>::value, "type requirement");
-    static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
-    static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
-    static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_regular<T>::value, "type requirement");
+    static_assert(sqlpp::is_numeric<T>::value, "type requirement");
+    static_assert(not sqlpp::is_integral<T>::value, "type requirement");
+    static_assert(sqlpp::is_floating_point<T>::value, "type requirement");
+    static_assert(not sqlpp::is_boolean<T>::value, "type requirement");
+    static_assert(not sqlpp::is_text<T>::value, "type requirement");
+    static_assert(not sqlpp::is_table<T>::value, "type requirement");
   }
 
   // Test a an alias of a numeric table column
   {
     using T = decltype(t.id.as(alias::a));
-    static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_selectable_t<T>::value, "type requirement");
-    static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
-    static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
-    static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_alias_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_regular<T>::value, "type requirement");
+    static_assert(sqlpp::is_numeric<T>::value, "type requirement");
+    static_assert(not sqlpp::is_boolean<T>::value, "type requirement");
+    static_assert(not sqlpp::is_text<T>::value, "type requirement");
+    static_assert(not sqlpp::is_table<T>::value, "type requirement");
   }
 
   // Test a select of a single column without a from
   {
     using T = decltype(select(t.id));
-    static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_selectable_t<T>::value, "type requirement");
-    static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
-    static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
-    static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_regular<T>::value, "type requirement");
+    static_assert(sqlpp::is_numeric<T>::value, "type requirement");
+    static_assert(not sqlpp::is_boolean<T>::value, "type requirement");
+    static_assert(not sqlpp::is_text<T>::value, "type requirement");
+    static_assert(not sqlpp::is_table<T>::value, "type requirement");
   }
 
   // Test a select of a single numeric table column
@@ -229,97 +138,55 @@ int SelectType(int, char*[])
     using T = decltype(select(t.id).from(t));
     // static_assert(sqlpp::is_select_column_list_t<decltype(T::_column_list)>::value, "Must not be noop");
     // static_assert(sqlpp::is_from_t<decltype(T::_from)>::value, "Must not be noop");
-    static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_selectable_t<T>::value, "type requirement");
-    static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
-    static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
-    static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_regular<T>::value, "type requirement");
+    static_assert(sqlpp::is_numeric<T>::value, "type requirement");
+    static_assert(not sqlpp::is_boolean<T>::value, "type requirement");
+    static_assert(not sqlpp::is_text<T>::value, "type requirement");
+    static_assert(not sqlpp::is_table<T>::value, "type requirement");
   }
 
   // Test a select of an alias of a single numeric table column
   {
     using T = decltype(select(t.id.as(alias::a)).from(t));
-    static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_selectable_t<T>::value, "type requirement");
-    static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
-    static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
-    static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_regular<T>::value, "type requirement");
+    static_assert(sqlpp::is_numeric<T>::value, "type requirement");
+    static_assert(not sqlpp::is_boolean<T>::value, "type requirement");
+    static_assert(not sqlpp::is_text<T>::value, "type requirement");
+    static_assert(not sqlpp::is_table<T>::value, "type requirement");
   }
 
   // Test an alias of a select of a single numeric table column
   {
     using T = decltype(select(t.id).from(t).as(alias::b));
-    static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_selectable_t<T>::value, "type requirement");
-    static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
-    static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
-    static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_boolean_t<T>::value, "red to not be boolean");
-    static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_alias_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_table_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_regular<T>::value, "type requirement");
+    static_assert(sqlpp::is_numeric<T>::value, "type requirement");
+    static_assert(not sqlpp::is_boolean<T>::value, "red to not be boolean");
+    static_assert(not sqlpp::is_text<T>::value, "type requirement");
+    static_assert(sqlpp::is_table<T>::value, "type requirement");
   }
 
   // Test the column of an alias of a select of an alias of a single numeric table column
   {
     using T = decltype(select(t.id.as(alias::a)).from(t).as(alias::b));
-    static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_selectable_t<T>::value, "type requirement");
-    static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
-    static_assert(not sqlpp::must_not_insert_t<T>::value, "type requirement");
-    static_assert(not sqlpp::must_not_update_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_alias_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_table_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_regular<T>::value, "type requirement");
+    static_assert(sqlpp::is_numeric<T>::value, "type requirement");
+    static_assert(not sqlpp::is_boolean<T>::value, "type requirement");
+    static_assert(not sqlpp::is_text<T>::value, "type requirement");
+    static_assert(sqlpp::is_table<T>::value, "type requirement");
   }
 
   // Test the column of an alias of a select of a single numeric table column
   {
     using T = decltype(select(t.id).from(t).as(alias::b).id);
-    static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_selectable_t<T>::value, "type requirement");
-    static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
-    static_assert(sqlpp::must_not_insert_t<T>::value, "type requirement");
-    static_assert(sqlpp::must_not_update_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_regular<T>::value, "type requirement");
+    static_assert(sqlpp::is_numeric<T>::value, "type requirement");
+    static_assert(not sqlpp::is_boolean<T>::value, "type requirement");
+    static_assert(not sqlpp::is_text<T>::value, "type requirement");
+    static_assert(not sqlpp::is_table<T>::value, "type requirement");
   }
 
   // Test an alias of a select of an alias of a single numeric table column
   {
     using T = decltype(select(t.id.as(alias::a)).from(t).as(alias::b).a);
-    static_assert(sqlpp::is_numeric_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_expression_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_selectable_t<T>::value, "type requirement");
-    static_assert(not sqlpp::require_insert_t<T>::value, "type requirement");
-    static_assert(sqlpp::must_not_insert_t<T>::value, "type requirement");
-    static_assert(sqlpp::must_not_update_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_boolean_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_text_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_alias_t<T>::value, "type requirement");
-    static_assert(not sqlpp::is_table_t<T>::value, "type requirement");
-    static_assert(sqlpp::is_regular<T>::value, "type requirement");
+    static_assert(sqlpp::is_numeric<T>::value, "type requirement");
+    static_assert(not sqlpp::is_boolean<T>::value, "type requirement");
+    static_assert(not sqlpp::is_text<T>::value, "type requirement");
+    static_assert(not sqlpp::is_table<T>::value, "type requirement");
   }
 
   // Test that all_of(tab) is expanded in select
@@ -362,17 +229,16 @@ int SelectType(int, char*[])
     s.limit.set(30u);
     s.limit.set(3u);
     std::cerr << "------------------------\n";
-    serialize(s, printer).str();
+    serialize(printer, s).str();
     std::cerr << "------------------------\n";
     using T = decltype(s);
-    static_assert(sqlpp::is_regular<T>::value, "type requirement");
   }
 
   // Test that select can be called with zero columns if it is used with dynamic columns.
   {
     auto s = dynamic_select(db).dynamic_columns();
     s.selected_columns.add(without_table_check(t.id));
-    serialize(s, printer).str();
+    serialize(printer, s).str();
   }
 
   {
@@ -385,33 +251,24 @@ int SelectType(int, char*[])
   // Test that verbatim_table compiles
   {
     auto s = select(t.id).from(sqlpp::verbatim_table("my_unknown_table"));
-    serialize(s, printer).str();
+    serialize(printer, s).str();
   }
 
   static_assert(sqlpp::is_select_flag_t<decltype(sqlpp::all)>::value, "sqlpp::all has to be a select_flag");
-  using T = sqlpp::wrap_operand<int>::type;
-  static_assert(sqlpp::is_regular<T>::value, "type requirement");
-  static_assert(sqlpp::is_expression_t<T>::value, "T has to be an expression");
-  static_assert(sqlpp::is_numeric_t<T>::value, "T has to be numeric");
-  static_assert(sqlpp::is_numeric_t<decltype(t.id)>::value, "TabBar.id has to be a numeric");
+  static_assert(sqlpp::is_numeric<decltype(t.id)>::value, "TabBar.id has to be a numeric");
   ((t.id + 7) + 4).asc();
-  static_assert(sqlpp::is_boolean_t<decltype(t.boolNn != not(t.boolNn))>::value,
+  static_assert(sqlpp::is_boolean<decltype(t.boolNn != not(t.boolNn))>::value,
                 "Comparison expression have to be boolean");
   !t.boolNn;
-  serialize(t.textN < "kaesekuchen", printer).str();
-  serialize(t.textN + "hallenhalma", printer).str();
-  static_assert(sqlpp::must_not_insert_t<decltype(t.id)>::value, "id must not be inserted");
-  serialize(t.id, printer).str();
+  serialize(printer, t.textN < "kaesekuchen").str();
+  serialize(printer, t.textN + "hallenhalma").str();
+  serialize(printer, t.id).str();
   std::cerr << "\n" << sizeof(test::TabBar) << std::endl;
-  static_assert(sqlpp::is_selectable_t<decltype(t.id)>::value, "id should be a named expression");
-  static_assert(sqlpp::is_selectable_t<decltype(t.id.as(alias::a))>::value,
-                "an alias of id should be a named expression");
-  static_assert(sqlpp::is_alias_t<decltype(t.id.as(alias::a))>::value, "an alias of id should be an alias");
 
   auto l = t.as(alias::left);
   auto r = select(t.boolNn.as(alias::a)).from(t).where(t.boolNn == true).as(alias::right);
-  static_assert(sqlpp::is_boolean_t<decltype(select(t.boolNn).from(t))>::value, "select(bool) has to be a bool");
-  static_assert(sqlpp::is_boolean_t<decltype(select(r.a).from(r))>::value, "select(bool) has to be a bool");
+  static_assert(sqlpp::is_boolean<decltype(select(t.boolNn).from(t))>::value, "select(bool) has to be a bool");
+  static_assert(sqlpp::is_boolean<decltype(select(r.a).from(r))>::value, "select(bool) has to be a bool");
   auto s1 = sqlpp::select()
                 .flags(sqlpp::distinct, sqlpp::straight_join)
                 .columns(l.boolNn, r.a)

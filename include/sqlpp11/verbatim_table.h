@@ -28,14 +28,13 @@
 
 #include <utility>
 
-#include <sqlpp11/table.h>
-#include <sqlpp11/char_sequence.h>
+#include <sqlpp11/enable_join.h>
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
   template <typename AliasProvider>
-  struct verbatim_table_alias_t
+  struct verbatim_table_alias_t : public enable_join<verbatim_table_alias_t<AliasProvider>>
   {
     verbatim_table_alias_t(std::string representation) : _representation(std::move(representation))
     {
@@ -47,43 +46,6 @@ namespace sqlpp
     verbatim_table_alias_t& operator=(verbatim_table_alias_t&& rhs) = default;
     ~verbatim_table_alias_t() = default;
 
-#warning: We should have enable_join CRTP
-
-    template <typename T>
-    auto join(T t) const -> decltype(::sqlpp::join(*this, t))
-    {
-      return ::sqlpp::join(*this, t);
-    }
-
-    template <typename T>
-    auto inner_join(T t) const -> decltype(::sqlpp::inner_join(*this, t))
-    {
-      return ::sqlpp::inner_join(*this, t);
-    }
-
-    template <typename T>
-    auto left_outer_join(T t) const -> decltype(::sqlpp::left_outer_join(*this, t))
-    {
-      return ::sqlpp::left_outer_join(*this, t);
-    }
-
-    template <typename T>
-    auto right_outer_join(T t) const -> decltype(::sqlpp::right_outer_join(*this, t))
-    {
-      return ::sqlpp::right_outer_join(*this, t);
-    }
-
-    template <typename T>
-    auto outer_join(T t) const -> decltype(::sqlpp::outer_join(*this, t))
-    {
-      return ::sqlpp::outer_join(*this, t);
-    }
-
-    template <typename T>
-    auto cross_join(T t) const -> decltype(::sqlpp::cross_join(*this, t))
-    {
-      return ::sqlpp::cross_join(*this, t);
-    }
     std::string _representation;
   };
 
@@ -100,7 +62,7 @@ namespace sqlpp
     return context;
   }
 
-  struct verbatim_table_t
+  struct verbatim_table_t: public enable_join<verbatim_table_t>
   {
     verbatim_table_t(std::string representation) : _representation(std::move(representation))
     {
@@ -118,43 +80,6 @@ namespace sqlpp
       return {_representation};
     }
 
-#warning: We should have enable_join CRTP
-
-    template <typename T>
-    auto join(T t) const -> decltype(::sqlpp::join(*this, t))
-    {
-      return ::sqlpp::join(*this, t);
-    }
-
-    template <typename T>
-    auto inner_join(T t) const -> decltype(::sqlpp::inner_join(*this, t))
-    {
-      return ::sqlpp::inner_join(*this, t);
-    }
-
-    template <typename T>
-    auto left_outer_join(T t) const -> decltype(::sqlpp::left_outer_join(*this, t))
-    {
-      return ::sqlpp::left_outer_join(*this, t);
-    }
-
-    template <typename T>
-    auto right_outer_join(T t) const -> decltype(::sqlpp::right_outer_join(*this, t))
-    {
-      return ::sqlpp::right_outer_join(*this, t);
-    }
-
-    template <typename T>
-    auto outer_join(T t) const -> decltype(::sqlpp::outer_join(*this, t))
-    {
-      return ::sqlpp::outer_join(*this, t);
-    }
-
-    template <typename T>
-    auto cross_join(T t) const -> decltype(::sqlpp::cross_join(*this, t))
-    {
-      return ::sqlpp::cross_join(*this, t);
-    }
     std::string _representation;
   };
 

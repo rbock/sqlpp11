@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -26,17 +26,54 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/operator/as_expression.h>
+#include <sqlpp11/type_traits.h>
+#include <sqlpp11/join.h>
 
 namespace sqlpp
 {
-  template <typename Expr>
-  struct alias_operators
+  template <typename Joinable>
+  struct enable_join
   {
-    template <typename alias_provider>
-    as_expression<Expr, alias_provider> as(const alias_provider& /*unused*/) const
+    constexpr auto derived() const -> const Joinable&
     {
-      return {*static_cast<const Expr*>(this)};
+      return static_cast<const Joinable&>(*this);
+    }
+
+  public:
+    template <typename T>
+    auto join(T t) const -> decltype(::sqlpp::join(this->derived(), t))
+    {
+      return ::sqlpp::join(this->derived(), t);
+    }
+
+    template <typename T>
+    auto inner_join(T t) const -> decltype(::sqlpp::inner_join(this->derived(), t))
+    {
+      return ::sqlpp::inner_join(this->derived(), t);
+    }
+
+    template <typename T>
+    auto left_outer_join(T t) const -> decltype(::sqlpp::left_outer_join(this->derived(), t))
+    {
+      return ::sqlpp::left_outer_join(this->derived(), t);
+    }
+
+    template <typename T>
+    auto right_outer_join(T t) const -> decltype(::sqlpp::right_outer_join(this->derived(), t))
+    {
+      return ::sqlpp::right_outer_join(this->derived(), t);
+    }
+
+    template <typename T>
+    auto outer_join(T t) const -> decltype(::sqlpp::outer_join(this->derived(), t))
+    {
+      return ::sqlpp::outer_join(this->derived(), t);
+    }
+
+    template <typename T>
+    auto cross_join(T t) const -> decltype(::sqlpp::cross_join(this->derived(), t))
+    {
+      return ::sqlpp::cross_join(this->derived(), t);
     }
   };
 }  // namespace sqlpp

@@ -28,6 +28,7 @@
 
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/enable_as.h>
+#include <sqlpp11/enable_join.h>
 
 namespace sqlpp
 {
@@ -59,8 +60,8 @@ namespace sqlpp
   }
 
   template <typename Select, typename AliasProvider, typename... ColumnSpecs>
-  struct select_as_t
-      : public ColumnSpecs::_alias_t::template _member_t<pseudo_column_t<AliasProvider, ColumnSpecs>>...
+  struct select_as_t : public ColumnSpecs::_alias_t::template _member_t<pseudo_column_t<AliasProvider, ColumnSpecs>>...,
+                       public enable_join<select_as_t<Select, AliasProvider, ColumnSpecs...>>
   {
     select_as_t(Select select) : _select(select)
     {

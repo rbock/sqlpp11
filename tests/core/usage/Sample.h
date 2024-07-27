@@ -93,7 +93,7 @@ namespace test
             const T& operator()() const { return uIntN; }
           };
       };
-      using value_type = ::sqlpp::compat::optional<::sqlpp::integral>;
+      using value_type = ::sqlpp::compat::optional<::sqlpp::unsigned_integral>;
       using has_default = std::true_type;
     };
     struct BlobN : public ::sqlpp::name_tag_base

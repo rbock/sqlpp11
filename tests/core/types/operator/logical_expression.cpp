@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016, Roland Bock
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -40,28 +40,28 @@ void test_logical_expression(Value v)
   auto v_not_null= sqlpp::value(v);
   auto v_maybe_null= sqlpp::value(sqlpp::compat::make_optional(v));
 
-  // Compare non-nullable with non-nullable.
+  // Combine non-nullable with non-nullable.
   static_assert(is_bool<decltype(v_not_null and v_not_null)>::value, "");
   static_assert(is_bool<decltype(v_not_null or v_not_null)>::value, "");
 
   static_assert(is_bool<decltype(v_not_null and dynamic(true, v_not_null))>::value, "");
   static_assert(is_bool<decltype(v_not_null or dynamic(true, v_not_null))>::value, "");
 
-  // Compare nullable with non-nullable.
+  // Combine nullable with non-nullable.
   static_assert(is_maybe_bool<decltype(v_maybe_null and v_not_null)>::value, "");
   static_assert(is_maybe_bool<decltype(v_maybe_null or v_not_null)>::value, "");
 
   static_assert(is_maybe_bool<decltype(v_maybe_null and dynamic(true, v_not_null))>::value, "");
   static_assert(is_maybe_bool<decltype(v_maybe_null or dynamic(true, v_not_null))>::value, "");
 
-  // Compare non-nullable with nullable.
+  // Combine non-nullable with nullable.
   static_assert(is_maybe_bool<decltype(v_not_null and v_maybe_null)>::value, "");
   static_assert(is_maybe_bool<decltype(v_not_null or v_maybe_null)>::value, "");
 
   static_assert(is_maybe_bool<decltype(v_not_null and dynamic(true, v_maybe_null))>::value, "");
   static_assert(is_maybe_bool<decltype(v_not_null or dynamic(true, v_maybe_null))>::value, "");
 
-  // Compare nullable with nullable.
+  // Combine nullable with nullable.
   static_assert(is_maybe_bool<decltype(v_maybe_null and v_maybe_null)>::value, "");
   static_assert(is_maybe_bool<decltype(v_maybe_null or v_maybe_null)>::value, "");
 
@@ -72,9 +72,19 @@ void test_logical_expression(Value v)
   static_assert(is_bool<decltype(not(v_not_null))>::value, "");
   static_assert(is_maybe_bool<decltype(not(v_maybe_null))>::value, "");
 
-#warning: test can be aliased
-#warning: test has comparison operators
-#warning: test nodes
+  // Logical expressions have the `as` member function.
+  static_assert(sqlpp::has_enabled_as<decltype(v_not_null and v_maybe_null)>::value, "");
+  static_assert(sqlpp::has_enabled_as<decltype(v_maybe_null or dynamic(true, v_maybe_null))>::value, "");
+
+  // Logical expressions do not enable comparison member functions.
+  static_assert(not sqlpp::has_enabled_comparison<decltype(v_not_null == v_maybe_null)>::value, "");
+  static_assert(not sqlpp::has_enabled_comparison<decltype(v_maybe_null or dynamic(true, v_maybe_null))>::value, "");
+
+  // Logical expressions have their arguments as nodes.
+  using L = typename std::decay<decltype(v_not_null)>::type;
+  using R = typename std::decay<decltype(v_maybe_null)>::type;
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(v_not_null and v_maybe_null)>, sqlpp::detail::type_vector<L, R>>::value, "");
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(v_not_null and dynamic(true, v_maybe_null))>, sqlpp::detail::type_vector<L, sqlpp::dynamic_t<R>>>::value, "");
 }
 
 int main()

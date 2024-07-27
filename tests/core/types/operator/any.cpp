@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016, Roland Bock
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -35,13 +35,12 @@ void test_any(Value v)
   using OptValueType = sqlpp::value_type_of_t<sqlpp::compat::optional<Value>>;
 
   // Selectable values.
-  auto v_not_null = sqlpp::value(v).as(r_not_null);
+  const auto v_not_null = sqlpp::value(v).as(r_not_null);
   const auto v_maybe_null = sqlpp::value(sqlpp::compat::make_optional(v)).as(r_maybe_null);
 
   // ANY expression are not to be in most expressions and therefore have no value defined.
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(any(select(v_not_null)))>, sqlpp::no_value_t>::value, "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(any(select(v_maybe_null)))>, sqlpp::no_value_t>::value,
-                "");
+  static_assert(not sqlpp::has_value_type<decltype(any(select(v_not_null)))>::value, "");
+  static_assert(not sqlpp::has_value_type<decltype(any(select(v_maybe_null)))>::value, "");
 
   // ANY expression can be used in basic comparison expressions, which use remove_any_t to look inside.
   static_assert(
@@ -51,9 +50,17 @@ void test_any(Value v)
                              OptValueType>::value,
                 "");
 
-#warning: test can be aliased
-#warning: test has comparison operators
-#warning: test nodes
+  // ANY expressions do not have `as` member function.
+  static_assert(not sqlpp::has_enabled_as<decltype(any(select(v_not_null)))>::value, "");
+
+  // ANY expressions do not enable comparison member functions.
+  static_assert(not sqlpp::has_enabled_comparison<decltype(any(select(v_not_null)))>::value, "");
+
+  // ANY expressions have the SELECT as node.
+  using S = decltype(select(v_not_null));
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(any(select(v_not_null)))>, sqlpp::detail::type_vector<S>>::value, "");
+
+#warning: Note that a sub select may require tables from the enclosing select. This is currently not correctly implemented. We need to test that.
 }
 
 int main()

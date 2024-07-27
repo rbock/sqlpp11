@@ -47,7 +47,6 @@ namespace sqlpp
   struct from_t
   {
     using _traits = make_traits<no_value_t, tag::is_from>;
-    using _nodes = detail::type_vector<Table>;
 
     using _data_t = from_data_t<Table>;
 
@@ -64,6 +63,12 @@ namespace sqlpp
       // FIXME: We might want to check if we have too many tables define in the FROM
       using _consistency_check = consistent_t;
     };
+  };
+
+  template<typename Table>
+  struct nodes_of<from_t<Table>>
+  {
+    using type = detail::type_vector<Table>;
   };
 
   SQLPP_PORTABLE_STATIC_ASSERT(
@@ -94,7 +99,6 @@ namespace sqlpp
   struct no_from_t
   {
     using _traits = make_traits<no_value_t, tag::is_noop>;
-    using _nodes = detail::type_vector<>;
 
     using _data_t = no_data_t;
 

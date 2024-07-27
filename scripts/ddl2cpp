@@ -691,7 +691,7 @@ def createHeader():
                     % (sqlTableName, sqlColumnName)
                 )
                 DataTypeError = True
-            if columnType == "integer" and column.isUnsigned:
+            if columnType == "integral" and column.isUnsigned:
                 columnType = "unsigned_" + columnType
             if columnType == "time_point" and not noTimestampWarning:
                 print(

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016, Roland Bock
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -68,8 +68,16 @@ void test_assign_expression(const Column& col, const Value& v)
                              sqlpp::detail::type_vector<Column, OptValueType>>::value,
                 "");
 
-#warning: test can be aliased
-#warning: test has comparison operators
+  // Assign expressions do not have the `as` member function.
+  static_assert(not sqlpp::has_enabled_as<decltype(col = v_not_null)>::value, "");
+
+  // Assign expressions do not enable comparison member functions.
+  static_assert(not sqlpp::has_enabled_comparison<decltype(col = v_not_null)>::value, "");
+
+  // Assign expressions have their arguments as nodes.
+  using L = typename std::decay<decltype(col)>::type;
+  using R = typename std::decay<decltype(v_not_null)>::type;
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(col = v_not_null)>, sqlpp::detail::type_vector<L, R>>::value, "");
 }
 
 #warning: test that non-nullable columns cannot be assigned optional values

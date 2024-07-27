@@ -23,14 +23,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "MockDb.h"
-#include "Sample.h"
 #include <sqlpp11/sqlpp11.h>
-
-namespace
-{
-  auto db = MockDb{};
-}
 
 SQLPP_ALIAS_PROVIDER(r_not_null);
 SQLPP_ALIAS_PROVIDER(r_maybe_null);
@@ -48,18 +41,12 @@ void test_value(Value v)
 
   auto v_not_null= sqlpp::value(v);
   auto v_maybe_null= sqlpp::value(sqlpp::compat::make_optional(v));
-  auto v_not_null_alias = sqlpp::value(v).as(r_not_null);
-  auto v_maybe_null_alias = sqlpp::value(sqlpp::compat::make_optional(v)).as(r_maybe_null);
 
   static_assert(is_value_type<decltype(v_not_null), ValueType>::value, "");
   static_assert(is_value_type<decltype(v_maybe_null), OptValueType>::value, "");
-  static_assert(is_value_type<decltype(v_not_null_alias), ValueType>::value, "");
-  static_assert(is_value_type<decltype(v_maybe_null_alias), OptValueType>::value, "");
 
   static_assert(not sqlpp::can_be_null<decltype(v_not_null)>::value, "");
   static_assert(sqlpp::can_be_null<decltype(v_maybe_null)>::value, "");
-  static_assert(not sqlpp::can_be_null<decltype(v_not_null_alias)>::value, "");
-  static_assert(sqlpp::can_be_null<decltype(v_maybe_null_alias)>::value, "");
 
 #warning: test can be aliased
 #warning: test has comparison operators

@@ -52,7 +52,11 @@ void print_row(Row const& row)
   std::cout << a << ", " << b << std::endl;
 }
 
-SQLPP_ALIAS_PROVIDER(cheese)
+SQLPP_ALIAS_PROVIDER(param2);
+SQLPP_ALIAS_PROVIDER(cheese);
+SQLPP_ALIAS_PROVIDER(average);
+SQLPP_ALIAS_PROVIDER(N);
+
 
 int Select(int, char*[])
 {
@@ -63,11 +67,11 @@ int Select(int, char*[])
   const auto t = test::TabBar{};
   const auto tab_a = f.as(sqlpp::alias::a);
 
-  select(count(t.id));
-  select(sqlpp::count(1));
-  select(count(sqlpp::value(1)));
+  select(count(t.id).as(N));
+  select(sqlpp::count(1).as(N));
+  select(count(sqlpp::value(1)).as(N));
 
-  std::cerr << serialize(select(sqlpp::value(false).as(sqlpp::alias::a)), printer).str() << std::endl;
+  std::cerr << serialize(printer, select(sqlpp::value(false).as(sqlpp::alias::a))).str() << std::endl;
   for (const auto& row : db(select(sqlpp::value(false).as(sqlpp::alias::a))))
   {
     std::cout << row.a << std::endl;
@@ -109,14 +113,14 @@ int Select(int, char*[])
     std::cout << row.id << std::endl;
   }
 
-  for (const auto& row : db(select(sqlpp::count(1), avg(t.id)).from(t).unconditionally()))
+  for (const auto& row : db(select(sqlpp::count(1).as(N), avg(t.id).as(average)).from(t).unconditionally()))
   {
-    std::cout << row.count << std::endl;
+    std::cout << row.N << std::endl;
   }
 
-  for (const auto& row : db(select(count(t.id), avg(t.id)).from(t).where(t.id == 0)))
+  for (const auto& row : db(select(count(t.id).as(N), avg(t.id).as(average)).from(t).where(t.id == 0)))
   {
-    std::cout << row.count << std::endl;
+    std::cout << row.N << std::endl;
   }
 
   auto stat = sqlpp::select()
@@ -130,7 +134,7 @@ int Select(int, char*[])
                   .offset(19u)
                   .limit(7u);
   printer.reset();
-  std::cerr << serialize(stat, printer).str() << std::endl;
+  std::cerr << serialize(printer, stat).str() << std::endl;
 
   auto s = sqlpp::select()
                .columns(t.id)
@@ -150,12 +154,12 @@ int Select(int, char*[])
   }
 
   printer.reset();
-  std::cerr << serialize(s, printer).str() << std::endl;
+  std::cerr << serialize(printer, s).str() << std::endl;
 
   select(sqlpp::value(7).as(t.id));
 
   for (const auto& row :
-       db(select(sqlpp::case_when(true).then(t.textN).else_(sqlpp::null).as(t.textN)).from(t).unconditionally()))
+       db(select(sqlpp::case_when(true).then(t.textN).else_(sqlpp::compat::nullopt).as(t.textN)).from(t).unconditionally()))
   {
     std::cerr << row.textN << std::endl;
   }
@@ -182,16 +186,16 @@ int Select(int, char*[])
   }
 
   for (const auto& row :
-       db(select(f.doubleN, select(count(t.id)).from(t).unconditionally().as(cheese)).from(f).unconditionally()))
+       db(select(f.doubleN, select(count(t.id).as(N)).from(t).unconditionally().as(cheese)).from(f).unconditionally()))
   {
     std::cout << row.doubleN << " " << row.cheese << std::endl;
   }
 
   // checking #584
-  auto abs = db.prepare(select(t.alpha).from(t).where(sqlpp::parameterized_verbatim<sqlpp::unsigned_integral>(
-                 "ABS(field1 -", sqlpp::parameter(t.alpha), ")") <=
+  auto abs = db.prepare(select(t.id).from(t).where(sqlpp::parameterized_verbatim<sqlpp::unsigned_integral>(
+                 "ABS(field1 -", sqlpp::parameter(t.id), ")") <=
              sqlpp::parameter(sqlpp::unsigned_integral(), param2)));
-  abs.params.alpha = 7;
+  abs.params.id = 7;
   abs.params.param2 = 7;
 
   return 0;

@@ -1,4 +1,4 @@
-# Copyright (c) 2016-2016, Roland Bock
+# Copyright (c) 2024, Roland Bock
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -34,11 +34,11 @@ function(test_compile name)
     endif()
 endfunction()
 
-add_subdirectory(operator)
-test_compile(aggregate_functions)
-test_compile(case_when)
-test_compile(dynamic)
-test_compile(result_row)
-test_compile(select_as)
-test_compile(value)
+test_compile(any)
+test_compile(arithmetic_expression)
+test_compile(as_expression)
+test_compile(assign_expression)
+test_compile(comparison_expression)
+test_compile(in_expression)
+test_compile(logical_expression)
 

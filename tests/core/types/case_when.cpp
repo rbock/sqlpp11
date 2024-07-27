@@ -41,8 +41,8 @@ void test_case_when(Value v)
   using OptValueType = sqlpp::value_type_of_t<sqlpp::compat::optional<Value>>;
 
   // Selectable values.
-  auto v_not_null = sqlpp::value(v).as(r_not_null);
-  const auto v_maybe_null = sqlpp::value(sqlpp::compat::make_optional(v)).as(r_maybe_null);
+  auto v_not_null = sqlpp::value(v);
+  const auto v_maybe_null = sqlpp::value(sqlpp::compat::make_optional(v));
 
   // No value types for incomplete clauses
   static_assert(is_same_type<decltype(sqlpp::case_when(true)), sqlpp::no_value_t>::value, "");

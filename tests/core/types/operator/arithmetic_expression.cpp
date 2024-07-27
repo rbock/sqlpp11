@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016, Roland Bock
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -80,9 +80,18 @@ void test_arithmetic_expressions(Value v)
   static_assert(is_same_type<sqlpp::value_type_of_t<decltype(-value)>, ValueType>(), "");
   static_assert(is_same_type<sqlpp::value_type_of_t<decltype(-opt_value)>, OptValueType>(), "");
 
-#warning: test can be aliased
-#warning: test has comparison operators
-#warning: test nodes
+  // Arithmetic expressions enable the `as` member function.
+  static_assert(sqlpp::has_enabled_as<decltype(value + opt_value)>::value, "");
+  static_assert(sqlpp::has_enabled_as<decltype(-opt_value)>::value, "");
+
+  // Arithmetic expressions enable comparison member functions.
+  static_assert(sqlpp::has_enabled_comparison<decltype(-opt_value)>::value, "");
+
+  // Arithmetic expressions have their arguments as nodes
+  using L = typename std::decay<decltype(value)>::type;
+  using R = typename std::decay<decltype(opt_value)>::type;
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(value + opt_value)>, sqlpp::detail::type_vector<L, R>>::value, "");
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(-opt_value)>, sqlpp::detail::type_vector<sqlpp::noop, R>>::value, "");
 }
 
 template<typename Value>
@@ -105,6 +114,17 @@ void test_modulus_expressions(Value v)
 
   // Modulus combining optional with optional values
   static_assert(is_same_type<sqlpp::value_type_of_t<decltype(opt_value % opt_value)>, OptValueType>(), "");
+
+  // Modulus expressions enable the `as` member function.
+  static_assert(sqlpp::has_enabled_as<decltype(value % opt_value)>::value, "");
+
+  // Modulus expressions enable comparison member functions.
+  static_assert(sqlpp::has_enabled_comparison<decltype(value % opt_value)>::value, "");
+
+  // Modulus expressions have their arguments as nodes
+  using L = typename std::decay<decltype(value)>::type;
+  using R = typename std::decay<decltype(opt_value)>::type;
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(value % opt_value)>, sqlpp::detail::type_vector<L, R>>::value, "");
 }
 
 template<typename Value>
@@ -127,6 +147,17 @@ void test_concatenation_expressions(Value v)
 
   // Concatenating optional with optional values
   static_assert(is_same_type<sqlpp::value_type_of_t<decltype(opt_value + opt_value)>, OptValueType>(), "");
+
+  // Modulus expressions enable the `as` member function.
+  static_assert(sqlpp::has_enabled_as<decltype(value + opt_value)>::value, "");
+
+  // Modulus expressions enable comparison member functions.
+  static_assert(sqlpp::has_enabled_comparison<decltype(value + opt_value)>::value, "");
+
+  // Modulus expressions have their arguments as nodes
+  using L = typename std::decay<decltype(value)>::type;
+  using R = typename std::decay<decltype(opt_value)>::type;
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(value + opt_value)>, sqlpp::detail::type_vector<L, R>>::value, "");
 }
 
 int main()

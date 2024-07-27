@@ -29,7 +29,7 @@
 #include <type_traits>
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/dynamic.h>
+#include <sqlpp11/select_column_traits.h>
 
 namespace sqlpp
 {
@@ -76,23 +76,14 @@ namespace sqlpp
     template <typename Select, typename NamedExpr>
     struct make_field_spec_impl
     {
-      using ValueType = value_type_of_t<NamedExpr>;
+      using ValueType = select_column_value_type_of_t<NamedExpr>;
       static constexpr bool _depends_on_outer_table =
           detail::make_intersect_set_t<required_tables_of_t<NamedExpr>,
                                        typename Select::_used_outer_tables>::size::value > 0;
 
       using type = field_spec_t<
-          name_tag_of_t<NamedExpr>,
+          select_column_name_tag_of_t<NamedExpr>,
           typename std::conditional<_depends_on_outer_table, sqlpp::force_optional_t<ValueType>, ValueType>::type>;
-    };
-
-    template <typename Select, typename NamedExpr>
-    struct make_field_spec_impl<Select, dynamic_t<NamedExpr>>
-    {
-      using ValueType = force_optional_t<value_type_of_t<NamedExpr>>;
-
-      using type = field_spec_t<name_tag_of_t<NamedExpr>,
-                                ValueType>;
     };
   }  // namespace detail
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016, Roland Bock
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -36,7 +36,7 @@ SQLPP_ALIAS_PROVIDER(r_not_null);
 SQLPP_ALIAS_PROVIDER(r_maybe_null);
 
 template <typename T, typename ValueType>
-using is_value_type = std::is_same<sqlpp::value_type_of_t<T>, ValueType>;
+using is_select_column_value_type = std::is_same<sqlpp::select_column_value_type_of_t<T>, ValueType>;
 
 template<typename Value>
 void test_dynamic(Value v)
@@ -46,8 +46,8 @@ void test_dynamic(Value v)
 
   auto v_not_null= dynamic(true, sqlpp::value(v));
   auto v_maybe_null= dynamic(true, sqlpp::value(sqlpp::compat::make_optional(v)));
-  auto v_not_null_alias = dynamic(true, sqlpp::value(v).as(r_not_null));
-  auto v_maybe_null_alias = dynamic(true, sqlpp::value(sqlpp::compat::make_optional(v)).as(r_maybe_null));
+  auto v_not_null_alias = dynamic(true, sqlpp::value(v)).as(r_not_null);
+  auto v_maybe_null_alias = dynamic(true, sqlpp::value(sqlpp::compat::make_optional(v))).as(r_maybe_null);
 
   static_assert(not sqlpp::has_value_type<decltype(v_not_null)>::value, "");
   static_assert(not sqlpp::has_value_type<decltype(v_maybe_null)>::value, "");
@@ -59,10 +59,15 @@ void test_dynamic(Value v)
   static_assert(sqlpp::has_name<decltype(v_not_null_alias)>::value, "");
   static_assert(sqlpp::has_name<decltype(v_maybe_null_alias)>::value, "");
 
-  static_assert(is_value_type<sqlpp::remove_dynamic_t<decltype(v_not_null)>, ValueType>::value, "");
-  static_assert(is_value_type<sqlpp::remove_dynamic_t<decltype(v_maybe_null)>, OptValueType>::value, "");
-  static_assert(is_value_type<sqlpp::remove_dynamic_t<decltype(v_not_null_alias)>, ValueType>::value, "");
-  static_assert(is_value_type<sqlpp::remove_dynamic_t<decltype(v_maybe_null_alias)>, OptValueType>::value, "");
+  static_assert(is_select_column_value_type<decltype(v_not_null), OptValueType>::value, "");
+  static_assert(is_select_column_value_type<decltype(v_maybe_null), OptValueType>::value, "");
+  static_assert(is_select_column_value_type<decltype(v_not_null_alias), OptValueType>::value, "");
+  static_assert(is_select_column_value_type<decltype(v_maybe_null_alias), OptValueType>::value, "");
+
+  static_assert(not sqlpp::select_column_has_name<decltype(v_not_null)>::value, "");
+  static_assert(not sqlpp::select_column_has_name<decltype(v_maybe_null)>::value, "");
+  static_assert(sqlpp::select_column_has_name<decltype(v_not_null_alias)>::value, "");
+  static_assert(sqlpp::select_column_has_name<decltype(v_maybe_null_alias)>::value, "");
 
 #warning: test can be aliased
 #warning: test has comparison operators

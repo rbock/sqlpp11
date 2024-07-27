@@ -26,8 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/operator/as_expression.h>
-#include <sqlpp11/column_fwd.h>
+#include <sqlpp11/enable_join.h>
 #include <sqlpp11/table_columns.h>
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/serialize.h>
@@ -37,15 +36,9 @@
 namespace sqlpp
 {
   template <typename AliasProvider, typename TableSpec>
-  struct table_alias_t : public TableSpec::_table_columns<AliasProvider>
+  struct table_alias_t : public TableSpec::_table_columns<AliasProvider>,
+                         public enable_join<table_alias_t<AliasProvider, TableSpec>>
   {
-#warning: Need to declare this an alias?
-    /*
-    using _traits = make_traits<value_type_of_t<TableSpec>,
-                                tag::is_alias,
-                                tag_if<tag::is_selectable, is_expression_t<TableSpec>::value>>;
-                                */
-
     using _nodes = detail::type_vector<>;
     using _required_ctes = required_ctes_of<TableSpec>;
     using _provided_tables = detail::type_set<AliasProvider>;
@@ -54,42 +47,6 @@ namespace sqlpp
 
 #warning: need to inherit?
     //using _column_tuple_t = std::tuple<column_t<AliasProvider, ColumnSpec>...>;
-
-    template <typename T>
-    auto join(T t) const -> decltype(::sqlpp::join(*this, t))
-    {
-      return ::sqlpp::join(*this, t);
-    }
-
-    template <typename T>
-    auto inner_join(T t) const -> decltype(::sqlpp::inner_join(*this, t))
-    {
-      return ::sqlpp::inner_join(*this, t);
-    }
-
-    template <typename T>
-    auto left_outer_join(T t) const -> decltype(::sqlpp::left_outer_join(*this, t))
-    {
-      return ::sqlpp::left_outer_join(*this, t);
-    }
-
-    template <typename T>
-    auto right_outer_join(T t) const -> decltype(::sqlpp::right_outer_join(*this, t))
-    {
-      return ::sqlpp::right_outer_join(*this, t);
-    }
-
-    template <typename T>
-    auto outer_join(T t) const -> decltype(::sqlpp::outer_join(*this, t))
-    {
-      return ::sqlpp::outer_join(*this, t);
-    }
-
-    template <typename T>
-    auto cross_join(T t) const -> decltype(::sqlpp::cross_join(*this, t))
-    {
-      return ::sqlpp::cross_join(*this, t);
-    }
   };
 
   template<typename AliasProvider, typename TableSpec>

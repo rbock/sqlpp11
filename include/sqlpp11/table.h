@@ -26,6 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp11/enable_join.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/table_alias.h>
 #include <sqlpp11/all_of.h>
@@ -36,7 +37,7 @@
 namespace sqlpp
 {
   template <typename TableSpec>
-  struct table_t : public TableSpec::_table_columns<TableSpec>
+  struct table_t : public TableSpec::_table_columns<TableSpec>, public enable_join<table_t<TableSpec>>
   {
     using _traits = make_traits<no_value_t, tag::is_raw_table>;
 
@@ -50,42 +51,6 @@ namespace sqlpp
     using _foreign_table_alias_t = table_alias_t<AliasProvider, T>;
     template <typename AliasProvider>
     using _alias_t = table_alias_t<AliasProvider, TableSpec>;
-
-    template <typename T>
-    auto join(T t) const -> decltype(::sqlpp::join(*this, t))
-    {
-      return ::sqlpp::join(*this, t);
-    }
-
-    template <typename T>
-    auto inner_join(T t) const -> decltype(::sqlpp::inner_join(*this, t))
-    {
-      return ::sqlpp::inner_join(*this, t);
-    }
-
-    template <typename T>
-    auto left_outer_join(T t) const -> decltype(::sqlpp::left_outer_join(*this, t))
-    {
-      return ::sqlpp::left_outer_join(*this, t);
-    }
-
-    template <typename T>
-    auto right_outer_join(T t) const -> decltype(::sqlpp::right_outer_join(*this, t))
-    {
-      return ::sqlpp::right_outer_join(*this, t);
-    }
-
-    template <typename T>
-    auto outer_join(T t) const -> decltype(::sqlpp::outer_join(*this, t))
-    {
-      return ::sqlpp::outer_join(*this, t);
-    }
-
-    template <typename T>
-    auto cross_join(T t) const -> decltype(::sqlpp::cross_join(*this, t))
-    {
-      return ::sqlpp::cross_join(*this, t);
-    }
 
     template <typename AliasProvider>
     _alias_t<AliasProvider> as(const AliasProvider& /*unused*/) const

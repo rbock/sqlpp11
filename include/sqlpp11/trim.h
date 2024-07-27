@@ -37,8 +37,6 @@ namespace sqlpp
   {
     using _traits = make_traits<text, tag::is_expression, tag::is_selectable>;
 
-    using _nodes = detail::type_vector<Expr>;
-
     trim_t(const Expr expr) : _expr(expr)
     {
     }
@@ -51,6 +49,15 @@ namespace sqlpp
 
     Expr _expr;
   };
+
+  template<typename Expr>
+    struct value_type_of<trim_t<Expr>> : public value_type_of<Expr> {};
+
+  template<typename Expr>
+    struct nodes_of<trim_t<Expr>>
+    {
+      using type = detail::type_vector<Expr>;
+    };
 
   template <typename Context, typename Expr>
   Context& serialize(Context& context, const trim_t<Expr>& t)

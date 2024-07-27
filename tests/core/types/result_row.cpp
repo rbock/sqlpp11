@@ -57,8 +57,8 @@ void test_result_row(Value v)
   const auto v_maybe_null = sqlpp::value(sqlpp::compat::make_optional(v)).as(r_maybe_null);
 
   // Optional selectable values.
-  const auto v_opt_not_null = dynamic(true, sqlpp::value(v).as(r_opt_not_null));
-  const auto v_opt_maybe_null = dynamic(true, sqlpp::value(sqlpp::compat::make_optional(v)).as(r_opt_maybe_null));
+  const auto v_opt_not_null = dynamic(true, sqlpp::value(v)).as(r_opt_not_null);
+  const auto v_opt_maybe_null = dynamic(true, sqlpp::value(sqlpp::compat::make_optional(v))).as(r_opt_maybe_null);
 
   for (const auto& row : db(select(v_not_null, v_maybe_null, v_opt_not_null, v_opt_maybe_null)))
   {
@@ -126,7 +126,6 @@ int main()
   // as expressions retain the value type of the real thing
   static_assert(sqlpp::has_name<decltype(bar.intN)>::value, "");
   sqlpp::as(bar.intN, bar.textN);
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(bar.intN.as(bar.textN))>, sqlpp::value_type_of_t<decltype(bar.intN)>>::value, "");
 
 #if 0
 

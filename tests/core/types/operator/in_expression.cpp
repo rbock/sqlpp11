@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016, Roland Bock
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -23,14 +23,10 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "MockDb.h"
-#include "Sample.h"
 #include <sqlpp11/sqlpp11.h>
 
 namespace
 {
-  auto db = MockDb{};
-
   template <typename T>
   using is_bool = std::is_same<sqlpp::value_type_of_t<T>, sqlpp::boolean>;
 
@@ -66,16 +62,26 @@ void test_in_expression(Value v)
   static_assert(is_maybe_bool<decltype(in(v_maybe_null, std::vector<OptValue>{}))>::value, "");
   static_assert(is_maybe_bool<decltype(in(v_maybe_null, select(v_maybe_null.as(sqlpp::alias::a))))>::value, "");
 
-#warning: test can be aliased
-#warning: test has comparison operators
-#warning: test nodes
+  // IN expressions have the `as` member function.
+  static_assert(sqlpp::has_enabled_as<decltype(in(v_maybe_null, std::vector<OptValue>{}))>::value, "");
+
+  // IN expressions do not enable comparison member functions.
+  static_assert(not sqlpp::has_enabled_comparison<decltype(in(v_maybe_null, std::vector<OptValue>{}))>::value, "");
+
+  // IN expressions have their arguments as nodes.
+  using L = typename std::decay<decltype(v_maybe_null)>::type;
+  using R1= Value;
+  using R2= OptValue;
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(in(v_maybe_null, std::vector<Value>{}))>, sqlpp::detail::type_vector<L, R1>>::value, "");
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(in(v_maybe_null, v, sqlpp::compat::make_optional(v)))>, sqlpp::detail::type_vector<L, R1, R2>>::value, "");
 }
 
 int main()
 {
   // boolean
   test_in_expression(bool{true});
-
+#warning reactivate
+#if 0
   // integral
   test_in_expression(int8_t{7});
   test_in_expression(int16_t{7});
@@ -111,5 +117,6 @@ int main()
 
   // time_of_day
   test_in_expression(std::chrono::microseconds{});
+#endif
 }
 

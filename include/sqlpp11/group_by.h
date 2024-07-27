@@ -82,13 +82,13 @@ namespace sqlpp
     };
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_group_by_args_are_expressions_t,
-                               "arguments for group_by() must be valid expressions");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_group_by_args_have_values_t,
+                               "all arguments for group_by() must have values");
   template <typename... Exprs>
   struct check_group_by
   {
     using type = static_combined_check_t<
-        static_check_t<logic::all_t<is_expression_t<Exprs>::value...>::value, assert_group_by_args_are_expressions_t>>;
+        static_check_t<logic::all_t<has_value_type<Exprs>::value...>::value, assert_group_by_args_have_values_t>>;
   };
   template <typename... Exprs>
   using check_group_by_t = typename check_group_by<Exprs...>::type;

@@ -52,7 +52,6 @@ namespace sqlpp
   struct where_t
   {
     using _traits = make_traits<no_value_t, tag::is_where>;
-    using _nodes = detail::type_vector<Expression>;
 
     using _data_t = where_data_t<Expression>;
 
@@ -73,6 +72,12 @@ namespace sqlpp
     };
   };
 
+  template <typename Expression>
+  struct nodes_of<where_t<Expression>>
+  {
+    using type = detail::type_vector<Expression>;
+  };
+
   template <>
   struct where_data_t<unconditional_t>
   {
@@ -83,7 +88,6 @@ namespace sqlpp
   struct where_t<unconditional_t>
   {
     using _traits = make_traits<no_value_t, tag::is_where>;
-    using _nodes = detail::type_vector<>;
 
     using _data_t = where_data_t<unconditional_t>;
 
@@ -138,7 +142,6 @@ namespace sqlpp
   struct no_where_t
   {
     using _traits = make_traits<no_value_t, tag::is_where>;
-    using _nodes = detail::type_vector<>;
 
     using _data_t = no_data_t;
 

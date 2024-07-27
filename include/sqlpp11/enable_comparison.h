@@ -123,4 +123,7 @@ namespace sqlpp
     }
   };
 
+  template <typename T>
+  struct has_enabled_comparison : public std::is_base_of<enable_comparison<T>, T>{};
+
 }  // namespace sqlpp

@@ -42,10 +42,14 @@ namespace sqlpp
 
   public:
     template <typename AliasProvider>
-    constexpr auto as(const AliasProvider& alias) const
+    constexpr auto as(const AliasProvider& alias) const -> decltype(::sqlpp::as(this->derived(), alias))
     {
       return ::sqlpp::as(this->derived(), alias);
     }
   };
+
+#warning: columns and tables should also use enable_as with specialized as_expression functions.
+  template <typename T>
+  struct has_enabled_as : public std::is_base_of<enable_as<T>, T>{};
 
 }  // namespace sqlpp

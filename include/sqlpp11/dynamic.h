@@ -27,12 +27,13 @@
  */
 
 #include <sqlpp11/type_traits.h>
+#include <sqlpp11/enable_as.h>
 #include <sqlpp11/serialize.h>
 
 namespace sqlpp
 {
   template <typename Expr>
-  struct dynamic_t
+  struct dynamic_t: public enable_as<dynamic_t<Expr>>
   {
     using _traits = make_traits<value_type_of_t<Expr>, tag::is_multi_expression>;
 
@@ -50,13 +51,7 @@ namespace sqlpp
     Expr _expr;
   };
 
-  // No value_type_of defined for dynamic_t, because it is to be used in very specific contexts in which _expr may be
-  // used depending on the value of _condition.
-
-  template <typename Expr>
-  struct name_tag_of<dynamic_t<Expr>> : public name_tag_of<Expr>
-  {
-  };
+  // No value_type_of or name_tag_of defined for dynamic_t, to prevent its usage outside of select columns.
 
   template <typename Expr>
   struct nodes_of<dynamic_t<Expr>> : public nodes_of<Expr>
