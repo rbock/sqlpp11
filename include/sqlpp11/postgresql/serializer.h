@@ -28,7 +28,7 @@
  */
 
 #include <sqlpp11/chrono.h>
-#include <sqlpp11/parameter.h>
+#include <sqlpp11/basic/parameter.h>
 
 namespace sqlpp
 {

@@ -34,5 +34,5 @@
 #include <sqlpp11/function.h>
 #include <sqlpp11/operator.h>
 #include <sqlpp11/transaction.h>
-#include <sqlpp11/schema_qualified_table.h>
+#include <sqlpp11/basic/schema_qualified_table.h>
 #include <sqlpp11/custom_query.h>

@@ -36,7 +36,7 @@
 #include <sqlpp11/statement_fwd.h>
 #include <sqlpp11/type_traits.h>
 
-#include <sqlpp11/cte.h>
+#include <sqlpp11/clause/cte.h>
 
 namespace sqlpp
 {

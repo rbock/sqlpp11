@@ -35,7 +35,7 @@
 #include <sqlpp11/connection.h>
 #include <sqlpp11/detail/float_safe_ostringstream.h>
 #include <sqlpp11/exception.h>
-#include <sqlpp11/schema.h>
+#include <sqlpp11/basic/schema.h>
 #include <sqlpp11/serialize.h>
 #include <sqlpp11/sqlite3/bind_result.h>
 #include <sqlpp11/sqlite3/connection_config.h>

@@ -29,7 +29,7 @@
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/field_spec.h>
 #include <sqlpp11/alias_provider.h>
-#include <sqlpp11/verbatim.h>
+#include <sqlpp11/basic/verbatim.h>
 
 namespace sqlpp
 {

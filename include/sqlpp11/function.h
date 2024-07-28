@@ -28,7 +28,7 @@
 
 #include <sqlpp11/dynamic.h>
 #include <sqlpp11/noop.h>
-#include <sqlpp11/parameter.h>
+#include <sqlpp11/basic/parameter.h>
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/aggregate_function.h>
 #include <sqlpp11/function/trim.h>
@@ -36,9 +36,9 @@
 #include <sqlpp11/function/lower.h>
 #include <sqlpp11/function/upper.h>
 #include <sqlpp11/value_type.h>
-#include <sqlpp11/verbatim.h>  // Csaba Csoma suggests: unsafe_sql instead of verbatim
-#include <sqlpp11/parameterized_verbatim.h>
-#include <sqlpp11/verbatim_table.h>
+#include <sqlpp11/basic/verbatim.h>  // Csaba Csoma suggests: unsafe_sql instead of verbatim
+#include <sqlpp11/basic/parameterized_verbatim.h>
+#include <sqlpp11/basic/verbatim_table.h>
 #include <sqlpp11/basic/value.h>
 #include <sqlpp11/eval.h>
 

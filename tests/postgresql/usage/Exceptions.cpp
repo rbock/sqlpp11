@@ -26,7 +26,7 @@
 #include <sqlpp11/exception.h>
 #include <sqlpp11/custom_query.h>
 #include <sqlpp11/postgresql/postgresql.h>
-#include <sqlpp11/verbatim.h>
+#include <sqlpp11/basic/verbatim.h>
 #include <sqlpp11/alias_provider.h>
 
 #include "assertThrow.h"

@@ -29,7 +29,7 @@
 #include <sqlpp11/basic/column_fwd.h>
 #include <sqlpp11/serialize.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/schema.h>
+#include <sqlpp11/basic/schema.h>
 #include <sqlpp11/basic/table_alias.h>
 #include <sqlpp11/detail/type_set.h>
 

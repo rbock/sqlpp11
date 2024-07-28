@@ -29,7 +29,7 @@
 #include <sqlpp11/enable_join.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/basic/table_alias.h>
-#include <sqlpp11/all_of.h>
+#include <sqlpp11/basic/all_of.h>
 #include <sqlpp11/basic/column.h>
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/basic/join.h>

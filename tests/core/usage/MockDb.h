@@ -29,7 +29,7 @@
 #include <sqlpp11/connection.h>
 #include <sqlpp11/detail/float_safe_ostringstream.h>
 #include <sqlpp11/transaction.h>
-#include <sqlpp11/schema.h>
+#include <sqlpp11/basic/schema.h>
 #include <sqlpp11/serialize.h>
 #include <sqlpp11/serializer_context.h>
 #include <sstream>
