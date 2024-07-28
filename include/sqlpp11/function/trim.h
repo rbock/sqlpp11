@@ -2,6 +2,7 @@
 
 /*
  * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2017, Juan Dent
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -26,50 +27,54 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/enable_join.h>
+#include <sqlpp11/serialize.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/table_alias.h>
-#include <sqlpp11/all_of.h>
-#include <sqlpp11/column.h>
-#include <sqlpp11/detail/type_set.h>
-#include <sqlpp11/join.h>
 
 namespace sqlpp
 {
-  template <typename TableSpec>
-  struct table_t : public TableSpec::_table_columns<TableSpec>, public enable_join<table_t<TableSpec>>
+  template <typename Expr>
+  struct trim_t
   {
-    using _traits = make_traits<no_value_t, tag::is_raw_table>;
+    using _traits = make_traits<text, tag::is_expression, tag::is_selectable>;
 
-    using _nodes = detail::type_vector<>;
-    using _provided_tables = detail::type_set<TableSpec>;
-
-    using _required_insert_columns = typename TableSpec::_required_insert_columns;
-#warning: Need to inherit?
-    //using _column_tuple_t = std::tuple<column_t<Table, ColumnSpec>...>;
-    template <typename AliasProvider, typename T>
-    using _foreign_table_alias_t = table_alias_t<AliasProvider, T>;
-    template <typename AliasProvider>
-    using _alias_t = table_alias_t<AliasProvider, TableSpec>;
-
-    template <typename AliasProvider>
-    _alias_t<AliasProvider> as(const AliasProvider& /*unused*/) const
+    trim_t(const Expr expr) : _expr(expr)
     {
-      return {};
     }
 
+    trim_t(const trim_t&) = default;
+    trim_t(trim_t&&) = default;
+    trim_t& operator=(const trim_t&) = default;
+    trim_t& operator=(trim_t&&) = default;
+    ~trim_t() = default;
+
+    Expr _expr;
   };
 
-  template <typename TableSpec>
-  struct name_tag_of<table_t<TableSpec>>: public name_tag_of<TableSpec> {};
+  template<typename Expr>
+    struct value_type_of<trim_t<Expr>> : public value_type_of<Expr> {};
 
-  template <typename TableSpec>
-  struct is_table<table_t<TableSpec>>: public std::true_type {};
+  template<typename Expr>
+    struct nodes_of<trim_t<Expr>>
+    {
+      using type = detail::type_vector<Expr>;
+    };
 
-  template <typename Context, typename TableSpec>
-  Context& serialize(Context& context, const table_t<TableSpec>& /*unused*/)
+  template <typename Context, typename Expr>
+  Context& serialize(Context& context, const trim_t<Expr>& t)
   {
-    context << name_tag_of_t<TableSpec>::_name_t::template char_ptr<Context>();
+    context << "TRIM(";
+    serialize_operand(context, t._expr);
+    context << ")";
     return context;
   }
+
+  template<typename T>
+    using check_trim_args = std::enable_if_t<is_text<T>::value>;
+
+  template <typename T, typename = check_trim_args<T>>
+  auto trim(T t) -> trim_t<T>
+  {
+    return {std::move(t)};
+  }
+
 }  // namespace sqlpp

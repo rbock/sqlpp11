@@ -30,7 +30,7 @@
 #include <sqlpp11/logic.h>
 #include <sqlpp11/policy_update.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/value.h>
+#include <sqlpp11/basic/value.h>
 
 namespace sqlpp
 {

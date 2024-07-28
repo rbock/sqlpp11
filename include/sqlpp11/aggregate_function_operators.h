@@ -26,7 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/over.h>
+#include <sqlpp11/aggregate_function/over.h>
 
 namespace sqlpp
 {

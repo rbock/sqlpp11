@@ -39,7 +39,7 @@
 #include <sqlpp11/verbatim.h>  // Csaba Csoma suggests: unsafe_sql instead of verbatim
 #include <sqlpp11/parameterized_verbatim.h>
 #include <sqlpp11/verbatim_table.h>
-#include <sqlpp11/value.h>
+#include <sqlpp11/basic/value.h>
 #include <sqlpp11/eval.h>
 
 namespace sqlpp

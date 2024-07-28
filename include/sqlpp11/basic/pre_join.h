@@ -26,10 +26,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/join_types.h>
+#include <sqlpp11/basic/join_types.h>
 #include <sqlpp11/noop.h>
-#include <sqlpp11/on.h>
-#include <sqlpp11/table_ref.h>
+#include <sqlpp11/basic/on.h>
+#include <sqlpp11/basic/table_ref.h>
 
 namespace sqlpp
 {

@@ -26,63 +26,50 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/basic/column_fwd.h>
-#include <sqlpp11/serialize.h>
+#include <sqlpp11/enable_join.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/schema.h>
 #include <sqlpp11/basic/table_alias.h>
+#include <sqlpp11/all_of.h>
+#include <sqlpp11/basic/column.h>
 #include <sqlpp11/detail/type_set.h>
-
-#include <utility>
+#include <sqlpp11/basic/join.h>
 
 namespace sqlpp
 {
-  template <typename Table>
-  struct schema_qualified_table_t
+  template <typename TableSpec>
+  struct table_t : public TableSpec::_table_columns<TableSpec>, public enable_join<table_t<TableSpec>>
   {
-    using _traits = make_traits<value_type_of_t<Table>>;
+    using _traits = make_traits<no_value_t, tag::is_raw_table>;
 
     using _nodes = detail::type_vector<>;
-    using _required_ctes = detail::type_set<>;
-    using _provided_tables = detail::type_set<>;
+    using _provided_tables = detail::type_set<TableSpec>;
 
-    schema_qualified_table_t(schema_t schema, Table table) : _schema(std::move(schema)), _table(table)
-    {
-    }
+    using _required_insert_columns = typename TableSpec::_required_insert_columns;
+#warning: Need to inherit?
+    //using _column_tuple_t = std::tuple<column_t<Table, ColumnSpec>...>;
+    template <typename AliasProvider, typename T>
+    using _foreign_table_alias_t = table_alias_t<AliasProvider, T>;
+    template <typename AliasProvider>
+    using _alias_t = table_alias_t<AliasProvider, TableSpec>;
 
     template <typename AliasProvider>
-    typename Table::template _foreign_table_alias_t<AliasProvider, schema_qualified_table_t> as(
-        const AliasProvider& /*unused*/) const
+    _alias_t<AliasProvider> as(const AliasProvider& /*unused*/) const
     {
-      return {*this};
+      return {};
     }
 
-    schema_t _schema;
-    Table _table;
   };
 
-  template<typename Table>
-    struct is_table<schema_qualified_table_t<Table>> : public std::true_type {};
+  template <typename TableSpec>
+  struct name_tag_of<table_t<TableSpec>>: public name_tag_of<TableSpec> {};
 
-  template <typename Context, typename Table>
-  Context& serialize(Context& context, const schema_qualified_table_t<Table>& t)
+  template <typename TableSpec>
+  struct is_table<table_t<TableSpec>>: public std::true_type {};
+
+  template <typename Context, typename TableSpec>
+  Context& serialize(Context& context, const table_t<TableSpec>& /*unused*/)
   {
-    serialize(context, t._schema);
-    context << '.';
-    serialize(context, t._table);
+    context << name_tag_of_t<TableSpec>::_name_t::template char_ptr<Context>();
     return context;
-  }
-
-  template <typename Table>
-  auto schema_qualified_table(schema_t schema, Table table) -> schema_qualified_table_t<Table>
-  {
-    static_assert(required_tables_of_t<Table>::size::value == 0,
-                  "schema qualified tables must not depend on other tables");
-    static_assert(required_ctes_of<Table>::size::value == 0,
-                  "schema qualified tables must not depend on common table expressions");
-    static_assert(is_raw_table_t<Table>::value,
-                  "table must be a raw table, i.e. not an alias or common table expression");
-
-    return {schema, table};
   }
 }  // namespace sqlpp

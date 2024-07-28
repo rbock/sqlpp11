@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <utility>
 
-#include <sqlpp11/column_fwd.h>
+#include <sqlpp11/basic/column_fwd.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/default_value.h>
 

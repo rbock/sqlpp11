@@ -26,9 +26,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/join_types.h>
-#include <sqlpp11/pre_join.h>
-#include <sqlpp11/on.h>
+#include <sqlpp11/basic/join_types.h>
+#include <sqlpp11/basic/pre_join.h>
+#include <sqlpp11/basic/on.h>
 
 namespace sqlpp
 {

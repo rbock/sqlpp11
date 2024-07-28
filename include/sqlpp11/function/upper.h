@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2016, Roland Bock
+ * Copyright (c) 2023, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -26,40 +26,47 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/enable_join.h>
-#include <sqlpp11/table_columns.h>
-#include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/serialize.h>
-#include <sqlpp11/join.h>
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
-  template <typename AliasProvider, typename TableSpec>
-  struct table_alias_t : public TableSpec::_table_columns<AliasProvider>,
-                         public enable_join<table_alias_t<AliasProvider, TableSpec>>
+  template <typename Expr>
+  struct upper_t
   {
-    using _nodes = detail::type_vector<>;
-    using _required_ctes = required_ctes_of<TableSpec>;
-    using _provided_tables = detail::type_set<AliasProvider>;
+    using _traits = make_traits<text, tag::is_expression, tag::is_selectable>;
 
-    static_assert(required_tables_of_t<TableSpec>::size::value == 0, "table aliases must not depend on external tables");
+    using _nodes = detail::type_vector<Expr>;
 
-#warning: need to inherit?
-    //using _column_tuple_t = std::tuple<column_t<AliasProvider, ColumnSpec>...>;
+    upper_t(const Expr expr) : _expr(expr)
+    {
+    }
+
+    upper_t(const upper_t&) = default;
+    upper_t(upper_t&&) = default;
+    upper_t& operator=(const upper_t&) = default;
+    upper_t& operator=(upper_t&&) = default;
+    ~upper_t() = default;
+
+    Expr _expr;
   };
 
-  template<typename AliasProvider, typename TableSpec>
-    struct is_table<table_alias_t<AliasProvider, TableSpec>> : public std::true_type{};
-
-  template<typename AliasProvider, typename TableSpec>
-    struct name_tag_of<table_alias_t<AliasProvider, TableSpec>> : public name_tag_of<AliasProvider>{};
-
-  template <typename Context, typename AliasProvider, typename TableSpec>
-  Context& serialize(Context& context, const table_alias_t<AliasProvider, TableSpec>&)
+  template <typename Context, typename Expr>
+  Context& serialize(Context& context, const upper_t<Expr>& t)
   {
-    context << name_tag_of_t<TableSpec>::_name_t::template char_ptr<Context>();
-    context << " AS " << name_tag_of_t<AliasProvider>::_name_t::template char_ptr<Context>();
+    context << "UPPER(";
+    serialize_operand(context, t._expr);
+    context << ")";
     return context;
   }
+
+  template<typename T>
+    using check_upper_args = std::enable_if_t<is_text<T>::value>;
+
+  template <typename T, typename = check_upper_args<T>>
+  auto upper(T t) -> upper_t<T>
+  {
+    return {std::move(t)};
+  }
+
 }  // namespace sqlpp

@@ -27,7 +27,7 @@
  */
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/join.h>
+#include <sqlpp11/basic/join.h>
 
 namespace sqlpp
 {

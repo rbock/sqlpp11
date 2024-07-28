@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2024, Roland Bock
+ * Copyright (c) 2023, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -26,16 +26,47 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <tuple>
-
-#include <sqlpp11/column_fwd.h>
+#include <sqlpp11/serialize.h>
+#include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
-  template <typename TableSpec, typename... ColumnSpec>
-  struct table_columns : public ColumnSpec::_alias_t::template _member_t<column_t<TableSpec, ColumnSpec>>...
+  template <typename Expr>
+  struct lower_t
   {
-    static_assert(sizeof...(ColumnSpec) > 0, "at least one column required per table");
-    using _column_tuple_t = std::tuple<column_t<TableSpec, ColumnSpec>...>;
+    using _traits = make_traits<text, tag::is_expression, tag::is_selectable>;
+
+    using _nodes = detail::type_vector<Expr>;
+
+    lower_t(const Expr expr) : _expr(expr)
+    {
+    }
+
+    lower_t(const lower_t&) = default;
+    lower_t(lower_t&&) = default;
+    lower_t& operator=(const lower_t&) = default;
+    lower_t& operator=(lower_t&&) = default;
+    ~lower_t() = default;
+
+    Expr _expr;
   };
+
+  template <typename Context, typename Expr>
+  Context& serialize(Context& context, const lower_t<Expr>& t)
+  {
+    context << "LOWER(";
+    serialize_operand(context, t._expr);
+    context << ")";
+    return context;
+  }
+
+  template<typename T>
+    using check_lower_args = std::enable_if_t<is_text<T>::value>;
+
+  template <typename T, typename = check_lower_args<T>>
+  auto lower(T t) -> lower_t<T>
+  {
+    return {std::move(t)};
+  }
+
 }  // namespace sqlpp

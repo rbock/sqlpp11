@@ -32,7 +32,7 @@
 #include <sqlpp11/result_row.h>
 #include <sqlpp11/clause/select_flags.h>
 #include <sqlpp11/statement_fwd.h>
-#include <sqlpp11/table_ref.h>
+#include <sqlpp11/basic/table_ref.h>
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp

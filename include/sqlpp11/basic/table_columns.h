@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -26,4 +26,16 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/data_types.h>
+#include <tuple>
+
+#include <sqlpp11/basic/column_fwd.h>
+
+namespace sqlpp
+{
+  template <typename TableSpec, typename... ColumnSpec>
+  struct table_columns : public ColumnSpec::_alias_t::template _member_t<column_t<TableSpec, ColumnSpec>>...
+  {
+    static_assert(sizeof...(ColumnSpec) > 0, "at least one column required per table");
+    using _column_tuple_t = std::tuple<column_t<TableSpec, ColumnSpec>...>;
+  };
+}  // namespace sqlpp

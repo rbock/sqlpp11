@@ -32,7 +32,7 @@
 #include <sqlpp11/statement_fwd.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/unconditional.h>
-#include <sqlpp11/value.h>
+#include <sqlpp11/basic/value.h>
 
 namespace sqlpp
 {

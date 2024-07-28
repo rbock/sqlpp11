@@ -36,7 +36,7 @@
 #include <sqlpp11/policy_update.h>
 #include <sqlpp11/result_row.h>
 #include <sqlpp11/select_pseudo_table.h>
-#include <sqlpp11/table.h>
+#include <sqlpp11/basic/table.h>
 #include <tuple>
 
 namespace sqlpp

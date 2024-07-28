@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -26,69 +26,40 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/default_value.h>
-#include <sqlpp11/basic/value.h>
-#include <sqlpp11/type_traits.h>
+#include <sqlpp11/enable_join.h>
+#include <sqlpp11/basic/table_columns.h>
 #include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/serialize.h>
+#include <sqlpp11/basic/join.h>
+#include <sqlpp11/type_traits.h>
 
 namespace sqlpp
 {
-  namespace detail
+  template <typename AliasProvider, typename TableSpec>
+  struct table_alias_t : public TableSpec::_table_columns<AliasProvider>,
+                         public enable_join<table_alias_t<AliasProvider, TableSpec>>
   {
-    template <typename Type, bool>
-    struct type_if
-    {
-      using type = Type;
-    };
+    using _nodes = detail::type_vector<>;
+    using _required_ctes = required_ctes_of<TableSpec>;
+    using _provided_tables = detail::type_set<AliasProvider>;
 
-    template <typename Type>
-    struct type_if<Type, false>
-    {
-      struct type
-      {
-        using _traits = make_traits<no_value_t, tag::is_noop>;
-        using _nodes = detail::type_vector<>;
-      };
-    };
-  }  // namespace detail
+    static_assert(required_tables_of_t<TableSpec>::size::value == 0, "table aliases must not depend on external tables");
 
-  template <typename Column>
-  struct insert_value_t
-  {
-    using _is_insert_value = std::true_type;
-    using _value_t = parameter_value_t<value_type_of_t<Column>>;
-
-    insert_value_t(_value_t value)
-        : _is_default(false), _value(std::move(value))
-    {
-    }
-
-    insert_value_t(const default_value_t& /*unused*/)
-        : _is_default(true), _value{}
-    {
-    }
-
-    insert_value_t(const insert_value_t&) = default;
-    insert_value_t(insert_value_t&&) = default;
-    insert_value_t& operator=(const insert_value_t&) = default;
-    insert_value_t& operator=(insert_value_t&&) = default;
-    ~insert_value_t() = default;
-
-    bool _is_default;
-    _value_t _value;
+#warning: need to inherit?
+    //using _column_tuple_t = std::tuple<column_t<AliasProvider, ColumnSpec>...>;
   };
 
-  template <typename Context, typename ValueType>
-  auto serialize(Context& context, const insert_value_t<ValueType>& t) -> Context&
+  template<typename AliasProvider, typename TableSpec>
+    struct is_table<table_alias_t<AliasProvider, TableSpec>> : public std::true_type{};
+
+  template<typename AliasProvider, typename TableSpec>
+    struct name_tag_of<table_alias_t<AliasProvider, TableSpec>> : public name_tag_of<AliasProvider>{};
+
+  template <typename Context, typename AliasProvider, typename TableSpec>
+  Context& serialize(Context& context, const table_alias_t<AliasProvider, TableSpec>&)
   {
-    if (t._is_default)
-    {
-      context << "DEFAULT";
-    }
-    else
-    {
-      serialize_operand(context, t._value);
-    }
+    context << name_tag_of_t<TableSpec>::_name_t::template char_ptr<Context>();
+    context << " AS " << name_tag_of_t<AliasProvider>::_name_t::template char_ptr<Context>();
     return context;
   }
 }  // namespace sqlpp

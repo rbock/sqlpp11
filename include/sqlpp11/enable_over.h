@@ -26,7 +26,7 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <sqlpp11/over.h>
+#include <sqlpp11/aggregate_function/over.h>
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp
