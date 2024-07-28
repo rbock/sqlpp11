@@ -28,7 +28,7 @@
  */
 
 #include <sqlpp11/postgresql/on_conflict_do_nothing.h>
-#include <sqlpp11/postgresql/on_conflict_do_update.h>
+#include <sqlpp11/postgresql/on_conflict_do_clause/update.h>
 #include <sqlpp11/statement.h>
 
 namespace sqlpp

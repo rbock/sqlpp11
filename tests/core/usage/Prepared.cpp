@@ -27,7 +27,7 @@
 #include "MockDb.h"
 #include "is_regular.h"
 #include <sqlpp11/functions.h>
-#include <sqlpp11/select.h>
+#include <sqlpp11/clause/select.h>
 #include "../../include/test_helpers.h"
 
 int Prepared(int, char* [])

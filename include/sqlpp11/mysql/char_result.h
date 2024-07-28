@@ -57,7 +57,7 @@ namespace sqlpp
           throw sqlpp::exception{"MySQL: Constructing char_result without valid handle"};
 
         if (_handle->debug)
-          std::cerr << "MySQL debug: Constructing result, using handle at " << _handle.get() << std::endl;
+          std::cerr << "MySQL debug: Constructing result, clause/using.handle at " << _handle.get() << std::endl;
       }
 
       char_result_t(const char_result_t&) = delete;

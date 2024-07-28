@@ -56,8 +56,8 @@ void test_dynamic(Value v)
 
   static_assert(not sqlpp::has_name<decltype(v_not_null)>::value, "");
   static_assert(not sqlpp::has_name<decltype(v_maybe_null)>::value, "");
-  static_assert(sqlpp::has_name<decltype(v_not_null_alias)>::value, "");
-  static_assert(sqlpp::has_name<decltype(v_maybe_null_alias)>::value, "");
+  static_assert(not sqlpp::has_name<decltype(v_not_null_alias)>::value, "");
+  static_assert(not sqlpp::has_name<decltype(v_maybe_null_alias)>::value, "");
 
   static_assert(is_select_column_value_type<decltype(v_not_null), OptValueType>::value, "");
   static_assert(is_select_column_value_type<decltype(v_maybe_null), OptValueType>::value, "");

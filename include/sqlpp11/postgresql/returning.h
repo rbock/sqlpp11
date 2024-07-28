@@ -28,7 +28,7 @@
  */
 
 #include <sqlpp11/postgresql/returning_column_list.h>
-#include <sqlpp11/select_column_list.h>
+#include <sqlpp11/clause/select_column_list.h>
 #include <sqlpp11/statement.h>
 
 namespace sqlpp

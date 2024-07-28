@@ -30,7 +30,7 @@
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/where.h>
+#include <sqlpp11/clause/where.h>
 
 namespace sqlpp
 {

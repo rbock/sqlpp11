@@ -51,7 +51,7 @@ namespace sqlpp
       prepared_statement_t(std::shared_ptr<detail::prepared_statement_handle_t>&& handle) : _handle{std::move(handle)}
       {
         if (_handle and _handle->debug)
-          std::cerr << "MySQL debug: Constructing prepared_statement, using handle at " << _handle.get() << std::endl;
+          std::cerr << "MySQL debug: Constructing prepared_statement, clause/using.handle at " << _handle.get() << std::endl;
       }
 
       prepared_statement_t(const prepared_statement_t&) = delete;

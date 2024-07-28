@@ -28,7 +28,7 @@
 
 #include <sqlpp11/enable_as.h>
 #include <sqlpp11/enable_over.h>
-#include <sqlpp11/select_flags.h>
+#include <sqlpp11/clause/select_flags.h>
 #include <sqlpp11/aggregate_function_operators.h>
 #include <sqlpp11/type_traits.h>
 

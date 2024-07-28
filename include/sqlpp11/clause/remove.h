@@ -30,19 +30,18 @@
 #include <sqlpp11/connection.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/parameter_list.h>
-#include <sqlpp11/prepared_update.h>
-#include <sqlpp11/single_table.h>
-#include <sqlpp11/update_list.h>
+#include <sqlpp11/prepared_remove.h>
 #include <sqlpp11/noop.h>
-#include <sqlpp11/where.h>
+#include <sqlpp11/clause/from.h>
+#include <sqlpp11/clause/using.h>
+#include <sqlpp11/clause/where.h>
 
 namespace sqlpp
 {
-  struct update_name_t
+  struct remove_name_t
   {
   };
-
-  struct update_t : public statement_name_t<update_name_t>
+  struct remove_t : public statement_name_t<remove_name_t>
   {
     using _traits = make_traits<no_value_t, tag::is_return_value>;
     struct _alias_t
@@ -61,45 +60,51 @@ namespace sqlpp
 
       // Execute
       template <typename Db, typename Composite>
-      auto _run(Db& db, const Composite& composite) const -> decltype(db.update(composite))
+      auto _run(Db& db, const Composite& composite) const -> decltype(db.remove(composite))
       {
-        return db.update(composite);
+        return db.remove(composite);
       }
 
       template <typename Db>
-      auto _run(Db& db) const -> decltype(db.update(this->_get_statement()))
+      auto _run(Db& db) const -> decltype(db.remove(this->_get_statement()))
       {
-        return db.update(_get_statement());
+        return db.remove(_get_statement());
       }
 
       // Prepare
       template <typename Db, typename Composite>
-      auto _prepare(Db& db, const Composite& composite) const -> prepared_update_t<Db, Composite>
+      auto _prepare(Db& db, const Composite& composite) const -> prepared_remove_t<Db, Composite>
       {
-        return {{}, db.prepare_update(composite)};
+        return {{}, db.prepare_remove(composite)};
       }
 
       template <typename Db>
-      auto _prepare(Db& db) const -> prepared_update_t<Db, _statement_t>
+      auto _prepare(Db& db) const -> prepared_remove_t<Db, _statement_t>
       {
-        return {{}, db.prepare_update(_get_statement())};
+        return {{}, db.prepare_remove(_get_statement())};
       }
     };
   };
 
   template <typename Context>
-  Context& serialize(Context& context, const update_name_t&)
+  Context& serialize(Context& context, const remove_name_t&)
   {
-    context << "UPDATE ";
+    context << "DELETE";
+
     return context;
   }
 
-  using blank_update_t = statement_t<update_t, no_single_table_t, no_update_list_t, no_where_t<true>>;
+  using blank_remove_t = statement_t<remove_t, no_from_t, no_using_t, no_where_t<true>>;
+
+  inline auto remove() -> blank_remove_t
+  {
+    return {};
+  }
 
   template <typename Table>
-  constexpr auto update(Table table) -> decltype(blank_update_t().single_table(table))
+  auto remove_from(Table table) -> decltype(blank_remove_t().from(table))
   {
-    return {blank_update_t().single_table(table)};
+    return {blank_remove_t().from(table)};
   }
 
 }  // namespace sqlpp

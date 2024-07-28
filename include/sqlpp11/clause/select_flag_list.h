@@ -30,7 +30,7 @@
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/no_data.h>
 #include <sqlpp11/policy_update.h>
-#include <sqlpp11/select_flags.h>
+#include <sqlpp11/clause/select_flags.h>
 #include <sqlpp11/type_traits.h>
 #include <tuple>
 

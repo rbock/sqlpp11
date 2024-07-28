@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2023, Roland Bock
+ * Copyright (c) 2013-2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -26,47 +26,37 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/serialize.h>
-#include <sqlpp11/type_traits.h>
+#include <sqlpp11/dynamic.h>
+#include <sqlpp11/noop.h>
+#include <sqlpp11/parameter.h>
+#include <sqlpp11/parameter_list.h>
+#include <sqlpp11/aggregate_function.h>
+#include <sqlpp11/function/trim.h>
+#include <sqlpp11/case.h>
+#include <sqlpp11/function/lower.h>
+#include <sqlpp11/function/upper.h>
+#include <sqlpp11/value_type.h>
+#include <sqlpp11/verbatim.h>  // Csaba Csoma suggests: unsafe_sql instead of verbatim
+#include <sqlpp11/parameterized_verbatim.h>
+#include <sqlpp11/verbatim_table.h>
+#include <sqlpp11/value.h>
+#include <sqlpp11/eval.h>
 
 namespace sqlpp
 {
-  template <typename Expr>
-  struct lower_t
+  template <typename Expression, typename Db>
+  auto flatten(const Expression& exp, Db& db) -> verbatim_t<value_type_of_t<Expression>>
   {
-    using _traits = make_traits<text, tag::is_expression, tag::is_selectable>;
-
-    using _nodes = detail::type_vector<Expr>;
-
-    lower_t(const Expr expr) : _expr(expr)
-    {
-    }
-
-    lower_t(const lower_t&) = default;
-    lower_t(lower_t&&) = default;
-    lower_t& operator=(const lower_t&) = default;
-    lower_t& operator=(lower_t&&) = default;
-    ~lower_t() = default;
-
-    Expr _expr;
-  };
-
-  template <typename Context, typename Expr>
-  Context& serialize(Context& context, const lower_t<Expr>& t)
-  {
-    context << "LOWER(";
-    serialize_operand(context, t._expr);
-    context << ")";
-    return context;
+    static_assert(not make_parameter_list_t<Expression>::size::value,
+                  "parameters are not allowed in flattened expressions");
+    auto context = db.get_serializer_context();
+    serialize(context, exp);
+    return {context.str()};
   }
 
-  template<typename T>
-    using check_lower_args = std::enable_if_t<is_text<T>::value>;
-
-  template <typename T, typename = check_lower_args<T>>
-  auto lower(T t) -> lower_t<T>
+  template <typename T>
+  constexpr const char* get_sql_name(const T& /*unused*/)
   {
-    return {std::move(t)};
+    return name_tag_of_t<T>::_name_t::template char_ptr<void>();
   }
-
 }  // namespace sqlpp

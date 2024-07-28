@@ -155,7 +155,7 @@ namespace sqlpp
         _var_buffers.resize(_handle->result.field_count());
         if (this->_handle && this->_handle->debug())
         {
-          std::cerr << "PostgreSQL debug: constructing bind result, using handle at: " << this->_handle.get()
+          std::cerr << "PostgreSQL debug: constructing bind result, clause/using.handle at: " << this->_handle.get()
                     << std::endl;
         }
       }

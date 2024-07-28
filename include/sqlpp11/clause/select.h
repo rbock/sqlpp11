@@ -30,18 +30,18 @@
 
 #include <sqlpp11/noop.h>
 #include <sqlpp11/connection.h>
-#include <sqlpp11/with.h>
-#include <sqlpp11/select_flag_list.h>
-#include <sqlpp11/select_column_list.h>
-#include <sqlpp11/from.h>
-#include <sqlpp11/where.h>
-#include <sqlpp11/group_by.h>
-#include <sqlpp11/having.h>
-#include <sqlpp11/order_by.h>
-#include <sqlpp11/limit.h>
-#include <sqlpp11/for_update.h>
-#include <sqlpp11/offset.h>
-#include <sqlpp11/union.h>
+#include <sqlpp11/clause/with.h>
+#include <sqlpp11/clause/select_flag_list.h>
+#include <sqlpp11/clause/select_column_list.h>
+#include <sqlpp11/clause/from.h>
+#include <sqlpp11/clause/where.h>
+#include <sqlpp11/clause/group_by.h>
+#include <sqlpp11/clause/having.h>
+#include <sqlpp11/clause/order_by.h>
+#include <sqlpp11/clause/limit.h>
+#include <sqlpp11/clause/for_update.h>
+#include <sqlpp11/clause/offset.h>
+#include <sqlpp11/clause/union.h>
 #include <sqlpp11/wrong.h>
 
 namespace sqlpp

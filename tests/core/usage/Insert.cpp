@@ -29,8 +29,8 @@
 #include <iostream>
 #include <sqlpp11/compat/string_view.h>
 #include <sqlpp11/functions.h>
-#include <sqlpp11/insert.h>
-#include <sqlpp11/select.h>
+#include <sqlpp11/clause/insert.h>
+#include <sqlpp11/clause/select.h>
 
 int Insert(int, char*[])
 {

@@ -27,7 +27,7 @@
 #include "MockDb.h"
 #include <sqlpp11/auto_alias.h>
 #include <sqlpp11/alias_provider.h>
-#include <sqlpp11/select.h>
+#include <sqlpp11/clause/select.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/connection.h>
 

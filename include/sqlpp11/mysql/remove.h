@@ -26,9 +26,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/remove.h>
-#include <sqlpp11/order_by.h>
-#include <sqlpp11/limit.h>
+#include <sqlpp11/clause/remove.h>
+#include <sqlpp11/clause/order_by.h>
+#include <sqlpp11/clause/clause/limit.h>
 
 namespace sqlpp
 {

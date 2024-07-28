@@ -28,7 +28,7 @@
 
 #include <sqlpp11/operator/assign_expression.h>
 #include <sqlpp11/column_fwd.h>
-#include <sqlpp11/insert_value.h>
+#include <sqlpp11/clause/insert_value.h>
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/logic.h>
 #include <sqlpp11/no_data.h>

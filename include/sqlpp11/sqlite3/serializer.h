@@ -40,7 +40,7 @@
 #include <sqlpp11/parameter.h>
 #include <sqlpp11/pre_join.h>
 #include <sqlpp11/some.h>
-#include <sqlpp11/with.h>
+#include <sqlpp11/clause/with.h>
 
 #include <cmath>
 

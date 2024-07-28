@@ -29,7 +29,7 @@
 #include <type_traits>
 
 #include <sqlpp11/type_traits.h>
-#include <sqlpp11/select_column_traits.h>
+#include <sqlpp11/clause/select_column_traits.h>
 
 namespace sqlpp
 {

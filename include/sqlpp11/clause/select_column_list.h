@@ -33,8 +33,8 @@
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/policy_update.h>
 #include <sqlpp11/result_row.h>
-#include <sqlpp11/select_as.h>
-#include <sqlpp11/select_column_traits.h>
+#include <sqlpp11/clause/select_as.h>
+#include <sqlpp11/clause/select_column_traits.h>
 #include <sqlpp11/table.h>
 #include <tuple>
 

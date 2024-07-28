@@ -76,8 +76,11 @@ void test_select_as(Value v)
   static_assert(is_same_type<decltype(select(v_maybe_null).as(column).sometimes), OptValueType>(), "");
 
   // The column of a single-value pseudo table can be renamed and used as named value
-  static_assert(sqlpp::has_name<decltype(select(v_not_null).as(column).always.as(foo))>::value, "");
-  static_assert(sqlpp::has_name<decltype(select(v_maybe_null).as(column).sometimes.as(foo))>::value, "");
+  static_assert(not sqlpp::has_name<decltype(select(v_not_null).as(column).always.as(foo))>::value, "");
+  static_assert(not sqlpp::has_name<decltype(select(v_maybe_null).as(column).sometimes.as(foo))>::value, "");
+
+  static_assert(sqlpp::select_column_has_name<decltype(select(v_not_null).as(column).always.as(foo))>::value, "");
+  static_assert(sqlpp::select_column_has_name<decltype(select(v_maybe_null).as(column).sometimes.as(foo))>::value, "");
 
   static_assert(is_select_column_same_type<decltype(select(v_not_null).as(column).always.as(foo)), ValueType>(), "");
   static_assert(is_select_column_same_type<decltype(select(v_maybe_null).as(column).sometimes.as(foo)), OptValueType>(), "");
@@ -102,8 +105,11 @@ void test_select_as(Value v)
   static_assert(is_same_type<decltype(select(v_not_null, v_maybe_null).as(table).sometimes), OptValueType>(), "");
 
   // The column of a multi-value pseudo table can be renamed and used as named value
-  static_assert(sqlpp::has_name<decltype(select(v_not_null, v_maybe_null).as(table).always.as(foo))>::value, "");
-  static_assert(sqlpp::has_name<decltype(select(v_not_null, v_maybe_null).as(table).sometimes.as(foo))>::value, "");
+  static_assert(not sqlpp::has_name<decltype(select(v_not_null, v_maybe_null).as(table).always.as(foo))>::value, "");
+  static_assert(not sqlpp::has_name<decltype(select(v_not_null, v_maybe_null).as(table).sometimes.as(foo))>::value, "");
+
+  static_assert(sqlpp::select_column_has_name<decltype(select(v_not_null, v_maybe_null).as(table).always.as(foo))>::value, "");
+  static_assert(sqlpp::select_column_has_name<decltype(select(v_not_null, v_maybe_null).as(table).sometimes.as(foo))>::value, "");
 
   static_assert(is_select_column_same_type<decltype(select(v_not_null, v_maybe_null).as(table).always.as(foo)), ValueType>(), "");
   static_assert(is_select_column_same_type<decltype(select(v_not_null, v_maybe_null).as(table).sometimes.as(foo)), OptValueType>(), "");

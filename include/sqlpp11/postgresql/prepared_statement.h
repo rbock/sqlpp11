@@ -67,7 +67,7 @@ namespace sqlpp
       {
         if (_handle && _handle->debug())
         {
-          std::cerr << "PostgreSQL debug: constructing prepared_statement, using handle at: " << _handle.get()
+          std::cerr << "PostgreSQL debug: constructing prepared_statement, clause/using.handle at: " << _handle.get()
                     << std::endl;
         }
       }

@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2023, Roland Bock
+ * Copyright (c) 2013-2015, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -26,47 +26,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/serialize.h>
-#include <sqlpp11/type_traits.h>
-
-namespace sqlpp
-{
-  template <typename Expr>
-  struct upper_t
-  {
-    using _traits = make_traits<text, tag::is_expression, tag::is_selectable>;
-
-    using _nodes = detail::type_vector<Expr>;
-
-    upper_t(const Expr expr) : _expr(expr)
-    {
-    }
-
-    upper_t(const upper_t&) = default;
-    upper_t(upper_t&&) = default;
-    upper_t& operator=(const upper_t&) = default;
-    upper_t& operator=(upper_t&&) = default;
-    ~upper_t() = default;
-
-    Expr _expr;
-  };
-
-  template <typename Context, typename Expr>
-  Context& serialize(Context& context, const upper_t<Expr>& t)
-  {
-    context << "UPPER(";
-    serialize_operand(context, t._expr);
-    context << ")";
-    return context;
-  }
-
-  template<typename T>
-    using check_upper_args = std::enable_if_t<is_text<T>::value>;
-
-  template <typename T, typename = check_upper_args<T>>
-  auto upper(T t) -> upper_t<T>
-  {
-    return {std::move(t)};
-  }
-
-}  // namespace sqlpp
+#include <sqlpp11/aggregate_function/count.h>
+#include <sqlpp11/aggregate_function/min.h>
+#include <sqlpp11/aggregate_function/max.h>
+#include <sqlpp11/aggregate_function/avg.h>
+#include <sqlpp11/aggregate_function/sum.h>

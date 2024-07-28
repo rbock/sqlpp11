@@ -28,7 +28,7 @@
  */
 
 /**
-  classes copied from http://pqxx.org/devprojects/libpqxx/doc/3.1/html/Reference/a00032.html
+  classes copied clause/from.http://pqxx.org/devprojects/libpqxx/doc/3.1/html/Reference/a00032.html
 */
 
 #include "visibility.h"

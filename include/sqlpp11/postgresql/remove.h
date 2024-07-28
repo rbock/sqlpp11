@@ -26,7 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/remove.h>
+#include <sqlpp11/clause/remove.h>
 #include <sqlpp11/postgresql/returning.h>
 
 namespace sqlpp

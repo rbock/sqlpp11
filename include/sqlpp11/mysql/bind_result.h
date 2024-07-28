@@ -55,7 +55,7 @@ namespace sqlpp
       bind_result_t(const std::shared_ptr<detail::prepared_statement_handle_t>& handle) : _handle{handle}
       {
         if (_handle and _handle->debug)
-          std::cerr << "MySQL debug: Constructing bind result, using handle at " << _handle.get() << std::endl;
+          std::cerr << "MySQL debug: Constructing bind result, clause/using.handle at " << _handle.get() << std::endl;
       }
       bind_result_t(const bind_result_t&) = delete;
       bind_result_t(bind_result_t&& rhs) = default;

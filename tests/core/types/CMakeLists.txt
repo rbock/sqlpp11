@@ -35,7 +35,7 @@ function(test_compile name)
 endfunction()
 
 add_subdirectory(operator)
-test_compile(aggregate_functions)
+test_compile(aggregate_function)
 test_compile(case_when)
 test_compile(dynamic)
 test_compile(result_row)

@@ -29,8 +29,7 @@
 #include <sqlpp11/alias_provider.h>
 #include <sqlpp11/connection.h>
 #include <sqlpp11/functions.h>
-#include <sqlpp11/select.h>
-#include <sqlpp11/without_table_check.h>
+#include <sqlpp11/clause/select.h>
 #include "../../include/test_helpers.h"
 
 namespace alias
