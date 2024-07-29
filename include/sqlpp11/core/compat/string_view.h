@@ -36,10 +36,7 @@
 #include <string_view>
 namespace sqlpp
 {
-  namespace compat
-  {
     using string_view = std::string_view;
-  }
 }  // namespace sqlpp
 
 #else // incomplete backport of std::string_view
@@ -50,8 +47,6 @@ namespace sqlpp
 
 namespace sqlpp
 {
-  namespace compat
-  {
     class string_view
     {
       const char* _data = nullptr;
@@ -106,7 +101,6 @@ namespace sqlpp
       return os << std::string(sv);
     }
 
-  }  // namespace compat
 }  // namespace sqlpp
 
 #endif

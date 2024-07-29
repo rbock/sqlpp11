@@ -42,7 +42,7 @@
 #include <vector>
 
 template <typename T>
-std::ostream& operator<<(std::ostream& os, const sqlpp::compat::optional<T>& t) {
+std::ostream& operator<<(std::ostream& os, const ::sqlpp::optional<T>& t) {
   if (not t)
     return os << "NULL";
   return os << t.value();

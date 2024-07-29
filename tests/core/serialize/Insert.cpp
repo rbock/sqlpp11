@@ -45,12 +45,12 @@ int Insert(int, char* [])
   compare(__LINE__, insert_into(bar).default_values(), "INSERT INTO tab_bar DEFAULT VALUES");
   compare(__LINE__, insert_into(bar).set(bar.textN = "cheesecake", bar.boolNn = true),
           "INSERT INTO tab_bar (text_n,bool_nn) VALUES('cheesecake'," + getTrue() + ")");
-  compare(__LINE__, insert_into(bar).set(bar.textN = ::sqlpp::compat::nullopt, bar.boolNn = true),
+  compare(__LINE__, insert_into(bar).set(bar.textN = ::::sqlpp::nullopt, bar.boolNn = true),
           "INSERT INTO tab_bar (text_n,bool_nn) VALUES(NULL," + getTrue() + ")");
-  sqlpp::compat::string_view cheeseCake = "cheesecake";
+  ::sqlpp::string_view cheeseCake = "cheesecake";
   compare(__LINE__, insert_into(bar).set(bar.textN = std::string(cheeseCake), bar.boolNn = true),
           "INSERT INTO tab_bar (text_n,bool_nn) VALUES('cheesecake'," + getTrue() + ")");
-  compare(__LINE__, insert_into(bar).set(bar.textN = sqlpp::compat::string_view(cheeseCake), bar.boolNn = true),
+  compare(__LINE__, insert_into(bar).set(bar.textN = ::sqlpp::string_view(cheeseCake), bar.boolNn = true),
           "INSERT INTO tab_bar (text_n,bool_nn) VALUES('cheesecake'," + getTrue() + ")");
 
   return 0;

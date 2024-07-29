@@ -36,19 +36,14 @@
 #include <span>
 namespace sqlpp
 {
-  namespace compat
-  {
     template <typename T>
     using span = std::span<T>;
-  }
 }  // namespace sqlpp
 
 #else // incomplete backport of std::span
 
 namespace sqlpp
 {
-  namespace compat
-  {
     template <typename T>
     class span
     {
@@ -98,7 +93,6 @@ namespace sqlpp
       }
     };
 
-  }  // namespace compat
 }  // namespace sqlpp
 
 #endif

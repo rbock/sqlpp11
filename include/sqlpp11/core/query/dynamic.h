@@ -82,7 +82,7 @@ namespace sqlpp
     }
     else
     {
-      serialize(context, sqlpp::compat::nullopt);
+      serialize(context, ::sqlpp::nullopt);
     }
     return context;
   }

@@ -45,7 +45,7 @@ std::ostream& operator<<(std::ostream& os, const std::chrono::duration<Rep, Peri
 }
 
 template <typename T>
-std::ostream& operator<<(std::ostream& os, const sqlpp::compat::optional<T>& t)
+std::ostream& operator<<(std::ostream& os, const ::sqlpp::optional<T>& t)
 {
   if (not t)
     return os << "NULL";
@@ -100,5 +100,5 @@ template <typename T>
 struct is_optional : public std::false_type{};
 
 template <typename T>
-struct is_optional<sqlpp::compat::optional<T>> : public std::true_type{};
+struct is_optional<::sqlpp::optional<T>> : public std::true_type{};
 

@@ -46,8 +46,8 @@ struct to_cerr
 template <typename Row>
 void print_row(Row const& row)
 {
-  const sqlpp::compat::optional<int64_t> a = row.id;
-  const sqlpp::compat::optional<sqlpp::compat::string_view> b = row.textN;
+  const ::sqlpp::optional<int64_t> a = row.id;
+  const ::sqlpp::optional<::sqlpp::string_view> b = row.textN;
   std::cout << a << ", " << b << std::endl;
 }
 
@@ -85,16 +85,16 @@ int Select(int, char*[])
 
   for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
   {
-    const sqlpp::compat::optional<int64_t> a = row.id;
-    const sqlpp::compat::optional<sqlpp::compat::string_view> b = row.textN;
+    const ::sqlpp::optional<int64_t> a = row.id;
+    const ::sqlpp::optional<::sqlpp::string_view> b = row.textN;
     std::cout << a << ", " << b << std::endl;
   }
 
   for (const auto& row :
        db(select(all_of(t), t.boolNn.as(t)).from(t).where(t.id > 7 and trim(t.textN) == "test").for_update()))
   {
-    const sqlpp::compat::optional<int64_t> a = row.id;
-    const sqlpp::compat::optional<sqlpp::compat::string_view> b = row.textN;
+    const ::sqlpp::optional<int64_t> a = row.id;
+    const ::sqlpp::optional<::sqlpp::string_view> b = row.textN;
     const bool g = row.tabBar;
     std::cout << a << ", " << b << ", " << g << std::endl;
   }
@@ -148,7 +148,7 @@ int Select(int, char*[])
 #warning add tests for optional everything
   for (const auto& row : db(db.prepare(s)))
   {
-    const sqlpp::compat::optional<int64_t> a = row.id;
+    const ::sqlpp::optional<int64_t> a = row.id;
     std::cout << a << std::endl;
   }
 
@@ -158,7 +158,7 @@ int Select(int, char*[])
   select(sqlpp::value(7).as(t.id));
 
   for (const auto& row :
-       db(select(sqlpp::case_when(true).then(t.textN).else_(sqlpp::compat::nullopt).as(t.textN)).from(t).unconditionally()))
+       db(select(sqlpp::case_when(true).then(t.textN).else_(::sqlpp::nullopt).as(t.textN)).from(t).unconditionally()))
   {
     std::cerr << row.textN << std::endl;
   }

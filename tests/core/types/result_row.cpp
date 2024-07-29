@@ -50,15 +50,15 @@ SQLPP_ALIAS_PROVIDER(r_opt_maybe_null);
 template<typename ResultType, typename Value>
 void test_result_row(Value v)
 {
-  using OptResultType = sqlpp::compat::optional<ResultType>;
+  using OptResultType = ::sqlpp::optional<ResultType>;
 
   // Selectable values.
   auto v_not_null = sqlpp::value(v).as(r_not_null);
-  const auto v_maybe_null = sqlpp::value(sqlpp::compat::make_optional(v)).as(r_maybe_null);
+  const auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v)).as(r_maybe_null);
 
   // Optional selectable values.
   const auto v_opt_not_null = dynamic(true, sqlpp::value(v)).as(r_opt_not_null);
-  const auto v_opt_maybe_null = dynamic(true, sqlpp::value(sqlpp::compat::make_optional(v))).as(r_opt_maybe_null);
+  const auto v_opt_maybe_null = dynamic(true, sqlpp::value(::sqlpp::make_optional(v))).as(r_opt_maybe_null);
 
   for (const auto& row : db(select(v_not_null, v_maybe_null, v_opt_not_null, v_opt_maybe_null)))
   {
@@ -91,13 +91,13 @@ int main()
   test_result_row<double>(double{7.7});
 
   // text
-  test_result_row<sqlpp::compat::string_view>('7');
-  test_result_row<sqlpp::compat::string_view>("seven");
-  test_result_row<sqlpp::compat::string_view>(std::string("seven"));
-  test_result_row<sqlpp::compat::string_view>(sqlpp::compat::string_view("seven"));
+  test_result_row<::sqlpp::string_view>('7');
+  test_result_row<::sqlpp::string_view>("seven");
+  test_result_row<::sqlpp::string_view>(std::string("seven"));
+  test_result_row<::sqlpp::string_view>(::sqlpp::string_view("seven"));
 
   // blob
-  test_result_row<sqlpp::compat::span<uint8_t>>(std::vector<uint8_t>{});
+  test_result_row<::sqlpp::span<uint8_t>>(std::vector<uint8_t>{});
 
   // date
   test_result_row<::sqlpp::chrono::day_point>(::sqlpp::chrono::day_point{});
@@ -111,16 +111,16 @@ int main()
   test_result_row<std::chrono::microseconds>(std::chrono::microseconds{});
 
   // Bit shifting combining optional value with non-optional value yields optional boolean.
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(sqlpp::value(sqlpp::compat::make_optional(7)) << 8)>,
-                             sqlpp::compat::optional<sqlpp::integral>>::value,
+  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(sqlpp::value(::sqlpp::make_optional(7)) << 8)>,
+                             ::sqlpp::optional<sqlpp::integral>>::value,
                 "");
 
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(sqlpp::value(8) << sqlpp::compat::make_optional(7))>,
-                             sqlpp::compat::optional<sqlpp::integral>>::value,
+  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(sqlpp::value(8) << ::sqlpp::make_optional(7))>,
+                             ::sqlpp::optional<sqlpp::integral>>::value,
                 "");
 
   // assignment is no value
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(assign(bar.intN, sqlpp::compat::nullopt))>, sqlpp::no_value_t>::value, "");
+  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(assign(bar.intN, ::sqlpp::nullopt))>, sqlpp::no_value_t>::value, "");
   static_assert(std::is_same<sqlpp::value_type_of_t<decltype(assign(bar.intN, sqlpp::default_value))>, sqlpp::no_value_t>::value, "");
 
   // as expressions retain the value type of the real thing

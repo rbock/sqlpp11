@@ -38,11 +38,11 @@ template <typename Value>
 void test_case_when(Value v)
 {
   using ValueType = sqlpp::value_type_of_t<Value>;
-  using OptValueType = sqlpp::value_type_of_t<sqlpp::compat::optional<Value>>;
+  using OptValueType = sqlpp::value_type_of_t<::sqlpp::optional<Value>>;
 
   // Selectable values.
   auto v_not_null = sqlpp::value(v);
-  const auto v_maybe_null = sqlpp::value(sqlpp::compat::make_optional(v));
+  const auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v));
 
   // No value types for incomplete clauses
   static_assert(is_same_type<decltype(sqlpp::case_when(true)), sqlpp::no_value_t>::value, "");
@@ -59,7 +59,7 @@ void test_case_when(Value v)
       is_same_type<decltype(sqlpp::case_when(true).then(v_maybe_null).else_(v_maybe_null)), OptValueType>::value, "");
 
   // The value type is always optional if the condition is optional
-  const auto opt_bool = sqlpp::compat::make_optional(true);
+  const auto opt_bool = ::sqlpp::make_optional(true);
   static_assert(
       is_same_type<decltype(sqlpp::case_when(opt_bool).then(v_not_null).else_(v_maybe_null)), OptValueType>::value, "");
 
@@ -93,7 +93,7 @@ int main()
   test_case_when('7');
   test_case_when("seven");
   test_case_when(std::string("seven"));
-  test_case_when(sqlpp::compat::string_view("seven"));
+  test_case_when(::sqlpp::string_view("seven"));
 
   // blob
   test_case_when(std::vector<uint8_t>{});

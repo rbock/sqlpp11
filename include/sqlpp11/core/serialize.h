@@ -136,7 +136,7 @@ namespace sqlpp
   }
 
   template <typename Context>
-  auto serialize(Context& context, const sqlpp::compat::string_view& t) -> Context&
+  auto serialize(Context& context, const ::sqlpp::string_view& t) -> Context&
   {
     context << '\'' << context.escape(std::string(t)) << '\'';
     return context;
@@ -150,7 +150,7 @@ namespace sqlpp
   }
 
   template <typename Context>
-  auto serialize(Context& context, const sqlpp::compat::span<uint8_t>& t) -> Context&
+  auto serialize(Context& context, const ::sqlpp::span<uint8_t>& t) -> Context&
   {
     constexpr char hexChars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
     context << "x'";
@@ -166,13 +166,13 @@ namespace sqlpp
   template <typename Context>
   auto serialize(Context& context, const std::vector<uint8_t>& t) -> Context&
   {
-    return serialize(context, sqlpp::compat::span<uint8_t>(t.data(), t.size()));
+    return serialize(context, ::sqlpp::span<uint8_t>(t.data(), t.size()));
   }
 
   template <typename Context, std::size_t N>
   auto serialize(Context& context, const std::array<uint8_t, N>& t) -> Context&
   {
-    return serialize(context, sqlpp::compat::span<uint8_t>(t.data(), t.size()));
+    return serialize(context, ::sqlpp::span<uint8_t>(t.data(), t.size()));
   }
 
   template <typename Context>
@@ -201,18 +201,18 @@ namespace sqlpp
   }
 
   template <typename Context>
-  auto serialize(Context& context, const sqlpp::compat::nullopt_t&) -> Context&
+  auto serialize(Context& context, const ::sqlpp::nullopt_t&) -> Context&
   {
     context << "NULL";
     return context;
   }
 
   template <typename T, typename Context>
-  auto serialize(Context& context, const sqlpp::compat::optional<T>& t) -> Context&
+  auto serialize(Context& context, const ::sqlpp::optional<T>& t) -> Context&
   {
     if (not t.has_value())
     {
-      return serialize(context, sqlpp::compat::nullopt);
+      return serialize(context, ::sqlpp::nullopt);
     }
     return serialize(context, *t);
   }

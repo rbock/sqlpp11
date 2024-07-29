@@ -39,12 +39,12 @@ template<typename Value>
 void test_as_expression(Value v)
 {
   using ValueType = sqlpp::value_type_of_t<Value>;
-  using OptValueType = sqlpp::compat::optional<ValueType>;
+  using OptValueType = ::sqlpp::optional<ValueType>;
 
   auto v_not_null= sqlpp::value(v);
-  auto v_maybe_null= sqlpp::value(sqlpp::compat::make_optional(v));
+  auto v_maybe_null= sqlpp::value(::sqlpp::make_optional(v));
   auto v_dynamic_not_null = dynamic(true, sqlpp::value(v));
-  auto v_dynamic_maybe_null = dynamic(true, sqlpp::value(sqlpp::compat::make_optional(v)));
+  auto v_dynamic_maybe_null = dynamic(true, sqlpp::value(::sqlpp::make_optional(v)));
 
   static_assert(not sqlpp::has_value_type<decltype(v_not_null.as(cheese))>::value, "");
   static_assert(not sqlpp::has_value_type<decltype(v_maybe_null.as(cheese))>::value, "");
@@ -102,7 +102,7 @@ int main()
   test_as_expression('7');
   test_as_expression("seven");
   test_as_expression(std::string("seven"));
-  test_as_expression(sqlpp::compat::string_view("seven"));
+  test_as_expression(::sqlpp::string_view("seven"));
 
   // blob
   test_as_expression(std::vector<uint8_t>{});

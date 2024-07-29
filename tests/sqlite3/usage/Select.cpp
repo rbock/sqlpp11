@@ -42,7 +42,7 @@ namespace sql = sqlpp::sqlite3;
 const auto tab = test::TabSample{};
 
 template <typename T>
-std::ostream& operator<<(std::ostream& os, const sqlpp::compat::optional<T>& t) {
+std::ostream& operator<<(std::ostream& os, const ::sqlpp::optional<T>& t) {
   if (not t)
     return os << "NULL";
   return os << t.value();
@@ -162,8 +162,8 @@ int Select(int, char*[])
 
   for (const auto& row : db(select(all_of(tab), select(trim(tab.beta)).from(tab)).from(tab).unconditionally()))
   {
-    const sqlpp::compat::optional<int64_t> x = row.alpha;
-    const sqlpp::compat::optional<sqlpp::compat::string_view> a = row.trim;
+    const ::sqlpp::optional<int64_t> x = row.alpha;
+    const ::sqlpp::optional<sqlpp::sqlpp::string_view> a = row.trim;
     std::cout << ">>>" << x << ", " << a << std::endl;
   }
 

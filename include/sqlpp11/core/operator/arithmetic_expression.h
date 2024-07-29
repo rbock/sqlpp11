@@ -63,7 +63,7 @@ namespace sqlpp
   struct value_type_of<arithmetic_expression<L, Operator, R>>
       : public std::conditional<sqlpp::is_optional<value_type_of_t<L>>::value or
                                     sqlpp::is_optional<value_type_of_t<R>>::value,
-                                sqlpp::compat::optional<numeric>,
+                                ::sqlpp::optional<numeric>,
                                 numeric>
   {
   };
@@ -77,7 +77,7 @@ namespace sqlpp
   struct value_type_of<arithmetic_expression<L, concatenation, R>>
       : public std::conditional<sqlpp::is_optional<value_type_of_t<L>>::value or
                                     sqlpp::is_optional<value_type_of_t<R>>::value,
-                                sqlpp::compat::optional<text>,
+                                ::sqlpp::optional<text>,
                                 text>
   {
   };

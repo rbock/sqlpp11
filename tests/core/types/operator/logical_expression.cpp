@@ -31,14 +31,14 @@ namespace
   using is_bool = std::is_same<sqlpp::value_type_of_t<T>, sqlpp::boolean>;
 
   template <typename T>
-  using is_maybe_bool = std::is_same<sqlpp::value_type_of_t<T>, sqlpp::compat::optional<sqlpp::boolean>>;
+  using is_maybe_bool = std::is_same<sqlpp::value_type_of_t<T>, ::sqlpp::optional<sqlpp::boolean>>;
 }
 
 template<typename Value>
 void test_logical_expression(Value v)
 {
   auto v_not_null= sqlpp::value(v);
-  auto v_maybe_null= sqlpp::value(sqlpp::compat::make_optional(v));
+  auto v_maybe_null= sqlpp::value(::sqlpp::make_optional(v));
 
   // Combine non-nullable with non-nullable.
   static_assert(is_bool<decltype(v_not_null and v_not_null)>::value, "");

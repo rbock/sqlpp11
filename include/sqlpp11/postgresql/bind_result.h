@@ -241,7 +241,7 @@ namespace sqlpp
         value = _handle->result.get_uint64_value(_handle->count, index);
       }
 
-      void read_field(size_t _index, sqlpp::compat::string_view& value)
+      void read_field(size_t _index, ::sqlpp::string_view& value)
       {
         const auto index = static_cast<int>(_index);
         if (_handle->debug())
@@ -249,7 +249,7 @@ namespace sqlpp
           std::cerr << "PostgreSQL debug: reading text result at index: " << index << std::endl;
         }
 
-        value = sqlpp::compat::string_view(_handle->result.get_char_ptr_value(_handle->count, index),
+        value = ::sqlpp::string_view(_handle->result.get_char_ptr_value(_handle->count, index),
                                    static_cast<size_t>(_handle->result.length(_handle->count, index)));
       }
 
@@ -331,7 +331,7 @@ namespace sqlpp
         }
       }
 
-      void read_field(size_t _index, sqlpp::compat::span<uint8_t>& value)
+      void read_field(size_t _index, ::sqlpp::span<uint8_t>& value)
       {
         const auto index = static_cast<int>(_index);
         if (_handle->debug())
@@ -346,11 +346,11 @@ namespace sqlpp
             detail::hex_assign(_var_buffers[_index], _handle->result.get_blob_value(_handle->count, index),
                                static_cast<size_t>(_handle->result.length(_handle->count, index)));
 
-        value = sqlpp::compat::span<uint8_t>(_var_buffers[_index].data(), size);
+        value = ::sqlpp::span<uint8_t>(_var_buffers[_index].data(), size);
       }
 
       template <typename T>
-      auto read_field(size_t _index, sqlpp::compat::optional<T>& value) -> void
+      auto read_field(size_t _index, ::sqlpp::optional<T>& value) -> void
       {
         const auto index = static_cast<int>(_index);
         if (_handle->result.is_null(_handle->count, index))

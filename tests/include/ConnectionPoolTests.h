@@ -265,7 +265,7 @@ namespace sqlpp
       {
         std::clog << __func__ << '\n';
         // Create a pool, get a connection from it and then destroy the pool before the connection
-        auto pool = sqlpp::compat::make_unique<Pool>(config, 5);
+        auto pool = ::sqlpp::make_unique<Pool>(config, 5);
         auto conn = pool->get();
         pool = nullptr;
       }

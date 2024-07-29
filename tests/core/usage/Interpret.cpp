@@ -43,7 +43,7 @@ int Interpret(int, char* [])
     auto i = insert_into(t).columns(t.boolNn, t.textN);
     i.add_values(t.boolNn = true, t.textN = "cheesecake");
     serialize(printer, i).str();
-    i.add_values(t.boolNn = false, t.textN = sqlpp::compat::nullopt);
+    i.add_values(t.boolNn = false, t.textN = ::sqlpp::nullopt);
     serialize(printer, i).str();
   }
 

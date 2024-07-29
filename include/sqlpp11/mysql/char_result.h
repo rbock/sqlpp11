@@ -125,14 +125,14 @@ namespace sqlpp
         value = std::strtoull(_char_result_row.data[index], nullptr, 10);
       }
 
-      void read_field(size_t index, sqlpp::compat::span<uint8_t>& value)
+      void read_field(size_t index, ::sqlpp::span<uint8_t>& value)
       {
-        value = sqlpp::compat::span<uint8_t>(reinterpret_cast<const uint8_t*>(_char_result_row.data[index]), _char_result_row.len[index]);
+        value = ::sqlpp::span<uint8_t>(reinterpret_cast<const uint8_t*>(_char_result_row.data[index]), _char_result_row.len[index]);
       }
 
-      void read_field(size_t index, sqlpp::compat::string_view& value)
+      void read_field(size_t index, ::sqlpp::string_view& value)
       {
-        value = sqlpp::compat::string_view(_char_result_row.data[index], _char_result_row.len[index]);
+        value = ::sqlpp::string_view(_char_result_row.data[index], _char_result_row.len[index]);
       }
 
       void read_field(size_t index, ::sqlpp::chrono::day_point& value)
@@ -184,7 +184,7 @@ namespace sqlpp
       }
 
       template <typename T>
-      auto read_field(size_t index, sqlpp::compat::optional<T>& value) -> void
+      auto read_field(size_t index, ::sqlpp::optional<T>& value) -> void
       {
         const bool is_null = _char_result_row.data[index] == nullptr;
         if (is_null)

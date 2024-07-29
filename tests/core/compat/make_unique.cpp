@@ -27,9 +27,9 @@
 
 int main(int, char* [])
 {
-  auto var_1 = sqlpp::compat::make_unique<int>();
+  auto var_1 = ::sqlpp::make_unique<int>();
   static_assert(std::is_same<decltype(var_1), std::unique_ptr<int>>::value, "make_unique<int> returns wrong type");
 
-  auto var_2 = sqlpp::compat::make_unique<std::pair<int, bool>>(1, true);
+  auto var_2 = ::sqlpp::make_unique<std::pair<int, bool>>(1, true);
   static_assert(std::is_same<decltype(var_2), std::unique_ptr<std::pair<int, bool>>>::value, "make_unique<std::pair<int, bool>> returns wrong type");
 }

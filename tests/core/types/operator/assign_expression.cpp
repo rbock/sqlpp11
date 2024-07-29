@@ -35,14 +35,14 @@ namespace
   using is_bool = std::is_same<sqlpp::value_type_of_t<T>, sqlpp::boolean>;
 
   template <typename T>
-  using is_maybe_bool = std::is_same<sqlpp::value_type_of_t<T>, sqlpp::compat::optional<sqlpp::boolean>>;
+  using is_maybe_bool = std::is_same<sqlpp::value_type_of_t<T>, ::sqlpp::optional<sqlpp::boolean>>;
 }
 
 template <typename Column, typename Value>
 void test_assign_expression(const Column& col, const Value& v)
 {
   auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = sqlpp::value(sqlpp::compat::make_optional(v));
+  auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v));
 
   using ValueType = decltype(v_not_null);
   using OptValueType = decltype(v_maybe_null);
@@ -112,7 +112,7 @@ int main()
   test_assign_expression(bar.textN, '7');
   test_assign_expression(bar.textN, "seven");
   test_assign_expression(bar.textN, std::string("seven"));
-  test_assign_expression(bar.textN, sqlpp::compat::string_view("seven"));
+  test_assign_expression(bar.textN, ::sqlpp::string_view("seven"));
 
   // blob
   test_assign_expression(foo.blobN, std::vector<uint8_t>{});

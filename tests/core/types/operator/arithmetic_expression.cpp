@@ -47,10 +47,10 @@ template<typename Value>
 void test_arithmetic_expressions(Value v)
 {
   using ValueType = sqlpp::numeric;
-  using OptValueType = sqlpp::compat::optional<sqlpp::numeric>;
+  using OptValueType = ::sqlpp::optional<sqlpp::numeric>;
 
   auto value = sqlpp::value(v);
-  auto opt_value = sqlpp::value(sqlpp::compat::make_optional(v));
+  auto opt_value = sqlpp::value(::sqlpp::make_optional(v));
 
   // Arithmetically combining non-optional values
   static_assert(is_same_type<sqlpp::value_type_of_t<decltype(value + value)>, ValueType>(), "");
@@ -98,10 +98,10 @@ template<typename Value>
 void test_modulus_expressions(Value v)
 {
   using ValueType = sqlpp::numeric;
-  using OptValueType = sqlpp::compat::optional<sqlpp::numeric>;
+  using OptValueType = ::sqlpp::optional<sqlpp::numeric>;
 
   auto value = sqlpp::value(v);
-  auto opt_value = sqlpp::value(sqlpp::compat::make_optional(v));
+  auto opt_value = sqlpp::value(::sqlpp::make_optional(v));
 
   // Modulus combining non-optional values
   static_assert(is_same_type<sqlpp::value_type_of_t<decltype(value % value)>, ValueType>(), "");
@@ -131,10 +131,10 @@ template<typename Value>
 void test_concatenation_expressions(Value v)
 {
   using ValueType = sqlpp::text;
-  using OptValueType = sqlpp::compat::optional<sqlpp::text>;
+  using OptValueType = ::sqlpp::optional<sqlpp::text>;
 
   auto value = sqlpp::value(v);
-  auto opt_value = sqlpp::value(sqlpp::compat::make_optional(v));
+  auto opt_value = sqlpp::value(::sqlpp::make_optional(v));
 
   // Concatenating non-optional values
   static_assert(is_same_type<sqlpp::value_type_of_t<decltype(value + value)>, ValueType>(), "");
@@ -190,5 +190,5 @@ int main()
   test_concatenation_expressions('7');
   test_concatenation_expressions("seven");
   test_concatenation_expressions(std::string("seven"));
-  test_concatenation_expressions(sqlpp::compat::string_view("seven"));
+  test_concatenation_expressions(::sqlpp::string_view("seven"));
 }

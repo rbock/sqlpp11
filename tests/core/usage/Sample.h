@@ -59,7 +59,7 @@ namespace test
             const T& operator()() const { return intN; }
           };
       };
-      using value_type = ::sqlpp::compat::optional<::sqlpp::integral>;
+      using value_type = ::sqlpp::optional<::sqlpp::integral>;
       using has_default = std::true_type;
     };
     struct DoubleN : public ::sqlpp::name_tag_base
@@ -76,7 +76,7 @@ namespace test
             const T& operator()() const { return doubleN; }
           };
       };
-      using value_type = ::sqlpp::compat::optional<::sqlpp::floating_point>;
+      using value_type = ::sqlpp::optional<::sqlpp::floating_point>;
       using has_default = std::true_type;
     };
     struct UIntN : public ::sqlpp::name_tag_base
@@ -93,7 +93,7 @@ namespace test
             const T& operator()() const { return uIntN; }
           };
       };
-      using value_type = ::sqlpp::compat::optional<::sqlpp::unsigned_integral>;
+      using value_type = ::sqlpp::optional<::sqlpp::unsigned_integral>;
       using has_default = std::true_type;
     };
     struct BlobN : public ::sqlpp::name_tag_base
@@ -110,7 +110,7 @@ namespace test
             const T& operator()() const { return blobN; }
           };
       };
-      using value_type = ::sqlpp::compat::optional<::sqlpp::blob>;
+      using value_type = ::sqlpp::optional<::sqlpp::blob>;
       using has_default = std::true_type;
     };
     struct BoolN : public ::sqlpp::name_tag_base
@@ -127,7 +127,7 @@ namespace test
             const T& operator()() const { return boolN; }
           };
       };
-      using value_type = ::sqlpp::compat::optional<::sqlpp::boolean>;
+      using value_type = ::sqlpp::optional<::sqlpp::boolean>;
       using has_default = std::true_type;
     };
     struct _alias_t
@@ -188,7 +188,7 @@ namespace test
             const T& operator()() const { return textN; }
           };
       };
-      using value_type = ::sqlpp::compat::optional<::sqlpp::text>;
+      using value_type = ::sqlpp::optional<::sqlpp::text>;
       using has_default = std::true_type;
     };
     struct BoolNn : public ::sqlpp::name_tag_base
@@ -222,7 +222,7 @@ namespace test
             const T& operator()() const { return intN; }
           };
       };
-      using value_type = ::sqlpp::compat::optional<::sqlpp::integral>;
+      using value_type = ::sqlpp::optional<::sqlpp::integral>;
       using has_default = std::true_type;
     };
     struct _alias_t
@@ -281,7 +281,7 @@ namespace test
             const T& operator()() const { return dayPointN; }
           };
       };
-      using value_type = ::sqlpp::compat::optional<::sqlpp::day_point>;
+      using value_type = ::sqlpp::optional<::sqlpp::day_point>;
       using has_default = std::true_type;
     };
     struct TimePointN : public ::sqlpp::name_tag_base
@@ -298,7 +298,7 @@ namespace test
             const T& operator()() const { return timePointN; }
           };
       };
-      using value_type = ::sqlpp::compat::optional<::sqlpp::time_point>;
+      using value_type = ::sqlpp::optional<::sqlpp::time_point>;
       using has_default = std::true_type;
     };
     struct TimeOfDayN : public ::sqlpp::name_tag_base
@@ -315,7 +315,7 @@ namespace test
             const T& operator()() const { return timeOfDayN; }
           };
       };
-      using value_type = ::sqlpp::compat::optional<::sqlpp::time_of_day>;
+      using value_type = ::sqlpp::optional<::sqlpp::time_of_day>;
       using has_default = std::true_type;
     };
     struct _alias_t

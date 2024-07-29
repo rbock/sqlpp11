@@ -56,7 +56,7 @@ namespace sqlpp
       : public std::conditional<sqlpp::is_optional<value_type_of_t<L>>::value or
                                     sqlpp::is_optional<value_type_of_t<R1>>::value or
                                     sqlpp::is_optional<value_type_of_t<R2>>::value,
-                                sqlpp::compat::optional<boolean>,
+                                ::sqlpp::optional<boolean>,
                                 boolean>
   {
   };

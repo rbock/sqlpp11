@@ -75,7 +75,7 @@ namespace sqlpp
   template <typename L, typename Operator, typename R>
   struct value_type_of<in_expression<L, Operator, std::vector<R>>>
       : std::conditional<sqlpp::is_optional<value_type_of_t<L>>::value or sqlpp::is_optional<value_type_of_t<R>>::value,
-                         sqlpp::compat::optional<boolean>,
+                         ::sqlpp::optional<boolean>,
                          boolean>
   {
   };
@@ -84,7 +84,7 @@ namespace sqlpp
   struct value_type_of<in_expression<L, Operator, std::tuple<Args...>>>
       : std::conditional<sqlpp::is_optional<value_type_of_t<L>>::value or
                              logic::any_t<sqlpp::is_optional<value_type_of_t<Args>>::value...>::value,
-                         sqlpp::compat::optional<boolean>,
+                         ::sqlpp::optional<boolean>,
                          boolean>
   {
   };

@@ -31,16 +31,16 @@ namespace
   using is_bool = std::is_same<sqlpp::value_type_of_t<T>, sqlpp::boolean>;
 
   template <typename T>
-  using is_maybe_bool = std::is_same<sqlpp::value_type_of_t<T>, sqlpp::compat::optional<sqlpp::boolean>>;
+  using is_maybe_bool = std::is_same<sqlpp::value_type_of_t<T>, ::sqlpp::optional<sqlpp::boolean>>;
 }
 
 template <typename Value>
 void test_in_expression(Value v)
 {
-  using OptValue = sqlpp::compat::optional<Value>;
+  using OptValue = ::sqlpp::optional<Value>;
 
   auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = sqlpp::value(sqlpp::compat::make_optional(v));
+  auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v));
 
   // Compare non-nullable with non-nullable.
   static_assert(is_bool<decltype(in(v_not_null, std::make_tuple(v_not_null, v_not_null)))>::value, "");
@@ -73,7 +73,7 @@ void test_in_expression(Value v)
   using R1= Value;
   using R2= OptValue;
   static_assert(std::is_same<sqlpp::nodes_of_t<decltype(in(v_maybe_null, std::vector<Value>{}))>, sqlpp::detail::type_vector<L, R1>>::value, "");
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(in(v_maybe_null, v, sqlpp::compat::make_optional(v)))>, sqlpp::detail::type_vector<L, R1, R2>>::value, "");
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(in(v_maybe_null, v, ::sqlpp::make_optional(v)))>, sqlpp::detail::type_vector<L, R1, R2>>::value, "");
 }
 
 int main()
@@ -102,7 +102,7 @@ int main()
   test_in_expression('7');
   test_in_expression("seven");
   test_in_expression(std::string("seven"));
-  test_in_expression(sqlpp::compat::string_view("seven"));
+  test_in_expression(::sqlpp::string_view("seven"));
 
   // blob
   test_in_expression(std::vector<uint8_t>{});

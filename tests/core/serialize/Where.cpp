@@ -77,20 +77,20 @@ int Where(int, char*[])
   compare(__LINE__, where(bar.boolNn == false), " WHERE (tab_bar.bool_nn = " + getFalse() + ")");
   compare(__LINE__, where(bar.textN.is_null()), " WHERE (tab_bar.text_n IS NULL)");
   compare(__LINE__, where(bar.textN == "SQL"), " WHERE (tab_bar.text_n = 'SQL')");
-  compare(__LINE__, where(is_not_distinct_from(bar.textN, sqlpp::compat::make_optional("SQL"))),
+  compare(__LINE__, where(is_not_distinct_from(bar.textN, ::sqlpp::make_optional("SQL"))),
           " WHERE (tab_bar.text_n IS NOT DISTINCT FROM 'SQL')");
-  compare(__LINE__, where(is_not_distinct_from(bar.textN, sqlpp::compat::nullopt)),
+  compare(__LINE__, where(is_not_distinct_from(bar.textN, ::sqlpp::nullopt)),
           " WHERE (tab_bar.text_n IS NOT DISTINCT FROM NULL)");
-  compare(__LINE__, where(bar.textN.is_not_distinct_from(sqlpp::compat::make_optional("SQL"))),
+  compare(__LINE__, where(bar.textN.is_not_distinct_from(::sqlpp::make_optional("SQL"))),
           " WHERE (tab_bar.text_n IS NOT DISTINCT FROM 'SQL')");
-  compare(__LINE__, where(bar.textN.is_not_distinct_from(sqlpp::compat::nullopt)),
+  compare(__LINE__, where(bar.textN.is_not_distinct_from(::sqlpp::nullopt)),
           " WHERE (tab_bar.text_n IS NOT DISTINCT FROM NULL)");
 
   // string argument
   compare(__LINE__, where(bar.textN == std::string("SQL")), " WHERE (tab_bar.text_n = 'SQL')");
 
   // string_view argument
-  compare(__LINE__, where(bar.textN == sqlpp::compat::string_view("SQL")), " WHERE (tab_bar.text_n = 'SQL')");
+  compare(__LINE__, where(bar.textN == ::sqlpp::string_view("SQL")), " WHERE (tab_bar.text_n = 'SQL')");
 
   return 0;
 }

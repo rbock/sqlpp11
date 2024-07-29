@@ -58,7 +58,7 @@ int Update(int, char*[])
   db(update(t)
          .set(t.intN = sqlpp::verbatim<sqlpp::integral>("17+4"))
          .where(sqlpp::verbatim<sqlpp::text>("'hansi'") == "hansi"));
-  db(update(t).set(t.intN = sqlpp::compat::nullopt).unconditionally());
+  db(update(t).set(t.intN = ::sqlpp::nullopt).unconditionally());
   db(update(t).set(t.intN = sqlpp::default_value).unconditionally());
 
   db(update(t).set(t.intN += t.id * 2, t.textN += " and cake").unconditionally());

@@ -42,12 +42,12 @@ template<typename Value>
 void test_dynamic(Value v)
 {
   using ValueType = sqlpp::value_type_of_t<Value>;
-  using OptValueType = sqlpp::compat::optional<ValueType>;
+  using OptValueType = ::sqlpp::optional<ValueType>;
 
   auto v_not_null= dynamic(true, sqlpp::value(v));
-  auto v_maybe_null= dynamic(true, sqlpp::value(sqlpp::compat::make_optional(v)));
+  auto v_maybe_null= dynamic(true, sqlpp::value(::sqlpp::make_optional(v)));
   auto v_not_null_alias = dynamic(true, sqlpp::value(v)).as(r_not_null);
-  auto v_maybe_null_alias = dynamic(true, sqlpp::value(sqlpp::compat::make_optional(v))).as(r_maybe_null);
+  auto v_maybe_null_alias = dynamic(true, sqlpp::value(::sqlpp::make_optional(v))).as(r_maybe_null);
 
   static_assert(not sqlpp::has_value_type<decltype(v_not_null)>::value, "");
   static_assert(not sqlpp::has_value_type<decltype(v_maybe_null)>::value, "");
@@ -99,7 +99,7 @@ int main()
   test_dynamic('7');
   test_dynamic("seven");
   test_dynamic(std::string("seven"));
-  test_dynamic(sqlpp::compat::string_view("seven"));
+  test_dynamic(::sqlpp::string_view("seven"));
 
   // blob
   test_dynamic(std::vector<uint8_t>{});

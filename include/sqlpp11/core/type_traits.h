@@ -52,12 +52,12 @@ namespace sqlpp
   };
 
   template <typename T>
-  struct is_optional<sqlpp::compat::optional<T>> : public std::true_type
+  struct is_optional<::sqlpp::optional<T>> : public std::true_type
   {
   };
 
   template <>
-  struct is_optional<sqlpp::compat::nullopt_t> : public std::true_type
+  struct is_optional<::sqlpp::nullopt_t> : public std::true_type
   {
   };
 
@@ -68,7 +68,7 @@ namespace sqlpp
   };
 
   template <typename T>
-  struct remove_optional<sqlpp::compat::optional<T>>
+  struct remove_optional<::sqlpp::optional<T>>
   {
     using type = T;
   };
@@ -79,13 +79,13 @@ namespace sqlpp
   template <typename T>
   struct force_optional
   {
-    using type = sqlpp::compat::optional<T>;
+    using type = ::sqlpp::optional<T>;
   };
 
   template <typename T>
-  struct force_optional<sqlpp::compat::optional<T>>
+  struct force_optional<::sqlpp::optional<T>>
   {
-    using type = sqlpp::compat::optional<T>;
+    using type = ::sqlpp::optional<T>;
   };
 
   template <typename T>
@@ -98,7 +98,7 @@ namespace sqlpp
   }
 
   template <typename T>
-  const T& get_value(const sqlpp::compat::optional<T>& t)
+  const T& get_value(const ::sqlpp::optional<T>& t)
   {
     return t.value();
   }
@@ -110,7 +110,7 @@ namespace sqlpp
   }
 
   template <typename T>
-  auto has_value(const sqlpp::compat::optional<T>& t) -> bool
+  auto has_value(const ::sqlpp::optional<T>& t) -> bool
   {
     return t.has_value();
   }
@@ -128,7 +128,7 @@ namespace sqlpp
 
 #warning: Add partial specialization to handle const?
   template<typename T>
-  struct value_type_of<sqlpp::compat::optional<T>>
+  struct value_type_of<::sqlpp::optional<T>>
   {
     using type = sqlpp::force_optional_t<value_type_of_t<remove_optional_t<T>>>;
   };
@@ -202,7 +202,7 @@ namespace sqlpp
   template <>
   struct value_type_of<std::string> { using type = text; };
   template <>
-  struct value_type_of<sqlpp::compat::string_view> { using type = text; };
+  struct value_type_of<::sqlpp::string_view> { using type = text; };
 
   struct blob{};
   template <>
@@ -212,7 +212,7 @@ namespace sqlpp
   template <>
   struct value_type_of<std::vector<std::uint8_t>> { using type = blob; };
   template <>
-  struct value_type_of<sqlpp::compat::span<std::uint8_t>> { using type = blob; };
+  struct value_type_of<::sqlpp::span<std::uint8_t>> { using type = blob; };
 
   struct day_point{};
   template <>
@@ -239,7 +239,7 @@ namespace sqlpp
   };
 
   template <>
-  struct is_boolean<sqlpp::compat::nullopt_t> : public std::true_type {
+  struct is_boolean<::sqlpp::nullopt_t> : public std::true_type {
   };
 
   template <typename T>
@@ -248,7 +248,7 @@ namespace sqlpp
   };
 
   template <>
-  struct is_integral<sqlpp::compat::nullopt_t> : public std::true_type {
+  struct is_integral<::sqlpp::nullopt_t> : public std::true_type {
   };
 
   template <typename T>
@@ -257,7 +257,7 @@ namespace sqlpp
   };
 
   template <>
-  struct is_unsigned_integral<sqlpp::compat::nullopt_t> : public std::true_type {
+  struct is_unsigned_integral<::sqlpp::nullopt_t> : public std::true_type {
   };
 
   template <typename T>
@@ -266,7 +266,7 @@ namespace sqlpp
   };
 
   template <>
-  struct is_floating_point<sqlpp::compat::nullopt_t> : public std::true_type {
+  struct is_floating_point<::sqlpp::nullopt_t> : public std::true_type {
   };
 
   // A generic numeric type which could be (unsigned) integral or floating point.
@@ -281,7 +281,7 @@ namespace sqlpp
   };
 
   template <>
-  struct is_numeric<sqlpp::compat::nullopt_t> : public std::true_type{};
+  struct is_numeric<::sqlpp::nullopt_t> : public std::true_type{};
 
   template <typename T>
   struct is_text : public std::is_same<remove_optional_t<value_type_of_t<T>>, text>
@@ -289,7 +289,7 @@ namespace sqlpp
   };
 
   template <>
-  struct is_text<sqlpp::compat::nullopt_t> : public std::true_type {
+  struct is_text<::sqlpp::nullopt_t> : public std::true_type {
   };
 
   template <typename T>
@@ -298,7 +298,7 @@ namespace sqlpp
   };
 
   template <>
-  struct is_blob<sqlpp::compat::nullopt_t> : public std::true_type {
+  struct is_blob<::sqlpp::nullopt_t> : public std::true_type {
   };
 
   template <typename T>
@@ -307,7 +307,7 @@ namespace sqlpp
   };
 
   template <>
-  struct is_day_point<sqlpp::compat::nullopt_t> : public std::true_type {
+  struct is_day_point<::sqlpp::nullopt_t> : public std::true_type {
   };
 
   template <typename T>
@@ -316,7 +316,7 @@ namespace sqlpp
   };
 
   template <>
-  struct is_time_point<sqlpp::compat::nullopt_t> : public std::true_type {
+  struct is_time_point<::sqlpp::nullopt_t> : public std::true_type {
   };
 
   template <typename T>
@@ -329,7 +329,7 @@ namespace sqlpp
   };
 
   template <>
-  struct is_time_of_day<sqlpp::compat::nullopt_t> : public std::true_type {
+  struct is_time_of_day<::sqlpp::nullopt_t> : public std::true_type {
   };
 
   template <typename L, typename R>
@@ -349,16 +349,16 @@ namespace sqlpp
     struct result_value {};
 
   template<typename T>
-    struct result_value<sqlpp::compat::optional<T>>
+    struct result_value<::sqlpp::optional<T>>
     {
-      using type = sqlpp::compat::optional<typename result_value<T>::type>;
+      using type = ::sqlpp::optional<typename result_value<T>::type>;
     };
 
   template <typename T>
     using result_value_t = typename result_value<T>::type;
 
   template<>
-    struct result_value<blob> { using type = sqlpp::compat::span<uint8_t>; };
+    struct result_value<blob> { using type = ::sqlpp::span<uint8_t>; };
 
   template<>
     struct result_value<boolean> { using type = bool; };
@@ -373,7 +373,7 @@ namespace sqlpp
     struct result_value<floating_point> { using type = double; };
 
   template<>
-    struct result_value<text> { using type = sqlpp::compat::string_view; };
+    struct result_value<text> { using type = ::sqlpp::string_view; };
 
   template<>
     struct result_value<day_point> { using type = std::chrono::time_point<std::chrono::system_clock, sqlpp::chrono::days>; };
@@ -387,9 +387,9 @@ namespace sqlpp
     struct parameter_value {};
 
   template<typename T>
-    struct parameter_value<sqlpp::compat::optional<T>>
+    struct parameter_value<::sqlpp::optional<T>>
     {
-      using type = sqlpp::compat::optional<typename parameter_value<T>::type>;
+      using type = ::sqlpp::optional<typename parameter_value<T>::type>;
     };
 
   template <typename T>

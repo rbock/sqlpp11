@@ -71,7 +71,7 @@ namespace sqlpp
           std::cerr << "PostgreSQL debug: preparing: " << stmt << std::endl;
         }
 
-        return sqlpp::compat::make_unique<detail::prepared_statement_handle_t>(*handle, stmt, param_count);
+        return ::sqlpp::make_unique<detail::prepared_statement_handle_t>(*handle, stmt, param_count);
       }
 
       inline void execute_prepared_statement(std::unique_ptr<connection_handle>& handle, std::shared_ptr<detail::prepared_statement_handle_t>& prepared)

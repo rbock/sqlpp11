@@ -60,7 +60,7 @@ namespace sqlpp
   template <typename L, typename Operator, typename R>
   struct value_type_of<logical_expression<L, Operator, R>>
       : std::conditional<sqlpp::is_optional<value_type_of_t<L>>::value or sqlpp::is_optional<value_type_of_t<remove_dynamic_t<R>>>::value,
-                         sqlpp::compat::optional<boolean>,
+                         ::sqlpp::optional<boolean>,
                          boolean>
   {
   };

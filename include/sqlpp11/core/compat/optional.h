@@ -36,8 +36,6 @@
 #include <optional>
 namespace sqlpp
 {
-  namespace compat
-  {
   template <class T>
   using optional = std::optional<T>;
 
@@ -47,7 +45,6 @@ namespace sqlpp
   using std::bad_optional_access;
   using std::make_optional;
 
-  }  // namespace compat
 }  // namespace sqlpp
 
 #else // incomplete backport of std::optional
@@ -57,8 +54,6 @@ namespace sqlpp
 
 namespace sqlpp
 {
-  namespace compat
-  {
     class nullopt_t
     {
     };
@@ -257,7 +252,6 @@ namespace sqlpp
       return optional<typename std::decay<T>::type>(std::forward<T>(value));
     }
 
-  }  // namespace compat
 }  // namespace sqlpp
 
 #endif

@@ -46,10 +46,10 @@ template <typename Value>
 void test_select_as(Value v)
 {
   auto v_not_null = sqlpp::value(v).as(always);
-  auto v_maybe_null = sqlpp::value(sqlpp::compat::make_optional(v)).as(sometimes);
+  auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v)).as(sometimes);
 
   using ValueType = sqlpp::value_type_of_t<Value>;
-  using OptValueType = sqlpp::value_type_of_t<sqlpp::compat::optional<Value>>;
+  using OptValueType = sqlpp::value_type_of_t<::sqlpp::optional<Value>>;
 
   // SINGLE VALUE
 
@@ -148,7 +148,7 @@ int main()
   test_select_as('7');
   test_select_as("seven");
   test_select_as(std::string("seven"));
-  test_select_as(sqlpp::compat::string_view("seven"));
+  test_select_as(::sqlpp::string_view("seven"));
 
   // blob
   test_select_as(std::vector<uint8_t>{});
