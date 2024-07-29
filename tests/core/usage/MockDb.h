@@ -26,12 +26,12 @@
  */
 
 #include <iostream>
-#include <sqlpp11/connection.h>
+#include <sqlpp11/database/connection.h>
 #include <sqlpp11/detail/float_safe_ostringstream.h>
-#include <sqlpp11/transaction.h>
+#include <sqlpp11/database/transaction.h>
 #include <sqlpp11/basic/schema.h>
 #include <sqlpp11/serialize.h>
-#include <sqlpp11/serializer_context.h>
+#include <sqlpp11/database/serializer_context.h>
 #include <sstream>
 
 // an object to store internal Mock flags and values to validate in tests

@@ -36,7 +36,7 @@
 #include <libpq-fe.h>
 
 #include <sqlpp11/postgresql/visibility.h>
-#include <sqlpp11/postgresql/exception.h>
+#include <sqlpp11/postgresql/database/exception.h>
 
 #ifdef SQLPP_DYNAMIC_LOADING
 #include <sqlpp11/postgresql/dynamic_libpq.h>

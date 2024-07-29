@@ -24,7 +24,7 @@
  */
 
 #include "Tables.h"
-#include <sqlpp11/custom_query.h>
+#include <sqlpp11/query/query/custom_query.h>
 #include <sqlpp11/sqlite3/sqlite3.h>
 #include <sqlpp11/sqlpp11.h>
 

@@ -27,7 +27,7 @@
 #include "make_test_connection.h"
 #include "Tables.h"
 #include <sqlpp11/sqlpp11.h>
-#include <sqlpp11/custom_query.h>
+#include <sqlpp11/query/query/custom_query.h>
 #include <sqlpp11/mysql/mysql.h>
 
 namespace

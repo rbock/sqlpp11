@@ -33,6 +33,6 @@
 #include <sqlpp11/clause/select.h>
 #include <sqlpp11/function.h>
 #include <sqlpp11/operator.h>
-#include <sqlpp11/transaction.h>
+#include <sqlpp11/database/transaction.h>
 #include <sqlpp11/basic/schema_qualified_table.h>
-#include <sqlpp11/custom_query.h>
+#include <sqlpp11/query/custom_query.h>

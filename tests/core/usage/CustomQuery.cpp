@@ -27,7 +27,7 @@
 #include "Sample.h"
 #include "MockDb.h"
 #include <sqlpp11/sqlpp11.h>
-#include <sqlpp11/custom_query.h>
+#include <sqlpp11/query/query/custom_query.h>
 #include "../../include/test_helpers.h"
 
 namespace
@@ -69,7 +69,7 @@ int CustomQuery(int, char*[])
   const auto f = test::TabFoo{};
   const auto t = test::TabBar{};
 
-  // A void custom query
+  // A void custom query/query
   printer.reset();
   auto x =
       //select(t.id).from(t).where(t.id > 7).group_by(t.id).having(max(t.id) > 13).order_by(t.textN.desc());
@@ -79,12 +79,12 @@ int CustomQuery(int, char*[])
 #if 0
   db(x);
 
-  // Syntactically, it is possible to use this void query as a prepared statement, too, not sure, whether this makes
+  // Syntactically, it is possible to use this void query/query as a prepared statement, too, not sure, whether this makes
   // sense very often...
   db(db.prepare(x));
 
   // A prepared custom select
-  // The return type of the custom query is determined from the first argument which does have a return type, in this
+  // The return type of the custom query/query is determined from the first argument which does have a return type, in this
   // case the select
   auto p = db.prepare(custom_query(select(all_of(t)).from(t), where(t.id > sqlpp::parameter(t.id))));
   p.params.id = 8;
@@ -108,7 +108,7 @@ int CustomQuery(int, char*[])
                   on_duplicate_key_update(db, t.textN = "sample")(db, t.boolNn = false).get()));
 
   // A custom (select ... into) with adjusted return type
-  // The first argument with a return type is the select, but the custom query is really an insert. Thus, we tell it so.
+  // The first argument with a return type is the select, but the custom query/query is really an insert. Thus, we tell it so.
   printer.reset();
   auto c = custom_query(select(all_of(t)).from(t), into(f)).with_result_type_of(insert_into(f));
   std::cerr << serialize(c, printer).str() << std::endl;

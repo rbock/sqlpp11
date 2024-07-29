@@ -29,9 +29,9 @@
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/logic.h>
 #include <sqlpp11/parameter_list.h>
-#include <sqlpp11/result_row.h>
+#include <sqlpp11/query/result_row.h>
 #include <sqlpp11/clause/select_flags.h>
-#include <sqlpp11/statement_fwd.h>
+#include <sqlpp11/query/statement_fwd.h>
 #include <sqlpp11/basic/table_ref.h>
 #include <sqlpp11/type_traits.h>
 

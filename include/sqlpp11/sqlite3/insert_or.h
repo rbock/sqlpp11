@@ -31,8 +31,8 @@
 #include <sqlpp11/clause/into.h>
 #include <sqlpp11/noop.h>
 #include <sqlpp11/parameter_list.h>
-#include <sqlpp11/prepared_insert.h>
-#include <sqlpp11/statement.h>
+#include <sqlpp11/database/prepared_insert.h>
+#include <sqlpp11/query/statement.h>
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp

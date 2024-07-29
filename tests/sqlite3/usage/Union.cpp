@@ -24,7 +24,7 @@
  */
 
 #include "Tables.h"
-#include <sqlpp11/sqlite3/connection.h>
+#include <sqlpp11/sqlite3/database/connection.h>
 #include <sqlpp11/sqlpp11.h>
 
 #ifdef SQLPP_USE_SQLCIPHER

@@ -27,8 +27,8 @@
 #include <memory>
 #include <stdexcept>
 
-#include <sqlpp11/postgresql/connection.h>
-#include <sqlpp11/postgresql/exception.h>
+#include <sqlpp11/postgresql/database/connection.h>
+#include <sqlpp11/postgresql/database/exception.h>
 #include <sqlpp11/sqlpp11.h>
 
 namespace sql = sqlpp::postgresql;

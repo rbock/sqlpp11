@@ -34,7 +34,7 @@
 #include <date/date.h>
 
 #include <sqlpp11/chrono.h>
-#include <sqlpp11/exception.h>
+#include <sqlpp11/database/exception.h>
 #include <sqlpp11/sqlite3/export.h>
 
 #include <sqlpp11/sqlite3/detail/prepared_statement_handle.h>

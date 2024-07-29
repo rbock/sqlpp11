@@ -27,7 +27,7 @@
  */
 
 #include <type_traits>
-#include <sqlpp11/prepared_execute.h>
+#include <sqlpp11/database/prepared_execute.h>
 
 namespace sqlpp
 {

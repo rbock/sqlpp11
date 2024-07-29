@@ -28,9 +28,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/postgresql/connection.h>
-#include <sqlpp11/postgresql/connection_pool.h>
-#include <sqlpp11/postgresql/exception.h>
+#include <sqlpp11/postgresql/database/connection.h>
+#include <sqlpp11/postgresql/database/connection_pool.h>
+#include <sqlpp11/postgresql/database/exception.h>
 #include <sqlpp11/postgresql/clause/insert.h>
 #include <sqlpp11/postgresql/clause/remove.h>
 #include <sqlpp11/postgresql/clause/update.h>

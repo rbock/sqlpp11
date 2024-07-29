@@ -26,7 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/statement_fwd.h>
+#include <sqlpp11/query/statement_fwd.h>
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp

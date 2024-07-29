@@ -29,7 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <type_traits>
 
 #include <sqlpp11/enable_as.h>
-#include <sqlpp11/dynamic.h>
+#include <sqlpp11/query/dynamic.h>
 #include <sqlpp11/noop.h>
 //#include <sqlpp11/embrace.h>
 //#include <sqlpp11/to_sql_string.h>

@@ -26,11 +26,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/statement.h>
-#include <sqlpp11/connection.h>
+#include <sqlpp11/query/statement.h>
+#include <sqlpp11/database/connection.h>
 #include <sqlpp11/type_traits.h>
 #include <sqlpp11/parameter_list.h>
-#include <sqlpp11/prepared_remove.h>
+#include <sqlpp11/database/prepared_remove.h>
 #include <sqlpp11/noop.h>
 #include <sqlpp11/clause/from.h>
 #include <sqlpp11/clause/using.h>

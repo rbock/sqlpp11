@@ -24,7 +24,7 @@
  */
 
 #include "Tables.h"
-#include <sqlpp11/sqlite3/connection.h>
+#include <sqlpp11/sqlite3/database/connection.h>
 #include <sqlpp11/sqlpp11.h>
 
 #ifdef SQLPP_USE_SQLCIPHER
@@ -94,7 +94,7 @@ int Blob(int, char*[])
   std::vector<uint8_t> data_smaller(blob_small_size);
   std::generate_n(data_smaller.begin(), blob_small_size, generator);
 
-  // If we use the bigger blob it will trigger SQLITE_TOOBIG for the query
+  // If we use the bigger blob it will trigger SQLITE_TOOBIG for the query/query
   auto id = db(insert_into(tab).set(tab.data = data_smaller));
 
   auto prepared_insert = db.prepare(insert_into(tab).set(tab.data = parameter(tab.data)));

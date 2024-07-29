@@ -32,10 +32,10 @@
 #include <sqlpp11/interpret_tuple.h>
 #include <sqlpp11/logic.h>
 #include <sqlpp11/no_data.h>
-#include <sqlpp11/policy_update.h>
+#include <sqlpp11/query/policy_update.h>
 #include <sqlpp11/portable_static_assert.h>
 #include <sqlpp11/simple_column.h>
-#include <sqlpp11/statement.h>
+#include <sqlpp11/query/statement.h>
 #include <sqlpp11/type_traits.h>
 
 namespace sqlpp

@@ -25,13 +25,13 @@
 
 #include <cassert>
 #include <sqlpp11/alias_provider.h>
-#include <sqlpp11/custom_query.h>
+#include <sqlpp11/query/query/custom_query.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/clause/insert.h>
 #include <sqlpp11/clause/remove.h>
 #include <sqlpp11/clause/select.h>
-#include <sqlpp11/sqlite3/connection.h>
-#include <sqlpp11/transaction.h>
+#include <sqlpp11/sqlite3/database/connection.h>
+#include <sqlpp11/database/transaction.h>
 #include <sqlpp11/clause/update.h>
 
 #ifdef SQLPP_USE_SQLCIPHER

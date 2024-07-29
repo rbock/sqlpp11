@@ -26,10 +26,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/statement.h>
+#include <sqlpp11/query/statement.h>
 
 #include <sqlpp11/noop.h>
-#include <sqlpp11/connection.h>
+#include <sqlpp11/database/connection.h>
 #include <sqlpp11/clause/with.h>
 #include <sqlpp11/clause/select_flag_list.h>
 #include <sqlpp11/clause/select_column_list.h>

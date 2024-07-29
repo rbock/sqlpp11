@@ -28,11 +28,11 @@
 
 #include <sqlpp11/noop.h>
 #include <sqlpp11/parameter_list.h>
-#include <sqlpp11/policy_update.h>
-#include <sqlpp11/prepared_select.h>
+#include <sqlpp11/query/policy_update.h>
+#include <sqlpp11/database/prepared_select.h>
 #include <sqlpp11/result.h>
 #include <sqlpp11/serialize.h>
-#include <sqlpp11/statement_fwd.h>
+#include <sqlpp11/query/statement_fwd.h>
 
 #include <sqlpp11/detail/get_first.h>
 #include <sqlpp11/detail/get_last.h>

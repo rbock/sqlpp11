@@ -28,6 +28,7 @@
 
 namespace sqlpp
 {
+#warning: Is this still needed?
   struct no_data_t
   {
   };

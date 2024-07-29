@@ -32,7 +32,7 @@
 #include <string>
 #include <sqlpp11/chrono.h>
 #include <sqlpp11/detail/float_safe_ostringstream.h>
-#include <sqlpp11/postgresql/exception.h>
+#include <sqlpp11/postgresql/database/exception.h>
 
 namespace sqlpp
 {

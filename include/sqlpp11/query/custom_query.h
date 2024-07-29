@@ -26,11 +26,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/connection.h>
+#include <sqlpp11/database/connection.h>
 #include <sqlpp11/detail/get_first.h>
 #include <sqlpp11/hidden.h>
 #include <sqlpp11/interpret_tuple.h>
-#include <sqlpp11/statement.h>
+#include <sqlpp11/query/statement.h>
 
 namespace sqlpp
 {

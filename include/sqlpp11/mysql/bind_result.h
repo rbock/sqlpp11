@@ -27,7 +27,7 @@
  */
 
 #include <sqlpp11/chrono.h>
-#include <sqlpp11/exception.h>
+#include <sqlpp11/database/exception.h>
 #include <sqlpp11/compat/optional.h>
 #include <sqlpp11/compat/string_view.h>
 #include <sqlpp11/compat/span.h>

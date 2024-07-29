@@ -26,7 +26,7 @@
 #include "../../include/ConnectionTests.h"
 #include "make_test_connection.h"
 
-#include <sqlpp11/mysql/connection.h>
+#include <sqlpp11/mysql/database/connection.h>
 #include <sqlpp11/sqlpp11.h>
 
 int Connection(int, char*[])

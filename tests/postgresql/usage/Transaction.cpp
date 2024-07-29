@@ -28,10 +28,10 @@
 #include <stdexcept>
 
 #include <sqlpp11/alias_provider.h>
-#include <sqlpp11/custom_query.h>
-#include <sqlpp11/postgresql/connection.h>
+#include <sqlpp11/query/query/custom_query.h>
+#include <sqlpp11/postgresql/database/connection.h>
 #include <sqlpp11/sqlpp11.h>
-#include <sqlpp11/transaction.h>
+#include <sqlpp11/database/transaction.h>
 #include "../../include/test_helpers.h"
 
 #include "make_test_connection.h"

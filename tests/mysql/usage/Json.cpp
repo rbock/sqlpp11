@@ -66,12 +66,12 @@ int Json(int, char*[])
     const auto tab = test::TabJson{};
     db(insert_into(tab).set(tab.data = R"--({"key" : "value"})--"));
 
-    const auto query =
+    const auto query/query =
         select(sqlpp::verbatim<sqlpp::text>(R"--(JSON_UNQUOTE(JSON_EXTRACT(data, "$.key")))--").as(test::value))
             .from(tab)
             .unconditionally();
 
-    auto result = db(query);
+    auto result = db(query/query);
     if (result.empty())
       throw std::runtime_error{"selection result is empty"};
 

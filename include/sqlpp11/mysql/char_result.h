@@ -32,7 +32,7 @@
 #include <memory>
 #include <sqlpp11/chrono.h>
 #include <sqlpp11/detail/parse_date_time.h>
-#include <sqlpp11/exception.h>
+#include <sqlpp11/database/exception.h>
 #include <sqlpp11/mysql/detail/result_handle.h>
 #include <sqlpp11/mysql/sqlpp_mysql.h>
 #include <sqlpp11/mysql/char_result_row.h>

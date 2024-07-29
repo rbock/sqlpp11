@@ -26,13 +26,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/dynamic.h>
+#include <sqlpp11/query/dynamic.h>
 #include <sqlpp11/noop.h>
 #include <sqlpp11/basic/parameter.h>
 #include <sqlpp11/parameter_list.h>
 #include <sqlpp11/aggregate_function.h>
 #include <sqlpp11/function/trim.h>
-#include <sqlpp11/case.h>
+#include <sqlpp11/operator/case.h>
 #include <sqlpp11/function/lower.h>
 #include <sqlpp11/function/upper.h>
 #include <sqlpp11/value_type.h>

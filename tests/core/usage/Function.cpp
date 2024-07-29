@@ -29,7 +29,7 @@
 #include <sqlpp11/alias_provider.h>
 #include <sqlpp11/clause/select.h>
 #include <sqlpp11/functions.h>
-#include <sqlpp11/connection.h>
+#include <sqlpp11/database/connection.h>
 
 #include <iostream>
 

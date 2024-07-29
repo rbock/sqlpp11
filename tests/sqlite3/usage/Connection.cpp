@@ -25,7 +25,7 @@
 
 #include "../../include/ConnectionTests.h"
 
-#include <sqlpp11/sqlite3/connection.h>
+#include <sqlpp11/sqlite3/database/connection.h>
 #include <sqlpp11/sqlpp11.h>
 
 int Connection(int, char*[])

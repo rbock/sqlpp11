@@ -23,8 +23,8 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/exception.h>
-#include <sqlpp11/custom_query.h>
+#include <sqlpp11/database/exception.h>
+#include <sqlpp11/query/query/custom_query.h>
 #include <sqlpp11/postgresql/postgresql.h>
 #include <sqlpp11/basic/verbatim.h>
 #include <sqlpp11/alias_provider.h>

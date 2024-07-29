@@ -27,9 +27,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/connection.h>
+#include <sqlpp11/database/connection.h>
 #include <sqlpp11/detail/float_safe_ostringstream.h>
-#include <sqlpp11/exception.h>
+#include <sqlpp11/database/exception.h>
 #include <sqlpp11/mysql/bind_result.h>
 #include <sqlpp11/mysql/char_result.h>
 #include <sqlpp11/mysql/connection_config.h>

@@ -27,7 +27,7 @@
  */
 
 #include <sqlpp11/operator/as_expression.h>
-#include <sqlpp11/dynamic.h>
+#include <sqlpp11/query/dynamic.h>
 #include <sqlpp11/type_traits.h>
 
 // Select columns require a value type and a name.

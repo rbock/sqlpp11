@@ -29,10 +29,10 @@
 #include <sqlpp11/alias_provider.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/clause/insert.h>
-#include <sqlpp11/mysql/connection.h>
+#include <sqlpp11/mysql/database/connection.h>
 #include <sqlpp11/clause/remove.h>
 #include <sqlpp11/clause/select.h>
-#include <sqlpp11/transaction.h>
+#include <sqlpp11/database/transaction.h>
 #include <sqlpp11/clause/update.h>
 #include "../../include/test_helpers.h"
 

@@ -27,7 +27,7 @@
 #include "../../include/ConnectionTests.h"
 #include "make_test_connection.h"
 
-#include <sqlpp11/postgresql/connection.h>
+#include <sqlpp11/postgresql/database/connection.h>
 #include <sqlpp11/sqlpp11.h>
 
 int Connection(int, char*[])

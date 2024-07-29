@@ -25,7 +25,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/postgresql/connection.h>
+#include <sqlpp11/postgresql/database/connection.h>
 
 #include <iostream>
 

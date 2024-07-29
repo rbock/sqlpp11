@@ -32,9 +32,9 @@
 #else
 #include <sqlite3.h>
 #endif
-#include <sqlpp11/connection.h>
+#include <sqlpp11/database/connection.h>
 #include <sqlpp11/detail/float_safe_ostringstream.h>
-#include <sqlpp11/exception.h>
+#include <sqlpp11/database/exception.h>
 #include <sqlpp11/basic/schema.h>
 #include <sqlpp11/serialize.h>
 #include <sqlpp11/sqlite3/bind_result.h>
@@ -42,7 +42,7 @@
 #include <sqlpp11/sqlite3/detail/connection_handle.h>
 #include <sqlpp11/sqlite3/prepared_statement.h>
 #include <sqlpp11/sqlite3/export.h>
-#include <sqlpp11/transaction.h>
+#include <sqlpp11/database/transaction.h>
 #include <sqlpp11/type_traits.h>
 #include <sstream>
 #include <string>

@@ -62,13 +62,13 @@ int With(int, char*[])
     const auto initialCte = ::sqlpp::cte(sqlpp::alias::a).as(selectBase);
     const auto recursiveCte = initialCte.union_all(
         select(t.id, t.intN).from(t.join(initialCte).on(t.id == initialCte.intN)).unconditionally());
-    const auto query = with(recursiveCte)(select(recursiveCte.id).from(recursiveCte).unconditionally());
+    const auto query/query = with(recursiveCte)(select(recursiveCte.id).from(recursiveCte).unconditionally());
 
     printer.reset();
-    const auto serializedQuery = serialize(query, printer).str();
+    const auto serializedQuery = serialize(query/query, printer).str();
     std::cout << serializedQuery << '\n';
 
-    for (const auto& row : db(query))
+    for (const auto& row : db(query/query))
     {
       std::cout << row.id;
     }

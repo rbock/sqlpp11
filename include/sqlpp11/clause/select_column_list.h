@@ -28,11 +28,11 @@
 
 #include <sqlpp11/detail/type_set.h>
 #include <sqlpp11/operator/as_expression.h>
-#include <sqlpp11/dynamic.h>
+#include <sqlpp11/query/dynamic.h>
 #include <sqlpp11/field_spec.h>
 #include <sqlpp11/interpret_tuple.h>
-#include <sqlpp11/policy_update.h>
-#include <sqlpp11/result_row.h>
+#include <sqlpp11/query/policy_update.h>
+#include <sqlpp11/query/result_row.h>
 #include <sqlpp11/clause/select_as.h>
 #include <sqlpp11/clause/select_column_traits.h>
 #include <sqlpp11/basic/table.h>

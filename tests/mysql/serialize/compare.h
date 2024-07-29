@@ -25,7 +25,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/mysql/connection.h>
+#include <sqlpp11/mysql/database/connection.h>
 #include <iostream>
 
 namespace

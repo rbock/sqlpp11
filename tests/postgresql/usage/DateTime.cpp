@@ -27,7 +27,7 @@
 #include <iostream>
 #include <vector>
 
-#include <sqlpp11/postgresql/exception.h>
+#include <sqlpp11/postgresql/database/exception.h>
 #include <sqlpp11/postgresql/postgresql.h>
 #include <sqlpp11/sqlpp11.h>
 

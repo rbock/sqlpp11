@@ -27,6 +27,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/mysql/connection.h>
-#include <sqlpp11/mysql/connection_pool.h>
+#include <sqlpp11/mysql/database/connection.h>
+#include <sqlpp11/mysql/database/connection_pool.h>
 #include <sqlpp11/mysql/char_result.h>

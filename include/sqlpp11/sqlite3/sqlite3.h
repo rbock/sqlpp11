@@ -27,6 +27,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/sqlite3/connection.h>
-#include <sqlpp11/sqlite3/connection_pool.h>
+#include <sqlpp11/sqlite3/database/connection.h>
+#include <sqlpp11/sqlite3/database/connection_pool.h>
 #include <sqlpp11/sqlite3/insert_or.h>

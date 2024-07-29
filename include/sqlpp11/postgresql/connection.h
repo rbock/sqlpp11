@@ -33,17 +33,17 @@
 #include <sstream>
 
 #include <sqlpp11/compat/make_unique.h>
-#include <sqlpp11/connection.h>
+#include <sqlpp11/database/connection.h>
 #include <sqlpp11/detail/float_safe_ostringstream.h>
 #include <sqlpp11/postgresql/bind_result.h>
 #include <sqlpp11/postgresql/connection_config.h>
 #include <sqlpp11/postgresql/prepared_statement.h>
-#include <sqlpp11/postgresql/exception.h>
+#include <sqlpp11/postgresql/database/exception.h>
 #include <sqlpp11/postgresql/result.h>
 #include <sqlpp11/postgresql/detail/connection_handle.h>
 #include <sqlpp11/postgresql/detail/prepared_statement_handle.h>
 #include <sqlpp11/serialize.h>
-#include <sqlpp11/transaction.h>
+#include <sqlpp11/database/transaction.h>
 
 #ifdef SQLPP_DYNAMIC_LOADING
 #include <sqlpp11/postgresql/dynamic_libpq.h>
