@@ -24,7 +24,7 @@
  */
 
 #include <sqlpp11/data_types/floating_point.h>
-#include <sqlpp11/basic/value.h>
+#include <sqlpp11/core/basic/value.h>
 
 #include "compare.h"
 

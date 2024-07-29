@@ -26,10 +26,10 @@
 #include "MockDb.h"
 #include "Sample.h"
 #include <iostream>
-#include <sqlpp11/alias_provider.h>
-#include <sqlpp11/database/connection.h>
+#include <sqlpp11/core/alias_provider.h>
+#include <sqlpp11/core/database/connection.h>
 #include <sqlpp11/functions.h>
-#include <sqlpp11/clause/select.h>
+#include <sqlpp11/core/clause/select.h>
 
 namespace
 {

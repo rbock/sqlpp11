@@ -41,7 +41,7 @@ SQLPP_DECLARE_TABLE(
 #endif
 
 #include <sqlpp11/sqlpp11.h>
-#include <sqlpp11/ppgen.h>
+#include <sqlpp11/core/ppgen.h>
 
 #include "MockDb.h"
 

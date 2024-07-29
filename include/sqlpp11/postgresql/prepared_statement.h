@@ -30,8 +30,8 @@
 
 #include <memory>
 #include <string>
-#include <sqlpp11/chrono.h>
-#include <sqlpp11/detail/float_safe_ostringstream.h>
+#include <sqlpp11/core/chrono.h>
+#include <sqlpp11/core/detail/float_safe_ostringstream.h>
 #include <sqlpp11/postgresql/database/exception.h>
 
 namespace sqlpp

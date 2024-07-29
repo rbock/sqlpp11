@@ -23,7 +23,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/compat/make_unique.h>
+#include <sqlpp11/core/compat/make_unique.h>
 
 int main(int, char* [])
 {

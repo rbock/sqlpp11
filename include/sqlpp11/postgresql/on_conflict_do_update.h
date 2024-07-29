@@ -27,10 +27,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/detail/type_set.h>
-#include <sqlpp11/interpret_tuple.h>
-#include <sqlpp11/type_traits.h>
-#include <sqlpp11/clause/where.h>
+#include <sqlpp11/core/detail/type_set.h>
+#include <sqlpp11/core/interpret_tuple.h>
+#include <sqlpp11/core/type_traits.h>
+#include <sqlpp11/core/clause/where.h>
 
 namespace sqlpp
 {

@@ -28,15 +28,15 @@
  */
 
 #include <sqlpp11/data_types/no_value.h>
-#include <sqlpp11/detail/column_tuple_merge.h>
-#include <sqlpp11/detail/type_set.h>
+#include <sqlpp11/core/detail/column_tuple_merge.h>
+#include <sqlpp11/core/detail/type_set.h>
 #include <sqlpp11/expression_fwd.h>
-#include <sqlpp11/field_spec.h>
-#include <sqlpp11/interpret_tuple.h>
-#include <sqlpp11/query/policy_update.h>
-#include <sqlpp11/query/result_row.h>
+#include <sqlpp11/core/field_spec.h>
+#include <sqlpp11/core/interpret_tuple.h>
+#include <sqlpp11/core/query/policy_update.h>
+#include <sqlpp11/core/query/result_row.h>
 #include <sqlpp11/select_pseudo_table.h>
-#include <sqlpp11/basic/table.h>
+#include <sqlpp11/core/basic/table.h>
 #include <tuple>
 
 namespace sqlpp

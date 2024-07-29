@@ -28,10 +28,10 @@
 #include "is_regular.h"
 #include <algorithm>
 #include <iostream>
-#include <sqlpp11/alias_provider.h>
-#include <sqlpp11/database/connection.h>
+#include <sqlpp11/core/alias_provider.h>
+#include <sqlpp11/core/database/connection.h>
 #include <sqlpp11/functions.h>
-#include <sqlpp11/clause/select.h>
+#include <sqlpp11/core/clause/select.h>
 #include "../../include/test_helpers.h"
 
 struct to_cerr

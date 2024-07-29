@@ -27,9 +27,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/detail/type_vector.h>
-#include <sqlpp11/serialize.h>
-#include <sqlpp11/type_traits.h>
+#include <sqlpp11/core/detail/type_vector.h>
+#include <sqlpp11/core/serialize.h>
+#include <sqlpp11/core/type_traits.h>
 
 namespace sqlpp
 {

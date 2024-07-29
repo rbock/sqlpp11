@@ -27,7 +27,7 @@
  */
 
 #include <sqlpp11/data_types/text/concat.h>
-#include <sqlpp11/clause/insert_value_list.h>
+#include <sqlpp11/core/clause/insert_value_list.h>
 
 namespace sqlpp
 {

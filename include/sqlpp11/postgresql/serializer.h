@@ -27,8 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/chrono.h>
-#include <sqlpp11/basic/parameter.h>
+#include <sqlpp11/core/chrono.h>
+#include <sqlpp11/core/basic/parameter.h>
 
 namespace sqlpp
 {

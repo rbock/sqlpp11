@@ -26,14 +26,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/default_value.h>
-#include <sqlpp11/clause/insert_value_list.h>
-#include <sqlpp11/clause/into.h>
-#include <sqlpp11/noop.h>
-#include <sqlpp11/parameter_list.h>
-#include <sqlpp11/database/prepared_insert.h>
-#include <sqlpp11/query/statement.h>
-#include <sqlpp11/type_traits.h>
+#include <sqlpp11/core/default_value.h>
+#include <sqlpp11/core/clause/insert_value_list.h>
+#include <sqlpp11/core/clause/into.h>
+#include <sqlpp11/core/noop.h>
+#include <sqlpp11/core/parameter_list.h>
+#include <sqlpp11/core/database/prepared_insert.h>
+#include <sqlpp11/core/query/statement.h>
+#include <sqlpp11/core/type_traits.h>
 
 namespace sqlpp
 {

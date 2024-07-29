@@ -1,5 +1,5 @@
 
-#include <sqlpp11/chrono.h>
+#include <sqlpp11/core/chrono.h>
 #include <ddl2cpp_sample_good_custom_type.h>
 
 int main()

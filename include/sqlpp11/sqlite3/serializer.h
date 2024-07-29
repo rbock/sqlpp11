@@ -37,10 +37,10 @@
 #include <sqlpp11/data_types/integral/operand.h>
 #include <sqlpp11/data_types/time_point/operand.h>
 #include <sqlpp11/data_types/unsigned_integral/operand.h>
-#include <sqlpp11/basic/parameter.h>
-#include <sqlpp11/basic/pre_join.h>
+#include <sqlpp11/core/basic/parameter.h>
+#include <sqlpp11/core/basic/pre_join.h>
 #include <sqlpp11/some.h>
-#include <sqlpp11/clause/with.h>
+#include <sqlpp11/core/clause/with.h>
 
 #include <cmath>
 

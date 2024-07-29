@@ -32,7 +32,7 @@
 */
 
 #include "visibility.h"
-#include <sqlpp11/database/exception.h>
+#include <sqlpp11/core/database/exception.h>
 #include <string>
 
 namespace sqlpp

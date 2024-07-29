@@ -23,7 +23,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/detail/float_safe_ostringstream.h>
+#include <sqlpp11/core/detail/float_safe_ostringstream.h>
 #include <sqlpp11/sqlpp11.h>
 
 #include "compare.h"

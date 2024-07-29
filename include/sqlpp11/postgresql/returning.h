@@ -28,8 +28,8 @@
  */
 
 #include <sqlpp11/postgresql/returning_column_list.h>
-#include <sqlpp11/clause/select_column_list.h>
-#include <sqlpp11/query/statement.h>
+#include <sqlpp11/core/clause/select_column_list.h>
+#include <sqlpp11/core/query/statement.h>
 
 namespace sqlpp
 {

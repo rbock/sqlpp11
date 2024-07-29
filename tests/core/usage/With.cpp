@@ -25,8 +25,8 @@
 
 #include "Sample.h"
 #include "MockDb.h"
-#include <sqlpp11/clause/select.h>
-#include <sqlpp11/alias_provider.h>
+#include <sqlpp11/core/clause/select.h>
+#include <sqlpp11/core/alias_provider.h>
 #include <iostream>
 #include "../../include/test_helpers.h"
 

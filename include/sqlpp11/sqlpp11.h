@@ -26,13 +26,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/alias_provider.h>
-#include <sqlpp11/clause/insert.h>
-#include <sqlpp11/clause/remove.h>
-#include <sqlpp11/clause/update.h>
-#include <sqlpp11/clause/select.h>
-#include <sqlpp11/function.h>
-#include <sqlpp11/operator.h>
-#include <sqlpp11/database/transaction.h>
-#include <sqlpp11/basic/schema_qualified_table.h>
-#include <sqlpp11/query/custom_query.h>
+#include <sqlpp11/core/alias_provider.h>
+#include <sqlpp11/core/clause/insert.h>
+#include <sqlpp11/core/clause/remove.h>
+#include <sqlpp11/core/clause/update.h>
+#include <sqlpp11/core/clause/select.h>
+#include <sqlpp11/core/function.h>
+#include <sqlpp11/core/operator.h>
+#include <sqlpp11/core/database/transaction.h>
+#include <sqlpp11/core/basic/schema_qualified_table.h>
+#include <sqlpp11/core/query/custom_query.h>

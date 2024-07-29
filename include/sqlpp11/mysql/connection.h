@@ -27,9 +27,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/database/connection.h>
-#include <sqlpp11/detail/float_safe_ostringstream.h>
-#include <sqlpp11/database/exception.h>
+#include <sqlpp11/core/database/connection.h>
+#include <sqlpp11/core/detail/float_safe_ostringstream.h>
+#include <sqlpp11/core/database/exception.h>
 #include <sqlpp11/mysql/bind_result.h>
 #include <sqlpp11/mysql/char_result.h>
 #include <sqlpp11/mysql/connection_config.h>
@@ -37,7 +37,7 @@
 #include <sqlpp11/mysql/prepared_statement.h>
 #include <sqlpp11/mysql/clause/remove.h>
 #include <sqlpp11/mysql/clause/update.h>
-#include <sqlpp11/serialize.h>
+#include <sqlpp11/core/serialize.h>
 #include <iostream>
 #include <sstream>
 #include <string>

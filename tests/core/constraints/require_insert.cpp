@@ -30,7 +30,7 @@
 
 #include "Sample.h"
 #include "MockDb.h"
-#include <sqlpp11/clause/insert.h>
+#include <sqlpp11/core/clause/insert.h>
 #include <iostream>
 
 MockDb db;

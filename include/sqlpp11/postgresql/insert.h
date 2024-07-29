@@ -26,7 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/clause/insert.h>
+#include <sqlpp11/core/clause/insert.h>
 #include <sqlpp11/postgresql/on_conflict.h>
 #include <sqlpp11/postgresql/returning.h>
 

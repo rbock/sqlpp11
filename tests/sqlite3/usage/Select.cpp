@@ -26,14 +26,14 @@
 
 #include "Tables.h"
 #include <cassert>
-#include <sqlpp11/alias_provider.h>
+#include <sqlpp11/core/alias_provider.h>
 #include <sqlpp11/functions.h>
-#include <sqlpp11/clause/insert.h>
-#include <sqlpp11/clause/remove.h>
-#include <sqlpp11/clause/select.h>
+#include <sqlpp11/core/clause/insert.h>
+#include <sqlpp11/core/clause/remove.h>
+#include <sqlpp11/core/clause/select.h>
 #include <sqlpp11/sqlite3/database/connection.h>
-#include <sqlpp11/database/transaction.h>
-#include <sqlpp11/clause/update.h>
+#include <sqlpp11/core/database/transaction.h>
+#include <sqlpp11/core/clause/update.h>
 
 #include <iostream>
 #include <vector>

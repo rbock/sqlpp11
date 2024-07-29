@@ -34,7 +34,7 @@
 #include <vector>
 
 #include <libpq-fe.h>
-#include <sqlpp11/postgresql/result.h>
+#include <sqlpp11/postgresql/core/result.h>
 #include <sqlpp11/postgresql/visibility.h>
 
 #include "connection_handle.h"

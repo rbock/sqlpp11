@@ -30,15 +30,15 @@
 #include <cstdlib>
 #include <iostream>
 #include <memory>
-#include <sqlpp11/chrono.h>
-#include <sqlpp11/detail/parse_date_time.h>
-#include <sqlpp11/database/exception.h>
+#include <sqlpp11/core/chrono.h>
+#include <sqlpp11/core/detail/parse_date_time.h>
+#include <sqlpp11/core/database/exception.h>
 #include <sqlpp11/mysql/detail/result_handle.h>
 #include <sqlpp11/mysql/sqlpp_mysql.h>
 #include <sqlpp11/mysql/char_result_row.h>
-#include <sqlpp11/compat/optional.h>
-#include <sqlpp11/compat/string_view.h>
-#include <sqlpp11/compat/span.h>
+#include <sqlpp11/core/compat/optional.h>
+#include <sqlpp11/core/compat/string_view.h>
+#include <sqlpp11/core/compat/span.h>
 
 namespace sqlpp
 {

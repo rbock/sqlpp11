@@ -27,11 +27,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/chrono.h>
-#include <sqlpp11/detail/parse_date_time.h>
-#include <sqlpp11/compat/optional.h>
-#include <sqlpp11/compat/string_view.h>
-#include <sqlpp11/compat/span.h>
+#include <sqlpp11/core/chrono.h>
+#include <sqlpp11/core/detail/parse_date_time.h>
+#include <sqlpp11/core/compat/optional.h>
+#include <sqlpp11/core/compat/string_view.h>
+#include <sqlpp11/core/compat/span.h>
 
 #include <iomanip>
 #include <iostream>

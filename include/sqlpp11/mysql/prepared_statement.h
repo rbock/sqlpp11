@@ -33,7 +33,7 @@
 #include <memory>
 #include <iostream>
 #include <string>
-#include <sqlpp11/chrono.h>
+#include <sqlpp11/core/chrono.h>
 
 namespace sqlpp
 {
