@@ -27,7 +27,7 @@
  */
 
 #include <sqlpp11/core/noop.h>
-#include <sqlpp11/core/parameter_list.h>
+#include <sqlpp11/core/database/parameter_list.h>
 #include <sqlpp11/core/query/policy_update.h>
 #include <sqlpp11/core/database/prepared_select.h>
 #include <sqlpp11/core/result.h>

@@ -24,7 +24,7 @@
  */
 
 #include "TabSample.h"
-#include <sqlpp11/core/alias_provider.h>
+#include <sqlpp11/core/name/alias_provider.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/core/clause/insert.h>
 #include <sqlpp11/core/clause/remove.h>

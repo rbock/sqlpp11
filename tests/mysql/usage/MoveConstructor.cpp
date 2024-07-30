@@ -25,7 +25,7 @@
 
 #include "make_test_connection.h"
 #include "Tables.h"
-#include <sqlpp11/core/alias_provider.h>
+#include <sqlpp11/core/name/alias_provider.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/core/clause/insert.h>
 #include <sqlpp11/mysql/database/connection.h>

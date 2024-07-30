@@ -27,7 +27,7 @@
 #include <memory>
 #include <stdexcept>
 
-#include <sqlpp11/core/alias_provider.h>
+#include <sqlpp11/core/name/alias_provider.h>
 #include <sqlpp11/core/query/query/custom_query.h>
 #include <sqlpp11/postgresql/database/connection.h>
 #include <sqlpp11/sqlpp11.h>

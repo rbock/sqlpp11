@@ -5,7 +5,7 @@
 #include <sqlpp11/core/basic/table.h>
 #include <sqlpp11/core/basic/table_columns.h>
 #include <sqlpp11/core/type_traits.h>
-#include <sqlpp11/core/char_sequence.h>
+#include <sqlpp11/core/name/char_sequence.h>
 
 namespace test
 {

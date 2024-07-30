@@ -30,7 +30,7 @@
 #include <stddef.h>
 #include <sqlpp11/core/wrong.h>
 #include <sqlpp11/core/logic.h>
-#include <sqlpp11/core/name_tag.h>
+#include <sqlpp11/core/name/name_tag.h>
 
 namespace sqlpp
 {

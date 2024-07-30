@@ -28,7 +28,6 @@
 
 #include <sqlpp11/core/interpret_tuple.h>
 #include <sqlpp11/core/logic.h>
-#include <sqlpp11/core/parameter_list.h>
 #include <sqlpp11/core/query/statement_fwd.h>
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/unconditional.h>

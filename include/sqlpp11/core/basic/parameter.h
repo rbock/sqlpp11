@@ -28,7 +28,7 @@
 
 #include <sqlpp11/core/operator/enable_comparison.h>
 #include <sqlpp11/core/type_traits.h>
-#include <sqlpp11/core/alias_provider.h>
+#include <sqlpp11/core/name/alias_provider.h>
 #include <sqlpp11/core/detail/type_set.h>
 
 namespace sqlpp

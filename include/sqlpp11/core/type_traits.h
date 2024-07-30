@@ -33,7 +33,7 @@
 #include <vector>
 
 #include <sqlpp11/core/chrono.h>
-#include <sqlpp11/core/name_tag.h>
+#include <sqlpp11/core/name/name_tag.h>
 #include <sqlpp11/core/compat/optional.h>
 #include <sqlpp11/core/compat/string_view.h>
 #include <sqlpp11/core/compat/type_traits.h>

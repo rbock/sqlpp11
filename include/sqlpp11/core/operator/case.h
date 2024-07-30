@@ -26,7 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/char_sequence.h>
+#include <sqlpp11/core/name/char_sequence.h>
 #include <sqlpp11/core/detail/type_set.h>
 #include <sqlpp11/core/type_traits.h>
 

@@ -30,7 +30,7 @@
 #include <sqlpp11/core/clause/insert_value_list.h>
 #include <sqlpp11/core/clause/into.h>
 #include <sqlpp11/core/noop.h>
-#include <sqlpp11/core/parameter_list.h>
+#include <sqlpp11/core/database/parameter_list.h>
 #include <sqlpp11/core/database/prepared_insert.h>
 #include <sqlpp11/core/query/statement.h>
 #include <sqlpp11/core/type_traits.h>

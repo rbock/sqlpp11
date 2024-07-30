@@ -26,7 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/parameter_list.h>
+#include <sqlpp11/core/database/parameter_list.h>
 #include <sqlpp11/core/result.h>
 #include <sqlpp11/core/type_traits.h>
 

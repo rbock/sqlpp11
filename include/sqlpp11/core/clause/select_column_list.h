@@ -205,13 +205,13 @@ namespace sqlpp
       template <typename Db, typename Composite>
       auto _prepare(Db& db, const Composite& composite) const -> prepared_select_t<Db, _statement_t, Composite>
       {
-        return {make_parameter_list_t<Composite>{}, db.prepare_select(composite)};
+        return {{}, db.prepare_select(composite)};
       }
 
       template <typename Db>
       auto _prepare(Db& db) const -> prepared_select_t<Db, _statement_t>
       {
-        return {make_parameter_list_t<_statement_t>{}, db.prepare_select(_get_statement())};
+        return {{}, db.prepare_select(_get_statement())};
       }
     };
   };

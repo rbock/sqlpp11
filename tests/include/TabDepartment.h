@@ -2,7 +2,7 @@
 
 #include <sqlpp11/core/basic/table.h>
 #include <sqlpp11/data_types.h>
-#include <sqlpp11/core/char_sequence.h>
+#include <sqlpp11/core/name/char_sequence.h>
 
 namespace model
 {

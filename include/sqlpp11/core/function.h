@@ -29,7 +29,7 @@
 #include <sqlpp11/core/query/dynamic.h>
 #include <sqlpp11/core/noop.h>
 #include <sqlpp11/core/basic/parameter.h>
-#include <sqlpp11/core/parameter_list.h>
+#include <sqlpp11/core/database/parameter_list.h>
 #include <sqlpp11/core/aggregate_function.h>
 #include <sqlpp11/core/function/trim.h>
 #include <sqlpp11/core/operator/case.h>

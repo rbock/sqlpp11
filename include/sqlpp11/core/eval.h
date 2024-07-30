@@ -28,7 +28,7 @@
 
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/field_spec.h>
-#include <sqlpp11/core/alias_provider.h>
+#include <sqlpp11/core/name/alias_provider.h>
 #include <sqlpp11/core/basic/verbatim.h>
 
 namespace sqlpp

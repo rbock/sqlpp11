@@ -26,7 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/alias_provider.h>
+#include <sqlpp11/core/name/alias_provider.h>
 #include <sqlpp11/core/clause/insert.h>
 #include <sqlpp11/core/clause/remove.h>
 #include <sqlpp11/core/clause/update.h>
