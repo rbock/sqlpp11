@@ -26,7 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/enable_join.h>
+#include <sqlpp11/core/basic/enable_join.h>
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/basic/table_alias.h>
 #include <sqlpp11/core/basic/all_of.h>

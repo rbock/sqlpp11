@@ -34,15 +34,23 @@
 #define CXX_STD_VER __cplusplus
 #endif
 
+#if CXX_STD_VER >= 201402L
+
 namespace sqlpp
 {
-    template <typename T, typename... Args>
-    std::unique_ptr<T> make_unique(Args&&... args)
-    {
-#if CXX_STD_VER >= 201402L
-      return std::make_unique<T>(std::forward<Args>(args)...);
+  using ::std::make_unique;
+}
+
 #else
-      return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-#endif
-    }
+
+namespace sqlpp
+{
+  template <typename T, typename... Args>
+  std::unique_ptr<T> make_unique(Args&&... args)
+  {
+    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+  }
 }  // namespace sqlpp
+
+#endif
+

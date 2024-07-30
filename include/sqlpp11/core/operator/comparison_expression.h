@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <utility>
 
-#include <sqlpp11/core/enable_as.h>
+#include <sqlpp11/core/operator/enable_as.h>
 #include <sqlpp11/core/operator/any.h>
 #include <sqlpp11/core/noop.h>
 #include <sqlpp11/core/type_traits.h>
@@ -50,7 +50,7 @@ namespace sqlpp
   };
 
   template <typename L, typename R>
-  using check_comparison_args = std::enable_if_t<values_are_comparable<L, R>::value>;
+  using check_comparison_args = ::sqlpp::enable_if_t<values_are_comparable<L, R>::value>;
 
   template <typename L, typename Operator, typename R>
   struct value_type_of<comparison_expression<L, Operator, R>>
@@ -258,7 +258,7 @@ namespace sqlpp
   };
 
   template <typename L, typename R>
-  using check_like_args = std::enable_if_t<is_text<L>::value and is_text<R>::value>;
+  using check_like_args = ::sqlpp::enable_if_t<is_text<L>::value and is_text<R>::value>;
 
   template <typename L, typename R, typename = check_comparison_args<L, R>>
   constexpr auto like(L l, R r) -> comparison_expression<L, op_like, R>

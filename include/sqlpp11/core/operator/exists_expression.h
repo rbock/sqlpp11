@@ -29,7 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <type_traits>
 
 #include <sqlpp11/core/type_traits.h>
-#include <sqlpp11/core/enable_as.h>
+#include <sqlpp11/core/operator/enable_as.h>
 
 namespace sqlpp
 {
@@ -49,7 +49,7 @@ namespace sqlpp
   };
 
   template <typename Select>
-  using check_exists_arg = std::enable_if_t<is_statement_t<Select>::value and has_result_row_t<Select>::value>;
+  using check_exists_arg = ::sqlpp::enable_if_t<is_statement_t<Select>::value and has_result_row_t<Select>::value>;
 
   template <typename Select>
   struct value_type_of<exists_expression<Select>>

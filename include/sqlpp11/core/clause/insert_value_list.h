@@ -34,7 +34,7 @@
 #include <sqlpp11/core/no_data.h>
 #include <sqlpp11/core/query/policy_update.h>
 #include <sqlpp11/core/portable_static_assert.h>
-#include <sqlpp11/core/simple_column.h>
+#include <sqlpp11/core/clause/simple_column.h>
 #include <sqlpp11/core/query/statement.h>
 #include <sqlpp11/core/type_traits.h>
 

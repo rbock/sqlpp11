@@ -27,7 +27,7 @@
  */
 
 #include <sqlpp11/core/type_traits.h>
-#include <sqlpp11/core/enable_as.h>
+#include <sqlpp11/core/operator/enable_as.h>
 #include <sqlpp11/core/serialize.h>
 
 namespace sqlpp
@@ -88,7 +88,7 @@ namespace sqlpp
   }
 
   template <typename Expr>
-  using check_dynamic_args = std::enable_if_t<has_value_type<Expr>::value>;
+  using check_dynamic_args = ::sqlpp::enable_if_t<has_value_type<Expr>::value>;
 
   template <typename Expr, typename = check_dynamic_args<Expr>>
   auto dynamic(bool condition, Expr t) -> dynamic_t<Expr>

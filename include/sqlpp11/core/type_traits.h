@@ -36,6 +36,7 @@
 #include <sqlpp11/core/name_tag.h>
 #include <sqlpp11/core/compat/optional.h>
 #include <sqlpp11/core/compat/string_view.h>
+#include <sqlpp11/core/compat/type_traits.h>
 #include <sqlpp11/core/compat/span.h>
 #include <sqlpp11/core/consistent.h>
 #include <sqlpp11/core/portable_static_assert.h>

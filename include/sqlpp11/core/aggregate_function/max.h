@@ -26,8 +26,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/enable_as.h>
-#include <sqlpp11/core/enable_over.h>
+#include <sqlpp11/core/operator/enable_as.h>
+#include <sqlpp11/core/aggregate_function/enable_over.h>
 #include <sqlpp11/core/clause/select_flags.h>
 #include <sqlpp11/core/type_traits.h>
 
@@ -76,7 +76,7 @@ namespace sqlpp
 
   template <typename T>
   using check_max_arg =
-      std::enable_if_t<values_are_comparable<T, T>::value and not contains_aggregate_function_t<T>::value>;
+      ::sqlpp::enable_if_t<values_are_comparable<T, T>::value and not contains_aggregate_function_t<T>::value>;
 
   template <typename T, typename = check_max_arg<T>>
   auto max(T t) -> max_t<noop, T>

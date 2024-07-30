@@ -29,8 +29,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <utility>
 
 #include <sqlpp11/core/noop.h>
-#include <sqlpp11/core/enable_as.h>
-#include <sqlpp11/core/enable_comparison.h>
+#include <sqlpp11/core/operator/enable_as.h>
+#include <sqlpp11/core/operator/enable_comparison.h>
 #include <sqlpp11/core/type_traits.h>
 
 namespace sqlpp
@@ -56,7 +56,7 @@ namespace sqlpp
   };
 
   template <typename L, typename R>
-  using check_arithmetic_args = std::enable_if_t<is_numeric<L>::value and is_numeric<R>::value>;
+  using check_arithmetic_args = ::sqlpp::enable_if_t<is_numeric<L>::value and is_numeric<R>::value>;
 
 #warning: need to document that this is on purpose (not integral, or unsigned integral, or floating_point) because it is difficult to know for the library to know what the actual result type will be (it is difficult to guess in C++ already, and it is probably different from DB vendor to vendor).
   template <typename L, typename Operator, typename R>
@@ -142,7 +142,7 @@ namespace sqlpp
   }
 
   template <typename L, typename R>
-  using check_concatenation_args = std::enable_if_t<is_text<L>::value and is_text<R>::value>;
+  using check_concatenation_args = ::sqlpp::enable_if_t<is_text<L>::value and is_text<R>::value>;
 
   template <typename L, typename R, typename = check_concatenation_args<L, R>>
   constexpr auto operator+(L l, R r) -> arithmetic_expression<L, concatenation, R>
@@ -200,7 +200,7 @@ namespace sqlpp
   };
 
   template <typename L, typename R>
-  using check_modulus_args = std::enable_if_t<(is_integral<L>::value or is_unsigned_integral<L>::value) and (is_integral<R>::value or is_unsigned_integral<R>::value)>;
+  using check_modulus_args = ::sqlpp::enable_if_t<(is_integral<L>::value or is_unsigned_integral<L>::value) and (is_integral<R>::value or is_unsigned_integral<R>::value)>;
 
   template <typename L, typename R, typename = check_modulus_args<L, R>>
   constexpr auto operator%(L l, R r) -> arithmetic_expression<L, modulus, R>

@@ -29,7 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <tuple>
 #include <vector>
 
-#include <sqlpp11/core/enable_as.h>
+#include <sqlpp11/core/operator/enable_as.h>
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/logic.h>
 #include <sqlpp11/core/interpret_tuple.h>
@@ -70,7 +70,7 @@ namespace sqlpp
 
   template <typename L, typename... Args>
   using check_in_args =
-      std::enable_if_t<(sizeof...(Args) != 0) and logic::all_t<values_are_comparable<L, Args>::value...>::value>;
+      ::sqlpp::enable_if_t<(sizeof...(Args) != 0) and logic::all_t<values_are_comparable<L, Args>::value...>::value>;
 
   template <typename L, typename Operator, typename R>
   struct value_type_of<in_expression<L, Operator, std::vector<R>>>

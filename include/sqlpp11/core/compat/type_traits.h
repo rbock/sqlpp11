@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2020, Roland Bock, MacDue
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -26,53 +26,26 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/operator/enable_as.h>
-#include <sqlpp11/core/operator/enable_comparison.h>
-#include <sqlpp11/core/type_traits.h>
+#include <type_traits>
+
+#ifdef _MSVC_LANG
+#define CXX_STD_VER _MSVC_LANG
+#else
+#define CXX_STD_VER __cplusplus
+#endif
+
+#if CXX_STD_VER >= 201703L
+namespace sqlpp
+{
+  using ::std::enable_if_t;
+}  // namespace sqlpp
+
+#else
 
 namespace sqlpp
 {
-  template <typename Expr>
-  struct over_t : public enable_as<over_t<Expr>>, public enable_comparison<over_t<Expr>>
-  {
-    using _traits = make_traits<integral, tag::is_expression>;
-    using _nodes = detail::type_vector<Expr, aggregate_function>;
-
-    over_t(Expr expr)
-      : _expr(expr)
-    {
-    }
-
-    over_t(const over_t&) = default;
-    over_t(over_t&&) = default;
-    over_t& operator=(const over_t&) = default;
-    over_t& operator=(over_t&&) = default;
-    ~over_t() = default;
-
-    Expr _expr;
-  };
-
-  template<typename Expr>
-  struct value_type_of<over_t<Expr>>: public value_type_of<Expr> {};
-
-  template<typename Expr>
-  struct nodes_of<over_t<Expr>>: public nodes_of<Expr> {};
-
-  template<typename Expr>
-  using check_over_args = ::sqlpp::enable_if_t<contains_aggregate_function_t<Expr>::value>;
-
-  template <typename Context, typename Expr>
-  Context& serialize(Context& context, const over_t<Expr>& t)
-  {
-    serialize_operand(context, t._expr);
-    context << " OVER()";
-    return context;
-  }
-
-  template <typename Expr>
-  auto over(Expr t)  -> over_t<Expr>
-  {
-    return {std::move(t)};
-  }
-
+  template <bool Condition, typename Type = void>
+  using enable_if_t = typename ::std::enable_if<Condition, Type>::type;
 }  // namespace sqlpp
+
+#endif

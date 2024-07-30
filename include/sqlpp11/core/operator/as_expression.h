@@ -73,7 +73,7 @@ namespace sqlpp
     return context;
   }
   template <typename Expr, typename AliasProvider>
-  using check_as_args = std::enable_if_t<
+  using check_as_args = ::sqlpp::enable_if_t<
   has_value_type<Expr>::value and not is_alias_t<Expr>::value and has_name<AliasProvider>::value
   >;
 

@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <type_traits>
 
-#include <sqlpp11/core/enable_as.h>
+#include <sqlpp11/core/operator/enable_as.h>
 #include <sqlpp11/core/query/dynamic.h>
 #include <sqlpp11/core/noop.h>
 //#include <sqlpp11/embrace.h>
@@ -55,7 +55,7 @@ namespace sqlpp
   };
 
   template <typename L, typename R>
-  using check_logical_args = std::enable_if_t<is_boolean<L>::value and is_boolean<R>::value>;
+  using check_logical_args = ::sqlpp::enable_if_t<is_boolean<L>::value and is_boolean<R>::value>;
 
   template <typename L, typename Operator, typename R>
   struct value_type_of<logical_expression<L, Operator, R>>

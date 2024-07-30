@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <type_traits>
 
-#include <sqlpp11/core/enable_as.h>
+#include <sqlpp11/core/operator/enable_as.h>
 #include <sqlpp11/core/noop.h>
 #include <sqlpp11/core/type_traits.h>
 
@@ -65,7 +65,7 @@ namespace sqlpp
   };
 
   template <typename L, typename R>
-  using check_bit_expression_args = std::enable_if_t<is_integral<L>::value and (is_integral<R>::value or is_unsigned_integral<R>::value)>;
+  using check_bit_expression_args = ::sqlpp::enable_if_t<is_integral<L>::value and (is_integral<R>::value or is_unsigned_integral<R>::value)>;
 
 #if 0
   template <typename L, typename Operator, typename R>

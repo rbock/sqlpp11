@@ -26,8 +26,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/enable_as.h>
-#include <sqlpp11/core/enable_over.h>
+#include <sqlpp11/core/operator/enable_as.h>
+#include <sqlpp11/core/aggregate_function/enable_over.h>
 #include <sqlpp11/core/type_traits.h>
 
 namespace sqlpp
@@ -74,7 +74,7 @@ namespace sqlpp
 
   template <typename T>
   using check_avg_arg =
-      std::enable_if_t<(is_numeric<T>::value or is_boolean<T>::value) and not contains_aggregate_function_t<T>::value>;
+      ::sqlpp::enable_if_t<(is_numeric<T>::value or is_boolean<T>::value) and not contains_aggregate_function_t<T>::value>;
 
   template <typename T, typename = check_avg_arg<T>>
   auto avg(T t) -> avg_t<noop, T>

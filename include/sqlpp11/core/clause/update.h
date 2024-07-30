@@ -31,7 +31,7 @@
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/parameter_list.h>
 #include <sqlpp11/core/database/prepared_update.h>
-#include <sqlpp11/core/single_table.h>
+#include <sqlpp11/core/clause/single_table.h>
 #include <sqlpp11/core/clause/update_list.h>
 #include <sqlpp11/core/noop.h>
 #include <sqlpp11/core/clause/where.h>

@@ -26,7 +26,7 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <sqlpp11/core/enable_as.h>
+#include <sqlpp11/core/operator/enable_as.h>
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/logic.h>
 
@@ -49,7 +49,7 @@ namespace sqlpp
 
   template <typename L, typename R1, typename R2>
   using check_between_args =
-      std::enable_if_t<values_are_comparable<L, R1>::value and values_are_comparable<L, R2>::value>;
+      ::sqlpp::enable_if_t<values_are_comparable<L, R1>::value and values_are_comparable<L, R2>::value>;
 
   template <typename L, typename R1, typename R2>
   struct value_type_of<between_expression<L, R1, R2>>
@@ -78,7 +78,7 @@ namespace sqlpp
 
   template <typename L, typename... Args>
   constexpr auto in(L l, Args... args)
-      -> std::enable_if_t<((sizeof...(Args) > 0) and ... and values_are_compatible_v<L, Args>), between_t<L, Args...>>
+      -> ::sqlpp::enable_if_t<((sizeof...(Args) > 0) and ... and values_are_compatible_v<L, Args>), between_t<L, Args...>>
   {
     return between_t<L, Args...>{l, std::tuple{args...}};
   }

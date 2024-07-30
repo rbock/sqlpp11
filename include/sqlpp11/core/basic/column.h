@@ -26,8 +26,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/enable_as.h>
-#include <sqlpp11/core/enable_comparison.h>
+#include <sqlpp11/core/operator/enable_as.h>
+#include <sqlpp11/core/operator/enable_comparison.h>
 #include <sqlpp11/core/operator/as_expression.h>
 #include <sqlpp11/core/operator/assign_expression.h>
 #include <sqlpp11/core/basic/column_fwd.h>
