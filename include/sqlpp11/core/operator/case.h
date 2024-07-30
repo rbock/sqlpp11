@@ -56,7 +56,6 @@ namespace sqlpp
   struct case_t : public enable_as<case_t<When, Then, Else>>, public enable_comparison<case_t<When, Then, Else>>
   {
     using _traits = make_traits<value_type_of_t<Then>, tag::is_expression>;
-    using _nodes = detail::type_vector<When, Then, Else>;
 
     case_t(When when, Then then, Else else_) : _when(when), _then(then), _else(else_)
     {
@@ -74,13 +73,18 @@ namespace sqlpp
   };
 
   template <typename When, typename Then, typename Else>
-    struct value_type_of<case_t<When, Then, Else>>
-    {
-      using type =
-          typename std::conditional<can_be_null<When>::value or can_be_null<Then>::value or can_be_null<Else>::value,
-                                    force_optional_t<value_type_of_t<Then>>,
-                                    value_type_of_t<Then>>::type;
-    };
+  struct nodes_of<case_t<When, Then, Else>>
+  {
+    using type = ::sqlpp::detail::type_vector<When, Then, Else>;
+  };
+
+  template <typename When, typename Then, typename Else>
+  struct value_type_of<case_t<When, Then, Else>>
+      : public std::conditional<can_be_null<When>::value or can_be_null<Then>::value or can_be_null<Else>::value,
+                                force_optional_t<value_type_of_t<Then>>,
+                                value_type_of_t<Then>>
+  {
+  };
 
   template <typename When, typename Then>
   class case_then_t
