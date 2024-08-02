@@ -27,6 +27,7 @@
  */
 
 #include <sqlpp11/core/operator/enable_as.h>
+#include <sqlpp11/core/operator/enable_comparison.h>
 #include <sqlpp11/core/aggregate_function/enable_over.h>
 #include <sqlpp11/core/clause/select_flags.h>
 #include <sqlpp11/core/type_traits.h>
@@ -34,15 +35,16 @@
 namespace sqlpp
 {
   template <typename Flag, typename Expr>
-  struct count_t : public enable_as<count_t<Flag, Expr>>, public enable_over<count_t<Flag, Expr>>
+  struct count_t : public enable_as<count_t<Flag, Expr>>,
+                   public enable_comparison<count_t<Flag, Expr>>,
+                   public enable_over<count_t<Flag, Expr>>
   {
     using _traits = make_traits<integral, tag::is_expression /*, tag::is_selectable*/>;
 
-    using _nodes = detail::type_vector<Expr, aggregate_function>;
     using _can_be_null = std::false_type;
     using _is_aggregate_expression = std::true_type;
 
-    constexpr count_t(const Expr expr) : _expr(std::move(expr))
+    constexpr count_t(Expr expr) : _expr(std::move(expr))
     {
     }
 
@@ -53,6 +55,12 @@ namespace sqlpp
     ~count_t() = default;
 
     Expr _expr;
+  };
+
+  template <typename Flag, typename Expr>
+  struct nodes_of<count_t<Flag, Expr>>
+  {
+    using type = sqlpp::detail::type_vector<Expr>;
   };
 
   template <typename Flag, typename Expr>

@@ -27,6 +27,7 @@
  */
 
 #include <sqlpp11/core/operator/enable_as.h>
+#include <sqlpp11/core/operator/enable_comparison.h>
 #include <sqlpp11/core/aggregate_function/enable_over.h>
 #include <sqlpp11/core/clause/select_flags.h>
 #include <sqlpp11/core/type_traits.h>
@@ -34,10 +35,11 @@
 namespace sqlpp
 {
   template <typename Flag, typename Expr>
-  struct sum_t : public enable_as<sum_t<Flag, Expr>>, enable_over<sum_t<Flag, Expr>>
+  struct sum_t : public enable_as<sum_t<Flag, Expr>>,
+                 public enable_comparison<sum_t<Flag, Expr>>,
+                 enable_over<sum_t<Flag, Expr>>
   {
     using _traits = make_traits<value_type_of_t<Expr>, tag::is_expression, tag::is_selectable>;
-    using _nodes = detail::type_vector<Expr, aggregate_function>;
     using _can_be_null = std::true_type;
     using _is_aggregate_expression = std::true_type;
 
@@ -52,6 +54,12 @@ namespace sqlpp
     ~sum_t() = default;
 
     Expr _expr;
+  };
+
+  template <typename Flag, typename Expr>
+  struct nodes_of<sum_t<Flag, Expr>>
+  {
+    using type = sqlpp::detail::type_vector<Expr>;
   };
 
   template <typename Flag, typename Expr>

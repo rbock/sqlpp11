@@ -725,12 +725,6 @@ namespace sqlpp
     using _tags = detail::make_type_set_t<Tags...>;
   };
 
-  struct aggregate_function
-  {
-    using _nodes = detail::type_vector<>;
-    using _contains_aggregate_function = std::true_type;
-  };
-
   template <typename NameTagProvider, typename Member>
   using member_t = typename name_tag_of_t<NameTagProvider>::template _member_t<Member>;
 

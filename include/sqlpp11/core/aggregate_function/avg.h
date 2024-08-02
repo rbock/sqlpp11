@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2020, Roland Bock, MacDue
+ * Copyright (c) 2013-2020, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,16 +27,20 @@
  */
 
 #include <sqlpp11/core/operator/enable_as.h>
+#include <sqlpp11/core/operator/enable_comparison.h>
 #include <sqlpp11/core/aggregate_function/enable_over.h>
 #include <sqlpp11/core/type_traits.h>
 
 namespace sqlpp
 {
   template <typename Flag, typename Expr>
-  struct avg_t : public enable_as<avg_t<Flag, Expr>>, public enable_over<avg_t<Flag, Expr>>
+  struct avg_t : public enable_as<avg_t<Flag, Expr>>,
+                 public enable_comparison<avg_t<Flag, Expr>>,
+                 public enable_over<avg_t<Flag, Expr>>
   {
-    using _nodes = detail::type_vector<Expr, aggregate_function>;
-    using _can_be_null = std::true_type;
+    using _traits = make_traits<integral, tag::is_expression /*, tag::is_selectable*/>;
+
+    using _can_be_null = std::false_type;
     using _is_aggregate_expression = std::true_type;
 
     constexpr avg_t(Expr expr) : _expr(std::move(expr))
@@ -53,24 +57,16 @@ namespace sqlpp
   };
 
   template <typename Flag, typename Expr>
+  struct nodes_of<avg_t<Flag, Expr>>
+  {
+    using type = sqlpp::detail::type_vector<Expr>;
+  };
+
+  template <typename Flag, typename Expr>
   struct value_type_of<avg_t<Flag, Expr>>
   {
     using type = sqlpp::force_optional_t<floating_point>;
   };
-
-  template <typename Context, typename Flag, typename Expr>
-  Context& serialize(Context& context, const avg_t<Flag, Expr>& t)
-  {
-    context << "AVG(";
-    if (std::is_same<distinct_t, Flag>::value)
-    {
-      serialize(context, Flag());
-      context << ' ';
-    }
-    serialize_operand(context, t._expr);
-    context << ")";
-    return context;
-  }
 
   template <typename T>
   using check_avg_arg =

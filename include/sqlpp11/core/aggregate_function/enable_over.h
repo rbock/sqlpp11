@@ -47,4 +47,10 @@ namespace sqlpp
     }
   };
 
+#warning: Need to use in tests
+  template <typename T>
+  struct has_enabled_over : public std::is_base_of<enable_over<T>, T>
+  {
+  };
+
 }  // namespace sqlpp

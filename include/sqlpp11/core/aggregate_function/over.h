@@ -33,10 +33,10 @@
 namespace sqlpp
 {
   template <typename Expr>
-  struct over_t : public enable_as<over_t<Expr>>, public enable_comparison<over_t<Expr>>
+  struct over_t : public enable_as<over_t<Expr>>,
+                  public enable_comparison<over_t<Expr>>
   {
     using _traits = make_traits<integral, tag::is_expression>;
-    using _nodes = detail::type_vector<Expr, aggregate_function>;
 
     over_t(Expr expr)
       : _expr(expr)
@@ -53,11 +53,15 @@ namespace sqlpp
   };
 
   template<typename Expr>
-  struct value_type_of<over_t<Expr>>: public value_type_of<Expr> {};
+  struct nodes_of<over_t<Expr>>
+  {
+    using type = sqlpp::detail::type_vector<Expr>;
+  };
 
   template<typename Expr>
-  struct nodes_of<over_t<Expr>>: public nodes_of<Expr> {};
+  struct value_type_of<over_t<Expr>>: public value_type_of<Expr> {};
 
+#warning: should this be "is_aggregate_function"?
   template<typename Expr>
   using check_over_args = ::sqlpp::enable_if_t<contains_aggregate_function_t<Expr>::value>;
 
