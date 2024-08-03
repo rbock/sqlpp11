@@ -96,7 +96,7 @@ namespace sqlpp
   };
 
   template <typename L, typename Operator, typename R>
-  struct requires_braces<in_expression<L, Operator, std::vector<R>>> : public std::true_type{};
+  struct requires_parentheses<in_expression<L, Operator, std::vector<R>>> : public std::true_type{};
 
   template <typename L, typename Operator, typename... Args>
   struct nodes_of<in_expression<L, Operator, std::tuple<Args...>>>
@@ -105,7 +105,7 @@ namespace sqlpp
   };
 
   template <typename L, typename Operator, typename... Args>
-  struct requires_braces<in_expression<L, Operator, std::tuple<Args...>>> : public std::true_type{};
+  struct requires_parentheses<in_expression<L, Operator, std::tuple<Args...>>> : public std::true_type{};
 
   template <typename Context, typename L, typename Operator, typename... Args>
   auto serialize(Context& context, const in_expression<L, Operator, std::tuple<Args...>>& t) -> Context&

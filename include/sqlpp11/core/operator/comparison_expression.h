@@ -85,7 +85,7 @@ namespace sqlpp
   };
 
   template <typename L, typename Operator, typename R>
-  struct requires_braces<comparison_expression<L, Operator, R>> : public std::true_type{};
+  struct requires_parentheses<comparison_expression<L, Operator, R>> : public std::true_type{};
 
   template <typename Context, typename L, typename Operator, typename R>
   auto serialize(Context& context, const comparison_expression<L, Operator, R>& t) -> Context&

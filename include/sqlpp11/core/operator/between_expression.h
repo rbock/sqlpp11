@@ -68,7 +68,7 @@ namespace sqlpp
   };
 
   template <typename L, typename R1, typename R2>
-  struct requires_braces<between_expression<L, R1, R2>> : public std::true_type{};
+  struct requires_parentheses<between_expression<L, R1, R2>> : public std::true_type{};
 
 #warning: Need tests for between expressions
   template <typename L, typename R1, typename R2, typename = check_between_args<L, R1, R2>>

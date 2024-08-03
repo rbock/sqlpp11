@@ -25,85 +25,73 @@
 
 #include <sqlpp11/sqlpp11.h>
 
+#warning: implement serialize instead of type tests here!
 SQLPP_ALIAS_PROVIDER(r_not_null);
 SQLPP_ALIAS_PROVIDER(r_maybe_null);
 
 template <typename Value>
-void test_any(Value v)
+void test_exists(Value v)
 {
-  using ValueType = sqlpp::value_type_of_t<Value>;
-  using OptValueType = sqlpp::value_type_of_t<::sqlpp::optional<Value>>;
-
   // Selectable values.
   const auto v_not_null = sqlpp::value(v).as(r_not_null);
   const auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v)).as(r_maybe_null);
 
-  // ANY expression are not to be in most expressions and therefore have no value defined.
-  static_assert(not sqlpp::has_value_type<decltype(any(select(v_not_null)))>::value, "");
-  static_assert(not sqlpp::has_value_type<decltype(any(select(v_maybe_null)))>::value, "");
+  // EXISTS expression can be used in basic comparison expressions, which use remove_exists_t to look inside.
+  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(exists(select(v_not_null)))>, sqlpp::boolean>::value, "");
+  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(exists(select(v_maybe_null)))>, sqlpp::boolean>::value, "");
 
-  // ANY expression can be used in basic comparison expressions, which use remove_any_t to look inside.
-  static_assert(
-      std::is_same<sqlpp::value_type_of_t<sqlpp::remove_any_t<decltype(any(select(v_not_null)))>>, ValueType>::value,
-      "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<sqlpp::remove_any_t<decltype(any(select(v_maybe_null)))>>,
-                             OptValueType>::value,
-                "");
+  // EXISTS expressions enable `as` member function.
+  static_assert(sqlpp::has_enabled_as<decltype(exists(select(v_not_null)))>::value, "");
 
-  // ANY expressions do not have `as` member function.
-  static_assert(not sqlpp::has_enabled_as<decltype(any(select(v_not_null)))>::value, "");
+  // EXISTS expressions do not enable comparison member functions.
+  static_assert(not sqlpp::has_enabled_comparison<decltype(exists(select(v_not_null)))>::value, "");
 
-  // ANY expressions do not enable comparison member functions.
-  static_assert(not sqlpp::has_enabled_comparison<decltype(any(select(v_not_null)))>::value, "");
-
-  // ANY expressions have the SELECT as node.
+  // EXISTS expressions have the SELECT as node.
   using S = decltype(select(v_not_null));
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(any(select(v_not_null)))>, sqlpp::detail::type_vector<S>>::value, "");
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(exists(select(v_not_null)))>, sqlpp::detail::type_vector<S>>::value, "");
 
 #warning: Note that a sub select may require tables from the enclosing select. This is currently not correctly implemented. We need to test that.
-
-#warning: here and in the other operator tests: test "requires_parentheses"
 }
 
 int main()
 {
   // boolean
-  test_any(bool{true});
+  test_exists(bool{true});
 
   // integral
-  test_any(int8_t{7});
-  test_any(int16_t{7});
-  test_any(int32_t{7});
-  test_any(int64_t{7});
+  test_exists(int8_t{7});
+  test_exists(int16_t{7});
+  test_exists(int32_t{7});
+  test_exists(int64_t{7});
 
   // unsigned integral
-  test_any(uint8_t{7});
-  test_any(uint16_t{7});
-  test_any(uint32_t{7});
-  test_any(uint64_t{7});
+  test_exists(uint8_t{7});
+  test_exists(uint16_t{7});
+  test_exists(uint32_t{7});
+  test_exists(uint64_t{7});
 
   // floating point
-  test_any(float{7.7});
-  test_any(double{7.7});
+  test_exists(float{7.7});
+  test_exists(double{7.7});
 
   // text
-  test_any('7');
-  test_any("seven");
-  test_any(std::string("seven"));
-  test_any(::sqlpp::string_view("seven"));
+  test_exists('7');
+  test_exists("seven");
+  test_exists(std::string("seven"));
+  test_exists(::sqlpp::string_view("seven"));
 
   // blob
-  test_any(std::vector<uint8_t>{});
+  test_exists(std::vector<uint8_t>{});
 
   // date
-  test_any(::sqlpp::chrono::day_point{});
+  test_exists(::sqlpp::chrono::day_point{});
 
   // timestamp
-  test_any(::sqlpp::chrono::microsecond_point{});
+  test_exists(::sqlpp::chrono::microsecond_point{});
   using minute_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
-  test_any(minute_point{});
+  test_exists(minute_point{});
 
   // time_of_day
-  test_any(std::chrono::microseconds{});
+  test_exists(std::chrono::microseconds{});
 }
 

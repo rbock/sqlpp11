@@ -72,7 +72,7 @@ namespace sqlpp
   using check_bit_shift_expression_args = ::sqlpp::enable_if_t<is_integral<L>::value and (is_integral<R>::value or is_unsigned_integral<R>::value)>;
 
   template <typename L, typename Operator, typename R>
-  struct requires_braces<bit_expression<L, Operator, R>> : public std::true_type {};
+  struct requires_parentheses<bit_expression<L, Operator, R>> : public std::true_type {};
 
   template <typename Context, typename L, typename Operator, typename R>
   auto serialize(Context& context, const bit_expression<L, Operator, R>& t) -> Context&

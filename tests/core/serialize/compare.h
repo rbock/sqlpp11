@@ -31,16 +31,17 @@
 namespace
 {
   template <typename Result, typename Expected>
-  void assert_equal(int lineNo, const Result& result, const Expected& expected)
+  void assert_equal(const std::string& file, int lineNo, const Result& result, const Expected& expected)
   {
     if (result != expected)
     {
-      std::cerr << __FILE__ << " " << lineNo << '\n' << "Expected: -->|" << expected << "|<--\n"
+      std::cerr << file << " " << lineNo << '\n' << "Expected: -->|" << expected << "|<--\n"
                 << "Received: -->|" << result << "|<--\n";
       throw std::runtime_error("unexpected result");
     }
   }
 
+#warning Drop compare and use SQLPP_COMPARE instead
   template <typename Expression>
   void compare(int lineNo, const Expression& expr, const std::string& expected)
   {
@@ -50,5 +51,22 @@ namespace
     const auto result = serialize(printer, expr).str();
 
     assert_equal(lineNo, result, expected);
+  }
+
+#warning: Maybe move this into the library/test_support together with MockDb
+#define SQLPP_COMPARE(expr, expected_string)                       \
+  {                                                                \
+    MockDb::_serializer_context_t printer = {};                    \
+                                                                   \
+    using sqlpp::serialize;                                        \
+    const auto result = serialize(printer, expr).str();            \
+                                                                   \
+    if (result != expected_string)                                 \
+    {                                                              \
+      std::cerr << __FILE__ << " " << __LINE__ << '\n'             \
+                << "Expected: -->|" << expected_string << "|<--\n" \
+                << "Received: -->|" << result << "|<--\n";         \
+      return -1;                                                   \
+    }                                                              \
   }
 }

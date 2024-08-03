@@ -220,7 +220,7 @@ namespace sqlpp
   template <typename T, typename Context>
   auto serialize_operand(Context& context, const T& t) -> Context&
   {
-    if (requires_parens_t<T>::value)
+    if (requires_parentheses<T>::value)
     {
       context << '(';
       serialize(context, t);

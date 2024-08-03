@@ -87,7 +87,7 @@ namespace sqlpp
   };
 
   template <typename When, typename Then, typename Else>
-  struct requires_braces<case_t<When, Then, Else>> : public std::true_type{};
+  struct requires_parentheses<case_t<When, Then, Else>> : public std::true_type{};
 
   template <typename When, typename Then>
   class case_then_t

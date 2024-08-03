@@ -497,8 +497,6 @@ namespace sqlpp
   SQLPP_VALUE_TRAIT_GENERATOR(is_insert_value_list)
   SQLPP_VALUE_TRAIT_GENERATOR(is_parameter)
 
-  SQLPP_VALUE_TRAIT_GENERATOR(requires_parens)
-
   SQLPP_VALUE_TRAIT_GENERATOR(enforce_null_result_treatment)
 
   template <typename Tag, bool Condition>
@@ -843,9 +841,8 @@ namespace sqlpp
   template <typename Statement, template <typename> class Predicate>
   using has_policy_t = typename has_policy_impl<Statement, Predicate>::type;
 
-#warning rename to requires_parentheses
   template<typename T>
-  struct requires_braces : public std::false_type {};
+  struct requires_parentheses : public std::false_type {};
 
   struct no_context_t
   {

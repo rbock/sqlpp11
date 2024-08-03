@@ -204,8 +204,7 @@ namespace sqlpp
                     tag_if<tag::is_select, logic::any_t<is_select_t<Policies>::value...>::value>,
                     tag_if<tag::is_expression, is_expression_t<_policies_t>::value>,
                     tag_if<tag::is_selectable, is_expression_t<_policies_t>::value>,
-                    tag_if<tag::is_return_value, logic::none_t<is_noop_t<_result_type_provider>::value>::value>,
-                    tag::requires_parens>;
+                    tag_if<tag::is_return_value, logic::none_t<is_noop_t<_result_type_provider>::value>::value>>;
     using _name_tag_of = name_tag_of<_result_type_provider>;
     using _nodes = detail::type_vector<_policies_t>;
     using _used_outer_tables = typename _policies_t::_all_provided_outer_tables;
@@ -273,6 +272,9 @@ namespace sqlpp
   {
     using type = typename detail::type_vector<Policies...>;
   };
+
+  template <typename... Policies>
+  struct requires_parentheses<statement_t<Policies...>> : public std::true_type {};
 
   template <typename Context, typename... Policies>
   Context& serialize(Context& context, const statement_t<Policies...>& t)

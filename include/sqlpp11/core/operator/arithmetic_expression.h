@@ -89,7 +89,7 @@ namespace sqlpp
   };
 
   template <typename L, typename Operator, typename R>
-  struct requires_braces<arithmetic_expression<L, Operator, R>> : public std::true_type{};
+  struct requires_parentheses<arithmetic_expression<L, Operator, R>> : public std::true_type{};
 
   template <typename Context, typename L, typename Operator, typename R>
   auto serialize(Context& context, const arithmetic_expression<L, Operator, R>& t) -> Context&

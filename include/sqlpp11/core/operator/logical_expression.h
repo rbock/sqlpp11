@@ -70,7 +70,7 @@ namespace sqlpp
   };
 
   template <typename L, typename Operator, typename R>
-  struct requires_braces<logical_expression<L, Operator, R>> : public std::true_type{};
+  struct requires_parentheses<logical_expression<L, Operator, R>> : public std::true_type{};
 
   template <typename Context, typename L, typename Operator, typename R>
   auto serialize_impl(Context& context, const logical_expression<L, Operator, R>& t) -> Context&
