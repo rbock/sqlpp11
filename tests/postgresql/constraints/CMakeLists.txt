@@ -31,12 +31,6 @@ function(test_constraint name pattern)
         COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target ${target}
     )
     set_property(TEST ${test} PROPERTY PASS_REGULAR_EXPRESSION ${pattern})
-    # conditionally bump to a higher C++ standard to test compatibility
-    if (SQLPP11_TESTS_CXX_STD)
-        set_property(TARGET ${target} PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})
-        set_property(TARGET ${target} PROPERTY CXX_STANDARD_REQUIRED yes)
-        set_property(TARGET ${target} PROPERTY CXX_EXTENSIONS no)
-    endif()
 endfunction()
 
 # Compiling these is required to fail (testing some static_assert)

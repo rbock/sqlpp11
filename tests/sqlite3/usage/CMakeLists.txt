@@ -56,13 +56,6 @@ else()
     target_link_libraries(sqlpp11_sqlite3_tests PRIVATE sqlpp11::sqlite3)
 endif()
 
-# conditionally bump to a higher C++ standard to test compatibility
-if (SQLPP11_TESTS_CXX_STD)
-    set_property(TARGET sqlpp11_sqlite3_tests PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})
-    set_property(TARGET sqlpp11_sqlite3_tests PROPERTY CXX_STANDARD_REQUIRED ON)
-    set_property(TARGET sqlpp11_sqlite3_tests PROPERTY CXX_EXTENSIONS OFF)
-endif()
-
 foreach(test_file IN LISTS test_files)
     get_filename_component(test ${test_file} NAME_WLE)
     add_test(NAME sqlpp11.sqlite3.usage.${test}

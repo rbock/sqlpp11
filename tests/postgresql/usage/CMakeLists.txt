@@ -50,13 +50,6 @@ if(NOT MSVC)
     target_compile_options(sqlpp11_postgresql_tests PRIVATE -Wall -Wextra -pedantic)
 endif()
 
-# conditionally bump to a higher C++ standard to test compatibility
-if (SQLPP11_TESTS_CXX_STD)
-    set_property(TARGET sqlpp11_postgresql_tests PROPERTY CXX_STANDARD ${SQLPP11_TESTS_CXX_STD})
-    set_property(TARGET sqlpp11_postgresql_tests PROPERTY CXX_STANDARD_REQUIRED yes)
-    set_property(TARGET sqlpp11_postgresql_tests PROPERTY CXX_EXTENSIONS no)
-endif()
-
 foreach(test_file IN LISTS test_files)
     get_filename_component(test ${test_file} NAME_WLE)
     add_test(NAME sqlpp11.postgresql.usage.${test}
