@@ -35,6 +35,41 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace sqlpp
 {
+  struct plus
+  {
+    static constexpr auto symbol = " + ";
+  };
+
+  struct minus
+  {
+    static constexpr auto symbol = " - ";
+  };
+
+  struct multiplies
+  {
+    static constexpr auto symbol = " * ";
+  };
+
+  struct divides
+  {
+    static constexpr auto symbol = " / ";
+  };
+
+  struct negate
+  {
+    static constexpr auto symbol = "-";
+  };
+
+  struct modulus
+  {
+    static constexpr auto symbol = " % ";
+  };
+
+  struct concatenation
+  {
+    static constexpr auto symbol = " || ";
+  };
+
 #warning: mysql does not offer operator||, we need to fail compilation, but maybe offer the concat function in addition
   template <typename L, typename Operator, typename R>
   struct arithmetic_expression : public enable_as<arithmetic_expression<L, Operator, R>>,
@@ -59,18 +94,52 @@ namespace sqlpp
   using check_arithmetic_args = ::sqlpp::enable_if_t<is_numeric<L>::value and is_numeric<R>::value>;
 
 #warning: need to document that this is on purpose (not integral, or unsigned integral, or floating_point) because it is difficult to know for the library to know what the actual result type will be (it is difficult to guess in C++ already, and it is probably different from DB vendor to vendor).
+  namespace detail
+  {
+    template <typename L, typename Operator, typename R>
+    struct result_type
+    {
+      using type = numeric;
+    };
+
+    template <typename L, typename Operator, typename R>
+    struct result_type<sqlpp::optional<L>, Operator, R> : public result_type<L, Operator, R>{};
+
+    template <typename L, typename Operator, typename R>
+    struct result_type<L, Operator, sqlpp::optional<R>> : public result_type<L, Operator, R>{};
+
+    template <typename L, typename Operator, typename R>
+    struct result_type<sqlpp::optional<L>, Operator, sqlpp::optional<R>> : public result_type<L, Operator, R>{};
+
+    template <typename ValueType>
+    struct result_type<ValueType, plus, ValueType>
+    {
+      using type = ValueType;
+    };
+
+    template <typename ValueType>
+    struct result_type<ValueType, multiplies, ValueType>
+    {
+      using type = ValueType;
+    };
+
+    template <typename L, typename R>
+    struct result_type<L, divides, R>
+    {
+      using type = floating_point;
+    };
+  }
+
   template <typename L, typename Operator, typename R>
   struct value_type_of<arithmetic_expression<L, Operator, R>>
+  : public detail::result_type<value_type_of_t<L>, Operator, value_type_of_t<R>>
+  /*
       : public std::conditional<sqlpp::is_optional<value_type_of_t<L>>::value or
                                     sqlpp::is_optional<value_type_of_t<R>>::value,
                                 ::sqlpp::optional<numeric>,
                                 numeric>
+                                */
   {
-  };
-
-  struct concatenation
-  {
-    static constexpr auto symbol = " || ";
   };
 
   template <typename L, typename R>
@@ -100,11 +169,6 @@ namespace sqlpp
     return context;
   }
 
-  struct plus
-  {
-    static constexpr auto symbol = " + ";
-  };
-
   template <typename L, typename R, typename = check_arithmetic_args<L, R>>
   constexpr auto operator+(L l, R r) -> arithmetic_expression<L, plus, R>
   {
@@ -120,21 +184,11 @@ namespace sqlpp
     return {std::move(l), std::move(r)};
   }
 
-  struct minus
-  {
-    static constexpr auto symbol = " - ";
-  };
-
   template <typename L, typename R, typename = check_arithmetic_args<L, R>>
   constexpr auto operator-(L l, R r) -> arithmetic_expression<L, minus, R>
   {
     return {std::move(l), std::move(r)};
   }
-
-  struct multiplies
-  {
-    static constexpr auto symbol = " * ";
-  };
 
   template <typename L, typename R, typename = check_arithmetic_args<L, R>>
   constexpr auto operator*(L l, R r) -> arithmetic_expression<L, multiplies, R>
@@ -142,32 +196,17 @@ namespace sqlpp
     return {std::move(l), std::move(r)};
   }
 
-  struct divides
-  {
-    static constexpr auto symbol = " / ";
-  };
-
   template <typename L, typename R, typename = check_arithmetic_args<L, R>>
   constexpr auto operator/(L l, R r) -> arithmetic_expression<L, divides, R>
   {
     return {std::move(l), std::move(r)};
   }
 
-  struct negate
-  {
-    static constexpr auto symbol = "-";
-  };
-
   template <typename R, typename = check_arithmetic_args<R, R>>
-  constexpr auto operator-(R r) -> arithmetic_expression<noop, divides, R>
+  constexpr auto operator-(R r) -> arithmetic_expression<noop, negate, R>
   {
     return {{}, std::move(r)};
   }
-
-  struct modulus
-  {
-    static constexpr auto symbol = " % ";
-  };
 
   template <typename L, typename R>
   using check_modulus_args = ::sqlpp::enable_if_t<(is_integral<L>::value or is_unsigned_integral<L>::value) and (is_integral<R>::value or is_unsigned_integral<R>::value)>;

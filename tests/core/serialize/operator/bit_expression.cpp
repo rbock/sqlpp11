@@ -23,123 +23,42 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "MockDb.h"
-#include "Sample.h"
+#include "../compare.h"
 #include <sqlpp11/sqlpp11.h>
 
-#warning: implement serialize instead of type tests here!
-namespace
+int main(int, char* [])
 {
-  auto db = MockDb{};
+  const auto val = sqlpp::value(1);
+  const auto expr = sqlpp::value(17) + 4;
 
-  template <typename T>
-  using is_integral = std::is_same<sqlpp::value_type_of_t<T>, sqlpp::integral>;
+  // Operands are enclosed in parentheses where required.
+  SQLPP_COMPARE(val & val, "1 & 1");
+  SQLPP_COMPARE(val | val, "1 | 1");
+  SQLPP_COMPARE(val ^ val, "1 ^ 1");
+  SQLPP_COMPARE(val << val, "1 << 1");
+  SQLPP_COMPARE(val >> val, "1 >> 1");
 
-  template <typename T>
-  using is_maybe_integral = std::is_same<sqlpp::value_type_of_t<T>, ::sqlpp::optional<sqlpp::integral>>;
+  SQLPP_COMPARE(val & expr, "1 & (17 + 4)");
+  SQLPP_COMPARE(val | expr, "1 | (17 + 4)");
+  SQLPP_COMPARE(val ^ expr, "1 ^ (17 + 4)");
+  SQLPP_COMPARE(val << expr, "1 << (17 + 4)");
+  SQLPP_COMPARE(val >> expr, "1 >> (17 + 4)");
+
+  SQLPP_COMPARE(expr & val, "(17 + 4) & 1");
+  SQLPP_COMPARE(expr | val, "(17 + 4) | 1");
+  SQLPP_COMPARE(expr ^ val, "(17 + 4) ^ 1");
+  SQLPP_COMPARE(expr << val, "(17 + 4) << 1");
+  SQLPP_COMPARE(expr >> val, "(17 + 4) >> 1");
+
+  SQLPP_COMPARE(expr & expr, "(17 + 4) & (17 + 4)");
+  SQLPP_COMPARE(expr | expr, "(17 + 4) | (17 + 4)");
+  SQLPP_COMPARE(expr ^ expr, "(17 + 4) ^ (17 + 4)");
+  SQLPP_COMPARE(expr << expr, "(17 + 4) << (17 + 4)");
+  SQLPP_COMPARE(expr >> expr, "(17 + 4) >> (17 + 4)");
+
+  // Same for unary operators
+  SQLPP_COMPARE(~val, "~1");
+  SQLPP_COMPARE(~expr, "~(17 + 4)");
+
+  return 0;
 }
-
-template <typename Value>
-void test_bit_expression(Value v)
-{
-  auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v));
-
-  // Compare non-nullable with non-nullable.
-  static_assert(is_integral<decltype(v_not_null << v_not_null)>::value, "");
-  static_assert(is_integral<decltype(v_not_null >> v_not_null)>::value, "");
-  static_assert(is_integral<decltype(v_not_null | v_not_null)>::value, "");
-  static_assert(is_integral<decltype(v_not_null & v_not_null)>::value, "");
-  static_assert(is_integral<decltype(v_not_null ^ v_not_null)>::value, "");
-
-  // Compare non-nullable with nullable.
-  static_assert(is_maybe_integral<decltype(v_not_null << v_maybe_null)>::value, "");
-  static_assert(is_maybe_integral<decltype(v_not_null >> v_maybe_null)>::value, "");
-  static_assert(is_maybe_integral<decltype(v_not_null | v_maybe_null)>::value, "");
-  static_assert(is_maybe_integral<decltype(v_not_null & v_maybe_null)>::value, "");
-  static_assert(is_maybe_integral<decltype(v_not_null ^ v_maybe_null)>::value, "");
-
-  // Compare nullable with non-nullable.
-  static_assert(is_maybe_integral<decltype(v_maybe_null << v_not_null)>::value, "");
-  static_assert(is_maybe_integral<decltype(v_maybe_null >> v_not_null)>::value, "");
-  static_assert(is_maybe_integral<decltype(v_maybe_null | v_not_null)>::value, "");
-  static_assert(is_maybe_integral<decltype(v_maybe_null & v_not_null)>::value, "");
-  static_assert(is_maybe_integral<decltype(v_maybe_null ^ v_not_null)>::value, "");
-
-  // Compare nullable with nullable.
-  static_assert(is_maybe_integral<decltype(v_maybe_null << v_maybe_null)>::value, "");
-  static_assert(is_maybe_integral<decltype(v_maybe_null >> v_maybe_null)>::value, "");
-  static_assert(is_maybe_integral<decltype(v_maybe_null | v_maybe_null)>::value, "");
-  static_assert(is_maybe_integral<decltype(v_maybe_null & v_maybe_null)>::value, "");
-  static_assert(is_maybe_integral<decltype(v_maybe_null ^ v_maybe_null)>::value, "");
-
-  // Compare with null.
-  static_assert(is_integral<decltype(~v_not_null)>::value, "");
-  static_assert(is_maybe_integral<decltype(~v_maybe_null)>::value, "");
-
-  // Comparison expressions have the `as` member function.
-  static_assert(sqlpp::has_enabled_as<decltype(v_not_null << v_maybe_null)>::value, "");
-  static_assert(sqlpp::has_enabled_as<decltype(~v_not_null)>::value, "");
-
-  // Comparison expressions do not enable comparison member functions.
-  static_assert(not sqlpp::has_enabled_comparison<decltype(v_not_null << v_maybe_null)>::value, "");
-
-  // Comparison expressions have their arguments as nodes.
-  using L = typename std::decay<decltype(v_not_null)>::type;
-  using R = typename std::decay<decltype(v_maybe_null)>::type;
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(v_not_null << v_maybe_null)>, sqlpp::detail::type_vector<L, R>>::value, "");
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(~v_not_null)>, sqlpp::detail::type_vector<sqlpp::noop, L>>::value, "");
-}
-
-template <typename Left, typename Right>
-void test_bit_shift_expression(Left l, Right r)
-{
-  auto l_not_null = sqlpp::value(l);
-  auto l_maybe_null = sqlpp::value(::sqlpp::make_optional(l));
-  auto r_not_null = sqlpp::value(r);
-  auto r_maybe_null = sqlpp::value(::sqlpp::make_optional(r));
-
-  // Compare non-nullable with non-nullable.
-  static_assert(is_integral<decltype(l_not_null << r_not_null)>::value, "");
-  static_assert(is_integral<decltype(l_not_null >> r_not_null)>::value, "");
-
-  // Compare non-nullable with nullable.
-  static_assert(is_maybe_integral<decltype(l_not_null << r_maybe_null)>::value, "");
-  static_assert(is_maybe_integral<decltype(l_not_null >> r_maybe_null)>::value, "");
-
-  // Compare nullable with non-nullable.
-  static_assert(is_maybe_integral<decltype(l_maybe_null << r_not_null)>::value, "");
-  static_assert(is_maybe_integral<decltype(l_maybe_null >> r_not_null)>::value, "");
-
-  // Compare nullable with nullable.
-  static_assert(is_maybe_integral<decltype(l_maybe_null << r_maybe_null)>::value, "");
-  static_assert(is_maybe_integral<decltype(l_maybe_null >> r_maybe_null)>::value, "");
-
-  // Comparison expressions have the `as` member function.
-  static_assert(sqlpp::has_enabled_as<decltype(l_not_null << r_maybe_null)>::value, "");
-
-  // Comparison expressions do not enable comparison member functions.
-  static_assert(not sqlpp::has_enabled_comparison<decltype(l_not_null << r_maybe_null)>::value, "");
-
-  // Comparison expressions have their arguments as nodes.
-  using L = typename std::decay<decltype(l_not_null)>::type;
-  using R = typename std::decay<decltype(r_maybe_null)>::type;
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(l_not_null << r_maybe_null)>, sqlpp::detail::type_vector<L, R>>::value, "");
-}
-
-
-int main()
-{
-  // bit expression require integral operands
-  test_bit_expression(int8_t{7});
-  test_bit_expression(int16_t{7});
-  test_bit_expression(int32_t{7});
-  test_bit_expression(int64_t{7});
-
-  // bit shift operations can have unsigned rhs operands
-  test_bit_shift_expression(int8_t{7}, uint8_t{7});
-  test_bit_shift_expression(int8_t{7}, uint16_t{7});
-  test_bit_shift_expression(int8_t{7}, uint32_t{7});
-  test_bit_shift_expression(int8_t{7}, uint64_t{7});
-}
-

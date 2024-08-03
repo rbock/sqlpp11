@@ -23,96 +23,24 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "../compare.h"
 #include <sqlpp11/sqlpp11.h>
 
-#warning: implement serialize instead of type tests here!
-SQLPP_ALIAS_PROVIDER(cheese);
+SQLPP_ALIAS_PROVIDER(v);
 
-template <typename T, typename ValueType>
-using is_select_column_value_type = std::is_same<sqlpp::select_column_value_type_of_t<T>, ValueType>;
-
-template<typename Value>
-void test_as_expression(Value v)
+int main(int, char* [])
 {
-  using ValueType = sqlpp::value_type_of_t<Value>;
-  using OptValueType = ::sqlpp::optional<ValueType>;
+  const auto val = sqlpp::value(17);
+  const auto expr = sqlpp::value(17) + 4;
 
-  auto v_not_null= sqlpp::value(v);
-  auto v_maybe_null= sqlpp::value(::sqlpp::make_optional(v));
-  auto v_dynamic_not_null = dynamic(true, sqlpp::value(v));
-  auto v_dynamic_maybe_null = dynamic(true, sqlpp::value(::sqlpp::make_optional(v)));
+  SQLPP_COMPARE(val.as(v), "17 AS v");
+  SQLPP_COMPARE(expr.as(v), "(17 + 4) AS v");
 
-  static_assert(not sqlpp::has_value_type<decltype(v_not_null.as(cheese))>::value, "");
-  static_assert(not sqlpp::has_value_type<decltype(v_maybe_null.as(cheese))>::value, "");
-  static_assert(not sqlpp::has_value_type<decltype(v_dynamic_not_null.as(cheese))>::value, "");
-  static_assert(not sqlpp::has_value_type<decltype(v_dynamic_maybe_null.as(cheese))>::value, "");
+  SQLPP_COMPARE(dynamic(true, val).as(v), "17 AS v");
+  SQLPP_COMPARE(dynamic(true, expr).as(v), "(17 + 4) AS v");
 
-  static_assert(not sqlpp::has_name<decltype(v_not_null.as(cheese))>::value, "");
-  static_assert(not sqlpp::has_name<decltype(v_maybe_null.as(cheese))>::value, "");
-  static_assert(not sqlpp::has_name<decltype(v_dynamic_not_null.as(cheese))>::value, "");
-  static_assert(not sqlpp::has_name<decltype(v_dynamic_maybe_null.as(cheese))>::value, "");
+  SQLPP_COMPARE(dynamic(false, val).as(v), "NULL AS v");
+  SQLPP_COMPARE(dynamic(false, expr).as(v), "NULL AS v");
 
-  static_assert(is_select_column_value_type<decltype(v_not_null.as(cheese)), ValueType>::value, "");
-  static_assert(is_select_column_value_type<decltype(v_maybe_null.as(cheese)), OptValueType>::value, "");
-  static_assert(is_select_column_value_type<decltype(v_dynamic_not_null.as(cheese)), OptValueType>::value, "");
-  static_assert(is_select_column_value_type<decltype(v_dynamic_maybe_null.as(cheese)), OptValueType>::value, "");
-
-  static_assert(sqlpp::select_column_has_name<decltype(v_not_null.as(cheese))>::value, "");
-  static_assert(sqlpp::select_column_has_name<decltype(v_maybe_null.as(cheese))>::value, "");
-  static_assert(sqlpp::select_column_has_name<decltype(v_dynamic_not_null.as(cheese))>::value, "");
-  static_assert(sqlpp::select_column_has_name<decltype(v_dynamic_maybe_null.as(cheese))>::value, "");
-
-  // AS expressions have do not enable the `as` member function.
-  static_assert(not sqlpp::has_enabled_as<decltype(v_not_null.as(cheese))>::value, "");
-
-  // AS expressions do not enable comparison member functions.
-  static_assert(not sqlpp::has_enabled_comparison<decltype(v_not_null.as(cheese))>::value, "");
-
-  // AS expressions have their arguments as nodes.
-  using L = typename std::decay<decltype(v_not_null)>::type;
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(v_not_null.as(cheese))>, sqlpp::detail::type_vector<L>>::value, "");
+  return 0;
 }
-
-int main()
-{
-  // boolean
-  test_as_expression(bool{true});
-
-  // integral
-  test_as_expression(int8_t{7});
-  test_as_expression(int16_t{7});
-  test_as_expression(int32_t{7});
-  test_as_expression(int64_t{7});
-
-  // unsigned integral
-  test_as_expression(uint8_t{7});
-  test_as_expression(uint16_t{7});
-  test_as_expression(uint32_t{7});
-  test_as_expression(uint64_t{7});
-
-  // floating point
-  test_as_expression(float{7.7});
-  test_as_expression(double{7.7});
-
-  // text
-  test_as_expression('7');
-  test_as_expression("seven");
-  test_as_expression(std::string("seven"));
-  test_as_expression(::sqlpp::string_view("seven"));
-
-  // blob
-  test_as_expression(std::vector<uint8_t>{});
-
-  // date
-  test_as_expression(::sqlpp::chrono::day_point{});
-
-  // timestamp
-  test_as_expression(::sqlpp::chrono::microsecond_point{});
-  using minute_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
-  test_as_expression(minute_point{});
-
-  // time_of_day
-  test_as_expression(std::chrono::microseconds{});
-
-}
-

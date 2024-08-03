@@ -23,91 +23,24 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "../compare.h"
 #include <sqlpp11/sqlpp11.h>
 
-#warning: implement serialize instead of type tests here!
-template<typename Value>
-void test_as_expression(Value v)
+int main(int, char* [])
 {
-  using ValueType = sqlpp::value_type_of_t<Value>;
-  using OptValueType = ::sqlpp::optional<ValueType>;
+  const auto val = sqlpp::value(1);
+  const auto expr = sqlpp::value(17) + 4;
 
-  auto v_not_null= sqlpp::value(v);
-  auto v_maybe_null= sqlpp::value(::sqlpp::make_optional(v));
+  // Operands are enclosed in parentheses where required.
+  SQLPP_COMPARE(val.asc(), "1 ASC");
+  SQLPP_COMPARE(val.desc(), "1 DESC");
+  SQLPP_COMPARE(val.order(sqlpp::sort_type::asc), "1 ASC");
+  SQLPP_COMPARE(val.order(sqlpp::sort_type::desc), "1 DESC");
 
-  // Sort order expressions have no value.
-  static_assert(not sqlpp::has_value_type<decltype(v_not_null.asc())>::value, "");
-  static_assert(not sqlpp::has_value_type<decltype(v_not_null.desc())>::value, "");
-  static_assert(not sqlpp::has_value_type<decltype(v_not_null.order(sqlpp::sort_type::asc))>::value, "");
+  SQLPP_COMPARE(expr.asc(), "(17 + 4) ASC");
+  SQLPP_COMPARE(expr.desc(), "(17 + 4) DESC");
+  SQLPP_COMPARE(expr.order(sqlpp::sort_type::asc), "(17 + 4) ASC");
+  SQLPP_COMPARE(expr.order(sqlpp::sort_type::desc), "(17 + 4) DESC");
 
-  static_assert(not sqlpp::has_value_type<decltype(v_maybe_null.asc())>::value, "");
-  static_assert(not sqlpp::has_value_type<decltype(v_maybe_null.desc())>::value, "");
-  static_assert(not sqlpp::has_value_type<decltype(v_maybe_null.order(sqlpp::sort_type::asc))>::value, "");
-
-  static_assert(not sqlpp::has_value_type<decltype(dynamic(true, v_not_null.asc()))>::value, "");
-  static_assert(not sqlpp::has_value_type<decltype(dynamic(true, v_not_null.desc()))>::value, "");
-  static_assert(not sqlpp::has_value_type<decltype(dynamic(true, v_not_null.order(sqlpp::sort_type::asc)))>::value, "");
-
-  static_assert(not sqlpp::has_value_type<decltype(dynamic(true, v_maybe_null.asc()))>::value, "");
-  static_assert(not sqlpp::has_value_type<decltype(dynamic(true, v_maybe_null.desc()))>::value, "");
-  static_assert(not sqlpp::has_value_type<decltype(dynamic(true, v_maybe_null.order(sqlpp::sort_type::asc)))>::value, "");
-
-  // Sort order expressions have no name.
-  static_assert(not sqlpp::has_name<decltype(v_not_null.asc())>::value, "");
-  static_assert(not sqlpp::has_name<decltype(v_maybe_null.asc())>::value, "");
-  static_assert(not sqlpp::has_name<decltype(dynamic(true, v_not_null.asc()))>::value, "");
-  static_assert(not sqlpp::has_name<decltype(dynamic(true, v_maybe_null.asc()))>::value, "");
-
-  // Sort order expression do not enable the `as` member function.
-  static_assert(not sqlpp::has_enabled_as<decltype(v_not_null.asc())>::value, "");
-
-  // Sort order expressions do not enable comparison member functions.
-  static_assert(not sqlpp::has_enabled_comparison<decltype(v_not_null.asc())>::value, "");
-
-  // Sort order expressions have their arguments as nodes.
-  using L = typename std::decay<decltype(v_not_null)>::type;
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(v_not_null.asc())>, sqlpp::detail::type_vector<L>>::value, "");
+  return 0;
 }
-
-int main()
-{
-  // boolean
-  test_as_expression(bool{true});
-
-  // integral
-  test_as_expression(int8_t{7});
-  test_as_expression(int16_t{7});
-  test_as_expression(int32_t{7});
-  test_as_expression(int64_t{7});
-
-  // unsigned integral
-  test_as_expression(uint8_t{7});
-  test_as_expression(uint16_t{7});
-  test_as_expression(uint32_t{7});
-  test_as_expression(uint64_t{7});
-
-  // floating point
-  test_as_expression(float{7.7});
-  test_as_expression(double{7.7});
-
-  // text
-  test_as_expression('7');
-  test_as_expression("seven");
-  test_as_expression(std::string("seven"));
-  test_as_expression(::sqlpp::string_view("seven"));
-
-  // blob
-  test_as_expression(std::vector<uint8_t>{});
-
-  // date
-  test_as_expression(::sqlpp::chrono::day_point{});
-
-  // timestamp
-  test_as_expression(::sqlpp::chrono::microsecond_point{});
-  using minute_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
-  test_as_expression(minute_point{});
-
-  // time_of_day
-  test_as_expression(std::chrono::microseconds{});
-}
-

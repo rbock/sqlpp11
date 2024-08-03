@@ -23,75 +23,16 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "../compare.h"
 #include <sqlpp11/sqlpp11.h>
 
-#warning: implement serialize instead of type tests here!
-SQLPP_ALIAS_PROVIDER(r_not_null);
-SQLPP_ALIAS_PROVIDER(r_maybe_null);
+SQLPP_ALIAS_PROVIDER(v);
 
-template <typename Value>
-void test_exists(Value v)
+int main(int, char* [])
 {
-  // Selectable values.
-  const auto v_not_null = sqlpp::value(v).as(r_not_null);
-  const auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v)).as(r_maybe_null);
+  const auto val = sqlpp::value(17);
 
-  // EXISTS expression can be used in basic comparison expressions, which use remove_exists_t to look inside.
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(exists(select(v_not_null)))>, sqlpp::boolean>::value, "");
-  static_assert(std::is_same<sqlpp::value_type_of_t<decltype(exists(select(v_maybe_null)))>, sqlpp::boolean>::value, "");
+  SQLPP_COMPARE(exists(select(val.as(v))), "EXISTS (SELECT 17 AS v)");
 
-  // EXISTS expressions enable `as` member function.
-  static_assert(sqlpp::has_enabled_as<decltype(exists(select(v_not_null)))>::value, "");
-
-  // EXISTS expressions do not enable comparison member functions.
-  static_assert(not sqlpp::has_enabled_comparison<decltype(exists(select(v_not_null)))>::value, "");
-
-  // EXISTS expressions have the SELECT as node.
-  using S = decltype(select(v_not_null));
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(exists(select(v_not_null)))>, sqlpp::detail::type_vector<S>>::value, "");
-
-#warning: Note that a sub select may require tables from the enclosing select. This is currently not correctly implemented. We need to test that.
+  return 0;
 }
-
-int main()
-{
-  // boolean
-  test_exists(bool{true});
-
-  // integral
-  test_exists(int8_t{7});
-  test_exists(int16_t{7});
-  test_exists(int32_t{7});
-  test_exists(int64_t{7});
-
-  // unsigned integral
-  test_exists(uint8_t{7});
-  test_exists(uint16_t{7});
-  test_exists(uint32_t{7});
-  test_exists(uint64_t{7});
-
-  // floating point
-  test_exists(float{7.7});
-  test_exists(double{7.7});
-
-  // text
-  test_exists('7');
-  test_exists("seven");
-  test_exists(std::string("seven"));
-  test_exists(::sqlpp::string_view("seven"));
-
-  // blob
-  test_exists(std::vector<uint8_t>{});
-
-  // date
-  test_exists(::sqlpp::chrono::day_point{});
-
-  // timestamp
-  test_exists(::sqlpp::chrono::microsecond_point{});
-  using minute_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
-  test_exists(minute_point{});
-
-  // time_of_day
-  test_exists(std::chrono::microseconds{});
-}
-

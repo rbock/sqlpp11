@@ -79,7 +79,21 @@ namespace sqlpp
   {
     if (t._condition)
     {
-    serialize(context, t._expr);
+      serialize(context, t._expr);
+    }
+    else
+    {
+      serialize(context, ::sqlpp::nullopt);
+    }
+    return context;
+  }
+
+  template <typename Context, typename Select>
+  Context& serialize_operand(Context& context, const dynamic_t<Select>& t)
+  {
+    if (t._condition)
+    {
+      serialize_operand(context, t._expr);
     }
     else
     {
@@ -93,6 +107,12 @@ namespace sqlpp
 
   template <typename Expr, typename = check_dynamic_args<Expr>>
   auto dynamic(bool condition, Expr t) -> dynamic_t<Expr>
+  {
+    return {condition, std::move(t)};
+  }
+
+  template <typename L, typename Operator, typename R, typename = check_dynamic_args<L>>
+  auto dynamic(bool condition, assign_expression<L, Operator, R> t) -> dynamic_t<assign_expression<L, Operator, R>>
   {
     return {condition, std::move(t)};
   }

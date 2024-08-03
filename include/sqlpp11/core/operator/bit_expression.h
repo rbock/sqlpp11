@@ -124,7 +124,7 @@ namespace sqlpp
   template <typename R, typename = check_bit_expression_args<R, R>>
   constexpr auto operator~(R r) -> bit_expression<noop, bit_not, R>
   {
-    return {std::move(r)};
+    return {{}, std::move(r)};
   }
 
   struct bit_shift_left

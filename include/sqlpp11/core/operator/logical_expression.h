@@ -35,6 +35,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace sqlpp
 {
+  struct logical_and
+  {
+    static constexpr auto symbol = " AND ";
+  };
+
+  struct logical_or
+  {
+    static constexpr auto symbol = " OR ";
+  };
+
   template <typename L, typename Operator, typename R>
   struct logical_expression : public enable_as<logical_expression<L, Operator, R>>
   {
@@ -87,6 +97,16 @@ namespace sqlpp
     return serialize_impl(context, t);
   }
 
+  template <typename Context, typename L, typename Operator, typename R1, typename R2>
+  auto serialize(Context& context,
+                 const logical_expression<logical_expression<L, Operator, R1>, Operator, R2>& t) -> Context&
+  {
+    serialize(context, t._l);
+    context << Operator::symbol;
+    serialize_operand(context, t._r);
+    return context;
+  }
+
   template <typename Context, typename L, typename Operator, typename R>
   auto serialize(Context& context, const logical_expression<L, Operator, dynamic_t<R>>& t) -> Context&
   {
@@ -99,22 +119,12 @@ namespace sqlpp
     return serialize(context, t._l);
   }
 
-  struct logical_and
-  {
-    static constexpr auto symbol = " AND ";
-  };
-
 #warning: need tests with dynamic AND/OR
   template <typename L, typename R, typename = check_logical_args<L, remove_dynamic_t<R>>>
   constexpr auto operator and(L l, R r) -> logical_expression<L, logical_and, R>
   {
     return {std::move(l), std::move(r)};
   }
-
-  struct logical_or
-  {
-    static constexpr auto symbol = " OR ";
-  };
 
   template <typename L, typename R, typename = check_logical_args<L, remove_dynamic_t<R>>>
   constexpr auto operator||(L l, R r) -> logical_expression<L, logical_or, R>

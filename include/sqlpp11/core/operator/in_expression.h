@@ -36,6 +36,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace sqlpp
 {
+  struct operator_in
+  {
+    static constexpr auto symbol = " IN";
+  };
+
+  struct operator_not_in
+  {
+    static constexpr auto symbol = " NOT IN";
+  };
+
   template<typename L, typename Operator, typename Container>
   struct in_expression : public enable_as<in_expression<L, Operator, Container>>
   {
@@ -111,7 +121,7 @@ namespace sqlpp
   auto serialize(Context& context, const in_expression<L, Operator, std::tuple<Args...>>& t) -> Context&
   {
     serialize_operand(context, t._l);
-    context << Operator::symbol << "(";
+    context << Operator::symbol << " (";
     if (sizeof...(Args) == 1)
     {
       serialize(context, std::get<0>(t._r));
@@ -119,7 +129,7 @@ namespace sqlpp
     else
     {
 #warning: interpret_tuple arguments should take Context first, too
-      interpret_tuple(t._r, ',', context);
+      interpret_tuple(t._r, ", ", context);
     }
     context << ')';
     return context;
@@ -133,12 +143,14 @@ namespace sqlpp
   {
     if (t._r.empty())
     {
-      return serialize(context, false);
+      // SQL would normally treat this as a bug in the query.
+      // IN requires one parameter at least.
+      // But the statement "L NOT IN empty_set" is true, so let's treat this as a bool result.
+      return serialize(context, std::is_same<Operator, operator_not_in>::value);
     }
     serialize(context, t._l);
-    context << Operator::symbol
-            << "(";
-        bool first = true;
+    context << Operator::symbol << " (";
+    bool first = true;
     for (const auto& entry : t._r)
     {
       if (first)
@@ -147,19 +159,21 @@ namespace sqlpp
       }
       else
       {
-        context << ',';
+        context << ", ";
       }
 
-      serialize(context, entry);
+      if (t._r.size() == 1) {
+        // A single entry does not need extra parentheses.
+        serialize(context, entry);
+      }
+      else
+      {
+        serialize_operand(context, entry);
+      }
     }
     context << ')';
     return context;
   }
-
-  struct operator_in
-  {
-    static constexpr auto symbol = " IN";
-  };
 
 #warning: something.in(select(...)); should be suppported as is, need to test
   template <typename L, typename... Args, typename = check_in_args<L, Args...>>
@@ -181,11 +195,6 @@ namespace sqlpp
   {
     return {std::move(l), std::move(args)};
   }
-
-  struct operator_not_in
-  {
-    static constexpr auto symbol = " NOT IN";
-  };
 
   template <typename L, typename... Args, typename = check_in_args<L, Args...>>
   constexpr auto not_in(L l, std::tuple<Args...> args) -> in_expression<L, operator_not_in, std::tuple<Args...>>

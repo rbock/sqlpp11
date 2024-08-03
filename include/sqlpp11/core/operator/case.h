@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2015-2015, Roland Bock
+ * Copyright (c) 2015, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -160,11 +160,11 @@ namespace sqlpp
   Context& serialize(Context& context, const case_t<When, Then, Else>& t)
   {
     context << "CASE WHEN ";
-    serialize(context, t._when);
+    serialize_operand(context, t._when);
     context << " THEN ";
-    serialize(context, t._then);
+    serialize_operand(context, t._then);
     context << " ELSE ";
-    serialize(context, t._else);
+    serialize_operand(context, t._else);
     context << " END";
     return context;
   }

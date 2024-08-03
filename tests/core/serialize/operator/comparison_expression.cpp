@@ -23,159 +23,57 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "MockDb.h"
-#include "Sample.h"
+#include "../compare.h"
 #include <sqlpp11/sqlpp11.h>
 
-#warning: implement serialize instead of type tests here!
-namespace
+int main(int, char* [])
 {
-  auto db = MockDb{};
+  const auto val = sqlpp::value(1);
+  const auto expr = sqlpp::value(17) + 4;
 
-  template <typename T>
-  using is_bool = std::is_same<sqlpp::value_type_of_t<T>, sqlpp::boolean>;
+  // Operands are enclosed in parentheses where required.
+  SQLPP_COMPARE(val < val, "1 < 1");
+  SQLPP_COMPARE(val <= val, "1 <= 1");
+  SQLPP_COMPARE(val == val, "1 = 1");
+  SQLPP_COMPARE(val != val, "1 <> 1");
+  SQLPP_COMPARE(val >= val, "1 >= 1");
+  SQLPP_COMPARE(val > val, "1 > 1");
+  SQLPP_COMPARE(val.is_distinct_from(val), "1 IS DISTINCT FROM 1");
+  SQLPP_COMPARE(val.is_not_distinct_from(val), "1 IS NOT DISTINCT FROM 1");
 
-  template <typename T>
-  using is_maybe_bool = std::is_same<sqlpp::value_type_of_t<T>, ::sqlpp::optional<sqlpp::boolean>>;
+  SQLPP_COMPARE(val < expr, "1 < (17 + 4)");
+  SQLPP_COMPARE(val <= expr, "1 <= (17 + 4)");
+  SQLPP_COMPARE(val == expr, "1 = (17 + 4)");
+  SQLPP_COMPARE(val != expr, "1 <> (17 + 4)");
+  SQLPP_COMPARE(val >= expr, "1 >= (17 + 4)");
+  SQLPP_COMPARE(val > expr, "1 > (17 + 4)");
+  SQLPP_COMPARE(val.is_distinct_from(expr), "1 IS DISTINCT FROM (17 + 4)");
+  SQLPP_COMPARE(val.is_not_distinct_from(expr), "1 IS NOT DISTINCT FROM (17 + 4)");
+
+  SQLPP_COMPARE(expr < val, "(17 + 4) < 1");
+  SQLPP_COMPARE(expr <= val, "(17 + 4) <= 1");
+  SQLPP_COMPARE(expr == val, "(17 + 4) = 1");
+  SQLPP_COMPARE(expr != val, "(17 + 4) <> 1");
+  SQLPP_COMPARE(expr >= val, "(17 + 4) >= 1");
+  SQLPP_COMPARE(expr > val, "(17 + 4) > 1");
+  SQLPP_COMPARE(expr.is_distinct_from(val), "(17 + 4) IS DISTINCT FROM 1");
+  SQLPP_COMPARE(expr.is_not_distinct_from(val), "(17 + 4) IS NOT DISTINCT FROM 1");
+
+  SQLPP_COMPARE(expr < expr, "(17 + 4) < (17 + 4)");
+  SQLPP_COMPARE(expr <= expr, "(17 + 4) <= (17 + 4)");
+  SQLPP_COMPARE(expr == expr, "(17 + 4) = (17 + 4)");
+  SQLPP_COMPARE(expr != expr, "(17 + 4) <> (17 + 4)");
+  SQLPP_COMPARE(expr >= expr, "(17 + 4) >= (17 + 4)");
+  SQLPP_COMPARE(expr > expr, "(17 + 4) > (17 + 4)");
+  SQLPP_COMPARE(expr.is_distinct_from(expr), "(17 + 4) IS DISTINCT FROM (17 + 4)");
+  SQLPP_COMPARE(expr.is_not_distinct_from(expr), "(17 + 4) IS NOT DISTINCT FROM (17 + 4)");
+
+  // Same for unary operators
+  SQLPP_COMPARE(val.is_null(), "1 IS NULL");
+  SQLPP_COMPARE(val.is_not_null(), "1 IS NOT NULL");
+
+  SQLPP_COMPARE(expr.is_null(), "(17 + 4) IS NULL");
+  SQLPP_COMPARE(expr.is_not_null(), "(17 + 4) IS NOT NULL");
+
+  return 0;
 }
-
-template <typename Value>
-void test_comparison_expression(Value v)
-{
-  auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v));
-
-#warning : Should also implement between as member functions?
-
-  // Compare non-nullable with non-nullable.
-  static_assert(is_bool<decltype(v_not_null < v_not_null)>::value, "");
-  static_assert(is_bool<decltype(v_not_null <= v_not_null)>::value, "");
-  static_assert(is_bool<decltype(v_not_null == v_not_null)>::value, "");
-  static_assert(is_bool<decltype(v_not_null != v_not_null)>::value, "");
-  static_assert(is_bool<decltype(v_not_null == v_not_null)>::value, "");
-  static_assert(is_bool<decltype(v_not_null >= v_not_null)>::value, "");
-  static_assert(is_bool<decltype(v_not_null > v_not_null)>::value, "");
-  static_assert(is_bool<decltype(is_distinct_from(v_not_null, v_not_null))>::value, "");
-  static_assert(is_bool<decltype(is_not_distinct_from(v_not_null, v_not_null))>::value, "");
-
-  // Compare non-nullable with nullable.
-  static_assert(is_maybe_bool<decltype(v_not_null < v_maybe_null)>::value, "");
-  static_assert(is_maybe_bool<decltype(v_not_null <= v_maybe_null)>::value, "");
-  static_assert(is_maybe_bool<decltype(v_not_null == v_maybe_null)>::value, "");
-  static_assert(is_maybe_bool<decltype(v_not_null != v_maybe_null)>::value, "");
-  static_assert(is_maybe_bool<decltype(v_not_null == v_maybe_null)>::value, "");
-  static_assert(is_maybe_bool<decltype(v_not_null >= v_maybe_null)>::value, "");
-  static_assert(is_maybe_bool<decltype(v_not_null > v_maybe_null)>::value, "");
-  static_assert(is_bool<decltype(is_distinct_from(v_not_null, v_maybe_null))>::value, "");
-  static_assert(is_bool<decltype(is_not_distinct_from(v_not_null, v_maybe_null))>::value, "");
-
-  // Compare nullable with non-nullable.
-  static_assert(is_maybe_bool<decltype(v_maybe_null < v_not_null)>::value, "");
-  static_assert(is_maybe_bool<decltype(v_maybe_null <= v_not_null)>::value, "");
-  static_assert(is_maybe_bool<decltype(v_maybe_null == v_not_null)>::value, "");
-  static_assert(is_maybe_bool<decltype(v_maybe_null != v_not_null)>::value, "");
-  static_assert(is_maybe_bool<decltype(v_maybe_null == v_not_null)>::value, "");
-  static_assert(is_maybe_bool<decltype(v_maybe_null >= v_not_null)>::value, "");
-  static_assert(is_maybe_bool<decltype(v_maybe_null > v_not_null)>::value, "");
-  static_assert(is_bool<decltype(is_distinct_from(v_maybe_null, v_not_null))>::value, "");
-  static_assert(is_bool<decltype(is_not_distinct_from(v_maybe_null, v_not_null))>::value, "");
-
-  // Compare nullable with nullable.
-  static_assert(is_maybe_bool<decltype(v_maybe_null < v_maybe_null)>::value, "");
-  static_assert(is_maybe_bool<decltype(v_maybe_null <= v_maybe_null)>::value, "");
-  static_assert(is_maybe_bool<decltype(v_maybe_null == v_maybe_null)>::value, "");
-  static_assert(is_maybe_bool<decltype(v_maybe_null != v_maybe_null)>::value, "");
-  static_assert(is_maybe_bool<decltype(v_maybe_null == v_maybe_null)>::value, "");
-  static_assert(is_maybe_bool<decltype(v_maybe_null >= v_maybe_null)>::value, "");
-  static_assert(is_maybe_bool<decltype(v_maybe_null > v_maybe_null)>::value, "");
-  static_assert(is_bool<decltype(is_distinct_from(v_maybe_null, v_maybe_null))>::value, "");
-  static_assert(is_bool<decltype(is_not_distinct_from(v_maybe_null, v_maybe_null))>::value, "");
-
-  // Compare with null.
-  static_assert(is_bool<decltype(is_null(v_not_null))>::value, "");
-  static_assert(is_bool<decltype(is_null(v_maybe_null))>::value, "");
-  static_assert(is_bool<decltype(is_not_null(v_maybe_null))>::value, "");
-  static_assert(is_bool<decltype(is_not_null(v_not_null))>::value, "");
-
-  // Comparison expressions have the `as` member function.
-  static_assert(sqlpp::has_enabled_as<decltype(v_not_null == v_maybe_null)>::value, "");
-  static_assert(sqlpp::has_enabled_as<decltype(is_null(v_not_null))>::value, "");
-
-  // Comparison expressions do not enable comparison member functions.
-  static_assert(not sqlpp::has_enabled_comparison<decltype(v_not_null == v_maybe_null)>::value, "");
-
-  // Comparison expressions have their arguments as nodes.
-  using L = typename std::decay<decltype(v_not_null)>::type;
-  using R = typename std::decay<decltype(v_maybe_null)>::type;
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(v_not_null == v_maybe_null)>, sqlpp::detail::type_vector<L, R>>::value, "");
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(is_null(v_not_null))>, sqlpp::detail::type_vector<L, ::sqlpp::nullopt_t>>::value, "");
-}
-
-template<typename Value>
-void test_like(Value v)
-{
-  auto v_not_null= sqlpp::value(v);
-  auto v_maybe_null= sqlpp::value(::sqlpp::make_optional(v));
-
-  // Compare non-nullable with non-nullable.
-  static_assert(is_bool<decltype(like(v_not_null, v_not_null))>::value, "");
-
-  // Compare non-nullable with nullable.
-  static_assert(is_maybe_bool<decltype(like(v_not_null, v_maybe_null))>::value, "");
-
-  // Compare nullable with non-nullable.
-  static_assert(is_maybe_bool<decltype(like(v_maybe_null, v_not_null))>::value, "");
-
-  // Compare nullable with nullable.
-  static_assert(is_maybe_bool<decltype(like(v_maybe_null, v_maybe_null))>::value, "");
-}
-
-int main()
-{
-  // boolean
-  test_comparison_expression(bool{true});
-
-  // integral
-  test_comparison_expression(int8_t{7});
-  test_comparison_expression(int16_t{7});
-  test_comparison_expression(int32_t{7});
-  test_comparison_expression(int64_t{7});
-
-  // unsigned integral
-  test_comparison_expression(uint8_t{7});
-  test_comparison_expression(uint16_t{7});
-  test_comparison_expression(uint32_t{7});
-  test_comparison_expression(uint64_t{7});
-
-  // floating point
-  test_comparison_expression(float{7.7});
-  test_comparison_expression(double{7.7});
-
-  // text
-  test_comparison_expression('7');
-  test_comparison_expression("seven");
-  test_comparison_expression(std::string("seven"));
-  test_comparison_expression(::sqlpp::string_view("seven"));
-
-  // blob
-  test_comparison_expression(std::vector<uint8_t>{});
-
-  // date
-  test_comparison_expression(::sqlpp::chrono::day_point{});
-
-  // timestamp
-  test_comparison_expression(::sqlpp::chrono::microsecond_point{});
-  using minute_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
-  test_comparison_expression(minute_point{});
-
-  // time_of_day
-  test_comparison_expression(std::chrono::microseconds{});
-
-  // text
-  test_like('7');
-  test_like("seven");
-  test_like(std::string("seven"));
-  test_like(::sqlpp::string_view("seven"));
-
-}
-

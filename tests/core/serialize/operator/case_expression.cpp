@@ -23,90 +23,26 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "../compare.h"
 #include <sqlpp11/sqlpp11.h>
 
-  template<typename T, typename Value>
-  using is_same_type = std::is_same<sqlpp::value_type_of_t<T>, sqlpp::value_type_of_t<Value>>;
+SQLPP_ALIAS_PROVIDER(v);
 
-#warning: implement serialize instead of type tests here!
-template <typename Value>
-void test_case_expression(Value v)
+int main(int, char* [])
 {
-  auto c_not_null = sqlpp::value(true);
-  auto c_maybe_null = sqlpp::value(::sqlpp::make_optional(false));
+  const auto cond = sqlpp::value(true);
+  const auto val = sqlpp::value(11);
+  const auto expr = sqlpp::value(17) + 4;
 
-  auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v));
+  // Case operands use parentheses where required.
+  SQLPP_COMPARE(case_when(cond).then(val).else_(val), "CASE WHEN 1 THEN 11 ELSE 11 END");
+  SQLPP_COMPARE(case_when(cond).then(val).else_(expr), "CASE WHEN 1 THEN 11 ELSE (17 + 4) END");
+  SQLPP_COMPARE(case_when(cond).then(expr).else_(val), "CASE WHEN 1 THEN (17 + 4) ELSE 11 END");
+  SQLPP_COMPARE(case_when(cond).then(expr).else_(expr), "CASE WHEN 1 THEN (17 + 4) ELSE (17 + 4) END");
+  SQLPP_COMPARE(case_when(false or cond).then(val).else_(val), "CASE WHEN (0 OR 1) THEN 11 ELSE 11 END");
+  SQLPP_COMPARE(case_when(false or cond).then(val).else_(expr), "CASE WHEN (0 OR 1) THEN 11 ELSE (17 + 4) END");
+  SQLPP_COMPARE(case_when(false or cond).then(expr).else_(val), "CASE WHEN (0 OR 1) THEN (17 + 4) ELSE 11 END");
+  SQLPP_COMPARE(case_when(false or cond).then(expr).else_(expr), "CASE WHEN (0 OR 1) THEN (17 + 4) ELSE (17 + 4) END");
 
-  using ValueType = sqlpp::value_type_of_t<decltype(v_not_null)>;
-  using OptValueType = sqlpp::value_type_of_t<decltype(v_maybe_null)>;
-
-  // Variations of nullable and non-nullable values
-  static_assert(is_same_type<decltype(case_when(c_not_null).then(v_not_null).else_(v_not_null)), ValueType>::value, "");
-  static_assert(is_same_type<decltype(case_when(c_not_null).then(v_not_null).else_(v_maybe_null)), OptValueType>::value, "");
-  static_assert(is_same_type<decltype(case_when(c_not_null).then(v_maybe_null).else_(v_not_null)), OptValueType>::value, "");
-  static_assert(is_same_type<decltype(case_when(c_not_null).then(v_maybe_null).else_(v_maybe_null)), OptValueType>::value, "");
-  static_assert(is_same_type<decltype(case_when(c_maybe_null).then(v_not_null).else_(v_not_null)), OptValueType>::value, "");
-  static_assert(is_same_type<decltype(case_when(c_maybe_null).then(v_not_null).else_(v_maybe_null)), OptValueType>::value, "");
-  static_assert(is_same_type<decltype(case_when(c_maybe_null).then(v_maybe_null).else_(v_not_null)), OptValueType>::value, "");
-  static_assert(is_same_type<decltype(case_when(c_maybe_null).then(v_maybe_null).else_(v_maybe_null)), OptValueType>::value, "");
-
-  // Incomplete case expressions have no value.
-  static_assert(not sqlpp::has_value_type<decltype(case_when(c_not_null))>::value, "");
-  static_assert(not sqlpp::has_value_type<decltype(case_when(c_not_null).then(v_not_null))>::value, "");
-
-  // Case expressions have the `as` member function.
-  static_assert(sqlpp::has_enabled_as<decltype(case_when(c_not_null).then(v_not_null).else_(v_not_null))>::value, "");
-
-  // Case expressions enable comparison member functions.
-  static_assert(sqlpp::has_enabled_comparison<decltype(case_when(c_not_null).then(v_not_null).else_(v_not_null))>::value, "");
-
-  // Between expressions have their arguments as nodes.
-  using L = typename std::decay<decltype(c_not_null)>::type;
-  using M = typename std::decay<decltype(v_not_null)>::type;
-  using R = typename std::decay<decltype(v_maybe_null)>::type;
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(case_when(c_not_null).then(v_not_null).else_(v_maybe_null))>, sqlpp::detail::type_vector<L, M, R>>::value, "");
+  return 0;
 }
-
-int main()
-{
-  // boolean
-  test_case_expression(bool{true});
-
-  // integral
-  test_case_expression(int8_t{7});
-  test_case_expression(int16_t{7});
-  test_case_expression(int32_t{7});
-  test_case_expression(int64_t{7});
-
-  // unsigned integral
-  test_case_expression(uint8_t{7});
-  test_case_expression(uint16_t{7});
-  test_case_expression(uint32_t{7});
-  test_case_expression(uint64_t{7});
-
-  // floating point
-  test_case_expression(float{7.7});
-  test_case_expression(double{7.7});
-
-  // text
-  test_case_expression('7');
-  test_case_expression("seven");
-  test_case_expression(std::string("seven"));
-  test_case_expression(::sqlpp::string_view("seven"));
-
-  // blob
-  test_case_expression(std::vector<uint8_t>{});
-
-  // date
-  test_case_expression(::sqlpp::chrono::day_point{});
-
-  // timestamp
-  test_case_expression(::sqlpp::chrono::microsecond_point{});
-  using minute_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
-  test_case_expression(minute_point{});
-
-  // time_of_day
-  test_case_expression(std::chrono::microseconds{});
-}
-

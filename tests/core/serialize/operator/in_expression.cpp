@@ -23,101 +23,38 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "../compare.h"
 #include <sqlpp11/sqlpp11.h>
 
-#warning: implement serialize instead of type tests here!
-namespace
+SQLPP_ALIAS_PROVIDER(v);
+
+int main(int, char* [])
 {
-  template <typename T>
-  using is_bool = std::is_same<sqlpp::value_type_of_t<T>, sqlpp::boolean>;
+  const auto val = sqlpp::value(17);
+  const auto expr = sqlpp::value(17) + 4;
+  using expr_t = typename std::decay<decltype(expr)>::type;
 
-  template <typename T>
-  using is_maybe_bool = std::is_same<sqlpp::value_type_of_t<T>, ::sqlpp::optional<sqlpp::boolean>>;
+  // IN expression with single select or other singe expression: No extra parentheses.
+  SQLPP_COMPARE(val.in(val), "17 IN (17)");
+  SQLPP_COMPARE(val.in(expr), "17 IN (17 + 4)");
+  SQLPP_COMPARE(val.in(select(val.as(v))), "17 IN (SELECT 17 AS v)");
+
+  SQLPP_COMPARE(val.not_in(val), "17 NOT IN (17)");
+  SQLPP_COMPARE(val.not_in(expr), "17 NOT IN (17 + 4)");
+  SQLPP_COMPARE(val.not_in(select(val.as(v))), "17 NOT IN (SELECT 17 AS v)");
+
+  // IN expressions with multiple arguments require inner parentheses.
+  SQLPP_COMPARE(val.in(1, select(val.as(v))), "17 IN (1, (SELECT 17 AS v))");
+  SQLPP_COMPARE(val.in(std::vector<int>{17, 18, 19}), "17 IN (17, 18, 19)");
+  SQLPP_COMPARE(val.in(std::vector<expr_t>{expr, expr, expr}), "17 IN ((17 + 4), (17 + 4), (17 + 4))");
+
+  SQLPP_COMPARE(val.not_in(1, select(val.as(v))), "17 NOT IN (1, (SELECT 17 AS v))");
+  SQLPP_COMPARE(val.not_in(std::vector<int>{17, 18, 19}), "17 NOT IN (17, 18, 19)");
+  SQLPP_COMPARE(val.not_in(std::vector<expr_t>{expr, expr, expr}), "17 NOT IN ((17 + 4), (17 + 4), (17 + 4))");
+
+  // IN expressions with no arguments would be an error in SQL, but the library interprets the intent gracefully.
+  SQLPP_COMPARE(val.in(std::vector<expr_t>{}), "0");
+  SQLPP_COMPARE(val.not_in(std::vector<expr_t>{}), "1");
+
+  return 0;
 }
-
-template <typename Value>
-void test_in_expression(Value v)
-{
-  using OptValue = ::sqlpp::optional<Value>;
-
-  auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v));
-
-  // Compare non-nullable with non-nullable.
-  static_assert(is_bool<decltype(in(v_not_null, std::make_tuple(v_not_null, v_not_null)))>::value, "");
-  static_assert(is_bool<decltype(in(v_not_null, std::vector<Value>{}))>::value, "");
-  static_assert(is_bool<decltype(in(v_not_null, select(v_not_null.as(sqlpp::alias::a))))>::value, "");
-
-  // Compare non-nullable with nullable.
-  static_assert(is_maybe_bool<decltype(in(v_not_null, std::make_tuple(v_not_null, v_maybe_null)))>::value, "");
-  static_assert(is_maybe_bool<decltype(in(v_not_null, std::vector<OptValue>{}))>::value, "");
-  static_assert(is_maybe_bool<decltype(in(v_not_null, select(v_maybe_null.as(sqlpp::alias::a))))>::value, "");
-
-  // Compare nullable with non-nullable.
-  static_assert(is_maybe_bool<decltype(in(v_maybe_null, std::make_tuple(v_not_null, v_not_null)))>::value, "");
-  static_assert(is_maybe_bool<decltype(in(v_maybe_null, std::vector<Value>{}))>::value, "");
-  static_assert(is_maybe_bool<decltype(in(v_maybe_null, select(v_not_null.as(sqlpp::alias::a))))>::value, "");
-
-  // Compare nullable with nullable.
-  static_assert(is_maybe_bool<decltype(in(v_maybe_null, std::make_tuple(v_not_null, v_maybe_null)))>::value, "");
-  static_assert(is_maybe_bool<decltype(in(v_maybe_null, std::vector<OptValue>{}))>::value, "");
-  static_assert(is_maybe_bool<decltype(in(v_maybe_null, select(v_maybe_null.as(sqlpp::alias::a))))>::value, "");
-
-  // IN expressions have the `as` member function.
-  static_assert(sqlpp::has_enabled_as<decltype(in(v_maybe_null, std::vector<OptValue>{}))>::value, "");
-
-  // IN expressions do not enable comparison member functions.
-  static_assert(not sqlpp::has_enabled_comparison<decltype(in(v_maybe_null, std::vector<OptValue>{}))>::value, "");
-
-  // IN expressions have their arguments as nodes.
-  using L = typename std::decay<decltype(v_maybe_null)>::type;
-  using R1= Value;
-  using R2= OptValue;
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(in(v_maybe_null, std::vector<Value>{}))>, sqlpp::detail::type_vector<L, R1>>::value, "");
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(in(v_maybe_null, v, ::sqlpp::make_optional(v)))>, sqlpp::detail::type_vector<L, R1, R2>>::value, "");
-}
-
-int main()
-{
-  // boolean
-  test_in_expression(bool{true});
-#warning reactivate
-#if 0
-  // integral
-  test_in_expression(int8_t{7});
-  test_in_expression(int16_t{7});
-  test_in_expression(int32_t{7});
-  test_in_expression(int64_t{7});
-
-  // unsigned integral
-  test_in_expression(uint8_t{7});
-  test_in_expression(uint16_t{7});
-  test_in_expression(uint32_t{7});
-  test_in_expression(uint64_t{7});
-
-  // floating point
-  test_in_expression(float{7.7});
-  test_in_expression(double{7.7});
-
-  // text
-  test_in_expression('7');
-  test_in_expression("seven");
-  test_in_expression(std::string("seven"));
-  test_in_expression(::sqlpp::string_view("seven"));
-
-  // blob
-  test_in_expression(std::vector<uint8_t>{});
-
-  // date
-  test_in_expression(::sqlpp::chrono::day_point{});
-
-  // timestamp
-  test_in_expression(::sqlpp::chrono::microsecond_point{});
-  using minute_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
-  test_in_expression(minute_point{});
-
-  // time_of_day
-  test_in_expression(std::chrono::microseconds{});
-#endif
-}
-

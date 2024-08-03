@@ -23,74 +23,66 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "../compare.h"
 #include <sqlpp11/sqlpp11.h>
 
-#warning: implement serialize instead of type tests here!
-namespace
+int main(int, char* [])
 {
-  template <typename T>
-  using is_bool = std::is_same<sqlpp::value_type_of_t<T>, sqlpp::boolean>;
+  const auto val = sqlpp::value(true);
+  const auto expr = sqlpp::value(17) > 15;
 
-  template <typename T>
-  using is_maybe_bool = std::is_same<sqlpp::value_type_of_t<T>, ::sqlpp::optional<sqlpp::boolean>>;
+  // Operands are enclosed in parenheses where required
+  SQLPP_COMPARE(val and val, "1 AND 1");
+  SQLPP_COMPARE(val and expr, "1 AND (17 > 15)");
+  SQLPP_COMPARE(expr and val, "(17 > 15) AND 1");
+  SQLPP_COMPARE(expr and expr, "(17 > 15) AND (17 > 15)");
+
+  SQLPP_COMPARE(val or val, "1 OR 1");
+  SQLPP_COMPARE(val or expr, "1 OR (17 > 15)");
+  SQLPP_COMPARE(expr or val, "(17 > 15) OR 1");
+  SQLPP_COMPARE(expr or expr, "(17 > 15) OR (17 > 15)");
+
+  SQLPP_COMPARE(not val, "NOT 1");
+  SQLPP_COMPARE(not expr, "NOT (17 > 15)");
+
+  // Chains are not nested in parentheses.
+  SQLPP_COMPARE(val and val and val and val and val, "1 AND 1 AND 1 AND 1 AND 1");
+  SQLPP_COMPARE(val or val or val or val or val, "1 OR 1 OR 1 OR 1 OR 1");
+
+  // Broken chains use parentheses for the respective blocks.
+  SQLPP_COMPARE((val and val and val) or (val and val), "(1 AND 1 AND 1) OR (1 AND 1)");
+  SQLPP_COMPARE((val or val or val) and (val or val), "(1 OR 1 OR 1) AND (1 OR 1)");
+
+  // NOT is not chained gracefully, but hey, don't do that anyways.
+  SQLPP_COMPARE(not not not val, "NOT (NOT (NOT 1))");
+
+  // Operands are enclosed in parenheses where required or completely dropped if inactive
+  SQLPP_COMPARE(val and dynamic(true, val), "1 AND 1");
+  SQLPP_COMPARE(val and dynamic(true, expr), "1 AND (17 > 15)");
+  SQLPP_COMPARE(expr and dynamic(true, val), "(17 > 15) AND 1");
+  SQLPP_COMPARE(expr and dynamic(true, expr), "(17 > 15) AND (17 > 15)");
+
+  SQLPP_COMPARE(val or dynamic(true, val), "1 OR 1");
+  SQLPP_COMPARE(val or dynamic(true, expr), "1 OR (17 > 15)");
+  SQLPP_COMPARE(expr or dynamic(true, val), "(17 > 15) OR 1");
+  SQLPP_COMPARE(expr or dynamic(true, expr), "(17 > 15) OR (17 > 15)");
+
+  SQLPP_COMPARE(val and dynamic(false, val), "1");
+  SQLPP_COMPARE(val and dynamic(false, expr), "1");
+  SQLPP_COMPARE(expr and dynamic(false, val), "17 > 15");
+  SQLPP_COMPARE(expr and dynamic(false, expr), "17 > 15");
+
+  SQLPP_COMPARE(val or dynamic(false, val), "1");
+  SQLPP_COMPARE(val or dynamic(false, expr), "1");
+  SQLPP_COMPARE(expr or dynamic(false, val), "17 > 15");
+  SQLPP_COMPARE(expr or dynamic(false, expr), "17 > 15");
+
+  // Chained partially dynamic expressions
+  SQLPP_COMPARE(val and dynamic(true, val) and expr, "1 AND 1 AND (17 > 15)");
+  SQLPP_COMPARE(val and dynamic(false, val) and expr, "1 AND (17 > 15)");
+
+  SQLPP_COMPARE(val or dynamic(true, val) or expr, "1 OR 1 OR (17 > 15)");
+  SQLPP_COMPARE(val or dynamic(false, val) or expr, "1 OR (17 > 15)");
+
+  return 0;
 }
-
-template<typename Value>
-void test_logical_expression(Value v)
-{
-  auto v_not_null= sqlpp::value(v);
-  auto v_maybe_null= sqlpp::value(::sqlpp::make_optional(v));
-
-  // Combine non-nullable with non-nullable.
-  static_assert(is_bool<decltype(v_not_null and v_not_null)>::value, "");
-  static_assert(is_bool<decltype(v_not_null or v_not_null)>::value, "");
-
-  static_assert(is_bool<decltype(v_not_null and dynamic(true, v_not_null))>::value, "");
-  static_assert(is_bool<decltype(v_not_null or dynamic(true, v_not_null))>::value, "");
-
-  // Combine nullable with non-nullable.
-  static_assert(is_maybe_bool<decltype(v_maybe_null and v_not_null)>::value, "");
-  static_assert(is_maybe_bool<decltype(v_maybe_null or v_not_null)>::value, "");
-
-  static_assert(is_maybe_bool<decltype(v_maybe_null and dynamic(true, v_not_null))>::value, "");
-  static_assert(is_maybe_bool<decltype(v_maybe_null or dynamic(true, v_not_null))>::value, "");
-
-  // Combine non-nullable with nullable.
-  static_assert(is_maybe_bool<decltype(v_not_null and v_maybe_null)>::value, "");
-  static_assert(is_maybe_bool<decltype(v_not_null or v_maybe_null)>::value, "");
-
-  static_assert(is_maybe_bool<decltype(v_not_null and dynamic(true, v_maybe_null))>::value, "");
-  static_assert(is_maybe_bool<decltype(v_not_null or dynamic(true, v_maybe_null))>::value, "");
-
-  // Combine nullable with nullable.
-  static_assert(is_maybe_bool<decltype(v_maybe_null and v_maybe_null)>::value, "");
-  static_assert(is_maybe_bool<decltype(v_maybe_null or v_maybe_null)>::value, "");
-
-  static_assert(is_maybe_bool<decltype(v_maybe_null and dynamic(true, v_maybe_null))>::value, "");
-  static_assert(is_maybe_bool<decltype(v_maybe_null or dynamic(true, v_maybe_null))>::value, "");
-
-  // not.
-  static_assert(is_bool<decltype(not(v_not_null))>::value, "");
-  static_assert(is_maybe_bool<decltype(not(v_maybe_null))>::value, "");
-
-  // Logical expressions have the `as` member function.
-  static_assert(sqlpp::has_enabled_as<decltype(v_not_null and v_maybe_null)>::value, "");
-  static_assert(sqlpp::has_enabled_as<decltype(v_maybe_null or dynamic(true, v_maybe_null))>::value, "");
-
-  // Logical expressions do not enable comparison member functions.
-  static_assert(not sqlpp::has_enabled_comparison<decltype(v_not_null == v_maybe_null)>::value, "");
-  static_assert(not sqlpp::has_enabled_comparison<decltype(v_maybe_null or dynamic(true, v_maybe_null))>::value, "");
-
-  // Logical expressions have their arguments as nodes.
-  using L = typename std::decay<decltype(v_not_null)>::type;
-  using R = typename std::decay<decltype(v_maybe_null)>::type;
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(v_not_null and v_maybe_null)>, sqlpp::detail::type_vector<L, R>>::value, "");
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(v_not_null and dynamic(true, v_maybe_null))>, sqlpp::detail::type_vector<L, sqlpp::dynamic_t<R>>>::value, "");
-}
-
-int main()
-{
-  // boolean
-  test_logical_expression(bool{true});
-}
-

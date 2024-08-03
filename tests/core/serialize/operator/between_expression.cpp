@@ -23,91 +23,24 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "MockDb.h"
-#include "Sample.h"
+#include "../compare.h"
 #include <sqlpp11/sqlpp11.h>
 
-#warning: implement serialize instead of type tests here!
-namespace
+int main(int, char* [])
 {
-  auto db = MockDb{};
+  const auto val = sqlpp::value(1);
+  const auto expr = sqlpp::value(17) + 4;
 
-  template <typename T>
-  using is_bool = std::is_same<sqlpp::value_type_of_t<T>, sqlpp::boolean>;
+  // Operands are enclosed in parenheses where required
+  SQLPP_COMPARE(val.between(val, val), "1 BETWEEN 1 AND 1");
+  SQLPP_COMPARE(val.between(val, expr), "1 BETWEEN 1 AND (17 + 4)");
+  SQLPP_COMPARE(val.between(expr, val), "1 BETWEEN (17 + 4) AND 1");
+  SQLPP_COMPARE(val.between(expr, expr), "1 BETWEEN (17 + 4) AND (17 + 4)");
+  SQLPP_COMPARE(expr.between(val, val), "(17 + 4) BETWEEN 1 AND 1");
+  SQLPP_COMPARE(expr.between(val, expr), "(17 + 4) BETWEEN 1 AND (17 + 4)");
+  SQLPP_COMPARE(expr.between(expr, val), "(17 + 4) BETWEEN (17 + 4) AND 1");
+  SQLPP_COMPARE(expr.between(expr, expr), "(17 + 4) BETWEEN (17 + 4) AND (17 + 4)");
 
-  template <typename T>
-  using is_maybe_bool = std::is_same<sqlpp::value_type_of_t<T>, ::sqlpp::optional<sqlpp::boolean>>;
+  SQLPP_COMPARE(val.between(val, val) and true, "(1 BETWEEN 1 AND 1) AND 1");
+  return 0;
 }
-
-template <typename Value>
-void test_between_expression(Value v)
-{
-  auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v));
-
-  // Variations of nullable and non-nullable values
-  static_assert(is_bool<decltype(between(v_not_null, v_not_null, v_not_null))>::value, "");
-  static_assert(is_maybe_bool<decltype(between(v_not_null, v_not_null, v_maybe_null))>::value, "");
-  static_assert(is_maybe_bool<decltype(between(v_not_null, v_maybe_null, v_not_null))>::value, "");
-  static_assert(is_maybe_bool<decltype(between(v_not_null, v_maybe_null, v_maybe_null))>::value, "");
-  static_assert(is_maybe_bool<decltype(between(v_maybe_null, v_not_null, v_not_null))>::value, "");
-  static_assert(is_maybe_bool<decltype(between(v_maybe_null, v_not_null, v_maybe_null))>::value, "");
-  static_assert(is_maybe_bool<decltype(between(v_maybe_null, v_maybe_null, v_not_null))>::value, "");
-  static_assert(is_maybe_bool<decltype(between(v_maybe_null, v_maybe_null, v_maybe_null))>::value, "");
-
-  // Between expressions have the `as` member function.
-  static_assert(sqlpp::has_enabled_as<decltype(between(v_not_null, v_not_null, v_not_null))>::value, "");
-
-  // Between expressions do not enable comparison member functions.
-  static_assert(not sqlpp::has_enabled_comparison<decltype(between(v_not_null, v_not_null, v_not_null))>::value, "");
-
-  // Between expressions have their arguments as nodes.
-  using L = typename std::decay<decltype(v_not_null)>::type;
-  using M = Value;
-  using R = typename std::decay<decltype(v_maybe_null)>::type;
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(between(v_not_null, v, v_maybe_null))>, sqlpp::detail::type_vector<L, M, R>>::value, "");
-}
-
-int main()
-{
-  // boolean
-  test_between_expression(bool{true});
-
-  // integral
-  test_between_expression(int8_t{7});
-  test_between_expression(int16_t{7});
-  test_between_expression(int32_t{7});
-  test_between_expression(int64_t{7});
-
-  // unsigned integral
-  test_between_expression(uint8_t{7});
-  test_between_expression(uint16_t{7});
-  test_between_expression(uint32_t{7});
-  test_between_expression(uint64_t{7});
-
-  // floating point
-  test_between_expression(float{7.7});
-  test_between_expression(double{7.7});
-
-  // text
-  test_between_expression('7');
-  test_between_expression("seven");
-  test_between_expression(std::string("seven"));
-  test_between_expression(::sqlpp::string_view("seven"));
-
-  // blob
-  test_between_expression(std::vector<uint8_t>{});
-
-  // date
-  test_between_expression(::sqlpp::chrono::day_point{});
-
-  // timestamp
-  test_between_expression(::sqlpp::chrono::microsecond_point{});
-  using minute_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
-  test_between_expression(minute_point{});
-
-  // time_of_day
-  test_between_expression(std::chrono::microseconds{});
-
-}
-

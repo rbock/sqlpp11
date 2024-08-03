@@ -70,13 +70,6 @@ namespace sqlpp
   template <typename L, typename R1, typename R2>
   struct requires_parentheses<between_expression<L, R1, R2>> : public std::true_type{};
 
-#warning: Need tests for between expressions
-  template <typename L, typename R1, typename R2, typename = check_between_args<L, R1, R2>>
-  constexpr auto between(L l, R1 r1, R2 r2) -> between_expression<L, R1, R2>
-  {
-    return {std::move(l), std::move(r1), std::move(r2)};
-  }
-
   template <typename Context, typename L, typename R1, typename R2>
   auto serialize(Context& context, const between_expression<L, R1, R2>& t) -> Context&
   {
@@ -86,6 +79,12 @@ namespace sqlpp
     context << " AND ";
     serialize_operand(context, t._r2);
     return context;
+  }
+
+  template <typename L, typename R1, typename R2, typename = check_between_args<L, R1, R2>>
+  constexpr auto between(L l, R1 r1, R2 r2) -> between_expression<L, R1, R2>
+  {
+    return {std::move(l), std::move(r1), std::move(r2)};
   }
 
 }  // namespace sqlpp
