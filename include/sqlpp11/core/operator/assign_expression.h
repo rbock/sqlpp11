@@ -77,22 +77,7 @@ namespace sqlpp
     using type = R;
   };
 
-  /*
-  template <typename L, typename R>
-  struct column_of<assign_t<L, R>>
-  {
-    using type = L;
-  };
-
-  template <typename L, typename R>
-  constexpr auto requires_braces_v<assign_t<L, R>> = true;
-
-  template <typename Context, typename L, typename R>
-  [[nodiscard]] auto to_sql_string(Context& context, const assign_t<L, R>& t)
-  {
-    return to_sql_string(context, t.column) + " = " + to_sql_string(context, embrace(t.value));
-  }
-  */
+#warning does this require braces?
 
   template <typename Context, typename L, typename Operator, typename R>
   Context& serialize(Context& context, const assign_expression<L, Operator, R>& t)

@@ -95,26 +95,22 @@ namespace sqlpp
     using type = detail::type_vector<L, R>;
   };
 
+  template <typename L, typename Operator, typename R>
+  struct requires_braces<in_expression<L, Operator, std::vector<R>>> : public std::true_type{};
+
   template <typename L, typename Operator, typename... Args>
   struct nodes_of<in_expression<L, Operator, std::tuple<Args...>>>
   {
     using type = detail::type_vector<L, Args...>;
   };
 
-  /*
-
-  template <typename L, typename Operator, typename R>
-  constexpr auto requires_braces_v<in_expression<L, operator, std::vector<R>>> = true;
-
-  template <typename L, typename... Args>
-  constexpr auto requires_braces_v<in_expression<L, std::tuple<Args...>>> = true;
-
-  */
+  template <typename L, typename Operator, typename... Args>
+  struct requires_braces<in_expression<L, Operator, std::tuple<Args...>>> : public std::true_type{};
 
   template <typename Context, typename L, typename Operator, typename... Args>
-  Context& serialize(Context& context, const in_expression<L, Operator, std::tuple<Args...>>& t)
+  auto serialize(Context& context, const in_expression<L, Operator, std::tuple<Args...>>& t) -> Context&
   {
-    serialize(context, t._l);
+    serialize_operand(context, t._l);
     context << Operator::symbol << "(";
     if (sizeof...(Args) == 1)
     {
@@ -122,7 +118,7 @@ namespace sqlpp
     }
     else
     {
-#warning: interpret_tuple arguments should be reverted, too
+#warning: interpret_tuple arguments should take Context first, too
       interpret_tuple(t._r, ',', context);
     }
     context << ')';

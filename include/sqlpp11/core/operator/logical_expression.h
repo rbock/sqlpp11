@@ -31,8 +31,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sqlpp11/core/operator/enable_as.h>
 #include <sqlpp11/core/query/dynamic.h>
 #include <sqlpp11/core/noop.h>
-//#include <sqlpp11/embrace.h>
-//#include <sqlpp11/to_sql_string.h>
 #include <sqlpp11/core/type_traits.h>
 
 namespace sqlpp
@@ -71,45 +69,18 @@ namespace sqlpp
     using type = detail::type_vector<L, R>;
   };
 
-  /*
   template <typename L, typename Operator, typename R>
-  struct value_type_of_t<logical_binary_expression<L, Operator, R>>
-  {
-    using type = bool;
-  };
+  struct requires_braces<logical_expression<L, Operator, R>> : public std::true_type{};
 
-  template <typename L, typename Operator, typename R>
-  constexpr auto requires_braces_v<logical_binary_expression<L, Operator, R>> = true;
-
-  template <typename Context, typename L, typename Operator, typename R>
-  [[nodiscard]] auto to_sql_string(Context& context, const logical_binary_expression<L, Operator, R>& t)
-  {
-    return to_sql_string(context, embrace(t._l)) + Operator::symbol + to_sql_string(context, embrace(t._r));
-  }
-
-  template <typename Context, typename Operator, typename R>
-  [[nodiscard]] auto to_sql_string(Context& context, const logical_binary_expression<none_t, Operator, R>& t)
-  {
-    return Operator::symbol + to_sql_string(context, embrace(t._r));
-  }
-
-  template <typename Context, typename L1, typename Operator, typename R1, typename R2>
-  [[nodiscard]] auto to_sql_string(Context& context, const logical_binary_expression<logical_binary_expression<L1, Operator, R1>, Operator, R2>& t)
-  {
-    return to_sql_string(context, t._l) + Operator::symbol + to_sql_string(context, embrace(t._r));
-  }
-  */
   template <typename Context, typename L, typename Operator, typename R>
   auto serialize_impl(Context& context, const logical_expression<L, Operator, R>& t) -> Context&
   {
-    context << "(";
     serialize_operand(context, t._l);
     context << Operator::symbol;
     serialize_operand(context, t._r);
-    context << ")";
     return context;
   }
-  
+
   template <typename Context, typename L, typename Operator, typename R>
   auto serialize(Context& context, const logical_expression<L, Operator, R>& t) -> Context&
   {

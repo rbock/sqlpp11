@@ -39,11 +39,6 @@ namespace sqlpp
     using _traits = make_traits<value_type_of_t<Expression>, tag::is_selectable, tag::is_alias>;
 
 #warning Maybe make constructor of expressions private to force construction in the respective functions?
-    /*
-    static_assert(is_expression_t<Expression>::value, "invalid argument for an expression alias");
-    static_assert(not is_alias_t<Expression>::value, "cannot create an alias of an alias");
-    */
-
     constexpr as_expression(Expression expression) : _expression(std::move(expression))
     {
     }

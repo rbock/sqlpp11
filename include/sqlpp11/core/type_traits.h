@@ -843,6 +843,10 @@ namespace sqlpp
   template <typename Statement, template <typename> class Predicate>
   using has_policy_t = typename has_policy_impl<Statement, Predicate>::type;
 
+#warning rename to requires_parentheses
+  template<typename T>
+  struct requires_braces : public std::false_type {};
+
   struct no_context_t
   {
   };
@@ -860,7 +864,6 @@ namespace sqlpp
 
   template <typename T>
     struct is_sort_order : public std::false_type {};
-
 
   template <typename Db>
   using serializer_context_of = typename serializer_context_of_impl<Db>::type;

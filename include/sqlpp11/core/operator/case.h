@@ -86,6 +86,9 @@ namespace sqlpp
   {
   };
 
+  template <typename When, typename Then, typename Else>
+  struct requires_braces<case_t<When, Then, Else>> : public std::true_type{};
+
   template <typename When, typename Then>
   class case_then_t
   {
@@ -156,13 +159,13 @@ namespace sqlpp
   template <typename Context, typename When, typename Then, typename Else>
   Context& serialize(Context& context, const case_t<When, Then, Else>& t)
   {
-    context << "(CASE WHEN ";
+    context << "CASE WHEN ";
     serialize(context, t._when);
     context << " THEN ";
     serialize(context, t._then);
     context << " ELSE ";
     serialize(context, t._else);
-    context << " END)";
+    context << " END";
     return context;
   }
 

@@ -84,48 +84,15 @@ namespace sqlpp
     using type = detail::type_vector<L, R>;
   };
 
-
-#if 0
-  SQLPP_WRAPPED_STATIC_ASSERT(assert_comparison_operands_are_compatible,
-                              "comparison operands must have compatible value types");
-
-  template <typename L, typename R>
-  constexpr auto check_comparison_args()
-  {
-    if constexpr (not values_are_compatible_v<L, R>)
-    {
-      return failed<assert_comparison_operands_are_compatible>{};
-    }
-    else
-    {
-      return succeeded{};
-    }
-  }
-
   template <typename L, typename Operator, typename R>
-  struct value_type_of_t<comparison_expression<L, Operator, R>>
-  {
-    using type = bool;
-  };
-
-  template <typename L, typename Operator, typename R>
-  constexpr auto requires_braces_v<comparison_expression<L, Operator, R>> = true;
-
-  template <typename Context, typename L, typename Operator, typename R>
-  [[nodiscard]] auto to_sql_string(Context& context, const comparison_expression<L, Operator, R>& t)
-  {
-    return to_sql_string(context, embrace(t.l)) + Operator::symbol + to_sql_string(context, embrace(t.r));
-  }
-#endif
+  struct requires_braces<comparison_expression<L, Operator, R>> : public std::true_type{};
 
   template <typename Context, typename L, typename Operator, typename R>
   auto serialize(Context& context, const comparison_expression<L, Operator, R>& t) -> Context&
   {
-    context << "(";
     serialize_operand(context, t._l);
     context << Operator::symbol;
     serialize_operand(context, t._r);
-    context << ")";
     return context;
   }
 

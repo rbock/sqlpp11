@@ -67,38 +67,8 @@ namespace sqlpp
     using type = detail::type_vector<L, R1, R2>;
   };
 
-
-  /*
-
-  template <typename L, typename... Args>
-  struct nodes_of<between_t<L, Args...>>
-  {
-    using type = type_vector<L, Args...>;
-  };
-
-  template <typename L, typename... Args>
-  constexpr auto in(L l, Args... args)
-      -> ::sqlpp::enable_if_t<((sizeof...(Args) > 0) and ... and values_are_compatible_v<L, Args>), between_t<L, Args...>>
-  {
-    return between_t<L, Args...>{l, std::tuple{args...}};
-  }
-
-  template <typename L, typename... Args>
-  constexpr auto requires_braces_v<between_t<L, Args...>> = true;
-
-  template <typename Context, typename L, typename... Args>
-  [[nodiscard]] auto to_sql_string(Context& context, const between_t<L, Args...>& t)
-  {
-    if constexpr (sizeof...(Args) == 1)
-    {
-      return to_sql_string(context, embrace(t.l)) + " IN(" + to_sql_string(context, std::get<0>(t.args)) + ")";
-    }
-    else
-    {
-      return to_sql_string(context, embrace(t.l)) + " IN(" + tuple_to_sql_string(context, ", ", t.args) + ")";
-    }
-  }
-  */
+  template <typename L, typename R1, typename R2>
+  struct requires_braces<between_expression<L, R1, R2>> : public std::true_type{};
 
 #warning: Need tests for between expressions
   template <typename L, typename R1, typename R2, typename = check_between_args<L, R1, R2>>
@@ -107,52 +77,15 @@ namespace sqlpp
     return {std::move(l), std::move(r1), std::move(r2)};
   }
 
-#if 0 // original serialize implementation
-  template <typename Context, typename Operand, typename Arg, typename... Args>
-  Context& serialize(Context& context, const between_t<Operand, Arg, Args...>& t)
+  template <typename Context, typename L, typename R1, typename R2>
+  auto serialize(Context& context, const between_expression<L, R1, R2>& t) -> Context&
   {
-    serialize(context, t._operand);
-    context << " IN(";
-    if (sizeof...(Args) == 0)
-    {
-      serialize(context, std::get<0>(t._args));
-    }
-    else
-    {
-      interpret_tuple(t._args, ',', context);
-    }
-    context << ')';
+    serialize_operand(context, t._l);
+    context << " BETWEEN ";
+    serialize_operand(context, t._r1);
+    context << " AND ";
+    serialize_operand(context, t._r2);
     return context;
   }
-
-  template <typename Context, typename Operand>
-  Context& serialize(Context& context, const between_t<Operand>&)
-  {
-    serialize(context, boolean_operand{false});
-    return context;
-  }
-
-  template <typename Container>
-  struct value_list_t;
-
-  template <typename Context, typename Operand, typename Container>
-  Context& serialize(Context& context, const between_t<Operand, value_list_t<Container>>& t)
-  {
-    const auto& value_list = std::get<0>(t._args);
-    if (value_list._container.empty())
-    {
-      serialize(context, boolean_operand{false});
-    }
-    else
-    {
-      serialize(context, t._operand);
-      context << " IN(";
-      serialize(context, value_list);
-      context << ')';
-    }
-    return context;
-  }
-
-#endif
 
 }  // namespace sqlpp

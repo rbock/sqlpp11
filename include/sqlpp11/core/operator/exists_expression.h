@@ -66,7 +66,7 @@ namespace sqlpp
   template <typename Context, typename Select>
   auto serialize(Context& context, const exists_expression<Select>& t) -> Context&
   {
-    context << "EXISTS(";
+    context << "EXISTS (";
     serialize(context, t._select);
     context << ")";
     return context;

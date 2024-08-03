@@ -24,7 +24,6 @@
 
 set(test_files
     logical_expression.cpp
-    Any.cpp
     As.cpp
     Avg.cpp
     Blob.cpp
@@ -66,3 +65,5 @@ foreach(test_file IN LISTS test_files)
         COMMAND sqlpp11_core_serialize ${test}
     )
 endforeach()
+
+add_subdirectory(operator)
