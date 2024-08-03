@@ -34,6 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace sqlpp
 {
   // To be used as CRTP base for expressions that should offer the comparison member functions.
+  // This also enables sort order member functions
   template <typename Expr>
   class enable_comparison
   {

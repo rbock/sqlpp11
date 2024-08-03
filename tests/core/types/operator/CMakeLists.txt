@@ -42,6 +42,8 @@ test_compile(between_expression)
 test_compile(bit_expression)
 test_compile(case_expression)
 test_compile(comparison_expression)
+test_compile(exists_expression)
 test_compile(in_expression)
 test_compile(logical_expression)
+test_compile(sort_order_expression)
 

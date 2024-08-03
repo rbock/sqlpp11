@@ -25,11 +25,6 @@
 
 #include <sqlpp11/sqlpp11.h>
 
-SQLPP_ALIAS_PROVIDER(cheese);
-
-template <typename T, typename ValueType>
-using is_select_column_value_type = std::is_same<sqlpp::select_column_value_type_of_t<T>, ValueType>;
-
 template<typename Value>
 void test_as_expression(Value v)
 {
@@ -38,38 +33,39 @@ void test_as_expression(Value v)
 
   auto v_not_null= sqlpp::value(v);
   auto v_maybe_null= sqlpp::value(::sqlpp::make_optional(v));
-  auto v_dynamic_not_null = dynamic(true, sqlpp::value(v));
-  auto v_dynamic_maybe_null = dynamic(true, sqlpp::value(::sqlpp::make_optional(v)));
 
-  static_assert(not sqlpp::has_value_type<decltype(v_not_null.as(cheese))>::value, "");
-  static_assert(not sqlpp::has_value_type<decltype(v_maybe_null.as(cheese))>::value, "");
-  static_assert(not sqlpp::has_value_type<decltype(v_dynamic_not_null.as(cheese))>::value, "");
-  static_assert(not sqlpp::has_value_type<decltype(v_dynamic_maybe_null.as(cheese))>::value, "");
+  // Sort order expressions have no value.
+  static_assert(not sqlpp::has_value_type<decltype(v_not_null.asc())>::value, "");
+  static_assert(not sqlpp::has_value_type<decltype(v_not_null.desc())>::value, "");
+  static_assert(not sqlpp::has_value_type<decltype(v_not_null.order(sqlpp::sort_type::asc))>::value, "");
 
-  static_assert(not sqlpp::has_name<decltype(v_not_null.as(cheese))>::value, "");
-  static_assert(not sqlpp::has_name<decltype(v_maybe_null.as(cheese))>::value, "");
-  static_assert(not sqlpp::has_name<decltype(v_dynamic_not_null.as(cheese))>::value, "");
-  static_assert(not sqlpp::has_name<decltype(v_dynamic_maybe_null.as(cheese))>::value, "");
+  static_assert(not sqlpp::has_value_type<decltype(v_maybe_null.asc())>::value, "");
+  static_assert(not sqlpp::has_value_type<decltype(v_maybe_null.desc())>::value, "");
+  static_assert(not sqlpp::has_value_type<decltype(v_maybe_null.order(sqlpp::sort_type::asc))>::value, "");
 
-  static_assert(is_select_column_value_type<decltype(v_not_null.as(cheese)), ValueType>::value, "");
-  static_assert(is_select_column_value_type<decltype(v_maybe_null.as(cheese)), OptValueType>::value, "");
-  static_assert(is_select_column_value_type<decltype(v_dynamic_not_null.as(cheese)), OptValueType>::value, "");
-  static_assert(is_select_column_value_type<decltype(v_dynamic_maybe_null.as(cheese)), OptValueType>::value, "");
+  static_assert(not sqlpp::has_value_type<decltype(dynamic(true, v_not_null.asc()))>::value, "");
+  static_assert(not sqlpp::has_value_type<decltype(dynamic(true, v_not_null.desc()))>::value, "");
+  static_assert(not sqlpp::has_value_type<decltype(dynamic(true, v_not_null.order(sqlpp::sort_type::asc)))>::value, "");
 
-  static_assert(sqlpp::select_column_has_name<decltype(v_not_null.as(cheese))>::value, "");
-  static_assert(sqlpp::select_column_has_name<decltype(v_maybe_null.as(cheese))>::value, "");
-  static_assert(sqlpp::select_column_has_name<decltype(v_dynamic_not_null.as(cheese))>::value, "");
-  static_assert(sqlpp::select_column_has_name<decltype(v_dynamic_maybe_null.as(cheese))>::value, "");
+  static_assert(not sqlpp::has_value_type<decltype(dynamic(true, v_maybe_null.asc()))>::value, "");
+  static_assert(not sqlpp::has_value_type<decltype(dynamic(true, v_maybe_null.desc()))>::value, "");
+  static_assert(not sqlpp::has_value_type<decltype(dynamic(true, v_maybe_null.order(sqlpp::sort_type::asc)))>::value, "");
 
-  // AS expressions have do not enable the `as` member function.
-  static_assert(not sqlpp::has_enabled_as<decltype(v_not_null.as(cheese))>::value, "");
+  // Sort order expressions have no name.
+  static_assert(not sqlpp::has_name<decltype(v_not_null.asc())>::value, "");
+  static_assert(not sqlpp::has_name<decltype(v_maybe_null.asc())>::value, "");
+  static_assert(not sqlpp::has_name<decltype(dynamic(true, v_not_null.asc()))>::value, "");
+  static_assert(not sqlpp::has_name<decltype(dynamic(true, v_maybe_null.asc()))>::value, "");
 
-  // AS expressions do not enable comparison member functions.
-  static_assert(not sqlpp::has_enabled_comparison<decltype(v_not_null.as(cheese))>::value, "");
+  // Sort order expression do not enable the `as` member function.
+  static_assert(not sqlpp::has_enabled_as<decltype(v_not_null.asc())>::value, "");
 
-  // AS expressions have their arguments as nodes.
+  // Sort order expressions do not enable comparison member functions.
+  static_assert(not sqlpp::has_enabled_comparison<decltype(v_not_null.asc())>::value, "");
+
+  // Sort order expressions have their arguments as nodes.
   using L = typename std::decay<decltype(v_not_null)>::type;
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(v_not_null.as(cheese))>, sqlpp::detail::type_vector<L>>::value, "");
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(v_not_null.asc())>, sqlpp::detail::type_vector<L>>::value, "");
 }
 
 int main()
@@ -112,6 +108,5 @@ int main()
 
   // time_of_day
   test_as_expression(std::chrono::microseconds{});
-
 }
 

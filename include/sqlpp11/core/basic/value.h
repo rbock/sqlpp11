@@ -26,19 +26,23 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/operator/as_expression.h>
+#include <sqlpp11/core/operator/enable_as.h>
+#include <sqlpp11/core/operator/enable_comparison.h>
 #include <sqlpp11/core/type_traits.h>
 
 namespace sqlpp
 {
   template <typename T>
-  struct value_t
+  struct value_t: 
+    public enable_as<value_t<T>>,
+    public enable_comparison<value_t<T>>
   {
-    template <typename alias_provider>
-    as_expression<value_t, alias_provider> as(const alias_provider& /*unused*/) const
-    {
-      return {*this};
-    }
+    value_t(T t): _value(std::move(t)) {}
+    value_t(const value_t&) = default;
+    value_t(value_t&&) = default;
+    value_t& operator=(const value_t&) = default;
+    value_t& operator=(value_t&&) = default;
+    ~value_t() = default;
 
     T _value;
   };

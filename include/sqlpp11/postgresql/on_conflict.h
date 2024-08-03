@@ -178,6 +178,7 @@ namespace sqlpp
           return {static_cast<const derived_statement_t<Policies>&>(*this), on_conflict_data_t<no_data_t>{no_data_t{}}};
         }
 
+#warning: Allow for more than one column, see #586
         template <typename ConflictTarget>
         auto on_conflict(ConflictTarget column) const -> _new_statement_t<consistent_t, on_conflict_t<ConflictTarget>>
         {

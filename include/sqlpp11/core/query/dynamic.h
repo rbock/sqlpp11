@@ -27,6 +27,7 @@
  */
 
 #include <sqlpp11/core/type_traits.h>
+#include <sqlpp11/core/operator/sort_order_expression.h>
 #include <sqlpp11/core/operator/enable_as.h>
 #include <sqlpp11/core/serialize.h>
 
@@ -92,6 +93,12 @@ namespace sqlpp
 
   template <typename Expr, typename = check_dynamic_args<Expr>>
   auto dynamic(bool condition, Expr t) -> dynamic_t<Expr>
+  {
+    return {condition, std::move(t)};
+  }
+
+  template <typename Expr, typename = check_dynamic_args<Expr>>
+  auto dynamic(bool condition, sort_order_expression<Expr> t) -> dynamic_t<sort_order_expression<Expr>>
   {
     return {condition, std::move(t)};
   }
