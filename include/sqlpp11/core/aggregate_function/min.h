@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2020, Roland Bock, MacDue
+ * Copyright (c) 2013, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -26,6 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp11/core/name/alias_provider.h>
 #include <sqlpp11/core/operator/enable_as.h>
 #include <sqlpp11/core/operator/enable_comparison.h>
 #include <sqlpp11/core/aggregate_function/enable_over.h>
@@ -34,6 +35,11 @@
 
 namespace sqlpp
 {
+  namespace alias
+  {
+    SQLPP_ALIAS_PROVIDER(min);
+  }
+
   template <typename Flag, typename Expr>
   struct min_t : public enable_as<min_t<Flag, Expr>>,
                  public enable_comparison<min_t<Flag, Expr>>,
@@ -54,6 +60,11 @@ namespace sqlpp
     ~min_t() = default;
 
     Expr _expr;
+  };
+
+  template <typename Flag, typename Expr>
+  struct name_tag_of<min_t<Flag, Expr>>: public name_tag_of<alias::min_t>
+  {
   };
 
   template <typename Flag, typename Expr>

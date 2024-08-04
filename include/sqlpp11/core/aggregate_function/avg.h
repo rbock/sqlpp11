@@ -26,13 +26,20 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp11/core/name/alias_provider.h>
 #include <sqlpp11/core/operator/enable_as.h>
 #include <sqlpp11/core/operator/enable_comparison.h>
 #include <sqlpp11/core/aggregate_function/enable_over.h>
+#include <sqlpp11/core/clause/select_flags.h>
 #include <sqlpp11/core/type_traits.h>
 
 namespace sqlpp
 {
+  namespace alias
+  {
+    SQLPP_ALIAS_PROVIDER(avg);
+  }
+
   template <typename Flag, typename Expr>
   struct avg_t : public enable_as<avg_t<Flag, Expr>>,
                  public enable_comparison<avg_t<Flag, Expr>>,
@@ -54,6 +61,11 @@ namespace sqlpp
     ~avg_t() = default;
 
     Expr _expr;
+  };
+
+  template <typename Flag, typename Expr>
+  struct name_tag_of<avg_t<Flag, Expr>>: public name_tag_of<alias::avg_t>
+  {
   };
 
   template <typename Flag, typename Expr>

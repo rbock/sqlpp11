@@ -25,18 +25,7 @@ Version 1.0 used to have `is_equal_to_or_null` which translated to either `=` or
 The library now offers `is_distinct_from` and `is_not_distinct_from` which safely compares with actual values and `NULL`.
 
 # Selecting aggregate functions
-In version 1.0, many functions automatically came with a name. This was convenient for selecting, but also rather unspecific, e.g. `select(max(tab.price)).from(tab).unconditionally()` would yield rows with data member called `count_`.
-
-Now, functions do not come with names. While this will lead to lightly more code, the assumption is that this will lead to slightly more readable code, e.g.
-
-```
-SQLPP_ALIAS_PROVIDER(max_price);
-// ...
-  for (const auto& row : db(select(max(tab.price)).from(tab).unconditionally()))
-  {
-    std::cout << row.max_price << '\n';
-  }
-```
+The automatic name for selected aggregate functions drops the `_`.
 
 # Dynamic queries
 We don't always have a completely fixed structure for our queries. For instance, there might columns that we only want to select under certain circumstances. In version 1.0, this was handled by dynamic queries. Now we introduce conditional query parts that may or may not be used at runtime:

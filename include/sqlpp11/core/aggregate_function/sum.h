@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2020, Roland Bock, MacDue
+ * Copyright (c) 2013, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -26,6 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp11/core/name/alias_provider.h>
 #include <sqlpp11/core/operator/enable_as.h>
 #include <sqlpp11/core/operator/enable_comparison.h>
 #include <sqlpp11/core/aggregate_function/enable_over.h>
@@ -34,6 +35,11 @@
 
 namespace sqlpp
 {
+  namespace alias
+  {
+    SQLPP_ALIAS_PROVIDER(sum);
+  }
+
   template <typename Flag, typename Expr>
   struct sum_t : public enable_as<sum_t<Flag, Expr>>,
                  public enable_comparison<sum_t<Flag, Expr>>,
@@ -54,6 +60,12 @@ namespace sqlpp
     ~sum_t() = default;
 
     Expr _expr;
+  };
+
+#warning: test that aggregate functions can be used as result columns directly, but can also be aliased
+  template <typename Flag, typename Expr>
+  struct name_tag_of<sum_t<Flag, Expr>>: public name_tag_of<alias::sum_t>
+  {
   };
 
   template <typename Flag, typename Expr>

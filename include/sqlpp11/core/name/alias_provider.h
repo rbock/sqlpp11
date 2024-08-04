@@ -29,6 +29,7 @@
 #include <sqlpp11/core/name/char_sequence.h>
 #include <sqlpp11/core/type_traits.h>
 
+#warning: nesting everying in _alias_t seems unnecessary.
 #define SQLPP_ALIAS_PROVIDER(name)                                           \
   struct name##_t : public ::sqlpp::name_tag_base                            \
   {                                                                          \
@@ -53,6 +54,7 @@
   };                                                                         \
   constexpr name##_t name = {};
 
+#warning: Not needed?
 #define SQLPP_QUOTED_ALIAS_PROVIDER(name)                                    \
   struct name##_t : public ::sqlpp::name_tag_base                            \
   {                                                                          \
