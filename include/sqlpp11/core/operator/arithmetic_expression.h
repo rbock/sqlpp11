@@ -93,54 +93,145 @@ namespace sqlpp
   template <typename L, typename R>
   using check_arithmetic_args = ::sqlpp::enable_if_t<is_numeric<L>::value and is_numeric<R>::value>;
 
-#warning: need to document that this is on purpose (not integral, or unsigned integral, or floating_point) because it is difficult to know for the library to know what the actual result type will be (it is difficult to guess in C++ already, and it is probably different from DB vendor to vendor).
-  namespace detail
+#warning: add boolean to numeric types
+  // L and R are expected to be numeric value types (boolen, integral, unsigned_integral, or floating_point).
+  template <typename Operator, typename L, typename R>
+  struct arithmetic_value_type
   {
-    template <typename L, typename Operator, typename R>
-    struct result_type
-    {
-      using type = numeric;
-    };
-
-    template <typename L, typename Operator, typename R>
-    struct result_type<sqlpp::optional<L>, Operator, R> : public result_type<L, Operator, R>{};
-
-    template <typename L, typename Operator, typename R>
-    struct result_type<L, Operator, sqlpp::optional<R>> : public result_type<L, Operator, R>{};
-
-    template <typename L, typename Operator, typename R>
-    struct result_type<sqlpp::optional<L>, Operator, sqlpp::optional<R>> : public result_type<L, Operator, R>{};
-
-    template <typename ValueType>
-    struct result_type<ValueType, plus, ValueType>
-    {
-      using type = ValueType;
-    };
-
-    template <typename ValueType>
-    struct result_type<ValueType, multiplies, ValueType>
-    {
-      using type = ValueType;
-    };
-
-    template <typename L, typename R>
-    struct result_type<L, divides, R>
-    {
-      using type = floating_point;
-    };
-  }
-
-  template <typename L, typename Operator, typename R>
-  struct value_type_of<arithmetic_expression<L, Operator, R>>
-  : public detail::result_type<value_type_of_t<L>, Operator, value_type_of_t<R>>
-  /*
-      : public std::conditional<sqlpp::is_optional<value_type_of_t<L>>::value or
-                                    sqlpp::is_optional<value_type_of_t<R>>::value,
-                                ::sqlpp::optional<numeric>,
-                                numeric>
-                                */
-  {
+    using type = numeric;
   };
+
+  template <typename Operator, typename L, typename R>
+  using arithmetic_value_type_t = typename arithmetic_value_type<Operator, L, R>::type;
+
+#define SQLPP_ARITHMETIC_VALUE_TYPE(Op, Left, Right, ValueType)\
+  template <>\
+  struct arithmetic_value_type<Op, Left, Right>\
+  {\
+    using type = ValueType;\
+  };
+
+  // Operator plus
+  SQLPP_ARITHMETIC_VALUE_TYPE(plus, floating_point, floating_point, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(plus, floating_point, integral, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(plus, floating_point, unsigned_integral, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(plus, floating_point, boolean, floating_point);
+
+  SQLPP_ARITHMETIC_VALUE_TYPE(plus, integral, floating_point, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(plus, integral, integral, integral);
+  SQLPP_ARITHMETIC_VALUE_TYPE(plus, integral, unsigned_integral, integral);
+  SQLPP_ARITHMETIC_VALUE_TYPE(plus, integral, boolean, integral);
+
+  SQLPP_ARITHMETIC_VALUE_TYPE(plus, unsigned_integral, floating_point, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(plus, unsigned_integral, integral, integral);
+  SQLPP_ARITHMETIC_VALUE_TYPE(plus, unsigned_integral, unsigned_integral, unsigned_integral);
+  SQLPP_ARITHMETIC_VALUE_TYPE(plus, unsigned_integral, boolean, unsigned_integral);
+
+  SQLPP_ARITHMETIC_VALUE_TYPE(plus, boolean, floating_point, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(plus, boolean, integral, integral);
+  SQLPP_ARITHMETIC_VALUE_TYPE(plus, boolean, unsigned_integral, unsigned_integral);
+  SQLPP_ARITHMETIC_VALUE_TYPE(plus, boolean, boolean, unsigned_integral);
+
+  // Operator minus
+  SQLPP_ARITHMETIC_VALUE_TYPE(minus, floating_point, floating_point, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(minus, floating_point, integral, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(minus, floating_point, unsigned_integral, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(minus, floating_point, boolean, floating_point);
+
+  SQLPP_ARITHMETIC_VALUE_TYPE(minus, integral, floating_point, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(minus, integral, integral, integral);
+  SQLPP_ARITHMETIC_VALUE_TYPE(minus, integral, unsigned_integral, integral);
+  SQLPP_ARITHMETIC_VALUE_TYPE(minus, integral, boolean, integral);
+
+  SQLPP_ARITHMETIC_VALUE_TYPE(minus, unsigned_integral, floating_point, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(minus, unsigned_integral, integral, integral);
+  SQLPP_ARITHMETIC_VALUE_TYPE(minus, unsigned_integral, unsigned_integral, integral);
+  SQLPP_ARITHMETIC_VALUE_TYPE(minus, unsigned_integral, boolean, integral);
+
+  SQLPP_ARITHMETIC_VALUE_TYPE(minus, boolean, floating_point, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(minus, boolean, integral, integral);
+  SQLPP_ARITHMETIC_VALUE_TYPE(minus, boolean, unsigned_integral, integral);
+  SQLPP_ARITHMETIC_VALUE_TYPE(minus, boolean, boolean, integral);
+
+  // Operator multiplies
+  SQLPP_ARITHMETIC_VALUE_TYPE(multiplies, floating_point, floating_point, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(multiplies, floating_point, integral, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(multiplies, floating_point, unsigned_integral, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(multiplies, floating_point, boolean, floating_point);
+
+  SQLPP_ARITHMETIC_VALUE_TYPE(multiplies, integral, floating_point, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(multiplies, integral, integral, integral);
+  SQLPP_ARITHMETIC_VALUE_TYPE(multiplies, integral, unsigned_integral, integral);
+  SQLPP_ARITHMETIC_VALUE_TYPE(multiplies, integral, boolean, integral);
+
+  SQLPP_ARITHMETIC_VALUE_TYPE(multiplies, unsigned_integral, floating_point, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(multiplies, unsigned_integral, integral, integral);
+  SQLPP_ARITHMETIC_VALUE_TYPE(multiplies, unsigned_integral, unsigned_integral, unsigned_integral);
+  SQLPP_ARITHMETIC_VALUE_TYPE(multiplies, unsigned_integral, boolean, unsigned_integral);
+
+  SQLPP_ARITHMETIC_VALUE_TYPE(multiplies, boolean, floating_point, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(multiplies, boolean, integral, integral);
+  SQLPP_ARITHMETIC_VALUE_TYPE(multiplies, boolean, unsigned_integral, unsigned_integral);
+  SQLPP_ARITHMETIC_VALUE_TYPE(multiplies, boolean, boolean, boolean);
+
+  // Operator divides
+  SQLPP_ARITHMETIC_VALUE_TYPE(divides, floating_point, floating_point, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(divides, floating_point, integral, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(divides, floating_point, unsigned_integral, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(divides, floating_point, boolean, floating_point);
+
+  SQLPP_ARITHMETIC_VALUE_TYPE(divides, integral, floating_point, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(divides, integral, integral, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(divides, integral, unsigned_integral, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(divides, integral, boolean, floating_point);
+
+  SQLPP_ARITHMETIC_VALUE_TYPE(divides, unsigned_integral, floating_point, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(divides, unsigned_integral, integral, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(divides, unsigned_integral, unsigned_integral, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(divides, unsigned_integral, boolean, floating_point);
+
+  SQLPP_ARITHMETIC_VALUE_TYPE(divides, boolean, floating_point, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(divides, boolean, integral, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(divides, boolean, unsigned_integral, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(divides, boolean, boolean, floating_point);
+
+  // Operator negate
+  SQLPP_ARITHMETIC_VALUE_TYPE(negate, no_value_t, floating_point, floating_point);
+  SQLPP_ARITHMETIC_VALUE_TYPE(negate, no_value_t, integral, integral);
+  SQLPP_ARITHMETIC_VALUE_TYPE(negate, no_value_t, unsigned_integral, integral);
+  SQLPP_ARITHMETIC_VALUE_TYPE(negate, no_value_t, boolean, integral);
+
+  // Operator modulus
+  SQLPP_ARITHMETIC_VALUE_TYPE(modulus, integral, integral, unsigned_integral);
+  SQLPP_ARITHMETIC_VALUE_TYPE(modulus, integral, unsigned_integral, unsigned_integral);
+
+  SQLPP_ARITHMETIC_VALUE_TYPE(modulus, unsigned_integral, integral, unsigned_integral);
+  SQLPP_ARITHMETIC_VALUE_TYPE(modulus, unsigned_integral, unsigned_integral, unsigned_integral);
+
+#undef SQLPP_ARITHMETIC_VALUE_TYPE
+
+  // Handle optional types
+  template <typename Operator, typename L, typename R>
+  struct arithmetic_value_type<Operator, sqlpp::optional<L>, R>
+  {
+    using type = sqlpp::optional<arithmetic_value_type_t<Operator, L, R>>;
+  };
+
+  template <typename Operator, typename L, typename R>
+  struct arithmetic_value_type<Operator, L, sqlpp::optional<R>>
+  {
+    using type = sqlpp::optional<arithmetic_value_type_t<Operator, L, R>>;
+  };
+
+  template <typename Operator, typename L, typename R>
+  struct arithmetic_value_type<Operator, sqlpp::optional<L>, sqlpp::optional<R>>
+  {
+    using type = sqlpp::optional<arithmetic_value_type_t<Operator, L, R>>;
+  };
+
+  template <typename Operator, typename L, typename R>
+  struct value_type_of<arithmetic_expression<L, Operator, R>>
+  : public arithmetic_value_type<Operator, value_type_of_t<L>, value_type_of_t<R>>{};
 
   template <typename L, typename R>
   struct value_type_of<arithmetic_expression<L, concatenation, R>>
@@ -216,5 +307,7 @@ namespace sqlpp
   {
     return {std::move(l), std::move(r)};
   }
+
+#warning: Add and test date/time/duration arithmetics
 
 }  // namespace sqlpp

@@ -275,7 +275,7 @@ namespace sqlpp
   template <typename T>
   struct is_numeric
       : public std::integral_constant<bool,
-                                      is_integral<T>::value or is_unsigned_integral<T>::value or
+                                      is_boolean<T>::value or is_integral<T>::value or is_unsigned_integral<T>::value or
                                           is_floating_point<T>::value or
                                           std::is_same<remove_optional_t<value_type_of_t<T>>, numeric>::value>
   {
