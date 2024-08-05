@@ -58,6 +58,15 @@ void test_aggregate_functions(Value v)
   static_assert(sqlpp::has_enabled_as<decltype(max(v_not_null))>::value, "");
   static_assert(sqlpp::has_enabled_as<decltype(min(v_not_null))>::value, "");
 
+  // Aggregate functions have a name
+  static_assert(sqlpp::has_name<decltype(count(v_not_null))>::value, "");
+  static_assert(sqlpp::has_name<decltype(max(v_not_null))>::value, "");
+  static_assert(sqlpp::has_name<decltype(min(v_not_null))>::value, "");
+
+  static_assert(sqlpp::name_tag_of_t<decltype(count(v_not_null))>::_alias_t::_literal == sqlpp::string_view("count"), "");
+  static_assert(sqlpp::name_tag_of_t<decltype(max(v_not_null))>::_alias_t::_literal == sqlpp::string_view("max"), "");
+  static_assert(sqlpp::name_tag_of_t<decltype(min(v_not_null))>::_alias_t::_literal == sqlpp::string_view("min"), "");
+
   // Aggregate functions enable comparison member functions.
   static_assert(sqlpp::has_enabled_comparison<decltype(count(v_not_null))>::value, "");
   static_assert(sqlpp::has_enabled_comparison<decltype(max(v_not_null))>::value, "");
@@ -96,6 +105,13 @@ void test_numeric_aggregate_functions(Value v)
   // Aggregate functions enable the `as` member function.
   static_assert(sqlpp::has_enabled_as<decltype(sum(v_not_null))>::value, "");
   static_assert(sqlpp::has_enabled_as<decltype(avg(v_not_null))>::value, "");
+
+  // Aggregate functions have a name
+  static_assert(sqlpp::has_name<decltype(sum(v_not_null))>::value, "");
+  static_assert(sqlpp::has_name<decltype(avg(v_not_null))>::value, "");
+
+  static_assert(sqlpp::name_tag_of_t<decltype(sum(v_not_null))>::_alias_t::_literal == sqlpp::string_view("sum"), "");
+  static_assert(sqlpp::name_tag_of_t<decltype(avg(v_not_null))>::_alias_t::_literal == sqlpp::string_view("avg"), "");
 
   // Aggregate functions enable OVER.
   static_assert(sqlpp::has_enabled_over<decltype(sum(v_not_null))>::value, "");
