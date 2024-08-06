@@ -43,7 +43,7 @@ namespace sqlpp
   struct remove_t : public statement_name_t<remove_name_t>
   {
     using _traits = make_traits<no_value_t, tag::is_return_value>;
-    struct _alias_t
+    struct _sqlpp_name_tag
     {
     };
 

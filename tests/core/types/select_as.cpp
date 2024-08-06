@@ -37,9 +37,9 @@ namespace
 
   SQLPP_ALIAS_PROVIDER(always);
   SQLPP_ALIAS_PROVIDER(sometimes);
-  SQLPP_ALIAS_PROVIDER(column)
-  SQLPP_ALIAS_PROVIDER(table)
-  SQLPP_ALIAS_PROVIDER(foo)
+  SQLPP_ALIAS_PROVIDER(column);
+  SQLPP_ALIAS_PROVIDER(table);
+  SQLPP_ALIAS_PROVIDER(foo);
 }
 
 template <typename Value>

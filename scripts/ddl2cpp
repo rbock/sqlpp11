@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 ##
-# Copyright (c) 2013-2022, Roland Bock
+# Copyright (c) 2013, Roland Bock
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -548,7 +548,8 @@ def beginHeader(pathToHeader, namespace, nsList):
     print("#include <sqlpp11/core/basic/table.h>", file=header)
     print("#include <sqlpp11/core/basic/table_columns.h>", file=header)
     print("#include <sqlpp11/core/type_traits.h>", file=header)
-    print("#include <sqlpp11/core/char_sequence.h>", file=header)
+    print("#include <sqlpp11/core/name/alias_provider.h>", file=header)
+    print("#include <sqlpp11/core/compat/string_view.h>", file=header)
     print("", file=header)
     for ns in nsList:
         print("namespace " + ns, file=header)
@@ -704,34 +705,9 @@ def createHeader():
                 noTimestampWarning = True
             print("    struct " + columnClass + " : public ::sqlpp::name_tag_base", file=header)
             print("    {", file=header)
-            print("      struct _alias_t", file=header)
-            print("      {", file=header)
-            print(
-                '        static constexpr const char _literal[] =  "'
-                + escape_if_reserved(sqlColumnName)
-                + '";',
-                file=header,
-            )
-            print(
-                "        using _name_t = ::sqlpp::make_char_sequence<sizeof(_literal), _literal>;",
-                file=header,
-            )
-            print("        template<typename T>", file=header)
-            print("        struct _member_t", file=header)
-            print("          {", file=header)
-            print("            T " + columnMember + ";", file=header)
-            print(
-                "            T& operator()() { return " + columnMember + "; }",
-                file=header,
-            )
-            print(
-                "            const T& operator()() const { return "
-                + columnMember
-                + "; }",
-                file=header,
-            )
-            print("          };", file=header)
-            print("      };", file=header)
+            print("      SQLPP_NAME_TAG_FOR_SQL_AND_CPP("
+                + escape_if_reserved(sqlColumnName) + ", " + columnMember + ");"
+                , file=header)
             columnCanBeNull = not column.notNull and not column.isPrimaryKey
             if columnCanBeNull:
                 print("      using value_type = ::sqlpp::optional<::sqlpp::" + columnType + ">;", file=header)
@@ -753,27 +729,9 @@ def createHeader():
               if tableRequiredInsertColumns:
                 tableRequiredInsertColumns += ","
               tableRequiredInsertColumns += "\n               sqlpp::column_t<" + tableSpec + ", " + columnClass + ">";
-        print("    struct _alias_t", file=header)
-        print("    {", file=header)
-        print(
-            '      static constexpr const char _literal[] =  "' + sqlTableName + '";',
-            file=header,
-        )
-        print(
-            "      using _name_t = ::sqlpp::make_char_sequence<sizeof(_literal), _literal>;",
-            file=header,
-        )
-        print("      template<typename T>", file=header)
-        print("      struct _member_t", file=header)
-        print("      {", file=header)
-        print("        T " + tableMember + ";", file=header)
-        print("        T& operator()() { return " + tableMember + "; }", file=header)
-        print(
-            "        const T& operator()() const { return " + tableMember + "; }",
-            file=header,
-        )
-        print("      };", file=header)
-        print("    };", file=header)
+        print("    SQLPP_NAME_TAG_FOR_SQL_AND_CPP("
+            + escape_if_reserved(sqlTableName) + ", " + tableMember + ");"
+            , file=header)
         print("    template<typename T>", file=header)
         print("    using _table_columns = sqlpp::table_columns<T,"
             + tableTemplateParameters

@@ -146,7 +146,7 @@ namespace sqlpp
         struct _deferred_table_t
         {
           using table = select_pseudo_table_t<_statement_t, Columns...>;
-          using alias = typename table::template _alias_t<AliasProvider>;
+          using alias = typename table::template _sqlpp_name_tag<AliasProvider>;
         };
 
         template <typename AliasProvider>
@@ -154,10 +154,10 @@ namespace sqlpp
 
 #warning: review all the alias stuff here
         template <typename AliasProvider>
-        using _alias_t = typename _deferred_table_t<AliasProvider>::alias;
+        using _sqlpp_name_tag = typename _deferred_table_t<AliasProvider>::alias;
 
         template <typename AliasProvider>
-        _alias_t<AliasProvider> as(const AliasProvider& aliasProvider) const
+        _sqlpp_name_tag<AliasProvider> as(const AliasProvider& aliasProvider) const
         {
           consistency_check_t<_statement_t>::_();
           static_assert(_statement_t::_can_be_used_as_table(),
@@ -220,7 +220,7 @@ namespace sqlpp
       using _traits = make_traits<no_value_t, tag::is_noop, tag::is_missing>;
       using _nodes = ::sqlpp::detail::type_vector<>;
 
-      struct _alias_t
+      struct _sqlpp_name_tag
       {
       };
 
@@ -282,7 +282,7 @@ namespace sqlpp
             -> _new_statement_t<consistent_t, returning_column_list_t<Args...>>
         {
           static_assert(not::sqlpp::detail::has_duplicates<Args...>::value, "at least one duplicate argument detected");
-          static_assert(not::sqlpp::detail::has_duplicates<typename Args::_alias_t...>::value,
+          static_assert(not::sqlpp::detail::has_duplicates<typename Args::_sqlpp_name_tag...>::value,
                         "at least one duplicate name detected");
 
           return {static_cast<const derived_statement_t<Policies>&>(*this),

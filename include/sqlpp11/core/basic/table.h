@@ -50,10 +50,10 @@ namespace sqlpp
     template <typename AliasProvider, typename T>
     using _foreign_table_alias_t = table_alias_t<AliasProvider, T>;
     template <typename AliasProvider>
-    using _alias_t = table_alias_t<AliasProvider, TableSpec>;
+    using _sqlpp_name_tag = table_alias_t<AliasProvider, TableSpec>;
 
     template <typename AliasProvider>
-    _alias_t<AliasProvider> as(const AliasProvider& /*unused*/) const
+    _sqlpp_name_tag<AliasProvider> as(const AliasProvider& /*unused*/) const
     {
       return {};
     }

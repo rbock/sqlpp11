@@ -42,7 +42,7 @@ namespace sqlpp
   template <typename T>
   struct name_tag_of_impl<T, true>
   {
-    using type = typename T::_alias_t;
+    using type = typename T::_sqlpp_name_tag;
   };
 
   template <typename T>

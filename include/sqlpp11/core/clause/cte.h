@@ -91,7 +91,7 @@ namespace sqlpp
   template <typename FieldSpec>
   struct cte_column_spec_t
   {
-    using _alias_t = name_tag_of_t<FieldSpec>;
+    using _sqlpp_name_tag = name_tag_of_t<FieldSpec>;
 
     using _traits = make_traits<value_type_of_t<FieldSpec>>;
   };

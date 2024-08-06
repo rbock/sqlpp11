@@ -62,7 +62,7 @@ namespace sqlpp
 
     using _data_t = single_table_data_t<Table>;
 
-    struct _alias_t
+    struct _sqlpp_name_tag
     {
     };
 

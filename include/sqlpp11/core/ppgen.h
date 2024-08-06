@@ -109,7 +109,7 @@
 #define SQLPP_DECLARE_COLUMN(unused, data, elem)                             \
   struct SQLPP_DECLARE_COLUMN_GET_COLUMN_NAME(elem)                          \
   {                                                                          \
-    struct _alias_t                                                          \
+    struct _sqlpp_name_tag                                                          \
     {                                                                        \
       static constexpr const char _literal[] =                               \
         BOOST_PP_STRINGIZE(SQLPP_DECLARE_COLUMN_GET_COLUMN_NAME(elem));      \
@@ -129,7 +129,7 @@
           return SQLPP_DECLARE_COLUMN_GET_COLUMN_NAME(elem);                 \
         }                                                                    \
       }; /* struct _member_t */                                              \
-    };   /* struct _alias_t */                                               \
+    };   /* struct _sqlpp_name_tag */                                               \
                                                                              \
     using _traits = sqlpp::make_traits<                                      \
       SQLPP_DECLARE_COLUMN_GEN_TRAITS(SQLPP_BOOST_PP_TUPLE_POP_FRONT(elem))  \
@@ -183,7 +183,7 @@
         ,SQLPP_DECLARE_TABLE_GEN_PROPS                                           \
       )(BOOST_PP_EXPAND table)                                                   \
                                                                                  \
-      struct _alias_t                                                            \
+      struct _sqlpp_name_tag                                                            \
       {                                                                          \
         static constexpr const char _literal[] =                                 \
           BOOST_PP_STRINGIZE(SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table));         \
@@ -204,7 +204,7 @@
           }                                                                      \
                                                                                  \
         }; /* struct _member_t */                                                \
-      }; /* struct _alias_t */                                                   \
+      }; /* struct _sqlpp_name_tag */                                                   \
     }; /* struct SQLPP_DECLARE_TABLE_GET_TABLE_NAME(table) */                    \
   }
 

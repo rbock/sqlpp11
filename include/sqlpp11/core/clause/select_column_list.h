@@ -86,7 +86,7 @@ namespace sqlpp
   template <typename Select, typename Column>
   struct select_column_spec_t: public name_tag_base
   {
-    using _alias_t = select_column_name_tag_of_t<Column>;
+    using _sqlpp_name_tag = select_column_name_tag_of_t<Column>;
 
 #warning: Need to test this!
     static constexpr bool _depends_on_outer_table =
@@ -259,7 +259,7 @@ namespace sqlpp
   {
     using _traits = make_traits<no_value_t, tag::is_noop, tag::is_missing>;
 
-    struct _alias_t
+    struct _sqlpp_name_tag
     {
     };
 

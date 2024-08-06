@@ -37,7 +37,7 @@ namespace sqlpp
   template <typename NameType, typename ValueType>
   struct field_spec_t : public name_tag_base
   {
-    using _alias_t = NameType;
+    using _sqlpp_name_tag = NameType;
 
 #warning: Maybe rename result_value in result_value_type?
     using cpp_type = result_value_t<ValueType>;

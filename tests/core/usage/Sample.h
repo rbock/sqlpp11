@@ -5,7 +5,8 @@
 #include <sqlpp11/core/basic/table.h>
 #include <sqlpp11/core/basic/table_columns.h>
 #include <sqlpp11/core/type_traits.h>
-#include <sqlpp11/core/name/char_sequence.h>
+#include <sqlpp11/core/name/alias_provider.h>
+#include <sqlpp11/core/compat/string_view.h>
 
 namespace test
 {
@@ -13,135 +14,47 @@ namespace test
   {
     struct Id : public ::sqlpp::name_tag_base
     {
-      struct _alias_t
-      {
-        static constexpr const char _literal[] =  "id";
-        using _name_t = ::sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-        template<typename T>
-        struct _member_t
-          {
-            T id;
-            T& operator()() { return id; }
-            const T& operator()() const { return id; }
-          };
-      };
+      SQLPP_NAME_TAG_FOR_SQL_AND_CPP(id, id);
       using value_type = ::sqlpp::integral;
       using has_default = std::true_type;
     };
     struct TextNnD : public ::sqlpp::name_tag_base
     {
-      struct _alias_t
-      {
-        static constexpr const char _literal[] =  "text_nn_d";
-        using _name_t = ::sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-        template<typename T>
-        struct _member_t
-          {
-            T textNnD;
-            T& operator()() { return textNnD; }
-            const T& operator()() const { return textNnD; }
-          };
-      };
+      SQLPP_NAME_TAG_FOR_SQL_AND_CPP(text_nn_d, textNnD);
       using value_type = ::sqlpp::text;
       using has_default = std::true_type;
     };
     struct IntN : public ::sqlpp::name_tag_base
     {
-      struct _alias_t
-      {
-        static constexpr const char _literal[] =  "int_n";
-        using _name_t = ::sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-        template<typename T>
-        struct _member_t
-          {
-            T intN;
-            T& operator()() { return intN; }
-            const T& operator()() const { return intN; }
-          };
-      };
+      SQLPP_NAME_TAG_FOR_SQL_AND_CPP(int_n, intN);
       using value_type = ::sqlpp::optional<::sqlpp::integral>;
       using has_default = std::true_type;
     };
     struct DoubleN : public ::sqlpp::name_tag_base
     {
-      struct _alias_t
-      {
-        static constexpr const char _literal[] =  "double_n";
-        using _name_t = ::sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-        template<typename T>
-        struct _member_t
-          {
-            T doubleN;
-            T& operator()() { return doubleN; }
-            const T& operator()() const { return doubleN; }
-          };
-      };
+      SQLPP_NAME_TAG_FOR_SQL_AND_CPP(double_n, doubleN);
       using value_type = ::sqlpp::optional<::sqlpp::floating_point>;
       using has_default = std::true_type;
     };
     struct UIntN : public ::sqlpp::name_tag_base
     {
-      struct _alias_t
-      {
-        static constexpr const char _literal[] =  "u_int_n";
-        using _name_t = ::sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-        template<typename T>
-        struct _member_t
-          {
-            T uIntN;
-            T& operator()() { return uIntN; }
-            const T& operator()() const { return uIntN; }
-          };
-      };
+      SQLPP_NAME_TAG_FOR_SQL_AND_CPP(u_int_n, uIntN);
       using value_type = ::sqlpp::optional<::sqlpp::unsigned_integral>;
       using has_default = std::true_type;
     };
     struct BlobN : public ::sqlpp::name_tag_base
     {
-      struct _alias_t
-      {
-        static constexpr const char _literal[] =  "blob_n";
-        using _name_t = ::sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-        template<typename T>
-        struct _member_t
-          {
-            T blobN;
-            T& operator()() { return blobN; }
-            const T& operator()() const { return blobN; }
-          };
-      };
+      SQLPP_NAME_TAG_FOR_SQL_AND_CPP(blob_n, blobN);
       using value_type = ::sqlpp::optional<::sqlpp::blob>;
       using has_default = std::true_type;
     };
     struct BoolN : public ::sqlpp::name_tag_base
     {
-      struct _alias_t
-      {
-        static constexpr const char _literal[] =  "bool_n";
-        using _name_t = ::sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-        template<typename T>
-        struct _member_t
-          {
-            T boolN;
-            T& operator()() { return boolN; }
-            const T& operator()() const { return boolN; }
-          };
-      };
+      SQLPP_NAME_TAG_FOR_SQL_AND_CPP(bool_n, boolN);
       using value_type = ::sqlpp::optional<::sqlpp::boolean>;
       using has_default = std::true_type;
     };
-    struct _alias_t
-    {
-      static constexpr const char _literal[] =  "tab_foo";
-      using _name_t = ::sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-      template<typename T>
-      struct _member_t
-      {
-        T tabFoo;
-        T& operator()() { return tabFoo; }
-        const T& operator()() const { return tabFoo; }
-      };
-    };
+    SQLPP_NAME_TAG_FOR_SQL_AND_CPP(tab_foo, tabFoo);
     template<typename T>
     using _table_columns = sqlpp::table_columns<T,
                Id,
@@ -159,84 +72,29 @@ namespace test
   {
     struct Id : public ::sqlpp::name_tag_base
     {
-      struct _alias_t
-      {
-        static constexpr const char _literal[] =  "id";
-        using _name_t = ::sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-        template<typename T>
-        struct _member_t
-          {
-            T id;
-            T& operator()() { return id; }
-            const T& operator()() const { return id; }
-          };
-      };
+      SQLPP_NAME_TAG_FOR_SQL_AND_CPP(id, id);
       using value_type = ::sqlpp::integral;
       using has_default = std::true_type;
     };
     struct TextN : public ::sqlpp::name_tag_base
     {
-      struct _alias_t
-      {
-        static constexpr const char _literal[] =  "text_n";
-        using _name_t = ::sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-        template<typename T>
-        struct _member_t
-          {
-            T textN;
-            T& operator()() { return textN; }
-            const T& operator()() const { return textN; }
-          };
-      };
+      SQLPP_NAME_TAG_FOR_SQL_AND_CPP(text_n, textN);
       using value_type = ::sqlpp::optional<::sqlpp::text>;
       using has_default = std::true_type;
     };
     struct BoolNn : public ::sqlpp::name_tag_base
     {
-      struct _alias_t
-      {
-        static constexpr const char _literal[] =  "bool_nn";
-        using _name_t = ::sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-        template<typename T>
-        struct _member_t
-          {
-            T boolNn;
-            T& operator()() { return boolNn; }
-            const T& operator()() const { return boolNn; }
-          };
-      };
+      SQLPP_NAME_TAG_FOR_SQL_AND_CPP(bool_nn, boolNn);
       using value_type = ::sqlpp::boolean;
       using has_default = std::false_type;
     };
     struct IntN : public ::sqlpp::name_tag_base
     {
-      struct _alias_t
-      {
-        static constexpr const char _literal[] =  "int_n";
-        using _name_t = ::sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-        template<typename T>
-        struct _member_t
-          {
-            T intN;
-            T& operator()() { return intN; }
-            const T& operator()() const { return intN; }
-          };
-      };
+      SQLPP_NAME_TAG_FOR_SQL_AND_CPP(int_n, intN);
       using value_type = ::sqlpp::optional<::sqlpp::integral>;
       using has_default = std::true_type;
     };
-    struct _alias_t
-    {
-      static constexpr const char _literal[] =  "tab_bar";
-      using _name_t = ::sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-      template<typename T>
-      struct _member_t
-      {
-        T tabBar;
-        T& operator()() { return tabBar; }
-        const T& operator()() const { return tabBar; }
-      };
-    };
+    SQLPP_NAME_TAG_FOR_SQL_AND_CPP(tab_bar, tabBar);
     template<typename T>
     using _table_columns = sqlpp::table_columns<T,
                Id,
@@ -252,84 +110,29 @@ namespace test
   {
     struct Id : public ::sqlpp::name_tag_base
     {
-      struct _alias_t
-      {
-        static constexpr const char _literal[] =  "id";
-        using _name_t = ::sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-        template<typename T>
-        struct _member_t
-          {
-            T id;
-            T& operator()() { return id; }
-            const T& operator()() const { return id; }
-          };
-      };
+      SQLPP_NAME_TAG_FOR_SQL_AND_CPP(id, id);
       using value_type = ::sqlpp::integral;
       using has_default = std::true_type;
     };
     struct DayPointN : public ::sqlpp::name_tag_base
     {
-      struct _alias_t
-      {
-        static constexpr const char _literal[] =  "day_point_n";
-        using _name_t = ::sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-        template<typename T>
-        struct _member_t
-          {
-            T dayPointN;
-            T& operator()() { return dayPointN; }
-            const T& operator()() const { return dayPointN; }
-          };
-      };
+      SQLPP_NAME_TAG_FOR_SQL_AND_CPP(day_point_n, dayPointN);
       using value_type = ::sqlpp::optional<::sqlpp::day_point>;
       using has_default = std::true_type;
     };
     struct TimePointN : public ::sqlpp::name_tag_base
     {
-      struct _alias_t
-      {
-        static constexpr const char _literal[] =  "time_point_n";
-        using _name_t = ::sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-        template<typename T>
-        struct _member_t
-          {
-            T timePointN;
-            T& operator()() { return timePointN; }
-            const T& operator()() const { return timePointN; }
-          };
-      };
+      SQLPP_NAME_TAG_FOR_SQL_AND_CPP(time_point_n, timePointN);
       using value_type = ::sqlpp::optional<::sqlpp::time_point>;
       using has_default = std::true_type;
     };
     struct TimeOfDayN : public ::sqlpp::name_tag_base
     {
-      struct _alias_t
-      {
-        static constexpr const char _literal[] =  "time_of_day_n";
-        using _name_t = ::sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-        template<typename T>
-        struct _member_t
-          {
-            T timeOfDayN;
-            T& operator()() { return timeOfDayN; }
-            const T& operator()() const { return timeOfDayN; }
-          };
-      };
+      SQLPP_NAME_TAG_FOR_SQL_AND_CPP(time_of_day_n, timeOfDayN);
       using value_type = ::sqlpp::optional<::sqlpp::time_of_day>;
       using has_default = std::true_type;
     };
-    struct _alias_t
-    {
-      static constexpr const char _literal[] =  "tab_date_time";
-      using _name_t = ::sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-      template<typename T>
-      struct _member_t
-      {
-        T tabDateTime;
-        T& operator()() { return tabDateTime; }
-        const T& operator()() const { return tabDateTime; }
-      };
-    };
+    SQLPP_NAME_TAG_FOR_SQL_AND_CPP(tab_date_time, tabDateTime);
     template<typename T>
     using _table_columns = sqlpp::table_columns<T,
                Id,
