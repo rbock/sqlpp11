@@ -58,17 +58,17 @@ int Blob(int, char*[])
   // const auto bar = test::TabBar{};
 
   // Unconditionally
-  compare(__LINE__, select(foo.blobN).from(foo).where(foo.blobN == toByteVector("john doe")),
+  SQLPP_COMPARE(select(foo.blobN).from(foo).where(foo.blobN == toByteVector("john doe")),
           "SELECT tab_foo.blob_n FROM tab_foo WHERE (tab_foo.blob_n = x'6A6F686E20646F65')");
 
   std::array<uint8_t, 8> arr{{'j', 'o', 'h', 'n', ' ', 'd', 'o', 'e'}};
-  compare(__LINE__, select(foo.blobN).from(foo).where(foo.blobN == arr),
+  SQLPP_COMPARE(select(foo.blobN).from(foo).where(foo.blobN == arr),
           "SELECT tab_foo.blob_n FROM tab_foo WHERE (tab_foo.blob_n = x'6A6F686E20646F65')");
 
 #warning: This should go somewhere else
   // Never
-  compare(__LINE__, where(sqlpp::value(false)), " WHERE " + getFalse());
-  compare(__LINE__, sqlpp::where(false), " WHERE " + getFalse());
+  SQLPP_COMPARE(where(sqlpp::value(false)), " WHERE " + getFalse());
+  SQLPP_COMPARE(sqlpp::where(false), " WHERE " + getFalse());
 
   return 0;
 }

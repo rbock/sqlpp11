@@ -58,8 +58,9 @@ namespace sqlpp
   template <typename Context, typename AliasProvider, typename TableSpec>
   Context& serialize(Context& context, const table_alias_t<AliasProvider, TableSpec>&)
   {
-    context << name_tag_of_t<TableSpec>::_name_t::template char_ptr<Context>();
-    context << " AS " << name_tag_of_t<AliasProvider>::_name_t::template char_ptr<Context>();
+    serialize_name(context, name_tag_of_t<TableSpec>::name);
+    context << " AS ";
+    serialize_name(context, name_tag_of_t<AliasProvider>::name);
     return context;
   }
 }  // namespace sqlpp

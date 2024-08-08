@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, Roland Bock, MacDue
+ * Copyright (c) 2013, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,7 +29,7 @@
 
 #include <iostream>
 
-SQLPP_ALIAS_PROVIDER(quester_player_level)
+SQLPP_ALIAS_PROVIDER(quester_player_level);
 
 int ParameterizedVerbatim(int, char* [])
 {
@@ -37,7 +37,7 @@ int ParameterizedVerbatim(int, char* [])
   auto checking_value_in_range = sqlpp::parameterized_verbatim<sqlpp::boolean>(
           "(quests.spawn_level_range @> CAST(", parameter(sqlpp::integral(), quester_player_level), " AS integer))");
 
-  compare(__LINE__, checking_value_in_range,  "(quests.spawn_level_range @> CAST(? AS integer))");
+  SQLPP_COMPARE(checking_value_in_range,  "(quests.spawn_level_range @> CAST(? AS integer))");
 
   return 0;
 }

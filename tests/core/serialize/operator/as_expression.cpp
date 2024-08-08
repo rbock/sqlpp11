@@ -35,12 +35,15 @@ int main(int, char* [])
 
   SQLPP_COMPARE(val.as(v), "17 AS v");
   SQLPP_COMPARE(expr.as(v), "(17 + 4) AS v");
+  SQLPP_COMPARE(count(val).as(v), "COUNT(17) AS v");
 
   SQLPP_COMPARE(dynamic(true, val).as(v), "17 AS v");
   SQLPP_COMPARE(dynamic(true, expr).as(v), "(17 + 4) AS v");
+  SQLPP_COMPARE(dynamic(true, count(val)).as(v), "COUNT(17) AS v");
 
   SQLPP_COMPARE(dynamic(false, val).as(v), "NULL AS v");
   SQLPP_COMPARE(dynamic(false, expr).as(v), "NULL AS v");
+  SQLPP_COMPARE(dynamic(false, count(val)).as(v), "NULL AS v");
 
   return 0;
 }

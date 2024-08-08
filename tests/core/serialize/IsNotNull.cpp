@@ -32,17 +32,17 @@ int IsNotNull(int, char* [])
   const auto bar = test::TabBar{};
 
   // Single column.
-  compare(__LINE__, is_not_null(bar.textN), "(tab_bar.text_n IS NOT NULL)");
+  SQLPP_COMPARE(is_not_null(bar.textN), "(tab_bar.text_n IS NOT NULL)");
 
   // Expression.
-  compare(__LINE__, is_not_null(bar.textN + "suffix"), "((tab_bar.text_n || 'suffix') IS NOT NULL)");
+  SQLPP_COMPARE(is_not_null(bar.textN + "suffix"), "((tab_bar.text_n || 'suffix') IS NOT NULL)");
 
   // With sub select.
-  compare(__LINE__, is_not_null(select(sqlpp::value("something").as(sqlpp::alias::a))), "((SELECT 'something' AS a) IS NOT NULL)");
+  SQLPP_COMPARE(is_not_null(select(sqlpp::value("something").as(sqlpp::alias::a))), "((SELECT 'something' AS a) IS NOT NULL)");
 
   // Requires parens.
-  compare(__LINE__, is_not_null(bar.textN) or bar.textN == "", "((tab_bar.text_n IS NOT NULL) OR (tab_bar.text_n = ''))");
-  compare(__LINE__, bar.textN == "" or is_not_null(bar.textN), "((tab_bar.text_n = '') OR (tab_bar.text_n IS NOT NULL))");
+  SQLPP_COMPARE(is_not_null(bar.textN) or bar.textN == "", "((tab_bar.text_n IS NOT NULL) OR (tab_bar.text_n = ''))");
+  SQLPP_COMPARE(bar.textN == "" or is_not_null(bar.textN), "((tab_bar.text_n = '') OR (tab_bar.text_n IS NOT NULL))");
 
   return 0;
 }

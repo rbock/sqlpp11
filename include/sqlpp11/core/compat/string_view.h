@@ -62,16 +62,17 @@ namespace sqlpp
       {
       }
 
-      string_view(const char* data) : _data(data), _size(std::char_traits<char>::length(data))
+#warning: Can we make char_traits<char>::length constexpr
+      constexpr string_view(const char* data) : _data(data), _size(std::char_traits<char>::length(data))
       {
       }
 
-      const char* data() const
+      constexpr const char* data() const
       {
         return _data;
       }
 
-      size_t size() const
+      constexpr size_t size() const
       {
         return _size;
       }
@@ -104,3 +105,4 @@ namespace sqlpp
 }  // namespace sqlpp
 
 #endif
+

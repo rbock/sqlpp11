@@ -54,8 +54,9 @@ namespace sqlpp
   {
     using T = pseudo_column_t<TableAliasProvider, ColumnSpec>;
 
-    context << name_tag_of_t<TableAliasProvider>::_name_t::template char_ptr<Context>() << '.'
-            << name_tag_of_t<T>::_name_t::template char_ptr<Context>();
+    serialize_name(context, name_tag_of_t<TableAliasProvider>::name);
+    context << '.';
+    serialize_name(context, name_tag_of_t<T>::name);
     return context;
   }
 
@@ -97,7 +98,8 @@ namespace sqlpp
   auto serialize(Context& context, const select_as_t<Select, AliasProvider, ColumnSpecs...>& t) -> Context&
   {
     serialize_operand(context, t._select);
-    context << " AS " << name_tag_of_t<AliasProvider>::_name_t::template char_ptr<Context>();
+    context << " AS ";
+    serialize_name(context, name_tag_of_t<AliasProvider>::name);
     return context;
   }
 }  // namespace sqlpp

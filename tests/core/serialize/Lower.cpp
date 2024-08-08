@@ -32,14 +32,14 @@ int Lower(int, char* [])
   const auto bar = test::TabBar{};
 
   // Single column.
-  compare(__LINE__, lower(bar.textN), "LOWER(tab_bar.text_n)");
+  SQLPP_COMPARE(lower(bar.textN), "LOWER(tab_bar.text_n)");
 
   // Expression.
 #warning: Note that the inner parens aren't necessary.
-  compare(__LINE__, lower(bar.textN + "suffix"), "LOWER((tab_bar.text_n || 'suffix'))");
+  SQLPP_COMPARE(lower(bar.textN + "suffix"), "LOWER((tab_bar.text_n || 'suffix'))");
 
   // With sub select.
-  compare(__LINE__, lower(select(sqlpp::value("something").as(sqlpp::alias::a))), "LOWER((SELECT 'something' AS a))");
+  SQLPP_COMPARE(lower(select(sqlpp::value("something").as(sqlpp::alias::a))), "LOWER((SELECT 'something' AS a))");
 
   return 0;
 }

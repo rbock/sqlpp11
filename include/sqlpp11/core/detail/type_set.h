@@ -30,6 +30,7 @@
 #include <stddef.h>
 #include <sqlpp11/core/wrong.h>
 #include <sqlpp11/core/logic.h>
+#include <sqlpp11/core/name/char_sequence.h>
 #include <sqlpp11/core/name/name_tag.h>
 
 namespace sqlpp
@@ -270,7 +271,8 @@ namespace sqlpp
     template <typename... E>
     struct make_name_of_set<type_set<E...>>
     {
-      using type = make_type_set_t<typename sqlpp::name_tag_of_t<E>::_sqlpp_name_tag::_name_t...>;
+      using type =
+          make_type_set_t<make_char_sequence<sizeof(sqlpp::name_tag_of_t<E>::name), sqlpp::name_tag_of_t<E>::name>...>;
     };
 
     template <typename T>

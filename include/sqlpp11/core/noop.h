@@ -27,6 +27,7 @@
  */
 
 #include <type_traits>
+#include <sqlpp11/core/serialize.h>
 #include <sqlpp11/core/database/prepared_execute.h>
 
 namespace sqlpp
@@ -80,7 +81,7 @@ namespace sqlpp
   };
 
   template <typename Context>
-  Context& serialize(Context& context, const noop&)
+  auto serialize(Context& context, const noop&) -> Context&
   {
     return context;
   }

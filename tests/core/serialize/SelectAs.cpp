@@ -29,8 +29,8 @@
 
 #include <iostream>
 
-SQLPP_ALIAS_PROVIDER(id_count)
-SQLPP_ALIAS_PROVIDER(cheese)
+SQLPP_ALIAS_PROVIDER(id_count);
+SQLPP_ALIAS_PROVIDER(cheese);
 
   using namespace sqlpp;
 
@@ -41,7 +41,7 @@ int SelectAs(int, char*[])
 
 #warning: The select itself should not offer an "as" that yields a value.
 #warning: The id_count should offer the alias that offers the value.
-  compare(__LINE__, select(foo.doubleN, select(count(bar.id).as(id_count)).from(bar).unconditionally().as(cheese)),
+  SQLPP_COMPARE(select(foo.doubleN, select(count(bar.id).as(id_count)).from(bar).unconditionally().as(cheese)),
           "SELECT tab_foo.double_n,(SELECT COUNT(tab_bar.id) AS id_count FROM tab_bar) AS cheese");
 
   return 0;

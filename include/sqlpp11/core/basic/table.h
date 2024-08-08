@@ -69,7 +69,7 @@ namespace sqlpp
   template <typename Context, typename TableSpec>
   Context& serialize(Context& context, const table_t<TableSpec>& /*unused*/)
   {
-    context << name_tag_of_t<TableSpec>::_name_t::template char_ptr<Context>();
+    serialize_name(context, name_tag_of_t<TableSpec>::name);
     return context;
   }
 }  // namespace sqlpp

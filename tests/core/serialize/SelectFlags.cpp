@@ -33,17 +33,17 @@ int SelectFlags(int, char*[])
   const auto bar = test::TabBar{};
 
   // No flags
-  compare(__LINE__, select(foo.doubleN), "SELECT tab_foo.double_n");
+  SQLPP_COMPARE(select(foo.doubleN), "SELECT tab_foo.double_n");
 
   // No flags
 #warning: This should work
-  //compare(__LINE__, sqlpp::select_flags(), "");
+  //SQLPP_COMPARE(sqlpp::select_flags(), "");
 
   // No flags
-  compare(__LINE__, select(foo.doubleN).flags(sqlpp::distinct), "SELECT DISTINCT tab_foo.double_n");
+  SQLPP_COMPARE(select(foo.doubleN).flags(sqlpp::distinct), "SELECT DISTINCT tab_foo.double_n");
 
   // One flag
-  compare(__LINE__, select_flags(sqlpp::distinct), "DISTINCT ");
+  SQLPP_COMPARE(select_flags(sqlpp::distinct), "DISTINCT ");
 
 #warning: Add tests for dynamic select flags
 

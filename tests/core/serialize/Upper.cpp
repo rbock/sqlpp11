@@ -32,14 +32,14 @@ int Upper(int, char* [])
   const auto bar = test::TabBar{};
 
   // Single column.
-  compare(__LINE__, upper(bar.textN), "UPPER(tab_bar.text_n)");
+  SQLPP_COMPARE(upper(bar.textN), "UPPER(tab_bar.text_n)");
 
   // Expression.
 #warning: Note that the inner parens aren't necessary.
-  compare(__LINE__, upper(bar.textN + "suffix"), "UPPER((tab_bar.text_n || 'suffix'))");
+  SQLPP_COMPARE(upper(bar.textN + "suffix"), "UPPER((tab_bar.text_n || 'suffix'))");
 
   // With sub select.
-  compare(__LINE__, upper(select(sqlpp::value("something").as(sqlpp::alias::a))), "UPPER((SELECT 'something' AS a))");
+  SQLPP_COMPARE(upper(select(sqlpp::value("something").as(sqlpp::alias::a))), "UPPER((SELECT 'something' AS a))");
 
   return 0;
 }

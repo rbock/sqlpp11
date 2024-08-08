@@ -80,6 +80,20 @@ namespace sqlpp
     using type = sqlpp::force_optional_t<floating_point>;
   };
 
+  template <typename Context, typename Flag, typename Expr>
+  Context& serialize(Context& context, const avg_t<Flag, Expr>& t)
+  {
+    context << "MAX(";
+    if (std::is_same<distinct_t, Flag>::value)
+    {
+      serialize(context, Flag());
+      context << ' ';
+    }
+    serialize_operand(context, t._expr);
+    context << ")";
+    return context;
+  }
+
   template <typename T>
   using check_avg_arg =
       ::sqlpp::enable_if_t<(is_numeric<T>::value or is_boolean<T>::value) and not contains_aggregate_function_t<T>::value>;

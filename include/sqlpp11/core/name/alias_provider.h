@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2016, Roland Bock
+ * Copyright (c) 2013, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -30,7 +30,7 @@
 #include <sqlpp11/core/type_traits.h>
 
 #define SQLPP_NAME_TAG_GUTS(SQL_NAME, CPP_NAME)               \
-  static constexpr auto name = sqlpp::string_view{#SQL_NAME}; \
+  static constexpr const char name[] = #SQL_NAME;\
   template <typename T>                                       \
   struct _member_t                                            \
   {                                                           \

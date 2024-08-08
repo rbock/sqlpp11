@@ -23,25 +23,20 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 set(test_files
-    logical_expression.cpp
-    As.cpp
     Avg.cpp
     Blob.cpp
     Count.cpp
     CustomQuery.cpp
     DynamicWhere.cpp
-    Exists.cpp
     Float.cpp
     ForUpdate.cpp
     From.cpp
-    In.cpp
     Insert.cpp
     IsNotNull.cpp
     IsNull.cpp
     Lower.cpp
     Max.cpp
     Min.cpp
-    Operator.cpp
     Over.cpp
     Parameter.cpp
     ParameterizedVerbatim.cpp

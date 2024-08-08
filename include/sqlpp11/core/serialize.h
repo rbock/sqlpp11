@@ -234,4 +234,14 @@ namespace sqlpp
     return context;
   }
 
+  template <typename T, typename Context>
+  auto serialize_name(Context& context, const T& t) -> Context&
+  {
+#warning: We used to have a version of SQLPP_ALIAS_PROVIDER that escaped the name
+
+    context << t;
+
+    return context;
+  }
+
 }  // namespace sqlpp

@@ -33,6 +33,8 @@ int main(int, char* [])
   const auto val = sqlpp::value(17);
 
   SQLPP_COMPARE(exists(select(val.as(v))), "EXISTS (SELECT 17 AS v)");
+  SQLPP_COMPARE(true and exists(select(val.as(v))), "1 AND EXISTS (SELECT 17 AS v)");
+  SQLPP_COMPARE(exists(select(val.as(v))) and true, "EXISTS (SELECT 17 AS v) AND 1");
 
   return 0;
 }

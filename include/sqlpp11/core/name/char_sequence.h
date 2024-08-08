@@ -27,37 +27,14 @@
  */
 
 #include <type_traits>
+#warning: move index_sequence into compat
 #include <sqlpp11/core/detail/index_sequence.h>
 
 namespace sqlpp
 {
-  template <typename Context>
-  std::integral_constant<char, '"'> get_quote_left(const Context&);
-
-  template <typename Context>
-  std::integral_constant<char, '"'> get_quote_right(const Context&);
-
   template <char... Cs>
   struct char_sequence
   {
-    template <typename Context>
-    static const char* char_ptr()
-    {
-      static char s[] = {Cs..., '\0'};
-      return s;
-    }
-  };
-
-  template <char... Cs>
-  struct char_sequence<'!', Cs...>
-  {
-    template <typename Context>
-    static const char* char_ptr()
-    {
-      static char s[] = {decltype(get_quote_left(std::declval<Context>()))::value, Cs...,
-                         decltype(get_quote_right(std::declval<Context>()))::value, '\0'};
-      return s;
-    }
   };
 
   template <std::size_t N, const char* s, typename T>

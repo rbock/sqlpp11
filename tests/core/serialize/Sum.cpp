@@ -32,17 +32,17 @@ int Sum(int, char* [])
   const auto bar = test::TabBar{};
 
   // Single column.
-  compare(__LINE__, sum(bar.id), "SUM(tab_bar.id)");
-  compare(__LINE__, sum(sqlpp::distinct, bar.id), "SUM(DISTINCT tab_bar.id)");
+  SQLPP_COMPARE(sum(bar.id), "SUM(tab_bar.id)");
+  SQLPP_COMPARE(sum(sqlpp::distinct, bar.id), "SUM(DISTINCT tab_bar.id)");
 
   // Expression.
   // Note that the inner parens aren't necessary.
-  compare(__LINE__, sum(bar.id + 7), "SUM((tab_bar.id + 7))");
-  compare(__LINE__, sum(sqlpp::distinct, bar.id + 7), "SUM(DISTINCT (tab_bar.id + 7))");
+  SQLPP_COMPARE(sum(bar.id + 7), "SUM((tab_bar.id + 7))");
+  SQLPP_COMPARE(sum(sqlpp::distinct, bar.id + 7), "SUM(DISTINCT (tab_bar.id + 7))");
 
   // With sub select.
-  compare(__LINE__, sum(select(sqlpp::value(7).as(sqlpp::alias::a))), "SUM((SELECT 7 AS a))");
-  compare(__LINE__, sum(sqlpp::distinct, select(sqlpp::value(7).as(sqlpp::alias::a))), "SUM(DISTINCT (SELECT 7 AS a))");
+  SQLPP_COMPARE(sum(select(sqlpp::value(7).as(sqlpp::alias::a))), "SUM((SELECT 7 AS a))");
+  SQLPP_COMPARE(sum(sqlpp::distinct, select(sqlpp::value(7).as(sqlpp::alias::a))), "SUM(DISTINCT (SELECT 7 AS a))");
 
   return 0;
 }

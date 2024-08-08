@@ -45,6 +45,12 @@ int main(int, char* [])
   SQLPP_COMPARE(not val, "NOT 1");
   SQLPP_COMPARE(not expr, "NOT (17 > 15)");
 
+  // Combined logical expression.
+  SQLPP_COMPARE(not val and not expr, "(NOT 1) AND (NOT (17 > 15))");
+  SQLPP_COMPARE(not val or not expr, "(NOT 1) OR (NOT (17 > 15))");
+  SQLPP_COMPARE(not (val and expr), "NOT (1 AND (17 > 15))");
+  SQLPP_COMPARE(not (val or expr), "NOT (1 OR (17 > 15))");
+
   // Chains are not nested in parentheses.
   SQLPP_COMPARE(val and val and val and val and val, "1 AND 1 AND 1 AND 1 AND 1");
   SQLPP_COMPARE(val or val or val or val or val, "1 OR 1 OR 1 OR 1 OR 1");

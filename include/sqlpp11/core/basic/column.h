@@ -116,8 +116,10 @@ namespace sqlpp
   {
     using T = column_t<Table, ColumnSpec>;
 
-    context << name_tag_of_t<Table>::_name_t::template char_ptr<Context>() << '.'
-            << name_tag_of_t<T>::_name_t::template char_ptr<Context>();
+    serialize_name(context, name_tag_of_t<Table>::name);
+    context << '.';
+    serialize_name(context, name_tag_of_t<T>::name);
+
     return context;
   }
 }  // namespace sqlpp

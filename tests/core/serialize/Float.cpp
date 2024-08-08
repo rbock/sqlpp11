@@ -30,6 +30,18 @@
 
 namespace
 {
+  template <typename Result, typename Expected>
+  void assert_equal(int lineNo, const Result& result, const Expected& expected)
+  {
+    if (result != expected)
+    {
+      std::cerr << __FILE__ << " " << lineNo << '\n'
+                << "Expected: -->|" << expected << "|<--\n"
+                << "Received: -->|" << result << "|<--\n";
+      throw std::runtime_error("unexpected result");
+    }
+  }
+
   template <typename T>
   void float_safe_ostringstream_serializes_in_deserializable_format(int line, T value)
   {
@@ -65,11 +77,10 @@ int Float(int, char*[])
   float_safe_ostringstream_serializes_in_deserializable_format(__LINE__, 10.0000086);
   float_safe_ostringstream_serializes_in_deserializable_format(__LINE__, 10.0000086l);
 
-  compare(__LINE__, 10.0000114, "10.0000114");
-  compare(__LINE__, 10.0000086f, string_for_10_0000086<float>());
-  compare(__LINE__, 10.0000086, string_for_10_0000086<double>());
-  compare(__LINE__, 10.0000086l, string_for_10_0000086<long double>());
-
+  SQLPP_COMPARE(10.0000114, "10.0000114");
+  SQLPP_COMPARE(10.0000086f, string_for_10_0000086<float>());
+  SQLPP_COMPARE(10.0000086, string_for_10_0000086<double>());
+  SQLPP_COMPARE(10.0000086l, string_for_10_0000086<long double>());
 
   return 0;
 }

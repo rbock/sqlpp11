@@ -35,11 +35,11 @@ int DynamicWhere(int, char*[])
   const auto bar = test::TabBar{};
   auto db = MockDb{};
 
-  compare(__LINE__, sqlpp::unconditionally(), "");
-  compare(__LINE__, where(bar.boolNn), " WHERE tab_bar.bool_nn");
+  SQLPP_COMPARE(sqlpp::unconditionally(), "");
+  SQLPP_COMPARE(where(bar.boolNn), " WHERE tab_bar.bool_nn");
 
-  compare(__LINE__, where(bar.boolNn and dynamic(true, foo.boolN)), " WHERE (tab_bar.bool_nn AND tab_foo.bool_n)");
-  compare(__LINE__, where(bar.boolNn and dynamic(false, foo.boolN)), " WHERE tab_bar.bool_nn");
+  SQLPP_COMPARE(where(bar.boolNn and dynamic(true, foo.boolN)), " WHERE (tab_bar.bool_nn AND tab_foo.bool_n)");
+  SQLPP_COMPARE(where(bar.boolNn and dynamic(false, foo.boolN)), " WHERE tab_bar.bool_nn");
 
   return 0;
 }

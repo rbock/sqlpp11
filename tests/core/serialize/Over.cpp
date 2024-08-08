@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, Roland Bock, MacDue
+ * Copyright (c) 2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,16 +27,16 @@
 #include "compare.h"
 #include <sqlpp11/sqlpp11.h>
 
-SQLPP_ALIAS_PROVIDER(dueutil)
+SQLPP_ALIAS_PROVIDER(cheese);
 
 int Over(int, char* []) {
   auto const foo = test::TabFoo{};
 
-  compare(__LINE__, select(avg(foo.doubleN).over().as(dueutil)), "SELECT AVG(tab_foo.double_n) OVER() AS dueutil");
-  compare(__LINE__, select(count(foo.doubleN).over().as(dueutil)), "SELECT COUNT(tab_foo.double_n) OVER() AS dueutil");
-  compare(__LINE__, select(max(foo.doubleN).over().as(dueutil)), "SELECT MAX(tab_foo.double_n) OVER() AS dueutil");
-  compare(__LINE__, select(min(foo.doubleN).over().as(dueutil)), "SELECT MIN(tab_foo.double_n) OVER() AS dueutil");
-  compare(__LINE__, select(sum(foo.doubleN).over().as(dueutil)), "SELECT SUM(tab_foo.double_n) OVER() AS dueutil");
+  SQLPP_COMPARE(select(avg(foo.doubleN).over().as(cheese)), "SELECT AVG(tab_foo.double_n) OVER() AS cheese");
+  SQLPP_COMPARE(select(count(foo.doubleN).over().as(cheese)), "SELECT COUNT(tab_foo.double_n) OVER() AS cheese");
+  SQLPP_COMPARE(select(max(foo.doubleN).over().as(cheese)), "SELECT MAX(tab_foo.double_n) OVER() AS cheese");
+  SQLPP_COMPARE(select(min(foo.doubleN).over().as(cheese)), "SELECT MIN(tab_foo.double_n) OVER() AS cheese");
+  SQLPP_COMPARE(select(sum(foo.doubleN).over().as(cheese)), "SELECT SUM(tab_foo.double_n) OVER() AS cheese");
 
   return 0;
 }

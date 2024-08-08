@@ -29,7 +29,7 @@
 
 #include <iostream>
 
-SQLPP_ALIAS_PROVIDER(sample)
+SQLPP_ALIAS_PROVIDER(sample);
 
 int TableAlias(int, char* [])
 {
@@ -37,13 +37,13 @@ int TableAlias(int, char* [])
   const auto bar = test::TabBar{};
 
   // Individual values
-  compare(__LINE__, foo.as(bar), "tab_foo AS tab_bar");
-  compare(__LINE__, select(foo.doubleN).from(foo).unconditionally().as(bar),
+  SQLPP_COMPARE(foo.as(bar), "tab_foo AS tab_bar");
+  SQLPP_COMPARE(select(foo.doubleN).from(foo).unconditionally().as(bar),
           "(SELECT tab_foo.double_n FROM tab_foo) AS tab_bar");
 
   // Table alias
   const auto tab = foo.as(sample);
-  compare(__LINE__, select(tab.doubleN).from(tab).unconditionally(),
+  SQLPP_COMPARE(select(tab.doubleN).from(tab).unconditionally(),
           "SELECT sample.double_n FROM tab_foo AS sample");
 
   return 0;

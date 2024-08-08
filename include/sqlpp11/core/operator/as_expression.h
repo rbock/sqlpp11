@@ -64,7 +64,7 @@ namespace sqlpp
   {
     serialize_operand(context, t._expression);
     context << " AS ";
-    context << name_tag_of_t<AliasProvider>::name;
+    serialize_name(context, name_tag_of_t<AliasProvider>::name);
     return context;
   }
   template <typename Expr, typename AliasProvider>

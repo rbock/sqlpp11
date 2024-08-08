@@ -58,7 +58,8 @@ namespace sqlpp
   Context& serialize(Context& context, const verbatim_table_alias_t<AliasProvider>& t)
   {
     context << t._representation;
-    context << " AS " << name_tag_of_t<AliasProvider>::_name_t::template char_ptr<Context>();
+    context << " AS ";
+    serialize_name(context, name_tag_of_t<AliasProvider>::name);
     return context;
   }
 

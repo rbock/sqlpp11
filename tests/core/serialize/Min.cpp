@@ -32,17 +32,17 @@ int Min(int, char* [])
   const auto bar = test::TabBar{};
 
   // Single column.
-  compare(__LINE__, min(bar.id), "MIN(tab_bar.id)");
-  compare(__LINE__, min(sqlpp::distinct, bar.id), "MIN(DISTINCT tab_bar.id)");
+  SQLPP_COMPARE(min(bar.id), "MIN(tab_bar.id)");
+  SQLPP_COMPARE(min(sqlpp::distinct, bar.id), "MIN(DISTINCT tab_bar.id)");
 
   // Expression.
   // Note that the inner parens aren't necessary.
-  compare(__LINE__, min(bar.id + 7), "MIN((tab_bar.id + 7))");
-  compare(__LINE__, min(sqlpp::distinct, bar.id + 7), "MIN(DISTINCT (tab_bar.id + 7))");
+  SQLPP_COMPARE(min(bar.id + 7), "MIN((tab_bar.id + 7))");
+  SQLPP_COMPARE(min(sqlpp::distinct, bar.id + 7), "MIN(DISTINCT (tab_bar.id + 7))");
 
   // With sub select.
-  compare(__LINE__, min(select(sqlpp::value(7).as(sqlpp::alias::a))), "MIN((SELECT 7 AS a))");
-  compare(__LINE__, min(sqlpp::distinct, select(sqlpp::value(7).as(sqlpp::alias::a))), "MIN(DISTINCT (SELECT 7 AS a))");
+  SQLPP_COMPARE(min(select(sqlpp::value(7).as(sqlpp::alias::a))), "MIN((SELECT 7 AS a))");
+  SQLPP_COMPARE(min(sqlpp::distinct, select(sqlpp::value(7).as(sqlpp::alias::a))), "MIN(DISTINCT (SELECT 7 AS a))");
 
   return 0;
 }

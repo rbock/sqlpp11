@@ -42,5 +42,6 @@ int main(int, char* [])
   SQLPP_COMPARE(expr.order(sqlpp::sort_type::asc), "(17 + 4) ASC");
   SQLPP_COMPARE(expr.order(sqlpp::sort_type::desc), "(17 + 4) DESC");
 
+#warning: Make sure to test order_by with dynamic sort orders
   return 0;
 }
