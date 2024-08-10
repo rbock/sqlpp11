@@ -34,14 +34,14 @@ namespace sqlpp
 {
   // Serialize parameters
   template <typename ValueType, typename NameType>
-  postgresql::context_t& serialize(const parameter_t<ValueType, NameType>&, postgresql::context_t& context)
+  postgresql::context_t& to_sql_string(const parameter_t<ValueType, NameType>&, postgresql::context_t& context)
   {
       context << "$" << context.count();
       context.pop_count();
       return context;
   }
 
-  inline postgresql::context_t& serialize(const blob_operand& t, postgresql::context_t& context)
+  inline postgresql::context_t& to_sql_string(const blob_operand& t, postgresql::context_t& context)
   {
     constexpr char hex_chars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
     context << "'\\x";
@@ -55,7 +55,7 @@ namespace sqlpp
   }
 
   template <typename Period>
-  postgresql::context_t& serialize(const time_point_operand<Period>& t, postgresql::context_t& context)
+  postgresql::context_t& to_sql_string(const time_point_operand<Period>& t, postgresql::context_t& context)
   {
     const auto dp = ::sqlpp::chrono::floor<::date::days>(t._t);
     const auto time = ::date::make_time(t._t - dp);
@@ -65,7 +65,7 @@ namespace sqlpp
   }
 
   template <typename Period>
-  postgresql::context_t& serialize(const time_of_day_operand<Period>& t, postgresql::context_t& context)
+  postgresql::context_t& to_sql_string(const time_of_day_operand<Period>& t, postgresql::context_t& context)
   {
     context << "TIME WITH TIME ZONE '" << ::date::make_time(t._t) << "+00'";
     return context;

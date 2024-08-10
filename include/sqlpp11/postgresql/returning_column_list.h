@@ -293,7 +293,7 @@ namespace sqlpp
 
     // Serialization
     template <typename... Columns>
-    postgresql::context_t& serialize(const postgresql::returning_column_list_data_t<Columns...>& t,
+    postgresql::context_t& to_sql_string(const postgresql::returning_column_list_data_t<Columns...>& t,
                                      postgresql::context_t& context)
     {
       context << " RETURNING ";

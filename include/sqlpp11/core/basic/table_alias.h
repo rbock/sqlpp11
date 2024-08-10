@@ -29,7 +29,7 @@
 #include <sqlpp11/core/basic/enable_join.h>
 #include <sqlpp11/core/basic/table_columns.h>
 #include <sqlpp11/core/detail/type_set.h>
-#include <sqlpp11/core/serialize.h>
+#include <sqlpp11/core/to_sql_string.h>
 #include <sqlpp11/core/basic/join.h>
 #include <sqlpp11/core/type_traits.h>
 
@@ -56,11 +56,11 @@ namespace sqlpp
     struct name_tag_of<table_alias_t<AliasProvider, TableSpec>> : public name_tag_of<AliasProvider>{};
 
   template <typename Context, typename AliasProvider, typename TableSpec>
-  Context& serialize(Context& context, const table_alias_t<AliasProvider, TableSpec>&)
+  auto to_sql_string(Context& context, const table_alias_t<AliasProvider, TableSpec>&) -> std::string
   {
-    serialize_name(context, name_tag_of_t<TableSpec>::name);
+    name_to_sql_string(context, name_tag_of_t<TableSpec>::name);
     context << " AS ";
-    serialize_name(context, name_tag_of_t<AliasProvider>::name);
+    name_to_sql_string(context, name_tag_of_t<AliasProvider>::name);
     return context;
   }
 }  // namespace sqlpp

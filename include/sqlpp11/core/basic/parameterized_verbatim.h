@@ -29,7 +29,7 @@
 #include <utility>
 
 #include <sqlpp11/core/type_traits.h>
-#include <sqlpp11/core/serialize.h>
+#include <sqlpp11/core/to_sql_string.h>
 
 namespace sqlpp
 {
@@ -69,10 +69,10 @@ namespace sqlpp
   };
 
   template <typename Context, typename ValueType, typename Expr>
-  Context& serialize(Context& context, const parameterized_verbatim_t<ValueType, Expr>& t)
+  auto to_sql_string(Context& context, const parameterized_verbatim_t<ValueType, Expr>& t) -> std::string
   {
     context << t._verbatim_lhs;
-    serialize(context, t._expr);
+    to_sql_string(context, t._expr);
     context << t._verbatim_rhs;
     return context;
   }

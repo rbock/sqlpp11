@@ -28,7 +28,7 @@
  */
 
 #include <sqlpp11/core/detail/type_vector.h>
-#include <sqlpp11/core/serialize.h>
+#include <sqlpp11/core/to_sql_string.h>
 #include <sqlpp11/core/type_traits.h>
 
 namespace sqlpp
@@ -82,10 +82,10 @@ namespace sqlpp
     };
 
     template <typename ConflictTarget>
-    postgresql::context_t& serialize(const postgresql::on_conflict_do_nothing_data_t<ConflictTarget>& o,
+    postgresql::context_t& to_sql_string(const postgresql::on_conflict_do_nothing_data_t<ConflictTarget>& o,
                                      postgresql::context_t& context)
     {
-      serialize(context, o._column);
+      to_sql_string(context, o._column);
       context << "DO NOTHING";
       return context;
     }

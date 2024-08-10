@@ -34,7 +34,7 @@ namespace sqlpp
   };
 
   template <typename Context>
-  Context& serialize(Context& context, const no_data_t&)
+  auto to_sql_string(Context& context, const no_data_t&) -> std::string
   {
     return context;
   }

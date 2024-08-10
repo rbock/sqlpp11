@@ -123,7 +123,7 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename... Expressions>
-  Context& serialize(Context& context, const with_data_t<Expressions...>& t)
+  auto to_sql_string(Context& context, const with_data_t<Expressions...>& t) -> std::string
   {
     using T = with_data_t<Expressions...>;
     // FIXME: If there is a recursive CTE, add a "RECURSIVE" here

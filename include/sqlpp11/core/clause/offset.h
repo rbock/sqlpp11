@@ -140,10 +140,10 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Offset>
-  Context& serialize(Context& context, const offset_data_t<Offset>& t)
+  auto to_sql_string(Context& context, const offset_data_t<Offset>& t) -> std::string
   {
     context << " OFFSET ";
-    serialize_operand(context, t._value);
+    operand_to_sql_string(context, t._value);
     return context;
   }
 

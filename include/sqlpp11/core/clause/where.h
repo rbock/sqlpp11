@@ -192,15 +192,15 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Expression>
-  Context& serialize(Context& context, const where_data_t<Expression>& t)
+  auto to_sql_string(Context& context, const where_data_t<Expression>& t) -> std::string
   {
     context << " WHERE ";
-    serialize(context, t._expression);
+    to_sql_string(context, t._expression);
     return context;
   }
 
   template <typename Context>
-  Context& serialize(Context& context, const where_data_t<unconditional_t>&)
+  auto to_sql_string(Context& context, const where_data_t<unconditional_t>&) -> std::string
   {
     return context;
   }

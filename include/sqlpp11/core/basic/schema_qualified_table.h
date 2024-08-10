@@ -27,7 +27,7 @@
  */
 
 #include <sqlpp11/core/basic/column_fwd.h>
-#include <sqlpp11/core/serialize.h>
+#include <sqlpp11/core/to_sql_string.h>
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/basic/schema.h>
 #include <sqlpp11/core/basic/table_alias.h>
@@ -65,11 +65,11 @@ namespace sqlpp
     struct is_table<schema_qualified_table_t<Table>> : public std::true_type {};
 
   template <typename Context, typename Table>
-  Context& serialize(Context& context, const schema_qualified_table_t<Table>& t)
+  auto to_sql_string(Context& context, const schema_qualified_table_t<Table>& t) -> std::string
   {
-    serialize(context, t._schema);
+    to_sql_string(context, t._schema);
     context << '.';
-    serialize(context, t._table);
+    to_sql_string(context, t._table);
     return context;
   }
 

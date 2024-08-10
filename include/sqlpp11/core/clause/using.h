@@ -136,7 +136,7 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename... Tables>
-  Context& serialize(Context& context, const using_data_t<Tables...>& t)
+  auto to_sql_string(Context& context, const using_data_t<Tables...>& t) -> std::string
   {
     context << " USING ";
     interpret_tuple(t._tables, ',', context);

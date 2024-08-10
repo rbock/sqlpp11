@@ -40,14 +40,14 @@ namespace
     on_duplicate_key_update(Db& db, Assignment assignment)
     {
       typename Db::_serializer_context_t context{db};
-      _serialized = " ON DUPLICATE KEY UPDATE " + serialize(assignment, context).str();
+      _serialized = " ON DUPLICATE KEY UPDATE " + to_sql_string(assignment, context).str();
     }
 
     template <typename Db, typename Assignment>
     auto operator()(Db& db, Assignment assignment) -> on_duplicate_key_update&
     {
       typename Db::_serializer_context_t context{db};
-      _serialized += ", " + serialize(assignment, context).str();
+      _serialized += ", " + to_sql_string(assignment, context).str();
       return *this;
     }
 

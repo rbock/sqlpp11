@@ -67,9 +67,9 @@ namespace sqlpp
   struct is_table<table_t<TableSpec>>: public std::true_type {};
 
   template <typename Context, typename TableSpec>
-  Context& serialize(Context& context, const table_t<TableSpec>& /*unused*/)
+  auto to_sql_string(Context& context, const table_t<TableSpec>& /*unused*/) -> std::string
   {
-    serialize_name(context, name_tag_of_t<TableSpec>::name);
+    name_to_sql_string(context, name_tag_of_t<TableSpec>::name);
     return context;
   }
 }  // namespace sqlpp

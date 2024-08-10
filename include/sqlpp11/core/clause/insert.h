@@ -87,7 +87,7 @@ namespace sqlpp
   };
 
   template <typename Context>
-  Context& serialize(Context& context, const insert_name_t&)
+  auto to_sql_string(Context& context, const insert_name_t&) -> std::string
   {
     context << "INSERT";
 

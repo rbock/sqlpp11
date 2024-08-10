@@ -146,7 +146,7 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename... Expressions>
-  Context& serialize(Context& context, const group_by_data_t<Expressions...>& t)
+  auto to_sql_string(Context& context, const group_by_data_t<Expressions...>& t) -> std::string
   {
     context << " GROUP BY ";
     interpret_tuple(t._expressions, ',', context);

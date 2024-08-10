@@ -81,17 +81,9 @@ namespace sqlpp
   };
 
   template <typename Context, typename Flag, typename Expr>
-  Context& serialize(Context& context, const avg_t<Flag, Expr>& t)
+  auto to_sql_string(Context& context, const avg_t<Flag, Expr>& t) -> std::string
   {
-    context << "AVG(";
-    if (std::is_same<distinct_t, Flag>::value)
-    {
-      serialize(context, Flag());
-      context << ' ';
-    }
-    serialize(context, t._expr);
-    context << ")";
-    return context;
+    return "AVG(" + to_sql_string(context, Flag()) + to_sql_string(context, t._expr) + ")";
   }
 
   template <typename T>

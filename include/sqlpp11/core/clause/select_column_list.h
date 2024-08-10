@@ -309,7 +309,7 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename... Columns>
-  Context& serialize(Context& context, const std::tuple<Columns...>& t)
+  auto to_sql_string(Context& context, const std::tuple<Columns...>& t) -> std::string
   {
     interpret_tuple(t, ',', context);
     return context;

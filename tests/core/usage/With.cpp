@@ -44,9 +44,9 @@ int With(int, char*[])
   auto y0 = sqlpp::cte(sqlpp::alias::y).as(select(all_of(t)).from(t));
   auto y = y0.union_all(select(all_of(y0)).from(y0).unconditionally());
 
-  std::cout << serialize(y, printer).str() << std::endl;
+  std::cout << to_sql_string(y, printer).str() << std::endl;
   printer.reset();
-  std::cout << serialize(from_table(y), printer).str() << std::endl;
+  std::cout << to_sql_string(from_table(y), printer).str() << std::endl;
 
   db(with(y)(select(y.id).from(y).unconditionally()));
 
@@ -65,7 +65,7 @@ int With(int, char*[])
     const auto query/query = with(recursiveCte)(select(recursiveCte.id).from(recursiveCte).unconditionally());
 
     printer.reset();
-    const auto serializedQuery = serialize(query/query, printer).str();
+    const auto serializedQuery = to_sql_string(query/query, printer).str();
     std::cout << serializedQuery << '\n';
 
     for (const auto& row : db(query/query))

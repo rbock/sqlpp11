@@ -64,12 +64,9 @@ namespace sqlpp
   };
 
   template <typename Context, typename Select>
-  auto serialize(Context& context, const exists_expression<Select>& t) -> Context&
+  auto to_sql_string(Context& context, const exists_expression<Select>& t) -> std::string
   {
-    context << "EXISTS (";
-    serialize(context, t._select);
-    context << ")";
-    return context;
+    return "EXISTS (" + to_sql_string(context, t._select) + ")";
   }
 
   template <typename Select, typename = check_exists_arg<Select>>

@@ -157,16 +157,9 @@ namespace sqlpp
   };
 
   template <typename Context, typename When, typename Then, typename Else>
-  Context& serialize(Context& context, const case_t<When, Then, Else>& t)
+  auto to_sql_string(Context& context, const case_t<When, Then, Else>& t) -> std::string
   {
-    context << "CASE WHEN ";
-    serialize_operand(context, t._when);
-    context << " THEN ";
-    serialize_operand(context, t._then);
-    context << " ELSE ";
-    serialize_operand(context, t._else);
-    context << " END";
-    return context;
+    return "CASE WHEN "+  operand_to_sql_string(context, t._when) + " THEN " + operand_to_sql_string(context, t._then) + " ELSE " + operand_to_sql_string(context, t._else) + " END";
   }
 
   namespace detail

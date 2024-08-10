@@ -112,13 +112,13 @@ namespace sqlpp
   };
 
   template <typename Context, typename Table, typename ColumnSpec>
-  Context& serialize(Context& context, const column_t<Table, ColumnSpec>&)
+  auto to_sql_string(Context& context, const column_t<Table, ColumnSpec>&) -> std::string
   {
     using T = column_t<Table, ColumnSpec>;
 
-    serialize_name(context, name_tag_of_t<Table>::name);
+    name_to_sql_string(context, name_tag_of_t<Table>::name);
     context << '.';
-    serialize_name(context, name_tag_of_t<T>::name);
+    name_to_sql_string(context, name_tag_of_t<T>::name);
 
     return context;
   }

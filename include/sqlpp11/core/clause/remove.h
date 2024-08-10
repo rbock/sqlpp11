@@ -86,7 +86,7 @@ namespace sqlpp
   };
 
   template <typename Context>
-  Context& serialize(Context& context, const remove_name_t&)
+  auto to_sql_string(Context& context, const remove_name_t&) -> std::string
   {
     context << "DELETE";
 

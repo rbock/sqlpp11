@@ -82,49 +82,41 @@ namespace sqlpp
   template <typename L, typename Operator, typename R>
   struct requires_parentheses<logical_expression<L, Operator, R>> : public std::true_type{};
 
+#warning: rename
   template <typename Context, typename L, typename Operator, typename R>
   auto serialize_impl(Context& context, const logical_expression<L, Operator, R>& t) -> Context&
   {
-    serialize_operand(context, t._l);
-    context << Operator::symbol;
-    serialize_operand(context, t._r);
-    return context;
+    return operand_to_sql_string(context, simple_column(t._l)) + Operator::symbol + operand_to_sql_string(context, t._r);
   }
 
   template <typename Context, typename L, typename Operator, typename R>
-  auto serialize(Context& context, const logical_expression<L, Operator, R>& t) -> Context&
+  auto to_sql_string(Context& context, const logical_expression<L, Operator, R>& t) -> std::string
   {
     return serialize_impl(context, t);
   }
 
   template <typename Context, typename L, typename Operator, typename R1, typename R2>
-  auto serialize(Context& context,
+  auto to_sql_string(Context& context,
                  const logical_expression<logical_expression<L, Operator, R1>, Operator, R2>& t) -> Context&
   {
-    serialize(context, t._l);
-    context << Operator::symbol;
-    serialize_operand(context, t._r);
-    return context;
+    return to_sql_string(context, t._l) + Operator::symbol + operand_to_sql_string(context, t._r);
   }
 
   template <typename Context, typename L, typename Operator, typename R1, typename R2>
-  auto serialize(Context& context,
+  auto to_sql_string(Context& context,
                  const logical_expression<logical_expression<L, Operator, R1>, Operator, dynamic_t<R2>>& t) -> Context&
   {
     if (t._r._condition)
     {
-      serialize(context, t._l);
-      context << Operator::symbol;
-      serialize_operand(context, t._r);
-      return context;
+      return to_sql_string(context, t._l) + Operator::symbol + operand_to_sql_string(context, t._r);
     }
 
     // If the dynamic part is inactive ignore it.
-    return serialize(context, t._l);
+    return to_sql_string(context, t._l);
   }
 
   template <typename Context, typename L, typename Operator, typename R>
-  auto serialize(Context& context, const logical_expression<L, Operator, dynamic_t<R>>& t) -> Context&
+  auto to_sql_string(Context& context, const logical_expression<L, Operator, dynamic_t<R>>& t) -> std::string
   {
     if (t._r._condition)
     {
@@ -132,7 +124,7 @@ namespace sqlpp
     }
 
     // If the dynamic part is inactive ignore it.
-    return serialize(context, t._l);
+    return to_sql_string(context, t._l);
   }
 
 #warning: need tests with dynamic AND/OR

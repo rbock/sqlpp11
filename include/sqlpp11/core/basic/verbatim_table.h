@@ -55,11 +55,11 @@ namespace sqlpp
   };
 
   template <typename Context, typename AliasProvider>
-  Context& serialize(Context& context, const verbatim_table_alias_t<AliasProvider>& t)
+  auto to_sql_string(Context& context, const verbatim_table_alias_t<AliasProvider>& t) -> std::string
   {
     context << t._representation;
     context << " AS ";
-    serialize_name(context, name_tag_of_t<AliasProvider>::name);
+    name_to_sql_string(context, name_tag_of_t<AliasProvider>::name);
     return context;
   }
 
@@ -90,7 +90,7 @@ namespace sqlpp
   };
 
   template <typename Context>
-  Context& serialize(Context& context, const verbatim_table_t& t)
+  auto to_sql_string(Context& context, const verbatim_table_t& t) -> std::string
   {
     context << t._representation;
     return context;

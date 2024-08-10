@@ -64,7 +64,7 @@ namespace sqlpp
   };
 
   template <typename Context, typename ValueType, typename NameType>
-  Context& serialize(Context& context, const parameter_t<ValueType, NameType>&)
+  auto to_sql_string(Context& context, const parameter_t<ValueType, NameType>&) -> std::string
   {
     context << "?";
     return context;

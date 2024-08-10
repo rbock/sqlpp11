@@ -48,7 +48,7 @@ namespace sqlpp
 {
   // Serialize parameters
   template <typename ValueType, typename NameType>
-  sqlite3::context_t& serialize(const parameter_t<ValueType, NameType>&, sqlite3::context_t& context)
+  sqlite3::context_t& to_sql_string(const parameter_t<ValueType, NameType>&, sqlite3::context_t& context)
   {
     context << "?" << context.count();
     context.pop_count();
@@ -58,7 +58,7 @@ namespace sqlpp
   // disable some stuff that won't work with sqlite3
 #if SQLITE_VERSION_NUMBER < 3008003
   template <typename... Expressions>
-  sqlite3::context_t& serialize(const with_data_t<Expressions...>&, sqlite3::context_t& context)
+  sqlite3::context_t& to_sql_string(const with_data_t<Expressions...>&, sqlite3::context_t& context)
   {
     static_assert(wrong_t<Expressions...>::value, "Sqlite3: No support for with before version 3.8.3");
     return context;
@@ -66,28 +66,28 @@ namespace sqlpp
 #endif
 
   template <typename Select>
-  sqlite3::context_t& serialize(const any_t<Select>&, sqlite3::context_t& context)
+  sqlite3::context_t& to_sql_string(const any_t<Select>&, sqlite3::context_t& context)
   {
     static_assert(wrong_t<Select>::value, "Sqlite3: No support for any()");
     return context;
   }
 
   template <typename Select>
-  sqlite3::context_t& serialize(const some_t<Select>&, sqlite3::context_t& context)
+  sqlite3::context_t& to_sql_string(const some_t<Select>&, sqlite3::context_t& context)
   {
     static_assert(wrong_t<Select>::value, "Sqlite3: No support for some()");
     return context;
   }
 
   template <typename Lhs, typename Rhs>
-  sqlite3::context_t& serialize(const pre_join_t<outer_join_t, Lhs, Rhs>&, sqlite3::context_t& context)
+  sqlite3::context_t& to_sql_string(const pre_join_t<outer_join_t, Lhs, Rhs>&, sqlite3::context_t& context)
   {
     static_assert(wrong_t<Lhs, Rhs>::value, "Sqlite3: No support for outer join");
     return context;
   }
 
   template <typename Lhs, typename Rhs>
-  sqlite3::context_t& serialize(const pre_join_t<right_outer_join_t, Lhs, Rhs>&, sqlite3::context_t& context)
+  sqlite3::context_t& to_sql_string(const pre_join_t<right_outer_join_t, Lhs, Rhs>&, sqlite3::context_t& context)
   {
     static_assert(wrong_t<Lhs, Rhs>::value, "Sqlite3: No support for right_outer join");
     return context;
@@ -95,7 +95,7 @@ namespace sqlpp
 
   // Some special treatment of data types
   template <typename Period>
-  sqlite3::context_t& serialize(const time_point_operand<Period>& t, sqlite3::context_t& context)
+  sqlite3::context_t& to_sql_string(const time_point_operand<Period>& t, sqlite3::context_t& context)
   {
     const auto dp = ::sqlpp::chrono::floor<::date::days>(t._t);
     const auto time = ::date::make_time(t._t - dp);
@@ -104,14 +104,14 @@ namespace sqlpp
     return context;
   }
 
-  inline sqlite3::context_t& serialize(const day_point_operand& t, sqlite3::context_t& context)
+  inline sqlite3::context_t& to_sql_string(const day_point_operand& t, sqlite3::context_t& context)
   {
     const auto ymd = ::date::year_month_day{t._t};
     context << "DATE('" << ymd << "')";
     return context;
   }
 
-  inline sqlite3::context_t& serialize(const floating_point_operand& t, sqlite3::context_t& context)
+  inline sqlite3::context_t& to_sql_string(const floating_point_operand& t, sqlite3::context_t& context)
   {
     if (std::isnan(t._t))
       context << "'NaN'";
@@ -129,7 +129,7 @@ namespace sqlpp
 
   // sqlite3 accepts only signed integers,
   // so we MUST perform a conversion from unsigned to signed
-  inline sqlite3::context_t& serialize(const unsigned_integral_operand& t, sqlite3::context_t& context)
+  inline sqlite3::context_t& to_sql_string(const unsigned_integral_operand& t, sqlite3::context_t& context)
   {
     context << static_cast<typename integral_operand::_value_t>(t._t);
     return context;

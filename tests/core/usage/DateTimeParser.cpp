@@ -61,9 +61,9 @@ namespace
     if (l != r)
     {
       std::cerr << line << ": ";
-      sqlpp::serialize(std::cerr, l);
+      sqlpp::to_sql_string(std::cerr, l);
       std::cerr << " != ";
-      sqlpp::serialize(std::cerr, r);
+      sqlpp::to_sql_string(std::cerr, r);
       std::cerr << std::endl;
       throw std::runtime_error("Unexpected result");
     }
@@ -129,7 +129,7 @@ namespace
       if (sqlpp::detail::parse_date(dp, date_str))
       {
         std::cerr << "Parsed successfully an invalid date string " << date_str << ", value ";
-        sqlpp::serialize(std::cerr, dp);
+        sqlpp::to_sql_string(std::cerr, dp);
         std::cerr << std::endl;
         throw std::runtime_error{"Parse error"};
       }
@@ -202,7 +202,7 @@ namespace
       if (sqlpp::detail::parse_time_of_day(us, tod_str))
       {
         std::cerr << "Parsed successfully an invalid time-of-day string " << tod_str << ", value ";
-        sqlpp::serialize(std::cerr, us);
+        sqlpp::to_sql_string(std::cerr, us);
         std::cerr << std::endl;
         throw std::runtime_error{"Parse error"};
       }
@@ -255,7 +255,7 @@ namespace
       if (sqlpp::detail::parse_timestamp(tp, timestamp_str))
       {
         std::cerr << "Parsed successfully an invalid timestamp string " << timestamp_str << ", value ";
-        sqlpp::serialize(std::cerr, tp);
+        sqlpp::to_sql_string(std::cerr, tp);
         std::cerr << std::endl;
         throw std::runtime_error{"Parse error"};
       }
@@ -308,7 +308,7 @@ namespace
       if (sqlpp::detail::parse_date_or_timestamp(tp, timestamp_str))
       {
         std::cerr << "Parsed successfully an invalid date or timestamp string " << timestamp_str << ", value ";
-        sqlpp::serialize(std::cerr, tp);
+        sqlpp::to_sql_string(std::cerr, tp);
         std::cerr << std::endl;
         throw std::runtime_error{"Parse error"};
       }

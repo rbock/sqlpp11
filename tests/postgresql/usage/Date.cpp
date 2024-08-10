@@ -46,9 +46,9 @@ namespace
     if (l != r)
     {
       std::cerr << line << ": ";
-      serialize(::sqlpp::wrap_operand_t<L>{l}, std::cerr);
+      to_sql_string(::sqlpp::wrap_operand_t<L>{l}, std::cerr);
       std::cerr << " != ";
-      serialize(::sqlpp::wrap_operand_t<R>{r}, std::cerr);
+      to_sql_string(::sqlpp::wrap_operand_t<R>{r}, std::cerr);
       throw std::runtime_error("Unexpected result");
     }
   }

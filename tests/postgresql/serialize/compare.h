@@ -49,7 +49,7 @@ namespace
     sqlpp::postgresql::connection connection;
     sqlpp::postgresql::context_t printer{connection};
 
-    const auto result = serialize(expr, printer).str();
+    const auto result = to_sql_string(expr, printer).str();
 
     assert_equal(lineNo, result, expected);
   }

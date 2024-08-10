@@ -41,7 +41,7 @@ namespace sqlpp
   };
 
   template <typename Context>
-  Context& serialize(Context& context, const union_all_t&)
+  auto to_sql_string(Context& context, const union_all_t&) -> std::string
   {
     context << "ALL";
     return context;
@@ -54,7 +54,7 @@ namespace sqlpp
   };
 
   template <typename Context>
-  Context& serialize(Context& context, const union_distinct_t&)
+  auto to_sql_string(Context& context, const union_distinct_t&) -> std::string
   {
     return context;
   }

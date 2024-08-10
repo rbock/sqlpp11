@@ -29,7 +29,7 @@
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/operator/sort_order_expression.h>
 #include <sqlpp11/core/operator/enable_as.h>
-#include <sqlpp11/core/serialize.h>
+#include <sqlpp11/core/to_sql_string.h>
 
 namespace sqlpp
 {
@@ -75,29 +75,29 @@ namespace sqlpp
   using remove_dynamic_t = typename remove_dynamic<T>::type;
 
   template <typename Context, typename Select>
-  Context& serialize(Context& context, const dynamic_t<Select>& t)
+  auto to_sql_string(Context& context, const dynamic_t<Select>& t) -> std::string
   {
     if (t._condition)
     {
-      serialize(context, t._expr);
+      to_sql_string(context, t._expr);
     }
     else
     {
-      serialize(context, ::sqlpp::nullopt);
+      to_sql_string(context, ::sqlpp::nullopt);
     }
     return context;
   }
 
   template <typename Context, typename Select>
-  Context& serialize_operand(Context& context, const dynamic_t<Select>& t)
+  Context& operand_to_sql_string(Context& context, const dynamic_t<Select>& t)
   {
     if (t._condition)
     {
-      serialize_operand(context, t._expr);
+      operand_to_sql_string(context, t._expr);
     }
     else
     {
-      serialize(context, ::sqlpp::nullopt);
+      to_sql_string(context, ::sqlpp::nullopt);
     }
     return context;
   }

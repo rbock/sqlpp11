@@ -141,10 +141,10 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Table>
-  Context& serialize(Context& context, const from_data_t<Table>& t)
+  auto to_sql_string(Context& context, const from_data_t<Table>& t) -> std::string
   {
     context << " FROM ";
-    serialize(context, t._table);
+    to_sql_string(context, t._table);
     return context;
   }
 

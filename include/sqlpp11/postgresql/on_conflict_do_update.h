@@ -139,24 +139,24 @@ namespace sqlpp
     };
 
     template <typename ConflictTarget, typename... Assignments>
-    postgresql::context_t& serialize(
+    postgresql::context_t& to_sql_string(
         const postgresql::on_conflict_do_update_data_t<ConflictTarget, Assignments...>& o,
         postgresql::context_t& context)
     {
-      serialize(context, o._conflict_target);
+      to_sql_string(context, o._conflict_target);
       context << "DO UPDATE SET ";
       interpret_tuple(o._assignments, ",", context);
       return context;
     }
 
     template <typename ConflictTarget, typename Expression, typename... Assignments>
-    postgresql::context_t& serialize(
+    postgresql::context_t& to_sql_string(
         const postgresql::on_conflict_do_update_where_data_t<ConflictTarget, Expression, Assignments...>& o,
         postgresql::context_t& context)
     {
-      serialize(context, o._assignments);
+      to_sql_string(context, o._assignments);
       context << " WHERE ";
-      serialize(context, o._expression);
+      to_sql_string(context, o._expression);
       return context;
     }
   }  // namespace postgresql

@@ -66,11 +66,9 @@ namespace sqlpp
   using check_over_args = ::sqlpp::enable_if_t<contains_aggregate_function_t<Expr>::value>;
 
   template <typename Context, typename Expr>
-  Context& serialize(Context& context, const over_t<Expr>& t)
+  auto to_sql_string(Context& context, const over_t<Expr>& t) -> std::string
   {
-    serialize_operand(context, t._expr);
-    context << " OVER()";
-    return context;
+    return operand_to_sql_string(context, t._expr) + " OVER()";
   }
 
   template <typename Expr>

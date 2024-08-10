@@ -45,5 +45,5 @@ namespace sqlpp
   };
 
   template <typename Context, typename ValueType>
-  Context serialize(Context& context, const bad_expression<ValueType>& t);
+  Context to_sql_string(Context& context, const bad_expression<ValueType>& t);
 }  // namespace sqlpp

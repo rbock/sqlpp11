@@ -79,7 +79,7 @@ namespace sqlpp
   };
 
   template <typename Context, typename ValueType>
-  auto serialize(Context& context, const insert_value_t<ValueType>& t) -> Context&
+  auto to_sql_string(Context& context, const insert_value_t<ValueType>& t) -> std::string
   {
     if (t._is_default)
     {
@@ -87,7 +87,7 @@ namespace sqlpp
     }
     else
     {
-      serialize_operand(context, t._value);
+      operand_to_sql_string(context, t._value);
     }
     return context;
   }

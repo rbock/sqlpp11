@@ -57,10 +57,10 @@ namespace sqlpp
   using check_value_arg = ::sqlpp::enable_if_t<not std::is_same<value_type_of_t<T>, no_value_t>::value and values_are_comparable<T, T>::value>;
 
   template <typename Context, typename T>
-  Context& serialize(Context& context, const value_t<T>& t)
+  auto to_sql_string(Context& context, const value_t<T>& t) -> std::string
   {
 #warning: Untested
-    serialize(context, t._value);
+    to_sql_string(context, t._value);
 
     return context;
   }

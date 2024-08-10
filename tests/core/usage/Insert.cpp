@@ -55,11 +55,11 @@ int Insert(int, char*[])
   db(insert_into(t).set(t.boolNn = false, t.textN = ::sqlpp::make_optional("pie"),
                         t.intN = ::sqlpp::nullopt));
 
-  serialize(printer, insert_into(t).default_values()).str();
+  to_sql_string(printer, insert_into(t).default_values()).str();
 
-  serialize(printer, insert_into(t)).str();
-  serialize(printer, insert_into(t).set(t.boolNn = true, t.textN = "kirschauflauf")).str();
-  serialize(printer, insert_into(t).columns(t.boolNn, t.textN)).str();
+  to_sql_string(printer, insert_into(t)).str();
+  to_sql_string(printer, insert_into(t).set(t.boolNn = true, t.textN = "kirschauflauf")).str();
+  to_sql_string(printer, insert_into(t).columns(t.boolNn, t.textN)).str();
   auto multi_insert = insert_into(t).columns(t.boolNn, t.textN, t.intN);
   multi_insert.add_values(t.boolNn = true, t.textN = "cheesecake", t.intN = 1);
   multi_insert.add_values(t.boolNn = false, t.textN = sqlpp::default_value,
@@ -67,7 +67,7 @@ int Insert(int, char*[])
   multi_insert.add_values(t.boolNn = true, t.textN = ::sqlpp::make_optional("pie"),
                           t.intN = ::sqlpp::nullopt);
   printer.reset();
-  std::cerr << serialize(printer, multi_insert).str() << std::endl;
+  std::cerr << to_sql_string(printer, multi_insert).str() << std::endl;
 
   // Beware, you need exact types for inserted values in multi_insert
   insert_into(tabDateTime)

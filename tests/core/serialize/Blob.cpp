@@ -36,14 +36,14 @@ namespace
   auto getTrue() -> std::string
   {
     MockDb::_serializer_context_t printer = {};
-    return serialize(sqlpp::value(true), printer).str();
+    return to_sql_string(sqlpp::value(true), printer).str();
   }
   */
 
   auto getFalse() -> std::string
   {
     MockDb::_serializer_context_t printer = {};
-    return serialize(printer, sqlpp::value(false)).str();
+    return to_sql_string(printer, sqlpp::value(false)).str();
   }
 
   auto toByteVector(const std::string& s) -> std::vector<std::uint8_t>

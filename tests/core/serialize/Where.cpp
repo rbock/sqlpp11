@@ -34,13 +34,13 @@ namespace
   auto getTrue() -> std::string
   {
     MockDb::_serializer_context_t printer = {};
-    return serialize(printer, sqlpp::value(true)).str();
+    return to_sql_string(printer, sqlpp::value(true)).str();
   }
 
   auto getFalse() -> std::string
   {
     MockDb::_serializer_context_t printer = {};
-    return serialize(printer, sqlpp::value(false)).str();
+    return to_sql_string(printer, sqlpp::value(false)).str();
   }
 }  // namespace
 

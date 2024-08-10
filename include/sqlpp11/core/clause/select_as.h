@@ -50,13 +50,13 @@ namespace sqlpp
   };
 
   template <typename Context, typename TableAliasProvider, typename ColumnSpec>
-  auto serialize(Context& context, const pseudo_column_t<TableAliasProvider, ColumnSpec>& t) -> Context&
+  auto to_sql_string(Context& context, const pseudo_column_t<TableAliasProvider, ColumnSpec>& t) -> std::string
   {
     using T = pseudo_column_t<TableAliasProvider, ColumnSpec>;
 
-    serialize_name(context, name_tag_of_t<TableAliasProvider>::name);
+    name_to_sql_string(context, name_tag_of_t<TableAliasProvider>::name);
     context << '.';
-    serialize_name(context, name_tag_of_t<T>::name);
+    name_to_sql_string(context, name_tag_of_t<T>::name);
     return context;
   }
 
@@ -95,11 +95,11 @@ namespace sqlpp
 
 
   template <typename Context, typename Select, typename AliasProvider, typename... ColumnSpecs>
-  auto serialize(Context& context, const select_as_t<Select, AliasProvider, ColumnSpecs...>& t) -> Context&
+  auto to_sql_string(Context& context, const select_as_t<Select, AliasProvider, ColumnSpecs...>& t) -> std::string
   {
-    serialize_operand(context, t._select);
+    operand_to_sql_string(context, t._select);
     context << " AS ";
-    serialize_name(context, name_tag_of_t<AliasProvider>::name);
+    name_to_sql_string(context, name_tag_of_t<AliasProvider>::name);
     return context;
   }
 }  // namespace sqlpp

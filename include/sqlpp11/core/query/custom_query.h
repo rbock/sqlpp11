@@ -122,7 +122,7 @@ namespace sqlpp
   };
 
   template <typename Context, typename... Parts>
-  Context& serialize(Context& context, const custom_query_t<Parts...>& t)
+  auto to_sql_string(Context& context, const custom_query_t<Parts...>& t) -> std::string
   {
     interpret_tuple_without_braces(t._parts, " ", context);
     return context;

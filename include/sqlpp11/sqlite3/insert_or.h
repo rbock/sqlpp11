@@ -108,13 +108,13 @@ namespace sqlpp
       return {blank_insert_or_ignore_t().into(table)};
     }
 
-    inline sqlite3::context_t& serialize(const sqlite3::insert_or_replace_name_t&, sqlite3::context_t& context)
+    inline sqlite3::context_t& to_sql_string(const sqlite3::insert_or_replace_name_t&, sqlite3::context_t& context)
     {
       context << "INSERT OR REPLACE ";
       return context;
     }
 
-    inline sqlite3::context_t& serialize(const sqlite3::insert_or_ignore_name_t&, sqlite3::context_t& context)
+    inline sqlite3::context_t& to_sql_string(const sqlite3::insert_or_ignore_name_t&, sqlite3::context_t& context)
     {
       context << "INSERT OR IGNORE ";
       return context;

@@ -75,12 +75,9 @@ namespace sqlpp
   struct requires_parentheses<bit_expression<L, Operator, R>> : public std::true_type {};
 
   template <typename Context, typename L, typename Operator, typename R>
-  auto serialize(Context& context, const bit_expression<L, Operator, R>& t) -> Context&
+  auto to_sql_string(Context& context, const bit_expression<L, Operator, R>& t) -> std::string
   {
-    serialize_operand(context, t._l);
-    context << Operator::symbol;
-    serialize_operand(context, t._r);
-    return context;
+    return to_sql_string(context, simple_column(t._l)) + Operator::symbol + operand_to_sql_string(context, t._r);
   }
 
   struct bit_and

@@ -85,10 +85,10 @@ namespace sqlpp
     struct is_table<join_t<PreJoin, On>> : public std::true_type{};
 
   template <typename Context, typename PreJoin, typename On>
-  Context& serialize(Context& context, const join_t<PreJoin, On>& t)
+  auto to_sql_string(Context& context, const join_t<PreJoin, On>& t) -> std::string
   {
-    serialize(context, t._pre_join);
-    serialize(context, t._on);
+    to_sql_string(context, t._pre_join);
+    to_sql_string(context, t._on);
     return context;
   }
 }  // namespace sqlpp

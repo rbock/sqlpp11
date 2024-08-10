@@ -50,13 +50,13 @@ int Remove(int, char* [])
     static_assert(sqlpp::is_regular<T>::value, "type requirement");
   }
 
-  serialize(printer, remove_from(t)).str();
-  serialize(printer, remove_from(t).where(t.textN != "transparent")).str();
-  serialize(printer, remove_from(t).using_(t)).str();
-  serialize(printer, remove_from(t).using_(f)).str();
+  to_sql_string(printer, remove_from(t)).str();
+  to_sql_string(printer, remove_from(t).where(t.textN != "transparent")).str();
+  to_sql_string(printer, remove_from(t).using_(t)).str();
+  to_sql_string(printer, remove_from(t).using_(f)).str();
 #warning: add tests with optional using and optional where
   printer.reset();
-  std::cerr << serialize(printer, remove_from(t).unconditionally()).str() << std::endl;
+  std::cerr << to_sql_string(printer, remove_from(t).unconditionally()).str() << std::endl;
 
   remove_from(t).where(t.textN.in(select(f.textNnD).from(f).unconditionally()));
 

@@ -171,10 +171,10 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Expression>
-  Context& serialize(Context& context, const having_data_t<Expression>& t)
+  auto to_sql_string(Context& context, const having_data_t<Expression>& t) -> std::string
   {
     context << " HAVING ";
-    serialize(context, t._expression);
+    to_sql_string(context, t._expression);
     return context;
   }
 

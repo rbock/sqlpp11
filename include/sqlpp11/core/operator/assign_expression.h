@@ -80,12 +80,9 @@ namespace sqlpp
 #warning does this require braces?
 
   template <typename Context, typename L, typename Operator, typename R>
-  Context& serialize(Context& context, const assign_expression<L, Operator, R>& t)
+  auto to_sql_string(Context& context, const assign_expression<L, Operator, R>& t) -> std::string
   {
-    serialize(context, simple_column(t._l));
-    context << Operator::symbol;
-    serialize_operand(context, t._r);
-    return context;
+    return to_sql_string(context, simple_column(t._l)) + Operator::symbol + operand_to_sql_string(context, t._r);
   }
 
   struct op_assign

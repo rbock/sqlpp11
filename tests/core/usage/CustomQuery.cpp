@@ -42,14 +42,14 @@ namespace
     on_duplicate_key_update(Db&, Assignment assignment)
     {
       typename Db::_serializer_context_t context;
-      _serialized = " ON DUPLICATE KEY UPDATE " + serialize(assignment, context).str();
+      _serialized = " ON DUPLICATE KEY UPDATE " + to_sql_string(assignment, context).str();
     }
 
     template <typename Db, typename Assignment>
     auto operator()(Db&, Assignment assignment) -> on_duplicate_key_update&
     {
       typename Db::_serializer_context_t context;
-      _serialized += ", " + serialize(assignment, context).str();
+      _serialized += ", " + to_sql_string(assignment, context).str();
       return *this;
     }
 
@@ -74,7 +74,7 @@ int CustomQuery(int, char*[])
   auto x =
       //select(t.id).from(t).where(t.id > 7).group_by(t.id).having(max(t.id) > 13).order_by(t.textN.desc());
     update(t).set(t.textN = "eight", t.boolNn = true);
-  std::cerr << serialize(printer, x).str() << std::endl;
+  std::cerr << to_sql_string(printer, x).str() << std::endl;
 #warning restore this file!
 #if 0
   db(x);
@@ -111,7 +111,7 @@ int CustomQuery(int, char*[])
   // The first argument with a return type is the select, but the custom query/query is really an insert. Thus, we tell it so.
   printer.reset();
   auto c = custom_query(select(all_of(t)).from(t), into(f)).with_result_type_of(insert_into(f));
-  std::cerr << serialize(c, printer).str() << std::endl;
+  std::cerr << to_sql_string(c, printer).str() << std::endl;
   auto i = db(c);
   static_assert(std::is_integral<decltype(i)>::value, "insert yields an integral value");
 

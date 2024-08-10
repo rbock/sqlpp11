@@ -31,7 +31,7 @@
 #include <sqlpp11/core/query/policy_update.h>
 #include <sqlpp11/core/database/prepared_select.h>
 #include <sqlpp11/core/result.h>
-#include <sqlpp11/core/serialize.h>
+#include <sqlpp11/core/to_sql_string.h>
 #include <sqlpp11/core/query/statement_fwd.h>
 
 #include <sqlpp11/core/detail/get_first.h>
@@ -277,12 +277,12 @@ namespace sqlpp
   struct requires_parentheses<statement_t<Policies...>> : public std::true_type {};
 
   template <typename Context, typename... Policies>
-  Context& serialize(Context& context, const statement_t<Policies...>& t)
+  auto to_sql_string(Context& context, const statement_t<Policies...>& t) -> std::string
   {
     using P = detail::statement_policies_t<Policies...>;
 
     using swallow = int[];
-    (void)swallow{0, (serialize(context, static_cast<const typename Policies::template _base_t<P>&>(t)._data), 0)...};
+    (void)swallow{0, (to_sql_string(context, static_cast<const typename Policies::template _base_t<P>&>(t)._data), 0)...};
 
     return context;
   }

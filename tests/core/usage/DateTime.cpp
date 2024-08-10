@@ -57,7 +57,7 @@ int DateTime(int, char*[])
     std::cout << std::chrono::system_clock::to_time_t(tp);
   }
   printer.reset();
-  std::cerr << serialize(printer, ::sqlpp::value(std::chrono::system_clock::now())).str() << std::endl;
+  std::cerr << to_sql_string(printer, ::sqlpp::value(std::chrono::system_clock::now())).str() << std::endl;
 
   db(insert_into(t).set(t.dayPointN = floor<::sqlpp::chrono::days>(std::chrono::system_clock::now())));
   db(insert_into(t).set(t.timePointN = floor<::sqlpp::chrono::days>(std::chrono::system_clock::now())));

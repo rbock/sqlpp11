@@ -44,9 +44,9 @@ namespace
     if (date::abs(l - r) > std::chrono::seconds{1})
     {
       std::cerr << line << ": abs(";
-      serialize(::sqlpp::wrap_operand_t<L>{l}, std::cerr);
+      to_sql_string(::sqlpp::wrap_operand_t<L>{l}, std::cerr);
       std::cerr << " - ";
-      serialize(::sqlpp::wrap_operand_t<R>{r}, std::cerr);
+      to_sql_string(::sqlpp::wrap_operand_t<R>{r}, std::cerr);
       std::cerr << ") > 1s\n" ;
       throw std::runtime_error("Unexpected result");
     }

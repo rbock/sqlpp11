@@ -70,7 +70,7 @@ int Select(int, char*[])
   select(sqlpp::count(1).as(N));
   select(count(sqlpp::value(1)).as(N));
 
-  std::cerr << serialize(printer, select(sqlpp::value(false).as(sqlpp::alias::a))).str() << std::endl;
+  std::cerr << to_sql_string(printer, select(sqlpp::value(false).as(sqlpp::alias::a))).str() << std::endl;
   for (const auto& row : db(select(sqlpp::value(false).as(sqlpp::alias::a))))
   {
     std::cout << row.a << std::endl;
@@ -133,7 +133,7 @@ int Select(int, char*[])
                   .offset(19u)
                   .limit(7u);
   printer.reset();
-  std::cerr << serialize(printer, stat).str() << std::endl;
+  std::cerr << to_sql_string(printer, stat).str() << std::endl;
 
   auto s = sqlpp::select()
                .columns(t.id)
@@ -153,7 +153,7 @@ int Select(int, char*[])
   }
 
   printer.reset();
-  std::cerr << serialize(printer, s).str() << std::endl;
+  std::cerr << to_sql_string(printer, s).str() << std::endl;
 
   select(sqlpp::value(7).as(t.id));
 

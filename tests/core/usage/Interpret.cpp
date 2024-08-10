@@ -38,41 +38,41 @@ int Interpret(int, char* [])
   const auto t = test::TabBar{};
   select(t.id.as(t.textN));
 
-  serialize(printer, insert_into(t).columns(t.textN, t.boolNn)).str();
+  to_sql_string(printer, insert_into(t).columns(t.textN, t.boolNn)).str();
   {
     auto i = insert_into(t).columns(t.boolNn, t.textN);
     i.add_values(t.boolNn = true, t.textN = "cheesecake");
-    serialize(printer, i).str();
+    to_sql_string(printer, i).str();
     i.add_values(t.boolNn = false, t.textN = ::sqlpp::nullopt);
-    serialize(printer, i).str();
+    to_sql_string(printer, i).str();
   }
 
-  serialize(printer, t.id).str();
-  serialize(printer, -t.id).str();
-  serialize(printer, -(t.id + 7)).str();
-  serialize(printer, t.id = 0).str();
-  serialize(printer, t.id == 0).str();
-  serialize(printer, t.id != 0).str();
-  serialize(printer, t.id == 7).str();
-  serialize(printer, t.textN + "kaesekuchen").str();
+  to_sql_string(printer, t.id).str();
+  to_sql_string(printer, -t.id).str();
+  to_sql_string(printer, -(t.id + 7)).str();
+  to_sql_string(printer, t.id = 0).str();
+  to_sql_string(printer, t.id == 0).str();
+  to_sql_string(printer, t.id != 0).str();
+  to_sql_string(printer, t.id == 7).str();
+  to_sql_string(printer, t.textN + "kaesekuchen").str();
 
-  serialize(printer, sqlpp::select()).str();
-  serialize(printer, sqlpp::select().flags(sqlpp::distinct)).str();
-  serialize(printer, select(t.id, t.textN).flags(sqlpp::distinct)).str();
-  serialize(printer, select(t.id, t.textN)).str();
-  serialize(printer, select(t.id, t.textN).from(t)).str();
-  serialize(printer, select(t.id, t.textN).from(t).where(t.id == 3)).str();
-  serialize(printer, select(t.id, t.textN).from(t).where(t.id == 3).group_by(t.boolNn)).str();
-  serialize(printer, select(t.id, t.textN).from(t).where(t.id == 3).group_by(t.boolNn).having(t.textN.like("%kuchen")))
+  to_sql_string(printer, sqlpp::select()).str();
+  to_sql_string(printer, sqlpp::select().flags(sqlpp::distinct)).str();
+  to_sql_string(printer, select(t.id, t.textN).flags(sqlpp::distinct)).str();
+  to_sql_string(printer, select(t.id, t.textN)).str();
+  to_sql_string(printer, select(t.id, t.textN).from(t)).str();
+  to_sql_string(printer, select(t.id, t.textN).from(t).where(t.id == 3)).str();
+  to_sql_string(printer, select(t.id, t.textN).from(t).where(t.id == 3).group_by(t.boolNn)).str();
+  to_sql_string(printer, select(t.id, t.textN).from(t).where(t.id == 3).group_by(t.boolNn).having(t.textN.like("%kuchen")))
       .str();
-  serialize(printer, select(t.id, t.textN)
+  to_sql_string(printer, select(t.id, t.textN)
                 .from(t)
                 .where(t.id == 3)
                 .group_by(t.boolNn)
                 .having(t.textN.like("%kuchen"))
                 .order_by(t.textN.asc()))
       .str();
-  serialize(printer, select(t.id, t.textN)
+  to_sql_string(printer, select(t.id, t.textN)
                 .from(t)
                 .where(t.id == 3)
                 .group_by(t.boolNn)
@@ -82,68 +82,68 @@ int Interpret(int, char* [])
                 .offset(3u))
       .str();
 
-  serialize(printer, parameter(sqlpp::integral(), t.id)).str();
-  serialize(printer, parameter(t.id)).str();
-  serialize(printer, t.id == parameter(t.id)).str();
-  serialize(printer, t.id == parameter(t.id) and (t.textN + "gimmick").like(parameter(t.textN))).str();
+  to_sql_string(printer, parameter(sqlpp::integral(), t.id)).str();
+  to_sql_string(printer, parameter(t.id)).str();
+  to_sql_string(printer, t.id == parameter(t.id)).str();
+  to_sql_string(printer, t.id == parameter(t.id) and (t.textN + "gimmick").like(parameter(t.textN))).str();
 
-  serialize(printer, insert_into(t)).str();
-  serialize(printer, insert_into(f).default_values()).str();
-  serialize(printer, insert_into(t).set(t.boolNn = true)).str();
+  to_sql_string(printer, insert_into(t)).str();
+  to_sql_string(printer, insert_into(f).default_values()).str();
+  to_sql_string(printer, insert_into(t).set(t.boolNn = true)).str();
 
-  serialize(printer, update(t)).str();
-  serialize(printer, update(t).set(t.boolNn = true)).str();
-  serialize(printer, update(t).set(t.boolNn = true).where(t.textN.in("kaesekuchen", "cheesecake"))).str();
+  to_sql_string(printer, update(t)).str();
+  to_sql_string(printer, update(t).set(t.boolNn = true)).str();
+  to_sql_string(printer, update(t).set(t.boolNn = true).where(t.textN.in("kaesekuchen", "cheesecake"))).str();
 
-  serialize(printer, remove_from(t)).str();
-  serialize(printer, remove_from(t).using_(t)).str();
+  to_sql_string(printer, remove_from(t)).str();
+  to_sql_string(printer, remove_from(t).using_(t)).str();
 
   // functions
-  serialize(printer, sqlpp::value(7)).str();
-  serialize(printer, sqlpp::verbatim<sqlpp::integral>("something integral")).str();
-  serialize(printer, t.id.in(std::vector<int>({1, 2, 3, 4, 5, 6, 8}))).str();
-  serialize(printer, sqlpp::in(t.id, std::vector<int>({1, 2, 3, 4, 5, 6, 8}))).str();
-  serialize(printer, exists(select(t.id).from(t))).str();
-  serialize(printer, any(select(t.id).from(t))).str();
-  serialize(printer, count(t.id)).str();
-  serialize(printer, min(t.id)).str();
-  serialize(printer, max(t.id)).str();
-  serialize(printer, avg(t.id)).str();
-  serialize(printer, sum(t.id)).str();
-  serialize(printer, sqlpp::verbatim_table("whatever")).str();
+  to_sql_string(printer, sqlpp::value(7)).str();
+  to_sql_string(printer, sqlpp::verbatim<sqlpp::integral>("something integral")).str();
+  to_sql_string(printer, t.id.in(std::vector<int>({1, 2, 3, 4, 5, 6, 8}))).str();
+  to_sql_string(printer, sqlpp::in(t.id, std::vector<int>({1, 2, 3, 4, 5, 6, 8}))).str();
+  to_sql_string(printer, exists(select(t.id).from(t))).str();
+  to_sql_string(printer, any(select(t.id).from(t))).str();
+  to_sql_string(printer, count(t.id)).str();
+  to_sql_string(printer, min(t.id)).str();
+  to_sql_string(printer, max(t.id)).str();
+  to_sql_string(printer, avg(t.id)).str();
+  to_sql_string(printer, sum(t.id)).str();
+  to_sql_string(printer, sqlpp::verbatim_table("whatever")).str();
 
   // alias
-  serialize(printer, t.as(t.id)).str();
-  serialize(printer, t.as(t.id).textN).str();
+  to_sql_string(printer, t.as(t.id)).str();
+  to_sql_string(printer, t.as(t.id).textN).str();
 
   // select alias
-  serialize(printer, select(t.id).from(t).where(t.textN > "kaesekuchen").as(t.boolNn)).str();
+  to_sql_string(printer, select(t.id).from(t).where(t.textN > "kaesekuchen").as(t.boolNn)).str();
 
   // Comparison to null
   static_assert(not sqlpp::can_be_null<decltype(t.id)>::value, "expected id cannot be null");
   static_assert(not sqlpp::can_be_null<decltype(f.textNnD)>::value, "expected intN cannot be null");
-  serialize(printer, t.id.is_null()).str();
-  serialize(printer, f.textNnD.is_null()).str();
+  to_sql_string(printer, t.id.is_null()).str();
+  to_sql_string(printer, f.textNnD.is_null()).str();
 
   // join
-  serialize(printer, t.inner_join(t.as(t.id)).on(t.textN == t.as(t.id).textN)).str();
+  to_sql_string(printer, t.inner_join(t.as(t.id)).on(t.textN == t.as(t.id).textN)).str();
   {
     auto inner = t.inner_join(t.as(t.id)).on(t.textN == t.as(t.id).textN);
-    serialize(printer, select(t.id).from(inner)).str();
+    to_sql_string(printer, select(t.id).from(inner)).str();
   }
 
   // distinct aggregate
-  serialize(printer, count(sqlpp::distinct, t.id % 7)).str();
-  serialize(printer, avg(sqlpp::distinct, t.id - 7)).str();
-  serialize(printer, sum(sqlpp::distinct, t.id + 7)).str();
+  to_sql_string(printer, count(sqlpp::distinct, t.id % 7)).str();
+  to_sql_string(printer, avg(sqlpp::distinct, t.id - 7)).str();
+  to_sql_string(printer, sum(sqlpp::distinct, t.id + 7)).str();
 
-  serialize(printer, select(all_of(t)).from(t).unconditionally()).str();
+  to_sql_string(printer, select(all_of(t)).from(t).unconditionally()).str();
 
   for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
   {
-    serialize(printer, t.id == row.id);
-    serialize(printer, t.textN == row.textN.value());
-    serialize(printer, t.boolNn == row.boolNn);
+    to_sql_string(printer, t.id == row.id);
+    to_sql_string(printer, t.textN == row.textN.value());
+    to_sql_string(printer, t.boolNn == row.boolNn);
   }
 
   get_sql_name(t);
@@ -152,15 +152,15 @@ int Interpret(int, char* [])
   flatten(t.id == 7, db);
 
   printer.reset();
-  std::cerr << serialize(printer, select(all_of(t)).from(t).where(t.id.in(select(f.intN).from(f).unconditionally())))
+  std::cerr << to_sql_string(printer, select(all_of(t)).from(t).where(t.id.in(select(f.intN).from(f).unconditionally())))
                    .str()
             << std::endl;
 
   printer.reset();
-  std::cerr << serialize(printer, select(all_of(t)).from(t).where(t.id.in(7))).str() << std::endl;
+  std::cerr << to_sql_string(printer, select(all_of(t)).from(t).where(t.id.in(7))).str() << std::endl;
 
   printer.reset();
-  std::cerr << serialize(printer, select(all_of(t)).from(t).where(t.id.not_in(7))).str() << std::endl;
+  std::cerr << to_sql_string(printer, select(all_of(t)).from(t).where(t.id.not_in(7))).str() << std::endl;
 
 #warning: reactivate test
   /*
@@ -168,11 +168,11 @@ int Interpret(int, char* [])
   auto s = schema_qualified_table(schema, t).as(sqlpp::alias::x);
 
   printer.reset();
-  std::cerr << serialize(printer, select(all_of(s)).from(s).unconditionally()).str() << std::endl;
+  std::cerr << to_sql_string(printer, select(all_of(s)).from(s).unconditionally()).str() << std::endl;
 */
 
   printer.reset();
-  std::cerr << serialize(printer, sqlpp::case_when(true).then(t.id).else_(t.id + 1).as(t.textN)).str()
+  std::cerr << to_sql_string(printer, sqlpp::case_when(true).then(t.id).else_(t.id + 1).as(t.textN)).str()
             << std::endl;
 
   return 0;

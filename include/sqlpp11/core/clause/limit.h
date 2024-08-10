@@ -128,10 +128,10 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Limit>
-  Context& serialize(Context& context, const limit_data_t<Limit>& t)
+  auto to_sql_string(Context& context, const limit_data_t<Limit>& t) -> std::string
   {
     context << " LIMIT ";
-    serialize_operand(context, t._value);
+    operand_to_sql_string(context, t._value);
     return context;
   }
 

@@ -37,7 +37,7 @@ namespace sqlpp
   };
 
   template <typename Context>
-  Context& serialize(Context& context, const default_value_t&)
+  auto to_sql_string(Context& context, const default_value_t&) -> std::string
   {
     context << "DEFAULT";
     return context;

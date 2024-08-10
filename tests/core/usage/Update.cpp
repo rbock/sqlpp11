@@ -46,10 +46,10 @@ int Update(int, char*[])
     static_assert(sqlpp::is_regular<T>::value, "type requirement");
   }
 
-  serialize(printer, update(t)).str();
-  serialize(printer, update(t).set(t.boolNn = false)).str();
-  serialize(printer, update(t).set(t.boolNn = false).where(t.textN != "transparent")).str();
-  serialize(printer, update(t).set(t.textN = "opaque").where(t.textN != t.textN + "this is nonsense")).str();
+  to_sql_string(printer, update(t)).str();
+  to_sql_string(printer, update(t).set(t.boolNn = false)).str();
+  to_sql_string(printer, update(t).set(t.boolNn = false).where(t.textN != "transparent")).str();
+  to_sql_string(printer, update(t).set(t.textN = "opaque").where(t.textN != t.textN + "this is nonsense")).str();
   auto values = [&t]() { return std::make_tuple(t.intN += t.id, t.textN = "no cake this time"); };
 
 #warning add tests with dynamic set and dynamic where

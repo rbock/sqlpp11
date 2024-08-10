@@ -28,7 +28,7 @@
 
 #include <tuple>
 #include <sqlpp11/core/type_traits.h>
-#include <sqlpp11/core/serialize.h>
+#include <sqlpp11/core/to_sql_string.h>
 #include <sqlpp11/core/compat/utility.h>
 
 namespace sqlpp
@@ -43,11 +43,11 @@ namespace sqlpp
     }
     if (UseBraces::value)
     {
-      serialize_operand(context, element);
+      operand_to_sql_string(context, element);
     }
     else
     {
-      serialize(context, element);
+      to_sql_string(context, element);
     }
   }
 

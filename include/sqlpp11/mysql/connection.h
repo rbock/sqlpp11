@@ -37,7 +37,7 @@
 #include <sqlpp11/mysql/prepared_statement.h>
 #include <sqlpp11/mysql/clause/remove.h>
 #include <sqlpp11/mysql/clause/update.h>
-#include <sqlpp11/core/serialize.h>
+#include <sqlpp11/core/to_sql_string.h>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -272,13 +272,13 @@ namespace sqlpp
       template <typename T>
       static _context_t& _serialize_interpretable(const T& t, _context_t& context)
       {
-        return serialize(context, t);
+        return to_sql_string(context, t);
       }
 
       template <typename T>
       static _context_t& _interpret_interpretable(const T& t, _context_t& context)
       {
-        return serialize(context, t);
+        return to_sql_string(context, t);
       }
 
       [[deprecated("Use ping_server() instead")]] bool is_valid() const
@@ -295,7 +295,7 @@ namespace sqlpp
       char_result_t select(const Select& s)
       {
         _context_t context{*this};
-        serialize(context, s);
+        to_sql_string(context, s);
         return select_impl(context.str());
       }
 
@@ -303,7 +303,7 @@ namespace sqlpp
       _prepared_statement_t prepare_select(Select& s)
       {
         _context_t context{*this};
-        serialize(context, s);
+        to_sql_string(context, s);
         return prepare_impl(context.str(), s._get_no_of_parameters(), s.get_no_of_result_columns());
       }
 
@@ -319,7 +319,7 @@ namespace sqlpp
       size_t insert(const Insert& i)
       {
         _context_t context{*this};
-        serialize(context, i);
+        to_sql_string(context, i);
         return insert_impl(context.str());
       }
 
@@ -327,7 +327,7 @@ namespace sqlpp
       _prepared_statement_t prepare_insert(Insert& i)
       {
         _context_t context{*this};
-        serialize(context, i);
+        to_sql_string(context, i);
         return prepare_impl(context.str(), i._get_no_of_parameters(), 0);
       }
 
@@ -343,7 +343,7 @@ namespace sqlpp
       size_t update(const Update& u)
       {
         _context_t context{*this};
-        serialize(context, u);
+        to_sql_string(context, u);
         return update_impl(context.str());
       }
 
@@ -351,7 +351,7 @@ namespace sqlpp
       _prepared_statement_t prepare_update(Update& u)
       {
         _context_t context{*this};
-        serialize(context, u);
+        to_sql_string(context, u);
         return prepare_impl(context.str(), u._get_no_of_parameters(), 0);
       }
 
@@ -367,7 +367,7 @@ namespace sqlpp
       size_t remove(const Remove& r)
       {
         _context_t context{*this};
-        serialize(context, r);
+        to_sql_string(context, r);
         return remove_impl(context.str());
       }
 
@@ -375,7 +375,7 @@ namespace sqlpp
       _prepared_statement_t prepare_remove(Remove& r)
       {
         _context_t context{*this};
-        serialize(context, r);
+        to_sql_string(context, r);
         return prepare_impl(context.str(), r._get_no_of_parameters(), 0);
       }
 

@@ -67,26 +67,23 @@ namespace sqlpp
   struct is_sort_order<sort_order_expression<L>> : std::true_type {};
 
   template <typename Context>
-  auto serialize(Context& context, const sort_type& t) -> Context&
+  auto to_sql_string(Context& context, const sort_type& t) -> std::string
   {
     switch (t)
     {
       case sort_type::asc:
-        context << " ASC";
+        return " ASC";
         break;
       case sort_type::desc:
-        context << " DESC";
+        return " DESC";
         break;
     }
-    return context;
   }
 
   template <typename Context, typename L>
-  auto serialize(Context& context, const sort_order_expression<L>& t) -> Context&
+  auto to_sql_string(Context& context, const sort_order_expression<L>& t) -> std::string
   {
-    serialize_operand(context, t._l);
-    serialize(context, t._r);
-    return context;
+    return operand_to_sql_string(context, t._l) + to_sql_string(context, t._r);
   }
 
   template <typename L, typename = check_sort_order_args<L>>

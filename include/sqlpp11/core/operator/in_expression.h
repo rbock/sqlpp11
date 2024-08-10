@@ -118,38 +118,36 @@ namespace sqlpp
   struct requires_parentheses<in_expression<L, Operator, std::tuple<Args...>>> : public std::true_type{};
 
   template <typename Context, typename L, typename Operator, typename... Args>
-  auto serialize(Context& context, const in_expression<L, Operator, std::tuple<Args...>>& t) -> Context&
+  auto to_sql_string(Context& context, const in_expression<L, Operator, std::tuple<Args...>>& t) -> std::string
   {
-    serialize_operand(context, t._l);
-    context << Operator::symbol << " (";
+    auto result = operand_to_sql_string(context, t._l) + Operator::symbol + " (";
     if (sizeof...(Args) == 1)
     {
-      serialize(context, std::get<0>(t._r));
+      result += to_sql_string(context, std::get<0>(t._r));
     }
     else
     {
 #warning: interpret_tuple arguments should take Context first, too
       interpret_tuple(t._r, ", ", context);
     }
-    context << ')';
-    return context;
+    result += ")";
+    return result;
   }
 
   template <typename Container>
   struct value_list_t;
 
   template <typename Context, typename L, typename Operator, typename R>
-  Context& serialize(Context& context, const in_expression<L, Operator, std::vector<R>>& t)
+  auto to_sql_string(Context& context, const in_expression<L, Operator, std::vector<R>>& t) -> std::string
   {
     if (t._r.empty())
     {
       // SQL would normally treat this as a bug in the query.
       // IN requires one parameter at least.
       // But the statement "L NOT IN empty_set" is true, so let's treat this as a bool result.
-      return serialize(context, std::is_same<Operator, operator_not_in>::value);
+      return to_sql_string(context, std::is_same<Operator, operator_not_in>::value);
     }
-    serialize(context, t._l);
-    context << Operator::symbol << " (";
+    auto result = to_sql_string(context, t._l) + Operator::symbol + " (";
     bool first = true;
     for (const auto& entry : t._r)
     {
@@ -159,20 +157,20 @@ namespace sqlpp
       }
       else
       {
-        context << ", ";
+        result += ", ";
       }
 
       if (t._r.size() == 1) {
         // A single entry does not need extra parentheses.
-        serialize(context, entry);
+        result += to_sql_string(context, entry);
       }
       else
       {
-        serialize_operand(context, entry);
+        result += operand_to_sql_string(context, entry);
       }
     }
-    context << ')';
-    return context;
+    result += ")";
+    return result;
   }
 
 #warning: something.in(select(...)); should be suppported as is, need to test

@@ -228,7 +228,7 @@ int SelectType(int, char*[])
     s.limit.set(30u);
     s.limit.set(3u);
     std::cerr << "------------------------\n";
-    serialize(printer, s).str();
+    to_sql_string(printer, s).str();
     std::cerr << "------------------------\n";
     using T = decltype(s);
   }
@@ -237,7 +237,7 @@ int SelectType(int, char*[])
   {
     auto s = dynamic_select(db).dynamic_columns();
     s.selected_columns.add(without_table_check(t.id));
-    serialize(printer, s).str();
+    to_sql_string(printer, s).str();
   }
 
   {
@@ -250,7 +250,7 @@ int SelectType(int, char*[])
   // Test that verbatim_table compiles
   {
     auto s = select(t.id).from(sqlpp::verbatim_table("my_unknown_table"));
-    serialize(printer, s).str();
+    to_sql_string(printer, s).str();
   }
 
   static_assert(sqlpp::is_select_flag_t<decltype(sqlpp::all)>::value, "sqlpp::all has to be a select_flag");
@@ -259,9 +259,9 @@ int SelectType(int, char*[])
   static_assert(sqlpp::is_boolean<decltype(t.boolNn != not(t.boolNn))>::value,
                 "Comparison expression have to be boolean");
   !t.boolNn;
-  serialize(printer, t.textN < "kaesekuchen").str();
-  serialize(printer, t.textN + "hallenhalma").str();
-  serialize(printer, t.id).str();
+  to_sql_string(printer, t.textN < "kaesekuchen").str();
+  to_sql_string(printer, t.textN + "hallenhalma").str();
+  to_sql_string(printer, t.id).str();
   std::cerr << "\n" << sizeof(test::TabBar) << std::endl;
 
   auto l = t.as(alias::left);

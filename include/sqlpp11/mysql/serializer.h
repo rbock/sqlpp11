@@ -32,7 +32,7 @@
 namespace sqlpp
 {
   template <typename First, typename... Args>
-  mysql::context_t& serialize(const concat_t<First, Args...>& t, mysql::context_t& ctx)
+  mysql::context_t& to_sql_string(const concat_t<First, Args...>& t, mysql::context_t& ctx)
   {
     ctx << "CONCAT(";
     interpret_tuple(t._args, ',', ctx);
@@ -40,7 +40,7 @@ namespace sqlpp
     return ctx;
   }
 
-  inline mysql::context_t& serialize(const insert_default_values_data_t&, mysql::context_t& ctx)
+  inline mysql::context_t& to_sql_string(const insert_default_values_data_t&, mysql::context_t& ctx)
   {
     ctx << " () VALUES()";
     return ctx;

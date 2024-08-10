@@ -135,7 +135,7 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename... Flags>
-  Context& serialize(Context& context, const select_flag_list_data_t<Flags...>& t)
+  auto to_sql_string(Context& context, const select_flag_list_data_t<Flags...>& t) -> std::string
   {
     interpret_tuple(t._flags, ' ', context);
     if (sizeof...(Flags) != 0u)

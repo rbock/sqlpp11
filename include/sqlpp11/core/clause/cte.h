@@ -59,13 +59,13 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Flag, typename Lhs, typename Rhs>
-  Context& serialize(Context& context, const cte_union_t<Flag, Lhs, Rhs>& t)
+  auto to_sql_string(Context& context, const cte_union_t<Flag, Lhs, Rhs>& t) -> std::string
   {
-    serialize(context, t._lhs);
+    to_sql_string(context, t._lhs);
     context << " UNION ";
-    serialize(context, Flag{});
+    to_sql_string(context, Flag{});
     context << " ";
-    serialize(context, t._rhs);
+    to_sql_string(context, t._rhs);
     return context;
   }
 
@@ -227,11 +227,11 @@ namespace sqlpp
   };
 
   template <typename Context, typename AliasProvider, typename Statement, typename... ColumnSpecs>
-  Context& serialize(Context& context, const cte_t<AliasProvider, Statement, ColumnSpecs...>& t)
+  auto to_sql_string(Context& context, const cte_t<AliasProvider, Statement, ColumnSpecs...>& t) -> std::string
   {
     using T = cte_t<AliasProvider, Statement, ColumnSpecs...>;
     context << name_tag_of_t<T>::template char_ptr<Context>() << " AS (";
-    serialize(context, t._statement);
+    to_sql_string(context, t._statement);
     context << ")";
     return context;
   }
@@ -268,7 +268,7 @@ namespace sqlpp
     struct name_tag_of<cte_ref_t<AliasProvider>> : public name_tag_of<AliasProvider>{};
 
   template <typename Context, typename AliasProvider>
-  Context& serialize(Context& context, const cte_ref_t<AliasProvider>&)
+  auto to_sql_string(Context& context, const cte_ref_t<AliasProvider>&) -> std::string
   {
     context << name_tag_of_t<cte_ref_t<AliasProvider>>::template char_ptr<Context>();
     return context;

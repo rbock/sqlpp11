@@ -190,7 +190,7 @@ namespace sqlpp
     };
 
     template <typename ConflictTarget>
-    postgresql::context_t& serialize(const postgresql::on_conflict_data_t<ConflictTarget>&,
+    postgresql::context_t& to_sql_string(const postgresql::on_conflict_data_t<ConflictTarget>&,
                                      postgresql::context_t& context)
     {
       context << " ON CONFLICT (";
@@ -199,7 +199,7 @@ namespace sqlpp
       return context;
     }
 
-    inline postgresql::context_t& serialize(const postgresql::on_conflict_data_t<no_data_t>&, postgresql::context_t& context)
+    inline postgresql::context_t& to_sql_string(const postgresql::on_conflict_data_t<no_data_t>&, postgresql::context_t& context)
     {
       context << " ON CONFLICT ";
       return context;

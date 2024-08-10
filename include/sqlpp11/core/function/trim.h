@@ -27,7 +27,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/serialize.h>
+#include <sqlpp11/core/to_sql_string.h>
 #include <sqlpp11/core/type_traits.h>
 
 namespace sqlpp
@@ -60,10 +60,10 @@ namespace sqlpp
     };
 
   template <typename Context, typename Expr>
-  Context& serialize(Context& context, const trim_t<Expr>& t)
+  auto to_sql_string(Context& context, const trim_t<Expr>& t) -> std::string
   {
     context << "TRIM(";
-    serialize_operand(context, t._expr);
+    operand_to_sql_string(context, t._expr);
     context << ")";
     return context;
   }

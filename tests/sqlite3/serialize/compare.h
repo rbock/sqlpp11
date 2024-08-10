@@ -53,7 +53,7 @@ namespace
     sqlpp::sqlite3::connection connection{config};
     sqlpp::sqlite3::context_t printer{connection};
 
-    const auto result = serialize(expr, printer).str();
+    const auto result = to_sql_string(expr, printer).str();
 
     assert_equal(lineNo, result, expected);
   }

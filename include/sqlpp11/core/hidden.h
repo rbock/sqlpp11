@@ -43,7 +43,7 @@ namespace sqlpp
   };
 
   template <typename Context, typename Clause>
-  Context& serialize(Context& context, const hidden_t<Clause>&)
+  auto to_sql_string(Context& context, const hidden_t<Clause>&) -> std::string
   {
     return context;
   }

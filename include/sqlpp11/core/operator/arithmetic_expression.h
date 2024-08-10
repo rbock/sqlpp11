@@ -252,12 +252,9 @@ namespace sqlpp
   struct requires_parentheses<arithmetic_expression<L, Operator, R>> : public std::true_type{};
 
   template <typename Context, typename L, typename Operator, typename R>
-  auto serialize(Context& context, const arithmetic_expression<L, Operator, R>& t) -> Context&
+  auto to_sql_string(Context& context, const arithmetic_expression<L, Operator, R>& t) -> std::string
   {
-    serialize_operand(context, t._l);
-    context << Operator::symbol;
-    serialize_operand(context, t._r);
-    return context;
+    return operand_to_sql_string(context, t._l) + Operator::symbol + operand_to_sql_string(context, t._r);
   }
 
   template <typename L, typename R, typename = check_arithmetic_args<L, R>>

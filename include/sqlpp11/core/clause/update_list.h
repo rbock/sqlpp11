@@ -165,7 +165,7 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename... Assignments>
-  Context& serialize(Context& context, const update_list_data_t<Assignments...>& t)
+  auto to_sql_string(Context& context, const update_list_data_t<Assignments...>& t) -> std::string
   {
     context << " SET ";
     interpret_tuple(t._assignments, ",", context);

@@ -50,7 +50,7 @@ namespace sqlpp
     static_assert(not make_parameter_list_t<Expression>::size::value,
                   "parameters are not allowed in flattened expressions");
     auto context = db.get_serializer_context();
-    serialize(context, exp);
+    to_sql_string(context, exp);
     return {context.str()};
   }
 

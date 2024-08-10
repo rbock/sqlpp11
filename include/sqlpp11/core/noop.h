@@ -27,7 +27,7 @@
  */
 
 #include <type_traits>
-#include <sqlpp11/core/serialize.h>
+#include <sqlpp11/core/to_sql_string.h>
 #include <sqlpp11/core/database/prepared_execute.h>
 
 namespace sqlpp
@@ -81,7 +81,7 @@ namespace sqlpp
   };
 
   template <typename Context>
-  auto serialize(Context& context, const noop&) -> Context&
+  auto to_sql_string(Context& context, const noop&) -> std::string
   {
     return context;
   }

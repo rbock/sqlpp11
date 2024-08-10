@@ -60,13 +60,11 @@ namespace sqlpp
   };
 
   template <typename Context, typename Expression, typename AliasProvider>
-  Context& serialize(Context& context, const as_expression<Expression, AliasProvider>& t)
+  auto to_sql_string(Context& context, const as_expression<Expression, AliasProvider>& t) -> std::string
   {
-    serialize_operand(context, t._expression);
-    context << " AS ";
-    serialize_name(context, name_tag_of_t<AliasProvider>::name);
-    return context;
+    return operand_to_sql_string(context, t._expression) + " AS " + name_to_sql_string(context, name_tag_of_t<AliasProvider>::name);
   }
+
   template <typename Expr, typename AliasProvider>
   using check_as_args = ::sqlpp::enable_if_t<
   has_value_type<Expr>::value and not is_alias_t<Expr>::value and has_name<AliasProvider>::value
