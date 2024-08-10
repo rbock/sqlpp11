@@ -395,49 +395,47 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context>
-  auto to_sql_string(Context& context, const insert_default_values_data_t&) -> std::string
+  auto to_sql_string(Context& , const insert_default_values_data_t&) -> std::string
   {
-    context << " DEFAULT VALUES";
-    return context;
+    return " DEFAULT VALUES";
   }
 
 
   template <typename Context, typename... Columns>
   auto to_sql_string(Context& context, const column_list_data_t<Columns...>& t) -> std::string
   {
-    context << " (";
-    interpret_tuple(t._columns, ",", context);
-    context << ")";
+    auto result = std::string{" ("};
+    result += interpret_tuple(t._columns, ",", context);
+    result += ")";
     bool first = true;
     for (const auto& row : t._insert_values)
     {
       if (first)
       {
-        context << " VALUES ";
+        result += " VALUES ";
         first = false;
       }
       else
       {
-        context << ',';
+        result += ',';
       }
-      context << '(';
-      interpret_tuple(row, ",", context);
-      context << ')';
+      result += '(';
+      result += interpret_tuple(row, ",", context);
+      result += ')';
     }
 
-    return context;
+    return result;
   }
 
   template <typename Context, typename... Assignments>
   auto to_sql_string(Context& context, const insert_list_data_t<Assignments...>& t) -> std::string
   {
-    context << " (";
-    interpret_tuple(t._columns, ",", context);
-    context << ")";
-    context << " VALUES(";
-    interpret_tuple(t._values, ",", context);
-    context << ")";
-    return context;
+    auto result = std::string{" ("};
+    result += interpret_tuple(t._columns, ",", context);
+    result += ") VALUES(";
+    result += interpret_tuple(t._values, ",", context);
+    result += ")";
+    return result;
   }
 
   template <typename... Assignments>

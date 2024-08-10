@@ -81,9 +81,9 @@ namespace sqlpp
   };
 
   template <typename Context>
-  auto to_sql_string(Context& context, const noop&) -> std::string
+  auto to_sql_string(Context& , const noop&) -> std::string
   {
-    return context;
+    return {};
   }
 
   template <typename T>

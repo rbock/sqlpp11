@@ -49,8 +49,7 @@ namespace sqlpp
   template <typename Context, typename Column>
   auto to_sql_string(Context& context, const simple_column_t<Column>&) -> std::string
   {
-    context << name_tag_of_t<typename simple_column_t<Column>::_column_t>::name;
-    return context;
+    return name_to_sql_string(context, name_tag_of_t<typename simple_column_t<Column>::_column_t>::name);
   }
 
   template <typename Column>

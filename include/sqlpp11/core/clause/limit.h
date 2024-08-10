@@ -130,9 +130,7 @@ namespace sqlpp
   template <typename Context, typename Limit>
   auto to_sql_string(Context& context, const limit_data_t<Limit>& t) -> std::string
   {
-    context << " LIMIT ";
-    operand_to_sql_string(context, t._value);
-    return context;
+    return  " LIMIT " + operand_to_sql_string(context, t._value);
   }
 
   template <typename T>

@@ -34,13 +34,13 @@ namespace
   auto getTrue() -> std::string
   {
     MockDb::_serializer_context_t printer = {};
-    return to_sql_string(printer, sqlpp::value(true)).str();
+    return to_sql_string(printer, sqlpp::value(true));
   }
 
   auto getFalse() -> std::string
   {
     MockDb::_serializer_context_t printer = {};
-    return to_sql_string(printer, sqlpp::value(false)).str();
+    return to_sql_string(printer, sqlpp::value(false));
   }
 }  // namespace
 
@@ -74,23 +74,23 @@ int Where(int, char*[])
 
   // Sometimes
   SQLPP_COMPARE(where(bar.boolNn), " WHERE tab_bar.bool_nn");
-  SQLPP_COMPARE(where(bar.boolNn == false), " WHERE (tab_bar.bool_nn = " + getFalse() + ")");
-  SQLPP_COMPARE(where(bar.textN.is_null()), " WHERE (tab_bar.text_n IS NULL)");
-  SQLPP_COMPARE(where(bar.textN == "SQL"), " WHERE (tab_bar.text_n = 'SQL')");
+  SQLPP_COMPARE(where(bar.boolNn == false), " WHERE tab_bar.bool_nn = " + getFalse());
+  SQLPP_COMPARE(where(bar.textN.is_null()), " WHERE tab_bar.text_n IS NULL");
+  SQLPP_COMPARE(where(bar.textN == "SQL"), " WHERE tab_bar.text_n = 'SQL'");
   SQLPP_COMPARE(where(is_not_distinct_from(bar.textN, ::sqlpp::make_optional("SQL"))),
-          " WHERE (tab_bar.text_n IS NOT DISTINCT FROM 'SQL')");
+          " WHERE tab_bar.text_n IS NOT DISTINCT FROM 'SQL'");
   SQLPP_COMPARE(where(is_not_distinct_from(bar.textN, ::sqlpp::nullopt)),
-          " WHERE (tab_bar.text_n IS NOT DISTINCT FROM NULL)");
+          " WHERE tab_bar.text_n IS NOT DISTINCT FROM NULL");
   SQLPP_COMPARE(where(bar.textN.is_not_distinct_from(::sqlpp::make_optional("SQL"))),
-          " WHERE (tab_bar.text_n IS NOT DISTINCT FROM 'SQL')");
+          " WHERE tab_bar.text_n IS NOT DISTINCT FROM 'SQL'");
   SQLPP_COMPARE(where(bar.textN.is_not_distinct_from(::sqlpp::nullopt)),
-          " WHERE (tab_bar.text_n IS NOT DISTINCT FROM NULL)");
+          " WHERE tab_bar.text_n IS NOT DISTINCT FROM NULL");
 
   // string argument
-  SQLPP_COMPARE(where(bar.textN == std::string("SQL")), " WHERE (tab_bar.text_n = 'SQL')");
+  SQLPP_COMPARE(where(bar.textN == std::string("SQL")), " WHERE tab_bar.text_n = 'SQL'");
 
   // string_view argument
-  SQLPP_COMPARE(where(bar.textN == ::sqlpp::string_view("SQL")), " WHERE (tab_bar.text_n = 'SQL')");
+  SQLPP_COMPARE(where(bar.textN == ::sqlpp::string_view("SQL")), " WHERE tab_bar.text_n = 'SQL'");
 
   return 0;
 }

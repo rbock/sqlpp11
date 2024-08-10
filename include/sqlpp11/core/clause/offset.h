@@ -138,13 +138,10 @@ namespace sqlpp
     };
   };
 
-  // Interpreters
   template <typename Context, typename Offset>
   auto to_sql_string(Context& context, const offset_data_t<Offset>& t) -> std::string
   {
-    context << " OFFSET ";
-    operand_to_sql_string(context, t._value);
-    return context;
+    return  " OFFSET " +  operand_to_sql_string(context, t._value);
   }
 
   template <typename T>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, Roland Bock
+ * Copyright (c) 2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -38,7 +38,7 @@ int DynamicWhere(int, char*[])
   SQLPP_COMPARE(sqlpp::unconditionally(), "");
   SQLPP_COMPARE(where(bar.boolNn), " WHERE tab_bar.bool_nn");
 
-  SQLPP_COMPARE(where(bar.boolNn and dynamic(true, foo.boolN)), " WHERE (tab_bar.bool_nn AND tab_foo.bool_n)");
+  SQLPP_COMPARE(where(bar.boolNn and dynamic(true, foo.boolN)), " WHERE tab_bar.bool_nn AND tab_foo.bool_n");
   SQLPP_COMPARE(where(bar.boolNn and dynamic(false, foo.boolN)), " WHERE tab_bar.bool_nn");
 
   return 0;

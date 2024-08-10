@@ -135,11 +135,7 @@ namespace sqlpp
   template <typename Context, typename JoinType, typename Lhs, typename Rhs>
   auto to_sql_string(Context& context, const pre_join_t<JoinType, Lhs, Rhs>& t) -> std::string
   {
-    to_sql_string(context, t._lhs);
-    context << JoinType::_name;
-    context << " JOIN ";
-    to_sql_string(context, t._rhs);
-    return context;
+    return to_sql_string(context, t._lhs) + JoinType::_name + " JOIN " + to_sql_string(context, t._rhs);
   }
 
   namespace detail

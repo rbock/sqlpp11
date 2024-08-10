@@ -54,10 +54,7 @@ namespace sqlpp
   template <typename Context, typename Expr>
   auto to_sql_string(Context& context, const upper_t<Expr>& t) -> std::string
   {
-    context << "UPPER(";
-    operand_to_sql_string(context, t._expr);
-    context << ")";
-    return context;
+    return "UPPER(" + to_sql_string(context, t._expr) + ")";
   }
 
   template<typename T>

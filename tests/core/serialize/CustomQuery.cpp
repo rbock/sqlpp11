@@ -46,8 +46,8 @@ int CustomQuery(int, char*[])
       custom_query(sqlpp::select(), select_flags(sqlpp::distinct), select_columns(foo.doubleN),
                    from(foo.join(bar).on(foo.doubleN == bar.id)), where(bar.id > 17), group_by(foo.doubleN),
                    having(avg(bar.id) > 19), order_by(foo.doubleN.asc()), sqlpp::limit(10u), sqlpp::offset(100u)),
-      "SELECT  DISTINCT  tab_foo.double_n  FROM tab_foo INNER JOIN tab_bar ON (tab_foo.double_n = tab_bar.id)  WHERE "
-      "(tab_bar.id > 17)  GROUP BY tab_foo.double_n  HAVING (AVG(tab_bar.id) > 19)  ORDER BY tab_foo.double_n ASC  "
+      "SELECT  DISTINCT  tab_foo.double_n  FROM tab_foo INNER JOIN tab_bar ON tab_foo.double_n = tab_bar.id  WHERE "
+      "tab_bar.id > 17  GROUP BY tab_foo.double_n  HAVING AVG(tab_bar.id) > 19  ORDER BY tab_foo.double_n ASC  "
       "LIMIT 10  OFFSET 100");
 
   // A full select statement made individual clauses
@@ -56,8 +56,8 @@ int CustomQuery(int, char*[])
                    from(foo.join(bar).on(foo.doubleN == bar.id)), where(bar.id > 17), group_by(foo.doubleN),
                    having(avg(bar.id) > 19), order_by(foo.doubleN.asc(), foo.uIntN.order(sqlpp::sort_type::desc)),
                    sqlpp::limit(7u), sqlpp::offset(3u)),
-      "SELECT  DISTINCT  tab_foo.double_n  FROM tab_foo INNER JOIN tab_bar ON (tab_foo.double_n = tab_bar.id)  WHERE "
-      "(tab_bar.id > 17)  GROUP BY tab_foo.double_n  HAVING (AVG(tab_bar.id) > 19)  ORDER BY tab_foo.double_n "
+      "SELECT  DISTINCT  tab_foo.double_n  FROM tab_foo INNER JOIN tab_bar ON tab_foo.double_n = tab_bar.id  WHERE "
+      "tab_bar.id > 17  GROUP BY tab_foo.double_n  HAVING AVG(tab_bar.id) > 19  ORDER BY tab_foo.double_n "
       "ASC,tab_foo.u_int_n DESC  LIMIT 7  OFFSET 3");
 
   // A pragma query/query for sqlite
@@ -73,7 +73,7 @@ int CustomQuery(int, char*[])
                                  .where(not exists(select(foo.doubleN).from(foo).where(foo.doubleN == x)))),
                 "INSERT INTO tab_foo (double_n) "
                 "SELECT 17 AS double_n FROM tab_foo "
-                "WHERE (NOT EXISTS(SELECT tab_foo.double_n FROM tab_foo WHERE (tab_foo.double_n = 17)))");
+                "WHERE NOT EXISTS (SELECT tab_foo.double_n FROM tab_foo WHERE tab_foo.double_n = 17)");
 
 #warning : reactivate
 #if 0

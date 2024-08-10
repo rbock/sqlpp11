@@ -37,17 +37,14 @@ namespace sqlpp
   static auto interpret_tuple_element(
       const Element& element, const Separator& separator, Context& context, const UseBraces& /*unused*/, size_t index) -> std::string
   {
-    if (index)
-    {
-      return separator;
-    }
+    const auto prefix = index ? std::string{separator} : std::string{};
     if (UseBraces::value)
     {
-      return operand_to_sql_string(context, element);
+      return prefix + operand_to_sql_string(context, element);
     }
     else
     {
-      return to_sql_string(context, element);
+      return prefix + to_sql_string(context, element);
     }
   }
 

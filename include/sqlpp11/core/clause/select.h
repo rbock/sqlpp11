@@ -55,7 +55,7 @@ namespace sqlpp
   };
 
   template <typename Context>
-  auto to_sql_string(Context& context, const select_name_t&) -> std::string
+  auto to_sql_string(Context& , const select_name_t&) -> std::string
   {
     return "SELECT ";
   }

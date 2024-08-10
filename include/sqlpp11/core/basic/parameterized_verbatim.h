@@ -71,10 +71,7 @@ namespace sqlpp
   template <typename Context, typename ValueType, typename Expr>
   auto to_sql_string(Context& context, const parameterized_verbatim_t<ValueType, Expr>& t) -> std::string
   {
-    context << t._verbatim_lhs;
-    to_sql_string(context, t._expr);
-    context << t._verbatim_rhs;
-    return context;
+    return t._verbatim_lhs + to_sql_string(context, t._expr) + t._verbatim_rhs;
   }
 
   template <typename ValueType, typename Expr>

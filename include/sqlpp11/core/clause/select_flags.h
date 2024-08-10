@@ -42,10 +42,9 @@ namespace sqlpp
   static constexpr all_t all = {};
 
   template <typename Context>
-  auto to_sql_string(Context& context, const all_t&) -> std::string
+  auto to_sql_string(Context& , const all_t&) -> std::string
   {
-    context << "ALL";
-    return context;
+    return "ALL ";
   }
 
   struct distinct_t
@@ -56,10 +55,9 @@ namespace sqlpp
   static constexpr distinct_t distinct = {};
 
   template <typename Context>
-  auto to_sql_string(Context& context, const distinct_t&) -> std::string
+  auto to_sql_string(Context& , const distinct_t&) -> std::string
   {
-    context << "DISTINCT";
-    return context;
+    return "DISTINCT ";
   }
 
   struct straight_join_t
@@ -69,10 +67,10 @@ namespace sqlpp
   };
   static constexpr straight_join_t straight_join = {};
 
+#warning: Why is this in the select flags?
   template <typename Context>
-  auto to_sql_string(Context& context, const straight_join_t&) -> std::string
+  auto to_sql_string(Context& , const straight_join_t&) -> std::string
   {
-    context << "STRAIGHT_JOIN";
-    return context;
+    return "STRAIGHT_JOIN";
   }
 }  // namespace sqlpp

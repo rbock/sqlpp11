@@ -173,9 +173,7 @@ namespace sqlpp
   template <typename Context, typename Expression>
   auto to_sql_string(Context& context, const having_data_t<Expression>& t) -> std::string
   {
-    context << " HAVING ";
-    to_sql_string(context, t._expression);
-    return context;
+    return " HAVING " + to_sql_string(context, t._expression);
   }
 
   template <typename T>

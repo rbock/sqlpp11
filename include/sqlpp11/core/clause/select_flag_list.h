@@ -137,12 +137,7 @@ namespace sqlpp
   template <typename Context, typename... Flags>
   auto to_sql_string(Context& context, const select_flag_list_data_t<Flags...>& t) -> std::string
   {
-    interpret_tuple(t._flags, ' ', context);
-    if (sizeof...(Flags) != 0u)
-    {
-      context << ' ';
-    }
-    return context;
+    return interpret_tuple(t._flags, "", context);
   }
 
   template <typename T>

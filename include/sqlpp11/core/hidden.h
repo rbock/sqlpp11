@@ -43,9 +43,9 @@ namespace sqlpp
   };
 
   template <typename Context, typename Clause>
-  auto to_sql_string(Context& context, const hidden_t<Clause>&) -> std::string
+  auto to_sql_string(Context& , const hidden_t<Clause>&) -> std::string
   {
-    return context;
+    return {};
   }
 
   template <typename Clause>

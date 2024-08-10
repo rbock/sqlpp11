@@ -62,10 +62,7 @@ namespace sqlpp
   template <typename Context, typename Expr>
   auto to_sql_string(Context& context, const trim_t<Expr>& t) -> std::string
   {
-    context << "TRIM(";
-    operand_to_sql_string(context, t._expr);
-    context << ")";
-    return context;
+    return "TRIM(" +  to_sql_string(context, t._expr)+ ")";
   }
 
   template<typename T>

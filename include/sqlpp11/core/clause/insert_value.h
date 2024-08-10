@@ -83,12 +83,8 @@ namespace sqlpp
   {
     if (t._is_default)
     {
-      context << "DEFAULT";
+      return "DEFAULT";
     }
-    else
-    {
-      operand_to_sql_string(context, t._value);
-    }
-    return context;
+    return operand_to_sql_string(context, t._value);
   }
 }  // namespace sqlpp

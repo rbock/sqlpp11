@@ -54,10 +54,7 @@ namespace sqlpp
   {
     using T = pseudo_column_t<TableAliasProvider, ColumnSpec>;
 
-    name_to_sql_string(context, name_tag_of_t<TableAliasProvider>::name);
-    context << '.';
-    name_to_sql_string(context, name_tag_of_t<T>::name);
-    return context;
+    return name_to_sql_string(context, name_tag_of_t<TableAliasProvider>::name) + "."+    name_to_sql_string(context, name_tag_of_t<T>::name);
   }
 
   template <typename Select, typename AliasProvider, typename... ColumnSpecs>
@@ -97,9 +94,6 @@ namespace sqlpp
   template <typename Context, typename Select, typename AliasProvider, typename... ColumnSpecs>
   auto to_sql_string(Context& context, const select_as_t<Select, AliasProvider, ColumnSpecs...>& t) -> std::string
   {
-    operand_to_sql_string(context, t._select);
-    context << " AS ";
-    name_to_sql_string(context, name_tag_of_t<AliasProvider>::name);
-    return context;
+    return operand_to_sql_string(context, t._select) + " AS " +name_to_sql_string(context, name_tag_of_t<AliasProvider>::name);
   }
 }  // namespace sqlpp

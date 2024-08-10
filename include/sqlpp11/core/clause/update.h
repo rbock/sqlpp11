@@ -87,10 +87,9 @@ namespace sqlpp
   };
 
   template <typename Context>
-  auto to_sql_string(Context& context, const update_name_t&) -> std::string
+  auto to_sql_string(Context& , const update_name_t&) -> std::string
   {
-    context << "UPDATE ";
-    return context;
+    return "UPDATE ";
   }
 
   using blank_update_t = statement_t<update_t, no_single_table_t, no_update_list_t, no_where_t<true>>;

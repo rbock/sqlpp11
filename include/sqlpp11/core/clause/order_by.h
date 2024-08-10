@@ -148,9 +148,7 @@ namespace sqlpp
   template <typename Context, typename... Expressions>
   auto to_sql_string(Context& context, const order_by_data_t<Expressions...>& t) -> std::string
   {
-    context << " ORDER BY ";
-    interpret_tuple(t._expressions, ',', context);
-    return context;
+    return " ORDER BY " + interpret_tuple(t._expressions, ',', context);
   }
 
   template <typename... T>

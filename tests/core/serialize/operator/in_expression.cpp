@@ -44,7 +44,7 @@ int main(int, char* [])
   SQLPP_COMPARE(val.not_in(select(val.as(v))), "17 NOT IN (SELECT 17 AS v)");
 
   // IN expressions with multiple arguments require inner parentheses.
-  SQLPP_COMPARE(val.in(1, select(val.as(v))), "17 IN (1, (SELECT 17 AS v))");
+  SQLPP_COMPARE(val.in(1, select(val.as(v)), 23), "17 IN (1, (SELECT 17 AS v), 23)");
   SQLPP_COMPARE(val.in(std::vector<int>{17, 18, 19}), "17 IN (17, 18, 19)");
   SQLPP_COMPARE(val.in(std::vector<expr_t>{expr, expr, expr}), "17 IN ((17 + 4), (17 + 4), (17 + 4))");
 

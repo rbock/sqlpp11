@@ -124,8 +124,7 @@ namespace sqlpp
   template <typename Context, typename... Parts>
   auto to_sql_string(Context& context, const custom_query_t<Parts...>& t) -> std::string
   {
-    interpret_tuple_without_braces(t._parts, " ", context);
-    return context;
+    return interpret_tuple_without_braces(t._parts, " ", context);
   }
 
   template <typename... Parts>

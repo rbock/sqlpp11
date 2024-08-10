@@ -33,7 +33,7 @@ int Parameter(int, char*[])
   const auto bar = test::TabBar{};
 
   SQLPP_COMPARE(parameter(foo.doubleN), "?");
-  SQLPP_COMPARE(bar.id > parameter(foo.doubleN), "(tab_bar.id > ?)");
+  SQLPP_COMPARE(bar.id > parameter(foo.doubleN), "tab_bar.id > ?");
 
 #warning: Need type tests for parameter, too (do they have the right value type and the right paramter type?)
 

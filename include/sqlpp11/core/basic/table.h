@@ -69,7 +69,6 @@ namespace sqlpp
   template <typename Context, typename TableSpec>
   auto to_sql_string(Context& context, const table_t<TableSpec>& /*unused*/) -> std::string
   {
-    name_to_sql_string(context, name_tag_of_t<TableSpec>::name);
-    return context;
+    return name_to_sql_string(context, name_tag_of_t<TableSpec>::name);
   }
 }  // namespace sqlpp

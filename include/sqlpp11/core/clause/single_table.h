@@ -145,7 +145,6 @@ namespace sqlpp
   template <typename Context, typename Table>
   auto to_sql_string(Context& context, const single_table_data_t<Table>& t) -> std::string
   {
-    to_sql_string(context, t._table);
-    return context;
+    return to_sql_string(context, t._table);
   }
 }  // namespace sqlpp

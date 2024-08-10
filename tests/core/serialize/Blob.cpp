@@ -32,18 +32,10 @@
 
 namespace
 {
-  /*
-  auto getTrue() -> std::string
-  {
-    MockDb::_serializer_context_t printer = {};
-    return to_sql_string(sqlpp::value(true), printer).str();
-  }
-  */
-
   auto getFalse() -> std::string
   {
     MockDb::_serializer_context_t printer = {};
-    return to_sql_string(printer, sqlpp::value(false)).str();
+    return to_sql_string(printer, sqlpp::value(false));
   }
 
   auto toByteVector(const std::string& s) -> std::vector<std::uint8_t>
@@ -59,11 +51,11 @@ int Blob(int, char*[])
 
   // Unconditionally
   SQLPP_COMPARE(select(foo.blobN).from(foo).where(foo.blobN == toByteVector("john doe")),
-          "SELECT tab_foo.blob_n FROM tab_foo WHERE (tab_foo.blob_n = x'6A6F686E20646F65')");
+          "SELECT tab_foo.blob_n FROM tab_foo WHERE tab_foo.blob_n = x'6A6F686E20646F65'");
 
   std::array<uint8_t, 8> arr{{'j', 'o', 'h', 'n', ' ', 'd', 'o', 'e'}};
   SQLPP_COMPARE(select(foo.blobN).from(foo).where(foo.blobN == arr),
-          "SELECT tab_foo.blob_n FROM tab_foo WHERE (tab_foo.blob_n = x'6A6F686E20646F65')");
+          "SELECT tab_foo.blob_n FROM tab_foo WHERE tab_foo.blob_n = x'6A6F686E20646F65'");
 
 #warning: This should go somewhere else
   // Never

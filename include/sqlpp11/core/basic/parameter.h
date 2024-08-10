@@ -64,10 +64,9 @@ namespace sqlpp
   };
 
   template <typename Context, typename ValueType, typename NameType>
-  auto to_sql_string(Context& context, const parameter_t<ValueType, NameType>&) -> std::string
+  auto to_sql_string(Context& , const parameter_t<ValueType, NameType>&) -> std::string
   {
-    context << "?";
-    return context;
+    return  "?";
   }
 
   template <typename NamedExpr>

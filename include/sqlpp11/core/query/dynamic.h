@@ -79,27 +79,19 @@ namespace sqlpp
   {
     if (t._condition)
     {
-      to_sql_string(context, t._expr);
+      return to_sql_string(context, t._expr);
     }
-    else
-    {
-      to_sql_string(context, ::sqlpp::nullopt);
-    }
-    return context;
+    return to_sql_string(context, ::sqlpp::nullopt);
   }
 
   template <typename Context, typename Select>
-  Context& operand_to_sql_string(Context& context, const dynamic_t<Select>& t)
+  auto operand_to_sql_string(Context& context, const dynamic_t<Select>& t) -> std::string
   {
     if (t._condition)
     {
-      operand_to_sql_string(context, t._expr);
+      return operand_to_sql_string(context, t._expr);
     }
-    else
-    {
-      to_sql_string(context, ::sqlpp::nullopt);
-    }
-    return context;
+    return to_sql_string(context, ::sqlpp::nullopt);
   }
 
   template <typename Expr>

@@ -86,11 +86,9 @@ namespace sqlpp
   };
 
   template <typename Context>
-  auto to_sql_string(Context& context, const remove_name_t&) -> std::string
+  auto to_sql_string(Context& , const remove_name_t&) -> std::string
   {
-    context << "DELETE";
-
-    return context;
+    return "DELETE";
   }
 
   using blank_remove_t = statement_t<remove_t, no_from_t, no_using_t, no_where_t<true>>;

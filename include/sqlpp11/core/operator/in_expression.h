@@ -128,7 +128,7 @@ namespace sqlpp
     else
     {
 #warning: interpret_tuple arguments should take Context first, too
-      interpret_tuple(t._r, ", ", context);
+      result += interpret_tuple(t._r, ", ", context);
     }
     result += ")";
     return result;

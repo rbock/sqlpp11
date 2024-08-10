@@ -61,16 +61,14 @@ namespace sqlpp
   };
 
   template <typename Context>
-  auto to_sql_string(Context& context, const on_t<unconditional_t>&) -> std::string
+  auto to_sql_string(Context& , const on_t<unconditional_t>&) -> std::string
   {
-    return context;
+    return {};
   }
 
   template <typename Context, typename Expression>
   auto to_sql_string(Context& context, const on_t<Expression>& t) -> std::string
   {
-    context << " ON ";
-    to_sql_string(context, t._expression);
-    return context;
+    return  " ON " + to_sql_string(context, t._expression);
   }
 }  // namespace sqlpp

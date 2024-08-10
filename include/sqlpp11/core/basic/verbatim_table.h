@@ -57,10 +57,7 @@ namespace sqlpp
   template <typename Context, typename AliasProvider>
   auto to_sql_string(Context& context, const verbatim_table_alias_t<AliasProvider>& t) -> std::string
   {
-    context << t._representation;
-    context << " AS ";
-    name_to_sql_string(context, name_tag_of_t<AliasProvider>::name);
-    return context;
+    return t._representation + " AS " + name_to_sql_string(context, name_tag_of_t<AliasProvider>::name);
   }
 
   struct verbatim_table_t: public enable_join<verbatim_table_t>
@@ -90,10 +87,9 @@ namespace sqlpp
   };
 
   template <typename Context>
-  auto to_sql_string(Context& context, const verbatim_table_t& t) -> std::string
+  auto to_sql_string(Context& , const verbatim_table_t& t) -> std::string
   {
-    context << t._representation;
-    return context;
+    return t._representation;
   }
 
   inline verbatim_table_t verbatim_table(std::string name)

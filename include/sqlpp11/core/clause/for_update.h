@@ -92,10 +92,9 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context>
-  auto to_sql_string(Context& context, const for_update_data_t&) -> std::string
+  auto to_sql_string(Context& , const for_update_data_t&) -> std::string
   {
-    context << " FOR UPDATE ";
-    return context;
+    return  " FOR UPDATE ";
   }
 
   inline auto for_update() -> decltype(statement_t<no_for_update_t>().for_update())

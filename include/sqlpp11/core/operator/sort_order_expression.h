@@ -67,7 +67,7 @@ namespace sqlpp
   struct is_sort_order<sort_order_expression<L>> : std::true_type {};
 
   template <typename Context>
-  auto to_sql_string(Context& context, const sort_type& t) -> std::string
+  auto to_sql_string(Context& , const sort_type& t) -> std::string
   {
     switch (t)
     {

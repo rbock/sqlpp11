@@ -87,11 +87,9 @@ namespace sqlpp
   };
 
   template <typename Context>
-  auto to_sql_string(Context& context, const insert_name_t&) -> std::string
+  auto to_sql_string(Context& , const insert_name_t&) -> std::string
   {
-    context << "INSERT";
-
-    return context;
+    return "INSERT";
   }
 
   using blank_insert_t = statement_t<insert_t, no_into_t, no_insert_value_list_t>;

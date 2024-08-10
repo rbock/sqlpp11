@@ -58,9 +58,7 @@ namespace sqlpp
   template <typename Context, typename AliasProvider, typename TableSpec>
   auto to_sql_string(Context& context, const table_alias_t<AliasProvider, TableSpec>&) -> std::string
   {
-    name_to_sql_string(context, name_tag_of_t<TableSpec>::name);
-    context << " AS ";
+    return name_to_sql_string(context, name_tag_of_t<TableSpec>::name) + " AS " +
     name_to_sql_string(context, name_tag_of_t<AliasProvider>::name);
-    return context;
   }
 }  // namespace sqlpp

@@ -39,7 +39,7 @@ int SelectFlags(int, char*[])
 #warning: This should work
   //SQLPP_COMPARE(sqlpp::select_flags(), "");
 
-  // No flags
+  // One flag
   SQLPP_COMPARE(select(foo.doubleN).flags(sqlpp::distinct), "SELECT DISTINCT tab_foo.double_n");
 
   // One flag

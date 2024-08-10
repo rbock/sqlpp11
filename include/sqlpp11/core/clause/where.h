@@ -194,15 +194,13 @@ namespace sqlpp
   template <typename Context, typename Expression>
   auto to_sql_string(Context& context, const where_data_t<Expression>& t) -> std::string
   {
-    context << " WHERE ";
-    to_sql_string(context, t._expression);
-    return context;
+    return  " WHERE " + to_sql_string(context, t._expression);
   }
 
   template <typename Context>
-  auto to_sql_string(Context& context, const where_data_t<unconditional_t>&) -> std::string
+  auto to_sql_string(Context& , const where_data_t<unconditional_t>&) -> std::string
   {
-    return context;
+    return {};
   }
 
   template <typename T>
