@@ -106,7 +106,7 @@ namespace sqlpp
 
   private:
     template <size_t... Indexes>
-    auto columns_from_tuple(detail::index_sequence<Indexes...>, std::tuple<Assignments...> assignments)
+    auto columns_from_tuple(::sqlpp::index_sequence<Indexes...>, std::tuple<Assignments...> assignments)
         -> decltype(_columns)
     {
       (void)assignments;
@@ -115,12 +115,12 @@ namespace sqlpp
 
     auto columns_from_tuple(std::tuple<Assignments...> assignments) -> decltype(_columns)
     {
-      const auto seq = detail::make_index_sequence<sizeof...(Assignments)>{};
+      const auto seq = ::sqlpp::make_index_sequence<sizeof...(Assignments)>{};
       return columns_from_tuple(seq, assignments);
     }
 
     template <size_t... Indexes>
-    auto values_from_tuple(detail::index_sequence<Indexes...>, std::tuple<Assignments...> assignments)
+    auto values_from_tuple(::sqlpp::index_sequence<Indexes...>, std::tuple<Assignments...> assignments)
         -> decltype(_values)
     {
       (void)assignments;
@@ -129,7 +129,7 @@ namespace sqlpp
 
     auto values_from_tuple(std::tuple<Assignments...> assignments) -> decltype(_values)
     {
-      const auto seq = detail::make_index_sequence<sizeof...(Assignments)>{};
+      const auto seq = ::sqlpp::make_index_sequence<sizeof...(Assignments)>{};
       return values_from_tuple(seq, assignments);
     }
   };

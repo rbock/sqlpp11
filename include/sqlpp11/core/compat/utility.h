@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -26,35 +26,51 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <type_traits>
+#include <utility>
+
+#ifdef _MSVC_LANG
+#define CXX_STD_VER _MSVC_LANG
+#else
+#define CXX_STD_VER __cplusplus
+#endif
+
+#if CXX_STD_VER >= 201402L
+#include <string_view>
+namespace sqlpp
+{
+  template <std::size_t... Ints>
+  using index_sequence = std::index_sequence<Ints...>;
+  template <std::size_t N>
+  using make_index_sequence = std::make_index_sequence<N>;
+
+}  // namespace sqlpp
+
+#else // incomplete backport of utility.h
 
 namespace sqlpp
 {
-  namespace detail
+  template <std::size_t... Ints>
+  class index_sequence
   {
-    // Note: This is a minimalistic implementation of index_sequence available in C++14
-    //       It should be replaced once the project is moved to C++14 or beyond
-    template <std::size_t... Ints>
-    struct index_sequence
-    {
-    };
+  };
 
-    template <typename T, std::size_t N>
-    struct make_index_sequence_impl;
+  template <typename T, std::size_t N>
+  struct make_index_sequence_impl;
 
-    template <std::size_t N, std::size_t... Ints>
-    struct make_index_sequence_impl<index_sequence<Ints...>, N>
-    {
-      using type = typename make_index_sequence_impl<index_sequence<Ints..., sizeof...(Ints)>, N - 1>::type;
-    };
+  template <std::size_t N, std::size_t... Ints>
+  struct make_index_sequence_impl<index_sequence<Ints...>, N>
+  {
+    using type = typename make_index_sequence_impl<index_sequence<Ints..., sizeof...(Ints)>, N - 1>::type;
+  };
 
-    template <std::size_t... Ints>
-    struct make_index_sequence_impl<index_sequence<Ints...>, 0>
-    {
-      using type = index_sequence<Ints...>;
-    };
+  template <std::size_t... Ints>
+  struct make_index_sequence_impl<index_sequence<Ints...>, 0>
+  {
+    using type = index_sequence<Ints...>;
+  };
 
-    template <std::size_t N>
-    using make_index_sequence = typename make_index_sequence_impl<index_sequence<>, N>::type;
-  }  // namespace detail
+  template <std::size_t N>
+  using make_index_sequence = typename make_index_sequence_impl<index_sequence<>, N>::type;
 }  // namespace sqlpp
+
+#endif

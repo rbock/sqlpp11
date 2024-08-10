@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,8 +27,7 @@
  */
 
 #include <type_traits>
-#warning: move index_sequence into compat
-#include <sqlpp11/core/detail/index_sequence.h>
+#include <sqlpp11/core/compat/utility.h>
 
 namespace sqlpp
 {
@@ -41,13 +40,13 @@ namespace sqlpp
   struct make_char_sequence_impl;
 
   template <std::size_t N, const char* s, std::size_t... i>
-  struct make_char_sequence_impl<N, s, sqlpp::detail::index_sequence<i...>>
+  struct make_char_sequence_impl<N, s, ::sqlpp::index_sequence<i...>>
   {
     using type = char_sequence<s[i]...>;
   };
 
   template <std::size_t N, const char* Input>
   using make_char_sequence =
-      typename make_char_sequence_impl<N, Input, sqlpp::detail::make_index_sequence<N - 1>>::type;
+      typename make_char_sequence_impl<N, Input, ::sqlpp::make_index_sequence<N - 1>>::type;
 
 }  // namespace sqlpp

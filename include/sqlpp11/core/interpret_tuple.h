@@ -29,7 +29,7 @@
 #include <tuple>
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/serialize.h>
-#include <sqlpp11/core/detail/index_sequence.h>
+#include <sqlpp11/core/compat/utility.h>
 
 namespace sqlpp
 {
@@ -56,7 +56,7 @@ namespace sqlpp
                             const Separator& separator,
                             Context& context,
                             const UseBraces& useBraces,
-                            const detail::index_sequence<Is...> &
+                            const ::sqlpp::index_sequence<Is...> &
                             /*unused*/) -> Context&
   {
     // Note: A braced-init-list does guarantee the order of evaluation according to 12.6.1 [class.explicit.init]
@@ -75,13 +75,13 @@ namespace sqlpp
   auto interpret_tuple(const Tuple& t, const Separator& separator, Context& context) -> Context&
   {
     return interpret_tuple_impl(t, separator, context, std::true_type{},
-                                detail::make_index_sequence<std::tuple_size<Tuple>::value>{});
+                                ::sqlpp::make_index_sequence<std::tuple_size<Tuple>::value>{});
   }
 
   template <typename Tuple, typename Separator, typename Context>
   auto interpret_tuple_without_braces(const Tuple& t, const Separator& separator, Context& context) -> Context&
   {
     return interpret_tuple_impl(t, separator, context, std::false_type{},
-                                detail::make_index_sequence<std::tuple_size<Tuple>::value>{});
+                                ::sqlpp::make_index_sequence<std::tuple_size<Tuple>::value>{});
   }
 }  // namespace sqlpp

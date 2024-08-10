@@ -62,8 +62,7 @@ namespace sqlpp
       {
       }
 
-#warning: Can we make char_traits<char>::length constexpr
-      constexpr string_view(const char* data) : _data(data), _size(std::char_traits<char>::length(data))
+      string_view(const char* data) : _data(data), _size(std::char_traits<char>::length(data))
       {
       }
 
