@@ -26,6 +26,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <string>
+#include <cmath>
+#include <sstream>
+#include <iomanip>
+
+#include <sqlpp11/core/compat/optional.h>
+#include <sqlpp11/core/compat/span.h>
+#include <sqlpp11/core/compat/string_view.h>
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/database/exception.h>
 
@@ -156,7 +164,7 @@ namespace sqlpp
   {
     auto result = std::string{"'"};
     result.reserve(t.size() * 2);
-    for (const auto c : s)
+    for (const auto c : t)
     {
       if (c == '\'')
         result.push_back(c);  // Escaping

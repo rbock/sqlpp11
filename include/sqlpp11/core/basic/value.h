@@ -60,9 +60,7 @@ namespace sqlpp
   auto to_sql_string(Context& context, const value_t<T>& t) -> std::string
   {
 #warning: Untested
-    to_sql_string(context, t._value);
-
-    return context;
+    return to_sql_string(context, t._value);
   }
 
   template <typename T, typename = check_value_arg<T>>

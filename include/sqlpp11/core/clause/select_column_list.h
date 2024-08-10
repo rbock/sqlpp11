@@ -311,8 +311,7 @@ namespace sqlpp
   template <typename Context, typename... Columns>
   auto to_sql_string(Context& context, const std::tuple<Columns...>& t) -> std::string
   {
-    interpret_tuple(t, ',', context);
-    return context;
+    return interpret_tuple(t, ",", context);
   }
 
   template <typename... T>

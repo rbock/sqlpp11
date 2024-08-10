@@ -281,10 +281,13 @@ namespace sqlpp
   {
     using P = detail::statement_policies_t<Policies...>;
 
+    auto result = std::string{};
     using swallow = int[];
-    (void)swallow{0, (to_sql_string(context, static_cast<const typename Policies::template _base_t<P>&>(t)._data), 0)...};
+    (void)swallow{
+        0,
+        (result += to_sql_string(context, static_cast<const typename Policies::template _base_t<P>&>(t)._data), 0)...};
 
-    return context;
+    return result;
   }
 
   template <typename NameData, typename Tag = tag::is_noop>

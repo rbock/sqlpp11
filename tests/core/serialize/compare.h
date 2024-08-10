@@ -33,8 +33,8 @@
   {                                                                \
     MockDb::_serializer_context_t printer = {};                    \
                                                                    \
-    using sqlpp::serialize;                                        \
-    const auto result = to_sql_string(printer, expr).str();            \
+    using sqlpp::to_sql_string;                                    \
+    const auto result = to_sql_string(printer, expr);              \
                                                                    \
     if (result != expected_string)                                 \
     {                                                              \

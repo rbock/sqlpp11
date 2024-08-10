@@ -34,20 +34,20 @@
 namespace sqlpp
 {
   template <typename Element, typename Separator, typename Context, typename UseBraces>
-  static void interpret_tuple_element(
-      const Element& element, const Separator& separator, Context& context, const UseBraces& /*unused*/, size_t index)
+  static auto interpret_tuple_element(
+      const Element& element, const Separator& separator, Context& context, const UseBraces& /*unused*/, size_t index) -> std::string
   {
     if (index)
     {
-      context << separator;
+      return separator;
     }
     if (UseBraces::value)
     {
-      operand_to_sql_string(context, element);
+      return operand_to_sql_string(context, element);
     }
     else
     {
-      to_sql_string(context, element);
+      return to_sql_string(context, element);
     }
   }
 
@@ -57,7 +57,7 @@ namespace sqlpp
                             Context& context,
                             const UseBraces& useBraces,
                             const ::sqlpp::index_sequence<Is...> &
-                            /*unused*/) -> Context&
+                            /*unused*/) -> std::string
   {
     // Note: A braced-init-list does guarantee the order of evaluation according to 12.6.1 [class.explicit.init]
     // paragraph 2 and 8.5.4 [dcl.init.list] paragraph 4.
@@ -65,21 +65,22 @@ namespace sqlpp
     // See also: "http://stackoverflow.com/questions/6245735/pretty-print-stdtuple/6245777#6245777"
     // Beware of gcc-bug: "http://gcc.gnu.org/bugzilla/show_bug.cgi?id=51253", otherwise an empty swallow struct could
     // be used
+    auto result = std::string{};
     using swallow = int[];
     (void)swallow{0,  // workaround against -Wpedantic GCC warning "zero-size array 'int [0]'"
-                  (interpret_tuple_element(std::get<Is>(t), separator, context, useBraces, Is), 0)...};
-    return context;
+                  (result += interpret_tuple_element(std::get<Is>(t), separator, context, useBraces, Is), 0)...};
+    return result;
   }
 
   template <typename Tuple, typename Separator, typename Context>
-  auto interpret_tuple(const Tuple& t, const Separator& separator, Context& context) -> Context&
+  auto interpret_tuple(const Tuple& t, const Separator& separator, Context& context) -> std::string
   {
     return interpret_tuple_impl(t, separator, context, std::true_type{},
                                 ::sqlpp::make_index_sequence<std::tuple_size<Tuple>::value>{});
   }
 
   template <typename Tuple, typename Separator, typename Context>
-  auto interpret_tuple_without_braces(const Tuple& t, const Separator& separator, Context& context) -> Context&
+  auto interpret_tuple_without_braces(const Tuple& t, const Separator& separator, Context& context) -> std::string
   {
     return interpret_tuple_impl(t, separator, context, std::false_type{},
                                 ::sqlpp::make_index_sequence<std::tuple_size<Tuple>::value>{});
