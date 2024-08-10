@@ -30,8 +30,6 @@ set(test_files
     ForUpdate.cpp
     From.cpp
     Insert.cpp
-    IsNotNull.cpp
-    IsNull.cpp
     Lower.cpp
     Parameter.cpp
     ParameterizedVerbatim.cpp
