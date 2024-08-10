@@ -83,13 +83,13 @@ namespace sqlpp
   template <typename Context, typename Flag, typename Expr>
   Context& serialize(Context& context, const avg_t<Flag, Expr>& t)
   {
-    context << "MAX(";
+    context << "AVG(";
     if (std::is_same<distinct_t, Flag>::value)
     {
       serialize(context, Flag());
       context << ' ';
     }
-    serialize_operand(context, t._expr);
+    serialize(context, t._expr);
     context << ")";
     return context;
   }

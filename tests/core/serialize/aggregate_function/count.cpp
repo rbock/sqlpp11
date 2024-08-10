@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2023, Roland Bock
+ * Copyright (c) 2023, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,10 +24,10 @@
  */
 
 #include "Sample.h"
-#include "compare.h"
+#include "../compare.h"
 #include <sqlpp11/sqlpp11.h>
 
-int Count(int, char* [])
+int main(int, char* [])
 {
   const auto bar = test::TabBar{};
 
@@ -36,13 +36,12 @@ int Count(int, char* [])
   SQLPP_COMPARE(count(sqlpp::distinct, bar.id), "COUNT(DISTINCT tab_bar.id)");
 
   // Expression.
-#warning: Note that the inner parens aren't necessary.
-  SQLPP_COMPARE(count(bar.id + 7), "COUNT((tab_bar.id + 7))");
-  SQLPP_COMPARE(count(sqlpp::distinct, bar.id + 7), "COUNT(DISTINCT (tab_bar.id + 7))");
+  SQLPP_COMPARE(count(bar.id + 7), "COUNT(tab_bar.id + 7)");
+  SQLPP_COMPARE(count(sqlpp::distinct, bar.id + 7), "COUNT(DISTINCT tab_bar.id + 7)");
 
   // With sub select.
-  SQLPP_COMPARE(count(select(sqlpp::value(7).as(sqlpp::alias::a))), "COUNT((SELECT 7 AS a))");
-  SQLPP_COMPARE(count(sqlpp::distinct, select(sqlpp::value(7).as(sqlpp::alias::a))), "COUNT(DISTINCT (SELECT 7 AS a))");
+  SQLPP_COMPARE(count(select(sqlpp::value(7).as(sqlpp::alias::a))), "COUNT(SELECT 7 AS a)");
+  SQLPP_COMPARE(count(sqlpp::distinct, select(sqlpp::value(7).as(sqlpp::alias::a))), "COUNT(DISTINCT SELECT 7 AS a)");
 
   return 0;
 }

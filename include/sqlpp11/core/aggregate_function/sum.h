@@ -90,7 +90,7 @@ namespace sqlpp
       serialize(context, Flag());
       context << ' ';
     }
-    serialize_operand(context, t._expr);
+    serialize(context, t._expr);
     context << ")";
     return context;
   }

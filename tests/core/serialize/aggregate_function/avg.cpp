@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2023, Roland Bock
+ * Copyright (c) 2023, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,25 +24,24 @@
  */
 
 #include "Sample.h"
-#include "compare.h"
+#include "../compare.h"
 #include <sqlpp11/sqlpp11.h>
 
-int Min(int, char* [])
+int main(int, char* [])
 {
   const auto bar = test::TabBar{};
 
   // Single column.
-  SQLPP_COMPARE(min(bar.id), "MIN(tab_bar.id)");
-  SQLPP_COMPARE(min(sqlpp::distinct, bar.id), "MIN(DISTINCT tab_bar.id)");
+  SQLPP_COMPARE(avg(bar.id), "AVG(tab_bar.id)");
+  SQLPP_COMPARE(avg(sqlpp::distinct, bar.id), "AVG(DISTINCT tab_bar.id)");
 
   // Expression.
-  // Note that the inner parens aren't necessary.
-  SQLPP_COMPARE(min(bar.id + 7), "MIN((tab_bar.id + 7))");
-  SQLPP_COMPARE(min(sqlpp::distinct, bar.id + 7), "MIN(DISTINCT (tab_bar.id + 7))");
+  SQLPP_COMPARE(avg(bar.id + 7), "AVG(tab_bar.id + 7)");
+  SQLPP_COMPARE(avg(sqlpp::distinct, bar.id + 7), "AVG(DISTINCT tab_bar.id + 7)");
 
   // With sub select.
-  SQLPP_COMPARE(min(select(sqlpp::value(7).as(sqlpp::alias::a))), "MIN((SELECT 7 AS a))");
-  SQLPP_COMPARE(min(sqlpp::distinct, select(sqlpp::value(7).as(sqlpp::alias::a))), "MIN(DISTINCT (SELECT 7 AS a))");
+  SQLPP_COMPARE(avg(select(sqlpp::value(7).as(sqlpp::alias::a))), "AVG(SELECT 7 AS a)");
+  SQLPP_COMPARE(avg(sqlpp::distinct, select(sqlpp::value(7).as(sqlpp::alias::a))), "AVG(DISTINCT SELECT 7 AS a)");
 
   return 0;
 }

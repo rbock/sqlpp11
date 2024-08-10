@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2023, Roland Bock
+ * Copyright (c) 2016, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -24,25 +24,19 @@
  */
 
 #include "Sample.h"
-#include "compare.h"
+#include "../compare.h"
 #include <sqlpp11/sqlpp11.h>
 
-int Sum(int, char* [])
-{
-  const auto bar = test::TabBar{};
+SQLPP_ALIAS_PROVIDER(cheese);
 
-  // Single column.
-  SQLPP_COMPARE(sum(bar.id), "SUM(tab_bar.id)");
-  SQLPP_COMPARE(sum(sqlpp::distinct, bar.id), "SUM(DISTINCT tab_bar.id)");
+int main(int, char* []) {
+  auto const foo = test::TabFoo{};
 
-  // Expression.
-  // Note that the inner parens aren't necessary.
-  SQLPP_COMPARE(sum(bar.id + 7), "SUM((tab_bar.id + 7))");
-  SQLPP_COMPARE(sum(sqlpp::distinct, bar.id + 7), "SUM(DISTINCT (tab_bar.id + 7))");
-
-  // With sub select.
-  SQLPP_COMPARE(sum(select(sqlpp::value(7).as(sqlpp::alias::a))), "SUM((SELECT 7 AS a))");
-  SQLPP_COMPARE(sum(sqlpp::distinct, select(sqlpp::value(7).as(sqlpp::alias::a))), "SUM(DISTINCT (SELECT 7 AS a))");
+  SQLPP_COMPARE(avg(foo.doubleN).over().as(cheese), "AVG(tab_foo.double_n) OVER() AS cheese");
+  SQLPP_COMPARE(count(foo.doubleN).over().as(cheese), "COUNT(tab_foo.double_n) OVER() AS cheese");
+  SQLPP_COMPARE(max(foo.doubleN).over().as(cheese), "MAX(tab_foo.double_n) OVER() AS cheese");
+  SQLPP_COMPARE(min(foo.doubleN).over().as(cheese), "MIN(tab_foo.double_n) OVER() AS cheese");
+  SQLPP_COMPARE(sum(foo.doubleN).over().as(cheese), "SUM(tab_foo.double_n) OVER() AS cheese");
 
   return 0;
 }
