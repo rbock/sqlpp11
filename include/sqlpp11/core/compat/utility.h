@@ -49,6 +49,7 @@ namespace sqlpp
 
 namespace sqlpp
 {
+  // index_sequence & make_index_sequence
   template <std::size_t... Ints>
   class index_sequence
   {

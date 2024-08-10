@@ -34,7 +34,7 @@
 #define CXX_STD_VER __cplusplus
 #endif
 
-#if CXX_STD_VER >= 201703L
+#if CXX_STD_VER >= 201402L
 namespace sqlpp
 {
   using ::std::enable_if_t;
@@ -46,6 +46,34 @@ namespace sqlpp
 {
   template <bool Condition, typename Type = void>
   using enable_if_t = typename ::std::enable_if<Condition, Type>::type;
+}  // namespace sqlpp
+
+#endif
+
+#if CXX_STD_VER >= 201703L
+namespace sqlpp
+{
+  using std::void_t;
+}  // namespace sqlpp
+
+#else
+
+namespace sqlpp
+{
+  // See https://en.cppreference.com/w/cpp/types/void_t:
+  // "Until the resolution of CWG issue 1558 (a C++11 defect), unused parameters in alias templates were not guaranteed
+  // to ensure SFINAE and could be ignored [...].
+  namespace detail
+  {
+    template <typename... T>
+    struct void_impl
+    {
+      using type = void;
+    };
+  }  // namespace detail
+
+  template <typename... T>
+  using void_t = typename detail::void_impl<T...>::type;
 }  // namespace sqlpp
 
 #endif

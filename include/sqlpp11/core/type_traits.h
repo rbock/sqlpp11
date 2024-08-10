@@ -42,7 +42,6 @@
 #include <sqlpp11/core/portable_static_assert.h>
 #include <sqlpp11/core/detail/type_vector.h>
 #include <sqlpp11/core/detail/type_set.h>
-#include <sqlpp11/core/detail/void.h>
 #include <sqlpp11/core/detail/get_first.h>
 
 namespace sqlpp
@@ -522,7 +521,7 @@ namespace sqlpp
       using type = typename trait##_of_impl<nodes_of_t<T>>::type;                       \
     };                                                                                  \
     template <typename T>                                                               \
-    struct trait##_of_impl<T, detail::void_t<typename T::_##trait>>                     \
+    struct trait##_of_impl<T, ::sqlpp::void_t<typename T::_##trait>>                     \
     {                                                                                   \
       using type = typename T::_##trait;                                                \
     };                                                                                  \
@@ -550,7 +549,7 @@ namespace sqlpp
       using type = typename trait##_impl<nodes_of_t<T>>::type;        \
     };                                                                \
     template <typename T>                                             \
-    struct trait##_impl<T, detail::void_t<typename T::_##trait>>      \
+    struct trait##_impl<T, ::sqlpp::void_t<typename T::_##trait>>      \
     {                                                                 \
       using type = typename T::_##trait;                              \
     };                                                                \
@@ -746,7 +745,7 @@ namespace sqlpp
   };
 
   template <typename T>
-  struct consistency_check<T, detail::void_t<typename T::_consistency_check>>
+  struct consistency_check<T, ::sqlpp::void_t<typename T::_consistency_check>>
   {
     using type = typename T::_consistency_check;
   };
@@ -854,7 +853,7 @@ namespace sqlpp
   };
 
   template <typename Db>
-  struct serializer_context_of_impl<Db, detail::void_t<typename Db::_serializer_context_t>>
+  struct serializer_context_of_impl<Db, ::sqlpp::void_t<typename Db::_serializer_context_t>>
   {
     using type = typename Db::_serializer_context_t;
   };

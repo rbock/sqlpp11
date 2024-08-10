@@ -31,7 +31,7 @@
 #include <type_traits>
 #include <utility>
 
-#include <sqlpp11/core/detail/enable_if.h>
+#include <sqlpp11/core/compat/type_traits.h>
 
 namespace sqlpp
 {
@@ -48,7 +48,7 @@ namespace sqlpp
     };
 
     template <typename T>
-    struct float_safe_ostringstream_implementation<T, enable_if_t<std::is_floating_point<T>::value>>
+    struct float_safe_ostringstream_implementation<T, ::sqlpp::enable_if_t<std::is_floating_point<T>::value>>
     {
       template <typename U>
       void operator()(std::ostringstream& os, U&& x) const
