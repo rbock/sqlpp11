@@ -36,8 +36,6 @@ namespace sqlpp
   struct over_t : public enable_as<over_t<Expr>>,
                   public enable_comparison<over_t<Expr>>
   {
-    using _traits = make_traits<integral, tag::is_expression>;
-
     over_t(Expr expr)
       : _expr(expr)
     {
@@ -52,18 +50,24 @@ namespace sqlpp
     Expr _expr;
   };
 
-  template<typename Expr>
-  struct nodes_of<over_t<Expr>>
+  template <typename Expr>
+  struct is_aggregate<over_t<Expr>> : public is_aggregate<Expr>
   {
-    using type = sqlpp::detail::type_vector<Expr>;
+  };
+
+  template<typename Expr>
+  struct name_tag_of<over_t<Expr>> : public name_tag_of<Expr> {};
+
+  template<typename Expr>
+  struct nodes_of<over_t<Expr>>: public nodes_of<Expr>
+  {
   };
 
   template<typename Expr>
   struct value_type_of<over_t<Expr>>: public value_type_of<Expr> {};
 
-#warning: should this be "is_aggregate_function"?
   template<typename Expr>
-  using check_over_args = ::sqlpp::enable_if_t<contains_aggregate_function_t<Expr>::value>;
+  using check_over_args = ::sqlpp::enable_if_t<is_aggregate<Expr>::value>;
 
   template <typename Context, typename Expr>
   auto to_sql_string(Context& context, const over_t<Expr>& t) -> std::string
@@ -71,7 +75,7 @@ namespace sqlpp
     return operand_to_sql_string(context, t._expr) + " OVER()";
   }
 
-  template <typename Expr>
+  template <typename Expr, typename = check_over_args<Expr>>
   auto over(Expr t)  -> over_t<Expr>
   {
     return {std::move(t)};

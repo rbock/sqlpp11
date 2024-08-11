@@ -540,30 +540,6 @@ namespace sqlpp
   SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(provided_outer_tables)
   SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(provided_aggregates)
 
-#define SQLPP_RECURSIVE_TRAIT_GENERATOR(trait)                        \
-  namespace detail                                                    \
-  {                                                                   \
-    template <typename T, typename Leaf = void>                       \
-    struct trait##_impl                                               \
-    {                                                                 \
-      using type = typename trait##_impl<nodes_of_t<T>>::type;        \
-    };                                                                \
-    template <typename T>                                             \
-    struct trait##_impl<T, ::sqlpp::void_t<typename T::_##trait>>      \
-    {                                                                 \
-      using type = typename T::_##trait;                              \
-    };                                                                \
-    template <typename... Nodes>                                      \
-    struct trait##_impl<type_vector<Nodes...>, void>                  \
-    {                                                                 \
-      using type = logic::any_t<trait##_impl<Nodes>::type::value...>; \
-    };                                                                \
-  }                                                                   \
-  template <typename T>                                               \
-  using trait##_t = typename detail::trait##_impl<T>::type;
-
-  SQLPP_RECURSIVE_TRAIT_GENERATOR(contains_aggregate_function)
-
   template <typename T>
   struct lhs
   {
@@ -608,6 +584,13 @@ namespace sqlpp
         and ValueType::template _is_valid_operand<T>::value  // the correct value type is required, of course
         ;
   };
+
+  template<typename T>
+    struct is_aggregate : public std::false_type{};
+
+#warning: Need to make this recursive! and then add tests!
+  template<typename T>
+    struct contains_aggregate : public std::false_type{};
 
   namespace detail
   {

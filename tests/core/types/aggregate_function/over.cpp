@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2016, Roland Bock
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -44,89 +44,87 @@ void test_aggregate_functions(Value v)
   using OptValueType = sqlpp::value_type_of_t<::sqlpp::optional<Value>>;
 
   // Aggregate of non-nullable
-  static_assert(is_same_type<decltype(count(v_not_null)), sqlpp::integral>::value, "");
-  static_assert(is_same_type<decltype(max(v_not_null)), OptValueType>::value, "");
-  static_assert(is_same_type<decltype(min(v_not_null)), OptValueType>::value, "");
+  static_assert(is_same_type<decltype(count(v_not_null).over()), sqlpp::integral>::value, "");
+  static_assert(is_same_type<decltype(max(v_not_null).over()), OptValueType>::value, "");
+  static_assert(is_same_type<decltype(min(v_not_null).over()), OptValueType>::value, "");
 
   // Aggregate of nullable
-  static_assert(is_same_type<decltype(count(v_not_null)), sqlpp::integral>::value, "");
-  static_assert(is_same_type<decltype(max(v_maybe_null)), OptValueType>::value, "");
-  static_assert(is_same_type<decltype(min(v_maybe_null)), OptValueType>::value, "");
+  static_assert(is_same_type<decltype(count(v_not_null).over()), sqlpp::integral>::value, "");
+  static_assert(is_same_type<decltype(max(v_maybe_null).over()), OptValueType>::value, "");
+  static_assert(is_same_type<decltype(min(v_maybe_null).over()), OptValueType>::value, "");
 
   // Aggregate functions enable the `as` member function.
-  static_assert(sqlpp::has_enabled_as<decltype(count(v_not_null))>::value, "");
-  static_assert(sqlpp::has_enabled_as<decltype(max(v_not_null))>::value, "");
-  static_assert(sqlpp::has_enabled_as<decltype(min(v_not_null))>::value, "");
+  static_assert(sqlpp::has_enabled_as<decltype(count(v_not_null).over())>::value, "");
+  static_assert(sqlpp::has_enabled_as<decltype(max(v_not_null).over())>::value, "");
+  static_assert(sqlpp::has_enabled_as<decltype(min(v_not_null).over())>::value, "");
 
   // Aggregate functions have a name
-  static_assert(sqlpp::has_name<decltype(count(v_not_null))>::value, "");
-  static_assert(sqlpp::has_name<decltype(max(v_not_null))>::value, "");
-  static_assert(sqlpp::has_name<decltype(min(v_not_null))>::value, "");
+  static_assert(sqlpp::has_name<decltype(count(v_not_null).over())>::value, "");
+  static_assert(sqlpp::has_name<decltype(max(v_not_null).over())>::value, "");
+  static_assert(sqlpp::has_name<decltype(min(v_not_null).over())>::value, "");
 
-  static_assert(sqlpp::name_tag_of_t<decltype(count(v_not_null))>::name == sqlpp::string_view("count"), "");
-  static_assert(sqlpp::name_tag_of_t<decltype(max(v_not_null))>::name == sqlpp::string_view("max"), "");
-  static_assert(sqlpp::name_tag_of_t<decltype(min(v_not_null))>::name == sqlpp::string_view("min"), "");
+  static_assert(sqlpp::name_tag_of_t<decltype(count(v_not_null).over())>::name == sqlpp::string_view("count"), "");
+  static_assert(sqlpp::name_tag_of_t<decltype(max(v_not_null).over())>::name == sqlpp::string_view("max"), "");
+  static_assert(sqlpp::name_tag_of_t<decltype(min(v_not_null).over())>::name == sqlpp::string_view("min"), "");
 
   // Aggregate functions enable comparison member functions.
-  static_assert(sqlpp::has_enabled_comparison<decltype(count(v_not_null))>::value, "");
-  static_assert(sqlpp::has_enabled_comparison<decltype(max(v_not_null))>::value, "");
-  static_assert(sqlpp::has_enabled_comparison<decltype(min(v_not_null))>::value, "");
+  static_assert(sqlpp::has_enabled_comparison<decltype(count(v_not_null).over())>::value, "");
+  static_assert(sqlpp::has_enabled_comparison<decltype(max(v_not_null).over())>::value, "");
+  static_assert(sqlpp::has_enabled_comparison<decltype(min(v_not_null).over())>::value, "");
 
   // Aggregate functions enable OVER.
-  static_assert(sqlpp::has_enabled_over<decltype(count(v_not_null))>::value, "");
-  static_assert(sqlpp::has_enabled_over<decltype(max(v_not_null))>::value, "");
-  static_assert(sqlpp::has_enabled_over<decltype(min(v_not_null))>::value, "");
+  static_assert(not sqlpp::has_enabled_over<decltype(count(v_not_null).over())>::value, "");
+  static_assert(not sqlpp::has_enabled_over<decltype(max(v_not_null).over())>::value, "");
+  static_assert(not sqlpp::has_enabled_over<decltype(min(v_not_null).over())>::value, "");
 
   // Aggregate functions have their arguments as nodes
   using L = typename std::decay<decltype(v_not_null)>::type;
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(count(v_not_null))>, sqlpp::detail::type_vector<L>>::value, "");
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(max(v_not_null))>, sqlpp::detail::type_vector<L>>::value, "");
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(min(v_not_null))>, sqlpp::detail::type_vector<L>>::value, "");
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(count(v_not_null).over())>, sqlpp::detail::type_vector<L>>::value, "");
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(max(v_not_null).over())>, sqlpp::detail::type_vector<L>>::value, "");
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(min(v_not_null).over())>, sqlpp::detail::type_vector<L>>::value, "");
 }
 
 template <typename Value>
 void test_numeric_aggregate_functions(Value v)
 {
   auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v));
+  auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v).over());
 
   using ValueType = typename std::conditional<std::is_same<Value, bool>::value, int, Value>::type;
   using OptValueType = sqlpp::value_type_of_t<::sqlpp::optional<ValueType>>;
   using OptFloat = sqlpp::value_type_of_t<::sqlpp::optional<float>>;
 
   // Aggregate of non-nullable
-  static_assert(is_same_type<decltype(sum(v_not_null)), OptValueType>::value, "");
-  static_assert(is_same_type<decltype(avg(v_not_null)), OptFloat>::value, "");
+  static_assert(is_same_type<decltype(sum(v_not_null).over()), OptValueType>::value, "");
+  static_assert(is_same_type<decltype(avg(v_not_null).over()), OptFloat>::value, "");
 
   // Aggregate of nullable
-  static_assert(is_same_type<decltype(sum(v_maybe_null)), OptValueType>::value, "");
-  static_assert(is_same_type<decltype(avg(v_maybe_null)), OptFloat>::value, "");
+  static_assert(is_same_type<decltype(sum(v_maybe_null).over()), OptValueType>::value, "");
+  static_assert(is_same_type<decltype(avg(v_maybe_null).over()), OptFloat>::value, "");
 
   // Aggregate functions enable the `as` member function.
-  static_assert(sqlpp::has_enabled_as<decltype(sum(v_not_null))>::value, "");
-  static_assert(sqlpp::has_enabled_as<decltype(avg(v_not_null))>::value, "");
+  static_assert(sqlpp::has_enabled_as<decltype(sum(v_not_null).over())>::value, "");
+  static_assert(sqlpp::has_enabled_as<decltype(avg(v_not_null).over())>::value, "");
 
   // Aggregate functions have a name
-  static_assert(sqlpp::has_name<decltype(sum(v_not_null))>::value, "");
-  static_assert(sqlpp::has_name<decltype(avg(v_not_null))>::value, "");
+  static_assert(sqlpp::has_name<decltype(sum(v_not_null).over())>::value, "");
+  static_assert(sqlpp::has_name<decltype(avg(v_not_null).over())>::value, "");
 
-  static_assert(sqlpp::name_tag_of_t<decltype(sum(v_not_null))>::name == sqlpp::string_view("sum"), "");
-  static_assert(sqlpp::name_tag_of_t<decltype(avg(v_not_null))>::name == sqlpp::string_view("avg"), "");
+  static_assert(sqlpp::name_tag_of_t<decltype(sum(v_not_null).over())>::name == sqlpp::string_view("sum"), "");
+  static_assert(sqlpp::name_tag_of_t<decltype(avg(v_not_null).over())>::name == sqlpp::string_view("avg"), "");
 
   // Aggregate functions enable OVER.
-  static_assert(sqlpp::has_enabled_over<decltype(sum(v_not_null))>::value, "");
-  static_assert(sqlpp::has_enabled_over<decltype(avg(v_not_null))>::value, "");
+  static_assert(not sqlpp::has_enabled_over<decltype(sum(v_not_null).over())>::value, "");
+  static_assert(not sqlpp::has_enabled_over<decltype(avg(v_not_null).over())>::value, "");
 
   // Aggregate functions enable comparison member functions.
-  static_assert(sqlpp::has_enabled_comparison<decltype(sum(v_not_null))>::value, "");
-  static_assert(sqlpp::has_enabled_comparison<decltype(avg(v_not_null))>::value, "");
+  static_assert(sqlpp::has_enabled_comparison<decltype(sum(v_not_null).over())>::value, "");
+  static_assert(sqlpp::has_enabled_comparison<decltype(avg(v_not_null).over())>::value, "");
 
   // Aggregate functions have their arguments as nodes
   using L = typename std::decay<decltype(v_not_null)>::type;
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(sum(v_not_null))>, sqlpp::detail::type_vector<L>>::value, "");
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(avg(v_not_null))>, sqlpp::detail::type_vector<L>>::value, "");
-
-#warning: test enable_over
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(sum(v_not_null).over())>, sqlpp::detail::type_vector<L>>::value, "");
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(avg(v_not_null).over())>, sqlpp::detail::type_vector<L>>::value, "");
 }
 
 int main()

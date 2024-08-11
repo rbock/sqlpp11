@@ -62,7 +62,11 @@ namespace sqlpp
     Expr _expr;
   };
 
-#warning: test that aggregate functions can be used as result columns directly, but can also be aliased
+  template <typename Flag, typename Expr>
+  struct is_aggregate<sum_t<Flag, Expr>> : public std::true_type
+  {
+  };
+
   template <typename Flag, typename Expr>
   struct name_tag_of<sum_t<Flag, Expr>>: public name_tag_of<alias::sum_t>
   {
@@ -89,7 +93,7 @@ namespace sqlpp
 
   template <typename T>
   using check_sum_arg =
-      ::sqlpp::enable_if_t<(is_numeric<T>::value or is_boolean<T>::value) and not contains_aggregate_function_t<T>::value>;
+      ::sqlpp::enable_if_t<(is_numeric<T>::value or is_boolean<T>::value) and not contains_aggregate<T>::value>;
 
   template <typename T, typename = check_sum_arg<T>>
   auto sum(T t) -> sum_t<noop, T>

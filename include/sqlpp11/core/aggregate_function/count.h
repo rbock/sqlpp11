@@ -64,6 +64,11 @@ namespace sqlpp
   };
 
   template <typename Flag, typename Expr>
+  struct is_aggregate<count_t<Flag, Expr>> : public std::true_type
+  {
+  };
+
+  template <typename Flag, typename Expr>
   struct name_tag_of<count_t<Flag, Expr>>: public name_tag_of<alias::count_t>
   {
   };
@@ -88,7 +93,7 @@ namespace sqlpp
 
   template <typename T>
   using check_count_arg =
-      ::sqlpp::enable_if_t<values_are_comparable<T, T>::value and not contains_aggregate_function_t<T>::value>;
+      ::sqlpp::enable_if_t<values_are_comparable<T, T>::value and not contains_aggregate<T>::value>;
 
   template <typename T, typename = check_count_arg<T>>
   auto count(T t) -> count_t<noop, T>

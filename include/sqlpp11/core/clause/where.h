@@ -110,7 +110,7 @@ namespace sqlpp
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_where_arg_is_boolean_expression_t,
                                "where() argument has to be an sqlpp boolean expression.");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_arg_contains_no_aggregate_functions_t,
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_arg_contains_no_aggregate_t,
                                "at least one aggregate function used in where()");
 
   // workaround for msvc bugs https://connect.microsoft.com/VisualStudio/Feedback/Details/2086629 &
@@ -119,15 +119,15 @@ namespace sqlpp
   //  using check_where_t = static_combined_check_t<
   //      static_check_t<logic::all_t<is_boolean<Expressions>::value...>::value,
   //      assert_where_arg_is_boolean_expression_t>,
-  //      static_check_t<logic::all_t<(not contains_aggregate_function_t<Expressions>::value)...>::value,
-  //                     assert_where_arg_contains_no_aggregate_functions_t>>;
+  //      static_check_t<logic::all_t<(not contains_aggregate<Expressions>::value)...>::value,
+  //                     assert_where_arg_contains_no_aggregate_t>>;
   template <typename Expression>
   struct check_where
   {
     using type = static_combined_check_t<
         static_check_t<is_boolean<Expression>::value, assert_where_arg_is_boolean_expression_t>,
-        static_check_t<not contains_aggregate_function_t<Expression>::value,
-                       assert_where_arg_contains_no_aggregate_functions_t>>;
+        static_check_t<not contains_aggregate<Expression>::value,
+                       assert_where_arg_contains_no_aggregate_t>>;
   };
 
   template <typename Expression>
