@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -26,54 +26,18 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/operator/enable_as.h>
-#include <sqlpp11/core/operator/enable_comparison.h>
-#include <sqlpp11/core/type_traits.h>
+#include <sqlpp11/core/detail/type_vector.h>
 
 namespace sqlpp
 {
-  template <typename Expr>
-  struct over_t : public enable_as<over_t<Expr>>,
-                  public enable_comparison<over_t<Expr>>
+
+  template <typename T>
+  struct nodes_of
   {
-    over_t(Expr expr)
-      : _expr(expr)
-    {
-    }
-
-    over_t(const over_t&) = default;
-    over_t(over_t&&) = default;
-    over_t& operator=(const over_t&) = default;
-    over_t& operator=(over_t&&) = default;
-    ~over_t() = default;
-
-    Expr _expr;
+    using type = detail::type_vector<>;
   };
+  template <typename T>
+  using nodes_of_t = typename nodes_of<T>::type;
 
-  template<typename Expr>
-  struct name_tag_of<over_t<Expr>> : public name_tag_of<Expr> {};
+}  // namespace sqlpp11
 
-  template<typename Expr>
-  struct nodes_of<over_t<Expr>>: public nodes_of<Expr>
-  {
-  };
-
-  template<typename Expr>
-  struct value_type_of<over_t<Expr>>: public value_type_of<Expr> {};
-
-  template<typename Expr>
-  using check_over_args = ::sqlpp::enable_if_t<contains_aggregate<Expr>::value>;
-
-  template <typename Context, typename Expr>
-  auto to_sql_string(Context& context, const over_t<Expr>& t) -> std::string
-  {
-    return operand_to_sql_string(context, t._expr) + " OVER()";
-  }
-
-  template <typename Expr, typename = check_over_args<Expr>>
-  auto over(Expr t)  -> over_t<Expr>
-  {
-    return {std::move(t)};
-  }
-
-}  // namespace sqlpp

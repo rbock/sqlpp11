@@ -43,6 +43,8 @@
 #include <sqlpp11/core/detail/type_vector.h>
 #include <sqlpp11/core/detail/type_set.h>
 #include <sqlpp11/core/detail/get_first.h>
+#include <sqlpp11/core/type_traits/aggregates.h>
+#include <sqlpp11/core/type_traits/nodes_of.h>
 
 namespace sqlpp
 {
@@ -126,7 +128,6 @@ namespace sqlpp
   template <typename T>
   using value_type_of_t = typename value_type_of<T>::type;
 
-#warning: Add partial specialization to handle const?
   template<typename T>
   struct value_type_of<::sqlpp::optional<T>>
   {
@@ -505,13 +506,6 @@ namespace sqlpp
   using is_database =
       typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 
-  template <typename T>
-  struct nodes_of {
-    using type = detail::type_vector<>;
-  };
-  template <typename T>
-  using nodes_of_t = typename nodes_of<T>::type;
-
 #define SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(trait)                                      \
   namespace detail                                                                      \
   {                                                                                     \
@@ -584,13 +578,6 @@ namespace sqlpp
         and ValueType::template _is_valid_operand<T>::value  // the correct value type is required, of course
         ;
   };
-
-  template<typename T>
-    struct is_aggregate : public std::false_type{};
-
-#warning: Need to make this recursive! and then add tests!
-  template<typename T>
-    struct contains_aggregate : public std::false_type{};
 
   namespace detail
   {

@@ -47,7 +47,6 @@ namespace sqlpp
   {
     using _traits = make_traits<value_type_of_t<Expr>, tag::is_expression, tag::is_selectable>;
     using _can_be_null = std::true_type;
-    using _is_aggregate_expression = std::true_type;
 
     constexpr max_t(Expr expr) : _expr(std::move(expr))
     {
@@ -63,7 +62,7 @@ namespace sqlpp
   };
 
   template <typename Flag, typename Expr>
-  struct is_aggregate<max_t<Flag, Expr>> : public std::true_type
+  struct contains_aggregate<max_t<Flag, Expr>> : public std::true_type
   {
   };
 
