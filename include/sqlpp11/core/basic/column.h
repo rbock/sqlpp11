@@ -86,6 +86,9 @@ namespace sqlpp
   };
 
   template<typename Table, typename ColumnSpec>
+  struct contains_non_aggregate<column_t<Table, ColumnSpec>> : public std::true_type {};
+
+  template<typename Table, typename ColumnSpec>
   struct value_type_of<column_t<Table, ColumnSpec>>
   {
     using type = typename ColumnSpec::value_type;
@@ -96,12 +99,6 @@ namespace sqlpp
 
   template<typename Table, typename ColumnSpec>
   struct has_default<column_t<Table, ColumnSpec>> : public ColumnSpec::has_default
-  {
-  };
-
-#warning: Do we need this?
-  template<typename Table, typename ColumnSpec>
-  struct has_name<column_t<Table, ColumnSpec>> : std::true_type
   {
   };
 

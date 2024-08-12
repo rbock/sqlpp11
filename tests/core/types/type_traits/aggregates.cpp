@@ -23,63 +23,46 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "MockDb.h"
 #include "Sample.h"
 #include <sqlpp11/sqlpp11.h>
 
-namespace
+void test_contains_aggregate_function()
 {
-  auto db = MockDb{};
+  auto v_not_null = sqlpp::value(17);
 
-  template <typename T, typename V>
-  using is_same_type = std::is_same<sqlpp::value_type_of_t<T>, V>;
+#warning: Need to test contains_aggregate_function
+
 }
 
-template <typename Value>
-void test_aggregates(Value v)
+void test_contains_aggregate_expression()
 {
-  auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v));
+  auto v_not_null = sqlpp::value(17);
 
-  using OptFloat = sqlpp::value_type_of_t<::sqlpp::optional<float>>;
+#warning: Need to test contains_aggregate_expression
 
-#warning: Need to test contains_aggregate
+}
+
+void test_contains_non_aggregate()
+{
+  auto v = sqlpp::value(17);
+  auto col = test::TabFoo{}.id;
+
+  static_assert(sqlpp::contains_non_aggregate<decltype(col)>::value, "");
+  static_assert(sqlpp::contains_non_aggregate<decltype(col + v)>::value, "");
+  static_assert(not sqlpp::contains_non_aggregate<decltype(avg(col) + v)>::value, "");
+  static_assert(not sqlpp::contains_non_aggregate<decltype(count(col) + v)>::value, "");
+  static_assert(not sqlpp::contains_non_aggregate<decltype(min(col) + v)>::value, "");
+  static_assert(not sqlpp::contains_non_aggregate<decltype(max(col) + v)>::value, "");
+  static_assert(not sqlpp::contains_non_aggregate<decltype(sum(col) + v)>::value, "");
+#warning: lets test some functions, too
+#warning: lets test some clauses, too
 
 }
 
 int main()
 {
-  // boolean
-  test_avg(bool{true});
-
-  // integral
-  test_avg(int8_t{7});
-  test_avg(int16_t{7});
-  test_avg(int32_t{7});
-  test_avg(int64_t{7});
-
-  // unsigned integral
-  test_avg(uint8_t{7});
-  test_avg(uint16_t{7});
-  test_avg(uint32_t{7});
-  test_avg(uint64_t{7});
-
-  // floating point
-  test_avg(float{7.7});
-  test_avg(double{7.7});
-
-#warning: Should there be avg date time duration?
-#if 0
-  // date
-  test_avg(::sqlpp::chrono::day_point{});
-
-  // timestamp
-  test_avg(::sqlpp::chrono::microsecond_point{});
-  using minute_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
-  test_avg(minute_point{});
-
-  // time_of_day
-  test_avg(std::chrono::microseconds{});
-#endif
+  void test_contains_aggregate_function();
+  void test_contains_aggregate_expression();
+  void test_contains_non_aggregate();
 }
 

@@ -62,7 +62,12 @@ namespace sqlpp
   };
 
   template <typename Flag, typename Expr>
-  struct contains_aggregate<min_t<Flag, Expr>> : public std::true_type
+  struct contains_aggregate_function<min_t<Flag, Expr>> : public std::true_type
+  {
+  };
+
+  template <typename Flag, typename Expr>
+  struct contains_non_aggregate<min_t<Flag, Expr>> : public std::false_type
   {
   };
 
@@ -91,7 +96,7 @@ namespace sqlpp
 
   template <typename T>
   using check_min_arg =
-      ::sqlpp::enable_if_t<values_are_comparable<T, T>::value and not contains_aggregate<T>::value>;
+      ::sqlpp::enable_if_t<values_are_comparable<T, T>::value and not contains_aggregate_function<T>::value>;
 
   template <typename T, typename = check_min_arg<T>>
   auto min(T t) -> min_t<noop, T>

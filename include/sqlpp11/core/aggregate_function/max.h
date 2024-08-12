@@ -62,7 +62,12 @@ namespace sqlpp
   };
 
   template <typename Flag, typename Expr>
-  struct contains_aggregate<max_t<Flag, Expr>> : public std::true_type
+  struct contains_aggregate_function<max_t<Flag, Expr>> : public std::true_type
+  {
+  };
+
+  template <typename Flag, typename Expr>
+  struct contains_non_aggregate<max_t<Flag, Expr>> : public std::false_type
   {
   };
 
@@ -91,7 +96,7 @@ namespace sqlpp
 
   template <typename T>
   using check_max_arg =
-      ::sqlpp::enable_if_t<values_are_comparable<T, T>::value and not contains_aggregate<T>::value>;
+      ::sqlpp::enable_if_t<values_are_comparable<T, T>::value and not contains_aggregate_function<T>::value>;
 
   template <typename T, typename = check_max_arg<T>>
   auto max(T t) -> max_t<noop, T>

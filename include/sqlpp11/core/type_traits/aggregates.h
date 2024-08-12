@@ -32,14 +32,45 @@
 
 namespace sqlpp
 {
+  // Finds calls to aggregate functions (avg, count, max, min, sum).
   template <typename T>
-  struct contains_aggregate : public std::integral_constant<bool, contains_aggregate<nodes_of_t<T>>::value>
+  struct contains_aggregate_function : public std::integral_constant<bool, contains_aggregate_function<nodes_of_t<T>>::value>
   {
   };
 
   template <typename... T>
-  struct contains_aggregate<detail::type_vector<T...>>
-      : public std::integral_constant<bool, logic::any_t<contains_aggregate<T>::value...>::value>
+  struct contains_aggregate_function<detail::type_vector<T...>>
+      : public std::integral_constant<bool, logic::any_t<contains_aggregate_function<T>::value...>::value>
+  {
+  };
+
+  // Finds group_by expressions.
+  // @GroupByExpressions: type_vector
+  template <typename T, typename GroupByExpressions>
+  struct contains_aggregate_expressions
+      : public std::integral_constant<bool, contains_aggregate_expressions<nodes_of_t<T>, GroupByExpressions>::value>
+  {
+  };
+
+  template <typename... T, typename GroupByExpressions>
+  struct contains_aggregate_expressions<detail::type_vector<T...>, GroupByExpressions>
+      : public std::integral_constant<
+            bool,
+            logic::any_t<(GroupByExpressions::template contains<T>::value or
+                         contains_aggregate_expressions<T, GroupByExpressions>::value)...>::value>
+  {
+  };
+
+  // Finds columns.
+  // Note that explicit values like `value(7)` are compatible with both aggregate and non-aggregate.
+  template <typename T>
+  struct contains_non_aggregate : public std::integral_constant<bool, contains_non_aggregate<nodes_of_t<T>>::value>
+  {
+  };
+
+  template <typename... T>
+  struct contains_non_aggregate<detail::type_vector<T...>>
+      : public std::integral_constant<bool, logic::any_t<contains_non_aggregate<T>::value...>::value>
   {
   };
 

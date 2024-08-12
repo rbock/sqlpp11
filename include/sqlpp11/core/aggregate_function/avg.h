@@ -63,7 +63,12 @@ namespace sqlpp
   };
 
   template <typename Flag, typename Expr>
-  struct contains_aggregate<avg_t<Flag, Expr>> : public std::true_type
+  struct contains_aggregate_function<avg_t<Flag, Expr>> : public std::true_type
+  {
+  };
+
+  template <typename Flag, typename Expr>
+  struct contains_non_aggregate<avg_t<Flag, Expr>> : public std::false_type
   {
   };
 
@@ -92,7 +97,7 @@ namespace sqlpp
 
   template <typename T>
   using check_avg_arg =
-      ::sqlpp::enable_if_t<(is_numeric<T>::value or is_boolean<T>::value) and not contains_aggregate<T>::value>;
+      ::sqlpp::enable_if_t<(is_numeric<T>::value or is_boolean<T>::value) and not contains_aggregate_function<T>::value>;
 
   template <typename T, typename = check_avg_arg<T>>
   auto avg(T t) -> avg_t<noop, T>
