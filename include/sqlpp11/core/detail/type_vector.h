@@ -27,6 +27,7 @@
  */
 
 #include <sqlpp11/core/wrong.h>
+#include <sqlpp11/core/logic.h>
 
 namespace sqlpp
 {
@@ -35,6 +36,8 @@ namespace sqlpp
     template <typename... T>
     struct type_vector
     {
+      template<typename X>
+      using contains = std::integral_constant<bool, ::sqlpp::logic::any_t<std::is_same<T, X>::value...>::value>;
     };
 
     template <typename... T>

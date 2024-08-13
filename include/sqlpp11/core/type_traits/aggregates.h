@@ -44,20 +44,22 @@ namespace sqlpp
   {
   };
 
-  // Finds group_by expressions.
+  // Finds group_by expression.
   // @GroupByExpressions: type_vector
-  template <typename T, typename GroupByExpressions>
-  struct contains_aggregate_expressions
-      : public std::integral_constant<bool, contains_aggregate_expressions<nodes_of_t<T>, GroupByExpressions>::value>
+  template <typename GroupByExpressions, typename T>
+  struct contains_aggregate_expression
+      : public std::integral_constant<bool,
+                                      GroupByExpressions::template contains<T>::value or
+                                          contains_aggregate_expression<GroupByExpressions, nodes_of_t<T>>::value>
   {
   };
 
-  template <typename... T, typename GroupByExpressions>
-  struct contains_aggregate_expressions<detail::type_vector<T...>, GroupByExpressions>
+  template <typename GroupByExpressions, typename... T>
+  struct contains_aggregate_expression<GroupByExpressions, detail::type_vector<T...>>
       : public std::integral_constant<
             bool,
             logic::any_t<(GroupByExpressions::template contains<T>::value or
-                         contains_aggregate_expressions<T, GroupByExpressions>::value)...>::value>
+                         contains_aggregate_expression<GroupByExpressions, T>::value)...>::value>
   {
   };
 

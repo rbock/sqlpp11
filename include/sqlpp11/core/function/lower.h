@@ -51,6 +51,15 @@ namespace sqlpp
     Expr _expr;
   };
 
+  template <typename Expr>
+  struct value_type_of<lower_t<Expr>>  : public value_type_of<Expr> {};
+
+  template <typename Expr>
+  struct nodes_of<lower_t<Expr>>
+  {
+    using type = detail::type_vector<Expr>;
+  };
+
   template <typename Context, typename Expr>
   auto to_sql_string(Context& context, const lower_t<Expr>& t) -> std::string
   {

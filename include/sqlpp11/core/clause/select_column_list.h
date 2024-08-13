@@ -215,6 +215,7 @@ namespace sqlpp
       }
     };
   };
+
   template <typename Column>
   struct value_type_of<select_column_list_t<Column>> : public select_column_value_type_of<Column>
   {
