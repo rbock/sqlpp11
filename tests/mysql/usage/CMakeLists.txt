@@ -42,6 +42,7 @@ set(test_files
     Remove.cpp
     Connection.cpp
     ConnectionPool.cpp
+    OnDuplicateKeyUpdate.cpp
 )
 
 create_test_sourcelist(test_sources test_main.cpp ${test_files})
