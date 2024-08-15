@@ -55,8 +55,9 @@ namespace sqlpp
   // No value_type_of or name_tag_of defined for dynamic_t, to prevent its usage outside of select columns.
 
   template <typename Expr>
-  struct nodes_of<dynamic_t<Expr>> : public nodes_of<Expr>
+  struct nodes_of<dynamic_t<Expr>>
   {
+    using type = Expr;
   };
 
   template <typename T>

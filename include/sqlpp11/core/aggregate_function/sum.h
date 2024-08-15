@@ -62,12 +62,7 @@ namespace sqlpp
   };
 
   template <typename Flag, typename Expr>
-  struct contains_aggregate_function<sum_t<Flag, Expr>> : public std::true_type
-  {
-  };
-
-  template <typename Flag, typename Expr>
-  struct contains_non_aggregate<sum_t<Flag, Expr>> : public std::false_type
+  struct is_aggregate_function<sum_t<Flag, Expr>> : public std::true_type
   {
   };
 

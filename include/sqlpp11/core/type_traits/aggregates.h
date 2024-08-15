@@ -32,47 +32,51 @@
 
 namespace sqlpp
 {
-  // Finds calls to aggregate functions (avg, count, max, min, sum).
+  // We don't want to mix aggregate and non-aggregate expressions as the results are unspecified.
+  // Aggregates are either results of aggregate functions or GROUP BY columns.
+  // Non-aggregates are columns (unless they are aggregate expressions).
+  // Constant values are neutral.
+
   template <typename T>
-  struct contains_aggregate_function : public std::integral_constant<bool, contains_aggregate_function<nodes_of_t<T>>::value>
+  struct is_aggregate_function : public std::false_type
+  {
+  };
+
+  // Finds calls to aggregate functions (avg, count, max, min, sum) in expressions.
+  // This is important as aggregated functions must not be nested.
+  template <typename T>
+  struct contains_aggregate_function
+      : public std::integral_constant<bool,
+                                      is_aggregate_function<T>::value or
+                                          contains_aggregate_function<nodes_of_t<T>>::value>
   {
   };
 
   template <typename... T>
   struct contains_aggregate_function<detail::type_vector<T...>>
-      : public std::integral_constant<bool, logic::any_t<contains_aggregate_function<T>::value...>::value>
-  {
-  };
-
-  // Finds group_by expression.
-  // @GroupByExpressions: type_vector
-  template <typename GroupByExpressions, typename T>
-  struct contains_aggregate_expression
-      : public std::integral_constant<bool,
-                                      GroupByExpressions::template contains<T>::value or
-                                          contains_aggregate_expression<GroupByExpressions, nodes_of_t<T>>::value>
-  {
-  };
-
-  template <typename GroupByExpressions, typename... T>
-  struct contains_aggregate_expression<GroupByExpressions, detail::type_vector<T...>>
       : public std::integral_constant<
             bool,
-            logic::any_t<(GroupByExpressions::template contains<T>::value or
-                         contains_aggregate_expression<GroupByExpressions, T>::value)...>::value>
+            logic::any_t<(is_aggregate_function<T>::value or contains_aggregate_function<T>::value)...>::value>
   {
   };
 
-  // Finds columns.
-  // Note that explicit values like `value(7)` are compatible with both aggregate and non-aggregate.
+  // Obtain known aggregate expressions, i.e. GROUP BY columns.
   template <typename T>
-  struct contains_non_aggregate : public std::integral_constant<bool, contains_non_aggregate<nodes_of_t<T>>::value>
+  struct known_aggregate_expressions_of
   {
+    using type = detail::type_vector<>;
   };
 
-  template <typename... T>
-  struct contains_non_aggregate<detail::type_vector<T...>>
-      : public std::integral_constant<bool, logic::any_t<contains_non_aggregate<T>::value...>::value>
+  template <typename T>
+  using known_aggregate_expressions_of_t = typename known_aggregate_expressions_of<T>::type;
+
+  // Checks if T is an aggregate expression (either an aggregate function or a known aggregate).
+  // @KnownAggregateExpressions: type_vector as obtained through known_aggregate_expressions_of_t
+  template <typename KnownAggregateExpressions, typename T>
+  struct is_aggregate_expression
+      : public std::integral_constant<bool,
+                                      is_aggregate_function<T>::value or
+                                          KnownAggregateExpressions::template contains<T>::value>
   {
   };
 

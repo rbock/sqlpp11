@@ -62,9 +62,7 @@ namespace sqlpp
     using _traits = make_traits<no_value_t, tag::is_group_by>;
     using _nodes = detail::type_vector<Expressions...>;
 
-    using _provided_aggregates = detail::make_type_set_t<Expressions...>;
-
-    using _data_t = group_by_data_t<Expressions...>;
+   using _data_t = group_by_data_t<Expressions...>;
 
     // Base template to be inherited by the statement
     template <typename Policies>
@@ -82,8 +80,14 @@ namespace sqlpp
     };
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_group_by_args_have_values_t,
-                               "all arguments for group_by() must have values");
+  template <typename... Expressions>
+  struct known_aggregate_expressions_of<group_by_t<Expressions...>>
+  {
+    using type = detail::type_vector<Expressions...>;
+  };
+
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_group_by_args_have_values_t, "all arguments for group_by() must have values");
+
   template <typename... Exprs>
   struct check_group_by
   {
@@ -118,6 +122,7 @@ namespace sqlpp
 
       using _consistency_check = consistent_t;
 
+#warning: Arguments should not be constants and not contain aggregate functions
       template <typename... Expressions>
       auto group_by(Expressions... expressions) const
           -> _new_statement_t<check_group_by_t<Expressions...>, group_by_t<Expressions...>>

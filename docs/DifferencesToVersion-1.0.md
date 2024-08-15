@@ -27,6 +27,16 @@ The library now offers `is_distinct_from` and `is_not_distinct_from` which safel
 # Selecting aggregate functions
 The automatic name for selected aggregate functions drops the `_`.
 
+# Aggregates and non-aggregates
+They must not be mixed in a select.
+
+`group_by` accepts columns only (there is an escape hatch: `group_by_column`)
+`select` requires either
+- all selected columns are aggregate expressions (either an aggregate function or a group by column), or
+- no selected column is an aggregate expression
+
+If group_by is specified in the select, then all columns have to be aggregate expressions.
+
 # Dynamic queries
 We don't always have a completely fixed structure for our queries. For instance, there might columns that we only want to select under certain circumstances. In version 1.0, this was handled by dynamic queries. Now we introduce conditional query parts that may or may not be used at runtime:
 
