@@ -35,6 +35,7 @@
 #include <sqlpp11/core/query/result_row.h>
 #include <sqlpp11/core/clause/select_as.h>
 #include <sqlpp11/core/clause/select_column_traits.h>
+#include <sqlpp11/core/group_by_column.h>
 #include <sqlpp11/core/basic/table.h>
 #include <tuple>
 

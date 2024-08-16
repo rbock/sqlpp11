@@ -34,7 +34,7 @@ namespace sqlpp
 {
   // We don't want to mix aggregate and non-aggregate expressions as the results are unspecified.
   // Aggregates are either results of aggregate functions or GROUP BY columns.
-  // Non-aggregates are columns (unless they are aggregate expressions).
+  // Non-aggregates are columns (unless they are aggregate columns).
   // Constant values are neutral.
 
   template <typename T>
@@ -60,23 +60,23 @@ namespace sqlpp
   {
   };
 
-  // Obtain known aggregate expressions, i.e. GROUP BY columns.
+  // Obtain known aggregate columns, i.e. GROUP BY columns.
   template <typename T>
-  struct known_aggregate_expressions_of
+  struct known_aggregate_columns_of
   {
     using type = detail::type_vector<>;
   };
 
   template <typename T>
-  using known_aggregate_expressions_of_t = typename known_aggregate_expressions_of<T>::type;
+  using known_aggregate_columns_of_t = typename known_aggregate_columns_of<T>::type;
 
   // Checks if T is an aggregate expression (either an aggregate function or a known aggregate).
-  // @KnownAggregateExpressions: type_vector as obtained through known_aggregate_expressions_of_t
-  template <typename KnownAggregateExpressions, typename T>
+  // @KnownAggregateColumns: type_vector as obtained through known_aggregate_columns_of_t
+  template <typename KnownAggregateColumns, typename T>
   struct is_aggregate_expression
       : public std::integral_constant<bool,
                                       is_aggregate_function<T>::value or
-                                          KnownAggregateExpressions::template contains<T>::value>
+                                          KnownAggregateColumns::template contains<T>::value>
   {
   };
 

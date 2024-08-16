@@ -274,6 +274,12 @@ namespace sqlpp
   };
 
   template <typename... Policies>
+    struct known_aggregate_columns_of<statement_t<Policies...>>
+    {
+      using type = detail::type_vector_cat_t<known_aggregate_columns_of_t<Policies>...>;
+    };
+
+  template <typename... Policies>
   struct requires_parentheses<statement_t<Policies...>> : public std::true_type {};
 
   template <typename Context, typename... Policies>

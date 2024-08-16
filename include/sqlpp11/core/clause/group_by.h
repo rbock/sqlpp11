@@ -30,15 +30,16 @@
 #include <sqlpp11/core/logic.h>
 #include <sqlpp11/core/query/policy_update.h>
 #include <sqlpp11/core/type_traits.h>
+#include <sqlpp11/core/group_by_column.h>
 #include <tuple>
 
 namespace sqlpp
 {
   // GROUP BY DATA
-  template <typename... Expressions>
+  template <typename... Columns>
   struct group_by_data_t
   {
-    group_by_data_t(Expressions... expressions) : _expressions(expressions...)
+    group_by_data_t(Columns... columns) : _columns(columns...)
     {
     }
 
@@ -48,7 +49,7 @@ namespace sqlpp
     group_by_data_t& operator=(group_by_data_t&&) = default;
     ~group_by_data_t() = default;
 
-    std::tuple<Expressions...> _expressions;
+    std::tuple<Columns...> _columns;
   };
 
   SQLPP_PORTABLE_STATIC_ASSERT(
@@ -56,13 +57,13 @@ namespace sqlpp
       "at least one group-by expression requires a table which is otherwise not known in the statement");
 
   // GROUP BY
-  template <typename... Expressions>
+  template <typename... Columns>
   struct group_by_t
   {
     using _traits = make_traits<no_value_t, tag::is_group_by>;
-    using _nodes = detail::type_vector<Expressions...>;
+    using _nodes = detail::type_vector<Columns...>;
 
-   using _data_t = group_by_data_t<Expressions...>;
+   using _data_t = group_by_data_t<Columns...>;
 
     // Base template to be inherited by the statement
     template <typename Policies>
@@ -80,22 +81,22 @@ namespace sqlpp
     };
   };
 
-  template <typename... Expressions>
-  struct known_aggregate_expressions_of<group_by_t<Expressions...>>
+  template <typename... Columns>
+  struct known_aggregate_columns_of<group_by_t<Columns...>>
   {
-    using type = detail::type_vector<Expressions...>;
+    using type = detail::type_vector<Columns...>;
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_group_by_args_have_values_t, "all arguments for group_by() must have values");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_group_by_args_are_columns_t, "all arguments for group_by() must be columns");
 
-  template <typename... Exprs>
+  template <typename... Columns>
   struct check_group_by
   {
     using type = static_combined_check_t<
-        static_check_t<logic::all_t<has_value_type<Exprs>::value...>::value, assert_group_by_args_have_values_t>>;
+        static_check_t<logic::all_t<is_group_by_column<Columns>::value...>::value, assert_group_by_args_are_columns_t>>;
   };
-  template <typename... Exprs>
-  using check_group_by_t = typename check_group_by<Exprs...>::type;
+  template <typename... Columns>
+  using check_group_by_t = typename check_group_by<Columns...>::type;
 
   // NO GROUP BY YET
   struct no_group_by_t
@@ -122,44 +123,43 @@ namespace sqlpp
 
       using _consistency_check = consistent_t;
 
-#warning: Arguments should not be constants and not contain aggregate functions
-      template <typename... Expressions>
-      auto group_by(Expressions... expressions) const
-          -> _new_statement_t<check_group_by_t<Expressions...>, group_by_t<Expressions...>>
+      template <typename... Columns>
+      auto group_by(Columns... columns) const
+          -> _new_statement_t<check_group_by_t<remove_dynamic_t<Columns>...>, group_by_t<Columns...>>
       {
-        static_assert(sizeof...(Expressions), "at least one expression (e.g. a column) required in group_by()");
+        static_assert(sizeof...(Columns), "at least one column required in group_by()");
 
-        return _group_by_impl(check_group_by_t<Expressions...>{}, expressions...);
+        return _group_by_impl(check_group_by_t<Columns...>{}, columns...);
       }
 
     private:
-      template <typename Check, typename... Expressions>
-      auto _group_by_impl(Check, Expressions... expressions) const -> inconsistent<Check>;
+      template <typename Check, typename... Columns>
+      auto _group_by_impl(Check, Columns... columns) const -> inconsistent<Check>;
 
-      template <typename... Expressions>
-      auto _group_by_impl(consistent_t /*unused*/, Expressions... expressions) const
-          -> _new_statement_t<consistent_t, group_by_t<Expressions...>>
+      template <typename... Columns>
+      auto _group_by_impl(consistent_t /*unused*/, Columns... columns) const
+          -> _new_statement_t<consistent_t, group_by_t<Columns...>>
       {
-        static_assert(not detail::has_duplicates<Expressions...>::value,
+        static_assert(not detail::has_duplicates<Columns...>::value,
                       "at least one duplicate argument detected in group_by()");
 
         return {static_cast<const derived_statement_t<Policies>&>(*this),
-                group_by_data_t<Expressions...>{expressions...}};
+                group_by_data_t<Columns...>{columns...}};
       }
     };
   };
 
   // Interpreters
-  template <typename Context, typename... Expressions>
-  auto to_sql_string(Context& context, const group_by_data_t<Expressions...>& t) -> std::string
+  template <typename Context, typename... Columns>
+  auto to_sql_string(Context& context, const group_by_data_t<Columns...>& t) -> std::string
   {
-    return " GROUP BY " + interpret_tuple(t._expressions, ',', context);
+    return " GROUP BY " + interpret_tuple(t._columns, ',', context);
   }
 
   template <typename... T>
-  auto group_by(T&&... t) -> decltype(statement_t<no_group_by_t>().group_by(std::forward<T>(t)...))
+  auto group_by(T... t) -> decltype(statement_t<no_group_by_t>().group_by(std::move(t)...))
   {
-    return statement_t<no_group_by_t>().group_by(std::forward<T>(t)...);
+    return statement_t<no_group_by_t>().group_by(std::move(t)...);
   }
 
 }  // namespace sqlpp
