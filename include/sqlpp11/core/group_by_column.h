@@ -48,6 +48,11 @@ namespace sqlpp
       Expr _expr;
     };
 
+  template <typename KnownAggregateColumns, typename Expr>
+  struct is_aggregate_expression<KnownAggregateColumns, group_by_column<Expr>> : public std::true_type
+  {
+  };
+
   template <typename Expr>
   struct is_group_by_column<group_by_column<Expr>> : public std::true_type
   {

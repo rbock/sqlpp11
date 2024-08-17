@@ -114,7 +114,7 @@ namespace sqlpp
       // The common table expressions not covered by the with.
       using _required_ctes = detail::make_difference_set_t<_all_required_ctes, _all_provided_ctes>;
 
-      using _result_type_provider = detail::get_last_if<is_return_value_t, noop, Policies...>;
+      using _result_type_provider = detail::get_last_if_t<is_result_clause, noop, Policies...>;
 
       struct _result_methods_t : public _result_type_provider::template _result_methods_t<_statement_t>
       {
@@ -203,8 +203,10 @@ namespace sqlpp
                     tag::is_statement,
                     tag_if<tag::is_select, logic::any_t<is_select_t<Policies>::value...>::value>,
                     tag_if<tag::is_expression, is_expression_t<_policies_t>::value>,
-                    tag_if<tag::is_selectable, is_expression_t<_policies_t>::value>,
-                    tag_if<tag::is_return_value, logic::none_t<is_noop_t<_result_type_provider>::value>::value>>;
+                    tag_if<tag::is_selectable, is_expression_t<_policies_t>::value>
+#warning: reactivate
+                    //,tag_if<tag::is_return_value, logic::none_t<is_noop_t<_result_type_provider>::value>::value>
+                      >;
     using _name_tag_of = name_tag_of<_result_type_provider>;
     using _nodes = detail::type_vector<_policies_t>;
     using _used_outer_tables = typename _policies_t::_all_provided_outer_tables;

@@ -54,7 +54,8 @@ namespace sqlpp
     struct custom_parts_t
     {
       using _custom_query_t = custom_query_t<Parts...>;
-      using _maybe_hidden_result_type_provider = detail::get_first_if<is_return_value_t, noop, Parts...>;
+#warning: This should be get_last_if, I think.
+      using _maybe_hidden_result_type_provider = detail::get_first_if<is_result_clause, noop, Parts...>;
       using _result_type_provider = typename unhide<_maybe_hidden_result_type_provider>::type;
       using _result_methods_t = typename _result_type_provider::template _result_methods_t<_result_type_provider>;
     };

@@ -46,12 +46,21 @@ void test_select_columns()
 {
   auto v = sqlpp::value("text");
   auto col_int = test::TabFoo{}.id;
+  auto col_txt = test::TabFoo{}.textNnD;
+
+  using unknown = sqlpp::detail::type_vector<>;
+  using knownInt = sqlpp::detail::type_vector<decltype(col_int)>;
+  using knownTxt = sqlpp::detail::type_vector<decltype(col_txt)>;
 
   // Single column
   {
     using T = clause_of_t<decltype(select_columns(col_int))>;
     static_assert(std::is_same<sqlpp::name_tag_of_t<T>, test::TabFoo_::Id::_sqlpp_name_tag>::value, "");
     static_assert(std::is_same<sqlpp::value_type_of_t<T>, sqlpp::integral>::value, "");
+    static_assert(sqlpp::is_result_clause<T>::value, "");
+    static_assert(sqlpp::has_correct_aggregates<unknown, T>::value, "");
+    static_assert(sqlpp::has_correct_aggregates<knownInt, T>::value, "");
+    static_assert(not sqlpp::has_correct_aggregates<knownTxt, T>::value, "");
   }
 
   // Single dynamic column
@@ -59,6 +68,10 @@ void test_select_columns()
     using T = clause_of_t<decltype(select_columns(dynamic(true, col_int)))>;
     static_assert(std::is_same<sqlpp::name_tag_of_t<T>, test::TabFoo_::Id::_sqlpp_name_tag>::value, "");
     static_assert(std::is_same<sqlpp::value_type_of_t<T>, sqlpp::optional<sqlpp::integral>>::value, "");
+    static_assert(sqlpp::is_result_clause<T>::value, "");
+    static_assert(sqlpp::has_correct_aggregates<unknown, T>::value, "");
+    static_assert(sqlpp::has_correct_aggregates<knownInt, T>::value, "");
+    static_assert(not sqlpp::has_correct_aggregates<knownTxt, T>::value, "");
   }
 
   // Single declared group by column
@@ -66,6 +79,10 @@ void test_select_columns()
     using T = clause_of_t<decltype(select_columns(declare_group_by_column(v).as(cheese)))>;
     static_assert(std::is_same<sqlpp::name_tag_of_t<T>, cheese_t::_sqlpp_name_tag>::value, "");
     static_assert(std::is_same<sqlpp::value_type_of_t<T>, sqlpp::text>::value, "");
+    static_assert(sqlpp::is_result_clause<T>::value, "");
+    static_assert(sqlpp::has_correct_aggregates<unknown, T>::value, "");
+    static_assert(sqlpp::has_correct_aggregates<knownInt, T>::value, "");
+    static_assert(sqlpp::has_correct_aggregates<knownTxt, T>::value, "");
   }
 
   // Single dynamic declared group by column
@@ -73,6 +90,10 @@ void test_select_columns()
     using T = clause_of_t<decltype(select_columns(dynamic(true, declare_group_by_column(v)).as(cheese)))>;
     static_assert(std::is_same<sqlpp::name_tag_of_t<T>, cheese_t::_sqlpp_name_tag>::value, "");
     static_assert(std::is_same<sqlpp::value_type_of_t<T>, sqlpp::optional<sqlpp::text>>::value, "");
+    static_assert(sqlpp::is_result_clause<T>::value, "");
+    static_assert(sqlpp::has_correct_aggregates<unknown, T>::value, "");
+    static_assert(sqlpp::has_correct_aggregates<knownInt, T>::value, "");
+    static_assert(sqlpp::has_correct_aggregates<knownTxt, T>::value, "");
   }
 
 #warning: add actual tests here

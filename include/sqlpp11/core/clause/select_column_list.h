@@ -67,7 +67,7 @@ namespace sqlpp
     template <typename... Columns>
     struct select_traits
     {
-      using _traits = make_traits<no_value_t, tag::is_select_column_list, tag::is_return_value>;
+      using _traits = make_traits<no_value_t, tag::is_select_column_list>;
     };
 
     template <typename Column>
@@ -75,7 +75,6 @@ namespace sqlpp
     {
       using _traits = make_traits<value_type_of_t<Column>,
                                   tag::is_select_column_list,
-                                  tag::is_return_value,
                                   tag::is_expression,
                                   tag::is_selectable>;
     };
@@ -224,6 +223,24 @@ namespace sqlpp
 
   template <typename Column>
   struct name_tag_of<select_column_list_t<Column>> : public select_column_name_tag_of<Column>
+  {
+  };
+
+  // If a GROUP BY clause defines known aggregate columns or the SELECT columns contain an aggregate function then ALL
+  // columns need to be aggregate.
+  template <typename KnownAggregateColumns, typename... Columns>
+  struct has_correct_aggregates<KnownAggregateColumns, select_column_list_t<Columns...>>
+      : public std::integral_constant<
+            bool,
+            (detail::type_vector_size<KnownAggregateColumns>::value == 0 and
+             logic::none_t<contains_aggregate_function<remove_dynamic_t<remove_as_t<Columns>>>::value...>::value) or
+                logic::all_t<is_aggregate_expression<KnownAggregateColumns,
+                                                     remove_dynamic_t<remove_as_t<Columns>>>::value...>::value>
+  {
+  };
+
+  template <typename... Columns>
+  struct is_result_clause<select_column_list_t<Columns...>> : public std::true_type
   {
   };
 

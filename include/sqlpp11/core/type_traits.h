@@ -222,7 +222,6 @@ namespace sqlpp
   SQLPP_VALUE_TRAIT_GENERATOR(is_cte)
   SQLPP_VALUE_TRAIT_GENERATOR(is_noop)
   SQLPP_VALUE_TRAIT_GENERATOR(is_missing)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_return_value)
   SQLPP_VALUE_TRAIT_GENERATOR(is_raw_table)
   SQLPP_VALUE_TRAIT_GENERATOR(is_pre_join)
   SQLPP_VALUE_TRAIT_GENERATOR(is_join)
@@ -590,4 +589,7 @@ namespace sqlpp
 
   template <typename Db>
   using serializer_context_of = typename serializer_context_of_impl<Db>::type;
+
+  template<typename T>
+    struct is_result_clause : public std::false_type {};
 }  // namespace sqlpp

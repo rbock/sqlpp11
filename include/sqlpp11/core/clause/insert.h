@@ -43,7 +43,7 @@ namespace sqlpp
 
   struct insert_t : public statement_name_t<insert_name_t>
   {
-    using _traits = make_traits<no_value_t, tag::is_return_value>;
+    using _traits = make_traits<no_value_t>;
     struct _sqlpp_name_tag
     {
     };
@@ -85,6 +85,9 @@ namespace sqlpp
       }
     };
   };
+
+  template<>
+    struct is_result_clause<insert_t> : public std::true_type {};
 
   template <typename Context>
   auto to_sql_string(Context& , const insert_name_t&) -> std::string

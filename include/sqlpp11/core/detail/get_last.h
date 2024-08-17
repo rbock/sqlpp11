@@ -33,22 +33,23 @@ namespace sqlpp
   namespace detail
   {
     template <template <typename> class Predicate, typename Default, typename... T>
-    struct get_last_if_impl;
+    struct get_last_if;
 
     template <template <typename> class Predicate, typename Default>
-    struct get_last_if_impl<Predicate, Default>
+    struct get_last_if<Predicate, Default>
     {
       using type = Default;
     };
 
     template <template <typename> class Predicate, typename Default, typename T, typename... Rest>
-    struct get_last_if_impl<Predicate, Default, T, Rest...>
+    struct get_last_if<Predicate, Default, T, Rest...>
     {
-      using rest = typename get_last_if_impl<Predicate, Default, Rest...>::type;
-      using type = typename std::conditional<std::is_same<rest, Default>::value and Predicate<T>::value, T, rest>::type;
+      using type = typename get_last_if<Predicate,
+                                             typename std::conditional<Predicate<T>::value, T, Default>::type,
+                                             Rest...>::type;
     };
 
     template <template <typename> class Predicate, typename Default, typename... T>
-    using get_last_if = typename get_last_if_impl<Predicate, Default, T...>::type;
+    using get_last_if_t = typename get_last_if<Predicate, Default, T...>::type;
   }  // namespace detail
 }  // namespace sqlpp

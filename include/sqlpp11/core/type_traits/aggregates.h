@@ -80,5 +80,11 @@ namespace sqlpp
   {
   };
 
+  // If a GROUP BY clause defines known aggregate columns or the SELECT columns contain an aggregate function then ALL
+  // columns need to be aggregate.
+  // SELECT-like clauses will need to specialize this.
+  template <typename KnownAggregateColumns, typename T>
+  struct has_correct_aggregates : public std::true_type {};
+
 }  // namespace sqlpp11
 

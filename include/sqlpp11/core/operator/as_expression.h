@@ -53,6 +53,21 @@ namespace sqlpp
 
   // No value_type_of or name_tag_of defined for as_expression, to prevent its usage outside of select columns.
 
+  template <typename T>
+  struct remove_as
+  {
+    using type = T;
+  };
+
+  template <typename Expression, typename AliasProvider>
+  struct remove_as<as_expression<Expression, AliasProvider>>
+  {
+    using type = Expression;
+  };
+
+  template <typename T>
+  using remove_as_t = typename remove_as<T>::type;
+
   template <typename Expression, typename AliasProvider>
   struct nodes_of<as_expression<Expression, AliasProvider>>
   {

@@ -60,7 +60,7 @@ namespace sqlpp
   template <typename Flag, typename Lhs, typename Rhs>
   struct union_t
   {
-    using _traits = make_traits<no_value_t, tag::is_union, tag::is_return_value>;
+    using _traits = make_traits<no_value_t, tag::is_union>;
     using _nodes = detail::type_vector<Lhs, Rhs>;
 
     using _data_t = union_data_t<Flag, Lhs, Rhs>;
@@ -91,8 +91,6 @@ namespace sqlpp
                                                       typename Rhs::_consistency_check>;
     };
 
-    template <typename Statement>
-    using _result_methods_t = typename Lhs::template _result_methods_t<Statement>;
   };
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_union_args_are_statements_t, "arguments for union() must be statements");
