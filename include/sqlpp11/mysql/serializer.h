@@ -32,17 +32,13 @@
 namespace sqlpp
 {
   template <typename First, typename... Args>
-  mysql::context_t& to_sql_string(const concat_t<First, Args...>& t, mysql::context_t& ctx)
+  auto to_sql_string(mysql::context_t& ctx, const concat_t<First, Args...>& t, mysql::context_t& ctx) -> std::string
   {
-    ctx << "CONCAT(";
-    interpret_tuple(t._args, ',', ctx);
-    ctx << ')';
-    return ctx;
+    return "CONCAT(" + tuple_to_sql_string(context, t._args, tuple_operand(", ")) + ")";
   }
 
-  inline mysql::context_t& to_sql_string(const insert_default_values_data_t&, mysql::context_t& ctx)
+  inline auto to_sql_string(mysql::context_t&, const insert_default_values_data_t&) -> std::string
   {
-    ctx << " () VALUES()";
-    return ctx;
+    return " () VALUES()";
   }
 }

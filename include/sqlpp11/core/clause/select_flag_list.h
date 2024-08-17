@@ -27,7 +27,7 @@
  */
 
 #include <sqlpp11/core/detail/type_set.h>
-#include <sqlpp11/core/interpret_tuple.h>
+#include <sqlpp11/core/tuple_to_sql_string.h>
 #include <sqlpp11/core/no_data.h>
 #include <sqlpp11/core/query/policy_update.h>
 #include <sqlpp11/core/clause/select_flags.h>
@@ -137,7 +137,7 @@ namespace sqlpp
   template <typename Context, typename... Flags>
   auto to_sql_string(Context& context, const select_flag_list_data_t<Flags...>& t) -> std::string
   {
-    return interpret_tuple(t._flags, "", context);
+    return tuple_to_sql_string(context, t._flags, tuple_operand{" "});
   }
 
   template <typename T>

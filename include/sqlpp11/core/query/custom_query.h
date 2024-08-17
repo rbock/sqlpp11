@@ -29,7 +29,7 @@
 #include <sqlpp11/core/database/connection.h>
 #include <sqlpp11/core/detail/get_first.h>
 #include <sqlpp11/core/hidden.h>
-#include <sqlpp11/core/interpret_tuple.h>
+#include <sqlpp11/core/tuple_to_sql_string.h>
 #include <sqlpp11/core/query/statement.h>
 
 namespace sqlpp
@@ -125,7 +125,7 @@ namespace sqlpp
   template <typename Context, typename... Parts>
   auto to_sql_string(Context& context, const custom_query_t<Parts...>& t) -> std::string
   {
-    return interpret_tuple_without_braces(t._parts, " ", context);
+    return tuple_to_sql_string(context, t._parts, tuple_clause{" "});
   }
 
   template <typename... Parts>

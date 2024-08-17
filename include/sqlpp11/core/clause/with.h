@@ -28,7 +28,7 @@
 
 #include <sqlpp11/core/operator/assign_expression.h>
 #include <sqlpp11/core/basic/column_fwd.h>
-#include <sqlpp11/core/interpret_tuple.h>
+#include <sqlpp11/core/tuple_to_sql_string.h>
 #include <sqlpp11/core/logic.h>
 #include <sqlpp11/core/no_data.h>
 #include <sqlpp11/core/query/policy_update.h>
@@ -132,7 +132,7 @@ namespace sqlpp
     {
       context << "RECURSIVE ";
     }
-    interpret_tuple(t._expressions, ',', context);
+    tuple_to_sql_string(context, t._expressions, tuple_operand{", "});
     context << ' ';
     return context;
   }

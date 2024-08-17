@@ -32,7 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sqlpp11/core/operator/enable_as.h>
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/logic.h>
-#include <sqlpp11/core/interpret_tuple.h>
+#include <sqlpp11/core/tuple_to_sql_string.h>
 
 namespace sqlpp
 {
@@ -127,8 +127,7 @@ namespace sqlpp
     }
     else
     {
-#warning: interpret_tuple arguments should take Context first, too
-      result += interpret_tuple(t._r, ", ", context);
+      result += tuple_to_sql_string(context, t._r, tuple_operand{", "});
     }
     result += ")";
     return result;

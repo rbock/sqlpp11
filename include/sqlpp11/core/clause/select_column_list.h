@@ -30,7 +30,7 @@
 #include <sqlpp11/core/operator/as_expression.h>
 #include <sqlpp11/core/query/dynamic.h>
 #include <sqlpp11/core/field_spec.h>
-#include <sqlpp11/core/interpret_tuple.h>
+#include <sqlpp11/core/tuple_to_sql_string.h>
 #include <sqlpp11/core/query/policy_update.h>
 #include <sqlpp11/core/query/result_row.h>
 #include <sqlpp11/core/clause/select_as.h>
@@ -330,7 +330,7 @@ namespace sqlpp
   template <typename Context, typename... Columns>
   auto to_sql_string(Context& context, const std::tuple<Columns...>& t) -> std::string
   {
-    return interpret_tuple(t, ",", context);
+    return tuple_to_sql_string(context, t, tuple_operand{", "});
   }
 
   template <typename... T>

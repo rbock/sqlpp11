@@ -26,7 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/interpret_tuple.h>
+#include <sqlpp11/core/tuple_to_sql_string.h>
 #include <sqlpp11/core/logic.h>
 #include <sqlpp11/core/query/policy_update.h>
 #include <sqlpp11/core/type_traits.h>
@@ -153,7 +153,7 @@ namespace sqlpp
   template <typename Context, typename... Columns>
   auto to_sql_string(Context& context, const group_by_data_t<Columns...>& t) -> std::string
   {
-    return " GROUP BY " + interpret_tuple(t._columns, ',', context);
+    return " GROUP BY " + tuple_to_sql_string(context, t._columns, tuple_operand{", "});
   }
 
   template <typename... T>

@@ -27,7 +27,7 @@
  */
 
 #include <sqlpp11/core/detail/type_set.h>
-#include <sqlpp11/core/interpret_tuple.h>
+#include <sqlpp11/core/tuple_to_sql_string.h>
 #include <sqlpp11/core/query/policy_update.h>
 #include <sqlpp11/core/type_traits.h>
 
@@ -138,8 +138,6 @@ namespace sqlpp
   template <typename Context, typename... Tables>
   auto to_sql_string(Context& context, const using_data_t<Tables...>& t) -> std::string
   {
-    context << " USING ";
-    interpret_tuple(t._tables, ',', context);
-    return context;
+    return " USING " + tuple_to_sql_string(context, t._tables, tuple_operand{", "});
   }
 }  // namespace sqlpp

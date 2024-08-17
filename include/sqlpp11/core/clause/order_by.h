@@ -27,7 +27,7 @@
  */
 
 #include <sqlpp11/core/detail/type_set.h>
-#include <sqlpp11/core/interpret_tuple.h>
+#include <sqlpp11/core/tuple_to_sql_string.h>
 #include <sqlpp11/core/logic.h>
 #include <sqlpp11/core/query/policy_update.h>
 #include <sqlpp11/core/type_traits.h>
@@ -148,7 +148,7 @@ namespace sqlpp
   template <typename Context, typename... Expressions>
   auto to_sql_string(Context& context, const order_by_data_t<Expressions...>& t) -> std::string
   {
-    return " ORDER BY " + interpret_tuple(t._expressions, ',', context);
+    return " ORDER BY " + tuple_to_sql_string(context, t._expressions, tuple_operand{", "});
   }
 
   template <typename... T>

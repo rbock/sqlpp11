@@ -27,7 +27,7 @@
  */
 
 #include <sqlpp11/core/detail/type_set.h>
-#include <sqlpp11/core/interpret_tuple.h>
+#include <sqlpp11/core/tuple_to_sql_string.h>
 #include <sqlpp11/core/type_traits.h>
 
 namespace sqlpp
@@ -167,6 +167,6 @@ namespace sqlpp
   template <typename Context, typename... Assignments>
   auto to_sql_string(Context& context, const update_list_data_t<Assignments...>& t) -> std::string
   {
-    return " SET " + interpret_tuple(t._assignments, ",", context);
+    return " SET " + tuple_to_sql_string(context, t._assignments, tuple_operand{", "});
   }
 }  // namespace sqlpp

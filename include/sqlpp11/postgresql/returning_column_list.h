@@ -32,7 +32,7 @@
 #include <sqlpp11/core/detail/type_set.h>
 #include <sqlpp11/expression_fwd.h>
 #include <sqlpp11/core/field_spec.h>
-#include <sqlpp11/core/interpret_tuple.h>
+#include <sqlpp11/core/tuple_to_sql_string.h>
 #include <sqlpp11/core/query/policy_update.h>
 #include <sqlpp11/core/query/result_row.h>
 #include <sqlpp11/select_pseudo_table.h>
@@ -293,12 +293,9 @@ namespace sqlpp
 
     // Serialization
     template <typename... Columns>
-    postgresql::context_t& to_sql_string(const postgresql::returning_column_list_data_t<Columns...>& t,
-                                     postgresql::context_t& context)
+    auto to_sql_string(postgresql::context_t& context, const postgresql::returning_column_list_data_t<Columns...>& t) -> std::string
     {
-      context << " RETURNING ";
-      interpret_tuple(t._columns, ',', context);
-      return context;
+      return " RETURNING " +  tuple_to_sql_string(context, t._columns, tuple_operand{", "});
     }
   }
 }  // namespace sqlpp

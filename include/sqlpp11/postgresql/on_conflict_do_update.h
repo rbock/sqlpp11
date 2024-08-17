@@ -28,7 +28,7 @@
  */
 
 #include <sqlpp11/core/detail/type_set.h>
-#include <sqlpp11/core/interpret_tuple.h>
+#include <sqlpp11/core/tuple_to_sql_string.h>
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/clause/where.h>
 
@@ -139,14 +139,10 @@ namespace sqlpp
     };
 
     template <typename ConflictTarget, typename... Assignments>
-    postgresql::context_t& to_sql_string(
-        const postgresql::on_conflict_do_update_data_t<ConflictTarget, Assignments...>& o,
-        postgresql::context_t& context)
+    auto to_sql_string(postgresql::context_t& context,
+        const postgresql::on_conflict_do_update_data_t<ConflictTarget, Assignments...>& o) -> std::string
     {
-      to_sql_string(context, o._conflict_target);
-      context << "DO UPDATE SET ";
-      interpret_tuple(o._assignments, ",", context);
-      return context;
+      return to_sql_string(context, o._conflict_target) + "DO UPDATE SET " + tuple_to_sql_string(context, o._assignments, tuple_operand{", "});
     }
 
     template <typename ConflictTarget, typename Expression, typename... Assignments>

@@ -29,7 +29,7 @@
 #include <sqlpp11/core/operator/assign_expression.h>
 #include <sqlpp11/core/basic/column_fwd.h>
 #include <sqlpp11/core/clause/insert_value.h>
-#include <sqlpp11/core/interpret_tuple.h>
+#include <sqlpp11/core/tuple_to_sql_string.h>
 #include <sqlpp11/core/logic.h>
 #include <sqlpp11/core/no_data.h>
 #include <sqlpp11/core/query/policy_update.h>
@@ -405,7 +405,7 @@ namespace sqlpp
   auto to_sql_string(Context& context, const column_list_data_t<Columns...>& t) -> std::string
   {
     auto result = std::string{" ("};
-    result += interpret_tuple(t._columns, ",", context);
+    result += tuple_to_sql_string(context, t._columns, ",");
     result += ")";
     bool first = true;
     for (const auto& row : t._insert_values)
@@ -420,7 +420,7 @@ namespace sqlpp
         result += ',';
       }
       result += '(';
-      result += interpret_tuple(row, ",", context);
+      result += tuple_to_sql_string(context, row, ",");
       result += ')';
     }
 
@@ -431,9 +431,9 @@ namespace sqlpp
   auto to_sql_string(Context& context, const insert_list_data_t<Assignments...>& t) -> std::string
   {
     auto result = std::string{" ("};
-    result += interpret_tuple(t._columns, ",", context);
+    result += tuple_to_sql_string(context, t._columns, tuple_operand{", "});
     result += ") VALUES(";
-    result += interpret_tuple(t._values, ",", context);
+    result += tuple_to_sql_string(context, t._values, tuple_operand{", "});
     result += ")";
     return result;
   }
