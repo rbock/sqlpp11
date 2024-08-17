@@ -69,15 +69,11 @@ namespace sqlpp
   template <typename Context>
   auto to_sql_string(Context& , const sort_type& t) -> std::string
   {
-    switch (t)
+    if (t == sort_type::asc)
     {
-      case sort_type::asc:
-        return " ASC";
-        break;
-      case sort_type::desc:
-        return " DESC";
-        break;
+      return " ASC";
     }
+    return " DESC";
   }
 
   template <typename Context, typename L>

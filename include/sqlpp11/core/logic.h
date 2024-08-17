@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2013, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -38,50 +38,22 @@ namespace sqlpp
 
     // see http://lists.boost.org/Archives/boost/2014/05/212946.php :-)
 
-    // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2086629
     template <bool... B>
-    struct all
+    struct all : public std::is_same<logic_helper<B...>, logic_helper<(B or true)...>>
     {
-      using type = std::is_same<logic_helper<B...>, logic_helper<(B or true)...>>;
     };
 
-    template <bool... B>
-    using all_t = std::is_same<logic_helper<B...>, logic_helper<(B or true)...>>;
-
-    // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2086629
     template <bool... B>
     struct any
+        : public std::integral_constant<bool,
+                                        not std::is_same<logic_helper<B...>, logic_helper<(B and false)...>>::value>
     {
-      using type =
-          std::integral_constant<bool, not std::is_same<logic_helper<B...>, logic_helper<(B and false)...>>::value>;
     };
 
     template <bool... B>
-    using any_t =
-        std::integral_constant<bool, not std::is_same<logic_helper<B...>, logic_helper<(B and false)...>>::value>;
-
-    template <bool... B>
-    using none_t = std::is_same<logic_helper<B...>, logic_helper<(B and false)...>>;
-
-    template <bool>
-    struct not_impl;
-
-    template <>
-    struct not_impl<true>
+    struct none : public std::is_same<logic_helper<B...>, logic_helper<(B and false)...>>
     {
-      using type = std::false_type;
     };
 
-    template <>
-    struct not_impl<false>
-    {
-      using type = std::true_type;
-    };
-
-    template <template <typename> class Predicate, typename T>
-    using not_t = typename not_impl<Predicate<T>::value>::type;
-
-    template <typename T>
-    using identity_t = T;
   }  // namespace logic
 }  // namespace sqlpp

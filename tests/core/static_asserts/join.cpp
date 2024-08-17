@@ -58,7 +58,7 @@ namespace
     using RightOuterJoinType = decltype(sqlpp::right_outer_join(lhs, rhs));
     using OuterJoinType = decltype(sqlpp::outer_join(lhs, rhs));
     using CrossJoinType = decltype(sqlpp::cross_join(lhs, rhs));
-    using ExpectedReturnType = sqlpp::logic::all_t<
+    using ExpectedReturnType = sqlpp::logic::all<
         (Assert::value and sqlpp::is_pre_join_t<JoinType>::value and sqlpp::is_pre_join_t<InnerJoinType>::value and
          sqlpp::is_pre_join_t<LeftOuterJoinType>::value and sqlpp::is_pre_join_t<RightOuterJoinType>::value and
          sqlpp::is_pre_join_t<OuterJoinType>::value and sqlpp::is_join_t<CrossJoinType>::value) xor
@@ -83,7 +83,7 @@ namespace
     static_assert(ExpectedCheckResult::value, "Unexpected check result");
 
     using ResultType = decltype(lhs.on(rhs));
-    using ExpectedReturnType = sqlpp::logic::all_t<(Assert::value and sqlpp::is_join_t<ResultType>::value) xor
+    using ExpectedReturnType = sqlpp::logic::all<(Assert::value and sqlpp::is_join_t<ResultType>::value) xor
                                                    std::is_same<ResultType, Assert>::value>;
     print_type_on_error<ResultType>(ExpectedReturnType{});
     static_assert(ExpectedReturnType::value, "Unexpected return type");

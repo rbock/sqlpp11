@@ -117,9 +117,9 @@ namespace sqlpp
   // https://connect.microsoft.com/VisualStudio/feedback/details/2173198
   //  template <typename... Expressions>
   //  using check_where_t = static_combined_check_t<
-  //      static_check_t<logic::all_t<is_boolean<Expressions>::value...>::value,
+  //      static_check_t<logic::all<is_boolean<Expressions>::value...>::value,
   //      assert_where_arg_is_boolean_expression_t>,
-  //      static_check_t<logic::all_t<(not contains_aggregate_function<Expressions>::value)...>::value,
+  //      static_check_t<logic::all<(not contains_aggregate_function<Expressions>::value)...>::value,
   //                     assert_where_arg_contains_no_aggregate_t>>;
   template <typename Expression>
   struct check_where

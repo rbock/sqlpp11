@@ -91,7 +91,7 @@ namespace sqlpp
 
   template <typename... Assignments>
   using check_update_set_t = static_combined_check_t<
-      static_check_t<logic::all_t<is_assignment<Assignments>::value...>::value,
+      static_check_t<logic::all<is_assignment<Assignments>::value...>::value,
                      assert_update_set_assignments_t>,
       static_check_t<not detail::has_duplicates<typename lhs<Assignments>::type...>::value,
                      assert_update_set_no_duplicates_t>,

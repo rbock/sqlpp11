@@ -42,7 +42,7 @@ namespace sqlpp
   template <typename... Expressions>
   struct with_data_t
   {
-    using _is_recursive = logic::any_t<Expressions::_is_recursive...>;
+    using _is_recursive = logic::any<Expressions::_is_recursive...>;
 
     with_data_t(Expressions... expressions) : _expressions(expressions...)
     {
@@ -140,9 +140,9 @@ namespace sqlpp
   template <typename... Expressions>
   auto with(Expressions... cte) -> blank_with_t<Expressions...>
   {
-    static_assert(logic::all_t<is_cte_t<Expressions>::value...>::value,
+    static_assert(logic::all<is_cte_t<Expressions>::value...>::value,
                   "at least one expression in with is not a common table expression");
-    static_assert(logic::none_t<is_alias_t<Expressions>::value...>::value,
+    static_assert(logic::none<is_alias_t<Expressions>::value...>::value,
                   "at least one expression in with is an incomplete common table expression");
     return {{cte...}};
   }

@@ -53,7 +53,7 @@ namespace
     static_assert(ExpectedCheckResult::value, "Unexpected check result");
 
     using ReturnType = decltype(update(t).set(expressions...));
-    using ExpectedReturnType = sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, Assert>::value>;
+    using ExpectedReturnType = sqlpp::logic::all<Assert::value xor std::is_same<ReturnType, Assert>::value>;
     print_type_on_error<ReturnType>(ExpectedReturnType{});
     static_assert(ExpectedReturnType::value, "Unexpected return type");
   }

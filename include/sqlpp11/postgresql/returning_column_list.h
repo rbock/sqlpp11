@@ -239,7 +239,7 @@ namespace sqlpp
         _data_t _data;
 
         template <typename... T>
-        struct _check : logic::all_t<is_selectable_t<T>::value...>
+        struct _check : logic::all<is_selectable_t<T>::value...>
         {
         };
 

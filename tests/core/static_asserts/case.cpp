@@ -52,7 +52,7 @@ namespace
     static_assert(ExpectedCheckResult::value, "Unexpected check result");
 
     using ReturnType = decltype(sqlpp::case_when(when));
-    using ExpectedReturnType = sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, Assert>::value>;
+    using ExpectedReturnType = sqlpp::logic::all<Assert::value xor std::is_same<ReturnType, Assert>::value>;
     print_type_on_error<ReturnType>(ExpectedReturnType{});
     static_assert(ExpectedReturnType::value, "Unexpected return type");
   }
@@ -66,7 +66,7 @@ namespace
     static_assert(ExpectedCheckResult::value, "Unexpected check result");
 
     using ReturnType = decltype(sqlpp::case_when(when).then(then));
-    using ExpectedReturnType = sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, Assert>::value>;
+    using ExpectedReturnType = sqlpp::logic::all<Assert::value xor std::is_same<ReturnType, Assert>::value>;
     print_type_on_error<ReturnType>(ExpectedReturnType{});
     static_assert(ExpectedReturnType::value, "Unexpected return type");
   }
@@ -80,7 +80,7 @@ namespace
     static_assert(ExpectedCheckResult::value, "Unexpected check result");
 
     using ReturnType = decltype(sqlpp::case_when(when).then(then).else_(else_));
-    using ExpectedReturnType = sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, Assert>::value>;
+    using ExpectedReturnType = sqlpp::logic::all<Assert::value xor std::is_same<ReturnType, Assert>::value>;
     print_type_on_error<ReturnType>(ExpectedReturnType{});
     static_assert(ExpectedReturnType::value, "Unexpected return type");
   }

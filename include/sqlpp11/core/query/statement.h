@@ -56,7 +56,7 @@ namespace sqlpp
     template <typename... Policies>
     constexpr auto is_any_policy_missing() -> bool
     {
-      return logic::any_t<is_missing_t<Policies>::value...>::value;
+      return logic::any<is_missing_t<Policies>::value...>::value;
     }
 
     template <typename... Policies>
@@ -88,25 +88,25 @@ namespace sqlpp
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2086629
       //	  template <typename... Expressions>
       //      using _no_unknown_aggregates =
-      //          logic::any_t<_all_provided_aggregates::size::value == 0,
-      //                       logic::all_t<is_aggregate_expression_t<_all_provided_aggregates,
+      //          logic::any<_all_provided_aggregates::size::value == 0,
+      //                       logic::all<is_aggregate_expression_t<_all_provided_aggregates,
       //                       Expressions>::value...>::value>;
       template <typename... Expressions>
       using _no_unknown_aggregates =
-          logic::any_t<_all_provided_aggregates::size::value == 0,
-                       logic::all_t<detail::is_aggregate_expression_impl<_all_provided_aggregates,
+          logic::any<_all_provided_aggregates::size::value == 0,
+                       logic::all<detail::is_aggregate_expression_impl<_all_provided_aggregates,
                                                                          Expressions>::type::value...>::value>;
 
       template <typename... Expressions>
-      using _all_aggregates = logic::any_t<logic::all_t<
+      using _all_aggregates = logic::any<logic::all<
           detail::is_aggregate_expression_impl<_all_provided_aggregates, Expressions>::type::value...>::value>;
 
       template <typename... Expressions>
-      using _no_aggregates = logic::any_t<logic::all_t<
+      using _no_aggregates = logic::any<logic::all<
           detail::is_non_aggregate_expression_impl<_all_provided_aggregates, Expressions>::type::value...>::value>;
 
       template <template <typename> class Predicate>
-      using any_t = logic::any_t<Predicate<Policies>::value...>;
+      using any_t = logic::any<Predicate<Policies>::value...>;
 
       // The tables not covered by the from.
       using _required_tables = detail::make_difference_set_t<_all_required_tables, _all_provided_tables>;
@@ -135,13 +135,10 @@ namespace sqlpp
                                                  // then the statement cannot be used as a value
                                     value_type_of_t<_result_type_provider>>::type;
 
-      using _traits =
-          make_traits<_value_type, tag_if<tag::is_expression, not std::is_same<_value_type, no_value_t>::value>>;
-
       using _nodes = detail::type_vector<>;
 #warning: maybe need to make value type optional
       /*
-      using _can_be_null = logic::any_t<can_be_null_t<_result_type_provider>::value,
+      using _can_be_null = logic::any<can_be_null_t<_result_type_provider>::value,
                                         detail::make_intersect_set_t<required_tables_of_t<_result_type_provider>,
                                                                      _all_provided_outer_tables>::size::value != 0>;
                                         */
@@ -201,11 +198,11 @@ namespace sqlpp
     using _traits =
         make_traits<value_type_of_t<_policies_t>,
                     tag::is_statement,
-                    tag_if<tag::is_select, logic::any_t<is_select_t<Policies>::value...>::value>,
+                    tag_if<tag::is_select, logic::any<is_select_t<Policies>::value...>::value>,
                     tag_if<tag::is_expression, is_expression_t<_policies_t>::value>,
                     tag_if<tag::is_selectable, is_expression_t<_policies_t>::value>
 #warning: reactivate
-                    //,tag_if<tag::is_return_value, logic::none_t<is_noop_t<_result_type_provider>::value>::value>
+                    //,tag_if<tag::is_return_value, logic::none<is_noop_t<_result_type_provider>::value>::value>
                       >;
     using _name_tag_of = name_tag_of<_result_type_provider>;
     using _nodes = detail::type_vector<_policies_t>;

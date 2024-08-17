@@ -233,8 +233,8 @@ namespace sqlpp
       : public std::integral_constant<
             bool,
             (detail::type_vector_size<KnownAggregateColumns>::value == 0 and
-             logic::none_t<contains_aggregate_function<remove_dynamic_t<remove_as_t<Columns>>>::value...>::value) or
-                logic::all_t<is_aggregate_expression<KnownAggregateColumns,
+             logic::none<contains_aggregate_function<remove_dynamic_t<remove_as_t<Columns>>>::value...>::value) or
+                logic::all<is_aggregate_expression<KnownAggregateColumns,
                                                      remove_dynamic_t<remove_as_t<Columns>>>::value...>::value>
   {
   };
@@ -258,7 +258,7 @@ namespace sqlpp
   struct check_selected_tuple<std::tuple<T...>>
   {
     using type = static_combined_check_t<
-        static_check_t<logic::all_t<(select_column_has_value_type<T>::value and select_column_has_name<T>::value)...>::value,
+        static_check_t<logic::all<(select_column_has_value_type<T>::value and select_column_has_name<T>::value)...>::value,
                        assert_selected_colums_are_selectable_t>>;
   };
   template <typename T>

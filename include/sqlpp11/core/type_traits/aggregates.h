@@ -56,7 +56,7 @@ namespace sqlpp
   struct contains_aggregate_function<detail::type_vector<T...>>
       : public std::integral_constant<
             bool,
-            logic::any_t<(is_aggregate_function<T>::value or contains_aggregate_function<T>::value)...>::value>
+            logic::any<(is_aggregate_function<T>::value or contains_aggregate_function<T>::value)...>::value>
   {
   };
 

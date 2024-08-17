@@ -54,7 +54,7 @@ namespace
 
     using ReturnType =
         sqlpp::detail::make_type_set_t<decltype(expr.in(operands...)), decltype(expr.not_in(operands...))>;
-    using ExpectedReturnType = sqlpp::logic::all_t<
+    using ExpectedReturnType = sqlpp::logic::all<
         Assert::value xor
         std::is_same<ReturnType, sqlpp::detail::type_set<sqlpp::bad_expression<sqlpp::boolean>>>::value>;
     static_assert(ExpectedReturnType::value, "Unexpected return type");

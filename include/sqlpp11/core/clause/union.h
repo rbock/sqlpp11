@@ -98,7 +98,7 @@ namespace sqlpp
   struct check_union
   {
     using type = static_combined_check_t<
-        static_check_t<logic::all_t<is_statement_t<T>::value...>::value, assert_union_args_are_statements_t>>;
+        static_check_t<logic::all<is_statement_t<T>::value...>::value, assert_union_args_are_statements_t>>;
   };
   template <typename... T>
   using check_union_t = typename check_union<T...>::type;

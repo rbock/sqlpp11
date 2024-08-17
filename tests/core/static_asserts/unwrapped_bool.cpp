@@ -53,7 +53,7 @@ namespace
   {
     using ReturnType = decltype(lhs and rhs);
     using ExpectedReturnType =
-        sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, sqlpp::bad_expression<sqlpp::boolean>>::value>;
+        sqlpp::logic::all<Assert::value xor std::is_same<ReturnType, sqlpp::bad_expression<sqlpp::boolean>>::value>;
     print_type_on_error<ReturnType>(ExpectedReturnType{});
     static_assert(ExpectedReturnType::value, "Unexpected return type");
   }
@@ -63,7 +63,7 @@ namespace
   {
     using ReturnType = decltype(lhs or rhs);
     using ExpectedReturnType =
-        sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, sqlpp::bad_expression<sqlpp::boolean>>::value>;
+        sqlpp::logic::all<Assert::value xor std::is_same<ReturnType, sqlpp::bad_expression<sqlpp::boolean>>::value>;
     print_type_on_error<ReturnType>(ExpectedReturnType{});
     static_assert(ExpectedReturnType::value, "Unexpected return type");
   }
@@ -73,7 +73,7 @@ namespace
   {
     using ReturnType = decltype(not lhs);
     using ExpectedReturnType =
-        sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, sqlpp::bad_expression<sqlpp::boolean>>::value>;
+        sqlpp::logic::all<Assert::value xor std::is_same<ReturnType, sqlpp::bad_expression<sqlpp::boolean>>::value>;
     print_type_on_error<ReturnType>(ExpectedReturnType{});
     static_assert(ExpectedReturnType::value, "Unexpected return type");
   }
@@ -82,7 +82,7 @@ namespace
   void where_check(const Condition& condition)
   {
     using ReturnType = decltype(sqlpp::where(condition));
-    using ExpectedReturnType = sqlpp::logic::all_t<Assert::value xor std::is_same<ReturnType, Assert>::value>;
+    using ExpectedReturnType = sqlpp::logic::all<Assert::value xor std::is_same<ReturnType, Assert>::value>;
     print_type_on_error<ReturnType>(ExpectedReturnType{});
     static_assert(ExpectedReturnType::value, "Unexpected return type");
   }

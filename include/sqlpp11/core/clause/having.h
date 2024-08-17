@@ -109,7 +109,7 @@ namespace sqlpp
   template <typename... Exprs>
   constexpr auto are_all_parameters_expressions() -> bool
   {
-    return logic::all_t<is_expression_t<Exprs>::value...>::value;
+    return logic::all<is_expression_t<Exprs>::value...>::value;
   }
 
   // NO HAVING YET
@@ -135,7 +135,7 @@ namespace sqlpp
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
       //	  template <typename... T>
-      //	  using _check = logic::all_t<is_expression_t<T>::value...>;
+      //	  using _check = logic::all<is_expression_t<T>::value...>;
       template <typename... T>
       struct _check : std::integral_constant<bool, are_all_parameters_expressions<T...>()>
       {

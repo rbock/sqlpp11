@@ -86,7 +86,7 @@ namespace sqlpp
   template <typename... Exprs>
   struct check_order_by
   {
-    using type = static_combined_check_t<static_check_t<logic::all_t<is_sort_order<Exprs>::value...>::value,
+    using type = static_combined_check_t<static_check_t<logic::all<is_sort_order<Exprs>::value...>::value,
                                                         assert_order_by_args_are_sort_order_expressions_t>>;
   };
   template <typename... Exprs>

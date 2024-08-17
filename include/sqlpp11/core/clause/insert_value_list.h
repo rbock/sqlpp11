@@ -147,7 +147,7 @@ namespace sqlpp
 
   template <typename... Assignments>
   using check_insert_set_t = static_combined_check_t<
-      static_check_t<logic::all_t<is_assignment<Assignments>::value...>::value,
+      static_check_t<logic::all<is_assignment<Assignments>::value...>::value,
                      assert_insert_set_assignments_t>,
       static_check_t<not detail::has_duplicates<typename lhs<Assignments>::type...>::value,
                      assert_insert_set_no_duplicates_t>,
@@ -260,13 +260,13 @@ namespace sqlpp
       template <typename... Assignments>
       void add_values(Assignments... assignments)
       {
-        static_assert(logic::all_t<is_assignment<Assignments>::value...>::value,
+        static_assert(logic::all<is_assignment<Assignments>::value...>::value,
                       "add_values() arguments have to be assignments");
         using _arg_value_tuple = std::tuple<insert_value_t<lhs_t<Assignments>>...>;
         using _args_correct = std::is_same<_arg_value_tuple, _value_tuple_t>;
         static_assert(_args_correct::value, "add_values() arguments do not match columns() arguments");
 
-        using ok = logic::all_t<logic::all_t<is_assignment<Assignments>::value...>::value, _args_correct::value>;
+        using ok = logic::all<logic::all<is_assignment<Assignments>::value...>::value, _args_correct::value>;
 
         _add_impl(ok(), assignments...);  // dispatch to prevent compile messages after the static_assert
       }
@@ -303,7 +303,7 @@ namespace sqlpp
   struct check_insert_columns
   {
     using type = static_combined_check_t<
-        static_check_t<logic::all_t<is_column_t<Columns>::value...>::value, assert_insert_columns_are_columns>>;
+        static_check_t<logic::all<is_column_t<Columns>::value...>::value, assert_insert_columns_are_columns>>;
   };
   template <typename... Columns>
   using check_insert_columns_t = typename check_insert_columns<Columns...>::type;

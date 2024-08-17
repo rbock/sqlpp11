@@ -238,7 +238,7 @@ namespace sqlpp
     struct make_intersect_set<type_set<LhsElements...>, type_set<RhsElements...>>
     {
       template <typename E>
-      using is_in_both = ::sqlpp::logic::all_t<type_set<LhsElements...>::template count<E>(),
+      using is_in_both = ::sqlpp::logic::all<type_set<LhsElements...>::template count<E>(),
                                                type_set<RhsElements...>::template count<E>()>;
       using type = make_type_set_if_t<is_in_both, LhsElements...>;
     };

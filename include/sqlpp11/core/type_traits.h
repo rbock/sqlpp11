@@ -369,7 +369,7 @@ namespace sqlpp
     struct is_aggregate_expression_impl<KnownAggregates, type_vector<Nodes...>, void>
     {
       using type =
-          logic::all_t<sizeof...(Nodes) != 0, is_aggregate_expression_impl<KnownAggregates, Nodes>::type::value...>;
+          logic::all<sizeof...(Nodes) != 0, is_aggregate_expression_impl<KnownAggregates, Nodes>::type::value...>;
     };
   }  // namespace detail
   template <typename KnownAggregates, typename T>
@@ -409,8 +409,8 @@ namespace sqlpp
     struct is_non_aggregate_expression_impl<KnownAggregates, type_vector<Nodes...>, void>
     {
       using type =
-          logic::any_t<sizeof...(Nodes) == 0,
-                       logic::all_t<sizeof...(Nodes) != 0,
+          logic::any<sizeof...(Nodes) == 0,
+                       logic::all<sizeof...(Nodes) != 0,
                                     is_non_aggregate_expression_impl<KnownAggregates, Nodes>::type::value...>::value>;
     };
   }  // namespace detail

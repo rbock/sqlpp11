@@ -93,7 +93,7 @@ namespace sqlpp
   struct check_group_by
   {
     using type = static_combined_check_t<
-        static_check_t<logic::all_t<is_group_by_column<Columns>::value...>::value, assert_group_by_args_are_columns_t>>;
+        static_check_t<logic::all<is_group_by_column<Columns>::value...>::value, assert_group_by_args_are_columns_t>>;
   };
   template <typename... Columns>
   using check_group_by_t = typename check_group_by<Columns...>::type;

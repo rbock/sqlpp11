@@ -37,7 +37,7 @@ namespace sqlpp
     struct type_vector
     {
       template<typename X>
-      using contains = std::integral_constant<bool, ::sqlpp::logic::any_t<std::is_same<T, X>::value...>::value>;
+      using contains = std::integral_constant<bool, ::sqlpp::logic::any<std::is_same<T, X>::value...>::value>;
     };
 
     template <typename... T>

@@ -81,7 +81,7 @@ namespace sqlpp
   struct check_select_flags
   {
     using type = static_combined_check_t<
-        static_check_t<logic::all_t<is_select_flag_t<Flags>::value...>::value, assert_select_flags_are_flags_t>>;
+        static_check_t<logic::all<is_select_flag_t<Flags>::value...>::value, assert_select_flags_are_flags_t>>;
   };
   template <typename... Flags>
   using check_select_flags_t = typename check_select_flags<Flags...>::type;

@@ -184,7 +184,7 @@ namespace sqlpp
                               result_row_t<RDb, RFields...>,
                               typename std::enable_if<sizeof...(LFields) == sizeof...(RFields)>::type>
   {
-    static constexpr auto value = logic::all_t<is_field_compatible<LFields, RFields>::value...>::value;
+    static constexpr auto value = logic::all<is_field_compatible<LFields, RFields>::value...>::value;
   };
 
 
