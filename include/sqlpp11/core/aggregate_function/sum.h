@@ -37,7 +37,7 @@ namespace sqlpp
 {
   namespace alias
   {
-    SQLPP_ALIAS_PROVIDER(sum);
+    SQLPP_ALIAS_PROVIDER(_sum);
   }
 
   template <typename Flag, typename Expr>
@@ -67,7 +67,7 @@ namespace sqlpp
   };
 
   template <typename Flag, typename Expr>
-  struct name_tag_of<sum_t<Flag, Expr>>: public name_tag_of<alias::sum_t>
+  struct name_tag_of<sum_t<Flag, Expr>>: public name_tag_of<alias::_sum_t>
   {
   };
 

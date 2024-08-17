@@ -37,7 +37,7 @@ namespace sqlpp
 {
   namespace alias
   {
-    SQLPP_ALIAS_PROVIDER(min);
+    SQLPP_ALIAS_PROVIDER(_min);
   }
 
   template <typename Flag, typename Expr>
@@ -67,7 +67,7 @@ namespace sqlpp
   };
 
   template <typename Flag, typename Expr>
-  struct name_tag_of<min_t<Flag, Expr>>: public name_tag_of<alias::min_t>
+  struct name_tag_of<min_t<Flag, Expr>>: public name_tag_of<alias::_min_t>
   {
   };
 

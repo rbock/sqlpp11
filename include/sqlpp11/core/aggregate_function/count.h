@@ -37,7 +37,7 @@ namespace sqlpp
 {
   namespace alias
   {
-    SQLPP_ALIAS_PROVIDER(count);
+    SQLPP_ALIAS_PROVIDER(_count);
   }
 
   template <typename Flag, typename Expr>
@@ -68,7 +68,7 @@ namespace sqlpp
   };
 
   template <typename Flag, typename Expr>
-  struct name_tag_of<count_t<Flag, Expr>>: public name_tag_of<alias::count_t>
+  struct name_tag_of<count_t<Flag, Expr>>: public name_tag_of<alias::_count_t>
   {
   };
 

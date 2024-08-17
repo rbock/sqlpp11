@@ -37,7 +37,7 @@ namespace sqlpp
 {
   namespace alias
   {
-    SQLPP_ALIAS_PROVIDER(max);
+    SQLPP_ALIAS_PROVIDER(_max);
   }
 
   template <typename Flag, typename Expr>
@@ -67,7 +67,7 @@ namespace sqlpp
   };
 
   template <typename Flag, typename Expr>
-  struct name_tag_of<max_t<Flag, Expr>>: public name_tag_of<alias::max_t>
+  struct name_tag_of<max_t<Flag, Expr>>: public name_tag_of<alias::_max_t>
   {
   };
 

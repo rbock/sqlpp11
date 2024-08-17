@@ -37,7 +37,7 @@ namespace sqlpp
 {
   namespace alias
   {
-    SQLPP_ALIAS_PROVIDER(avg);
+    SQLPP_ALIAS_PROVIDER(_avg);
   }
 
   template <typename Flag, typename Expr>
@@ -68,7 +68,7 @@ namespace sqlpp
   };
 
   template <typename Flag, typename Expr>
-  struct name_tag_of<avg_t<Flag, Expr>>: public name_tag_of<alias::avg_t>
+  struct name_tag_of<avg_t<Flag, Expr>>: public name_tag_of<alias::_avg_t>
   {
   };
 

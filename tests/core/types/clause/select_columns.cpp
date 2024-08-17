@@ -29,18 +29,51 @@
 namespace
 {
   SQLPP_ALIAS_PROVIDER(cheese);
+
+  template <typename T>
+  struct clause_of;
+
+  template <typename T>
+  struct clause_of<sqlpp::statement_t<T>>
+  {
+    using type = T;
+  };
+  template <typename T>
+  using clause_of_t = typename clause_of<T>::type;
 }
 
 void test_select_columns()
 {
-  auto v = sqlpp::value(17);
+  auto v = sqlpp::value("text");
   auto col_int = test::TabFoo{}.id;
-  auto col_txt = test::TabFoo{}.textNnD;
 
-  select_columns(col_int);
-  select_columns(dynamic(true, col_int));
-  select_columns(as(declare_group_by_column(v), cheese));
-  select_columns(dynamic(true, declare_group_by_column(v)).as(cheese));
+  // Single column
+  {
+    using T = clause_of_t<decltype(select_columns(col_int))>;
+    static_assert(std::is_same<sqlpp::name_tag_of_t<T>, test::TabFoo_::Id::_sqlpp_name_tag>::value, "");
+    static_assert(std::is_same<sqlpp::value_type_of_t<T>, sqlpp::integral>::value, "");
+  }
+
+  // Single dynamic column
+  {
+    using T = clause_of_t<decltype(select_columns(dynamic(true, col_int)))>;
+    static_assert(std::is_same<sqlpp::name_tag_of_t<T>, test::TabFoo_::Id::_sqlpp_name_tag>::value, "");
+    static_assert(std::is_same<sqlpp::value_type_of_t<T>, sqlpp::optional<sqlpp::integral>>::value, "");
+  }
+
+  // Single declared group by column
+  {
+    using T = clause_of_t<decltype(select_columns(declare_group_by_column(v).as(cheese)))>;
+    static_assert(std::is_same<sqlpp::name_tag_of_t<T>, cheese_t::_sqlpp_name_tag>::value, "");
+    static_assert(std::is_same<sqlpp::value_type_of_t<T>, sqlpp::text>::value, "");
+  }
+
+  // Single dynamic declared group by column
+  {
+    using T = clause_of_t<decltype(select_columns(dynamic(true, declare_group_by_column(v)).as(cheese)))>;
+    static_assert(std::is_same<sqlpp::name_tag_of_t<T>, cheese_t::_sqlpp_name_tag>::value, "");
+    static_assert(std::is_same<sqlpp::value_type_of_t<T>, sqlpp::optional<sqlpp::text>>::value, "");
+  }
 
 #warning: add actual tests here
 

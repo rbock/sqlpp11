@@ -223,7 +223,7 @@ namespace sqlpp
   };
 
   template <typename Column>
-  struct name_tag_of<select_column_list_t<Column>> : public name_tag_of<Column>
+  struct name_tag_of<select_column_list_t<Column>> : public select_column_name_tag_of<Column>
   {
   };
 
