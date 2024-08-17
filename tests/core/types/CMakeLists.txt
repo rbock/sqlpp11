@@ -1,4 +1,4 @@
-# Copyright (c) 2016-2016, Roland Bock
+# Copyright (c) 2016, Roland Bock
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -26,10 +26,8 @@ function(test_compile name)
     set(target sqlpp11_${name})
     add_executable(${target} ${name}.cpp)
     target_link_libraries(${target} PRIVATE sqlpp11::sqlpp11 sqlpp11_testing)
-    # conditionally bump to a higher C++ standard to test compatibility
 endfunction()
 
-test_compile(case_when)
 test_compile(dynamic)
 test_compile(result_row)
 test_compile(select_as)

@@ -59,8 +59,8 @@ void test_max(Value v)
   static_assert(sqlpp::has_name<decltype(max(v_not_null))>::value, "");
   static_assert(sqlpp::has_name<decltype(max(sqlpp::distinct, v_not_null))>::value, "");
 
-  static_assert(sqlpp::name_tag_of_t<decltype(max(v_not_null))>::name == sqlpp::string_view("max"), "");
-  static_assert(sqlpp::name_tag_of_t<decltype(sqlpp::distinct, max(v_not_null))>::name == sqlpp::string_view("max"), "");
+  static_assert(std::is_same<sqlpp::name_tag_of_t<decltype(max(v_not_null))>, sqlpp::alias::_max_t::_sqlpp_name_tag>::value, "");
+  static_assert(std::is_same<sqlpp::name_tag_of_t<decltype(max(sqlpp::distinct, v_not_null))>, sqlpp::alias::_max_t::_sqlpp_name_tag>::value, "");
 
   // max enables comparison member functions.
   static_assert(sqlpp::has_enabled_comparison<decltype(max(v_not_null))>::value, "");

@@ -59,8 +59,8 @@ void test_min(Value v)
   static_assert(sqlpp::has_name<decltype(min(v_not_null))>::value, "");
   static_assert(sqlpp::has_name<decltype(min(sqlpp::distinct, v_not_null))>::value, "");
 
-  static_assert(sqlpp::name_tag_of_t<decltype(min(v_not_null))>::name == sqlpp::string_view("min"), "");
-  static_assert(sqlpp::name_tag_of_t<decltype(sqlpp::distinct, min(v_not_null))>::name == sqlpp::string_view("min"), "");
+  static_assert(std::is_same<sqlpp::name_tag_of_t<decltype(min(v_not_null))>, sqlpp::alias::_min_t::_sqlpp_name_tag>::value, "");
+  static_assert(std::is_same<sqlpp::name_tag_of_t<decltype(min(sqlpp::distinct, v_not_null))>, sqlpp::alias::_min_t::_sqlpp_name_tag>::value, "");
 
   // min enables comparison member functions.
   static_assert(sqlpp::has_enabled_comparison<decltype(min(v_not_null))>::value, "");

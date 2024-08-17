@@ -60,8 +60,9 @@ void test_sum(Value v)
   static_assert(sqlpp::has_name<decltype(sum(v_not_null))>::value, "");
   static_assert(sqlpp::has_name<decltype(sum(sqlpp::distinct, v_not_null))>::value, "");
 
-  static_assert(sqlpp::name_tag_of_t<decltype(sum(v_not_null))>::name == sqlpp::string_view("sum"), "");
-  static_assert(sqlpp::name_tag_of_t<decltype(sum(sqlpp::distinct, v_not_null))>::name == sqlpp::string_view("sum"), "");
+  static_assert(std::is_same<sqlpp::name_tag_of_t<decltype(sum(v_not_null))>, sqlpp::alias::_sum_t::_sqlpp_name_tag>::value, "");
+  static_assert(std::is_same<sqlpp::name_tag_of_t<decltype(sum(sqlpp::distinct, v_not_null))>, sqlpp::alias::_sum_t::_sqlpp_name_tag>::value, "");
+
 
   // sum enables OVER.
   static_assert(sqlpp::has_enabled_over<decltype(sum(v_not_null))>::value, "");

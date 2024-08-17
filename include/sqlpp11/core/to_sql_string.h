@@ -220,28 +220,21 @@ namespace sqlpp
   }
 
   template <typename Context>
-  auto to_sql_string(Context& context, const ::sqlpp::chrono::day_point& t) -> std::string
+  auto to_sql_string(Context& , const ::sqlpp::chrono::day_point& t) -> std::string
   {
-    const auto ymd = ::date::year_month_day{t};
-    context << "DATE '" << ymd << "'";
-    return context;
+    return date::format("DATE '%Y-%m-%d'", t);
   }
 
   template <typename Context>
-  auto to_sql_string(Context& context, const std::chrono::microseconds& t) -> std::string
+  auto to_sql_string(Context&, const std::chrono::microseconds& t) -> std::string
   {
-    context << '\'' << ::date::make_time(t) << '\'';
-    return context;
+    return date::format("'%H:%M:%S'", t);
   }
 
   template <typename Period, typename Context>
-  auto to_sql_string(Context& context, const std::chrono::time_point<std::chrono::system_clock, Period>& t) -> std::string
+  auto to_sql_string(Context&, const std::chrono::time_point<std::chrono::system_clock, Period>& t) -> std::string
   {
-    const auto dp = ::sqlpp::chrono::floor<::date::days>(t);
-    const auto time = ::date::make_time(t - dp);
-    const auto ymd = ::date::year_month_day{dp};
-    context << "TIMESTAMP '" << ymd << ' ' << time << "'";
-    return context;
+    return date::format("TIMESTAMP '%Y-%m-%dT%H:%M:%S'", t);
   }
 
   template <typename Context>

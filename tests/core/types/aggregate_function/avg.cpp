@@ -59,8 +59,8 @@ void test_avg(Value v)
   static_assert(sqlpp::has_name<decltype(avg(v_not_null))>::value, "");
   static_assert(sqlpp::has_name<decltype(avg(sqlpp::distinct, v_not_null))>::value, "");
 
-  static_assert(sqlpp::name_tag_of_t<decltype(avg(v_not_null))>::name == sqlpp::string_view("avg"), "");
-  static_assert(sqlpp::name_tag_of_t<decltype(avg(sqlpp::distinct, v_not_null))>::name == sqlpp::string_view("avg"), "");
+  static_assert(std::is_same<sqlpp::name_tag_of_t<decltype(avg(v_not_null))>, sqlpp::alias::_avg_t::_sqlpp_name_tag>::value, "");
+  static_assert(std::is_same<sqlpp::name_tag_of_t<decltype(avg(sqlpp::distinct, v_not_null))>, sqlpp::alias::_avg_t::_sqlpp_name_tag>::value, "");
 
   // avg enables OVER.
   static_assert(sqlpp::has_enabled_over<decltype(avg(v_not_null))>::value, "");
