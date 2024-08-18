@@ -52,7 +52,7 @@ namespace sqlpp
     Expr _expr;
   };
 
-  // No value_type_of or name_tag_of defined for dynamic_t, to prevent its usage outside of select columns.
+  // No value_type_of or name_tag_of defined for dynamic_t, to prevent its usage outside of select columns or similar explicitly allowed areas.
 
   template <typename Expr>
   struct nodes_of<dynamic_t<Expr>>

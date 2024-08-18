@@ -61,7 +61,7 @@ int SelectColumns(int, char*[])
 
   // Optional column manually
   SQLPP_COMPARE(select(dynamic(true, bar.id)), "SELECT tab_bar.id");
-  SQLPP_COMPARE(select(dynamic(false, bar.id)), "SELECT NULL");
+  SQLPP_COMPARE(select(dynamic(false, bar.id)), "SELECT NULL as id");
 
 #warning: add more optional column tests
 

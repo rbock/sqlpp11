@@ -63,6 +63,13 @@ namespace sqlpp
   {
   };
 
+  template <typename Context, typename Expr>
+  auto to_sql_string(Context& context, const group_by_column<Expr>& t) -> std::string
+  {
+#warning: Untested
+    return to_sql_string(context, t._expr);
+  }
+
   template<typename Expr>
     using check_declare_group_by_column_args = ::sqlpp::enable_if_t<has_value_type<Expr>::value and not is_group_by_column<Expr>::value>;
 

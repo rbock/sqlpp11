@@ -53,6 +53,9 @@ void test_select_columns()
   using knownInt = sqlpp::detail::type_vector<decltype(col_int)>;
   using knownTxt = sqlpp::detail::type_vector<decltype(col_txt)>;
 
+
+#warning test that dynamic join tables are only used by dynamic columns
+
   // Single column.
   {
     using T = clause_of_t<decltype(select_columns(col_int))>;

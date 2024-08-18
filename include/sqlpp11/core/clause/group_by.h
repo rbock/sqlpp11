@@ -93,10 +93,10 @@ namespace sqlpp
   struct check_group_by
   {
     using type = static_combined_check_t<
-        static_check_t<logic::all<is_group_by_column<Columns>::value...>::value, assert_group_by_args_are_columns_t>>;
+        static_check_t<logic::all<is_group_by_column<remove_dynamic_t<Columns>>::value...>::value, assert_group_by_args_are_columns_t>>;
   };
   template <typename... Columns>
-  using check_group_by_t = typename check_group_by<Columns...>::type;
+  using check_group_by_t = typename check_group_by<remove_dynamic_t<Columns>...>::type;
 
   // NO GROUP BY YET
   struct no_group_by_t
@@ -125,7 +125,7 @@ namespace sqlpp
 
       template <typename... Columns>
       auto group_by(Columns... columns) const
-          -> _new_statement_t<check_group_by_t<remove_dynamic_t<Columns>...>, group_by_t<Columns...>>
+          -> _new_statement_t<check_group_by_t<Columns...>, group_by_t<Columns...>>
       {
         static_assert(sizeof...(Columns), "at least one column required in group_by()");
 
@@ -153,7 +153,7 @@ namespace sqlpp
   template <typename Context, typename... Columns>
   auto to_sql_string(Context& context, const group_by_data_t<Columns...>& t) -> std::string
   {
-    return " GROUP BY " + tuple_to_sql_string(context, t._columns, tuple_operand{", "});
+    return " GROUP BY " + tuple_to_sql_string(context, t._columns, tuple_operand_no_dynamic{", "});
   }
 
   template <typename... T>

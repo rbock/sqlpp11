@@ -67,7 +67,7 @@ namespace sqlpp
     }
 
     sqlpp::string_view separator;
-    bool need_prefix = false;
+    mutable bool need_prefix = false;
   };
 
   struct tuple_clause

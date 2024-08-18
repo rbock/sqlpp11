@@ -80,6 +80,28 @@ namespace sqlpp
     return operand_to_sql_string(context, t._expression) + " AS " + name_to_sql_string(context, name_tag_of_t<AliasProvider>::name);
   }
 
+  template <typename Expr>
+  struct dynamic_t;
+
+  // In case of dynamic expression, we want
+  // - dynamic(true, value(10)).as(cheese)   -> 10 AS cheese
+  // - dynamic(NULL, value(10)).as(cheese)   -> 10 AS cheese
+  // - dynamic(true, tab.id).as(cheese)      -> tab.id AS cheese
+  // - dynamic(NULL, tab.id).as(cheese)      -> NULL AS cheese
+  // - dynamic(true, tab.id)                 -> tab.id
+  // - dynamic(NULL, tab.id)                 -> NULL AS id
+  template <typename Context, typename Expression, typename AliasProvider>
+  auto to_sql_string(Context& context, const as_expression<dynamic_t<Expression>, AliasProvider>& t) -> std::string
+  {
+    if (t._expression._condition)
+    {
+      return operand_to_sql_string(context, t._expression._expr) + " AS " +
+             name_to_sql_string(context, name_tag_of_t<AliasProvider>::name);
+    }
+    return to_sql_string(context, ::sqlpp::nullopt) + " AS " +
+           name_to_sql_string(context, name_tag_of_t<AliasProvider>::name);
+  }
+
   template <typename Expr, typename AliasProvider>
   using check_as_args = ::sqlpp::enable_if_t<
   has_value_type<Expr>::value and not is_alias_t<Expr>::value and has_name<AliasProvider>::value
@@ -91,8 +113,6 @@ namespace sqlpp
       return {std::move(expr)};
   }
 
-  template <typename Expr>
-  struct dynamic_t;
   template <typename Expr, typename AliasProvider, typename = check_as_args<Expr, AliasProvider>>
   constexpr auto as(dynamic_t<Expr> expr, const AliasProvider&) -> as_expression<dynamic_t<Expr>, AliasProvider>
   {

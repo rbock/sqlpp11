@@ -27,8 +27,6 @@
 #include "../compare.h"
 #include <sqlpp11/sqlpp11.h>
 
-SQLPP_ALIAS_PROVIDER(v);
-
 int main(int, char* [])
 {
   const auto val = sqlpp::value(17);
@@ -36,19 +34,15 @@ int main(int, char* [])
 
   const auto col_id = test::TabFoo{}.id;
 
-  SQLPP_COMPARE(val.as(v), "17 AS v");
-  SQLPP_COMPARE(expr.as(v), "(17 + 4) AS v");
-  SQLPP_COMPARE(count(val).as(v), "COUNT(17) AS v");
+  SQLPP_COMPARE(dynamic(true, val), "17");
+  SQLPP_COMPARE(dynamic(true, expr), "17 + 4");
+  SQLPP_COMPARE(dynamic(true, count(val)), "COUNT(17)");
+  SQLPP_COMPARE(dynamic(true, col_id), "tab_foo.id");
 
-  SQLPP_COMPARE(dynamic(true, val).as(v), "17 AS v");
-  SQLPP_COMPARE(dynamic(true, expr).as(v), "(17 + 4) AS v");
-  SQLPP_COMPARE(dynamic(true, count(val)).as(v), "COUNT(17) AS v");
-  SQLPP_COMPARE(dynamic(true, col.id).as(v), "tab_foo.id AS v");
-
-  SQLPP_COMPARE(dynamic(false, val).as(v), "NULL AS v");
-  SQLPP_COMPARE(dynamic(false, expr).as(v), "NULL AS v");
-  SQLPP_COMPARE(dynamic(false, count(val)).as(v), "NULL AS v");
-  SQLPP_COMPARE(dynamic(false, col.id).as(v), "NULL AS v");
+  SQLPP_COMPARE(dynamic(false, val), "NULL");
+  SQLPP_COMPARE(dynamic(false, expr), "NULL");
+  SQLPP_COMPARE(dynamic(false, count(val)), "NULL");
+  SQLPP_COMPARE(dynamic(false, col_id), "NULL");
 
   return 0;
 }
