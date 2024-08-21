@@ -38,7 +38,8 @@ int main(int, char* [])
 
   // Plain columns.
   SQLPP_COMPARE(group_by(foo.id), " GROUP BY tab_foo.id");
-  SQLPP_COMPARE(group_by(foo.id, foo.textNnD, foo.boolN), " GROUP BY tab_foo.id, tab_foo.text_nn_d, tab_foo.bool_n");
+  SQLPP_COMPARE(group_by(foo.textNnD), " GROUP BY tab_foo.text_nn_d");
+  SQLPP_COMPARE(group_by(foo.boolN), " GROUP BY tab_foo.bool_n");
 
   // Multiple plain columns.
   SQLPP_COMPARE(group_by(foo.id, foo.textNnD, foo.boolN), " GROUP BY tab_foo.id, tab_foo.text_nn_d, tab_foo.bool_n");

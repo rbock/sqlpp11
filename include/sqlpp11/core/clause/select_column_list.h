@@ -330,7 +330,11 @@ namespace sqlpp
   template <typename Context, typename... Columns>
   auto to_sql_string(Context& context, const std::tuple<Columns...>& t) -> std::string
   {
-    return tuple_to_sql_string(context, t, tuple_operand{", "});
+    //dynamic(false, foo.id) -> NULL as id
+    //dynamic(false, foo.id).as(cheesecake) -> NULL AS cheesecake
+    //max(something) -> max(something) as _max
+    //max(something.as(cheesecake) -> max(something) AS cheesecake
+    return tuple_to_sql_string(context, t, tuple_operand_select_column{", "});
   }
 
   template <typename... T>

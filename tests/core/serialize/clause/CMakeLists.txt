@@ -30,4 +30,5 @@ function(create_test name)
 endfunction()
 
 create_test(group_by)
+create_test(select_columns)
 

@@ -266,7 +266,8 @@ namespace sqlpp
   template <typename Context>
   auto name_to_sql_string(Context& , const char* t) -> std::string
   {
-#warning: We used to have a version of SQLPP_ALIAS_PROVIDER that escaped the name
+#warning: We used to have a version of SQLPP_ALIAS_PROVIDER that marked names as keywords
+#warning: IIUC, the standard SQL way of handling keywords as names is to put them in square brackets, MySQL uses backticks, though
 
     return std::string(t);
   }

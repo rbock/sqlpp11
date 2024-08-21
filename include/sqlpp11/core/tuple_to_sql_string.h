@@ -70,6 +70,42 @@ namespace sqlpp
     mutable bool need_prefix = false;
   };
 
+#warning: need documentation and a better name!
+  struct tuple_operand_select_column
+  {
+    template <typename Context, typename T>
+    auto operator()(Context& context, const T& t, size_t index) const -> std::string
+    {
+      const auto prefix = index ? std::string{separator} : std::string{};
+      return prefix + operand_to_sql_string(context, t);
+    }
+
+    template <typename Context, typename T, typename NameProvider>
+    auto operator()(Context& context,
+                    const as_expression<sqlpp::dynamic_t<T>, NameProvider>& t,
+                    size_t index) const -> std::string
+    {
+      if (t._expression._condition)
+      {
+        return operator()(context, as(t._expression._expr, NameProvider{}), index);
+      }
+      return operator()(context, as(sqlpp::nullopt, NameProvider{}), index);
+    }
+
+    template <typename Context, typename T>
+    auto operator()(Context& context, const sqlpp::dynamic_t<T>& t, size_t index) const -> std::string
+    {
+      if (t._condition)
+      {
+        return operator()(context, t._expr, index);
+      }
+      static_assert(has_name<T>::value, "select columns have to have a name");
+      return operator()(context, as(sqlpp::nullopt, t._expr), index);
+    }
+
+    sqlpp::string_view separator;
+  };
+
   struct tuple_clause
   {
     template <typename Context, typename T>

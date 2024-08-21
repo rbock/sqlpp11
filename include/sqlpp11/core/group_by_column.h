@@ -59,6 +59,11 @@ namespace sqlpp
   };
 
   template <typename Expr>
+  struct requires_parentheses<group_by_column<Expr>> : public requires_parentheses<Expr>
+  {
+  };
+
+  template <typename Expr>
   struct value_type_of<group_by_column<Expr>> : public value_type_of<Expr>
   {
   };
