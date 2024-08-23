@@ -104,10 +104,13 @@ namespace sqlpp
   {
   };
 
+  template<typename Table>
+    struct table_t;
+
   template<typename Table, typename ColumnSpec>
   struct required_tables_of<column_t<Table, ColumnSpec>>
   {
-    using type = detail::type_set<Table>;
+    using type = detail::type_set<table_t<Table>>;
   };
 
   template <typename Context, typename Table, typename ColumnSpec>

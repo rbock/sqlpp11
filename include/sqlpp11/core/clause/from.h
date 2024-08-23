@@ -85,8 +85,8 @@ namespace sqlpp
         static_check_t<not is_pre_join_t<Table>::value, assert_from_not_pre_join_t>,
         static_check_t<is_table<Table>::value, assert_from_table_t>,
         static_check_t<required_tables_of_t<Table>::size::value == 0, assert_from_dependency_free_t>,
-        static_check_t<provided_tables_of<Table>::size::value ==
-                           detail::make_name_of_set_t<provided_tables_of<Table>>::size::value,
+        static_check_t<provided_tables_of_t<Table>::size::value ==
+                           detail::make_name_of_set_t<provided_tables_of_t<Table>>::size::value,
                        assert_from_no_duplicates_t>>;
   };
 

@@ -60,6 +60,12 @@ namespace sqlpp
     using _nodes = detail::type_vector<>;
   };
 
+  template<typename Expression>
+    struct nodes_of<on_t<Expression>>
+    {
+      using type = sqlpp::detail::type_vector<Expression>;
+    };
+
   template <typename Context>
   auto to_sql_string(Context& , const on_t<unconditional_t>&) -> std::string
   {

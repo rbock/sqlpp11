@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2016, Roland Bock
+ * Copyright (c) 2013, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -28,6 +28,7 @@
 
 #include <sqlpp11/core/basic/join_types.h>
 #include <sqlpp11/core/noop.h>
+#include <sqlpp11/core/query/dynamic.h>
 #include <sqlpp11/core/basic/on.h>
 #include <sqlpp11/core/basic/table_ref.h>
 
@@ -45,8 +46,9 @@ namespace sqlpp
         static_check_t<is_table<Lhs>::value, assert_pre_join_lhs_table_t>,
         static_check_t<is_table<Rhs>::value, assert_pre_join_rhs_table_t>,
         static_check_t<not is_join_t<Rhs>::value, assert_pre_join_rhs_no_join_t>,
-        static_check_t<detail::is_disjunct_from<detail::make_name_of_set_t<provided_tables_of<Lhs>>,
-                                                detail::make_name_of_set_t<provided_tables_of<Rhs>>>::value,
+#warning: Since rhs is a table, we could also just get a type vector here.
+        static_check_t<detail::is_disjunct_from<detail::make_name_of_set_t<provided_tables_of_t<Lhs>>,
+                                                detail::make_name_of_set_t<provided_tables_of_t<Rhs>>>::value,
                        assert_pre_join_unique_names_t>>;
   };
 
@@ -66,7 +68,7 @@ namespace sqlpp
         static_check_t<is_pre_join_t<PreJoin>::value, assert_join_consist_of_pre_join_and_on_t>,
         static_check_t<is_on_t<On>::value, assert_join_consist_of_pre_join_and_on_t>,
         static_check_t<required_tables_of_t<PreJoin>::size::value == 0, assert_join_no_table_dependencies_t>,
-        static_check_t<detail::is_subset_of<required_tables_of_t<On>, provided_tables_of<PreJoin>>::value,
+        static_check_t<detail::is_subset_of<required_tables_of_t<On>, provided_tables_of_t<PreJoin>>::value,
                        assert_join_on_no_foreign_table_dependencies_t>>;
   };
 
@@ -93,13 +95,7 @@ namespace sqlpp
     using _can_be_null = std::false_type;
     using _provided_outer_tables = typename JoinType::template _provided_outer_tables<Lhs, Rhs>;
 
-    static_assert(is_table<Lhs>::value, "lhs argument for join() has to be a table or join");
-    static_assert(is_table<Rhs>::value, "rhs argument for join() has to be a table");
-    static_assert(not is_join_t<Rhs>::value, "rhs argument for join must not be a join");
-
-    static_assert(detail::is_disjunct_from<provided_tables_of<Lhs>, provided_tables_of<Rhs>>::value,
-                  "joined tables must not be identical");
-
+#warning: Do we really need this?
     static_assert(required_tables_of_t<pre_join_t>::size::value == 0, "joined tables must not depend on other tables");
 
     auto unconditionally() -> join_t<pre_join_t, on_t<unconditional_t>>
@@ -132,6 +128,19 @@ namespace sqlpp
     Rhs _rhs;
   };
 
+  template <typename JoinType, typename Lhs, typename Rhs>
+    struct nodes_of<pre_join_t<JoinType, Lhs, Rhs>>
+    {
+      using type = sqlpp::detail::type_vector<Lhs, Rhs>;
+    };
+
+  template <typename JoinType, typename Lhs, typename Rhs>
+    struct provided_outer_tables_of<pre_join_t<JoinType, Lhs, Rhs>>
+    {
+      using type = typename JoinType::template _provided_outer_tables<Lhs, Rhs>;
+    };
+
+
   template <typename Context, typename JoinType, typename Lhs, typename Rhs>
   auto to_sql_string(Context& context, const pre_join_t<JoinType, Lhs, Rhs>& t) -> std::string
   {
@@ -147,7 +156,7 @@ namespace sqlpp
     auto join_impl(consistent_t, Lhs lhs, Rhs rhs) -> pre_join_t<JoinType, from_table_t<Lhs>, from_table_t<Rhs>>;
 
     template <typename JoinType, typename Lhs, typename Rhs>
-    auto join_impl(Lhs lhs, Rhs rhs) -> decltype(join_impl<JoinType>(check_pre_join_t<Lhs, Rhs>{}, lhs, rhs));
+    auto join_impl(Lhs lhs, Rhs rhs) -> decltype(join_impl<JoinType>(check_pre_join_t<Lhs, remove_dynamic_t<Rhs>>{}, lhs, rhs));
   }  // namespace detail
 
   template <typename Lhs, typename Rhs>

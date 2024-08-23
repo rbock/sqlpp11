@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2016, Roland Bock
+ * Copyright (c) 2013, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -38,7 +38,7 @@ namespace sqlpp
     using _traits = make_traits<no_value_t, tag::is_join>;
     using _nodes = detail::type_vector<PreJoin, On>;
     using _can_be_null = std::false_type;
-    using _provided_tables = provided_tables_of<PreJoin>;
+    using _provided_tables = provided_tables_of_t<PreJoin>;
     using _required_tables = detail::make_difference_set_t<required_tables_of_t<On>, _provided_tables>;
 
     template <typename T>
@@ -80,6 +80,18 @@ namespace sqlpp
     PreJoin _pre_join;
     On _on;
   };
+
+  template<typename PreJoin, typename On>
+    struct nodes_of<join_t<PreJoin, On>>
+    {
+      using type = sqlpp::detail::type_vector<PreJoin, On>;
+    };
+
+  template<typename PreJoin, typename On>
+    struct provided_outer_tables_of<join_t<PreJoin, On>>
+    {
+      using type = provided_outer_tables_of_t<PreJoin>;
+    };
 
   template<typename PreJoin, typename On>
     struct is_table<join_t<PreJoin, On>> : public std::true_type{};

@@ -285,8 +285,6 @@ namespace sqlpp
 
   SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(required_ctes)
   SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(provided_ctes)
-  SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(provided_tables)
-  SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(provided_outer_tables)
   SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(provided_aggregates)
 
   template <typename T>
@@ -324,6 +322,40 @@ namespace sqlpp
     using required_tables_of_t = typename required_tables_of<T>::type;
 
   static_assert(required_tables_of_t<int>::size::value == 0, "");
+
+  template <typename T>
+  struct provided_tables_of
+  {
+    using type = typename provided_tables_of<nodes_of_t<T>>::type;
+  };
+
+  template <typename... T>
+  struct provided_tables_of<detail::type_vector<T...>>
+  {
+    using type = detail::make_joined_set_t<typename provided_tables_of<T>::type...>;
+  };
+
+  template <typename T>
+  using provided_tables_of_t = typename provided_tables_of<T>::type;
+
+  static_assert(provided_tables_of_t<int>::size::value == 0, "");
+
+  template <typename T>
+  struct provided_outer_tables_of
+  {
+    using type = typename provided_outer_tables_of<nodes_of_t<T>>::type;
+  };
+
+  template <typename... T>
+  struct provided_outer_tables_of<detail::type_vector<T...>>
+  {
+    using type = detail::make_joined_set_t<typename provided_outer_tables_of<T>::type...>;
+  };
+
+  template <typename T>
+  using provided_outer_tables_of_t = typename provided_outer_tables_of<T>::type;
+
+  static_assert(provided_outer_tables_of_t<int>::size::value == 0, "");
 
   template <typename ValueType, typename T>
   struct is_valid_operand

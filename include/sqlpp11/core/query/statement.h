@@ -78,8 +78,8 @@ namespace sqlpp
       using _all_required_ctes = detail::make_joined_set_t<required_ctes_of<Policies>...>;
       using _all_provided_ctes = detail::make_joined_set_t<provided_ctes_of<Policies>...>;
       using _all_required_tables = detail::make_joined_set_t<required_tables_of_t<Policies>...>;
-      using _all_provided_tables = detail::make_joined_set_t<provided_tables_of<Policies>...>;
-      using _all_provided_outer_tables = detail::make_joined_set_t<provided_outer_tables_of<Policies>...>;
+      using _all_provided_tables = detail::make_joined_set_t<provided_tables_of_t<Policies>...>;
+      using _all_provided_outer_tables = detail::make_joined_set_t<provided_outer_tables_of_t<Policies>...>;
       using _all_provided_aggregates = detail::make_joined_set_t<provided_aggregates_of<Policies>...>;
 
       template <typename Expression>

@@ -41,9 +41,6 @@ namespace sqlpp
   {
     using _traits = make_traits<no_value_t, tag::is_raw_table>;
 
-    using _nodes = detail::type_vector<>;
-    using _provided_tables = detail::type_set<TableSpec>;
-
     using _required_insert_columns = typename TableSpec::_required_insert_columns;
 #warning: Need to inherit?
     //using _column_tuple_t = std::tuple<column_t<Table, ColumnSpec>...>;
@@ -65,6 +62,12 @@ namespace sqlpp
 
   template <typename TableSpec>
   struct is_table<table_t<TableSpec>>: public std::true_type {};
+
+  template <typename TableSpec>
+  struct provided_tables_of<table_t<TableSpec>>
+  {
+    using type = sqlpp::detail::type_set<table_t<TableSpec>>;
+  };
 
   template <typename Context, typename TableSpec>
   auto to_sql_string(Context& context, const table_t<TableSpec>& /*unused*/) -> std::string
