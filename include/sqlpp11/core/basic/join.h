@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013, Roland Bock
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -26,79 +26,147 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/basic/join_types.h>
-#include <sqlpp11/core/basic/pre_join.h>
-#include <sqlpp11/core/basic/on.h>
+#include <sqlpp11/core/basic/join_fwd.h>
+#include <sqlpp11/core/basic/enable_join.h>
 
 namespace sqlpp
 {
-  template <typename PreJoin, typename On>
-  struct join_t
+  // Join representation including condition
+  template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
+  struct join_t : enable_join<join_t<Lhs, JoinType, Rhs, Condition>>
   {
-    using _traits = make_traits<no_value_t, tag::is_join>;
-    using _nodes = detail::type_vector<PreJoin, On>;
-    using _can_be_null = std::false_type;
-    using _provided_tables = provided_tables_of_t<PreJoin>;
-    using _required_tables = detail::make_difference_set_t<required_tables_of_t<On>, _provided_tables>;
-
-    template <typename T>
-    auto join(T t) const -> decltype(::sqlpp::join(*this, t))
+    join_t(Lhs lhs, Rhs rhs, Condition condition)
+        : _lhs(std::move(lhs)), _rhs(std::move(rhs)), _condition(std::move(condition))
     {
-      return ::sqlpp::join(*this, t);
     }
 
-    template <typename T>
-    auto inner_join(T t) const -> decltype(::sqlpp::inner_join(*this, t))
-    {
-      return ::sqlpp::inner_join(*this, t);
-    }
+    join_t(const join_t&) = default;
+    join_t(join_t&&) = default;
+    join_t& operator=(const join_t&) = default;
+    join_t& operator=(join_t&&) = default;
+    ~join_t() = default;
 
-    template <typename T>
-    auto left_outer_join(T t) const -> decltype(::sqlpp::left_outer_join(*this, t))
-    {
-      return ::sqlpp::left_outer_join(*this, t);
-    }
-
-    template <typename T>
-    auto right_outer_join(T t) const -> decltype(::sqlpp::right_outer_join(*this, t))
-    {
-      return ::sqlpp::right_outer_join(*this, t);
-    }
-
-    template <typename T>
-    auto outer_join(T t) const -> decltype(::sqlpp::outer_join(*this, t))
-    {
-      return ::sqlpp::outer_join(*this, t);
-    }
-
-    template <typename T>
-    auto cross_join(T t) const -> decltype(::sqlpp::cross_join(*this, t))
-    {
-      return ::sqlpp::cross_join(*this, t);
-    }
-
-    PreJoin _pre_join;
-    On _on;
+    Lhs _lhs;
+    Rhs _rhs;
+    Condition _condition;
   };
 
-  template<typename PreJoin, typename On>
-    struct nodes_of<join_t<PreJoin, On>>
-    {
-      using type = sqlpp::detail::type_vector<PreJoin, On>;
-    };
-
-  template<typename PreJoin, typename On>
-    struct provided_outer_tables_of<join_t<PreJoin, On>>
-    {
-      using type = provided_outer_tables_of_t<PreJoin>;
-    };
-
-  template<typename PreJoin, typename On>
-    struct is_table<join_t<PreJoin, On>> : public std::true_type{};
-
-  template <typename Context, typename PreJoin, typename On>
-  auto to_sql_string(Context& context, const join_t<PreJoin, On>& t) -> std::string
+  template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
+  struct nodes_of<join_t<Lhs, JoinType, Rhs, Condition>>
   {
-    return to_sql_string(context, t._pre_join) + to_sql_string(context, t._on);
+    using type = sqlpp::detail::type_vector<Lhs, Rhs, Condition>;
+  };
+
+  template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
+  struct provided_outer_tables_of<join_t<Lhs, JoinType, Rhs, Condition>>
+  {
+    using type = typename std::conditional<
+        std::is_same<JoinType, left_outer_join_t>::value,
+        sqlpp::detail::type_set<Rhs>,
+        typename std::conditional<
+            std::is_same<JoinType, right_outer_join_t>::value,
+            sqlpp::detail::type_set<Lhs>,
+            typename std::conditional<std::is_same<JoinType, full_outer_join_t>::value,
+                                      detail::make_joined_set_t<provided_tables_of_t<Lhs>, provided_tables_of_t<Rhs>>,
+                                      detail::type_set<>>::type>::type>::type;
+  };
+
+  template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
+  struct is_table<join_t<Lhs, JoinType, Rhs, Condition>> : public std::true_type
+  {
+  };
+
+  template <typename Context, typename Lhs, typename JoinType, typename Rhs, typename Condition>
+  auto to_sql_string(Context& context, const join_t<Lhs, JoinType, Rhs, Condition>& t) -> std::string
+  {
+    static_assert(not std::is_same<JoinType, cross_join_t>::value, "");
+    return to_sql_string(context, t._lhs) + JoinType::_name + to_sql_string(context, t._rhs) + " ON " +
+           to_sql_string(context, t._condition);
   }
+
+  template <typename Context, typename Lhs, typename JoinType, typename Rhs, typename Condition>
+  auto to_sql_string(Context& context, const join_t<Lhs, JoinType, dynamic_t<Rhs>, Condition>& t) -> std::string
+  {
+    static_assert(not std::is_same<JoinType, cross_join_t>::value, "");
+    if (t._rhs._condition)
+    {
+      return to_sql_string(context, t._lhs) + JoinType::_name + to_sql_string(context, t._rhs) + " ON " +
+             to_sql_string(context, t._condition);
+    }
+    return to_sql_string(context, t._lhs);
+  }
+
+  template <typename Context, typename Lhs, typename Rhs>
+  auto to_sql_string(Context& context, const join_t<Lhs, cross_join_t, Rhs, unconditional_t>& t) -> std::string
+  {
+    return to_sql_string(context, t._lhs) + cross_join_t::_name + to_sql_string(context, t._rhs);
+  }
+
+  template <typename Context, typename Lhs, typename Rhs>
+  auto to_sql_string(Context& context, const join_t<Lhs, cross_join_t, dynamic_t<Rhs>, unconditional_t>& t) -> std::string
+  {
+    if (t._rhs._condition)
+    {
+    return to_sql_string(context, t._lhs) + cross_join_t::_name + to_sql_string(context, t._rhs);
+    }
+    return to_sql_string(context, t._lhs);
+  }
+
+#warning: Verify that the Expr does not require tables other than Lhs, Rhs
+  //and detail::make_joined_set_t<provided_tables_of_t<Lhs>, provided_tables_of_t<Rhs>>::is_superset_of<required_tables_of_t<Expr>::value
+  template <typename Lhs, typename Rhs, typename Expr>
+    using check_on_args = sqlpp::enable_if_t<sqlpp::is_boolean<Expr>::value>;
+
+  template <typename Lhs, typename JoinType, typename Rhs>
+  struct pre_join_t
+  {
+    template <typename Expr, typename = check_on_args<Lhs, Rhs, Expr>>
+    auto on(Expr expr) const -> join_t<Lhs, JoinType, Rhs, Expr>
+    {
+      return {_lhs, _rhs, std::move(expr)};
+    }
+
+    Lhs _lhs;
+    Rhs _rhs;
+  };
+
+  // Note: See sqlpp11/core/basic/join_fwd.h for forward declarations including check_join_args.
+
+  template <typename Lhs, typename Rhs, typename /* = check_join_args<Lhs, Rhs> */>
+  auto join(Lhs lhs, Rhs rhs) -> pre_join_t<Lhs, inner_join_t, Rhs>
+  {
+#warning: What is the point of from_table? rename to make_table_ref?
+    return {from_table(std::move(lhs)), from_table(std::move(rhs))};
+  }
+
+  template <typename Lhs, typename Rhs, typename /* = check_join_args<Lhs, Rhs> */>
+  auto inner_join(Lhs lhs, Rhs rhs) -> pre_join_t<Lhs, inner_join_t, Rhs>
+  {
+    return {from_table(std::move(lhs)), from_table(std::move(rhs))};
+  }
+
+  template <typename Lhs, typename Rhs, typename /* = check_join_args<Lhs, Rhs> */>
+  auto left_outer_join(Lhs lhs, Rhs rhs) -> pre_join_t<Lhs, left_outer_join_t, Rhs>
+  {
+    return {from_table(std::move(lhs)), from_table(std::move(rhs))};
+  }
+
+  template <typename Lhs, typename Rhs, typename /* = check_join_args<Lhs, Rhs> */>
+  auto right_outer_join(Lhs lhs, Rhs rhs) -> pre_join_t<Lhs, right_outer_join_t, Rhs>
+  {
+    return {from_table(std::move(lhs)), from_table(std::move(rhs))};
+  }
+
+  template <typename Lhs, typename Rhs, typename /* = check_join_args<Lhs, Rhs> */>
+  auto full_outer_join(Lhs lhs, Rhs rhs) -> pre_join_t<Lhs, full_outer_join_t, Rhs>
+  {
+    return {from_table(std::move(lhs)), from_table(std::move(rhs))};
+  }
+
+  template <typename Lhs, typename Rhs, typename /* = check_join_args<Lhs, Rhs> */>
+  auto cross_join(Lhs lhs, Rhs rhs) -> join_t<Lhs, cross_join_t, Rhs, unconditional_t>
+  {
+    return {from_table(std::move(lhs)), from_table(std::move(rhs)), {}};
+  }
+
 }  // namespace sqlpp

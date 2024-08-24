@@ -69,6 +69,7 @@ void test_group_by()
   }
 
 
+#warning: Need to add tests all join types!
 #warning: Need to add tests with 3 tables
 
 #warning: Need to add tests with CTEs

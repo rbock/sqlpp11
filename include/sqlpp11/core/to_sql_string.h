@@ -40,7 +40,7 @@
 namespace sqlpp
 {
   template <typename Context, typename X = void>
-  auto to_sql_string(Context& context, ...) -> std::string
+  auto to_sql_string(Context& , ...) -> std::string
   {
     static_assert(wrong_t<X>::value, "Missing specialization");
     return {};

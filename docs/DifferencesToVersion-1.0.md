@@ -37,6 +37,10 @@ They must not be mixed in a select.
 
 If group_by is specified in the select, then all columns have to be aggregate expressions.
 
+# Join
+unconditional joins are cross joins. The "unconditional" function is dropped.
+Added join tables (other than the left-most) can be dynamic.
+
 # Dynamic queries
 We don't always have a completely fixed structure for our queries. For instance, there might columns that we only want to select under certain circumstances. In version 1.0, this was handled by dynamic queries. Now we introduce conditional query parts that may or may not be used at runtime:
 

@@ -27,7 +27,7 @@
  */
 
 #include <sqlpp11/core/type_traits.h>
-#include <sqlpp11/core/basic/join.h>
+#include <sqlpp11/core/basic/join_fwd.h>
 
 namespace sqlpp
 {
@@ -64,10 +64,11 @@ namespace sqlpp
       return ::sqlpp::right_outer_join(this->derived(), t);
     }
 
+#warning: There is no full_outer_join in mysql?
     template <typename T>
-    auto outer_join(T t) const -> decltype(::sqlpp::outer_join(this->derived(), t))
+    auto full_outer_join(T t) const -> decltype(::sqlpp::full_outer_join(this->derived(), t))
     {
-      return ::sqlpp::outer_join(this->derived(), t);
+      return ::sqlpp::full_outer_join(this->derived(), t);
     }
 
     template <typename T>
