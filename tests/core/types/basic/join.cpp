@@ -42,7 +42,7 @@ void test_group_by()
     static_assert(
         std::is_same<sqlpp::provided_tables_of_t<J>, sqlpp::detail::type_set<test::TabFoo, test::TabBar>>::value, "");
     static_assert(
-        std::is_same<sqlpp::provided_outer_tables_of_t<J>, sqlpp::detail::type_set<>>::value, "");
+        std::is_same<sqlpp::provided_optional_tables_of_t<J>, sqlpp::detail::type_set<>>::value, "");
 #warning: test the provided dynamic tables of?
   }
 
@@ -52,7 +52,7 @@ void test_group_by()
     static_assert(
         std::is_same<sqlpp::provided_tables_of_t<J>, sqlpp::detail::type_set<test::TabFoo, test::TabBar>>::value, "");
     static_assert(
-        std::is_same<sqlpp::provided_outer_tables_of_t<J>, sqlpp::detail::type_set<test::TabFoo, test::TabBar>>::value, "");
+        std::is_same<sqlpp::provided_optional_tables_of_t<J>, sqlpp::detail::type_set<test::TabFoo, test::TabBar>>::value, "");
 #warning: test the provided dynamic tables of?
   }
 
@@ -64,7 +64,7 @@ void test_group_by()
         std::is_same<sqlpp::provided_tables_of_t<J>, sqlpp::detail::type_set<test::TabFoo, test::TabBar>>::value, "");
 #warning: OUTER is the wrong term. In a left-outer join, the *right* table is the one with optional rows.
     static_assert(
-        std::is_same<sqlpp::provided_outer_tables_of_t<J>, sqlpp::detail::type_set<>>::value, "");
+        std::is_same<sqlpp::provided_optional_tables_of_t<J>, sqlpp::detail::type_set<>>::value, "");
 #warning: test the provided dynamic tables of?
   }
 

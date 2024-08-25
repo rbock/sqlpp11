@@ -58,7 +58,13 @@ namespace sqlpp
   };
 
   template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
-  struct provided_outer_tables_of<join_t<Lhs, JoinType, Rhs, Condition>>
+  struct provided_tables_of<join_t<Lhs, JoinType, dynamic_t<Rhs>, Condition>>
+  {
+    using type = detail::make_joined_set_t<provided_tables_of_t<Lhs>, detail::type_set<dynamic_t<Rhs>>>;
+  };
+
+  template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
+  struct provided_optional_tables_of<join_t<Lhs, JoinType, Rhs, Condition>>
   {
     using type = typename std::conditional<
         std::is_same<JoinType, left_outer_join_t>::value,

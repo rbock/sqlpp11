@@ -46,6 +46,7 @@
 #include <sqlpp11/core/type_traits/nodes_of.h>
 #include <sqlpp11/core/type_traits/optional.h>
 #include <sqlpp11/core/type_traits/value_type.h>
+#include <sqlpp11/core/type_traits/tables_of.h>
 
 namespace sqlpp
 {
@@ -304,67 +305,6 @@ namespace sqlpp
 
   template <typename T>
   using rhs_t = typename rhs<T>::type;
-
-  // Anything that directly requires a table (e.g. a column) has to specialize required_tables_of.
-  template<typename T>
-  struct required_tables_of
-  {
-    using type = typename required_tables_of<nodes_of_t<T>>::type;
-  };
-
-  template<typename... T>
-  struct required_tables_of<detail::type_vector<T...>>
-  {
-    using type = detail::make_joined_set_t<typename required_tables_of<T>::type...>;
-  };
-
-  template<typename T>
-    using required_tables_of_t = typename required_tables_of<T>::type;
-
-  static_assert(required_tables_of_t<int>::size::value == 0, "");
-
-  template <typename T>
-  struct provided_tables_of
-  {
-    using type = typename provided_tables_of<nodes_of_t<T>>::type;
-  };
-
-  template <typename... T>
-  struct provided_tables_of<detail::type_vector<T...>>
-  {
-    using type = detail::make_joined_set_t<typename provided_tables_of<T>::type...>;
-  };
-
-  template <typename T>
-  using provided_tables_of_t = typename provided_tables_of<T>::type;
-
-  static_assert(provided_tables_of_t<int>::size::value == 0, "");
-
-  template <typename T>
-  struct provided_outer_tables_of
-  {
-    using type = typename provided_outer_tables_of<nodes_of_t<T>>::type;
-  };
-
-  template <typename... T>
-  struct provided_outer_tables_of<detail::type_vector<T...>>
-  {
-    using type = detail::make_joined_set_t<typename provided_outer_tables_of<T>::type...>;
-  };
-
-  template <typename T>
-  using provided_outer_tables_of_t = typename provided_outer_tables_of<T>::type;
-
-  static_assert(provided_outer_tables_of_t<int>::size::value == 0, "");
-
-  template <typename ValueType, typename T>
-  struct is_valid_operand
-  {
-    static constexpr bool value =
-        is_expression_t<T>::value                            // expressions are OK
-        and ValueType::template _is_valid_operand<T>::value  // the correct value type is required, of course
-        ;
-  };
 
 #warning: This should go away
   namespace detail

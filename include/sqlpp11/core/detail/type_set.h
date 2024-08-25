@@ -63,7 +63,6 @@ namespace sqlpp
 
     public:
       using size = std::integral_constant<size_t, sizeof...(Elements)>;
-      using _is_type_set = std::true_type;
 
       template <typename T>
       static constexpr bool count()
