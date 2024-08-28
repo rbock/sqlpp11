@@ -63,6 +63,10 @@ namespace sqlpp
     using type = detail::make_joined_set_t<provided_tables_of_t<Lhs>, detail::type_set<dynamic_t<Rhs>>>;
   };
 
+#warning: We need to quarantee that no tables are required by join and dynamic provision vs requirements need to be checked upon calling `on`.
+#warning: We should mix dynamic and optional into the provided_tables_of (instead of having separate traits for each).
+#warning: it might be great to search for missing tables and return something like `missing_table_for<column_t<SomeSpec>>`.
+
   template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
   struct provided_optional_tables_of<join_t<Lhs, JoinType, Rhs, Condition>>
   {

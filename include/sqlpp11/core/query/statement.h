@@ -150,7 +150,7 @@ namespace sqlpp
       using _table_check =
           typename std::conditional<_required_tables::size::value == 0, consistent_t, assert_no_unknown_tables_t>::type;
       using _parameter_check = typename std::
-          conditional<detail::type_vector_size<_parameters>::value == 0, consistent_t, assert_no_parameters_t>::type;
+          conditional<_parameters::empty(), consistent_t, assert_no_parameters_t>::type;
     };
 
   }  // namespace detail
@@ -233,7 +233,7 @@ namespace sqlpp
 
     static constexpr size_t _get_static_no_of_parameters()
     {
-      return detail::type_vector_size<parameters_of<statement_t>>::value;
+      return parameters_of<statement_t>::size;
     }
 
     size_t _get_no_of_parameters() const

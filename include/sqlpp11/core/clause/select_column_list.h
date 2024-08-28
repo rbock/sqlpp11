@@ -232,7 +232,7 @@ namespace sqlpp
   struct has_correct_aggregates<KnownAggregateColumns, select_column_list_t<Columns...>>
       : public std::integral_constant<
             bool,
-            (detail::type_vector_size<KnownAggregateColumns>::value == 0 and
+            (KnownAggregateColumns::empty() and
              logic::none<contains_aggregate_function<remove_dynamic_t<remove_as_t<Columns>>>::value...>::value) or
                 logic::all<is_aggregate_expression<KnownAggregateColumns,
                                                      remove_dynamic_t<remove_as_t<Columns>>>::value...>::value>

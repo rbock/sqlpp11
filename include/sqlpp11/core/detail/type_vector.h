@@ -38,6 +38,15 @@ namespace sqlpp
     {
       template<typename X>
       using contains = std::integral_constant<bool, ::sqlpp::logic::any<std::is_same<T, X>::value...>::value>;
+
+      template <template <typename> class Transform>
+      using transform = type_vector<typename Transform<T>::type...>;
+
+      static constexpr bool size = sizeof...(T);
+
+      static constexpr bool empty() {
+        return size == 0;
+      }
     };
 
     template <typename... T>
@@ -73,17 +82,5 @@ namespace sqlpp
     template <typename... T>
     using type_vector_cat_t = typename type_vector_cat_impl<T...>::type;
 
-    template <typename T>
-    struct type_vector_size
-    {
-      static_assert(wrong_t<type_vector_size>::value,
-                    "type_vector_size needs to be called with a type_vector argument");
-    };
-
-    template <typename... T>
-    struct type_vector_size<type_vector<T...>>
-    {
-      static constexpr std::size_t value = sizeof...(T);
-    };
   }  // namespace detail
 }  // namespace sqlpp
