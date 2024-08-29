@@ -159,7 +159,7 @@ namespace sqlpp
       using _new_statement_t = new_statement_t<Check, Policies, no_where_t, T>;
 
       using _consistency_check =
-          typename std::conditional<WhereRequired and (Policies::_all_provided_tables::size::value > 0),
+          typename std::conditional<WhereRequired and (Policies::_all_provided_tables::size() > 0),
                                     assert_where_or_unconditionally_called_t,
                                     consistent_t>::type;
 

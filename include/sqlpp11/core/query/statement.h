@@ -78,12 +78,15 @@ namespace sqlpp
       using _all_required_ctes = detail::make_joined_set_t<required_ctes_of<Policies>...>;
       using _all_provided_ctes = detail::make_joined_set_t<provided_ctes_of<Policies>...>;
       using _all_required_tables = detail::make_joined_set_t<required_tables_of_t<Policies>...>;
-      using _all_provided_tables = detail::make_joined_set_t<provided_tables_of_t<Policies>...>;
-      using _all_provided_outer_tables = detail::make_joined_set_t<provided_optional_tables_of_t<Policies>...>;
+      using _all_provided_tables = detail::type_vector_cat_t<provided_tables_of_t<Policies>...>;
+      //using _all_provided_outer_tables = detail::make_joined_set_t<provided_optional_tables_of_t<Policies>...>;
       using _all_provided_aggregates = detail::make_joined_set_t<provided_aggregates_of<Policies>...>;
 
+#warning reactivate
+      /*
       template <typename Expression>
       using _no_unknown_tables = detail::is_subset_of<required_tables_of_t<Expression>, _all_provided_tables>;
+      */
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2086629
       //	  template <typename... Expressions>
@@ -109,7 +112,7 @@ namespace sqlpp
       using any_t = logic::any<Predicate<Policies>::value...>;
 
       // The tables not covered by the from.
-      using _required_tables = detail::make_difference_set_t<_all_required_tables, _all_provided_tables>;
+      //using _required_tables = detail::make_difference_set_t<_all_required_tables, _all_provided_tables>;
 
       // The common table expressions not covered by the with.
       using _required_ctes = detail::make_difference_set_t<_all_required_ctes, _all_provided_ctes>;
@@ -125,7 +128,8 @@ namespace sqlpp
       //   - the select is complete (leaks no table requirements or cte requirements)
       static constexpr bool _can_be_used_as_table()
       {
-        return has_result_row_t<_statement_t>::value and _required_tables::size::value == 0 and
+#warning: reactivate
+        return has_result_row_t<_statement_t>::value and /*_required_tables::size::value == 0 and*/
                _required_ctes::size::value == 0;
       }
 
@@ -147,8 +151,9 @@ namespace sqlpp
 
       using _cte_check =
           typename std::conditional<_required_ctes::size::value == 0, consistent_t, assert_no_unknown_ctes_t>::type;
-      using _table_check =
-          typename std::conditional<_required_tables::size::value == 0, consistent_t, assert_no_unknown_tables_t>::type;
+#warning: reactivate
+      using _table_check = std::true_type;
+          //typename std::conditional<_required_tables::size::value == 0, consistent_t, assert_no_unknown_tables_t>::type;
       using _parameter_check = typename std::
           conditional<_parameters::empty(), consistent_t, assert_no_parameters_t>::type;
     };
@@ -206,7 +211,7 @@ namespace sqlpp
                       >;
     using _name_tag_of = name_tag_of<_result_type_provider>;
     using _nodes = detail::type_vector<_policies_t>;
-    using _used_outer_tables = typename _policies_t::_all_provided_outer_tables;
+    //using _used_outer_tables = typename _policies_t::_all_provided_outer_tables;
 
     // Constructors
     statement_t() = default;

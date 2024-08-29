@@ -45,11 +45,26 @@ namespace sqlpp
   template<typename... T>
   struct required_tables_of<detail::type_vector<T...>>
   {
-    using type = detail::make_joined_set_t<typename required_tables_of<T>::type...>;
+    using type = detail::type_vector_cat_t<typename required_tables_of<T>::type...>;
   };
 
   template<typename T>
     using required_tables_of_t = typename required_tables_of<T>::type;
+
+  template<typename T>
+  struct required_static_tables_of
+  {
+    using type = typename required_static_tables_of<nodes_of_t<T>>::type;
+  };
+
+  template<typename... T>
+  struct required_static_tables_of<detail::type_vector<T...>>
+  {
+    using type = detail::type_vector_cat_t<typename required_static_tables_of<T>::type...>;
+  };
+
+  template<typename T>
+    using required_static_tables_of_t = typename required_static_tables_of<T>::type;
 
 #warning: need type tests...
   //static_assert(required_tables_of_t<int>::size::value == 0, "");
@@ -66,16 +81,27 @@ namespace sqlpp
   template <typename... T>
   struct provided_tables_of<detail::type_vector<T...>>
   {
-    using type = detail::make_joined_set_t<typename provided_tables_of<T>::type...>;
+    using type = detail::type_vector_cat_t<typename provided_tables_of<T>::type...>;
   };
 
   template <typename T>
   using provided_tables_of_t = typename provided_tables_of<T>::type;
 
-  static_assert(provided_tables_of_t<int>::size::value == 0, "");
+  template <typename T>
+  struct provided_static_tables_of
+  {
+    using type = typename provided_static_tables_of<nodes_of_t<T>>::type;
+  };
 
-  // provided_optional_tables_of is similar to provided_tables_of but only references the tables that have optional
-  // rows in outer joins (e.g. the right hand side table in a LEFT OUTER JOIN).
+  template <typename... T>
+  struct provided_static_tables_of<detail::type_vector<T...>>
+  {
+    using type = detail::type_vector_cat_t<typename provided_static_tables_of<T>::type...>;
+  };
+
+  template <typename T>
+  using provided_static_tables_of_t = typename provided_static_tables_of<T>::type;
+
   template <typename T>
   struct provided_optional_tables_of
   {
@@ -85,11 +111,13 @@ namespace sqlpp
   template <typename... T>
   struct provided_optional_tables_of<detail::type_vector<T...>>
   {
-    using type = detail::make_joined_set_t<typename provided_optional_tables_of<T>::type...>;
+    using type = detail::type_vector_cat_t<typename provided_optional_tables_of<T>::type...>;
   };
 
   template <typename T>
   using provided_optional_tables_of_t = typename provided_optional_tables_of<T>::type;
+
+  static_assert(provided_tables_of_t<int>::empty(), "");
 
 }  // namespace sqlpp
 

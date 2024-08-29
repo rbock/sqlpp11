@@ -36,16 +36,26 @@ namespace sqlpp
     template <typename... T>
     struct type_vector
     {
-      template<typename X>
-      using contains = std::integral_constant<bool, ::sqlpp::logic::any<std::is_same<T, X>::value...>::value>;
+      template <typename X>
+      static constexpr bool contains()
+      {
+        return ::sqlpp::logic::any<std::is_same<T, X>::value...>::value;
+      }
 
-      template <template <typename> class Transform>
-      using transform = type_vector<typename Transform<T>::type...>;
+      template <typename... X>
+      static constexpr bool contains_all(type_vector<X...>)
+      {
+        return ::sqlpp::logic::all<contains<X>()...>::value;
+      }
 
-      static constexpr bool size = sizeof...(T);
+      static constexpr size_t size()
+      {
+        return sizeof...(T);
+      }
 
-      static constexpr bool empty() {
-        return size == 0;
+      static constexpr bool empty()
+      {
+        return size() == 0;
       }
     };
 
@@ -81,6 +91,18 @@ namespace sqlpp
 
     template <typename... T>
     using type_vector_cat_t = typename type_vector_cat_impl<T...>::type;
+
+    template <typename TypeVector, template <typename> class Transform>
+    struct transform;
+
+    template <template <typename> class Transform, typename... T>
+    struct transform<type_vector<T...>, Transform>
+    {
+      using type = type_vector<typename Transform<T>::type...>;
+    };
+
+    template <typename TypeVector, template <typename> class Transform>
+    using transform_t = typename transform<TypeVector, Transform>::type;
 
   }  // namespace detail
 }  // namespace sqlpp

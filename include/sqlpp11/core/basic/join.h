@@ -67,18 +67,36 @@ namespace sqlpp
 #warning: We should mix dynamic and optional into the provided_tables_of (instead of having separate traits for each).
 #warning: it might be great to search for missing tables and return something like `missing_table_for<column_t<SomeSpec>>`.
 
+  template<typename T>
+    struct is_dynamic : public std::false_type {};
+  template<typename T>
+    struct is_dynamic<dynamic_t<T>> : public std::true_type {};
+
+  template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
+  struct provided_tables_of<join_t<Lhs, JoinType, Rhs, Condition>>
+  {
+    using type = detail::type_vector_cat_t<provided_tables_of_t<Lhs>, provided_tables_of_t<Rhs>>;
+  };
+
+  template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
+  struct provided_static_tables_of<join_t<Lhs, JoinType, Rhs, Condition>>
+  {
+    using type = typename std::conditional<
+        is_dynamic<Rhs>::value,
+        provided_static_tables_of<Lhs>,
+        detail::type_vector_cat_t<provided_static_tables_of<Lhs>, provided_static_tables_of<Rhs>>>::type;
+  };
+
   template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
   struct provided_optional_tables_of<join_t<Lhs, JoinType, Rhs, Condition>>
   {
-    using type = typename std::conditional<
-        std::is_same<JoinType, left_outer_join_t>::value,
-        sqlpp::detail::type_set<Rhs>,
-        typename std::conditional<
-            std::is_same<JoinType, right_outer_join_t>::value,
-            sqlpp::detail::type_set<Lhs>,
-            typename std::conditional<std::is_same<JoinType, full_outer_join_t>::value,
-                                      detail::make_joined_set_t<provided_tables_of_t<Lhs>, provided_tables_of_t<Rhs>>,
-                                      detail::type_set<>>::type>::type>::type;
+    using type = detail::type_vector_cat_t<
+        typename std::conditional<detail::type_vector<right_outer_join_t, full_outer_join_t>::contains<JoinType>(),
+                                  provided_tables_of_t<Lhs>,
+                                  detail::type_vector<>>::type,
+        typename std::conditional<detail::type_vector<left_outer_join_t, full_outer_join_t>::contains<JoinType>(),
+                                  provided_tables_of_t<Rhs>,
+                                  detail::type_vector<>>::type>;
   };
 
   template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
@@ -124,8 +142,36 @@ namespace sqlpp
 
 #warning: Verify that the Expr does not require tables other than Lhs, Rhs
   //and detail::make_joined_set_t<provided_tables_of_t<Lhs>, provided_tables_of_t<Rhs>>::is_superset_of<required_tables_of_t<Expr>::value
+  template <typename Expr, typename StaticTableTypeVector, typename AllTableTypeVector>
+  struct are_table_requirements_satisfied
+      : std::integral_constant<bool,
+                               StaticTableTypeVector::contains_all(required_static_tables_of_t<Expr>{}) and
+                                   AllTableTypeVector::contains_all(required_tables_of_t<Expr>{})>
+  {
+  };
+
   template <typename Lhs, typename Rhs, typename Expr>
-    using check_on_args = sqlpp::enable_if_t<sqlpp::is_boolean<Expr>::value>;
+  struct are_join_table_requirements_satisfied
+      : public std::integral_constant<
+            bool,
+            is_dynamic<Rhs>::value ?
+                                   // In case of a dynamic join, we can use all tables in the ON expr.
+                are_table_requirements_satisfied<
+                    Expr,
+                    provided_tables_of_t<join_t<Lhs, cross_join_t, Rhs, unconditional_t>>,
+                    provided_tables_of_t<join_t<Lhs, cross_join_t, Rhs, unconditional_t>>>::value
+                                   :
+                                   // In case of a static join, we can use static tables in the static part of the ON
+                                   // expression and dynamic tables in any potential dynamic part of the expression.
+                are_table_requirements_satisfied<
+                    Expr,
+                    provided_static_tables_of_t<join_t<Lhs, cross_join_t, Rhs, unconditional_t>>,
+                    provided_tables_of_t<join_t<Lhs, cross_join_t, Rhs, unconditional_t>>>::value>
+  {
+  };
+
+  template <typename Lhs, typename Rhs, typename Expr>
+    using check_on_args = sqlpp::enable_if_t<sqlpp::is_boolean<Expr>::value and are_join_table_requirements_satisfied<Lhs, Rhs, Expr>::value>;
 
   template <typename Lhs, typename JoinType, typename Rhs>
   struct pre_join_t
@@ -133,7 +179,7 @@ namespace sqlpp
     template <typename Expr, typename = check_on_args<Lhs, Rhs, Expr>>
     auto on(Expr expr) const -> join_t<Lhs, JoinType, Rhs, Expr>
     {
-      return {_lhs, _rhs, std::move(expr)};
+     return {_lhs, _rhs, std::move(expr)};
     }
 
     Lhs _lhs;
