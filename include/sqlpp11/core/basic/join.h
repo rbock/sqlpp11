@@ -28,6 +28,7 @@
 
 #include <sqlpp11/core/basic/join_fwd.h>
 #include <sqlpp11/core/basic/enable_join.h>
+#include <sqlpp11/core/type_traits.h>
 
 namespace sqlpp
 {
@@ -58,21 +59,6 @@ namespace sqlpp
   };
 
   template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
-  struct provided_tables_of<join_t<Lhs, JoinType, dynamic_t<Rhs>, Condition>>
-  {
-    using type = detail::make_joined_set_t<provided_tables_of_t<Lhs>, detail::type_set<dynamic_t<Rhs>>>;
-  };
-
-#warning: We need to quarantee that no tables are required by join and dynamic provision vs requirements need to be checked upon calling `on`.
-#warning: We should mix dynamic and optional into the provided_tables_of (instead of having separate traits for each).
-#warning: it might be great to search for missing tables and return something like `missing_table_for<column_t<SomeSpec>>`.
-
-  template<typename T>
-    struct is_dynamic : public std::false_type {};
-  template<typename T>
-    struct is_dynamic<dynamic_t<T>> : public std::true_type {};
-
-  template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
   struct provided_tables_of<join_t<Lhs, JoinType, Rhs, Condition>>
   {
     using type = detail::type_vector_cat_t<provided_tables_of_t<Lhs>, provided_tables_of_t<Rhs>>;
@@ -83,8 +69,8 @@ namespace sqlpp
   {
     using type = typename std::conditional<
         is_dynamic<Rhs>::value,
-        provided_static_tables_of<Lhs>,
-        detail::type_vector_cat_t<provided_static_tables_of<Lhs>, provided_static_tables_of<Rhs>>>::type;
+        provided_static_tables_of_t<Lhs>,
+        detail::type_vector_cat_t<provided_static_tables_of_t<Lhs>, provided_static_tables_of_t<Rhs>>>::type;
   };
 
   template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
@@ -141,7 +127,6 @@ namespace sqlpp
   }
 
 #warning: Verify that the Expr does not require tables other than Lhs, Rhs
-  //and detail::make_joined_set_t<provided_tables_of_t<Lhs>, provided_tables_of_t<Rhs>>::is_superset_of<required_tables_of_t<Expr>::value
   template <typename Expr, typename StaticTableTypeVector, typename AllTableTypeVector>
   struct are_table_requirements_satisfied
       : std::integral_constant<bool,

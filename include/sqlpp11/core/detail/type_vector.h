@@ -48,6 +48,12 @@ namespace sqlpp
         return ::sqlpp::logic::all<contains<X>()...>::value;
       }
 
+      template <typename... X>
+      static constexpr bool contains_none(type_vector<X...>)
+      {
+        return ::sqlpp::logic::none<contains<X>()...>::value;
+      }
+
       static constexpr size_t size()
       {
         return sizeof...(T);

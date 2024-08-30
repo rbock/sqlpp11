@@ -76,7 +76,6 @@ namespace sqlpp
       "from() argument is a pre join, please use an explicit on() condition or unconditionally()");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_from_table_t, "from() argument has to be a table or join expression");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_from_dependency_free_t, "at least one table depends on another table in from()");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_from_no_duplicates_t, "at least one duplicate table name detected in from()");
 
   template <typename Table>
   struct check_from
@@ -84,10 +83,8 @@ namespace sqlpp
     using type = static_combined_check_t<
         static_check_t<not is_pre_join_t<Table>::value, assert_from_not_pre_join_t>,
         static_check_t<is_table<Table>::value, assert_from_table_t>,
-        static_check_t<required_tables_of_t<Table>::size::value == 0, assert_from_dependency_free_t>,
-        static_check_t<provided_tables_of_t<Table>::size::value ==
-                           detail::make_name_of_set_t<provided_tables_of_t<Table>>::size::value,
-                       assert_from_no_duplicates_t>>;
+        static_check_t<required_tables_of_t<Table>::size::value == 0, assert_from_dependency_free_t>
+        >;
   };
 
   template <typename Table>

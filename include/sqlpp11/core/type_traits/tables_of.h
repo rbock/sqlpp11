@@ -28,11 +28,10 @@
 
 #include <sqlpp11/core/type_traits/nodes_of.h>
 #include <sqlpp11/core/detail/type_vector.h>
-#include <sqlpp11/core/detail/type_set.h>
 
 namespace sqlpp
 {
-  // required_tables_of determines the type_set of tables referenced by columns within within T.
+  // required_tables_of determines the type_vector of tables referenced by columns within within T.
   // column_t or other structs that might reference a table shall specialize this template to indicate their table
   // requirement.
   // Dynamic parts of a query shall wrap their required tables in dynamic_t.
@@ -69,7 +68,7 @@ namespace sqlpp
 #warning: need type tests...
   //static_assert(required_tables_of_t<int>::size::value == 0, "");
 
-  // provided_tables_of determines the type_set of tables provided by the query clause, e.g. by FROM.
+  // provided_tables_of determines the type_vector of tables provided by the query clause, e.g. by FROM.
   // Provided tables can be wrapped in dynamic_t if they are provided through a dynamic join.
   // table_t, cte_ref_t, or other structs that might provide a table in a query need to specialize this template.
   template <typename T>

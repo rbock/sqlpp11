@@ -82,14 +82,19 @@ namespace sqlpp
   template <typename T>
   struct can_be_null : public is_optional<value_type_of_t<T>> {};
 
-#warning: remove this
   template <typename T>
-  struct is_not_cpp_bool_t
+  struct dynamic_t;
+
+  template <typename T>
+  struct is_dynamic : public std::false_type
   {
-    static constexpr bool value = not std::is_same<T, bool>::value;
   };
 
-  //
+  template <typename T>
+  struct is_dynamic<dynamic_t<T>> : public std::true_type
+  {
+  };
+
   template <typename L, typename R>
   struct values_are_comparable
       : public std::integral_constant<bool,
@@ -101,7 +106,6 @@ namespace sqlpp
                                           (is_time_of_day<L>::value and is_time_of_day<R>::value)>
   {
   };
-
 
   template<typename T>
     struct result_value {};

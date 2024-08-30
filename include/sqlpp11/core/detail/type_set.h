@@ -260,21 +260,5 @@ namespace sqlpp
     template <template <typename> class Transformation, typename T>
     using transform_set_t = typename transform_set<Transformation, T>::type;
 
-    // workaround for msvc bug https://connect.microsoft.com/VisualStudio/feedback/details/2173198
-    template <typename T>
-    struct make_name_of_set
-    {
-      static_assert(wrong_t<make_name_of_set>::value, "invalid argument for make_name_of_set");
-    };
-
-    template <typename... E>
-    struct make_name_of_set<type_set<E...>>
-    {
-      using type =
-          make_type_set_t<make_char_sequence<sizeof(sqlpp::name_tag_of_t<E>::name), sqlpp::name_tag_of_t<E>::name>...>;
-    };
-
-    template <typename T>
-    using make_name_of_set_t = typename make_name_of_set<T>::type;
   }  // namespace detail
 }  // namespace sqlpp

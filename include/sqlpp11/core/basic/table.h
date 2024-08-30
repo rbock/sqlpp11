@@ -31,7 +31,7 @@
 #include <sqlpp11/core/basic/table_alias.h>
 #include <sqlpp11/core/basic/all_of.h>
 #include <sqlpp11/core/basic/column.h>
-#include <sqlpp11/core/detail/type_set.h>
+#include <sqlpp11/core/detail/type_vector.h>
 #include <sqlpp11/core/basic/join.h>
 
 namespace sqlpp
@@ -66,7 +66,7 @@ namespace sqlpp
   template <typename TableSpec>
   struct provided_tables_of<table_t<TableSpec>>
   {
-    using type = sqlpp::detail::type_set<table_t<TableSpec>>;
+    using type = sqlpp::detail::type_vector<table_t<TableSpec>>;
   };
 
   template <typename TableSpec>

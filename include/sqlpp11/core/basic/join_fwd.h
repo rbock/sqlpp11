@@ -30,7 +30,7 @@
 #include <sqlpp11/core/query/dynamic.h>
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/compat/type_traits.h>
-#include <sqlpp11/core/detail/type_set.h>
+#include <sqlpp11/core/detail/type_vector.h>
 
 namespace sqlpp
 {
@@ -69,9 +69,9 @@ namespace sqlpp
   template <typename Lhs, typename Rhs>
   using check_join_args =
       sqlpp::enable_if_t<is_table<Lhs>::value and is_table<remove_dynamic_t<Rhs>>::value and
-                         required_tables_of_t<Lhs>::size::value == 0 and required_tables_of_t<Rhs>::size::value == 0 and
-                         detail::is_disjunct_from<detail::make_name_of_set_t<provided_tables_of_t<Lhs>>,
-                                                  detail::make_name_of_set_t<provided_tables_of_t<Rhs>>>::value>;
+                         required_tables_of_t<Lhs>::empty() and required_tables_of_t<Rhs>::empty() and
+                         sqlpp::detail::transform_t<provided_tables_of_t<Lhs>, make_char_sequence>::contains_none(
+                             sqlpp::detail::transform_t<provided_tables_of_t<Rhs>, make_char_sequence>{})>;
 
   template <typename Lhs, typename Rhs, typename = check_join_args<Lhs, Rhs>>
   auto join(Lhs lhs, Rhs rhs) -> pre_join_t<Lhs, inner_join_t, Rhs>;

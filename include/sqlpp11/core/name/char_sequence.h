@@ -45,8 +45,13 @@ namespace sqlpp
     using type = char_sequence<s[i]...>;
   };
 
-  template <std::size_t N, const char* Input>
-  using make_char_sequence =
-      typename make_char_sequence_impl<N, Input, ::sqlpp::make_index_sequence<N - 1>>::type;
+  template <typename T>
+  struct make_char_sequence
+      : make_char_sequence_impl<sizeof(sqlpp::name_tag_of_t<T>::name), sqlpp::name_tag_of_t<T>::name, ::sqlpp::make_index_sequence<sizeof(sqlpp::name_tag_of_t<T>::name) - 1>>
+  {
+  };
+
+  template <typename T>
+  using make_char_sequence_t = typename make_char_sequence<T>::type;
 
 }  // namespace sqlpp
