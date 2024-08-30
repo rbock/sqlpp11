@@ -75,7 +75,7 @@ namespace sqlpp
 
       _data_t _data;
 
-      using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<group_by_t>::value,
+      using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<group_by_t>,
                                                            consistent_t,
                                                            assert_no_unknown_tables_in_group_by_t>::type;
     };

@@ -77,13 +77,12 @@ namespace sqlpp
     struct make_field_spec_impl
     {
       using ValueType = select_column_value_type_of_t<NamedExpr>;
-      static constexpr bool _depends_on_outer_table =
-          detail::make_intersect_set_t<required_tables_of_t<NamedExpr>,
-                                       typename Select::_used_outer_tables>::size::value > 0;
+      static constexpr bool _depends_on_optional_table =
+          Select::_used_optional_tables::contains_any(required_tables_of_t<NamedExpr>{});
 
       using type = field_spec_t<
           select_column_name_tag_of_t<NamedExpr>,
-          typename std::conditional<_depends_on_outer_table, sqlpp::force_optional_t<ValueType>, ValueType>::type>;
+          typename std::conditional<_depends_on_optional_table, sqlpp::force_optional_t<ValueType>, ValueType>::type>;
     };
   }  // namespace detail
 

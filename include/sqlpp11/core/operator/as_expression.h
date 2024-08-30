@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <type_traits>
 
 #include <sqlpp11/core/type_traits.h>
+#include <sqlpp11/core/to_sql_string.h>
 
 namespace sqlpp
 {

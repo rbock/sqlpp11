@@ -202,7 +202,7 @@ namespace sqlpp
 
       _data_t _data;
 
-      using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<insert_list_t>::value,
+      using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<insert_list_t>,
                                                            consistent_t,
                                                            assert_no_unknown_tables_in_insert_assignments_t>::type;
     };
@@ -282,7 +282,7 @@ namespace sqlpp
       void _add_impl(const std::false_type& /*unused*/, Assignments... /*unused*/);
 
     public:
-      using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<column_list_t>::value,
+      using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<column_list_t>,
                                                            consistent_t,
                                                            assert_no_unknown_tables_in_column_list_t>::type;
     };

@@ -132,7 +132,7 @@ namespace sqlpp
         return *this;
       }
 
-      using _table_check = typename std::conditional<Policies::template _no_unknown_tables<select_column_list_t>::value,
+      using _table_check = typename std::conditional<Policies::template _no_unknown_tables<select_column_list_t>,
                                                      consistent_t,
                                                      assert_no_unknown_tables_in_selected_columns_t>::type;
 

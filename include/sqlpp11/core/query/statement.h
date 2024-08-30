@@ -79,14 +79,11 @@ namespace sqlpp
       using _all_provided_ctes = detail::make_joined_set_t<provided_ctes_of<Policies>...>;
       using _all_required_tables = detail::type_vector_cat_t<required_tables_of_t<Policies>...>;
       using _all_provided_tables = detail::type_vector_cat_t<provided_tables_of_t<Policies>...>;
-      //using _all_provided_outer_tables = detail::make_joined_set_t<provided_optional_tables_of_t<Policies>...>;
+      using _all_provided_optional_tables = detail::type_vector_cat_t<provided_optional_tables_of_t<Policies>...>;
       using _all_provided_aggregates = detail::make_joined_set_t<provided_aggregates_of<Policies>...>;
 
-#warning reactivate
-      /*
       template <typename Expression>
-      using _no_unknown_tables = detail::is_subset_of<required_tables_of_t<Expression>, _all_provided_tables>;
-      */
+      static constexpr bool _no_unknown_tables = _all_provided_tables::contains_all(required_tables_of_t<Expression>{});
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2086629
       //	  template <typename... Expressions>
@@ -144,7 +141,7 @@ namespace sqlpp
       /*
       using _can_be_null = logic::any<can_be_null_t<_result_type_provider>::value,
                                         detail::make_intersect_set_t<required_tables_of_t<_result_type_provider>,
-                                                                     _all_provided_outer_tables>::size::value != 0>;
+                                                                     _all_provided_optional_tables>::size::value != 0>;
                                         */
       using _parameters = detail::type_vector_cat_t<parameters_of<Policies>...>;
       // required_tables and _required_ctes are defined above
@@ -211,7 +208,8 @@ namespace sqlpp
                       >;
     using _name_tag_of = name_tag_of<_result_type_provider>;
     using _nodes = detail::type_vector<_policies_t>;
-    //using _used_outer_tables = typename _policies_t::_all_provided_outer_tables;
+#warning: This is an odd name, why "used"?
+    using _used_optional_tables = typename _policies_t::_all_provided_optional_tables;
 
     // Constructors
     statement_t() = default;

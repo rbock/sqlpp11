@@ -49,6 +49,12 @@ namespace sqlpp
       }
 
       template <typename... X>
+      static constexpr bool contains_any(type_vector<X...>)
+      {
+        return ::sqlpp::logic::any<contains<X>()...>::value;
+      }
+
+      template <typename... X>
       static constexpr bool contains_none(type_vector<X...>)
       {
         return ::sqlpp::logic::none<contains<X>()...>::value;

@@ -112,7 +112,7 @@ namespace sqlpp
 
         // Checks
         using _table_check =
-            typename std::conditional<Policies::template _no_unknown_tables<returning_column_list_t>::value,
+            typename std::conditional<Policies::template _no_unknown_tables<returning_column_list_t>,
                                       consistent_t,
                                       assert_no_unknown_tables_in_returning_columns_t>::type;
 
