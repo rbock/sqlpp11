@@ -81,15 +81,34 @@ namespace sqlpp
   template<typename Select, typename AliasProvider, typename... ColumnSpecs>
     struct name_tag_of<select_as_t<Select, AliasProvider, ColumnSpecs...>> : name_tag_of<AliasProvider> {};
 
-#warning: Is this (_can_be_used_as_table) required for use as a named value, too?
   template <typename Select, typename AliasProvider, typename... ColumnSpecs>
   struct is_table<select_as_t<Select, AliasProvider, ColumnSpecs...>>
       : std::integral_constant<bool, Select::_can_be_used_as_table()>
   {
   };
 
-#warning: V1.0 has empty nodes. Is that correct? In either case document the decision here.
+  template <typename Select, typename AliasProvider, typename... ColumnSpecs>
+  struct provided_tables_of<select_as_t<Select, AliasProvider, ColumnSpecs...>>
+      : public std::conditional<Select::_can_be_used_as_table(),
+                                sqlpp::detail::type_vector<select_as_t<Select, AliasProvider, ColumnSpecs...>>,
+                                sqlpp::detail::type_vector<>>
+  {
+  };
 
+  template <typename Select, typename AliasProvider, typename... ColumnSpecs>
+  struct provided_static_tables_of<select_as_t<Select, AliasProvider, ColumnSpecs...>>
+      : public provided_tables_of<select_as_t<Select, AliasProvider, ColumnSpecs...>>
+  {
+  };
+
+  template <typename Select, typename AliasProvider, typename... ColumnSpecs>
+  struct provided_optional_tables_of<select_as_t<Select, AliasProvider, ColumnSpecs...>>
+      : public provided_tables_of<select_as_t<Select, AliasProvider, ColumnSpecs...>>
+  {
+  };
+
+#warning: V1.0 has empty nodes. Is that correct? In either case document the decision here.
+#warning: Need to add required tables of
 
   template <typename Context, typename Select, typename AliasProvider, typename... ColumnSpecs>
   auto to_sql_string(Context& context, const select_as_t<Select, AliasProvider, ColumnSpecs...>& t) -> std::string
