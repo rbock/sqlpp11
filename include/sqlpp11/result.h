@@ -93,6 +93,11 @@ namespace sqlpp
       using reference = const result_row_t&;
       using difference_type = std::ptrdiff_t;
 
+      iterator()
+          : _result_ptr(nullptr), _result_row_ptr(nullptr)
+      {
+      }
+
       iterator(db_result_t& result, result_row_t& result_row)
           : _result_ptr(&result), _result_row_ptr(&result_row)
       {
@@ -110,6 +115,14 @@ namespace sqlpp
 
       bool operator==(const iterator& rhs) const
       {
+        if ((_result_row_ptr != nullptr) != (rhs._result_row_ptr != nullptr))
+        {
+          return false;
+        }
+        if (_result_row_ptr == nullptr)
+        {
+          return true;
+        }
         return *_result_row_ptr == *rhs._result_row_ptr;
       }
 
