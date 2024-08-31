@@ -127,9 +127,8 @@ namespace sqlpp
 
       iterator operator++(int)
       {
-        auto previous_it = *this;
-        _result.next(_result_row.get());
-        return previous_it;
+        // FIXME: Currently the postfix increment operator does a prefix increment
+        return ++*this;
       }
 
       std::reference_wrapper<db_result_t> _result;
