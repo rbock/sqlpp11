@@ -27,6 +27,7 @@
  */
 
 #include <type_traits>
+#include <sqlpp11/core/name/name_tag.h>
 #include <sqlpp11/core/compat/utility.h>
 
 namespace sqlpp

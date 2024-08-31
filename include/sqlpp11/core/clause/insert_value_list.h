@@ -151,8 +151,8 @@ namespace sqlpp
                      assert_insert_set_assignments_t>,
       static_check_t<not detail::has_duplicates<typename lhs<Assignments>::type...>::value,
                      assert_insert_set_no_duplicates_t>,
-      static_check_t<sizeof...(Assignments) == 0 or detail::make_joined_set_t<required_tables_of_t<
-                                                        typename lhs<Assignments>::type>...>::size::value == 1,
+      static_check_t<sizeof...(Assignments) == 0 or detail::type_vector_cat_t<required_tables_of_t<
+                                                        typename lhs<Assignments>::type>...>::are_same(),
                      assert_insert_set_single_table_t>>;
 
   // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
@@ -369,11 +369,10 @@ namespace sqlpp
       auto _columns_impl(consistent_t /*unused*/, Columns... cols) const
           -> _new_statement_t<consistent_t, column_list_t<Columns...>>
       {
-        static_assert(not detail::has_duplicates<Columns...>::value,
+        static_assert(detail::are_unique<Columns...>::value,
                       "at least one duplicate argument detected in columns()");
-        using _column_required_tables = detail::make_joined_set_t<required_tables_of_t<Columns>...>;
-        static_assert(_column_required_tables::size::value == 1, "columns() contains columns from several tables");
-
+        static_assert(detail::type_vector_cat_t<required_tables_of_t<Columns>...>::are_same(),
+                      "columns() contains columns from several tables");
         static_assert(detail::have_all_required_columns<Columns...>::value,
                       "At least one required column is missing in columns()");
 
@@ -405,7 +404,7 @@ namespace sqlpp
   auto to_sql_string(Context& context, const column_list_data_t<Columns...>& t) -> std::string
   {
     auto result = std::string{" ("};
-    result += tuple_to_sql_string(context, t._columns, ",");
+    result += tuple_to_sql_string(context, t._columns, tuple_operand{", "});
     result += ")";
     bool first = true;
     for (const auto& row : t._insert_values)
@@ -420,7 +419,7 @@ namespace sqlpp
         result += ',';
       }
       result += '(';
-      result += tuple_to_sql_string(context, row, ",");
+      result += tuple_to_sql_string(context, row, tuple_operand{", "});
       result += ')';
     }
 

@@ -65,6 +65,7 @@ int main(int, char* [])
 
 #warning: Need to add tests with 3 tables
 
+#warning: Need to add tests with table aliases
 #warning: Need to add tests with sub selects
 #warning: Need to add tests with CTEs
   return 0;

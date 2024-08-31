@@ -34,8 +34,47 @@ namespace sqlpp
   namespace detail
   {
     template <typename... T>
+    struct are_same;
+
+    template <>
+    struct are_same<> : public std::true_type
+    {
+    };
+
+    template <typename First, typename... T>
+    struct are_same<First, T...> : public std::is_same<are_same<First, T...>, are_same<T..., First>>
+    {
+    };
+
+    template <typename... T>
+    struct are_unique;
+
+    template <>
+    struct are_unique<> : public std::true_type
+    {
+    };
+
+    template <typename First, typename... T>
+    struct are_unique<First, T...>
+        : public std::integral_constant<bool,
+                                        sqlpp::logic::none<std::is_same<First, T>::value...>::value and
+                                            are_unique<T...>::value>
+    {
+    };
+
+    template <typename... T>
     struct type_vector
     {
+      static constexpr bool are_same()
+      {
+        return ::sqlpp::detail::are_same<T...>::value;
+      }
+
+      static constexpr bool are_unique()
+      {
+        return ::sqlpp::detail::are_unique<T...>::value;
+      }
+
       template <typename X>
       static constexpr bool contains()
       {

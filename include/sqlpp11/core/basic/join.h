@@ -85,6 +85,19 @@ namespace sqlpp
                                   detail::type_vector<>>::type>;
   };
 
+#warning: Need to make extra sure that ON does not require on extra tables.
+  template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
+  struct required_tables_of<join_t<Lhs, JoinType, Rhs, Condition>>
+  {
+    using type = detail::type_vector<>;
+  };
+
+  template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
+  struct required_static_tables_of<join_t<Lhs, JoinType, Rhs, Condition>>
+  {
+    using type = detail::type_vector<>;
+  };
+
   template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
   struct is_table<join_t<Lhs, JoinType, Rhs, Condition>> : public std::true_type
   {

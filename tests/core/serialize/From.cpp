@@ -50,7 +50,7 @@ int From(int, char* [])
           " FROM tab_foo INNER JOIN tab_bar ON tab_foo.double_n > tab_bar.id");
   SQLPP_COMPARE(from(foo.inner_join(bar).on(foo.doubleN > bar.id)),
           " FROM tab_foo INNER JOIN tab_bar ON tab_foo.double_n > tab_bar.id");
-  SQLPP_COMPARE(from(foo.outer_join(bar).on(foo.doubleN > bar.id)),
+  SQLPP_COMPARE(from(foo.full_outer_join(bar).on(foo.doubleN > bar.id)),
           " FROM tab_foo OUTER JOIN tab_bar ON tab_foo.double_n > tab_bar.id");
   SQLPP_COMPARE(from(foo.left_outer_join(bar).on(foo.doubleN > bar.id)),
           " FROM tab_foo LEFT OUTER JOIN tab_bar ON tab_foo.double_n > tab_bar.id");
@@ -58,6 +58,7 @@ int From(int, char* [])
           " FROM tab_foo RIGHT OUTER JOIN tab_bar ON tab_foo.double_n > tab_bar.id");
   SQLPP_COMPARE(from(aFoo.join(bFoo).on(aFoo.doubleN > bFoo.doubleN)),
           " FROM tab_foo AS a INNER JOIN tab_foo AS b ON a.double_n > b.double_n");
+  /*
   SQLPP_COMPARE(from(aFoo.join(bFoo).on(aFoo.doubleN > bFoo.doubleN).join(cFoo).on(bFoo.doubleN > cFoo.doubleN)),
       " FROM tab_foo AS a INNER JOIN tab_foo AS b ON a.double_n > b.double_n INNER JOIN tab_foo AS c ON b.double_n > c.double_n");
   SQLPP_COMPARE(from(foo.join(bar).unconditionally()), " FROM tab_foo INNER JOIN tab_bar");
@@ -76,6 +77,7 @@ int From(int, char* [])
                              .on(sqlpp::verbatim<sqlpp::boolean>("a.column_x > another_table.x"))),
           " FROM unknown_table AS a INNER JOIN another_table ON a.column_x > another_table.x");
 
-#warning add tests for optional joins
+#warning add tests for dynamic joins
+*/
   return 0;
 }

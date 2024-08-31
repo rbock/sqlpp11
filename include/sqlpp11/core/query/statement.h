@@ -149,7 +149,7 @@ namespace sqlpp
       using _cte_check =
           typename std::conditional<_required_ctes::size::value == 0, consistent_t, assert_no_unknown_ctes_t>::type;
 #warning: reactivate
-      using _table_check = std::true_type;
+      using _table_check = consistent_t;
           //typename std::conditional<_required_tables::size::value == 0, consistent_t, assert_no_unknown_tables_t>::type;
       using _parameter_check = typename std::
           conditional<_parameters::empty(), consistent_t, assert_no_parameters_t>::type;

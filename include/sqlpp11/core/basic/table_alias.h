@@ -43,7 +43,7 @@ namespace sqlpp
     using _required_ctes = required_ctes_of<TableSpec>;
     using _provided_tables = detail::type_set<AliasProvider>;
 
-    static_assert(required_tables_of_t<TableSpec>::size::value == 0, "table aliases must not depend on external tables");
+    static_assert(required_tables_of_t<TableSpec>::empty(), "table aliases must not depend on external tables");
 
 #warning: need to inherit?
     //using _column_tuple_t = std::tuple<column_t<AliasProvider, ColumnSpec>...>;
@@ -54,6 +54,23 @@ namespace sqlpp
 
   template<typename AliasProvider, typename TableSpec>
     struct name_tag_of<table_alias_t<AliasProvider, TableSpec>> : public name_tag_of<AliasProvider>{};
+
+  template <typename AliasProvider, typename TableSpec>
+  struct provided_tables_of<table_alias_t<AliasProvider, TableSpec>>
+  {
+#warning: This is a bit wonky... Maybe we should actually pass the table and not the table_spec into the column template.
+    using type = sqlpp::detail::type_vector<table_t<AliasProvider>>;
+  };
+
+  template <typename AliasProvider, typename TableSpec>
+  struct provided_static_tables_of<table_alias_t<AliasProvider, TableSpec>> : public provided_tables_of<table_alias_t<AliasProvider, TableSpec>>
+  {
+  };
+
+  template <typename AliasProvider, typename TableSpec>
+  struct provided_optional_tables_of<table_alias_t<AliasProvider, TableSpec>> : public provided_tables_of<table_alias_t<AliasProvider, TableSpec>>
+  {
+  };
 
   template <typename Context, typename AliasProvider, typename TableSpec>
   auto to_sql_string(Context& context, const table_alias_t<AliasProvider, TableSpec>&) -> std::string
