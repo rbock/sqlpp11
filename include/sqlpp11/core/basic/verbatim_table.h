@@ -33,8 +33,8 @@
 
 namespace sqlpp
 {
-  template <typename AliasProvider>
-  struct verbatim_table_as_t : public enable_join<verbatim_table_as_t<AliasProvider>>
+  template <typename NameTagProvider>
+  struct verbatim_table_as_t : public enable_join<verbatim_table_as_t<NameTagProvider>>
   {
     verbatim_table_as_t(std::string representation) : _representation(std::move(representation))
     {
@@ -49,15 +49,15 @@ namespace sqlpp
     std::string _representation;
   };
 
-  template <typename AliasProvider>
-  struct is_table<verbatim_table_as_t<AliasProvider>> : std::true_type
+  template <typename NameTagProvider>
+  struct is_table<verbatim_table_as_t<NameTagProvider>> : std::true_type
   {
   };
 
-  template <typename Context, typename AliasProvider>
-  auto to_sql_string(Context& context, const verbatim_table_as_t<AliasProvider>& t) -> std::string
+  template <typename Context, typename NameTagProvider>
+  auto to_sql_string(Context& context, const verbatim_table_as_t<NameTagProvider>& t) -> std::string
   {
-    return t._representation + " AS " + name_to_sql_string(context, name_tag_of_t<AliasProvider>::name);
+    return t._representation + " AS " + name_to_sql_string(context, name_tag_of_t<NameTagProvider>::name);
   }
 
   struct verbatim_table_t: public enable_join<verbatim_table_t>
@@ -72,8 +72,8 @@ namespace sqlpp
     verbatim_table_t& operator=(verbatim_table_t&& rhs) = default;
     ~verbatim_table_t() = default;
 
-    template <typename AliasProvider>
-    verbatim_table_as_t<AliasProvider> as(const AliasProvider& /*unused*/) const
+    template <typename NameTagProvider>
+    verbatim_table_as_t<NameTagProvider> as(const NameTagProvider& /*unused*/) const
     {
       return {_representation};
     }

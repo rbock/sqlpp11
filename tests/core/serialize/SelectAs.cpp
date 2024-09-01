@@ -29,8 +29,8 @@
 
 #include <iostream>
 
-SQLPP_ALIAS_PROVIDER(id_count);
-SQLPP_ALIAS_PROVIDER(cheese);
+SQLPP_CREATE_NAME_TAG(id_count);
+SQLPP_CREATE_NAME_TAG(cheese);
 
   using namespace sqlpp;
 

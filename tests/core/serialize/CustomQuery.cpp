@@ -29,7 +29,7 @@
 
 #include <iostream>
 
-SQLPP_ALIAS_PROVIDER(pragma);
+SQLPP_CREATE_NAME_TAG(pragma);
 
 int CustomQuery(int, char*[])
 {

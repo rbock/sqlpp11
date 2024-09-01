@@ -34,7 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace sqlpp
 {
 #warning: need type tests
-  template <typename Expression, typename AliasProvider>
+  template <typename Expression, typename NameTagProvider>
   struct as_expression
   {
     using _traits = make_traits<value_type_of_t<Expression>, tag::is_selectable, tag::is_alias>;
@@ -60,8 +60,8 @@ namespace sqlpp
     using type = T;
   };
 
-  template <typename Expression, typename AliasProvider>
-  struct remove_as<as_expression<Expression, AliasProvider>>
+  template <typename Expression, typename NameTagProvider>
+  struct remove_as<as_expression<Expression, NameTagProvider>>
   {
     using type = Expression;
   };
@@ -69,25 +69,25 @@ namespace sqlpp
   template <typename T>
   using remove_as_t = typename remove_as<T>::type;
 
-  template <typename Expression, typename AliasProvider>
-  struct nodes_of<as_expression<Expression, AliasProvider>>
+  template <typename Expression, typename NameTagProvider>
+  struct nodes_of<as_expression<Expression, NameTagProvider>>
   {
     using type = detail::type_vector<Expression>;
   };
 
-  template <typename Context, typename Expression, typename AliasProvider>
-  auto to_sql_string(Context& context, const as_expression<Expression, AliasProvider>& t) -> std::string
+  template <typename Context, typename Expression, typename NameTagProvider>
+  auto to_sql_string(Context& context, const as_expression<Expression, NameTagProvider>& t) -> std::string
   {
-    return operand_to_sql_string(context, t._expression) + " AS " + name_to_sql_string(context, name_tag_of_t<AliasProvider>::name);
+    return operand_to_sql_string(context, t._expression) + " AS " + name_to_sql_string(context, name_tag_of_t<NameTagProvider>::name);
   }
 
-  template <typename Expr, typename AliasProvider>
+  template <typename Expr, typename NameTagProvider>
   using check_as_args = ::sqlpp::enable_if_t<
-  has_value_type<Expr>::value and not is_alias_t<Expr>::value and has_name<AliasProvider>::value
+  has_value_type<Expr>::value and not is_alias_t<Expr>::value and has_name<NameTagProvider>::value
   >;
 
-  template <typename Expr, typename AliasProvider, typename = check_as_args<Expr, AliasProvider>>
-  constexpr auto as(Expr expr, const AliasProvider&) -> as_expression<Expr, AliasProvider>
+  template <typename Expr, typename NameTagProvider, typename = check_as_args<Expr, NameTagProvider>>
+  constexpr auto as(Expr expr, const NameTagProvider&) -> as_expression<Expr, NameTagProvider>
   {
       return {std::move(expr)};
   }
@@ -95,14 +95,14 @@ namespace sqlpp
   template <typename Expr>
   struct dynamic_t;
 
-  template <typename Expr, typename AliasProvider, typename = check_as_args<Expr, AliasProvider>>
-  constexpr auto as(dynamic_t<Expr> expr, const AliasProvider&) -> as_expression<dynamic_t<Expr>, AliasProvider>
+  template <typename Expr, typename NameTagProvider, typename = check_as_args<Expr, NameTagProvider>>
+  constexpr auto as(dynamic_t<Expr> expr, const NameTagProvider&) -> as_expression<dynamic_t<Expr>, NameTagProvider>
   {
       return {std::move(expr)};
   }
 
-  template <typename AliasProvider>
-  constexpr auto as(sqlpp::nullopt_t expr, const AliasProvider&) -> as_expression<nullopt_t, AliasProvider>
+  template <typename NameTagProvider>
+  constexpr auto as(sqlpp::nullopt_t expr, const NameTagProvider&) -> as_expression<nullopt_t, NameTagProvider>
   {
       return {std::move(expr)};
   }

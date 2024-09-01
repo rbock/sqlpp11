@@ -50,8 +50,8 @@ namespace sqlpp
     using type = sqlpp::force_optional_t<select_column_value_type_of_t<T>>;
   };
 
-  template <typename T, typename AliasProvider>
-  struct select_column_value_type_of<as_expression<T, AliasProvider>> : public select_column_value_type_of<T>
+  template <typename T, typename NameTagProvider>
+  struct select_column_value_type_of<as_expression<T, NameTagProvider>> : public select_column_value_type_of<T>
   {
   };
 
@@ -69,8 +69,8 @@ namespace sqlpp
   {
   };
 
-  template <typename T, typename AliasProvider>
-  struct select_column_name_tag_of<as_expression<T, AliasProvider>> : public name_tag_of<AliasProvider>
+  template <typename T, typename NameTagProvider>
+  struct select_column_name_tag_of<as_expression<T, NameTagProvider>> : public name_tag_of<NameTagProvider>
   {
   };
 

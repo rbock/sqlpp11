@@ -24,7 +24,7 @@
  */
 
 #include <cassert>
-#include <sqlpp11/core/name/alias_provider.h>
+#include <sqlpp11/core/name/create_name_tag.h>
 #include <sqlpp11/core/query/query/custom_query.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/core/clause/insert.h>
@@ -44,7 +44,7 @@
 
 namespace sql = sqlpp::sqlite3;
 
-SQLPP_ALIAS_PROVIDER(pragma)
+SQLPP_CREATE_NAME_TAG(pragma)
 
 int Transaction(int, char*[])
 {

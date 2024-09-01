@@ -27,7 +27,7 @@
 #include "Sample.h"
 #include <sqlpp11/sqlpp11.h>
 
-SQLPP_ALIAS_PROVIDER(id_count);
+SQLPP_CREATE_NAME_TAG(id_count);
 
 int SelectColumns(int, char*[])
 {

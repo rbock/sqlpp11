@@ -35,11 +35,11 @@ namespace
   template <typename T, typename V>
   using is_select_column_same_type = std::is_same<sqlpp::select_column_value_type_of_t<T>, V>;
 
-  SQLPP_ALIAS_PROVIDER(always);
-  SQLPP_ALIAS_PROVIDER(sometimes);
-  SQLPP_ALIAS_PROVIDER(column);
-  SQLPP_ALIAS_PROVIDER(table);
-  SQLPP_ALIAS_PROVIDER(foo);
+  SQLPP_CREATE_NAME_TAG(always);
+  SQLPP_CREATE_NAME_TAG(sometimes);
+  SQLPP_CREATE_NAME_TAG(column);
+  SQLPP_CREATE_NAME_TAG(table);
+  SQLPP_CREATE_NAME_TAG(foo);
 }
 
 template <typename Value>

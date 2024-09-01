@@ -26,13 +26,13 @@
 #include "Sample.h"
 #include "MockDb.h"
 #include <sqlpp11/core/clause/select.h>
-#include <sqlpp11/core/name/alias_provider.h>
+#include <sqlpp11/core/name/create_name_tag.h>
 #include <iostream>
 
 namespace greek
 {
-  SQLPP_ALIAS_PROVIDER(id)
-  SQLPP_ALIAS_PROVIDER(textN)
+  SQLPP_CREATE_NAME_TAG(id)
+  SQLPP_CREATE_NAME_TAG(textN)
 }
 
 int Union(int, char* [])

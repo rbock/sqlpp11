@@ -26,7 +26,7 @@
 #include "MockDb.h"
 #include "Sample.h"
 #include <iostream>
-#include <sqlpp11/core/name/alias_provider.h>
+#include <sqlpp11/core/name/create_name_tag.h>
 #include <sqlpp11/core/database/connection.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/core/clause/select.h>
@@ -34,10 +34,10 @@
 
 namespace alias
 {
-  SQLPP_ALIAS_PROVIDER(a)
-  SQLPP_ALIAS_PROVIDER(b)
-  SQLPP_ALIAS_PROVIDER(left)
-  SQLPP_ALIAS_PROVIDER(right)
+  SQLPP_CREATE_NAME_TAG(a)
+  SQLPP_CREATE_NAME_TAG(b)
+  SQLPP_CREATE_NAME_TAG(left)
+  SQLPP_CREATE_NAME_TAG(right)
 }  // namespace alias
 
 int SelectType(int, char*[])

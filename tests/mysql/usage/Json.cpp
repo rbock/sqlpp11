@@ -51,7 +51,7 @@ int Json(int, char*[])
 
 namespace test
 {
-  SQLPP_ALIAS_PROVIDER(value)
+  SQLPP_CREATE_NAME_TAG(value)
 }
 
 namespace sql = sqlpp::mysql;

@@ -28,7 +28,7 @@
 
 #include <sqlpp11/core/operator/enable_comparison.h>
 #include <sqlpp11/core/type_traits.h>
-#include <sqlpp11/core/name/alias_provider.h>
+#include <sqlpp11/core/name/create_name_tag.h>
 #include <sqlpp11/core/detail/type_set.h>
 
 namespace sqlpp
@@ -76,12 +76,12 @@ namespace sqlpp
     return {};
   }
 
-  template <typename ValueType, typename AliasProvider>
-  auto parameter(const ValueType& /*unused*/, const AliasProvider & /*unused*/)
-      -> parameter_t<value_type_of_t<ValueType>, AliasProvider>
+  template <typename ValueType, typename NameTagProvider>
+  auto parameter(const ValueType& /*unused*/, const NameTagProvider & /*unused*/)
+      -> parameter_t<value_type_of_t<ValueType>, NameTagProvider>
   {
     static_assert(has_value_type<ValueType>::value, "first argument is not a value type");
-    static_assert(has_name<AliasProvider>::value, "second argument does not have a name");
+    static_assert(has_name<NameTagProvider>::value, "second argument does not have a name");
     return {};
   }
 }  // namespace sqlpp

@@ -41,8 +41,8 @@ namespace sqlpp
     }
 
   public:
-    template <typename AliasProvider>
-    constexpr auto as(const AliasProvider& alias) const -> decltype(::sqlpp::as(this->derived(), alias))
+    template <typename NameTagProvider>
+    constexpr auto as(const NameTagProvider& alias) const -> decltype(::sqlpp::as(this->derived(), alias))
     {
       return ::sqlpp::as(this->derived(), alias);
     }

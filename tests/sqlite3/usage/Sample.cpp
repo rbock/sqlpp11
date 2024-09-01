@@ -37,8 +37,8 @@
 #include <iostream>
 #include <vector>
 
-SQLPP_ALIAS_PROVIDER(pragma)
-SQLPP_ALIAS_PROVIDER(sub)
+SQLPP_CREATE_NAME_TAG(pragma)
+SQLPP_CREATE_NAME_TAG(sub)
 
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const ::sqlpp::optional<T>& t) {

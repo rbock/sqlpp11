@@ -45,61 +45,61 @@
     }                                                         \
   }
 
-#define SQLPP_NAME_TAG_FOR_SQL_AND_CPP(SQL_NAME, CPP_NAME) \
-  struct _sqlpp_name_tag                                   \
-  {                                                        \
-    SQLPP_NAME_TAG_GUTS(SQL_NAME, CPP_NAME);               \
+#define SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(SQL_NAME, CPP_NAME) \
+  struct _sqlpp_name_tag                                          \
+  {                                                               \
+    SQLPP_NAME_TAG_GUTS(SQL_NAME, CPP_NAME);                      \
   }
 
-#define SQLPP_CREATE_NAME_TAG(NAME)               \
-  struct NAME##_t : public ::sqlpp::name_tag_base \
-  {                                               \
-    SQLPP_NAME_TAG_FOR_SQL_AND_CPP(NAME, NAME);              \
-  };                                              \
-  constexpr auto NAME = NAME##_t                  \
-  {                                               \
+#define SQLPP_CREATE_NAME_TAG(NAME)                    \
+  struct NAME##_t : public ::sqlpp::name_tag_base      \
+  {                                                    \
+    SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(NAME, NAME); \
+  };                                                   \
+  constexpr auto NAME = NAME##_t                       \
+  {                                                    \
   }
 
-#define SQLPP_ALIAS_PROVIDER(NAME)                \
-  struct NAME##_t : public ::sqlpp::name_tag_base \
-  {                                               \
-    SQLPP_NAME_TAG_FOR_SQL_AND_CPP(NAME, NAME);              \
-  };                                              \
-  constexpr auto NAME = NAME##_t                  \
-  {                                               \
+#define SQLPP_CREATE_NAME_TAG(NAME)                     \
+  struct NAME##_t : public ::sqlpp::name_tag_base      \
+  {                                                    \
+    SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(NAME, NAME); \
+  };                                                   \
+  constexpr auto NAME = NAME##_t                       \
+  {                                                    \
   }
 
 namespace sqlpp
 {
   namespace alias
   {
-    SQLPP_ALIAS_PROVIDER(a);
-    SQLPP_ALIAS_PROVIDER(b);
-    SQLPP_ALIAS_PROVIDER(c);
-    SQLPP_ALIAS_PROVIDER(d);
-    SQLPP_ALIAS_PROVIDER(e);
-    SQLPP_ALIAS_PROVIDER(f);
-    SQLPP_ALIAS_PROVIDER(g);
-    SQLPP_ALIAS_PROVIDER(h);
-    SQLPP_ALIAS_PROVIDER(i);
-    SQLPP_ALIAS_PROVIDER(j);
-    SQLPP_ALIAS_PROVIDER(k);
-    SQLPP_ALIAS_PROVIDER(l);
-    SQLPP_ALIAS_PROVIDER(m);
-    SQLPP_ALIAS_PROVIDER(n);
-    SQLPP_ALIAS_PROVIDER(o);
-    SQLPP_ALIAS_PROVIDER(p);
-    SQLPP_ALIAS_PROVIDER(q);
-    SQLPP_ALIAS_PROVIDER(r);
-    SQLPP_ALIAS_PROVIDER(s);
-    SQLPP_ALIAS_PROVIDER(t);
-    SQLPP_ALIAS_PROVIDER(u);
-    SQLPP_ALIAS_PROVIDER(v);
-    SQLPP_ALIAS_PROVIDER(w);
-    SQLPP_ALIAS_PROVIDER(x);
-    SQLPP_ALIAS_PROVIDER(y);
-    SQLPP_ALIAS_PROVIDER(z);
-    SQLPP_ALIAS_PROVIDER(left);
-    SQLPP_ALIAS_PROVIDER(right);
+    SQLPP_CREATE_NAME_TAG(a);
+    SQLPP_CREATE_NAME_TAG(b);
+    SQLPP_CREATE_NAME_TAG(c);
+    SQLPP_CREATE_NAME_TAG(d);
+    SQLPP_CREATE_NAME_TAG(e);
+    SQLPP_CREATE_NAME_TAG(f);
+    SQLPP_CREATE_NAME_TAG(g);
+    SQLPP_CREATE_NAME_TAG(h);
+    SQLPP_CREATE_NAME_TAG(i);
+    SQLPP_CREATE_NAME_TAG(j);
+    SQLPP_CREATE_NAME_TAG(k);
+    SQLPP_CREATE_NAME_TAG(l);
+    SQLPP_CREATE_NAME_TAG(m);
+    SQLPP_CREATE_NAME_TAG(n);
+    SQLPP_CREATE_NAME_TAG(o);
+    SQLPP_CREATE_NAME_TAG(p);
+    SQLPP_CREATE_NAME_TAG(q);
+    SQLPP_CREATE_NAME_TAG(r);
+    SQLPP_CREATE_NAME_TAG(s);
+    SQLPP_CREATE_NAME_TAG(t);
+    SQLPP_CREATE_NAME_TAG(u);
+    SQLPP_CREATE_NAME_TAG(v);
+    SQLPP_CREATE_NAME_TAG(w);
+    SQLPP_CREATE_NAME_TAG(x);
+    SQLPP_CREATE_NAME_TAG(y);
+    SQLPP_CREATE_NAME_TAG(z);
+    SQLPP_CREATE_NAME_TAG(left);
+    SQLPP_CREATE_NAME_TAG(right);
   }  // namespace alias
 }  // namespace sqlpp

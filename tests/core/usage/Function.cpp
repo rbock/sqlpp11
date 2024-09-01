@@ -26,14 +26,14 @@
 #include "Sample.h"
 #include "MockDb.h"
 #include <sqlpp11/auto_alias.h>
-#include <sqlpp11/core/name/alias_provider.h>
+#include <sqlpp11/core/name/create_name_tag.h>
 #include <sqlpp11/core/clause/select.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/core/database/connection.h>
 
 #include <iostream>
 
-SQLPP_ALIAS_PROVIDER(kaesekuchen)
+SQLPP_CREATE_NAME_TAG(kaesekuchen)
 
 int Function(int, char* [])
 {

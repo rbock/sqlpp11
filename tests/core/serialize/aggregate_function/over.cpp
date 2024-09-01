@@ -27,7 +27,7 @@
 #include "../compare.h"
 #include <sqlpp11/sqlpp11.h>
 
-SQLPP_ALIAS_PROVIDER(cheese);
+SQLPP_CREATE_NAME_TAG(cheese);
 
 int main(int, char* []) {
   auto const foo = test::TabFoo{};

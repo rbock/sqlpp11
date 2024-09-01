@@ -142,27 +142,27 @@ namespace sqlpp
         template <typename Db>
         using _result_row_t = result_row_t<Db, _field_t<Db, Columns>...>;
 
-        template <typename AliasProvider>
+        template <typename NameTagProvider>
         struct _deferred_table_t
         {
           using table = select_pseudo_table_t<_statement_t, Columns...>;
-          using alias = typename table::template _sqlpp_name_tag<AliasProvider>;
+          using alias = typename table::template _sqlpp_name_tag<NameTagProvider>;
         };
 
-        template <typename AliasProvider>
-        using _table_t = typename _deferred_table_t<AliasProvider>::table;
+        template <typename NameTagProvider>
+        using _table_t = typename _deferred_table_t<NameTagProvider>::table;
 
 #warning: review all the alias stuff here
-        template <typename AliasProvider>
-        using _sqlpp_name_tag = typename _deferred_table_t<AliasProvider>::alias;
+        template <typename NameTagProvider>
+        using _sqlpp_name_tag = typename _deferred_table_t<NameTagProvider>::alias;
 
-        template <typename AliasProvider>
-        _sqlpp_name_tag<AliasProvider> as(const AliasProvider& aliasProvider) const
+        template <typename NameTagProvider>
+        _sqlpp_name_tag<NameTagProvider> as(const NameTagProvider& aliasProvider) const
         {
           consistency_check_t<_statement_t>::_();
           static_assert(_statement_t::_can_be_used_as_table(),
                         "statement cannot be used as table, e.g. due to missing tables");
-          return _table_t<AliasProvider>(_get_statement()).as(aliasProvider);
+          return _table_t<NameTagProvider>(_get_statement()).as(aliasProvider);
         }
 
         size_t get_no_of_result_columns() const

@@ -26,7 +26,7 @@
 #include "Sample.h"
 #include <sqlpp11/sqlpp11.h>
 
-SQLPP_ALIAS_PROVIDER(cheese);
+SQLPP_CREATE_NAME_TAG(cheese);
 
 void test_is_aggregate_function()
 {

@@ -548,7 +548,7 @@ def beginHeader(pathToHeader, namespace, nsList):
     print("#include <sqlpp11/core/basic/table.h>", file=header)
     print("#include <sqlpp11/core/basic/table_columns.h>", file=header)
     print("#include <sqlpp11/core/type_traits.h>", file=header)
-    print("#include <sqlpp11/core/name/alias_provider.h>", file=header)
+    print("#include <sqlpp11/core/name/create_name_tag.h>", file=header)
     print("#include <sqlpp11/core/compat/string_view.h>", file=header)
     print("", file=header)
     for ns in nsList:
@@ -705,7 +705,7 @@ def createHeader():
                 noTimestampWarning = True
             print("    struct " + columnClass + " : public ::sqlpp::name_tag_base", file=header)
             print("    {", file=header)
-            print("      SQLPP_NAME_TAG_FOR_SQL_AND_CPP("
+            print("      SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP("
                 + escape_if_reserved(sqlColumnName) + ", " + columnMember + ");"
                 , file=header)
             columnCanBeNull = not column.notNull and not column.isPrimaryKey
@@ -729,7 +729,7 @@ def createHeader():
               if tableRequiredInsertColumns:
                 tableRequiredInsertColumns += ","
               tableRequiredInsertColumns += "\n               sqlpp::column_t<sqlpp::table_t<" + tableSpec + ">, " + columnClass + ">";
-        print("    SQLPP_NAME_TAG_FOR_SQL_AND_CPP("
+        print("    SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP("
             + escape_if_reserved(sqlTableName) + ", " + tableMember + ");"
             , file=header)
         print("    template<typename T>", file=header)

@@ -32,8 +32,8 @@ namespace
   auto db = MockDb{};
 }
 
-SQLPP_ALIAS_PROVIDER(r_not_null);
-SQLPP_ALIAS_PROVIDER(r_maybe_null);
+SQLPP_CREATE_NAME_TAG(r_not_null);
+SQLPP_CREATE_NAME_TAG(r_maybe_null);
 
 template <typename T, typename ValueType>
 using is_select_column_value_type = std::is_same<sqlpp::select_column_value_type_of_t<T>, ValueType>;

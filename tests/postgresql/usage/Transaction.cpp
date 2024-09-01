@@ -27,7 +27,7 @@
 #include <memory>
 #include <stdexcept>
 
-#include <sqlpp11/core/name/alias_provider.h>
+#include <sqlpp11/core/name/create_name_tag.h>
 #include <sqlpp11/core/query/query/custom_query.h>
 #include <sqlpp11/postgresql/database/connection.h>
 #include <sqlpp11/sqlpp11.h>
@@ -38,7 +38,7 @@
 
 namespace sql = sqlpp::postgresql;
 
-SQLPP_ALIAS_PROVIDER(level);
+SQLPP_CREATE_NAME_TAG(level);
 
 int Transaction(int, char*[])
 {

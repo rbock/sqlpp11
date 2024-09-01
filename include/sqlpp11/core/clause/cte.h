@@ -69,22 +69,22 @@ namespace sqlpp
     return context;
   }
 
-  template <typename AliasProvider, typename Statement, typename... FieldSpecs>
+  template <typename NameTagProvider, typename Statement, typename... FieldSpecs>
   struct cte_t;
 
-  template <typename AliasProvider>
+  template <typename NameTagProvider>
   struct cte_ref_t;
 
-  template <typename AliasProvider, typename Statement, typename... FieldSpecs>
-  auto from_table(cte_t<AliasProvider, Statement, FieldSpecs...> /*unused*/) -> cte_ref_t<AliasProvider>
+  template <typename NameTagProvider, typename Statement, typename... FieldSpecs>
+  auto from_table(cte_t<NameTagProvider, Statement, FieldSpecs...> /*unused*/) -> cte_ref_t<NameTagProvider>
   {
-    return cte_ref_t<AliasProvider>{};
+    return cte_ref_t<NameTagProvider>{};
   }
 
-  template <typename AliasProvider, typename Statement, typename... FieldSpecs>
-  struct from_table_impl<cte_t<AliasProvider, Statement, FieldSpecs...>>
+  template <typename NameTagProvider, typename Statement, typename... FieldSpecs>
+  struct from_table_impl<cte_t<NameTagProvider, Statement, FieldSpecs...>>
   {
-    using type = cte_ref_t<AliasProvider>;
+    using type = cte_ref_t<NameTagProvider>;
   };
 
 #warning: Why can't we use FieldSpec directly? If not, does this one need to inherit from name_tag_base?
@@ -96,29 +96,29 @@ namespace sqlpp
     using _traits = make_traits<value_type_of_t<FieldSpec>>;
   };
 
-  template <typename AliasProvider, typename Statement, typename ResultRow>
+  template <typename NameTagProvider, typename Statement, typename ResultRow>
   struct make_cte_impl
   {
     using type = void;
   };
 
-  template <typename AliasProvider, typename Statement, typename... FieldSpecs>
-  struct make_cte_impl<AliasProvider, Statement, result_row_t<void, FieldSpecs...>>
+  template <typename NameTagProvider, typename Statement, typename... FieldSpecs>
+  struct make_cte_impl<NameTagProvider, Statement, result_row_t<void, FieldSpecs...>>
   {
-    using type = cte_t<AliasProvider, Statement, FieldSpecs...>;
+    using type = cte_t<NameTagProvider, Statement, FieldSpecs...>;
   };
 
-  template <typename AliasProvider, typename Statement>
-  using make_cte_t = typename make_cte_impl<AliasProvider, Statement, get_result_row_t<Statement>>::type;
+  template <typename NameTagProvider, typename Statement>
+  using make_cte_t = typename make_cte_impl<NameTagProvider, Statement, get_result_row_t<Statement>>::type;
 
   // workaround for msvc unknown internal error
-  //  template <typename AliasProvider, typename Statement, typename... FieldSpecs>
+  //  template <typename NameTagProvider, typename Statement, typename... FieldSpecs>
   //  struct cte_t
-  //	  : public member_t<cte_column_spec_t<FieldSpecs>, column_t<AliasProvider, cte_column_spec_t<FieldSpecs>>>...
-  template <typename AliasProvider, typename FieldSpec>
+  //	  : public member_t<cte_column_spec_t<FieldSpecs>, column_t<NameTagProvider, cte_column_spec_t<FieldSpecs>>>...
+  template <typename NameTagProvider, typename FieldSpec>
   struct cte_base
   {
-    using type = member_t<cte_column_spec_t<FieldSpec>, column_t<AliasProvider, cte_column_spec_t<FieldSpec>>>;
+    using type = member_t<cte_column_spec_t<FieldSpec>, column_t<NameTagProvider, cte_column_spec_t<FieldSpec>>>;
   };
 
   template <typename Check, typename Union>
@@ -146,25 +146,25 @@ namespace sqlpp
   template <typename... T>
   using check_cte_union_t = typename check_cte_union<T...>::type;
 
-  template <typename AliasProvider, typename Statement, typename... FieldSpecs>
-  struct cte_t : public cte_base<AliasProvider, FieldSpecs>::type...
+  template <typename NameTagProvider, typename Statement, typename... FieldSpecs>
+  struct cte_t : public cte_base<NameTagProvider, FieldSpecs>::type...
   {
     using _traits = make_traits<no_value_t, tag::is_cte>;
     using _nodes = detail::type_vector<>;
     using _provided_tables = detail::type_set<cte_t>;
-    using _required_ctes = detail::make_joined_set_t<required_ctes_of<Statement>, detail::type_set<AliasProvider>>;
+    using _required_ctes = detail::make_joined_set_t<required_ctes_of<Statement>, detail::type_set<NameTagProvider>>;
     using _parameters = parameters_of<Statement>;
 
-    constexpr static bool _is_recursive = required_ctes_of<Statement>::template count<AliasProvider>();
+    constexpr static bool _is_recursive = required_ctes_of<Statement>::template count<NameTagProvider>();
 
-    using _column_tuple_t = std::tuple<column_t<AliasProvider, cte_column_spec_t<FieldSpecs>>...>;
+    using _column_tuple_t = std::tuple<column_t<NameTagProvider, cte_column_spec_t<FieldSpecs>>...>;
 
     using _result_row_t = result_row_t<void, FieldSpecs...>;
 
     template <typename Rhs>
     auto union_distinct(Rhs rhs) const
         -> union_cte_impl_t<check_cte_union_t<Rhs>,
-                            cte_t<AliasProvider, cte_union_t<distinct_t, Statement, Rhs>, FieldSpecs...>>
+                            cte_t<NameTagProvider, cte_union_t<distinct_t, Statement, Rhs>, FieldSpecs...>>
     {
       static_assert(is_statement_t<Rhs>::value, "argument of union call has to be a statement");
       static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
@@ -179,7 +179,7 @@ namespace sqlpp
     template <typename Rhs>
     auto union_all(Rhs rhs) const
         -> union_cte_impl_t<check_cte_union_t<Rhs>,
-                            cte_t<AliasProvider, cte_union_t<all_t, Statement, Rhs>, FieldSpecs...>>
+                            cte_t<NameTagProvider, cte_union_t<all_t, Statement, Rhs>, FieldSpecs...>>
     {
       static_assert(is_statement_t<Rhs>::value, "argument of union call has to be a statement");
       static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
@@ -197,7 +197,7 @@ namespace sqlpp
 
     template <typename Flag, typename Rhs>
     auto _union_impl(consistent_t /*unused*/, Rhs rhs) const
-        -> cte_t<AliasProvider, cte_union_t<Flag, Statement, Rhs>, FieldSpecs...>
+        -> cte_t<NameTagProvider, cte_union_t<Flag, Statement, Rhs>, FieldSpecs...>
     {
       return cte_union_t<Flag, Statement, Rhs>{_statement, rhs};
     }
@@ -216,43 +216,43 @@ namespace sqlpp
   };
 
 #warning: is table? really?
-  template <typename AliasProvider, typename Statement, typename... ColumnSpecs>
-  struct is_table<cte_t<AliasProvider, Statement, ColumnSpecs...>> : public std::true_type
+  template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>
+  struct is_table<cte_t<NameTagProvider, Statement, ColumnSpecs...>> : public std::true_type
   {
   };
 
-  template <typename AliasProvider, typename Statement, typename... ColumnSpecs>
-  struct name_tag_of<cte_t<AliasProvider, Statement, ColumnSpecs...>> : public name_tag_of<AliasProvider>
+  template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>
+  struct name_tag_of<cte_t<NameTagProvider, Statement, ColumnSpecs...>> : public name_tag_of<NameTagProvider>
   {
   };
 
-  template <typename Context, typename AliasProvider, typename Statement, typename... ColumnSpecs>
-  auto to_sql_string(Context& context, const cte_t<AliasProvider, Statement, ColumnSpecs...>& t) -> std::string
+  template <typename Context, typename NameTagProvider, typename Statement, typename... ColumnSpecs>
+  auto to_sql_string(Context& context, const cte_t<NameTagProvider, Statement, ColumnSpecs...>& t) -> std::string
   {
-    using T = cte_t<AliasProvider, Statement, ColumnSpecs...>;
+    using T = cte_t<NameTagProvider, Statement, ColumnSpecs...>;
     context << name_tag_of_t<T>::template char_ptr<Context>() << " AS (";
     to_sql_string(context, t._statement);
     context << ")";
     return context;
   }
 
-  // The cte_t is displayed as AliasProviderName except within the with:
+  // The cte_t is displayed as NameTagProviderName except within the with:
   //    - the with needs the
-  //      AliasProviderName AS (ColumnNames) (select/union)
-  template <typename AliasProvider>
+  //      NameTagProviderName AS (ColumnNames) (select/union)
+  template <typename NameTagProvider>
   struct cte_ref_t
   {
     using _traits = make_traits<no_value_t, tag::is_alias, tag::is_cte>;
     using _nodes = detail::type_vector<>;
-    using _required_ctes = detail::make_type_set_t<AliasProvider>;
-    using _provided_tables = detail::type_set<AliasProvider>;
+    using _required_ctes = detail::make_type_set_t<NameTagProvider>;
+    using _provided_tables = detail::type_set<NameTagProvider>;
 
     template <typename Statement>
-    auto as(Statement statement) -> make_cte_t<AliasProvider, Statement>
+    auto as(Statement statement) -> make_cte_t<NameTagProvider, Statement>
     {
       static_assert(required_tables_of_t<Statement>::size::value == 0,
                     "common table expression must not use unknown tables");
-      static_assert(not required_ctes_of<Statement>::template count<AliasProvider>(),
+      static_assert(not required_ctes_of<Statement>::template count<NameTagProvider>(),
                     "common table expression must not self-reference in the first part, use union_all/union_distinct "
                     "for recursion");
 
@@ -261,21 +261,21 @@ namespace sqlpp
   };
 
 #warning: is table? really?
-   template<typename AliasProvider>
-    struct is_table<cte_ref_t<AliasProvider>> : public std::true_type{};
+   template<typename NameTagProvider>
+    struct is_table<cte_ref_t<NameTagProvider>> : public std::true_type{};
 
-   template<typename AliasProvider>
-    struct name_tag_of<cte_ref_t<AliasProvider>> : public name_tag_of<AliasProvider>{};
+   template<typename NameTagProvider>
+    struct name_tag_of<cte_ref_t<NameTagProvider>> : public name_tag_of<NameTagProvider>{};
 
-  template <typename Context, typename AliasProvider>
-  auto to_sql_string(Context& context, const cte_ref_t<AliasProvider>&) -> std::string
+  template <typename Context, typename NameTagProvider>
+  auto to_sql_string(Context& context, const cte_ref_t<NameTagProvider>&) -> std::string
   {
-    context << name_tag_of_t<cte_ref_t<AliasProvider>>::template char_ptr<Context>();
+    context << name_tag_of_t<cte_ref_t<NameTagProvider>>::template char_ptr<Context>();
     return context;
   }
 
-  template <typename AliasProvider>
-  auto cte(const AliasProvider & /*unused*/) -> cte_ref_t<AliasProvider>
+  template <typename NameTagProvider>
+  auto cte(const NameTagProvider & /*unused*/) -> cte_ref_t<NameTagProvider>
   {
     return {};
   }

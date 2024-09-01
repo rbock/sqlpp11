@@ -25,8 +25,8 @@
 
 #include <sqlpp11/sqlpp11.h>
 
-SQLPP_ALIAS_PROVIDER(r_not_null);
-SQLPP_ALIAS_PROVIDER(r_maybe_null);
+SQLPP_CREATE_NAME_TAG(r_not_null);
+SQLPP_CREATE_NAME_TAG(r_maybe_null);
 
 template <typename Value>
 void test_any(Value v)

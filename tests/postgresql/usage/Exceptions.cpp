@@ -27,7 +27,7 @@
 #include <sqlpp11/core/query/query/custom_query.h>
 #include <sqlpp11/postgresql/postgresql.h>
 #include <sqlpp11/core/basic/verbatim.h>
-#include <sqlpp11/core/name/alias_provider.h>
+#include <sqlpp11/core/name/create_name_tag.h>
 
 #include "assertThrow.h"
 

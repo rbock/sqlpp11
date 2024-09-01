@@ -28,7 +28,7 @@
 
 namespace
 {
-  SQLPP_ALIAS_PROVIDER(cheese);
+  SQLPP_CREATE_NAME_TAG(cheese);
 
   template <typename T>
   struct clause_of;

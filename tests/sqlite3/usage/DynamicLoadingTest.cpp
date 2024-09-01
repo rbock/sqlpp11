@@ -24,7 +24,7 @@
  */
 
 #include "TabSample.h"
-#include <sqlpp11/core/name/alias_provider.h>
+#include <sqlpp11/core/name/create_name_tag.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/core/clause/insert.h>
 #include <sqlpp11/core/clause/remove.h>
@@ -43,7 +43,7 @@
 
 #include <sqlpp11/sqlite3/dynamic_libsqlite3.h>
 
-SQLPP_ALIAS_PROVIDER(left)
+SQLPP_CREATE_NAME_TAG(left)
 
 namespace sql = sqlpp::sqlite3;
 int main()

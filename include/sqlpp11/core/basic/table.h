@@ -44,13 +44,13 @@ namespace sqlpp
     using _required_insert_columns = typename TableSpec::_required_insert_columns;
 #warning: Need to inherit?
     //using _column_tuple_t = std::tuple<column_t<Table, ColumnSpec>...>;
-    template <typename AliasProvider, typename T>
-    using _foreign_table_as_t = table_as_t<AliasProvider, T>;
-    template <typename AliasProvider>
-    using _sqlpp_name_tag = table_as_t<AliasProvider, TableSpec>;
+    template <typename NameTagProvider, typename T>
+    using _foreign_table_as_t = table_as_t<NameTagProvider, T>;
+    template <typename NameTagProvider>
+    using _sqlpp_name_tag = table_as_t<NameTagProvider, TableSpec>;
 
-    template <typename AliasProvider>
-    _sqlpp_name_tag<AliasProvider> as(const AliasProvider& /*unused*/) const
+    template <typename NameTagProvider>
+    _sqlpp_name_tag<NameTagProvider> as(const NameTagProvider& /*unused*/) const
     {
       return {};
     }

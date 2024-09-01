@@ -29,7 +29,7 @@
 
 #include <iostream>
 
-SQLPP_ALIAS_PROVIDER(quester_player_level);
+SQLPP_CREATE_NAME_TAG(quester_player_level);
 
 int ParameterizedVerbatim(int, char* [])
 {

@@ -29,7 +29,7 @@
 
 #include <iostream>
 
-SQLPP_ALIAS_PROVIDER(sample);
+SQLPP_CREATE_NAME_TAG(sample);
 
 int TableAlias(int, char* [])
 {

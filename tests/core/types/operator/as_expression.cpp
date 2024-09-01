@@ -25,7 +25,7 @@
 
 #include <sqlpp11/sqlpp11.h>
 
-SQLPP_ALIAS_PROVIDER(cheese);
+SQLPP_CREATE_NAME_TAG(cheese);
 
 template <typename T, typename ValueType>
 using is_select_column_value_type = std::is_same<sqlpp::select_column_value_type_of_t<T>, ValueType>;

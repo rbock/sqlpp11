@@ -28,7 +28,7 @@
 #include "is_regular.h"
 #include <algorithm>
 #include <iostream>
-#include <sqlpp11/core/name/alias_provider.h>
+#include <sqlpp11/core/name/create_name_tag.h>
 #include <sqlpp11/core/database/connection.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/core/clause/select.h>
@@ -51,10 +51,10 @@ void print_row(Row const& row)
   std::cout << a << ", " << b << std::endl;
 }
 
-SQLPP_ALIAS_PROVIDER(param2);
-SQLPP_ALIAS_PROVIDER(cheese);
-SQLPP_ALIAS_PROVIDER(average);
-SQLPP_ALIAS_PROVIDER(N);
+SQLPP_CREATE_NAME_TAG(param2);
+SQLPP_CREATE_NAME_TAG(cheese);
+SQLPP_CREATE_NAME_TAG(average);
+SQLPP_CREATE_NAME_TAG(N);
 
 
 int Select(int, char*[])

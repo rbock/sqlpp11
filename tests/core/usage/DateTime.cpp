@@ -30,7 +30,7 @@
 
 #include "../../include/test_helpers.h"
 
-SQLPP_ALIAS_PROVIDER(now)
+SQLPP_CREATE_NAME_TAG(now)
 
 #if _MSC_FULL_VER >= 190023918
 // MSVC Update 2 provides floor, ceil, round, abs in chrono (which is C++17 only...)

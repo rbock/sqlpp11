@@ -26,7 +26,7 @@
 #include "MockDb.h"
 #include "Sample.h"
 #include <iostream>
-#include <sqlpp11/core/name/alias_provider.h>
+#include <sqlpp11/core/name/create_name_tag.h>
 #include <sqlpp11/core/database/connection.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/core/clause/select.h>
@@ -54,7 +54,7 @@ namespace
     static_assert(ExpectedCheckResult::value, "Unexpected check result");
   }
 
-  SQLPP_ALIAS_PROVIDER(whatever)
+  SQLPP_CREATE_NAME_TAG(whatever)
   static constexpr auto t = test::TabBar{};
 
   // If there is no group_by, we can select whatever we want

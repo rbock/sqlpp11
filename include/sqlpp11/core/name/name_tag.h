@@ -32,7 +32,7 @@ namespace sqlpp
   {
   };
 
-  struct name_tag_base{}; // Used by SQLPP_ALIAS_PROVIDER and ddl2cpp
+  struct name_tag_base{}; // Used by SQLPP_CREATE_NAME_TAG and ddl2cpp
 
   template <typename T, bool IsNameTag>
   struct name_tag_of_impl

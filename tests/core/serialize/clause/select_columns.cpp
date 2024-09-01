@@ -27,8 +27,8 @@
 #include "../compare.h"
 #include <sqlpp11/sqlpp11.h>
 
-SQLPP_ALIAS_PROVIDER(cheese);
-SQLPP_ALIAS_PROVIDER(cake);
+SQLPP_CREATE_NAME_TAG(cheese);
+SQLPP_CREATE_NAME_TAG(cake);
 
 int main(int, char* [])
 {

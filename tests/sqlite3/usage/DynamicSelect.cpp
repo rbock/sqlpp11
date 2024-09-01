@@ -24,7 +24,7 @@
  */
 
 #include "Tables.h"
-#include <sqlpp11/core/name/alias_provider.h>
+#include <sqlpp11/core/name/create_name_tag.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/core/clause/insert.h>
 #include <sqlpp11/core/clause/remove.h>
@@ -48,7 +48,7 @@ std::ostream& operator<<(std::ostream& os, const ::sqlpp::optional<T>& t) {
   return os << t.value();
 }
 
-SQLPP_ALIAS_PROVIDER(left)
+SQLPP_CREATE_NAME_TAG(left)
 
 namespace sql = sqlpp::sqlite3;
 int DynamicSelect(int, char*[])

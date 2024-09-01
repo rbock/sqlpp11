@@ -42,10 +42,10 @@ namespace
   auto db = MockDb{};
 }
 
-SQLPP_ALIAS_PROVIDER(r_not_null);
-SQLPP_ALIAS_PROVIDER(r_maybe_null);
-SQLPP_ALIAS_PROVIDER(r_opt_not_null);
-SQLPP_ALIAS_PROVIDER(r_opt_maybe_null);
+SQLPP_CREATE_NAME_TAG(r_not_null);
+SQLPP_CREATE_NAME_TAG(r_maybe_null);
+SQLPP_CREATE_NAME_TAG(r_opt_not_null);
+SQLPP_CREATE_NAME_TAG(r_opt_maybe_null);
 
 template<typename ResultType, typename Value>
 void test_result_row(Value v)

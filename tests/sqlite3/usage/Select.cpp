@@ -26,7 +26,7 @@
 
 #include "Tables.h"
 #include <cassert>
-#include <sqlpp11/core/name/alias_provider.h>
+#include <sqlpp11/core/name/create_name_tag.h>
 #include <sqlpp11/functions.h>
 #include <sqlpp11/core/clause/insert.h>
 #include <sqlpp11/core/clause/remove.h>
