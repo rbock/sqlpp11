@@ -51,7 +51,7 @@ int From(int, char* [])
   SQLPP_COMPARE(from(foo.inner_join(bar).on(foo.doubleN > bar.id)),
           " FROM tab_foo INNER JOIN tab_bar ON tab_foo.double_n > tab_bar.id");
   SQLPP_COMPARE(from(foo.full_outer_join(bar).on(foo.doubleN > bar.id)),
-          " FROM tab_foo OUTER JOIN tab_bar ON tab_foo.double_n > tab_bar.id");
+          " FROM tab_foo FULL OUTER JOIN tab_bar ON tab_foo.double_n > tab_bar.id");
   SQLPP_COMPARE(from(foo.left_outer_join(bar).on(foo.doubleN > bar.id)),
           " FROM tab_foo LEFT OUTER JOIN tab_bar ON tab_foo.double_n > tab_bar.id");
   SQLPP_COMPARE(from(foo.right_outer_join(bar).on(foo.doubleN > bar.id)),

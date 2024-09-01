@@ -64,7 +64,8 @@ int main(int, char* [])
 
   // Single declared column
   SQLPP_COMPARE(group_by(declare_group_by_column(val)), " GROUP BY 17");
-  SQLPP_COMPARE(group_by(declare_group_by_column(foo.id + 17)), " GROUP BY tab_foo.id + 17");
+#warning: Do we really want these extra parentheses?
+  SQLPP_COMPARE(group_by(declare_group_by_column(foo.id + 17)), " GROUP BY (tab_foo.id + 17)");
 
   // Mixed declared column
   SQLPP_COMPARE(group_by(foo.id, declare_group_by_column(val)), " GROUP BY tab_foo.id, 17");

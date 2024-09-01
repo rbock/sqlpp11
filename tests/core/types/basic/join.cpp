@@ -40,19 +40,19 @@ void test_group_by()
     using J = decltype(foo.join(bar).on(foo.id == bar.id));
     static_assert(sqlpp::is_table<J>::value, "");
     static_assert(
-        std::is_same<sqlpp::provided_tables_of_t<J>, sqlpp::detail::type_set<test::TabFoo, test::TabBar>>::value, "");
+        std::is_same<sqlpp::provided_tables_of_t<J>, sqlpp::detail::type_vector<sqlpp::table_t<test::TabFoo_>, sqlpp::table_t<test::TabBar_>>>::value, "");
     static_assert(
-        std::is_same<sqlpp::provided_optional_tables_of_t<J>, sqlpp::detail::type_set<>>::value, "");
+        std::is_same<sqlpp::provided_optional_tables_of_t<J>, sqlpp::detail::type_vector<>>::value, "");
 #warning: test the provided dynamic tables of?
   }
 
   {
-    using J = decltype(foo.outer_join(bar).on(foo.id == bar.id));
+    using J = decltype(foo.full_outer_join(bar).on(foo.id == bar.id));
     static_assert(sqlpp::is_table<J>::value, "");
     static_assert(
-        std::is_same<sqlpp::provided_tables_of_t<J>, sqlpp::detail::type_set<test::TabFoo, test::TabBar>>::value, "");
+        std::is_same<sqlpp::provided_tables_of_t<J>, sqlpp::detail::type_vector<sqlpp::table_t<test::TabFoo_>, sqlpp::table_t<test::TabBar_>>>::value, "");
     static_assert(
-        std::is_same<sqlpp::provided_optional_tables_of_t<J>, sqlpp::detail::type_set<test::TabFoo, test::TabBar>>::value, "");
+        std::is_same<sqlpp::provided_optional_tables_of_t<J>, sqlpp::detail::type_vector<sqlpp::table_t<test::TabFoo_>, sqlpp::table_t<test::TabBar_>>>::value, "");
 #warning: test the provided dynamic tables of?
   }
 
@@ -61,15 +61,17 @@ void test_group_by()
     using J = decltype(foo.join(dynamic(true, bar)).on(foo.id == bar.id));
     static_assert(sqlpp::is_table<J>::value, "");
     static_assert(
-        std::is_same<sqlpp::provided_tables_of_t<J>, sqlpp::detail::type_set<test::TabFoo, test::TabBar>>::value, "");
+        std::is_same<sqlpp::provided_tables_of_t<J>, sqlpp::detail::type_vector<test::TabFoo, test::TabBar>>::value, "");
 #warning: OUTER is the wrong term. In a left-outer join, the *right* table is the one with optional rows.
     static_assert(
-        std::is_same<sqlpp::provided_optional_tables_of_t<J>, sqlpp::detail::type_set<>>::value, "");
+        std::is_same<sqlpp::provided_optional_tables_of_t<J>, sqlpp::detail::type_vector<>>::value, "");
 #warning: test the provided dynamic tables of?
   }
 
 
 #warning: Need to add tests all join types!
+#warning: Need to add tests with table_as
+#warning: Need to add tests with verbatim tables
 #warning: Need to add tests with 3 tables
 
 #warning: Need to add tests with CTEs

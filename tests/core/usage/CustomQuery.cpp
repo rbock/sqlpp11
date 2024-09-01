@@ -27,7 +27,6 @@
 #include "Sample.h"
 #include "MockDb.h"
 #include <sqlpp11/sqlpp11.h>
-#include <sqlpp11/core/query/query/custom_query.h>
 #include "../../include/test_helpers.h"
 
 namespace

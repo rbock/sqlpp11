@@ -58,7 +58,7 @@ int CustomQuery(int, char*[])
                    sqlpp::limit(7u), sqlpp::offset(3u)),
       "SELECT  DISTINCT  tab_foo.double_n  FROM tab_foo INNER JOIN tab_bar ON tab_foo.double_n = tab_bar.id  WHERE "
       "tab_bar.id > 17  GROUP BY tab_foo.double_n  HAVING AVG(tab_bar.id) > 19  ORDER BY tab_foo.double_n "
-      "ASC,tab_foo.u_int_n DESC  LIMIT 7  OFFSET 3");
+      "ASC, tab_foo.u_int_n DESC  LIMIT 7  OFFSET 3");
 
   // A pragma query/query for sqlite
   SQLPP_COMPARE(

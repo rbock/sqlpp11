@@ -42,7 +42,7 @@ int SelectAs(int, char*[])
 #warning: The select itself should not offer an "as" that yields a value.
 #warning: The id_count should offer the alias that offers the value.
   SQLPP_COMPARE(select(foo.doubleN, select(count(bar.id).as(id_count)).from(bar).unconditionally().as(cheese)),
-          "SELECT tab_foo.double_n,(SELECT COUNT(tab_bar.id) AS id_count FROM tab_bar) AS cheese");
+          "SELECT tab_foo.double_n, (SELECT COUNT(tab_bar.id) AS id_count FROM tab_bar) AS cheese");
 
   return 0;
 }
