@@ -34,28 +34,28 @@
 namespace sqlpp
 {
   template <typename AliasProvider>
-  struct verbatim_table_alias_t : public enable_join<verbatim_table_alias_t<AliasProvider>>
+  struct verbatim_table_as_t : public enable_join<verbatim_table_as_t<AliasProvider>>
   {
-    verbatim_table_alias_t(std::string representation) : _representation(std::move(representation))
+    verbatim_table_as_t(std::string representation) : _representation(std::move(representation))
     {
     }
 
-    verbatim_table_alias_t(const verbatim_table_alias_t& rhs) = default;
-    verbatim_table_alias_t(verbatim_table_alias_t&& rhs) = default;
-    verbatim_table_alias_t& operator=(const verbatim_table_alias_t& rhs) = default;
-    verbatim_table_alias_t& operator=(verbatim_table_alias_t&& rhs) = default;
-    ~verbatim_table_alias_t() = default;
+    verbatim_table_as_t(const verbatim_table_as_t& rhs) = default;
+    verbatim_table_as_t(verbatim_table_as_t&& rhs) = default;
+    verbatim_table_as_t& operator=(const verbatim_table_as_t& rhs) = default;
+    verbatim_table_as_t& operator=(verbatim_table_as_t&& rhs) = default;
+    ~verbatim_table_as_t() = default;
 
     std::string _representation;
   };
 
   template <typename AliasProvider>
-  struct is_table<verbatim_table_alias_t<AliasProvider>> : std::true_type
+  struct is_table<verbatim_table_as_t<AliasProvider>> : std::true_type
   {
   };
 
   template <typename Context, typename AliasProvider>
-  auto to_sql_string(Context& context, const verbatim_table_alias_t<AliasProvider>& t) -> std::string
+  auto to_sql_string(Context& context, const verbatim_table_as_t<AliasProvider>& t) -> std::string
   {
     return t._representation + " AS " + name_to_sql_string(context, name_tag_of_t<AliasProvider>::name);
   }
@@ -73,7 +73,7 @@ namespace sqlpp
     ~verbatim_table_t() = default;
 
     template <typename AliasProvider>
-    verbatim_table_alias_t<AliasProvider> as(const AliasProvider& /*unused*/) const
+    verbatim_table_as_t<AliasProvider> as(const AliasProvider& /*unused*/) const
     {
       return {_representation};
     }

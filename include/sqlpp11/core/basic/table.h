@@ -28,7 +28,7 @@
 
 #include <sqlpp11/core/basic/enable_join.h>
 #include <sqlpp11/core/type_traits.h>
-#include <sqlpp11/core/basic/table_alias.h>
+#include <sqlpp11/core/basic/table_as.h>
 #include <sqlpp11/core/basic/all_of.h>
 #include <sqlpp11/core/basic/column.h>
 #include <sqlpp11/core/detail/type_vector.h>
@@ -45,9 +45,9 @@ namespace sqlpp
 #warning: Need to inherit?
     //using _column_tuple_t = std::tuple<column_t<Table, ColumnSpec>...>;
     template <typename AliasProvider, typename T>
-    using _foreign_table_alias_t = table_alias_t<AliasProvider, T>;
+    using _foreign_table_as_t = table_as_t<AliasProvider, T>;
     template <typename AliasProvider>
-    using _sqlpp_name_tag = table_alias_t<AliasProvider, TableSpec>;
+    using _sqlpp_name_tag = table_as_t<AliasProvider, TableSpec>;
 
     template <typename AliasProvider>
     _sqlpp_name_tag<AliasProvider> as(const AliasProvider& /*unused*/) const

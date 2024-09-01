@@ -30,7 +30,7 @@
 #include <sqlpp11/core/to_sql_string.h>
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/basic/schema.h>
-#include <sqlpp11/core/basic/table_alias.h>
+#include <sqlpp11/core/basic/table_as.h>
 #include <sqlpp11/core/detail/type_set.h>
 
 #include <utility>
@@ -51,7 +51,7 @@ namespace sqlpp
     }
 
     template <typename AliasProvider>
-    typename Table::template _foreign_table_alias_t<AliasProvider, schema_qualified_table_t> as(
+    typename Table::template _foreign_table_as_t<AliasProvider, schema_qualified_table_t> as(
         const AliasProvider& /*unused*/) const
     {
       return {*this};
