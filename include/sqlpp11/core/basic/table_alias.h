@@ -36,7 +36,7 @@
 namespace sqlpp
 {
   template <typename AliasProvider, typename TableSpec>
-  struct table_alias_t : public TableSpec::_table_columns<AliasProvider>,
+  struct table_alias_t : public TableSpec::_table_columns<table_alias_t<AliasProvider, TableSpec>>,
                          public enable_join<table_alias_t<AliasProvider, TableSpec>>
   {
     using _nodes = detail::type_vector<>;
@@ -58,8 +58,7 @@ namespace sqlpp
   template <typename AliasProvider, typename TableSpec>
   struct provided_tables_of<table_alias_t<AliasProvider, TableSpec>>
   {
-#warning: This is a bit wonky... Maybe we should actually pass the table and not the table_spec into the column template.
-    using type = sqlpp::detail::type_vector<table_t<AliasProvider>>;
+    using type = sqlpp::detail::type_vector<table_alias_t<AliasProvider, TableSpec>>;
   };
 
   template <typename AliasProvider, typename TableSpec>

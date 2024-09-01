@@ -728,7 +728,7 @@ def createHeader():
             if not columnHasDefault:
               if tableRequiredInsertColumns:
                 tableRequiredInsertColumns += ","
-              tableRequiredInsertColumns += "\n               sqlpp::column_t<" + tableSpec + ", " + columnClass + ">";
+              tableRequiredInsertColumns += "\n               sqlpp::column_t<sqlpp::table_t<" + tableSpec + ">, " + columnClass + ">";
         print("    SQLPP_NAME_TAG_FOR_SQL_AND_CPP("
             + escape_if_reserved(sqlTableName) + ", " + tableMember + ");"
             , file=header)

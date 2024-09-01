@@ -37,7 +37,7 @@
 namespace sqlpp
 {
   template <typename TableSpec>
-  struct table_t : public TableSpec::_table_columns<TableSpec>, public enable_join<table_t<TableSpec>>
+  struct table_t : public TableSpec::_table_columns<table_t<TableSpec>>, public enable_join<table_t<TableSpec>>
   {
     using _traits = make_traits<no_value_t, tag::is_raw_table>;
 

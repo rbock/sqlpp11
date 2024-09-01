@@ -102,7 +102,7 @@ namespace test
                BoolNn,
                IntN>;
     using _required_insert_columns = sqlpp::detail::type_set<
-               sqlpp::column_t<TabBar_, BoolNn>>;
+               sqlpp::column_t<sqlpp::table_t<TabBar_>, BoolNn>>;
   };
   using TabBar = ::sqlpp::table_t<TabBar_>;
 
