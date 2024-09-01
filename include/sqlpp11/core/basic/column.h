@@ -28,7 +28,7 @@
 
 #include <sqlpp11/core/operator/enable_as.h>
 #include <sqlpp11/core/operator/enable_comparison.h>
-#include <sqlpp11/core/operator/as_expression.h>
+#include <sqlpp11/core/operator/expression_as.h>
 #include <sqlpp11/core/operator/assign_expression.h>
 #include <sqlpp11/core/basic/column_fwd.h>
 #include <sqlpp11/core/default_value.h>

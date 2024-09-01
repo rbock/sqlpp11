@@ -26,13 +26,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/operator/as_expression.h>
+#include <sqlpp11/core/operator/expression_as.h>
 #include <sqlpp11/core/query/dynamic.h>
 #include <sqlpp11/core/type_traits.h>
 
 // Select columns require a value type and a name.
-// They can be dynamic values and they can be as_expressions.
-// These type traits consider `dynamic_t` and `as_expression`
+// They can be dynamic values and they can be expression_ass.
+// These type traits consider `dynamic_t` and `expression_as`
 
 namespace sqlpp
 {
@@ -51,7 +51,7 @@ namespace sqlpp
   };
 
   template <typename T, typename NameTagProvider>
-  struct select_column_value_type_of<as_expression<T, NameTagProvider>> : public select_column_value_type_of<T>
+  struct select_column_value_type_of<expression_as<T, NameTagProvider>> : public select_column_value_type_of<T>
   {
   };
 
@@ -70,7 +70,7 @@ namespace sqlpp
   };
 
   template <typename T, typename NameTagProvider>
-  struct select_column_name_tag_of<as_expression<T, NameTagProvider>> : public name_tag_of<NameTagProvider>
+  struct select_column_name_tag_of<expression_as<T, NameTagProvider>> : public name_tag_of<NameTagProvider>
   {
   };
 

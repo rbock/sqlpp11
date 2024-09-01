@@ -82,7 +82,7 @@ namespace sqlpp
 
     template <typename Context, typename T, typename NameProvider>
     auto operator()(Context& context,
-                    const as_expression<sqlpp::dynamic_t<T>, NameProvider>& t,
+                    const expression_as<sqlpp::dynamic_t<T>, NameProvider>& t,
                     size_t index) const -> std::string
     {
       if (t._expression._condition)

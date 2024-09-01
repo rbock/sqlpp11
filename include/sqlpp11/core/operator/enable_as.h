@@ -26,7 +26,7 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <sqlpp11/core/operator/as_expression.h>
+#include <sqlpp11/core/operator/expression_as.h>
 #include <sqlpp11/core/type_traits.h>
 
 namespace sqlpp
@@ -48,7 +48,7 @@ namespace sqlpp
     }
   };
 
-#warning: columns and tables should also use enable_as with specialized as_expression functions.
+#warning: columns and tables should also use enable_as with specialized expression_as functions.
   template <typename T>
   struct has_enabled_as : public std::is_base_of<enable_as<T>, T>{};
 

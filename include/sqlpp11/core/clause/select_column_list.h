@@ -27,7 +27,7 @@
  */
 
 #include <sqlpp11/core/detail/type_set.h>
-#include <sqlpp11/core/operator/as_expression.h>
+#include <sqlpp11/core/operator/expression_as.h>
 #include <sqlpp11/core/query/dynamic.h>
 #include <sqlpp11/core/field_spec.h>
 #include <sqlpp11/core/tuple_to_sql_string.h>
