@@ -32,12 +32,6 @@
 
 namespace sqlpp
 {
-  template <typename>
-  struct iterator_category
-  {
-    using type = std::input_iterator_tag;
-  };
-
   namespace detail
   {
     template<class DbResult, class = void>
@@ -87,7 +81,7 @@ namespace sqlpp
     class iterator
     {
     public:
-      using iterator_category = typename iterator_category<DbResult>::type;
+      using iterator_category = std::input_iterator_tag;
       using value_type = result_row_t;
       using pointer = const result_row_t*;
       using reference = const result_row_t&;
