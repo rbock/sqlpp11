@@ -81,7 +81,14 @@ namespace sqlpp
     class iterator
     {
     public:
+#if __cplusplus >= 202002L
+      using iterator_concept = std::input_iterator_tag;
+#else
+      // LegacyInputIterator describes best our iterator's capabilities. However our iterator does not
+      // really fulfil the requirements for LegacyInputIterator because its post-increment operator
+      // returns void.
       using iterator_category = std::input_iterator_tag;
+#endif
       using value_type = result_row_t;
       using pointer = const result_row_t*;
       using reference = const result_row_t&;
@@ -133,10 +140,8 @@ namespace sqlpp
 
       // It is quite difficult to implement a postfix increment operator that returns the old iterator
       // because the underlying database results work in a stream fashion not allowing to return to
-      // previously-read rows.
-      //
-      // We need the postfix increment mostly for compatibility with C++20 ranges so we set the return
-      // type to "void" which is allowed for C++20 range iterators.
+      // previously-read rows. That is why we set the post-increment return type to void, which is
+      // allowed for C++20 input iterators
       //
       void operator++(int)
       {
