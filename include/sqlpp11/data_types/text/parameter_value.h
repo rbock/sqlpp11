@@ -26,13 +26,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp11/compat/cxx_std_ver.h>
+
 #include <sqlpp11/data_types/parameter_value.h>
 #include <sqlpp11/data_types/parameter_value_base.h>
 #include <sqlpp11/data_types/text/data_type.h>
 #include <sqlpp11/data_types/text/wrap_operand.h>
 #include <sqlpp11/data_types/text/operand.h>
 
-#if __cplusplus >= 201703L
+#if CXX_STD_VER >= 201703L
 #include <string_view>
 #endif
 
@@ -51,7 +53,7 @@ namespace sqlpp
       target._bind_text_parameter(index, &_value, _is_null);
     }
 
-#if __cplusplus >= 201703L
+#if CXX_STD_VER >= 201703L
     parameter_value_base& operator=(const std::string_view& val)
     {
       _value = val;
