@@ -26,13 +26,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <memory>
+#include <sqlpp11/compat/cxx_std_ver.h>
 
-#ifdef _MSVC_LANG
-#define CXX_STD_VER _MSVC_LANG
-#else
-#define CXX_STD_VER __cplusplus
-#endif
+#include <memory>
 
 namespace sqlpp
 {
