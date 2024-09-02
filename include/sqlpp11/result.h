@@ -26,6 +26,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp11/compat/cxx_std_ver.h>
+
 #include <functional>
 #include <iterator>
 #include <utility>
@@ -81,7 +83,7 @@ namespace sqlpp
     class iterator
     {
     public:
-#if __cplusplus >= 202002L
+#if CXX_STD_VER >= 202002L
       using iterator_concept = std::input_iterator_tag;
 #else
       // LegacyInputIterator describes best our iterator's capabilities. However our iterator does not
