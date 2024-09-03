@@ -26,7 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/compat/cxx_std_ver.h>
+#include <sqlpp11/compat/sqlpp_cxx_std.h>
 
 #include <memory>
 
@@ -37,7 +37,7 @@ namespace sqlpp
     template <typename T, typename... Args>
     std::unique_ptr<T> make_unique(Args&&... args)
     {
-#if CXX_STD_VER >= 201402L
+#if SQLPP_CXX_STD >= 201402L
       return std::make_unique<T>(std::forward<Args>(args)...);
 #else
       return std::unique_ptr<T>(new T(std::forward<Args>(args)...));

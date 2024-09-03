@@ -23,13 +23,13 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/compat/cxx_std_ver.h>
+#include <sqlpp11/compat/sqlpp_cxx_std.h>
 
 #include "MockDb.h"
 #include "Sample.h"
 #include "is_regular.h"
 #include <iostream>
-#if CXX_STD_VER >= 201703L
+#if SQLPP_CXX_STD >= 201703L
 #include <string_view>
 #endif
 #include <sqlpp11/functions.h>
@@ -111,7 +111,7 @@ int Insert(int, char*[])
   prepared_insert.params.delta = sqlpp::value_or_null(17);
   db(prepared_insert);
 
-#if CXX_STD_VER >= 201703L
+#if SQLPP_CXX_STD >= 201703L
   auto prepared_insert_sv = db.prepare(insert_into(t).set(t.gamma = parameter(t.gamma), t.delta = parameter(t.delta), t.beta = parameter(t.beta)));
   prepared_insert_sv.params.gamma = true;
   prepared_insert_sv.params.delta = 17;
