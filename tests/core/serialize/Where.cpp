@@ -23,7 +23,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/compat/cxx_std_ver.h>
+#include <sqlpp11/compat/sqlpp_cxx_std.h>
 
 #include "compare.h"
 #include "Sample.h"
@@ -70,7 +70,7 @@ int Where(int, char*[])
   compare(__LINE__, where(is_equal_to_or_null(bar.beta, ::sqlpp::value_or_null("SQL"))), " WHERE (tab_bar.beta='SQL')");
   compare(__LINE__, where(is_equal_to_or_null(bar.beta, ::sqlpp::value_or_null<sqlpp::text>(::sqlpp::null))),
           " WHERE tab_bar.beta IS NULL");
-#if CXX_STD_VER >= 201703L
+#if SQLPP_CXX_STD >= 201703L
   // string_view argument
   std::string_view sqlString = "SQL";
   compare(__LINE__, where(bar.beta == sqlString), " WHERE (tab_bar.beta='SQL')");
