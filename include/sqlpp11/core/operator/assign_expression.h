@@ -102,7 +102,7 @@ namespace sqlpp
     return {std::move(column), std::move(value)};
   }
 
-#warning: need to add type tests and serialiaze tests
+#warning: need to add type tests and serialize tests
   struct op_plus_assign
   {
     static constexpr auto symbol = " += ";

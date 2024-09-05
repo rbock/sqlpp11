@@ -28,5 +28,8 @@ function(test_compile name)
     target_link_libraries(${target} PRIVATE sqlpp11::sqlpp11 sqlpp11_testing)
 endfunction()
 
+test_compile(column)
 test_compile(join)
+test_compile(table)
+test_compile(table_as)
 

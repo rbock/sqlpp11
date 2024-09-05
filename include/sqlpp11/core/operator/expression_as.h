@@ -34,6 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace sqlpp
 {
 #warning: need type tests
+#warning: Should only use NameTag, not NameTagProvider here!
   template <typename Expression, typename NameTagProvider>
   struct expression_as
   {

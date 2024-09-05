@@ -86,26 +86,18 @@ namespace sqlpp
   };
 
   template<typename Table, typename ColumnSpec>
+  struct has_default<column_t<Table, ColumnSpec>> : public ColumnSpec::has_default
+  {
+  };
+
+  // Can be used in group_by
+  template<typename Table, typename ColumnSpec>
   struct is_group_by_column<column_t<Table, ColumnSpec>> : public std::true_type
   {
   };
 
   template<typename Table, typename ColumnSpec>
-  struct value_type_of<column_t<Table, ColumnSpec>>
-  {
-    using type = typename ColumnSpec::value_type;
-  };
-
-  template<typename Table, typename ColumnSpec>
   struct name_tag_of<column_t<Table, ColumnSpec>> : public name_tag_of<ColumnSpec>{};
-
-  template<typename Table, typename ColumnSpec>
-  struct has_default<column_t<Table, ColumnSpec>> : public ColumnSpec::has_default
-  {
-  };
-
-  template <typename Table>
-  struct table_t;
 
   template<typename Table, typename ColumnSpec>
   struct required_tables_of<column_t<Table, ColumnSpec>>
@@ -116,6 +108,12 @@ namespace sqlpp
   template <typename Table, typename ColumnSpec>
   struct required_static_tables_of<column_t<Table, ColumnSpec>> : public required_tables_of<column_t<Table, ColumnSpec>>
   {
+  };
+
+  template<typename Table, typename ColumnSpec>
+  struct value_type_of<column_t<Table, ColumnSpec>>
+  {
+    using type = typename ColumnSpec::value_type;
   };
 
   template <typename Context, typename Table, typename ColumnSpec>

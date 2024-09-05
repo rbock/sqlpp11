@@ -35,13 +35,12 @@
 
 namespace sqlpp
 {
-  template <typename NameTagProvider, typename TableSpec>
-  struct table_as_t : public TableSpec::_table_columns<table_as_t<NameTagProvider, TableSpec>>,
-                         public enable_join<table_as_t<NameTagProvider, TableSpec>>
+  template <typename TableSpec, typename NameTag>
+  struct table_as_t : public TableSpec::_table_columns<table_as_t<TableSpec, NameTag>>,
+                         public enable_join<table_as_t<TableSpec, NameTag>>
   {
     using _nodes = detail::type_vector<>;
     using _required_ctes = required_ctes_of<TableSpec>;
-    using _provided_tables = detail::type_set<NameTagProvider>;
 
     static_assert(required_tables_of_t<TableSpec>::empty(), "table aliases must not depend on external tables");
 
@@ -49,32 +48,35 @@ namespace sqlpp
     //using _column_tuple_t = std::tuple<column_t<NameTagProvider, ColumnSpec>...>;
   };
 
-  template<typename NameTagProvider, typename TableSpec>
-    struct is_table<table_as_t<NameTagProvider, TableSpec>> : public std::true_type{};
+  template<typename TableSpec, typename NameTag>
+    struct is_table<table_as_t<TableSpec, NameTag>> : public std::true_type{};
 
-  template<typename NameTagProvider, typename TableSpec>
-    struct name_tag_of<table_as_t<NameTagProvider, TableSpec>> : public name_tag_of<NameTagProvider>{};
-
-  template <typename NameTagProvider, typename TableSpec>
-  struct provided_tables_of<table_as_t<NameTagProvider, TableSpec>>
+  template <typename TableSpec, typename NameTag>
+  struct name_tag_of<table_as_t<TableSpec, NameTag>>
   {
-    using type = sqlpp::detail::type_vector<table_as_t<NameTagProvider, TableSpec>>;
+    using type = NameTag;
   };
 
-  template <typename NameTagProvider, typename TableSpec>
-  struct provided_static_tables_of<table_as_t<NameTagProvider, TableSpec>> : public provided_tables_of<table_as_t<NameTagProvider, TableSpec>>
+  template <typename TableSpec, typename NameTag>
+  struct provided_tables_of<table_as_t<TableSpec, NameTag>>
   {
+    using type = sqlpp::detail::type_vector<table_as_t<TableSpec, NameTag>>;
   };
 
-  template <typename NameTagProvider, typename TableSpec>
-  struct provided_optional_tables_of<table_as_t<NameTagProvider, TableSpec>> : public provided_tables_of<table_as_t<NameTagProvider, TableSpec>>
+  template <typename TableSpec, typename NameTag>
+  struct provided_static_tables_of<table_as_t<TableSpec, NameTag>> : public provided_tables_of<table_as_t<TableSpec, NameTag>>
   {
   };
 
-  template <typename Context, typename NameTagProvider, typename TableSpec>
-  auto to_sql_string(Context& context, const table_as_t<NameTagProvider, TableSpec>&) -> std::string
+  template <typename TableSpec, typename NameTag>
+  struct provided_optional_tables_of<table_as_t<TableSpec, NameTag>> : public provided_tables_of<table_as_t<TableSpec, NameTag>>
+  {
+  };
+
+  template <typename Context, typename TableSpec, typename NameTag>
+  auto to_sql_string(Context& context, const table_as_t<TableSpec, NameTag>&) -> std::string
   {
     return name_to_sql_string(context, name_tag_of_t<TableSpec>::name) + " AS " +
-    name_to_sql_string(context, name_tag_of_t<NameTagProvider>::name);
+    name_to_sql_string(context, NameTag::name);
   }
 }  // namespace sqlpp

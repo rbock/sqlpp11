@@ -46,11 +46,9 @@ namespace sqlpp
     //using _column_tuple_t = std::tuple<column_t<Table, ColumnSpec>...>;
     template <typename NameTagProvider, typename T>
     using _foreign_table_as_t = table_as_t<NameTagProvider, T>;
-    template <typename NameTagProvider>
-    using _sqlpp_name_tag = table_as_t<NameTagProvider, TableSpec>;
 
     template <typename NameTagProvider>
-    _sqlpp_name_tag<NameTagProvider> as(const NameTagProvider& /*unused*/) const
+    constexpr auto as(const NameTagProvider& /*unused*/) const -> table_as_t<TableSpec, name_tag_of_t<NameTagProvider>>
     {
       return {};
     }
