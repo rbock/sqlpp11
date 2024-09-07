@@ -36,6 +36,7 @@ void test_table()
 
   static_assert(std::is_same<FooBar, sqlpp::table_as_t<test::TabFoo_, test::TabBar_::_sqlpp_name_tag>>::value, "");
   static_assert(sqlpp::is_table<FooBar>::value, "");
+  static_assert(not sqlpp::is_raw_table<FooBar>::value, "");
   static_assert(std::is_same<sqlpp::name_tag_of_t<FooBar>, test::TabBar_::_sqlpp_name_tag>::value, "");
   static_assert(std::is_same<sqlpp::provided_tables_of_t<FooBar>, sqlpp::detail::type_vector<FooBar>>::value, "");
   static_assert(std::is_same<sqlpp::provided_static_tables_of_t<FooBar>, sqlpp::provided_tables_of_t<FooBar>>::value, "");

@@ -80,7 +80,7 @@ namespace sqlpp
                   "schema qualified tables must not depend on other tables");
     static_assert(required_ctes_of<Table>::size::value == 0,
                   "schema qualified tables must not depend on common table expressions");
-    static_assert(is_raw_table_t<Table>::value,
+    static_assert(is_raw_table<Table>::value,
                   "table must be a raw table, i.e. not an alias or common table expression");
 
     return {schema, table};

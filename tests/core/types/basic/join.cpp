@@ -26,34 +26,116 @@
 #include "Sample.h"
 #include <sqlpp11/sqlpp11.h>
 
+namespace test {
+SQLPP_CREATE_NAME_TAG(cheese);
+SQLPP_CREATE_NAME_TAG(cake);
+}
+
 void test_group_by()
 {
   auto v = sqlpp::value(17);
   auto foo = test::TabFoo{};
   auto bar = test::TabBar{};
+  auto cheese = foo.as(test::cheese);
+  auto cake = foo.as(test::cake);
+
+  using Foo = decltype(foo);
+  using Bar = decltype(bar);
+  using Cheese = decltype(cheese);
+  using Cake = decltype(cake);
 
   // Pre-join
   static_assert(not sqlpp::is_table<decltype(foo.join(bar))>::value, "");
 
-  // Join
+   // Join of tables
   {
     using J = decltype(foo.join(bar).on(foo.id == bar.id));
     static_assert(sqlpp::is_table<J>::value, "");
     static_assert(
-        std::is_same<sqlpp::provided_tables_of_t<J>, sqlpp::detail::type_vector<sqlpp::table_t<test::TabFoo_>, sqlpp::table_t<test::TabBar_>>>::value, "");
+        std::is_same<sqlpp::provided_tables_of_t<J>, sqlpp::detail::type_vector<Foo, Bar>>::value, "");
+    static_assert(
+        std::is_same<sqlpp::provided_static_tables_of_t<J>, sqlpp::provided_tables_of_t<J>>::value, "");
     static_assert(
         std::is_same<sqlpp::provided_optional_tables_of_t<J>, sqlpp::detail::type_vector<>>::value, "");
-#warning: test the provided dynamic tables of?
+  }
+
+  {
+    using J = decltype(foo.cross_join(bar));
+    static_assert(sqlpp::is_table<J>::value, "");
+    static_assert(
+        std::is_same<sqlpp::provided_tables_of_t<J>, sqlpp::detail::type_vector<Foo, Bar>>::value, "");
+    static_assert(
+        std::is_same<sqlpp::provided_static_tables_of_t<J>, sqlpp::provided_tables_of_t<J>>::value, "");
+    static_assert(
+        std::is_same<sqlpp::provided_optional_tables_of_t<J>, sqlpp::detail::type_vector<>>::value, "");
+  }
+
+  {
+    using J = decltype(foo.inner_join(bar).on(foo.id == bar.id));
+    static_assert(sqlpp::is_table<J>::value, "");
+    static_assert(
+        std::is_same<sqlpp::provided_tables_of_t<J>, sqlpp::detail::type_vector<Foo, Bar>>::value, "");
+    static_assert(
+        std::is_same<sqlpp::provided_static_tables_of_t<J>, sqlpp::provided_tables_of_t<J>>::value, "");
+    static_assert(
+        std::is_same<sqlpp::provided_optional_tables_of_t<J>, sqlpp::detail::type_vector<>>::value, "");
+  }
+
+  {
+    using J = decltype(foo.left_outer_join(bar).on(foo.id == bar.id));
+    static_assert(sqlpp::is_table<J>::value, "");
+    static_assert(
+        std::is_same<sqlpp::provided_tables_of_t<J>, sqlpp::detail::type_vector<Foo, Bar>>::value, "");
+    static_assert(
+        std::is_same<sqlpp::provided_static_tables_of_t<J>, sqlpp::provided_tables_of_t<J>>::value, "");
+    static_assert(
+        std::is_same<sqlpp::provided_optional_tables_of_t<J>, sqlpp::detail::type_vector<Bar>>::value, "");
+  }
+
+  {
+    using J = decltype(foo.right_outer_join(bar).on(foo.id == bar.id));
+    static_assert(sqlpp::is_table<J>::value, "");
+    static_assert(
+        std::is_same<sqlpp::provided_tables_of_t<J>, sqlpp::detail::type_vector<Foo, Bar>>::value, "");
+    static_assert(
+        std::is_same<sqlpp::provided_static_tables_of_t<J>, sqlpp::provided_tables_of_t<J>>::value, "");
+    static_assert(
+        std::is_same<sqlpp::provided_optional_tables_of_t<J>, sqlpp::detail::type_vector<Foo>>::value, "");
   }
 
   {
     using J = decltype(foo.full_outer_join(bar).on(foo.id == bar.id));
     static_assert(sqlpp::is_table<J>::value, "");
     static_assert(
-        std::is_same<sqlpp::provided_tables_of_t<J>, sqlpp::detail::type_vector<sqlpp::table_t<test::TabFoo_>, sqlpp::table_t<test::TabBar_>>>::value, "");
+        std::is_same<sqlpp::provided_tables_of_t<J>, sqlpp::detail::type_vector<Foo, Bar>>::value, "");
     static_assert(
-        std::is_same<sqlpp::provided_optional_tables_of_t<J>, sqlpp::detail::type_vector<sqlpp::table_t<test::TabFoo_>, sqlpp::table_t<test::TabBar_>>>::value, "");
-#warning: test the provided dynamic tables of?
+        std::is_same<sqlpp::provided_static_tables_of_t<J>, sqlpp::provided_tables_of_t<J>>::value, "");
+    static_assert(
+        std::is_same<sqlpp::provided_optional_tables_of_t<J>, sqlpp::detail::type_vector<Foo, Bar>>::value, "");
+  }
+
+ // Join with rhs alias table
+  {
+    using J = decltype(foo.join(cheese).on(foo.id == cheese.id));
+    static_assert(sqlpp::is_table<J>::value, "");
+    static_assert(
+        std::is_same<sqlpp::provided_tables_of_t<J>, sqlpp::detail::type_vector<Foo, Cheese>>::value, "");
+    static_assert(
+        std::is_same<sqlpp::provided_static_tables_of_t<J>, sqlpp::provided_tables_of_t<J>>::value, "");
+    static_assert(
+        std::is_same<sqlpp::provided_optional_tables_of_t<J>, sqlpp::detail::type_vector<>>::value, "");
+  }
+
+ // Join with two alias tables
+  {
+    using J = decltype(cheese.join(cake).on(cheese.id == cake.id));
+    static_assert(sqlpp::is_table<J>::value, "");
+    static_assert(
+        std::is_same<sqlpp::provided_tables_of_t<J>, sqlpp::detail::type_vector<Cheese, Cake>>::value, "");
+    static_assert(
+        std::is_same<sqlpp::provided_static_tables_of_t<J>, sqlpp::provided_tables_of_t<J>>::value, "");
+    static_assert(
+        std::is_same<sqlpp::provided_optional_tables_of_t<J>, sqlpp::detail::type_vector<>>::value, "");
   }
 
   // Join with dynamic table
@@ -61,16 +143,14 @@ void test_group_by()
     using J = decltype(foo.join(dynamic(true, bar)).on(foo.id == bar.id));
     static_assert(sqlpp::is_table<J>::value, "");
     static_assert(
-        std::is_same<sqlpp::provided_tables_of_t<J>, sqlpp::detail::type_vector<test::TabFoo, test::TabBar>>::value, "");
-#warning: OUTER is the wrong term. In a left-outer join, the *right* table is the one with optional rows.
+        std::is_same<sqlpp::provided_tables_of_t<J>, sqlpp::detail::type_vector<Foo, Bar>>::value, "");
+    static_assert(
+        std::is_same<sqlpp::provided_static_tables_of_t<J>, sqlpp::detail::type_vector<Foo>>::value, "");
     static_assert(
         std::is_same<sqlpp::provided_optional_tables_of_t<J>, sqlpp::detail::type_vector<>>::value, "");
-#warning: test the provided dynamic tables of?
   }
 
 
-#warning: Need to add tests all join types!
-#warning: Need to add tests with table_as
 #warning: Need to add tests with verbatim tables
 #warning: Need to add tests with 3 tables
 

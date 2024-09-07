@@ -52,8 +52,6 @@ void test_column()
 
     static_assert(std::is_same<sqlpp::value_type_of_t<Id>, sqlpp::integral>::value, "");
 
-    foo.as(test::TabBar{}).id = 7;
-
     // tab_foo.id AS cheese
     // This is only useful SELECT. It therefore exposes neither name nor value directly.
     // It does require its table, though.
@@ -74,7 +72,6 @@ void test_column()
     static_assert(std::is_same<sqlpp::value_type_of_t<Cheese>, sqlpp::no_value_t>::value, "");
 
     // (tab_foo AS bar).id
-#warning : insert must not accept table_as!
     static_assert(not sqlpp::is_table<BarId>::value, "");
     static_assert(sqlpp::has_default<BarId>::value, "");
     static_assert(sqlpp::is_group_by_column<BarId>::value, "");

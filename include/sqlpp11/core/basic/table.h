@@ -39,7 +39,7 @@ namespace sqlpp
   template <typename TableSpec>
   struct table_t : public TableSpec::_table_columns<table_t<TableSpec>>, public enable_join<table_t<TableSpec>>
   {
-    using _traits = make_traits<no_value_t, tag::is_raw_table>;
+    using _traits = make_traits<no_value_t>;
 
     using _required_insert_columns = typename TableSpec::_required_insert_columns;
 #warning: Need to inherit?
@@ -56,10 +56,13 @@ namespace sqlpp
   };
 
   template <typename TableSpec>
-  struct name_tag_of<table_t<TableSpec>>: public name_tag_of<TableSpec> {};
+  struct is_raw_table<table_t<TableSpec>>: public std::true_type {};
 
   template <typename TableSpec>
   struct is_table<table_t<TableSpec>>: public std::true_type {};
+
+  template <typename TableSpec>
+  struct name_tag_of<table_t<TableSpec>>: public name_tag_of<TableSpec> {};
 
   template <typename TableSpec>
   struct provided_tables_of<table_t<TableSpec>>
