@@ -90,7 +90,7 @@ namespace sqlpp
   template <typename Table>
   struct check_update_table
   {
-    using type = static_combined_check_t<static_check_t<is_table<Table>::value, assert_update_table_arg_is_table_t>>;
+    using type = static_combined_check_t<static_check_t<is_raw_table<Table>::value, assert_update_table_arg_is_table_t>>;
   };
   template <typename Table>
   using check_update_table_t = typename check_update_table<Table>::type;
@@ -146,5 +146,11 @@ namespace sqlpp
   auto to_sql_string(Context& context, const single_table_data_t<Table>& t) -> std::string
   {
     return to_sql_string(context, t._table);
+  }
+
+  template <typename T>
+  auto single_table(T&& t) -> decltype(statement_t<no_single_table_t>().single_table(std::forward<T>(t)))
+  {
+    return statement_t<no_single_table_t>().single_table(std::forward<T>(t));
   }
 }  // namespace sqlpp

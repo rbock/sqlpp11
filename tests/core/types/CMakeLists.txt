@@ -33,4 +33,10 @@ test_compile(result_row)
 test_compile(select_as)
 test_compile(value)
 
+add_subdirectory(aggregate_function)
 add_subdirectory(basic)
+add_subdirectory(clause)
+add_subdirectory(detail)
+add_subdirectory(operator)
+add_subdirectory(type_traits)
+

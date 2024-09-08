@@ -75,11 +75,6 @@ namespace sqlpp
   {
   };
 
-  template <typename TableSpec>
-  struct provided_optional_tables_of<table_t<TableSpec>> : public provided_tables_of<table_t<TableSpec>>
-  {
-  };
-
   template <typename Context, typename TableSpec>
   auto to_sql_string(Context& context, const table_t<TableSpec>& /*unused*/) -> std::string
   {

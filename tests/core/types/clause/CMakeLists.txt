@@ -29,5 +29,7 @@ function(test_compile name)
 endfunction()
 
 test_compile(group_by)
+test_compile(into)
 test_compile(select_columns)
+test_compile(single_table)
 

@@ -76,7 +76,7 @@ namespace sqlpp
   struct is_aggregate_expression
       : public std::integral_constant<bool,
                                       is_aggregate_function<T>::value or
-                                          KnownAggregateColumns::template contains<T>::value>
+                                          KnownAggregateColumns::template contains<T>()>
   {
   };
 

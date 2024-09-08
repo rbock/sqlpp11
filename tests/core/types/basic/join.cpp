@@ -152,6 +152,7 @@ void test_group_by()
 
 
 #warning: Need to add tests with verbatim tables
+#warning: Need to add tests with schema qualified tables
 #warning: Need to add tests with 3 tables
 
 #warning: Need to add tests with CTEs
