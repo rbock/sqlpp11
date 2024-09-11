@@ -374,12 +374,26 @@ namespace sqlpp
 
       template <
           typename Execute,
-          typename Enable = typename std::enable_if<not std::is_convertible<Execute, std::string>::value, void>::type>
+          typename std::enable_if<not std::is_convertible<Execute, std::string>::value 
+                                  and not sqlpp::is_prepared_statement_t<Execute>::value, int>::type = 0>
       size_t execute(const Execute& x)
       {
+        static_assert(not sqlpp::is_select_t<Execute>::value, "argument must not be a select statement - use operator() instead");
+
         _context_t context{*this};
         serialize(x, context);
         return execute(context.str());
+      }
+
+      template <
+          typename Execute,
+          typename std::enable_if<sqlpp::is_prepared_statement_t<Execute>::value, int>::type = 0>
+      size_t execute(const Execute& x)
+      {
+        static_assert(not sqlpp::is_select_t<Execute>::value, "argument must not be a select statement - use operator() instead");
+
+        operator()(x);
+        return static_cast<size_t>(sqlite3_changes(native_handle()));
       }
 
       template <typename Execute>
