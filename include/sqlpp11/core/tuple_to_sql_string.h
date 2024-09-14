@@ -45,7 +45,7 @@ namespace sqlpp
     sqlpp::string_view separator;
   };
 
-#warning: to be used by group_by and update
+  // Used to serialize tuple tuples that should ignore dynamic elements.
   struct tuple_operand_no_dynamic
   {
     template <typename Context, typename T>
@@ -70,7 +70,8 @@ namespace sqlpp
     mutable bool need_prefix = false;
   };
 
-#warning: need documentation and a better name!
+  // Used to serialize select columns.
+  // In particular, it serializes unselected dynamic columns as "NULL AS <name>".
   struct tuple_operand_select_column
   {
     template <typename Context, typename T>

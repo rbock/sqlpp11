@@ -102,7 +102,7 @@ namespace sqlpp
   template <typename... Assignments>
   struct check_update_static_set
   {
-    using type = static_combined_check_t<check_update_set_t<Assignments...>,
+    using type = static_combined_check_t<check_update_set_t<remove_dynamic_t<Assignments>...>,
                                          static_check_t<sizeof...(Assignments) != 0, assert_update_set_count_args_t>>;
   };
 
@@ -167,6 +167,13 @@ namespace sqlpp
   template <typename Context, typename... Assignments>
   auto to_sql_string(Context& context, const update_list_data_t<Assignments...>& t) -> std::string
   {
-    return " SET " + tuple_to_sql_string(context, t._assignments, tuple_operand{", "});
+    return " SET " + tuple_to_sql_string(context, t._assignments, tuple_operand_no_dynamic{", "});
   }
+
+  template <typename... T>
+  auto update_set(T&&... t) -> decltype(statement_t<no_update_list_t>().set(std::forward<T>(t)...))
+  {
+    return statement_t<no_update_list_t>().set(std::forward<T>(t)...);
+  }
+
 }  // namespace sqlpp

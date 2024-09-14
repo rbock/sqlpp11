@@ -82,6 +82,9 @@ namespace sqlpp
   template <typename T>
   struct can_be_null : public is_optional<value_type_of_t<T>> {};
 
+  template <>
+  struct can_be_null<sqlpp::nullopt_t> : public std::true_type {};
+
   template <typename T>
   struct dynamic_t;
 

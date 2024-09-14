@@ -32,4 +32,5 @@ endfunction()
 create_test(group_by)
 create_test(select_columns)
 create_test(select_flags)
+create_test(update_set)
 
