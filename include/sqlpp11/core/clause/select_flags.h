@@ -36,41 +36,30 @@ namespace sqlpp
   // standard select flags
   struct all_t
   {
-    using _traits = make_traits<no_value_t, tag::is_select_flag>;
-    using _nodes = detail::type_vector<>;
   };
   static constexpr all_t all = {};
+
+  template <>
+    struct is_select_flag<all_t> : public std::true_type {};
 
   template <typename Context>
   auto to_sql_string(Context& , const all_t&) -> std::string
   {
-    return "ALL ";
+    return "ALL";
   }
 
   struct distinct_t
   {
-    using _traits = make_traits<no_value_t, tag::is_select_flag>;
-    using _nodes = detail::type_vector<>;
   };
   static constexpr distinct_t distinct = {};
+
+  template <>
+    struct is_select_flag<distinct_t> : public std::true_type {};
 
   template <typename Context>
   auto to_sql_string(Context& , const distinct_t&) -> std::string
   {
-    return "DISTINCT ";
+    return "DISTINCT";
   }
 
-  struct straight_join_t
-  {
-    using _traits = make_traits<no_value_t, tag::is_select_flag>;
-    using _nodes = detail::type_vector<>;
-  };
-  static constexpr straight_join_t straight_join = {};
-
-#warning: Why is this in the select flags?
-  template <typename Context>
-  auto to_sql_string(Context& , const straight_join_t&) -> std::string
-  {
-    return "STRAIGHT_JOIN";
-  }
 }  // namespace sqlpp

@@ -97,7 +97,8 @@ namespace sqlpp
   }
 
   template <typename Expr>
-  using check_dynamic_args = ::sqlpp::enable_if_t<has_value_type<Expr>::value>;
+  using check_dynamic_args = ::sqlpp::enable_if_t<has_value_type<Expr>::value or is_table<Expr>::value or
+                                                        is_select_flag<Expr>::value or is_sort_order<Expr>::value>;
 
   template <typename Expr, typename = check_dynamic_args<Expr>>
   auto dynamic(bool condition, Expr t) -> dynamic_t<Expr>
@@ -111,18 +112,11 @@ namespace sqlpp
     return {condition, std::move(t)};
   }
 
+#warning: Check if we can dynamically join a table_as?
   template <typename Expr, typename = check_dynamic_args<Expr>>
   auto dynamic(bool condition, sort_order_expression<Expr> t) -> dynamic_t<sort_order_expression<Expr>>
   {
     return {condition, std::move(t)};
   }
 
-  template <typename TableSpec>
-  struct table_t;
-
-  template <typename TableSpec>
-  auto dynamic(bool condition, table_t<TableSpec> t) -> dynamic_t<table_t<TableSpec>>
-  {
-    return {condition, std::move(t)};
-  }
 }  // namespace sqlpp

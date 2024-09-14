@@ -35,7 +35,6 @@ set(test_files
     ParameterizedVerbatim.cpp
     SelectAs.cpp
     SelectColumns.cpp
-    SelectFlags.cpp
     TableAlias.cpp
     Trim.cpp
     Upper.cpp

@@ -216,7 +216,6 @@ namespace sqlpp
   SQLPP_VALUE_TRAIT_GENERATOR(is_expression)
   SQLPP_VALUE_TRAIT_GENERATOR(is_multi_expression)
   SQLPP_VALUE_TRAIT_GENERATOR(is_alias)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_select_flag)
   SQLPP_VALUE_TRAIT_GENERATOR(is_union_flag)
   SQLPP_VALUE_TRAIT_GENERATOR(is_result_field)
 
@@ -563,6 +562,9 @@ namespace sqlpp
   {
     using type = typename Db::_serializer_context_t;
   };
+
+  template <typename T>
+    struct is_select_flag : public std::false_type {};
 
   template <typename T>
     struct is_sort_order : public std::false_type {};

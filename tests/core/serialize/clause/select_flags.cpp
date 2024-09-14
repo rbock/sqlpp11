@@ -23,21 +23,19 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "compare.h"
+#include "../compare.h"
 #include "Sample.h"
 #include <sqlpp11/sqlpp11.h>
 
-int SelectFlags(int, char*[])
+int main(int, char*[])
 {
   const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
 
   // No flags
   SQLPP_COMPARE(select(foo.doubleN), "SELECT tab_foo.double_n");
 
   // No flags
-#warning: This should work
-  //SQLPP_COMPARE(sqlpp::select_flags(), "");
+  SQLPP_COMPARE(sqlpp::select_flags(), "");
 
   // One flag
   SQLPP_COMPARE(select(foo.doubleN).flags(sqlpp::distinct), "SELECT DISTINCT tab_foo.double_n");
@@ -45,7 +43,29 @@ int SelectFlags(int, char*[])
   // One flag
   SQLPP_COMPARE(select_flags(sqlpp::distinct), "DISTINCT ");
 
-#warning: Add tests for dynamic select flags
+  // Two flags
+  SQLPP_COMPARE(select_flags(sqlpp::distinct, sqlpp::all), "DISTINCT ALL ");
+
+  // Two flags
+  SQLPP_COMPARE(select(foo.doubleN).flags(sqlpp::distinct, sqlpp::all), "SELECT DISTINCT ALL tab_foo.double_n");
+
+  // Dynamic flags
+
+  // One flag
+  SQLPP_COMPARE(select(foo.doubleN).flags(sqlpp::dynamic(true, sqlpp::distinct)), "SELECT DISTINCT tab_foo.double_n");
+  SQLPP_COMPARE(select(foo.doubleN).flags(sqlpp::dynamic(false, sqlpp::distinct)), "SELECT tab_foo.double_n");
+
+  // One flag
+  SQLPP_COMPARE(select_flags(sqlpp::dynamic(true, sqlpp::distinct)), "DISTINCT ");
+  SQLPP_COMPARE(select_flags(sqlpp::dynamic(false, sqlpp::distinct)), "");
+
+  // Two flags
+  SQLPP_COMPARE(select_flags(sqlpp::distinct, sqlpp::dynamic(true, sqlpp::all)), "DISTINCT ALL ");
+  SQLPP_COMPARE(select_flags(sqlpp::distinct, sqlpp::dynamic(false, sqlpp::all)), "DISTINCT ");
+
+  // Two flags
+  SQLPP_COMPARE(select(foo.doubleN).flags(sqlpp::distinct, sqlpp::dynamic(true, sqlpp::all)), "SELECT DISTINCT ALL tab_foo.double_n");
+  SQLPP_COMPARE(select(foo.doubleN).flags(sqlpp::distinct, sqlpp::dynamic(false, sqlpp::all)), "SELECT DISTINCT tab_foo.double_n");
 
   return 0;
 }

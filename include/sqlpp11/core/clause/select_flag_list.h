@@ -81,7 +81,7 @@ namespace sqlpp
   struct check_select_flags
   {
     using type = static_combined_check_t<
-        static_check_t<logic::all<is_select_flag_t<Flags>::value...>::value, assert_select_flags_are_flags_t>>;
+        static_check_t<logic::all<is_select_flag<remove_dynamic_t<Flags>>::value...>::value, assert_select_flags_are_flags_t>>;
   };
   template <typename... Flags>
   using check_select_flags_t = typename check_select_flags<Flags...>::type;
@@ -137,13 +137,17 @@ namespace sqlpp
   template <typename Context, typename... Flags>
   auto to_sql_string(Context& context, const select_flag_list_data_t<Flags...>& t) -> std::string
   {
-    return tuple_to_sql_string(context, t._flags, tuple_operand{" "});
+    auto flags = tuple_to_sql_string(context, t._flags, tuple_operand_no_dynamic{" "});
+    if (flags.empty()) {
+      return flags;
+    }
+    return flags + " ";
   }
 
-  template <typename T>
-  auto select_flags(T&& t) -> decltype(statement_t<no_select_flag_list_t>().flags(std::forward<T>(t)))
+  template <typename... T>
+  auto select_flags(T... t) -> decltype(statement_t<no_select_flag_list_t>().flags(std::forward<T>(t)...))
   {
-    return statement_t<no_select_flag_list_t>().flags(std::forward<T>(t));
+    return statement_t<no_select_flag_list_t>().flags(std::forward<T>(t)...);
   }
 
 }  // namespace sqlpp
