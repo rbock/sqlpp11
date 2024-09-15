@@ -27,19 +27,24 @@
 #include "../compare.h"
 #include <sqlpp11/sqlpp11.h>
 
+SQLPP_CREATE_NAME_TAG(v);
+
 int main(int, char* [])
 {
+  const auto val = sqlpp::value(17);
+  const auto expr = sqlpp::value(17) + 4;
+
   const auto foo = test::TabFoo{};
 
   // Plain assignments.
-  SQLPP_COMPARE(update_set(foo.id = 7), " SET id = 7");
-  SQLPP_COMPARE(update_set(foo.id = 7, foo.textNnD = "cheesecake"), " SET id = 7, text_nn_d = 'cheesecake'");
+  SQLPP_COMPARE(insert_set(foo.id = 7), " (id) VALUES(7)");
+  SQLPP_COMPARE(insert_set(foo.id = 7, foo.textNnD = "cheesecake"), " (id, text_nn_d) VALUES(7, 'cheesecake')");
 
   // Dynamic assignments.
-  SQLPP_COMPARE(update_set(sqlpp::dynamic(true, foo.id = 7), sqlpp::dynamic(false, foo.textNnD = "cheesecake")),
-                " SET id = 7");
-  SQLPP_COMPARE(update_set(sqlpp::dynamic(false, foo.id = 7), sqlpp::dynamic(true, foo.textNnD = "cheesecake")),
-                " SET text_nn_d = 'cheesecake'");
+  SQLPP_COMPARE(insert_set(sqlpp::dynamic(true, foo.id = 7), sqlpp::dynamic(false, foo.textNnD = "cheesecake")),
+                " (id) VALUES(7)");
+  SQLPP_COMPARE(insert_set(sqlpp::dynamic(false, foo.id = 7), sqlpp::dynamic(true, foo.textNnD = "cheesecake")),
+                " (text_nn_d) VALUES('cheesecake')");
 
   return 0;
 }

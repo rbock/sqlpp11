@@ -45,7 +45,7 @@ namespace sqlpp
     sqlpp::string_view separator;
   };
 
-  // Used to serialize tuple tuples that should ignore dynamic elements.
+  // Used to serialize tuple that should ignore dynamic elements.
   struct tuple_operand_no_dynamic
   {
     template <typename Context, typename T>

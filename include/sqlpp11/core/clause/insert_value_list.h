@@ -27,6 +27,7 @@
  */
 
 #include <sqlpp11/core/operator/assign_expression.h>
+#include <sqlpp11/core/query/dynamic.h>
 #include <sqlpp11/core/basic/column_fwd.h>
 #include <sqlpp11/core/clause/insert_value.h>
 #include <sqlpp11/core/tuple_to_sql_string.h>
@@ -81,6 +82,7 @@ namespace sqlpp
 
       _data_t _data;
 
+#warning: Need to check that all columns actually have a default value!
       using _consistency_check = consistent_t;
     };
   };
@@ -89,7 +91,7 @@ namespace sqlpp
   struct insert_list_data_t
   {
     insert_list_data_t(std::tuple<Assignments...> assignments)
-        : _assignments(assignments), _columns(columns_from_tuple(assignments)), _values(values_from_tuple(assignments))
+        : _assignments(std::move(assignments))
     {
     }
 
@@ -99,39 +101,7 @@ namespace sqlpp
     insert_list_data_t& operator=(insert_list_data_t&&) = default;
     ~insert_list_data_t() = default;
 
-    std::tuple<Assignments...> _assignments;  // FIXME: Need to replace _columns and _values by _assignments
-                                              // (connector-container requires assignments)
-    std::tuple<simple_column_t<lhs_t<Assignments>>...> _columns;
-    std::tuple<rhs_t<Assignments>...> _values;
-
-  private:
-    template <size_t... Indexes>
-    auto columns_from_tuple(::sqlpp::index_sequence<Indexes...>, std::tuple<Assignments...> assignments)
-        -> decltype(_columns)
-    {
-      (void)assignments;
-      return decltype(_columns)(std::get<Indexes>(assignments)._l...);
-    }
-
-    auto columns_from_tuple(std::tuple<Assignments...> assignments) -> decltype(_columns)
-    {
-      const auto seq = ::sqlpp::make_index_sequence<sizeof...(Assignments)>{};
-      return columns_from_tuple(seq, assignments);
-    }
-
-    template <size_t... Indexes>
-    auto values_from_tuple(::sqlpp::index_sequence<Indexes...>, std::tuple<Assignments...> assignments)
-        -> decltype(_values)
-    {
-      (void)assignments;
-      return decltype(_values)(std::get<Indexes>(assignments)._r...);
-    }
-
-    auto values_from_tuple(std::tuple<Assignments...> assignments) -> decltype(_values)
-    {
-      const auto seq = ::sqlpp::make_index_sequence<sizeof...(Assignments)>{};
-      return values_from_tuple(seq, assignments);
-    }
+    std::tuple<Assignments...> _assignments;
   };
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_set_assignments_t, "at least one argument is not an assignment in set()");
@@ -145,35 +115,29 @@ namespace sqlpp
   SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_dynamic_set_statement_dynamic_t,
                                "dynamic_set must not be called in a static statement");
 
-  template <typename... Assignments>
-  using check_insert_set_t = static_combined_check_t<
-      static_check_t<logic::all<is_assignment<Assignments>::value...>::value,
-                     assert_insert_set_assignments_t>,
-      static_check_t<not detail::has_duplicates<typename lhs<Assignments>::type...>::value,
-                     assert_insert_set_no_duplicates_t>,
-      static_check_t<sizeof...(Assignments) == 0 or detail::type_vector_cat_t<required_tables_of_t<
-                                                        typename lhs<Assignments>::type>...>::are_same(),
-                     assert_insert_set_single_table_t>>;
-
   // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
   //  template <typename... Assignments>
-  //  using check_insert_static_set_t =
+  //  using check_insert_set_t =
   //      static_combined_check_t<check_insert_set_t<Assignments...>,
   //                              static_check_t<sizeof...(Assignments) != 0, assert_insert_static_set_count_args_t>,
   //                              static_check_t<detail::have_all_required_columns<lhs_t<Assignments>...>::value,
   //                                             assert_insert_static_set_all_required_t>>;
   template <typename... Assignments>
-  struct check_insert_static_set
+  struct check_insert_set
   {
     using type = static_combined_check_t<
-        check_insert_set_t<Assignments...>,
+        static_check_t<logic::all<is_assignment<Assignments>::value...>::value, assert_insert_set_assignments_t>,
+        static_check_t<not detail::has_duplicates<typename lhs<Assignments>::type...>::value,
+                       assert_insert_set_no_duplicates_t>,
+        static_check_t<detail::type_vector_cat_t<required_tables_of_t<typename lhs<Assignments>::type>...>::are_same(),
+                       assert_insert_set_single_table_t>,
         static_check_t<sizeof...(Assignments) != 0, assert_insert_static_set_count_args_t>,
         static_check_t<detail::have_all_required_columns<typename lhs<Assignments>::type...>::value,
                        assert_insert_static_set_all_required_t>>;
   };
 
   template <typename... Assignments>
-  using check_insert_static_set_t = typename check_insert_static_set<Assignments...>::type;
+  using check_insert_set_t = typename check_insert_set<remove_dynamic_t<Assignments>...>::type;
 
   SQLPP_PORTABLE_STATIC_ASSERT(
       assert_no_unknown_tables_in_insert_assignments_t,
@@ -230,7 +194,7 @@ namespace sqlpp
     ~column_list_data_t() = default;
 
     using _value_tuple_t = std::tuple<insert_value_t<Columns>...>;
-    std::tuple<simple_column_t<Columns>...> _columns;
+    std::tuple<Columns...> _columns;
     std::vector<_value_tuple_t> _insert_values;
   };
 
@@ -347,17 +311,17 @@ namespace sqlpp
 
       template <typename... Assignments>
       auto set(Assignments... assignments) const
-          -> _new_statement_t<check_insert_static_set_t<Assignments...>, insert_list_t<Assignments...>>
+          -> _new_statement_t<check_insert_set_t<Assignments...>, insert_list_t<Assignments...>>
       {
-        using Check = check_insert_static_set_t<Assignments...>;
+        using Check = check_insert_set_t<Assignments...>;
         return _set_impl(Check{}, std::make_tuple(assignments...));
       }
 
       template <typename... Assignments>
       auto set(std::tuple<Assignments...> assignments) const
-          -> _new_statement_t<check_insert_static_set_t<Assignments...>, insert_list_t<Assignments...>>
+          -> _new_statement_t<check_insert_set_t<Assignments...>, insert_list_t<Assignments...>>
       {
-        using Check = check_insert_static_set_t<Assignments...>;
+        using Check = check_insert_set_t<Assignments...>;
         return _set_impl(Check{}, assignments);
       }
 
@@ -426,15 +390,72 @@ namespace sqlpp
     return result;
   }
 
+  // Used to serialize left hand side of assignment tuple that should ignore dynamic elements.
+  struct tuple_lhs_assignment_operand_no_dynamic
+  {
+    template <typename Context, typename Lhs, typename Op, typename Rhs>
+    auto operator()(Context& context, const assign_expression<Lhs, Op, Rhs>&, size_t ) const -> std::string
+    {
+      const auto prefix = need_prefix ? std::string{separator} : std::string{};
+      need_prefix = true;
+      return prefix + name_to_sql_string(context, name_tag_of_t<Lhs>::name);
+    }
+
+    template <typename Context, typename T>
+    auto operator()(Context& context, const sqlpp::dynamic_t<T>& t, size_t index) const -> std::string
+    {
+      if (t._condition)
+      {
+        return operator()(context, t._expr, index);
+      }
+      return "";
+    }
+
+    sqlpp::string_view separator;
+    mutable bool need_prefix = false;
+  };
+
+  // Used to serialize right hand side of assignment tuple that should ignore dynamic elements.
+  struct tuple_rhs_assignment_operand_no_dynamic
+  {
+    template <typename Context, typename Lhs, typename Op, typename Rhs>
+    auto operator()(Context& context, const assign_expression<Lhs, Op, Rhs>& t, size_t ) const -> std::string
+    {
+      const auto prefix = need_prefix ? std::string{separator} : std::string{};
+      need_prefix = true;
+      return prefix + operand_to_sql_string(context, t._r);
+    }
+
+    template <typename Context, typename T>
+    auto operator()(Context& context, const sqlpp::dynamic_t<T>& t, size_t index) const -> std::string
+    {
+      if (t._condition)
+      {
+        return operator()(context, t._expr, index);
+      }
+      return "";
+    }
+
+    sqlpp::string_view separator;
+    mutable bool need_prefix = false;
+  };
+
   template <typename Context, typename... Assignments>
   auto to_sql_string(Context& context, const insert_list_data_t<Assignments...>& t) -> std::string
   {
     auto result = std::string{" ("};
-    result += tuple_to_sql_string(context, t._columns, tuple_operand{", "});
+    result += tuple_to_sql_string(context, t._assignments, tuple_lhs_assignment_operand_no_dynamic{", "});
     result += ") VALUES(";
-    result += tuple_to_sql_string(context, t._values, tuple_operand{", "});
+    result += tuple_to_sql_string(context, t._assignments, tuple_rhs_assignment_operand_no_dynamic{", "});
     result += ")";
     return result;
+  }
+
+  template <typename... Assignments>
+  auto insert_default_values()
+      -> decltype(statement_t<no_insert_value_list_t>().default_values())
+  {
+    return statement_t<no_insert_value_list_t>().default_values();
   }
 
   template <typename... Assignments>

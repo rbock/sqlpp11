@@ -300,12 +300,24 @@ namespace sqlpp
   };
 
   template <typename T>
+  struct lhs<dynamic_t<T>>
+  {
+    using type = dynamic_t<typename lhs<T>::type>;
+  };
+
+  template <typename T>
   using lhs_t = typename lhs<T>::type;
 
   template <typename T>
   struct rhs
   {
     using type = void;
+  };
+
+  template <typename T>
+  struct rhs<dynamic_t<T>>
+  {
+    using type = dynamic_t<typename rhs<T>::type>;
   };
 
   template <typename T>

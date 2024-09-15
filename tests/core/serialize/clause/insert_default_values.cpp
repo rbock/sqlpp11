@@ -23,23 +23,14 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Sample.h"
 #include "../compare.h"
 #include <sqlpp11/sqlpp11.h>
 
 int main(int, char* [])
 {
-  const auto foo = test::TabFoo{};
 
-  // Plain assignments.
-  SQLPP_COMPARE(update_set(foo.id = 7), " SET id = 7");
-  SQLPP_COMPARE(update_set(foo.id = 7, foo.textNnD = "cheesecake"), " SET id = 7, text_nn_d = 'cheesecake'");
-
-  // Dynamic assignments.
-  SQLPP_COMPARE(update_set(sqlpp::dynamic(true, foo.id = 7), sqlpp::dynamic(false, foo.textNnD = "cheesecake")),
-                " SET id = 7");
-  SQLPP_COMPARE(update_set(sqlpp::dynamic(false, foo.id = 7), sqlpp::dynamic(true, foo.textNnD = "cheesecake")),
-                " SET text_nn_d = 'cheesecake'");
+#warning: This looks different for MySQL
+  SQLPP_COMPARE(sqlpp::insert_default_values(), " DEFAULT VALUES");
 
   return 0;
 }
