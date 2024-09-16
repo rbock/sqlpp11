@@ -23,6 +23,11 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "Sample.h"
+#include <sqlpp11/alias_provider.h>
+#include <sqlpp11/parameter.h>
+#include <sqlpp11/update.h>
+#include <sqlpp11/verbatim.h>
 #include <sqlpp11/sqlite3/connection.h>
 
 #include <iostream>
@@ -50,6 +55,27 @@ int Execute(int, char*[])
       return 1;
     }
   }
+
+  // execute supports running a prepared statement
+  const auto tab = test::TabBar{};
+
+  db.execute(R"(CREATE TABLE tab_bar (
+                	alpha bigint AUTO_INCREMENT,
+                	beta varchar(255) NULL DEFAULT "",
+                	gamma bool NOT NULL,
+                	delta int);
+              )");
+
+  auto u = sqlpp::update(tab)
+              .set(tab.delta = sqlpp::parameter(tab.delta))
+              .where(sqlpp::verbatim<sqlpp::unsigned_integral>("ROWID")
+                    == sqlpp::parameter(sqlpp::unsigned_integral(), sqlpp::alias::i));
+
+  auto u_stmnt = db.prepare(u);
+  u_stmnt.params.delta = 42;
+  u_stmnt.params.i = 69u;
+
+  db.execute(u_stmnt);
 
   return 0;
 }
