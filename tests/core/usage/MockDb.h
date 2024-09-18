@@ -137,15 +137,29 @@ struct MockDb : public sqlpp::connection
   }
 
   template <
-      typename Statement,
-      typename Enable = typename std::enable_if<not std::is_convertible<Statement, std::string>::value, void>::type>
-  size_t execute(const Statement& x)
+      typename Execute,
+      typename std::enable_if<not std::is_convertible<Execute, std::string>::value 
+                              and not sqlpp::is_prepared_statement_t<Execute>::value, int>::type = 0>
+  size_t execute(const Execute& x)
   {
+    static_assert(not sqlpp::is_select_t<Execute>::value, "argument must not be a select statement - use operator() instead");
+
     _serializer_context_t context;
     serialize(x, context);
     std::cout << "Running execute call with\n" << context.str() << std::endl;
     return execute(context.str());
   }
+
+  template <
+      typename Execute,
+      typename std::enable_if<sqlpp::is_prepared_statement_t<Execute>::value, int>::type = 0>
+  size_t execute(const Execute& x)
+  {
+    static_assert(not sqlpp::is_select_t<Execute>::value, "argument must not be a select statement - use operator() instead");
+    
+    operator()(x);
+    return 0;
+  }  
 
   template <typename Insert>
   size_t insert(const Insert& x)
@@ -345,15 +359,29 @@ struct MockSizeDb : public sqlpp::connection
   }
 
   template <
-      typename Statement,
-      typename Enable = typename std::enable_if<not std::is_convertible<Statement, std::string>::value, void>::type>
-  size_t execute(const Statement& x)
+      typename Execute,
+      typename std::enable_if<not std::is_convertible<Execute, std::string>::value 
+                              and not sqlpp::is_prepared_statement_t<Execute>::value, int>::type = 0>
+  size_t execute(const Execute& x)
   {
+    static_assert(not sqlpp::is_select_t<Execute>::value, "argument must not be a select statement - use operator() instead");
+
     _serializer_context_t context;
     serialize(x, context);
     std::cout << "Running execute call with\n" << context.str() << std::endl;
     return execute(context.str());
   }
+
+  template <
+      typename Execute,
+      typename std::enable_if<sqlpp::is_prepared_statement_t<Execute>::value, int>::type = 0>
+  size_t execute(const Execute& x)
+  {
+    static_assert(not sqlpp::is_select_t<Execute>::value, "argument must not be a select statement - use operator() instead");
+    
+    operator()(x);
+    return 0;
+  }  
 
   template <typename Insert>
   size_t insert(const Insert& x)

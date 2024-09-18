@@ -392,9 +392,34 @@ namespace sqlpp
       //!  * This usually only allows a single statement (unless configured otherwise for the connection).
       //!  * If you are passing a statement with results, like a SELECT, you will need to fetch results before issuing
       //!    the next statement on the same connection.
-      void execute(const std::string& statement)
+      size_t execute(const std::string& statement)
       {
         execute_statement(_handle, statement);
+        return 0;
+      }
+
+      template <
+          typename Execute,
+          typename std::enable_if<not std::is_convertible<Execute, std::string>::value 
+                                  and not sqlpp::is_prepared_statement_t<Execute>::value, int>::type = 0>
+      size_t execute(const Execute& x)
+      {
+        static_assert(not sqlpp::is_select_t<Execute>::value, "argument must not be a select statement - use operator() instead");
+
+        _context_t context{*this};
+        serialize(x, context);
+        return execute(context.str());
+      }
+
+      template <
+          typename Execute,
+          typename std::enable_if<sqlpp::is_prepared_statement_t<Execute>::value, int>::type = 0>
+      size_t execute(const Execute& x)
+      {
+        static_assert(not sqlpp::is_select_t<Execute>::value, "argument must not be a select statement - use operator() instead");
+
+        operator()(x);
+        return 0;
       }
 
       //! escape given string (does not quote, though)
