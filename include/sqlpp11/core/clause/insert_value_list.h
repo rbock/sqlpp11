@@ -183,7 +183,7 @@ namespace sqlpp
   struct column_list_data_t
   {
     // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-    column_list_data_t(Columns... cols) : _columns(simple_column_t<Columns>(cols)...)
+    column_list_data_t(Columns... cols) : _columns(simple_column_t<Columns>(std::move(cols))...)
     {
     }
 
@@ -194,7 +194,7 @@ namespace sqlpp
     ~column_list_data_t() = default;
 
     using _value_tuple_t = std::tuple<insert_value_t<Columns>...>;
-    std::tuple<Columns...> _columns;
+    std::tuple<simple_column_t<Columns>...> _columns;
     std::vector<_value_tuple_t> _insert_values;
   };
 
@@ -380,7 +380,7 @@ namespace sqlpp
       }
       else
       {
-        result += ',';
+        result += ", ";
       }
       result += '(';
       result += tuple_to_sql_string(context, row, tuple_operand{", "});
