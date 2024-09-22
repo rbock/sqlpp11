@@ -30,6 +30,7 @@ function(create_test name)
 endfunction()
 
 create_test(group_by)
+create_test(from)
 create_test(insert)
 create_test(insert_columns)
 create_test(insert_default_values)
