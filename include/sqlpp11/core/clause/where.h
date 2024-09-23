@@ -131,10 +131,7 @@ namespace sqlpp
   };
 
   template <typename Expression>
-  using check_where_t = typename check_where<Expression>::type;
-
-  template <typename Expression>
-  using check_where_static_t = check_where_t<Expression>;
+  using check_where_t = typename check_where<remove_dynamic_t<Expression>>::type;
 
   // NO WHERE YET
   template <bool WhereRequired>
@@ -170,9 +167,9 @@ namespace sqlpp
 
       template <typename Expression>
       auto where(Expression expression) const
-          -> _new_statement_t<check_where_static_t<Expression>, where_t<Expression>>
+          -> _new_statement_t<check_where_t<Expression>, where_t<Expression>>
       {
-        using Check = check_where_static_t<Expression>;
+        using Check = check_where_t<Expression>;
         return _where_impl(Check{}, expression);
       }
 
@@ -195,6 +192,16 @@ namespace sqlpp
   auto to_sql_string(Context& context, const where_data_t<Expression>& t) -> std::string
   {
     return  " WHERE " + to_sql_string(context, t._expression);
+  }
+
+  template <typename Context, typename Expression>
+  auto to_sql_string(Context& context, const where_data_t<dynamic_t<Expression>>& t) -> std::string
+  {
+    if (t._expression._condition)
+    {
+      return " WHERE " + to_sql_string(context, t._expression._expr);
+    }
+    return "";
   }
 
   template <typename Context>

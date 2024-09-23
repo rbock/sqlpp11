@@ -38,4 +38,5 @@ create_test(insert_set)
 create_test(select_columns)
 create_test(select_flags)
 create_test(update_set)
+create_test(where)
 
