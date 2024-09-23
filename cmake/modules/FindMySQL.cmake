@@ -56,6 +56,7 @@ endif()
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(
     MySQL
+    DEFAULT_MSG
     MySQL_INCLUDE_DIR
     MySQL_LIBRARY
 )

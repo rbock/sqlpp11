@@ -52,6 +52,7 @@ endif()
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(
     MariaDB
+    DEFAULT_MSG
     MariaDB_INCLUDE_DIR
     MariaDB_LIBRARY
 )
