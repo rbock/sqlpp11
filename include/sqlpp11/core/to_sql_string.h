@@ -256,6 +256,8 @@ namespace sqlpp
   template <typename T, typename Context>
   auto operand_to_sql_string(Context& context, const T& t) -> std::string
   {
+#warning: For expressions with dynamic components this needs to be dynamic, e.g.
+#warning: `A and dynamic(false, B)` would require parenthesis if and only if A requires parentheses
     if (requires_parentheses<T>::value)
     {
       return "(" + to_sql_string(context, t) + ")";

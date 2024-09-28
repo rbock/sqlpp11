@@ -62,7 +62,7 @@ int main(int, char* [])
   // NOT is not chained gracefully, but hey, don't do that anyways.
   SQLPP_COMPARE(not not not val, "NOT (NOT (NOT 1))");
 
-  // Operands are enclosed in parenheses where required or completely dropped if inactive
+  // Operands are enclosed in parentheses where required or completely dropped if inactive
   SQLPP_COMPARE(val and dynamic(true, val), "1 AND 1");
   SQLPP_COMPARE(val and dynamic(true, expr), "1 AND (17 > 15)");
   SQLPP_COMPARE(expr and dynamic(true, val), "(17 > 15) AND 1");
@@ -89,6 +89,13 @@ int main(int, char* [])
 
   SQLPP_COMPARE(val or dynamic(true, val) or expr, "1 OR 1 OR (17 > 15)");
   SQLPP_COMPARE(val or dynamic(false, val) or expr, "1 OR (17 > 15)");
+
+  // More complex expressions
+  SQLPP_COMPARE((val and dynamic(true, expr)) or dynamic(true, val), "(1 AND (17 > 15)) OR 1");
+#warning: Remove paretheses!
+  SQLPP_COMPARE((val and dynamic(false, expr)) or dynamic(true, val), "(1) OR 1");
+  SQLPP_COMPARE((val and dynamic(true, expr)) or dynamic(false, val), "1 AND (17 > 15)");
+  SQLPP_COMPARE((val and dynamic(false, expr)) or dynamic(false, val), "1")
 
   return 0;
 }
