@@ -101,10 +101,7 @@ namespace sqlpp
   };
 
   template <typename Expression>
-  using check_having_t = typename check_having<Expression>::type;
-
-  template <typename Expression>
-  using check_having_static_t = check_having_t<Expression>;
+  using check_having_t = typename check_having<remove_dynamic_t<Expression>>::type;
 
   template <typename... Exprs>
   constexpr auto are_all_parameters_expressions() -> bool
@@ -148,9 +145,9 @@ namespace sqlpp
 
       template <typename Expression>
       auto having(Expression expression) const
-          -> _new_statement_t<check_having_static_t<Expression>, having_t<Expression>>
+          -> _new_statement_t<check_having_t<Expression>, having_t<Expression>>
       {
-        using Check = check_having_static_t<Expression>;
+        using Check = check_having_t<Expression>;
 
         return _having_impl(Check{}, expression);
       }
@@ -174,6 +171,16 @@ namespace sqlpp
   auto to_sql_string(Context& context, const having_data_t<Expression>& t) -> std::string
   {
     return " HAVING " + to_sql_string(context, t._expression);
+  }
+
+  template <typename Context, typename Expression>
+  auto to_sql_string(Context& context, const having_data_t<dynamic_t<Expression>>& t) -> std::string
+  {
+    if (t._expression._condition)
+    {
+      return " HAVING " + to_sql_string(context, t._expression._expr);
+    }
+    return "";
   }
 
   template <typename T>
