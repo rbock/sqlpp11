@@ -73,16 +73,17 @@ namespace sqlpp
     };
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_limit_is_unsigned_integral,
-                               "argument for limit() must be an unsigned integral expressions");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_limit_is_integral,
+                               "argument for limit() must be an integral expressions");
   template <typename T>
   struct check_limit
   {
+#warning: document that limits can be integral (not just unsigned integral)
     using type =
-        static_combined_check_t<static_check_t<is_unsigned_integral<T>::value, assert_limit_is_unsigned_integral>>;
+        static_combined_check_t<static_check_t<is_integral<T>::value, assert_limit_is_integral>>;
   };
   template <typename T>
-  using check_limit_t = typename check_limit<T>::type;
+  using check_limit_t = typename check_limit<remove_dynamic_t<T>>::type;
 
   struct no_limit_t
   {
@@ -131,6 +132,16 @@ namespace sqlpp
   auto to_sql_string(Context& context, const limit_data_t<Limit>& t) -> std::string
   {
     return  " LIMIT " + operand_to_sql_string(context, t._value);
+  }
+
+  template <typename Context, typename Limit>
+  auto to_sql_string(Context& context, const limit_data_t<dynamic_t<Limit>>& t) -> std::string
+  {
+    if (not t._value._condition)
+    {
+      return "";
+    }
+    return  " LIMIT " + operand_to_sql_string(context, t._value._expr);
   }
 
   template <typename T>

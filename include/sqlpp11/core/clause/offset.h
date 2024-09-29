@@ -72,16 +72,16 @@ namespace sqlpp
     };
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_offset_is_unsigned_integral,
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_offset_is_integral,
                                "argument for offset() must be an integral expressions");
   template <typename T>
   struct check_offset
   {
     using type =
-        static_combined_check_t<static_check_t<is_unsigned_integral<T>::value, assert_offset_is_unsigned_integral>>;
+        static_combined_check_t<static_check_t<is_integral<T>::value, assert_offset_is_integral>>;
   };
   template <typename T>
-  using check_offset_t = typename check_offset<T>::type;
+  using check_offset_t = typename check_offset<remove_dynamic_t<T>>::type;
 
   struct no_offset_t
   {
@@ -142,6 +142,16 @@ namespace sqlpp
   auto to_sql_string(Context& context, const offset_data_t<Offset>& t) -> std::string
   {
     return  " OFFSET " +  operand_to_sql_string(context, t._value);
+  }
+
+  template <typename Context, typename Offset>
+  auto to_sql_string(Context& context, const offset_data_t<dynamic_t<Offset>>& t) -> std::string
+  {
+    if (not t._value._condition)
+    {
+      return "";
+    }
+    return  " OFFSET " + operand_to_sql_string(context, t._value._expr);
   }
 
   template <typename T>
