@@ -44,12 +44,12 @@ int main(int, char* [])
   // Multiple plain columns.
   SQLPP_COMPARE(group_by(foo.id, foo.textNnD, foo.boolN), " GROUP BY tab_foo.id, tab_foo.text_nn_d, tab_foo.bool_n");
 
-#warning: Should we prevent the first column to be dynamic? Might be easier to just document it.
-  // Single dynamic column (this is odd)
+  // Single dynamic column
   SQLPP_COMPARE(group_by(dynamic(true, foo.id)), " GROUP BY tab_foo.id");
-  SQLPP_COMPARE(group_by(dynamic(false, foo.id)), " GROUP BY "); // not good
+#warning: document that GROUP BY gets omitted if all columns are dynamic false
+  SQLPP_COMPARE(group_by(dynamic(false, foo.id)), "");
 
-  // Multiple dynamic columns (this is odd if all are dynamic)
+  // Multiple dynamic columns (including all dynamic)
   SQLPP_COMPARE(group_by(dynamic(true, foo.id), foo.textNnD, foo.boolN), " GROUP BY tab_foo.id, tab_foo.text_nn_d, tab_foo.bool_n");
   SQLPP_COMPARE(group_by(foo.id, dynamic(true, foo.textNnD), foo.boolN), " GROUP BY tab_foo.id, tab_foo.text_nn_d, tab_foo.bool_n");
   SQLPP_COMPARE(group_by(foo.id, foo.textNnD, dynamic(true, foo.boolN)), " GROUP BY tab_foo.id, tab_foo.text_nn_d, tab_foo.bool_n");
@@ -61,6 +61,8 @@ int main(int, char* [])
   SQLPP_COMPARE(group_by(foo.id, dynamic(false, foo.textNnD), dynamic(false, foo.boolN)), " GROUP BY tab_foo.id");
   SQLPP_COMPARE(group_by(dynamic(false, foo.id), foo.textNnD, dynamic(false, foo.boolN)), " GROUP BY tab_foo.text_nn_d");
   SQLPP_COMPARE(group_by(dynamic(false, foo.id), dynamic(false, foo.textNnD), foo.boolN), " GROUP BY tab_foo.bool_n");
+
+  SQLPP_COMPARE(group_by(dynamic(false, foo.id), dynamic(false, foo.textNnD), dynamic(false, foo.boolN)), "");
 
   // Single declared column
   SQLPP_COMPARE(group_by(declare_group_by_column(val)), " GROUP BY 17");

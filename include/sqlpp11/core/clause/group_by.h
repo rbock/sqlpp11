@@ -153,7 +153,13 @@ namespace sqlpp
   template <typename Context, typename... Columns>
   auto to_sql_string(Context& context, const group_by_data_t<Columns...>& t) -> std::string
   {
-    return " GROUP BY " + tuple_to_sql_string(context, t._columns, tuple_operand_no_dynamic{", "});
+    const auto columns = tuple_to_sql_string(context, t._columns, tuple_operand_no_dynamic{", "});
+
+    if (columns.empty()) {
+      return "";
+    }
+
+    return " GROUP BY " + columns;
   }
 
   template <typename... T>

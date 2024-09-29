@@ -90,7 +90,7 @@ namespace sqlpp
                                                         assert_order_by_args_are_sort_order_expressions_t>>;
   };
   template <typename... Exprs>
-  using check_order_by_t = typename check_order_by<Exprs...>::type;
+  using check_order_by_t = typename check_order_by<remove_dynamic_t<Exprs>...>::type;
 
   // NO ORDER BY YET
   struct no_order_by_t
@@ -148,7 +148,13 @@ namespace sqlpp
   template <typename Context, typename... Expressions>
   auto to_sql_string(Context& context, const order_by_data_t<Expressions...>& t) -> std::string
   {
-    return " ORDER BY " + tuple_to_sql_string(context, t._expressions, tuple_operand{", "});
+    const auto columns = tuple_to_sql_string(context, t._expressions, tuple_operand_no_dynamic{", "});
+
+    if (columns.empty()) {
+      return "";
+    }
+
+    return " ORDER BY " + columns;
   }
 
   template <typename... T>
