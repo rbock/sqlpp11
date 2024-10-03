@@ -30,6 +30,7 @@ function(create_test name)
 endfunction()
 
 create_test(group_by)
+create_test(for_update)
 create_test(from)
 create_test(having)
 create_test(insert)

@@ -94,7 +94,7 @@ namespace sqlpp
   template <typename Context>
   auto to_sql_string(Context& , const for_update_data_t&) -> std::string
   {
-    return  " FOR UPDATE ";
+    return  " FOR UPDATE";
   }
 
   inline auto for_update() -> decltype(statement_t<no_for_update_t>().for_update())
