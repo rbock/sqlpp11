@@ -62,13 +62,14 @@ namespace sqlpp
   struct is_field_compatible<field_spec_t<LeftName, LeftValue>,
                              field_spec_t<RightName, RightValue>>
   {
-    /* TODO reactivate
+    using L = field_spec_t<LeftName, LeftValue>;
+    using R = field_spec_t<RightName, RightValue>;
     static constexpr auto value =
-        std::is_same<typename LeftName::_name_t, typename RightName::_name_t>::value and
-        std::is_same<LeftValue, RightValue>::value and  // Same value type
-        (LeftCanBeNull or !RightCanBeNull);  // The left hand side determines the result row and therefore must allow
-                                             // NULL if the right hand side allows it
-                                             */
+        std::is_same<make_char_sequence_t<L>, make_char_sequence_t<R>>::value and
+        std::is_same<remove_optional_t<LeftValue>, remove_optional_t<RightValue>>::value and  // Same value type
+        (is_optional<LeftValue>::value or
+         !is_optional<RightValue>::value);  // The left hand side determines the result row and therefore must allow
+                                            // NULL if the right hand side allows it
   };
 
   namespace detail

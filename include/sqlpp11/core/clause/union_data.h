@@ -49,11 +49,7 @@ namespace sqlpp
   template <typename Context, typename Flag, typename Lhs, typename Rhs>
   auto to_sql_string(Context& context, const union_data_t<Flag, Lhs, Rhs>& t) -> std::string
   {
-    to_sql_string(context, t._lhs);
-    context << " UNION ";
-    to_sql_string(context, Flag{});
-    context << " ";
-    to_sql_string(context, t._rhs);
-    return context;
+    return to_sql_string(context, t._lhs) + " UNION " + to_sql_string(context, Flag{}) + " " +
+           to_sql_string(context, t._rhs);
   }
 }  // namespace sqlpp

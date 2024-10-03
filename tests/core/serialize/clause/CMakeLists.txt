@@ -42,6 +42,7 @@ create_test(offset)
 create_test(order_by)
 create_test(select_columns)
 create_test(select_flags)
+create_test(union)
 create_test(update_set)
 create_test(where)
 
