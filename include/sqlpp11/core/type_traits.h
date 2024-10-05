@@ -508,23 +508,18 @@ namespace sqlpp
   using prepare_check_t = typename prepare_check<Context, T>::type;
 
   template <typename Statement, typename Enable = void>
-  struct has_result_row_impl
+  struct has_result_row: public std::false_type
   {
-    using type = std::false_type;
   };
 
   template <typename Statement>
-  struct has_result_row_impl<
+  struct has_result_row<
       Statement,
       typename std::enable_if<
           not wrong_t<typename Statement::template _result_methods_t<Statement>::template _result_row_t<void>>::value,
-          void>::type>
+          void>::type>: public std::true_type
   {
-    using type = std::true_type;
   };
-
-  template <typename Statement>
-  using has_result_row_t = typename has_result_row_impl<Statement>::type;
 
   template <typename Statement, typename Enable = void>
   struct get_result_row_impl

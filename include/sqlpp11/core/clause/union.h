@@ -91,7 +91,15 @@ namespace sqlpp
                                                       typename Rhs::_consistency_check>;
     };
 
+    template <typename Statement>
+    using _result_methods_t = typename Lhs::template _result_methods_t<Statement>;
   };
+
+    template <typename Flag, typename Lhs, typename Rhs>
+  struct is_result_clause<union_t<Flag, Lhs, Rhs>> : public std::true_type
+  {
+  };
+
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_union_args_are_statements_t, "arguments for union() must be statements");
   template <typename... T>
@@ -134,8 +142,8 @@ namespace sqlpp
       {
         static_assert(is_statement_t<Rhs>::value, "argument of union call has to be a statement");
         static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
-        static_assert(has_result_row_t<Rhs>::value, "argument of a clause/union.has to be a complete select statement");
-        static_assert(has_result_row_t<derived_statement_t<Policies>>::value,
+        static_assert(has_result_row<Rhs>::value, "argument of a clause/union.has to be a complete select statement");
+        static_assert(has_result_row<derived_statement_t<Policies>>::value,
                       "left hand side argument of a clause/union.has to be a complete select statement or union");
 
         using lhs_result_row_t = get_result_row_t<derived_statement_t<Policies>>;
@@ -152,8 +160,8 @@ namespace sqlpp
       {
         static_assert(is_statement_t<Rhs>::value, "argument of union call has to be a statement");
         static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
-        static_assert(has_result_row_t<Rhs>::value, "argument of a clause/union.has to be a (complete) select statement");
-        static_assert(has_result_row_t<derived_statement_t<Policies>>::value,
+        static_assert(has_result_row<Rhs>::value, "argument of a clause/union.has to be a (complete) select statement");
+        static_assert(has_result_row<derived_statement_t<Policies>>::value,
                       "left hand side argument of a clause/union.has to be a (complete) select statement");
 
         using lhs_result_row_t = get_result_row_t<derived_statement_t<Policies>>;

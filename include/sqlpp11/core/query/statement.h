@@ -126,7 +126,7 @@ namespace sqlpp
       static constexpr bool _can_be_used_as_table()
       {
 #warning: reactivate
-        return has_result_row_t<_statement_t>::value and /*_required_tables::size::value == 0 and*/
+        return has_result_row<_statement_t>::value and /*_required_tables::size::value == 0 and*/
                _required_ctes::size::value == 0;
       }
 

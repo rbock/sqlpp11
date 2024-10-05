@@ -168,7 +168,7 @@ namespace sqlpp
     {
       static_assert(is_statement_t<Rhs>::value, "argument of union call has to be a statement");
       static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
-      static_assert(has_result_row_t<Rhs>::value, "argument of a clause/union.has to be a (complete) select statement");
+      static_assert(has_result_row<Rhs>::value, "argument of a clause/union.has to be a (complete) select statement");
 
       static_assert(std::is_same<_result_row_t, get_result_row_t<Rhs>>::value,
                     "both select statements in a clause/union.have to have the same result columns (type and name)");
@@ -183,7 +183,7 @@ namespace sqlpp
     {
       static_assert(is_statement_t<Rhs>::value, "argument of union call has to be a statement");
       static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
-      static_assert(has_result_row_t<Rhs>::value, "argument of a clause/union.has to be a (complete) select statement");
+      static_assert(has_result_row<Rhs>::value, "argument of a clause/union.has to be a (complete) select statement");
 
       static_assert(std::is_same<_result_row_t, get_result_row_t<Rhs>>::value,
                     "both select statements in a clause/union.have to have the same result columns (type and name)");
