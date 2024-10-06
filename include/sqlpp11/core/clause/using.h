@@ -140,4 +140,5 @@ namespace sqlpp
   {
     return " USING " + tuple_to_sql_string(context, t._tables, tuple_operand{", "});
   }
+#warning: Move this to postgresql as neither mysql nor sqlite support it, I think?
 }  // namespace sqlpp

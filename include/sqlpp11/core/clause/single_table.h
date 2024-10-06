@@ -122,7 +122,7 @@ namespace sqlpp
       template <typename Table>
       auto single_table(Table table) const -> _new_statement_t<check_update_table_t<Table>, single_table_t<Table>>
       {
-        return _single_table_impl(check_update_table_t<Table>{}, table);
+        return _single_table_impl(check_update_table_t<Table>{}, std::move(table));
       }
 
     private:
@@ -149,8 +149,8 @@ namespace sqlpp
   }
 
   template <typename T>
-  auto single_table(T&& t) -> decltype(statement_t<no_single_table_t>().single_table(std::forward<T>(t)))
+  auto single_table(T t) -> decltype(statement_t<no_single_table_t>().single_table(t))
   {
-    return statement_t<no_single_table_t>().single_table(std::forward<T>(t));
+    return statement_t<no_single_table_t>().single_table(std::move(t));
   }
 }  // namespace sqlpp
