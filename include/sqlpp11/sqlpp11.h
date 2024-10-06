@@ -28,7 +28,7 @@
 
 #include <sqlpp11/core/name/create_name_tag.h>
 #include <sqlpp11/core/clause/insert.h>
-#include <sqlpp11/core/clause/remove.h>
+#include <sqlpp11/core/clause/delete_from.h>
 #include <sqlpp11/core/clause/update.h>
 #include <sqlpp11/core/clause/select.h>
 #include <sqlpp11/core/function.h>

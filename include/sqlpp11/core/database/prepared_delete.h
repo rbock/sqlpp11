@@ -33,7 +33,7 @@
 namespace sqlpp
 {
   template <typename Db, typename Remove>
-  struct prepared_remove_t
+  struct prepared_delete_t
   {
     using _traits = make_traits<no_value_t, tag::is_prepared_statement>;
     using _nodes = detail::type_vector<>;

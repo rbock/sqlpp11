@@ -29,17 +29,17 @@
 #include <sqlpp11/core/query/statement.h>
 #include <sqlpp11/core/database/connection.h>
 #include <sqlpp11/core/type_traits.h>
-#include <sqlpp11/core/database/prepared_remove.h>
+#include <sqlpp11/core/database/prepared_delete.h>
 #include <sqlpp11/core/noop.h>
 #include <sqlpp11/core/clause/single_table.h>
 #include <sqlpp11/core/clause/where.h>
 
 namespace sqlpp
 {
-  struct remove_name_t
+  struct delete_name_t
   {
   };
-  struct remove_t : public statement_name_t<remove_name_t>
+  struct delete_t : public statement_name_t<delete_name_t>
   {
     using _traits = make_traits<no_value_t>;
     struct _sqlpp_name_tag
@@ -71,13 +71,13 @@ namespace sqlpp
 
       // Prepare
       template <typename Db, typename Composite>
-      auto _prepare(Db& db, const Composite& composite) const -> prepared_remove_t<Db, Composite>
+      auto _prepare(Db& db, const Composite& composite) const -> prepared_delete_t<Db, Composite>
       {
         return {{}, db.prepare_remove(composite)};
       }
 
       template <typename Db>
-      auto _prepare(Db& db) const -> prepared_remove_t<Db, _statement_t>
+      auto _prepare(Db& db) const -> prepared_delete_t<Db, _statement_t>
       {
         return {{}, db.prepare_remove(_get_statement())};
       }
@@ -85,25 +85,25 @@ namespace sqlpp
   };
 
   template<>
-    struct is_result_clause<remove_t> : public std::true_type {};
+    struct is_result_clause<delete_t> : public std::true_type {};
 
   template <typename Context>
-  auto to_sql_string(Context& , const remove_name_t&) -> std::string
+  auto to_sql_string(Context& , const delete_name_t&) -> std::string
   {
     return "DELETE FROM ";
   }
 
-  using blank_remove_t = statement_t<remove_t, no_single_table_t, no_where_t<true>>;
+  using blank_delete_t = statement_t<delete_t, no_single_table_t, no_where_t<true>>;
 
-  inline auto remove() -> blank_remove_t
+  inline auto remove() -> blank_delete_t
   {
     return {};
   }
 
   template <typename Table>
-  auto remove_from(Table table) -> decltype(blank_remove_t().single_table(table))
+  auto delete_from(Table table) -> decltype(blank_delete_t().single_table(table))
   {
-    return {blank_remove_t().single_table(table)};
+    return {blank_delete_t().single_table(table)};
   }
 
 }  // namespace sqlpp
