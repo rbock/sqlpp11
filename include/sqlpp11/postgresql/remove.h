@@ -27,6 +27,7 @@
  */
 
 #include <sqlpp11/core/clause/remove.h>
+#include <sqlpp11/postgresql/using.h>
 #include <sqlpp11/postgresql/returning.h>
 
 namespace sqlpp

@@ -31,8 +31,7 @@
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/database/prepared_remove.h>
 #include <sqlpp11/core/noop.h>
-#include <sqlpp11/core/clause/from.h>
-#include <sqlpp11/core/clause/using.h>
+#include <sqlpp11/core/clause/single_table.h>
 #include <sqlpp11/core/clause/where.h>
 
 namespace sqlpp
@@ -91,10 +90,10 @@ namespace sqlpp
   template <typename Context>
   auto to_sql_string(Context& , const remove_name_t&) -> std::string
   {
-    return "DELETE";
+    return "DELETE FROM ";
   }
 
-  using blank_remove_t = statement_t<remove_t, no_from_t, no_using_t, no_where_t<true>>;
+  using blank_remove_t = statement_t<remove_t, no_single_table_t, no_where_t<true>>;
 
   inline auto remove() -> blank_remove_t
   {
@@ -102,9 +101,9 @@ namespace sqlpp
   }
 
   template <typename Table>
-  auto remove_from(Table table) -> decltype(blank_remove_t().from(table))
+  auto remove_from(Table table) -> decltype(blank_remove_t().single_table(table))
   {
-    return {blank_remove_t().from(table)};
+    return {blank_remove_t().single_table(table)};
   }
 
 }  // namespace sqlpp
