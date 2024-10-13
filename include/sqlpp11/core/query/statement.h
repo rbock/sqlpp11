@@ -82,8 +82,10 @@ namespace sqlpp
       using _all_provided_optional_tables = detail::type_vector_cat_t<provided_optional_tables_of_t<Policies>...>;
       using _all_provided_aggregates = detail::make_joined_set_t<provided_aggregates_of<Policies>...>;
 
+      using _required_tables_of = detail::copy_if_t<_all_required_tables, _all_provided_tables::template contains_not>;
+
       template <typename Expression>
-      static constexpr bool _no_unknown_tables = _all_provided_tables::contains_all(required_tables_of_t<Expression>{});
+      static constexpr bool _no_unknown_tables = _all_provided_tables::template contains_all<required_tables_of_t<Expression>>::value;
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2086629
       //	  template <typename... Expressions>
@@ -208,8 +210,7 @@ namespace sqlpp
                       >;
     using _name_tag_of = name_tag_of<_result_type_provider>;
     using _nodes = detail::type_vector<_policies_t>;
-#warning: This is an odd name, why "used"?
-    using _used_optional_tables = typename _policies_t::_all_provided_optional_tables;
+    using _provided_optional_tables = typename _policies_t::_all_provided_optional_tables;
 
     // Constructors
     statement_t() = default;
@@ -273,6 +274,12 @@ namespace sqlpp
   struct nodes_of<statement_t<Policies...>>
   {
     using type = typename detail::type_vector<Policies...>;
+  };
+
+  template <typename... Policies>
+  struct required_tables_of<statement_t<Policies...>>
+  {
+    using type = typename detail::statement_policies_t<Policies...>::_required_tables_of;
   };
 
   template <typename... Policies>

@@ -45,7 +45,7 @@ namespace sqlpp
   template <typename Context>
   auto to_sql_string(Context& , const all_t&) -> std::string
   {
-    return "ALL";
+    return "ALL ";
   }
 
   struct distinct_t
@@ -59,7 +59,7 @@ namespace sqlpp
   template <typename Context>
   auto to_sql_string(Context& , const distinct_t&) -> std::string
   {
-    return "DISTINCT";
+    return "DISTINCT ";
   }
 
 }  // namespace sqlpp

@@ -80,7 +80,7 @@ namespace sqlpp
   {
 #warning: document that limits can be integral (not just unsigned integral)
     using type =
-        static_combined_check_t<static_check_t<is_integral<T>::value, assert_limit_is_integral>>;
+        static_combined_check_t<static_check_t<is_integral<T>::value or is_unsigned_integral<T>::value, assert_limit_is_integral>>;
   };
   template <typename T>
   using check_limit_t = typename check_limit<remove_dynamic_t<T>>::type;

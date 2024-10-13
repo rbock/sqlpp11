@@ -79,7 +79,7 @@ namespace sqlpp
     {
       using ValueType = select_column_value_type_of_t<NamedExpr>;
       static constexpr bool _depends_on_optional_table =
-          Select::_used_optional_tables::contains_any(required_tables_of_t<NamedExpr>{});
+          Select::_provided_optional_tables::contains_any(required_tables_of_t<NamedExpr>{});
 
       using type = field_spec_t<
           select_column_name_tag_of_t<NamedExpr>,

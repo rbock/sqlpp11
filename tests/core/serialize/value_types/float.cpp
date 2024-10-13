@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Roland Bock
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -23,35 +23,12 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "Sample.h"
+#include "../compare.h"
 #include <sqlpp11/sqlpp11.h>
-
-#include "compare.h"
 
 namespace
 {
-  template <typename Result, typename Expected>
-  void assert_equal(int lineNo, const Result& result, const Expected& expected)
-  {
-    if (result != expected)
-    {
-      std::cerr << __FILE__ << " " << lineNo << '\n'
-                << "Expected: -->|" << expected << "|<--\n"
-                << "Received: -->|" << result << "|<--\n";
-      throw std::runtime_error("unexpected result");
-    }
-  }
-
-  template <typename T>
-  void to_sql_string_serializes_in_deserializable_format(int line, T value)
-  {
-    MockDb::_serializer_context_t printer = {};
-    const auto serialized = sqlpp::to_sql_string(printer, value);
-    std::istringstream is{serialized};
-    T deserialized;
-    is >> deserialized;
-    assert_equal(line, deserialized, value);
-  }
-
   template <typename T>
   std::string string_for_10_0000086()
   {
@@ -69,14 +46,11 @@ namespace
   }
 }  // namespace
 
-int Float(int, char*[])
+int main(int, char* [])
 {
-#warning: document that connectors need to use float_safe_ostringstream or similar.
-  to_sql_string_serializes_in_deserializable_format(__LINE__, 10.0000086f);
-  to_sql_string_serializes_in_deserializable_format(__LINE__, 10.0000086);
-  to_sql_string_serializes_in_deserializable_format(__LINE__, 10.0000086l);
-
+  SQLPP_COMPARE(10.0000114f, "10.0000114");
   SQLPP_COMPARE(10.0000114, "10.0000114");
+  SQLPP_COMPARE(10.0000114l, "10.0000114");
   SQLPP_COMPARE(10.0000086f, string_for_10_0000086<float>());
   SQLPP_COMPARE(10.0000086, string_for_10_0000086<double>());
   SQLPP_COMPARE(10.0000086l, string_for_10_0000086<long double>());

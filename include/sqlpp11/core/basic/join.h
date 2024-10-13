@@ -77,10 +77,10 @@ namespace sqlpp
   struct provided_optional_tables_of<join_t<Lhs, JoinType, Rhs, Condition>>
   {
     using type = detail::type_vector_cat_t<
-        typename std::conditional<detail::type_vector<right_outer_join_t, full_outer_join_t>::contains<JoinType>(),
+        typename std::conditional<detail::type_vector<right_outer_join_t, full_outer_join_t>::contains<JoinType>::value,
                                   provided_tables_of_t<Lhs>,
                                   detail::type_vector<>>::type,
-        typename std::conditional<detail::type_vector<left_outer_join_t, full_outer_join_t>::contains<JoinType>(),
+        typename std::conditional<detail::type_vector<left_outer_join_t, full_outer_join_t>::contains<JoinType>::value,
                                   provided_tables_of_t<Rhs>,
                                   detail::type_vector<>>::type>;
   };
@@ -142,9 +142,9 @@ namespace sqlpp
 #warning: Verify that the Expr does not require tables other than Lhs, Rhs
   template <typename Expr, typename StaticTableTypeVector, typename AllTableTypeVector>
   struct are_table_requirements_satisfied
-      : std::integral_constant<bool,
-                               StaticTableTypeVector::contains_all(required_static_tables_of_t<Expr>{}) and
-                                   AllTableTypeVector::contains_all(required_tables_of_t<Expr>{})>
+      : public std::integral_constant<bool,
+                                      StaticTableTypeVector::template contains_all<required_static_tables_of_t<Expr>>::value and
+                                          AllTableTypeVector::template contains_all<required_tables_of_t<Expr>>::value>
   {
   };
 

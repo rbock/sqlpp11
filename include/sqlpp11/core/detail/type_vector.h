@@ -76,27 +76,32 @@ namespace sqlpp
       }
 
       template <typename X>
-      static constexpr bool contains()
-      {
-        return ::sqlpp::logic::any<std::is_same<T, X>::value...>::value;
-      }
+      struct contains : public ::sqlpp::logic::any<std::is_same<T, X>::value...> {
+      };
+
+      template <typename X>
+      struct contains_not : public ::sqlpp::logic::none<std::is_same<T, X>::value...> {
+      };
+
+      template <typename TypeVector>
+      struct contains_all;
 
       template <typename... X>
-      static constexpr bool contains_all(type_vector<X...>)
+      struct contains_all<type_vector<X...>> : public ::sqlpp::logic::all<contains<X>::value...>
       {
-        return ::sqlpp::logic::all<contains<X>()...>::value;
-      }
+      };
 
+#warning turn into structs
       template <typename... X>
       static constexpr bool contains_any(type_vector<X...>)
       {
-        return ::sqlpp::logic::any<contains<X>()...>::value;
+        return ::sqlpp::logic::any<contains<X>::value...>::value;
       }
 
       template <typename... X>
       static constexpr bool contains_none(type_vector<X...>)
       {
-        return ::sqlpp::logic::none<contains<X>()...>::value;
+        return ::sqlpp::logic::none<contains<X>::value...>::value;
       }
 
       static constexpr size_t size()
@@ -154,6 +159,19 @@ namespace sqlpp
 
     template <typename TypeVector, template <typename> class Transform>
     using transform_t = typename transform<TypeVector, Transform>::type;
+
+    template <typename TypeVector, template <typename> class Predicate>
+    struct copy_if;
+
+    template <template <typename> class Predicate, typename... T>
+    struct copy_if<type_vector<T...>, Predicate>
+    {
+      using type =
+          type_vector_cat_t<typename std::conditional<Predicate<T>::value, type_vector<T>, type_vector<>>::type...>;
+    };
+
+    template <typename TypeVector, template <typename> class Predicate>
+    using copy_if_t = typename copy_if<TypeVector, Predicate>::type;
 
   }  // namespace detail
 }  // namespace sqlpp

@@ -78,7 +78,7 @@ namespace sqlpp
   struct check_offset
   {
     using type =
-        static_combined_check_t<static_check_t<is_integral<T>::value, assert_offset_is_integral>>;
+        static_combined_check_t<static_check_t<is_integral<T>::value or is_unsigned_integral<T>::value, assert_offset_is_integral>>;
   };
   template <typename T>
   using check_offset_t = typename check_offset<remove_dynamic_t<T>>::type;

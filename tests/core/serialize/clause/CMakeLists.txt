@@ -29,6 +29,7 @@ function(create_test name)
     add_test(NAME ${target} COMMAND ${target})
 endfunction()
 
+create_test(cte)
 create_test(delete_from)
 create_test(group_by)
 create_test(for_update)

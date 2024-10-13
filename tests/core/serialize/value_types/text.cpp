@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Serge Robyns
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -23,19 +23,13 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "compare.h"
-#include "Sample.h"
+#include "../compare.h"
 #include <sqlpp11/sqlpp11.h>
 
-int ForUpdate(int, char* [])
+int main(int, char* [])
 {
-  const auto foo = test::TabFoo{};
+  SQLPP_COMPARE("", "''");
+  SQLPP_COMPARE("'", "''''");
 
-  SQLPP_COMPARE(sqlpp::for_update(),
-          " FOR UPDATE ");
-
-  SQLPP_COMPARE(select(foo.doubleN).from(foo).unconditionally().for_update(),
-          "SELECT tab_foo.double_n FROM tab_foo FOR UPDATE ");
-
-  return 0;
+#warning: Need more tests here
 }

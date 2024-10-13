@@ -118,7 +118,7 @@ namespace sqlpp
   template <typename NameTagProvider, typename FieldSpec>
   struct cte_base
   {
-    using type = member_t<cte_column_spec_t<FieldSpec>, column_t<NameTagProvider, cte_column_spec_t<FieldSpec>>>;
+    using type = member_t<FieldSpec, column_t<NameTagProvider, cte_column_spec_t<FieldSpec>>>;
   };
 
   template <typename Check, typename Union>
@@ -229,11 +229,8 @@ namespace sqlpp
   template <typename Context, typename NameTagProvider, typename Statement, typename... ColumnSpecs>
   auto to_sql_string(Context& context, const cte_t<NameTagProvider, Statement, ColumnSpecs...>& t) -> std::string
   {
-    using T = cte_t<NameTagProvider, Statement, ColumnSpecs...>;
-    context << name_tag_of_t<T>::template char_ptr<Context>() << " AS (";
-    to_sql_string(context, t._statement);
-    context << ")";
-    return context;
+    return name_to_sql_string(context, name_tag_of_t<NameTagProvider>::name) +  " AS (" + 
+    to_sql_string(context, t._statement) + ")";
   }
 
   // The cte_t is displayed as NameTagProviderName except within the with:
@@ -250,7 +247,7 @@ namespace sqlpp
     template <typename Statement>
     auto as(Statement statement) -> make_cte_t<NameTagProvider, Statement>
     {
-      static_assert(required_tables_of_t<Statement>::size::value == 0,
+      static_assert(required_tables_of_t<Statement>::empty(),
                     "common table expression must not use unknown tables");
       static_assert(not required_ctes_of<Statement>::template count<NameTagProvider>(),
                     "common table expression must not self-reference in the first part, use union_all/union_distinct "
@@ -270,12 +267,11 @@ namespace sqlpp
   template <typename Context, typename NameTagProvider>
   auto to_sql_string(Context& context, const cte_ref_t<NameTagProvider>&) -> std::string
   {
-    context << name_tag_of_t<cte_ref_t<NameTagProvider>>::template char_ptr<Context>();
-    return context;
+    return name_to_sql_string(context, name_tag_of_t<NameTagProvider>::name);
   }
 
   template <typename NameTagProvider>
-  auto cte(const NameTagProvider & /*unused*/) -> cte_ref_t<NameTagProvider>
+  auto cte(const NameTagProvider& /*unused*/) -> cte_ref_t<NameTagProvider>
   {
     return {};
   }

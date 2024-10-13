@@ -27,12 +27,18 @@
 #include "../compare.h"
 #include <sqlpp11/sqlpp11.h>
 
-int main()
+int main(int, char* [])
 {
   const auto foo = test::TabFoo{};
 
-  // Single table
-  SQLPP_COMPARE(single_table(foo), "tab_foo");
+  // No expression (not super useful).
+  SQLPP_COMPARE(cte(sqlpp::alias::x), "x");
+
+  // Select
+  SQLPP_COMPARE(cte(sqlpp::alias::x).as(select(foo.id).from(foo).unconditionally()), "x AS (SELECT tab_foo.id FROM tab_foo)");
+
+
+#warning: Add more tests
 
   return 0;
 }
