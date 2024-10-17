@@ -25,7 +25,6 @@
 set(test_files
     CustomQuery.cpp
     DynamicWhere.cpp
-    From.cpp
     Insert.cpp
     Lower.cpp
     Parameter.cpp

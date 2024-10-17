@@ -49,6 +49,13 @@ namespace sqlpp
     using type = NameType;
   };
 
+#warning: required in cte_column_spec_t (which could maybe be dropped for field_spec?)
+  template <typename NameType, typename ValueType>
+  struct value_type_of<field_spec_t<NameType, ValueType>>
+  {
+    using type = ValueType;
+  };
+
   template <typename Left, typename Right, typename Enable = void>
   struct is_field_compatible
   {

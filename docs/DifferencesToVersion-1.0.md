@@ -64,6 +64,9 @@ select(tab.id).from(tab).where(tab.id == 17 or dynamic(condition, tab.desert != 
 
 If `condition == true`, then the dynamic part will evaluate to `tab.desert != "cheesecake")`. Otherwise it will be treated as `false` (and the OR expression will be collapsed).
 
+## CTE
+cte.join is now allowed.
+
 ## DELETE FROM
 This used to be called `remove_from` in 1.0, it has been renamed to `delete_from` to be closer to SQL.
 

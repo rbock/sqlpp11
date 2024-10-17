@@ -107,6 +107,7 @@ namespace sqlpp
   auto to_sql_string(Context& context, const join_t<Lhs, JoinType, Rhs, Condition>& t) -> std::string
   {
     static_assert(not std::is_same<JoinType, cross_join_t>::value, "");
+#warning: need to enclose with from_table here to turn this into table_ref (important for CTE)
     return to_sql_string(context, t._lhs) + JoinType::_name + to_sql_string(context, t._rhs) + " ON " +
            to_sql_string(context, t._condition);
   }
@@ -189,38 +190,37 @@ namespace sqlpp
   template <typename Lhs, typename Rhs, typename /* = check_join_args<Lhs, Rhs> */>
   auto join(Lhs lhs, Rhs rhs) -> pre_join_t<Lhs, inner_join_t, Rhs>
   {
-#warning: What is the point of from_table? rename to make_table_ref?
-    return {from_table(std::move(lhs)), from_table(std::move(rhs))};
+    return {std::move(lhs), std::move(rhs)};
   }
 
   template <typename Lhs, typename Rhs, typename /* = check_join_args<Lhs, Rhs> */>
   auto inner_join(Lhs lhs, Rhs rhs) -> pre_join_t<Lhs, inner_join_t, Rhs>
   {
-    return {from_table(std::move(lhs)), from_table(std::move(rhs))};
+    return {std::move(lhs), std::move(rhs)};
   }
 
   template <typename Lhs, typename Rhs, typename /* = check_join_args<Lhs, Rhs> */>
   auto left_outer_join(Lhs lhs, Rhs rhs) -> pre_join_t<Lhs, left_outer_join_t, Rhs>
   {
-    return {from_table(std::move(lhs)), from_table(std::move(rhs))};
+    return {std::move(lhs), std::move(rhs)};
   }
 
   template <typename Lhs, typename Rhs, typename /* = check_join_args<Lhs, Rhs> */>
   auto right_outer_join(Lhs lhs, Rhs rhs) -> pre_join_t<Lhs, right_outer_join_t, Rhs>
   {
-    return {from_table(std::move(lhs)), from_table(std::move(rhs))};
+    return {std::move(lhs), std::move(rhs)};
   }
 
   template <typename Lhs, typename Rhs, typename /* = check_join_args<Lhs, Rhs> */>
   auto full_outer_join(Lhs lhs, Rhs rhs) -> pre_join_t<Lhs, full_outer_join_t, Rhs>
   {
-    return {from_table(std::move(lhs)), from_table(std::move(rhs))};
+    return {std::move(lhs), std::move(rhs)};
   }
 
   template <typename Lhs, typename Rhs, typename /* = check_join_args<Lhs, Rhs> */>
   auto cross_join(Lhs lhs, Rhs rhs) -> join_t<Lhs, cross_join_t, Rhs, unconditional_t>
   {
-    return {from_table(std::move(lhs)), from_table(std::move(rhs)), {}};
+    return {std::move(lhs), std::move(rhs), {}};
   }
 
 }  // namespace sqlpp

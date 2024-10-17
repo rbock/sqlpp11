@@ -35,6 +35,8 @@ int main()
   const auto bFoo = foo.as(sqlpp::alias::b);
   const auto cFoo = foo.as(sqlpp::alias::c);
 
+  const auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo).unconditionally());
+
   // Single table
   SQLPP_COMPARE(from(foo), " FROM tab_foo");
 
@@ -48,6 +50,11 @@ int main()
   // Multiple tables
   SQLPP_COMPARE(from(aFoo.join(bFoo).on(aFoo.id == bFoo.id).join(cFoo).on(bFoo.id == cFoo.id)),
       " FROM tab_foo AS a INNER JOIN tab_foo AS b ON a.id = b.id INNER JOIN tab_foo AS c ON b.id = c.id");
+
+  // CTE
+  SQLPP_COMPARE(from(x), " FROM x");
+  x.join(foo).on(x.id == foo.id);
+  //SQLPP_COMPARE(from(x.join(foo).on(x.id == foo.id)), " FROM x");
 
 #warning add tests for dynamic joins
 

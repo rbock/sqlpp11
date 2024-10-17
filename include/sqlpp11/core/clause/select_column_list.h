@@ -94,6 +94,7 @@ namespace sqlpp
         0;
   };
   template <typename Select, typename Column>
+#warning: Should this use `_depends_on_outer_table`?
     struct value_type_of<select_column_spec_t<Select, Column>> : public select_column_value_type_of<Column> {};
 
   SQLPP_PORTABLE_STATIC_ASSERT(

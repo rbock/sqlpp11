@@ -26,6 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp11/core/basic/enable_join.h>
 #include <sqlpp11/core/tuple_to_sql_string.h>
 #include <sqlpp11/core/logic.h>
 #include <sqlpp11/core/query/result_row.h>
@@ -93,7 +94,7 @@ namespace sqlpp
   {
     using _sqlpp_name_tag = name_tag_of_t<FieldSpec>;
 
-    using _traits = make_traits<value_type_of_t<FieldSpec>>;
+    using value_type = value_type_of_t<FieldSpec>;
   };
 
   template <typename NameTagProvider, typename Statement, typename ResultRow>
@@ -147,7 +148,7 @@ namespace sqlpp
   using check_cte_union_t = typename check_cte_union<T...>::type;
 
   template <typename NameTagProvider, typename Statement, typename... FieldSpecs>
-  struct cte_t : public cte_base<NameTagProvider, FieldSpecs>::type...
+  struct cte_t : public cte_base<NameTagProvider, FieldSpecs>::type..., public enable_join<cte_t<NameTagProvider, Statement, FieldSpecs...>>
   {
     using _traits = make_traits<no_value_t, tag::is_cte>;
     using _nodes = detail::type_vector<>;
