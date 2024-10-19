@@ -74,21 +74,21 @@ namespace sqlpp
                              sqlpp::detail::transform_t<provided_tables_of_t<Rhs>, make_char_sequence>{})>;
 
   template <typename Lhs, typename Rhs, typename = check_join_args<Lhs, Rhs>>
-  auto join(Lhs lhs, Rhs rhs) -> pre_join_t<Lhs, inner_join_t, Rhs>;
+  auto join(Lhs lhs, Rhs rhs) -> pre_join_t<table_ref_t<Lhs>, inner_join_t, table_ref_t<Rhs>>;
 
   template <typename Lhs, typename Rhs, typename = check_join_args<Lhs, Rhs>>
-  auto inner_join(Lhs lhs, Rhs rhs) -> pre_join_t<Lhs, inner_join_t, Rhs>;
+  auto inner_join(Lhs lhs, Rhs rhs) -> pre_join_t<table_ref_t<Lhs>, inner_join_t, table_ref_t<Rhs>>;
 
   template <typename Lhs, typename Rhs, typename = check_join_args<Lhs, Rhs>>
-  auto left_outer_join(Lhs lhs, Rhs rhs) -> pre_join_t<Lhs, left_outer_join_t, Rhs>;
+  auto left_outer_join(Lhs lhs, Rhs rhs) -> pre_join_t<table_ref_t<Lhs>, left_outer_join_t, table_ref_t<Rhs>>;
 
   template <typename Lhs, typename Rhs, typename = check_join_args<Lhs, Rhs>>
-  auto right_outer_join(Lhs lhs, Rhs rhs) -> pre_join_t<Lhs, right_outer_join_t, Rhs>;
+  auto right_outer_join(Lhs lhs, Rhs rhs) -> pre_join_t<table_ref_t<Lhs>, right_outer_join_t, table_ref_t<Rhs>>;
 
   template <typename Lhs, typename Rhs, typename = check_join_args<Lhs, Rhs>>
-  auto full_outer_join(Lhs lhs, Rhs rhs) -> pre_join_t<Lhs, full_outer_join_t, Rhs>;
+  auto full_outer_join(Lhs lhs, Rhs rhs) -> pre_join_t<table_ref_t<Lhs>, full_outer_join_t, table_ref_t<Rhs>>;
 
   template <typename Lhs, typename Rhs, typename = check_join_args<Lhs, Rhs>>
-  auto cross_join(Lhs lhs, Rhs rhs) -> join_t<Lhs, cross_join_t, Rhs, unconditional_t>;
+  auto cross_join(Lhs lhs, Rhs rhs) -> join_t<table_ref_t<Lhs>, cross_join_t, table_ref_t<Rhs>, unconditional_t>;
 
 }  // namespace sqlpp

@@ -53,8 +53,7 @@ int main()
 
   // CTE
   SQLPP_COMPARE(from(x), " FROM x");
-  x.join(foo).on(x.id == foo.id);
-  //SQLPP_COMPARE(from(x.join(foo).on(x.id == foo.id)), " FROM x");
+  SQLPP_COMPARE(from(x.join(foo).on(x.id == foo.id)), " FROM x INNER JOIN tab_foo ON x.id = tab_foo.id");
 
 #warning add tests for dynamic joins
 

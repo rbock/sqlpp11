@@ -567,6 +567,14 @@ namespace sqlpp
     using type = no_context_t;
   };
 
+  template<typename T>
+  struct table_ref {
+    using type = T;
+  };
+
+  template<typename T>
+  using table_ref_t = typename table_ref<T>::type;
+
   template <typename Db>
   struct serializer_context_of_impl<Db, ::sqlpp::void_t<typename Db::_serializer_context_t>>
   {

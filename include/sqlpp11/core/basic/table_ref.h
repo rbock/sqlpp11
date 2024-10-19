@@ -45,7 +45,7 @@ namespace sqlpp
   using from_table_t = typename from_table_impl<T>::type;
 
   template <typename T>
-  auto table_ref(T t) -> T
+  auto make_table_ref(T t) -> T
   {
     return t;
   }

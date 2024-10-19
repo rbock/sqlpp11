@@ -77,6 +77,18 @@ namespace sqlpp
   struct cte_ref_t;
 
   template <typename NameTagProvider, typename Statement, typename... FieldSpecs>
+  struct table_ref<cte_t<NameTagProvider, Statement, FieldSpecs...>>
+  {
+    using type = cte_ref_t<NameTagProvider>;
+  };
+
+  template <typename NameTagProvider, typename Statement, typename... FieldSpecs>
+  auto make_table_ref(cte_t<NameTagProvider, Statement, FieldSpecs...> /* unused */) -> cte_ref_t<NameTagProvider>
+  {
+    return {};
+  }
+
+  template <typename NameTagProvider, typename Statement, typename... FieldSpecs>
   auto from_table(cte_t<NameTagProvider, Statement, FieldSpecs...> /*unused*/) -> cte_ref_t<NameTagProvider>
   {
     return cte_ref_t<NameTagProvider>{};
@@ -96,6 +108,9 @@ namespace sqlpp
 
     using value_type = value_type_of_t<FieldSpec>;
   };
+
+  template<typename FieldSpec>
+    struct name_tag_of<cte_column_spec_t<FieldSpec>> : public name_tag_of<FieldSpec>{};
 
   template <typename NameTagProvider, typename Statement, typename ResultRow>
   struct make_cte_impl
@@ -119,7 +134,7 @@ namespace sqlpp
   template <typename NameTagProvider, typename FieldSpec>
   struct cte_base
   {
-    using type = member_t<FieldSpec, column_t<NameTagProvider, cte_column_spec_t<FieldSpec>>>;
+    using type = member_t<FieldSpec, column_t<cte_ref_t<NameTagProvider>, cte_column_spec_t<FieldSpec>>>;
   };
 
   template <typename Check, typename Union>
@@ -261,6 +276,17 @@ namespace sqlpp
 #warning: is table? really?
    template<typename NameTagProvider>
     struct is_table<cte_ref_t<NameTagProvider>> : public std::true_type{};
+
+   template<typename NameTagProvider>
+    struct provided_tables_of<cte_ref_t<NameTagProvider>> 
+    {
+      using type = sqlpp::detail::type_vector<cte_ref_t<NameTagProvider>>;
+    };
+
+   template<typename NameTagProvider>
+    struct provided_static_tables_of<cte_ref_t<NameTagProvider>> : public provided_tables_of<cte_ref_t<NameTagProvider>>
+    {
+    };
 
    template<typename NameTagProvider>
     struct name_tag_of<cte_ref_t<NameTagProvider>> : public name_tag_of<NameTagProvider>{};

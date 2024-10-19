@@ -43,6 +43,7 @@ namespace sqlpp
     template <typename T>
     auto join(T t) const -> decltype(::sqlpp::join(this->derived(), t))
     {
+#warning: move?
       return ::sqlpp::join(this->derived(), t);
     }
 
