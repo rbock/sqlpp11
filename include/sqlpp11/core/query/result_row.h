@@ -40,9 +40,9 @@ namespace sqlpp
     struct result_row_impl;
 
     template <typename Db, std::size_t index, typename FieldSpec>
-    struct result_field : public member_t<FieldSpec, typename FieldSpec::cpp_type>
+    struct result_field : public member_t<FieldSpec, typename FieldSpec::result_value_type>
     {
-      using _field = member_t<FieldSpec, typename FieldSpec::cpp_type>;
+      using _field = member_t<FieldSpec, typename FieldSpec::result_value_type>;
 
       result_field() = default;
 

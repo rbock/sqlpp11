@@ -88,54 +88,19 @@ namespace sqlpp
     return {};
   }
 
-  template <typename NameTagProvider, typename Statement, typename... FieldSpecs>
-  auto from_table(cte_t<NameTagProvider, Statement, FieldSpecs...> /*unused*/) -> cte_ref_t<NameTagProvider>
-  {
-    return cte_ref_t<NameTagProvider>{};
-  }
-
-  template <typename NameTagProvider, typename Statement, typename... FieldSpecs>
-  struct from_table_impl<cte_t<NameTagProvider, Statement, FieldSpecs...>>
-  {
-    using type = cte_ref_t<NameTagProvider>;
-  };
-
-#warning: Why can't we use FieldSpec directly? If not, does this one need to inherit from name_tag_base?
-  template <typename FieldSpec>
-  struct cte_column_spec_t
-  {
-    using _sqlpp_name_tag = name_tag_of_t<FieldSpec>;
-
-    using value_type = value_type_of_t<FieldSpec>;
-  };
-
-  template<typename FieldSpec>
-    struct name_tag_of<cte_column_spec_t<FieldSpec>> : public name_tag_of<FieldSpec>{};
-
+  // make_cte translates the `Statement` into field_specs...
+  // The field_specs are required to add column data members to the CTE.
   template <typename NameTagProvider, typename Statement, typename ResultRow>
-  struct make_cte_impl
-  {
-    using type = void;
-  };
+  struct make_cte;
 
   template <typename NameTagProvider, typename Statement, typename... FieldSpecs>
-  struct make_cte_impl<NameTagProvider, Statement, result_row_t<void, FieldSpecs...>>
+  struct make_cte<NameTagProvider, Statement, result_row_t<void, FieldSpecs...>>
   {
     using type = cte_t<NameTagProvider, Statement, FieldSpecs...>;
   };
 
   template <typename NameTagProvider, typename Statement>
-  using make_cte_t = typename make_cte_impl<NameTagProvider, Statement, get_result_row_t<Statement>>::type;
-
-  // workaround for msvc unknown internal error
-  //  template <typename NameTagProvider, typename Statement, typename... FieldSpecs>
-  //  struct cte_t
-  //	  : public member_t<cte_column_spec_t<FieldSpecs>, column_t<NameTagProvider, cte_column_spec_t<FieldSpecs>>>...
-  template <typename NameTagProvider, typename FieldSpec>
-  struct cte_base
-  {
-    using type = member_t<FieldSpec, column_t<cte_ref_t<NameTagProvider>, cte_column_spec_t<FieldSpec>>>;
-  };
+  using make_cte_t = typename make_cte<NameTagProvider, Statement, get_result_row_t<Statement>>::type;
 
   template <typename Check, typename Union>
   struct union_cte_impl
@@ -162,9 +127,18 @@ namespace sqlpp
   template <typename... T>
   using check_cte_union_t = typename check_cte_union<T...>::type;
 
-  template <typename NameTagProvider, typename Statement, typename... FieldSpecs>
-  struct cte_t : public cte_base<NameTagProvider, FieldSpecs>::type..., public enable_join<cte_t<NameTagProvider, Statement, FieldSpecs...>>
+  // cte_member is a helper to add column data members to `cte_t`.
+  template <typename NameTagProvider, typename FieldSpec>
+  struct cte_member
   {
+    using type = member_t<FieldSpec, column_t<cte_ref_t<NameTagProvider>, FieldSpec>>;
+  };
+
+  template <typename NameTagProvider, typename Statement, typename... FieldSpecs>
+  struct cte_t : public cte_member<NameTagProvider, FieldSpecs>::type...,
+                 public enable_join<cte_t<NameTagProvider, Statement, FieldSpecs...>>
+  {
+#warning: remove
     using _traits = make_traits<no_value_t, tag::is_cte>;
     using _nodes = detail::type_vector<>;
     using _provided_tables = detail::type_set<cte_t>;
@@ -173,7 +147,7 @@ namespace sqlpp
 
     constexpr static bool _is_recursive = required_ctes_of<Statement>::template count<NameTagProvider>();
 
-    using _column_tuple_t = std::tuple<column_t<NameTagProvider, cte_column_spec_t<FieldSpecs>>...>;
+    using _column_tuple_t = std::tuple<column_t<cte_ref_t<NameTagProvider>, FieldSpecs>...>;
 
     using _result_row_t = result_row_t<void, FieldSpecs...>;
 

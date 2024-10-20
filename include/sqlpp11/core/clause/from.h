@@ -116,7 +116,7 @@ namespace sqlpp
       using _consistency_check = consistent_t;
 
       template <typename Table>
-      auto from(Table table) const -> _new_statement_t<check_from_static_t<Table>, from_t<from_table_t<Table>>>
+      auto from(Table table) const -> _new_statement_t<check_from_static_t<Table>, from_t<table_ref_t<Table>>>
       {
         using Check = check_from_static_t<Table>;
         return _from_impl(Check{}, table);
@@ -128,10 +128,10 @@ namespace sqlpp
 
       template <typename Table>
       auto _from_impl(consistent_t /*unused*/, Table table) const
-          -> _new_statement_t<consistent_t, from_t<from_table_t<Table>>>
+          -> _new_statement_t<consistent_t, from_t<table_ref_t<Table>>>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this),
-                from_data_t<from_table_t<Table>>{from_table(table)}};
+                from_data_t<table_ref_t<Table>>{make_table_ref(table)}};
       }
     };
   };

@@ -107,7 +107,6 @@ namespace sqlpp
   auto to_sql_string(Context& context, const join_t<Lhs, JoinType, Rhs, Condition>& t) -> std::string
   {
     static_assert(not std::is_same<JoinType, cross_join_t>::value, "");
-#warning: need to enclose with from_table here to turn this into table_ref (important for CTE)
     return to_sql_string(context, t._lhs) + JoinType::_name + to_sql_string(context, t._rhs) + " ON " +
            to_sql_string(context, t._condition);
   }
@@ -187,7 +186,6 @@ namespace sqlpp
 
   // Note: See sqlpp11/core/basic/join_fwd.h for forward declarations including check_join_args.
 
-#warning: reactivate check_join_args?
   template <typename Lhs, typename Rhs, typename /* = check_join_args<Lhs, Rhs> */>
   auto join(Lhs lhs, Rhs rhs) -> pre_join_t<table_ref_t<Lhs>, inner_join_t, table_ref_t<Rhs>>
   {

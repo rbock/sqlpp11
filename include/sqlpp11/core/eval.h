@@ -33,26 +33,18 @@
 
 namespace sqlpp
 {
-  template <typename Db, typename Expr>
-  struct eval_t
+#warning: Need to add tests for eval.
+  template <typename Db,
+            typename Expr,
+            typename std::enable_if<not std::is_convertible<Expr, std::string>::value, int>::type = 0>
+  auto eval(Db& db, Expr expr) -> result_value_t<value_type_of_t<Expr>>
   {
     static_assert(is_database<Db>::value, "Db parameter of eval has to be a database connection");
     static_assert(is_expression_t<Expr>::value,
                   "Expression parameter of eval has to be an sqlpp expression or a string");
     static_assert(required_tables_of_t<Expr>::size::value == 0,
                   "Expression cannot be used in eval because it requires tables");
-    using _name_type = alias::a_t;
-    using _value_type = value_type_of_t<Expr>;
-#warning: Or do we expect users to provide the optional, too?
-    using _field_spec = field_spec_t<_name_type, ::sqlpp::optional<_value_type>>;
-    using type = typename _field_spec::cpp_type;
-  };
 
-  template <typename Db,
-            typename Expr,
-            typename std::enable_if<not std::is_convertible<Expr, std::string>::value, int>::type = 0>
-  auto eval(Db& db, Expr expr) -> typename eval_t<typename Db::_connection_base_t, Expr>::type
-  {
     return db(select(expr.as(alias::a))).front().a;
   }
 
