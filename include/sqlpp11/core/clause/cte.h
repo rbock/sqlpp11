@@ -134,6 +134,40 @@ namespace sqlpp
     using type = member_t<FieldSpec, column_t<cte_ref_t<NameTagProvider>, FieldSpec>>;
   };
 
+#warning: Need to document that you need to be a bit careful with aliased CTEs as we use cte_ref in columns, from, and join.
+  template <typename NameTagProvider, typename NewNameTagProvider, typename... FieldSpecs>
+  struct cte_as_t : public cte_member<NewNameTagProvider, FieldSpecs>::type...,
+                 public enable_join<cte_as_t<NameTagProvider, NewNameTagProvider, FieldSpecs...>>
+  {
+  };
+
+  template <typename NameTagProvider, typename NewNameTagProvider, typename... ColumnSpecs>
+  struct is_table<cte_as_t<NameTagProvider, NewNameTagProvider, ColumnSpecs...>> : public std::true_type
+  {
+  };
+
+  template <typename NameTagProvider, typename NewNameTagProvider, typename... ColumnSpecs>
+  struct name_tag_of<cte_as_t<NameTagProvider, NewNameTagProvider, ColumnSpecs...>> : public name_tag_of<NewNameTagProvider>
+  {
+  };
+
+  template <typename NameTagProvider, typename NewNameTagProvider, typename... ColumnSpecs>
+    struct provided_tables_of<cte_as_t<NameTagProvider, NewNameTagProvider, ColumnSpecs...>> 
+    {
+      using type = sqlpp::detail::type_vector<cte_ref_t<NewNameTagProvider>>;
+    };
+
+  template <typename NameTagProvider, typename NewNameTagProvider, typename... ColumnSpecs>
+    struct provided_static_tables_of<cte_as_t<NameTagProvider, NewNameTagProvider, ColumnSpecs...>> : public provided_tables_of<cte_as_t<NameTagProvider, NewNameTagProvider, ColumnSpecs...>>
+    {
+    };
+
+  template <typename Context, typename NameTagProvider, typename NewNameTagProvider, typename... ColumnSpecs>
+  auto to_sql_string(Context& context, const cte_as_t<NameTagProvider, NewNameTagProvider, ColumnSpecs...>&) -> std::string
+  {
+    return name_to_sql_string(context, name_tag_of_t<NameTagProvider>::name) + " AS " + name_to_sql_string(context, name_tag_of_t<NewNameTagProvider>::name);
+  }
+
   template <typename NameTagProvider, typename Statement, typename... FieldSpecs>
   struct cte_t : public cte_member<NameTagProvider, FieldSpecs>::type...,
                  public enable_join<cte_t<NameTagProvider, Statement, FieldSpecs...>>
@@ -150,6 +184,13 @@ namespace sqlpp
     using _column_tuple_t = std::tuple<column_t<cte_ref_t<NameTagProvider>, FieldSpecs>...>;
 
     using _result_row_t = result_row_t<void, FieldSpecs...>;
+
+    template <typename NewNameTagProvider>
+    constexpr auto as(const NewNameTagProvider& /*unused*/) const
+        -> cte_as_t<NameTagProvider, NewNameTagProvider, FieldSpecs...>
+    {
+      return {};
+    }
 
     template <typename Rhs>
     auto union_distinct(Rhs rhs) const
@@ -205,7 +246,7 @@ namespace sqlpp
     Statement _statement;
   };
 
-#warning: is table? really?
+#warning: is table? really? cte_ref needs to be a table, not sure about cte_t
   template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>
   struct is_table<cte_t<NameTagProvider, Statement, ColumnSpecs...>> : public std::true_type
   {
@@ -219,13 +260,12 @@ namespace sqlpp
   template <typename Context, typename NameTagProvider, typename Statement, typename... ColumnSpecs>
   auto to_sql_string(Context& context, const cte_t<NameTagProvider, Statement, ColumnSpecs...>& t) -> std::string
   {
-    return name_to_sql_string(context, name_tag_of_t<NameTagProvider>::name) +  " AS (" + 
-    to_sql_string(context, t._statement) + ")";
+    return name_to_sql_string(context, name_tag_of_t<NameTagProvider>::name) + " AS (" +
+           to_sql_string(context, t._statement) + ")";
   }
 
-  // The cte_t is displayed as NameTagProviderName except within the with:
-  //    - the with needs the
-  //      NameTagProviderName AS (ColumnNames) (select/union)
+  // The cte_ref_t represents the cte as table in FROM.
+  // The cte_t needs to be provided by WITH.
   template <typename NameTagProvider>
   struct cte_ref_t
   {
@@ -247,9 +287,12 @@ namespace sqlpp
     }
   };
 
-#warning: is table? really?
    template<typename NameTagProvider>
     struct is_table<cte_ref_t<NameTagProvider>> : public std::true_type{};
+
+   template<typename NameTagProvider>
+    struct name_tag_of<cte_ref_t<NameTagProvider>> : public name_tag_of<NameTagProvider>
+    {};
 
    template<typename NameTagProvider>
     struct provided_tables_of<cte_ref_t<NameTagProvider>> 
@@ -261,9 +304,6 @@ namespace sqlpp
     struct provided_static_tables_of<cte_ref_t<NameTagProvider>> : public provided_tables_of<cte_ref_t<NameTagProvider>>
     {
     };
-
-   template<typename NameTagProvider>
-    struct name_tag_of<cte_ref_t<NameTagProvider>> : public name_tag_of<NameTagProvider>{};
 
   template <typename Context, typename NameTagProvider>
   auto to_sql_string(Context& context, const cte_ref_t<NameTagProvider>&) -> std::string

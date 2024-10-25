@@ -36,6 +36,9 @@ int main()
   const auto cFoo = foo.as(sqlpp::alias::c);
 
   const auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo).unconditionally());
+  const auto xa = x.as(sqlpp::alias::a);
+  const auto xb = x.as(sqlpp::alias::b);
+  const auto y = cte(sqlpp::alias::y).as(select(foo.id).from(foo).unconditionally());
 
   // Single table
   SQLPP_COMPARE(from(foo), " FROM tab_foo");
@@ -53,7 +56,13 @@ int main()
 
   // CTE
   SQLPP_COMPARE(from(x), " FROM x");
+  SQLPP_COMPARE(from(foo.join(x).on(x.id == foo.id)), " FROM tab_foo INNER JOIN x ON x.id = tab_foo.id");
   SQLPP_COMPARE(from(x.join(foo).on(x.id == foo.id)), " FROM x INNER JOIN tab_foo ON x.id = tab_foo.id");
+  SQLPP_COMPARE(from(x.join(y).on(x.id == y.id)), " FROM x INNER JOIN y ON x.id = y.id");
+#warning: Some of these should go into CTE tests
+  SQLPP_COMPARE(xa, "x AS a");
+  SQLPP_COMPARE(xa.id == xb.id, "a.id = b.id");
+  SQLPP_COMPARE(from(xa.join(xb).on(xa.id == xb.id)), " FROM x AS a INNER JOIN x AS b ON a.id = b.id");
 
 #warning add tests for dynamic joins
 
