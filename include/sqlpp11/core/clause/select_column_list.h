@@ -146,18 +146,8 @@ namespace sqlpp
         return static_cast<const _statement_t&>(*this);
       }
 
-      template <typename Db, typename Column>
-      struct _deferred_field_t
-      {
-        using type = make_field_spec_t<_statement_t, Column>;
-      };
-
-      template <typename Db, typename Column>
-      using _field_t = typename _deferred_field_t<Db, Column>::type;
-
-#warning: This should not require the Db parameter for deferral, see select_as.
       template <typename Db>
-      using _result_row_t = result_row_t<Db, _field_t<Db, Columns>...>;
+      using _result_row_t = result_row_t<Db, make_field_spec_t<_statement_t, Columns>...>;
 
       template <typename NameTagProvider>
       auto as(const NameTagProvider&) const
