@@ -59,9 +59,9 @@ void test_aggregate_functions(Value v)
   static_assert(sqlpp::has_enabled_as<decltype(min(v_not_null).over())>::value, "");
 
   // Aggregate functions have a name
-  static_assert(sqlpp::has_name<decltype(count(v_not_null).over())>::value, "");
-  static_assert(sqlpp::has_name<decltype(max(v_not_null).over())>::value, "");
-  static_assert(sqlpp::has_name<decltype(min(v_not_null).over())>::value, "");
+  static_assert(sqlpp::has_name_tag<decltype(count(v_not_null).over())>::value, "");
+  static_assert(sqlpp::has_name_tag<decltype(max(v_not_null).over())>::value, "");
+  static_assert(sqlpp::has_name_tag<decltype(min(v_not_null).over())>::value, "");
 
   static_assert(std::is_same<sqlpp::name_tag_of_t<decltype(count(v_not_null).over())>, sqlpp::alias::_count_t::_sqlpp_name_tag>::value, "");
   static_assert(std::is_same<sqlpp::name_tag_of_t<decltype(min(v_not_null).over())>, sqlpp::alias::_min_t::_sqlpp_name_tag>::value, "");
@@ -107,8 +107,8 @@ void test_numeric_aggregate_functions(Value v)
   static_assert(sqlpp::has_enabled_as<decltype(avg(v_not_null).over())>::value, "");
 
   // Aggregate functions have a name
-  static_assert(sqlpp::has_name<decltype(sum(v_not_null).over())>::value, "");
-  static_assert(sqlpp::has_name<decltype(avg(v_not_null).over())>::value, "");
+  static_assert(sqlpp::has_name_tag<decltype(sum(v_not_null).over())>::value, "");
+  static_assert(sqlpp::has_name_tag<decltype(avg(v_not_null).over())>::value, "");
 
   static_assert(std::is_same<sqlpp::name_tag_of_t<decltype(sum(v_not_null).over())>, sqlpp::alias::_sum_t::_sqlpp_name_tag>::value, "");
   static_assert(std::is_same<sqlpp::name_tag_of_t<decltype(avg(v_not_null).over())>, sqlpp::alias::_avg_t::_sqlpp_name_tag>::value, "");

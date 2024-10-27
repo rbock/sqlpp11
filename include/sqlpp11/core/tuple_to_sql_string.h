@@ -100,7 +100,7 @@ namespace sqlpp
       {
         return operator()(context, t._expr, index);
       }
-      static_assert(has_name<T>::value, "select columns have to have a name");
+      static_assert(has_name_tag<T>::value, "select columns have to have a name");
       return operator()(context, as(sqlpp::nullopt, t._expr), index);
     }
 

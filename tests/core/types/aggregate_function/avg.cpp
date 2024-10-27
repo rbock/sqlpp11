@@ -56,8 +56,8 @@ void test_avg(Value v)
   static_assert(sqlpp::has_enabled_as<decltype(avg(sqlpp::distinct, v_not_null))>::value, "");
 
   // avg has a name
-  static_assert(sqlpp::has_name<decltype(avg(v_not_null))>::value, "");
-  static_assert(sqlpp::has_name<decltype(avg(sqlpp::distinct, v_not_null))>::value, "");
+  static_assert(sqlpp::has_name_tag<decltype(avg(v_not_null))>::value, "");
+  static_assert(sqlpp::has_name_tag<decltype(avg(sqlpp::distinct, v_not_null))>::value, "");
 
   static_assert(std::is_same<sqlpp::name_tag_of_t<decltype(avg(v_not_null))>, sqlpp::alias::_avg_t::_sqlpp_name_tag>::value, "");
   static_assert(std::is_same<sqlpp::name_tag_of_t<decltype(avg(sqlpp::distinct, v_not_null))>, sqlpp::alias::_avg_t::_sqlpp_name_tag>::value, "");

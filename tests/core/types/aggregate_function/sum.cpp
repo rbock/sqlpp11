@@ -57,8 +57,8 @@ void test_sum(Value v)
   static_assert(sqlpp::has_enabled_as<decltype(sum(sqlpp::distinct, v_not_null))>::value, "");
 
   // sum has a name
-  static_assert(sqlpp::has_name<decltype(sum(v_not_null))>::value, "");
-  static_assert(sqlpp::has_name<decltype(sum(sqlpp::distinct, v_not_null))>::value, "");
+  static_assert(sqlpp::has_name_tag<decltype(sum(v_not_null))>::value, "");
+  static_assert(sqlpp::has_name_tag<decltype(sum(sqlpp::distinct, v_not_null))>::value, "");
 
   static_assert(std::is_same<sqlpp::name_tag_of_t<decltype(sum(v_not_null))>, sqlpp::alias::_sum_t::_sqlpp_name_tag>::value, "");
   static_assert(std::is_same<sqlpp::name_tag_of_t<decltype(sum(sqlpp::distinct, v_not_null))>, sqlpp::alias::_sum_t::_sqlpp_name_tag>::value, "");

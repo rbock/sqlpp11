@@ -52,10 +52,10 @@ void test_as_expression(Value v)
   static_assert(not sqlpp::has_value_type<decltype(dynamic(true, v_maybe_null.order(sqlpp::sort_type::asc)))>::value, "");
 
   // Sort order expressions have no name.
-  static_assert(not sqlpp::has_name<decltype(v_not_null.asc())>::value, "");
-  static_assert(not sqlpp::has_name<decltype(v_maybe_null.asc())>::value, "");
-  static_assert(not sqlpp::has_name<decltype(dynamic(true, v_not_null.asc()))>::value, "");
-  static_assert(not sqlpp::has_name<decltype(dynamic(true, v_maybe_null.asc()))>::value, "");
+  static_assert(not sqlpp::has_name_tag<decltype(v_not_null.asc())>::value, "");
+  static_assert(not sqlpp::has_name_tag<decltype(v_maybe_null.asc())>::value, "");
+  static_assert(not sqlpp::has_name_tag<decltype(dynamic(true, v_not_null.asc()))>::value, "");
+  static_assert(not sqlpp::has_name_tag<decltype(dynamic(true, v_maybe_null.asc()))>::value, "");
 
   // Sort order expression do not enable the `as` member function.
   static_assert(not sqlpp::has_enabled_as<decltype(v_not_null.asc())>::value, "");

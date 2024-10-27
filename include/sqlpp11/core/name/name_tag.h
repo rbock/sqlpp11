@@ -54,9 +54,8 @@ namespace sqlpp
   template <typename T>
   using name_tag_of_t = typename name_tag_of<T>::type;
 
-#warning: rename to has_name_tag
   // Override this for other classes like columns or tables.
   template<typename T>
-  struct has_name : public std::integral_constant<bool, not std::is_same<name_tag_of_t<T>, no_name_t>::value> {};
+  struct has_name_tag : public std::integral_constant<bool, not std::is_same<name_tag_of_t<T>, no_name_t>::value> {};
 
 }  // namespace sqlpp

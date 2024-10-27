@@ -124,7 +124,7 @@ int main()
   static_assert(std::is_same<sqlpp::value_type_of_t<decltype(assign(bar.intN, sqlpp::default_value))>, sqlpp::no_value_t>::value, "");
 
   // as expressions retain the value type of the real thing
-  static_assert(sqlpp::has_name<decltype(bar.intN)>::value, "");
+  static_assert(sqlpp::has_name_tag<decltype(bar.intN)>::value, "");
   sqlpp::as(bar.intN, bar.textN);
 
 #if 0

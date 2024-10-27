@@ -81,7 +81,7 @@ namespace sqlpp
       -> parameter_t<value_type_of_t<ValueType>, NameTagProvider>
   {
     static_assert(has_value_type<ValueType>::value, "first argument is not a value type");
-    static_assert(has_name<NameTagProvider>::value, "second argument does not have a name");
+    static_assert(has_name_tag<NameTagProvider>::value, "second argument does not have a name");
     return {};
   }
 }  // namespace sqlpp

@@ -53,9 +53,9 @@ void test_assign_expression(const Column& col, const Value& v)
   static_assert(not sqlpp::has_value_type<decltype(col = v_maybe_null)>::value, "");
 
   // Assignments have no name
-  static_assert(not sqlpp::has_name<decltype(col = sqlpp::default_value)>::value, "");
-  static_assert(not sqlpp::has_name<decltype(col = v_not_null)>::value, "");
-  static_assert(not sqlpp::has_name<decltype(col = v_maybe_null)>::value, "");
+  static_assert(not sqlpp::has_name_tag<decltype(col = sqlpp::default_value)>::value, "");
+  static_assert(not sqlpp::has_name_tag<decltype(col = v_not_null)>::value, "");
+  static_assert(not sqlpp::has_name_tag<decltype(col = v_maybe_null)>::value, "");
 
   // Assignment nodes
   static_assert(std::is_same<sqlpp::nodes_of_t<decltype(col = sqlpp::default_value)>,

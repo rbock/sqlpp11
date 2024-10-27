@@ -58,8 +58,8 @@ void test_select_as(Value v)
   static_assert(is_same_type<decltype(select(v_maybe_null)), OptValueType>(), "");
 
   // A select of a single value can be named and used as a named value.
-  static_assert(sqlpp::has_name<decltype(select(v_not_null).as(column))>::value, "");
-  static_assert(sqlpp::has_name<decltype(select(v_maybe_null).as(column))>::value, "");
+  static_assert(sqlpp::has_name_tag<decltype(select(v_not_null).as(column))>::value, "");
+  static_assert(sqlpp::has_name_tag<decltype(select(v_maybe_null).as(column))>::value, "");
 
   static_assert(is_same_type<decltype(select(v_not_null).as(column)), ValueType>(), "");
   static_assert(is_same_type<decltype(select(v_maybe_null).as(column)), OptValueType>(), "");
@@ -69,15 +69,15 @@ void test_select_as(Value v)
   static_assert(sqlpp::is_table<decltype(select(v_maybe_null).as(column))>::value, "");
 
   // The column of a single-value pseudo table can be used as named value
-  static_assert(sqlpp::has_name<decltype(select(v_not_null).as(column).always)>::value, "");
-  static_assert(sqlpp::has_name<decltype(select(v_maybe_null).as(column).sometimes)>::value, "");
+  static_assert(sqlpp::has_name_tag<decltype(select(v_not_null).as(column).always)>::value, "");
+  static_assert(sqlpp::has_name_tag<decltype(select(v_maybe_null).as(column).sometimes)>::value, "");
 
   static_assert(is_same_type<decltype(select(v_not_null).as(column).always), ValueType>(), "");
   static_assert(is_same_type<decltype(select(v_maybe_null).as(column).sometimes), OptValueType>(), "");
 
   // The column of a single-value pseudo table can be renamed and used as named value
-  static_assert(not sqlpp::has_name<decltype(select(v_not_null).as(column).always.as(foo))>::value, "");
-  static_assert(not sqlpp::has_name<decltype(select(v_maybe_null).as(column).sometimes.as(foo))>::value, "");
+  static_assert(not sqlpp::has_name_tag<decltype(select(v_not_null).as(column).always.as(foo))>::value, "");
+  static_assert(not sqlpp::has_name_tag<decltype(select(v_maybe_null).as(column).sometimes.as(foo))>::value, "");
 
   static_assert(sqlpp::select_column_has_name<decltype(select(v_not_null).as(column).always.as(foo))>::value, "");
   static_assert(sqlpp::select_column_has_name<decltype(select(v_maybe_null).as(column).sometimes.as(foo))>::value, "");
@@ -91,22 +91,22 @@ void test_select_as(Value v)
   static_assert(not sqlpp::has_value_type<decltype(select(v_not_null, v_maybe_null))>::value, "");
 
   // A select of multiple values can be named and used as a named value.
-  static_assert(sqlpp::has_name<decltype(select(v_not_null, v_maybe_null).as(column))>::value, "");
+  static_assert(sqlpp::has_name_tag<decltype(select(v_not_null, v_maybe_null).as(column))>::value, "");
   static_assert(not sqlpp::has_value_type<decltype(select(v_not_null, v_maybe_null).as(column))>::value, "");
 
   // A select of multiple values can be named and used as a pseudo table
   static_assert(sqlpp::is_table<decltype(select(v_not_null, v_maybe_null).as(table))>::value, "");
 
   // The column of a multi-value pseudo table can be used as named value
-  static_assert(sqlpp::has_name<decltype(select(v_not_null, v_maybe_null).as(table).always)>::value, "");
-  static_assert(sqlpp::has_name<decltype(select(v_not_null, v_maybe_null).as(table).sometimes)>::value, "");
+  static_assert(sqlpp::has_name_tag<decltype(select(v_not_null, v_maybe_null).as(table).always)>::value, "");
+  static_assert(sqlpp::has_name_tag<decltype(select(v_not_null, v_maybe_null).as(table).sometimes)>::value, "");
 
   static_assert(is_same_type<decltype(select(v_not_null, v_maybe_null).as(table).always), ValueType>(), "");
   static_assert(is_same_type<decltype(select(v_not_null, v_maybe_null).as(table).sometimes), OptValueType>(), "");
 
   // The column of a multi-value pseudo table can be renamed and used as named value
-  static_assert(not sqlpp::has_name<decltype(select(v_not_null, v_maybe_null).as(table).always.as(foo))>::value, "");
-  static_assert(not sqlpp::has_name<decltype(select(v_not_null, v_maybe_null).as(table).sometimes.as(foo))>::value, "");
+  static_assert(not sqlpp::has_name_tag<decltype(select(v_not_null, v_maybe_null).as(table).always.as(foo))>::value, "");
+  static_assert(not sqlpp::has_name_tag<decltype(select(v_not_null, v_maybe_null).as(table).sometimes.as(foo))>::value, "");
 
   static_assert(sqlpp::select_column_has_name<decltype(select(v_not_null, v_maybe_null).as(table).always.as(foo))>::value, "");
   static_assert(sqlpp::select_column_has_name<decltype(select(v_not_null, v_maybe_null).as(table).sometimes.as(foo))>::value, "");

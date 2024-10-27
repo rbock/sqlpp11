@@ -46,10 +46,10 @@ void test_as_expression(Value v)
   static_assert(not sqlpp::has_value_type<decltype(v_dynamic_not_null.as(cheese))>::value, "");
   static_assert(not sqlpp::has_value_type<decltype(v_dynamic_maybe_null.as(cheese))>::value, "");
 
-  static_assert(not sqlpp::has_name<decltype(v_not_null.as(cheese))>::value, "");
-  static_assert(not sqlpp::has_name<decltype(v_maybe_null.as(cheese))>::value, "");
-  static_assert(not sqlpp::has_name<decltype(v_dynamic_not_null.as(cheese))>::value, "");
-  static_assert(not sqlpp::has_name<decltype(v_dynamic_maybe_null.as(cheese))>::value, "");
+  static_assert(not sqlpp::has_name_tag<decltype(v_not_null.as(cheese))>::value, "");
+  static_assert(not sqlpp::has_name_tag<decltype(v_maybe_null.as(cheese))>::value, "");
+  static_assert(not sqlpp::has_name_tag<decltype(v_dynamic_not_null.as(cheese))>::value, "");
+  static_assert(not sqlpp::has_name_tag<decltype(v_dynamic_maybe_null.as(cheese))>::value, "");
 
   static_assert(is_select_column_value_type<decltype(v_not_null.as(cheese)), ValueType>::value, "");
   static_assert(is_select_column_value_type<decltype(v_maybe_null.as(cheese)), OptValueType>::value, "");

@@ -54,8 +54,8 @@ void test_count(Value v)
   static_assert(sqlpp::has_enabled_as<decltype(sqlpp::distinct, count(v_not_null))>::value, "");
 
   // count has a name
-  static_assert(sqlpp::has_name<decltype(count(v_not_null))>::value, "");
-  static_assert(sqlpp::has_name<decltype(count(sqlpp::distinct, v_not_null))>::value, "");
+  static_assert(sqlpp::has_name_tag<decltype(count(v_not_null))>::value, "");
+  static_assert(sqlpp::has_name_tag<decltype(count(sqlpp::distinct, v_not_null))>::value, "");
 
   static_assert(std::is_same<sqlpp::name_tag_of_t<decltype(count(v_not_null))>, sqlpp::alias::_count_t::_sqlpp_name_tag>::value, "");
   static_assert(std::is_same<sqlpp::name_tag_of_t<decltype(count(sqlpp::distinct, v_not_null))>, sqlpp::alias::_count_t::_sqlpp_name_tag>::value, "");

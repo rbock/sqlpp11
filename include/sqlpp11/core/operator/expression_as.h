@@ -84,7 +84,7 @@ namespace sqlpp
 
   template <typename Expr, typename NameTagProvider>
   using check_as_args = ::sqlpp::enable_if_t<
-  has_value_type<Expr>::value and not is_alias_t<Expr>::value and has_name<NameTagProvider>::value
+  has_value_type<Expr>::value and not is_alias_t<Expr>::value and has_name_tag<NameTagProvider>::value
   >;
 
   template <typename Expr, typename NameTagProvider, typename = check_as_args<Expr, NameTagProvider>>

@@ -126,7 +126,7 @@ void test_select_columns()
   // The columns in group_by determine if aggregates are correct or not.
   {
     using T = clause_of_t<decltype(select_columns(col_int, col_txt, col_bool))>;
-    static_assert(not sqlpp::has_name<T>::value, "");
+    static_assert(not sqlpp::has_name_tag<T>::value, "");
     static_assert(not sqlpp::has_value_type<T>::value, "");
     static_assert(sqlpp::is_result_clause<T>::value, "");
     static_assert(sqlpp::has_correct_aggregates<unknown, T>::value, "");
@@ -138,7 +138,7 @@ void test_select_columns()
   // The columns in group_by determine if aggregates are correct or not.
   {
     using T = clause_of_t<decltype(select_columns(col_int, max(col_txt), declare_group_by_column(v).as(cheese)))>;
-    static_assert(not sqlpp::has_name<T>::value, "");
+    static_assert(not sqlpp::has_name_tag<T>::value, "");
     static_assert(not sqlpp::has_value_type<T>::value, "");
     static_assert(sqlpp::is_result_clause<T>::value, "");
     static_assert(not sqlpp::has_correct_aggregates<unknown, T>::value, "");
