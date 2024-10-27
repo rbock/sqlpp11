@@ -80,23 +80,6 @@ namespace sqlpp
     };
   }  // namespace detail
 
-  // FIXME: We might use field specs here (same as with cte)
-  //
-  // provide type information for sub-selects that are used as named expressions or tables
-  template <typename Select, typename Column>
-  struct select_column_spec_t: public name_tag_base
-  {
-    using _sqlpp_name_tag = select_column_name_tag_of_t<Column>;
-
-#warning: Need to test this!
-    static constexpr bool _depends_on_outer_table =
-        detail::make_intersect_set_t<required_tables_of_t<Column>, typename Select::_used_outer_tables>::size::value >
-        0;
-  };
-  template <typename Select, typename Column>
-#warning: Should this use `_depends_on_outer_table`?
-    struct value_type_of<select_column_spec_t<Select, Column>> : public select_column_value_type_of<Column> {};
-
   SQLPP_PORTABLE_STATIC_ASSERT(
       assert_no_unknown_tables_in_selected_columns_t,
       "at least one selected column requires a table which is otherwise not known in the statement");
@@ -172,15 +155,16 @@ namespace sqlpp
       template <typename Db, typename Column>
       using _field_t = typename _deferred_field_t<Db, Column>::type;
 
+#warning: This should not require the Db parameter for deferral, see select_as.
       template <typename Db>
       using _result_row_t = result_row_t<Db, _field_t<Db, Columns>...>;
 
       template <typename NameTagProvider>
       auto as(const NameTagProvider&) const
-          -> select_as_t<_statement_t, NameTagProvider, select_column_spec_t<_statement_t, Columns>...>
+          -> select_as_t<_statement_t, NameTagProvider, make_field_spec_t<_statement_t, Columns>...>
       {
         consistency_check_t<_statement_t>::verify();
-        using table = select_as_t<_statement_t, NameTagProvider, select_column_spec_t<_statement_t, Columns>...>;
+        using table = select_as_t<_statement_t, NameTagProvider, make_field_spec_t<_statement_t, Columns>...>;
         return table(_get_statement());
       }
 

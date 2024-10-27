@@ -37,7 +37,6 @@ namespace sqlpp
   template <typename NameType, typename ValueType>
   struct field_spec_t
   {
-#warning: Maybe rename result_value in result_value_type?
     using result_value_type = result_value_t<ValueType>;
     using value_type = ValueType; // This is used by column_t
   };
@@ -78,21 +77,18 @@ namespace sqlpp
                                             // NULL if the right hand side allows it
   };
 
-  namespace detail
+  template <typename Select, typename NamedExpr>
+  struct make_field_spec
   {
-    template <typename Select, typename NamedExpr>
-    struct make_field_spec_impl
-    {
-      using ValueType = select_column_value_type_of_t<NamedExpr>;
-      static constexpr bool _depends_on_optional_table =
-          Select::_provided_optional_tables::contains_any(required_tables_of_t<NamedExpr>{});
+    using ValueType = select_column_value_type_of_t<NamedExpr>;
+    static constexpr bool _depends_on_optional_table =
+        provided_optional_tables_of_t<Select>::contains_any(required_tables_of_t<NamedExpr>{});
 
-      using type = field_spec_t<
-          select_column_name_tag_of_t<NamedExpr>,
-          typename std::conditional<_depends_on_optional_table, sqlpp::force_optional_t<ValueType>, ValueType>::type>;
-    };
-  }  // namespace detail
+    using type = field_spec_t<
+        select_column_name_tag_of_t<NamedExpr>,
+        typename std::conditional<_depends_on_optional_table, sqlpp::force_optional_t<ValueType>, ValueType>::type>;
+  };
 
   template <typename Select, typename NamedExpr>
-  using make_field_spec_t = typename detail::make_field_spec_impl<Select, NamedExpr>::type;
+  using make_field_spec_t = typename make_field_spec<Select, NamedExpr>::type;
 }  // namespace sqlpp
