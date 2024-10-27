@@ -82,9 +82,8 @@ namespace sqlpp
   template <typename L, typename Operator, typename R>
   struct requires_parentheses<logical_expression<L, Operator, R>> : public std::true_type{};
 
-#warning: rename
   template <typename Context, typename L, typename Operator, typename R>
-  auto serialize_impl(Context& context, const logical_expression<L, Operator, R>& t) -> std::string
+  auto to_sql_string_impl(Context& context, const logical_expression<L, Operator, R>& t) -> std::string
   {
     return operand_to_sql_string(context, t._l) + Operator::symbol + operand_to_sql_string(context, t._r);
   }
@@ -92,7 +91,7 @@ namespace sqlpp
   template <typename Context, typename L, typename Operator, typename R>
   auto to_sql_string(Context& context, const logical_expression<L, Operator, R>& t) -> std::string
   {
-    return serialize_impl(context, t);
+    return to_sql_string_impl(context, t);
   }
 
   template <typename Context, typename L, typename Operator, typename R1, typename R2>
@@ -120,7 +119,7 @@ namespace sqlpp
   {
     if (t._r._condition)
     {
-      return serialize_impl(context, t);
+      return to_sql_string_impl(context, t);
     }
 
     // If the dynamic part is inactive ignore it.
