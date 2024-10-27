@@ -30,15 +30,52 @@
 int main(int, char* [])
 {
   const auto foo = test::TabFoo{};
+  const auto bar = test::TabBar{};
 
   // No expression (not super useful).
   SQLPP_COMPARE(cte(sqlpp::alias::x), "x");
 
-  // Select
-  SQLPP_COMPARE(cte(sqlpp::alias::x).as(select(foo.id).from(foo).unconditionally()), "x AS (SELECT tab_foo.id FROM tab_foo)");
+  // Simple CTE: X AS SELECT
+  {
+    const auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo).unconditionally());
+    const auto a = x.as(sqlpp::alias::a);
+    SQLPP_COMPARE(x, "x AS (SELECT tab_foo.id FROM tab_foo)");
+    SQLPP_COMPARE(make_table_ref(x), "x");
+    SQLPP_COMPARE(x.id, "x.id");
+    SQLPP_COMPARE(a, "x AS a");
+    SQLPP_COMPARE(a.id, "a.id");
+    SQLPP_COMPARE(all_of(x), "x.id");
+    SQLPP_COMPARE(all_of(a), "a.id");
+  }
 
+  // Non-recursive union CTE: X AS SELECT ... UNION ALL SELECT ...
+  {
+    const auto x =
+        cte(sqlpp::alias::x)
+            .as(select(foo.id).from(foo).unconditionally().union_all(select(bar.id).from(bar).unconditionally()));
+    const auto a = x.as(sqlpp::alias::a);
+    SQLPP_COMPARE(x, "x AS (SELECT tab_foo.id FROM tab_foo UNION ALL SELECT tab_bar.id FROM tab_bar)");
+    SQLPP_COMPARE(make_table_ref(x), "x");
+    SQLPP_COMPARE(x.id, "x.id");
+    SQLPP_COMPARE(a, "x AS a");
+    SQLPP_COMPARE(a.id, "a.id");
+    SQLPP_COMPARE(all_of(x), "x.id");
+    SQLPP_COMPARE(all_of(a), "a.id");
+  }
 
-#warning: Add more tests
+  // Recursive union CTE: X AS SELECT ... UNION ALL SELECT ... FROM X ...
+  {
+    const auto x_base = cte(sqlpp::alias::x).as(select(sqlpp::value(0).as(sqlpp::alias::a)));
+    const auto x = x_base.union_all(select((x_base.a + 1).as(sqlpp::alias::a)).from(x_base).where(x_base.a < 10));
+    const auto y = x.as(sqlpp::alias::y);
+    SQLPP_COMPARE(x, "x AS (SELECT 0 AS a UNION ALL SELECT (x.a + 1) AS a FROM x WHERE x.a < 10)");
+    SQLPP_COMPARE(make_table_ref(x), "x");
+    SQLPP_COMPARE(x.a, "x.a");
+    SQLPP_COMPARE(y, "x AS y");
+    SQLPP_COMPARE(y.a, "y.a");
+    SQLPP_COMPARE(all_of(x), "x.a");
+    SQLPP_COMPARE(all_of(y), "y.a");
+  }
 
   return 0;
 }
