@@ -238,6 +238,11 @@ namespace sqlpp
 
 #warning: is table? really? cte_ref needs to be a table, not sure about cte_t
   template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>
+  struct is_cte<cte_t<NameTagProvider, Statement, ColumnSpecs...>> : public std::true_type
+  {
+  };
+
+  template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>
   struct is_table<cte_t<NameTagProvider, Statement, ColumnSpecs...>> : public std::true_type
   {
   };
@@ -259,11 +264,6 @@ namespace sqlpp
   template <typename NameTagProvider>
   struct cte_ref_t
   {
-    using _traits = make_traits<no_value_t, tag::is_alias, tag::is_cte>;
-    using _nodes = detail::type_vector<>;
-    using _required_ctes = detail::make_type_set_t<NameTagProvider>;
-    using _provided_tables = detail::type_set<NameTagProvider>;
-
     template <typename Statement>
     auto as(Statement statement) -> make_cte_t<NameTagProvider, Statement>
     {

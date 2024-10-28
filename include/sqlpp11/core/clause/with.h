@@ -115,8 +115,7 @@ namespace sqlpp
     auto operator()(Statement statement)
         -> new_statement_t<consistent_t, typename Statement::_policies_t, no_with_t, with_t<Expressions...>>
     {
-      // FIXME need checks here
-      //       check that no cte refers to any of the ctes to the right
+#warning: check that no cte refers to any of the ctes to the right
       return {statement, _data};
     }
   };
@@ -126,24 +125,23 @@ namespace sqlpp
   auto to_sql_string(Context& context, const with_data_t<Expressions...>& t) -> std::string
   {
     using T = with_data_t<Expressions...>;
-    // FIXME: If there is a recursive CTE, add a "RECURSIVE" here
-    context << " WITH ";
-    if (T::_is_recursive::value)
-    {
-      context << "RECURSIVE ";
-    }
-    tuple_to_sql_string(context, t._expressions, tuple_operand{", "});
-    context << ' ';
-    return context;
+#warning : If there is a recursive CTE, add a "RECURSIVE" here
+    return std::string("WITH ") + (T::_is_recursive::value ? "RECURSIVE " : "") +
+           tuple_to_sql_string(context, t._expressions, tuple_operand{", "}) + " ";
+  }
+
+  template <typename Context, typename... Expressions>
+  auto to_sql_string(Context& context, const blank_with_t<Expressions...>& t) -> std::string
+  {
+    return to_sql_string(context, t._data);
   }
 
   template <typename... Expressions>
   auto with(Expressions... cte) -> blank_with_t<Expressions...>
   {
-    static_assert(logic::all<is_cte_t<Expressions>::value...>::value,
+    static_assert(logic::all<is_cte<Expressions>::value...>::value,
                   "at least one expression in with is not a common table expression");
-    static_assert(logic::none<is_alias_t<Expressions>::value...>::value,
-                  "at least one expression in with is an incomplete common table expression");
+#warning: Need to test that cte_t::as yields a cte_ref and that cte_ref is not a cte
     return {{cte...}};
   }
 }  // namespace sqlpp
