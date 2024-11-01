@@ -40,7 +40,6 @@ namespace sqlpp
                          public enable_join<table_as_t<TableSpec, NameTag>>
   {
     using _nodes = detail::type_vector<>;
-    using _required_ctes = required_ctes_of<TableSpec>;
 
     static_assert(required_tables_of_t<TableSpec>::empty(), "table aliases must not depend on external tables");
 

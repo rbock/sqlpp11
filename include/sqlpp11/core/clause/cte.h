@@ -41,7 +41,7 @@ namespace sqlpp
   struct cte_union_t
   {
     using _nodes = detail::type_vector<>;
-    using _required_ctes = detail::make_joined_set_t<required_ctes_of<Lhs>, required_ctes_of<Rhs>>;
+    using _required_ctes = detail::type_vector_cat_t<required_ctes_of_t<Lhs>, required_ctes_of_t<Rhs>>;
     using _parameters = detail::type_vector_cat_t<parameters_of<Lhs>, parameters_of<Rhs>>;
 
     cte_union_t(Lhs lhs, Rhs rhs) : _lhs(lhs), _rhs(rhs)
@@ -56,6 +56,21 @@ namespace sqlpp
 
     Lhs _lhs;
     Rhs _rhs;
+  };
+
+  template <typename Flag, typename Lhs, typename Rhs>
+  struct required_ctes_of<cte_union_t<Flag, Lhs, Rhs>>
+  {
+    using type = detail::type_vector_cat_t<required_ctes_of_t<Lhs>, required_ctes_of_t<Rhs>>;
+  };
+
+  template <typename Flag, typename Lhs, typename Rhs>
+  struct required_static_ctes_of<cte_union_t<Flag, Lhs, Rhs>>
+  {
+       using type = typename std::conditional<
+        is_dynamic<Rhs>::value,
+        provided_static_ctes_of_t<Lhs>,
+        detail::type_vector_cat_t<provided_static_ctes_of_t<Lhs>, provided_static_ctes_of_t<Rhs>>>::type;
   };
 
   // Interpreters
@@ -169,7 +184,7 @@ namespace sqlpp
                  public enable_join<cte_t<NameTagProvider, Statement, FieldSpecs...>>
   {
 #warning: Need to test this.
-    constexpr static bool _is_recursive = required_ctes_of<Statement>::template count<cte_ref_t<NameTagProvider>>();
+    constexpr static bool _is_recursive = required_ctes_of_t<Statement>::template contains<cte_ref_t<NameTagProvider>>::value;
 
     using _column_tuple_t = std::tuple<column_t<cte_ref_t<NameTagProvider>, FieldSpecs>...>;
 
@@ -252,6 +267,17 @@ namespace sqlpp
   {
   };
 
+  template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>
+  struct provided_ctes_of<cte_t<NameTagProvider, Statement, ColumnSpecs...>>
+  {
+    using type = detail::type_vector<cte_ref_t<NameTagProvider>>;
+  };
+
+  template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>
+  struct provided_static_ctes_of<cte_t<NameTagProvider, Statement, ColumnSpecs...>> : public provided_ctes_of<cte_t<NameTagProvider, Statement, ColumnSpecs...>>
+  {
+  };
+
   template <typename Context, typename NameTagProvider, typename Statement, typename... ColumnSpecs>
   auto to_sql_string(Context& context, const cte_t<NameTagProvider, Statement, ColumnSpecs...>& t) -> std::string
   {
@@ -269,7 +295,7 @@ namespace sqlpp
     {
       static_assert(required_tables_of_t<Statement>::empty(),
                     "common table expression must not use unknown tables");
-      static_assert(not required_ctes_of<Statement>::template count<NameTagProvider>(),
+      static_assert(not required_ctes_of_t<Statement>::template contains<NameTagProvider>::value,
                     "common table expression must not self-reference in the first part, use union_all/union_distinct "
                     "for recursion");
 
@@ -292,6 +318,17 @@ namespace sqlpp
 
    template<typename NameTagProvider>
     struct provided_static_tables_of<cte_ref_t<NameTagProvider>> : public provided_tables_of<cte_ref_t<NameTagProvider>>
+    {
+    };
+
+   template<typename NameTagProvider>
+    struct required_ctes_of<cte_ref_t<NameTagProvider>> 
+    {
+      using type = sqlpp::detail::type_vector<cte_ref_t<NameTagProvider>>;
+    };
+
+   template<typename NameTagProvider>
+    struct required_static_ctes_of<cte_ref_t<NameTagProvider>> : public required_ctes_of<cte_ref_t<NameTagProvider>>
     {
     };
 

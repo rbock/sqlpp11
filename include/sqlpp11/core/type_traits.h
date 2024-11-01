@@ -46,6 +46,7 @@
 #include <sqlpp11/core/type_traits/nodes_of.h>
 #include <sqlpp11/core/type_traits/optional.h>
 #include <sqlpp11/core/type_traits/value_type.h>
+#include <sqlpp11/core/type_traits/ctes_of.h>
 #include <sqlpp11/core/type_traits/tables_of.h>
 
 namespace sqlpp
@@ -288,8 +289,6 @@ namespace sqlpp
   template <typename T>                                                                 \
   using trait##_of = typename detail::trait##_of_impl<T>::type;
 
-  SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(required_ctes)
-  SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(provided_ctes)
   SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(provided_aggregates)
 
   template <typename T>

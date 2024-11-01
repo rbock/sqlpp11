@@ -75,14 +75,16 @@ namespace sqlpp
       template <typename Needle, typename Replacement>
       using _new_statement_t = typename _policies_update_t<Needle, Replacement>::type;
 
-      using _all_required_ctes = detail::make_joined_set_t<required_ctes_of<Policies>...>;
-      using _all_provided_ctes = detail::make_joined_set_t<provided_ctes_of<Policies>...>;
+      using _all_required_ctes = detail::type_vector_cat_t<required_ctes_of_t<Policies>...>;
+      using _all_provided_ctes = detail::type_vector_cat_t<provided_ctes_of_t<Policies>...>;
       using _all_required_tables = detail::type_vector_cat_t<required_tables_of_t<Policies>...>;
       using _all_provided_tables = detail::type_vector_cat_t<provided_tables_of_t<Policies>...>;
       using _all_provided_optional_tables = detail::type_vector_cat_t<provided_optional_tables_of_t<Policies>...>;
+#warning: provided_aggregates_of needs to be replaced with type_vector, too
       using _all_provided_aggregates = detail::make_joined_set_t<provided_aggregates_of<Policies>...>;
 
       using _required_tables_of = detail::copy_if_t<_all_required_tables, _all_provided_tables::template contains_not>;
+      using _required_ctes_of = detail::copy_if_t<_all_required_ctes, _all_provided_ctes::template contains_not>;
 
       template <typename Expression>
       static constexpr bool _no_unknown_tables = _all_provided_tables::template contains_all<required_tables_of_t<Expression>>::value;
@@ -110,12 +112,6 @@ namespace sqlpp
       template <template <typename> class Predicate>
       using any_t = logic::any<Predicate<Policies>::value...>;
 
-      // The tables not covered by the from.
-      //using _required_tables = detail::make_difference_set_t<_all_required_tables, _all_provided_tables>;
-
-      // The common table expressions not covered by the with.
-      using _required_ctes = detail::make_difference_set_t<_all_required_ctes, _all_provided_ctes>;
-
       using _result_type_provider = detail::get_last_if_t<is_result_clause, noop, Policies...>;
 
       struct _result_methods_t : public _result_type_provider::template _result_methods_t<_statement_t>
@@ -127,9 +123,8 @@ namespace sqlpp
       //   - the select is complete (leaks no table requirements or cte requirements)
       static constexpr bool _can_be_used_as_table()
       {
-#warning: reactivate
-        return has_result_row<_statement_t>::value and /*_required_tables::size::value == 0 and*/
-               _required_ctes::size::value == 0;
+        return has_result_row<_statement_t>::value and _required_tables_of::empty() == 0 and
+               _required_ctes_of::empty();
       }
 
       using _value_type =
@@ -149,10 +144,9 @@ namespace sqlpp
       // required_tables and _required_ctes are defined above
 
       using _cte_check =
-          typename std::conditional<_required_ctes::size::value == 0, consistent_t, assert_no_unknown_ctes_t>::type;
-#warning: reactivate
-      using _table_check = consistent_t;
-          //typename std::conditional<_required_tables::size::value == 0, consistent_t, assert_no_unknown_tables_t>::type;
+          typename std::conditional<_required_ctes_of::empty() == 0, consistent_t, assert_no_unknown_ctes_t>::type;
+      using _table_check =
+          typename std::conditional<_required_tables_of::empty(), consistent_t, assert_no_unknown_tables_t>::type;
       using _parameter_check = typename std::
           conditional<_parameters::empty(), consistent_t, assert_no_parameters_t>::type;
     };
