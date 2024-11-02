@@ -35,13 +35,13 @@ int main(int, char* [])
   // No expression (not super useful).
   SQLPP_COMPARE(cte(sqlpp::alias::x), "x");
 
-  // WITH Simple CTE: X AS SELECT
+  // WITH simple CTE: X AS SELECT
   {
     const auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo).unconditionally());
     SQLPP_COMPARE(with(x), "WITH x AS (SELECT tab_foo.id FROM tab_foo) ");
   }
 
-  // WITH Non-recursive union CTE: X AS SELECT ... UNION ALL SELECT ...
+  // WITH non-recursive union CTE: X AS SELECT ... UNION ALL SELECT ...
   {
     const auto x =
         cte(sqlpp::alias::x)
@@ -49,7 +49,7 @@ int main(int, char* [])
     SQLPP_COMPARE(with(x), "WITH x AS (SELECT tab_foo.id FROM tab_foo UNION ALL SELECT tab_bar.id FROM tab_bar) ");
   }
 
-  // WITH Recursive union CTE: X AS SELECT ... UNION ALL SELECT ... FROM X ...
+  // WITH recursive union CTE: X AS SELECT ... UNION ALL SELECT ... FROM X ...
   {
     const auto x_base = cte(sqlpp::alias::x).as(select(sqlpp::value(0).as(sqlpp::alias::a)));
     const auto x = x_base.union_all(select((x_base.a + 1).as(sqlpp::alias::a)).from(x_base).where(x_base.a < 10));
@@ -85,6 +85,27 @@ int main(int, char* [])
     */
 #warning: Need to test that recursive CTEs are detected as being recursive.
     SQLPP_COMPARE(with(x), "WITH RECURSIVE x AS (SELECT 0 AS a UNION ALL SELECT (x.a + 1) AS a FROM x WHERE x.a < 10) ");
+  }
+
+  // WITH two CTEs, no recursive
+  {
+    const auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo).unconditionally());
+    const auto y = cte(sqlpp::alias::y).as(select(foo.id).from(foo).unconditionally());
+
+#warning: Need to test that CTEs have different names!
+    SQLPP_COMPARE(with(x, y), "WITH x AS (SELECT tab_foo.id FROM tab_foo), y AS (SELECT tab_foo.id FROM tab_foo) ");
+    SQLPP_COMPARE(with(y, x), "WITH y AS (SELECT tab_foo.id FROM tab_foo), x AS (SELECT tab_foo.id FROM tab_foo) ");
+  }
+
+  // WITH two CTEs, one of them recursive
+  {
+    const auto x_base = cte(sqlpp::alias::x).as(select(sqlpp::value(0).as(sqlpp::alias::a)));
+    const auto x = x_base.union_all(select((x_base.a + 1).as(sqlpp::alias::a)).from(x_base).where(x_base.a < 10));
+    const auto y = cte(sqlpp::alias::y).as(select(foo.id).from(foo).unconditionally());
+
+#warning: Need to test that recursive CTEs are detected as being recursive.
+    SQLPP_COMPARE(with(x, y), "WITH RECURSIVE x AS (SELECT 0 AS a UNION ALL SELECT (x.a + 1) AS a FROM x WHERE x.a < 10), y AS (SELECT tab_foo.id FROM tab_foo) ");
+    SQLPP_COMPARE(with(y, x), "WITH RECURSIVE y AS (SELECT tab_foo.id FROM tab_foo), x AS (SELECT 0 AS a UNION ALL SELECT (x.a + 1) AS a FROM x WHERE x.a < 10) ");
   }
 
   return 0;

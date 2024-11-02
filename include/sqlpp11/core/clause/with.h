@@ -42,8 +42,6 @@ namespace sqlpp
   template <typename... Expressions>
   struct with_data_t
   {
-    using _is_recursive = logic::any<Expressions::_is_recursive...>;
-
     with_data_t(Expressions... expressions) : _expressions(expressions...)
     {
     }
@@ -116,6 +114,7 @@ namespace sqlpp
         -> new_statement_t<consistent_t, typename Statement::_policies_t, no_with_t, with_t<Expressions...>>
     {
 #warning: check that no cte refers to any of the ctes to the right
+#warning: check that ctes have different names
       return {statement, _data};
     }
   };
@@ -124,9 +123,9 @@ namespace sqlpp
   template <typename Context, typename... Expressions>
   auto to_sql_string(Context& context, const with_data_t<Expressions...>& t) -> std::string
   {
-    using T = with_data_t<Expressions...>;
-#warning : If there is a recursive CTE, add a "RECURSIVE" here
-    return std::string("WITH ") + (T::_is_recursive::value ? "RECURSIVE " : "") +
+    static constexpr bool _is_recursive = logic::any<is_recursive_cte<Expressions>::value...>::value;
+
+    return std::string("WITH ") + (_is_recursive ? "RECURSIVE " : "") +
            tuple_to_sql_string(context, t._expressions, tuple_operand{", "}) + " ";
   }
 

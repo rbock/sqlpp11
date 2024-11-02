@@ -183,9 +183,6 @@ namespace sqlpp
   struct cte_t : public cte_member<NameTagProvider, FieldSpecs>::type...,
                  public enable_join<cte_t<NameTagProvider, Statement, FieldSpecs...>>
   {
-#warning: Need to test this.
-    constexpr static bool _is_recursive = required_ctes_of_t<Statement>::template contains<cte_ref_t<NameTagProvider>>::value;
-
     using _column_tuple_t = std::tuple<column_t<cte_ref_t<NameTagProvider>, FieldSpecs>...>;
 
     using _result_row_t = result_row_t<void, FieldSpecs...>;
@@ -255,6 +252,13 @@ namespace sqlpp
   template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>
   struct is_cte<cte_t<NameTagProvider, Statement, ColumnSpecs...>> : public std::true_type
   {
+  };
+
+  template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>
+  struct is_recursive_cte<cte_t<NameTagProvider, Statement, ColumnSpecs...>> : public std::true_type
+  {
+#warning: Need to test this.
+    constexpr static bool value = required_ctes_of_t<Statement>::template contains<cte_ref_t<NameTagProvider>>::value;
   };
 
   template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>

@@ -595,4 +595,10 @@ namespace sqlpp
   struct is_cte : public std::false_type
   {
   };
+
+  template <typename T>
+  struct is_recursive_cte : public std::false_type
+  {
+  };
+
 }  // namespace sqlpp
