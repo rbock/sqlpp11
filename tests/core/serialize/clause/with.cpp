@@ -108,5 +108,14 @@ int main(int, char* [])
     SQLPP_COMPARE(with(y, x), "WITH RECURSIVE y AS (SELECT tab_foo.id FROM tab_foo), x AS (SELECT 0 AS a UNION ALL SELECT (x.a + 1) AS a FROM x WHERE x.a < 10) ");
   }
 
+  // WITH two CTEs, second depends on first
+  {
+    const auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo).unconditionally());
+    const auto y = cte(sqlpp::alias::y).as(select(x.id).from(x).unconditionally());
+
+#warning: Need to test that CTEs have different names!
+    SQLPP_COMPARE(with(x, y), "WITH x AS (SELECT tab_foo.id FROM tab_foo), y AS (SELECT x.id FROM x) ");
+  }
+
   return 0;
 }

@@ -40,8 +40,6 @@ namespace sqlpp
   template <typename Flag, typename Lhs, typename Rhs>
   struct cte_union_t
   {
-    using _nodes = detail::type_vector<>;
-    using _required_ctes = detail::type_vector_cat_t<required_ctes_of_t<Lhs>, required_ctes_of_t<Rhs>>;
     using _parameters = detail::type_vector_cat_t<parameters_of<Lhs>, parameters_of<Rhs>>;
 
     cte_union_t(Lhs lhs, Rhs rhs) : _lhs(lhs), _rhs(rhs)
@@ -58,19 +56,11 @@ namespace sqlpp
     Rhs _rhs;
   };
 
+#warning: need to test nodes of union!
   template <typename Flag, typename Lhs, typename Rhs>
-  struct required_ctes_of<cte_union_t<Flag, Lhs, Rhs>>
+  struct nodes_of<cte_union_t<Flag, Lhs, Rhs>>
   {
-    using type = detail::type_vector_cat_t<required_ctes_of_t<Lhs>, required_ctes_of_t<Rhs>>;
-  };
-
-  template <typename Flag, typename Lhs, typename Rhs>
-  struct required_static_ctes_of<cte_union_t<Flag, Lhs, Rhs>>
-  {
-       using type = typename std::conditional<
-        is_dynamic<Rhs>::value,
-        provided_static_ctes_of_t<Lhs>,
-        detail::type_vector_cat_t<provided_static_ctes_of_t<Lhs>, provided_static_ctes_of_t<Rhs>>>::type;
+    using type = detail::type_vector<Lhs, Rhs>;
   };
 
   // Interpreters
@@ -269,6 +259,12 @@ namespace sqlpp
   template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>
   struct name_tag_of<cte_t<NameTagProvider, Statement, ColumnSpecs...>> : public name_tag_of<NameTagProvider>
   {
+  };
+
+  template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>
+  struct nodes_of<cte_t<NameTagProvider, Statement, ColumnSpecs...>> 
+  {
+    using type = Statement;
   };
 
   template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>

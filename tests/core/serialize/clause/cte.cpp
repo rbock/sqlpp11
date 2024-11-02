@@ -77,5 +77,19 @@ int main(int, char* [])
     SQLPP_COMPARE(all_of(y), "y.a");
   }
 
+  // A CTE depending on another CTE
+  {
+    const auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo).unconditionally());
+    const auto y = cte(sqlpp::alias::y).as(select(x.id, sqlpp::value(7).as(sqlpp::alias::a)).from(x).unconditionally());
+    const auto z = y.as(sqlpp::alias::z);
+    SQLPP_COMPARE(y, "y AS (SELECT x.id, 7 AS a FROM x)");
+    SQLPP_COMPARE(make_table_ref(y), "y");
+    SQLPP_COMPARE(y.id, "y.id");
+    SQLPP_COMPARE(z, "y AS z");
+    SQLPP_COMPARE(z.id, "z.id");
+    SQLPP_COMPARE(all_of(y), "y.id, y.a");
+    SQLPP_COMPARE(all_of(z), "z.id, z.a");
+  }
+
   return 0;
 }

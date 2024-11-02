@@ -113,8 +113,6 @@ namespace sqlpp
     auto operator()(Statement statement)
         -> new_statement_t<consistent_t, typename Statement::_policies_t, no_with_t, with_t<Expressions...>>
     {
-#warning: check that no cte refers to any of the ctes to the right
-#warning: check that ctes have different names
       return {statement, _data};
     }
   };
@@ -135,11 +133,35 @@ namespace sqlpp
     return to_sql_string(context, t._data);
   }
 
+  // CTEs can depend on CTEs defined before (in the same query).
+  // `have_correct_dependencies` checks that by walking the CTEs from left to right and building a type vector that
+  // contains the CTE it already has looked at.
+  template <typename AllowedCTEs, typename... CTEs>
+    struct have_correct_dependencies_impl;
+
+  template <typename AllowedCTEs>
+    struct have_correct_dependencies_impl<AllowedCTEs>: public std::true_type {};
+
+  template <typename AllowedCTEs, typename CTE, typename... Rest>
+    struct have_correct_dependencies_impl<AllowedCTEs, CTE, Rest...>
+    {
+      using allowed_ctes = detail::type_vector_cat_t<AllowedCTEs, provided_ctes_of_t<CTE>>;
+      static constexpr bool value = allowed_ctes::template contains_all<required_ctes_of_t<CTE>>::value and
+                                    have_correct_dependencies_impl<allowed_ctes, Rest...>::value;
+    };
+
+  template <typename... CTEs>
+  struct have_correct_dependencies
+  {
+    static constexpr bool value = have_correct_dependencies_impl<detail::type_vector<>, CTEs...>::value;
+  };
   template <typename... Expressions>
   auto with(Expressions... cte) -> blank_with_t<Expressions...>
   {
     static_assert(logic::all<is_cte<Expressions>::value...>::value,
                   "at least one expression in with is not a common table expression");
+    static_assert(have_correct_dependencies<Expressions...>::value, "at least one CTE depends on another CTE that is not defined (yet)");
+#warning: check that ctes have different names
 #warning: Need to test that cte_t::as yields a cte_ref and that cte_ref is not a cte
     return {{cte...}};
   }
