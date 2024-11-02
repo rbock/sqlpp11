@@ -28,6 +28,8 @@ function(test_compile name)
     target_link_libraries(${target} PRIVATE sqlpp11::sqlpp11 sqlpp11_testing)
 endfunction()
 
+test_compile(cte)
+test_compile(from)
 test_compile(group_by)
 test_compile(into)
 test_compile(select_columns)
