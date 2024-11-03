@@ -50,16 +50,23 @@ void test_cte()
     static_assert(sqlpp::is_table<X>::value, "");
     static_assert(sqlpp::required_ctes_of_t<X>::empty(), "");
     static_assert(std::is_same<sqlpp::provided_ctes_of_t<X>, sqlpp::detail::type_vector<RX>>::value, "");
+    static_assert(sqlpp::parameters_of_t<X>::empty(), "");
 
     // CTE reference is what is stored in from_t or join_t.
     // While it refers to a CTE, it cannot be used as a CTE or table, i.e. with(rx) or from(ra) would not compile.
     static_assert(not sqlpp::is_cte<RX>::value, "");
     static_assert(not sqlpp::is_table<RX>::value, "");
+    static_assert(std::is_same<sqlpp::provided_ctes_of_t<RX>, sqlpp::detail::type_vector<>>::value, "");
+    static_assert(std::is_same<sqlpp::required_ctes_of_t<RX>, sqlpp::detail::type_vector<RX>>::value, "");
+    static_assert(sqlpp::parameters_of_t<RX>::empty(), "");
 
     // CTEs can be aliased (e.g. x AS a). This alias can be used as a table in FROM, but not as a CTE in WITH.
     static_assert(not sqlpp::is_cte<A>::value, "");
     static_assert(sqlpp::is_table<A>::value, "");
     static_assert(std::is_same<A, RA>::value, "");
+    static_assert(std::is_same<sqlpp::provided_ctes_of_t<RA>, sqlpp::detail::type_vector<>>::value, "");
+    static_assert(std::is_same<sqlpp::required_ctes_of_t<RA>, sqlpp::detail::type_vector<RX>>::value, "");
+    static_assert(sqlpp::parameters_of_t<RA>::empty(), "");
   }
 
   // Simple CTE with parameter
@@ -70,7 +77,6 @@ void test_cte()
 
     using X = decltype(x);
     using RX = decltype(make_table_ref(x));
-    using A = decltype(a);
     using RA = decltype(make_table_ref(a));
     using P = decltype(p);
 
@@ -82,16 +88,8 @@ void test_cte()
     static_assert(std::is_same<sqlpp::provided_ctes_of_t<X>, sqlpp::detail::type_vector<RX>>::value, "");
     static_assert(std::is_same<sqlpp::parameters_of_t<X>, sqlpp::detail::type_vector<P>>::value, "");
 
-    // CTE reference is what is stored in from_t or join_t.
-    // While it refers to a CTE, it cannot be used as a CTE or table, i.e. with(rx) or from(rx) would not compile.
-    static_assert(not sqlpp::is_cte<RX>::value, "");
-    static_assert(not sqlpp::is_table<RX>::value, "");
+    // Neither CTE reference nor alias carry the parameter.
     static_assert(sqlpp::parameters_of_t<RX>::empty(), "");
-
-    // CTEs can be aliased (e.g. x AS a). This alias can be used as a table in FROM, but not as a CTE in WITH.
-    static_assert(not sqlpp::is_cte<A>::value, "");
-    static_assert(sqlpp::is_table<A>::value, "");
-    static_assert(std::is_same<A, RA>::value, "");
     static_assert(sqlpp::parameters_of_t<RA>::empty(), "");
   }
 
@@ -100,21 +98,91 @@ void test_cte()
     auto x =
         cte(sqlpp::alias::x)
             .as(select(foo.id).from(foo).unconditionally().union_all(select(bar.id).from(bar).unconditionally()));
-    auto a = x.as(sqlpp::alias::a);
+
+    using X = decltype(x);
+    using RX = decltype(make_table_ref(x));
+
+    // CTE is used in WITH and in FROM
+    static_assert(sqlpp::is_cte<X>::value, "");
+    static_assert(not sqlpp::is_recursive_cte<X>::value, "");
+    static_assert(sqlpp::is_table<X>::value, "");
+    static_assert(sqlpp::required_ctes_of_t<X>::empty(), "");
+    static_assert(std::is_same<sqlpp::provided_ctes_of_t<X>, sqlpp::detail::type_vector<RX>>::value, "");
+    static_assert(sqlpp::parameters_of_t<X>::empty(), "");
   }
 
   // Recursive union CTE: X AS SELECT ... UNION ALL SELECT ... FROM X ...
   {
+    auto p = sqlpp::parameter(foo.id);
     auto x_base = cte(sqlpp::alias::x).as(select(sqlpp::value(0).as(sqlpp::alias::a)));
-    auto x = x_base.union_all(select((x_base.a + 1).as(sqlpp::alias::a)).from(x_base).where(x_base.a < 10));
-    auto y = x.as(sqlpp::alias::y);
+    auto x = x_base.union_all(select((x_base.a + 1).as(sqlpp::alias::a)).from(x_base).where(x_base.a < p));
+
+    using X = decltype(x);
+    using RX = decltype(make_table_ref(x));
+    using P = decltype(p);
+
+    // CTE is used in WITH and in FROM
+    static_assert(sqlpp::is_cte<X>::value, "");
+    static_assert(sqlpp::is_recursive_cte<X>::value, "");
+    static_assert(sqlpp::is_table<X>::value, "");
+    static_assert(std::is_same<sqlpp::required_ctes_of_t<X>, sqlpp::detail::type_vector<RX>>::value, "");
+    static_assert(std::is_same<sqlpp::provided_ctes_of_t<X>, sqlpp::detail::type_vector<RX>>::value, "");
+    static_assert(std::is_same<sqlpp::parameters_of_t<X>, sqlpp::detail::type_vector<P>>::value, "");
    }
 
   // A CTE depending on another CTE
   {
-    auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo).unconditionally());
-    auto y = cte(sqlpp::alias::y).as(select(x.id, sqlpp::value(7).as(sqlpp::alias::a)).from(x).unconditionally());
-    auto z = y.as(sqlpp::alias::z);
+    auto pb = sqlpp::parameter(foo.intN);
+    auto p = sqlpp::parameter(foo.id);
+    auto b = cte(sqlpp::alias::b).as(select(foo.id).from(foo).where(foo.id != pb));
+    auto x = cte(sqlpp::alias::y).as(select(b.id, sqlpp::value(7).as(sqlpp::alias::a)).from(b).where(b.id > p));
+    auto a = x.as(sqlpp::alias::a);
+
+    using RB = decltype(make_table_ref(b));
+    using X = decltype(x);
+    using RX = decltype(make_table_ref(x));
+    using RA = decltype(make_table_ref(a));
+    using P = decltype(p);
+
+    // CTE is used in WITH and in FROM
+    static_assert(sqlpp::is_cte<X>::value, "");
+    static_assert(not sqlpp::is_recursive_cte<X>::value, "");
+    static_assert(sqlpp::is_table<X>::value, "");
+    static_assert(std::is_same<sqlpp::required_ctes_of_t<X>, sqlpp::detail::type_vector<RB>>::value, "");
+    static_assert(std::is_same<sqlpp::provided_ctes_of_t<X>, sqlpp::detail::type_vector<RX>>::value, "");
+    static_assert(std::is_same<sqlpp::parameters_of_t<X>, sqlpp::detail::type_vector<P>>::value, "");
+
+    // Neither CTE reference nor alias carry the dependency.
+    static_assert(std::is_same<sqlpp::required_ctes_of_t<RA>, sqlpp::detail::type_vector<RX>>::value, "");
+    static_assert(std::is_same<sqlpp::required_ctes_of_t<RX>, sqlpp::detail::type_vector<RX>>::value, "");
+   }
+
+  // A recursive CTE depending on another CTE
+  {
+    auto pb = sqlpp::parameter(foo.intN);
+    auto p = sqlpp::parameter(foo.id);
+    auto b = cte(sqlpp::alias::b).as(select(foo.id.as(sqlpp::alias::a)).from(foo).where(foo.id != pb));
+    auto x_base = cte(sqlpp::alias::x).as(select(b.a).from(b).unconditionally());
+    auto x = x_base.union_all(select((x_base.a + 1).as(sqlpp::alias::a)).from(x_base).where(x_base.a < p));
+    auto a = x.as(sqlpp::alias::a);
+
+    using RB = decltype(make_table_ref(b));
+    using X = decltype(x);
+    using RX = decltype(make_table_ref(x));
+    using RA = decltype(make_table_ref(a));
+    using P = decltype(p);
+
+    // CTE is used in WITH and in FROM
+    static_assert(sqlpp::is_cte<X>::value, "");
+    static_assert(sqlpp::is_recursive_cte<X>::value, "");
+    static_assert(sqlpp::is_table<X>::value, "");
+    static_assert(std::is_same<sqlpp::required_ctes_of_t<X>, sqlpp::detail::type_vector<RB, RX>>::value, "");
+    static_assert(std::is_same<sqlpp::provided_ctes_of_t<X>, sqlpp::detail::type_vector<RX>>::value, "");
+    static_assert(std::is_same<sqlpp::parameters_of_t<X>, sqlpp::detail::type_vector<P>>::value, "");
+
+    // Neither CTE reference nor alias carry the dependency.
+    static_assert(std::is_same<sqlpp::required_ctes_of_t<RA>, sqlpp::detail::type_vector<RX>>::value, "");
+    static_assert(std::is_same<sqlpp::required_ctes_of_t<RX>, sqlpp::detail::type_vector<RX>>::value, "");
    }
 
 }

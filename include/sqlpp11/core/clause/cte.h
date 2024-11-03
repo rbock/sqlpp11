@@ -161,6 +161,13 @@ namespace sqlpp
     {
     };
 
+  template <typename NameTagProvider, typename NewNameTagProvider, typename... ColumnSpecs>
+    struct required_ctes_of<cte_as_t<NameTagProvider, NewNameTagProvider, ColumnSpecs...>> 
+    {
+      // An aliased CTE requires the original CTE from the WITH clause.
+      using type = sqlpp::detail::type_vector<cte_ref_t<NameTagProvider>>;
+    };
+
   template <typename Context, typename NameTagProvider, typename NewNameTagProvider, typename... ColumnSpecs>
   auto to_sql_string(Context& context, const cte_as_t<NameTagProvider, NewNameTagProvider, ColumnSpecs...>&) -> std::string
   {
