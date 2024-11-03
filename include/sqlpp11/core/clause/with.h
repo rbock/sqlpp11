@@ -62,7 +62,7 @@ namespace sqlpp
     using _nodes = detail::type_vector<>;
     using _provided_ctes =
         detail::make_joined_set_t<required_ctes_of<Expressions>...>;  // WITH provides common table expressions
-    using _parameters = detail::type_vector_cat_t<parameters_of<Expressions>...>;
+    using _parameters = detail::type_vector_cat_t<parameters_of_t<Expressions>...>;
 
     using _data_t = with_data_t<Expressions...>;
 
@@ -80,6 +80,7 @@ namespace sqlpp
       using _consistency_check = consistent_t;
     };
   };
+#warning: Need traits here! And type tests for them
 
   struct no_with_t
   {

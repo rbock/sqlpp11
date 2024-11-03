@@ -40,8 +40,6 @@ namespace sqlpp
   template <typename Flag, typename Lhs, typename Rhs>
   struct cte_union_t
   {
-    using _parameters = detail::type_vector_cat_t<parameters_of<Lhs>, parameters_of<Rhs>>;
-
     cte_union_t(Lhs lhs, Rhs rhs) : _lhs(lhs), _rhs(rhs)
     {
     }
@@ -302,9 +300,6 @@ namespace sqlpp
       return {statement};
     }
   };
-
-   template<typename NameTagProvider>
-    struct is_table<cte_ref_t<NameTagProvider>> : public std::true_type{};
 
    template<typename NameTagProvider>
     struct name_tag_of<cte_ref_t<NameTagProvider>> : public name_tag_of<NameTagProvider>

@@ -404,26 +404,20 @@ namespace sqlpp
   template <typename KnownAggregates, typename T>
   using is_non_aggregate_expression_t = typename detail::is_non_aggregate_expression_impl<KnownAggregates, T>::type;
 
-  namespace detail
+  template<typename T>
+  struct parameters_of
   {
-    template <typename T, typename Leaf = void>
-    struct parameters_of_impl
-    {
-      using type = typename parameters_of_impl<nodes_of_t<T>>::type;
-    };
-    template <typename T>
-    struct parameters_of_impl<T, typename std::enable_if<std::is_class<typename T::_parameters>::value>::type>
-    {
-      using type = typename T::_parameters;
-    };
-    template <typename... Nodes>
-    struct parameters_of_impl<type_vector<Nodes...>, void>
-    {
-      using type = detail::type_vector_cat_t<typename parameters_of_impl<Nodes>::type...>;
-    };
-  }  // namespace detail
+    using type = typename parameters_of<nodes_of_t<T>>::type;
+  };
+
+  template<typename... T>
+  struct parameters_of<detail::type_vector<T...>>
+  {
+    using type = detail::type_vector_cat_t<typename parameters_of<T>::type...>;
+  };
+
   template <typename T>
-  using parameters_of = typename detail::parameters_of_impl<T>::type;
+  using parameters_of_t = typename parameters_of<T>::type;
 
   // Something that can be used as a table
   template <typename T>

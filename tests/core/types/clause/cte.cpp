@@ -31,21 +31,68 @@ void test_cte()
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 
-#warning: add more tests
+#warning: add more tests, including parameters and dynamic parts
+#warning: Can we union dynamically?
+
   // Simple CTE: X AS SELECT
   {
     auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo).unconditionally());
     auto a = x.as(sqlpp::alias::a);
 
     using X = decltype(x);
-    using R = decltype(make_table_ref(x));
+    using RX = decltype(make_table_ref(x));
     using A = decltype(a);
+    using RA = decltype(make_table_ref(a));
 
+    // CTE is used in WITH and in FROM
     static_assert(sqlpp::is_cte<X>::value, "");
     static_assert(not sqlpp::is_recursive_cte<X>::value, "");
     static_assert(sqlpp::is_table<X>::value, "");
     static_assert(sqlpp::required_ctes_of_t<X>::empty(), "");
-    static_assert(std::is_same<sqlpp::provided_ctes_of_t<X>, sqlpp::detail::type_vector<R>>::value, "");
+    static_assert(std::is_same<sqlpp::provided_ctes_of_t<X>, sqlpp::detail::type_vector<RX>>::value, "");
+
+    // CTE reference is what is stored in from_t or join_t.
+    // While it refers to a CTE, it cannot be used as a CTE or table, i.e. with(rx) or from(ra) would not compile.
+    static_assert(not sqlpp::is_cte<RX>::value, "");
+    static_assert(not sqlpp::is_table<RX>::value, "");
+
+    // CTEs can be aliased (e.g. x AS a). This alias can be used as a table in FROM, but not as a CTE in WITH.
+    static_assert(not sqlpp::is_cte<A>::value, "");
+    static_assert(sqlpp::is_table<A>::value, "");
+    static_assert(std::is_same<A, RA>::value, "");
+  }
+
+  // Simple CTE with parameter
+  {
+    auto p = sqlpp::parameter(foo.id);
+    auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo).where(foo.id > p));
+    auto a = x.as(sqlpp::alias::a);
+
+    using X = decltype(x);
+    using RX = decltype(make_table_ref(x));
+    using A = decltype(a);
+    using RA = decltype(make_table_ref(a));
+    using P = decltype(p);
+
+    // CTE is used in WITH and in FROM
+    static_assert(sqlpp::is_cte<X>::value, "");
+    static_assert(not sqlpp::is_recursive_cte<X>::value, "");
+    static_assert(sqlpp::is_table<X>::value, "");
+    static_assert(sqlpp::required_ctes_of_t<X>::empty(), "");
+    static_assert(std::is_same<sqlpp::provided_ctes_of_t<X>, sqlpp::detail::type_vector<RX>>::value, "");
+    static_assert(std::is_same<sqlpp::parameters_of_t<X>, sqlpp::detail::type_vector<P>>::value, "");
+
+    // CTE reference is what is stored in from_t or join_t.
+    // While it refers to a CTE, it cannot be used as a CTE or table, i.e. with(rx) or from(ra) would not compile.
+    static_assert(not sqlpp::is_cte<RX>::value, "");
+    static_assert(not sqlpp::is_table<RX>::value, "");
+    static_assert(sqlpp::parameters_of_t<RX>::empty(), "");
+
+    // CTEs can be aliased (e.g. x AS a). This alias can be used as a table in FROM, but not as a CTE in WITH.
+    static_assert(not sqlpp::is_cte<A>::value, "");
+    static_assert(sqlpp::is_table<A>::value, "");
+    static_assert(std::is_same<A, RA>::value, "");
+    static_assert(sqlpp::parameters_of_t<RA>::empty(), "");
   }
 
   // Non-recursive union CTE: X AS SELECT ... UNION ALL SELECT ...

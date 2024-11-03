@@ -123,7 +123,7 @@ namespace sqlpp
       //   - the select is complete (leaks no table requirements or cte requirements)
       static constexpr bool _can_be_used_as_table()
       {
-        return has_result_row<_statement_t>::value and _required_tables_of::empty() == 0 and
+        return has_result_row<_statement_t>::value and _required_tables_of::empty() and
                _required_ctes_of::empty();
       }
 
@@ -140,11 +140,11 @@ namespace sqlpp
                                         detail::make_intersect_set_t<required_tables_of_t<_result_type_provider>,
                                                                      _all_provided_optional_tables>::size::value != 0>;
                                         */
-      using _parameters = detail::type_vector_cat_t<parameters_of<Policies>...>;
+      using _parameters = detail::type_vector_cat_t<parameters_of_t<Policies>...>;
       // required_tables and _required_ctes are defined above
 
       using _cte_check =
-          typename std::conditional<_required_ctes_of::empty() == 0, consistent_t, assert_no_unknown_ctes_t>::type;
+          typename std::conditional<_required_ctes_of::empty(), consistent_t, assert_no_unknown_ctes_t>::type;
       using _table_check =
           typename std::conditional<_required_tables_of::empty(), consistent_t, assert_no_unknown_tables_t>::type;
       using _parameter_check = typename std::

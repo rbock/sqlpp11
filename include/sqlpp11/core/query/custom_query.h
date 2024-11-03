@@ -69,7 +69,7 @@ namespace sqlpp
     using _nodes = detail::type_vector<Parts...>;
 
     using _parameter_check =
-        typename std::conditional<parameters_of<custom_query_t>::empty(),
+        typename std::conditional<parameters_of_t<custom_query_t>::empty(),
                                   consistent_t,
                                   assert_no_parameters_t>::type;
     using _run_check = detail::get_first_if<is_inconsistent_t, consistent_t, _parameter_check>;

@@ -304,6 +304,8 @@ int main()
   }
 }
 
+#warning: Test with CTEs
+
 int main(int, char* [])
 {
   single_table();
