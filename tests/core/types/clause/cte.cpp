@@ -83,7 +83,7 @@ void test_cte()
     static_assert(std::is_same<sqlpp::parameters_of_t<X>, sqlpp::detail::type_vector<P>>::value, "");
 
     // CTE reference is what is stored in from_t or join_t.
-    // While it refers to a CTE, it cannot be used as a CTE or table, i.e. with(rx) or from(ra) would not compile.
+    // While it refers to a CTE, it cannot be used as a CTE or table, i.e. with(rx) or from(rx) would not compile.
     static_assert(not sqlpp::is_cte<RX>::value, "");
     static_assert(not sqlpp::is_table<RX>::value, "");
     static_assert(sqlpp::parameters_of_t<RX>::empty(), "");

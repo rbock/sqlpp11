@@ -34,15 +34,9 @@
 namespace sqlpp
 {
 #warning: It would be sufficient to store the NameTag here, not the whole NameTagProvider
-  template <typename ValueType, typename NameType>
-  struct parameter_t : public enable_comparison<parameter_t<ValueType, NameType>>
+  template <typename ValueType, typename NameTag>
+  struct parameter_t : public enable_comparison<parameter_t<ValueType, NameTag>>
   {
-    using _traits = make_traits<ValueType, tag::is_parameter, tag::is_expression>;
-
-    using _is_literal_expression = std::true_type;
-
-    using _instance_t = member_t<NameType, parameter_value_t<ValueType>>;
-
     parameter_t() = default;
 
     parameter_t(const parameter_t&) = default;
@@ -52,31 +46,32 @@ namespace sqlpp
     ~parameter_t() = default;
   };
 
-  template<typename ValueType, typename NameType>
-  struct parameters_of<parameter_t<ValueType, NameType>>
+  template<typename ValueType, typename NameTag>
+  struct parameters_of<parameter_t<ValueType, NameTag>>
   {
-    using type = detail::type_vector<parameter_t<ValueType, NameType>>;
+    using type = detail::type_vector<parameter_t<ValueType, NameTag>>;
   };
   
-  template<typename ValueType, typename NameType>
-  struct value_type_of<parameter_t<ValueType, NameType>>
+  template<typename ValueType, typename NameTag>
+  struct value_type_of<parameter_t<ValueType, NameTag>>
   {
     using type = ValueType;
   };
 
-  template <typename ValueType, typename NameType>
-  struct name_tag_of<parameter_t<ValueType, NameType>> : public name_tag_of<NameType>
+  template <typename ValueType, typename NameTag>
+  struct name_tag_of<parameter_t<ValueType, NameTag>>
   {
+    using type = NameTag;
   };
 
-  template <typename Context, typename ValueType, typename NameType>
-  auto to_sql_string(Context& , const parameter_t<ValueType, NameType>&) -> std::string
+  template <typename Context, typename ValueType, typename NameTag>
+  auto to_sql_string(Context& , const parameter_t<ValueType, NameTag>&) -> std::string
   {
     return  "?";
   }
 
   template <typename NamedExpr>
-  auto parameter(const NamedExpr & /*unused*/) -> parameter_t<value_type_of_t<NamedExpr>, NamedExpr>
+  auto parameter(const NamedExpr & /*unused*/) -> parameter_t<value_type_of_t<NamedExpr>, name_tag_of_t<NamedExpr>>
   {
     static_assert(is_selectable_t<NamedExpr>::value, "not a named expression");
     return {};
@@ -84,7 +79,7 @@ namespace sqlpp
 
   template <typename ValueType, typename NameTagProvider>
   auto parameter(const ValueType& /*unused*/, const NameTagProvider & /*unused*/)
-      -> parameter_t<value_type_of_t<ValueType>, NameTagProvider>
+      -> parameter_t<value_type_of_t<ValueType>, name_tag_of_t<NameTagProvider>>
   {
     static_assert(has_value_type<ValueType>::value, "first argument is not a value type");
     static_assert(has_name_tag<NameTagProvider>::value, "second argument does not have a name");
