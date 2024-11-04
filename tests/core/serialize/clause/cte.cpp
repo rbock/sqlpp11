@@ -63,7 +63,7 @@ int main(int, char* [])
     SQLPP_COMPARE(all_of(a), "a.id");
   }
 
-  // Recursive union CTE: X AS SELECT ... UNION ALL SELECT ... FROM X ...
+  // Recursive CTE: X AS SELECT ... UNION ALL SELECT ... FROM X ...
   {
     const auto x_base = cte(sqlpp::alias::x).as(select(sqlpp::value(0).as(sqlpp::alias::a)));
     const auto x = x_base.union_all(select((x_base.a + 1).as(sqlpp::alias::a)).from(x_base).where(x_base.a < 10));
@@ -89,6 +89,28 @@ int main(int, char* [])
     SQLPP_COMPARE(z.id, "z.id");
     SQLPP_COMPARE(all_of(y), "y.id, y.a");
     SQLPP_COMPARE(all_of(z), "z.id, z.a");
+  }
+
+  // Dynamically recursive CTE: X AS SELECT ... UNION ALL SELECT ... FROM X ...
+  {
+    const auto x_base = cte(sqlpp::alias::x).as(select(sqlpp::value(0).as(sqlpp::alias::a)));
+    auto x = x_base.union_all(dynamic(true, select((x_base.a + 1).as(sqlpp::alias::a)).from(x_base).where(x_base.a < 10)));
+
+    SQLPP_COMPARE(x, "x AS (SELECT 0 AS a UNION ALL SELECT (x.a + 1) AS a FROM x WHERE x.a < 10)");
+
+    x = x_base.union_all(dynamic(false, select((x_base.a + 1).as(sqlpp::alias::a)).from(x_base).where(x_base.a < 10)));
+    SQLPP_COMPARE(x, "x AS (SELECT 0 AS a)");
+  }
+
+  // Dynamically recursive CTE: X AS SELECT ... UNION DISTINCT SELECT ... FROM X ...
+  {
+    const auto x_base = cte(sqlpp::alias::x).as(select(sqlpp::value(0).as(sqlpp::alias::a)));
+    auto x = x_base.union_distinct(dynamic(true, select((x_base.a + 1).as(sqlpp::alias::a)).from(x_base).where(x_base.a < 10)));
+
+    SQLPP_COMPARE(x, "x AS (SELECT 0 AS a UNION DISTINCT SELECT (x.a + 1) AS a FROM x WHERE x.a < 10)");
+
+    x = x_base.union_distinct(dynamic(false, select((x_base.a + 1).as(sqlpp::alias::a)).from(x_base).where(x_base.a < 10)));
+    SQLPP_COMPARE(x, "x AS (SELECT 0 AS a)");
   }
 
   return 0;

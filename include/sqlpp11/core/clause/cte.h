@@ -68,6 +68,15 @@ namespace sqlpp
     return to_sql_string(context, t._lhs) + " UNION " + to_sql_string(context, Flag{}) + to_sql_string(context, t._rhs);
   }
 
+  template <typename Context, typename Flag, typename Lhs, typename Rhs>
+  auto to_sql_string(Context& context, const cte_union_t<Flag, Lhs, dynamic_t<Rhs>>& t) -> std::string
+  {
+    if (t._rhs._condition){
+    return to_sql_string(context, t._lhs) + " UNION " + to_sql_string(context, Flag{}) + to_sql_string(context, t._rhs._expr);
+    }
+    return to_sql_string(context, t._lhs);
+  }
+
   template <typename NameTagProvider, typename Statement, typename... FieldSpecs>
   struct cte_t;
 
@@ -116,14 +125,14 @@ namespace sqlpp
   using union_cte_impl_t = typename union_cte_impl<Check, Union>::type;
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_cte_union_args_are_statements_t, "argument for union() must be a statement");
-  template <typename... T>
+  template <typename T>
   struct check_cte_union
   {
     using type = static_combined_check_t<
-        static_check_t<logic::all<is_statement_t<T>::value...>::value, assert_cte_union_args_are_statements_t>>;
+        static_check_t<is_statement_t<T>::value, assert_cte_union_args_are_statements_t>>;
   };
-  template <typename... T>
-  using check_cte_union_t = typename check_cte_union<T...>::type;
+  template <typename T>
+  using check_cte_union_t = typename check_cte_union<remove_dynamic_t<T>>::type;
 
   // cte_member is a helper to add column data members to `cte_t`.
   template <typename NameTagProvider, typename FieldSpec>
@@ -194,14 +203,15 @@ namespace sqlpp
         -> union_cte_impl_t<check_cte_union_t<Rhs>,
                             cte_t<NameTagProvider, cte_union_t<distinct_t, Statement, Rhs>, FieldSpecs...>>
     {
-      static_assert(is_statement_t<Rhs>::value, "argument of union call has to be a statement");
-      static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
-      static_assert(has_result_row<Rhs>::value, "argument of a clause/union.has to be a (complete) select statement");
+      using _rhs = remove_dynamic_t<Rhs>;
+      static_assert(is_statement_t<_rhs>::value, "argument of union call has to be a statement");
+      static_assert(has_policy_t<_rhs, is_select_t>::value, "argument of union call has to be a select");
+      static_assert(has_result_row<_rhs>::value, "argument of a clause/union.has to be a (complete) select statement");
 
-      static_assert(std::is_same<_result_row_t, get_result_row_t<Rhs>>::value,
+      static_assert(std::is_same<_result_row_t, get_result_row_t<_rhs>>::value,
                     "both select statements in a clause/union.have to have the same result columns (type and name)");
 
-      return _union_impl<void, distinct_t>(check_cte_union_t<Rhs>{}, rhs);
+      return _union_impl<distinct_t>(check_cte_union_t<Rhs>{}, rhs);
     }
 
     template <typename Rhs>
@@ -209,11 +219,12 @@ namespace sqlpp
         -> union_cte_impl_t<check_cte_union_t<Rhs>,
                             cte_t<NameTagProvider, cte_union_t<all_t, Statement, Rhs>, FieldSpecs...>>
     {
-      static_assert(is_statement_t<Rhs>::value, "argument of union call has to be a statement");
-      static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
-      static_assert(has_result_row<Rhs>::value, "argument of a clause/union.has to be a (complete) select statement");
+      using _rhs = remove_dynamic_t<Rhs>;
+      static_assert(is_statement_t<_rhs>::value, "argument of union call has to be a statement");
+      static_assert(has_policy_t<_rhs, is_select_t>::value, "argument of union call has to be a select");
+      static_assert(has_result_row<_rhs>::value, "argument of a clause/union.has to be a (complete) select statement");
 
-      static_assert(std::is_same<_result_row_t, get_result_row_t<Rhs>>::value,
+      static_assert(std::is_same<_result_row_t, get_result_row_t<_rhs>>::value,
                     "both select statements in a clause/union.have to have the same result columns (type and name)");
 
       return _union_impl<all_t>(check_cte_union_t<Rhs>{}, rhs);
@@ -272,6 +283,18 @@ namespace sqlpp
     using type = Statement;
   };
 
+  template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>
+    struct provided_tables_of<cte_t<NameTagProvider, Statement, ColumnSpecs...>>
+    {
+      using type = sqlpp::detail::type_vector<cte_ref_t<NameTagProvider>>;
+    };
+
+  template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>
+    struct provided_static_tables_of<cte_t<NameTagProvider, Statement, ColumnSpecs...>> : public provided_tables_of<cte_t<NameTagProvider, Statement, ColumnSpecs...>>
+    {
+    };
+
+#warning: Should enough if with_t provides ctes?
   template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>
   struct provided_ctes_of<cte_t<NameTagProvider, Statement, ColumnSpecs...>>
   {
