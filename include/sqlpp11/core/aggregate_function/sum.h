@@ -92,7 +92,7 @@ namespace sqlpp
 
   template <typename T>
   using check_sum_arg =
-      ::sqlpp::enable_if_t<(is_numeric<T>::value or is_boolean<T>::value) and not contains_aggregate_function<T>::value>;
+      ::sqlpp::enable_if_t<(is_numeric<T>::value) and not contains_aggregate_function<T>::value>;
 
   template <typename T, typename = check_sum_arg<T>>
   auto sum(T t) -> sum_t<noop, T>

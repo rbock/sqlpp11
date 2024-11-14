@@ -28,9 +28,6 @@
 template<typename Value>
 void test_as_expression(Value v)
 {
-  using ValueType = sqlpp::value_type_of_t<Value>;
-  using OptValueType = ::sqlpp::optional<ValueType>;
-
   auto v_not_null= sqlpp::value(v);
   auto v_maybe_null= sqlpp::value(::sqlpp::make_optional(v));
 

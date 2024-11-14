@@ -78,7 +78,7 @@ namespace sqlpp
   auto parameterized_verbatim(std::string lhs, Expr expr, std::string rhs)
     -> parameterized_verbatim_t<ValueType, Expr>
   {
-    static_assert(is_expression_t<Expr>::value, "parameterized_verbatim() requires an expression as argument");
+    static_assert(has_value_type<Expr>::value, "parameterized_verbatim() requires an expression as argument");
     return {expr, lhs, rhs};
   }
 

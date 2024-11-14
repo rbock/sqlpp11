@@ -58,6 +58,7 @@ int main(int, char* [])
 
   // Same for unary expressions.
   SQLPP_COMPARE(-val, "-1");
+  SQLPP_COMPARE(-val + val, "(-1) + 1");
   SQLPP_COMPARE(-expr, "-(17 + 4)");
 
   const auto text = sqlpp::value("a");
@@ -68,6 +69,24 @@ int main(int, char* [])
   SQLPP_COMPARE(text + text_expr, "'a' || ('b' || 'c')");
   SQLPP_COMPARE(text_expr + text, "('b' || 'c') || 'a'");
   SQLPP_COMPARE(text_expr + text_expr, "('b' || 'c') || ('b' || 'c')");
+
+  // Arithmetic expressions can be named with AS
+  SQLPP_COMPARE((val + val).as(sqlpp::alias::a), "(1 + 1) AS a");
+  SQLPP_COMPARE((val - val).as(sqlpp::alias::a), "(1 - 1) AS a");
+  SQLPP_COMPARE((val * val).as(sqlpp::alias::a), "(1 * 1) AS a");
+  SQLPP_COMPARE((val / val).as(sqlpp::alias::a), "(1 / 1) AS a");
+  SQLPP_COMPARE((val % val).as(sqlpp::alias::a), "(1 % 1) AS a");
+
+  // Arithmetic expressions can be compared
+  SQLPP_COMPARE((val + val) < 17, "(1 + 1) < 17");
+  SQLPP_COMPARE((val - val) < 17, "(1 - 1) < 17");
+  SQLPP_COMPARE((val * val) < 17, "(1 * 1) < 17");
+  SQLPP_COMPARE((val / val) < 17, "(1 / 1) < 17");
+  SQLPP_COMPARE((val % val) < 17, "(1 % 1) < 17");
+  SQLPP_COMPARE(-val < 17, "(-1) < 17");
+  SQLPP_COMPARE((text + text) < "z", "('a' || 'a') < 'z'");
+
+
 
   return 0;
 }

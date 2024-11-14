@@ -73,7 +73,6 @@ namespace sqlpp
 #warning: mysql does not offer operator||, we need to fail compilation, but maybe offer the concat function in addition
   template <typename L, typename Operator, typename R>
   struct arithmetic_expression : public enable_as<arithmetic_expression<L, Operator, R>>,
-#warning: need to test AS and comparison for arithmetic expressions
                                  public enable_comparison<arithmetic_expression<L, Operator, R>>
   {
     arithmetic_expression() = delete;
@@ -93,7 +92,6 @@ namespace sqlpp
   template <typename L, typename R>
   using check_arithmetic_args = ::sqlpp::enable_if_t<is_numeric<L>::value and is_numeric<R>::value>;
 
-#warning: add boolean to numeric types
   // L and R are expected to be numeric value types (boolen, integral, unsigned_integral, or floating_point).
   template <typename Operator, typename L, typename R>
   struct arithmetic_value_type
