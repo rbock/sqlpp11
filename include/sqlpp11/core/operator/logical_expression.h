@@ -126,7 +126,6 @@ namespace sqlpp
     return to_sql_string(context, t._l);
   }
 
-#warning: need tests with dynamic AND/OR
   template <typename L, typename R, typename = check_logical_args<L, remove_dynamic_t<R>>>
   constexpr auto operator and(L l, R r) -> logical_expression<L, logical_and, R>
   {

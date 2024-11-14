@@ -78,7 +78,6 @@ namespace sqlpp
   template <typename T>
   struct check_limit
   {
-#warning: document that limits can be integral (not just unsigned integral)
     using type =
         static_combined_check_t<static_check_t<is_integral<T>::value or is_unsigned_integral<T>::value, assert_limit_is_integral>>;
   };

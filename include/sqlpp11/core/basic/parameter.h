@@ -33,7 +33,6 @@
 
 namespace sqlpp
 {
-#warning: It would be sufficient to store the NameTag here, not the whole NameTagProvider
   template <typename ValueType, typename NameTag>
   struct parameter_t : public enable_comparison<parameter_t<ValueType, NameTag>>
   {
@@ -46,13 +45,13 @@ namespace sqlpp
     ~parameter_t() = default;
   };
 
-  template<typename ValueType, typename NameTag>
+  template <typename ValueType, typename NameTag>
   struct parameters_of<parameter_t<ValueType, NameTag>>
   {
     using type = detail::type_vector<parameter_t<ValueType, NameTag>>;
   };
-  
-  template<typename ValueType, typename NameTag>
+
+  template <typename ValueType, typename NameTag>
   struct value_type_of<parameter_t<ValueType, NameTag>>
   {
     using type = ValueType;

@@ -186,6 +186,6 @@ namespace sqlpp
     };
   };
 
-#warning: Should we offer stand-alone union? it would need to take to arguments
+#warning: Should we offer stand-alone union? it would need to take two arguments
 
 }  // namespace sqlpp

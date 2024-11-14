@@ -33,14 +33,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace sqlpp
 {
-#warning: need type tests
-#warning: Should only use NameTag, not NameTagProvider here!
-  template <typename Expression, typename NameTagProvider>
+  template <typename Expression, typename NameTag>
   struct expression_as
   {
     using _traits = make_traits<value_type_of_t<Expression>, tag::is_selectable, tag::is_alias>;
 
-#warning Maybe make constructor of expressions private to force construction in the respective functions?
     constexpr expression_as(Expression expression) : _expression(std::move(expression))
     {
     }
@@ -61,8 +58,8 @@ namespace sqlpp
     using type = T;
   };
 
-  template <typename Expression, typename NameTagProvider>
-  struct remove_as<expression_as<Expression, NameTagProvider>>
+  template <typename Expression, typename NameTag>
+  struct remove_as<expression_as<Expression, NameTag>>
   {
     using type = Expression;
   };
@@ -70,16 +67,16 @@ namespace sqlpp
   template <typename T>
   using remove_as_t = typename remove_as<T>::type;
 
-  template <typename Expression, typename NameTagProvider>
-  struct nodes_of<expression_as<Expression, NameTagProvider>>
+  template <typename Expression, typename NameTag>
+  struct nodes_of<expression_as<Expression, NameTag>>
   {
     using type = detail::type_vector<Expression>;
   };
 
-  template <typename Context, typename Expression, typename NameTagProvider>
-  auto to_sql_string(Context& context, const expression_as<Expression, NameTagProvider>& t) -> std::string
+  template <typename Context, typename Expression, typename NameTag>
+  auto to_sql_string(Context& context, const expression_as<Expression, NameTag>& t) -> std::string
   {
-    return operand_to_sql_string(context, t._expression) + " AS " + name_to_sql_string(context, name_tag_of_t<NameTagProvider>::name);
+    return operand_to_sql_string(context, t._expression) + " AS " + name_to_sql_string(context, NameTag::name);
   }
 
   template <typename Expr, typename NameTagProvider>
@@ -88,7 +85,7 @@ namespace sqlpp
   >;
 
   template <typename Expr, typename NameTagProvider, typename = check_as_args<Expr, NameTagProvider>>
-  constexpr auto as(Expr expr, const NameTagProvider&) -> expression_as<Expr, NameTagProvider>
+  constexpr auto as(Expr expr, const NameTagProvider&) -> expression_as<Expr, name_tag_of_t<NameTagProvider>>
   {
       return {std::move(expr)};
   }
@@ -97,13 +94,13 @@ namespace sqlpp
   struct dynamic_t;
 
   template <typename Expr, typename NameTagProvider, typename = check_as_args<Expr, NameTagProvider>>
-  constexpr auto as(dynamic_t<Expr> expr, const NameTagProvider&) -> expression_as<dynamic_t<Expr>, NameTagProvider>
+  constexpr auto as(dynamic_t<Expr> expr, const NameTagProvider&) -> expression_as<dynamic_t<Expr>, name_tag_of_t<NameTagProvider>>
   {
       return {std::move(expr)};
   }
 
   template <typename NameTagProvider>
-  constexpr auto as(sqlpp::nullopt_t expr, const NameTagProvider&) -> expression_as<nullopt_t, NameTagProvider>
+  constexpr auto as(sqlpp::nullopt_t expr, const NameTagProvider&) -> expression_as<nullopt_t, name_tag_of_t<NameTagProvider>>
   {
       return {std::move(expr)};
   }

@@ -38,12 +38,9 @@
 
 namespace sqlpp
 {
-#warning: need to reactivate column operators?
   template <typename Table, typename ColumnSpec>
   struct column_t : public enable_as<column_t<Table, ColumnSpec>>,
   public enable_comparison<column_t<Table, ColumnSpec>>
-                    // : public expression_operators<column_t<Table, ColumnSpec>, typename ColumnSpec::value_type>,
-                 //   public column_operators<column_t<Table, ColumnSpec>, typename ColumnSpec::value_type>
   {
     struct _traits
     {

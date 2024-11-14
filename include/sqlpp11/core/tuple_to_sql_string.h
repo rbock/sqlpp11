@@ -81,16 +81,16 @@ namespace sqlpp
       return prefix + operand_to_sql_string(context, t);
     }
 
-    template <typename Context, typename T, typename NameProvider>
+    template <typename Context, typename T, typename NameTag>
     auto operator()(Context& context,
-                    const expression_as<sqlpp::dynamic_t<T>, NameProvider>& t,
+                    const expression_as<sqlpp::dynamic_t<T>, NameTag>& t,
                     size_t index) const -> std::string
     {
       if (t._expression._condition)
       {
-        return operator()(context, as(t._expression._expr, NameProvider{}), index);
+        return operator()(context, expression_as<T, NameTag>{t._expression._expr}, index);
       }
-      return operator()(context, as(sqlpp::nullopt, NameProvider{}), index);
+      return operator()(context, expression_as<sqlpp::nullopt_t, NameTag>{sqlpp::nullopt}, index);
     }
 
     template <typename Context, typename T>

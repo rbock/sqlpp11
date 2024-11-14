@@ -172,7 +172,6 @@ namespace sqlpp
     return result;
   }
 
-#warning: something.in(select(...)); should be suppported as is, need to test
   template <typename L, typename... Args, typename = check_in_args<L, Args...>>
   constexpr auto in(L l, std::tuple<Args...> args) -> in_expression<L, operator_in, std::tuple<Args...>>
   {

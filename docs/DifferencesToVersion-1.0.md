@@ -72,3 +72,6 @@ This used to be called `remove_from` in 1.0, it has been renamed to `delete_from
 
 Dropped features
 Unary operator+()
+
+## Limit and offset
+These accept integral values (not just unsigned integral)
