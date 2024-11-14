@@ -41,41 +41,40 @@ namespace sqlpp
 
   public:
     template <typename T>
-    auto join(T t) const -> decltype(::sqlpp::join(this->derived(), t))
+    auto join(T t) const -> decltype(::sqlpp::join(this->derived(), std::move(t)))
     {
-#warning: move?
-      return ::sqlpp::join(this->derived(), t);
+      return ::sqlpp::join(this->derived(), std::move(t));
     }
 
     template <typename T>
-    auto inner_join(T t) const -> decltype(::sqlpp::inner_join(this->derived(), t))
+    auto inner_join(T t) const -> decltype(::sqlpp::inner_join(this->derived(), std::move(t)))
     {
-      return ::sqlpp::inner_join(this->derived(), t);
+      return ::sqlpp::inner_join(this->derived(), std::move(t));
     }
 
     template <typename T>
-    auto left_outer_join(T t) const -> decltype(::sqlpp::left_outer_join(this->derived(), t))
+    auto left_outer_join(T t) const -> decltype(::sqlpp::left_outer_join(this->derived(), std::move(t)))
     {
-      return ::sqlpp::left_outer_join(this->derived(), t);
+      return ::sqlpp::left_outer_join(this->derived(), std::move(t));
     }
 
     template <typename T>
-    auto right_outer_join(T t) const -> decltype(::sqlpp::right_outer_join(this->derived(), t))
+    auto right_outer_join(T t) const -> decltype(::sqlpp::right_outer_join(this->derived(), std::move(t)))
     {
-      return ::sqlpp::right_outer_join(this->derived(), t);
+      return ::sqlpp::right_outer_join(this->derived(), std::move(t));
     }
 
 #warning: There is no full_outer_join in mysql?
     template <typename T>
-    auto full_outer_join(T t) const -> decltype(::sqlpp::full_outer_join(this->derived(), t))
+    auto full_outer_join(T t) const -> decltype(::sqlpp::full_outer_join(this->derived(), std::move(t)))
     {
-      return ::sqlpp::full_outer_join(this->derived(), t);
+      return ::sqlpp::full_outer_join(this->derived(), std::move(t));
     }
 
     template <typename T>
-    auto cross_join(T t) const -> decltype(::sqlpp::cross_join(this->derived(), t))
+    auto cross_join(T t) const -> decltype(::sqlpp::cross_join(this->derived(), std::move(t)))
     {
-      return ::sqlpp::cross_join(this->derived(), t);
+      return ::sqlpp::cross_join(this->derived(), std::move(t));
     }
   };
 }  // namespace sqlpp

@@ -71,7 +71,6 @@ namespace sqlpp
   template <typename Context, typename Expr>
   auto to_sql_string(Context& context, const group_by_column<Expr>& t) -> std::string
   {
-#warning: Untested
     return to_sql_string(context, t._expr);
   }
 
@@ -83,8 +82,6 @@ template <typename Expr, typename = check_declare_group_by_column_args<Expr>>
   {
     return {std::move(expr)};
   }
-
-#warning Add tests
 
 }  // namespace sqlpp11
 

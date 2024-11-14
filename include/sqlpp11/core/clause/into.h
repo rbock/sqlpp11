@@ -55,13 +55,7 @@ namespace sqlpp
   template <typename Table>
   struct into_t
   {
-    using _traits = make_traits<no_value_t, tag::is_into>;
-
     using _data_t = into_data_t<Table>;
-
-    struct _sqlpp_name_tag
-    {
-    };
 
     // Base template to be inherited by the statement
     template <typename Policies>

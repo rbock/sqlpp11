@@ -253,10 +253,6 @@ namespace sqlpp
   {
     using _traits = make_traits<no_value_t, tag::is_noop, tag::is_missing>;
 
-    struct _sqlpp_name_tag
-    {
-    };
-
     using _data_t = no_data_t;
 
     // Base template to be inherited by the statement

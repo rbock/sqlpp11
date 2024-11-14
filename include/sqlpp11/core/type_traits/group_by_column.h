@@ -40,7 +40,5 @@ namespace sqlpp
   {
   };
 
-#warning Add tests
-
 }  // namespace sqlpp11
 

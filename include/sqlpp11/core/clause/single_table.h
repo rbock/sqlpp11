@@ -54,17 +54,11 @@ namespace sqlpp
   template <typename Table>
   struct single_table_t
   {
-    using _traits = make_traits<no_value_t, tag::is_single_table>;
-
-#warning: can't we do this with a table_t<> specialization
+#warning: can't we do this with a table_t<> specialization?
     static_assert(is_table<Table>::value, "argument has to be a table");
     static_assert(required_tables_of_t<Table>::empty(), "table depends on another table");
 
     using _data_t = single_table_data_t<Table>;
-
-    struct _sqlpp_name_tag
-    {
-    };
 
     // Base template to be inherited by the statement
     template <typename Policies>

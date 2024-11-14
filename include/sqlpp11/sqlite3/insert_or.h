@@ -49,11 +49,6 @@ namespace sqlpp
     template <typename InsertOrAlternative>
     struct insert_or_t : public statement_name_t<InsertOrAlternative>
     {
-      using _traits = make_traits<no_value_t>;
-      struct _sqlpp_name_tag
-      {
-      };
-
       template <typename Statement>
       struct _result_methods_t
       {

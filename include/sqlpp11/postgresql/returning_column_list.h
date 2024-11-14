@@ -218,11 +218,6 @@ namespace sqlpp
     struct no_returning_column_list_t
     {
       using _traits = make_traits<no_value_t, tag::is_noop, tag::is_missing>;
-      using _nodes = ::sqlpp::detail::type_vector<>;
-
-      struct _sqlpp_name_tag
-      {
-      };
 
       // Data
       using _data_t = no_data_t;

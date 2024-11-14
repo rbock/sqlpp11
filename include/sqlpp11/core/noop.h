@@ -35,13 +35,6 @@ namespace sqlpp
   struct noop
   {
 #warning: All this should go away
-    using _traits = make_traits<no_value_t, tag::is_noop>;
-    using _nodes = detail::type_vector<>;
-
-    struct _sqlpp_name_tag
-    {
-    };
-
     template <typename Statement>
     struct _result_methods_t
     {

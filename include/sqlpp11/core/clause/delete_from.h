@@ -41,11 +41,6 @@ namespace sqlpp
   };
   struct delete_t : public statement_name_t<delete_name_t>
   {
-    using _traits = make_traits<no_value_t>;
-    struct _sqlpp_name_tag
-    {
-    };
-
     template <typename Statement>
     struct _result_methods_t
     {

@@ -40,6 +40,9 @@ void test_group_by()
   auto col_int = test::TabFoo{}.id;
   auto col_txt = test::TabFoo{}.textNnD;
 
+  // Test that declared group by columns are considered group by columns
+  static_assert(sqlpp::is_group_by_column<decltype(declare_group_by_column(v))>::value, "");
+
   // Constant values are neutral and therefore considered neither aggregate and non-aggregate.
   static_assert(decltype(known_aggregate_columns_as_expected(col_int))::value, "");
   static_assert(decltype(known_aggregate_columns_as_expected(col_int, col_txt))::value, "");
