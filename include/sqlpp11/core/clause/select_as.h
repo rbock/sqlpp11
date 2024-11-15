@@ -32,13 +32,15 @@
 
 namespace sqlpp
 {
-  template<typename NameTagProvider>
-  struct select_ref_t{};
+  template <typename NameTagProvider>
+  struct select_ref_t
+  {
+  };
 
-   template<typename NameTagProvider>
-    struct name_tag_of<select_ref_t<NameTagProvider>> : public name_tag_of<NameTagProvider>
-    {};
-
+  template <typename NameTagProvider>
+  struct name_tag_of<select_ref_t<NameTagProvider>> : public name_tag_of<NameTagProvider>
+  {
+  };
 
   // select_member is a helper to add column data members to `select_as_t`.
   template <typename NameTagProvider, typename FieldSpec>
@@ -47,7 +49,6 @@ namespace sqlpp
     using type = member_t<FieldSpec, column_t<select_ref_t<NameTagProvider>, FieldSpec>>;
   };
 
-#warning: Need to document that you need to be a bit careful with aliased SELECTs as we use select_ref in columns.
   template <typename Select, typename NameTagProvider, typename... FieldSpecs>
   struct select_as_t : public select_member<NameTagProvider, FieldSpecs>::type...,
                        public enable_join<select_as_t<Select, NameTagProvider, FieldSpecs...>>
@@ -74,6 +75,10 @@ namespace sqlpp
   template<typename Select, typename NameTagProvider, typename... FieldSpecs>
     struct name_tag_of<select_as_t<Select, NameTagProvider, FieldSpecs...>> : name_tag_of<NameTagProvider> {};
 
+  // We need to track nodes to find parameters in sub selects.
+  template<typename Select, typename NameTagProvider, typename... FieldSpecs>
+    struct nodes_of<select_as_t<Select, NameTagProvider, FieldSpecs...>> : nodes_of<Select> {};
+
   template <typename Select, typename NameTagProvider, typename... FieldSpecs>
   struct is_table<select_as_t<Select, NameTagProvider, FieldSpecs...>>
       : std::integral_constant<bool, Select::_can_be_used_as_table()>
@@ -93,10 +98,6 @@ namespace sqlpp
       : public provided_tables_of<select_as_t<Select, NameTagProvider, FieldSpecs...>>
   {
   };
-
-#warning: V1.0 has empty nodes. Is that correct? In either case document the decision here.
-#warning: Need to add required tables of
-#warning: Need to add nodes to allow for parameters to be used.
 
   template <typename Context, typename Select, typename NameTagProvider, typename... FieldSpecs>
   auto to_sql_string(Context& context, const select_as_t<Select, NameTagProvider, FieldSpecs...>& t) -> std::string

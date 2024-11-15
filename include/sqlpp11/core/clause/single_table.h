@@ -54,10 +54,6 @@ namespace sqlpp
   template <typename Table>
   struct single_table_t
   {
-#warning: can't we do this with a table_t<> specialization?
-    static_assert(is_table<Table>::value, "argument has to be a table");
-    static_assert(required_tables_of_t<Table>::empty(), "table depends on another table");
-
     using _data_t = single_table_data_t<Table>;
 
     // Base template to be inherited by the statement

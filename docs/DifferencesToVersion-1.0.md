@@ -70,8 +70,12 @@ cte.join is now allowed.
 ## DELETE FROM
 This used to be called `remove_from` in 1.0, it has been renamed to `delete_from` to be closer to SQL.
 
-Dropped features
+## Dropped features
 Unary operator+()
 
 ## Limit and offset
 These accept integral values (not just unsigned integral)
+
+## select_as
+select_ref_t is not fully type safe (but should offer reasonable protection).
+The reason for this is to reduce the sheer size of the serialized type, e.g. in error messages.
