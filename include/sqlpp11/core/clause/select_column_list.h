@@ -151,10 +151,10 @@ namespace sqlpp
 
       template <typename NameTagProvider>
       auto as(const NameTagProvider&) const
-          -> select_as_t<_statement_t, NameTagProvider, make_field_spec_t<_statement_t, Columns>...>
+          -> select_as_t<_statement_t, name_tag_of_t<NameTagProvider>, make_field_spec_t<_statement_t, Columns>...>
       {
         consistency_check_t<_statement_t>::verify();
-        using table = select_as_t<_statement_t, NameTagProvider, make_field_spec_t<_statement_t, Columns>...>;
+        using table = select_as_t<_statement_t, name_tag_of_t<NameTagProvider>, make_field_spec_t<_statement_t, Columns>...>;
         return table(_get_statement());
       }
 

@@ -32,26 +32,27 @@
 
 namespace sqlpp
 {
-  template <typename NameTagProvider>
+  template <typename NameTag>
   struct select_ref_t
   {
   };
 
-  template <typename NameTagProvider>
-  struct name_tag_of<select_ref_t<NameTagProvider>> : public name_tag_of<NameTagProvider>
+  template <typename NameTag>
+  struct name_tag_of<select_ref_t<NameTag>>
   {
+    using type = NameTag;
   };
 
   // select_member is a helper to add column data members to `select_as_t`.
-  template <typename NameTagProvider, typename FieldSpec>
+  template <typename NameTag, typename FieldSpec>
   struct select_member
   {
-    using type = member_t<FieldSpec, column_t<select_ref_t<NameTagProvider>, FieldSpec>>;
+    using type = member_t<FieldSpec, column_t<select_ref_t<NameTag>, FieldSpec>>;
   };
 
-  template <typename Select, typename NameTagProvider, typename... FieldSpecs>
-  struct select_as_t : public select_member<NameTagProvider, FieldSpecs>::type...,
-                       public enable_join<select_as_t<Select, NameTagProvider, FieldSpecs...>>
+  template <typename Select, typename NameTag, typename... FieldSpecs>
+  struct select_as_t : public select_member<NameTag, FieldSpecs>::type...,
+                       public enable_join<select_as_t<Select, NameTag, FieldSpecs...>>
   {
     select_as_t(Select select) : _select(select)
     {
@@ -63,45 +64,48 @@ namespace sqlpp
     select_as_t& operator=(select_as_t&& rhs) = default;
     ~select_as_t() = default;
 
-    using _column_tuple_t = std::tuple<column_t<select_ref_t<NameTagProvider>, FieldSpecs>...>;
+    using _column_tuple_t = std::tuple<column_t<select_ref_t<NameTag>, FieldSpecs>...>;
 
     Select _select;
   };
 
   // The Select expression has a value in case it has just one column selected.
-  template<typename Select, typename NameTagProvider, typename ColumnSpec>
-    struct value_type_of<select_as_t<Select, NameTagProvider, ColumnSpec>> : value_type_of<Select> {};
+  template<typename Select, typename NameTag, typename ColumnSpec>
+    struct value_type_of<select_as_t<Select, NameTag, ColumnSpec>> : value_type_of<Select> {};
 
-  template<typename Select, typename NameTagProvider, typename... FieldSpecs>
-    struct name_tag_of<select_as_t<Select, NameTagProvider, FieldSpecs...>> : name_tag_of<NameTagProvider> {};
+  template <typename Select, typename NameTag, typename... FieldSpecs>
+  struct name_tag_of<select_as_t<Select, NameTag, FieldSpecs...>>
+  {
+    using type = NameTag;
+  };
 
   // We need to track nodes to find parameters in sub selects.
-  template<typename Select, typename NameTagProvider, typename... FieldSpecs>
-    struct nodes_of<select_as_t<Select, NameTagProvider, FieldSpecs...>> : nodes_of<Select> {};
+  template<typename Select, typename NameTag, typename... FieldSpecs>
+    struct nodes_of<select_as_t<Select, NameTag, FieldSpecs...>> : nodes_of<Select> {};
 
-  template <typename Select, typename NameTagProvider, typename... FieldSpecs>
-  struct is_table<select_as_t<Select, NameTagProvider, FieldSpecs...>>
+  template <typename Select, typename NameTag, typename... FieldSpecs>
+  struct is_table<select_as_t<Select, NameTag, FieldSpecs...>>
       : std::integral_constant<bool, Select::_can_be_used_as_table()>
   {
   };
 
-  template <typename Select, typename NameTagProvider, typename... FieldSpecs>
-  struct provided_tables_of<select_as_t<Select, NameTagProvider, FieldSpecs...>>
+  template <typename Select, typename NameTag, typename... FieldSpecs>
+  struct provided_tables_of<select_as_t<Select, NameTag, FieldSpecs...>>
       : public std::conditional<Select::_can_be_used_as_table(),
-                                sqlpp::detail::type_vector<select_ref_t<NameTagProvider>>,
+                                sqlpp::detail::type_vector<select_ref_t<NameTag>>,
                                 sqlpp::detail::type_vector<>>
   {
   };
 
-  template <typename Select, typename NameTagProvider, typename... FieldSpecs>
-  struct provided_static_tables_of<select_as_t<Select, NameTagProvider, FieldSpecs...>>
-      : public provided_tables_of<select_as_t<Select, NameTagProvider, FieldSpecs...>>
+  template <typename Select, typename NameTag, typename... FieldSpecs>
+  struct provided_static_tables_of<select_as_t<Select, NameTag, FieldSpecs...>>
+      : public provided_tables_of<select_as_t<Select, NameTag, FieldSpecs...>>
   {
   };
 
-  template <typename Context, typename Select, typename NameTagProvider, typename... FieldSpecs>
-  auto to_sql_string(Context& context, const select_as_t<Select, NameTagProvider, FieldSpecs...>& t) -> std::string
+  template <typename Context, typename Select, typename NameTag, typename... FieldSpecs>
+  auto to_sql_string(Context& context, const select_as_t<Select, NameTag, FieldSpecs...>& t) -> std::string
   {
-    return operand_to_sql_string(context, t._select) + " AS " +name_to_sql_string(context, name_tag_of_t<NameTagProvider>::name);
+    return operand_to_sql_string(context, t._select) + " AS " +name_to_sql_string(context, NameTag::name);
   }
 }  // namespace sqlpp
