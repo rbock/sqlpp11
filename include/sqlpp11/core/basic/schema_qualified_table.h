@@ -37,52 +37,57 @@
 
 namespace sqlpp
 {
-  template <typename Table>
+  template <typename TableSpec, typename NameTag>
+  struct schema_qualified_table_as_t
+   : public TableSpec::_table_columns<schema_qualified_table_as_t<TableSpec, NameTag>>, public enable_join<schema_qualified_table_as_t<TableSpec, NameTag>>
+  {
+    schema_qualified_table_as_t(schema_t schema) : _schema(std::move(schema))
+    {
+    }
+
+    schema_t _schema;
+  };
+
+  template<typename TableSpec, typename NameTag>
+    struct is_table<schema_qualified_table_as_t<TableSpec, NameTag>> : public std::true_type {};
+
+  template <typename TableSpec, typename NameTag>
+  struct name_tag_of<schema_qualified_table_as_t<TableSpec, NameTag>> {
+    using type = NameTag;
+  };
+
+  template<typename TableSpec, typename NameTag>
+    struct provided_tables_of<schema_qualified_table_as_t<TableSpec, NameTag>> 
+    {
+      using type = detail::type_vector<schema_qualified_table_as_t<TableSpec, NameTag>>;
+    };
+
+  template <typename Context, typename TableSpec, typename NameTag>
+  auto to_sql_string(Context& context, const schema_qualified_table_as_t<TableSpec, NameTag>& t) -> std::string
+  {
+    return to_sql_string(context, t._schema) + "." + name_to_sql_string(context, name_tag_of_t<TableSpec>::name) +
+           " AS " + name_to_sql_string(context, NameTag::name);
+  }
+
+  template <typename TableSpec>
   struct schema_qualified_table_t
   {
-    using _traits = make_traits<value_type_of_t<Table>>;
-
-    using _nodes = detail::type_vector<>;
-    using _required_ctes = detail::type_set<>;
-    using _provided_tables = detail::type_set<>;
-
-    schema_qualified_table_t(schema_t schema, Table table) : _schema(std::move(schema)), _table(table)
+    schema_qualified_table_t(schema_t schema) : _schema(std::move(schema))
     {
     }
 
     template <typename NameTagProvider>
-    typename Table::template _foreign_table_as_t<NameTagProvider, schema_qualified_table_t> as(
-        const NameTagProvider& /*unused*/) const
+    auto as(const NameTagProvider& /*unused*/) const->schema_qualified_table_as_t<TableSpec, name_tag_of_t<NameTagProvider>>
     {
-      return {*this};
+      return {_schema};
     }
 
     schema_t _schema;
-    Table _table;
   };
 
-  template<typename Table>
-    struct is_table<schema_qualified_table_t<Table>> : public std::true_type {};
-
-  template <typename Context, typename Table>
-  auto to_sql_string(Context& context, const schema_qualified_table_t<Table>& t) -> std::string
+  template <typename TableSpec>
+  auto schema_qualified_table(schema_t schema, table_t<TableSpec>) -> schema_qualified_table_t<TableSpec>
   {
-    to_sql_string(context, t._schema);
-    context << '.';
-    to_sql_string(context, t._table);
-    return context;
-  }
-
-  template <typename Table>
-  auto schema_qualified_table(schema_t schema, Table table) -> schema_qualified_table_t<Table>
-  {
-    static_assert(required_tables_of_t<Table>::size::value == 0,
-                  "schema qualified tables must not depend on other tables");
-    static_assert(required_ctes_of<Table>::size::value == 0,
-                  "schema qualified tables must not depend on common table expressions");
-    static_assert(is_raw_table<Table>::value,
-                  "table must be a raw table, i.e. not an alias or common table expression");
-
-    return {schema, table};
+    return {schema};
   }
 }  // namespace sqlpp

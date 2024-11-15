@@ -30,4 +30,5 @@ function(create_test name)
 endfunction()
 
 create_test(join)
+create_test(schema_qualified_table)
 

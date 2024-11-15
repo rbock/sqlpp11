@@ -39,13 +39,7 @@ namespace sqlpp
   template <typename TableSpec>
   struct table_t : public TableSpec::_table_columns<table_t<TableSpec>>, public enable_join<table_t<TableSpec>>
   {
-    using _traits = make_traits<no_value_t>;
-
     using _required_insert_columns = typename TableSpec::_required_insert_columns;
-#warning: Need to inherit?
-    //using _column_tuple_t = std::tuple<column_t<Table, ColumnSpec>...>;
-    template <typename NameTagProvider, typename T>
-    using _foreign_table_as_t = table_as_t<NameTagProvider, T>;
 
     template <typename NameTagProvider>
     constexpr auto as(const NameTagProvider& /*unused*/) const -> table_as_t<TableSpec, name_tag_of_t<NameTagProvider>>

@@ -77,4 +77,10 @@ namespace sqlpp
       return ::sqlpp::cross_join(this->derived(), std::move(t));
     }
   };
+
+  template <typename T>
+  struct has_enabled_join : public std::is_base_of<enable_join<T>, T>
+  {
+  };
+
 }  // namespace sqlpp

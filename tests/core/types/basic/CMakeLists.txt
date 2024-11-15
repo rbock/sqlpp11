@@ -30,6 +30,7 @@ endfunction()
 
 test_compile(column)
 test_compile(join)
+test_compile(schema_qualified_table)
 test_compile(table)
 test_compile(table_as)
 

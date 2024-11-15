@@ -42,9 +42,6 @@ namespace sqlpp
     using _nodes = detail::type_vector<>;
 
     static_assert(required_tables_of_t<TableSpec>::empty(), "table aliases must not depend on external tables");
-
-#warning: need to inherit?
-    //using _column_tuple_t = std::tuple<column_t<NameTagProvider, ColumnSpec>...>;
   };
 
   template<typename TableSpec, typename NameTag>

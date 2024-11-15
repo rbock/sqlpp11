@@ -38,7 +38,12 @@ namespace sqlpp
   template <typename Context>
   auto to_sql_string(Context& context, const schema_t& t) -> std::string
   {
-    context << t._name;
-    return context;
+    return name_to_sql_string(context, t._name);
   }
+
+  auto schema(std::string name) -> schema_t
+  {
+    return schema_t{std::move(name)};
+  };
+
 }  // namespace sqlpp
