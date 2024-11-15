@@ -24,7 +24,6 @@
  */
 
 #include "Sample.h"
-#include "../compare.h"
 #include <sqlpp11/sqlpp11.h>
 
 int main(int, char* [])

@@ -102,3 +102,18 @@ struct is_optional : public std::false_type{};
 template <typename T>
 struct is_optional<::sqlpp::optional<T>> : public std::true_type{};
 
+// functions like `from(tab)` yield a statement with a single clause. This extracts the type of that clause.
+template <typename Statement>
+struct extract_clause;
+
+template <typename Clause>
+struct extract_clause<sqlpp::statement_t<Clause>>
+{
+  using type = Clause;
+};
+
+template <typename Statement>
+using extract_clause_t = typename extract_clause<Statement>::type;
+
+
+

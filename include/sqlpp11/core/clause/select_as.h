@@ -83,7 +83,7 @@ namespace sqlpp
   template <typename Select, typename NameTagProvider, typename... FieldSpecs>
   struct provided_tables_of<select_as_t<Select, NameTagProvider, FieldSpecs...>>
       : public std::conditional<Select::_can_be_used_as_table(),
-                                sqlpp::detail::type_vector<select_as_t<Select, NameTagProvider, FieldSpecs...>>,
+                                sqlpp::detail::type_vector<select_ref_t<NameTagProvider>>,
                                 sqlpp::detail::type_vector<>>
   {
   };
@@ -94,14 +94,9 @@ namespace sqlpp
   {
   };
 
-  template <typename Select, typename NameTagProvider, typename... FieldSpecs>
-  struct provided_optional_tables_of<select_as_t<Select, NameTagProvider, FieldSpecs...>>
-      : public provided_tables_of<select_as_t<Select, NameTagProvider, FieldSpecs...>>
-  {
-  };
-
 #warning: V1.0 has empty nodes. Is that correct? In either case document the decision here.
 #warning: Need to add required tables of
+#warning: Need to add nodes to allow for parameters to be used.
 
   template <typename Context, typename Select, typename NameTagProvider, typename... FieldSpecs>
   auto to_sql_string(Context& context, const select_as_t<Select, NameTagProvider, FieldSpecs...>& t) -> std::string

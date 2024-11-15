@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -26,24 +26,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string>
-
 namespace sqlpp
 {
-  struct schema_t
-  {
-    std::string _name;
-  };
-
-  template <typename Context>
-  auto to_sql_string(Context& context, const schema_t& t) -> std::string
-  {
-    return name_to_sql_string(context, t._name);
-  }
-
-  inline auto schema(std::string name) -> schema_t
-  {
-    return schema_t{std::move(name)};
-  };
+  template <typename Expr>
+  struct dynamic_t;
 
 }  // namespace sqlpp

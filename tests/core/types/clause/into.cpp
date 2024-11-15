@@ -25,6 +25,7 @@
 
 #include "Sample.h"
 #include <sqlpp11/sqlpp11.h>
+#include "../../../include/test_helpers.h"
 
 SQLPP_CREATE_NAME_TAG(cheese);
 
@@ -45,7 +46,8 @@ void test_into()
 
   // Valid into clause
   {
-    using I = decltype(sqlpp::into(foo));
+    using S = decltype(sqlpp::into(foo));
+    using I = extract_clause_t<S>;
     static_assert(std::is_same<sqlpp::provided_tables_of_t<I>, sqlpp::detail::type_vector<Foo>>::value, "");
     static_assert(std::is_same<sqlpp::provided_static_tables_of_t<I>, sqlpp::provided_tables_of_t<I>>::value, "");
     static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<I>, sqlpp::detail::type_vector<>>::value, "");

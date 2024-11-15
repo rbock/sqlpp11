@@ -59,16 +59,6 @@ namespace sqlpp
     using type = sqlpp::detail::type_vector<table_as_t<TableSpec, NameTag>>;
   };
 
-  template <typename TableSpec, typename NameTag>
-  struct provided_static_tables_of<table_as_t<TableSpec, NameTag>> : public provided_tables_of<table_as_t<TableSpec, NameTag>>
-  {
-  };
-
-  template <typename TableSpec, typename NameTag>
-  struct provided_optional_tables_of<table_as_t<TableSpec, NameTag>> : public provided_tables_of<table_as_t<TableSpec, NameTag>>
-  {
-  };
-
   template <typename Context, typename TableSpec, typename NameTag>
   auto to_sql_string(Context& context, const table_as_t<TableSpec, NameTag>&) -> std::string
   {

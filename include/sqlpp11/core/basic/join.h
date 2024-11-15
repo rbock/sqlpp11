@@ -67,10 +67,8 @@ namespace sqlpp
   template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
   struct provided_static_tables_of<join_t<Lhs, JoinType, Rhs, Condition>>
   {
-    using type = typename std::conditional<
-        is_dynamic<Rhs>::value,
-        provided_static_tables_of_t<Lhs>,
-        detail::type_vector_cat_t<provided_static_tables_of_t<Lhs>, provided_static_tables_of_t<Rhs>>>::type;
+    using type = 
+        detail::type_vector_cat_t<provided_static_tables_of_t<Lhs>, provided_static_tables_of_t<Rhs>>;
   };
 
   template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
@@ -79,10 +77,10 @@ namespace sqlpp
     using type = detail::type_vector_cat_t<
         typename std::conditional<detail::type_vector<right_outer_join_t, full_outer_join_t>::contains<JoinType>::value,
                                   provided_tables_of_t<Lhs>,
-                                  detail::type_vector<>>::type,
+                                  provided_optional_tables_of_t<Lhs>>::type,
         typename std::conditional<detail::type_vector<left_outer_join_t, full_outer_join_t>::contains<JoinType>::value,
                                   provided_tables_of_t<Rhs>,
-                                  detail::type_vector<>>::type>;
+                                  provided_optional_tables_of_t<Rhs>>::type>;
   };
 
 #warning: Need to make extra sure that ON does not require on extra tables.

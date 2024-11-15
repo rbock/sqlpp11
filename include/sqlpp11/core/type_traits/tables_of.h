@@ -28,13 +28,13 @@
 
 #include <sqlpp11/core/type_traits/nodes_of.h>
 #include <sqlpp11/core/detail/type_vector.h>
+#include <sqlpp11/core/query/dynamic_fwd.h>
 
 namespace sqlpp
 {
-  // required_tables_of determines the type_vector of tables referenced by columns within within T.
+  // required_tables_of recursively determines the type_vector of tables referenced by columns within within T.
   // column_t or other structs that might reference a table shall specialize this template to indicate their table
   // requirement.
-  // Dynamic parts of a query shall wrap their required tables in dynamic_t.
   template<typename T>
   struct required_tables_of
   {
@@ -50,10 +50,21 @@ namespace sqlpp
   template<typename T>
     using required_tables_of_t = typename required_tables_of<T>::type;
 
+  // required_static_tables_of recursively determines the type_vector of tables statically referenced by columns within
+  // within T. column_t or other structs that might reference a table shall specialize this template to indicate their
+  // table requirement.
+  //
+  // Dynamic query parts are ignored.
   template<typename T>
   struct required_static_tables_of
   {
     using type = typename required_static_tables_of<nodes_of_t<T>>::type;
+  };
+
+  template<typename T>
+  struct required_static_tables_of<dynamic_t<T>>
+  {
+    using type = detail::type_vector<>;
   };
 
   template<typename... T>
@@ -66,57 +77,49 @@ namespace sqlpp
     using required_static_tables_of_t = typename required_static_tables_of<T>::type;
 
 #warning: need type tests...
-  //static_assert(required_tables_of_t<int>::size::value == 0, "");
-
-  // provided_tables_of determines the type_vector of tables provided by the query clause, e.g. by FROM.
-  // Provided tables can be wrapped in dynamic_t if they are provided through a dynamic join.
+  // provided_tables_of determines the type_vector of tables provided by a clause, e.g. by FROM.
   // table_t, cte_ref_t, or other structs that might provide a table in a query need to specialize this template.
+  //
+  // Note: In contrast to `required_tables_of` above, this is non-recursive. This is important for instance to prevent
+  // `SELECT...AS` to leak from `select_column_list`.
   template <typename T>
   struct provided_tables_of
   {
-    using type = typename provided_tables_of<nodes_of_t<T>>::type;
+    using type = detail::type_vector<>;
   };
 
-  template <typename... T>
-  struct provided_tables_of<detail::type_vector<T...>>
+  template <typename T>
+  struct provided_tables_of<dynamic_t<T>> : public provided_tables_of<T>
   {
-    using type = detail::type_vector_cat_t<typename provided_tables_of<T>::type...>;
   };
 
   template <typename T>
   using provided_tables_of_t = typename provided_tables_of<T>::type;
 
+  // provided_tables_of determines the type_vector of non-dynamic tables provided by a clause, e.g. by FROM.
   template <typename T>
-  struct provided_static_tables_of
+  struct provided_static_tables_of : public provided_tables_of<T>
   {
-    using type = typename provided_static_tables_of<nodes_of_t<T>>::type;
   };
 
-  template <typename... T>
-  struct provided_static_tables_of<detail::type_vector<T...>>
+  template <typename T>
+  struct provided_static_tables_of<dynamic_t<T>>
   {
-    using type = detail::type_vector_cat_t<typename provided_static_tables_of<T>::type...>;
+    using type = detail::type_vector<>;
   };
 
   template <typename T>
   using provided_static_tables_of_t = typename provided_static_tables_of<T>::type;
 
+  // provided_tables_of determines the type_vector of outer join tables provided by a clause, e.g. by FROM.
   template <typename T>
   struct provided_optional_tables_of
   {
-    using type = typename provided_optional_tables_of<nodes_of_t<T>>::type;
-  };
-
-  template <typename... T>
-  struct provided_optional_tables_of<detail::type_vector<T...>>
-  {
-    using type = detail::type_vector_cat_t<typename provided_optional_tables_of<T>::type...>;
+    using type = detail::type_vector<>;
   };
 
   template <typename T>
   using provided_optional_tables_of_t = typename provided_optional_tables_of<T>::type;
-
-  static_assert(provided_tables_of_t<int>::empty(), "");
 
 }  // namespace sqlpp
 

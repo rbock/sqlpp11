@@ -25,6 +25,7 @@
 
 #include "Sample.h"
 #include <sqlpp11/sqlpp11.h>
+#include "../../../include/test_helpers.h"
 
 void test_from()
 {
@@ -36,10 +37,11 @@ void test_from()
   // FROM CTE
   {
     auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo).unconditionally());
-    auto f = from(x);
+    auto statement = from(x);
 
     using R = decltype(make_table_ref(x));
-    using F = decltype(f);
+    using S = decltype(statement);
+    using F = extract_clause_t<S>;
 
     static_assert(std::is_same<sqlpp::provided_tables_of_t<F>, sqlpp::detail::type_vector<R>>::value, "");
     static_assert(std::is_same<sqlpp::required_ctes_of_t<F>, sqlpp::detail::type_vector<R>>::value, "");

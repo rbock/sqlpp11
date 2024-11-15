@@ -26,6 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp11/core/query/dynamic_fwd.h>
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/operator/assign_expression.h>
 #include <sqlpp11/core/operator/sort_order_expression.h>
@@ -58,7 +59,7 @@ namespace sqlpp
   template <typename Expr>
   struct nodes_of<dynamic_t<Expr>>
   {
-    using type = Expr;
+    using type = detail::type_vector<Expr>;
   };
 
   template <typename T>

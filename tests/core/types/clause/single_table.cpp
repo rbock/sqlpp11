@@ -25,6 +25,7 @@
 
 #include "Sample.h"
 #include <sqlpp11/sqlpp11.h>
+#include "../../../include/test_helpers.h"
 
 SQLPP_CREATE_NAME_TAG(cheese);
 
@@ -45,7 +46,8 @@ void test_single_table()
 
   // Valid single table clause
   {
-    using S = decltype(sqlpp::single_table(foo));
+    using Statement = decltype(sqlpp::single_table(foo));
+    using S = extract_clause_t<Statement>;
     static_assert(std::is_same<sqlpp::provided_tables_of_t<S>, sqlpp::detail::type_vector<Foo>>::value, "");
     static_assert(std::is_same<sqlpp::provided_static_tables_of_t<S>, sqlpp::provided_tables_of_t<S>>::value, "");
     static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<S>, sqlpp::detail::type_vector<>>::value, "");

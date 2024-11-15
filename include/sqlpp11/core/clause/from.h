@@ -71,6 +71,16 @@ namespace sqlpp
     using type = detail::type_vector<Table>;
   };
 
+  template<typename Table>
+  struct provided_tables_of<from_t<Table>> : public provided_tables_of<Table>
+  {
+  };
+
+  template<typename Table>
+  struct provided_optional_tables_of<from_t<Table>> : public provided_optional_tables_of<Table>
+  {
+  };
+
   SQLPP_PORTABLE_STATIC_ASSERT(
       assert_from_not_pre_join_t,
       "from() argument is a pre join, please use an explicit on() condition or unconditionally()");

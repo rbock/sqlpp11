@@ -80,6 +80,11 @@ namespace sqlpp
     using type = detail::type_vector<Table>;
   };
 
+  template<typename Table>
+  struct provided_tables_of<single_table_t<Table>> : public provided_tables_of<Table>
+  {
+  };
+
   SQLPP_PORTABLE_STATIC_ASSERT(assert_update_table_arg_is_table_t, "argument for update() must be a table");
   template <typename Table>
   struct check_update_table

@@ -92,7 +92,7 @@ namespace sqlpp
   template <typename L, typename R>
   using check_arithmetic_args = ::sqlpp::enable_if_t<is_numeric<L>::value and is_numeric<R>::value>;
 
-  // L and R are expected to be numeric value types (boolen, integral, unsigned_integral, or floating_point).
+  // L and R are expected to be numeric value types (boolean, integral, unsigned_integral, or floating_point).
   template <typename Operator, typename L, typename R>
   struct arithmetic_value_type
   {

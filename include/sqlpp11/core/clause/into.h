@@ -77,6 +77,11 @@ namespace sqlpp
       using type = detail::type_vector<Table>;
     };
 
+  template<typename Table>
+  struct provided_tables_of<into_t<Table>> : public provided_tables_of<Table>
+  {
+  };
+
   SQLPP_PORTABLE_STATIC_ASSERT(assert_into_t, "into() required");
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_into_arg_is_table, "argument for into() must be a table");

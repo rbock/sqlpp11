@@ -289,21 +289,11 @@ namespace sqlpp
       using type = sqlpp::detail::type_vector<cte_ref_t<NameTagProvider>>;
     };
 
-  template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>
-    struct provided_static_tables_of<cte_t<NameTagProvider, Statement, ColumnSpecs...>> : public provided_tables_of<cte_t<NameTagProvider, Statement, ColumnSpecs...>>
-    {
-    };
-
 #warning: Should enough if with_t provides ctes?
   template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>
   struct provided_ctes_of<cte_t<NameTagProvider, Statement, ColumnSpecs...>>
   {
     using type = detail::type_vector<cte_ref_t<NameTagProvider>>;
-  };
-
-  template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>
-  struct provided_static_ctes_of<cte_t<NameTagProvider, Statement, ColumnSpecs...>> : public provided_ctes_of<cte_t<NameTagProvider, Statement, ColumnSpecs...>>
-  {
   };
 
   template <typename Context, typename NameTagProvider, typename Statement, typename... ColumnSpecs>
@@ -339,11 +329,6 @@ namespace sqlpp
     struct provided_tables_of<cte_ref_t<NameTagProvider>> 
     {
       using type = sqlpp::detail::type_vector<cte_ref_t<NameTagProvider>>;
-    };
-
-   template<typename NameTagProvider>
-    struct provided_static_tables_of<cte_ref_t<NameTagProvider>> : public provided_tables_of<cte_ref_t<NameTagProvider>>
-    {
     };
 
    template<typename NameTagProvider>
