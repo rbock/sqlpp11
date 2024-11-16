@@ -33,6 +33,7 @@ namespace test
   SQLPP_CREATE_NAME_TAG(meme);
   SQLPP_CREATE_NAME_TAG(verb);
   SQLPP_CREATE_NAME_TAG(CTE);
+  SQLPP_CREATE_NAME_TAG(sel_as);
 }  // namespace test
 
 void test_join()
@@ -45,6 +46,7 @@ void test_join()
   auto meme = schema_qualified_table({"meme"}, foo).as(test::meme);
   auto verb = sqlpp::verbatim_table("verb").as(test::verb);
   auto cte = sqlpp::cte(test::CTE).as(select(foo.id).from(foo).where(true));
+  auto sel_as = select(all_of(foo)).from(foo).where(foo.id == sqlpp::parameter(foo.id)).as(test::sel_as);
 
   using Foo = decltype(foo);
   using Bar = decltype(bar);
@@ -53,6 +55,7 @@ void test_join()
   using Meme = decltype(meme);
   using Verb = decltype(verb);
   using CteRef = sqlpp::cte_ref_t<test::CTE_t>;
+  using SelAsRef = sqlpp::select_ref_t<test::sel_as_t::_sqlpp_name_tag>;
 
   // Pre-join
   static_assert(not sqlpp::is_table<decltype(foo.join(bar))>::value, "");
@@ -141,6 +144,30 @@ void test_join()
     static_assert(std::is_same<sqlpp::provided_tables_of_t<J>, sqlpp::detail::type_vector<Verb, Meme>>::value, "");
     static_assert(std::is_same<sqlpp::provided_static_tables_of_t<J>, sqlpp::provided_tables_of_t<J>>::value, "");
     static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<J>, sqlpp::detail::type_vector<>>::value, "");
+  }
+
+  // Join with select as
+  {
+    using J = decltype(sel_as.join(foo).on(sel_as.id == foo.id));
+    static_assert(sqlpp::is_table<J>::value, "");
+    static_assert(std::is_same<sqlpp::provided_tables_of_t<J>, sqlpp::detail::type_vector<SelAsRef, Foo>>::value, "");
+    static_assert(std::is_same<sqlpp::provided_static_tables_of_t<J>, sqlpp::provided_tables_of_t<J>>::value, "");
+    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<J>, sqlpp::detail::type_vector<>>::value, "");
+  }
+
+  // Join with select as and parameters
+  {
+    using J = decltype(sel_as.join(foo).on(sel_as.id == foo.id + sqlpp::parameter(sqlpp::integral{}, sqlpp::alias::a)));
+    static_assert(sqlpp::is_table<J>::value, "");
+    static_assert(std::is_same<sqlpp::provided_tables_of_t<J>, sqlpp::detail::type_vector<SelAsRef, Foo>>::value, "");
+    static_assert(std::is_same<sqlpp::provided_static_tables_of_t<J>, sqlpp::provided_tables_of_t<J>>::value, "");
+    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<J>, sqlpp::detail::type_vector<>>::value, "");
+
+    // parameters from sub select and condition are being exposed
+    using ExpectedParameters =
+        sqlpp::detail::type_vector<sqlpp::parameter_t<sqlpp::integral, test::TabFoo_::Id::_sqlpp_name_tag>,
+                                   sqlpp::parameter_t<sqlpp::integral, sqlpp::alias::a_t::_sqlpp_name_tag>>;
+    static_assert(std::is_same<sqlpp::parameters_of_t<J>, ExpectedParameters>::value, "");
   }
 
   // Join with cte
