@@ -137,32 +137,42 @@ namespace sqlpp
     return to_sql_string(context, t._lhs);
   }
 
-#warning: Verify that the Expr does not require tables other than Lhs, Rhs
-  template <typename Expr, typename StaticTableTypeVector, typename AllTableTypeVector>
-  struct are_table_requirements_satisfied
-      : public std::integral_constant<bool,
-                                      StaticTableTypeVector::template contains_all<required_static_tables_of_t<Expr>>::value and
-                                          AllTableTypeVector::template contains_all<required_tables_of_t<Expr>>::value>
-  {
-  };
-
+  // This verifies that all tables required by ON are provided by the JOIN.
+  // Good examples:
+  //
+  // * `foo.join(dynamic(true, bar))
+  //       .on(foo.id == bar.id)`
+  //    The ON condition statically requires `bar`. That is OK since the condition is evaluated only in case bar is
+  //    actually joined.
+  // * `foo.cross_join(dynamic(true, bar))
+  //       .join(cheese)
+  //       .on(foo.id == cheese.id and dynamic(true, bar.id == cheese.id))`
+  //    The ON condition for joining foo and (maybe) bar dynamically requires `bar`.
+  //
+  // Bad examples:
+  //
+  // * `foo.join(dynamic(true, bar))
+  //       .on(foo.id == cheese.id)`
+  //    `cheese` must not be used in the ON condition as it is not part of the join at all.
+  // * `foo.cross_join(dynamic(true, bar))
+  //       .join(cheese)
+  //       .on(bar.id == cheese.id))`
+  //   `bar` is dynamically joined only. It must not be used statically when joining cheese `statically`.
   template <typename Lhs, typename Rhs, typename Expr>
   struct are_join_table_requirements_satisfied
       : public std::integral_constant<
             bool,
             is_dynamic<Rhs>::value ?
                                    // In case of a dynamic join, we can use all tables in the ON expr.
-                are_table_requirements_satisfied<
-                    Expr,
-                    provided_tables_of_t<join_t<Lhs, cross_join_t, Rhs, unconditional_t>>,
-                    provided_tables_of_t<join_t<Lhs, cross_join_t, Rhs, unconditional_t>>>::value
+                provided_tables_of_t<join_t<Lhs, cross_join_t, Rhs, unconditional_t>>::template contains_all<
+                    required_tables_of_t<Expr>>::value
                                    :
                                    // In case of a static join, we can use static tables in the static part of the ON
                                    // expression and dynamic tables in any potential dynamic part of the expression.
-                are_table_requirements_satisfied<
-                    Expr,
-                    provided_static_tables_of_t<join_t<Lhs, cross_join_t, Rhs, unconditional_t>>,
-                    provided_tables_of_t<join_t<Lhs, cross_join_t, Rhs, unconditional_t>>>::value>
+                (provided_static_tables_of_t<join_t<Lhs, cross_join_t, Rhs, unconditional_t>>::template contains_all<
+                    required_static_tables_of_t<Expr>>::value and
+                     provided_tables_of_t<join_t<Lhs, cross_join_t, Rhs, unconditional_t>>::template contains_all<
+                         required_tables_of_t<Expr>>::value)>
   {
   };
 

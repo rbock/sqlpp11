@@ -33,8 +33,8 @@
 
 namespace sqlpp
 {
-  template <typename NameTagProvider>
-  struct verbatim_table_as_t : public enable_join<verbatim_table_as_t<NameTagProvider>>
+  template <typename NameTag>
+  struct verbatim_table_as_t : public enable_join<verbatim_table_as_t<NameTag>>
   {
     verbatim_table_as_t(std::string representation) : _representation(std::move(representation))
     {
@@ -49,15 +49,27 @@ namespace sqlpp
     std::string _representation;
   };
 
-  template <typename NameTagProvider>
-  struct is_table<verbatim_table_as_t<NameTagProvider>> : std::true_type
+  template <typename NameTag>
+  struct is_table<verbatim_table_as_t<NameTag>> : std::true_type
   {
   };
 
-  template <typename Context, typename NameTagProvider>
-  auto to_sql_string(Context& context, const verbatim_table_as_t<NameTagProvider>& t) -> std::string
+  template <typename NameTag>
+  struct name_tag_of<verbatim_table_as_t<NameTag>>
   {
-    return t._representation + " AS " + name_to_sql_string(context, name_tag_of_t<NameTagProvider>::name);
+    using type = NameTag;
+  };
+
+  template <typename NameTag>
+  struct provided_tables_of<verbatim_table_as_t<NameTag>>
+  {
+    using type = detail::type_vector<verbatim_table_as_t<NameTag>>;
+  };
+
+  template <typename Context, typename NameTag>
+  auto to_sql_string(Context& context, const verbatim_table_as_t<NameTag>& t) -> std::string
+  {
+    return t._representation + " AS " + name_to_sql_string(context, NameTag::name);
   }
 
   struct verbatim_table_t: public enable_join<verbatim_table_t>
@@ -73,7 +85,7 @@ namespace sqlpp
     ~verbatim_table_t() = default;
 
     template <typename NameTagProvider>
-    verbatim_table_as_t<NameTagProvider> as(const NameTagProvider& /*unused*/) const
+    auto as(const NameTagProvider& /*unused*/) const -> verbatim_table_as_t<name_tag_of_t<NameTagProvider>>
     {
       return {_representation};
     }
@@ -86,6 +98,7 @@ namespace sqlpp
   {
   };
 
+#warning: Need serialize tests
   template <typename Context>
   auto to_sql_string(Context& , const verbatim_table_t& t) -> std::string
   {
