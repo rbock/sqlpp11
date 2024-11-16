@@ -30,19 +30,14 @@
 
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/to_sql_string.h>
+#include <sqlpp11/core/operator/enable_as.h>
 
 
 namespace sqlpp
 {
   template <typename ValueType>  // Csaba Csoma suggests: unsafe_sql instead of verbatim
-  struct verbatim_t /*: public expression_operators<verbatim_t<ValueType>, ValueType>,
-                      public alias_operators<verbatim_t<ValueType>>*/
+  struct verbatim_t : public enable_as<verbatim_t<ValueType>>
   {
-    using _traits = make_traits<ValueType, tag::is_expression>;
-    using _nodes = detail::type_vector<>;
-    using _can_be_null =
-        std::true_type;  // since we do not know what's going on inside the verbatim, we assume it can be null
-
     verbatim_t(std::string verbatim) : _verbatim(std::move(verbatim))
     {
     }
@@ -58,7 +53,8 @@ namespace sqlpp
   template <typename ValueType>
     struct value_type_of<verbatim_t<ValueType>>
     {
-      using type = ValueType;
+      // Since we do not know what's going on inside the verbatim, we assume it can be null.
+      using type = sqlpp::force_optional_t<ValueType>;
     };
 
   template <typename Context, typename ValueType>

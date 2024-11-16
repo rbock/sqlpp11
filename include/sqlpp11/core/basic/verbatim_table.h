@@ -98,7 +98,6 @@ namespace sqlpp
   {
   };
 
-#warning: Need serialize tests
   template <typename Context>
   auto to_sql_string(Context& , const verbatim_table_t& t) -> std::string
   {

@@ -80,6 +80,7 @@ namespace sqlpp
   };
 
   // We need to track nodes to find parameters in sub selects.
+#warning: Add a test for that
   template<typename Select, typename NameTag, typename... FieldSpecs>
     struct nodes_of<select_as_t<Select, NameTag, FieldSpecs...>> : nodes_of<Select> {};
 
