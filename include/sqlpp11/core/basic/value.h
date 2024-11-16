@@ -56,7 +56,6 @@ namespace sqlpp
   template <typename Context, typename T>
   auto to_sql_string(Context& context, const value_t<T>& t) -> std::string
   {
-#warning: Untested
     return to_sql_string(context, t._value);
   }
 

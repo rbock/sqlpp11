@@ -83,7 +83,6 @@ namespace sqlpp
                                   provided_optional_tables_of_t<Rhs>>::type>;
   };
 
-#warning: Need to make extra sure that ON does not require on extra tables.
   template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
   struct required_tables_of<join_t<Lhs, JoinType, Rhs, Condition>>
   {

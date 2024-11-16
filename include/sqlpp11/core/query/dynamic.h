@@ -113,7 +113,6 @@ namespace sqlpp
     return {condition, std::move(t)};
   }
 
-#warning: Check if we can dynamically join a table_as?
   template <typename Expr, typename = check_dynamic_args<Expr>>
   auto dynamic(bool condition, sort_order_expression<Expr> t) -> dynamic_t<sort_order_expression<Expr>>
   {

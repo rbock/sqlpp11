@@ -31,6 +31,7 @@ endfunction()
 
 create_test(join)
 create_test(schema_qualified_table)
+create_test(value)
 create_test(verbatim)
 create_test(verbatim_table)
 

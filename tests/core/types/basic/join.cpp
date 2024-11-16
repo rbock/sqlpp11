@@ -119,6 +119,15 @@ void test_join()
     static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<J>, sqlpp::detail::type_vector<>>::value, "");
   }
 
+  // Join with rhs alias table
+  {
+    using J = decltype(foo.join(dynamic(true, cheese)).on(foo.id == cheese.id));
+    static_assert(sqlpp::is_table<J>::value, "");
+    static_assert(std::is_same<sqlpp::provided_tables_of_t<J>, sqlpp::detail::type_vector<Foo, Cheese>>::value, "");
+    static_assert(std::is_same<sqlpp::provided_static_tables_of_t<J>, sqlpp::detail::type_vector<Foo>>::value, "");
+    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<J>, sqlpp::detail::type_vector<>>::value, "");
+  }
+
   // Join with two alias tables
   {
     using J = decltype(cheese.join(cake).on(cheese.id == cake.id));

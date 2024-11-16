@@ -33,6 +33,7 @@ test_compile(join)
 test_compile(schema_qualified_table)
 test_compile(table)
 test_compile(table_as)
+test_compile(value)
 test_compile(verbatim)
 test_compile(verbatim_table)
 
