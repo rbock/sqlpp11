@@ -33,23 +33,21 @@
 
 namespace sqlpp
 {
-#warning: Do we need this? It should be possible to use name_tag_of_t and value_type_of_t somehow
-  template <typename NameType, typename ValueType>
+  template <typename NameTag, typename ValueType>
   struct field_spec_t
   {
-    using result_value_type = result_value_t<ValueType>;
-    using value_type = ValueType; // This is used by column_t
+    using result_value_type = result_value_t<ValueType>; // Used in result_row_t.
+    using value_type = ValueType; // This is used by column_t.
   };
 
-  template <typename NameType, typename ValueType>
-  struct name_tag_of<field_spec_t<NameType, ValueType>>
+  template <typename NameTag, typename ValueType>
+  struct name_tag_of<field_spec_t<NameTag, ValueType>>
   {
-    using type = NameType;
+    using type = NameTag;
   };
 
-#warning: required in cte_column_spec_t (which could maybe be dropped for field_spec?)
-  template <typename NameType, typename ValueType>
-  struct value_type_of<field_spec_t<NameType, ValueType>>
+  template <typename NameTag, typename ValueType>
+  struct value_type_of<field_spec_t<NameTag, ValueType>>
   {
     using type = ValueType;
   };
@@ -60,15 +58,15 @@ namespace sqlpp
     static constexpr auto value = false;
   };
 
-  template <typename LeftName,
+  template <typename LeftNameTag,
             typename LeftValue,
-            typename RightName,
+            typename RightNameTag,
             typename RightValue>
-  struct is_field_compatible<field_spec_t<LeftName, LeftValue>,
-                             field_spec_t<RightName, RightValue>>
+  struct is_field_compatible<field_spec_t<LeftNameTag, LeftValue>,
+                             field_spec_t<RightNameTag, RightValue>>
   {
-    using L = field_spec_t<LeftName, LeftValue>;
-    using R = field_spec_t<RightName, RightValue>;
+    using L = field_spec_t<LeftNameTag, LeftValue>;
+    using R = field_spec_t<RightNameTag, RightValue>;
     static constexpr auto value =
         std::is_same<make_char_sequence_t<L>, make_char_sequence_t<R>>::value and
         std::is_same<remove_optional_t<LeftValue>, remove_optional_t<RightValue>>::value and  // Same value type

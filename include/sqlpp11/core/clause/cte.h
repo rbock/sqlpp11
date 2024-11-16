@@ -166,11 +166,6 @@ namespace sqlpp
     };
 
   template <typename NameTagProvider, typename NewNameTagProvider, typename... ColumnSpecs>
-    struct provided_static_tables_of<cte_as_t<NameTagProvider, NewNameTagProvider, ColumnSpecs...>> : public provided_tables_of<cte_as_t<NameTagProvider, NewNameTagProvider, ColumnSpecs...>>
-    {
-    };
-
-  template <typename NameTagProvider, typename NewNameTagProvider, typename... ColumnSpecs>
     struct required_ctes_of<cte_as_t<NameTagProvider, NewNameTagProvider, ColumnSpecs...>> 
     {
       // An aliased CTE requires the original CTE from the WITH clause.
@@ -254,7 +249,7 @@ namespace sqlpp
     Statement _statement;
   };
 
-#warning: is table? really? cte_ref needs to be a table, not sure about cte_t
+  // Note that `cte_t` is not a table, because `join` and `from` store `cte_ref_t`.
   template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>
   struct is_cte<cte_t<NameTagProvider, Statement, ColumnSpecs...>> : public std::true_type
   {
@@ -283,13 +278,6 @@ namespace sqlpp
     using type = Statement;
   };
 
-  template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>
-    struct provided_tables_of<cte_t<NameTagProvider, Statement, ColumnSpecs...>>
-    {
-      using type = sqlpp::detail::type_vector<cte_ref_t<NameTagProvider>>;
-    };
-
-#warning: Should enough if with_t provides ctes?
   template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>
   struct provided_ctes_of<cte_t<NameTagProvider, Statement, ColumnSpecs...>>
   {
