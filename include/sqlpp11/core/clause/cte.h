@@ -299,6 +299,12 @@ namespace sqlpp
     using type = detail::type_vector<cte_ref_t<NameTagProvider>>;
   };
 
+  template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>
+  struct provided_static_ctes_of<cte_t<NameTagProvider, Statement, ColumnSpecs...>>
+      : public provided_ctes_of<cte_t<NameTagProvider, Statement, ColumnSpecs...>>
+  {
+  };
+
   template <typename Context, typename NameTagProvider, typename Statement, typename... ColumnSpecs>
   auto to_sql_string(Context& context, const cte_t<NameTagProvider, Statement, ColumnSpecs...>& t) -> std::string
   {

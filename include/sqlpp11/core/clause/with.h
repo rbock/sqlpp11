@@ -80,6 +80,19 @@ namespace sqlpp
       using _consistency_check = consistent_t;
     };
   };
+
+  template <typename... Expressions>
+  struct provided_ctes_of<with_t<Expressions...>>
+  {
+    using type = detail::type_vector_cat_t<provided_ctes_of_t<Expressions>...>;
+  };
+
+  template <typename... Expressions>
+  struct provided_static_ctes_of<with_t<Expressions...>>
+  {
+    using type = detail::type_vector_cat_t<provided_static_ctes_of_t<Expressions>...>;
+  };
+ 
 #warning: Need traits here! And type tests for them
 
   struct no_with_t
@@ -147,6 +160,7 @@ namespace sqlpp
     struct have_correct_dependencies_impl<AllowedCTEs, CTE, Rest...>
     {
       using allowed_ctes = detail::type_vector_cat_t<AllowedCTEs, provided_ctes_of_t<CTE>>;
+#warning: Need to look at statically provided and required CTEs, too. And we need to add tests for this
       static constexpr bool value = allowed_ctes::template contains_all<required_ctes_of_t<CTE>>::value and
                                     have_correct_dependencies_impl<allowed_ctes, Rest...>::value;
     };
