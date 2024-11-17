@@ -39,10 +39,10 @@
 
 namespace sqlpp
 {
-  template <typename... Expressions>
+  template <typename... Ctes>
   struct with_data_t
   {
-    with_data_t(Expressions... expressions) : _expressions(expressions...)
+    with_data_t(Ctes... expressions) : _expressions(expressions...)
     {
     }
 
@@ -52,19 +52,19 @@ namespace sqlpp
     with_data_t& operator=(with_data_t&&) = default;
     ~with_data_t() = default;
 
-    std::tuple<Expressions...> _expressions;
+    std::tuple<Ctes...> _expressions;
   };
 
-  template <typename... Expressions>
+  template <typename... Ctes>
   struct with_t
   {
     using _traits = make_traits<no_value_t, tag::is_with>;
     using _nodes = detail::type_vector<>;
     using _provided_ctes =
-        detail::make_joined_set_t<required_ctes_of<Expressions>...>;  // WITH provides common table expressions
-    using _parameters = detail::type_vector_cat_t<parameters_of_t<Expressions>...>;
+        detail::make_joined_set_t<required_ctes_of<Ctes>...>;  // WITH provides common table expressions
+    using _parameters = detail::type_vector_cat_t<parameters_of_t<Ctes>...>;
 
-    using _data_t = with_data_t<Expressions...>;
+    using _data_t = with_data_t<Ctes...>;
 
     // Base template to be inherited by the statement
     template <typename Policies>
@@ -81,20 +81,26 @@ namespace sqlpp
     };
   };
 
-  template <typename... Expressions>
-  struct provided_ctes_of<with_t<Expressions...>>
+  // Note: No nodes are exposed directly. Nothing should be leaked from CTEs by accident.
+
+  template <typename... Ctes>
+  struct provided_ctes_of<with_t<Ctes...>>
   {
-    using type = detail::type_vector_cat_t<provided_ctes_of_t<Expressions>...>;
+    using type = detail::type_vector_cat_t<provided_ctes_of_t<Ctes>...>;
   };
 
-  template <typename... Expressions>
-  struct provided_static_ctes_of<with_t<Expressions...>>
+  template <typename... Ctes>
+  struct provided_static_ctes_of<with_t<Ctes...>>
   {
-    using type = detail::type_vector_cat_t<provided_static_ctes_of_t<Expressions>...>;
+    using type = detail::type_vector_cat_t<provided_static_ctes_of_t<Ctes>...>;
+  };
+
+  template <typename... Ctes>
+  struct parameters_of<with_t<Ctes...>>
+  {
+    using type = detail::type_vector_cat_t<parameters_of_t<Ctes>...>;
   };
  
-#warning: Need traits here! And type tests for them
-
   struct no_with_t
   {
     using _traits = make_traits<no_value_t, tag::is_with>;
@@ -118,31 +124,31 @@ namespace sqlpp
     };
   };
 
-  template <typename... Expressions>
+  template <typename... Ctes>
   struct blank_with_t
   {
-    with_data_t<Expressions...> _data;
+    with_data_t<Ctes...> _data;
 
     template <typename Statement>
     auto operator()(Statement statement)
-        -> new_statement_t<consistent_t, typename Statement::_policies_t, no_with_t, with_t<Expressions...>>
+        -> new_statement_t<consistent_t, typename Statement::_policies_t, no_with_t, with_t<Ctes...>>
     {
       return {statement, _data};
     }
   };
 
   // Interpreters
-  template <typename Context, typename... Expressions>
-  auto to_sql_string(Context& context, const with_data_t<Expressions...>& t) -> std::string
+  template <typename Context, typename... Ctes>
+  auto to_sql_string(Context& context, const with_data_t<Ctes...>& t) -> std::string
   {
-    static constexpr bool _is_recursive = logic::any<is_recursive_cte<Expressions>::value...>::value;
+    static constexpr bool _is_recursive = logic::any<is_recursive_cte<Ctes>::value...>::value;
 
     return std::string("WITH ") + (_is_recursive ? "RECURSIVE " : "") +
            tuple_to_sql_string(context, t._expressions, tuple_operand{", "}) + " ";
   }
 
-  template <typename Context, typename... Expressions>
-  auto to_sql_string(Context& context, const blank_with_t<Expressions...>& t) -> std::string
+  template <typename Context, typename... Ctes>
+  auto to_sql_string(Context& context, const blank_with_t<Ctes...>& t) -> std::string
   {
     return to_sql_string(context, t._data);
   }
@@ -150,32 +156,34 @@ namespace sqlpp
   // CTEs can depend on CTEs defined before (in the same query).
   // `have_correct_dependencies` checks that by walking the CTEs from left to right and building a type vector that
   // contains the CTE it already has looked at.
-  template <typename AllowedCTEs, typename... CTEs>
+  template <typename AllowedCTEs, typename AllowedStaticCTEs, typename... CTEs>
     struct have_correct_dependencies_impl;
 
-  template <typename AllowedCTEs>
-    struct have_correct_dependencies_impl<AllowedCTEs>: public std::true_type {};
+  template <typename AllowedCTEs, typename AllowedStaticCTEs>
+    struct have_correct_dependencies_impl<AllowedCTEs, AllowedStaticCTEs>: public std::true_type {};
 
-  template <typename AllowedCTEs, typename CTE, typename... Rest>
-    struct have_correct_dependencies_impl<AllowedCTEs, CTE, Rest...>
+  template <typename AllowedCTEs, typename AllowedStaticCTEs, typename CTE, typename... Rest>
+    struct have_correct_dependencies_impl<AllowedCTEs, AllowedStaticCTEs, CTE, Rest...>
     {
       using allowed_ctes = detail::type_vector_cat_t<AllowedCTEs, provided_ctes_of_t<CTE>>;
-#warning: Need to look at statically provided and required CTEs, too. And we need to add tests for this
-      static constexpr bool value = allowed_ctes::template contains_all<required_ctes_of_t<CTE>>::value and
-                                    have_correct_dependencies_impl<allowed_ctes, Rest...>::value;
+      using allowed_static_ctes = detail::type_vector_cat_t<AllowedStaticCTEs, AllowedStaticCTEs, provided_static_ctes_of_t<CTE>>;
+      static constexpr bool value =
+          allowed_ctes::template contains_all<required_ctes_of_t<CTE>>::value and
+          allowed_static_ctes::template contains_all<required_static_ctes_of_t<CTE>>::value and
+          have_correct_dependencies_impl<allowed_ctes, allowed_static_ctes, Rest...>::value;
     };
 
   template <typename... CTEs>
   struct have_correct_dependencies
   {
-    static constexpr bool value = have_correct_dependencies_impl<detail::type_vector<>, CTEs...>::value;
+    static constexpr bool value = have_correct_dependencies_impl<detail::type_vector<>, detail::type_vector<>, CTEs...>::value;
   };
-  template <typename... Expressions>
-  auto with(Expressions... cte) -> blank_with_t<Expressions...>
+  template <typename... Ctes>
+  auto with(Ctes... cte) -> blank_with_t<Ctes...>
   {
-    static_assert(logic::all<is_cte<Expressions>::value...>::value,
+    static_assert(logic::all<is_cte<Ctes>::value...>::value,
                   "at least one expression in with is not a common table expression");
-    static_assert(have_correct_dependencies<Expressions...>::value, "at least one CTE depends on another CTE that is not defined (yet)");
+    static_assert(have_correct_dependencies<Ctes...>::value, "at least one CTE depends on another CTE that is not defined (yet)");
 #warning: check that ctes have different names
 #warning: Need to test that cte_t::as yields a cte_ref and that cte_ref is not a cte
     return {{cte...}};

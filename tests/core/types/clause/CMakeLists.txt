@@ -34,4 +34,5 @@ test_compile(group_by)
 test_compile(into)
 test_compile(select_columns)
 test_compile(single_table)
+test_compile(with)
 
