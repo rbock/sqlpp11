@@ -90,9 +90,21 @@ namespace sqlpp
   };
 
   template <typename NameTagProvider, typename Statement, typename... FieldSpecs>
+  struct table_ref<dynamic_t<cte_t<NameTagProvider, Statement, FieldSpecs...>>>
+  {
+    using type = dynamic_t<cte_ref_t<NameTagProvider>>;
+  };
+
+  template <typename NameTagProvider, typename Statement, typename... FieldSpecs>
   auto make_table_ref(cte_t<NameTagProvider, Statement, FieldSpecs...> /* unused */) -> cte_ref_t<NameTagProvider>
   {
     return {};
+  }
+
+  template <typename NameTagProvider, typename Statement, typename... FieldSpecs>
+  auto make_table_ref(dynamic_t<cte_t<NameTagProvider, Statement, FieldSpecs...>> dyn_cte) -> dynamic_t<cte_ref_t<NameTagProvider>>
+  {
+    return dynamic_t<cte_ref_t<NameTagProvider>>{dyn_cte._condition, cte_ref_t<NameTagProvider>{}};
   }
 
   // make_cte translates the `Statement` into field_specs...
@@ -171,6 +183,9 @@ namespace sqlpp
       // An aliased CTE requires the original CTE from the WITH clause.
       using type = sqlpp::detail::type_vector<cte_ref_t<NameTagProvider>>;
     };
+
+  template <typename NameTagProvider, typename NewNameTagProvider, typename... ColumnSpecs>
+    struct required_static_ctes_of<cte_as_t<NameTagProvider, NewNameTagProvider, ColumnSpecs...>> : public required_ctes_of<cte_as_t<NameTagProvider, NewNameTagProvider, ColumnSpecs...>>{};
 
   template <typename Context, typename NameTagProvider, typename NewNameTagProvider, typename... ColumnSpecs>
   auto to_sql_string(Context& context, const cte_as_t<NameTagProvider, NewNameTagProvider, ColumnSpecs...>&) -> std::string
