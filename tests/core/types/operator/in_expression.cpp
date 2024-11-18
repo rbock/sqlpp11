@@ -80,8 +80,6 @@ int main()
 {
   // boolean
   test_in_expression(bool{true});
-#warning reactivate
-#if 0
   // integral
   test_in_expression(int8_t{7});
   test_in_expression(int16_t{7});
@@ -117,6 +115,5 @@ int main()
 
   // time_of_day
   test_in_expression(std::chrono::microseconds{});
-#endif
 }
 
