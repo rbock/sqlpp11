@@ -42,7 +42,7 @@ namespace sqlpp
     static_assert(is_database<Db>::value, "Db parameter of eval has to be a database connection");
     static_assert(is_expression_t<Expr>::value,
                   "Expression parameter of eval has to be an sqlpp expression or a string");
-    static_assert(required_tables_of_t<Expr>::is_empty(),
+    static_assert(required_tables_of_t<Expr>::empty(),
                   "Expression cannot be used in eval because it requires tables");
 
     return db(select(expr.as(alias::a))).front().a;

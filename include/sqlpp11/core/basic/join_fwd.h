@@ -69,7 +69,7 @@ namespace sqlpp
   template <typename Lhs, typename Rhs>
   using check_join_args =
       sqlpp::enable_if_t<is_table<Lhs>::value and is_table<remove_dynamic_t<Rhs>>::value and
-                         required_tables_of_t<Lhs>::is_empty() and required_tables_of_t<Rhs>::is_empty() and
+                         required_tables_of_t<Lhs>::empty() and required_tables_of_t<Rhs>::empty() and
                          sqlpp::detail::transform_set_t<provided_tables_of_t<Lhs>, make_char_sequence>::contains_none(
                              sqlpp::detail::transform_set_t<provided_tables_of_t<Rhs>, make_char_sequence>{})>;
 

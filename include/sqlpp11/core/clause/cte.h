@@ -321,7 +321,7 @@ namespace sqlpp
     template <typename Statement>
     auto as(Statement statement) -> make_cte_t<NameTagProvider, Statement>
     {
-      static_assert(required_tables_of_t<Statement>::is_empty(),
+      static_assert(required_tables_of_t<Statement>::empty(),
                     "common table expression must not use unknown tables");
       static_assert(not required_ctes_of_t<Statement>::template contains<NameTagProvider>(),
                     "common table expression must not self-reference in the first part, use union_all/union_distinct "

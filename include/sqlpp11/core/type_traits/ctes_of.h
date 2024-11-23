@@ -124,7 +124,7 @@ namespace sqlpp
   template <typename T>
   using provided_static_ctes_of_t = typename provided_static_ctes_of<T>::type;
 
-  static_assert(provided_ctes_of_t<int>::is_empty(), "");
+  static_assert(provided_ctes_of_t<int>::empty(), "");
 
 }  // namespace sqlpp
 

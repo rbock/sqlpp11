@@ -97,7 +97,7 @@ namespace sqlpp
       //                       Expressions>::value...>::value>;
       template <typename... Expressions>
       using _no_unknown_aggregates =
-          logic::any<_all_provided_aggregates::is_empty(),
+          logic::any<_all_provided_aggregates::empty(),
                        logic::all<detail::is_aggregate_expression_impl<_all_provided_aggregates,
                                                                          Expressions>::type::value...>::value>;
 
@@ -123,8 +123,8 @@ namespace sqlpp
       //   - the select is complete (leaks no table requirements or cte requirements)
       static constexpr bool _can_be_used_as_table()
       {
-        return has_result_row<_statement_t>::value and _required_tables_of::is_empty() and
-               _required_ctes_of::is_empty();
+        return has_result_row<_statement_t>::value and _required_tables_of::empty() and
+               _required_ctes_of::empty();
       }
 
       using _value_type =
@@ -144,9 +144,9 @@ namespace sqlpp
       // required_tables and _required_ctes are defined above
 
       using _cte_check =
-          typename std::conditional<_required_ctes_of::is_empty(), consistent_t, assert_no_unknown_ctes_t>::type;
+          typename std::conditional<_required_ctes_of::empty(), consistent_t, assert_no_unknown_ctes_t>::type;
       using _table_check =
-          typename std::conditional<_required_tables_of::is_empty(), consistent_t, assert_no_unknown_tables_t>::type;
+          typename std::conditional<_required_tables_of::empty(), consistent_t, assert_no_unknown_tables_t>::type;
       using _parameter_check = typename std::
           conditional<_parameters::empty(), consistent_t, assert_no_parameters_t>::type;
     };

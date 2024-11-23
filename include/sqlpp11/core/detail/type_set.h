@@ -67,7 +67,7 @@ namespace sqlpp
         return sizeof...(Elements);
       }
 
-      static constexpr bool is_empty()
+      static constexpr bool empty()
       {
         return size() == 0;
       }

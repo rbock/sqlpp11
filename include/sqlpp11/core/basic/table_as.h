@@ -41,7 +41,7 @@ namespace sqlpp
   {
     using _nodes = detail::type_vector<>;
 
-    static_assert(required_tables_of_t<TableSpec>::is_empty(), "table aliases must not depend on external tables");
+    static_assert(required_tables_of_t<TableSpec>::empty(), "table aliases must not depend on external tables");
   };
 
   template<typename TableSpec, typename NameTag>

@@ -48,7 +48,7 @@ void test_cte()
     static_assert(sqlpp::is_cte<X>::value, "");
     static_assert(not sqlpp::is_recursive_cte<X>::value, "");
     static_assert(sqlpp::is_table<X>::value, "");
-    static_assert(sqlpp::required_ctes_of_t<X>::is_empty(), "");
+    static_assert(sqlpp::required_ctes_of_t<X>::empty(), "");
     static_assert(std::is_same<sqlpp::provided_ctes_of_t<X>, sqlpp::detail::type_set<RX>>::value, "");
     static_assert(sqlpp::parameters_of_t<X>::empty(), "");
 
@@ -84,7 +84,7 @@ void test_cte()
     static_assert(sqlpp::is_cte<X>::value, "");
     static_assert(not sqlpp::is_recursive_cte<X>::value, "");
     static_assert(sqlpp::is_table<X>::value, "");
-    static_assert(sqlpp::required_ctes_of_t<X>::is_empty(), "");
+    static_assert(sqlpp::required_ctes_of_t<X>::empty(), "");
     static_assert(std::is_same<sqlpp::provided_ctes_of_t<X>, sqlpp::detail::type_set<RX>>::value, "");
     static_assert(std::is_same<sqlpp::parameters_of_t<X>, sqlpp::detail::type_vector<P>>::value, "");
 
@@ -106,7 +106,7 @@ void test_cte()
     static_assert(sqlpp::is_cte<X>::value, "");
     static_assert(not sqlpp::is_recursive_cte<X>::value, "");
     static_assert(sqlpp::is_table<X>::value, "");
-    static_assert(sqlpp::required_ctes_of_t<X>::is_empty(), "");
+    static_assert(sqlpp::required_ctes_of_t<X>::empty(), "");
     static_assert(std::is_same<sqlpp::provided_ctes_of_t<X>, sqlpp::detail::type_set<RX>>::value, "");
     static_assert(sqlpp::parameters_of_t<X>::empty(), "");
   }

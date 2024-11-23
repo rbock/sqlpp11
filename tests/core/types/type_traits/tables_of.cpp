@@ -41,8 +41,8 @@ void test_required_tables_of()
   // Tables do not require tables.
   {
     using T = decltype(test::TabFoo{});
-    static_assert(sqlpp::required_tables_of_t<T>::is_empty(), "");
-    static_assert(sqlpp::required_static_tables_of_t<T>::is_empty(), "");
+    static_assert(sqlpp::required_tables_of_t<T>::empty(), "");
+    static_assert(sqlpp::required_static_tables_of_t<T>::empty(), "");
   }
 
   // Static expressions require collective tables.
@@ -71,10 +71,10 @@ void test_provided_tables_of()
   // Columns do not provide tables.
   {
     using T = decltype(test::TabFoo{}.id);
-    static_assert(sqlpp::provided_tables_of_t<T>::is_empty(), "");
-    static_assert(sqlpp::provided_static_tables_of_t<T>::is_empty(),
+    static_assert(sqlpp::provided_tables_of_t<T>::empty(), "");
+    static_assert(sqlpp::provided_static_tables_of_t<T>::empty(),
                   "");
-    static_assert(sqlpp::provided_optional_tables_of_t<T>::is_empty(),
+    static_assert(sqlpp::provided_optional_tables_of_t<T>::empty(),
                   "");
   }
 
