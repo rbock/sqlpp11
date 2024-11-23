@@ -75,13 +75,13 @@ namespace sqlpp
       template <typename Needle, typename Replacement>
       using _new_statement_t = typename _policies_update_t<Needle, Replacement>::type;
 
-      using _all_required_ctes = detail::type_set_join_t<required_ctes_of_t<Policies>...>;
-      using _all_provided_ctes = detail::type_set_join_t<provided_ctes_of_t<Policies>...>;
-      using _all_required_tables = detail::type_set_join_t<required_tables_of_t<Policies>...>;
-      using _all_provided_tables = detail::type_set_join_t<provided_tables_of_t<Policies>...>;
-      using _all_provided_optional_tables = detail::type_set_join_t<provided_optional_tables_of_t<Policies>...>;
+      using _all_required_ctes = detail::make_joined_set_t<required_ctes_of_t<Policies>...>;
+      using _all_provided_ctes = detail::make_joined_set_t<provided_ctes_of_t<Policies>...>;
+      using _all_required_tables = detail::make_joined_set_t<required_tables_of_t<Policies>...>;
+      using _all_provided_tables = detail::make_joined_set_t<provided_tables_of_t<Policies>...>;
+      using _all_provided_optional_tables = detail::make_joined_set_t<provided_optional_tables_of_t<Policies>...>;
 #warning: provided_aggregates_of needs to be replaced with type_vector, too
-      using _all_provided_aggregates = detail::type_set_join_t<provided_aggregates_of<Policies>...>;
+      using _all_provided_aggregates = detail::make_joined_set_t<provided_aggregates_of<Policies>...>;
 
       using _required_tables_of = detail::make_difference_set_t<_all_required_tables, _all_provided_tables>;
       using _required_ctes_of = detail::make_difference_set_t<_all_required_ctes, _all_provided_ctes>;

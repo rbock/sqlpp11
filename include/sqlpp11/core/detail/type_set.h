@@ -128,86 +128,17 @@ namespace sqlpp
       static constexpr bool value = type_set<Elements...>::template count<E>();
     };
 
-#warning: replace joined_set with the more generic type_set_join
-    template <typename L, typename R>
-    struct joined_set
-    {
-      static_assert(wrong_t<joined_set>::value, "L and R have to be type sets");
-    };
-
-    template <typename... LElements, typename... RElements>
-    struct joined_set<type_set<LElements...>, type_set<RElements...>>
-    {
-      using type = make_type_set_t<LElements..., RElements...>;
-    };
-
-    template <typename L, typename R>
-    using joined_set_t = typename joined_set<L, R>::type;
-
-    template <typename... T>
-    struct type_set_join_impl
-    {
-      static_assert(wrong_t<type_set_join_impl>::value, "type_set_join must be called with type_set arguments");
-    };
-
-    template <>
-    struct type_set_join_impl<>
-    {
-      using type = type_set<>;
-    };
-
-    template <typename... T>
-    struct type_set_join_impl<type_set<T...>>
-    {
-      using type = type_set<T...>;
-    };
-
-    template <typename... L, typename... R>
-    struct type_set_join_impl<type_set<L...>, type_set<R...>>
-    {
-      using type = make_type_set_t<L..., R...>;
-    };
-
-    template <typename... L, typename... Rest>
-    struct type_set_join_impl<type_set<L...>, Rest...>
-    {
-      using type = typename type_set_join_impl<type_set<L...>, typename type_set_join_impl<Rest...>::type>::type;
-    };
-
-    template <typename... T>
-    using type_set_join_t = typename type_set_join_impl<T...>::type;
-
-    template <typename L, typename R>
-    struct is_superset_of
-    {
-      static_assert(wrong_t<is_superset_of>::value, "L and R have to be type sets");
-    };
-
-#warning: Implement as contains_all
-    template <typename... LElements, typename... RElements>
-    struct is_superset_of<type_set<LElements...>, type_set<RElements...>>
-    {
-      static constexpr bool value =
-          joined_set_t<type_set<LElements...>, type_set<RElements...>>::size() == sizeof...(LElements);
-    };
-
-    template <typename L, typename R>
-    struct is_subset_of
-    {
-      static constexpr bool value = is_superset_of<R, L>::value;
-    };
-
     template <typename L, typename R>
     struct is_disjunct_from
     {
       static_assert(wrong_t<is_disjunct_from>::value, "invalid argument for is_disjunct_from");
     };
 
-    template <typename... LElements, typename... RElements>
-    struct is_disjunct_from<type_set<LElements...>, type_set<RElements...>>
+    template <typename... Ls, typename... Rs>
+    struct is_disjunct_from<type_set<Ls...>, type_set<Rs...>>
     {
-      static constexpr bool value = joined_set_t<type_set<LElements...>, type_set<RElements...>>::size::value ==
-                                    sizeof...(LElements) + sizeof...(RElements);
+      static constexpr bool value =
+          type_set<Ls...>::contains_none(type_set<Rs...>{}) and type_set<Rs...>::contains_none(type_set<Ls...>{});
     };
 
     template <>
@@ -266,12 +197,24 @@ namespace sqlpp
       using type = type_set<>;
     };
 
+    template <typename... Es>
+    struct make_joined_set<type_set<Es...>>
+    {
+      using type = type_set<Es...>;
+    };
+
+    template <typename... Ls, typename... Rs>
+    struct make_joined_set<type_set<Ls...>, type_set<Rs...>>
+    {
+      using type = make_type_set_t<Ls..., Rs...>;
+    };
+
     template <typename... E, typename... T>
     struct make_joined_set<type_set<E...>, T...>
     {
       using _rest = typename make_joined_set<T...>::type;
 
-      using type = joined_set_t<type_set<E...>, _rest>;
+      using type = typename make_joined_set<type_set<E...>, _rest>::type;
     };
 
     template <typename... Sets>

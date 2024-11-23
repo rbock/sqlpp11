@@ -56,7 +56,7 @@ namespace sqlpp
       using _table = typename First::_table;
       using required_columns = typename _table::_required_insert_columns;
       using set_columns = detail::make_type_set_t<First, Columns...>;
-      static constexpr bool value = detail::is_subset_of<required_columns, set_columns>::value;
+      static constexpr bool value = set_columns::contains_all(required_columns{});
     };
   }  // namespace detail
 
@@ -129,7 +129,7 @@ namespace sqlpp
         static_check_t<logic::all<is_assignment<Assignments>::value...>::value, assert_insert_set_assignments_t>,
         static_check_t<not detail::has_duplicates<typename lhs<Assignments>::type...>::value,
                        assert_insert_set_no_duplicates_t>,
-        static_check_t<detail::type_set_join_t<required_tables_of_t<typename lhs<Assignments>::type>...>::size() == 1,
+        static_check_t<detail::make_joined_set_t<required_tables_of_t<typename lhs<Assignments>::type>...>::size() == 1,
                        assert_insert_set_single_table_t>,
         static_check_t<sizeof...(Assignments) != 0, assert_insert_static_set_count_args_t>,
         static_check_t<detail::have_all_required_columns<typename lhs<Assignments>::type...>::value,
@@ -335,7 +335,7 @@ namespace sqlpp
       {
         static_assert(detail::are_unique<Columns...>::value,
                       "at least one duplicate argument detected in columns()");
-        static_assert(detail::type_set_join_t<required_tables_of_t<Columns>...>::size() == 1,
+        static_assert(detail::make_joined_set_t<required_tables_of_t<Columns>...>::size() == 1,
                       "columns() contains columns from several tables");
         static_assert(detail::have_all_required_columns<Columns...>::value,
                       "At least one required column is missing in columns()");

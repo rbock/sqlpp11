@@ -86,13 +86,13 @@ namespace sqlpp
   template <typename... Ctes>
   struct provided_ctes_of<with_t<Ctes...>>
   {
-    using type = detail::type_set_join_t<provided_ctes_of_t<Ctes>...>;
+    using type = detail::make_joined_set_t<provided_ctes_of_t<Ctes>...>;
   };
 
   template <typename... Ctes>
   struct provided_static_ctes_of<with_t<Ctes...>>
   {
-    using type = detail::type_set_join_t<provided_static_ctes_of_t<Ctes>...>;
+    using type = detail::make_joined_set_t<provided_static_ctes_of_t<Ctes>...>;
   };
 
   template <typename... Ctes>
@@ -165,8 +165,8 @@ namespace sqlpp
   template <typename AllowedCTEs, typename AllowedStaticCTEs, typename CTE, typename... Rest>
     struct have_correct_dependencies_impl<AllowedCTEs, AllowedStaticCTEs, CTE, Rest...>
     {
-      using allowed_ctes = detail::type_set_join_t<AllowedCTEs, provided_ctes_of_t<CTE>>;
-      using allowed_static_ctes = detail::type_set_join_t<AllowedStaticCTEs, AllowedStaticCTEs, provided_static_ctes_of_t<CTE>>;
+      using allowed_ctes = detail::make_joined_set_t<AllowedCTEs, provided_ctes_of_t<CTE>>;
+      using allowed_static_ctes = detail::make_joined_set_t<AllowedStaticCTEs, AllowedStaticCTEs, provided_static_ctes_of_t<CTE>>;
       static constexpr bool value =
           allowed_ctes::contains_all(required_ctes_of_t<CTE>{}) and
           allowed_static_ctes::contains_all(required_static_ctes_of_t<CTE>{}) and

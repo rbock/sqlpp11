@@ -45,7 +45,7 @@ namespace sqlpp
   template<typename... T>
   struct required_tables_of<detail::type_vector<T...>>
   {
-    using type = detail::type_set_join_t<typename required_tables_of<T>::type...>;
+    using type = detail::make_joined_set_t<typename required_tables_of<T>::type...>;
   };
 
   template<typename T>
@@ -71,7 +71,7 @@ namespace sqlpp
   template<typename... T>
   struct required_static_tables_of<detail::type_vector<T...>>
   {
-    using type = detail::type_set_join_t<typename required_static_tables_of<T>::type...>;
+    using type = detail::make_joined_set_t<typename required_static_tables_of<T>::type...>;
   };
 
   template<typename T>
