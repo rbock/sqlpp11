@@ -77,7 +77,6 @@ namespace sqlpp
   template<typename T>
     using required_static_ctes_of_t = typename required_static_ctes_of<T>::type;
 
-#warning: need type tests...
   // `provided_ctes_of` determines the type_set of ctes provided by a clause, e.g. by WITH.
   // `cte_t` or other structs that might provide a cte in a query need to specialize this template.
   //
@@ -85,7 +84,8 @@ namespace sqlpp
   template <typename T>
   struct provided_ctes_of
   {
-    using type = typename provided_ctes_of<nodes_of_t<T>>::type;
+    // This needs to the specialized by `cte_ref_t`.
+    using type = detail::type_set<>;
   };
 
   template <typename T>
@@ -93,20 +93,13 @@ namespace sqlpp
   {
   };
 
-  template <typename... T>
-  struct provided_ctes_of<detail::type_vector<T...>>
-  {
-    using type = detail::make_joined_set_t<typename provided_ctes_of<T>::type...>;
-  };
-
   template <typename T>
   using provided_ctes_of_t = typename provided_ctes_of<T>::type;
 
   // `provided_static_ctes_of` determines the type_vector of non-dynamic ctes provided by a clause, e.g. by WITH.
   template <typename T>
-  struct provided_static_ctes_of
+  struct provided_static_ctes_of: public provided_ctes_of<T>
   {
-    using type = typename provided_static_ctes_of<nodes_of_t<T>>::type;
   };
 
   template <typename T>
@@ -115,16 +108,8 @@ namespace sqlpp
     using type = detail::type_set<>;
   };
 
-  template <typename... T>
-  struct provided_static_ctes_of<detail::type_vector<T...>>
-  {
-    using type = detail::make_joined_set_t<typename provided_static_ctes_of<T>::type...>;
-  };
-
   template <typename T>
   using provided_static_ctes_of_t = typename provided_static_ctes_of<T>::type;
-
-  static_assert(provided_ctes_of_t<int>::empty(), "");
 
 }  // namespace sqlpp
 

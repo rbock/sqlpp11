@@ -99,13 +99,6 @@ namespace sqlpp
   {
   };
 
-#warning: We need to document if classes need to specialize provided_tables_of (and then be consistent).
-  template <typename Select, typename NameTag, typename... FieldSpecs>
-  struct provided_static_tables_of<select_as_t<Select, NameTag, FieldSpecs...>>
-      : public provided_tables_of<select_as_t<Select, NameTag, FieldSpecs...>>
-  {
-  };
-
   template <typename Context, typename Select, typename NameTag, typename... FieldSpecs>
   auto to_sql_string(Context& context, const select_as_t<Select, NameTag, FieldSpecs...>& t) -> std::string
   {
