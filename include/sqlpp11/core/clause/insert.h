@@ -31,7 +31,6 @@
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/database/prepared_insert.h>
 #include <sqlpp11/core/default_value.h>
-#include <sqlpp11/core/noop.h>
 #include <sqlpp11/core/clause/into.h>
 #include <sqlpp11/core/clause/insert_value_list.h>
 

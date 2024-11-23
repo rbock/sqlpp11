@@ -86,7 +86,6 @@ namespace sqlpp
 
   struct no_limit_t
   {
-    using _traits = make_traits<no_value_t, tag::is_noop>;
     using _nodes = detail::type_vector<>;
 
     using _data_t = no_data_t;

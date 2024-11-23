@@ -28,7 +28,6 @@
 
 #include <sqlpp11/core/query/statement.h>
 
-#include <sqlpp11/core/noop.h>
 #include <sqlpp11/core/database/connection.h>
 #include <sqlpp11/core/clause/with.h>
 #include <sqlpp11/core/clause/select_flag_list.h>

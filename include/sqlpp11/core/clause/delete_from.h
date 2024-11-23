@@ -30,7 +30,6 @@
 #include <sqlpp11/core/database/connection.h>
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/database/prepared_delete.h>
-#include <sqlpp11/core/noop.h>
 #include <sqlpp11/core/clause/single_table.h>
 #include <sqlpp11/core/clause/where.h>
 

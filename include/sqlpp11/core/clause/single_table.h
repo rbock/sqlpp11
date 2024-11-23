@@ -93,8 +93,6 @@ namespace sqlpp
   // NO TABLE YET
   struct no_single_table_t
   {
-    using _traits = make_traits<no_value_t, tag::is_noop>;
-
     // Data
     using _data_t = no_data_t;
 

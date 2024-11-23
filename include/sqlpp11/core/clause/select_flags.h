@@ -62,4 +62,18 @@ namespace sqlpp
     return "DISTINCT ";
   }
 
+  struct no_flag_t
+  {
+  };
+  static constexpr no_flag_t no_flag = {};
+
+  template <>
+    struct is_select_flag<no_flag_t> : public std::true_type {};
+
+  template <typename Context>
+  auto to_sql_string(Context& , const no_flag_t&) -> std::string
+  {
+    return "";
+  }
+
 }  // namespace sqlpp

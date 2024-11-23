@@ -94,7 +94,7 @@ namespace sqlpp
       ::sqlpp::enable_if_t<values_are_comparable<T, T>::value and not contains_aggregate_function<T>::value>;
 
   template <typename T, typename = check_max_arg<T>>
-  auto max(T t) -> max_t<noop, T>
+  auto max(T t) -> max_t<no_flag_t, T>
   {
     return {std::move(t)};
   }

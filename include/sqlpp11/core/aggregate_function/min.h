@@ -94,7 +94,7 @@ namespace sqlpp
       ::sqlpp::enable_if_t<values_are_comparable<T, T>::value and not contains_aggregate_function<T>::value>;
 
   template <typename T, typename = check_min_arg<T>>
-  auto min(T t) -> min_t<noop, T>
+  auto min(T t) -> min_t<no_flag_t, T>
   {
     return {std::move(t)};
   }

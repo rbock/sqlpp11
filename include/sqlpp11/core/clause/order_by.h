@@ -95,7 +95,6 @@ namespace sqlpp
   // NO ORDER BY YET
   struct no_order_by_t
   {
-    using _traits = make_traits<no_value_t, tag::is_noop>;
     using _nodes = detail::type_vector<>;
 
     // Data

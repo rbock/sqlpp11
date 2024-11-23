@@ -105,8 +105,6 @@ namespace sqlpp
 
   struct no_from_t
   {
-    using _traits = make_traits<no_value_t, tag::is_noop>;
-
     using _data_t = no_data_t;
 
     // Base template to be inherited by the statement

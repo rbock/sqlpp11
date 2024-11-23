@@ -95,7 +95,7 @@ namespace sqlpp
       ::sqlpp::enable_if_t<values_are_comparable<T, T>::value and not contains_aggregate_function<T>::value>;
 
   template <typename T, typename = check_count_arg<T>>
-  auto count(T t) -> count_t<noop, T>
+  auto count(T t) -> count_t<no_flag_t, T>
   {
     return {std::move(t)};
   }

@@ -96,7 +96,6 @@ namespace sqlpp
   // NO INTO YET
   struct no_into_t
   {
-    using _traits = make_traits<no_value_t, tag::is_noop>;
     using _nodes = detail::type_vector<>;
 
     using _data_t = no_data_t;

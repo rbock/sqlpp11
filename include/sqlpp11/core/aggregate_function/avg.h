@@ -95,7 +95,7 @@ namespace sqlpp
       ::sqlpp::enable_if_t<(is_numeric<T>::value or is_boolean<T>::value) and not contains_aggregate_function<T>::value>;
 
   template <typename T, typename = check_avg_arg<T>>
-  auto avg(T t) -> avg_t<noop, T>
+  auto avg(T t) -> avg_t<no_flag_t, T>
   {
     return {std::move(t)};
   }
