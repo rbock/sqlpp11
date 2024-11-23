@@ -122,17 +122,10 @@ namespace sqlpp
     static constexpr auto symbol = " = ";
   };
 
-#warning: Is this a good idea? The operator now accepts everything, maybe it require at least one of the args to have a value?
   template <typename L, typename R, typename = check_comparison_args<L, remove_any_t<R>>>
-  constexpr auto operator_equal_impl(L l, R r) -> comparison_expression<L, equal_to, R>
-  {
-    return {l, r};
-  }
-
-  template <typename L, typename R>
   constexpr auto operator==(L l, R r) -> comparison_expression<L, equal_to, R>
   {
-    return operator_equal_impl(std::move(l), std::move(r));
+    return {std::move(l), std::move(r)};
   }
 
   struct not_equal_to
