@@ -38,18 +38,18 @@ void test_table()
   static_assert(sqlpp::is_table<FooBar>::value, "");
   static_assert(not sqlpp::is_raw_table<FooBar>::value, "");
   static_assert(std::is_same<sqlpp::name_tag_of_t<FooBar>, test::TabBar_::_sqlpp_name_tag>::value, "");
-  static_assert(std::is_same<sqlpp::provided_tables_of_t<FooBar>, sqlpp::detail::type_vector<FooBar>>::value, "");
+  static_assert(std::is_same<sqlpp::provided_tables_of_t<FooBar>, sqlpp::detail::type_set<FooBar>>::value, "");
   static_assert(std::is_same<sqlpp::provided_static_tables_of_t<FooBar>, sqlpp::provided_tables_of_t<FooBar>>::value, "");
-  static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<FooBar>, sqlpp::detail::type_vector<>>::value, "");
-  static_assert(std::is_same<sqlpp::required_tables_of_t<FooBar>, sqlpp::detail::type_vector<>>::value, "");
+  static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<FooBar>, sqlpp::detail::type_set<>>::value, "");
+  static_assert(std::is_same<sqlpp::required_tables_of_t<FooBar>, sqlpp::detail::type_set<>>::value, "");
   static_assert(std::is_same<sqlpp::required_static_tables_of_t<FooBar>, sqlpp::required_tables_of_t<FooBar>>::value, "");
 
   static_assert(not sqlpp::is_table<Id>::value, "");
   static_assert(std::is_same<sqlpp::name_tag_of_t<Id>, test::TabFoo_::Id::_sqlpp_name_tag>::value, "");
-  static_assert(std::is_same<sqlpp::provided_tables_of_t<Id>, sqlpp::detail::type_vector<>>::value, "");
+  static_assert(std::is_same<sqlpp::provided_tables_of_t<Id>, sqlpp::detail::type_set<>>::value, "");
   static_assert(std::is_same<sqlpp::provided_static_tables_of_t<Id>, sqlpp::provided_tables_of_t<Id>>::value, "");
   static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<Id>, sqlpp::provided_tables_of_t<Id>>::value, "");
-  static_assert(std::is_same<sqlpp::required_tables_of_t<Id>, sqlpp::detail::type_vector<FooBar>>::value, "");
+  static_assert(std::is_same<sqlpp::required_tables_of_t<Id>, sqlpp::detail::type_set<FooBar>>::value, "");
   static_assert(std::is_same<sqlpp::required_static_tables_of_t<Id>, sqlpp::required_tables_of_t<Id>>::value, "");
 }
 

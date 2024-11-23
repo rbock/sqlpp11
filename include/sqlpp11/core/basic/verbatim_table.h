@@ -63,7 +63,7 @@ namespace sqlpp
   template <typename NameTag>
   struct provided_tables_of<verbatim_table_as_t<NameTag>>
   {
-    using type = detail::type_vector<verbatim_table_as_t<NameTag>>;
+    using type = detail::type_set<verbatim_table_as_t<NameTag>>;
   };
 
   template <typename Context, typename NameTag>

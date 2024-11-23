@@ -44,10 +44,10 @@ void test_column()
     static_assert(sqlpp::is_group_by_column<Id>::value, "");
 
     static_assert(std::is_same<sqlpp::name_tag_of_t<Id>, test::TabFoo_::Id::_sqlpp_name_tag>::value, "");
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<Id>, sqlpp::detail::type_vector<>>::value, "");
+    static_assert(std::is_same<sqlpp::provided_tables_of_t<Id>, sqlpp::detail::type_set<>>::value, "");
     static_assert(std::is_same<sqlpp::provided_static_tables_of_t<Id>, sqlpp::provided_tables_of_t<Id>>::value, "");
     static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<Id>, sqlpp::provided_tables_of_t<Id>>::value, "");
-    static_assert(std::is_same<sqlpp::required_tables_of_t<Id>, sqlpp::detail::type_vector<Foo>>::value, "");
+    static_assert(std::is_same<sqlpp::required_tables_of_t<Id>, sqlpp::detail::type_set<Foo>>::value, "");
     static_assert(std::is_same<sqlpp::required_static_tables_of_t<Id>, sqlpp::required_tables_of_t<Id>>::value, "");
 
     static_assert(std::is_same<sqlpp::value_type_of_t<Id>, sqlpp::integral>::value, "");
@@ -60,12 +60,12 @@ void test_column()
     static_assert(not sqlpp::is_group_by_column<Cheese>::value, "");
 
     static_assert(std::is_same<sqlpp::name_tag_of_t<Cheese>, sqlpp::no_name_t>::value, "");
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<Cheese>, sqlpp::detail::type_vector<>>::value, "");
+    static_assert(std::is_same<sqlpp::provided_tables_of_t<Cheese>, sqlpp::detail::type_set<>>::value, "");
     static_assert(std::is_same<sqlpp::provided_static_tables_of_t<Cheese>, sqlpp::provided_tables_of_t<Cheese>>::value,
                   "");
     static_assert(
         std::is_same<sqlpp::provided_optional_tables_of_t<Cheese>, sqlpp::provided_tables_of_t<Cheese>>::value, "");
-    static_assert(std::is_same<sqlpp::required_tables_of_t<Cheese>, sqlpp::detail::type_vector<Foo>>::value, "");
+    static_assert(std::is_same<sqlpp::required_tables_of_t<Cheese>, sqlpp::detail::type_set<Foo>>::value, "");
     static_assert(std::is_same<sqlpp::required_static_tables_of_t<Cheese>, sqlpp::required_tables_of_t<Cheese>>::value,
                   "");
 
@@ -77,7 +77,7 @@ void test_column()
     static_assert(sqlpp::is_group_by_column<BarId>::value, "");
 
     static_assert(std::is_same<sqlpp::name_tag_of_t<BarId>, test::TabFoo_::Id::_sqlpp_name_tag>::value, "");
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<BarId>, sqlpp::detail::type_vector<>>::value, "");
+    static_assert(std::is_same<sqlpp::provided_tables_of_t<BarId>, sqlpp::detail::type_set<>>::value, "");
     static_assert(std::is_same<sqlpp::provided_static_tables_of_t<BarId>, sqlpp::provided_tables_of_t<BarId>>::value,
                   "");
     static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<BarId>, sqlpp::provided_tables_of_t<BarId>>::value,
@@ -85,7 +85,7 @@ void test_column()
     static_assert(
         std::is_same<
             sqlpp::required_tables_of_t<BarId>,
-            sqlpp::detail::type_vector<sqlpp::table_as_t<test::TabFoo_, test::TabBar_::_sqlpp_name_tag>>>::value,
+            sqlpp::detail::type_set<sqlpp::table_as_t<test::TabFoo_, test::TabBar_::_sqlpp_name_tag>>>::value,
         "");
     static_assert(std::is_same<sqlpp::required_static_tables_of_t<BarId>, sqlpp::required_tables_of_t<BarId>>::value,
                   "");
@@ -98,7 +98,7 @@ void test_column()
     static_assert(not sqlpp::is_group_by_column<BarCheese>::value, "");
 
     static_assert(std::is_same<sqlpp::name_tag_of_t<BarCheese>, sqlpp::no_name_t>::value, "");
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<BarCheese>, sqlpp::detail::type_vector<>>::value, "");
+    static_assert(std::is_same<sqlpp::provided_tables_of_t<BarCheese>, sqlpp::detail::type_set<>>::value, "");
     static_assert(
         std::is_same<sqlpp::provided_static_tables_of_t<BarCheese>, sqlpp::provided_tables_of_t<BarCheese>>::value, "");
     static_assert(
@@ -107,7 +107,7 @@ void test_column()
     static_assert(
         std::is_same<
             sqlpp::required_tables_of_t<BarCheese>,
-            sqlpp::detail::type_vector<sqlpp::table_as_t<test::TabFoo_, test::TabBar_::_sqlpp_name_tag>>>::value,
+            sqlpp::detail::type_set<sqlpp::table_as_t<test::TabFoo_, test::TabBar_::_sqlpp_name_tag>>>::value,
         "");
     static_assert(
         std::is_same<sqlpp::required_static_tables_of_t<BarCheese>, sqlpp::required_tables_of_t<BarCheese>>::value, "");
@@ -126,12 +126,12 @@ void test_column()
     static_assert(sqlpp::is_group_by_column<TextN>::value, "");
 
     static_assert(std::is_same<sqlpp::name_tag_of_t<TextN>, test::TabBar_::TextN::_sqlpp_name_tag>::value, "");
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<TextN>, sqlpp::detail::type_vector<>>::value, "");
+    static_assert(std::is_same<sqlpp::provided_tables_of_t<TextN>, sqlpp::detail::type_set<>>::value, "");
     static_assert(std::is_same<sqlpp::provided_static_tables_of_t<TextN>, sqlpp::provided_tables_of_t<TextN>>::value,
                   "");
     static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<TextN>, sqlpp::provided_tables_of_t<TextN>>::value,
                   "");
-    static_assert(std::is_same<sqlpp::required_tables_of_t<TextN>, sqlpp::detail::type_vector<Bar>>::value, "");
+    static_assert(std::is_same<sqlpp::required_tables_of_t<TextN>, sqlpp::detail::type_set<Bar>>::value, "");
     static_assert(std::is_same<sqlpp::required_static_tables_of_t<TextN>, sqlpp::required_tables_of_t<TextN>>::value,
                   "");
 
@@ -149,12 +149,12 @@ void test_column()
     static_assert(sqlpp::is_group_by_column<BoolNn>::value, "");
 
     static_assert(std::is_same<sqlpp::name_tag_of_t<BoolNn>, test::TabBar_::BoolNn::_sqlpp_name_tag>::value, "");
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<BoolNn>, sqlpp::detail::type_vector<>>::value, "");
+    static_assert(std::is_same<sqlpp::provided_tables_of_t<BoolNn>, sqlpp::detail::type_set<>>::value, "");
     static_assert(std::is_same<sqlpp::provided_static_tables_of_t<BoolNn>, sqlpp::provided_tables_of_t<BoolNn>>::value,
                   "");
     static_assert(
         std::is_same<sqlpp::provided_optional_tables_of_t<BoolNn>, sqlpp::provided_tables_of_t<BoolNn>>::value, "");
-    static_assert(std::is_same<sqlpp::required_tables_of_t<BoolNn>, sqlpp::detail::type_vector<Bar>>::value, "");
+    static_assert(std::is_same<sqlpp::required_tables_of_t<BoolNn>, sqlpp::detail::type_set<Bar>>::value, "");
     static_assert(std::is_same<sqlpp::required_static_tables_of_t<BoolNn>, sqlpp::required_tables_of_t<BoolNn>>::value,
                   "");
 

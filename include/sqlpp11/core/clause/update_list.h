@@ -96,8 +96,8 @@ namespace sqlpp
                      assert_update_set_assignments_t>,
       static_check_t<not detail::has_duplicates<typename lhs<Assignments>::type...>::value,
                      assert_update_set_no_duplicates_t>,
-      static_check_t<sizeof...(Assignments) == 0 or detail::type_vector_cat_t<required_tables_of_t<
-                                                        typename lhs<Assignments>::type>...>::are_same(),
+      static_check_t<sizeof...(Assignments) == 0 or detail::type_set_join_t<required_tables_of_t<
+                                                        typename lhs<Assignments>::type>...>::size() == 1,
                      assert_update_set_single_table_t>>;
 
   template <typename... Assignments>

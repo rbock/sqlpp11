@@ -99,7 +99,7 @@ namespace sqlpp
   template<typename Table, typename ColumnSpec>
   struct required_tables_of<column_t<Table, ColumnSpec>>
   {
-    using type = detail::type_vector<Table>;
+    using type = detail::type_set<Table>;
   };
 
   template <typename Table, typename ColumnSpec>

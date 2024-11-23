@@ -174,7 +174,7 @@ namespace sqlpp
   template <typename NameTagProvider, typename NewNameTagProvider, typename... ColumnSpecs>
     struct provided_tables_of<cte_as_t<NameTagProvider, NewNameTagProvider, ColumnSpecs...>> 
     {
-      using type = sqlpp::detail::type_vector<cte_ref_t<NewNameTagProvider>>;
+      using type = sqlpp::detail::type_set<cte_ref_t<NewNameTagProvider>>;
     };
 
   template <typename NameTagProvider, typename NewNameTagProvider, typename... ColumnSpecs>
@@ -320,7 +320,7 @@ namespace sqlpp
     template <typename Statement>
     auto as(Statement statement) -> make_cte_t<NameTagProvider, Statement>
     {
-      static_assert(required_tables_of_t<Statement>::empty(),
+      static_assert(required_tables_of_t<Statement>::is_empty(),
                     "common table expression must not use unknown tables");
       static_assert(not required_ctes_of_t<Statement>::template contains<NameTagProvider>::value,
                     "common table expression must not self-reference in the first part, use union_all/union_distinct "
@@ -337,7 +337,7 @@ namespace sqlpp
    template<typename NameTagProvider>
     struct provided_tables_of<cte_ref_t<NameTagProvider>> 
     {
-      using type = sqlpp::detail::type_vector<cte_ref_t<NameTagProvider>>;
+      using type = sqlpp::detail::type_set<cte_ref_t<NameTagProvider>>;
     };
 
    template<typename NameTagProvider>

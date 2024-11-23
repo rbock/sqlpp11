@@ -40,16 +40,16 @@ int main(int, char* [])
 
   static_assert(sqlpp::is_table<MF>::value, "");
   static_assert(sqlpp::has_enabled_join<MF>::value, "");
-  static_assert(std::is_same<sqlpp::provided_tables_of_t<MF>, sqlpp::detail::type_vector<MF>>::value, "");
-  static_assert(std::is_same<sqlpp::required_tables_of_t<MF>, sqlpp::detail::type_vector<>>::value, "");
+  static_assert(std::is_same<sqlpp::provided_tables_of_t<MF>, sqlpp::detail::type_set<MF>>::value, "");
+  static_assert(std::is_same<sqlpp::required_tables_of_t<MF>, sqlpp::detail::type_set<>>::value, "");
 
   // Columns of a schema-qualified table work just like columns of unqualified tables.
   using MFI = decltype(major_foo.id);
   static_assert(sqlpp::is_integral<MFI>::value, "");
   static_assert(sqlpp::has_name_tag<MFI>::value, "");
 
-  static_assert(std::is_same<sqlpp::provided_tables_of_t<MFI>, sqlpp::detail::type_vector<>>::value, "");
-  static_assert(std::is_same<sqlpp::required_tables_of_t<MFI>, sqlpp::detail::type_vector<MF>>::value, "");
+  static_assert(std::is_same<sqlpp::provided_tables_of_t<MFI>, sqlpp::detail::type_set<>>::value, "");
+  static_assert(std::is_same<sqlpp::required_tables_of_t<MFI>, sqlpp::detail::type_set<MF>>::value, "");
 
   return 0;
 }

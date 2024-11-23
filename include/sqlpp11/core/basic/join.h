@@ -61,20 +61,20 @@ namespace sqlpp
   template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
   struct provided_tables_of<join_t<Lhs, JoinType, Rhs, Condition>>
   {
-    using type = detail::type_vector_cat_t<provided_tables_of_t<Lhs>, provided_tables_of_t<Rhs>>;
+    using type = detail::type_set_join_t<provided_tables_of_t<Lhs>, provided_tables_of_t<Rhs>>;
   };
 
   template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
   struct provided_static_tables_of<join_t<Lhs, JoinType, Rhs, Condition>>
   {
     using type = 
-        detail::type_vector_cat_t<provided_static_tables_of_t<Lhs>, provided_static_tables_of_t<Rhs>>;
+        detail::type_set_join_t<provided_static_tables_of_t<Lhs>, provided_static_tables_of_t<Rhs>>;
   };
 
   template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
   struct provided_optional_tables_of<join_t<Lhs, JoinType, Rhs, Condition>>
   {
-    using type = detail::type_vector_cat_t<
+    using type = detail::type_set_join_t<
         typename std::conditional<detail::type_vector<right_outer_join_t, full_outer_join_t>::contains<JoinType>::value,
                                   provided_tables_of_t<Lhs>,
                                   provided_optional_tables_of_t<Lhs>>::type,
@@ -86,13 +86,13 @@ namespace sqlpp
   template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
   struct required_tables_of<join_t<Lhs, JoinType, Rhs, Condition>>
   {
-    using type = detail::type_vector<>;
+    using type = detail::type_set<>;
   };
 
   template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
   struct required_static_tables_of<join_t<Lhs, JoinType, Rhs, Condition>>
   {
-    using type = detail::type_vector<>;
+    using type = detail::type_set<>;
   };
 
   template <typename Lhs, typename JoinType, typename Rhs, typename Condition>
@@ -163,15 +163,15 @@ namespace sqlpp
             bool,
             is_dynamic<Rhs>::value ?
                                    // In case of a dynamic join, we can use all tables in the ON expr.
-                provided_tables_of_t<join_t<Lhs, cross_join_t, Rhs, unconditional_t>>::template contains_all<
-                    required_tables_of_t<Expr>>::value
+                provided_tables_of_t<join_t<Lhs, cross_join_t, Rhs, unconditional_t>>::contains_all(
+                    required_tables_of_t<Expr>{})
                                    :
                                    // In case of a static join, we can use static tables in the static part of the ON
                                    // expression and dynamic tables in any potential dynamic part of the expression.
-                (provided_static_tables_of_t<join_t<Lhs, cross_join_t, Rhs, unconditional_t>>::template contains_all<
-                    required_static_tables_of_t<Expr>>::value and
-                     provided_tables_of_t<join_t<Lhs, cross_join_t, Rhs, unconditional_t>>::template contains_all<
-                         required_tables_of_t<Expr>>::value)>
+                (provided_static_tables_of_t<join_t<Lhs, cross_join_t, Rhs, unconditional_t>>::contains_all(
+                    required_static_tables_of_t<Expr>{}) and
+                     provided_tables_of_t<join_t<Lhs, cross_join_t, Rhs, unconditional_t>>::contains_all(
+                         required_tables_of_t<Expr>{}))>
   {
   };
 

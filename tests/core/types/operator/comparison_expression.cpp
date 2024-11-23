@@ -44,7 +44,7 @@ void test_comparison_expression(Value v)
   auto v_not_null = sqlpp::value(v);
   auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v));
 
-#warning : Should also implement between as member functions?
+#warning : Add tests for between member function (here or in between tests)!
 
   // Compare non-nullable with non-nullable.
   static_assert(is_bool<decltype(v_not_null < v_not_null)>::value, "");

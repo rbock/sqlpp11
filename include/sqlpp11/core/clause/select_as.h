@@ -94,11 +94,12 @@ namespace sqlpp
   template <typename Select, typename NameTag, typename... FieldSpecs>
   struct provided_tables_of<select_as_t<Select, NameTag, FieldSpecs...>>
       : public std::conditional<Select::_can_be_used_as_table(),
-                                sqlpp::detail::type_vector<select_ref_t<NameTag>>,
-                                sqlpp::detail::type_vector<>>
+                                sqlpp::detail::type_set<select_ref_t<NameTag>>,
+                                sqlpp::detail::type_set<>>
   {
   };
 
+#warning: We need to document if classes need to specialize provided_tables_of (and then be consistent).
   template <typename Select, typename NameTag, typename... FieldSpecs>
   struct provided_static_tables_of<select_as_t<Select, NameTag, FieldSpecs...>>
       : public provided_tables_of<select_as_t<Select, NameTag, FieldSpecs...>>

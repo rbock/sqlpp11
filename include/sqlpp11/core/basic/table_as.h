@@ -41,7 +41,7 @@ namespace sqlpp
   {
     using _nodes = detail::type_vector<>;
 
-    static_assert(required_tables_of_t<TableSpec>::empty(), "table aliases must not depend on external tables");
+    static_assert(required_tables_of_t<TableSpec>::is_empty(), "table aliases must not depend on external tables");
   };
 
   template<typename TableSpec, typename NameTag>
@@ -56,7 +56,7 @@ namespace sqlpp
   template <typename TableSpec, typename NameTag>
   struct provided_tables_of<table_as_t<TableSpec, NameTag>>
   {
-    using type = sqlpp::detail::type_vector<table_as_t<TableSpec, NameTag>>;
+    using type = sqlpp::detail::type_set<table_as_t<TableSpec, NameTag>>;
   };
 
   template <typename Context, typename TableSpec, typename NameTag>

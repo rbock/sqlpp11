@@ -131,7 +131,7 @@ namespace sqlpp
       auto _into_impl(consistent_t /*unused*/, Table table) const
           -> _new_statement_t<consistent_t, into_t<Table>>
       {
-        static_assert(required_tables_of_t<into_t<Table>>::empty(),
+        static_assert(required_tables_of_t<into_t<Table>>::is_empty(),
                       "argument depends on another table in into()");
 
         return {static_cast<const derived_statement_t<Policies>&>(*this), into_data_t<Table>{table}};

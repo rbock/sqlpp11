@@ -77,17 +77,17 @@ namespace sqlpp
 
       using _all_required_ctes = detail::type_vector_cat_t<required_ctes_of_t<Policies>...>;
       using _all_provided_ctes = detail::type_vector_cat_t<provided_ctes_of_t<Policies>...>;
-      using _all_required_tables = detail::type_vector_cat_t<required_tables_of_t<Policies>...>;
-      using _all_provided_tables = detail::type_vector_cat_t<provided_tables_of_t<Policies>...>;
-      using _all_provided_optional_tables = detail::type_vector_cat_t<provided_optional_tables_of_t<Policies>...>;
+      using _all_required_tables = detail::type_set_join_t<required_tables_of_t<Policies>...>;
+      using _all_provided_tables = detail::type_set_join_t<provided_tables_of_t<Policies>...>;
+      using _all_provided_optional_tables = detail::type_set_join_t<provided_optional_tables_of_t<Policies>...>;
 #warning: provided_aggregates_of needs to be replaced with type_vector, too
       using _all_provided_aggregates = detail::make_joined_set_t<provided_aggregates_of<Policies>...>;
 
-      using _required_tables_of = detail::copy_if_t<_all_required_tables, _all_provided_tables::template contains_not>;
+      using _required_tables_of = detail::make_difference_set_t<_all_required_tables, _all_provided_tables>;
       using _required_ctes_of = detail::copy_if_t<_all_required_ctes, _all_provided_ctes::template contains_not>;
 
       template <typename Expression>
-      static constexpr bool _no_unknown_tables = _all_provided_tables::template contains_all<required_tables_of_t<Expression>>::value;
+      static constexpr bool _no_unknown_tables = _all_provided_tables::contains_all(required_tables_of_t<Expression>{});
 
       // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2086629
       //	  template <typename... Expressions>
@@ -97,7 +97,7 @@ namespace sqlpp
       //                       Expressions>::value...>::value>;
       template <typename... Expressions>
       using _no_unknown_aggregates =
-          logic::any<_all_provided_aggregates::size::value == 0,
+          logic::any<_all_provided_aggregates::is_empty(),
                        logic::all<detail::is_aggregate_expression_impl<_all_provided_aggregates,
                                                                          Expressions>::type::value...>::value>;
 
@@ -123,7 +123,7 @@ namespace sqlpp
       //   - the select is complete (leaks no table requirements or cte requirements)
       static constexpr bool _can_be_used_as_table()
       {
-        return has_result_row<_statement_t>::value and _required_tables_of::empty() and
+        return has_result_row<_statement_t>::value and _required_tables_of::is_empty() and
                _required_ctes_of::empty();
       }
 
@@ -146,7 +146,7 @@ namespace sqlpp
       using _cte_check =
           typename std::conditional<_required_ctes_of::empty(), consistent_t, assert_no_unknown_ctes_t>::type;
       using _table_check =
-          typename std::conditional<_required_tables_of::empty(), consistent_t, assert_no_unknown_tables_t>::type;
+          typename std::conditional<_required_tables_of::is_empty(), consistent_t, assert_no_unknown_tables_t>::type;
       using _parameter_check = typename std::
           conditional<_parameters::empty(), consistent_t, assert_no_parameters_t>::type;
     };

@@ -59,7 +59,7 @@ namespace sqlpp
   template<typename TableSpec, typename NameTag>
     struct provided_tables_of<schema_qualified_table_as_t<TableSpec, NameTag>> 
     {
-      using type = detail::type_vector<schema_qualified_table_as_t<TableSpec, NameTag>>;
+      using type = detail::type_set<schema_qualified_table_as_t<TableSpec, NameTag>>;
     };
 
   template <typename Context, typename TableSpec, typename NameTag>

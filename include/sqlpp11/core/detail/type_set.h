@@ -62,12 +62,44 @@ namespace sqlpp
       };
 
     public:
-      using size = std::integral_constant<size_t, sizeof...(Elements)>;
+      static constexpr size_t size()
+      {
+        return sizeof...(Elements);
+      }
+
+      static constexpr bool is_empty()
+      {
+        return size() == 0;
+      }
 
       template <typename T>
       static constexpr bool count()
       {
         return std::is_base_of<_base<T>, _impl>::value;
+      }
+
+      template <typename T>
+      static constexpr bool contains()
+      {
+        return count<T>();
+      }
+
+      template <typename... X>
+      static constexpr bool contains_any(type_set<X...>)
+      {
+        return ::sqlpp::logic::any<contains<X>()...>::value;
+      }
+
+      template <typename... X>
+      static constexpr bool contains_all(type_set<X...>)
+      {
+        return ::sqlpp::logic::all<contains<X>()...>::value;
+      }
+
+      template <typename... X>
+      static constexpr bool contains_none(type_set<X...>)
+      {
+        return ::sqlpp::logic::none<contains<X>()...>::value;
       }
 
       template <typename T>
@@ -96,6 +128,7 @@ namespace sqlpp
       static constexpr bool value = type_set<Elements...>::template count<E>();
     };
 
+#warning: replace joined_set with the more generic type_set_join
     template <typename L, typename R>
     struct joined_set
     {
@@ -111,17 +144,51 @@ namespace sqlpp
     template <typename L, typename R>
     using joined_set_t = typename joined_set<L, R>::type;
 
+    template <typename... T>
+    struct type_set_join_impl
+    {
+      static_assert(wrong_t<type_set_join_impl>::value, "type_set_join must be called with type_set arguments");
+    };
+
+    template <>
+    struct type_set_join_impl<>
+    {
+      using type = type_set<>;
+    };
+
+    template <typename... T>
+    struct type_set_join_impl<type_set<T...>>
+    {
+      using type = type_set<T...>;
+    };
+
+    template <typename... L, typename... R>
+    struct type_set_join_impl<type_set<L...>, type_set<R...>>
+    {
+      using type = make_type_set_t<L..., R...>;
+    };
+
+    template <typename... L, typename... Rest>
+    struct type_set_join_impl<type_set<L...>, Rest...>
+    {
+      using type = typename type_set_join_impl<type_set<L...>, typename type_set_join_impl<Rest...>::type>::type;
+    };
+
+    template <typename... T>
+    using type_set_join_t = typename type_set_join_impl<T...>::type;
+
     template <typename L, typename R>
     struct is_superset_of
     {
       static_assert(wrong_t<is_superset_of>::value, "L and R have to be type sets");
     };
 
+#warning: Implement as contains_all
     template <typename... LElements, typename... RElements>
     struct is_superset_of<type_set<LElements...>, type_set<RElements...>>
     {
       static constexpr bool value =
-          joined_set_t<type_set<LElements...>, type_set<RElements...>>::size::value == sizeof...(LElements);
+          joined_set_t<type_set<LElements...>, type_set<RElements...>>::size() == sizeof...(LElements);
     };
 
     template <typename L, typename R>
@@ -185,7 +252,7 @@ namespace sqlpp
     using make_type_set_if_not_t = typename make_type_set_if_not<Predicate, T...>::type;
 
     template <typename... T>
-    using has_duplicates = std::integral_constant<bool, make_type_set_t<T...>::size::value != sizeof...(T)>;
+    using has_duplicates = std::integral_constant<bool, make_type_set_t<T...>::size() != sizeof...(T)>;
 
     template <typename... T>
     struct make_joined_set
@@ -245,20 +312,20 @@ namespace sqlpp
     template <typename Lhs, typename Rhs>
     using make_intersect_set_t = typename make_intersect_set<Lhs, Rhs>::type;
 
-    template <template <typename> class Transformation, typename T>
+    template <typename T, template <typename> class Transformation>
     struct transform_set
     {
-      static_assert(wrong_t<transform_set>::value, "invalid argument for transform_set");
+      static_assert(wrong_t<transform_set>::value, "invalid arguments for transform_set");
     };
 
-    template <template <typename> class Transformation, typename... E>
-    struct transform_set<Transformation, type_set<E...>>
+    template <typename... E, template <typename> class Transformation>
+    struct transform_set<type_set<E...>, Transformation>
     {
       using type = make_type_set_t<Transformation<E>...>;
     };
 
-    template <template <typename> class Transformation, typename T>
-    using transform_set_t = typename transform_set<Transformation, T>::type;
+    template <typename T, template <typename> class Transformation>
+    using transform_set_t = typename transform_set<T, Transformation>::type;
 
   }  // namespace detail
 }  // namespace sqlpp

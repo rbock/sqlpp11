@@ -43,7 +43,7 @@ void test_from()
     using S = decltype(statement);
     using F = extract_clause_t<S>;
 
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<F>, sqlpp::detail::type_vector<R>>::value, "");
+    static_assert(std::is_same<sqlpp::provided_tables_of_t<F>, sqlpp::detail::type_set<R>>::value, "");
     static_assert(std::is_same<sqlpp::required_ctes_of_t<F>, sqlpp::detail::type_vector<R>>::value, "");
   }
 

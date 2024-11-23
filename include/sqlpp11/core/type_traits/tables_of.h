@@ -27,12 +27,13 @@
  */
 
 #include <sqlpp11/core/type_traits/nodes_of.h>
+#include <sqlpp11/core/detail/type_set.h>
 #include <sqlpp11/core/detail/type_vector.h>
 #include <sqlpp11/core/query/dynamic_fwd.h>
 
 namespace sqlpp
 {
-  // `required_tables_of` recursively determines the type_vector of tables referenced by columns within `T`.
+  // `required_tables_of` recursively determines the type_set of tables referenced by columns within `T`.
   // `column_t` or other structs that might reference a table shall specialize this template to indicate their table
   // requirement.
   template<typename T>
@@ -44,13 +45,13 @@ namespace sqlpp
   template<typename... T>
   struct required_tables_of<detail::type_vector<T...>>
   {
-    using type = detail::type_vector_cat_t<typename required_tables_of<T>::type...>;
+    using type = detail::type_set_join_t<typename required_tables_of<T>::type...>;
   };
 
   template<typename T>
     using required_tables_of_t = typename required_tables_of<T>::type;
 
-  // `required_static_tables_of` recursively determines the type_vector of tables statically referenced by columns within
+  // `required_static_tables_of` recursively determines the type_set of tables statically referenced by columns within
   // `T`. `column_t` or other structs that might reference a table shall specialize this template to indicate their
   // table requirement.
   //
@@ -64,19 +65,19 @@ namespace sqlpp
   template<typename T>
   struct required_static_tables_of<dynamic_t<T>>
   {
-    using type = detail::type_vector<>;
+    using type = detail::type_set<>;
   };
 
   template<typename... T>
   struct required_static_tables_of<detail::type_vector<T...>>
   {
-    using type = detail::type_vector_cat_t<typename required_static_tables_of<T>::type...>;
+    using type = detail::type_set_join_t<typename required_static_tables_of<T>::type...>;
   };
 
   template<typename T>
     using required_static_tables_of_t = typename required_static_tables_of<T>::type;
 
-  // `provided_tables_of` determines the type_vector of tables provided by a clause, e.g. by FROM.
+  // `provided_tables_of` determines the type_set of tables provided by a clause, e.g. by FROM.
   // `table_t`, `cte_ref_t`, or other structs that might provide a table in a query need to specialize this template.
   //
   // Note: In contrast to `required_tables_of` above, `provided_tables_of` is non-recursive. This is important for
@@ -84,7 +85,7 @@ namespace sqlpp
   template <typename T>
   struct provided_tables_of
   {
-    using type = detail::type_vector<>;
+    using type = detail::type_set<>;
   };
 
   template <typename T>
@@ -95,7 +96,7 @@ namespace sqlpp
   template <typename T>
   using provided_tables_of_t = typename provided_tables_of<T>::type;
 
-  // `provided_static_tables_of` determines the type_vector of non-dynamic tables provided by a clause, e.g. by FROM.
+  // `provided_static_tables_of` determines the type_set of non-dynamic tables provided by a clause, e.g. by FROM.
   template <typename T>
   struct provided_static_tables_of : public provided_tables_of<T>
   {
@@ -104,18 +105,18 @@ namespace sqlpp
   template <typename T>
   struct provided_static_tables_of<dynamic_t<T>>
   {
-    using type = detail::type_vector<>;
+    using type = detail::type_set<>;
   };
 
   template <typename T>
   using provided_static_tables_of_t = typename provided_static_tables_of<T>::type;
 
-  // `provided_optional_tables_of` determines the type_vector of outer join tables provided by a clause, e.g. the right
+  // `provided_optional_tables_of` determines the type_set of outer join tables provided by a clause, e.g. the right
   // hand side table in a `left_outer_join`.
   template <typename T>
   struct provided_optional_tables_of
   {
-    using type = detail::type_vector<>;
+    using type = detail::type_set<>;
   };
 
   template <typename T>

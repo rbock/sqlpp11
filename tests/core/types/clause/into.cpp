@@ -48,9 +48,9 @@ void test_into()
   {
     using S = decltype(sqlpp::into(foo));
     using I = extract_clause_t<S>;
-    static_assert(std::is_same<sqlpp::provided_tables_of_t<I>, sqlpp::detail::type_vector<Foo>>::value, "");
+    static_assert(std::is_same<sqlpp::provided_tables_of_t<I>, sqlpp::detail::type_set<Foo>>::value, "");
     static_assert(std::is_same<sqlpp::provided_static_tables_of_t<I>, sqlpp::provided_tables_of_t<I>>::value, "");
-    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<I>, sqlpp::detail::type_vector<>>::value, "");
+    static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<I>, sqlpp::detail::type_set<>>::value, "");
   }
 
   assert_invalid_argument(foo.join(bar));
