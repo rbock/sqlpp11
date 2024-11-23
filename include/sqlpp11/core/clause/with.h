@@ -184,8 +184,7 @@ namespace sqlpp
     static_assert(logic::all<is_cte<Ctes>::value...>::value,
                   "at least one expression in with is not a common table expression");
     static_assert(have_correct_dependencies<Ctes...>::value, "at least one CTE depends on another CTE that is not defined (yet)");
-#warning: check that ctes have different names
-#warning: Need to test that cte_t::as yields a cte_ref and that cte_ref is not a cte
+    static_assert(detail::are_unique<make_char_sequence_t<Ctes>...>::value, "CTEs in with need to have unique names");
     return {{cte...}};
   }
 }  // namespace sqlpp

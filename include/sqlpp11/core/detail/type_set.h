@@ -128,19 +128,6 @@ namespace sqlpp
       static constexpr bool value = type_set<Elements...>::template count<E>();
     };
 
-    template <typename L, typename R>
-    struct is_disjunct_from
-    {
-      static_assert(wrong_t<is_disjunct_from>::value, "invalid argument for is_disjunct_from");
-    };
-
-    template <typename... Ls, typename... Rs>
-    struct is_disjunct_from<type_set<Ls...>, type_set<Rs...>>
-    {
-      static constexpr bool value =
-          type_set<Ls...>::contains_none(type_set<Rs...>{}) and type_set<Rs...>::contains_none(type_set<Ls...>{});
-    };
-
     template <>
     struct make_type_set<>
     {
@@ -269,6 +256,11 @@ namespace sqlpp
 
     template <typename T, template <typename> class Transformation>
     using transform_set_t = typename transform_set<T, Transformation>::type;
+
+    template<typename ...T>
+      struct are_unique : public std::integral_constant<bool, make_type_set_t<T...>::size() == sizeof...(T)>
+      {
+      };
 
   }  // namespace detail
 }  // namespace sqlpp
