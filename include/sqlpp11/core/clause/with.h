@@ -86,13 +86,13 @@ namespace sqlpp
   template <typename... Ctes>
   struct provided_ctes_of<with_t<Ctes...>>
   {
-    using type = detail::type_vector_cat_t<provided_ctes_of_t<Ctes>...>;
+    using type = detail::type_set_join_t<provided_ctes_of_t<Ctes>...>;
   };
 
   template <typename... Ctes>
   struct provided_static_ctes_of<with_t<Ctes...>>
   {
-    using type = detail::type_vector_cat_t<provided_static_ctes_of_t<Ctes>...>;
+    using type = detail::type_set_join_t<provided_static_ctes_of_t<Ctes>...>;
   };
 
   template <typename... Ctes>
@@ -165,18 +165,18 @@ namespace sqlpp
   template <typename AllowedCTEs, typename AllowedStaticCTEs, typename CTE, typename... Rest>
     struct have_correct_dependencies_impl<AllowedCTEs, AllowedStaticCTEs, CTE, Rest...>
     {
-      using allowed_ctes = detail::type_vector_cat_t<AllowedCTEs, provided_ctes_of_t<CTE>>;
-      using allowed_static_ctes = detail::type_vector_cat_t<AllowedStaticCTEs, AllowedStaticCTEs, provided_static_ctes_of_t<CTE>>;
+      using allowed_ctes = detail::type_set_join_t<AllowedCTEs, provided_ctes_of_t<CTE>>;
+      using allowed_static_ctes = detail::type_set_join_t<AllowedStaticCTEs, AllowedStaticCTEs, provided_static_ctes_of_t<CTE>>;
       static constexpr bool value =
-          allowed_ctes::template contains_all<required_ctes_of_t<CTE>>::value and
-          allowed_static_ctes::template contains_all<required_static_ctes_of_t<CTE>>::value and
+          allowed_ctes::contains_all(required_ctes_of_t<CTE>{}) and
+          allowed_static_ctes::contains_all(required_static_ctes_of_t<CTE>{}) and
           have_correct_dependencies_impl<allowed_ctes, allowed_static_ctes, Rest...>::value;
     };
 
   template <typename... CTEs>
   struct have_correct_dependencies
   {
-    static constexpr bool value = have_correct_dependencies_impl<detail::type_vector<>, detail::type_vector<>, CTEs...>::value;
+    static constexpr bool value = have_correct_dependencies_impl<detail::type_set<>, detail::type_set<>, CTEs...>::value;
   };
   template <typename... Ctes>
   auto with(Ctes... cte) -> blank_with_t<Ctes...>

@@ -75,16 +75,16 @@ namespace sqlpp
       template <typename Needle, typename Replacement>
       using _new_statement_t = typename _policies_update_t<Needle, Replacement>::type;
 
-      using _all_required_ctes = detail::type_vector_cat_t<required_ctes_of_t<Policies>...>;
-      using _all_provided_ctes = detail::type_vector_cat_t<provided_ctes_of_t<Policies>...>;
+      using _all_required_ctes = detail::type_set_join_t<required_ctes_of_t<Policies>...>;
+      using _all_provided_ctes = detail::type_set_join_t<provided_ctes_of_t<Policies>...>;
       using _all_required_tables = detail::type_set_join_t<required_tables_of_t<Policies>...>;
       using _all_provided_tables = detail::type_set_join_t<provided_tables_of_t<Policies>...>;
       using _all_provided_optional_tables = detail::type_set_join_t<provided_optional_tables_of_t<Policies>...>;
 #warning: provided_aggregates_of needs to be replaced with type_vector, too
-      using _all_provided_aggregates = detail::make_joined_set_t<provided_aggregates_of<Policies>...>;
+      using _all_provided_aggregates = detail::type_set_join_t<provided_aggregates_of<Policies>...>;
 
       using _required_tables_of = detail::make_difference_set_t<_all_required_tables, _all_provided_tables>;
-      using _required_ctes_of = detail::copy_if_t<_all_required_ctes, _all_provided_ctes::template contains_not>;
+      using _required_ctes_of = detail::make_difference_set_t<_all_required_ctes, _all_provided_ctes>;
 
       template <typename Expression>
       static constexpr bool _no_unknown_tables = _all_provided_tables::contains_all(required_tables_of_t<Expression>{});
@@ -124,7 +124,7 @@ namespace sqlpp
       static constexpr bool _can_be_used_as_table()
       {
         return has_result_row<_statement_t>::value and _required_tables_of::is_empty() and
-               _required_ctes_of::empty();
+               _required_ctes_of::is_empty();
       }
 
       using _value_type =
@@ -144,7 +144,7 @@ namespace sqlpp
       // required_tables and _required_ctes are defined above
 
       using _cte_check =
-          typename std::conditional<_required_ctes_of::empty(), consistent_t, assert_no_unknown_ctes_t>::type;
+          typename std::conditional<_required_ctes_of::is_empty(), consistent_t, assert_no_unknown_ctes_t>::type;
       using _table_check =
           typename std::conditional<_required_tables_of::is_empty(), consistent_t, assert_no_unknown_tables_t>::type;
       using _parameter_check = typename std::

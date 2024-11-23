@@ -27,12 +27,13 @@
  */
 
 #include <sqlpp11/core/type_traits/nodes_of.h>
+#include <sqlpp11/core/detail/type_set.h>
 #include <sqlpp11/core/detail/type_vector.h>
 #include <sqlpp11/core/query/dynamic_fwd.h>
 
 namespace sqlpp
 {
-  // `required_ctes_of` recursively determines the type_vector of ctes referenced within `T`.
+  // `required_ctes_of` recursively determines the type_set of ctes referenced within `T`.
   // `cte_ref_t` and other structs that might reference a cte shall specialize this template to indicate their cte
   // requirement.
   template<typename T>
@@ -44,13 +45,13 @@ namespace sqlpp
   template<typename... T>
   struct required_ctes_of<detail::type_vector<T...>>
   {
-    using type = detail::type_vector_cat_t<typename required_ctes_of<T>::type...>;
+    using type = detail::type_set_join_t<typename required_ctes_of<T>::type...>;
   };
 
   template<typename T>
     using required_ctes_of_t = typename required_ctes_of<T>::type;
 
-  // `required_static_ctes_of` recursively determines the type_vector of ctes statically referenced within `T`.
+  // `required_static_ctes_of` recursively determines the type_set of ctes statically referenced within `T`.
   // `cte_ref_t` and other structs that might reference a cte shall specialize this template to indicate their cte
   // requirement.
   //
@@ -64,20 +65,20 @@ namespace sqlpp
   template<typename T>
   struct required_static_ctes_of<dynamic_t<T>>
   {
-    using type = detail::type_vector<>;
+    using type = detail::type_set<>;
   };
 
   template<typename... T>
   struct required_static_ctes_of<detail::type_vector<T...>>
   {
-    using type = detail::type_vector_cat_t<typename required_static_ctes_of<T>::type...>;
+    using type = detail::type_set_join_t<typename required_static_ctes_of<T>::type...>;
   };
 
   template<typename T>
     using required_static_ctes_of_t = typename required_static_ctes_of<T>::type;
 
 #warning: need type tests...
-  // `provided_ctes_of` determines the type_vector of ctes provided by a clause, e.g. by WITH.
+  // `provided_ctes_of` determines the type_set of ctes provided by a clause, e.g. by WITH.
   // `cte_t` or other structs that might provide a cte in a query need to specialize this template.
   //
   // Note: In contrast to `required_ctes_of` above, `provided_ctes_of` is non-recursive.
@@ -95,7 +96,7 @@ namespace sqlpp
   template <typename... T>
   struct provided_ctes_of<detail::type_vector<T...>>
   {
-    using type = detail::type_vector_cat_t<typename provided_ctes_of<T>::type...>;
+    using type = detail::type_set_join_t<typename provided_ctes_of<T>::type...>;
   };
 
   template <typename T>
@@ -111,19 +112,19 @@ namespace sqlpp
   template <typename T>
   struct provided_static_ctes_of<dynamic_t<T>>
   {
-    using type = detail::type_vector<>;
+    using type = detail::type_set<>;
   };
 
   template <typename... T>
   struct provided_static_ctes_of<detail::type_vector<T...>>
   {
-    using type = detail::type_vector_cat_t<typename provided_static_ctes_of<T>::type...>;
+    using type = detail::type_set_join_t<typename provided_static_ctes_of<T>::type...>;
   };
 
   template <typename T>
   using provided_static_ctes_of_t = typename provided_static_ctes_of<T>::type;
 
-  static_assert(provided_ctes_of_t<int>::empty(), "");
+  static_assert(provided_ctes_of_t<int>::is_empty(), "");
 
 }  // namespace sqlpp
 

@@ -186,7 +186,7 @@ void test_join()
     static_assert(std::is_same<sqlpp::provided_tables_of_t<J>, sqlpp::detail::type_set<CteRef, Meme>>::value, "");
     static_assert(std::is_same<sqlpp::provided_static_tables_of_t<J>, sqlpp::provided_tables_of_t<J>>::value, "");
     static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<J>, sqlpp::detail::type_set<>>::value, "");
-    static_assert(std::is_same<sqlpp::required_ctes_of_t<J>, sqlpp::detail::type_vector<CteRef>>::value, "");
+    static_assert(std::is_same<sqlpp::required_ctes_of_t<J>, sqlpp::detail::type_set<CteRef>>::value, "");
   }
 
   // Join with dynamic table

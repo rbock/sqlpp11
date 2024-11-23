@@ -181,7 +181,7 @@ namespace sqlpp
     struct required_ctes_of<cte_as_t<NameTagProvider, NewNameTagProvider, ColumnSpecs...>> 
     {
       // An aliased CTE requires the original CTE from the WITH clause.
-      using type = sqlpp::detail::type_vector<cte_ref_t<NameTagProvider>>;
+      using type = sqlpp::detail::type_set<cte_ref_t<NameTagProvider>>;
     };
 
   template <typename NameTagProvider, typename NewNameTagProvider, typename... ColumnSpecs>
@@ -274,7 +274,7 @@ namespace sqlpp
   struct is_recursive_cte<cte_t<NameTagProvider, Statement, ColumnSpecs...>> : public std::true_type
   {
 #warning: Need to test this.
-    constexpr static bool value = required_ctes_of_t<Statement>::template contains<cte_ref_t<NameTagProvider>>::value;
+    constexpr static bool value = required_ctes_of_t<Statement>::template contains<cte_ref_t<NameTagProvider>>();
   };
 
   template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>
@@ -296,9 +296,10 @@ namespace sqlpp
   template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>
   struct provided_ctes_of<cte_t<NameTagProvider, Statement, ColumnSpecs...>>
   {
-    using type = detail::type_vector<cte_ref_t<NameTagProvider>>;
+    using type = detail::type_set<cte_ref_t<NameTagProvider>>;
   };
 
+#warning: Do we *need* specializations of provided_static_ctes_of?
   template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>
   struct provided_static_ctes_of<cte_t<NameTagProvider, Statement, ColumnSpecs...>>
       : public provided_ctes_of<cte_t<NameTagProvider, Statement, ColumnSpecs...>>
@@ -322,7 +323,7 @@ namespace sqlpp
     {
       static_assert(required_tables_of_t<Statement>::is_empty(),
                     "common table expression must not use unknown tables");
-      static_assert(not required_ctes_of_t<Statement>::template contains<NameTagProvider>::value,
+      static_assert(not required_ctes_of_t<Statement>::template contains<NameTagProvider>(),
                     "common table expression must not self-reference in the first part, use union_all/union_distinct "
                     "for recursion");
 
@@ -334,16 +335,16 @@ namespace sqlpp
     struct name_tag_of<cte_ref_t<NameTagProvider>> : public name_tag_of<NameTagProvider>
     {};
 
-   template<typename NameTagProvider>
-    struct provided_tables_of<cte_ref_t<NameTagProvider>> 
+    template <typename NameTagProvider>
+    struct provided_tables_of<cte_ref_t<NameTagProvider>>
     {
       using type = sqlpp::detail::type_set<cte_ref_t<NameTagProvider>>;
     };
 
-   template<typename NameTagProvider>
-    struct required_ctes_of<cte_ref_t<NameTagProvider>> 
+    template <typename NameTagProvider>
+    struct required_ctes_of<cte_ref_t<NameTagProvider>>
     {
-      using type = sqlpp::detail::type_vector<cte_ref_t<NameTagProvider>>;
+      using type = sqlpp::detail::type_set<cte_ref_t<NameTagProvider>>;
     };
 
    template<typename NameTagProvider>
