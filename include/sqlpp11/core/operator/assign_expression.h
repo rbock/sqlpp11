@@ -35,7 +35,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace sqlpp
 {
-#warning: Need to add compound assingment as += etc.
   template <typename L, typename Operator, typename R>
   struct assign_expression
   {
@@ -103,7 +102,7 @@ namespace sqlpp
     return {std::move(column), std::move(value)};
   }
 
-#warning: need to add type tests and serialize tests
+#warning: need to add type tests and serialize tests for compound assignments
   struct op_plus_assign
   {
     static constexpr auto symbol = " += ";
@@ -111,6 +110,17 @@ namespace sqlpp
 
   template <typename Table, typename ColumnSpec, typename R, typename = check_assign_args<column_t<Table, ColumnSpec>, R>>
   constexpr auto plus_assign(column_t<Table, ColumnSpec> column, R value) -> assign_expression<column_t<Table, ColumnSpec>, op_plus_assign, R>
+  {
+    return {std::move(column), std::move(value)};
+  }
+
+  struct op_minus_assign
+  {
+    static constexpr auto symbol = " += ";
+  };
+
+  template <typename Table, typename ColumnSpec, typename R, typename = check_assign_args<column_t<Table, ColumnSpec>, R>>
+  constexpr auto minus_assign(column_t<Table, ColumnSpec> column, R value) -> assign_expression<column_t<Table, ColumnSpec>, op_minus_assign, R>
   {
     return {std::move(column), std::move(value)};
   }

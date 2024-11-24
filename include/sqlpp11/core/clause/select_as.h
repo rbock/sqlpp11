@@ -69,9 +69,9 @@ namespace sqlpp
     Select _select;
   };
 
-  // The Select expression has a value in case it has just one column selected.
+  // The SELECT expression has a value in case it has just one column selected.
   template<typename Select, typename NameTag, typename ColumnSpec>
-    struct value_type_of<select_as_t<Select, NameTag, ColumnSpec>> : value_type_of<Select> {};
+    struct value_type_of<select_as_t<Select, NameTag, ColumnSpec>> : public value_type_of<Select> {};
 
   template <typename Select, typename NameTag, typename... FieldSpecs>
   struct name_tag_of<select_as_t<Select, NameTag, FieldSpecs...>>
@@ -79,9 +79,9 @@ namespace sqlpp
     using type = NameTag;
   };
 
-  // We need to track nodes to find parameters in sub selects.
+  // We need to track nodes to find parameters or required tables in sub selects.
   template<typename Select, typename NameTag, typename... FieldSpecs>
-    struct nodes_of<select_as_t<Select, NameTag, FieldSpecs...>> {
+    struct nodes_of<select_as_t<Select, NameTag, FieldSpecs...>> { 
       using type = detail::type_vector<Select>;
     };
 

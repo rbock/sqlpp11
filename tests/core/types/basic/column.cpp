@@ -160,6 +160,18 @@ void test_column()
 
     static_assert(std::is_same<sqlpp::value_type_of_t<BoolNn>, sqlpp::boolean>::value, "");
   }
+
+  {
+    // table() function
+    auto bar = test::TabBar{};
+    using Bar = decltype(bar);
+    using Id = decltype(bar.id);
+
+    using IdTable = decltype(Id::table());
+
+    static_assert(std::is_same<Bar, IdTable>::value, "");
+  }
+
 }
 
 int main()

@@ -234,7 +234,6 @@ namespace sqlpp
   SQLPP_VALUE_TRAIT_GENERATOR(is_dynamic_pre_join)
   SQLPP_VALUE_TRAIT_GENERATOR(is_dynamic_join)
   SQLPP_VALUE_TRAIT_GENERATOR(is_pseudo_table)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_column)
   SQLPP_VALUE_TRAIT_GENERATOR(is_select)
   SQLPP_VALUE_TRAIT_GENERATOR(is_select_flag_list)
   SQLPP_VALUE_TRAIT_GENERATOR(is_select_column_list)
@@ -426,6 +425,9 @@ namespace sqlpp
   // Really a table, not a `table AS ...`, `JOIN` or `CTE` or `SELECT ... AS`
   template <typename T>
   struct is_raw_table : public std::false_type{};
+
+  template <typename T>
+  struct is_column : public std::false_type{};
 
   template <typename ValueType, typename... Tags>
   struct make_traits

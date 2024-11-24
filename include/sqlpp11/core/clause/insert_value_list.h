@@ -267,7 +267,7 @@ namespace sqlpp
   struct check_insert_columns
   {
     using type = static_combined_check_t<
-        static_check_t<logic::all<is_column_t<Columns>::value...>::value, assert_insert_columns_are_columns>>;
+        static_check_t<logic::all<is_column<Columns>::value...>::value, assert_insert_columns_are_columns>>;
   };
   template <typename... Columns>
   using check_insert_columns_t = typename check_insert_columns<Columns...>::type;

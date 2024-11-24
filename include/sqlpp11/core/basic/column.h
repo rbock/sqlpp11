@@ -45,7 +45,7 @@ namespace sqlpp
     struct _traits
     {
       using _value_type = typename ColumnSpec::value_type;
-      using _tags = detail::make_joined_set_t<detail::type_set<tag::is_column, tag::is_expression, tag::is_selectable>>;
+      using _tags = detail::make_joined_set_t<detail::type_set<tag::is_expression, tag::is_selectable>>;
     };
 
     using _nodes = detail::type_vector<>;
@@ -61,11 +61,8 @@ namespace sqlpp
     column_t& operator=(column_t&&) = default;
     ~column_t() = default;
 
-    template <typename T = _table>
-    auto table() const -> _table
+    static auto table() -> _table
     {
-#warning: subselects use pseudo-columns, cte should do the same, I guess?
-      static_assert(is_table<T>::value, "cannot call get_table for columns of a sub-select or cte");
       return _table{};
     }
 
@@ -80,10 +77,21 @@ namespace sqlpp
     {
       return plus_assign(*this, std::move(value));
     }
+
+    template <typename T>
+    auto operator-=(T value) const -> decltype(minus_assign(*this, std::declval<T>()))
+    {
+      return minus_assign(*this, std::move(value));
+    }
   };
 
   template<typename Table, typename ColumnSpec>
   struct has_default<column_t<Table, ColumnSpec>> : public ColumnSpec::has_default
+  {
+  };
+
+  template<typename Table, typename ColumnSpec>
+  struct is_column<column_t<Table, ColumnSpec>> : public std::true_type
   {
   };
 

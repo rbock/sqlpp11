@@ -136,7 +136,7 @@ namespace sqlpp
             -> _new_statement_t<check_on_conflict_do_update_static_set_t<Assignments...>,
                                 on_conflict_do_update_t<ConflictTarget, Assignments...>>
         {
-          static_assert(is_column_t<ConflictTarget>::value,
+          static_assert(is_column<ConflictTarget>::value,
                         "conflict_target specification is required with do_update(...)");
           return {static_cast<const derived_statement_t<Policies>&>(*this),
                   on_conflict_do_update_data_t<ConflictTarget, Assignments...>(_data, std::make_tuple(assignments...))};

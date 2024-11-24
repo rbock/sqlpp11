@@ -32,10 +32,10 @@
 
 namespace sqlpp
 {
-  template <typename TableSpec, typename... ColumnSpec>
-  struct table_columns : public ColumnSpec::_sqlpp_name_tag::template _member_t<column_t<TableSpec, ColumnSpec>>...
+  template <typename Table, typename... ColumnSpec>
+  struct table_columns : public ColumnSpec::_sqlpp_name_tag::template _member_t<column_t<Table, ColumnSpec>>...
   {
     static_assert(sizeof...(ColumnSpec) > 0, "at least one column required per table");
-    using _column_tuple_t = std::tuple<column_t<TableSpec, ColumnSpec>...>;
+    using _column_tuple_t = std::tuple<column_t<Table, ColumnSpec>...>;
   };
 }  // namespace sqlpp

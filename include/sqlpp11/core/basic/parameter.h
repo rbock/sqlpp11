@@ -34,7 +34,9 @@
 namespace sqlpp
 {
   template <typename ValueType, typename NameTag>
-  struct parameter_t : public enable_comparison<parameter_t<ValueType, NameTag>>
+  struct parameter_t : 
+    public enable_as<parameter_t<ValueType, NameTag>>,
+    public enable_comparison<parameter_t<ValueType, NameTag>>
   {
     parameter_t() = default;
 
