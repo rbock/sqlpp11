@@ -303,6 +303,4 @@ namespace sqlpp
     return {std::move(l), std::move(r)};
   }
 
-#warning: Add and test date/time/duration arithmetics
-
 }  // namespace sqlpp

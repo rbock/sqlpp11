@@ -186,6 +186,16 @@ namespace sqlpp
     };
   };
 
-#warning: Should we offer stand-alone union? it would need to take two arguments
+  template <typename Lhs, typename Rhs>
+  auto union_all(Lhs lhs, Rhs rhs)->decltype(lhs.union_all(rhs))
+  {
+    return lhs.union_all(std::move(rhs));
+  }
+
+  template <typename Lhs, typename Rhs>
+  auto union_distinct(Lhs lhs, Rhs rhs)->decltype(lhs.union_distinct(rhs))
+  {
+    return lhs.union_distinct(std::move(rhs));
+  }
 
 }  // namespace sqlpp

@@ -32,6 +32,7 @@ int main(int, char* [])
   const auto t = test::TabBar{};
   const auto f = test::TabFoo{};
 
+  // Using member function
   SQLPP_COMPARE(select(t.id)
          .from(t)
          .unconditionally()
@@ -47,6 +48,25 @@ int main(int, char* [])
                     .unconditionally()
                     .union_distinct(select(f.id).from(f).unconditionally())
                     .union_all(select(t.id).from(t).unconditionally()),
+                "SELECT tab_bar.int_n AS id FROM tab_bar UNION DISTINCT SELECT tab_foo.id FROM tab_foo UNION ALL "
+                "SELECT tab_bar.id FROM tab_bar");
+
+  // Using free function
+  SQLPP_COMPARE(union_all(select(t.id)
+         .from(t)
+         .unconditionally(),
+         select(f.id).from(f).unconditionally()), "SELECT tab_bar.id FROM tab_bar UNION ALL SELECT tab_foo.id FROM tab_foo");
+
+  SQLPP_COMPARE(union_distinct(select(t.id)
+         .from(t)
+         .unconditionally(),
+         select(f.id).from(f).unconditionally()), "SELECT tab_bar.id FROM tab_bar UNION DISTINCT SELECT tab_foo.id FROM tab_foo");
+
+  SQLPP_COMPARE(union_all(union_distinct(select(t.intN.as(f.id))
+                    .from(t)
+                    .unconditionally(),
+                    select(f.id).from(f).unconditionally()),
+                    select(t.id).from(t).unconditionally()),
                 "SELECT tab_bar.int_n AS id FROM tab_bar UNION DISTINCT SELECT tab_foo.id FROM tab_foo UNION ALL "
                 "SELECT tab_bar.id FROM tab_bar");
 
