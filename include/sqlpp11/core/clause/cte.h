@@ -153,7 +153,6 @@ namespace sqlpp
     using type = member_t<FieldSpec, column_t<cte_ref_t<NameTagProvider>, FieldSpec>>;
   };
 
-#warning: Need to document that you need to be a bit careful with aliased CTEs as we use cte_ref in columns, from, and join.
   template <typename NameTagProvider, typename NewNameTagProvider, typename... FieldSpecs>
   struct cte_as_t : public cte_member<NewNameTagProvider, FieldSpecs>::type...,
                  public enable_join<cte_as_t<NameTagProvider, NewNameTagProvider, FieldSpecs...>>
