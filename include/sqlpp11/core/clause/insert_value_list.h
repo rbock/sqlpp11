@@ -64,6 +64,29 @@ namespace sqlpp
   {
   };
 
+  SQLPP_PORTABLE_STATIC_ASSERT(
+      all_columns_have_default_value_t,
+      "at least one column does not have a default value (explicit default, NULL, or auto-increment)");
+
+#warning: Need to check this.
+  // `all_columns_have_default_values` is derived from the statement (read code bottom to top):
+  // 1. extract the set of provided tables from the statement (i.e. the table from `insert_into`)
+  // 2. assuming there is only one table in the set, return
+  //    - true if no column is explicitly required for insert
+  //    - false otherwise
+  // If 1. and 2. do not match (e.g. there are no provided tables), then return false.
+  template<typename T>
+  struct all_columns_have_default_values : public std::false_type {};
+
+  template<typename T>
+  struct all_columns_have_default_values<detail::type_set<table_t<T>>> : public std::integral_constant<bool, table_t<T>::_required_insert_columns::empty()> {};
+
+  template <typename... T>
+  struct all_columns_have_default_values<detail::statement_policies_t<T...>>
+      : public all_columns_have_default_values<typename detail::statement_policies_t<T...>::_all_provided_tables>
+  {
+  };
+
   // COLUMN AND VALUE LIST
   struct insert_default_values_t
   {
@@ -82,8 +105,10 @@ namespace sqlpp
 
       _data_t _data;
 
-#warning: Need to check that all columns actually have a default value!
-      using _consistency_check = consistent_t;
+#warning: Need to check this.
+      using _consistency_check = typename std::conditional<all_columns_have_default_values<Policies>::value,
+                                                           consistent_t,
+                                                           all_columns_have_default_value_t>::type;
     };
   };
 
