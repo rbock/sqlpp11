@@ -68,7 +68,6 @@ namespace sqlpp
       all_columns_have_default_value_t,
       "at least one column does not have a default value (explicit default, NULL, or auto-increment)");
 
-#warning: Need to check this.
   // `all_columns_have_default_values` is derived from the statement (read code bottom to top):
   // 1. extract the set of provided tables from the statement (i.e. the table from `insert_into`)
   // 2. assuming there is only one table in the set, return
