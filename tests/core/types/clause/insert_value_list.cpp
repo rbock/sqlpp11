@@ -44,6 +44,8 @@ void test_all_columns_have_default_values()
     static_assert(test::TabFoo::_required_insert_columns::empty(), "");
     static_assert(sqlpp::all_columns_have_default_values<sqlpp::detail::type_set<test::TabFoo>>::value, "");
     static_assert(sqlpp::all_columns_have_default_values<Policies>::value, "");
+
+    static_assert(std::is_same<I::_consistency_check, sqlpp::consistent_t>::value);
   }
 
   {
@@ -52,7 +54,61 @@ void test_all_columns_have_default_values()
     static_assert(test::TabFoo::_required_insert_columns::empty(), "");
     static_assert(not sqlpp::all_columns_have_default_values<sqlpp::detail::type_set<test::TabBar>>::value, "");
     static_assert(not sqlpp::all_columns_have_default_values<Policies>::value, "");
+
+    static_assert(std::is_same<I::_consistency_check, sqlpp::all_columns_have_default_value_t>::value);
   }
+}
+
+void test_insert_list()
+{
+  const auto foo = test::TabFoo{};
+  const auto bar = test::TabBar{};
+
+  // Confirming the required columns of TabBar.
+    static_assert(std::is_same<test::TabBar::_required_insert_columns,
+                               sqlpp::detail::type_set<sqlpp::column_t<test::TabBar, test::TabBar_::BoolNn>>>::value,
+                  "");
+  // insert_into(table).set(<all required tables>) is consistent
+  {
+    using I = decltype(insert_into(bar).set(bar.boolNn = true));
+    static_assert(std::is_same<I::_consistency_check, sqlpp::consistent_t>::value);
+  }
+
+  // insert_into(table).set(<all required tables> plus some more) is consistent
+  {
+    using I = decltype(insert_into(bar).set(bar.id = sqlpp::default_value, bar.boolNn = true));
+    static_assert(std::is_same<I::_consistency_check, sqlpp::consistent_t>::value);
+  }
+
+  // insert_into(table).set(<non arguments>) is inconsistent and cannot be constructed.
+  {
+#warning: I would prefer to fail with a static_assert here!
+    using I = decltype(insert_into(bar).set());
+    I::hansi;
+    static_assert(std::is_same<I, sqlpp::assert_insert_set_assignments_t>::value);
+  }
+
+  // insert_into(table).set(<not all required tables>) is inconsistent and cannot be constructed.
+  {
+#warning: I would prefer to fail with a static_assert here!
+    using I = decltype(insert_into(bar).set(bar.id = sqlpp::default_value));
+    static_assert(std::is_same<I, sqlpp::assert_insert_set_single_table_t>::value);
+  }
+
+  // insert_into(table).set(<assignments from more than one table>) is inconsistent and cannot be constructed.
+  {
+#warning: I would prefer to fail with a static_assert here!
+    using I = decltype(insert_into(bar).set(foo.id = sqlpp::default_value, bar.boolNn = true));
+    I::hansi;
+    static_assert(std::is_same<I, sqlpp::assert_insert_static_set_all_required_t>::value);
+  }
+
+  // insert_into(tableA).set(assignments for tableB) is inconsistent
+  {
+    using I = decltype(insert_into(foo).set(bar.id = sqlpp::default_value, bar.boolNn = true));
+    static_assert(std::is_same<I::_consistency_check, sqlpp::assert_no_unknown_tables_in_insert_assignments_t>::value);
+  }
+
 }
 
 void test_insert_value_list()
@@ -68,6 +124,7 @@ void test_insert_value_list()
 int main()
 {
   void test_all_columns_have_default_values();
+  void test_insert_list();
   void test_insert_value_list();
 }
 

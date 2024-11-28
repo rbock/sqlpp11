@@ -35,6 +35,7 @@
 #include <sqlpp11/core/no_data.h>
 #include <sqlpp11/core/query/policy_update.h>
 #include <sqlpp11/core/portable_static_assert.h>
+#include <sqlpp11/core/static_assert.h>
 #include <sqlpp11/core/clause/simple_column.h>
 #include <sqlpp11/core/query/statement.h>
 #include <sqlpp11/core/type_traits.h>
@@ -128,47 +129,12 @@ namespace sqlpp
     std::tuple<Assignments...> _assignments;
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_set_assignments_t, "at least one argument is not an assignment in set()");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_set_no_duplicates_t, "at least one duplicate column detected in set()");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_set_single_table_t,
-                               "set() arguments contain assignments from more than one table");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_static_set_count_args_t,
-                               "at least one assignment expression required in set()");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_static_set_all_required_t,
-                               "at least one required column is missing in set()");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_dynamic_set_statement_dynamic_t,
-                               "dynamic_set must not be called in a static statement");
-
-  // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-  //  template <typename... Assignments>
-  //  using check_insert_set_t =
-  //      static_combined_check_t<check_insert_set_t<Assignments...>,
-  //                              static_check_t<sizeof...(Assignments) != 0, assert_insert_static_set_count_args_t>,
-  //                              static_check_t<detail::have_all_required_columns<lhs_t<Assignments>...>::value,
-  //                                             assert_insert_static_set_all_required_t>>;
-  template <typename... Assignments>
-  struct check_insert_set
-  {
-    using type = static_combined_check_t<
-        static_check_t<logic::all<is_assignment<Assignments>::value...>::value, assert_insert_set_assignments_t>,
-        static_check_t<not detail::has_duplicates<typename lhs<Assignments>::type...>::value,
-                       assert_insert_set_no_duplicates_t>,
-        static_check_t<detail::make_joined_set_t<required_tables_of_t<typename lhs<Assignments>::type>...>::size() == 1,
-                       assert_insert_set_single_table_t>,
-        static_check_t<sizeof...(Assignments) != 0, assert_insert_static_set_count_args_t>,
-        static_check_t<detail::have_all_required_columns<typename lhs<Assignments>::type...>::value,
-                       assert_insert_static_set_all_required_t>>;
-  };
-
-  template <typename... Assignments>
-  using check_insert_set_t = typename check_insert_set<remove_dynamic_t<Assignments>...>::type;
-
   SQLPP_PORTABLE_STATIC_ASSERT(
       assert_no_unknown_tables_in_insert_assignments_t,
       "at least one insert assignment requires a table which is otherwise not known in the statement");
 
   template <typename... Assignments>
-  struct insert_list_t
+  struct insert_set_t
   {
     using _traits = make_traits<no_value_t, tag::is_insert_list>;
 
@@ -190,7 +156,8 @@ namespace sqlpp
 
       _data_t _data;
 
-      using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<insert_list_t>,
+#warning: Need to check this.
+      using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<insert_set_t>,
                                                            consistent_t,
                                                            assert_no_unknown_tables_in_insert_assignments_t>::type;
     };
@@ -198,7 +165,7 @@ namespace sqlpp
 
 #warning: write tests for nodes.
   template <typename... Assignments>
-  struct nodes_of<insert_list_t<Assignments...>>
+  struct nodes_of<insert_set_t<Assignments...>>
   {
     using type = detail::type_vector<Assignments...>;
   };
@@ -270,6 +237,7 @@ namespace sqlpp
       void _add_impl(const std::false_type& /*unused*/, Assignments... /*unused*/);
 
     public:
+#warning: Need to check this.
       using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<column_list_t>,
                                                            consistent_t,
                                                            assert_no_unknown_tables_in_column_list_t>::type;
@@ -315,6 +283,7 @@ namespace sqlpp
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check, Policies, no_insert_value_list_t, T>;
 
+#warning: Need to check this.
       using _consistency_check = assert_insert_values_t;
 
       auto default_values() const -> _new_statement_t<consistent_t, insert_default_values_t>
@@ -333,18 +302,29 @@ namespace sqlpp
 
       template <typename... Assignments>
       auto set(Assignments... assignments) const
-          -> _new_statement_t<check_insert_set_t<Assignments...>, insert_list_t<Assignments...>>
+          -> _new_statement_t<consistent_t, insert_set_t<Assignments...>>
       {
-        using Check = check_insert_set_t<Assignments...>;
-        return _set_impl(Check{}, std::make_tuple(assignments...));
-      }
+        SQLPP_STATIC_ASSERT(sizeof...(Assignments) != 0, "at least one assignment expression required in set()");
 
-      template <typename... Assignments>
-      auto set(std::tuple<Assignments...> assignments) const
-          -> _new_statement_t<check_insert_set_t<Assignments...>, insert_list_t<Assignments...>>
-      {
-        using Check = check_insert_set_t<Assignments...>;
-        return _set_impl(Check{}, assignments);
+        static constexpr bool all_arguments_are_assignments =
+            logic::all<is_assignment<remove_dynamic_t<Assignments>>::value...>::value;
+        SQLPP_STATIC_ASSERT(all_arguments_are_assignments, "at least one argument is not an assignment in set()");
+
+        static constexpr bool has_duplicate_columns =
+            detail::has_duplicates<typename lhs<remove_dynamic_t<Assignments>>::type...>::value;
+        SQLPP_STATIC_ASSERT(not has_duplicate_columns, "at least one duplicate column detected in set()");
+
+        static constexpr bool uses_exactly_one_table =
+            (detail::make_joined_set_t<
+                 required_tables_of_t<typename lhs<remove_dynamic_t<Assignments>>::type>...>::size() == 1);
+        SQLPP_STATIC_ASSERT(uses_exactly_one_table, "set() arguments must be assignment for exactly one table");
+
+        static constexpr bool have_all_required_columns =
+            detail::have_all_required_columns<typename lhs<remove_dynamic_t<Assignments>>::type...>::value;
+        SQLPP_STATIC_ASSERT(have_all_required_columns, "at least one required column is missing in set()");
+
+        return {static_cast<const derived_statement_t<Policies>&>(*this),
+                insert_list_data_t<Assignments...>{std::make_tuple(std::move(assignments)...)}};
       }
 
     private:
@@ -365,16 +345,6 @@ namespace sqlpp
         return {static_cast<const derived_statement_t<Policies>&>(*this), column_list_data_t<Columns...>{cols...}};
       }
 
-      template <typename Check, typename... Assignments>
-      auto _set_impl(Check, Assignments... assignments) const -> inconsistent<Check>;
-
-      template <typename... Assignments>
-      auto _set_impl(consistent_t /*unused*/, std::tuple<Assignments...> assignments) const
-          -> _new_statement_t<consistent_t, insert_list_t<Assignments...>>
-      {
-        return {static_cast<const derived_statement_t<Policies>&>(*this),
-                insert_list_data_t<Assignments...>{assignments}};
-      }
     };
   };
 
