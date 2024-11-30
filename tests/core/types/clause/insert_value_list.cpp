@@ -27,7 +27,17 @@
 #include <sqlpp11/sqlpp11.h>
 #include "../../../include/test_helpers.h"
 
+void test_no_insert_value_list()
+{
+  const auto foo = test::TabFoo{};
+  {
+    using I = decltype(insert_into(foo));
+    static_assert(std::is_same<I::_consistency_check, sqlpp::assert_insert_values_t>::value);
+  }
+}
+
 void test_all_columns_have_default_values()
+
 {
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
@@ -59,15 +69,23 @@ void test_all_columns_have_default_values()
   }
 }
 
-void test_insert_list()
+void test_insert_set()
 {
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 
   // Confirming the required columns of TabBar.
-    static_assert(std::is_same<test::TabBar::_required_insert_columns,
-                               sqlpp::detail::type_set<sqlpp::column_t<test::TabBar, test::TabBar_::BoolNn>>>::value,
-                  "");
+  static_assert(std::is_same<test::TabBar::_required_insert_columns,
+                             sqlpp::detail::type_set<sqlpp::column_t<test::TabBar, test::TabBar_::BoolNn>>>::value,
+                "");
+
+  // Test nodes_of
+  {
+    using I = extract_clause_t<decltype(insert_set(bar.boolNn = true))>;
+    using A = decltype(bar.boolNn = true);
+    static_assert(std::is_same<sqlpp::nodes_of_t<I>, sqlpp::detail::type_vector<A>>::value, "");
+  }
+
   // insert_into(table).set(<all required tables>) is consistent
   {
     using I = decltype(insert_into(bar).set(bar.boolNn = true));
@@ -80,51 +98,52 @@ void test_insert_list()
     static_assert(std::is_same<I::_consistency_check, sqlpp::consistent_t>::value);
   }
 
-  // insert_into(table).set(<non arguments>) is inconsistent and cannot be constructed.
-  {
-#warning: I would prefer to fail with a static_assert here!
-    using I = decltype(insert_into(bar).set());
-    I::hansi;
-    static_assert(std::is_same<I, sqlpp::assert_insert_set_assignments_t>::value);
-  }
-
-  // insert_into(table).set(<not all required tables>) is inconsistent and cannot be constructed.
-  {
-#warning: I would prefer to fail with a static_assert here!
-    using I = decltype(insert_into(bar).set(bar.id = sqlpp::default_value));
-    static_assert(std::is_same<I, sqlpp::assert_insert_set_single_table_t>::value);
-  }
-
-  // insert_into(table).set(<assignments from more than one table>) is inconsistent and cannot be constructed.
-  {
-#warning: I would prefer to fail with a static_assert here!
-    using I = decltype(insert_into(bar).set(foo.id = sqlpp::default_value, bar.boolNn = true));
-    I::hansi;
-    static_assert(std::is_same<I, sqlpp::assert_insert_static_set_all_required_t>::value);
-  }
-
   // insert_into(tableA).set(assignments for tableB) is inconsistent
   {
     using I = decltype(insert_into(foo).set(bar.id = sqlpp::default_value, bar.boolNn = true));
     static_assert(std::is_same<I::_consistency_check, sqlpp::assert_no_unknown_tables_in_insert_assignments_t>::value);
   }
-
 }
 
-void test_insert_value_list()
+void test_insert_columns()
 {
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 
-#warning: Need to add tests
+  // Test nodes_of
   {
+    using I = extract_clause_t<decltype(insert_columns(bar.id, bar.boolNn))>;
+    using A = decltype(bar.id);
+    using B = decltype(bar.boolNn);
+    static_assert(std::is_same<sqlpp::nodes_of_t<I>, sqlpp::detail::type_vector<A, B>>::value, "");
+  }
+
+  // insert_into(tableA).columns(decent set of columns from tableA) is consistent
+  {
+    using I = decltype(insert_into(bar).columns(bar.id, bar.boolNn));
+    static_assert(std::is_same<I::_consistency_check, sqlpp::consistent_t>::value);
+  }
+  {
+    using I = decltype(insert_into(bar).columns(dynamic(true, bar.id), bar.boolNn));
+    static_assert(std::is_same<I::_consistency_check, sqlpp::consistent_t>::value);
+  }
+
+  // insert_into(tableA).columns(decent set of columns from tableB) is consistent
+  {
+    using I = decltype(insert_into(foo).columns(bar.id, bar.boolNn));
+    static_assert(std::is_same<I::_consistency_check, sqlpp::assert_no_unknown_tables_in_column_list_t>::value);
+  }
+  {
+    using I = decltype(insert_into(foo).columns(dynamic(true, bar.id), bar.boolNn));
+    static_assert(std::is_same<I::_consistency_check, sqlpp::assert_no_unknown_tables_in_column_list_t>::value);
   }
 }
 
 int main()
 {
+  void test_no_insert_value_list();
   void test_all_columns_have_default_values();
-  void test_insert_list();
-  void test_insert_value_list();
+  void test_insert_set();
+  void test_insert_columns();
 }
 

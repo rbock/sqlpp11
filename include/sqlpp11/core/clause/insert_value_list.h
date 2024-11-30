@@ -109,7 +109,6 @@ namespace sqlpp
 
       _data_t _data;
 
-#warning: Need to check this.
       using _consistency_check = typename std::conditional<all_columns_have_default_values<Policies>::value,
                                                            consistent_t,
                                                            all_columns_have_default_value_t>::type;
@@ -117,18 +116,18 @@ namespace sqlpp
   };
 
   template <typename... Assignments>
-  struct insert_list_data_t
+  struct insert_set_data_t
   {
-    insert_list_data_t(std::tuple<Assignments...> assignments)
+    insert_set_data_t(std::tuple<Assignments...> assignments)
         : _assignments(std::move(assignments))
     {
     }
 
-    insert_list_data_t(const insert_list_data_t&) = default;
-    insert_list_data_t(insert_list_data_t&&) = default;
-    insert_list_data_t& operator=(const insert_list_data_t&) = default;
-    insert_list_data_t& operator=(insert_list_data_t&&) = default;
-    ~insert_list_data_t() = default;
+    insert_set_data_t(const insert_set_data_t&) = default;
+    insert_set_data_t(insert_set_data_t&&) = default;
+    insert_set_data_t& operator=(const insert_set_data_t&) = default;
+    insert_set_data_t& operator=(insert_set_data_t&&) = default;
+    ~insert_set_data_t() = default;
 
     std::tuple<Assignments...> _assignments;
   };
@@ -140,15 +139,13 @@ namespace sqlpp
   template <typename... Assignments>
   struct insert_set_t
   {
-    using _traits = make_traits<no_value_t, tag::is_insert_list>;
-
     template <template <typename...> class Target>
     using copy_assignments_t = Target<Assignments...>;  // FIXME: Nice idea to copy variadic template arguments?
     template <template <typename...> class Target, template <typename> class Wrap>
     using copy_wrapped_assignments_t = Target<Wrap<Assignments>...>;
 
     // Data
-    using _data_t = insert_list_data_t<Assignments...>;
+    using _data_t = insert_set_data_t<Assignments...>;
 
     // Base template to be inherited by the statement
     template <typename Policies>
@@ -160,14 +157,12 @@ namespace sqlpp
 
       _data_t _data;
 
-#warning: Need to check this.
       using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<insert_set_t>,
                                                            consistent_t,
                                                            assert_no_unknown_tables_in_insert_assignments_t>::type;
     };
   };
 
-#warning: write tests for nodes.
   template <typename... Assignments>
   struct nodes_of<insert_set_t<Assignments...>>
   {
@@ -238,7 +233,6 @@ namespace sqlpp
                         std::move(assignments)...);
       }
 
-#warning: Need to check this.
       using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<column_list_t>,
                                                            consistent_t,
                                                            assert_no_unknown_tables_in_column_list_t>::type;
@@ -255,7 +249,6 @@ namespace sqlpp
     };
   };
 
-#warning: write tests for nodes.
   template <typename... Columns>
   struct nodes_of<column_list_t<Columns...>>
   {
@@ -324,10 +317,9 @@ namespace sqlpp
         SQLPP_STATIC_ASSERT(have_all_required_columns, "at least one required column is missing in set()");
 
         return {static_cast<const derived_statement_t<Policies>&>(*this),
-                insert_list_data_t<Assignments...>{std::make_tuple(std::move(assignments)...)}};
+                insert_set_data_t<Assignments...>{std::make_tuple(std::move(assignments)...)}};
       }
 
-#warning: Need to check this.
       using _consistency_check = assert_insert_values_t;
 
     };
@@ -418,7 +410,7 @@ namespace sqlpp
   };
 
   template <typename Context, typename... Assignments>
-  auto to_sql_string(Context& context, const insert_list_data_t<Assignments...>& t) -> std::string
+  auto to_sql_string(Context& context, const insert_set_data_t<Assignments...>& t) -> std::string
   {
     auto result = std::string{" ("};
     result += tuple_to_sql_string(context, t._assignments, tuple_lhs_assignment_operand_no_dynamic{", "});
