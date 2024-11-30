@@ -49,6 +49,18 @@ namespace sqlpp
     R _r;
   };
 
+  template<typename L, typename Operator, typename R>
+    auto get_rhs(assign_expression<L, Operator, R> e) -> R
+    {
+      return e._r;
+    }
+
+  template<typename L, typename Operator, typename R>
+    auto get_rhs(dynamic_t<assign_expression<L, Operator, R>> e) -> dynamic_t<R>
+    {
+      return {e._condition, e._expr._r};
+    }
+
   template <typename L, typename R>
   using check_assign_args =
       ::sqlpp::enable_if_t<values_are_comparable<L, R>::value and (can_be_null<L>::value or not can_be_null<R>::value)>;

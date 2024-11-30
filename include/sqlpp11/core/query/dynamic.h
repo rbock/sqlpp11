@@ -26,6 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp11/core/static_assert.h>
 #include <sqlpp11/core/query/dynamic_fwd.h>
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/operator/assign_expression.h>
@@ -40,9 +41,19 @@ namespace sqlpp
   {
     using _traits = make_traits<value_type_of_t<Expr>, tag::is_multi_expression>;
 
-    dynamic_t(bool condition, Expr expr) : _condition(condition), _expr(expr)
+    dynamic_t(bool condition, Expr expr) : _condition(condition), _expr(std::move(expr))
     {
+      SQLPP_STATIC_ASSERT(parameters_of_t<Expr>::empty(), "dynamic expressions must not contain query parameters");
     }
+
+    template<typename OtherExpr>
+    dynamic_t(const dynamic_t<OtherExpr>& d) : _condition(d._condition), _expr(d._expr){}
+    template<typename OtherExpr>
+    dynamic_t(dynamic_t<OtherExpr>&& d) : _condition(d._condition), _expr(std::move(d._expr)){}
+    template<typename OtherExpr>
+    dynamic_t& operator=(const dynamic_t<OtherExpr>& d) { _condition = d._condition; _expr = Expr{d._expr};}
+    template<typename OtherExpr>
+    dynamic_t& operator=(dynamic_t<OtherExpr>&& d) { _condition = d._condition; _expr = Expr{std::move(d._expr)}; }
 
     dynamic_t(const dynamic_t&) = default;
     dynamic_t(dynamic_t&&) = default;

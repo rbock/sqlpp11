@@ -41,3 +41,4 @@ test_constraint(must_not_insert "one assignment is prohibited")
 test_constraint(must_not_update "one assignment is prohibited")
 
 add_subdirectory(clause)
+add_subdirectory(query)

@@ -127,7 +127,48 @@ int main()
   SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).columns(dynamic(true, bar.boolNn)),
                            "at least one required column is missing in columns()");
 
-#warning: need to add tests for add_values()
+  // -------------------------
+  // insert_into(tab).columns(...).add_value(...)
+  // -------------------------
+  {
+    auto i = insert_into(bar).columns(bar.id, bar.boolNn);
+    i.add_values(bar.id = sqlpp::default_value, bar.boolNn = true); // OK
+    i.add_values(bar.id = 7, bar.boolNn = true); // OK
 
+    SQLPP_CHECK_STATIC_ASSERT(i.add_values(bar.boolNn = true),
+                              "add_values() arguments have to match columns() arguments");
+    SQLPP_CHECK_STATIC_ASSERT(i.add_values(bar.id = sqlpp::default_value),
+                              "add_values() arguments have to match columns() arguments");
+
+    SQLPP_CHECK_STATIC_ASSERT(i.add_values(bar.id = sqlpp::default_value, bar.boolNn = not bar.boolNn),
+                              "add_values() arguments must not be expressions");
+
+    SQLPP_CHECK_STATIC_ASSERT(i.add_values(bar.id = parameter(bar.id), bar.boolNn = bar.boolNn),
+                              "add_values() arguments must not contain parameters");
+
+    SQLPP_CHECK_STATIC_ASSERT(i.add_values(bar.id = bar.id, bar.boolNn = bar.boolNn),
+                              "add_values() arguments must not have names");
+  }
+
+  {
+    auto i = insert_into(bar).columns(dynamic(true, bar.id), bar.boolNn);
+    i.add_values(dynamic(true, bar.id = sqlpp::default_value), bar.boolNn = true); // OK
+
+    SQLPP_CHECK_STATIC_ASSERT(i.add_values(bar.boolNn = true),
+                              "add_values() arguments have to match columns() arguments");
+    SQLPP_CHECK_STATIC_ASSERT(i.add_values(bar.id = sqlpp::default_value),
+                              "add_values() arguments have to match columns() arguments");
+    SQLPP_CHECK_STATIC_ASSERT(i.add_values(bar.id = sqlpp::default_value, bar.boolNn = true),
+                              "add_values() arguments have to match columns() arguments");
+
+    SQLPP_CHECK_STATIC_ASSERT(i.add_values(dynamic(true, bar.id = bar.id + 1), bar.boolNn = true),
+                              "add_values() arguments must not be expressions");
+
+    SQLPP_CHECK_STATIC_ASSERT(i.add_values(dynamic(true, bar.id = sqlpp::default_value), bar.boolNn = parameter(bar.boolNn)),
+                              "add_values() arguments must not contain parameters");
+
+    SQLPP_CHECK_STATIC_ASSERT(i.add_values(dynamic(true, bar.id = bar.id), bar.boolNn = true),
+                              "add_values() arguments must not have names");
+  }
 }
 

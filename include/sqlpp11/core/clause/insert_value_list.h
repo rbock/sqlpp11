@@ -60,6 +60,9 @@ namespace sqlpp
       using set_columns = detail::make_type_set_t<First, Columns...>;
       static constexpr bool value = set_columns::contains_all(required_columns{});
     };
+
+    template <typename C, typename... Columns>
+    struct have_all_required_columns<dynamic_t<C>, Columns...> : public have_all_required_columns<Columns...> {};
   }  // namespace detail
 
   struct insert_default_values_data_t
@@ -218,18 +221,37 @@ namespace sqlpp
           typename = sqlpp::enable_if_t<logic::all<is_assignment<remove_dynamic_t<Assignments>>::value...>::value>>
       auto add_values(Assignments... assignments) -> void
       {
-        using _arg_value_tuple = std::tuple<insert_value_t<lhs_t<Assignments>>...>;
-        using _args_correct = std::is_same<_arg_value_tuple, _value_tuple_t>;
-        SQLPP_STATIC_ASSERT(_args_correct::value, "add_values() arguments do not match columns() arguments");
+        using _arg_value_tuple = std::tuple<make_insert_value_t<lhs_t<Assignments>>...>;
+        constexpr bool _args_correct = std::is_same<_arg_value_tuple, _value_tuple_t>::value;
+        SQLPP_STATIC_ASSERT(_args_correct, "add_values() arguments have to match columns() arguments");
 
-#warning: This does not accept any parameters or other expressions. We should probably static_assert this.
-        _data._insert_values.emplace_back(insert_value_t<lhs_t<Assignments>>{assignments._r}...);
+        constexpr bool _no_expressions = logic::all<nodes_of_t<remove_dynamic_t<rhs_t<Assignments>>>::empty()...>::value;
+        SQLPP_STATIC_ASSERT(_no_expressions, "add_values() arguments must not be expressions");
+
+        constexpr bool _no_parameters = logic::all<parameters_of_t<rhs_t<Assignments>>::empty()...>::value;
+        SQLPP_STATIC_ASSERT(_no_parameters, "add_values() arguments must not contain parameters");
+
+        constexpr bool _no_names = logic::none<has_name_tag<remove_dynamic_t<rhs_t<Assignments>>>::value...>::value;
+        SQLPP_STATIC_ASSERT(_no_names, "add_values() arguments must not have names");
+
+        add_values_impl(logic::all<_args_correct, _no_expressions, _no_parameters, _no_names>{},
+                        std::move(assignments)...);
       }
 
 #warning: Need to check this.
       using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<column_list_t>,
                                                            consistent_t,
                                                            assert_no_unknown_tables_in_column_list_t>::type;
+      private:
+      auto add_values_impl(std::false_type, ...) -> void { 
+      }
+
+      template <
+          typename... Assignments>
+      auto add_values_impl(std::true_type, Assignments... assignments) -> void
+      {
+        _data._insert_values.emplace_back(make_insert_value_t<lhs_t<Assignments>>(get_rhs(assignments))...);
+      }
     };
   };
 
