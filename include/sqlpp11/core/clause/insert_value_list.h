@@ -39,6 +39,7 @@
 #include <sqlpp11/core/clause/simple_column.h>
 #include <sqlpp11/core/query/statement.h>
 #include <sqlpp11/core/type_traits.h>
+#include <sqlpp11/core/compat/type_traits.h>
 
 namespace sqlpp
 {
@@ -184,7 +185,7 @@ namespace sqlpp
     column_list_data_t& operator=(column_list_data_t&&) = default;
     ~column_list_data_t() = default;
 
-    using _value_tuple_t = std::tuple<insert_value_t<Columns>...>;
+    using _value_tuple_t = std::tuple<make_insert_value_t<Columns>...>;
     std::tuple<simple_column_t<Columns>...> _columns;
     std::vector<_value_tuple_t> _insert_values;
   };
@@ -212,31 +213,19 @@ namespace sqlpp
 
       _data_t _data;
 
-      template <typename... Assignments>
-      void add_values(Assignments... assignments)
+      template <
+          typename... Assignments,
+          typename = sqlpp::enable_if_t<logic::all<is_assignment<remove_dynamic_t<Assignments>>::value...>::value>>
+      auto add_values(Assignments... assignments) -> void
       {
-        static_assert(logic::all<is_assignment<Assignments>::value...>::value,
-                      "add_values() arguments have to be assignments");
         using _arg_value_tuple = std::tuple<insert_value_t<lhs_t<Assignments>>...>;
         using _args_correct = std::is_same<_arg_value_tuple, _value_tuple_t>;
-        static_assert(_args_correct::value, "add_values() arguments do not match columns() arguments");
+        SQLPP_STATIC_ASSERT(_args_correct::value, "add_values() arguments do not match columns() arguments");
 
-        using ok = logic::all<logic::all<is_assignment<Assignments>::value...>::value, _args_correct::value>;
-
-        _add_impl(ok(), assignments...);  // dispatch to prevent compile messages after the static_assert
-      }
-
-    private:
-      template <typename... Assignments>
-      void _add_impl(const std::true_type& /*unused*/, Assignments... assignments)
-      {
+#warning: This does not accept any parameters or other expressions. We should probably static_assert this.
         _data._insert_values.emplace_back(insert_value_t<lhs_t<Assignments>>{assignments._r}...);
       }
 
-      template <typename... Assignments>
-      void _add_impl(const std::false_type& /*unused*/, Assignments... /*unused*/);
-
-    public:
 #warning: Need to check this.
       using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<column_list_t>,
                                                            consistent_t,
@@ -251,18 +240,7 @@ namespace sqlpp
     using type = detail::type_vector<Columns...>;
   };
 
-
   SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_values_t, "insert values required, e.g. set(...) or default_values()");
-
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_columns_are_columns, "arguments for columns() must be table columns");
-  template <typename... Columns>
-  struct check_insert_columns
-  {
-    using type = static_combined_check_t<
-        static_check_t<logic::all<is_column<Columns>::value...>::value, assert_insert_columns_are_columns>>;
-  };
-  template <typename... Columns>
-  using check_insert_columns_t = typename check_insert_columns<Columns...>::type;
 
   // NO INSERT COLUMNS/VALUES YET
   struct no_insert_value_list_t
@@ -283,67 +261,52 @@ namespace sqlpp
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check, Policies, no_insert_value_list_t, T>;
 
-#warning: Need to check this.
-      using _consistency_check = assert_insert_values_t;
-
       auto default_values() const -> _new_statement_t<consistent_t, insert_default_values_t>
       {
         return {static_cast<const derived_statement_t<Policies>&>(*this), insert_default_values_data_t{}};
       }
 
-      template <typename... Columns>
+      template <typename... Columns, typename = sqlpp::enable_if_t<logic::all<is_column<remove_dynamic_t<Columns>>::value...>::value>>
       auto columns(Columns... cols) const
-          -> _new_statement_t<check_insert_columns_t<Columns...>, column_list_t<Columns...>>
+          -> _new_statement_t<consistent_t, column_list_t<Columns...>>
       {
-        static_assert(sizeof...(Columns), "at least one column required in columns()");
+        SQLPP_STATIC_ASSERT(sizeof...(Columns), "at least one column required in columns()");
+        SQLPP_STATIC_ASSERT(detail::are_unique<remove_dynamic_t<Columns>...>::value,
+                            "at least one duplicate column detected in columns()");
+        SQLPP_STATIC_ASSERT(detail::are_same<typename remove_dynamic_t<Columns>::_table...>::value,
+                            "columns() contains columns from several tables");
+        SQLPP_STATIC_ASSERT(detail::have_all_required_columns<Columns...>::value,
+                            "at least one required column is missing in columns()");
 
-        return _columns_impl(check_insert_columns_t<Columns...>{}, cols...);
+        return {static_cast<const derived_statement_t<Policies>&>(*this), column_list_data_t<Columns...>{cols...}};
+
       }
 
-      template <typename... Assignments>
-      auto set(Assignments... assignments) const
-          -> _new_statement_t<consistent_t, insert_set_t<Assignments...>>
+      template <
+          typename... Assignments,
+          typename = sqlpp::enable_if_t<logic::all<is_assignment<remove_dynamic_t<Assignments>>::value...>::value>>
+      auto set(Assignments... assignments) const -> _new_statement_t<consistent_t, insert_set_t<Assignments...>>
       {
         SQLPP_STATIC_ASSERT(sizeof...(Assignments) != 0, "at least one assignment expression required in set()");
 
-        static constexpr bool all_arguments_are_assignments =
-            logic::all<is_assignment<remove_dynamic_t<Assignments>>::value...>::value;
-        SQLPP_STATIC_ASSERT(all_arguments_are_assignments, "at least one argument is not an assignment in set()");
-
         static constexpr bool has_duplicate_columns =
-            detail::has_duplicates<typename lhs<remove_dynamic_t<Assignments>>::type...>::value;
+            detail::has_duplicates<lhs_t<remove_dynamic_t<Assignments>>...>::value;
         SQLPP_STATIC_ASSERT(not has_duplicate_columns, "at least one duplicate column detected in set()");
 
         static constexpr bool uses_exactly_one_table =
-            (detail::make_joined_set_t<
-                 required_tables_of_t<typename lhs<remove_dynamic_t<Assignments>>::type>...>::size() == 1);
+            detail::are_same<typename lhs_t<remove_dynamic_t<Assignments>>::_table...>::value;
         SQLPP_STATIC_ASSERT(uses_exactly_one_table, "set() arguments must be assignment for exactly one table");
 
         static constexpr bool have_all_required_columns =
-            detail::have_all_required_columns<typename lhs<remove_dynamic_t<Assignments>>::type...>::value;
+            detail::have_all_required_columns<lhs_t<Assignments>...>::value;
         SQLPP_STATIC_ASSERT(have_all_required_columns, "at least one required column is missing in set()");
 
         return {static_cast<const derived_statement_t<Policies>&>(*this),
                 insert_list_data_t<Assignments...>{std::make_tuple(std::move(assignments)...)}};
       }
 
-    private:
-      template <typename Check, typename... Columns>
-      auto _columns_impl(Check, Columns... cols) const -> inconsistent<Check>;
-
-      template <typename... Columns>
-      auto _columns_impl(consistent_t /*unused*/, Columns... cols) const
-          -> _new_statement_t<consistent_t, column_list_t<Columns...>>
-      {
-        static_assert(detail::are_unique<Columns...>::value,
-                      "at least one duplicate argument detected in columns()");
-        static_assert(detail::make_joined_set_t<required_tables_of_t<Columns>...>::size() == 1,
-                      "columns() contains columns from several tables");
-        static_assert(detail::have_all_required_columns<Columns...>::value,
-                      "At least one required column is missing in columns()");
-
-        return {static_cast<const derived_statement_t<Policies>&>(*this), column_list_data_t<Columns...>{cols...}};
-      }
+#warning: Need to check this.
+      using _consistency_check = assert_insert_values_t;
 
     };
   };

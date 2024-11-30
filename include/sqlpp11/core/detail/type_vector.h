@@ -34,26 +34,8 @@ namespace sqlpp
   namespace detail
   {
     template <typename... T>
-    struct are_same;
-
-    template <>
-    struct are_same<> : public std::true_type
-    {
-    };
-
-    template <typename First, typename... T>
-    struct are_same<First, T...> : public std::is_same<are_same<First, T...>, are_same<T..., First>>
-    {
-    };
-
-    template <typename... T>
     struct type_vector
     {
-      static constexpr bool are_same()
-      {
-        return ::sqlpp::detail::are_same<T...>::value;
-      }
-
       template <typename X>
       struct contains : public ::sqlpp::logic::any<std::is_same<T, X>::value...> {
       };

@@ -30,6 +30,7 @@
 #include <sqlpp11/core/basic/value.h>
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/detail/type_set.h>
+#include <sqlpp11/core/query/dynamic.h>
 
 namespace sqlpp
 {
@@ -76,6 +77,18 @@ namespace sqlpp
     bool _is_default;
     _value_t _value;
   };
+
+  template<typename Column>
+    struct make_insert_value {
+      using type = insert_value_t<Column>;
+    };
+
+  template<typename Column>
+    struct make_insert_value<dynamic_t<Column>> {
+      using type = dynamic_t<insert_value_t<Column>>;
+    };
+  template<typename Column>
+    using make_insert_value_t = typename make_insert_value<Column>::type;
 
   template <typename Context, typename ValueType>
   auto to_sql_string(Context& context, const insert_value_t<ValueType>& t) -> std::string

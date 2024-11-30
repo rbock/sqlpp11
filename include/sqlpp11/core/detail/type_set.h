@@ -262,5 +262,10 @@ namespace sqlpp
       {
       };
 
+    template<typename ...T>
+      struct are_same : public std::integral_constant<bool, make_type_set_t<T...>::size() <= 1>
+      {
+      };
+
   }  // namespace detail
 }  // namespace sqlpp

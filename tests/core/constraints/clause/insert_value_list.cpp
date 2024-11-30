@@ -59,26 +59,75 @@ int main()
                              sqlpp::detail::type_set<sqlpp::column_t<test::TabBar, test::TabBar_::BoolNn>>>::value,
                 "");
 
+  // -------------------------
+  // insert_into(tab).set(...)
+  // -------------------------
+
   // insert_into(table).set(<non arguments>) is inconsistent and cannot be constructed.
   SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).set(), "at least one assignment expression required in set()");
 
+#warning: Is there a reasonable way to test this?
+  /*
   // insert_into(table).set(<arguments including non-assignments>) is inconsistent and cannot be constructed.
   SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).set(bar.id == 7), "at least one argument is not an assignment in set()");
+  */
 
   // insert_into(table).set(<arguments including non-assignments>) is inconsistent and cannot be constructed.
   SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).set(bar.boolNn = true, bar.boolNn = false), "at least one duplicate column detected in set()");
+  SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).set(bar.boolNn = true, dynamic(true, bar.boolNn = false)), "at least one duplicate column detected in set()");
 
   // insert_into(table).set(<assignments from more than one table>) is inconsistent and cannot be constructed.
   SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).set(foo.id = sqlpp::default_value, bar.boolNn = true),
                            "set() arguments must be assignment for exactly one table");
+  SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).set(dynamic(true, foo.id = sqlpp::default_value), bar.boolNn = true),
+                            "set() arguments must be assignment for exactly one table");
 
   // insert_into(table).set(<not all required columns>) is inconsistent and cannot be constructed.
   SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).set(bar.id = sqlpp::default_value),
                            "at least one required column is missing in set()");
+  SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).set(dynamic(true, bar.id = sqlpp::default_value)),
+                           "at least one required column is missing in set()");
 
+  // insert_into(table).set(<dynamic required columns>) is also inconsistent and cannot be constructed.
+  SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).set(dynamic(true, bar.boolNn = true)),
+                           "at least one required column is missing in set()");
 
-#warning: add tests for other insert types
+  // -------------------------
+  // insert_into(tab).columns(...)
+  // -------------------------
 
+  // insert_into(table).columns(<non arguments>) is inconsistent and cannot be constructed.
+  SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).columns(), "at least one column required in columns()");
+
+#warning: Is there a reasonable way to test this?
+  /*
+  // insert_into(table).columns(<arguments including non-columns>) is inconsistent and cannot be constructed.
+  SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).columns(bar.id == 7), "at least one argument is not an column in set()");
+  */
+
+  // insert_into(table).columns(<arguments including non-columns>) is inconsistent and cannot be constructed.
+  SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).columns(bar.boolNn, bar.id, bar.boolNn), "at least one duplicate column detected in columns()");
+  SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).columns(bar.boolNn, bar.id, dynamic(true, bar.boolNn)), "at least one duplicate column detected in columns()");
+
+  // insert_into(table).columns(<columns from more than one table>) is inconsistent and cannot be constructed.
+  SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).columns(foo.id, bar.boolNn),
+                           "columns() contains columns from several tables");
+  SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).columns(dynamic(true,foo.id), bar.boolNn),
+                           "columns() contains columns from several tables");
+  SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).columns(foo.id, dynamic(true, bar.boolNn)),
+                           "columns() contains columns from several tables");
+
+  // insert_into(table).columns(<not all required columns>) is inconsistent and cannot be constructed.
+  SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).columns(bar.id),
+                           "at least one required column is missing in columns()");
+  SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).columns(dynamic(true, bar.id)),
+                           "at least one required column is missing in columns()");
+
+  // insert_into(table).columns(<dynamic required columns>) is also inconsistent and cannot be constructed.
+  SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).columns(dynamic(true, bar.boolNn)),
+                           "at least one required column is missing in columns()");
+
+#warning: need to add tests for add_values()
 
 }
 
