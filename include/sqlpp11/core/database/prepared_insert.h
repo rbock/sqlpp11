@@ -35,9 +35,6 @@ namespace sqlpp
   template <typename Db, typename Insert>
   struct prepared_insert_t
   {
-    using _traits = make_traits<no_value_t, tag::is_prepared_statement>;
-    using _nodes = detail::type_vector<>;
-
     using _parameter_list_t = make_parameter_list_t<Insert>;
     using _prepared_statement_t = typename Db::_prepared_statement_t;
 
@@ -56,4 +53,7 @@ namespace sqlpp
     _parameter_list_t params;
     mutable _prepared_statement_t _prepared_statement;
   };
+
+  template<typename Db, typename Insert>
+    struct is_prepared_statement<prepared_insert_t<Db, Insert>> : public std::true_type {};
 }  // namespace sqlpp

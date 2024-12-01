@@ -141,7 +141,7 @@ namespace sqlpp
   struct check_cte_union
   {
     using type = static_combined_check_t<
-        static_check_t<is_statement_t<T>::value, assert_cte_union_args_are_statements_t>>;
+        static_check_t<is_statement<T>::value, assert_cte_union_args_are_statements_t>>;
   };
   template <typename T>
   using check_cte_union_t = typename check_cte_union<remove_dynamic_t<T>>::type;
@@ -213,7 +213,7 @@ namespace sqlpp
                             cte_t<NameTagProvider, cte_union_t<distinct_t, Statement, Rhs>, FieldSpecs...>>
     {
       using _rhs = remove_dynamic_t<Rhs>;
-      static_assert(is_statement_t<_rhs>::value, "argument of union call has to be a statement");
+      static_assert(is_statement<_rhs>::value, "argument of union call has to be a statement");
       static_assert(has_policy_t<_rhs, is_select_t>::value, "argument of union call has to be a select");
       static_assert(has_result_row<_rhs>::value, "argument of a clause/union.has to be a (complete) select statement");
 
@@ -229,7 +229,7 @@ namespace sqlpp
                             cte_t<NameTagProvider, cte_union_t<all_t, Statement, Rhs>, FieldSpecs...>>
     {
       using _rhs = remove_dynamic_t<Rhs>;
-      static_assert(is_statement_t<_rhs>::value, "argument of union call has to be a statement");
+      static_assert(is_statement<_rhs>::value, "argument of union call has to be a statement");
       static_assert(has_policy_t<_rhs, is_select_t>::value, "argument of union call has to be a select");
       static_assert(has_result_row<_rhs>::value, "argument of a clause/union.has to be a (complete) select statement");
 

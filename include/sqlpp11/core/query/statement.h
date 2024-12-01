@@ -80,7 +80,6 @@ namespace sqlpp
       using _all_required_tables = detail::make_joined_set_t<required_tables_of_t<Policies>...>;
       using _all_provided_tables = detail::make_joined_set_t<provided_tables_of_t<Policies>...>;
       using _all_provided_optional_tables = detail::make_joined_set_t<provided_optional_tables_of_t<Policies>...>;
-#warning: provided_aggregates_of needs to be replaced with type_vector, too
       using _all_provided_aggregates = detail::make_joined_set_t<provided_aggregates_of<Policies>...>;
 
       using _required_tables_of = detail::make_difference_set_t<_all_required_tables, _all_provided_tables>;
@@ -134,14 +133,7 @@ namespace sqlpp
                                     value_type_of_t<_result_type_provider>>::type;
 
       using _nodes = detail::type_vector<>;
-#warning: maybe need to make value type optional
-      /*
-      using _can_be_null = logic::any<can_be_null_t<_result_type_provider>::value,
-                                        detail::make_intersect_set_t<required_tables_of_t<_result_type_provider>,
-                                                                     _all_provided_optional_tables>::size::value != 0>;
-                                        */
       using _parameters = detail::type_vector_cat_t<parameters_of_t<Policies>...>;
-      // required_tables and _required_ctes are defined above
 
       using _cte_check =
           typename std::conditional<_required_ctes_of::empty(), consistent_t, assert_no_unknown_ctes_t>::type;
@@ -167,11 +159,6 @@ namespace sqlpp
 
   template <typename... Policies>
   struct statement_t : public Policies::template _base_t<detail::statement_policies_t<Policies...>>...,
-#warning: reactivate
-  /*
-                       public expression_operators<statement_t<Policies...>,
-                                                   value_type_of_t<detail::statement_policies_t<Policies...>>>,
-                                                   */
                        public detail::statement_policies_t<Policies...>::_result_methods_t
   {
     using _policies_t = typename detail::statement_policies_t<Policies...>;
@@ -199,15 +186,6 @@ namespace sqlpp
     template <typename Composite>
     using _result_methods_t = typename _result_type_provider::template _result_methods_t<Composite>;
 
-    using _traits =
-        make_traits<value_type_of_t<_policies_t>,
-                    tag::is_statement,
-                    tag_if<tag::is_select, logic::any<is_select_t<Policies>::value...>::value>,
-                    tag_if<tag::is_expression, is_expression_t<_policies_t>::value>,
-                    tag_if<tag::is_selectable, is_expression_t<_policies_t>::value>
-#warning: reactivate
-                    //,tag_if<tag::is_return_value, logic::none<is_noop_t<_result_type_provider>::value>::value>
-                      >;
     using _name_tag_of = name_tag_of<_result_type_provider>;
     using _nodes = detail::type_vector<_policies_t>;
     using _provided_optional_tables = typename _policies_t::_all_provided_optional_tables;
@@ -266,6 +244,9 @@ namespace sqlpp
   };
 
   template<typename... Policies>
+    struct is_statement<statement_t<Policies...>> : public std::true_type {};
+
+  template<typename... Policies>
     struct value_type_of<statement_t<Policies...>> : public value_type_of<typename detail::statement_policies_t<Policies...>> {};
   template<typename... Policies>
     struct name_tag_of<statement_t<Policies...>> : public statement_t<Policies...>::_name_tag_of {};
@@ -285,7 +266,7 @@ namespace sqlpp
   template <typename... Policies>
     struct known_aggregate_columns_of<statement_t<Policies...>>
     {
-      using type = detail::type_vector_cat_t<known_aggregate_columns_of_t<Policies>...>;
+      using type = detail::make_joined_set_t<known_aggregate_columns_of_t<Policies>...>;
     };
 
   template <typename... Policies>

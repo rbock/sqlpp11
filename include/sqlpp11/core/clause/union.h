@@ -106,7 +106,7 @@ namespace sqlpp
   struct check_union
   {
     using type = static_combined_check_t<
-        static_check_t<logic::all<is_statement_t<T>::value...>::value, assert_union_args_are_statements_t>>;
+        static_check_t<logic::all<is_statement<T>::value...>::value, assert_union_args_are_statements_t>>;
   };
   template <typename... T>
   using check_union_t = typename check_union<T...>::type;
@@ -140,7 +140,7 @@ namespace sqlpp
           -> _new_statement_t<check_union_t<derived_statement_t<Policies>, Rhs>,
                               union_t<union_distinct_t, derived_statement_t<Policies>, Rhs>>
       {
-        static_assert(is_statement_t<Rhs>::value, "argument of union call has to be a statement");
+        static_assert(is_statement<Rhs>::value, "argument of union call has to be a statement");
         static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
         static_assert(has_result_row<Rhs>::value, "argument of a clause/union.has to be a complete select statement");
         static_assert(has_result_row<derived_statement_t<Policies>>::value,
@@ -158,7 +158,7 @@ namespace sqlpp
       auto union_all(Rhs rhs) const -> _new_statement_t<check_union_t<derived_statement_t<Policies>, Rhs>,
                                                         union_t<union_all_t, derived_statement_t<Policies>, Rhs>>
       {
-        static_assert(is_statement_t<Rhs>::value, "argument of union call has to be a statement");
+        static_assert(is_statement<Rhs>::value, "argument of union call has to be a statement");
         static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
         static_assert(has_result_row<Rhs>::value, "argument of a clause/union.has to be a (complete) select statement");
         static_assert(has_result_row<derived_statement_t<Policies>>::value,

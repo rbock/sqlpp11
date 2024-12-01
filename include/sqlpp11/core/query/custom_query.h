@@ -65,7 +65,6 @@ namespace sqlpp
   struct custom_query_t : private detail::custom_parts_t<Parts...>::_result_methods_t
   {
     using _methods_t = typename detail::custom_parts_t<Parts...>::_result_methods_t;
-    using _traits = make_traits<no_value_t, tag::is_statement>;
     using _nodes = detail::type_vector<Parts...>;
 
     using _parameter_check =
@@ -121,6 +120,9 @@ namespace sqlpp
 
     std::tuple<Parts...> _parts;
   };
+
+  template <typename ... Parts>
+    struct is_statement<custom_query_t<Parts...>> : public std::true_type {};
 
   template <typename Context, typename... Parts>
   auto to_sql_string(Context& context, const custom_query_t<Parts...>& t) -> std::string

@@ -223,8 +223,6 @@ namespace sqlpp
   SQLPP_VALUE_TRAIT_GENERATOR(is_union_flag)
   SQLPP_VALUE_TRAIT_GENERATOR(is_result_field)
 
-  SQLPP_VALUE_TRAIT_GENERATOR(is_statement)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_prepared_statement)
   SQLPP_VALUE_TRAIT_GENERATOR(is_union)
   SQLPP_VALUE_TRAIT_GENERATOR(is_with)
   SQLPP_VALUE_TRAIT_GENERATOR(is_noop)
@@ -467,6 +465,12 @@ namespace sqlpp
   template <typename T>
   using consistency_check_t = typename consistency_check<T>::type;
 
+  template<typename T>
+    struct is_statement : public std::false_type {};
+
+  template<typename T>
+    struct is_prepared_statement : public std::false_type {};
+
   template <typename Context, typename T, typename Enable = void>
   struct run_check
   {
@@ -476,7 +480,7 @@ namespace sqlpp
   template <typename Context, typename T>
   struct run_check<Context,
                    T,
-                   typename std::enable_if<is_statement_t<T>::value or is_prepared_statement_t<T>::value>::type>
+                   typename std::enable_if<is_statement<T>::value or is_prepared_statement<T>::value>::type>
   {
     using type =
         detail::get_first_if<is_inconsistent_t, consistent_t, typename T::_run_check>;
@@ -492,7 +496,7 @@ namespace sqlpp
   };
 
   template <typename Context, typename T>
-  struct prepare_check<Context, T, typename std::enable_if<is_statement_t<T>::value>::type>
+  struct prepare_check<Context, T, typename std::enable_if<is_statement<T>::value>::type>
   {
     using type = detail::
         get_first_if<is_inconsistent_t, consistent_t, typename T::_prepare_check>;
@@ -541,7 +545,7 @@ namespace sqlpp
   };
 
   template <typename Statement, template <typename> class Predicate>
-  struct has_policy_impl<Statement, Predicate, typename std::enable_if<is_statement_t<Statement>::value>::type>
+  struct has_policy_impl<Statement, Predicate, typename std::enable_if<is_statement<Statement>::value>::type>
   {
     using type = std::true_type;
   };
