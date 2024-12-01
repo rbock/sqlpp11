@@ -52,6 +52,7 @@ int main(int, char* [])
     i.add_values(foo.id = sqlpp::default_value);
     SQLPP_COMPARE(i, " (id) VALUES (17), (DEFAULT)");
   }
+
   {
     auto i = insert_columns(foo.boolN);
     i.add_values(foo.boolN = true);
@@ -70,7 +71,19 @@ int main(int, char* [])
     SQLPP_COMPARE(i, " (id, bool_n, text_nn_d) VALUES (DEFAULT, DEFAULT, 'cheese'), (17, NULL, 'cake')");
   }
 
-#warning: accept other value expressions, too? Or maye "just" verbatim as value, too?
+  // Dynamic columns.
+  // If the conditions for dynamic columns and values do not match, it results in a bad query. This cannot be
+  // prevented at compile time and will therefore fail to execute on the database backend.
+  {
+    auto i = insert_columns(dynamic(true, foo.id), dynamic(false, foo.boolN));
+    i.add_values(dynamic(true, foo.id = sqlpp::default_value), dynamic(true, foo.boolN = sqlpp::default_value));
+    SQLPP_COMPARE(i, " (id) VALUES (DEFAULT, DEFAULT)");
+
+    i.add_values(dynamic(false, foo.id = sqlpp::default_value), dynamic(false, foo.boolN = sqlpp::default_value));
+    SQLPP_COMPARE(i, " (id) VALUES (DEFAULT, DEFAULT), ()");
+  }
+
+#warning: accept other value expressions, too? Or maybe "just" verbatim as value, too?
 
   return 0;
 }

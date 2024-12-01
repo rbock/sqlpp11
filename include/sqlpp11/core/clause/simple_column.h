@@ -33,6 +33,8 @@ namespace sqlpp
   template <typename Column>
   struct simple_column_t
   {
+    static_assert(is_column<Column>::value, "");
+
     using _column_t = Column;
     _column_t _column;
 
@@ -41,9 +43,22 @@ namespace sqlpp
     simple_column_t(const _column_t& column) : _column{column}
     {
     }
-
-    using _nodes = detail::type_vector<>;
   };
+
+  template<typename Column>
+    struct make_simple_column
+    {
+      using type = simple_column_t<Column>;
+    };
+
+  template<typename Column>
+    struct make_simple_column<dynamic_t<Column>>
+    {
+      using type = dynamic_t<simple_column_t<Column>>;
+    };
+
+  template<typename Column>
+    using make_simple_column_t = typename make_simple_column<Column>::type;
 
   template <typename Context, typename Column>
   auto to_sql_string(Context& context, const simple_column_t<Column>&) -> std::string
@@ -52,8 +67,14 @@ namespace sqlpp
   }
 
   template <typename Column>
-  simple_column_t<Column> simple_column(Column c)
+  auto  simple_column(Column c) -> simple_column_t<Column>
   {
-    return {c};
+    return {std::move(c)};
+  }
+
+  template <typename Column>
+  auto simple_column(dynamic_t<Column> c)->dynamic_t<simple_column_t<Column>>
+  {
+    return {c._condition, std::move(c._expr)};
   }
 }  // namespace sqlpp

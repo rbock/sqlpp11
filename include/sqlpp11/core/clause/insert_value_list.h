@@ -155,7 +155,7 @@ namespace sqlpp
   struct column_list_data_t
   {
     // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-    column_list_data_t(Columns... cols) : _columns(simple_column_t<Columns>(std::move(cols))...)
+    column_list_data_t(Columns... cols) : _columns(simple_column(std::move(cols))...)
     {
     }
 
@@ -166,7 +166,7 @@ namespace sqlpp
     ~column_list_data_t() = default;
 
     using _value_tuple_t = std::tuple<make_insert_value_t<Columns>...>;
-    std::tuple<simple_column_t<Columns>...> _columns;
+    std::tuple<make_simple_column_t<Columns>...> _columns;
     std::vector<_value_tuple_t> _insert_values;
   };
 
@@ -317,7 +317,7 @@ namespace sqlpp
   auto to_sql_string(Context& context, const column_list_data_t<Columns...>& t) -> std::string
   {
     auto result = std::string{" ("};
-    result += tuple_to_sql_string(context, t._columns, tuple_operand{", "});
+    result += tuple_to_sql_string(context, t._columns, tuple_operand_no_dynamic{", "});
     result += ")";
     bool first = true;
     for (const auto& row : t._insert_values)
@@ -332,7 +332,7 @@ namespace sqlpp
         result += ", ";
       }
       result += '(';
-      result += tuple_to_sql_string(context, row, tuple_operand{", "});
+      result += tuple_to_sql_string(context, row, tuple_operand_no_dynamic{", "});
       result += ')';
     }
 
