@@ -88,26 +88,6 @@ namespace sqlpp
       template <typename Expression>
       static constexpr bool _no_unknown_tables = _all_provided_tables::contains_all(required_tables_of_t<Expression>{});
 
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2086629
-      //	  template <typename... Expressions>
-      //      using _no_unknown_aggregates =
-      //          logic::any<_all_provided_aggregates::size::value == 0,
-      //                       logic::all<is_aggregate_expression_t<_all_provided_aggregates,
-      //                       Expressions>::value...>::value>;
-      template <typename... Expressions>
-      using _no_unknown_aggregates =
-          logic::any<_all_provided_aggregates::empty(),
-                       logic::all<detail::is_aggregate_expression_impl<_all_provided_aggregates,
-                                                                         Expressions>::type::value...>::value>;
-
-      template <typename... Expressions>
-      using _all_aggregates = logic::any<logic::all<
-          detail::is_aggregate_expression_impl<_all_provided_aggregates, Expressions>::type::value...>::value>;
-
-      template <typename... Expressions>
-      using _no_aggregates = logic::any<logic::all<
-          detail::is_non_aggregate_expression_impl<_all_provided_aggregates, Expressions>::type::value...>::value>;
-
       template <template <typename> class Predicate>
       using any_t = logic::any<Predicate<Policies>::value...>;
 

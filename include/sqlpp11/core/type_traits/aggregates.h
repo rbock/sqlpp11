@@ -70,14 +70,24 @@ namespace sqlpp
   template <typename T>
   using known_aggregate_columns_of_t = typename known_aggregate_columns_of<T>::type;
 
-  // Checks if T is an aggregate expression (either an aggregate function or a known aggregate).
+  // Checks if T is an aggregate expression, i.e. either
+  //  - T is an aggregate function
+  //  - T is a known aggregate
+  //  - T exclusively exists of aggregate expressions.
   // @KnownAggregateColumns: type_set as obtained through known_aggregate_columns_of_t
   template <typename KnownAggregateColumns, typename T>
   struct is_aggregate_expression
       : public std::integral_constant<bool,
                                       is_aggregate_function<T>::value or
-                                          KnownAggregateColumns::template contains<T>()>
+                                          KnownAggregateColumns::template contains<T>() or
+        is_aggregate_expression<KnownAggregateColumns,nodes_of_t<T>>::value>
   {
+  };
+
+  template <typename KnownAggregateColumns, typename... T>
+  struct is_aggregate_expression<KnownAggregateColumns, detail::type_vector<T...>>
+  {
+    static constexpr bool value = logic::all<is_aggregate_expression<KnownAggregateColumns, T>::value...>::value;
   };
 
   // If a GROUP BY clause defines known aggregate columns or the SELECT columns contain an aggregate function then ALL

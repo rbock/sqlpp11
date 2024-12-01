@@ -78,15 +78,11 @@ namespace sqlpp
 
       _data_t _data;
 
-      using _table_check = typename std::conditional<Policies::template _no_unknown_tables<having_t>,
-                                                     consistent_t,
-                                                     assert_having_no_unknown_tables_t>::type;
-
-      using _aggregate_check = typename std::conditional<Policies::template _all_aggregates<Expression>::value,
-                                                         consistent_t,
-                                                         assert_having_all_aggregates_t>::type;
-
-      using _consistency_check = detail::get_first_if<is_inconsistent_t, consistent_t, _table_check, _aggregate_check>;
+      using _consistency_check = static_combined_check_t<
+          static_check_t<Policies::template _no_unknown_tables<having_t>,
+                         assert_having_no_unknown_tables_t>,
+          static_check_t<is_aggregate_expression<typename Policies::_all_provided_aggregates, Expression>::value,
+                         assert_having_all_aggregates_t>>;
     };
   };
 
