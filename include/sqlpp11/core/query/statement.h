@@ -159,6 +159,12 @@ namespace sqlpp
     using type = typename detail::statement_policies_t<Policies...>::_value_type;
   };
 
+  template<typename... Policies>
+    struct required_insert_columns_of<detail::statement_policies_t<Policies...>>
+    {
+      using type = detail::make_joined_set_t<required_insert_columns_of_t<Policies>...>;
+    };
+
   template <typename... Policies>
   struct statement_t : public Policies::template _base_t<detail::statement_policies_t<Policies...>>...,
 #warning: reactivate

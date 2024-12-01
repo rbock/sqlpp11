@@ -78,6 +78,11 @@ namespace sqlpp
     };
 
   template<typename Table>
+    struct required_insert_columns_of<into_t<Table>>: public required_insert_columns_of<Table>
+    {
+    };
+
+  template<typename Table>
   struct provided_tables_of<into_t<Table>> : public provided_tables_of<Table>
   {
   };

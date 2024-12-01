@@ -29,6 +29,7 @@
 #include <sqlpp11/core/operator/assign_expression.h>
 #include <sqlpp11/core/query/dynamic.h>
 #include <sqlpp11/core/basic/column_fwd.h>
+#include <sqlpp11/core/basic/table.h>
 #include <sqlpp11/core/clause/insert_value.h>
 #include <sqlpp11/core/tuple_to_sql_string.h>
 #include <sqlpp11/core/logic.h>
@@ -45,24 +46,17 @@ namespace sqlpp
 {
   namespace detail
   {
-    template <typename... Columns>
+    template <typename Policies, typename... Columns>
     struct have_all_required_columns
     {
-      static constexpr bool value = false;
+      static constexpr bool value = detail::make_type_set_t<Columns...>::contains_all(required_insert_columns_of_t<Policies>{});
     };
 
-    template <typename Table, typename ColumnSpec, typename... Columns>
-    struct have_all_required_columns<column_t<Table, ColumnSpec>, Columns...>
+    template <typename Policies, typename... Assignments>
+    struct have_all_required_assignments
     {
-      using First = column_t<Table, ColumnSpec>;
-      using _table = typename First::_table;
-      using required_columns = typename _table::_required_insert_columns;
-      using set_columns = detail::make_type_set_t<First, Columns...>;
-      static constexpr bool value = set_columns::contains_all(required_columns{});
+      static constexpr bool value = have_all_required_columns<Policies, lhs_t<Assignments>...>::value;
     };
-
-    template <typename C, typename... Columns>
-    struct have_all_required_columns<dynamic_t<C>, Columns...> : public have_all_required_columns<Columns...> {};
   }  // namespace detail
 
   struct insert_default_values_data_t
@@ -70,26 +64,12 @@ namespace sqlpp
   };
 
   SQLPP_PORTABLE_STATIC_ASSERT(
-      all_columns_have_default_value_t,
+      assert_all_columns_have_default_value_t,
       "at least one column does not have a default value (explicit default, NULL, or auto-increment)");
 
-  // `all_columns_have_default_values` is derived from the statement (read code bottom to top):
-  // 1. extract the set of provided tables from the statement (i.e. the table from `insert_into`)
-  // 2. assuming there is only one table in the set, return
-  //    - true if no column is explicitly required for insert
-  //    - false otherwise
-  // If 1. and 2. do not match (e.g. there are no provided tables), then return false.
-  template<typename T>
-  struct all_columns_have_default_values : public std::false_type {};
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_all_required_columns_t, "at least one required column is missing in columns()");
 
-  template<typename T>
-  struct all_columns_have_default_values<detail::type_set<table_t<T>>> : public std::integral_constant<bool, table_t<T>::_required_insert_columns::empty()> {};
-
-  template <typename... T>
-  struct all_columns_have_default_values<detail::statement_policies_t<T...>>
-      : public all_columns_have_default_values<typename detail::statement_policies_t<T...>::_all_provided_tables>
-  {
-  };
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_all_required_assignments_t, "at least one required column is missing in set()");
 
   // COLUMN AND VALUE LIST
   struct insert_default_values_t
@@ -109,9 +89,9 @@ namespace sqlpp
 
       _data_t _data;
 
-      using _consistency_check = typename std::conditional<all_columns_have_default_values<Policies>::value,
+      using _consistency_check = typename std::conditional<required_insert_columns_of_t<Policies>::empty(),
                                                            consistent_t,
-                                                           all_columns_have_default_value_t>::type;
+                                                           assert_all_columns_have_default_value_t>::type;
     };
   };
 
@@ -157,9 +137,11 @@ namespace sqlpp
 
       _data_t _data;
 
-      using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<insert_set_t>,
-                                                           consistent_t,
-                                                           assert_no_unknown_tables_in_insert_assignments_t>::type;
+      using _consistency_check =
+          static_combined_check_t<static_check_t<Policies::template _no_unknown_tables<insert_set_t>,
+                                                 assert_no_unknown_tables_in_insert_assignments_t>,
+                                  static_check_t<detail::have_all_required_assignments<Policies, Assignments...>::value,
+                                                 assert_all_required_assignments_t>>;
     };
   };
 
@@ -233,11 +215,15 @@ namespace sqlpp
                         std::move(assignments)...);
       }
 
-      using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<column_list_t>,
-                                                           consistent_t,
-                                                           assert_no_unknown_tables_in_column_list_t>::type;
-      private:
-      auto add_values_impl(std::false_type, ...) -> void { 
+      using _consistency_check =
+          static_combined_check_t<static_check_t<Policies::template _no_unknown_tables<column_list_t>,
+                                                 assert_no_unknown_tables_in_column_list_t>,
+                                  static_check_t<detail::have_all_required_columns<Policies, Columns...>::value,
+                                                 assert_all_required_columns_t>>;
+
+    private:
+      auto add_values_impl(std::false_type, ...) -> void
+      {
       }
 
       template <
@@ -290,8 +276,6 @@ namespace sqlpp
                             "at least one duplicate column detected in columns()");
         SQLPP_STATIC_ASSERT(detail::are_same<typename remove_dynamic_t<Columns>::_table...>::value,
                             "columns() contains columns from several tables");
-        SQLPP_STATIC_ASSERT(detail::have_all_required_columns<Columns...>::value,
-                            "at least one required column is missing in columns()");
 
         return {static_cast<const derived_statement_t<Policies>&>(*this), column_list_data_t<Columns...>{cols...}};
 
@@ -311,10 +295,6 @@ namespace sqlpp
         static constexpr bool uses_exactly_one_table =
             detail::are_same<typename lhs_t<remove_dynamic_t<Assignments>>::_table...>::value;
         SQLPP_STATIC_ASSERT(uses_exactly_one_table, "set() arguments must be assignment for exactly one table");
-
-        static constexpr bool have_all_required_columns =
-            detail::have_all_required_columns<lhs_t<Assignments>...>::value;
-        SQLPP_STATIC_ASSERT(have_all_required_columns, "at least one required column is missing in set()");
 
         return {static_cast<const derived_statement_t<Policies>&>(*this),
                 insert_set_data_t<Assignments...>{std::make_tuple(std::move(assignments)...)}};

@@ -597,4 +597,12 @@ namespace sqlpp
   {
   };
 
+  template<typename T>
+    struct required_insert_columns_of
+    {
+      using type = detail::type_set<>;
+    };
+  template<typename T>
+    using required_insert_columns_of_t = typename required_insert_columns_of<T>::type;
+
 }  // namespace sqlpp

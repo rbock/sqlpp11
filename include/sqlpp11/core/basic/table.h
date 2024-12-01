@@ -39,8 +39,6 @@ namespace sqlpp
   template <typename TableSpec>
   struct table_t : public TableSpec::_table_columns<table_t<TableSpec>>, public enable_join<table_t<TableSpec>>
   {
-    using _required_insert_columns = typename TableSpec::_required_insert_columns;
-
     template <typename NameTagProvider>
     constexpr auto as(const NameTagProvider& /*unused*/) const -> table_as_t<TableSpec, name_tag_of_t<NameTagProvider>>
     {
@@ -62,6 +60,12 @@ namespace sqlpp
   struct provided_tables_of<table_t<TableSpec>>
   {
     using type = sqlpp::detail::type_set<table_t<TableSpec>>;
+  };
+
+  template <typename TableSpec>
+  struct required_insert_columns_of<table_t<TableSpec>>
+  {
+    using type = typename TableSpec::_required_insert_columns;
   };
 
   template <typename Context, typename TableSpec>

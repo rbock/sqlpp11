@@ -55,7 +55,7 @@ int main()
   const auto bar = test::TabBar{};
 
   // Confirming the required columns of TabBar.
-  static_assert(std::is_same<test::TabBar::_required_insert_columns,
+  static_assert(std::is_same<sqlpp::required_insert_columns_of_t<test::TabBar>,
                              sqlpp::detail::type_set<sqlpp::column_t<test::TabBar, test::TabBar_::BoolNn>>>::value,
                 "");
 
@@ -82,15 +82,21 @@ int main()
   SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).set(dynamic(true, foo.id = sqlpp::default_value), bar.boolNn = true),
                             "set() arguments must be assignment for exactly one table");
 
-  // insert_into(table).set(<not all required columns>) is inconsistent and cannot be constructed.
-  SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).set(bar.id = sqlpp::default_value),
-                           "at least one required column is missing in set()");
-  SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).set(dynamic(true, bar.id = sqlpp::default_value)),
-                           "at least one required column is missing in set()");
+  // insert_into(table).set(<not all required columns>) is inconsistent but can be constructed (check can only run later)
+  {
+    auto i = insert_into(bar).set(bar.id = sqlpp::default_value);
+    static_assert(std::is_same<decltype(i)::_consistency_check, sqlpp::assert_all_required_assignments_t>::value, "");
+  }
+  {
+    auto i = insert_into(bar).set(dynamic(true, bar.id = sqlpp::default_value));
+    static_assert(std::is_same<decltype(i)::_consistency_check, sqlpp::assert_all_required_assignments_t>::value, "");
+  }
 
-  // insert_into(table).set(<dynamic required columns>) is also inconsistent and cannot be constructed.
-  SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).set(dynamic(true, bar.boolNn = true)),
-                           "at least one required column is missing in set()");
+  // insert_into(table).set(<dynamic required columns>) is also inconsistent but can be constructed (check can only run later)
+  {
+    auto i = insert_into(bar).set(dynamic(true, bar.boolNn = true));
+    static_assert(std::is_same<decltype(i)::_consistency_check, sqlpp::assert_all_required_assignments_t>::value, "");
+  }
 
   // -------------------------
   // insert_into(tab).columns(...)
@@ -117,15 +123,21 @@ int main()
   SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).columns(foo.id, dynamic(true, bar.boolNn)),
                            "columns() contains columns from several tables");
 
-  // insert_into(table).columns(<not all required columns>) is inconsistent and cannot be constructed.
-  SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).columns(bar.id),
-                           "at least one required column is missing in columns()");
-  SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).columns(dynamic(true, bar.id)),
-                           "at least one required column is missing in columns()");
+  // insert_into(table).columns(<not all required columns>) is inconsistent but can be constructed (check can only run later)
+  {
+  auto i = insert_into(bar).columns(bar.id);
+    static_assert(std::is_same<decltype(i)::_consistency_check, sqlpp::assert_all_required_columns_t>::value, "");
+  }
+  {
+  auto i = insert_into(bar).columns(dynamic(true, bar.id));
+    static_assert(std::is_same<decltype(i)::_consistency_check, sqlpp::assert_all_required_columns_t>::value, "");
+  }
 
-  // insert_into(table).columns(<dynamic required columns>) is also inconsistent and cannot be constructed.
-  SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).columns(dynamic(true, bar.boolNn)),
-                           "at least one required column is missing in columns()");
+  // insert_into(table).columns(<dynamic required columns>) is also inconsistent but can be constructed (check can only run later)
+  {
+  auto i = insert_into(bar).columns(dynamic(true, bar.boolNn));
+    static_assert(std::is_same<decltype(i)::_consistency_check, sqlpp::assert_all_required_columns_t>::value, "");
+  }
 
   // -------------------------
   // insert_into(tab).columns(...).add_value(...)
