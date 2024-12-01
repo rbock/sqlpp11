@@ -83,11 +83,9 @@ namespace sqlpp
   SQLPP_PORTABLE_STATIC_ASSERT(
       assert_no_unknown_tables_in_selected_columns_t,
       "at least one selected column requires a table which is otherwise not known in the statement");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_no_aggregate_mix_t,
-                               "selected columns contain a mix of aggregates and non-aggregates");
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_no_unknown_aggregates_t,
-                               "not all selected columns are made of aggregates, despite group_by or similar");
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_correct_aggregates_t,
+                               "select must not contain a mix of aggregates and non-aggregates");
 
   // SELECTED COLUMNS
   template <typename... Columns>
@@ -116,23 +114,11 @@ namespace sqlpp
         return *this;
       }
 
-      using _table_check = typename std::conditional<Policies::template _no_unknown_tables<select_column_list_t>,
-                                                     consistent_t,
-                                                     assert_no_unknown_tables_in_selected_columns_t>::type;
-
-      using _unknown_aggregate_check =
-          typename std::conditional<Policies::template _no_unknown_aggregates<Columns...>::value,
-                                    consistent_t,
-                                    assert_no_unknown_aggregates_t>::type;
-
-      using _no_aggregate_mix_check =
-          typename std::conditional<Policies::template _all_aggregates<Columns...>::value ||
-                                        Policies::template _no_aggregates<Columns...>::value,
-                                    consistent_t,
-                                    assert_no_aggregate_mix_t>::type;
-
-      using _consistency_check = detail::
-          get_first_if<is_inconsistent_t, consistent_t, _table_check, _no_aggregate_mix_check, _unknown_aggregate_check>;
+      using _consistency_check = 
+          static_combined_check_t<static_check_t<Policies::template _no_unknown_tables<select_column_list_t>,
+                                                 assert_no_unknown_tables_in_selected_columns_t>,
+                                  static_check_t<has_correct_aggregates<typename Policies::_all_provided_aggregates, select_column_list_t>::value,
+                                                 assert_correct_aggregates_t>>;
     };
 
     // Result methods

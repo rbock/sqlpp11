@@ -157,8 +157,8 @@ void test_is_aggregate_expression()
   auto col_int = test::TabBar{}.id;
   auto col_txt = test::TabBar{}.textN;
 
-  using unknown = sqlpp::detail::type_vector<>;
-  using known_aggregates = sqlpp::detail::type_vector<decltype(agg_txt), decltype(agg_int)>;
+  using unknown = sqlpp::detail::type_set<>;
+  using known_aggregates = sqlpp::detail::type_set<decltype(agg_txt), decltype(agg_int)>;
 
   // If there are no known aggregate expressions, then only aggregate functions will be found.
   static_assert(not sqlpp::is_aggregate_expression<unknown, decltype(v)>::value, "");

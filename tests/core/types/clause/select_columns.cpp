@@ -49,9 +49,9 @@ void test_select_columns()
   auto col_txt = test::TabFoo{}.textNnD;
   auto col_bool = test::TabFoo{}.boolN;
 
-  using unknown = sqlpp::detail::type_vector<>;
-  using knownInt = sqlpp::detail::type_vector<decltype(col_int)>;
-  using knownTxt = sqlpp::detail::type_vector<decltype(col_txt)>;
+  using unknown = sqlpp::detail::type_set<>;
+  using knownInt = sqlpp::detail::type_set<decltype(col_int)>;
+  using knownTxt = sqlpp::detail::type_set<decltype(col_txt)>;
 
 
 #warning test that dynamic join tables are only used by dynamic columns
