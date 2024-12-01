@@ -64,14 +64,14 @@ namespace sqlpp
   template <typename T>
   struct known_aggregate_columns_of
   {
-    using type = detail::type_vector<>;
+    using type = detail::type_set<>;
   };
 
   template <typename T>
   using known_aggregate_columns_of_t = typename known_aggregate_columns_of<T>::type;
 
   // Checks if T is an aggregate expression (either an aggregate function or a known aggregate).
-  // @KnownAggregateColumns: type_vector as obtained through known_aggregate_columns_of_t
+  // @KnownAggregateColumns: type_set as obtained through known_aggregate_columns_of_t
   template <typename KnownAggregateColumns, typename T>
   struct is_aggregate_expression
       : public std::integral_constant<bool,

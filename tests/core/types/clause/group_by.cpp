@@ -31,7 +31,7 @@ namespace
   template <typename... T>
   auto known_aggregate_columns_as_expected(T... t)
       -> std::is_same<sqlpp::known_aggregate_columns_of_t<decltype(group_by(std::move(t)...))>,
-                      sqlpp::detail::type_vector<T...>>;
+                      sqlpp::detail::type_set<T...>>;
 }
 
 void test_group_by()

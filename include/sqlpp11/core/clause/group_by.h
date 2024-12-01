@@ -84,7 +84,7 @@ namespace sqlpp
   template <typename... Columns>
   struct known_aggregate_columns_of<group_by_t<Columns...>>
   {
-    using type = detail::type_vector<Columns...>;
+    using type = detail::type_set<Columns...>;
   };
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_group_by_args_are_columns_t, "all arguments for group_by() must be columns");
@@ -101,8 +101,6 @@ namespace sqlpp
   // NO GROUP BY YET
   struct no_group_by_t
   {
-    using _nodes = detail::type_vector<>;
-
     // Data
     using _data_t = no_data_t;
 
