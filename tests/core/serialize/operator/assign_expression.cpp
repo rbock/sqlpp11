@@ -35,12 +35,14 @@ int main(int, char* [])
   // Operands in assignments are enclosed in parentheses as required.
   SQLPP_COMPARE(t.id = val, "id = 17");
   SQLPP_COMPARE(t.id = val + 4, "id = (17 + 4)");
+  SQLPP_COMPARE(t.id += 4, "id += 4");
+  SQLPP_COMPARE(t.id -= 4, "id -= 4");
 
   // Active dynamic assignments are just as above.
   SQLPP_COMPARE(dynamic(true, t.id = val), "id = 17");
   SQLPP_COMPARE(dynamic(true, t.id = val + 4), "id = (17 + 4)");
 
-  // This should be skipped by insert and update and should therefore never be called.
+  // Note: This should be skipped by insert and update and should therefore never be called.
   SQLPP_COMPARE(dynamic(false, t.id = val), "NULL");
   SQLPP_COMPARE(dynamic(false, t.id = val + 4), "NULL");
 

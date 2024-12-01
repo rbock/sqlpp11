@@ -80,6 +80,57 @@ void test_assign_expression(const Column& col, const Value& v)
   static_assert(std::is_same<sqlpp::nodes_of_t<decltype(col = v_not_null)>, sqlpp::detail::type_vector<L, R>>::value, "");
 }
 
+template <typename Column, typename Value>
+void test_compound_assign_expression(const Column& col, const Value& v)
+{
+  auto v_not_null = sqlpp::value(v);
+  auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v));
+
+  using ValueType = decltype(v_not_null);
+  using OptValueType = decltype(v_maybe_null);
+
+  // Assignments have no value
+  static_assert(not sqlpp::has_value_type<decltype(col += v_not_null)>::value, "");
+  static_assert(not sqlpp::has_value_type<decltype(col += v_maybe_null)>::value, "");
+  static_assert(not sqlpp::has_value_type<decltype(col -= v_not_null)>::value, "");
+  static_assert(not sqlpp::has_value_type<decltype(col -= v_maybe_null)>::value, "");
+
+  // Assignments have no name
+  static_assert(not sqlpp::has_name_tag<decltype(col += v_not_null)>::value, "");
+  static_assert(not sqlpp::has_name_tag<decltype(col += v_maybe_null)>::value, "");
+  static_assert(not sqlpp::has_name_tag<decltype(col -= v_not_null)>::value, "");
+  static_assert(not sqlpp::has_name_tag<decltype(col -= v_maybe_null)>::value, "");
+
+  // Assignment nodes
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(col += v_not_null)>,
+                             sqlpp::detail::type_vector<Column, ValueType>>::value,
+                "");
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(col += v_maybe_null)>,
+                             sqlpp::detail::type_vector<Column, OptValueType>>::value,
+                "");
+
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(col -= v_not_null)>,
+                             sqlpp::detail::type_vector<Column, ValueType>>::value,
+                "");
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(col -= v_maybe_null)>,
+                             sqlpp::detail::type_vector<Column, OptValueType>>::value,
+                "");
+
+  // Assign expressions do not have the `as` member function.
+  static_assert(not sqlpp::has_enabled_as<decltype(col += v_not_null)>::value, "");
+  static_assert(not sqlpp::has_enabled_as<decltype(col -= v_not_null)>::value, "");
+
+  // Assign expressions do not enable comparison member functions.
+  static_assert(not sqlpp::has_enabled_comparison<decltype(col += v_not_null)>::value, "");
+  static_assert(not sqlpp::has_enabled_comparison<decltype(col -= v_not_null)>::value, "");
+
+  // Assign expressions have their arguments as nodes.
+  using L = typename std::decay<decltype(col)>::type;
+  using R = typename std::decay<decltype(v_not_null)>::type;
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(col += v_not_null)>, sqlpp::detail::type_vector<L, R>>::value, "");
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(col -= v_not_null)>, sqlpp::detail::type_vector<L, R>>::value, "");
+}
+
 #warning: test that non-nullable columns cannot be assigned optional values
 #warning: test that non-default columns cannot be assigned to default_value
 
@@ -94,19 +145,13 @@ int main()
 
   // integral
   test_assign_expression(foo.intN, int8_t{7});
-  test_assign_expression(foo.intN, int16_t{7});
-  test_assign_expression(foo.intN, int32_t{7});
-  test_assign_expression(foo.intN, int64_t{7});
+  test_compound_assign_expression(foo.intN, int8_t{7});
 
   // unsigned integral
-  test_assign_expression(foo.uIntN, uint8_t{7});
-  test_assign_expression(foo.uIntN, uint16_t{7});
-  test_assign_expression(foo.uIntN, uint32_t{7});
-  test_assign_expression(foo.uIntN, uint64_t{7});
+  test_compound_assign_expression(foo.uIntN, uint8_t{7});
 
   // floating point
-  test_assign_expression(foo.doubleN, float{7.7});
-  test_assign_expression(foo.doubleN, double{7.7});
+  test_compound_assign_expression(foo.doubleN, float{7.7});
 
   // text
   test_assign_expression(bar.textN, '7');

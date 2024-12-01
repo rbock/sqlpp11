@@ -89,8 +89,6 @@ namespace sqlpp
     using type = R;
   };
 
-#warning does this require braces?
-
   template <typename Context, typename L, typename Operator, typename R>
   auto to_sql_string(Context& context, const assign_expression<L, Operator, R>& t) -> std::string
   {
@@ -114,7 +112,6 @@ namespace sqlpp
     return {std::move(column), std::move(value)};
   }
 
-#warning: need to add type tests and serialize tests for compound assignments
   struct op_plus_assign
   {
     static constexpr auto symbol = " += ";
@@ -128,7 +125,7 @@ namespace sqlpp
 
   struct op_minus_assign
   {
-    static constexpr auto symbol = " += ";
+    static constexpr auto symbol = " -= ";
   };
 
   template <typename Table, typename ColumnSpec, typename R, typename = check_assign_args<column_t<Table, ColumnSpec>, R>>
