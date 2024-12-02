@@ -54,7 +54,6 @@ namespace sqlpp
     Rhs _rhs;
   };
 
-#warning: need to test nodes of union!
   template <typename Flag, typename Lhs, typename Rhs>
   struct nodes_of<cte_union_t<Flag, Lhs, Rhs>>
   {
@@ -272,7 +271,6 @@ namespace sqlpp
   template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>
   struct is_recursive_cte<cte_t<NameTagProvider, Statement, ColumnSpecs...>> : public std::true_type
   {
-#warning: Need to test this.
     constexpr static bool value = required_ctes_of_t<Statement>::template contains<cte_ref_t<NameTagProvider>>();
   };
 
@@ -289,7 +287,7 @@ namespace sqlpp
   template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>
   struct nodes_of<cte_t<NameTagProvider, Statement, ColumnSpecs...>> 
   {
-    using type = Statement;
+    using type = detail::type_vector<Statement>;
   };
 
   template <typename NameTagProvider, typename Statement, typename... ColumnSpecs>

@@ -72,9 +72,11 @@ void test_cte()
   // Simple CTE with parameter
   {
     auto p = sqlpp::parameter(foo.id);
-    auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo).where(foo.id > p));
+    auto lhs = select(foo.id).from(foo).where(foo.id > p);
+    auto x = cte(sqlpp::alias::x).as(lhs);
     auto a = x.as(sqlpp::alias::a);
 
+    using Lhs = decltype(lhs);
     using X = decltype(x);
     using RX = decltype(make_table_ref(x));
     using RA = decltype(make_table_ref(a));
@@ -87,6 +89,7 @@ void test_cte()
     static_assert(sqlpp::required_ctes_of_t<X>::empty(), "");
     static_assert(std::is_same<sqlpp::provided_ctes_of_t<X>, sqlpp::detail::type_set<RX>>::value, "");
     static_assert(std::is_same<sqlpp::parameters_of_t<X>, sqlpp::detail::type_vector<P>>::value, "");
+    static_assert(std::is_same<sqlpp::nodes_of_t<X>, sqlpp::detail::type_vector<Lhs>>::value, "");
 
     // Neither CTE reference nor alias carry the parameter.
     static_assert(sqlpp::parameters_of_t<RX>::empty(), "");
@@ -95,10 +98,10 @@ void test_cte()
 
   // Non-recursive union CTE: X AS SELECT ... UNION ALL SELECT ...
   {
-    auto x =
-        cte(sqlpp::alias::x)
-            .as(select(foo.id).from(foo).unconditionally().union_all(select(bar.id).from(bar).unconditionally()));
+    auto lhs = select(foo.id).from(foo).unconditionally().union_all(select(bar.id).from(bar).unconditionally());
+    auto x = cte(sqlpp::alias::x).as(lhs);
 
+    using Lhs = decltype(lhs);
     using X = decltype(x);
     using RX = decltype(make_table_ref(x));
 
@@ -109,17 +112,23 @@ void test_cte()
     static_assert(sqlpp::required_ctes_of_t<X>::empty(), "");
     static_assert(std::is_same<sqlpp::provided_ctes_of_t<X>, sqlpp::detail::type_set<RX>>::value, "");
     static_assert(sqlpp::parameters_of_t<X>::empty(), "");
+    static_assert(std::is_same<sqlpp::nodes_of_t<X>, sqlpp::detail::type_vector<Lhs>>::value, "");
   }
 
   // Recursive union CTE: X AS SELECT ... UNION ALL SELECT ... FROM X ...
   {
     auto p = sqlpp::parameter(foo.id);
-    auto x_base = cte(sqlpp::alias::x).as(select(sqlpp::value(0).as(sqlpp::alias::a)));
-    auto x = x_base.union_all(select((x_base.a + 1).as(sqlpp::alias::a)).from(x_base).where(x_base.a < p));
+    auto lhs = select(sqlpp::value(0).as(sqlpp::alias::a));
+    auto x_base = cte(sqlpp::alias::x).as(lhs);
+    auto rhs = select((x_base.a + 1).as(sqlpp::alias::a)).from(x_base).where(x_base.a < p);
+    auto x = x_base.union_all(rhs);
 
+    using Lhs = decltype(lhs);
+    using Rhs = decltype(rhs);
     using X = decltype(x);
     using RX = decltype(make_table_ref(x));
     using P = decltype(p);
+    using Union = sqlpp::cte_union_t<sqlpp::all_t, Lhs, Rhs>;
 
     // CTE is used in WITH and in FROM
     static_assert(sqlpp::is_cte<X>::value, "");
@@ -128,6 +137,9 @@ void test_cte()
     static_assert(std::is_same<sqlpp::required_ctes_of_t<X>, sqlpp::detail::type_set<RX>>::value, "");
     static_assert(std::is_same<sqlpp::provided_ctes_of_t<X>, sqlpp::detail::type_set<RX>>::value, "");
     static_assert(std::is_same<sqlpp::parameters_of_t<X>, sqlpp::detail::type_vector<P>>::value, "");
+
+    static_assert(std::is_same<sqlpp::nodes_of_t<X>, sqlpp::detail::type_vector<Union>>::value, "");
+    static_assert(std::is_same<sqlpp::nodes_of_t<Union>, sqlpp::detail::type_vector<Lhs, Rhs>>::value, "");
    }
 
   // A CTE depending on another CTE
