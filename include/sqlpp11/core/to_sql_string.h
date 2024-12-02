@@ -256,8 +256,6 @@ namespace sqlpp
   template <typename T, typename Context>
   auto operand_to_sql_string(Context& context, const T& t) -> std::string
   {
-#warning: For expressions with dynamic components this needs to be dynamic, e.g.
-#warning: `A and dynamic(false, B)` would require parenthesis if and only if A requires parentheses
     if (requires_parentheses<T>::value)
     {
       return "(" + to_sql_string(context, t) + ")";
@@ -268,7 +266,7 @@ namespace sqlpp
   template <typename Context>
   auto name_to_sql_string(Context& , const ::sqlpp::string_view& t) -> std::string
   {
-#warning: We used to have a version of SQLPP_ALIAS_PROVIDER that marked names as keywords
+#warning: We used to have a version of SQLPP_ALIAS_PROVIDER that marked names as keywords. We could wrap them in a special type to avoid having an `if` here for every name.
 #warning: IIUC, the standard SQL way of handling keywords as names is to put them in square brackets, MySQL uses backticks, though
 
     return std::string(t);

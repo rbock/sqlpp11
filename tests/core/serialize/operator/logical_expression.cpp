@@ -92,7 +92,7 @@ int main(int, char* [])
 
   // More complex expressions
   SQLPP_COMPARE((val and dynamic(true, expr)) or dynamic(true, val), "(1 AND (17 > 15)) OR 1");
-#warning: Remove paretheses!
+  // The extra parentheses are not great, but also difficult to avoid and not a problem I believe.
   SQLPP_COMPARE((val and dynamic(false, expr)) or dynamic(true, val), "(1) OR 1");
   SQLPP_COMPARE((val and dynamic(true, expr)) or dynamic(false, val), "1 AND (17 > 15)");
   SQLPP_COMPARE((val and dynamic(false, expr)) or dynamic(false, val), "1")

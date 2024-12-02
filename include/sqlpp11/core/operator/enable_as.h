@@ -48,7 +48,6 @@ namespace sqlpp
     }
   };
 
-#warning: columns and tables should also use enable_as with specialized expression_as functions.
   template <typename T>
   struct has_enabled_as : public std::is_base_of<enable_as<T>, T>{};
 
