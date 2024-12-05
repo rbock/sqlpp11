@@ -63,10 +63,10 @@
 #define SQLPP_QUOTED_NAME_TAG_GUTS(SQL_NAME, CPP_NAME) \
   struct _quoted_name_t                                \
   {                                                    \
-    bool requires_quotes = true;                       \
-    static constexpr const char name[] = #SQL_NAME;    \
+    static constexpr bool require_quotes = true;       \
+    static constexpr const char value[] = #SQL_NAME;   \
   };                                                   \
-  static constexpr _quoted_name name;                  \
+  static constexpr _quoted_name_t name{};              \
   template <typename T>                                \
   struct _member_t                                     \
   {                                                    \
@@ -81,20 +81,19 @@
     }                                                  \
   }
 
-#warning: Need to add tests with quoted names
 #define SQLPP_CREATE_QUOTED_NAME_TAG_FOR_SQL_AND_CPP(SQL_NAME, CPP_NAME) \
   struct _sqlpp_name_tag                                                 \
   {                                                                      \
-    SQLPP_NAME_TAG_GUTS(SQL_NAME, CPP_NAME);                             \
+    SQLPP_QUOTED_NAME_TAG_GUTS(SQL_NAME, CPP_NAME);                      \
   }
 
-#define SQLPP_CREATE_QUOTED_NAME_TAG(NAME)             \
-  struct NAME##_t : public ::sqlpp::name_tag_base      \
-  {                                                    \
-    SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(NAME, NAME); \
-  };                                                   \
-  constexpr auto NAME = NAME##_t                       \
-  {                                                    \
+#define SQLPP_CREATE_QUOTED_NAME_TAG(NAME)                    \
+  struct NAME##_t : public ::sqlpp::name_tag_base             \
+  {                                                           \
+    SQLPP_CREATE_QUOTED_NAME_TAG_FOR_SQL_AND_CPP(NAME, NAME); \
+  };                                                          \
+  constexpr auto NAME = NAME##_t                              \
+  {                                                           \
   }
 
 namespace sqlpp

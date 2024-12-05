@@ -269,11 +269,11 @@ namespace sqlpp
     return std::string(t);
   }
 
-  template <typename NameTag, typename Context, typename = sqlpp::enable_if_t<NameTag::require_quotes>>
-  auto name_to_sql_string(Context& , const ::sqlpp::string_view& t) -> std::string
+  template <typename NameTagName, typename Context, typename = sqlpp::enable_if_t<NameTagName::require_quotes>>
+  auto name_to_sql_string(Context&, const NameTagName&) -> std::string
   {
-#warning: Need to change quotes for MySQL
-    return '[' + std::string(NameTag::name) + ']';
+#warning: Need to change quotes for MySQL to forward ticks `name`
+    return '"' + std::string(NameTagName::value) + '"';
   }
 
 }  // namespace sqlpp
