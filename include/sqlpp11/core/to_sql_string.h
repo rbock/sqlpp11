@@ -266,10 +266,14 @@ namespace sqlpp
   template <typename Context>
   auto name_to_sql_string(Context& , const ::sqlpp::string_view& t) -> std::string
   {
-#warning: We used to have a version of SQLPP_ALIAS_PROVIDER that marked names as keywords. We could wrap them in a special type to avoid having an `if` here for every name.
-#warning: IIUC, the standard SQL way of handling keywords as names is to put them in square brackets, MySQL uses backticks, though
-
     return std::string(t);
+  }
+
+  template <typename NameTag, typename Context, typename = sqlpp::enable_if_t<NameTag::require_quotes>>
+  auto name_to_sql_string(Context& , const ::sqlpp::string_view& t) -> std::string
+  {
+#warning: Need to change quotes for MySQL
+    return '[' + std::string(NameTag::name) + ']';
   }
 
 }  // namespace sqlpp
