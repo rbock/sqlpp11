@@ -47,35 +47,6 @@ struct MockDb : public sqlpp::connection
 
   struct _serializer_context_t
   {
-    ::std::ostringstream _os;
-
-    _serializer_context_t() = default;
-    _serializer_context_t(const _serializer_context_t& rhs)
-    {
-      _os << rhs._os.str();
-    }
-
-    std::string str() const
-    {
-      return _os.str();
-    }
-
-    void reset()
-    {
-      _os.str("");
-    }
-
-#warning This can be removed, I guess
-    template <typename T>
-    ::std::ostringstream& operator<<(T t)
-    {
-      return _os << t;
-    }
-
-    static std::string escape(std::string arg)
-    {
-      return sqlpp::serializer_context_t::escape(arg);
-    }
   };
 
   using _interpreter_context_t = _serializer_context_t;
@@ -83,20 +54,6 @@ struct MockDb : public sqlpp::connection
   _serializer_context_t get_serializer_context()
   {
     return {};
-  }
-
-  template <typename T>
-  static _serializer_context_t& _serialize_interpretable(const T& x, _serializer_context_t& context)
-  {
-    to_sql_string(context, x);
-    return context;
-  }
-
-  template <typename T>
-  static _serializer_context_t& _interpret_interpretable(const T& x, _interpreter_context_t& context)
-  {
-    to_sql_string(context, x);
-    return context;
   }
 
   class result_t
@@ -141,17 +98,17 @@ struct MockDb : public sqlpp::connection
   size_t execute(const Statement& x)
   {
     _serializer_context_t context;
-    to_sql_string(context, x);
-    std::cout << "Running execute call with\n" << context.str() << std::endl;
-    return execute(context.str());
+    const auto query = to_sql_string(context, x);
+    std::cout << "Running execute call with\n" << query << std::endl;
+    return execute(query);
   }
 
   template <typename Insert>
   size_t insert(const Insert& x)
   {
     _serializer_context_t context;
-    to_sql_string(context, x);
-    std::cout << "Running insert call with\n" << context.str() << std::endl;
+    const auto query = to_sql_string(context, x);
+    std::cout << "Running insert call with\n" << query << std::endl;
     return 0;
   }
 
@@ -159,8 +116,8 @@ struct MockDb : public sqlpp::connection
   size_t update(const Update& x)
   {
     _serializer_context_t context;
-    to_sql_string(context, x);
-    std::cout << "Running update call with\n" << context.str() << std::endl;
+    const auto query = to_sql_string(context, x);
+    std::cout << "Running update call with\n" << query << std::endl;
     return 0;
   }
 
@@ -168,8 +125,8 @@ struct MockDb : public sqlpp::connection
   size_t remove(const Remove& x)
   {
     _serializer_context_t context;
-    to_sql_string(context, x);
-    std::cout << "Running remove call with\n" << context.str() << std::endl;
+    const auto query = to_sql_string(context, x);
+    std::cout << "Running remove call with\n" << query << std::endl;
     return 0;
   }
 
@@ -177,8 +134,8 @@ struct MockDb : public sqlpp::connection
   result_t select(const Select& x)
   {
     _serializer_context_t context;
-    to_sql_string(context, x);
-    std::cout << "Running select call with\n" << context.str() << std::endl;
+    const auto query = to_sql_string(context, x);
+    std::cout << "Running select call with\n" << query << std::endl;
     return {};
   }
 
@@ -204,8 +161,8 @@ struct MockDb : public sqlpp::connection
   _prepared_statement_t prepare_execute(Statement& x)
   {
     _serializer_context_t context;
-    to_sql_string(context, x);
-    std::cout << "Running prepare execute call with\n" << context.str() << std::endl;
+    const auto query = to_sql_string(context, x);
+    std::cout << "Running prepare execute call with\n" << query << std::endl;
     return nullptr;
   }
 
@@ -213,8 +170,8 @@ struct MockDb : public sqlpp::connection
   _prepared_statement_t prepare_insert(Insert& x)
   {
     _serializer_context_t context;
-    to_sql_string(context, x);
-    std::cout << "Running prepare insert call with\n" << context.str() << std::endl;
+const auto query =     to_sql_string(context, x);
+    std::cout << "Running prepare insert call with\n" << query << std::endl;
     return nullptr;
   }
 
@@ -234,8 +191,8 @@ struct MockDb : public sqlpp::connection
   _prepared_statement_t prepare_select(Select& x)
   {
     _serializer_context_t context;
-    to_sql_string(context, x);
-    std::cout << "Running prepare select call with\n" << context.str() << std::endl;
+const auto query =     to_sql_string(context, x);
+    std::cout << "Running prepare select call with\n" << query << std::endl;
     return nullptr;
   }
 
@@ -302,14 +259,14 @@ struct MockSizeDb : public sqlpp::connection
   template <typename T>
   static _serializer_context_t& _serialize_interpretable(const T& x, _serializer_context_t& context)
   {
-    to_sql_string(context, x);
+const auto query =     to_sql_string(context, x);
     return context;
   }
 
   template <typename T>
   static _serializer_context_t& _interpret_interpretable(const T& x, _interpreter_context_t& context)
   {
-    to_sql_string(context, x);
+const auto query =     to_sql_string(context, x);
     return context;
   }
 
@@ -349,17 +306,17 @@ struct MockSizeDb : public sqlpp::connection
   size_t execute(const Statement& x)
   {
     _serializer_context_t context;
-    to_sql_string(context, x);
-    std::cout << "Running execute call with\n" << context.str() << std::endl;
-    return execute(context.str());
+const auto query =     to_sql_string(context, x);
+    std::cout << "Running execute call with\n" << query << std::endl;
+    return execute(query);
   }
 
   template <typename Insert>
   size_t insert(const Insert& x)
   {
     _serializer_context_t context;
-    to_sql_string(context, x);
-    std::cout << "Running insert call with\n" << context.str() << std::endl;
+const auto query =     to_sql_string(context, x);
+    std::cout << "Running insert call with\n" << query << std::endl;
     return 0;
   }
 
@@ -367,8 +324,8 @@ struct MockSizeDb : public sqlpp::connection
   size_t update(const Update& x)
   {
     _serializer_context_t context;
-    to_sql_string(context, x);
-    std::cout << "Running update call with\n" << context.str() << std::endl;
+const auto query =     to_sql_string(context, x);
+    std::cout << "Running update call with\n" << query << std::endl;
     return 0;
   }
 
@@ -376,8 +333,8 @@ struct MockSizeDb : public sqlpp::connection
   size_t remove(const Remove& x)
   {
     _serializer_context_t context;
-    to_sql_string(context, x);
-    std::cout << "Running remove call with\n" << context.str() << std::endl;
+const auto query =     to_sql_string(context, x);
+    std::cout << "Running remove call with\n" << query << std::endl;
     return 0;
   }
 
@@ -385,8 +342,8 @@ struct MockSizeDb : public sqlpp::connection
   result_t select(const Select& x)
   {
     _serializer_context_t context;
-    to_sql_string(context, x);
-    std::cout << "Running select call with\n" << context.str() << std::endl;
+const auto query =     to_sql_string(context, x);
+    std::cout << "Running select call with\n" << query << std::endl;
     return {};
   }
 
@@ -412,8 +369,8 @@ struct MockSizeDb : public sqlpp::connection
   _prepared_statement_t prepare_execute(Statement& x)
   {
     _serializer_context_t context;
-    to_sql_string(context, x);
-    std::cout << "Running prepare execute call with\n" << context.str() << std::endl;
+const auto query =     to_sql_string(context, x);
+    std::cout << "Running prepare execute call with\n" << query << std::endl;
     return nullptr;
   }
 
@@ -421,8 +378,8 @@ struct MockSizeDb : public sqlpp::connection
   _prepared_statement_t prepare_insert(Insert& x)
   {
     _serializer_context_t context;
-    to_sql_string(context, x);
-    std::cout << "Running prepare insert call with\n" << context.str() << std::endl;
+const auto query =     to_sql_string(context, x);
+    std::cout << "Running prepare insert call with\n" << query << std::endl;
     return nullptr;
   }
 
@@ -442,8 +399,8 @@ struct MockSizeDb : public sqlpp::connection
   _prepared_statement_t prepare_select(Select& x)
   {
     _serializer_context_t context;
-    to_sql_string(context, x);
-    std::cout << "Running prepare select call with\n" << context.str() << std::endl;
+const auto query =     to_sql_string(context, x);
+    std::cout << "Running prepare select call with\n" << query << std::endl;
     return nullptr;
   }
 
