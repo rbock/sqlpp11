@@ -204,6 +204,29 @@ namespace sqlpp
         }
       }
 
+      void _bind_time_of_day_result(size_t index, ::std::chrono::microseconds* value, bool* is_null)
+      {
+        if (_handle->debug)
+          std::cerr << "Sqlite3 debug: binding time_of_day result at index: " << index << std::endl;
+
+        *value = {};
+        *is_null = sqlite3_column_type(_handle->sqlite_statement, static_cast<int>(index)) == SQLITE_NULL;
+        if (*is_null)
+        {
+          return;
+        }
+
+        const auto time_string =
+            reinterpret_cast<const char*>(sqlite3_column_text(_handle->sqlite_statement, static_cast<int>(index)));
+        if (_handle->debug)
+          std::cerr << "Sqlite3 debug: time string: " << time_string << std::endl;
+        if (::sqlpp::detail::parse_time_of_day(*value, time_string) == false)
+        {
+          if (_handle->debug)
+            std::cerr << "Sqlite3 debug: invalid time result: " << time_string << std::endl;
+        }
+      }
+
     private:
       bool next_impl()
       {
