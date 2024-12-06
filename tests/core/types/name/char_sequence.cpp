@@ -24,22 +24,34 @@
  */
 
 #include "Sample.h"
-#include "../compare.h"
 #include <sqlpp11/sqlpp11.h>
+#include "../../../include/test_helpers.h"
 
-namespace test
-{
-  SQLPP_CREATE_NAME_TAG(cheese);
-  SQLPP_CREATE_QUOTED_NAME_TAG(cake);
-}  // namespace test
-
-int main(int, char* [])
-{
-  const auto cheese = sqlpp::value(17).as(test::cheese);
-  const auto cake = sqlpp::value(17).as(test::cake);
-
-  SQLPP_COMPARE(cheese, "17 AS cheese");
-  SQLPP_COMPARE(cake, "17 AS \"cake\"");
-
-  return 0;
+namespace A {
+SQLPP_CREATE_NAME_TAG(cheese);
+SQLPP_CREATE_QUOTED_NAME_TAG(cake); // Quoted
 }
+
+namespace B {
+SQLPP_CREATE_NAME_TAG(cheese);
+SQLPP_CREATE_NAME_TAG(cake); // Unquoted
+}
+
+int main()
+{
+  using ACheese = sqlpp::make_char_sequence_t<decltype(A::cheese)>;
+  using ACake = sqlpp::make_char_sequence_t<decltype(A::cake)>;
+  using BCheese = sqlpp::make_char_sequence_t<decltype(B::cheese)>;
+  using BCake = sqlpp::make_char_sequence_t<decltype(B::cake)>;
+
+  static_assert(std::is_same<ACheese, BCheese>::value, "");
+  static_assert(std::is_same<ACake, BCake>::value, "");
+
+  static_assert(not std::is_same<ACheese, ACake>::value, "");
+  static_assert(not std::is_same<ACheese, BCake>::value, "");
+
+  static_assert(not std::is_same<BCheese, ACake>::value, "");
+  static_assert(not std::is_same<BCheese, BCake>::value, "");
+}
+
+

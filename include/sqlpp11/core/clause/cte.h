@@ -188,7 +188,7 @@ namespace sqlpp
   template <typename Context, typename NameTagProvider, typename NewNameTagProvider, typename... ColumnSpecs>
   auto to_sql_string(Context& context, const cte_as_t<NameTagProvider, NewNameTagProvider, ColumnSpecs...>&) -> std::string
   {
-    return name_to_sql_string(context, name_tag_of_t<NameTagProvider>::name) + " AS " + name_to_sql_string(context, name_tag_of_t<NewNameTagProvider>::name);
+    return name_to_sql_string(context, name_tag_of_t<NameTagProvider>{}) + " AS " + name_to_sql_string(context, name_tag_of_t<NewNameTagProvider>{});
   }
 
   template <typename NameTagProvider, typename Statement, typename... FieldSpecs>
@@ -299,7 +299,7 @@ namespace sqlpp
   template <typename Context, typename NameTagProvider, typename Statement, typename... ColumnSpecs>
   auto to_sql_string(Context& context, const cte_t<NameTagProvider, Statement, ColumnSpecs...>& t) -> std::string
   {
-    return name_to_sql_string(context, name_tag_of_t<NameTagProvider>::name) + " AS (" +
+    return name_to_sql_string(context, name_tag_of_t<NameTagProvider>{}) + " AS (" +
            to_sql_string(context, t._statement) + ")";
   }
 
@@ -345,7 +345,7 @@ namespace sqlpp
   template <typename Context, typename NameTagProvider>
   auto to_sql_string(Context& context, const cte_ref_t<NameTagProvider>&) -> std::string
   {
-    return name_to_sql_string(context, name_tag_of_t<NameTagProvider>::name);
+    return name_to_sql_string(context, name_tag_of_t<NameTagProvider>{});
   }
 
   template <typename NameTagProvider>

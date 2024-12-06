@@ -65,8 +65,8 @@ namespace sqlpp
   template <typename Context, typename TableSpec, typename NameTag>
   auto to_sql_string(Context& context, const schema_qualified_table_as_t<TableSpec, NameTag>& t) -> std::string
   {
-    return to_sql_string(context, t._schema) + "." + name_to_sql_string(context, name_tag_of_t<TableSpec>::name) +
-           " AS " + name_to_sql_string(context, NameTag::name);
+    return to_sql_string(context, t._schema) + "." + name_to_sql_string(context, name_tag_of_t<TableSpec>{}) +
+           " AS " + name_to_sql_string(context, NameTag{});
   }
 
   template <typename TableSpec>

@@ -76,7 +76,7 @@ namespace sqlpp
   template <typename Context, typename Expression, typename NameTag>
   auto to_sql_string(Context& context, const expression_as<Expression, NameTag>& t) -> std::string
   {
-    return operand_to_sql_string(context, t._expression) + " AS " + name_to_sql_string(context, NameTag::name);
+    return operand_to_sql_string(context, t._expression) + " AS " + name_to_sql_string(context, NameTag{});
   }
 
   template <typename Expr, typename NameTagProvider>

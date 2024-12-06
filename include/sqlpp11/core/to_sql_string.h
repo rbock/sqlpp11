@@ -264,16 +264,23 @@ namespace sqlpp
   }
 
   template <typename Context>
-  auto name_to_sql_string(Context& , const ::sqlpp::string_view& t) -> std::string
+  auto quoted_name_to_sql_string(Context&, const ::sqlpp::string_view& name) -> std::string
   {
-    return std::string(t);
+#warning : Need to change quotes for MySQL to forward ticks `name`
+    return '"' + std::string(name) + '"';
   }
 
-  template <typename NameTagName, typename Context, typename = sqlpp::enable_if_t<NameTagName::require_quotes>>
-  auto name_to_sql_string(Context&, const NameTagName&) -> std::string
+  template <typename NameTag, typename Context>
+  auto name_to_sql_string(Context& context, const NameTag&) -> std::string
   {
-#warning: Need to change quotes for MySQL to forward ticks `name`
-    return '"' + std::string(NameTagName::value) + '"';
+    if (NameTag::require_quotes)
+    {
+      return quoted_name_to_sql_string(context, NameTag::name);
+    }
+    else
+    {
+      return std::string(NameTag::name);
+    }
   }
 
 }  // namespace sqlpp

@@ -102,6 +102,6 @@ namespace sqlpp
   template <typename Context, typename Select, typename NameTag, typename... FieldSpecs>
   auto to_sql_string(Context& context, const select_as_t<Select, NameTag, FieldSpecs...>& t) -> std::string
   {
-    return operand_to_sql_string(context, t._select) + " AS " +name_to_sql_string(context, NameTag::name);
+    return operand_to_sql_string(context, t._select) + " AS " +name_to_sql_string(context, NameTag{});
   }
 }  // namespace sqlpp

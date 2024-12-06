@@ -347,7 +347,7 @@ namespace sqlpp
     {
       const auto prefix = need_prefix ? std::string{separator} : std::string{};
       need_prefix = true;
-      return prefix + name_to_sql_string(context, name_tag_of_t<Lhs>::name);
+      return prefix + name_to_sql_string(context, name_tag_of_t<Lhs>{});
     }
 
     template <typename Context, typename T>

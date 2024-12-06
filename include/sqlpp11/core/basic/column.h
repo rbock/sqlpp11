@@ -126,7 +126,7 @@ namespace sqlpp
   {
     using T = column_t<Table, ColumnSpec>;
 
-    return name_to_sql_string(context, name_tag_of_t<Table>::name) + "." +
-           name_to_sql_string(context, name_tag_of_t<T>::name);
+    return name_to_sql_string(context, name_tag_of_t<Table>{}) + "." +
+           name_to_sql_string(context, name_tag_of_t<T>{});
   }
 }  // namespace sqlpp

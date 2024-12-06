@@ -30,6 +30,7 @@
 #include <sqlpp11/core/type_traits.h>
 
 #define SQLPP_NAME_TAG_GUTS(SQL_NAME, CPP_NAME)   \
+  static constexpr bool require_quotes = false;    \
   static constexpr const char name[] = #SQL_NAME; \
   template <typename T>                           \
   struct _member_t                                \
@@ -48,7 +49,7 @@
 #define SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(SQL_NAME, CPP_NAME) \
   struct _sqlpp_name_tag                                          \
   {                                                               \
-    SQLPP_NAME_TAG_GUTS(SQL_NAME, CPP_NAME);               \
+    SQLPP_NAME_TAG_GUTS(SQL_NAME, CPP_NAME);                      \
   }
 
 #define SQLPP_CREATE_NAME_TAG(NAME)                    \
@@ -61,12 +62,8 @@
   }
 
 #define SQLPP_QUOTED_NAME_TAG_GUTS(SQL_NAME, CPP_NAME) \
-  struct _quoted_name_t                                \
-  {                                                    \
-    static constexpr bool require_quotes = true;       \
-    static constexpr const char value[] = #SQL_NAME;   \
-  };                                                   \
-  static constexpr _quoted_name_t name{};              \
+  static constexpr bool require_quotes = true;         \
+  static constexpr const char name[] = #SQL_NAME;      \
   template <typename T>                                \
   struct _member_t                                     \
   {                                                    \
