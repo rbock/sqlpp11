@@ -246,6 +246,27 @@ namespace sqlpp
           result = sqlite3_bind_null(_handle->sqlite_statement, static_cast<int>(index + 1));
         detail::check_bind_result(result, "blob");
       }
+
+      void _bind_time_of_day_parameter(size_t index, const ::std::chrono::microseconds* value, bool is_null)
+      {
+        if (_handle->debug)
+          std::cerr << "Sqlite3 debug: binding time_of_day parameter "
+                    << " at index: " << index << ", being " << (is_null ? "" : "not ") << "null" << std::endl;
+
+        int result;
+        if (not is_null)
+        {
+          const auto time = ::date::make_time(::sqlpp::chrono::floor<::std::chrono::microseconds>(*value));
+          std::ostringstream os;  // gcc-4.9 does not support auto os = std::ostringstream{};
+          os << time;
+          const auto text = os.str();
+          result = sqlite3_bind_text(_handle->sqlite_statement, static_cast<int>(index + 1), text.data(),
+                                     static_cast<int>(text.size()), SQLITE_TRANSIENT);
+        }
+        else
+          result = sqlite3_bind_null(_handle->sqlite_statement, static_cast<int>(index + 1));
+        detail::check_bind_result(result, "date");
+      }
     };
   }  // namespace sqlite3
 }  // namespace sqlpp
