@@ -29,6 +29,7 @@
 #include <sqlpp11/core/name/create_name_tag.h>
 #include <sqlpp11/core/operator/enable_as.h>
 #include <sqlpp11/core/operator/enable_comparison.h>
+#include <sqlpp11/core/static_assert.h>
 #include <sqlpp11/core/aggregate_function/enable_over.h>
 #include <sqlpp11/core/clause/select_flags.h>
 #include <sqlpp11/core/type_traits.h>
@@ -91,17 +92,19 @@ namespace sqlpp
 
   template <typename T>
   using check_min_arg =
-      ::sqlpp::enable_if_t<values_are_comparable<T, T>::value and not contains_aggregate_function<T>::value>;
+      ::sqlpp::enable_if_t<values_are_comparable<T, T>::value>;
 
   template <typename T, typename = check_min_arg<T>>
   auto min(T t) -> min_t<no_flag_t, T>
   {
+    SQLPP_STATIC_ASSERT(not contains_aggregate_function<T>::value, "min() must not be used on an aggregate function");
     return {std::move(t)};
   }
 
   template <typename T, typename = check_min_arg<T>>
   auto min(const distinct_t& /*unused*/, T t) -> min_t<distinct_t, T>
   {
+    SQLPP_STATIC_ASSERT(not contains_aggregate_function<T>::value, "min() must not be used on an aggregate function");
     return {std::move(t)};
   }
 }  // namespace sqlpp

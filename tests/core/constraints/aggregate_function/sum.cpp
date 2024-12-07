@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -23,21 +23,19 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*
- * NOTE:
- * This code must not compile (it is used to test a static_assert)
- */
-
+#include <sqlpp11/tests/core/constraints_helpers.h>
 #include <sqlpp11/tests/core/tables.h>
-#include "MockDb.h"
-#include <sqlpp11/core/clause/insert.h>
-#include <iostream>
-
-MockDb db;
 
 int main()
 {
-  const auto t = test::TabBar{};
+  const auto foo = test::TabFoo{};
 
-  insert_into(t).set(t.id = 7, t.boolNn = false, t.textN = "id must not be set");
+  SQLPP_CHECK_STATIC_ASSERT(sum(count(foo.id)), "sum() must not be used on an aggregate function");
+  SQLPP_CHECK_STATIC_ASSERT(sum(min(foo.id)), "sum() must not be used on an aggregate function");
+  SQLPP_CHECK_STATIC_ASSERT(sum(max(foo.id)), "sum() must not be used on an aggregate function");
+
+  SQLPP_CHECK_STATIC_ASSERT(sum(sqlpp::distinct, count(foo.id)), "sum() must not be used on an aggregate function");
+  SQLPP_CHECK_STATIC_ASSERT(sum(sqlpp::distinct, min(foo.id)), "sum() must not be used on an aggregate function");
+  SQLPP_CHECK_STATIC_ASSERT(sum(sqlpp::distinct, max(foo.id)), "sum() must not be used on an aggregate function");
 }
+

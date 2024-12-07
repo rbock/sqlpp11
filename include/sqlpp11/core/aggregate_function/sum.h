@@ -30,6 +30,7 @@
 #include <sqlpp11/core/operator/enable_as.h>
 #include <sqlpp11/core/operator/enable_comparison.h>
 #include <sqlpp11/core/aggregate_function/enable_over.h>
+#include <sqlpp11/core/static_assert.h>
 #include <sqlpp11/core/clause/select_flags.h>
 #include <sqlpp11/core/type_traits.h>
 
@@ -91,18 +92,19 @@ namespace sqlpp
   }
 
   template <typename T>
-  using check_sum_arg =
-      ::sqlpp::enable_if_t<(is_numeric<T>::value) and not contains_aggregate_function<T>::value>;
+  using check_sum_arg = ::sqlpp::enable_if_t<(is_numeric<T>::value)>;
 
   template <typename T, typename = check_sum_arg<T>>
   auto sum(T t) -> sum_t<no_flag_t, T>
   {
+    SQLPP_STATIC_ASSERT(not contains_aggregate_function<T>::value, "sum() must not be used on an aggregate function");
     return {std::move(t)};
   }
 
   template <typename T, typename = check_sum_arg<T>>
   auto sum(const distinct_t& /*unused*/, T t) -> sum_t<distinct_t, T>
   {
+    SQLPP_STATIC_ASSERT(not contains_aggregate_function<T>::value, "sum() must not be used on an aggregate function");
     return {std::move(t)};
   }
 }  // namespace sqlpp

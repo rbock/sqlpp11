@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -23,21 +23,19 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*
- * NOTE:
- * This code must not compile (it is used to test a static_assert)
- */
-
+#include <sqlpp11/tests/core/constraints_helpers.h>
 #include <sqlpp11/tests/core/tables.h>
-#include "MockDb.h"
-#include <sqlpp11/functions.h>
-#include <iostream>
-
-MockDb db;
 
 int main()
 {
-  const auto t = test::TabBar{};
+  const auto foo = test::TabFoo{};
 
-  count(count(t.id));
+  SQLPP_CHECK_STATIC_ASSERT(avg(count(foo.id)), "avg() must not be used on an aggregate function");
+  SQLPP_CHECK_STATIC_ASSERT(avg(min(foo.id)), "avg() must not be used on an aggregate function");
+  SQLPP_CHECK_STATIC_ASSERT(avg(max(foo.id)), "avg() must not be used on an aggregate function");
+
+  SQLPP_CHECK_STATIC_ASSERT(avg(sqlpp::distinct, count(foo.id)), "avg() must not be used on an aggregate function");
+  SQLPP_CHECK_STATIC_ASSERT(avg(sqlpp::distinct, min(foo.id)), "avg() must not be used on an aggregate function");
+  SQLPP_CHECK_STATIC_ASSERT(avg(sqlpp::distinct, max(foo.id)), "avg() must not be used on an aggregate function");
 }
+
