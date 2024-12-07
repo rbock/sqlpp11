@@ -31,8 +31,13 @@
 
 namespace sqlpp
 {
-  struct current_date_alias_t
+  struct current_date_t : public expression_operators<current_date_t, day_point>, public alias_operators<current_date_t>
   {
+    using _traits = make_traits<day_point, tag::is_expression, tag::is_selectable>;
+
+    using _nodes = detail::type_vector<>;
+    using _can_be_null = std::false_type;
+
     struct _alias_t
     {
       static constexpr const char _literal[] = "current_date_";
@@ -51,16 +56,6 @@ namespace sqlpp
         }
       };
     };
-  };
-
-  struct current_date_t : public expression_operators<current_date_t, day_point>, public alias_operators<current_date_t>
-  {
-    using _traits = make_traits<day_point, tag::is_expression, tag::is_selectable>;
-
-    using _nodes = detail::type_vector<>;
-    using _can_be_null = std::false_type;
-
-    using _auto_alias_t = current_date_alias_t;
 
     constexpr current_date_t()
     {
