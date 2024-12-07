@@ -35,32 +35,7 @@ namespace sqlpp
   {
     using _traits = make_traits<time_of_day, tag::is_expression, tag::is_selectable>;
 
-    using _nodes = detail::type_vector<>;
-    using _can_be_null = std::false_type;
-
-    struct _alias_t
-    {
-      static constexpr const char _literal[] = "current_time_";
-      using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
-      template <typename T>
-      struct _member_t
-      {
-        T current_time;
-        T& operator()()
-        {
-          return current_time;
-        }
-        const T& operator()() const
-        {
-          return current_time;
-        }
-      };
-    };
-
-    constexpr current_time_t()
-    {
-    }
-
+    constexpr current_time_t() = default;
     current_time_t(const current_time_t&) = default;
     current_time_t(current_time_t&&) = default;
     current_time_t& operator=(const current_time_t&) = default;
