@@ -24,7 +24,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "compare.h"
+#include <sqlpp11/tests/core/serialize_helpers.h>
 #include <sqlpp11/sqlpp11.h>
 
 #include <iostream>

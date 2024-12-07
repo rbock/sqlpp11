@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -25,22 +25,26 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "MockDb.h"
-#include <iostream>
+#include <sqlpp11/sqlpp11.h>
 
-#warning: Maybe move this into the library/test_support together with MockDb
-#define SQLPP_COMPARE(expr, expected_string)                       \
-  {                                                                \
-    MockDb::_serializer_context_t printer = {};                    \
-                                                                   \
-    using sqlpp::to_sql_string;                                    \
-    const auto result = to_sql_string(printer, expr);              \
-                                                                   \
-    if (result != expected_string)                                 \
-    {                                                              \
-      std::cerr << __FILE__ << " " << __LINE__ << '\n'             \
-                << "Expected: -->|" << expected_string << "|<--\n" \
-                << "Received: -->|" << result << "|<--\n";         \
-      return -1;                                                   \
-    }                                                              \
-  }
+template <typename T>
+struct is_optional : public std::false_type{};
+
+template <typename T>
+struct is_optional<::sqlpp::optional<T>> : public std::true_type{};
+
+// functions like `from(tab)` yield a statement with a single clause. This extracts the type of that clause.
+template <typename Statement>
+struct extract_clause;
+
+template <typename Clause>
+struct extract_clause<sqlpp::statement_t<Clause>>
+{
+  using type = Clause;
+};
+
+template <typename Statement>
+using extract_clause_t = typename extract_clause<Statement>::type;
+
+
+

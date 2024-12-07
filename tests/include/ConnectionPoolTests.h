@@ -60,7 +60,7 @@ namespace sqlpp
         }
         for (;;) {
           auto handle = pool.get().native_handle();
-          auto insert_res = ns.clause/insert.handle);
+          auto insert_res = ns.insert(handle);
           if (insert_res.second == false) {
             return ns;
           }

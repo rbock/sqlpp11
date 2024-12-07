@@ -23,6 +23,13 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 add_subdirectory(core/)
 
+add_library(sqlpp11_testing INTERFACE)
+target_include_directories(sqlpp11_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+if (NOT MSVC)
+    target_compile_options(sqlpp11_testing INTERFACE -Wall -Wextra -pedantic)
+endif ()
+
 if(BUILD_MYSQL_CONNECTOR)
     add_subdirectory(mysql)
 endif()

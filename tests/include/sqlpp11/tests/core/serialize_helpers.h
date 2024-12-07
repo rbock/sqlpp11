@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Copyright (c) 2024, Roland Bock
  * All rights reserved.
@@ -23,22 +25,22 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/tests/core/tables.h>
-#include <sqlpp11/tests/core/serialize_helpers.h>
-#include <sqlpp11/sqlpp11.h>
+#include <sqlpp11/tests/core/MockDb.h>
+#include <iostream>
 
-int main(int, char* [])
-{
-  const auto foo = test::TabFoo{};
-
-  // Update all.
-  SQLPP_COMPARE(update(foo).set(foo.id = 7).unconditionally(), "UPDATE tab_foo SET id = 7");
-
-  // Update some.
-  SQLPP_COMPARE(update(foo)
-                    .set(sqlpp::dynamic(true, foo.id = 7), sqlpp::dynamic(false, foo.textNnD = "cheesecake"))
-                    .where(foo.id > 17),
-                "UPDATE tab_foo SET id = 7 WHERE tab_foo.id > 17");
-
-  return 0;
-}
+#warning: Need copies of this for other backends
+#define SQLPP_COMPARE(expr, expected_string)                       \
+  {                                                                \
+    MockDb::_serializer_context_t printer = {};                    \
+                                                                   \
+    using sqlpp::to_sql_string;                                    \
+    const auto result = to_sql_string(printer, expr);              \
+                                                                   \
+    if (result != expected_string)                                 \
+    {                                                              \
+      std::cerr << __FILE__ << " " << __LINE__ << '\n'             \
+                << "Expected: -->|" << expected_string << "|<--\n" \
+                << "Received: -->|" << result << "|<--\n";         \
+      return -1;                                                   \
+    }                                                              \
+  }

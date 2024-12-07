@@ -23,31 +23,8 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define SQLPP_TEST_STATIC_ASSERT
-
-#include "Sample.h"
-#include <sqlpp11/sqlpp11.h>
-#include "../../../include/test_helpers.h"
-
-#define SQLPP_CHECK_STATIC_ASSERT(expression, message)                             \
-  {                                                                                \
-    try                                                                            \
-    {                                                                              \
-      expression;                                                                  \
-      std::cerr << __FILE__ << " " << __LINE__ << '\n' << "Expected exception!\n"; \
-      return -1;                                                                   \
-    }                                                                              \
-    catch (const sqlpp::unit_test_exception& e)                                    \
-    {                                                                              \
-      if (e.what() != sqlpp::string_view(message))                                 \
-      {                                                                            \
-        std::cerr << __FILE__ << " " << __LINE__ << '\n'                           \
-                  << "Expected: -->|" << message << "|<--\n"                       \
-                  << "Received: -->|" << e.what() << "|<--\n";                     \
-        return -1;                                                                 \
-      }                                                                            \
-    }                                                                              \
-  }
+#include <sqlpp11/tests/core/constraints_helpers.h>
+#include <sqlpp11/tests/core/tables.h>
 
 int main()
 {

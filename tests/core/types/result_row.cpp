@@ -23,11 +23,11 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "MockDb.h"
-#include "Sample.h"
+#include <sqlpp11/tests/core/MockDb.h>
+#include <sqlpp11/tests/core/tables.h>
 #include <sqlpp11/sqlpp11.h>
 
-#include "../../include/test_helpers.h"
+#include <sqlpp11/tests/core/types_helpers.h>
 
 namespace
 {

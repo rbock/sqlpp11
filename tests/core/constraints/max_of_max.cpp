@@ -28,7 +28,7 @@
  * This code must not compile (it is used to test a static_assert)
  */
 
-#include "Sample.h"
+#include <sqlpp11/tests/core/tables.h>
 #include "MockDb.h"
 #include <sqlpp11/functions.h>
 #include <iostream>

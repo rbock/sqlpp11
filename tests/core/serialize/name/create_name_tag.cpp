@@ -23,8 +23,8 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Sample.h"
-#include "../compare.h"
+#include <sqlpp11/tests/core/tables.h>
+#include <sqlpp11/tests/core/serialize_helpers.h>
 #include <sqlpp11/sqlpp11.h>
 
 namespace test

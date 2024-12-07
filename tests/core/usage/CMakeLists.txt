@@ -22,13 +22,6 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-add_library(sqlpp11_testing INTERFACE)
-target_include_directories(sqlpp11_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-
-if (NOT MSVC)
-    target_compile_options(sqlpp11_testing INTERFACE -Wall -Wextra -pedantic)
-endif ()
-
 set(test_files
     CustomQuery.cpp
     DateTime.cpp
