@@ -39,10 +39,10 @@
 #include <sqlpp11/core/basic/parameterized_verbatim.h>
 #include <sqlpp11/core/basic/verbatim_table.h>
 #include <sqlpp11/core/basic/value.h>
-#include <sqlpp11/core/eval.h>
 
 namespace sqlpp
 {
+#warning: Need to add tests for `flatten`
   template <typename Expression, typename Db>
   auto flatten(const Expression& exp, Db& db) -> verbatim_t<value_type_of_t<Expression>>
   {

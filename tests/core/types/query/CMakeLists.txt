@@ -1,4 +1,4 @@
-# Copyright (c) 2016, Roland Bock
+# Copyright (c) 2024, Roland Bock
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -23,22 +23,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 function(test_compile name)
-    set(target sqlpp11_${name})
+    set(target sqlpp11_core_types_query_${name})
     add_executable(${target} ${name}.cpp)
     target_link_libraries(${target} PRIVATE sqlpp11::sqlpp11 sqlpp11_testing)
 endfunction()
-
-test_compile(dynamic)
-test_compile(result_row)
-test_compile(value)
-
-add_subdirectory(aggregate_function)
-add_subdirectory(basic)
-add_subdirectory(clause)
-add_subdirectory(detail)
-add_subdirectory(name)
-add_subdirectory(operator)
-add_subdirectory(query)
-add_subdirectory(type_traits)
-add_subdirectory(value_type)
 

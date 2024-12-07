@@ -82,3 +82,7 @@ The reason for this is to reduce the sheer size of the serialized type, e.g. in 
 
 ## cte_ref and friends
 Not new, but also not documented before: Need to document that you need to be a bit careful with aliased CTEs as we use cte_ref in columns, from, and join.
+
+## Dropped `eval`
+eval(db, expr) was a wrapper returning `db(select(expr.as(a))).front().a`. With text and blob now being references, eval could now return dangling references.\
+It seems much clearer for folks to just call db(select(something)) themselves...
