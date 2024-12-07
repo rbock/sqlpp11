@@ -80,6 +80,12 @@ namespace sqlpp
     };
   };
 
+  template<typename... Assignments>
+    struct nodes_of<update_list_t<Assignments...>>
+    {
+      using type = detail::type_vector<Assignments...>;
+    };
+
   SQLPP_PORTABLE_STATIC_ASSERT(assert_update_assignments_t, "update assignments required, i.e. set(...)");
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_update_set_assignments_t, "at least one argument is not an assignment in set()");
@@ -113,7 +119,6 @@ namespace sqlpp
   struct no_update_list_t
   {
     using _traits = make_traits<no_value_t, tag::is_where>;
-    using _nodes = detail::type_vector<>;
 
     // Data
     using _data_t = no_data_t;

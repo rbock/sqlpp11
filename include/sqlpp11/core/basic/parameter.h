@@ -38,6 +38,7 @@ namespace sqlpp
     public enable_as<parameter_t<ValueType, NameTag>>,
     public enable_comparison<parameter_t<ValueType, NameTag>>
   {
+    using _instance_t = typename NameTag::template _member_t<parameter_value_t<ValueType>>;
     parameter_t() = default;
 
     parameter_t(const parameter_t&) = default;

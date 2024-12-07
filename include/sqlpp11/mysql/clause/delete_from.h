@@ -26,26 +26,27 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/clause/remove.h>
+#include <sqlpp11/core/clause/delete_from.h>
 #include <sqlpp11/core/clause/order_by.h>
-#include <sqlpp11/core/clause/clause/limit.h>
+#include <sqlpp11/core/clause/limit.h>
 
 namespace sqlpp
 {
   namespace mysql
   {
-    using blank_remove_t =
-        statement_t<remove_t, no_from_t, no_using_t, no_where_t<true>, no_order_by_t, no_limit_t>;
+#warning: Should we re-enable `using`
+    using blank_delete_t =
+        statement_t<delete_t, no_single_table_t/*, no_using_t*/, no_where_t<true>, no_order_by_t, no_limit_t>;
 
-    inline auto remove() -> blank_remove_t
+    inline auto delete_from() -> blank_delete_t
     {
       return {};
     }
 
     template <typename Table>
-    auto remove_from(Table table) -> decltype(blank_remove_t().from(table))
+    auto delete_from(Table table) -> decltype(blank_delete_t().single_table(table))
     {
-      return {blank_remove_t().from(table)};
+      return {blank_delete_t().single_table(table)};
     }
 
   }  // namespace mysql

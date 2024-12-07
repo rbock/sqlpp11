@@ -30,6 +30,7 @@
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/to_sql_string.h>
 #include <sqlpp11/core/compat/utility.h>
+#include <sqlpp11/core/operator/expression_as.h>
 
 namespace sqlpp
 {

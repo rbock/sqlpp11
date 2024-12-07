@@ -51,7 +51,7 @@ int Json(int, char*[])
 
 namespace test
 {
-  SQLPP_CREATE_NAME_TAG(value)
+  SQLPP_CREATE_NAME_TAG(value);
 }
 
 namespace sql = sqlpp::mysql;
@@ -66,12 +66,12 @@ int Json(int, char*[])
     const auto tab = test::TabJson{};
     db(insert_into(tab).set(tab.data = R"--({"key" : "value"})--"));
 
-    const auto query/query =
+    const auto query =
         select(sqlpp::verbatim<sqlpp::text>(R"--(JSON_UNQUOTE(JSON_EXTRACT(data, "$.key")))--").as(test::value))
             .from(tab)
             .unconditionally();
 
-    auto result = db(query/query);
+    auto result = db(query);
     if (result.empty())
       throw std::runtime_error{"selection result is empty"};
 

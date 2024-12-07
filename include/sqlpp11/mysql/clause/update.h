@@ -27,7 +27,7 @@
  */
 
 #include <sqlpp11/core/clause/update.h>
-#include <sqlpp11/core/clause/clause/limit.h>
+#include <sqlpp11/core/clause/limit.h>
 #include <sqlpp11/core/clause/order_by.h>
 
 namespace sqlpp

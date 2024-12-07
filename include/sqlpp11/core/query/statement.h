@@ -195,7 +195,7 @@ namespace sqlpp
 
     static constexpr size_t _get_static_no_of_parameters()
     {
-      return parameters_of<statement_t>::size;
+      return parameters_of_t<statement_t>::size();
     }
 
     size_t _get_no_of_parameters() const
@@ -235,6 +235,18 @@ namespace sqlpp
   struct nodes_of<statement_t<Policies...>>
   {
     using type = typename detail::type_vector<Policies...>;
+  };
+
+  // This is important for sub selects that contain an aggregate function
+  template <typename... Policies>
+  struct contains_aggregate_function<statement_t<Policies...>> : public std::false_type
+  {
+  };
+
+  template <typename... Policies>
+  struct parameters_of<statement_t<Policies...>>
+  {
+    using type = detail::type_vector_cat_t<parameters_of_t<Policies>...>;
   };
 
   template <typename... Policies>

@@ -60,7 +60,7 @@ namespace sqlpp
     void _bind_impl(Target& target, const ::sqlpp::index_sequence<Is...>& /*unused*/) const
     {
       using swallow = int[];  // see coretuple_to_sql_string.h
-      (void)swallow{0, (std::tuple_element<Is, _member_tuple_t>::type::operator()()._bind(target, Is), 0)...};
+      (void)swallow{0, (target._bind_parameter(Is, std::tuple_element<Is, _member_tuple_t>::type::operator()()), 0)...};
     }
   };
 

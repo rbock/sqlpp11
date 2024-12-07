@@ -27,7 +27,7 @@
 #include "Tables.h"
 #include <sqlpp11/mysql/mysql.h>
 #include <sqlpp11/sqlpp11.h>
-#include "../../include/test_helpers.h"
+#include "sqlpp11/tests/core/result_helpers.h"
 
 #include <cassert>
 #include <iostream>
@@ -48,13 +48,16 @@ int Sample(int, char*[])
 
     const auto tab = test::TabSample{};
     // clear the table
-    db(remove_from(tab).unconditionally());
+    db(delete_from(tab).unconditionally());
+
+using XXX = decltype(    select(exists(select(tab.intN).from(tab).unconditionally()).as(sqlpp::alias::a)));
+static_assert(sqlpp::is_statement<XXX>::value, "");
 
     // Several ways of ensuring that tab is empty
-    assert(not db(select(exists(select(tab.intN).from(tab).unconditionally())))
+    assert(not db(select(exists(select(tab.intN).from(tab).unconditionally()).as(::sqlpp::alias::a)))
                    .front()
-                   .exists);  // this is probably the fastest
-    assert(not db(select(count(tab.intN)).from(tab).unconditionally()).front().count);
+                   .a);  // this is probably the fastest
+    assert(not db(select(count(tab.intN).as(sqlpp::alias::a)).from(tab).unconditionally()).front().a);
     assert(db(select(tab.intN).from(tab).unconditionally()).empty());
 
     // explicit all_of(tab)
@@ -84,14 +87,14 @@ int Sample(int, char*[])
     db(insert_into(tab).set(tab.textN = "", tab.boolN = true));
 
     // update
-    db(update(tab).set(tab.boolN = false).where(tab.intN.in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
+    db(update(tab).set(tab.boolN = false).where(tab.intN.in(std::vector<int>{1, 2, 3, 4})));
     db(update(tab).set(tab.boolN = true).where(tab.intN.in(1)));
 
 #warning: Add test with optional insert
 
     // remove
     {
-      db(remove_from(tab).where(tab.intN == tab.intN + 3));
+      db(delete_from(tab).where(tab.intN == tab.intN + 3));
 
       std::cerr << "+++++++++++++++++++++++++++" << std::endl;
       for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
@@ -109,11 +112,11 @@ int Sample(int, char*[])
     // transaction
     {
       auto tx = start_transaction(db);
-      auto result = db(select(all_of(tab), select(max(tab.intN)).from(tab)).from(tab).unconditionally());
+      auto result = db(select(all_of(tab), select(max(tab.intN).as(sqlpp::alias::a)).from(tab)).from(tab).unconditionally());
       if (const auto& row = *result.begin())
       {
         const int64_t a = row.intN.value_or(0);
-        const ::sqlpp::optional<long> m = row.max;
+        const ::sqlpp::optional<long> m = row.a;
         std::cerr << __LINE__ << " row.intN: " << a << ", row.max: " << m << std::endl;
       }
       tx.commit();
@@ -171,7 +174,7 @@ int Sample(int, char*[])
     pu.params.boolN = false;
     std::cerr << "Updated: " << db(pu) << std::endl;
 
-    auto pr = db.prepare(remove_from(tab).where(tab.textN != parameter(tab.textN)));
+    auto pr = db.prepare(delete_from(tab).where(tab.textN != parameter(tab.textN)));
     pr.params.textN = "prepared cake";
     std::cerr << "Deleted lines: " << db(pr) << std::endl;
 

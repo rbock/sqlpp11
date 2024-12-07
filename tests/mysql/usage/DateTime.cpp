@@ -28,7 +28,7 @@
 #include <sqlpp11/mysql/mysql.h>
 #include <sqlpp11/sqlpp11.h>
 
-#include "../../include/test_helpers.h"
+#include "sqlpp11/tests/core/result_helpers.h"
 
 #include <cassert>
 #include <iostream>
@@ -44,9 +44,9 @@ namespace
     if (date::abs(l - r) > std::chrono::seconds{1})
     {
       std::cerr << line << ": abs(";
-      to_sql_string(::sqlpp::wrap_operand_t<L>{l}, std::cerr);
+      std::cerr << sqlpp::to_sql_string(std::cerr, l);
       std::cerr << " - ";
-      to_sql_string(::sqlpp::wrap_operand_t<R>{r}, std::cerr);
+      std::cerr << sqlpp::to_sql_string(std::cerr, r);
       std::cerr << ") > 1s\n" ;
       throw std::runtime_error("Unexpected result");
     }
@@ -104,9 +104,14 @@ int DateTime(int, char*[])
       require_equal(__LINE__, row.timePointN.value(), today);
     }
 
-    update(tab)
+#warning: Need to add type tests for statement, update, and probably other clauses.
+    /*
+    auto u = update(tab)
         .set(tab.dayPointN = parameter(tab.dayPointN), tab.timePointN = parameter(tab.timePointN))
         .unconditionally();
+    using U = decltype(u);
+    sqlpp::parameters_of_t<U>::hansi;
+    */
 
     auto prepared_update = db.prepare(update(tab)
                                           .set(tab.dayPointN = parameter(tab.dayPointN),
