@@ -51,6 +51,9 @@ set(test_files
     Upper.cpp
     Where.cpp
     ParameterizedVerbatim.cpp
+    CurrentTimestamp.cpp
+    CurrentTime.cpp
+    CurrentDate.cpp
 )
 
 create_test_sourcelist(test_sources test_serializer_main.cpp ${test_files})
