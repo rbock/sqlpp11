@@ -256,7 +256,7 @@ namespace sqlpp
         int result;
         if (not is_null)
         {
-          const auto time = ::date::make_time(::sqlpp::chrono::floor<::std::chrono::microseconds>(*value));
+          const auto time = ::date::make_time(*value);
           std::ostringstream os;  // gcc-4.9 does not support auto os = std::ostringstream{};
           os << time;
           const auto text = os.str();
