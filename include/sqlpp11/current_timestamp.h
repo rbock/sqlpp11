@@ -74,7 +74,7 @@ namespace sqlpp
   };
 
   template <typename Context>
-  Context& serialize(const current_timestamp_t& t, Context& context)
+  Context& serialize(const current_timestamp_t&, Context& context)
   {
     context << "CURRENT_TIMESTAMP";
     return context;
