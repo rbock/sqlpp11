@@ -211,29 +211,41 @@ namespace sqlpp
     using type = detail::type_vector<Columns...>;
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_selected_colums_are_selectable_t, "selected columns must be selectable");
+  template<typename... Columns>
+    struct select_columns_have_values
+    {
+      static constexpr bool value = select_columns_have_values<detail::flat_tuple_t<Columns...>>::value;
+    };
 
-  template <typename T>
-  struct check_selected_tuple;
-  template <typename... T>
-  struct check_selected_tuple<std::tuple<T...>>
-  {
-    using type = static_combined_check_t<
-        static_check_t<logic::all<(select_column_has_value_type<T>::value and select_column_has_name<T>::value)...>::value,
-                       assert_selected_colums_are_selectable_t>>;
-  };
-  template <typename T>
-  using check_selected_tuple_t = typename check_selected_tuple<T>::type;
+  template<typename... Columns>
+    struct select_columns_have_values<std::tuple<Columns...>>
+    {
+      static constexpr bool value = logic::all<select_column_has_value_type<Columns>::value...>::value;
+    };
 
-  template <typename T>
+  template<typename... Columns>
+    struct select_columns_have_names
+    {
+      static constexpr bool value = select_columns_have_names<detail::flat_tuple_t<Columns...>>::value;
+    };
+
+  template<typename... Columns>
+    struct select_columns_have_names<std::tuple<Columns...>>
+    {
+      static constexpr bool value = logic::all<select_column_has_name<Columns>::value...>::value;
+    };
+
+  template <typename ColumnTuple>
   struct make_select_column_list;
-  template <typename... T>
-  struct make_select_column_list<std::tuple<T...>>
+  template <typename... Columns>
+  struct make_select_column_list<std::tuple<Columns...>>
   {
-    using type = select_column_list_t<T...>;
+    using type = select_column_list_t<Columns...>;
   };
-  template <typename T>
-  using make_select_column_list_t = typename make_select_column_list<T>::type;
+  template <typename... Columns>
+  using make_select_column_list_t = typename make_select_column_list<detail::flat_tuple_t<Columns...>>::type;
+
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_columns_selected_t, "selecting columns required");
 
   struct no_select_column_list_t
   {
@@ -252,33 +264,20 @@ namespace sqlpp
 
       _data_t _data;
 
-      template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check, Policies, no_select_column_list_t, T>;
+      template <typename T>
+      using _new_statement_t = new_statement_t<consistent_t, Policies, no_select_column_list_t, T>;
 
-      using _consistency_check = consistent_t;
+      using _consistency_check = assert_columns_selected_t;
 
-      template <typename... Args>
-      auto columns(Args... args) const -> _new_statement_t<check_selected_tuple_t<detail::flat_tuple_t<Args...>>,
-                                                           make_select_column_list_t<detail::flat_tuple_t<Args...>>>
+      template <typename... Columns, typename = sqlpp::enable_if_t<select_columns_have_values<Columns...>::value>>
+      auto columns(Columns... args) const -> _new_statement_t<make_select_column_list_t<Columns...>>
       {
-        static_assert(sizeof...(Args), "at least one selectable expression (e.g. a column) required in columns()");
-        using check = check_selected_tuple_t<detail::flat_tuple_t<Args...>>;
-        static_assert(check::value,
-                      "at least one argument is not a selectable expression in columns()");
+        SQLPP_STATIC_ASSERT(sizeof...(Columns), "at least one selected column required");
+        SQLPP_STATIC_ASSERT(select_columns_have_names<Columns...>::value, "each selected column must have a name");
 
-        return _columns_impl(check{}, std::tuple_cat(detail::tupelize(std::move(args))...));
-      }
-
-    private:
-      template <typename Check, typename... Args>
-      auto _columns_impl(Check, std::tuple<Args...> args) const -> inconsistent<Check>;
-
-      template <typename... Args>
-      auto _columns_impl(consistent_t /*unused*/, std::tuple<Args...> args) const
-          -> _new_statement_t<consistent_t, select_column_list_t<Args...>>
-      {
         return {static_cast<const derived_statement_t<Policies>&>(*this),
-                typename select_column_list_t<Args...>::_data_t{std::move(args)}};
+                typename make_select_column_list_t<Columns...>::_data_t{
+                    std::tuple_cat(detail::tupelize(std::move(args))...)}};
       }
     };
   };

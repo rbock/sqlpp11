@@ -264,30 +264,6 @@ namespace sqlpp
   using is_database =
       typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 
-#define SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(trait)                                      \
-  namespace detail                                                                      \
-  {                                                                                     \
-    template <typename T, typename Leaf = void>                                         \
-    struct trait##_of_impl                                                              \
-    {                                                                                   \
-      using type = typename trait##_of_impl<nodes_of_t<T>>::type;                       \
-    };                                                                                  \
-    template <typename T>                                                               \
-    struct trait##_of_impl<T, ::sqlpp::void_t<typename T::_##trait>>                     \
-    {                                                                                   \
-      using type = typename T::_##trait;                                                \
-    };                                                                                  \
-    template <typename... Nodes>                                                        \
-    struct trait##_of_impl<type_vector<Nodes...>, void>                                 \
-    {                                                                                   \
-      using type = detail::make_joined_set_t<typename trait##_of_impl<Nodes>::type...>; \
-    };                                                                                  \
-  }                                                                                     \
-  template <typename T>                                                                 \
-  using trait##_of = typename detail::trait##_of_impl<T>::type;
-
-  SQLPP_RECURSIVE_TRAIT_SET_GENERATOR(provided_aggregates)
-
   template <typename T>
   struct lhs
   {

@@ -30,4 +30,5 @@ function(create_test name)
 endfunction()
 
 create_test(insert_value_list)
+create_test(select_column_list)
 

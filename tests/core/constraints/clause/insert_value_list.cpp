@@ -72,7 +72,8 @@ int main()
   // insert_into(table).set(<dynamic required columns>) is also inconsistent but can be constructed (check can only run later)
   {
     auto i = insert_into(bar).set(dynamic(true, bar.boolNn = true));
-    static_assert(std::is_same<decltype(i)::_consistency_check, sqlpp::assert_all_required_assignments_t>::value, "");
+    using I = decltype(i);
+    static_assert(std::is_same<I::_consistency_check, sqlpp::assert_all_required_assignments_t>::value, "");
   }
 
   // -------------------------

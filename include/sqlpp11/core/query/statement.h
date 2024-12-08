@@ -80,7 +80,7 @@ namespace sqlpp
       using _all_required_tables = detail::make_joined_set_t<required_tables_of_t<Policies>...>;
       using _all_provided_tables = detail::make_joined_set_t<provided_tables_of_t<Policies>...>;
       using _all_provided_optional_tables = detail::make_joined_set_t<provided_optional_tables_of_t<Policies>...>;
-      using _all_provided_aggregates = detail::make_joined_set_t<provided_aggregates_of<Policies>...>;
+      using _all_provided_aggregates = detail::make_joined_set_t<known_aggregate_columns_of_t<Policies>...>;
 
       using _required_tables_of = detail::make_difference_set_t<_all_required_tables, _all_provided_tables>;
       using _required_ctes_of = detail::make_difference_set_t<_all_required_ctes, _all_provided_ctes>;
