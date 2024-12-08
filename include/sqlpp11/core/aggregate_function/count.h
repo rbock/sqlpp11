@@ -26,7 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/name/create_name_tag.h>
 #include <sqlpp11/core/operator/enable_as.h>
 #include <sqlpp11/core/operator/enable_comparison.h>
 #include <sqlpp11/core/aggregate_function/enable_over.h>
@@ -36,11 +35,6 @@
 
 namespace sqlpp
 {
-  namespace alias
-  {
-    SQLPP_CREATE_NAME_TAG(_count);
-  }
-
   template <typename Flag, typename Expr>
   struct count_t : public enable_as<count_t<Flag, Expr>>,
                    public enable_comparison<count_t<Flag, Expr>>,
@@ -65,11 +59,6 @@ namespace sqlpp
 
   template <typename Flag, typename Expr>
   struct is_aggregate_function<count_t<Flag, Expr>> : public std::true_type
-  {
-  };
-
-  template <typename Flag, typename Expr>
-  struct name_tag_of<count_t<Flag, Expr>>: public name_tag_of<alias::_count_t>
   {
   };
 

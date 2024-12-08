@@ -51,9 +51,6 @@ namespace sqlpp
   };
 
   template<typename Expr>
-  struct name_tag_of<over_t<Expr>> : public name_tag_of<Expr> {};
-
-  template<typename Expr>
   struct nodes_of<over_t<Expr>>: public nodes_of<Expr>
   {
   };

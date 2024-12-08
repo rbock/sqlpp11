@@ -26,7 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/name/create_name_tag.h>
 #include <sqlpp11/core/operator/enable_as.h>
 #include <sqlpp11/core/operator/enable_comparison.h>
 #include <sqlpp11/core/static_assert.h>
@@ -36,11 +35,6 @@
 
 namespace sqlpp
 {
-  namespace alias
-  {
-    SQLPP_CREATE_NAME_TAG(_max);
-  }
-
   template <typename Flag, typename Expr>
   struct max_t : public enable_as<max_t<Flag, Expr>>,
                  public enable_comparison<max_t<Flag, Expr>>,
@@ -64,11 +58,6 @@ namespace sqlpp
 
   template <typename Flag, typename Expr>
   struct is_aggregate_function<max_t<Flag, Expr>> : public std::true_type
-  {
-  };
-
-  template <typename Flag, typename Expr>
-  struct name_tag_of<max_t<Flag, Expr>>: public name_tag_of<alias::_max_t>
   {
   };
 

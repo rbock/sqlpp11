@@ -26,7 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/name/create_name_tag.h>
 #include <sqlpp11/core/operator/enable_as.h>
 #include <sqlpp11/core/operator/enable_comparison.h>
 #include <sqlpp11/core/static_assert.h>
@@ -36,11 +35,6 @@
 
 namespace sqlpp
 {
-  namespace alias
-  {
-    SQLPP_CREATE_NAME_TAG(_min);
-  }
-
   template <typename Flag, typename Expr>
   struct min_t : public enable_as<min_t<Flag, Expr>>,
                  public enable_comparison<min_t<Flag, Expr>>,
@@ -64,11 +58,6 @@ namespace sqlpp
 
   template <typename Flag, typename Expr>
   struct is_aggregate_function<min_t<Flag, Expr>> : public std::true_type
-  {
-  };
-
-  template <typename Flag, typename Expr>
-  struct name_tag_of<min_t<Flag, Expr>>: public name_tag_of<alias::_min_t>
   {
   };
 
