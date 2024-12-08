@@ -34,7 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <thread>
 #include <unordered_set>
 
-#include "TabDepartment.h"
+#include "tab_department.h"
 
 namespace sqlpp
 {

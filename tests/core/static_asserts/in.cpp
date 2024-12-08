@@ -68,8 +68,8 @@ namespace
     static_check_in<sqlpp::consistent_t>(t.someString, "");
     static_check_in<sqlpp::consistent_t>(t.someString, "", "");
     static_check_in<sqlpp::consistent_t>(t.someString, select(sqlpp::value("").as(sqlpp::alias::x)));
-    static_check_in<sqlpp::consistent_t>(t.someString, sqlpp::value_list(std::vector<std::string>{}));
-    static_check_in<sqlpp::consistent_t>(t.someString, sqlpp::value_list(std::set<std::string>{}));
+    static_check_in<sqlpp::consistent_t>(t.someString, std::vector<std::string>{});
+    static_check_in<sqlpp::consistent_t>(t.someString, std::set<std::string>{});
 
     // Try non-expressions
     static_check_in<sqlpp::assert_comparison_rhs_is_expression_t>(t.someString, t);

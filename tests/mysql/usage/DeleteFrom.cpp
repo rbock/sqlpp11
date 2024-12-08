@@ -35,7 +35,7 @@ const auto tab = test::TabSample{};
 
 namespace sql = sqlpp::mysql;
 
-int Remove(int, char*[])
+int DeleteFrom(int, char*[])
 {
   sql::global_library_init();
   try
@@ -47,7 +47,7 @@ int Remove(int, char*[])
     db(insert_into(tab).set(tab.textN = "2", tab.boolN = false));
     db(insert_into(tab).set(tab.textN = "3", tab.boolN = false));
 
-    db(sql::remove_from(tab).unconditionally().order_by(tab.intN.desc()).limit(1u));
+    db(sql::delete_from(tab).unconditionally().order_by(tab.intN.desc()).limit(1u));
     for(const auto &row : db(sqlpp::select(tab.textN).from(tab).unconditionally().order_by(tab.intN.desc()).limit(1u))){
       assert(row.textN == "2");
     }

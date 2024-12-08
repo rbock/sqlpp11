@@ -85,7 +85,7 @@ int Sample(int, char*[])
 
   // update
   db(update(tab).set(tab.gamma = false).where(tab.alpha.in(1)));
-  db(update(tab).set(tab.gamma = false).where(tab.alpha.in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
+  db(update(tab).set(tab.gamma = false).where(tab.alpha.in(std::vector<int>{1, 2, 3, 4})));
 
   // remove
   db(remove_from(tab).where(tab.alpha == tab.alpha + 3));

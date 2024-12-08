@@ -111,9 +111,9 @@ int Select(int, char*[])
   db(select(all_of(tab)).from(tab).where(tab.alpha.is_null()));
   db(select(all_of(tab)).from(tab).where(tab.alpha.is_not_null()));
   db(select(all_of(tab)).from(tab).where(tab.alpha.in(1, 2, 3)));
-  db(select(all_of(tab)).from(tab).where(tab.alpha.in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
+  db(select(all_of(tab)).from(tab).where(tab.alpha.in(std::vector<int>{1, 2, 3, 4})));
   db(select(all_of(tab)).from(tab).where(tab.alpha.not_in(1, 2, 3)));
-  db(select(all_of(tab)).from(tab).where(tab.alpha.not_in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
+  db(select(all_of(tab)).from(tab).where(tab.alpha.not_in(std::vector<int>{1, 2, 3, 4})));
   db(select(count(tab.alpha)).from(tab).unconditionally());
   db(select(avg(tab.alpha)).from(tab).unconditionally());
   db(select(max(tab.alpha)).from(tab).unconditionally());
@@ -130,7 +130,7 @@ int Select(int, char*[])
 
   // update
   db(update(tab).set(tab.gamma = false).where(tab.alpha.in(1)));
-  db(update(tab).set(tab.gamma = false).where(tab.alpha.in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
+  db(update(tab).set(tab.gamma = false).where(tab.alpha.in(std::vector<int>{1, 2, 3, 4})));
 
   // remove
   db(remove_from(tab).where(tab.alpha == tab.alpha + 3));

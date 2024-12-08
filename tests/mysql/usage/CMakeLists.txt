@@ -39,7 +39,7 @@ set(test_files
     Prepared.cpp
     Truncated.cpp
     Update.cpp
-    Remove.cpp
+    DeleteFrom.cpp
     Connection.cpp
     ConnectionPool.cpp
 )

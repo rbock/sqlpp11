@@ -26,23 +26,22 @@
 #include "make_test_connection.h"
 #include "Tables.h"
 #include <cassert>
-#include <sqlpp11/core/name/create_name_tag.h>
-#include <sqlpp11/functions.h>
-#include <sqlpp11/core/clause/insert.h>
 #include <sqlpp11/mysql/database/connection.h>
-#include <sqlpp11/core/clause/remove.h>
-#include <sqlpp11/core/clause/select.h>
-#include <sqlpp11/core/database/transaction.h>
-#include <sqlpp11/core/clause/update.h>
-#include "../../include/test_helpers.h"
+#include <sqlpp11/sqlpp11.h>
+#include <sqlpp11/tests/core/result_helpers.h>
 
 #include <iostream>
 #include <vector>
 
+namespace {
 const auto library_raii = sqlpp::mysql::scoped_library_initializer_t{0, nullptr, nullptr};
 
 namespace sql = sqlpp::mysql;
 const auto tab = test::TabSample{};
+
+SQLPP_CREATE_NAME_TAG(something);
+SQLPP_CREATE_NAME_TAG(max_int_n);
+}
 
 void testSelectAll(sql::connection& db, int expectedRowCount)
 {
@@ -106,16 +105,15 @@ int Select(int, char*[])
     db(select(all_of(tab)).from(tab).where(tab.intN.is_null()));
     db(select(all_of(tab)).from(tab).where(tab.intN.is_not_null()));
     db(select(all_of(tab)).from(tab).where(tab.intN.in(1, 2, 3)));
-    db(select(all_of(tab)).from(tab).where(tab.intN.in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
+    db(select(all_of(tab)).from(tab).where(tab.intN.in(std::vector<int>{1, 2, 3, 4})));
     db(select(all_of(tab)).from(tab).where(tab.intN.not_in(1, 2, 3)));
-    db(select(all_of(tab)).from(tab).where(tab.intN.not_in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
-    db(select(count(tab.intN)).from(tab).unconditionally());
-    db(select(avg(tab.intN)).from(tab).unconditionally());
-    db(select(max(tab.intN)).from(tab).unconditionally());
-    db(select(min(tab.intN)).from(tab).unconditionally());
-    db(select(exists(select(tab.intN).from(tab).where(tab.intN > 7))).from(tab).unconditionally());
+    db(select(all_of(tab)).from(tab).where(tab.intN.not_in(std::vector<int>{1, 2, 3, 4})));
+    db(select(count(tab.intN).as(something)).from(tab).unconditionally());
+    db(select(avg(tab.intN).as(something)).from(tab).unconditionally());
+    db(select(max(tab.intN).as(something)).from(tab).unconditionally());
+    db(select(min(tab.intN).as(something)).from(tab).unconditionally());
+    db(select(exists(select(tab.intN).from(tab).where(tab.intN > 7)).as(something)).from(tab).unconditionally());
     db(select(all_of(tab)).from(tab).where(tab.intN == any(select(tab.intN).from(tab).where(tab.intN < 3))));
-    db(select(all_of(tab)).from(tab).where(tab.intN == some(select(tab.intN).from(tab).where(tab.intN < 3))));
 
     db(select(all_of(tab)).from(tab).where(tab.intN + tab.intN > 3));
     db(select(all_of(tab)).from(tab).where((tab.textN + tab.textN) == ""));
@@ -126,11 +124,11 @@ int Select(int, char*[])
 
     // update
     db(update(tab).set(tab.boolN = false).where(tab.intN.in(1)));
-    db(update(tab).set(tab.boolN = false).where(tab.intN.in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
+    db(update(tab).set(tab.boolN = false).where(tab.intN.in(std::vector<int>{1, 2, 3, 4})));
 
     // remove
     {
-    db(remove_from(tab).where(tab.intN == tab.intN + 3));
+    db(delete_from(tab).where(tab.intN == tab.intN + 3));
 
     auto result = db(select(all_of(tab)).from(tab).unconditionally());
     std::cerr << "Accessing a field directly from the result (using the current row): " << result.begin()->intN
@@ -141,11 +139,11 @@ int Select(int, char*[])
     // transaction
     {
       auto tx = start_transaction(db);
-      auto result = db(select(all_of(tab), select(max(tab.intN)).from(tab)).from(tab).unconditionally());
+      auto result = db(select(all_of(tab), select(max(tab.intN).as(max_int_n)).from(tab)).from(tab).unconditionally());
       if (const auto& row = *result.begin())
       {
         ::sqlpp::optional<long> a = row.intN;
-        ::sqlpp::optional<long> m = row.max;
+        ::sqlpp::optional<long> m = row.max_int_n;
         std::cerr << "-----------------------------" << a << ", " << m << std::endl;
       }
       tx.commit();

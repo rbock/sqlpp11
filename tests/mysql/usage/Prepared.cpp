@@ -26,43 +26,41 @@
 #include "make_test_connection.h"
 #include "Tables.h"
 #include <cassert>
-#include <sqlpp11/core/name/create_name_tag.h>
-#include <sqlpp11/functions.h>
-#include <sqlpp11/core/clause/insert.h>
+#include <sqlpp11/sqlpp11.h>
 #include <sqlpp11/mysql/database/connection.h>
-#include <sqlpp11/core/clause/remove.h>
-#include <sqlpp11/core/clause/select.h>
-#include <sqlpp11/core/database/transaction.h>
-#include <sqlpp11/core/clause/update.h>
 
 #include <iostream>
 #include <vector>
 
+namespace {
 const auto library_raii = sqlpp::mysql::scoped_library_initializer_t{0, nullptr, nullptr};
 
 namespace sql = sqlpp::mysql;
 const auto tab = test::TabSample{};
 
+SQLPP_CREATE_NAME_TAG(something);
+}
+
 void testPreparedStatementResult(sql::connection& db)
 {
   auto preparedInsert = db.prepare(insert_into(tab).set(tab.textN = parameter(tab.textN)));
-  preparedInsert.params.textN = sqlpp::null;
+  preparedInsert.params.textN = sqlpp::nullopt;
   db(preparedInsert);
   preparedInsert.params.textN = "17";
   db(preparedInsert);
-  preparedInsert.params.textN = sqlpp::value_or_null<sqlpp::text>(sqlpp::null);
+  preparedInsert.params.textN = sqlpp::nullopt;
   db(preparedInsert);
-  preparedInsert.params.textN = sqlpp::value_or_null("17");
+  preparedInsert.params.textN = "17";
   db(preparedInsert);
 
-  auto preparedSelectAll = db.prepare(sqlpp::select(count(tab.intN)).from(tab).unconditionally());
+  auto preparedSelectAll = db.prepare(sqlpp::select(count(tab.intN).as(something)).from(tab).unconditionally());
   auto preparedUpdateAll = db.prepare(sqlpp::update(tab).set(tab.boolN = false).unconditionally());
 
   {
     // explicit result scope
     // if results are released update should execute without exception
     auto result = db(preparedSelectAll);
-    std::ignore = result.front().count;
+    std::ignore = result.front().something;
   }
 
   db(preparedUpdateAll);

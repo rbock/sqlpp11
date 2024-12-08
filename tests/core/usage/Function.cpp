@@ -67,9 +67,9 @@ int Function(int, char* [])
 
   // Test in with value list
   {
-    using TI = decltype(t.id.in(sqlpp::value_list(std::vector<int>({1, 2, 3}))));
-    using TF = decltype(f.doubleN.in(sqlpp::value_list(std::vector<float>({1.0, 2.0, 3.0}))));
-    using TT = decltype(t.textN.in(sqlpp::value_list(std::vector<std::string>({"a", "b", "c"}))));
+    using TI = decltype(t.id.in(std::vector<int>({1, 2, 3})));
+    using TF = decltype(f.doubleN.in(std::vector<float>({1.0, 2.0, 3.0})));
+    using TT = decltype(t.textN.in(std::vector<std::string>({"a", "b", "c"})));
     static_assert(sqlpp::is_selectable_t<TI>::value, "type requirement");
     static_assert(sqlpp::is_boolean_t<TI>::value, "type requirement");
     static_assert(not sqlpp::is_numeric_t<TI>::value, "type requirement");
@@ -105,9 +105,9 @@ int Function(int, char* [])
 
   // Test not in with value list
   {
-    using TI = decltype(t.id.not_in(sqlpp::value_list(std::vector<int>({1, 2, 3}))));
-    using TF = decltype(f.doubleN.not_in(sqlpp::value_list(std::vector<float>({1.0, 2.0, 3.0}))));
-    using TT = decltype(t.textN.not_in(sqlpp::value_list(std::vector<std::string>({"a", "b", "c"}))));
+    using TI = decltype(t.id.not_in(std::vector<int>({1, 2, 3})));
+    using TF = decltype(f.doubleN.not_in(std::vector<float>({1.0, 2.0, 3.0})));
+    using TT = decltype(t.textN.not_in(std::vector<std::string>({"a", "b", "c"})));
     static_assert(sqlpp::is_selectable_t<TI>::value, "type requirement");
     static_assert(sqlpp::is_boolean_t<TI>::value, "type requirement");
     static_assert(not sqlpp::is_numeric_t<TI>::value, "type requirement");

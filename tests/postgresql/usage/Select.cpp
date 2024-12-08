@@ -85,9 +85,9 @@ int Select(int, char*[])
   db(select(all_of(tab)).from(tab).where(tab.id.is_null()));
   db(select(all_of(tab)).from(tab).where(tab.id.is_not_null()));
   db(select(all_of(tab)).from(tab).where(tab.id.in(1, 2, 3)));
-  db(select(all_of(tab)).from(tab).where(tab.id.in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
+  db(select(all_of(tab)).from(tab).where(tab.id.in(std::vector<int>{1, 2, 3, 4})));
   db(select(all_of(tab)).from(tab).where(tab.id.not_in(1, 2, 3)));
-  db(select(all_of(tab)).from(tab).where(tab.id.not_in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
+  db(select(all_of(tab)).from(tab).where(tab.id.not_in(std::vector<int>{1, 2, 3, 4})));
   db(select(count(tab.id)).from(tab).unconditionally());
   db(select(avg(tab.id)).from(tab).unconditionally());
   db(select(max(tab.id)).from(tab).unconditionally());
@@ -111,7 +111,7 @@ int Select(int, char*[])
 
   // update
   db(update(tab).set(tab.boolN = false).where(tab.id.in(1)));
-  db(update(tab).set(tab.boolN = false).where(tab.id.in(sqlpp::value_list(std::vector<int>{1, 2, 3, 4}))));
+  db(update(tab).set(tab.boolN = false).where(tab.id.in(std::vector<int>{1, 2, 3, 4})));
 
   // remove
   db(remove_from(tab).where(tab.id == tab.id + 3));

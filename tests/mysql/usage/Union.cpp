@@ -27,7 +27,7 @@
 #include "Tables.h"
 #include <sqlpp11/mysql/database/connection.h>
 #include <sqlpp11/sqlpp11.h>
-#include "../../include/test_helpers.h"
+#include <sqlpp11/tests/core/result_helpers.h>
 
 #include <iostream>
 

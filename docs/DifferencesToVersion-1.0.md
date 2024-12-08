@@ -86,3 +86,9 @@ Not new, but also not documented before: Need to document that you need to be a 
 ## Dropped `eval`
 eval(db, expr) was a wrapper returning `db(select(expr.as(a))).front().a`. With text and blob now being references, eval could now return dangling references.\
 It seems much clearer for folks to just call db(select(something)) themselves...
+
+## Dropped value_list
+Now you can just do `tab.id.in(std::vector<int>{1, 2, 3, 4})`
+
+## Dropped `some`
+`some` is the same as `any`. Just use `any`.

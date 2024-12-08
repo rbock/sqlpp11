@@ -30,6 +30,20 @@ namespace sqlpp
 {
   struct no_name_t
   {
+    static constexpr const char name[] = "_";
+    template <typename T>
+    struct _member_t
+    {
+      T _ = {};
+      T& operator()()
+      {
+        return _;
+      }
+      const T& operator()() const
+      {
+        return _;
+      }
+    };
   };
 
   struct name_tag_base{}; // Used by SQLPP_CREATE_NAME_TAG and ddl2cpp
