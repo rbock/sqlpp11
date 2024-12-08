@@ -72,10 +72,14 @@ namespace sqlpp
         }
       };
     };
+  }
 
-  template<>
-    struct is_result_clause<insert_or_t> : public std::true_type {};
+  template <typename InsertOrAlternative>
+  struct is_result_clause<sqlite3::insert_or_t<InsertOrAlternative>> : public std::true_type
+  {
+  };
 
+  namespace sqlite3 {
     template <typename InsertOrAlternative>
     using blank_insert_or_t =
         statement_t<insert_or_t<InsertOrAlternative>, no_into_t, no_insert_value_list_t>;
@@ -106,16 +110,14 @@ namespace sqlpp
       return {blank_insert_or_ignore_t().into(table)};
     }
 
-    inline sqlite3::context_t& to_sql_string(const sqlite3::insert_or_replace_name_t&, sqlite3::context_t& context)
+    inline auto to_sql_string(sqlite3::context_t& , const sqlite3::insert_or_replace_name_t&) -> std::string
     {
-      context << "INSERT OR REPLACE ";
-      return context;
+      return "INSERT OR REPLACE ";
     }
 
-    inline sqlite3::context_t& to_sql_string(const sqlite3::insert_or_ignore_name_t&, sqlite3::context_t& context)
+    inline auto to_sql_string(sqlite3::context_t& , const sqlite3::insert_or_ignore_name_t&) -> std::string
     {
-      context << "INSERT OR IGNORE ";
-      return context;
+      return "INSERT OR IGNORE ";
     }
-  }
+  }  // namespace sqlite3
 }

@@ -31,15 +31,15 @@
 #else
 #include <sqlite3.h>
 #endif
-#include <sqlpp11/any.h>
-#include <sqlpp11/data_types/day_point/operand.h>
-#include <sqlpp11/data_types/floating_point/operand.h>
-#include <sqlpp11/data_types/integral/operand.h>
-#include <sqlpp11/data_types/time_point/operand.h>
-#include <sqlpp11/data_types/unsigned_integral/operand.h>
+#include <sqlpp11/core/operator/any.h>
+#include <sqlpp11/core/compat/optional.h>
+#include <sqlpp11/core/chrono.h>
+#include <sqlpp11/core/compat/span.h>
+#include <sqlpp11/core/compat/string_view.h>
+#include <sqlpp11/core/type_traits.h>
+#include <sqlpp11/core/database/exception.h>
 #include <sqlpp11/core/basic/parameter.h>
-#include <sqlpp11/core/basic/pre_join.h>
-#include <sqlpp11/some.h>
+#include <sqlpp11/core/basic/join.h>
 #include <sqlpp11/core/clause/with.h>
 
 #include <cmath>
@@ -48,90 +48,74 @@ namespace sqlpp
 {
   // Serialize parameters
   template <typename ValueType, typename NameType>
-  sqlite3::context_t& to_sql_string(const parameter_t<ValueType, NameType>&, sqlite3::context_t& context)
+  auto to_sql_string(sqlite3::context_t& context, const parameter_t<ValueType, NameType>&) -> std::string
   {
-    context << "?" << context.count();
-    context.pop_count();
-    return context;
+    return "?" + std::to_string(++context._count);
   }
 
   // disable some stuff that won't work with sqlite3
 #if SQLITE_VERSION_NUMBER < 3008003
   template <typename... Expressions>
-  sqlite3::context_t& to_sql_string(const with_data_t<Expressions...>&, sqlite3::context_t& context)
+  auto to_sql_string(sqlite3::context_t& context, const with_data_t<Expressions...>&)-> std::string
   {
     static_assert(wrong_t<Expressions...>::value, "Sqlite3: No support for with before version 3.8.3");
-    return context;
+    return {};
   }
 #endif
 
   template <typename Select>
-  sqlite3::context_t& to_sql_string(const any_t<Select>&, sqlite3::context_t& context)
+  auto to_sql_string(sqlite3::context_t& context, const any_t<Select>&)-> std::string
   {
     static_assert(wrong_t<Select>::value, "Sqlite3: No support for any()");
-    return context;
-  }
-
-  template <typename Select>
-  sqlite3::context_t& to_sql_string(const some_t<Select>&, sqlite3::context_t& context)
-  {
-    static_assert(wrong_t<Select>::value, "Sqlite3: No support for some()");
-    return context;
+    return {};
   }
 
   template <typename Lhs, typename Rhs>
-  sqlite3::context_t& to_sql_string(const pre_join_t<outer_join_t, Lhs, Rhs>&, sqlite3::context_t& context)
+  auto to_sql_string(sqlite3::context_t& context, const pre_join_t<full_outer_join_t, Lhs, Rhs>&)-> std::string
   {
-    static_assert(wrong_t<Lhs, Rhs>::value, "Sqlite3: No support for outer join");
-    return context;
+    static_assert(wrong_t<Lhs, Rhs>::value, "Sqlite3: No support for full outer join");
+    return {};
   }
 
   template <typename Lhs, typename Rhs>
-  sqlite3::context_t& to_sql_string(const pre_join_t<right_outer_join_t, Lhs, Rhs>&, sqlite3::context_t& context)
+  auto to_sql_string(sqlite3::context_t& context, const pre_join_t<right_outer_join_t, Lhs, Rhs>&)-> std::string
   {
     static_assert(wrong_t<Lhs, Rhs>::value, "Sqlite3: No support for right_outer join");
-    return context;
+    return {};
   }
 
   // Some special treatment of data types
   template <typename Period>
-  sqlite3::context_t& to_sql_string(const time_point_operand<Period>& t, sqlite3::context_t& context)
+  auto to_sql_string(sqlite3::context_t&, const std::chrono::time_point<std::chrono::system_clock, Period>& t)
+      -> std::string
   {
-    const auto dp = ::sqlpp::chrono::floor<::date::days>(t._t);
-    const auto time = ::date::make_time(t._t - dp);
-    const auto ymd = ::date::year_month_day{dp};
-    context << "STRFTIME('%Y-%m-%d %H:%M:%f', '" << ymd << ' ' << time << "')";
-    return context;
+    return date::format("DATETIME('%Y-%m-%d %H:%M:%S')", t);
   }
 
-  inline sqlite3::context_t& to_sql_string(const day_point_operand& t, sqlite3::context_t& context)
+  auto to_sql_string(sqlite3::context_t&, const std::chrono::microseconds& t) -> std::string
   {
-    const auto ymd = ::date::year_month_day{t._t};
-    context << "DATE('" << ymd << "')";
-    return context;
+    return date::format("TIME('%H:%M:%S')", t);
   }
 
-  inline sqlite3::context_t& to_sql_string(const floating_point_operand& t, sqlite3::context_t& context)
+  inline auto to_sql_string(sqlite3::context_t&, const sqlpp::chrono::day_point& t)-> std::string
   {
-    if (std::isnan(t._t))
-      context << "'NaN'";
-    else if (std::isinf(t._t))
-    {
-      if (t._t > std::numeric_limits<double>::max())
-        context << "'Inf'";
-      else
-        context << "'-Inf'";
-    }
-    else
-      context << t._t;
-    return context;
+    return date::format("DATE('%Y-%m-%d')", t);
   }
 
-  // sqlite3 accepts only signed integers,
-  // so we MUST perform a conversion from unsigned to signed
-  inline sqlite3::context_t& to_sql_string(const unsigned_integral_operand& t, sqlite3::context_t& context)
+  auto nan_to_sql_string(sqlite3::context_t& ) -> std::string
   {
-    context << static_cast<typename integral_operand::_value_t>(t._t);
-    return context;
+      return "'NaN'";
   }
+
+  auto inf_to_sql_string(sqlite3::context_t& ) -> std::string
+  {
+        return "'Inf'";
+  }
+
+  auto neg_inf_to_sql_string(sqlite3::context_t& ) -> std::string
+  {
+        return "'-Inf'";
+  }
+
+#warning: sqlite3 accepts only signed integers, need to test if that works OK
 }  // namespace sqlpp

@@ -33,12 +33,11 @@
 #include <sqlite3.h>
 #endif
 #include <sqlpp11/core/database/connection.h>
-#include <sqlpp11/core/detail/float_safe_ostringstream.h>
 #include <sqlpp11/core/database/exception.h>
 #include <sqlpp11/core/basic/schema.h>
 #include <sqlpp11/core/to_sql_string.h>
 #include <sqlpp11/sqlite3/bind_result.h>
-#include <sqlpp11/sqlite3/connection_config.h>
+#include <sqlpp11/sqlite3/database/connection_config.h>
 #include <sqlpp11/sqlite3/detail/connection_handle.h>
 #include <sqlpp11/sqlite3/prepared_statement.h>
 #include <sqlpp11/sqlite3/export.h>
@@ -116,36 +115,12 @@ namespace sqlpp
 
     struct context_t
     {
-      context_t(const connection_base& db) : _db{db}, _count{1}
+      context_t(const connection_base& db) : _db{db}
       {
-      }
-
-      template <typename T>
-      std::ostream& operator<<(T t)
-      {
-        return _os << t;
-      }
-
-      std::string escape(const std::string& arg) const;
-
-      std::string str() const
-      {
-        return _os.str();
-      }
-
-      size_t count() const
-      {
-        return _count;
-      }
-
-      void pop_count()
-      {
-        ++_count;
       }
 
       const connection_base& _db;
-      sqlpp::detail::float_safe_ostringstream _os;
-      size_t _count;
+      size_t _count = 0;
     };
 
     // Base connection class
@@ -246,33 +221,21 @@ namespace sqlpp
         using _null_result_is_trivial_value = std::true_type;
       };
 
-      template <typename T>
-      static _context_t& _serialize_interpretable(const T& t, _context_t& context)
-      {
-        return ::sqlpp::to_sql_string(context, t);
-      }
-
-      template <typename T>
-      static _context_t& _interpret_interpretable(const T& t, _context_t& context)
-      {
-        return ::sqlpp::to_sql_string(context, t);
-      }
-
       //! select returns a result (which can be iterated row by row)
       template <typename Select>
       bind_result_t select(const Select& s)
       {
         _context_t context{*this};
-        to_sql_string(context, s);
-        return select_impl(context.str());
+        auto query = to_sql_string(context, s);
+        return select_impl(query);
       }
 
       template <typename Select>
       _prepared_statement_t prepare_select(Select& s)
       {
         _context_t context{*this};
-        to_sql_string(context, s);
-        return prepare_impl(context.str());
+        auto query = to_sql_string(context, s);
+        return prepare_impl(query);
       }
 
       template <typename PreparedSelect>
@@ -288,16 +251,16 @@ namespace sqlpp
       size_t insert(const Insert& i)
       {
         _context_t context{*this};
-        to_sql_string(context, i);
-        return insert_impl(context.str());
+        auto query = to_sql_string(context, i);
+        return insert_impl(query);
       }
 
       template <typename Insert>
       _prepared_statement_t prepare_insert(Insert& i)
       {
         _context_t context{*this};
-        to_sql_string(context, i);
-        return prepare_impl(context.str());
+        auto query = to_sql_string(context, i);
+        return prepare_impl(query);
       }
 
       template <typename PreparedInsert>
@@ -313,16 +276,16 @@ namespace sqlpp
       size_t update(const Update& u)
       {
         _context_t context{*this};
-        to_sql_string(context, u);
-        return update_impl(context.str());
+        auto query = to_sql_string(context, u);
+        return update_impl(query);
       }
 
       template <typename Update>
       _prepared_statement_t prepare_update(Update& u)
       {
         _context_t context{*this};
-        to_sql_string(context, u);
-        return prepare_impl(context.str());
+        auto query = to_sql_string(context, u);
+        return prepare_impl(query);
       }
 
       template <typename PreparedUpdate>
@@ -338,16 +301,16 @@ namespace sqlpp
       size_t remove(const Remove& r)
       {
         _context_t context{*this};
-        to_sql_string(context, r);
-        return remove_impl(context.str());
+        auto query = to_sql_string(context, r);
+        return remove_impl(query);
       }
 
       template <typename Remove>
       _prepared_statement_t prepare_remove(Remove& r)
       {
         _context_t context{*this};
-        to_sql_string(context, r);
-        return prepare_impl(context.str());
+        auto query = to_sql_string(context, r);
+        return prepare_impl(query);
       }
 
       template <typename PreparedRemove>
@@ -373,16 +336,16 @@ namespace sqlpp
       size_t execute(const Execute& x)
       {
         _context_t context{*this};
-        to_sql_string(context, x);
-        return execute(context.str());
+        auto query = to_sql_string(context, x);
+        return execute(query);
       }
 
       template <typename Execute>
       _prepared_statement_t prepare_execute(Execute& x)
       {
         _context_t context{*this};
-        to_sql_string(context, x);
-        return prepare_impl(context.str());
+        auto query = to_sql_string(context, x);
+        return prepare_impl(query);
       }
 
       template <typename PreparedExecute>
@@ -551,11 +514,14 @@ namespace sqlpp
       }
     };
 
+#warning: Do we need this?
+    /*
     // Method definition moved outside of class because it needs connection_base
     inline std::string context_t::escape(const std::string& arg) const
     {
       return _db.escape(arg);
     }
+    */
 
     using connection = sqlpp::normal_connection<connection_base>;
     using pooled_connection = sqlpp::pooled_connection<connection_base>;

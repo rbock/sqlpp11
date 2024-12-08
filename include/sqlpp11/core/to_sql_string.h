@@ -32,6 +32,7 @@
 #include <iomanip>
 
 #include <sqlpp11/core/compat/optional.h>
+#include <sqlpp11/core/chrono.h>
 #include <sqlpp11/core/compat/span.h>
 #include <sqlpp11/core/compat/string_view.h>
 #include <sqlpp11/core/type_traits.h>

@@ -82,7 +82,10 @@ namespace sqlpp
       prepared_statement_t(std::shared_ptr<detail::prepared_statement_handle_t>&& handle) : _handle(std::move(handle))
       {
         if (_handle and _handle->debug)
-          std::cerr << "Sqlite3 debug: Constructing prepared_statement, clause/using.handle at " << _handle.get() << std::endl;
+        {
+          std::cerr << "Sqlite3 debug: Constructing prepared_statement, clause/using.handle at " << _handle.get()
+                    << std::endl;
+        }
       }
       prepared_statement_t(const prepared_statement_t&) = delete;
       prepared_statement_t(prepared_statement_t&& rhs) = default;
@@ -98,153 +101,149 @@ namespace sqlpp
       void _reset()
       {
         if (_handle->debug)
+        {
           std::cerr << "Sqlite3 debug: resetting prepared statement" << std::endl;
+        }
         sqlite3_reset(_handle->sqlite_statement);
       }
 
-      void _bind_boolean_parameter(size_t index, const signed char* value, bool is_null)
+      void _bind_parameter(size_t index, const bool& value)
       {
         if (_handle->debug)
-          std::cerr << "Sqlite3 debug: binding boolean parameter " << (*value ? "true" : "false")
-                    << " at index: " << index << ", being " << (is_null ? "" : "not ") << "null" << std::endl;
+        {
+          std::cerr << "Sqlite3 debug: binding boolean parameter " << (value ? "true" : "false")
+                    << " at index: " << index << std::endl;
+        }
 
-        int result;
-        if (not is_null)
-          result = sqlite3_bind_int(_handle->sqlite_statement, static_cast<int>(index + 1), *value);
-        else
-          result = sqlite3_bind_null(_handle->sqlite_statement, static_cast<int>(index + 1));
+        const int result = sqlite3_bind_int(_handle->sqlite_statement, static_cast<int>(index + 1), value);
         detail::check_bind_result(result, "boolean");
       }
 
-      void _bind_floating_point_parameter(size_t index, const double* value, bool is_null)
+      void _bind_parameter(size_t index, const double& value)
       {
         if (_handle->debug)
-          std::cerr << "Sqlite3 debug: binding floating_point parameter " << *value << " at index: " << index
-                    << ", being " << (is_null ? "" : "not ") << "null" << std::endl;
+        {
+          std::cerr << "Sqlite3 debug: binding floating_point parameter " << value << " at index: " << index
+                    << std::endl;
+        }
 
         int result;
-        if (not is_null)
+        if (std::isnan(value))
+          result = sqlite3_bind_text(_handle->sqlite_statement, static_cast<int>(index + 1), "NaN", 3, SQLITE_STATIC);
+        else if (std::isinf(value))
         {
-          if (std::isnan(*value))
-            result = sqlite3_bind_text(_handle->sqlite_statement, static_cast<int>(index + 1), "NaN", 3, SQLITE_STATIC);
-          else if (std::isinf(*value))
-          {
-            if (*value > std::numeric_limits<double>::max())
-              result =
-                  sqlite3_bind_text(_handle->sqlite_statement, static_cast<int>(index + 1), "Inf", 3, SQLITE_STATIC);
-            else
-              result =
-                  sqlite3_bind_text(_handle->sqlite_statement, static_cast<int>(index + 1), "-Inf", 4, SQLITE_STATIC);
-          }
+          if (value > std::numeric_limits<double>::max())
+            result = sqlite3_bind_text(_handle->sqlite_statement, static_cast<int>(index + 1), "Inf", 3, SQLITE_STATIC);
           else
-            result = sqlite3_bind_double(_handle->sqlite_statement, static_cast<int>(index + 1), *value);
+            result =
+                sqlite3_bind_text(_handle->sqlite_statement, static_cast<int>(index + 1), "-Inf", 4, SQLITE_STATIC);
         }
         else
-          result = sqlite3_bind_null(_handle->sqlite_statement, static_cast<int>(index + 1));
+          result = sqlite3_bind_double(_handle->sqlite_statement, static_cast<int>(index + 1), value);
         detail::check_bind_result(result, "floating_point");
       }
 
-      void _bind_integral_parameter(size_t index, const int64_t* value, bool is_null)
+      void _bind_parameter(size_t index, const int64_t& value)
       {
         if (_handle->debug)
-          std::cerr << "Sqlite3 debug: binding integral parameter " << *value << " at index: " << index << ", being "
-                    << (is_null ? "" : "not ") << "null" << std::endl;
+        {
+          std::cerr << "Sqlite3 debug: binding integral parameter " << value << " at index: " << index << std::endl;
+        }
 
-        int result;
-        if (not is_null)
-          result = sqlite3_bind_int64(_handle->sqlite_statement, static_cast<int>(index + 1), *value);
-        else
-          result = sqlite3_bind_null(_handle->sqlite_statement, static_cast<int>(index + 1));
+        const int result = sqlite3_bind_int64(_handle->sqlite_statement, static_cast<int>(index + 1), value);
         detail::check_bind_result(result, "integral");
       }
 
-      void _bind_unsigned_integral_parameter(size_t index, const uint64_t* value, bool is_null)
+      void _bind_parameter(size_t index, const uint64_t& value)
       {
         if (_handle->debug)
-          std::cerr << "Sqlite3 debug: binding unsigned integral parameter " << *value << " at index: " << index
-                    << ", being " << (is_null ? "" : "not ") << "null" << std::endl;
+        {
+          std::cerr << "Sqlite3 debug: binding unsigned integral parameter " << value << " at index: " << index
+                    << std::endl;
+        }
 
-        int result;
-        if (not is_null)
-          result =
-              sqlite3_bind_int64(_handle->sqlite_statement, static_cast<int>(index + 1), static_cast<int64_t>(*value));
-        else
-          result = sqlite3_bind_null(_handle->sqlite_statement, static_cast<int>(index + 1));
+        const int result =
+            sqlite3_bind_int64(_handle->sqlite_statement, static_cast<int>(index + 1), static_cast<int64_t>(value));
         detail::check_bind_result(result, "integral");
       }
 
-      void _bind_text_parameter(size_t index, const std::string* value, bool is_null)
+      void _bind_parameter(size_t index, const std::string& value)
       {
         if (_handle->debug)
-          std::cerr << "Sqlite3 debug: binding text parameter " << *value << " at index: " << index << ", being "
-                    << (is_null ? "" : "not ") << "null" << std::endl;
+        {
+          std::cerr << "Sqlite3 debug: binding text parameter " << value << " at index: " << index << std::endl;
+        }
 
-        int result;
-        if (not is_null)
-          result = sqlite3_bind_text(_handle->sqlite_statement, static_cast<int>(index + 1), value->data(),
-                                     static_cast<int>(value->size()), SQLITE_STATIC);
-        else
-          result = sqlite3_bind_null(_handle->sqlite_statement, static_cast<int>(index + 1));
+        const int result = sqlite3_bind_text(_handle->sqlite_statement, static_cast<int>(index + 1), value.data(),
+                                             static_cast<int>(value.size()), SQLITE_STATIC);
         detail::check_bind_result(result, "text");
       }
 
-      void _bind_date_parameter(size_t index, const ::sqlpp::chrono::day_point* value, bool is_null)
+      void _bind_parameter(size_t index, const ::sqlpp::chrono::day_point& value)
       {
         if (_handle->debug)
+        {
           std::cerr << "Sqlite3 debug: binding date parameter "
-                    << " at index: " << index << ", being " << (is_null ? "" : "not ") << "null" << std::endl;
-
-        int result;
-        if (not is_null)
-        {
-          std::ostringstream os;
-          const auto ymd = ::date::year_month_day{*value};
-          os << ymd;
-          const auto text = os.str();
-          result = sqlite3_bind_text(_handle->sqlite_statement, static_cast<int>(index + 1), text.data(),
-                                     static_cast<int>(text.size()), SQLITE_TRANSIENT);
+                    << " at index: " << index << std::endl;
         }
-        else
-          result = sqlite3_bind_null(_handle->sqlite_statement, static_cast<int>(index + 1));
+
+        std::ostringstream os;
+        const auto ymd = ::date::year_month_day{value};
+        os << ymd;
+        const auto text = os.str();
+        const int result = sqlite3_bind_text(_handle->sqlite_statement, static_cast<int>(index + 1), text.data(),
+                                             static_cast<int>(text.size()), SQLITE_TRANSIENT);
         detail::check_bind_result(result, "date");
       }
 
-      void _bind_date_time_parameter(size_t index, const ::sqlpp::chrono::microsecond_point* value, bool is_null)
+      void _bind_parameter(size_t index, const ::sqlpp::chrono::microsecond_point& value)
       {
         if (_handle->debug)
+        {
           std::cerr << "Sqlite3 debug: binding date_time parameter "
-                    << " at index: " << index << ", being " << (is_null ? "" : "not ") << "null" << std::endl;
-
-        int result;
-        if (not is_null)
-        {
-          const auto dp = ::sqlpp::chrono::floor<::date::days>(*value);
-          const auto time = ::date::make_time(::sqlpp::chrono::floor<::std::chrono::milliseconds>(*value - dp));
-          const auto ymd = ::date::year_month_day{dp};
-          std::ostringstream os;  // gcc-4.9 does not support auto os = std::ostringstream{};
-          os << ymd << ' ' << time;
-          const auto text = os.str();
-          result = sqlite3_bind_text(_handle->sqlite_statement, static_cast<int>(index + 1), text.data(),
-                                     static_cast<int>(text.size()), SQLITE_TRANSIENT);
+                    << " at index: " << index << std::endl;
         }
-        else
-          result = sqlite3_bind_null(_handle->sqlite_statement, static_cast<int>(index + 1));
+
+        const auto dp = ::sqlpp::chrono::floor<::date::days>(value);
+        const auto time = ::date::make_time(::sqlpp::chrono::floor<::std::chrono::milliseconds>(value - dp));
+        const auto ymd = ::date::year_month_day{dp};
+        std::ostringstream os;  // gcc-4.9 does not support auto os = std::ostringstream{};
+        os << ymd << ' ' << time;
+        const auto text = os.str();
+        const int result = sqlite3_bind_text(_handle->sqlite_statement, static_cast<int>(index + 1), text.data(),
+                                             static_cast<int>(text.size()), SQLITE_TRANSIENT);
         detail::check_bind_result(result, "date");
       }
 
-      void _bind_blob_parameter(size_t index, const std::vector<uint8_t>* value, bool is_null)
+      void _bind_parameter(size_t index, const std::vector<uint8_t>& value)
       {
         if (_handle->debug)
-          std::cerr << "Sqlite3 debug: binding vector parameter size of " << value->size() << " at index: " << index
-                    << ", being " << (is_null ? "" : "not ") << "null" << std::endl;
+        {
+          std::cerr << "Sqlite3 debug: binding vector parameter size of " << value.size() << " at index: " << index
+                    << std::endl;
+        }
 
-        int result;
-        if (not is_null)
-          result = sqlite3_bind_blob(_handle->sqlite_statement, static_cast<int>(index + 1), value->data(),
-                                     static_cast<int>(value->size()), SQLITE_STATIC);
-        else
-          result = sqlite3_bind_null(_handle->sqlite_statement, static_cast<int>(index + 1));
+        const int result = sqlite3_bind_blob(_handle->sqlite_statement, static_cast<int>(index + 1), value.data(),
+                                             static_cast<int>(value.size()), SQLITE_STATIC);
         detail::check_bind_result(result, "blob");
+      }
+
+      template <typename Parameter>
+      void _bind_parameter(size_t index, const ::sqlpp::optional<Parameter>& parameter)
+      {
+        if (parameter.has_value())
+        {
+          _bind_parameter(index, parameter.value());
+          return;
+        }
+
+        if (_handle->debug)
+        {
+          std::cerr << "Sqlite3 debug: binding NULL parameter at index: " << index << std::endl;
+        }
+
+        const int result = sqlite3_bind_null(_handle->sqlite_statement, static_cast<int>(index + 1));
+        detail::check_bind_result(result, "NULL");
       }
     };
   }  // namespace sqlite3

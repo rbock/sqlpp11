@@ -24,7 +24,6 @@
  */
 
 #include "Tables.h"
-#include <sqlpp11/core/query/query/custom_query.h>
 #include <sqlpp11/sqlite3/sqlite3.h>
 #include <sqlpp11/sqlpp11.h>
 
@@ -49,9 +48,9 @@ namespace
     if (l != r)
     {
       std::cerr << line << ": ";
-      to_sql_string(::sqlpp::wrap_operand_t<L>{l}, std::cerr);
+      std::cerr << sqlpp::to_sql_string(std::cerr, l);
       std::cerr << " != ";
-      to_sql_string(::sqlpp::wrap_operand_t<R>{r}, std::cerr);
+      std::cerr << sqlpp::to_sql_string(std::cerr, r);
       throw std::runtime_error("Unexpected result");
     }
   }
