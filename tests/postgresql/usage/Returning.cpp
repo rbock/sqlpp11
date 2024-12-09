@@ -35,7 +35,7 @@ int Returning(int, char*[])
       std::cout << "Gamma: " << row.textNnD << " Beta: " << row.intN << std::endl;
 
     auto removed =
-        db(sqlpp::postgresql::remove_from(foo).where(foo.intN == 0).returning(foo.textNnD, foo.intN));
+        db(sqlpp::postgresql::delete_from(foo).where(foo.intN == 0).returning(foo.textNnD, foo.intN));
     for (const auto& row : removed)
       std::cout << "Gamma: " << row.textNnD << " Beta: " << row.intN << std::endl;
 

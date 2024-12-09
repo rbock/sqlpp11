@@ -132,8 +132,8 @@ int Select(int, char*[])
   db(update(tab).set(tab.gamma = false).where(tab.alpha.in(1)));
   db(update(tab).set(tab.gamma = false).where(tab.alpha.in(std::vector<int>{1, 2, 3, 4})));
 
-  // remove
-  db(remove_from(tab).where(tab.alpha == tab.alpha + 3));
+  // delete
+  db(delete_from(tab).where(tab.alpha == tab.alpha + 3));
 
   auto result = db(select(all_of(tab)).from(tab).unconditionally());
   std::cerr << "Accessing a field directly from the result (using the current row): " << result.begin()->alpha

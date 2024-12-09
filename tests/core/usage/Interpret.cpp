@@ -95,8 +95,8 @@ int Interpret(int, char* [])
   to_sql_string(printer, update(t).set(t.boolNn = true)).str();
   to_sql_string(printer, update(t).set(t.boolNn = true).where(t.textN.in("kaesekuchen", "cheesecake"))).str();
 
-  to_sql_string(printer, remove_from(t)).str();
-  to_sql_string(printer, remove_from(t).using_(t)).str();
+  to_sql_string(printer, delete_from(t)).str();
+  to_sql_string(printer, delete_from(t).using_(t)).str();
 
   // functions
   to_sql_string(printer, sqlpp::value(7)).str();

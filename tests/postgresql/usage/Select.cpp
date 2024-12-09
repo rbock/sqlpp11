@@ -113,8 +113,8 @@ int Select(int, char*[])
   db(update(tab).set(tab.boolN = false).where(tab.id.in(1)));
   db(update(tab).set(tab.boolN = false).where(tab.id.in(std::vector<int>{1, 2, 3, 4})));
 
-  // remove
-  db(remove_from(tab).where(tab.id == tab.id + 3));
+  // delete
+  db(delete_from(tab).where(tab.id == tab.id + 3));
 
   auto result1 = db(select(all_of(tab)).from(tab).unconditionally());
   std::cerr << "Accessing a field directly from the result (using the current row): " << result1.begin()->id

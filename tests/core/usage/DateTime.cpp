@@ -76,11 +76,11 @@ int DateTime(int, char*[])
               t.timeOfDayN = ::sqlpp::chrono::time_of_day(std::chrono::system_clock::now()))
          .where(t.dayPointN < std::chrono::system_clock::now()));
 
-  db(remove_from(t).where(t.dayPointN == floor<::sqlpp::chrono::days>(std::chrono::system_clock::now())));
-  db(remove_from(t).where(t.dayPointN == std::chrono::system_clock::now()));
-  db(remove_from(t).where(t.timePointN == floor<::sqlpp::chrono::days>(std::chrono::system_clock::now())));
-  db(remove_from(t).where(t.timePointN == std::chrono::system_clock::now()));
-  db(remove_from(t).where(t.timeOfDayN == ::sqlpp::chrono::time_of_day(std::chrono::system_clock::now())));
+  db(delete_from(t).where(t.dayPointN == floor<::sqlpp::chrono::days>(std::chrono::system_clock::now())));
+  db(delete_from(t).where(t.dayPointN == std::chrono::system_clock::now()));
+  db(delete_from(t).where(t.timePointN == floor<::sqlpp::chrono::days>(std::chrono::system_clock::now())));
+  db(delete_from(t).where(t.timePointN == std::chrono::system_clock::now()));
+  db(delete_from(t).where(t.timeOfDayN == ::sqlpp::chrono::time_of_day(std::chrono::system_clock::now())));
 
   return 0;
 }

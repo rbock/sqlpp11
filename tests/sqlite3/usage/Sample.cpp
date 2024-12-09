@@ -24,7 +24,6 @@
  */
 
 #include "Tables.h"
-#include <sqlpp11/core/query/query/custom_query.h>
 #include <sqlpp11/sqlite3/sqlite3.h>
 #include <sqlpp11/sqlpp11.h>
 
@@ -37,14 +36,17 @@
 #include <iostream>
 #include <vector>
 
-SQLPP_CREATE_NAME_TAG(pragma)
-SQLPP_CREATE_NAME_TAG(sub)
+namespace {
+SQLPP_CREATE_NAME_TAG(pragma);
+SQLPP_CREATE_NAME_TAG(sub);
+SQLPP_CREATE_NAME_TAG(something);
 
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const ::sqlpp::optional<T>& t) {
   if (not t)
     return os << "NULL";
   return os << t.value();
+}
 }
 
 namespace sql = sqlpp::sqlite3;
@@ -62,7 +64,7 @@ int Sample(int, char*[])
   const auto tab = test::TabSample{};
 
   // clear the table
-  db(remove_from(tab).unconditionally());
+  db(delete_from(tab).unconditionally());
 
   // explicit all_of(tab)
   for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
@@ -76,7 +78,7 @@ int Sample(int, char*[])
     std::cerr << "row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma << std::endl;
   };
   // insert
-  std::cerr << "no of required columns: " << test::TabSample::_required_insert_columns::size::value << std::endl;
+  std::cerr << "no of required columns: " << sqlpp::required_insert_columns_of_t<test::TabSample>::size() << std::endl;
   db(insert_into(tab).default_values());
   std::cout << "Last Insert ID: " << db.last_insert_id() << "\n";
   db(insert_into(tab).set(tab.gamma = true));
@@ -87,8 +89,8 @@ int Sample(int, char*[])
   db(update(tab).set(tab.gamma = false).where(tab.alpha.in(1)));
   db(update(tab).set(tab.gamma = false).where(tab.alpha.in(std::vector<int>{1, 2, 3, 4})));
 
-  // remove
-  db(remove_from(tab).where(tab.alpha == tab.alpha + 3));
+  // delete
+  db(delete_from(tab).where(tab.alpha == tab.alpha + 3));
 
   auto result = db(select(all_of(tab)).from(tab).unconditionally());
   std::cerr << "Accessing a field directly from the result (using the current row): " << result.begin()->alpha
@@ -97,12 +99,12 @@ int Sample(int, char*[])
 
   auto tx = start_transaction(db);
   test::TabFoo foo;
-  for (const auto& row : db(select(all_of(tab), select(max(foo.omega)).from(foo).where(foo.omega > tab.alpha))
+  for (const auto& row : db(select(all_of(tab), select(max(foo.omega).as(something)).from(foo).where(foo.omega > tab.alpha))
                                 .from(tab)
                                 .unconditionally()))
   {
     ::sqlpp::optional<int64_t> x = row.alpha;
-    ::sqlpp::optional<int64_t> a = row.max;
+    ::sqlpp::optional<int64_t> a = row.something;
     std::cout << x << ", " << a << std::endl;
   }
   tx.commit();
@@ -133,7 +135,7 @@ int Sample(int, char*[])
   }
 
   std::cerr << "--------" << std::endl;
-  const auto last_id = sqlpp::eval<sqlpp::integer>(db, "last_insert_rowid()");
+  const auto last_id = db(select(sqlpp::verbatim<sqlpp::integral>("last_insert_rowid()").as(something))).front().something;
   ps.params.alpha = last_id.value();
   ps.params.gamma = false;
   for (const auto& row : db(ps))
@@ -160,7 +162,7 @@ int Sample(int, char*[])
   pu.params.gamma = false;
   std::cerr << "Updated: " << db(pu) << std::endl;
 
-  auto pr = db.prepare(remove_from(tab).where(tab.beta != parameter(tab.beta)));
+  auto pr = db.prepare(delete_from(tab).where(tab.beta != parameter(tab.beta)));
   pr.params.beta = "prepared cake";
   std::cerr << "Deleted lines: " << db(pr) << std::endl;
 
@@ -181,7 +183,7 @@ int Sample(int, char*[])
   i = db(sqlpp::sqlite3::insert_or_ignore_into(tab).set(tab.beta = "test", tab.gamma = true));
   std::cerr << i << std::endl;
 
-  assert(db(select(count(tab.id)).from(tab).unconditionally()).begin()->count);
+  assert(db(select(count(tab.id).as(something)).from(tab).unconditionally()).begin()->something);
   assert(
       db(select(all_of(tab)).from(tab).where(tab.alpha.not_in(select(tab.alpha).from(tab).unconditionally()))).empty());
 
@@ -200,7 +202,7 @@ int Sample(int, char*[])
     std::cerr << row.alpha;
   }
 
-  for (const auto& row : db(select(subQuery.alpha).from(tab.inner_join(subQuery).unconditionally()).unconditionally()))
+  for (const auto& row : db(select(subQuery.alpha).from(tab.cross_join(subQuery)).unconditionally()))
   {
     std::cerr << "row.alpha: " << row.alpha << std::endl;
   }

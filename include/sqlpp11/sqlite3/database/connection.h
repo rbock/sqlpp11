@@ -190,7 +190,7 @@ namespace sqlpp
         return static_cast<size_t>(sqlite3_changes(native_handle()));
       }
 
-      size_t run_prepared_remove_impl(prepared_statement_t& prepared_statement)
+      size_t run_prepared_delete_impl(prepared_statement_t& prepared_statement)
       {
         execute_statement(_handle, *prepared_statement._handle.get());
 
@@ -314,11 +314,11 @@ namespace sqlpp
       }
 
       template <typename PreparedRemove>
-      size_t run_prepared_remove(const PreparedRemove& r)
+      size_t run_prepared_delete(const PreparedRemove& r)
       {
         r._prepared_statement._reset();
         r._bind_params();
-        return run_prepared_remove_impl(r._prepared_statement);
+        return run_prepared_delete_impl(r._prepared_statement);
       }
 
       //! Execute a single arbitrary statement (e.g. create a table)

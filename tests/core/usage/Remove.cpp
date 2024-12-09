@@ -38,27 +38,27 @@ int Remove(int, char* [])
   const auto f = test::TabFoo{};
 
   {
-    using T = decltype(remove_from(t));
+    using T = decltype(delete_from(t));
     static_assert(sqlpp::is_regular<T>::value, "type requirement");
   }
 
   {
-    using T = decltype(remove_from(t).where(t.textN != "transparent"));
-    auto x = remove_from(t).where(t.textN != "transparent");
+    using T = decltype(delete_from(t).where(t.textN != "transparent"));
+    auto x = delete_from(t).where(t.textN != "transparent");
     T y(x);
     T z(std::move(x));
     static_assert(sqlpp::is_regular<T>::value, "type requirement");
   }
 
-  to_sql_string(printer, remove_from(t)).str();
-  to_sql_string(printer, remove_from(t).where(t.textN != "transparent")).str();
-  to_sql_string(printer, remove_from(t).using_(t)).str();
-  to_sql_string(printer, remove_from(t).using_(f)).str();
+  to_sql_string(printer, delete_from(t)).str();
+  to_sql_string(printer, delete_from(t).where(t.textN != "transparent")).str();
+  to_sql_string(printer, delete_from(t).using_(t)).str();
+  to_sql_string(printer, delete_from(t).using_(f)).str();
 #warning: add tests with optional using and optional where
   printer.reset();
-  std::cerr << to_sql_string(printer, remove_from(t).unconditionally()).str() << std::endl;
+  std::cerr << to_sql_string(printer, delete_from(t).unconditionally()).str() << std::endl;
 
-  remove_from(t).where(t.textN.in(select(f.textNnD).from(f).unconditionally()));
+  delete_from(t).where(t.textN.in(select(f.textNnD).from(f).unconditionally()));
 
   return 0;
 }
