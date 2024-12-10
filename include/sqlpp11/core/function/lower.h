@@ -28,11 +28,12 @@
 
 #include <sqlpp11/core/to_sql_string.h>
 #include <sqlpp11/core/type_traits.h>
+#include <sqlpp11/core/operator/enable_as.h>
 
 namespace sqlpp
 {
   template <typename Expr>
-  struct lower_t
+  struct lower_t : public enable_as<lower_t<Expr>>
   {
     using _traits = make_traits<text, tag::is_expression, tag::is_selectable>;
 

@@ -100,7 +100,7 @@ int Blob(int, char*[])
   auto prepared_insert = db.prepare(insert_into(tab).set(tab.data = parameter(tab.data)));
   prepared_insert.params.data = data;
   const auto prep_id = db(prepared_insert);
-  prepared_insert.params.data.set_null();
+  prepared_insert.params.data = sqlpp::nullopt;
   const auto null_id = db(prepared_insert);
 
   verify_blob(db, data_smaller, id);

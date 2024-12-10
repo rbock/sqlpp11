@@ -191,20 +191,20 @@ namespace sqlpp
       }
 
       template <typename T>
-      auto read_field(size_t index, ::sqlpp::optional<T>& value) -> void
+      auto read_field(size_t index, ::sqlpp::optional<T>& field) -> void
       {
         const bool is_null = sqlite3_column_type(_handle->sqlite_statement, static_cast<int>(index)) == SQLITE_NULL;
         if (is_null)
         {
-          value.reset();
+          field.reset();
         }
         else
         {
-          if (not value)
+          if (not field.has_value())
           {
-            value = T{};
+            field = T{};
           }
-          read_field(index, *value);
+          read_field(index, *field);
         }
       }
 

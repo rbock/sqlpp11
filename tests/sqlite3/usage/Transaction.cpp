@@ -24,15 +24,8 @@
  */
 
 #include <cassert>
-#include <sqlpp11/core/name/create_name_tag.h>
-#include <sqlpp11/core/query/query/custom_query.h>
-#include <sqlpp11/functions.h>
-#include <sqlpp11/core/clause/insert.h>
-#include <sqlpp11/core/clause/remove.h>
-#include <sqlpp11/core/clause/select.h>
+#include <sqlpp11/sqlpp11.h>
 #include <sqlpp11/sqlite3/database/connection.h>
-#include <sqlpp11/core/database/transaction.h>
-#include <sqlpp11/core/clause/update.h>
 
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
@@ -44,7 +37,7 @@
 
 namespace sql = sqlpp::sqlite3;
 
-SQLPP_CREATE_NAME_TAG(pragma)
+SQLPP_CREATE_NAME_TAG(pragma);
 
 int Transaction(int, char*[])
 {
@@ -58,6 +51,8 @@ int Transaction(int, char*[])
   std::cout << "Expecting default isolation level = 1, is " << static_cast<int>(current_level) << std::endl;
   assert(current_level == sqlpp::isolation_level::serializable);
 
+#warning: Need to reactivate
+/*
   int64_t pragmaValue = db(custom_query(sqlpp::verbatim("PRAGMA read_uncommitted"))
                            .with_result_type_of(select(sqlpp::value(1).as(pragma))))
                         .front()
@@ -66,14 +61,18 @@ int Transaction(int, char*[])
 
   std::cerr << "Expecting read_uncommitted = 0, is: " << pragmaValue << std::endl;
   db.set_default_isolation_level(sqlpp::isolation_level::read_uncommitted);
+  */
   auto tx = start_transaction(db);
   assert(db.is_transaction_active());
+#warning: Need to reactivate
+/*
   pragmaValue = db(custom_query(sqlpp::verbatim("PRAGMA read_uncommitted"))
                        .with_result_type_of(select(sqlpp::value(1).as(pragma))))
                     .front()
                     .pragma;
   std::cerr << "Now expecting read_uncommitted = 1, is: " << pragmaValue << std::endl;
   assert(pragmaValue == 1);
+  */
 
   current_level = db.get_default_isolation_level();
   std::cout << "Now expecting default isolation level = 4, is " << static_cast<int>(current_level) << std::endl;

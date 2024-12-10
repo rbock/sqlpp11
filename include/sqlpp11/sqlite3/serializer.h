@@ -92,7 +92,7 @@ namespace sqlpp
     return date::format("DATETIME('%Y-%m-%d %H:%M:%S')", t);
   }
 
-  auto to_sql_string(sqlite3::context_t&, const std::chrono::microseconds& t) -> std::string
+  inline auto to_sql_string(sqlite3::context_t&, const std::chrono::microseconds& t) -> std::string
   {
     return date::format("TIME('%H:%M:%S')", t);
   }
@@ -102,17 +102,17 @@ namespace sqlpp
     return date::format("DATE('%Y-%m-%d')", t);
   }
 
-  auto nan_to_sql_string(sqlite3::context_t& ) -> std::string
+  inline auto nan_to_sql_string(sqlite3::context_t& ) -> std::string
   {
       return "'NaN'";
   }
 
-  auto inf_to_sql_string(sqlite3::context_t& ) -> std::string
+  inline auto inf_to_sql_string(sqlite3::context_t& ) -> std::string
   {
         return "'Inf'";
   }
 
-  auto neg_inf_to_sql_string(sqlite3::context_t& ) -> std::string
+  inline auto neg_inf_to_sql_string(sqlite3::context_t& ) -> std::string
   {
         return "'-Inf'";
   }

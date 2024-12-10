@@ -24,14 +24,8 @@
  */
 
 #include "Tables.h"
-#include <sqlpp11/core/name/create_name_tag.h>
-#include <sqlpp11/functions.h>
-#include <sqlpp11/core/clause/insert.h>
-#include <sqlpp11/core/clause/remove.h>
-#include <sqlpp11/core/clause/select.h>
+#include <sqlpp11/sqlpp11.h>
 #include <sqlpp11/sqlite3/database/connection.h>
-#include <sqlpp11/core/database/transaction.h>
-#include <sqlpp11/core/clause/update.h>
 
 #ifdef SQLPP_USE_SQLCIPHER
 #include <sqlcipher/sqlite3.h>
@@ -48,7 +42,7 @@ std::ostream& operator<<(std::ostream& os, const ::sqlpp::optional<T>& t) {
   return os << t.value();
 }
 
-SQLPP_CREATE_NAME_TAG(left)
+SQLPP_CREATE_NAME_TAG(left);
 
 namespace sql = sqlpp::sqlite3;
 int DynamicSelect(int, char*[])
@@ -73,7 +67,7 @@ int DynamicSelect(int, char*[])
 
   // Just to demonstrate that you can call basically any function
   std::cerr << "last insert rowid: "
-            << db(select(sqlpp::verbatim<sqlpp::integer>("last_insert_rowid()").as(tab.alpha))).front().alpha
+            << db(select(sqlpp::verbatim<sqlpp::integral>("last_insert_rowid()").as(tab.alpha))).front().alpha
             << std::endl;
 
 #warning: add tests with optional columns

@@ -26,14 +26,8 @@
 
 #include "Tables.h"
 #include <cassert>
-#include <sqlpp11/core/name/create_name_tag.h>
-#include <sqlpp11/functions.h>
-#include <sqlpp11/core/clause/insert.h>
-#include <sqlpp11/core/clause/remove.h>
-#include <sqlpp11/core/clause/select.h>
+#include <sqlpp11/sqlpp11.h>
 #include <sqlpp11/sqlite3/database/connection.h>
-#include <sqlpp11/core/database/transaction.h>
-#include <sqlpp11/core/clause/update.h>
 
 #include <iostream>
 #include <vector>
@@ -94,6 +88,10 @@ namespace string_util
   }
 }
 
+namespace {
+  SQLPP_CREATE_NAME_TAG(something);
+}
+
 int Select(int, char*[])
 {
   sql::connection db({":memory:", SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, "", true});
@@ -114,12 +112,12 @@ int Select(int, char*[])
   db(select(all_of(tab)).from(tab).where(tab.alpha.in(std::vector<int>{1, 2, 3, 4})));
   db(select(all_of(tab)).from(tab).where(tab.alpha.not_in(1, 2, 3)));
   db(select(all_of(tab)).from(tab).where(tab.alpha.not_in(std::vector<int>{1, 2, 3, 4})));
-  db(select(count(tab.alpha)).from(tab).unconditionally());
-  db(select(avg(tab.alpha)).from(tab).unconditionally());
-  db(select(max(tab.alpha)).from(tab).unconditionally());
-  db(select(min(tab.alpha)).from(tab).unconditionally());
-  db(select(exists(select(tab.alpha).from(tab).where(tab.alpha > 7))).from(tab).unconditionally());
-  db(select(trim(tab.beta)).from(tab).unconditionally());
+  db(select(count(tab.alpha).as(something)).from(tab).unconditionally());
+  db(select(avg(tab.alpha).as(something)).from(tab).unconditionally());
+  db(select(max(tab.alpha).as(something)).from(tab).unconditionally());
+  db(select(min(tab.alpha).as(something)).from(tab).unconditionally());
+  db(select(exists(select(tab.alpha).from(tab).where(tab.alpha > 7)).as(something)).from(tab).unconditionally());
+  db(select(trim(tab.beta).as(something)).from(tab).unconditionally());
 
   // db(select(not_exists(select(tab.alpha).from(tab).where(tab.alpha > 7))).from(tab));
   // db(select(all_of(tab)).from(tab).where(tab.alpha == any(select(tab.alpha).from(tab).where(tab.alpha < 3))));
@@ -142,28 +140,28 @@ int Select(int, char*[])
 
   std::cerr << "--------------------------------------" << std::endl;
   auto tx = start_transaction(db);
-  for (const auto& row : db(select(all_of(tab), select(max(tab.alpha)).from(tab)).from(tab).unconditionally()))
+  for (const auto& row : db(select(all_of(tab), select(max(tab.alpha).as(something)).from(tab)).from(tab).unconditionally()))
   {
     const auto x = row.alpha;
-    const auto a = row.max;
+    const auto a = row.something;
     std::cout << ">>>" << x << ", " << a << std::endl;
   }
   for (const auto& row :
-       db(select(tab.alpha, tab.beta, tab.gamma, trim(tab.beta))
+       db(select(tab.alpha, tab.beta, tab.gamma, trim(tab.beta).as(something))
               .from(tab)
               .unconditionally()))
   {
     std::cerr << ">>> row.alpha: " << row.alpha << ", row.beta: " << row.beta << ", row.gamma: " << row.gamma
-              << ", row.trim: '" << row.trim << "'" << std::endl;
-    // check trim
-    assert((not row.beta and not row.trim) || string_util::trim(std::string(row.beta.value())) == row.trim.value());
+              << ", row.something: '" << row.something << "'" << std::endl;
+    // check something
+    assert((not row.beta and not row.something) || string_util::trim(std::string(row.beta.value())) == row.something.value());
     // end
   };
 
-  for (const auto& row : db(select(all_of(tab), select(trim(tab.beta)).from(tab)).from(tab).unconditionally()))
+  for (const auto& row : db(select(all_of(tab), select(trim(tab.beta).as(something)).from(tab)).from(tab).unconditionally()))
   {
     const ::sqlpp::optional<int64_t> x = row.alpha;
-    const ::sqlpp::optional<sqlpp::sqlpp::string_view> a = row.trim;
+    const ::sqlpp::optional<sqlpp::string_view> a = row.something;
     std::cout << ">>>" << x << ", " << a << std::endl;
   }
 
