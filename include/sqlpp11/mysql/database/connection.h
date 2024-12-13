@@ -156,12 +156,6 @@ namespace sqlpp
 
     struct context_t
     {
-      context_t(const connection_base& db) : _db{db}
-      {
-      }
-      context_t(const connection_base&&) = delete;
-
-      const connection_base& _db;
     };
 
     std::integral_constant<char, '`'> get_quote_left(const context_t&);
@@ -267,7 +261,7 @@ namespace sqlpp
       template <typename Select>
       char_result_t select(const Select& s)
       {
-        _context_t context{*this};
+        _context_t context;
         const auto query = to_sql_string(context, s);
         return select_impl(query);
       }
@@ -275,7 +269,7 @@ namespace sqlpp
       template <typename Select>
       _prepared_statement_t prepare_select(Select& s)
       {
-        _context_t context{*this};
+        _context_t context;
         const auto query = to_sql_string(context, s);
         return prepare_impl(query, s._get_no_of_parameters(), s.get_no_of_result_columns());
       }
@@ -291,7 +285,7 @@ namespace sqlpp
       template <typename Insert>
       size_t insert(const Insert& i)
       {
-        _context_t context{*this};
+        _context_t context;
         const auto query = to_sql_string(context, i);
         return insert_impl(query);
       }
@@ -299,7 +293,7 @@ namespace sqlpp
       template <typename Insert>
       _prepared_statement_t prepare_insert(Insert& i)
       {
-        _context_t context{*this};
+        _context_t context;
         const auto query = to_sql_string(context, i);
         return prepare_impl(query, i._get_no_of_parameters(), 0);
       }
@@ -315,7 +309,7 @@ namespace sqlpp
       template <typename Update>
       size_t update(const Update& u)
       {
-        _context_t context{*this};
+        _context_t context;
         const auto query = to_sql_string(context, u);
         return update_impl(query);
       }
@@ -323,7 +317,7 @@ namespace sqlpp
       template <typename Update>
       _prepared_statement_t prepare_update(Update& u)
       {
-        _context_t context{*this};
+        _context_t context;
         const auto query = to_sql_string(context, u);
         return prepare_impl(query, u._get_no_of_parameters(), 0);
       }
@@ -339,7 +333,7 @@ namespace sqlpp
       template <typename Remove>
       size_t remove(const Remove& r)
       {
-        _context_t context{*this};
+        _context_t context;
         const auto query = to_sql_string(context, r);
         return remove_impl(query);
       }
@@ -347,7 +341,7 @@ namespace sqlpp
       template <typename Remove>
       _prepared_statement_t prepare_remove(Remove& r)
       {
-        _context_t context{*this};
+        _context_t context;
         const auto query = to_sql_string(context, r);
         return prepare_impl(query, r._get_no_of_parameters(), 0);
       }

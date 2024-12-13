@@ -34,10 +34,10 @@
 #include <vector>
 
 #include <libpq-fe.h>
-#include <sqlpp11/postgresql/core/result.h>
+#include <sqlpp11/postgresql/result.h>
 #include <sqlpp11/postgresql/visibility.h>
 
-#include "connection_handle.h"
+#include <sqlpp11/postgresql/database/connection_handle.h>
 
 #ifdef SQLPP_DYNAMIC_LOADING
 #include <sqlpp11/postgresql/dynamic_libpq.h>

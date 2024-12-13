@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/data_types/no_value.h>
+#include <sqlpp11/core/noop.h>
 #include <sqlpp11/core/detail/column_tuple_merge.h>
 #include <sqlpp11/core/detail/type_set.h>
 #include <sqlpp11/expression_fwd.h>
@@ -50,7 +50,7 @@ namespace sqlpp
       template <typename... Columns>
       struct returning_traits
       {
-        using _traits = make_traits<no_value_t, tag::is_returning_column_list, tag::is_return_value>;
+        using _traits = make_traits<noop_t, tag::is_returning_column_list, tag::is_return_value>;
       };
 
       template <typename Column>
@@ -217,7 +217,7 @@ namespace sqlpp
 
     struct no_returning_column_list_t
     {
-      using _traits = make_traits<no_value_t, tag::is_noop, tag::is_missing>;
+      using _traits = make_traits<noop_t, tag::is_noop, tag::is_missing>;
 
       // Data
       using _data_t = no_data_t;

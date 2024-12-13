@@ -31,7 +31,7 @@
   classes copied clause/from.http://pqxx.org/devprojects/libpqxx/doc/3.1/html/Reference/a00032.html
 */
 
-#include "visibility.h"
+#include <sqlpp11/postgresql/visibility.h>
 #include <sqlpp11/core/database/exception.h>
 #include <string>
 

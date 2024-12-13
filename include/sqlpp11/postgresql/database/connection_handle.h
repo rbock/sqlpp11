@@ -32,7 +32,7 @@
 #include <string>
 
 #include <libpq-fe.h>
-#include <sqlpp11/postgresql/connection_config.h>
+#include <sqlpp11/postgresql/database/connection_config.h>
 #include <sqlpp11/postgresql/visibility.h>
 
 #ifdef SQLPP_DYNAMIC_LOADING

@@ -2,6 +2,7 @@
 
 /**
  * Copyright © 2014-2015, Matthijs Möhlmann
+ * Copyright (c) 2023, Vesselin Atanasov
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,42 +28,22 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/chrono.h>
-#include <sqlpp11/core/basic/parameter.h>
+#include <cstddef>
 
 namespace sqlpp
 {
-  // Serialize parameters
-  template <typename ValueType, typename NameType>
-  auto to_sql_string(postgresql::context_t& context, const parameter_t<ValueType, NameType>&) -> std::string
+  namespace postgresql
   {
-      return std::string("$") + std::to_string(++context._count);
-  }
-
-#warning: Do we need this specialization? Or does the core code work, too?
-  inline auto to_sql_string(postgresql::context_t& , const ::sqlpp::span<uint8_t>& t) -> std::string
-  {
-    constexpr char hex_chars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-    auto result = std::string("'\\x");
-    for (const auto c : t)
+    // Context for serialization
+    struct context_t
     {
-      result.push_back(hex_chars[c >> 4]);
-      result.push_back(hex_chars[c & 0x0F]);
-    }
-    result.push_back('\'');
+      context_t() = default;
+      context_t(const context_t&) = delete;
+      context_t(context_t&&) = delete;
+      context_t& operator=(const context_t&) = delete;
+      context_t& operator=(context_t&&) = delete;
 
-    return result;
-  }
-
-  template <typename Period>
-  auto to_sql_string(postgresql::context_t& context, const std::chrono::time_point<std::chrono::system_clock, Period>& t) -> std::string
-  {
-    return date::format("TIMESTAMP WITH TIME ZONE '%Y-%m-%d %H:%M:%S+00'", t);
-  }
-
-  template <typename Period>
-  auto to_sql_string(postgresql::context_t& context, const std::chrono::microseconds& t) -> std::string
-  {
-    return date::format("TIME WITH TIME ZONE'%H:%M:%S+00'", t);
-  }
-}
+      size_t _count{0};
+    };
+  }  // namespace postgresql
+}  // namespace sqlpp

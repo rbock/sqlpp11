@@ -31,7 +31,8 @@
 #include <memory>
 #include <string>
 #include <sqlpp11/core/chrono.h>
-#include <sqlpp11/core/detail/float_safe_ostringstream.h>
+#include <sqlpp11/postgresql/database/serializer_context.h>
+#include <sqlpp11/postgresql/serializer.h>
 #include <sqlpp11/postgresql/database/exception.h>
 
 namespace sqlpp
@@ -116,9 +117,8 @@ namespace sqlpp
         _handle->null_values[index] = is_null;
         if (!is_null)
         {
-          sqlpp::detail::float_safe_ostringstream out;
-          out << *value;
-          _handle->param_values[index] = out.str();
+          context_t context;
+          _handle->param_values[index] = to_sql_string(context, *value);
         }
       }
 

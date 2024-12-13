@@ -34,13 +34,13 @@
 
 #include <sqlpp11/core/compat/make_unique.h>
 #include <sqlpp11/core/database/connection.h>
-#include <sqlpp11/core/detail/float_safe_ostringstream.h>
 #include <sqlpp11/postgresql/bind_result.h>
-#include <sqlpp11/postgresql/connection_config.h>
+#include <sqlpp11/postgresql/database/connection_config.h>
 #include <sqlpp11/postgresql/prepared_statement.h>
+#include <sqlpp11/postgresql/database/serializer_context.h>
 #include <sqlpp11/postgresql/database/exception.h>
-#include <sqlpp11/postgresql/core/result.h>
-#include <sqlpp11/postgresql/detail/connection_handle.h>
+#include <sqlpp11/postgresql/result.h>
+#include <sqlpp11/postgresql/database/connection_handle.h>
 #include <sqlpp11/postgresql/detail/prepared_statement_handle.h>
 #include <sqlpp11/core/to_sql_string.h>
 #include <sqlpp11/core/database/transaction.h>
@@ -82,51 +82,7 @@ namespace sqlpp
         }
         prepared->execute();
       }
-    }
-
-    // Forward declaration
-    class connection_base;
-
-    // Context
-    struct context_t
-    {
-      context_t(const connection_base& db) : _db(db)
-      {
-      }
-      context_t(const connection_base&&) = delete;
-
-      template <typename T>
-      std::ostream& operator<<(T t)
-      {
-        return _os << t;
-      }
-
-      std::ostream& operator<<(bool t)
-      {
-        return _os << (t ? "TRUE" : "FALSE");
-      }
-
-      std::string escape(const std::string& arg) const;
-
-      std::string str() const
-      {
-        return _os.str();
-      }
-
-      size_t count() const
-      {
-        return _count;
-      }
-
-      void pop_count()
-      {
-        ++_count;
-      }
-
-      const connection_base& _db;
-      sqlpp::detail::float_safe_ostringstream _os;
-      size_t _count{1};
-    };
+    }  // namespace detail
 
     // Base connection class
     class connection_base : public sqlpp::connection
@@ -221,25 +177,12 @@ namespace sqlpp
         using _null_result_is_trivial_value = std::true_type;
       };
 
-      template <typename T>
-      static _context_t& _serialize_interpretable(const T& t, _context_t& context)
-      {
-        return ::sqlpp::to_sql_string(context, t);
-      }
-
-      template <typename T>
-      static _context_t& _interpret_interpretable(const T& t, _context_t& context)
-      {
-        return ::sqlpp::to_sql_string(context, t);
-      }
-
       // Select stmt (returns a result)
       template <typename Select>
       bind_result_t select(const Select& s)
       {
         _context_t ctx{*this};
-        to_sql_string(s, ctx);
-        return select_impl(ctx.str());
+        return select_impl(to_sql_string(ctx, s));
       }
 
       // Prepared select
@@ -247,8 +190,7 @@ namespace sqlpp
       _prepared_statement_t prepare_select(Select& s)
       {
         _context_t ctx{*this};
-        to_sql_string(s, ctx);
-        return prepare_impl(ctx.str(), ctx.count() - 1);
+        return prepare_impl(to_sql_string(ctx, s), ctx._count);
       }
 
       template <typename PreparedSelect>
@@ -260,19 +202,17 @@ namespace sqlpp
 
       // Insert
       template <typename Insert>
-      size_t insert(const Insert& i)
+      size_t insert(const Insert& s)
       {
         _context_t ctx{*this};
-        to_sql_string(i, ctx);
-        return insert_impl(ctx.str());
+        return insert_impl(to_sql_string(ctx, s));
       }
 
       template <typename Insert>
-      prepared_statement_t prepare_insert(Insert& i)
+      prepared_statement_t prepare_insert(Insert& s)
       {
         _context_t ctx{*this};
-        to_sql_string(i, ctx);
-        return prepare_impl(ctx.str(), ctx.count() - 1);
+        return prepare_impl(to_sql_string(ctx, s), ctx._count);
       }
 
       template <typename PreparedInsert>
@@ -284,19 +224,17 @@ namespace sqlpp
 
       // Update
       template <typename Update>
-      size_t update(const Update& u)
+      size_t update(const Update& s)
       {
         _context_t ctx{*this};
-        to_sql_string(u, ctx);
-        return update_impl(ctx.str());
+        return update_impl(to_sql_string(ctx, s));
       }
 
       template <typename Update>
-      prepared_statement_t prepare_update(Update& u)
+      prepared_statement_t prepare_update(Update& s)
       {
         _context_t ctx{*this};
-        to_sql_string(u, ctx);
-        return prepare_impl(ctx.str(), ctx.count() - 1);
+        return prepare_impl(to_sql_string(ctx, s), ctx._count);
       }
 
       template <typename PreparedUpdate>
@@ -308,19 +246,17 @@ namespace sqlpp
 
       // Remove
       template <typename Remove>
-      size_t remove(const Remove& r)
+      size_t remove(const Remove& s)
       {
         _context_t ctx{*this};
-        to_sql_string(r, ctx);
-        return remove_impl(ctx.str());
+        return remove_impl(to_sql_string(ctx, s));
       }
 
       template <typename Remove>
-      prepared_statement_t prepare_remove(Remove& r)
+      prepared_statement_t prepare_remove(Remove& s)
       {
         _context_t ctx{*this};
-        to_sql_string(r, ctx);
-        return prepare_impl(ctx.str(), ctx.count() - 1);
+        return prepare_impl(to_sql_string(ctx, s), ctx._count);
       }
 
       template <typename PreparedRemove>
@@ -351,19 +287,17 @@ namespace sqlpp
       template <
           typename Execute,
           typename Enable = typename std::enable_if<not std::is_convertible<Execute, std::string>::value, void>::type>
-      std::shared_ptr<detail::statement_handle_t> execute(const Execute& x)
+      std::shared_ptr<detail::statement_handle_t> execute(const Execute& s)
       {
         _context_t ctx{*this};
-        to_sql_string(x, ctx);
-        return execute(ctx.str());
+        return execute(to_sql_string(ctx, s));
       }
 
       template <typename Execute>
-      _prepared_statement_t prepare_execute(Execute& x)
+      _prepared_statement_t prepare_execute(Execute& s)
       {
         _context_t ctx{*this};
-        to_sql_string(x, ctx);
-        return prepare_impl(ctx.str(), ctx.count() - 1);
+        return prepare_impl(to_sql_string(ctx, s), ctx._count);
       }
 
       template <typename PreparedExecute>
@@ -374,6 +308,8 @@ namespace sqlpp
         return run_prepared_execute_impl(x._prepared_statement);
       }
 
+#warning: Do we really need that?
+      /*
       // escape argument
       // TODO: Fix escaping.
       std::string escape(const std::string& s) const
@@ -388,6 +324,7 @@ namespace sqlpp
         result.resize(length);
         return result;
       }
+      */
 
       //! call run on the argument
       template <typename T>
@@ -607,11 +544,14 @@ namespace sqlpp
       }
     };
 
+#warning: Do we really need this?
+    /*
     // Method definition moved outside of class because it needs connection_base
     inline std::string context_t::escape(const std::string& arg) const
     {
       return _db.escape(arg);
     }
+    */
 
     using connection = sqlpp::normal_connection<connection_base>;
     using pooled_connection = sqlpp::pooled_connection<connection_base>;
