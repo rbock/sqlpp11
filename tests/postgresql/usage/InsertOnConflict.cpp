@@ -32,7 +32,7 @@
 
 #include "Tables.h"
 #include "make_test_connection.h"
-#include "../../include/test_helpers.h"
+#include "sqlpp11/tests/core/result_helpers.h"
 
 namespace sql = sqlpp::postgresql;
 

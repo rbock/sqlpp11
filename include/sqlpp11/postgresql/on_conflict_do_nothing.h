@@ -85,7 +85,7 @@ namespace sqlpp
     auto to_sql_string(postgresql::context_t& context, const postgresql::on_conflict_do_nothing_data_t<ConflictTarget>& t) -> std::string
     {
 #warning: need tests
-      return to_sql_string(t.column, context) + " DO NOTHING";
+      return to_sql_string(context, t._column) + " DO NOTHING";
     }
   }  // namespace postgresql
 }  // namespace sqlpp

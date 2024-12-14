@@ -146,8 +146,8 @@ namespace sqlpp
     }
 
     template <typename ConflictTarget, typename Expression, typename... Assignments>
-    postgresql::context_t& to_sql_string(postgresql::context_t& context,
-        const postgresql::on_conflict_do_update_where_data_t<ConflictTarget, Expression, Assignments...>& t)
+    auto to_sql_string(postgresql::context_t& context,
+        const postgresql::on_conflict_do_update_where_data_t<ConflictTarget, Expression, Assignments...>& t) -> std::string
     {
       return to_sql_string(context, t._assignments) + " WHERE " + to_sql_string(context, t._expression);
     }

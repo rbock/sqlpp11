@@ -168,9 +168,6 @@ namespace sqlpp
       using _handle_ptr_t = std::unique_ptr<_handle_t>;
 
       using _prepared_statement_t = prepared_statement_t;
-      using _context_t = context_t;
-      using _serializer_context_t = _context_t;
-      using _interpreter_context_t = _context_t;
 
       struct _tags
       {
@@ -181,16 +178,16 @@ namespace sqlpp
       template <typename Select>
       bind_result_t select(const Select& s)
       {
-        _context_t ctx{*this};
-        return select_impl(to_sql_string(ctx, s));
+        context_t context;
+        return select_impl(to_sql_string(context, s));
       }
 
       // Prepared select
       template <typename Select>
       _prepared_statement_t prepare_select(Select& s)
       {
-        _context_t ctx{*this};
-        return prepare_impl(to_sql_string(ctx, s), ctx._count);
+        context_t context;
+        return prepare_impl(to_sql_string(context, s), context._count);
       }
 
       template <typename PreparedSelect>
@@ -204,15 +201,15 @@ namespace sqlpp
       template <typename Insert>
       size_t insert(const Insert& s)
       {
-        _context_t ctx{*this};
-        return insert_impl(to_sql_string(ctx, s));
+        context_t context;
+        return insert_impl(to_sql_string(context, s));
       }
 
       template <typename Insert>
       prepared_statement_t prepare_insert(Insert& s)
       {
-        _context_t ctx{*this};
-        return prepare_impl(to_sql_string(ctx, s), ctx._count);
+        context_t context;
+        return prepare_impl(to_sql_string(context, s), context._count);
       }
 
       template <typename PreparedInsert>
@@ -226,15 +223,15 @@ namespace sqlpp
       template <typename Update>
       size_t update(const Update& s)
       {
-        _context_t ctx{*this};
-        return update_impl(to_sql_string(ctx, s));
+        context_t context;
+        return update_impl(to_sql_string(context, s));
       }
 
       template <typename Update>
       prepared_statement_t prepare_update(Update& s)
       {
-        _context_t ctx{*this};
-        return prepare_impl(to_sql_string(ctx, s), ctx._count);
+        context_t context;
+        return prepare_impl(to_sql_string(context, s), context._count);
       }
 
       template <typename PreparedUpdate>
@@ -248,15 +245,15 @@ namespace sqlpp
       template <typename Remove>
       size_t remove(const Remove& s)
       {
-        _context_t ctx{*this};
-        return remove_impl(to_sql_string(ctx, s));
+        context_t context;
+        return remove_impl(to_sql_string(context, s));
       }
 
       template <typename Remove>
       prepared_statement_t prepare_remove(Remove& s)
       {
-        _context_t ctx{*this};
-        return prepare_impl(to_sql_string(ctx, s), ctx._count);
+        context_t context;
+        return prepare_impl(to_sql_string(context, s), context._count);
       }
 
       template <typename PreparedRemove>
@@ -289,15 +286,15 @@ namespace sqlpp
           typename Enable = typename std::enable_if<not std::is_convertible<Execute, std::string>::value, void>::type>
       std::shared_ptr<detail::statement_handle_t> execute(const Execute& s)
       {
-        _context_t ctx{*this};
-        return execute(to_sql_string(ctx, s));
+        context_t context;
+        return execute(to_sql_string(context, s));
       }
 
       template <typename Execute>
       _prepared_statement_t prepare_execute(Execute& s)
       {
-        _context_t ctx{*this};
-        return prepare_impl(to_sql_string(ctx, s), ctx._count);
+        context_t context;
+        return prepare_impl(to_sql_string(context, s), context._count);
       }
 
       template <typename PreparedExecute>
@@ -337,9 +334,9 @@ namespace sqlpp
       auto _run(const T& t, Check) -> Check;
 
       template <typename T>
-      auto operator()(const T& t) -> decltype(this->_run(t, sqlpp::run_check_t<_serializer_context_t, T>{}))
+      auto operator()(const T& t) -> decltype(this->_run(t, sqlpp::run_check_t<context_t, T>{}))
       {
-        return _run(t, sqlpp::run_check_t<_serializer_context_t, T>{});
+        return _run(t, sqlpp::run_check_t<context_t, T>{});
       }
 
       //! call prepare on the argument
@@ -353,9 +350,9 @@ namespace sqlpp
       auto _prepare(const T& t, Check) -> Check;
 
       template <typename T>
-      auto prepare(const T& t) -> decltype(this->_prepare(t, sqlpp::prepare_check_t<_serializer_context_t, T>{}))
+      auto prepare(const T& t) -> decltype(this->_prepare(t, sqlpp::prepare_check_t<context_t, T>{}))
       {
-        return _prepare(t, sqlpp::prepare_check_t<_serializer_context_t, T>{});
+        return _prepare(t, sqlpp::prepare_check_t<context_t, T>{});
       }
 
       //! set the default transaction isolation level to use for new transactions

@@ -239,9 +239,6 @@ namespace sqlpp
       using _handle_ptr_t = std::unique_ptr<_handle_t>;
 
       using _prepared_statement_t = ::sqlpp::mysql::prepared_statement_t;
-      using _context_t = context_t;
-      using _serializer_context_t = _context_t;
-      using _interpreter_context_t = _context_t;
 
       struct _tags
       {
@@ -261,7 +258,7 @@ namespace sqlpp
       template <typename Select>
       char_result_t select(const Select& s)
       {
-        _context_t context;
+        context_t context;
         const auto query = to_sql_string(context, s);
         return select_impl(query);
       }
@@ -269,7 +266,7 @@ namespace sqlpp
       template <typename Select>
       _prepared_statement_t prepare_select(Select& s)
       {
-        _context_t context;
+        context_t context;
         const auto query = to_sql_string(context, s);
         return prepare_impl(query, s._get_no_of_parameters(), s.get_no_of_result_columns());
       }
@@ -285,7 +282,7 @@ namespace sqlpp
       template <typename Insert>
       size_t insert(const Insert& i)
       {
-        _context_t context;
+        context_t context;
         const auto query = to_sql_string(context, i);
         return insert_impl(query);
       }
@@ -293,7 +290,7 @@ namespace sqlpp
       template <typename Insert>
       _prepared_statement_t prepare_insert(Insert& i)
       {
-        _context_t context;
+        context_t context;
         const auto query = to_sql_string(context, i);
         return prepare_impl(query, i._get_no_of_parameters(), 0);
       }
@@ -309,7 +306,7 @@ namespace sqlpp
       template <typename Update>
       size_t update(const Update& u)
       {
-        _context_t context;
+        context_t context;
         const auto query = to_sql_string(context, u);
         return update_impl(query);
       }
@@ -317,7 +314,7 @@ namespace sqlpp
       template <typename Update>
       _prepared_statement_t prepare_update(Update& u)
       {
-        _context_t context;
+        context_t context;
         const auto query = to_sql_string(context, u);
         return prepare_impl(query, u._get_no_of_parameters(), 0);
       }
@@ -333,7 +330,7 @@ namespace sqlpp
       template <typename Remove>
       size_t remove(const Remove& r)
       {
-        _context_t context;
+        context_t context;
         const auto query = to_sql_string(context, r);
         return remove_impl(query);
       }
@@ -341,7 +338,7 @@ namespace sqlpp
       template <typename Remove>
       _prepared_statement_t prepare_remove(Remove& r)
       {
-        _context_t context;
+        context_t context;
         const auto query = to_sql_string(context, r);
         return prepare_impl(query, r._get_no_of_parameters(), 0);
       }
@@ -390,9 +387,9 @@ namespace sqlpp
       auto _run(const T& t, Check) -> Check;
 
       template <typename T>
-      auto operator()(const T& t) -> decltype(this->_run(t, sqlpp::run_check_t<_serializer_context_t, T>{}))
+      auto operator()(const T& t) -> decltype(this->_run(t, sqlpp::run_check_t<context_t, T>{}))
       {
-        return _run(t, sqlpp::run_check_t<_serializer_context_t, T>{});
+        return _run(t, sqlpp::run_check_t<context_t, T>{});
       }
 
       //! call prepare on the argument
@@ -406,9 +403,9 @@ namespace sqlpp
       auto _prepare(const T& t, Check) -> Check;
 
       template <typename T>
-      auto prepare(const T& t) -> decltype(this->_prepare(t, sqlpp::prepare_check_t<_serializer_context_t, T>{}))
+      auto prepare(const T& t) -> decltype(this->_prepare(t, sqlpp::prepare_check_t<context_t, T>{}))
       {
-        return _prepare(t, sqlpp::prepare_check_t<_serializer_context_t, T>{});
+        return _prepare(t, sqlpp::prepare_check_t<context_t, T>{});
       }
 
       //! start transaction

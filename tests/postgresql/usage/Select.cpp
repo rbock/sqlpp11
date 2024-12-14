@@ -32,7 +32,7 @@
 
 #include "Tables.h"
 #include "make_test_connection.h"
-#include "../../include/test_helpers.h"
+#include "sqlpp11/tests/core/result_helpers.h"
 
 namespace sql = sqlpp::postgresql;
 test::TabFoo tab = {};
@@ -63,6 +63,10 @@ void testSelectAll(sql::connection& db, int expectedRowCount)
   std::cerr << "--------------------------------------" << std::endl;
 }
 
+namespace {
+  SQLPP_CREATE_NAME_TAG(something);
+}
+
 int Select(int, char*[])
 {
   sql::connection db = sql::make_test_connection();
@@ -88,13 +92,12 @@ int Select(int, char*[])
   db(select(all_of(tab)).from(tab).where(tab.id.in(std::vector<int>{1, 2, 3, 4})));
   db(select(all_of(tab)).from(tab).where(tab.id.not_in(1, 2, 3)));
   db(select(all_of(tab)).from(tab).where(tab.id.not_in(std::vector<int>{1, 2, 3, 4})));
-  db(select(count(tab.id)).from(tab).unconditionally());
-  db(select(avg(tab.id)).from(tab).unconditionally());
-  db(select(max(tab.id)).from(tab).unconditionally());
-  db(select(min(tab.id)).from(tab).unconditionally());
-  db(select(exists(select(tab.id).from(tab).where(tab.id > 7))).from(tab).unconditionally());
+  db(select(count(tab.id).as(something)).from(tab).unconditionally());
+  db(select(avg(tab.id).as(something)).from(tab).unconditionally());
+  db(select(max(tab.id).as(something)).from(tab).unconditionally());
+  db(select(min(tab.id).as(something)).from(tab).unconditionally());
+  db(select(exists(select(tab.id).from(tab).where(tab.id > 7)).as(something)).from(tab).unconditionally());
   db(select(all_of(tab)).from(tab).where(tab.id == any(select(tab.id).from(tab).where(tab.id < 3))));
-  db(select(all_of(tab)).from(tab).where(tab.id == some(select(tab.id).from(tab).where(tab.id < 3))));
   db(select(all_of(tab)).from(tab).where(tab.id + tab.id > 3));
   db(select(all_of(tab)).from(tab).where((tab.textNnD + tab.textNnD) == ""));
   db(select(all_of(tab)).from(tab).where((tab.textNnD + tab.textNnD).like("%'\"%")));
@@ -122,11 +125,11 @@ int Select(int, char*[])
   std::cerr << "Can do that again, no problem: " << result1.begin()->id << std::endl;
 
   auto tx = start_transaction(db);
-  auto result2 = db(select(all_of(tab), select(max(tab.id)).from(tab)).from(tab).unconditionally());
+  auto result2 = db(select(all_of(tab), select(max(tab.id).as(something)).from(tab)).from(tab).unconditionally());
   if (const auto& row = *result2.begin())
   {
     auto a = row.id;
-    auto m = row.max;
+    auto m = row.something;
     std::cerr << "-----------------------------" << a << ", " << m << std::endl;
   }
   tx.commit();

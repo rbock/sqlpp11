@@ -73,9 +73,9 @@ namespace
     if (l != r)
     {
       std::cerr << line << ": ";
-      to_sql_string(::sqlpp::wrap_operand_t<L>{l}, std::cerr);
+      std::cerr << sqlpp::to_sql_string(std::cerr, l);
       std::cerr << " != ";
-      to_sql_string(::sqlpp::wrap_operand_t<R>{r}, std::cerr);
+      std::cerr << sqlpp::to_sql_string(std::cerr, r);
       throw std::runtime_error("Unexpected result");
     }
   }
@@ -87,11 +87,11 @@ namespace
     const auto &rows_1 = db(
       select(
         // timePointNTz as microseconds from the start of the UNIX epoch (1970-01-01 00:00:00 UTC)
-        sqlpp::verbatim<sqlpp::integer>("floor(extract(epoch from time_point_n_tz)*1000000)::int8").as(sqlpp::alias::a),
+        sqlpp::verbatim<sqlpp::integral>("floor(extract(epoch from time_point_n_tz)*1000000)::int8").as(sqlpp::alias::a),
         // timeOfDayNTz as microseconds from the start of the day (00:00:00 UTC)
-        sqlpp::verbatim<sqlpp::integer>("floor(extract(epoch from time_of_day_n_tz)*1000000)::int8").as(sqlpp::alias::b),
+        sqlpp::verbatim<sqlpp::integral>("floor(extract(epoch from time_of_day_n_tz)*1000000)::int8").as(sqlpp::alias::b),
         // dayPointN as days from 1970-01-01 (timezone is not applicable to date fields)
-        sqlpp::verbatim<sqlpp::integer>("floor(extract(epoch from day_point_n)/86400)::int8").as(sqlpp::alias::c)
+        sqlpp::verbatim<sqlpp::integral>("floor(extract(epoch from day_point_n)/86400)::int8").as(sqlpp::alias::c)
       )
       .from(tab)
       .unconditionally()

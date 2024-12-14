@@ -27,7 +27,7 @@
 
 #include <iostream>
 
-#include <sqlpp11/core/query/query/custom_query.h>
+#include <sqlpp11/core/query/custom_query.h>
 #include <sqlpp11/postgresql/postgresql.h>
 #include <sqlpp11/sqlpp11.h>
 

@@ -130,7 +130,7 @@ int Prepared(int, char* [])
     std::cerr << x.id << std::endl;
   }
 
-  // Can we prepare a query/query without parameters?
+  // Can we prepare a query without parameters?
   {
     auto ps = db.prepare(select(all_of(t)).from(t).where((t.textN.like("%"))));
     for (const auto& row : db(ps))

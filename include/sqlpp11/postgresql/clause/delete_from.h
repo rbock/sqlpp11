@@ -34,7 +34,7 @@ namespace sqlpp
 {
   namespace postgresql
   {
-    using blank_delete_t = statement_t<delete_t, no_from_t, no_using_t, no_where_t<true>, no_returning_t>;
+    using blank_delete_t = statement_t<delete_t, no_single_table_t, no_using_t, no_where_t<true>, no_returning_t>;
 
     inline auto delete_from() -> blank_delete_t
     {
@@ -42,9 +42,9 @@ namespace sqlpp
     }
 
     template <typename Table>
-    auto delete_from(Table table) -> decltype(blank_delete_t().from(table))
+    auto delete_from(Table table) -> decltype(blank_delete_t().single_table(table))
     {
-      return {blank_delete_t().from(table)};
+      return {blank_delete_t().single_table(table)};
     }
 
   }  // namespace postgresql

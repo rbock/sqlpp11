@@ -24,7 +24,7 @@
  */
 
 #include <sqlpp11/core/database/exception.h>
-#include <sqlpp11/core/query/query/custom_query.h>
+#include <sqlpp11/core/query/custom_query.h>
 #include <sqlpp11/postgresql/postgresql.h>
 #include <sqlpp11/core/basic/verbatim.h>
 #include <sqlpp11/core/name/create_name_tag.h>

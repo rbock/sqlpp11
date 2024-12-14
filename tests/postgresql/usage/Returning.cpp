@@ -2,7 +2,7 @@
 
 #include <sqlpp11/postgresql/postgresql.h>
 #include <sqlpp11/sqlpp11.h>
-#include "../../include/test_helpers.h"
+#include "sqlpp11/tests/core/result_helpers.h"
 
 #include "Tables.h"
 #include "make_test_connection.h"

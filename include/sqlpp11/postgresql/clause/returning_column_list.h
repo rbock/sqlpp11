@@ -164,6 +164,12 @@ namespace sqlpp
     struct name_tag_of<postgresql::returning_column_list_t<Column>> : public name_tag_of<Column>
     {
     };
+
+    template <typename... Column>
+    struct is_result_clause<postgresql::returning_column_list_t<Column...>> : public std::true_type
+    {
+    };
+
     namespace postgresql
     {
 

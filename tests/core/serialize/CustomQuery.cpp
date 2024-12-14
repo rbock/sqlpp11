@@ -60,7 +60,7 @@ int CustomQuery(int, char*[])
       "tab_bar.id > 17  GROUP BY tab_foo.double_n  HAVING AVG(tab_bar.id) > 19  ORDER BY tab_foo.double_n "
       "ASC, tab_foo.u_int_n DESC  LIMIT 7  OFFSET 3");
 
-  // A pragma query/query for sqlite
+  // A pragma query for sqlite
   SQLPP_COMPARE(
       custom_query(sqlpp::verbatim("PRAGMA user_version")).with_result_type_of(select(sqlpp::value(1).as(pragma))),
       " PRAGMA user_version");
