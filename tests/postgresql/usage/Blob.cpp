@@ -92,7 +92,7 @@ int Blob(int, char*[])
   prepared_insert.params.data = data;
   db(prepared_insert);
   const auto prep_id = db.last_insert_id("blob_sample", "id");
-  prepared_insert.params.data.set_null();
+  prepared_insert.params.data = sqlpp::nullopt;
   db(prepared_insert);
   const auto null_id = db.last_insert_id("blob_sample", "id");
 

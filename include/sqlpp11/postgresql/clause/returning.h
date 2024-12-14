@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/postgresql/returning_column_list.h>
+#include <sqlpp11/postgresql/clause/returning_column_list.h>
 #include <sqlpp11/core/clause/select_column_list.h>
 #include <sqlpp11/core/query/statement.h>
 
@@ -76,46 +76,21 @@ namespace sqlpp
           return t.no_returning;
         }
 
-        template <typename... T>
-        static constexpr auto _check_tuple(std::tuple<T...>) -> check_selected_columns_t<T...>
-        {
-          return {};
-        }
-
-        template <typename... T>
-        static constexpr auto _check_args(T... args)
-            -> decltype(_check_tuple(sqlpp::detail::column_tuple_merge(args...)))
-        {
-          return {};
-        }
-
-        template <typename Check, typename T>
-        using _new_statement_t = new_statement_t<Check, Policies, no_returning_t, T>;
+        template <typename T>
+        using _new_statement_t = new_statement_t<consistent_t, Policies, no_returning_t, T>;
 
         using _consistency_check = consistent_t;
 
-        template <typename... Columns>
-        auto returning(Columns... columns) const
-            -> _new_statement_t<decltype(_check_args(columns...)), returning_column_list_t<Columns...>>
+#warning: Why do we have this at all? Isn't this the same as no_returning_column_list?
+        template <typename... Columns, typename = sqlpp::enable_if_t<select_columns_have_values<Columns...>::value>>
+        auto returning(Columns... columns) const -> _new_statement_t<make_returning_column_list_t<Columns...>>
         {
-          static_assert(sizeof...(Columns),
-                        "at least one returnable expression (e.g. a column) is required in returning");
-          static_assert(decltype(_check_args(columns...))::value,
-                        "at least one argument is not a returnable expression in returning()");
-          return {static_cast<const derived_statement_t<Policies>&>(*this),
-                  typename returning_column_list_t<Columns...>::_data_t{columns...}};
-        }
+          SQLPP_STATIC_ASSERT(sizeof...(Columns), "at least one return column required");
+          SQLPP_STATIC_ASSERT(select_columns_have_names<Columns...>::value, "each return column must have a name");
 
-        template <typename... Columns>
-        auto returning(std::tuple<Columns...> columns) const
-            -> _new_statement_t<decltype(_check_args(columns)), returning_column_list_t<Columns...>>
-        {
-          static_assert(sizeof...(Columns),
-                        "at least one returnable expression (e.g. a column) is required in returning");
-          static_assert(decltype(_check_args(columns))::value,
-                        "at least one argument is not a returnable expression in returning()");
           return {static_cast<const derived_statement_t<Policies>&>(*this),
-                  typename returning_column_list_t<Columns...>::_data_t{columns}};
+                  typename make_returning_column_list_t<Columns...>::_data_t{
+                      std::tuple_cat(sqlpp::detail::tupelize(std::move(columns))...)}};
         }
       };
     };

@@ -26,25 +26,25 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/clause/remove.h>
-#include <sqlpp11/postgresql/using.h>
-#include <sqlpp11/postgresql/returning.h>
+#include <sqlpp11/core/clause/delete_from.h>
+#include <sqlpp11/postgresql/clause/using.h>
+#include <sqlpp11/postgresql/clause/returning.h>
 
 namespace sqlpp
 {
   namespace postgresql
   {
-    using blank_remove_t = statement_t<remove_t, no_from_t, no_using_t, no_where_t<true>, no_returning_t>;
+    using blank_delete_t = statement_t<delete_t, no_from_t, no_using_t, no_where_t<true>, no_returning_t>;
 
-    inline auto remove() -> blank_remove_t
+    inline auto delete_from() -> blank_delete_t
     {
       return {};
     }
 
     template <typename Table>
-    auto remove_from(Table table) -> decltype(blank_remove_t().from(table))
+    auto delete_from(Table table) -> decltype(blank_delete_t().from(table))
     {
-      return {blank_remove_t().from(table)};
+      return {blank_delete_t().from(table)};
     }
 
   }  // namespace postgresql

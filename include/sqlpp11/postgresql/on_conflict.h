@@ -61,30 +61,17 @@ namespace sqlpp
                                  "at least one argument is not an assignment in do_update()");
     SQLPP_PORTABLE_STATIC_ASSERT(assert_on_conflict_do_update_set_no_duplicates_t,
                                  "at least one duplicate column detected in do_update()");
-    SQLPP_PORTABLE_STATIC_ASSERT(assert_on_conflict_do_update_set_allowed_t,
-                                 "at least one assignment is prohibited by its column definition in do_update()");
     SQLPP_PORTABLE_STATIC_ASSERT(assert_on_conflict_do_update_set_single_table_t,
                                  "do_update() contains assignments for columns from more than one table");
     SQLPP_PORTABLE_STATIC_ASSERT(assert_on_conflict_do_update_set_count_args_t,
                                  "at least one assignment expression required in do_update()");
 
-    namespace detail
-    {
-      template <typename Assignment>
-      struct lhs_must_not_update
-      {
-        static constexpr auto value = sqlpp::detail::must_not_update_impl<typename lhs<Assignment>::type>::type::value;
-      };
-    }  // namespace detail
-
     template <typename... Assignments>
     using check_on_conflict_do_update_set_t = static_combined_check_t<
-        static_check_t<logic::all<sqlpp::detail::is_assignment_impl<Assignments>::type::value...>::value,
+        static_check_t<logic::all<sqlpp::is_assignment<Assignments>::type::value...>::value,
                        assert_on_conflict_do_update_set_assignments_t>,
         static_check_t<not sqlpp::detail::has_duplicates<typename lhs<Assignments>::type...>::value,
                        assert_on_conflict_do_update_set_no_duplicates_t>,
-        static_check_t<logic::none<detail::lhs_must_not_update<Assignments>::value...>::value,
-                       assert_on_conflict_do_update_set_allowed_t>,
         static_check_t<sizeof...(Assignments) == 0 or sqlpp::detail::make_joined_set_t<required_tables_of_t<
                                                           typename lhs<Assignments>::type>...>::size::value == 1,
                        assert_on_conflict_do_update_set_single_table_t>>;
@@ -183,7 +170,7 @@ namespace sqlpp
         template <typename ConflictTarget>
         auto on_conflict(ConflictTarget column) const -> _new_statement_t<consistent_t, on_conflict_t<ConflictTarget>>
         {
-          static_assert(is_column_t<ConflictTarget>::value,
+          static_assert(is_column<ConflictTarget>::value,
                         "only a column is supported as conflict_target specification");
           return {static_cast<const derived_statement_t<Policies>&>(*this), on_conflict_data_t<ConflictTarget>{column}};
         }
@@ -191,19 +178,14 @@ namespace sqlpp
     };
 
     template <typename ConflictTarget>
-    postgresql::context_t& to_sql_string(const postgresql::on_conflict_data_t<ConflictTarget>&,
-                                     postgresql::context_t& context)
+    auto to_sql_string(postgresql::context_t& context, const postgresql::on_conflict_data_t<ConflictTarget>&) -> std::string
     {
-      context << " ON CONFLICT (";
-      context << name_of<ConflictTarget>::template char_ptr<postgresql::context_t>();
-      context << ") ";
-      return context;
+      return " ON CONFLICT (" + name_to_sql_string(context, name_tag_of_t<ConflictTarget>{}) + ") ";
     }
 
-    inline postgresql::context_t& to_sql_string(const postgresql::on_conflict_data_t<no_data_t>&, postgresql::context_t& context)
+    inline auto to_sql_string(postgresql::context_t&, const postgresql::on_conflict_data_t<no_data_t>&) -> std::string
     {
-      context << " ON CONFLICT ";
-      return context;
+      return " ON CONFLICT ";
     }
   }  // namespace postgresql
 }  // namespace sqlpp

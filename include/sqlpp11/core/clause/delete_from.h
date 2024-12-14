@@ -89,7 +89,7 @@ namespace sqlpp
 
   using blank_delete_t = statement_t<delete_t, no_single_table_t, no_where_t<true>>;
 
-  inline auto remove() -> blank_delete_t
+  inline auto delete_from() -> blank_delete_t
   {
     return {};
   }

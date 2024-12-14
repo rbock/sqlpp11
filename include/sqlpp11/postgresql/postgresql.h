@@ -32,5 +32,5 @@
 #include <sqlpp11/postgresql/database/connection_pool.h>
 #include <sqlpp11/postgresql/database/exception.h>
 #include <sqlpp11/postgresql/clause/insert.h>
-#include <sqlpp11/postgresql/clause/remove.h>
+#include <sqlpp11/postgresql/clause/delete_from.h>
 #include <sqlpp11/postgresql/clause/update.h>

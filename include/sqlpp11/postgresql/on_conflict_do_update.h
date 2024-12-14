@@ -128,7 +128,7 @@ namespace sqlpp
         // WHERE
         template <typename Expression>
         auto where(Expression expression) const
-            -> _new_statement_t<check_where_static_t<Expression>,
+            -> _new_statement_t<check_where_t<Expression>,
                                 on_conflict_do_update_where_t<ConflictTarget, Expression, Assignments...>>
         {
           return {static_cast<const derived_statement_t<Policies>&>(*this),
@@ -146,14 +146,10 @@ namespace sqlpp
     }
 
     template <typename ConflictTarget, typename Expression, typename... Assignments>
-    postgresql::context_t& to_sql_string(
-        const postgresql::on_conflict_do_update_where_data_t<ConflictTarget, Expression, Assignments...>& o,
-        postgresql::context_t& context)
+    postgresql::context_t& to_sql_string(postgresql::context_t& context,
+        const postgresql::on_conflict_do_update_where_data_t<ConflictTarget, Expression, Assignments...>& t)
     {
-      to_sql_string(context, o._assignments);
-      context << " WHERE ";
-      to_sql_string(context, o._expression);
-      return context;
+      return to_sql_string(context, t._assignments) + " WHERE " + to_sql_string(context, t._expression);
     }
   }  // namespace postgresql
 }  // namespace sqlpp

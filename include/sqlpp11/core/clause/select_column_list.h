@@ -114,10 +114,11 @@ namespace sqlpp
         return *this;
       }
 
-      using _consistency_check = 
+      using _consistency_check =
           static_combined_check_t<static_check_t<Policies::template _no_unknown_tables<select_column_list_t>,
                                                  assert_no_unknown_tables_in_selected_columns_t>,
-                                  static_check_t<has_correct_aggregates<typename Policies::_all_provided_aggregates, select_column_list_t>::value,
+                                  static_check_t<has_correct_aggregates<typename Policies::_all_provided_aggregates,
+                                                                        select_column_list_t>::value,
                                                  assert_correct_aggregates_t>>;
     };
 

@@ -308,7 +308,7 @@ namespace sqlpp
         return run_prepared_execute_impl(x._prepared_statement);
       }
 
-#warning: Do we really need that?
+#warning: Do we really need that? it is probably sufficient to assume UTF-8 encoding...
       /*
       // escape argument
       // TODO: Fix escaping.

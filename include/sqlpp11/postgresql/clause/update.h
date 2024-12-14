@@ -27,7 +27,7 @@
  */
 
 #include <sqlpp11/core/clause/update.h>
-#include <sqlpp11/postgresql/returning.h>
+#include <sqlpp11/postgresql/clause/returning.h>
 
 namespace sqlpp
 {
