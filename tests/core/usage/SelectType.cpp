@@ -23,27 +23,23 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "MockDb.h"
-#include "Sample.h"
-#include <iostream>
-#include <sqlpp11/core/name/create_name_tag.h>
-#include <sqlpp11/core/database/connection.h>
-#include <sqlpp11/functions.h>
-#include <sqlpp11/core/clause/select.h>
-#include "../../include/test_helpers.h"
+#include <sqlpp11/tests/core/MockDb.h>
+#include <sqlpp11/tests/core/tables.h>
+#include <sqlpp11/tests/core/result_helpers.h>
+#include <sqlpp11/sqlpp11.h>
 
 namespace alias
 {
-  SQLPP_CREATE_NAME_TAG(a)
-  SQLPP_CREATE_NAME_TAG(b)
-  SQLPP_CREATE_NAME_TAG(left)
-  SQLPP_CREATE_NAME_TAG(right)
+  SQLPP_CREATE_NAME_TAG(a);
+  SQLPP_CREATE_NAME_TAG(b);
+  SQLPP_CREATE_NAME_TAG(left);
+  SQLPP_CREATE_NAME_TAG(right);
 }  // namespace alias
 
 int SelectType(int, char*[])
 {
   MockDb db = {};
-  MockDb::_serializer_context_t printer = {};
+  MockDb::_context_t printer = {};
 
   auto f = test::TabFoo{};
   auto t = test::TabBar{};
@@ -117,7 +113,8 @@ int SelectType(int, char*[])
   // Test a an alias of a numeric table column
   {
     using T = decltype(t.id.as(alias::a));
-    static_assert(sqlpp::is_numeric<T>::value, "type requirement");
+    // alias does not have a value type
+    static_assert(not sqlpp::is_numeric<T>::value, "type requirement");
     static_assert(not sqlpp::is_boolean<T>::value, "type requirement");
     static_assert(not sqlpp::is_text<T>::value, "type requirement");
     static_assert(not sqlpp::is_table<T>::value, "type requirement");
@@ -192,9 +189,7 @@ int SelectType(int, char*[])
   {
     auto a = select(all_of(t));
     auto b = select(t.id, t.textN, t.boolNn, t.intN);
-    // auto c = select(t);
     static_assert(std::is_same<decltype(a), decltype(b)>::value, "all_of(t) has to be expanded by select()");
-    // static_assert(std::is_same<decltype(b), decltype(c)>::value, "t has to be expanded by select()");
   }
 
   // Test that result sets with identical name/value combinations have identical types
@@ -228,7 +223,7 @@ int SelectType(int, char*[])
     s.limit.set(30u);
     s.limit.set(3u);
     std::cerr << "------------------------\n";
-    to_sql_string(printer, s).str();
+    to_sql_string(printer, s);
     std::cerr << "------------------------\n";
     using T = decltype(s);
   }
@@ -237,7 +232,7 @@ int SelectType(int, char*[])
   {
     auto s = dynamic_select(db).dynamic_columns();
     s.selected_columns.add(without_table_check(t.id));
-    to_sql_string(printer, s).str();
+    to_sql_string(printer, s);
   }
 
   {
@@ -250,18 +245,18 @@ int SelectType(int, char*[])
   // Test that verbatim_table compiles
   {
     auto s = select(t.id).from(sqlpp::verbatim_table("my_unknown_table"));
-    to_sql_string(printer, s).str();
+    to_sql_string(printer, s);
   }
 
-  static_assert(sqlpp::is_select_flag_t<decltype(sqlpp::all)>::value, "sqlpp::all has to be a select_flag");
+  static_assert(sqlpp::is_select_flag<typename std::decay<decltype(sqlpp::all)>::type>::value, "sqlpp::all has to be a select_flag");
   static_assert(sqlpp::is_numeric<decltype(t.id)>::value, "TabBar.id has to be a numeric");
   ((t.id + 7) + 4).asc();
   static_assert(sqlpp::is_boolean<decltype(t.boolNn != not(t.boolNn))>::value,
                 "Comparison expression have to be boolean");
   !t.boolNn;
-  to_sql_string(printer, t.textN < "kaesekuchen").str();
-  to_sql_string(printer, t.textN + "hallenhalma").str();
-  to_sql_string(printer, t.id).str();
+  to_sql_string(printer, t.textN < "kaesekuchen");
+  to_sql_string(printer, t.textN + "hallenhalma");
+  to_sql_string(printer, t.id);
   std::cerr << "\n" << sizeof(test::TabBar) << std::endl;
 
   auto l = t.as(alias::left);
@@ -269,7 +264,8 @@ int SelectType(int, char*[])
   static_assert(sqlpp::is_boolean<decltype(select(t.boolNn).from(t))>::value, "select(bool) has to be a bool");
   static_assert(sqlpp::is_boolean<decltype(select(r.a).from(r))>::value, "select(bool) has to be a bool");
   auto s1 = sqlpp::select()
-                .flags(sqlpp::distinct, sqlpp::straight_join)
+#warning: We might want to add the straight_join flag to mysql
+                .flags(sqlpp::distinct/*, sqlpp::straight_join*/)
                 .columns(l.boolNn, r.a)
                 .from(r.cross_join(t).cross_join(l))
                 .where(t.textN == "hello world" and select(t.boolNn).from(t))  // .as(alias::right))

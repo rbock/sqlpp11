@@ -23,13 +23,15 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
-#include "Sample.h"
-#include "MockDb.h"
+#include <sqlpp11/tests/core/MockDb.h>
+#include <sqlpp11/tests/core/tables.h>
+#include <sqlpp11/tests/core/result_helpers.h>
 #include <sqlpp11/sqlpp11.h>
+#include "is_regular.h"
 
-
-#include "../../include/test_helpers.h"
+namespace {
+  SQLPP_CREATE_NAME_TAG(something);
+}
 
 int Result(int, char* [])
 {
@@ -37,12 +39,12 @@ int Result(int, char* [])
 
   const auto t = test::TabBar{};
 
-  static_assert(not sqlpp::can_be_null_t<decltype(t.id)>::value, "t.id cannot be null");
+  static_assert(not sqlpp::is_optional<decltype(t.id)>::value, "t.id cannot be null");
 
   // Using a non-enforcing db
-  for (const auto& row : db(select(all_of(t), t.textN.like("")).from(t).unconditionally()))
+  for (const auto& row : db(select(all_of(t), t.textN.like("").as(something)).from(t).unconditionally()))
   {
-    static_assert(not is_optional<decltype(row.id)>::value, "row.id cannot be null");
+    static_assert(not sqlpp::is_optional<decltype(row.id)>::value, "row.id cannot be null");
 
     for (const auto& sub : db(select(all_of(t)).from(t).where(t.id == row.id)))
     {
@@ -54,12 +56,12 @@ int Result(int, char* [])
   sqlpp::select((t.id + 1).as(t.id)).flags(sqlpp::all).from(t);
   for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
   {
-    static_assert(not is_optional<decltype(row.id)>::value, "row.id cannot be null");
+    static_assert(not sqlpp::is_optional<decltype(row.id)>::value, "row.id cannot be null");
   }
 
   for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
   {
-    static_assert(not is_optional<decltype(row.id)>::value, "row.id cannot be null");
+    static_assert(not sqlpp::is_optional<decltype(row.id)>::value, "row.id cannot be null");
   }
 
   sqlpp::select((t.id + 1).as(t.id)).flags(sqlpp::all).from(t);

@@ -36,8 +36,6 @@ namespace sqlpp
   template <typename Expression, typename NameTag>
   struct expression_as
   {
-    using _traits = make_traits<value_type_of_t<Expression>, tag::is_selectable, tag::is_alias>;
-
     constexpr expression_as(Expression expression) : _expression(std::move(expression))
     {
     }
@@ -73,6 +71,12 @@ namespace sqlpp
     using type = detail::type_vector<Expression>;
   };
 
+#warning: Need to test
+  template <typename Expression, typename NameTag>
+  struct is_expression_as<expression_as<Expression, NameTag>> : public std::true_type
+  {
+  };
+
   template <typename Context, typename Expression, typename NameTag>
   auto to_sql_string(Context& context, const expression_as<Expression, NameTag>& t) -> std::string
   {
@@ -81,7 +85,7 @@ namespace sqlpp
 
   template <typename Expr, typename NameTagProvider>
   using check_as_args = ::sqlpp::enable_if_t<
-  has_value_type<Expr>::value and not is_alias_t<Expr>::value and has_name_tag<NameTagProvider>::value
+  has_value_type<Expr>::value and not is_expression_as<Expr>::value and has_name_tag<NameTagProvider>::value
   >;
 
   template <typename Expr, typename NameTagProvider, typename = check_as_args<Expr, NameTagProvider>>

@@ -75,8 +75,7 @@ namespace sqlpp
     {
       using _traits = make_traits<value_type_of_t<Column>,
                                   tag::is_select_column_list,
-                                  tag::is_expression,
-                                  tag::is_selectable>;
+                                  tag::is_expression>;
     };
   }  // namespace detail
 

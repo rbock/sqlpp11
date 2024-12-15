@@ -23,17 +23,17 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Sample.h"
-#include "MockDb.h"
-#include <sqlpp11/core/clause/select.h>
-#include <sqlpp11/core/name/create_name_tag.h>
-#include <iostream>
-#include "../../include/test_helpers.h"
+#include <sqlpp11/tests/core/MockDb.h>
+#include <sqlpp11/tests/core/tables.h>
+#include <sqlpp11/tests/core/result_helpers.h>
+#include <sqlpp11/sqlpp11.h>
+#include "is_regular.h"
+
 
 int With(int, char*[])
 {
   MockDb db;
-  MockDb::_serializer_context_t printer = {};
+  MockDb::_context_t printer = {};
 
   const auto t = test::TabBar{};
 
@@ -44,9 +44,8 @@ int With(int, char*[])
   auto y0 = sqlpp::cte(sqlpp::alias::y).as(select(all_of(t)).from(t));
   auto y = y0.union_all(select(all_of(y0)).from(y0).unconditionally());
 
-  std::cout << to_sql_string(y, printer).str() << std::endl;
-  printer.reset();
-  std::cout << to_sql_string(from_table(y), printer).str() << std::endl;
+  std::cout << to_sql_string(printer, y) << std::endl;
+  std::cout << to_sql_string(printer, from(y)) << std::endl;
 
   db(with(y)(select(y.id).from(y).unconditionally()));
 
@@ -64,8 +63,7 @@ int With(int, char*[])
         select(t.id, t.intN).from(t.join(initialCte).on(t.id == initialCte.intN)).unconditionally());
     const auto query = with(recursiveCte)(select(recursiveCte.id).from(recursiveCte).unconditionally());
 
-    printer.reset();
-    const auto serializedQuery = to_sql_string(query, printer).str();
+    const auto serializedQuery = to_sql_string(printer, query);
     std::cout << serializedQuery << '\n';
 
     for (const auto& row : db(query))

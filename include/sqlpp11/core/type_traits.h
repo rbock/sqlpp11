@@ -216,10 +216,7 @@ namespace sqlpp
 
   SQLPP_VALUE_TRAIT_GENERATOR(is_sql_null)
   SQLPP_VALUE_TRAIT_GENERATOR(is_value_type)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_selectable)
   SQLPP_VALUE_TRAIT_GENERATOR(is_expression)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_multi_expression)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_alias)
   SQLPP_VALUE_TRAIT_GENERATOR(is_union_flag)
   SQLPP_VALUE_TRAIT_GENERATOR(is_result_field)
 
@@ -471,6 +468,11 @@ namespace sqlpp
 
   template <typename T>
   struct is_cte : public std::false_type
+  {
+  };
+
+  template <typename T>
+  struct is_expression_as : public std::false_type
   {
   };
 

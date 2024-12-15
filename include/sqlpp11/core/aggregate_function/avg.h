@@ -40,8 +40,6 @@ namespace sqlpp
                  public enable_comparison<avg_t<Flag, Expr>>,
                  public enable_over<avg_t<Flag, Expr>>
   {
-    using _traits = make_traits<integral, tag::is_expression /*, tag::is_selectable*/>;
-
     using _can_be_null = std::false_type;
 
     constexpr avg_t(Expr expr) : _expr(std::move(expr))

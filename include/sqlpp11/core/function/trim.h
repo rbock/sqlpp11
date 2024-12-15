@@ -36,8 +36,6 @@ namespace sqlpp
   template <typename Expr>
   struct trim_t : public enable_as<trim_t<Expr>>
   {
-    using _traits = make_traits<text, tag::is_expression, tag::is_selectable>;
-
     trim_t(const Expr expr) : _expr(expr)
     {
     }

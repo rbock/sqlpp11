@@ -42,15 +42,6 @@ namespace sqlpp
   struct column_t : public enable_as<column_t<Table, ColumnSpec>>,
   public enable_comparison<column_t<Table, ColumnSpec>>
   {
-    struct _traits
-    {
-      using _value_type = typename ColumnSpec::value_type;
-      using _tags = detail::make_joined_set_t<detail::type_set<tag::is_expression, tag::is_selectable>>;
-    };
-
-    using _nodes = detail::type_vector<>;
-    using _required_tables = detail::type_set<Table>;
-
     using _spec_t = ColumnSpec;
     using _table = Table;
 

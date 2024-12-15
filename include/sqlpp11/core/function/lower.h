@@ -35,10 +35,6 @@ namespace sqlpp
   template <typename Expr>
   struct lower_t : public enable_as<lower_t<Expr>>
   {
-    using _traits = make_traits<text, tag::is_expression, tag::is_selectable>;
-
-    using _nodes = detail::type_vector<Expr>;
-
     lower_t(const Expr expr) : _expr(expr)
     {
     }

@@ -34,8 +34,6 @@ namespace sqlpp
   template <typename Select>
   struct any_t
   {
-    using _traits = make_traits<value_type_of_t<Select>, tag::is_multi_expression>;
-
     constexpr any_t(Select select) : _select(std::move(select))
     {
     }

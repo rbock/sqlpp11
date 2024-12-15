@@ -23,22 +23,23 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Sample.h"
-#include "MockDb.h"
-#include <sqlpp11/core/clause/select.h>
-#include <sqlpp11/core/name/create_name_tag.h>
-#include <iostream>
+
+#include <sqlpp11/tests/core/MockDb.h>
+#include <sqlpp11/tests/core/tables.h>
+#include <sqlpp11/tests/core/result_helpers.h>
+#include <sqlpp11/sqlpp11.h>
+#include "is_regular.h"
 
 namespace greek
 {
-  SQLPP_CREATE_NAME_TAG(id)
-  SQLPP_CREATE_NAME_TAG(textN)
+  SQLPP_CREATE_NAME_TAG(id);
+  SQLPP_CREATE_NAME_TAG(textN);
 }
 
 int Union(int, char* [])
 {
   MockDb db;
-  MockDb::_serializer_context_t printer = {};
+  MockDb::_context_t printer = {};
 
   const auto t = test::TabBar{};
   const auto f = test::TabFoo{};
