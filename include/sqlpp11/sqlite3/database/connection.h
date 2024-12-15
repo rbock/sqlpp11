@@ -214,8 +214,6 @@ namespace sqlpp
 
       using _prepared_statement_t = prepared_statement_t;
       using _context_t = context_t;
-      using _serializer_context_t = _context_t;
-      using _interpreter_context_t = _context_t;
 
       struct _tags
       {
@@ -384,9 +382,9 @@ namespace sqlpp
       auto _run(const T& t, Check) -> Check;
 
       template <typename T>
-      auto operator()(const T& t) -> decltype(this->_run(t, sqlpp::run_check_t<_serializer_context_t, T>{}))
+      auto operator()(const T& t) -> decltype(this->_run(t, sqlpp::run_check_t<_context_t, T>{}))
       {
-        return _run(t, sqlpp::run_check_t<_serializer_context_t, T>{});
+        return _run(t, sqlpp::run_check_t<_context_t, T>{});
       }
 
       //! call prepare on the argument
@@ -401,10 +399,10 @@ namespace sqlpp
 
       template <typename T>
       auto prepare(const T& t)
-          -> decltype(this->_prepare(t, typename sqlpp::prepare_check_t<_serializer_context_t, T>::type{}))
+          -> decltype(this->_prepare(t, typename sqlpp::prepare_check_t<_context_t, T>::type{}))
       {
-        (void) sqlpp::prepare_check_t<_serializer_context_t, T>{};
-        return _prepare(t, sqlpp::prepare_check_t<_serializer_context_t, T>{});
+        (void) sqlpp::prepare_check_t<_context_t, T>{};
+        return _prepare(t, sqlpp::prepare_check_t<_context_t, T>{});
       }
 
       //! set the transaction isolation level for this connection

@@ -124,6 +124,11 @@ namespace sqlpp
   template <typename ... Parts>
     struct is_statement<custom_query_t<Parts...>> : public std::true_type {};
 
+  template <typename ... Parts>
+    struct parameters_of<custom_query_t<Parts...>> {
+    using type = detail::type_vector_cat_t<parameters_of_t<Parts>...>;
+    };
+
   template <typename Context, typename... Parts>
   auto to_sql_string(Context& context, const custom_query_t<Parts...>& t) -> std::string
   {

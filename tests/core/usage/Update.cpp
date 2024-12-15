@@ -23,8 +23,8 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "MockDb.h"
-#include "Sample.h"
+#include <sqlpp11/tests/core/MockDb.h>
+#include <sqlpp11/tests/core/tables.h>
 #include "is_regular.h"
 #include <iostream>
 #include <sqlpp11/sqlpp11.h>
@@ -32,7 +32,7 @@
 int Update(int, char*[])
 {
   MockDb db;
-  MockDb::_serializer_context_t printer = {};
+  MockDb::_context_t printer = {};
 
   const auto t = test::TabBar{};
 
@@ -46,10 +46,10 @@ int Update(int, char*[])
     static_assert(sqlpp::is_regular<T>::value, "type requirement");
   }
 
-  to_sql_string(printer, update(t)).str();
-  to_sql_string(printer, update(t).set(t.boolNn = false)).str();
-  to_sql_string(printer, update(t).set(t.boolNn = false).where(t.textN != "transparent")).str();
-  to_sql_string(printer, update(t).set(t.textN = "opaque").where(t.textN != t.textN + "this is nonsense")).str();
+  to_sql_string(printer, update(t));
+  to_sql_string(printer, update(t).set(t.boolNn = false));
+  to_sql_string(printer, update(t).set(t.boolNn = false).where(t.textN != "transparent"));
+  to_sql_string(printer, update(t).set(t.textN = "opaque").where(t.textN != t.textN + "this is nonsense"));
   auto values = [&t]() { return std::make_tuple(t.intN += t.id, t.textN = "no cake this time"); };
 
 #warning add tests with dynamic set and dynamic where

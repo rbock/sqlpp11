@@ -452,12 +452,6 @@ namespace sqlpp
   struct no_context_t
   {
   };
-  template <typename Db, typename = void>
-  struct serializer_context_of_impl
-  {
-    using type = no_context_t;
-  };
-
   template<typename T>
   struct table_ref {
     using type = T;
@@ -466,20 +460,11 @@ namespace sqlpp
   template<typename T>
   using table_ref_t = typename table_ref<T>::type;
 
-  template <typename Db>
-  struct serializer_context_of_impl<Db, ::sqlpp::void_t<typename Db::_serializer_context_t>>
-  {
-    using type = typename Db::_serializer_context_t;
-  };
-
   template <typename T>
     struct is_select_flag : public std::false_type {};
 
   template <typename T>
     struct is_sort_order : public std::false_type {};
-
-  template <typename Db>
-  using serializer_context_of = typename serializer_context_of_impl<Db>::type;
 
   template<typename T>
     struct is_result_clause : public std::false_type {};

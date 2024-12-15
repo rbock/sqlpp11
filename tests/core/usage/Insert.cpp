@@ -23,19 +23,17 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "MockDb.h"
-#include "Sample.h"
-#include "is_regular.h"
 #include <iostream>
-#include <sqlpp11/core/compat/string_view.h>
-#include <sqlpp11/functions.h>
-#include <sqlpp11/core/clause/insert.h>
-#include <sqlpp11/core/clause/select.h>
+#include <sqlpp11/tests/core/MockDb.h>
+#include <sqlpp11/tests/core/tables.h>
+#include <sqlpp11/tests/core/result_helpers.h>
+#include "is_regular.h"
+#include <sqlpp11/sqlpp11.h>
 
 int Insert(int, char*[])
 {
   MockDb db = {};
-  MockDb::_serializer_context_t printer = {};
+  MockDb::_context_t printer = {};
   const auto t = test::TabBar{};
   const auto tabDateTime = test::TabDateTime{};
   const auto u = test::TabFoo{};
@@ -50,24 +48,23 @@ int Insert(int, char*[])
     static_assert(sqlpp::is_regular<T>::value, "type requirement");
   }
 
-  db(insert_into(t).default_values());
+  db(insert_into(u).default_values());
   db(insert_into(t).set(t.boolNn = true, t.textN = "kirschauflauf"));
   db(insert_into(t).set(t.boolNn = false, t.textN = ::sqlpp::make_optional("pie"),
                         t.intN = ::sqlpp::nullopt));
 
-  to_sql_string(printer, insert_into(t).default_values()).str();
+  to_sql_string(printer, insert_into(t).default_values());
 
-  to_sql_string(printer, insert_into(t)).str();
-  to_sql_string(printer, insert_into(t).set(t.boolNn = true, t.textN = "kirschauflauf")).str();
-  to_sql_string(printer, insert_into(t).columns(t.boolNn, t.textN)).str();
+  to_sql_string(printer, insert_into(t));
+  to_sql_string(printer, insert_into(t).set(t.boolNn = true, t.textN = "kirschauflauf"));
+  to_sql_string(printer, insert_into(t).columns(t.boolNn, t.textN));
   auto multi_insert = insert_into(t).columns(t.boolNn, t.textN, t.intN);
   multi_insert.add_values(t.boolNn = true, t.textN = "cheesecake", t.intN = 1);
   multi_insert.add_values(t.boolNn = false, t.textN = sqlpp::default_value,
                           t.intN = sqlpp::default_value);
   multi_insert.add_values(t.boolNn = true, t.textN = ::sqlpp::make_optional("pie"),
                           t.intN = ::sqlpp::nullopt);
-  printer.reset();
-  std::cerr << to_sql_string(printer, multi_insert).str() << std::endl;
+  std::cerr << to_sql_string(printer, multi_insert) << std::endl;
 
   // Beware, you need exact types for inserted values in multi_insert
   insert_into(tabDateTime)
@@ -81,13 +78,10 @@ int Insert(int, char*[])
 
   db(multi_insert);
 
-  auto values = [&t]() { return std::make_tuple(t.boolNn = true, t.textN = ::sqlpp::nullopt); };
-
   db(insert_into(t).set(t.boolNn = true, t.intN = sqlpp::verbatim<sqlpp::integral>("17+4")));
   db(insert_into(t).set(t.boolNn = true, t.intN = ::sqlpp::nullopt));
   db(insert_into(t).set(t.boolNn = true, t.intN = sqlpp::default_value));
   db(insert_into(t).set(t.boolNn = true, t.intN = 0));
-  db(insert_into(t).set(values()));
 
   db(insert_into(t).set(t.boolNn = true, t.intN = 0, t.textN = select(u.textNnD).from(u).unconditionally()));
 

@@ -24,15 +24,13 @@
  */
 
 #include <iostream>
-#include "Sample.h"
-#include "MockDb.h"
+#include <sqlpp11/tests/core/MockDb.h>
+#include <sqlpp11/tests/core/tables.h>
+#include <sqlpp11/tests/core/result_helpers.h>
 #include <sqlpp11/sqlpp11.h>
-#include "../../include/test_helpers.h"
 
 namespace
 {
-#warning restore this file!
-#if 0
   struct on_duplicate_key_update
   {
     std::string _serialized;
@@ -40,15 +38,15 @@ namespace
     template <typename Db, typename Assignment>
     on_duplicate_key_update(Db&, Assignment assignment)
     {
-      typename Db::_serializer_context_t context;
-      _serialized = " ON DUPLICATE KEY UPDATE " + to_sql_string(assignment, context).str();
+      typename Db::_context_t context;
+      _serialized = " ON DUPLICATE KEY UPDATE " + to_sql_string(context, assignment);
     }
 
     template <typename Db, typename Assignment>
     auto operator()(Db&, Assignment assignment) -> on_duplicate_key_update&
     {
-      typename Db::_serializer_context_t context;
-      _serialized += ", " + to_sql_string(assignment, context).str();
+      typename Db::_context_t context;
+      _serialized += ", " + to_sql_string(context, assignment);
       return *this;
     }
 
@@ -57,25 +55,21 @@ namespace
       return ::sqlpp::verbatim(_serialized);
     }
   };
-#endif
 }  // namespace
 
 int CustomQuery(int, char*[])
 {
   MockDb db = {};
-  MockDb::_serializer_context_t printer = {};
+  MockDb::_context_t printer = {};
 
   const auto f = test::TabFoo{};
   const auto t = test::TabBar{};
 
   // A void custom query
-  printer.reset();
   auto x =
       //select(t.id).from(t).where(t.id > 7).group_by(t.id).having(max(t.id) > 13).order_by(t.textN.desc());
-    update(t).set(t.textN = "eight", t.boolNn = true);
-  std::cerr << to_sql_string(printer, x).str() << std::endl;
-#warning restore this file!
-#if 0
+    update(t).set(t.textN = "eight", t.boolNn = true).unconditionally();
+  std::cerr << to_sql_string(printer, x) << std::endl;
   db(x);
 
   // Syntactically, it is possible to use this void query as a prepared statement, too, not sure, whether this makes
@@ -96,7 +90,7 @@ int CustomQuery(int, char*[])
   db(custom_query(sqlpp::insert(), sqlpp::verbatim(" OR IGNORE"), into(t),
                   insert_set(t.textN = "sample", t.boolNn = true)));
 
-  // Create a custom mulit-row "insert or ignore"
+  // Create a custom multi-row "insert or ignore"
   auto batch = insert_columns(t.textN, t.boolNn);
   batch.add_values(t.textN = "sample", t.boolNn = true);
   batch.add_values(t.textN = "ample", t.boolNn = false);
@@ -108,9 +102,8 @@ int CustomQuery(int, char*[])
 
   // A custom (select ... into) with adjusted return type
   // The first argument with a return type is the select, but the custom query is really an insert. Thus, we tell it so.
-  printer.reset();
   auto c = custom_query(select(all_of(t)).from(t), into(f)).with_result_type_of(insert_into(f));
-  std::cerr << to_sql_string(c, printer).str() << std::endl;
+  std::cerr << to_sql_string(printer, c) << std::endl;
   auto i = db(c);
   static_assert(std::is_integral<decltype(i)>::value, "insert yields an integral value");
 
@@ -123,7 +116,6 @@ int CustomQuery(int, char*[])
   {
     (void)row.id;
   }
-#endif
 
   return 0;
 }

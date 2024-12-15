@@ -86,6 +86,11 @@ namespace sqlpp
   };
 
   template<typename Table, typename ColumnSpec>
+  struct is_aggregate_neutral<column_t<Table, ColumnSpec>> : public std::false_type
+  {
+  };
+
+  template<typename Table, typename ColumnSpec>
   struct has_default<column_t<Table, ColumnSpec>> : public ColumnSpec::has_default
   {
   };

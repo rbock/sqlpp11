@@ -45,16 +45,9 @@ struct MockDb : public sqlpp::connection
   using _traits =
       ::sqlpp::make_traits<::sqlpp::no_value_t>;
 
-  struct _serializer_context_t
+  struct _context_t
   {
   };
-
-  using _interpreter_context_t = _serializer_context_t;
-
-  _serializer_context_t get_serializer_context()
-  {
-    return {};
-  }
 
   class result_t
   {
@@ -82,9 +75,9 @@ struct MockDb : public sqlpp::connection
   auto _run(const T& t, Check) -> Check;
 
   template <typename T>
-  auto operator()(const T& t) -> decltype(this->_run(t, sqlpp::run_check_t<_serializer_context_t, T>{}))
+  auto operator()(const T& t) -> decltype(this->_run(t, sqlpp::run_check_t<_context_t, T>{}))
   {
-    return _run(t, sqlpp::run_check_t<_serializer_context_t, T>{});
+    return _run(t, sqlpp::run_check_t<_context_t, T>{});
   }
 
   size_t execute(const std::string&)
@@ -97,7 +90,7 @@ struct MockDb : public sqlpp::connection
       typename Enable = typename std::enable_if<not std::is_convertible<Statement, std::string>::value, void>::type>
   size_t execute(const Statement& x)
   {
-    _serializer_context_t context;
+    _context_t context;
     const auto query = to_sql_string(context, x);
     std::cout << "Running execute call with\n" << query << std::endl;
     return execute(query);
@@ -106,7 +99,7 @@ struct MockDb : public sqlpp::connection
   template <typename Insert>
   size_t insert(const Insert& x)
   {
-    _serializer_context_t context;
+    _context_t context;
     const auto query = to_sql_string(context, x);
     std::cout << "Running insert call with\n" << query << std::endl;
     return 0;
@@ -115,7 +108,7 @@ struct MockDb : public sqlpp::connection
   template <typename Update>
   size_t update(const Update& x)
   {
-    _serializer_context_t context;
+    _context_t context;
     const auto query = to_sql_string(context, x);
     std::cout << "Running update call with\n" << query << std::endl;
     return 0;
@@ -124,7 +117,7 @@ struct MockDb : public sqlpp::connection
   template <typename Remove>
   size_t remove(const Remove& x)
   {
-    _serializer_context_t context;
+    _context_t context;
     const auto query = to_sql_string(context, x);
     std::cout << "Running remove call with\n" << query << std::endl;
     return 0;
@@ -133,7 +126,7 @@ struct MockDb : public sqlpp::connection
   template <typename Select>
   result_t select(const Select& x)
   {
-    _serializer_context_t context;
+    _context_t context;
     const auto query = to_sql_string(context, x);
     std::cout << "Running select call with\n" << query << std::endl;
     return {};
@@ -152,15 +145,15 @@ struct MockDb : public sqlpp::connection
   auto _prepare(const T& t, Check) -> Check;
 
   template <typename T>
-  auto prepare(const T& t) -> decltype(this->_prepare(t, sqlpp::prepare_check_t<_serializer_context_t, T>{}))
+  auto prepare(const T& t) -> decltype(this->_prepare(t, sqlpp::prepare_check_t<_context_t, T>{}))
   {
-    return _prepare(t, sqlpp::prepare_check_t<_serializer_context_t, T>{});
+    return _prepare(t, sqlpp::prepare_check_t<_context_t, T>{});
   }
 
   template <typename Statement>
   _prepared_statement_t prepare_execute(Statement& x)
   {
-    _serializer_context_t context;
+    _context_t context;
     const auto query = to_sql_string(context, x);
     std::cout << "Running prepare execute call with\n" << query << std::endl;
     return nullptr;
@@ -169,9 +162,18 @@ struct MockDb : public sqlpp::connection
   template <typename Insert>
   _prepared_statement_t prepare_insert(Insert& x)
   {
-    _serializer_context_t context;
+    _context_t context;
 const auto query =     to_sql_string(context, x);
     std::cout << "Running prepare insert call with\n" << query << std::endl;
+    return nullptr;
+  }
+
+  template <typename Update>
+  _prepared_statement_t prepare_update(Update& x)
+  {
+    _context_t context;
+const auto query =     to_sql_string(context, x);
+    std::cout << "Running prepare update call with\n" << query << std::endl;
     return nullptr;
   }
 
@@ -187,10 +189,16 @@ const auto query =     to_sql_string(context, x);
     return 0;
   }
 
+  template <typename PreparedUpdate>
+  size_t run_prepared_update(const PreparedUpdate&)
+  {
+    return 0;
+  }
+
   template <typename Select>
   _prepared_statement_t prepare_select(Select& x)
   {
-    _serializer_context_t context;
+    _context_t context;
 const auto query =     to_sql_string(context, x);
     std::cout << "Running prepare select call with\n" << query << std::endl;
     return nullptr;
@@ -247,28 +255,7 @@ struct MockSizeDb : public sqlpp::connection
 {
   using _traits = MockDb::_traits;
 
-  using _serializer_context_t = MockDb::_serializer_context_t;
-
-  using _interpreter_context_t = _serializer_context_t;
-
-  _serializer_context_t get_serializer_context()
-  {
-    return {};
-  }
-
-  template <typename T>
-  static _serializer_context_t& _serialize_interpretable(const T& x, _serializer_context_t& context)
-  {
-const auto query =     to_sql_string(context, x);
-    return context;
-  }
-
-  template <typename T>
-  static _serializer_context_t& _interpret_interpretable(const T& x, _interpreter_context_t& context)
-  {
-const auto query =     to_sql_string(context, x);
-    return context;
-  }
+  using _context_t = MockDb::_context_t;
 
   class result_t : public MockDb::result_t
   {
@@ -290,9 +277,9 @@ const auto query =     to_sql_string(context, x);
   auto _run(const T& t, Check) -> Check;
 
   template <typename T>
-  auto operator()(const T& t) -> decltype(this->_run(t, sqlpp::run_check_t<_serializer_context_t, T>{}))
+  auto operator()(const T& t) -> decltype(this->_run(t, sqlpp::run_check_t<_context_t, T>{}))
   {
-    return _run(t, sqlpp::run_check_t<_serializer_context_t, T>{});
+    return _run(t, sqlpp::run_check_t<_context_t, T>{});
   }
 
   size_t execute(const std::string&)
@@ -305,7 +292,7 @@ const auto query =     to_sql_string(context, x);
       typename Enable = typename std::enable_if<not std::is_convertible<Statement, std::string>::value, void>::type>
   size_t execute(const Statement& x)
   {
-    _serializer_context_t context;
+    _context_t context;
 const auto query =     to_sql_string(context, x);
     std::cout << "Running execute call with\n" << query << std::endl;
     return execute(query);
@@ -314,7 +301,7 @@ const auto query =     to_sql_string(context, x);
   template <typename Insert>
   size_t insert(const Insert& x)
   {
-    _serializer_context_t context;
+    _context_t context;
 const auto query =     to_sql_string(context, x);
     std::cout << "Running insert call with\n" << query << std::endl;
     return 0;
@@ -323,7 +310,7 @@ const auto query =     to_sql_string(context, x);
   template <typename Update>
   size_t update(const Update& x)
   {
-    _serializer_context_t context;
+    _context_t context;
 const auto query =     to_sql_string(context, x);
     std::cout << "Running update call with\n" << query << std::endl;
     return 0;
@@ -332,7 +319,7 @@ const auto query =     to_sql_string(context, x);
   template <typename Remove>
   size_t remove(const Remove& x)
   {
-    _serializer_context_t context;
+    _context_t context;
 const auto query =     to_sql_string(context, x);
     std::cout << "Running remove call with\n" << query << std::endl;
     return 0;
@@ -341,7 +328,7 @@ const auto query =     to_sql_string(context, x);
   template <typename Select>
   result_t select(const Select& x)
   {
-    _serializer_context_t context;
+    _context_t context;
 const auto query =     to_sql_string(context, x);
     std::cout << "Running select call with\n" << query << std::endl;
     return {};
@@ -360,15 +347,15 @@ const auto query =     to_sql_string(context, x);
   auto _prepare(const T& t, Check) -> Check;
 
   template <typename T>
-  auto prepare(const T& t) -> decltype(this->_prepare(t, sqlpp::prepare_check_t<_serializer_context_t, T>{}))
+  auto prepare(const T& t) -> decltype(this->_prepare(t, sqlpp::prepare_check_t<_context_t, T>{}))
   {
-    return _prepare(t, sqlpp::prepare_check_t<_serializer_context_t, T>{});
+    return _prepare(t, sqlpp::prepare_check_t<_context_t, T>{});
   }
 
   template <typename Statement>
   _prepared_statement_t prepare_execute(Statement& x)
   {
-    _serializer_context_t context;
+    _context_t context;
 const auto query =     to_sql_string(context, x);
     std::cout << "Running prepare execute call with\n" << query << std::endl;
     return nullptr;
@@ -377,7 +364,7 @@ const auto query =     to_sql_string(context, x);
   template <typename Insert>
   _prepared_statement_t prepare_insert(Insert& x)
   {
-    _serializer_context_t context;
+    _context_t context;
 const auto query =     to_sql_string(context, x);
     std::cout << "Running prepare insert call with\n" << query << std::endl;
     return nullptr;
@@ -398,7 +385,7 @@ const auto query =     to_sql_string(context, x);
   template <typename Select>
   _prepared_statement_t prepare_select(Select& x)
   {
-    _serializer_context_t context;
+    _context_t context;
 const auto query =     to_sql_string(context, x);
     std::cout << "Running prepare select call with\n" << query << std::endl;
     return nullptr;

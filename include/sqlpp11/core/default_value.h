@@ -37,10 +37,9 @@ namespace sqlpp
   };
 
   template <typename Context>
-  auto to_sql_string(Context& context, const default_value_t&) -> std::string
+  auto to_sql_string(Context& , const default_value_t&) -> std::string
   {
-    context << "DEFAULT";
-    return context;
+    return "DEFAULT";
   }
 
   constexpr default_value_t default_value = {};

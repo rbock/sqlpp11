@@ -187,8 +187,6 @@ int Sample(int, char*[])
   assert(
       db(select(all_of(tab)).from(tab).where(tab.alpha.not_in(select(tab.alpha).from(tab).unconditionally()))).empty());
 
-#warning: reactivate custom query
-  /*
   auto x = custom_query(sqlpp::verbatim("PRAGMA user_version = "), 1);
   db(x);
   const int64_t pragmaValue =
@@ -196,7 +194,6 @@ int Sample(int, char*[])
           .front()
           .pragma;
   std::cerr << pragmaValue << std::endl;
-  */
 
   // Testing sub select tables and unconditional joins
   const auto subQuery = select(tab.alpha).from(tab).unconditionally().as(sub);

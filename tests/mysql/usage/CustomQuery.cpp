@@ -37,16 +37,16 @@ namespace
     std::string _serialized;
 
     template <typename Db, typename Assignment>
-    on_duplicate_key_update(Db& db, Assignment assignment)
+    on_duplicate_key_update(Db& , Assignment assignment)
     {
-      typename Db::_serializer_context_t context{db};
+      typename Db::_context_t context;
       _serialized = " ON DUPLICATE KEY UPDATE " + to_sql_string(context, assignment);
     }
 
     template <typename Db, typename Assignment>
-    auto operator()(Db& db, Assignment assignment) -> on_duplicate_key_update&
+    auto operator()(Db& , Assignment assignment) -> on_duplicate_key_update&
     {
-      typename Db::_serializer_context_t context{db};
+      typename Db::_context_t context;
       _serialized += ", " + to_sql_string(context, assignment);
       return *this;
     }
@@ -69,12 +69,9 @@ int CustomQuery(int, char*[])
     auto db = sql::make_test_connection();
     test::createTabSample(db);
 
-#warning: Need to reactivate
-    /*
      // Create a MYSQL style custom "insert on duplicate update"
     db(custom_query(sqlpp::insert_into(tab).set(tab.textN = "sample", tab.boolN = true),
                     on_duplicate_key_update(db, tab.textN = "sample")(db, tab.boolN = false).get()));
-                    */
   }
   catch (const std::exception& e)
   {

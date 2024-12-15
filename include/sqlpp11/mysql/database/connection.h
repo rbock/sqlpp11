@@ -151,16 +151,9 @@ namespace sqlpp
       static const auto global_init_and_end = scoped_library_initializer_t(argc, argv, groups);
     }
 
-    // Forward declaration
-    class connection_base;
-
     struct context_t
     {
     };
-
-    std::integral_constant<char, '`'> get_quote_left(const context_t&);
-
-    std::integral_constant<char, '`'> get_quote_right(const context_t&);
 
     class connection_base : public sqlpp::connection
     {
@@ -237,6 +230,7 @@ namespace sqlpp
       using _config_ptr_t = std::shared_ptr<const _config_t>;
       using _handle_t = detail::connection_handle;
       using _handle_ptr_t = std::unique_ptr<_handle_t>;
+      using _context_t = context_t;
 
       using _prepared_statement_t = ::sqlpp::mysql::prepared_statement_t;
 

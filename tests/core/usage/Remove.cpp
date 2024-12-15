@@ -25,14 +25,14 @@
 
 #include <iostream>
 #include <sqlpp11/sqlpp11.h>
-#include "Sample.h"
-#include "MockDb.h"
+#include <sqlpp11/tests/core/MockDb.h>
+#include <sqlpp11/tests/core/tables.h>
 #include "is_regular.h"
 
 int Remove(int, char* [])
 {
   MockDb db = {};
-  MockDb::_serializer_context_t printer = {};
+  MockDb::_context_t printer = {};
 
   const auto t = test::TabBar{};
   const auto f = test::TabFoo{};
@@ -50,13 +50,10 @@ int Remove(int, char* [])
     static_assert(sqlpp::is_regular<T>::value, "type requirement");
   }
 
-  to_sql_string(printer, delete_from(t)).str();
-  to_sql_string(printer, delete_from(t).where(t.textN != "transparent")).str();
-  to_sql_string(printer, delete_from(t).using_(t)).str();
-  to_sql_string(printer, delete_from(t).using_(f)).str();
-#warning: add tests with optional using and optional where
-  printer.reset();
-  std::cerr << to_sql_string(printer, delete_from(t).unconditionally()).str() << std::endl;
+  to_sql_string(printer, delete_from(t));
+  to_sql_string(printer, delete_from(t).where(t.textN != "transparent"));
+#warning: add tests with optional where
+  std::cerr << to_sql_string(printer, delete_from(t).unconditionally()) << std::endl;
 
   delete_from(t).where(t.textN.in(select(f.textNnD).from(f).unconditionally()));
 

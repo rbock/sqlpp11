@@ -42,20 +42,19 @@
 
 namespace sqlpp
 {
-#warning: Need to add tests for `flatten`
+#warning: Need to add tests for `flatten` across all databases
   template <typename Expression, typename Db>
-  auto flatten(const Expression& exp, Db& db) -> verbatim_t<value_type_of_t<Expression>>
+  auto flatten(const Expression& exp, Db&) -> verbatim_t<value_type_of_t<Expression>>
   {
-    static_assert(not make_parameter_list_t<Expression>::size::value,
+    static_assert(parameters_of_t<Expression>::empty(),
                   "parameters are not allowed in flattened expressions");
-    auto context = db.get_serializer_context();
-    to_sql_string(context, exp);
-    return {context.str()};
+    typename Db::_context_t context{};
+    return {to_sql_string(context, exp)};
   }
 
   template <typename T>
   constexpr const char* get_sql_name(const T& /*unused*/)
   {
-    return name_tag_of_t<T>::_name_t::template char_ptr<void>();
+    return name_tag_of_t<T>::name;
   }
 }  // namespace sqlpp

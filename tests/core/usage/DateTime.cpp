@@ -24,13 +24,12 @@
  */
 
 #include <iostream>
-#include "Sample.h"
-#include "MockDb.h"
+#include <sqlpp11/tests/core/MockDb.h>
+#include <sqlpp11/tests/core/tables.h>
+#include <sqlpp11/tests/core/result_helpers.h>
 #include <sqlpp11/sqlpp11.h>
 
-#include "../../include/test_helpers.h"
-
-SQLPP_CREATE_NAME_TAG(now)
+SQLPP_CREATE_NAME_TAG(now);
 
 #if _MSC_FULL_VER >= 190023918
 // MSVC Update 2 provides floor, ceil, round, abs in chrono (which is C++17 only...)
@@ -42,7 +41,7 @@ using ::date::floor;
 int DateTime(int, char*[])
 {
   MockDb db = {};
-  MockDb::_serializer_context_t printer = {};
+  MockDb::_context_t printer = {};
   const auto t = test::TabDateTime{};
 
   for (const auto& row : db(select(::sqlpp::value(std::chrono::system_clock::now()).as(now))))
@@ -56,8 +55,7 @@ int DateTime(int, char*[])
     const auto tp = std::chrono::system_clock::time_point{row.timePointN.value()};
     std::cout << std::chrono::system_clock::to_time_t(tp);
   }
-  printer.reset();
-  std::cerr << to_sql_string(printer, ::sqlpp::value(std::chrono::system_clock::now())).str() << std::endl;
+  std::cerr << to_sql_string(printer, ::sqlpp::value(std::chrono::system_clock::now())) << std::endl;
 
   db(insert_into(t).set(t.dayPointN = floor<::sqlpp::chrono::days>(std::chrono::system_clock::now())));
   db(insert_into(t).set(t.timePointN = floor<::sqlpp::chrono::days>(std::chrono::system_clock::now())));

@@ -23,16 +23,13 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "MockDb.h"
-#include "Sample.h"
+#include <sqlpp11/tests/core/MockDb.h>
+#include <sqlpp11/tests/core/tables.h>
+#include <sqlpp11/tests/core/result_helpers.h>
 #include "is_regular.h"
 #include <algorithm>
 #include <iostream>
-#include <sqlpp11/core/name/create_name_tag.h>
-#include <sqlpp11/core/database/connection.h>
-#include <sqlpp11/functions.h>
-#include <sqlpp11/core/clause/select.h>
-#include "../../include/test_helpers.h"
+#include <sqlpp11/sqlpp11.h>
 
 struct to_cerr
 {
@@ -60,7 +57,7 @@ SQLPP_CREATE_NAME_TAG(N);
 int Select(int, char*[])
 {
   MockDb db = {};
-  MockDb::_serializer_context_t printer = {};
+  MockDb::_context_t printer = {};
 
   const auto f = test::TabFoo{};
   const auto t = test::TabBar{};
@@ -70,7 +67,7 @@ int Select(int, char*[])
   select(sqlpp::count(1).as(N));
   select(count(sqlpp::value(1)).as(N));
 
-  std::cerr << to_sql_string(printer, select(sqlpp::value(false).as(sqlpp::alias::a))).str() << std::endl;
+  std::cerr << to_sql_string(printer, select(sqlpp::value(false).as(sqlpp::alias::a))) << std::endl;
   for (const auto& row : db(select(sqlpp::value(false).as(sqlpp::alias::a))))
   {
     std::cout << row.a << std::endl;
@@ -129,11 +126,10 @@ int Select(int, char*[])
                   .where(t.id > 0)
                   .group_by(t.id)
                   .order_by(t.boolNn.asc())
-                  .having(t.boolNn)
+                  .having(max(t.boolNn) > 0)
                   .offset(19u)
                   .limit(7u);
-  printer.reset();
-  std::cerr << to_sql_string(printer, stat).str() << std::endl;
+  std::cerr << to_sql_string(printer, stat) << std::endl;
 
   auto s = sqlpp::select()
                .columns(t.id)
@@ -152,8 +148,7 @@ int Select(int, char*[])
     std::cout << a << std::endl;
   }
 
-  printer.reset();
-  std::cerr << to_sql_string(printer, s).str() << std::endl;
+  std::cerr << to_sql_string(printer, s) << std::endl;
 
   select(sqlpp::value(7).as(t.id));
 
