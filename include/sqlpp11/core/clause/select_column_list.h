@@ -187,16 +187,19 @@ namespace sqlpp
   {
   };
 
-  // If a GROUP BY clause defines known aggregate columns or the SELECT columns contain an aggregate function then ALL
-  // columns need to be aggregate.
+  // If a GROUP BY clause defines known aggregate columns
+  //   SELECT needs to contain aggregates only
+  // otherwise
+  //   SELECT needs to contain either aggregates only or non-aggregates only.
   template <typename KnownAggregateColumns, typename... Columns>
   struct has_correct_aggregates<KnownAggregateColumns, select_column_list_t<Columns...>>
       : public std::integral_constant<
             bool,
-            (KnownAggregateColumns::empty() and
-             logic::none<contains_aggregate_function<remove_dynamic_t<remove_as_t<Columns>>>::value...>::value) or
-                logic::all<is_aggregate_expression<KnownAggregateColumns,
-                                                     remove_dynamic_t<remove_as_t<Columns>>>::value...>::value>
+            KnownAggregateColumns::empty()
+                ? (logic::all<contains_aggregate_function<remove_dynamic_t<remove_as_t<Columns>>>::value...>::value or
+                   logic::all<not contains_aggregate_function<remove_dynamic_t<remove_as_t<Columns>>>::value...>::value)
+                : (logic::all<is_aggregate_expression<KnownAggregateColumns,
+                                                      remove_dynamic_t<remove_as_t<Columns>>>::value...>::value)>
   {
   };
 

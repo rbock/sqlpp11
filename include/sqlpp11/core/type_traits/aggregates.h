@@ -109,8 +109,7 @@ namespace sqlpp
       : public std::integral_constant<bool,
                                       (not is_aggregate_function<T>::value and
                                        not KnownAggregateColumns::template contains<T>() and
-                                       (not nodes_of_t<T>::empty() and
-                                        is_non_aggregate_expression<KnownAggregateColumns, nodes_of_t<T>>::value)) or
+                                       is_non_aggregate_expression<KnownAggregateColumns, nodes_of_t<T>>::value) or
                                           (nodes_of_t<T>::empty() and is_aggregate_neutral<T>::value)>
   {
   };

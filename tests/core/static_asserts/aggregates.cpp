@@ -23,13 +23,10 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "MockDb.h"
-#include "Sample.h"
+#include <sqlpp11/tests/core/MockDb.h>
+#include <sqlpp11/tests/core/tables.h>
 #include <iostream>
-#include <sqlpp11/core/name/create_name_tag.h>
-#include <sqlpp11/core/database/connection.h>
-#include <sqlpp11/functions.h>
-#include <sqlpp11/core/clause/select.h>
+#include <sqlpp11/sqlpp11.h>
 
 namespace
 {
@@ -47,14 +44,14 @@ namespace
   template <typename Assert, typename Expression>
   void static_run_check(const Expression&)
   {
-    using Context = MockDb::_serializer_context_t;
+    using Context = MockDb::_context_t;
     using CheckResult = sqlpp::run_check_t<Context, Expression>;
     using ExpectedCheckResult = std::is_same<CheckResult, Assert>;
     print_type_on_error<CheckResult>(ExpectedCheckResult{});
     static_assert(ExpectedCheckResult::value, "Unexpected check result");
   }
 
-  SQLPP_CREATE_NAME_TAG(whatever)
+  SQLPP_CREATE_NAME_TAG(whatever);
   static constexpr auto t = test::TabBar{};
 
   // If there is no group_by, we can select whatever we want
@@ -62,7 +59,7 @@ namespace
   {
     static_run_check<sqlpp::consistent_t>(select(all_of(t)).from(t).unconditionally());
     static_run_check<sqlpp::consistent_t>(select(t.id).from(t).unconditionally());
-    static_run_check<sqlpp::consistent_t>(select(count(t.id)).from(t).unconditionally());
+    static_run_check<sqlpp::consistent_t>(select(count(t.id).as(whatever)).from(t).unconditionally());
   }
 
   // If there is a dynamic group_by, we can still select whatever we want
@@ -71,7 +68,7 @@ namespace
   {
     static_run_check<sqlpp::consistent_t>(select(all_of(t)).from(t).unconditionally());
     static_run_check<sqlpp::consistent_t>(select(t.id).from(t).unconditionally());
-    static_run_check<sqlpp::consistent_t>(select(count(t.id)).from(t).unconditionally());
+    static_run_check<sqlpp::consistent_t>(select(count(t.id).as(whatever)).from(t).unconditionally());
   }
 
   // If there is a static group_by, selected columns must be made of group_by expressions, or aggregate expression (e.g.
@@ -82,19 +79,19 @@ namespace
     static_run_check<sqlpp::consistent_t>(
         select((t.id + 42).as(whatever)).from(t).unconditionally().group_by(t.id));
     static_run_check<sqlpp::consistent_t>(
-        select((t.id + 42).as(whatever)).from(t).unconditionally().group_by(t.id, t.id + t.intN * 17));
+        select((t.id + 42).as(whatever)).from(t).unconditionally().group_by(t.id, declare_group_by_column(t.id + t.intN * 17)));
     static_run_check<sqlpp::consistent_t>(select((t.id + t.intN * 17).as(whatever))
                                               .from(t)
                                               .unconditionally()
-                                              .group_by(t.id, t.id + t.intN * 17));
+                                              .group_by(t.id, declare_group_by_column(t.id + t.intN * 17)));
     static_run_check<sqlpp::consistent_t>(
         select((t.textN + "fortytwo").as(whatever)).from(t).unconditionally().group_by(t.textN));
 
-    static_run_check<sqlpp::consistent_t>(select(avg(t.id)).from(t).unconditionally().group_by(t.textN));
-    static_run_check<sqlpp::consistent_t>(select(count(t.id)).from(t).unconditionally().group_by(t.textN));
-    static_run_check<sqlpp::consistent_t>(select(max(t.id)).from(t).unconditionally().group_by(t.textN));
-    static_run_check<sqlpp::consistent_t>(select(min(t.id)).from(t).unconditionally().group_by(t.textN));
-    static_run_check<sqlpp::consistent_t>(select(sum(t.id)).from(t).unconditionally().group_by(t.textN));
+    static_run_check<sqlpp::consistent_t>(select(avg(t.id).as(whatever)).from(t).unconditionally().group_by(t.textN));
+    static_run_check<sqlpp::consistent_t>(select(count(t.id).as(whatever)).from(t).unconditionally().group_by(t.textN));
+    static_run_check<sqlpp::consistent_t>(select(max(t.id).as(whatever)).from(t).unconditionally().group_by(t.textN));
+    static_run_check<sqlpp::consistent_t>(select(min(t.id).as(whatever)).from(t).unconditionally().group_by(t.textN));
+    static_run_check<sqlpp::consistent_t>(select(sum(t.id).as(whatever)).from(t).unconditionally().group_by(t.textN));
 
     static_run_check<sqlpp::consistent_t>(
         select((t.id + count(t.intN)).as(whatever)).from(t).unconditionally().group_by(t.id));
@@ -108,15 +105,15 @@ namespace
   // Failures with static group_by and selected non-aggregates or incorrect aggregates
   void static_group_by_nok()
   {
-    static_run_check<sqlpp::assert_no_unknown_aggregates_t>(select(t.textN).from(t).unconditionally().group_by(t.id));
-    static_run_check<sqlpp::assert_no_aggregate_mix_t>(
+    static_run_check<sqlpp::assert_correct_aggregates_t>(select(t.textN).from(t).unconditionally().group_by(t.id));
+    static_run_check<sqlpp::assert_correct_aggregates_t>(
         select(t.id, t.intN).from(t).unconditionally().group_by(t.id));
-    static_run_check<sqlpp::assert_no_aggregate_mix_t>(
+    static_run_check<sqlpp::assert_correct_aggregates_t>(
         select(t.id, t.textN).from(t).unconditionally().group_by(t.id));
-    static_run_check<sqlpp::assert_no_aggregate_mix_t>(
+    static_run_check<sqlpp::assert_correct_aggregates_t>(
         select((t.id + t.intN).as(whatever)).from(t).unconditionally().group_by(t.id));
-    static_run_check<sqlpp::assert_no_aggregate_mix_t>(
-        select((t.id + t.intN).as(whatever)).from(t).unconditionally().group_by(t.id, t.id + t.intN * 17));
+    static_run_check<sqlpp::assert_correct_aggregates_t>(
+        select((t.id + t.intN).as(whatever)).from(t).unconditionally().group_by(t.id, declare_group_by_column(t.id + t.intN * 17)));
   }
 }
 

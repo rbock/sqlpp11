@@ -31,9 +31,10 @@
 
 namespace
 {
+#warning: Remove
   auto getTrue() -> std::string
   {
-    MockDb::_serializer_context_t printer = {};
+    MockDb::_context_t printer = {};
     return to_sql_string(printer, sqlpp::value(true));
   }
 }

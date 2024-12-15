@@ -23,9 +23,9 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "MockDb.h"
-#include "Sample.h"
-#include <iostream>
+#include <sqlpp11/tests/core/MockDb.h>
+#include <sqlpp11/tests/core/tables.h>
+#include <sqlpp11/tests/core/result_helpers.h>
 #include <sqlpp11/sqlpp11.h>
 
 namespace
@@ -73,9 +73,6 @@ namespace
     // Try duplicate columns
     update_set_static_check<sqlpp::assert_update_set_no_duplicates_t>(t.boolNn = true, t.boolNn = false);
     update_set_static_check<sqlpp::assert_update_set_no_duplicates_t>(t.boolNn = true, t.textN = "", t.boolNn = false);
-
-    // Try to update prohibited columns
-    update_set_static_check<sqlpp::assert_update_set_allowed_t>(t.id = 42);
 
     // Try to update multiple tables at once
     update_set_static_check<sqlpp::assert_update_set_single_table_t>(t.boolNn = true, f.doubleN = 7);

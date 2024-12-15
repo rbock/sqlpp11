@@ -54,6 +54,22 @@ namespace sqlpp
   };
 
   template <typename Expr>
+  struct raw_group_by_column
+  {
+    using type = Expr;
+  };
+
+  template <typename Expr>
+  struct raw_group_by_column<group_by_column<Expr>>
+  {
+    using type = Expr;
+  };
+
+  template <typename Expr>
+    using raw_group_by_column_t = typename raw_group_by_column<Expr>::type;
+  
+
+  template <typename Expr>
   struct is_group_by_column<group_by_column<Expr>> : public std::true_type
   {
   };

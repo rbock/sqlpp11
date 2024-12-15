@@ -27,6 +27,11 @@
 #include <sqlpp11/tests/core/serialize_helpers.h>
 #include <sqlpp11/sqlpp11.h>
 
+namespace
+{
+  SQLPP_CREATE_NAME_TAG(something);
+}
+
 int main(int, char* [])
 {
   const auto val = sqlpp::value(17);
@@ -52,10 +57,10 @@ int main(int, char* [])
   SQLPP_COMPARE(select(foo.id).from(foo).where(dynamic(false,foo.intN > 17)), "SELECT tab_foo.id FROM tab_foo");
 
   // SELECT FROM WHERE GROUP BY HAVING.
-  SQLPP_COMPARE(select(count(foo.id)).from(foo).where(true).group_by(foo.intN).having(max(foo.id) < 100), "SELECT COUNT(tab_foo.id) FROM tab_foo WHERE 1 GROUP BY tab_foo.int_n HAVING MAX(tab_foo.id) < 100");
+  SQLPP_COMPARE(select(count(foo.id).as(something)).from(foo).where(true).group_by(foo.intN).having(max(foo.id) < 100), "SELECT COUNT(tab_foo.id) FROM tab_foo WHERE 1 GROUP BY tab_foo.int_n HAVING MAX(tab_foo.id) < 100");
 
   // SELECT FROM WHERE GROUP BY HAVING ORDER BY LIMIT OFFSET
-  SQLPP_COMPARE(select(count(foo.id)).from(foo).where(true).group_by(foo.intN).having(max(foo.id) < 100).order_by(foo.intN.asc()).limit(10).offset(3), "SELECT COUNT(tab_foo.id) FROM tab_foo WHERE 1 GROUP BY tab_foo.int_n HAVING MAX(tab_foo.id) < 100 ORDER BY tab_foo.int_n ASC LIMIT 10 OFFSET 3");
+  SQLPP_COMPARE(select(count(foo.id).as(something)).from(foo).where(true).group_by(foo.intN).having(max(foo.id) < 100).order_by(foo.intN.asc()).limit(10).offset(3), "SELECT COUNT(tab_foo.id) FROM tab_foo WHERE 1 GROUP BY tab_foo.int_n HAVING MAX(tab_foo.id) < 100 ORDER BY tab_foo.int_n ASC LIMIT 10 OFFSET 3");
 
 #warning: If there is group by, does it make sense to order by non-aggregates? Need to add checks for that.
 #warning: need to add type tests, including executability

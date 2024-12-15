@@ -23,9 +23,9 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "MockDb.h"
-#include "Sample.h"
-#include <iostream>
+#include <sqlpp11/tests/core/MockDb.h>
+#include <sqlpp11/tests/core/tables.h>
+#include <sqlpp11/tests/core/result_helpers.h>
 #include <sqlpp11/sqlpp11.h>
 
 namespace
@@ -46,7 +46,7 @@ namespace
   template <typename Assert, typename Expression>
   void where_static_check(const Expression& expression)
   {
-    using CheckResult = sqlpp::check_where_static_t<Expression>;
+    using CheckResult = sqlpp::check_where_t<Expression>;
     using ExpectedCheckResult = std::is_same<CheckResult, Assert>;
     print_type_on_error<CheckResult>(ExpectedCheckResult{});
     static_assert(ExpectedCheckResult::value, "Unexpected check result");
@@ -69,10 +69,6 @@ namespace
     // Try non-boolean expression
     where_static_check<sqlpp::assert_where_arg_is_boolean_expression_t>(t.id);
 
-    // Try builtin bool
-    where_static_check<sqlpp::assert_where_arg_is_not_cpp_bool_t>(true);
-    where_static_check<sqlpp::assert_where_arg_is_not_cpp_bool_t>(17 > 3);
-
     // Try some other types as expressions
     where_static_check<sqlpp::assert_where_arg_is_boolean_expression_t>("true");
     where_static_check<sqlpp::assert_where_arg_is_boolean_expression_t>(17);
@@ -81,9 +77,9 @@ namespace
     where_static_check<sqlpp::assert_where_arg_is_boolean_expression_t>(t.id.as(t.textN));
 
     // Try using aggregate functions in where
-    where_static_check<sqlpp::assert_where_arg_contains_no_aggregate_functions_t>(count(t.id) > 0);
-    where_static_check<sqlpp::assert_where_arg_contains_no_aggregate_functions_t>(t.boolNn and count(t.id) > 0);
-    where_static_check<sqlpp::assert_where_arg_contains_no_aggregate_functions_t>(
+    where_static_check<sqlpp::assert_where_arg_contains_no_aggregate_t>(count(t.id) > 0);
+    where_static_check<sqlpp::assert_where_arg_contains_no_aggregate_t>(t.boolNn and count(t.id) > 0);
+    where_static_check<sqlpp::assert_where_arg_contains_no_aggregate_t>(
         case_when(count(t.id) > 0).then(t.boolNn).else_(not t.boolNn));
   }
 

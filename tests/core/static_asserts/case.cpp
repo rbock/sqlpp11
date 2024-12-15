@@ -23,9 +23,8 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "MockDb.h"
-#include "Sample.h"
-#include <iostream>
+#include <sqlpp11/tests/core/MockDb.h>
+#include <sqlpp11/tests/core/tables.h>
 #include <sqlpp11/sqlpp11.h>
 
 namespace
@@ -58,7 +57,7 @@ namespace
   }
 
   template <typename Assert, typename When, typename Then>
-  void then_check(const When& when, const Then& then)
+  void then_check(When when, Then then)
   {
     using CheckResult = sqlpp::check_case_then_t<Then>;
     using ExpectedCheckResult = std::is_same<CheckResult, Assert>;
@@ -72,9 +71,9 @@ namespace
   }
 
   template <typename Assert, typename When, typename Then, typename Else>
-  void else_check(const When& when, const Then& then, const Else& else_)
+  void else_check(When when, Then then, Else else_)
   {
-    using CheckResult = sqlpp::check_case_else_t<sqlpp::wrap_operand_t<Then>, Else>;
+    using CheckResult = sqlpp::check_case_else_t<Then, Else>;
     using ExpectedCheckResult = std::is_same<CheckResult, Assert>;
     print_type_on_error<CheckResult>(ExpectedCheckResult{});
     static_assert(ExpectedCheckResult::value, "Unexpected check result");
@@ -121,7 +120,6 @@ namespace
     then_check<sqlpp::consistent_t>(t.boolNn, "true");
     then_check<sqlpp::consistent_t>(t.boolNn, 42);
     then_check<sqlpp::consistent_t>(t.boolNn, 'c');
-    then_check<sqlpp::consistent_t>(t.boolNn, nullptr);
 
     // Try to use an assignment as "then"
     then_check<sqlpp::assert_case_then_expression_t>(t.boolNn, t.boolNn = true);
@@ -139,15 +137,16 @@ namespace
     else_check<sqlpp::consistent_t>(t.boolNn, t.boolNn, t.boolNn);
     else_check<sqlpp::consistent_t>(t.boolNn, t.id, 42);
     else_check<sqlpp::consistent_t>(t.boolNn, t.textN, "twentyseven");
+    else_check<sqlpp::consistent_t>(t.boolNn, t.textN, sqlpp::nullopt);
 
     // Try to use an assignment as "else"
-    else_check<sqlpp::assert_case_else_expression_t>(t.boolNn, t.id, t.id = 7);
+    else_check<sqlpp::assert_case_then_else_same_type_t>(t.boolNn, t.id, t.id = 7);
 
     // Try to use a table as "else"
-    else_check<sqlpp::assert_case_else_expression_t>(t.boolNn, t.id, t);
+    else_check<sqlpp::assert_case_then_else_same_type_t>(t.boolNn, t.id, t);
 
     // Try to use an alias as "else"
-    else_check<sqlpp::assert_case_else_expression_t>(t.boolNn, t.id, t.id.as(t.textN));
+    else_check<sqlpp::assert_case_then_else_same_type_t>(t.boolNn, t.id, t.id.as(t.textN));
   }
 }
 

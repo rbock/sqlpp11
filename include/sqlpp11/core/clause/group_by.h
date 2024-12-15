@@ -84,7 +84,7 @@ namespace sqlpp
   template <typename... Columns>
   struct known_aggregate_columns_of<group_by_t<Columns...>>
   {
-    using type = detail::type_set<Columns...>;
+    using type = detail::type_set<raw_group_by_column_t<Columns>...>;
   };
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_group_by_args_are_columns_t, "all arguments for group_by() must be columns");

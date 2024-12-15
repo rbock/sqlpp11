@@ -224,8 +224,6 @@ namespace sqlpp
   SQLPP_VALUE_TRAIT_GENERATOR(is_with)
   SQLPP_VALUE_TRAIT_GENERATOR(is_noop)
   SQLPP_VALUE_TRAIT_GENERATOR(is_missing)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_pre_join)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_join)
   SQLPP_VALUE_TRAIT_GENERATOR(is_dynamic_pre_join)
   SQLPP_VALUE_TRAIT_GENERATOR(is_dynamic_join)
   SQLPP_VALUE_TRAIT_GENERATOR(is_pseudo_table)
@@ -478,6 +476,11 @@ namespace sqlpp
 
   template <typename T>
   struct is_recursive_cte : public std::false_type
+  {
+  };
+
+  template <typename T>
+  struct is_pre_join : public std::false_type
   {
   };
 

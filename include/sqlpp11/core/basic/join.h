@@ -191,6 +191,9 @@ namespace sqlpp
     Rhs _rhs;
   };
 
+  template <typename Lhs, typename JoinType, typename Rhs>
+  struct is_pre_join<pre_join_t<Lhs, JoinType, Rhs>> : public std::true_type {};
+
   // Note: See sqlpp11/core/basic/join_fwd.h for forward declarations including check_join_args.
 
   template <typename Lhs, typename Rhs, typename /* = check_join_args<Lhs, Rhs> */>

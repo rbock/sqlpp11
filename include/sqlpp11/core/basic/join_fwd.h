@@ -66,6 +66,7 @@ namespace sqlpp
   template <typename Lhs, typename JoinType, typename Rhs>
   struct pre_join_t;
 
+#warning: We should probably move some of these conditions to static asserts.
   template <typename Lhs, typename Rhs>
   using check_join_args =
       sqlpp::enable_if_t<is_table<Lhs>::value and is_table<remove_dynamic_t<Rhs>>::value and

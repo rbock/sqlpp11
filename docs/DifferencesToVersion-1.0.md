@@ -92,3 +92,5 @@ Now you can just do `tab.id.in(std::vector<int>{1, 2, 3, 4})`
 
 ## Dropped `some`
 `some` is the same as `any`. Just use `any`.
+
+## Introduced declare_group_by_column

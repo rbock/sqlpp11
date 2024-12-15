@@ -31,7 +31,7 @@
 #warning: Need copies of this for other backends
 #define SQLPP_COMPARE(expr, expected_string)                       \
   {                                                                \
-    MockDb::_serializer_context_t printer = {};                    \
+    MockDb::_context_t printer = {};                    \
                                                                    \
     using sqlpp::to_sql_string;                                    \
     const auto result = to_sql_string(printer, expr);              \
