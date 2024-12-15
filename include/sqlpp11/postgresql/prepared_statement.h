@@ -84,7 +84,7 @@ namespace sqlpp
         return (this->_handle == rhs._handle);
       }
 
-      void _bind_parameter(size_t index, const signed char& value)
+      void _bind_parameter(size_t index, const bool& value)
       {
         if (_handle->debug())
         {

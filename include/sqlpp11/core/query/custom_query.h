@@ -27,7 +27,7 @@
  */
 
 #include <sqlpp11/core/database/connection.h>
-#include <sqlpp11/core/detail/get_first.h>
+#include <sqlpp11/core/detail/get_last.h>
 #include <sqlpp11/core/hidden.h>
 #include <sqlpp11/core/tuple_to_sql_string.h>
 #include <sqlpp11/core/query/statement.h>
@@ -49,14 +49,13 @@ namespace sqlpp
     {
       using type = Clause;
     };
+    template <typename Clause>
+    using unhide_t = typename unhide<Clause>::type;
 
     template <typename... Parts>
     struct custom_parts_t
     {
-      using _custom_query_t = custom_query_t<Parts...>;
-#warning: This should be get_last_if, I think.
-      using _maybe_hidden_result_type_provider = detail::get_first_if<is_result_clause, noop, Parts...>;
-      using _result_type_provider = typename unhide<_maybe_hidden_result_type_provider>::type;
+      using _result_type_provider = detail::get_last_if_t<is_result_clause, noop, unhide_t<Parts>...>;
       using _result_methods_t = typename _result_type_provider::template _result_methods_t<_result_type_provider>;
     };
   }  // namespace detail
@@ -112,10 +111,11 @@ namespace sqlpp
       return _get_static_no_of_parameters();
     }
 
+#warning: Need to add some checks here!
     template <typename Part>
-    auto with_result_type_of(Part part) -> custom_query_t<hidden_t<Part>, Parts...>
+    auto with_result_type_of(Part part) -> custom_query_t<Parts..., hidden_t<Part>>
     {
-      return {tuple_cat(std::make_tuple(hidden(part)), _parts)};
+      return {tuple_cat(_parts, std::make_tuple(hidden(part)))};
     }
 
     std::tuple<Parts...> _parts;

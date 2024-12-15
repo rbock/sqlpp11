@@ -226,6 +226,12 @@ namespace sqlpp
   template<typename... Policies>
     struct is_statement<statement_t<Policies...>> : public std::true_type {};
 
+  template <typename... Policies>
+  struct is_result_clause<statement_t<Policies...>>
+  {
+    static constexpr bool value = not std::is_same<noop, typename statement_t<Policies...>::_result_type_provider>::value;
+  };
+
   template<typename... Policies>
     struct value_type_of<statement_t<Policies...>> : public value_type_of<typename detail::statement_policies_t<Policies...>> {};
   template<typename... Policies>
