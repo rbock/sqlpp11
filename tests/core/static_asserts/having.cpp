@@ -47,7 +47,7 @@ namespace
   template <typename Assert, typename Expression>
   auto having_static_check(const Expression& expression) -> void
   {
-    using CheckResult = sqlpp::check_having_static_t<Expression>;
+    using CheckResult = sqlpp::check_having_t<Expression>;
     using ExpectedCheckResult = std::is_same<CheckResult, Assert>;
     print_type_on_error<CheckResult>(ExpectedCheckResult{});
     static_assert(ExpectedCheckResult::value, "Unexpected check result");
@@ -74,10 +74,6 @@ namespace
 
     // Try non-boolean expression
     having_static_check<sqlpp::assert_having_boolean_expression_t>(t.id);
-
-    // Try builtin bool
-    having_static_check<sqlpp::assert_having_not_cpp_bool_t>(true);
-    having_static_check<sqlpp::assert_having_not_cpp_bool_t>(17 > 3);
 
     // Try some other types as expressions
     having_static_check<sqlpp::assert_having_boolean_expression_t>("true");
@@ -110,7 +106,7 @@ namespace
                                                                     count(t.id) > 3 and t.id > 17);
 
     // Try foreign table
-    static_consistency_check<sqlpp::assert_having_no_unknown_tables_t>(select_without_group_by, f.doubleN > 17);
+    static_consistency_check<sqlpp::assert_having_all_aggregates_t>(select_without_group_by, f.doubleN > 17);
 
     const auto select_with_group_by = select(t.id).from(t).unconditionally().group_by(t.id);
 
@@ -125,7 +121,7 @@ namespace
                                                                        count(t.textN) > 3 and t.textN > "17");
 
     // Try foreign table
-    static_consistency_check<sqlpp::assert_having_no_unknown_tables_t>(select_with_group_by, f.doubleN > 17);
+    static_consistency_check<sqlpp::assert_having_all_aggregates_t>(select_with_group_by, f.doubleN > 17);
   }
 }
 
