@@ -179,6 +179,7 @@ int Select(int, char*[])
     }
   }
 
+  // Move to type tests?
   for (const auto& row :
        db(select(f.doubleN, select(count(t.id).as(N)).from(t).unconditionally().as(cheese)).from(f).unconditionally()))
   {

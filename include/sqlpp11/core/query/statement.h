@@ -240,13 +240,10 @@ namespace sqlpp
   template <typename... Policies>
   struct nodes_of<statement_t<Policies...>>
   {
-    using type = typename detail::type_vector<Policies...>;
-  };
-
-  // This is important for sub selects that contain an aggregate function
-  template <typename... Policies>
-  struct contains_aggregate_function<statement_t<Policies...>> : public std::false_type
-  {
+    // statements explicitly do not expose any nodes as most recursive traits should not traverse into sub queries, e.g.
+    //   - contains_aggregates
+    //   - known_aggregate_columns_of
+    using type = typename detail::type_vector<>;
   };
 
   template <typename... Policies>
@@ -260,12 +257,6 @@ namespace sqlpp
   {
     using type = typename detail::statement_policies_t<Policies...>::_required_tables_of;
   };
-
-  template <typename... Policies>
-    struct known_aggregate_columns_of<statement_t<Policies...>>
-    {
-      using type = detail::make_joined_set_t<known_aggregate_columns_of_t<Policies>...>;
-    };
 
   template <typename... Policies>
   struct requires_parentheses<statement_t<Policies...>> : public std::true_type {};

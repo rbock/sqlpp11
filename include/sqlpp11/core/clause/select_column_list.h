@@ -194,12 +194,12 @@ namespace sqlpp
       : public std::integral_constant<
             bool,
             KnownAggregateColumns::empty()
-              // Without GROUP BY: either aggregate only or non-aggregate only
+                // Without GROUP BY: either aggregate only or non-aggregate only
                 ? (logic::all<is_aggregate_expression<KnownAggregateColumns,
                                                       remove_dynamic_t<remove_as_t<Columns>>>::value...>::value or
-                   logic::all<not is_aggregate_expression<KnownAggregateColumns,
-                                                      remove_dynamic_t<remove_as_t<Columns>>>::value...>::value)
-              // With GROUP BY: all columns have to be aggregate expressions
+                   logic::all<is_non_aggregate_expression<KnownAggregateColumns,
+                                                          remove_dynamic_t<remove_as_t<Columns>>>::value...>::value)
+                // With GROUP BY: all columns have to be aggregate expressions
                 : (logic::all<is_aggregate_expression<KnownAggregateColumns,
                                                       remove_dynamic_t<remove_as_t<Columns>>>::value...>::value)>
   {

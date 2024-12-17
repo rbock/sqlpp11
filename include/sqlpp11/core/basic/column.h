@@ -38,6 +38,7 @@
 
 namespace sqlpp
 {
+#warning: Why do we pass the table and not the TableSpec here?
   template <typename Table, typename ColumnSpec>
   struct column_t : public enable_as<column_t<Table, ColumnSpec>>,
   public enable_comparison<column_t<Table, ColumnSpec>>
