@@ -94,3 +94,6 @@ Now you can just do `tab.id.in(std::vector<int>{1, 2, 3, 4})`
 `some` is the same as `any`. Just use `any`.
 
 ## Introduced declare_group_by_column
+
+## Dynamic columns in group by are considered known aggregate columns
+This is just too unnerving (consider `select((5 + tab.id).as(something))....group_by(dynamic(cond, tab.id))`, or combinations with dynamic in the select column).

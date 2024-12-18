@@ -24,14 +24,15 @@
  */
 
 #include <sqlpp11/tests/core/tables.h>
+#include <sqlpp11/tests/core/types_helpers.h>
 #include <sqlpp11/sqlpp11.h>
 
 namespace
 {
   template <typename... T>
   auto known_aggregate_columns_as_expected(T... t)
-      -> std::is_same<sqlpp::known_aggregate_columns_of_t<decltype(group_by(std::move(t)...))>,
-                      sqlpp::detail::type_set<T...>>;
+      -> std::is_same<sqlpp::known_aggregate_columns_of_t<extract_clause_t<decltype(group_by(std::move(t)...))>>,
+                      sqlpp::detail::type_set<sqlpp::raw_group_by_column_t<sqlpp::remove_dynamic_t<T>>...>>;
 }
 
 void test_group_by()

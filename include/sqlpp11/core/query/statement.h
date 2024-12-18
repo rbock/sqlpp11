@@ -259,6 +259,12 @@ namespace sqlpp
   };
 
   template <typename... Policies>
+  struct required_ctes_of<statement_t<Policies...>>
+  {
+    using type = typename detail::statement_policies_t<Policies...>::_required_ctes_of;
+  };
+
+  template <typename... Policies>
   struct requires_parentheses<statement_t<Policies...>> : public std::true_type {};
 
   template <typename Context, typename... Policies>
