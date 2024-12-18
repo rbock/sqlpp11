@@ -47,7 +47,7 @@ namespace sqlpp
     constexpr auto dynamic_update(const Database&, Table table)
         -> decltype(blank_update_t<Database>().single_table(table))
     {
-      static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
+      static_assert(std::is_base_of<connection_base, Database>::value, "Invalid database parameter");
       return {blank_update_t<Database>().single_table(table)};
     }
   }
