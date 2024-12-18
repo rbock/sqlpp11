@@ -163,7 +163,7 @@ namespace sqlpp
                         "at least one returnable expression (e.g. a column) is required in returning");
           static_assert(decltype(_check_args(columns...))::value,
                         "at least one argument is not a returnable expression in returning()");
-          static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
+          static_assert(std::is_base_of<connection_base, Database>::value, "Invalid database parameter");
           return {static_cast<const derived_statement_t<Policies>&>(*this),
                   typename dynamic_returning_column_list<_database_t>::_data_t{columns...}};
         }

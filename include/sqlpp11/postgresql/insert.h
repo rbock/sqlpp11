@@ -52,14 +52,14 @@ namespace sqlpp
     template <typename Database>
     constexpr auto dynamic_insert(const Database&) -> decltype(blank_insert_t<Database>())
     {
-      static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
+      static_assert(std::is_base_of<connection_base, Database>::value, "Invalid database parameter");
       return {blank_insert_t<Database>()};
     }
 
     template <typename Database, typename Table>
     constexpr auto dynamic_insert_into(const Database&, Table table) -> decltype(blank_insert_t<Database>().into(table))
     {
-      static_assert(std::is_base_of<connection, Database>::value, "Invalid database parameter");
+      static_assert(std::is_base_of<connection_base, Database>::value, "Invalid database parameter");
       return {blank_insert_t<Database>().into(table)};
     }
   }  // namespace postgresql
