@@ -166,7 +166,7 @@ namespace sqlpp
     struct have_correct_dependencies_impl<AllowedCTEs, AllowedStaticCTEs, CTE, Rest...>
     {
       using allowed_ctes = detail::make_joined_set_t<AllowedCTEs, provided_ctes_of_t<CTE>>;
-      using allowed_static_ctes = detail::make_joined_set_t<AllowedStaticCTEs, AllowedStaticCTEs, provided_static_ctes_of_t<CTE>>;
+      using allowed_static_ctes = detail::make_joined_set_t<AllowedStaticCTEs, provided_static_ctes_of_t<CTE>>;
       static constexpr bool value =
           allowed_ctes::contains_all(required_ctes_of_t<CTE>{}) and
           allowed_static_ctes::contains_all(required_static_ctes_of_t<CTE>{}) and

@@ -82,6 +82,8 @@ void test_with()
 
     // `Referencing` statically requires the cte it references. It is not sufficient to have a dynamic `Basic` cte.
     static_assert(not sqlpp::have_correct_dependencies<sqlpp::dynamic_t<Basic>, Referencing>::value, "");
+
+#warning: Need to add test for recursive CTEs.
    }
 
   // `with` exposes parameters from it's CTEs

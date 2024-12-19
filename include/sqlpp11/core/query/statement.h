@@ -77,6 +77,8 @@ namespace sqlpp
 
       using _all_required_ctes = detail::make_joined_set_t<required_ctes_of_t<Policies>...>;
       using _all_provided_ctes = detail::make_joined_set_t<provided_ctes_of_t<Policies>...>;
+      using _all_required_static_ctes = detail::make_joined_set_t<required_static_ctes_of_t<Policies>...>;
+      using _all_provided_static_ctes = detail::make_joined_set_t<provided_static_ctes_of_t<Policies>...>;
       using _all_required_tables = detail::make_joined_set_t<required_tables_of_t<Policies>...>;
       using _all_provided_tables = detail::make_joined_set_t<provided_tables_of_t<Policies>...>;
       using _all_provided_optional_tables = detail::make_joined_set_t<provided_optional_tables_of_t<Policies>...>;
@@ -84,6 +86,7 @@ namespace sqlpp
 
       using _required_tables_of = detail::make_difference_set_t<_all_required_tables, _all_provided_tables>;
       using _required_ctes_of = detail::make_difference_set_t<_all_required_ctes, _all_provided_ctes>;
+      using _required_static_ctes_of = detail::make_difference_set_t<_all_required_static_ctes, _all_provided_static_ctes>;
 
       template <typename Expression>
       static constexpr bool _no_unknown_tables = _all_provided_tables::contains_all(required_tables_of_t<Expression>{});
@@ -262,6 +265,12 @@ namespace sqlpp
   struct required_ctes_of<statement_t<Policies...>>
   {
     using type = typename detail::statement_policies_t<Policies...>::_required_ctes_of;
+  };
+
+  template <typename... Policies>
+  struct required_static_ctes_of<statement_t<Policies...>>
+  {
+    using type = typename detail::statement_policies_t<Policies...>::_required_static_ctes_of;
   };
 
   template <typename... Policies>
