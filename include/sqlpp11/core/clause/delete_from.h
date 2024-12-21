@@ -78,6 +78,9 @@ namespace sqlpp
     };
   };
 
+  template<typename Statement>
+    struct consistency_check<Statement, delete_t> { using type = consistent_t; };
+
   template<>
     struct is_result_clause<delete_t> : public std::true_type {};
 
@@ -87,7 +90,7 @@ namespace sqlpp
     return "DELETE FROM ";
   }
 
-  using blank_delete_t = statement_t<delete_t, no_single_table_t, no_where_t<true>>;
+  using blank_delete_t = statement_t<delete_t, no_single_table_t, no_where_t>;
 
   inline auto delete_from() -> blank_delete_t
   {

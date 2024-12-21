@@ -68,10 +68,11 @@ namespace sqlpp
       }
 
       _data_t _data;
-
-      using _consistency_check = consistent_t;
     };
   };
+
+  template<typename Statement, typename Limit>
+    struct consistency_check<Statement, limit_t<Limit>> { using type = consistent_t; };
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_limit_is_integral,
                                "argument for limit() must be an integral expressions");
@@ -105,8 +106,6 @@ namespace sqlpp
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check, Policies, no_limit_t, T>;
 
-      using _consistency_check = consistent_t;
-
       template <typename Arg>
       auto limit(Arg arg) const -> _new_statement_t<check_limit_t<Arg>, limit_t<Arg>>
       {
@@ -123,6 +122,12 @@ namespace sqlpp
         return {static_cast<const derived_statement_t<Policies>&>(*this), limit_data_t<Arg>{std::move(arg)}};
       }
     };
+  };
+
+  template <typename Statement>
+  struct consistency_check<Statement, no_limit_t>
+  {
+    using type = consistent_t;
   };
 
   // Interpreters

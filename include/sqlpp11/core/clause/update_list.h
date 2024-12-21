@@ -73,11 +73,15 @@ namespace sqlpp
       }
 
       _data_t _data;
+    };
+  };
 
-      using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<update_list_t>,
+  template <typename Statement, typename... Assignments>
+  struct consistency_check<Statement, update_list_t<Assignments...>>
+  {
+    using type = typename std::conditional<Statement::template _no_unknown_tables<update_list_t<Assignments...>>,
                                                            consistent_t,
                                                            assert_no_unknown_tables_in_update_assignments_t>::type;
-    };
   };
 
   template<typename... Assignments>
@@ -137,8 +141,6 @@ namespace sqlpp
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check, Policies, no_update_list_t, T>;
 
-      using _consistency_check = assert_update_assignments_t;
-
       template <typename... Assignments>
       auto set(Assignments... assignments) const
           -> _new_statement_t<check_update_static_set_t<Assignments...>, update_list_t<Assignments...>>
@@ -167,6 +169,13 @@ namespace sqlpp
                 update_list_data_t<Assignments...>{assignments}};
       }
     };
+  };
+
+  template <typename Statement>
+  struct consistency_check<Statement, no_update_list_t>
+  {
+    using type = assert_update_assignments_t;
+
   };
 
   // Interpreters

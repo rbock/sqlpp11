@@ -71,9 +71,13 @@ namespace sqlpp
       }
 
       _data_t _data;
-
-      using _consistency_check = consistent_t;
     };
+  };
+
+  template <typename Statement, typename... Flags>
+  struct consistency_check<Statement, select_flag_list_t<Flags...>>
+  {
+    using type = consistent_t;
   };
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_select_flags_are_flags_t, "arguments for flags() must be known select flags");
@@ -106,8 +110,6 @@ namespace sqlpp
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check, Policies, no_select_flag_list_t, T>;
 
-      using _consistency_check = consistent_t;
-
       template <typename... Flags>
       auto flags(Flags... flgs) const
           -> _new_statement_t<check_select_flags_t<Flags...>, select_flag_list_t<Flags...>>
@@ -130,6 +132,12 @@ namespace sqlpp
                 select_flag_list_data_t<Flags...>{flgs...}};
       }
     };
+  };
+
+  template <typename Statement>
+  struct consistency_check<Statement, no_select_flag_list_t>
+  {
+    using type = consistent_t;
   };
 
   // Interpreters

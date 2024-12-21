@@ -59,10 +59,13 @@ namespace sqlpp
       }
 
       _data_t _data;
-
-      // FIXME: We might want to check if we have too many tables define in the FROM
-      using _consistency_check = consistent_t;
     };
+  };
+
+  template <typename Statement, typename Table>
+  struct consistency_check<Statement, from_t<Table>>
+  {
+    using type = consistent_t;
   };
 
   template<typename Table>
@@ -121,8 +124,6 @@ namespace sqlpp
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check, Policies, no_from_t, T>;
 
-      using _consistency_check = consistent_t;
-
       template <typename Table>
       auto from(Table table) const -> _new_statement_t<check_from_static_t<Table>, from_t<table_ref_t<Table>>>
       {
@@ -142,6 +143,12 @@ namespace sqlpp
                 from_data_t<table_ref_t<Table>>{make_table_ref(table)}};
       }
     };
+  };
+
+  template <typename Statement>
+  struct consistency_check<Statement, no_from_t>
+  {
+    using type = consistent_t;
   };
 
   // Interpreters

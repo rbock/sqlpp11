@@ -41,8 +41,7 @@ namespace sqlpp
     template <typename Clause, typename OldStatement, typename NewClauseData>
     const typename Clause::_data_t& pick_arg_impl(const OldStatement& old_statement, const NewClauseData& /* new_data */, const std::false_type& /*unused*/)
     {
-      using old_policies_t = typename OldStatement::_policies_t;
-      using old_base_t = typename Clause::_base_t<old_policies_t>;
+      using old_base_t = typename Clause::template _base_t<OldStatement>;
       return static_cast<const old_base_t&>(old_statement)._data;
     }
 

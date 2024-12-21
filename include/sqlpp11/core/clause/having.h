@@ -78,12 +78,17 @@ namespace sqlpp
 
       _data_t _data;
 
-      using _consistency_check = static_combined_check_t<
-          static_check_t<Policies::template _no_unknown_tables<having_t>,
-                         assert_having_no_unknown_tables_t>,
-          static_check_t<is_aggregate_expression<typename Policies::_all_provided_aggregates, Expression>::value,
-                         assert_having_all_aggregates_t>>;
     };
+  };
+
+  template <typename Statement, typename Expression>
+  struct consistency_check<Statement, having_t<Expression>>
+  {
+    using type = static_combined_check_t<
+          static_check_t<Statement::template _no_unknown_tables<having_t<Expression>>,
+                         assert_having_no_unknown_tables_t>,
+          static_check_t<is_aggregate_expression<typename Statement::_all_provided_aggregates, Expression>::value,
+                         assert_having_all_aggregates_t>>;
   };
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_having_boolean_expression_t,
@@ -136,8 +141,6 @@ namespace sqlpp
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check, Policies, no_having_t, T>;
 
-      using _consistency_check = consistent_t;
-
       template <typename Expression>
       auto having(Expression expression) const
           -> _new_statement_t<check_having_t<Expression>, having_t<Expression>>
@@ -159,6 +162,12 @@ namespace sqlpp
                 having_data_t<Expression>{expression}};
       }
     };
+  };
+
+  template <typename Statement>
+  struct consistency_check<Statement, no_having_t>
+  {
+    using type = consistent_t;
   };
 
   // Interpreters

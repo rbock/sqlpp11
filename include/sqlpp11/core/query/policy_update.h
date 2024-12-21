@@ -27,43 +27,24 @@
  */
 
 #include <sqlpp11/core/wrong.h>
+#include <sqlpp11/core/query/statement_fwd.h>
 
 namespace sqlpp
 {
-  template <typename Needle, typename Replacement>
-  struct policy_update_impl
-  {
-    template <typename T>
-    using _policy_t = typename std::conditional<std::is_same<Needle, T>::value, Replacement, T>::type;
-  };
-
-  template <typename T, typename Needle, typename Replacement>
-  using policy_update_t = typename policy_update_impl<Needle, Replacement>::template _policy_t<T>;
-
-  template <typename Original, typename Needle, typename Replacement>
-  struct update_policies_impl
-  {
-    using type = typename Original::template _policy_update_t<Needle, Replacement>;
-  };
-
-  template <typename Original, typename Needle, typename Replacement>
-  using update_policies_t = typename update_policies_impl<Original, Needle, Replacement>::type;
-
-  template <typename Policies, typename Needle, typename Replacement>
-  using new_statement = typename Policies::template _new_statement_t<Needle, Replacement>;
 
   template <typename Check, typename Policies, typename Needle, typename Replacement>
-  struct new_statement_impl
+  struct new_statement
   {
     using type = Check;
   };
 
-  template <typename Policies, typename Needle, typename Replacement>
-  struct new_statement_impl<consistent_t, Policies, Needle, Replacement>
+  template <typename... Policies, typename Needle, typename Replacement>
+  struct new_statement<consistent_t, statement_t<Policies...>, Needle, Replacement>
   {
-    using type = typename Policies::template _new_statement_t<Needle, Replacement>;
+    using type =
+        statement_t<typename std::conditional<std::is_same<Policies, Needle>::value, Replacement, Policies>::type...>;
   };
 
   template <typename Check, typename Policies, typename Needle, typename Replacement>
-  using new_statement_t = typename new_statement_impl<Check, Policies, Needle, Replacement>::type;
+  using new_statement_t = typename new_statement<Check, Policies, Needle, Replacement>::type;
 }  // namespace sqlpp

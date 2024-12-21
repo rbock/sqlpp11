@@ -65,11 +65,15 @@ namespace sqlpp
       }
 
       _data_t _data;
+    };
+  };
 
-      using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<where_t>,
+  template <typename Statement, typename Expression>
+  struct consistency_check<Statement, where_t<Expression>>
+  {
+      using type = typename std::conditional<Statement::template _no_unknown_tables<where_t<Expression>>,
                                                            consistent_t,
                                                            assert_no_unknown_tables_in_where_t>::type;
-    };
   };
 
   template <typename Expression>
@@ -135,7 +139,6 @@ namespace sqlpp
   using check_where_t = typename check_where<remove_dynamic_t<Expression>>::type;
 
   // NO WHERE YET
-  template <bool WhereRequired>
   struct no_where_t
   {
     using _traits = make_traits<no_value_t, tag::is_where>;
@@ -155,11 +158,6 @@ namespace sqlpp
 
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check, Policies, no_where_t, T>;
-
-      using _consistency_check =
-          typename std::conditional<WhereRequired and (Policies::_all_provided_tables::size() > 0),
-                                    assert_where_or_unconditionally_called_t,
-                                    consistent_t>::type;
 
       auto unconditionally() const -> _new_statement_t<consistent_t, where_t<unconditional_t>>
       {
@@ -188,6 +186,13 @@ namespace sqlpp
     };
   };
 
+  template <typename Statement>
+  struct consistency_check<Statement, no_where_t>
+  {
+    using type = typename std::
+        conditional<is_where_required<Statement>::value, assert_where_or_unconditionally_called_t, consistent_t>::type;
+  };
+
   // Interpreters
   template <typename Context, typename Expression>
   auto to_sql_string(Context& context, const where_data_t<Expression>& t) -> std::string
@@ -212,13 +217,13 @@ namespace sqlpp
   }
 
   template <typename T>
-  auto where(T&& t) -> decltype(statement_t<no_where_t<false>>().where(std::forward<T>(t)))
+  auto where(T&& t) -> decltype(statement_t<no_where_t>().where(std::forward<T>(t)))
   {
-    return statement_t<no_where_t<false>>().where(std::forward<T>(t));
+    return statement_t<no_where_t>().where(std::forward<T>(t));
   }
 
-  inline auto unconditionally() -> decltype(statement_t<no_where_t<false>>().unconditionally())
+  inline auto unconditionally() -> decltype(statement_t<no_where_t>().unconditionally())
   {
-    return statement_t<no_where_t<false>>().unconditionally();
+    return statement_t<no_where_t>().unconditionally();
   }
 }  // namespace sqlpp

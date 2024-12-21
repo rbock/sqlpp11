@@ -75,10 +75,14 @@ namespace sqlpp
       }
 
       _data_t _data;
-
-      // FIXME: Need real checks here
-      using _consistency_check = consistent_t;
     };
+  };
+
+  template <typename Statement, typename... Ctes>
+  struct consistency_check<Statement, with_t<Ctes...>>
+  {
+      // FIXME: Need real checks here
+    using type = consistent_t;
   };
 
   // Note: No nodes are exposed directly. Nothing should be leaked from CTEs by accident.
@@ -118,10 +122,13 @@ namespace sqlpp
       }
 
       _data_t _data;
-
-
-      using _consistency_check = consistent_t;
     };
+  };
+
+  template <typename Statement>
+  struct consistency_check<Statement, no_with_t>
+  {
+    using type = consistent_t;
   };
 
   template <typename... Ctes>

@@ -67,10 +67,11 @@ namespace sqlpp
       }
 
       _data_t _data;
-
-      using _consistency_check = consistent_t;
     };
   };
+
+  template<typename Statement, typename Offset>
+    struct consistency_check<Statement, offset_t<Offset>> { using type = consistent_t; };
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_offset_is_integral,
                                "argument for offset() must be an integral expressions");
@@ -117,8 +118,6 @@ namespace sqlpp
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check, Policies, no_offset_t, T>;
 
-      using _consistency_check = consistent_t;
-
       template <typename Arg>
       auto offset(Arg arg) const -> _new_statement_t<check_offset_t<Arg>, offset_t<Arg>>
       {
@@ -136,6 +135,9 @@ namespace sqlpp
       }
     };
   };
+
+  template<typename Statement>
+    struct consistency_check<Statement, no_offset_t> { using type = consistent_t; };
 
   template <typename Context, typename Offset>
   auto to_sql_string(Context& context, const offset_data_t<Offset>& t) -> std::string

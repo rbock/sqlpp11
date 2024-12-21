@@ -112,13 +112,6 @@ namespace sqlpp
       {
         return *this;
       }
-
-      using _consistency_check =
-          static_combined_check_t<static_check_t<Policies::template _no_unknown_tables<select_column_list_t>,
-                                                 assert_no_unknown_tables_in_selected_columns_t>,
-                                  static_check_t<has_correct_aggregates<typename Policies::_all_provided_aggregates,
-                                                                        select_column_list_t>::value,
-                                                 assert_correct_aggregates_t>>;
     };
 
     // Result methods
@@ -139,7 +132,8 @@ namespace sqlpp
       auto as(const NameTagProvider&) const
           -> select_as_t<_statement_t, name_tag_of_t<NameTagProvider>, make_field_spec_t<_statement_t, Columns>...>
       {
-        consistency_check_t<_statement_t>::verify();
+#warning: reactivate
+        //consistency_check_t<_statement_t>::verify();
         using table = select_as_t<_statement_t, name_tag_of_t<NameTagProvider>, make_field_spec_t<_statement_t, Columns>...>;
         return table(_get_statement());
       }
@@ -175,6 +169,16 @@ namespace sqlpp
         return {{}, db.prepare_select(_get_statement())};
       }
     };
+  };
+  template <typename Statement, typename... Columns>
+  struct consistency_check<Statement, select_column_list_t<Columns...>>
+  {
+    using type =
+        static_combined_check_t<static_check_t<Statement::template _no_unknown_tables<select_column_list_t<Columns...>>,
+                                               assert_no_unknown_tables_in_selected_columns_t>,
+                                static_check_t<has_correct_aggregates<typename Statement::_all_provided_aggregates,
+                                                                      select_column_list_t<Columns...>>::value,
+                                               assert_correct_aggregates_t>>;
   };
 
   template <typename Column>
@@ -272,8 +276,6 @@ namespace sqlpp
       template <typename T>
       using _new_statement_t = new_statement_t<consistent_t, Policies, no_select_column_list_t, T>;
 
-      using _consistency_check = assert_columns_selected_t;
-
       template <typename... Columns, typename = sqlpp::enable_if_t<select_columns_have_values<Columns...>::value>>
       auto columns(Columns... args) const -> _new_statement_t<make_select_column_list_t<Columns...>>
       {
@@ -285,6 +287,12 @@ namespace sqlpp
                     std::tuple_cat(detail::tupelize(std::move(args))...)}};
       }
     };
+  };
+
+  template <typename Statement>
+  struct consistency_check<Statement, no_select_column_list_t>
+  {
+    using type = assert_columns_selected_t;
   };
 
   // Interpreters

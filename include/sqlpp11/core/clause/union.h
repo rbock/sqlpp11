@@ -37,6 +37,12 @@
 namespace sqlpp
 {
   struct no_union_t;
+  template <typename Statement>
+  struct consistency_check<Statement, no_union_t>
+  {
+    using type = consistent_t;
+  };
+
 
   using blank_union_t = statement_t<no_union_t>;
   // There is no order by or limit or offset in union, use it as a pseudo table to do that.
@@ -66,7 +72,7 @@ namespace sqlpp
     using _data_t = union_data_t<Flag, Lhs, Rhs>;
 
     // Base template to be inherited by the statement
-    template <typename Policies>
+    template <typename Statement>
     struct _base_t
     {
       _base_t(_data_t data) : _data{std::move(data)}
@@ -84,18 +90,22 @@ namespace sqlpp
       {
         return _data._lhs.get_selected_columns();
       }
-
-      using _consistency_check = detail::get_first_if<is_inconsistent_t,
-                                                      consistent_t,
-                                                      typename Lhs::_consistency_check,
-                                                      typename Rhs::_consistency_check>;
     };
 
     template <typename Statement>
-    using _result_methods_t = typename Lhs::template _result_methods_t<Statement>;
+    using _result_methods_t = typename Lhs::_result_methods_t;
   };
 
-    template <typename Flag, typename Lhs, typename Rhs>
+  template <typename Statement, typename Flag, typename Lhs, typename Rhs>
+  struct consistency_check<Statement, union_t<Flag, Lhs, Rhs>>
+  {
+    using type = detail::get_first_if<is_inconsistent_t,
+                                      consistent_t,
+                                      statement_consistency_check_t<Lhs>,
+                                      statement_consistency_check_t<Rhs>>;
+  };
+
+  template <typename Flag, typename Lhs, typename Rhs>
   struct is_result_clause<union_t<Flag, Lhs, Rhs>> : public std::true_type
   {
   };
@@ -120,7 +130,7 @@ namespace sqlpp
     // Data
     using _data_t = no_data_t;
 
-    template <typename Policies>
+    template <typename Statement>
     struct _base_t
     {
       _base_t() = default;
@@ -133,43 +143,41 @@ namespace sqlpp
       template <typename Check, typename T>
       using _new_statement_t = union_statement_t<Check, T>;
 
-      using _consistency_check = consistent_t;
-
       template <typename Rhs>
       auto union_distinct(Rhs rhs) const
-          -> _new_statement_t<check_union_t<derived_statement_t<Policies>, Rhs>,
-                              union_t<union_distinct_t, derived_statement_t<Policies>, Rhs>>
+          -> _new_statement_t<check_union_t<Statement, Rhs>,
+                              union_t<union_distinct_t, Statement, Rhs>>
       {
         static_assert(is_statement<Rhs>::value, "argument of union call has to be a statement");
         static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
         static_assert(has_result_row<Rhs>::value, "argument of a clause/union.has to be a complete select statement");
-        static_assert(has_result_row<derived_statement_t<Policies>>::value,
+        static_assert(has_result_row<Statement>::value,
                       "left hand side argument of a clause/union.has to be a complete select statement or union");
 
-        using lhs_result_row_t = get_result_row_t<derived_statement_t<Policies>>;
+        using lhs_result_row_t = get_result_row_t<Statement>;
         using rhs_result_row_t = get_result_row_t<Rhs>;
         static_assert(is_result_compatible<lhs_result_row_t, rhs_result_row_t>::value,
                       "both arguments in a clause/union.have to have the same result columns (type and name)");
 
-        return _union_impl<union_distinct_t>(check_union_t<derived_statement_t<Policies>, Rhs>{}, rhs);
+        return _union_impl<union_distinct_t>(check_union_t<Statement, Rhs>{}, rhs);
       }
 
       template <typename Rhs>
-      auto union_all(Rhs rhs) const -> _new_statement_t<check_union_t<derived_statement_t<Policies>, Rhs>,
-                                                        union_t<union_all_t, derived_statement_t<Policies>, Rhs>>
+      auto union_all(Rhs rhs) const -> _new_statement_t<check_union_t<Statement, Rhs>,
+                                                        union_t<union_all_t, Statement, Rhs>>
       {
         static_assert(is_statement<Rhs>::value, "argument of union call has to be a statement");
         static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
         static_assert(has_result_row<Rhs>::value, "argument of a clause/union.has to be a (complete) select statement");
-        static_assert(has_result_row<derived_statement_t<Policies>>::value,
+        static_assert(has_result_row<Statement>::value,
                       "left hand side argument of a clause/union.has to be a (complete) select statement");
 
-        using lhs_result_row_t = get_result_row_t<derived_statement_t<Policies>>;
+        using lhs_result_row_t = get_result_row_t<Statement>;
         using rhs_result_row_t = get_result_row_t<Rhs>;
         static_assert(is_result_compatible<lhs_result_row_t, rhs_result_row_t>::value,
                       "both arguments in a clause/union.have to have the same result columns (type and name)");
 
-        return _union_impl<union_all_t>(check_union_t<derived_statement_t<Policies>, Rhs>{}, rhs);
+        return _union_impl<union_all_t>(check_union_t<Statement, Rhs>{}, rhs);
       }
 
     private:
@@ -178,10 +186,10 @@ namespace sqlpp
 
       template <typename Flag, typename Rhs>
       auto _union_impl(consistent_t /*unused*/, Rhs rhs) const
-          -> _new_statement_t<consistent_t, union_t<Flag, derived_statement_t<Policies>, Rhs>>
+          -> _new_statement_t<consistent_t, union_t<Flag, Statement, Rhs>>
       {
-        return {blank_union_t{}, union_data_t<Flag, derived_statement_t<Policies>, Rhs>{
-                                     static_cast<const derived_statement_t<Policies>&>(*this), rhs}};
+        return {blank_union_t{}, union_data_t<Flag, Statement, Rhs>{
+                                     static_cast<const Statement&>(*this), rhs}};
       }
     };
   };

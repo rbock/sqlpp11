@@ -58,6 +58,9 @@ namespace sqlpp
       using _consistency_check = consistent_t;
     };
   };
+  template<typename Statement>
+    struct consistency_check<Statement, for_update_t> { using type = consistent_t; };
+
 
   struct no_for_update_t
   {
@@ -88,6 +91,9 @@ namespace sqlpp
       }
     };
   };
+
+  template<typename Statement>
+    struct consistency_check<Statement, no_for_update_t> { using type = consistent_t; };
 
   // Interpreters
   template <typename Context>

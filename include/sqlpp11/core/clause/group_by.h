@@ -75,10 +75,15 @@ namespace sqlpp
 
       _data_t _data;
 
-      using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<group_by_t>,
-                                                           consistent_t,
-                                                           assert_no_unknown_tables_in_group_by_t>::type;
     };
+  };
+
+ template <typename Statement, typename... Columns>
+  struct consistency_check<Statement, group_by_t<Columns...>>
+  {
+    using type = typename std::conditional<Statement::template _no_unknown_tables<group_by_t<Columns...>>,
+                                           consistent_t,
+                                           assert_no_unknown_tables_in_group_by_t>::type;
   };
 
   template <typename... Columns>
@@ -118,8 +123,6 @@ namespace sqlpp
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check, Policies, no_group_by_t, T>;
 
-      using _consistency_check = consistent_t;
-
       template <typename... Columns>
       auto group_by(Columns... columns) const
           -> _new_statement_t<check_group_by_t<Columns...>, group_by_t<Columns...>>
@@ -144,6 +147,12 @@ namespace sqlpp
                 group_by_data_t<Columns...>{columns...}};
       }
     };
+  };
+
+  template <typename Statement>
+  struct consistency_check<Statement, no_group_by_t>
+  {
+    using type = consistent_t;
   };
 
   // Interpreters

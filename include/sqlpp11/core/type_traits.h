@@ -338,21 +338,6 @@ namespace sqlpp
   SQLPP_PORTABLE_STATIC_ASSERT(assert_prepare_statement_t,
                                "connection cannot prepare something that is not a statement");
 
-  template <typename T, typename Enable = void>
-  struct consistency_check
-  {
-    using type = assert_sqlpp_type_t;
-  };
-
-  template <typename T>
-  struct consistency_check<T, ::sqlpp::void_t<typename T::_consistency_check>>
-  {
-    using type = typename T::_consistency_check;
-  };
-
-  template <typename T>
-  using consistency_check_t = typename consistency_check<T>::type;
-
   template<typename T>
     struct is_statement : public std::false_type {};
 
@@ -398,11 +383,12 @@ namespace sqlpp
   {
   };
 
+#warning: Can we make this more explicit for statement_t?
   template <typename Statement>
   struct has_result_row<
       Statement,
       typename std::enable_if<
-          not wrong_t<typename Statement::template _result_methods_t<Statement>::template _result_row_t<void>>::value,
+          not wrong_t<typename Statement::_result_methods_t::template _result_row_t<void>>::value,
           void>::type>: public std::true_type
   {
   };
@@ -417,10 +403,10 @@ namespace sqlpp
   struct get_result_row_impl<
       Statement,
       typename std::enable_if<
-          not wrong_t<typename Statement::template _result_methods_t<Statement>::template _result_row_t<void>>::value,
+          not wrong_t<typename Statement::_result_methods_t::template _result_row_t<void>>::value,
           void>::type>
   {
-    using type = typename Statement::template _result_methods_t<Statement>::template _result_row_t<void>;
+    using type = typename Statement::_result_methods_t::template _result_row_t<void>;
   };
 
   template <typename Statement>
@@ -491,5 +477,22 @@ namespace sqlpp
     };
   template<typename T>
     using required_insert_columns_of_t = typename required_insert_columns_of<T>::type;
+
+  template<typename T>
+    struct is_where_required : public std::false_type {};
+
+  // Not implemented to ensure implementation for every clause.
+  template<typename Statement, typename Clause>
+    struct consistency_check;
+
+  template<typename Statement, typename Clause>
+    using consistency_check_t = typename consistency_check<Statement, Clause>::type;
+
+  // Not implemented to ensure implementation for statement_t
+  template<typename Statement>
+    struct statement_consistency_check;
+
+  template<typename Statement>
+    using statement_consistency_check_t = typename statement_consistency_check<Statement>::type;
 
 }  // namespace sqlpp

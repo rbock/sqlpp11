@@ -74,11 +74,15 @@ namespace sqlpp
       }
 
       _data_t _data;
-
-      using _consistency_check = typename std::conditional<Policies::template _no_unknown_tables<order_by_t>,
-                                                           consistent_t,
-                                                           assert_no_unknown_tables_in_order_by_t>::type;
     };
+  };
+
+  template <typename Statement, typename... Expressions>
+  struct consistency_check<Statement, order_by_t<Expressions...>>
+  {
+    using type = typename std::conditional<Statement::template _no_unknown_tables<order_by_t<Expressions...>>,
+                                           consistent_t,
+                                           assert_no_unknown_tables_in_order_by_t>::type;
   };
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_order_by_args_are_sort_order_expressions_t,
@@ -115,8 +119,6 @@ namespace sqlpp
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check, Policies, no_order_by_t, T>;
 
-      using _consistency_check = consistent_t;
-
       template <typename... Expressions>
       auto order_by(Expressions... expressions) const
           -> _new_statement_t<check_order_by_t<Expressions...>, order_by_t<Expressions...>>
@@ -141,6 +143,12 @@ namespace sqlpp
                 order_by_data_t<Expressions...>{std::move(expressions)...}};
       }
     };
+  };
+
+  template <typename Statement>
+  struct consistency_check<Statement, no_order_by_t>
+  {
+    using type = consistent_t;
   };
 
   // Interpreters

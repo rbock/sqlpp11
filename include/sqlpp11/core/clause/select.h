@@ -53,6 +53,9 @@ namespace sqlpp
   {
   };
 
+  template<typename Statement>
+    struct consistency_check<Statement, select_t> { using type = consistent_t; };
+
   template <typename Context>
   auto to_sql_string(Context& , const select_name_t&) -> std::string
   {
@@ -64,7 +67,7 @@ namespace sqlpp
                                      no_select_flag_list_t,
                                      no_select_column_list_t,
                                      no_from_t,
-                                     no_where_t<true>,
+                                     no_where_t,
                                      no_group_by_t,
                                      no_having_t,
                                      no_order_by_t,

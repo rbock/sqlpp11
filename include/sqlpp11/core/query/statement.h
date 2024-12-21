@@ -40,9 +40,6 @@
 
 namespace sqlpp
 {
-  template <typename... Policies>
-  struct statement_t;
-
   SQLPP_PORTABLE_STATIC_ASSERT(
       assert_no_unknown_ctes_t,
       "one clause requires common table expressions which are otherwise not known in the statement");
@@ -51,30 +48,16 @@ namespace sqlpp
   SQLPP_PORTABLE_STATIC_ASSERT(assert_no_parameters_t,
                                "cannot run statements with parameters directly, use prepare instead");
 
-  namespace detail
+  template <typename... Policies>
+    using result_type_provider_t = detail::get_last_if_t<is_result_clause, noop, Policies...>;
+
+  template <typename... Policies>
+    using result_methods_t = typename result_type_provider_t<Policies...>::template _result_methods_t<statement_t<Policies...>>;
+
+  template <typename... Policies>
+  struct statement_t : public Policies::template _base_t<statement_t<Policies...>>...,
+                       public result_methods_t<Policies...>
   {
-    template <typename... Policies>
-    constexpr auto is_any_policy_missing() -> bool
-    {
-      return logic::any<is_missing_t<Policies>::value...>::value;
-    }
-
-    template <typename... Policies>
-    struct statement_policies_t
-    {
-      using _statement_t = statement_t<Policies...>;
-
-      template <typename Needle, typename Replacement>
-      struct _policies_update_t
-      {
-        static_assert(make_type_set_t<Policies...>::template count<Needle>(),
-                      "policies update for non-policy class detected");
-        using type = statement_t<policy_update_t<Policies, Needle, Replacement>...>;
-      };
-
-      template <typename Needle, typename Replacement>
-      using _new_statement_t = typename _policies_update_t<Needle, Replacement>::type;
-
       using _all_required_ctes = detail::make_joined_set_t<required_ctes_of_t<Policies>...>;
       using _all_provided_ctes = detail::make_joined_set_t<provided_ctes_of_t<Policies>...>;
       using _all_required_static_ctes = detail::make_joined_set_t<required_static_ctes_of_t<Policies>...>;
@@ -88,35 +71,22 @@ namespace sqlpp
       using _required_ctes_of = detail::make_difference_set_t<_all_required_ctes, _all_provided_ctes>;
       using _required_static_ctes_of = detail::make_difference_set_t<_all_required_static_ctes, _all_provided_static_ctes>;
 
+      using _parameters = detail::type_vector_cat_t<parameters_of_t<Policies>...>;
+
       template <typename Expression>
       static constexpr bool _no_unknown_tables = _all_provided_tables::contains_all(required_tables_of_t<Expression>{});
 
-      template <template <typename> class Predicate>
-      using any_t = logic::any<Predicate<Policies>::value...>;
-
       using _result_type_provider = detail::get_last_if_t<is_result_clause, noop, Policies...>;
 
-      struct _result_methods_t : public _result_type_provider::template _result_methods_t<_statement_t>
+      struct _result_methods_t : public result_methods_t<Policies...>
       {
       };
 
-      // A select can be used as a pseudo table if
-      //   - at least one column is selected
-      //   - the select is complete (leaks no table requirements or cte requirements)
-      static constexpr bool _can_be_used_as_table()
-      {
-        return has_result_row<_statement_t>::value and _required_tables_of::empty() and
-               _required_ctes_of::empty();
-      }
-
       using _value_type =
-          typename std::conditional<is_any_policy_missing<Policies...>(),
+          typename std::conditional<logic::any<is_missing_t<Policies>::value...>::value,
                                     no_value_t,  // if a required statement part is missing (e.g. columns in a select),
                                                  // then the statement cannot be used as a value
                                     value_type_of_t<_result_type_provider>>::type;
-
-      using _nodes = detail::type_vector<>;
-      using _parameters = detail::type_vector_cat_t<parameters_of_t<Policies>...>;
 
       using _cte_check =
           typename std::conditional<_required_ctes_of::empty(), consistent_t, assert_no_unknown_ctes_t>::type;
@@ -124,54 +94,22 @@ namespace sqlpp
           typename std::conditional<_required_tables_of::empty(), consistent_t, assert_no_unknown_tables_t>::type;
       using _parameter_check = typename std::
           conditional<_parameters::empty(), consistent_t, assert_no_parameters_t>::type;
-    };
-
-  }  // namespace detail
-
-  template <typename... Policies>
-  struct value_type_of<detail::statement_policies_t<Policies...>>
-  {
-    using type = typename detail::statement_policies_t<Policies...>::_value_type;
-  };
-
-  template<typename... Policies>
-    struct required_insert_columns_of<detail::statement_policies_t<Policies...>>
-    {
-      using type = detail::make_joined_set_t<required_insert_columns_of_t<Policies>...>;
-    };
-
-  template <typename... Policies>
-  struct statement_t : public Policies::template _base_t<detail::statement_policies_t<Policies...>>...,
-                       public detail::statement_policies_t<Policies...>::_result_methods_t
-  {
-    using _policies_t = typename detail::statement_policies_t<Policies...>;
-
-    using _consistency_check =
-        detail::get_first_if<is_inconsistent_t,
-                             consistent_t,
-                             typename Policies::template _base_t<_policies_t>::_consistency_check...,
-                             typename _policies_t::_table_check>;
 
     using _run_check = detail::get_first_if<is_inconsistent_t,
                                             consistent_t,
-                                            typename _policies_t::_parameter_check,
-                                            typename _policies_t::_cte_check,
-                                            typename Policies::template _base_t<_policies_t>::_consistency_check...,
-                                            typename _policies_t::_table_check>;
+                                            _parameter_check,
+                                            _cte_check,
+                             statement_consistency_check_t<statement_t>,
+                                            _table_check>;
 
     using _prepare_check = detail::get_first_if<is_inconsistent_t,
                                                 consistent_t,
-                                                typename _policies_t::_cte_check,
-                                                typename Policies::template _base_t<_policies_t>::_consistency_check...,
-                                                typename _policies_t::_table_check>;
-
-    using _result_type_provider = typename _policies_t::_result_type_provider;
-    template <typename Composite>
-    using _result_methods_t = typename _result_type_provider::template _result_methods_t<Composite>;
+                                                _cte_check,
+                             statement_consistency_check_t<statement_t>,
+                                                _table_check>;
 
     using _name_tag_of = name_tag_of<_result_type_provider>;
-    using _nodes = detail::type_vector<_policies_t>;
-    using _provided_optional_tables = typename _policies_t::_all_provided_optional_tables;
+    using _provided_optional_tables = _all_provided_optional_tables;
 
     // Constructors
     statement_t() = default;
@@ -185,7 +123,7 @@ namespace sqlpp
     //	}
     template <typename Statement, typename Term>
     statement_t(Statement statement, Term term)
-        : Policies::template _base_t<_policies_t>(
+        : Policies::template _base_t<statement_t>(
               detail::pick_arg<Policies>(statement, term))...
     {
     }
@@ -206,28 +144,45 @@ namespace sqlpp
       return _get_static_no_of_parameters();
     }
 
-    static constexpr bool _can_be_used_as_table()
-    {
-      return _policies_t::_can_be_used_as_table();
-    }
+      // A select can be used as a pseudo table if
+      //   - at least one column is selected
+      //   - the select is complete (leaks no table requirements or cte requirements)
+      static constexpr bool _can_be_used_as_table()
+      {
+        return has_result_row<statement_t>::value and _required_tables_of::empty() and
+               _required_ctes_of::empty();
+      }
 
     template <typename Database>
-    auto _run(Database& db) const -> decltype(std::declval<_result_methods_t<statement_t>>()._run(db))
+    auto _run(Database& db) const -> decltype(std::declval<_result_methods_t>()._run(db))
     {
       _run_check::verify();
-      return _result_methods_t<statement_t>::_run(db);
+      return _result_methods_t::_run(db);
     }
 
     template <typename Database>
-    auto _prepare(Database& db) const -> decltype(std::declval<_result_methods_t<statement_t>>()._prepare(db))
+    auto _prepare(Database& db) const -> decltype(std::declval<_result_methods_t>()._prepare(db))
     {
       _prepare_check::verify();
-      return _result_methods_t<statement_t>::_prepare(db);
+      return _result_methods_t::_prepare(db);
     }
   };
 
   template<typename... Policies>
+    struct statement_consistency_check<statement_t<Policies...>> {
+        using type = detail::get_first_if<is_inconsistent_t,
+                             consistent_t,
+                             consistency_check_t<statement_t<Policies...>, Policies>...,
+                             typename statement_t<Policies...>::_table_check>;
+    };
+
+  template<typename... Policies>
     struct is_statement<statement_t<Policies...>> : public std::true_type {};
+
+  template<typename... Policies>
+    struct is_where_required<statement_t<Policies...>> {
+      static constexpr bool value = statement_t<Policies...>::_all_provided_tables::size() > 0;
+    };
 
   template <typename... Policies>
   struct is_result_clause<statement_t<Policies...>>
@@ -236,7 +191,11 @@ namespace sqlpp
   };
 
   template<typename... Policies>
-    struct value_type_of<statement_t<Policies...>> : public value_type_of<typename detail::statement_policies_t<Policies...>> {};
+    struct value_type_of<statement_t<Policies...>>
+  {
+    using type = typename statement_t<Policies...>::_value_type;
+  };
+
   template<typename... Policies>
     struct name_tag_of<statement_t<Policies...>> : public statement_t<Policies...>::_name_tag_of {};
 
@@ -249,6 +208,12 @@ namespace sqlpp
     using type = typename detail::type_vector<>;
   };
 
+  template<typename... Policies>
+    struct required_insert_columns_of<statement_t<Policies...>>
+    {
+      using type = detail::make_joined_set_t<required_insert_columns_of_t<Policies>...>;
+    };
+
   template <typename... Policies>
   struct parameters_of<statement_t<Policies...>>
   {
@@ -258,19 +223,19 @@ namespace sqlpp
   template <typename... Policies>
   struct required_tables_of<statement_t<Policies...>>
   {
-    using type = typename detail::statement_policies_t<Policies...>::_required_tables_of;
+    using type = typename statement_t<Policies...>::_required_tables_of;
   };
 
   template <typename... Policies>
   struct required_ctes_of<statement_t<Policies...>>
   {
-    using type = typename detail::statement_policies_t<Policies...>::_required_ctes_of;
+    using type = typename statement_t<Policies...>::_required_ctes_of;
   };
 
   template <typename... Policies>
   struct required_static_ctes_of<statement_t<Policies...>>
   {
-    using type = typename detail::statement_policies_t<Policies...>::_required_static_ctes_of;
+    using type = typename statement_t<Policies...>::_required_static_ctes_of;
   };
 
   template <typename... Policies>
@@ -279,13 +244,12 @@ namespace sqlpp
   template <typename Context, typename... Policies>
   auto to_sql_string(Context& context, const statement_t<Policies...>& t) -> std::string
   {
-    using P = detail::statement_policies_t<Policies...>;
-
     auto result = std::string{};
     using swallow = int[];
     (void)swallow{
-        0,
-        (result += to_sql_string(context, static_cast<const typename Policies::template _base_t<P>&>(t)._data), 0)...};
+        0, (result += to_sql_string(
+                context, static_cast<const typename Policies::template _base_t<statement_t<Policies...>>&>(t)._data),
+            0)...};
 
     return result;
   }
@@ -307,8 +271,7 @@ namespace sqlpp
       }
 
       _data_t _data;
-
-      using _consistency_check = consistent_t;
     };
   };
+
 }  // namespace sqlpp

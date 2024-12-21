@@ -88,11 +88,15 @@ namespace sqlpp
       }
 
       _data_t _data;
-
-      using _consistency_check = typename std::conditional<required_insert_columns_of_t<Policies>::empty(),
-                                                           consistent_t,
-                                                           assert_all_columns_have_default_value_t>::type;
     };
+  };
+
+  template <typename Statement>
+  struct consistency_check<Statement, insert_default_values_t>
+  {
+    using type = typename std::conditional<required_insert_columns_of_t<Statement>::empty(),
+                                           consistent_t,
+                                           assert_all_columns_have_default_value_t>::type;
   };
 
   template <typename... Assignments>
@@ -137,12 +141,17 @@ namespace sqlpp
 
       _data_t _data;
 
-      using _consistency_check =
-          static_combined_check_t<static_check_t<Policies::template _no_unknown_tables<insert_set_t>,
-                                                 assert_no_unknown_tables_in_insert_assignments_t>,
-                                  static_check_t<detail::have_all_required_assignments<Policies, Assignments...>::value,
-                                                 assert_all_required_assignments_t>>;
     };
+  };
+
+  template <typename Statement, typename... Assignments>
+  struct consistency_check<Statement, insert_set_t<Assignments...>>
+  {
+    using type =
+        static_combined_check_t<static_check_t<Statement::template _no_unknown_tables<insert_set_t<Assignments...>>,
+                                               assert_no_unknown_tables_in_insert_assignments_t>,
+                                static_check_t<detail::have_all_required_assignments<Statement, Assignments...>::value,
+                                               assert_all_required_assignments_t>>;
   };
 
   template <typename... Assignments>
@@ -215,12 +224,6 @@ namespace sqlpp
                         std::move(assignments)...);
       }
 
-      using _consistency_check =
-          static_combined_check_t<static_check_t<Policies::template _no_unknown_tables<column_list_t>,
-                                                 assert_no_unknown_tables_in_column_list_t>,
-                                  static_check_t<detail::have_all_required_columns<Policies, Columns...>::value,
-                                                 assert_all_required_columns_t>>;
-
     private:
       auto add_values_impl(std::false_type, ...) -> void
       {
@@ -233,6 +236,15 @@ namespace sqlpp
         _data._insert_values.emplace_back(make_insert_value_t<lhs_t<Assignments>>(get_rhs(assignments))...);
       }
     };
+  };
+
+  template <typename Statement, typename... Columns>
+  struct consistency_check<Statement, column_list_t<Columns...>>
+  {
+    using type = static_combined_check_t<
+        static_check_t<Statement::template _no_unknown_tables<column_list_t<Columns...>>,
+                       assert_no_unknown_tables_in_column_list_t>,
+        static_check_t<detail::have_all_required_columns<Statement, Columns...>::value, assert_all_required_columns_t>>;
   };
 
   template <typename... Columns>
@@ -300,9 +312,13 @@ namespace sqlpp
                 insert_set_data_t<Assignments...>{std::make_tuple(std::move(assignments)...)}};
       }
 
-      using _consistency_check = assert_insert_values_t;
-
     };
+  };
+
+  template <typename Statement>
+  struct consistency_check<Statement, no_insert_value_list_t>
+  {
+    using type = assert_insert_values_t;
   };
 
   // Interpreters

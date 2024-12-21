@@ -70,6 +70,12 @@ namespace sqlpp
     };
   };
 
+  template <typename Statement, typename Table>
+  struct consistency_check<Statement, single_table_t<Table>>
+  {
+    using type = consistent_t;
+  };
+
   template <typename Table>
   struct nodes_of<single_table_t<Table>>
   {
@@ -110,8 +116,6 @@ namespace sqlpp
       template <typename Check, typename T>
       using _new_statement_t = new_statement_t<Check, Policies, no_single_table_t, T>;
 
-      using _consistency_check = consistent_t;
-
       template <typename Table>
       auto single_table(Table table) const -> _new_statement_t<check_update_table_t<Table>, single_table_t<Table>>
       {
@@ -132,6 +136,12 @@ namespace sqlpp
         return {static_cast<const derived_statement_t<Policies>&>(*this), single_table_data_t<Table>{table}};
       }
     };
+  };
+
+  template <typename Statement>
+  struct consistency_check<Statement, no_single_table_t>
+  {
+    using type = consistent_t;
   };
 
   // Interpreters

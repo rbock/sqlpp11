@@ -80,6 +80,9 @@ namespace sqlpp
     };
   };
 
+  template<typename Statement>
+    struct consistency_check<Statement, update_t> { using type = consistent_t; };
+
   template<>
     struct is_result_clause<update_t> : public std::true_type {};
 
@@ -89,7 +92,7 @@ namespace sqlpp
     return "UPDATE ";
   }
 
-  using blank_update_t = statement_t<update_t, no_single_table_t, no_update_list_t, no_where_t<true>>;
+  using blank_update_t = statement_t<update_t, no_single_table_t, no_update_list_t, no_where_t>;
 
   template <typename Table>
   constexpr auto update(Table table) -> decltype(blank_update_t().single_table(table))

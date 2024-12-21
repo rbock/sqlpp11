@@ -37,6 +37,7 @@ namespace sqlpp
   template <typename... Parts>
   struct custom_query_t;
 
+#warning: Custom query should be a statement, see sqlpp17
   namespace detail
   {
     template <typename T>
