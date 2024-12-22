@@ -28,11 +28,13 @@
 
 #include <sqlpp11/core/noop.h>
 #include <sqlpp11/core/database/parameter_list.h>
+#include <sqlpp11/core/query/statement_constructor_arg.h>
 #include <sqlpp11/core/query/policy_update.h>
 #include <sqlpp11/core/database/prepared_select.h>
 #include <sqlpp11/core/result.h>
 #include <sqlpp11/core/to_sql_string.h>
 #include <sqlpp11/core/query/statement_fwd.h>
+#include <sqlpp11/core/clause/clause_base.h>
 
 #include <sqlpp11/core/detail/get_first.h>
 #include <sqlpp11/core/detail/get_last.h>
@@ -125,6 +127,11 @@ namespace sqlpp
     statement_t(Statement statement, Term term)
         : Policies::template _base_t<statement_t>(
               detail::pick_arg<Policies>(statement, term))...
+    {
+    }
+
+    template <typename... Fragments>
+    statement_t(statement_constructor_arg<Fragments...> arg) : Policies::template _base_t<statement_t>(arg)...
     {
     }
 
@@ -240,6 +247,32 @@ namespace sqlpp
 
   template <typename... Policies>
   struct requires_parentheses<statement_t<Policies...>> : public std::true_type {};
+
+#warning: move clauses to use clause_base and new_statement!
+  template <typename OldClause, typename... Clauses, typename NewClause>
+  auto new_statement(const clause_base<OldClause, statement_t<Clauses...>>& oldBase, NewClause newClause)
+      -> statement_t<typename std::conditional<std::is_same<Clauses, OldClause>::value, NewClause, Clauses>::type...>
+  {
+    return statement_t<typename std::conditional<std::is_same<Clauses, OldClause>::value, NewClause, Clauses>::type...>{
+        statement_constructor_arg(static_cast<const statement_t<Clauses...>&>(oldBase), newClause)};
+  }
+
+  template <typename T> struct core_statement;
+  template <typename... Clauses>
+    struct core_statement<detail::type_vector<Clauses...>> {
+      using type = statement_t<Clauses...>;
+    };
+
+  template<typename... Clauses>
+  using core_statement_t = typename core_statement<detail::copy_if_t<detail::type_vector<Clauses...>, is_clause>>::type;
+
+  template <typename... LClauses, typename... RClauses>
+  constexpr auto operator<<(statement_t<LClauses...> l, statement_t<RClauses...> r) -> core_statement_t<LClauses..., RClauses...>
+  {
+#warning: Do we need something like this?
+    //SQLPP_STATIC_ASSERT((detail::are_unique<LClauses..., RClauses...>::value), "statements must contain unique clauses only");
+    return core_statement_t<LClauses..., RClauses...>(statement_constructor_arg(l, r));
+  }
 
   template <typename Context, typename... Policies>
   auto to_sql_string(Context& context, const statement_t<Policies...>& t) -> std::string

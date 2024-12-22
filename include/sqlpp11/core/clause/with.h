@@ -67,15 +67,22 @@ namespace sqlpp
     using _data_t = with_data_t<Ctes...>;
 
     // Base template to be inherited by the statement
-    template <typename Policies>
+    template <typename Statement>
     struct _base_t
     {
+      template<typename OtherStatement>
+      _base_t(_base_t<OtherStatement> base) : _data{std::move(base._data)} {}
       _base_t(_data_t data) : _data{std::move(data)}
       {
       }
 
       _data_t _data;
     };
+  };
+
+  template <typename... Ctes>
+  struct is_clause<with_t<Ctes...>> : public std::true_type
+  {
   };
 
   template <typename Statement, typename... Ctes>
@@ -107,16 +114,16 @@ namespace sqlpp
  
   struct no_with_t
   {
-    using _traits = make_traits<no_value_t, tag::is_with>;
-    using _nodes = detail::type_vector<>;
 
     // Data
     using _data_t = no_data_t;
 
-    template <typename Policies>
+    template <typename Statement>
     struct _base_t
     {
       _base_t() = default;
+      template<typename OtherStatement>
+      _base_t(_base_t<OtherStatement> base) : _data{std::move(base._data)} {}
       _base_t(_data_t data) : _data{std::move(data)}
       {
       }

@@ -101,6 +101,11 @@ namespace sqlpp
   };
 
   template <typename Table>
+  struct is_clause<from_t<Table>> : public std::true_type
+  {
+  };
+
+  template <typename Table>
   using check_from_t = typename check_from<Table>::type;
 
   template <typename Table>

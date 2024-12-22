@@ -65,9 +65,12 @@ namespace sqlpp
       }
 
       _data_t _data;
-
-      using _consistency_check = consistent_t;
     };
+  };
+
+  template <typename Table>
+  struct is_clause<single_table_t<Table>> : public std::true_type
+  {
   };
 
   template <typename Statement, typename Table>

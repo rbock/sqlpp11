@@ -91,6 +91,11 @@ namespace sqlpp
     };
   };
 
+  template <>
+  struct is_clause<insert_default_values_t> : public std::true_type
+  {
+  };
+
   template <typename Statement>
   struct consistency_check<Statement, insert_default_values_t>
   {
@@ -123,11 +128,6 @@ namespace sqlpp
   template <typename... Assignments>
   struct insert_set_t
   {
-    template <template <typename...> class Target>
-    using copy_assignments_t = Target<Assignments...>;  // FIXME: Nice idea to copy variadic template arguments?
-    template <template <typename...> class Target, template <typename> class Wrap>
-    using copy_wrapped_assignments_t = Target<Wrap<Assignments>...>;
-
     // Data
     using _data_t = insert_set_data_t<Assignments...>;
 
@@ -142,6 +142,11 @@ namespace sqlpp
       _data_t _data;
 
     };
+  };
+
+  template <typename... Assignments>
+  struct is_clause<insert_set_t<Assignments...>> : public std::true_type
+  {
   };
 
   template <typename Statement, typename... Assignments>
@@ -236,6 +241,11 @@ namespace sqlpp
         _data._insert_values.emplace_back(make_insert_value_t<lhs_t<Assignments>>(get_rhs(assignments))...);
       }
     };
+  };
+
+  template <typename... Columns>
+  struct is_clause<column_list_t<Columns...>> : public std::true_type
+  {
   };
 
   template <typename Statement, typename... Columns>

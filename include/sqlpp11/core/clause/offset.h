@@ -70,6 +70,11 @@ namespace sqlpp
     };
   };
 
+  template <typename Offset>
+  struct is_clause<offset_t<Offset>> : public std::true_type
+  {
+  };
+
   template<typename Statement, typename Offset>
     struct consistency_check<Statement, offset_t<Offset>> { using type = consistent_t; };
 

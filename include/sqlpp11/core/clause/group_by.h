@@ -60,9 +60,6 @@ namespace sqlpp
   template <typename... Columns>
   struct group_by_t
   {
-    using _traits = make_traits<no_value_t, tag::is_group_by>;
-    using _nodes = detail::type_vector<Columns...>;
-
    using _data_t = group_by_data_t<Columns...>;
 
     // Base template to be inherited by the statement
@@ -74,8 +71,12 @@ namespace sqlpp
       }
 
       _data_t _data;
-
     };
+  };
+
+  template <typename... Columns>
+  struct is_clause<group_by_t<Columns...>> : public std::true_type
+  {
   };
 
  template <typename Statement, typename... Columns>

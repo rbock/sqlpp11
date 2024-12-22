@@ -481,6 +481,9 @@ namespace sqlpp
   template<typename T>
     struct is_where_required : public std::false_type {};
 
+  template<typename T>
+    struct is_clause : public std::false_type {};
+
   // Not implemented to ensure implementation for every clause.
   template<typename Statement, typename Clause>
     struct consistency_check;

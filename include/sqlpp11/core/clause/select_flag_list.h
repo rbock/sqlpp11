@@ -74,6 +74,11 @@ namespace sqlpp
     };
   };
 
+  template <typename... Flags>
+  struct is_clause<select_flag_list_t<Flags...>> : public std::true_type
+  {
+  };
+
   template <typename Statement, typename... Flags>
   struct consistency_check<Statement, select_flag_list_t<Flags...>>
   {

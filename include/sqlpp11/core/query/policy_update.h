@@ -33,18 +33,18 @@ namespace sqlpp
 {
 
   template <typename Check, typename Policies, typename Needle, typename Replacement>
-  struct new_statement
+  struct new_statement_impl
   {
     using type = Check;
   };
 
   template <typename... Policies, typename Needle, typename Replacement>
-  struct new_statement<consistent_t, statement_t<Policies...>, Needle, Replacement>
+  struct new_statement_impl<consistent_t, statement_t<Policies...>, Needle, Replacement>
   {
     using type =
         statement_t<typename std::conditional<std::is_same<Policies, Needle>::value, Replacement, Policies>::type...>;
   };
 
   template <typename Check, typename Policies, typename Needle, typename Replacement>
-  using new_statement_t = typename new_statement<Check, Policies, Needle, Replacement>::type;
+  using new_statement_t = typename new_statement_impl<Check, Policies, Needle, Replacement>::type;
 }  // namespace sqlpp

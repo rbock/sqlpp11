@@ -76,6 +76,11 @@ namespace sqlpp
     };
   };
 
+  template <typename... Assignments>
+  struct is_clause<update_list_t<Assignments...>> : public std::true_type
+  {
+  };
+
   template <typename Statement, typename... Assignments>
   struct consistency_check<Statement, update_list_t<Assignments...>>
   {

@@ -81,6 +81,11 @@ namespace sqlpp
     };
   };
 
+  template <typename Expression>
+  struct is_clause<having_t<Expression>> : public std::true_type
+  {
+  };
+
   template <typename Statement, typename Expression>
   struct consistency_check<Statement, having_t<Expression>>
   {

@@ -69,6 +69,11 @@ namespace sqlpp
     };
   };
 
+  template <typename Table>
+  struct is_clause<into_t<Table>> : public std::true_type
+  {
+  };
+
   template <typename Statement, typename Table>
   struct consistency_check<Statement, into_t<Table>>
   {

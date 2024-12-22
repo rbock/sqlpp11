@@ -71,6 +71,11 @@ namespace sqlpp
     };
   };
 
+  template <typename Limit>
+  struct is_clause<limit_t<Limit>> : public std::true_type
+  {
+  };
+
   template<typename Statement, typename Limit>
     struct consistency_check<Statement, limit_t<Limit>> { using type = consistent_t; };
 

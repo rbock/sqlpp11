@@ -53,6 +53,11 @@ namespace sqlpp
   {
   };
 
+  template <>
+  struct is_clause<select_t> : public std::true_type
+  {
+  };
+
   template<typename Statement>
     struct consistency_check<Statement, select_t> { using type = consistent_t; };
 

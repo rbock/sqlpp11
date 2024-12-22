@@ -77,6 +77,11 @@ namespace sqlpp
     };
   };
 
+  template <typename... Expressions>
+  struct is_clause<order_by_t<Expressions...>> : public std::true_type
+  {
+  };
+
   template <typename Statement, typename... Expressions>
   struct consistency_check<Statement, order_by_t<Expressions...>>
   {

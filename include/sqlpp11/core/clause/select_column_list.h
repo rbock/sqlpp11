@@ -170,6 +170,12 @@ namespace sqlpp
       }
     };
   };
+
+  template <typename... Columns>
+  struct is_clause<select_column_list_t<Columns...>> : public std::true_type
+  {
+  };
+
   template <typename Statement, typename... Columns>
   struct consistency_check<Statement, select_column_list_t<Columns...>>
   {

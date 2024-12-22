@@ -96,6 +96,11 @@ namespace sqlpp
     using _result_methods_t = typename Lhs::_result_methods_t;
   };
 
+  template <typename Flag, typename Lhs, typename Rhs>
+  struct is_clause<union_t<Flag, Lhs, Rhs>> : public std::true_type
+  {
+  };
+
   template <typename Statement, typename Flag, typename Lhs, typename Rhs>
   struct consistency_check<Statement, union_t<Flag, Lhs, Rhs>>
   {
