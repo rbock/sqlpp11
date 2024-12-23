@@ -128,7 +128,7 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context>
-  auto to_sql_string(Context& context, const no_with_t& t) -> std::string
+  auto to_sql_string(Context&, const no_with_t&) -> std::string
   {
     return "";
   }
@@ -145,7 +145,7 @@ namespace sqlpp
   template <typename Context, typename... Ctes>
   auto to_sql_string(Context& context, const blank_with_t<Ctes...>& t) -> std::string
   {
-    return to_sql_string(context, t._data);
+    return to_sql_string(context, t._with_clause);
   }
 
   // CTEs can depend on CTEs defined before (in the same query).

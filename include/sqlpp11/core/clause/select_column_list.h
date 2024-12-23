@@ -268,7 +268,7 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context>
-  auto to_sql_string(Context& context, const no_select_column_list_t& t) -> std::string
+  auto to_sql_string(Context& , const no_select_column_list_t&) -> std::string
   {
     return "";
   }
@@ -280,7 +280,7 @@ namespace sqlpp
     //dynamic(false, foo.id).as(cheesecake) -> NULL AS cheesecake
     //max(something) -> max(something) as _max
     //max(something.as(cheesecake) -> max(something) AS cheesecake
-    return tuple_to_sql_string(context, t, tuple_operand_select_column{", "});
+    return tuple_to_sql_string(context, t._columns, tuple_operand_select_column{", "});
   }
 
   template <typename... T>

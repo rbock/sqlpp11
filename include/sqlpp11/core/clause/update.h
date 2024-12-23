@@ -89,12 +89,6 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context>
-  auto to_sql_string(Context& context, const no_update_t& t) -> std::string
-  {
-    return "";
-  }
-
-  template <typename Context>
   auto to_sql_string(Context& , const update_t&) -> std::string
   {
     return "UPDATE ";

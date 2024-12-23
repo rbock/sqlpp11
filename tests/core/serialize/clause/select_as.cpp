@@ -38,7 +38,7 @@ int main(int, char* [])
     SQLPP_COMPARE(s, "SELECT tab_foo.id FROM tab_foo");
     SQLPP_COMPARE(a, "(SELECT tab_foo.id FROM tab_foo) AS a");
     SQLPP_COMPARE(a.id, "a.id");
-    SQLPP_COMPARE(all_of(a), "a.id");
+    SQLPP_COMPARE(select(all_of(a)), "SELECT a.id");
   }
 
   // SELECT a multiple values and use that as a table.
@@ -49,7 +49,7 @@ int main(int, char* [])
     SQLPP_COMPARE(a, "(SELECT tab_foo.id, tab_foo.int_n FROM tab_foo) AS a");
     SQLPP_COMPARE(a.id, "a.id");
     SQLPP_COMPARE(a.intN, "a.int_n");
-    SQLPP_COMPARE(all_of(a), "a.id, a.int_n");
+    SQLPP_COMPARE(select(all_of(a)), "SELECT a.id, a.int_n");
   }
 
   return 0;

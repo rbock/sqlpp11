@@ -44,8 +44,8 @@ int main(int, char* [])
     SQLPP_COMPARE(x.id, "x.id");
     SQLPP_COMPARE(a, "x AS a");
     SQLPP_COMPARE(a.id, "a.id");
-    SQLPP_COMPARE(all_of(x), "x.id");
-    SQLPP_COMPARE(all_of(a), "a.id");
+    SQLPP_COMPARE(select(all_of(x)), "SELECT x.id");
+    SQLPP_COMPARE(select(all_of(a)), "SELECT a.id");
   }
 
   // Non-recursive union CTE: X AS SELECT ... UNION ALL SELECT ...
@@ -59,8 +59,8 @@ int main(int, char* [])
     SQLPP_COMPARE(x.id, "x.id");
     SQLPP_COMPARE(a, "x AS a");
     SQLPP_COMPARE(a.id, "a.id");
-    SQLPP_COMPARE(all_of(x), "x.id");
-    SQLPP_COMPARE(all_of(a), "a.id");
+    SQLPP_COMPARE(select(all_of(x)), "SELECT x.id");
+    SQLPP_COMPARE(select(all_of(a)), "SELECT a.id");
   }
 
   // Recursive CTE: X AS SELECT ... UNION ALL SELECT ... FROM X ...
@@ -73,8 +73,8 @@ int main(int, char* [])
     SQLPP_COMPARE(x.a, "x.a");
     SQLPP_COMPARE(y, "x AS y");
     SQLPP_COMPARE(y.a, "y.a");
-    SQLPP_COMPARE(all_of(x), "x.a");
-    SQLPP_COMPARE(all_of(y), "y.a");
+    SQLPP_COMPARE(select(all_of(x)), "SELECT x.a");
+    SQLPP_COMPARE(select(all_of(y)), "SELECT y.a");
   }
 
   // A CTE depending on another CTE
@@ -87,8 +87,8 @@ int main(int, char* [])
     SQLPP_COMPARE(y.id, "y.id");
     SQLPP_COMPARE(z, "y AS z");
     SQLPP_COMPARE(z.id, "z.id");
-    SQLPP_COMPARE(all_of(y), "y.id, y.a");
-    SQLPP_COMPARE(all_of(z), "z.id, z.a");
+    SQLPP_COMPARE(select(all_of(y)), "SELECT y.id, y.a");
+    SQLPP_COMPARE(select(all_of(z)), "SELECT z.id, z.a");
   }
 
   // Dynamically recursive CTE: X AS SELECT ... UNION ALL SELECT ... FROM X ...

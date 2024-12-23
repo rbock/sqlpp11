@@ -36,7 +36,7 @@ int CustomQuery(int, char*[])
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 
-  sqlpp::select() << select_flags(sqlpp::distinct);
+  sqlpp::select() << select_flags(sqlpp::distinct) << select_columns(foo.doubleN), from(foo) << sqlpp::unconditionally();
 #warning: reactivate
   // Unconditionally
   /*
@@ -53,7 +53,7 @@ int CustomQuery(int, char*[])
       "tab_bar.id > 17  GROUP BY tab_foo.double_n  HAVING AVG(tab_bar.id) > 19  ORDER BY tab_foo.double_n ASC  "
       "LIMIT 10  OFFSET 100");
 
-  // A full select statement made individual clauses
+  // A full select statement made of individual clauses
   SQLPP_COMPARE(
       custom_query(sqlpp::select(), select_flags(sqlpp::distinct), select_columns(foo.doubleN),
                    from(foo.join(bar).on(foo.doubleN == bar.id)), where(bar.id > 17), group_by(foo.doubleN),
