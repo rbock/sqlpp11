@@ -36,9 +36,8 @@
 
 namespace sqlpp
 {
-  // WHERE DATA
   template <typename Expression>
-  struct where_data_t
+  struct where_t
   {
     Expression _expression;
   };
@@ -46,27 +45,6 @@ namespace sqlpp
   SQLPP_PORTABLE_STATIC_ASSERT(
       assert_no_unknown_tables_in_where_t,
       "at least one expression in where() requires a table which is otherwise not known in the statement");
-
-  // WHERE(EXPR)
-  template <typename Expression>
-  struct where_t
-  {
-    using _traits = make_traits<no_value_t, tag::is_where>;
-
-    using _data_t = where_data_t<Expression>;
-
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
-    {
-      _base_t(const _base_t&) = default;
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
-
-      _data_t _data;
-    };
-  };
 
   template <typename Expression>
   struct is_clause<where_t<Expression>> : public std::true_type
@@ -88,31 +66,8 @@ namespace sqlpp
   };
 
   template <>
-  struct where_data_t<unconditional_t>
-  {
-  };
-
-  // WHERE() UNCONDITIONALLY
-  template <>
   struct where_t<unconditional_t>
   {
-    using _traits = make_traits<no_value_t, tag::is_where>;
-
-    using _data_t = where_data_t<unconditional_t>;
-
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
-    {
-      _base_t(const _base_t&) = default;
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
-
-      _data_t _data;
-
-      using _consistency_check = consistent_t;
-    };
   };
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_where_or_unconditionally_called_t,
@@ -146,49 +101,25 @@ namespace sqlpp
   // NO WHERE YET
   struct no_where_t
   {
-    using _traits = make_traits<no_value_t, tag::is_where>;
+  };
 
-    using _data_t = no_data_t;
+  template <typename Statement>
+  struct clause_base<no_where_t, Statement> : public clause_data<no_where_t, Statement>
+  {
+    using clause_data<no_where_t, Statement>::clause_data;
 
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
-    {
-      _base_t() = default;
-      _base_t(_data_t data) : _data{std::move(data)}
+     auto unconditionally() const -> decltype(new_statement(*this, where_t<unconditional_t>{}))
       {
+        return new_statement(*this, where_t<unconditional_t>{});
       }
 
-      _data_t _data;
-
-      template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check, Policies, no_where_t, T>;
-
-      auto unconditionally() const -> _new_statement_t<consistent_t, where_t<unconditional_t>>
-      {
-        return {static_cast<const derived_statement_t<Policies>&>(*this), where_data_t<unconditional_t>{}};
-      }
-
+#warning: reactivate check_where_t
       template <typename Expression>
       auto where(Expression expression) const
-          -> _new_statement_t<check_where_t<Expression>, where_t<Expression>>
+          -> decltype(new_statement(*this, where_t<Expression>{expression}))
       {
-        using Check = check_where_t<Expression>;
-        return _where_impl(Check{}, expression);
+        return new_statement(*this, where_t<Expression>{expression});
       }
-
-    private:
-      template <typename Check, typename Expression>
-      auto _where_impl(Check, Expression expression) const -> inconsistent<Check>;
-
-      template <typename Expression>
-      auto _where_impl(consistent_t /*unused*/, Expression expression) const
-          -> _new_statement_t<consistent_t, where_t<Expression>>
-      {
-        return {static_cast<const derived_statement_t<Policies>&>(*this),
-                where_data_t<Expression>{expression}};
-      }
-    };
   };
 
   template <typename Statement>
@@ -200,13 +131,13 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Expression>
-  auto to_sql_string(Context& context, const where_data_t<Expression>& t) -> std::string
+  auto to_sql_string(Context& context, const where_t<Expression>& t) -> std::string
   {
     return  " WHERE " + to_sql_string(context, t._expression);
   }
 
   template <typename Context, typename Expression>
-  auto to_sql_string(Context& context, const where_data_t<dynamic_t<Expression>>& t) -> std::string
+  auto to_sql_string(Context& context, const where_t<dynamic_t<Expression>>& t) -> std::string
   {
     if (t._expression._condition)
     {
@@ -216,7 +147,7 @@ namespace sqlpp
   }
 
   template <typename Context>
-  auto to_sql_string(Context& , const where_data_t<unconditional_t>&) -> std::string
+  auto to_sql_string(Context& , const where_t<unconditional_t>&) -> std::string
   {
     return {};
   }

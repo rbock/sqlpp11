@@ -40,44 +40,19 @@
 namespace sqlpp
 {
   template <typename... Ctes>
-  struct with_data_t
+  struct with_t
   {
-    with_data_t(Ctes... expressions) : _expressions(expressions...)
+    with_t(Ctes... expressions) : _expressions(expressions...)
     {
     }
 
-    with_data_t(const with_data_t&) = default;
-    with_data_t(with_data_t&&) = default;
-    with_data_t& operator=(const with_data_t&) = default;
-    with_data_t& operator=(with_data_t&&) = default;
-    ~with_data_t() = default;
+    with_t(const with_t&) = default;
+    with_t(with_t&&) = default;
+    with_t& operator=(const with_t&) = default;
+    with_t& operator=(with_t&&) = default;
+    ~with_t() = default;
 
     std::tuple<Ctes...> _expressions;
-  };
-
-  template <typename... Ctes>
-  struct with_t
-  {
-    using _traits = make_traits<no_value_t, tag::is_with>;
-    using _nodes = detail::type_vector<>;
-    using _provided_ctes =
-        detail::make_joined_set_t<required_ctes_of_t<Ctes>...>;  // WITH provides common table expressions
-    using _parameters = detail::type_vector_cat_t<parameters_of_t<Ctes>...>;
-
-    using _data_t = with_data_t<Ctes...>;
-
-    // Base template to be inherited by the statement
-    template <typename Statement>
-    struct _base_t
-    {
-      template<typename OtherStatement>
-      _base_t(_base_t<OtherStatement> base) : _data{std::move(base._data)} {}
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
-
-      _data_t _data;
-    };
   };
 
   template <typename... Ctes>
@@ -111,7 +86,7 @@ namespace sqlpp
   {
     using type = detail::type_vector_cat_t<parameters_of_t<Ctes>...>;
   };
- 
+
   struct no_with_t
   {
 
@@ -141,19 +116,19 @@ namespace sqlpp
   template <typename... Ctes>
   struct blank_with_t
   {
-    with_data_t<Ctes...> _data;
+    with_t<Ctes...> _with_clause;
 
     template <typename Statement>
     auto operator()(Statement statement)
-        -> new_statement_t<consistent_t, typename Statement::_policies_t, no_with_t, with_t<Ctes...>>
+        -> decltype(new_statement(statement, _with_clause))
     {
-      return {statement, _data};
+      return new_statement(statement, _with_clause);
     }
   };
 
   // Interpreters
   template <typename Context, typename... Ctes>
-  auto to_sql_string(Context& context, const with_data_t<Ctes...>& t) -> std::string
+  auto to_sql_string(Context& context, const with_t<Ctes...>& t) -> std::string
   {
     static constexpr bool _is_recursive = logic::any<is_recursive_cte<Ctes>::value...>::value;
 

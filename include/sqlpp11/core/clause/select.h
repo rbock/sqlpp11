@@ -45,11 +45,7 @@
 
 namespace sqlpp
 {
-  struct select_name_t
-  {
-  };
-
-  struct select_t : public statement_name_t<select_name_t, tag::is_select>
+  struct select_t
   {
   };
 
@@ -62,7 +58,7 @@ namespace sqlpp
     struct consistency_check<Statement, select_t> { using type = consistent_t; };
 
   template <typename Context>
-  auto to_sql_string(Context& , const select_name_t&) -> std::string
+  auto to_sql_string(Context& , const select_t&) -> std::string
   {
     return "SELECT ";
   }

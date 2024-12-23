@@ -36,42 +36,20 @@
 
 namespace sqlpp
 {
-  // SELECTED FLAGS DATA
-  template <typename... Flags>
-  struct select_flag_list_data_t
-  {
-    select_flag_list_data_t(Flags... flgs) : _flags(flgs...)
-    {
-    }
-
-    select_flag_list_data_t(const select_flag_list_data_t&) = default;
-    select_flag_list_data_t(select_flag_list_data_t&&) = default;
-    select_flag_list_data_t& operator=(const select_flag_list_data_t&) = default;
-    select_flag_list_data_t& operator=(select_flag_list_data_t&&) = default;
-    ~select_flag_list_data_t() = default;
-
-    std::tuple<Flags...> _flags;
-  };
-
-  // SELECT FLAGS
   template <typename... Flags>
   struct select_flag_list_t
   {
-    using _traits = make_traits<no_value_t, tag::is_select_flag_list>;
-    using _nodes = detail::type_vector<Flags...>;
-
-    using _data_t = select_flag_list_data_t<Flags...>;
-
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
+    select_flag_list_t(Flags... flags) : _flags(flags...)
     {
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
+    }
 
-      _data_t _data;
-    };
+    select_flag_list_t(const select_flag_list_t&) = default;
+    select_flag_list_t(select_flag_list_t&&) = default;
+    select_flag_list_t& operator=(const select_flag_list_t&) = default;
+    select_flag_list_t& operator=(select_flag_list_t&&) = default;
+    ~select_flag_list_t() = default;
+
+    std::tuple<Flags...> _flags;
   };
 
   template <typename... Flags>
@@ -97,46 +75,23 @@ namespace sqlpp
 
   struct no_select_flag_list_t
   {
-    using _nodes = detail::type_vector<>;
+  };
 
-    using _data_t = no_data_t;
+  template <typename Statement>
+  struct clause_base<no_select_flag_list_t, Statement> : public clause_data<no_select_flag_list_t, Statement>
+  {
+    using clause_data<no_select_flag_list_t, Statement>::clause_data;
 
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
+#warning : reactivate check_select_flags_t;
+
+    template <typename... Flags>
+    auto flags(Flags... flags) const -> decltype(new_statement(*this, select_flag_list_t<Flags...>{flags...}))
     {
-      _base_t() = default;
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
+      static_assert(not detail::has_duplicates<Flags...>::value,
+                    "at least one duplicate argument detected in select flag list");
 
-      _data_t _data;
-
-      template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check, Policies, no_select_flag_list_t, T>;
-
-      template <typename... Flags>
-      auto flags(Flags... flgs) const
-          -> _new_statement_t<check_select_flags_t<Flags...>, select_flag_list_t<Flags...>>
-      {
-        return _flags_impl(check_select_flags_t<Flags...>{}, flgs...);
-      }
-
-    private:
-      template <typename Check, typename... Flags>
-      auto _flags_impl(Check, Flags... flgs) const -> inconsistent<Check>;
-
-      template <typename... Flags>
-      auto _flags_impl(consistent_t /*unused*/, Flags... flgs) const
-          -> _new_statement_t<consistent_t, select_flag_list_t<Flags...>>
-      {
-        static_assert(not detail::has_duplicates<Flags...>::value,
-                      "at least one duplicate argument detected in select flag list");
-
-        return {static_cast<const derived_statement_t<Policies>&>(*this),
-                select_flag_list_data_t<Flags...>{flgs...}};
-      }
-    };
+      return new_statement(*this, select_flag_list_t<Flags...>{flags...});
+    }
   };
 
   template <typename Statement>
@@ -147,7 +102,7 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename... Flags>
-  auto to_sql_string(Context& context, const select_flag_list_data_t<Flags...>& t) -> std::string
+  auto to_sql_string(Context& context, const select_flag_list_t<Flags...>& t) -> std::string
   {
     return tuple_to_sql_string(context, t._flags, tuple_operand_no_dynamic{""});
   }

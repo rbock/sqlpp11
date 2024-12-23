@@ -35,19 +35,18 @@
 
 namespace sqlpp
 {
-  // GROUP BY DATA
   template <typename... Columns>
-  struct group_by_data_t
+  struct group_by_t
   {
-    group_by_data_t(Columns... columns) : _columns(columns...)
+    group_by_t(Columns... columns) : _columns(columns...)
     {
     }
 
-    group_by_data_t(const group_by_data_t&) = default;
-    group_by_data_t(group_by_data_t&&) = default;
-    group_by_data_t& operator=(const group_by_data_t&) = default;
-    group_by_data_t& operator=(group_by_data_t&&) = default;
-    ~group_by_data_t() = default;
+    group_by_t(const group_by_t&) = default;
+    group_by_t(group_by_t&&) = default;
+    group_by_t& operator=(const group_by_t&) = default;
+    group_by_t& operator=(group_by_t&&) = default;
+    ~group_by_t() = default;
 
     std::tuple<Columns...> _columns;
   };
@@ -55,24 +54,6 @@ namespace sqlpp
   SQLPP_PORTABLE_STATIC_ASSERT(
       assert_no_unknown_tables_in_group_by_t,
       "at least one group-by expression requires a table which is otherwise not known in the statement");
-
-  // GROUP BY
-  template <typename... Columns>
-  struct group_by_t
-  {
-   using _data_t = group_by_data_t<Columns...>;
-
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
-    {
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
-
-      _data_t _data;
-    };
-  };
 
   template <typename... Columns>
   struct is_clause<group_by_t<Columns...>> : public std::true_type
@@ -107,47 +88,22 @@ namespace sqlpp
   // NO GROUP BY YET
   struct no_group_by_t
   {
-    // Data
-    using _data_t = no_data_t;
+  };
 
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
+  template <typename Statement>
+  struct clause_base<no_group_by_t, Statement> : public clause_data<no_group_by_t, Statement>
+  {
+    using clause_data<no_group_by_t, Statement>::clause_data;
+
+#warning: reactive check_group_by_t<Columns...>
+
+    template <typename... Columns>
+    auto group_by(Columns... columns) const -> decltype(new_statement(*this, group_by_t<Columns...>{columns...}))
     {
-      _base_t() = default;
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
+      static_assert(sizeof...(Columns), "at least one column required in group_by()");
 
-      _data_t _data;
-
-      template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check, Policies, no_group_by_t, T>;
-
-      template <typename... Columns>
-      auto group_by(Columns... columns) const
-          -> _new_statement_t<check_group_by_t<Columns...>, group_by_t<Columns...>>
-      {
-        static_assert(sizeof...(Columns), "at least one column required in group_by()");
-
-        return _group_by_impl(check_group_by_t<Columns...>{}, columns...);
-      }
-
-    private:
-      template <typename Check, typename... Columns>
-      auto _group_by_impl(Check, Columns... columns) const -> inconsistent<Check>;
-
-      template <typename... Columns>
-      auto _group_by_impl(consistent_t /*unused*/, Columns... columns) const
-          -> _new_statement_t<consistent_t, group_by_t<Columns...>>
-      {
-        static_assert(not detail::has_duplicates<Columns...>::value,
-                      "at least one duplicate argument detected in group_by()");
-
-        return {static_cast<const derived_statement_t<Policies>&>(*this),
-                group_by_data_t<Columns...>{columns...}};
-      }
-    };
+      return new_statement(*this, group_by_t<Columns...>{columns...});
+    }
   };
 
   template <typename Statement>
@@ -158,7 +114,7 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename... Columns>
-  auto to_sql_string(Context& context, const group_by_data_t<Columns...>& t) -> std::string
+  auto to_sql_string(Context& context, const group_by_t<Columns...>& t) -> std::string
   {
     const auto columns = tuple_to_sql_string(context, t._columns, tuple_operand_no_dynamic{", "});
 

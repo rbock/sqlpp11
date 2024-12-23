@@ -31,69 +31,30 @@
 #include <sqlpp11/core/query/result_row.h>
 #include <sqlpp11/core/query/statement_fwd.h>
 #include <sqlpp11/core/type_traits.h>
-#include <sqlpp11/core/clause/union_data.h>
 #include <sqlpp11/core/clause/union_flags.h>
 
 namespace sqlpp
 {
-  struct no_union_t;
-  template <typename Statement>
-  struct consistency_check<Statement, no_union_t>
-  {
-    using type = consistent_t;
-  };
-
-
-  using blank_union_t = statement_t<no_union_t>;
   // There is no order by or limit or offset in union, use it as a pseudo table to do that.
 
-  template <typename Check, typename Union>
-  struct union_statement_impl
-  {
-    using type = Check;
-  };
-
-  template <typename Union>
-  struct union_statement_impl<consistent_t, Union>
-  {
-    using type = statement_t<Union, no_union_t>;
-  };
-
-  template <typename Check, typename Union>
-  using union_statement_t = typename union_statement_impl<Check, Union>::type;
-
-  // UNION(EXPR)
   template <typename Flag, typename Lhs, typename Rhs>
   struct union_t
   {
-    using _traits = make_traits<no_value_t, tag::is_union>;
-    using _nodes = detail::type_vector<Lhs, Rhs>;
-
-    using _data_t = union_data_t<Flag, Lhs, Rhs>;
-
-    // Base template to be inherited by the statement
-    template <typename Statement>
-    struct _base_t
+    union_t(Lhs lhs, Rhs rhs) : _lhs(lhs), _rhs(rhs)
     {
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
+    }
 
-      _data_t _data;
-
-      using _selected_columns_t = typename std::decay<decltype(_data._lhs.get_selected_columns())>::type;
-      _selected_columns_t& get_selected_columns()
-      {
-        return _data._lhs.get_selected_columns();
-      }
-      const _selected_columns_t& get_selected_columns() const
-      {
-        return _data._lhs.get_selected_columns();
-      }
-    };
+    union_t(const union_t&) = default;
+    union_t(union_t&&) = default;
+    union_t& operator=(const union_t&) = default;
+    union_t& operator=(union_t&&) = default;
+    ~union_t() = default;
 
     template <typename Statement>
     using _result_methods_t = typename Lhs::_result_methods_t;
+
+    Lhs _lhs;
+    Rhs _rhs;
   };
 
   template <typename Flag, typename Lhs, typename Rhs>
@@ -126,50 +87,45 @@ namespace sqlpp
   template <typename... T>
   using check_union_t = typename check_union<T...>::type;
 
-  // NO UNION YET
   struct no_union_t
   {
-    using _traits = make_traits<no_value_t, tag::is_union>;
-    using _nodes = detail::type_vector<>;
+  };
 
-    // Data
-    using _data_t = no_data_t;
+  template <typename Statement>
+  struct consistency_check<Statement, no_union_t>
+  {
+    using type = consistent_t;
+  };
 
-    template <typename Statement>
-    struct _base_t
+  template <typename Statement>
+  struct clause_base<no_union_t, Statement> : public clause_data<no_union_t, Statement>
+  {
+    using clause_data<no_union_t, Statement>::clause_data;
+
+#warning: reactivate check_union_t
+    template <typename Rhs>
+    auto union_distinct(Rhs rhs) const
+        -> statement_t<union_t<union_distinct_t, Statement, Rhs>>
     {
-      _base_t() = default;
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
+      static_assert(is_statement<Rhs>::value, "argument of union call has to be a statement");
+      static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
+      static_assert(has_result_row<Rhs>::value, "argument of a clause/union.has to be a complete select statement");
+      static_assert(has_result_row<Statement>::value,
+                    "left hand side argument of a clause/union.has to be a complete select statement or union");
 
-      _data_t _data;
+      using lhs_result_row_t = get_result_row_t<Statement>;
+      using rhs_result_row_t = get_result_row_t<Rhs>;
+      static_assert(is_result_compatible<lhs_result_row_t, rhs_result_row_t>::value,
+                    "both arguments in a clause/union.have to have the same result columns (type and name)");
 
-      template <typename Check, typename T>
-      using _new_statement_t = union_statement_t<Check, T>;
-
-      template <typename Rhs>
-      auto union_distinct(Rhs rhs) const
-          -> _new_statement_t<check_union_t<Statement, Rhs>,
-                              union_t<union_distinct_t, Statement, Rhs>>
-      {
-        static_assert(is_statement<Rhs>::value, "argument of union call has to be a statement");
-        static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
-        static_assert(has_result_row<Rhs>::value, "argument of a clause/union.has to be a complete select statement");
-        static_assert(has_result_row<Statement>::value,
-                      "left hand side argument of a clause/union.has to be a complete select statement or union");
-
-        using lhs_result_row_t = get_result_row_t<Statement>;
-        using rhs_result_row_t = get_result_row_t<Rhs>;
-        static_assert(is_result_compatible<lhs_result_row_t, rhs_result_row_t>::value,
-                      "both arguments in a clause/union.have to have the same result columns (type and name)");
-
-        return _union_impl<union_distinct_t>(check_union_t<Statement, Rhs>{}, rhs);
+      return statement_t<union_t<union_distinct_t, Statement, Rhs>>{
+          statement_constructor_arg<union_t<union_distinct_t, Statement, Rhs>>{
+              union_t<union_distinct_t, Statement, Rhs>{static_cast<const Statement&>(*this), rhs}}};
       }
 
       template <typename Rhs>
-      auto union_all(Rhs rhs) const -> _new_statement_t<check_union_t<Statement, Rhs>,
-                                                        union_t<union_all_t, Statement, Rhs>>
+      auto union_all(Rhs rhs) const
+        -> statement_t<union_t<union_all_t, Statement, Rhs>>
       {
         static_assert(is_statement<Rhs>::value, "argument of union call has to be a statement");
         static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
@@ -182,23 +138,19 @@ namespace sqlpp
         static_assert(is_result_compatible<lhs_result_row_t, rhs_result_row_t>::value,
                       "both arguments in a clause/union.have to have the same result columns (type and name)");
 
-        return _union_impl<union_all_t>(check_union_t<Statement, Rhs>{}, rhs);
+      return statement_t<union_t<union_all_t, Statement, Rhs>>{
+          statement_constructor_arg<union_t<union_distinct_t, Statement, Rhs>>{
+              union_t<union_distinct_t, Statement, Rhs>{static_cast<const Statement&>(*this), rhs}}};
       }
-
-    private:
-      template <typename Flag, typename Check, typename Rhs>
-      auto _union_impl(Check, Rhs rhs) const -> inconsistent<Check>;
-
-      template <typename Flag, typename Rhs>
-      auto _union_impl(consistent_t /*unused*/, Rhs rhs) const
-          -> _new_statement_t<consistent_t, union_t<Flag, Statement, Rhs>>
-      {
-        return {blank_union_t{}, union_data_t<Flag, Statement, Rhs>{
-                                     static_cast<const Statement&>(*this), rhs}};
-      }
-    };
   };
 
+  // Interpreters
+  template <typename Context, typename Flag, typename Lhs, typename Rhs>
+  auto to_sql_string(Context& context, const union_t<Flag, Lhs, Rhs>& t) -> std::string
+  {
+    return to_sql_string(context, t._lhs) + " UNION " + to_sql_string(context, Flag{}) + " " +
+           to_sql_string(context, t._rhs);
+  }
   template <typename Lhs, typename Rhs>
   auto union_all(Lhs lhs, Rhs rhs)->decltype(lhs.union_all(rhs))
   {

@@ -32,42 +32,20 @@
 
 namespace sqlpp
 {
-  // OFFSET DATA
-  template <typename Offset>
-  struct offset_data_t
-  {
-    offset_data_t(Offset value) : _value(value)
-    {
-    }
-
-    offset_data_t(const offset_data_t&) = default;
-    offset_data_t(offset_data_t&&) = default;
-    offset_data_t& operator=(const offset_data_t&) = default;
-    offset_data_t& operator=(offset_data_t&&) = default;
-    ~offset_data_t() = default;
-
-    Offset _value;
-  };
-
-  // OFFSET
   template <typename Offset>
   struct offset_t
   {
-    using _traits = make_traits<no_value_t, tag::is_offset>;
-    using _nodes = detail::type_vector<Offset>;
-
-    using _data_t = offset_data_t<Offset>;
-
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
+    offset_t(Offset value) : _value(value)
     {
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
+    }
 
-      _data_t _data;
-    };
+    offset_t(const offset_t&) = default;
+    offset_t(offset_t&&) = default;
+    offset_t& operator=(const offset_t&) = default;
+    offset_t& operator=(offset_t&&) = default;
+    ~offset_t() = default;
+
+    Offset _value;
   };
 
   template <typename Offset>
@@ -91,67 +69,32 @@ namespace sqlpp
 
   struct no_offset_t
   {
-    using _nodes = detail::type_vector<>;
+  };
 
-    // Data
-    using _data_t = no_data_t;
+  template <typename Statement>
+  struct clause_base<no_offset_t, Statement> : public clause_data<no_offset_t, Statement>
+  {
+    using clause_data<no_offset_t, Statement>::clause_data;
 
-    // Member implementation with data and methods
-    template <typename Policies>
-    struct _impl_t
+#warning : reactivate check_offset_t
+    template <typename Arg>
+    auto offset(Arg arg) const -> decltype(new_statement(*this, offset_t<Arg>{std::move(arg)}))
     {
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-      _impl_t() = default;
-      _impl_t(const _data_t& data) : _data(data)
-      {
-      }
-
-      _data_t _data;
-    };
-
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
-    {
-      _base_t() = default;
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
-
-      _data_t _data;
-
-      template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check, Policies, no_offset_t, T>;
-
-      template <typename Arg>
-      auto offset(Arg arg) const -> _new_statement_t<check_offset_t<Arg>, offset_t<Arg>>
-      {
-        return _offset_impl(check_offset_t<Arg>{}, std::move(arg));
-      }
-
-    private:
-      template <typename Check, typename Arg>
-      auto _offset_impl(Check, Arg arg) const -> inconsistent<Check>;
-
-      template <typename Arg>
-      auto _offset_impl(consistent_t /*unused*/, Arg arg) const -> _new_statement_t<consistent_t, offset_t<Arg>>
-      {
-        return {static_cast<const derived_statement_t<Policies>&>(*this), offset_data_t<Arg>{std::move(arg)}};
-      }
-    };
+      return new_statement(*this, offset_t<Arg>{std::move(arg)});
+    }
   };
 
   template<typename Statement>
     struct consistency_check<Statement, no_offset_t> { using type = consistent_t; };
 
   template <typename Context, typename Offset>
-  auto to_sql_string(Context& context, const offset_data_t<Offset>& t) -> std::string
+  auto to_sql_string(Context& context, const offset_t<Offset>& t) -> std::string
   {
     return  " OFFSET " +  operand_to_sql_string(context, t._value);
   }
 
   template <typename Context, typename Offset>
-  auto to_sql_string(Context& context, const offset_data_t<dynamic_t<Offset>>& t) -> std::string
+  auto to_sql_string(Context& context, const offset_t<dynamic_t<Offset>>& t) -> std::string
   {
     if (not t._value._condition)
     {

@@ -32,31 +32,8 @@
 
 namespace sqlpp
 {
-  // FOR_UPDATE DATA
-  struct for_update_data_t
-  {
-  };
-
-  // FOR_UPDATE
   struct for_update_t
   {
-    using _traits = make_traits<no_value_t, tag::is_for_update>;
-    using _nodes = detail::type_vector<>;
-
-    using _data_t = for_update_data_t;
-
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
-    {
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
-
-      _data_t _data;
-
-      using _consistency_check = consistent_t;
-    };
   };
 
   template <>
@@ -70,32 +47,17 @@ namespace sqlpp
 
   struct no_for_update_t
   {
-    using _nodes = detail::type_vector<>;
+  };
 
-    // Data
-    using _data_t = no_data_t;
+  template <typename Statement>
+  struct clause_base<no_for_update_t, Statement> : public clause_data<no_for_update_t, Statement>
+  {
+    using clause_data<no_for_update_t, Statement>::clause_data;
 
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
+    auto for_update() const -> decltype(new_statement(*this, for_update_t{}))
     {
-      _base_t() = default;
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
-
-      _data_t _data;
-
-      template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check, Policies, no_for_update_t, T>;
-
-      using _consistency_check = consistent_t;
-
-      auto for_update() const -> _new_statement_t<consistent_t, for_update_t>
-      {
-        return {static_cast<const derived_statement_t<Policies>&>(*this), for_update_data_t{}};
-      }
-    };
+      return new_statement(*this, for_update_t{});
+    }
   };
 
   template<typename Statement>
@@ -103,7 +65,7 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context>
-  auto to_sql_string(Context& , const for_update_data_t&) -> std::string
+  auto to_sql_string(Context& , const for_update_t&) -> std::string
   {
     return  " FOR UPDATE";
   }

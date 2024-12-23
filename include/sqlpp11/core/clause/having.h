@@ -34,19 +34,18 @@
 
 namespace sqlpp
 {
-  // HAVING DATA
   template <typename Expression>
-  struct having_data_t
+  struct having_t
   {
-    having_data_t(Expression expression) : _expression(expression)
+    having_t(Expression expression) : _expression(expression)
     {
     }
 
-    having_data_t(const having_data_t&) = default;
-    having_data_t(having_data_t&&) = default;
-    having_data_t& operator=(const having_data_t&) = default;
-    having_data_t& operator=(having_data_t&&) = default;
-    ~having_data_t() = default;
+    having_t(const having_t&) = default;
+    having_t(having_t&&) = default;
+    having_t& operator=(const having_t&) = default;
+    having_t& operator=(having_t&&) = default;
+    ~having_t() = default;
 
     Expression _expression;
   };
@@ -57,29 +56,6 @@ namespace sqlpp
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_having_all_aggregates_t,
                                "having expression not built out of aggregate expressions");
-
-  // HAVING
-  template <typename Expression>
-  struct having_t
-  {
-    using _traits = make_traits<no_value_t, tag::is_having>;
-    using _nodes = detail::type_vector<Expression>;
-
-    // Data
-    using _data_t = having_data_t<Expression>;
-
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
-    {
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
-
-      _data_t _data;
-
-    };
-  };
 
   template <typename Expression>
   struct is_clause<having_t<Expression>> : public std::true_type
@@ -118,55 +94,19 @@ namespace sqlpp
   // NO HAVING YET
   struct no_having_t
   {
-    using _nodes = detail::type_vector<>;
+  };
 
-    // Data
-    using _data_t = no_data_t;
+  template <typename Statement>
+  struct clause_base<no_having_t, Statement> : public clause_data<no_having_t, Statement>
+  {
+    using clause_data<no_having_t, Statement>::clause_data;
 
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
+#warning : reactivate check_having_t
+    template <typename Expression>
+    auto having(Expression expression) const -> decltype(new_statement(*this, having_t<Expression>{expression}))
     {
-      _base_t() = default;
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
-
-      _data_t _data;
-
-
-      // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-      //	  template <typename... T>
-      //	  using _check = logic::all<is_expression_t<T>::value...>;
-      template <typename... T>
-      struct _check : std::integral_constant<bool, are_all_parameters_expressions<T...>()>
-      {
-      };
-
-      template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check, Policies, no_having_t, T>;
-
-      template <typename Expression>
-      auto having(Expression expression) const
-          -> _new_statement_t<check_having_t<Expression>, having_t<Expression>>
-      {
-        using Check = check_having_t<Expression>;
-
-        return _having_impl(Check{}, expression);
-      }
-
-    private:
-      template <typename Check, typename Expression>
-      auto _having_impl(Check, Expression expression) const -> inconsistent<Check>;
-
-      template <typename Expression>
-      auto _having_impl(consistent_t /*unused*/, Expression expression) const
-          -> _new_statement_t<consistent_t, having_t<Expression>>
-      {
-        return {static_cast<const derived_statement_t<Policies>&>(*this),
-                having_data_t<Expression>{expression}};
-      }
-    };
+      return new_statement(*this, having_t<Expression>{expression});
+    }
   };
 
   template <typename Statement>
@@ -177,13 +117,13 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Expression>
-  auto to_sql_string(Context& context, const having_data_t<Expression>& t) -> std::string
+  auto to_sql_string(Context& context, const having_t<Expression>& t) -> std::string
   {
     return " HAVING " + to_sql_string(context, t._expression);
   }
 
   template <typename Context, typename Expression>
-  auto to_sql_string(Context& context, const having_data_t<dynamic_t<Expression>>& t) -> std::string
+  auto to_sql_string(Context& context, const having_t<dynamic_t<Expression>>& t) -> std::string
   {
     if (t._expression._condition)
     {

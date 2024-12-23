@@ -57,7 +57,7 @@ namespace sqlpp
     using result_methods_t = typename result_type_provider_t<Policies...>::template _result_methods_t<statement_t<Policies...>>;
 
   template <typename... Policies>
-  struct statement_t : public Policies::template _base_t<statement_t<Policies...>>...,
+  struct statement_t : public clause_base<Policies, statement_t<Policies...>>...,
                        public result_methods_t<Policies...>
   {
       using _all_required_ctes = detail::make_joined_set_t<required_ctes_of_t<Policies>...>;
@@ -116,22 +116,8 @@ namespace sqlpp
     // Constructors
     statement_t() = default;
 
-    // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2173269
-    //	template <typename Statement, typename Term>
-    //	statement_t(Statement statement, Term term)
-    //		: Policies::template _base_t<_policies_t>{typename Policies::template _impl_t<_policies_t>{
-    //		detail::pick_arg<typename Policies::template _base_t<_policies_t>>(statement, term)}}...
-    //	{
-    //	}
-    template <typename Statement, typename Term>
-    statement_t(Statement statement, Term term)
-        : Policies::template _base_t<statement_t>(
-              detail::pick_arg<Policies>(statement, term))...
-    {
-    }
-
     template <typename... Fragments>
-    statement_t(statement_constructor_arg<Fragments...> arg) : Policies::template _base_t<statement_t>(arg)...
+    statement_t(statement_constructor_arg<Fragments...> arg) : clause_base<Policies, statement_t>(arg)...
     {
     }
 
@@ -281,30 +267,10 @@ namespace sqlpp
     using swallow = int[];
     (void)swallow{
         0, (result += to_sql_string(
-                context, static_cast<const typename Policies::template _base_t<statement_t<Policies...>>&>(t)._data),
+                context, static_cast<const clause_base<Policies, statement_t<Policies...>>&>(t)._data),
             0)...};
 
     return result;
   }
-
-  template <typename NameData, typename Tag = tag::is_noop>
-  struct statement_name_t
-  {
-    using _traits = make_traits<no_value_t, Tag>;
-
-    using _data_t = NameData;
-
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
-    {
-      _base_t() = default;
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
-
-      _data_t _data;
-    };
-  };
 
 }  // namespace sqlpp

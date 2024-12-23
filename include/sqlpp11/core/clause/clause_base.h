@@ -26,13 +26,43 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <sqlpp11/core/wrong.h>
+#include <utility>
 
 namespace sqlpp
 {
   template <typename Clause, typename Statement>
-  class clause_base
+  struct clause_base
   {
-    static_assert(detail::wrong<clause_base>::value, "Missing specialization for clause_base");
+    using _data_t = Clause;
+
+    clause_base() = default;
+    template<typename OtherStatement>
+    clause_base(clause_base<Clause, OtherStatement> base) : _data{std::move(base._data)}
+    {
+    }
+
+    clause_base(_data_t data) : _data{std::move(data)}
+    {
+    }
+
+    _data_t _data;
+  };
+
+  template <typename Clause, typename Statement>
+  struct clause_data
+  {
+    using _data_t = Clause;
+
+    clause_data() = default;
+    template<typename OtherStatement>
+    clause_data(clause_base<Clause, OtherStatement> base) : _data{std::move(base._data)}
+    {
+    }
+
+    clause_data(_data_t data) : _data{std::move(data)}
+    {
+    }
+
+    _data_t _data;
   };
 }  // namespace sqlpp

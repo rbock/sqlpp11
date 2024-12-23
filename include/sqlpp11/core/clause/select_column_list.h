@@ -63,20 +63,6 @@ namespace sqlpp
 
     template<typename... Args>
     using flat_tuple_t = typename flat_tuple<Args...>::type;
-
-    template <typename... Columns>
-    struct select_traits
-    {
-      using _traits = make_traits<no_value_t, tag::is_select_column_list>;
-    };
-
-    template <typename Column>
-    struct select_traits<Column>
-    {
-      using _traits = make_traits<value_type_of_t<Column>,
-                                  tag::is_select_column_list,
-                                  tag::is_expression>;
-    };
   }  // namespace detail
 
   SQLPP_PORTABLE_STATIC_ASSERT(
@@ -90,29 +76,17 @@ namespace sqlpp
   template <typename... Columns>
   struct select_column_list_t
   {
-    using _traits = typename detail::select_traits<Columns...>::_traits;
-
-    using _data_t = std::tuple<Columns...>;
-
-    struct _column_type
+    select_column_list_t(std::tuple<Columns...> columns) : _columns(std::move(columns))
     {
-    };
+    }
 
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
-    {
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
+    select_column_list_t(const select_column_list_t&) = default;
+    select_column_list_t(select_column_list_t&&) = default;
+    select_column_list_t& operator=(const select_column_list_t&) = default;
+    select_column_list_t& operator=(select_column_list_t&&) = default;
+    ~select_column_list_t() = default;
 
-      _data_t _data;
-
-      const _base_t& get_selected_columns() const
-      {
-        return *this;
-      }
-    };
+    std::tuple<Columns...> _columns;
 
     // Result methods
     template <typename Statement>
@@ -264,35 +238,26 @@ namespace sqlpp
 
   struct no_select_column_list_t
   {
-    using _traits = make_traits<no_value_t, tag::is_missing>;
+  };
 
-    using _data_t = no_data_t;
+  template <typename Statement>
+  struct clause_base<no_select_column_list_t, Statement> : public clause_data<no_select_column_list_t, Statement>
+  {
+    using clause_data<no_select_column_list_t, Statement>::clause_data;
 
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
+    template <typename... Columns, typename = sqlpp::enable_if_t<select_columns_have_values<Columns...>::value>>
+    auto columns(Columns... args) const
+        -> decltype(new_statement(*this,
+                                  make_select_column_list_t<Columns...>{
+                                      std::tuple_cat(detail::tupelize(std::move(args))...)}))
     {
-      _base_t() = default;
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
+      SQLPP_STATIC_ASSERT(sizeof...(Columns), "at least one selected column required");
+      SQLPP_STATIC_ASSERT(select_columns_have_names<Columns...>::value, "each selected column must have a name");
 
-      _data_t _data;
-
-      template <typename T>
-      using _new_statement_t = new_statement_t<consistent_t, Policies, no_select_column_list_t, T>;
-
-      template <typename... Columns, typename = sqlpp::enable_if_t<select_columns_have_values<Columns...>::value>>
-      auto columns(Columns... args) const -> _new_statement_t<make_select_column_list_t<Columns...>>
-      {
-        SQLPP_STATIC_ASSERT(sizeof...(Columns), "at least one selected column required");
-        SQLPP_STATIC_ASSERT(select_columns_have_names<Columns...>::value, "each selected column must have a name");
-
-        return {static_cast<const derived_statement_t<Policies>&>(*this),
-                typename make_select_column_list_t<Columns...>::_data_t{
-                    std::tuple_cat(detail::tupelize(std::move(args))...)}};
-      }
-    };
+      return new_statement(*this,
+              make_select_column_list_t<Columns...>{
+                  std::tuple_cat(detail::tupelize(std::move(args))...)});
+    }
   };
 
   template <typename Statement>
@@ -303,7 +268,7 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename... Columns>
-  auto to_sql_string(Context& context, const std::tuple<Columns...>& t) -> std::string
+  auto to_sql_string(Context& context, const select_column_list_t<Columns...>& t) -> std::string
   {
     //dynamic(false, foo.id) -> NULL as id
     //dynamic(false, foo.id).as(cheesecake) -> NULL AS cheesecake

@@ -33,19 +33,18 @@
 
 namespace sqlpp
 {
-  // UPDATE ASSIGNMENTS DATA
   template <typename... Assignments>
-  struct update_list_data_t
+  struct update_list_t
   {
-    update_list_data_t(std::tuple<Assignments...> assignments) : _assignments(assignments)
+    update_list_t(std::tuple<Assignments...> assignments) : _assignments(assignments)
     {
     }
 
-    update_list_data_t(const update_list_data_t&) = default;
-    update_list_data_t(update_list_data_t&&) = default;
-    update_list_data_t& operator=(const update_list_data_t&) = default;
-    update_list_data_t& operator=(update_list_data_t&&) = default;
-    ~update_list_data_t() = default;
+    update_list_t(const update_list_t&) = default;
+    update_list_t(update_list_t&&) = default;
+    update_list_t& operator=(const update_list_t&) = default;
+    update_list_t& operator=(update_list_t&&) = default;
+    ~update_list_t() = default;
 
     std::tuple<Assignments...> _assignments;
   };
@@ -53,28 +52,6 @@ namespace sqlpp
   SQLPP_PORTABLE_STATIC_ASSERT(
       assert_no_unknown_tables_in_update_assignments_t,
       "at least one update assignment requires a table which is otherwise not known in the statement");
-
-  // UPDATE ASSIGNMENTS
-  template <typename... Assignments>
-  struct update_list_t
-  {
-    using _traits = make_traits<no_value_t, tag::is_update_list>;
-    using _nodes = detail::type_vector<Assignments...>;
-
-    // Data
-    using _data_t = update_list_data_t<Assignments...>;
-
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
-    {
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
-
-      _data_t _data;
-    };
-  };
 
   template <typename... Assignments>
   struct is_clause<update_list_t<Assignments...>> : public std::true_type
@@ -127,53 +104,20 @@ namespace sqlpp
 
   struct no_update_list_t
   {
-    using _traits = make_traits<no_value_t, tag::is_where>;
+  };
 
-    // Data
-    using _data_t = no_data_t;
+  template <typename Statement>
+  struct clause_base<no_update_list_t, Statement> : public clause_data<no_update_list_t, Statement>
+  {
+    using clause_data<no_update_list_t, Statement>::clause_data;
 
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
+#warning : reactivate check_update_static_set_t
+    template <typename... Assignments>
+    auto set(Assignments... assignments) const
+        -> decltype(new_statement(*this, update_list_t<Assignments...>{std::make_tuple(assignments...)}))
     {
-      _base_t() = default;
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
-
-      _data_t _data;
-
-      template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check, Policies, no_update_list_t, T>;
-
-      template <typename... Assignments>
-      auto set(Assignments... assignments) const
-          -> _new_statement_t<check_update_static_set_t<Assignments...>, update_list_t<Assignments...>>
-      {
-        using Check = check_update_static_set_t<Assignments...>;
-        return _set_impl(Check{}, std::make_tuple(assignments...));
-      }
-
-      template <typename... Assignments>
-      auto set(std::tuple<Assignments...> assignments) const
-          -> _new_statement_t<check_update_static_set_t<Assignments...>, update_list_t<Assignments...>>
-      {
-        using Check = check_update_static_set_t<Assignments...>;
-        return _set_impl(Check{}, assignments);
-      }
-
-    private:
-      template <typename Check, typename... Assignments>
-      auto _set_impl(Check, Assignments... assignments) const -> inconsistent<Check>;
-
-      template <typename... Assignments>
-      auto _set_impl(consistent_t /*unused*/, std::tuple<Assignments...> assignments) const
-          -> _new_statement_t<consistent_t, update_list_t<Assignments...>>
-      {
-        return {static_cast<const derived_statement_t<Policies>&>(*this),
-                update_list_data_t<Assignments...>{assignments}};
-      }
-    };
+      return new_statement(*this, update_list_t<Assignments...>{std::make_tuple(assignments...)});
+    }
   };
 
   template <typename Statement>
@@ -185,7 +129,7 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename... Assignments>
-  auto to_sql_string(Context& context, const update_list_data_t<Assignments...>& t) -> std::string
+  auto to_sql_string(Context& context, const update_list_t<Assignments...>& t) -> std::string
   {
     return " SET " + tuple_to_sql_string(context, t._assignments, tuple_operand_no_dynamic{", "});
   }

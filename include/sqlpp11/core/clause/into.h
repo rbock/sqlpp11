@@ -36,37 +36,19 @@ namespace sqlpp
 {
   // A SINGLE TABLE DATA
   template <typename Table>
-  struct into_data_t
+  struct into_t
   {
-    into_data_t(Table table) : _table(table)
+    into_t(Table table) : _table(table)
     {
     }
 
-    into_data_t(const into_data_t&) = default;
-    into_data_t(into_data_t&&) = default;
-    into_data_t& operator=(const into_data_t&) = default;
-    into_data_t& operator=(into_data_t&&) = default;
-    ~into_data_t() = default;
+    into_t(const into_t&) = default;
+    into_t(into_t&&) = default;
+    into_t& operator=(const into_t&) = default;
+    into_t& operator=(into_t&&) = default;
+    ~into_t() = default;
 
     Table _table;
-  };
-
-  // A SINGLE TABLE
-  template <typename Table>
-  struct into_t
-  {
-    using _data_t = into_data_t<Table>;
-
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
-    {
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
-
-      _data_t _data;
-    };
   };
 
   template <typename Table>
@@ -110,44 +92,22 @@ namespace sqlpp
   // NO INTO YET
   struct no_into_t
   {
-    using _nodes = detail::type_vector<>;
+  };
 
-    using _data_t = no_data_t;
+  template <typename Statement>
+  struct clause_base<no_into_t, Statement> : public clause_data<no_into_t, Statement>
+  {
+    using clause_data<no_into_t, Statement>::clause_data;
 
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
+#warning : reactvate check_into_t
+
+    template <typename Table>
+    auto into(Table table) const -> decltype(new_statement(*this, into_t<Table>{table}))
     {
-      _base_t() = default;
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
+      static_assert(required_tables_of_t<into_t<Table>>::empty(), "argument depends on another table in into()");
 
-      _data_t _data;
-
-      template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check, Policies, no_into_t, T>;
-
-      template <typename Table>
-      auto into(Table table) const -> _new_statement_t<check_into_t<Table>, into_t<Table>>
-      {
-        return _into_impl(check_into_t<Table>{}, table);
-      }
-
-    private:
-      template <typename Check, typename Table>
-      auto _into_impl(Check, Table table) const -> inconsistent<Check>;
-
-      template <typename Table>
-      auto _into_impl(consistent_t /*unused*/, Table table) const
-          -> _new_statement_t<consistent_t, into_t<Table>>
-      {
-        static_assert(required_tables_of_t<into_t<Table>>::empty(),
-                      "argument depends on another table in into()");
-
-        return {static_cast<const derived_statement_t<Policies>&>(*this), into_data_t<Table>{table}};
-      }
-    };
+      return new_statement(*this, into_t<Table>{table});
+    }
   };
 
   template <typename Statement>
@@ -157,7 +117,7 @@ namespace sqlpp
   };
 
   template <typename Context, typename Table>
-  auto to_sql_string(Context& context, const into_data_t<Table>& t) -> std::string
+  auto to_sql_string(Context& context, const into_t<Table>& t) -> std::string
   {
     return " INTO " + to_sql_string(context, t._table);
   }

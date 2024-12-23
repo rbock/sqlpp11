@@ -33,39 +33,20 @@
 
 namespace sqlpp
 {
-  // A SINGLE TABLE DATA
-  template <typename Table>
-  struct single_table_data_t
-  {
-    single_table_data_t(Table table) : _table(table)
-    {
-    }
-
-    single_table_data_t(const single_table_data_t&) = default;
-    single_table_data_t(single_table_data_t&&) = default;
-    single_table_data_t& operator=(const single_table_data_t&) = default;
-    single_table_data_t& operator=(single_table_data_t&&) = default;
-    ~single_table_data_t() = default;
-
-    Table _table;
-  };
-
-  // A SINGLE TABLE
   template <typename Table>
   struct single_table_t
   {
-    using _data_t = single_table_data_t<Table>;
-
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
+    single_table_t(Table table) : _table(table)
     {
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
+    }
 
-      _data_t _data;
-    };
+    single_table_t(const single_table_t&) = default;
+    single_table_t(single_table_t&&) = default;
+    single_table_t& operator=(const single_table_t&) = default;
+    single_table_t& operator=(single_table_t&&) = default;
+    ~single_table_t() = default;
+
+    Table _table;
   };
 
   template <typename Table>
@@ -102,43 +83,22 @@ namespace sqlpp
   // NO TABLE YET
   struct no_single_table_t
   {
-    // Data
-    using _data_t = no_data_t;
+  };
 
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
+  template <typename Statement>
+  struct clause_base<no_single_table_t, Statement> : public clause_data<no_single_table_t, Statement>
+  {
+    using clause_data<no_single_table_t, Statement>::clause_data;
+
+#warning : reactivate check_update_table_t
+    template <typename Table>
+    auto single_table(Table table) const -> decltype(new_statement(*this, single_table_t<Table>{table}))
     {
-      _base_t() = default;
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
+      static_assert(required_tables_of_t<single_table_t<Table>>::empty(),
+                    "argument depends on another table in single_table()");
 
-      _data_t _data;
-
-      template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check, Policies, no_single_table_t, T>;
-
-      template <typename Table>
-      auto single_table(Table table) const -> _new_statement_t<check_update_table_t<Table>, single_table_t<Table>>
-      {
-        return _single_table_impl(check_update_table_t<Table>{}, std::move(table));
-      }
-
-    private:
-      template <typename Check, typename Table>
-      auto _single_table_impl(Check, Table table) const -> inconsistent<Check>;
-
-      template <typename Table>
-      auto _single_table_impl(consistent_t /*unused*/, Table table) const
-          -> _new_statement_t<consistent_t, single_table_t<Table>>
-      {
-        static_assert(required_tables_of_t<single_table_t<Table>>::empty(),
-                      "argument depends on another table in single_table()");
-
-        return {static_cast<const derived_statement_t<Policies>&>(*this), single_table_data_t<Table>{table}};
-      }
-    };
+      return new_statement(*this, single_table_t<Table>{table});
+    }
   };
 
   template <typename Statement>
@@ -149,7 +109,7 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Table>
-  auto to_sql_string(Context& context, const single_table_data_t<Table>& t) -> std::string
+  auto to_sql_string(Context& context, const single_table_t<Table>& t) -> std::string
   {
     return to_sql_string(context, t._table);
   }

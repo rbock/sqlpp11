@@ -36,11 +36,7 @@
 
 namespace sqlpp
 {
-  struct update_name_t
-  {
-  };
-
-  struct update_t : public statement_name_t<update_name_t>
+  struct update_t
   {
     template <typename Statement>
     struct _result_methods_t
@@ -92,7 +88,7 @@ namespace sqlpp
     struct is_result_clause<update_t> : public std::true_type {};
 
   template <typename Context>
-  auto to_sql_string(Context& , const update_name_t&) -> std::string
+  auto to_sql_string(Context& , const update_t&) -> std::string
   {
     return "UPDATE ";
   }

@@ -32,43 +32,20 @@
 
 namespace sqlpp
 {
-  // LIMIT DATA
-  template <typename Limit>
-  struct limit_data_t
-  {
-    limit_data_t(Limit value) : _value(value)
-    {
-    }
-
-    limit_data_t(const limit_data_t&) = default;
-    limit_data_t(limit_data_t&&) = default;
-    limit_data_t& operator=(const limit_data_t&) = default;
-    limit_data_t& operator=(limit_data_t&&) = default;
-    ~limit_data_t() = default;
-
-    Limit _value;
-  };
-
-  // LIMIT
   template <typename Limit>
   struct limit_t
   {
-    using _traits = make_traits<no_value_t, tag::is_limit>;
-    using _nodes = detail::type_vector<Limit>;
-
-    // Data
-    using _data_t = limit_data_t<Limit>;
-
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
+    limit_t(Limit value) : _value(value)
     {
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
+    }
 
-      _data_t _data;
-    };
+    limit_t(const limit_t&) = default;
+    limit_t(limit_t&&) = default;
+    limit_t& operator=(const limit_t&) = default;
+    limit_t& operator=(limit_t&&) = default;
+    ~limit_t() = default;
+
+    Limit _value;
   };
 
   template <typename Limit>
@@ -92,41 +69,19 @@ namespace sqlpp
 
   struct no_limit_t
   {
-    using _nodes = detail::type_vector<>;
+  };
 
-    using _data_t = no_data_t;
+  template <typename Statement>
+  struct clause_base<no_limit_t, Statement> : public clause_data<no_limit_t, Statement>
+  {
+    using clause_data<no_limit_t, Statement>::clause_data;
 
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
+#warning : reactivate check_limit_t
+    template <typename Arg>
+    auto limit(Arg arg) const -> decltype(new_statement(*this, limit_t<Arg>{std::move(arg)}))
     {
-      _base_t() = default;
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
-
-      _data_t _data;
-
-
-      template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check, Policies, no_limit_t, T>;
-
-      template <typename Arg>
-      auto limit(Arg arg) const -> _new_statement_t<check_limit_t<Arg>, limit_t<Arg>>
-      {
-        return _limit_impl(check_limit_t<Arg>{}, std::move(arg));
-      }
-
-    private:
-      template <typename Check, typename Arg>
-      auto _limit_impl(Check, Arg arg) const -> inconsistent<Check>;
-
-      template <typename Arg>
-      auto _limit_impl(consistent_t /*unused*/, Arg arg) const -> _new_statement_t<consistent_t, limit_t<Arg>>
-      {
-        return {static_cast<const derived_statement_t<Policies>&>(*this), limit_data_t<Arg>{std::move(arg)}};
-      }
-    };
+      return new_statement(*this, limit_t<Arg>{std::move(arg)});
+    }
   };
 
   template <typename Statement>
@@ -137,13 +92,13 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Limit>
-  auto to_sql_string(Context& context, const limit_data_t<Limit>& t) -> std::string
+  auto to_sql_string(Context& context, const limit_t<Limit>& t) -> std::string
   {
     return  " LIMIT " + operand_to_sql_string(context, t._value);
   }
 
   template <typename Context, typename Limit>
-  auto to_sql_string(Context& context, const limit_data_t<dynamic_t<Limit>>& t) -> std::string
+  auto to_sql_string(Context& context, const limit_t<dynamic_t<Limit>>& t) -> std::string
   {
     if (not t._value._condition)
     {

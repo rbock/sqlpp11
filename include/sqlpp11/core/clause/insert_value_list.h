@@ -59,7 +59,12 @@ namespace sqlpp
     };
   }  // namespace detail
 
-  struct insert_default_values_data_t
+  struct insert_default_values_t
+  {
+  };
+
+  template <>
+  struct is_clause<insert_default_values_t> : public std::true_type
   {
   };
 
@@ -71,31 +76,6 @@ namespace sqlpp
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_all_required_assignments_t, "at least one required column is missing in set()");
 
-  // COLUMN AND VALUE LIST
-  struct insert_default_values_t
-  {
-    using _traits = make_traits<no_value_t>;
-
-    // Data
-    using _data_t = insert_default_values_data_t;
-
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
-    {
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
-
-      _data_t _data;
-    };
-  };
-
-  template <>
-  struct is_clause<insert_default_values_t> : public std::true_type
-  {
-  };
-
   template <typename Statement>
   struct consistency_check<Statement, insert_default_values_t>
   {
@@ -105,18 +85,18 @@ namespace sqlpp
   };
 
   template <typename... Assignments>
-  struct insert_set_data_t
+  struct insert_set_t
   {
-    insert_set_data_t(std::tuple<Assignments...> assignments)
+    insert_set_t(std::tuple<Assignments...> assignments)
         : _assignments(std::move(assignments))
     {
     }
 
-    insert_set_data_t(const insert_set_data_t&) = default;
-    insert_set_data_t(insert_set_data_t&&) = default;
-    insert_set_data_t& operator=(const insert_set_data_t&) = default;
-    insert_set_data_t& operator=(insert_set_data_t&&) = default;
-    ~insert_set_data_t() = default;
+    insert_set_t(const insert_set_t&) = default;
+    insert_set_t(insert_set_t&&) = default;
+    insert_set_t& operator=(const insert_set_t&) = default;
+    insert_set_t& operator=(insert_set_t&&) = default;
+    ~insert_set_t() = default;
 
     std::tuple<Assignments...> _assignments;
   };
@@ -124,25 +104,6 @@ namespace sqlpp
   SQLPP_PORTABLE_STATIC_ASSERT(
       assert_no_unknown_tables_in_insert_assignments_t,
       "at least one insert assignment requires a table which is otherwise not known in the statement");
-
-  template <typename... Assignments>
-  struct insert_set_t
-  {
-    // Data
-    using _data_t = insert_set_data_t<Assignments...>;
-
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
-    {
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
-
-      _data_t _data;
-
-    };
-  };
 
   template <typename... Assignments>
   struct is_clause<insert_set_t<Assignments...>> : public std::true_type
@@ -166,18 +127,18 @@ namespace sqlpp
   };
 
   template <typename... Columns>
-  struct column_list_data_t
+  struct column_list_t
   {
     // workaround for msvc bug https://connect.microsoft.com/VisualStudio/Feedback/Details/2091069
-    column_list_data_t(Columns... cols) : _columns(simple_column(std::move(cols))...)
+    column_list_t(Columns... cols) : _columns(simple_column(std::move(cols))...)
     {
     }
 
-    column_list_data_t(const column_list_data_t&) = default;
-    column_list_data_t(column_list_data_t&&) = default;
-    column_list_data_t& operator=(const column_list_data_t&) = default;
-    column_list_data_t& operator=(column_list_data_t&&) = default;
-    ~column_list_data_t() = default;
+    column_list_t(const column_list_t&) = default;
+    column_list_t(column_list_t&&) = default;
+    column_list_t& operator=(const column_list_t&) = default;
+    column_list_t& operator=(column_list_t&&) = default;
+    ~column_list_t() = default;
 
     using _value_tuple_t = std::tuple<make_insert_value_t<Columns>...>;
     std::tuple<make_simple_column_t<Columns>...> _columns;
@@ -187,60 +148,44 @@ namespace sqlpp
   SQLPP_PORTABLE_STATIC_ASSERT(assert_no_unknown_tables_in_column_list_t,
                                "at least one column requires a table which is otherwise not known in the statement");
 
-  template <typename... Columns>
-  struct column_list_t
+  template <typename Statement, typename... Columns>
+  struct clause_base<column_list_t<Columns...>, Statement> : public clause_data<column_list_t<Columns...>, Statement>
   {
-    using _traits = make_traits<no_value_t, tag::is_column_list>;
+    using clause_data<column_list_t<Columns...>, Statement>::clause_data;
+    using clause_data<column_list_t<Columns...>, Statement>::_data;
 
-    using _value_tuple_t = typename column_list_data_t<Columns...>::_value_tuple_t;
+    using _value_tuple_t = typename column_list_t<Columns...>::_value_tuple_t;
 
-    // Data
-    using _data_t = column_list_data_t<Columns...>;
-
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
+    template <typename... Assignments,
+              typename = sqlpp::enable_if_t<logic::all<is_assignment<remove_dynamic_t<Assignments>>::value...>::value>>
+    auto add_values(Assignments... assignments) -> void
     {
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
+      using _arg_value_tuple = std::tuple<make_insert_value_t<lhs_t<Assignments>>...>;
+      constexpr bool _args_correct = std::is_same<_arg_value_tuple, _value_tuple_t>::value;
+      SQLPP_STATIC_ASSERT(_args_correct, "add_values() arguments have to match columns() arguments");
 
-      _data_t _data;
+      constexpr bool _no_expressions = logic::all<nodes_of_t<remove_dynamic_t<rhs_t<Assignments>>>::empty()...>::value;
+      SQLPP_STATIC_ASSERT(_no_expressions, "add_values() arguments must not be expressions");
 
-      template <
-          typename... Assignments,
-          typename = sqlpp::enable_if_t<logic::all<is_assignment<remove_dynamic_t<Assignments>>::value...>::value>>
-      auto add_values(Assignments... assignments) -> void
-      {
-        using _arg_value_tuple = std::tuple<make_insert_value_t<lhs_t<Assignments>>...>;
-        constexpr bool _args_correct = std::is_same<_arg_value_tuple, _value_tuple_t>::value;
-        SQLPP_STATIC_ASSERT(_args_correct, "add_values() arguments have to match columns() arguments");
+      constexpr bool _no_parameters = logic::all<parameters_of_t<rhs_t<Assignments>>::empty()...>::value;
+      SQLPP_STATIC_ASSERT(_no_parameters, "add_values() arguments must not contain parameters");
 
-        constexpr bool _no_expressions = logic::all<nodes_of_t<remove_dynamic_t<rhs_t<Assignments>>>::empty()...>::value;
-        SQLPP_STATIC_ASSERT(_no_expressions, "add_values() arguments must not be expressions");
+      constexpr bool _no_names = logic::none<has_name_tag<remove_dynamic_t<rhs_t<Assignments>>>::value...>::value;
+      SQLPP_STATIC_ASSERT(_no_names, "add_values() arguments must not have names");
 
-        constexpr bool _no_parameters = logic::all<parameters_of_t<rhs_t<Assignments>>::empty()...>::value;
-        SQLPP_STATIC_ASSERT(_no_parameters, "add_values() arguments must not contain parameters");
+      _data._insert_values.emplace_back(make_insert_value_t<lhs_t<Assignments>>(get_rhs(assignments))...);
+    }
 
-        constexpr bool _no_names = logic::none<has_name_tag<remove_dynamic_t<rhs_t<Assignments>>>::value...>::value;
-        SQLPP_STATIC_ASSERT(_no_names, "add_values() arguments must not have names");
+  private:
+    auto add_values_impl(std::false_type, ...) -> void
+    {
+    }
 
-        add_values_impl(logic::all<_args_correct, _no_expressions, _no_parameters, _no_names>{},
-                        std::move(assignments)...);
-      }
-
-    private:
-      auto add_values_impl(std::false_type, ...) -> void
-      {
-      }
-
-      template <
-          typename... Assignments>
-      auto add_values_impl(std::true_type, Assignments... assignments) -> void
-      {
-        _data._insert_values.emplace_back(make_insert_value_t<lhs_t<Assignments>>(get_rhs(assignments))...);
-      }
-    };
+    template <typename... Assignments>
+    auto add_values_impl(std::true_type, Assignments... assignments) -> void
+    {
+      _data._insert_values.emplace_back(make_insert_value_t<lhs_t<Assignments>>(get_rhs(assignments))...);
+    }
   };
 
   template <typename... Columns>
@@ -268,61 +213,47 @@ namespace sqlpp
   // NO INSERT COLUMNS/VALUES YET
   struct no_insert_value_list_t
   {
-    using _data_t = no_data_t;
+  };
 
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
+  template <typename Statement>
+  struct clause_base<no_insert_value_list_t, Statement> : public clause_data<no_insert_value_list_t, Statement>
+  {
+    using clause_data<no_insert_value_list_t, Statement>::clause_data;
+
+    auto default_values() const -> decltype(new_statement(*this, insert_default_values_t{}))
     {
-      _base_t() = default;
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
+      return new_statement(*this, insert_default_values_t{});
+    }
 
-      _data_t _data;
+    template <typename... Columns,
+              typename = sqlpp::enable_if_t<logic::all<is_column<remove_dynamic_t<Columns>>::value...>::value>>
+    auto columns(Columns... cols) const -> decltype(new_statement(*this, column_list_t<Columns...>{cols...}))
+    {
+      SQLPP_STATIC_ASSERT(sizeof...(Columns), "at least one column required in columns()");
+      SQLPP_STATIC_ASSERT(detail::are_unique<remove_dynamic_t<Columns>...>::value,
+                          "at least one duplicate column detected in columns()");
+      SQLPP_STATIC_ASSERT(detail::are_same<typename remove_dynamic_t<Columns>::_table...>::value,
+                          "columns() contains columns from several tables");
 
-      template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check, Policies, no_insert_value_list_t, T>;
+      return new_statement(*this, column_list_t<Columns...>{cols...});
+    }
 
-      auto default_values() const -> _new_statement_t<consistent_t, insert_default_values_t>
-      {
-        return {static_cast<const derived_statement_t<Policies>&>(*this), insert_default_values_data_t{}};
-      }
+    template <typename... Assignments,
+              typename = sqlpp::enable_if_t<logic::all<is_assignment<remove_dynamic_t<Assignments>>::value...>::value>>
+    auto set(Assignments... assignments) const -> decltype(new_statement(*this, insert_set_t<Assignments...>{std::make_tuple(std::move(assignments)...)}))
+    {
+      SQLPP_STATIC_ASSERT(sizeof...(Assignments) != 0, "at least one assignment expression required in set()");
 
-      template <typename... Columns, typename = sqlpp::enable_if_t<logic::all<is_column<remove_dynamic_t<Columns>>::value...>::value>>
-      auto columns(Columns... cols) const
-          -> _new_statement_t<consistent_t, column_list_t<Columns...>>
-      {
-        SQLPP_STATIC_ASSERT(sizeof...(Columns), "at least one column required in columns()");
-        SQLPP_STATIC_ASSERT(detail::are_unique<remove_dynamic_t<Columns>...>::value,
-                            "at least one duplicate column detected in columns()");
-        SQLPP_STATIC_ASSERT(detail::are_same<typename remove_dynamic_t<Columns>::_table...>::value,
-                            "columns() contains columns from several tables");
+      static constexpr bool has_duplicate_columns =
+          detail::has_duplicates<lhs_t<remove_dynamic_t<Assignments>>...>::value;
+      SQLPP_STATIC_ASSERT(not has_duplicate_columns, "at least one duplicate column detected in set()");
 
-        return {static_cast<const derived_statement_t<Policies>&>(*this), column_list_data_t<Columns...>{cols...}};
+      static constexpr bool uses_exactly_one_table =
+          detail::are_same<typename lhs_t<remove_dynamic_t<Assignments>>::_table...>::value;
+      SQLPP_STATIC_ASSERT(uses_exactly_one_table, "set() arguments must be assignment for exactly one table");
 
-      }
-
-      template <
-          typename... Assignments,
-          typename = sqlpp::enable_if_t<logic::all<is_assignment<remove_dynamic_t<Assignments>>::value...>::value>>
-      auto set(Assignments... assignments) const -> _new_statement_t<consistent_t, insert_set_t<Assignments...>>
-      {
-        SQLPP_STATIC_ASSERT(sizeof...(Assignments) != 0, "at least one assignment expression required in set()");
-
-        static constexpr bool has_duplicate_columns =
-            detail::has_duplicates<lhs_t<remove_dynamic_t<Assignments>>...>::value;
-        SQLPP_STATIC_ASSERT(not has_duplicate_columns, "at least one duplicate column detected in set()");
-
-        static constexpr bool uses_exactly_one_table =
-            detail::are_same<typename lhs_t<remove_dynamic_t<Assignments>>::_table...>::value;
-        SQLPP_STATIC_ASSERT(uses_exactly_one_table, "set() arguments must be assignment for exactly one table");
-
-        return {static_cast<const derived_statement_t<Policies>&>(*this),
-                insert_set_data_t<Assignments...>{std::make_tuple(std::move(assignments)...)}};
-      }
-
-    };
+      return new_statement(*this, insert_set_t<Assignments...>{std::make_tuple(std::move(assignments)...)});
+    }
   };
 
   template <typename Statement>
@@ -333,14 +264,14 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context>
-  auto to_sql_string(Context& , const insert_default_values_data_t&) -> std::string
+  auto to_sql_string(Context& , const insert_default_values_t&) -> std::string
   {
     return " DEFAULT VALUES";
   }
 
 
   template <typename Context, typename... Columns>
-  auto to_sql_string(Context& context, const column_list_data_t<Columns...>& t) -> std::string
+  auto to_sql_string(Context& context, const column_list_t<Columns...>& t) -> std::string
   {
     auto result = std::string{" ("};
     result += tuple_to_sql_string(context, t._columns, tuple_operand_no_dynamic{", "});
@@ -416,7 +347,7 @@ namespace sqlpp
   };
 
   template <typename Context, typename... Assignments>
-  auto to_sql_string(Context& context, const insert_set_data_t<Assignments...>& t) -> std::string
+  auto to_sql_string(Context& context, const insert_set_t<Assignments...>& t) -> std::string
   {
     auto result = std::string{" ("};
     result += tuple_to_sql_string(context, t._assignments, tuple_lhs_assignment_operand_no_dynamic{", "});

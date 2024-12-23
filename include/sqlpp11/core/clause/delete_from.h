@@ -35,10 +35,7 @@
 
 namespace sqlpp
 {
-  struct delete_name_t
-  {
-  };
-  struct delete_t : public statement_name_t<delete_name_t>
+  struct delete_t
   {
     template <typename Statement>
     struct _result_methods_t
@@ -90,7 +87,7 @@ namespace sqlpp
     struct is_result_clause<delete_t> : public std::true_type {};
 
   template <typename Context>
-  auto to_sql_string(Context& , const delete_name_t&) -> std::string
+  auto to_sql_string(Context& , const delete_t&) -> std::string
   {
     return "DELETE FROM ";
   }

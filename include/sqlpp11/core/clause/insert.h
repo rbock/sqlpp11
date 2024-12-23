@@ -36,11 +36,7 @@
 
 namespace sqlpp
 {
-  struct insert_name_t
-  {
-  };
-
-  struct insert_t : public statement_name_t<insert_name_t>
+  struct insert_t
   {
     template <typename Statement>
     struct _result_methods_t
@@ -92,7 +88,7 @@ namespace sqlpp
     struct is_result_clause<insert_t> : public std::true_type {};
 
   template <typename Context>
-  auto to_sql_string(Context& , const insert_name_t&) -> std::string
+  auto to_sql_string(Context& , const insert_t&) -> std::string
   {
     return "INSERT";
   }

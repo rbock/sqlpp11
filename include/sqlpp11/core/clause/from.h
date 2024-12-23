@@ -35,31 +35,15 @@
 
 namespace sqlpp
 {
-  // FROM DATA
   template <typename Table>
-  struct from_data_t
+  struct from_t
   {
     Table _table;
   };
 
-  // FROM
   template <typename Table>
-  struct from_t
+  struct is_clause<from_t<Table>> : public std::true_type
   {
-    using _traits = make_traits<no_value_t, tag::is_from>;
-
-    using _data_t = from_data_t<Table>;
-
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
-    {
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
-
-      _data_t _data;
-    };
   };
 
   template <typename Statement, typename Table>
@@ -101,11 +85,6 @@ namespace sqlpp
   };
 
   template <typename Table>
-  struct is_clause<from_t<Table>> : public std::true_type
-  {
-  };
-
-  template <typename Table>
   using check_from_t = typename check_from<Table>::type;
 
   template <typename Table>
@@ -113,41 +92,20 @@ namespace sqlpp
 
   struct no_from_t
   {
-    using _data_t = no_data_t;
+  };
 
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
+  template <typename Statement>
+  struct clause_base<no_from_t, Statement> : public clause_data<no_from_t, Statement>
+  {
+    using clause_data<no_from_t, Statement>::clause_data;
+
+#warning : Need to reactivate check_from_t<Table>;
+    template <typename Table>
+    auto from(Table table) const
+        -> decltype(new_statement(*this, from_t<table_ref_t<Table>>{make_table_ref(table)}))
     {
-      _base_t() = default;
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
-
-      _data_t _data;
-
-      template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check, Policies, no_from_t, T>;
-
-      template <typename Table>
-      auto from(Table table) const -> _new_statement_t<check_from_static_t<Table>, from_t<table_ref_t<Table>>>
-      {
-        using Check = check_from_static_t<Table>;
-        return _from_impl(Check{}, table);
-      }
-
-    private:
-      template <typename Check, typename Table>
-      auto _from_impl(Check, Table table) const -> inconsistent<Check>;
-
-      template <typename Table>
-      auto _from_impl(consistent_t /*unused*/, Table table) const
-          -> _new_statement_t<consistent_t, from_t<table_ref_t<Table>>>
-      {
-        return {static_cast<const derived_statement_t<Policies>&>(*this),
-                from_data_t<table_ref_t<Table>>{make_table_ref(table)}};
-      }
-    };
+      new_statement(*this, from_t<table_ref_t<Table>>{make_table_ref(table)});
+    }
   };
 
   template <typename Statement>
@@ -158,7 +116,7 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename Table>
-  auto to_sql_string(Context& context, const from_data_t<Table>& t) -> std::string
+  auto to_sql_string(Context& context, const from_t<Table>& t) -> std::string
   {
     return " FROM " + to_sql_string(context, t._table);
   }

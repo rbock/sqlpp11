@@ -35,19 +35,18 @@
 
 namespace sqlpp
 {
-  // ORDER BY DATA
   template <typename... Expressions>
-  struct order_by_data_t
+  struct order_by_t
   {
-    order_by_data_t(Expressions... expressions) : _expressions(expressions...)
+    order_by_t(Expressions... expressions) : _expressions(expressions...)
     {
     }
 
-    order_by_data_t(const order_by_data_t&) = default;
-    order_by_data_t(order_by_data_t&&) = default;
-    order_by_data_t& operator=(const order_by_data_t&) = default;
-    order_by_data_t& operator=(order_by_data_t&&) = default;
-    ~order_by_data_t() = default;
+    order_by_t(const order_by_t&) = default;
+    order_by_t(order_by_t&&) = default;
+    order_by_t& operator=(const order_by_t&) = default;
+    order_by_t& operator=(order_by_t&&) = default;
+    ~order_by_t() = default;
 
     std::tuple<Expressions...> _expressions;
   };
@@ -55,27 +54,6 @@ namespace sqlpp
   SQLPP_PORTABLE_STATIC_ASSERT(
       assert_no_unknown_tables_in_order_by_t,
       "at least one order-by expression requires a table which is otherwise not known in the statement");
-
-  // ORDER BY
-  template <typename... Expressions>
-  struct order_by_t
-  {
-    using _traits = make_traits<no_value_t, tag::is_order_by>;
-    using _nodes = detail::type_vector<Expressions...>;
-
-    using _data_t = order_by_data_t<Expressions...>;
-
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
-    {
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
-
-      _data_t _data;
-    };
-  };
 
   template <typename... Expressions>
   struct is_clause<order_by_t<Expressions...>> : public std::true_type
@@ -104,50 +82,25 @@ namespace sqlpp
   // NO ORDER BY YET
   struct no_order_by_t
   {
-    using _nodes = detail::type_vector<>;
+  };
 
-    // Data
-    using _data_t = no_data_t;
+  template <typename Statement>
+  struct clause_base<no_order_by_t, Statement> : public clause_data<no_order_by_t, Statement>
+  {
+    using clause_data<no_order_by_t, Statement>::clause_data;
 
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
+#warning : reactivate check_order_by
+    template <typename... Expressions>
+    auto order_by(Expressions... expressions) const
+        -> decltype(new_statement(*this, order_by_t<Expressions...>{std::move(expressions)...}))
     {
-      _base_t() = default;
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
+      static_assert(sizeof...(Expressions), "at least one expression (e.g. a column) required in order_by()");
 
-      _data_t _data;
+      static_assert(not detail::has_duplicates<Expressions...>::value,
+                    "at least one duplicate argument detected in order_by()");
 
-
-      template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check, Policies, no_order_by_t, T>;
-
-      template <typename... Expressions>
-      auto order_by(Expressions... expressions) const
-          -> _new_statement_t<check_order_by_t<Expressions...>, order_by_t<Expressions...>>
-      {
-        static_assert(sizeof...(Expressions), "at least one expression (e.g. a column) required in order_by()");
-
-        return _order_by_impl(check_order_by_t<Expressions...>{}, std::move(expressions)...);
-      }
-
-    private:
-      template <typename Check, typename... Expressions>
-      auto _order_by_impl(Check, Expressions... expressions) const -> inconsistent<Check>;
-
-      template <typename... Expressions>
-      auto _order_by_impl(consistent_t /*unused*/, Expressions... expressions) const
-          -> _new_statement_t<consistent_t, order_by_t<Expressions...>>
-      {
-        static_assert(not detail::has_duplicates<Expressions...>::value,
-                      "at least one duplicate argument detected in order_by()");
-
-        return {static_cast<const derived_statement_t<Policies>&>(*this),
-                order_by_data_t<Expressions...>{std::move(expressions)...}};
-      }
-    };
+      return new_statement(*this, order_by_t<Expressions...>{std::move(expressions)...});
+    }
   };
 
   template <typename Statement>
@@ -158,7 +111,7 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context, typename... Expressions>
-  auto to_sql_string(Context& context, const order_by_data_t<Expressions...>& t) -> std::string
+  auto to_sql_string(Context& context, const order_by_t<Expressions...>& t) -> std::string
   {
     const auto columns = tuple_to_sql_string(context, t._expressions, tuple_operand_no_dynamic{", "});
 
