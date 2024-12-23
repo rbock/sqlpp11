@@ -101,6 +101,12 @@ namespace sqlpp
   };
 
   // Interpreters
+  template <typename Context>
+  auto to_sql_string(Context& context, const no_select_flag_list_t& t) -> std::string
+  {
+    return "";
+  }
+
   template <typename Context, typename... Flags>
   auto to_sql_string(Context& context, const select_flag_list_t<Flags...>& t) -> std::string
   {

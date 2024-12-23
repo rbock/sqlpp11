@@ -104,7 +104,7 @@ namespace sqlpp
     auto from(Table table) const
         -> decltype(new_statement(*this, from_t<table_ref_t<Table>>{make_table_ref(table)}))
     {
-      new_statement(*this, from_t<table_ref_t<Table>>{make_table_ref(table)});
+      return new_statement(*this, from_t<table_ref_t<Table>>{make_table_ref(table)});
     }
   };
 
@@ -115,6 +115,12 @@ namespace sqlpp
   };
 
   // Interpreters
+  template <typename Context>
+  auto to_sql_string(Context& context, const no_from_t& t) -> std::string
+  {
+    return "";
+  }
+
   template <typename Context, typename Table>
   auto to_sql_string(Context& context, const from_t<Table>& t) -> std::string
   {

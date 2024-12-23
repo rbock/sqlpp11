@@ -128,6 +128,12 @@ namespace sqlpp
   };
 
   // Interpreters
+  template <typename Context>
+  auto to_sql_string(Context& context, const no_update_list_t& t) -> std::string
+  {
+    return "";
+  }
+
   template <typename Context, typename... Assignments>
   auto to_sql_string(Context& context, const update_list_t<Assignments...>& t) -> std::string
   {

@@ -267,6 +267,12 @@ namespace sqlpp
   };
 
   // Interpreters
+  template <typename Context>
+  auto to_sql_string(Context& context, const no_select_column_list_t& t) -> std::string
+  {
+    return "";
+  }
+
   template <typename Context, typename... Columns>
   auto to_sql_string(Context& context, const select_column_list_t<Columns...>& t) -> std::string
   {

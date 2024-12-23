@@ -116,6 +116,13 @@ namespace sqlpp
     using type = assert_into_t;
   };
 
+  // Interpreters
+  template <typename Context>
+  auto to_sql_string(Context& context, const no_into_t& t) -> std::string
+  {
+    return "";
+  }
+
   template <typename Context, typename Table>
   auto to_sql_string(Context& context, const into_t<Table>& t) -> std::string
   {

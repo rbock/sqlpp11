@@ -87,6 +87,13 @@ namespace sqlpp
   template<typename Statement>
     struct consistency_check<Statement, no_offset_t> { using type = consistent_t; };
 
+  // Interpreters
+  template <typename Context>
+  auto to_sql_string(Context& context, const no_offset_t& t) -> std::string
+  {
+    return "";
+  }
+
   template <typename Context, typename Offset>
   auto to_sql_string(Context& context, const offset_t<Offset>& t) -> std::string
   {

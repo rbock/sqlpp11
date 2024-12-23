@@ -110,6 +110,12 @@ namespace sqlpp
   };
 
   // Interpreters
+  template <typename Context>
+  auto to_sql_string(Context& context, const no_order_by_t& t) -> std::string
+  {
+    return "";
+  }
+
   template <typename Context, typename... Expressions>
   auto to_sql_string(Context& context, const order_by_t<Expressions...>& t) -> std::string
   {

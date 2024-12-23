@@ -91,6 +91,12 @@ namespace sqlpp
   };
 
   // Interpreters
+  template <typename Context>
+  auto to_sql_string(Context& context, const no_limit_t& t) -> std::string
+  {
+    return "";
+  }
+
   template <typename Context, typename Limit>
   auto to_sql_string(Context& context, const limit_t<Limit>& t) -> std::string
   {

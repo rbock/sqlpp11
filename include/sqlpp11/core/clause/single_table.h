@@ -108,6 +108,12 @@ namespace sqlpp
   };
 
   // Interpreters
+  template <typename Context>
+  auto to_sql_string(Context& context, const no_single_table_t& t) -> std::string
+  {
+    return "";
+  }
+
   template <typename Context, typename Table>
   auto to_sql_string(Context& context, const single_table_t<Table>& t) -> std::string
   {

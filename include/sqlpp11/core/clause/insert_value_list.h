@@ -264,6 +264,12 @@ namespace sqlpp
 
   // Interpreters
   template <typename Context>
+  auto to_sql_string(Context& , const no_insert_value_list_t&) -> std::string
+  {
+    return "";
+  }
+
+  template <typename Context>
   auto to_sql_string(Context& , const insert_default_values_t&) -> std::string
   {
     return " DEFAULT VALUES";
