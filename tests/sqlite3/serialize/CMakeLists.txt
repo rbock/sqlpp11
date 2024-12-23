@@ -24,6 +24,7 @@
 
 set(test_files
     Float.cpp
+    Join.cpp
 )
 
 create_test_sourcelist(test_sources test_main.cpp ${test_files})
