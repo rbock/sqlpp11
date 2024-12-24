@@ -29,5 +29,6 @@ function(create_test name)
     add_test(NAME ${target} COMMAND ${target})
 endfunction()
 
+create_test(custom_query)
 create_test(dynamic)
 

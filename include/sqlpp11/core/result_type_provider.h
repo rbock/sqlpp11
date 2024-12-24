@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2017, Roland Bock
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -26,45 +26,27 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/query/statement_fwd.h>
-#include <sqlpp11/core/result_type_provider.h>
-#include <sqlpp11/core/type_traits.h>
-#include <sqlpp11/core/to_sql_string.h>
+#include <sqlpp11/core/detail/get_last.h>
 
 namespace sqlpp
 {
   template <typename Clause>
-  struct hidden_t
-  {
-  };
+  struct hidden_t;
 
-  template <typename Clause>
-  struct is_clause<hidden_t<Clause>>: public std::true_type {};
+    template <typename T>
+    struct unhide
+    {
+      using type = T;
+    };
+    template <typename Clause>
+    struct unhide<hidden_t<Clause>>
+    {
+      using type = Clause;
+    };
+    template <typename Clause>
+    using unhide_t = typename unhide<Clause>::type;
 
-  template <typename Statement, typename Clause>
-  struct consistency_check<Statement, hidden_t<Clause>>
-  {
-    using type = consistent_t;
-  };
-
-
-
-  template <typename Context, typename Clause>
-  auto to_sql_string(Context& , const hidden_t<Clause>&) -> std::string
-  {
-    return {};
-  }
-
-  template <typename... Clauses>
-  auto hidden(const statement_t<Clauses...>& ) -> hidden_t<result_type_provider_t<Clauses...>>
-  {
-    return {};
-  }
-
-  template <typename... Clauses>
-  auto with_result_type_of(const statement_t<Clauses...>& ) -> hidden_t<result_type_provider_t<Clauses...>>
-  {
-    return {};
-  }
+  template <typename... Policies>
+    using result_type_provider_t = detail::get_last_if_t<is_result_clause, noop, unhide_t<Policies>...>;
 
 }  // namespace sqlpp

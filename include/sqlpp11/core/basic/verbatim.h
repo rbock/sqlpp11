@@ -51,11 +51,19 @@ namespace sqlpp
   };
 
   template <typename ValueType>
-    struct value_type_of<verbatim_t<ValueType>>
-    {
-      // Since we do not know what's going on inside the verbatim, we assume it can be null.
-      using type = sqlpp::force_optional_t<ValueType>;
-    };
+    struct is_clause<verbatim_t<ValueType>>: public std::true_type{};
+
+  template <typename Statement, typename ValueType>
+  struct consistency_check<Statement, verbatim_t<ValueType>>
+  {
+    using type = consistent_t;
+  };
+  template <typename ValueType>
+  struct value_type_of<verbatim_t<ValueType>>
+  {
+    // Since we do not know what's going on inside the verbatim, we assume it can be null.
+    using type = sqlpp::force_optional_t<ValueType>;
+  };
 
   template <typename Context, typename ValueType>
   auto to_sql_string(Context& , const verbatim_t<ValueType>& t) -> std::string

@@ -27,6 +27,7 @@
  */
 
 #include <sqlpp11/core/noop.h>
+#include <sqlpp11/core/hidden.h>
 #include <sqlpp11/core/database/parameter_list.h>
 #include <sqlpp11/core/query/statement_constructor_arg.h>
 #include <sqlpp11/core/query/policy_update.h>
@@ -35,7 +36,7 @@
 #include <sqlpp11/core/to_sql_string.h>
 #include <sqlpp11/core/query/statement_fwd.h>
 #include <sqlpp11/core/clause/clause_base.h>
-
+#include <sqlpp11/core/result_type_provider.h>
 #include <sqlpp11/core/detail/get_first.h>
 #include <sqlpp11/core/detail/get_last.h>
 #include <sqlpp11/core/detail/pick_arg.h>
@@ -49,9 +50,6 @@ namespace sqlpp
                                "one clause requires tables which are otherwise not known in the statement");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_no_parameters_t,
                                "cannot run statements with parameters directly, use prepare instead");
-
-  template <typename... Policies>
-    using result_type_provider_t = detail::get_last_if_t<is_result_clause, noop, Policies...>;
 
   template <typename... Policies>
     using result_methods_t = typename result_type_provider_t<Policies...>::template _result_methods_t<statement_t<Policies...>>;
@@ -257,7 +255,17 @@ namespace sqlpp
   {
 #warning: Do we need something like this?
     //SQLPP_STATIC_ASSERT((detail::are_unique<LClauses..., RClauses...>::value), "statements must contain unique clauses only");
-    return core_statement_t<LClauses..., RClauses...>(statement_constructor_arg(l, r));
+    return core_statement_t<LClauses..., RClauses...>(statement_constructor_arg(std::move(l), std::move(r)));
+  }
+
+  template <typename... LClauses, typename Clause>
+  constexpr auto operator<<(statement_t<LClauses...> l, Clause r) -> core_statement_t<LClauses..., Clause>
+  {
+    SQLPP_STATIC_ASSERT(is_clause<Clause>::value,
+                        "statement_t::operator<< requires statements or clauses as parameters");
+#warning: Do we need something like this?
+    //SQLPP_STATIC_ASSERT((detail::are_unique<LClauses..., RClauses...>::value), "statements must contain unique clauses only");
+    return core_statement_t<LClauses..., Clause>(statement_constructor_arg(std::move(l), std::move(r)));
   }
 
   template <typename Context, typename... Policies>

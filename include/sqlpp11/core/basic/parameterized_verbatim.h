@@ -30,18 +30,13 @@
 
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/to_sql_string.h>
+#include <sqlpp11/core/operator/enable_as.h>
 
 namespace sqlpp
 {
   template <typename ValueType, typename Expr>
-  struct parameterized_verbatim_t /*: public expression_operators<verbatim_t<ValueType>, ValueType>,
-                                    public alias_operators<verbatim_t<ValueType>>*/
+  struct parameterized_verbatim_t : public enable_as<parameterized_verbatim_t<ValueType, Expr>>
   {
-    using _traits = make_traits<ValueType, tag::is_expression>;
-    using _nodes = detail::type_vector<Expr>;
-    using _can_be_null =
-        std::true_type;  // since we do not know what's going on inside the verbatim, we assume it can be null
-
     parameterized_verbatim_t(
         const Expr expr, std::string verbatim_lhs, std::string verbatim_rhs)
       : _expr(expr), _verbatim_lhs(std::move(verbatim_lhs)), _verbatim_rhs(std::move(verbatim_rhs)) { }
@@ -57,9 +52,19 @@ namespace sqlpp
   };
 
   template <typename ValueType, typename Expr>
+  struct is_clause<parameterized_verbatim_t<ValueType, Expr>>: public std::true_type {};
+
+  template <typename Statement, typename ValueType, typename Expr>
+  struct consistency_check<Statement, parameterized_verbatim_t<ValueType, Expr>>
+  {
+    using type = consistent_t;
+  };
+
+  template <typename ValueType, typename Expr>
   struct value_type_of<parameterized_verbatim_t<ValueType, Expr>>
   {
-    using type = ValueType;
+    // Since we do not know what's going on inside the verbatim, we assume it can be null.
+    using type = sqlpp::force_optional_t<ValueType>;
   };
 
   template <typename ValueType, typename Expr>

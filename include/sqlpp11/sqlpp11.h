@@ -35,4 +35,3 @@
 #include <sqlpp11/core/operator.h>
 #include <sqlpp11/core/database/transaction.h>
 #include <sqlpp11/core/basic/schema_qualified_table.h>
-#include <sqlpp11/core/query/custom_query.h>
