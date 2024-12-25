@@ -72,9 +72,9 @@ struct MockDb : public sqlpp::connection
   auto _run(const T& t, Check) -> Check;
 
   template <typename T>
-  auto operator()(const T& t) -> decltype(this->_run(t, sqlpp::run_check_t<_context_t, T>{}))
+  auto operator()(const T& t) -> decltype(this->_run(t, sqlpp::statement_run_check_t<T>{}))
   {
-    return _run(t, sqlpp::run_check_t<_context_t, T>{});
+    return _run(t, sqlpp::statement_run_check_t<T>{});
   }
 
   size_t execute(const std::string&)
@@ -142,9 +142,9 @@ struct MockDb : public sqlpp::connection
   auto _prepare(const T& t, Check) -> Check;
 
   template <typename T>
-  auto prepare(const T& t) -> decltype(this->_prepare(t, sqlpp::prepare_check_t<_context_t, T>{}))
+  auto prepare(const T& t) -> decltype(this->_prepare(t, sqlpp::statement_prepare_check_t<T>{}))
   {
-    return _prepare(t, sqlpp::prepare_check_t<_context_t, T>{});
+    return _prepare(t, sqlpp::statement_prepare_check_t<T>{});
   }
 
   template <typename Statement>
@@ -272,9 +272,9 @@ struct MockSizeDb : public sqlpp::connection
   auto _run(const T& t, Check) -> Check;
 
   template <typename T>
-  auto operator()(const T& t) -> decltype(this->_run(t, sqlpp::run_check_t<_context_t, T>{}))
+  auto operator()(const T& t) -> decltype(this->_run(t, sqlpp::statement_run_check_t<T>{}))
   {
-    return _run(t, sqlpp::run_check_t<_context_t, T>{});
+    return _run(t, sqlpp::statement_run_check_t<T>{});
   }
 
   size_t execute(const std::string&)
@@ -342,9 +342,9 @@ const auto query =     to_sql_string(context, x);
   auto _prepare(const T& t, Check) -> Check;
 
   template <typename T>
-  auto prepare(const T& t) -> decltype(this->_prepare(t, sqlpp::prepare_check_t<_context_t, T>{}))
+  auto prepare(const T& t) -> decltype(this->_prepare(t, sqlpp::statement_prepare_check_t<T>{}))
   {
-    return _prepare(t, sqlpp::prepare_check_t<_context_t, T>{});
+    return _prepare(t, sqlpp::statement_prepare_check_t<T>{});
   }
 
   template <typename Statement>

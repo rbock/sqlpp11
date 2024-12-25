@@ -62,7 +62,7 @@ void test_result_row(Value v)
 
   auto s = select(v_not_null, v_maybe_null, v_opt_not_null, v_opt_maybe_null);
   using S = decltype(s);
-  static_assert(std::is_same<sqlpp::run_check_t<typename MockDb::_context_t, S>, sqlpp::consistent_t>::value,
+  static_assert(std::is_same<sqlpp::statement_run_check_t<S>, sqlpp::consistent_t>::value,
                 "");
   for (const auto& row : db(select(v_not_null, v_maybe_null, v_opt_not_null, v_opt_maybe_null)))
   {

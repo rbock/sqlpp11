@@ -28,6 +28,7 @@
 
 #include <sqlpp11/core/detail/type_set.h>
 #include <sqlpp11/core/no_data.h>
+#include <sqlpp11/core/static_assert.h>
 #include <sqlpp11/core/database/prepared_insert.h>
 #include <sqlpp11/core/query/statement_fwd.h>
 #include <sqlpp11/core/type_traits.h>

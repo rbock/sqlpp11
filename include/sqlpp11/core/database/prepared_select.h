@@ -39,8 +39,6 @@ namespace sqlpp
     using _parameter_list_t = make_parameter_list_t<Composite>;
     using _prepared_statement_t = typename Database::_prepared_statement_t;
 
-    using _run_check = consistent_t;
-
     auto _run(Database& db) const -> result_t<decltype(db.run_prepared_select(*this)), _result_row_t>
     {
       return {db.run_prepared_select(*this)};
@@ -56,5 +54,5 @@ namespace sqlpp
   };
 
   template<typename Db, typename Select, typename Composite>
-    struct is_prepared_statement<prepared_select_t<Db, Select, Composite>> : public std::true_type {};
+    struct statement_run_check<prepared_select_t<Db, Select, Composite>> { using type = consistent_t; };
 }  // namespace sqlpp

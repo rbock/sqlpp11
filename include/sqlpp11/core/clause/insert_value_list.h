@@ -173,7 +173,9 @@ namespace sqlpp
       constexpr bool _no_names = logic::none<has_name_tag<remove_dynamic_t<rhs_t<Assignments>>>::value...>::value;
       SQLPP_STATIC_ASSERT(_no_names, "add_values() arguments must not have names");
 
-      _data._insert_values.emplace_back(make_insert_value_t<lhs_t<Assignments>>(get_rhs(assignments))...);
+      // Static dispatch to allow testing of the static asserts above.
+      add_values_impl(logic::all<_args_correct, _no_expressions, _no_parameters, _no_parameters, _no_names>{},
+                      std::move(assignments)...);
     }
 
   private:

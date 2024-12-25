@@ -381,9 +381,9 @@ namespace sqlpp
       auto _run(const T& t, Check) -> Check;
 
       template <typename T>
-      auto operator()(const T& t) -> decltype(this->_run(t, sqlpp::run_check_t<context_t, T>{}))
+      auto operator()(const T& t) -> decltype(this->_run(t, sqlpp::statement_run_check_t<T>{}))
       {
-        return _run(t, sqlpp::run_check_t<context_t, T>{});
+        return _run(t, sqlpp::statement_run_check_t<T>{});
       }
 
       //! call prepare on the argument
@@ -397,9 +397,9 @@ namespace sqlpp
       auto _prepare(const T& t, Check) -> Check;
 
       template <typename T>
-      auto prepare(const T& t) -> decltype(this->_prepare(t, sqlpp::prepare_check_t<context_t, T>{}))
+      auto prepare(const T& t) -> decltype(this->_prepare(t, sqlpp::statement_prepare_check_t<T>{}))
       {
-        return _prepare(t, sqlpp::prepare_check_t<context_t, T>{});
+        return _prepare(t, sqlpp::statement_prepare_check_t<T>{});
       }
 
       //! start transaction

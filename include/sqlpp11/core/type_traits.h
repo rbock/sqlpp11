@@ -258,7 +258,6 @@ namespace sqlpp
   using is_inconsistent_t =
       typename std::conditional<std::is_same<consistent_t, T>::value, std::false_type, std::true_type>::type;
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_sqlpp_type_t, "expression is not an sqlpp type, consistency cannot be verified");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_run_statement_or_prepared_t,
                                "connection cannot run something that is neither statement nor prepared statement");
   SQLPP_PORTABLE_STATIC_ASSERT(assert_prepare_statement_t,
@@ -266,43 +265,6 @@ namespace sqlpp
 
   template<typename T>
     struct is_statement : public std::false_type {};
-
-  template<typename T>
-    struct is_prepared_statement : public std::false_type {};
-
-  template <typename Context, typename T, typename Enable = void>
-  struct run_check
-  {
-    using type = assert_run_statement_or_prepared_t;
-  };
-
-  template <typename Context, typename T>
-  struct run_check<Context,
-                   T,
-                   typename std::enable_if<is_statement<T>::value or is_prepared_statement<T>::value>::type>
-  {
-    using type =
-        detail::get_first_if<is_inconsistent_t, consistent_t, typename T::_run_check>;
-  };
-
-  template <typename Context, typename T>
-  using run_check_t = typename run_check<Context, T>::type;
-
-  template <typename Context, typename T, typename Enable = void>
-  struct prepare_check
-  {
-    using type = assert_prepare_statement_t;
-  };
-
-  template <typename Context, typename T>
-  struct prepare_check<Context, T, typename std::enable_if<is_statement<T>::value>::type>
-  {
-    using type = detail::
-        get_first_if<is_inconsistent_t, consistent_t, typename T::_prepare_check>;
-  };
-
-  template <typename Context, typename T>
-  using prepare_check_t = typename prepare_check<Context, T>::type;
 
   template <typename Statement, typename Enable = void>
   struct has_result_row: public std::false_type
@@ -411,16 +373,20 @@ namespace sqlpp
   template<typename Statement>
     using statement_consistency_check_t = typename statement_consistency_check<Statement>::type;
 
-  // Not implemented to ensure implementation for statement_t
   template<typename Statement>
-    struct statement_run_check;
+    struct statement_run_check
+  {
+    using type = assert_run_statement_or_prepared_t;
+  };
 
   template<typename Statement>
     using statement_run_check_t = typename statement_run_check<Statement>::type;
 
-  // Not implemented to ensure implementation for statement_t
   template<typename Statement>
-    struct statement_prepare_check;
+    struct statement_prepare_check
+  {
+    using type = assert_prepare_statement_t;
+  };
 
   template<typename Statement>
     using statement_prepare_check_t = typename statement_prepare_check<Statement>::type;

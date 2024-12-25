@@ -62,18 +62,20 @@ int main()
   // insert_into(table).set(<not all required columns>) is inconsistent but can be constructed (check can only run later)
   {
     auto i = insert_into(bar).set(bar.id = sqlpp::default_value);
-    static_assert(std::is_same<decltype(i)::_consistency_check, sqlpp::assert_all_required_assignments_t>::value, "");
+    using I = decltype(i);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>, sqlpp::assert_all_required_assignments_t>::value, "");
   }
   {
     auto i = insert_into(bar).set(dynamic(true, bar.id = sqlpp::default_value));
-    static_assert(std::is_same<decltype(i)::_consistency_check, sqlpp::assert_all_required_assignments_t>::value, "");
+    using I = decltype(i);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>, sqlpp::assert_all_required_assignments_t>::value, "");
   }
 
   // insert_into(table).set(<dynamic required columns>) is also inconsistent but can be constructed (check can only run later)
   {
     auto i = insert_into(bar).set(dynamic(true, bar.boolNn = true));
     using I = decltype(i);
-    static_assert(std::is_same<I::_consistency_check, sqlpp::assert_all_required_assignments_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>, sqlpp::assert_all_required_assignments_t>::value, "");
   }
 
   // -------------------------
@@ -104,17 +106,20 @@ int main()
   // insert_into(table).columns(<not all required columns>) is inconsistent but can be constructed (check can only run later)
   {
   auto i = insert_into(bar).columns(bar.id);
-    static_assert(std::is_same<decltype(i)::_consistency_check, sqlpp::assert_all_required_columns_t>::value, "");
+  using I = decltype(i);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>, sqlpp::assert_all_required_columns_t>::value, "");
   }
   {
   auto i = insert_into(bar).columns(dynamic(true, bar.id));
-    static_assert(std::is_same<decltype(i)::_consistency_check, sqlpp::assert_all_required_columns_t>::value, "");
+  using I = decltype(i);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>, sqlpp::assert_all_required_columns_t>::value, "");
   }
 
   // insert_into(table).columns(<dynamic required columns>) is also inconsistent but can be constructed (check can only run later)
   {
   auto i = insert_into(bar).columns(dynamic(true, bar.boolNn));
-    static_assert(std::is_same<decltype(i)::_consistency_check, sqlpp::assert_all_required_columns_t>::value, "");
+  using I = decltype(i);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<I>, sqlpp::assert_all_required_columns_t>::value, "");
   }
 
   // -------------------------

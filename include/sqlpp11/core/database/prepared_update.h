@@ -38,8 +38,6 @@ namespace sqlpp
     using _parameter_list_t = make_parameter_list_t<Update>;
     using _prepared_statement_t = typename Db::_prepared_statement_t;
 
-    using _run_check = consistent_t;
-
     auto _run(Db& db) const -> size_t
     {
       return db.run_prepared_insert(*this);
@@ -54,5 +52,5 @@ namespace sqlpp
     mutable _prepared_statement_t _prepared_statement;
   };
   template<typename Db, typename Update>
-    struct is_prepared_statement<prepared_update_t<Db, Update>> : public std::true_type {};
+    struct statement_run_check<prepared_update_t<Db, Update>> { using type = consistent_t; };
 }  // namespace sqlpp
