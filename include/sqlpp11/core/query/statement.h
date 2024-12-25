@@ -83,7 +83,7 @@ namespace sqlpp
       };
 
       using _value_type =
-          typename std::conditional<logic::any<is_missing_t<Policies>::value...>::value,
+          typename std::conditional<logic::any<is_missing<Policies>::value...>::value,
                                     no_value_t,  // if a required statement part is missing (e.g. columns in a select),
                                                  // then the statement cannot be used as a value
                                     value_type_of_t<_result_type_provider>>::type;

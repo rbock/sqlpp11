@@ -54,9 +54,6 @@ namespace sqlpp
   template <typename... Tables>
   struct using_t
   {
-    using _traits = make_traits<no_value_t, tag::is_using_>;
-    using _nodes = detail::type_vector<Tables...>;
-
     using _data_t = using_data_t<Tables...>;
 
     // Base template to be inherited by the statement
@@ -87,9 +84,6 @@ namespace sqlpp
   // NO USING YET
   struct no_using_t
   {
-    using _traits = make_traits<no_value_t, tag::is_where>;
-    using _nodes = detail::type_vector<>;
-
     using _data_t = no_data_t;
 
     // Base template to be inherited by the statement

@@ -34,24 +34,6 @@
 
 namespace sqlpp
 {
-  namespace detail
-  {
-    template <typename Type, bool>
-    struct type_if
-    {
-      using type = Type;
-    };
-
-    template <typename Type>
-    struct type_if<Type, false>
-    {
-      struct type
-      {
-        using _nodes = detail::type_vector<>;
-      };
-    };
-  }  // namespace detail
-
   template <typename Column>
   struct insert_value_t
   {

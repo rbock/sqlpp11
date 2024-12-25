@@ -60,9 +60,6 @@ namespace sqlpp
     template <typename ConflictTarget>
     struct on_conflict_do_nothing_t
     {
-      using _traits = make_traits<no_value_t, tag::is_on_conflict_do_nothing>;
-      using _nodes = sqlpp::detail::type_vector<ConflictTarget>;
-
       // Data
       using _data_t = on_conflict_do_nothing_data_t<ConflictTarget>;
 

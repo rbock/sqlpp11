@@ -213,7 +213,6 @@ namespace sqlpp
     {
       using _rhs = remove_dynamic_t<Rhs>;
       static_assert(is_statement<_rhs>::value, "argument of union call has to be a statement");
-      static_assert(has_policy_t<_rhs, is_select_t>::value, "argument of union call has to be a select");
       static_assert(has_result_row<_rhs>::value, "argument of a clause/union.has to be a (complete) select statement");
 
       static_assert(std::is_same<_result_row_t, get_result_row_t<_rhs>>::value,
@@ -229,7 +228,6 @@ namespace sqlpp
     {
       using _rhs = remove_dynamic_t<Rhs>;
       static_assert(is_statement<_rhs>::value, "argument of union call has to be a statement");
-      static_assert(has_policy_t<_rhs, is_select_t>::value, "argument of union call has to be a select");
       static_assert(has_result_row<_rhs>::value, "argument of a clause/union.has to be a (complete) select statement");
 
       static_assert(std::is_same<_result_row_t, get_result_row_t<_rhs>>::value,

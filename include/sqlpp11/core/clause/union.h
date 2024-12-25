@@ -107,7 +107,6 @@ namespace sqlpp
     auto union_distinct(Rhs rhs) const -> statement_t<union_t<union_distinct_t, Statement, Rhs>, no_union_t>
     {
       static_assert(is_statement<Rhs>::value, "argument of union call has to be a statement");
-      static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
       static_assert(has_result_row<Rhs>::value, "argument of a clause/union.has to be a complete select statement");
       static_assert(has_result_row<Statement>::value,
                     "left hand side argument of a clause/union.has to be a complete select statement or union");
@@ -126,7 +125,6 @@ namespace sqlpp
     auto union_all(Rhs rhs) const -> statement_t<union_t<union_all_t, Statement, Rhs>, no_union_t>
     {
       static_assert(is_statement<Rhs>::value, "argument of union call has to be a statement");
-      static_assert(has_policy_t<Rhs, is_select_t>::value, "argument of union call has to be a select");
       static_assert(has_result_row<Rhs>::value, "argument of a clause/union.has to be a (complete) select statement");
       static_assert(has_result_row<Statement>::value,
                     "left hand side argument of a clause/union.has to be a (complete) select statement");

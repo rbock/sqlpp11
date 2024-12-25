@@ -81,9 +81,6 @@ namespace sqlpp
     template <typename ConflictTarget, typename Expression, typename... Assignments>
     struct on_conflict_do_update_where_t
     {
-      using _traits = make_traits<no_value_t, tag::is_on_conflict_do_update>;
-      using _nodes = sqlpp::detail::type_vector<ConflictTarget, Expression, Assignments...>;
-
       using _data_t = on_conflict_do_update_where_data_t<ConflictTarget, Expression, Assignments...>;
 
       // Base template to be inherited by the statement
@@ -104,9 +101,6 @@ namespace sqlpp
     template <typename ConflictTarget, typename... Assignments>
     struct on_conflict_do_update_t
     {
-      using _traits = make_traits<no_value_t, tag::is_on_conflict_do_update>;
-      using _nodes = sqlpp::detail::type_vector<ConflictTarget, Assignments...>;
-
       // Data
       using _data_t = on_conflict_do_update_data_t<ConflictTarget, Assignments...>;
 

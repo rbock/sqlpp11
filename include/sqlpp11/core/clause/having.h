@@ -85,12 +85,6 @@ namespace sqlpp
   template <typename Expression>
   using check_having_t = typename check_having<remove_dynamic_t<Expression>>::type;
 
-  template <typename... Exprs>
-  constexpr auto are_all_parameters_expressions() -> bool
-  {
-    return logic::all<is_expression_t<Exprs>::value...>::value;
-  }
-
   // NO HAVING YET
   struct no_having_t
   {

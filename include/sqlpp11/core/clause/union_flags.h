@@ -36,8 +36,6 @@ namespace sqlpp
   // standard select flags
   struct union_all_t
   {
-    using _traits = make_traits<no_value_t, tag::is_union_flag>;
-    using _nodes = detail::type_vector<>;
   };
 
   template <typename Context>
@@ -48,8 +46,6 @@ namespace sqlpp
 
   struct union_distinct_t
   {
-    using _traits = make_traits<no_value_t, tag::is_union_flag>;
-    using _nodes = detail::type_vector<>;
   };
 
   template <typename Context>

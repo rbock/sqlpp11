@@ -42,9 +42,6 @@ struct InternalMockData
 
 struct MockDb : public sqlpp::connection
 {
-  using _traits =
-      ::sqlpp::make_traits<::sqlpp::no_value_t>;
-
   struct _context_t
   {
   };
@@ -253,8 +250,6 @@ const auto query =     to_sql_string(context, x);
 
 struct MockSizeDb : public sqlpp::connection
 {
-  using _traits = MockDb::_traits;
-
   using _context_t = MockDb::_context_t;
 
   class result_t : public MockDb::result_t

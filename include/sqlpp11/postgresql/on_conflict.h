@@ -91,9 +91,6 @@ namespace sqlpp
     template <typename ConflictTarget>
     struct on_conflict_t
     {
-      using _traits = make_traits<no_value_t, tag::is_noop>;
-      using _nodes = sqlpp::detail::type_vector<ConflictTarget>;
-
       using _data_t = on_conflict_data_t<ConflictTarget>;
 
       // Base template to be inherited by the statement
@@ -134,9 +131,6 @@ namespace sqlpp
 
     struct no_on_conflict_t
     {
-      using _traits = make_traits<no_value_t, tag::is_on_conflict>;
-      using _nodes = ::sqlpp::detail::type_vector<>;
-
       using _data_t = no_data_t;
 
       // Base template to be inherited by the statement

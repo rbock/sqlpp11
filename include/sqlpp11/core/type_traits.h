@@ -191,73 +191,6 @@ namespace sqlpp
   struct is_assignment : public std::false_type
   {
   };
-#define SQLPP_VALUE_TRAIT_GENERATOR(name)                                                                   \
-  namespace tag                                                                                             \
-  {                                                                                                         \
-    struct name;                                                                                            \
-  }                                                                                                         \
-  namespace detail                                                                                          \
-  {                                                                                                         \
-    template <typename T, typename Enable = void>                                                           \
-    struct name##_impl                                                                                      \
-    {                                                                                                       \
-      using type = std::false_type;                                                                         \
-    };                                                                                                      \
-    template <typename T>                                                                                   \
-    struct name##_impl<                                                                                     \
-        T,                                                                                                  \
-        typename std::enable_if<detail::is_element_of<tag::name, typename T::_traits::_tags>::value>::type> \
-    {                                                                                                       \
-      using type = std::true_type;                                                                          \
-    };                                                                                                      \
-  }                                                                                                         \
-  template <typename T>                                                                                     \
-  using name##_t = typename detail::name##_impl<T>::type;
-
-  SQLPP_VALUE_TRAIT_GENERATOR(is_sql_null)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_value_type)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_expression)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_union_flag)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_result_field)
-
-  SQLPP_VALUE_TRAIT_GENERATOR(is_union)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_with)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_noop)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_missing)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_dynamic_pre_join)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_dynamic_join)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_pseudo_table)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_select)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_select_flag_list)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_select_column_list)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_from)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_single_table)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_into)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_on)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_where)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_group_by)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_having)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_order_by)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_limit)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_for_update)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_offset)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_using_)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_column_list)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_value_list)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_update_list)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_insert_list)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_insert_value)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_insert_value_list)
-  SQLPP_VALUE_TRAIT_GENERATOR(is_parameter)
-
-  SQLPP_VALUE_TRAIT_GENERATOR(enforce_null_result_treatment)
-
-  template <typename Tag, bool Condition>
-  using tag_if = typename std::conditional<Condition, Tag, void>::type;
-
-  template <typename Database>
-  using is_database =
-      typename std::conditional<std::is_same<Database, void>::value, std::false_type, std::true_type>::type;
 
   template <typename T>
   struct lhs
@@ -314,13 +247,6 @@ namespace sqlpp
 
   template <typename T>
   struct is_column : public std::false_type{};
-
-  template <typename ValueType, typename... Tags>
-  struct make_traits
-  {
-    using _value_type = ValueType;
-    using _tags = detail::make_type_set_t<Tags...>;
-  };
 
   template <typename NameTagProvider, typename Member>
   using member_t = typename name_tag_of_t<NameTagProvider>::template _member_t<Member>;
@@ -412,27 +338,9 @@ namespace sqlpp
   template <typename Statement>
   using get_result_row_t = typename get_result_row_impl<Statement>::type;
 
-  template <typename Statement, template <typename> class Predicate, typename Enable = void>
-  struct has_policy_impl
-  {
-    using type = std::false_type;
-  };
-
-  template <typename Statement, template <typename> class Predicate>
-  struct has_policy_impl<Statement, Predicate, typename std::enable_if<is_statement<Statement>::value>::type>
-  {
-    using type = std::true_type;
-  };
-
-  template <typename Statement, template <typename> class Predicate>
-  using has_policy_t = typename has_policy_impl<Statement, Predicate>::type;
-
   template<typename T>
   struct requires_parentheses : public std::false_type {};
 
-  struct no_context_t
-  {
-  };
   template<typename T>
   struct table_ref {
     using type = T;
@@ -483,6 +391,11 @@ namespace sqlpp
 
   template<typename T>
     struct is_clause : public std::false_type {};
+
+#warning: Need to determine those clauses
+  // Used to determine if a required clause is still missing, e.g. if no columns were selected in a select
+  template<typename T>
+    struct is_missing : public std::false_type {};
 
   // Not implemented to ensure implementation for every clause.
   template<typename Statement, typename Clause>
