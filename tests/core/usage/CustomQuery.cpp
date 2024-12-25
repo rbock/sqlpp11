@@ -66,9 +66,7 @@ int CustomQuery(int, char*[])
   const auto t = test::TabBar{};
 
   // A void custom query
-  auto x =
-      //select(t.id).from(t).where(t.id > 7).group_by(t.id).having(max(t.id) > 13).order_by(t.textN.desc());
-    update(t).set(t.textN = "eight", t.boolNn = true).unconditionally();
+  auto x = sqlpp::statement_t{} << sqlpp::verbatim("PRAGMA writeable_schema = 1");
   std::cerr << to_sql_string(printer, x) << std::endl;
   db(x);
 
@@ -77,9 +75,9 @@ int CustomQuery(int, char*[])
   db(db.prepare(x));
 
   // A prepared custom select
-  // The return type of the custom query is determined from the first argument which does have a return type, in this
+  // The return type of the custom query is determined from the last argument which does have a return type, in this
   // case the select
-  auto p = db.prepare(custom_query(select(all_of(t)).from(t), where(t.id > sqlpp::parameter(t.id))));
+  auto p = db.prepare(select(all_of(t)) << from(t) <<  where(t.id > sqlpp::parameter(t.id)));
   p.params.id = 8;
   for (const auto& row : db(p))
   {
@@ -87,32 +85,32 @@ int CustomQuery(int, char*[])
   }
 
   // Create a custom "insert or ignore"
-  db(custom_query(sqlpp::insert(), sqlpp::verbatim(" OR IGNORE"), into(t),
-                  insert_set(t.textN = "sample", t.boolNn = true)));
+  db(sqlpp::insert() << sqlpp::verbatim(" OR IGNORE")<< into(t) <<
+                  insert_set(t.textN = "sample", t.boolNn = true));
 
   // Create a custom multi-row "insert or ignore"
   auto batch = insert_columns(t.textN, t.boolNn);
   batch.add_values(t.textN = "sample", t.boolNn = true);
   batch.add_values(t.textN = "ample", t.boolNn = false);
-  db(custom_query(sqlpp::insert(), sqlpp::verbatim(" OR IGNORE"), into(t), batch));
+  db(sqlpp::insert() << sqlpp::verbatim(" OR IGNORE") << into(t) << batch);
 
   // Create a MYSQL style custom "insert on duplicate update"
-  db(custom_query(sqlpp::insert_into(t).set(t.textN = "sample", t.boolNn = true),
-                  on_duplicate_key_update(db, t.textN = "sample")(db, t.boolNn = false).get()));
+  db(sqlpp::insert_into(t).set(t.textN = "sample", t.boolNn = true) <<
+                  on_duplicate_key_update(db, t.textN = "sample")(db, t.boolNn = false).get());
 
   // A custom (select ... into) with adjusted return type
   // The first argument with a return type is the select, but the custom query is really an insert. Thus, we tell it so.
-  auto c = custom_query(select(all_of(t)).from(t), into(f)).with_result_type_of(insert_into(f));
+  auto c = select(all_of(t)).from(t) << into(f) << with_result_type_of(insert_into(f));
   std::cerr << to_sql_string(printer, c) << std::endl;
   auto i = db(c);
   static_assert(std::is_integral<decltype(i)>::value, "insert yields an integral value");
 
-  auto d = custom_query(sqlpp::verbatim("INSERT INTO tab_sample VALUES()")).with_result_type_of(sqlpp::insert());
+  auto d = sqlpp::statement_t{} << sqlpp::verbatim("INSERT INTO tab_sample VALUES()") << with_result_type_of(sqlpp::insert());
   auto j = db(d);
   static_assert(std::is_integral<decltype(j)>::value, "insert yields an integral value");
 
   for (const auto& row :
-       db(custom_query(sqlpp::verbatim("PRAGMA user_version")).with_result_type_of(select(all_of(t)))))
+       db(sqlpp::statement_t{} << sqlpp::verbatim("PRAGMA user_version") << with_result_type_of(select(all_of(t)))))
   {
     (void)row.id;
   }
