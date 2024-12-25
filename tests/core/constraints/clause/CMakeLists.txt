@@ -29,6 +29,7 @@ function(create_test name)
     add_test(NAME ${target} COMMAND ${target})
 endfunction()
 
+create_test(from)
 create_test(insert_value_list)
 create_test(select_column_list)
 

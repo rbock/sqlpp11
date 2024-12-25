@@ -68,28 +68,6 @@ namespace sqlpp
   {
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(
-      assert_from_not_pre_join_t,
-      "from() argument is a pre join, please use an explicit on() condition or unconditionally()");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_from_table_t, "from() argument has to be a table or join expression");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_from_dependency_free_t, "at least one table depends on another table in from()");
-
-  template <typename Table>
-  struct check_from
-  {
-    using type = static_combined_check_t<
-        static_check_t<not is_pre_join<Table>::value, assert_from_not_pre_join_t>,
-        static_check_t<is_table<Table>::value, assert_from_table_t>,
-        static_check_t<required_tables_of_t<Table>::empty(), assert_from_dependency_free_t>
-        >;
-  };
-
-  template <typename Table>
-  using check_from_t = typename check_from<Table>::type;
-
-  template <typename Table>
-  using check_from_static_t = check_from_t<Table>;
-
   struct no_from_t
   {
   };
@@ -99,11 +77,13 @@ namespace sqlpp
   {
     using clause_data<no_from_t, Statement>::clause_data;
 
-#warning : Need to reactivate check_from_t<Table>;
     template <typename Table>
-    auto from(Table table) const
-        -> decltype(new_statement(*this, from_t<table_ref_t<Table>>{make_table_ref(table)}))
+    auto from(Table table) const -> decltype(new_statement(*this, from_t<table_ref_t<Table>>{make_table_ref(table)}))
     {
+      SQLPP_STATIC_ASSERT(not is_pre_join<Table>::value,
+                          "from() join argument is missing condition, please use an explicit on() condition");
+      SQLPP_STATIC_ASSERT(is_table<Table>::value, "from() argument has to be a table or join expression");
+
       return new_statement(*this, from_t<table_ref_t<Table>>{make_table_ref(table)});
     }
   };

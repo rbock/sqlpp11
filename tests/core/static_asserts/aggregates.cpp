@@ -44,8 +44,7 @@ namespace
   template <typename Assert, typename Expression>
   void static_run_check(const Expression&)
   {
-    using Context = MockDb::_context_t;
-    using CheckResult = sqlpp::run_check_t<Context, Expression>;
+    using CheckResult = sqlpp::statement_run_check_t<Expression>;
     using ExpectedCheckResult = std::is_same<CheckResult, Assert>;
     print_type_on_error<CheckResult>(ExpectedCheckResult{});
     static_assert(ExpectedCheckResult::value, "Unexpected check result");

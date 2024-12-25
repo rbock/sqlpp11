@@ -28,24 +28,25 @@
 
 #include <sqlpp11/core/consistent.h>
 #include <sqlpp11/core/inconsistent.h>
+#include <sqlpp11/core/static_assert.h>
 
 namespace sqlpp
 {
-#define SQLPP_PORTABLE_STATIC_ASSERT(name, message) \
-  struct name : std::false_type                     \
-  {                                                 \
-    template <typename... T>                        \
-    constexpr explicit name(T&&...)                 \
-    {                                               \
-      static_assert(wrong_t<T...>::value, message); \
-    }                                               \
-    template <typename... T>                        \
-    static constexpr void verify(T&&...)                 \
-    {                                               \
-      static_assert(wrong_t<T...>::value, message); \
-    }                                               \
-    auto begin() const -> void;                     \
-    auto end() const -> void;                       \
+#define SQLPP_PORTABLE_STATIC_ASSERT(name, message)       \
+  struct name : std::false_type                           \
+  {                                                       \
+    template <typename... T>                              \
+    constexpr explicit name(T&&...)                       \
+    {                                                     \
+      SQLPP_STATIC_ASSERT(wrong_t<T...>::value, message); \
+    }                                                     \
+    template <typename... T>                              \
+    static constexpr void verify(T&&...)                  \
+    {                                                     \
+      SQLPP_STATIC_ASSERT(wrong_t<T...>::value, message); \
+    }                                                     \
+    auto begin() const -> void;                           \
+    auto end() const -> void;                             \
   }
 
   namespace detail
