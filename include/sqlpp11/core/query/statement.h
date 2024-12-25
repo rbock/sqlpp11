@@ -91,19 +91,6 @@ namespace sqlpp
       using _parameter_check = typename std::
           conditional<_parameters::empty(), consistent_t, assert_no_parameters_t>::type;
 
-    using _run_check = detail::get_first_if<is_inconsistent_t,
-                                            consistent_t,
-                                            _parameter_check,
-                                            _cte_check,
-                             statement_consistency_check_t<statement_t>,
-                                            _table_check>;
-
-    using _prepare_check = detail::get_first_if<is_inconsistent_t,
-                                                consistent_t,
-                                                _cte_check,
-                             statement_consistency_check_t<statement_t>,
-                                                _table_check>;
-
     using _name_tag_of = name_tag_of<_result_type_provider>;
     using _provided_optional_tables = _all_provided_optional_tables;
 
@@ -143,25 +130,17 @@ namespace sqlpp
     template <typename Database>
     auto _run(Database& db) const -> decltype(std::declval<result_methods_t<Policies...>>()._run(db))
     {
-      _run_check::verify();
+      statement_run_check_t<statement_t>::verify();
       return result_methods_t<Policies...>::_run(db);
     }
 
     template <typename Database>
     auto _prepare(Database& db) const -> decltype(std::declval<result_methods_t<Policies...>>()._prepare(db))
     {
-      _prepare_check::verify();
+      statement_prepare_check_t<statement_t>::verify();
       return result_methods_t<Policies...>::_prepare(db);
     }
   };
-
-  template<typename... Policies>
-    struct statement_consistency_check<statement_t<Policies...>> {
-        using type = detail::get_first_if<is_inconsistent_t,
-                             consistent_t,
-                             consistency_check_t<statement_t<Policies...>, Policies>...,
-                             typename statement_t<Policies...>::_table_check>;
-    };
 
   template<typename... Policies>
     struct is_statement<statement_t<Policies...>> : public std::true_type {};
@@ -227,6 +206,34 @@ namespace sqlpp
 
   template <typename... Policies>
   struct requires_parentheses<statement_t<Policies...>> : public std::true_type {};
+
+  template<typename... Policies>
+    struct statement_consistency_check<statement_t<Policies...>> {
+        using type = detail::get_first_if<is_inconsistent_t,
+                             consistent_t,
+                             consistency_check_t<statement_t<Policies...>, Policies>...,
+                             typename statement_t<Policies...>::_table_check>;
+    };
+
+  template<typename... Policies>
+    struct statement_run_check<statement_t<Policies...>> {
+    using type = detail::get_first_if<is_inconsistent_t,
+                                      consistent_t,
+                                      typename statement_t<Policies...>::_parameter_check,
+                                      typename statement_t<Policies...>::_cte_check,
+                                      statement_consistency_check_t<statement_t<Policies...>>,
+                                      typename statement_t<Policies...>::_table_check>;
+    };
+
+    template <typename... Policies>
+    struct statement_prepare_check<statement_t<Policies...>>
+    {
+      using type = detail::get_first_if<is_inconsistent_t,
+                                        consistent_t,
+                                        typename statement_t<Policies...>::_cte_check,
+                                        statement_consistency_check_t<statement_t<Policies...>>,
+                                        typename statement_t<Policies...>::_table_check>;
+    };
 
 #warning: move clauses to use clause_base and new_statement!
   template <typename OldClause, typename... Clauses, typename NewClause>

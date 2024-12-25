@@ -411,4 +411,18 @@ namespace sqlpp
   template<typename Statement>
     using statement_consistency_check_t = typename statement_consistency_check<Statement>::type;
 
+  // Not implemented to ensure implementation for statement_t
+  template<typename Statement>
+    struct statement_run_check;
+
+  template<typename Statement>
+    using statement_run_check_t = typename statement_run_check<Statement>::type;
+
+  // Not implemented to ensure implementation for statement_t
+  template<typename Statement>
+    struct statement_prepare_check;
+
+  template<typename Statement>
+    using statement_prepare_check_t = typename statement_prepare_check<Statement>::type;
+
 }  // namespace sqlpp

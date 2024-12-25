@@ -80,15 +80,6 @@ namespace sqlpp
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_into_t, "into() required");
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_into_arg_is_table, "argument for into() must be a table");
-  template <typename T>
-  struct check_into
-  {
-    using type = static_combined_check_t<static_check_t<is_raw_table<T>::value, assert_into_arg_is_table>>;
-  };
-  template <typename T>
-  using check_into_t = typename check_into<T>::type;
-
   // NO INTO YET
   struct no_into_t
   {
@@ -99,12 +90,12 @@ namespace sqlpp
   {
     using clause_data<no_into_t, Statement>::clause_data;
 
-#warning : reactvate check_into_t
 
     template <typename Table>
     auto into(Table table) const -> decltype(new_statement(*this, into_t<Table>{table}))
     {
-      static_assert(required_tables_of_t<into_t<Table>>::empty(), "argument depends on another table in into()");
+#warning : write constraint tests
+      SQLPP_STATIC_ASSERT(is_raw_table<Table>::value, "into() argument must be a raw table, i.e. no join or cte"); 
 
       return new_statement(*this, into_t<Table>{table});
     }

@@ -71,15 +71,6 @@ namespace sqlpp
   {
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_update_table_arg_is_table_t, "argument for update() must be a table");
-  template <typename Table>
-  struct check_update_table
-  {
-    using type = static_combined_check_t<static_check_t<is_raw_table<Table>::value, assert_update_table_arg_is_table_t>>;
-  };
-  template <typename Table>
-  using check_update_table_t = typename check_update_table<Table>::type;
-
   // NO TABLE YET
   struct no_single_table_t
   {
@@ -90,12 +81,11 @@ namespace sqlpp
   {
     using clause_data<no_single_table_t, Statement>::clause_data;
 
-#warning : reactivate check_update_table_t
     template <typename Table>
     auto single_table(Table table) const -> decltype(new_statement(*this, single_table_t<Table>{table}))
     {
-      static_assert(required_tables_of_t<single_table_t<Table>>::empty(),
-                    "argument depends on another table in single_table()");
+#warning : write constraint_tests
+      SQLPP_STATIC_ASSERT(is_raw_table<Table>::value, "single_table() argument must be a raw table, i.e. no join or cte"); 
 
       return new_statement(*this, single_table_t<Table>{table});
     }

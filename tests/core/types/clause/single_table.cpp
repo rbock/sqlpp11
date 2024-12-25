@@ -29,20 +29,11 @@
 
 SQLPP_CREATE_NAME_TAG(cheese);
 
-template <typename T>
-void assert_invalid_argument(T t)
-{
-  using S = decltype(sqlpp::single_table(t));
-  static_assert(std::is_same<S, sqlpp::assert_update_table_arg_is_table_t>::value, "");
-}
-
 void test_single_table()
 {
   auto v = sqlpp::value(17);
   auto foo = test::TabFoo{};
-  auto bar = test::TabBar{};
   using Foo = decltype(foo);
-  auto id = foo.id;
 
   // Valid single table clause
   {
@@ -53,9 +44,12 @@ void test_single_table()
     static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<S>, sqlpp::detail::type_set<>>::value, "");
   }
 
+#warning: write constraint tests
+  /*
   assert_invalid_argument(foo.join(bar));
   assert_invalid_argument(foo.as(cheese));
   assert_invalid_argument(id);
+  */
 }
 
 int main()
