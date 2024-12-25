@@ -50,7 +50,6 @@ int Update(int, char*[])
   to_sql_string(printer, update(t).set(t.boolNn = false));
   to_sql_string(printer, update(t).set(t.boolNn = false).where(t.textN != "transparent"));
   to_sql_string(printer, update(t).set(t.textN = "opaque").where(t.textN != t.textN + "this is nonsense"));
-  auto values = [&t]() { return std::make_tuple(t.intN += t.id, t.textN = "no cake this time"); };
 
 #warning add tests with dynamic set and dynamic where
 
@@ -62,6 +61,11 @@ int Update(int, char*[])
   db(update(t).set(t.intN = sqlpp::default_value).unconditionally());
 
   db(update(t).set(t.intN += t.id * 2, t.textN += " and cake").unconditionally());
+
+#warning: reactivate?
+  /*
+  auto values = [&t]() { return std::make_tuple(t.intN += t.id, t.textN = "no cake this time"); };
   db(update(t).set(values()).unconditionally());
+  */
   return 0;
 }

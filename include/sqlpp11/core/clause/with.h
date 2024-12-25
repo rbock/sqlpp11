@@ -89,22 +89,19 @@ namespace sqlpp
 
   struct no_with_t
   {
+  };
 
-    // Data
-    using _data_t = no_data_t;
+  template <typename Statement>
+  struct clause_base<no_with_t, Statement> : public clause_data<no_with_t, Statement>
+  {
+    using clause_data<no_with_t, Statement>::clause_data;
 
-    template <typename Statement>
-    struct _base_t
+    template <typename... Ctes>
+    auto with(with_t<Ctes...> with) const
+        -> decltype(new_statement(*this, with))
     {
-      _base_t() = default;
-      template<typename OtherStatement>
-      _base_t(_base_t<OtherStatement> base) : _data{std::move(base._data)} {}
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
-
-      _data_t _data;
-    };
+      return new_statement(*this, with);
+    }
   };
 
   template <typename Statement>
@@ -120,9 +117,9 @@ namespace sqlpp
 
     template <typename Statement>
     auto operator()(Statement statement)
-        -> decltype(new_statement(statement, _with_clause))
+        -> decltype(statement.with(_with_clause))
     {
-      return new_statement(statement, _with_clause);
+      return statement.with(_with_clause);
     }
   };
 

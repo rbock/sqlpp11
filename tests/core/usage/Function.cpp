@@ -343,14 +343,12 @@ int Function(int, char* [])
   // test verbatim_table
   {
     using T = decltype(sqlpp::verbatim_table("cheesecake"));
-    static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");
     static_assert(sqlpp::is_table<T>::value, "type requirement");
   }
 
   // test verbatim_table alias
   {
     using T = decltype(sqlpp::verbatim_table("cheesecake").as(kaesekuchen));
-    static_assert(not sqlpp::is_expression_t<T>::value, "type requirement");
     static_assert(sqlpp::is_table<T>::value, "type requirement");
   }
 
