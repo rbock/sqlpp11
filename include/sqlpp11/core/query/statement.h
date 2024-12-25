@@ -78,10 +78,6 @@ namespace sqlpp
 
       using _result_type_provider = detail::get_last_if_t<is_result_clause, noop, Policies...>;
 
-      struct _result_methods_t : public result_methods_t<Policies...>
-      {
-      };
-
       using _value_type =
           typename std::conditional<logic::any<is_missing<Policies>::value...>::value,
                                     no_value_t,  // if a required statement part is missing (e.g. columns in a select),
@@ -145,17 +141,17 @@ namespace sqlpp
       }
 
     template <typename Database>
-    auto _run(Database& db) const -> decltype(std::declval<_result_methods_t>()._run(db))
+    auto _run(Database& db) const -> decltype(std::declval<result_methods_t<Policies...>>()._run(db))
     {
       _run_check::verify();
-      return _result_methods_t::_run(db);
+      return result_methods_t<Policies...>::_run(db);
     }
 
     template <typename Database>
-    auto _prepare(Database& db) const -> decltype(std::declval<_result_methods_t>()._prepare(db))
+    auto _prepare(Database& db) const -> decltype(std::declval<result_methods_t<Policies...>>()._prepare(db))
     {
       _prepare_check::verify();
-      return _result_methods_t::_prepare(db);
+      return result_methods_t<Policies...>::_prepare(db);
     }
   };
 

@@ -113,5 +113,4 @@ int main()
 
   // time_of_day
   test_result_row<std::chrono::microseconds>(std::chrono::microseconds{});
-
 }
