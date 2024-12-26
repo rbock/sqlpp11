@@ -70,34 +70,6 @@ namespace sqlpp
   {
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_or_unconditionally_called_t,
-                               "calling where() or unconditionally() required");
-
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_arg_is_boolean_expression_t,
-                               "where() argument has to be an sqlpp boolean expression.");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_arg_contains_no_aggregate_t,
-                               "at least one aggregate function used in where()");
-
-  // workaround for msvc bugs https://connect.microsoft.com/VisualStudio/Feedback/Details/2086629 &
-  // https://connect.microsoft.com/VisualStudio/feedback/details/2173198
-  //  template <typename... Expressions>
-  //  using check_where_t = static_combined_check_t<
-  //      static_check_t<logic::all<is_boolean<Expressions>::value...>::value,
-  //      assert_where_arg_is_boolean_expression_t>,
-  //      static_check_t<logic::all<(not contains_aggregate_function<Expressions>::value)...>::value,
-  //                     assert_where_arg_contains_no_aggregate_t>>;
-  template <typename Expression>
-  struct check_where
-  {
-    using type = static_combined_check_t<
-        static_check_t<is_boolean<Expression>::value, assert_where_arg_is_boolean_expression_t>,
-        static_check_t<not contains_aggregate_function<Expression>::value,
-                       assert_where_arg_contains_no_aggregate_t>>;
-  };
-
-  template <typename Expression>
-  using check_where_t = typename check_where<remove_dynamic_t<Expression>>::type;
-
   // NO WHERE YET
   struct no_where_t
   {
@@ -113,14 +85,19 @@ namespace sqlpp
         return new_statement(*this, where_t<unconditional_t>{});
       }
 
-#warning: reactivate check_where_t
-      template <typename Expression>
+      template <typename Expression, typename = sqlpp::enable_if_t<is_boolean<Expression>::value>>
       auto where(Expression expression) const
           -> decltype(new_statement(*this, where_t<Expression>{expression}))
       {
+        SQLPP_STATIC_ASSERT(not contains_aggregate_function<Expression>::value,
+                            "where() must not contain aggregate functios");
+
         return new_statement(*this, where_t<Expression>{expression});
       }
   };
+
+  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_or_unconditionally_called_t,
+                               "calling where() or unconditionally() required");
 
   template <typename Statement>
   struct consistency_check<Statement, no_where_t>

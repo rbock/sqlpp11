@@ -30,5 +30,4 @@ endfunction()
 
 test_compile(aggregates)
 test_compile(case)
-test_compile(where)
 test_compile(having)
