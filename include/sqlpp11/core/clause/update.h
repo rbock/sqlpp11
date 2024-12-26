@@ -31,7 +31,7 @@
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/database/prepared_update.h>
 #include <sqlpp11/core/clause/single_table.h>
-#include <sqlpp11/core/clause/update_list.h>
+#include <sqlpp11/core/clause/update_set_list.h>
 #include <sqlpp11/core/clause/where.h>
 
 namespace sqlpp
@@ -94,7 +94,7 @@ namespace sqlpp
     return "UPDATE ";
   }
 
-  using blank_update_t = statement_t<update_t, no_single_table_t, no_update_list_t, no_where_t>;
+  using blank_update_t = statement_t<update_t, no_single_table_t, no_update_set_list_t, no_where_t>;
 
   template <typename Table>
   constexpr auto update(Table table) -> decltype(blank_update_t().single_table(table))

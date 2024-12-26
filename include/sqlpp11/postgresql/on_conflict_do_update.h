@@ -97,7 +97,7 @@ namespace sqlpp
       };
     };
 
-    // Use the update_list
+    // Use the update_set_list
     template <typename ConflictTarget, typename... Assignments>
     struct on_conflict_do_update_t
     {
