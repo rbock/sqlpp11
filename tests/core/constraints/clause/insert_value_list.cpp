@@ -25,6 +25,49 @@
 
 #include <sqlpp11/tests/core/constraints_helpers.h>
 #include <sqlpp11/tests/core/tables.h>
+#include <sqlpp11/core/compat/type_traits.h>
+
+namespace
+{
+  SQLPP_CREATE_NAME_TAG(something);
+
+  // Returns true if `insert_set(declval<Expressions>()...)` is a valid function call.
+  template <typename TypeVector, typename = void>
+  struct can_call_insert_set_with_impl : public std::false_type
+  {
+  };
+
+  template <typename... Expressions>
+  struct can_call_insert_set_with_impl<sqlpp::detail::type_vector<Expressions...>,
+                                  sqlpp::void_t<decltype(sqlpp::insert_set(std::declval<Expressions>()...))>>
+      : public std::true_type
+  {
+  };
+
+  template <typename... Expressions>
+  struct can_call_insert_set_with : public can_call_insert_set_with_impl<sqlpp::detail::type_vector<Expressions...>>
+  {
+  };
+
+  // Returns true if `insert_columns(declval<Columns>()...)` is a valid function call.
+  template <typename TypeVector, typename = void>
+  struct can_call_insert_columns_with_impl : public std::false_type
+  {
+  };
+
+  template <typename... Columns>
+  struct can_call_insert_columns_with_impl<sqlpp::detail::type_vector<Columns...>,
+                                  sqlpp::void_t<decltype(sqlpp::insert_columns(std::declval<Columns>()...))>>
+      : public std::true_type
+  {
+  };
+
+  template <typename... Columns>
+  struct can_call_insert_columns_with : public can_call_insert_columns_with_impl<sqlpp::detail::type_vector<Columns...>>
+  {
+  };
+
+}  // namespace
 
 int main()
 {
@@ -43,11 +86,10 @@ int main()
   // insert_into(table).set(<non arguments>) is inconsistent and cannot be constructed.
   SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).set(), "at least one assignment expression required in set()");
 
-#warning: Is there a reasonable way to test this?
-  /*
-  // insert_into(table).set(<arguments including non-assignments>) is inconsistent and cannot be constructed.
-  SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).set(bar.id == 7), "at least one argument is not an assignment in set()");
-  */
+  // insert_set(<arguments including non-assignments>) is inconsistent and cannot be constructed.
+  static_assert(can_call_insert_set_with<decltype(bar.id = 7)>::value, "assignment is OK");
+  static_assert(not can_call_insert_set_with<decltype(bar.id == 7)>::value, "not an assignment: comparison");
+  static_assert(not can_call_insert_set_with<decltype(bar.id = 7), decltype(bar.boolNn)>::value, "not an assignment: boolNn");
 
   // insert_into(table).set(<arguments including non-assignments>) is inconsistent and cannot be constructed.
   SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).set(bar.boolNn = true, bar.boolNn = false), "at least one duplicate column detected in set()");
@@ -85,11 +127,9 @@ int main()
   // insert_into(table).columns(<non arguments>) is inconsistent and cannot be constructed.
   SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).columns(), "at least one column required in columns()");
 
-#warning: Is there a reasonable way to test this?
-  /*
   // insert_into(table).columns(<arguments including non-columns>) is inconsistent and cannot be constructed.
-  SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).columns(bar.id == 7), "at least one argument is not an column in set()");
-  */
+  static_assert(can_call_insert_columns_with<decltype(bar.id)>::value, "OK, argument is a column");
+  static_assert(not can_call_insert_columns_with<decltype(bar.id = 7)>::value, "OK, argument is not a column");
 
   // insert_into(table).columns(<arguments including non-columns>) is inconsistent and cannot be constructed.
   SQLPP_CHECK_STATIC_ASSERT(insert_into(bar).columns(bar.boolNn, bar.id, bar.boolNn), "at least one duplicate column detected in columns()");

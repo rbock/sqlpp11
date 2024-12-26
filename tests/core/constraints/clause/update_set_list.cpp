@@ -25,6 +25,32 @@
 
 #include <sqlpp11/tests/core/constraints_helpers.h>
 #include <sqlpp11/tests/core/tables.h>
+#include <sqlpp11/core/compat/type_traits.h>
+
+namespace
+{
+  SQLPP_CREATE_NAME_TAG(something);
+
+  // Returns true if `update_set(declval<Expressions>()...)` is a valid function call.
+  template <typename TypeVector, typename = void>
+  struct can_call_update_set_with_impl : public std::false_type
+  {
+  };
+
+  template <typename... Expressions>
+  struct can_call_update_set_with_impl<sqlpp::detail::type_vector<Expressions...>,
+                                  sqlpp::void_t<decltype(sqlpp::update_set(std::declval<Expressions>()...))>>
+      : public std::true_type
+  {
+  };
+
+  template <typename... Expressions>
+  struct can_call_update_set_with : public can_call_update_set_with_impl<sqlpp::detail::type_vector<Expressions...>>
+  {
+  };
+
+}  // namespace
+
 
 int main()
 {
@@ -44,8 +70,10 @@ int main()
   // Try to update nothing
   SQLPP_CHECK_STATIC_ASSERT(sqlpp::update_set(), "at least one assignment expression required in set()");
 
-#warning : Is there a good way to test this (fail with enable_if since argument is not an assignment)?
-  // update_set(bar.boolNn == true);
+  // update_set requires assignments as arguments and cannot be called with anything else.
+  static_assert(can_call_update_set_with<decltype(bar.boolNn = true)>::value, "OK, argument is an assignment");
+  static_assert(not can_call_update_set_with<decltype(bar.id == 7)>::value, "not an assignment: comparison");
+  static_assert(not can_call_update_set_with<decltype(bar.id = 7), decltype(bar.boolNn)>::value, "not an assignment: boolNn");
 
   // Try duplicate columns
   SQLPP_CHECK_STATIC_ASSERT(update_set(bar.boolNn = true, bar.boolNn = false), "at least one duplicate column detected in set()");

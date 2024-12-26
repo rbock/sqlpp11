@@ -25,6 +25,31 @@
 
 #include <sqlpp11/tests/core/constraints_helpers.h>
 #include <sqlpp11/tests/core/tables.h>
+#include <sqlpp11/core/compat/type_traits.h>
+
+namespace
+{
+  SQLPP_CREATE_NAME_TAG(something);
+
+  // Returns true if `select_columns(declval<Expressions>()...)` is a valid function call.
+  template <typename TypeVector, typename = void>
+  struct can_call_select_columns_with_impl : public std::false_type
+  {
+  };
+
+  template <typename... Expressions>
+  struct can_call_select_columns_with_impl<sqlpp::detail::type_vector<Expressions...>,
+                                  sqlpp::void_t<decltype(sqlpp::select_columns(std::declval<Expressions>()...))>>
+      : public std::true_type
+  {
+  };
+
+  template <typename... Expressions>
+  struct can_call_select_columns_with : public can_call_select_columns_with_impl<sqlpp::detail::type_vector<Expressions...>>
+  {
+  };
+
+}  // namespace
 
 namespace test {
   SQLPP_CREATE_NAME_TAG(max_id);
@@ -56,11 +81,11 @@ int main()
   // select_columns(<non arguments>) is inconsistent and cannot be constructed.
   SQLPP_CHECK_STATIC_ASSERT(sqlpp::select_columns(), "at least one selected column required");
 
-#warning: Is there a reasonable way to test this?
-  /*
-  // select_columns(<arguments with no value>) is inconsistent and cannot be constructed.
-  SQLPP_CHECK_STATIC_ASSERT(select_columns(bar, bar.id), "at least one selected column does not have value");
-  */
+  // select_columns(<arguments with no value>) cannot be called.
+  static_assert(can_call_select_columns_with<decltype(bar.boolNn)>::value, "OK, argument a column");
+  static_assert(can_call_select_columns_with<decltype(bar.id == 7)>::value, "OK to call, but will fail static_assert later");
+  static_assert(not can_call_select_columns_with<decltype(bar.id = 7), decltype(bar.boolNn)>::value, "not value: assignment");
+
 
   // select_columns(<at least one unnamed column>) is inconsistent and cannot be constructed.
   SQLPP_CHECK_STATIC_ASSERT(sqlpp::select_columns(sqlpp::value(7)), "each selected column must have a name");
