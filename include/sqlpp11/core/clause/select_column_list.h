@@ -106,7 +106,10 @@ namespace sqlpp
       auto as(const NameTagProvider&) const
           -> select_as_t<_statement_t, name_tag_of_t<NameTagProvider>, make_field_spec_t<_statement_t, Columns>...>
       {
-        statement_consistency_check_t<_statement_t>::verify();
+        // This ensures that the sub select is free of table/CTE dependencies and consistent (e.g. not missing where
+        // condition).
+        statement_prepare_check_t<_statement_t>::verify();
+
         using table = select_as_t<_statement_t, name_tag_of_t<NameTagProvider>, make_field_spec_t<_statement_t, Columns>...>;
         return table(_get_statement());
       }
@@ -152,12 +155,16 @@ namespace sqlpp
   template <typename Statement, typename... Columns>
   struct consistency_check<Statement, select_column_list_t<Columns...>>
   {
-    using type =
-        static_combined_check_t<static_check_t<Statement::template _no_unknown_tables<select_column_list_t<Columns...>>,
-                                               assert_no_unknown_tables_in_selected_columns_t>,
-                                static_check_t<has_correct_aggregates<typename Statement::_all_provided_aggregates,
-                                                                      select_column_list_t<Columns...>>::value,
-                                               assert_correct_aggregates_t>>;
+    using type = static_check_t<
+        has_correct_aggregates<typename Statement::_all_provided_aggregates, select_column_list_t<Columns...>>::value,
+        assert_correct_aggregates_t>;
+  };
+
+  template <typename Statement, typename... Columns>
+  struct prepare_check<Statement, select_column_list_t<Columns...>>
+  {
+    using type = static_check_t<Statement::template _no_unknown_tables<select_column_list_t<Columns...>>,
+                                assert_no_unknown_tables_in_selected_columns_t>;
   };
 
   template <typename Column>

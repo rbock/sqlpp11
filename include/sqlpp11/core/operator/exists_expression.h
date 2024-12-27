@@ -69,10 +69,11 @@ namespace sqlpp
     return "EXISTS (" + to_sql_string(context, t._select) + ")";
   }
 
-  template <typename Select, typename = check_exists_arg<Select>>
-  constexpr auto exists(Select s) -> exists_expression<Select>
+  template <typename... Clauses, typename = check_exists_arg<statement_t<Clauses...>>>
+  constexpr auto exists(statement_t<Clauses...> s) -> exists_expression<statement_t<Clauses...>>
   {
-    return exists_expression<Select>{std::move(s)};
+    statement_consistency_check_t<statement_t<Clauses...>>::verify();
+    return exists_expression<statement_t<Clauses...>>{std::move(s)};
   }
 
 }  // namespace sqlpp

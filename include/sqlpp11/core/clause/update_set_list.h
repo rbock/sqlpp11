@@ -62,6 +62,12 @@ namespace sqlpp
   template <typename Statement, typename... Assignments>
   struct consistency_check<Statement, update_set_list_t<Assignments...>>
   {
+    using type = consistent_t;
+  };
+
+  template <typename Statement, typename... Assignments>
+  struct prepare_check<Statement, update_set_list_t<Assignments...>>
+  {
     using type = typename std::conditional<Statement::template _no_unknown_tables<update_set_list_t<Assignments...>>,
                                                            consistent_t,
                                                            assert_no_unknown_tables_in_update_assignments_t>::type;

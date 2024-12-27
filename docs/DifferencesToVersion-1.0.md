@@ -100,3 +100,6 @@ This is just too unnerving (consider `select((5 + tab.id).as(something))....grou
 
 ## Custom query is now expressed with statement_t::operator<<
 This also means that custom queries now use the LAST return-value-clause (just like any other statement)
+
+## Statements need to be wrapped in value() to be used as value
+This makes it ~possible~ much easier to verify that sub queries are consistent.

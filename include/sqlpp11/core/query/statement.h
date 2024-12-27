@@ -35,6 +35,7 @@
 #include <sqlpp11/core/result.h>
 #include <sqlpp11/core/to_sql_string.h>
 #include <sqlpp11/core/query/statement_fwd.h>
+#include <sqlpp11/core/basic/value.h>
 #include <sqlpp11/core/clause/clause_base.h>
 #include <sqlpp11/core/result_type_provider.h>
 #include <sqlpp11/core/detail/get_first.h>
@@ -78,6 +79,7 @@ namespace sqlpp
 
       using _result_type_provider = detail::get_last_if_t<is_result_clause, noop, Policies...>;
 
+#warning: We should require statements to be wrapped in value, exists, any, none, to use it as a value and each of those should do a statement_consistency_check.
       using _value_type =
           typename std::conditional<logic::any<is_missing<Policies>::value...>::value,
                                     no_value_t,  // if a required statement part is missing (e.g. columns in a select),
@@ -156,8 +158,9 @@ namespace sqlpp
     static constexpr bool value = not std::is_same<noop, typename statement_t<Policies...>::_result_type_provider>::value;
   };
 
+  // Statements should not be used as values directly. Wrap them in value(), any(), or none().
   template<typename... Policies>
-    struct value_type_of<statement_t<Policies...>>
+    struct statement_value_type_of<statement_t<Policies...>>
   {
     using type = typename statement_t<Policies...>::_value_type;
   };
@@ -207,35 +210,30 @@ namespace sqlpp
   template <typename... Policies>
   struct requires_parentheses<statement_t<Policies...>> : public std::true_type {};
 
-  template<typename... Policies>
-    struct statement_consistency_check<statement_t<Policies...>> {
-        using type = detail::get_first_if<is_inconsistent_t,
-                             consistent_t,
-                             consistency_check_t<statement_t<Policies...>, Policies>...,
-                             typename statement_t<Policies...>::_table_check>;
-    };
+  template <typename... Policies>
+  struct statement_consistency_check<statement_t<Policies...>>
+  {
+    using type = static_combined_check_t<consistency_check_t<statement_t<Policies...>, Policies>...>;
+  };
 
-  template<typename... Policies>
-    struct statement_run_check<statement_t<Policies...>> {
-    using type = detail::get_first_if<is_inconsistent_t,
-                                      consistent_t,
-                                      typename statement_t<Policies...>::_parameter_check,
-                                      typename statement_t<Policies...>::_cte_check,
-                                      statement_consistency_check_t<statement_t<Policies...>>,
-                                      typename statement_t<Policies...>::_table_check>;
-    };
+  template <typename... Policies>
+  struct statement_prepare_check<statement_t<Policies...>>
+  {
+    using type =
+        static_combined_check_t<statement_consistency_check_t<statement_t<Policies...>>,
+                                static_combined_check_t<prepare_check_t<statement_t<Policies...>, Policies>...>,
+                                typename statement_t<Policies...>::_table_check,
+                                typename statement_t<Policies...>::_cte_check>;
+  };
 
-    template <typename... Policies>
-    struct statement_prepare_check<statement_t<Policies...>>
-    {
-      using type = detail::get_first_if<is_inconsistent_t,
-                                        consistent_t,
-                                        typename statement_t<Policies...>::_cte_check,
-                                        statement_consistency_check_t<statement_t<Policies...>>,
-                                        typename statement_t<Policies...>::_table_check>;
-    };
+  template <typename... Policies>
+  struct statement_run_check<statement_t<Policies...>>
+  {
+    using type = static_combined_check_t<statement_prepare_check_t<statement_t<Policies...>>,
+                                         static_combined_check_t<run_check_t<statement_t<Policies...>, Policies>...>,
+                                         typename statement_t<Policies...>::_parameter_check>;
+  };
 
-#warning: move clauses to use clause_base and new_statement!
   template <typename OldClause, typename... Clauses, typename NewClause>
   auto new_statement(const clause_base<OldClause, statement_t<Clauses...>>& oldBase, NewClause newClause)
       -> statement_t<typename std::conditional<std::is_same<Clauses, OldClause>::value, NewClause, Clauses>::type...>
@@ -283,5 +281,19 @@ namespace sqlpp
 
     return result;
   }
+
+  template<typename... Clauses>
+  struct value_type_of<value_t<statement_t<Clauses...>>>
+  {
+    using type = statement_value_type_of_t<statement_t<Clauses...>>;
+  };
+
+  template<typename... Clauses>
+  auto value(statement_t<Clauses...> s) -> value_t<statement_t<Clauses...>>
+  {
+    statement_consistency_check_t<statement_t<Clauses...>>::verify();
+
+    return value_t<statement_t<Clauses...>>{std::move(s)};
+  };
 
 }  // namespace sqlpp

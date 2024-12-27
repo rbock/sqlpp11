@@ -359,12 +359,36 @@ namespace sqlpp
   template<typename T>
     struct is_missing : public std::false_type {};
 
-  // Not implemented to ensure implementation for every clause.
+  // Check if a clause makes sense in the context of the whole statement.
+  // Note: This should /not/ be checking for missing tables as the statement might be used as a sub-select that /might/
+  // be using columns from the enclosing statement.
+  //
+  // Note: This has no default implementation to ensure implementation for every clause.
   template<typename Statement, typename Clause>
     struct consistency_check;
 
   template<typename Statement, typename Clause>
     using consistency_check_t = typename consistency_check<Statement, Clause>::type;
+
+  // Check if a clause within a statement is ready to be used in a prepared statement.
+  // This used in addition to the `consistency_check`.
+  //
+  // Implementation is optional for clauses, but it might be useful to check for missing tables.
+  template<typename Statement, typename Clause>
+    struct prepare_check { using type = consistent_t; };
+
+  template<typename Statement, typename Clause>
+    using prepare_check_t = typename prepare_check<Statement, Clause>::type;
+
+  // Check if a clause within a statement is ready to be run by the connection.
+  // This used in addition to the `consistency_check`.
+  //
+  // Implementation is optional for clauses, but it might be useful to check for missing tables.
+  template<typename Statement, typename Clause>
+    struct run_check { using type = consistent_t; };
+
+  template<typename Statement, typename Clause>
+    using run_check_t = typename run_check<Statement, Clause>::type;
 
   // Not implemented to ensure implementation for statement_t
   template<typename Statement>
@@ -388,7 +412,14 @@ namespace sqlpp
     using type = assert_prepare_statement_t;
   };
 
-  template<typename Statement>
-    using statement_prepare_check_t = typename statement_prepare_check<Statement>::type;
+  template <typename Statement>
+  using statement_prepare_check_t = typename statement_prepare_check<Statement>::type;
+
+  // Value type of a statement. Use this in functions that use statements as values like value(), any(), or none().
+  template <typename Statement>
+  struct statement_value_type_of;
+
+  template <typename Statement>
+  using statement_value_type_of_t = typename statement_value_type_of<Statement>::type;
 
 }  // namespace sqlpp

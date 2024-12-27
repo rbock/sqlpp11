@@ -63,6 +63,12 @@ namespace sqlpp
  template <typename Statement, typename... Columns>
   struct consistency_check<Statement, group_by_t<Columns...>>
   {
+    using type = consistent_t;
+  };
+
+ template <typename Statement, typename... Columns>
+  struct prepare_check<Statement, group_by_t<Columns...>>
+  {
     using type = typename std::conditional<Statement::template _no_unknown_tables<group_by_t<Columns...>>,
                                            consistent_t,
                                            assert_no_unknown_tables_in_group_by_t>::type;

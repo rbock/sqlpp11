@@ -78,9 +78,10 @@ namespace sqlpp
   template <typename Select>
   using check_any_args = ::sqlpp::enable_if_t<has_value_type<Select>::value>;
 
-  template <typename ...Policies, typename = check_any_args<statement_t<Policies...>>>
-  auto any(statement_t<Policies...> t) -> any_t<statement_t<Policies...>>
+  template <typename... Clauses, typename = check_any_args<statement_t<Clauses...>>>
+  auto any(statement_t<Clauses...> t) -> any_t<statement_t<Clauses...>>
   {
+    statement_consistency_check_t<statement_t<Clauses...>>::verify();
     return {std::move(t)};
   }
 }  // namespace sqlpp

@@ -65,11 +65,16 @@ namespace sqlpp
   template <typename Statement, typename Expression>
   struct consistency_check<Statement, having_t<Expression>>
   {
-    using type = static_combined_check_t<
-          static_check_t<Statement::template _no_unknown_tables<having_t<Expression>>,
-                         assert_having_no_unknown_tables_t>,
-          static_check_t<is_aggregate_expression<typename Statement::_all_provided_aggregates, Expression>::value,
-                         assert_having_all_aggregates_t>>;
+    using type =
+        static_check_t<is_aggregate_expression<typename Statement::_all_provided_aggregates, Expression>::value,
+                       assert_having_all_aggregates_t>;
+  };
+
+  template <typename Statement, typename Expression>
+  struct prepare_check<Statement, having_t<Expression>>
+  {
+    using type =
+        static_check_t<Statement::template _no_unknown_tables<having_t<Expression>>, assert_having_no_unknown_tables_t>;
   };
 
   // NO HAVING YET

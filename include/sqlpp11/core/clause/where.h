@@ -54,6 +54,12 @@ namespace sqlpp
   template <typename Statement, typename Expression>
   struct consistency_check<Statement, where_t<Expression>>
   {
+      using type = consistent_t;
+  };
+
+  template <typename Statement, typename Expression>
+  struct prepare_check<Statement, where_t<Expression>>
+  {
       using type = typename std::conditional<Statement::template _no_unknown_tables<where_t<Expression>>,
                                                            consistent_t,
                                                            assert_no_unknown_tables_in_where_t>::type;
