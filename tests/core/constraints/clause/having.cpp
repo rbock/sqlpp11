@@ -126,6 +126,12 @@ int main()
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_having_all_aggregates_t>::value, "");
   }
 
+  // Use in sub queries: Allow foreign expressions in aggregate functions
+  {
+    using S = decltype(select_without_group_by.having(avg(foo.doubleN) > 17));
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::consistent_t>::value, "");
+  }
+
 #warning: Add tests with dynamic
 }
 

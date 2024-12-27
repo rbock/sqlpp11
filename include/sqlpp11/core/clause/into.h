@@ -92,12 +92,9 @@ namespace sqlpp
     using clause_data<no_into_t, Statement>::clause_data;
 
 
-    template <typename Table>
+    template <typename Table, typename = sqlpp::enable_if_t<is_raw_table<Table>::value>>
     auto into(Table table) const -> decltype(new_statement(*this, into_t<Table>{table}))
     {
-#warning : write constraint tests
-      SQLPP_STATIC_ASSERT(is_raw_table<Table>::value, "into() argument must be a raw table, i.e. no join or cte"); 
-
       return new_statement(*this, into_t<Table>{table});
     }
   };
