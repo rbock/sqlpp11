@@ -72,19 +72,6 @@ namespace sqlpp
                          assert_having_all_aggregates_t>>;
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_having_boolean_expression_t,
-                               "having() argument has to be an sqlpp boolean expression.");
-
-  template <typename Expression>
-  struct check_having
-  {
-    using type =
-        static_combined_check_t<static_check_t<is_boolean<Expression>::value, assert_having_boolean_expression_t>>;
-  };
-
-  template <typename Expression>
-  using check_having_t = typename check_having<remove_dynamic_t<Expression>>::type;
-
   // NO HAVING YET
   struct no_having_t
   {
@@ -95,8 +82,7 @@ namespace sqlpp
   {
     using clause_data<no_having_t, Statement>::clause_data;
 
-#warning : reactivate check_having_t
-    template <typename Expression>
+    template <typename Expression, typename = sqlpp::enable_if_t<is_boolean<Expression>::value>>
     auto having(Expression expression) const -> decltype(new_statement(*this, having_t<Expression>{expression}))
     {
       return new_statement(*this, having_t<Expression>{expression});
