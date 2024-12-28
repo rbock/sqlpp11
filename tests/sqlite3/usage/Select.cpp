@@ -140,7 +140,8 @@ int Select(int, char*[])
 
   std::cerr << "--------------------------------------" << std::endl;
   auto tx = start_transaction(db);
-  for (const auto& row : db(select(all_of(tab), select(max(tab.alpha).as(something)).from(tab)).from(tab).unconditionally()))
+  for (const auto& row :
+       db(select(all_of(tab), value(select(max(tab.alpha).as(something)).from(tab).where(true)).as(something)).from(tab).unconditionally()))
   {
     const auto x = row.alpha;
     const auto a = row.something;
@@ -158,7 +159,10 @@ int Select(int, char*[])
     // end
   };
 
-  for (const auto& row : db(select(all_of(tab), select(trim(tab.beta).as(something)).from(tab)).from(tab).unconditionally()))
+  for (const auto& row :
+       db(select(all_of(tab), value(select(trim(tab.beta).as(something)).from(tab).where(true)).as(something))
+              .from(tab)
+              .unconditionally()))
   {
     const ::sqlpp::optional<int64_t> x = row.alpha;
     const ::sqlpp::optional<sqlpp::string_view> a = row.something;

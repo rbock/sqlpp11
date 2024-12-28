@@ -99,9 +99,11 @@ int Sample(int, char*[])
 
   auto tx = start_transaction(db);
   test::TabFoo foo;
-  for (const auto& row : db(select(all_of(tab), select(max(foo.omega).as(something)).from(foo).where(foo.omega > tab.alpha))
-                                .from(tab)
-                                .unconditionally()))
+  for (const auto& row :
+       db(select(all_of(tab),
+                 value(select(max(foo.omega).as(something)).from(foo).where(foo.omega > tab.alpha)).as(something))
+              .from(tab)
+              .unconditionally()))
   {
     ::sqlpp::optional<int64_t> x = row.alpha;
     ::sqlpp::optional<int64_t> a = row.something;
@@ -187,10 +189,10 @@ int Sample(int, char*[])
   assert(
       db(select(all_of(tab)).from(tab).where(tab.alpha.not_in(select(tab.alpha).from(tab).unconditionally()))).empty());
 
-  auto x = custom_query(sqlpp::verbatim("PRAGMA user_version = "), 1);
+  auto x = sqlpp::statement_t<>{} << sqlpp::verbatim("PRAGMA user_version = 1");
   db(x);
   const int64_t pragmaValue =
-      db(custom_query(sqlpp::verbatim("PRAGMA user_version")).with_result_type_of(select(sqlpp::value(1).as(pragma))))
+      db(x << with_result_type_of(select(sqlpp::value(1).as(pragma))))
           .front()
           .pragma;
   std::cerr << pragmaValue << std::endl;
