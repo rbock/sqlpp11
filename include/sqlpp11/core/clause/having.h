@@ -87,7 +87,7 @@ namespace sqlpp
   {
     using clause_data<no_having_t, Statement>::clause_data;
 
-    template <typename Expression, typename = sqlpp::enable_if_t<is_boolean<Expression>::value>>
+    template <typename Expression, typename = sqlpp::enable_if_t<is_boolean<remove_dynamic_t<Expression>>::value>>
     auto having(Expression expression) const -> decltype(new_statement(*this, having_t<Expression>{expression}))
     {
       return new_statement(*this, having_t<Expression>{expression});

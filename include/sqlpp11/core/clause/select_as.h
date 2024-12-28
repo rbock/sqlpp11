@@ -72,6 +72,12 @@ namespace sqlpp
   // No value_type_of defined. select_as_t represents a table, not a value.
   // Rationale: select.as() requires prepare_check to be used as tbale, whereas using as value just requires consistency.
 
+  template <typename Select, typename NameTag, typename... FieldSpecs>
+  struct name_tag_of<select_as_t<Select, NameTag, FieldSpecs...>>
+  {
+    using type = NameTag;
+  };
+
   // We need to track nodes to find parameters or required tables in sub selects.
   template<typename Select, typename NameTag, typename... FieldSpecs>
     struct nodes_of<select_as_t<Select, NameTag, FieldSpecs...>> { 

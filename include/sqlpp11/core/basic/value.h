@@ -53,6 +53,9 @@ namespace sqlpp
     using type = value_type_of_t<T>;
   };
 
+  template<typename T>
+  struct requires_parentheses<value_t<T>> : public requires_parentheses<T> {};
+
   template <typename Context, typename T>
   auto to_sql_string(Context& context, const value_t<T>& t) -> std::string
   {

@@ -101,8 +101,8 @@ int Interpret(int, char* [])
   to_sql_string(printer, sqlpp::verbatim<sqlpp::integral>("something integral"));
   to_sql_string(printer, t.id.in(std::vector<int>({1, 2, 3, 4, 5, 6, 8})));
   to_sql_string(printer, sqlpp::in(t.id, std::vector<int>({1, 2, 3, 4, 5, 6, 8})));
-  to_sql_string(printer, exists(select(t.id).from(t)));
-  to_sql_string(printer, any(select(t.id).from(t)));
+  to_sql_string(printer, exists(select(t.id).from(t).unconditionally()));
+  to_sql_string(printer, any(select(t.id).from(t).unconditionally()));
   to_sql_string(printer, count(t.id));
   to_sql_string(printer, min(t.id));
   to_sql_string(printer, max(t.id));

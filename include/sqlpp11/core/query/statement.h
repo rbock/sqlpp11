@@ -272,12 +272,4 @@ namespace sqlpp
     return result;
   }
 
-  template<typename... Clauses>
-  auto value(statement_t<Clauses...> s) -> value_t<statement_t<Clauses...>>
-  {
-    statement_consistency_check_t<statement_t<Clauses...>>::verify();
-
-    return value_t<statement_t<Clauses...>>{std::move(s)};
-  };
-
 }  // namespace sqlpp

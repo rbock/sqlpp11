@@ -82,7 +82,7 @@ int main()
  batch.add_values(bar.textN = "sample", bar.boolNn = true);
  batch.add_values(bar.textN = "ample", bar.boolNn = false);
  SQLPP_COMPARE(sqlpp::insert() << sqlpp::verbatim(" OR IGNORE") << into(bar) << batch,
-               "INSERT OR IGNORE INTO tab_bar (text_n, bool_nn) VALUES ('sample',1),('ample',0)");
+               "INSERT OR IGNORE INTO tab_bar (text_n, bool_nn) VALUES ('sample', 1), ('ample', 0)");
 
  return 0;
 }

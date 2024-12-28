@@ -102,13 +102,15 @@ int main()
   {
     auto s = sqlpp::select_columns(bar.id);
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_no_unknown_tables_in_selected_columns_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::consistent_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>, sqlpp::assert_no_unknown_tables_in_selected_columns_t>::value, "");
   }
 
   {
     auto s = sqlpp::select_columns(dynamic(true, bar.id));
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_no_unknown_tables_in_selected_columns_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::consistent_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>, sqlpp::assert_no_unknown_tables_in_selected_columns_t>::value, "");
   }
 
   // select_columns(<mix of aggregate and non-aggregate columns>) can be constructed but is inconsistent.
