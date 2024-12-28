@@ -165,8 +165,8 @@ int Function(int, char* [])
 
   // Test exists
   {
-    using TI = decltype(exists(select(t.id).from(t)));
-    using TT = decltype(exists(select(t.textN).from(t)));
+    using TI = decltype(exists(select(t.id).from(t).unconditionally()));
+    using TT = decltype(exists(select(t.textN).from(t).unconditionally()));
     static_assert(sqlpp::is_boolean<TI>::value, "type requirement");
     static_assert(sqlpp::is_numeric<TI>::value, "type requirement");
     static_assert(not sqlpp::is_text<TI>::value, "type requirement");
@@ -181,12 +181,12 @@ int Function(int, char* [])
 
   // Test any
   {
-    using S = decltype(select(t.id).from(t));
+    using S = decltype(select(t.id).from(t).unconditionally());
     static_assert(sqlpp::is_numeric<S>::value, "type requirement");
 
-    using TI = decltype(any(select(t.id).from(t)));
-    using TT = decltype(any(select(t.textN).from(t)));
-    using TF = decltype(any(select(f.doubleN).from(f)));
+    using TI = decltype(any(select(t.id).from(t).unconditionally()));
+    using TT = decltype(any(select(t.textN).from(t).unconditionally()));
+    using TF = decltype(any(select(f.doubleN).from(f).unconditionally()));
     static_assert(not sqlpp::is_numeric<TI>::value, "type requirement");
     static_assert(not sqlpp::is_integral<TI>::value, "type requirement");
     static_assert(not sqlpp::is_text<TI>::value, "type requirement");
