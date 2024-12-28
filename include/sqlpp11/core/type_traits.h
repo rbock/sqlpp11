@@ -398,6 +398,14 @@ namespace sqlpp
     using statement_consistency_check_t = typename statement_consistency_check<Statement>::type;
 
   template<typename Statement>
+    struct statement_prepare_check
+  {
+    using type = assert_prepare_statement_t;
+  };
+
+  template <typename Statement>
+  using statement_prepare_check_t = typename statement_prepare_check<Statement>::type;
+  template<typename Statement>
     struct statement_run_check
   {
     using type = assert_run_statement_or_prepared_t;
@@ -406,20 +414,5 @@ namespace sqlpp
   template<typename Statement>
     using statement_run_check_t = typename statement_run_check<Statement>::type;
 
-  template<typename Statement>
-    struct statement_prepare_check
-  {
-    using type = assert_prepare_statement_t;
-  };
-
-  template <typename Statement>
-  using statement_prepare_check_t = typename statement_prepare_check<Statement>::type;
-
-  // Value type of a statement. Use this in functions that use statements as values like value(), any(), or none().
-  template <typename Statement>
-  struct statement_value_type_of;
-
-  template <typename Statement>
-  using statement_value_type_of_t = typename statement_value_type_of<Statement>::type;
 
 }  // namespace sqlpp

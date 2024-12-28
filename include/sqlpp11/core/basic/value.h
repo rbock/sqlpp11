@@ -62,7 +62,6 @@ namespace sqlpp
   template <typename T>
   using check_value_arg = ::sqlpp::enable_if_t<not std::is_same<value_type_of_t<T>, no_value_t>::value and values_are_comparable<T, T>::value>;
 
-  // Note that there is an overload for statement_t.
   template <typename T, typename = check_value_arg<T>>
   auto value(T t) -> value_t<T>
   {

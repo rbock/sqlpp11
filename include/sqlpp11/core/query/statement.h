@@ -32,10 +32,10 @@
 #include <sqlpp11/core/query/statement_constructor_arg.h>
 #include <sqlpp11/core/query/policy_update.h>
 #include <sqlpp11/core/database/prepared_select.h>
+#include <sqlpp11/core/basic/value.h>
 #include <sqlpp11/core/result.h>
 #include <sqlpp11/core/to_sql_string.h>
 #include <sqlpp11/core/query/statement_fwd.h>
-#include <sqlpp11/core/basic/value.h>
 #include <sqlpp11/core/clause/clause_base.h>
 #include <sqlpp11/core/result_type_provider.h>
 #include <sqlpp11/core/detail/get_first.h>
@@ -79,13 +79,6 @@ namespace sqlpp
 
       using _result_type_provider = detail::get_last_if_t<is_result_clause, noop, Policies...>;
 
-#warning: We should require statements to be wrapped in value, exists, any, none, to use it as a value and each of those should do a statement_consistency_check.
-      using _value_type =
-          typename std::conditional<logic::any<is_missing<Policies>::value...>::value,
-                                    no_value_t,  // if a required statement part is missing (e.g. columns in a select),
-                                                 // then the statement cannot be used as a value
-                                    value_type_of_t<_result_type_provider>>::type;
-
       using _cte_check =
           typename std::conditional<_required_ctes_of::empty(), consistent_t, assert_no_unknown_ctes_t>::type;
       using _table_check =
@@ -93,7 +86,6 @@ namespace sqlpp
       using _parameter_check = typename std::
           conditional<_parameters::empty(), consistent_t, assert_no_parameters_t>::type;
 
-    using _name_tag_of = name_tag_of<_result_type_provider>;
     using _provided_optional_tables = _all_provided_optional_tables;
 
     // Constructors
@@ -158,15 +150,13 @@ namespace sqlpp
     static constexpr bool value = not std::is_same<noop, typename statement_t<Policies...>::_result_type_provider>::value;
   };
 
-  // Statements should not be used as values directly. Wrap them in value(), any(), or none().
-  template<typename... Policies>
-    struct statement_value_type_of<statement_t<Policies...>>
+  template <typename... Policies>
+  struct value_type_of<statement_t<Policies...>>
   {
-    using type = typename statement_t<Policies...>::_value_type;
+    using type = typename std::conditional<statement_consistency_check_t<statement_t<Policies...>>::value,
+                                           value_type_of_t<result_type_provider_t<Policies...>>,
+                                           no_value_t>::type;
   };
-
-  template<typename... Policies>
-    struct name_tag_of<statement_t<Policies...>> : public statement_t<Policies...>::_name_tag_of {};
 
   template <typename... Policies>
   struct nodes_of<statement_t<Policies...>>
@@ -281,12 +271,6 @@ namespace sqlpp
 
     return result;
   }
-
-  template<typename... Clauses>
-  struct value_type_of<value_t<statement_t<Clauses...>>>
-  {
-    using type = statement_value_type_of_t<statement_t<Clauses...>>;
-  };
 
   template<typename... Clauses>
   auto value(statement_t<Clauses...> s) -> value_t<statement_t<Clauses...>>

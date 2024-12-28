@@ -172,11 +172,6 @@ namespace sqlpp
   {
   };
 
-  template <typename Column>
-  struct name_tag_of<select_column_list_t<Column>> : public select_column_name_tag_of<Column>
-  {
-  };
-
   // Checks if the selected columns are aggregate-correct.
   // The presence of GROUP BY changes what is allowed.
   template <typename KnownAggregateColumns, typename... Columns>

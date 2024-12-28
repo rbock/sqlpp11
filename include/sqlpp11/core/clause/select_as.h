@@ -69,15 +69,8 @@ namespace sqlpp
     Select _select;
   };
 
-  // The SELECT expression has a value in case it has just one column selected.
-  template<typename Select, typename NameTag, typename ColumnSpec>
-    struct value_type_of<select_as_t<Select, NameTag, ColumnSpec>> : public value_type_of<Select> {};
-
-  template <typename Select, typename NameTag, typename... FieldSpecs>
-  struct name_tag_of<select_as_t<Select, NameTag, FieldSpecs...>>
-  {
-    using type = NameTag;
-  };
+  // No value_type_of defined. select_as_t represents a table, not a value.
+  // Rationale: select.as() requires prepare_check to be used as tbale, whereas using as value just requires consistency.
 
   // We need to track nodes to find parameters or required tables in sub selects.
   template<typename Select, typename NameTag, typename... FieldSpecs>
