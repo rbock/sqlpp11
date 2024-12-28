@@ -112,7 +112,10 @@ static_assert(sqlpp::is_statement<XXX>::value, "");
     // transaction
     {
       auto tx = start_transaction(db);
-      auto result = db(select(all_of(tab), select(max(tab.intN).as(sqlpp::alias::a)).from(tab)).from(tab).unconditionally());
+      auto result =
+          db(select(all_of(tab), value(select(max(tab.intN).as(sqlpp::alias::a)).from(tab).where(true)).as(sqlpp::alias::a))
+                 .from(tab)
+                 .unconditionally());
       if (const auto& row = *result.begin())
       {
         const int64_t a = row.intN.value_or(0);

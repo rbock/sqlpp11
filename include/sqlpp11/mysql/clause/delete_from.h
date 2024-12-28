@@ -36,7 +36,7 @@ namespace sqlpp
   {
 #warning: Should we re-enable `using`
     using blank_delete_t =
-        statement_t<delete_t, no_single_table_t/*, no_using_t*/, no_where_t<true>, no_order_by_t, no_limit_t>;
+        statement_t<delete_t, no_single_table_t/*, no_using_t*/, no_where_t, no_order_by_t, no_limit_t>;
 
     inline auto delete_from() -> blank_delete_t
     {

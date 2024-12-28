@@ -40,7 +40,7 @@ namespace sqlpp
   }
   */
 
-  inline auto to_sql_string(mysql::context_t&, const insert_default_values_data_t&) -> std::string
+  inline auto to_sql_string(mysql::context_t&, const insert_default_values_t&) -> std::string
   {
     return " () VALUES()";
   }

@@ -27,7 +27,6 @@
 #include "make_test_connection.h"
 #include "Tables.h"
 #include <sqlpp11/sqlpp11.h>
-#include <sqlpp11/core/query/custom_query.h>
 #include <sqlpp11/mysql/mysql.h>
 
 namespace
@@ -70,8 +69,8 @@ int CustomQuery(int, char*[])
     test::createTabSample(db);
 
      // Create a MYSQL style custom "insert on duplicate update"
-    db(custom_query(sqlpp::insert_into(tab).set(tab.textN = "sample", tab.boolN = true),
-                    on_duplicate_key_update(db, tab.textN = "sample")(db, tab.boolN = false).get()));
+    db(sqlpp::insert_into(tab).set(tab.textN = "sample", tab.boolN = true) <<
+                    on_duplicate_key_update(db, tab.textN = "sample")(db, tab.boolN = false).get());
   }
   catch (const std::exception& e)
   {

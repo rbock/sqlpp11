@@ -139,7 +139,7 @@ int Select(int, char*[])
     // transaction
     {
       auto tx = start_transaction(db);
-      auto result = db(select(all_of(tab), select(max(tab.intN).as(max_int_n)).from(tab)).from(tab).unconditionally());
+      auto result = db(select(all_of(tab), value(select(max(tab.intN).as(max_int_n)).from(tab).where(true)).as(max_int_n)).from(tab).unconditionally());
       if (const auto& row = *result.begin())
       {
         ::sqlpp::optional<long> a = row.intN;

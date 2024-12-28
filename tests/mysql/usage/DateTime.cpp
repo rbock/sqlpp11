@@ -104,15 +104,6 @@ int DateTime(int, char*[])
       require_equal(__LINE__, row.timePointN.value(), today);
     }
 
-#warning: Need to add type tests for statement, update, and probably other clauses.
-    /*
-    auto u = update(tab)
-        .set(tab.dayPointN = parameter(tab.dayPointN), tab.timePointN = parameter(tab.timePointN))
-        .unconditionally();
-    using U = decltype(u);
-    sqlpp::parameters_of_t<U>::hansi;
-    */
-
     auto prepared_update = db.prepare(update(tab)
                                           .set(tab.dayPointN = parameter(tab.dayPointN),
                                                tab.timePointN = parameter(tab.timePointN),
