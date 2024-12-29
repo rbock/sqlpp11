@@ -171,7 +171,30 @@ namespace sqlpp
     {
     };
 
+    // Serialization
+    inline auto to_sql_string(postgresql::context_t&, const postgresql::no_returning_column_list_t&) -> std::string
+    {
+      return "";
+    }
+
+    template <typename... Columns>
+    auto to_sql_string(postgresql::context_t& context, const postgresql::returning_column_list_t<Columns...>& t)
+        -> std::string
+    {
+      return " RETURNING " + tuple_to_sql_string(context, t._columns, tuple_operand{", "});
+    }
   }  // namespace postgresql
+
+  template <>
+  struct is_clause<postgresql::no_returning_column_list_t> : public std::true_type
+  {
+  };
+
+  template <typename Statement>
+  struct consistency_check<Statement, postgresql::no_returning_column_list_t>
+  {
+    using type = consistent_t;
+  };
 
   template <typename Statement>
   struct clause_base<postgresql::no_returning_column_list_t, Statement>
@@ -193,16 +216,4 @@ namespace sqlpp
     }
   };
 
-  // Serialization
-  inline auto to_sql_string(postgresql::context_t&, const postgresql::no_returning_column_list_t&) -> std::string
-  {
-    return "";
-  }
-
-  template <typename... Columns>
-  auto to_sql_string(postgresql::context_t& context, const postgresql::returning_column_list_t<Columns...>& t)
-      -> std::string
-  {
-    return " RETURNING " + tuple_to_sql_string(context, t._columns, tuple_operand{", "});
-  }
 }  // namespace sqlpp

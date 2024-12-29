@@ -31,44 +31,30 @@
 #include <sqlpp11/core/query/policy_update.h>
 #include <sqlpp11/core/type_traits.h>
 
+#warning: move into namespace postgresql
 namespace sqlpp
 {
-  // USING DATA
-  template <typename... Tables>
-  struct using_data_t
-  {
-    using_data_t(Tables... tables) : _tables(tables...)
-    {
-    }
-
-    using_data_t(const using_data_t&) = default;
-    using_data_t(using_data_t&&) = default;
-    using_data_t& operator=(const using_data_t&) = default;
-    using_data_t& operator=(using_data_t&&) = default;
-    ~using_data_t() = default;
-
-    std::tuple<Tables...> _tables;
-  };
-
   // USING
   template <typename... Tables>
   struct using_t
   {
-    using _data_t = using_data_t<Tables...>;
-
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
+    using_t(Tables... tables) : _tables(tables...)
     {
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
+    }
 
-      _data_t _data;
+    using_t(const using_t&) = default;
+    using_t(using_t&&) = default;
+    using_t& operator=(const using_t&) = default;
+    using_t& operator=(using_t&&) = default;
+    ~using_t() = default;
 
-      // FIXME: Maybe check for unused tables, similar to from
-      using _consistency_check = consistent_t;
-    };
+    std::tuple<Tables...> _tables;
+  };
+
+  template <typename Statement, typename... Tables>
+  struct consistency_check<Statement, using_t<Tables...>>
+  {
+    using type = consistent_t;
   };
 
   SQLPP_PORTABLE_STATIC_ASSERT(assert_using_args_are_tables_t, "arguments for using() must be tables");
@@ -84,53 +70,41 @@ namespace sqlpp
   // NO USING YET
   struct no_using_t
   {
-    using _data_t = no_data_t;
+  };
 
-    // Base template to be inherited by the statement
-    template <typename Policies>
-    struct _base_t
-    {
-      _base_t() = default;
-      _base_t(_data_t data) : _data{std::move(data)}
-      {
-      }
-
-      _data_t _data;
-
-      template <typename Check, typename T>
-      using _new_statement_t = new_statement_t<Check, Policies, no_using_t, T>;
-
-      using _consistency_check = consistent_t;
+  template <typename Statement>
+  struct clause_base<no_using_t, Statement> : public clause_data<no_using_t, Statement>
+  {
+    using clause_data<no_using_t, Statement>::clause_data;
 
       template <typename... Tables>
-      auto using_(Tables... tables) const -> _new_statement_t<check_using_t<Tables...>, using_t<Tables...>>
+      auto using_(Tables... tables) const -> decltype(new_statement(*this, using_t<Tables...>{std::move(tables)...}))
       {
+#warning: reactivate check_using
         static_assert(not detail::has_duplicates<Tables...>::value,
                       "at least one duplicate argument detected in using()");
         static_assert(sizeof...(Tables), "at least one table required in using()");
 
-        return {_using_impl(check_using_t<Tables...>{}, tables...)};
+        return new_statement(*this, using_t<Tables...>{std::move(tables)...});
       }
 
-    private:
-      template <typename Check, typename... Tables>
-      auto _using_impl(Check, Tables... tables) const -> inconsistent<Check>;
-
-      template <typename... Tables>
-      auto _using_impl(consistent_t /*unused*/, Tables... tables) const
-          -> _new_statement_t<consistent_t, using_t<Tables...>>
-      {
-        static_assert(not detail::has_duplicates<Tables...>::value,
-                      "at least one duplicate argument detected in using()");
-
-        return {static_cast<const derived_statement_t<Policies>&>(*this), using_data_t<Tables...>{tables...}};
-      }
-    };
   };
 
-  // Interpreters
+  template <typename Statement>
+  struct consistency_check<Statement, no_using_t>
+  {
+    using type = consistent_t;
+  };
+
+  // Serialization
+  template <typename Context>
+  auto to_sql_string(Context& , const no_using_t& ) -> std::string
+  {
+    return "";
+  }
+
   template <typename Context, typename... Tables>
-  auto to_sql_string(Context& context, const using_data_t<Tables...>& t) -> std::string
+  auto to_sql_string(Context& context, const using_t<Tables...>& t) -> std::string
   {
     return " USING " + tuple_to_sql_string(context, t._tables, tuple_operand{", "});
   }

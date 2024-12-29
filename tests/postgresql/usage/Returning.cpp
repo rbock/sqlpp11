@@ -27,7 +27,7 @@ int Returning(int, char*[])
         << db(sqlpp::postgresql::insert_into(foo).set(foo.textNnD = "asd").returning(std::make_tuple(foo.doubleN))).front().doubleN
         << std::endl;
 
-#warning need to add optinal insert tests
+#warning need to add optional insert tests
 
     auto updated =
         db(sqlpp::postgresql::update(foo).set(foo.intN = 0).unconditionally().returning(foo.textNnD, foo.intN));

@@ -28,7 +28,6 @@
 #include <stdexcept>
 
 #include <sqlpp11/core/name/create_name_tag.h>
-#include <sqlpp11/core/query/custom_query.h>
 #include <sqlpp11/postgresql/database/connection.h>
 #include <sqlpp11/sqlpp11.h>
 #include <sqlpp11/core/database/transaction.h>
@@ -49,8 +48,8 @@ int Transaction(int, char*[])
 
     {
       require_equal(__LINE__, db.is_transaction_active(), false);
-      auto current_level = std::string(db(custom_query(sqlpp::verbatim("show transaction_isolation;"))
-                                              .with_result_type_of(select(sqlpp::value("").as(level))))
+      auto current_level = std::string(db(sqlpp::statement_t{} << sqlpp::verbatim("show transaction_isolation;")
+                                              << with_result_type_of(select(sqlpp::value("").as(level))))
                                            .front()
                                            .level);
       require_equal(__LINE__, current_level, "read committed");
@@ -58,8 +57,8 @@ int Transaction(int, char*[])
 
       auto tx = start_transaction(db, sqlpp::isolation_level::serializable);
       require_equal(__LINE__, db.is_transaction_active(), true);
-      current_level = db(custom_query(sqlpp::verbatim("show transaction_isolation;"))
-                             .with_result_type_of(select(sqlpp::value("").as(level))))
+      current_level = db(sqlpp::statement_t{} << sqlpp::verbatim("show transaction_isolation;")
+                             << with_result_type_of(select(sqlpp::value("").as(level))))
                           .front()
                           .level;
       require_equal(__LINE__, current_level, "serializable");

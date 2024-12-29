@@ -76,9 +76,27 @@ namespace sqlpp
     template <typename ConflictTarget>
     struct on_conflict_t
     {
+      on_conflict_t(ConflictTarget column)
+          : _column(column)
+      {
+      }
+
+      on_conflict_t(const on_conflict_t&) = default;
+      on_conflict_t(on_conflict_t&&) = default;
+      on_conflict_t& operator=(const on_conflict_t&) = default;
+      on_conflict_t& operator=(on_conflict_t&&) = default;
+      ~on_conflict_t() = default;
+
       ConflictTarget _column;
     };
+
   }  // namespace postgresql
+
+  template <typename Statement, typename ConflictTarget>
+  struct consistency_check<Statement, postgresql::on_conflict_t<ConflictTarget>>
+  {
+    using type = postgresql::assert_on_conflict_action_t;
+  };
 
   template <typename Statement, typename ConflictTarget>
   struct clause_base<postgresql::on_conflict_t<ConflictTarget>, Statement> : public clause_data<postgresql::on_conflict_t<ConflictTarget>, Statement>
@@ -86,20 +104,24 @@ namespace sqlpp
     using clause_data<postgresql::on_conflict_t<ConflictTarget>, Statement>::clause_data;
 
     // DO NOTHING
-    auto do_nothing() const
-        -> decltype(new_statement(*this, postgresql::on_conflict_do_nothing_t<ConflictTarget>{this->clause_data._column}))
+    auto do_nothing() const -> decltype(new_statement(
+        *this, postgresql::on_conflict_do_nothing_t<postgresql::on_conflict_t<ConflictTarget>>{this->_data}))
     {
-      return new_statement(*this, postgresql::on_conflict_do_nothing_t<ConflictTarget>{this->clause_data._column});
+      return new_statement(
+          *this, postgresql::on_conflict_do_nothing_t<postgresql::on_conflict_t<ConflictTarget>>{this->_data});
     }
 
     // DO UPDATE
     template <typename... Assignments>
     auto do_update(Assignments... assignments) const -> decltype(new_statement(
-        *this, postgresql::on_conflict_do_update_t<ConflictTarget, Assignments...>{std::make_tuple(std::move(assignments)...)}))
+        *this,
+        postgresql::on_conflict_do_update_t<postgresql::on_conflict_t<ConflictTarget>, Assignments...>{
+            this->_data, std::make_tuple(std::move(assignments)...)}))
     {
       static_assert(is_column<ConflictTarget>::value, "conflict_target specification is required with do_update(...)");
       return new_statement(
-          *this, postgresql::on_conflict_do_update_t<ConflictTarget, Assignments...>{std::make_tuple(std::move(assignments)...)});
+          *this, postgresql::on_conflict_do_update_t<postgresql::on_conflict_t<ConflictTarget>, Assignments...>{
+                     this->_data, std::make_tuple(std::move(assignments)...)});
     }
   };
 
@@ -108,7 +130,31 @@ namespace sqlpp
     struct no_on_conflict_t
     {
     };
+
+#warning: It might make sense to always call ::sqlpp::to_sql_string. And then these should be in namespace sqlpp
+    // Serialization
+    inline auto to_sql_string(postgresql::context_t&, const postgresql::no_on_conflict_t&) -> std::string
+    {
+      return "";
+    }
+
+    template <typename ConflictTarget>
+    auto to_sql_string(postgresql::context_t& context, const postgresql::on_conflict_t<ConflictTarget>&) -> std::string
+    {
+      return " ON CONFLICT (" + name_to_sql_string(context, name_tag_of_t<ConflictTarget>{}) + ") ";
+    }
+
+    inline auto to_sql_string(postgresql::context_t&, const postgresql::on_conflict_t<no_data_t>&) -> std::string
+    {
+      return " ON CONFLICT ";
+    }
   }  // namespace postgresql
+
+  template <typename Statement>
+  struct consistency_check<Statement, postgresql::no_on_conflict_t>
+  {
+    using type = consistent_t;
+  };
 
   template <typename Expression>
   struct is_clause<postgresql::on_conflict_t<Expression>> : public std::true_type
@@ -134,20 +180,4 @@ namespace sqlpp
     }
   };
 
-  // Serialization
-  inline auto to_sql_string(postgresql::context_t& , const postgresql::no_on_conflict_t&) -> std::string
-  {
-    return "";
-  }
-
-  template <typename ConflictTarget>
-  auto to_sql_string(postgresql::context_t& context, const postgresql::on_conflict_t<ConflictTarget>&) -> std::string
-  {
-    return " ON CONFLICT (" + name_to_sql_string(context, name_tag_of_t<ConflictTarget>{}) + ") ";
-  }
-
-  inline auto to_sql_string(postgresql::context_t&, const postgresql::on_conflict_t<no_data_t>&) -> std::string
-  {
-    return " ON CONFLICT ";
-  }
 }  // namespace sqlpp

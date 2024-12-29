@@ -30,22 +30,20 @@
 #include <sqlpp11/core/detail/type_set.h>
 #include <sqlpp11/core/tuple_to_sql_string.h>
 #include <sqlpp11/core/type_traits.h>
+#include <sqlpp11/core/clause/clause_base.h>
 #include <sqlpp11/core/clause/where.h>
 
 namespace sqlpp
 {
   namespace postgresql
   {
-    template <typename ConflictTarget, typename... Assignments>
-    struct on_conflict_do_update_t;
-
     // ON CONFLICT ... DO UPDATE ... WHERE ...
-    template <typename ConflictTarget, typename Expression, typename... Assignments>
+    template <typename OnConflictUpdate, typename Expression>
     struct on_conflict_do_update_where_t
     {
       on_conflict_do_update_where_t(
-          Expression expression, on_conflict_do_update_t<ConflictTarget, Assignments...> assignments)
-          : _expression(expression), _assignments(assignments)
+          OnConflictUpdate on_conflict_update, Expression expression)
+          : _on_conflict_update(on_conflict_update), _expression(expression)
       {
       }
 
@@ -54,16 +52,16 @@ namespace sqlpp
       on_conflict_do_update_where_t& operator=(const on_conflict_do_update_where_t&) = default;
       on_conflict_do_update_where_t& operator=(on_conflict_do_update_where_t&&) = default;
 
+      OnConflictUpdate _on_conflict_update;
       Expression _expression;
-      on_conflict_do_update_t<ConflictTarget, Assignments...> _assignments;
     };
 
     // ON CONFLICT ... DO UPDATE ...
-    template <typename ConflictTarget, typename... Assignments>
+    template <typename OnConflict, typename... Assignments>
     struct on_conflict_do_update_t
     {
-      on_conflict_do_update_t(ConflictTarget conflict_target, std::tuple<Assignments...> assignments)
-          : _conflict_target(conflict_target), _assignments(assignments)
+      on_conflict_do_update_t(OnConflict on_conflict, std::tuple<Assignments...> assignments)
+          : _on_conflict(on_conflict), _assignments(assignments)
       {
       }
 
@@ -73,34 +71,59 @@ namespace sqlpp
       on_conflict_do_update_t& operator=(on_conflict_do_update_t&&) = default;
       ~on_conflict_do_update_t() = default;
 
-      ConflictTarget _conflict_target;
+      OnConflict _on_conflict;
       std::tuple<Assignments...> _assignments;
+    };
+  }  // namespace postgresql
+
+#warning: Do we need is_clause?
+  template <typename OnConflict, typename... Assignments>
+  struct is_clause<postgresql::on_conflict_do_update_t<OnConflict, Assignments...>>: public std::true_type
+  {
+  };
+
+  template <typename Statement, typename OnConflictUpdate, typename Expression>
+  struct consistency_check<Statement, postgresql::on_conflict_do_update_where_t<OnConflictUpdate, Expression>>
+  {
+#warning: is this correct?
+    using type = consistent_t;
+  };
+
+  template <typename Statement, typename OnConflict, typename... Assignments>
+  struct consistency_check<Statement, postgresql::on_conflict_do_update_t<OnConflict, Assignments...>>
+  {
+#warning: is this correct?
+    using type = consistent_t;
+  };
+
+  template <typename Statement, typename OnConflict, typename... Assignments>
+  struct clause_base<postgresql::on_conflict_do_update_t<OnConflict, Assignments...>, Statement> : public clause_data<postgresql::on_conflict_do_update_t<OnConflict, Assignments...>, Statement>
+  {
+    using clause_data<postgresql::on_conflict_do_update_t<OnConflict, Assignments...>, Statement>::clause_data;
 
       // WHERE
       template <typename Expression>
       auto where(Expression expression) const -> decltype(new_statement(
-          *this, on_conflict_do_update_where_t<ConflictTarget, Expression, Assignments...>{std::move(expression)}))
+          *this, postgresql::on_conflict_do_update_where_t<postgresql::on_conflict_do_update_t<OnConflict, Assignments...>, Expression>{this->_data, std::move(expression)}))
       {
         return new_statement(
-            *this, on_conflict_do_update_where_t<ConflictTarget, Expression, Assignments...>{std::move(expression)});
+            *this, postgresql::on_conflict_do_update_where_t<postgresql::on_conflict_do_update_t<OnConflict, Assignments...>, Expression>{this->_data, std::move(expression)});
       }
     };
-  }  // namespace postgresql
-
-  template <typename ConflictTarget, typename... Assignments>
+  template <typename OnConflict, typename... Assignments>
   auto to_sql_string(postgresql::context_t& context,
-                     const postgresql::on_conflict_do_update_t<ConflictTarget, Assignments...>& o) -> std::string
+                     const postgresql::on_conflict_do_update_t<OnConflict, Assignments...>& o) -> std::string
   {
-    return to_sql_string(context, o._conflict_target) + "DO UPDATE SET " +
+    return to_sql_string(context, o._on_conflict) + "DO UPDATE SET " +
            tuple_to_sql_string(context, o._assignments, tuple_operand{", "});
   }
 
-  template <typename ConflictTarget, typename Expression, typename... Assignments>
+  template <typename OnConflict, typename Expression, typename... Assignments>
   auto to_sql_string(
       postgresql::context_t& context,
-      const postgresql::on_conflict_do_update_where_t<ConflictTarget, Expression, Assignments...>& t)
+      const postgresql::on_conflict_do_update_where_t<OnConflict, Expression, Assignments...>& t)
       -> std::string
   {
-    return to_sql_string(context, t._assignments) + " WHERE " + to_sql_string(context, t._expression);
+    return to_sql_string(context, t._on_conflict_update) + " WHERE " + to_sql_string(context, t._expression);
   }
 }  // namespace sqlpp

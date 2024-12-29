@@ -125,7 +125,7 @@ int Select(int, char*[])
   std::cerr << "Can do that again, no problem: " << result1.begin()->id << std::endl;
 
   auto tx = start_transaction(db);
-  auto result2 = db(select(all_of(tab), select(max(tab.id).as(something)).from(tab)).from(tab).unconditionally());
+  auto result2 = db(select(all_of(tab), value(select(max(tab.id).as(something)).from(tab).unconditionally()).as(something)).from(tab).unconditionally());
   if (const auto& row = *result2.begin())
   {
     auto a = row.id;

@@ -34,10 +34,10 @@ namespace sqlpp
 {
   namespace postgresql
   {
-    template <typename ConflictTarget>
+    template <typename OnConflict>
     struct on_conflict_do_nothing_t
     {
-      on_conflict_do_nothing_t(ConflictTarget column) : _column(column)
+      on_conflict_do_nothing_t(OnConflict on_conflict) : _on_conflict(on_conflict)
       {
       }
 
@@ -47,15 +47,23 @@ namespace sqlpp
       on_conflict_do_nothing_t& operator=(on_conflict_do_nothing_t&&) = default;
       ~on_conflict_do_nothing_t() = default;
 
-      ConflictTarget _column;
+      OnConflict _on_conflict;
 
     };
-  }  // namespace postgresql
 
-    template <typename ConflictTarget>
-    auto to_sql_string(postgresql::context_t& context, const postgresql::on_conflict_do_nothing_t<ConflictTarget>& t) -> std::string
+    // Serialization
+    template <typename OnConflict>
+    auto to_sql_string(postgresql::context_t& context, const postgresql::on_conflict_do_nothing_t<OnConflict>& t) -> std::string
     {
 #warning: need tests
-      return "ON CONFLICT " + to_sql_string(context, t._column) + " DO NOTHING";
+      return to_sql_string(context, t._on_conflict) + " DO NOTHING";
     }
+  }  // namespace postgresql
+
+  template <typename Statement, typename ConflictTarget>
+  struct consistency_check<Statement, postgresql::on_conflict_do_nothing_t<ConflictTarget>>
+  {
+    using type = consistent_t;
+  };
+
 }  // namespace sqlpp
