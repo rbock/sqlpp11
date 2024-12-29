@@ -28,14 +28,14 @@
 
 #include <sqlpp11/core/clause/insert.h>
 #include <sqlpp11/postgresql/on_conflict.h>
-#include <sqlpp11/postgresql/clause/returning.h>
+#include <sqlpp11/postgresql/clause/returning_column_list.h>
 
 namespace sqlpp
 {
   namespace postgresql
   {
     using blank_insert_t =
-        statement_t<insert_t, no_into_t, no_insert_value_list_t, no_on_conflict_t, no_returning_t>;
+        statement_t<insert_t, no_into_t, no_insert_value_list_t, no_on_conflict_t, no_returning_column_list_t>;
 
     inline auto insert() -> blank_insert_t
     {

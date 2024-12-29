@@ -27,62 +27,35 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/detail/type_vector.h>
 #include <sqlpp11/core/to_sql_string.h>
 #include <sqlpp11/core/type_traits.h>
 
 namespace sqlpp
 {
-  SQLPP_VALUE_TRAIT_GENERATOR(is_on_conflict_do_nothing)
-
   namespace postgresql
   {
-    // Forward declaration
-    template <typename ConflictTarget>
-    struct on_conflict_data_t;
-
-    template <typename ConflictTarget>
-    struct on_conflict_do_nothing_data_t
-    {
-      on_conflict_do_nothing_data_t(on_conflict_data_t<ConflictTarget> column) : _column(column)
-      {
-      }
-
-      on_conflict_do_nothing_data_t(const on_conflict_do_nothing_data_t&) = default;
-      on_conflict_do_nothing_data_t(on_conflict_do_nothing_data_t&&) = default;
-      on_conflict_do_nothing_data_t& operator=(const on_conflict_do_nothing_data_t&) = default;
-      on_conflict_do_nothing_data_t& operator=(on_conflict_do_nothing_data_t&&) = default;
-      ~on_conflict_do_nothing_data_t() = default;
-
-      on_conflict_data_t<ConflictTarget> _column;
-    };
-
     template <typename ConflictTarget>
     struct on_conflict_do_nothing_t
     {
-      // Data
-      using _data_t = on_conflict_do_nothing_data_t<ConflictTarget>;
-
-      // Base template to be inherited by the statement
-      template <typename Policies>
-      struct _base_t
+      on_conflict_do_nothing_t(ConflictTarget column) : _column(column)
       {
-        _base_t(_data_t data) : _data{std::move(data)}
-        {
-        }
+      }
 
-        _data_t _data;
+      on_conflict_do_nothing_t(const on_conflict_do_nothing_t&) = default;
+      on_conflict_do_nothing_t(on_conflict_do_nothing_t&&) = default;
+      on_conflict_do_nothing_t& operator=(const on_conflict_do_nothing_t&) = default;
+      on_conflict_do_nothing_t& operator=(on_conflict_do_nothing_t&&) = default;
+      ~on_conflict_do_nothing_t() = default;
 
-        // No consistency check needed, do nothing is just do nothing.
-        using _consistency_check = consistent_t;
-      };
+      ConflictTarget _column;
+
     };
+  }  // namespace postgresql
 
     template <typename ConflictTarget>
-    auto to_sql_string(postgresql::context_t& context, const postgresql::on_conflict_do_nothing_data_t<ConflictTarget>& t) -> std::string
+    auto to_sql_string(postgresql::context_t& context, const postgresql::on_conflict_do_nothing_t<ConflictTarget>& t) -> std::string
     {
 #warning: need tests
-      return to_sql_string(context, t._column) + " DO NOTHING";
+      return "ON CONFLICT " + to_sql_string(context, t._column) + " DO NOTHING";
     }
-  }  // namespace postgresql
 }  // namespace sqlpp

@@ -27,14 +27,14 @@
  */
 
 #include <sqlpp11/core/clause/update.h>
-#include <sqlpp11/postgresql/clause/returning.h>
+#include <sqlpp11/postgresql/clause/returning_column_list.h>
 
 namespace sqlpp
 {
   namespace postgresql
   {
     using blank_update_t =
-        statement_t<update_t, no_single_table_t, no_update_set_list_t, no_where_t, no_returning_t>;
+        statement_t<update_t, no_single_table_t, no_update_set_list_t, no_where_t, no_returning_column_list_t>;
 
     template <typename Table>
     constexpr auto update(Table table) -> decltype(blank_update_t().single_table(table))

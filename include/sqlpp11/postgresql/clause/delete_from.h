@@ -28,13 +28,13 @@
 
 #include <sqlpp11/core/clause/delete_from.h>
 #include <sqlpp11/postgresql/clause/using.h>
-#include <sqlpp11/postgresql/clause/returning.h>
+#include <sqlpp11/postgresql/clause/returning_column_list.h>
 
 namespace sqlpp
 {
   namespace postgresql
   {
-    using blank_delete_t = statement_t<delete_t, no_single_table_t, no_using_t, no_where_t<true>, no_returning_t>;
+    using blank_delete_t = statement_t<delete_t, no_single_table_t, no_using_t, no_where_t, no_returning_column_list_t>;
 
     inline auto delete_from() -> blank_delete_t
     {
