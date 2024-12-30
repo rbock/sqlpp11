@@ -143,6 +143,14 @@ namespace sqlpp
   {
   };
 
+  template <typename... Clauses>
+  struct get_result_row<statement_t<Clauses...>> 
+  {
+    using type = typename std::conditional<has_result_row<statement_t<Clauses...>>::value,
+                                           typename result_methods_t<Clauses...>::_result_row_t,
+                                           void>::type;
+  };
+
   template<typename... Clauses>
     struct is_where_required<statement_t<Clauses...>> {
       static constexpr bool value = statement_t<Clauses...>::_all_provided_tables::size() > 0;

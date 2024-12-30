@@ -271,25 +271,14 @@ namespace sqlpp
   {
   };
 
-#warning: Can we make this more explicit for statement_t?
-  template <typename Statement, typename Enable = void>
-  struct get_result_row_impl
+  template <typename T>
+  struct get_result_row
   {
     using type = void;
   };
 
-  template <typename Statement>
-  struct get_result_row_impl<
-      Statement,
-      typename std::enable_if<
-          not wrong_t<typename Statement::_result_methods_t::_result_row_t>::value,
-          void>::type>
-  {
-    using type = typename Statement::_result_methods_t::_result_row_t;
-  };
-
-  template <typename Statement>
-  using get_result_row_t = typename get_result_row_impl<Statement>::type;
+  template <typename T>
+  using get_result_row_t = typename get_result_row<T>::type;
 
   template<typename T>
   struct requires_parentheses : public std::false_type {};
