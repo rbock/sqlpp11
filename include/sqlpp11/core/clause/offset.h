@@ -56,17 +56,6 @@ namespace sqlpp
   template<typename Statement, typename Offset>
     struct consistency_check<Statement, offset_t<Offset>> { using type = consistent_t; };
 
-  SQLPP_WRAPPED_STATIC_ASSERT(assert_offset_is_integral,
-                               "argument for offset() must be an integral expressions");
-  template <typename T>
-  struct check_offset
-  {
-    using type =
-        static_combined_check_t<static_check_t<is_integral<T>::value or is_unsigned_integral<T>::value, assert_offset_is_integral>>;
-  };
-  template <typename T>
-  using check_offset_t = typename check_offset<remove_dynamic_t<T>>::type;
-
   struct no_offset_t
   {
   };
@@ -76,8 +65,7 @@ namespace sqlpp
   {
     using clause_data<no_offset_t, Statement>::clause_data;
 
-#warning : reactivate check_offset_t
-    template <typename Arg>
+    template <typename Arg, typename = sqlpp::enable_if_t<is_integral<remove_dynamic_t<Arg>>::value or is_unsigned_integral<remove_dynamic_t<Arg>>::value>>
     auto offset(Arg arg) const -> decltype(new_statement(*this, offset_t<Arg>{std::move(arg)}))
     {
       return new_statement(*this, offset_t<Arg>{std::move(arg)});

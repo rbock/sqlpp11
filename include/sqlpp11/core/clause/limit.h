@@ -56,17 +56,6 @@ namespace sqlpp
   template<typename Statement, typename Limit>
     struct consistency_check<Statement, limit_t<Limit>> { using type = consistent_t; };
 
-  SQLPP_WRAPPED_STATIC_ASSERT(assert_limit_is_integral,
-                               "argument for limit() must be an integral expressions");
-  template <typename T>
-  struct check_limit
-  {
-    using type =
-        static_combined_check_t<static_check_t<is_integral<T>::value or is_unsigned_integral<T>::value, assert_limit_is_integral>>;
-  };
-  template <typename T>
-  using check_limit_t = typename check_limit<remove_dynamic_t<T>>::type;
-
   struct no_limit_t
   {
   };
@@ -76,8 +65,7 @@ namespace sqlpp
   {
     using clause_data<no_limit_t, Statement>::clause_data;
 
-#warning : reactivate check_limit_t
-    template <typename Arg>
+    template <typename Arg, typename = sqlpp::enable_if_t<is_integral<remove_dynamic_t<Arg>>::value or is_unsigned_integral<remove_dynamic_t<Arg>>::value>>
     auto limit(Arg arg) const -> decltype(new_statement(*this, limit_t<Arg>{std::move(arg)}))
     {
       return new_statement(*this, limit_t<Arg>{std::move(arg)});
