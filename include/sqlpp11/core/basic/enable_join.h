@@ -64,7 +64,6 @@ namespace sqlpp
       return ::sqlpp::right_outer_join(this->derived(), std::move(t));
     }
 
-#warning: There is no full_outer_join in mysql?
     template <typename T>
     auto full_outer_join(T t) const -> decltype(::sqlpp::full_outer_join(this->derived(), std::move(t)))
     {

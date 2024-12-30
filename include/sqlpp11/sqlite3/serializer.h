@@ -70,6 +70,7 @@ namespace sqlpp
     return {};
   }
 
+#if SQLITE_VERSION_NUMBER < 3039000
   template <typename Lhs, typename Rhs>
   auto to_sql_string(sqlite3::context_t& context, const pre_join_t<full_outer_join_t, Lhs, Rhs>&)-> std::string
   {
@@ -83,6 +84,7 @@ namespace sqlpp
     static_assert(wrong_t<Lhs, Rhs>::value, "Sqlite3: No support for right_outer join");
     return {};
   }
+#endif
 
   // Some special treatment of data types
   template <typename Period>
