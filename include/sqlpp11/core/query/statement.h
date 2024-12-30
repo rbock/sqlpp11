@@ -240,12 +240,20 @@ namespace sqlpp
   template<typename... Clauses>
   using core_statement_t = typename core_statement<detail::copy_if_t<detail::type_vector<Clauses...>, is_clause>>::type;
 
+  template <typename Statement>
+  struct statement_has_unique_clauses;
+
+  template <typename... Clauses>
+  struct statement_has_unique_clauses<statement_t<Clauses...>> : public detail::are_unique<Clauses...>
+  {
+  };
+
   template <typename... LClauses, typename... RClauses>
   constexpr auto operator<<(statement_t<LClauses...> l, statement_t<RClauses...> r) -> core_statement_t<LClauses..., RClauses...>
   {
-#warning: Do we need something like this?
-    //SQLPP_STATIC_ASSERT((detail::are_unique<LClauses..., RClauses...>::value), "statements must contain unique clauses only");
-    return core_statement_t<LClauses..., RClauses...>(statement_constructor_arg(std::move(l), std::move(r)));
+    using _core_statement = core_statement_t<LClauses..., RClauses...>;
+    SQLPP_STATIC_ASSERT(statement_has_unique_clauses<_core_statement>::value, "statements must contain unique clauses only");
+    return _core_statement(statement_constructor_arg(std::move(l), std::move(r)));
   }
 
   template <typename... LClauses, typename Clause>
@@ -253,9 +261,9 @@ namespace sqlpp
   {
     SQLPP_STATIC_ASSERT(is_clause<Clause>::value,
                         "statement_t::operator<< requires statements or clauses as parameters");
-#warning: Do we need something like this?
-    //SQLPP_STATIC_ASSERT((detail::are_unique<LClauses..., RClauses...>::value), "statements must contain unique clauses only");
-    return core_statement_t<LClauses..., Clause>(statement_constructor_arg(std::move(l), std::move(r)));
+    using _core_statement = core_statement_t<LClauses..., Clause>;
+    SQLPP_STATIC_ASSERT(statement_has_unique_clauses<_core_statement>::value, "statements must contain unique clauses only");
+    return _core_statement(statement_constructor_arg(std::move(l), std::move(r)));
   }
 
   template <typename Context, typename... Clauses>
