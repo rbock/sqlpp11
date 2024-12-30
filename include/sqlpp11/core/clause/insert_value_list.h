@@ -35,7 +35,7 @@
 #include <sqlpp11/core/logic.h>
 #include <sqlpp11/core/no_data.h>
 #include <sqlpp11/core/query/policy_update.h>
-#include <sqlpp11/core/portable_static_assert.h>
+#include <sqlpp11/core/wrapped_static_assert.h>
 #include <sqlpp11/core/static_assert.h>
 #include <sqlpp11/core/clause/simple_column.h>
 #include <sqlpp11/core/query/statement.h>
@@ -68,13 +68,13 @@ namespace sqlpp
   {
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(
+  SQLPP_WRAPPED_STATIC_ASSERT(
       assert_all_columns_have_default_value_t,
       "at least one column does not have a default value (explicit default, NULL, or auto-increment)");
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_all_required_columns_t, "at least one required column is missing in columns()");
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_all_required_columns_t, "at least one required column is missing in columns()");
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_all_required_assignments_t, "at least one required column is missing in set()");
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_all_required_assignments_t, "at least one required column is missing in set()");
 
   template <typename Statement>
   struct consistency_check<Statement, insert_default_values_t>
@@ -101,7 +101,7 @@ namespace sqlpp
     std::tuple<Assignments...> _assignments;
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(
+  SQLPP_WRAPPED_STATIC_ASSERT(
       assert_no_unknown_tables_in_insert_assignments_t,
       "at least one insert assignment requires a table which is otherwise not known in the statement");
 
@@ -145,7 +145,7 @@ namespace sqlpp
     std::vector<_value_tuple_t> _insert_values;
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_no_unknown_tables_in_column_list_t,
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_tables_in_column_list_t,
                                "at least one column requires a table which is otherwise not known in the statement");
 
   template <typename Statement, typename... Columns>
@@ -210,7 +210,7 @@ namespace sqlpp
     using type = detail::type_vector<Columns...>;
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_insert_values_t, "insert values required, e.g. set(...) or default_values()");
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_insert_values_t, "insert values required, e.g. set(...) or default_values()");
 
   // NO INSERT COLUMNS/VALUES YET
   struct no_insert_value_list_t

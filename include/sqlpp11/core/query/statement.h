@@ -44,12 +44,12 @@
 
 namespace sqlpp
 {
-  SQLPP_PORTABLE_STATIC_ASSERT(
+  SQLPP_WRAPPED_STATIC_ASSERT(
       assert_no_unknown_ctes_t,
       "one clause requires common table expressions which are otherwise not known in the statement");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_no_unknown_tables_t,
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_tables_t,
                                "one clause requires tables which are otherwise not known in the statement");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_no_parameters_t,
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_no_parameters_t,
                                "cannot run statements with parameters directly, use prepare instead");
 
   template <typename... Policies>

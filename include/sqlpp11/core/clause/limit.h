@@ -56,7 +56,7 @@ namespace sqlpp
   template<typename Statement, typename Limit>
     struct consistency_check<Statement, limit_t<Limit>> { using type = consistent_t; };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_limit_is_integral,
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_limit_is_integral,
                                "argument for limit() must be an integral expressions");
   template <typename T>
   struct check_limit

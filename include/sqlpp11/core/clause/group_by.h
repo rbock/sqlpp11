@@ -51,7 +51,7 @@ namespace sqlpp
     std::tuple<Columns...> _columns;
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(
+  SQLPP_WRAPPED_STATIC_ASSERT(
       assert_no_unknown_tables_in_group_by_t,
       "at least one group-by expression requires a table which is otherwise not known in the statement");
 
@@ -80,7 +80,7 @@ namespace sqlpp
     using type = detail::type_set<raw_group_by_column_t<remove_dynamic_t<Columns>>...>;
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_group_by_args_are_columns_t, "all arguments for group_by() must be columns");
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_group_by_args_are_columns_t, "all arguments for group_by() must be columns");
 
   template <typename... Columns>
   struct check_group_by

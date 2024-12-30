@@ -77,7 +77,7 @@ namespace sqlpp
   };
 
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_union_args_are_statements_t, "arguments for union() must be statements");
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_union_args_are_statements_t, "arguments for union() must be statements");
   template <typename... T>
   struct check_union
   {

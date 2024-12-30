@@ -32,7 +32,7 @@
 
 namespace sqlpp
 {
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_case_then_else_same_type_t,
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_case_then_else_same_type_t,
                                "argument of then() and else() are not of the same type");
 
   template <typename Then, typename Else>
@@ -40,12 +40,12 @@ namespace sqlpp
       static_check_t<values_are_comparable<Then, Else>::value,
                      assert_case_then_else_same_type_t>>;
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_case_then_expression_t, "argument is not a value expression in then()");
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_case_then_expression_t, "argument is not a value expression in then()");
   template <typename Then>
   using check_case_then_t =
       static_check_t<has_value_type<Then>::value, assert_case_then_expression_t>;
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_case_when_boolean_expression_t,
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_case_when_boolean_expression_t,
                                "argument is not a boolean expression in case_when()");
   template <typename When>
   using check_case_when_t = static_check_t<

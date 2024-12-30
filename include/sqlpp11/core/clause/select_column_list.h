@@ -65,11 +65,11 @@ namespace sqlpp
     using flat_tuple_t = typename flat_tuple<Args...>::type;
   }  // namespace detail
 
-  SQLPP_PORTABLE_STATIC_ASSERT(
+  SQLPP_WRAPPED_STATIC_ASSERT(
       assert_no_unknown_tables_in_selected_columns_t,
       "at least one selected column requires a table which is otherwise not known in the statement");
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_correct_aggregates_t,
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_correct_aggregates_t,
                                "select must not contain a mix of aggregates and non-aggregates");
 
   // SELECTED COLUMNS
@@ -235,7 +235,7 @@ namespace sqlpp
   template <typename... Columns>
   using make_select_column_list_t = typename make_select_column_list<detail::flat_tuple_t<Columns...>>::type;
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_columns_selected_t, "selecting columns required");
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_columns_selected_t, "selecting columns required");
 
   struct no_select_column_list_t
   {

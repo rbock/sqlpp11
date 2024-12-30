@@ -57,7 +57,7 @@ namespace sqlpp
     using type = consistent_t;
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_using_args_are_tables_t, "arguments for using() must be tables");
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_using_args_are_tables_t, "arguments for using() must be tables");
   template <typename... Tables>
   struct check_using
   {

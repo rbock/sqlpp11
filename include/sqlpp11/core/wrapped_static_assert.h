@@ -32,7 +32,7 @@
 
 namespace sqlpp
 {
-#define SQLPP_PORTABLE_STATIC_ASSERT(name, message)       \
+#define SQLPP_WRAPPED_STATIC_ASSERT(name, message)       \
   struct name : std::false_type                           \
   {                                                       \
     template <typename... T>                              \

@@ -42,7 +42,7 @@ namespace sqlpp
     Expression _expression;
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(
+  SQLPP_WRAPPED_STATIC_ASSERT(
       assert_no_unknown_tables_in_where_t,
       "at least one expression in where() requires a table which is otherwise not known in the statement");
 
@@ -102,7 +102,7 @@ namespace sqlpp
       }
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_where_or_unconditionally_called_t,
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_where_or_unconditionally_called_t,
                                "calling where() or unconditionally() required");
 
   template <typename Statement>

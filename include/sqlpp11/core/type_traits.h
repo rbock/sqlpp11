@@ -37,7 +37,7 @@
 #include <sqlpp11/core/compat/type_traits.h>
 #include <sqlpp11/core/compat/span.h>
 #include <sqlpp11/core/consistent.h>
-#include <sqlpp11/core/portable_static_assert.h>
+#include <sqlpp11/core/wrapped_static_assert.h>
 #include <sqlpp11/core/detail/type_vector.h>
 #include <sqlpp11/core/detail/type_set.h>
 #include <sqlpp11/core/detail/get_first.h>
@@ -258,9 +258,9 @@ namespace sqlpp
   using is_inconsistent_t =
       typename std::conditional<std::is_same<consistent_t, T>::value, std::false_type, std::true_type>::type;
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_run_statement_or_prepared_t,
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_run_statement_or_prepared_t,
                                "connection cannot run something that is neither statement nor prepared statement");
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_prepare_statement_t,
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_prepare_statement_t,
                                "connection cannot prepare something that is not a statement");
 
   template<typename T>

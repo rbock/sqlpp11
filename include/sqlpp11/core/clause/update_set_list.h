@@ -50,7 +50,7 @@ namespace sqlpp
     std::tuple<Assignments...> _assignments;
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(
+  SQLPP_WRAPPED_STATIC_ASSERT(
       assert_no_unknown_tables_in_update_assignments_t,
       "at least one update assignment requires a table which is otherwise not known in the statement");
 
@@ -103,7 +103,7 @@ namespace sqlpp
     }
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_update_assignments_t, "update assignments required, i.e. set(...)");
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_update_assignments_t, "update assignments required, i.e. set(...)");
 
   template <typename Statement>
   struct consistency_check<Statement, no_update_set_list_t>

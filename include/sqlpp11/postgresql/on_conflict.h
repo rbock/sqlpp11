@@ -38,17 +38,17 @@ namespace sqlpp
 
   namespace postgresql
   {
-    SQLPP_PORTABLE_STATIC_ASSERT(assert_on_conflict_action_t,
+    SQLPP_WRAPPED_STATIC_ASSERT(assert_on_conflict_action_t,
                                  "either do_nothing() or do_update(...) is required with on_conflict");
 
 #warning: Move into member function
-    SQLPP_PORTABLE_STATIC_ASSERT(assert_on_conflict_do_update_set_assignments_t,
+    SQLPP_WRAPPED_STATIC_ASSERT(assert_on_conflict_do_update_set_assignments_t,
                                  "at least one argument is not an assignment in do_update()");
-    SQLPP_PORTABLE_STATIC_ASSERT(assert_on_conflict_do_update_set_no_duplicates_t,
+    SQLPP_WRAPPED_STATIC_ASSERT(assert_on_conflict_do_update_set_no_duplicates_t,
                                  "at least one duplicate column detected in do_update()");
-    SQLPP_PORTABLE_STATIC_ASSERT(assert_on_conflict_do_update_set_single_table_t,
+    SQLPP_WRAPPED_STATIC_ASSERT(assert_on_conflict_do_update_set_single_table_t,
                                  "do_update() contains assignments for columns from more than one table");
-    SQLPP_PORTABLE_STATIC_ASSERT(assert_on_conflict_do_update_set_count_args_t,
+    SQLPP_WRAPPED_STATIC_ASSERT(assert_on_conflict_do_update_set_count_args_t,
                                  "at least one assignment expression required in do_update()");
 
     template <typename... Assignments>

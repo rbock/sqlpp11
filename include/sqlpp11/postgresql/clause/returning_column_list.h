@@ -42,7 +42,7 @@ namespace sqlpp
 {
   namespace postgresql
   {
-    SQLPP_PORTABLE_STATIC_ASSERT(
+    SQLPP_WRAPPED_STATIC_ASSERT(
         assert_no_unknown_tables_in_returning_columns_t,
         "at least one returning column requires a table which is otherwise not known in the statement");
 

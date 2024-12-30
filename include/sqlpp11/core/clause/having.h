@@ -50,11 +50,11 @@ namespace sqlpp
     Expression _expression;
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(
+  SQLPP_WRAPPED_STATIC_ASSERT(
       assert_having_no_unknown_tables_t,
       "at least one having-expression requires a table which is otherwise not known in the statement");
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_having_all_aggregates_t,
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_having_all_aggregates_t,
                                "having expression not built out of aggregate expressions");
 
   template <typename Expression>

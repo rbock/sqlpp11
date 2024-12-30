@@ -135,7 +135,7 @@ namespace sqlpp
   template <typename Check, typename Union>
   using union_cte_impl_t = typename union_cte_impl<Check, Union>::type;
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_cte_union_args_are_statements_t, "argument for union() must be a statement");
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_cte_union_args_are_statements_t, "argument for union() must be a statement");
   template <typename T>
   struct check_cte_union
   {

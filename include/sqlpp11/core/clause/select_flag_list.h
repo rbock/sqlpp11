@@ -63,7 +63,7 @@ namespace sqlpp
     using type = consistent_t;
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_select_flags_are_flags_t, "arguments for flags() must be known select flags");
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_select_flags_are_flags_t, "arguments for flags() must be known select flags");
   template <typename... Flags>
   struct check_select_flags
   {

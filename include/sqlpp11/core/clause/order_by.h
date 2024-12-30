@@ -51,7 +51,7 @@ namespace sqlpp
     std::tuple<Expressions...> _expressions;
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(
+  SQLPP_WRAPPED_STATIC_ASSERT(
       assert_no_unknown_tables_in_order_by_t,
       "at least one order-by expression requires a table which is otherwise not known in the statement");
 
@@ -74,7 +74,7 @@ namespace sqlpp
                                            assert_no_unknown_tables_in_order_by_t>::type;
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_order_by_args_are_sort_order_expressions_t,
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_order_by_args_are_sort_order_expressions_t,
                                "arguments for order_by() must be sort order expressions");
   template <typename... Exprs>
   struct check_order_by

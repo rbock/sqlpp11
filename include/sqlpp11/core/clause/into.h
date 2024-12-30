@@ -79,7 +79,7 @@ namespace sqlpp
   {
   };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_into_t, "into() required");
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_into_t, "into() required");
 
   // NO INTO YET
   struct no_into_t

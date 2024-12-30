@@ -56,7 +56,7 @@ namespace sqlpp
   template<typename Statement, typename Offset>
     struct consistency_check<Statement, offset_t<Offset>> { using type = consistent_t; };
 
-  SQLPP_PORTABLE_STATIC_ASSERT(assert_offset_is_integral,
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_offset_is_integral,
                                "argument for offset() must be an integral expressions");
   template <typename T>
   struct check_offset
