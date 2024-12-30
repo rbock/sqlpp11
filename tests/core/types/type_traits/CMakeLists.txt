@@ -31,4 +31,5 @@ endfunction()
 test_compile(aggregates)
 test_compile(ctes_of)
 test_compile(tables_of)
+test_compile(type_traits)
 
