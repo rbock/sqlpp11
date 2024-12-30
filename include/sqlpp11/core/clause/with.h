@@ -31,7 +31,6 @@
 #include <sqlpp11/core/tuple_to_sql_string.h>
 #include <sqlpp11/core/logic.h>
 #include <sqlpp11/core/no_data.h>
-#include <sqlpp11/core/query/policy_update.h>
 #include <sqlpp11/core/query/statement_fwd.h>
 #include <sqlpp11/core/type_traits.h>
 

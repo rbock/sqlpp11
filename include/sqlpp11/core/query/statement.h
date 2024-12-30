@@ -30,7 +30,6 @@
 #include <sqlpp11/core/hidden.h>
 #include <sqlpp11/core/database/parameter_list.h>
 #include <sqlpp11/core/query/statement_constructor_arg.h>
-#include <sqlpp11/core/query/policy_update.h>
 #include <sqlpp11/core/database/prepared_select.h>
 #include <sqlpp11/core/basic/value.h>
 #include <sqlpp11/core/result.h>

@@ -31,7 +31,6 @@
 #include <sqlpp11/core/query/dynamic.h>
 #include <sqlpp11/core/field_spec.h>
 #include <sqlpp11/core/tuple_to_sql_string.h>
-#include <sqlpp11/core/query/policy_update.h>
 #include <sqlpp11/core/query/result_row.h>
 #include <sqlpp11/core/clause/select_as.h>
 #include <sqlpp11/core/clause/select_column_traits.h>
