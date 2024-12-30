@@ -108,6 +108,11 @@ namespace sqlpp
   }  // namespace postgresql
 
   template <typename... Columns>
+  struct has_result_row<postgresql::returning_column_list_t<Columns...>> : public std::true_type
+  {
+  };
+
+  template <typename... Columns>
   struct is_clause<postgresql::returning_column_list_t<Columns...>> : public std::true_type
   {
   };

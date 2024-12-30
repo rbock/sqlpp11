@@ -266,21 +266,12 @@ namespace sqlpp
   template<typename T>
     struct is_statement : public std::false_type {};
 
-  template <typename Statement, typename Enable = void>
+  template <typename T>
   struct has_result_row: public std::false_type
   {
   };
 
 #warning: Can we make this more explicit for statement_t?
-  template <typename Statement>
-  struct has_result_row<
-      Statement,
-      typename std::enable_if<
-          not wrong_t<typename Statement::_result_methods_t::template _result_row_t<void>>::value,
-          void>::type>: public std::true_type
-  {
-  };
-
   template <typename Statement, typename Enable = void>
   struct get_result_row_impl
   {

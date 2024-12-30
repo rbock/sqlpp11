@@ -139,6 +139,11 @@ namespace sqlpp
   {
   };
 
+  template <typename... Columns>
+  struct has_result_row<select_column_list_t<Columns...>> : public std::true_type
+  {
+  };
+
   // Checks if the selected columns are aggregate-correct.
   // The presence of GROUP BY changes what is allowed.
   template <typename KnownAggregateColumns, typename... Columns>

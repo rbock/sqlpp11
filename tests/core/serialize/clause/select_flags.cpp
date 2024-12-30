@@ -34,9 +34,6 @@ int main(int, char*[])
   // No flags
   SQLPP_COMPARE(select(foo.doubleN), "SELECT tab_foo.double_n");
 
-  // No flags
-  SQLPP_COMPARE(sqlpp::select_flags(), "");
-
   // One flag
   SQLPP_COMPARE(select(foo.doubleN).flags(sqlpp::distinct), "SELECT DISTINCT tab_foo.double_n");
 

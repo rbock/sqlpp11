@@ -58,6 +58,11 @@ namespace sqlpp
   };
 
   template <typename Flag, typename Lhs, typename Rhs>
+  struct has_result_row<union_t<Flag, Lhs, Rhs>> : public std::true_type
+  {
+  };
+
+  template <typename Flag, typename Lhs, typename Rhs>
   struct is_clause<union_t<Flag, Lhs, Rhs>> : public std::true_type
   {
   };
