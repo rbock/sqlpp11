@@ -51,4 +51,11 @@ namespace sqlpp
   {
     return " () VALUES()";
   }
+
+  inline auto quoted_name_to_sql_string(mysql::context_t&, const ::sqlpp::string_view& name) -> std::string
+  {
+#warning : Need to test this
+    return '`' + std::string(name) + '`';
+  }
+
 }

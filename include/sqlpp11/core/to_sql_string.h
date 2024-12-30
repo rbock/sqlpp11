@@ -267,7 +267,6 @@ namespace sqlpp
   template <typename Context>
   auto quoted_name_to_sql_string(Context&, const ::sqlpp::string_view& name) -> std::string
   {
-#warning : Need to change quotes for MySQL to forward ticks `name`
     return '"' + std::string(name) + '"';
   }
 
