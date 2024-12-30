@@ -28,10 +28,9 @@
 #include <sqlpp11/tests/core/MockDb.h>
 #include <iostream>
 
-#warning: Need copies of this for other backends
 #define SQLPP_COMPARE(expr, expected_string)                       \
   {                                                                \
-    MockDb::_context_t printer = {};                    \
+    MockDb::_context_t printer = {};                               \
                                                                    \
     using sqlpp::to_sql_string;                                    \
     const auto result = to_sql_string(printer, expr);              \

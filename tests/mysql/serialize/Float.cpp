@@ -23,14 +23,14 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/data_types/floating_point.h>
 #include <sqlpp11/core/basic/value.h>
 
-#include "compare.h"
+#include <sqlpp11/tests/mysql/serialize_helpers.h>
 
 int Float(int, char*[])
 {
-  compare(__LINE__, sqlpp::value(10.0000114), "10.0000114");
+#warning: need to add tests for anything that is in serializer.h
+  SQLPP_COMPARE(sqlpp::value(10.0000114), "10.0000114");
 
   return 0;
 }

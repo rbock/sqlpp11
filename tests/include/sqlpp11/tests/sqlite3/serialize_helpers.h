@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2013-2015, Roland Bock
+ * Copyright (c) 2024, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -26,35 +26,20 @@
  */
 
 #include <sqlpp11/sqlite3/database/connection.h>
-
 #include <iostream>
 
-namespace
-{
-  template <typename Result, typename Expected>
-  void assert_equal(int lineNo, const Result& result, const Expected& expected)
-  {
-    if (result != expected)
-    {
-      std::cerr << __FILE__ << " " << lineNo << '\n'
-                << "Expected: -->|" << expected << "|<--\n"
-                << "Received: -->|" << result << "|<--\n";
-      throw std::runtime_error("unexpected result");
-    }
+#define SQLPP_COMPARE(expr, expected_string)                       \
+  {                                                                \
+    sqlpp::sqlite3::context_t printer{};                           \
+                                                                   \
+    using sqlpp::to_sql_string;                                    \
+    const auto result = to_sql_string(printer, expr);              \
+                                                                   \
+    if (result != expected_string)                                 \
+    {                                                              \
+      std::cerr << __FILE__ << " " << __LINE__ << '\n'             \
+                << "Expected: -->|" << expected_string << "|<--\n" \
+                << "Received: -->|" << result << "|<--\n";         \
+      return -1;                                                   \
+    }                                                              \
   }
-
-  template <typename Expression>
-  void compare(int lineNo, const Expression& expr, const std::string& expected)
-  {
-    sqlpp::sqlite3::connection_config config;
-    config.path_to_database = ":memory:";
-    config.flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
-    config.debug = true;
-    sqlpp::sqlite3::connection connection{config};
-    sqlpp::sqlite3::context_t printer{connection};
-
-    const auto result = to_sql_string(expr, printer).str();
-
-    assert_equal(lineNo, result, expected);
-  }
-}  // namespace
