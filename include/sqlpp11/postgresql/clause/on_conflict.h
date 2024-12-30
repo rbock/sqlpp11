@@ -89,6 +89,16 @@ namespace sqlpp
       ConflictTarget _column;
     };
 
+    template <typename ConflictTarget>
+    auto to_sql_string(postgresql::context_t& context, const postgresql::on_conflict_t<ConflictTarget>&) -> std::string
+    {
+      return " ON CONFLICT (" + name_to_sql_string(context, name_tag_of_t<ConflictTarget>{}) + ") ";
+    }
+
+    inline auto to_sql_string(postgresql::context_t&, const postgresql::on_conflict_t<no_data_t>&) -> std::string
+    {
+      return " ON CONFLICT ";
+    }
   }  // namespace postgresql
 
   template <typename Statement, typename ConflictTarget>
@@ -130,23 +140,12 @@ namespace sqlpp
     {
     };
 
-#warning: It might make sense to always call ::sqlpp::to_sql_string. And then these should be in namespace sqlpp
     // Serialization
     inline auto to_sql_string(postgresql::context_t&, const postgresql::no_on_conflict_t&) -> std::string
     {
       return "";
     }
 
-    template <typename ConflictTarget>
-    auto to_sql_string(postgresql::context_t& context, const postgresql::on_conflict_t<ConflictTarget>&) -> std::string
-    {
-      return " ON CONFLICT (" + name_to_sql_string(context, name_tag_of_t<ConflictTarget>{}) + ") ";
-    }
-
-    inline auto to_sql_string(postgresql::context_t&, const postgresql::on_conflict_t<no_data_t>&) -> std::string
-    {
-      return " ON CONFLICT ";
-    }
   }  // namespace postgresql
 
   template <typename Statement>

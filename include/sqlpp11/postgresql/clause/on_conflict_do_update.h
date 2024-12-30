@@ -41,8 +41,7 @@ namespace sqlpp
     template <typename OnConflictUpdate, typename Expression>
     struct on_conflict_do_update_where_t
     {
-      on_conflict_do_update_where_t(
-          OnConflictUpdate on_conflict_update, Expression expression)
+      on_conflict_do_update_where_t(OnConflictUpdate on_conflict_update, Expression expression)
           : _on_conflict_update(on_conflict_update), _expression(expression)
       {
       }
@@ -55,7 +54,22 @@ namespace sqlpp
       OnConflictUpdate _on_conflict_update;
       Expression _expression;
     };
+  }
 
+  template <typename OnConflictUpdate, typename Expression>
+  struct is_clause<postgresql::on_conflict_do_update_where_t<OnConflictUpdate, Expression>>: public std::true_type
+  {
+  };
+
+  template <typename Statement, typename OnConflictUpdate, typename Expression>
+  struct consistency_check<Statement, postgresql::on_conflict_do_update_where_t<OnConflictUpdate, Expression>>
+  {
+#warning: is this correct?
+    using type = consistent_t;
+  };
+
+  namespace postgresql
+  {
     // ON CONFLICT ... DO UPDATE ...
     template <typename OnConflict, typename... Assignments>
     struct on_conflict_do_update_t
@@ -76,17 +90,9 @@ namespace sqlpp
     };
   }  // namespace postgresql
 
-#warning: Do we need is_clause?
   template <typename OnConflict, typename... Assignments>
   struct is_clause<postgresql::on_conflict_do_update_t<OnConflict, Assignments...>>: public std::true_type
   {
-  };
-
-  template <typename Statement, typename OnConflictUpdate, typename Expression>
-  struct consistency_check<Statement, postgresql::on_conflict_do_update_where_t<OnConflictUpdate, Expression>>
-  {
-#warning: is this correct?
-    using type = consistent_t;
   };
 
   template <typename Statement, typename OnConflict, typename... Assignments>

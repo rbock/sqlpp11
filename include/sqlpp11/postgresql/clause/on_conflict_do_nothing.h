@@ -60,6 +60,11 @@ namespace sqlpp
     }
   }  // namespace postgresql
 
+  template <typename ConflictTarget>
+  struct is_clause<postgresql::on_conflict_do_nothing_t<ConflictTarget>> : public std::true_type
+  {
+  };
+
   template <typename Statement, typename ConflictTarget>
   struct consistency_check<Statement, postgresql::on_conflict_do_nothing_t<ConflictTarget>>
   {

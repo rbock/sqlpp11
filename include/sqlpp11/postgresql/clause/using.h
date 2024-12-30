@@ -31,9 +31,10 @@
 #include <sqlpp11/core/query/policy_update.h>
 #include <sqlpp11/core/type_traits.h>
 
-#warning: move into namespace postgresql
 namespace sqlpp
 {
+  namespace postgresql
+  {
   // USING
   template <typename... Tables>
   struct using_t
@@ -50,9 +51,16 @@ namespace sqlpp
 
     std::tuple<Tables...> _tables;
   };
+  using ::sqlpp::is_clause;
+  }  // namespace postgresql
+
+  template <typename... Tables>
+  struct is_clause<postgresql::using_t<Tables...>> : public std::true_type
+  {
+  };
 
   template <typename Statement, typename... Tables>
-  struct consistency_check<Statement, using_t<Tables...>>
+  struct consistency_check<Statement, postgresql::using_t<Tables...>>
   {
     using type = consistent_t;
   };
@@ -67,46 +75,50 @@ namespace sqlpp
   template <typename... Tables>
   using check_using_t = typename check_using<Tables...>::type;
 
-  // NO USING YET
-  struct no_using_t
+  namespace postgresql
   {
-  };
+    // NO USING YET
+    struct no_using_t
+    {
+    };
+  }  // namespace postgresql
 
   template <typename Statement>
-  struct clause_base<no_using_t, Statement> : public clause_data<no_using_t, Statement>
+  struct clause_base<postgresql::no_using_t, Statement> : public clause_data<postgresql::no_using_t, Statement>
   {
-    using clause_data<no_using_t, Statement>::clause_data;
+    using clause_data<postgresql::no_using_t, Statement>::clause_data;
 
       template <typename... Tables>
-      auto using_(Tables... tables) const -> decltype(new_statement(*this, using_t<Tables...>{std::move(tables)...}))
+      auto using_(Tables... tables) const -> decltype(new_statement(*this, postgresql::using_t<Tables...>{std::move(tables)...}))
       {
 #warning: reactivate check_using
         static_assert(not detail::has_duplicates<Tables...>::value,
                       "at least one duplicate argument detected in using()");
         static_assert(sizeof...(Tables), "at least one table required in using()");
 
-        return new_statement(*this, using_t<Tables...>{std::move(tables)...});
+        return new_statement(*this, postgresql::using_t<Tables...>{std::move(tables)...});
       }
 
   };
 
   template <typename Statement>
-  struct consistency_check<Statement, no_using_t>
+  struct consistency_check<Statement, postgresql::no_using_t>
   {
     using type = consistent_t;
   };
 
-  // Serialization
-  template <typename Context>
-  auto to_sql_string(Context& , const no_using_t& ) -> std::string
+  namespace postgresql
   {
-    return "";
-  }
+    // Serialization
+    inline auto to_sql_string(postgresql::context_t&, const postgresql::no_using_t&) -> std::string
+    {
+      return "";
+    }
 
-  template <typename Context, typename... Tables>
-  auto to_sql_string(Context& context, const using_t<Tables...>& t) -> std::string
-  {
-    return " USING " + tuple_to_sql_string(context, t._tables, tuple_operand{", "});
-  }
-#warning: Move this to postgresql as neither mysql nor sqlite support it, I think?
+    template <typename Context, typename... Tables>
+    auto to_sql_string(postgresql::context_t& context, const postgresql::using_t<Tables...>& t) -> std::string
+    {
+      return " USING " + tuple_to_sql_string(context, t._tables, tuple_operand{", "});
+    }
+  }  // namespace postgresql
 }  // namespace sqlpp
