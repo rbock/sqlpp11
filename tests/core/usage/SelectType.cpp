@@ -261,7 +261,7 @@ int SelectType(int, char*[])
                 .where(t.textN == "hello world" and select(t.boolNn).from(t).where(t.id == 7))  // .as(alias::right))
                 .group_by(l.boolNn, r.a)
                 .having(r.a != true)
-                .order_by(l.textN.asc())
+                .order_by(l.boolNn.asc())
                 .limit(17u)
                 .offset(3u)
                 .as(alias::a);

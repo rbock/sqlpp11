@@ -34,7 +34,7 @@ namespace sqlpp
 {
   struct noop
   {
-#warning: All this should go away
+    // This represents a void result.
     template <typename Statement>
     struct _result_methods_t
     {
@@ -46,12 +46,6 @@ namespace sqlpp
       }
 
       // Execute
-      template <typename Db, typename Composite>
-      auto _run(Db& db, const Composite& composite) const -> size_t
-      {
-        return db.execute(composite);
-      }
-
       template <typename Db>
       auto _run(Db& db) const -> size_t
       {
@@ -59,12 +53,6 @@ namespace sqlpp
       }
 
       // Prepare
-      template <typename Db, typename Composite>
-      auto _prepare(Db& db, const Composite& composite) const -> prepared_execute_t<Db, Composite>
-      {
-        return {{}, db.prepare_execute(composite)};
-      }
-
       template <typename Db>
       auto _prepare(Db& db) const -> prepared_execute_t<Db, _statement_t>
       {

@@ -32,11 +32,11 @@
 
 namespace sqlpp
 {
-  template <typename Database, typename Select, typename Composite = Select>
+  template <typename Database, typename Statement>
   struct prepared_select_t
   {
-    using _result_row_t = typename Select::template _result_row_t<Database>;
-    using _parameter_list_t = make_parameter_list_t<Composite>;
+    using _result_row_t = typename Statement::template _result_row_t<Database>;
+    using _parameter_list_t = make_parameter_list_t<Statement>;
     using _prepared_statement_t = typename Database::_prepared_statement_t;
 
     auto _run(Database& db) const -> result_t<decltype(db.run_prepared_select(*this)), _result_row_t>
@@ -53,6 +53,6 @@ namespace sqlpp
     mutable _prepared_statement_t _prepared_statement;
   };
 
-  template<typename Db, typename Select, typename Composite>
-    struct statement_run_check<prepared_select_t<Db, Select, Composite>> { using type = consistent_t; };
+  template<typename Db, typename Statement>
+    struct statement_run_check<prepared_select_t<Db, Statement>> { using type = consistent_t; };
 }  // namespace sqlpp

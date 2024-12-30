@@ -55,31 +55,23 @@ namespace sqlpp
   {
   };
 
-  // Checks if the order-by expressions are aggregate-correct.
-  // The presence of GROUP BY changes what is allowed.
-  template <typename KnownAggregateColumns, typename... Expressions>
-  struct has_correct_aggregates<KnownAggregateColumns, order_by_t<Expressions...>>
-      : public std::integral_constant<
-            bool,
-            KnownAggregateColumns::empty()
-                // Without GROUP BY: all expressions have to be non-aggregate expressions
-                // Note: this is different from select_column_list_t, where it does make sense to select aggregate
-                // functions, only. But sorting by them does not make sense without GROUP BY.
-                ? (logic::all<is_non_aggregate_expression<KnownAggregateColumns, Expressions>::value...>::value)
-                // With GROUP BY: all expressions have to be aggregate expressions
-                : (logic::all<is_aggregate_expression<KnownAggregateColumns, Expressions>::value...>::value)>
-  {
-  };
-
   SQLPP_WRAPPED_STATIC_ASSERT(assert_correct_order_by_aggregates_t,
-                               "order_by  must not contain a mix of aggregates and non-aggregates");
+                               "order_by (without group by) must not contain any aggregates");
+
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_correct_order_by_aggregates_with_group_by_t,
+                               "order_by (with group by) must contain aggregates only");
 
   template <typename Statement, typename... Expressions>
   struct consistency_check<Statement, order_by_t<Expressions...>>
   {
-    using type = static_check_t<
-        has_correct_aggregates<typename Statement::_all_provided_aggregates, select_column_list_t<Expressions...>>::value,
-        assert_correct_order_by_aggregates_t>;
+    using _known_aggregate_colums = typename Statement::_all_provided_aggregates;
+
+    using type = typename std::conditional<
+        _known_aggregate_colums::empty(),
+        static_check_t<logic::all<is_non_aggregate_expression<_known_aggregate_colums, Expressions>::value...>::value,
+                       assert_correct_order_by_aggregates_t>,
+        static_check_t<logic::all<is_aggregate_expression<_known_aggregate_colums, Expressions>::value...>::value,
+                       assert_correct_order_by_aggregates_with_group_by_t>>::type;
   };
 
   SQLPP_WRAPPED_STATIC_ASSERT(

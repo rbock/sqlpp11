@@ -137,7 +137,7 @@ int Select(int, char*[])
                .from(t)
                .where(t.id > 3)
                .group_by(t.id)
-               .order_by(t.textN.asc())
+               .order_by(t.id.asc())
                .having(sum(t.id) > parameter(t.intN))
                .limit(32u)
                .offset(7u);

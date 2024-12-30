@@ -90,14 +90,7 @@ namespace sqlpp
           return sizeof...(Columns);
         }
 
-        // auto ..
-        template <typename Db, typename Composite>
-        auto _run(Db& db, const Composite& composite) const
-            -> result_t<decltype(db.select(composite)), _result_row_t<Db>>
-        {
-          return {db.select(composite)};
-        }
-
+        // Execute
         template <typename Db>
         auto _run(Db& db) const -> result_t<decltype(db.select(std::declval<_statement_t>())), _result_row_t<Db>>
         {
@@ -105,12 +98,6 @@ namespace sqlpp
         }
 
         // Prepare
-        template <typename Db, typename Composite>
-        auto _prepare(Db& db, const Composite& composite) const -> prepared_select_t<Db, _statement_t, Composite>
-        {
-          return {make_parameter_list_t<Composite>{}, db.prepare_select(composite)};
-        }
-
         template <typename Db>
         auto _prepare(Db& db) const -> prepared_select_t<Db, _statement_t>
         {

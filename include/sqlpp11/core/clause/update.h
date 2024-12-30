@@ -49,12 +49,6 @@ namespace sqlpp
       }
 
       // Execute
-      template <typename Db, typename Composite>
-      auto _run(Db& db, const Composite& composite) const -> decltype(db.update(composite))
-      {
-        return db.update(composite);
-      }
-
       template <typename Db>
       auto _run(Db& db) const -> decltype(db.update(this->_get_statement()))
       {
@@ -62,12 +56,6 @@ namespace sqlpp
       }
 
       // Prepare
-      template <typename Db, typename Composite>
-      auto _prepare(Db& db, const Composite& composite) const -> prepared_update_t<Db, Composite>
-      {
-        return {{}, db.prepare_update(composite)};
-      }
-
       template <typename Db>
       auto _prepare(Db& db) const -> prepared_update_t<Db, _statement_t>
       {
