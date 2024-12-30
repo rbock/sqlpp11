@@ -121,6 +121,11 @@ namespace sqlpp
     };
   }  // namespace postgresql
 
+  template <typename... Columns>
+  struct is_clause<postgresql::returning_column_list_t<Columns...>> : public std::true_type
+  {
+  };
+
   template <typename Statement, typename... Columns>
   struct consistency_check<Statement, postgresql::returning_column_list_t<Columns...>>
   {
@@ -184,11 +189,6 @@ namespace sqlpp
       return " RETURNING " + tuple_to_sql_string(context, t._columns, tuple_operand{", "});
     }
   }  // namespace postgresql
-
-  template <>
-  struct is_clause<postgresql::no_returning_column_list_t> : public std::true_type
-  {
-  };
 
   template <typename Statement>
   struct consistency_check<Statement, postgresql::no_returning_column_list_t>

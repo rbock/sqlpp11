@@ -27,9 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#warning: Should these go into clause?
-#include <sqlpp11/postgresql/on_conflict_do_nothing.h>
-#include <sqlpp11/postgresql/on_conflict_do_update.h>
+#include <sqlpp11/postgresql/clause/on_conflict_do_nothing.h>
+#include <sqlpp11/postgresql/clause/on_conflict_do_update.h>
 #include <sqlpp11/core/query/statement.h>
 #include <sqlpp11/core/clause/clause_base.h>
 

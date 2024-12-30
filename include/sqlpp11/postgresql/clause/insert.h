@@ -27,7 +27,7 @@
  */
 
 #include <sqlpp11/core/clause/insert.h>
-#include <sqlpp11/postgresql/on_conflict.h>
+#include <sqlpp11/postgresql/clause/on_conflict.h>
 #include <sqlpp11/postgresql/clause/returning_column_list.h>
 
 namespace sqlpp
