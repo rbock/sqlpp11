@@ -40,8 +40,6 @@ namespace sqlpp
                  public enable_comparison<sum_t<Flag, Expr>>,
                  enable_over<sum_t<Flag, Expr>>
   {
-    using _can_be_null = std::true_type;
-
     constexpr sum_t(Expr expr) : _expr(std::move(expr))
     {
     }

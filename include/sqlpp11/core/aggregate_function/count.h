@@ -40,8 +40,6 @@ namespace sqlpp
                    public enable_comparison<count_t<Flag, Expr>>,
                    public enable_over<count_t<Flag, Expr>>
   {
-    using _can_be_null = std::false_type;
-
     constexpr count_t(Expr expr) : _expr(std::move(expr))
     {
     }

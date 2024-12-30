@@ -63,16 +63,6 @@ namespace sqlpp
     using type = consistent_t;
   };
 
-  SQLPP_WRAPPED_STATIC_ASSERT(assert_select_flags_are_flags_t, "arguments for flags() must be known select flags");
-  template <typename... Flags>
-  struct check_select_flags
-  {
-    using type = static_combined_check_t<
-        static_check_t<logic::all<is_select_flag<remove_dynamic_t<Flags>>::value...>::value, assert_select_flags_are_flags_t>>;
-  };
-  template <typename... Flags>
-  using check_select_flags_t = typename check_select_flags<Flags...>::type;
-
   struct no_select_flag_list_t
   {
   };
@@ -82,12 +72,11 @@ namespace sqlpp
   {
     using clause_data<no_select_flag_list_t, Statement>::clause_data;
 
-#warning : reactivate check_select_flags_t;
-
-    template <typename... Flags>
+    template <typename... Flags,
+              typename = sqlpp::enable_if_t<logic::all<is_select_flag<remove_dynamic_t<Flags>>::value...>::value>>
     auto flags(Flags... flags) const -> decltype(new_statement(*this, select_flag_list_t<Flags...>{flags...}))
     {
-      static_assert(not detail::has_duplicates<Flags...>::value,
+      static_assert(not detail::has_duplicates<remove_dynamic_t<Flags>...>::value,
                     "at least one duplicate argument detected in select flag list");
 
       return new_statement(*this, select_flag_list_t<Flags...>{flags...});

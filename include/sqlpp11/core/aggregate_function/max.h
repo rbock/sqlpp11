@@ -40,9 +40,6 @@ namespace sqlpp
                  public enable_comparison<max_t<Flag, Expr>>,
                  public enable_over<max_t<Flag, Expr>>
   {
-#warning: Do we need this?
-    using _can_be_null = std::true_type;
-
     constexpr max_t(Expr expr) : _expr(std::move(expr))
     {
     }
