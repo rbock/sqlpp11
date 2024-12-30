@@ -99,5 +99,30 @@ int main()
     static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>, sqlpp::assert_no_unknown_tables_in_order_by_t>::value, "");
   }
 
+  // order_by must not require unknown tables for prepare/run
+  {
+    // OK, foo.id and max(...) are both aggregates
+    auto s = select(foo.id).from(foo).where(true).group_by(foo.id).order_by(foo.id.asc(), max(foo.intN).desc());
+    using S = decltype(s);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::consistent_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>, sqlpp::consistent_t>::value, "");
+  }
+
+  {
+    // Fail: foo.id is a non-aggregate, but max(...) is an aggregate
+    auto s = select(foo.id).from(foo).where(true).order_by(foo.id.asc(), max(foo.intN).desc());
+    using S = decltype(s);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_correct_order_by_aggregates_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>, sqlpp::assert_correct_order_by_aggregates_t>::value, "");
+  }
+
+  {
+    // Fail: foo.id is an aggregate, but foo.intN is not.
+    auto s = select(foo.id).from(foo).where(true).group_by(foo.id).order_by(foo.id.asc(), foo.intN.desc());
+    using S = decltype(s);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_correct_order_by_aggregates_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>, sqlpp::assert_correct_order_by_aggregates_t>::value, "");
+  }
+
 }
 

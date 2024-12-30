@@ -51,21 +51,41 @@ namespace sqlpp
     std::tuple<Expressions...> _expressions;
   };
 
-  SQLPP_WRAPPED_STATIC_ASSERT(
-      assert_no_unknown_tables_in_order_by_t,
-      "at least one order-by expression requires a table which is otherwise not known in the statement");
-
   template <typename... Expressions>
   struct is_clause<order_by_t<Expressions...>> : public std::true_type
   {
   };
 
+  // Checks if the order-by expressions are aggregate-correct.
+  // The presence of GROUP BY changes what is allowed.
+  template <typename KnownAggregateColumns, typename... Expressions>
+  struct has_correct_aggregates<KnownAggregateColumns, order_by_t<Expressions...>>
+      : public std::integral_constant<
+            bool,
+            KnownAggregateColumns::empty()
+                // Without GROUP BY: all expressions have to be non-aggregate expressions
+                // Note: this is different from select_column_list_t, where it does make sense to select aggregate
+                // functions, only. But sorting by them does not make sense without GROUP BY.
+                ? (logic::all<is_non_aggregate_expression<KnownAggregateColumns, Expressions>::value...>::value)
+                // With GROUP BY: all expressions have to be aggregate expressions
+                : (logic::all<is_aggregate_expression<KnownAggregateColumns, Expressions>::value...>::value)>
+  {
+  };
+
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_correct_order_by_aggregates_t,
+                               "order_by  must not contain a mix of aggregates and non-aggregates");
+
   template <typename Statement, typename... Expressions>
   struct consistency_check<Statement, order_by_t<Expressions...>>
   {
-#warning: Need to make sure that we don't mix aggregate and non-aggregate expressions?
-    using type = consistent_t;
+    using type = static_check_t<
+        has_correct_aggregates<typename Statement::_all_provided_aggregates, select_column_list_t<Expressions...>>::value,
+        assert_correct_order_by_aggregates_t>;
   };
+
+  SQLPP_WRAPPED_STATIC_ASSERT(
+      assert_no_unknown_tables_in_order_by_t,
+      "at least one order-by expression requires a table which is otherwise not known in the statement");
 
   template <typename Statement, typename... Expressions>
   struct prepare_check<Statement, order_by_t<Expressions...>>

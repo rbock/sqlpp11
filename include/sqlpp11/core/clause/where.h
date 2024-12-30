@@ -43,6 +43,10 @@ namespace sqlpp
   };
 
   SQLPP_WRAPPED_STATIC_ASSERT(
+      assert_no_aggregates_in_where_t,
+      "at least one expression in where() is an aggregate expression, use having() instead");
+
+  SQLPP_WRAPPED_STATIC_ASSERT(
       assert_no_unknown_tables_in_where_t,
       "at least one expression in where() requires a table which is otherwise not known in the statement");
 
@@ -54,7 +58,9 @@ namespace sqlpp
   template <typename Statement, typename Expression>
   struct consistency_check<Statement, where_t<Expression>>
   {
-      using type = consistent_t;
+    using type =
+        static_check_t<is_non_aggregate_expression<typename Statement::_all_provided_aggregates, Expression>::value,
+                       assert_no_aggregates_in_where_t>;
   };
 
   template <typename Statement, typename Expression>

@@ -69,7 +69,7 @@ namespace sqlpp
       assert_no_unknown_tables_in_selected_columns_t,
       "at least one selected column requires a table which is otherwise not known in the statement");
 
-  SQLPP_WRAPPED_STATIC_ASSERT(assert_correct_aggregates_t,
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_correct_select_column_aggregates_t,
                                "select must not contain a mix of aggregates and non-aggregates");
 
   // SELECTED COLUMNS
@@ -152,26 +152,6 @@ namespace sqlpp
   {
   };
 
-  template <typename Statement, typename... Columns>
-  struct consistency_check<Statement, select_column_list_t<Columns...>>
-  {
-    using type = static_check_t<
-        has_correct_aggregates<typename Statement::_all_provided_aggregates, select_column_list_t<Columns...>>::value,
-        assert_correct_aggregates_t>;
-  };
-
-  template <typename Statement, typename... Columns>
-  struct prepare_check<Statement, select_column_list_t<Columns...>>
-  {
-    using type = static_check_t<Statement::template _no_unknown_tables<select_column_list_t<Columns...>>,
-                                assert_no_unknown_tables_in_selected_columns_t>;
-  };
-
-  template <typename Column>
-  struct value_type_of<select_column_list_t<Column>> : public select_column_value_type_of<Column>
-  {
-  };
-
   // Checks if the selected columns are aggregate-correct.
   // The presence of GROUP BY changes what is allowed.
   template <typename KnownAggregateColumns, typename... Columns>
@@ -187,6 +167,26 @@ namespace sqlpp
                 // With GROUP BY: all columns have to be aggregate expressions
                 : (logic::all<is_aggregate_expression<KnownAggregateColumns,
                                                       remove_dynamic_t<remove_as_t<Columns>>>::value...>::value)>
+  {
+  };
+
+  template <typename Statement, typename... Columns>
+  struct consistency_check<Statement, select_column_list_t<Columns...>>
+  {
+    using type = static_check_t<
+        has_correct_aggregates<typename Statement::_all_provided_aggregates, select_column_list_t<Columns...>>::value,
+        assert_correct_select_column_aggregates_t>;
+  };
+
+  template <typename Statement, typename... Columns>
+  struct prepare_check<Statement, select_column_list_t<Columns...>>
+  {
+    using type = static_check_t<Statement::template _no_unknown_tables<select_column_list_t<Columns...>>,
+                                assert_no_unknown_tables_in_selected_columns_t>;
+  };
+
+  template <typename Column>
+  struct value_type_of<select_column_list_t<Column>> : public select_column_value_type_of<Column>
   {
   };
 

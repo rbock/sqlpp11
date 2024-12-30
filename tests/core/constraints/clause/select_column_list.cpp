@@ -117,31 +117,31 @@ int main()
   {
     auto s = select(foo.id, max(foo.id).as(test::max_id)).from(foo);
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_correct_aggregates_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_correct_select_column_aggregates_t>::value, "");
   }
 
   {
     auto s = select(foo.id, (max(foo.id) + 7).as(test::max_id)).from(foo);
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_correct_aggregates_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_correct_select_column_aggregates_t>::value, "");
   }
 
   {
     auto s = select(foo.id, foo.intN).from(foo).group_by(foo.intN);
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_correct_aggregates_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_correct_select_column_aggregates_t>::value, "");
   }
 
   {
     auto s = select(foo.id, dynamic(true, foo.intN)).from(foo).group_by(foo.intN);
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_correct_aggregates_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_correct_select_column_aggregates_t>::value, "");
   }
 
   {
     auto s = select(foo.id, dynamic(true, (foo.intN + 7)).as(test::max_id)).from(foo).group_by(foo.intN);
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_correct_aggregates_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_correct_select_column_aggregates_t>::value, "");
   }
 }
 
