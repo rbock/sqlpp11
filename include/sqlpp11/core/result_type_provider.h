@@ -46,7 +46,7 @@ namespace sqlpp
     template <typename Clause>
     using unhide_t = typename unhide<Clause>::type;
 
-  template <typename... Policies>
-    using result_type_provider_t = detail::get_last_if_t<is_result_clause, noop, unhide_t<Policies>...>;
+  template <typename... Clauses>
+    using result_type_provider_t = detail::get_last_if_t<is_result_clause, noop, unhide_t<Clauses>...>;
 
 }  // namespace sqlpp

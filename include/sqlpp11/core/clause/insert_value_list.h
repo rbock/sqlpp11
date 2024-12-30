@@ -46,16 +46,16 @@ namespace sqlpp
 {
   namespace detail
   {
-    template <typename Policies, typename... Columns>
+    template <typename Clauses, typename... Columns>
     struct have_all_required_columns
     {
-      static constexpr bool value = detail::make_type_set_t<Columns...>::contains_all(required_insert_columns_of_t<Policies>{});
+      static constexpr bool value = detail::make_type_set_t<Columns...>::contains_all(required_insert_columns_of_t<Clauses>{});
     };
 
-    template <typename Policies, typename... Assignments>
+    template <typename Clauses, typename... Assignments>
     struct have_all_required_assignments
     {
-      static constexpr bool value = have_all_required_columns<Policies, lhs_t<Assignments>...>::value;
+      static constexpr bool value = have_all_required_columns<Clauses, lhs_t<Assignments>...>::value;
     };
   }  // namespace detail
 

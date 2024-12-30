@@ -251,8 +251,8 @@ namespace sqlpp
   template <typename NameTagProvider, typename Member>
   using member_t = typename name_tag_of_t<NameTagProvider>::template _member_t<Member>;
 
-  template <typename Policies>
-  using derived_statement_t = typename Policies::_statement_t;
+  template <typename Clauses>
+  using derived_statement_t = typename Clauses::_statement_t;
 
   template <typename T>
   using is_inconsistent_t =

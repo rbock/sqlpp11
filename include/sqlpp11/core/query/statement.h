@@ -52,32 +52,32 @@ namespace sqlpp
   SQLPP_WRAPPED_STATIC_ASSERT(assert_no_parameters_t,
                                "cannot run statements with parameters directly, use prepare instead");
 
-  template <typename... Policies>
-    using result_methods_t = typename result_type_provider_t<Policies...>::template _result_methods_t<statement_t<Policies...>>;
+  template <typename... Clauses>
+    using result_methods_t = typename result_type_provider_t<Clauses...>::template _result_methods_t<statement_t<Clauses...>>;
 
-  template <typename... Policies>
-  struct statement_t : public clause_base<Policies, statement_t<Policies...>>...,
-                       public result_methods_t<Policies...>
+  template <typename... Clauses>
+  struct statement_t : public clause_base<Clauses, statement_t<Clauses...>>...,
+                       public result_methods_t<Clauses...>
   {
-      using _all_required_ctes = detail::make_joined_set_t<required_ctes_of_t<Policies>...>;
-      using _all_provided_ctes = detail::make_joined_set_t<provided_ctes_of_t<Policies>...>;
-      using _all_required_static_ctes = detail::make_joined_set_t<required_static_ctes_of_t<Policies>...>;
-      using _all_provided_static_ctes = detail::make_joined_set_t<provided_static_ctes_of_t<Policies>...>;
-      using _all_required_tables = detail::make_joined_set_t<required_tables_of_t<Policies>...>;
-      using _all_provided_tables = detail::make_joined_set_t<provided_tables_of_t<Policies>...>;
-      using _all_provided_optional_tables = detail::make_joined_set_t<provided_optional_tables_of_t<Policies>...>;
-      using _all_provided_aggregates = detail::make_joined_set_t<known_aggregate_columns_of_t<Policies>...>;
+      using _all_required_ctes = detail::make_joined_set_t<required_ctes_of_t<Clauses>...>;
+      using _all_provided_ctes = detail::make_joined_set_t<provided_ctes_of_t<Clauses>...>;
+      using _all_required_static_ctes = detail::make_joined_set_t<required_static_ctes_of_t<Clauses>...>;
+      using _all_provided_static_ctes = detail::make_joined_set_t<provided_static_ctes_of_t<Clauses>...>;
+      using _all_required_tables = detail::make_joined_set_t<required_tables_of_t<Clauses>...>;
+      using _all_provided_tables = detail::make_joined_set_t<provided_tables_of_t<Clauses>...>;
+      using _all_provided_optional_tables = detail::make_joined_set_t<provided_optional_tables_of_t<Clauses>...>;
+      using _all_provided_aggregates = detail::make_joined_set_t<known_aggregate_columns_of_t<Clauses>...>;
 
       using _required_tables_of = detail::make_difference_set_t<_all_required_tables, _all_provided_tables>;
       using _required_ctes_of = detail::make_difference_set_t<_all_required_ctes, _all_provided_ctes>;
       using _required_static_ctes_of = detail::make_difference_set_t<_all_required_static_ctes, _all_provided_static_ctes>;
 
-      using _parameters = detail::type_vector_cat_t<parameters_of_t<Policies>...>;
+      using _parameters = detail::type_vector_cat_t<parameters_of_t<Clauses>...>;
 
       template <typename Expression>
       static constexpr bool _no_unknown_tables = _all_provided_tables::contains_all(required_tables_of_t<Expression>{});
 
-      using _result_type_provider = detail::get_last_if_t<is_result_clause, noop, Policies...>;
+      using _result_type_provider = detail::get_last_if_t<is_result_clause, noop, Clauses...>;
 
       using _cte_check =
           typename std::conditional<_required_ctes_of::empty(), consistent_t, assert_no_unknown_ctes_t>::type;
@@ -92,7 +92,7 @@ namespace sqlpp
     statement_t() = default;
 
     template <typename... Fragments>
-    statement_t(statement_constructor_arg<Fragments...> arg) : clause_base<Policies, statement_t>(arg)...
+    statement_t(statement_constructor_arg<Fragments...> arg) : clause_base<Clauses, statement_t>(arg)...
     {
     }
 
@@ -122,44 +122,44 @@ namespace sqlpp
       }
 
     template <typename Database>
-    auto _run(Database& db) const -> decltype(std::declval<result_methods_t<Policies...>>()._run(db))
+    auto _run(Database& db) const -> decltype(std::declval<result_methods_t<Clauses...>>()._run(db))
     {
       statement_run_check_t<statement_t>::verify();
-      return result_methods_t<Policies...>::_run(db);
+      return result_methods_t<Clauses...>::_run(db);
     }
 
     template <typename Database>
-    auto _prepare(Database& db) const -> decltype(std::declval<result_methods_t<Policies...>>()._prepare(db))
+    auto _prepare(Database& db) const -> decltype(std::declval<result_methods_t<Clauses...>>()._prepare(db))
     {
       statement_prepare_check_t<statement_t>::verify();
-      return result_methods_t<Policies...>::_prepare(db);
+      return result_methods_t<Clauses...>::_prepare(db);
     }
   };
 
-  template<typename... Policies>
-    struct is_statement<statement_t<Policies...>> : public std::true_type {};
+  template<typename... Clauses>
+    struct is_statement<statement_t<Clauses...>> : public std::true_type {};
 
-  template<typename... Policies>
-    struct is_where_required<statement_t<Policies...>> {
-      static constexpr bool value = statement_t<Policies...>::_all_provided_tables::size() > 0;
+  template<typename... Clauses>
+    struct is_where_required<statement_t<Clauses...>> {
+      static constexpr bool value = statement_t<Clauses...>::_all_provided_tables::size() > 0;
     };
 
-  template <typename... Policies>
-  struct is_result_clause<statement_t<Policies...>>
+  template <typename... Clauses>
+  struct is_result_clause<statement_t<Clauses...>>
   {
-    static constexpr bool value = not std::is_same<noop, typename statement_t<Policies...>::_result_type_provider>::value;
+    static constexpr bool value = not std::is_same<noop, typename statement_t<Clauses...>::_result_type_provider>::value;
   };
 
-  template <typename... Policies>
-  struct value_type_of<statement_t<Policies...>>
+  template <typename... Clauses>
+  struct value_type_of<statement_t<Clauses...>>
   {
-    using type = typename std::conditional<statement_consistency_check_t<statement_t<Policies...>>::value,
-                                           value_type_of_t<result_type_provider_t<Policies...>>,
+    using type = typename std::conditional<statement_consistency_check_t<statement_t<Clauses...>>::value,
+                                           value_type_of_t<result_type_provider_t<Clauses...>>,
                                            no_value_t>::type;
   };
 
-  template <typename... Policies>
-  struct nodes_of<statement_t<Policies...>>
+  template <typename... Clauses>
+  struct nodes_of<statement_t<Clauses...>>
   {
     // statements explicitly do not expose any nodes as most recursive traits should not traverse into sub queries, e.g.
     //   - contains_aggregates
@@ -167,61 +167,61 @@ namespace sqlpp
     using type = typename detail::type_vector<>;
   };
 
-  template<typename... Policies>
-    struct required_insert_columns_of<statement_t<Policies...>>
+  template<typename... Clauses>
+    struct required_insert_columns_of<statement_t<Clauses...>>
     {
-      using type = detail::make_joined_set_t<required_insert_columns_of_t<Policies>...>;
+      using type = detail::make_joined_set_t<required_insert_columns_of_t<Clauses>...>;
     };
 
-  template <typename... Policies>
-  struct parameters_of<statement_t<Policies...>>
+  template <typename... Clauses>
+  struct parameters_of<statement_t<Clauses...>>
   {
-    using type = detail::type_vector_cat_t<parameters_of_t<Policies>...>;
+    using type = detail::type_vector_cat_t<parameters_of_t<Clauses>...>;
   };
 
-  template <typename... Policies>
-  struct required_tables_of<statement_t<Policies...>>
+  template <typename... Clauses>
+  struct required_tables_of<statement_t<Clauses...>>
   {
-    using type = typename statement_t<Policies...>::_required_tables_of;
+    using type = typename statement_t<Clauses...>::_required_tables_of;
   };
 
-  template <typename... Policies>
-  struct required_ctes_of<statement_t<Policies...>>
+  template <typename... Clauses>
+  struct required_ctes_of<statement_t<Clauses...>>
   {
-    using type = typename statement_t<Policies...>::_required_ctes_of;
+    using type = typename statement_t<Clauses...>::_required_ctes_of;
   };
 
-  template <typename... Policies>
-  struct required_static_ctes_of<statement_t<Policies...>>
+  template <typename... Clauses>
+  struct required_static_ctes_of<statement_t<Clauses...>>
   {
-    using type = typename statement_t<Policies...>::_required_static_ctes_of;
+    using type = typename statement_t<Clauses...>::_required_static_ctes_of;
   };
 
-  template <typename... Policies>
-  struct requires_parentheses<statement_t<Policies...>> : public std::true_type {};
+  template <typename... Clauses>
+  struct requires_parentheses<statement_t<Clauses...>> : public std::true_type {};
 
-  template <typename... Policies>
-  struct statement_consistency_check<statement_t<Policies...>>
+  template <typename... Clauses>
+  struct statement_consistency_check<statement_t<Clauses...>>
   {
-    using type = static_combined_check_t<consistency_check_t<statement_t<Policies...>, Policies>...>;
+    using type = static_combined_check_t<consistency_check_t<statement_t<Clauses...>, Clauses>...>;
   };
 
-  template <typename... Policies>
-  struct statement_prepare_check<statement_t<Policies...>>
+  template <typename... Clauses>
+  struct statement_prepare_check<statement_t<Clauses...>>
   {
     using type =
-        static_combined_check_t<statement_consistency_check_t<statement_t<Policies...>>,
-                                static_combined_check_t<prepare_check_t<statement_t<Policies...>, Policies>...>,
-                                typename statement_t<Policies...>::_table_check,
-                                typename statement_t<Policies...>::_cte_check>;
+        static_combined_check_t<statement_consistency_check_t<statement_t<Clauses...>>,
+                                static_combined_check_t<prepare_check_t<statement_t<Clauses...>, Clauses>...>,
+                                typename statement_t<Clauses...>::_table_check,
+                                typename statement_t<Clauses...>::_cte_check>;
   };
 
-  template <typename... Policies>
-  struct statement_run_check<statement_t<Policies...>>
+  template <typename... Clauses>
+  struct statement_run_check<statement_t<Clauses...>>
   {
-    using type = static_combined_check_t<statement_prepare_check_t<statement_t<Policies...>>,
-                                         static_combined_check_t<run_check_t<statement_t<Policies...>, Policies>...>,
-                                         typename statement_t<Policies...>::_parameter_check>;
+    using type = static_combined_check_t<statement_prepare_check_t<statement_t<Clauses...>>,
+                                         static_combined_check_t<run_check_t<statement_t<Clauses...>, Clauses>...>,
+                                         typename statement_t<Clauses...>::_parameter_check>;
   };
 
   template <typename OldClause, typename... Clauses, typename NewClause>
@@ -259,14 +259,14 @@ namespace sqlpp
     return core_statement_t<LClauses..., Clause>(statement_constructor_arg(std::move(l), std::move(r)));
   }
 
-  template <typename Context, typename... Policies>
-  auto to_sql_string(Context& context, const statement_t<Policies...>& t) -> std::string
+  template <typename Context, typename... Clauses>
+  auto to_sql_string(Context& context, const statement_t<Clauses...>& t) -> std::string
   {
     auto result = std::string{};
     using swallow = int[];
     (void)swallow{
         0, (result += to_sql_string(
-                context, static_cast<const clause_base<Policies, statement_t<Policies...>>&>(t)._data),
+                context, static_cast<const clause_base<Clauses, statement_t<Clauses...>>&>(t)._data),
             0)...};
 
     return result;
