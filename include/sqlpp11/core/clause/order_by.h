@@ -63,6 +63,7 @@ namespace sqlpp
   template <typename Statement, typename... Expressions>
   struct consistency_check<Statement, order_by_t<Expressions...>>
   {
+#warning: Need to make sure that we don't mix aggregate and non-aggregate expressions?
     using type = consistent_t;
   };
 
@@ -74,16 +75,11 @@ namespace sqlpp
                                            assert_no_unknown_tables_in_order_by_t>::type;
   };
 
-  SQLPP_WRAPPED_STATIC_ASSERT(assert_order_by_args_are_sort_order_expressions_t,
-                               "arguments for order_by() must be sort order expressions");
-  template <typename... Exprs>
-  struct check_order_by
+  template <typename... Expressions>
+  struct nodes_of<order_by_t<Expressions...>>
   {
-    using type = static_combined_check_t<static_check_t<logic::all<is_sort_order<Exprs>::value...>::value,
-                                                        assert_order_by_args_are_sort_order_expressions_t>>;
+    using type = detail::type_vector<Expressions...>;
   };
-  template <typename... Exprs>
-  using check_order_by_t = typename check_order_by<remove_dynamic_t<Exprs>...>::type;
 
   // NO ORDER BY YET
   struct no_order_by_t
@@ -95,15 +91,15 @@ namespace sqlpp
   {
     using clause_data<no_order_by_t, Statement>::clause_data;
 
-#warning : reactivate check_order_by
-    template <typename... Expressions>
+    template <typename... Expressions, typename = sqlpp::enable_if_t<logic::all<is_sort_order<remove_dynamic_t<Expressions>>::value...>::value>>
     auto order_by(Expressions... expressions) const
         -> decltype(new_statement(*this, order_by_t<Expressions...>{std::move(expressions)...}))
     {
-      static_assert(sizeof...(Expressions), "at least one expression (e.g. a column) required in order_by()");
+      SQLPP_STATIC_ASSERT(sizeof...(Expressions),
+                          "at least one sort-order expression (e.g. column.asc()) required in order_by()");
 
-      static_assert(not detail::has_duplicates<Expressions...>::value,
-                    "at least one duplicate argument detected in order_by()");
+      SQLPP_STATIC_ASSERT(not detail::has_duplicates<remove_dynamic_t<Expressions>...>::value,
+                          "at least one duplicate argument detected in order_by()");
 
       return new_statement(*this, order_by_t<Expressions...>{std::move(expressions)...});
     }
