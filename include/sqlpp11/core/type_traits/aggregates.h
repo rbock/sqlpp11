@@ -70,9 +70,10 @@ namespace sqlpp
   template <typename T>
   using known_aggregate_columns_of_t = typename known_aggregate_columns_of<T>::type;
 
-#warning: Add tests for columns
-  template<typename T>
-    struct is_aggregate_neutral : public std::true_type {};
+  template <typename T>
+  struct is_aggregate_neutral : public std::true_type
+  {
+  };
 
   // Checks if T is an aggregate expression, i.e. either
   //  - T is an aggregate function,
@@ -85,7 +86,6 @@ namespace sqlpp
       : public std::integral_constant<
             bool,
             is_aggregate_function<T>::value or KnownAggregateColumns::template contains<T>() or
-#warning: Need to tests for this
                 (not nodes_of_t<T>::empty() and is_aggregate_expression<KnownAggregateColumns, nodes_of_t<T>>::value) or
                 (nodes_of_t<T>::empty() and is_aggregate_neutral<T>::value)>
   {
@@ -105,7 +105,6 @@ namespace sqlpp
   // @KnownAggregateColumns: type_set as obtained through known_aggregate_columns_of_t
   template <typename KnownAggregateColumns, typename T>
   struct is_non_aggregate_expression
-#warning: Need to tests for this
       : public std::integral_constant<bool,
                                       (not is_aggregate_function<T>::value and
                                        not KnownAggregateColumns::template contains<T>() and
