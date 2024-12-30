@@ -72,8 +72,7 @@ namespace sqlpp
           return static_cast<const _statement_t&>(*this);
         }
 
-        template <typename Db>
-        using _result_row_t = result_row_t<Db, make_field_spec_t<_statement_t, Columns>...>;
+        using _result_row_t = result_row_t<make_field_spec_t<_statement_t, Columns>...>;
 
         template <typename NameTagProvider>
         auto as(const NameTagProvider&) const
@@ -92,7 +91,7 @@ namespace sqlpp
 
         // Execute
         template <typename Db>
-        auto _run(Db& db) const -> result_t<decltype(db.select(std::declval<_statement_t>())), _result_row_t<Db>>
+        auto _run(Db& db) const -> result_t<decltype(db.select(std::declval<_statement_t>())), _result_row_t>
         {
           return {db.select(_get_statement())};
         }

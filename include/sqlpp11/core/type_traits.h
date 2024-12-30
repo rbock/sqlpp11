@@ -282,10 +282,10 @@ namespace sqlpp
   struct get_result_row_impl<
       Statement,
       typename std::enable_if<
-          not wrong_t<typename Statement::_result_methods_t::template _result_row_t<void>>::value,
+          not wrong_t<typename Statement::_result_methods_t::_result_row_t>::value,
           void>::type>
   {
-    using type = typename Statement::_result_methods_t::template _result_row_t<void>;
+    using type = typename Statement::_result_methods_t::_result_row_t;
   };
 
   template <typename Statement>

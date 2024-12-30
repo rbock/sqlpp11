@@ -37,6 +37,8 @@ int main(int, char* [])
 
   // Simple CTE: X AS SELECT
   {
+    using S = decltype(select(foo.id).from(foo).unconditionally());
+    static_assert(sqlpp::has_result_row<S>::value, "");
     const auto x = cte(sqlpp::alias::x).as(select(foo.id).from(foo).unconditionally());
     const auto a = x.as(sqlpp::alias::a);
     SQLPP_COMPARE(x, "x AS (SELECT tab_foo.id FROM tab_foo)");

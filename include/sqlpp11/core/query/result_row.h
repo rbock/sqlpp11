@@ -36,10 +36,10 @@ namespace sqlpp
 {
   namespace detail
   {
-    template <typename Db, typename IndexSequence, typename... FieldSpecs>
+    template <typename IndexSequence, typename... FieldSpecs>
     struct result_row_impl;
 
-    template <typename Db, std::size_t index, typename FieldSpec>
+    template <std::size_t index, typename FieldSpec>
     struct result_field : public member_t<FieldSpec, typename FieldSpec::result_value_type>
     {
       using _field = member_t<FieldSpec, typename FieldSpec::result_value_type>;
@@ -71,9 +71,9 @@ namespace sqlpp
       }
     };
 
-    template <typename Db, std::size_t... Is, typename... FieldSpecs>
-    struct result_row_impl<Db, ::sqlpp::index_sequence<Is...>, FieldSpecs...>
-        : public result_field<Db, Is, FieldSpecs>...
+    template <std::size_t... Is, typename... FieldSpecs>
+    struct result_row_impl<::sqlpp::index_sequence<Is...>, FieldSpecs...>
+        : public result_field<Is, FieldSpecs>...
     {
       result_row_impl() = default;
 
@@ -81,37 +81,37 @@ namespace sqlpp
       void _bind_fields(Target& target)
       {
         using swallow = int[];
-        (void)swallow{(result_field<Db, Is, FieldSpecs>::_bind_field(target), 0)...};
+        (void)swallow{(result_field<Is, FieldSpecs>::_bind_field(target), 0)...};
       }
 
       template <typename Target>
       void _read_fields(Target& target)
       {
         using swallow = int[];
-        (void)swallow{(result_field<Db, Is, FieldSpecs>::_read_field(target), 0)...};
+        (void)swallow{(result_field<Is, FieldSpecs>::_read_field(target), 0)...};
       }
 
       template <typename Callable>
       void _apply(Callable& callable) const
       {
         using swallow = int[];
-        (void)swallow{(result_field<Db, Is, FieldSpecs>::_apply(callable), 0)...};
+        (void)swallow{(result_field<Is, FieldSpecs>::_apply(callable), 0)...};
       }
 
       template <typename Callable>
       void _apply(const Callable& callable) const
       {
         using swallow = int[];
-        (void)swallow{(result_field<Db, Is, FieldSpecs>::_apply(callable), 0)...};
+        (void)swallow{(result_field<Is, FieldSpecs>::_apply(callable), 0)...};
       }
     };
   }  // namespace detail
 
-  template <typename Db, typename... FieldSpecs>
+  template <typename... FieldSpecs>
   struct result_row_t
-      : public detail::result_row_impl<Db, ::sqlpp::make_index_sequence<sizeof...(FieldSpecs)>, FieldSpecs...>
+      : public detail::result_row_impl<::sqlpp::make_index_sequence<sizeof...(FieldSpecs)>, FieldSpecs...>
   {
-    using _impl = detail::result_row_impl<Db, ::sqlpp::make_index_sequence<sizeof...(FieldSpecs)>, FieldSpecs...>;
+    using _impl = detail::result_row_impl<::sqlpp::make_index_sequence<sizeof...(FieldSpecs)>, FieldSpecs...>;
     bool _is_valid{false};
 
     result_row_t() : _impl()
@@ -186,22 +186,6 @@ namespace sqlpp
   {
     static constexpr auto value = logic::all<is_field_compatible<LFields, RFields>::value...>::value;
   };
-
-
-  template <typename T>
-  struct is_static_result_row_impl
-  {
-    using type = std::false_type;
-  };
-
-  template <typename Db, typename... FieldSpecs>
-  struct is_static_result_row_impl<result_row_t<Db, FieldSpecs...>>
-  {
-    using type = std::true_type;
-  };
-
-  template <typename T>
-  using is_static_result_row_t = typename is_static_result_row_impl<T>::type;
 
   template <typename Row, typename Callable>
   void for_each_field(const Row& row, const Callable& callable)

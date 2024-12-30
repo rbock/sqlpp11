@@ -112,7 +112,7 @@ namespace sqlpp
   struct make_cte;
 
   template <typename NameTagProvider, typename Statement, typename... FieldSpecs>
-  struct make_cte<NameTagProvider, Statement, result_row_t<void, FieldSpecs...>>
+  struct make_cte<NameTagProvider, Statement, result_row_t<FieldSpecs...>>
   {
     using type = cte_t<NameTagProvider, Statement, FieldSpecs...>;
   };
@@ -197,7 +197,7 @@ namespace sqlpp
   {
     using _column_tuple_t = std::tuple<column_t<cte_ref_t<NameTagProvider>, FieldSpecs>...>;
 
-    using _result_row_t = result_row_t<void, FieldSpecs...>;
+    using _result_row_t = result_row_t<FieldSpecs...>;
 
     template <typename NewNameTagProvider>
     constexpr auto as(const NewNameTagProvider& /*unused*/) const
