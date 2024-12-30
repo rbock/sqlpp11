@@ -30,6 +30,7 @@ function(create_test name)
 endfunction()
 
 create_test(from)
+create_test(group_by)
 create_test(having)
 create_test(insert_value_list)
 create_test(into)

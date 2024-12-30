@@ -90,10 +90,11 @@ namespace sqlpp
     return to_sql_string(context, t._expr);
   }
 
-  template<typename Expr>
-    using check_declare_group_by_column_args = ::sqlpp::enable_if_t<has_value_type<Expr>::value and not is_group_by_column<Expr>::value>;
+  template <typename Expr>
+  using check_declare_group_by_column_args =
+      ::sqlpp::enable_if_t<has_value_type<Expr>::value and not is_group_by_column<Expr>::value>;
 
-template <typename Expr, typename = check_declare_group_by_column_args<Expr>>
+  template <typename Expr, typename = check_declare_group_by_column_args<Expr>>
   auto declare_group_by_column(Expr expr) -> group_by_column<Expr>
   {
     return {std::move(expr)};

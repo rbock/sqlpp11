@@ -80,16 +80,11 @@ namespace sqlpp
     using type = detail::type_set<raw_group_by_column_t<remove_dynamic_t<Columns>>...>;
   };
 
-  SQLPP_WRAPPED_STATIC_ASSERT(assert_group_by_args_are_columns_t, "all arguments for group_by() must be columns");
-
   template <typename... Columns>
-  struct check_group_by
+  struct nodes_of<group_by_t<Columns...>> 
   {
-    using type = static_combined_check_t<
-        static_check_t<logic::all<is_group_by_column<remove_dynamic_t<Columns>>::value...>::value, assert_group_by_args_are_columns_t>>;
+    using type = detail::type_vector<Columns...>;
   };
-  template <typename... Columns>
-  using check_group_by_t = typename check_group_by<remove_dynamic_t<Columns>...>::type;
 
   // NO GROUP BY YET
   struct no_group_by_t
@@ -101,12 +96,17 @@ namespace sqlpp
   {
     using clause_data<no_group_by_t, Statement>::clause_data;
 
-#warning: reactive check_group_by_t<Columns...>
-
-    template <typename... Columns>
+    template <typename... Columns,
+              typename = sqlpp::enable_if_t<logic::all<has_value_type<remove_dynamic_t<Columns>>::value...>::value>>
     auto group_by(Columns... columns) const -> decltype(new_statement(*this, group_by_t<Columns...>{columns...}))
     {
-      static_assert(sizeof...(Columns), "at least one column required in group_by()");
+      SQLPP_STATIC_ASSERT(sizeof...(Columns), "at least one column required in group_by()");
+      SQLPP_STATIC_ASSERT(
+          logic::all<is_group_by_column<remove_dynamic_t<Columns>>::value...>::value,
+          "all arguments for group_by() must be columns or expressions wrapped in declare_group_by_column()");
+      SQLPP_STATIC_ASSERT(
+          logic::none<contains_aggregate_function<raw_group_by_column_t<remove_dynamic_t<Columns>>>::value...>::value,
+          "arguments for group_by() must not contain aggregate functions");
 
       return new_statement(*this, group_by_t<Columns...>{columns...});
     }
