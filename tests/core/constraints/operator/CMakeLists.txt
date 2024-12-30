@@ -1,4 +1,4 @@
-# Copyright (c) 2013-2015, Roland Bock
+# Copyright (c) 2024, Roland Bock
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -22,7 +22,12 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-add_subdirectory(aggregate_function)
-add_subdirectory(clause)
-add_subdirectory(operator)
-add_subdirectory(query)
+function(create_test name)
+    set(target sqlpp11_core_constraints_operator_${name})
+    add_executable(${target} ${name}.cpp)
+    target_link_libraries(${target} PRIVATE sqlpp11::sqlpp11 sqlpp11_testing)
+    add_test(NAME ${target} COMMAND ${target})
+endfunction()
+
+create_test(expression_as)
+

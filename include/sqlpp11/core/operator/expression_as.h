@@ -71,7 +71,6 @@ namespace sqlpp
     using type = detail::type_vector<Expression>;
   };
 
-#warning: Need to test
   template <typename Expression, typename NameTag>
   struct is_expression_as<expression_as<Expression, NameTag>> : public std::true_type
   {
