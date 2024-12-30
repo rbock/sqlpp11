@@ -29,6 +29,7 @@
 #include <sqlpp11/core/detail/type_set.h>
 #include <sqlpp11/core/tuple_to_sql_string.h>
 #include <sqlpp11/core/no_data.h>
+#include <sqlpp11/core/static_assert.h>
 #include <sqlpp11/core/query/policy_update.h>
 #include <sqlpp11/core/clause/select_flags.h>
 #include <sqlpp11/core/type_traits.h>
@@ -76,8 +77,10 @@ namespace sqlpp
               typename = sqlpp::enable_if_t<logic::all<is_select_flag<remove_dynamic_t<Flags>>::value...>::value>>
     auto flags(Flags... flags) const -> decltype(new_statement(*this, select_flag_list_t<Flags...>{flags...}))
     {
-      static_assert(not detail::has_duplicates<remove_dynamic_t<Flags>...>::value,
-                    "at least one duplicate argument detected in select flag list");
+      SQLPP_STATIC_ASSERT(sizeof...(Flags),
+                    "at least one flag required in select_flags()");
+      SQLPP_STATIC_ASSERT(not detail::has_duplicates<remove_dynamic_t<Flags>...>::value,
+                    "at least one duplicate argument detected in select_flags()");
 
       return new_statement(*this, select_flag_list_t<Flags...>{flags...});
     }

@@ -35,6 +35,7 @@ create_test(insert_value_list)
 create_test(into)
 create_test(select_as)
 create_test(select_column_list)
+create_test(select_flag_list)
 create_test(update_set_list)
 create_test(where)
 
