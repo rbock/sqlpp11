@@ -35,7 +35,7 @@ namespace sqlpp
   template <typename Database, typename Statement>
   struct prepared_select_t
   {
-    using _result_row_t = typename Statement::template _result_row_t<Database>;
+    using _result_row_t = get_result_row_t<Statement>;
     using _parameter_list_t = make_parameter_list_t<Statement>;
     using _prepared_statement_t = typename Database::_prepared_statement_t;
 

@@ -45,6 +45,9 @@ namespace sqlpp
         assert_no_unknown_tables_in_returning_columns_t,
         "at least one returning column requires a table which is otherwise not known in the statement");
 
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_correct_returning_column_aggregates_t,
+                               "select must not contain a mix of aggregates and non-aggregates");
+
     template <typename... Columns>
     struct returning_column_list_t
     {
@@ -121,7 +124,7 @@ namespace sqlpp
   {
     using type = static_check_t<has_correct_aggregates<typename Statement::_all_provided_aggregates,
                                                        postgresql::returning_column_list_t<Columns...>>::value,
-                                assert_correct_aggregates_t>;
+                                postgresql::assert_correct_returning_column_aggregates_t>;
   };
 
   template <typename Statement, typename... Columns>

@@ -104,14 +104,14 @@ namespace
   // Failures with static group_by and selected non-aggregates or incorrect aggregates
   void static_group_by_nok()
   {
-    static_run_check<sqlpp::assert_correct_aggregates_t>(select(t.textN).from(t).unconditionally().group_by(t.id));
-    static_run_check<sqlpp::assert_correct_aggregates_t>(
+    static_run_check<sqlpp::assert_correct_select_column_aggregates_t>(select(t.textN).from(t).unconditionally().group_by(t.id));
+    static_run_check<sqlpp::assert_correct_select_column_aggregates_t>(
         select(t.id, t.intN).from(t).unconditionally().group_by(t.id));
-    static_run_check<sqlpp::assert_correct_aggregates_t>(
+    static_run_check<sqlpp::assert_correct_select_column_aggregates_t>(
         select(t.id, t.textN).from(t).unconditionally().group_by(t.id));
-    static_run_check<sqlpp::assert_correct_aggregates_t>(
+    static_run_check<sqlpp::assert_correct_select_column_aggregates_t>(
         select((t.id + t.intN).as(whatever)).from(t).unconditionally().group_by(t.id));
-    static_run_check<sqlpp::assert_correct_aggregates_t>(
+    static_run_check<sqlpp::assert_correct_select_column_aggregates_t>(
         select((t.id + t.intN).as(whatever)).from(t).unconditionally().group_by(t.id, declare_group_by_column(t.id + t.intN * 17)));
   }
 }

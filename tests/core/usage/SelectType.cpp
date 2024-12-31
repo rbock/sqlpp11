@@ -196,8 +196,8 @@ int SelectType(int, char*[])
   {
     auto a = select(dynamic(true, t.id));
     auto b = select(f.intN.as(t.id));
-    using A = typename decltype(a)::_result_row_t<MockDb>;
-    using B = typename decltype(b)::_result_row_t<MockDb>;
+    using A = sqlpp::get_result_row_t<decltype(a)>;
+    using B = sqlpp::get_result_row_t<decltype(b)>;
     static_assert(
         std::is_same<sqlpp::value_type_of_t<decltype(t.id)>, sqlpp::remove_optional_t<sqlpp::value_type_of_t<decltype(f.intN)>>>::value,
         "Two bigint columns must have identical base_value_type");

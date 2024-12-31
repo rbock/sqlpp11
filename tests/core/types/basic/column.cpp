@@ -42,7 +42,9 @@ void test_column()
     static_assert(not sqlpp::is_table<Id>::value, "");
     static_assert(sqlpp::has_default<Id>::value, "");
     static_assert(sqlpp::is_group_by_column<Id>::value, "");
-    static_assert(sqlpp::is_aggregate_neutral<Id>::value, "");
+
+    // Columns are aggregates when in group by, otherwise they are non-aggregates. But they are never neutral.
+    static_assert(not sqlpp::is_aggregate_neutral<Id>::value, "");
 
     static_assert(std::is_same<sqlpp::name_tag_of_t<Id>, test::TabFoo_::Id::_sqlpp_name_tag>::value, "");
     static_assert(std::is_same<sqlpp::provided_tables_of_t<Id>, sqlpp::detail::type_set<>>::value, "");
