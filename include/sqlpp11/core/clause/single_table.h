@@ -81,20 +81,21 @@ namespace sqlpp
   {
     using clause_data<no_single_table_t, Statement>::clause_data;
 
-    template <typename Table>
+    template <typename Table, typename = sqlpp::enable_if_t<is_table<Table>::value>>
     auto single_table(Table table) const -> decltype(new_statement(*this, single_table_t<Table>{table}))
     {
-#warning : write constraint_tests
-      SQLPP_STATIC_ASSERT(is_raw_table<Table>::value, "single_table() argument must be a raw table, i.e. no join or cte"); 
+      SQLPP_STATIC_ASSERT(is_raw_table<Table>::value,
+                          "single_table() argument must be a raw table, i.e. no join or cte");
 
       return new_statement(*this, single_table_t<Table>{table});
     }
   };
 
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_single_table_provided_t, "this statement requires a table");
   template <typename Statement>
   struct consistency_check<Statement, no_single_table_t>
   {
-    using type = consistent_t;
+    using type = assert_single_table_provided_t;
   };
 
   // Interpreters

@@ -96,7 +96,7 @@ namespace sqlpp
           -> decltype(new_statement(*this, where_t<Expression>{expression}))
       {
         SQLPP_STATIC_ASSERT(not contains_aggregate_function<Expression>::value,
-                            "where() must not contain aggregate functios");
+                            "where() must not contain aggregate functions");
 
         return new_statement(*this, where_t<Expression>{expression});
       }

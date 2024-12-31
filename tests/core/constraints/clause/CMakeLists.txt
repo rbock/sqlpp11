@@ -40,6 +40,7 @@ create_test(order_by)
 create_test(select_as)
 create_test(select_column_list)
 create_test(select_flag_list)
+create_test(single_table)
 create_test(update_set_list)
 create_test(where)
 

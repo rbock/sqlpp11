@@ -70,12 +70,12 @@ int main()
   static_assert(not can_call_where_with<decltype(bar.boolNn.as(something))>::value, "");
 
   // Try using aggregate functions in where
-  SQLPP_CHECK_STATIC_ASSERT(where(count(bar.id) > 0), "where() must not contain aggregate functios");
-  SQLPP_CHECK_STATIC_ASSERT(where(bar.boolNn and count(bar.id) > 0), "where() must not contain aggregate functios");
+  SQLPP_CHECK_STATIC_ASSERT(where(count(bar.id) > 0), "where() must not contain aggregate functions");
+  SQLPP_CHECK_STATIC_ASSERT(where(bar.boolNn and count(bar.id) > 0), "where() must not contain aggregate functions");
   SQLPP_CHECK_STATIC_ASSERT(where(bar.boolNn and dynamic(maybe, (count(bar.id) > 0))),
-                            "where() must not contain aggregate functios");
+                            "where() must not contain aggregate functions");
   SQLPP_CHECK_STATIC_ASSERT(where(case_when(count(bar.id) > 0).then(bar.boolNn).else_(not bar.boolNn)),
-                            "where() must not contain aggregate functios");
+                            "where() must not contain aggregate functions");
 
   // `where` isn't required if neither tables nor CTEs are required.
   {
