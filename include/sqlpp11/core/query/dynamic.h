@@ -28,6 +28,7 @@
 
 #include <sqlpp11/core/static_assert.h>
 #include <sqlpp11/core/query/dynamic_fwd.h>
+#include <sqlpp11/core/query/statement_fwd.h>
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/operator/assign_expression.h>
 #include <sqlpp11/core/operator/sort_order_expression.h>
@@ -108,7 +109,7 @@ namespace sqlpp
 
   template <typename Expr>
   using check_dynamic_args = ::sqlpp::enable_if_t<has_value_type<Expr>::value or is_table<Expr>::value or
-                                                        is_select_flag<Expr>::value or is_sort_order<Expr>::value>;
+                                                        is_select_flag<Expr>::value>;
 
   template <typename Expr, typename = check_dynamic_args<Expr>>
   auto dynamic(bool condition, Expr t) -> dynamic_t<Expr>
@@ -124,6 +125,12 @@ namespace sqlpp
 
   template <typename Expr, typename = check_dynamic_args<Expr>>
   auto dynamic(bool condition, sort_order_expression<Expr> t) -> dynamic_t<sort_order_expression<Expr>>
+  {
+    return {condition, std::move(t)};
+  }
+
+  template <typename... Clauses>
+  auto dynamic(bool condition, statement_t<Clauses...> t) -> dynamic_t<statement_t<Clauses...>>
   {
     return {condition, std::move(t)};
   }

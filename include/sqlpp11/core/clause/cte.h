@@ -120,31 +120,6 @@ namespace sqlpp
   template <typename NameTagProvider, typename Statement>
   using make_cte_t = typename make_cte<NameTagProvider, Statement, get_result_row_t<Statement>>::type;
 
-  template <typename Check, typename Union>
-  struct union_cte_impl
-  {
-    using type = Check;
-  };
-
-  template <typename Union>
-  struct union_cte_impl<consistent_t, Union>
-  {
-    using type = Union;
-  };
-
-  template <typename Check, typename Union>
-  using union_cte_impl_t = typename union_cte_impl<Check, Union>::type;
-
-  SQLPP_WRAPPED_STATIC_ASSERT(assert_cte_union_args_are_statements_t, "argument for union() must be a statement");
-  template <typename T>
-  struct check_cte_union
-  {
-    using type = static_combined_check_t<
-        static_check_t<is_statement<T>::value, assert_cte_union_args_are_statements_t>>;
-  };
-  template <typename T>
-  using check_cte_union_t = typename check_cte_union<remove_dynamic_t<T>>::type;
-
   // cte_member is a helper to add column data members to `cte_t`.
   template <typename NameTagProvider, typename FieldSpec>
   struct cte_member
@@ -191,6 +166,21 @@ namespace sqlpp
     return name_to_sql_string(context, name_tag_of_t<NameTagProvider>{}) + " AS " + name_to_sql_string(context, name_tag_of_t<NewNameTagProvider>{});
   }
 
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_cte_union_arg_has_result_row_t,
+                              "argument of a union has to be a select statement or a union");
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_cte_union_requires_no_tables_t,
+                              "right hand side of cte union is is missing tables");
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_cte_union_arg_same_result_row_t,
+                              "both select statements in a union have to have the same result columns (type and name)");
+
+  template <typename Cte, typename Rhs>
+  using check_cte_union_args_t = static_combined_check_t<
+      static_check_t<has_result_row<Rhs>::value, assert_cte_union_arg_has_result_row_t>,
+      static_check_t<required_tables_of_t<Rhs>::empty(), assert_cte_union_requires_no_tables_t>,
+      statement_consistency_check_t<Rhs>,
+      static_check_t<std::is_same<typename Cte::_result_row_t, get_result_row_t<Rhs>>::value,
+                     assert_cte_union_arg_same_result_row_t>>;
+
   template <typename NameTagProvider, typename Statement, typename... FieldSpecs>
   struct cte_t : public cte_member<NameTagProvider, FieldSpecs>::type...,
                  public enable_join<cte_t<NameTagProvider, Statement, FieldSpecs...>>
@@ -206,48 +196,20 @@ namespace sqlpp
       return {};
     }
 
-    template <typename Rhs>
-    auto union_distinct(Rhs rhs) const
-        -> union_cte_impl_t<check_cte_union_t<Rhs>,
-                            cte_t<NameTagProvider, cte_union_t<distinct_t, Statement, Rhs>, FieldSpecs...>>
+    template <typename Rhs, typename = sqlpp::enable_if_t<is_statement<remove_dynamic_t<Rhs>>::value>>
+    auto union_distinct(Rhs rhs) const -> cte_t<NameTagProvider, cte_union_t<distinct_t, Statement, Rhs>, FieldSpecs...>
     {
-      using _rhs = remove_dynamic_t<Rhs>;
-      static_assert(is_statement<_rhs>::value, "argument of union call has to be a statement");
-      static_assert(has_result_row<_rhs>::value, "argument of a clause/union.has to be a (complete) select statement");
-
-      static_assert(std::is_same<_result_row_t, get_result_row_t<_rhs>>::value,
-                    "both select statements in a clause/union.have to have the same result columns (type and name)");
-
-      return _union_impl<distinct_t>(check_cte_union_t<Rhs>{}, rhs);
+      check_cte_union_args_t<cte_t, remove_dynamic_t<Rhs>>::verify();
+      return cte_union_t<distinct_t, Statement, Rhs>{_statement, rhs};
     }
 
-    template <typename Rhs>
-    auto union_all(Rhs rhs) const
-        -> union_cte_impl_t<check_cte_union_t<Rhs>,
-                            cte_t<NameTagProvider, cte_union_t<all_t, Statement, Rhs>, FieldSpecs...>>
+    template <typename Rhs, typename = sqlpp::enable_if_t<is_statement<remove_dynamic_t<Rhs>>::value>>
+    auto union_all(Rhs rhs) const -> cte_t<NameTagProvider, cte_union_t<all_t, Statement, Rhs>, FieldSpecs...>
     {
-      using _rhs = remove_dynamic_t<Rhs>;
-      static_assert(is_statement<_rhs>::value, "argument of union call has to be a statement");
-      static_assert(has_result_row<_rhs>::value, "argument of a clause/union.has to be a (complete) select statement");
-
-      static_assert(std::is_same<_result_row_t, get_result_row_t<_rhs>>::value,
-                    "both select statements in a clause/union.have to have the same result columns (type and name)");
-
-      return _union_impl<all_t>(check_cte_union_t<Rhs>{}, rhs);
+      check_cte_union_args_t<cte_t, remove_dynamic_t<Rhs>>::verify();
+      return cte_union_t<all_t, Statement, Rhs>{_statement, rhs};
     }
 
-  private:
-    template <typename Flag, typename Check, typename Rhs>
-    auto _union_impl(Check, Rhs rhs) const -> inconsistent<Check>;
-
-    template <typename Flag, typename Rhs>
-    auto _union_impl(consistent_t /*unused*/, Rhs rhs) const
-        -> cte_t<NameTagProvider, cte_union_t<Flag, Statement, Rhs>, FieldSpecs...>
-    {
-      return cte_union_t<Flag, Statement, Rhs>{_statement, rhs};
-    }
-
-  public:
     cte_t(Statement statement) : _statement(statement)
     {
     }
@@ -306,12 +268,14 @@ namespace sqlpp
   template <typename NameTagProvider>
   struct cte_ref_t
   {
-    template <typename Statement>
-    auto as(Statement statement) -> make_cte_t<NameTagProvider, Statement>
+    template <typename Statement,
+              typename = sqlpp::enable_if_t<is_statement<Statement>::value and has_result_row<Statement>::value>>
+    auto as(Statement statement) const -> make_cte_t<NameTagProvider, Statement>
     {
-      static_assert(required_tables_of_t<Statement>::empty(),
+      statement_consistency_check_t<Statement>::verify();
+      SQLPP_STATIC_ASSERT(required_tables_of_t<Statement>::empty(),
                     "common table expression must not use unknown tables");
-      static_assert(not required_ctes_of_t<Statement>::template contains<NameTagProvider>(),
+      SQLPP_STATIC_ASSERT(not required_ctes_of_t<Statement>::template contains<cte_ref_t<NameTagProvider>>(),
                     "common table expression must not self-reference in the first part, use union_all/union_distinct "
                     "for recursion");
 

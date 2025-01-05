@@ -266,6 +266,8 @@ namespace sqlpp
   template<typename T>
     struct is_statement : public std::false_type {};
 
+  // Checks whether a statement has a result row (i.e. select or union).
+  // Note: It does not check if the statement is actually consistent, preparable, or runnable.
   template <typename T>
   struct has_result_row: public std::false_type
   {

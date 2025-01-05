@@ -143,12 +143,24 @@ namespace sqlpp
   {
   };
 
+  namespace detail {
+    template<typename Statement, bool>
+      struct get_result_row_impl
+      {
+        using type = void;
+      };
+    template<typename... Clauses>
+      struct get_result_row_impl<statement_t<Clauses...>, true>
+      {
+        using type = typename result_methods_t<Clauses...>::_result_row_t;
+      };
+  }  // namespace detail
+
   template <typename... Clauses>
   struct get_result_row<statement_t<Clauses...>> 
   {
-    using type = typename std::conditional<has_result_row<statement_t<Clauses...>>::value,
-                                           typename result_methods_t<Clauses...>::_result_row_t,
-                                           void>::type;
+    using type = typename detail::get_result_row_impl<statement_t<Clauses...>,
+                                                      has_result_row<statement_t<Clauses...>>::value>::type;
   };
 
   template<typename... Clauses>
