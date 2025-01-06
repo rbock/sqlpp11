@@ -37,11 +37,11 @@ int With(int, char*[])
 
   const auto t = test::TabBar{};
 
-  auto x = sqlpp::cte(sqlpp::alias::x).as(select(all_of(t)).from(t));
+  auto x = sqlpp::cte(sqlpp::alias::x).as(select(all_of(t)).from(t).where(true));
 
   db(with(x)(select(x.id).from(x).unconditionally()));
 
-  auto y0 = sqlpp::cte(sqlpp::alias::y).as(select(all_of(t)).from(t));
+  auto y0 = sqlpp::cte(sqlpp::alias::y).as(select(all_of(t)).from(t).where(true));
   auto y = y0.union_all(select(all_of(y0)).from(y0).unconditionally());
 
   std::cout << to_sql_string(printer, y) << std::endl;
