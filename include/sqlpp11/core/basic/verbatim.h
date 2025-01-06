@@ -35,7 +35,7 @@
 
 namespace sqlpp
 {
-  template <typename ValueType>  // Csaba Csoma suggests: unsafe_sql instead of verbatim
+  template <typename ValueType>
   struct verbatim_t : public enable_as<verbatim_t<ValueType>>
   {
     verbatim_t(std::string verbatim) : _verbatim(std::move(verbatim))

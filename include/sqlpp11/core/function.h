@@ -35,14 +35,13 @@
 #include <sqlpp11/core/function/lower.h>
 #include <sqlpp11/core/function/upper.h>
 #include <sqlpp11/core/value_type.h>
-#include <sqlpp11/core/basic/verbatim.h>  // Csaba Csoma suggests: unsafe_sql instead of verbatim
+#include <sqlpp11/core/basic/verbatim.h>
 #include <sqlpp11/core/basic/parameterized_verbatim.h>
 #include <sqlpp11/core/basic/verbatim_table.h>
 #include <sqlpp11/core/basic/value.h>
 
 namespace sqlpp
 {
-#warning: Need to add tests for `flatten` across all databases
   template <typename Expression, typename Db>
   auto flatten(const Expression& exp, Db&) -> verbatim_t<value_type_of_t<Expression>>
   {
