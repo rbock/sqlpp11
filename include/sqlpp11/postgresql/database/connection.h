@@ -305,24 +305,6 @@ namespace sqlpp
         return run_prepared_execute_impl(x._prepared_statement);
       }
 
-#warning: Do we really need that? it is probably sufficient to assume UTF-8 encoding...
-      /*
-      // escape argument
-      // TODO: Fix escaping.
-      std::string escape(const std::string& s) const
-      {
-        validate_connection_handle();
-        // Escape strings
-        std::string result;
-        result.resize((s.size() * 2) + 1);
-
-        int err;
-        size_t length = PQescapeStringConn(native_handle(), &result[0], s.c_str(), s.size(), &err);
-        result.resize(length);
-        return result;
-      }
-      */
-
       //! call run on the argument
       template <typename T>
       auto _run(const T& t, sqlpp::consistent_t) -> decltype(t._run(*this))
@@ -540,15 +522,6 @@ namespace sqlpp
       {
       }
     };
-
-#warning: Do we really need this?
-    /*
-    // Method definition moved outside of class because it needs connection_base
-    inline std::string context_t::escape(const std::string& arg) const
-    {
-      return _db.escape(arg);
-    }
-    */
 
     using connection = sqlpp::normal_connection<connection_base>;
     using pooled_connection = sqlpp::pooled_connection<connection_base>;

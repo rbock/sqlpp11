@@ -355,22 +355,6 @@ namespace sqlpp
         return run_prepared_execute_impl(x._prepared_statement);
       }
 
-      //! escape given string (does not quote, though)
-      std::string escape(const std::string& s) const
-      {
-        std::string t;
-        t.reserve(s.size());
-
-        for (const char c : s)
-        {
-          if (c == '\'')
-            t.push_back(c);
-          t.push_back(c);
-        }
-
-        return t;
-      }
-
       //! call run on the argument
       template <typename T>
       auto _run(const T& t, ::sqlpp::consistent_t) -> decltype(t._run(*this))
@@ -496,8 +480,9 @@ namespace sqlpp
 
       schema_t attach(const connection_config& config, const std::string& name)
       {
-        auto prepared =
-            prepare_statement(_handle, "ATTACH '" + escape(config.path_to_database) + "' AS " + escape(name));
+        auto context = _context_t{};
+        auto prepared = prepare_statement(_handle, "ATTACH " + sqlpp::to_sql_string(context, config.path_to_database) +
+                                                       " AS " + sqlpp::quoted_name_to_sql_string(context, name));
         execute_statement(_handle, prepared);
 
         return {name};
@@ -512,15 +497,6 @@ namespace sqlpp
       {
       }
     };
-
-#warning: Do we need this?
-    /*
-    // Method definition moved outside of class because it needs connection_base
-    inline std::string context_t::escape(const std::string& arg) const
-    {
-      return _db.escape(arg);
-    }
-    */
 
     using connection = sqlpp::normal_connection<connection_base>;
     using pooled_connection = sqlpp::pooled_connection<connection_base>;

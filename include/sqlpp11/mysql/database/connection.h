@@ -355,14 +355,6 @@ namespace sqlpp
         execute_statement(_handle, statement);
       }
 
-      //! escape given string (does not quote, though)
-      std::string escape(const std::string& s) const
-      {
-        std::unique_ptr<char[]> dest(new char[s.size() * 2 + 1]);
-        mysql_real_escape_string(_handle->native_handle(), dest.get(), s.c_str(), s.size());
-        return dest.get();
-      }
-
       //! call run on the argument
       template <typename T>
       auto run(const T& t) -> decltype(t._run(*this))
@@ -471,15 +463,6 @@ namespace sqlpp
       {
       }
     };
-
-#warning: Do we really need this?
-    /*
-    // Method definition moved outside of class because it needs connection_base
-    inline std::string context_t::escape(const std::string& arg) const
-    {
-      return _db.escape(arg);
-    }
-    */
 
     using connection = sqlpp::normal_connection<connection_base>;
     using pooled_connection = sqlpp::pooled_connection<connection_base>;

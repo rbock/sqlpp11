@@ -30,7 +30,6 @@
 #include <sqlpp11/core/database/transaction.h>
 #include <sqlpp11/core/basic/schema.h>
 #include <sqlpp11/core/to_sql_string.h>
-#include <sqlpp11/core/database/serializer_context.h>
 #include <sstream>
 
 // an object to store internal Mock flags and values to validate in tests
