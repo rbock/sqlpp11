@@ -191,6 +191,13 @@ namespace sqlpp
     return to_sql_string(context, sqlpp::string_view(&t, 1));
   }
 
+  // MySQL and sqlite3 use x'...', but PostgreSQL uses '\x...' to encode hexadecimal literals
+  // See 
+  //  - https://dev.mysql.com/doc/refman/9.0/en/hexadecimal-literals.html
+  //  - https://www.sqlite.org/lang_expr.html
+  //  - https://www.postgresql.org/docs/current/datatype-binary.html#DATATYPE-BINARY-BYTEA-HEX-FORMAT
+  //
+  // The PostgreSQL connector therefore specializes this function.
   template <typename Context>
   auto to_sql_string(Context& , const ::sqlpp::span<uint8_t>& t) -> std::string
   {

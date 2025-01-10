@@ -39,11 +39,12 @@ namespace sqlpp
       return std::string("$") + std::to_string(++context._count);
   }
 
-#warning: Do we need this specialization? Or does the core code work, too?
+  // MySQL and sqlite3 use x'...', but PostgreSQL uses '\x...' to encode hexadecimal literals
   inline auto to_sql_string(postgresql::context_t& , const ::sqlpp::span<uint8_t>& t) -> std::string
   {
     constexpr char hex_chars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
     auto result = std::string("'\\x");
+    result.reserve(t.size() * 2 + 4);
     for (const auto c : t)
     {
       result.push_back(hex_chars[c >> 4]);
