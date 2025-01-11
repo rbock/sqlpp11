@@ -65,10 +65,10 @@ int main(int, char* [])
   const auto text_expr = sqlpp::value("b") + "c";
 
   // Same for concatenation.
-  SQLPP_COMPARE(text + text, "'a' || 'a'");
-  SQLPP_COMPARE(text + text_expr, "'a' || ('b' || 'c')");
-  SQLPP_COMPARE(text_expr + text, "('b' || 'c') || 'a'");
-  SQLPP_COMPARE(text_expr + text_expr, "('b' || 'c') || ('b' || 'c')");
+  SQLPP_COMPARE(text + text, "CONCAT('a', 'a')");
+  SQLPP_COMPARE(text + text_expr, "CONCAT('a', CONCAT('b', 'c'))");
+  SQLPP_COMPARE(text_expr + text, "CONCAT(CONCAT('b', 'c'), 'a')");
+  SQLPP_COMPARE(text_expr + text_expr, "CONCAT(CONCAT('b', 'c'), CONCAT('b', 'c'))");
 
   // Arithmetic expressions can be named with AS
   SQLPP_COMPARE((val + val).as(sqlpp::alias::a), "(1 + 1) AS a");
@@ -84,7 +84,7 @@ int main(int, char* [])
   SQLPP_COMPARE((val / val) < 17, "(1 / 1) < 17");
   SQLPP_COMPARE((val % val) < 17, "(1 % 1) < 17");
   SQLPP_COMPARE(-val < 17, "(-1) < 17");
-  SQLPP_COMPARE((text + text) < "z", "('a' || 'a') < 'z'");
+  SQLPP_COMPARE((text + text) < "z", "CONCAT('a', 'a') < 'z'");
 
 
 

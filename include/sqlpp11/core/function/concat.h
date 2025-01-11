@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2021-2021, Roland Bock, ZerQAQ
+ * Copyright (c) 2025, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -26,29 +26,54 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/clause/delete_from.h>
-#include <sqlpp11/core/clause/using.h>
-#include <sqlpp11/core/clause/order_by.h>
-#include <sqlpp11/core/clause/limit.h>
+#include <sqlpp11/core/to_sql_string.h>
+#include <sqlpp11/core/type_traits.h>
+#include <sqlpp11/core/operator/enable_as.h>
 
 namespace sqlpp
 {
-  namespace mysql
+  template <typename... Args>
+  struct concat_t : public enable_as<concat_t<Args...>>
   {
-    using blank_delete_t =
-        statement_t<delete_t, no_single_table_t, no_using_t, no_where_t, no_order_by_t, no_limit_t>;
-
-    inline auto delete_from() -> blank_delete_t
+    concat_t(const Args... args) : _args(std::move(args)...)
     {
-      return {};
     }
 
-    template <typename Table>
-    auto delete_from(Table table) -> decltype(blank_delete_t().single_table(table))
-    {
-      return {blank_delete_t().single_table(table)};
-    }
+    concat_t(const concat_t&) = default;
+    concat_t(concat_t&&) = default;
+    concat_t& operator=(const concat_t&) = default;
+    concat_t& operator=(concat_t&&) = default;
+    ~concat_t() = default;
 
-  }  // namespace mysql
+    std::tuple<Args...> _args;
+  };
+
+  template <typename... Args>
+  struct value_type_of<concat_t<Args...>>
+  {
+    using type = sqlpp::text;
+  };
+
+  template <typename... Args>
+  struct nodes_of<concat_t<Args...>>
+  {
+    using type = detail::type_vector<Args...>;
+  };
+
+  template <typename Context, typename... Args>
+  auto to_sql_string(Context& context, const concat_t<Args...>& t) -> std::string
+  {
+    return "CONCAT(" + tuple_to_sql_string(context, t._args, tuple_operand_no_dynamic{", "}) + ")";
+  }
+
+#warning : Need tests
+  template <typename... Args>
+  using check_concat_args = ::sqlpp::enable_if_t<logic::all<is_text<Args>::value...>::value>;
+
+  template <typename... Args, typename = check_concat_args<remove_dynamic_t<Args>...>>
+  auto concat(Args... args) -> concat_t<Args...>
+  {
+    return {std::move(args)...};
+  }
 
 }  // namespace sqlpp

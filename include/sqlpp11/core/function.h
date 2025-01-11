@@ -30,6 +30,7 @@
 #include <sqlpp11/core/basic/parameter.h>
 #include <sqlpp11/core/database/parameter_list.h>
 #include <sqlpp11/core/aggregate_function.h>
+#include <sqlpp11/core/function/concat.h>
 #include <sqlpp11/core/function/trim.h>
 #include <sqlpp11/core/operator/case.h>
 #include <sqlpp11/core/function/lower.h>

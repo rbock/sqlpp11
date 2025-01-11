@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <utility>
 
 #include <sqlpp11/core/noop.h>
+#include <sqlpp11/core/function/concat.h>
 #include <sqlpp11/core/operator/enable_as.h>
 #include <sqlpp11/core/operator/enable_comparison.h>
 #include <sqlpp11/core/type_traits.h>
@@ -65,12 +66,6 @@ namespace sqlpp
     static constexpr auto symbol = " % ";
   };
 
-  struct concatenation
-  {
-    static constexpr auto symbol = " || ";
-  };
-
-#warning: mysql does not offer operator||, we need to fail compilation, but maybe offer the concat function in addition
   template <typename L, typename Operator, typename R>
   struct arithmetic_expression : public enable_as<arithmetic_expression<L, Operator, R>>,
                                  public enable_comparison<arithmetic_expression<L, Operator, R>>
@@ -231,15 +226,6 @@ namespace sqlpp
   struct value_type_of<arithmetic_expression<L, Operator, R>>
   : public arithmetic_value_type<Operator, value_type_of_t<L>, value_type_of_t<R>>{};
 
-  template <typename L, typename R>
-  struct value_type_of<arithmetic_expression<L, concatenation, R>>
-      : public std::conditional<sqlpp::is_optional<value_type_of_t<L>>::value or
-                                    sqlpp::is_optional<value_type_of_t<R>>::value,
-                                ::sqlpp::optional<text>,
-                                text>
-  {
-  };
-
   template <typename L, typename Operator, typename R>
   struct nodes_of<arithmetic_expression<L, Operator, R>>
   {
@@ -265,9 +251,9 @@ namespace sqlpp
   using check_concatenation_args = ::sqlpp::enable_if_t<is_text<L>::value and is_text<R>::value>;
 
   template <typename L, typename R, typename = check_concatenation_args<L, R>>
-  constexpr auto operator+(L l, R r) -> arithmetic_expression<L, concatenation, R>
+  constexpr auto operator+(L l, R r) -> decltype(concat(l, r))
   {
-    return {std::move(l), std::move(r)};
+    return concat(std::move(l), std::move(r));
   }
 
   template <typename L, typename R, typename = check_arithmetic_args<L, R>>

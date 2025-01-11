@@ -26,20 +26,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-//#include <sqlpp11/data_types/text/concat.h>
-#include <sqlpp11/core/clause/insert_value_list.h>
+#include <sqlpp11/sqlpp11.h>
 
 namespace sqlpp
 {
-#warning: Need to do something about operator|| and concat
-  /*
-  template <typename First, typename... Args>
-  auto to_sql_string(mysql::context_t& ctx, const concat_t<First, Args...>& t, mysql::context_t& ctx) -> std::string
-  {
-    return "CONCAT(" + tuple_to_sql_string(context, t._args, tuple_operand(", ")) + ")";
-  }
-  */
-
   template <typename Lhs, typename Rhs>
   auto to_sql_string(mysql::context_t& context, const pre_join_t<full_outer_join_t, Lhs, Rhs>&)-> std::string
   {
