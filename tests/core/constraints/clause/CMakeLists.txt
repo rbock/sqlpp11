@@ -43,6 +43,7 @@ create_test(select_column_list)
 create_test(select_flag_list)
 create_test(single_table)
 create_test(update_set_list)
+create_test(using)
 create_test(union)
 create_test(where)
 

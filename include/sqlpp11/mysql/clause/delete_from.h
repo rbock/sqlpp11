@@ -27,6 +27,7 @@
  */
 
 #include <sqlpp11/core/clause/delete_from.h>
+#include <sqlpp11/core/clause/using.h>
 #include <sqlpp11/core/clause/order_by.h>
 #include <sqlpp11/core/clause/limit.h>
 

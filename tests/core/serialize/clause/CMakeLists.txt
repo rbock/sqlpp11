@@ -51,5 +51,6 @@ create_test(union)
 create_test(update)
 create_test(update_set)
 create_test(where)
+create_test(using)
 create_test(with)
 

@@ -26,7 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/tuple_to_sql_string.h>
+#include <sqlpp11/core/to_sql_string.h>
 #include <sqlpp11/core/logic.h>
 #include <sqlpp11/core/no_data.h>
 #include <sqlpp11/core/basic/table_ref.h>
@@ -107,9 +107,9 @@ namespace sqlpp
   }
 
   template <typename T>
-  auto from(T&& t) -> decltype(statement_t<no_from_t>().from(std::forward<T>(t)))
+  auto from(T t) -> decltype(statement_t<no_from_t>{}.from(std::move(t)))
   {
-    return statement_t<no_from_t>().from(std::forward<T>(t));
+    return statement_t<no_from_t>{}.from(std::move(t));
   }
 
 }  // namespace sqlpp

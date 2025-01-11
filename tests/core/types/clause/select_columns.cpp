@@ -55,6 +55,7 @@ void test_select_columns()
 
 
 #warning test that dynamic join tables are only used by dynamic columns
+#warning We need to test that optional columns (i.e. from some outer join) are always optional
 
   // Single column.
   {

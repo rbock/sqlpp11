@@ -31,6 +31,7 @@
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/database/prepared_delete.h>
 #include <sqlpp11/core/clause/single_table.h>
+#include <sqlpp11/core/clause/using.h>
 #include <sqlpp11/core/clause/where.h>
 
 namespace sqlpp
@@ -80,7 +81,7 @@ namespace sqlpp
     return "DELETE FROM ";
   }
 
-  using blank_delete_t = statement_t<delete_t, no_single_table_t, no_where_t>;
+  using blank_delete_t = statement_t<delete_t, no_single_table_t, no_using_t, no_where_t>;
 
   inline auto delete_from() -> blank_delete_t
   {

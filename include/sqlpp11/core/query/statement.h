@@ -33,6 +33,7 @@
 #include <sqlpp11/core/database/prepared_select.h>
 #include <sqlpp11/core/basic/value.h>
 #include <sqlpp11/core/result.h>
+#include <sqlpp11/core/wrapped_static_assert.h>
 #include <sqlpp11/core/to_sql_string.h>
 #include <sqlpp11/core/query/statement_fwd.h>
 #include <sqlpp11/core/clause/clause_base.h>
@@ -46,8 +47,15 @@ namespace sqlpp
   SQLPP_WRAPPED_STATIC_ASSERT(
       assert_no_unknown_ctes_t,
       "one clause requires common table expressions which are otherwise not known in the statement");
+  SQLPP_WRAPPED_STATIC_ASSERT(
+      assert_no_unknown_static_ctes_t,
+      "one clause statically requires common table expressions which are only known dynamically in the statement");
   SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_tables_t,
                                "one clause requires tables which are otherwise not known in the statement");
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_no_unknown_static_tables_t,
+                               "one clause statically requires tables which are only known dynamically in the statement");
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_no_duplicate_table_providers_t,
+                               "at least one table is provided by two clauses, e.g. FROM and USING");
   SQLPP_WRAPPED_STATIC_ASSERT(assert_no_parameters_t,
                                "cannot run statements with parameters directly, use prepare instead");
 
@@ -58,34 +66,50 @@ namespace sqlpp
   struct statement_t : public clause_base<Clauses, statement_t<Clauses...>>...,
                        public result_methods_t<Clauses...>
   {
-      using _all_required_ctes = detail::make_joined_set_t<required_ctes_of_t<Clauses>...>;
-      using _all_provided_ctes = detail::make_joined_set_t<provided_ctes_of_t<Clauses>...>;
-      using _all_required_static_ctes = detail::make_joined_set_t<required_static_ctes_of_t<Clauses>...>;
-      using _all_provided_static_ctes = detail::make_joined_set_t<provided_static_ctes_of_t<Clauses>...>;
-      using _all_required_tables = detail::make_joined_set_t<required_tables_of_t<Clauses>...>;
-      using _all_provided_tables = detail::make_joined_set_t<provided_tables_of_t<Clauses>...>;
-      using _all_provided_optional_tables = detail::make_joined_set_t<provided_optional_tables_of_t<Clauses>...>;
-      using _all_provided_aggregates = detail::make_joined_set_t<known_aggregate_columns_of_t<Clauses>...>;
+    // Calculate provided/required CTEs and tables across all clauses
+    using _all_provided_tables = detail::make_joined_set_t<provided_tables_of_t<Clauses>...>;
+    using _all_provided_static_tables = detail::make_joined_set_t<provided_static_tables_of_t<Clauses>...>;
 
-      using _required_tables_of = detail::make_difference_set_t<_all_required_tables, _all_provided_tables>;
-      using _required_ctes_of = detail::make_difference_set_t<_all_required_ctes, _all_provided_ctes>;
-      using _required_static_ctes_of = detail::make_difference_set_t<_all_required_static_ctes, _all_provided_static_ctes>;
+    using _all_required_tables = detail::make_joined_set_t<required_tables_of_t<Clauses>...>;
+    using _all_required_static_tables = detail::make_joined_set_t<required_static_tables_of_t<Clauses>...>;
 
-      using _parameters = detail::type_vector_cat_t<parameters_of_t<Clauses>...>;
+    using _all_provided_ctes = detail::make_joined_set_t<provided_ctes_of_t<Clauses>...>;
+    using _all_provided_static_ctes = detail::make_joined_set_t<provided_static_ctes_of_t<Clauses>...>;
 
-      template <typename Expression>
-      static constexpr bool _no_unknown_tables = _all_provided_tables::contains_all(required_tables_of_t<Expression>{});
+    using _all_required_ctes = detail::make_joined_set_t<required_ctes_of_t<Clauses>...>;
+    using _all_required_static_ctes = detail::make_joined_set_t<required_static_ctes_of_t<Clauses>...>;
 
-      using _result_type_provider = detail::get_last_if_t<is_result_clause, noop, Clauses...>;
+    using _all_provided_aggregates = detail::make_joined_set_t<known_aggregate_columns_of_t<Clauses>...>;
 
-      using _cte_check =
-          typename std::conditional<_required_ctes_of::empty(), consistent_t, assert_no_unknown_ctes_t>::type;
-      using _table_check =
-          typename std::conditional<_required_tables_of::empty(), consistent_t, assert_no_unknown_tables_t>::type;
-      using _parameter_check = typename std::
-          conditional<_parameters::empty(), consistent_t, assert_no_parameters_t>::type;
+    // Calculate the unknown (i.e. required but not provided) tables and CTEs
+    using _unknown_required_tables_of = detail::make_difference_set_t<_all_required_tables, _all_provided_tables>;
+    using _unknown_required_static_tables_of =
+        detail::make_difference_set_t<_all_required_static_tables, _all_provided_static_tables>;
+    using _unknown_required_ctes_of = detail::make_difference_set_t<_all_required_ctes, _all_provided_ctes>;
+    using _unknown_required_static_ctes_of =
+        detail::make_difference_set_t<_all_required_static_ctes, _all_provided_static_ctes>;
 
-    using _provided_optional_tables = _all_provided_optional_tables;
+    template <typename Expression>
+    static constexpr bool _no_unknown_tables = _all_provided_tables::contains_all(required_tables_of_t<Expression>{});
+
+    template <typename Expression>
+    static constexpr bool _no_unknown_static_tables =
+        _all_provided_static_tables::contains_all(required_static_tables_of_t<Expression>{});
+
+    using _result_type_provider = detail::get_last_if_t<is_result_clause, noop, Clauses...>;
+
+    using _table_check = static_combined_check_t<
+        static_check_t<_unknown_required_tables_of::empty(), assert_no_unknown_tables_t>,
+        static_check_t<_unknown_required_static_tables_of::empty(), assert_no_unknown_static_tables_t>,
+        static_check_t<detail::are_disjoint<provided_tables_of_t<Clauses>...>::value,
+                       assert_no_duplicate_table_providers_t>>;
+    using _cte_check = static_combined_check_t<
+        static_check_t<_unknown_required_ctes_of::empty(), assert_no_unknown_ctes_t>,
+        static_check_t<_unknown_required_static_ctes_of::empty(), assert_no_unknown_static_ctes_t>>;
+
+    using _parameters = detail::type_vector_cat_t<parameters_of_t<Clauses>...>;
+
+    using _parameter_check = static_check_t<_parameters::empty(), assert_no_parameters_t>;
 
     // Constructors
     statement_t() = default;
@@ -116,8 +140,8 @@ namespace sqlpp
       //   - the select is complete (leaks no table requirements or cte requirements)
       static constexpr bool _can_be_used_as_table()
       {
-        return has_result_row<statement_t>::value and _required_tables_of::empty() and
-               _required_ctes_of::empty();
+        return has_result_row<statement_t>::value and _unknown_required_tables_of::empty() and
+               _unknown_required_ctes_of::empty();
       }
 
     template <typename Database>
@@ -204,21 +228,33 @@ namespace sqlpp
   };
 
   template <typename... Clauses>
+  struct provided_optional_tables_of<statement_t<Clauses...>>
+  {
+    using type = detail::make_joined_set_t<provided_optional_tables_of_t<Clauses>...>;
+  };
+
+  template <typename... Clauses>
   struct required_tables_of<statement_t<Clauses...>>
   {
-    using type = typename statement_t<Clauses...>::_required_tables_of;
+    using type = typename statement_t<Clauses...>::_unknown_required_tables_of;
+  };
+
+  template <typename... Clauses>
+  struct required_static_tables_of<statement_t<Clauses...>>
+  {
+    using type = typename statement_t<Clauses...>::_unknown_required_static_tables_of;
   };
 
   template <typename... Clauses>
   struct required_ctes_of<statement_t<Clauses...>>
   {
-    using type = typename statement_t<Clauses...>::_required_ctes_of;
+    using type = typename statement_t<Clauses...>::_unknown_required_ctes_of;
   };
 
   template <typename... Clauses>
   struct required_static_ctes_of<statement_t<Clauses...>>
   {
-    using type = typename statement_t<Clauses...>::_required_static_ctes_of;
+    using type = typename statement_t<Clauses...>::_unknown_required_static_ctes_of;
   };
 
   template <typename... Clauses>

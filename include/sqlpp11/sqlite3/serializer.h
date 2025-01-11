@@ -40,6 +40,7 @@
 #include <sqlpp11/core/database/exception.h>
 #include <sqlpp11/core/basic/parameter.h>
 #include <sqlpp11/core/basic/join.h>
+#include <sqlpp11/core/clause/using.h>
 #include <sqlpp11/core/clause/with.h>
 
 #include <cmath>
@@ -120,4 +121,11 @@ namespace sqlpp
   }
 
 #warning: sqlite3 accepts only signed integers, need to test if that works OK
+
+  template <typename... Tables>
+  auto to_sql_string(sqlite3::context_t& , const using_t<Tables...>& t) -> std::string
+  {
+    static_assert(wrong_t<Tables...>::value, "Sqlite3: No support for USING");
+    return {};
+  }
 }  // namespace sqlpp

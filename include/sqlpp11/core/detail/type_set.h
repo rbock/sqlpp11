@@ -267,5 +267,25 @@ namespace sqlpp
       {
       };
 
+      template <typename... T>
+      struct are_disjoint;
+
+      template <>
+      struct are_disjoint<> : public std::true_type
+      {
+      };
+
+      template <typename... T>
+      struct are_disjoint<type_set<T...>> : public std::true_type
+      {
+      };
+
+      template <typename... L, typename... R, typename... Rest>
+      struct are_disjoint<type_set<L...>, type_set<R...>, Rest...>
+      {
+        static constexpr bool value =
+            are_unique<L..., R...>::value and are_disjoint<make_type_set_t<L..., R...>, Rest...>::value;
+      };
+
   }  // namespace detail
 }  // namespace sqlpp

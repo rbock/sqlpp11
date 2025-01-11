@@ -27,7 +27,6 @@
  */
 
 #include <sqlpp11/core/clause/delete_from.h>
-#include <sqlpp11/postgresql/clause/using.h>
 #include <sqlpp11/postgresql/clause/returning_column_list.h>
 
 namespace sqlpp
