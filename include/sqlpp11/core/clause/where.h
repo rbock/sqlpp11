@@ -86,20 +86,19 @@ namespace sqlpp
   {
     using clause_data<no_where_t, Statement>::clause_data;
 
-     auto unconditionally() const -> decltype(new_statement(*this, where_t<unconditional_t>{}))
-      {
-        return new_statement(*this, where_t<unconditional_t>{});
-      }
+    auto unconditionally() const -> decltype(new_statement(*this, where_t<unconditional_t>{}))
+    {
+      return new_statement(*this, where_t<unconditional_t>{});
+    }
 
-      template <typename Expression, typename = sqlpp::enable_if_t<is_boolean<remove_dynamic_t<Expression>>::value>>
-      auto where(Expression expression) const
-          -> decltype(new_statement(*this, where_t<Expression>{expression}))
-      {
-        SQLPP_STATIC_ASSERT(not contains_aggregate_function<Expression>::value,
-                            "where() must not contain aggregate functions");
+    template <typename Expression, typename = sqlpp::enable_if_t<is_boolean<remove_dynamic_t<Expression>>::value>>
+    auto where(Expression expression) const -> decltype(new_statement(*this, where_t<Expression>{expression}))
+    {
+      SQLPP_STATIC_ASSERT(not contains_aggregate_function<Expression>::value,
+                          "where() must not contain aggregate functions");
 
-        return new_statement(*this, where_t<Expression>{expression});
-      }
+      return new_statement(*this, where_t<Expression>{expression});
+    }
   };
 
   SQLPP_WRAPPED_STATIC_ASSERT(assert_where_or_unconditionally_called_t,

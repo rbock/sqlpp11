@@ -57,6 +57,12 @@ namespace sqlpp
   }
 
   template <typename OnConflictUpdate, typename Expression>
+  struct nodes_of<postgresql::on_conflict_do_update_where_t<OnConflictUpdate, Expression>>
+  {
+    using type = detail::type_vector<OnConflictUpdate, Expression>;
+  };
+
+  template <typename OnConflictUpdate, typename Expression>
   struct is_clause<postgresql::on_conflict_do_update_where_t<OnConflictUpdate, Expression>>: public std::true_type
   {
   };
@@ -64,7 +70,6 @@ namespace sqlpp
   template <typename Statement, typename OnConflictUpdate, typename Expression>
   struct consistency_check<Statement, postgresql::on_conflict_do_update_where_t<OnConflictUpdate, Expression>>
   {
-#warning: is this correct?
     using type = consistent_t;
   };
 
@@ -95,27 +100,43 @@ namespace sqlpp
   {
   };
 
+  template <typename OnConflict, typename... Assignments>
+  struct nodes_of<postgresql::on_conflict_do_update_t<OnConflict, Assignments...>>
+  {
+    using type = detail::type_vector<OnConflict, Assignments...>;
+  };
+
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_on_conflict_update_where_t, "where() required for on_conflict().do_update()");
+
   template <typename Statement, typename OnConflict, typename... Assignments>
   struct consistency_check<Statement, postgresql::on_conflict_do_update_t<OnConflict, Assignments...>>
   {
-#warning: is this correct?
-    using type = consistent_t;
+    using type = assert_on_conflict_update_where_t;
   };
 
   template <typename Statement, typename OnConflict, typename... Assignments>
-  struct clause_base<postgresql::on_conflict_do_update_t<OnConflict, Assignments...>, Statement> : public clause_data<postgresql::on_conflict_do_update_t<OnConflict, Assignments...>, Statement>
+  struct clause_base<postgresql::on_conflict_do_update_t<OnConflict, Assignments...>, Statement>
+      : public clause_data<postgresql::on_conflict_do_update_t<OnConflict, Assignments...>, Statement>
   {
     using clause_data<postgresql::on_conflict_do_update_t<OnConflict, Assignments...>, Statement>::clause_data;
 
-      // WHERE
-      template <typename Expression>
-      auto where(Expression expression) const -> decltype(new_statement(
-          *this, postgresql::on_conflict_do_update_where_t<postgresql::on_conflict_do_update_t<OnConflict, Assignments...>, Expression>{this->_data, std::move(expression)}))
-      {
-        return new_statement(
-            *this, postgresql::on_conflict_do_update_where_t<postgresql::on_conflict_do_update_t<OnConflict, Assignments...>, Expression>{this->_data, std::move(expression)});
-      }
-    };
+    // WHERE
+    template <typename Expression, typename = sqlpp::enable_if_t<is_boolean<remove_dynamic_t<Expression>>::value>>
+    auto where(Expression expression) const -> decltype(new_statement(
+        *this,
+        postgresql::on_conflict_do_update_where_t<postgresql::on_conflict_do_update_t<OnConflict, Assignments...>,
+                                                  Expression>{this->_data, std::move(expression)}))
+    {
+      SQLPP_STATIC_ASSERT(not contains_aggregate_function<Expression>::value,
+                          "where() must not contain aggregate functions");
+
+      return new_statement(
+          *this,
+          postgresql::on_conflict_do_update_where_t<postgresql::on_conflict_do_update_t<OnConflict, Assignments...>,
+                                                    Expression>{this->_data, std::move(expression)});
+    }
+  };
+
   template <typename OnConflict, typename... Assignments>
   auto to_sql_string(postgresql::context_t& context,
                      const postgresql::on_conflict_do_update_t<OnConflict, Assignments...>& o) -> std::string

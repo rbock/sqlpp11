@@ -29,11 +29,12 @@
 #include <sqlpp11/core/to_sql_string.h>
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/operator/enable_as.h>
+#include <sqlpp11/core/operator/enable_comparison.h>
 
 namespace sqlpp
 {
   template <typename... Args>
-  struct concat_t : public enable_as<concat_t<Args...>>
+  struct concat_t : public enable_comparison<concat_t<Args...>>, public enable_as<concat_t<Args...>>
   {
     concat_t(const Args... args) : _args(std::move(args)...)
     {

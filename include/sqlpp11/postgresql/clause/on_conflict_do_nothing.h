@@ -65,6 +65,12 @@ namespace sqlpp
   {
   };
 
+  template <typename ConflictTarget>
+  struct nodes_of<postgresql::on_conflict_do_nothing_t<ConflictTarget>>
+  {
+    using type = detail::type_vector<ConflictTarget>;
+  };
+
   template <typename Statement, typename ConflictTarget>
   struct consistency_check<Statement, postgresql::on_conflict_do_nothing_t<ConflictTarget>>
   {
