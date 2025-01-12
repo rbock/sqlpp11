@@ -56,11 +56,11 @@ namespace sqlpp
             sqlpp::detail::make_joined_set_t<required_tables_of_t<typename lhs<Assignments>::type>...>::size() == 1,
             assert_on_conflict_do_update_set_single_table_t>>;
 
-    template <typename ConflictTarget>
+    template <typename... Columns>
     struct on_conflict_t
     {
-      on_conflict_t(ConflictTarget column)
-          : _column(column)
+      on_conflict_t(Columns... columns)
+          : _columns(std::move(columns)...)
       {
       }
 
@@ -70,44 +70,44 @@ namespace sqlpp
       on_conflict_t& operator=(on_conflict_t&&) = default;
       ~on_conflict_t() = default;
 
-      ConflictTarget _column;
+      std::tuple<Columns...> _columns;
     };
 
-    template <typename ConflictTarget>
-    auto to_sql_string(postgresql::context_t& context, const postgresql::on_conflict_t<ConflictTarget>&) -> std::string
+    template <typename... Columns>
+    auto to_sql_string(postgresql::context_t& context, const postgresql::on_conflict_t<Columns...>& t) -> std::string
     {
-      return " ON CONFLICT (" + name_to_sql_string(context, name_tag_of_t<ConflictTarget>{}) + ") ";
+      return " ON CONFLICT (" + tuple_to_sql_string(context, t._columns, tuple_operand_name_no_dynamic{", "}) + ") ";
     }
 
-    inline auto to_sql_string(postgresql::context_t&, const postgresql::on_conflict_t<no_data_t>&) -> std::string
+    inline auto to_sql_string(postgresql::context_t&, const postgresql::on_conflict_t<>&) -> std::string
     {
       return " ON CONFLICT ";
     }
   }  // namespace postgresql
 
-  template <typename ConflictTarget>
-  struct nodes_of<postgresql::on_conflict_t<ConflictTarget>>
+  template <typename... Columns>
+  struct nodes_of<postgresql::on_conflict_t<Columns...>>
   {
-    using type = detail::type_vector<ConflictTarget>;
+    using type = detail::type_vector<Columns...>;
   };
 
-  template <typename Statement, typename ConflictTarget>
-  struct consistency_check<Statement, postgresql::on_conflict_t<ConflictTarget>>
+  template <typename Statement, typename... Columns>
+  struct consistency_check<Statement, postgresql::on_conflict_t<Columns...>>
   {
     using type = postgresql::assert_on_conflict_action_t;
   };
 
-  template <typename Statement, typename ConflictTarget>
-  struct clause_base<postgresql::on_conflict_t<ConflictTarget>, Statement> : public clause_data<postgresql::on_conflict_t<ConflictTarget>, Statement>
+  template <typename Statement, typename... Columns>
+  struct clause_base<postgresql::on_conflict_t<Columns...>, Statement> : public clause_data<postgresql::on_conflict_t<Columns...>, Statement>
   {
-    using clause_data<postgresql::on_conflict_t<ConflictTarget>, Statement>::clause_data;
+    using clause_data<postgresql::on_conflict_t<Columns...>, Statement>::clause_data;
 
     // DO NOTHING
     auto do_nothing() const -> decltype(new_statement(
-        *this, postgresql::on_conflict_do_nothing_t<postgresql::on_conflict_t<ConflictTarget>>{this->_data}))
+        *this, postgresql::on_conflict_do_nothing_t<postgresql::on_conflict_t<Columns...>>{this->_data}))
     {
       return new_statement(
-          *this, postgresql::on_conflict_do_nothing_t<postgresql::on_conflict_t<ConflictTarget>>{this->_data});
+          *this, postgresql::on_conflict_do_nothing_t<postgresql::on_conflict_t<Columns...>>{this->_data});
     }
 
     // DO UPDATE
@@ -116,13 +116,13 @@ namespace sqlpp
                   logic::all<sqlpp::is_assignment<remove_dynamic_t<Assignments>>::value...>::value>>
     auto do_update(Assignments... assignments) const -> decltype(new_statement(
         *this,
-        postgresql::on_conflict_do_update_t<postgresql::on_conflict_t<ConflictTarget>, Assignments...>
+        postgresql::on_conflict_do_update_t<postgresql::on_conflict_t<Columns...>, Assignments...>
             {this->_data, std::make_tuple(std::move(assignments)...)}))
     {
       postgresql::check_on_conflict_do_update_set_t<remove_dynamic_t<Assignments>...>::verify();
 
       return new_statement(
-          *this, postgresql::on_conflict_do_update_t<postgresql::on_conflict_t<ConflictTarget>, Assignments...>{
+          *this, postgresql::on_conflict_do_update_t<postgresql::on_conflict_t<Columns...>, Assignments...>{
                      this->_data, std::make_tuple(std::move(assignments)...)});
     }
   };
@@ -157,17 +157,12 @@ namespace sqlpp
   {
     using clause_data<postgresql::no_on_conflict_t, Statement>::clause_data;
 
-    auto on_conflict() const -> decltype(new_statement(*this, postgresql::on_conflict_t<no_data_t>{no_data_t{}}))
+    template <typename... Columns,
+              typename = sqlpp::enable_if_t<logic::all<is_column<remove_dynamic_t<Columns>>::value...>::value>>
+    auto on_conflict(Columns... columns) const
+        -> decltype(new_statement(*this, postgresql::on_conflict_t<Columns...>{std::move(columns)...}))
     {
-      return new_statement(*this, postgresql::on_conflict_t<no_data_t>{no_data_t{}});
-    }
-
-#warning : Allow for more than one column, see #586
-    template <typename ConflictTarget>
-    auto on_conflict(ConflictTarget column) const -> decltype(new_statement(*this, postgresql::on_conflict_t<ConflictTarget>{std::move(column)}))
-    {
-      static_assert(is_column<ConflictTarget>::value, "only a column is supported as conflict_target specification");
-      return new_statement(*this, postgresql::on_conflict_t<ConflictTarget>{std::move(column)});
+      return new_statement(*this, postgresql::on_conflict_t<Columns...>{std::move(columns)...});
     }
   };
 

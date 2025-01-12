@@ -108,6 +108,31 @@ namespace sqlpp
     sqlpp::string_view separator;
   };
 
+  // Used to names (ignoring dynamic)
+  struct tuple_operand_name_no_dynamic
+  {
+    template <typename Context, typename T>
+    auto operator()(Context& context, const T& , size_t ) const -> std::string
+    {
+      const auto prefix = need_prefix ? std::string{separator} : std::string{};
+      need_prefix = true;
+      return prefix + name_to_sql_string(context, name_tag_of_t<T>{});
+    }
+
+    template <typename Context, typename T>
+    auto operator()(Context& context, const sqlpp::dynamic_t<T>& t, size_t index) const -> std::string
+    {
+      if (t._condition)
+      {
+        return operator()(context, t._expr, index);
+      }
+      return "";
+    }
+
+    sqlpp::string_view separator;
+    mutable bool need_prefix = false;
+  };
+
   struct tuple_clause
   {
     template <typename Context, typename T>
