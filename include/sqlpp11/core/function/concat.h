@@ -72,6 +72,7 @@ namespace sqlpp
   template <typename... Args, typename = check_concat_args<remove_dynamic_t<Args>...>>
   auto concat(Args... args) -> concat_t<Args...>
   {
+    SQLPP_STATIC_ASSERT(sizeof...(Args) > 0, "at least one argument required in concat()")
     return {std::move(args)...};
   }
 
