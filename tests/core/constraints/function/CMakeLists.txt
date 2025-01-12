@@ -1,4 +1,4 @@
-# Copyright (c) 2013-2016, Roland Bock
+# Copyright (c) 2025, Roland Bock
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -22,47 +22,12 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-set(test_files
-    CustomQuery.cpp
-    DateTime.cpp
-    DateTimeParser.cpp
-    Interpret.cpp
-    Insert.cpp
-    Remove.cpp
-    Update.cpp
-    Select.cpp
-    SelectType.cpp
-    Function.cpp
-    Prepared.cpp
-    Minimalistic.cpp
-    Result.cpp
-    Union.cpp
-    With.cpp
-)
+function(create_test name)
+    set(target sqlpp11_core_constraints_function_${name})
+    add_executable(${target} ${name}.cpp)
+    target_link_libraries(${target} PRIVATE sqlpp11::sqlpp11 sqlpp11_testing)
+    add_test(NAME ${target} COMMAND ${target})
+endfunction()
 
-cmake_policy(SET CMP0167 NEW)
-find_package(Boost 1.70 QUIET)
-if(Boost_FOUND)
-    include_directories(${Boost_INCLUDE_DIRS})
-    list(APPEND test_files Ppgen.cpp)
-endif()
+create_test(concat)
 
-
-create_test_sourcelist(test_sources test_main.cpp ${test_files})
-add_executable(sqlpp11_core_tests ${test_sources})
-target_link_libraries(sqlpp11_core_tests PRIVATE sqlpp11::sqlpp11 sqlpp11_testing)
-
-foreach(test_file IN LISTS test_files)
-    get_filename_component(test ${test_file} NAME_WLE)
-    add_test(NAME sqlpp11.core.usage.${test}
-        COMMAND sqlpp11_core_tests ${test}
-    )
-endforeach()
-
-# if you want to use the generator, you can do something like this:
-#find_package(PythonInterp REQUIRED)
-#add_custom_command(
-#	OUTPUT "${CMAKE_CURRENT_LIST_DIR}/Sample.h"
-#	COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_SOURCE_DIR}/scripts/ddl2cpp" "${CMAKE_CURRENT_LIST_DIR}/sample.sql" Sample test
-#	DEPENDS "${CMAKE_CURRENT_LIST_DIR}/sample.sql"
-#	VERBATIM)

@@ -29,6 +29,7 @@ function(create_test name)
     add_test(NAME ${target} COMMAND ${target})
 endfunction()
 
+create_test(concat)
 create_test(flatten)
 create_test(get_sql_name)
 

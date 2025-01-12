@@ -25,5 +25,6 @@
 add_subdirectory(aggregate_function)
 add_subdirectory(basic)
 add_subdirectory(clause)
+add_subdirectory(function)
 add_subdirectory(operator)
 add_subdirectory(query)

@@ -63,10 +63,9 @@ namespace sqlpp
   template <typename Context, typename... Args>
   auto to_sql_string(Context& context, const concat_t<Args...>& t) -> std::string
   {
-    return "CONCAT(" + tuple_to_sql_string(context, t._args, tuple_operand_no_dynamic{", "}) + ")";
+    return "CONCAT(" + tuple_to_sql_string(context, t._args, tuple_operand{", "}) + ")";
   }
 
-#warning : Need tests
   template <typename... Args>
   using check_concat_args = ::sqlpp::enable_if_t<logic::all<is_text<Args>::value...>::value>;
 
