@@ -73,8 +73,44 @@ void test_result_row(Value v)
   }
 }
 
+void test_outer_join()
+{
+  using sqlpp::alias::left;
+  using sqlpp::alias::right;
+
+  // cross join
+  for (const auto& row : db(select(foo.id.as(left), bar.id.as(right)).from(foo.cross_join(bar)).unconditionally()))
+  {
+    static_assert(not sqlpp::is_optional<decltype(row.left)>::value, "");
+    static_assert(not sqlpp::is_optional<decltype(row.right)>::value, "");
+  }
+
+  // left outer join
+  for (const auto& row : db(select(foo.id.as(left), bar.id.as(right)).from(foo.left_outer_join(bar).on(true)).unconditionally()))
+  {
+    static_assert(not sqlpp::is_optional<decltype(row.left)>::value, "");
+    static_assert(sqlpp::is_optional<decltype(row.right)>::value, "in a left outer join, the right hand side can be null");
+  }
+
+  // right outer join
+  for (const auto& row : db(select(foo.id.as(left), bar.id.as(right)).from(foo.right_outer_join(bar).on(true)).unconditionally()))
+  {
+    static_assert(sqlpp::is_optional<decltype(row.left)>::value, "in a right outer join, the left hand side can be null");
+    static_assert(not sqlpp::is_optional<decltype(row.right)>::value, "");
+  }
+
+  // full outer join
+  for (const auto& row : db(select(foo.id.as(left), bar.id.as(right)).from(foo.full_outer_join(bar).on(true)).unconditionally()))
+  {
+    static_assert(sqlpp::is_optional<decltype(row.left)>::value, "in a full outer join, the both sides can be null");
+    static_assert(sqlpp::is_optional<decltype(row.right)>::value, "in a full outer join, the both sides can be null");
+  }
+}
+
 int main()
 {
+  test_outer_join();
+
   // boolean
   test_result_row<bool>(bool{true});
 
