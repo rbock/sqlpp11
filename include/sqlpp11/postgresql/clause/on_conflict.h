@@ -40,9 +40,6 @@ namespace sqlpp
     SQLPP_WRAPPED_STATIC_ASSERT(assert_on_conflict_action_t,
                                  "either do_nothing() or do_update(...) is required with on_conflict");
 
-#warning: Move into member function
-    SQLPP_WRAPPED_STATIC_ASSERT(assert_on_conflict_do_update_set_assignments_t,
-                                 "at least one argument is not an assignment in do_update()");
     SQLPP_WRAPPED_STATIC_ASSERT(assert_on_conflict_do_update_set_no_duplicates_t,
                                  "at least one duplicate column detected in do_update()");
     SQLPP_WRAPPED_STATIC_ASSERT(assert_on_conflict_do_update_set_single_table_t,
@@ -52,25 +49,12 @@ namespace sqlpp
 
     template <typename... Assignments>
     using check_on_conflict_do_update_set_t = static_combined_check_t<
-        static_check_t<logic::all<sqlpp::is_assignment<Assignments>::type::value...>::value,
-                       assert_on_conflict_do_update_set_assignments_t>,
+        static_check_t<sizeof...(Assignments) != 0, assert_on_conflict_do_update_set_count_args_t>,
         static_check_t<not sqlpp::detail::has_duplicates<typename lhs<Assignments>::type...>::value,
                        assert_on_conflict_do_update_set_no_duplicates_t>,
-        static_check_t<sizeof...(Assignments) == 0 or sqlpp::detail::make_joined_set_t<required_tables_of_t<
-                                                          typename lhs<Assignments>::type>...>::size() == 1,
-                       assert_on_conflict_do_update_set_single_table_t>>;
-
-    template <typename... Assignments>
-    struct check_on_conflict_do_update_static_set
-    {
-      using type = static_combined_check_t<
-          check_on_conflict_do_update_set_t<Assignments...>,
-          static_check_t<sizeof...(Assignments) != 0, assert_on_conflict_do_update_set_count_args_t>>;
-    };
-
-    template <typename... Assignments>
-    using check_on_conflict_do_update_static_set_t =
-        typename check_on_conflict_do_update_static_set<Assignments...>::type;
+        static_check_t<
+            sqlpp::detail::make_joined_set_t<required_tables_of_t<typename lhs<Assignments>::type>...>::size() == 1,
+            assert_on_conflict_do_update_set_single_table_t>>;
 
     template <typename ConflictTarget>
     struct on_conflict_t
@@ -127,13 +111,16 @@ namespace sqlpp
     }
 
     // DO UPDATE
-    template <typename... Assignments>
+    template <typename... Assignments,
+              typename = sqlpp::enable_if_t<
+                  logic::all<sqlpp::is_assignment<remove_dynamic_t<Assignments>>::value...>::value>>
     auto do_update(Assignments... assignments) const -> decltype(new_statement(
         *this,
-        postgresql::on_conflict_do_update_t<postgresql::on_conflict_t<ConflictTarget>, Assignments...>{
-            this->_data, std::make_tuple(std::move(assignments)...)}))
+        postgresql::on_conflict_do_update_t<postgresql::on_conflict_t<ConflictTarget>, Assignments...>
+            {this->_data, std::make_tuple(std::move(assignments)...)}))
     {
-      static_assert(is_column<ConflictTarget>::value, "conflict_target specification is required with do_update(...)");
+      postgresql::check_on_conflict_do_update_set_t<remove_dynamic_t<Assignments>...>::verify();
+
       return new_statement(
           *this, postgresql::on_conflict_do_update_t<postgresql::on_conflict_t<ConflictTarget>, Assignments...>{
                      this->_data, std::make_tuple(std::move(assignments)...)});
