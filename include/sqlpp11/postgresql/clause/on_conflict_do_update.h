@@ -141,8 +141,8 @@ namespace sqlpp
   auto to_sql_string(postgresql::context_t& context,
                      const postgresql::on_conflict_do_update_t<OnConflict, Assignments...>& o) -> std::string
   {
-    return to_sql_string(context, o._on_conflict) + "DO UPDATE SET " +
-           tuple_to_sql_string(context, o._assignments, tuple_operand{", "});
+    return to_sql_string(context, o._on_conflict) + " DO UPDATE SET " +
+           tuple_to_sql_string(context, o._assignments, tuple_operand_no_dynamic{", "});
   }
 
   template <typename OnConflict, typename Expression, typename... Assignments>

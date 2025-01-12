@@ -31,7 +31,7 @@
 #include <iostream>
 #include <random>
 
-#include "Tables.h"
+#include <sqlpp11/tests/postgresql/tables.h>
 #include "make_test_connection.h"
 
 namespace sql = sqlpp::postgresql;

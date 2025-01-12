@@ -141,9 +141,9 @@ namespace sqlpp
   }
 
   template <typename T>
-  auto where(T&& t) -> decltype(statement_t<no_where_t>().where(std::forward<T>(t)))
+  auto where(T t) -> decltype(statement_t<no_where_t>().where(std::move(t)))
   {
-    return statement_t<no_where_t>().where(std::forward<T>(t));
+    return statement_t<no_where_t>().where(std::move(t));
   }
 
   inline auto unconditionally() -> decltype(statement_t<no_where_t>().unconditionally())

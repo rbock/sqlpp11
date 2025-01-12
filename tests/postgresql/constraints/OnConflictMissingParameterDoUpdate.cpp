@@ -30,7 +30,7 @@
 #include <sqlpp11/postgresql/postgresql.h>
 #include <sqlpp11/sqlpp11.h>
 
-#include "../usage/Tables.h"
+#include <sqlpp11/tests/postgresql/tables.h>
 
 namespace sql = sqlpp::postgresql;
 

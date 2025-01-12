@@ -31,7 +31,7 @@
 #include <sqlpp11/sqlpp11.h>
 
 #include "make_test_connection.h"
-#include "Tables.h"
+#include <sqlpp11/tests/postgresql/tables.h>
 
 namespace
 {

@@ -73,15 +73,20 @@ namespace sqlpp
       std::tuple<Columns...> _columns;
     };
 
+    inline auto to_sql_string(postgresql::context_t&, const postgresql::on_conflict_t<>&) -> std::string
+    {
+      return " ON CONFLICT";
+    }
+
     template <typename... Columns>
     auto to_sql_string(postgresql::context_t& context, const postgresql::on_conflict_t<Columns...>& t) -> std::string
     {
-      return " ON CONFLICT (" + tuple_to_sql_string(context, t._columns, tuple_operand_name_no_dynamic{", "}) + ") ";
-    }
-
-    inline auto to_sql_string(postgresql::context_t&, const postgresql::on_conflict_t<>&) -> std::string
-    {
-      return " ON CONFLICT ";
+      const auto targets = tuple_to_sql_string(context, t._columns, tuple_operand_name_no_dynamic{", "});
+      if (targets.empty())
+      {
+        return to_sql_string(context, postgresql::on_conflict_t<>{});
+      }
+      return " ON CONFLICT (" + targets + ")";
     }
   }  // namespace postgresql
 
@@ -165,5 +170,14 @@ namespace sqlpp
       return new_statement(*this, postgresql::on_conflict_t<Columns...>{std::move(columns)...});
     }
   };
+
+  namespace postgresql
+  {
+    template <typename... Columns>
+    auto on_conflict(Columns... columns) -> decltype(statement_t<no_on_conflict_t>().on_conflict(std::move(columns)...))
+    {
+      return statement_t<no_on_conflict_t>().on_conflict(std::move(columns)...);
+    }
+  }
 
 }  // namespace sqlpp

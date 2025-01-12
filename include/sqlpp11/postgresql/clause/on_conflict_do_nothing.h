@@ -55,7 +55,6 @@ namespace sqlpp
     template <typename OnConflict>
     auto to_sql_string(postgresql::context_t& context, const postgresql::on_conflict_do_nothing_t<OnConflict>& t) -> std::string
     {
-#warning: need tests
       return to_sql_string(context, t._on_conflict) + " DO NOTHING";
     }
   }  // namespace postgresql
