@@ -26,6 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp11/core/detail/flat_tuple.h>
 #include <sqlpp11/core/detail/type_set.h>
 #include <sqlpp11/core/operator/expression_as.h>
 #include <sqlpp11/core/query/dynamic.h>
@@ -40,30 +41,6 @@
 
 namespace sqlpp
 {
-  namespace detail
-  {
-    template<typename T>
-    auto tupelize(T t) -> std::tuple<T>
-    {
-      return std::make_tuple(std::move(t));
-    }
-
-    template<typename... Args>
-    auto tupelize(std::tuple<Args...> t) -> std::tuple<Args...>
-    {
-      return t;
-    }
-
-    template<typename... Args>
-    struct flat_tuple
-    {
-      using type = decltype(std::tuple_cat(tupelize(std::declval<Args>())...));
-    };
-
-    template<typename... Args>
-    using flat_tuple_t = typename flat_tuple<Args...>::type;
-  }  // namespace detail
-
   SQLPP_WRAPPED_STATIC_ASSERT(
       assert_no_unknown_tables_in_selected_columns_t,
       "at least one selected column requires a table which is otherwise not known in the statement");
@@ -191,30 +168,6 @@ namespace sqlpp
   {
     using type = detail::type_vector<Columns...>;
   };
-
-  template<typename... Columns>
-    struct select_columns_have_values
-    {
-      static constexpr bool value = select_columns_have_values<detail::flat_tuple_t<Columns...>>::value;
-    };
-
-  template<typename... Columns>
-    struct select_columns_have_values<std::tuple<Columns...>>
-    {
-      static constexpr bool value = logic::all<select_column_has_value_type<Columns>::value...>::value;
-    };
-
-  template<typename... Columns>
-    struct select_columns_have_names
-    {
-      static constexpr bool value = select_columns_have_names<detail::flat_tuple_t<Columns...>>::value;
-    };
-
-  template<typename... Columns>
-    struct select_columns_have_names<std::tuple<Columns...>>
-    {
-      static constexpr bool value = logic::all<select_column_has_name<Columns>::value...>::value;
-    };
 
   template <typename ColumnTuple>
   struct make_select_column_list;

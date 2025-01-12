@@ -26,6 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp11/core/detail/flat_tuple.h>
 #include <sqlpp11/core/operator/expression_as.h>
 #include <sqlpp11/core/query/dynamic.h>
 #include <sqlpp11/core/type_traits.h>
@@ -89,4 +90,27 @@ namespace sqlpp
   {
   };
 
+  template<typename... Columns>
+    struct select_columns_have_values
+    {
+      static constexpr bool value = select_columns_have_values<detail::flat_tuple_t<Columns...>>::value;
+    };
+
+  template<typename... Columns>
+    struct select_columns_have_values<std::tuple<Columns...>>
+    {
+      static constexpr bool value = logic::all<select_column_has_value_type<Columns>::value...>::value;
+    };
+
+  template<typename... Columns>
+    struct select_columns_have_names
+    {
+      static constexpr bool value = select_columns_have_names<detail::flat_tuple_t<Columns...>>::value;
+    };
+
+  template<typename... Columns>
+    struct select_columns_have_names<std::tuple<Columns...>>
+    {
+      static constexpr bool value = logic::all<select_column_has_name<Columns>::value...>::value;
+    };
 }  // namespace sqlpp

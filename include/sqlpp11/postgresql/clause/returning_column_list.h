@@ -28,8 +28,9 @@
  */
 
 #include <sqlpp11/core/noop.h>
-#warning : It would be nicer to take the required templates out of there
-#include <sqlpp11/core/clause/select_column_list.h>
+#include <sqlpp11/core/clause/select_as.h>
+#include <sqlpp11/core/detail/flat_tuple.h>
+#include <sqlpp11/core/clause/select_column_traits.h>
 #include <sqlpp11/core/detail/type_set.h>
 #include <sqlpp11/core/field_spec.h>
 #include <sqlpp11/core/tuple_to_sql_string.h>
