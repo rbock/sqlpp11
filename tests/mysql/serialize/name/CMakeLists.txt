@@ -1,4 +1,4 @@
-# Copyright (c) 2023, Roland Bock
+# Copyright (c) 2025, Roland Bock
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -22,26 +22,12 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-find_package(Threads REQUIRED)
+function(create_test name)
+    set(target sqlpp11_mysql_serialize_name_${name})
+    add_executable(${target} ${name}.cpp)
+    target_link_libraries(${target} PRIVATE sqlpp11::mysql sqlpp11_testing sqlpp11_mysql_testing Threads::Threads)
+    add_test(NAME ${target} COMMAND ${target})
+endfunction()
 
-set(test_files
-    Float.cpp
-)
+create_test(create_name_tag)
 
-create_test_sourcelist(test_sources test_main.cpp ${test_files})
-add_executable(sqlpp11_mysql_serialize_tests ${test_sources})
-target_link_libraries(sqlpp11_mysql_serialize_tests PRIVATE sqlpp11::mysql sqlpp11_testing sqlpp11_mysql_testing)
-target_link_libraries(sqlpp11_mysql_serialize_tests PRIVATE Threads::Threads)
-if(NOT MSVC)
-    target_compile_options(sqlpp11_mysql_serialize_tests PRIVATE -Wall -Wextra -pedantic)
-endif()
-
-foreach(test_file IN LISTS test_files)
-    get_filename_component(test ${test_file} NAME_WLE)
-    add_test(NAME sqlpp11.mysql.serialize.${test}
-        COMMAND sqlpp11_mysql_serialize_tests ${test}
-    )
-endforeach()
-
-add_subdirectory(clause)
-add_subdirectory(name)

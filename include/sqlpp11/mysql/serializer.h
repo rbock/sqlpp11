@@ -37,15 +37,15 @@ namespace sqlpp
     return {};
   }
 
-  inline auto to_sql_string(mysql::context_t&, const insert_default_values_t&) -> std::string
-  {
-    return " () VALUES()";
-  }
+  namespace mysql {
+    inline auto to_sql_string(mysql::context_t&, const insert_default_values_t&) -> std::string
+    {
+      return " () VALUES()";
+    }
 
-  inline auto quoted_name_to_sql_string(mysql::context_t&, const ::sqlpp::string_view& name) -> std::string
-  {
-#warning : Need to test this
-    return '`' + std::string(name) + '`';
-  }
-
+    inline auto quoted_name_to_sql_string(mysql::context_t&, const ::sqlpp::string_view& name) -> std::string
+    {
+      return '`' + std::string(name) + '`';
+    }
+  }  // namespace mysql
 }

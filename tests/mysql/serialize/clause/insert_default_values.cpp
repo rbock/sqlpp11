@@ -1,5 +1,3 @@
-#pragma once
-
 /*
  * Copyright (c) 2024, Roland Bock
  * All rights reserved.
@@ -25,21 +23,12 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/mysql/mysql.h>
-#include <iostream>
+#include <sqlpp11/tests/mysql/serialize_helpers.h>
+#include <sqlpp11/sqlpp11.h>
 
-#define SQLPP_COMPARE(expr, expected_string)                       \
-  {                                                                \
-    sqlpp::mysql::context_t printer{};                             \
-                                                                   \
-    using sqlpp::to_sql_string;                                    \
-    const auto result = to_sql_string(printer, expr);              \
-                                                                   \
-    if (result != expected_string)                                 \
-    {                                                              \
-      std::cerr << __FILE__ << " " << __LINE__ << '\n'             \
-                << "Expected: -->|" << expected_string << "|<--\n" \
-                << "Received: -->|" << result << "|<--\n";         \
-      return -1;                                                   \
-    }                                                              \
-  }
+int main(int, char* [])
+{
+  SQLPP_COMPARE(sqlpp::insert_default_values(), " () VALUES()");
+
+  return 0;
+}

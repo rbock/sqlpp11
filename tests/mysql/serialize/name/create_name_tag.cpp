@@ -1,7 +1,5 @@
-#pragma once
-
 /*
- * Copyright (c) 2024, Roland Bock
+ * Copyright (c) 2025, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -25,21 +23,23 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/mysql/mysql.h>
-#include <iostream>
+#include <sqlpp11/tests/core/tables.h>
+#include <sqlpp11/tests/mysql/serialize_helpers.h>
+#include <sqlpp11/sqlpp11.h>
 
-#define SQLPP_COMPARE(expr, expected_string)                       \
-  {                                                                \
-    sqlpp::mysql::context_t printer{};                             \
-                                                                   \
-    using sqlpp::to_sql_string;                                    \
-    const auto result = to_sql_string(printer, expr);              \
-                                                                   \
-    if (result != expected_string)                                 \
-    {                                                              \
-      std::cerr << __FILE__ << " " << __LINE__ << '\n'             \
-                << "Expected: -->|" << expected_string << "|<--\n" \
-                << "Received: -->|" << result << "|<--\n";         \
-      return -1;                                                   \
-    }                                                              \
-  }
+namespace test
+{
+  SQLPP_CREATE_NAME_TAG(cheese);
+  SQLPP_CREATE_QUOTED_NAME_TAG(cake);
+}  // namespace test
+
+int main(int, char* [])
+{
+  const auto cheese = sqlpp::value(17).as(test::cheese);
+  const auto cake = sqlpp::value(17).as(test::cake);
+
+  SQLPP_COMPARE(cheese, "17 AS cheese");
+  SQLPP_COMPARE(cake, "17 AS `cake`");
+
+  return 0;
+}
