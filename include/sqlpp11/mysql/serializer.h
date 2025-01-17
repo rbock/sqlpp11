@@ -30,14 +30,15 @@
 
 namespace sqlpp
 {
-  template <typename Lhs, typename Rhs>
-  auto to_sql_string(mysql::context_t& context, const pre_join_t<full_outer_join_t, Lhs, Rhs>&)-> std::string
+  template <typename Lhs, typename Rhs, typename Condition>
+  auto to_sql_string(mysql::context_t&, const join_t<Lhs, full_outer_join_t, Rhs, Condition>&) -> std::string
   {
-    static_assert(wrong_t<Lhs, Rhs>::value, "MySQL: No support for full outer join");
+    SQLPP_STATIC_ASSERT((wrong_t<Lhs, Rhs>::value), "MySQL: No support for full outer join");
     return {};
   }
 
-  namespace mysql {
+  namespace mysql
+  {
     inline auto to_sql_string(mysql::context_t&, const insert_default_values_t&) -> std::string
     {
       return " () VALUES()";
@@ -48,4 +49,4 @@ namespace sqlpp
       return '`' + std::string(name) + '`';
     }
   }  // namespace mysql
-}
+}  // namespace sqlpp

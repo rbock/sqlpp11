@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Roland Bock
+ * Copyright (c) 2025, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -23,14 +23,23 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/basic/value.h>
+#include <sqlpp11/tests/core/constraints_helpers.h>
+#include <sqlpp11/tests/core/tables.h>
+#include <sqlpp11/core/compat/type_traits.h>
+#include <sqlpp11/mysql/mysql.h>
 
-#include <sqlpp11/tests/mysql/serialize_helpers.h>
-
-int Float(int, char*[])
+int main()
 {
-#warning: need to add tests for anything that is in serializer.h
-  SQLPP_COMPARE(sqlpp::value(10.0000114), "10.0000114");
+  auto ctx = sqlpp::mysql::context_t{};
 
-  return 0;
+  const auto foo = test::TabFoo{};
+  const auto bar = test::TabBar{};
+
+  // OK
+  std::ignore = to_sql_string(ctx, foo.join(bar).on(true));
+
+  // MySQL does not support full outer join.
+  SQLPP_CHECK_STATIC_ASSERT(to_sql_string(ctx, foo.full_outer_join(bar).on(true)),
+                            "MySQL: No support for full outer join");
 }
+

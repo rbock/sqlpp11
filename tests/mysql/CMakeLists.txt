@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2021, Roland Bock
+# Copyright (c) 2021, Roland Bock
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -22,5 +22,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+find_package(Threads REQUIRED)
+
+add_subdirectory(constraints)
 add_subdirectory(serialize)
 add_subdirectory(usage)
