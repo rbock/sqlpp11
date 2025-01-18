@@ -47,46 +47,46 @@
 
 namespace sqlpp
 {
-  // Serialize parameters
-  template <typename ValueType, typename NameType>
-  auto to_sql_string(sqlite3::context_t& context, const parameter_t<ValueType, NameType>&) -> std::string
-  {
-    return "?" + std::to_string(++context._count);
-  }
-
-  // disable some stuff that won't work with sqlite3
-#if SQLITE_VERSION_NUMBER < 3008003
-#warning: Need to test this
-  template <typename... Expressions>
-  auto to_sql_string(sqlite3::context_t& context, const with_data_t<Expressions...>&)-> std::string
-  {
-    SQLPP_STATIC_ASSERT(wrong_t<Expressions...>::value, "Sqlite3: No support for WITH before version 3.8.3");
-    return {};
-  }
-#endif
-
-  template <typename Select>
-  auto to_sql_string(sqlite3::context_t& context, const any_t<Select>&)-> std::string
-  {
-    SQLPP_STATIC_ASSERT(wrong_t<Select>::value, "Sqlite3: No support for any()");
-    return {};
-  }
-
+  // Disable some stuff that won't work with sqlite3
+  // See https://www.sqlite.org/changes.html
 #if SQLITE_VERSION_NUMBER < 3039000
   template <typename Lhs, typename Rhs, typename Condition>
   auto to_sql_string(sqlite3::context_t&, const join_t<Lhs, full_outer_join_t, Rhs, Condition>&) -> std::string
   {
-    SQLPP_STATIC_ASSERT((wrong_t<Lhs, Rhs>::value), "Sqlite3: No support for full outer join");
+    SQLPP_STATIC_ASSERT((wrong_t<Lhs, Rhs>::value), "Sqlite3: No support for full outer join before version 3.39.0");
     return {};
   }
 
   template <typename Lhs, typename Rhs, typename Condition>
   auto to_sql_string(sqlite3::context_t&, const join_t<Lhs, right_outer_join_t, Rhs, Condition>&) -> std::string
   {
-    SQLPP_STATIC_ASSERT((wrong_t<Lhs, Rhs>::value), "Sqlite3: No support for right outer join");
+    SQLPP_STATIC_ASSERT((wrong_t<Lhs, Rhs>::value), "Sqlite3: No support for right outer join before version 3.39.0");
     return {};
   }
 #endif
+
+#if SQLITE_VERSION_NUMBER < 3008003
+  template <typename... Ctes>
+  auto to_sql_string(sqlite3::context_t& , const with_t<Ctes...>&)-> std::string
+  {
+    SQLPP_STATIC_ASSERT(wrong_t<Ctes...>::value, "Sqlite3: No support for WITH before version 3.8.3");
+    return {};
+  }
+#endif
+
+  template <typename Select>
+  auto to_sql_string(sqlite3::context_t&, const any_t<Select>&) -> std::string
+  {
+    SQLPP_STATIC_ASSERT(wrong_t<Select>::value, "Sqlite3: No support for any()");
+    return {};
+  }
+
+  // Serialize parameters
+  template <typename ValueType, typename NameType>
+  auto to_sql_string(sqlite3::context_t& context, const parameter_t<ValueType, NameType>&) -> std::string
+  {
+    return "?" + std::to_string(++context._count);
+  }
 
   // Some special treatment of data types
   template <typename Period>

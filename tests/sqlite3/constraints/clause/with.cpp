@@ -29,32 +29,29 @@
 #else
 #include <sqlite3.h>
 #endif
-#if SQLITE_VERSION_NUMBER >= 3039000
+#if SQLITE_VERSION_NUMBER >= 3008003
 #undef SQLITE_VERSION_NUMBER
-#define SQLITE_VERSION_NUMBER 3038999
+#define SQLITE_VERSION_NUMBER 3008002
 #endif
 #include <sqlpp11/tests/core/constraints_helpers.h>
 #include <sqlpp11/tests/core/tables.h>
 #include <sqlpp11/core/compat/type_traits.h>
 #include <sqlpp11/sqlite3/sqlite3.h>
 
+namespace
+{
+  SQLPP_CREATE_NAME_TAG(something);
+}
 int main()
 {
   auto ctx = sqlpp::sqlite3::context_t{};
 
   const auto foo = test::TabFoo{};
-  const auto bar = test::TabBar{};
+  const auto c = cte(something).as(select(foo.id).from(foo).where(true));
 
-  // OK
-  std::ignore = to_sql_string(ctx, foo.join(bar).on(true));
-
-  // sqlite3 does not support full outer join before 3.39.0
+  // sqlite3 does not support full outer join before 3.8.3
   // See https://www.sqlite.org/changes.html
-  SQLPP_CHECK_STATIC_ASSERT(to_sql_string(ctx, foo.full_outer_join(bar).on(true)),
-                            "Sqlite3: No support for full outer join before version 3.39.0");
-
-  // sqlite3 does not support right outer join before 3.39.0
-  SQLPP_CHECK_STATIC_ASSERT(to_sql_string(ctx, foo.right_outer_join(bar).on(true)),
-                            "Sqlite3: No support for right outer join before version 3.39.0");
+  SQLPP_CHECK_STATIC_ASSERT(to_sql_string(ctx, with(c)),
+                            "Sqlite3: No support for WITH before version 3.8.3");
 }
 

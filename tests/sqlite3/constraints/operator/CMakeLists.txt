@@ -22,6 +22,12 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-add_subdirectory(basic)
-add_subdirectory(clause)
-add_subdirectory(operator)
+function(create_test name)
+    set(target sqlpp11_sqlite3_constraints_operator_${name})
+    add_executable(${target} ${name}.cpp)
+    sqlpp_slite3_test_add_target_link_libraries(${target})
+    add_test(NAME ${target} COMMAND ${target})
+endfunction()
+
+create_test(any)
+
