@@ -105,7 +105,7 @@ namespace test
     struct UnsignedValue : public ::sqlpp::name_tag_base
     {
       SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(unsigned_value, unsignedValue);
-      using value_type = ::sqlpp::optional<::sqlpp::integral>;
+      using value_type = ::sqlpp::optional<::sqlpp::unsigned_integral>;
       using has_default = std::true_type;
     };
     SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(integral_sample, integralSample);

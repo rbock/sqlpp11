@@ -72,15 +72,16 @@ namespace sqlpp
   }
 
 #if SQLITE_VERSION_NUMBER < 3039000
-  template <typename Lhs, typename Rhs>
-  auto to_sql_string(sqlite3::context_t& context, const pre_join_t<full_outer_join_t, Lhs, Rhs>&)-> std::string
+#warning: Need to test this
+  template <typename Lhs, typename Rhs, typename Condition>
+  auto to_sql_string(sqlite3::context_t&, const join_t<Lhs, full_outer_join_t, Rhs, Condition>&) -> std::string
   {
     static_assert(wrong_t<Lhs, Rhs>::value, "Sqlite3: No support for full outer join");
     return {};
   }
 
-  template <typename Lhs, typename Rhs>
-  auto to_sql_string(sqlite3::context_t& context, const pre_join_t<right_outer_join_t, Lhs, Rhs>&)-> std::string
+  template <typename Lhs, typename Rhs, typename Condition>
+  auto to_sql_string(sqlite3::context_t&, const join_t<Lhs, right_outer_join_t, Rhs, Condition>&) -> std::string
   {
     static_assert(wrong_t<Lhs, Rhs>::value, "Sqlite3: No support for right_outer join");
     return {};
@@ -105,22 +106,30 @@ namespace sqlpp
     return date::format("DATE('%Y-%m-%d')", t);
   }
 
-  inline auto nan_to_sql_string(sqlite3::context_t& ) -> std::string
+  namespace sqlite3
   {
+    inline auto nan_to_sql_string(sqlite3::context_t&) -> std::string
+    {
       return "'NaN'";
-  }
+    }
 
-  inline auto inf_to_sql_string(sqlite3::context_t& ) -> std::string
-  {
-        return "'Inf'";
-  }
+    inline auto inf_to_sql_string(sqlite3::context_t&) -> std::string
+    {
+      return "'Inf'";
+    }
 
-  inline auto neg_inf_to_sql_string(sqlite3::context_t& ) -> std::string
-  {
-        return "'-Inf'";
-  }
+    inline auto neg_inf_to_sql_string(sqlite3::context_t&) -> std::string
+    {
+      return "'-Inf'";
+    }
 
-#warning: sqlite3 accepts only signed integers, need to test if that works OK
+    // sqlite3 accepts only signed integers,
+    // so we MUST perform a conversion from unsigned to signed
+    inline auto to_sql_string(sqlite3::context_t& context, const uint64_t& t) -> std::string
+    {
+      return ::sqlpp::to_sql_string(context, static_cast<const int64_t&>(t));
+    }
+  }  // namespace sqlite3
 
   template <typename... Tables>
   auto to_sql_string(sqlite3::context_t& , const using_t<Tables...>& t) -> std::string

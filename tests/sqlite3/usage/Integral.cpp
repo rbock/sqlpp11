@@ -47,7 +47,7 @@ auto require_equal(int line, const L& l, const R& r) -> void
     std::cerr << line << ": ";
     std::cerr << sqlpp::to_sql_string(std::cerr, l);
     std::cerr << " != ";
-    std::cerr << sqlpp::to_sql_string(std::cerr, l);
+    std::cerr << sqlpp::to_sql_string(std::cerr, r) << '\n';
     throw std::runtime_error("Unexpected result");
   }
 }
