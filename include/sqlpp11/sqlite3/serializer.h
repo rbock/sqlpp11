@@ -122,13 +122,6 @@ namespace sqlpp
     {
       return "'-Inf'";
     }
-
-    // sqlite3 accepts only signed integers,
-    // so we MUST perform a conversion from unsigned to signed
-    inline auto to_sql_string(sqlite3::context_t& context, const uint64_t& t) -> std::string
-    {
-      return ::sqlpp::to_sql_string(context, static_cast<const int64_t&>(t));
-    }
   }  // namespace sqlite3
 
   template <typename... Tables>

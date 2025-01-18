@@ -105,7 +105,8 @@ int Integral(int, char*[])
   rows.pop_front();
 
   require_equal(__LINE__, rows.front().signedValue.value(), int64_t{});
-  require_equal(__LINE__, rows.front().unsignedValue.value(), size_t_value_max);
+  // the uint64_t_value_max gets truncated to int64_t_value_max
+  require_equal(__LINE__, rows.front().unsignedValue.value(), static_cast<uint64_t>(int64_t_value_max));
   rows.pop_front();
 
   require_equal(__LINE__, rows.front().signedValue.value(), int32_t_value);

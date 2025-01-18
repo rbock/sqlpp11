@@ -27,10 +27,15 @@
 
 #include <sqlpp11/tests/sqlite3/serialize_helpers.h>
 
-int Float(int, char*[])
+int main()
 {
-#warning: Need to add tests for anything in serializer.h
-  SQLPP_COMPARE(sqlpp::value(10.0000114), "10.0000114");
+  SQLPP_COMPARE(uint64_t{std::numeric_limits<int64_t>::max()}, "9223372036854775807");
+  // slite3 does not support the full range of uint64_t.
+  // Older versions used to cast uint64_t into int64_t, but that's dangerous. For instance, it potentially messes with
+  // less-than or greater-than operations.
+  // Here we test that there is no special treatment of uint64_t in the serialization (we let sqlite3 decide what to do
+  // with the value).
+  SQLPP_COMPARE(std::numeric_limits<uint64_t>::max(), "18446744073709551615");
 
   return 0;
 }

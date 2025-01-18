@@ -102,3 +102,6 @@ This is just too unnerving (consider `select((5 + tab.id).as(something))....grou
 This also means that custom queries now use the LAST return-value-clause (just like any other statement)
 
 ## statement_t.as() yields a table, not a value
+
+## sqlite3: No magic conversion of uint64_t to int64_t during serialization.
+Magic is dangerous, e.g. when used in comparison.
