@@ -31,8 +31,8 @@
 #else
 #include <sqlite3.h>
 #endif
-#include <sqlpp11/core/operator/any.h>
-#include <sqlpp11/core/compat/optional.h>
+#include <sqlpp11/sqlpp11.h>
+#include <sqlpp11/sqlite3/database/connection.h>
 #include <sqlpp11/core/chrono.h>
 #include <sqlpp11/core/compat/span.h>
 #include <sqlpp11/core/compat/string_view.h>
@@ -56,10 +56,11 @@ namespace sqlpp
 
   // disable some stuff that won't work with sqlite3
 #if SQLITE_VERSION_NUMBER < 3008003
+#warning: Need to test this
   template <typename... Expressions>
   auto to_sql_string(sqlite3::context_t& context, const with_data_t<Expressions...>&)-> std::string
   {
-    static_assert(wrong_t<Expressions...>::value, "Sqlite3: No support for with before version 3.8.3");
+    SQLPP_STATIC_ASSERT(wrong_t<Expressions...>::value, "Sqlite3: No support for WITH before version 3.8.3");
     return {};
   }
 #endif
@@ -67,23 +68,22 @@ namespace sqlpp
   template <typename Select>
   auto to_sql_string(sqlite3::context_t& context, const any_t<Select>&)-> std::string
   {
-    static_assert(wrong_t<Select>::value, "Sqlite3: No support for any()");
+    SQLPP_STATIC_ASSERT(wrong_t<Select>::value, "Sqlite3: No support for any()");
     return {};
   }
 
 #if SQLITE_VERSION_NUMBER < 3039000
-#warning: Need to test this
   template <typename Lhs, typename Rhs, typename Condition>
   auto to_sql_string(sqlite3::context_t&, const join_t<Lhs, full_outer_join_t, Rhs, Condition>&) -> std::string
   {
-    static_assert(wrong_t<Lhs, Rhs>::value, "Sqlite3: No support for full outer join");
+    SQLPP_STATIC_ASSERT((wrong_t<Lhs, Rhs>::value), "Sqlite3: No support for full outer join");
     return {};
   }
 
   template <typename Lhs, typename Rhs, typename Condition>
   auto to_sql_string(sqlite3::context_t&, const join_t<Lhs, right_outer_join_t, Rhs, Condition>&) -> std::string
   {
-    static_assert(wrong_t<Lhs, Rhs>::value, "Sqlite3: No support for right_outer join");
+    SQLPP_STATIC_ASSERT((wrong_t<Lhs, Rhs>::value), "Sqlite3: No support for right outer join");
     return {};
   }
 #endif

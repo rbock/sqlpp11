@@ -22,8 +22,6 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-add_library(sqlpp11_sqlite3_testing INTERFACE)
-target_include_directories(sqlpp11_sqlite3_testing INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(test_files
     DateTime.cpp
