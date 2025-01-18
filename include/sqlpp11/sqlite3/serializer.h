@@ -81,6 +81,13 @@ namespace sqlpp
     return {};
   }
 
+  template <typename Table>
+  auto to_sql_string(sqlite3::context_t& , const using_t<Table>&) -> std::string
+  {
+    SQLPP_STATIC_ASSERT(wrong_t<Table>::value, "Sqlite3: No support for USING");
+    return {};
+  }
+
   // Serialize parameters
   template <typename ValueType, typename NameType>
   auto to_sql_string(sqlite3::context_t& context, const parameter_t<ValueType, NameType>&) -> std::string
@@ -124,10 +131,4 @@ namespace sqlpp
     }
   }  // namespace sqlite3
 
-  template <typename... Tables>
-  auto to_sql_string(sqlite3::context_t& , const using_t<Tables...>& t) -> std::string
-  {
-    static_assert(wrong_t<Tables...>::value, "Sqlite3: No support for USING");
-    return {};
-  }
 }  // namespace sqlpp
