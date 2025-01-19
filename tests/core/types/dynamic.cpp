@@ -69,9 +69,18 @@ void test_dynamic(Value v)
   static_assert(sqlpp::select_column_has_name<decltype(v_not_null_alias)>::value, "");
   static_assert(sqlpp::select_column_has_name<decltype(v_maybe_null_alias)>::value, "");
 
-#warning: test can be aliased
-#warning: test has comparison operators
-#warning: test nodes
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(v_not_null)>,
+                             sqlpp::detail::type_vector<sqlpp::remove_dynamic_t<decltype(v_not_null)>>>::value,
+                "");
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(v_maybe_null)>,
+                             sqlpp::detail::type_vector<sqlpp::remove_dynamic_t<decltype(v_maybe_null)>>>::value,
+                "");
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(v_not_null_alias)>,
+                             sqlpp::detail::type_vector<decltype(v_not_null)>>::value,
+                "");
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(v_maybe_null_alias)>,
+                             sqlpp::detail::type_vector<decltype(v_maybe_null)>>::value,
+                "");
 }
 
 int main()

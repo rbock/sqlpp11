@@ -124,8 +124,6 @@ int main()
 {
   // boolean
   test_aggregate_functions(bool{true});
-#warning reactivate
-#if 0
   test_numeric_aggregate_functions(bool{true});
 
   // integral
@@ -176,6 +174,5 @@ int main()
 
   // time_of_day
   test_aggregate_functions(std::chrono::microseconds{});
-#endif
 }
 
