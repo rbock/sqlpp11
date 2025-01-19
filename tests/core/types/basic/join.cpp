@@ -217,9 +217,8 @@ void test_join()
     //    .on(foo.id == cheese.id)
     //
     // `cheese` must not be used in the ON condition as it is not part of the join at all.
-    static_assert(not sqlpp::are_join_table_requirements_satisfied<Foo, sqlpp::dynamic_t<Bar>,
-                                                                   decltype(foo.id == cheese.id)>::value,
-                  "");
+    static_assert(
+        not sqlpp::deep_check_join_on_condition<Foo, sqlpp::dynamic_t<Bar>, decltype(foo.id == cheese.id)>::value, "");
 
     // foo.cross_join(dynamic(true, bar))
     //    .join(cheese)
@@ -228,7 +227,7 @@ void test_join()
     // `bar` is dynamically joined only. It must not be used statically when joining cheese `statically`.
     using FooBar = decltype(foo.cross_join(dynamic(true, bar)));
     static_assert(
-        not sqlpp::are_join_table_requirements_satisfied<FooBar, Cheese, decltype(bar.id == cheese.id)>::value, "");
+        not sqlpp::deep_check_join_on_condition<FooBar, Cheese, decltype(bar.id == cheese.id)>::value, "");
   }
 }
 

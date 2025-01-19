@@ -30,7 +30,6 @@ endfunction()
 
 test_compile(dynamic)
 test_compile(result_row)
-test_compile(value)
 
 add_subdirectory(aggregate_function)
 add_subdirectory(basic)

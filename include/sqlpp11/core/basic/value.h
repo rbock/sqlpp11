@@ -54,6 +54,13 @@ namespace sqlpp
   };
 
   template<typename T>
+  struct nodes_of<value_t<T>>
+  {
+    // Required in case of value(select(...)).
+    using type = detail::type_vector<T>;
+  };
+
+  template<typename T>
   struct requires_parentheses<value_t<T>> : public requires_parentheses<T> {};
 
   template <typename Context, typename T>

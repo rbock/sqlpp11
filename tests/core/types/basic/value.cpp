@@ -23,22 +23,101 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/tests/core/tables.h>
 #include <sqlpp11/sqlpp11.h>
+#include <sqlpp11/tests/core/tables.h>
 
-template <typename Raw>
-auto test_value(Raw raw) -> void
+SQLPP_CREATE_NAME_TAG(r_not_null);
+SQLPP_CREATE_NAME_TAG(r_maybe_null);
+SQLPP_CREATE_NAME_TAG(r_opt_not_null);
+SQLPP_CREATE_NAME_TAG(r_opt_maybe_null);
+
+template <typename T, typename ValueType>
+using is_value_type = std::is_same<sqlpp::value_type_of_t<T>, ValueType>;
+
+template<typename Value>
+void test_value(Value v)
 {
-  using Value = decltype(sqlpp::value(raw));
-  static_assert(std::is_same<sqlpp::value_type_of_t<Raw>, sqlpp::value_type_of_t<Value>>::value, "");
-  static_assert(sqlpp::has_enabled_as<Value>::value, "");
+  using ValueType = sqlpp::value_type_of_t<Value>;
+  using OptValueType = ::sqlpp::optional<ValueType>;
+
+  auto v_not_null= sqlpp::value(v);
+  auto v_maybe_null= sqlpp::value(::sqlpp::make_optional(v));
+
+  static_assert(is_value_type<decltype(v_not_null), ValueType>::value, "");
+  static_assert(is_value_type<decltype(v_maybe_null), OptValueType>::value, "");
+
+  static_assert(not sqlpp::can_be_null<decltype(v_not_null)>::value, "");
+  static_assert(sqlpp::can_be_null<decltype(v_maybe_null)>::value, "");
+
+  static_assert(sqlpp::has_enabled_as<decltype(v_not_null)>::value, "");
+  static_assert(sqlpp::has_enabled_as<decltype(v_maybe_null)>::value, "");
+
+  static_assert(sqlpp::has_enabled_comparison<decltype(v_not_null)>::value, "");
+  static_assert(sqlpp::has_enabled_comparison<decltype(v_maybe_null)>::value, "");
+
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(v_not_null)>,
+                             sqlpp::detail::type_vector<Value>>::value,
+                "");
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(v_maybe_null)>,
+                             sqlpp::detail::type_vector<::sqlpp::optional<Value>>>::value,
+                "");
+
+}
+
+void test_value_of_select_as()
+{
+  const auto foo = test::TabFoo{};
+
+  auto s = select(foo.id).from(foo).where(foo.id == 17);
+  using S = decltype(s);
+  auto v = value(s);
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(v)>,
+                             sqlpp::detail::type_vector<S>>::value,
+                "");
 }
 
 int main()
 {
-  test_value(true);
-  test_value(7);
-  test_value(7.);
-  test_value("7");
+  // boolean
+  test_value(bool{true});
+
+  // integral
+  test_value(int8_t{7});
+  test_value(int16_t{7});
+  test_value(int32_t{7});
+  test_value(int64_t{7});
+
+  // unsigned integral
+  test_value(uint8_t{7});
+  test_value(uint16_t{7});
+  test_value(uint32_t{7});
+  test_value(uint64_t{7});
+
+  // floating point
+  test_value(float{7.7});
+  test_value(double{7.7});
+
+  // text
+  test_value('7');
+  test_value("seven");
+  test_value(std::string("seven"));
+  test_value(::sqlpp::string_view("seven"));
+
+  // blob
+  test_value(std::vector<uint8_t>{});
+
+  // date
+  test_value(::sqlpp::chrono::day_point{});
+
+  // timestamp
+  test_value(::sqlpp::chrono::microsecond_point{});
+  using minute_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
+  test_value(minute_point{});
+
+  // time_of_day
+  test_value(std::chrono::microseconds{});
+
+  // Test value(select(...))
+  test_value_of_select_as();
 }
 
