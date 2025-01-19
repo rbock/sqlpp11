@@ -27,6 +27,7 @@
  */
 
 #include <sqlpp11/core/to_sql_string.h>
+#include <sqlpp11/core/logic.h>
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/operator/enable_as.h>
 #include <sqlpp11/core/operator/enable_comparison.h>
@@ -52,7 +53,9 @@ namespace sqlpp
   template <typename... Args>
   struct value_type_of<concat_t<Args...>>
   {
-    using type = sqlpp::text;
+    using type = typename std::conditional<logic::any<is_optional<value_type_of_t<Args>>::value...>::value,
+                                           sqlpp::optional<sqlpp::text>,
+                                           sqlpp::text>::type;
   };
 
   template <typename... Args>

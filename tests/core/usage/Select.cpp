@@ -192,6 +192,7 @@ int Select(int, char*[])
              sqlpp::parameter(sqlpp::unsigned_integral(), param2)));
   abs.params.id = 7;
   abs.params.param2 = 7;
+  std::ignore = abs;
 
   return 0;
 }

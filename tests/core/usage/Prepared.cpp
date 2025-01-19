@@ -47,6 +47,7 @@ int Prepared(int, char* [])
     static_assert(P::size::value == 1, "type requirement");
     auto p = P{};
     p.id = 7;
+    std::ignore = p; // silence warnings about `p` being unused.
   }
 
   // single parameter
@@ -55,6 +56,7 @@ int Prepared(int, char* [])
     static_assert(P::size::value == 1, "type requirement");
     auto p = P{};
     p.textN = "cheesecake";
+    std::ignore = p; // silence warnings about `p` being unused.
   }
 
   // single parameter in expression
@@ -63,6 +65,7 @@ int Prepared(int, char* [])
     static_assert(P::size::value == 1, "type requirement");
     auto p = P{};
     p.id = 7;
+    std::ignore = p; // silence warnings about `p` being unused.
   }
 
   // single parameter in larger expression
@@ -72,6 +75,7 @@ int Prepared(int, char* [])
     static_assert(P::size::value == 1, "type requirement");
     auto p = P{};
     p.id = 7;
+    std::ignore = p; // silence warnings about `p` being unused.
   }
 
   // three parameters in expression

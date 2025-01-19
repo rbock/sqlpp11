@@ -29,30 +29,20 @@
 
 #include <iostream>
 
-namespace
-{
-#warning: Remove
-  auto getTrue() -> std::string
-  {
-    MockDb::_context_t printer = {};
-    return to_sql_string(printer, sqlpp::value(true));
-  }
-}
-
 int Insert(int, char* [])
 {
   const auto bar = test::TabBar{};
 
   SQLPP_COMPARE(insert_into(bar).default_values(), "INSERT INTO tab_bar DEFAULT VALUES");
   SQLPP_COMPARE(insert_into(bar).set(bar.textN = "cheesecake", bar.boolNn = true),
-          "INSERT INTO tab_bar (text_n, bool_nn) VALUES('cheesecake', " + getTrue() + ")");
+          "INSERT INTO tab_bar (text_n, bool_nn) VALUES('cheesecake', 1)");
   SQLPP_COMPARE(insert_into(bar).set(bar.textN = ::sqlpp::nullopt, bar.boolNn = true),
-          "INSERT INTO tab_bar (text_n, bool_nn) VALUES(NULL, " + getTrue() + ")");
+          "INSERT INTO tab_bar (text_n, bool_nn) VALUES(NULL, 1)");
   ::sqlpp::string_view cheeseCake = "cheesecake";
   SQLPP_COMPARE(insert_into(bar).set(bar.textN = std::string(cheeseCake), bar.boolNn = true),
-          "INSERT INTO tab_bar (text_n, bool_nn) VALUES('cheesecake', " + getTrue() + ")");
+          "INSERT INTO tab_bar (text_n, bool_nn) VALUES('cheesecake', 1)");
   SQLPP_COMPARE(insert_into(bar).set(bar.textN = ::sqlpp::string_view(cheeseCake), bar.boolNn = true),
-          "INSERT INTO tab_bar (text_n, bool_nn) VALUES('cheesecake', " + getTrue() + ")");
+          "INSERT INTO tab_bar (text_n, bool_nn) VALUES('cheesecake', 1)");
 
   return 0;
 }

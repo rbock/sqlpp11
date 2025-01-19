@@ -28,10 +28,6 @@
 
 void test_table()
 {
-  auto v = sqlpp::value(17);
-  auto foo = test::TabFoo{};
-  auto bar = test::TabBar{};
-
   static_assert(sqlpp::is_table<test::TabFoo>::value, "");
   static_assert(sqlpp::is_raw_table<test::TabFoo>::value, "");
   static_assert(std::is_same<sqlpp::name_tag_of_t<test::TabFoo>, test::TabFoo_::_sqlpp_name_tag>::value, "");
