@@ -85,7 +85,13 @@ int main(int, char* [])
 
   SQLPP_COMPARE(foo.cross_join(dynamic(false, bar)), "tab_foo");
 
-#warning: Need to add tests with 3 tables
+  // Joining three tables
+  SQLPP_COMPARE(foo.join(bar).on(foo.id == bar.id).join(aFoo).on(bar.id == aFoo.id), "tab_foo INNER JOIN tab_bar ON tab_foo.id = tab_bar.id INNER JOIN tab_foo AS a ON tab_bar.id = a.id");
+  SQLPP_COMPARE(foo.join(bar).on(foo.id == bar.id).join(dynamic(true, aFoo)).on(bar.id == aFoo.id), "tab_foo INNER JOIN tab_bar ON tab_foo.id = tab_bar.id INNER JOIN tab_foo AS a ON tab_bar.id = a.id");
+  SQLPP_COMPARE(foo.join(bar).on(foo.id == bar.id).join(dynamic(false, aFoo)).on(bar.id == aFoo.id), "tab_foo INNER JOIN tab_bar ON tab_foo.id = tab_bar.id");
+
+  SQLPP_COMPARE(foo.join(dynamic(true, bar)).on(foo.id == bar.id).join(aFoo).on(foo.id == aFoo.id), "tab_foo INNER JOIN tab_bar ON tab_foo.id = tab_bar.id INNER JOIN tab_foo AS a ON tab_foo.id = a.id");
+  SQLPP_COMPARE(foo.join(dynamic(false, bar)).on(foo.id == bar.id).join(aFoo).on(foo.id == aFoo.id), "tab_foo INNER JOIN tab_foo AS a ON tab_foo.id = a.id");
 
 #warning: Need to add tests with sub selects
 #warning: Need to add tests with CTEs

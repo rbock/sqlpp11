@@ -74,13 +74,31 @@ SQLPP_CHECK_STATIC_ASSERT(left_outer_join(LHS, RHS), MESSAGE);  \
 SQLPP_CHECK_STATIC_ASSERT(right_outer_join(LHS, RHS), MESSAGE); \
 SQLPP_CHECK_STATIC_ASSERT(full_outer_join(LHS, RHS), MESSAGE);  \
 SQLPP_CHECK_STATIC_ASSERT(cross_join(LHS, RHS), MESSAGE);
+
+struct weird_table : public sqlpp::enable_join<weird_table>
+{
+};
+
+inline auto make_table_ref(weird_table) -> weird_table { return {}; };
 }  // namespace
+
+namespace sqlpp {
+  template<>
+    struct is_table<weird_table>: public std::true_type {};
+  template<>
+    struct required_tables_of<weird_table>
+    {
+      using type = detail::type_vector<test::TabBar>;
+    };
+}
 
 int main()
 {
   const auto maybe = true;
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
+  const auto aFoo = foo.as(sqlpp::alias::a);
+  const auto bFoo = foo.as(sqlpp::alias::b);
 
   // OK
   CAN_CALL_ALL_JOINS_WITH(bar, foo);
@@ -93,6 +111,21 @@ int main()
   // JOIN can be called with two identical tables, but will fail in static assert.
   CHECK_JOIN_STATIC_ASSERTS(foo, foo, "duplicate table names detected in join");
 
-#warning: add many more tests, including the static check inside the function bodies. Not sure if it is possible create tables that depend on other tables?
+  // JOIN must not be called with tables that depend on other tables.
+  // Not sure this can happen in the wild, which is why we are using the `weird_table` to simulate the situation.
+  CHECK_JOIN_STATIC_ASSERTS(weird_table{}, foo, "table dependencies detected in left side of join");
+  CHECK_JOIN_STATIC_ASSERTS(foo, weird_table{}, "table dependencies detected in right side of join");
+
+  // JOIN ... ON can be called with any boolean expression, but will fail with static assert if it uses the wrong
+  // tables. Here, bFoo is not provided by the join.
+  SQLPP_CHECK_STATIC_ASSERT(foo.join(bar).on(bFoo.id == bar.id),
+                            "on() condition of a join must only use tables provided in that join");
+  SQLPP_CHECK_STATIC_ASSERT(foo.join(bar).on(foo.id == bar.id).join(aFoo).on(bFoo.id == aFoo.id),
+                            "on() condition of a join must only use tables provided in that join");
+
+  // Here, bar is not provided /dynamically/ by the first join, but required /statically/ by the second join.
+  SQLPP_CHECK_STATIC_ASSERT(
+      foo.join(dynamic(maybe, bar)).on(foo.id == bar.id).join(aFoo).on(bar.id == aFoo.id),
+      "on() condition of a static join must not use tables provided only dynamically in that join");
 }
 
