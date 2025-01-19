@@ -27,7 +27,7 @@
 #include <sqlpp11/tests/core/serialize_helpers.h>
 #include <sqlpp11/sqlpp11.h>
 
-SQLPP_CREATE_NAME_TAG(v);
+SQLPP_CREATE_NAME_TAG(something);
 
 int main(int, char* [])
 {
@@ -93,7 +93,25 @@ int main(int, char* [])
   SQLPP_COMPARE(foo.join(dynamic(true, bar)).on(foo.id == bar.id).join(aFoo).on(foo.id == aFoo.id), "tab_foo INNER JOIN tab_bar ON tab_foo.id = tab_bar.id INNER JOIN tab_foo AS a ON tab_foo.id = a.id");
   SQLPP_COMPARE(foo.join(dynamic(false, bar)).on(foo.id == bar.id).join(aFoo).on(foo.id == aFoo.id), "tab_foo INNER JOIN tab_foo AS a ON tab_foo.id = a.id");
 
-#warning: Need to add tests with sub selects
-#warning: Need to add tests with CTEs
+  // Joining sub selects
+  const auto s = select(all_of(foo)).from(foo).where(true).as(something);
+  auto ctx = MockDb::_context_t{};
+  const auto s_string = to_sql_string(ctx, s);
+
+  SQLPP_COMPARE(foo.cross_join(s), "tab_foo CROSS JOIN " + s_string);
+  SQLPP_COMPARE(foo.cross_join(dynamic(true, s)), "tab_foo CROSS JOIN " + s_string);
+  SQLPP_COMPARE(s.cross_join(foo), s_string + " CROSS JOIN tab_foo");
+  SQLPP_COMPARE(s.cross_join(dynamic(true, foo)), s_string + " CROSS JOIN tab_foo");
+
+  // Joining sub ctes
+  const auto c_ref = cte(something);
+  const auto c = c_ref.as(select(all_of(foo)).from(foo).where(true));
+  const auto c_string = to_sql_string(ctx, c_ref);
+
+  SQLPP_COMPARE(foo.cross_join(c), "tab_foo CROSS JOIN " + c_string);
+  SQLPP_COMPARE(foo.cross_join(dynamic(true, c)), "tab_foo CROSS JOIN " + c_string);
+  SQLPP_COMPARE(c.cross_join(foo), c_string + " CROSS JOIN tab_foo");
+  SQLPP_COMPARE(c.cross_join(dynamic(true, foo)), c_string + " CROSS JOIN tab_foo");
+
   return 0;
 }
