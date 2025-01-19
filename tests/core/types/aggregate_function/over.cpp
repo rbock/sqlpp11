@@ -84,7 +84,7 @@ template <typename Value>
 void test_numeric_aggregate_functions(Value v)
 {
   auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v).over());
+  auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v));
 
   using ValueType = typename std::conditional<std::is_same<Value, bool>::value, int, Value>::type;
   using OptValueType = sqlpp::value_type_of_t<::sqlpp::optional<ValueType>>;
