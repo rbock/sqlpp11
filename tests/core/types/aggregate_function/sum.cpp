@@ -94,11 +94,5 @@ int main()
   // floating point
   test_sum(float{7.7});
   test_sum(double{7.7});
-
-#warning: Should there be sum duration?
-#if 0
-  // time_of_day
-  test_sum(std::chrono::microseconds{});
-#endif
 }
 

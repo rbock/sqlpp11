@@ -93,19 +93,5 @@ int main()
   // floating point
   test_avg(float{7.7});
   test_avg(double{7.7});
-
-#warning: Should there be avg date time duration?
-#if 0
-  // date
-  test_avg(::sqlpp::chrono::day_point{});
-
-  // timestamp
-  test_avg(::sqlpp::chrono::microsecond_point{});
-  using minute_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::minutes>;
-  test_avg(minute_point{});
-
-  // time_of_day
-  test_avg(std::chrono::microseconds{});
-#endif
 }
 
