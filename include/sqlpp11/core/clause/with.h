@@ -146,37 +146,62 @@ namespace sqlpp
   }
 
   // CTEs can depend on CTEs defined before (in the same query).
-  // `have_correct_dependencies` checks that by walking the CTEs from left to right and building a type vector that
+  // `have_correct_cte_dependencies` checks that by walking the CTEs from left to right and building a type vector that
   // contains the CTE it already has looked at.
-  template <typename AllowedCTEs, typename AllowedStaticCTEs, typename... CTEs>
-    struct have_correct_dependencies_impl;
+  template <typename AllowedCTEs, typename... CTEs>
+    struct have_correct_cte_dependencies_impl;
 
-  template <typename AllowedCTEs, typename AllowedStaticCTEs>
-    struct have_correct_dependencies_impl<AllowedCTEs, AllowedStaticCTEs>: public std::true_type {};
+  template <typename AllowedCTEs>
+    struct have_correct_cte_dependencies_impl<AllowedCTEs>: public std::true_type {};
 
-  template <typename AllowedCTEs, typename AllowedStaticCTEs, typename CTE, typename... Rest>
-    struct have_correct_dependencies_impl<AllowedCTEs, AllowedStaticCTEs, CTE, Rest...>
+  template <typename AllowedCTEs, typename CTE, typename... Rest>
+    struct have_correct_cte_dependencies_impl<AllowedCTEs, CTE, Rest...>
     {
       using allowed_ctes = detail::make_joined_set_t<AllowedCTEs, provided_ctes_of_t<CTE>>;
-      using allowed_static_ctes = detail::make_joined_set_t<AllowedStaticCTEs, provided_static_ctes_of_t<CTE>>;
       static constexpr bool value =
           allowed_ctes::contains_all(required_ctes_of_t<CTE>{}) and
-          allowed_static_ctes::contains_all(required_static_ctes_of_t<CTE>{}) and
-          have_correct_dependencies_impl<allowed_ctes, allowed_static_ctes, Rest...>::value;
+          have_correct_cte_dependencies_impl<allowed_ctes, Rest...>::value;
     };
 
   template <typename... CTEs>
-  struct have_correct_dependencies
+  struct have_correct_cte_dependencies
   {
-    static constexpr bool value = have_correct_dependencies_impl<detail::type_set<>, detail::type_set<>, CTEs...>::value;
+    static constexpr bool value = have_correct_cte_dependencies_impl<detail::type_set<>, detail::type_set<>, CTEs...>::value;
   };
-  template <typename... Ctes>
+
+  template <typename AllowedStaticCTEs, typename... CTEs>
+    struct have_correct_static_cte_dependencies_impl;
+
+  template <typename AllowedStaticCTEs>
+    struct have_correct_static_cte_dependencies_impl<AllowedStaticCTEs>: public std::true_type {};
+
+  template <typename AllowedStaticCTEs, typename CTE, typename... Rest>
+    struct have_correct_static_cte_dependencies_impl<AllowedStaticCTEs, CTE, Rest...>
+    {
+      using allowed_static_ctes = detail::make_joined_set_t<AllowedStaticCTEs, provided_static_ctes_of_t<CTE>>;
+      static constexpr bool value =
+          allowed_static_ctes::contains_all(required_static_ctes_of_t<CTE>{}) and
+          have_correct_static_cte_dependencies_impl<allowed_static_ctes, Rest...>::value;
+    };
+
+  template <typename... CTEs>
+  struct have_correct_static_cte_dependencies
+  {
+    static constexpr bool value = have_correct_static_cte_dependencies_impl<detail::type_set<>, detail::type_set<>, CTEs...>::value;
+  };
+
+#warning: Need to add constraint tests
+  template <typename... Ctes, typename = sqlpp::enable_if_t<logic::all<is_cte<Ctes>::value...>::value>>
   auto with(Ctes... cte) -> blank_with_t<Ctes...>
   {
-    static_assert(logic::all<is_cte<Ctes>::value...>::value,
-                  "at least one expression in with is not a common table expression");
-    static_assert(have_correct_dependencies<Ctes...>::value, "at least one CTE depends on another CTE that is not defined (yet)");
-    static_assert(detail::are_unique<make_char_sequence_t<Ctes>...>::value, "CTEs in with need to have unique names");
+    SQLPP_STATIC_ASSERT(have_correct_cte_dependencies<Ctes...>::value,
+                        "at least one CTE depends on another CTE that is not defined left of it");
+    SQLPP_STATIC_ASSERT(
+        have_correct_static_cte_dependencies<Ctes...>::value,
+        "at least one CTE depends on another CTE that is not defined statically left of it (only dynamically)");
+    SQLPP_STATIC_ASSERT(detail::are_unique<make_char_sequence_t<Ctes>...>::value,
+                        "CTEs in with need to have unique names");
+
     return {{cte...}};
   }
 }  // namespace sqlpp
