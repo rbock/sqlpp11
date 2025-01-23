@@ -54,6 +54,7 @@ namespace
 int main()
 {
   const auto maybe = true;
+  const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 
   const auto c_ref = cte(something);
@@ -76,53 +77,35 @@ int main()
   static_assert(not can_call_with_with<decltype('c')>::value, "");
   static_assert(not can_call_with_with<decltype(nullptr)>::value, "");
 
-#warning: Write more tests
-  /*
-  // Try using aggregate functions in with
-  SQLPP_CHECK_STATIC_ASSERT(with(count(bar.id) > 0), "with() must not contain aggregate functions");
-  SQLPP_CHECK_STATIC_ASSERT(with(bar.boolNn and count(bar.id) > 0), "with() must not contain aggregate functions");
-  SQLPP_CHECK_STATIC_ASSERT(with(bar.boolNn and dynamic(maybe, (count(bar.id) > 0))),
-                            "with() must not contain aggregate functions");
-  SQLPP_CHECK_STATIC_ASSERT(with(case_when(count(bar.id) > 0).then(bar.boolNn).else_(not bar.boolNn)),
-                            "with() must not contain aggregate functions");
-
-  // `with` isn't required if neither tables nor CTEs are required.
+  // Incorrectly referring to another CTE (e.g. not defined at all or defined to the right)
   {
-    auto s = select(sqlpp::value(7).as(something));
+    const auto a = cte(sqlpp::alias::a).as(select(bar.id).from(bar).where(true));
+    const auto b = cte(sqlpp::alias::b).as(select(a.id).from(a).where(true));
+
+    std::ignore = with(a);  // OK
+    std::ignore = with(a, b);  // OK
+    std::ignore = with(a, dynamic(maybe, b));  // OK
+    SQLPP_CHECK_STATIC_ASSERT(with(b), "at least one CTE depends on another CTE that is not defined left of it");
+    SQLPP_CHECK_STATIC_ASSERT(with(b, a), "at least one CTE depends on another CTE that is not defined left of it");
+    SQLPP_CHECK_STATIC_ASSERT(with(dynamic(maybe, a), b), "at least one CTE depends on another CTE that is not defined statically left of it (only dynamically)");
+  }
+
+  // Incorrectly referring to another CTE (e.g. not defined at all or defined to the right)
+  {
+    const auto a1 = cte(sqlpp::alias::a).as(select(bar.id).from(bar).where(true));
+    const auto a2 = cte(sqlpp::alias::a).as(select(foo.id).from(foo).where(true));
+
+    std::ignore = with(a1);  // OK
+    std::ignore = with(a2);  // OK
+    SQLPP_CHECK_STATIC_ASSERT(with(a1, a2), "CTEs in with need to have unique names");
+  }
+
+  // `with` isn't required
+  {
+    auto s = sqlpp::statement_t<sqlpp::no_with_t>{};
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::consistent_t>::value, "");
   }
 
-  // Try omitting required with/unconditionally
-  {
-    auto s = select(all_of(bar)).from(bar);
-    using S = decltype(s);
-    static_assert(
-        std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_with_or_unconditionally_called_t>::value,
-        "");
-  }
-  {
-    auto c = cte(something).as(select(sqlpp::value(7).as(something)));
-    auto s = with(c)(select(all_of(c)).from(c));
-    using S = decltype(s);
-    static_assert(
-        std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_with_or_unconditionally_called_t>::value,
-        "");
-  }
-  {
-    auto s = delete_from(bar);
-    using S = decltype(s);
-    static_assert(
-        std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_with_or_unconditionally_called_t>::value,
-        "");
-  }
-  {
-    auto s = update(bar).set(bar.id = 7);
-    using S = decltype(s);
-    static_assert(
-        std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_with_or_unconditionally_called_t>::value,
-        "");
-  }
-  */
 }
 
