@@ -145,7 +145,7 @@ int main()
   }
   {
     using S = decltype(select_with_dynamic_group_by.having(bar.textN != "cheesecake"));
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>::hansi,
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
                                sqlpp::assert_having_all_static_aggregates_t>::value,
                   "");
   }

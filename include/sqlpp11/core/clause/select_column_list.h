@@ -35,6 +35,7 @@
 #include <sqlpp11/core/query/result_row.h>
 #include <sqlpp11/core/clause/select_as.h>
 #include <sqlpp11/core/clause/select_column_traits.h>
+#include <sqlpp11/core/clause/select_columns_consistency_check.h>
 #include <sqlpp11/core/group_by_column.h>
 #include <sqlpp11/core/basic/table.h>
 #include <tuple>
@@ -44,9 +45,6 @@ namespace sqlpp
   SQLPP_WRAPPED_STATIC_ASSERT(
       assert_no_unknown_tables_in_selected_columns_t,
       "at least one selected column requires a table which is otherwise not known in the statement");
-
-  SQLPP_WRAPPED_STATIC_ASSERT(assert_correct_select_column_aggregates_t,
-                               "select must not contain a mix of aggregates and non-aggregates");
 
   // SELECTED COLUMNS
   template <typename... Columns>
@@ -120,30 +118,14 @@ namespace sqlpp
   {
   };
 
-  // Checks if the selected columns are aggregate-correct.
-  // The presence of GROUP BY changes what is allowed.
-  template <typename KnownAggregateColumns, typename... Columns>
-  struct has_correct_aggregates<KnownAggregateColumns, select_column_list_t<Columns...>>
-      : public std::integral_constant<
-            bool,
-            KnownAggregateColumns::empty()
-                // Without GROUP BY: either aggregate only or non-aggregate only
-                ? (logic::all<is_aggregate_expression<KnownAggregateColumns,
-                                                      remove_dynamic_t<remove_as_t<Columns>>>::value...>::value or
-                   logic::all<is_non_aggregate_expression<KnownAggregateColumns,
-                                                          remove_dynamic_t<remove_as_t<Columns>>>::value...>::value)
-                // With GROUP BY: all columns have to be aggregate expressions
-                : (logic::all<is_aggregate_expression<KnownAggregateColumns,
-                                                      remove_dynamic_t<remove_as_t<Columns>>>::value...>::value)>
-  {
-  };
-
   template <typename Statement, typename... Columns>
   struct consistency_check<Statement, select_column_list_t<Columns...>>
   {
-    using type = static_check_t<
-        has_correct_aggregates<typename Statement::_all_provided_aggregates, select_column_list_t<Columns...>>::value,
-        assert_correct_select_column_aggregates_t>;
+    using AC = typename Statement::_all_provided_aggregates;
+    static constexpr bool has_group_by = not AC::empty();
+
+    using type = detail::
+        select_columns_consistency_check_t<has_group_by, Statement, detail::remove_as_from_select_column_t<Columns>...>;
   };
 
   template <typename Statement, typename... Columns>

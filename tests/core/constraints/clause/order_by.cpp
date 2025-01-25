@@ -124,5 +124,13 @@ int main()
     static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>, sqlpp::assert_correct_order_by_aggregates_with_group_by_t>::value, "");
   }
 
+  {
+    // Fail: foo.intN is a dynamic aggregate, but foo.intN is statically used in order_by.
+    auto s = select(foo.id).from(foo).where(true).group_by(foo.id, dynamic(true, foo.intN)).order_by(foo.id.asc(), foo.intN.desc());
+    using S = decltype(s);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_correct_static_order_by_aggregates_with_group_by_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>, sqlpp::assert_correct_static_order_by_aggregates_with_group_by_t>::value, "");
+  }
+
 }
 

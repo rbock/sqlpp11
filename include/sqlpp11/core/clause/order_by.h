@@ -61,17 +61,24 @@ namespace sqlpp
   SQLPP_WRAPPED_STATIC_ASSERT(assert_correct_order_by_aggregates_with_group_by_t,
                                "order_by (with group by) must contain aggregates only");
 
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_correct_static_order_by_aggregates_with_group_by_t,
+                               "order_by statically contains aggregates that are only dynamically defined in group_by");
+
   template <typename Statement, typename... Expressions>
   struct consistency_check<Statement, order_by_t<Expressions...>>
   {
-    using _known_aggregate_colums = typename Statement::_all_provided_aggregates;
+    using PA = typename Statement::_all_provided_aggregates;
+    using PSA = typename Statement::_all_provided_static_aggregates;
 
     using type = typename std::conditional<
-        _known_aggregate_colums::empty(),
-        static_check_t<logic::all<is_non_aggregate_expression<_known_aggregate_colums, Expressions>::value...>::value,
+        PA::empty(),
+        static_check_t<logic::all<is_non_aggregate_expression<PA, Expressions>::value...>::value,
                        assert_correct_order_by_aggregates_t>,
-        static_check_t<logic::all<is_aggregate_expression<_known_aggregate_colums, Expressions>::value...>::value,
-                       assert_correct_order_by_aggregates_with_group_by_t>>::type;
+        static_combined_check_t<
+            static_check_t<logic::all<is_aggregate_expression<PA, Expressions>::value...>::value,
+                           assert_correct_order_by_aggregates_with_group_by_t>,
+            static_check_t<logic::all<static_part_is_aggregate_expression<PSA, Expressions>::value...>::value,
+                           assert_correct_static_order_by_aggregates_with_group_by_t>>>::type;
   };
 
   SQLPP_WRAPPED_STATIC_ASSERT(
