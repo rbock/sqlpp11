@@ -61,27 +61,28 @@ void test_with()
     using Referencing = decltype(referencing);
 
     // Simple good cases.
-    static_assert(sqlpp::have_correct_dependencies<Basic>::value, "");
-    static_assert(sqlpp::have_correct_dependencies<sqlpp::dynamic_t<Basic>>::value, "");
-    static_assert(sqlpp::have_correct_dependencies<Basic, Referencing>::value, "");
-    static_assert(sqlpp::have_correct_dependencies<Basic, sqlpp::dynamic_t<Referencing>>::value, "");
+    static_assert(sqlpp::have_correct_cte_dependencies<Basic>::value, "");
+    static_assert(sqlpp::have_correct_cte_dependencies<sqlpp::dynamic_t<Basic>>::value, "");
+    static_assert(sqlpp::have_correct_cte_dependencies<Basic, Referencing>::value, "");
+    static_assert(sqlpp::have_correct_cte_dependencies<Basic, sqlpp::dynamic_t<Referencing>>::value, "");
 
     // The library has no way of knowing if `Basic` and `Referencing` are dynamically added in the correct combinations
     // (`Basic` has to be present if `Referencing` is added). It has to assume that the library user knows what they are
     // doing.
-    static_assert(sqlpp::have_correct_dependencies<sqlpp::dynamic_t<Basic>, sqlpp::dynamic_t<Referencing>>::value, "");
+    static_assert(sqlpp::have_correct_cte_dependencies<sqlpp::dynamic_t<Basic>, sqlpp::dynamic_t<Referencing>>::value, "");
 
     // `Referencing` requires the cte it references.
-    static_assert(not sqlpp::have_correct_dependencies<Referencing>::value, "");
-    static_assert(not sqlpp::have_correct_dependencies<sqlpp::dynamic_t<Referencing>>::value, "");
+    static_assert(not sqlpp::have_correct_cte_dependencies<Referencing>::value, "");
+    static_assert(not sqlpp::have_correct_cte_dependencies<sqlpp::dynamic_t<Referencing>>::value, "");
 
     // `Referencing` has to mentioned after the cte it references.
-    static_assert(not sqlpp::have_correct_dependencies<Referencing, Basic>::value, "");
-    static_assert(not sqlpp::have_correct_dependencies<sqlpp::dynamic_t<Referencing>, Basic>::value, "");
-    static_assert(not sqlpp::have_correct_dependencies<sqlpp::dynamic_t<Referencing>, sqlpp::dynamic_t<Basic>>::value, "");
+    static_assert(not sqlpp::have_correct_cte_dependencies<Referencing, Basic>::value, "");
+    static_assert(not sqlpp::have_correct_cte_dependencies<sqlpp::dynamic_t<Referencing>, Basic>::value, "");
+    static_assert(not sqlpp::have_correct_cte_dependencies<sqlpp::dynamic_t<Referencing>, sqlpp::dynamic_t<Basic>>::value, "");
 
     // `Referencing` statically requires the cte it references. It is not sufficient to have a dynamic `Basic` cte.
-    static_assert(not sqlpp::have_correct_dependencies<sqlpp::dynamic_t<Basic>, Referencing>::value, "");
+    static_assert(sqlpp::have_correct_cte_dependencies<sqlpp::dynamic_t<Basic>, Referencing>::value, "");
+    static_assert(not sqlpp::have_correct_static_cte_dependencies<sqlpp::dynamic_t<Basic>, Referencing>::value, "");
 
 #warning: Need to add test for recursive CTEs.
    }

@@ -29,6 +29,7 @@
 #include <sqlpp11/core/detail/type_vector.h>
 #include <sqlpp11/core/type_traits/nodes_of.h>
 #include <sqlpp11/core/logic.h>
+#include <sqlpp11/core/query/dynamic_fwd.h>
 
 namespace sqlpp
 {
@@ -71,6 +72,15 @@ namespace sqlpp
   using known_aggregate_columns_of_t = typename known_aggregate_columns_of<T>::type;
 
   template <typename T>
+  struct known_static_aggregate_columns_of
+  {
+    using type = detail::type_set<>;
+  };
+
+  template <typename T>
+  using known_static_aggregate_columns_of_t = typename known_static_aggregate_columns_of<T>::type;
+
+  template <typename T>
   struct is_aggregate_neutral : public std::true_type
   {
   };
@@ -95,6 +105,29 @@ namespace sqlpp
   struct is_aggregate_expression<KnownAggregateColumns, detail::type_vector<T...>>
   {
     static constexpr bool value = logic::all<is_aggregate_expression<KnownAggregateColumns, T>::value...>::value;
+  };
+
+  // Checks if the static part of T is an aggregate expression, see above.
+  // @KnownStaticAggregateColumns: type_set as obtained through known_static_aggregate_columns_of_t
+  template <typename KnownStaticAggregateColumns, typename T>
+  struct static_part_is_aggregate_expression
+      : public std::integral_constant<
+            bool,
+            is_aggregate_function<T>::value or KnownStaticAggregateColumns::template contains<T>() or
+                (not nodes_of_t<T>::empty() and
+                 static_part_is_aggregate_expression<KnownStaticAggregateColumns, nodes_of_t<T>>::value) or
+                (nodes_of_t<T>::empty() and is_aggregate_neutral<T>::value)>
+  {
+  };
+
+  template <typename KnownStaticAggregateColumns, typename T>
+  struct static_part_is_aggregate_expression<KnownStaticAggregateColumns, dynamic_t<T>> : public std::true_type{};
+
+  template <typename KnownStaticAggregateColumns, typename... T>
+  struct static_part_is_aggregate_expression<KnownStaticAggregateColumns, detail::type_vector<T...>>
+  {
+    static constexpr bool value =
+        logic::all<static_part_is_aggregate_expression<KnownStaticAggregateColumns, T>::value...>::value;
   };
 
   // Checks if T is an non-aggregate expression, i.e. 

@@ -79,6 +79,28 @@ namespace sqlpp
     using type = detail::type_set<raw_group_by_column_t<remove_dynamic_t<Columns>>...>;
   };
 
+  namespace detail
+  {
+    template<typename Column>
+      struct make_static_aggregate_column_set
+      {
+        using type = detail::type_set<raw_group_by_column_t<Column>>;
+      };
+    template<typename Column>
+      struct make_static_aggregate_column_set<dynamic_t<Column>>
+      {
+        using type = detail::type_set<>;
+      };
+    template<typename Column>
+      using make_static_aggregate_column_set_t = typename make_static_aggregate_column_set<Column>::type;
+  }
+
+  template <typename... Columns>
+  struct known_static_aggregate_columns_of<group_by_t<Columns...>>
+  {
+    using type = detail::make_joined_set_t<detail::make_static_aggregate_column_set_t<Columns>...>;
+  };
+
   template <typename... Columns>
   struct nodes_of<group_by_t<Columns...>> 
   {
@@ -136,10 +158,10 @@ namespace sqlpp
     return " GROUP BY " + columns;
   }
 
-  template <typename... T>
-  auto group_by(T... t) -> decltype(statement_t<no_group_by_t>().group_by(std::move(t)...))
+  template <typename... Columns>
+  auto group_by(Columns... columns) -> decltype(statement_t<no_group_by_t>().group_by(std::move(columns)...))
   {
-    return statement_t<no_group_by_t>().group_by(std::move(t)...);
+    return statement_t<no_group_by_t>().group_by(std::move(columns)...);
   }
 
 }  // namespace sqlpp

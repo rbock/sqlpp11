@@ -56,6 +56,9 @@ namespace sqlpp
   SQLPP_WRAPPED_STATIC_ASSERT(assert_having_all_aggregates_t,
                                "having expression not built out of aggregate expressions");
 
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_having_all_static_aggregates_t,
+                               "at least one static having expression is provided dynamically only in group_by");
+
   template <typename Expression>
   struct is_clause<having_t<Expression>> : public std::true_type
   {
@@ -64,9 +67,12 @@ namespace sqlpp
   template <typename Statement, typename Expression>
   struct consistency_check<Statement, having_t<Expression>>
   {
-    using type =
+    using type = static_combined_check_t<
         static_check_t<is_aggregate_expression<typename Statement::_all_provided_aggregates, Expression>::value,
-                       assert_having_all_aggregates_t>;
+                       assert_having_all_aggregates_t>,
+        static_check_t<
+            static_part_is_aggregate_expression<typename Statement::_all_provided_static_aggregates, Expression>::value,
+            assert_having_all_static_aggregates_t>>;
   };
 
   template <typename Statement, typename Expression>

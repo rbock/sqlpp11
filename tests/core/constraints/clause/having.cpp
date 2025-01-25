@@ -74,6 +74,7 @@ int main()
   // --------------------------------
   const auto select_without_group_by = select(all_of(bar)).from(bar).unconditionally();
   const auto select_with_group_by = select(bar.id).from(bar).unconditionally().group_by(bar.id);
+  const auto select_with_dynamic_group_by = select(bar.id).from(bar).unconditionally().group_by(bar.id, dynamic(maybe, bar.textN));
 
   // OK
   {
@@ -114,6 +115,10 @@ int main()
     using S = decltype(select_with_group_by.having(count(bar.textN) > 3 and bar.textN > "17"));
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_having_all_aggregates_t>::value, "");
   }
+  {
+    using S = decltype(select_with_group_by.having(count(bar.textN) > 3 and dynamic(maybe, bar.textN > "17")));
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_having_all_aggregates_t>::value, "");
+  }
 
   // Try foreign table
   {
@@ -132,6 +137,17 @@ int main()
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::consistent_t>::value, "");
   }
 
-#warning: Add tests with dynamic
+  // Use dynamic group-by expressions
+  // id is statically and textN is dynamically grouped by.
+  {
+    using S = decltype(select_with_dynamic_group_by.having(bar.id > 3));
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::consistent_t>::value, "");
+  }
+  {
+    using S = decltype(select_with_dynamic_group_by.having(bar.textN != "cheesecake"));
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>::hansi,
+                               sqlpp::assert_having_all_static_aggregates_t>::value,
+                  "");
+  }
 }
 

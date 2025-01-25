@@ -79,6 +79,8 @@ namespace sqlpp
     using _all_required_ctes = detail::make_joined_set_t<required_ctes_of_t<Clauses>...>;
     using _all_required_static_ctes = detail::make_joined_set_t<required_static_ctes_of_t<Clauses>...>;
 
+#warning: Need to check static expression parts to confirm with static aggregates.
+    using _all_provided_static_aggregates = detail::make_joined_set_t<known_static_aggregate_columns_of_t<Clauses>...>;
     using _all_provided_aggregates = detail::make_joined_set_t<known_aggregate_columns_of_t<Clauses>...>;
 
     // Calculate the unknown (i.e. required but not provided) tables and CTEs
