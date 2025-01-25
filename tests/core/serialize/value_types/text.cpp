@@ -29,7 +29,18 @@
 int main(int, char* [])
 {
   SQLPP_COMPARE("", "''");
-  SQLPP_COMPARE("'", "''''");
+  SQLPP_COMPARE(std::string("ab'cd"), "'ab''cd'");
+  SQLPP_COMPARE(sqlpp::string_view("ab'cd"), "'ab''cd'");
 
-#warning: Need more tests here
+  SQLPP_COMPARE("ab'cd", "'ab''cd'");
+  SQLPP_COMPARE(std::string("ab'cd"), "'ab''cd'");
+  SQLPP_COMPARE(sqlpp::string_view("ab'cd"), "'ab''cd'");
+
+  SQLPP_COMPARE("'", "''''");
+  SQLPP_COMPARE(std::string("'"), "''''");
+  SQLPP_COMPARE(sqlpp::string_view("'"), "''''");
+
+  SQLPP_COMPARE("ab\"cd", "'ab\"cd'");
+  SQLPP_COMPARE(std::string("ab\"cd"), "'ab\"cd'");
+  SQLPP_COMPARE(sqlpp::string_view("ab\"cd"), "'ab\"cd'");
 }

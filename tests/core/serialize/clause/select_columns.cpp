@@ -29,6 +29,7 @@
 
 SQLPP_CREATE_NAME_TAG(cheese);
 SQLPP_CREATE_NAME_TAG(cake);
+SQLPP_CREATE_NAME_TAG(id_count);
 
 int main(int, char* [])
 {
@@ -36,7 +37,44 @@ int main(int, char* [])
   const auto expr = sqlpp::value(17) + 4;
 
   const auto foo = test::TabFoo{};
+  const auto bar = test::TabBar{};
 
+  // -----------------------------------------
+  // --  SELECT(<columns>)
+  // -----------------------------------------
+  // Single column
+  SQLPP_COMPARE(select(foo.doubleN), "SELECT tab_foo.double_n");
+
+  // Two columns
+  SQLPP_COMPARE(select(foo.doubleN, bar.id), "SELECT tab_foo.double_n, tab_bar.id");
+
+  // All columns of a table
+  SQLPP_COMPARE(select(all_of(foo)),
+          "SELECT tab_foo.id, tab_foo.text_nn_d, tab_foo.int_n, tab_foo.double_n, tab_foo.u_int_n, tab_foo.blob_n, tab_foo.bool_n");
+
+  // All columns of a table plus one more
+  SQLPP_COMPARE(select(all_of(foo), bar.id),
+      "SELECT tab_foo.id, tab_foo.text_nn_d, tab_foo.int_n, tab_foo.double_n, tab_foo.u_int_n, tab_foo.blob_n, tab_foo.bool_n, tab_bar.id");
+
+  // One more, plus all columns of a table
+  SQLPP_COMPARE(select(bar.id, all_of(foo)),
+      "SELECT tab_bar.id, tab_foo.id, tab_foo.text_nn_d, tab_foo.int_n, tab_foo.double_n, tab_foo.u_int_n, tab_foo.blob_n, tab_foo.bool_n");
+
+  // Column and aggregate function
+  SQLPP_COMPARE(select(foo.doubleN, count(bar.id).as(id_count)), "SELECT tab_foo.double_n, COUNT(tab_bar.id) AS id_count");
+
+  // Column aliases
+  SQLPP_COMPARE(select(foo.doubleN.as(sqlpp::alias::o), count(bar.id).as(sqlpp::alias::a)),
+          "SELECT tab_foo.double_n AS o, COUNT(tab_bar.id) AS a");
+
+  // Optional column manually
+  SQLPP_COMPARE(select(dynamic(true, bar.id)), "SELECT tab_bar.id");
+  SQLPP_COMPARE(select(dynamic(false, bar.id)), "SELECT NULL AS id");
+
+
+  // -----------------------------------------
+  // --  select_columns(<columns>)
+  // -----------------------------------------
   // Plain columns.
   SQLPP_COMPARE(select_columns(foo.id), "tab_foo.id");
   SQLPP_COMPARE(select_columns(foo.textNnD), "tab_foo.text_nn_d");
@@ -50,7 +88,6 @@ int main(int, char* [])
 
   // Single dynamic column.
   SQLPP_COMPARE(select_columns(dynamic(true, foo.id)), "tab_foo.id");
-#warning: This needs a special special to-string strategy in select_columns
   SQLPP_COMPARE(select_columns(dynamic(false, foo.id)), "NULL AS id");
 
   // Multiple dynamic columns (this is odd if all are dynamic)
