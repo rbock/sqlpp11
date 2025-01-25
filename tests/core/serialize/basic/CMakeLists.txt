@@ -30,6 +30,7 @@ function(create_test name)
 endfunction()
 
 create_test(join)
+create_test(parameter)
 create_test(schema_qualified_table)
 create_test(value)
 create_test(verbatim)

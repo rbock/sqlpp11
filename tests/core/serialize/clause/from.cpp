@@ -50,6 +50,10 @@ int main()
   SQLPP_COMPARE(from(foo.join(bar).on(foo.id == bar.id)),
           " FROM tab_foo INNER JOIN tab_bar ON tab_foo.id = tab_bar.id");
 
+  // Dynamic joins
+  SQLPP_COMPARE(from(foo.cross_join(dynamic(true, bar))), " FROM tab_foo CROSS JOIN tab_bar");
+  SQLPP_COMPARE(from(foo.cross_join(dynamic(false, bar))), " FROM tab_foo");
+
   // Multiple tables
   SQLPP_COMPARE(from(aFoo.join(bFoo).on(aFoo.id == bFoo.id).join(cFoo).on(bFoo.id == cFoo.id)),
       " FROM tab_foo AS a INNER JOIN tab_foo AS b ON a.id = b.id INNER JOIN tab_foo AS c ON b.id = c.id");
@@ -59,12 +63,7 @@ int main()
   SQLPP_COMPARE(from(foo.join(x).on(x.id == foo.id)), " FROM tab_foo INNER JOIN x ON x.id = tab_foo.id");
   SQLPP_COMPARE(from(x.join(foo).on(x.id == foo.id)), " FROM x INNER JOIN tab_foo ON x.id = tab_foo.id");
   SQLPP_COMPARE(from(x.join(y).on(x.id == y.id)), " FROM x INNER JOIN y ON x.id = y.id");
-#warning: Some of these should go into CTE tests
-  SQLPP_COMPARE(xa, "x AS a");
-  SQLPP_COMPARE(xa.id == xb.id, "a.id = b.id");
   SQLPP_COMPARE(from(xa.join(xb).on(xa.id == xb.id)), " FROM x AS a INNER JOIN x AS b ON a.id = b.id");
-
-#warning add tests for dynamic joins
 
   return 0;
 }

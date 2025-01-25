@@ -26,7 +26,6 @@ set(test_files
     DynamicWhere.cpp
     Insert.cpp
     Lower.cpp
-    Parameter.cpp
     ParameterizedVerbatim.cpp
     SelectAs.cpp
     TableAlias.cpp

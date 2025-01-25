@@ -27,7 +27,11 @@
 #include <sqlpp11/tests/core/tables.h>
 #include <sqlpp11/sqlpp11.h>
 
-int Parameter(int, char*[])
+namespace {
+  SQLPP_CREATE_NAME_TAG(something);
+}
+
+int main(int, char*[])
 {
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
@@ -35,7 +39,7 @@ int Parameter(int, char*[])
   SQLPP_COMPARE(parameter(foo.doubleN), "?");
   SQLPP_COMPARE(bar.id > parameter(foo.doubleN), "tab_bar.id > ?");
 
-#warning: Need type tests for parameter, too (do they have the right value type and the right paramter type?)
+  SQLPP_COMPARE(parameter(sqlpp::integral{}, something), "?");
 
   return 0;
 }

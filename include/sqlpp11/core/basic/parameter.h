@@ -60,12 +60,6 @@ namespace sqlpp
     using type = ValueType;
   };
 
-  template <typename ValueType, typename NameTag>
-  struct name_tag_of<parameter_t<ValueType, NameTag>>
-  {
-    using type = NameTag;
-  };
-
   template <typename Context, typename ValueType, typename NameTag>
   auto to_sql_string(Context& , const parameter_t<ValueType, NameTag>&) -> std::string
   {

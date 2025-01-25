@@ -83,7 +83,5 @@ int main(int, char* [])
     SQLPP_COMPARE(i, " (id) VALUES (DEFAULT, DEFAULT), ()");
   }
 
-#warning: accept other value expressions, too? Or maybe "just" verbatim as value, too?
-
   return 0;
 }

@@ -82,14 +82,10 @@ int Prepared(int, char* [])
   {
     using P = sqlpp::parameters_of_t<decltype((t.textN.like(parameter(t.textN)) and t.id == parameter(t.id)) or
                                             t.boolNn != parameter(t.boolNn))>;
-    // FIXME: make some test, that does not depend on detail namespace, but still checks the correct order of the
     // parameters
-#warning: reactivate
-    /*
     static_assert(std::is_same<P, sqlpp::detail::type_vector<decltype(parameter(t.textN)), decltype(parameter(t.id)),
                                                              decltype(parameter(t.boolNn))>>::value,
                   "type requirement");
-                  */
   }
 
   // OK, fine, now create a named parameter list from an expression
