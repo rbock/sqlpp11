@@ -50,7 +50,6 @@ int main(int, char* [])
 
   // Single dynamic column (this is odd)
   SQLPP_COMPARE(order_by(dynamic(true, foo.id.asc())), " ORDER BY tab_foo.id ASC");
-#warning: document that ORDER BY gets omitted if all columns are dynamic false
   SQLPP_COMPARE(order_by(dynamic(false, foo.id.asc())), "");
 
   // Multiple dynamic columns (this is odd if all are dynamic)

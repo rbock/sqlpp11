@@ -28,8 +28,6 @@
 
 int main(int, char* [])
 {
-
-#warning: This looks different for MySQL
   SQLPP_COMPARE(sqlpp::insert_default_values(), " DEFAULT VALUES");
 
   return 0;

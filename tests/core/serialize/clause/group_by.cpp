@@ -46,7 +46,6 @@ int main(int, char* [])
 
   // Single dynamic column
   SQLPP_COMPARE(group_by(dynamic(true, foo.id)), " GROUP BY tab_foo.id");
-#warning: document that GROUP BY gets omitted if all columns are dynamic false
   SQLPP_COMPARE(group_by(dynamic(false, foo.id)), "");
 
   // Multiple dynamic columns (including all dynamic)
@@ -66,7 +65,7 @@ int main(int, char* [])
 
   // Single declared column
   SQLPP_COMPARE(group_by(declare_group_by_column(val)), " GROUP BY 17");
-#warning: Do we really want these extra parentheses?
+  // Note that the parentheses are superflous but also don't hurt.
   SQLPP_COMPARE(group_by(declare_group_by_column(foo.id + 17)), " GROUP BY (tab_foo.id + 17)");
 
   // Mixed declared column
@@ -79,8 +78,6 @@ int main(int, char* [])
 
   SQLPP_COMPARE(group_by(foo.id, dynamic(false, declare_group_by_column(val))), " GROUP BY tab_foo.id");
   SQLPP_COMPARE(group_by(dynamic(false, declare_group_by_column(val)), foo.id), " GROUP BY tab_foo.id");
-
-#warning add tests with declared columns
 
   return 0;
 }

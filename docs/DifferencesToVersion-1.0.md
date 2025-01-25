@@ -105,3 +105,6 @@ This also means that custom queries now use the LAST return-value-clause (just l
 
 ## sqlite3: No magic conversion of uint64_t to int64_t during serialization.
 Magic is dangerous, e.g. when used in comparison.
+
+## order_by/group_by will be omitted if all args are dynamically dropped
+
