@@ -87,7 +87,7 @@ int main()
     std::ignore = with(a, dynamic(maybe, b));  // OK
     SQLPP_CHECK_STATIC_ASSERT(with(b), "at least one CTE depends on another CTE that is not defined left of it");
     SQLPP_CHECK_STATIC_ASSERT(with(b, a), "at least one CTE depends on another CTE that is not defined left of it");
-    SQLPP_CHECK_STATIC_ASSERT(with(dynamic(maybe, a), b), "at least one CTE depends on another CTE that is not defined statically left of it (only dynamically)");
+    SQLPP_CHECK_STATIC_ASSERT(with(dynamic(maybe, a), b), "at least one CTE statically depends on another CTE that is not defined statically left of it (only dynamically)");
   }
 
   // Incorrectly referring to another CTE (e.g. not defined at all or defined to the right)

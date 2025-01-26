@@ -32,7 +32,6 @@ namespace test
   SQLPP_CREATE_NAME_TAG(basic);
   SQLPP_CREATE_NAME_TAG(referencing);
   SQLPP_CREATE_NAME_TAG(recursive);
-  SQLPP_CREATE_NAME_TAG(alias);
 }  // namespace
 
 template<typename BlankWith>
@@ -49,7 +48,6 @@ using extract_with_t = typename extract_with<BlankWith>::type;
 
 void test_with()
 {
-#warning: test parameter exposure
   const auto foo = test::TabFoo{};
 
   // ctes referencing other CTEs require such ctes. `have_correct_dependencies` checks that.
@@ -83,8 +81,85 @@ void test_with()
     // `Referencing` statically requires the cte it references. It is not sufficient to have a dynamic `Basic` cte.
     static_assert(sqlpp::have_correct_cte_dependencies<sqlpp::dynamic_t<Basic>, Referencing>::value, "");
     static_assert(not sqlpp::have_correct_static_cte_dependencies<sqlpp::dynamic_t<Basic>, Referencing>::value, "");
+   }
 
-#warning: Need to add test for recursive CTEs.
+  // ctes dynamically referencing other CTEs require such ctes dynamically. `have_correct_dependencies` checks that.
+  {
+    auto basic = sqlpp::cte(test::basic).as(select(foo.id).from(foo).unconditionally());
+    using Basic = decltype(basic);
+
+    auto referencing = sqlpp::cte(test::referencing)
+                           .as(select(dynamic(true, basic.id))
+                                   .from(foo.join(dynamic(true, basic)).on(foo.id == basic.id))
+                                   .unconditionally());
+    using Referencing = decltype(referencing);
+
+    // Simple good cases.
+    static_assert(sqlpp::have_correct_cte_dependencies<Basic>::value, "");
+    static_assert(sqlpp::have_correct_cte_dependencies<sqlpp::dynamic_t<Basic>>::value, "");
+    static_assert(sqlpp::have_correct_cte_dependencies<Basic, Referencing>::value, "");
+    static_assert(sqlpp::have_correct_cte_dependencies<Basic, sqlpp::dynamic_t<Referencing>>::value, "");
+
+    // The library has no way of knowing if `Basic` and `Referencing` are dynamically added in the correct combinations
+    // (`Basic` has to be present if `Referencing` is added). It has to assume that the library user knows what they are
+    // doing.
+    static_assert(sqlpp::have_correct_cte_dependencies<sqlpp::dynamic_t<Basic>, sqlpp::dynamic_t<Referencing>>::value, "");
+
+    // `Referencing` requires the cte it references.
+    static_assert(not sqlpp::have_correct_cte_dependencies<Referencing>::value, "");
+    static_assert(not sqlpp::have_correct_cte_dependencies<sqlpp::dynamic_t<Referencing>>::value, "");
+
+    // `Referencing` has to mentioned after the cte it references.
+    static_assert(not sqlpp::have_correct_cte_dependencies<Referencing, Basic>::value, "");
+    static_assert(not sqlpp::have_correct_cte_dependencies<sqlpp::dynamic_t<Referencing>, Basic>::value, "");
+    static_assert(not sqlpp::have_correct_cte_dependencies<sqlpp::dynamic_t<Referencing>, sqlpp::dynamic_t<Basic>>::value, "");
+
+    // `Referencing` dynamically requires the cte it references. It is sufficient to have a dynamic `Basic` cte.
+    static_assert(sqlpp::have_correct_cte_dependencies<sqlpp::dynamic_t<Basic>, Referencing>::value, "");
+    static_assert(sqlpp::have_correct_static_cte_dependencies<sqlpp::dynamic_t<Basic>, Referencing>::value, "");
+   }
+
+  // Self-referencing CTEs do not necessarily require other ctes. `have_correct_dependencies` checks that.
+  {
+    auto basic = sqlpp::cte(test::basic).as(select(foo.id).from(foo).unconditionally());
+    using Basic = decltype(basic);
+
+    auto recursive_base = sqlpp::cte(test::recursive).as(select(sqlpp::value(1).as(sqlpp::alias::a)));
+    auto recursive = recursive_base.union_all(select((recursive_base.a + 1).as(sqlpp::alias::a)).from(recursive_base).where(recursive_base.a <= 10));
+    using Recursive = decltype(recursive);
+
+    // Simple good cases.
+    static_assert(sqlpp::have_correct_cte_dependencies<Basic>::value, "");
+    static_assert(sqlpp::have_correct_cte_dependencies<sqlpp::dynamic_t<Basic>>::value, "");
+    static_assert(sqlpp::have_correct_cte_dependencies<Basic, Recursive>::value, "");
+    static_assert(sqlpp::have_correct_cte_dependencies<Basic, sqlpp::dynamic_t<Recursive>>::value, "");
+
+    // Since `Recursive` does not reference `Basic`, they can be combined in any order.
+    static_assert(sqlpp::have_correct_cte_dependencies<Recursive, Basic>::value, "");
+    static_assert(sqlpp::have_correct_cte_dependencies<Basic, Recursive>::value, "");
+    static_assert(sqlpp::have_correct_cte_dependencies<sqlpp::dynamic_t<Recursive>, sqlpp::dynamic_t<Basic>>::value, "");
+    static_assert(sqlpp::have_correct_cte_dependencies<sqlpp::dynamic_t<Basic>, sqlpp::dynamic_t<Recursive>>::value, "");
+   }
+
+  // Self-referencing CTEs can require other ctes. `have_correct_dependencies` checks that, too.
+  {
+    auto basic = sqlpp::cte(test::basic).as(select(foo.id).from(foo).unconditionally());
+    using Basic = decltype(basic);
+
+    auto recursive_base = sqlpp::cte(test::recursive).as(select(basic.id.as(sqlpp::alias::a)).from(basic).where(true));
+    auto recursive = recursive_base.union_all(select((recursive_base.a + 1).as(sqlpp::alias::a)).from(recursive_base).where(recursive_base.a <= 10));
+    using Recursive = decltype(recursive);
+
+    // Simple good cases.
+    static_assert(sqlpp::have_correct_cte_dependencies<Basic>::value, "");
+    static_assert(sqlpp::have_correct_cte_dependencies<sqlpp::dynamic_t<Basic>>::value, "");
+    static_assert(sqlpp::have_correct_cte_dependencies<Basic, Recursive>::value, "");
+    static_assert(sqlpp::have_correct_cte_dependencies<Basic, sqlpp::dynamic_t<Recursive>>::value, "");
+    static_assert(sqlpp::have_correct_cte_dependencies<sqlpp::dynamic_t<Basic>, sqlpp::dynamic_t<Recursive>>::value, "");
+
+    // Since `Recursive` references `Basic`, the order matters
+    static_assert(not sqlpp::have_correct_cte_dependencies<Recursive, Basic>::value, "");
+    static_assert(not sqlpp::have_correct_cte_dependencies<sqlpp::dynamic_t<Recursive>, sqlpp::dynamic_t<Basic>>::value, "");
    }
 
   // `with` exposes parameters from it's CTEs
