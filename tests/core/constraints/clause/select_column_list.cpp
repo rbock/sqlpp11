@@ -113,6 +113,9 @@ int main()
     static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>, sqlpp::assert_no_unknown_tables_in_selected_columns_t>::value, "");
   }
 
+  // ----------------------------
+  // ------- Aggregates ---------
+  // ----------------------------
   // select_columns(<mix of aggregate and non-aggregate columns>) can be constructed but is inconsistent.
   {
     auto s = select(foo.id, max(foo.id).as(test::max_id)).from(foo);
@@ -162,6 +165,46 @@ int main()
     auto s = select(foo.id, (foo.intN + 7).as(test::max_id)).from(foo).group_by(foo.id, dynamic(true, foo.intN));
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_select_columns_with_group_by_match_static_aggregates_t>::value, "");
+  }
+
+  // ----------------------------
+  // ------- Join  --------------
+  // ----------------------------
+  {
+    auto s = select(foo.id).from(bar.cross_join(foo)).unconditionally();
+    using S = decltype(s);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::consistent_t>::value, "");
+  }
+
+  {
+    // Fail: Statically required table, but provided dynamically only
+    auto s = select(foo.id).from(bar.cross_join(dynamic(true, foo))).unconditionally();
+    using S = decltype(s);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>,
+                               sqlpp::assert_no_unknown_static_tables_in_selected_columns_t>::value,
+                  "");
+    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>,
+                               sqlpp::assert_no_unknown_static_tables_in_selected_columns_t>::value,
+                  "");
+  }
+  {
+    // Fail: Statically required table, but provided dynamically only
+    auto s = select(foo.id).from(dynamic(true, foo)).unconditionally();
+    using S = decltype(s);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_no_unknown_static_tables_in_selected_columns_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>,
+                               sqlpp::assert_no_unknown_static_tables_in_selected_columns_t>::value,
+                  "");
+  }
+  {
+    // Fail to prepare sub select: `bar` is required from the enclosing query.
+    // Note that we do not detect that foo is required statically but 
+    auto s = select(foo.id, bar.intN).from(dynamic(true, foo)).unconditionally();
+    using S = decltype(s);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::consistent_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>,
+                               sqlpp::assert_no_unknown_tables_in_selected_columns_t>::value,
+                  "");
   }
 }
 

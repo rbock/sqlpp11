@@ -63,7 +63,12 @@ namespace sqlpp
   };
 
   template<typename Table>
-  struct provided_optional_tables_of<from_t<Table>> : public provided_optional_tables_of<Table>
+  struct provided_static_tables_of<from_t<Table>> : public provided_static_tables_of<Table>
+  {
+  };
+
+  template<typename Table>
+  struct provided_optional_tables_of<from_t<Table>> : public provided_optional_tables_of<remove_dynamic_t<Table>>
   {
   };
 
@@ -79,9 +84,9 @@ namespace sqlpp
     template <typename Table>
     auto from(Table table) const -> decltype(new_statement(*this, from_t<table_ref_t<Table>>{make_table_ref(table)}))
     {
-      SQLPP_STATIC_ASSERT(not is_pre_join<Table>::value,
+      SQLPP_STATIC_ASSERT(not is_pre_join<remove_dynamic_t<Table>>::value,
                           "from() join argument is missing condition, please use an explicit on() condition");
-      SQLPP_STATIC_ASSERT(is_table<Table>::value, "from() argument has to be a table or join expression");
+      SQLPP_STATIC_ASSERT(is_table<remove_dynamic_t<Table>>::value, "from() argument has to be a table or join expression");
 
       return new_statement(*this, from_t<table_ref_t<Table>>{make_table_ref(table)});
     }

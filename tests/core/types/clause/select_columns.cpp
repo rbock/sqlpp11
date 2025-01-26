@@ -54,7 +54,6 @@ void test_select_columns()
   using knownTxt = sqlpp::detail::type_set<decltype(col_txt)>;
 
 
-#warning test that dynamic join tables are only used by dynamic columns
 #warning We need to test that optional columns (i.e. from some outer join) are always optional
 
   // Single column.

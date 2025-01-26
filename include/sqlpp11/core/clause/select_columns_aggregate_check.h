@@ -67,11 +67,11 @@ namespace sqlpp
 
     // Select columns have different constraints, depending on whether a group by is present or not.
     template <bool WithGroupBy, typename Statement, typename... Columns>
-    struct select_columns_consistency_check;
+    struct select_columns_aggregate_check;
 
     // In the presence of group_by aggregates, all select columns have to be aggregate expressions.
     template <typename Statement, typename... Columns>
-    struct select_columns_consistency_check<true, Statement, Columns...>
+    struct select_columns_aggregate_check<true, Statement, Columns...>
     {
       using AC = typename Statement::_all_provided_aggregates;
       using SAC = typename Statement::_all_provided_static_aggregates;
@@ -89,7 +89,7 @@ namespace sqlpp
     // - all select columns have to be non aggregate expression (or neutral)
     // - all select columns have to be aggregate expressions (or neutral)
     template <typename Statement, typename... Columns>
-    struct select_columns_consistency_check<false, Statement, Columns...>
+    struct select_columns_aggregate_check<false, Statement, Columns...>
     {
       using AC = typename Statement::_all_provided_aggregates;
       using SAC = typename Statement::_all_provided_static_aggregates;
@@ -104,8 +104,8 @@ namespace sqlpp
     };
 
     template <bool HasGroupBy, typename Statement, typename... Columns>
-    using select_columns_consistency_check_t =
-        typename select_columns_consistency_check<HasGroupBy, Statement, Columns...>::type;
+    using select_columns_aggregate_check_t =
+        typename select_columns_aggregate_check<HasGroupBy, Statement, Columns...>::type;
   }  // namespace detail
 
 }  // namespace sqlpp

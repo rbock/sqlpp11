@@ -108,3 +108,5 @@ Magic is dangerous, e.g. when used in comparison.
 
 ## order_by/group_by will be omitted if all args are dynamically dropped
 
+## Note that in a sub select that is used as a value, we don't detect if a table is statically required but dynamically provided. This is because we do not have the full picture: The sub select could use tables from the enclosing query.
+
