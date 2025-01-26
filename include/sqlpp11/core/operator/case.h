@@ -32,26 +32,6 @@
 
 namespace sqlpp
 {
-  SQLPP_WRAPPED_STATIC_ASSERT(assert_case_then_else_same_type_t,
-                               "argument of then() and else() are not of the same type");
-
-  template <typename Then, typename Else>
-  using check_case_else_t = static_combined_check_t<
-      static_check_t<values_are_comparable<Then, Else>::value,
-                     assert_case_then_else_same_type_t>>;
-
-  SQLPP_WRAPPED_STATIC_ASSERT(assert_case_then_expression_t, "argument is not a value expression in then()");
-  template <typename Then>
-  using check_case_then_t =
-      static_check_t<has_value_type<Then>::value, assert_case_then_expression_t>;
-
-  SQLPP_WRAPPED_STATIC_ASSERT(assert_case_when_boolean_expression_t,
-                               "argument is not a boolean expression in case_when()");
-  template <typename When>
-  using check_case_when_t = static_check_t<
-      is_boolean<When>::value,
-      assert_case_when_boolean_expression_t>;
-
   template <typename When, typename Then, typename Else>
   struct case_t : public enable_as<case_t<When, Then, Else>>, public enable_comparison<case_t<When, Then, Else>>
   {
@@ -90,15 +70,6 @@ namespace sqlpp
   template <typename When, typename Then>
   class case_then_t
   {
-    template <typename Else>
-    auto _else_impl(consistent_t /*unused*/, Else else_) -> case_t<When, Then, Else>
-    {
-      return {_when, _then, else_};
-    }
-
-    template <typename Check, typename Else>
-    auto _else_impl(Check, Else else_) -> inconsistent<Check>;
-
   public:
     case_then_t(When when, Then then) : _when(when), _then(then)
     {
@@ -110,10 +81,18 @@ namespace sqlpp
     case_then_t& operator=(case_then_t&&) = default;
     ~case_then_t() = default;
 
-    template <typename Else>
-    auto else_(Else else_) -> decltype(this->_else_impl(check_case_else_t<Then, Else>{}, else_))
+    template <typename Else, typename = sqlpp::enable_if_t<has_value_type<Else>::value>>
+    auto else_(Else else_) -> case_t<When, Then, Else>
     {
-      return _else_impl(check_case_else_t<Then, Else>{}, else_);
+      SQLPP_STATIC_ASSERT((values_are_comparable<Then, Else>::value),
+                          "argument of then() and else() are not of the same type");
+
+      return case_t<When, Then, Else>{_when, _then, else_};
+    }
+
+    auto else_(sqlpp::nullopt_t) -> case_t<When, Then, sqlpp::nullopt_t>
+    {
+      return case_t<When, Then, sqlpp::nullopt_t>{_when, _then, sqlpp::nullopt};
     }
 
   private:
@@ -124,15 +103,6 @@ namespace sqlpp
   template <typename When>
   class case_when_t
   {
-    template <typename Then>
-    auto _then_impl(consistent_t /*unused*/, Then t) -> case_then_t<When, Then>
-    {
-      return {_when, t};
-    }
-
-    template <typename Check, typename Then>
-    auto _then_impl(Check, Then t) -> inconsistent<Check>;
-
   public:
     case_when_t(When when) : _when(when)
     {
@@ -144,10 +114,10 @@ namespace sqlpp
     case_when_t& operator=(case_when_t&&) = default;
     ~case_when_t() = default;
 
-    template <typename Then>
-    auto then(Then t) -> decltype(this->_then_impl(check_case_then_t<Then>{}, t))
+    template <typename Then, typename = sqlpp::enable_if_t<has_value_type<Then>::value>>
+    auto then(Then t) -> case_then_t<When, Then>
     {
-      return _then_impl(check_case_then_t<Then>{}, t);
+      return case_then_t<When, Then>{_when, std::move(t)};
     }
 
   private:
@@ -160,21 +130,9 @@ namespace sqlpp
     return "CASE WHEN "+  operand_to_sql_string(context, t._when) + " THEN " + operand_to_sql_string(context, t._then) + " ELSE " + operand_to_sql_string(context, t._else) + " END";
   }
 
-  namespace detail
+  template <typename When, typename = sqlpp::enable_if_t<is_boolean<When>::value>>
+  auto case_when(When when) -> case_when_t<When>
   {
-    template <typename When>
-    auto case_when_impl(consistent_t /*unused*/, When when) -> case_when_t<When>
-    {
-      return {when};
-    }
-
-    template <typename Check, typename When>
-    auto case_when_impl(Check, When when) -> inconsistent<Check>;
-  }  // namespace detail
-
-  template <typename When>
-  auto case_when(When when) -> decltype(detail::case_when_impl(check_case_when_t<When>{}, when))
-  {
-    return detail::case_when_impl(check_case_when_t<When>{}, when);
+    return case_when_t<When>{std::move(when)};
   }
 }  // namespace sqlpp

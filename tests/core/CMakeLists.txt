@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2021, Roland Bock
+# Copyright (c) 2021, Roland Bock
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -21,10 +21,10 @@
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 add_subdirectory(usage)
 add_subdirectory(serialize)
 add_subdirectory(constraints)
-add_subdirectory(static_asserts)
 add_subdirectory(types)
 add_subdirectory(compat)
 add_subdirectory(helpers)
