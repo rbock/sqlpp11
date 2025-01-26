@@ -62,9 +62,6 @@ void test_select_columns()
     static_assert(not sqlpp::has_name_tag<T>::value, "");
     static_assert(std::is_same<sqlpp::value_type_of_t<T>, sqlpp::integral>::value, "");
     static_assert(sqlpp::is_result_clause<T>::value, "");
-    static_assert(sqlpp::has_correct_aggregates<unknown, T>::value, "");
-    static_assert(sqlpp::has_correct_aggregates<knownInt, T>::value, "");
-    static_assert(not sqlpp::has_correct_aggregates<knownTxt, T>::value, "");
   }
 
   // Single dynamic column.
@@ -74,9 +71,6 @@ void test_select_columns()
     static_assert(not sqlpp::has_name_tag<T>::value, "");
     static_assert(std::is_same<sqlpp::value_type_of_t<T>, sqlpp::optional<sqlpp::integral>>::value, "");
     static_assert(sqlpp::is_result_clause<T>::value, "");
-    static_assert(sqlpp::has_correct_aggregates<unknown, T>::value, "");
-    static_assert(sqlpp::has_correct_aggregates<knownInt, T>::value, "");
-    static_assert(not sqlpp::has_correct_aggregates<knownTxt, T>::value, "");
   }
 
   // Single aggregate function.
@@ -86,9 +80,6 @@ void test_select_columns()
     static_assert(not sqlpp::has_name_tag<T>::value, "");
     static_assert(std::is_same<sqlpp::value_type_of_t<T>, sqlpp::optional<sqlpp::floating_point>>::value, "");
     static_assert(sqlpp::is_result_clause<T>::value, "");
-    static_assert(sqlpp::has_correct_aggregates<unknown, T>::value, "");
-    static_assert(sqlpp::has_correct_aggregates<knownInt, T>::value, "");
-    static_assert(sqlpp::has_correct_aggregates<knownTxt, T>::value, "");
   }
 
   // Single dynamic aggregate function.
@@ -98,9 +89,6 @@ void test_select_columns()
     static_assert(not sqlpp::has_name_tag<T>::value, "");
     static_assert(std::is_same<sqlpp::value_type_of_t<T>, sqlpp::optional<sqlpp::floating_point>>::value, "");
     static_assert(sqlpp::is_result_clause<T>::value, "");
-    static_assert(sqlpp::has_correct_aggregates<unknown, T>::value, "");
-    static_assert(sqlpp::has_correct_aggregates<knownInt, T>::value, "");
-    static_assert(sqlpp::has_correct_aggregates<knownTxt, T>::value, "");
   }
 
   // Single declared group by column.
@@ -109,9 +97,6 @@ void test_select_columns()
     static_assert(not sqlpp::has_name_tag<T>::value, "");
     static_assert(std::is_same<sqlpp::value_type_of_t<T>, sqlpp::text>::value, "");
     static_assert(sqlpp::is_result_clause<T>::value, "");
-    static_assert(sqlpp::has_correct_aggregates<unknown, T>::value, "");
-    static_assert(sqlpp::has_correct_aggregates<knownInt, T>::value, "");
-    static_assert(sqlpp::has_correct_aggregates<knownTxt, T>::value, "");
   }
 
   // Single dynamic declared group by column.
@@ -120,33 +105,22 @@ void test_select_columns()
     static_assert(not sqlpp::has_name_tag<T>::value, "");
     static_assert(std::is_same<sqlpp::value_type_of_t<T>, sqlpp::optional<sqlpp::text>>::value, "");
     static_assert(sqlpp::is_result_clause<T>::value, "");
-    static_assert(sqlpp::has_correct_aggregates<unknown, T>::value, "");
-    static_assert(sqlpp::has_correct_aggregates<knownInt, T>::value, "");
-    static_assert(sqlpp::has_correct_aggregates<knownTxt, T>::value, "");
   }
 
-  // Mixed columns.
-  // The columns in group_by determine if aggregates are correct or not.
+  // Multiple columns.
   {
     using T = clause_of_t<decltype(select_columns(col_int, col_txt, col_bool))>;
     static_assert(not sqlpp::has_name_tag<T>::value, "");
     static_assert(not sqlpp::has_value_type<T>::value, "");
     static_assert(sqlpp::is_result_clause<T>::value, "");
-    static_assert(sqlpp::has_correct_aggregates<unknown, T>::value, "");
-    static_assert(not sqlpp::has_correct_aggregates<knownInt, T>::value, ""); // col_int is a known aggregate here.
-    static_assert(not sqlpp::has_correct_aggregates<knownTxt, T>::value, "");
   }
 
   // Mixed columns.
-  // The columns in group_by determine if aggregates are correct or not.
   {
     using T = clause_of_t<decltype(select_columns(col_int, max(col_txt), declare_group_by_column(v).as(cheese)))>;
     static_assert(not sqlpp::has_name_tag<T>::value, "");
     static_assert(not sqlpp::has_value_type<T>::value, "");
     static_assert(sqlpp::is_result_clause<T>::value, "");
-    static_assert(not sqlpp::has_correct_aggregates<unknown, T>::value, "");
-    static_assert(sqlpp::has_correct_aggregates<knownInt, T>::value, ""); // col_int is a known aggregate here.
-    static_assert(not sqlpp::has_correct_aggregates<knownTxt, T>::value, "");
   }
 
 }

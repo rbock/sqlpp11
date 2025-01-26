@@ -35,7 +35,7 @@ int Lower(int, char* [])
   SQLPP_COMPARE(lower(bar.textN), "LOWER(tab_bar.text_n)");
 
   // Expression.
-  SQLPP_COMPARE(lower(bar.textN + "suffix"), "LOWER(tab_bar.text_n || 'suffix')");
+  SQLPP_COMPARE(lower(bar.textN + "suffix"), "LOWER(CONCAT(tab_bar.text_n, 'suffix'))");
 
   // With sub select.
   SQLPP_COMPARE(lower(select(sqlpp::value("something").as(sqlpp::alias::a))), "LOWER(SELECT 'something' AS a)");

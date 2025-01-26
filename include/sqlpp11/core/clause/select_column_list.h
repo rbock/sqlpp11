@@ -125,17 +125,17 @@ namespace sqlpp
   namespace detail {
     // If a column is statically selected, the respective table needs to be statically provided, too.
     // Note that we are giving up analysis if a sub select uses tables from the enclosing query.
-    template<typename Statement, typename SelectColumnList>
+    template<typename Statement, typename Column>
       struct select_columns_dynamic_check
       {
-        static constexpr bool uses_external_tables = not Statement::template _no_unknown_tables<SelectColumnList>;
-        using type = static_check_t<uses_external_tables or Statement::template _no_unknown_static_tables<SelectColumnList>,
+        static constexpr bool uses_external_tables = not Statement::template _no_unknown_tables<Column>;
+        using type = static_check_t<uses_external_tables or Statement::template _no_unknown_static_tables<Column>,
               assert_no_unknown_static_tables_in_selected_columns_t
           >;
       };
 
-    template<typename Statement, typename SelectColumnList>
-      using select_columns_dynamic_check_t = typename select_columns_dynamic_check<Statement, SelectColumnList>::type;
+    template<typename Statement, typename Column>
+      using select_columns_dynamic_check_t = typename select_columns_dynamic_check<Statement, Column>::type;
   }
 
   template <typename Statement, typename... Columns>
@@ -148,7 +148,7 @@ namespace sqlpp
         detail::select_columns_aggregate_check_t<has_group_by,
                                                  Statement,
                                                  detail::remove_as_from_select_column_t<Columns>...>,
-        detail::select_columns_dynamic_check_t<Statement, select_column_list_t<Columns...>>>;
+        detail::select_columns_dynamic_check_t<Statement, detail::remove_as_from_select_column_t<Columns>>...>;
   };
 
   template <typename Statement, typename... Columns>

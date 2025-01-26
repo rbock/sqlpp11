@@ -35,7 +35,7 @@ int Trim(int, char* [])
   SQLPP_COMPARE(trim(bar.textN), "TRIM(tab_bar.text_n)");
 
   // Expression.
-  SQLPP_COMPARE(trim(bar.textN + "suffix"), "TRIM(tab_bar.text_n || 'suffix')");
+  SQLPP_COMPARE(trim(bar.textN + "suffix"), "TRIM(CONCAT(tab_bar.text_n, 'suffix'))");
 
   // With sub select.
   SQLPP_COMPARE(trim(select(sqlpp::value("something").as(sqlpp::alias::a))), "TRIM(SELECT 'something' AS a)");

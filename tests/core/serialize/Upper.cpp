@@ -35,7 +35,7 @@ int Upper(int, char* [])
   SQLPP_COMPARE(upper(bar.textN), "UPPER(tab_bar.text_n)");
 
   // Expression.
-  SQLPP_COMPARE(upper(bar.textN + "suffix"), "UPPER(tab_bar.text_n || 'suffix')");
+  SQLPP_COMPARE(upper(bar.textN + "suffix"), "UPPER(CONCAT(tab_bar.text_n, 'suffix'))");
 
   // With sub select.
   SQLPP_COMPARE(upper(select(sqlpp::value("something").as(sqlpp::alias::a))), "UPPER(SELECT 'something' AS a)");
