@@ -25,6 +25,8 @@
 
 #include <sqlpp11/sqlpp11.h>
 
+#include <sqlpp11/tests/core/tables.h>
+
 SQLPP_CREATE_NAME_TAG(r_not_null);
 SQLPP_CREATE_NAME_TAG(r_maybe_null);
 
@@ -48,8 +50,21 @@ void test_exists(Value v)
   // EXISTS expressions have the SELECT as node.
   using S = decltype(select(v_not_null));
   static_assert(std::is_same<sqlpp::nodes_of_t<decltype(exists(select(v_not_null)))>, sqlpp::detail::type_vector<S>>::value, "");
+}
 
-#warning: Note that a sub select may require tables from the enclosing select. This is currently not correctly implemented. We need to test that.
+void test_exists_sub_select()
+{
+  const auto foo = test::TabFoo{};
+  const auto bar = test::TabBar{};
+
+  // Use a select that depends on a table that would need to be provided by the enclosing query.
+  auto s = select(foo.id).from(foo).where(foo.id == bar.id);
+  auto a = exists(s);
+
+  using S = decltype(s);
+  using A = decltype(a);
+
+  static_assert(std::is_same<sqlpp::required_tables_of_t<A>, sqlpp::required_tables_of_t<S>>::value, "");
 }
 
 int main()
@@ -92,5 +107,7 @@ int main()
 
   // time_of_day
   test_exists(std::chrono::microseconds{});
+
+  test_exists_sub_select();
 }
 
