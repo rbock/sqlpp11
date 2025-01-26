@@ -131,9 +131,6 @@ void test_compound_assign_expression(const Column& col, const Value& v)
   static_assert(std::is_same<sqlpp::nodes_of_t<decltype(col -= v_not_null)>, sqlpp::detail::type_vector<L, R>>::value, "");
 }
 
-#warning: test that non-nullable columns cannot be assigned optional values
-#warning: test that non-default columns cannot be assigned to default_value
-
 int main()
 {
   const auto bar = test::TabBar{};

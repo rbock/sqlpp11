@@ -30,4 +30,5 @@ function(create_test name)
 endfunction()
 
 create_test(expression_as)
+create_test(assign_expression)
 
