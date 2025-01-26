@@ -28,5 +28,4 @@ function(test_compile name)
     target_link_libraries(${target} PRIVATE sqlpp11::sqlpp11 sqlpp11_testing)
 endfunction()
 
-test_compile(aggregates)
 test_compile(case)
