@@ -254,8 +254,7 @@ int SelectType(int, char*[])
   static_assert(sqlpp::is_boolean<decltype(select(t.boolNn).from(t).unconditionally())>::value, "select(bool) has to be a bool");
   static_assert(sqlpp::is_boolean<decltype(select(r.a).from(r).unconditionally())>::value, "select(bool) has to be a bool");
   auto s1 = sqlpp::select()
-#warning: We might want to add the straight_join flag to mysql
-                .flags(sqlpp::distinct/*, sqlpp::straight_join*/)
+                .flags(sqlpp::distinct)
                 .columns(l.boolNn, r.a)
                 .from(r.cross_join(t).cross_join(l))
                 .where(t.textN == "hello world" and select(t.boolNn).from(t).where(t.id == 7))  // .as(alias::right))
