@@ -36,6 +36,7 @@
 #include <sqlpp11/core/clause/select_as.h>
 #include <sqlpp11/core/clause/select_column_traits.h>
 #include <sqlpp11/core/clause/select_columns_aggregate_check.h>
+#include <sqlpp11/core/clause/select_columns_static_check.h>
 #include <sqlpp11/core/group_by_column.h>
 #include <sqlpp11/core/basic/table.h>
 #include <tuple>
@@ -45,10 +46,6 @@ namespace sqlpp
   SQLPP_WRAPPED_STATIC_ASSERT(
       assert_no_unknown_tables_in_selected_columns_t,
       "at least one selected column requires a table which is otherwise not known in the statement");
-
-  SQLPP_WRAPPED_STATIC_ASSERT(
-      assert_no_unknown_static_tables_in_selected_columns_t,
-      "at least one selected column statically requires a table which is otherwise not known dynamically in the statement");
 
   // SELECTED COLUMNS
   template <typename... Columns>
@@ -122,22 +119,6 @@ namespace sqlpp
   {
   };
 
-  namespace detail {
-    // If a column is statically selected, the respective table needs to be statically provided, too.
-    // Note that we are giving up analysis if a sub select uses tables from the enclosing query.
-    template<typename Statement, typename Column>
-      struct select_columns_dynamic_check
-      {
-        static constexpr bool uses_external_tables = not Statement::template _no_unknown_tables<Column>;
-        using type = static_check_t<uses_external_tables or Statement::template _no_unknown_static_tables<Column>,
-              assert_no_unknown_static_tables_in_selected_columns_t
-          >;
-      };
-
-    template<typename Statement, typename Column>
-      using select_columns_dynamic_check_t = typename select_columns_dynamic_check<Statement, Column>::type;
-  }
-
   template <typename Statement, typename... Columns>
   struct consistency_check<Statement, select_column_list_t<Columns...>>
   {
@@ -148,7 +129,7 @@ namespace sqlpp
         detail::select_columns_aggregate_check_t<has_group_by,
                                                  Statement,
                                                  detail::remove_as_from_select_column_t<Columns>...>,
-        detail::select_columns_dynamic_check_t<Statement, detail::remove_as_from_select_column_t<Columns>>...>;
+        detail::select_columns_static_check_t<Statement, detail::remove_as_from_select_column_t<Columns>>...>;
   };
 
   template <typename Statement, typename... Columns>

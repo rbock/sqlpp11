@@ -197,7 +197,7 @@ int main()
                   "");
   }
   {
-    // Fail: This is a sub select that statically requires `bar` but provides it dynamically only.
+    // Fail: This is a sub select that statically requires `foo` but provides it dynamically only.
     auto s = select(foo.id, bar.intN).from(dynamic(true, foo)).unconditionally();
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_no_unknown_static_tables_in_selected_columns_t>::value, "");
@@ -206,12 +206,18 @@ int main()
                   "");
   }
   {
-    // Fail to prepare sub select: `bar` is required from the enclosing query. This would not be allowed for use as a
-    // table (and also could not be prepared/executed).
-    // Note that we do not detect that foo is required statically but provided dynamically only (we are not running a
-    // deep analysis of expressions that have unknown tables to begin with).
-#warning: Make the check recursive. That is easier than explaining why this is not detected :-)
+    // Fail: foo is statically required in a selected expression, but provided dynamically only.
     auto s = select((foo.id + bar.intN).as(something)).from(dynamic(true, foo)).unconditionally();
+    using S = decltype(s);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_no_unknown_static_tables_in_selected_columns_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>,
+                               sqlpp::assert_no_unknown_static_tables_in_selected_columns_t>::value,
+                  "");
+  }
+  {
+    // Fail: `bar` is required, but not provided. This can be used as a sub-select (consistency check), but not as a
+    // table (prepare check), and it could not be prepared or executed either.
+    auto s = select(bar.id).from(foo).unconditionally();
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::consistent_t>::value, "");
     static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>,
