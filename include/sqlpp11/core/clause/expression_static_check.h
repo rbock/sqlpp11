@@ -30,40 +30,36 @@
 
 namespace sqlpp
 {
-  SQLPP_WRAPPED_STATIC_ASSERT(
-      assert_no_unknown_static_tables_in_selected_columns_t,
-      "at least one selected column statically requires a table which is otherwise not known dynamically in the statement");
-
   namespace detail
   {
     // If an expression (or sub-expression) is statically selected, the respective table needs to be statically
     // provided, too.
     // Note that the select could be a sub-select that refers to tables provided by the enclosing query. We cannot know
     // if those are dynamically or statically provided.
-    template <typename Statement, typename Column>
-    struct select_columns_static_check;
-    template <typename Statement, typename Column>
-    using select_columns_static_check_t = typename select_columns_static_check<Statement, Column>::type;
+    template <typename Statement, typename Expression, typename Assert>
+    struct expression_static_check;
+    template <typename Statement, typename Expression, typename Assert>
+    using expression_static_check_t = typename expression_static_check<Statement, Expression, Assert>::type;
 
-    template <typename Statement, typename Column>
-    struct select_columns_static_check
+    template <typename Statement, typename Expression, typename Assert>
+    struct expression_static_check
     {
-      static constexpr bool uses_external_tables = not Statement::template _no_unknown_tables<Column>;
+      static constexpr bool uses_external_tables = not Statement::template _no_unknown_tables<Expression>;
 
       using type =
           typename std::conditional<uses_external_tables,
                                     // Drill down into nodes to separate internal from external table dependencies.
-                                    select_columns_static_check_t<Statement, nodes_of_t<Column>>,
+                                    expression_static_check_t<Statement, nodes_of_t<Expression>, Assert>,
                                     // If no external tables are used, then statically required tables also need to be
                                     // provided statically.
-                                    static_check_t<Statement::template _no_unknown_static_tables<Column>,
-                                                   assert_no_unknown_static_tables_in_selected_columns_t>>::type;
+                                    static_check_t<Statement::template _no_unknown_static_tables<Expression>,
+                                                   Assert>>::type;
     };
 
-    template <typename Statement, typename... Nodes>
-    struct select_columns_static_check<Statement, detail::type_vector<Nodes...>>
+    template <typename Statement, typename... Nodes, typename Assert>
+    struct expression_static_check<Statement, detail::type_vector<Nodes...>, Assert>
     {
-      using type = static_combined_check_t<select_columns_static_check_t<Statement, Nodes>...>;
+      using type = static_combined_check_t<expression_static_check_t<Statement, Nodes, Assert>...>;
     };
   }  // namespace detail
 

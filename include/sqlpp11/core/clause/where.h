@@ -31,6 +31,7 @@
 #include <sqlpp11/core/logic.h>
 #include <sqlpp11/core/query/statement_fwd.h>
 #include <sqlpp11/core/type_traits.h>
+#include <sqlpp11/core/clause/expression_static_check.h>
 #include <sqlpp11/core/unconditional.h>
 #include <sqlpp11/core/basic/value.h>
 
@@ -46,6 +47,10 @@ namespace sqlpp
       assert_no_unknown_tables_in_where_t,
       "at least one expression in where() requires a table which is otherwise not known in the statement");
 
+  SQLPP_WRAPPED_STATIC_ASSERT(
+      assert_no_unknown_static_tables_in_where_t,
+      "at least one expression in where() statically requires a table which is only known dynamically in the statement");
+
   template <typename Expression>
   struct is_clause<where_t<Expression>> : public std::true_type
   {
@@ -54,15 +59,23 @@ namespace sqlpp
   template <typename Statement, typename Expression>
   struct consistency_check<Statement, where_t<Expression>>
   {
-    using type = consistent_t;
+#warning: Need to test these with and without external table references
+#warning: also need to look into other clauses and their use of static tables.
+    using type = detail::expression_static_check_t<Statement,
+                                          Expression,
+                                          assert_no_unknown_static_tables_in_where_t>;
   };
 
   template <typename Statement, typename Expression>
   struct prepare_check<Statement, where_t<Expression>>
   {
-      using type = typename std::conditional<Statement::template _no_unknown_tables<where_t<Expression>>,
-                                                           consistent_t,
-                                                           assert_no_unknown_tables_in_where_t>::type;
+#warning: Need to test these
+    using type = static_combined_check_t<
+      static_check_t<Statement::template _no_unknown_tables<where_t<Expression>>,
+                                assert_no_unknown_tables_in_where_t>,
+      static_check_t<Statement::template _no_unknown_static_tables<where_t<Expression>>,
+                                assert_no_unknown_static_tables_in_where_t>
+                                  >;
   };
 
   template <typename Expression>

@@ -36,7 +36,7 @@
 #include <sqlpp11/core/clause/select_as.h>
 #include <sqlpp11/core/clause/select_column_traits.h>
 #include <sqlpp11/core/clause/select_columns_aggregate_check.h>
-#include <sqlpp11/core/clause/select_columns_static_check.h>
+#include <sqlpp11/core/clause/expression_static_check.h>
 #include <sqlpp11/core/group_by_column.h>
 #include <sqlpp11/core/basic/table.h>
 #include <tuple>
@@ -46,6 +46,10 @@ namespace sqlpp
   SQLPP_WRAPPED_STATIC_ASSERT(
       assert_no_unknown_tables_in_selected_columns_t,
       "at least one selected column requires a table which is otherwise not known in the statement");
+
+  SQLPP_WRAPPED_STATIC_ASSERT(
+      assert_no_unknown_static_tables_in_selected_columns_t,
+      "at least one selected column statically requires a table which is otherwise not known dynamically in the statement");
 
   // SELECTED COLUMNS
   template <typename... Columns>
@@ -129,7 +133,9 @@ namespace sqlpp
         detail::select_columns_aggregate_check_t<has_group_by,
                                                  Statement,
                                                  detail::remove_as_from_select_column_t<Columns>...>,
-        detail::select_columns_static_check_t<Statement, detail::remove_as_from_select_column_t<Columns>>...>;
+        detail::expression_static_check_t<Statement,
+                                          detail::remove_as_from_select_column_t<Columns>,
+                                          assert_no_unknown_static_tables_in_selected_columns_t>...>;
   };
 
   template <typename Statement, typename... Columns>
