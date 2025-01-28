@@ -29,11 +29,20 @@
 #include <sqlpp11/core/detail/type_set.h>
 #include <sqlpp11/core/tuple_to_sql_string.h>
 #include <sqlpp11/core/logic.h>
+#include <sqlpp11/core/clause/expression_static_check.h>
 #include <sqlpp11/core/type_traits.h>
 #include <tuple>
 
 namespace sqlpp
 {
+  SQLPP_WRAPPED_STATIC_ASSERT(
+      assert_no_unknown_tables_in_order_by_t,
+      "at least one order-by expression requires a table which is otherwise not known in the statement");
+
+  SQLPP_WRAPPED_STATIC_ASSERT(
+      assert_no_unknown_static_tables_in_order_by_t,
+      "at least one order-by expression statically requires a table which is only known dynamically in the statement");
+
   template <typename... Expressions>
   struct order_by_t
   {
@@ -70,27 +79,28 @@ namespace sqlpp
     using PA = typename Statement::_all_provided_aggregates;
     using PSA = typename Statement::_all_provided_static_aggregates;
 
-    using type = typename std::conditional<
+    using type = static_combined_check_t<typename std::conditional<
         PA::empty(),
+#warning: Move the conditional expression into separate template
         static_check_t<logic::all<is_non_aggregate_expression<PA, Expressions>::value...>::value,
                        assert_correct_order_by_aggregates_t>,
         static_combined_check_t<
             static_check_t<logic::all<is_aggregate_expression<PA, Expressions>::value...>::value,
                            assert_correct_order_by_aggregates_with_group_by_t>,
             static_check_t<logic::all<static_part_is_aggregate_expression<PSA, Expressions>::value...>::value,
-                           assert_correct_static_order_by_aggregates_with_group_by_t>>>::type;
+                           assert_correct_static_order_by_aggregates_with_group_by_t>>>::type,
+                           #warning: Need to test this
+        detail::expression_static_check_t<Statement, Expressions, assert_no_unknown_static_tables_in_order_by_t>...>;
   };
-
-  SQLPP_WRAPPED_STATIC_ASSERT(
-      assert_no_unknown_tables_in_order_by_t,
-      "at least one order-by expression requires a table which is otherwise not known in the statement");
 
   template <typename Statement, typename... Expressions>
   struct prepare_check<Statement, order_by_t<Expressions...>>
   {
-    using type = typename std::conditional<Statement::template _no_unknown_tables<order_by_t<Expressions...>>,
-                                           consistent_t,
-                                           assert_no_unknown_tables_in_order_by_t>::type;
+#warning: Need to test this
+    using type = static_combined_check_t<
+        static_check_t<Statement::template _no_unknown_tables<order_by_t<Expressions...>>, assert_no_unknown_tables_in_order_by_t>,
+        static_check_t<Statement::template _no_unknown_static_tables<order_by_t<Expressions...>>,
+                       assert_no_unknown_static_tables_in_order_by_t>>;
   };
 
   template <typename... Expressions>

@@ -60,7 +60,7 @@ namespace sqlpp
   struct consistency_check<Statement, where_t<Expression>>
   {
 #warning: Need to test these with and without external table references
-#warning: also need to look into other clauses and their use of static tables.
+#warning: also need to look into other clauses and their use of static tables, including limit and offset (for completeness)
     using type = detail::expression_static_check_t<Statement,
                                           Expression,
                                           assert_no_unknown_static_tables_in_where_t>;

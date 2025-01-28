@@ -29,6 +29,7 @@
 #include <sqlpp11/core/tuple_to_sql_string.h>
 #include <sqlpp11/core/logic.h>
 #include <sqlpp11/core/type_traits.h>
+#include <sqlpp11/core/clause/expression_static_check.h>
 #include <sqlpp11/core/basic/value.h>
 
 namespace sqlpp
@@ -50,8 +51,12 @@ namespace sqlpp
   };
 
   SQLPP_WRAPPED_STATIC_ASSERT(
-      assert_having_no_unknown_tables_t,
+      assert_no_unknown_tables_in_having_t,
       "at least one having-expression requires a table which is otherwise not known in the statement");
+
+  SQLPP_WRAPPED_STATIC_ASSERT(
+      assert_no_unknown_static_tables_in_having_t,
+      "at least one having-expression statically requires a table which is only known dynamically in the statement");
 
   SQLPP_WRAPPED_STATIC_ASSERT(assert_having_all_aggregates_t,
                                "having expression not built out of aggregate expressions");
@@ -72,14 +77,19 @@ namespace sqlpp
                        assert_having_all_aggregates_t>,
         static_check_t<
             static_part_is_aggregate_expression<typename Statement::_all_provided_static_aggregates, Expression>::value,
-            assert_having_all_static_aggregates_t>>;
+            assert_having_all_static_aggregates_t>,
+#warning: Need to test this
+        detail::expression_static_check_t<Statement, Expression, assert_no_unknown_static_tables_in_having_t>>;
   };
 
   template <typename Statement, typename Expression>
   struct prepare_check<Statement, having_t<Expression>>
   {
-    using type =
-        static_check_t<Statement::template _no_unknown_tables<having_t<Expression>>, assert_having_no_unknown_tables_t>;
+    using type = static_combined_check_t<
+        static_check_t<Statement::template _no_unknown_tables<having_t<Expression>>, assert_no_unknown_tables_in_having_t>,
+#warning: Need to test this
+        static_check_t<Statement::template _no_unknown_static_tables<having_t<Expression>>,
+                       assert_no_unknown_static_tables_in_having_t>>;
   };
 
   // NO HAVING YET

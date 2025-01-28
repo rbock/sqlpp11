@@ -30,6 +30,7 @@
 #include <sqlpp11/core/logic.h>
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/group_by_column.h>
+#include <sqlpp11/core/clause/expression_static_check.h>
 #include <tuple>
 
 namespace sqlpp
@@ -54,6 +55,10 @@ namespace sqlpp
       assert_no_unknown_tables_in_group_by_t,
       "at least one group-by expression requires a table which is otherwise not known in the statement");
 
+  SQLPP_WRAPPED_STATIC_ASSERT(
+      assert_no_unknown_static_tables_in_group_by_t,
+      "at least one group-by expression statically requires a table which is only known dynamically in the statement");
+
   template <typename... Columns>
   struct is_clause<group_by_t<Columns...>> : public std::true_type
   {
@@ -62,15 +67,22 @@ namespace sqlpp
  template <typename Statement, typename... Columns>
   struct consistency_check<Statement, group_by_t<Columns...>>
   {
-    using type = consistent_t;
+#warning: Need to test these with and without external table references
+    using type = detail::expression_static_check_t<Statement,
+                                          group_by_t<Columns...>,
+                                          assert_no_unknown_static_tables_in_where_t>;
   };
 
  template <typename Statement, typename... Columns>
   struct prepare_check<Statement, group_by_t<Columns...>>
   {
-    using type = typename std::conditional<Statement::template _no_unknown_tables<group_by_t<Columns...>>,
-                                           consistent_t,
-                                           assert_no_unknown_tables_in_group_by_t>::type;
+#warning: Need to test these
+    using type = static_combined_check_t<
+      static_check_t<Statement::template _no_unknown_tables<group_by_t<Columns...>>,
+                                assert_no_unknown_tables_in_group_by_t>,
+      static_check_t<Statement::template _no_unknown_static_tables<group_by_t<Columns...>>,
+                                assert_no_unknown_static_tables_in_group_by_t>
+                                  >;
   };
 
   template <typename... Columns>
