@@ -47,6 +47,7 @@ namespace
 int main()
 {
   const auto maybe = true;
+  const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 
   // OK
@@ -114,5 +115,22 @@ int main()
         std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_where_or_unconditionally_called_t>::value,
         "");
   }
+
+  // `where` using unknown table
+  {
+    auto s = select(max(foo.id).as(something)).from(foo).where(bar.id > 7);
+    using S = decltype(s);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::consistent_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>, sqlpp::assert_no_unknown_tables_in_where_t>::value, "");
+  }
+
+  // `where` statically using dynamic table
+  {
+    auto s = select(max(foo.id).as(something)).from(foo.cross_join(dynamic(maybe, bar))).where(bar.id > 7);
+    using S = decltype(s);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_no_unknown_static_tables_in_where_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>, sqlpp::assert_no_unknown_static_tables_in_where_t>::value, "");
+  }
+
 }
 

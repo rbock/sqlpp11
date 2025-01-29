@@ -59,7 +59,6 @@ namespace sqlpp
   template <typename Statement, typename Expression>
   struct consistency_check<Statement, where_t<Expression>>
   {
-#warning: Need to test these with and without external table references
     using type = detail::expression_static_check_t<Statement,
                                           Expression,
                                           assert_no_unknown_static_tables_in_where_t>;
@@ -68,7 +67,6 @@ namespace sqlpp
   template <typename Statement, typename Expression>
   struct prepare_check<Statement, where_t<Expression>>
   {
-#warning: Need to test these
     using type = static_combined_check_t<
       static_check_t<Statement::template _no_unknown_tables<where_t<Expression>>,
                                 assert_no_unknown_tables_in_where_t>,
