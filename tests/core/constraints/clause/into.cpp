@@ -50,6 +50,7 @@ int main()
 
   // into() arg must be a table
   static_assert(test::can_call_into_with<decltype(bar)>::value, "");
+  static_assert(not test::can_call_into_with<decltype(bar.as(test::something))>::value, "");
   static_assert(not test::can_call_into_with<decltype(bar.id)>::value, "");
   static_assert(not test::can_call_into_with<decltype(foo.join(bar))>::value, "");
   static_assert(not test::can_call_into_with<decltype(foo.cross_join(bar))>::value, "");

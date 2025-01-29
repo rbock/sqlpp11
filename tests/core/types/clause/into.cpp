@@ -45,13 +45,6 @@ void test_into()
     static_assert(std::is_same<sqlpp::provided_static_tables_of_t<I>, sqlpp::provided_tables_of_t<I>>::value, "");
     static_assert(std::is_same<sqlpp::provided_optional_tables_of_t<I>, sqlpp::detail::type_set<>>::value, "");
   }
-
-#warning: write constraint tests
-  /*
-  assert_invalid_argument(foo.join(bar));
-  assert_invalid_argument(foo.as(cheese));
-  assert_invalid_argument(id);
-  */
 }
 
 int main()
