@@ -27,33 +27,48 @@
  */
 
 #include <sqlpp11/core/detail/type_set.h>
+#include <sqlpp11/core/clause/expression_static_check.h>
 #include <sqlpp11/core/type_traits.h>
 
 namespace sqlpp
 {
-  template <typename Limit>
+  SQLPP_WRAPPED_STATIC_ASSERT(
+      assert_no_unknown_tables_in_limit_t,
+      "at least one expression in limit() requires a table which is otherwise not known in the statement");
+
+  SQLPP_WRAPPED_STATIC_ASSERT(
+      assert_no_unknown_static_tables_in_limit_t,
+      "at least one expression in limit() statically requires a table which is only known dynamically in the statement");
+
+  template <typename Expression>
   struct limit_t
   {
-    limit_t(Limit value) : _value(value)
-    {
-    }
-
-    limit_t(const limit_t&) = default;
-    limit_t(limit_t&&) = default;
-    limit_t& operator=(const limit_t&) = default;
-    limit_t& operator=(limit_t&&) = default;
-    ~limit_t() = default;
-
-    Limit _value;
+    Expression _expr;
   };
 
-  template <typename Limit>
-  struct is_clause<limit_t<Limit>> : public std::true_type
+  template <typename Expression>
+  struct is_clause<limit_t<Expression>> : public std::true_type
   {
   };
 
-  template<typename Statement, typename Limit>
-    struct consistency_check<Statement, limit_t<Limit>> { using type = consistent_t; };
+  template <typename Statement, typename Expression>
+  struct consistency_check<Statement, limit_t<Expression>>
+  {
+    using type = detail::expression_static_check_t<Statement,
+                                          Expression,
+                                          assert_no_unknown_static_tables_in_limit_t>;
+  };
+
+  template <typename Statement, typename Expression>
+  struct prepare_check<Statement, limit_t<Expression>>
+  {
+    using type = static_combined_check_t<
+      static_check_t<Statement::template _no_unknown_tables<Expression>,
+                                assert_no_unknown_tables_in_limit_t>,
+      static_check_t<Statement::template _no_unknown_static_tables<Expression>,
+                                assert_no_unknown_static_tables_in_limit_t>
+                                  >;
+  };
 
   struct no_limit_t
   {
@@ -84,20 +99,20 @@ namespace sqlpp
     return "";
   }
 
-  template <typename Context, typename Limit>
-  auto to_sql_string(Context& context, const limit_t<Limit>& t) -> std::string
+  template <typename Context, typename Expression>
+  auto to_sql_string(Context& context, const limit_t<Expression>& t) -> std::string
   {
-    return  " LIMIT " + operand_to_sql_string(context, t._value);
+    return  " LIMIT " + operand_to_sql_string(context, t._expr);
   }
 
-  template <typename Context, typename Limit>
-  auto to_sql_string(Context& context, const limit_t<dynamic_t<Limit>>& t) -> std::string
+  template <typename Context, typename Expression>
+  auto to_sql_string(Context& context, const limit_t<dynamic_t<Expression>>& t) -> std::string
   {
-    if (not t._value._condition)
+    if (not t._expr._condition)
     {
       return "";
     }
-    return  " LIMIT " + operand_to_sql_string(context, t._value._expr);
+    return  " LIMIT " + operand_to_sql_string(context, t._expr._expr);
   }
 
   template <typename T>

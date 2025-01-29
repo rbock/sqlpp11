@@ -73,32 +73,52 @@ namespace sqlpp
   SQLPP_WRAPPED_STATIC_ASSERT(assert_correct_static_order_by_aggregates_with_group_by_t,
                                "order_by statically contains aggregates that are only dynamically defined in group_by");
 
+  namespace detail
+  {
+    template <typename ProvidedAggregates, typename ProvidedStaticAggregates, typename... Expressions>
+      struct check_order_by_aggregates;
+
+    template <typename ProvidedAggregates, typename ProvidedStaticAggregates, typename... Expressions>
+      using check_order_by_aggregates_t = typename check_order_by_aggregates<ProvidedAggregates, ProvidedStaticAggregates, Expressions...>::type;
+
+    // In case of provided aggregates all of the order by expressions have to be aggregates.
+    template <typename ProvidedAggregates, typename ProvidedStaticAggregates, typename... Expressions>
+      struct check_order_by_aggregates
+      {
+        using type = static_combined_check_t<
+            static_check_t<logic::all<is_aggregate_expression<ProvidedAggregates, Expressions>::value...>::value,
+                           assert_correct_order_by_aggregates_with_group_by_t>,
+            static_check_t<
+                logic::all<static_part_is_aggregate_expression<ProvidedStaticAggregates, Expressions>::value...>::value,
+                assert_correct_static_order_by_aggregates_with_group_by_t>>;
+      };
+
+    // In case of no provided aggregates all of the order by expressions have to be non-aggregates.
+    template <typename... Expressions>
+      struct check_order_by_aggregates<detail::type_set<>, detail::type_set<>, Expressions...>
+      {
+        using type = static_check_t<logic::all<is_non_aggregate_expression<detail::type_set<>, Expressions>::value...>::value,
+                                    assert_correct_order_by_aggregates_t>;
+      };
+  }
+
   template <typename Statement, typename... Expressions>
   struct consistency_check<Statement, order_by_t<Expressions...>>
   {
     using PA = typename Statement::_all_provided_aggregates;
     using PSA = typename Statement::_all_provided_static_aggregates;
 
-    using type = static_combined_check_t<typename std::conditional<
-        PA::empty(),
-#warning: Move the conditional expression into separate template
-        static_check_t<logic::all<is_non_aggregate_expression<PA, Expressions>::value...>::value,
-                       assert_correct_order_by_aggregates_t>,
-        static_combined_check_t<
-            static_check_t<logic::all<is_aggregate_expression<PA, Expressions>::value...>::value,
-                           assert_correct_order_by_aggregates_with_group_by_t>,
-            static_check_t<logic::all<static_part_is_aggregate_expression<PSA, Expressions>::value...>::value,
-                           assert_correct_static_order_by_aggregates_with_group_by_t>>>::type,
-                           #warning: Need to test this
+    using type = static_combined_check_t<
+        detail::check_order_by_aggregates_t<PA, PSA, Expressions...>,
         detail::expression_static_check_t<Statement, Expressions, assert_no_unknown_static_tables_in_order_by_t>...>;
   };
 
   template <typename Statement, typename... Expressions>
   struct prepare_check<Statement, order_by_t<Expressions...>>
   {
-#warning: Need to test this
     using type = static_combined_check_t<
-        static_check_t<Statement::template _no_unknown_tables<order_by_t<Expressions...>>, assert_no_unknown_tables_in_order_by_t>,
+        static_check_t<Statement::template _no_unknown_tables<order_by_t<Expressions...>>,
+                       assert_no_unknown_tables_in_order_by_t>,
         static_check_t<Statement::template _no_unknown_static_tables<order_by_t<Expressions...>>,
                        assert_no_unknown_static_tables_in_order_by_t>>;
   };

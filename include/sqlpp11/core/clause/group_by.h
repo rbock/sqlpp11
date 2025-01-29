@@ -67,16 +67,14 @@ namespace sqlpp
  template <typename Statement, typename... Columns>
   struct consistency_check<Statement, group_by_t<Columns...>>
   {
-#warning: Need to test these with and without external table references
     using type = detail::expression_static_check_t<Statement,
                                           group_by_t<Columns...>,
-                                          assert_no_unknown_static_tables_in_where_t>;
+                                          assert_no_unknown_static_tables_in_group_by_t>;
   };
 
  template <typename Statement, typename... Columns>
   struct prepare_check<Statement, group_by_t<Columns...>>
   {
-#warning: Need to test these
     using type = static_combined_check_t<
       static_check_t<Statement::template _no_unknown_tables<group_by_t<Columns...>>,
                                 assert_no_unknown_tables_in_group_by_t>,

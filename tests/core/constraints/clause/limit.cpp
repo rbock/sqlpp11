@@ -47,6 +47,7 @@ namespace
 int main()
 {
   const auto maybe = true;
+  const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 
   // OK
@@ -76,6 +77,22 @@ int main()
     auto s = sqlpp::statement_t<sqlpp::no_limit_t>{};
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::consistent_t>::value, "");
+  }
+
+  // `limit` using unknown table
+  {
+    auto s = select(foo.id).from(foo).where(true).limit(bar.id);
+    using S = decltype(s);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::consistent_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>, sqlpp::assert_no_unknown_tables_in_limit_t>::value, "");
+  }
+
+  // `limit` statically using dynamic table
+  {
+    auto s = select(foo.id).from(foo.cross_join(dynamic(maybe, bar))).where(true).limit(bar.id);
+    using S = decltype(s);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_no_unknown_static_tables_in_limit_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>, sqlpp::assert_no_unknown_static_tables_in_limit_t>::value, "");
   }
 
 }

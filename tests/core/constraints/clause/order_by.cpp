@@ -57,6 +57,7 @@ namespace test {
 
 int main()
 {
+  const auto maybe = true;
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 
@@ -65,7 +66,7 @@ int main()
 
   // order_by(<non-sort-order arguments>) cannot be called.
   static_assert(can_call_order_by_with<decltype(bar.boolNn.asc())>::value, "OK, argument a column ascending");
-  static_assert(can_call_order_by_with<decltype(dynamic(true, bar.boolNn.desc()))>::value, "OK, argument a dynamic column");
+  static_assert(can_call_order_by_with<decltype(dynamic(maybe, bar.boolNn.desc()))>::value, "OK, argument a dynamic column");
   static_assert(can_call_order_by_with<decltype((bar.id + 7).asc())>::value, "OK, declared order by column");
   static_assert(not can_call_order_by_with<decltype(bar.id)>::value, "not sort order: column");
   static_assert(not can_call_order_by_with<decltype(7)>::value, "not sort order: integer");
@@ -74,8 +75,8 @@ int main()
 
   // order_by(<duplicate sort order expressions>) is inconsistent and cannot be constructed.
   SQLPP_CHECK_STATIC_ASSERT(sqlpp::order_by(bar.id.asc(), bar.id.asc()), "at least one duplicate argument detected in order_by()");
-  SQLPP_CHECK_STATIC_ASSERT(sqlpp::order_by(dynamic(true, bar.id.asc()), bar.id.asc()), "at least one duplicate argument detected in order_by()");
-  SQLPP_CHECK_STATIC_ASSERT(sqlpp::order_by(bar.id.asc(), dynamic(true, bar.id.asc())), "at least one duplicate argument detected in order_by()");
+  SQLPP_CHECK_STATIC_ASSERT(sqlpp::order_by(dynamic(maybe, bar.id.asc()), bar.id.asc()), "at least one duplicate argument detected in order_by()");
+  SQLPP_CHECK_STATIC_ASSERT(sqlpp::order_by(bar.id.asc(), dynamic(maybe, bar.id.asc())), "at least one duplicate argument detected in order_by()");
 
   // order_by is not required
   {
@@ -126,10 +127,26 @@ int main()
 
   {
     // Fail: foo.intN is a dynamic aggregate, but foo.intN is statically used in order_by.
-    auto s = select(foo.id).from(foo).where(true).group_by(foo.id, dynamic(true, foo.intN)).order_by(foo.id.asc(), foo.intN.desc());
+    auto s = select(foo.id).from(foo).where(true).group_by(foo.id, dynamic(maybe, foo.intN)).order_by(foo.id.asc(), foo.intN.desc());
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_correct_static_order_by_aggregates_with_group_by_t>::value, "");
     static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>, sqlpp::assert_correct_static_order_by_aggregates_with_group_by_t>::value, "");
+  }
+
+  // `order_by` using unknown table
+  {
+    auto s = select(foo.id).from(foo).where(true).order_by(bar.id.desc());
+    using S = decltype(s);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::consistent_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>, sqlpp::assert_no_unknown_tables_in_order_by_t>::value, "");
+  }
+
+  // `order_by` statically using dynamic table
+  {
+    auto s = select(foo.id).from(foo.cross_join(dynamic(maybe, bar))).where(true).order_by(bar.id.desc());
+    using S = decltype(s);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_no_unknown_static_tables_in_order_by_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>, sqlpp::assert_no_unknown_static_tables_in_order_by_t>::value, "");
   }
 
 }

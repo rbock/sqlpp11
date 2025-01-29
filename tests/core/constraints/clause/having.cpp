@@ -149,5 +149,22 @@ int main()
                                sqlpp::assert_having_all_static_aggregates_t>::value,
                   "");
   }
+
+  // `having` using unknown table
+  {
+    auto s = select(max(foo.id).as(something)).from(foo).where(true).having(max(bar.id) > 7).group_by(foo.id);
+    using S = decltype(s);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::consistent_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>, sqlpp::assert_no_unknown_tables_in_having_t>::value, "");
+  }
+
+  // `having` statically using dynamic table
+  {
+    auto s = select(max(foo.id).as(something)).from(foo.cross_join(dynamic(maybe, bar))).where(true).having(bar.id > 7).group_by(foo.id);
+    using S = decltype(s);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_no_unknown_static_tables_in_having_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>, sqlpp::assert_no_unknown_static_tables_in_having_t>::value, "");
+  }
+
 }
 

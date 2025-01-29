@@ -37,16 +37,6 @@ namespace sqlpp
   template <typename Expression>
   struct having_t
   {
-    having_t(Expression expression) : _expression(expression)
-    {
-    }
-
-    having_t(const having_t&) = default;
-    having_t(having_t&&) = default;
-    having_t& operator=(const having_t&) = default;
-    having_t& operator=(having_t&&) = default;
-    ~having_t() = default;
-
     Expression _expression;
   };
 
@@ -69,6 +59,12 @@ namespace sqlpp
   {
   };
 
+  template <typename Expression>
+  struct nodes_of<having_t<Expression>>
+  {
+    using type = detail::type_vector<Expression>;
+  };
+
   template <typename Statement, typename Expression>
   struct consistency_check<Statement, having_t<Expression>>
   {
@@ -78,7 +74,6 @@ namespace sqlpp
         static_check_t<
             static_part_is_aggregate_expression<typename Statement::_all_provided_static_aggregates, Expression>::value,
             assert_having_all_static_aggregates_t>,
-#warning: Need to test this
         detail::expression_static_check_t<Statement, Expression, assert_no_unknown_static_tables_in_having_t>>;
   };
 
@@ -87,7 +82,6 @@ namespace sqlpp
   {
     using type = static_combined_check_t<
         static_check_t<Statement::template _no_unknown_tables<having_t<Expression>>, assert_no_unknown_tables_in_having_t>,
-#warning: Need to test this
         static_check_t<Statement::template _no_unknown_static_tables<having_t<Expression>>,
                        assert_no_unknown_static_tables_in_having_t>>;
   };

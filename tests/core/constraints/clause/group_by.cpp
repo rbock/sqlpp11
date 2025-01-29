@@ -57,6 +57,7 @@ namespace test {
 
 int main()
 {
+  const auto maybe = true;
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 
@@ -65,7 +66,7 @@ int main()
 
   // group_by(<arguments with no value>) cannot be called.
   static_assert(can_call_group_by_with<decltype(bar.boolNn)>::value, "OK, argument a column");
-  static_assert(can_call_group_by_with<decltype(dynamic(true, bar.boolNn))>::value, "OK, argument a column");
+  static_assert(can_call_group_by_with<decltype(dynamic(maybe, bar.boolNn))>::value, "OK, argument a column");
   static_assert(can_call_group_by_with<decltype(sqlpp::declare_group_by_column(bar.id + 7))>::value, "OK, declared group by column");
   static_assert(can_call_group_by_with<decltype(7), decltype(bar.boolNn)>::value, "OK, but will fail later: 7 has a value, but is not a column");
   static_assert(not can_call_group_by_with<decltype(bar.id = 7), decltype(bar.boolNn)>::value, "not value: assignment");
@@ -76,9 +77,9 @@ int main()
   SQLPP_CHECK_STATIC_ASSERT(sqlpp::group_by(sqlpp::value(7)), "all arguments for group_by() must be columns or expressions wrapped in declare_group_by_column()");
   SQLPP_CHECK_STATIC_ASSERT(sqlpp::group_by(bar.id, max(foo.id)), "all arguments for group_by() must be columns or expressions wrapped in declare_group_by_column()");
 
-  SQLPP_CHECK_STATIC_ASSERT(sqlpp::group_by(dynamic(true, sqlpp::value(7))), "all arguments for group_by() must be columns or expressions wrapped in declare_group_by_column()");
-  SQLPP_CHECK_STATIC_ASSERT(sqlpp::group_by(bar.id, dynamic(true, max(foo.id))), "all arguments for group_by() must be columns or expressions wrapped in declare_group_by_column()");
-  SQLPP_CHECK_STATIC_ASSERT(sqlpp::group_by(dynamic(true, bar.id), max(foo.id)), "all arguments for group_by() must be columns or expressions wrapped in declare_group_by_column()");
+  SQLPP_CHECK_STATIC_ASSERT(sqlpp::group_by(dynamic(maybe, sqlpp::value(7))), "all arguments for group_by() must be columns or expressions wrapped in declare_group_by_column()");
+  SQLPP_CHECK_STATIC_ASSERT(sqlpp::group_by(bar.id, dynamic(maybe, max(foo.id))), "all arguments for group_by() must be columns or expressions wrapped in declare_group_by_column()");
+  SQLPP_CHECK_STATIC_ASSERT(sqlpp::group_by(dynamic(maybe, bar.id), max(foo.id)), "all arguments for group_by() must be columns or expressions wrapped in declare_group_by_column()");
 
   // group_by(<containing aggregate functions>) is inconsistent and cannot be constructed.
   SQLPP_CHECK_STATIC_ASSERT(sqlpp::group_by(declare_group_by_column(max(foo.id))), "arguments for group_by() must not contain aggregate functions");
@@ -103,6 +104,22 @@ int main()
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::consistent_t>::value, "");
     static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>, sqlpp::assert_no_unknown_tables_in_group_by_t>::value, "");
+  }
+
+  // `group_by` using unknown table
+  {
+    auto s = select(max(foo.id).as(something)).from(foo).where(true).group_by(bar.id);
+    using S = decltype(s);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::consistent_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>, sqlpp::assert_no_unknown_tables_in_group_by_t>::value, "");
+  }
+
+  // `group_by` statically using dynamic table
+  {
+    auto s = select(max(foo.id).as(something)).from(foo.cross_join(dynamic(maybe, bar))).where(true).group_by(bar.id);
+    using S = decltype(s);
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_no_unknown_static_tables_in_group_by_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>, sqlpp::assert_no_unknown_static_tables_in_group_by_t>::value, "");
   }
 
 }
