@@ -54,8 +54,6 @@ void test_select_columns()
   using knownTxt = sqlpp::detail::type_set<decltype(col_txt)>;
 
 
-#warning We need to test that optional columns (i.e. from some outer join) are always optional
-
   // Single column.
   {
     using T = clause_of_t<decltype(select_columns(col_int))>;
