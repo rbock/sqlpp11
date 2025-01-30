@@ -61,10 +61,41 @@ void test_between_expression(Value v)
   static_assert(not sqlpp::has_enabled_comparison<decltype(between(v_not_null, v_not_null, v_not_null))>::value, "");
 
   // Between expressions have their arguments as nodes.
+  using V = Value;
   using L = typename std::decay<decltype(v_not_null)>::type;
-  using M = Value;
   using R = typename std::decay<decltype(v_maybe_null)>::type;
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(between(v_not_null, v, v_maybe_null))>, sqlpp::detail::type_vector<L, M, R>>::value, "");
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(between(v, v_not_null, v_maybe_null))>, sqlpp::detail::type_vector<V, L, R>>::value, "");
+}
+
+void test_between_member_function()
+{
+  auto foo = test::TabFoo{};
+  auto bar = test::TabBar{};
+  auto v_not_null = foo.id;
+  auto v_maybe_null = foo.intN;
+
+  // Variations of nullable and non-nullable values
+  static_assert(is_bool<decltype(v_not_null.between(v_not_null, v_not_null))>::value, "");
+  static_assert(is_maybe_bool<decltype(v_not_null.between(v_not_null, v_maybe_null))>::value, "");
+  static_assert(is_maybe_bool<decltype(v_not_null.between(v_maybe_null, v_not_null))>::value, "");
+  static_assert(is_maybe_bool<decltype(v_not_null.between(v_maybe_null, v_maybe_null))>::value, "");
+  static_assert(is_maybe_bool<decltype(v_maybe_null.between(v_not_null, v_not_null))>::value, "");
+  static_assert(is_maybe_bool<decltype(v_maybe_null.between(v_not_null, v_maybe_null))>::value, "");
+  static_assert(is_maybe_bool<decltype(v_maybe_null.between(v_maybe_null, v_not_null))>::value, "");
+  static_assert(is_maybe_bool<decltype(v_maybe_null.between(v_maybe_null, v_maybe_null))>::value, "");
+
+  // Between expressions have the `as` member function.
+  static_assert(sqlpp::has_enabled_as<decltype(v_not_null.between(v_not_null, v_not_null))>::value, "");
+
+  // Between expressions do not enable comparison member functions.
+  static_assert(not sqlpp::has_enabled_comparison<decltype(v_not_null.between(v_not_null, v_not_null))>::value, "");
+
+  // Between expressions have their arguments as nodes.
+  auto v = bar.id;
+  using V = decltype(v);
+  using L = typename std::decay<decltype(v_not_null)>::type;
+  using R = typename std::decay<decltype(v_maybe_null)>::type;
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(bar.id.between(v_not_null, v_maybe_null))>, sqlpp::detail::type_vector<V, L, R>>::value, "");
 }
 
 int main()
@@ -108,5 +139,6 @@ int main()
   // time_of_day
   test_between_expression(std::chrono::microseconds{});
 
+  test_between_member_function();
 }
 
