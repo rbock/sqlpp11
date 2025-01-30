@@ -27,6 +27,7 @@
  */
 
 #include <string>
+#include <sqlpp11/core/to_sql_string.h>
 
 namespace sqlpp
 {

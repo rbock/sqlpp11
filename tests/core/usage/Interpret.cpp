@@ -157,13 +157,10 @@ int Interpret(int, char* [])
 
   std::cerr << to_sql_string(printer, select(all_of(t)).from(t).where(t.id.not_in(7))) << std::endl;
 
-#warning: reactivate test
-  /*
   auto schema = db.attach("lorem");
   auto s = schema_qualified_table(schema, t).as(sqlpp::alias::x);
 
   std::cerr << to_sql_string(printer, select(all_of(s)).from(s).unconditionally()) << std::endl;
-*/
 
   std::cerr << to_sql_string(printer, sqlpp::case_when(true).then(t.id).else_(t.id + 1).as(t.textN))
             << std::endl;

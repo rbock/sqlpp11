@@ -62,10 +62,5 @@ int Update(int, char*[])
 
   db(update(t).set(t.intN += t.id * 2, t.textN += " and cake").unconditionally());
 
-#warning: reactivate?
-  /*
-  auto values = [&t]() { return std::make_tuple(t.intN += t.id, t.textN = "no cake this time"); };
-  db(update(t).set(values()).unconditionally());
-  */
   return 0;
 }
