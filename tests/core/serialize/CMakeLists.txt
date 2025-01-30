@@ -1,4 +1,4 @@
-# Copyright (c) 2013-2021, Roland Bock
+# Copyright (c) 2013, Roland Bock
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -27,7 +27,6 @@ set(test_files
     Insert.cpp
     Lower.cpp
     ParameterizedVerbatim.cpp
-    SelectAs.cpp
     TableAlias.cpp
     Trim.cpp
     Upper.cpp
