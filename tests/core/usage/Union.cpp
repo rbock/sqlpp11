@@ -39,13 +39,10 @@ namespace greek
 int Union(int, char* [])
 {
   MockDb db;
-  MockDb::_context_t printer = {};
 
   const auto t = test::TabBar{};
   const auto f = test::TabFoo{};
 
-#warning: reactive after renaming
-#if 0
   db(select(t.id).from(t).unconditionally().union_distinct(select(f.intN.as(t.id)).from(f).unconditionally()));
   db(select(t.id).from(t).unconditionally().union_all(select(f.intN.as(t.id)).from(f).unconditionally()));
 
@@ -54,8 +51,8 @@ int Union(int, char* [])
   db(select(t.id).from(t).unconditionally().union_all(select(sqlpp::value(1).as(greek::id))));
 
   // t.textN can be null, f.textNnD cannot
-  static_assert(sqlpp::can_be_null_t<decltype(t.textN)>::value, "");
-  static_assert(!sqlpp::can_be_null_t<decltype(f.textNnD)>::value, "");
+  static_assert(sqlpp::is_optional<sqlpp::value_type_of_t<decltype(t.textN)>>::value, "");
+  static_assert(not sqlpp::is_optional<sqlpp::value_type_of_t<decltype(f.textNnD)>>::value, "");
   db(select(t.textN).from(t).unconditionally().union_all(select(f.textNnD.as(greek::textN)).from(f).unconditionally()));
 
   auto u = select(t.id)
@@ -72,7 +69,6 @@ int Union(int, char* [])
          .unconditionally()
          .union_all(select(t.id).from(t).unconditionally())
          .union_all(select(t.id).from(t).unconditionally()));
-#endif
 
   return 0;
 }
