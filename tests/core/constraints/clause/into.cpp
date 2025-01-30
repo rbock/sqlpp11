@@ -54,5 +54,15 @@ int main()
   static_assert(not test::can_call_into_with<decltype(bar.id)>::value, "");
   static_assert(not test::can_call_into_with<decltype(foo.join(bar))>::value, "");
   static_assert(not test::can_call_into_with<decltype(foo.cross_join(bar))>::value, "");
+
+  // Try omitting required into
+  {
+    auto s = sqlpp::insert();
+    using S = decltype(s);
+    static_assert(
+        std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_into_t>::value,
+        "");
+  }
+
 }
 

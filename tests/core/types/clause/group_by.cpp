@@ -107,7 +107,6 @@ void test_group_by()
     static_assert(std::is_same<AC, type_set<V>>::value, "");
     static_assert(std::is_same<SAC, type_set<>>::value, "");
   }
-#warning: need to test dynamic and declared columns in select, too
 }
 
 int main()

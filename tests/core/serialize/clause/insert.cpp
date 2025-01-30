@@ -53,7 +53,5 @@ int main(int, char* [])
     SQLPP_COMPARE(i, "INSERT INTO tab_foo (id, bool_n, text_nn_d) VALUES (DEFAULT, DEFAULT, 'cheese'), (17, NULL, 'cake')");
   }
 
-#warning: need to add type tests, including executability
-
   return 0;
 }
