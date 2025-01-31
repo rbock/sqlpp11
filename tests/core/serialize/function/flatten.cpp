@@ -29,11 +29,10 @@
 
 int main(int, char* [])
 {
-  auto db = MockDb{};
+  auto ctx = MockDb::_context_t{};
 
-#warning: Add tests for other databases, too
-  SQLPP_COMPARE(flatten(test::TabFoo{}.id, db), "tab_foo.id");
-  SQLPP_COMPARE(flatten(from(test::TabFoo{}), db), " FROM tab_foo");
+  SQLPP_COMPARE(flatten(ctx, test::TabFoo{}.id), "tab_foo.id");
+  SQLPP_COMPARE(flatten(ctx, from(test::TabFoo{})), " FROM tab_foo");
 
   return 0;
 }

@@ -41,3 +41,4 @@ foreach(test_file IN LISTS test_files)
 endforeach()
 
 add_subdirectory(clause)
+add_subdirectory(function)

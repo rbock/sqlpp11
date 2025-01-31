@@ -1,4 +1,4 @@
-# Copyright (c) 2023, Roland Bock
+# Copyright (c) 2025, Roland Bock
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -22,6 +22,12 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-add_subdirectory(function)
-add_subdirectory(value_types)
+function(create_test name)
+    set(target sqlpp11_sqlite3_serialize_function_${name})
+    add_executable(${target} ${name}.cpp)
+    sqlpp_slite3_test_add_target_link_libraries(${target})
+    add_test(NAME ${target} COMMAND ${target})
+endfunction()
+
+create_test(flatten)
 

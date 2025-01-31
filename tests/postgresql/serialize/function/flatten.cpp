@@ -24,27 +24,15 @@
  */
 
 #include <sqlpp11/tests/core/tables.h>
+#include <sqlpp11/tests/postgresql/serialize_helpers.h>
 #include <sqlpp11/sqlpp11.h>
-#include <sqlpp11/tests/core/serialize_helpers.h>
 
-void test_flatten()
+int main(int, char* [])
 {
-  auto ctx = MockDb::_context_t{};
+  auto ctx = sqlpp::postgresql::context_t{};
 
-  {
-    auto x = flatten(ctx, test::TabFoo{}.id);
-    using X = decltype(x);
-    static_assert(std::is_same<X, sqlpp::verbatim_t<sqlpp::integral>>::value, "");
-  }
-  {
-    auto x = flatten(ctx, from(test::TabFoo{}));
-    using X = decltype(x);
-    static_assert(std::is_same<X, sqlpp::verbatim_t<sqlpp::no_value_t>>::value, "");
-  }
+  SQLPP_COMPARE(flatten(ctx, test::TabFoo{}.id), "tab_foo.id");
+  SQLPP_COMPARE(flatten(ctx, from(test::TabFoo{})), " FROM tab_foo");
+
+  return 0;
 }
-
-int main()
-{
-  void test_flatten();
-}
-

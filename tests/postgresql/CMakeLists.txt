@@ -23,5 +23,6 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 add_subdirectory(constraints)
+add_subdirectory(types)
 add_subdirectory(serialize)
 add_subdirectory(usage)

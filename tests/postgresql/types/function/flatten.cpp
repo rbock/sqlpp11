@@ -25,11 +25,11 @@
 
 #include <sqlpp11/tests/core/tables.h>
 #include <sqlpp11/sqlpp11.h>
-#include <sqlpp11/tests/core/serialize_helpers.h>
+#include <sqlpp11/tests/postgresql/serialize_helpers.h>
 
 void test_flatten()
 {
-  auto ctx = MockDb::_context_t{};
+  auto ctx = sqlpp::postgresql::context_t{};
 
   {
     auto x = flatten(ctx, test::TabFoo{}.id);

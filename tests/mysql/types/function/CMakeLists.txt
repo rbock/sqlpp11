@@ -1,4 +1,4 @@
-# Copyright (c) 2023, Roland Bock
+# Copyright (c) 2025, Roland Bock
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -22,6 +22,11 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-add_subdirectory(function)
-add_subdirectory(value_types)
+function(test_compile name)
+    set(target sqlpp11_mysql_types_function_${name})
+    add_executable(${target} ${name}.cpp)
+    target_link_libraries(${target} PRIVATE sqlpp11::mysql sqlpp11_testing sqlpp11_mysql_testing Threads::Threads)
+endfunction()
+
+test_compile(flatten)
 

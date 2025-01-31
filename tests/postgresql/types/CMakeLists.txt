@@ -1,4 +1,4 @@
-# Copyright (c) 2023, Roland Bock
+# Copyright (c) 2025, Roland Bock
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -23,5 +23,3 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 add_subdirectory(function)
-add_subdirectory(value_types)
-

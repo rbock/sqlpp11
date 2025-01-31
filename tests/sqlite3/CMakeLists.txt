@@ -38,5 +38,6 @@ endif()
 endfunction()
 
 add_subdirectory(constraints)
+add_subdirectory(types)
 add_subdirectory(serialize)
 add_subdirectory(usage)
