@@ -31,6 +31,7 @@
 #include <sqlpp11/core/clause/select_as.h>
 #include <sqlpp11/core/detail/flat_tuple.h>
 #include <sqlpp11/core/clause/select_column_traits.h>
+#include <sqlpp11/core/clause/select_columns_aggregate_check.h>
 #include <sqlpp11/core/detail/type_set.h>
 #include <sqlpp11/core/field_spec.h>
 #include <sqlpp11/core/tuple_to_sql_string.h>
@@ -46,8 +47,8 @@ namespace sqlpp
         assert_no_unknown_tables_in_returning_columns_t,
         "at least one returning column requires a table which is otherwise not known in the statement");
 
-  SQLPP_WRAPPED_STATIC_ASSERT(assert_correct_returning_column_aggregates_t,
-                               "select must not contain a mix of aggregates and non-aggregates");
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_returning_columns_contain_no_aggregates_t,
+                               "returning columns must not contain aggregate functions");
 
     template <typename... Columns>
     struct returning_column_list_t
@@ -123,9 +124,9 @@ namespace sqlpp
   template <typename Statement, typename... Columns>
   struct consistency_check<Statement, postgresql::returning_column_list_t<Columns...>>
   {
-    using type = static_check_t<has_correct_aggregates<typename Statement::_all_provided_aggregates,
-                                                       postgresql::returning_column_list_t<Columns...>>::value,
-                                postgresql::assert_correct_returning_column_aggregates_t>;
+#warning: need to add tests
+    using type = static_check_t<not contains_aggregate_function<postgresql::returning_column_list_t<Columns...>>::value,
+                                postgresql::assert_returning_columns_contain_no_aggregates_t>;
   };
 
   template <typename Statement, typename... Columns>
