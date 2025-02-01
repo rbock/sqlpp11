@@ -28,11 +28,9 @@
 
 void test_cte()
 {
+  const auto maybe = true;
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
-
-#warning: add more tests, including parameters and dynamic parts
-#warning: Can we union dynamically?
 
   // Simple CTE: X AS SELECT
   {
@@ -114,6 +112,31 @@ void test_cte()
     static_assert(sqlpp::parameters_of_t<X>::empty(), "");
     static_assert(std::is_same<sqlpp::nodes_of_t<X>, sqlpp::detail::type_vector<Lhs>>::value, "");
   }
+
+  // Dynamically recursive union CTE: X AS SELECT ... UNION ALL SELECT ... FROM X ...
+  {
+    auto lhs = select(sqlpp::value(0).as(sqlpp::alias::a));
+    auto x_base = cte(sqlpp::alias::x).as(lhs);
+    auto rhs = select((x_base.a + 1).as(sqlpp::alias::a)).from(x_base).where(x_base.a < 7);
+    auto x = x_base.union_all(dynamic(maybe, rhs));
+
+    using Lhs = decltype(lhs);
+    using Rhs = decltype(rhs);
+    using X = decltype(x);
+    using RX = decltype(make_table_ref(x));
+    using Union = sqlpp::cte_union_t<sqlpp::all_t, Lhs, sqlpp::dynamic_t<Rhs>>;
+
+    // CTE is used in WITH and in FROM
+    static_assert(sqlpp::is_cte<X>::value, "");
+    static_assert(sqlpp::is_recursive_cte<X>::value, "");
+    static_assert(sqlpp::is_table<X>::value, "");
+    static_assert(std::is_same<sqlpp::required_ctes_of_t<X>, sqlpp::detail::type_set<RX>>::value, "");
+    static_assert(std::is_same<sqlpp::provided_ctes_of_t<X>, sqlpp::detail::type_set<RX>>::value, "");
+    static_assert(std::is_same<sqlpp::parameters_of_t<X>, sqlpp::detail::type_vector<>>::value, "");
+
+    static_assert(std::is_same<sqlpp::nodes_of_t<X>, sqlpp::detail::type_vector<Union>>::value, "");
+    static_assert(std::is_same<sqlpp::nodes_of_t<Union>, sqlpp::detail::type_vector<Lhs, sqlpp::dynamic_t<Rhs>>>::value, "");
+   }
 
   // Recursive union CTE: X AS SELECT ... UNION ALL SELECT ... FROM X ...
   {
