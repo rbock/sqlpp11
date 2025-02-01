@@ -293,10 +293,11 @@ int Function(int, char* [])
 
   // test flatten
   {
-    using TB = decltype(flatten(t.boolNn, db));
-    using TI = decltype(flatten(t.id, db));
-    using TF = decltype(flatten(f.doubleN, db));
-    using TT = decltype(flatten(t.textN, db));
+    auto ctx = MockDb::_context_t{};
+    using TB = decltype(flatten(ctx, t.boolNn));
+    using TI = decltype(flatten(ctx, t.id));
+    using TF = decltype(flatten(ctx, f.doubleN));
+    using TT = decltype(flatten(ctx, t.textN));
     static_assert(sqlpp::is_boolean<TB>::value, "type requirement");
     static_assert(sqlpp::is_integral<TI>::value, "type requirement");
     static_assert(sqlpp::is_floating_point<TF>::value, "type requirement");
