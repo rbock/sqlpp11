@@ -44,6 +44,8 @@ namespace
 
 void test_select_columns()
 {
+  const auto maybe = true;
+
   auto v = sqlpp::value("text");
   auto col_int = test::TabFoo{}.id;
   auto col_txt = test::TabFoo{}.textNnD;
