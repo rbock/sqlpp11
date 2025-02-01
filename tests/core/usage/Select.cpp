@@ -59,6 +59,7 @@ int Select(int, char*[])
   MockDb db = {};
   MockDb::_context_t printer = {};
 
+  const auto maybe = true;
   const auto f = test::TabFoo{};
   const auto t = test::TabBar{};
   const auto tab_a = f.as(sqlpp::alias::a);
@@ -141,8 +142,23 @@ int Select(int, char*[])
                .having(sum(t.id) > parameter(t.intN))
                .limit(32u)
                .offset(7u);
-#warning add tests for optional everything
   for (const auto& row : db(db.prepare(s)))
+  {
+    const ::sqlpp::optional<int64_t> a = row.id;
+    std::cout << a << std::endl;
+  }
+
+  auto s2 = sqlpp::select()
+               .columns(dynamic(maybe, t.id))
+               .flags(dynamic(maybe, sqlpp::distinct))
+               .from(dynamic(maybe, t))
+               .where(dynamic(maybe, t.id > 3))
+               .group_by(dynamic(maybe, t.id))
+               .order_by(dynamic(maybe, t.id.asc()))
+               .having(dynamic(maybe, sum(t.id) > 27))
+               .limit(sqlpp::dynamic(maybe, 32u))
+               .offset(sqlpp::dynamic(maybe, 7u));
+  for (const auto& row : db(db.prepare(s2)))
   {
     const ::sqlpp::optional<int64_t> a = row.id;
     std::cout << a << std::endl;

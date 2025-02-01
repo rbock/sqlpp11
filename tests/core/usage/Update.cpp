@@ -31,6 +31,7 @@
 
 int Update(int, char*[])
 {
+  const auto maybe = true;
   MockDb db;
   MockDb::_context_t printer = {};
 
@@ -50,8 +51,9 @@ int Update(int, char*[])
   to_sql_string(printer, update(t).set(t.boolNn = false));
   to_sql_string(printer, update(t).set(t.boolNn = false).where(t.textN != "transparent"));
   to_sql_string(printer, update(t).set(t.textN = "opaque").where(t.textN != t.textN + "this is nonsense"));
+  to_sql_string(printer, update(t).set(t.textN = "opaque").where(t.textN != t.textN + "this is nonsense"));
 
-#warning add tests with dynamic set and dynamic where
+  to_sql_string(printer, update(t).set(dynamic(maybe, t.textN = "opaque")).where(dynamic(maybe, t.textN != t.textN + "this is nonsense")));
 
   db(update(t).set(t.intN = sqlpp::verbatim<sqlpp::integral>("17+4")).unconditionally());
   db(update(t)
@@ -61,6 +63,7 @@ int Update(int, char*[])
   db(update(t).set(t.intN = sqlpp::default_value).unconditionally());
 
   db(update(t).set(t.intN += t.id * 2, t.textN += " and cake").unconditionally());
+  db(update(t).set(t.intN += t.id * 2, dynamic(maybe, t.textN += " and cake")).unconditionally());
 
   return 0;
 }

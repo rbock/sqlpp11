@@ -34,6 +34,7 @@ int Remove(int, char* [])
   MockDb db = {};
   MockDb::_context_t printer = {};
 
+  const auto maybe = true;
   const auto t = test::TabBar{};
   const auto f = test::TabFoo{};
 
@@ -52,10 +53,10 @@ int Remove(int, char* [])
 
   to_sql_string(printer, delete_from(t));
   to_sql_string(printer, delete_from(t).where(t.textN != "transparent"));
-#warning: add tests with optional where
   std::cerr << to_sql_string(printer, delete_from(t).unconditionally()) << std::endl;
 
-  delete_from(t).where(t.textN.in(select(f.textNnD).from(f).unconditionally()));
+  db(delete_from(t).where(t.textN.in(select(f.textNnD).from(f).unconditionally())));
+  db(delete_from(t).where(dynamic(maybe, t.textN.in(select(f.textNnD).from(f).unconditionally()))));
 
   return 0;
 }
