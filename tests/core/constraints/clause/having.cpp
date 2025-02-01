@@ -160,10 +160,18 @@ int main()
 
   // `having` statically using dynamic table
   {
-    auto s = select(max(foo.id).as(something)).from(foo.cross_join(dynamic(maybe, bar))).where(true).having(bar.id > 7).group_by(foo.id);
+    auto s = select(max(foo.id).as(something)).from(foo.cross_join(dynamic(maybe, bar))).where(true).having(bar.id > 7).group_by(bar.id);
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_no_unknown_static_tables_in_having_t>::value, "");
-    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>, sqlpp::assert_no_unknown_static_tables_in_having_t>::value, "");
+    // This runs into the group_by check, first.
+     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_no_unknown_static_tables_in_group_by_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_prepare_check_t<S>, sqlpp::assert_no_unknown_static_tables_in_group_by_t>::value, "");
+
+    // So let's check consistency_check_t:
+    using Expression = decltype(bar.id > 7);
+    using H = sqlpp::having_t<Expression>;
+
+   static_assert(std::is_same<sqlpp::consistency_check_t<S, H>, sqlpp::assert_no_unknown_static_tables_in_having_t>::value, "");
+    static_assert(std::is_same<sqlpp::prepare_check_t<S, H>, sqlpp::assert_no_unknown_static_tables_in_having_t>::value, "");
   }
 
 }
