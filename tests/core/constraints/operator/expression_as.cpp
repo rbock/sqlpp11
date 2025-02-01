@@ -52,6 +52,8 @@ int main()
   // OK
   static_assert(can_call_as_with<decltype(bar.id), decltype(something)>::value, "");
   static_assert(can_call_as_with<decltype(bar.id), decltype(bar)>::value, "");
+  static_assert(can_call_as_with<decltype(bar), decltype(something)>::value, "");
+  static_assert(can_call_as_with<decltype(select(bar.id).from(bar).where(true)), decltype(something)>::value, "");
 
   // OK, dynamic and functions can be named
   static_assert(can_call_as_with<decltype(dynamic(maybe, bar.boolNn)), decltype(bar)>::value, "");
@@ -63,8 +65,5 @@ int main()
   // Things without a name cannot be used to rename something else.
   static_assert(not can_call_as_with<decltype(bar.id), decltype(maybe)>::value, "");
   static_assert(not can_call_as_with<decltype(bar.id), decltype(sqlpp::value(7))>::value, "");
-
-#warning: Think of more tests...
-
 }
 
