@@ -72,10 +72,10 @@ namespace
   {
     if (l != r)
     {
-      std::cerr << line << ": ";
+      std::cerr << __FILE__ << ": " << line << ": ";
       std::cerr << sqlpp::to_sql_string(std::cerr, l);
       std::cerr << " != ";
-      std::cerr << sqlpp::to_sql_string(std::cerr, r);
+      std::cerr << sqlpp::to_sql_string(std::cerr, r) << "\n";
       throw std::runtime_error("Unexpected result");
     }
   }
