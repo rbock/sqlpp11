@@ -31,7 +31,6 @@
 #include <sqlpp11/core/clause/select_as.h>
 #include <sqlpp11/core/detail/flat_tuple.h>
 #include <sqlpp11/core/clause/select_column_traits.h>
-#include <sqlpp11/core/clause/select_columns_aggregate_check.h>
 #include <sqlpp11/core/detail/type_set.h>
 #include <sqlpp11/core/field_spec.h>
 #include <sqlpp11/core/tuple_to_sql_string.h>
@@ -117,6 +116,12 @@ namespace sqlpp
   };
 
   template <typename... Columns>
+  struct nodes_of<postgresql::returning_column_list_t<Columns...>>
+  {
+    using type = detail::type_vector<Columns...>;
+  };
+
+  template <typename... Columns>
   struct is_clause<postgresql::returning_column_list_t<Columns...>> : public std::true_type
   {
   };
@@ -124,7 +129,6 @@ namespace sqlpp
   template <typename Statement, typename... Columns>
   struct consistency_check<Statement, postgresql::returning_column_list_t<Columns...>>
   {
-#warning: need to add tests
     using type = static_check_t<not contains_aggregate_function<postgresql::returning_column_list_t<Columns...>>::value,
                                 postgresql::assert_returning_columns_contain_no_aggregates_t>;
   };
@@ -210,5 +214,15 @@ namespace sqlpp
                                       std::tuple_cat(sqlpp::detail::tupelize(std::move(columns))...)});
     }
   };
+
+  namespace postgresql
+  {
+    template <typename... Columns>
+    auto returning_columns(Columns... columns)
+        -> decltype(statement_t<no_returning_column_list_t>{}.returning(std::move(columns)...))
+    {
+      return statement_t<no_returning_column_list_t>{}.returning(std::move(columns)...);
+    }
+  }  // namespace postgresql
 
 }  // namespace sqlpp

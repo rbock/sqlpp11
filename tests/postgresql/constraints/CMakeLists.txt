@@ -1,4 +1,4 @@
-# Copyright (c) 2013-2015, Roland Bock
+# Copyright (c) 2013, Roland Bock
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -41,5 +41,5 @@ test_constraint(OnConflictInvalidWhereDoUpdate "conflict_target specification is
 test_constraint(OnConflictMissingAction "either do_nothing\\(\\) or do_update\\(...\\) is required with on_conflict")
 test_constraint(OnConflictMissingAssignmentsDoUpdate "conflict_target specification is required with do_update")
 test_constraint(OnConflictMissingParameterDoUpdate "conflict_target specification is required with do_update")
-test_constraint(ReturningEmptyAssert "at least one returnable expression")
-test_constraint(ReturningInvalidArgument "at least one returning column requires a table which is otherwise not known in the statement")
+
+add_subdirectory(clause)
