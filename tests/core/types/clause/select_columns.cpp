@@ -51,11 +51,6 @@ void test_select_columns()
   auto col_txt = test::TabFoo{}.textNnD;
   auto col_bool = test::TabFoo{}.boolN;
 
-  using unknown = sqlpp::detail::type_set<>;
-  using knownInt = sqlpp::detail::type_set<decltype(col_int)>;
-  using knownTxt = sqlpp::detail::type_set<decltype(col_txt)>;
-
-
   // Single column.
   {
     using T = clause_of_t<decltype(select_columns(col_int))>;

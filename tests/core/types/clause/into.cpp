@@ -33,7 +33,6 @@ void test_into()
 {
   auto v = sqlpp::value(17);
   auto foo = test::TabFoo{};
-  auto bar = test::TabBar{};
   using Foo = decltype(foo);
   auto id = foo.id;
 
