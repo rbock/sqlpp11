@@ -44,7 +44,6 @@ int InsertOnConflict(int, char*[])
 
   test::createTabFoo(db);
 
-#warning: Need to add serialization tests
   // Test on conflict
   db(sql::insert_into(foo).default_values().on_conflict().do_nothing());
 

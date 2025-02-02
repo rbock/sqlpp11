@@ -61,6 +61,13 @@ namespace sqlpp
     return date::format("TIMESTAMP WITH TIME ZONE '%Y-%m-%d %H:%M:%S+00'", t);
   }
 
+  namespace postgresql {
+    inline auto to_sql_string(postgresql::context_t&, const bool& t) -> std::string
+    {
+      return t ? "'t'" : "'f'";
+    }
+  }  // namespace postgresql
+
   template <typename Period>
   auto to_sql_string(postgresql::context_t& context, const std::chrono::microseconds& t) -> std::string
   {
