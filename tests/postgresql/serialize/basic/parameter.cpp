@@ -83,7 +83,7 @@ int main()
     SQLPP_COMPARE(cwt, "CASE WHEN $1 THEN $2 ELSE $3 END");
   }
 
-  SQLPP_COMPARE(sqlpp::postgresql::on_conflict().do_update(foo.id = parameter(foo.id), foo.textNnD = parameter(foo.textNnD)), " ON CONFLICT DO UPDATE SET id = $1, text_nn_d = $2");
+  SQLPP_COMPARE(sqlpp::postgresql::on_conflict(foo.id).do_update(foo.id = parameter(foo.id), foo.textNnD = parameter(foo.textNnD)), " ON CONFLICT (id) DO UPDATE SET id = $1, text_nn_d = $2");
 
   return 0;
 }
