@@ -104,8 +104,11 @@ namespace sqlpp
   auto to_sql_string(Context& context, const join_t<Lhs, JoinType, Rhs, Condition>& t) -> std::string
   {
     static_assert(not std::is_same<JoinType, cross_join_t>::value, "");
-    return to_sql_string(context, t._lhs) + JoinType::_name + to_sql_string(context, t._rhs) + " ON " +
-           to_sql_string(context, t._condition);
+
+    // Note: Temporary required to enforce parameter ordering.
+    auto ret_val = to_sql_string(context, t._lhs) + JoinType::_name;
+    ret_val += to_sql_string(context, t._rhs) + " ON ";
+    return ret_val + to_sql_string(context, t._condition);
   }
 
   template <typename Context, typename Lhs, typename JoinType, typename Rhs, typename Condition>
@@ -114,8 +117,10 @@ namespace sqlpp
     static_assert(not std::is_same<JoinType, cross_join_t>::value, "");
     if (t._rhs._condition)
     {
-      return to_sql_string(context, t._lhs) + JoinType::_name + to_sql_string(context, t._rhs) + " ON " +
-             to_sql_string(context, t._condition);
+      // Note: Temporary required to enforce parameter ordering.
+      auto ret_val = to_sql_string(context, t._lhs) + JoinType::_name;
+      ret_val += to_sql_string(context, t._rhs) + " ON ";
+      return ret_val + to_sql_string(context, t._condition);
     }
     return to_sql_string(context, t._lhs);
   }
@@ -123,15 +128,20 @@ namespace sqlpp
   template <typename Context, typename Lhs, typename Rhs>
   auto to_sql_string(Context& context, const join_t<Lhs, cross_join_t, Rhs, unconditional_t>& t) -> std::string
   {
-    return to_sql_string(context, t._lhs) + cross_join_t::_name + to_sql_string(context, t._rhs);
+    // Note: Temporary required to enforce parameter ordering.
+    auto ret_val = to_sql_string(context, t._lhs) + cross_join_t::_name;
+    return ret_val + to_sql_string(context, t._rhs);
   }
 
   template <typename Context, typename Lhs, typename Rhs>
-  auto to_sql_string(Context& context, const join_t<Lhs, cross_join_t, dynamic_t<Rhs>, unconditional_t>& t) -> std::string
+  auto to_sql_string(Context& context, const join_t<Lhs, cross_join_t, dynamic_t<Rhs>, unconditional_t>& t)
+      -> std::string
   {
     if (t._rhs._condition)
     {
-    return to_sql_string(context, t._lhs) + cross_join_t::_name + to_sql_string(context, t._rhs);
+      // Note: Temporary required to enforce parameter ordering.
+      auto ret_val = to_sql_string(context, t._lhs) + cross_join_t::_name;
+      return ret_val + to_sql_string(context, t._rhs);
     }
     return to_sql_string(context, t._lhs);
   }

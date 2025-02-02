@@ -151,6 +151,8 @@ namespace sqlpp
       const postgresql::on_conflict_do_update_where_t<OnConflict, Expression, Assignments...>& t)
       -> std::string
   {
-    return to_sql_string(context, t._on_conflict_update) + " WHERE " + to_sql_string(context, t._expression);
+    // Note: Temporary required to enforce parameter ordering.
+    auto ret_val = to_sql_string(context, t._on_conflict_update) + " WHERE ";
+    return ret_val + to_sql_string(context, t._expression);
   }
 }  // namespace sqlpp

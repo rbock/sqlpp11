@@ -77,7 +77,9 @@ namespace sqlpp
   template <typename Context, typename L, typename Operator, typename R>
   auto to_sql_string(Context& context, const bit_expression<L, Operator, R>& t) -> std::string
   {
-    return operand_to_sql_string(context, t._l) + Operator::symbol + operand_to_sql_string(context, t._r);
+    // Note: Temporary required to enforce parameter ordering.
+    auto ret_val = operand_to_sql_string(context, t._l) + Operator::symbol;
+    return ret_val + operand_to_sql_string(context, t._r);
   }
 
   struct bit_and

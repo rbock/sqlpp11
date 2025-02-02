@@ -39,38 +39,44 @@ namespace sqlpp
       return std::string("$") + std::to_string(++context._count);
   }
 
-  // MySQL and sqlite3 use x'...', but PostgreSQL uses '\x...' to encode hexadecimal literals
-  inline auto to_sql_string(postgresql::context_t& , const ::sqlpp::span<uint8_t>& t) -> std::string
-  {
-    constexpr char hex_chars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-    auto result = std::string("'\\x");
-    result.reserve(t.size() * 2 + 4);
-    for (const auto c : t)
-    {
-      result.push_back(hex_chars[c >> 4]);
-      result.push_back(hex_chars[c & 0x0F]);
-    }
-    result.push_back('\'');
-
-    return result;
-  }
-
-  template <typename Period>
-  auto to_sql_string(postgresql::context_t& context, const std::chrono::time_point<std::chrono::system_clock, Period>& t) -> std::string
-  {
-    return date::format("TIMESTAMP WITH TIME ZONE '%Y-%m-%d %H:%M:%S+00'", t);
-  }
-
   namespace postgresql {
+    // MySQL and sqlite3 use x'...', but PostgreSQL uses '\x...' to encode hexadecimal literals
+    inline auto to_sql_string(postgresql::context_t&, const ::sqlpp::span<uint8_t>& t) -> std::string
+    {
+      constexpr char hex_chars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+      auto result = std::string("'\\x");
+      result.reserve(t.size() * 2 + 4);
+      for (const auto c : t)
+      {
+        result.push_back(hex_chars[c >> 4]);
+        result.push_back(hex_chars[c & 0x0F]);
+      }
+      result.push_back('\'');
+
+      return result;
+    }
+
+    template <typename Period>
+    auto to_sql_string(postgresql::context_t&,
+                       const std::chrono::time_point<std::chrono::system_clock, Period>& t) -> std::string
+    {
+      return date::format("TIMESTAMP WITH TIME ZONE '%Y-%m-%d %H:%M:%S+00'", t);
+    }
+
+    inline auto to_sql_string(postgresql::context_t&, const ::sqlpp::chrono::day_point& t) -> std::string
+    {
+      return date::format("DATE '%Y-%m-%d'", t);
+    }
+
+    inline auto to_sql_string(postgresql::context_t&, const std::chrono::microseconds& t) -> std::string
+    {
+      return date::format("TIME WITH TIME ZONE'%H:%M:%S+00'", t);
+    }
+
     inline auto to_sql_string(postgresql::context_t&, const bool& t) -> std::string
     {
       return t ? "'t'" : "'f'";
     }
   }  // namespace postgresql
 
-  template <typename Period>
-  auto to_sql_string(postgresql::context_t& context, const std::chrono::microseconds& t) -> std::string
-  {
-    return date::format("TIME WITH TIME ZONE'%H:%M:%S+00'", t);
-  }
 }

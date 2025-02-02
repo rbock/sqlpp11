@@ -150,16 +150,20 @@ namespace sqlpp
   template <typename Context, typename Flag, typename Lhs, typename Rhs>
   auto to_sql_string(Context& context, const union_t<Flag, Lhs, Rhs>& t) -> std::string
   {
-    return to_sql_string(context, t._lhs) + " UNION " + to_sql_string(context, Flag{}) + " " +
-           to_sql_string(context, t._rhs);
+    // Note: Temporary required to enforce parameter ordering.
+    auto ret_val = to_sql_string(context, t._lhs) + " UNION ";
+    ret_val += to_sql_string(context, Flag{}) + " ";
+    return ret_val += to_sql_string(context, t._rhs);
   }
 
   template <typename Context, typename Flag, typename Lhs, typename Rhs>
   auto to_sql_string(Context& context, const union_t<Flag, Lhs, dynamic_t<Rhs>>& t) -> std::string
   {
     if (t._rhs._condition) {
-    return to_sql_string(context, t._lhs) + " UNION " + to_sql_string(context, Flag{}) + " " +
-           to_sql_string(context, t._rhs._expr);
+      // Note: Temporary required to enforce parameter ordering.
+      auto ret_val = to_sql_string(context, t._lhs) + " UNION ";
+      ret_val += to_sql_string(context, Flag{}) + " ";
+      return ret_val += to_sql_string(context, t._rhs);
     }
     return to_sql_string(context, t._lhs);
   }

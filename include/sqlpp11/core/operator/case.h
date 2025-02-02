@@ -127,7 +127,10 @@ namespace sqlpp
   template <typename Context, typename When, typename Then, typename Else>
   auto to_sql_string(Context& context, const case_t<When, Then, Else>& t) -> std::string
   {
-    return "CASE WHEN "+  operand_to_sql_string(context, t._when) + " THEN " + operand_to_sql_string(context, t._then) + " ELSE " + operand_to_sql_string(context, t._else) + " END";
+    // Note: Temporary required to enforce parameter ordering.
+    auto ret_val = "CASE WHEN "+  operand_to_sql_string(context, t._when);
+    ret_val += " THEN " + operand_to_sql_string(context, t._then);
+    return ret_val + " ELSE " + operand_to_sql_string(context, t._else) + " END";
   }
 
   template <typename When, typename = sqlpp::enable_if_t<is_boolean<When>::value>>

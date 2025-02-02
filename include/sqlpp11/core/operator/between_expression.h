@@ -73,8 +73,10 @@ namespace sqlpp
   template <typename Context, typename L, typename R1, typename R2>
   auto to_sql_string(Context& context, const between_expression<L, R1, R2>& t) -> std::string
   {
-    return operand_to_sql_string(context, t._l) + " BETWEEN " + operand_to_sql_string(context, t._r1) + " AND " +
-           operand_to_sql_string(context, t._r2);
+    // Note: Temporary required to enforce parameter ordering.
+    auto ret_val = operand_to_sql_string(context, t._l) + " BETWEEN ";
+    ret_val += operand_to_sql_string(context, t._r1) + " AND ";
+    return ret_val + operand_to_sql_string(context, t._r2);
   }
 
   template <typename L, typename R1, typename R2, typename = check_between_args<L, R1, R2>>
