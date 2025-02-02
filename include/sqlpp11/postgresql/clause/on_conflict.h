@@ -40,6 +40,8 @@ namespace sqlpp
     SQLPP_WRAPPED_STATIC_ASSERT(assert_on_conflict_action_t,
                                  "either do_nothing() or do_update(...) is required with on_conflict");
 
+    SQLPP_WRAPPED_STATIC_ASSERT(assert_on_conflict_target_for_do_update_t,
+                        "conflict_target specification is required with do_update()");
     SQLPP_WRAPPED_STATIC_ASSERT(assert_on_conflict_do_update_set_no_duplicates_t,
                                  "at least one duplicate column detected in do_update()");
     SQLPP_WRAPPED_STATIC_ASSERT(assert_on_conflict_do_update_set_single_table_t,
@@ -47,8 +49,9 @@ namespace sqlpp
     SQLPP_WRAPPED_STATIC_ASSERT(assert_on_conflict_do_update_set_count_args_t,
                                  "at least one assignment expression required in do_update()");
 
-    template <typename... Assignments>
+    template <size_t NoOfConflictTargets, typename... Assignments>
     using check_on_conflict_do_update_set_t = static_combined_check_t<
+    static_check_t<NoOfConflictTargets != 0, assert_on_conflict_target_for_do_update_t>,
         static_check_t<sizeof...(Assignments) != 0, assert_on_conflict_do_update_set_count_args_t>,
         static_check_t<not sqlpp::detail::has_duplicates<typename lhs<Assignments>::type...>::value,
                        assert_on_conflict_do_update_set_no_duplicates_t>,
@@ -124,7 +127,7 @@ namespace sqlpp
         postgresql::on_conflict_do_update_t<postgresql::on_conflict_t<Columns...>, Assignments...>
             {this->_data, std::make_tuple(std::move(assignments)...)}))
     {
-      postgresql::check_on_conflict_do_update_set_t<remove_dynamic_t<Assignments>...>::verify();
+      postgresql::check_on_conflict_do_update_set_t<sizeof...(Columns), remove_dynamic_t<Assignments>...>::verify();
 
       return new_statement(
           *this, postgresql::on_conflict_do_update_t<postgresql::on_conflict_t<Columns...>, Assignments...>{

@@ -29,5 +29,6 @@ function(create_test name)
     add_test(NAME ${target} COMMAND ${target})
 endfunction()
 
+create_test(on_conflict)
 create_test(returning_column_list)
 

@@ -22,24 +22,4 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-function(test_constraint name pattern)
-    set(test sqlpp11.postgresql.constraints.${name})
-    set(target sqlpp11_postgresql_${name})
-    add_executable(${target} EXCLUDE_FROM_ALL ${name}.cpp)
-    target_link_libraries(${target} PRIVATE sqlpp11::postgresql sqlpp11_testing)
-    add_test(NAME ${test}
-        COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target ${target}
-    )
-    set_property(TEST ${test} PROPERTY PASS_REGULAR_EXPRESSION ${pattern})
-endfunction()
-
-# Compiling these is required to fail (testing some static_assert)
-test_constraint(OnConflictEmptyWhereDoUpdate "conflict_target specification is required with do_update")
-test_constraint(OnConflictInvalidAssignmentsDoUpdate "conflict_target specification is required with do_update")
-test_constraint(OnConflictInvalidParameter "only a column is supported as conflict_target specification")
-test_constraint(OnConflictInvalidWhereDoUpdate "conflict_target specification is required with do_update")
-test_constraint(OnConflictMissingAction "either do_nothing\\(\\) or do_update\\(...\\) is required with on_conflict")
-test_constraint(OnConflictMissingAssignmentsDoUpdate "conflict_target specification is required with do_update")
-test_constraint(OnConflictMissingParameterDoUpdate "conflict_target specification is required with do_update")
-
 add_subdirectory(clause)

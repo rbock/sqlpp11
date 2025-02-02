@@ -54,7 +54,7 @@ int main()
   SQLPP_COMPARE(on_conflict().do_update(dynamic(false, foo.id = 7), foo.textNnD = "cake"), " ON CONFLICT DO UPDATE SET text_nn_d = 'cake'");
 
   // Testing WHERE
-  SQLPP_COMPARE(on_conflict().do_update(foo.id = 7).where(true), " ON CONFLICT DO UPDATE SET id = 7 WHERE 1");
+  SQLPP_COMPARE(on_conflict().do_update(foo.id = 7).where(true), " ON CONFLICT DO UPDATE SET id = 7 WHERE 't'");
   SQLPP_COMPARE(on_conflict().do_update(foo.id = 7).where(foo.id == 17), " ON CONFLICT DO UPDATE SET id = 7 WHERE tab_foo.id = 17");
   SQLPP_COMPARE(on_conflict().do_update(foo.id = 7).where(foo.id == 17 and foo.textNnD > "cheese"), " ON CONFLICT DO UPDATE SET id = 7 WHERE (tab_foo.id = 17) AND (tab_foo.text_nn_d > 'cheese')");
 
