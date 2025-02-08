@@ -95,26 +95,26 @@ namespace sqlpp
     return "?" + std::to_string(++context._count);
   }
 
-  // Some special treatment of data types
-  template <typename Period>
-  auto to_sql_string(sqlite3::context_t&, const std::chrono::time_point<std::chrono::system_clock, Period>& t)
-      -> std::string
-  {
-    return date::format("DATETIME('%Y-%m-%d %H:%M:%S')", t);
-  }
-
-  inline auto to_sql_string(sqlite3::context_t&, const std::chrono::microseconds& t) -> std::string
-  {
-    return date::format("TIME('%H:%M:%S')", t);
-  }
-
-  inline auto to_sql_string(sqlite3::context_t&, const sqlpp::chrono::day_point& t)-> std::string
-  {
-    return date::format("DATE('%Y-%m-%d')", t);
-  }
-
   namespace sqlite3
   {
+    // Some special treatment of data types
+    template <typename Period>
+    auto to_sql_string(sqlite3::context_t&, const std::chrono::time_point<std::chrono::system_clock, Period>& t)
+        -> std::string
+    {
+      return date::format("DATETIME('%Y-%m-%d %H:%M:%S', 'subsec')", t);
+    }
+
+    inline auto to_sql_string(sqlite3::context_t&, const std::chrono::microseconds& t) -> std::string
+    {
+      return date::format("TIME('%H:%M:%S', 'subsec')", t);
+    }
+
+    inline auto to_sql_string(sqlite3::context_t&, const sqlpp::chrono::day_point& t) -> std::string
+    {
+      return date::format("DATE('%Y-%m-%d')", t);
+    }
+
     inline auto nan_to_sql_string(sqlite3::context_t&) -> std::string
     {
       return "'NaN'";
