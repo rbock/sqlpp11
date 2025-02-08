@@ -50,9 +50,6 @@ int Sample(int, char*[])
     // clear the table
     db(delete_from(tab).unconditionally());
 
-using XXX = decltype(    select(exists(select(tab.intN).from(tab).unconditionally()).as(sqlpp::alias::a)));
-static_assert(sqlpp::is_statement<XXX>::value, "");
-
     // Several ways of ensuring that tab is empty
     assert(not db(select(exists(select(tab.intN).from(tab).unconditionally()).as(::sqlpp::alias::a)))
                    .front()
@@ -83,14 +80,13 @@ static_assert(sqlpp::is_statement<XXX>::value, "");
       std::cerr << "boolN: " << row.boolN << std::endl;
     }
     db(insert_into(tab).set(tab.textN = "kaesekuchen", tab.boolN = true));
+    db(insert_into(tab).set(tab.textN = "kaesekuchen", dynamic(true, tab.boolN = true)));
     db(insert_into(tab).default_values());
     db(insert_into(tab).set(tab.textN = "", tab.boolN = true));
 
     // update
     db(update(tab).set(tab.boolN = false).where(tab.intN.in(std::vector<int>{1, 2, 3, 4})));
     db(update(tab).set(tab.boolN = true).where(tab.intN.in(1)));
-
-#warning: Add test with optional insert
 
     // remove
     {

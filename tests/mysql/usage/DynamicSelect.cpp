@@ -31,7 +31,19 @@
 #include <iostream>
 #include <vector>
 
+namespace {
 const auto library_raii = sqlpp::mysql::scoped_library_initializer_t{};
+
+template<typename T>
+auto operator<<(std::ostream& out, const sqlpp::optional<T>& t) -> std::ostream&
+{
+  if (t)
+  {
+    return out << *t;
+  }
+  return out << "NULL";
+}
+}
 
 namespace sql = sqlpp::mysql;
 int DynamicSelect(int, char*[])
@@ -50,16 +62,12 @@ int DynamicSelect(int, char*[])
     i.add_values(tab.textN = "kaesekuchen", tab.boolN = true);
     db(i);
 
-#warning add tests with optional columns
-    /*
-    auto s = dynamic_select(db).dynamic_columns(tab.intN).from(tab).unconditionally();
-    s.selected_columns.add(tab.textN);
+    auto s = select(tab.intN, dynamic(false, tab.textN)).from(tab).unconditionally();
 
     for (const auto& row : db(s))
     {
-      std::cerr << "row.intN: " << row.intN << ", row.textN: " << row.at("textN") << std::endl;
+      std::cerr << "row.intN: " << row.intN << ", row.textN: " << row.textN << std::endl;
     };
-    */
   }
   catch (const std::exception& e)
   {
