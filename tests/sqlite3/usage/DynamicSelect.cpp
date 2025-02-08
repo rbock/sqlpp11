@@ -59,8 +59,8 @@ int DynamicSelect(int, char*[])
 
   auto i = insert_into(tab).columns(tab.beta, tab.gamma);
   i.add_values(tab.beta = "rhabarbertorte", tab.gamma = false);
-  // i.add_values(tab.beta = "cheesecake", tab.gamma = false)
-  // i.add_values(tab.beta = "kaesekuchen", tab.gamma = true)
+  i.add_values(tab.beta = "cheesecake", tab.gamma = false);
+  i.add_values(tab.beta = "kaesekuchen", tab.gamma = true);
   auto last_insert_rowid = db(i);
 
   std::cerr << "last insert rowid: " << last_insert_rowid << std::endl;
@@ -70,6 +70,13 @@ int DynamicSelect(int, char*[])
             << db(select(sqlpp::verbatim<sqlpp::integral>("last_insert_rowid()").as(tab.alpha))).front().alpha
             << std::endl;
 
-#warning: add tests with optional columns
+  std::cerr << "last insert rowid: "
+            << db(select(dynamic(true, sqlpp::verbatim<sqlpp::integral>("last_insert_rowid()")).as(tab.alpha))).front().alpha
+            << std::endl;
+
+  std::cerr << "last insert rowid: "
+            << db(select(dynamic(false, sqlpp::verbatim<sqlpp::integral>("last_insert_rowid()")).as(tab.alpha))).front().alpha
+            << std::endl;
+
   return 0;
 }

@@ -81,9 +81,9 @@ int Sample(int, char*[])
   std::cerr << "no of required columns: " << sqlpp::required_insert_columns_of_t<test::TabSample>::size() << std::endl;
   db(insert_into(tab).default_values());
   std::cout << "Last Insert ID: " << db.last_insert_id() << "\n";
-  db(insert_into(tab).set(tab.gamma = true));
+  db(insert_into(tab).set(tab.gamma = true, dynamic(true, tab.alpha = 7)));
+  db(insert_into(tab).set(tab.gamma = true, dynamic(false, tab.alpha = 7)));
   std::cout << "Last Insert ID: " << db.last_insert_id() << "\n";
-#warning: add tests for optional insert and insert_or
 
   // update
   db(update(tab).set(tab.gamma = false).where(tab.alpha.in(1)));
@@ -179,11 +179,23 @@ int Sample(int, char*[])
     p = db.prepare(s);
   }
 
-  auto i = db(sqlpp::sqlite3::insert_or_replace_into(tab).set(tab.beta = "test", tab.gamma = true));
-  std::cerr << i << std::endl;
+  {
+    // insert_or with static assignments
+    auto i = db(sqlpp::sqlite3::insert_or_replace_into(tab).set(tab.beta = "test", tab.gamma = true));
+    std::cerr << i << std::endl;
 
-  i = db(sqlpp::sqlite3::insert_or_ignore_into(tab).set(tab.beta = "test", tab.gamma = true));
-  std::cerr << i << std::endl;
+    i = db(sqlpp::sqlite3::insert_or_ignore_into(tab).set(tab.beta = "test", tab.gamma = true));
+    std::cerr << i << std::endl;
+  }
+
+  {
+    // insert_or with a dynamic assignment
+    auto i = db(sqlpp::sqlite3::insert_or_replace_into(tab).set(tab.beta = "test", dynamic(true, tab.gamma = true)));
+    std::cerr << i << std::endl;
+
+    i = db(sqlpp::sqlite3::insert_or_ignore_into(tab).set(tab.beta = "test", dynamic(true, tab.gamma = true)));
+    std::cerr << i << std::endl;
+  }
 
   assert(db(select(count(tab.id).as(something)).from(tab).unconditionally()).begin()->something);
   assert(
