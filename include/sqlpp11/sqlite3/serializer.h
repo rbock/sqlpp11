@@ -81,10 +81,10 @@ namespace sqlpp
     return {};
   }
 
-  template <typename Table>
-  auto to_sql_string(sqlite3::context_t& , const using_t<Table>&) -> std::string
+  template <typename _Table>
+  auto to_sql_string(sqlite3::context_t& , const using_t<_Table>&) -> std::string
   {
-    SQLPP_STATIC_ASSERT(wrong_t<Table>::value, "Sqlite3: No support for USING");
+    SQLPP_STATIC_ASSERT(wrong_t<_Table>::value, "Sqlite3: No support for USING");
     return {};
   }
 

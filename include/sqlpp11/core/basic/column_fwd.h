@@ -28,6 +28,6 @@
 
 namespace sqlpp
 {
-  template <typename Table, typename ColumnSpec>
+  template <typename _Table, typename ColumnSpec>
   struct column_t;
 }  // namespace sqlpp

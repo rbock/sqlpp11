@@ -99,8 +99,8 @@ namespace sqlpp
       return {blank_insert_or_replace_t()};
     }
 
-    template <typename Table>
-    constexpr auto insert_or_replace_into(Table table) -> decltype(blank_insert_or_replace_t().into(table))
+    template <typename _Table>
+    constexpr auto insert_or_replace_into(_Table table) -> decltype(blank_insert_or_replace_t().into(table))
     {
       return {blank_insert_or_replace_t().into(table)};
     }
@@ -110,8 +110,8 @@ namespace sqlpp
       return {blank_insert_or_ignore_t()};
     }
 
-    template <typename Table>
-    constexpr auto insert_or_ignore_into(Table table) -> decltype(blank_insert_or_ignore_t().into(table))
+    template <typename _Table>
+    constexpr auto insert_or_ignore_into(_Table table) -> decltype(blank_insert_or_ignore_t().into(table))
     {
       return {blank_insert_or_ignore_t().into(table)};
     }

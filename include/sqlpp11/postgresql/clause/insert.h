@@ -42,8 +42,8 @@ namespace sqlpp
       return {blank_insert_t()};
     }
 
-    template <typename Table>
-    constexpr auto insert_into(Table table) -> decltype(blank_insert_t().into(table))
+    template <typename _Table>
+    constexpr auto insert_into(_Table table) -> decltype(blank_insert_t().into(table))
     {
       return {blank_insert_t().into(table)};
     }

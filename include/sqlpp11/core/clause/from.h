@@ -34,41 +34,41 @@
 
 namespace sqlpp
 {
-  template <typename Table>
+  template <typename _Table>
   struct from_t
   {
-    Table _table;
+    _Table _table;
   };
 
-  template <typename Table>
-  struct is_clause<from_t<Table>> : public std::true_type
+  template <typename _Table>
+  struct is_clause<from_t<_Table>> : public std::true_type
   {
   };
 
-  template <typename Statement, typename Table>
-  struct consistency_check<Statement, from_t<Table>>
+  template <typename Statement, typename _Table>
+  struct consistency_check<Statement, from_t<_Table>>
   {
     using type = consistent_t;
   };
 
-  template<typename Table>
-  struct nodes_of<from_t<Table>>
+  template<typename _Table>
+  struct nodes_of<from_t<_Table>>
   {
-    using type = detail::type_vector<Table>;
+    using type = detail::type_vector<_Table>;
   };
 
-  template<typename Table>
-  struct provided_tables_of<from_t<Table>> : public provided_tables_of<Table>
-  {
-  };
-
-  template<typename Table>
-  struct provided_static_tables_of<from_t<Table>> : public provided_static_tables_of<Table>
+  template<typename _Table>
+  struct provided_tables_of<from_t<_Table>> : public provided_tables_of<_Table>
   {
   };
 
-  template<typename Table>
-  struct provided_optional_tables_of<from_t<Table>> : public provided_optional_tables_of<remove_dynamic_t<Table>>
+  template<typename _Table>
+  struct provided_static_tables_of<from_t<_Table>> : public provided_static_tables_of<_Table>
+  {
+  };
+
+  template<typename _Table>
+  struct provided_optional_tables_of<from_t<_Table>> : public provided_optional_tables_of<remove_dynamic_t<_Table>>
   {
   };
 
@@ -81,14 +81,14 @@ namespace sqlpp
   {
     using clause_data<no_from_t, Statement>::clause_data;
 
-    template <typename Table>
-    auto from(Table table) const -> decltype(new_statement(*this, from_t<table_ref_t<Table>>{make_table_ref(table)}))
+    template <typename _Table>
+    auto from(_Table table) const -> decltype(new_statement(*this, from_t<table_ref_t<_Table>>{make_table_ref(table)}))
     {
-      SQLPP_STATIC_ASSERT(not is_pre_join<remove_dynamic_t<Table>>::value,
+      SQLPP_STATIC_ASSERT(not is_pre_join<remove_dynamic_t<_Table>>::value,
                           "from() join argument is missing condition, please use an explicit on() condition");
-      SQLPP_STATIC_ASSERT(is_table<remove_dynamic_t<Table>>::value, "from() argument has to be a table or join expression");
+      SQLPP_STATIC_ASSERT(is_table<remove_dynamic_t<_Table>>::value, "from() argument has to be a table or join expression");
 
-      return new_statement(*this, from_t<table_ref_t<Table>>{make_table_ref(table)});
+      return new_statement(*this, from_t<table_ref_t<_Table>>{make_table_ref(table)});
     }
   };
 
@@ -105,8 +105,8 @@ namespace sqlpp
     return "";
   }
 
-  template <typename Context, typename Table>
-  auto to_sql_string(Context& context, const from_t<Table>& t) -> std::string
+  template <typename Context, typename _Table>
+  auto to_sql_string(Context& context, const from_t<_Table>& t) -> std::string
   {
     return " FROM " + to_sql_string(context, t._table);
   }

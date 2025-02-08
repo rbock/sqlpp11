@@ -88,8 +88,8 @@ namespace sqlpp
     return {};
   }
 
-  template <typename Table>
-  auto delete_from(Table table) -> decltype(blank_delete_t().single_table(table))
+  template <typename _Table>
+  auto delete_from(_Table table) -> decltype(blank_delete_t().single_table(table))
   {
     return {blank_delete_t().single_table(table)};
   }

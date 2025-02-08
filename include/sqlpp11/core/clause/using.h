@@ -41,10 +41,10 @@ namespace sqlpp
   // * MySQL
 
   // USING
-  template <typename Table>
+  template <typename _Table>
   struct using_t
   {
-    using_t(Table table) : _table(table)
+    using_t(_Table table) : _table(table)
     {
     }
 
@@ -54,33 +54,33 @@ namespace sqlpp
     using_t& operator=(using_t&&) = default;
     ~using_t() = default;
 
-    Table _table;
+    _Table _table;
   };
 
-  template <typename Table>
-  struct is_clause<using_t<Table>> : public std::true_type
+  template <typename _Table>
+  struct is_clause<using_t<_Table>> : public std::true_type
   {
   };
 
-  template <typename Table>
-  struct nodes_of<using_t<Table>>
+  template <typename _Table>
+  struct nodes_of<using_t<_Table>>
   {
-    using type = detail::type_vector<Table>;
+    using type = detail::type_vector<_Table>;
   };
 
-  template <typename Statement, typename Table>
-  struct consistency_check<Statement, using_t<Table>>
+  template <typename Statement, typename _Table>
+  struct consistency_check<Statement, using_t<_Table>>
   {
     using type = consistent_t;
   };
 
-  template<typename Table>
-  struct provided_tables_of<using_t<Table>> : public provided_tables_of<Table>
+  template<typename _Table>
+  struct provided_tables_of<using_t<_Table>> : public provided_tables_of<_Table>
   {
   };
 
-  template<typename  Table>
-  struct provided_optional_tables_of<using_t<Table>> : public provided_optional_tables_of<Table>
+  template<typename  _Table>
+  struct provided_optional_tables_of<using_t<_Table>> : public provided_optional_tables_of<_Table>
   {
   };
 
@@ -94,10 +94,10 @@ namespace sqlpp
   {
     using clause_data<no_using_t, Statement>::clause_data;
 
-    template <typename Table, typename = sqlpp::enable_if_t<is_table<remove_dynamic_t<Table>>::value>>
-    auto using_(Table table) const -> decltype(new_statement(*this, using_t<table_ref_t<Table>>{make_table_ref(table)}))
+    template <typename _Table, typename = sqlpp::enable_if_t<is_table<remove_dynamic_t<_Table>>::value>>
+    auto using_(_Table table) const -> decltype(new_statement(*this, using_t<table_ref_t<_Table>>{make_table_ref(table)}))
     {
-      return new_statement(*this, using_t<table_ref_t<Table>>{make_table_ref(table)});
+      return new_statement(*this, using_t<table_ref_t<_Table>>{make_table_ref(table)});
     }
   };
 
@@ -114,8 +114,8 @@ namespace sqlpp
     return {};
   }
 
-  template <typename Context, typename Table>
-  auto to_sql_string(Context& context, const using_t<dynamic_t<Table>>& t) -> std::string
+  template <typename Context, typename _Table>
+  auto to_sql_string(Context& context, const using_t<dynamic_t<_Table>>& t) -> std::string
   {
     if (t._table._condition)
     {
@@ -124,8 +124,8 @@ namespace sqlpp
     return {};
   }
 
-  template <typename Context, typename Table>
-  auto to_sql_string(Context& context, const using_t<Table>& t) -> std::string
+  template <typename Context, typename _Table>
+  auto to_sql_string(Context& context, const using_t<_Table>& t) -> std::string
   {
     return " USING " + to_sql_string(context, t._table);
   }

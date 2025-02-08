@@ -33,10 +33,10 @@
 
 namespace sqlpp
 {
-  template <typename Table>
+  template <typename _Table>
   struct single_table_t
   {
-    single_table_t(Table table) : _table(table)
+    single_table_t(_Table table) : _table(table)
     {
     }
 
@@ -46,28 +46,28 @@ namespace sqlpp
     single_table_t& operator=(single_table_t&&) = default;
     ~single_table_t() = default;
 
-    Table _table;
+    _Table _table;
   };
 
-  template <typename Table>
-  struct is_clause<single_table_t<Table>> : public std::true_type
+  template <typename _Table>
+  struct is_clause<single_table_t<_Table>> : public std::true_type
   {
   };
 
-  template <typename Statement, typename Table>
-  struct consistency_check<Statement, single_table_t<Table>>
+  template <typename Statement, typename _Table>
+  struct consistency_check<Statement, single_table_t<_Table>>
   {
     using type = consistent_t;
   };
 
-  template <typename Table>
-  struct nodes_of<single_table_t<Table>>
+  template <typename _Table>
+  struct nodes_of<single_table_t<_Table>>
   {
-    using type = detail::type_vector<Table>;
+    using type = detail::type_vector<_Table>;
   };
 
-  template<typename Table>
-  struct provided_tables_of<single_table_t<Table>> : public provided_tables_of<Table>
+  template<typename _Table>
+  struct provided_tables_of<single_table_t<_Table>> : public provided_tables_of<_Table>
   {
   };
 
@@ -81,13 +81,13 @@ namespace sqlpp
   {
     using clause_data<no_single_table_t, Statement>::clause_data;
 
-    template <typename Table, typename = sqlpp::enable_if_t<is_table<Table>::value>>
-    auto single_table(Table table) const -> decltype(new_statement(*this, single_table_t<Table>{table}))
+    template <typename _Table, typename = sqlpp::enable_if_t<is_table<_Table>::value>>
+    auto single_table(_Table table) const -> decltype(new_statement(*this, single_table_t<_Table>{table}))
     {
-      SQLPP_STATIC_ASSERT(is_raw_table<Table>::value,
+      SQLPP_STATIC_ASSERT(is_raw_table<_Table>::value,
                           "single_table() argument must be a raw table, i.e. no join or cte");
 
-      return new_statement(*this, single_table_t<Table>{table});
+      return new_statement(*this, single_table_t<_Table>{table});
     }
   };
 
@@ -105,8 +105,8 @@ namespace sqlpp
     return "";
   }
 
-  template <typename Context, typename Table>
-  auto to_sql_string(Context& context, const single_table_t<Table>& t) -> std::string
+  template <typename Context, typename _Table>
+  auto to_sql_string(Context& context, const single_table_t<_Table>& t) -> std::string
   {
     return to_sql_string(context, t._table);
   }

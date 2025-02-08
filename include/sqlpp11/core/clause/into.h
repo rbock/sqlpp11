@@ -36,10 +36,10 @@
 namespace sqlpp
 {
   // A SINGLE TABLE DATA
-  template <typename Table>
+  template <typename _Table>
   struct into_t
   {
-    into_t(Table table) : _table(table)
+    into_t(_Table table) : _table(table)
     {
     }
 
@@ -49,33 +49,33 @@ namespace sqlpp
     into_t& operator=(into_t&&) = default;
     ~into_t() = default;
 
-    Table _table;
+    _Table _table;
   };
 
-  template <typename Table>
-  struct is_clause<into_t<Table>> : public std::true_type
+  template <typename _Table>
+  struct is_clause<into_t<_Table>> : public std::true_type
   {
   };
 
-  template <typename Statement, typename Table>
-  struct consistency_check<Statement, into_t<Table>>
+  template <typename Statement, typename _Table>
+  struct consistency_check<Statement, into_t<_Table>>
   {
     using type = consistent_t;
   };
 
-  template<typename Table>
-    struct nodes_of<into_t<Table>>
+  template<typename _Table>
+    struct nodes_of<into_t<_Table>>
     {
-      using type = detail::type_vector<Table>;
+      using type = detail::type_vector<_Table>;
     };
 
-  template<typename Table>
-    struct required_insert_columns_of<into_t<Table>>: public required_insert_columns_of<Table>
+  template<typename _Table>
+    struct required_insert_columns_of<into_t<_Table>>: public required_insert_columns_of<_Table>
     {
     };
 
-  template<typename Table>
-  struct provided_tables_of<into_t<Table>> : public provided_tables_of<Table>
+  template<typename _Table>
+  struct provided_tables_of<into_t<_Table>> : public provided_tables_of<_Table>
   {
   };
 
@@ -92,10 +92,10 @@ namespace sqlpp
     using clause_data<no_into_t, Statement>::clause_data;
 
 
-    template <typename Table, typename = sqlpp::enable_if_t<is_raw_table<Table>::value>>
-    auto into(Table table) const -> decltype(new_statement(*this, into_t<Table>{table}))
+    template <typename _Table, typename = sqlpp::enable_if_t<is_raw_table<_Table>::value>>
+    auto into(_Table table) const -> decltype(new_statement(*this, into_t<_Table>{table}))
     {
-      return new_statement(*this, into_t<Table>{table});
+      return new_statement(*this, into_t<_Table>{table});
     }
   };
 
@@ -112,8 +112,8 @@ namespace sqlpp
     return "";
   }
 
-  template <typename Context, typename Table>
-  auto to_sql_string(Context& context, const into_t<Table>& t) -> std::string
+  template <typename Context, typename _Table>
+  auto to_sql_string(Context& context, const into_t<_Table>& t) -> std::string
   {
     return " INTO " + to_sql_string(context, t._table);
   }

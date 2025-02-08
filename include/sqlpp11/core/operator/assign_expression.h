@@ -100,14 +100,14 @@ namespace sqlpp
     static constexpr auto symbol = " = ";
   };
 
-  template <typename Table, typename ColumnSpec, typename R, typename = check_assign_args<column_t<Table, ColumnSpec>, R>>
-  constexpr auto assign(column_t<Table, ColumnSpec> column, R value) -> assign_expression<column_t<Table, ColumnSpec>, op_assign, R>
+  template <typename _Table, typename ColumnSpec, typename R, typename = check_assign_args<column_t<_Table, ColumnSpec>, R>>
+  constexpr auto assign(column_t<_Table, ColumnSpec> column, R value) -> assign_expression<column_t<_Table, ColumnSpec>, op_assign, R>
   {
     return {std::move(column), std::move(value)};
   }
 
-  template <typename Table, typename ColumnSpec, typename = check_assign_default_args<column_t<Table, ColumnSpec>>>
-  constexpr auto assign(column_t<Table, ColumnSpec> column, default_value_t value) -> assign_expression<column_t<Table, ColumnSpec>, op_assign, default_value_t>
+  template <typename _Table, typename ColumnSpec, typename = check_assign_default_args<column_t<_Table, ColumnSpec>>>
+  constexpr auto assign(column_t<_Table, ColumnSpec> column, default_value_t value) -> assign_expression<column_t<_Table, ColumnSpec>, op_assign, default_value_t>
   {
     return {std::move(column), std::move(value)};
   }
@@ -117,8 +117,8 @@ namespace sqlpp
     static constexpr auto symbol = " += ";
   };
 
-  template <typename Table, typename ColumnSpec, typename R, typename = check_assign_args<column_t<Table, ColumnSpec>, R>>
-  constexpr auto plus_assign(column_t<Table, ColumnSpec> column, R value) -> assign_expression<column_t<Table, ColumnSpec>, op_plus_assign, R>
+  template <typename _Table, typename ColumnSpec, typename R, typename = check_assign_args<column_t<_Table, ColumnSpec>, R>>
+  constexpr auto plus_assign(column_t<_Table, ColumnSpec> column, R value) -> assign_expression<column_t<_Table, ColumnSpec>, op_plus_assign, R>
   {
     return {std::move(column), std::move(value)};
   }
@@ -128,8 +128,8 @@ namespace sqlpp
     static constexpr auto symbol = " -= ";
   };
 
-  template <typename Table, typename ColumnSpec, typename R, typename = check_assign_args<column_t<Table, ColumnSpec>, R>>
-  constexpr auto minus_assign(column_t<Table, ColumnSpec> column, R value) -> assign_expression<column_t<Table, ColumnSpec>, op_minus_assign, R>
+  template <typename _Table, typename ColumnSpec, typename R, typename = check_assign_args<column_t<_Table, ColumnSpec>, R>>
+  constexpr auto minus_assign(column_t<_Table, ColumnSpec> column, R value) -> assign_expression<column_t<_Table, ColumnSpec>, op_minus_assign, R>
   {
     return {std::move(column), std::move(value)};
   }

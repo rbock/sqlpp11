@@ -38,13 +38,13 @@
 
 namespace sqlpp
 {
-  // Table can be a table_t or a cte_ref_t or a select_ref_t
-  template <typename Table, typename ColumnSpec>
-  struct column_t : public enable_as<column_t<Table, ColumnSpec>>,
-  public enable_comparison<column_t<Table, ColumnSpec>>
+  // _Table can be a table_t or a cte_ref_t or a select_ref_t
+  template <typename _Table, typename ColumnSpec>
+  struct column_t : public enable_as<column_t<_Table, ColumnSpec>>,
+  public enable_comparison<column_t<_Table, ColumnSpec>>
   {
     using _spec_t = ColumnSpec;
-    using _table = Table;
+    using _table = _Table;
 
     column_t() = default;
     column_t(const column_t&) = default;
@@ -77,53 +77,53 @@ namespace sqlpp
     }
   };
 
-  template<typename Table, typename ColumnSpec>
-  struct is_aggregate_neutral<column_t<Table, ColumnSpec>> : public std::false_type
+  template<typename _Table, typename ColumnSpec>
+  struct is_aggregate_neutral<column_t<_Table, ColumnSpec>> : public std::false_type
   {
   };
 
-  template<typename Table, typename ColumnSpec>
-  struct has_default<column_t<Table, ColumnSpec>> : public ColumnSpec::has_default
+  template<typename _Table, typename ColumnSpec>
+  struct has_default<column_t<_Table, ColumnSpec>> : public ColumnSpec::has_default
   {
   };
 
-  template<typename Table, typename ColumnSpec>
-  struct is_column<column_t<Table, ColumnSpec>> : public std::true_type
+  template<typename _Table, typename ColumnSpec>
+  struct is_column<column_t<_Table, ColumnSpec>> : public std::true_type
   {
   };
 
   // Can be used in group_by
-  template<typename Table, typename ColumnSpec>
-  struct is_group_by_column<column_t<Table, ColumnSpec>> : public std::true_type
+  template<typename _Table, typename ColumnSpec>
+  struct is_group_by_column<column_t<_Table, ColumnSpec>> : public std::true_type
   {
   };
 
-  template<typename Table, typename ColumnSpec>
-  struct name_tag_of<column_t<Table, ColumnSpec>> : public name_tag_of<ColumnSpec>{};
+  template<typename _Table, typename ColumnSpec>
+  struct name_tag_of<column_t<_Table, ColumnSpec>> : public name_tag_of<ColumnSpec>{};
 
-  template<typename Table, typename ColumnSpec>
-  struct required_tables_of<column_t<Table, ColumnSpec>>
+  template<typename _Table, typename ColumnSpec>
+  struct required_tables_of<column_t<_Table, ColumnSpec>>
   {
-    using type = detail::type_set<Table>;
+    using type = detail::type_set<_Table>;
   };
 
-  template <typename Table, typename ColumnSpec>
-  struct required_static_tables_of<column_t<Table, ColumnSpec>> : public required_tables_of<column_t<Table, ColumnSpec>>
+  template <typename _Table, typename ColumnSpec>
+  struct required_static_tables_of<column_t<_Table, ColumnSpec>> : public required_tables_of<column_t<_Table, ColumnSpec>>
   {
   };
 
-  template<typename Table, typename ColumnSpec>
-  struct value_type_of<column_t<Table, ColumnSpec>>
+  template<typename _Table, typename ColumnSpec>
+  struct value_type_of<column_t<_Table, ColumnSpec>>
   {
     using type = typename ColumnSpec::value_type;
   };
 
-  template <typename Context, typename Table, typename ColumnSpec>
-  auto to_sql_string(Context& context, const column_t<Table, ColumnSpec>&) -> std::string
+  template <typename Context, typename _Table, typename ColumnSpec>
+  auto to_sql_string(Context& context, const column_t<_Table, ColumnSpec>&) -> std::string
   {
-    using T = column_t<Table, ColumnSpec>;
+    using T = column_t<_Table, ColumnSpec>;
 
-    return name_to_sql_string(context, name_tag_of_t<Table>{}) + "." +
+    return name_to_sql_string(context, name_tag_of_t<_Table>{}) + "." +
            name_to_sql_string(context, name_tag_of_t<T>{});
   }
 }  // namespace sqlpp

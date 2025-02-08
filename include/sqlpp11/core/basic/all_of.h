@@ -28,8 +28,8 @@
 
 namespace sqlpp
 {
-  template <typename Table>
-  auto all_of(Table /*unused*/) -> typename Table::_column_tuple_t
+  template <typename _Table>
+  auto all_of(_Table /*unused*/) -> typename _Table::_column_tuple_t
   {
     return {};
   }
