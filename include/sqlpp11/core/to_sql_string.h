@@ -199,7 +199,7 @@ namespace sqlpp
   //
   // The PostgreSQL connector therefore specializes this function.
   template <typename Context>
-  auto to_sql_string(Context& , const ::sqlpp::span<uint8_t>& t) -> std::string
+  auto to_sql_string(Context& , const ::sqlpp::span<const uint8_t>& t) -> std::string
   {
     constexpr char hexChars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
     auto result = std::string{"x'"};
@@ -218,13 +218,13 @@ namespace sqlpp
   template <typename Context>
   auto to_sql_string(Context& context, const std::vector<uint8_t>& t) -> std::string
   {
-    return to_sql_string(context, ::sqlpp::span<uint8_t>(t.data(), t.size()));
+    return to_sql_string(context, ::sqlpp::span<const uint8_t>(begin(t), end(t)));
   }
 
   template <typename Context, std::size_t N>
   auto to_sql_string(Context& context, const std::array<uint8_t, N>& t) -> std::string
   {
-    return to_sql_string(context, ::sqlpp::span<uint8_t>(t.data(), t.size()));
+    return to_sql_string(context, ::sqlpp::span<const uint8_t>(t.data(), t.size()));
   }
 
   template <typename Context>

@@ -33,6 +33,7 @@
 #include <sqlpp11/core/clause/clause_base.h>
 #include <sqlpp11/core/query/dynamic.h>
 #include <sqlpp11/core/type_traits.h>
+#include <sqlpp11/core/concepts.h>
 
 namespace sqlpp
 {
@@ -94,8 +95,8 @@ namespace sqlpp
   {
     using clause_data<no_using_t, Statement>::clause_data;
 
-    template <typename _Table, typename = sqlpp::enable_if_t<is_table<remove_dynamic_t<_Table>>::value>>
-    auto using_(_Table table) const -> decltype(new_statement(*this, using_t<table_ref_t<_Table>>{make_table_ref(table)}))
+    template <DynamicTable _Table>
+    auto using_(_Table table) const
     {
       return new_statement(*this, using_t<table_ref_t<_Table>>{make_table_ref(table)});
     }
@@ -130,8 +131,8 @@ namespace sqlpp
     return " USING " + to_sql_string(context, t._table);
   }
 
-  template <typename T>
-  auto using_(T t) -> decltype(statement_t<no_using_t>{}.using_(std::move(t)))
+  template <DynamicTable T>
+  auto using_(T t)
   {
     return statement_t<no_using_t>{}.using_(std::move(t));
   }

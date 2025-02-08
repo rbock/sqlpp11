@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2024, Roland Bock
+ * Copyright (c) 2025, Roland Bock
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -26,24 +26,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sqlpp11/core/type_traits.h>
+#include <sqlpp11/core/query/dynamic_fwd.h>
+
 namespace sqlpp
 {
-  template <typename Expr>
-  struct dynamic_t;
+  template<typename T>
+  concept Table = is_table_v<T>;
 
-  template <typename T>
-  struct remove_dynamic
-  {
-    using type = T;
-  };
-
-  template <typename Expr>
-  struct remove_dynamic<dynamic_t<Expr>>
-  {
-    using type = Expr;
-  };
-
-  template <typename T>
-  using remove_dynamic_t = typename remove_dynamic<T>::type;
+  template<typename T>
+  concept DynamicTable = is_table_v<remove_dynamic_t<T>>;
 
 }  // namespace sqlpp

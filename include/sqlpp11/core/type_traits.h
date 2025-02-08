@@ -241,6 +241,9 @@ namespace sqlpp
   template <typename T>
   struct is_table : public std::false_type{};
 
+  template <typename T>
+  static inline constexpr bool is_table_v = is_table<T>::value;
+
   // Really a table, not a `table AS ...`, `JOIN` or `CTE` or `SELECT ... AS`
   template <typename T>
   struct is_raw_table : public std::false_type{};

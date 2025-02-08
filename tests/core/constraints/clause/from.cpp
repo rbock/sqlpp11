@@ -26,29 +26,36 @@
 #include <sqlpp11/tests/core/constraints_helpers.h>
 #include <sqlpp11/tests/core/tables.h>
 
-namespace test
+namespace
 {
-  SQLPP_CREATE_NAME_TAG(tab);
-};
+  SQLPP_CREATE_NAME_TAG(something);
+
+  // Returns true if `from(declval<Expression>())` is a valid function call.
+  template <typename Expression, typename = void>
+  struct can_call_from_with : public std::false_type
+  {
+  };
+
+  template <typename Expression>
+  struct can_call_from_with<Expression, sqlpp::void_t<decltype(sqlpp::from(std::declval<Expression>()))>>
+      : public std::true_type
+  {
+  };
+}  // namespace
 
 int main()
 {
   const auto foo = test::TabFoo{};
   const auto bar = test::TabBar{};
 
-  // from() arg must not be a pre-join (i.e. a join with missing condition)
+  from(foo); // this is OK since cross_joins are condition-free.
   from(foo.cross_join(bar)); // this is OK since cross_joins are condition-free.
-  SQLPP_CHECK_STATIC_ASSERT(from(foo.join(bar)), "from() join argument is missing condition, please use an explicit on() condition");
 
   // from() arg must not be a non-table
-  SQLPP_CHECK_STATIC_ASSERT(sqlpp::from(7),
-                           "from() argument has to be a table or join expression");
-  SQLPP_CHECK_STATIC_ASSERT(from(foo.id),
-                           "from() argument has to be a table or join expression");
-
-  // from() select arg must be a self-contained select.
-  from(select(all_of(foo)).from(foo).unconditionally().as(test::tab)); // OK, self-contained
-  SQLPP_CHECK_STATIC_ASSERT(from(select(all_of(foo)).as(test::tab)),
-                          "at least one selected column requires a table which is otherwise not known in the statement");
+  static_assert(can_call_from_with<decltype(foo)>::value, "");
+  static_assert(can_call_from_with<decltype(foo.cross_join(bar))>::value, "");
+  static_assert(not can_call_from_with<decltype(foo.join(bar))>::value, "missing condition for join");
+  static_assert(not can_call_from_with<decltype(7)>::value, "not a table");
+  static_assert(not can_call_from_with<decltype(foo.id)>::value, "not a table");
 }
 

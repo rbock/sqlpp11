@@ -31,6 +31,7 @@
 #include <sqlpp11/core/no_data.h>
 #include <sqlpp11/core/basic/table_ref.h>
 #include <sqlpp11/core/type_traits.h>
+#include <sqlpp11/core/concepts.h>
 
 namespace sqlpp
 {
@@ -81,13 +82,9 @@ namespace sqlpp
   {
     using clause_data<no_from_t, Statement>::clause_data;
 
-    template <typename _Table>
-    auto from(_Table table) const -> decltype(new_statement(*this, from_t<table_ref_t<_Table>>{make_table_ref(table)}))
+    template <DynamicTable _Table>
+    auto from(_Table table) const
     {
-      SQLPP_STATIC_ASSERT(not is_pre_join<remove_dynamic_t<_Table>>::value,
-                          "from() join argument is missing condition, please use an explicit on() condition");
-      SQLPP_STATIC_ASSERT(is_table<remove_dynamic_t<_Table>>::value, "from() argument has to be a table or join expression");
-
       return new_statement(*this, from_t<table_ref_t<_Table>>{make_table_ref(table)});
     }
   };
@@ -111,8 +108,8 @@ namespace sqlpp
     return " FROM " + to_sql_string(context, t._table);
   }
 
-  template <typename T>
-  auto from(T t) -> decltype(statement_t<no_from_t>{}.from(std::move(t)))
+  template <DynamicTable T>
+  auto from(T t)
   {
     return statement_t<no_from_t>{}.from(std::move(t));
   }

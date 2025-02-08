@@ -29,6 +29,7 @@
 #include <sqlpp11/core/static_assert.h>
 #include <sqlpp11/core/query/dynamic_fwd.h>
 #include <sqlpp11/core/query/statement_fwd.h>
+#include <sqlpp11/core/concepts.h>
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/operator/assign_expression.h>
 #include <sqlpp11/core/operator/sort_order_expression.h>
@@ -72,21 +73,6 @@ namespace sqlpp
     using type = detail::type_vector<Expr>;
   };
 
-  template <typename T>
-  struct remove_dynamic
-  {
-    using type = T;
-  };
-
-  template <typename Expr>
-  struct remove_dynamic<dynamic_t<Expr>>
-  {
-    using type = Expr;
-  };
-
-  template <typename T>
-  using remove_dynamic_t = typename remove_dynamic<T>::type;
-
   template <typename Context, typename Select>
   auto to_sql_string(Context& context, const dynamic_t<Select>& t) -> std::string
   {
@@ -108,11 +94,17 @@ namespace sqlpp
   }
 
   template <typename Expr>
-  using check_dynamic_args = ::sqlpp::enable_if_t<has_value_type<Expr>::value or is_table<Expr>::value or
+  using check_dynamic_args = ::sqlpp::enable_if_t<has_value_type<Expr>::value or
                                                         is_select_flag<Expr>::value>;
 
   template <typename Expr, typename = check_dynamic_args<Expr>>
   auto dynamic(bool condition, Expr t) -> dynamic_t<Expr>
+  {
+    return {condition, std::move(t)};
+  }
+
+  template <Table _Table>
+  auto dynamic(bool condition, _Table t) -> dynamic_t<_Table>
   {
     return {condition, std::move(t)};
   }

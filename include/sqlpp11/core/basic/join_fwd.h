@@ -30,6 +30,7 @@
 #include <sqlpp11/core/query/dynamic.h>
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/compat/type_traits.h>
+#include <sqlpp11/core/concepts.h>
 #include <sqlpp11/core/detail/type_vector.h>
 
 namespace sqlpp
@@ -66,10 +67,6 @@ namespace sqlpp
   template <typename Lhs, typename JoinType, typename Rhs>
   struct pre_join_t;
 
-  template <typename Lhs, typename Rhs>
-  using check_join_args =
-      sqlpp::enable_if_t<is_table<Lhs>::value and is_table<remove_dynamic_t<Rhs>>::value>;
-
   SQLPP_WRAPPED_STATIC_ASSERT(assert_join_lhs_no_dependencies_t, "table dependencies detected in left side of join");
   SQLPP_WRAPPED_STATIC_ASSERT(assert_join_rhs_no_dependencies_t, "table dependencies detected in right side of join");
   SQLPP_WRAPPED_STATIC_ASSERT(assert_join_no_name_duplicates_t, "duplicate table names detected in join");
@@ -82,22 +79,22 @@ namespace sqlpp
                          sqlpp::detail::transform_set_t<provided_tables_of_t<Rhs>, make_char_sequence>{}),
                      assert_join_no_name_duplicates_t>>;
 
-  template <typename Lhs, typename Rhs, typename = check_join_args<Lhs, Rhs>>
+  template <Table Lhs, DynamicTable Rhs>
   auto join(Lhs lhs, Rhs rhs) -> pre_join_t<table_ref_t<Lhs>, inner_join_t, table_ref_t<Rhs>>;
 
-  template <typename Lhs, typename Rhs, typename = check_join_args<Lhs, Rhs>>
+  template <Table Lhs, DynamicTable Rhs>
   auto inner_join(Lhs lhs, Rhs rhs) -> pre_join_t<table_ref_t<Lhs>, inner_join_t, table_ref_t<Rhs>>;
 
-  template <typename Lhs, typename Rhs, typename = check_join_args<Lhs, Rhs>>
+  template <Table Lhs, DynamicTable Rhs>
   auto left_outer_join(Lhs lhs, Rhs rhs) -> pre_join_t<table_ref_t<Lhs>, left_outer_join_t, table_ref_t<Rhs>>;
 
-  template <typename Lhs, typename Rhs, typename = check_join_args<Lhs, Rhs>>
+  template <Table Lhs, DynamicTable Rhs>
   auto right_outer_join(Lhs lhs, Rhs rhs) -> pre_join_t<table_ref_t<Lhs>, right_outer_join_t, table_ref_t<Rhs>>;
 
-  template <typename Lhs, typename Rhs, typename = check_join_args<Lhs, Rhs>>
+  template <Table Lhs, DynamicTable Rhs>
   auto full_outer_join(Lhs lhs, Rhs rhs) -> pre_join_t<table_ref_t<Lhs>, full_outer_join_t, table_ref_t<Rhs>>;
 
-  template <typename Lhs, typename Rhs, typename = check_join_args<Lhs, Rhs>>
+  template <Table Lhs, DynamicTable Rhs>
   auto cross_join(Lhs lhs, Rhs rhs) -> join_t<table_ref_t<Lhs>, cross_join_t, table_ref_t<Rhs>, unconditional_t>;
 
 }  // namespace sqlpp

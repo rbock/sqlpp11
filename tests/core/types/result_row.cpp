@@ -137,7 +137,8 @@ int main()
   test_result_row<::sqlpp::string_view>(::sqlpp::string_view("seven"));
 
   // blob
-  test_result_row<::sqlpp::span<uint8_t>>(std::vector<uint8_t>{});
+  const auto v = std::vector<uint8_t>{};
+  test_result_row<::sqlpp::span<uint8_t>>(v);
 
   // date
   test_result_row<::sqlpp::chrono::day_point>(::sqlpp::chrono::day_point{});

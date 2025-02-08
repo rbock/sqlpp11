@@ -29,6 +29,7 @@
 #include <sqlpp11/core/detail/type_set.h>
 #include <sqlpp11/core/no_data.h>
 #include <sqlpp11/core/database/prepared_insert.h>
+#include <sqlpp11/core/concepts.h>
 #include <sqlpp11/core/type_traits.h>
 
 namespace sqlpp
@@ -81,8 +82,8 @@ namespace sqlpp
   {
     using clause_data<no_single_table_t, Statement>::clause_data;
 
-    template <typename _Table, typename = sqlpp::enable_if_t<is_table<_Table>::value>>
-    auto single_table(_Table table) const -> decltype(new_statement(*this, single_table_t<_Table>{table}))
+    template <Table _Table>
+    auto single_table(_Table table) const
     {
       SQLPP_STATIC_ASSERT(is_raw_table<_Table>::value,
                           "single_table() argument must be a raw table, i.e. no join or cte");
@@ -111,8 +112,8 @@ namespace sqlpp
     return to_sql_string(context, t._table);
   }
 
-  template <typename T>
-  auto single_table(T t) -> decltype(statement_t<no_single_table_t>().single_table(t))
+  template <Table T>
+  auto single_table(T t)
   {
     return statement_t<no_single_table_t>().single_table(std::move(t));
   }
