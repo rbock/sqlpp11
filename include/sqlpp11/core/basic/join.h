@@ -183,7 +183,7 @@ namespace sqlpp
                      assert_join_provides_static_tables_for_on_t>>;
 
   template <typename Lhs, typename Rhs, typename Expr>
-    using check_on_args = sqlpp::enable_if_t<sqlpp::is_boolean<Expr>::value>;
+    using check_on_args = std::enable_if_t<sqlpp::is_boolean<Expr>::value>;
 
   template <typename Lhs, typename JoinType, typename Rhs>
   struct pre_join_t

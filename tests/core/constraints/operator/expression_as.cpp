@@ -25,7 +25,6 @@
 
 #include <sqlpp11/tests/core/constraints_helpers.h>
 #include <sqlpp11/tests/core/tables.h>
-#include <sqlpp11/core/compat/type_traits.h>
 
 namespace
 {
@@ -38,7 +37,7 @@ namespace
   };
 
   template <typename Expression, typename NameTagProvider>
-  struct can_call_as_with<Expression, NameTagProvider, sqlpp::void_t<decltype(std::declval<Expression>().as(std::declval<NameTagProvider>()))>>
+  struct can_call_as_with<Expression, NameTagProvider, std::void_t<decltype(std::declval<Expression>().as(std::declval<NameTagProvider>()))>>
       : public std::true_type
   {
   };

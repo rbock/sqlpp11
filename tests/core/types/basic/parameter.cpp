@@ -47,7 +47,7 @@ void test_parameter()
   {
   auto p = parameter(foo.doubleN);
   using P = decltype(p);
-  static_assert(std::is_same<sqlpp::value_type_of_t<P>, sqlpp::optional<sqlpp::floating_point>>::value, "");
+  static_assert(std::is_same<sqlpp::value_type_of_t<P>, std::optional<sqlpp::floating_point>>::value, "");
   static_assert(std::is_same<sqlpp::parameters_of_t<P>, sqlpp::detail::type_vector<P>>::value, "");
 
   static_assert(not sqlpp::has_name_tag<P>::value, "");
@@ -66,9 +66,9 @@ void test_parameter()
   static_assert(sqlpp::has_enabled_comparison<P>::value, "");
   }
   {
-  auto p = parameter(sqlpp::optional<sqlpp::blob>{}, something);
+  auto p = parameter(std::optional<sqlpp::blob>{}, something);
   using P = decltype(p);
-  static_assert(std::is_same<sqlpp::value_type_of_t<P>, sqlpp::optional<sqlpp::blob>>::value, "");
+  static_assert(std::is_same<sqlpp::value_type_of_t<P>, std::optional<sqlpp::blob>>::value, "");
   static_assert(std::is_same<sqlpp::parameters_of_t<P>, sqlpp::detail::type_vector<P>>::value, "");
 
   static_assert(not sqlpp::has_name_tag<P>::value, "");

@@ -229,7 +229,7 @@ namespace sqlpp
       }
 
       template <typename Parameter>
-      void _bind_parameter(size_t index, const ::sqlpp::optional<Parameter>& parameter)
+      void _bind_parameter(size_t index, const std::optional<Parameter>& parameter)
       {
         if (parameter.has_value())
         {

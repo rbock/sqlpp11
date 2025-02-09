@@ -92,7 +92,7 @@ namespace sqlpp
     using clause_data<no_into_t, Statement>::clause_data;
 
 
-    template <typename _Table, typename = sqlpp::enable_if_t<is_raw_table<_Table>::value>>
+    template <typename _Table, typename = std::enable_if_t<is_raw_table<_Table>::value>>
     auto into(_Table table) const -> decltype(new_statement(*this, into_t<_Table>{table}))
     {
       return new_statement(*this, into_t<_Table>{table});

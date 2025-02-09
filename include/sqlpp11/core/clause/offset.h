@@ -79,7 +79,7 @@ namespace sqlpp
   {
     using clause_data<no_offset_t, Statement>::clause_data;
 
-    template <typename Arg, typename = sqlpp::enable_if_t<is_integral<remove_dynamic_t<Arg>>::value or is_unsigned_integral<remove_dynamic_t<Arg>>::value>>
+    template <typename Arg, typename = std::enable_if_t<is_integral<remove_dynamic_t<Arg>>::value or is_unsigned_integral<remove_dynamic_t<Arg>>::value>>
     auto offset(Arg arg) const -> decltype(new_statement(*this, offset_t<Arg>{std::move(arg)}))
     {
       return new_statement(*this, offset_t<Arg>{std::move(arg)});

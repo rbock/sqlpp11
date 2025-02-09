@@ -80,12 +80,12 @@ namespace sqlpp
 
   template <typename L, typename... Args>
   using check_in_args =
-      ::sqlpp::enable_if_t<(sizeof...(Args) != 0) and logic::all<values_are_comparable<L, Args>::value...>::value>;
+      std::enable_if_t<(sizeof...(Args) != 0) and logic::all<values_are_comparable<L, Args>::value...>::value>;
 
   template <typename L, typename Operator, typename R>
   struct value_type_of<in_expression<L, Operator, std::vector<R>>>
       : std::conditional<sqlpp::is_optional<value_type_of_t<L>>::value or sqlpp::is_optional<value_type_of_t<R>>::value,
-                         ::sqlpp::optional<boolean>,
+                         std::optional<boolean>,
                          boolean>
   {
   };
@@ -94,7 +94,7 @@ namespace sqlpp
   struct value_type_of<in_expression<L, Operator, std::tuple<Args...>>>
       : std::conditional<sqlpp::is_optional<value_type_of_t<L>>::value or
                              logic::any<sqlpp::is_optional<value_type_of_t<Args>>::value...>::value,
-                         ::sqlpp::optional<boolean>,
+                         std::optional<boolean>,
                          boolean>
   {
   };

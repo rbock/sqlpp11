@@ -74,8 +74,8 @@ int DateTime(int, char*[])
 
     for (const auto& row : db(select(all_of(tab)).from(tab).unconditionally()))
     {
-      require_equal(__LINE__, row.dayPointN == ::sqlpp::nullopt, true);
-      require_equal(__LINE__, row.timePointN == ::sqlpp::nullopt, true);
+      require_equal(__LINE__, row.dayPointN == std::nullopt, true);
+      require_equal(__LINE__, row.timePointN == std::nullopt, true);
     }
 
     db(update(tab).set(tab.dayPointN = today, tab.timePointN = now).unconditionally());

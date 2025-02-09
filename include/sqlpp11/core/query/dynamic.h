@@ -84,7 +84,7 @@ namespace sqlpp
   //   --> "NULL as b"
 
   template <typename Expr>
-  using check_dynamic_args = ::sqlpp::enable_if_t<has_value_type<Expr>::value or
+  using check_dynamic_args = std::enable_if_t<has_value_type<Expr>::value or
                                                         is_select_flag<Expr>::value>;
 
   template <typename Expr, typename = check_dynamic_args<Expr>>

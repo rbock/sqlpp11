@@ -39,7 +39,7 @@ template <typename Value>
 void test_count(Value v)
 {
   auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v));
+  auto v_maybe_null = sqlpp::value(std::make_optional(v));
 
   // count of non-nullable
   static_assert(is_same_type<decltype(count(v_not_null)), sqlpp::integral>::value, "");
@@ -96,7 +96,7 @@ int main()
   test_count('7');
   test_count("seven");
   test_count(std::string("seven"));
-  test_count(::sqlpp::string_view("seven"));
+  test_count(std::string_view("seven"));
 
   // blob
   test_count(std::vector<uint8_t>{});

@@ -196,14 +196,14 @@ namespace sqlpp
       return {};
     }
 
-    template <typename Rhs, typename = sqlpp::enable_if_t<is_statement<remove_dynamic_t<Rhs>>::value>>
+    template <typename Rhs, typename = std::enable_if_t<is_statement<remove_dynamic_t<Rhs>>::value>>
     auto union_distinct(Rhs rhs) const -> cte_t<NameTagProvider, cte_union_t<distinct_t, Statement, Rhs>, FieldSpecs...>
     {
       check_cte_union_args_t<cte_t, remove_dynamic_t<Rhs>>::verify();
       return cte_union_t<distinct_t, Statement, Rhs>{_statement, rhs};
     }
 
-    template <typename Rhs, typename = sqlpp::enable_if_t<is_statement<remove_dynamic_t<Rhs>>::value>>
+    template <typename Rhs, typename = std::enable_if_t<is_statement<remove_dynamic_t<Rhs>>::value>>
     auto union_all(Rhs rhs) const -> cte_t<NameTagProvider, cte_union_t<all_t, Statement, Rhs>, FieldSpecs...>
     {
       check_cte_union_args_t<cte_t, remove_dynamic_t<Rhs>>::verify();
@@ -269,7 +269,7 @@ namespace sqlpp
   struct cte_ref_t
   {
     template <typename Statement,
-              typename = sqlpp::enable_if_t<is_statement<Statement>::value and has_result_row<Statement>::value>>
+              typename = std::enable_if_t<is_statement<Statement>::value and has_result_row<Statement>::value>>
     auto as(Statement statement) const -> make_cte_t<NameTagProvider, Statement>
     {
       statement_consistency_check_t<Statement>::verify();

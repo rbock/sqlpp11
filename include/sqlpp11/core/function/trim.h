@@ -65,7 +65,7 @@ namespace sqlpp
   }
 
   template<typename T>
-    using check_trim_args = ::sqlpp::enable_if_t<is_text<T>::value>;
+    using check_trim_args = std::enable_if_t<is_text<T>::value>;
 
   template <typename T, typename = check_trim_args<T>>
   auto trim(T t) -> trim_t<T>

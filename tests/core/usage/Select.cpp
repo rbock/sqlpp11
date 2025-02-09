@@ -43,8 +43,8 @@ struct to_cerr
 template <typename Row>
 void print_row(Row const& row)
 {
-  const ::sqlpp::optional<int64_t> a = row.id;
-  const ::sqlpp::optional<::sqlpp::string_view> b = row.textN;
+  const std::optional<int64_t> a = row.id;
+  const std::optional<std::string_view> b = row.textN;
   std::cout << a << ", " << b << std::endl;
 }
 
@@ -83,16 +83,16 @@ int Select(int, char*[])
 
   for (const auto& row : db(select(all_of(t)).from(t).unconditionally()))
   {
-    const ::sqlpp::optional<int64_t> a = row.id;
-    const ::sqlpp::optional<::sqlpp::string_view> b = row.textN;
+    const std::optional<int64_t> a = row.id;
+    const std::optional<std::string_view> b = row.textN;
     std::cout << a << ", " << b << std::endl;
   }
 
   for (const auto& row :
        db(select(all_of(t), t.boolNn.as(t)).from(t).where(t.id > 7 and trim(t.textN) == "test").for_update()))
   {
-    const ::sqlpp::optional<int64_t> a = row.id;
-    const ::sqlpp::optional<::sqlpp::string_view> b = row.textN;
+    const std::optional<int64_t> a = row.id;
+    const std::optional<std::string_view> b = row.textN;
     const bool g = row.tabBar;
     std::cout << a << ", " << b << ", " << g << std::endl;
   }
@@ -144,7 +144,7 @@ int Select(int, char*[])
                .offset(7u);
   for (const auto& row : db(db.prepare(s)))
   {
-    const ::sqlpp::optional<int64_t> a = row.id;
+    const std::optional<int64_t> a = row.id;
     std::cout << a << std::endl;
   }
 
@@ -160,7 +160,7 @@ int Select(int, char*[])
                 .offset(sqlpp::dynamic(maybe, 7u));
   for (const auto& row : db(db.prepare(s2)))
   {
-    const ::sqlpp::optional<int64_t> a = row.id;
+    const std::optional<int64_t> a = row.id;
     std::cout << a << std::endl;
   }
 
@@ -169,7 +169,7 @@ int Select(int, char*[])
   select(sqlpp::value(7).as(t.id));
 
   for (const auto& row :
-       db(select(sqlpp::case_when(true).then(t.textN).else_(::sqlpp::nullopt).as(t.textN)).from(t).unconditionally()))
+       db(select(sqlpp::case_when(true).then(t.textN).else_(std::nullopt).as(t.textN)).from(t).unconditionally()))
   {
     std::cerr << row.textN << std::endl;
   }

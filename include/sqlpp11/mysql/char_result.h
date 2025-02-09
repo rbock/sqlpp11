@@ -26,6 +26,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <optional>
+#include <string_view>
+#include <span>
+
 #include <ciso646>
 #include <cstdlib>
 #include <iostream>
@@ -36,9 +40,6 @@
 #include <sqlpp11/mysql/detail/result_handle.h>
 #include <sqlpp11/mysql/sqlpp_mysql.h>
 #include <sqlpp11/mysql/char_result_row.h>
-#include <sqlpp11/core/compat/optional.h>
-#include <sqlpp11/core/compat/string_view.h>
-#include <sqlpp11/core/compat/span.h>
 
 namespace sqlpp
 {
@@ -125,14 +126,14 @@ namespace sqlpp
         value = std::strtoull(_char_result_row.data[index], nullptr, 10);
       }
 
-      void read_field(size_t index, ::sqlpp::span<uint8_t>& value)
+      void read_field(size_t index, std::span<uint8_t>& value)
       {
-        value = ::sqlpp::span<uint8_t>(reinterpret_cast<const uint8_t*>(_char_result_row.data[index]), _char_result_row.len[index]);
+        value = std::span<uint8_t>(reinterpret_cast<const uint8_t*>(_char_result_row.data[index]), _char_result_row.len[index]);
       }
 
-      void read_field(size_t index, ::sqlpp::string_view& value)
+      void read_field(size_t index, std::string_view& value)
       {
-        value = ::sqlpp::string_view(_char_result_row.data[index], _char_result_row.len[index]);
+        value = std::string_view(_char_result_row.data[index], _char_result_row.len[index]);
       }
 
       void read_field(size_t index, ::sqlpp::chrono::day_point& value)
@@ -184,7 +185,7 @@ namespace sqlpp
       }
 
       template <typename T>
-      auto read_field(size_t index, ::sqlpp::optional<T>& value) -> void
+      auto read_field(size_t index, std::optional<T>& value) -> void
       {
         const bool is_null = _char_result_row.data[index] == nullptr;
         if (is_null)

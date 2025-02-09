@@ -120,7 +120,7 @@ namespace sqlpp
 
     // DO UPDATE
     template <typename... Assignments,
-              typename = sqlpp::enable_if_t<
+              typename = std::enable_if_t<
                   logic::all<sqlpp::is_assignment<remove_dynamic_t<Assignments>>::value...>::value>>
     auto do_update(Assignments... assignments) const -> decltype(new_statement(
         *this,
@@ -166,7 +166,7 @@ namespace sqlpp
     using clause_data<postgresql::no_on_conflict_t, Statement>::clause_data;
 
     template <typename... Columns,
-              typename = sqlpp::enable_if_t<logic::all<is_column<remove_dynamic_t<Columns>>::value...>::value>>
+              typename = std::enable_if_t<logic::all<is_column<remove_dynamic_t<Columns>>::value...>::value>>
     auto on_conflict(Columns... columns) const
         -> decltype(new_statement(*this, postgresql::on_conflict_t<Columns...>{std::move(columns)...}))
     {

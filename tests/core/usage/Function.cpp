@@ -306,16 +306,16 @@ int Function(int, char* [])
 
   // test optional
   {
-    using TB = decltype(sqlpp::optional<bool>(true));
-    using TI = decltype(sqlpp::optional<int>(7));
-    using TF = decltype(sqlpp::optional<float>(5.6));
-    using TT = decltype(sqlpp::optional<std::string>("hallo"));
-    using TD = decltype(sqlpp::optional<std::chrono::time_point<std::chrono::system_clock>>(std::chrono::system_clock::now()));
-    using TBN = decltype(sqlpp::optional<bool>(sqlpp::nullopt));
-    using TIN = decltype(sqlpp::optional<int>(sqlpp::nullopt));
-    using TFN = decltype(sqlpp::optional<float>(sqlpp::nullopt));
-    using TTN = decltype(sqlpp::optional<std::string>(sqlpp::nullopt));
-    using TDN = decltype(sqlpp::optional<std::chrono::time_point<std::chrono::system_clock>>(sqlpp::nullopt));
+    using TB = decltype(std::optional<bool>(true));
+    using TI = decltype(std::optional<int>(7));
+    using TF = decltype(std::optional<float>(5.6));
+    using TT = decltype(std::optional<std::string>("hallo"));
+    using TD = decltype(std::optional<std::chrono::time_point<std::chrono::system_clock>>(std::chrono::system_clock::now()));
+    using TBN = decltype(std::optional<bool>(std::nullopt));
+    using TIN = decltype(std::optional<int>(std::nullopt));
+    using TFN = decltype(std::optional<float>(std::nullopt));
+    using TTN = decltype(std::optional<std::string>(std::nullopt));
+    using TDN = decltype(std::optional<std::chrono::time_point<std::chrono::system_clock>>(std::nullopt));
     static_assert(std::is_same<TB, TBN>::value, "type_requirement");
     static_assert(std::is_same<TI, TIN>::value, "type_requirement");
     static_assert(std::is_same<TF, TFN>::value, "type_requirement");

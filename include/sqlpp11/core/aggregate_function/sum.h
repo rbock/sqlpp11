@@ -78,7 +78,7 @@ namespace sqlpp
   }
 
   template <typename T>
-  using check_sum_arg = ::sqlpp::enable_if_t<(is_numeric<T>::value)>;
+  using check_sum_arg = std::enable_if_t<(is_numeric<T>::value)>;
 
   template <typename T, typename = check_sum_arg<T>>
   auto sum(T t) -> sum_t<no_flag_t, T>

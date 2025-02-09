@@ -37,7 +37,7 @@ int main()
 
   using Verb = decltype(verb);
 
-  static_assert(std::is_same<sqlpp::value_type_of_t<Verb>, sqlpp::optional<sqlpp::text>>::value, "");
+  static_assert(std::is_same<sqlpp::value_type_of_t<Verb>, std::optional<sqlpp::text>>::value, "");
   static_assert(not sqlpp::has_name_tag<Verb>::value, "");
   static_assert(sqlpp::has_enabled_as<Verb>::value, "");
 }

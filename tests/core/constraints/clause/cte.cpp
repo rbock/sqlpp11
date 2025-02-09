@@ -25,7 +25,6 @@
 
 #include <sqlpp11/tests/core/constraints_helpers.h>
 #include <sqlpp11/tests/core/tables.h>
-#include <sqlpp11/core/compat/type_traits.h>
 
 namespace
 {
@@ -38,7 +37,7 @@ namespace
   };
 
   template <typename Lhs, typename Rhs>
-  struct can_call_cte_as_with<Lhs, Rhs, sqlpp::void_t<decltype(std::declval<Lhs>().as(std::declval<Rhs>()))>>
+  struct can_call_cte_as_with<Lhs, Rhs, std::void_t<decltype(std::declval<Lhs>().as(std::declval<Rhs>()))>>
       : public std::true_type
   {
   };
@@ -51,7 +50,7 @@ namespace
   };\
 \
   template <typename Lhs, typename Rhs>\
-  struct can_call_cte_##UNION##_with<Lhs, Rhs, sqlpp::void_t<decltype(std::declval<Lhs>().UNION(std::declval<Rhs>()))>>\
+  struct can_call_cte_##UNION##_with<Lhs, Rhs, std::void_t<decltype(std::declval<Lhs>().UNION(std::declval<Rhs>()))>>\
       : public std::true_type\
   {\
   };

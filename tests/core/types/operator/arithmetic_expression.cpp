@@ -41,13 +41,13 @@ namespace
 template<typename Left, typename Right, typename ValueType>
 void test_plus(Left raw_l, Right raw_r, ValueType)
 {
-  using OptValueType = ::sqlpp::optional<ValueType>;
+  using OptValueType = std::optional<ValueType>;
 
   auto l = sqlpp::value(raw_l);
   auto r = sqlpp::value(raw_r);
 
-  auto opt_l = sqlpp::value(::sqlpp::make_optional(raw_l));
-  auto opt_r = sqlpp::value(::sqlpp::make_optional(raw_r));
+  auto opt_l = sqlpp::value(std::make_optional(raw_l));
+  auto opt_r = sqlpp::value(std::make_optional(raw_r));
 
   static_assert(is_same_type<sqlpp::value_type_of_t<decltype(l + r)>, ValueType>(), "");
   static_assert(is_same_type<sqlpp::value_type_of_t<decltype(l + opt_r)>, OptValueType>(), "");
@@ -69,13 +69,13 @@ void test_plus(Left raw_l, Right raw_r, ValueType)
 template<typename Left, typename Right, typename ValueType>
 void test_minus(Left raw_l, Right raw_r, ValueType)
 {
-  using OptValueType = ::sqlpp::optional<ValueType>;
+  using OptValueType = std::optional<ValueType>;
 
   auto l = sqlpp::value(raw_l);
   auto r = sqlpp::value(raw_r);
 
-  auto opt_l = sqlpp::value(::sqlpp::make_optional(raw_l));
-  auto opt_r = sqlpp::value(::sqlpp::make_optional(raw_r));
+  auto opt_l = sqlpp::value(std::make_optional(raw_l));
+  auto opt_r = sqlpp::value(std::make_optional(raw_r));
 
   static_assert(is_same_type<sqlpp::value_type_of_t<decltype(l - r)>, ValueType>(), "");
   static_assert(is_same_type<sqlpp::value_type_of_t<decltype(l - opt_r)>, OptValueType>(), "");
@@ -97,13 +97,13 @@ void test_minus(Left raw_l, Right raw_r, ValueType)
 template<typename Left, typename Right, typename ValueType>
 void test_multiplies(Left raw_l, Right raw_r, ValueType)
 {
-  using OptValueType = ::sqlpp::optional<ValueType>;
+  using OptValueType = std::optional<ValueType>;
 
   auto l = sqlpp::value(raw_l);
   auto r = sqlpp::value(raw_r);
 
-  auto opt_l = sqlpp::value(::sqlpp::make_optional(raw_l));
-  auto opt_r = sqlpp::value(::sqlpp::make_optional(raw_r));
+  auto opt_l = sqlpp::value(std::make_optional(raw_l));
+  auto opt_r = sqlpp::value(std::make_optional(raw_r));
 
   static_assert(is_same_type<sqlpp::value_type_of_t<decltype(l * r)>, ValueType>(), "");
   static_assert(is_same_type<sqlpp::value_type_of_t<decltype(l * opt_r)>, OptValueType>(), "");
@@ -125,11 +125,11 @@ void test_multiplies(Left raw_l, Right raw_r, ValueType)
 template<typename Right, typename ValueType>
 void test_negate(Right raw_r, ValueType)
 {
-  using OptValueType = ::sqlpp::optional<ValueType>;
+  using OptValueType = std::optional<ValueType>;
 
   auto r = sqlpp::value(raw_r);
 
-  auto opt_r = sqlpp::value(::sqlpp::make_optional(raw_r));
+  auto opt_r = sqlpp::value(std::make_optional(raw_r));
 
   static_assert(is_same_type<sqlpp::value_type_of_t<decltype(-r)>, ValueType>(), "");
   static_assert(is_same_type<sqlpp::value_type_of_t<decltype(-opt_r)>, OptValueType>(), "");
@@ -148,13 +148,13 @@ void test_negate(Right raw_r, ValueType)
 template<typename Left, typename Right, typename ValueType>
 void test_divides(Left raw_l, Right raw_r, ValueType)
 {
-  using OptValueType = ::sqlpp::optional<ValueType>;
+  using OptValueType = std::optional<ValueType>;
 
   auto l = sqlpp::value(raw_l);
   auto r = sqlpp::value(raw_r);
 
-  auto opt_l = sqlpp::value(::sqlpp::make_optional(raw_l));
-  auto opt_r = sqlpp::value(::sqlpp::make_optional(raw_r));
+  auto opt_l = sqlpp::value(std::make_optional(raw_l));
+  auto opt_r = sqlpp::value(std::make_optional(raw_r));
 
   static_assert(is_same_type<sqlpp::value_type_of_t<decltype(l / r)>, ValueType>(), "");
   static_assert(is_same_type<sqlpp::value_type_of_t<decltype(l / opt_r)>, OptValueType>(), "");
@@ -176,13 +176,13 @@ void test_divides(Left raw_l, Right raw_r, ValueType)
 template<typename Left, typename Right, typename ValueType>
 void test_modulus(Left raw_l, Right raw_r, ValueType)
 {
-  using OptValueType = ::sqlpp::optional<ValueType>;
+  using OptValueType = std::optional<ValueType>;
 
   auto l = sqlpp::value(raw_l);
   auto r = sqlpp::value(raw_r);
 
-  auto opt_l = sqlpp::value(::sqlpp::make_optional(raw_l));
-  auto opt_r = sqlpp::value(::sqlpp::make_optional(raw_r));
+  auto opt_l = sqlpp::value(std::make_optional(raw_l));
+  auto opt_r = sqlpp::value(std::make_optional(raw_r));
 
   static_assert(is_same_type<sqlpp::value_type_of_t<decltype(l % r)>, ValueType>(), "");
   static_assert(is_same_type<sqlpp::value_type_of_t<decltype(l % opt_r)>, OptValueType>(), "");
@@ -205,10 +205,10 @@ template<typename Value>
 void test_concatenation_expressions(Value v)
 {
   using ValueType = sqlpp::text;
-  using OptValueType = ::sqlpp::optional<sqlpp::text>;
+  using OptValueType = std::optional<sqlpp::text>;
 
   auto value = sqlpp::value(v);
-  auto opt_value = sqlpp::value(::sqlpp::make_optional(v));
+  auto opt_value = sqlpp::value(std::make_optional(v));
 
   // Concatenating non-optional values
   static_assert(is_same_type<sqlpp::value_type_of_t<decltype(value + value)>, ValueType>(), "");
@@ -342,5 +342,5 @@ int main()
   test_concatenation_expressions('7');
   test_concatenation_expressions("seven");
   test_concatenation_expressions(std::string("seven"));
-  test_concatenation_expressions(::sqlpp::string_view("seven"));
+  test_concatenation_expressions(std::string_view("seven"));
 }

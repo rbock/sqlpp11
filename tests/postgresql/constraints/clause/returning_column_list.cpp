@@ -25,7 +25,6 @@
 
 #include <sqlpp11/tests/core/constraints_helpers.h>
 #include <sqlpp11/tests/postgresql/tables.h>
-#include <sqlpp11/core/compat/type_traits.h>
 
 #include <sqlpp11/postgresql/postgresql.h>
 
@@ -41,7 +40,7 @@ namespace
 
   template <typename... Expressions>
   struct can_call_returning_columns_with_impl<sqlpp::detail::type_vector<Expressions...>,
-                                  sqlpp::void_t<decltype(sqlpp::postgresql::returning_columns(std::declval<Expressions>()...))>>
+                                  std::void_t<decltype(sqlpp::postgresql::returning_columns(std::declval<Expressions>()...))>>
       : public std::true_type
   {
   };

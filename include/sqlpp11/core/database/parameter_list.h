@@ -27,10 +27,10 @@
  */
 
 #include <tuple>
+#include <utility>
 
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/wrong.h>
-#include <sqlpp11/core/compat/utility.h>
 #include <sqlpp11/core/detail/type_vector.h>
 
 namespace sqlpp
@@ -52,12 +52,12 @@ namespace sqlpp
     template <typename Target>
     void _bind(Target& target) const
     {
-      _bind_impl(target, ::sqlpp::make_index_sequence<size::value>{});
+      _bind_impl(target, std::make_index_sequence<size::value>{});
     }
 
   private:
     template <typename Target, size_t... Is>
-    void _bind_impl(Target& target, const ::sqlpp::index_sequence<Is...>& /*unused*/) const
+    void _bind_impl(Target& target, const std::index_sequence<Is...>& /*unused*/) const
     {
       using swallow = int[];  // see core tuple_to_sql_string.h
       (void)swallow{0, (target._bind_parameter(Is, std::tuple_element<Is, _member_tuple_t>::type::operator()()), 0)...};

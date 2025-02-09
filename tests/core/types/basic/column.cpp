@@ -138,7 +138,7 @@ void test_column()
     static_assert(std::is_same<sqlpp::required_static_tables_of_t<TextN>, sqlpp::required_tables_of_t<TextN>>::value,
                   "");
 
-    static_assert(std::is_same<sqlpp::value_type_of_t<TextN>, sqlpp::optional<sqlpp::text>>::value, "");
+    static_assert(std::is_same<sqlpp::value_type_of_t<TextN>, std::optional<sqlpp::text>>::value, "");
   }
 
   {

@@ -139,7 +139,7 @@ namespace sqlpp
   {
     using clause_data<no_order_by_t, Statement>::clause_data;
 
-    template <typename... Expressions, typename = sqlpp::enable_if_t<logic::all<is_sort_order<remove_dynamic_t<Expressions>>::value...>::value>>
+    template <typename... Expressions, typename = std::enable_if_t<logic::all<is_sort_order<remove_dynamic_t<Expressions>>::value...>::value>>
     auto order_by(Expressions... expressions) const
         -> decltype(new_statement(*this, order_by_t<Expressions...>{std::move(expressions)...}))
     {

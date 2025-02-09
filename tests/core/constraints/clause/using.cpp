@@ -26,7 +26,6 @@
 #include <sqlpp11/sqlpp11.h>
 #include <sqlpp11/tests/core/constraints_helpers.h>
 #include <sqlpp11/tests/core/tables.h>
-#include <sqlpp11/core/compat/type_traits.h>
 
 namespace
 {
@@ -40,7 +39,7 @@ namespace
 
   template <typename... Expressions>
   struct can_call_using_with_impl<sqlpp::detail::type_vector<Expressions...>,
-                                  sqlpp::void_t<decltype(sqlpp::using_(std::declval<Expressions>()...))>>
+                                  std::void_t<decltype(sqlpp::using_(std::declval<Expressions>()...))>>
       : public std::true_type
   {
   };

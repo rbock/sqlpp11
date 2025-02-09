@@ -65,7 +65,7 @@ void test_select_columns()
     auto t = select_columns(dynamic(maybe, col_int));
     using T = clause_of_t<decltype(t)>;
     static_assert(not sqlpp::has_name_tag<T>::value, "");
-    static_assert(std::is_same<sqlpp::value_type_of_t<T>, sqlpp::optional<sqlpp::integral>>::value, "");
+    static_assert(std::is_same<sqlpp::value_type_of_t<T>, std::optional<sqlpp::integral>>::value, "");
     static_assert(sqlpp::is_result_clause<T>::value, "");
   }
 
@@ -74,7 +74,7 @@ void test_select_columns()
     auto t = select_columns(avg(col_int).as(cheese));
     using T = clause_of_t<decltype(t)>;
     static_assert(not sqlpp::has_name_tag<T>::value, "");
-    static_assert(std::is_same<sqlpp::value_type_of_t<T>, sqlpp::optional<sqlpp::floating_point>>::value, "");
+    static_assert(std::is_same<sqlpp::value_type_of_t<T>, std::optional<sqlpp::floating_point>>::value, "");
     static_assert(sqlpp::is_result_clause<T>::value, "");
   }
 
@@ -83,7 +83,7 @@ void test_select_columns()
     auto t = select_columns(dynamic(maybe, avg(col_int).as(cheese)));
     using T = clause_of_t<decltype(t)>;
     static_assert(not sqlpp::has_name_tag<T>::value, "");
-    static_assert(std::is_same<sqlpp::value_type_of_t<T>, sqlpp::optional<sqlpp::floating_point>>::value, "");
+    static_assert(std::is_same<sqlpp::value_type_of_t<T>, std::optional<sqlpp::floating_point>>::value, "");
     static_assert(sqlpp::is_result_clause<T>::value, "");
   }
 
@@ -99,7 +99,7 @@ void test_select_columns()
   {
     using T = clause_of_t<decltype(select_columns(dynamic(maybe, declare_group_by_column(v).as(cheese))))>;
     static_assert(not sqlpp::has_name_tag<T>::value, "");
-    static_assert(std::is_same<sqlpp::value_type_of_t<T>, sqlpp::optional<sqlpp::text>>::value, "");
+    static_assert(std::is_same<sqlpp::value_type_of_t<T>, std::optional<sqlpp::text>>::value, "");
     static_assert(sqlpp::is_result_clause<T>::value, "");
   }
 

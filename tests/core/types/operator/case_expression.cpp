@@ -32,10 +32,10 @@ template <typename Value>
 void test_case_expression(Value v)
 {
   auto c_not_null = sqlpp::value(true);
-  auto c_maybe_null = sqlpp::value(::sqlpp::make_optional(false));
+  auto c_maybe_null = sqlpp::value(std::make_optional(false));
 
   auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v));
+  auto v_maybe_null = sqlpp::value(std::make_optional(v));
 
   using ValueType = sqlpp::value_type_of_t<decltype(v_not_null)>;
   using OptValueType = sqlpp::value_type_of_t<decltype(v_maybe_null)>;
@@ -92,7 +92,7 @@ int main()
   test_case_expression('7');
   test_case_expression("seven");
   test_case_expression(std::string("seven"));
-  test_case_expression(::sqlpp::string_view("seven"));
+  test_case_expression(std::string_view("seven"));
 
   // blob
   test_case_expression(std::vector<uint8_t>{});

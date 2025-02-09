@@ -25,7 +25,6 @@
 
 #include <sqlpp11/tests/core/constraints_helpers.h>
 #include <sqlpp11/tests/core/tables.h>
-#include <sqlpp11/core/compat/type_traits.h>
 
 namespace
 {
@@ -39,7 +38,7 @@ namespace
   };\
 \
   template <typename Lhs, typename Rhs>\
-  struct can_call_##JOIN##_with<Lhs, Rhs, sqlpp::void_t<decltype(sqlpp::JOIN(std::declval<Lhs>(), std::declval<Rhs>()))>>\
+  struct can_call_##JOIN##_with<Lhs, Rhs, std::void_t<decltype(sqlpp::JOIN(std::declval<Lhs>(), std::declval<Rhs>()))>>\
       : public std::true_type\
   {\
   };

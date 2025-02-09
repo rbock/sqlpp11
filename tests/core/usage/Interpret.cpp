@@ -42,7 +42,7 @@ int Interpret(int, char* [])
     auto i = insert_into(t).columns(t.boolNn, t.textN);
     i.add_values(t.boolNn = true, t.textN = "cheesecake");
     to_sql_string(ctx, i);
-    i.add_values(t.boolNn = false, t.textN = ::sqlpp::nullopt);
+    i.add_values(t.boolNn = false, t.textN = std::nullopt);
     to_sql_string(ctx, i);
   }
 

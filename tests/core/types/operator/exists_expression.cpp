@@ -35,7 +35,7 @@ void test_exists(Value v)
 {
   // Selectable values.
   const auto v_not_null = sqlpp::value(v).as(r_not_null);
-  const auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v)).as(r_maybe_null);
+  const auto v_maybe_null = sqlpp::value(std::make_optional(v)).as(r_maybe_null);
 
   // EXISTS expression can be used in basic comparison expressions, which use remove_exists_t to look inside.
   static_assert(std::is_same<sqlpp::value_type_of_t<decltype(exists(select(v_not_null)))>, sqlpp::boolean>::value, "");
@@ -92,7 +92,7 @@ int main()
   test_exists('7');
   test_exists("seven");
   test_exists(std::string("seven"));
-  test_exists(::sqlpp::string_view("seven"));
+  test_exists(std::string_view("seven"));
 
   // blob
   test_exists(std::vector<uint8_t>{});

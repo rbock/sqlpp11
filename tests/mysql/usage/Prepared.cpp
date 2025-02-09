@@ -44,11 +44,11 @@ SQLPP_CREATE_NAME_TAG(something);
 void testPreparedStatementResult(sql::connection& db)
 {
   auto preparedInsert = db.prepare(insert_into(tab).set(tab.textN = parameter(tab.textN)));
-  preparedInsert.params.textN = sqlpp::nullopt;
+  preparedInsert.params.textN = std::nullopt;
   db(preparedInsert);
   preparedInsert.params.textN = "17";
   db(preparedInsert);
-  preparedInsert.params.textN = sqlpp::nullopt;
+  preparedInsert.params.textN = std::nullopt;
   db(preparedInsert);
   preparedInsert.params.textN = "17";
   db(preparedInsert);

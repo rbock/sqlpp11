@@ -40,7 +40,7 @@
     }                                                                              \
     catch (const sqlpp::unit_test_exception& e)                                    \
     {                                                                              \
-      if (e.what() != sqlpp::string_view(message))                                 \
+      if (e.what() != std::string_view(message))                                 \
       {                                                                            \
         std::cerr << __FILE__ << " " << __LINE__ << '\n'                           \
                   << "Expected: -->|" << message << "|<--\n"                       \

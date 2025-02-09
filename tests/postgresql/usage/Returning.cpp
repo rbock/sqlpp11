@@ -33,7 +33,7 @@ int Returning(int, char*[])
       std::cout << "Gamma: " << row.textNnD << " Beta: " << row.intN << std::endl;
 
    auto dynamic_updated =
-        db(sqlpp::postgresql::update(foo).set(foo.intN = 0, foo.doubleN = sqlpp::nullopt).unconditionally().returning(foo.textNnD, dynamic(true, foo.intN)));
+        db(sqlpp::postgresql::update(foo).set(foo.intN = 0, foo.doubleN = std::nullopt).unconditionally().returning(foo.textNnD, dynamic(true, foo.intN)));
     for (const auto& row : updated)
       std::cout << "Gamma: " << row.textNnD << " Beta: " << row.intN << std::endl;
 

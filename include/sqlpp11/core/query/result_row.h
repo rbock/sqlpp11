@@ -27,8 +27,7 @@
  */
 
 #include <utility>
-#include <sqlpp11/core/compat/string_view.h>
-#include <sqlpp11/core/compat/utility.h>
+
 #include <sqlpp11/core/field_spec.h>
 #include <sqlpp11/core/query/result_row_fwd.h>
 
@@ -72,7 +71,7 @@ namespace sqlpp
     };
 
     template <std::size_t... Is, typename... FieldSpecs>
-    struct result_row_impl<::sqlpp::index_sequence<Is...>, FieldSpecs...>
+    struct result_row_impl<std::index_sequence<Is...>, FieldSpecs...>
         : public result_field<Is, FieldSpecs>...
     {
       result_row_impl() = default;
@@ -109,9 +108,9 @@ namespace sqlpp
 
   template <typename... FieldSpecs>
   struct result_row_t
-      : public detail::result_row_impl<::sqlpp::make_index_sequence<sizeof...(FieldSpecs)>, FieldSpecs...>
+      : public detail::result_row_impl<std::make_index_sequence<sizeof...(FieldSpecs)>, FieldSpecs...>
   {
-    using _impl = detail::result_row_impl<::sqlpp::make_index_sequence<sizeof...(FieldSpecs)>, FieldSpecs...>;
+    using _impl = detail::result_row_impl<std::make_index_sequence<sizeof...(FieldSpecs)>, FieldSpecs...>;
     bool _is_valid{false};
 
     result_row_t() : _impl()

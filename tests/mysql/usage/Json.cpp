@@ -75,7 +75,7 @@ int Json(int, char*[])
     if (result.empty())
       throw std::runtime_error{"selection result is empty"};
 
-    const ::sqlpp::optional<::sqlpp::string_view> value = result.front().value;
+    const std::optional<std::string_view> value = result.front().value;
 
     if (value != "value")
       throw std::runtime_error{std::string{"unexpected value: "} + std::string(value ? value.value() : "NULL")};

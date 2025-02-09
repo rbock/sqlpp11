@@ -27,6 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include <type_traits>
+#include <optional>
 
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/to_sql_string.h>
@@ -83,7 +84,7 @@ namespace sqlpp
   }
 
   template <typename NameTagProvider>
-  constexpr auto as(sqlpp::nullopt_t expr, const NameTagProvider&) -> expression_as<nullopt_t, name_tag_of_t<NameTagProvider>>
+  constexpr auto as(std::nullopt_t expr, const NameTagProvider&) -> expression_as<std::nullopt_t, name_tag_of_t<NameTagProvider>>
   {
       return {std::move(expr)};
   }

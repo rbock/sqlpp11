@@ -35,14 +35,14 @@ namespace
   using is_bool = std::is_same<sqlpp::value_type_of_t<T>, sqlpp::boolean>;
 
   template <typename T>
-  using is_maybe_bool = std::is_same<sqlpp::value_type_of_t<T>, ::sqlpp::optional<sqlpp::boolean>>;
+  using is_maybe_bool = std::is_same<sqlpp::value_type_of_t<T>, std::optional<sqlpp::boolean>>;
 }
 
 template <typename Value>
 void test_comparison_expression(Value v)
 {
   auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v));
+  auto v_maybe_null = sqlpp::value(std::make_optional(v));
 
   // Compare non-nullable with non-nullable.
   static_assert(is_bool<decltype(v_not_null < v_not_null)>::value, "");
@@ -105,14 +105,14 @@ void test_comparison_expression(Value v)
   using L = typename std::decay<decltype(v_not_null)>::type;
   using R = typename std::decay<decltype(v_maybe_null)>::type;
   static_assert(std::is_same<sqlpp::nodes_of_t<decltype(v_not_null == v_maybe_null)>, sqlpp::detail::type_vector<L, R>>::value, "");
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(is_null(v_not_null))>, sqlpp::detail::type_vector<L, ::sqlpp::nullopt_t>>::value, "");
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(is_null(v_not_null))>, sqlpp::detail::type_vector<L, std::nullopt_t>>::value, "");
 }
 
 template<typename Value>
 void test_like(Value v)
 {
   auto v_not_null= sqlpp::value(v);
-  auto v_maybe_null= sqlpp::value(::sqlpp::make_optional(v));
+  auto v_maybe_null= sqlpp::value(std::make_optional(v));
 
   // Compare non-nullable with non-nullable.
   static_assert(is_bool<decltype(like(v_not_null, v_not_null))>::value, "");
@@ -152,7 +152,7 @@ int main()
   test_comparison_expression('7');
   test_comparison_expression("seven");
   test_comparison_expression(std::string("seven"));
-  test_comparison_expression(::sqlpp::string_view("seven"));
+  test_comparison_expression(std::string_view("seven"));
 
   // blob
   test_comparison_expression(std::vector<uint8_t>{});
@@ -172,7 +172,7 @@ int main()
   test_like('7');
   test_like("seven");
   test_like(std::string("seven"));
-  test_like(::sqlpp::string_view("seven"));
+  test_like(std::string_view("seven"));
 
 }
 

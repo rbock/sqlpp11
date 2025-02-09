@@ -59,7 +59,7 @@ namespace sqlpp
   struct value_type_of<over_t<Expr>>: public value_type_of<Expr> {};
 
   template<typename Expr>
-  using check_over_args = ::sqlpp::enable_if_t<is_aggregate_function<Expr>::value>;
+  using check_over_args = std::enable_if_t<is_aggregate_function<Expr>::value>;
 
   template <typename Context, typename Expr>
   auto to_sql_string(Context& context, const over_t<Expr>& t) -> std::string

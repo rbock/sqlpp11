@@ -143,7 +143,7 @@ namespace sqlpp
     using clause_data<postgresql::on_conflict_do_update_t<OnConflict, Assignments...>, Statement>::clause_data;
 
     // WHERE
-    template <typename Expression, typename = sqlpp::enable_if_t<is_boolean<remove_dynamic_t<Expression>>::value>>
+    template <typename Expression, typename = std::enable_if_t<is_boolean<remove_dynamic_t<Expression>>::value>>
     auto where(Expression expression) const -> decltype(new_statement(
         *this,
         postgresql::on_conflict_do_update_where_t<postgresql::on_conflict_do_update_t<OnConflict, Assignments...>,

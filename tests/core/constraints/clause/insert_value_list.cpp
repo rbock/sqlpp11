@@ -25,7 +25,6 @@
 
 #include <sqlpp11/tests/core/constraints_helpers.h>
 #include <sqlpp11/tests/core/tables.h>
-#include <sqlpp11/core/compat/type_traits.h>
 
 namespace
 {
@@ -39,7 +38,7 @@ namespace
 
   template <typename... Expressions>
   struct can_call_insert_set_with_impl<sqlpp::detail::type_vector<Expressions...>,
-                                  sqlpp::void_t<decltype(sqlpp::insert_set(std::declval<Expressions>()...))>>
+                                  std::void_t<decltype(sqlpp::insert_set(std::declval<Expressions>()...))>>
       : public std::true_type
   {
   };
@@ -57,7 +56,7 @@ namespace
 
   template <typename... Columns>
   struct can_call_insert_columns_with_impl<sqlpp::detail::type_vector<Columns...>,
-                                  sqlpp::void_t<decltype(sqlpp::insert_columns(std::declval<Columns>()...))>>
+                                  std::void_t<decltype(sqlpp::insert_columns(std::declval<Columns>()...))>>
       : public std::true_type
   {
   };

@@ -100,7 +100,7 @@ int Blob(int, char*[])
   auto prepared_insert = db.prepare(insert_into(tab).set(tab.data = parameter(tab.data)));
   prepared_insert.params.data = data;
   const auto prep_id = db(prepared_insert);
-  prepared_insert.params.data = sqlpp::nullopt;
+  prepared_insert.params.data = std::nullopt;
   const auto null_id = db(prepared_insert);
 
   verify_blob(db, data_smaller, id);
@@ -108,7 +108,7 @@ int Blob(int, char*[])
   {
     auto result = db(select(tab.data).from(tab).where(tab.id == null_id));
     const auto& result_row = result.front();
-    std::cerr << "Null blob is_null:\t" << std::boolalpha << (result_row.data == ::sqlpp::nullopt) << std::endl;
+    std::cerr << "Null blob is_null:\t" << std::boolalpha << (result_row.data == std::nullopt) << std::endl;
   }
   return 0;
 }

@@ -64,7 +64,7 @@ namespace sqlpp
   }
 
   template<typename T>
-    using check_upper_args = ::sqlpp::enable_if_t<is_text<T>::value>;
+    using check_upper_args = std::enable_if_t<is_text<T>::value>;
 
   template <typename T, typename = check_upper_args<T>>
   auto upper(T t) -> upper_t<T>

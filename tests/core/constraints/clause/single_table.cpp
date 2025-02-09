@@ -25,7 +25,6 @@
 
 #include <sqlpp11/tests/core/constraints_helpers.h>
 #include <sqlpp11/tests/core/tables.h>
-#include <sqlpp11/core/compat/type_traits.h>
 
 namespace
 {
@@ -38,7 +37,7 @@ namespace
   };
 
   template <typename Expression>
-  struct can_call_single_table_with<Expression, sqlpp::void_t<decltype(sqlpp::single_table(std::declval<Expression>()))>>
+  struct can_call_single_table_with<Expression, std::void_t<decltype(sqlpp::single_table(std::declval<Expression>()))>>
       : public std::true_type
   {
   };

@@ -119,7 +119,7 @@ namespace sqlpp
   {
     using clause_data<no_union_t, Statement>::clause_data;
 
-    template <typename Rhs, typename = sqlpp::enable_if_t<is_statement<remove_dynamic_t<Rhs>>::value>>
+    template <typename Rhs, typename = std::enable_if_t<is_statement<remove_dynamic_t<Rhs>>::value>>
     auto union_distinct(Rhs rhs) const -> statement_t<union_t<union_distinct_t, Statement, Rhs>, no_union_t>
     {
       check_union_args_t<Statement, remove_dynamic_t<Rhs>>::verify();
@@ -129,7 +129,7 @@ namespace sqlpp
               union_t<union_distinct_t, Statement, Rhs>{static_cast<const Statement&>(*this), rhs}, no_union_t{}}};
     }
 
-    template <typename Rhs, typename = sqlpp::enable_if_t<is_statement<remove_dynamic_t<Rhs>>::value>>
+    template <typename Rhs, typename = std::enable_if_t<is_statement<remove_dynamic_t<Rhs>>::value>>
     auto union_all(Rhs rhs) const -> statement_t<union_t<union_all_t, Statement, Rhs>, no_union_t>
     {
       check_union_args_t<Statement, remove_dynamic_t<Rhs>>::verify();

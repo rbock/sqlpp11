@@ -35,14 +35,14 @@ namespace
   using is_bool = std::is_same<sqlpp::value_type_of_t<T>, sqlpp::boolean>;
 
   template <typename T>
-  using is_maybe_bool = std::is_same<sqlpp::value_type_of_t<T>, ::sqlpp::optional<sqlpp::boolean>>;
+  using is_maybe_bool = std::is_same<sqlpp::value_type_of_t<T>, std::optional<sqlpp::boolean>>;
 }
 
 template <typename Value>
 void test_between_expression(Value v)
 {
   auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v));
+  auto v_maybe_null = sqlpp::value(std::make_optional(v));
 
   // Variations of nullable and non-nullable values
   static_assert(is_bool<decltype(between(v_not_null, v_not_null, v_not_null))>::value, "");
@@ -123,7 +123,7 @@ int main()
   test_between_expression('7');
   test_between_expression("seven");
   test_between_expression(std::string("seven"));
-  test_between_expression(::sqlpp::string_view("seven"));
+  test_between_expression(std::string_view("seven"));
 
   // blob
   test_between_expression(std::vector<uint8_t>{});

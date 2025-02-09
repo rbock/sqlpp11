@@ -89,7 +89,7 @@ namespace sqlpp
     using clause_data<no_update_set_list_t, Statement>::clause_data;
 
     template <typename... Assignments,
-              typename = sqlpp::enable_if_t<logic::all<is_assignment<remove_dynamic_t<Assignments>>::value...>::value>>
+              typename = std::enable_if_t<logic::all<is_assignment<remove_dynamic_t<Assignments>>::value...>::value>>
     auto set(Assignments... assignments) const
         -> decltype(new_statement(*this, update_set_list_t<Assignments...>{std::make_tuple(assignments...)}))
     {

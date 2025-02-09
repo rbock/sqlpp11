@@ -49,7 +49,7 @@ namespace sqlpp
   };
 
   template <typename Select>
-  using check_exists_arg = ::sqlpp::enable_if_t<is_statement<Select>::value and has_result_row<Select>::value>;
+  using check_exists_arg = std::enable_if_t<is_statement<Select>::value and has_result_row<Select>::value>;
 
   template <typename Select>
   struct value_type_of<exists_expression<Select>>

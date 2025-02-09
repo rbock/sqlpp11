@@ -64,7 +64,7 @@ namespace sqlpp
   }
 
   template<typename T>
-    using check_lower_args = ::sqlpp::enable_if_t<is_text<T>::value>;
+    using check_lower_args = std::enable_if_t<is_text<T>::value>;
 
   template <typename T, typename = check_lower_args<T>>
   auto lower(T t) -> lower_t<T>

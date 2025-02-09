@@ -36,7 +36,7 @@ namespace sql = sqlpp::sqlite3;
 const auto tab = test::TabSample{};
 
 template <typename T>
-std::ostream& operator<<(std::ostream& os, const ::sqlpp::optional<T>& t) {
+std::ostream& operator<<(std::ostream& os, const std::optional<T>& t) {
   if (not t)
     return os << "NULL";
   return os << t.value();
@@ -164,8 +164,8 @@ int Select(int, char*[])
               .from(tab)
               .unconditionally()))
   {
-    const ::sqlpp::optional<int64_t> x = row.alpha;
-    const ::sqlpp::optional<sqlpp::string_view> a = row.something;
+    const std::optional<int64_t> x = row.alpha;
+    const std::optional<std::string_view> a = row.something;
     std::cout << ">>>" << x << ", " << a << std::endl;
   }
 

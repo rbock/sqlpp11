@@ -26,7 +26,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/compat/optional.h>
+#include <optional>
 
 namespace sqlpp
 {
@@ -36,12 +36,12 @@ namespace sqlpp
   };
 
   template <typename T>
-  struct is_optional<::sqlpp::optional<T>> : public std::true_type
+  struct is_optional<std::optional<T>> : public std::true_type
   {
   };
 
   template <>
-  struct is_optional<::sqlpp::nullopt_t> : public std::true_type
+  struct is_optional<std::nullopt_t> : public std::true_type
   {
   };
 
@@ -52,7 +52,7 @@ namespace sqlpp
   };
 
   template <typename T>
-  struct remove_optional<::sqlpp::optional<T>>
+  struct remove_optional<std::optional<T>>
   {
     using type = T;
   };
@@ -63,13 +63,13 @@ namespace sqlpp
   template <typename T>
   struct force_optional
   {
-    using type = ::sqlpp::optional<T>;
+    using type = std::optional<T>;
   };
 
   template <typename T>
-  struct force_optional<::sqlpp::optional<T>>
+  struct force_optional<std::optional<T>>
   {
-    using type = ::sqlpp::optional<T>;
+    using type = std::optional<T>;
   };
 
   template <typename T>

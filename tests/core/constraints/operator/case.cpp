@@ -38,7 +38,7 @@ namespace
   };
 
   template <typename Lhs>
-  struct can_call_case_when_with<Lhs, sqlpp::void_t<decltype(sqlpp::case_when(std::declval<Lhs>()))>>
+  struct can_call_case_when_with<Lhs, std::void_t<decltype(sqlpp::case_when(std::declval<Lhs>()))>>
       : public std::true_type
   {
   };
@@ -50,7 +50,7 @@ namespace
   };
 
   template <typename Lhs, typename Rhs>
-  struct can_call_then_with<Lhs, Rhs, sqlpp::void_t<decltype(std::declval<Lhs>().then(std::declval<Rhs>()))>>
+  struct can_call_then_with<Lhs, Rhs, std::void_t<decltype(std::declval<Lhs>().then(std::declval<Rhs>()))>>
       : public std::true_type
   {
   };
@@ -62,7 +62,7 @@ namespace
   };
 
   template <typename Lhs, typename Rhs>
-  struct can_call_else_with<Lhs, Rhs, sqlpp::void_t<decltype(std::declval<Lhs>().else_(std::declval<Rhs>()))>>
+  struct can_call_else_with<Lhs, Rhs, std::void_t<decltype(std::declval<Lhs>().else_(std::declval<Rhs>()))>>
       : public std::true_type
   {
   };
@@ -80,12 +80,12 @@ int main()
 
   // OK
   static_assert(can_call_case_when_with<decltype(true)>::value, "");
-  static_assert(can_call_case_when_with<decltype(sqlpp::make_optional(true))>::value, "");
+  static_assert(can_call_case_when_with<decltype(std::make_optional(true))>::value, "");
   static_assert(can_call_case_when_with<decltype(foo.boolN)>::value, "");
   static_assert(can_call_case_when_with<decltype(bar.boolNn)>::value, "");
   static_assert(can_call_case_when_with<decltype(bar.boolNn == true)>::value, "");
   static_assert(can_call_case_when_with<decltype(count(foo.id) > 0)>::value, "");
-  static_assert(can_call_case_when_with<decltype(sqlpp::nullopt)>::value, "");
+  static_assert(can_call_case_when_with<decltype(std::nullopt)>::value, "");
 
   // Fail: Cannot call case_when with renamed boolean
   static_assert(not can_call_case_when_with<decltype(bar.boolNn.as(something))>::value, "");
@@ -105,10 +105,10 @@ int main()
     // OK
     static_assert(can_call_then_with<CW, decltype(bar.id)>::value, "");
     static_assert(can_call_then_with<CW, decltype(bar.textN)>::value, "");
-    static_assert(can_call_then_with<CW, decltype(sqlpp::optional<int>(sqlpp::nullopt))>::value, "");
+    static_assert(can_call_then_with<CW, decltype(std::optional<int>(std::nullopt))>::value, "");
 
     // Fail: Cannot use nullopt, as we need a value_type for the CASE expression.
-    static_assert(not can_call_then_with<CW, decltype(sqlpp::nullopt)>::value, "");
+    static_assert(not can_call_then_with<CW, decltype(std::nullopt)>::value, "");
 
     // Fail: Anything that does not have a value.
     static_assert(not can_call_then_with<CW, decltype(bar.boolNn = true)>::value, "");
@@ -126,10 +126,10 @@ int main()
     // OK
     static_assert(can_call_else_with<CW, decltype(bar.textN)>::value, "");
     static_assert(can_call_else_with<CW, decltype(foo.textNnD)>::value, "");
-    static_assert(can_call_else_with<CW, decltype(sqlpp::optional<int>(sqlpp::nullopt))>::value, "");
+    static_assert(can_call_else_with<CW, decltype(std::optional<int>(std::nullopt))>::value, "");
 
     // OK: the value type of CASE is determined by the THEN expression.
-    static_assert(can_call_else_with<CW, decltype(sqlpp::nullopt)>::value, "");
+    static_assert(can_call_else_with<CW, decltype(std::nullopt)>::value, "");
 
     // Fail: Anything that does not have a value.
     static_assert(not can_call_else_with<CW, decltype(bar.boolNn = true)>::value, "");
@@ -150,10 +150,10 @@ int main()
     // OK
     static_assert(can_call_else_with<CW, decltype(bar.textN)>::value, "");
     static_assert(can_call_else_with<CW, decltype(foo.textNnD)>::value, "");
-    static_assert(can_call_else_with<CW, decltype(sqlpp::optional<int>(sqlpp::nullopt))>::value, "");
+    static_assert(can_call_else_with<CW, decltype(std::optional<int>(std::nullopt))>::value, "");
 
     // OK: the value type of CASE is determined by the THEN expression.
-    static_assert(can_call_else_with<CW, decltype(sqlpp::nullopt)>::value, "");
+    static_assert(can_call_else_with<CW, decltype(std::nullopt)>::value, "");
 
     // Fail: Anything that does not have a value.
     static_assert(not can_call_else_with<CW, decltype(bar.boolNn = true)>::value, "");

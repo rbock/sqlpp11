@@ -30,8 +30,6 @@
 #include <iterator>
 #include <utility>
 
-#include <sqlpp11/core/compat/type_traits.h>
-
 namespace sqlpp
 {
   template <typename>
@@ -46,14 +44,14 @@ namespace sqlpp
     struct result_has_size : std::false_type {};
 
     template<class DbResult>
-    struct result_has_size<DbResult, ::sqlpp::void_t<decltype(std::declval<DbResult>().size())>>
+    struct result_has_size<DbResult, std::void_t<decltype(std::declval<DbResult>().size())>>
       : std::true_type {};
 
     template<class DbResult, class = void>
     struct result_size_type { using type = void; };
 
     template<class DbResult>
-    struct result_size_type<DbResult, ::sqlpp::void_t<decltype(std::declval<DbResult>().size())>>
+    struct result_size_type<DbResult, std::void_t<decltype(std::declval<DbResult>().size())>>
     {
       using type = decltype(std::declval<DbResult>().size());
     };

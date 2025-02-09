@@ -27,9 +27,12 @@
  */
 
 #include <cstdint>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <span>
 
 #include <sqlpp11/core/chrono.h>
-#include <sqlpp11/core/compat/optional.h>
 #include <sqlpp11/core/type_traits/optional.h>
 
 namespace sqlpp
@@ -46,9 +49,9 @@ namespace sqlpp
   using value_type_of_t = typename value_type_of<T>::type;
 
   template<typename T>
-  struct value_type_of<::sqlpp::optional<T>>
+  struct value_type_of<std::optional<T>>
   {
-    using type = sqlpp::optional<value_type_of_t<remove_optional_t<T>>>;
+    using type = std::optional<value_type_of_t<remove_optional_t<T>>>;
   };
 
   template <typename T>
@@ -108,7 +111,7 @@ namespace sqlpp
   template <>
   struct value_type_of<std::string> { using type = text; };
   template <>
-  struct value_type_of<::sqlpp::string_view> { using type = text; };
+  struct value_type_of<std::string_view> { using type = text; };
 
   struct blob{};
   template <>
@@ -118,7 +121,7 @@ namespace sqlpp
   template <>
   struct value_type_of<std::vector<std::uint8_t>> { using type = blob; };
   template <>
-  struct value_type_of<::sqlpp::span<std::uint8_t>> { using type = blob; };
+  struct value_type_of<std::span<std::uint8_t>> { using type = blob; };
 
   struct day_point{};
   template <>
@@ -145,7 +148,7 @@ namespace sqlpp
   };
 
   template <>
-  struct is_boolean<::sqlpp::nullopt_t> : public std::true_type {
+  struct is_boolean<std::nullopt_t> : public std::true_type {
   };
 
   template <typename T>
@@ -154,7 +157,7 @@ namespace sqlpp
   };
 
   template <>
-  struct is_integral<::sqlpp::nullopt_t> : public std::true_type {
+  struct is_integral<std::nullopt_t> : public std::true_type {
   };
 
   template <typename T>
@@ -163,7 +166,7 @@ namespace sqlpp
   };
 
   template <>
-  struct is_unsigned_integral<::sqlpp::nullopt_t> : public std::true_type {
+  struct is_unsigned_integral<std::nullopt_t> : public std::true_type {
   };
 
   template <typename T>
@@ -172,7 +175,7 @@ namespace sqlpp
   };
 
   template <>
-  struct is_floating_point<::sqlpp::nullopt_t> : public std::true_type {
+  struct is_floating_point<std::nullopt_t> : public std::true_type {
   };
 
   // A generic numeric type which could be (unsigned) integral or floating point.
@@ -187,7 +190,7 @@ namespace sqlpp
   };
 
   template <>
-  struct is_numeric<::sqlpp::nullopt_t> : public std::true_type{};
+  struct is_numeric<std::nullopt_t> : public std::true_type{};
 
   template <typename T>
   struct is_text : public std::is_same<remove_optional_t<value_type_of_t<T>>, text>
@@ -195,7 +198,7 @@ namespace sqlpp
   };
 
   template <>
-  struct is_text<::sqlpp::nullopt_t> : public std::true_type {
+  struct is_text<std::nullopt_t> : public std::true_type {
   };
 
   template <typename T>
@@ -204,7 +207,7 @@ namespace sqlpp
   };
 
   template <>
-  struct is_blob<::sqlpp::nullopt_t> : public std::true_type {
+  struct is_blob<std::nullopt_t> : public std::true_type {
   };
 
   template <typename T>
@@ -213,7 +216,7 @@ namespace sqlpp
   };
 
   template <>
-  struct is_day_point<::sqlpp::nullopt_t> : public std::true_type {
+  struct is_day_point<std::nullopt_t> : public std::true_type {
   };
 
   template <typename T>
@@ -222,7 +225,7 @@ namespace sqlpp
   };
 
   template <>
-  struct is_time_point<::sqlpp::nullopt_t> : public std::true_type {
+  struct is_time_point<std::nullopt_t> : public std::true_type {
   };
 
   template <typename T>
@@ -235,7 +238,7 @@ namespace sqlpp
   };
 
   template <>
-  struct is_time_of_day<::sqlpp::nullopt_t> : public std::true_type {
+  struct is_time_of_day<std::nullopt_t> : public std::true_type {
   };
 
 }

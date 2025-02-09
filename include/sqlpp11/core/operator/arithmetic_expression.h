@@ -85,7 +85,7 @@ namespace sqlpp
   };
 
   template <typename L, typename R>
-  using check_arithmetic_args = ::sqlpp::enable_if_t<is_numeric<L>::value and is_numeric<R>::value>;
+  using check_arithmetic_args = std::enable_if_t<is_numeric<L>::value and is_numeric<R>::value>;
 
   // L and R are expected to be numeric value types (boolean, integral, unsigned_integral, or floating_point).
   template <typename Operator, typename L, typename R>
@@ -205,21 +205,21 @@ namespace sqlpp
 
   // Handle optional types
   template <typename Operator, typename L, typename R>
-  struct arithmetic_value_type<Operator, sqlpp::optional<L>, R>
+  struct arithmetic_value_type<Operator, std::optional<L>, R>
   {
-    using type = sqlpp::optional<arithmetic_value_type_t<Operator, L, R>>;
+    using type = std::optional<arithmetic_value_type_t<Operator, L, R>>;
   };
 
   template <typename Operator, typename L, typename R>
-  struct arithmetic_value_type<Operator, L, sqlpp::optional<R>>
+  struct arithmetic_value_type<Operator, L, std::optional<R>>
   {
-    using type = sqlpp::optional<arithmetic_value_type_t<Operator, L, R>>;
+    using type = std::optional<arithmetic_value_type_t<Operator, L, R>>;
   };
 
   template <typename Operator, typename L, typename R>
-  struct arithmetic_value_type<Operator, sqlpp::optional<L>, sqlpp::optional<R>>
+  struct arithmetic_value_type<Operator, std::optional<L>, std::optional<R>>
   {
-    using type = sqlpp::optional<arithmetic_value_type_t<Operator, L, R>>;
+    using type = std::optional<arithmetic_value_type_t<Operator, L, R>>;
   };
 
   template <typename Operator, typename L, typename R>
@@ -250,7 +250,7 @@ namespace sqlpp
   }
 
   template <typename L, typename R>
-  using check_concatenation_args = ::sqlpp::enable_if_t<is_text<L>::value and is_text<R>::value>;
+  using check_concatenation_args = std::enable_if_t<is_text<L>::value and is_text<R>::value>;
 
   template <typename L, typename R, typename = check_concatenation_args<L, R>>
   constexpr auto operator+(L l, R r) -> decltype(concat(l, r))
@@ -283,7 +283,7 @@ namespace sqlpp
   }
 
   template <typename L, typename R>
-  using check_modulus_args = ::sqlpp::enable_if_t<(is_integral<L>::value or is_unsigned_integral<L>::value) and (is_integral<R>::value or is_unsigned_integral<R>::value)>;
+  using check_modulus_args = std::enable_if_t<(is_integral<L>::value or is_unsigned_integral<L>::value) and (is_integral<R>::value or is_unsigned_integral<R>::value)>;
 
   template <typename L, typename R, typename = check_modulus_args<L, R>>
   constexpr auto operator%(L l, R r) -> arithmetic_expression<L, modulus, R>

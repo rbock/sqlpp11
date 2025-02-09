@@ -38,7 +38,7 @@ namespace sql = sqlpp::sqlite3;
 const auto tab = test::TabSample{};
 
 template <typename T>
-std::ostream& operator<<(std::ostream& os, const ::sqlpp::optional<T>& t) {
+std::ostream& operator<<(std::ostream& os, const std::optional<T>& t) {
   if (not t)
     return os << "NULL";
   return os << t.value();

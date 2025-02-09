@@ -115,7 +115,7 @@ int Sample(int, char*[])
       if (const auto& row = *result.begin())
       {
         const int64_t a = row.intN.value_or(0);
-        const ::sqlpp::optional<long> m = row.a;
+        const std::optional<long> m = row.a;
         std::cerr << __LINE__ << " row.intN: " << a << ", row.max: " << m << std::endl;
       }
       tx.commit();

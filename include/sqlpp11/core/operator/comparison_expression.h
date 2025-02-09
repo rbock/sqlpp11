@@ -50,12 +50,12 @@ namespace sqlpp
   };
 
   template <typename L, typename R>
-  using check_comparison_args = ::sqlpp::enable_if_t<values_are_comparable<L, R>::value>;
+  using check_comparison_args = std::enable_if_t<values_are_comparable<L, R>::value>;
 
   template <typename L, typename Operator, typename R>
   struct value_type_of<comparison_expression<L, Operator, R>>
       : std::conditional<sqlpp::is_optional<value_type_of_t<L>>::value or sqlpp::is_optional<value_type_of_t<remove_any_t<R>>>::value,
-                         ::sqlpp::optional<boolean>,
+                         std::optional<boolean>,
                          boolean>
   {
   };
@@ -66,10 +66,10 @@ namespace sqlpp
   struct op_is_not_distinct_from;
 
   template <typename L>
-    struct value_type_of<comparison_expression<L, op_is_null, ::sqlpp::nullopt_t>> { using type = boolean; };
+    struct value_type_of<comparison_expression<L, op_is_null, std::nullopt_t>> { using type = boolean; };
 
   template <typename L>
-    struct value_type_of<comparison_expression<L, op_is_not_null, ::sqlpp::nullopt_t>> { using type = boolean; };
+    struct value_type_of<comparison_expression<L, op_is_not_null, std::nullopt_t>> { using type = boolean; };
 
   template <typename L, typename R>
     struct value_type_of<comparison_expression<L, op_is_distinct_from, R>> { using type = boolean; };
@@ -169,9 +169,9 @@ namespace sqlpp
   };
 
   template <typename L>
-  constexpr auto is_null(L l) -> comparison_expression<L, op_is_null, ::sqlpp::nullopt_t>
+  constexpr auto is_null(L l) -> comparison_expression<L, op_is_null, std::nullopt_t>
   {
-    return {l, ::sqlpp::nullopt};
+    return {l, std::nullopt};
   }
 
   struct op_is_not_null
@@ -180,9 +180,9 @@ namespace sqlpp
   };
 
   template <typename L>
-  constexpr auto is_not_null(L l) -> comparison_expression<L, op_is_not_null, ::sqlpp::nullopt_t>
+  constexpr auto is_not_null(L l) -> comparison_expression<L, op_is_not_null, std::nullopt_t>
   {
-    return {l, ::sqlpp::nullopt};
+    return {l, std::nullopt};
   }
 
   struct op_is_distinct_from
@@ -217,7 +217,7 @@ namespace sqlpp
   };
 
   template <typename L, typename R>
-  using check_like_args = ::sqlpp::enable_if_t<is_text<L>::value and is_text<R>::value>;
+  using check_like_args = std::enable_if_t<is_text<L>::value and is_text<R>::value>;
 
   template <typename L, typename R, typename = check_comparison_args<L, R>>
   constexpr auto like(L l, R r) -> comparison_expression<L, op_like, R>

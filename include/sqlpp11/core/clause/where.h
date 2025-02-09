@@ -101,7 +101,7 @@ namespace sqlpp
       return new_statement(*this, where_t<unconditional_t>{});
     }
 
-    template <typename Expression, typename = sqlpp::enable_if_t<is_boolean<remove_dynamic_t<Expression>>::value>>
+    template <typename Expression, typename = std::enable_if_t<is_boolean<remove_dynamic_t<Expression>>::value>>
     auto where(Expression expression) const -> decltype(new_statement(*this, where_t<Expression>{expression}))
     {
       SQLPP_STATIC_ASSERT(not contains_aggregate_function<Expression>::value,

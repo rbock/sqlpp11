@@ -30,11 +30,11 @@
 #include <cmath>
 #include <sstream>
 #include <iomanip>
+#include <optional>
+#include <string_view>
+#include <span>
 
-#include <sqlpp11/core/compat/optional.h>
 #include <sqlpp11/core/chrono.h>
-#include <sqlpp11/core/compat/span.h>
-#include <sqlpp11/core/compat/string_view.h>
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/database/exception.h>
 
@@ -158,7 +158,7 @@ namespace sqlpp
   }
 
   template <typename Context>
-  auto to_sql_string(Context& , const ::sqlpp::string_view& t) -> std::string
+  auto to_sql_string(Context& , const std::string_view& t) -> std::string
   {
     auto result = std::string{"'"};
     result.reserve(t.size() * 2);
@@ -188,7 +188,7 @@ namespace sqlpp
   template <typename Context>
   auto to_sql_string(Context& context, const char& t) -> std::string
   {
-    return to_sql_string(context, sqlpp::string_view(&t, 1));
+    return to_sql_string(context, std::string_view(&t, 1));
   }
 
   // MySQL and sqlite3 use x'...', but PostgreSQL uses '\x...' to encode hexadecimal literals
@@ -199,7 +199,7 @@ namespace sqlpp
   //
   // The PostgreSQL connector therefore specializes this function.
   template <typename Context>
-  auto to_sql_string(Context& , const ::sqlpp::span<const uint8_t>& t) -> std::string
+  auto to_sql_string(Context& , const std::span<const uint8_t>& t) -> std::string
   {
     constexpr char hexChars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
     auto result = std::string{"x'"};
@@ -218,13 +218,13 @@ namespace sqlpp
   template <typename Context>
   auto to_sql_string(Context& context, const std::vector<uint8_t>& t) -> std::string
   {
-    return to_sql_string(context, ::sqlpp::span<const uint8_t>(begin(t), end(t)));
+    return to_sql_string(context, std::span<const uint8_t>(begin(t), end(t)));
   }
 
   template <typename Context, std::size_t N>
   auto to_sql_string(Context& context, const std::array<uint8_t, N>& t) -> std::string
   {
-    return to_sql_string(context, ::sqlpp::span<const uint8_t>(t.data(), t.size()));
+    return to_sql_string(context, std::span<const uint8_t>(t.data(), t.size()));
   }
 
   template <typename Context>
@@ -246,17 +246,17 @@ namespace sqlpp
   }
 
   template <typename Context>
-  auto to_sql_string(Context&, const ::sqlpp::nullopt_t&) -> std::string
+  auto to_sql_string(Context&, const std::nullopt_t&) -> std::string
   {
     return "NULL";
   }
 
   template <typename T, typename Context>
-  auto to_sql_string(Context& context, const ::sqlpp::optional<T>& t) -> std::string
+  auto to_sql_string(Context& context, const std::optional<T>& t) -> std::string
   {
     if (not t.has_value())
     {
-      return to_sql_string(context, ::sqlpp::nullopt);
+      return to_sql_string(context, std::nullopt);
     }
     return to_sql_string(context, *t);
   }
@@ -272,7 +272,7 @@ namespace sqlpp
   }
 
   template <typename Context>
-  auto quoted_name_to_sql_string(Context&, const ::sqlpp::string_view& name) -> std::string
+  auto quoted_name_to_sql_string(Context&, const std::string_view& name) -> std::string
   {
     return '"' + std::string(name) + '"';
   }

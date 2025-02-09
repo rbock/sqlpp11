@@ -55,7 +55,7 @@ namespace sqlpp
   {
     using type = typename std::conditional<sqlpp::is_optional<value_type_of_t<L>>::value or
                                                sqlpp::is_optional<value_type_of_t<R>>::value,
-                                           ::sqlpp::optional<integral>,
+                                           std::optional<integral>,
                                            integral>::type;
   };
 
@@ -66,10 +66,10 @@ namespace sqlpp
   };
 
   template <typename L, typename R>
-  using check_bit_expression_args = ::sqlpp::enable_if_t<is_integral<L>::value and is_integral<R>::value>;
+  using check_bit_expression_args = std::enable_if_t<is_integral<L>::value and is_integral<R>::value>;
 
   template <typename L, typename R>
-  using check_bit_shift_expression_args = ::sqlpp::enable_if_t<is_integral<L>::value and (is_integral<R>::value or is_unsigned_integral<R>::value)>;
+  using check_bit_shift_expression_args = std::enable_if_t<is_integral<L>::value and (is_integral<R>::value or is_unsigned_integral<R>::value)>;
 
   template <typename L, typename Operator, typename R>
   struct requires_parentheses<bit_expression<L, Operator, R>> : public std::true_type {};

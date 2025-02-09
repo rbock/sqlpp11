@@ -128,7 +128,7 @@ namespace sqlpp
     using clause_data<no_group_by_t, Statement>::clause_data;
 
     template <typename... Columns,
-              typename = sqlpp::enable_if_t<logic::all<has_value_type<remove_dynamic_t<Columns>>::value...>::value>>
+              typename = std::enable_if_t<logic::all<has_value_type<remove_dynamic_t<Columns>>::value...>::value>>
     auto group_by(Columns... columns) const -> decltype(new_statement(*this, group_by_t<Columns...>{columns...}))
     {
       SQLPP_STATIC_ASSERT(sizeof...(Columns), "at least one column required in group_by()");

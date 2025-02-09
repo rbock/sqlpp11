@@ -43,13 +43,13 @@ int main(int, char* [])
   SQLPP_COMPARE(insert_into(foo).default_values(), "INSERT INTO tab_foo DEFAULT VALUES");
 
   // Single row with "SET".
-  SQLPP_COMPARE(insert_into(foo).set(foo.id = 17, foo.boolN = sqlpp::nullopt, foo.textNnD = "cake"), "INSERT INTO tab_foo (id, bool_n, text_nn_d) VALUES(17, NULL, 'cake')");
+  SQLPP_COMPARE(insert_into(foo).set(foo.id = 17, foo.boolN = std::nullopt, foo.textNnD = "cake"), "INSERT INTO tab_foo (id, bool_n, text_nn_d) VALUES(17, NULL, 'cake')");
 
   // Multiple rows with columns and values.
   {
     auto i = insert_into(foo).columns(foo.id, foo.boolN, foo.textNnD);
     i.add_values(foo.id = sqlpp::default_value, foo.boolN = sqlpp::default_value, foo.textNnD = "cheese");
-    i.add_values(foo.id = 17, foo.boolN = sqlpp::nullopt, foo.textNnD = "cake");
+    i.add_values(foo.id = 17, foo.boolN = std::nullopt, foo.textNnD = "cake");
     SQLPP_COMPARE(i, "INSERT INTO tab_foo (id, bool_n, text_nn_d) VALUES (DEFAULT, DEFAULT, 'cheese'), (17, NULL, 'cake')");
   }
 

@@ -37,7 +37,7 @@ namespace test
   };
 
   template <typename Expression>
-  struct can_call_into_with<Expression, sqlpp::void_t<decltype(sqlpp::into(std::declval<Expression>()))>>
+  struct can_call_into_with<Expression, std::void_t<decltype(sqlpp::into(std::declval<Expression>()))>>
       : public std::true_type
   {
   };

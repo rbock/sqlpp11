@@ -73,7 +73,7 @@ namespace sqlpp
     using clause_data<no_select_flag_list_t, Statement>::clause_data;
 
     template <typename... Flags,
-              typename = sqlpp::enable_if_t<logic::all<is_select_flag<remove_dynamic_t<Flags>>::value...>::value>>
+              typename = std::enable_if_t<logic::all<is_select_flag<remove_dynamic_t<Flags>>::value...>::value>>
     auto flags(Flags... flags) const -> decltype(new_statement(*this, select_flag_list_t<Flags...>{flags...}))
     {
       SQLPP_STATIC_ASSERT(sizeof...(Flags),

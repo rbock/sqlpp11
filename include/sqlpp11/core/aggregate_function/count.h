@@ -77,7 +77,7 @@ namespace sqlpp
   }
 
   template <typename T>
-  using check_count_arg = ::sqlpp::enable_if_t<values_are_comparable<T, T>::value>;
+  using check_count_arg = std::enable_if_t<values_are_comparable<T, T>::value>;
 
   template <typename T, typename = check_count_arg<T>>
   auto count(T t) -> count_t<no_flag_t, T>

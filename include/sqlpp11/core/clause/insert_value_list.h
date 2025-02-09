@@ -39,7 +39,6 @@
 #include <sqlpp11/core/clause/simple_column.h>
 #include <sqlpp11/core/query/statement.h>
 #include <sqlpp11/core/type_traits.h>
-#include <sqlpp11/core/compat/type_traits.h>
 
 namespace sqlpp
 {
@@ -156,7 +155,7 @@ namespace sqlpp
     using _value_tuple_t = typename column_list_t<Columns...>::_value_tuple_t;
 
     template <typename... Assignments,
-              typename = sqlpp::enable_if_t<logic::all<is_assignment<remove_dynamic_t<Assignments>>::value...>::value>>
+              typename = std::enable_if_t<logic::all<is_assignment<remove_dynamic_t<Assignments>>::value...>::value>>
     auto add_values(Assignments... assignments) -> void
     {
       using _arg_value_tuple = std::tuple<make_insert_value_t<lhs_t<Assignments>>...>;
@@ -227,7 +226,7 @@ namespace sqlpp
     }
 
     template <typename... Columns,
-              typename = sqlpp::enable_if_t<logic::all<is_column<remove_dynamic_t<Columns>>::value...>::value>>
+              typename = std::enable_if_t<logic::all<is_column<remove_dynamic_t<Columns>>::value...>::value>>
     auto columns(Columns... cols) const -> decltype(new_statement(*this, column_list_t<Columns...>{cols...}))
     {
       SQLPP_STATIC_ASSERT(sizeof...(Columns), "at least one column required in columns()");
@@ -240,7 +239,7 @@ namespace sqlpp
     }
 
     template <typename... Assignments,
-              typename = sqlpp::enable_if_t<logic::all<is_assignment<remove_dynamic_t<Assignments>>::value...>::value>>
+              typename = std::enable_if_t<logic::all<is_assignment<remove_dynamic_t<Assignments>>::value...>::value>>
     auto set(Assignments... assignments) const -> decltype(new_statement(*this, insert_set_t<Assignments...>{std::make_tuple(std::move(assignments)...)}))
     {
       SQLPP_STATIC_ASSERT(sizeof...(Assignments) != 0, "at least one assignment expression required in set()");
@@ -324,7 +323,7 @@ namespace sqlpp
       return "";
     }
 
-    sqlpp::string_view separator;
+    std::string_view separator;
     mutable bool need_prefix = false;
   };
 
@@ -349,7 +348,7 @@ namespace sqlpp
       return "";
     }
 
-    sqlpp::string_view separator;
+    std::string_view separator;
     mutable bool need_prefix = false;
   };
 

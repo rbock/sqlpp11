@@ -39,9 +39,9 @@ template <typename Value>
 void test_avg(Value v)
 {
   auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v));
+  auto v_maybe_null = sqlpp::value(std::make_optional(v));
 
-  using OptFloat = sqlpp::value_type_of_t<::sqlpp::optional<float>>;
+  using OptFloat = sqlpp::value_type_of_t<std::optional<float>>;
 
   // avg non-nullable can be null because there could be zero result rows.
   static_assert(is_same_type<decltype(avg(v_not_null)), OptFloat>::value, "");

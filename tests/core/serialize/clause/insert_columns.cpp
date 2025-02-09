@@ -57,7 +57,7 @@ int main(int, char* [])
     auto i = insert_columns(foo.boolN);
     i.add_values(foo.boolN = true);
     i.add_values(foo.boolN = sqlpp::default_value);
-    i.add_values(foo.boolN = sqlpp::nullopt);
+    i.add_values(foo.boolN = std::nullopt);
     SQLPP_COMPARE(i, " (bool_n) VALUES (1), (DEFAULT), (NULL)");
   }
 
@@ -67,7 +67,7 @@ int main(int, char* [])
     i.add_values(foo.id = sqlpp::default_value, foo.boolN = sqlpp::default_value, foo.textNnD = "cheese");
     SQLPP_COMPARE(i, " (id, bool_n, text_nn_d) VALUES (DEFAULT, DEFAULT, 'cheese')");
 
-    i.add_values(foo.id = 17, foo.boolN = sqlpp::nullopt, foo.textNnD = "cake");
+    i.add_values(foo.id = 17, foo.boolN = std::nullopt, foo.textNnD = "cake");
     SQLPP_COMPARE(i, " (id, bool_n, text_nn_d) VALUES (DEFAULT, DEFAULT, 'cheese'), (17, NULL, 'cake')");
   }
 

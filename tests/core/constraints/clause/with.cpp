@@ -25,7 +25,6 @@
 
 #include <sqlpp11/tests/core/constraints_helpers.h>
 #include <sqlpp11/tests/core/tables.h>
-#include <sqlpp11/core/compat/type_traits.h>
 #include <sqlpp11/sqlpp11.h>
 
 namespace
@@ -41,7 +40,7 @@ namespace
 
   template <typename... Ctes>
   struct can_call_with_with_impl<sqlpp::detail::type_vector<Ctes...>,
-                            sqlpp::void_t<decltype(sqlpp::with(std::declval<Ctes>()...))>> : public std::true_type
+                            std::void_t<decltype(sqlpp::with(std::declval<Ctes>()...))>> : public std::true_type
   {
   };
 

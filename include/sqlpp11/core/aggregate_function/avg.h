@@ -78,7 +78,7 @@ namespace sqlpp
 
   template <typename T>
   using check_avg_arg =
-      ::sqlpp::enable_if_t<(is_numeric<T>::value or is_boolean<T>::value)>;
+      std::enable_if_t<(is_numeric<T>::value or is_boolean<T>::value)>;
 
   template <typename T, typename = check_avg_arg<T>>
   auto avg(T t) -> avg_t<no_flag_t, T>

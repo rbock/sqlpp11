@@ -41,7 +41,7 @@ namespace sqlpp
 
   namespace postgresql {
     // MySQL and sqlite3 use x'...', but PostgreSQL uses '\x...' to encode hexadecimal literals
-    inline auto to_sql_string(postgresql::context_t&, const ::sqlpp::span<uint8_t>& t) -> std::string
+    inline auto to_sql_string(postgresql::context_t&, const std::span<uint8_t>& t) -> std::string
     {
       constexpr char hex_chars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
       auto result = std::string("'\\x");

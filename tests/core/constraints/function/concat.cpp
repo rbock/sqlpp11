@@ -25,7 +25,6 @@
 
 #include <sqlpp11/tests/core/constraints_helpers.h>
 #include <sqlpp11/tests/core/tables.h>
-#include <sqlpp11/core/compat/type_traits.h>
 
 namespace
 {
@@ -39,7 +38,7 @@ namespace
 
   template <typename... Expressions>
   struct can_call_concat_with_impl<sqlpp::detail::type_vector<Expressions...>,
-                                  sqlpp::void_t<decltype(sqlpp::concat(std::declval<Expressions>()...))>>
+                                  std::void_t<decltype(sqlpp::concat(std::declval<Expressions>()...))>>
       : public std::true_type
   {
   };
@@ -76,7 +75,7 @@ int main()
   // concat(<one or more text arguments>) is OK
   static_assert(can_call_concat_with<decltype("a")>::value, "");
   static_assert(can_call_concat_with<decltype("a"), decltype("b")>::value, "");
-  static_assert(can_call_concat_with<decltype(sqlpp::nullopt)>::value, "");
+  static_assert(can_call_concat_with<decltype(std::nullopt)>::value, "");
   static_assert(can_call_concat_with<decltype(foo.textNnD)>::value, "");
   static_assert(can_call_concat_with<decltype(dynamic(maybe, foo.textNnD))>::value, "");
 }

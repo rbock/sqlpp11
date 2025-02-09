@@ -35,14 +35,14 @@ namespace
   using is_integral = std::is_same<sqlpp::value_type_of_t<T>, sqlpp::integral>;
 
   template <typename T>
-  using is_maybe_integral = std::is_same<sqlpp::value_type_of_t<T>, ::sqlpp::optional<sqlpp::integral>>;
+  using is_maybe_integral = std::is_same<sqlpp::value_type_of_t<T>, std::optional<sqlpp::integral>>;
 }
 
 template <typename Value>
 void test_bit_expression(Value v)
 {
   auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v));
+  auto v_maybe_null = sqlpp::value(std::make_optional(v));
 
   // Compare non-nullable with non-nullable.
   static_assert(is_integral<decltype(v_not_null << v_not_null)>::value, "");
@@ -94,9 +94,9 @@ template <typename Left, typename Right>
 void test_bit_shift_expression(Left l, Right r)
 {
   auto l_not_null = sqlpp::value(l);
-  auto l_maybe_null = sqlpp::value(::sqlpp::make_optional(l));
+  auto l_maybe_null = sqlpp::value(std::make_optional(l));
   auto r_not_null = sqlpp::value(r);
-  auto r_maybe_null = sqlpp::value(::sqlpp::make_optional(r));
+  auto r_maybe_null = sqlpp::value(std::make_optional(r));
 
   // Compare non-nullable with non-nullable.
   static_assert(is_integral<decltype(l_not_null << r_not_null)>::value, "");

@@ -25,7 +25,6 @@
 
 #include <sqlpp11/tests/core/constraints_helpers.h>
 #include <sqlpp11/tests/postgresql/tables.h>
-#include <sqlpp11/core/compat/type_traits.h>
 
 #include <sqlpp11/sqlpp11.h>
 #include <sqlpp11/postgresql/postgresql.h>
@@ -42,7 +41,7 @@ namespace
 
   template <typename... Expressions>
   struct can_call_on_conflict_with_impl<sqlpp::detail::type_vector<Expressions...>,
-                                  sqlpp::void_t<decltype(sqlpp::postgresql::on_conflict(std::declval<Expressions>()...))>>
+                                  std::void_t<decltype(sqlpp::postgresql::on_conflict(std::declval<Expressions>()...))>>
       : public std::true_type
   {
   };
@@ -60,7 +59,7 @@ namespace
 
   template <typename Lhs, typename... Expressions>
   struct can_call_do_update_with_impl<Lhs, sqlpp::detail::type_vector<Expressions...>,
-                                  sqlpp::void_t<decltype(std::declval<Lhs>().do_update(std::declval<Expressions>()...))>>
+                                  std::void_t<decltype(std::declval<Lhs>().do_update(std::declval<Expressions>()...))>>
       : public std::true_type
   {
   };
@@ -78,7 +77,7 @@ namespace
 
   template <typename Lhs, typename... Expressions>
   struct can_call_where_with_impl<Lhs, sqlpp::detail::type_vector<Expressions...>,
-                                  sqlpp::void_t<decltype(std::declval<Lhs>().where(std::declval<Expressions>()...))>>
+                                  std::void_t<decltype(std::declval<Lhs>().where(std::declval<Expressions>()...))>>
       : public std::true_type
   {
   };

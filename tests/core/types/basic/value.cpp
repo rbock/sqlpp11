@@ -38,10 +38,10 @@ template<typename Value>
 void test_value(Value v)
 {
   using ValueType = sqlpp::value_type_of_t<Value>;
-  using OptValueType = ::sqlpp::optional<ValueType>;
+  using OptValueType = std::optional<ValueType>;
 
   auto v_not_null= sqlpp::value(v);
-  auto v_maybe_null= sqlpp::value(::sqlpp::make_optional(v));
+  auto v_maybe_null= sqlpp::value(std::make_optional(v));
 
   static_assert(is_value_type<decltype(v_not_null), ValueType>::value, "");
   static_assert(is_value_type<decltype(v_maybe_null), OptValueType>::value, "");
@@ -59,7 +59,7 @@ void test_value(Value v)
                              sqlpp::detail::type_vector<Value>>::value,
                 "");
   static_assert(std::is_same<sqlpp::nodes_of_t<decltype(v_maybe_null)>,
-                             sqlpp::detail::type_vector<::sqlpp::optional<Value>>>::value,
+                             sqlpp::detail::type_vector<std::optional<Value>>>::value,
                 "");
 
 }
@@ -101,7 +101,7 @@ int main()
   test_value('7');
   test_value("seven");
   test_value(std::string("seven"));
-  test_value(::sqlpp::string_view("seven"));
+  test_value(std::string_view("seven"));
 
   // blob
   test_value(std::vector<uint8_t>{});

@@ -26,14 +26,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <optional>
+#include <string_view>
+#include <span>
+
 #include <sqlpp11/core/chrono.h>
 #include <sqlpp11/core/detail/parse_date_time.h>
 #include <sqlpp11/core/database/exception.h>
 #include <sqlpp11/sqlite3/detail/prepared_statement_handle.h>
 #include <sqlpp11/sqlite3/export.h>
-#include <sqlpp11/core/compat/optional.h>
-#include <sqlpp11/core/compat/string_view.h>
-#include <sqlpp11/core/compat/span.h>
 
 #include <iostream>
 #include <memory>
@@ -135,22 +136,22 @@ namespace sqlpp
         value = static_cast<uint64_t>(sqlite3_column_int64(_handle->sqlite_statement, static_cast<int>(index)));
       }
 
-      void read_field(size_t index, ::sqlpp::string_view& value)
+      void read_field(size_t index, std::string_view& value)
       {
         if (_handle->debug)
           std::cerr << "Sqlite3 debug: binding text result at index: " << index << std::endl;
 
-        value = ::sqlpp::string_view(
+        value = std::string_view(
             reinterpret_cast<const char*>(sqlite3_column_text(_handle->sqlite_statement, static_cast<int>(index))),
             static_cast<size_t>(sqlite3_column_bytes(_handle->sqlite_statement, static_cast<int>(index))));
       }
 
-      void read_field(size_t index, ::sqlpp::span<uint8_t>& value)
+      void read_field(size_t index, std::span<uint8_t>& value)
       {
         if (_handle->debug)
           std::cerr << "Sqlite3 debug: binding blob result at index: " << index << std::endl;
 
-        value = ::sqlpp::span<uint8_t>(
+        value = std::span<uint8_t>(
             reinterpret_cast<const uint8_t*>(sqlite3_column_blob(_handle->sqlite_statement, static_cast<int>(index))),
             static_cast<size_t>(sqlite3_column_bytes(_handle->sqlite_statement, static_cast<int>(index))));
       }
@@ -191,7 +192,7 @@ namespace sqlpp
       }
 
       template <typename T>
-      auto read_field(size_t index, ::sqlpp::optional<T>& field) -> void
+      auto read_field(size_t index, std::optional<T>& field) -> void
       {
         const bool is_null = sqlite3_column_type(_handle->sqlite_statement, static_cast<int>(index)) == SQLITE_NULL;
         if (is_null)

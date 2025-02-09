@@ -55,7 +55,7 @@ namespace sqlpp
   };
 
   template <typename L>
-  using check_sort_order_args = ::sqlpp::enable_if_t<values_are_comparable<L, L>::value>;
+  using check_sort_order_args = std::enable_if_t<values_are_comparable<L, L>::value>;
 
   template <typename L>
   struct nodes_of<sort_order_expression<L>>

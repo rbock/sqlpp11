@@ -27,9 +27,10 @@
  */
 
 #include <tuple>
+#include <utility>
+
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/to_sql_string.h>
-#include <sqlpp11/core/compat/utility.h>
 #include <sqlpp11/core/operator/expression_as.h>
 
 namespace sqlpp
@@ -50,10 +51,10 @@ namespace sqlpp
       {
         return operator()(context, t._expr, index);
       }
-      return operator()(context, sqlpp::nullopt, index);
+      return operator()(context, std::nullopt, index);
     }
 
-    sqlpp::string_view separator;
+    std::string_view separator;
   };
 
   // Used to serialize tuple that should ignore dynamic elements.
@@ -77,7 +78,7 @@ namespace sqlpp
       return "";
     }
 
-    sqlpp::string_view separator;
+    std::string_view separator;
     mutable bool need_prefix = false;
   };
 
@@ -101,7 +102,7 @@ namespace sqlpp
       {
         return operator()(context, t._expr, index);
       }
-      return operator()(context, expression_as<sqlpp::nullopt_t, NameTag>{sqlpp::nullopt}, index);
+      return operator()(context, expression_as<std::nullopt_t, NameTag>{std::nullopt}, index);
     }
 
     template <typename Context, typename T>
@@ -112,10 +113,10 @@ namespace sqlpp
         return operator()(context, t._expr, index);
       }
       static_assert(has_name_tag<T>::value, "select columns have to have a name");
-      return operator()(context, as(sqlpp::nullopt, t._expr), index);
+      return operator()(context, as(std::nullopt, t._expr), index);
     }
 
-    sqlpp::string_view separator;
+    std::string_view separator;
   };
 
   // Used to names (ignoring dynamic)
@@ -139,7 +140,7 @@ namespace sqlpp
       return "";
     }
 
-    sqlpp::string_view separator;
+    std::string_view separator;
     mutable bool need_prefix = false;
   };
 
@@ -152,14 +153,14 @@ namespace sqlpp
       return prefix + to_sql_string(context, t);
     }
 
-    sqlpp::string_view separator;
+    std::string_view separator;
   };
 
   template <typename Context, typename Tuple, typename Strategy, size_t... Is>
   auto tuple_to_sql_string_impl(Context& context,
                                 const Tuple& t,
                                 const Strategy& strategy,
-                                const ::sqlpp::index_sequence<Is...>&
+                                const std::index_sequence<Is...>&
                                 /*unused*/) -> std::string
   {
     // Note: A braced-init-list does guarantee the order of evaluation according to 12.6.1 [class.explicit.init]
@@ -179,7 +180,7 @@ namespace sqlpp
   auto tuple_to_sql_string(Context& context, const Tuple& t, const Strategy& strategy) -> std::string
   {
     return tuple_to_sql_string_impl(context, t, strategy,
-                                ::sqlpp::make_index_sequence<std::tuple_size<Tuple>::value>{});
+                                std::make_index_sequence<std::tuple_size<Tuple>::value>{});
   }
 
 }  // namespace sqlpp

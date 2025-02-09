@@ -50,15 +50,15 @@ SQLPP_CREATE_NAME_TAG(r_opt_maybe_null);
 template<typename ResultType, typename Value>
 void test_result_row(Value v)
 {
-  using OptResultType = ::sqlpp::optional<ResultType>;
+  using OptResultType = std::optional<ResultType>;
 
   // Selectable values.
   auto v_not_null = sqlpp::value(v).as(r_not_null);
-  const auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v)).as(r_maybe_null);
+  const auto v_maybe_null = sqlpp::value(std::make_optional(v)).as(r_maybe_null);
 
   // Dynamically selectable values.
   const auto v_opt_not_null = dynamic(true, sqlpp::value(v).as(r_opt_not_null));
-  const auto v_opt_maybe_null = dynamic(true, sqlpp::value(::sqlpp::make_optional(v)).as(r_opt_maybe_null));
+  const auto v_opt_maybe_null = dynamic(true, sqlpp::value(std::make_optional(v)).as(r_opt_maybe_null));
 
   auto s = select(v_not_null, v_maybe_null, v_opt_not_null, v_opt_maybe_null);
   using S = decltype(s);
@@ -131,14 +131,14 @@ int main()
   test_result_row<double>(double{7.7});
 
   // text
-  test_result_row<::sqlpp::string_view>('7');
-  test_result_row<::sqlpp::string_view>("seven");
-  test_result_row<::sqlpp::string_view>(std::string("seven"));
-  test_result_row<::sqlpp::string_view>(::sqlpp::string_view("seven"));
+  test_result_row<std::string_view>('7');
+  test_result_row<std::string_view>("seven");
+  test_result_row<std::string_view>(std::string("seven"));
+  test_result_row<std::string_view>(std::string_view("seven"));
 
   // blob
   const auto v = std::vector<uint8_t>{};
-  test_result_row<::sqlpp::span<uint8_t>>(v);
+  test_result_row<std::span<uint8_t>>(v);
 
   // date
   test_result_row<::sqlpp::chrono::day_point>(::sqlpp::chrono::day_point{});

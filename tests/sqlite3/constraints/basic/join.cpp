@@ -35,7 +35,6 @@
 #endif
 #include <sqlpp11/tests/core/constraints_helpers.h>
 #include <sqlpp11/tests/core/tables.h>
-#include <sqlpp11/core/compat/type_traits.h>
 #include <sqlpp11/sqlite3/sqlite3.h>
 
 int main()

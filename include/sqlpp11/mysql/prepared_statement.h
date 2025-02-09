@@ -130,7 +130,7 @@ namespace sqlpp
         param.error = nullptr;
       }
 
-      void _bind_parameter(size_t index, const sqlpp::string_view& value)
+      void _bind_parameter(size_t index, const std::string_view& value)
       {
         if (_handle->debug)
           std::cerr << "MySQL debug: binding text parameter " << value << " at index: " << index << std::endl;
@@ -238,7 +238,7 @@ namespace sqlpp
       }
 
       template<typename Parameter>
-      void _bind_parameter(size_t index, const ::sqlpp::optional<Parameter>& parameter)
+      void _bind_parameter(size_t index, const std::optional<Parameter>& parameter)
       {
         if (parameter.has_value())
         {

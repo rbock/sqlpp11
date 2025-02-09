@@ -92,7 +92,7 @@ int Blob(int, char*[])
   prepared_insert.params.data = data;
   db(prepared_insert);
   const auto prep_id = db.last_insert_id("blob_sample", "id");
-  prepared_insert.params.data = sqlpp::nullopt;
+  prepared_insert.params.data = std::nullopt;
   db(prepared_insert);
   const auto null_id = db.last_insert_id("blob_sample", "id");
 
@@ -100,7 +100,7 @@ int Blob(int, char*[])
   {
     auto result = db(select(blob.data).from(blob).where(blob.id == null_id));
     const auto& result_row = result.front();
-    std::cerr << "Null blob is_null:\t" << std::boolalpha << (result_row.data == ::sqlpp::nullopt) << std::endl;
+    std::cerr << "Null blob is_null:\t" << std::boolalpha << (result_row.data == std::nullopt) << std::endl;
     if (result_row.data.has_value())
     {
       throw std::runtime_error("Expected NULL blob has value");

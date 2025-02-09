@@ -39,9 +39,9 @@ template <typename Value>
 void test_aggregate_functions(Value v)
 {
   auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v));
+  auto v_maybe_null = sqlpp::value(std::make_optional(v));
 
-  using OptValueType = sqlpp::value_type_of_t<::sqlpp::optional<Value>>;
+  using OptValueType = sqlpp::value_type_of_t<std::optional<Value>>;
 
   // Aggregate of non-nullable
   static_assert(is_same_type<decltype(count(v_not_null).over()), sqlpp::integral>::value, "");
@@ -84,11 +84,11 @@ template <typename Value>
 void test_numeric_aggregate_functions(Value v)
 {
   auto v_not_null = sqlpp::value(v);
-  auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v));
+  auto v_maybe_null = sqlpp::value(std::make_optional(v));
 
   using ValueType = typename std::conditional<std::is_same<Value, bool>::value, int, Value>::type;
-  using OptValueType = sqlpp::value_type_of_t<::sqlpp::optional<ValueType>>;
-  using OptFloat = sqlpp::value_type_of_t<::sqlpp::optional<float>>;
+  using OptValueType = sqlpp::value_type_of_t<std::optional<ValueType>>;
+  using OptFloat = sqlpp::value_type_of_t<std::optional<float>>;
 
   // Aggregate of non-nullable
   static_assert(is_same_type<decltype(sum(v_not_null).over()), OptValueType>::value, "");
@@ -159,7 +159,7 @@ int main()
   test_aggregate_functions('7');
   test_aggregate_functions("seven");
   test_aggregate_functions(std::string("seven"));
-  test_aggregate_functions(::sqlpp::string_view("seven"));
+  test_aggregate_functions(std::string_view("seven"));
 
   // blob
   test_aggregate_functions(std::vector<uint8_t>{});

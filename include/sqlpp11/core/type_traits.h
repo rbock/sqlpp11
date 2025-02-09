@@ -30,12 +30,13 @@
 #include <type_traits>
 #include <array>
 #include <vector>
+#include <optional>
+#include <string_view>
+#include <span>
 
+#include <sqlpp11/core/query/dynamic_fwd.h>
+#include <sqlpp11/core/operator/expression_as_fwd.h>
 #include <sqlpp11/core/name/name_tag.h>
-#include <sqlpp11/core/compat/optional.h>
-#include <sqlpp11/core/compat/string_view.h>
-#include <sqlpp11/core/compat/type_traits.h>
-#include <sqlpp11/core/compat/span.h>
 #include <sqlpp11/core/consistent.h>
 #include <sqlpp11/core/wrapped_static_assert.h>
 #include <sqlpp11/core/detail/type_vector.h>
@@ -58,7 +59,7 @@ namespace sqlpp
   }
 
   template <typename T>
-  const T& get_value(const ::sqlpp::optional<T>& t)
+  const T& get_value(const std::optional<T>& t)
   {
     return t.value();
   }
@@ -70,7 +71,7 @@ namespace sqlpp
   }
 
   template <typename T>
-  auto has_value(const ::sqlpp::optional<T>& t) -> bool
+  auto has_value(const std::optional<T>& t) -> bool
   {
     return t.has_value();
   }
@@ -84,7 +85,7 @@ namespace sqlpp
   struct can_be_null : public is_optional<value_type_of_t<T>> {};
 
   template <>
-  struct can_be_null<sqlpp::nullopt_t> : public std::true_type {};
+  struct can_be_null<std::nullopt_t> : public std::true_type {};
 
   template <typename T>
   struct dynamic_t;
@@ -115,16 +116,16 @@ namespace sqlpp
     struct result_value {};
 
   template<typename T>
-    struct result_value<::sqlpp::optional<T>>
+    struct result_value<std::optional<T>>
     {
-      using type = ::sqlpp::optional<typename result_value<T>::type>;
+      using type = std::optional<typename result_value<T>::type>;
     };
 
   template <typename T>
     using result_value_t = typename result_value<T>::type;
 
   template<>
-    struct result_value<blob> { using type = ::sqlpp::span<uint8_t>; };
+    struct result_value<blob> { using type = std::span<uint8_t>; };
 
   template<>
     struct result_value<boolean> { using type = bool; };
@@ -139,7 +140,7 @@ namespace sqlpp
     struct result_value<floating_point> { using type = double; };
 
   template<>
-    struct result_value<text> { using type = ::sqlpp::string_view; };
+    struct result_value<text> { using type = std::string_view; };
 
   template<>
     struct result_value<day_point> { using type = std::chrono::time_point<std::chrono::system_clock, sqlpp::chrono::days>; };
@@ -153,9 +154,9 @@ namespace sqlpp
     struct parameter_value {};
 
   template<typename T>
-    struct parameter_value<::sqlpp::optional<T>>
+    struct parameter_value<std::optional<T>>
     {
-      using type = ::sqlpp::optional<typename parameter_value<T>::type>;
+      using type = std::optional<typename parameter_value<T>::type>;
     };
 
   template <typename T>

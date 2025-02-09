@@ -81,7 +81,7 @@ namespace sqlpp
     case_then_t& operator=(case_then_t&&) = default;
     ~case_then_t() = default;
 
-    template <typename Else, typename = sqlpp::enable_if_t<has_value_type<Else>::value>>
+    template <typename Else, typename = std::enable_if_t<has_value_type<Else>::value>>
     auto else_(Else else_) -> case_t<When, Then, Else>
     {
       SQLPP_STATIC_ASSERT((values_are_comparable<Then, Else>::value),
@@ -90,9 +90,9 @@ namespace sqlpp
       return case_t<When, Then, Else>{_when, _then, else_};
     }
 
-    auto else_(sqlpp::nullopt_t) -> case_t<When, Then, sqlpp::nullopt_t>
+    auto else_(std::nullopt_t) -> case_t<When, Then, std::nullopt_t>
     {
-      return case_t<When, Then, sqlpp::nullopt_t>{_when, _then, sqlpp::nullopt};
+      return case_t<When, Then, std::nullopt_t>{_when, _then, std::nullopt};
     }
 
   private:
@@ -114,7 +114,7 @@ namespace sqlpp
     case_when_t& operator=(case_when_t&&) = default;
     ~case_when_t() = default;
 
-    template <typename Then, typename = sqlpp::enable_if_t<has_value_type<Then>::value>>
+    template <typename Then, typename = std::enable_if_t<has_value_type<Then>::value>>
     auto then(Then t) -> case_then_t<When, Then>
     {
       return case_then_t<When, Then>{_when, std::move(t)};
@@ -133,7 +133,7 @@ namespace sqlpp
     return ret_val + " ELSE " + operand_to_sql_string(context, t._else) + " END";
   }
 
-  template <typename When, typename = sqlpp::enable_if_t<is_boolean<When>::value>>
+  template <typename When, typename = std::enable_if_t<is_boolean<When>::value>>
   auto case_when(When when) -> case_when_t<When>
   {
     return case_when_t<When>{std::move(when)};

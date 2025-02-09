@@ -51,8 +51,8 @@ int Insert(int, char*[])
 
   db(insert_into(u).default_values());
   db(insert_into(t).set(t.boolNn = true, t.textN = "kirschauflauf"));
-  db(insert_into(t).set(t.boolNn = false, t.textN = ::sqlpp::make_optional("pie"),
-                        t.intN = ::sqlpp::nullopt));
+  db(insert_into(t).set(t.boolNn = false, t.textN = std::make_optional("pie"),
+                        t.intN = std::nullopt));
 
   to_sql_string(ctx, insert_into(t).default_values());
 
@@ -63,8 +63,8 @@ int Insert(int, char*[])
   multi_insert.add_values(t.boolNn = true, t.textN = "cheesecake", t.intN = 1);
   multi_insert.add_values(t.boolNn = false, t.textN = sqlpp::default_value,
                           t.intN = sqlpp::default_value);
-  multi_insert.add_values(t.boolNn = true, t.textN = ::sqlpp::make_optional("pie"),
-                          t.intN = ::sqlpp::nullopt);
+  multi_insert.add_values(t.boolNn = true, t.textN = std::make_optional("pie"),
+                          t.intN = std::nullopt);
   std::cerr << to_sql_string(ctx, multi_insert) << std::endl;
 
   // Beware, you need exact types for inserted values in multi_insert
@@ -78,7 +78,7 @@ int Insert(int, char*[])
   db(multi_insert);
 
   db(insert_into(t).set(t.boolNn = true, t.intN = sqlpp::verbatim<sqlpp::integral>("17+4")));
-  db(insert_into(t).set(t.boolNn = true, t.intN = ::sqlpp::nullopt));
+  db(insert_into(t).set(t.boolNn = true, t.intN = std::nullopt));
   db(insert_into(t).set(t.boolNn = true, t.intN = sqlpp::default_value));
   db(insert_into(t).set(t.boolNn = true, t.intN = 0));
   db(insert_into(t).set(t.boolNn = true, dynamic(maybe, t.intN = 0)));
@@ -87,16 +87,16 @@ int Insert(int, char*[])
 
   auto prepared_insert = db.prepare(insert_into(t).set(t.boolNn = parameter(t.boolNn), t.intN = parameter(t.intN)));
   prepared_insert.params.boolNn = true;
-  prepared_insert.params.intN = ::sqlpp::nullopt;
+  prepared_insert.params.intN = std::nullopt;
   prepared_insert.params.intN = 17;
-  prepared_insert.params.intN = ::sqlpp::nullopt;
-  prepared_insert.params.intN = ::sqlpp::make_optional(17);
+  prepared_insert.params.intN = std::nullopt;
+  prepared_insert.params.intN = std::make_optional(17);
   db(prepared_insert);
 
   auto prepared_insert_sv = db.prepare(insert_into(t).set(t.boolNn = parameter(t.boolNn), t.intN = parameter(t.intN), t.textN = parameter(t.textN)));
   prepared_insert_sv.params.boolNn = true;
   prepared_insert_sv.params.intN = 17;
-  prepared_insert_sv.params.textN = ::sqlpp::string_view("string_view");;
+  prepared_insert_sv.params.textN = std::string_view("string_view");;
   db(prepared_insert_sv);
 
   return 0;

@@ -63,10 +63,10 @@ namespace sqlpp
 
   template <typename L, typename R>
   using check_assign_args =
-      ::sqlpp::enable_if_t<values_are_comparable<L, R>::value and (can_be_null<L>::value or not can_be_null<R>::value)>;
+      std::enable_if_t<values_are_comparable<L, R>::value and (can_be_null<L>::value or not can_be_null<R>::value)>;
 
   template <typename L>
-  using check_assign_default_args = ::sqlpp::enable_if_t<has_default<L>::value>;
+  using check_assign_default_args = std::enable_if_t<has_default<L>::value>;
 
   template <typename L, typename Operator, typename R>
   struct is_assignment<assign_expression<L, Operator, R>> : public std::true_type {};

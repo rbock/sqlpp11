@@ -42,7 +42,7 @@ SQLPP_CREATE_NAME_TAG(sub);
 SQLPP_CREATE_NAME_TAG(something);
 
 template <typename T>
-std::ostream& operator<<(std::ostream& os, const ::sqlpp::optional<T>& t) {
+std::ostream& operator<<(std::ostream& os, const std::optional<T>& t) {
   if (not t)
     return os << "NULL";
   return os << t.value();
@@ -105,8 +105,8 @@ int Sample(int, char*[])
               .from(tab)
               .unconditionally()))
   {
-    ::sqlpp::optional<int64_t> x = row.alpha;
-    ::sqlpp::optional<int64_t> a = row.something;
+    std::optional<int64_t> x = row.alpha;
+    std::optional<int64_t> a = row.something;
     std::cout << x << ", " << a << std::endl;
   }
   tx.commit();

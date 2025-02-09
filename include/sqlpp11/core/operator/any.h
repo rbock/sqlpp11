@@ -76,7 +76,7 @@ namespace sqlpp
   }
 
   template <typename Select>
-  using check_any_args = ::sqlpp::enable_if_t<has_value_type<Select>::value>;
+  using check_any_args = std::enable_if_t<has_value_type<Select>::value>;
 
   template <typename... Clauses, typename = check_any_args<statement_t<Clauses...>>>
   auto any(statement_t<Clauses...> t) -> any_t<statement_t<Clauses...>>

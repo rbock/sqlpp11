@@ -29,10 +29,10 @@
  */
 
 #include <algorithm>
+#include <memory>
 #include <iostream>
 #include <sstream>
 
-#include <sqlpp11/core/compat/make_unique.h>
 #include <sqlpp11/core/database/connection.h>
 #include <sqlpp11/postgresql/bind_result.h>
 #include <sqlpp11/postgresql/database/connection_config.h>
@@ -71,7 +71,7 @@ namespace sqlpp
           std::cerr << "PostgreSQL debug: preparing: " << stmt << std::endl;
         }
 
-        return ::sqlpp::make_unique<detail::prepared_statement_handle_t>(*handle, stmt, param_count);
+        return std::make_unique<detail::prepared_statement_handle_t>(*handle, stmt, param_count);
       }
 
       inline void execute_prepared_statement(std::unique_ptr<connection_handle>& handle, std::shared_ptr<detail::prepared_statement_handle_t>& prepared)

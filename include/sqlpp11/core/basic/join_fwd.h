@@ -29,7 +29,6 @@
 #include <sqlpp11/core/unconditional.h>
 #include <sqlpp11/core/query/dynamic.h>
 #include <sqlpp11/core/type_traits.h>
-#include <sqlpp11/core/compat/type_traits.h>
 #include <sqlpp11/core/concepts.h>
 #include <sqlpp11/core/detail/type_vector.h>
 

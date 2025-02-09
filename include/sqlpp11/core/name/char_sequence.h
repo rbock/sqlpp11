@@ -27,8 +27,9 @@
  */
 
 #include <type_traits>
+#include <utility>
+
 #include <sqlpp11/core/name/name_tag.h>
-#include <sqlpp11/core/compat/utility.h>
 
 namespace sqlpp
 {
@@ -41,14 +42,14 @@ namespace sqlpp
   struct make_char_sequence_impl;
 
   template <std::size_t N, const char* s, std::size_t... i>
-  struct make_char_sequence_impl<N, s, ::sqlpp::index_sequence<i...>>
+  struct make_char_sequence_impl<N, s, std::index_sequence<i...>>
   {
     using type = char_sequence<s[i]...>;
   };
 
   template <typename T>
   struct make_char_sequence
-      : make_char_sequence_impl<sizeof(sqlpp::name_tag_of_t<T>::name), sqlpp::name_tag_of_t<T>::name, ::sqlpp::make_index_sequence<sizeof(sqlpp::name_tag_of_t<T>::name) - 1>>
+      : make_char_sequence_impl<sizeof(sqlpp::name_tag_of_t<T>::name), sqlpp::name_tag_of_t<T>::name, std::make_index_sequence<sizeof(sqlpp::name_tag_of_t<T>::name) - 1>>
   {
   };
 

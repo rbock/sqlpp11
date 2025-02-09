@@ -78,7 +78,7 @@ namespace sqlpp
 
   template <typename T>
   using check_min_arg =
-      ::sqlpp::enable_if_t<values_are_comparable<T, T>::value>;
+      std::enable_if_t<values_are_comparable<T, T>::value>;
 
   template <typename T, typename = check_min_arg<T>>
   auto min(T t) -> min_t<no_flag_t, T>

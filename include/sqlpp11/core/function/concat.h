@@ -54,7 +54,7 @@ namespace sqlpp
   struct value_type_of<concat_t<Args...>>
   {
     using type = typename std::conditional<logic::any<is_optional<value_type_of_t<Args>>::value...>::value,
-                                           sqlpp::optional<sqlpp::text>,
+                                           std::optional<sqlpp::text>,
                                            sqlpp::text>::type;
   };
 
@@ -71,7 +71,7 @@ namespace sqlpp
   }
 
   template <typename... Args>
-  using check_concat_args = ::sqlpp::enable_if_t<logic::all<is_text<Args>::value...>::value>;
+  using check_concat_args = std::enable_if_t<logic::all<is_text<Args>::value...>::value>;
 
   template <typename... Args, typename = check_concat_args<remove_dynamic_t<Args>...>>
   auto concat(Args... args) -> concat_t<Args...>

@@ -38,7 +38,7 @@ namespace
   };
 
   template <typename Lhs, typename Rhs>
-  struct can_call_assign_with<Lhs, Rhs, sqlpp::void_t<decltype(assign(std::declval<Lhs>(), std::declval<Rhs>()))>>
+  struct can_call_assign_with<Lhs, Rhs, std::void_t<decltype(assign(std::declval<Lhs>(), std::declval<Rhs>()))>>
       : public std::true_type
   {
   };
@@ -62,19 +62,19 @@ int main()
   static_assert(not can_call_assign_with<decltype(bar.boolNn), decltype(sqlpp::dynamic(maybe, true))>::value, "");
 
   // Non-nullable without default cannot be assigned null / default
-  static_assert(not can_call_assign_with<decltype(bar.boolNn), decltype(sqlpp::make_optional(true))>::value, "");
-  static_assert(not can_call_assign_with<decltype(bar.boolNn), decltype(sqlpp::nullopt)>::value, "");
+  static_assert(not can_call_assign_with<decltype(bar.boolNn), decltype(std::make_optional(true))>::value, "");
+  static_assert(not can_call_assign_with<decltype(bar.boolNn), decltype(std::nullopt)>::value, "");
   static_assert(not can_call_assign_with<decltype(bar.boolNn), decltype(sqlpp::default_value)>::value, "");
 
   // Non-nullable with default cannot be assigned null, but default
   static_assert(can_call_assign_with<decltype(bar.id), decltype(7)>::value, "");
-  static_assert(not can_call_assign_with<decltype(bar.id), decltype(sqlpp::make_optional(7))>::value, "");
-  static_assert(not can_call_assign_with<decltype(bar.id), decltype(sqlpp::nullopt)>::value, "");
+  static_assert(not can_call_assign_with<decltype(bar.id), decltype(std::make_optional(7))>::value, "");
+  static_assert(not can_call_assign_with<decltype(bar.id), decltype(std::nullopt)>::value, "");
   static_assert(can_call_assign_with<decltype(bar.id), decltype(sqlpp::default_value)>::value, "");
 
   static_assert(can_call_assign_with<decltype(foo.textNnD), decltype("cake")>::value, "");
-  static_assert(not can_call_assign_with<decltype(foo.textNnD), decltype(sqlpp::make_optional("cake"))>::value, "");
-  static_assert(not can_call_assign_with<decltype(foo.textNnD), decltype(sqlpp::nullopt)>::value, "");
+  static_assert(not can_call_assign_with<decltype(foo.textNnD), decltype(std::make_optional("cake"))>::value, "");
+  static_assert(not can_call_assign_with<decltype(foo.textNnD), decltype(std::nullopt)>::value, "");
   static_assert(can_call_assign_with<decltype(foo.textNnD), decltype(sqlpp::default_value)>::value, "");
 }
 

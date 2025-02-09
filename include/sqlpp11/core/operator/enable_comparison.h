@@ -81,12 +81,12 @@ namespace sqlpp
       return sqlpp::not_in(this->derived(), std::move(args));
     }
 
-    constexpr auto is_null() const -> comparison_expression<Expr, op_is_null, ::sqlpp::nullopt_t>
+    constexpr auto is_null() const -> comparison_expression<Expr, op_is_null, std::nullopt_t>
     {
       return ::sqlpp::is_null(this->derived());
     }
 
-    constexpr auto is_not_null() const -> comparison_expression<Expr, op_is_not_null, ::sqlpp::nullopt_t>
+    constexpr auto is_not_null() const -> comparison_expression<Expr, op_is_not_null, std::nullopt_t>
     {
       return ::sqlpp::is_not_null(this->derived());
     }

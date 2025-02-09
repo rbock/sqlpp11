@@ -190,7 +190,7 @@ namespace sqlpp
     static constexpr bool value = have_correct_static_cte_dependencies_impl<detail::type_set<>, detail::type_set<>, CTEs...>::value;
   };
 
-  template <typename... Ctes, typename = sqlpp::enable_if_t<logic::all<is_cte<remove_dynamic_t<Ctes>>::value...>::value>>
+  template <typename... Ctes, typename = std::enable_if_t<logic::all<is_cte<remove_dynamic_t<Ctes>>::value...>::value>>
   auto with(Ctes... cte) -> blank_with_t<Ctes...>
   {
     SQLPP_STATIC_ASSERT(have_correct_cte_dependencies<Ctes...>::value,

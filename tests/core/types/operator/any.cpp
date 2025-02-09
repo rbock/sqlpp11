@@ -34,11 +34,11 @@ template <typename Value>
 void test_any(Value v)
 {
   using ValueType = sqlpp::value_type_of_t<Value>;
-  using OptValueType = sqlpp::value_type_of_t<::sqlpp::optional<Value>>;
+  using OptValueType = sqlpp::value_type_of_t<std::optional<Value>>;
 
   // Selectable values.
   const auto v_not_null = sqlpp::value(v).as(r_not_null);
-  const auto v_maybe_null = sqlpp::value(::sqlpp::make_optional(v)).as(r_maybe_null);
+  const auto v_maybe_null = sqlpp::value(std::make_optional(v)).as(r_maybe_null);
 
   // ANY expression are not to be in most expressions and therefore have no value defined.
   static_assert(not sqlpp::has_value_type<decltype(any(select(v_not_null)))>::value, "");
@@ -105,7 +105,7 @@ int main()
   test_any('7');
   test_any("seven");
   test_any(std::string("seven"));
-  test_any(::sqlpp::string_view("seven"));
+  test_any(std::string_view("seven"));
 
   // blob
   test_any(std::vector<uint8_t>{});

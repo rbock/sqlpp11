@@ -27,8 +27,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sqlpp11/core/compat/make_unique.h>
-
 #include <memory>
 #include <utility>
 
@@ -72,7 +70,7 @@ namespace sqlpp
     }
 
     normal_connection(const _config_ptr_t& config)
-        : common_connection<ConnectionBase>(sqlpp::make_unique<_handle_t>(config))
+        : common_connection<ConnectionBase>(std::make_unique<_handle_t>(config))
     {
     }
 
@@ -86,7 +84,7 @@ namespace sqlpp
     // creates a connection handle and connects to database
     void connectUsing(const _config_ptr_t& config) noexcept(false)
     {
-      ConnectionBase::_handle = ::sqlpp::make_unique<_handle_t>(config);
+      ConnectionBase::_handle = std::make_unique<_handle_t>(config);
     }
 
   private:
@@ -142,7 +140,7 @@ namespace sqlpp
     }
 
     pooled_connection(const _config_ptr_t& config, _pool_core_ptr_t pool_core)
-        : common_connection<ConnectionBase>(::sqlpp::make_unique<_handle_t>(config)), _pool_core(pool_core)
+        : common_connection<ConnectionBase>(std::make_unique<_handle_t>(config)), _pool_core(pool_core)
     {
     }
 

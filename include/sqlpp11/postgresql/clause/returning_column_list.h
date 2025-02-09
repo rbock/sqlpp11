@@ -201,7 +201,7 @@ namespace sqlpp
   {
     using clause_data<postgresql::no_returning_column_list_t, Statement>::clause_data;
 
-    template <typename... Columns, typename = sqlpp::enable_if_t<select_columns_have_values<Columns...>::value>>
+    template <typename... Columns, typename = std::enable_if_t<select_columns_have_values<Columns...>::value>>
     auto returning(Columns... columns) const
         -> decltype(new_statement(*this,
                                   postgresql::make_returning_column_list_t<Columns...>{
