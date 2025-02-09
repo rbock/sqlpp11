@@ -187,7 +187,7 @@ namespace sqlpp
   {
     using clause_data<no_select_column_list_t, Statement>::clause_data;
 
-    template <SelectColumn... _Columns>
+    template <DynamicSelectColumn... _Columns>
     auto columns(_Columns... args) const
     {
       SQLPP_STATIC_ASSERT(sizeof...(_Columns), "at least one selected column required");
@@ -221,7 +221,7 @@ namespace sqlpp
     return tuple_to_sql_string(context, t._columns, tuple_operand_select_column{", "});
   }
 
-  template <SelectColumn... T>
+  template <DynamicSelectColumn... T>
   auto select_columns(T... t)
   {
     return statement_t<no_select_column_list_t>().columns(std::move(t)...);

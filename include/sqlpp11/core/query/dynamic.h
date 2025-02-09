@@ -93,7 +93,7 @@ namespace sqlpp
     return {condition, std::move(t)};
   }
 
-  template <Table _Table>
+  template <StaticTable _Table>
   auto dynamic(bool condition, _Table t) -> dynamic_t<_Table>
   {
     return {condition, std::move(t)};

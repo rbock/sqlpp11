@@ -139,7 +139,7 @@ namespace sqlpp
   {
     using clause_data<no_order_by_t, Statement>::clause_data;
 
-    template <SortOrder... Expressions>
+    template <DynamicSortOrder... Expressions>
     auto order_by(Expressions... expressions) const
     {
       SQLPP_STATIC_ASSERT(sizeof...(Expressions),
@@ -177,7 +177,7 @@ namespace sqlpp
     return " ORDER BY " + columns;
   }
 
-  template <SortOrder... Expressions>
+  template <DynamicSortOrder... Expressions>
   auto order_by(Expressions... expressions)
   {
     return statement_t<no_order_by_t>().order_by(std::move(expressions)...);

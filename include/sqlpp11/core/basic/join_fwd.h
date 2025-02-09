@@ -78,22 +78,22 @@ namespace sqlpp
                          sqlpp::detail::transform_set_t<provided_tables_of_t<Rhs>, make_char_sequence>{}),
                      assert_join_no_name_duplicates_t>>;
 
-  template <Table Lhs, DynamicTable Rhs>
+  template <StaticTable Lhs, DynamicTable Rhs>
   auto join(Lhs lhs, Rhs rhs) -> pre_join_t<table_ref_t<Lhs>, inner_join_t, table_ref_t<Rhs>>;
 
-  template <Table Lhs, DynamicTable Rhs>
+  template <StaticTable Lhs, DynamicTable Rhs>
   auto inner_join(Lhs lhs, Rhs rhs) -> pre_join_t<table_ref_t<Lhs>, inner_join_t, table_ref_t<Rhs>>;
 
-  template <Table Lhs, DynamicTable Rhs>
+  template <StaticTable Lhs, DynamicTable Rhs>
   auto left_outer_join(Lhs lhs, Rhs rhs) -> pre_join_t<table_ref_t<Lhs>, left_outer_join_t, table_ref_t<Rhs>>;
 
-  template <Table Lhs, DynamicTable Rhs>
+  template <StaticTable Lhs, DynamicTable Rhs>
   auto right_outer_join(Lhs lhs, Rhs rhs) -> pre_join_t<table_ref_t<Lhs>, right_outer_join_t, table_ref_t<Rhs>>;
 
-  template <Table Lhs, DynamicTable Rhs>
+  template <StaticTable Lhs, DynamicTable Rhs>
   auto full_outer_join(Lhs lhs, Rhs rhs) -> pre_join_t<table_ref_t<Lhs>, full_outer_join_t, table_ref_t<Rhs>>;
 
-  template <Table Lhs, DynamicTable Rhs>
+  template <StaticTable Lhs, DynamicTable Rhs>
   auto cross_join(Lhs lhs, Rhs rhs) -> join_t<table_ref_t<Lhs>, cross_join_t, table_ref_t<Rhs>, unconditional_t>;
 
 }  // namespace sqlpp

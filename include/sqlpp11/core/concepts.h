@@ -33,15 +33,15 @@
 namespace sqlpp
 {
   template <typename T>
-  concept Table = is_table_v<T>;
+  concept StaticTable = is_table_v<T>;
 
   template <typename T>
   concept DynamicTable = is_table_v<remove_dynamic_t<T>>;
 
   template <typename T>
-  concept SelectColumn = is_select_column_v<T>;
+  concept DynamicSelectColumn = is_select_column_v<T>;
 
   template <typename T>
-  concept SortOrder = is_sort_order_v<remove_dynamic_t<T>>;
+  concept DynamicSortOrder = is_sort_order_v<remove_dynamic_t<T>>;
 
 }  // namespace sqlpp
