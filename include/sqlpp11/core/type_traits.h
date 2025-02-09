@@ -125,7 +125,7 @@ namespace sqlpp
     using result_value_t = typename result_value<T>::type;
 
   template<>
-    struct result_value<blob> { using type = std::span<uint8_t>; };
+    struct result_value<blob> { using type = std::span<const uint8_t>; };
 
   template<>
     struct result_value<boolean> { using type = bool; };
@@ -248,6 +248,9 @@ namespace sqlpp
   // Really a table, not a `table AS ...`, `JOIN` or `CTE` or `SELECT ... AS`
   template <typename T>
   struct is_raw_table : public std::false_type{};
+
+  template <typename T>
+  static inline constexpr bool is_raw_table_v = is_raw_table<T>::value;
 
   template <typename T>
   struct is_column : public std::false_type{};

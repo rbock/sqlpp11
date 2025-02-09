@@ -26,12 +26,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <tuple>
+
 #include <sqlpp11/core/detail/type_set.h>
 #include <sqlpp11/core/tuple_to_sql_string.h>
 #include <sqlpp11/core/logic.h>
 #include <sqlpp11/core/clause/expression_static_check.h>
 #include <sqlpp11/core/type_traits.h>
-#include <tuple>
+#include <sqlpp11/core/concepts.h>
 
 namespace sqlpp
 {

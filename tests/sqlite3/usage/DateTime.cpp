@@ -38,9 +38,9 @@
 
 namespace
 {
-  const auto now = ::sqlpp::chrono::floor<::std::chrono::milliseconds>(std::chrono::system_clock::now());
-  const auto today = ::sqlpp::chrono::floor<::sqlpp::chrono::days>(now);
-  const auto yesterday = today - ::sqlpp::chrono::days{1};
+  const auto now = std::chrono::floor<::std::chrono::milliseconds>(std::chrono::system_clock::now());
+  const auto today = std::chrono::floor<std::chrono::days>(now);
+  const auto yesterday = today - std::chrono::days{1};
 
   template <typename L, typename R>
   auto require_equal(int line, const L& l, const R& r) -> void

@@ -146,12 +146,12 @@ namespace sqlpp
             static_cast<size_t>(sqlite3_column_bytes(_handle->sqlite_statement, static_cast<int>(index))));
       }
 
-      void read_field(size_t index, std::span<uint8_t>& value)
+      void read_field(size_t index, std::span<const uint8_t>& value)
       {
         if (_handle->debug)
           std::cerr << "Sqlite3 debug: binding blob result at index: " << index << std::endl;
 
-        value = std::span<uint8_t>(
+        value = std::span<const uint8_t>(
             reinterpret_cast<const uint8_t*>(sqlite3_column_blob(_handle->sqlite_statement, static_cast<int>(index))),
             static_cast<size_t>(sqlite3_column_bytes(_handle->sqlite_statement, static_cast<int>(index))));
       }

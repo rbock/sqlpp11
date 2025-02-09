@@ -91,7 +91,7 @@ namespace test
     db.execute(R"+++(DROP TABLE IF EXISTS integral_sample)+++");
     db.execute(R"+++(CREATE TABLE integral_sample (
   signed_value INTEGER,
-  unsigned_value INTEGER
+  unsigned_value INTEGER UNSIGNED
 ))+++");
   }
 
@@ -106,7 +106,7 @@ namespace test
     struct UnsignedValue : public ::sqlpp::name_tag_base
     {
       SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(unsigned_value, unsignedValue);
-      using value_type = std::optional<::sqlpp::integral>;
+      using value_type = std::optional<::sqlpp::unsigned_integral>;
       using has_default = std::true_type;
     };
     SQLPP_CREATE_NAME_TAG_FOR_SQL_AND_CPP(integral_sample, integralSample);

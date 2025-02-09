@@ -51,38 +51,33 @@ int main()
   const auto c = cte(something).as(select(bar.id).from(bar).where(true));
 
   // OK
-  static_assert(can_call_single_table_with<decltype(bar)>::value, "");
+  static_assert(can_call_single_table_with<decltype(bar)>::value);
 
   // Try dyanamic table
-  static_assert(not can_call_single_table_with<decltype(dynamic(maybe, bar))>::value, "");
+  static_assert(not can_call_single_table_with<decltype(dynamic(maybe, bar))>::value);
 
   // Try assignment as table
-  static_assert(not can_call_single_table_with<decltype(bar.boolNn = true)>::value, "");
+  static_assert(not can_call_single_table_with<decltype(bar.boolNn = true)>::value);
 
   // Try a column
-  static_assert(not can_call_single_table_with<decltype(bar.id)>::value, "");
+  static_assert(not can_call_single_table_with<decltype(bar.id)>::value);
 
   // Try some other types as tables
-  static_assert(not can_call_single_table_with<decltype("true")>::value, "");
-  static_assert(not can_call_single_table_with<decltype(17)>::value, "");
-  static_assert(not can_call_single_table_with<decltype('c')>::value, "");
-  static_assert(not can_call_single_table_with<decltype(nullptr)>::value, "");
+  static_assert(not can_call_single_table_with<decltype("true")>::value);
+  static_assert(not can_call_single_table_with<decltype(17)>::value);
+  static_assert(not can_call_single_table_with<decltype('c')>::value);
+  static_assert(not can_call_single_table_with<decltype(nullptr)>::value);
 
-  // Can call with cte or table alias (will fail in static assert, though).
-  static_assert(can_call_single_table_with<decltype(bar.as(something))>::value, "");
-  static_assert(can_call_single_table_with<decltype(c)>::value, "");
-
-  // Try using aggregate functions in single_table
-  SQLPP_CHECK_STATIC_ASSERT(single_table(bar.as(something)), "single_table() argument must be a raw table, i.e. no join or cte");
-  SQLPP_CHECK_STATIC_ASSERT(single_table(c), "single_table() argument must be a raw table, i.e. no join or cte");
-  SQLPP_CHECK_STATIC_ASSERT(single_table(foo.cross_join(bar)),
-                            "single_table() argument must be a raw table, i.e. no join or cte");
+  // Cannot call with cte or table alias.
+  static_assert(not can_call_single_table_with<decltype(bar.as(something))>::value);
+  static_assert(not can_call_single_table_with<decltype(c)>::value);
+  static_assert(not can_call_single_table_with<decltype(foo.cross_join(bar))>::value);
 
   // `single_table` is required
   {
     auto s = sqlpp::statement_t<sqlpp::no_single_table_t>{};
     using S = decltype(s);
-    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_single_table_provided_t>::value, "");
+    static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_single_table_provided_t>::value);
   }
 
 }

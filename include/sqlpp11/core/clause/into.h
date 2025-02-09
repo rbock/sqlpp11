@@ -31,6 +31,7 @@
 #include <sqlpp11/core/static_assert.h>
 #include <sqlpp11/core/database/prepared_insert.h>
 #include <sqlpp11/core/query/statement_fwd.h>
+#include <sqlpp11/core/concepts.h>
 #include <sqlpp11/core/type_traits.h>
 
 namespace sqlpp
@@ -92,8 +93,8 @@ namespace sqlpp
     using clause_data<no_into_t, Statement>::clause_data;
 
 
-    template <typename _Table, typename = std::enable_if_t<is_raw_table<_Table>::value>>
-    auto into(_Table table) const -> decltype(new_statement(*this, into_t<_Table>{table}))
+    template <StaticRawTable _Table>
+    auto into(_Table table) const
     {
       return new_statement(*this, into_t<_Table>{table});
     }
@@ -118,9 +119,9 @@ namespace sqlpp
     return " INTO " + to_sql_string(context, t._table);
   }
 
-  template <typename T>
-  auto into(T&& t) -> decltype(statement_t<no_into_t>().into(std::forward<T>(t)))
+  template <StaticRawTable T>
+  auto into(T t)
   {
-    return statement_t<no_into_t>().into(std::forward<T>(t));
+    return statement_t<no_into_t>().into(std::move(t));
   }
 }  // namespace sqlpp

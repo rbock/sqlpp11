@@ -39,6 +39,9 @@ namespace sqlpp
   concept DynamicTable = is_table_v<remove_dynamic_t<T>>;
 
   template <typename T>
+  concept StaticRawTable = is_raw_table_v<T>;
+
+  template <typename T>
   concept DynamicSelectColumn = is_select_column_v<T>;
 
   template <typename T>

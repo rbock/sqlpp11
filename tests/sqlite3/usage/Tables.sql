@@ -11,7 +11,7 @@ CREATE TABLE tab_foo (
 
 CREATE TABLE integral_sample (
   signed_value INTEGER,
-  unsigned_value INTEGER
+  unsigned_value INTEGER UNSIGNED
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE blob_sample (

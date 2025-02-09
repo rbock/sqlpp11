@@ -71,11 +71,11 @@ int DynamicSelect(int, char*[])
             << std::endl;
 
   std::cerr << "last insert rowid: "
-            << db(select(dynamic(true, sqlpp::verbatim<sqlpp::integral>("last_insert_rowid()")).as(tab.alpha))).front().alpha
+            << db(select(dynamic(true, sqlpp::verbatim<sqlpp::integral>("last_insert_rowid()").as(tab.alpha)))).front().alpha
             << std::endl;
 
   std::cerr << "last insert rowid: "
-            << db(select(dynamic(false, sqlpp::verbatim<sqlpp::integral>("last_insert_rowid()")).as(tab.alpha))).front().alpha
+            << db(select(dynamic(false, sqlpp::verbatim<sqlpp::integral>("last_insert_rowid()").as(tab.alpha)))).front().alpha
             << std::endl;
 
   return 0;

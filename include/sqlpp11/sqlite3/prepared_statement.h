@@ -31,7 +31,7 @@
 #include <cmath>
 #include <string>
 #include <vector>
-#include <date/date.h>
+#include <chrono>
 
 #include <sqlpp11/core/chrono.h>
 #include <sqlpp11/core/database/exception.h>
@@ -188,7 +188,7 @@ namespace sqlpp
         }
 
         std::ostringstream os;
-        const auto ymd = ::date::year_month_day{value};
+        const auto ymd = std::chrono::year_month_day{value};
         os << ymd;
         const auto text = os.str();
         const int result = sqlite3_bind_text(_handle->sqlite_statement, static_cast<int>(index + 1), text.data(),
@@ -204,9 +204,9 @@ namespace sqlpp
                     << " at index: " << index << std::endl;
         }
 
-        const auto dp = ::sqlpp::chrono::floor<::date::days>(value);
-        const auto time = ::date::make_time(::sqlpp::chrono::floor<::std::chrono::milliseconds>(value - dp));
-        const auto ymd = ::date::year_month_day{dp};
+        const auto dp = std::chrono::floor<std::chrono::days>(value);
+        const auto time = std::chrono::floor<::std::chrono::milliseconds>(value - dp);
+        const auto ymd = std::chrono::year_month_day{dp};
         std::ostringstream os;  // gcc-4.9 does not support auto os = std::ostringstream{};
         os << ymd << ' ' << time;
         const auto text = os.str();

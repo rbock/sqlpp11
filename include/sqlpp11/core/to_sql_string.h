@@ -230,19 +230,19 @@ namespace sqlpp
   template <typename Context>
   auto to_sql_string(Context& , const ::sqlpp::chrono::day_point& t) -> std::string
   {
-    return std::format("DATE '%Y-%m-%d'", t);
+    return std::format("DATE '{0:%Y-%m-%d}'", t);
   }
 
   template <typename Context>
   auto to_sql_string(Context&, const std::chrono::microseconds& t) -> std::string
   {
-    return std::format("'%H:%M:%S'", t);
+    return std::format("'{0:%H:%M:%S}'", t);
   }
 
   template <typename Period, typename Context>
   auto to_sql_string(Context&, const std::chrono::time_point<std::chrono::system_clock, Period>& t) -> std::string
   {
-    return std::format("TIMESTAMP '%Y-%m-%dT%H:%M:%S'", t);
+    return std::format("TIMESTAMP '{0:%Y-%m-%dT%H:%M:%S}'", t);
   }
 
   template <typename Context>

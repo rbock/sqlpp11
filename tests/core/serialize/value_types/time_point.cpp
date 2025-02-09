@@ -24,18 +24,17 @@
  */
 
 #include <sqlpp11/sqlpp11.h>
-#include <sqlpp11/sqlite3/sqlite3.h>
 
-#include <sqlpp11/tests/sqlite3/serialize_helpers.h>
+#include <sqlpp11/tests/core/serialize_helpers.h>
 
 int main()
 {
-  sqlpp::chrono::microsecond_point tp = static_cast<std::chrono::sys_days>(std::chrono::January / 8 / 1970) + std::chrono::hours{3} +
+  sqlpp::chrono::microsecond_point tp = static_cast<std::chrono::sys_days>(std::chrono::January / 10 / 1970) + std::chrono::hours{5} +
                                         std::chrono::minutes{20} + std::chrono::seconds{14} +
-                                        std::chrono::milliseconds{17};
+                                        std::chrono::milliseconds{71};
 
   // Testing time point serialization
-  SQLPP_COMPARE(tp, "DATETIME('1970-01-08 03:20:14.017000', 'subsec')");
+  SQLPP_COMPARE(tp, "TIMESTAMP '1970-01-10T05:20:14.071000'");
 
   return 0;
 }

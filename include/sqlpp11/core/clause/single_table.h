@@ -82,12 +82,9 @@ namespace sqlpp
   {
     using clause_data<no_single_table_t, Statement>::clause_data;
 
-    template <StaticTable _Table>
+    template <StaticRawTable _Table>
     auto single_table(_Table table) const
     {
-      SQLPP_STATIC_ASSERT(is_raw_table<_Table>::value,
-                          "single_table() argument must be a raw table, i.e. no join or cte");
-
       return new_statement(*this, single_table_t<_Table>{table});
     }
   };
@@ -112,7 +109,7 @@ namespace sqlpp
     return to_sql_string(context, t._table);
   }
 
-  template <StaticTable T>
+  template <StaticRawTable T>
   auto single_table(T t)
   {
     return statement_t<no_single_table_t>().single_table(std::move(t));
