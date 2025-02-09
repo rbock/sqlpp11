@@ -29,7 +29,6 @@ list(PREPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
 
 include(CMakeFindDependencyMacro)
 find_dependency(Threads)
-find_dependency(date REQUIRED)
 
 # Work out the set of components to load
 if(${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS)

@@ -51,7 +51,7 @@ namespace
   sqlpp::chrono::microsecond_point build_timestamp(int year, int month, int day, int hour = 0, int minute = 0, int second = 0, int us = 0, bool tz_plus = true, int tz_hour = 0, int tz_minute = 0, int tz_second = 0)
   {
     return
-      date::sys_days{date::year{year}/month/day} +
+      std::chrono::sys_days{std::chrono::year{year}/month/day} +
       build_tod(hour, minute, second, us, tz_plus, tz_hour,tz_minute,tz_second);
   }
 
@@ -72,7 +72,7 @@ namespace
   void test_valid_dates()
   {
     using namespace sqlpp::chrono;
-    using namespace date;
+    using namespace std::chrono;
 
     for (const auto& date_pair : std::vector<std::pair<const char*, day_point>>{
       // Minimum and maximum dates
@@ -212,7 +212,6 @@ namespace
   void test_valid_timestamp()
   {
     using namespace sqlpp::chrono;
-    using namespace date;
     using namespace std::chrono;
 
     for (const auto& timestamp_pair : std::vector<std::pair<const char*, microsecond_point>>{
@@ -265,7 +264,6 @@ namespace
   void test_valid_date_or_timestamp()
   {
     using namespace sqlpp::chrono;
-    using namespace date;
     using namespace std::chrono;
 
     for (const auto& timestamp_pair : std::vector<std::pair<const char*, microsecond_point>>{

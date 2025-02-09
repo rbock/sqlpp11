@@ -31,7 +31,7 @@
 template <typename Rep, typename Period>
 std::ostream& operator<<(std::ostream& os, const std::chrono::duration<Rep, Period>& t)
 {
-  return os << '\'' << ::date::make_time(t) << '\'';
+  return os << '\'' << t << '\'';
 }
 
 template <typename T>

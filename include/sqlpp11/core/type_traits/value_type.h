@@ -127,7 +127,7 @@ namespace sqlpp
   template <>
   struct value_type_of<day_point> { using type = day_point; };
   template <>
-  struct value_type_of<std::chrono::time_point<std::chrono::system_clock, sqlpp::chrono::days>> { using type = day_point; };
+  struct value_type_of<std::chrono::time_point<std::chrono::system_clock, std::chrono::days>> { using type = day_point; };
 
   struct time_of_day{};
   template <>

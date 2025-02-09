@@ -72,7 +72,7 @@ namespace sqlpp
       {
         return false;
       }
-      dp = ::date::year{year} / month / day;
+      dp = std::chrono::year{year} / month / day;
       input = new_input;
       return true;
     }

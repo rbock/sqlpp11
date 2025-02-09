@@ -42,11 +42,6 @@ option(BUILD_SQLCIPHER_CONNECTOR "Build SQLite3 Connector with SQLCipher" OFF)
 
 option(DEPENDENCY_CHECK "Check for dependencies of connector and the library" ON)
 
-option(USE_SYSTEM_DATE "\
-    Use find_package to find installed HowardHinnant's \
-    date library instead of fetching it from github" OFF
-)
-
 set(SQLPP11_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Sqlpp11 CACHE STRING "Path to sqlpp11 cmake files")
 
 ### Dependencies
@@ -70,10 +65,6 @@ if(DEPENDENCY_CHECK AND BUILD_SQLCIPHER_CONNECTOR)
     find_package(SQLCipher REQUIRED)
 endif()
 
-if(DEPENDENCY_CHECK AND USE_SYSTEM_DATE)
-    find_package(date REQUIRED)
-endif()
-
 add_subdirectory(dependencies)
 
 ### Core targets
@@ -82,7 +73,6 @@ include(Sqlpp11TargetHelper)
 add_library(sqlpp11 INTERFACE)
 add_library(sqlpp11::sqlpp11 ALIAS sqlpp11)
 
-target_link_libraries(sqlpp11 INTERFACE date::date)
 target_include_directories(sqlpp11 INTERFACE
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 )

@@ -31,13 +31,6 @@
 
 SQLPP_CREATE_NAME_TAG(now);
 
-#if _MSC_FULL_VER >= 190023918
-// MSVC Update 2 provides floor, ceil, round, abs in chrono (which is C++17 only...)
-using ::std::chrono::floor;
-#else
-using ::date::floor;
-#endif
-
 int DateTime(int, char*[])
 {
   MockDb db = {};
@@ -57,28 +50,28 @@ int DateTime(int, char*[])
   }
   std::cerr << to_sql_string(printer, ::sqlpp::value(std::chrono::system_clock::now())) << std::endl;
 
-  db(insert_into(t).set(t.dayPointN = floor<::sqlpp::chrono::days>(std::chrono::system_clock::now())));
-  db(insert_into(t).set(t.timePointN = floor<::sqlpp::chrono::days>(std::chrono::system_clock::now())));
+  db(insert_into(t).set(t.dayPointN = std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now())));
+  db(insert_into(t).set(t.timePointN = std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now())));
   db(insert_into(t).set(t.timePointN = std::chrono::system_clock::now()));
-  db(insert_into(t).set(t.timeOfDayN = ::sqlpp::chrono::time_of_day(std::chrono::system_clock::now())));
+  db(insert_into(t).set(t.timeOfDayN = sqlpp::chrono::time_of_day(std::chrono::system_clock::now())));
 
   db(update(t)
-         .set(t.dayPointN = floor<::sqlpp::chrono::days>(std::chrono::system_clock::now()))
+         .set(t.dayPointN = std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now()))
          .where(t.dayPointN < std::chrono::system_clock::now()));
   db(update(t)
-         .set(t.timePointN = floor<::sqlpp::chrono::days>(std::chrono::system_clock::now()),
-              t.timeOfDayN = ::sqlpp::chrono::time_of_day(std::chrono::system_clock::now()))
+         .set(t.timePointN = std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now()),
+              t.timeOfDayN = sqlpp::chrono::time_of_day(std::chrono::system_clock::now()))
          .where(t.dayPointN < std::chrono::system_clock::now()));
   db(update(t)
          .set(t.timePointN = std::chrono::system_clock::now(),
-              t.timeOfDayN = ::sqlpp::chrono::time_of_day(std::chrono::system_clock::now()))
+              t.timeOfDayN = sqlpp::chrono::time_of_day(std::chrono::system_clock::now()))
          .where(t.dayPointN < std::chrono::system_clock::now()));
 
-  db(delete_from(t).where(t.dayPointN == floor<::sqlpp::chrono::days>(std::chrono::system_clock::now())));
+  db(delete_from(t).where(t.dayPointN == std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now())));
   db(delete_from(t).where(t.dayPointN == std::chrono::system_clock::now()));
-  db(delete_from(t).where(t.timePointN == floor<::sqlpp::chrono::days>(std::chrono::system_clock::now())));
+  db(delete_from(t).where(t.timePointN == std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now())));
   db(delete_from(t).where(t.timePointN == std::chrono::system_clock::now()));
-  db(delete_from(t).where(t.timeOfDayN == ::sqlpp::chrono::time_of_day(std::chrono::system_clock::now())));
+  db(delete_from(t).where(t.timeOfDayN == sqlpp::chrono::time_of_day(std::chrono::system_clock::now())));
 
   return 0;
 }

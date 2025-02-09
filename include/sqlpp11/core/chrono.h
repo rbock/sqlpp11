@@ -26,29 +26,20 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <date/date.h>
+#include <chrono>
 
 namespace sqlpp
 {
   namespace chrono
   {
-    using days = std::chrono::duration<int, std::ratio<86400, 1>>;
-
-    using day_point = std::chrono::time_point<std::chrono::system_clock, days>;
+    using day_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::days>;
     using microsecond_point = std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>;
-
-#if _MSC_FULL_VER >= 190023918
-    // MSVC Update 2 provides floor, ceil, round, abs in chrono (which is C++17 only...)
-    using ::std::chrono::floor;
-#else
-    using ::date::floor;
-#endif
 
     template <typename T>
     std::chrono::microseconds time_of_day(T t)
     {
-      const auto dp = floor<days>(t);
-      return std::chrono::duration_cast<std::chrono::microseconds>(::date::make_time(t - dp).to_duration());
+      const auto dp = std::chrono::floor<std::chrono::days>(t);
+      return std::chrono::duration_cast<std::chrono::microseconds>(t - dp);
     }
   }  // namespace chrono
 }  // namespace sqlpp

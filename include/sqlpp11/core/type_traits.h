@@ -143,7 +143,7 @@ namespace sqlpp
     struct result_value<text> { using type = std::string_view; };
 
   template<>
-    struct result_value<day_point> { using type = std::chrono::time_point<std::chrono::system_clock, sqlpp::chrono::days>; };
+    struct result_value<day_point> { using type = std::chrono::time_point<std::chrono::system_clock, std::chrono::days>; };
   template<>
     struct result_value<time_of_day> { using type = std::chrono::microseconds; };
 
@@ -181,7 +181,7 @@ namespace sqlpp
     struct parameter_value<text> { using type = std::string; };
 
   template<>
-    struct parameter_value<day_point> { using type = std::chrono::time_point<std::chrono::system_clock, sqlpp::chrono::days>; };
+    struct parameter_value<day_point> { using type = std::chrono::time_point<std::chrono::system_clock, std::chrono::days>; };
   template<>
     struct parameter_value<time_of_day> { using type = std::chrono::microseconds; };
 
