@@ -49,7 +49,8 @@ int Update(int, char*[])
 
     db(sql::update(tab).set(tab.boolN = true).unconditionally().order_by(tab.intN.desc()).limit(1u));
     for(const auto &row : db(sqlpp::select(tab.boolN).from(tab).where(tab.textN == "3"))){
-      assert(row.boolN);
+      if (not row.boolN.has_value())
+        throw std::runtime_error("no value for bool_n");
     }
   }
   catch (const std::exception& e)

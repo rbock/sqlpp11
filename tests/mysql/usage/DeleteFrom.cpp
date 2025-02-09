@@ -49,7 +49,8 @@ int DeleteFrom(int, char*[])
 
     db(sql::delete_from(tab).unconditionally().order_by(tab.intN.desc()).limit(1u));
     for(const auto &row : db(sqlpp::select(tab.textN).from(tab).unconditionally().order_by(tab.intN.desc()).limit(1u))){
-      assert(row.textN == "2");
+      if (row.textN != "2")
+        throw std::runtime_error("unexpected value for row.textN: " + std::string(row.textN.value_or("NULL")));
     }
   }
   catch (const std::exception& e)

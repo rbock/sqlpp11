@@ -28,12 +28,6 @@
 #include <iostream>
 #include <sqlpp11/sqlpp11.h>
 
-template <typename Rep, typename Period>
-std::ostream& operator<<(std::ostream& os, const std::chrono::duration<Rep, Period>& t)
-{
-  return os << '\'' << t << '\'';
-}
-
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const std::optional<T>& t)
 {

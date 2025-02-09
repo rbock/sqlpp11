@@ -206,7 +206,7 @@ namespace sqlpp
         param.error = &buffer.error;
       }
 
-      void bind_field(size_t index, std::span<uint8_t>& /*value*/)
+      void bind_field(size_t index, std::span<const uint8_t>& /*value*/)
       {
         if (_handle->debug)
           std::cerr << "MySQL debug: binding blob result at index: " << index
@@ -339,7 +339,7 @@ namespace sqlpp
         value = std::string_view(buffer.var_buffer.data(), *params.length);
       }
 
-      void read_field(size_t index, std::span<uint8_t>& value)
+      void read_field(size_t index, std::span<const uint8_t>& value)
       {
         if (_handle->debug)
           std::cerr << "MySQL debug: reading blob result at index: " << index
@@ -347,7 +347,7 @@ namespace sqlpp
          refetch_if_required(index);
         const auto& buffer = _handle->result_buffers[index];
         const auto& params = _handle->result_params[index];
-        value = std::span<uint8_t>(reinterpret_cast<const uint8_t*>(buffer.var_buffer.data()), *params.length);
+        value = std::span<const uint8_t>(reinterpret_cast<const uint8_t*>(buffer.var_buffer.data()), *params.length);
       }
 
       void read_field(size_t index, ::sqlpp::chrono::day_point& value)
@@ -359,7 +359,7 @@ namespace sqlpp
         const auto& dt = _handle->result_buffers[index]._mysql_time;
         if (dt.year > std::numeric_limits<int>::max())
           throw sqlpp::exception{"cannot read year from db: " + std::to_string(dt.year)};
-        value = ::date::year(static_cast<int>(dt.year)) / ::date::month(dt.month) / ::date::day(dt.day);
+        value = ::std::chrono::year(static_cast<int>(dt.year)) / ::std::chrono::month(dt.month) / ::std::chrono::day(dt.day);
       }
 
       void read_field(size_t index, ::sqlpp::chrono::microsecond_point& value)
@@ -370,8 +370,8 @@ namespace sqlpp
         const auto& dt = _handle->result_buffers[index]._mysql_time;
         if (dt.year > std::numeric_limits<int>::max())
           throw sqlpp::exception{"cannot read year from db: " + std::to_string(dt.year)};
-        value = ::sqlpp::chrono::day_point(::date::year(static_cast<int>(dt.year)) / ::date::month(dt.month) /
-                                            ::date::day(dt.day)) +
+        value = ::sqlpp::chrono::day_point(::std::chrono::year(static_cast<int>(dt.year)) / ::std::chrono::month(dt.month) /
+                                            ::std::chrono::day(dt.day)) +
                  std::chrono::hours(dt.hour) + std::chrono::minutes(dt.minute) + std::chrono::seconds(dt.second) +
                  std::chrono::microseconds(dt.second_part);
       }

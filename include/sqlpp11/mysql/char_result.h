@@ -126,9 +126,9 @@ namespace sqlpp
         value = std::strtoull(_char_result_row.data[index], nullptr, 10);
       }
 
-      void read_field(size_t index, std::span<uint8_t>& value)
+      void read_field(size_t index, std::span<const uint8_t>& value)
       {
-        value = std::span<uint8_t>(reinterpret_cast<const uint8_t*>(_char_result_row.data[index]), _char_result_row.len[index]);
+        value = std::span<const uint8_t>(reinterpret_cast<const uint8_t*>(_char_result_row.data[index]), _char_result_row.len[index]);
       }
 
       void read_field(size_t index, std::string_view& value)

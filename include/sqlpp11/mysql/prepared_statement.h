@@ -26,8 +26,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <date/date.h>
-
 #include <sqlpp11/mysql/sqlpp_mysql.h>
 #include <sqlpp11/mysql/bind_result.h>
 #include <memory>
@@ -145,14 +143,14 @@ namespace sqlpp
         param.error = nullptr;
       }
 
-      void _bind_parameter(size_t index, const ::sqlpp::chrono::day_point& value)
+      void _bind_parameter(size_t index, const sqlpp::chrono::day_point& value)
       {
         if (_handle->debug)
           std::cerr << "MySQL debug: binding date parameter "
                     << " at index: " << index << std::endl;
 
         auto& bound_time = _handle->stmt_date_time_param_buffer[index];
-          const auto ymd = ::date::year_month_day{value};
+          const auto ymd = std::chrono::year_month_day{value};
           bound_time.year = static_cast<unsigned>(std::abs(static_cast<int>(ymd.year())));
           bound_time.month = static_cast<unsigned>(ymd.month());
           bound_time.day = static_cast<unsigned>(ymd.day());
@@ -175,16 +173,16 @@ namespace sqlpp
         param.error = nullptr;
       }
 
-      void _bind_parameter(size_t index, const ::sqlpp::chrono::microsecond_point& value)
+      void _bind_parameter(size_t index, const sqlpp::chrono::microsecond_point& value)
       {
         if (_handle->debug)
           std::cerr << "MySQL debug: binding date_time parameter "
                     << " at index: " << index << std::endl;
 
         auto& bound_time = _handle->stmt_date_time_param_buffer[index];
-          const auto dp = ::sqlpp::chrono::floor<::date::days>(value);
-          const auto time = ::date::make_time(value - dp);
-          const auto ymd = ::date::year_month_day{dp};
+          const auto dp = std::chrono::floor<std::chrono::days>(value);
+          const auto time = std::chrono::hh_mm_ss(std::chrono::floor<::std::chrono::microseconds>(value - dp));
+          const auto ymd = std::chrono::year_month_day{dp};
           bound_time.year = static_cast<unsigned>(std::abs(static_cast<int>(ymd.year())));
           bound_time.month = static_cast<unsigned>(ymd.month());
           bound_time.day = static_cast<unsigned>(ymd.day());
@@ -214,17 +212,18 @@ namespace sqlpp
                     << " at index: " << index << std::endl;
 
         auto& bound_time = _handle->stmt_date_time_param_buffer[index];
-          const auto time = ::date::make_time(value);
-          bound_time.year = 0u;
-          bound_time.month = 0u;
-          bound_time.day = 0u;
-          bound_time.hour = static_cast<unsigned>(time.hours().count());
-          bound_time.minute = static_cast<unsigned>(time.minutes().count());
-          bound_time.second = static_cast<unsigned>(time.seconds().count());
-          bound_time.second_part = static_cast<unsigned long>(time.subseconds().count());
-          if (_handle->debug)
-            std::cerr << "bound values: " << bound_time.hour << ':' << bound_time.minute << ':' << bound_time.second
-                      << '.' << bound_time.second_part << std::endl;
+        const auto dp = std::chrono::floor<std::chrono::days>(value);
+        const auto time = std::chrono::hh_mm_ss(std::chrono::floor<::std::chrono::microseconds>(value - dp));
+        bound_time.year = 0u;
+        bound_time.month = 0u;
+        bound_time.day = 0u;
+        bound_time.hour = static_cast<unsigned>(time.hours().count());
+        bound_time.minute = static_cast<unsigned>(time.minutes().count());
+        bound_time.second = static_cast<unsigned>(time.seconds().count());
+        bound_time.second_part = static_cast<unsigned long>(time.subseconds().count());
+        if (_handle->debug)
+          std::cerr << "bound values: " << bound_time.hour << ':' << bound_time.minute << ':' << bound_time.second
+                    << '.' << bound_time.second_part << std::endl;
 
         _handle->stmt_param_is_null[index] = false;
         MYSQL_BIND& param{_handle->stmt_params[index]};
