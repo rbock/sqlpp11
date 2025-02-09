@@ -60,6 +60,8 @@ int main(int, char* [])
   SQLPP_COMPARE(select(bar.id, all_of(foo)),
       "SELECT tab_bar.id, tab_foo.id, tab_foo.text_nn_d, tab_foo.int_n, tab_foo.double_n, tab_foo.u_int_n, tab_foo.blob_n, tab_foo.bool_n");
 
+  using T = decltype(count(bar.id).as(id_count));
+  static_assert(sqlpp::has_value_type_v<sqlpp::remove_as_t<sqlpp::remove_dynamic_t<T>>> and sqlpp::has_name_tag_v<sqlpp::remove_dynamic_t<T>>);
   // Column and aggregate function
   SQLPP_COMPARE(select(foo.doubleN, count(bar.id).as(id_count)), "SELECT tab_foo.double_n, COUNT(tab_bar.id) AS id_count");
 
@@ -89,6 +91,7 @@ int main(int, char* [])
   // Single dynamic column.
   SQLPP_COMPARE(select_columns(dynamic(true, foo.id)), "tab_foo.id");
   SQLPP_COMPARE(select_columns(dynamic(false, foo.id)), "NULL AS id");
+  SQLPP_COMPARE(select_columns(dynamic(false, foo.id.as(cake))), "NULL AS cake");
 
   // Multiple dynamic columns (this is odd if all are dynamic)
   SQLPP_COMPARE(select_columns(dynamic(true, foo.id), foo.textNnD, foo.boolN), "tab_foo.id, tab_foo.text_nn_d, tab_foo.bool_n");
@@ -112,11 +115,11 @@ int main(int, char* [])
   SQLPP_COMPARE(select_columns(declare_group_by_column(val).as(cake), foo.id), "17 AS cake, tab_foo.id");
 
   // Mixed dynamic declared column
-  SQLPP_COMPARE(select_columns(foo.id, dynamic(true, declare_group_by_column(val)).as(cheese)), "tab_foo.id, 17 AS cheese");
-  SQLPP_COMPARE(select_columns(dynamic(true, declare_group_by_column(val)).as(cake), foo.id), "17 AS cake, tab_foo.id");
+  SQLPP_COMPARE(select_columns(foo.id, dynamic(true, declare_group_by_column(val).as(cheese))), "tab_foo.id, 17 AS cheese");
+  SQLPP_COMPARE(select_columns(dynamic(true, declare_group_by_column(val).as(cake)), foo.id), "17 AS cake, tab_foo.id");
 
-  SQLPP_COMPARE(select_columns(foo.id, dynamic(false, declare_group_by_column(val)).as(cheese)), "tab_foo.id, NULL AS cheese");
-  SQLPP_COMPARE(select_columns(dynamic(false, declare_group_by_column(val)).as(cake), foo.id), "NULL AS cake, tab_foo.id");
+  SQLPP_COMPARE(select_columns(foo.id, dynamic(false, declare_group_by_column(val).as(cheese))), "tab_foo.id, NULL AS cheese");
+  SQLPP_COMPARE(select_columns(dynamic(false, declare_group_by_column(val).as(cake)), foo.id), "NULL AS cake, tab_foo.id");
 
   return 0;
 }

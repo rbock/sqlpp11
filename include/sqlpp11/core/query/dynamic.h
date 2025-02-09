@@ -33,6 +33,7 @@
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/operator/assign_expression.h>
 #include <sqlpp11/core/operator/sort_order_expression.h>
+#include <sqlpp11/core/operator/expression_as_fwd.h>
 #include <sqlpp11/core/operator/enable_as.h>
 #include <sqlpp11/core/to_sql_string.h>
 
@@ -105,6 +106,13 @@ namespace sqlpp
 
   template <Table _Table>
   auto dynamic(bool condition, _Table t) -> dynamic_t<_Table>
+  {
+    return {condition, std::move(t)};
+  }
+
+  template <typename Expr, typename NameTag>
+    requires(has_value_type_v<Expr>)
+  auto dynamic(bool condition, expression_as<Expr, NameTag> t) -> dynamic_t<expression_as<Expr, NameTag>>
   {
     return {condition, std::move(t)};
   }

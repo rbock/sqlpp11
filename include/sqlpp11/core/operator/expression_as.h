@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/to_sql_string.h>
+#include <sqlpp11/core/operator/expression_as_fwd.h>
 
 namespace sqlpp
 {
@@ -48,22 +49,13 @@ namespace sqlpp
     Expression _expression;
   };
 
-  // No value_type_of or name_tag_of defined for expression_as, to prevent its usage outside of select columns.
-
-  template <typename T>
-  struct remove_as
-  {
-    using type = T;
-  };
-
   template <typename Expression, typename NameTag>
-  struct remove_as<expression_as<Expression, NameTag>>
+  struct name_tag_of<expression_as<Expression, NameTag>>
   {
-    using type = Expression;
+    using type = NameTag;
   };
 
-  template <typename T>
-  using remove_as_t = typename remove_as<T>::type;
+  // No value_type_of defined for expression_as to prevent its usage outside of select columns.
 
   template <typename Expression, typename NameTag>
   struct nodes_of<expression_as<Expression, NameTag>>
@@ -83,21 +75,9 @@ namespace sqlpp
   }
 
   template <typename Expr, typename NameTagProvider>
-  using check_as_args = ::sqlpp::enable_if_t<
-  has_value_type<Expr>::value and not is_expression_as<Expr>::value and has_name_tag<NameTagProvider>::value
-  >;
-
-  template <typename Expr, typename NameTagProvider, typename = check_as_args<Expr, NameTagProvider>>
+    requires(has_value_type_v<Expr> and not is_dynamic<Expr>::value and not is_expression_as<Expr>::value and
+             has_name_tag_v<NameTagProvider>)
   constexpr auto as(Expr expr, const NameTagProvider&) -> expression_as<Expr, name_tag_of_t<NameTagProvider>>
-  {
-      return {std::move(expr)};
-  }
-
-  template <typename Expr>
-  struct dynamic_t;
-
-  template <typename Expr, typename NameTagProvider, typename = check_as_args<Expr, NameTagProvider>>
-  constexpr auto as(dynamic_t<Expr> expr, const NameTagProvider&) -> expression_as<dynamic_t<Expr>, name_tag_of_t<NameTagProvider>>
   {
       return {std::move(expr)};
   }

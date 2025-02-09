@@ -28,13 +28,30 @@
 
 #include <sqlpp11/core/type_traits.h>
 #include <sqlpp11/core/query/dynamic_fwd.h>
+#include <sqlpp11/core/operator/expression_as_fwd.h>
 
 namespace sqlpp
 {
-  template<typename T>
+  template <typename T>
   concept Table = is_table_v<T>;
 
-  template<typename T>
+  template <typename T>
   concept DynamicTable = is_table_v<remove_dynamic_t<T>>;
+
+  template <typename T>
+    struct is_select_column
+    {
+      static constexpr bool value = has_value_type_v<remove_as_t<remove_dynamic_t<T>>> and has_name_tag_v<remove_dynamic_t<T>>;
+    };
+  template <typename T>
+    static inline constexpr bool is_select_column_v = is_select_column<T>::value;
+
+  template<typename... T>
+    struct is_select_column<std::tuple<T...>>
+    {
+      static constexpr bool value = (true and ... and is_select_column_v<T>);
+    };
+  template <typename T>
+  concept SelectColumn = is_select_column_v<T>;
 
 }  // namespace sqlpp

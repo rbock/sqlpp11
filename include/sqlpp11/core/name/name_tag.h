@@ -72,4 +72,7 @@ namespace sqlpp
   template<typename T>
   struct has_name_tag : public std::integral_constant<bool, not std::is_same<name_tag_of_t<T>, no_name_t>::value> {};
 
+  template<typename T>
+  static inline constexpr bool has_name_tag_v = has_name_tag<T>::value;
+
 }  // namespace sqlpp

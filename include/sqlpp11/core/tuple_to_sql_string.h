@@ -84,12 +84,12 @@ namespace sqlpp
 
     template <typename Context, typename T, typename NameTag>
     auto operator()(Context& context,
-                    const expression_as<sqlpp::dynamic_t<T>, NameTag>& t,
+                      const sqlpp::dynamic_t<expression_as<T, NameTag>>& t,
                     size_t index) const -> std::string
     {
-      if (t._expression._condition)
+      if (t._condition)
       {
-        return operator()(context, expression_as<T, NameTag>{t._expression._expr}, index);
+        return operator()(context, t._expr, index);
       }
       return operator()(context, expression_as<sqlpp::nullopt_t, NameTag>{sqlpp::nullopt}, index);
     }

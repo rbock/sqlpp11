@@ -40,15 +40,21 @@ int main(int, char* [])
   SQLPP_COMPARE(expr.as(v), "(17 + 4) AS v");
   SQLPP_COMPARE(count(val).as(v), "COUNT(17) AS v");
 
-  SQLPP_COMPARE(dynamic(true, val).as(v), "17 AS v");
-  SQLPP_COMPARE(dynamic(true, expr).as(v), "(17 + 4) AS v");
-  SQLPP_COMPARE(dynamic(true, count(val)).as(v), "COUNT(17) AS v");
-  SQLPP_COMPARE(dynamic(true, col_id).as(v), "tab_foo.id AS v");
+#warning: Actually, this should not compile.
+  SQLPP_COMPARE(dynamic(true, val.as(v)), "17 AS v");
+  SQLPP_COMPARE(dynamic(true, expr.as(v)), "(17 + 4) AS v");
+  SQLPP_COMPARE(dynamic(true, count(val).as(v)), "COUNT(17) AS v");
+  SQLPP_COMPARE(dynamic(true, col_id.as(v)), "tab_foo.id AS v");
 
-  SQLPP_COMPARE(dynamic(false, val).as(v), "NULL AS v");
-  SQLPP_COMPARE(dynamic(false, expr).as(v), "NULL AS v");
-  SQLPP_COMPARE(dynamic(false, count(val)).as(v), "NULL AS v");
-  SQLPP_COMPARE(dynamic(false, col_id).as(v), "NULL AS v");
+  SQLPP_COMPARE(dynamic(false, val.as(v)), "NULL");
+  SQLPP_COMPARE(dynamic(false, expr.as(v)), "NULL");
+  SQLPP_COMPARE(dynamic(false, count(val).as(v)), "NULL");
+  SQLPP_COMPARE(dynamic(false, col_id.as(v)), "NULL");
+
+  SQLPP_COMPARE(select_columns(dynamic(false, val.as(v))), "NULL AS v");
+  SQLPP_COMPARE(select_columns(dynamic(false, expr.as(v))), "NULL AS v");
+  SQLPP_COMPARE(select_columns(dynamic(false, count(val).as(v))), "NULL AS v");
+  SQLPP_COMPARE(select_columns(dynamic(false, col_id.as(v))), "NULL AS v");
 
   return 0;
 }

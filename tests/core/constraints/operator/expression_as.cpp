@@ -55,9 +55,11 @@ int main()
   static_assert(can_call_as_with<decltype(bar), decltype(something)>::value, "");
   static_assert(can_call_as_with<decltype(select(bar.id).from(bar).where(true)), decltype(something)>::value, "");
 
-  // OK, dynamic and functions can be named
-  static_assert(can_call_as_with<decltype(dynamic(maybe, bar.boolNn)), decltype(bar)>::value, "");
+  // OK, functions can be named
   static_assert(can_call_as_with<decltype(max(bar.boolNn)), decltype(something)>::value, "");
+
+  // dynamic cannot be named can be named
+  static_assert(not can_call_as_with<decltype(dynamic(maybe, bar.boolNn)), decltype(bar)>::value, "");
 
   // Renamed things cannot be renamed again.
   static_assert(not can_call_as_with<decltype(bar.id.as(something)), decltype(bar)>::value, "");

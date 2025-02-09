@@ -83,19 +83,19 @@ int main()
 
   // select_columns(<arguments with no value>) cannot be called.
   static_assert(can_call_select_columns_with<decltype(bar.boolNn)>::value, "OK, argument a column");
-  static_assert(can_call_select_columns_with<decltype(bar.id == 7)>::value, "OK to call, but will fail static_assert later");
+  static_assert(can_call_select_columns_with<decltype(dynamic(true, bar.boolNn))>::value, "OK, argument a column");
+  static_assert(not can_call_select_columns_with<decltype(bar.id == 7)>::value, "not a value: comparison");
   static_assert(not can_call_select_columns_with<decltype(bar.id = 7), decltype(bar.boolNn)>::value, "not value: assignment");
 
-
   // select_columns(<at least one unnamed column>) is inconsistent and cannot be constructed.
-  SQLPP_CHECK_STATIC_ASSERT(sqlpp::select_columns(sqlpp::value(7)), "each selected column must have a name");
-  SQLPP_CHECK_STATIC_ASSERT(sqlpp::select_columns(bar.id, max(foo.id)), "each selected column must have a name");
-  SQLPP_CHECK_STATIC_ASSERT(sqlpp::select_columns(all_of(bar), max(foo.id)), "each selected column must have a name");
+  static_assert(not can_call_select_columns_with<decltype(sqlpp::value(7))>::value, "each selected column must have a name");
+  static_assert(not can_call_select_columns_with<decltype(bar.id), decltype(max(foo.id))>::value, "each selected column must have a name");
+  static_assert(not can_call_select_columns_with<decltype(all_of(bar)), decltype(max(foo.id))>::value, "each selected column must have a name");
 
-  SQLPP_CHECK_STATIC_ASSERT(sqlpp::select_columns(dynamic(true, sqlpp::value(7))), "each selected column must have a name");
-  SQLPP_CHECK_STATIC_ASSERT(sqlpp::select_columns(bar.id, dynamic(true, max(foo.id))), "each selected column must have a name");
-  SQLPP_CHECK_STATIC_ASSERT(sqlpp::select_columns(dynamic(true, bar.id), max(foo.id)), "each selected column must have a name");
-  SQLPP_CHECK_STATIC_ASSERT(sqlpp::select_columns(all_of(bar), dynamic(true, max(foo.id))), "each selected column must have a name");
+  static_assert(not can_call_select_columns_with<decltype(dynamic(true, sqlpp::value(7)))>::value, "each selected column must have a name");
+  static_assert(not can_call_select_columns_with<decltype(bar.id), decltype(dynamic(true, max(foo.id)))>::value, "each selected column must have a name");
+  static_assert(not can_call_select_columns_with<decltype(dynamic(true, bar.id)), decltype(max(foo.id))>::value, "each selected column must have a name");
+  static_assert(not can_call_select_columns_with<decltype(all_of(bar)), decltype(dynamic(true, max(foo.id)))>::value, "each selected column must have a name");
   // Note: There is no `dynamic(condition, all_of(table))`
 
   // select_columns(<selecting table columns without `from`>) can be constructed but is inconsistent.
@@ -142,14 +142,14 @@ int main()
   }
 
   {
-    auto s = select(foo.id, dynamic(true, (foo.intN + 7)).as(test::max_id)).from(foo).group_by(foo.intN);
+    auto s = select(foo.id, dynamic(true, (foo.intN + 7).as(test::max_id))).from(foo).group_by(foo.intN);
     using S = decltype(s);
     static_assert(std::is_same<sqlpp::statement_consistency_check_t<S>, sqlpp::assert_select_columns_with_group_by_are_aggregates_t>::value, "");
   }
 
   // Dynamic group by column
   {
-    auto s = select(foo.id, dynamic(true, foo.intN).as(test::max_id))
+    auto s = select(foo.id, dynamic(true, foo.intN.as(test::max_id)))
                  .from(foo)
                  .unconditionally()
                  .group_by(foo.id, dynamic(true, foo.intN));

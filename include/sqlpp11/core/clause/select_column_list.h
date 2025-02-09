@@ -39,6 +39,7 @@
 #include <sqlpp11/core/clause/expression_static_check.h>
 #include <sqlpp11/core/group_by_column.h>
 #include <sqlpp11/core/basic/table.h>
+#include <sqlpp11/core/concepts.h>
 #include <tuple>
 
 namespace sqlpp
@@ -165,6 +166,12 @@ namespace sqlpp
     using type = detail::type_vector<Columns...>;
   };
 
+  SQLPP_WRAPPED_STATIC_ASSERT(assert_columns_selected_t, "selecting columns required");
+
+  struct no_select_column_list_t
+  {
+  };
+
   template <typename ColumnTuple>
   struct make_select_column_list;
   template <typename... Columns>
@@ -175,28 +182,18 @@ namespace sqlpp
   template <typename... Columns>
   using make_select_column_list_t = typename make_select_column_list<detail::flat_tuple_t<Columns...>>::type;
 
-  SQLPP_WRAPPED_STATIC_ASSERT(assert_columns_selected_t, "selecting columns required");
-
-  struct no_select_column_list_t
-  {
-  };
-
   template <typename Statement>
   struct clause_base<no_select_column_list_t, Statement> : public clause_data<no_select_column_list_t, Statement>
   {
     using clause_data<no_select_column_list_t, Statement>::clause_data;
 
-    template <typename... Columns, typename = sqlpp::enable_if_t<select_columns_have_values<Columns...>::value>>
-    auto columns(Columns... args) const
-        -> decltype(new_statement(*this,
-                                  make_select_column_list_t<Columns...>{
-                                      std::tuple_cat(detail::tupelize(std::move(args))...)}))
+    template <SelectColumn... _Columns>
+    auto columns(_Columns... args) const
     {
-      SQLPP_STATIC_ASSERT(sizeof...(Columns), "at least one selected column required");
-      SQLPP_STATIC_ASSERT(select_columns_have_names<Columns...>::value, "each selected column must have a name");
+      SQLPP_STATIC_ASSERT(sizeof...(_Columns), "at least one selected column required");
 
       return new_statement(*this,
-              make_select_column_list_t<Columns...>{
+              make_select_column_list_t<_Columns...>{
                   std::tuple_cat(detail::tupelize(std::move(args))...)});
     }
   };
@@ -224,10 +221,10 @@ namespace sqlpp
     return tuple_to_sql_string(context, t._columns, tuple_operand_select_column{", "});
   }
 
-  template <typename... T>
-  auto select_columns(T&&... t) -> decltype(statement_t<no_select_column_list_t>().columns(std::forward<T>(t)...))
+  template <SelectColumn... T>
+  auto select_columns(T... t)
   {
-    return statement_t<no_select_column_list_t>().columns(std::forward<T>(t)...);
+    return statement_t<no_select_column_list_t>().columns(std::move(t)...);
   }
 
 }  // namespace sqlpp

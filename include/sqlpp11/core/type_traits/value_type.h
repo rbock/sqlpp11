@@ -54,7 +54,11 @@ namespace sqlpp
   template <typename T>
   struct has_value_type : public std::integral_constant<bool, not std::is_same<value_type_of_t<T>, no_value_t>::value> {};
 
+  template <typename T>
+  static inline constexpr bool has_value_type_v  = has_value_type<T>::value;
+
   struct boolean{};
+
   template<>
   struct value_type_of<boolean> { using type = boolean; };
   template<>
