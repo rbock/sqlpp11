@@ -331,7 +331,7 @@ namespace sqlpp
         }
       }
 
-      void read_field(size_t _index, std::span<uint8_t>& value)
+      void read_field(size_t _index, std::span<const uint8_t>& value)
       {
         const auto index = static_cast<int>(_index);
         if (_handle->debug())
@@ -346,7 +346,7 @@ namespace sqlpp
             detail::hex_assign(_var_buffers[_index], _handle->result.get_blob_value(_handle->count, index),
                                static_cast<size_t>(_handle->result.length(_handle->count, index)));
 
-        value = std::span<uint8_t>(_var_buffers[_index].data(), size);
+        value = std::span<const uint8_t>(_var_buffers[_index].data(), size);
       }
 
       template <typename T>

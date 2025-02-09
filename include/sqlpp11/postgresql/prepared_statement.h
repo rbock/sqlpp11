@@ -148,7 +148,7 @@ namespace sqlpp
                     << index << std::endl;
         }
         _handle->null_values[index] = false;
-          const auto ymd = ::date::year_month_day{value};
+          const auto ymd = std::chrono::year_month_day{value};
           std::ostringstream os;
           os << ymd;
           _handle->param_values[index] = os.str();
@@ -167,7 +167,8 @@ namespace sqlpp
                     << index << std::endl;
         }
         _handle->null_values[index] = false;
-          const auto time = ::date::make_time(value) ;
+          const auto dp = std::chrono::floor<std::chrono::days>(value);
+          const auto time = std::chrono::hh_mm_ss(std::chrono::floor<::std::chrono::microseconds>(value - dp));
 
           // Timezone handling - always treat the local value as UTC.
           std::ostringstream os;
@@ -187,9 +188,9 @@ namespace sqlpp
             << index << std::endl;
         }
         _handle->null_values[index] = false;
-          const auto dp = ::sqlpp::chrono::floor<::date::days>(value);
-          const auto time = ::date::make_time(::sqlpp::chrono::floor<::std::chrono::microseconds>(value - dp));
-          const auto ymd = ::date::year_month_day{dp};
+          const auto dp = std::chrono::floor<std::chrono::days>(value);
+          const auto time = std::chrono::hh_mm_ss(std::chrono::floor<::std::chrono::microseconds>(value - dp));
+          const auto ymd = std::chrono::year_month_day{dp};
 
           // Timezone handling - always treat the local value as UTC.
           std::ostringstream os;

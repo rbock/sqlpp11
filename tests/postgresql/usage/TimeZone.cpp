@@ -114,7 +114,7 @@ namespace
 
   void test_time_point(sqlpp::postgresql::connection& db, sqlpp::chrono::microsecond_point tp)
   {
-    auto dp = date::floor<sqlpp::chrono::days> (tp);
+    auto dp = std::chrono::floor<std::chrono::days> (tp);
     auto tod = tp - dp; // Time of day
 
     // Test time values passed in a regular (non-prepared) statement
@@ -141,9 +141,9 @@ int TimeZone(int, char*[])
     db(insert_into(tab).default_values());
 
     std::vector<sqlpp::chrono::microsecond_point> tps {
-      static_cast<date::sys_days>(date::January/1/1970) + std::chrono::hours{1} + std::chrono::minutes{20} + std::chrono::seconds{14} + std::chrono::microseconds{1},
-      static_cast<date::sys_days>(date::June/13/1986) + std::chrono::hours{12} + std::chrono::minutes{0} + std::chrono::seconds{1} + std::chrono::microseconds{123},
-      static_cast<date::sys_days>(date::December/31/2022) + std::chrono::hours{0} + std::chrono::minutes{59} + std::chrono::seconds{59} + std::chrono::microseconds{987654}
+      static_cast<std::chrono::sys_days>(std::chrono::January/1/1970) + std::chrono::hours{1} + std::chrono::minutes{20} + std::chrono::seconds{14} + std::chrono::microseconds{1},
+      static_cast<std::chrono::sys_days>(std::chrono::June/13/1986) + std::chrono::hours{12} + std::chrono::minutes{0} + std::chrono::seconds{1} + std::chrono::microseconds{123},
+      static_cast<std::chrono::sys_days>(std::chrono::December/31/2022) + std::chrono::hours{0} + std::chrono::minutes{59} + std::chrono::seconds{59} + std::chrono::microseconds{987654}
     };
     for (const auto &tp : tps) {
       test_time_point(db, tp);

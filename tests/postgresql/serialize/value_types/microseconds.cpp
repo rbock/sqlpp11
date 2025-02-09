@@ -27,16 +27,14 @@
 #include <sqlpp11/postgresql/postgresql.h>
 
 #include <sqlpp11/tests/postgresql/serialize_helpers.h>
-#include <sqlpp11/tests/postgresql/tables.h>
 
 int main()
 {
-  sqlpp::chrono::microsecond_point tp = static_cast<std::chrono::sys_days>(std::chrono::January / 8 / 1970) + std::chrono::hours{3} +
-                                        std::chrono::minutes{20} + std::chrono::seconds{14} +
-                                        std::chrono::microseconds{81};
+  std::chrono::microseconds ms = std::chrono::hours{1} +
+                                        std::chrono::minutes{20} + std::chrono::seconds{14} +std::chrono::milliseconds{178};
 
-  // Testing time point serialization
-  SQLPP_COMPARE(tp, "TIMESTAMP WITH TIME ZONE '1970-01-08 03:20:14.000081+00'");
+  // Testing microseconds serialization
+  SQLPP_COMPARE(ms, "TIME WITH TIME ZONE'01:20:14.178000+00'");
 
   return 0;
 }

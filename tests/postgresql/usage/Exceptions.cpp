@@ -70,7 +70,7 @@ int Exceptions(int, char*[])
     catch (const sql::sql_user_error& e)
     {
       std::cout << "Caught expected error. Code: " << e.code() << '\n';
-      assert(e.code() == "ZX123");
+      if (e.code() != "ZX123") throw std::runtime_error("unexpected error code");
     }
   }
   catch (const sql::failure& e)

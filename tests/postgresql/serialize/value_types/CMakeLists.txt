@@ -31,5 +31,6 @@ endfunction()
 
 create_test(blob)
 create_test(day_point)
+create_test(microseconds)
 create_test(time_point)
 
