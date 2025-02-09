@@ -303,6 +303,9 @@ namespace sqlpp
   template <typename T>
     struct is_sort_order : public std::false_type {};
 
+  template <typename T>
+    static inline constexpr bool is_sort_order_v = is_sort_order<T>::value;
+
   template<typename T>
     struct is_result_clause : public std::false_type {};
 

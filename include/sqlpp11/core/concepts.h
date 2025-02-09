@@ -41,4 +41,7 @@ namespace sqlpp
   template <typename T>
   concept SelectColumn = is_select_column_v<T>;
 
+  template <typename T>
+  concept SortOrder = is_sort_order_v<remove_dynamic_t<T>>;
+
 }  // namespace sqlpp

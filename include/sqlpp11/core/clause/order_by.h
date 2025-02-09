@@ -139,9 +139,8 @@ namespace sqlpp
   {
     using clause_data<no_order_by_t, Statement>::clause_data;
 
-    template <typename... Expressions, typename = std::enable_if_t<logic::all<is_sort_order<remove_dynamic_t<Expressions>>::value...>::value>>
+    template <SortOrder... Expressions>
     auto order_by(Expressions... expressions) const
-        -> decltype(new_statement(*this, order_by_t<Expressions...>{std::move(expressions)...}))
     {
       SQLPP_STATIC_ASSERT(sizeof...(Expressions),
                           "at least one sort-order expression (e.g. column.asc()) required in order_by()");
@@ -178,10 +177,10 @@ namespace sqlpp
     return " ORDER BY " + columns;
   }
 
-  template <typename... T>
-  auto order_by(T... t) -> decltype(statement_t<no_order_by_t>().order_by(std::forward<T>(t)...))
+  template <SortOrder... Expressions>
+  auto order_by(Expressions... expressions)
   {
-    return statement_t<no_order_by_t>().order_by(std::move(t)...);
+    return statement_t<no_order_by_t>().order_by(std::move(expressions)...);
   }
 
 }  // namespace sqlpp
