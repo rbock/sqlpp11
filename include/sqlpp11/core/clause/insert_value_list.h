@@ -77,9 +77,9 @@ namespace sqlpp
   template <typename Statement>
   struct consistency_check<Statement, insert_default_values_t>
   {
-    using type = typename std::conditional<required_insert_columns_of_t<Statement>::empty(),
+    using type = std::conditional_t<required_insert_columns_of_t<Statement>::empty(),
                                            consistent_t,
-                                           assert_all_columns_have_default_value_t>::type;
+                                           assert_all_columns_have_default_value_t>;
   };
 
   template <typename... Assignments>

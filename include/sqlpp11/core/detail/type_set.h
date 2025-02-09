@@ -105,14 +105,14 @@ namespace sqlpp
       template <typename T>
       struct insert
       {
-        using type = typename std::conditional<count<T>(), type_set, type_set<T, Elements...>>::type;
+        using type = std::conditional_t<count<T>(), type_set, type_set<T, Elements...>>;
       };
 
       template <template <typename A> class Predicate, typename T>
       struct insert_if
       {
         using type =
-            typename std::conditional<Predicate<T>::value and not count<T>(), type_set<Elements..., T>, type_set>::type;
+            std::conditional_t<Predicate<T>::value and not count<T>(), type_set<Elements..., T>, type_set>;
       };
     };
 

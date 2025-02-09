@@ -260,7 +260,7 @@ namespace sqlpp
 
   template <typename T>
   using is_inconsistent_t =
-      typename std::conditional<std::is_same<consistent_t, T>::value, std::false_type, std::true_type>::type;
+      std::conditional_t<std::is_same<consistent_t, T>::value, std::false_type, std::true_type>;
 
   SQLPP_WRAPPED_STATIC_ASSERT(assert_run_statement_or_prepared_t,
                                "connection cannot run something that is neither statement nor prepared statement");

@@ -53,9 +53,9 @@ namespace sqlpp
   template <typename... Args>
   struct value_type_of<concat_t<Args...>>
   {
-    using type = typename std::conditional<logic::any<is_optional<value_type_of_t<Args>>::value...>::value,
+    using type = std::conditional_t<logic::any<is_optional<value_type_of_t<Args>>::value...>::value,
                                            std::optional<sqlpp::text>,
-                                           sqlpp::text>::type;
+                                           sqlpp::text>;
   };
 
   template <typename... Args>

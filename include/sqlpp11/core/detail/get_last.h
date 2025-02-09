@@ -45,7 +45,7 @@ namespace sqlpp
     struct get_last_if<Predicate, Default, T, Rest...>
     {
       using type = typename get_last_if<Predicate,
-                                             typename std::conditional<Predicate<T>::value, T, Default>::type,
+                                             std::conditional_t<Predicate<T>::value, T, Default>,
                                              Rest...>::type;
     };
 

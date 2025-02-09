@@ -84,7 +84,7 @@ namespace sqlpp
 
     using type = field_spec_t<
         select_column_name_tag_of_t<NamedExpr>,
-        typename std::conditional<_depends_on_optional_table, sqlpp::force_optional_t<ValueType>, ValueType>::type>;
+        std::conditional_t<_depends_on_optional_table, sqlpp::force_optional_t<ValueType>, ValueType>>;
   };
 
   template <typename Statement, typename NamedExpr>

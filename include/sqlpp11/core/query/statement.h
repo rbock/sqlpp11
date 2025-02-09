@@ -202,9 +202,9 @@ namespace sqlpp
   template <typename... Clauses>
   struct value_type_of<statement_t<Clauses...>>
   {
-    using type = typename std::conditional<statement_consistency_check_t<statement_t<Clauses...>>::value,
+    using type = std::conditional_t<statement_consistency_check_t<statement_t<Clauses...>>::value,
                                            value_type_of_t<result_type_provider_t<Clauses...>>,
-                                           no_value_t>::type;
+                                           no_value_t>;
   };
 
   template <typename... Clauses>
@@ -287,9 +287,9 @@ namespace sqlpp
 
   template <typename OldClause, typename... Clauses, typename NewClause>
   auto new_statement(const clause_base<OldClause, statement_t<Clauses...>>& oldBase, NewClause newClause)
-      -> statement_t<typename std::conditional<std::is_same<Clauses, OldClause>::value, NewClause, Clauses>::type...>
+      -> statement_t<std::conditional_t<std::is_same<Clauses, OldClause>::value, NewClause, Clauses>...>
   {
-    return statement_t<typename std::conditional<std::is_same<Clauses, OldClause>::value, NewClause, Clauses>::type...>{
+    return statement_t<std::conditional_t<std::is_same<Clauses, OldClause>::value, NewClause, Clauses>...>{
         statement_constructor_arg(static_cast<const statement_t<Clauses...>&>(oldBase), newClause)};
   }
 

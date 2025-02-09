@@ -75,12 +75,12 @@ namespace sqlpp
   struct provided_optional_tables_of<join_t<Lhs, JoinType, Rhs, Condition>>
   {
     using type = detail::make_joined_set_t<
-        typename std::conditional<detail::type_vector<right_outer_join_t, full_outer_join_t>::contains<JoinType>::value,
+        std::conditional_t<detail::type_vector<right_outer_join_t, full_outer_join_t>::contains<JoinType>::value,
                                   provided_tables_of_t<Lhs>,
-                                  provided_optional_tables_of_t<Lhs>>::type,
-        typename std::conditional<detail::type_vector<left_outer_join_t, full_outer_join_t>::contains<JoinType>::value,
+                                  provided_optional_tables_of_t<Lhs>>,
+        std::conditional_t<detail::type_vector<left_outer_join_t, full_outer_join_t>::contains<JoinType>::value,
                                   provided_tables_of_t<Rhs>,
-                                  provided_optional_tables_of_t<Rhs>>::type>;
+                                  provided_optional_tables_of_t<Rhs>>>;
   };
 
   template <typename Lhs, typename JoinType, typename Rhs, typename Condition>

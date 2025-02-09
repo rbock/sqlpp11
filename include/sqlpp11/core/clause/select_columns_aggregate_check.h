@@ -97,10 +97,10 @@ namespace sqlpp
       static constexpr bool all_aggregate = logic::all<is_aggregate_expression<AC, Columns>::value...>::value;
       static constexpr bool no_aggregate = logic::all<is_non_aggregate_expression<AC, Columns>::value...>::value;
 
-      using type = typename std::conditional<
+      using type = std::conditional_t<
           no_aggregate,
           consistent_t,
-          static_combined_check_t<static_check_t<all_aggregate, assert_select_columns_all_aggregates_t>>>::type;
+          static_combined_check_t<static_check_t<all_aggregate, assert_select_columns_all_aggregates_t>>>;
     };
 
     template <bool HasGroupBy, typename Statement, typename... Columns>

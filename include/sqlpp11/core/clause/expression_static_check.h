@@ -47,13 +47,13 @@ namespace sqlpp
       static constexpr bool uses_external_tables = not Statement::template _no_unknown_tables<Expression>;
 
       using type =
-          typename std::conditional<uses_external_tables,
+          std::conditional_t<uses_external_tables,
                                     // Drill down into nodes to separate internal from external table dependencies.
                                     expression_static_check_t<Statement, nodes_of_t<Expression>, Assert>,
                                     // If no external tables are used, then statically required tables also need to be
                                     // provided statically.
                                     static_check_t<Statement::template _no_unknown_static_tables<Expression>,
-                                                   Assert>>::type;
+                                                   Assert>>;
     };
 
     template <typename Statement, typename... Nodes, typename Assert>

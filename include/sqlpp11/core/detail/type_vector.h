@@ -127,7 +127,7 @@ namespace sqlpp
     struct copy_if<type_vector<T...>, Predicate>
     {
       using type =
-          type_vector_cat_t<typename std::conditional<Predicate<T>::value, type_vector<T>, type_vector<>>::type...>;
+          type_vector_cat_t<std::conditional_t<Predicate<T>::value, type_vector<T>, type_vector<>>...>;
     };
 
     template <typename TypeVector, template <typename> class Predicate>

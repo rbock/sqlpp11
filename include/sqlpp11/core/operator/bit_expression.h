@@ -53,10 +53,10 @@ namespace sqlpp
   template <typename L, typename Operator, typename R>
   struct value_type_of<bit_expression<L, Operator, R>>
   {
-    using type = typename std::conditional<sqlpp::is_optional<value_type_of_t<L>>::value or
+    using type = std::conditional_t<sqlpp::is_optional<value_type_of_t<L>>::value or
                                                sqlpp::is_optional<value_type_of_t<R>>::value,
                                            std::optional<integral>,
-                                           integral>::type;
+                                           integral>;
   };
 
   template <typename L, typename Operator, typename R>

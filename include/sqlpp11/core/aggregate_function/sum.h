@@ -68,7 +68,7 @@ namespace sqlpp
   struct value_type_of<sum_t<Flag, Expr>>
   {
     using type = sqlpp::force_optional_t<
-        typename std::conditional<is_boolean<Expr>::value, integral, value_type_of_t<Expr>>::type>;
+        std::conditional_t<is_boolean<Expr>::value, integral, value_type_of_t<Expr>>>;
   };
 
   template <typename Context, typename Flag, typename Expr>

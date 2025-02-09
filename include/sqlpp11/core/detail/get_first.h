@@ -45,7 +45,7 @@ namespace sqlpp
     struct get_first_if_impl<Predicate, Default, T, Rest...>
     {
       using rest = typename get_first_if_impl<Predicate, Default, Rest...>::type;
-      using type = typename std::conditional<Predicate<T>::value, T, rest>::type;
+      using type = std::conditional_t<Predicate<T>::value, T, rest>;
     };
 
     template <template <typename> class Predicate, typename Default, typename... T>
