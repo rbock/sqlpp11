@@ -391,8 +391,23 @@ namespace sqlpp
     using type = assert_run_statement_or_prepared_t;
   };
 
-  template<typename Statement>
-    using statement_run_check_t = typename statement_run_check<Statement>::type;
+  template <typename Statement>
+  using statement_run_check_t = typename statement_run_check<Statement>::type;
 
+  template <typename T>
+  struct is_select_column
+  {
+    static constexpr bool value =
+        has_value_type_v<remove_as_t<remove_dynamic_t<T>>> and has_name_tag_v<remove_dynamic_t<T>>;
+  };
+
+  template <typename T>
+  static inline constexpr bool is_select_column_v = is_select_column<T>::value;
+
+  template <typename... T>
+  struct is_select_column<std::tuple<T...>>
+  {
+    static constexpr bool value = (true and ... and is_select_column_v<T>);
+  };
 
 }  // namespace sqlpp

@@ -43,6 +43,10 @@ int main()
   // Single table
   SQLPP_COMPARE(from(foo), " FROM tab_foo");
 
+  // Single dynamic table
+  SQLPP_COMPARE(from(dynamic(true, foo)), " FROM tab_foo");
+  SQLPP_COMPARE(from(dynamic(false, foo)), "");
+
   // Tests with joined tables are mostly covered by join tests.
 
   // Static joins

@@ -28,16 +28,6 @@
 #include <iostream>
 #include <sqlpp11/sqlpp11.h>
 
-template <typename Clock, typename Period>
-std::ostream& operator<<(std::ostream& os, const std::chrono::time_point<Clock, Period>& t)
-{
-  const auto dp = ::sqlpp::chrono::floor<::date::days>(t);
-  const auto ymd = ::date::year_month_day{dp};
-  const auto time = ::date::make_time(t - dp);
-  os << "TIMESTAMP '" << ymd << ' ' << time << "'";
-  return os;
-}
-
 template <typename Rep, typename Period>
 std::ostream& operator<<(std::ostream& os, const std::chrono::duration<Rep, Period>& t)
 {

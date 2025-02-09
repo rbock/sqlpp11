@@ -227,7 +227,7 @@ int SelectType(int, char*[])
   }
 
   {
-    auto find_query = sqlpp::select(t.id.as(alias::a), dynamic(true, f.doubleN).as(alias::b))
+    auto find_query = sqlpp::select(t.id.as(alias::a), dynamic(true, f.doubleN.as(alias::b)))
                           .from(t.join(dynamic(true, f)).on(t.id == f.doubleN))
                           .unconditionally();
   }

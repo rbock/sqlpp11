@@ -29,6 +29,7 @@
 namespace
 {
   SQLPP_CREATE_NAME_TAG(cheese);
+  SQLPP_CREATE_NAME_TAG(cake);
 
   template <typename T>
   struct clause_of;
@@ -79,7 +80,7 @@ void test_select_columns()
 
   // Single dynamic aggregate function.
   {
-    auto t = select_columns(dynamic(maybe, avg(col_int)).as(cheese));
+    auto t = select_columns(dynamic(maybe, avg(col_int).as(cheese)));
     using T = clause_of_t<decltype(t)>;
     static_assert(not sqlpp::has_name_tag<T>::value, "");
     static_assert(std::is_same<sqlpp::value_type_of_t<T>, sqlpp::optional<sqlpp::floating_point>>::value, "");
@@ -96,7 +97,7 @@ void test_select_columns()
 
   // Single dynamic declared group by column.
   {
-    using T = clause_of_t<decltype(select_columns(dynamic(maybe, declare_group_by_column(v)).as(cheese)))>;
+    using T = clause_of_t<decltype(select_columns(dynamic(maybe, declare_group_by_column(v).as(cheese))))>;
     static_assert(not sqlpp::has_name_tag<T>::value, "");
     static_assert(std::is_same<sqlpp::value_type_of_t<T>, sqlpp::optional<sqlpp::text>>::value, "");
     static_assert(sqlpp::is_result_clause<T>::value, "");
@@ -112,7 +113,7 @@ void test_select_columns()
 
   // Mixed columns.
   {
-    using T = clause_of_t<decltype(select_columns(col_int, max(col_txt), declare_group_by_column(v).as(cheese)))>;
+    using T = clause_of_t<decltype(select_columns(col_int, max(col_txt).as(cake), declare_group_by_column(v).as(cheese)))>;
     static_assert(not sqlpp::has_name_tag<T>::value, "");
     static_assert(not sqlpp::has_value_type<T>::value, "");
     static_assert(sqlpp::is_result_clause<T>::value, "");

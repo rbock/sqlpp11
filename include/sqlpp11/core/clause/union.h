@@ -163,7 +163,7 @@ namespace sqlpp
       // Note: Temporary required to enforce parameter ordering.
       auto ret_val = to_sql_string(context, t._lhs) + " UNION ";
       ret_val += to_sql_string(context, Flag{}) + " ";
-      return ret_val += to_sql_string(context, t._rhs);
+      return ret_val += to_sql_string(context, t._rhs._expr);
     }
     return to_sql_string(context, t._lhs);
   }

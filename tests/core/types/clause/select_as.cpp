@@ -73,7 +73,7 @@ void test_select_as(Value v)
     static_assert(sqlpp::has_name_tag<decltype(s.as(something).always)>::value, "");
     static_assert(is_same_type<decltype(s.as(something).always), ValueType>(), "");
 
-    static_assert(not sqlpp::has_name_tag<decltype(s.as(something).always.as(foo))>::value, "");
+    static_assert(sqlpp::has_name_tag<decltype(s.as(something).always.as(foo))>::value, "");
     static_assert(sqlpp::select_column_has_name<decltype(s.as(something).always.as(foo))>::value, "");
     static_assert(is_select_column_same_type<decltype(s.as(something).always.as(foo)), ValueType>(), "");
   }
@@ -103,7 +103,7 @@ void test_select_as(Value v)
     static_assert(is_same_type<decltype(s.as(something).sometimes), OptValueType>(), "");
 
     // The column of a single-value pseudo table can be renamed and used as named value
-    static_assert(not sqlpp::has_name_tag<decltype(s.as(something).sometimes.as(foo))>::value, "");
+    static_assert(sqlpp::has_name_tag<decltype(s.as(something).sometimes.as(foo))>::value, "");
     static_assert(sqlpp::select_column_has_name<decltype(s.as(something).sometimes.as(foo))>::value, "");
     static_assert(is_select_column_same_type<decltype(s.as(something).sometimes.as(foo)), OptValueType>(), "");
   }
@@ -137,7 +137,7 @@ void test_select_as(Value v)
     static_assert(is_same_type<decltype(s.as(something).always), ValueType>(), "");
 
     // The column of a single-value pseudo table can be renamed and used as named value
-    static_assert(not sqlpp::has_name_tag<decltype(s.as(something).always.as(foo))>::value, "");
+    static_assert(sqlpp::has_name_tag<decltype(s.as(something).always.as(foo))>::value, "");
     static_assert(sqlpp::select_column_has_name<decltype(s.as(something).always.as(foo))>::value, "");
     static_assert(is_select_column_same_type<decltype(s.as(something).always.as(foo)), ValueType>(), "");
   }
@@ -167,8 +167,8 @@ void test_select_as(Value v)
     static_assert(is_same_type<decltype(s.as(table).sometimes), OptValueType>(), "");
 
     // The column of a multi-value pseudo table can be renamed and used as named value
-    static_assert(not sqlpp::has_name_tag<decltype(s.as(table).always.as(foo))>::value, "");
-    static_assert(not sqlpp::has_name_tag<decltype(s.as(table).sometimes.as(foo))>::value, "");
+    static_assert(sqlpp::has_name_tag<decltype(s.as(table).always.as(foo))>::value, "");
+    static_assert(sqlpp::has_name_tag<decltype(s.as(table).sometimes.as(foo))>::value, "");
 
     static_assert(sqlpp::select_column_has_name<decltype(s.as(table).always.as(foo))>::value, "");
     static_assert(sqlpp::select_column_has_name<decltype(s.as(table).sometimes.as(foo))>::value, "");

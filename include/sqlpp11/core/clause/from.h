@@ -108,6 +108,16 @@ namespace sqlpp
     return " FROM " + to_sql_string(context, t._table);
   }
 
+  template <typename Context, typename _Table>
+  auto to_sql_string(Context& context, const from_t<dynamic_t<_Table>>& t) -> std::string
+  {
+    if (t._table._condition)
+    {
+      return " FROM " + to_sql_string(context, t._table._expr);
+    }
+    return "";
+  }
+
   template <DynamicTable T>
   auto from(T t)
   {

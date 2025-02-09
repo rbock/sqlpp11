@@ -43,6 +43,16 @@ namespace sqlpp
       return prefix + operand_to_sql_string(context, t);
     }
 
+    template <typename Context, typename T>
+    auto operator()(Context& context, const dynamic_t<T>& t, size_t index) const -> std::string
+    {
+      if (t._condition)
+      {
+        return operator()(context, t._expr, index);
+      }
+      return operator()(context, sqlpp::nullopt, index);
+    }
+
     sqlpp::string_view separator;
   };
 

@@ -56,13 +56,13 @@ void test_column()
     static_assert(std::is_same<sqlpp::value_type_of_t<Id>, sqlpp::integral>::value, "");
 
     // tab_foo.id AS cheese
-    // This is only useful SELECT. It therefore exposes neither name nor value directly.
+    // This is only useful SELECT. It therefore exposes no value directly.
     // It does require its table, though.
     static_assert(not sqlpp::is_table<Cheese>::value, "");
     static_assert(not sqlpp::has_default<Cheese>::value, "");
     static_assert(not sqlpp::is_group_by_column<Cheese>::value, "");
 
-    static_assert(std::is_same<sqlpp::name_tag_of_t<Cheese>, sqlpp::no_name_t>::value, "");
+    static_assert(std::is_same<sqlpp::name_tag_of_t<Cheese>, cheese_t::_sqlpp_name_tag>::value, "");
     static_assert(std::is_same<sqlpp::provided_tables_of_t<Cheese>, sqlpp::detail::type_set<>>::value, "");
     static_assert(std::is_same<sqlpp::provided_static_tables_of_t<Cheese>, sqlpp::provided_tables_of_t<Cheese>>::value,
                   "");
@@ -100,7 +100,7 @@ void test_column()
     static_assert(not sqlpp::has_default<BarCheese>::value, "");
     static_assert(not sqlpp::is_group_by_column<BarCheese>::value, "");
 
-    static_assert(std::is_same<sqlpp::name_tag_of_t<BarCheese>, sqlpp::no_name_t>::value, "");
+    static_assert(std::is_same<sqlpp::name_tag_of_t<BarCheese>, cheese_t::_sqlpp_name_tag>::value, "");
     static_assert(std::is_same<sqlpp::provided_tables_of_t<BarCheese>, sqlpp::detail::type_set<>>::value, "");
     static_assert(
         std::is_same<sqlpp::provided_static_tables_of_t<BarCheese>, sqlpp::provided_tables_of_t<BarCheese>>::value, "");

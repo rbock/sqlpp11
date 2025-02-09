@@ -30,5 +30,4 @@ function(create_test name)
 endfunction()
 
 create_test(custom_query)
-create_test(dynamic)
 

@@ -87,8 +87,8 @@ void test_is_aggregate_function()
   // Clauses do not expose aggregates functions.
   static_assert(not sqlpp::is_aggregate_function<extract_clause_t<decltype(where(col_int > v))>>::value, "");
   static_assert(not sqlpp::is_aggregate_function<extract_clause_t<decltype(select_columns(v.as(cheese), col_int))>>::value, "");
-  static_assert(not sqlpp::is_aggregate_function<extract_clause_t<decltype(select_columns(max(col_int), v.as(cheese), col_int))>>::value, "");
-  static_assert(not sqlpp::is_aggregate_function<extract_clause_t<decltype(select_columns(dynamic(maybe, max(col_int)), v.as(cheese), col_int))>>::value, "");
+  static_assert(not sqlpp::is_aggregate_function<extract_clause_t<decltype(select_columns(max(col_int).as(cake), v.as(cheese), col_int))>>::value, "");
+  static_assert(not sqlpp::is_aggregate_function<extract_clause_t<decltype(select_columns(dynamic(maybe, max(col_int).as(cake)), v.as(cheese), col_int))>>::value, "");
 }
 
 void test_contains_aggregate_function()
@@ -147,7 +147,7 @@ void test_contains_aggregate_function()
   static_assert(not sqlpp::contains_aggregate_function<extract_clause_t<decltype(where(col_int > v))>>::value, "");
   static_assert(not sqlpp::contains_aggregate_function<extract_clause_t<decltype(select_columns(v.as(cheese), col_int))>>::value, "");
   static_assert(sqlpp::contains_aggregate_function<extract_clause_t<decltype(select_columns(max(col_int).as(cake), v.as(cheese), col_int))>>::value, "");
-  static_assert(sqlpp::contains_aggregate_function<extract_clause_t<decltype(select_columns(dynamic(maybe, max(col_int)).as(cake), v.as(cheese), col_int))>>::value, "");
+  static_assert(sqlpp::contains_aggregate_function<extract_clause_t<decltype(select_columns(dynamic(maybe, max(col_int).as(cake)), v.as(cheese), col_int))>>::value, "");
 }
 
 void test_is_aggregate_expression()
@@ -175,7 +175,7 @@ void test_is_aggregate_expression()
   static_assert(not sqlpp::is_aggregate_expression<unknown, decltype(col_int + v)>::value, "");
   static_assert(sqlpp::is_aggregate_expression<unknown, decltype(dynamic(maybe, v))>::value, "");
   static_assert(sqlpp::is_aggregate_expression<unknown, decltype(dynamic(maybe, v + v))>::value, "");
-  static_assert(sqlpp::is_aggregate_expression<unknown, decltype(dynamic(maybe, v + v).as(something))>::value, "");
+  static_assert(sqlpp::is_aggregate_expression<unknown, decltype(dynamic(maybe, (v + v).as(something)))>::value, "");
   static_assert(not sqlpp::is_aggregate_expression<unknown, decltype(dynamic(maybe, col_int))>::value, "");
   static_assert(not sqlpp::is_aggregate_expression<unknown, decltype(dynamic(maybe, col_int + v))>::value, "");
   static_assert(not sqlpp::is_aggregate_expression<unknown, decltype(col_txt)>::value, "");
@@ -247,7 +247,7 @@ void test_is_non_aggregate_expression()
   static_assert(sqlpp::is_non_aggregate_expression<unknown, decltype(col_int + v)>::value, "");
   static_assert(sqlpp::is_non_aggregate_expression<unknown, decltype(col_txt)>::value, "");
   static_assert(sqlpp::is_non_aggregate_expression<unknown, decltype(dynamic(maybe, v))>::value, "");
-  static_assert(sqlpp::is_non_aggregate_expression<unknown, decltype(dynamic(maybe, v + v).as(something))>::value, "");
+  static_assert(sqlpp::is_non_aggregate_expression<unknown, decltype(dynamic(maybe, (v + v).as(something)))>::value, "");
   static_assert(sqlpp::is_non_aggregate_expression<unknown, decltype(dynamic(maybe, col_int))>::value, "");
   static_assert(sqlpp::is_non_aggregate_expression<unknown, decltype(dynamic(maybe, col_int + v))>::value, "");
   static_assert(sqlpp::is_non_aggregate_expression<unknown, decltype(dynamic(maybe, col_txt))>::value, "");
@@ -258,7 +258,7 @@ void test_is_non_aggregate_expression()
   static_assert(not sqlpp::is_non_aggregate_expression<unknown, decltype(max(col_txt))>::value, "");
   static_assert(not sqlpp::is_non_aggregate_expression<unknown, decltype(dynamic(maybe, max(v)))>::value, "");
   static_assert(not sqlpp::is_non_aggregate_expression<unknown, decltype(dynamic(maybe, max(col_int)))>::value, "");
-  static_assert(not sqlpp::is_non_aggregate_expression<unknown, decltype(dynamic(maybe, max(col_txt)).as(something))>::value, "");
+  static_assert(not sqlpp::is_non_aggregate_expression<unknown, decltype(dynamic(maybe, max(col_txt).as(something)))>::value, "");
 
   // Known aggregate expressions are detected as such.
   static_assert(sqlpp::is_non_aggregate_expression<known_aggregates, decltype(col_int)>::value, "");

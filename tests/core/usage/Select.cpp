@@ -149,15 +149,15 @@ int Select(int, char*[])
   }
 
   auto s2 = sqlpp::select()
-               .columns(dynamic(maybe, t.id))
-               .flags(dynamic(maybe, sqlpp::distinct))
-               .from(dynamic(maybe, t))
-               .where(dynamic(maybe, t.id > 3))
-               .group_by(dynamic(maybe, t.id))
-               .order_by(dynamic(maybe, t.id.asc()))
-               .having(dynamic(maybe, sum(t.id) > 27))
-               .limit(sqlpp::dynamic(maybe, 32u))
-               .offset(sqlpp::dynamic(maybe, 7u));
+                .columns(dynamic(maybe, t.id))
+                .flags(dynamic(maybe, sqlpp::distinct))
+                .from(dynamic(maybe, t))
+                .where(dynamic(maybe, t.id > 3))
+                .group_by(dynamic(maybe, t.id))
+                .order_by(dynamic(maybe, t.id.asc()))
+                .having(dynamic(maybe, sum(t.id) > 27))
+                .limit(sqlpp::dynamic(maybe, 32u))
+                .offset(sqlpp::dynamic(maybe, 7u));
   for (const auto& row : db(db.prepare(s2)))
   {
     const ::sqlpp::optional<int64_t> a = row.id;

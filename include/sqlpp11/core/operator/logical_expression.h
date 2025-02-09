@@ -83,7 +83,7 @@ namespace sqlpp
   struct requires_parentheses<logical_expression<L, Operator, R>> : public std::true_type{};
 
   template <typename Context, typename L, typename Operator, typename R>
-  auto to_sql_string_impl(Context& context, const logical_expression<L, Operator, R>& t) -> std::string
+  auto to_sql_string(Context& context, const logical_expression<L, Operator, R>& t) -> std::string
   {
     // Note: Temporary required to enforce parameter ordering.
     auto ret_val = operand_to_sql_string(context, t._l) + Operator::symbol;
@@ -91,17 +91,13 @@ namespace sqlpp
   }
 
   template <typename Context, typename L, typename Operator, typename R>
-  auto to_sql_string(Context& context, const logical_expression<L, Operator, R>& t) -> std::string
-  {
-    return to_sql_string_impl(context, t);
-  }
-
-  template <typename Context, typename L, typename Operator, typename R>
   auto to_sql_string(Context& context, const logical_expression<L, Operator, dynamic_t<R>>& t) -> std::string
   {
     if (t._r._condition)
     {
-      return to_sql_string_impl(context, t);
+      // Note: Temporary required to enforce parameter ordering.
+      auto ret_val = operand_to_sql_string(context, t._l) + Operator::symbol;
+      return ret_val + operand_to_sql_string(context, t._r._expr);
     }
 
     // If the dynamic part is inactive ignore it.
@@ -109,8 +105,8 @@ namespace sqlpp
   }
 
   template <typename Context, typename L, typename Operator, typename R1, typename R2>
-  auto to_sql_string(Context& context,
-                 const logical_expression<logical_expression<L, Operator, R1>, Operator, R2>& t) -> std::string
+  auto to_sql_string(Context& context, const logical_expression<logical_expression<L, Operator, R1>, Operator, R2>& t)
+      -> std::string
   {
     // Note: Temporary required to enforce parameter ordering.
     auto ret_val = to_sql_string(context, t._l) + Operator::symbol;
@@ -125,7 +121,7 @@ namespace sqlpp
     {
       // Note: Temporary required to enforce parameter ordering.
       auto ret_val = to_sql_string(context, t._l) + Operator::symbol;
-      return ret_val + operand_to_sql_string(context, t._r);
+      return ret_val + operand_to_sql_string(context, t._r._expr);
     }
 
     // If the dynamic part is inactive ignore it.

@@ -46,8 +46,10 @@ void test_dynamic(Value v)
 
   auto v_not_null= dynamic(true, sqlpp::value(v));
   auto v_maybe_null= dynamic(true, sqlpp::value(::sqlpp::make_optional(v)));
-  auto v_not_null_alias = dynamic(true, sqlpp::value(v)).as(r_not_null);
-  auto v_maybe_null_alias = dynamic(true, sqlpp::value(::sqlpp::make_optional(v))).as(r_maybe_null);
+  auto v_alias = sqlpp::value(v).as(r_not_null);
+  auto v_maybe_alias = sqlpp::value(::sqlpp::make_optional(v)).as(r_maybe_null);
+  auto v_not_null_alias = dynamic(true, v_alias);
+  auto v_maybe_null_alias = dynamic(true, v_maybe_alias);
 
   static_assert(not sqlpp::has_value_type<decltype(v_not_null)>::value, "");
   static_assert(not sqlpp::has_value_type<decltype(v_maybe_null)>::value, "");
@@ -76,10 +78,10 @@ void test_dynamic(Value v)
                              sqlpp::detail::type_vector<sqlpp::remove_dynamic_t<decltype(v_maybe_null)>>>::value,
                 "");
   static_assert(std::is_same<sqlpp::nodes_of_t<decltype(v_not_null_alias)>,
-                             sqlpp::detail::type_vector<decltype(v_not_null)>>::value,
+                             sqlpp::detail::type_vector<decltype(v_alias)>>::value,
                 "");
   static_assert(std::is_same<sqlpp::nodes_of_t<decltype(v_maybe_null_alias)>,
-                             sqlpp::detail::type_vector<decltype(v_maybe_null)>>::value,
+                             sqlpp::detail::type_vector<decltype(v_maybe_alias)>>::value,
                 "");
 }
 

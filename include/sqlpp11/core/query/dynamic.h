@@ -74,25 +74,14 @@ namespace sqlpp
     using type = detail::type_vector<Expr>;
   };
 
-  template <typename Context, typename Select>
-  auto to_sql_string(Context& context, const dynamic_t<Select>& t) -> std::string
-  {
-    if (t._condition)
-    {
-      return to_sql_string(context, t._expr);
-    }
-    return to_sql_string(context, ::sqlpp::nullopt);
-  }
-
-  template <typename Context, typename Select>
-  auto operand_to_sql_string(Context& context, const dynamic_t<Select>& t) -> std::string
-  {
-    if (t._condition)
-    {
-      return operand_to_sql_string(context, t._expr);
-    }
-    return to_sql_string(context, ::sqlpp::nullopt);
-  }
+  // No to_sql_string:
+  //
+  // Dynamic expressions need to handle dynamic parts in their own fashion, e.g.
+  //
+  // * a.join(dynamic(false, b)).on(a.id == b.id)
+  ///  --> "a"
+  // * select(dynamic(maybe, b))
+  //   --> "NULL as b"
 
   template <typename Expr>
   using check_dynamic_args = ::sqlpp::enable_if_t<has_value_type<Expr>::value or

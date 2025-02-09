@@ -119,7 +119,7 @@ namespace sqlpp
     {
       // Note: Temporary required to enforce parameter ordering.
       auto ret_val = to_sql_string(context, t._lhs) + JoinType::_name;
-      ret_val += to_sql_string(context, t._rhs) + " ON ";
+      ret_val += to_sql_string(context, t._rhs._expr) + " ON ";
       return ret_val + to_sql_string(context, t._condition);
     }
     return to_sql_string(context, t._lhs);
@@ -141,7 +141,7 @@ namespace sqlpp
     {
       // Note: Temporary required to enforce parameter ordering.
       auto ret_val = to_sql_string(context, t._lhs) + cross_join_t::_name;
-      return ret_val + to_sql_string(context, t._rhs);
+      return ret_val + to_sql_string(context, t._rhs._expr);
     }
     return to_sql_string(context, t._lhs);
   }

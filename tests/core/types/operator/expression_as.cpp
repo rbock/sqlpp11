@@ -33,43 +33,30 @@ using is_select_column_value_type = std::is_same<sqlpp::select_column_value_type
 template<typename Value>
 void test_as_expression(Value v)
 {
-  using ValueType = sqlpp::value_type_of_t<Value>;
-  using OptValueType = ::sqlpp::optional<ValueType>;
+  auto v_not_null= sqlpp::value(v).as(cheese);
+  auto v_maybe_null= sqlpp::value(::sqlpp::make_optional(v)).as(cheese);
+  auto v_dynamic_not_null = dynamic(true, sqlpp::value(v).as(cheese));
+  auto v_dynamic_maybe_null = dynamic(true, sqlpp::value(::sqlpp::make_optional(v)).as(cheese));
 
-  auto v_not_null= sqlpp::value(v);
-  auto v_maybe_null= sqlpp::value(::sqlpp::make_optional(v));
-  auto v_dynamic_not_null = dynamic(true, sqlpp::value(v));
-  auto v_dynamic_maybe_null = dynamic(true, sqlpp::value(::sqlpp::make_optional(v)));
+  static_assert(not sqlpp::has_value_type<decltype(v_not_null)>::value, "");
+  static_assert(not sqlpp::has_value_type<decltype(v_maybe_null)>::value, "");
+  static_assert(not sqlpp::has_value_type<decltype(v_dynamic_not_null)>::value, "");
+  static_assert(not sqlpp::has_value_type<decltype(v_dynamic_maybe_null)>::value, "");
 
-  static_assert(not sqlpp::has_value_type<decltype(v_not_null.as(cheese))>::value, "");
-  static_assert(not sqlpp::has_value_type<decltype(v_maybe_null.as(cheese))>::value, "");
-  static_assert(not sqlpp::has_value_type<decltype(v_dynamic_not_null.as(cheese))>::value, "");
-  static_assert(not sqlpp::has_value_type<decltype(v_dynamic_maybe_null.as(cheese))>::value, "");
-
-  static_assert(not sqlpp::has_name_tag<decltype(v_not_null.as(cheese))>::value, "");
-  static_assert(not sqlpp::has_name_tag<decltype(v_maybe_null.as(cheese))>::value, "");
-  static_assert(not sqlpp::has_name_tag<decltype(v_dynamic_not_null.as(cheese))>::value, "");
-  static_assert(not sqlpp::has_name_tag<decltype(v_dynamic_maybe_null.as(cheese))>::value, "");
-
-  static_assert(is_select_column_value_type<decltype(v_not_null.as(cheese)), ValueType>::value, "");
-  static_assert(is_select_column_value_type<decltype(v_maybe_null.as(cheese)), OptValueType>::value, "");
-  static_assert(is_select_column_value_type<decltype(v_dynamic_not_null.as(cheese)), OptValueType>::value, "");
-  static_assert(is_select_column_value_type<decltype(v_dynamic_maybe_null.as(cheese)), OptValueType>::value, "");
-
-  static_assert(sqlpp::select_column_has_name<decltype(v_not_null.as(cheese))>::value, "");
-  static_assert(sqlpp::select_column_has_name<decltype(v_maybe_null.as(cheese))>::value, "");
-  static_assert(sqlpp::select_column_has_name<decltype(v_dynamic_not_null.as(cheese))>::value, "");
-  static_assert(sqlpp::select_column_has_name<decltype(v_dynamic_maybe_null.as(cheese))>::value, "");
+  static_assert(sqlpp::has_name_tag<decltype(v_not_null)>::value, "");
+  static_assert(sqlpp::has_name_tag<decltype(v_maybe_null)>::value, "");
+  static_assert(not sqlpp::has_name_tag<decltype(v_dynamic_not_null)>::value, "");
+  static_assert(not sqlpp::has_name_tag<decltype(v_dynamic_maybe_null)>::value, "");
 
   // AS expressions have do not enable the `as` member function.
-  static_assert(not sqlpp::has_enabled_as<decltype(v_not_null.as(cheese))>::value, "");
+  static_assert(not sqlpp::has_enabled_as<decltype(v_not_null)>::value, "");
 
   // AS expressions do not enable comparison member functions.
-  static_assert(not sqlpp::has_enabled_comparison<decltype(v_not_null.as(cheese))>::value, "");
+  static_assert(not sqlpp::has_enabled_comparison<decltype(v_not_null)>::value, "");
 
   // AS expressions have their arguments as nodes.
-  using L = typename std::decay<decltype(v_not_null)>::type;
-  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(v_not_null.as(cheese))>, sqlpp::detail::type_vector<L>>::value, "");
+  using L = typename std::decay<decltype(sqlpp::value(v))>::type;
+  static_assert(std::is_same<sqlpp::nodes_of_t<decltype(v_not_null)>, sqlpp::detail::type_vector<L>>::value, "");
 }
 
 int main()
