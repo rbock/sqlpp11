@@ -138,7 +138,7 @@ int main()
 
   // blob
   const auto v = std::vector<uint8_t>{};
-  test_result_row<std::span<uint8_t>>(v);
+  test_result_row<std::span<const uint8_t>>(v);
 
   // date
   test_result_row<::sqlpp::chrono::day_point>(::sqlpp::chrono::day_point{});
